@@ -57,8 +57,14 @@ internal static class MotherBrainFakeDeathPlmDrawDefinitions
     /// 12FC/1339. The middle pair duplicates a seven-cell column; side tubes
     /// clear one extra cell toward the center using signed origin-relative X.
     /// </summary>
-    internal readonly record struct RegularDraw(MotherBrainFakeDeathDraw Pointer, int RunLength, int RunCount, bool Ceiling, bool Fill, int Side)
+    internal readonly record struct RegularDraw(MotherBrainFakeDeathDraw Pointer, int RunLength, int RunCount, MotherBrainFakeDeathClear Clear, int Side)
     {
+        /// <summary>Whether the list clears a tube hanging from the ceiling.</summary>
+        internal bool Ceiling => Clear == MotherBrainFakeDeathClear.CeilingTube;
+
+        /// <summary>Whether the list writes a solid fill row.</summary>
+        internal bool Fill => Clear == MotherBrainFakeDeathClear.FillRow;
+
         /// <summary>Uses one cell for a side-tube's second run and the full authored length elsewhere.</summary>
         internal int Count(int run)
         {
@@ -95,13 +101,13 @@ internal static class MotherBrainFakeDeathPlmDrawDefinitions
         switch (list)
         {
             case MotherBrainFakeDeathDraw.BackgroundRowEUnused or MotherBrainFakeDeathDraw.BackgroundRowFUnused:
-                draw = new(list, 13, 1, false, true, 0); return true;
-            case MotherBrainFakeDeathDraw.ClearCeilingBlock: draw = new(list, 2, 1, true, false, 0); return true;
-            case MotherBrainFakeDeathDraw.ClearCeilingTube: draw = new(list, 5, 1, true, false, 0); return true;
-            case MotherBrainFakeDeathDraw.ClearBottomMiddleSideTube: draw = new(list, 4, 1, false, false, 0); return true;
-            case MotherBrainFakeDeathDraw.ClearBottomMiddleTubes: draw = new(list, 7, 2, false, false, 0); return true;
-            case MotherBrainFakeDeathDraw.ClearBottomLeftTube: draw = new(list, 5, 2, false, false, 1); return true;
-            case MotherBrainFakeDeathDraw.ClearBottomRightTube: draw = new(list, 5, 2, false, false, -1); return true;
+                draw = new(list, 13, 1, MotherBrainFakeDeathClear.FillRow, 0); return true;
+            case MotherBrainFakeDeathDraw.ClearCeilingBlock: draw = new(list, 2, 1, MotherBrainFakeDeathClear.CeilingTube, 0); return true;
+            case MotherBrainFakeDeathDraw.ClearCeilingTube: draw = new(list, 5, 1, MotherBrainFakeDeathClear.CeilingTube, 0); return true;
+            case MotherBrainFakeDeathDraw.ClearBottomMiddleSideTube: draw = new(list, 4, 1, MotherBrainFakeDeathClear.FloorTube, 0); return true;
+            case MotherBrainFakeDeathDraw.ClearBottomMiddleTubes: draw = new(list, 7, 2, MotherBrainFakeDeathClear.FloorTube, 0); return true;
+            case MotherBrainFakeDeathDraw.ClearBottomLeftTube: draw = new(list, 5, 2, MotherBrainFakeDeathClear.FloorTube, 1); return true;
+            case MotherBrainFakeDeathDraw.ClearBottomRightTube: draw = new(list, 5, 2, MotherBrainFakeDeathClear.FloorTube, -1); return true;
             // The boundary and background families own these lists.
             case MotherBrainFakeDeathDraw.FillWall or MotherBrainFakeDeathDraw.EscapeDoor or
                 MotherBrainFakeDeathDraw.BackgroundRow2 or MotherBrainFakeDeathDraw.BackgroundRow3 or

@@ -57,6 +57,7 @@ internal static class RoomPlmShotBlockDrawDefinitions
     /// or parent/child restoration at $84:A47B-$A49A. Breakup uses consecutive
     /// visual blocks $53-$55 then air; restoration uses the shape's base tile,
     /// consecutive columns and a 32-index row stride, with native collision links.</summary>
+    [IndependentFlag("whether a shot-block draw is the restoring variant, a fact of the decoded draw list")]
     internal readonly record struct Draw(ushort Pointer, Shape Layout, int Frame, bool Restore)
     {
         /// <summary>Gets two runs for a square or one for the other block arrangements.</summary>

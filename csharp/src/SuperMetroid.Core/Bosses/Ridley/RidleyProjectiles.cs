@@ -69,8 +69,8 @@ internal sealed class RidleyProjectiles
             new SnesSignedEightEight(EnemyMath.MultiplyCartridgeSinCos(FireballSpeed, new SnesByteAngle(angle).AddTableUnits(SnesByteAngle.QuarterTurn.RawValue))));
     }
 
-    /// <summary>Allocates projectile $86:9642 at Ridley's facing-dependent muzzle with its calculated velocity and optional three-stage afterburn.</summary>
-    internal void SpawnRidleyFireball(RoomEnemySlot ridley, bool spawnAfterburn)
+    /// <summary>Allocates projectile $86:9642 at Ridley's facing-dependent muzzle with its calculated velocity and <paramref name="afterburns"/> afterburn stages.</summary>
+    internal void SpawnRidleyFireball(RoomEnemySlot ridley, ushort afterburns)
     {
         RoomEnemyProjectileSlot? projectile = _projectiles.AllocateEnemyProjectile();
         if (projectile is null)
@@ -86,7 +86,7 @@ internal sealed class RidleyProjectiles
         projectile.Position = projectile.Position.WithWhole(new(unchecked((ushort)(ridley.Position.X.Whole +
             (state.FacingDirection == RidleyFacing.Left ? -25 : 25))), unchecked((ushort)(ridley.Position.Y.Whole - 43))));
         projectile.Velocity = state.FireballVelocity;
-        projectile.RemainingAfterburns = spawnAfterburn ? (ushort)3 : (ushort)0;
+        projectile.RemainingAfterburns = afterburns;
     }
 
     /// <summary>Selects the native damage row from Samus's current area, or Crateria for an unbound fixture.</summary>
@@ -134,9 +134,9 @@ internal sealed class RidleyProjectiles
     }
 
     /// <summary>Emits the left/right or up/down branches from an impact center.</summary>
-    internal void SpawnAfterburnPair(RoomEnemyProjectileSlot center, bool horizontal)
+    internal void SpawnAfterburnPair(RoomEnemyProjectileSlot center, Axis axis)
     {
-        if (horizontal)
+        if (axis == Axis.Horizontal)
         {
             SpawnDirectionalAfterburn(center, RoomEnemyProjectileKind.CeresRidleyHorizontalAfterburnRight, CeresRidleyAfterburnDefinitions.Right);
             SpawnDirectionalAfterburn(center, RoomEnemyProjectileKind.CeresRidleyHorizontalAfterburnLeft, CeresRidleyAfterburnDefinitions.Left);
@@ -193,9 +193,9 @@ internal sealed class RidleyProjectiles
     {
         table.RegisterPreInstruction(context =>
         {
-            bool horizontalCollision = EnemyProjectileEngine.MoveProjectileAxis(context.Projectile, context.Level, horizontal: true);
+            bool horizontalCollision = EnemyProjectileEngine.MoveProjectileAxis(context.Projectile, context.Level, axis: Axis.Horizontal);
             bool verticalCollision = !horizontalCollision &&
-                EnemyProjectileEngine.MoveProjectileAxis(context.Projectile, context.Level, horizontal: false);
+                EnemyProjectileEngine.MoveProjectileAxis(context.Projectile, context.Level, axis: Axis.Vertical);
             if (horizontalCollision || verticalCollision)
             {
                 Position16<RoomPixels> impact = context.Projectile.Position.Whole;
@@ -218,7 +218,7 @@ internal sealed class RidleyProjectiles
             // $86:950D first uses the raw 8.8 horizontal adder, not the room-collision
             // helper. Only the perpendicular vertical move may end this afterburn.
             context.Projectile.Position = context.Projectile.Position.AdvanceX(context.Projectile.Velocity.X.ToSixteenSixteenDelta());
-            if (EnemyProjectileEngine.MoveProjectileAxis(context.Projectile, context.Level, horizontal: false))
+            if (EnemyProjectileEngine.MoveProjectileAxis(context.Projectile, context.Level, axis: Axis.Vertical))
                 BeginAfterburnFinalAnimation(context.Projectile);
         }, EnemyProjectilePreInstruction.HorizontalAfterburn);
 
@@ -227,7 +227,7 @@ internal sealed class RidleyProjectiles
             // $86:9522 is the transposed path: unrestricted vertical travel followed
             // by a horizontal room-collision test.
             context.Projectile.Position = context.Projectile.Position.AdvanceY(context.Projectile.Velocity.Y.ToSixteenSixteenDelta());
-            if (EnemyProjectileEngine.MoveProjectileAxis(context.Projectile, context.Level, horizontal: true))
+            if (EnemyProjectileEngine.MoveProjectileAxis(context.Projectile, context.Level, axis: Axis.Horizontal))
                 BeginAfterburnFinalAnimation(context.Projectile);
         }, EnemyProjectilePreInstruction.VerticalAfterburn);
     }
@@ -247,10 +247,10 @@ internal sealed class RidleyProjectiles
                     projectile.PreInstruction = EnemyProjectilePreInstruction.RidleyFireball;
                     return;
                 case RidleyFireballCue.SpawnHorizontalAfterburns:
-                    SpawnAfterburnPair(projectile, horizontal: true);
+                    SpawnAfterburnPair(projectile, axis: Axis.Horizontal);
                     return;
                 case RidleyFireballCue.SpawnVerticalAfterburns:
-                    SpawnAfterburnPair(projectile, horizontal: false);
+                    SpawnAfterburnPair(projectile, axis: Axis.Vertical);
                     return;
                 case RidleyFireballCue.SpawnNextAfterburn:
                     SpawnNextAfterburn(projectile);

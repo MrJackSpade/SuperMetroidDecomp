@@ -75,7 +75,7 @@ internal static class BombTorizoMovementDefinitionsVerification
                 Position = FixedPosition<RoomPixels>.FromWhole(new(1000, 500)),
             };
 
-            BombTorizoBehavior.ApplyBombTorizoMapOffset(slot, tableOffset, subtract);
+            BombTorizoBehavior.ApplyBombTorizoMapOffset(slot, tableOffset, subtract ? BombTorizoPostureMove.SitDown : BombTorizoPostureMove.StandUp);
             int sign = subtract ? -1 : 1;
             AssertEqual(unchecked((ushort)(1000 + sign * expected.X)), slot.Position.X.Whole,
                 $"Bomb Torizo posture X ${tableOffset:X2} subtract {subtract}");

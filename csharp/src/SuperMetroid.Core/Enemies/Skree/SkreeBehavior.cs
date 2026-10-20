@@ -106,7 +106,7 @@ internal sealed class SkreeBehavior : IEnemySpecies, IEnemyEntityFactory
         // burrow lifetime only on the frame whose six-pixel downward probe collides.
         state.BurrowTimer = NativeCountdown.Start(21);
         slot.Properties = slot.Properties.WithFamilyData((byte)(slot.Properties.FamilyData | 3));
-        if (EnemyTerrain.EnemyHasSolidHighBitAhead(level, slot, 6 << 16, movingDown: true))
+        if (EnemyTerrain.EnemyHasSolidHighBitBelow(level, slot, 6 << 16))
         {
             slot.InstructionTimer = NativeCountdown.Start(1);
             slot.Timer = NativeCountdown.Start(0);

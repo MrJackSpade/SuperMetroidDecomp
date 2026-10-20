@@ -216,7 +216,7 @@ internal static class EnemyTileArtworkKraidColorsVerification
             case KraidPaletteConsumer.BackdropFade:
                 for (int step = 0; step < 13; step++)
                     enemies.Presentation.GradualColorChange.Advance();
-                _ = new Func<bool, bool>(enemies.KraidBehavior.AdvanceKraidRoomBackgroundFade)(false);
+                _ = new Func<KraidBackdropFade, bool>(enemies.KraidBehavior.AdvanceKraidRoomBackgroundFade)(KraidBackdropFade.ToRoomColors);
                 break;
             case KraidPaletteConsumer.HealthNormal:
             case KraidPaletteConsumer.HealthFlash:

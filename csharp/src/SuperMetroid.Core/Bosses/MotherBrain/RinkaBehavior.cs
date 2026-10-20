@@ -521,9 +521,9 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
                                                      EnemyCollision.ShotAi(enemy) == EnemyInteractionCallback.RinkaShot)
         {
             ExemptFromGenericDeath = true,
-            AfterCommon = (c, froze) =>
+            AfterCommon = c =>
             {
-                if (!froze)
+                if (!c.Froze)
                     ResolveRinkaCombatAfterCommon(c.Enemy);
             },
         });
@@ -536,7 +536,7 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
                                EnemyCollision.TouchAi(slot) == EnemyInteractionCallback.RinkaTouch,
             context =>
             {
-                _collision.ResolveNormalEnemyTouch(context.Slot, context.Samus, skipDeathAnimation: true);
+                _collision.ResolveNormalEnemyTouch(context.Slot, context.Samus, deathAnimation: TouchDeathAnimation.Skip);
                 ResolveRinkaCombatAfterCommon(context.Slot);
             });
     }

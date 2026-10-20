@@ -18,7 +18,7 @@ internal sealed class UnreachableGamePhase(SuperMetroidGameState state) : IGameP
     public MainLoopRandomCall RandomCall => MainLoopRandomCall.RuntimeOwned;
 
     /// <inheritdoc/>
-    public GamePhaseAudio Audio => default;
+    public GamePhaseAudio Audio => GamePhaseAudio.Ordinary;
 
     /// <inheritdoc/>
     public string Name => State.ToString();

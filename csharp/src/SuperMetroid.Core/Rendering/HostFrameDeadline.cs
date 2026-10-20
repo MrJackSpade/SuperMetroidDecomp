@@ -4,6 +4,7 @@ namespace SuperMetroid.Core.Rendering;
 /// <param name="NextDeadline">Absolute next-frame deadline in seconds on the caller's monotonic clock.</param>
 /// <param name="WaitSeconds">Requested nonnegative host wait in seconds; zero permits bounded catch-up without skipping an emulated frame.</param>
 /// <param name="Rebased">Whether excessive wall-clock debt was discarded by scheduling one full frame period after the completion timestamp.</param>
+[IndependentFlag("whether the deadline was rebased this frame, a fact of the pacing step")]
 public readonly record struct HostFrameDeadline(double NextDeadline, double WaitSeconds, bool Rebased)
 {
     /// <summary>Computes the next host deadline at <see cref="HostFrameTimingDefinitions.FramesPerSecond"/> after exactly one completed emulated frame.</summary>

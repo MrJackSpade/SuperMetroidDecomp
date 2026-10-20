@@ -10,6 +10,7 @@ namespace SuperMetroid.Core.Rooms.Doors;
 /// either <c>$01 -> $00</c> or <c>$FF -> $00</c>. Completion is reported only by the
 /// following call that observes an already aligned coordinate.
 /// </remarks>
+[IndependentFlag("whether the camera alignment completed, a fact of the step")]
 internal readonly record struct DoorCameraAlignmentState(
     Position16<RoomPixels> CameraPosition,
     bool Completed)

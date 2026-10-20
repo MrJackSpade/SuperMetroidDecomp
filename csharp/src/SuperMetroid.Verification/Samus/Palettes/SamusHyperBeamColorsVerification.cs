@@ -200,7 +200,7 @@ internal static class SamusHyperBeamColorsVerification
                 AssertEqual((ushort)expected, SamusHyperBeamColorFormat.HueMidpoint(Bgr555.FromWord(checked((ushort)rgb)), Bgr555.FromWord((ushort)(other * 1057))), "All RGB5 first colors and all independent per-channel midpoint pairs");
                 int lower = (int)Math.Floor((rgb % 32 + other) / 2.0) +
                     32 * (int)Math.Floor((green + other) / 2.0) + 1024 * (int)Math.Floor((blue + other) / 2.0);
-                AssertEqual((ushort)lower, SamusHyperBeamColorFormat.HueMidpoint(Bgr555.FromWord(checked((ushort)rgb)), Bgr555.FromWord((ushort)(other * 1057)), roundUp: false), "Complete downward RGB5 midpoint arithmetic");
+                AssertEqual((ushort)lower, SamusHyperBeamColorFormat.HueMidpoint(Bgr555.FromWord(checked((ushort)rgb)), Bgr555.FromWord((ushort)(other * 1057)), direction: HueRounding.Down), "Complete downward RGB5 midpoint arithmetic");
                 AssertEqual((ushort)((lower & 31) | (expected & 0x7fe0)),
                     SamusHyperBeamColorFormat.CyanTransitionMiddle(Bgr555.FromWord(checked((ushort)rgb)), Bgr555.FromWord((ushort)(other * 1057))), "Complete cyan-biased midpoint channel pairs");
             }

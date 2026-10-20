@@ -490,7 +490,7 @@ internal sealed class CeresRidleyBehavior
         // matters at A6AF/A6C8: velocity changes affect position in the very same frame.
         if (state.MovementAnimationEnabled && _ridleyEncounter.CeresStatus == CeresEscapeStatus.RidleyNotEscaped)
         {
-            IntegrateRidleyMovement(slot, state, ceresWallImpact: true);
+            IntegrateRidleyMovement(slot, state, wallImpact: RidleyWallImpact.CeresWall);
             TickRidleyWingAnimation(state);
             _ridleyTail.RandomlyUpdateCeresRidleyTailCurliness(state);
             _ridleyTail.TickRidleyTail(slot, state, samus);
@@ -955,7 +955,7 @@ internal sealed class CeresRidleyBehavior
     internal void IntegrateRidleyMovement(
         RoomEnemySlot slot,
         RidleyEnemyState state,
-        bool ceresWallImpact = false)
+        RidleyWallImpact wallImpact = RidleyWallImpact.None)
     {
         // $A6:D86B calls the impact routine only when proposed X is strictly below the
         // left bound, before zeroing X velocity. Vertical speed can meet its threshold
@@ -966,7 +966,7 @@ internal sealed class CeresRidleyBehavior
             unchecked((short)(proposedX.Whole - state.MovementMaximum.X)) >= 0 ||
             unchecked((short)(proposedY.Whole - state.MovementMinimum.Y)) < 0 ||
             unchecked((short)(proposedY.Whole - state.MovementMaximum.Y)) >= 0;
-        if (ceresWallImpact && unchecked((short)(proposedX.Whole - state.MovementMinimum.X)) < 0 &&
+        if (wallImpact == RidleyWallImpact.CeresWall && unchecked((short)(proposedX.Whole - state.MovementMinimum.X)) < 0 &&
             Math.Max(Math.Abs((int)state.Velocity.X.SignedRawValue),
                 Math.Abs((int)state.Velocity.Y.SignedRawValue)) >= RidleyWallImpactDefinitions.MinimumSpeed)
         {
@@ -1420,7 +1420,7 @@ internal sealed class CeresRidleyBehavior
                 slot,
                 samus.Position.Whole,
                 samus.Kinematics.Radius,
-                selectShotCallback: false,
+                callbackKind: HitboxCallbackKind.Touch,
                 out EnemyInteractionCallback? touchAi))
         {
             return false;
@@ -1439,7 +1439,7 @@ internal sealed class CeresRidleyBehavior
         _collision.ResolveNormalEnemyTouch(
             slot,
             samus,
-            skipDeathAnimation: true);
+            deathAnimation: TouchDeathAnimation.Skip);
         return true;
     }
 

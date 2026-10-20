@@ -12,7 +12,10 @@ internal static class TourianAccessPlmDefinitions
 
 
     /// <summary>Returns the complete native spawn identity for the requested floor state.</summary>
-    public static TourianAccessPlmDefinition ForState(bool clear) => clear
-        ? new(PlmHeaderId.ClearAccessToTourianElevator, TourianAccessProgram.Clear)
-        : new(PlmHeaderId.CrumbleAccessToTourianElevator, TourianAccessProgram.Crumble);
+    public static TourianAccessPlmDefinition ForState(TourianAccessFloor floor) => floor switch
+    {
+        TourianAccessFloor.Clear => new(PlmHeaderId.ClearAccessToTourianElevator, TourianAccessProgram.Clear),
+        TourianAccessFloor.Crumble => new(PlmHeaderId.CrumbleAccessToTourianElevator, TourianAccessProgram.Crumble),
+        _ => throw new InvalidOperationException($"Undefined {nameof(TourianAccessFloor)} {floor}."),
+    };
 }

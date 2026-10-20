@@ -71,7 +71,7 @@ internal sealed class MultiviolaBehavior : IEnemySpecies, IEnemyEntityFactory
 
         if ((unchecked((ushort)(state.Heading + MultiviolaCosineOffset)) & EnemyByteAngleDefinitions.HalfTurn) == 0)
         {
-            NativeMultiviolaNegate(ref state, horizontal: true);
+            NativeMultiviolaNegate(ref state, axis: Axis.Horizontal);
         }
 
         int horizontalDisplacement = state.Velocity.X.RawValue;
@@ -88,7 +88,7 @@ internal sealed class MultiviolaBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         if ((unchecked((ushort)(state.Heading + MultiviolaSineOffset)) & EnemyByteAngleDefinitions.HalfTurn) == 0)
-            NativeMultiviolaNegate(ref state, horizontal: false);
+            NativeMultiviolaNegate(ref state, axis: Axis.Vertical);
 
         int verticalDisplacement = state.Velocity.Y.RawValue;
         if (_terrain.MoveEnemyVertically(level, slot, verticalDisplacement))
@@ -121,9 +121,9 @@ internal sealed class MultiviolaBehavior : IEnemySpecies, IEnemyEntityFactory
     /// </summary>
     private static void NativeMultiviolaNegate(
         ref MultiviolaEnemyState state,
-        bool horizontal)
+        Axis axis)
     {
-        if (horizontal)
+        if (axis == Axis.Horizontal)
         {
             state.Velocity = state.Velocity.WithX(NativeMultiviolaNegate(state.Velocity.X));
             return;

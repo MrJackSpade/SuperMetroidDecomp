@@ -7,4 +7,5 @@ namespace SuperMetroid.Core.Enemies;
 /// </summary>
 /// <param name="EnemyDoorTransitionActive">WRAM $0797, door_transition_flag_enemies.</param>
 /// <param name="ElevatorDoorTransitionActive">WRAM $0795, the gate that suppresses elevator and Zebetite movement.</param>
+[IndependentFlag("independent gates: an enemy door transition and an elevator door transition")]
 public readonly record struct EnemyDoorTransitionGates(bool EnemyDoorTransitionActive, bool ElevatorDoorTransitionActive);

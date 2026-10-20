@@ -312,6 +312,40 @@ internal static class AnalyzerTests
         VerifySnippet("record KraidEntry(string Id, ushort[] Blocks); record CrocomireEntry(string Id, ushort[] Blocks);", null, null, analyzer, assemblyName: "Other");
     }
 
+    /// <summary>Checks literal-only bool parameters, bool groups and bool delegate inputs, with data-driven and justified bools passing (#1373).</summary>
+    internal static void VerifyBoolFlagAnalyzer()
+    {
+        var analyzer = new BoolFlagAnalyzer();
+        void Expect(string source, string? id = null, string? message = null) =>
+            VerifySnippet(source, id, message, analyzer, assemblyName: BoolFlagAnalyzer.CheckedAssembly);
+        const string attribute = "[System.AttributeUsage(System.AttributeTargets.All)] sealed class IndependentFlagAttribute(string reason) : System.Attribute { }";
+
+        // SME6423: every caller passes a literal, including an omitted optional argument.
+        Expect("class Door { void Load(int room, bool closing) { } void A() { Load(1, true); Load(2, closing: false); } }",
+            BoolFlagAnalyzer.LiteralOnlyId, "'closing'");
+        Expect("class Door { void Load(int room, bool closing = false) { } void A() => Load(1); }", BoolFlagAnalyzer.LiteralOnlyId, "false");
+        // A bool any caller supplies from data is a fact, not a selector.
+        Expect("class Door { void Load(int room, bool closing) { } void A(int room) { Load(1, true); Load(2, room > 3); } }");
+        // SME6424: two bools on a method or a positional record, reported once at the declaration that owns them.
+        Expect("class Draw { static int Shape(int pointer, bool vertical, bool square) => pointer; }", BoolFlagAnalyzer.BoolGroupId, "vertical, square");
+        Expect("record struct Cap(int Pointer, bool Vertical, bool Square);", BoolFlagAnalyzer.BoolGroupId, "'Cap'");
+        // Results written through ref or out are outputs, not a group of selectors.
+        Expect("class Beam { static void Run(int frame, ref bool soundQueued, out bool paletteRequested) => paletteRequested = soundQueued = frame > 0; }");
+        Expect("abstract class Base { public abstract void M(bool a, bool b); } class Derived : Base { public override void M(bool a, bool b) { } }",
+            BoolFlagAnalyzer.BoolGroupId, "'Base.M'");
+        // SME6425: a delegate taking a bool input; a predicate returning bool is not one.
+        Expect("class Shot { System.Action<int, bool>? AfterCommon; }", BoolFlagAnalyzer.DelegateBoolId, "'AfterCommon'");
+        Expect("class Shot { System.Func<int, bool>? Test; }");
+        // A justified bool passes each rule.
+        Expect(attribute + " class Door { void Load(int room, [IndependentFlag(\"the save says so\")] bool closing) { } void A() => Load(1, true); }");
+        Expect(attribute + " class Draw { [IndependentFlag(\"two independent tile flips\")] static int Shape(bool x, bool y) => 0; }");
+        Expect(attribute + " class Shot { [IndependentFlag(\"froze is the event's fact\")] System.Action<int, bool>? AfterCommon; }");
+        Expect(attribute + " [IndependentFlag(\"independent outcomes of one step\")] record struct Step(bool Landed, bool HitCeiling) " +
+            "{ static Step Land() => new(true, false); }");
+        // Other assemblies are not checked.
+        VerifySnippet("class Draw { static int Shape(bool x, bool y) => 0; }", null, null, analyzer, assemblyName: "Other");
+    }
+
     /// <summary>Checks that an integer-coded mode is reported, a quantity is not, and a justified member is not (#1372).</summary>
     internal static void VerifyIntegerCodedModeAnalyzer()
     {

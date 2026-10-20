@@ -610,27 +610,27 @@ internal sealed class StationPlms : IPlmFamilySource
         int accessBlockIndex,
         RoomBlockBehavior behavior,
         SamusPoseId collisionPose,
-        bool horizontal,
+        Axis axis,
         bool movingPositive,
         int roomWidthInBlocks)
         => TryNotifyStationCollision(
             accessBlockIndex,
             behavior,
             collisionPose,
-            horizontal,
+            axis,
             movingPositive,
             roomWidthInBlocks,
-            bypassSetupGate: false);
+            StationSetupGate.Checked);
 
     /// <summary>Checks the entry pose and direction, then arms a matching resident station's PLM sequence.</summary>
     internal bool TryNotifyStationCollision(
         int accessBlockIndex,
         RoomBlockBehavior behavior,
         SamusPoseId collisionPose,
-        bool horizontal,
+        Axis axis,
         bool movingPositive,
         int roomWidthInBlocks,
-        bool bypassSetupGate)
+        StationSetupGate setupGate)
     {
         if (!behavior.TryGetStationAccess(out StationAccessBehavior access))
             return false;
@@ -652,7 +652,7 @@ internal sealed class StationPlms : IPlmFamilySource
             if (!slot.Active || slot.BlockIndex != parentBlockIndex || slot.Family is not StationPlmState station)
                 continue;
 
-            bool setupAccepted = bypassSetupGate || access switch
+            bool setupAccepted = setupGate == StationSetupGate.Bypassed || access switch
             {
                 // Right-side access is entered while moving left in pose $8A; left-side
                 // access is the mirror in pose $89. These are the exact B1C8/B1F0 and
@@ -660,16 +660,16 @@ internal sealed class StationPlms : IPlmFamilySource
                 StationAccessBehavior.MapRight or
                     StationAccessBehavior.EnergyRight or
                     StationAccessBehavior.MissileRight =>
-                    horizontal && !movingPositive &&
+                    axis == Axis.Horizontal && !movingPositive &&
                     collisionPose == SamusPoseId.RanIntoWallLeftPose,
                 StationAccessBehavior.MapLeft or
                     StationAccessBehavior.EnergyLeft or
                     StationAccessBehavior.MissileLeft =>
-                    horizontal && movingPositive &&
+                    axis == Axis.Horizontal && movingPositive &&
                     collisionPose == SamusPoseId.RanIntoWallRightPose,
                 // A foot can touch the floor trigger before the body's biased center
                 // reaches its column. Native accepts only the latter, narrower range.
-                StationAccessBehavior.SaveFloor => !horizontal && movingPositive &&
+                StationAccessBehavior.SaveFloor => axis == Axis.Vertical && movingPositive &&
                     (collisionPose is SamusPoseId.FacingRightNormalPose or
                         SamusPoseId.FacingLeftNormalPose) &&
                     IsSaveStationTriggerCentered(slot.BlockIndex, roomWidthInBlocks),
@@ -775,7 +775,7 @@ internal sealed class StationPlms : IPlmFamilySource
                 station.OperationTimer = NativeCountdown.Start(StationAccessMovementFrames);
                 operationStartedThisPass = true;
                 _sounds.Queue(RoomPlmSounds.StationExtension, MaximumQueued: 6);
-                DrawStationAccess(level, station, extended: false);
+                DrawStationAccess(level, station, pose: StationAccessPose.Retracted);
             }
         }
 
@@ -793,7 +793,7 @@ internal sealed class StationPlms : IPlmFamilySource
                 switch (station.OperationPhase)
                 {
                     case StationOperationPhase.Extending:
-                        DrawStationAccess(level, station, extended: true);
+                        DrawStationAccess(level, station, pose: StationAccessPose.Extended);
                         station.OperationPhase = StationOperationPhase.Extended;
                         station.OperationTimer = NativeCountdown.Start(StationAccessExtendedHoldFrames);
                         break;
@@ -813,7 +813,7 @@ internal sealed class StationPlms : IPlmFamilySource
                         station.OperationTimer = NativeCountdown.Start(StationAccessMovementFrames);
                         break;
                     case StationOperationPhase.Retracting:
-                        DrawStationAccess(level, station, extended: false);
+                        DrawStationAccess(level, station, pose: StationAccessPose.Retracted);
                         station.OperationPhase = StationOperationPhase.FinalRetractionHold;
                         station.OperationTimer = NativeCountdown.Start(StationAccessMovementFrames);
                         break;
@@ -968,13 +968,13 @@ internal sealed class StationPlms : IPlmFamilySource
     }
 
     /// <summary>Draws the station access arm at its captured collision block in the short or extended pose.</summary>
-    private void DrawStationAccess(RoomLevelData level, StationPlmState station, bool extended)
+    private void DrawStationAccess(RoomLevelData level, StationPlmState station, StationAccessPose pose)
     {
         StationAccessBehavior accessBehavior = station.AccessBehavior
             ?? throw new InvalidDataException("Station access has no BTS owner.");
         StationAccessPlmDefinition definition =
             StationAccessPlmDefinitions.Resolve(accessBehavior);
-        ushort drawPointer = definition.DrawPointer(extended);
+        ushort drawPointer = definition.DrawPointer(pose == StationAccessPose.Extended);
         _drawing.DrawPlmInstruction(level, station.AccessBlockIndex, drawPointer);
     }
 

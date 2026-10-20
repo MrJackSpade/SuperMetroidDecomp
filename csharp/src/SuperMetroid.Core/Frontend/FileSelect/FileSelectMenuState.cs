@@ -400,12 +400,12 @@ public sealed class FileSelectMenuState
     {
         if ((pressed & SnesButton.Up) != 0)
         {
-            MoveMainSelection(down: false);
+            MoveMainSelection(direction: VerticalDirection.Up);
             QueueCursorSound();
         }
         else if ((pressed & SnesButton.Down) != 0)
         {
-            MoveMainSelection(down: true);
+            MoveMainSelection(direction: VerticalDirection.Down);
             QueueCursorSound();
         }
 
@@ -447,8 +447,8 @@ public sealed class FileSelectMenuState
     }
 
     /// <summary>Moves through main-page entries while skipping Copy and Clear for empty SRAM.</summary>
-    private void MoveMainSelection(bool down) =>
-        SelectedItem = FileSelectMainNavigation.Move(SelectedItem, HasAnySave, down);
+    private void MoveMainSelection(VerticalDirection direction) =>
+        SelectedItem = FileSelectMainNavigation.Move(SelectedItem, HasAnySave, direction);
 
     /// <summary>Swaps main and data pages only at forced blank, then enters the saved phase after fade-in.</summary>
     private void StepDataManagementFade()
@@ -506,20 +506,20 @@ public sealed class FileSelectMenuState
         switch (Phase)
         {
             case FileSelectPhase.CopySelectSource:
-                StepSlotSelection(pressed, sourceSelection: true);
+                StepSlotSelection(pressed, FileSelectDataMode.Copy);
                 break;
             case FileSelectPhase.CopySelectDestination:
                 StepCopyDestination(pressed);
                 break;
             case FileSelectPhase.CopyConfirm:
                 StepCopyArrowPalette();
-                StepConfirmation(pressed, copy: true);
+                StepConfirmation(pressed, FileSelectDataMode.Copy);
                 break;
             case FileSelectPhase.ClearSelectSlot:
-                StepSlotSelection(pressed, sourceSelection: false);
+                StepSlotSelection(pressed, FileSelectDataMode.Clear);
                 break;
             case FileSelectPhase.ClearConfirm:
-                StepConfirmation(pressed, copy: false);
+                StepConfirmation(pressed, FileSelectDataMode.Clear);
                 break;
             case FileSelectPhase.CopyCompleted:
             case FileSelectPhase.ClearCompleted:
@@ -549,7 +549,7 @@ public sealed class FileSelectMenuState
     }
 
     /// <summary>Chooses an occupied source or clear slot, then opens destination or confirmation.</summary>
-    private void StepSlotSelection(SnesButton pressed, bool sourceSelection)
+    private void StepSlotSelection(SnesButton pressed, FileSelectDataMode mode)
     {
         int occupiedSlots = 0;
         for (int slot = 0; slot < FileSelectLayout.SaveSlotCount; slot++)
@@ -569,7 +569,7 @@ public sealed class FileSelectMenuState
 
         QueueCursorSound();
         operationSourceSlot = FileSelectItemRows.SaveSlot(submenuSelection);
-        if (sourceSelection)
+        if (mode == FileSelectDataMode.Copy)
         {
             submenuSelection = FileSelectItemRows.ForSaveSlot(Enumerable.Range(0, FileSelectLayout.SaveSlotCount)
                 .First(slot => slot != operationSourceSlot));
@@ -631,7 +631,7 @@ public sealed class FileSelectMenuState
     }
 
     /// <summary>Accepts Yes or No and mutates checksummed SRAM only after explicit Yes confirmation.</summary>
-    private void StepConfirmation(SnesButton pressed, bool copy)
+    private void StepConfirmation(SnesButton pressed, FileSelectDataMode mode)
     {
         if ((pressed & (SnesButton.Up | SnesButton.Down)) != 0)
         {
@@ -642,7 +642,7 @@ public sealed class FileSelectMenuState
         if ((pressed & SnesButton.B) != 0)
         {
             QueueCursorSound();
-            ReturnFromConfirmation(copy);
+            ReturnFromConfirmation(mode);
             return;
         }
         if ((pressed & (SnesButton.Start | SnesButton.A)) == 0)
@@ -651,11 +651,11 @@ public sealed class FileSelectMenuState
         audio?.QueueSound(SoundEffectLibrary1Sounds.MenuConfirm, maximumQueued: 6);
         if (confirmationSelection != YesNoChoice.Yes)
         {
-            ReturnFromConfirmation(copy);
+            ReturnFromConfirmation(mode);
             return;
         }
 
-        if (copy)
+        if (mode == FileSelectDataMode.Copy)
         {
             saves.CopySlot(operationSourceSlot, operationDestinationSlot);
             saveSlots[operationDestinationSlot] = saves.ReadSlot(operationDestinationSlot)
@@ -675,10 +675,10 @@ public sealed class FileSelectMenuState
     }
 
     /// <summary>Restores the prior source or destination selection page after B or No.</summary>
-    private void ReturnFromConfirmation(bool copy)
+    private void ReturnFromConfirmation(FileSelectDataMode mode)
     {
-        submenuSelection = FileSelectItemRows.ForSaveSlot(copy ? operationDestinationSlot : operationSourceSlot);
-        if (copy)
+        submenuSelection = FileSelectItemRows.ForSaveSlot(mode == FileSelectDataMode.Copy ? operationDestinationSlot : operationSourceSlot);
+        if (mode == FileSelectDataMode.Copy)
         {
             BuildCopyDestinationTilemap();
             Phase = FileSelectPhase.CopySelectDestination;
@@ -868,14 +868,17 @@ public sealed class FileSelectMenuState
     {
         if (mapPresentation is not null)
         {
-            bool confirmation = Phase is FileSelectPhase.CopyConfirm or
-                FileSelectPhase.ClearConfirm;
-            int row = IsMainScreenPhase
-                ? FileSelectItemRows.MainRow(SelectedItem)
-                : confirmation ? (confirmationSelection == YesNoChoice.Yes ? 0 : 1) : FileSelectItemRows.DataRow(submenuSelection);
-            Position16<OamPixels> point = mapPresentation.FileSelect.CursorPosition(
-                IsMainScreenPhase, confirmation, row);
-            return point;
+            FileSelectCursorPage page = IsMainScreenPhase ? FileSelectCursorPage.Main
+                : Phase is FileSelectPhase.CopyConfirm or FileSelectPhase.ClearConfirm ? FileSelectCursorPage.Confirmation
+                : FileSelectCursorPage.DataManagement;
+            int row = page switch
+            {
+                FileSelectCursorPage.Main => FileSelectItemRows.MainRow(SelectedItem),
+                FileSelectCursorPage.Confirmation => confirmationSelection == YesNoChoice.Yes ? 0 : 1,
+                FileSelectCursorPage.DataManagement => FileSelectItemRows.DataRow(submenuSelection),
+                _ => throw new InvalidOperationException($"Undefined {nameof(FileSelectCursorPage)} {page}."),
+            };
+            return mapPresentation.FileSelect.CursorPosition(page, row);
         }
         if (!showDataManagementScreen)
             return new(14, FileSelectLayout.MainSelectionY(FileSelectItemRows.MainRow(SelectedItem)));

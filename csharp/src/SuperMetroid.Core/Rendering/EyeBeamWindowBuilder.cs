@@ -43,7 +43,7 @@ internal static class EyeBeamWindowBuilder
             int left = offScreen ? origin - EyeWindowRenderDefinitions.FixedPointSpan : origin;
             Ramp(rows, up, -1, new RampEdges(left, ta, ushort.MaxValue, 1), 1);
             Ramp(rows, y, 1, new RampEdges(left, tb, ushort.MaxValue, 1), -1);
-            if (offScreen) FillOffScreenMiddle(rows, up, y, origin, ta, tb, positive: true);
+            if (offScreen) FillOffScreenMiddle(rows, up, y, EyeWindowRenderDefinitions.FixedPointSpan - origin, ta, tb);
         }
         else if (a >= half && a < threeQuarter && b >= threeQuarter)
         {
@@ -51,7 +51,7 @@ internal static class EyeBeamWindowBuilder
             int right = offScreen ? origin + EyeWindowRenderDefinitions.FixedPointSpan : origin;
             Ramp(rows, up, -1, new RampEdges(0, -1, right, -tb), 1);
             Ramp(rows, y, 1, new RampEdges(0, -1, right, -ta), -1);
-            if (offScreen) FillOffScreenMiddle(rows, up, y, origin, tb, ta, positive: false);
+            if (offScreen) FillOffScreenMiddle(rows, up, y, origin + 1, tb, ta);
         }
         else if (a < quarter || a >= threeQuarter)
         {
@@ -92,14 +92,17 @@ internal static class EyeBeamWindowBuilder
     }
 
     /// <summary>Shifts an off-screen ray origin by one fixed-point span toward its entering edge.</summary>
+    [IndependentFlag("independent facts the ramp computes from the beam's angles: an off-screen origin, and a positively sloped edge")]
     private static int OffsetOrigin(int origin, bool offScreen, bool positive) =>
         !offScreen ? origin : origin + (positive ? -EyeWindowRenderDefinitions.FixedPointSpan : EyeWindowRenderDefinitions.FixedPointSpan);
 
-    /// <summary>Fills scanlines between off-screen upper and lower rays as the native rectangle branch does.</summary>
-    private static void FillOffScreenMiddle(ushort[] rows, int up, int down, int origin,
-        int upperStep, int lowerStep, bool positive)
+    /// <summary>
+    /// Fills scanlines between off-screen upper and lower rays as the native rectangle branch does; the rays travel
+    /// <paramref name="distance"/> fixed-point units from the origin before they enter the screen.
+    /// </summary>
+    private static void FillOffScreenMiddle(ushort[] rows, int up, int down, int distance,
+        int upperStep, int lowerStep)
     {
-        int distance = positive ? EyeWindowRenderDefinitions.FixedPointSpan - origin : origin + 1;
         int upperSteps = upperStep == 0 ? int.MaxValue : (distance + upperStep - 1) / upperStep;
         int lowerSteps = lowerStep == 0 ? int.MaxValue : (distance + lowerStep - 1) / lowerStep;
         int top = upperSteps > up + 1 ? 0 : up - upperSteps + 2;

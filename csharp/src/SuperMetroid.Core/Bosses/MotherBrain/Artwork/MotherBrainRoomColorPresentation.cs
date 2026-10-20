@@ -31,7 +31,7 @@ public sealed class MotherBrainRoomColorPresentation
         this.finalRoom = finalRoom;
         this.phaseTwoAttack = new AttackPalette(phaseTwoAttack);
         this.phaseTwoRearLeg = phaseTwoRearLeg.Where((word, color) =>
-            word != MotherBrainHealthPalettePresentation.StockBaseColor(backLeg: true, color)).Any() ? phaseTwoRearLeg : null;
+            word != MotherBrainHealthPalettePresentation.StockBaseColor(MotherBrainPalettePart.BackLeg, color)).Any() ? phaseTwoRearLeg : null;
         this.initialGlassShard = initialGlassShard;
         this.initialTubeProjectile = initialTubeProjectile;
         this.recoveryLights = recoveryLights;
@@ -72,7 +72,7 @@ public sealed class MotherBrainRoomColorPresentation
             new MotherBrainPalettes(cgram).PhaseTwoAttack.Write(index,
                 phaseTwoAttack.Color(index));
             new MotherBrainPalettes(cgram).PhaseTwoRearLegs.Write(index,
-                phaseTwoRearLeg?[index] ?? MotherBrainHealthPalettePresentation.StockBaseColor(backLeg: true, index));
+                phaseTwoRearLeg?[index] ?? MotherBrainHealthPalettePresentation.StockBaseColor(MotherBrainPalettePart.BackLeg, index));
         }
     }
 
@@ -224,7 +224,7 @@ public sealed class MotherBrainRoomColorPresentation
                 return InterpolateRgb5(MotherBrainFinalRoomPaintDefinitions.MetalLight, MotherBrainFinalRoomPaintDefinitions.MetalLow, color - MotherBrainRoomColorRomData.RoomGrayFirst,
                     MotherBrainRoomColorRomData.RoomGrayCount - 1);
             if (!Enum.IsDefined((AccentColor)color))
-                return MotherBrainHealthPalettePresentation.StockBaseColor(false, MotherBrainRoomColorRomData.WhiteColor);
+                return MotherBrainHealthPalettePresentation.StockBaseColor(MotherBrainPalettePart.Body, MotherBrainRoomColorRomData.WhiteColor);
             return (AccentColor)color switch
             {
                 // Metal contour shadow is half the low gray surface intensity.
@@ -310,10 +310,10 @@ public sealed class MotherBrainRoomColorPresentation
                     color - MotherBrainRoomColorRomData.AttackFlameFirst,
                     MotherBrainRoomColorRomData.AttackFlameCount - 1);
             if (color < MotherBrainRoomColorRomData.AttackGrayFirst)
-                return MotherBrainHealthPalettePresentation.StockBaseColor(false,
+                return MotherBrainHealthPalettePresentation.StockBaseColor(MotherBrainPalettePart.Body,
                     MotherBrainRoomColorRomData.AttackBodyTissueFirst + color - MotherBrainRoomColorRomData.AttackTissueFirst);
             if (color == MotherBrainRoomColorRomData.WhiteColor)
-                return MotherBrainHealthPalettePresentation.StockBaseColor(false, MotherBrainRoomColorRomData.WhiteColor);
+                return MotherBrainHealthPalettePresentation.StockBaseColor(MotherBrainPalettePart.Body, MotherBrainRoomColorRomData.WhiteColor);
             return InterpolateShade(MotherBrainRecoveryPaintDefinitions.SharedCasingHighlight, MotherBrainAttackPaintDefinitions.ShellOutline,
                 color - MotherBrainRoomColorRomData.AttackGrayFirst
                 - (color > MotherBrainRoomColorRomData.WhiteColor ? 1 : 0),
@@ -351,7 +351,7 @@ public sealed class MotherBrainRoomColorPresentation
                 return InterpolateRgb5(MotherBrainGlassPaintDefinitions.FaceHighlight, room[MotherBrainRoomColorRomData.RoomOutlineColor],
                     color - MotherBrainRoomColorRomData.GlassRampFirst, MotherBrainRoomColorRomData.GlassRampCount - 1);
             if (!Enum.IsDefined((AccentColor)color))
-                return MotherBrainHealthPalettePresentation.StockBaseColor(false, color);
+                return MotherBrainHealthPalettePresentation.StockBaseColor(MotherBrainPalettePart.Body, color);
             return (AccentColor)color switch
             {
                 AccentColor.DarkGray => room[MotherBrainRoomColorRomData.RoomDarkGrayColor],
@@ -388,7 +388,7 @@ public sealed class MotherBrainRoomColorPresentation
         /// <summary>Uses shared casing highlight, stock black, and room outline colors.</summary>
         private Bgr555 Calculate(int color) => color < MotherBrainRoomColorRomData.TubeNeutralCount
             ? MotherBrainRecoveryPaintDefinitions.SharedCasingHighlight : color == MotherBrainRoomColorRomData.RoomEntryBlackColor
-                ? MotherBrainHealthPalettePresentation.StockBaseColor(false, color)
+                ? MotherBrainHealthPalettePresentation.StockBaseColor(MotherBrainPalettePart.Body, color)
                 : room[MotherBrainRoomColorRomData.RoomOutlineColor + color - MotherBrainRoomColorRomData.TubeNeutralCount];
     }
     /// <summary>Background highlight interpolation paired with darkening level colors.</summary>

@@ -27,20 +27,22 @@ public sealed class MotherBrainRainbowPalettePresentation
         Bgr555 beamInitial, Bgr555[] beamCycle)
     {
         rainbow[MotherBrainRainbowPaletteFormat.RedOriginPhase].ReduceRedOrigin();
-        rainbow[MotherBrainRainbowPaletteFormat.FirstGreenRisePhase].ShareChannels(rainbow[MotherBrainRainbowPaletteFormat.RedOriginPhase], MotherBrainRainbowShadeProfile.FirstGreenRise, true, false, true);
-        rainbow[MotherBrainRainbowPaletteFormat.RedReductionSourcePhase].ShareChannels(rainbow[MotherBrainRainbowPaletteFormat.RedOriginPhase], MotherBrainRainbowShadeProfile.SecondGreenRise, true, false, true);
+        rainbow[MotherBrainRainbowPaletteFormat.FirstGreenRisePhase].ShareChannels(rainbow[MotherBrainRainbowPaletteFormat.RedOriginPhase], MotherBrainRainbowShadeProfile.FirstGreenRise,
+            new RainbowChannelSelection { Red = true, Green = false, Blue = true, RedAddition = 0, GreenAddition = 0 });
+        rainbow[MotherBrainRainbowPaletteFormat.RedReductionSourcePhase].ShareChannels(rainbow[MotherBrainRainbowPaletteFormat.RedOriginPhase], MotherBrainRainbowShadeProfile.SecondGreenRise,
+            new RainbowChannelSelection { Red = true, Green = false, Blue = true, RedAddition = 0, GreenAddition = 0 });
         rainbow[MotherBrainRainbowPaletteFormat.RedReducedPhase].ShareTint(
             rainbow[MotherBrainRainbowPaletteFormat.RedReductionSourcePhase],
             -MotherBrainRainbowPaletteFormat.RedReduction, 0, 0);
         rainbow[MotherBrainRainbowPaletteFormat.BlueGreenShiftPhase].ShareTint(
             rainbow[MotherBrainRainbowPaletteFormat.RedReducedPhase], 0,
             -MotherBrainRainbowPaletteFormat.BlueGreenShift, MotherBrainRainbowPaletteFormat.BlueGreenShift);
-        rainbow[MotherBrainRainbowPaletteFormat.MixedShiftPhase].ShareChannels(rainbow[MotherBrainRainbowPaletteFormat.RedOriginPhase], MotherBrainRainbowShadeProfile.MixedBlue, true, true, false,
-            -MotherBrainRainbowPaletteFormat.RedReduction, MotherBrainRainbowPaletteFormat.GreenAddition);
-        rainbow[MotherBrainRainbowPaletteFormat.BlueMaximumPhase].ShareChannels(rainbow[MotherBrainRainbowPaletteFormat.RedOriginPhase], MotherBrainRainbowShadeProfile.MaximumBlue, true, true, false,
-            -MotherBrainRainbowPaletteFormat.RedReduction);
-        rainbow[MotherBrainRainbowPaletteFormat.RedRecoveryPhase].ShareChannels(rainbow[MotherBrainRainbowPaletteFormat.BlueMaximumPhase], MotherBrainRainbowShadeProfile.RecoveringGreen, true, false, true,
-            MotherBrainRainbowPaletteFormat.RedRecoveryAddition);
+        rainbow[MotherBrainRainbowPaletteFormat.MixedShiftPhase].ShareChannels(rainbow[MotherBrainRainbowPaletteFormat.RedOriginPhase], MotherBrainRainbowShadeProfile.MixedBlue,
+            new RainbowChannelSelection { Red = true, Green = true, Blue = false, RedAddition = -MotherBrainRainbowPaletteFormat.RedReduction, GreenAddition = MotherBrainRainbowPaletteFormat.GreenAddition });
+        rainbow[MotherBrainRainbowPaletteFormat.BlueMaximumPhase].ShareChannels(rainbow[MotherBrainRainbowPaletteFormat.RedOriginPhase], MotherBrainRainbowShadeProfile.MaximumBlue,
+            new RainbowChannelSelection { Red = true, Green = true, Blue = false, RedAddition = -MotherBrainRainbowPaletteFormat.RedReduction, GreenAddition = 0 });
+        rainbow[MotherBrainRainbowPaletteFormat.RedRecoveryPhase].ShareChannels(rainbow[MotherBrainRainbowPaletteFormat.BlueMaximumPhase], MotherBrainRainbowShadeProfile.RecoveringGreen,
+            new RainbowChannelSelection { Red = true, Green = false, Blue = true, RedAddition = MotherBrainRainbowPaletteFormat.RedRecoveryAddition, GreenAddition = 0 });
         rainbow[MotherBrainRainbowPaletteFormat.RedRestoredPhase].ShareTint(rainbow[MotherBrainRainbowPaletteFormat.BlueMaximumPhase],
             MotherBrainRainbowPaletteFormat.RedReduction, 0, 0);
         rainbow[MotherBrainRainbowPaletteFormat.BlueRaisedPhase].ShareTint(rainbow[MotherBrainRainbowPaletteFormat.RedOriginPhase], 0, 0,
@@ -232,18 +234,18 @@ public sealed class MotherBrainRainbowPalettePresentation
         return new(
             CompileFrames(document.Rainbow, MotherBrainRainbowPaletteFormat.RainbowFrameCount,
                 MotherBrainRainbowPaletteRomData.ColorCount,
-                MotherBrainRainbowPaletteRomData.ColorCount, false, nameof(document.Rainbow)),
+                MotherBrainRainbowPaletteRomData.ColorCount, MotherBrainTrailingColor.Absent, nameof(document.Rainbow)),
             CompileFrames(document.ToGrey, MotherBrainRainbowPaletteFormat.GreyFrameCount,
                 MotherBrainDrainedPaletteRomData.DrainedColors,
-                MotherBrainDrainedPaletteRomData.BackLegCount, true, nameof(document.ToGrey)),
+                MotherBrainDrainedPaletteRomData.BackLegCount, MotherBrainTrailingColor.Required, nameof(document.ToGrey)),
             CompileFrames(document.FromGrey, MotherBrainRainbowPaletteFormat.GreyFrameCount,
                 MotherBrainDrainedPaletteRomData.RevivalColors,
-                MotherBrainDrainedPaletteRomData.BackLegCount, true, nameof(document.FromGrey)),
+                MotherBrainDrainedPaletteRomData.BackLegCount, MotherBrainTrailingColor.Required, nameof(document.FromGrey)),
             version == MotherBrainRainbowPaletteVersion.PreFakeDeath
                 ? (currentStock ?? throw new InvalidDataException("A pre-fake-death Mother Brain rainbow override requires the current stock presentation.")).fakeDeathToGrey
                 : CompileFakeDeathFrames(document.FakeDeathToGrey),
             CompileFrames([document.Normal], 1, MotherBrainRainbowPaletteRomData.ColorCount,
-                MotherBrainRainbowPaletteRomData.ColorCount, false, nameof(document.Normal))[0],
+                MotherBrainRainbowPaletteRomData.ColorCount, MotherBrainTrailingColor.Absent, nameof(document.Normal))[0],
             CompileColor(document.BeamInitial, nameof(document.BeamInitial)),
             CompileColors(document.BeamCycle, MotherBrainRainbowPaletteFormat.BeamCycleColorCount,
                 nameof(document.BeamCycle)));
@@ -263,7 +265,7 @@ public sealed class MotherBrainRainbowPalettePresentation
 
     /// <summary>Validates palette geometry and whether this sequence carries a trailing WRAM word.</summary>
     private static PaletteFrame[] CompileFrames(MotherBrainRainbowPaletteFrameDocument[]? source,
-        int count, int bodyCount, int legCount, bool trailing, string name)
+        int count, int bodyCount, int legCount, MotherBrainTrailingColor trailing, string name)
     {
         if (source is null || source.Length != count)
             throw new InvalidDataException($"Mother Brain {name} requires {count} frames.");
@@ -271,7 +273,7 @@ public sealed class MotherBrainRainbowPalettePresentation
         for (int frame = 0; frame < count; frame++)
         {
             MotherBrainRainbowPaletteFrameDocument? item = source[frame];
-            if (item is null || (item.TrailingColor is null) != !trailing)
+            if (item is null || (item.TrailingColor is null) != (trailing == MotherBrainTrailingColor.Absent))
                 throw new InvalidDataException($"Mother Brain {name} frame {frame} has an invalid trailing color.");
             frames[frame] = new PaletteFrame(
                 CompileColors(item.Body, bodyCount, $"{name} frame {frame} body"),
@@ -333,7 +335,7 @@ public sealed class MotherBrainRainbowPalettePresentation
             TrailingColor = trailingColor;
             bool matchesRear = legs.Length == MotherBrainRainbowPaletteRomData.ColorCount;
             for (int color = 0; matchesRear && color < legs.Length; color++)
-                matchesRear = legs[color] == MotherBrainHealthPalettePresentation.StockBaseColor(true, color);
+                matchesRear = legs[color] == MotherBrainHealthPalettePresentation.StockBaseColor(MotherBrainPalettePart.BackLeg, color);
             if (matchesRear) { stockRear = true; return; }
             // Rainbow legs use half-intensity body colors, rounding RGB5 upward.
             // Select this relationship only when every supplied color agrees.
@@ -353,10 +355,10 @@ public sealed class MotherBrainRainbowPalettePresentation
             if (selected is not null) Body = new BodyColors(selected);
         }
         /// <summary>Shares selected source channels while retaining the phase's independent shade channel.</summary>
-        internal void ShareChannels(PaletteFrame source, MotherBrainRainbowShadeProfile profile, bool red, bool green, bool blue, int redAddition = 0, int greenAddition = 0)
+        internal void ShareChannels(PaletteFrame source, MotherBrainRainbowShadeProfile profile, RainbowChannelSelection channels)
         {
             if (Body.Length != source.Body.Length) return;
-            var sharing = SharedBodyChannels.TryCreate(source.Body, Body, profile, new RainbowChannelSelection { Red = red, Green = green, Blue = blue, RedAddition = redAddition, GreenAddition = greenAddition });
+            var sharing = SharedBodyChannels.TryCreate(source.Body, Body, profile, channels);
             if (sharing is not null) Body = new BodyColors(sharing);
         }
         /// <summary>Shares a constant RGB5 offset only if it reproduces the entire supplied row.</summary>
@@ -376,11 +378,11 @@ public sealed class MotherBrainRainbowPalettePresentation
         /// <summary>Selects the appropriate rainbow, drained, stock, or independently edited rear ink.</summary>
         public Bgr555 Leg(int color) => rearSource is not null
             ? rearSource.Leg(color + MotherBrainDrainedPaletteRomData.RearSourceColor)
-            : drainedRear ? HalfIntensity(MotherBrainHealthPalettePresentation.StockBaseColor(true,
+            : drainedRear ? HalfIntensity(MotherBrainHealthPalettePresentation.StockBaseColor(MotherBrainPalettePart.BackLeg,
                 color + MotherBrainDrainedPaletteRomData.RearSourceColor))
-            : normalRearSubset ? MotherBrainHealthPalettePresentation.StockBaseColor(true,
+            : normalRearSubset ? MotherBrainHealthPalettePresentation.StockBaseColor(MotherBrainPalettePart.BackLeg,
                 color + MotherBrainDrainedPaletteRomData.RearSourceColor)
-            : stockRear ? MotherBrainHealthPalettePresentation.StockBaseColor(true, color)
+            : stockRear ? MotherBrainHealthPalettePresentation.StockBaseColor(MotherBrainPalettePart.BackLeg, color)
             : backLegs is null ? HalfIntensity(Body[color]) : backLegs[color];
 
         /// <summary>Shares the drain's first body, rear subset, and trailing ink only after every supplied color matches the rainbow phase.</summary>
@@ -391,22 +393,22 @@ public sealed class MotherBrainRainbowPalettePresentation
             for (int color = 0; color < drain.LegCount; color++)
                 if (drain.Leg(color) != rainbow.Leg(color + MotherBrainDrainedPaletteRomData.RearSourceColor)) return drain;
             return drain.TrailingColor == rainbow.Leg(MotherBrainDrainedPaletteRomData.TrailingRearSourceColor)
-                ? new PaletteFrame(rainbow, false) : drain;
+                ? new PaletteFrame(rainbow, MotherBrainRearPaint.Rainbow) : drain;
         }
         /// <summary>Recognizes a drained stock rear subset, including its trailing ink, at the fade endpoint.</summary>
         internal static PaletteFrame ShareDrainEnd(PaletteFrame drain)
         {
             for (int color = 0; color < drain.LegCount; color++)
-                if (drain.Leg(color) != HalfIntensity(MotherBrainHealthPalettePresentation.StockBaseColor(true,
+                if (drain.Leg(color) != HalfIntensity(MotherBrainHealthPalettePresentation.StockBaseColor(MotherBrainPalettePart.BackLeg,
                     color + MotherBrainDrainedPaletteRomData.RearSourceColor))) return drain;
-            return drain.TrailingColor == drain.Leg(1) ? new PaletteFrame(drain, true) : drain;
+            return drain.TrailingColor == drain.Leg(1) ? new PaletteFrame(drain, MotherBrainRearPaint.Drained) : drain;
         }
         /// <summary>Constructs a validated drain endpoint view over either rainbow or stock rear paint.</summary>
-        private PaletteFrame(PaletteFrame source, bool drainedRear)
+        private PaletteFrame(PaletteFrame source, MotherBrainRearPaint rear)
         {
             Body = source.Body;
             LegCount = MotherBrainDrainedPaletteRomData.BackLegCount;
-            this.drainedRear = drainedRear;
+            drainedRear = rear == MotherBrainRearPaint.Drained;
             rearSource = drainedRear ? null : source;
         }
 
@@ -414,7 +416,7 @@ public sealed class MotherBrainRainbowPalettePresentation
         internal static PaletteFrame ShareNormalRearEndpoint(PaletteFrame frame)
         {
             for (int color = 0; color < frame.LegCount; color++)
-                if (frame.Leg(color) != MotherBrainHealthPalettePresentation.StockBaseColor(true,
+                if (frame.Leg(color) != MotherBrainHealthPalettePresentation.StockBaseColor(MotherBrainPalettePart.BackLeg,
                     color + MotherBrainDrainedPaletteRomData.RearSourceColor)) return frame;
             return frame.TrailingColor == frame.Leg(1) ? new PaletteFrame(frame) : frame;
         }
@@ -598,7 +600,7 @@ public sealed class MotherBrainRainbowPalettePresentation
             Length = colors.Length;
             bool normal = Length is MotherBrainFakeDeathPaletteRomData.ColorCount or MotherBrainDrainedPaletteRomData.RevivalColors or MotherBrainRainbowPaletteRomData.ColorCount;
             for (int color = 0; normal && color < Length; color++)
-                normal = colors[color] == MotherBrainHealthPalettePresentation.StockBaseColor(false, color);
+                normal = colors[color] == MotherBrainHealthPalettePresentation.StockBaseColor(MotherBrainPalettePart.Body, color);
             if (normal) return;
             drained = new DrainedBodyColors(colors);
             if (!drained.Calculated) { drained = null; supplied = colors; }
@@ -610,7 +612,7 @@ public sealed class MotherBrainRainbowPalettePresentation
                 ?? throw new InvalidOperationException("A shared rainbow tint left RGB5 after construction.")
             : supplied is not null ? supplied[color]
             : drained is not null ? drained[color]
-            : MotherBrainHealthPalettePresentation.StockBaseColor(false, color);
+            : MotherBrainHealthPalettePresentation.StockBaseColor(MotherBrainPalettePart.Body, color);
     }
 
     /// <summary>
@@ -680,7 +682,7 @@ public sealed class MotherBrainRainbowPalettePresentation
         private Bgr555 Calculate(int color)
         {
             if (color is >= 4 and <= 7)
-                return MotherBrainHealthPalettePresentation.StockBaseColor(false, color);
+                return MotherBrainHealthPalettePresentation.StockBaseColor(MotherBrainPalettePart.Body, color);
             if (color == 13) return Bgr555.White;
             if (color == 14) return Bgr555.Black;
             if (color < 4)

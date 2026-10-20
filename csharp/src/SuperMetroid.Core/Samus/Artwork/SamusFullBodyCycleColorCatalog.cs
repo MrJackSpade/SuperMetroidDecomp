@@ -94,13 +94,13 @@ public sealed class SamusFullBodyCycleColorCatalog
                 SamusFullBodyCycleColorFormat.GravitySharedBase(palettes[0][color], palettes[1][color])) continue;
             colors.Add(index, value);
         }
-        powerDim1 = Capture(1, 1, false, 2);
-        powerDim2 = Capture(1, 2, false, 2);
-        powerBright9 = Capture(3, 9, false, 0);
-        powerDim12 = Capture(1, 12, false, 2);
-        variaBright10 = Capture(19, 10, true, 0);
-        variaDim12 = Capture(17, 12, true, 2);
-        gravityDim2 = Capture(33, 2, false, 2);
+        powerDim1 = Capture(1, 1, LoadingPaletteColorDefinitions.TintColor, 2);
+        powerDim2 = Capture(1, 2, LoadingPaletteColorDefinitions.TintColor, 2);
+        powerBright9 = Capture(3, 9, LoadingPaletteColorDefinitions.TintColor, 0);
+        powerDim12 = Capture(1, 12, LoadingPaletteColorDefinitions.TintColor, 2);
+        variaBright10 = Capture(19, 10, LoadingPaletteColorDefinitions.VariaTintColor, 0);
+        variaDim12 = Capture(17, 12, LoadingPaletteColorDefinitions.VariaTintColor, 2);
+        gravityDim2 = Capture(33, 2, LoadingPaletteColorDefinitions.TintColor, 2);
         activePowerMiddle2 = CaptureActive(10, 2);
         activePowerBright2 = CaptureActive(11, 2);
         activePowerDim8 = CaptureActive(9, 8);
@@ -128,11 +128,10 @@ public sealed class SamusFullBodyCycleColorCatalog
             return new(palettes[palette][color], expected);
         }
 
-        LoadingPaletteInputView.Channels Capture(int palette, int color, bool varia, int shade)
+        LoadingPaletteInputView.Channels Capture(int palette, int color, Func<Bgr555, int, Bgr555> tint, int shade)
         {
             Bgr555 basis = palettes[palette / 16 * 16][color];
-            Bgr555 expected = varia ? LoadingPaletteColorDefinitions.VariaTintColor(basis, shade) :
-                LoadingPaletteColorDefinitions.TintColor(basis, shade);
+            Bgr555 expected = tint(basis, shade);
             colors.Remove(palette * 16 + color);
             return new(palettes[palette][color], expected);
         }

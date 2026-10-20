@@ -127,6 +127,7 @@ internal sealed class SamusPoseTransitionPhase
     /// drop and release poses, the finished Shinespark crash, hurt expiry and a pending hit, a published bomb jump, the
     /// windup's launch pose, X-ray's activation and grapple's connection. Returns whether a transition has been applied.
     /// </summary>
+    [IndependentFlag("An earlier transition this frame and a pending hit expiry are independent pose-handler states.")]
     private bool ApplyInterruptionTransitions(SamusHandlerFrame frame, SamusState samus, bool alreadyApplied,
         bool hitInterruptionExpiryPending, RoomPlmSystem plms)
     {
@@ -138,7 +139,7 @@ internal sealed class SamusPoseTransitionPhase
         {
             samus.PoseTransitions.ApplyGrappleDropTransition(
                 _room.LevelData ?? throw new InvalidOperationException("Grapple drop requires room geometry."),
-                dropPose, _clock.Counter, plms, clearMovementSpeed: false);
+                dropPose, _clock.Counter, plms, speed: GrappleDropSpeed.Kept);
             _player.ProspectiveSamusPose = null;
             _player.ProspectiveSamusFallbackPose = null;
             _player.ProspectiveSamusWallCollisionPose = null;

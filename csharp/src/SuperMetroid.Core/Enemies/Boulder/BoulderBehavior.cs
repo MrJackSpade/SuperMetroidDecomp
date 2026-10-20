@@ -161,7 +161,7 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Accelerates down toward the recorded spawn height, then clamps and starts the first rebound.</summary>
     private static void RunBoulderInitialFall(RoomEnemySlot slot, BoulderEnemyState state)
     {
-        AddBoulderVerticalVelocity(slot, state.BounceSpeedAccumulator, negative: false);
+        AddBoulderVerticalVelocity(slot, state.BounceSpeedAccumulator, direction: VerticalDirection.Down);
         if (unchecked((short)(slot.Position.Y.Whole - state.InitialPosition.Y)) < 0)
         {
             state.BounceSpeedAccumulator = AddAndCap(
@@ -179,7 +179,7 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Applies upward quadratic motion while reducing bounce speed, adding sideways travel, then returns to falling.</summary>
     private static void RunBoulderRebound(RoomEnemySlot slot, BoulderEnemyState state)
     {
-        AddBoulderVerticalVelocity(slot, state.BounceSpeedAccumulator, negative: true);
+        AddBoulderVerticalVelocity(slot, state.BounceSpeedAccumulator, direction: VerticalDirection.Up);
 
         // The cartridge subtracts one record and branches on the sign of the result, storing zero in place of a
         // result below zero, so the clock never keeps a value below zero past this update.
@@ -296,11 +296,11 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
             negative: state.DirectionSelector != 0);
 
     /// <summary>Adds or subtracts a quadratic table sample from the actor's wrapped 16.16 Y position.</summary>
-    private static void AddBoulderVerticalVelocity(RoomEnemySlot slot, int accumulator, bool negative)
+    private static void AddBoulderVerticalVelocity(RoomEnemySlot slot, int accumulator, VerticalDirection direction)
     {
         int displacement = EnemyMath.ReadQuadraticEnemySpeed(
             unchecked((byte)(SnesEightEight.WholeOf(accumulator))),
-            negative);
+            direction == VerticalDirection.Up);
         uint position = slot.Position.Y.RawValue;
         position = unchecked(position + (uint)displacement);
         slot.Position = slot.Position.WithY(SnesFixedPosition.FromRaw(unchecked(position)));

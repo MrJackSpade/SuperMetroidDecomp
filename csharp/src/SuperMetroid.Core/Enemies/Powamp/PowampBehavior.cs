@@ -103,16 +103,16 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
                 RunPowampInflating(slot, state, balloon);
                 return;
             case PowampEnemyFunction.InflatedRiseToTargetHeight:
-                RunPowampRise(slot, state, balloon, RequirePowampLevel(level), grappled: false);
+                RunPowampRise(slot, state, balloon, RequirePowampLevel(level), hold: PowampHold.Free);
                 return;
             case PowampEnemyFunction.InflatedFinishWiggle:
-                RunPowampFinishWiggle(slot, state, balloon, RequirePowampLevel(level), grappled: false);
+                RunPowampFinishWiggle(slot, state, balloon, RequirePowampLevel(level), hold: PowampHold.Free);
                 return;
             case PowampEnemyFunction.GrappledRiseToTargetHeight:
-                RunPowampRise(slot, state, balloon, RequirePowampLevel(level), grappled: true);
+                RunPowampRise(slot, state, balloon, RequirePowampLevel(level), hold: PowampHold.Grappled);
                 return;
             case PowampEnemyFunction.GrappledFinishWiggle:
-                RunPowampFinishWiggle(slot, state, balloon, RequirePowampLevel(level), grappled: true);
+                RunPowampFinishWiggle(slot, state, balloon, RequirePowampLevel(level), hold: PowampHold.Grappled);
                 return;
             case PowampEnemyFunction.GrappledResting:
                 RunPowampGrappledResting(slot, state, balloon);
@@ -173,29 +173,29 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
         PowampEnemyState state,
         PowampBalloon balloon,
         RoomLevelData level,
-        bool grappled)
+        PowampHold hold)
     {
         // The ordinary rise changes dispatch and executes the grappled routine immediately
         // on the frame common grapple AI publishes bit one.
         bool grappleAiActive = (body.AiStates & EnemyAiStates.Grappled) != 0;
-        if (!grappled && grappleAiActive)
+        if (hold != PowampHold.Grappled && grappleAiActive)
         {
             state.Function = PowampEnemyFunction.GrappledRiseToTargetHeight;
-            RunPowampRise(body, state, balloon, level, grappled: true);
+            RunPowampRise(body, state, balloon, level, hold: PowampHold.Grappled);
             return;
         }
 
         // Releasing a grapple during either grappled rising state consumes the frame after
         // changing the function. In particular it does not realign the balloon on this path.
-        if (grappled && !grappleAiActive)
+        if (hold == PowampHold.Grappled && !grappleAiActive)
         {
             state.Function = PowampEnemyFunction.InflatedFinishWiggle;
             return;
         }
 
-        AdvancePowampWiggle(body, state, balloon, stopWhenCentered: false);
+        AdvancePowampWiggle(body, state, balloon, stop: PowampWiggleStop.Never);
         bool collided = _terrain.MoveEnemyVertically(level, body, ComposePowampVerticalDisplacement(state));
-        int travelDistance = grappled
+        int travelDistance = hold == PowampHold.Grappled
             ? balloon.State.BalloonGrappleTravelDistance
             : PowampUngrappledTravelDistance;
         ushort targetY = unchecked((ushort)(balloon.State.BalloonSpawn.Y - travelDistance));
@@ -207,14 +207,14 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             if (IsPowampCentered(state.WiggleIndex))
             {
-                if (grappled)
+                if (hold == PowampHold.Grappled)
                     state.Function = PowampEnemyFunction.GrappledResting;
                 else
                     StartPowampDeflating(state, balloon);
             }
             else
             {
-                state.Function = grappled
+                state.Function = hold == PowampHold.Grappled
                     ? PowampEnemyFunction.GrappledFinishWiggle
                     : PowampEnemyFunction.InflatedFinishWiggle;
             }
@@ -228,19 +228,19 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
         PowampEnemyState state,
         PowampBalloon balloon,
         RoomLevelData level,
-        bool grappled)
+        PowampHold hold)
     {
         bool grappleAiActive = (body.AiStates & EnemyAiStates.Grappled) != 0;
-        if (grappled && !grappleAiActive)
+        if (hold == PowampHold.Grappled && !grappleAiActive)
         {
             state.Function = PowampEnemyFunction.InflatedFinishWiggle;
             return;
         }
 
-        bool centered = AdvancePowampWiggle(body, state, balloon, stopWhenCentered: true);
+        bool centered = AdvancePowampWiggle(body, state, balloon, stop: PowampWiggleStop.WhenCentered);
         if (centered)
         {
-            if (grappled)
+            if (hold == PowampHold.Grappled)
                 state.Function = PowampEnemyFunction.GrappledResting;
             else
                 StartPowampDeflating(state, balloon);
@@ -403,7 +403,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemySlot body,
         PowampEnemyState state,
         PowampBalloon balloon,
-        bool stopWhenCentered)
+        PowampWiggleStop stop)
     {
         state.WiggleTimer = state.WiggleTimer.Decrement().Remaining;
         if (!state.WiggleTimer.IsZero && !EnemyMath.IsNegative16(state.WiggleTimer.RawValue))
@@ -420,7 +420,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
             balloon.State.BalloonSpawn.X + PowampMotionDefinitions.WiggleOffset(state.WiggleIndex)));
         balloon.Slot.Position = balloon.Slot.Position.WithWholeX(x);
         body.Position = body.Position.WithWholeX(x);
-        if (stopWhenCentered && IsPowampCentered(state.WiggleIndex))
+        if (stop == PowampWiggleStop.WhenCentered && IsPowampCentered(state.WiggleIndex))
             return true;
 
         state.WiggleIndex++;
@@ -566,7 +566,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
             // body is still visibly deflating.
             SkipsEnemy = enemy => enemy.RequireSpeciesState<PowampEnemyState>().RefusesContact,
             ExemptFromGenericDeath = true,
-            AfterCommon = (c, _) => ResolvePowampShotAfterCommon(c.Enemy),
+            AfterCommon = c => ResolvePowampShotAfterCommon(c.Enemy),
         });
     }
 
@@ -631,7 +631,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
 
         spike.Velocity = spike.Velocity.WithX(new SnesSignedEightEight(unchecked((ushort)(
             unchecked((short)spike.Velocity.X.RawValue) + PowampMotionDefinitions.SpikeXAcceleration(direction)))));
-        if (EnemyProjectileEngine.MoveProjectileAxis(spike, level, horizontal: true))
+        if (EnemyProjectileEngine.MoveProjectileAxis(spike, level, axis: Axis.Horizontal))
         {
             BeginPowampSpikeDeletion(spike);
             return;
@@ -639,7 +639,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
 
         spike.Velocity = spike.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)(
             unchecked((short)spike.Velocity.Y.RawValue) + PowampMotionDefinitions.SpikeYAcceleration(direction)))));
-        if (EnemyProjectileEngine.MoveProjectileAxis(spike, level, horizontal: false))
+        if (EnemyProjectileEngine.MoveProjectileAxis(spike, level, axis: Axis.Vertical))
             BeginPowampSpikeDeletion(spike);
     }
 

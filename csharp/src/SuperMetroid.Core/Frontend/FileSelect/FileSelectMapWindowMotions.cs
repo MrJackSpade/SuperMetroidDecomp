@@ -25,13 +25,9 @@ internal static class FileSelectMapWindowMotions
     {
         (int x, int y) = StockOrigin(area);
         int farthest = Math.Max(Math.Max(x, 256 - x), Math.Max(y, 256 - y));
-        uint Velocity(int distance, bool negative)
-        {
-            int magnitude = (256 * distance / farthest) << 10;
-            return unchecked((uint)(negative ? -magnitude : magnitude));
-        }
-        return new(farthest / 4, Velocity(x, true), Velocity(256 - x, false),
-            Velocity(y, true), Velocity(256 - y, false));
+        uint Velocity(int distance, int sign) => unchecked((uint)(sign * ((256 * distance / farthest) << 10)));
+        return new(farthest / 4, Velocity(x, -1), Velocity(256 - x, 1),
+            Velocity(y, -1), Velocity(256 - y, 1));
     }
 
     /// <summary>

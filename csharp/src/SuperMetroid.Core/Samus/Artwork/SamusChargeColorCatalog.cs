@@ -77,8 +77,8 @@ public sealed class SamusChargeColorCatalog
         document = JsonAssetDocument.Read<SamusChargeColorDocument>(json, ArtworkJson.Options, "Samus charge color");
         if (document.Version != SamusChargeColorFormat.Version)
             throw new InvalidDataException("Samus charge colors require the supported version.");
-        return new(CompileCharge(document.ChargedBeam, "charged beam", false),
-            CompileCharge(document.PseudoScrew, "pseudo-Screw", true),
+        return new(CompileCharge(document.ChargedBeam, "charged beam", SamusChargeKind.ChargedBeam),
+            CompileCharge(document.PseudoScrew, "pseudo-Screw", SamusChargeKind.PseudoScrew),
             CompileHyper(document.HyperShot));
     }
 
@@ -166,7 +166,7 @@ public sealed class SamusChargeColorCatalog
                 source.Resolve(suit, phase, color));
     }
     /// <summary>Requires three suits and six complete RGB5 rows per suit before building the charge or pseudo-Screw view.</summary>
-    private static ChargeInputs CompileCharge(PaletteRgb5[][][]? source, string name, bool pseudo)
+    private static ChargeInputs CompileCharge(PaletteRgb5[][][]? source, string name, SamusChargeKind kind)
     {
         if (source is null || source.Length != SamusChargeColorFormat.SuitCount)
             throw new InvalidDataException($"{name} requires three suits.");
@@ -181,7 +181,7 @@ public sealed class SamusChargeColorCatalog
                 result[suit][phase] = CompileColors(phases[phase],
                     $"{name} suit {suit}, phase {phase}");
         }
-        return new(result, pseudo);
+        return new(result, kind == SamusChargeKind.PseudoScrew);
     }
 
     /// <summary>Uses the same palette algorithms for the reverse Hyper-shot playback view.</summary>

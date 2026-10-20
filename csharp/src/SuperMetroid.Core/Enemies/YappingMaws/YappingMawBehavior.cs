@@ -621,7 +621,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
         table.AddShot(new EnemyShotReaction(enemy => enemy.EnemyDefinitionPointer == EnemyDefinitionId.YappingMaw &&
                                                      EnemyCollision.ShotAi(enemy) == EnemyInteractionCallback.YappingMawShot)
         {
-            AfterCommon = (c, _) => ResolveYappingMawShotAfterCommon(c.Enemy, c.Enemy.RequireSpeciesState<YappingMawEnemyState>(), c.Samus),
+            AfterCommon = c => ResolveYappingMawShotAfterCommon(c.Enemy, c.Enemy.RequireSpeciesState<YappingMawEnemyState>(), c.Samus),
         });
     }
 

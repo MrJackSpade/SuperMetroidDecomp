@@ -64,26 +64,26 @@ internal static class EndingTextLayoutDefinitions
         int prepositionRow = groupRow + EndingTextDefinitions.Native.LargeGlyphHeight + CreditLineGap;
         int teamRow = prepositionRow + EndingTextDefinitions.Native.SmallGlyphHeight + CreditLineGap;
         if (row == EndingTextDefinitions.ResultProducedBy.Row)
-            return Glyph(producedBy, column - EndingTextDefinitions.ResultProducedBy.Column, large: false, bottom: false, attributes: 0);
+            return Glyph(producedBy, column - EndingTextDefinitions.ResultProducedBy.Column, EndingTextStyle.ResultSmall, bottom: false, attributes: 0);
         if (row >= groupRow && row < groupRow + EndingTextDefinitions.Native.LargeGlyphHeight)
-            return Centered(DevelopmentGroup, column, large: true, row != groupRow, DevelopmentGroupAttributes);
+            return Centered(DevelopmentGroup, column, EndingTextStyle.CopyrightLarge, row != groupRow, DevelopmentGroupAttributes);
         if (row == prepositionRow)
-            return Centered(AttributionPreposition, column, large: false, bottom: false, attributes: 0);
+            return Centered(AttributionPreposition, column, EndingTextStyle.ResultSmall, bottom: false, attributes: 0);
         if (row >= teamRow && row < teamRow + EndingTextDefinitions.Native.LargeGlyphHeight)
-            return Centered(DevelopmentTeam, column, large: true, row != teamRow, DevelopmentTeamAttributes);
+            return Centered(DevelopmentTeam, column, EndingTextStyle.CopyrightLarge, row != teamRow, DevelopmentTeamAttributes);
         return EndingTextDefinitions.ResultBlankWord;
     }
 
     /// <summary>Centers a selected credit phrase before resolving its top or bottom glyph tile.</summary>
-    private static ushort Centered(string text, int column, bool large, bool bottom, ushort attributes) =>
-        Glyph(text, column - (EndingTextDefinitions.TilemapWidth - text.Length) / 2, large, bottom, attributes);
+    private static ushort Centered(string text, int column, EndingTextStyle style, bool bottom, ushort attributes) =>
+        Glyph(text, column - (EndingTextDefinitions.TilemapWidth - text.Length) / 2, style, bottom, attributes);
 
     /// <summary>Leaves spaces blank and combines a compiled ending-font glyph with its selected palette bits.</summary>
-    private static ushort Glyph(string text, int character, bool large, bool bottom, ushort attributes)
+    private static ushort Glyph(string text, int character, EndingTextStyle style, bool bottom, ushort attributes)
     {
         if ((uint)character >= text.Length || text[character] == ' ')
             return EndingTextDefinitions.ResultBlankWord;
         return (ushort)(attributes | EndingTextDefinitions.CompileGlyph(text[character],
-            large ? EndingTextStyle.CopyrightLarge : EndingTextStyle.ResultSmall, bottom));
+            style, bottom));
     }
 }

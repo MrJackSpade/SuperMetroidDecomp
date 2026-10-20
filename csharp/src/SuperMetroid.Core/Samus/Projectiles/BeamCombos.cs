@@ -83,7 +83,8 @@ internal sealed class BeamCombos
                     slot.Position = slot.Position.WithWhole(new(unchecked((ushort)(samus.Position.X.Whole + (i < 2 ? 128 : -128))), unchecked((ushort)(samus.Position.Y.Whole + (i is 0 or 3 ? 128 : -128)))));
                 }
                 if (kind == SamusComboKind.Spazer && i >= 2) slot.Type = SamusComboRomData.SpazerTrailType;
-                InitializeComboData(slot, kind == SamusComboKind.Ice, kind == SamusComboKind.Spazer && i >= 2);
+                InitializeComboData(slot, kind == SamusComboKind.Ice ? BeamComboData.Charged
+                    : kind == SamusComboKind.Spazer && i >= 2 ? BeamComboData.Echo : BeamComboData.Combo);
             }
             _slotTable.ProjectileCounter = 4;
             shared.SetSharedCooldown(SamusProjectileCooldownDefinitions.ReadByte(SamusProjectileRomData.Beams.UnchargedCooldowns + (_slotTable.Slots[0].Type & 63)));
@@ -104,18 +105,19 @@ internal sealed class BeamCombos
     }
 
     /// <summary>Selects damage and instruction data from the charged, combo, or Spazer echo tables and initializes its first frame.</summary>
-    internal static void InitializeComboData(SamusProjectileSlot slot, bool ordinary, bool echo)
+    internal static void InitializeComboData(SamusProjectileSlot slot, BeamComboData comboData)
     {
-        int table = ordinary ? SamusProjectileRomData.Beams.ChargedDataPointers :
+        bool echo = comboData == BeamComboData.Echo;
+        int table = comboData == BeamComboData.Charged ? SamusProjectileRomData.Beams.ChargedDataPointers :
             echo ? SamusComboRomData.EchoDataPointers : SamusComboRomData.DataPointers;
         int index = echo ? (byte)slot.Type - 34 : slot.Type & 15;
         int data = SamusProjectileRomData.Banks.Projectile | SamusProjectileSelectionDefinitions.ReadWord(table + index * 2);
         slot.Damage = SamusProjectileDamageDefinitions.Read(data);
         if (unchecked((short)slot.Damage) < 0) throw new InvalidDataException("Negative native combo projectile damage.");
-        SamusProjectileProgram? program = SamusProjectileHeaderDefinitions.Program((ushort)data, ordinary || echo ? slot.Direction & 15 : 0);
+        SamusProjectileProgram? program = SamusProjectileHeaderDefinitions.Program((ushort)data, comboData != BeamComboData.Combo ? slot.Direction & 15 : 0);
         slot.Cursor = SamusProjectilePrograms.Start(program);
         slot.InstructionTimer = NativeCountdown.Start(1);
-        if (ordinary)
+        if (comboData == BeamComboData.Charged)
             slot.Radius = SamusProjectilePrograms.InitialRadius(program);
     }
     /// <summary>Runs $90:CF09/$CF7A for one Ice combo slot and returns its optional library-one sound request.</summary>
@@ -338,7 +340,7 @@ internal sealed class BeamCombos
         if (slot.SlotIndex < 2)
         {
             slot.Type = SamusComboRomData.SpazerTrailType;
-            InitializeComboData(slot, ordinary: false, echo: true);
+            InitializeComboData(slot, BeamComboData.Echo);
         }
     }
     /// <summary>Runs $90:DA08's Wave combo homing oscillator, preserving 8.8 acceleration and 16.16 position carry.</summary>

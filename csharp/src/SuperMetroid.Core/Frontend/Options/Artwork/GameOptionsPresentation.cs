@@ -52,8 +52,8 @@ public sealed class GameOptionsPresentation
             !region.Cells.SequenceEqual(GameOptionsPresentationDefinitions.LanguageCells(index))).Any()
             ? document.LanguageRegions : null;
         specialToggles = document.SpecialToggles.Any(pair =>
-            !pair.Value.EnabledCells.SequenceEqual(GameOptionsPresentationDefinitions.ToggleCells(pair.Key, true)) ||
-            !pair.Value.DisabledCells.SequenceEqual(GameOptionsPresentationDefinitions.ToggleCells(pair.Key, false)))
+            !pair.Value.EnabledCells.SequenceEqual(GameOptionsPresentationDefinitions.ToggleCells(pair.Key, GameOptionsToggleState.Enabled)) ||
+            !pair.Value.DisabledCells.SequenceEqual(GameOptionsPresentationDefinitions.ToggleCells(pair.Key, GameOptionsToggleState.Disabled)))
             ? document.SpecialToggles : null;
         headingAnchors = document.HeadingAnchors.Any(pair => pair.Value != GameOptionsPresentationDefinitions.HeadingAnchor(pair.Key))
             ? document.HeadingAnchors : null;
@@ -136,9 +136,9 @@ public sealed class GameOptionsPresentation
     {
         if (specialToggles is null)
         {
-            ApplyPalette(page, GameOptionsPresentationDefinitions.ToggleCells(name, true),
+            ApplyPalette(page, GameOptionsPresentationDefinitions.ToggleCells(name, GameOptionsToggleState.Enabled),
                 enabled ? SelectedPalette : UnselectedPalette);
-            ApplyPalette(page, GameOptionsPresentationDefinitions.ToggleCells(name, false),
+            ApplyPalette(page, GameOptionsPresentationDefinitions.ToggleCells(name, GameOptionsToggleState.Disabled),
                 enabled ? UnselectedPalette : SelectedPalette);
             return;
         }
@@ -237,7 +237,7 @@ public sealed class GameOptionsPresentation
             throw new InvalidDataException("Options selected and unselected palettes must differ.");
         if (document.CursorFrameDuration is < 1 or > ushort.MaxValue)
             throw new InvalidDataException("Options cursor frame duration must be 1..65535.");
-        ValidatePoint(document.HiddenCursor, "hidden cursor", allowOffscreenX: true);
+        ValidatePoint(document.HiddenCursor, "hidden cursor", offscreenX: OffscreenX.Allowed);
 
         var pages = new Dictionary<string, byte[]>(StringComparer.Ordinal);
         foreach (string name in GameOptionsPresentationDefinitions.PageNames)
@@ -288,13 +288,13 @@ public sealed class GameOptionsPresentation
                 MenuSpriteCompiler.Compile(document.Sprites[name], $"options {name}")))));
         foreach (string page in GameOptionsPresentationDefinitions.MenuPageNames)
         {
-            ValidatePoint(document.HeadingAnchors[page], $"{page} heading", allowOffscreenX: false);
+            ValidatePoint(document.HeadingAnchors[page], $"{page} heading", offscreenX: OffscreenX.Rejected);
             int expected = GameOptionsPresentationDefinitions.CursorCount(page);
             Position16<OamPixels>[]? points = document.CursorAnchors[page];
             if (points is null || points.Length != expected)
                 throw new InvalidDataException($"Options {page} requires {expected} cursor anchors.");
             foreach (Position16<OamPixels> point in points)
-                ValidatePoint(point, $"{page} cursor", allowOffscreenX: false);
+                ValidatePoint(point, $"{page} cursor", offscreenX: OffscreenX.Rejected);
         }
 
         return new(pages, labels, sprites, document,
@@ -369,9 +369,9 @@ public sealed class GameOptionsPresentation
     }
 
     /// <summary>Validates an OAM origin, allowing hidden cursor X positions when requested.</summary>
-    private static void ValidatePoint(Position16<OamPixels> point, string owner, bool allowOffscreenX)
+    private static void ValidatePoint(Position16<OamPixels> point, string owner, OffscreenX offscreenX)
     {
-        int maximumX = allowOffscreenX ? SnesSpritemapXWord.OffsetFieldMaximum : byte.MaxValue;
+        int maximumX = offscreenX == OffscreenX.Allowed ? SnesSpritemapXWord.OffsetFieldMaximum : byte.MaxValue;
         if (point.X < 0 || point.X > maximumX || (uint)point.Y > byte.MaxValue)
             throw new InvalidDataException(
                 $"Options {owner} requires X=0..{maximumX} and Y=0..255.");

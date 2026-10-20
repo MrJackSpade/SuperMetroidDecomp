@@ -285,12 +285,12 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
             firstPosition: SporeSpawnDeathCenterX,
             anchor: state.StalkAnchor.X,
             end: body.Position.X.Whole,
-            horizontal: true);
+            axis: Axis.Horizontal);
         WriteSporeSpawnStalkAxis(
             firstPosition: SporeSpawnCeilingY,
             anchor: state.StalkAnchor.Y,
             end: unchecked((ushort)(body.Position.Y.Whole - 40)),
-            horizontal: false);
+            axis: Axis.Vertical);
     }
 
     /// <summary>Interpolates one axis of four physical stalk slots from the ceiling toward the body.</summary>
@@ -298,7 +298,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         ushort firstPosition,
         ushort anchor,
         ushort end,
-        bool horizontal)
+        Axis axis)
     {
         ushort signedDelta = unchecked((ushort)(end - anchor));
         bool negative = unchecked((short)signedDelta) < 0;
@@ -321,7 +321,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         for (int segment = 0; segment < positions.Length; segment++)
         {
             RoomEnemyProjectileSlot stalk = _projectiles.EnemyProjectiles[14 + segment];
-            if (horizontal)
+            if (axis == Axis.Horizontal)
                 stalk.Position = stalk.Position.WithWholeX(positions[segment]);
             else
                 stalk.Position = stalk.Position.WithWholeY(positions[segment]);
@@ -454,7 +454,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
                 return false;
             },
             ExemptFromGenericDeath = true,
-            AfterCommon = (c, _) => ResolveSporeSpawnShotAfterCommon(c.Enemy),
+            AfterCommon = c => ResolveSporeSpawnShotAfterCommon(c.Enemy),
         });
     }
 
@@ -474,7 +474,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
                     throw new InvalidDataException(
                         $"Spore Spawn hitbox touch AI {context.HitboxTouchAi?.ToString() ?? "(unnamed)"} is not translated.");
                 }
-                _collision.ResolveNormalEnemyTouch(context.Slot, context.Samus, skipDeathAnimation: true);
+                _collision.ResolveNormalEnemyTouch(context.Slot, context.Samus, deathAnimation: TouchDeathAnimation.Skip);
                 ResolveSporeSpawnDeathAfterCommon(context.Slot);
             });
     }
@@ -590,10 +590,10 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
                 state.Function = cue.Function;
                 return;
             case SporeSpawnCueKind.LoadDeathPalette:
-                LoadSporeSpawnDeathPalette(DeathPaletteRow(cue.DeathPaletteStep), targetOnly: false);
+                LoadSporeSpawnDeathPalette(DeathPaletteRow(cue.DeathPaletteStep), copy: SporeSpawnPaletteCopy.CurrentAndTarget);
                 return;
             case SporeSpawnCueKind.LoadDeathTargetPalette:
-                LoadSporeSpawnDeathPalette(DeathPaletteRow(cue.DeathPaletteStep), targetOnly: true);
+                LoadSporeSpawnDeathPalette(DeathPaletteRow(cue.DeathPaletteStep), copy: SporeSpawnPaletteCopy.TargetOnly);
                 return;
             case SporeSpawnCueKind.SpawnHardeningDust:
                 SpawnSporeSpawnHardeningDust(state);
@@ -624,7 +624,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Loads sprite, level, and background death colors into CGRAM or fade targets.</summary>
-    internal void LoadSporeSpawnDeathPalette(ushort sourceByteOffset, bool targetOnly)
+    internal void LoadSporeSpawnDeathPalette(ushort sourceByteOffset, SporeSpawnPaletteCopy copy)
     {
         SporeSpawnEnemyState state = SporeSpawn ?? throw new InvalidOperationException(
             "Spore Spawn palette instruction ran without the boss state.");
@@ -632,17 +632,17 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
             SporeSpawnDeathPaletteLayer.Sprite,
             sourceByteOffset,
             state,
-            targetOnly);
+            copy == SporeSpawnPaletteCopy.TargetOnly);
         CopySporeSpawnPaletteRow(
             SporeSpawnDeathPaletteLayer.Level,
             sourceByteOffset,
             state,
-            targetOnly);
+            copy == SporeSpawnPaletteCopy.TargetOnly);
         CopySporeSpawnPaletteRow(
             SporeSpawnDeathPaletteLayer.Background,
             sourceByteOffset,
             state,
-            targetOnly);
+            copy == SporeSpawnPaletteCopy.TargetOnly);
     }
 
     /// <summary>Writes one installed death-color row to its native destination or target buffer.</summary>

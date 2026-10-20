@@ -8,6 +8,7 @@ namespace SuperMetroid.Core.Rendering;
 /// <param name="IncludeObjects">Whether to composite screen-relative OBJ pixels onto the subscreen using native BG/OBJ priority thresholds before adding its colors.</param>
 /// <param name="MainObjects">Whether main-plane OBJ visibility and palettes 4..7 affect eligibility when a coverage descriptor is supplied; has no effect without that descriptor.</param>
 /// <param name="VerticalScroll">Uniform vertical scroll in pixels when per-line registers are absent; nonzero values require four-bit sampling.</param>
+[IndependentFlag("independent PPU settings of the layer: bit depth and which object layers it adds")]
 public sealed record BgSubscreenAddRenderLayer(int TilemapWord, int CharacterWord,
     Bg4BppRenderLayer? MainCoverage = null, bool FourBpp = false, bool IncludeObjects = false,
     bool MainObjects = false, int VerticalScroll = 0) : RenderLayer

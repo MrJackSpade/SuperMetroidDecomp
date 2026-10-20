@@ -134,13 +134,13 @@ public static class SnesBgTilemapRenderer
     }
 
     /// <summary>Renders the top <paramref name="rowCount"/> rows of the BG3 plane (#1348), as <see cref="Render2Bpp(Span{Rgba32}, SnesVram, IPaletteColors, BgVramAddresses, int, bool, bool?)"/> renders a VRAM tilemap.</summary>
-    public static void Render2Bpp(Span<Rgba32> output, SnesVram vram, IPaletteColors cgram, Layer3Plane plane, int characterBaseWord, int rowCount, bool transparentColorZero = false)
+    public static void Render2Bpp(Span<Rgba32> output, SnesVram vram, IPaletteColors cgram, Layer3Plane plane, int characterBaseWord, int rowCount, ColorZero colorZero = ColorZero.Opaque)
     {
         Ensure.NotNull(plane);
         if (rowCount is <= 0 or > 32)
             throw new ArgumentOutOfRangeException(nameof(rowCount));
         Render2BppEntries(output, vram, cgram, characterBaseWord,
-            plane.Words[..(rowCount * SnesPpuLayout.TilemapPageWidthInTiles)], transparentColorZero, null);
+            plane.Words[..(rowCount * SnesPpuLayout.TilemapPageWidthInTiles)], colorZero == ColorZero.Transparent, null);
     }
 
     /// <summary>Renders 32-wide rows of 2-bpp tilemap words: one row per 32 entries.</summary>

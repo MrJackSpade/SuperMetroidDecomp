@@ -129,11 +129,11 @@ public sealed class CartridgeAudioState
 
     /// <summary>Implements <c>QueueMusic_Delayed8</c> at $80:8FC1.</summary>
     public void QueueMusicDelayed8(MusicCommand command) =>
-        QueueMusic(command, MusicCommandDelay.EightFrames, requireFreeSlot: true);
+        QueueMusic(command, MusicCommandDelay.EightFrames, overflow: MusicQueueOverflow.SkipWhenFull);
 
     /// <summary>Implements <c>QueueMusic_DelayedY</c>, including its minimum delay of eight.</summary>
     public void QueueMusicDelayed(MusicCommand command, MusicCommandDelay delay) =>
-        QueueMusic(command, delay, requireFreeSlot: false);
+        QueueMusic(command, delay, overflow: MusicQueueOverflow.Overwrite);
 
     /// <summary>Queues the data-bank and track operations performed by ordinary room loading.</summary>
     public void QueueRoomMusic(int dataIndex, int trackIndex)
@@ -308,7 +308,7 @@ public sealed class CartridgeAudioState
     private void QueueMusic(
         MusicCommand command,
         MusicCommandDelay delay,
-        bool requireFreeSlot)
+        MusicQueueOverflow overflow)
     {
         if (delay.Frames < AudioRomData.Queues.MinimumMusicDelayFrames)
         {
@@ -317,7 +317,7 @@ public sealed class CartridgeAudioState
         }
 
         int next = (MusicWritePosition + 1) & AudioRomData.Queues.MusicIndexMask;
-        if (requireFreeSlot && next == MusicReadPosition)
+        if (overflow == MusicQueueOverflow.SkipWhenFull && next == MusicReadPosition)
             return;
 
         _musicEntries[MusicWritePosition] = command;

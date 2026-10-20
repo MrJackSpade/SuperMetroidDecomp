@@ -126,7 +126,7 @@ public static class SamusPaletteRomData
         public static bool TryScrewAttackPalettePointer(
             ushort suitByteOffset, ushort phaseByteOffset, out ushort pointer) =>
             TryPalettePointer(suitByteOffset, phaseByteOffset, 10, ScrewAttackFirstPalette,
-                pingPong: true, out pointer);
+                shape: PaletteCycleShape.PingPong, out pointer);
 
         /// <summary>
         /// Reads a word from the complete compiled three-suit Screw Attack pointer
@@ -138,7 +138,7 @@ public static class SamusPaletteRomData
             ReadCompiledListWord(suitByteOffset, phaseByteOffset,
                 firstListAddress: ScrewAttackFirstList, phaseCount: 6,
                 firstPalette: ScrewAttackFirstPalette,
-                pingPong: true);
+                shape: PaletteCycleShape.PingPong);
         /// <summary>First contiguous active Speed Booster suit list at $91:DAAF.</summary>
         public const ushort SpeedBoosterFirstList = 0xdaaf;
         /// <summary>First Power Suit active Speed Booster shade at $9B:9B20.</summary>
@@ -150,7 +150,7 @@ public static class SamusPaletteRomData
         public static bool TryActiveSpeedBoosterPalettePointer(
             ushort suitByteOffset, ushort phaseByteOffset, out ushort pointer) =>
             TryPalettePointer(suitByteOffset, phaseByteOffset, 6, SpeedBoosterFirstPalette,
-                pingPong: false, out pointer);
+                shape: PaletteCycleShape.Linear, out pointer);
 
         /// <summary>
         /// Reads a word from the complete compiled three-suit active Speed Booster
@@ -166,7 +166,7 @@ public static class SamusPaletteRomData
                 (4, 10) => (ushort)SpeedBoosterPaletteOverrun.GrappleCode,
                 _ => ReadCompiledListWord(suitByteOffset, phaseByteOffset,
                     firstListAddress: SpeedBoosterFirstList, phaseCount: 4,
-                    firstPalette: SpeedBoosterFirstPalette, pingPong: false),
+                    firstPalette: SpeedBoosterFirstPalette, shape: PaletteCycleShape.Linear),
             };
         /// <summary>
         /// Resolves the bounded $91:DB10/$91:DB16 stored-shine suit and
@@ -175,7 +175,7 @@ public static class SamusPaletteRomData
         public static bool TryStoredShinePalettePointer(
             ushort suitByteOffset, ushort phaseByteOffset, out ushort pointer) =>
             TryPalettePointer(suitByteOffset, phaseByteOffset, 10, 0x9ba0,
-                pingPong: true, out pointer);
+                shape: PaletteCycleShape.PingPong, out pointer);
         /// <summary>
         /// Resolves the bounded $91:DB75/$91:DB7B active-shinespark suit
         /// and phase lists to a bank-$9B palette pointer.
@@ -183,7 +183,7 @@ public static class SamusPaletteRomData
         public static bool TryActiveShinesparkPalettePointer(
             ushort suitByteOffset, ushort phaseByteOffset, out ushort pointer) =>
             TryPalettePointer(suitByteOffset, phaseByteOffset, 6, 0x9c20,
-                pingPong: false, out pointer);
+                shape: PaletteCycleShape.Linear, out pointer);
 
         /// <summary>
         /// Resolves a valid suit/phase pair to a bank-$9B palette, mirroring later phases
@@ -194,7 +194,7 @@ public static class SamusPaletteRomData
             ushort phaseByteOffset,
             ushort lastPhaseByteOffset,
             int firstPalette,
-            bool pingPong,
+            PaletteCycleShape shape,
             out ushort pointer)
         {
             if (suitByteOffset > 4 || (suitByteOffset & 1) != 0 ||
@@ -205,7 +205,7 @@ public static class SamusPaletteRomData
             }
 
             int phase = phaseByteOffset / 2;
-            int shade = pingPong ? Math.Min(phase, 6 - phase) : phase;
+            int shade = shape == PaletteCycleShape.PingPong ? Math.Min(phase, 6 - phase) : phase;
             pointer = checked((ushort)(firstPalette + suitByteOffset * 0x100 + shade * 0x20));
             return true;
         }
@@ -220,7 +220,7 @@ public static class SamusPaletteRomData
             ushort firstListAddress,
             int phaseCount,
             int firstPalette,
-            bool pingPong)
+            PaletteCycleShape shape)
         {
             if (suitByteOffset > 4 || (suitByteOffset & 1) != 0)
                 throw new ArgumentOutOfRangeException(nameof(suitByteOffset));
@@ -244,7 +244,7 @@ public static class SamusPaletteRomData
                 int wordIndex = index / sizeof(ushort);
                 int suit = wordIndex / phaseCount;
                 int phase = wordIndex % phaseCount;
-                int shade = pingPong ? Math.Min(phase, 6 - phase) : phase;
+                int shade = shape == PaletteCycleShape.PingPong ? Math.Min(phase, 6 - phase) : phase;
                 ushort pointer = checked((ushort)(firstPalette + suit * 0x200 + shade * 0x20));
                 return (index & 1) == 0 ? (byte)pointer : SnesLittleEndian.HighByte(pointer);
             }

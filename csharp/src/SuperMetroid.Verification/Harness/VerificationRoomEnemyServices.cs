@@ -109,9 +109,11 @@ internal sealed class VerificationRoomEnemyServices(IRoomEnemyServices? loaded) 
             Loaded("write a room scroll state").RoomScroll.Write(index, state);
     }
 
-    /// <summary>Forwards Samus control changes to loaded room services.</summary>
-    public void SetControlsEnabled(bool enabled) =>
-        Loaded("change Samus control enablement").SamusControls.SetControlsEnabled(enabled);
+    /// <summary>Forwards enabling Samus's controls to loaded room services.</summary>
+    public void EnableControls() => Loaded("enable Samus's controls").SamusControls.EnableControls();
+
+    /// <inheritdoc />
+    public void DisableControls() => Loaded("disable Samus's controls").SamusControls.DisableControls();
 
     /// <summary>Advances the Mother Brain glass hit count through an override or loaded services.</summary>
     public void IncrementGlassRoomArgument()

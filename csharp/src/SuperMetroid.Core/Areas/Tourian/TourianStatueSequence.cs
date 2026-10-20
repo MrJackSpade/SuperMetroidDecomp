@@ -120,7 +120,7 @@ public sealed class TourianStatueSequence
         {
             descent = SnesSixteenSixteen.FromWhole(TourianStatueRomData.DescentDistance);
             _enemies.TourianStatue.VerticalOffset = VerticalOffset;
-            plms.Tourian.TrySpawnTourianAccess(_room.LoadedLevelData, clear: true);
+            plms.Tourian.TrySpawnTourianAccess(_room.LoadedLevelData, TourianAccessFloor.Clear);
             EnableScrolling();
         }
         else
@@ -224,10 +224,10 @@ public sealed class TourianStatueSequence
                     new CgramPalettes(_cgram).All.Slice(definition.ClearedColorIndex, 3).Fill(Bgr555.Black);
                     return null;
                 case TourianStatueTileCueKind.SpawnEyeGlow:
-                    statue.SpawnUnlockEffect(definition.UnlockEffectParameter, soul: false);
+                    statue.SpawnEyeGlow(definition.UnlockEffectParameter);
                     return null;
                 case TourianStatueTileCueKind.SpawnSoul:
-                    statue.SpawnUnlockEffect(definition.UnlockEffectParameter, soul: true);
+                    statue.SpawnSoul(definition.UnlockEffectParameter);
                     return null;
                 case TourianStatueTileCueKind.SpawnGreyPaletteFx:
                     _roomPaletteFx.SpawnDefinition(definition.PaletteFx, _player.IntroducedSamus.EquippedItems);
@@ -280,7 +280,7 @@ public sealed class TourianStatueSequence
         // three quarter-steps before a full 240 pixels.
         if (VerticalOffset == -TourianStatueRomData.DescentDistance)
         {
-            plms.Tourian.TrySpawnTourianAccess(_room.LoadedLevelData, clear: false);
+            plms.Tourian.TrySpawnTourianAccess(_room.LoadedLevelData, TourianAccessFloor.Crumble);
             _system.SetEvent(EventNumber.TourianUnlocked);
         }
     }

@@ -41,14 +41,14 @@ public sealed class XrayOverlayVisualCatalog
     /// <exception cref="InvalidDataException">Item values/count, room lists, duplicate overlays, or required-overlay coverage are invalid.</exception>
     public XrayOverlayVisualCatalog(IEnumerable<ushort> itemMetatiles,
         IEnumerable<(XrayRoomOverlayDefinition Overlay, IReadOnlyList<XrayRoomOverlayVisual> Tiles)> rooms)
-        : this(itemMetatiles, rooms, requireCompleteInstallation: true)
+        : this(itemMetatiles, rooms, requiredOverlays: XrayRoomOverlayDefinitions.All)
     {
     }
 
-    /// <summary>Copies validated item and room overlays, optionally requiring every retail room overlay.</summary>
+    /// <summary>Copies validated item and room overlays and requires each of <paramref name="requiredOverlays"/>.</summary>
     internal XrayOverlayVisualCatalog(IEnumerable<ushort> itemMetatiles,
         IEnumerable<(XrayRoomOverlayDefinition Overlay, IReadOnlyList<XrayRoomOverlayVisual> Tiles)> rooms,
-        bool requireCompleteInstallation)
+        IEnumerable<XrayRoomOverlayDefinition> requiredOverlays)
     {
         Ensure.NotNull(itemMetatiles);
         Ensure.NotNull(rooms);
@@ -65,10 +65,9 @@ public sealed class XrayOverlayVisualCatalog
                 !this.rooms.TryAdd(overlay, tiles.ToArray()))
                 throw new InvalidDataException($"Invalid X-ray room overlay {overlay.Name}.");
         }
-        if (requireCompleteInstallation)
-            foreach (XrayRoomOverlayDefinition overlay in XrayRoomOverlayDefinitions.All)
-                if (!this.rooms.ContainsKey(overlay))
-                    throw new InvalidDataException($"Missing required X-ray room overlay {overlay.Name}.");
+        foreach (XrayRoomOverlayDefinition overlay in Ensure.NotNull(requiredOverlays))
+            if (!this.rooms.ContainsKey(overlay))
+                throw new InvalidDataException($"Missing required X-ray room overlay {overlay.Name}.");
     }
 
     /// <summary>Selects the installed item reveal metatile by native graphics-slot index, independently of whether an item has been collected.</summary>

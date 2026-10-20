@@ -127,9 +127,9 @@ internal static class EnemyTileArtworkSporeSpawnColorsVerification
         for (int frame = 0; frame < SporeSpawnColorRomData.DeathSceneFrameCount; frame++)
         {
             ushort offset = (ushort)(frame * SporeSpawnColorRomData.FrameByteCount);
-            enemies.SporeSpawnBehavior.LoadSporeSpawnDeathPalette(offset, true);
+            enemies.SporeSpawnBehavior.LoadSporeSpawnDeathPalette(offset, SporeSpawnPaletteCopy.TargetOnly);
             CheckDeath(frame, targetOnly: true);
-            enemies.SporeSpawnBehavior.LoadSporeSpawnDeathPalette(offset, false);
+            enemies.SporeSpawnBehavior.LoadSporeSpawnDeathPalette(offset, SporeSpawnPaletteCopy.CurrentAndTarget);
             CheckDeath(frame, targetOnly: false);
         }
         AssertEqual(0, guarded.ForbiddenReadAttempts,

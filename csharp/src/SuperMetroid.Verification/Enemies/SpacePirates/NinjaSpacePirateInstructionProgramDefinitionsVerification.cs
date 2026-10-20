@@ -120,7 +120,7 @@ internal static class NinjaSpacePirateInstructionProgramDefinitionsVerification
             state.Speed = new SnesSignedEightEight(64);
             var level = new RoomLevelData(new Extent16<RoomBlocks>(32, 32),
                 new RoomLevelPlanes(new ushort[1024], new byte[1024], new ushort[1024]), new byte[8]);
-            enemies.NinjaSpacePirateBehavior.StepNinjaPirateDive(slot, state, level, movingRight);
+            enemies.NinjaSpacePirateBehavior.StepNinjaPirateDive(slot, state, level, movingRight ? HorizontalDirection.Right : HorizontalDirection.Left);
             AssertEqual(movingRight ? NinjaSpacePirateFunction.DivekickRightWalkToPost : NinjaSpacePirateFunction.DivekickLeftWalkToPost,
                 state.Function, $"ninja Pirate dive {(movingRight ? "right" : "left")} lands");
             AssertEqual(state.SpawnPosition.Y, slot.Position.Y.Whole, "the landing restores the spawn row");
@@ -182,7 +182,7 @@ internal static class NinjaSpacePirateInstructionProgramDefinitionsVerification
             var level = new RoomLevelData(new Extent16<RoomBlocks>(32, 32),
                 new RoomLevelPlanes(new ushort[1024], new byte[1024], new ushort[1024]), new byte[8]);
             ushort nativeSpeed = unchecked((ushort)(0 - 64));
-            enemies.NinjaSpacePirateBehavior.StepNinjaPirateDive(slot, state, level, movingRight);
+            enemies.NinjaSpacePirateBehavior.StepNinjaPirateDive(slot, state, level, movingRight ? HorizontalDirection.Right : HorizontalDirection.Left);
             AssertEqual(nativeSpeed, state.Speed.RawValue, "the dive's speed word wraps from zero to its negative raw value");
             AssertEqual((short)-64, state.Speed.SignedRawValue, "the wrapped dive speed reads as minus 64");
             AssertEqual(movingRight ? NinjaSpacePirateFunction.DivekickRightWalkToPost : NinjaSpacePirateFunction.DivekickLeftWalkToPost,

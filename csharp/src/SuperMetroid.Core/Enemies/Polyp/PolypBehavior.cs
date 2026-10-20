@@ -222,8 +222,8 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
         AddPolypRockQuadraticStep(
             projectile,
             unchecked((ushort)(projectile.Velocity.Y.RawValue + 1)),
-            negative: true);
-        AddPolypRockQuadraticStep(projectile, projectile.Velocity.Y.RawValue, negative: true);
+            half: QuadraticSpeedHalf.Negative);
+        AddPolypRockQuadraticStep(projectile, projectile.Velocity.Y.RawValue, half: QuadraticSpeedHalf.Negative);
         MovePolypRockHorizontally(projectile);
     }
 
@@ -238,8 +238,8 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
         AddPolypRockQuadraticStep(
             projectile,
             unchecked((ushort)(projectile.Velocity.Y.RawValue - 1)),
-            negative: false);
-        AddPolypRockQuadraticStep(projectile, projectile.Velocity.Y.RawValue, negative: false);
+            half: QuadraticSpeedHalf.Positive);
+        AddPolypRockQuadraticStep(projectile, projectile.Velocity.Y.RawValue, half: QuadraticSpeedHalf.Positive);
         MovePolypRockHorizontally(projectile);
     }
 
@@ -251,7 +251,7 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
     internal static void AddPolypRockQuadraticStep(
         RoomEnemyProjectileSlot projectile,
         ushort tableIndex,
-        bool negative)
+        QuadraticSpeedHalf half)
     {
         if (tableIndex >= EnemyQuadraticSpeedDefinitions.RecordCount)
         {
@@ -260,7 +260,7 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         int record = tableIndex * EnemyQuadraticSpeedDefinitions.RecordSize +
-            (negative ? 4 : 0);
+            (half == QuadraticSpeedHalf.Negative ? 4 : 0);
         ushort fraction = EnemyQuadraticSpeedDefinitions.ReadWord(record);
         projectile.Variable1 = fraction;
         uint fractionalSum = (uint)projectile.Position.Y.Fraction + fraction;

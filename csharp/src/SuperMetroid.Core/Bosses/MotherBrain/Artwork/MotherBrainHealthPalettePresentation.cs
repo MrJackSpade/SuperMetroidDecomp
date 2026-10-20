@@ -14,25 +14,25 @@ public sealed class MotherBrainHealthPalettePresentation
     /// <summary>Compiles body and rear-leg tint rows, retaining independently supplied colors when they differ from native shading.</summary>
     private MotherBrainHealthPalettePresentation(Bgr555[][] body, Bgr555[][] backLegs)
     {
-        this.body = new TintPalette(body, backLeg: false);
-        this.backLegs = new TintPalette(backLegs, backLeg: true, this.body);
+        this.body = new TintPalette(body, MotherBrainPalettePart.Body);
+        this.backLegs = new TintPalette(backLegs, MotherBrainPalettePart.BackLeg, this.body);
     }
 
     /// <summary>
     /// $A9:9474/9494 normal restoration repeats the $AD:E6AC/E74C health-state-zero bases.
     /// Independent installed documents use this only when their own supplied colors match.
     /// </summary>
-    internal static Bgr555 StockBaseColor(bool backLeg, int color) =>
-        (backLeg ? BasePalette.StockRear : BasePalette.StockBody).Color(color);
+    internal static Bgr555 StockBaseColor(MotherBrainPalettePart part, int color) =>
+        (part == MotherBrainPalettePart.BackLeg ? BasePalette.StockRear : BasePalette.StockBody).Color(color);
 
     /// <summary>$AD:EA0A/EA26 and F119 use health state three as their death-fade starting point.</summary>
-    internal static Bgr555 StockDeathStartColor(bool backLeg, int color) =>
-        TintColor(StockBaseColor(backLeg, color), 3, backLeg);
+    internal static Bgr555 StockDeathStartColor(MotherBrainPalettePart part, int color) =>
+        TintColor(StockBaseColor(part, color), 3, part);
 
     /// <summary>Applies the native red tint in biased RGB8 space, with an extra rear-leg increment beyond state zero.</summary>
-    private static Bgr555 TintColor(Bgr555 initial, int state, bool backLeg)
+    private static Bgr555 TintColor(Bgr555 initial, int state, MotherBrainPalettePart part)
     {
-        int amount = state * (state + 1) + (backLeg && state != 0 ? 2 : 0);
+        int amount = state * (state + 1) + (part == MotherBrainPalettePart.BackLeg && state != 0 ? 2 : 0);
         return initial.Map((channel, value) =>
         {
             int rgb8 = value * 8 + 1;
@@ -67,15 +67,15 @@ public sealed class MotherBrainHealthPalettePresentation
         /// <summary>State-zero colors used to derive the native damage tint curve.</summary>
         internal readonly BasePalette basis;
         /// <summary>Selects the extra rear-leg tint strength after the undamaged state.</summary>
-        private readonly bool backLeg;
+        private readonly MotherBrainPalettePart part;
         /// <summary>Complete edited rows retained if any sample differs from the basis-derived tint.</summary>
         internal readonly Bgr555[][]? supplied;
 
         /// <summary>Compares all four supplied rows with the calculated tint before deciding whether to retain them.</summary>
-        public TintPalette(Bgr555[][] rows, bool backLeg, TintPalette? front = null)
+        public TintPalette(Bgr555[][] rows, MotherBrainPalettePart part, TintPalette? front = null)
         {
-            this.backLeg = backLeg;
-            basis = BasePalette.Create(rows[0], backLeg, front?.basis);
+            this.part = part;
+            basis = BasePalette.Create(rows[0], part, front?.basis);
             for (int state = 0; state < rows.Length; state++)
                 for (int color = 0; color < rows[state].Length; color++)
                     if (Calculate(state, color) != rows[state][color])
@@ -86,7 +86,7 @@ public sealed class MotherBrainHealthPalettePresentation
         public Bgr555 Color(int state, int color) => supplied is null ? Calculate(state, color) : supplied[state][color];
 
         /// <summary>Tints one selected basis ink for a health band.</summary>
-        private Bgr555 Calculate(int state, int color) => TintColor(basis.Color(color), state, backLeg);
+        private Bgr555 Calculate(int state, int color) => TintColor(basis.Color(color), state, part);
     }
     /// <summary>Independent paint colors plus calculated quarter/fifth shade ramps.</summary>
     internal sealed class BasePalette
@@ -100,23 +100,23 @@ public sealed class MotherBrainHealthPalettePresentation
         /// <summary>Body tissue endpoint from which the fifth-based shade ramp is calculated.</summary>
         internal readonly Bgr555 brown;
         /// <summary>Selects the rear-leg-specific relationship to the body outline and gray endpoint.</summary>
-        private readonly bool backLeg;
+        private readonly MotherBrainPalettePart part;
         /// <summary>Independent state-zero colors retained when an edited image breaks a calculated relationship.</summary>
         internal readonly Bgr555[]? supplied;
         /// <summary>Selected body basis from which stock rear-leg outline and gray are derived.</summary>
         private readonly BasePalette? front;
 
         /// <summary>Native state-zero body basis from reviewed paint colors.</summary>
-        internal static BasePalette StockBody { get; } = new(false);
+        internal static BasePalette StockBody { get; } = new(MotherBrainPalettePart.Body);
         /// <summary>Native rear-leg basis derived from the stock body basis.</summary>
-        internal static BasePalette StockRear { get; } = new(true);
+        internal static BasePalette StockRear { get; } = new(MotherBrainPalettePart.BackLeg);
 
         /// <summary>Initializes the reviewed stock body or rear-leg basis without storing a color row.</summary>
-        private BasePalette(bool backLeg)
+        private BasePalette(MotherBrainPalettePart part)
         {
-            this.backLeg = backLeg;
-            front = backLeg ? StockBody : null;
-            if (backLeg) return;
+            this.part = part;
+            front = part == MotherBrainPalettePart.BackLeg ? StockBody : null;
+            if (part == MotherBrainPalettePart.BackLeg) return;
             highlight = MotherBrainHealthPaintDefinitions.CortexHighlight;
             midtone = MotherBrainHealthPaintDefinitions.CortexMidtone;
             shadow = MotherBrainHealthPaintDefinitions.CortexShadow;
@@ -126,26 +126,26 @@ public sealed class MotherBrainHealthPalettePresentation
         }
 
         /// <summary>Shares a stock basis only when every supplied color and its dependent front palette agree.</summary>
-        internal static BasePalette Create(Bgr555[] colors, bool backLeg, BasePalette? front)
+        internal static BasePalette Create(Bgr555[] colors, MotherBrainPalettePart part, BasePalette? front)
         {
-            BasePalette stock = backLeg ? StockRear : StockBody;
-            bool matches = !backLeg || ReferenceEquals(front, StockBody);
+            BasePalette stock = part == MotherBrainPalettePart.BackLeg ? StockRear : StockBody;
+            bool matches = part != MotherBrainPalettePart.BackLeg || ReferenceEquals(front, StockBody);
             for (int color = 0; matches && color < colors.Length; color++)
                 matches = colors[color] == stock.Color(color);
-            return matches ? stock : new BasePalette(colors, backLeg, front);
+            return matches ? stock : new BasePalette(colors, part, front);
         }
 
         /// <summary>Selects independent endpoint inks and retains the full row if native shade relationships do not reproduce it.</summary>
-        public BasePalette(Bgr555[] colors, bool backLeg, BasePalette? front)
+        public BasePalette(Bgr555[] colors, MotherBrainPalettePart part, BasePalette? front)
         {
-            this.backLeg = backLeg;
+            this.part = part;
             this.front = front;
-            highlight = backLeg ? Bgr555.Black : colors[0];
-            midtone = backLeg ? Bgr555.Black : colors[1];
-            shadow = backLeg ? Bgr555.Black : colors[2];
+            highlight = part == MotherBrainPalettePart.BackLeg ? Bgr555.Black : colors[0];
+            midtone = part == MotherBrainPalettePart.BackLeg ? Bgr555.Black : colors[1];
+            shadow = part == MotherBrainPalettePart.BackLeg ? Bgr555.Black : colors[2];
             Outline = front is null ? colors[3] : Bgr555.Black;
             Gray = front is null ? colors[4] : Bgr555.Black;
-            brown = backLeg ? Bgr555.Black : colors[8];
+            brown = part == MotherBrainPalettePart.BackLeg ? Bgr555.Black : colors[8];
             for (int color = 0; color < colors.Length; color++)
                 if (Calculate(color) != colors[color])
                 { supplied = colors; return; }
@@ -157,13 +157,13 @@ public sealed class MotherBrainHealthPalettePresentation
         /// <summary>Builds cortex, outline, gray, and tissue inks using the native quarter and fifth shade ramps.</summary>
         private Bgr555 Calculate(int color) => color switch
         {
-            0 => backLeg ? Bgr555.Black : highlight,
-            1 => backLeg ? Bgr555.Black : midtone,
-            2 => backLeg ? Bgr555.Black : shadow,
+            0 => part == MotherBrainPalettePart.BackLeg ? Bgr555.Black : highlight,
+            1 => part == MotherBrainPalettePart.BackLeg ? Bgr555.Black : midtone,
+            2 => part == MotherBrainPalettePart.BackLeg ? Bgr555.Black : shadow,
             3 => Outline,
             >= 4 and <= 7 => Shade(Gray, 8 - color, 4),
-            >= 8 and <= 12 => backLeg ? Bgr555.Black : Shade(brown, 13 - color, 5),
-            13 => backLeg ? Gray : Bgr555.White,
+            >= 8 and <= 12 => part == MotherBrainPalettePart.BackLeg ? Bgr555.Black : Shade(brown, 13 - color, 5),
+            13 => part == MotherBrainPalettePart.BackLeg ? Gray : Bgr555.White,
             _ => Bgr555.Black,
         };
 

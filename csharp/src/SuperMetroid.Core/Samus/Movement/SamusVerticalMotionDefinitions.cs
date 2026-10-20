@@ -30,12 +30,12 @@ internal static class SamusVerticalMotionDefinitions
     /// by medium, jump equipment and whether Samus kicks away from a wall. Each
     /// original whole/fraction pair is the split representation of one 8.8 speed.
     /// </summary>
-    internal static SnesUnsignedSixteenSixteen Launch(SamusLiquidMedium medium, bool highJump, bool wallJump) =>
+    internal static SnesUnsignedSixteenSixteen Launch(SamusLiquidMedium medium, bool highJump, SamusLaunchKind kind) =>
         SplitSpeed(medium switch
         {
-            SamusLiquidMedium.Air => wallJump ? highJump ? 0x0580 : 0x04a0 : highJump ? 0x0600 : 0x04e0,
-            SamusLiquidMedium.Water => wallJump ? highJump ? 0x0080 : 0x0040 : highJump ? 0x0280 : 0x01c0,
-            SamusLiquidMedium.LavaOrAcid => highJump ? 0x0380 : wallJump ? 0x02a0 : 0x02c0,
+            SamusLiquidMedium.Air => kind == SamusLaunchKind.WallJump ? highJump ? 0x0580 : 0x04a0 : highJump ? 0x0600 : 0x04e0,
+            SamusLiquidMedium.Water => kind == SamusLaunchKind.WallJump ? highJump ? 0x0080 : 0x0040 : highJump ? 0x0280 : 0x01c0,
+            SamusLiquidMedium.LavaOrAcid => highJump ? 0x0380 : kind == SamusLaunchKind.WallJump ? 0x02a0 : 0x02c0,
             _ => throw new InvalidOperationException($"Undefined SamusLiquidMedium {medium}."),
         });
 

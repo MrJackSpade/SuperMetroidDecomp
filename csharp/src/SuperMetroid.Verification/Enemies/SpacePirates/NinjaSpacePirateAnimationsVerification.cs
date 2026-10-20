@@ -26,7 +26,7 @@ internal static class NinjaSpacePirateAnimationsVerification
                     {
                         NinjaSpacePirateCueKind.PlaySound => (cue.Sound ?? throw new InvalidOperationException($"{at}: a sound cue carries no sound.")).Value,
                         NinjaSpacePirateCueKind.SetPalette => (cue.Palette ?? throw new InvalidOperationException($"{at}: a palette cue carries no palette.")).PaletteBits,
-                        NinjaSpacePirateCueKind.ThrowClaw => cue.ThrowsRight ? (ushort)1 : (ushort)0,
+                        NinjaSpacePirateCueKind.ThrowClaw => cue.Throw == HorizontalDirection.Right ? (ushort)1 : (ushort)0,
                         NinjaSpacePirateCueKind.ResetSpeed or
                             NinjaSpacePirateCueKind.SetFunction or
                             NinjaSpacePirateCueKind.StartActive or

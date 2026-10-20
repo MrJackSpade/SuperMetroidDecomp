@@ -50,6 +50,7 @@ public sealed class GameOptionsMenuState
     /// <param name="moonwalkEnabled">Initial state of the moonwalk option.</param>
     /// <param name="japaneseText">Whether the Japanese-language page variants are initially selected.</param>
     /// <param name="mapPresentation">Required installed menu presentation assets.</param>
+    [IndependentFlag("Icon cancel, moonwalk and Japanese text are three independent saved options.")]
     public GameOptionsMenuState(
         CartridgeAudioState? audio = null,
         ControllerBindings? controllerBindings = null,

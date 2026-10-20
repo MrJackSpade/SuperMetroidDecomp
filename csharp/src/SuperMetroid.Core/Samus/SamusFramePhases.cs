@@ -102,7 +102,7 @@ internal sealed class SamusFramePhases
                 _controller1.Current,
                 plms,
                 room.Enemies.GrappleTargets.ResolveGrappleEndpoint,
-                deferConnectionPoseChange: true);
+                connectionPoseChange: GrapplePoseChange.Deferred);
             grappleOwnsMovement = _player.LastGrappleMovement.Value.OwnsMovement;
         }
         else if (_player.Samus.Grapple.Phase == GrapplePhase.CancelPending)
@@ -117,7 +117,7 @@ internal sealed class SamusFramePhases
             GrapplePhase.WallGrabRelease or GrapplePhase.WallJumping or
             GrapplePhase.Dropped)
         {
-            _player.LastGrappleMovement = SamusGrappleMovement.Step(new SamusTerrain { Level = _room.LevelData, Plms = plms }, _player.Samus, _controller1.Current, _controller1.NewlyPressed, _clock.Counter, room.Enemies.GrappleTargets.ResolveGrappleEndpoint, deferDropPoseChange: true);
+            _player.LastGrappleMovement = SamusGrappleMovement.Step(new SamusTerrain { Level = _room.LevelData, Plms = plms }, _player.Samus, _controller1.Current, _controller1.NewlyPressed, _clock.Counter, room.Enemies.GrappleTargets.ResolveGrappleEndpoint, poseChange: GrapplePoseChange.Deferred);
             grappleOwnsMovement = _player.LastGrappleMovement.Value.OwnsMovement;
         }
         else if (!_freeze.TimeIsFrozen &&
@@ -175,7 +175,7 @@ internal sealed class SamusFramePhases
     /// movement types, vertical velocity, landing-pose gate, and speed divisor to native
     /// setup logic. The DebugRunner uses it without substituting a host pose or art frame.
     /// </remarks>
-    public bool TryBeginXrayFromSelectedHudItem(SuperMetroid.Core.Gameplay.SuperMetroidGameState gameState, bool deferActivation, SamusBombProjectileSystem bombProjectiles)
+    public bool TryBeginXrayFromSelectedHudItem(SuperMetroid.Core.Gameplay.SuperMetroidGameState gameState, SamusBombProjectileSystem bombProjectiles)
     {
         if (_player.Samus is null || !_player.GroundedSamusMovementEnabled || _room.LevelData is null)
         {
@@ -188,7 +188,7 @@ internal sealed class SamusFramePhases
         if (!_player.Samus.EquippedItems.HasAny(SamusEquipmentFlags.XrayScope))
             return false;
 
-        return _player.Samus.Xray.TryBegin(_player.Samus, _player.PreviousMovementTypeForXray, new XrayBeginConditions { GameState = gameState, PowerBombExplosionActive = bombProjectiles.PowerBombExplosion.Status != 0, ProjectileCooldownTimer = bombProjectiles.CooldownTimer, BombCounter = bombProjectiles.BombCounter }, deferActivation);
+        return _player.Samus.Xray.TryBegin(_player.Samus, _player.PreviousMovementTypeForXray, new XrayBeginConditions { GameState = gameState, PowerBombExplosionActive = bombProjectiles.PowerBombExplosion.Status != 0, ProjectileCooldownTimer = bombProjectiles.CooldownTimer, BombCounter = bombProjectiles.BombCounter }, XrayActivation.Deferred);
     }
 
     /// <summary>
@@ -357,7 +357,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, plms);
                 samus.SelectedHudItem == HudItem.XRay &&
                 samus.Grapple.Phase == GrapplePhase.Inactive &&
                 (_controller1.Current & SnesButton.B) != 0 &&
-                TryBeginXrayFromSelectedHudItem(gameState, deferActivation: true, room.BombProjectiles))
+                TryBeginXrayFromSelectedHudItem(gameState, room.BombProjectiles))
             {
                 frame.XrayActivatedThisFrame = true;
                 _player.ProspectiveSamusPose = null;
@@ -367,7 +367,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, plms);
             // `$91:E231-$E23D` disables enemy room.Projectiles, PLMs, animated tiles,
             // and palette FX while time is frozen. Normal bombs cannot be placed or
             // advanced through this translated producer during the X-ray interval.
-            BombProjectileFrameResult bombFrame = room.BombProjectiles.StepFrame(new SamusTerrain { Level = _room.LevelData, Plms = room.Plms }, samus, _controller1.Current, _controller1.NewlyPressed, deferSamusOverlap: true, advancePowerBombHdma: false);
+            BombProjectileFrameResult bombFrame = room.BombProjectiles.StepFrame(new SamusTerrain { Level = _room.LevelData, Plms = room.Plms }, samus, _controller1.Current, _controller1.NewlyPressed, overlap: BombJumpOverlapPublication.Deferred, powerBombHdma: PowerBombHdmaStep.Skip);
 
             if (bombFrame.BeamChargeConsumed)
             {

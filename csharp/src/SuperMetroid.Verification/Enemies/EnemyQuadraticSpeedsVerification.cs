@@ -28,7 +28,7 @@ internal static class EnemyQuadraticSpeedsVerification
         AssertThrows<InvalidDataException>(() => EnemyQuadraticSpeedDefinitions.ReadDisplacement(757), "quadratic partial displacement");
         if (definitionsOnly) return;
         var shared = new Func<int, bool, int>(EnemyMath.ReadQuadraticEnemySpeed);
-        var addRock = new Action<RoomEnemyProjectileSlot, ushort, bool>(PolypBehavior.AddPolypRockQuadraticStep);
+        var addRock = new Action<RoomEnemyProjectileSlot, ushort, QuadraticSpeedHalf>(PolypBehavior.AddPolypRockQuadraticStep);
         var rock = new RoomEnemyProjectileSlot(0);
         foreach (uint origin in new uint[] { 0, 0x0080ff37, 0xffffff37 })
         for (ushort index = 0; index < 95; index++)
@@ -38,11 +38,11 @@ internal static class EnemyQuadraticSpeedsVerification
             uint expected = unchecked(origin + (SnesSixteenSixteen.Compose(CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa0cbc7 + (offset + 2)), CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa0cbc7 + offset))));
             rock.Position = rock.Position.WithY(new(SnesFixedPosition.WholeOf(unchecked((int)origin)), unchecked((ushort)origin)));
             rock.Variable1 = 0xdead;
-            addRock(rock, index, negative);
+            addRock(rock, index, negative ? QuadraticSpeedHalf.Negative : QuadraticSpeedHalf.Positive);
             AssertEqual(expected, rock.Position.Y.RawValue, "Polyp real split-word carry/wrap");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa0cbc7 + (offset + 2)), rock.Variable1, "Polyp final native scratch whole word");
         }
-        AssertThrows<InvalidDataException>(() => addRock(rock, 95, false), "Polyp invalid speed remains loud");
+        AssertThrows<InvalidDataException>(() => addRock(rock, 95, QuadraticSpeedHalf.Positive), "Polyp invalid speed remains loud");
         for (ushort index = 0; index < 95; index++)
         foreach (bool negative in new[] { false, true })
         {
@@ -72,11 +72,11 @@ internal static class EnemyQuadraticSpeedsVerification
         // table. Out-of-table instruction-byte reads are not a fabricated math API.
         AssertTrue(initialIndexCases > 100000, "wide signed-height hop corpus is exercised");
 
-        var wings = new Func<int, bool, ushort>(KiHunterBehavior.ReadKiHunterQuadraticAngleDelta);
+        var wings = new Func<int, QuadraticSpeedHalf, ushort>(KiHunterBehavior.ReadKiHunterQuadraticAngleDelta);
         for (int index = 0; index < 95; index++)
         for (int low = 0; low < 256; low++)
         foreach (bool negative in new[] { false, true })
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa0838f + (index * 8 + (negative ? 5 : 1))), wings((ushort)(index * 256 + low), negative),
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa0838f + (index * 8 + (negative ? 5 : 1))), wings((ushort)(index * 256 + low), negative ? QuadraticSpeedHalf.Negative : QuadraticSpeedHalf.Positive),
                 "KiHunter high-byte index and odd-word angle delta");
 
         var addMaw = new Action<YappingMawEnemyState>(YappingMawBehavior.AddYappingMawQuadraticSpeed);

@@ -747,7 +747,7 @@ internal static class LookupStream2Verification
                         if (preserve) value = (ushort)(0x5555 & 0xfc00 | value & 0x03ff);
                         System.Buffers.Binary.BinaryPrimitives.WriteUInt16LittleEndian(expected.AsSpan(nativeOffset + cell * 2), value);
                     }
-                    selected.ApplyLabel(actual, name, preserve);
+                    selected.ApplyLabel(actual, name, preserve ? LabelAttributes.Preserve : LabelAttributes.Replace);
                     AssertTrue(expected.SequenceEqual(actual), "Actual reserve label patch preserves edits, attribute policy and surrounding bytes");
                 }
             }
@@ -1019,7 +1019,7 @@ internal static class LookupStream2Verification
         Compare(expected, "Actual Dead Torizo installed-art crop");
 
         var state = new DeadTorizoEnemyState(enemies.SlotTable.Slots[0], new CorpseRottingProgram { YLimit = 95, LateMoveEntryIndex = 94, WrapOffset = 0x134 });
-        Action<DeadTorizoEnemyState,ushort,bool> moveRow = enemies.DeadTorizoBehavior.CopyOrMoveDeadTorizoPixelRow;
+        Action<DeadTorizoEnemyState, ushort, CorpseRowOperation> moveRow = enemies.DeadTorizoBehavior.CopyOrMoveDeadTorizoPixelRow;
         foreach (bool move in new[] { false, true })
         for (ushort y = 0; y < 96; y++)
         {
@@ -1042,7 +1042,7 @@ internal static class LookupStream2Verification
                     }
                 }
             }
-            moveRow(state, y, move);
+            moveRow(state, y, move ? CorpseRowOperation.Move : CorpseRowOperation.Copy);
             Compare(expected, "Actual Dead Torizo column row copy/move");
         }
         AssertThrows<ArgumentOutOfRangeException>(() => DeadTorizoGeometryDefinitions.InitialCopy(-1), "Crop negative row rejected");

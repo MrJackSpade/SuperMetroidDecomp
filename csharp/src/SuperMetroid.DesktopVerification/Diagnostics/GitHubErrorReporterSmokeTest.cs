@@ -48,11 +48,11 @@ public static class GitHubErrorReporterSmokeTest
             duplicateFingerprint = reporter.Report(repeated, context);
             _ = reporter.Report(existing, context);
             var firstDispatch = new SuperMetroid.Core.Hardware.CartridgeDispatchException(
-                "grapple/type-C/bts-45", "block 12 (2,3)", true);
+                "grapple/type-C/bts-45", "block 12 (2,3)");
             var movedDispatch = new SuperMetroid.Core.Hardware.CartridgeDispatchException(
-                "grapple/type-C/bts-45", "block 99 (4,5)", true);
+                "grapple/type-C/bts-45", "block 99 (4,5)");
             var otherDispatch = new SuperMetroid.Core.Hardware.CartridgeDispatchException(
-                "grapple/type-C/bts-4F", "block 12 (2,3)", true);
+                "grapple/type-C/bts-4F", "block 12 (2,3)");
             var otherRoom = context with { Room = "Draygon", InputRecordingPath = "new-run.smrec" };
             Require(GitHubErrorReporter.CreateFingerprint(firstDispatch, context) == GitHubErrorReporter.CreateFingerprint(movedDispatch, otherRoom),
                 "Room-independent dispatch split by block/room location.");
@@ -111,7 +111,7 @@ public static class GitHubErrorReporterSmokeTest
         samus.Presentation.SetAnimationFrameFromSpecialHandler(8, 1);
         samus.LiquidPhysics.FxType = RoomFxType.Acid;
         samus.LiquidPhysics.LavaAcidYPosition = 100;
-        var game = new SuperMetroid.Core.Frontend.SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore(), null, renderGameplayFrames: true, SuperMetroid.Core.Frontend.SuperMetroidGameHostServices.Default, random);
+        var game = new SuperMetroid.Core.Frontend.SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore(), null, SuperMetroid.Core.Frontend.SuperMetroidGameHostServices.Default, random);
         game.AdoptRuntime(runtime);
         string before = game.CaptureGameplayFailureContext();
         samus.Presentation.SetAnimationFrameFromSpecialHandler(18, 1);

@@ -66,8 +66,9 @@ internal sealed class GameplayActorDrawing
     private ProjectileDrawArtwork ProjectileArtwork => new(_artwork.ProjectileCompositions, _artwork.ProjectileObjects,
         _artwork.LoadedBeams);
     /// <summary>Shared enemy-layer/Samus/projectile drawing, independently of movement.</summary>
-    internal void DrawGameplayActors(RoomScope room, bool deathOwnsSamus, bool advanceSamusPalette = true)
+    internal void DrawGameplayActors(RoomScope room, SamusDrawOwner owner, SamusPaletteEffects paletteEffects = SamusPaletteEffects.Advance)
     {
+        bool deathOwnsSamus = owner == SamusDrawOwner.DeathSequence;
         if (_player.Samus is null || _room.Camera is null) return;
         _artwork.BindGrapplePresentation();
         // $A0:884D draws bomb/projectile explosions before reaching the enemy-layer
@@ -105,7 +106,7 @@ internal sealed class GameplayActorDrawing
             room.Enemies.Drawing.DrawLayers(_sprites, ObjectPage, _room.Camera.PixelPosition, 0, 2);
         }
 
-        if (advanceSamusPalette)
+        if (paletteEffects == SamusPaletteEffects.Advance)
         {
             // `$91:D6F7` updates Samus's palette buffer during gameplay. The software PPU
             // reads CGRAM directly, so perform the literal ROM pointer/table copy immediately

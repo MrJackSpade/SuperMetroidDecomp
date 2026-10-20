@@ -69,7 +69,7 @@ internal static class EnemyTileArtworkTourianStatueColorsVerification
             SnesCgram nativeCgram = SeedColors();
             (RoomEnemySystem installed, SnesCgram installedCgram) = CreateEnemy(guard, stock);
             ReferenceEye(nativeCgram, parameter);
-            installed.TourianUnlockBehavior.SpawnTourianUnlockEffect(parameter, soul: false);
+            installed.TourianUnlockBehavior.SpawnTourianEyeGlow(parameter);
             AssertTrue(new CgramPalettes(nativeCgram).ImageEquals(new CgramPalettes(installedCgram)),
                 $"Tourian eye parameter {parameter} preserves full native CGRAM");
             AssertEqual(new ushort[] { 0x84, 0x7a, 0x9e, 0x68 }[parameter / 2],
@@ -104,7 +104,7 @@ internal static class EnemyTileArtworkTourianStatueColorsVerification
         SnesCgram nativeEyeCgram = SeedColors();
         (RoomEnemySystem editedEye, SnesCgram editedEyeCgram) = CreateEnemy(guard, edited);
         ReferenceEye(nativeEyeCgram, 4);
-        editedEye.TourianUnlockBehavior.SpawnTourianUnlockEffect(4, soul: false);
+        editedEye.TourianUnlockBehavior.SpawnTourianEyeGlow(4);
         CheckOnlyDifferences(nativeEyeCgram, editedEyeCgram,
             [(TourianStatuePaletteRomData.EyeCgramIndex + 1, 1 << 10)],
             "Tourian eye edit");

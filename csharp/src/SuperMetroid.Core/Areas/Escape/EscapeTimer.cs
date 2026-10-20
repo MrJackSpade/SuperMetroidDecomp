@@ -52,12 +52,12 @@ public sealed class EscapeTimer
     /// to <see cref="Process"/> performs the initialization, matching the main game's
     /// indirect state-machine convention.
     /// </summary>
-    public void RequestCeresStart() => SelectStatus(EscapeTimerState.CeresStart, active: false);
+    public void RequestCeresStart() => SelectStatus(EscapeTimerState.CeresStart);
 
     /// <summary>
     /// Requests the three-minute Mother Brain sequence by selecting dispatch state 2.
     /// </summary>
-    public void RequestMotherBrainStart() => SelectStatus(EscapeTimerState.MotherBrainStart, active: false);
+    public void RequestMotherBrainStart() => SelectStatus(EscapeTimerState.MotherBrainStart);
 
     /// <summary>
     /// Runs one timer update and returns the carry-style result: true once all three BCD
@@ -98,7 +98,7 @@ public sealed class EscapeTimer
     }
 
     /// <summary><c>$82:8476</c>: the time-up black-out clears only the timer's status word.</summary>
-    public void ClearStatus() => SelectStatus(EscapeTimerState.Inactive, active: false);
+    public void ClearStatus() => SelectStatus(EscapeTimerState.Inactive);
 
     /// <summary>
     /// Directly sets valid packed-BCD time for save-state loading and focused debugging.
@@ -129,7 +129,7 @@ public sealed class EscapeTimer
         Centiseconds = PackedBcd.Zero;
         Seconds = PackedBcd.Zero;
         Minutes = PackedBcd.Zero;
-        SelectStatus(EscapeTimerState.Inactive, active: false);
+        SelectStatus(EscapeTimerState.Inactive);
         CountdownExpired = false;
     }
 
@@ -140,7 +140,7 @@ public sealed class EscapeTimer
         // seconds/minutes adjacent word, then select the active initial delay ($8003).
         Clear();
         SetTime(minutes, PackedBcd.Zero, PackedBcd.Zero);
-        SelectStatus(EscapeTimerState.InitialDelay, active: true);
+        SelectRunningStatus(EscapeTimerState.InitialDelay);
         return false;
     }
 
@@ -259,11 +259,18 @@ public sealed class EscapeTimer
         _ => throw new InvalidOperationException($"The escape timer cannot advance from {State}."),
     };
 
-    /// <summary>Selects a step of the sequence and whether the timer runs.</summary>
-    internal void SelectStatus(EscapeTimerState state, bool active)
+    /// <summary>Selects a step of the sequence with the timer stopped.</summary>
+    internal void SelectStatus(EscapeTimerState state)
     {
         State = state;
-        IsActive = active;
+        IsActive = false;
+    }
+
+    /// <summary>Selects a step of the sequence with the timer running.</summary>
+    internal void SelectRunningStatus(EscapeTimerState state)
+    {
+        State = state;
+        IsActive = true;
     }
 
     /// <summary>Rejects a timer byte whose high or low nibble is not a decimal digit.</summary>

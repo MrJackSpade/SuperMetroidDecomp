@@ -445,7 +445,7 @@ public sealed class RoomLayer3FxState
                 liquid.ConfigureLavaAcid(Surface.Y);
                 return;
             case RoomFxType.Acid:
-                liquid.ConfigureLavaAcid(Surface.Y, acid: true);
+                liquid.ConfigureLavaAcid(Surface.Y, RoomFxType.Acid);
                 return;
             case RoomFxType.None:
             case RoomFxType.Spores:
@@ -530,6 +530,7 @@ public sealed class RoomLayer3FxState
     /// clocks. Rising/tidal rooms retain their loaded surface words; the presently reported
     /// room has zero velocity and therefore exercises the cartridge's normal static branch.
     /// </summary>
+    [IndependentFlag("The main-loop carry and the liquid motion already advancing are independent facts of the frame.")]
     private void StepWater(
         Position16<RoomPixels> camera,
         int randomNumber,
@@ -578,6 +579,7 @@ public sealed class RoomLayer3FxState
     /// surface and BG3 plane follow the room camera, while one of two sixteen-scanline BG2
     /// waveforms rotates at the cadence selected by the record's liquid-options byte.
     /// </summary>
+    [IndependentFlag("The main-loop carry and the liquid motion already advancing are independent facts of the frame.")]
     private void StepLavaAcid(
         Position16<RoomPixels> camera,
         int randomNumber,

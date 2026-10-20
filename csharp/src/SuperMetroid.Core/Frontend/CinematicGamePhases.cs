@@ -34,7 +34,7 @@ internal sealed class CinematicGamePhases(FrontendSession session)
     {
         // `$82:8431` runs no gameplay: it fades the whitened frame to forced blank.
         session.GameplayRuntime.FrameBoundary.BeginAcceptedFrame(controllerInput);
-        session.pauseBrightness = session.screenFade.Advance(session.pauseBrightness, brightening: false);
+        session.pauseBrightness = session.screenFade.Darken(session.pauseBrightness);
         session.ApplyDisplayBrightness(session.pauseBrightness);
         if (session.pauseBrightness == 0)
             FinishTimeUpBlackOut();
@@ -122,7 +122,7 @@ internal sealed class CinematicGamePhases(FrontendSession session)
         }
         session.ceresDestruction = new CeresDestructionCinematicState(
             session.audio, session.Artwork.MapPresentation?.PowerBombFixedColors,
-            session.Artwork.IntroCinematicArt, session.Artwork.MapPresentation?.RoomPaletteFx, withSamus: true);
+            session.Artwork.IntroCinematicArt, session.Artwork.MapPresentation?.RoomPaletteFx, outcome: CeresDestructionOutcome.SamusAboard);
         session.GameState = SuperMetroidGameState.CeresGoesBoomWithSamus;
     }
 

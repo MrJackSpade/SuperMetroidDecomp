@@ -1,6 +1,7 @@
 namespace SuperMetroid.Core.Bosses.Botwoon;
 
 /// <summary>A drawn head pose; <see cref="Visible"/> false is the empty frame of the hidden head.</summary>
+[IndependentFlag("independent facts of one head frame: whether it is drawn and whether the mouth is open")]
 internal readonly record struct BotwoonHeadFrame(bool Visible, BotwoonFacing Facing, bool MouthOpen)
 {
     /// <summary>The empty frame.</summary>

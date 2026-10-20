@@ -154,7 +154,7 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
             state.RotTable,
             state.YLimit,
             state.LateMoveEntryIndex,
-            (yOffset, move) => CopyOrMoveDeadTorizoPixelRow(state, yOffset, move),
+            (yOffset, operation) => CopyOrMoveDeadTorizoPixelRow(state, yOffset, operation),
             _ => FinishDeadTorizoCorpseRow(state));
         if (!stillRotting)
             state.Function = DeadTorizoFunction.NoOperation;
@@ -268,7 +268,7 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void CopyOrMoveDeadTorizoPixelRow(
         DeadTorizoEnemyState state,
         ushort yOffset,
-        bool move)
+        CorpseRowOperation operation)
     {
         ushort sourceOffset = unchecked((ushort)(
             DeadMonsterRottingDefinitions.RotationOffset(CorpseRotationTable.Torizo, yOffset) + (yOffset & 7) * 2));
@@ -289,7 +289,7 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
                 WriteWorkWord(destinationWord + 8, ReadWorkWord(sourceWord + 8));
             }
 
-            if (move)
+            if (operation == CorpseRowOperation.Move)
             {
                 WriteWorkWord(sourceWord, 0);
                 WriteWorkWord(sourceWord + 8, 0);

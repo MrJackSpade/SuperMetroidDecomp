@@ -1149,10 +1149,10 @@ internal sealed class EndingCreditsState
         // OBJ is not independently drawn on main, which would punch holes in the glow.
         RenderLayer[] layers =
         [
-            Plane(EndingExplosionDisplayDefinitions.FinaleSubMap, false),
-            Plane(EndingExplosionDisplayDefinitions.FinaleMainMap, false),
-            Plane(EndingExplosionDisplayDefinitions.FinaleSubMap, true),
-            Plane(EndingExplosionDisplayDefinitions.FinaleMainMap, true),
+            Plane(EndingExplosionDisplayDefinitions.FinaleSubMap, BgTilePriority.Low),
+            Plane(EndingExplosionDisplayDefinitions.FinaleMainMap, BgTilePriority.Low),
+            Plane(EndingExplosionDisplayDefinitions.FinaleSubMap, BgTilePriority.High),
+            Plane(EndingExplosionDisplayDefinitions.FinaleMainMap, BgTilePriority.High),
             new BgSubscreenAddRenderLayer(EndingExplosionDisplayDefinitions.FinaleSubMap,
                 EndingExplosionDisplayDefinitions.Characters, FourBpp: true, IncludeObjects: true,
                 VerticalScroll: EndingExplosionDisplayDefinitions.FirstVisibleBackgroundRow),
@@ -1160,10 +1160,10 @@ internal sealed class EndingCreditsState
         return new(Presentation.CaptureMemory(EndingCreditsPresentation.ObjectSelection(Presentation.CurrentEscapeObjectSheet)), layers,
             EndingCreditsPresentation.ObjectSelection(Presentation.CurrentEscapeObjectSheet), checked((byte)brightness));
 
-        static Bg4BppRenderLayer Plane(ushort map, bool high) => new(map,
+        static Bg4BppRenderLayer Plane(ushort map, BgTilePriority priority) => new(map,
             EndingExplosionDisplayDefinitions.Characters,
             new Position16<BgPlanePixels>(0, EndingExplosionDisplayDefinitions.FirstVisibleBackgroundRow),
-            new Extent16<TilemapCells>(32, 32), high);
+            new Extent16<TilemapCells>(32, 32), priority == BgTilePriority.High);
     }
 
     /// <summary>Captures the burst's BG1/OBJ main screen and BG2 subscreen color math.</summary>

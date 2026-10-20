@@ -478,7 +478,7 @@ internal sealed class SuperMetroidRuntime
         }
         if (SuspendTailForMessageBox(context))
             return Snapshot(infiniteAmmoGuard);
-        return FinishGameplayFrame(context.Tail, frameRequest.Policy, infiniteAmmoGuard, resumedAfterMessageBox: false);
+        return FinishGameplayFrame(context.Tail, frameRequest.Policy, infiniteAmmoGuard, entry: GameplayFrameEntry.Fresh);
     }
 
     /// <summary>Reattaches the routing references that are deliberately not serialized, then applies pending Chozo statue PLMs.</summary>
@@ -499,7 +499,7 @@ internal sealed class SuperMetroidRuntime
     /// <summary>Opens the frame's impact-audio window, runs the accepted-frame boundary and the host's post-boundary work, and prepares the window registers.</summary>
     private void BeginAcceptedGameplayFrame(SnesButton controller1Input, RuntimeFrameRequest frameRequest)
     {
-        Room.LoadedScope.Projectiles.ImpactAudio.BeginImpactAudioFrame(cinematicActive: false);
+        Room.LoadedScope.Projectiles.ImpactAudio.BeginImpactAudioFrame(context: ImpactAudioContext.Gameplay);
         FrameBoundary.BeginAcceptedFrame(controller1Input);
         frameRequest.AfterAcceptedNmi();
         GameplayWindows.PrepareGameplayWindowRegisters(Room.LoadedScope);
@@ -662,7 +662,7 @@ internal sealed class SuperMetroidRuntime
         if (frame.EnemyMainAlreadyRan)
         {
             bool lockedBeforeEnemyMain = Player.Samus?.Control.AlphaLocked == true;
-            EnemyPhase.RunEnemyMainPhase(processingListPrepared: true,
+            EnemyPhase.RunEnemyMainPhase(processingList: EnemyProcessingList.Prepared,
                 Room.Camera?.PreviousSamusPoint ?? context.SamusCameraPointAtFrameStart, Room.LoadedScope);
             frame.EnemyMainReleasedAlphaLock = lockedBeforeEnemyMain && Player.Samus?.Control.AlphaLocked == false;
         }
@@ -674,7 +674,7 @@ internal sealed class SuperMetroidRuntime
         SamusHandlerFrame frame = context.Samus;
         SamusPhases.RunAlpha(frame, DispatchGameState, samus, camera, context.SamusCameraPointAtFrameStart, Room.LoadedScope);
         if (frame.MovementEnabled && !frame.EnemyMainAlreadyRan)
-            EnemyPhase.RunEnemyMainPhase(processingListPrepared: true, frame.PreviousCameraPoint, Room.LoadedScope);
+            EnemyPhase.RunEnemyMainPhase(processingList: EnemyProcessingList.Prepared, frame.PreviousCameraPoint, Room.LoadedScope);
         SamusPhases.RunPostEnemyMainResample(frame, samus, Room.LoadedScope.BombProjectiles, Room.LoadedScope.Projectiles, Room.LoadedScope);
         SamusPhases.RunBeta(frame, samus, camera, audio, Room.LoadedScope);
     }
@@ -721,7 +721,7 @@ internal sealed class SuperMetroidRuntime
         SuspendedGameplayFrameTail? frameTail,
         RuntimeFramePolicy policy,
         HostInfiniteAmmoFrameGuard infiniteAmmoGuard,
-        bool resumedAfterMessageBox)
+        GameplayFrameEntry entry)
     {
         if (frameTail is { } tail && Player.Samus is not null && Room.Camera is not null)
         {
@@ -752,7 +752,7 @@ internal sealed class SuperMetroidRuntime
         DecrementHurtTimers();
 
         // A resumed tail's frame already published its audio when it suspended.
-        if (!resumedAfterMessageBox)
+        if (entry != GameplayFrameEntry.ResumedAfterMessageBox)
             FrameBoundary.CompletedGameplayAudioPublication++;
         return Snapshot(infiniteAmmoGuard);
     }
@@ -825,7 +825,7 @@ internal sealed class SuperMetroidRuntime
             {
                 // $90:94F2: a fast grapple swing takes the slow branch, which leaves
                 // the camera speed words from the last normal frame in place.
-                camera.TrackGrappleSlowScrolling(currentCameraPoint.Whole);
+                camera.TrackGrappleSlowScrolling(currentCameraPoint.Whole, Freeze.TimeIsFrozen);
             }
             else
             {
@@ -837,14 +837,16 @@ internal sealed class SuperMetroidRuntime
                         MovementType: samus.PoseMetadata.ReadMovementType(),
                         XAccelerationMode: samus.HorizontalSpeed.AccelerationMode,
                         PoseXDirection: samus.PoseMetadata.ReadPoseXDirection(),
-                        CameraDistanceIndex: Room.LoadedScope.Enemies.RoomMainHooks.ZebetiteCameraDistanceIndex));
+                        CameraDistanceIndex: Room.LoadedScope.Enemies.RoomMainHooks.ZebetiteCameraDistanceIndex),
+                    Freeze.TimeIsFrozen);
                 camera.TrackMovedSamusVertically(
                     previousCameraPoint,
                     currentCameraPoint,
                     new VerticalCameraContext(
                         YDirection: samus.Kinematics.YDirection,
                         UpScroller: roomGeometry.UpScroller,
-                        DownScroller: roomGeometry.DownScroller));
+                        DownScroller: roomGeometry.DownScroller),
+                    Freeze.TimeIsFrozen);
             }
             // $90:96C0 writes the same distance-plus-one words consumed by Yard
             // kick setup. Publish the camera calculation itself, including its
@@ -862,7 +864,7 @@ internal sealed class SuperMetroidRuntime
 
             // The scroll registers follow the camera in the same main-loop pass, so the
             // following frame shows the room from level data at the new position.
-            BackgroundPhase.UpdateBackgroundScrollingFromCamera();
+            BackgroundPhase.UpdateBackgroundScrollingFromCamera(Freeze.TimeIsFrozen);
 
             // UpdateMinimap belongs to Samus's normal frame-handler beta; it uses world
             // position, not camera position. Fresh debug sessions begin without an area
@@ -877,11 +879,11 @@ internal sealed class SuperMetroidRuntime
         AttractDemo.RestoreAttractPlayerInput();
 
         RoomScope scope = Room.LoadedScope;
-        ActorDrawing.DrawGameplayActors(scope, deathOwnsSamus,
+        ActorDrawing.DrawGameplayActors(scope, deathOwnsSamus ? SamusDrawOwner.DeathSequence : SamusDrawOwner.Gameplay,
             // Command zero's `$90:E8DC` beta handler does not dispatch bank-$91
             // palette effects. In particular, automatic Reserve recovery freezes a
             // stored shine instead of consuming it while Samus is stationary.
-            advanceSamusPalette: tail.Mode.Beta is not (SamusBetaHandler.SuitPickup or SamusBetaHandler.ScriptLocked));
+            tail.Mode.Beta is SamusBetaHandler.SuitPickup or SamusBetaHandler.ScriptLocked ? SamusPaletteEffects.Hold : SamusPaletteEffects.Advance);
     }
 
     /// <summary>Runs the escape-timer handler unless the gunship's beta handler owns the frame.</summary>
@@ -1112,7 +1114,7 @@ internal sealed class SuperMetroidRuntime
         if (!MessageBox.IsActive && _suspendedFrameTail is { } tail)
         {
             _suspendedFrameTail = null;
-            return FinishGameplayFrame(tail, policy, infiniteAmmoGuard, resumedAfterMessageBox: true);
+            return FinishGameplayFrame(tail, policy, infiniteAmmoGuard, entry: GameplayFrameEntry.ResumedAfterMessageBox);
         }
         return Snapshot(infiniteAmmoGuard);
     }

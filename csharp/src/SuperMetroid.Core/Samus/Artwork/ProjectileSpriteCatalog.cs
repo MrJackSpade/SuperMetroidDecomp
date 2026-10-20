@@ -30,15 +30,15 @@ public sealed class ProjectileSpriteCatalog
     /// <exception cref="ArgumentNullException"><paramref name="json"/> is null.</exception>
     /// <exception cref="InvalidDataException">JSON is malformed or ambiguous, its schema or required identity set is invalid, or a part exceeds the supported OAM fields or count.</exception>
     public static ProjectileSpriteCatalog Load(Stream json)
-        => LoadFrames(json, default, useProjectilePointers: true);
+        => LoadFrames(json, default, pointers: ProjectileFramePointers.NativeProjectile);
 
     /// <summary>
     /// Loads the native part format for either timed projectiles or charge flares. Charge
     /// flares have a separate required identity set, preserving existing projectile overrides.
     /// </summary>
-    internal static ProjectileSpriteCatalog LoadFrames(Stream json, ReadOnlySpan<ushort> requiredPointers, bool useProjectilePointers = false)
+    internal static ProjectileSpriteCatalog LoadFrames(Stream json, ReadOnlySpan<ushort> requiredPointers, ProjectileFramePointers pointers = ProjectileFramePointers.Required)
     {
-        int requiredCount = useProjectilePointers ? ProjectileSpriteDefinitions.NativePointers.Length : requiredPointers.Length;
+        int requiredCount = pointers == ProjectileFramePointers.NativeProjectile ? ProjectileSpriteDefinitions.NativePointers.Length : requiredPointers.Length;
         ProjectileSpriteDocument document;
         try
         {
@@ -56,7 +56,7 @@ public sealed class ProjectileSpriteCatalog
         var frames = new Dictionary<ushort, SpriteComposition>();
         for (int pointerIndex = 0; pointerIndex < requiredCount; pointerIndex++)
         {
-            ushort id = useProjectilePointers ? ProjectileSpriteDefinitions.NativePointers[pointerIndex] : requiredPointers[pointerIndex];
+            ushort id = pointers == ProjectileFramePointers.NativeProjectile ? ProjectileSpriteDefinitions.NativePointers[pointerIndex] : requiredPointers[pointerIndex];
             string name = ProjectileSpriteDefinitions.Name(id);
             if (!document.Frames.TryGetValue(name, out var parts) || parts is null || parts.Length > ProjectileSpriteDefinitions.MaximumParts)
                 throw new InvalidDataException($"Projectile sprite {name} is missing or exceeds OAM capacity.");

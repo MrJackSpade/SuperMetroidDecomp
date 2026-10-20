@@ -65,7 +65,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
         state.XMovement = (PlatformHorizontalMovement)slot.Spawn.Population.Parameter1;
 
         state.Program = AnimationProgramCursor<PlatformProgram>.Start(PlatformAnimationDefinitions.SelectProgram(
-            isKamer, verticallyMoving: false, state.XMovement));
+            isKamer, axis: Axis.Horizontal, state.XMovement));
 
         // The low byte is a common-linear-speed magnitude. Multiplication by eight is the
         // native byte offset across {right whole/fraction, left whole/fraction}.
@@ -309,7 +309,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
         PlatformEnemyState state)
     {
         InstallPlatformProgram(slot, state, PlatformAnimationDefinitions.SelectProgram(
-            state.IsSuspensorPlatform, verticallyMoving: true, state.XMovement));
+            state.IsSuspensorPlatform, axis: Axis.Vertical, state.XMovement));
     }
 
     /// <summary>Selects the stationary list from suspensor identity and current horizontal dispatcher.</summary>
@@ -318,7 +318,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
         PlatformEnemyState state)
     {
         InstallPlatformProgram(slot, state, PlatformAnimationDefinitions.SelectProgram(
-            state.IsSuspensorPlatform, verticallyMoving: false, state.XMovement));
+            state.IsSuspensorPlatform, axis: Axis.Horizontal, state.XMovement));
     }
 
     /// <summary>Starts the selected animation with a one-tick instruction timer.</summary>
@@ -377,9 +377,9 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
         table.AddShot(new EnemyShotReaction(enemy => enemy.EnemyDefinitionPointer == EnemyDefinitionId.Tripper &&
                                                      EnemyCollision.ShotAi(enemy) == EnemyInteractionCallback.TripperShot)
         {
-            AfterCommon = (c, froze) =>
+            AfterCommon = c =>
             {
-                if (froze)
+                if (c.Froze)
                     c.Enemy.Frame = TripperFrozenFrame(c.Enemy.RequireSpeciesState<PlatformEnemyState>().XMovement);
             },
         });

@@ -7,6 +7,7 @@ namespace SuperMetroid.Core.Rooms.Plms;
 /// <param name="RightBehavior">The right access block's behaviour.</param>
 /// <param name="LeftBehavior">The left access block's behaviour.</param>
 /// <param name="HasAcquiredAnimation">Whether the station shows a separate animation once its reward is held.</param>
+[IndependentFlag("whether the station has an acquired animation, a fact of the layout data")]
 internal sealed record StationAccessLayout(
     StationKind Kind,
     int RightOffset,

@@ -205,7 +205,7 @@ public static class GameOptionsPresentationDefinitions
     }
 
     /// <summary>$82:F149..F158 special-setting choice boxes: two rows of six words.</summary>
-    internal static IEnumerable<int> ToggleCells(string name, bool enabled)
+    internal static IEnumerable<int> ToggleCells(string name, GameOptionsToggleState state)
     {
         var layout = name switch
         {
@@ -213,8 +213,8 @@ public static class GameOptionsPresentationDefinitions
             MoonwalkToggle => GameOptionsRomData.SpecialToggles.Moonwalk,
             _ => throw new InvalidDataException($"Unknown options toggle {name}."),
         };
-        int first = enabled ? layout.EnabledTop : layout.DisabledTop;
-        int second = enabled ? layout.EnabledBottom : layout.DisabledBottom;
+        int first = state == GameOptionsToggleState.Enabled ? layout.EnabledTop : layout.DisabledTop;
+        int second = state == GameOptionsToggleState.Enabled ? layout.EnabledBottom : layout.DisabledBottom;
         for (int row = 0; row < 2; row++)
         for (int word = 0; word < GameOptionsRomData.SpecialToggles.PaletteRegionByteCount / sizeof(ushort); word++)
             yield return (row == 0 ? first : second) / sizeof(ushort) + word;

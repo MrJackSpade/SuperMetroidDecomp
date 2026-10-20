@@ -11,6 +11,7 @@ using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Gameplay;
 namespace SuperMetroid.Verification.Samus.Grapple;
 
 /// <summary>Checks that grapple draws bind the currently installed grapple artwork, including after a debugger-state restore.</summary>
@@ -58,7 +59,7 @@ internal static class GrappleTileBindingVerification
         static void AssertBoundTo(SuperMetroidRuntime target, GrappleTileAtlas atlas, string context)
         {
             target.Sprites.BeginFrame();
-            target.ActorDrawing.DrawGameplayActors(target.Room.LoadedScope, false, false);
+            target.ActorDrawing.DrawGameplayActors(target.Room.LoadedScope, SamusDrawOwner.Gameplay, SamusPaletteEffects.Hold);
             target.Sprites.FinalizeFrame();
             SamusGrappleState grapple = target.Player.IntroducedSamus.Grapple;
             SpriteDraw[] grappleDraws = [.. target.Sprites.Draws

@@ -263,12 +263,12 @@ internal sealed class MenuGamePhases(FrontendSession session)
         bool continueUsesCeresArrival = session.SetupSelectedGame();
         if (continueUsesCeresArrival)
         {
-            session.BeginGameplayFadeIn(leadsToCeresArrival: true);
+            session.BeginGameplayFadeIn(target: GameplayFadeTarget.CeresArrival);
             session.display.PublishBlack();
         }
         else
         {
-            session.BeginGameplayFadeIn(leadsToCeresArrival: false);
+            session.BeginGameplayFadeIn(target: GameplayFadeTarget.Gameplay);
             session.display.PublishBlack();
         }
     }

@@ -72,7 +72,7 @@ internal static class RidleyFullMovieVerification
             state.FunctionTimer = NativeCountdown.Start(20); samus.Pose = SamusPoseId.SpinJumpRightPose;
             state.BodyProgram = pointers.BodyCursorAt(NativeSnapshotMemory.RidleyRightFlyingSleep);
             body.InstructionTimer = NativeCountdown.Start(9); body.Timer = NativeCountdown.Start(11);
-            runtime.Enemies.RidleyBehavior.TickNorfairRidleyPogo(body, state, samus, true);
+            runtime.Enemies.RidleyBehavior.TickNorfairRidleyPogo(body, state, samus, VerticalDirection.Down);
             AssertEqual(sample.Item4 ? RidleyNativeInstructionPointers.BodyEntry(RidleyBodyProgram.Fireballing) : NativeSnapshotMemory.RidleyRightFlyingSleep,
                 pointers.Body(state), "native spin-response fireball threshold/roar/facing gate");
             AssertEqual(sample.Item4 ? (ushort)1 : (ushort)9, body.InstructionTimer.RawValue, "native fireball restarts instruction timer only when admitted");
@@ -101,7 +101,7 @@ internal static class RidleyFullMovieVerification
         samus.Health = 399; samus.EquippedItems = SamusEquipmentFlags.GravitySuit;
         samus.InvincibilityTimer = NativeCountdown.Start(0); samus.PoseMetadata.RefreshCollisionRadii();
         // One EnemyMain pass outside the frame loop, as the door-transition wait runs it: no prepared processing list.
-        runtime.EnemyPhase.RunEnemyMainPhase(processingListPrepared: false, runtime.Room.Camera?.PreviousSamusPoint, runtime.Room.LoadedScope);
+        runtime.EnemyPhase.RunEnemyMainPhase(processingList: EnemyProcessingList.Unprepared, runtime.Room.Camera?.PreviousSamusPoint, runtime.Room.LoadedScope);
         AssertEqual(399, samus.Health, "source4234 body entering overlap cannot damage before next contact pass");
         AssertTrue(body.Position.X.Whole < 139, "fixture advances body into collision boundary");
         body.SpritemapPointer = 0xe9e9;
@@ -176,11 +176,11 @@ internal static class RidleyFullMovieVerification
         AssertTrue(samus.Control.Mode.Beta == SamusBetaHandler.ScriptLocked, "native grab installs command-zero alpha/beta pair");
         var bombs = CreateBombFixture();
         bombs.SetSharedCooldown(10);
-        bombs.StepFrame(new SamusTerrain { Level = runtime.Room.LoadedLevelData }, samus, 0, 0, advancePowerBombHdma: false);
+        bombs.StepFrame(new SamusTerrain { Level = runtime.Room.LoadedLevelData }, samus, 0, 0, powerBombHdma: PowerBombHdmaStep.Skip);
         AssertEqual((ushort)10, bombs.CooldownTimer.RawValue, "native locked alpha preserves cooldown");
         RidleyBehavior.ReleaseNorfairRidleyGrab(state, samus);
         AssertTrue(!samus.Control.AlphaLocked && samus.Control.Mode.Beta != SamusBetaHandler.ScriptLocked, "native release restores ordinary control");
-        bombs.StepFrame(new SamusTerrain { Level = runtime.Room.LoadedLevelData }, samus, 0, 0, advancePowerBombHdma: false);
+        bombs.StepFrame(new SamusTerrain { Level = runtime.Room.LoadedLevelData }, samus, 0, 0, powerBombHdma: PowerBombHdmaStep.Skip);
         AssertEqual((ushort)9, bombs.CooldownTimer.RawValue, "native unlocked alpha resumes cooldown");
         // Native source8395: a descending lunge grabs standing Samus. Ground attacks
         // have their own reversal; this entry must negate after its lunge acceleration.
@@ -419,17 +419,17 @@ internal static class RidleyFullMovieVerification
         projectile.Position = new(new(0x49, 0x8c00), new(0x54, 0xd900));
         projectile.Velocity = new(new SnesSignedEightEight(0xfb64), new SnesSignedEightEight(0xfe1b));
         projectile.Radius = new(6, 6);
-        AssertTrue(!EnemyProjectileEngine.MoveProjectileAxis(projectile, runtime.Room.LoadedLevelData, true), "source1248 fireball crosses empty square-slope quadrant horizontally");
-        AssertTrue(!EnemyProjectileEngine.MoveProjectileAxis(projectile, runtime.Room.LoadedLevelData, false), "source1248 fireball clears terrain vertically");
+        AssertTrue(!EnemyProjectileEngine.MoveProjectileAxis(projectile, runtime.Room.LoadedLevelData, Axis.Horizontal), "source1248 fireball crosses empty square-slope quadrant horizontally");
+        AssertTrue(!EnemyProjectileEngine.MoveProjectileAxis(projectile, runtime.Room.LoadedLevelData, Axis.Vertical), "source1248 fireball clears terrain vertically");
         AssertEqual((ushort)0x44, projectile.Position.X.Whole, "native source1249 fireball X");
         AssertEqual((ushort)0xf000, projectile.Position.X.Fraction, "native source1249 fireball X fraction");
         AssertEqual((ushort)0x52, projectile.Position.Y.Whole, "native source1249 fireball Y");
         AssertEqual((ushort)0xf400, projectile.Position.Y.Fraction, "native source1249 fireball Y fraction");
         projectile.Position = projectile.Position.WithWholeX(60).WithFractionX(0).WithWholeY(84); projectile.Velocity = projectile.Velocity.WithX(new SnesSignedEightEight(0xff00));
-        AssertTrue(EnemyProjectileEngine.MoveProjectileAxis(projectile, runtime.Room.LoadedLevelData, true), "occupied top-left quarter stops horizontal motion");
+        AssertTrue(EnemyProjectileEngine.MoveProjectileAxis(projectile, runtime.Room.LoadedLevelData, Axis.Horizontal), "occupied top-left quarter stops horizontal motion");
         AssertEqual((ushort)62, projectile.Position.X.Whole, "native square reaction snaps to eight-pixel edge even when initially embedded");
         projectile.Position = projectile.Position.WithWholeX(52).WithWholeY(94).WithFractionY(0); projectile.Velocity = projectile.Velocity.WithY(new SnesSignedEightEight(0xff00));
-        AssertTrue(EnemyProjectileEngine.MoveProjectileAxis(projectile, runtime.Room.LoadedLevelData, false), "occupied top-left quarter stops vertical motion");
+        AssertTrue(EnemyProjectileEngine.MoveProjectileAxis(projectile, runtime.Room.LoadedLevelData, Axis.Vertical), "occupied top-left quarter stops vertical motion");
         AssertEqual((ushort)94, projectile.Position.Y.Whole, "native square reaction snaps below occupied quarter");
         Console.WriteLine("Ridley fireball square slope: native source1248 trajectory and occupied horizontal/vertical quadrants pass.");
     }
@@ -446,7 +446,7 @@ internal static class RidleyFullMovieVerification
         {
             var samus = runtime.Player.IntroducedSamus;
             samus.LiquidPhysics.RoomIdentity = new RoomIdentity(sample.Item1, 0);
-            runtime.Enemies.RidleyProjectiles.SpawnRidleyFireball(runtime.Enemies.SlotTable.Slots[0], false);
+            runtime.Enemies.RidleyProjectiles.SpawnRidleyFireball(runtime.Enemies.SlotTable.Slots[0], afterburns: 0);
             var fireball = runtime.Enemies.Projectiles.EnemyProjectiles[slotIndex--];
             AssertEqual(sample.Item2, fireball.Damage, "native area initializer overrides fireball damage");
             runtime.Enemies.RidleyProjectiles.SpawnDirectionalAfterburn(fireball, RoomEnemyProjectileKind.CeresRidleyHorizontalAfterburnRight, new EightEightVector<RoomPixels>(0x0e00, 0));

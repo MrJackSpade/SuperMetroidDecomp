@@ -29,8 +29,8 @@ public static class CorpseRottingTableProcessor
     /// <param name="yLimit">Exclusive pixel-row limit for the two-pixel advance; also the native entry-index threshold that returns final completion.</param>
     /// <param name="lateMoveEntryIndex">First entry index that uses the destructive move callback during the last four delay states instead of copying its pixel row.</param>
     /// <param name="copyOrMovePixelRow">
-    /// Receives the current unsigned Y row and whether the selected enemy-specific routine
-    /// is the destructive move callback rather than the non-destructive copy callback.
+    /// Receives the current unsigned Y row and the operation the enemy-specific routine performs: the destructive move
+    /// or the non-destructive copy.
     /// </param>
     /// <param name="entryFinished">
     /// Receives each entry index immediately after its final row has moved. The final entry
@@ -41,7 +41,7 @@ public static class CorpseRottingTableProcessor
         CorpseRotTable table,
         int yLimit,
         int lateMoveEntryIndex,
-        Action<ushort, bool> copyOrMovePixelRow,
+        Action<ushort, CorpseRowOperation> copyOrMovePixelRow,
         Action<ushort> entryFinished)
     {
         Ensure.NotNull(copyOrMovePixelRow);
@@ -65,14 +65,14 @@ public static class CorpseRottingTableProcessor
                 {
                     copyOrMovePixelRow(
                         unchecked((ushort)yOffset),
-                        entryIndex >= lateMoveEntryIndex);
+                        entryIndex >= lateMoveEntryIndex ? CorpseRowOperation.Move : CorpseRowOperation.Copy);
                 }
                 continue;
             }
 
             // A row whose delay has expired always uses the destructive callback, then
             // advances by two pixels. This produces the cartridge's interleaved fall.
-            copyOrMovePixelRow(unchecked((ushort)yOffset), true);
+            copyOrMovePixelRow(unchecked((ushort)yOffset), CorpseRowOperation.Move);
             ushort nextYOffset = unchecked((ushort)(yOffset + 2));
             if (nextYOffset < yLimit)
             {

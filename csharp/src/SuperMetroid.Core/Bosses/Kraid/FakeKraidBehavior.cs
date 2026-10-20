@@ -62,10 +62,10 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
                     LastFakeKraidSoundEffect = KraidSoundDefinitions.MiniKraidCry;
                 return null;
             case FakeKraidCueKind.SpitLeft:
-                SpawnFakeKraidSpitPair(slot, slot.RequireSpeciesState<FakeKraidEnemyState>(), movingRight: false);
+                SpawnFakeKraidSpitPair(slot, slot.RequireSpeciesState<FakeKraidEnemyState>(), direction: HorizontalDirection.Left);
                 return null;
             case FakeKraidCueKind.SpitRight:
-                SpawnFakeKraidSpitPair(slot, slot.RequireSpeciesState<FakeKraidEnemyState>(), movingRight: true);
+                SpawnFakeKraidSpitPair(slot, slot.RequireSpeciesState<FakeKraidEnemyState>(), direction: HorizontalDirection.Right);
                 return null;
             default:
                 throw new InvalidOperationException($"Mini-Kraid's animations have no {cue.Kind} cue.");
@@ -226,13 +226,13 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void SpawnFakeKraidSpitPair(
         RoomEnemySlot slot,
         FakeKraidEnemyState state,
-        bool movingRight)
+        HorizontalDirection direction)
     {
-        short xOffset = movingRight ? (short)4 : (short)-4;
+        short xOffset = direction == HorizontalDirection.Right ? (short)4 : (short)-4;
         for (int projectile = 0; projectile < 2; projectile++)
         {
             EightEightVector<RoomPixels> launch =
-                FakeKraidProjectileDefinitions.SpitLaunch(movingRight, projectile);
+                FakeKraidProjectileDefinitions.SpitLaunch(direction == HorizontalDirection.Right, projectile);
             if (SpawnFakeKraidSpit(
                     slot,
                     xOffset,
@@ -300,8 +300,8 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemyProjectileSlot projectile,
         RoomLevelData level)
     {
-        if (EnemyProjectileEngine.MoveProjectileAxis(projectile, level, horizontal: true) ||
-            EnemyProjectileEngine.MoveProjectileAxis(projectile, level, horizontal: false))
+        if (EnemyProjectileEngine.MoveProjectileAxis(projectile, level, axis: Axis.Horizontal) ||
+            EnemyProjectileEngine.MoveProjectileAxis(projectile, level, axis: Axis.Vertical))
         {
             projectile.Clear();
             return;
@@ -319,7 +319,7 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemyProjectileSlot projectile,
         RoomLevelData level)
     {
-        if (EnemyProjectileEngine.MoveProjectileAxis(projectile, level, horizontal: true))
+        if (EnemyProjectileEngine.MoveProjectileAxis(projectile, level, axis: Axis.Horizontal))
             projectile.Clear();
     }
 
@@ -432,9 +432,9 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
                 KillFakeKraid(c.Enemy);
                 return true;
             },
-            AfterCommon = (c, froze) =>
+            AfterCommon = c =>
             {
-                if (!froze && c.Enemy.EnemyDefinitionPointer != 0 && c.HealthBefore != 0 && c.Enemy.Health == 0)
+                if (!c.Froze && c.Enemy.EnemyDefinitionPointer != 0 && c.HealthBefore != 0 && c.Enemy.Health == 0)
                     SpawnFakeKraidDeathDrops(c.Enemy.Position.Whole);
             },
         });
@@ -448,7 +448,7 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
             context =>
             {
                 int healthBefore = context.Slot.Health;
-                _collision.ResolveNormalEnemyTouch(context.Slot, context.Samus, skipDeathAnimation: true);
+                _collision.ResolveNormalEnemyTouch(context.Slot, context.Samus, deathAnimation: TouchDeathAnimation.Skip);
                 if (healthBefore != 0 && context.Slot.Health == 0)
                     KillFakeKraid(context.Slot);
             });

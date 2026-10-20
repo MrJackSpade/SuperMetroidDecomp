@@ -8,5 +8,6 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// <param name="FastAnimation">Whether the list switches to its fast-animation counterpart.</param>
 /// <param name="SpawnExplosion">Whether the caller spawns the explosion.</param>
 /// <param name="DeleteProjectile">Whether the caller deletes the projectile.</param>
+[IndependentFlag("independent outcomes of one fuse step")]
 public readonly record struct PowerBombFuseStep(
     NativeCountdown Timer, bool FastAnimation, bool SpawnExplosion, bool DeleteProjectile);

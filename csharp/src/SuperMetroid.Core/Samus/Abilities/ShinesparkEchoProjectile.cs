@@ -26,7 +26,7 @@ internal sealed class ShinesparkEchoProjectile
         var slot = _slotTable.Slots[index];
         _slotTable.ProjectileCounter = unchecked((ushort)(_slotTable.ProjectileCounter + 1));
         slot.Type = SamusShinesparkProjectileRomData.EchoType;
-        BeamCombos.InitializeComboData(slot, ordinary: false, echo: true);
+        BeamCombos.InitializeComboData(slot, BeamComboData.Echo);
         slot.PreInstruction = SamusProjectilePreInstruction.ShinesparkEcho;
         slot.Variable = angle.TableIndex;
         slot.Velocity = slot.Velocity.WithX(SnesSignedEightEight.FromSignedRaw(0));

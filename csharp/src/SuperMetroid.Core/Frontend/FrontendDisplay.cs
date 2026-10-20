@@ -18,8 +18,8 @@ namespace SuperMetroid.Core.Frontend;
 /// </summary>
 internal sealed class FrontendDisplay
 {
-    /// <summary>Whether gameplay publications replace the retained display in diagnostic mode.</summary>
-    private readonly bool renderGameplayFrames;
+    /// <summary>How gameplay updates become the published display.</summary>
+    private readonly IGameplayFramePublication gameplayFrames;
     /// <summary>The host's identity for the frame being captured; null outside a host capture.</summary>
     private RenderFrameIdentity? captureIdentity;
     /// <summary>Sequence of frames published outside a host capture.</summary>
@@ -28,10 +28,10 @@ internal sealed class FrontendDisplay
     private RenderFrameSnapshot capturedDisplay;
 
     /// <summary>Starts with a black frame.</summary>
-    /// <param name="renderGameplayFrames">Whether gameplay publications replace the display (false in diagnostic mode).</param>
-    internal FrontendDisplay(bool renderGameplayFrames)
+    /// <param name="gameplayFrames">How gameplay updates become the published display.</param>
+    internal FrontendDisplay(IGameplayFramePublication gameplayFrames)
     {
-        this.renderGameplayFrames = renderGameplayFrames;
+        this.gameplayFrames = Ensure.NotNull(gameplayFrames);
         capturedDisplay = new(NextIdentity(), Black);
     }
 
@@ -135,15 +135,11 @@ internal sealed class FrontendDisplay
             ?? throw new InvalidOperationException("Intro publication omitted its render snapshot."));
     }
 
-    /// <summary>Captures gameplay or renders it directly unless diagnostic no-render mode retains the prior frame.</summary>
+    /// <summary>Publishes a gameplay update through the session's gameplay-frame policy.</summary>
     internal void PublishGameplay(SuperMetroidRuntime activeRuntime)
     {
         using var publicationTiming = RenderPublicationProfile.Measure();
-        // The diagnostic no-render mode deliberately retains the prior display. Do not
-        // materialize a stored packet simply because this simulation-only caller steps.
-        if (!renderGameplayFrames) return;
-        GameplayDisplayFrame frame = activeRuntime.PublishDisplayFrame();
-        capturedDisplay = new(NextIdentity(), GameplayDisplayCapture.Capture(frame));
+        capturedDisplay = gameplayFrames.Publish(activeRuntime, capturedDisplay, NextIdentity);
     }
 
     /// <summary>Replaces the published scene with opaque black under the current capture identity.</summary>

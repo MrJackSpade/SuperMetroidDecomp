@@ -16,7 +16,7 @@ internal static class RidleyMissedLungeVerification
     {
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
         Action<RoomEnemySlot, RidleyEnemyState, SamusState?, SnesButton, RoomLevelData?> run = enemies.RidleyBehavior.RunNorfairRidleyFunction;
-        Action<RoomEnemySlot, RidleyEnemyState, bool> move = enemies.CeresRidleyBehavior.IntegrateRidleyMovement;
+        Action<RoomEnemySlot, RidleyEnemyState, RidleyWallImpact> move = enemies.CeresRidleyBehavior.IntegrateRidleyMovement;
         var slot = enemies.SlotTable.Slots[0];
         slot.Health = 1000;
         slot.Position = slot.Position.WithWhole(new(160, 400));
@@ -35,7 +35,7 @@ internal static class RidleyMissedLungeVerification
         for (int frame = 0; frame < 32; frame++)
         {
             run(slot, state, samus, 0, null);
-            move(slot, state, false);
+            move(slot, state, RidleyWallImpact.None);
         }
         AssertTrue(slot.Position.Y.Whole < lowY, "missed lunge retreats upward instead of chasing Samus at floor level");
         AssertEqual(RidleyGrabState.Released, state.GrabState, "retreat never falsely grabs Samus");
@@ -71,12 +71,12 @@ internal static class RidleyMissedLungeVerification
         // Exercise real integration, not a manually supplied boundary flag.
         ResetLunge(223, 300);
         state.Velocity = state.Velocity.WithX(new SnesSignedEightEight(0x100));
-        move(slot, state, false);
+        move(slot, state, RidleyWallImpact.None);
         AssertTrue(state.HitRoomBoundary, "exact maximum X counts as a native boundary hit");
         run(slot, state, samus, 0, null);
         AssertEqual(RidleyAiFunction.NorfairHoverSetup, state.Function, "movement boundary result exits the next lunge call");
         state.Velocity = state.Velocity.WithX(new SnesSignedEightEight(unchecked((ushort)-0x100)));
-        move(slot, state, false);
+        move(slot, state, RidleyWallImpact.None);
         AssertTrue(!state.HitRoomBoundary, "moving back inside clears the boundary result");
 
         ResetLunge(160, 400);

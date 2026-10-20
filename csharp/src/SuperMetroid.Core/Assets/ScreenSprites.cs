@@ -83,11 +83,11 @@ public sealed class ScreenSprites
 
     /// <summary>Places one compiled spritemap part relative to an on-screen <paramref name="origin"/>.</summary>
     public void AddPart(SnesSpritemapXWord x, SnesSpritemapYByte y, SnesObjAttributeWord attributes, Position16<OamPixels> origin) =>
-        AddPart(x, y, attributes, origin, originIsOnScreen: true);
+        AddPart(x, y, attributes, origin, originSide: SpriteOrigin.OnScreen);
 
     /// <summary>Places one compiled spritemap part relative to a negative <paramref name="origin"/> ($81:8853's reversed wrap).</summary>
     public void AddOffScreenPart(SnesSpritemapXWord x, SnesSpritemapYByte y, SnesObjAttributeWord attributes, Position16<OamPixels> origin) =>
-        AddPart(x, y, attributes, origin, originIsOnScreen: false);
+        AddPart(x, y, attributes, origin, originSide: SpriteOrigin.OffScreen);
 
     /// <summary>
     /// Places one small object whose attributes name its character, flips, palette and priority. Like a direct OAM
@@ -101,14 +101,14 @@ public sealed class ScreenSprites
 
     /// <summary>Applies the spritemap loader's vertical-wrap hiding and places the part, until the frame is full.</summary>
     private void AddPart(SnesSpritemapXWord x, SnesSpritemapYByte y, SnesObjAttributeWord attributes, Position16<OamPixels> origin,
-        bool originIsOnScreen)
+        SpriteOrigin originSide)
     {
         if (next >= Capacity)
             return;
         ushort placedX = unchecked((ushort)(origin.X + x.Raw));
         int placedY = (byte)origin.Y + y.Raw;
         // The off-screen branch inverts the on-screen test: a part shows exactly when the on-screen loader would hide it.
-        if (Hides(placedY, y.IsNegative) == originIsOnScreen)
+        if (Hides(placedY, y.IsNegative) == (originSide == SpriteOrigin.OnScreen))
         {
             placedX = ParkedX;
             placedY = SnesPpuLayout.ScreenHeightPixels;

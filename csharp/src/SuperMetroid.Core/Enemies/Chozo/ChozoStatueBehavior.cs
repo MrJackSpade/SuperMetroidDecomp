@@ -126,26 +126,21 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
         if (state.IsWreckedShip)
         {
             state.Program = AnimationProgramCursor<ChozoStatueProgram>.Start(ChozoStatueProgram.WreckedShipInitial);
-            LoadChozoStatuePalette(wreckedShip: true);
+            ChozoStatueColors().ApplyWreckedShip(_presentation.Cgram);
             PublishHardcodedChozoPlm(PlmHeaderId.WreckedShipChozoHand, ChozoStatuePlmRomData.WreckedShipHandBlock);
             PublishHardcodedChozoPlm(PlmHeaderId.BlockSlopeAccessForWreckedShipChozo, ChozoStatuePlmRomData.WreckedShipSlopeAccessBlock);
         }
         else
         {
             state.Program = AnimationProgramCursor<ChozoStatueProgram>.Start(ChozoStatueProgram.LowerNorfairInitial);
-            LoadChozoStatuePalette(wreckedShip: false);
+            ChozoStatueColors().ApplyLowerNorfair(_presentation.Cgram);
             PublishHardcodedChozoPlm(PlmHeaderId.LowerNorfairChozoHand, ChozoStatuePlmRomData.LowerNorfairHandBlock);
         }
     }
 
     /// <summary>Applies the installed Wrecked Ship or Lower Norfair statue palette to live CGRAM.</summary>
-    private void LoadChozoStatuePalette(bool wreckedShip)
-    {
-        var colors = _room.Artwork?.ChozoAndTubeColors ?? throw new InvalidDataException(
-            "Chozo statue colors require installed artwork.");
-        if (wreckedShip) colors.ApplyWreckedShip(_presentation.Cgram);
-        else colors.ApplyLowerNorfair(_presentation.Cgram);
-    }
+    private ChozoAndTubeColorCatalog ChozoStatueColors() =>
+        _room.Artwork?.ChozoAndTubeColors ?? throw new InvalidDataException("Chozo statue colors require installed artwork.");
 
     /// <summary>
     /// Represents the exact enemy-slot side effect produced by the bank-$84 Chozo hand
@@ -172,7 +167,7 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
             triggerBlockIndex,
             triggerBlock.PackedWord.VisualWord);
         state.HandTriggered = true;
-        SetChozoStatueSamusControls(enabled: false);
+        DisableChozoStatueSamusControls();
         if (!state.IsWreckedShip)
         {
             // Lower Norfair's $84:D18F trigger records event $0C before waking the actor.
@@ -262,7 +257,7 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
                 return null;
 
             case ChozoStatueCueKind.UnlockSamus:
-                SetChozoStatueSamusControls(enabled: true);
+                EnableChozoStatueSamusControls();
                 return null;
 
             case ChozoStatueCueKind.PlayGrabSound:
@@ -369,7 +364,7 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Restores Samus controls, publishes the native overlapping scroll writes and queues slope-access terrain.</summary>
     private void FinishWreckedShipChozoSequence()
     {
-        SetChozoStatueSamusControls(enabled: true);
+        EnableChozoStatueSamusControls();
 
         // The assembly performs overlapping 16-bit stores at raw scroll indexes 6, 8, 9,
         // and 13. Publish the resulting bytes (6..10 = 0, 13 = 1, 14 = 0) exactly.
@@ -383,11 +378,18 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
             ChozoStatuePlmRomData.WreckedShipSlopeAccessBlock);
     }
 
-    /// <summary>Publishes the statue's control lock to both the room service and observable state.</summary>
-    private void SetChozoStatueSamusControls(bool enabled)
+    /// <summary>Gives Samus her controls back, in both the room service and observable state.</summary>
+    private void EnableChozoStatueSamusControls()
     {
-        ChozoStatueSamusControlsEnabled = enabled;
-        _room.Services.SamusControls.SetControlsEnabled(enabled);
+        ChozoStatueSamusControlsEnabled = true;
+        _room.Services.SamusControls.EnableControls();
+    }
+
+    /// <summary>Takes Samus's controls away while the statue holds her, in both the room service and observable state.</summary>
+    private void DisableChozoStatueSamusControls()
+    {
+        ChozoStatueSamusControlsEnabled = false;
+        _room.Services.SamusControls.DisableControls();
     }
 
     /// <summary>Queues an authored bank-$84 PLM spawn at its fixed room block.</summary>

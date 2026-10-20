@@ -19,6 +19,7 @@ namespace SuperMetroid.Verification.Samus.Projectiles;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Gameplay;
 
 /// <summary>Retail OAM, compiled program, live override, and mutable-memory checks for projectile trails.</summary>
 internal static class ProjectileTrailArtworkVerification
@@ -218,7 +219,7 @@ internal static class ProjectileTrailArtworkVerification
         byte[] Draw(SuperMetroid.Core.Runtime.SuperMetroidRuntime target)
         {
             target.Sprites.BeginFrame();
-            target.ActorDrawing.DrawGameplayActors(target.Room.LoadedScope, false, false);
+            target.ActorDrawing.DrawGameplayActors(target.Room.LoadedScope, SamusDrawOwner.Gameplay, SamusPaletteEffects.Hold);
             target.Sprites.FinalizeFrame();
             return target.Sprites.FinalizedAsOam().LowTable.ToArray();
         }

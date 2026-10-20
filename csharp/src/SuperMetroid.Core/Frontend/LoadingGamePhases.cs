@@ -113,11 +113,11 @@ internal sealed class LoadingGamePhases(FrontendSession session)
         switch (session.gameLoadingCompletion)
         {
             case GameLoadingCompletion.CeresArrivalFadeIn:
-                session.BeginGameplayFadeIn(leadsToCeresArrival: true);
+                session.BeginGameplayFadeIn(target: GameplayFadeTarget.CeresArrival);
                 session.display.PublishBlack();
                 break;
             case GameLoadingCompletion.GameplayFadeIn:
-                session.BeginGameplayFadeIn(leadsToCeresArrival: false);
+                session.BeginGameplayFadeIn(target: GameplayFadeTarget.Gameplay);
                 session.display.PublishBlack();
                 break;
             case GameLoadingCompletion.MainGameplay:

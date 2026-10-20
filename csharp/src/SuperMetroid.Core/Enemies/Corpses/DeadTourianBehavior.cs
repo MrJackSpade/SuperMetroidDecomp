@@ -179,7 +179,7 @@ internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemyEntityFactory
             state.RotTable,
             state.YLimit,
             state.LateMoveEntryIndex,
-            (yOffset, move) => CopyOrMoveDeadTourianCorpsePixelRow(state, yOffset, move),
+            (yOffset, operation) => CopyOrMoveDeadTourianCorpsePixelRow(state, yOffset, operation),
             entryIndex => FinishDeadTourianCorpseRow(slot, state));
         if (!stillRotting)
             state.Function = DeadTourianCorpseFunction.Finished;
@@ -205,7 +205,7 @@ internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemyEntityFactory
     private void CopyOrMoveDeadTourianCorpsePixelRow(
         DeadTourianCorpseEnemyState state,
         ushort yOffset,
-        bool move)
+        CorpseRowOperation operation)
     {
         ushort sourceOffset = unchecked((ushort)(
             DeadMonsterRottingDefinitions.RotationOffset(state.Profile.RowLayout, yOffset) + (yOffset & 7) * 2));
@@ -224,7 +224,7 @@ internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemyEntityFactory
                     destinationWord + 8,
                     _deadMonsters.ReadWorkWord(sourceWord + 8));
             }
-            if (move)
+            if (operation == CorpseRowOperation.Move)
             {
                 _deadMonsters.WriteWorkWord(sourceWord, 0);
                 _deadMonsters.WriteWorkWord(sourceWord + 8, 0);

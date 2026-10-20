@@ -20,6 +20,7 @@ using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Samus.Grapple;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Gameplay;
 
 /// <summary>Checks editable Grapple flare origins against cartridge offsets and unchanged grapple mechanics.</summary>
 internal static class GrappleFlarePlacementVerification
@@ -45,7 +46,7 @@ internal static class GrappleFlarePlacementVerification
         }
         var edited = ChargeFlarePlacementCatalog.Load(new MemoryStream(System.Text.Encoding.UTF8.GetBytes(document.ToJsonString())));
         var refresh = new Action<SamusState, SamusGrappleState>(SamusGrappleMovement.RefreshFiringDrawOrigins);
-        Func<SamusState, SamusGrappleState, Position16<RoomPixels>, bool, bool, GrappleMovementResult> connect = SamusGrappleMovement.ConnectAcceptedFiring;
+        Func<SamusState, SamusGrappleState, Position16<RoomPixels>, GrappleAnchorKind, GrappleMovementResult> connect = SamusGrappleMovement.ConnectAcceptedFiring;
         var empty = CreateRoom(new(64, 64), new ushort[4096], new byte[4096]);
         int locked = 0;
         var authoredPoses = Enumerable.Range(0, 253)
@@ -83,9 +84,9 @@ internal static class GrappleFlarePlacementVerification
                 SamusGrappleMovement.StepFiring(empty, changed, SnesButton.X);
                 Compare();
             }
-            var expectedConnection = connect(native, native.Grapple, new(512, 512), true, false);
-            var selectedConnection = connect(selected, selected.Grapple, new(512, 512), true, false);
-            var editedConnection = connect(changed, changed.Grapple, new(512, 512), true, false);
+            var expectedConnection = connect(native, native.Grapple, new(512, 512), GrappleAnchorKind.Block);
+            var selectedConnection = connect(selected, selected.Grapple, new(512, 512), GrappleAnchorKind.Block);
+            var editedConnection = connect(changed, changed.Grapple, new(512, 512), GrappleAnchorKind.Block);
             AssertEqual(expectedConnection, selectedConnection, "Stock placement retains connection result");
             AssertEqual(expectedConnection, editedConnection, "Edited placement retains connection result");
             // A non-swinging connection installs the locked-in-place grapple function.
@@ -133,7 +134,7 @@ internal static class GrappleFlarePlacementVerification
         AssertTrue(ReferenceEquals(swingFrames, runtime.Player.IntroducedSamus.Grapple.SwingFrames), "Real gameplay frame rebinds swing art before pendulum update");
         runtime.Player.IntroducedSamus.Grapple.FlarePlacement = null;
         runtime.Player.IntroducedSamus.Grapple.SwingFrames = null;
-        runtime.ActorDrawing.DrawGameplayActors(runtime.Room.LoadedScope, false, false);
+        runtime.ActorDrawing.DrawGameplayActors(runtime.Room.LoadedScope, SamusDrawOwner.Gameplay, SamusPaletteEffects.Hold);
         AssertTrue(ReferenceEquals(edited, runtime.Player.IntroducedSamus.Grapple.FlarePlacement), "Independent actor drawing also rebinds visual origins");
         AssertTrue(ReferenceEquals(swingFrames, runtime.Player.IntroducedSamus.Grapple.SwingFrames), "Independent actor drawing also rebinds swing-frame selection");
         Console.WriteLine($"Grapple flare placement: 32 extracted pairs, {authoredPoses.Length} authored launch/late paths, {authoredPoses.Length * 10} trajectory frames and {locked} locked connections preserve physical state under visual edits and ROM guard.");

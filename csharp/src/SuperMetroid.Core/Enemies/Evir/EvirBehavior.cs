@@ -81,7 +81,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
             // The second record is not a second creature. Its nonzero parameter selects the
             // arms role, which always reads facing and position from the immediately prior
             // body record. Retail gives it layer four so the two maps compose correctly.
-            PositionEvirArms(slot, state, initializing: true);
+            PositionEvirArms(slot, state, update: EvirArmsUpdate.Initialization);
             slot.Layer = 4;
         }
         else
@@ -266,9 +266,9 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Places the arms at a facing-dependent offset from the preceding body record.</summary>
-    private void PositionEvirArms(RoomEnemySlot arms, EvirEnemyState state, bool initializing = false)
+    private void PositionEvirArms(RoomEnemySlot arms, EvirEnemyState state, EvirArmsUpdate update = EvirArmsUpdate.Main)
     {
-        RoomEnemySlot body = RequireEvirRelativeSlot(arms, -1, EnemyDefinitionId.Evir, "arms body", initializing);
+        RoomEnemySlot body = RequireEvirRelativeSlot(arms, -1, EnemyDefinitionId.Evir, "arms body", update == EvirArmsUpdate.Initialization);
         EvirEnemyState bodyState = body.RequireSpeciesState<EvirEnemyState>();
         state.Facing = bodyState.Facing;
         arms.Position = arms.Position.WithWhole(new(unchecked((ushort)(
@@ -591,7 +591,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
                                                      enemy.Spawn.Population.Parameter1 == 0 &&
                                                      EnemyCollision.ShotAi(enemy) == EnemyInteractionCallback.EvirShot)
         {
-            AfterCommon = (c, _) => ResolveEvirCombatAfterCommon(c.Enemy),
+            AfterCommon = c => ResolveEvirCombatAfterCommon(c.Enemy),
         });
     }
 

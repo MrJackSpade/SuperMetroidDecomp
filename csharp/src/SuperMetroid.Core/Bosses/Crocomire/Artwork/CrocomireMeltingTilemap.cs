@@ -23,9 +23,9 @@ internal sealed class CrocomireMeltingTilemap
     internal readonly Dictionary<int, ushort> edits = [];
 
     /// <summary>Retains custom cells while calculating unchanged composition and blank margins.</summary>
-    internal CrocomireMeltingTilemap(bool second, ReadOnlySpan<ushort> supplied)
+    internal CrocomireMeltingTilemap(CrocomireMeltingIllustration pass, ReadOnlySpan<ushort> supplied)
     {
-        this.second = second;
+        this.second = pass == CrocomireMeltingIllustration.Second;
         if (supplied.Length != CrocomireMeltingArtworkFormat.TilemapCellCount)
             throw new InvalidDataException("Crocomire melting layout requires 256 words.");
         for (int index = 0; index < supplied.Length; index++)

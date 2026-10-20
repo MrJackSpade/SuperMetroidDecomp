@@ -44,7 +44,7 @@ internal static class PauseReserveHudVerification
         var pause = CreateRetailPauseFixture(new PauseMenuEntry { Samus = samus, System = runtime.System, AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), GameplayLayer3 = runtime.AcceptedLayer3Plane });
         EnterPauseEquipment(pause);
         pause.Step(0, SnesButton.Up);
-        var game = new SuperMetroid.Core.Frontend.SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore(), null, renderGameplayFrames: true, SuperMetroid.Core.Frontend.SuperMetroidGameHostServices.Default, random);
+        var game = new SuperMetroid.Core.Frontend.SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore(), null, SuperMetroid.Core.Frontend.SuperMetroidGameHostServices.Default, random);
         // Construct just the paused dispatcher boundary. Input, HUD updates, queued
         // DMA and presentation below are real production calls, not a fake refill.
         game.AdoptRuntime(runtime);

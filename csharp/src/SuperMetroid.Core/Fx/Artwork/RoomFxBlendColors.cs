@@ -21,8 +21,8 @@ internal sealed class RoomFxBlendColors
     /// <summary>Separates selected colors into calculated components and explicit edits.</summary>
     public RoomFxBlendColors(RoomFxPaletteBlend selection, Bgr555 primary, Bgr555 secondary, Bgr555 third)
     {
-        this.primary = new(selection, primary, true);
-        this.secondary = new(selection, secondary, false);
+        this.primary = new(selection, primary, RoomFxPairMember.Primary);
+        this.secondary = new(selection, secondary, RoomFxPairMember.Secondary);
         thirdOverride = RoomFxPaletteBlendDefinitions.CalculatedThirdColor(selection) == third ? null : new(selection, third);
     }
 

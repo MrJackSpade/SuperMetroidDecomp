@@ -15,8 +15,14 @@ internal static class DownwardGatePlmDrawDefinitions
     private const ushort TriggerLeftFirst = 0xa5d7;
 
     /// <summary>Decoded column step or colored trigger shape; physical block words are calculated from this native draw identity.</summary>
-    internal readonly record struct Draw(bool Column, [property: IntegerQuantity("gate animation frame index")] int Frame, bool Right)
+    internal readonly record struct Draw(DownwardGatePart Part, [property: IntegerQuantity("gate animation frame index")] int Frame)
     {
+        /// <summary>Whether the list writes the gate column.</summary>
+        internal bool Column => Part == DownwardGatePart.Column;
+
+        /// <summary>Whether the list writes a right-hand trigger.</summary>
+        internal bool Right => Part == DownwardGatePart.RightTrigger;
+
         /// <summary>Columns and right triggers occupy one run; left triggers include a separate neighboring block.</summary>
         internal int RunCount => Column || Right ? 1 : 2;
         /// <summary>Columns write five vertical cells; right triggers write two cells; each left-trigger run writes one.</summary>
@@ -53,13 +59,13 @@ internal static class DownwardGatePlmDrawDefinitions
         int columnOffset = pointer - ResidentFirst;
         if (columnOffset >= 0 && columnOffset <= 70 && columnOffset % 14 == 0)
         {
-            draw = new(true, columnOffset / 14, false);
+            draw = new(DownwardGatePart.Column, columnOffset / 14);
             return true;
         }
         int triggerOffset = pointer - TriggerLeftFirst;
         if (triggerOffset >= 0 && triggerOffset <= 72 && triggerOffset % 20 is 0 or 12)
         {
-            draw = new(false, triggerOffset / 20, triggerOffset % 20 == 12);
+            draw = new(triggerOffset % 20 == 12 ? DownwardGatePart.RightTrigger : DownwardGatePart.LeftTrigger, triggerOffset / 20);
             return true;
         }
         return false;

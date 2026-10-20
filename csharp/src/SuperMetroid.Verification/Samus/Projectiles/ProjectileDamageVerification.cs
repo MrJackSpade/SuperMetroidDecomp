@@ -98,7 +98,7 @@ internal static class ProjectileDamageVerification
         bool rejectedMarker = false;
         try
         {
-            BeamCombos.InitializeComboData(new SamusProjectileSlot(0) { Type = 0x8025 }, false, true);
+            BeamCombos.InitializeComboData(new SamusProjectileSlot(0) { Type = 0x8025 }, BeamComboData.Echo);
         }
         catch (InvalidDataException invalid) when (invalid.Message == "Negative native combo projectile damage.")
         {

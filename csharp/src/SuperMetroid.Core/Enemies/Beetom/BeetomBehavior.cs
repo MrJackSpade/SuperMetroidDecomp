@@ -133,32 +133,32 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
                 state.Function = BeetomEnemyFunction.Idling;
                 return;
             case BeetomEnemyFunction.StartCrawlingLeft:
-                StartBeetomCrawling(slot, state, left: true);
+                StartBeetomCrawling(slot, state, direction: HorizontalDirection.Left);
                 return;
             case BeetomEnemyFunction.StartCrawlingRight:
-                StartBeetomCrawling(slot, state, left: false);
+                StartBeetomCrawling(slot, state, direction: HorizontalDirection.Right);
                 return;
             case BeetomEnemyFunction.StartShortHopLeft:
-                StartBeetomHop(slot, state, state.InitialShortLeapYSpeedIndex, left: true, longHop: false);
+                StartBeetomHop(slot, state, state.InitialShortLeapYSpeedIndex, direction: HorizontalDirection.Left, BeetomHopLength.Short);
                 return;
             case BeetomEnemyFunction.StartShortHopRight:
-                StartBeetomHop(slot, state, state.InitialShortLeapYSpeedIndex, left: false, longHop: false);
+                StartBeetomHop(slot, state, state.InitialShortLeapYSpeedIndex, direction: HorizontalDirection.Right, BeetomHopLength.Short);
                 return;
             case BeetomEnemyFunction.StartLongHopLeft:
-                StartBeetomHop(slot, state, state.InitialLongLeapYSpeedIndex, left: true, longHop: true);
+                StartBeetomHop(slot, state, state.InitialLongLeapYSpeedIndex, direction: HorizontalDirection.Left, BeetomHopLength.Long);
                 return;
             case BeetomEnemyFunction.StartLongHopRight:
-                StartBeetomHop(slot, state, state.InitialLongLeapYSpeedIndex, left: false, longHop: true);
+                StartBeetomHop(slot, state, state.InitialLongLeapYSpeedIndex, direction: HorizontalDirection.Right, BeetomHopLength.Long);
                 return;
             case BeetomEnemyFunction.DecideActionSamusInProximity:
                 RequireBeetomSamus(samus);
                 StartBeetomLunge(slot, state, samus);
                 return;
             case BeetomEnemyFunction.StartDrainingLeft:
-                StartBeetomDrain(slot, state, left: true);
+                StartBeetomDrain(slot, state, side: HorizontalDirection.Left);
                 return;
             case BeetomEnemyFunction.StartDrainingRight:
-                StartBeetomDrain(slot, state, left: false);
+                StartBeetomDrain(slot, state, side: HorizontalDirection.Right);
                 return;
             case BeetomEnemyFunction.StartDropping:
                 StartBeetomDrop(slot, state);
@@ -175,45 +175,45 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
             case BeetomEnemyFunction.CrawlingLeft:
                 RequireBeetomLevel(level);
-                RunBeetomCrawl(slot, state, level, left: true);
+                RunBeetomCrawl(slot, state, level, direction: HorizontalDirection.Left);
                 return;
             case BeetomEnemyFunction.CrawlingRight:
                 RequireBeetomLevel(level);
-                RunBeetomCrawl(slot, state, level, left: false);
+                RunBeetomCrawl(slot, state, level, direction: HorizontalDirection.Right);
                 return;
             case BeetomEnemyFunction.ShortHopLeft:
                 RequireBeetomLevel(level);
-                RunBeetomArc(slot, state, level, left: true, lunge: false, risingDelta: 4, fallingDelta: 4);
+                RunBeetomArc(slot, state, level, direction: HorizontalDirection.Left, BeetomArcKind.Hop, risingDelta: 4, fallingDelta: 4);
                 return;
             case BeetomEnemyFunction.ShortHopRight:
                 RequireBeetomLevel(level);
-                RunBeetomArc(slot, state, level, left: false, lunge: false, risingDelta: 4, fallingDelta: 4);
+                RunBeetomArc(slot, state, level, direction: HorizontalDirection.Right, BeetomArcKind.Hop, risingDelta: 4, fallingDelta: 4);
                 return;
             case BeetomEnemyFunction.LongHopLeft:
                 RequireBeetomLevel(level);
-                RunBeetomArc(slot, state, level, left: true, lunge: false, risingDelta: 5, fallingDelta: 5);
+                RunBeetomArc(slot, state, level, direction: HorizontalDirection.Left, BeetomArcKind.Hop, risingDelta: 5, fallingDelta: 5);
                 return;
             case BeetomEnemyFunction.LongHopRight:
                 RequireBeetomLevel(level);
-                RunBeetomArc(slot, state, level, left: false, lunge: false, risingDelta: 5, fallingDelta: 5);
+                RunBeetomArc(slot, state, level, direction: HorizontalDirection.Right, BeetomArcKind.Hop, risingDelta: 5, fallingDelta: 5);
                 return;
             case BeetomEnemyFunction.LungeLeft:
                 RequireBeetomLevel(level);
-                RunBeetomArc(slot, state, level, left: true, lunge: true, risingDelta: 5, fallingDelta: 3);
+                RunBeetomArc(slot, state, level, direction: HorizontalDirection.Left, BeetomArcKind.Lunge, risingDelta: 5, fallingDelta: 3);
                 return;
             case BeetomEnemyFunction.LungeRight:
                 RequireBeetomLevel(level);
-                RunBeetomArc(slot, state, level, left: false, lunge: true, risingDelta: 5, fallingDelta: 3);
+                RunBeetomArc(slot, state, level, direction: HorizontalDirection.Right, BeetomArcKind.Lunge, risingDelta: 5, fallingDelta: 3);
                 return;
             case BeetomEnemyFunction.DrainingLeft:
                 RequireBeetomSamus(samus);
                 RequireBeetomLevel(level);
-                RunBeetomDrain(slot, state, samus, level, controllerInput, left: true);
+                RunBeetomDrain(slot, state, samus, level, controllerInput, side: HorizontalDirection.Left);
                 return;
             case BeetomEnemyFunction.DrainingRight:
                 RequireBeetomSamus(samus);
                 RequireBeetomLevel(level);
-                RunBeetomDrain(slot, state, samus, level, controllerInput, left: false);
+                RunBeetomDrain(slot, state, samus, level, controllerInput, side: HorizontalDirection.Right);
                 return;
             case BeetomEnemyFunction.Dropping:
                 RequireBeetomLevel(level);
@@ -244,13 +244,13 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Starts side-specific crawl AI and animation.</summary>
-    internal static void StartBeetomCrawling(RoomEnemySlot slot, BeetomEnemyState state, bool left)
+    internal static void StartBeetomCrawling(RoomEnemySlot slot, BeetomEnemyState state, HorizontalDirection direction)
     {
-        state.Function = left ? BeetomEnemyFunction.CrawlingLeft : BeetomEnemyFunction.CrawlingRight;
+        state.Function = direction == HorizontalDirection.Left ? BeetomEnemyFunction.CrawlingLeft : BeetomEnemyFunction.CrawlingRight;
         SetBeetomInstructionList(
             slot,
             state,
-            left
+            direction == HorizontalDirection.Left
                 ? BeetomProgram.CrawlingLeft
                 : BeetomProgram.CrawlingRight);
     }
@@ -260,22 +260,23 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemySlot slot,
         BeetomEnemyState state,
         int initialYSpeedIndex,
-        bool left,
-        bool longHop)
+        HorizontalDirection direction,
+        BeetomHopLength length)
     {
         state.YSpeedTableIndex = initialYSpeedIndex;
-        state.Function = (left, longHop) switch
+        state.Function = (direction, length) switch
         {
-            (true, false) => BeetomEnemyFunction.ShortHopLeft,
-            (false, false) => BeetomEnemyFunction.ShortHopRight,
-            (true, true) => BeetomEnemyFunction.LongHopLeft,
-            _ => BeetomEnemyFunction.LongHopRight,
+            (HorizontalDirection.Left, BeetomHopLength.Short) => BeetomEnemyFunction.ShortHopLeft,
+            (HorizontalDirection.Right, BeetomHopLength.Short) => BeetomEnemyFunction.ShortHopRight,
+            (HorizontalDirection.Left, BeetomHopLength.Long) => BeetomEnemyFunction.LongHopLeft,
+            (HorizontalDirection.Right, BeetomHopLength.Long) => BeetomEnemyFunction.LongHopRight,
+            _ => throw new ArgumentOutOfRangeException(nameof(length), length, "Unknown Beetom hop."),
         };
         state.Falling = false;
         SetBeetomInstructionList(
             slot,
             state,
-            left
+            direction == HorizontalDirection.Left
                 ? BeetomProgram.HopLeft
                 : BeetomProgram.HopRight);
     }
@@ -297,15 +298,15 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Starts the attached blood-drain instruction list for the current facing.</summary>
-    internal static void StartBeetomDrain(RoomEnemySlot slot, BeetomEnemyState state, bool left)
+    internal static void StartBeetomDrain(RoomEnemySlot slot, BeetomEnemyState state, HorizontalDirection side)
     {
         SetBeetomInstructionList(
             slot,
             state,
-            left
+            side == HorizontalDirection.Left
                 ? BeetomProgram.DrainingLeft
                 : BeetomProgram.DrainingRight);
-        state.Function = left ? BeetomEnemyFunction.DrainingLeft : BeetomEnemyFunction.DrainingRight;
+        state.Function = side == HorizontalDirection.Left ? BeetomEnemyFunction.DrainingLeft : BeetomEnemyFunction.DrainingRight;
     }
 
     /// <summary>Switches back to crawl artwork before dropping toward the floor.</summary>
@@ -322,7 +323,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Probes eight pixels ahead for a ledge, then crawls or reverses at terrain.</summary>
-    private void RunBeetomCrawl(RoomEnemySlot slot, BeetomEnemyState state, RoomLevelData level, bool left)
+    private void RunBeetomCrawl(RoomEnemySlot slot, BeetomEnemyState state, RoomLevelData level, HorizontalDirection direction)
     {
         NativeWordCounterStep timer = state.FunctionTimer.Decrement();
         state.FunctionTimer = timer.Remaining;
@@ -336,19 +337,19 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
         // The native ledge probe temporarily moves the center eight pixels ahead, then
         // performs a real one-pixel downward collision move. Restore only the whole words,
         // preserving collision-produced subposition just as bank $A8 does.
-        slot.Position = slot.Position.WithWholeX(unchecked((ushort)(slot.Position.X.Whole + (left ? -8 : 8))));
+        slot.Position = slot.Position.WithWholeX(unchecked((ushort)(slot.Position.X.Whole + (direction == HorizontalDirection.Left ? -8 : 8))));
         if (!_terrain.MoveEnemyVertically(level, slot, 1 << 16))
         {
-            state.Function = left ? BeetomEnemyFunction.StartCrawlingRight : BeetomEnemyFunction.StartCrawlingLeft;
+            state.Function = direction == HorizontalDirection.Left ? BeetomEnemyFunction.StartCrawlingRight : BeetomEnemyFunction.StartCrawlingLeft;
             slot.Position = slot.Position.WithWholeY(unchecked((ushort)(slot.Position.Y.Whole - 1)));
-            slot.Position = slot.Position.WithWholeX(unchecked((ushort)(slot.Position.X.Whole + (left ? 8 : -8))));
+            slot.Position = slot.Position.WithWholeX(unchecked((ushort)(slot.Position.X.Whole + (direction == HorizontalDirection.Left ? 8 : -8))));
             return;
         }
 
-        slot.Position = slot.Position.WithWholeX(unchecked((ushort)(slot.Position.X.Whole + (left ? 8 : -8))));
-        int displacement = left ? -(1 << 14) : 1 << 14;
+        slot.Position = slot.Position.WithWholeX(unchecked((ushort)(slot.Position.X.Whole + (direction == HorizontalDirection.Left ? 8 : -8))));
+        int displacement = direction == HorizontalDirection.Left ? -(1 << 14) : 1 << 14;
         if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, slot, displacement))
-            state.Function = left ? BeetomEnemyFunction.StartCrawlingRight : BeetomEnemyFunction.StartCrawlingLeft;
+            state.Function = direction == HorizontalDirection.Left ? BeetomEnemyFunction.StartCrawlingRight : BeetomEnemyFunction.StartCrawlingLeft;
     }
 
     /// <summary>Runs vertical arc before horizontal movement even when the first half changes AI state.</summary>
@@ -356,8 +357,8 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemySlot slot,
         BeetomEnemyState state,
         RoomLevelData level,
-        bool left,
-        bool lunge,
+        HorizontalDirection direction,
+        BeetomArcKind arc,
         ushort risingDelta,
         ushort fallingDelta)
     {
@@ -366,9 +367,9 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
         // The horizontal half still runs on the exact frame that vertical collision changes
         // the function pointer. That ordering is easy to lose when expressing the two axes
         // as a single host movement vector.
-        int displacement = lunge
-            ? (left ? -(3 << 16) : 3 << 16)
-            : (left ? -(1 << 14) : 1 << 14);
+        int displacement = arc == BeetomArcKind.Lunge
+            ? (direction == HorizontalDirection.Left ? -(3 << 16) : 3 << 16)
+            : (direction == HorizontalDirection.Left ? -(1 << 14) : 1 << 14);
         if (!_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, slot, displacement))
             return;
 
@@ -412,7 +413,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
         SamusState samus,
         RoomLevelData level,
         SnesButton controllerInput,
-        bool left)
+        HorizontalDirection side)
     {
         if (!state.ButtonCounter.IsZero)
         {
@@ -428,11 +429,11 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
         // Escape throws the Beetom sixteen pixels away. A wall reverses the direction and
         // applies an additional 32-pixel move, producing the native net sixteen-pixel throw
         // to the other side rather than merely cancelling the first displacement.
-        int initialDisplacement = left ? 16 << 16 : -(16 << 16);
+        int initialDisplacement = side == HorizontalDirection.Left ? 16 << 16 : -(16 << 16);
         if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, slot, initialDisplacement))
         {
-            state.FacingRight = left;
-            int reflectedDisplacement = left ? -(32 << 16) : 32 << 16;
+            state.FacingRight = side == HorizontalDirection.Left;
+            int reflectedDisplacement = side == HorizontalDirection.Left ? -(32 << 16) : 32 << 16;
             _terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, slot, reflectedDisplacement);
         }
         state.AttachedToSamus = false;
@@ -604,7 +605,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
         table.AddShot(new EnemyShotReaction(enemy => enemy.EnemyDefinitionPointer == EnemyDefinitionId.Beetom &&
                                                      EnemyCollision.ShotAi(enemy) == EnemyInteractionCallback.BeetomShot)
         {
-            AfterCommon = (c, _) => ResolveBeetomShotAfterCommon(c.Enemy, c.Enemy.RequireSpeciesState<BeetomEnemyState>()),
+            AfterCommon = c => ResolveBeetomShotAfterCommon(c.Enemy, c.Enemy.RequireSpeciesState<BeetomEnemyState>()),
         });
     }
 

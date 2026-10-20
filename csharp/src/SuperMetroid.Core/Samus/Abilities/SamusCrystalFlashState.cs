@@ -110,7 +110,7 @@ public sealed class SamusCrystalFlashState
     /// <param name="samus">Live actor whose admission state is checked and whose pose, handler ownership, shared timers, and hit state are updated on success.</param>
     /// <param name="controllerInput">Raw held-button word; ordinary admission requires exact equality to Down, L, R, and the Shot binding.</param>
     /// <param name="shotBinding">Raw controller mask for Shot, defaulting to X; non-controller bits are rejected.</param>
-    /// <param name="skipInputCheck">
+    /// <param name="inputCheck">
     /// True only for the title-demo route where game state is at least <c>$28</c>. Ordinary
     /// gameplay must supply the exact chord; extra held buttons make native initiation fail.
     /// </param>
@@ -121,7 +121,7 @@ public sealed class SamusCrystalFlashState
         SamusState samus,
         SnesButton controllerInput,
         SnesButton shotBinding = SnesButton.X,
-        bool skipInputCheck = false)
+        CrystalFlashInputCheck inputCheck = CrystalFlashInputCheck.Required)
     {
         Ensure.NotNull(samus);
 
@@ -130,7 +130,7 @@ public sealed class SamusCrystalFlashState
         SnesButton heldButtons = controllerInput;
         SnesButton shotButton = shotBinding;
         SnesButton requiredInput = RequiredInputWithoutShot | shotButton;
-        if (!skipInputCheck && heldButtons != requiredInput)
+        if (inputCheck != CrystalFlashInputCheck.Skipped && heldButtons != requiredInput)
             return false;
 
         // The remaining preconditions are literal WRAM comparisons. Reserve energy must

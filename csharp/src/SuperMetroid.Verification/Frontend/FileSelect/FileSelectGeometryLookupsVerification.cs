@@ -38,7 +38,7 @@ internal static class FileSelectGeometryLookupsVerification
         {
             ushort expected = ReadVerificationWord(rom, 0x81a312 + row * 4);
             AssertEqual(expected, FileSelectLayout.MainSelectionY(row), $"main cursor Y {row}");
-            AssertEqual((int)expected, presentation.CursorPosition(true, false, row).Y,
+            AssertEqual((int)expected, presentation.CursorPosition(FileSelectCursorPage.Main, row).Y,
                 $"extracted main cursor Y {row}");
         }
         Suite(nameof(VerifyFileSelectGeometryBounds), () => VerifyFileSelectGeometryBounds(FileSelectLayout.MainSelectionY, 6));
@@ -53,7 +53,7 @@ internal static class FileSelectGeometryLookupsVerification
         {
             ushort expected = ReadVerificationWord(rom, address + row * 2);
             AssertEqual(expected, FileSelectLayout.DataSelectionY(row), $"data cursor {address:X6}/{row}");
-            AssertEqual((int)expected, presentation.CursorPosition(false, false, row).Y,
+            AssertEqual((int)expected, presentation.CursorPosition(FileSelectCursorPage.DataManagement, row).Y,
                 $"extracted data cursor {address:X6}/{row}");
         }
         Suite(nameof(VerifyFileSelectGeometryBounds), () => VerifyFileSelectGeometryBounds(FileSelectLayout.DataSelectionY, 4));

@@ -170,7 +170,6 @@ public sealed class SamusDeathSequenceState
                     drawExplosion = StepSuitExplosion(
                         samus,
                         cgram,
-                        applyWhiteoutFirst: false,
                         ref paletteChanged,
                         ref whiteoutChanged,
                         artwork);
@@ -198,10 +197,10 @@ public sealed class SamusDeathSequenceState
                 break;
 
             case SamusDeathSequencePhase.SuitExplosion:
+                whiteoutChanged = ApplyWhiteout(cgram, artwork);
                 drawExplosion = StepSuitExplosion(
                     samus,
                     cgram,
-                    applyWhiteoutFirst: true,
                     ref paletteChanged,
                     ref whiteoutChanged,
                     artwork);
@@ -242,14 +241,10 @@ public sealed class SamusDeathSequenceState
     private bool StepSuitExplosion(
         SamusState samus,
         IPaletteColors cgram,
-        bool applyWhiteoutFirst,
         ref bool paletteChanged,
         ref bool whiteoutChanged,
         SamusDeathPaletteArtworkCatalog? artwork)
     {
-        if (applyWhiteoutFirst)
-            whiteoutChanged = ApplyWhiteout(cgram, artwork);
-
         AnimationTimer = AnimationTimer.Decrement().Remaining;
         if (!AnimationTimer.IsZero && !AnimationTimer.IsNegative)
             return true;

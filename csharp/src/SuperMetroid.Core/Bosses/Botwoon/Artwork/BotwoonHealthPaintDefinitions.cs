@@ -31,7 +31,7 @@ internal sealed class BotwoonHealthPaintDefinitions
     private static Bgr555 Calculate(int band, int color)
     {
         if (color == 0) return band is 1 or 2 ? EarlyBandTransparentTarget : Bgr555.Black;
-        Bgr555 first = Endpoint(false, color), last = Endpoint(true, color);
+        Bgr555 first = Endpoint(BotwoonHealthEndpoint.Healthy, color), last = Endpoint(BotwoonHealthEndpoint.Damaged, color);
         return first.Zip(last, (_, start, end) =>
         {
             int difference = end - start;
@@ -40,15 +40,15 @@ internal sealed class BotwoonHealthPaintDefinitions
     }
 
     /// <summary>Chooses the healthy or damaged material paint for one Botwoon palette slot.</summary>
-    private static Bgr555 Endpoint(bool damaged, int color)
+    private static Bgr555 Endpoint(BotwoonHealthEndpoint endpoint, int color)
     {
         (int red, int green, int blue) = color switch
         {
-            >= 1 and <= 4 => Eye(damaged, color - 1),
-            >= 5 and <= 8 => Jaw(damaged, color - 5),
-            >= 9 and <= 13 => Skin(damaged, color - 9),
-            14 => damaged ? (31, 31, 17) : (29, 29, 31),
-            15 => damaged ? (11, 0, 0) : (5, 0, 3),
+            >= 1 and <= 4 => Eye(endpoint == BotwoonHealthEndpoint.Damaged, color - 1),
+            >= 5 and <= 8 => Jaw(endpoint == BotwoonHealthEndpoint.Damaged, color - 5),
+            >= 9 and <= 13 => Skin(endpoint == BotwoonHealthEndpoint.Damaged, color - 9),
+            14 => endpoint == BotwoonHealthEndpoint.Damaged ? (31, 31, 17) : (29, 29, 31),
+            15 => endpoint == BotwoonHealthEndpoint.Damaged ? (11, 0, 0) : (5, 0, 3),
             _ => throw new ArgumentOutOfRangeException(nameof(color)),
         };
         return new Bgr555(red, green, blue);

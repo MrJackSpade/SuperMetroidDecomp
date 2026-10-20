@@ -188,28 +188,28 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
                 AscendDraygonSwoop(state, samus, frameCounterLow, LeftSwoop);
                 break;
             case DraygonAiFunction.GoopRightSetup:
-                SetupDraygonGoopPass(state, movingRight: true, samus, frameCounterLow);
+                SetupDraygonGoopPass(state, direction: HorizontalDirection.Right, samus, frameCounterLow);
                 break;
             case DraygonAiFunction.GoopRight:
-                ApproachSamusForDraygonGoop(state, movingRight: true, samus, frameCounterLow);
+                ApproachSamusForDraygonGoop(state, direction: HorizontalDirection.Right, samus, frameCounterLow);
                 break;
             case DraygonAiFunction.GoopRightTail:
-                FireDraygonGoop(state, movingRight: true, samus, frameCounterLow);
+                FireDraygonGoop(state, direction: HorizontalDirection.Right, samus, frameCounterLow);
                 break;
             case DraygonAiFunction.GoopRightRecovery:
-                ExitDraygonGoopPass(state, movingRight: true);
+                ExitDraygonGoopPass(state, direction: HorizontalDirection.Right);
                 break;
             case DraygonAiFunction.GoopLeftSetup:
-                SetupDraygonGoopPass(state, movingRight: false, samus, frameCounterLow);
+                SetupDraygonGoopPass(state, direction: HorizontalDirection.Left, samus, frameCounterLow);
                 break;
             case DraygonAiFunction.GoopLeft:
-                ApproachSamusForDraygonGoop(state, movingRight: false, samus, frameCounterLow);
+                ApproachSamusForDraygonGoop(state, direction: HorizontalDirection.Left, samus, frameCounterLow);
                 break;
             case DraygonAiFunction.GoopLeftTail:
-                FireDraygonGoop(state, movingRight: false, samus, frameCounterLow);
+                FireDraygonGoop(state, direction: HorizontalDirection.Left, samus, frameCounterLow);
                 break;
             case DraygonAiFunction.GoopLeftRecovery:
-                ExitDraygonGoopPass(state, movingRight: false, samus);
+                ExitDraygonGoopPass(state, direction: HorizontalDirection.Left, samus);
                 break;
             case DraygonAiFunction.TryGrabSamus:
                 ChaseAndTryToGrabSamus(state, samus, frameCounterLow);
@@ -278,10 +278,10 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
             case DraygonEyeFunction.Inert:
                 return;
             case DraygonEyeFunction.FacingLeft:
-                TrackSamusWithDraygonEye(part, samus, facingRight: false);
+                TrackSamusWithDraygonEye(part, samus, facing: HorizontalDirection.Left);
                 return;
             case DraygonEyeFunction.FacingRight:
-                TrackSamusWithDraygonEye(part, samus, facingRight: true);
+                TrackSamusWithDraygonEye(part, samus, facing: HorizontalDirection.Right);
                 return;
             default:
                 throw new InvalidOperationException($"Undefined Draygon eye function {function}.");
@@ -434,20 +434,20 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>One side of Draygon's swoop: the direction it travels and the arm programs and functions that side uses.</summary>
-    /// <param name="Rightward">Whether the swoop travels right, adding its velocity to X.</param>
+    /// <param name="Direction">The way the swoop travels; rightward adds its velocity to X.</param>
     /// <param name="ArmsNearApex">The arms program started as the path nears its lowest point.</param>
     /// <param name="ArmsIdle">The arms program restored as the ascent passes the same point.</param>
     /// <param name="Apex">The function that recalculates velocity at the bottom of the swoop.</param>
     /// <param name="Ascending">The function that climbs back up after the apex.</param>
-    private sealed record DraygonSwoopSide(bool Rightward, DraygonProgram ArmsNearApex, DraygonProgram ArmsIdle,
+    private sealed record DraygonSwoopSide(HorizontalDirection Direction, DraygonProgram ArmsNearApex, DraygonProgram ArmsIdle,
         DraygonAiFunction Apex, DraygonAiFunction Ascending);
 
     /// <summary>The swoop from the left edge to the right, $A5:88B1-$8951.</summary>
-    private static readonly DraygonSwoopSide RightSwoop = new(true, DraygonProgram.ArmsFacingRightNearSwoopApex,
+    private static readonly DraygonSwoopSide RightSwoop = new(HorizontalDirection.Right, DraygonProgram.ArmsFacingRightNearSwoopApex,
         DraygonProgram.ArmsFacingRightIdle, DraygonAiFunction.SwoopRightApex, DraygonAiFunction.SwoopRightAscending);
 
     /// <summary>The mirrored swoop from the right edge to the left, $A5:8A00-$8A90.</summary>
-    private static readonly DraygonSwoopSide LeftSwoop = new(false, DraygonProgram.ArmsFacingLeftNearSwoopApex,
+    private static readonly DraygonSwoopSide LeftSwoop = new(HorizontalDirection.Left, DraygonProgram.ArmsFacingLeftNearSwoopApex,
         DraygonProgram.ArmsFacingLeftIdle, DraygonAiFunction.SwoopLeftApex, DraygonAiFunction.SwoopLeftAscending);
 
     /// <summary>Ports the descending half at <c>$A5:88B1</c> (right) and <c>$A5:8A00</c> (left).</summary>
@@ -473,7 +473,7 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
             state.Function = side.Apex;
             return;
         }
-        MoveDraygonHorizontally(state, side.Rightward);
+        MoveDraygonHorizontally(state, side.Direction == HorizontalDirection.Right);
     }
 
     /// <summary>Ports the velocity recalculation at the bottom of the swoop, $A5:8922.</summary>
@@ -504,7 +504,7 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
         DraygonSwoopSide side)
     {
         ObserveDraygonTurretCadence(state, samus, frameCounterLow);
-        if (!side.Rightward)
+        if (side.Direction != HorizontalDirection.Right)
             SpawnPeriodicDraygonBreathBubble(state);
         RoomEnemySlot body = state.Body;
         int pathIndex = state.SwoopOffset / 4;
@@ -517,11 +517,11 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
         state.SwoopOffset = state.SwoopOffset + 4;
         if (state.SwoopOffset != state.SwoopEndOffset)
         {
-            MoveDraygonHorizontally(state, side.Rightward);
+            MoveDraygonHorizontally(state, side.Direction == HorizontalDirection.Right);
             return;
         }
 
-        if (side.Rightward)
+        if (side.Direction == HorizontalDirection.Right)
         {
             state.SwoopOffset = 0;
             int random = _room.Random.Read();
@@ -611,37 +611,37 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Ports the two mirrored goop setup functions at $A5:8B0A/$8C8E.</summary>
     private void SetupDraygonGoopPass(
         DraygonEnemyState state,
-        bool movingRight,
+        HorizontalDirection direction,
         SamusState? samus,
         byte frameCounterLow)
     {
         // Only the rightward setup calls HandleFiringWallTurret; the leftward entry at
         // $8C8E omits it. That asymmetry changes the random seed and is therefore material.
-        if (movingRight)
+        if (direction == HorizontalDirection.Right)
             ObserveDraygonTurretCadence(state, samus, frameCounterLow);
 
         RoomEnemySlot body = state.Body;
-        body.Position = body.Position.WithWhole(new(movingRight ? DraygonOffscreenLeftX : state.RightSideReset.X, 384));
+        body.Position = body.Position.WithWhole(new(direction == HorizontalDirection.Right ? DraygonOffscreenLeftX : state.RightSideReset.X, 384));
         state.SwoopVelocity = SnesSixteenSixteen.FromWhole(1u);
         state.GoopYOscillationAngle = SnesAngle.Zero;
         // Retail's leftward setup briefly requests the right-facing apex arm list before
         // the body reset opcode replaces all four lists. Preserve the literal write.
         StartDraygonProgram(state.Arms, DraygonProgram.ArmsFacingRightNearSwoopApex);
-        state.Function = movingRight
+        state.Function = direction == HorizontalDirection.Right
             ? DraygonAiFunction.GoopRight
             : DraygonAiFunction.GoopLeft;
         StartDraygonProgram(
             body,
-            movingRight
+            direction == HorizontalDirection.Right
                 ? DraygonProgram.BodyFacingRightReset
                 : DraygonProgram.BodyFacingLeftReset);
-        state.FacingRight = movingRight;
+        state.FacingRight = direction == HorizontalDirection.Right;
     }
 
     /// <summary>Ports the oscillating approach at $A5:8B52/$8CD4.</summary>
     private void ApproachSamusForDraygonGoop(
         DraygonEnemyState state,
-        bool movingRight,
+        HorizontalDirection direction,
         SamusState? samus,
         byte frameCounterLow)
     {
@@ -652,24 +652,24 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
 
         if (EnemyMath.WrappedMagnitude(unchecked((ushort)(state.Body.Position.X.Whole - samus.Position.X.Whole))) < 208)
         {
-            state.Function = movingRight
+            state.Function = direction == HorizontalDirection.Right
                 ? DraygonAiFunction.GoopRightTail
                 : DraygonAiFunction.GoopLeftTail;
             state.GoopCounter = NativeCountdown.Start(16);
             return;
         }
-        MoveDraygonAlongGoopPath(state, movingRight);
+        MoveDraygonAlongGoopPath(state, direction == HorizontalDirection.Right);
     }
 
     /// <summary>Ports the firing and off-screen selection at $A5:8BAE/$8D30.</summary>
     private void FireDraygonGoop(
         DraygonEnemyState state,
-        bool movingRight,
+        HorizontalDirection direction,
         SamusState? samus,
         byte frameCounterLow)
     {
         // The right-facing function calls the turret handler; the left-facing copy does not.
-        if (movingRight)
+        if (direction == HorizontalDirection.Right)
             ObserveDraygonTurretCadence(state, samus, frameCounterLow);
         if (samus?.XSpeedDivisor != 0)
         {
@@ -683,23 +683,23 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
             state.GoopCounter = state.GoopCounter.Decrement().Remaining;
             if (state.GoopCounter.IsZero)
             {
-                FinishDraygonGoopFiring(state, movingRight);
+                FinishDraygonGoopFiring(state, direction == HorizontalDirection.Right);
                 return;
             }
             StartDraygonProgram(
                 state.Body,
-                movingRight
+                direction == HorizontalDirection.Right
                     ? DraygonProgram.BodyFacingRightFireGoop
                     : DraygonProgram.BodyFacingLeftFireGoop);
         }
 
-        MoveDraygonAlongGoopPath(state, movingRight);
+        MoveDraygonAlongGoopPath(state, direction == HorizontalDirection.Right);
         ushort x = state.Body.Position.X.Whole;
-        bool crossedExit = movingRight
+        bool crossedExit = direction == HorizontalDirection.Right
             ? unchecked((short)x) >= 0 && x >= 672
             : unchecked((short)x) < 0 && unchecked((short)(x - DraygonOffscreenLeftX)) < 0;
         if (crossedExit)
-            FinishDraygonGoopFiring(state, movingRight);
+            FinishDraygonGoopFiring(state, direction == HorizontalDirection.Right);
     }
 
     /// <summary>Places Draygon offscreen and selects the next swoop after a goop pass exits.</summary>
@@ -718,27 +718,27 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Ports the final off-screen movement at $A5:8C33/$8DB2.</summary>
     private void ExitDraygonGoopPass(
         DraygonEnemyState state,
-        bool movingRight,
+        HorizontalDirection direction,
         SamusState? samus = null)
     {
         SpawnPeriodicDraygonBreathBubble(state);
         // Only the leftward recovery rechecks whether Samus became gooped after firing.
-        if (!movingRight && samus?.XSpeedDivisor != 0)
+        if (direction != HorizontalDirection.Right && samus?.XSpeedDivisor != 0)
         {
             state.Function = DraygonAiFunction.TryGrabSamus;
             return;
         }
 
-        MoveDraygonAlongGoopPath(state, movingRight);
+        MoveDraygonAlongGoopPath(state, direction == HorizontalDirection.Right);
         ushort x = state.Body.Position.X.Whole;
-        bool offScreen = movingRight
+        bool offScreen = direction == HorizontalDirection.Right
             ? unchecked((short)x) >= 0 && x >= 672
             : unchecked((short)x) < 0 && unchecked((short)(x - DraygonOffscreenLeftX)) < 0;
         if (!offScreen)
             return;
 
         state.SwoopOffset = state.SwoopEndOffset;
-        if (movingRight)
+        if (direction == HorizontalDirection.Right)
         {
             state.Function = DraygonAiFunction.SwoopLeftSetup;
             state.Body.Position = state.Body.Position.WithWholeX(592);
@@ -912,7 +912,7 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
                 ApplyDraygonTailWhipHit(state, samus);
                 return null;
             case DraygonCue.SpawnGoop goop:
-                SpawnDraygonGoop(state, goop.MovingRight);
+                SpawnDraygonGoop(state, goop.Direction == HorizontalDirection.Right);
                 return null;
             default:
                 throw new InvalidOperationException($"Undefined Draygon cue {cue}.");
@@ -941,20 +941,20 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Ports the eye direction partition at <c>$A5:C48D/C513</c>.</summary>
-    internal void TrackSamusWithDraygonEye(RoomEnemySlot eye, SamusState? samus, bool facingRight)
+    internal void TrackSamusWithDraygonEye(RoomEnemySlot eye, SamusState? samus, HorizontalDirection facing)
     {
         // Native emission precedes the angle-change early return, so a stationary
         // target must not suppress the periodic particle. It shares the real pool.
         if ((eye.FrameCounter & DraygonEyeEffects.CadenceMask) == 0)
             _projectiles.SpawnRoomGraphicsDustExplosion(
-                new(unchecked((ushort)(eye.Position.X.Whole + (facingRight
+                new(unchecked((ushort)(eye.Position.X.Whole + (facing == HorizontalDirection.Right
                     ? DraygonEyeEffects.HorizontalOffset : -DraygonEyeEffects.HorizontalOffset))), unchecked((ushort)(eye.Position.Y.Whole + DraygonEyeEffects.VerticalOffset))),
                 DraygonEyeEffects.DustVariant);
         if (samus is null)
             return;
 
         short deltaX = unchecked((short)(samus.Position.X.Whole - unchecked((ushort)(
-            eye.Position.X.Whole + (facingRight ? 24 : -24)))));
+            eye.Position.X.Whole + (facing == HorizontalDirection.Right ? 24 : -24)))));
         short deltaY = unchecked((short)(samus.Position.Y.Whole - unchecked((ushort)(eye.Position.Y.Whole - 32))));
         byte angle = EnemyMath.CalculateCartridgeAngle(new(deltaX, deltaY)).RawValue;
         DraygonEyeState eyeState = eye.RequireSpeciesState<DraygonEyeState>();
@@ -964,19 +964,19 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
         eyeState.LookAngle = angle;
         DraygonProgram look = angle switch
         {
-            < 32 => facingRight
+            < 32 => facing == HorizontalDirection.Right
                 ? DraygonProgram.EyeFacingRightLookingUp
                 : DraygonProgram.EyeFacingLeftLookingUp,
-            < 96 => facingRight
+            < 96 => facing == HorizontalDirection.Right
                 ? DraygonProgram.EyeFacingRightLookingRight
                 : DraygonProgram.EyeFacingLeftLookingRight,
-            < 160 => facingRight
+            < 160 => facing == HorizontalDirection.Right
                 ? DraygonProgram.EyeFacingRightLookingDown
                 : DraygonProgram.EyeFacingLeftLookingDown,
-            < 224 => facingRight
+            < 224 => facing == HorizontalDirection.Right
                 ? DraygonProgram.EyeFacingRightLookingLeft
                 : DraygonProgram.EyeFacingLeftLookingLeft,
-            _ => facingRight
+            _ => facing == HorizontalDirection.Right
                 ? DraygonProgram.EyeFacingRightLookingUp
                 : DraygonProgram.EyeFacingLeftLookingUp,
         };
@@ -1118,7 +1118,7 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
                     throw new InvalidDataException(
                         $"Draygon hitbox touch AI {context.HitboxTouchAi?.ToString() ?? "(unnamed)"} is not translated.");
                 }
-                _collision.ResolveNormalEnemyTouch(context.Slot, context.Samus, skipDeathAnimation: true);
+                _collision.ResolveNormalEnemyTouch(context.Slot, context.Samus, deathAnimation: TouchDeathAnimation.Skip);
                 ResolveDraygonReaction(context.Slot, context.Samus);
             });
     }
@@ -2109,7 +2109,7 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
             },
             AfterImpact = c => AdvanceDraygonShotAcceleration(RequireCompleteDraygonState(c.Enemy)),
             ExemptFromGenericDeath = true,
-            AfterCommon = (c, _) => ResolveDraygonReaction(c.Enemy, c.Samus),
+            AfterCommon = c => ResolveDraygonReaction(c.Enemy, c.Samus),
         });
     }
 

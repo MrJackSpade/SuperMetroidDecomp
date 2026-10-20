@@ -43,33 +43,33 @@ internal static class CeresHazeVerification
             AssertEqual(immediate ? 15 : 0, haze.Intensity, "Load projects initial/completed fade state");
             if (!immediate)
             {
-                haze.Step(roomFadeOut: true);
+                haze.Step(CeresHazeRoomFade.FadeOut);
                 haze.Step();
                 AssertEqual(0, haze.Intensity, "Waiting ignores fade-out and absent fade-in");
                 foreach (int expected in entering)
                 {
-                    haze.Step(roomFadeIn: expected == 0, roomFadeOut: true);
+                    haze.Step(expected == 0 ? CeresHazeRoomFade.FadeIn : CeresHazeRoomFade.FadeOut);
                     AssertEqual(expected, haze.Intensity, "Native fade-in ignores further transition signals");
                 }
-                haze.Step(roomFadeOut: true);
+                haze.Step(CeresHazeRoomFade.FadeOut);
                 AssertEqual(15, haze.Intensity, "Counter16 selects holding without writing or consuming fade-out");
             }
-            haze.Step(roomFadeIn: true);
+            haze.Step(CeresHazeRoomFade.FadeIn);
             AssertEqual(15, haze.Intensity, "Holding ignores fade-in");
-            haze.Step(roomFadeOut: true);
+            haze.Step(CeresHazeRoomFade.FadeOut);
             AssertEqual(15, haze.Intensity, "Fade-out selection retains previous table for one call");
             foreach (int expected in leaving)
             {
-                haze.Step(roomFadeIn: true, roomFadeOut: true);
+                haze.Step(CeresHazeRoomFade.FadeIn);
                 AssertEqual(expected, haze.Intensity, "Native fade-out writes before decrement");
             }
             haze.Step();
-            haze.Step(roomFadeIn: true, roomFadeOut: true);
+            haze.Step(CeresHazeRoomFade.FadeIn);
             AssertEqual(1, haze.Intensity, "Zero counter retains final table without restarting");
             AssertEqual(dead, haze.IsRed, "Selected channel is room-owned throughout the trace");
             AssertTrue(haze.Enabled, "Fade completion does not disable the object");
             haze = new CeresHazeState(false, !dead, immediate);
-            haze.Step(roomFadeIn: true, roomFadeOut: true);
+            haze.Step(CeresHazeRoomFade.FadeIn);
             AssertEqual(immediate ? 15 : 0, haze.Intensity, "Disabled projection cannot advance");
             AssertTrue(!haze.Enabled && haze.IsRed == !dead, "Reload replaces enable/channel state");
         }

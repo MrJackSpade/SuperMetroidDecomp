@@ -24,7 +24,7 @@ internal static class TourianAccessPlmDefinitionsVerification
 
         void VerifyDefinition(bool clear)
         {
-            TourianAccessPlmDefinition definition = TourianAccessPlmDefinitions.ForState(clear);
+            TourianAccessPlmDefinition definition = TourianAccessPlmDefinitions.ForState(clear ? TourianAccessFloor.Clear : TourianAccessFloor.Crumble);
             const int width = 16;
             const int height = 16;
             int blockCount = width * height;
@@ -32,7 +32,7 @@ internal static class TourianAccessPlmDefinitionsVerification
             var plms = PlmFixtures.Unbound();
 
             AssertTrue(
-                plms.Tourian.TrySpawnTourianAccess(level, clear),
+                plms.Tourian.TrySpawnTourianAccess(level, clear ? TourianAccessFloor.Clear : TourianAccessFloor.Crumble),
                 $"Tourian access {(clear ? "clear" : "crumble")} actor allocates");
             AssertEqual(1, plms.SlotTable.ActiveCount, "Tourian access spawn occupies one PLM slot");
             RoomPlmSlotSnapshot slot = plms.PopulationSlots.Single();
@@ -62,7 +62,7 @@ internal static class TourianAccessPlmDefinitionsVerification
         foreach (var item in cases)
         {
             ushort header = CartridgeImportSource.Require(rom).ReadCartridgeWord(item.SpawnOperand);
-            var actual = TourianAccessPlmDefinitions.ForState(item.Clear);
+            var actual = TourianAccessPlmDefinitions.ForState(item.Clear ? TourianAccessFloor.Clear : TourianAccessFloor.Crumble);
             if (instruction)
             {
                 ushort list = CartridgeImportSource.Require(rom).ReadCartridgeWord(0x840000 | (header + 2));

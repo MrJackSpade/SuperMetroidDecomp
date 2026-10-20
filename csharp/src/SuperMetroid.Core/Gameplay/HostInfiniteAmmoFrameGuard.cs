@@ -19,6 +19,7 @@ internal sealed class HostInfiniteAmmoFrameGuard
     private bool _completed;
 
     /// <summary>Remembers which actor and counters received a temporary one-unit loan.</summary>
+    [IndependentFlag("Each ammo type is buffered independently from the cheat settings.")]
     private HostInfiniteAmmoFrameGuard(
         SamusState? actor,
         bool missilesBuffered,

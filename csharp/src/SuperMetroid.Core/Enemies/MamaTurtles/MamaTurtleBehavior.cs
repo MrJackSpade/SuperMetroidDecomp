@@ -49,10 +49,10 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
                 StartMamaTurtleEnteringShell(slot.RequireSpeciesState<MamaTurtleEnemyState>());
                 return null;
             case MamaTurtleCueKind.RiseToHoverRightwards:
-                StartMamaTurtleRisingToHover(slot.RequireSpeciesState<MamaTurtleEnemyState>(), rightward: true);
+                StartMamaTurtleRisingToHover(slot.RequireSpeciesState<MamaTurtleEnemyState>(), direction: HorizontalDirection.Right);
                 return MamaTurtleProgram.MamaSpinning;
             case MamaTurtleCueKind.RiseToHoverLeftwards:
-                StartMamaTurtleRisingToHover(slot.RequireSpeciesState<MamaTurtleEnemyState>(), rightward: false);
+                StartMamaTurtleRisingToHover(slot.RequireSpeciesState<MamaTurtleEnemyState>(), direction: HorizontalDirection.Left);
                 return MamaTurtleProgram.MamaSpinning;
             case MamaTurtleCueKind.PlaySpinningSound:
                 LastMamaTurtleSoundEffect = EnemySoundEffectDefinitions.MamaTurtleSpinSound;
@@ -667,12 +667,12 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Instructions <c>$9451/$946B</c>: begin rising with selected X direction.</summary>
     private static void StartMamaTurtleRisingToHover(
         MamaTurtleEnemyState state,
-        bool rightward)
+        HorizontalDirection direction)
     {
         // Cartridge comments describe the visual facing, while the stored velocity is the
         // opposite sign: $9451 writes -1 and $946B writes +1.
         state.Function = MamaTurtleAiFunction.RisingToHover;
-        state.Velocity = state.Velocity.WithWholeX(rightward ? (short)-1 : (short)1);
+        state.Velocity = state.Velocity.WithWholeX(direction == HorizontalDirection.Right ? (short)-1 : (short)1);
         state.FunctionTimer = NativeCountdown.Start(16);
     }
 
@@ -919,7 +919,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         table.AddShot(new EnemyShotReaction(enemy => enemy.EnemyDefinitionPointer == EnemyDefinitionId.BabyTurtle &&
                                                      EnemyCollision.ShotAi(enemy) == EnemyInteractionCallback.BabyTurtleShot)
         {
-            AfterCommon = (c, _) => ResolveBabyTurtleShotAfterCommon(c.Enemy.RequireSpeciesState<BabyTurtleEnemyState>()),
+            AfterCommon = c => ResolveBabyTurtleShotAfterCommon(c.Enemy.RequireSpeciesState<BabyTurtleEnemyState>()),
         });
     }
 

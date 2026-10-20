@@ -154,6 +154,7 @@ public sealed class HudState
     /// of the energy digits. Keeping this update beside <see cref="QueueUpload"/> prevents
     /// enemy damage from changing physics state while the visible HUD remains frozen at 99.
     /// </summary>
+    [IndependentFlag("Time freeze and sound suppression are separate runtime states supplied by the frame.")]
     public void UpdateGameplayCounters(
         SamusState samus,
         bool timeIsFrozen = false,

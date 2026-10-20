@@ -24,8 +24,8 @@ internal sealed class MotherBrainRoomActors(
     public void TerminateRinkas() => rinkas.RequestTermination();
 
     /// <inheritdoc/>
-    public RoomEnemyProjectileSlot? SpawnPirateLaser(RoomEnemySlot source, Position16<RoomPixels> muzzle, bool movingRight) =>
-        pirates.SpawnPirateMotherBrainLaser(source, muzzle, movingRight);
+    public RoomEnemyProjectileSlot? SpawnPirateLaser(RoomEnemySlot source, Position16<RoomPixels> muzzle, HorizontalDirection direction) =>
+        pirates.SpawnPirateMotherBrainLaser(source, muzzle, direction == HorizontalDirection.Right);
 
     /// <inheritdoc/>
     public void SpawnAfterburnCenter(RoomEnemyProjectileKind kind, Position16<RoomPixels> position, ushort remaining) =>

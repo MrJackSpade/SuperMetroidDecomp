@@ -31,6 +31,7 @@ public static class SamusGroundedMovement
     /// clearing that result. The elevator actor remains a separate producer of the status
     /// word and platform art; this method translates the complete Samus-side consumer.
     /// </remarks>
+    [IndependentFlag("Elevator motion and door side-effect publication are independent states of the frame.")]
     public static BlockMoveResult? StepFacingForward(
 
         RoomLevelData level,

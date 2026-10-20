@@ -119,7 +119,7 @@ internal static class FileSelectNavigationLookupVerification
             foreach (bool down in new[] { false, true })
             {
                 FileSelectItem expected = FileSelectItemRows.MainItem(original[(ordinal + (down ? 1 : -1) + original.Length) % original.Length]);
-                AssertEqual(expected, FileSelectMainNavigation.Move(FileSelectItemRows.MainItem(original[ordinal]), hasSave, down),
+                AssertEqual(expected, FileSelectMainNavigation.Move(FileSelectItemRows.MainItem(original[ordinal]), hasSave, down ? VerticalDirection.Down : VerticalDirection.Up),
                     $"main navigation saves={hasSave} row={original[ordinal]} down={down}");
             }
             FileSelectItem[] visible = original.Select(FileSelectItemRows.MainItem).ToArray();
@@ -130,7 +130,7 @@ internal static class FileSelectNavigationLookupVerification
                 {
                     try
                     {
-                        FileSelectMainNavigation.Move(selected, hasSave, down);
+                        FileSelectMainNavigation.Move(selected, hasSave, down ? VerticalDirection.Down : VerticalDirection.Up);
                         throw new InvalidOperationException("Invalid main selection was accepted.");
                     }
                     catch (InvalidDataException error)

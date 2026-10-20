@@ -43,8 +43,8 @@ internal static class SaveStationSoundVerification
             (ushort)(column * 16 + SaveStationTriggerGeometry.HorizontalProbeOffset + 8),
             (ushort)(row * 16 - samus.Kinematics.Radius.Y - 1)));
 
-        var game = new SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore(RetailPresentationFixture()), null, renderGameplayFrames: false,
-            SuperMetroidGameHostServices.Default, random);
+        var game = new SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore(RetailPresentationFixture()), null, 
+            SuperMetroidGameHostServices.Default with { GameplayFrames = RetainedGameplayFrames.Instance }, random);
         game.AdoptRuntime(runtime);
         game.GameState = SuperMetroidGameState.MainGameplay;
         CartridgeAudioState audio = game.Session.audio;

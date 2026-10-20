@@ -10,7 +10,8 @@ internal static class FileSelectMapGraphicsPixelsAccess
     {
         /// <summary>Captures the area map for the visited-station masks and rasterizes it in software.</summary>
         internal Rgba32[] Render(ReadOnlySpan<ushort> usedStationMasks, bool includeBackdropInColorMath = true) =>
-            FrontendScenePixelsAccess.Pixels(graphics.CaptureRenderSnapshot(usedStationMasks, includeBackdropInColorMath));
+            FrontendScenePixelsAccess.Pixels(graphics.CaptureRenderSnapshot(usedStationMasks,
+                includeBackdropInColorMath ? AreaMapColorMath.WithBackdrop : AreaMapColorMath.ForegroundOnly));
     }
 
     /// <summary>The room map's published pixels.</summary>

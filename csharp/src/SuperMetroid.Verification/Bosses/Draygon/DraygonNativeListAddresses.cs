@@ -117,8 +117,8 @@ internal static class DraygonNativeListAddresses
         0x98ef => DraygonCue.SetBodyIntangible.Instance,
         0x9f57 => new DraygonCue.SetBodyFunction(BodyFunctions[operands[0]]),
         0x9b9a => DraygonCue.TailWhipHit.Instance,
-        0x9f7c => new DraygonCue.SpawnGoop(MovingRight: false),
-        0x9fae => new DraygonCue.SpawnGoop(MovingRight: true),
+        0x9f7c => new DraygonCue.SpawnGoop(HorizontalDirection.Left),
+        0x9fae => new DraygonCue.SpawnGoop(HorizontalDirection.Right),
         _ => throw new InvalidDataException($"Draygon callback ${callback:X4} is not a known callback."),
     };
 

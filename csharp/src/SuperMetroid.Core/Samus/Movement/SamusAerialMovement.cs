@@ -33,7 +33,7 @@ public static class SamusAerialMovement
         // The two words remain independent. Speed Booster's fractional
         // bonus likewise uses an independent 16-bit ADC and intentionally drops its carry.
         samus.Kinematics.YSpeed =
-            SamusVerticalMotionDefinitions.Launch(medium, hiJumpEquipped, wallJump: false);
+            SamusVerticalMotionDefinitions.Launch(medium, hiJumpEquipped, kind: SamusLaunchKind.Jump);
         ApplyEquippedSpeedBoosterJumpBonus(samus);
         ConfigureEnvironmentGravity(samus);
         samus.Kinematics.YDirection = SamusVerticalDirection.Up;
@@ -50,7 +50,7 @@ public static class SamusAerialMovement
         SamusLiquidMedium medium = samus.LiquidPhysics.DetermineMovementMedium(samus);
         bool hiJumpEquipped = samus.EquippedItems.HasAny(SamusEquipmentFlags.HiJumpBoots);
         samus.Kinematics.YSpeed =
-            SamusVerticalMotionDefinitions.Launch(medium, hiJumpEquipped, wallJump: true);
+            SamusVerticalMotionDefinitions.Launch(medium, hiJumpEquipped, kind: SamusLaunchKind.WallJump);
         ApplyEquippedSpeedBoosterJumpBonus(samus);
         ConfigureEnvironmentGravity(samus);
         samus.Kinematics.YDirection = SamusVerticalDirection.Up;
@@ -411,7 +411,7 @@ public static class SamusAerialMovement
         }
         else
             result = FinishVerticalMovement(level, samus, nmiFrameCounter,
-                plms: plms, deferCeilingResponse: true);
+                plms: plms, ceilingResponse: SamusCeilingResponse.Deferred);
         // Turning clears the collision-to-pose request after movement. A floor
         // collision clamps position but does not reset accumulated falling speed
         // or trigger landing presentation. Likewise, the cartridge upward mover
@@ -604,11 +604,10 @@ public static class SamusAerialMovement
         RoomLevelData level,
         SamusState samus,
         int nmiFrameCounter,
-        bool canBreakBombBlocks = false,
         RoomPlmSystem? plms = null,
-        bool deferCeilingResponse = false)
+        SamusCeilingResponse ceilingResponse = SamusCeilingResponse.Immediate)
     {
-        BlockMoveResult vertical = StepVerticalWithSpeedCalculations(new SamusTerrain { Level = level, Plms = plms }, samus, nmiFrameCounter, out bool hitCeiling, out bool downwardDisplacement, canBreakBombBlocks, deferCeilingResponse);
+        BlockMoveResult vertical = StepVerticalWithSpeedCalculations(new SamusTerrain { Level = level, Plms = plms }, samus, nmiFrameCounter, out bool hitCeiling, out bool downwardDisplacement, ceilingResponse);
         bool landed = downwardDisplacement && vertical.Collided;
 
         return new AerialMovementResult(landed, hitCeiling);
@@ -624,7 +623,7 @@ public static class SamusAerialMovement
     /// is important: the old-speed displacement, equality-only terminal-speed check, and
     /// ceiling response are observable native behavior, not general-purpose host physics.
     /// </remarks>
-    internal static BlockMoveResult StepVerticalWithSpeedCalculations(SamusTerrain terrain, SamusState samus, int nmiFrameCounter, out bool hitCeiling, out bool downwardDisplacement, bool canBreakBombBlocks = false, bool deferCeilingResponse = false)
+    internal static BlockMoveResult StepVerticalWithSpeedCalculations(SamusTerrain terrain, SamusState samus, int nmiFrameCounter, out bool hitCeiling, out bool downwardDisplacement, SamusCeilingResponse ceilingResponse = SamusCeilingResponse.Immediate)
     {
         ValidateCommon(terrain.Level, samus);
         SamusKinematicsState state = samus.Kinematics;
@@ -658,7 +657,7 @@ public static class SamusAerialMovement
             state,
             displacement);
         downwardDisplacement = displacement >= 0;
-        BlockMoveResult vertical = SamusBlockCollision.MoveVertical(terrain, state, new VerticalBlockMove { Displacement = displacement, ScanLeftToRight = (nmiFrameCounter & 1) == 0, CanBreakBombBlocks = canBreakBombBlocks });
+        BlockMoveResult vertical = SamusBlockCollision.MoveVertical(terrain, state, new VerticalBlockMove { Displacement = displacement, ScanLeftToRight = (nmiFrameCounter & 1) == 0 });
 
         // `$90:E61B` (down) and `$90:E606` (up) publish this word after every move. A
         // downward pass is never zero: 1 on a landing, otherwise 2 unless a wall jump's 5 is retained.
@@ -677,7 +676,7 @@ public static class SamusAerialMovement
         }
 
         hitCeiling = displacement < 0 && vertical.Collided;
-        if (hitCeiling && !deferCeilingResponse)
+        if (hitCeiling && ceilingResponse != SamusCeilingResponse.Deferred)
         {
             // Ordinary handlers consume the ceiling collision as a jump stop. A turn
             // instead clears that pending result, so its caller defers these writes.

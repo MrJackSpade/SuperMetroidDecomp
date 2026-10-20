@@ -204,11 +204,11 @@ internal static class MotherBrainAnimations
     internal static AnimationProgramSet<H, MotherBrainHeadFrame, MotherBrainHeadCue> Head { get; } = new(
         new Dictionary<H, AnimationProgramStep<H, MotherBrainHeadFrame, MotherBrainHeadCue>[]>
     {
-        [H.StretchingPhase2] = [.. Stretch(2, 3, 4, drool: true), FallInto(H.StretchingPhase2Loop)],
+        [H.StretchingPhase2] = [.. Stretch(2, 3, 4, MotherBrainStretchKind.Attack), FallInto(H.StretchingPhase2Loop)],
         [H.StretchingPhase2Loop] = [Show(2, 1), GoTo(H.StretchingPhase2Loop)],
-        [H.StretchingPhase3] = [.. Stretch(8, 9, 10, drool: true), FallInto(H.StretchingPhase3Loop)],
+        [H.StretchingPhase3] = [.. Stretch(8, 9, 10, MotherBrainStretchKind.Attack), FallInto(H.StretchingPhase3Loop)],
         [H.StretchingPhase3Loop] = [Show(8, 1), GoTo(H.StretchingPhase3Loop)],
-        [H.HyperBeamRecoil] = [.. Stretch(8, 9, 10, drool: false), FallInto(H.HyperBeamRecoilLoop)],
+        [H.HyperBeamRecoil] = [.. Stretch(8, 9, 10, MotherBrainStretchKind.HyperBeamRecoil), FallInto(H.HyperBeamRecoilLoop)],
         [H.HyperBeamRecoilLoop] = [Show(8, 1), GoTo(H.HyperBeamRecoilLoop)],
         [H.Initial] = [Show(0, 4), GoTo(H.Initial)],
         [H.Decapitated] = [Show(8, 8), Show(7, 4), FallInto(H.DecapitatedLoop)],
@@ -295,8 +295,8 @@ internal static class MotherBrainAnimations
             Cue(MotherBrainHeadCueKind.EnableNeckMovement),
             GoTo(H.NeutralPhase3),
         ],
-        [H.BombPhase2] = Bomb(phaseThree: false),
-        [H.BombPhase3] = Bomb(phaseThree: true),
+        [H.BombPhase2] = Bomb(firstHeadFrame: 0, afterburns: 7, neutral: H.NeutralPhase2),
+        [H.BombPhase3] = Bomb(firstHeadFrame: 6, afterburns: 1, neutral: H.NeutralPhase3),
         [H.Laser] =
         [
             Show(1, 16),
@@ -327,7 +327,7 @@ internal static class MotherBrainAnimations
     /// <paramref name="open"/>, <paramref name="wide"/> and <paramref name="widest"/>, breathing a big purple cloud
     /// with the stretch cry, and drools while stretching.
     /// </summary>
-    private static AnimationProgramStep<H, MotherBrainHeadFrame, MotherBrainHeadCue>[] Stretch(int open, int wide, int widest, bool drool)
+    private static AnimationProgramStep<H, MotherBrainHeadFrame, MotherBrainHeadCue>[] Stretch(int open, int wide, int widest, MotherBrainStretchKind kind)
     {
         var steps = new List<AnimationProgramStep<H, MotherBrainHeadFrame, MotherBrainHeadCue>>
         {
@@ -335,13 +335,13 @@ internal static class MotherBrainAnimations
             Show(open, 2),
             Show(wide, 2),
         };
-        if (drool) steps.Add(Cue(MotherBrainHeadCueKind.SpawnDrool));
+        if (kind == MotherBrainStretchKind.Attack) steps.Add(Cue(MotherBrainHeadCueKind.SpawnDrool));
         steps.Add(Show(wide, 2));
         steps.Add(Cue(MotherBrainHeadCueKind.SpawnBigPurpleBreath));
         steps.Add(HeadCue(MotherBrainHeadCue.Sound2(MotherBrainSoundDefinitions.Roar)));
         foreach (int duration in new[] { 16, 16, 32 })
         {
-            if (drool) steps.Add(Cue(MotherBrainHeadCueKind.SpawnDrool));
+            if (kind == MotherBrainStretchKind.Attack) steps.Add(Cue(MotherBrainHeadCueKind.SpawnDrool));
             steps.Add(Show(widest, duration));
         }
         steps.Add(Show(wide, 4));
@@ -377,10 +377,10 @@ internal static class MotherBrainAnimations
     }
 
     /// <summary>A bomb lob: phase two lobs a seven-afterburn bomb, phase three a one-afterburn bomb.</summary>
-    private static AnimationProgramStep<H, MotherBrainHeadFrame, MotherBrainHeadCue>[] Bomb(bool phaseThree)
+    private static AnimationProgramStep<H, MotherBrainHeadFrame, MotherBrainHeadCue>[] Bomb(int firstHeadFrame, int afterburns, H neutral)
     {
         // Phase three uses the damaged head (frames 6 to 10) where phase two uses the whole one (0 to 4).
-        int head = phaseThree ? 6 : 0;
+        int head = firstHeadFrame;
         return
         [
             Show(head, 4),
@@ -391,13 +391,13 @@ internal static class MotherBrainAnimations
             Show(head + 3, 4),
             HeadCue(MotherBrainHeadCue.Sound2(MotherBrainSoundDefinitions.AttackCry)),
             Show(head + 4, 8),
-            HeadCue(MotherBrainHeadCue.Bomb(phaseThree ? 1 : 7)),
+            HeadCue(MotherBrainHeadCue.Bomb(afterburns)),
             Cue(MotherBrainHeadCueKind.SpawnBigPurpleBreath),
             Show(head + 4, 32),
             Show(head + 3, 4),
             Show(head + 2, 16),
             Cue(MotherBrainHeadCueKind.EnableNeckMovement),
-            GoTo(phaseThree ? H.NeutralPhase3 : H.NeutralPhase2),
+            GoTo(neutral),
         ];
     }
 

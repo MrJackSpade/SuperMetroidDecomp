@@ -336,12 +336,12 @@ internal sealed class DraygonCannonPlms : IPlmFamilySource
             // Setup $DF4C only moves the original argument to PLM_Variable and seeds three.
             // Its list begins at the damage instruction, which owns the terrain mutation.
             slot.RoomArgument = DraygonCannonRomData.HitsToDestroy;
-            slot.StartAnimation(new DraygonCannonPlmAnimation(DraygonCannonPlmProgramDefinitions.FirstProgram(orientation, destroyed: true)));
+            slot.StartAnimation(new DraygonCannonPlmAnimation(DraygonCannonPlmProgramDefinitions.DestroyProgram(orientation)));
             return;
         }
 
         slot.RoomArgument = 0;
-        slot.StartAnimation(new DraygonCannonPlmAnimation(DraygonCannonPlmProgramDefinitions.FirstProgram(orientation, destroyed: false)));
+        slot.StartAnimation(new DraygonCannonPlmAnimation(DraygonCannonPlmProgramDefinitions.StartProgram(orientation)));
         WriteDraygonCannonTypeAndBts(
             level,
             slot.BlockIndex,

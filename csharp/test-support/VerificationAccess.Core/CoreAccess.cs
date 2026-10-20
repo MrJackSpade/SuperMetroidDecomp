@@ -202,8 +202,8 @@ internal static class CoreAccess
         /// <summary>Accepted grapple firing with its connection pose applied immediately, as ordinary firing does.</summary>
         internal static GrappleMovementResult ConnectAcceptedFiring(SamusState samus,
             SamusGrappleState grapple, Position16<RoomPixels> previousPosition,
-            bool validateAnchorBlock = true, bool validateAnchorEnemy = false) =>
-            SamusGrappleMovement.ConnectAcceptedFiringCore(samus, grapple, previousPosition, validateAnchorBlock, validateAnchorEnemy, false);
+            GrappleAnchorKind anchor = GrappleAnchorKind.Block) =>
+            SamusGrappleMovement.ConnectAcceptedFiringCore(samus, grapple, previousPosition, anchor, GrapplePoseChange.Immediate);
     }
 
     /// <summary>Observes per-priority enemy draw queues before OAM construction.</summary>

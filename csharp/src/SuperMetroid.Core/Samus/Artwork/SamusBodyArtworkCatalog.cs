@@ -145,8 +145,8 @@ public sealed class SamusBodyArtworkCatalog
         this.top = CloneAndValidate(parts.TopPointers, parts.Top);
         this.bottom = CloneAndValidate(parts.BottomPointers, parts.Bottom);
         SamusBodyDefinitionLayout.ValidateCompleteGroups(parts.TopPointers, parts.BottomPointers, this.top, this.bottom);
-        IndexDefinitions(true, this.top);
-        IndexDefinitions(false, this.bottom);
+        IndexDefinitions(SamusBodyHalf.Top, this.top);
+        IndexDefinitions(SamusBodyHalf.Bottom, this.bottom);
         this.postureYOffsets = Enumerable.Range(0, parts.PostureYOffsets.Length)
             .Where(index => SamusBodyPlacementDefinitions.PostureSourceIndex(index) == index
                 ? !SamusBodyPlacementDefinitions.TryDefaultPostureByte(this, index, out sbyte calculated) || parts.PostureYOffsets[index] != calculated
@@ -163,22 +163,22 @@ public sealed class SamusBodyArtworkCatalog
         // The contiguous bank image also contains bytes reached only by a frame
         // counter running past its authored list. Validate a selection when it is
         // actually used, not every four-byte word in the backing ROM interval.
-        BindTransfers(true, this.top);
-        BindTransfers(false, this.bottom);
+        BindTransfers(SamusBodyHalf.Top, this.top);
+        BindTransfers(SamusBodyHalf.Bottom, this.bottom);
         definitionsByAddress.Clear();
         definitionOrdinals.Clear();
-        IndexDefinitions(true, this.top);
-        IndexDefinitions(false, this.bottom);
+        IndexDefinitions(SamusBodyHalf.Top, this.top);
+        IndexDefinitions(SamusBodyHalf.Bottom, this.bottom);
     }
 
     /// <summary>Resolves each definition's native transfer geometry against the selected frame tables.</summary>
-    private void BindTransfers(bool upper, SamusBodyTileDefinition[][] groups)
+    private void BindTransfers(SamusBodyHalf half, SamusBodyTileDefinition[][] groups)
     {
         ReadOnlySpan<ushort> pointers = PosePointers;
         ReadOnlySpan<SamusBodyFrameSelection> frameSnapshot = Frames;
         for (int set = 0; set < groups.Length; set++)
         for (int position = 0; position < groups[set].Length; position++)
-            groups[set][position] = groups[set][position].WithTransferGeometry(this, upper, set, position, pointers, frameSnapshot);
+            groups[set][position] = groups[set][position].WithTransferGeometry(this, half == SamusBodyHalf.Top, set, position, pointers, frameSnapshot);
     }
 
     /// <summary>SHA-256 of selected body art, all visual selectors and every bundled Samus catalog.</summary>
@@ -312,10 +312,10 @@ public sealed class SamusBodyArtworkCatalog
     }
 
     /// <summary>Returns the SNES address selected by a native body set and position.</summary>
-    public int DefinitionAddress(bool upperHalf, int set, int position)
+    public int DefinitionAddress(SamusBodyHalf half, int set, int position)
     {
-        _ = GetDefinition(upperHalf, set, position);
-        return SamusBodyDefinitionLayout.BankBase | unchecked((ushort)(SetPointer(upperHalf, set) +
+        _ = GetDefinition(half == SamusBodyHalf.Top, set, position);
+        return SamusBodyDefinitionLayout.BankBase | unchecked((ushort)(SetPointer(half == SamusBodyHalf.Top, set) +
             position * SamusRenderingRomData.TileTransfers.DefinitionByteCount));
     }
 
@@ -358,12 +358,12 @@ public sealed class SamusBodyArtworkCatalog
     }
 
     /// <summary>Indexes each tile definition at its physical seven-byte bank-$92 record address.</summary>
-    private void IndexDefinitions(bool upperHalf, SamusBodyTileDefinition[][] groups)
+    private void IndexDefinitions(SamusBodyHalf half, SamusBodyTileDefinition[][] groups)
     {
         for (int set = 0; set < groups.Length; set++)
         for (int position = 0; position < groups[set].Length; position++)
         {
-            int address = SamusBodyDefinitionLayout.BankBase | unchecked((ushort)(SetPointer(upperHalf, set) +
+            int address = SamusBodyDefinitionLayout.BankBase | unchecked((ushort)(SetPointer(half == SamusBodyHalf.Top, set) +
                 position * SamusRenderingRomData.TileTransfers.DefinitionByteCount));
             if (!definitionsByAddress.TryAdd(address, groups[set][position]))
                 throw new InvalidDataException($"Samus body definition ${address:X6} is duplicated.");

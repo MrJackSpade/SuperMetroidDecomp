@@ -43,17 +43,17 @@ public sealed class BeamTileAtlas
     }
 
     /// <summary>Reuses source pixels where they match while retaining independent edits in this sheet.</summary>
-    internal BeamTileAtlas SharePixelsFrom(BeamTileAtlas source, bool wholeSheet)
+    internal BeamTileAtlas SharePixelsFrom(BeamTileAtlas source, BeamTileSharing sharing)
     {
         var selected = new Dictionary<int, byte>(pixels);
         for (int pixel = 0; pixel < BeamTileAtlasDefinitions.Width * BeamTileAtlasDefinitions.Height; pixel++)
         {
-            if (!wholeSheet && !BeamTileAtlasDefinitions.IsSharedTilePixel(selection, pixel)) continue;
+            if (sharing != BeamTileSharing.WholeSheet && !BeamTileAtlasDefinitions.IsSharedTilePixel(selection, pixel)) continue;
             byte value = Pixel(pixel);
             if (value == source.Pixel(pixel)) selected.Remove(pixel);
             else selected[pixel] = value;
         }
-        return new(selected, selection, source, wholeSheet);
+        return new(selected, selection, source, sharing == BeamTileSharing.WholeSheet);
     }
     /// <summary>Materializes the selected eight-tile DMA payload; no expanded stock transfer is cached.</summary>
     public ReadOnlyMemory<byte> Transfer => SnesPlanarTileEncoder.Encode(

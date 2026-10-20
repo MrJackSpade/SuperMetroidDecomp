@@ -30,6 +30,9 @@ internal readonly record struct EnemyShotContext(
     EnemyInteractionCallback? HitboxShotAi,
     int HealthBefore = 0)
 {
+    /// <summary>Whether common shot AI took the immediate-freeze path; set for <see cref="EnemyShotReaction.AfterCommon"/>.</summary>
+    internal bool Froze { get; init; }
+
     /// <summary>
     /// The bank-$A0 rule for marking the projectile as collided: a non-plasma shot, or any shot when the enemy
     /// blocks plasma.

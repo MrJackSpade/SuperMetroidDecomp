@@ -6,6 +6,7 @@ namespace SuperMetroid.Core.Bosses.Draygon;
 /// </summary>
 /// <param name="Delta">The signed per-frame room-pixel step, each axis one decoded nibble.</param>
 /// <param name="DeletesSprite">True for the delete sentinel.</param>
+[IndependentFlag("whether an authored intro step deletes the sprite, a fact of the data")]
 internal readonly record struct DraygonIntroMovement(
     Offset16<RoomPixels> Delta,
     bool DeletesSprite);

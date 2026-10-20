@@ -55,5 +55,5 @@ internal abstract record DraygonCue
     }
 
     /// <summary>Spawns a goop projectile.</summary>
-    internal sealed record SpawnGoop(bool MovingRight) : DraygonCue;
+    internal sealed record SpawnGoop(HorizontalDirection Direction) : DraygonCue;
 }

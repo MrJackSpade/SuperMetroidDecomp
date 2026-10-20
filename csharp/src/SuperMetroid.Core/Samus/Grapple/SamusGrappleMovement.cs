@@ -244,7 +244,7 @@ public static class SamusGrappleMovement
         SnesButton controllerInput,
         RoomPlmSystem? plms = null,
         Func<Position16<RoomPixels>, GrappleEnemyCollision>? enemyCollision = null,
-        bool deferConnectionPoseChange = false)
+        GrapplePoseChange connectionPoseChange = GrapplePoseChange.Immediate)
     {
 
         Ensure.NotNull(level);
@@ -287,9 +287,8 @@ public static class SamusGrappleMovement
                         samus,
                         grapple,
                         previousPosition,
-                        validateAnchorBlock: false,
-                        validateAnchorEnemy: true,
-                        deferConnectionPoseChange: deferConnectionPoseChange);
+                        GrappleAnchorKind.Enemy,
+                        connectionPoseChange);
 
                 case GrappleEnemyReaction.Cancel:
                     return QueueFiringCancellation(grapple);
@@ -340,9 +339,8 @@ public static class SamusGrappleMovement
                 samus,
                 grapple,
                 previousPosition,
-                validateAnchorBlock: true,
-                validateAnchorEnemy: false,
-                deferConnectionPoseChange: deferConnectionPoseChange);
+                GrappleAnchorKind.Block,
+                connectionPoseChange);
         }
 
         // `$94:A85B` does not stop when an intermediate probe returns carry without
@@ -384,7 +382,7 @@ public static class SamusGrappleMovement
     /// Executes one connected grapple-function call. X is the default shoot binding used by
     /// this runtime; left/right pump the swing, newly pressed up/down adjust rope length.
     /// </summary>
-    public static GrappleMovementResult Step(SamusTerrain terrain, SamusState samus, SnesButton controllerInput, SnesButton newlyPressedInput, int nmiFrameCounter = 0, Func<Position16<RoomPixels>, GrappleEnemyCollision>? enemyCollision = null, bool deferDropPoseChange = false)
+    public static GrappleMovementResult Step(SamusTerrain terrain, SamusState samus, SnesButton controllerInput, SnesButton newlyPressedInput, int nmiFrameCounter = 0, Func<Position16<RoomPixels>, GrappleEnemyCollision>? enemyCollision = null, GrapplePoseChange poseChange = GrapplePoseChange.Immediate)
     {
 
         Ensure.NotNull(terrain.Level);
@@ -395,7 +393,7 @@ public static class SamusGrappleMovement
         {
             // $9B:CB8B executes on the frame after $9B:C79D queued it. The launch velocity
             // was already published, so this pass changes art/handlers and clears grapple.
-            SamusPoseId? pendingReleasePose = CompleteQueuedRelease(terrain.Level, samus, grapple, deferDropPoseChange);
+            SamusPoseId? pendingReleasePose = CompleteQueuedRelease(terrain.Level, samus, grapple, poseChange == GrapplePoseChange.Deferred);
             return new GrappleMovementResult(GrapplePhase.Inactive, PendingReleasePose: pendingReleasePose);
         }
 
@@ -410,7 +408,7 @@ public static class SamusGrappleMovement
         if (grapple.Phase == GrapplePhase.WallJumping)
             return CompleteGrappleWallJump(terrain.Level, samus, grapple);
         if (grapple.Phase == GrapplePhase.Dropped)
-            return CompleteDropped(terrain.Level, samus, grapple, nmiFrameCounter, terrain.Plms, deferDropPoseChange);
+            return CompleteDropped(terrain.Level, samus, grapple, nmiFrameCounter, terrain.Plms, poseChange == GrapplePoseChange.Deferred);
 
         if (grapple.Phase != GrapplePhase.ConnectedSwinging)
             throw new InvalidOperationException("Connected grapple movement is not active.");
@@ -983,7 +981,7 @@ public static class SamusGrappleMovement
                                 $"grapple-shootable/type-{(int)block.CollisionType:X}/bts-{block.Bts.Value:X2}",
                                 $"Grapple shootable dispatch type ${(int)block.CollisionType:X}/BTS ${block.Bts.Value:X2} " +
                                 $"at block {block.Index} ({resolvedX},{resolvedY}) has no translated table entry.",
-                                isRoomIndependent: true, error);
+                                error);
                         }
                     }
                     return block.CollisionType == RoomCollisionType.ShootableBlock
@@ -1015,9 +1013,8 @@ public static class SamusGrappleMovement
         SamusState samus,
         SamusGrappleState grapple,
         Position16<RoomPixels> previousPosition,
-        bool validateAnchorBlock,
-        bool validateAnchorEnemy,
-        bool deferConnectionPoseChange)
+        GrappleAnchorKind anchor,
+        GrapplePoseChange poseChange)
     {
         QueueGrappleSound(samus, SamusGrappleRomData.Sounds.Attach);
         // $9B:B98C bypasses ordinary connection pose/position setup while Draygon owns
@@ -1026,8 +1023,8 @@ public static class SamusGrappleMovement
         if (sourceMovementType == SamusMovementType.DraygonHeld)
         {
             grapple.Phase = GrapplePhase.ConnectedLocked;
-            grapple.ValidateAnchorBlock = validateAnchorBlock;
-            grapple.ValidateAnchorEnemy = validateAnchorEnemy;
+            grapple.ValidateAnchorBlock = anchor == GrappleAnchorKind.Block;
+            grapple.ValidateAnchorEnemy = anchor == GrappleAnchorKind.Enemy;
             grapple.CancelFromConnectedPose = false;
             // The helper clears delta, then its firing caller immediately writes -8.
             grapple.RopeLengthDelta = SamusGrappleRomData.Physics.InitialConnectionRetraction;
@@ -1106,16 +1103,11 @@ public static class SamusGrappleMovement
             ? GrapplePhase.ConnectedSwinging
             : GrapplePhase.ConnectedLocked;
 
-        // Block and enemy acquisition share the same connection/pose machinery, but their
-        // following-frame validators have different owners. Keep those origins mutually
-        // exclusive so a moving Powamp anchor is never reinterpreted as room terrain.
-        if (validateAnchorBlock == validateAnchorEnemy)
-        {
-            throw new ArgumentException(
-                "A live grapple connection must have exactly one anchor validator.");
-        }
-        grapple.ValidateAnchorBlock = validateAnchorBlock;
-        grapple.ValidateAnchorEnemy = validateAnchorEnemy;
+        // Block and enemy acquisition share the same connection/pose machinery, but their following-frame validators
+        // have different owners; the anchor kind keeps those origins exclusive, so a moving Powamp anchor is never
+        // reinterpreted as room terrain.
+        grapple.ValidateAnchorBlock = anchor == GrappleAnchorKind.Block;
+        grapple.ValidateAnchorEnemy = anchor == GrappleAnchorKind.Enemy;
         grapple.SpecialAngleHandling = false;
         grapple.WallJumpTimer = NativeCountdown.Start(0);
         grapple.CancelFromConnectedPose = false;
@@ -1126,7 +1118,7 @@ public static class SamusGrappleMovement
         // both block and enemy connections, never for an arbitrary restored swing state.
         grapple.RopeLengthDelta = SamusGrappleRomData.Physics.InitialConnectionRetraction;
 
-        if (deferConnectionPoseChange)
+        if (poseChange == GrapplePoseChange.Deferred)
         {
             // `$9B:BA61/$BA9B` publish special prospective command 9/10. They do not
             // execute `$91:EF4F/$EF53` inline. A super-special command can therefore keep
@@ -2075,7 +2067,7 @@ public static class SamusGrappleMovement
                     // 60-frame invulnerability and 10-frame knockback timers. The timer
                     // check must precede the BTS lookup so a second radial probe in this
                     // same six-point sweep cannot queue damage again.
-                    ApplySwingSpikeDamage(samus, block.Bts.Value, solidSpike: false);
+                    ApplySwingSpikeDamage(samus, block.Bts.Value, block: SwingSpikeBlock.Plain);
                     return false;
 
                 // Slopes are unconditional collision in this grapple-specific dispatcher.
@@ -2092,7 +2084,7 @@ public static class SamusGrappleMovement
                     // `$94:AB17` always reports collision. Before setting carry it applies
                     // `$003C` for BTS zero or `$0010` for BTS one; every other entry is
                     // literally zero. A negative BTS skips the table entirely.
-                    ApplySwingSpikeDamage(samus, block.Bts.Value, solidSpike: true);
+                    ApplySwingSpikeDamage(samus, block.Bts.Value, block: SwingSpikeBlock.Solid);
                     return true;
 
                 case RoomCollisionType.HorizontalExtension:
@@ -2136,7 +2128,7 @@ public static class SamusGrappleMovement
     private static void ApplySwingSpikeDamage(
         SamusState samus,
         int behavior,
-        bool solidSpike)
+        SwingSpikeBlock block)
     {
         // Both native handlers return immediately while `$18A8` is nonzero or when BTS is
         // negative. This shared guard is observable because one sweep can sample the same
@@ -2144,7 +2136,7 @@ public static class SamusGrappleMovement
         if (!samus.InvincibilityTimer.IsZero || new RoomBlockBehavior(behavior).RejectsGrappleReaction)
             return;
 
-        ushort damage = solidSpike
+        ushort damage = block == SwingSpikeBlock.Solid
             ? behavior switch
             {
                 0 => (ushort)60,

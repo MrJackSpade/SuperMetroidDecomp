@@ -569,7 +569,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
         table.AddShot(new EnemyShotReaction(enemy => enemy.EnemyDefinitionPointer == EnemyDefinitionId.Shaktool &&
                                                      EnemyCollision.ShotAi(enemy) == EnemyInteractionCallback.ShaktoolShot)
         {
-            AfterCommon = (c, _) => ResolveShaktoolShotAfterCommon(c.Enemy),
+            AfterCommon = c => ResolveShaktoolShotAfterCommon(c.Enemy),
         });
     }
     /// <summary>Ports front-circle pre-instruction <c>$86:BE03</c>.</summary>
@@ -577,8 +577,8 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemyProjectileSlot projectile,
         RoomLevelData level)
     {
-        if (EnemyProjectileEngine.MoveProjectileAxis(projectile, level, horizontal: true) ||
-            EnemyProjectileEngine.MoveProjectileAxis(projectile, level, horizontal: false))
+        if (EnemyProjectileEngine.MoveProjectileAxis(projectile, level, axis: Axis.Horizontal) ||
+            EnemyProjectileEngine.MoveProjectileAxis(projectile, level, axis: Axis.Vertical))
         {
             projectile.Clear();
         }
@@ -598,7 +598,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        _ = EnemyProjectileEngine.MoveProjectileAxis(projectile, level, horizontal: true);
-        _ = EnemyProjectileEngine.MoveProjectileAxis(projectile, level, horizontal: false);
+        _ = EnemyProjectileEngine.MoveProjectileAxis(projectile, level, axis: Axis.Horizontal);
+        _ = EnemyProjectileEngine.MoveProjectileAxis(projectile, level, axis: Axis.Vertical);
     }
 }

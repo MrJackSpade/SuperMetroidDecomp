@@ -51,13 +51,18 @@ internal static class RoomPlmCollectibleDrawDefinitions
     /// solid reveal frames. Six-byte native records advance one tile within each
     /// group. Preserve holes between groups and reject incomplete record starts.
     /// </summary>
-    internal static bool TryGet(ushort pointer, out RoomPlmCollectibleDrawFrame frame) => TryResolve(pointer, true, out frame);
+    internal static bool TryGet(ushort pointer, out RoomPlmCollectibleDrawFrame frame)
+    {
+        bool found = TryLocate(pointer, out DrawGroup group, out int index);
+        frame = found ? new(pointer, new RoomLevelWord(Word(group, index)), VisualId(group, index)) : default;
+        return found;
+    }
 
     /// <summary>Physical runtime projection without constructing exported artwork names.</summary>
     internal static bool TryGetWord(ushort pointer, out ushort word)
     {
-        bool found = TryResolve(pointer, false, out var frame);
-        word = frame.LevelWord.Raw;
+        bool found = TryLocate(pointer, out DrawGroup group, out int index);
+        word = found ? Word(group, index) : (ushort)0;
         return found;
     }
 
@@ -93,30 +98,44 @@ internal static class RoomPlmCollectibleDrawDefinitions
         _ => throw new InvalidOperationException($"Undefined {nameof(DrawGroup)} {(int)group}."),
     };
 
-    /// <summary>Resolves a draw pointer to its physical level word and optional export identifier.</summary>
-    private static bool TryResolve(ushort pointer, bool includeId, out RoomPlmCollectibleDrawFrame frame)
+    /// <summary>Finds the group a draw pointer belongs to and its record index within the group.</summary>
+    private static bool TryLocate(ushort pointer, out DrawGroup group, out int index)
     {
-        foreach (DrawGroup group in DrawGroups)
+        foreach (DrawGroup candidate in DrawGroups)
         {
-            (ushort first, int count) = SpanOf(group);
-            if (!TryIndex(pointer, first, count, out int index)) continue;
-            (ushort word, string id) = group switch
-            {
-                DrawGroup.Empty => ((ushort)0x00ff, "empty"),
-                DrawGroup.Orb => ((ushort)(0xc072 + index), includeId ? $"chozo-orb-{index}" : string.Empty),
-                DrawGroup.OrbBurst => ((ushort)0x8075, "chozo-orb-burst"),
-                DrawGroup.Tank => ((ushort)(0xb04a + index), includeId ? $"{TankKindName(index / 2)}-tank-{index % 2}" : string.Empty),
-                DrawGroup.Dynamic => ((ushort)(0xb08e + index),
-                    includeId ? $"dynamic-slot-{index / 2}-frame-{index % 2}" : string.Empty),
-                DrawGroup.ShotReveal => ((ushort)(0x8053 + index), includeId ? $"shot-reveal-{index}" : string.Empty),
-                _ => throw new InvalidOperationException($"Undefined {nameof(DrawGroup)} {(int)group}."),
-            };
-            frame = new(pointer, new RoomLevelWord(word), id);
+            (ushort first, int count) = SpanOf(candidate);
+            if (!TryIndex(pointer, first, count, out index)) continue;
+            group = candidate;
             return true;
         }
-        frame = default;
+        group = default;
+        index = 0;
         return false;
     }
+
+    /// <summary>The physical level word a located draw record writes.</summary>
+    private static ushort Word(DrawGroup group, int index) => group switch
+    {
+        DrawGroup.Empty => 0x00ff,
+        DrawGroup.Orb => (ushort)(0xc072 + index),
+        DrawGroup.OrbBurst => 0x8075,
+        DrawGroup.Tank => (ushort)(0xb04a + index),
+        DrawGroup.Dynamic => (ushort)(0xb08e + index),
+        DrawGroup.ShotReveal => (ushort)(0x8053 + index),
+        _ => throw new InvalidOperationException($"Undefined {nameof(DrawGroup)} {(int)group}."),
+    };
+
+    /// <summary>The editable artwork identifier of a located draw record.</summary>
+    private static string VisualId(DrawGroup group, int index) => group switch
+    {
+        DrawGroup.Empty => "empty",
+        DrawGroup.Orb => $"chozo-orb-{index}",
+        DrawGroup.OrbBurst => "chozo-orb-burst",
+        DrawGroup.Tank => $"{TankKindName(index / 2)}-tank-{index % 2}",
+        DrawGroup.Dynamic => $"dynamic-slot-{index / 2}-frame-{index % 2}",
+        DrawGroup.ShotReveal => $"shot-reveal-{index}",
+        _ => throw new InvalidOperationException($"Undefined {nameof(DrawGroup)} {(int)group}."),
+    };
 
     /// <summary>Gets the stable visual ID stem for one of the four tank pickup kinds.</summary>
     private static string TankKindName(int kind) => kind switch

@@ -447,7 +447,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
             ChangePhantoonSpeed(
                 body,
                 low: PhantoonMotionDefinitions.SlowFraction,
-                high: PhantoonMotionDefinitions.SlowWhole, slowing: false);
+                high: PhantoonMotionDefinitions.SlowWhole, direction: PhantoonSpeedChange.Accelerate);
             if (unchecked((short)(body.SpeedWhole - PhantoonMotionDefinitions.ForwardSlowCap)) >= 0)
             {
                 body.SpeedWhole = unchecked(PhantoonMotionDefinitions.ForwardSlowCap - 1);
@@ -462,7 +462,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
             ChangePhantoonSpeed(
                 body,
                 PhantoonMotionDefinitions.FastFraction,
-                PhantoonMotionDefinitions.FastWhole, slowing: false);
+                PhantoonMotionDefinitions.FastWhole, direction: PhantoonSpeedChange.Accelerate);
             if (unchecked((short)(body.SpeedWhole - PhantoonMotionDefinitions.ForwardFastCap)) >= 0)
             {
                 body.SpeedWhole = PhantoonMotionDefinitions.ForwardFastCap;
@@ -475,7 +475,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
         ChangePhantoonSpeed(
             body,
             PhantoonMotionDefinitions.FastFraction,
-            PhantoonMotionDefinitions.FastWhole, slowing: true);
+            PhantoonMotionDefinitions.FastWhole, direction: PhantoonSpeedChange.Decelerate);
         ushort minimum = PhantoonMotionDefinitions.ForwardMinimum;
         if (body.SpeedWhole == minimum || unchecked((short)(body.SpeedWhole - minimum)) < 0)
         {
@@ -493,7 +493,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
             ChangePhantoonSpeed(
                 body,
                 PhantoonMotionDefinitions.SlowFraction,
-                PhantoonMotionDefinitions.SlowWhole, slowing: true);
+                PhantoonMotionDefinitions.SlowWhole, direction: PhantoonSpeedChange.Decelerate);
             ushort cap = PhantoonMotionDefinitions.ReverseSlowCap;
             if (body.SpeedWhole == cap || unchecked((short)(body.SpeedWhole - cap)) < 0)
             {
@@ -509,7 +509,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
             ChangePhantoonSpeed(
                 body,
                 PhantoonMotionDefinitions.FastFraction,
-                PhantoonMotionDefinitions.FastWhole, slowing: true);
+                PhantoonMotionDefinitions.FastWhole, direction: PhantoonSpeedChange.Decelerate);
             ushort cap = PhantoonMotionDefinitions.ReverseFastCap;
             if (body.SpeedWhole == cap || unchecked((short)(body.SpeedWhole - cap)) < 0)
             {
@@ -523,7 +523,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
         ChangePhantoonSpeed(
             body,
             PhantoonMotionDefinitions.FastFraction,
-            PhantoonMotionDefinitions.FastWhole, slowing: false);
+            PhantoonMotionDefinitions.FastWhole, direction: PhantoonSpeedChange.Accelerate);
         ushort maximum = PhantoonMotionDefinitions.ReverseMaximum;
         if (unchecked((short)(body.SpeedWhole - maximum)) >= 0)
         {
@@ -534,11 +534,11 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Adds a native two-word speed value to the body motion accumulator, or subtracts it when slowing.</summary>
-    private static void ChangePhantoonSpeed(PhantoonPartState body, ushort low, ushort high, bool slowing)
+    private static void ChangePhantoonSpeed(PhantoonPartState body, ushort low, ushort high, PhantoonSpeedChange direction)
     {
         uint value = SnesSixteenSixteen.Compose(checked((ushort)body.SpeedWhole), checked((ushort)body.SpeedFraction));
         uint change = SnesSixteenSixteen.Compose(high, low);
-        value = slowing ? unchecked(value - change) : unchecked(value + change);
+        value = direction == PhantoonSpeedChange.Decelerate ? unchecked(value - change) : unchecked(value + change);
         body.SpeedFraction = unchecked((ushort)value);
         body.SpeedWhole = SnesFixedPosition.WholeOf(unchecked((int)value));
     }
@@ -842,7 +842,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
                     body,
                     projectile.Position.Whole,
                     projectile.Radius,
-                    selectShotCallback: true,
+                    callbackKind: HitboxCallbackKind.Shot,
                     out EnemyInteractionCallback? hitboxShotAi))
             {
                 continue;
@@ -956,7 +956,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
             if (damage >= PhantoonDamageThreshold &&
                 family == SamusProjectileFamily.SuperMissile)
             {
-                ClosePhantoonAfterDamage(body, state, enraged: true);
+                ClosePhantoonAfterDamage(body, state, PhantoonAiFunction.FadeOutBeforeRage);
                 return;
             }
 
@@ -967,7 +967,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
                 if (swooping)
                     state.Parts[body.SlotIndex].FunctionTimer = 1;
                 else
-                    ClosePhantoonAfterDamage(body, state, enraged: false);
+                    ClosePhantoonAfterDamage(body, state, PhantoonAiFunction.FadeOutWhileSwooping);
                 state.Parts[state.Tentacles.SlotIndex].HitReaction = 2;
                 return;
             }
@@ -998,11 +998,9 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
     private static void ClosePhantoonAfterDamage(
         RoomEnemySlot body,
         PhantoonEnemyState state,
-        bool enraged)
+        PhantoonAiFunction fadeOut)
     {
-        state.Parts[body.SlotIndex].Function = enraged
-            ? PhantoonAiFunction.FadeOutBeforeRage
-            : PhantoonAiFunction.FadeOutWhileSwooping;
+        state.Parts[body.SlotIndex].Function = fadeOut;
         state.Parts[body.SlotIndex].FunctionTimer = 0;
         RoomEnemySlot tentacles = state.Tentacles;
         RoomEnemySlot eye = state.Eye;
@@ -1117,7 +1115,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
         SamusState samus)
     {
         PointPhantoonEyeAtSamus(body, state, samus);
-        MovePhantoonInSwoop(body, state, samus, fatal: false);
+        MovePhantoonInSwoop(body, state, samus, target: PhantoonSwoopTarget.AboveSamus);
         if (!TickPhantoonFunctionTimer(state.Parts[body.SlotIndex]))
             return;
 
@@ -1137,7 +1135,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
         PhantoonEnemyState state,
         SamusState samus)
     {
-        MovePhantoonInSwoop(body, state, samus, fatal: false);
+        MovePhantoonInSwoop(body, state, samus, target: PhantoonSwoopTarget.AboveSamus);
         AdvancePhantoonFadeOut(state, denominator: 12);
         if (!state.Parts[state.Eye.SlotIndex].FadeComplete)
             return;
@@ -1395,7 +1393,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemySlot body,
         PhantoonEnemyState state,
         SamusState samus,
-        bool fatal)
+        PhantoonSwoopTarget target)
     {
         RoomEnemySlot tentacles = state.Tentacles;
         ushort targetX;
@@ -1432,7 +1430,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
         else if (unchecked((short)(body.Position.X.Whole - PhantoonMotionDefinitions.SwoopMaximumX)) >= 0)
             body.Position = body.Position.WithWholeX(PhantoonMotionDefinitions.SwoopMaximumX);
 
-        ushort targetY = fatal ? (ushort)112 : unchecked((ushort)(samus.Position.Y.Whole - 48));
+        ushort targetY = target == PhantoonSwoopTarget.DeathHeight ? (ushort)112 : unchecked((ushort)(samus.Position.Y.Whole - 48));
         int swoopY = tentacleWords.SwoopVelocity.Y.RawValue;
         if (unchecked((short)(targetY - body.Position.Y.Whole)) < 0)
         {
@@ -1541,7 +1539,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
         SamusState samus)
     {
         PointPhantoonEyeAtSamus(body, state, samus);
-        MovePhantoonInSwoop(body, state, samus, fatal: true);
+        MovePhantoonInSwoop(body, state, samus, target: PhantoonSwoopTarget.DeathHeight);
         if (body.Position.X.Whole is >= 96 and < 160)
             state.Parts[body.SlotIndex].Function = PhantoonAiFunction.DyingFadeInOut;
     }
@@ -2021,7 +2019,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomLevelData level)
     {
         flame.Velocity = flame.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)(flame.Velocity.Y.RawValue + 16))));
-        if (!EnemyProjectileEngine.MoveProjectileAxis(flame, level, horizontal: false))
+        if (!EnemyProjectileEngine.MoveProjectileAxis(flame, level, axis: Axis.Vertical))
             return;
 
         flame.CanDamageSamus = true;
@@ -2061,7 +2059,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomLevelData level)
     {
         flame.Velocity = flame.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)(flame.Velocity.Y.RawValue + 16))));
-        if (EnemyProjectileEngine.MoveProjectileAxis(flame, level, horizontal: false))
+        if (EnemyProjectileEngine.MoveProjectileAxis(flame, level, axis: Axis.Vertical))
         {
             flame.Variable0 = unchecked((ushort)(flame.Variable0 + 1));
             if (flame.Variable0 < 3)
@@ -2073,7 +2071,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        if (EnemyProjectileEngine.MoveProjectileAxis(flame, level, horizontal: true))
+        if (EnemyProjectileEngine.MoveProjectileAxis(flame, level, axis: Axis.Horizontal))
             RestPhantoonCasualFlame(flame);
     }
 
@@ -2120,7 +2118,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         flame.Velocity = flame.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)(flame.Velocity.Y.RawValue + 16))));
-        if (!EnemyProjectileEngine.MoveProjectileAxis(flame, level, horizontal: false))
+        if (!EnemyProjectileEngine.MoveProjectileAxis(flame, level, axis: Axis.Vertical))
             return;
         flame.StartAnimation(new PhantoonFlameAnimation(PhantoonFlameProgram.RainImpact));
         flame.InstructionTimer = NativeCountdown.Start(1);
@@ -2289,7 +2287,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
                     throw new InvalidDataException(
                         $"Phantoon hitbox touch AI {context.HitboxTouchAi?.ToString() ?? "(unnamed)"} is not translated.");
                 }
-                _collision.ResolveNormalEnemyTouch(context.Slot, context.Samus, skipDeathAnimation: true);
+                _collision.ResolveNormalEnemyTouch(context.Slot, context.Samus, deathAnimation: TouchDeathAnimation.Skip);
             });
     }
 

@@ -78,7 +78,7 @@ internal static class LookupStream5Verification
             {
                 CrocomireMeltingTilemapAddress source = phase == 0 ? CrocomireMeltingTilemapAddress.FirstTilemap : CrocomireMeltingTilemapAddress.SecondTilemap;
                 native[phase] = Enumerable.Range(0, 256).Select(i => ReadVerificationWord(oracle, (int)source + i * 2)).ToArray();
-                var calculated = new CrocomireMeltingTilemap(phase != 0, native[phase]);
+                var calculated = new CrocomireMeltingTilemap((phase != 0) ? CrocomireMeltingIllustration.Second : CrocomireMeltingIllustration.First, native[phase]);
                 AssertEqual(0, calculated.edits.Count,
                     "Every native melt tilemap word calculates without fallback");
                 AssertTrue(calculated.Words().SequenceEqual(native[phase]), "All native melt words");
@@ -88,13 +88,13 @@ internal static class LookupStream5Verification
                 for (int index = 0; index < 256; index++)
                 {
                     ushort[] edited = (ushort[])native[phase].Clone(); edited[index] ^= 0xffff;
-                    var independent = new CrocomireMeltingTilemap(phase != 0, edited);
+                    var independent = new CrocomireMeltingTilemap((phase != 0) ? CrocomireMeltingIllustration.Second : CrocomireMeltingIllustration.First, edited);
                     edited[index] = native[phase][index];
                     ushort[] expected = (ushort[])native[phase].Clone(); expected[index] ^= 0xffff;
                     AssertTrue(independent.Words().SequenceEqual(expected), "Full-word edit owns input and preserves neighbors");
                     AssertTrue(calculated.Words().SequenceEqual(native[phase]), "Edited map does not mutate stock");
                 }
-                AssertThrows<InvalidDataException>(() => _ = new CrocomireMeltingTilemap(phase != 0, new ushort[255]), "Short melt map rejects");
+                AssertThrows<InvalidDataException>(() => _ = new CrocomireMeltingTilemap((phase != 0) ? CrocomireMeltingIllustration.Second : CrocomireMeltingIllustration.First, new ushort[255]), "Short melt map rejects");
             }
             var first = (art ?? throw new InvalidOperationException("Verification requires art.")).first;
             var second = art.second;
@@ -1390,7 +1390,7 @@ internal static class LookupStream5Verification
                     DeadMonsterRottingDefinitions.SidehopperColumnMinimumY(variant, column), "Native missing top-row clipping");
             }
             var state = new DeadSidehopperEnemyState(enemies.SlotTable.Slots[0], variant, new CorpseRottingProgram { YLimit = 0, LateMoveEntryIndex = 0, WrapOffset = 148 });
-            Action<DeadSidehopperEnemyState, ushort, bool> copy = enemies.DeadSidehopperBehavior.CopyOrMoveDeadSidehopperPixelRow;
+            Action<DeadSidehopperEnemyState, ushort, CorpseRowOperation> copy = enemies.DeadSidehopperBehavior.CopyOrMoveDeadSidehopperPixelRow;
             foreach (ushort y in new ushort[] { 0, 7, 8, 37, 38 })
             foreach (bool move in new[] { false, true })
             {
@@ -1418,7 +1418,7 @@ internal static class LookupStream5Verification
                         if (move) { expected[source] = 0; expected[source + 1] = 0; }
                     }
                 }
-                copy(state, y, move);
+                copy(state, y, move ? CorpseRowOperation.Move : CorpseRowOperation.Copy);
                 for (int i = 0; i < expected.Length; i++)
                     AssertEqual(expected[i], corpseTiles[i], "Actual Sidehopper pixel copy/move including clipping, wrap and terminal row");
             }

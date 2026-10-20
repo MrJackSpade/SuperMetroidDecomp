@@ -6,6 +6,7 @@ namespace SuperMetroid.Core.Rendering;
 /// <param name="VerticalScroll">Vertical scroll register value in pixels, before tilemap wrapping.</param>
 /// <param name="TransparentColorZero">Whether pen zero is transparent.</param>
 /// <param name="Priority">Selects only tiles of one priority, or null for both.</param>
+[IndependentFlag("the layer's colour-zero transparency, an independent PPU setting")]
 public sealed record Bg2BppViewportRenderLayer(int TilemapWord, int CharacterWord,
     int VerticalScroll, bool TransparentColorZero, bool? Priority) : RenderLayer
 {

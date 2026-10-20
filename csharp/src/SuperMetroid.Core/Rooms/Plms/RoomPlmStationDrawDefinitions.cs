@@ -53,8 +53,15 @@ internal static class RoomPlmStationDrawDefinitions
     /// tile. Map access mirrors by side; resource access changes trigger to solid
     /// on extension. These rules cover only the twenty native owned draw pointers.
     /// </summary>
-    internal readonly record struct Draw(StationDraw Pointer, LayoutKind Kind, int Frame, bool Left = false, bool Extended = false) : IPlmRunDrawShape
+    internal readonly record struct Draw(StationDraw Pointer, LayoutKind Kind, int Frame,
+        HorizontalDirection Side = HorizontalDirection.Right, StationAccessPose Pose = StationAccessPose.Retracted) : IPlmRunDrawShape
     {
+        /// <summary>Whether the access arm sits on the left of its station.</summary>
+        internal bool Left => Side == HorizontalDirection.Left;
+
+        /// <summary>Whether the access arm is extended.</summary>
+        internal bool Extended => Pose == StationAccessPose.Extended;
+
         /// <summary>Number of origin-relative draw runs for this station layout and extension state.</summary>
         public int RunCount => Kind switch
         {
@@ -142,13 +149,13 @@ internal static class RoomPlmStationDrawDefinitions
             StationDraw.MissileFrame2 => new(station, LayoutKind.Missile, 2),
             StationDraw.SaveIdle or StationDraw.SaveActive or StationDraw.SaveAlternate => new(station, LayoutKind.Save, 0),
             StationDraw.MapRightRetracted => new(station, LayoutKind.MapAccess, 0),
-            StationDraw.MapRightExtended => new(station, LayoutKind.MapAccess, 0, Extended: true),
-            StationDraw.MapLeftRetracted => new(station, LayoutKind.MapAccess, 0, Left: true),
-            StationDraw.MapLeftExtended => new(station, LayoutKind.MapAccess, 0, Left: true, Extended: true),
+            StationDraw.MapRightExtended => new(station, LayoutKind.MapAccess, 0, Pose: StationAccessPose.Extended),
+            StationDraw.MapLeftRetracted => new(station, LayoutKind.MapAccess, 0, HorizontalDirection.Left),
+            StationDraw.MapLeftExtended => new(station, LayoutKind.MapAccess, 0, HorizontalDirection.Left, StationAccessPose.Extended),
             StationDraw.ResourceRightRetracted => new(station, LayoutKind.ResourceAccess, 0),
-            StationDraw.ResourceRightExtended => new(station, LayoutKind.ResourceAccess, 0, Extended: true),
-            StationDraw.ResourceLeftRetracted => new(station, LayoutKind.ResourceAccess, 0, Left: true),
-            StationDraw.ResourceLeftExtended => new(station, LayoutKind.ResourceAccess, 0, Left: true, Extended: true),
+            StationDraw.ResourceRightExtended => new(station, LayoutKind.ResourceAccess, 0, Pose: StationAccessPose.Extended),
+            StationDraw.ResourceLeftRetracted => new(station, LayoutKind.ResourceAccess, 0, HorizontalDirection.Left),
+            StationDraw.ResourceLeftExtended => new(station, LayoutKind.ResourceAccess, 0, HorizontalDirection.Left, StationAccessPose.Extended),
             _ => throw new InvalidOperationException($"Undefined station draw ${pointer:X4}."),
         };
         return true;

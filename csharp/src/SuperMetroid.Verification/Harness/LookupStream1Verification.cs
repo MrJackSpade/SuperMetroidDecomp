@@ -425,7 +425,7 @@ internal static class LookupStream1Verification
         foreach (ushort frame in new ushort[] { 124, 125 })
         {
             var timer = new EscapeTimer();
-            timer.SelectStatus(EscapeTimerState.RunningInPlace, active: true);
+            timer.SelectRunningStatus(EscapeTimerState.RunningInPlace);
             timer.SetTime(PackedBcd.FromDecimal(0), PackedBcd.FromDecimal(1), PackedBcd.FromDecimal(50));
             byte correction = LookupStream1TimerCadenceRomByte(rom, 0x809eec + frame);
             byte expected = correction == 2 ? (byte)0x48 : (byte)0x49;
@@ -444,7 +444,7 @@ internal static class LookupStream1Verification
             AssertEqual(expected, EscapeTimerCadenceDefinitions.Centiseconds((ushort)(index + 128)), "Native128-frame wrap");
             AssertEqual(expected, EscapeTimerCadenceDefinitions.Centiseconds((ushort)(index + 0xff80)), "Native ignores high NMI bits");
             var timer = new EscapeTimer();
-            timer.SelectStatus(EscapeTimerState.RunningInPlace, active: true);
+            timer.SelectRunningStatus(EscapeTimerState.RunningInPlace);
             timer.SetTime(PackedBcd.FromDecimal(0), PackedBcd.FromDecimal(1), PackedBcd.FromDecimal(50));
             AssertTrue(!timer.Process((ushort)index), "Calculated cadence stays non-expiring");
             AssertEqual(expected == 2 ? (byte)0x48 : (byte)0x49, timer.Centiseconds.Raw, "Actual Process consumes each native correction");
@@ -453,7 +453,7 @@ internal static class LookupStream1Verification
         foreach (ushort frame in new ushort[] { 124, 125 })
         {
             var timer = new EscapeTimer();
-            timer.SelectStatus(EscapeTimerState.RunningInPlace, active: true);
+            timer.SelectRunningStatus(EscapeTimerState.RunningInPlace);
             timer.SetTime(PackedBcd.FromDecimal(0), PackedBcd.FromDecimal(0), PackedBcd.FromDecimal(2));
             bool expired = timer.Process(frame);
             AssertEqual(frame == 124, expired, "Corrected native expiration phase");
@@ -986,7 +986,7 @@ internal static class LookupStream1Verification
             SamusBodyArtworkCatalog changed = Create(upper, lower, upperGroups, lowerGroups);
             AssertEqual(1, changed.topPointers.Count + changed.bottomPointers.Count, "Exactly one valid independent pointer override");
             AssertTrue(changed.TopSetPointers.SequenceEqual(upper) && changed.BottomSetPointers.SequenceEqual(lower), "Independent selected allocation identities preserved");
-            AssertEqual(0x920000 | (item.Pointer + 7), changed.DefinitionAddress(item.Upper, (byte)item.Set, 0), "Runtime definition selection honors arbitrary valid edited pointer");
+            AssertEqual(0x920000 | (item.Pointer + 7), changed.DefinitionAddress(item.Upper ? SamusBodyHalf.Top : SamusBodyHalf.Bottom, (byte)item.Set, 0), "Runtime definition selection honors arbitrary valid edited pointer");
             AssertEqual(Canonical(upper, lower, upperGroups, lowerGroups), changed.ContentIdentity, "Exact pre-conversion canonical edited hash");
             AssertTrue(changed.ContentIdentity != stock.ContentIdentity, "Each allocation edit changes identity");
         }
@@ -1731,7 +1731,7 @@ internal static class LookupStream1Verification
         {
             for (int variant = 0; variant < 4; variant++)
             {
-                var actual = SamusVerticalMotionDefinitions.Launch(medium, (variant & 1) != 0, (variant & 2) != 0);
+                var actual = SamusVerticalMotionDefinitions.Launch(medium, (variant & 1) != 0, ((variant & 2) != 0) ? SamusLaunchKind.WallJump : SamusLaunchKind.Jump);
                 int address = 0x909eb9 + 12 * variant + 2 * (int)medium;
                 AssertEqual(Word(address), actual.Whole, "stream1 native jump whole speed");
                 AssertEqual(Word(address + 6), actual.Fraction, "stream1 native jump fractional speed");
@@ -1749,7 +1749,7 @@ internal static class LookupStream1Verification
         foreach (SamusLiquidMedium invalid in new[] { (SamusLiquidMedium)3, (SamusLiquidMedium)ushort.MaxValue })
         {
             for (int variant = 0; variant < 4; variant++)
-                AssertThrows<InvalidOperationException>(() => SamusVerticalMotionDefinitions.Launch(invalid, (variant & 1) != 0, (variant & 2) != 0), "stream1 invalid launch medium");
+                AssertThrows<InvalidOperationException>(() => SamusVerticalMotionDefinitions.Launch(invalid, (variant & 1) != 0, ((variant & 2) != 0) ? SamusLaunchKind.WallJump : SamusLaunchKind.Jump), "stream1 invalid launch medium");
             AssertThrows<InvalidOperationException>(() => SamusVerticalMotionDefinitions.Knockback(invalid), "stream1 invalid hurt medium");
             AssertThrows<InvalidOperationException>(() => SamusVerticalMotionDefinitions.BombJump(invalid), "stream1 invalid bomb medium");
             AssertThrows<InvalidOperationException>(() => SamusVerticalMotionDefinitions.Gravity(invalid), "stream1 invalid gravity medium");

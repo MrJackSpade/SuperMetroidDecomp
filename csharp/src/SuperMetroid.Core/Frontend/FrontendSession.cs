@@ -26,16 +26,15 @@ internal sealed class FrontendSession
     /// <summary>Creates a reset-state session, reading the selected save slot and capturing the native boot carry.</summary>
     /// <param name="saves">The battery-backed saves the session reads and writes for its whole lifetime.</param>
     /// <param name="gameOptions">Retained host options, or <see langword="null"/> to use a new default options record.</param>
-    /// <param name="renderGameplayFrames">Whether gameplay frames are composited; verification hosts may skip them.</param>
     /// <param name="hostServices">The hardware-timing policies the session runs against for its whole lifetime.</param>
     /// <param name="random">The session's random-number word, which the frontend and every gameplay runtime share.</param>
-    internal FrontendSession(SaveSlotStore saves, SuperMetroidGameOptions? gameOptions, bool renderGameplayFrames,
+    internal FrontendSession(SaveSlotStore saves, SuperMetroidGameOptions? gameOptions,
         SuperMetroidGameHostServices hostServices, CartridgeRandom random)
     {
         HostServices = Ensure.NotNull(hostServices);
         Random = Ensure.NotNull(random);
         ConfiguredOptions = gameOptions ?? new SuperMetroidGameOptions();
-        display = new FrontendDisplay(renderGameplayFrames);
+        display = new FrontendDisplay(hostServices.GameplayFrames);
         this.saves = Ensure.NotNull(saves);
         selectedSaveSlot = saves.ReadSelectedSlot();
         // Construction is power-on: boot evaluates the saves once before entering MainGameLoop.
@@ -415,7 +414,7 @@ internal sealed class FrontendSession
                 ?? throw new InvalidOperationException(
                     "SpaceTime restart did not create the Ceres Samus state.");
             RestoreSpacetimeRestartInventory(restartedSamus, restartSlot);
-            runtime.Tester.ApplyTesterInventory(restoredInventory: true);
+            runtime.Tester.ApplyTesterInventory(target: TesterInventoryTarget.RestoredInventory);
             restartedSamus.SelectedHudItem = HudItem.Beam;
             restartedSamus.AutoCancelHudItemIndex = HudItem.Beam;
             AutomaticCheckpointSaver.SaveCeresArrival(saves, runtime, selectedSaveSlot);
@@ -446,7 +445,7 @@ internal sealed class FrontendSession
                 runtime.RoomLoader.InitializeCeresStartSamus();
                 slot.ApplyTo(runtime.Player.Samus ?? throw new InvalidOperationException(
                     "Ceres initialization did not create Samus."));
-                runtime.Tester.ApplyTesterInventory(restoredInventory: true);
+                runtime.Tester.ApplyTesterInventory(target: TesterInventoryTarget.RestoredInventory);
                 runtime.Player.Samus.SelectedHudItem = HudItem.Beam;
                 runtime.Player.Samus.AutoCancelHudItemIndex = HudItem.Beam;
                 ApplySelectedGameOptions();
@@ -500,11 +499,11 @@ internal sealed class FrontendSession
     /// this state before state $20 owns the elevator arrival; otherwise the level-data pad
     /// is briefly visible before its bank-$86 concealer reaches displayed OAM.
     /// </summary>
-    internal void BeginGameplayFadeIn(bool leadsToCeresArrival)
+    internal void BeginGameplayFadeIn(GameplayFadeTarget target)
     {
         postCeresFadeBrightness = 0;
         postCeresFadeCounter = 1;
-        gameplayFadeLeadsToCeresArrival = leadsToCeresArrival;
+        gameplayFadeLeadsToCeresArrival = target == GameplayFadeTarget.CeresArrival;
         GameState = SuperMetroidGameState.MainGameplayFadeIn;
     }
     /// <summary>Persists the automatic Landing Site checkpoint after the gunship lands.</summary>

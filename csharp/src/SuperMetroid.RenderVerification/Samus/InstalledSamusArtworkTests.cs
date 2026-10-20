@@ -108,7 +108,7 @@ internal static class InstalledSamusArtworkTests
                     // A pending NMI retains the selected definition pointer. Rebind only
                     // the installed catalog, exactly as a restored debugger state does.
                     var transfer = new SamusTileTransferState();
-                    int pointer = fixture.Stock.DefinitionAddress(upper, (byte)set, (byte)position);
+                    int pointer = fixture.Stock.DefinitionAddress(upper ? SamusBodyHalf.Top : SamusBodyHalf.Bottom, (byte)set, (byte)position);
                     SetPendingDefinition(transfer, upper, pointer);
                     transfer.BindArtwork(fixture.Stock); transfer.TransferToVram(va);
                     transfer.BindArtwork(fixture.Edited); transfer.TransferToVram(vb);

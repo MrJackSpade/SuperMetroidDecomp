@@ -50,23 +50,23 @@ internal static class GoldenTorizoHealthPaintDefinitions
     {
         if ((uint)frame > Intervals || (uint)color >= 16) throw new ArgumentOutOfRangeException(nameof(frame));
         if (color == 0) return !rear && frame == Intervals ? Bgr555.Black : TransparentPayload;
-        Bgr555 first = Endpoint(false, color, rear), last = Endpoint(true, color, rear);
+        Bgr555 first = Endpoint(GoldenTorizoHealthEndpoint.Low, color, rear), last = Endpoint(GoldenTorizoHealthEndpoint.Gold, color, rear);
         return first.Zip(last, (_, from, to) => (from * (Intervals - frame) + to * frame + Intervals / 2) / Intervals);
     }
 
     /// <summary>Selects endpoint paint and applies the rear-facing shade rules where requested.</summary>
-    private static Bgr555 Endpoint(bool gold, int color, bool rear)
+    private static Bgr555 Endpoint(GoldenTorizoHealthEndpoint endpoint, int color, bool rear)
     {
-        Bgr555 front = gold ? Gold(color) : Low(color);
+        Bgr555 front = endpoint == GoldenTorizoHealthEndpoint.Gold ? Gold(color) : Low(color);
         if (!rear) return front;
-        if (!gold && color == 15) return front;
-        if (!gold && color is >= 12 and <= 14)
+        if (endpoint != GoldenTorizoHealthEndpoint.Gold && color == 15) return front;
+        if (endpoint != GoldenTorizoHealthEndpoint.Gold && color is >= 12 and <= 14)
             return Adjust(Low(color - 3), RearShade, 0, 0);
         Bgr555 result = color is >= 9 and <= 11
             ? Adjust(front, -RearShade, -RearCoreShade, -RearCoreShade)
             : Adjust(front, -RearShade, -RearShade, -RearShade);
-        if (!gold && color == 7) result = new(result.Red, result.Green, LowRearPlateBlue);
-        if (gold && color == 9) result = new(result.Red, Math.Max(0, front.Green - RearShade), result.Blue);
+        if (endpoint != GoldenTorizoHealthEndpoint.Gold && color == 7) result = new(result.Red, result.Green, LowRearPlateBlue);
+        if (endpoint == GoldenTorizoHealthEndpoint.Gold && color == 9) result = new(result.Red, Math.Max(0, front.Green - RearShade), result.Blue);
         return result;
     }
 

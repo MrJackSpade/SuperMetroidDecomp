@@ -55,6 +55,7 @@ namespace SuperMetroid.Verification.Harness;
 
 using SuperMetroid.Core.Progression;
 using SuperMetroid.TestSupport.VerificationOracles;
+using SuperMetroid.Core.Enemies.Corpses;
 
 /// <summary>Checks stream-three compiled enemy, projectile, and room lookup contracts against native sources.</summary>
 internal static class LookupStream3Verification
@@ -1297,7 +1298,7 @@ internal static class LookupStream3Verification
                 int calls = 0;
                 Func<int> random = () => { calls++; return ushort.MaxValue; };
                 var requests = new List<MotherBrainDeathExplosionRequest>();
-                scatter.GenerateDeathExplosions(mixed, random, requests);
+                scatter.GenerateDeathExplosions(mixed ? MotherBrainDeathExplosionStyle.Mixed : MotherBrainDeathExplosionStyle.Smoky, random, requests);
                 int group = 6 - burst % 7;
                 AssertEqual(mixed ? 4 : 2, requests.Count, "stream 3 death scatter burst size");
                 AssertEqual(requests.Count, calls, "stream 3 one RNG call per death projectile");
@@ -1468,7 +1469,7 @@ internal static class LookupStream3Verification
                     expectedTiles[start + source + 17] = 0;
                 }
             }
-            MotherBrainCorpseRottingState.CopyOrMovePixelRow(actualTiles, y, move);
+            MotherBrainCorpseRottingState.CopyOrMovePixelRow(actualTiles, y, move ? CorpseRowOperation.Move : CorpseRowOperation.Copy);
             for (int offset = 0; offset < 0x600; offset++)
                 AssertEqual(expectedTiles[offset], actualTiles[offset], "stream 3 corpse row geometry");
         }

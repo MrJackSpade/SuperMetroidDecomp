@@ -120,7 +120,7 @@ internal static class TourianAccessPlmProgramsVerification
         RoomLevelData level = CreateRoom(new(width, height), words,
             new byte[words.Length], blockDefinitions: new byte[0x400 * 8]);
         var plms = PlmFixtures.Unbound();
-        AssertTrue(plms.Tourian.TrySpawnTourianAccess(level, clear),
+        AssertTrue(plms.Tourian.TrySpawnTourianAccess(level, clear ? TourianAccessFloor.Clear : TourianAccessFloor.Crumble),
             $"Tourian {(clear ? "clear" : "crumble")} PLM allocates");
         var bus = NewTourianAccessSourceGuard(new TestAddressSpace());
         int deletionFrame = -1;

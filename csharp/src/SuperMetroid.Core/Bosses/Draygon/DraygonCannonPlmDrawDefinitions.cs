@@ -16,8 +16,14 @@ internal static class DraygonCannonPlmDrawDefinitions
     /// Shield frames advance two tiles; damaged frames advance one. Lower tiles
     /// are one tileset row (32 tiles) below their upper partners. Right art mirrors X.
     /// </summary>
-    internal readonly record struct Draw(bool Right, bool Shield, int Frame) : IPlmRunDrawShape
+    internal readonly record struct Draw(HorizontalDirection Side, DraygonCannonCondition Condition, int Frame) : IPlmRunDrawShape
     {
+        /// <summary>Whether the cannon faces right.</summary>
+        internal bool Right => Side == HorizontalDirection.Right;
+
+        /// <summary>Whether the frame shows the shield.</summary>
+        internal bool Shield => Condition == DraygonCannonCondition.Shielded;
+
         /// <summary>Right frames draw two horizontal runs; left frames split the first row.</summary>
         public int RunCount => Right ? 2 : 3;
         /// <summary>Rejects a draw-run index outside this frame's native write order.</summary>
@@ -62,18 +68,18 @@ internal static class DraygonCannonPlmDrawDefinitions
         if (!Enum.IsDefined((DraygonCannonDraw)pointer)) { draw = default; return false; }
         draw = (DraygonCannonDraw)pointer switch
         {
-            DraygonCannonDraw.RightShieldA => new(true, true, 0),
-            DraygonCannonDraw.RightShieldB => new(true, true, 1),
-            DraygonCannonDraw.RightDamagedA => new(true, false, 0),
-            DraygonCannonDraw.RightDamagedB => new(true, false, 1),
-            DraygonCannonDraw.RightDamagedC => new(true, false, 2),
-            DraygonCannonDraw.RightDamagedD => new(true, false, 3),
-            DraygonCannonDraw.LeftShieldA => new(false, true, 0),
-            DraygonCannonDraw.LeftShieldB => new(false, true, 1),
-            DraygonCannonDraw.LeftDamagedA => new(false, false, 0),
-            DraygonCannonDraw.LeftDamagedB => new(false, false, 1),
-            DraygonCannonDraw.LeftDamagedC => new(false, false, 2),
-            DraygonCannonDraw.LeftDamagedD => new(false, false, 3),
+            DraygonCannonDraw.RightShieldA => new(HorizontalDirection.Right, DraygonCannonCondition.Shielded, 0),
+            DraygonCannonDraw.RightShieldB => new(HorizontalDirection.Right, DraygonCannonCondition.Shielded, 1),
+            DraygonCannonDraw.RightDamagedA => new(HorizontalDirection.Right, DraygonCannonCondition.Damaged, 0),
+            DraygonCannonDraw.RightDamagedB => new(HorizontalDirection.Right, DraygonCannonCondition.Damaged, 1),
+            DraygonCannonDraw.RightDamagedC => new(HorizontalDirection.Right, DraygonCannonCondition.Damaged, 2),
+            DraygonCannonDraw.RightDamagedD => new(HorizontalDirection.Right, DraygonCannonCondition.Damaged, 3),
+            DraygonCannonDraw.LeftShieldA => new(HorizontalDirection.Left, DraygonCannonCondition.Shielded, 0),
+            DraygonCannonDraw.LeftShieldB => new(HorizontalDirection.Left, DraygonCannonCondition.Shielded, 1),
+            DraygonCannonDraw.LeftDamagedA => new(HorizontalDirection.Left, DraygonCannonCondition.Damaged, 0),
+            DraygonCannonDraw.LeftDamagedB => new(HorizontalDirection.Left, DraygonCannonCondition.Damaged, 1),
+            DraygonCannonDraw.LeftDamagedC => new(HorizontalDirection.Left, DraygonCannonCondition.Damaged, 2),
+            DraygonCannonDraw.LeftDamagedD => new(HorizontalDirection.Left, DraygonCannonCondition.Damaged, 3),
             _ => throw new InvalidOperationException($"Undefined {nameof(DraygonCannonDraw)} {pointer:X4}."),
         };
         return true;

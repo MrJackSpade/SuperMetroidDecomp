@@ -127,7 +127,7 @@ internal static class QuicksandVerification
             bool collided = SamusInsideBlockReactions.ReactCollision(
                 body,
                 new RoomCollisionBlock(0, 0x3000, new RoomBlockBehavior(0x80 + index)),
-                vertical: true,
+                axis: Axis.Vertical,
                 ref displacement,
                 out bool surfaceContact);
             AssertEqual(false, collided,

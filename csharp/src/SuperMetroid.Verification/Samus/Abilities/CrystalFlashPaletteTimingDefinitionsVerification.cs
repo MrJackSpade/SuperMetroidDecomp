@@ -54,7 +54,7 @@ internal static class CrystalFlashPaletteTimingDefinitionsVerification
         samus.HorizontalSpeed.SpecialPaletteTimer = NativeCountdown.Start(0);
         AssertTrue(
             samus.CrystalFlash.TryBegin(
-                samus, controllerInput: 0, skipInputCheck: true),
+                samus, controllerInput: 0, inputCheck: CrystalFlashInputCheck.Skipped),
             "Crystal Flash timing production fixture begins");
 
         var guard = NewCrystalFlashPaletteTimingReadGuard(rom);

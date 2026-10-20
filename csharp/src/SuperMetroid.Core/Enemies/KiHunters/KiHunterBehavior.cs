@@ -59,10 +59,10 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
                 StartKiHunterGroundWaitFromInstruction(slot.RequireSpeciesState<KiHunterEnemyState>());
                 return null;
             case KiHunterCueKind.SpitLeft:
-                SpawnKiHunterAcidFromInstruction(slot, movingRight: false);
+                SpawnKiHunterAcidFromInstruction(slot, direction: HorizontalDirection.Left);
                 return null;
             case KiHunterCueKind.SpitRight:
-                SpawnKiHunterAcidFromInstruction(slot, movingRight: true);
+                SpawnKiHunterAcidFromInstruction(slot, direction: HorizontalDirection.Right);
                 return null;
             default:
                 throw new InvalidOperationException($"Undefined {nameof(KiHunterCueKind)} {cue.Kind}.");
@@ -504,7 +504,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         state.WingArcAngle = state.WingArcAngle.AddRaw(ReadKiHunterQuadraticAngleDelta(
             state.DetachedSpeedIndex,
-            negativeHalf: true));
+            half: QuadraticSpeedHalf.Negative));
         ushort radius = KiHunterMotionDefinitions.DetachedWingRadius;
         SnesByteAngle byteAngle = state.WingArcAngle.ToByteAngle();
         wings.Position = wings.Position.WithWhole(state.OrbitCenter + EnemyMath.CircleOffset(byteAngle, radius) - state.OrbitOffset);
@@ -525,7 +525,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         state.WingArcAngle = state.WingArcAngle.AddRaw(ReadKiHunterQuadraticAngleDelta(
             state.DetachedSpeedIndex,
-            negativeHalf: false));
+            half: QuadraticSpeedHalf.Positive));
         ushort radius = KiHunterMotionDefinitions.DetachedWingRadius;
         SnesByteAngle byteAngle = state.WingArcAngle.ToByteAngle();
         ushort desiredY = unchecked((ushort)(
@@ -654,13 +654,13 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Reads the unaligned quadratic-table word used by one half of detached-wing orbit motion.</summary>
-    internal static ushort ReadKiHunterQuadraticAngleDelta(int speedIndex, bool negativeHalf)
+    internal static ushort ReadKiHunterQuadraticAngleDelta(int speedIndex, QuadraticSpeedHalf half)
     {
         int index = SnesEightEight.WholeOf(speedIndex);
         // These deliberately unaligned reads are literal: F7DB reads at record +5 and
         // F8AD at record +1, combining adjacent bytes instead of consuming a normal 16.16
         // table component. Replacing this with ReadQuadraticEnemySpeed changes the orbit.
-        return EnemyQuadraticSpeedDefinitions.ReadWord(index * 8 + (negativeHalf ? 5 : 1));
+        return EnemyQuadraticSpeedDefinitions.ReadWord(index * 8 + (half == QuadraticSpeedHalf.Negative ? 5 : 1));
     }
 
     /// <summary>Slows a detached wing by one speed step, landing on the slowest index when the step would go below zero.</summary>
@@ -703,11 +703,11 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Function = KiHunterEnemyFunction.GroundWait;
 
     /// <summary>Emits the acid projectile and sound, then starts the native 24-frame spit wait.</summary>
-    private void SpawnKiHunterAcidFromInstruction(RoomEnemySlot body, bool movingRight)
+    private void SpawnKiHunterAcidFromInstruction(RoomEnemySlot body, HorizontalDirection direction)
     {
         LastKiHunterSoundEffect = SoundEffectLibrary2Sounds.KiHunterAcidSpit;
         _audio.QueueEnemySound(SoundEffectLibrary2Sounds.KiHunterAcidSpit, maximumQueued: 6);
-        SpawnKiHunterAcidSpit(body, movingRight);
+        SpawnKiHunterAcidSpit(body, direction == HorizontalDirection.Right);
         body.RequireSpeciesState<KiHunterEnemyState>().WaitTimer = NativeCountdown.Start(KiHunterSpitWaitFrames);
     }
 
@@ -863,12 +863,12 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
 
         table.RegisterPreInstruction(context =>
         {
-            StartKiHunterAcidMovement(context.Projectile, movingRight: false);
+            StartKiHunterAcidMovement(context.Projectile, direction: HorizontalDirection.Left);
         }, EnemyProjectilePreInstruction.KiHunterAcid_Left);
 
         table.RegisterPreInstruction(context =>
         {
-            StartKiHunterAcidMovement(context.Projectile, movingRight: true);
+            StartKiHunterAcidMovement(context.Projectile, direction: HorizontalDirection.Right);
         }, EnemyProjectilePreInstruction.KiHunterAcid_Right);
     }
 
@@ -912,7 +912,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         table.AddShot(new EnemyShotReaction(enemy => IsKiHunterBodyDefinition(enemy.EnemyDefinitionPointer) &&
                                                      EnemyCollision.ShotAi(enemy) == EnemyInteractionCallback.KiHunterShot)
         {
-            AfterCommon = (c, _) => ResolveKiHunterShotAfterCommon(c.Enemy),
+            AfterCommon = c => ResolveKiHunterShotAfterCommon(c.Enemy),
         });
     }
     /// <summary>Bank-$86 acid mover installed by the startup callback after the projectile's idle frames.</summary>
@@ -958,11 +958,11 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     /// </summary>
     internal static void StartKiHunterAcidMovement(
         RoomEnemyProjectileSlot projectile,
-        bool movingRight)
+        HorizontalDirection direction)
     {
         projectile.PreInstruction = KiHunterAcidMovingPreInstruction;
         projectile.Position = projectile.Position.WithWholeX(unchecked((ushort)(
-            projectile.Position.X.Whole + (movingRight ? 19 : -19))));
+            projectile.Position.X.Whole + (direction == HorizontalDirection.Right ? 19 : -19))));
     }
 
     /// <summary>
@@ -973,13 +973,13 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemyProjectileSlot projectile,
         RoomLevelData level)
     {
-        if (EnemyProjectileEngine.MoveProjectileAxis(projectile, level, horizontal: false))
+        if (EnemyProjectileEngine.MoveProjectileAxis(projectile, level, axis: Axis.Vertical))
         {
             projectile.StartAnimation(new KiHunterAcidSpitAnimation(KiHunterAcidSpitProgram.HitFloor));
             return;
         }
 
-        if (EnemyProjectileEngine.MoveProjectileAxis(projectile, level, horizontal: true))
+        if (EnemyProjectileEngine.MoveProjectileAxis(projectile, level, axis: Axis.Horizontal))
         {
             projectile.Velocity = projectile.Velocity.WithX(new SnesSignedEightEight(0));
             return;

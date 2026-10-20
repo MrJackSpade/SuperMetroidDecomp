@@ -240,16 +240,16 @@ internal sealed class PauseMenuState
     /// (for example, a debugger watch or PNG capture). The dispatcher calls this exactly
     /// once per emulated frame so inspection cannot change cartridge-visible timing.
     /// </remarks>
-    public void AdvanceAnimations(int nmiFrameCounter8 = 0, bool fadingOut = false, bool advancePalette = true)
+    public void AdvanceAnimations(int nmiFrameCounter8 = 0, PauseAnimationPhase phase = PauseAnimationPhase.Stable)
     {
         // $82:9156 and $82:9353 emit destination labels before map icons during fade-out.
-        mapLabelsBeforeIcons = fadingOut || transition == PauseMenuTransition.MapToEquipmentFadeOut;
+        mapLabelsBeforeIcons = phase == PauseAnimationPhase.FadingOut || transition == PauseMenuTransition.MapToEquipmentFadeOut;
         // Only stable map dispatch calls $82:B934. Fade paths retain counters but hide arrows.
         mapArrows?.StepArrows(_ => false);
         pauseNmiFrameCounter8 = nmiFrameCounter8;
         // $82:90E8 calls the palette handler after stable pause dispatch. The
         // outer pause/unpause fades draw sprites without advancing this owner.
-        if (advancePalette && paletteAnimation.Step(screen.Palette))
+        if (phase == PauseAnimationPhase.Stable && paletteAnimation.Step(screen.Palette))
             audio?.QueueSound(SoundEffectLibrary3Sounds.MapPaletteLoop, maximumQueued: 6);
         if (ScreenMode == PauseScreenMode.Map)
             StepMapIndicatorAnimation();
@@ -332,7 +332,7 @@ internal sealed class PauseMenuState
                     SelectFirstCollectedEquipment();
                     // Equipment setup lights the arrow when reserves are nonempty;
                     // subsequent tank dispatches own animation and selection changes.
-                    if (samus.ReserveEnergy != 0) SetReserveArrow(enabled: true);
+                    if (samus.ReserveEnergy != 0) SetReserveArrow(ReserveArrowState.Solid);
                     UploadEquipmentTilemap();
                     ResetItemSelectorAnimation();
                     transition = PauseMenuTransition.MapToEquipmentFadeIn;
@@ -998,10 +998,8 @@ internal sealed class PauseMenuState
 
     /// <summary>Whether reserve-arrow ownership has published a state to retain across artwork rebinds.</summary>
     private bool reserveArrowLatched;
-    /// <summary>Last requested visibility of the reserve arrow.</summary>
-    private bool reserveArrowLatchedEnabled;
-    /// <summary>Whether the last arrow color request used its animated palette.</summary>
-    private bool reserveArrowLatchedAnimated;
+    /// <summary>Last requested reserve-arrow state.</summary>
+    private ReserveArrowState reserveArrowLatchedState;
     /// <summary>Eight-bit frame phase (zero through 255) retained for reproducing the arrow's current color on rebind.</summary>
     private int reserveArrowLatchedFrame;
 
@@ -1009,29 +1007,29 @@ internal sealed class PauseMenuState
     private void UpdateReserveArrow(int nmiFrameCounter8)
     {
         bool inTanks = selectedCategory == PauseEquipmentCategory.Reserves;
-        bool animated = inTanks && SelectedReserveItem == PauseReserveItem.Mode &&
-            samus.ReserveTankMode == ReserveTankMode.Auto;
-        bool enabled = animated || inTanks && SelectedReserveItem == PauseReserveItem.Transfer;
-        SetReserveArrow(enabled, animated, nmiFrameCounter8);
+        ReserveArrowState state =
+            inTanks && SelectedReserveItem == PauseReserveItem.Mode && samus.ReserveTankMode == ReserveTankMode.Auto ? ReserveArrowState.Animated
+            : inTanks && SelectedReserveItem == PauseReserveItem.Transfer ? ReserveArrowState.Solid
+            : ReserveArrowState.Hidden;
+        SetReserveArrow(state, nmiFrameCounter8);
     }
 
     /// <summary>Applies reserve-arrow tile and palette state, then latches it for content rebinds.</summary>
-    private void SetReserveArrow(bool enabled, bool animated = false, int nmiFrameCounter8 = 0)
+    private void SetReserveArrow(ReserveArrowState state, int nmiFrameCounter8 = 0)
     {
         PauseReserveUiPresentation presentation = (mapPresentation ?? throw new InvalidOperationException(
             "Reserve arrow requires installed presentation assets.")).PauseReserveUi;
-        presentation.ApplyArrowColors(screen.Palette, animated, nmiFrameCounter8,
+        presentation.ApplyArrowColors(screen.Palette, state == ReserveArrowState.Animated, nmiFrameCounter8,
             PauseReserveArrowRomData.Color6Index, PauseReserveArrowRomData.Color11Index);
-        presentation.ApplyArrowTilePalettes(equipmentTilemap, enabled);
+        presentation.ApplyArrowTilePalettes(equipmentTilemap, state != ReserveArrowState.Hidden);
         reserveArrowLatched = true;
-        reserveArrowLatchedEnabled = enabled;
-        reserveArrowLatchedAnimated = animated;
+        reserveArrowLatchedState = state;
         reserveArrowLatchedFrame = nmiFrameCounter8;
     }
 
     /// <summary>Re-applies the latched arrow tiles and colors with the currently bound presentation.</summary>
     private void ReapplyLatchedReserveArrow() =>
-        SetReserveArrow(reserveArrowLatchedEnabled, reserveArrowLatchedAnimated, reserveArrowLatchedFrame);
+        SetReserveArrow(reserveArrowLatchedState, reserveArrowLatchedFrame);
 
     /// <summary>Writes reserve mode and tank labels only when reserve capacity exists.</summary>
     private void WriteReserveLabels()
@@ -1048,7 +1046,7 @@ internal sealed class PauseMenuState
         if (samus.ReserveTankMode != ReserveTankMode.None)
             presentation.ApplyLabel(equipmentTilemap,
                 samus.ReserveTankMode == ReserveTankMode.Auto ? "Auto" : "Manual",
-                preserveAttributes: true);
+                attributes: LabelAttributes.Preserve);
     }
 
     /// <summary>Accepted eight-bit frame phase (zero through 255) retained so repeated renders cannot advance tank fill flicker.</summary>

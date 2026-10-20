@@ -8,8 +8,14 @@ namespace SuperMetroid.Core.Rooms.Plms;
 internal static class RoomPlmContactCrumbleRestoreDrawDefinitions
 {
     /// <summary>One linked crumble shape's orientation and whether it occupies a second run.</summary>
-    internal readonly record struct Draw(ushort Pointer, bool Vertical, bool Square)
+    internal readonly record struct Draw(ushort Pointer, PlmRestoreShape Shape)
     {
+        /// <summary>Whether the restored blocks stack in one column.</summary>
+        internal bool Vertical => Shape == PlmRestoreShape.Vertical;
+
+        /// <summary>Whether the restoration is the two-by-two square.</summary>
+        internal bool Square => Shape == PlmRestoreShape.Square;
+
         /// <summary>Square restoration has two rows; horizontal and vertical shapes use one run.</summary>
         internal int RunCount => Square ? 2 : 1;
 
@@ -39,9 +45,9 @@ internal static class RoomPlmContactCrumbleRestoreDrawDefinitions
         }
         draw = (ContactCrumbleRestoreDraw)pointer switch
         {
-            ContactCrumbleRestoreDraw.Horizontal => new(pointer, false, false),
-            ContactCrumbleRestoreDraw.Vertical => new(pointer, true, false),
-            ContactCrumbleRestoreDraw.Square => new(pointer, false, true),
+            ContactCrumbleRestoreDraw.Horizontal => new(pointer, PlmRestoreShape.Horizontal),
+            ContactCrumbleRestoreDraw.Vertical => new(pointer, PlmRestoreShape.Vertical),
+            ContactCrumbleRestoreDraw.Square => new(pointer, PlmRestoreShape.Square),
             _ => throw new InvalidOperationException($"Undefined {nameof(ContactCrumbleRestoreDraw)} {pointer:X4}."),
         };
         return true;
@@ -52,9 +58,9 @@ internal static class RoomPlmContactCrumbleRestoreDrawDefinitions
     {
         get
         {
-            yield return Export(new((ushort)ContactCrumbleRestoreDraw.Horizontal, false, false));
-            yield return Export(new((ushort)ContactCrumbleRestoreDraw.Vertical, true, false));
-            yield return Export(new((ushort)ContactCrumbleRestoreDraw.Square, false, true));
+            yield return Export(new((ushort)ContactCrumbleRestoreDraw.Horizontal, PlmRestoreShape.Horizontal));
+            yield return Export(new((ushort)ContactCrumbleRestoreDraw.Vertical, PlmRestoreShape.Vertical));
+            yield return Export(new((ushort)ContactCrumbleRestoreDraw.Square, PlmRestoreShape.Square));
         }
     }
 

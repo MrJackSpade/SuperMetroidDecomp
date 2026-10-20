@@ -223,7 +223,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
             _room.Services.RoomScroll.Write(CrocomireCameraDefinitions.BridgeScreen, RoomScrollState.Blue);
             // Main state zero always finishes through $A4:8B5B, including the frame in
             // which $8D5E changes the death index to two.
-            UpdateCrocomireBg2Scroll(state, includeVerticalPosition: true);
+            UpdateCrocomireBg2Scroll(state);
         }
         else
         {
@@ -609,15 +609,19 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
         TransferCrocomireBg2Words(firstWord, 32);
     }
 
-    /// <summary>Ports $A4:8B5B and its fallthrough into $A4:8BA4.</summary>
-    private void UpdateCrocomireBg2Scroll(
-        CrocomireEnemyState state,
-        bool includeVerticalPosition)
+    /// <summary>Ports $A4:8B5B: places BG2 vertically at the body, then falls through into $A4:8BA4.</summary>
+    private void UpdateCrocomireBg2Scroll(CrocomireEnemyState state)
     {
         RoomEnemySlot body = state.Body;
-        if (includeVerticalPosition)
-            CrocomireBg2Scroll = CrocomireBg2Scroll.WithY(CrocomireBg2ScrollDefinitions.VerticalScroll(
-                body.Position.Y.Whole, EnemyFrames.Spritemap(body.Frame)));
+        CrocomireBg2Scroll = CrocomireBg2Scroll.WithY(CrocomireBg2ScrollDefinitions.VerticalScroll(
+            body.Position.Y.Whole, EnemyFrames.Spritemap(body.Frame)));
+        UpdateCrocomireTongueAndBg2Horizontal(state);
+    }
+
+    /// <summary>Ports $A4:8BA4: places the tongue and BG2 horizontally at the body.</summary>
+    private void UpdateCrocomireTongueAndBg2Horizontal(CrocomireEnemyState state)
+    {
+        RoomEnemySlot body = state.Body;
 
         // The tongue is a normal second enemy actor placed at its body-relative X offset.
         // $8BA4 updates it even while the body's bulk is represented by BG2.
@@ -922,29 +926,34 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             case CrocomireDeathPhase.CrumbleBridgeAndSink:
                 SpawnNextCrocomireBridgeFragment();
-                RunCrocomireSinkingComposite(state, samus, tickAcidSound: true);
+                RunCrocomireAcidSoundTimer();
+                RunCrocomireSinkingComposite(state, samus);
                 return;
             case CrocomireDeathPhase.FirstSubmergedPause:
                 RunCrocomireAcidSoundTimer();
-                UpdateCrocomireBg2Scroll(state, includeVerticalPosition: false);
+                UpdateCrocomireTongueAndBg2Horizontal(state);
                 RunCrocomireSubmergedPause(state);
                 return;
             case CrocomireDeathPhase.FirstHopRise:
-                RunCrocomireRisingComposite(state, samus, tickAcidSound: true);
+                RunCrocomireAcidSoundTimer();
+                RunCrocomireRisingComposite(state, samus);
                 return;
             case CrocomireDeathPhase.FirstHopSink:
-                RunCrocomireSinkingComposite(state, samus, tickAcidSound: true);
+                RunCrocomireAcidSoundTimer();
+                RunCrocomireSinkingComposite(state, samus);
                 return;
             case CrocomireDeathPhase.SecondSubmergedPause:
                 RunCrocomireAcidSoundTimer();
-                UpdateCrocomireBg2Scroll(state, includeVerticalPosition: false);
+                UpdateCrocomireTongueAndBg2Horizontal(state);
                 RunCrocomireSubmergedPause(state);
                 return;
             case CrocomireDeathPhase.SecondHopRise:
-                RunCrocomireRisingComposite(state, samus, tickAcidSound: true);
+                RunCrocomireAcidSoundTimer();
+                RunCrocomireRisingComposite(state, samus);
                 return;
             case CrocomireDeathPhase.SecondHopSink:
-                RunCrocomireSinkingComposite(state, samus, tickAcidSound: true);
+                RunCrocomireAcidSoundTimer();
+                RunCrocomireSinkingComposite(state, samus);
                 return;
             case CrocomireDeathPhase.InstallFirstMeltImage:
                 LoadFirstCrocomireMeltingTilemap(state);
@@ -956,7 +965,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
                 UploadNextCrocomireMeltingGraphicsSlice(state);
                 return;
             case CrocomireDeathPhase.ThirdHopRise:
-                RunCrocomireRisingComposite(state, samus, tickAcidSound: false);
+                RunCrocomireRisingComposite(state, samus);
                 return;
             case CrocomireDeathPhase.StartFirstDissolve:
                 LastCrocomireSoundEffect = CrocomireSoundDefinitions.FirstMeltDissolve;
@@ -969,25 +978,25 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
                 FinishCrocomireMeltingPass(state);
                 return;
             case CrocomireDeathPhase.FourthHopSink:
-                RunCrocomireSinkingComposite(state, samus, tickAcidSound: false);
+                RunCrocomireSinkingComposite(state, samus);
                 return;
             case CrocomireDeathPhase.ThirdSubmergedPause:
                 RunCrocomireSubmergedPause(state);
                 return;
             case CrocomireDeathPhase.FourthHopRise:
-                RunCrocomireRisingComposite(state, samus, tickAcidSound: false);
+                RunCrocomireRisingComposite(state, samus);
                 return;
             case CrocomireDeathPhase.FifthHopSink:
-                RunCrocomireSinkingComposite(state, samus, tickAcidSound: false);
+                RunCrocomireSinkingComposite(state, samus);
                 return;
             case CrocomireDeathPhase.FourthSubmergedPause:
                 RunCrocomireSubmergedPause(state);
                 return;
             case CrocomireDeathPhase.FifthHopRise:
-                RunCrocomireRisingComposite(state, samus, tickAcidSound: false);
+                RunCrocomireRisingComposite(state, samus);
                 return;
             case CrocomireDeathPhase.SixthHopSink:
-                RunCrocomireSinkingComposite(state, samus, tickAcidSound: false);
+                RunCrocomireSinkingComposite(state, samus);
                 return;
             case CrocomireDeathPhase.InstallSecondMeltImage:
                 LoadSecondCrocomireMeltingTilemap(state);
@@ -1071,11 +1080,8 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Runs the paired body and BG2 presentation while Crocomire sinks into acid.</summary>
     private void RunCrocomireSinkingComposite(
         CrocomireEnemyState state,
-        SamusState? samus,
-        bool tickAcidSound)
+        SamusState? samus)
     {
-        if (tickAcidSound)
-            RunCrocomireAcidSoundTimer();
         SpawnCrocomireAcidSmoke(state, samus);
         RunCrocomireSink(state);
     }
@@ -1083,11 +1089,8 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Runs the paired body and BG2 presentation as Crocomire resurfaces.</summary>
     private void RunCrocomireRisingComposite(
         CrocomireEnemyState state,
-        SamusState? samus,
-        bool tickAcidSound)
+        SamusState? samus)
     {
-        if (tickAcidSound)
-            RunCrocomireAcidSoundTimer();
         SpawnCrocomireAcidSmoke(state, samus);
         RunCrocomireRise(state);
     }
@@ -1122,7 +1125,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         FillCrocomireBg2ScrollTable(CrocomireBg2Scroll.Y);
         state.FightFlags &= ~CrocomireFightFlags.DamageReactionPending;
-        UpdateCrocomireBg2Scroll(state, includeVerticalPosition: true);
+        UpdateCrocomireBg2Scroll(state);
         RoomEnemySlot body = state.Body;
 
         if (unchecked((short)(body.Position.Y.Whole - 280)) >= 0)
@@ -1171,7 +1174,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        UpdateCrocomireBg2Scroll(state, includeVerticalPosition: true);
+        UpdateCrocomireBg2Scroll(state);
         int acceleration = Math.Min(
             state.VerticalAcceleration + SnesEightEight.FromWhole(1),
             SnesEightEight.FromWhole(MaximumRiseAccelerationWhole));
@@ -2091,7 +2094,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         // $A4:95D5 refreshes the BG2 scroll, which also moves the tongue onto the body.
-        UpdateCrocomireBg2Scroll(state, includeVerticalPosition: true);
+        UpdateCrocomireBg2Scroll(state);
         int nextAdjustedY = death.AdjustedDestinationY - 3;
         if (death.AdjustedDestinationY < 19)
         {
@@ -2243,7 +2246,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
         // The native setup performs one horizontal collision move and deliberately ignores
         // carry. It also writes the graphics word of physical projectile slot zero rather
         // than the current slot; retain that shipped indexing bug for debugger parity.
-        EnemyProjectileEngine.MoveProjectileAxis(projectile, level, horizontal: true);
+        EnemyProjectileEngine.MoveProjectileAxis(projectile, level, axis: Axis.Horizontal);
         _projectiles.EnemyProjectiles[0].GraphicsIndex = EnemyPaletteBits.Palette5;
         projectile.GeneralTimer = unchecked((ushort)(
             projectile.GeneralTimer + projectile.Velocity.X.RawValue));
@@ -2263,8 +2266,8 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemyProjectileSlot projectile,
         RoomLevelData level)
     {
-        if (EnemyProjectileEngine.MoveProjectileAxis(projectile, level, horizontal: true) ||
-            EnemyProjectileEngine.MoveProjectileAxis(projectile, level, horizontal: false))
+        if (EnemyProjectileEngine.MoveProjectileAxis(projectile, level, axis: Axis.Horizontal) ||
+            EnemyProjectileEngine.MoveProjectileAxis(projectile, level, axis: Axis.Vertical))
         {
             projectile.Clear();
         }
@@ -2414,7 +2417,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemyProjectileSlot projectile,
         RoomLevelData level)
     {
-        if (EnemyProjectileEngine.MoveProjectileAxis(projectile, level, horizontal: false))
+        if (EnemyProjectileEngine.MoveProjectileAxis(projectile, level, axis: Axis.Vertical))
         {
             projectile.Clear();
             return;

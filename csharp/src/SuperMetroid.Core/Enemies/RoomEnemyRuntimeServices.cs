@@ -55,17 +55,23 @@ internal sealed class RoomEnemyRuntimeServices(
     /// <summary>Writes one camera scroll-zone cell through the room's storage owner.</summary>
     public void Write(int index, RoomScrollState state) => room.LoadedCamera.Scrolls.SetStorage(index, state);
 
-    /// <summary>Pairs Samus's stationary script lock with the player's grounded-movement gate.</summary>
-    public void SetControlsEnabled(bool enabled)
+    /// <summary>Releases Samus's stationary script lock and reopens the player's grounded-movement gate.</summary>
+    public void EnableControls()
     {
-        SamusState samus = player.Samus ?? throw new InvalidOperationException(
-            "Chozo control command requires an active Samus actor.");
-        if (enabled)
-            samus.Control.Unlock();
-        else
-            samus.Control.LockStationary();
-        player.GroundedSamusMovementEnabled = enabled;
+        ControlledSamus.Control.Unlock();
+        player.GroundedSamusMovementEnabled = true;
     }
+
+    /// <summary>Locks Samus stationary and closes the player's grounded-movement gate.</summary>
+    public void DisableControls()
+    {
+        ControlledSamus.Control.LockStationary();
+        player.GroundedSamusMovementEnabled = false;
+    }
+
+    /// <summary>The Samus actor a Chozo control command acts on.</summary>
+    private SamusState ControlledSamus => player.Samus ?? throw new InvalidOperationException(
+        "Chozo control command requires an active Samus actor.");
 
     /// <summary>Advances the Mother Brain glass PLM argument after an enemy-driven phase event.</summary>
     public void IncrementGlassRoomArgument() => plms.MotherBrainGlass.IncrementMotherBrainGlassRoomArgument();

@@ -38,7 +38,7 @@ public static class SamusHyperBeamColorFormat
     /// This states the exact color construction,not the original tool's identity.</remarks>
     internal static Bgr555 CyanTransitionMiddle(Bgr555 magenta, Bgr555 cyan)
     {
-        return HueMidpoint(magenta, cyan).WithRed(HueMidpoint(magenta, cyan, roundUp: false).Red);
+        return HueMidpoint(magenta, cyan).WithRed(HueMidpoint(magenta, cyan, direction: HueRounding.Down).Red);
     }
 
     /// <summary>Builds the lower and upper shadows around the magenta-cyan middle ink.</summary>
@@ -137,9 +137,9 @@ public static class SamusHyperBeamColorFormat
     /// Upward rounding is the default for hue blends. The magenta-cyan
     /// middle shadow selects downward red and upward green/blue rounding.
     /// Each independent channel numerator is0..63; no saturation or overflow.</remarks>
-    internal static Bgr555 HueMidpoint(Bgr555 first, Bgr555 second, bool roundUp = true)
+    internal static Bgr555 HueMidpoint(Bgr555 first, Bgr555 second, HueRounding direction = HueRounding.Up)
     {
-        int rounding = roundUp ? 1 : 0;
+        int rounding = direction == HueRounding.Up ? 1 : 0;
         int red = ((first.Red) + (second.Red) + rounding) / 2;
         int green = ((first.Green) + (second.Green) + rounding) / 2;
         int blue = ((first.Blue) + (second.Blue) + rounding) / 2;

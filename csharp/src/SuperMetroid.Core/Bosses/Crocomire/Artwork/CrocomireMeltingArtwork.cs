@@ -36,8 +36,8 @@ public sealed class CrocomireMeltingArtwork
     {
         this.first = first;
         this.second = second;
-        this.firstTilemap = new(false, firstTilemap);
-        this.secondTilemap = new(true, secondTilemap);
+        this.firstTilemap = new(CrocomireMeltingIllustration.First, firstTilemap);
+        this.secondTilemap = new(CrocomireMeltingIllustration.Second, secondTilemap);
     }
 
     /// <summary>Compiles both PNG sheets and tile layouts into one installed snapshot.</summary>

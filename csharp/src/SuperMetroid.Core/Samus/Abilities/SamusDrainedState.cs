@@ -343,8 +343,7 @@ public sealed class SamusDrainedState
         samus.Presentation.SetPoseAndAnimationFromScriptedController(
             facingLeft ? SamusPoseId.DrainedStandingLeftPose : SamusPoseId.DrainedStandingRightPose,
             frame: 0,
-            timer: 16,
-            refreshRadius: false);
+            timer: 16);
         Phase = DrainedSamusPhase.Standing;
         samus.CommitPoseHistory();
     }
@@ -357,8 +356,7 @@ public sealed class SamusDrainedState
         samus.Presentation.SetPoseAndAnimationFromScriptedController(
             facingLeft ? SamusPoseId.DrainedCrouchingLeftPose : SamusPoseId.DrainedCrouchingRightPose,
             frame: 8,
-            timer: 16,
-            refreshRadius: false);
+            timer: 16);
         Phase = DrainedSamusPhase.Crouching;
         samus.CommitPoseHistory();
     }

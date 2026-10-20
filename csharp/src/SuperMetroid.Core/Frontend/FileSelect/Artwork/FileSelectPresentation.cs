@@ -133,13 +133,14 @@ public sealed class FileSelectPresentation
             : throw new InvalidDataException($"Unknown file-select dynamic anchor {name}.");
 
     /// <summary>Selects the cursor anchor from main, confirmation, or data-management layouts.</summary>
-    internal Position16<OamPixels> CursorPosition(bool main, bool confirmation, int selected) =>
-        Point(main
-            ? document.MainCursorAnchors
-            : confirmation
-                ? document.ConfirmationCursorAnchors
-                : document.DataCursorAnchors,
-            selected, "cursor");
+    internal Position16<OamPixels> CursorPosition(FileSelectCursorPage page, int selected) =>
+        Point(page switch
+        {
+            FileSelectCursorPage.Main => document.MainCursorAnchors,
+            FileSelectCursorPage.DataManagement => document.DataCursorAnchors,
+            FileSelectCursorPage.Confirmation => document.ConfirmationCursorAnchors,
+            _ => throw new InvalidOperationException($"Undefined {nameof(FileSelectCursorPage)} {page}."),
+        }, selected, "cursor");
 
     /// <summary>Draws the page's border composition at its authored OAM anchor.</summary>
     internal void DrawBorder(ScreenSprites screenSprites, string page)

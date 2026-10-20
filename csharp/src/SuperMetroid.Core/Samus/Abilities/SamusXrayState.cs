@@ -146,7 +146,7 @@ public sealed class SamusXrayState
     /// The caller represents the already selected/equipped HUD item; item ownership is
     /// checked by the HUD selector one layer above this native routine.
     /// </summary>
-    public bool TryBegin(SamusState samus, SamusMovementType previousMovementType, XrayBeginConditions conditions, bool deferActivation = false)
+    public bool TryBegin(SamusState samus, SamusMovementType previousMovementType, XrayBeginConditions conditions, XrayActivation activation = XrayActivation.Immediate)
     {
         Ensure.NotNull(samus);
 
@@ -196,7 +196,7 @@ public sealed class SamusXrayState
             Finish(samus);
             return true;
         }
-        if (deferActivation)
+        if (activation == XrayActivation.Deferred)
         {
             BeginAdmittedBeam(facingLeft);
             PendingActivationPose = targetPose;
@@ -423,8 +423,7 @@ public sealed class SamusXrayState
     public XrayBeamStepResult StepBeam(
         SamusState samus,
         SnesButton controllerInput,
-        SnesButton dashBinding = SnesButton.B,
-        bool vramQueueHasRoom = true)
+        SnesButton dashBinding = SnesButton.B)
     {
         Ensure.NotNull(samus);
         EnsureActive();
@@ -481,15 +480,13 @@ public sealed class SamusXrayState
                 break;
 
             case XrayBeamPhase.RestoreFirstHalf:
-                // States three/four wait rather than dropping a BG2 transfer when the
-                // seven-byte VRAM queue lacks room. The host renderer can expose that gate.
-                if (vramQueueHasRoom)
-                    BeamPhase = XrayBeamPhase.RestoreSecondHalf;
+                // Native states three/four would wait while the seven-byte VRAM queue lacks room; the managed queue
+                // always has room for these BG2 transfers, so each restore half completes in one call.
+                BeamPhase = XrayBeamPhase.RestoreSecondHalf;
                 break;
 
             case XrayBeamPhase.RestoreSecondHalf:
-                if (vramQueueHasRoom)
-                    BeamPhase = XrayBeamPhase.Finish;
+                BeamPhase = XrayBeamPhase.Finish;
                 break;
 
             case XrayBeamPhase.Finish:

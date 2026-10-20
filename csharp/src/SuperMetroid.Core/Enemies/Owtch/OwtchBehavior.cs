@@ -103,12 +103,12 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
         switch (state.Behavior)
         {
             case OwtchBehaviorState.MovingLeft:
-                MoveOwtch(slot, state, movingRight: false);
+                MoveOwtch(slot, state, direction: HorizontalDirection.Left);
                 MaybeMakeOwtchSink(slot, state);
                 return;
 
             case OwtchBehaviorState.MovingRight:
-                MoveOwtch(slot, state, movingRight: true);
+                MoveOwtch(slot, state, direction: HorizontalDirection.Right);
                 MaybeMakeOwtchSink(slot, state);
                 return;
 
@@ -162,12 +162,12 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
     private static void MoveOwtch(
         RoomEnemySlot slot,
         OwtchEnemyState state,
-        bool movingRight)
+        HorizontalDirection direction)
     {
         // The fraction's carry and the whole pixels' wraparound match the cartridge's paired additions.
-        slot.Position = slot.Position.AdvanceX(movingRight ? state.RightVelocity : state.LeftVelocity);
+        slot.Position = slot.Position.AdvanceX(direction == HorizontalDirection.Right ? state.RightVelocity : state.LeftVelocity);
 
-        if (!movingRight)
+        if (direction != HorizontalDirection.Right)
         {
             if ((slot.Position.Whole - state.MinimumPosition).X >= 0)
                 return;

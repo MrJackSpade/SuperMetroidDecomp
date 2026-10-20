@@ -47,9 +47,9 @@ public sealed class PauseReserveUiPresentation
         arrowGreyLevels = (middle.Item1.Red, middle.Item2.Red);
         for (int frame = 0; frame < parts.ArrowFrames.Length; frame++)
         {
-            if (parts.ArrowFrames[frame].Item1 != CalculateArrowColor(frame, false))
+            if (parts.ArrowFrames[frame].Item1 != CalculateArrowColor(frame, ReserveArrowColorSlot.Color6))
                 arrowColorEdits.Add(frame * 2, parts.ArrowFrames[frame].Item1);
-            if (parts.ArrowFrames[frame].Item2 != CalculateArrowColor(frame, true))
+            if (parts.ArrowFrames[frame].Item2 != CalculateArrowColor(frame, ReserveArrowColorSlot.Color11))
                 arrowColorEdits.Add(frame * 2 + 1, parts.ArrowFrames[frame].Item2);
         }
     }
@@ -67,10 +67,10 @@ public sealed class PauseReserveUiPresentation
     /// <summary>Writes one selected label's native BG words into its authored equipment-page location.</summary>
     /// <param name="tilemap">Mutable little-endian equipment tilemap bytes, large enough for the entire authored label range.</param>
     /// <param name="name">Case-sensitive label identity: Mode, ReserveTank, Manual, or Auto.</param>
-    /// <param name="preserveAttributes">When true, preserves each destination word's palette, priority, and flip bits while replacing only its ten-bit character selector; used for MANUAL/AUTO replacement.</param>
+    /// <param name="attributes">When true, preserves each destination word's palette, priority, and flip bits while replacing only its ten-bit character selector; used for MANUAL/AUTO replacement.</param>
     /// <exception cref="InvalidDataException"><paramref name="name"/> is not an installed label identity.</exception>
     /// <exception cref="ArgumentException">The destination span does not contain the authored label range.</exception>
-    public void ApplyLabel(Span<byte> tilemap, string name, bool preserveAttributes = false)
+    public void ApplyLabel(Span<byte> tilemap, string name, LabelAttributes attributes = LabelAttributes.Replace)
     {
         if (!labels.TryGetValue(name, out var label)) throw new InvalidDataException($"Unknown reserve label {name}.");
         if (label.Offset < 0 || label.Offset + label.WordCount * sizeof(ushort) > tilemap.Length)
@@ -78,7 +78,7 @@ public sealed class PauseReserveUiPresentation
         for (int index = 0; index < label.WordCount * sizeof(ushort); index += sizeof(ushort))
         {
             ushort word = label.Word(index / sizeof(ushort));
-            if (preserveAttributes)
+            if (attributes == LabelAttributes.Preserve)
                 word = (ushort)((BinaryPrimitives.ReadUInt16LittleEndian(tilemap.Slice(label.Offset + index)) &
                     PauseReserveUiDefinitions.TileAttributeMask) | (word & ~PauseReserveUiDefinitions.TileAttributeMask));
             BinaryPrimitives.WriteUInt16LittleEndian(tilemap.Slice(label.Offset + index), word);
@@ -124,7 +124,7 @@ public sealed class PauseReserveUiPresentation
     [PpuLayoutBoundary("codec: reserve-arrow colours at their native CGRAM index operands")]
     public void ApplyArrowColors(IPaletteColors cgram, bool animated, int frame, int color6Index, int color11Index)
     {
-        var colors = animated ? (ArrowColor(frame, false), ArrowColor(frame, true)) : (solidColor6, solidColor11);
+        var colors = animated ? (ArrowColor(frame, ReserveArrowColorSlot.Color6), ArrowColor(frame, ReserveArrowColorSlot.Color11)) : (solidColor6, solidColor11);
         new CgramPalettes(cgram).All.Write(color6Index, colors.Item1); new CgramPalettes(cgram).All.Write(color11Index, colors.Item2);
     }
 
@@ -137,11 +137,12 @@ public sealed class PauseReserveUiPresentation
     /// different choices paint a different pulse. Held magnitudes derive from the prior shade;
     /// independently supplied differences stay sparse.
     /// </summary>
-    private Bgr555 CalculateArrowColor(int frame, bool second)
+    private Bgr555 CalculateArrowColor(int frame, ReserveArrowColorSlot slot)
     {
         int last = PauseReserveUiDefinitions.ArrowFrames - 1;
         int phase = Math.Min(frame, last - frame);
         int steps = last / 2;
+        bool second = slot == ReserveArrowColorSlot.Color11;
         Bgr555 start = second ? arrowStartEdits.Color11 ?? solidColor6 : arrowStartEdits.Color6 ?? solidColor11;
         int grey = second ? arrowGreyLevels.Color11 : arrowGreyLevels.Color6;
         if (phase == steps) return new(grey, grey, grey);
@@ -162,11 +163,11 @@ public sealed class PauseReserveUiPresentation
     }
 
     /// <summary>Uses the supplied independent bevel shade when present; otherwise mirrors the calculated 32-phase ramp.</summary>
-    private Bgr555 ArrowColor(int frame, bool second)
+    private Bgr555 ArrowColor(int frame, ReserveArrowColorSlot slot)
     {
         frame &= PauseReserveUiDefinitions.ArrowFrames - 1;
-        return arrowColorEdits.TryGetValue(frame * 2 + (second ? 1 : 0), out Bgr555 supplied)
-            ? supplied : CalculateArrowColor(frame, second);
+        return arrowColorEdits.TryGetValue(frame * 2 + (slot == ReserveArrowColorSlot.Color11 ? 1 : 0), out Bgr555 supplied)
+            ? supplied : CalculateArrowColor(frame, slot);
     }
     /// <summary>Compiles editable reserve labels, digit words, arrow placements, and RGB5 pulse colors into a selected presentation.</summary>
     /// <param name="json">Caller-owned readable JSON stream, consumed from its current position without being disposed.</param>

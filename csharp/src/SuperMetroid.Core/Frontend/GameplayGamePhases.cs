@@ -84,7 +84,7 @@ internal sealed class GameplayGamePhases(FrontendSession session)
             session.GameState = SuperMetroidGameState.HitDoorBlock;
         if (session.GameplayRuntime.ConsumeTimeUpRequest())
             BeginTimeUp();
-        session.pauseBrightness = session.screenFade.Advance(session.pauseBrightness, brightening: false);
+        session.pauseBrightness = session.screenFade.Darken(session.pauseBrightness);
         session.ApplyDisplayBrightness(session.pauseBrightness);
         if (session.pauseBrightness == 0)
         {
@@ -101,7 +101,7 @@ internal sealed class GameplayGamePhases(FrontendSession session)
         // `$82:93A4` runs the whole state-eight routine behind the INIDISP fade, so
         // its out-of-health, pause, door and other publications all apply here.
         RunMainGameplayState(controllerInput, gameplayAudio);
-        session.pauseBrightness = session.screenFade.Advance(session.pauseBrightness, brightening: true);
+        session.pauseBrightness = session.screenFade.Brighten(session.pauseBrightness);
         session.ApplyDisplayBrightness(session.pauseBrightness);
         if (session.pauseBrightness == PauseFadeTiming.FullyLit)
         {
@@ -205,6 +205,7 @@ internal sealed class GameplayGamePhases(FrontendSession session)
     }
 
     /// <summary>Checks the native state-eight pause gate, including Samus handler locks and new Start input.</summary>
+    [IndependentFlag("Message-box ownership and the frame-start input lock are separate runtime states read from the frame.")]
     private bool CanEnterPause(
         bool messageBoxOwnedFrame,
         bool samusInputLockedAtFrameStart)

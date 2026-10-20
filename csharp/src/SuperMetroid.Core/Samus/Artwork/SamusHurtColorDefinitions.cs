@@ -33,16 +33,16 @@ internal static class SamusHurtColorDefinitions
     internal static byte DefaultIntroLevel(int index)
     {
         int Main(int step) => OutlineLevel + (FullIntensity - OutlineLevel) * step / MainShadeIntervals;
-        int Half(int step, bool roundUp) => (Main(step) + Main(step + 1) + (roundUp ? 1 : 0)) / 2;
+        int Half(int step, int rounding) => (Main(step) + Main(step + 1) + rounding) / 2;
         return (byte)(IntroLevelSourceIndex(index) switch
         {
             1 => Main(1),
             2 => Main(2),
             3 => Main(0),
             4 => Main(MainShadeIntervals),
-            6 => Half(2, true),
-            8 => Half(1, true),
-            11 => Half(0, false),
+            6 => Half(2, rounding: 1),
+            8 => Half(1, rounding: 1),
+            11 => Half(0, rounding: 0),
             _ => throw new InvalidOperationException("Unknown monochrome shade role."),
         });
     }

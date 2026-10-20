@@ -30,7 +30,10 @@ internal sealed class TourianStatueActors(TourianEntranceStatueBehavior statue, 
     public Position16<RoomPixels> WaterSurface { get => unlock.TourianStatueWaterSurface; set => unlock.TourianStatueWaterSurface = value; }
 
     /// <inheritdoc/>
-    public void SpawnUnlockEffect(ushort parameter, bool soul) => unlock.SpawnTourianUnlockEffect(parameter, soul);
+    public void SpawnEyeGlow(ushort parameter) => unlock.SpawnTourianEyeGlow(parameter);
+
+    /// <inheritdoc/>
+    public void SpawnSoul(ushort parameter) => unlock.SpawnTourianSoul(parameter);
 
     /// <inheritdoc/>
     public void SpawnDescentDust() => unlock.SpawnTourianDescentDust();

@@ -190,6 +190,7 @@ public sealed class SamusHorizontalSpeedState
     /// <c>2.0000</c>; equipped Speed Booster caps at <c>7.0000</c> and initializes its
     /// counter through `$91:B61F`. Their shared momentum flag survives release and jumps.
     /// </summary>
+    [IndependentFlag("Speed Booster equipment and liquid impedance are independent facts about Samus.")]
     public void HandleExtraRunSpeed(
         SamusMovementType movementType,
         SnesButton controllerInput,

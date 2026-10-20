@@ -50,7 +50,7 @@ internal static class JsonAssetDocument
             // Match the serializer's name resolution. Historical mixed casing remains
             // readable, but two spellings of the same field must not silently overwrite.
             RejectDuplicates(json, options.PropertyNameCaseInsensitive
-                ? StringComparer.OrdinalIgnoreCase : StringComparer.Ordinal, descendArrays: true,
+                ? StringComparer.OrdinalIgnoreCase : StringComparer.Ordinal, DuplicatePropertyScope.EveryObject,
                 name => new JsonException($"Duplicate presentation property '{name}'."));
             return JsonSerializer.Deserialize<T>(json, options)
                 ?? throw new InvalidDataException($"{description} JSON is null.");
@@ -106,15 +106,15 @@ internal static class JsonAssetDocument
 
     /// <summary>
     /// Rejects a repeated property name in any object of an already-parsed document, reading
-    /// the element's raw UTF-8 in place. <paramref name="descendArrays"/> false leaves objects
-    /// reached through an array unchecked; <paramref name="error"/> builds the failure.
+    /// the element's raw UTF-8 in place. <paramref name="scope"/> chooses whether objects reached through an array
+    /// are checked; <paramref name="error"/> builds the failure.
     /// </summary>
     internal static void RejectDuplicateProperties(JsonElement element, StringComparer comparer,
-        Func<string, Exception> error, bool descendArrays = true)
+        Func<string, Exception> error, DuplicatePropertyScope scope = DuplicatePropertyScope.EveryObject)
     {
         Ensure.NotNull(comparer);
         Ensure.NotNull(error);
-        RejectDuplicates(JsonMarshal.GetRawUtf8Value(element), comparer, descendArrays, error);
+        RejectDuplicates(JsonMarshal.GetRawUtf8Value(element), comparer, scope, error);
     }
 
     /// <summary>
@@ -122,7 +122,7 @@ internal static class JsonAssetDocument
     /// defaults. Names are compared as raw UTF-8 and decoded only when escaped or non-ASCII,
     /// so validating thousands of small cell objects allocates no per-object sets or strings.
     /// </summary>
-    private static void RejectDuplicates(ReadOnlySpan<byte> json, StringComparer comparer, bool descendArrays,
+    private static void RejectDuplicates(ReadOnlySpan<byte> json, StringComparer comparer, DuplicatePropertyScope scope,
         Func<string, Exception> error)
     {
         bool ignoreCase = ReferenceEquals(comparer, StringComparer.OrdinalIgnoreCase);
@@ -148,7 +148,7 @@ internal static class JsonAssetDocument
                     arrays--;
                     break;
                 case JsonTokenType.PropertyName:
-                    if (!descendArrays && arrays > 0) break;
+                    if (scope == DuplicatePropertyScope.OutsideArrays && arrays > 0) break;
                     var name = reader.ValueIsEscaped
                         ? new PropertyName(0, 0, reader.GetString())
                         : new PropertyName(checked((int)reader.TokenStartIndex) + 1, reader.ValueSpan.Length, null);

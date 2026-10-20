@@ -75,14 +75,14 @@ public sealed class TitleSequenceState
         TitleGradientPresentation? titleGradientPresentation = null,
         TitlePalettePresentation? titlePalettePresentation = null,
         TitleGraphicsPresentation? titleGraphicsPresentation = null)
-        : this(audio, queueOpeningMusic: true, titleGradientPresentation, titlePalettePresentation, titleGraphicsPresentation)
+        : this(audio, openingMusic: TitleOpeningMusic.Queue, titleGradientPresentation, titlePalettePresentation, titleGraphicsPresentation)
     {
     }
 
     /// <summary>Builds the initial title VRAM and palette state, optionally queuing opening music for a new session.</summary>
     private TitleSequenceState(
         CartridgeAudioState? audio,
-        bool queueOpeningMusic,
+        TitleOpeningMusic openingMusic,
         TitleGradientPresentation? titleGradientPresentation,
         TitlePalettePresentation? titlePalettePresentation,
         TitleGraphicsPresentation? titleGraphicsPresentation)
@@ -95,7 +95,7 @@ public sealed class TitleSequenceState
         if (titlePalettePresentation is null)
             throw new InvalidOperationException(
                 "Title sequence requires installed palette presentation assets.");
-        if (queueOpeningMusic)
+        if (openingMusic == TitleOpeningMusic.Queue)
         {
             audio?.QueueMusicDelayed8(
                 MusicCommand.LoadData(TitleSequenceRomData.Music.DataIndex));
@@ -132,7 +132,7 @@ public sealed class TitleSequenceState
     {
         var title = new TitleSequenceState(
             audio,
-            queueOpeningMusic: false,
+            openingMusic: TitleOpeningMusic.Skip,
             titleGradientPresentation,
             titlePalettePresentation,
             titleGraphicsPresentation);

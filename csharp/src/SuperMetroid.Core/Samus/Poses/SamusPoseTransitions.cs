@@ -285,7 +285,7 @@ internal sealed class SamusPoseTransitions
         // Screw art, while the same directional intent with Screw unequipped becomes Space
         // Jump art instead of trusting stale pose-table equipment state.
         SamusPoseId genericTarget = newDirection == SamusFacingDirection.Left ? SamusPoseId.SpinJumpLeftPose : SamusPoseId.SpinJumpRightPose;
-        _samus.Pose = SelectEquippedSpinPose(genericTarget, skipFirstAnimationFrame: true);
+        _samus.Pose = SelectEquippedSpinPose(genericTarget, start: SpinPoseStart.SkipFirstFrame);
         _samus.PoseMetadata.RefreshCollisionRadii();
 
         // InitializeSpinJump writes frame one, skipping the static first spin frame. This
@@ -418,7 +418,7 @@ level, targetPose, nmiFrameCounter, plms, out int centerAdjustment);
         SamusPoseId targetPose,
         int nmiFrameCounter,
         RoomPlmSystem? plms = null,
-        bool clearMovementSpeed = true)
+        GrappleDropSpeed speed = GrappleDropSpeed.Cleared)
     {
 
         Ensure.NotNull(level);
@@ -469,7 +469,7 @@ level, targetPose, nmiFrameCounter, plms, out int centerAdjustment);
         // `$9B:C95E-$C967` clears the two base-X and two Y-speed words regardless of the
         // pose-collision result. Extra run speed is not touched by this routine; an ordinary
         // connected grapple never creates it, so preserving the words is the literal rule.
-        if (clearMovementSpeed)
+        if (speed == GrappleDropSpeed.Cleared)
         {
             _samus.HorizontalSpeed.BaseSpeed = default;
             _samus.Kinematics.YSpeed = default;
@@ -517,7 +517,7 @@ level, targetPose, nmiFrameCounter, plms, out int centerAdjustment);
     /// Applies equipment, liquid and start-sound selection from <c>SamusFunc_F468_SpinJump</c> at
     /// <c>$91:F624</c> to a generic transition-table target `$19/$1A`.
     /// </summary>
-    private SamusPoseId SelectEquippedSpinPose(SamusPoseId genericPose, bool skipFirstAnimationFrame = false)
+    private SamusPoseId SelectEquippedSpinPose(SamusPoseId genericPose, SpinPoseStart start = SpinPoseStart.FirstFrame)
     {
         bool facingLeft = genericPose switch
         {
@@ -796,7 +796,7 @@ level, targetPose, nmiFrameCounter, plms, out int centerAdjustment);
         // `$81/$82`, not Space Jump art, while retaining Space Jump's repeat-jump physics.
         if (_samus.EquippedItems.HasAny(SamusEquipmentFlags.ScrewAttack))
         {
-            if (!skipFirstAnimationFrame)
+            if (start != SpinPoseStart.SkipFirstFrame)
                 _samus.LiquidPhysics.QueueMovementSound(SoundEffectLibrary1Sounds.ScrewAttack, maximumQueued: 6);
             return facingLeft ? SamusPoseId.ScrewAttackLeftPose : SamusPoseId.ScrewAttackRightPose;
         }
@@ -806,7 +806,7 @@ level, targetPose, nmiFrameCounter, plms, out int centerAdjustment);
             _samus.LiquidPhysics.QueueMovementSound(SoundEffectLibrary1Sounds.SpaceJump, maximumQueued: 6);
             return facingLeft ? SamusPoseId.SpaceJumpLeftPose : SamusPoseId.SpaceJumpRightPose;
         }
-        if (!skipFirstAnimationFrame && !_samus.LiquidPhysics.CinematicFunctionActive)
+        if (start != SpinPoseStart.SkipFirstFrame && !_samus.LiquidPhysics.CinematicFunctionActive)
             _samus.LiquidPhysics.QueueMovementSound(SoundEffectLibrary1Sounds.SpinJump, maximumQueued: 6);
         return genericPose;
     }

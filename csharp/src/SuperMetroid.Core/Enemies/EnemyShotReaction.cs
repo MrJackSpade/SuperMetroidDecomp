@@ -43,6 +43,6 @@ internal sealed class EnemyShotReaction(Func<RoomEnemySlot, bool> matches)
     /// <summary>Replaces the generic death when it returns true.</summary>
     internal Func<EnemyShotContext, bool>? ReplacesGenericDeath { get; init; }
 
-    /// <summary>The species tail after common shot AI; the flag reports the immediate-freeze path.</summary>
-    internal Action<EnemyShotContext, bool>? AfterCommon { get; init; }
+    /// <summary>The species tail after common shot AI; <see cref="EnemyShotContext.Froze"/> reports the immediate-freeze path.</summary>
+    internal Action<EnemyShotContext>? AfterCommon { get; init; }
 }

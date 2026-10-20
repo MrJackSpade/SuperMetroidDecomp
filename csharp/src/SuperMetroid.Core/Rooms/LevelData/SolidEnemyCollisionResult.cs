@@ -5,6 +5,7 @@ namespace SuperMetroid.Core.Rooms.LevelData;
 /// <param name="Distance">Unsigned whole-pixel current-edge gap on collision, or the caller's requested whole distance on failure; no fractional distance is returned.</param>
 /// <param name="EnemyIndex">Selected native enemy-slot byte index on collision, or null on failure.</param>
 /// <param name="WasTouching">True for a successful zero-gap contact, which clears Samus's Y subposition; false for positive gaps and failed probes.</param>
+[IndependentFlag("independent collision facts: a collision occurred, and Samus was already touching")]
 public readonly record struct SolidEnemyCollisionResult(
     bool Collided,
     int Distance,

@@ -157,7 +157,7 @@ internal static class CrystalFlashColorsVerification
             started.PoseMetadata.RefreshCollisionRadii();
             started.HorizontalSpeed.SpecialPaletteTimer = NativeCountdown.Start(0);
             AssertTrue(started.CrystalFlash.TryBegin(started, controllerInput: 0,
-                skipInputCheck: true), "start real Crystal Flash palette owner");
+                inputCheck: CrystalFlashInputCheck.Skipped), "start real Crystal Flash palette owner");
             return started;
         }
     }

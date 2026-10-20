@@ -12,9 +12,9 @@ internal static class EndingRewardSuitlessStandingParts
     /// <summary>Reusable lower-body tile grid for the straight-arm pose.</summary>
     private static readonly EndingRewardSuitlessGridParts Lower = new(Pose.SuitlessSamusLowerBody);
     /// <summary>The standing composition's parts in OAM order.</summary>
-    private static readonly CompiledSpritePart[] Standing = Build(armsStraight: false);
+    private static readonly CompiledSpritePart[] Standing = Build(EndingSuitlessArms.Relaxed);
     /// <summary>The straight-arm standing composition's parts in OAM order.</summary>
-    private static readonly CompiledSpritePart[] StandingArmsStraight = Build(armsStraight: true);
+    private static readonly CompiledSpritePart[] StandingArmsStraight = Build(EndingSuitlessArms.Straight);
     /// <summary>Applies the calculated composition only to the two supported standing frame pointers.</summary>
     internal static SpriteComposition CalculateIfMatching(ushort pointer, SpriteComposition supplied)
     {
@@ -25,15 +25,15 @@ internal static class EndingRewardSuitlessStandingParts
         return supplied;
     }
     /// <summary>Builds a pose's parts in OAM order.</summary>
-    private static CompiledSpritePart[] Build(bool armsStraight) =>
-        [.. Enumerable.Range(0, PartCount).Select(index => Part(armsStraight, index))];
+    private static CompiledSpritePart[] Build(EndingSuitlessArms arms) =>
+        [.. Enumerable.Range(0, PartCount).Select(index => Part(arms, index))];
     /// <summary>Calculates the selected pose's OAM tile, size, and offset, reusing lower-body pieces for straight arms.</summary>
-    private static CompiledSpritePart Part(bool armsStraight, int index)
+    private static CompiledSpritePart Part(EndingSuitlessArms arms, int index)
     {
         if ((uint)index >= PartCount) throw new ArgumentOutOfRangeException(nameof(index));
         int tile, x, y;
         bool large;
-        if (armsStraight)
+        if (arms == EndingSuitlessArms.Straight)
         {
             if (index is >= 5 and < 8) return Lower[index];
             if (index is >= 8 and < 12) return Lower[index - 7];

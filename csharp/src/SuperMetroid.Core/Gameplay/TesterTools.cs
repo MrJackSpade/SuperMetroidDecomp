@@ -48,10 +48,10 @@ internal sealed class TesterTools
     public bool UnlockTourianEnabled { get; internal set; }
 
     /// <summary>Grant once per initialized player, preserving later damage, ammo use and equipment selections.</summary>
-    internal void ApplyTesterInventory(bool restoredInventory = false)
+    internal void ApplyTesterInventory(TesterInventoryTarget target = TesterInventoryTarget.NewSamus)
     {
         if (!GrantAllEquipmentEnabled || _player.Samus is null ||
-            (!restoredInventory && ReferenceEquals(testerInventoryRecipient, _player.Samus))) return;
+            (target != TesterInventoryTarget.RestoredInventory && ReferenceEquals(testerInventoryRecipient, _player.Samus))) return;
         testerInventoryRecipient = _player.Samus;
         _player.Samus.CollectedItems = _player.Samus.EquippedItems = TesterInventoryDefinitions.Equipment;
         _player.Samus.CollectedBeams = TesterInventoryDefinitions.Beams;

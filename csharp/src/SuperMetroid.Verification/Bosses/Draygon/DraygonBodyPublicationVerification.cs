@@ -5,6 +5,7 @@ using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Gameplay;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 
@@ -32,7 +33,7 @@ internal static class DraygonBodyPublicationVerification
         foreach (Position16<RoomPixels> body in new Position16<RoomPixels>[] { new(256, 160), new(352, 288) })
         {
             draygon.Body.Position = draygon.Body.Position.WithWhole(body);
-            runtime.ActorDrawing.DrawGameplayActors(runtime.Room.LoadedScope, false, false);
+            runtime.ActorDrawing.DrawGameplayActors(runtime.Room.LoadedScope, SamusDrawOwner.Gameplay, SamusPaletteEffects.Hold);
             Position16<RoomPixels> camera = runtime.Room.LoadedCamera.PixelPosition;
             var expected = new Position16<Bg2Pixels>(
                 unchecked((ushort)(draygon.BodyGraphicsDisplacement.X + camera.X - body.X - 450)),

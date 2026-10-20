@@ -983,7 +983,7 @@ false,             CrashSequenceFinished: true);
         echo.Radius = unchecked((ushort)projectile.Velocity.X.SignedRawValue);
         echo.Angle = SnesAngle.FromTableIndex(unchecked((byte)projectile.Variable));
         if (!StepReleasedCrashEcho(samus, layer1,
-            echo, projectileOwnsSlot: true)) return false;
+            echo, slotOwner: CrashEchoSlotOwner.Projectile)) return false;
         projectile.Velocity = projectile.Velocity.WithX(SnesSignedEightEight.FromSignedRaw(unchecked((short)echo.Radius)));
         projectile.Position = projectile.Position.WithWhole(echo.Position);
         return true;
@@ -994,9 +994,9 @@ false,             CrashSequenceFinished: true);
         SamusState samus,
         Position16<RoomPixels> layer1,
         ReleasedEchoSlot slot,
-        bool projectileOwnsSlot = false)
+        CrashEchoSlotOwner slotOwner = CrashEchoSlotOwner.Echo)
     {
-        if (!projectileOwnsSlot && !slot.Active)
+        if (slotOwner != CrashEchoSlotOwner.Projectile && !slot.Active)
             return false;
 
         // `$90:D4D2` increments the complete word but passes only its low byte as radius.

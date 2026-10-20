@@ -27,7 +27,7 @@ internal static class SamusBodyTransferContractChecks
         Require(rejected, "construction must reject a nonempty group missing one required physical definition");
         SamusBodyArtworkCatalog body = Body(shortFirstGroup: false);
         SamusBodyFrameSelection frame = body.Frame(0, 0);
-        int address = body.DefinitionAddress(true, frame.TopSet, frame.TopPosition);
+        int address = body.DefinitionAddress(SamusBodyHalf.Top, frame.TopSet, frame.TopPosition);
         Require(ReferenceEquals(body.DefinitionAt(address), body.GetDefinition(true, 0, 0)),
             "a published frame resolves an admitted physical definition");
         Require(ReferenceEquals(body.GetDefinition(true, 0, 2), body.GetDefinition(true, 1, 0)) &&

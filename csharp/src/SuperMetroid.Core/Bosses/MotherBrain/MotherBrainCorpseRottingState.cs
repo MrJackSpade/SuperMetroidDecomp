@@ -88,7 +88,7 @@ public sealed class MotherBrainCorpseRottingState
             scratch.MotherBrainRotTable,
             yLimit: EntryCount - 1,
             lateMoveEntryIndex: EntryCount - 2,
-            copyOrMovePixelRow: (yOffset, move) => CopyOrMovePixelRow(tiles, yOffset, move),
+            copyOrMovePixelRow: (yOffset, operation) => CopyOrMovePixelRow(tiles, yOffset, operation),
             entryFinished: entryIndex =>
             {
                 // `$B223` samples the already-existing global seed; it does not advance
@@ -123,7 +123,7 @@ public sealed class MotherBrainCorpseRottingState
     /// <summary>Copies both 4bpp plane words to the next visible pixel row in
     /// each eligible corpse column, optionally clearing the source afterward.
     /// Rows six and seven continue in the next tile row using native offsets.</summary>
-    internal static void CopyOrMovePixelRow(StagingByteView tiles, ushort yOffset, bool move)
+    internal static void CopyOrMovePixelRow(StagingByteView tiles, ushort yOffset, CorpseRowOperation operation)
     {
         // Divide by eight to choose the tile row, then multiply the remaining pixel index
         // by two because each 4bpp bitplane row stores a 16-bit planes-0/1 word.
@@ -156,7 +156,7 @@ public sealed class MotherBrainCorpseRottingState
                 tiles.WriteWord(columnOffset + destinationOffset + 18, planes23);
             }
 
-            if (move)
+            if (operation == CorpseRowOperation.Move)
             {
                 // Move clears even when Y is 46/47 and the copy was suppressed. That subtle
                 // asymmetry is how the bottom rows disappear without writing past height 48.

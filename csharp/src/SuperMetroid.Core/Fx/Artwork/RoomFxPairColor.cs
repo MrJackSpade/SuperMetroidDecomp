@@ -15,14 +15,14 @@ internal sealed class RoomFxPairColor
     internal readonly int? blueOverride;
 
     /// <summary>Stores only RGB components that depart from a selector's shared tint rules.</summary>
-    public RoomFxPairColor(RoomFxPaletteBlend selection, Bgr555 color, bool isPrimary)
+    public RoomFxPairColor(RoomFxPaletteBlend selection, Bgr555 color, RoomFxPairMember member)
     {
         this.selection = selection;
-        this.isPrimary = isPrimary;
+        this.isPrimary = member == RoomFxPairMember.Primary;
         int red = color.Red, green = color.Green, blue = color.Blue;
-        redOverride = RoomFxPaletteBlendDefinitions.CalculatedPairRed(selection, isPrimary) == red ? null : red;
-        greenOverride = RoomFxPaletteBlendDefinitions.CalculatedPairGreen(selection, red, isPrimary) == green ? null : green;
-        blueOverride = RoomFxPaletteBlendDefinitions.CalculatedPairBlue(selection, red, green, isPrimary) == blue ? null : blue;
+        redOverride = RoomFxPaletteBlendDefinitions.CalculatedPairRed(selection, member == RoomFxPairMember.Primary) == red ? null : red;
+        greenOverride = RoomFxPaletteBlendDefinitions.CalculatedPairGreen(selection, red, member == RoomFxPairMember.Primary) == green ? null : green;
+        blueOverride = RoomFxPaletteBlendDefinitions.CalculatedPairBlue(selection, red, green, member == RoomFxPairMember.Primary) == blue ? null : blue;
     }
 
     /// <summary>Rebuilds the ink from retained edits and any still-applicable shared tint rules.</summary>

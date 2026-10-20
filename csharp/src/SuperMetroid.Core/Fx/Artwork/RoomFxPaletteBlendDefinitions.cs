@@ -12,18 +12,18 @@ public static class RoomFxPaletteBlendDefinitions
     public const int Version = 1;
 
     /// <summary>Stock blue-channel fixed-color amplitude for Ceres haze.</summary>
-    public static PaletteRgb5 StockCeresHazeBlue => StockCeresHaze(false);
+    public static PaletteRgb5 StockCeresHazeBlue => StockCeresHaze(CeresHazeColor.Blue);
     /// <summary>Stock red-channel fixed-color amplitude after Ceres Ridley.</summary>
-    public static PaletteRgb5 StockCeresHazeRed => StockCeresHaze(true);
+    public static PaletteRgb5 StockCeresHazeRed => StockCeresHaze(CeresHazeColor.Red);
 
     /// <summary>
     /// Native $88:DE10/DE15 selects COLDATA blue/red; DE42 stops fade-in at counter16,
     /// after counter15 was the final written amplitude. Calculate that selected RGB
     /// axis directly instead of retaining two default tint records.
     /// </summary>
-    public static PaletteRgb5 StockCeresHaze(bool ridleyIsDead)
+    public static PaletteRgb5 StockCeresHaze(CeresHazeColor color)
     {
-        var tint = StockCeresHazeComponents(ridleyIsDead);
+        var tint = StockCeresHazeComponents(color == CeresHazeColor.Red);
         return new() { Red = tint.Red, Green = tint.Green, Blue = tint.Blue };
     }
 

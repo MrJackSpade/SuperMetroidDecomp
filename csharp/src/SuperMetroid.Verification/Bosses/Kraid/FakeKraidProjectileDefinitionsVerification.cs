@@ -42,7 +42,7 @@ internal static class FakeKraidProjectileDefinitionsVerification
                 PaletteIndex = 0x0c00,
             };
             var state = new FakeKraidEnemyState();
-            enemies.FakeKraidBehavior.SpawnFakeKraidSpitPair(source, state, movingRight);
+            enemies.FakeKraidBehavior.SpawnFakeKraidSpitPair(source, state, movingRight ? HorizontalDirection.Right : HorizontalDirection.Left);
             AssertEqual(2, state.SpawnedSpitCount,
                 $"Fake Kraid {(movingRight ? "right" : "left")} spit count");
 

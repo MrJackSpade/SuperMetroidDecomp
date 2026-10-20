@@ -279,7 +279,7 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
         table.AddShot(new EnemyShotReaction(enemy => enemy.EnemyDefinitionPointer is EnemyDefinitionId.GRipper or EnemyDefinitionId.Ripper2 &&
                                                      EnemyCollision.ShotAi(enemy) == EnemyInteractionCallback.GRipperRipper2Shot)
         {
-            AfterCommon = (c, _) => ResolveGRipperRipper2ShotAfterCommon(c.Enemy),
+            AfterCommon = c => ResolveGRipperRipper2ShotAfterCommon(c.Enemy),
         });
     }
 }

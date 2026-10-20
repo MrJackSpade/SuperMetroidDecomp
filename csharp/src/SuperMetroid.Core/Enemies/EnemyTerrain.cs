@@ -22,7 +22,7 @@ internal sealed class EnemyTerrain
             level,
             slot,
             displacement,
-            treatNonSquareSlopesAsWalls: false);
+            slopes: NonSquareSlopes.Ignored);
 
     /// <summary>
     /// Ports <c>MoveEnemyRightBy_14_12_TreatSlopesAsWalls</c> at $A0:C69D. Square slopes
@@ -37,7 +37,7 @@ internal sealed class EnemyTerrain
             level,
             slot,
             displacement,
-            treatNonSquareSlopesAsWalls: true);
+            slopes: NonSquareSlopes.Walls);
 
     /// <summary>
     /// Shared body of the three native horizontal enemy movers. The remaining $8000
@@ -47,7 +47,7 @@ internal sealed class EnemyTerrain
         RoomLevelData level,
         RoomEnemySlot slot,
         int displacement,
-        bool treatNonSquareSlopesAsWalls)
+        NonSquareSlopes slopes)
     {
         if (displacement == 0)
             return false;
@@ -77,7 +77,7 @@ internal sealed class EnemyTerrain
                     targetEdge,
                     remaining,
                     spanMinusOne,
-                    treatNonSquareSlopesAsWalls))
+                    slopes == NonSquareSlopes.Walls))
             {
                 collided = true;
                 break;
@@ -169,23 +169,17 @@ internal sealed class EnemyTerrain
     }
 
     /// <summary>
-    /// Ports the geometry-only portion of $A0:BF8A used by Skree/Metaree. Unlike the common
+    /// Ports the downward, geometry-only portion of $A0:BF8A used by Skree/Metaree. Unlike the common
     /// collision dispatcher, this routine deliberately tests only level-word bit 15.
     /// </summary>
-    internal static bool EnemyHasSolidHighBitAhead(
+    internal static bool EnemyHasSolidHighBitBelow(
         RoomLevelData level,
         RoomEnemySlot slot,
-        int unsignedDistance,
-        bool movingDown)
+        int unsignedDistance)
     {
-        uint position = slot.Position.Y.RawValue;
-        uint target = movingDown
-            ? unchecked(position + (uint)unsignedDistance)
-            : unchecked(position - (uint)unsignedDistance);
+        uint target = unchecked(slot.Position.Y.RawValue + (uint)unsignedDistance);
         ushort targetCenter = SnesFixedPosition.WholeOf(unchecked((int)target));
-        ushort targetEdge = movingDown
-            ? unchecked((ushort)(targetCenter + slot.Radius.Y - 1))
-            : unchecked((ushort)(targetCenter - slot.Radius.Y));
+        ushort targetEdge = unchecked((ushort)(targetCenter + slot.Radius.Y - 1));
         int row = targetEdge >> 4;
         int firstColumn = unchecked((ushort)(slot.Position.X.Whole - slot.Radius.X)) >> 4;
         int lastColumn = unchecked((ushort)(slot.Position.X.Whole + slot.Radius.X - 1)) >> 4;
@@ -559,12 +553,12 @@ internal sealed class EnemyTerrain
             level,
             slot,
             new(slot.Position.X.Whole, unchecked((ushort)(slot.Position.Y.Whole + slot.Radius.Y - 1))),
-            underside: false);
+            surface: SlopeSurface.Top);
         bool adjustedCeiling = AlignAgainstSlopeAtPixel(
             level,
             slot,
             new(slot.Position.X.Whole, unchecked((ushort)(slot.Position.Y.Whole - slot.Radius.Y))),
-            underside: true);
+            surface: SlopeSurface.Underside);
         return adjustedFloor || adjustedCeiling;
     }
 
@@ -573,7 +567,7 @@ internal sealed class EnemyTerrain
         RoomLevelData level,
         RoomEnemySlot slot,
         Position16<RoomPixels> pixel,
-        bool underside)
+        SlopeSurface surface)
     {
         int blockX = pixel.X >> 4;
         int blockY = pixel.Y >> 4;
@@ -587,16 +581,16 @@ internal sealed class EnemyTerrain
         if (block.CollisionType != RoomCollisionType.Slope ||
             !block.Bts.IsNonSquareSlope)
             return false;
-        if (underside != block.Bts.SlopeFlipsVertically)
+        if ((surface == SlopeSurface.Underside) != block.Bts.SlopeFlipsVertically)
             return false;
 
         int xWithinBlock = (block.Bts.SlopeFlipsHorizontally ? pixel.X ^ RoomPixelMasks.WithinBlock : pixel.X) & RoomPixelMasks.WithinBlock;
         int height = ReadNonSquareSlopeHeight(block.Bts, xWithinBlock);
-        int edgeWithinBlock = underside ? (pixel.Y & RoomPixelMasks.WithinBlock) ^ RoomPixelMasks.WithinBlock : pixel.Y & RoomPixelMasks.WithinBlock;
+        int edgeWithinBlock = surface == SlopeSurface.Underside ? (pixel.Y & RoomPixelMasks.WithinBlock) ^ RoomPixelMasks.WithinBlock : pixel.Y & RoomPixelMasks.WithinBlock;
         int adjustment = height - edgeWithinBlock - 1;
         if (adjustment >= 0)
             return false;
-        slot.Position = slot.Position.WithWholeY(underside
+        slot.Position = slot.Position.WithWholeY(surface == SlopeSurface.Underside
             ? unchecked((ushort)(slot.Position.Y.Whole - adjustment))
             : unchecked((ushort)(slot.Position.Y.Whole + adjustment)));
         return true;

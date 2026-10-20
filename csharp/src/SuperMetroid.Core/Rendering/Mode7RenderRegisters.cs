@@ -9,6 +9,7 @@ namespace SuperMetroid.Core.Rendering;
 /// <param name="Scroll">BG1 scroll in pixels ($210D/$210E) as signed register words, interpreted through the native signed 13-bit center-relative calculation.</param>
 /// <param name="FillOutsideWithCharacterZero">Uses character zero outside the 1024-by-1024-pixel map when wrapping is disabled, preserving low three pixel-coordinate bits; otherwise outside samples are transparent.</param>
 /// <param name="WrapOutsideMap">Wraps source coordinates to ten bits; takes precedence over character-zero fill.</param>
+[IndependentFlag("the M7SEL register's independent outside-the-map bits")]
 public readonly record struct Mode7RenderRegisters(
     short MatrixA, short MatrixB, short MatrixC, short MatrixD,
     Offset16<Mode7Pixels> Center, Offset16<Mode7Pixels> Scroll,

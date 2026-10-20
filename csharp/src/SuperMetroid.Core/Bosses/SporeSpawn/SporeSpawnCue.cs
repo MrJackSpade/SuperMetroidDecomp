@@ -8,6 +8,7 @@ namespace SuperMetroid.Core.Bosses.SporeSpawn;
 /// <param name="SporeGenerationSuppressed">Whether a <see cref="SporeSpawnCueKind.SetSporeGeneration"/> cue stops the ceiling spore emitters.</param>
 /// <param name="Sound">The sound a <see cref="SporeSpawnCueKind.QueueSound"/> cue queues.</param>
 /// <param name="DeathPaletteStep">The death-sequence palette row a death-palette cue loads, zero through six.</param>
+[IndependentFlag("whether an authored cue suppresses spore generation, a fact of the cue data")]
 internal readonly record struct SporeSpawnCue(
     SporeSpawnCueKind Kind,
     SporeSpawnFunction Function = default,

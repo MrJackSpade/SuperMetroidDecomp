@@ -41,10 +41,10 @@ public static class LibraryBackgroundLoader
                     selectsKraidHudCharacters = true;
                     break;
                 case LibraryBackgroundCommand.ClearBg2:
-                    ClearBg2(staging, vram, includeKraidPage: false);
+                    ClearBg2(staging, vram, pages: LibraryBg2Clear.Standard);
                     break;
                 case LibraryBackgroundCommand.ClearBg2ForKraid:
-                    ClearBg2(staging, vram, includeKraidPage: true);
+                    ClearBg2(staging, vram, pages: LibraryBg2Clear.WithKraidPage);
                     break;
                 case LibraryBackgroundCommand.TransferForDoor:
                     if (instruction.Door == activeDoor)
@@ -129,13 +129,13 @@ public static class LibraryBackgroundLoader
 
     /// <summary>Fills both BG2 staging pages and queues the native DMA, including Kraid's extra page when requested.</summary>
     [PpuLayoutBoundary("codec: Clear_BG2_Tilemap native fill-and-DMA")]
-    private static void ClearBg2(LibraryBackgroundStaging staging, SnesVram vram, bool includeKraidPage)
+    private static void ClearBg2(LibraryBackgroundStaging staging, SnesVram vram, LibraryBg2Clear pages)
     {
         // Clear_BG2_Tilemap fills both $800-byte WRAM pages with tile $0338, then performs
         // one $1000-byte DMA. Kraid repeats that same buffer at VRAM $4000 as well.
         RoomAssetRomData.TilemapTransfer transfer = RoomAssetRomData.LibraryBackground.ClearBg2;
         FillWords(staging, transfer.WorkRamDestination, transfer.ByteCount, transfer.FillValue);
-        if (includeKraidPage)
+        if (pages == LibraryBg2Clear.WithKraidPage)
         {
             staging.LoadNativeTransfer(vram, transfer.WorkRamSourceAddress, transfer.ByteCount,
                 RoomAssetRomData.LibraryBackground.KraidBg2VramDestinationWord);

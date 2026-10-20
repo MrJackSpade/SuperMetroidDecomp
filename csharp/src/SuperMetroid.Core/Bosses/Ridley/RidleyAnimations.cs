@@ -36,10 +36,10 @@ internal static class RidleyAnimations
     {
         [P.Initial] = [UnlessFacingLeft(P.InitialFacingRight), Show(F.Left, StandingDuration), Hold],
         [P.InitialFacingRight] = [Show(F.Right, StandingDuration), Hold],
-        [P.CeresLunge] = [UnlessFacingLeft(P.CeresLungeFacingRight), .. Lunge(Side.Left, LungeExtendedDuration, settle: true), Hold],
-        [P.CeresLungeFacingRight] = [.. Lunge(Side.Right, LungeExtendedDuration, settle: true), Hold],
-        [P.RetrieveBabyMetroid] = [UnlessFacingLeft(P.RetrieveBabyMetroidFacingRight), .. Lunge(Side.Left, 1, settle: false), Hold],
-        [P.RetrieveBabyMetroidFacingRight] = [.. Lunge(Side.Right, 1, settle: false), Hold],
+        [P.CeresLunge] = [UnlessFacingLeft(P.CeresLungeFacingRight), .. Lunge(Side.Left, LungeExtendedDuration), .. Settle(Side.Left), Hold],
+        [P.CeresLungeFacingRight] = [.. Lunge(Side.Right, LungeExtendedDuration), .. Settle(Side.Right), Hold],
+        [P.RetrieveBabyMetroid] = [UnlessFacingLeft(P.RetrieveBabyMetroidFacingRight), .. Lunge(Side.Left, 1), Hold],
+        [P.RetrieveBabyMetroidFacingRight] = [.. Lunge(Side.Right, 1), Hold],
         [P.OpeningRoar] = [UnlessFacingLeft(P.OpeningRoarFacingRight), .. OpeningRoar(Side.Left)],
         [P.OpeningRoarFacingRight] = OpeningRoar(Side.Right),
         [P.DeathRoar] = [UnlessFacingLeft(P.DeathRoarFacingRight), .. DeathRoar(Side.Left)],
@@ -49,10 +49,10 @@ internal static class RidleyAnimations
         [P.Fireballing] =
         [
             UnlessFacingLeft(P.FireballingFacingRight),
-            .. Fireballing(Side.Left, P.FireballingEnd, aimBeforeSecondRoar: true),
+            .. Fireballing(Side.Left, P.FireballingEnd, [Cue(K.AimFireball)]),
         ],
         [P.FireballingEnd] = [Cue(K.ClearRoaringFlag), Show(F.Left, 1), Hold],
-        [P.FireballingFacingRight] = Fireballing(Side.Right, P.FireballingEndFacingRight, aimBeforeSecondRoar: false),
+        [P.FireballingFacingRight] = Fireballing(Side.Right, P.FireballingEndFacingRight, []),
         [P.FireballingEndFacingRight] = [Cue(K.ClearRoaringFlag), Show(F.Right, 1), Hold],
         [P.TransitionToFlying] =
         [
@@ -71,8 +71,8 @@ internal static class RidleyAnimations
         internal static Side Right { get; } = new(F.Right, F.RightMouthHalfOpen, F.RightMouthOpen, F.RightLegsHalfExtended, F.RightLegsExtended);
     }
 
-    /// <summary>Extends the legs, holding the full extension <paramref name="extendedDuration"/> updates, then optionally settles back.</summary>
-    private static IEnumerable<AnimationProgramStep<RidleyBodyProgram, F, RidleyBodyCue>> Lunge(Side side, int extendedDuration, bool settle)
+    /// <summary>Extends the legs, holding the full extension <paramref name="extendedDuration"/> updates.</summary>
+    private static IEnumerable<AnimationProgramStep<RidleyBodyProgram, F, RidleyBodyCue>> Lunge(Side side, int extendedDuration)
     {
         yield return Feet(FeetStanding);
         yield return Show(side.Standing, 4);
@@ -80,8 +80,11 @@ internal static class RidleyAnimations
         yield return Show(side.LegsHalfExtended, 6);
         yield return Feet(FeetExtended);
         yield return Show(side.LegsExtended, extendedDuration);
-        if (!settle)
-            yield break;
+    }
+
+    /// <summary>Draws the legs back in after a lunge, through half-extended to standing.</summary>
+    private static IEnumerable<AnimationProgramStep<RidleyBodyProgram, F, RidleyBodyCue>> Settle(Side side)
+    {
         yield return Feet(FeetHalfExtended);
         yield return Show(side.LegsHalfExtended, 6);
         yield return Feet(FeetStanding);
@@ -128,7 +131,8 @@ internal static class RidleyAnimations
     /// Two fireball bursts of one facing, either cut short to <paramref name="end"/> in Ceres when Samus is low on
     /// energy; the left-facing list aims once more before its second roar.
     /// </summary>
-    private static AnimationProgramStep<RidleyBodyProgram, F, RidleyBodyCue>[] Fireballing(Side side, RidleyBodyProgram end, bool aimBeforeSecondRoar)
+    private static AnimationProgramStep<RidleyBodyProgram, F, RidleyBodyCue>[] Fireballing(Side side, RidleyBodyProgram end,
+        AnimationProgramStep<RidleyBodyProgram, F, RidleyBodyCue>[] beforeSecondBurst)
     {
         var steps = new List<AnimationProgramStep<RidleyBodyProgram, F, RidleyBodyCue>>
         {
@@ -138,8 +142,7 @@ internal static class RidleyAnimations
         steps.AddRange(Burst(side));
         steps.Add(IfCeresAndSamusLowEnergy(end));
         steps.Add(Show(side.Standing, BurstPauseDuration));
-        if (aimBeforeSecondRoar)
-            steps.Add(Cue(K.AimFireball));
+        steps.AddRange(beforeSecondBurst);
         steps.AddRange(Burst(side));
         steps.Add(FallInto(end));
         return [.. steps];

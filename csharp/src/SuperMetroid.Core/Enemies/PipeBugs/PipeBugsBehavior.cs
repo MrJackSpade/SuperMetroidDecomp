@@ -172,11 +172,11 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
                 ResetNorfairPipeBugIfOffScreen(slot, state, camera);
                 return;
             case PipeBugEnemyFunction.NorfairFlyLeft:
-                AddPipeBugLinearVelocity(slot, horizontal: true, state.LinearSpeedTableOffset + 4);
+                AddPipeBugLinearVelocity(slot, axis: Axis.Horizontal, state.LinearSpeedTableOffset + 4);
                 ResetNorfairPipeBugIfOffScreen(slot, state, camera);
                 return;
             case PipeBugEnemyFunction.NorfairFlyRight:
-                AddPipeBugLinearVelocity(slot, horizontal: true, state.LinearSpeedTableOffset);
+                AddPipeBugLinearVelocity(slot, axis: Axis.Horizontal, state.LinearSpeedTableOffset);
                 ResetNorfairPipeBugIfOffScreen(slot, state, camera);
                 return;
 
@@ -189,17 +189,17 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
             case PipeBugEnemyFunction.YellowFlyLeft:
                 RequirePipeBugSamus(samus);
-                RunYellowPipeBugStraightFlight(slot, state, samus, camera, movingLeft: true);
+                RunYellowPipeBugStraightFlight(slot, state, samus, camera, direction: HorizontalDirection.Left);
                 return;
             case PipeBugEnemyFunction.YellowFlyRight:
                 RequirePipeBugSamus(samus);
-                RunYellowPipeBugStraightFlight(slot, state, samus, camera, movingLeft: false);
+                RunYellowPipeBugStraightFlight(slot, state, samus, camera, direction: HorizontalDirection.Right);
                 return;
             case PipeBugEnemyFunction.YellowArcLeft:
-                RunYellowPipeBugArc(slot, state, camera, movingLeft: true);
+                RunYellowPipeBugArc(slot, state, camera, direction: HorizontalDirection.Left);
                 return;
             case PipeBugEnemyFunction.YellowArcRight:
-                RunYellowPipeBugArc(slot, state, camera, movingLeft: false);
+                RunYellowPipeBugArc(slot, state, camera, direction: HorizontalDirection.Right);
                 return;
             default:
                 throw new InvalidDataException(
@@ -356,7 +356,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         SamusState samus)
     {
         slot.Properties = slot.Properties.Without(EnemyProperties.Invisible);
-        AddPipeBugLinearVelocity(slot, horizontal: false, byteOffset: 132);
+        AddPipeBugLinearVelocity(slot, axis: Axis.Vertical, byteOffset: 132);
         if (unchecked((short)(slot.Position.Y.Whole - samus.Position.Y.Whole)) >= 0)
             return;
 
@@ -379,7 +379,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         // with entry 64. The native routine clamps exactly at emergenceY +/- 16/32.
         AddPipeBugLinearVelocity(
             slot,
-            horizontal: false,
+            axis: Axis.Vertical,
             byteOffset: signedOffset < 0 ? 132 : 128);
         Position16<RoomPixels> target = state.RiseEnd + new Offset16<RoomPixels>(0, signedOffset);
         short distancePastTarget = (slot.Position.Whole - target).Y;
@@ -506,27 +506,27 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         PipeBugEnemyState state,
         SamusState samus,
         Position16<RoomPixels> camera,
-        bool movingLeft)
+        HorizontalDirection direction)
     {
-        AddYellowPipeBugHorizontalVelocity(slot, state, movingLeft);
+        AddYellowPipeBugHorizontalVelocity(slot, state, direction == HorizontalDirection.Left);
         if (ResetYellowPipeBugIfOffScreen(slot, state, camera))
             return;
         if (state.ArcCompleted)
             return;
 
-        bool passedSamus = movingLeft
+        bool passedSamus = direction == HorizontalDirection.Left
             ? unchecked((short)(slot.Position.X.Whole - samus.Position.X.Whole - YellowPipeBugArcTriggerDistance)) < 0
             : unchecked((short)(samus.Position.X.Whole - slot.Position.X.Whole - YellowPipeBugArcTriggerDistance)) < 0;
         if (!passedSamus)
             return;
 
-        state.Function = movingLeft
+        state.Function = direction == HorizontalDirection.Left
             ? PipeBugEnemyFunction.YellowArcLeft
             : PipeBugEnemyFunction.YellowArcRight;
         state.ArcCounter = YellowPipeBugArcCounterStart;
         state.ArcRising = true;
         InstallPipeBugProgram(slot, state,
-            movingLeft
+            direction == HorizontalDirection.Left
                 ? PipeBugProgram.GeegaArcingLeft
                 : PipeBugProgram.GeegaArcingRight);
     }
@@ -536,11 +536,11 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemySlot slot,
         PipeBugEnemyState state,
         Position16<RoomPixels> camera,
-        bool movingLeft)
+        HorizontalDirection direction)
     {
         if (ResetYellowPipeBugIfOffScreen(slot, state, camera))
             return;
-        AddYellowPipeBugHorizontalVelocity(slot, state, movingLeft);
+        AddYellowPipeBugHorizontalVelocity(slot, state, direction == HorizontalDirection.Left);
         if (state.ArcRising)
         {
             // The cartridge decrements and ends the rise when the record would go below zero, holding it at zero; the
@@ -552,16 +552,16 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
             else
             {
                 state.ArcCounter--;
-                AddPipeBugDisplacement(slot, horizontal: false,
+                AddPipeBugDisplacement(slot, axis: Axis.Vertical,
                     EnemyMath.ReadQuadraticEnemySpeed(checked((ushort)state.ArcCounter), negative: false));
             }
             return;
         }
 
         state.ArcCounter++;
-        AddPipeBugDisplacement(slot, horizontal: false,
+        AddPipeBugDisplacement(slot, axis: Axis.Vertical,
             EnemyMath.ReadQuadraticEnemySpeed(checked((ushort)state.ArcCounter), negative: true));
-        bool returnedToSpawnY = movingLeft
+        bool returnedToSpawnY = direction == HorizontalDirection.Left
             ? unchecked((short)(slot.Position.Y.Whole - state.SpawnPosition.Y)) < 0
             : unchecked((short)(state.SpawnPosition.Y - slot.Position.Y.Whole)) >= 0;
         if (!returnedToSpawnY)
@@ -569,11 +569,11 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
 
         state.ArcCompleted = true;
         state.ArcRising = true;
-        state.Function = movingLeft
+        state.Function = direction == HorizontalDirection.Left
             ? PipeBugEnemyFunction.YellowFlyLeft
             : PipeBugEnemyFunction.YellowFlyRight;
         InstallPipeBugProgram(slot, state,
-            movingLeft
+            direction == HorizontalDirection.Left
                 ? PipeBugProgram.GeegaFlyingLeft
                 : PipeBugProgram.GeegaFlyingRight);
     }
@@ -611,11 +611,11 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Reads a native linear-speed entry and adds it to one axis, carrying the fraction into the whole.</summary>
     private static void AddPipeBugLinearVelocity(
         RoomEnemySlot slot,
-        bool horizontal,
+        Axis axis,
         int byteOffset)
     {
         SnesSignedSixteenSixteen velocity = ReadPipeBugLinearVelocity(unchecked((ushort)byteOffset));
-        slot.Position = horizontal ? slot.Position.AdvanceX(velocity) : slot.Position.AdvanceY(velocity);
+        slot.Position = axis == Axis.Horizontal ? slot.Position.AdvanceX(velocity) : slot.Position.AdvanceY(velocity);
     }
 
     /// <summary>The signed 16.16 entry of the common linear speed table at <paramref name="byteOffset"/>.</summary>
@@ -628,14 +628,14 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Adds a wrapped signed 16.16 displacement to one position axis.</summary>
     private static void AddPipeBugDisplacement(
         RoomEnemySlot slot,
-        bool horizontal,
+        Axis axis,
         int displacement)
     {
-        uint position = horizontal
+        uint position = axis == Axis.Horizontal
             ? slot.Position.X.RawValue
             : slot.Position.Y.RawValue;
         position = unchecked(position + (uint)displacement);
-        if (horizontal)
+        if (axis == Axis.Horizontal)
         {
             slot.Position = slot.Position.WithX(SnesFixedPosition.FromRaw(unchecked(position)));
         }

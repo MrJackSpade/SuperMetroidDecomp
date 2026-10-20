@@ -8,9 +8,17 @@ internal static class LayerBlendingConfigurationsAccess
     extension(LayerBlendingConfigurations)
     {
         /// <summary>Rejects undefined configuration values supplied by host-side callers.</summary>
+        /// <remarks>The enum's defined members are exactly the even word offsets 0..$34 of the bank-$88 dispatcher at
+        /// $88:803E..8072, every slot named, so definedness is the dispatcher's domain.</remarks>
         internal static void Validate(
             LayerBlendingConfiguration configuration,
-            string parameterName) =>
-            LayerBlendingConfigurations.ValidateDefined(configuration, parameterName, cartridgeData: false);
+            string parameterName)
+        {
+            if (!Enum.IsDefined(configuration))
+                throw new ArgumentOutOfRangeException(
+                    parameterName,
+                    configuration,
+                    "The value is not a translated bank-$88 layer-blending configuration.");
+        }
     }
 }

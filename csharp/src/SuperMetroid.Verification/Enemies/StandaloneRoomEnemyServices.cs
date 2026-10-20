@@ -126,8 +126,10 @@ internal sealed class StandaloneRoomEnemyServices : IRoomEnemyServices
         public RoomScrollState Read(int index) => throw Missing("read a room scroll state");
         /// <summary>Fails when AI changes a scroll zone without an installed room-scroll service.</summary>
         public void Write(int index, RoomScrollState state) => throw Missing("write a room scroll state");
-        /// <summary>Fails when AI changes Samus controls without an installed lock service.</summary>
-        public void SetControlsEnabled(bool enabled) => throw Missing("change Samus control enablement");
+        /// <summary>Fails when AI enables Samus's controls without an installed lock service.</summary>
+        public void EnableControls() => throw Missing("enable Samus's controls");
+        /// <summary>Fails when AI disables Samus's controls without an installed lock service.</summary>
+        public void DisableControls() => throw Missing("disable Samus's controls");
         /// <summary>Fails when Mother Brain glass setup lacks its room-effects service.</summary>
         public void IncrementGlassRoomArgument() => throw Missing("advance Mother Brain's glass-room argument");
         /// <summary>Fails when Mother Brain changes blending without an installed room-effects service.</summary>

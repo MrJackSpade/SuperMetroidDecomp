@@ -26,6 +26,7 @@ namespace SuperMetroid.Core.Runtime;
 /// <param name="SuitPickupBeam">Suit pickup light-beam window description; its fixed color comes from the NMI latch.</param>
 /// <param name="Xray">X-ray HDMA object phases and window cone inputs.</param>
 /// <param name="TourianStatuesEnabled">Whether the Tourian statue BG2VOFS HDMA object is running.</param>
+[IndependentFlag("independent display facts of the frame end")]
 public sealed record GameplayFrameEndDisplayInputs(
     SnesMainScreenLayers? DoorTransitionMainScreenLayers,
     ScrollingSkyLayer? ScrollingSky,

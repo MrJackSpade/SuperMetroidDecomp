@@ -300,7 +300,7 @@ internal sealed class ProjectileMotion
             if (collided)
                 _terrainCollision.KillMissile(slot, sharedProjectiles);
             UpdateSuperMissileLinkAxis(
-                level, slot, vertical: false, sharedProjectiles, roomPlms);
+                level, slot, axis: Axis.Horizontal, sharedProjectiles, roomPlms);
         }
         if (!collided && direction is 0 or 4 or 5 or 9 or 1 or 3 or 6 or 8)
         {
@@ -308,7 +308,7 @@ internal sealed class ProjectileMotion
             if (collided)
                 _terrainCollision.KillMissile(slot, sharedProjectiles);
             UpdateSuperMissileLinkAxis(
-                level, slot, vertical: true, sharedProjectiles, roomPlms);
+                level, slot, axis: Axis.Vertical, sharedProjectiles, roomPlms);
         }
 
         if (DeleteIfOutsideMovementWindow(slot, layer1))
@@ -390,7 +390,7 @@ internal sealed class ProjectileMotion
     private void UpdateSuperMissileLinkAxis(
         RoomLevelData level,
         SamusProjectileSlot owner,
-        bool vertical,
+        Axis axis,
         SamusBombProjectileSystem sharedProjectiles,
         RoomPlmSystem? roomPlms)
     {
@@ -404,7 +404,7 @@ internal sealed class ProjectileMotion
         if (!link.IsActive)
             return;
 
-        short velocity = vertical ? owner.Velocity.Y.SignedRawValue : owner.Velocity.X.SignedRawValue;
+        short velocity = axis == Axis.Vertical ? owner.Velocity.Y.SignedRawValue : owner.Velocity.X.SignedRawValue;
         int wholeMagnitude = SnesEightEight.WholeOf(Math.Abs((int)velocity));
         bool ownerExploded = owner.PackedType.IsFamily(SamusProjectileFamily.MissileExplosion);
         if (wholeMagnitude < 11)
@@ -416,7 +416,7 @@ internal sealed class ProjectileMotion
                 _animation.ClearProjectile(link);
                 return;
             }
-            if (vertical)
+            if (axis == Axis.Vertical)
                 link.Position = link.Position.WithWholeY(owner.Position.Y.Whole);
             else
                 link.Position = link.Position.WithWholeX(owner.Position.X.Whole);
@@ -428,16 +428,16 @@ internal sealed class ProjectileMotion
         // just exploded; only then is it cleared. A missile that skips a door cap and
         // strikes the door behind it still opens the cap through its link.
         int offset = wholeMagnitude - 10;
-        ushort ownerPosition = vertical ? owner.Position.Y.Whole : owner.Position.X.Whole;
+        ushort ownerPosition = axis == Axis.Vertical ? owner.Position.Y.Whole : owner.Position.X.Whole;
         ushort linkPosition = unchecked((ushort)(ownerPosition + (velocity < 0 ? offset : -offset)));
-        if (vertical)
+        if (axis == Axis.Vertical)
             link.Position = link.Position.WithWholeY(linkPosition);
         else
             link.Position = link.Position.WithWholeX(linkPosition);
         if (MissilePointReaction(
                 level,
                 link,
-                horizontalMovement: !vertical,
+                horizontalMovement: axis != Axis.Vertical,
                 roomPlms: roomPlms))
             _terrainCollision.KillMissile(link, sharedProjectiles);
         if (ownerExploded)

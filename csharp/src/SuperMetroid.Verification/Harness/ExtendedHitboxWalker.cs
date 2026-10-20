@@ -16,7 +16,7 @@ internal static class ExtendedHitboxWalker
             arguments[0] as RoomEnemySlot ?? throw new ArgumentException("Element 0 must be the enemy slot.", nameof(arguments)),
             Value<Position16<RoomPixels>>(arguments, 1),
             Value<Extent16<RoomPixels>>(arguments, 2),
-            Value<bool>(arguments, 3),
+            (Value<bool>(arguments, 3)) ? HitboxCallbackKind.Shot : HitboxCallbackKind.Touch,
             out EnemyInteractionCallback? callback);
         arguments[4] = callback is { } selected ? EnemyInteractionCallbackAccess.Word(selected) : (ushort)0;
         return found;

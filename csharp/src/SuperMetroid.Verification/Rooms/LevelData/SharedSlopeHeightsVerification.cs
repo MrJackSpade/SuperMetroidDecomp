@@ -33,7 +33,7 @@ internal static class SharedSlopeHeightsVerification
         var forbidden = NewSlopeHeightNoReadBus();
         var enemies = new RoomEnemySystem(new EnemySession());
         var enemy = enemies.SlotTable.Slots[0];
-        var align = new Func<RoomLevelData, RoomEnemySlot, Position16<RoomPixels>, bool, bool>(EnemyTerrain.AlignAgainstSlopeAtPixel);
+        var align = new Func<RoomLevelData, RoomEnemySlot, Position16<RoomPixels>, SlopeSurface, bool>(EnemyTerrain.AlignAgainstSlopeAtPixel);
         var missile = new Func<RoomCollisionBlock, SamusProjectileSlot, bool, bool>(ProjectileMotion.MissileSlopePointReaction);
         var bomb = new Func<RoomLevelData, SamusBombProjectileSlot, bool>(SamusBombProjectileSystem.BombSpreadCollides);
         var projectile = new SamusProjectileSlot(0);
@@ -62,7 +62,7 @@ internal static class SharedSlopeHeightsVerification
                     AssertEqual(solid, bomb(level, spread), "Bomb spread real slope collision");
                     enemy.Position = enemy.Position.WithY(new(128, 0x1234));
                     int adjustment = height - edge - 1;
-                    bool changed = align(level, enemy, new(x, y), (raw & 128) != 0);
+                    bool changed = align(level, enemy, new(x, y), (raw & 128) != 0 ? SlopeSurface.Underside : SlopeSurface.Top);
                     AssertEqual(adjustment < 0, changed, "Enemy real slope alignment admission");
                     int expectedY = 128 + (adjustment < 0 ? (raw & 128) != 0 ? -adjustment : adjustment : 0);
                     AssertEqual((ushort)expectedY, enemy.Position.Y.Whole, "Enemy exact floor/ceiling alignment Y");

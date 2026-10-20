@@ -121,7 +121,7 @@ internal sealed class EnemyCollision
                     slot,
                     samus.Position.Whole,
                     samus.Kinematics.Radius,
-                    selectShotCallback: false,
+                    callbackKind: HitboxCallbackKind.Touch,
                     out hitboxTouchAi);
             }
             else
@@ -252,7 +252,7 @@ internal sealed class EnemyCollision
                         enemy,
                         projectile.Position.Whole,
                         projectile.Radius,
-                        selectShotCallback: true,
+                        callbackKind: HitboxCallbackKind.Shot,
                         out hitboxShotAi);
                 }
                 else
@@ -348,7 +348,7 @@ internal sealed class EnemyCollision
                 if (shotVulnerability.FreezeImmediately)
                 {
                     FreezeEnemyFromNormalShot(enemy, samus);
-                    reaction.AfterCommon?.Invoke(shot, true);
+                    reaction.AfterCommon?.Invoke(shot with { Froze = true });
                     hitCount++;
                     break;
                 }
@@ -402,12 +402,12 @@ internal sealed class EnemyCollision
                         {
                             _deathsAndDrops.StartGenericEnemyDeath(
                                 enemy,
-                                EnemyDeathsAndDrops.SelectNormalShotDeathAnimation(enemy, projectileType, forcePirateBigExplosion: false));
+                                EnemyDeathsAndDrops.SelectNormalShotDeathAnimation(enemy, projectileType, rule: ShotDeathAnimationRule.ByProjectile));
                         }
                     }
                 }
 
-                reaction.AfterCommon?.Invoke(shot, false);
+                reaction.AfterCommon?.Invoke(shot);
                 hitCount++;
                 break;
             }
@@ -496,7 +496,7 @@ internal sealed class EnemyCollision
                         enemy,
                         bomb.Position.Whole,
                         bomb.Radius,
-                        selectShotCallback: true,
+                        callbackKind: HitboxCallbackKind.Shot,
                         out selectedShotAi)
                     : RadiusBoxesOverlap(
                         enemy.Position.Whole,
@@ -846,6 +846,7 @@ internal sealed class EnemyCollision
     /// beam freezes the enemy instead of killing it unless <see cref="PreventsLethalFreeze"/>, which the beam entry
     /// decides; non-beam families never prevent it.
     /// </summary>
+    [IndependentFlag("independent facts of the vulnerability byte: immediate freeze, and lethal-freeze prevention")]
     internal readonly record struct NormalShotVulnerability(
         int Multiplier,
         bool FreezeImmediately,
@@ -861,7 +862,7 @@ internal sealed class EnemyCollision
         RoomEnemySlot enemy,
         Position16<RoomPixels> targetPosition,
         Extent16<RoomPixels> targetRadius,
-        bool selectShotCallback,
+        HitboxCallbackKind callbackKind,
         out EnemyInteractionCallback? callback)
     {
         callback = null;
@@ -879,7 +880,7 @@ internal sealed class EnemyCollision
             BottomRight: new(
                 unchecked((ushort)(targetPosition.X + targetRadius.X)),
                 unchecked((ushort)(targetPosition.Y + targetRadius.Y))),
-            SelectShotCallback: selectShotCallback,
+            SelectShotCallback: callbackKind == HitboxCallbackKind.Shot,
             ArtworkInstalled: _room.Artwork is not null);
 
         if (CommonEnemyEmptyExtendedFrameDefinitions.HasFrame(
@@ -890,7 +891,7 @@ internal sealed class EnemyCollision
             // selecting its common touch/shot callback.
             if (!target.Overlaps(enemy.Position.X.Whole, enemy.Position.Y.Whole, enemy.Position.X.Whole, enemy.Position.Y.Whole))
                 return false;
-            callback = selectShotCallback ? EnemyInteractionCallback.NormalEnemyShot : EnemyInteractionCallback.NormalEnemyTouch;
+            callback = callbackKind == HitboxCallbackKind.Shot ? EnemyInteractionCallback.NormalEnemyShot : EnemyInteractionCallback.NormalEnemyTouch;
             return true;
         }
 
@@ -938,7 +939,7 @@ internal sealed class EnemyCollision
     internal void ResolveNormalEnemyTouch(
         RoomEnemySlot enemy,
         SamusState samus,
-        bool skipDeathAnimation = false)
+        TouchDeathAnimation deathAnimation = TouchDeathAnimation.Play)
     {
         SamusContactDamageIndex contactDamageIndex = samus.HorizontalSpeed.ContactDamageIndex;
         ushort baseDamage;
@@ -997,7 +998,7 @@ internal sealed class EnemyCollision
         // Rinka's bank-$A2 callback calls this common damage body explicitly, inspects the
         // resulting zero health, then chooses either generic respawn death or its private
         // hidden two-frame Mother Brain respawn. Do not clear the slot before that tail.
-        if (skipDeathAnimation)
+        if (deathAnimation == TouchDeathAnimation.Skip)
             return;
 
         _deathsAndDrops.StartGenericEnemyDeath(enemy, deathAnimation: 1);

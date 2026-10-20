@@ -860,7 +860,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
             },
             BeforeImpact = ResolveTorizoShotBeforeImpact,
             ExemptFromGenericDeath = true,
-            AfterCommon = (c, _) =>
+            AfterCommon = c =>
             {
                 if (c.Enemy.Health == 0)
                     BeginBombTorizoDeath(c.Enemy, RequireBombTorizoState(c.Enemy));
@@ -880,7 +880,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
                     throw new InvalidDataException(
                         $"Torizo hitbox touch AI {context.HitboxTouchAi?.ToString() ?? "(unnamed)"} is not translated.");
                 }
-                _collision.ResolveNormalEnemyTouch(context.Slot, context.Samus, skipDeathAnimation: true);
+                _collision.ResolveNormalEnemyTouch(context.Slot, context.Samus, deathAnimation: TouchDeathAnimation.Skip);
                 if (context.Slot.Health == 0)
                     BeginBombTorizoDeath(context.Slot, RequireBombTorizoState(context.Slot));
             });
@@ -1025,8 +1025,8 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
                 return null;
 
             case TorizoCueKind.SpawnLandingDust:
-                SpawnBombTorizoLandingDust(torizo, rightFoot: true);
-                SpawnBombTorizoLandingDust(torizo, rightFoot: false);
+                SpawnBombTorizoLandingDust(torizo, foot: HorizontalDirection.Right);
+                SpawnBombTorizoLandingDust(torizo, foot: HorizontalDirection.Left);
                 return null;
 
             case TorizoCueKind.SpawnLowHealthDrool:
@@ -1059,11 +1059,11 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
                 return null;
 
             case TorizoCueKind.StandUp:
-                ApplyBombTorizoMapOffset(torizo, cue.Value, subtract: false);
+                ApplyBombTorizoMapOffset(torizo, cue.Value, move: BombTorizoPostureMove.StandUp);
                 return null;
 
             case TorizoCueKind.SitDown:
-                ApplyBombTorizoMapOffset(torizo, cue.Value, subtract: true);
+                ApplyBombTorizoMapOffset(torizo, cue.Value, move: BombTorizoPostureMove.SitDown);
                 return null;
 
             case TorizoCueKind.WalkBombTorizo:
@@ -1412,10 +1412,10 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     internal static void ApplyBombTorizoMapOffset(
         RoomEnemySlot torizo,
         int tableOffset,
-        bool subtract)
+        BombTorizoPostureMove move)
     {
         Offset16<RoomPixels> displacement = BombTorizoMovementDefinitions.Posture(tableOffset);
-        torizo.Position += subtract ? -displacement : displacement;
+        torizo.Position += move == BombTorizoPostureMove.SitDown ? -displacement : displacement;
     }
 
     /// <summary>Uses the walk table's velocity and wall branches, arming a 72-frame air transition when Samus crosses the facing test.</summary>
@@ -1812,17 +1812,17 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Places a foot-specific dust effect 48 pixels below the statue after a landing step.</summary>
-    internal void SpawnBombTorizoLandingDust(RoomEnemySlot torizo, bool rightFoot)
+    internal void SpawnBombTorizoLandingDust(RoomEnemySlot torizo, HorizontalDirection foot)
     {
         RoomEnemyProjectileSlot? projectile = _projectiles.AllocateEnemyProjectile();
         if (projectile is null)
             return;
-        RoomEnemyProjectileKind kind = rightFoot
+        RoomEnemyProjectileKind kind = foot == HorizontalDirection.Right
             ? RoomEnemyProjectileKind.BombTorizoRightFootDust
             : RoomEnemyProjectileKind.BombTorizoLeftFootDust;
         EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(projectile, kind, graphicsIndex: 0);
-        projectile.StartAnimation(new TorizoProjectileAnimation(rightFoot ? TorizoProjectileProgram.LandingDustRightFoot : TorizoProjectileProgram.LandingDustLeftFoot));
-        projectile.Position = projectile.Position.WithWhole(new(unchecked((ushort)(torizo.Position.X.Whole + (rightFoot ? 24 : -24))), unchecked((ushort)(torizo.Position.Y.Whole + 48))));
+        projectile.StartAnimation(new TorizoProjectileAnimation(foot == HorizontalDirection.Right ? TorizoProjectileProgram.LandingDustRightFoot : TorizoProjectileProgram.LandingDustLeftFoot));
+        projectile.Position = projectile.Position.WithWhole(new(unchecked((ushort)(torizo.Position.X.Whole + (foot == HorizontalDirection.Right ? 24 : -24))), unchecked((ushort)(torizo.Position.Y.Whole + 48))));
     }
 
     /// <summary>Moves Bomb Torizo's orb through walls and floor, disabling damage on impact and adding gravity in flight.</summary>
@@ -1830,14 +1830,14 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemyProjectileSlot projectile,
         RoomLevelData level)
     {
-        if (EnemyProjectileEngine.MoveProjectileAxis(projectile, level, horizontal: true))
+        if (EnemyProjectileEngine.MoveProjectileAxis(projectile, level, axis: Axis.Horizontal))
         {
             projectile.StartAnimation(new TorizoProjectileAnimation(TorizoProjectileProgram.ChozoOrbWallImpact));
             projectile.CanDamageSamus = false;
             return;
         }
 
-        bool verticalCollision = EnemyProjectileEngine.MoveProjectileAxis(projectile, level, horizontal: false);
+        bool verticalCollision = EnemyProjectileEngine.MoveProjectileAxis(projectile, level, axis: Axis.Vertical);
         if (unchecked((short)projectile.Velocity.Y.RawValue) >= 0 && verticalCollision)
         {
             projectile.Position = projectile.Position.WithWholeY(unchecked((ushort)(
@@ -1857,7 +1857,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemyProjectileSlot projectile,
         RoomLevelData level)
     {
-        if (EnemyProjectileEngine.MoveProjectileAxis(projectile, level, horizontal: true))
+        if (EnemyProjectileEngine.MoveProjectileAxis(projectile, level, axis: Axis.Horizontal))
         {
             projectile.StartAnimation(new TorizoProjectileAnimation(TorizoProjectileProgram.SonicBoomWallImpact));
             projectile.Variable0 = projectile.Position.X.Whole;
@@ -1881,7 +1881,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemyProjectileSlot projectile,
         RoomLevelData level)
     {
-        if (EnemyProjectileEngine.MoveProjectileAxis(projectile, level, horizontal: true))
+        if (EnemyProjectileEngine.MoveProjectileAxis(projectile, level, axis: Axis.Horizontal))
         {
             projectile.StartAnimation(new TorizoProjectileAnimation(TorizoProjectileProgram.DroolWallImpact));
             return;
@@ -1899,7 +1899,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
             projectile.Velocity = projectile.Velocity.WithX(new SnesSignedEightEight(unchecked((ushort)(short)(dragged >= 0 ? dragged : 3))));
         }
 
-        bool verticalCollision = EnemyProjectileEngine.MoveProjectileAxis(projectile, level, horizontal: false);
+        bool verticalCollision = EnemyProjectileEngine.MoveProjectileAxis(projectile, level, axis: Axis.Vertical);
         if (unchecked((short)projectile.Velocity.Y.RawValue) >= 0 && verticalCollision)
         {
             projectile.Position = projectile.Position.WithWholeY(unchecked((ushort)(projectile.Position.Y.Whole - 3)));
@@ -1917,10 +1917,10 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemyProjectileSlot projectile,
         RoomLevelData level)
     {
-        if (EnemyProjectileEngine.MoveProjectileAxis(projectile, level, horizontal: true))
+        if (EnemyProjectileEngine.MoveProjectileAxis(projectile, level, axis: Axis.Horizontal))
             projectile.Velocity = projectile.Velocity.WithX(new SnesSignedEightEight(unchecked((ushort)-unchecked((short)projectile.Velocity.X.RawValue))));
 
-        bool verticalCollision = EnemyProjectileEngine.MoveProjectileAxis(projectile, level, horizontal: false);
+        bool verticalCollision = EnemyProjectileEngine.MoveProjectileAxis(projectile, level, axis: Axis.Vertical);
         if (verticalCollision && unchecked((short)projectile.Velocity.Y.RawValue) >= 0)
         {
             short xVelocity = unchecked((short)projectile.Velocity.X.RawValue);
@@ -1958,13 +1958,13 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        if (EnemyProjectileEngine.MoveProjectileAxis(projectile, level, horizontal: true))
+        if (EnemyProjectileEngine.MoveProjectileAxis(projectile, level, axis: Axis.Horizontal))
         {
             projectile.Velocity = projectile.Velocity.WithX(new SnesSignedEightEight(unchecked((ushort)-unchecked((short)projectile.Velocity.X.RawValue))));
             projectile.Variable0 = ((TorizoPostureFlags)projectile.Variable0 ^ TorizoPostureFlags.FacingRight).ToNativeWord();
         }
 
-        if (EnemyProjectileEngine.MoveProjectileAxis(projectile, level, horizontal: false) &&
+        if (EnemyProjectileEngine.MoveProjectileAxis(projectile, level, axis: Axis.Vertical) &&
             unchecked((short)projectile.Velocity.Y.RawValue) >= 0)
         {
             short xVelocity = unchecked((short)projectile.Velocity.X.RawValue);
@@ -1982,7 +1982,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemyProjectileSlot projectile,
         RoomLevelData level)
     {
-        if (EnemyProjectileEngine.MoveProjectileAxis(projectile, level, horizontal: true))
+        if (EnemyProjectileEngine.MoveProjectileAxis(projectile, level, axis: Axis.Horizontal))
         {
             projectile.PreInstruction =
                 EnemyProjectilePreInstruction.GoldenTorizoEgg_HitWall;
@@ -1999,7 +1999,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemyProjectileSlot projectile,
         RoomLevelData level)
     {
-        if (EnemyProjectileEngine.MoveProjectileAxis(projectile, level, horizontal: false))
+        if (EnemyProjectileEngine.MoveProjectileAxis(projectile, level, axis: Axis.Vertical))
         {
             projectile.StartAnimation(new TorizoProjectileAnimation(((TorizoPostureFlags)projectile.Variable0).HasFlag(TorizoPostureFlags.FacingRight) ? TorizoProjectileProgram.EggBreakRight : TorizoProjectileProgram.EggBreakLeft));
             return;
@@ -2028,10 +2028,10 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemyProjectileSlot projectile,
         RoomLevelData level)
     {
-        bool impact = EnemyProjectileEngine.MoveProjectileAxis(projectile, level, horizontal: true);
+        bool impact = EnemyProjectileEngine.MoveProjectileAxis(projectile, level, axis: Axis.Horizontal);
         if (!impact)
         {
-            bool verticalCollision = EnemyProjectileEngine.MoveProjectileAxis(projectile, level, horizontal: false);
+            bool verticalCollision = EnemyProjectileEngine.MoveProjectileAxis(projectile, level, axis: Axis.Vertical);
             impact = verticalCollision && unchecked((short)projectile.Velocity.Y.RawValue) >= 0;
         }
 
@@ -2071,13 +2071,13 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemyProjectileSlot projectile,
         RoomLevelData level)
     {
-        if (EnemyProjectileEngine.MoveProjectileAxis(projectile, level, horizontal: true))
+        if (EnemyProjectileEngine.MoveProjectileAxis(projectile, level, axis: Axis.Horizontal))
         {
             projectile.StartAnimation(new TorizoProjectileAnimation(TorizoProjectileProgram.EyeBeamWallImpact));
             return;
         }
 
-        if (EnemyProjectileEngine.MoveProjectileAxis(projectile, level, horizontal: false))
+        if (EnemyProjectileEngine.MoveProjectileAxis(projectile, level, axis: Axis.Vertical))
         {
             projectile.Position = projectile.Position.WithWholeY(unchecked((ushort)(
                 (projectile.Position.Y.Whole & TorizoMotionDefinitions.BlockMask) + 6)));
@@ -2146,7 +2146,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemyProjectileSlot projectile,
         RoomLevelData level)
     {
-        bool collided = EnemyProjectileEngine.MoveProjectileAxis(projectile, level, horizontal: false);
+        bool collided = EnemyProjectileEngine.MoveProjectileAxis(projectile, level, axis: Axis.Vertical);
         if (unchecked((short)projectile.Velocity.Y.RawValue) < 0 || !collided)
         {
             // The initializer writes $0010 to every fragment's own F word, but A8EF's ROM

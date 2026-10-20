@@ -158,19 +158,17 @@ internal static class SamusSpritemapFrameDefinitions
     internal static int SourceIndex(int index)
     {
         if ((uint)index >= SamusSpritemapArtworkCatalog.PointerCount) throw new ArgumentOutOfRangeException(nameof(index));
-        int Top(SamusPoseId pose) => SamusSpritemapPoseDefinitions.TopBase(pose);
-        int Bottom(SamusPoseId pose) => SamusSpritemapPoseDefinitions.BottomBase(pose);
-        int Alias(bool upper, SamusPoseId target, SamusPoseId source, int count)
+        static int Top(SamusPoseId pose) => SamusSpritemapPoseDefinitions.TopBase(pose);
+        static int Bottom(SamusPoseId pose) => SamusSpritemapPoseDefinitions.BottomBase(pose);
+        int Alias(Func<SamusPoseId, int> halfBase, SamusPoseId target, SamusPoseId source, int count)
         {
-            int targetBase = upper ? Top(target) : Bottom(target);
-            int phase = index - targetBase;
-            return (uint)phase < count ? (upper ? Top(source) : Bottom(source)) + phase : index;
+            int phase = index - halfBase(target);
+            return (uint)phase < count ? halfBase(source) + phase : index;
         }
-        int Reverse(bool upper, SamusPoseId target, SamusPoseId source, int count)
+        int Reverse(Func<SamusPoseId, int> halfBase, SamusPoseId target, SamusPoseId source, int count)
         {
-            int targetBase = upper ? Top(target) : Bottom(target);
-            int phase = index - targetBase;
-            return (uint)phase < count ? (upper ? Top(source) : Bottom(source)) + count - 1 - phase : index;
+            int phase = index - halfBase(target);
+            return (uint)phase < count ? halfBase(source) + count - 1 - phase : index;
         }
         int phase = index - Top(SamusPoseId.ForwardFacingSuitedPose);
         if (phase > 0 && phase < AppearancePhases) return Top(SamusPoseId.ForwardFacingPowerSuitPose) + phase;
@@ -326,48 +324,48 @@ internal static class SamusSpritemapFrameDefinitions
         // Every source below precedes its target; independent edits therefore form
         // an acyclic alias graph rather than changing the selected basis itself.
         int source;
-        source = Alias(true, SamusPoseId.GrappleCrouchingRightPose, SamusPoseId.FacingRightNormalPose, 9); if (source != index) return source;
-        source = Alias(true, SamusPoseId.GrappleCrouchingLeftPose, SamusPoseId.FacingLeftNormalPose, 9); if (source != index) return source;
-        source = Alias(true, SamusPoseId.NormalJumpAimUpRightPose, SamusPoseId.StandingAimUpRightPose, 2); if (source != index) return source;
-        source = Alias(true, SamusPoseId.NormalJumpAimUpLeftPose, SamusPoseId.StandingAimUpLeftPose, 2); if (source != index) return source;
-        source = Alias(true, SamusPoseId.CrouchingAimUpRightPose, SamusPoseId.StandingAimUpRightPose, 2); if (source != index) return source;
-        source = Alias(true, SamusPoseId.CrouchingAimUpLeftPose, SamusPoseId.StandingAimUpLeftPose, 2); if (source != index) return source;
-        source = Alias(true, SamusPoseId.UnusedPoseAC, SamusPoseId.FiringLandingRightPose, 2); if (source != index) return source;
-        source = Alias(true, SamusPoseId.UnusedPoseAD, SamusPoseId.FiringLandingLeftPose, 2); if (source != index) return source;
-        source = Alias(true, SamusPoseId.NormalJumpForwardRightPose, SamusPoseId.FiringLandingRightPose, 2); if (source != index) return source;
-        source = Alias(true, SamusPoseId.NormalJumpForwardLeftPose, SamusPoseId.FiringLandingLeftPose, 2); if (source != index) return source;
-        source = Alias(true, SamusPoseId.FallingAimDownRightPose, SamusPoseId.UnusedPoseAE, 2); if (source != index) return source;
-        source = Alias(true, SamusPoseId.FallingAimDownLeftPose, SamusPoseId.UnusedPoseAF, 2); if (source != index) return source;
-        source = Alias(true, SamusPoseId.DraygonGrabbedFiringRightPose, SamusPoseId.StandingTransitionRightPose, 1); if (source != index) return source;
-        source = Alias(true, SamusPoseId.DraygonGrabbedFiringLeftPose, SamusPoseId.StandingTransitionLeftPose, 1); if (source != index) return source;
-        source = Alias(true, SamusPoseId.ShinesparkDiagonalRightPose, SamusPoseId.ShinesparkHorizontalRightPose, 1); if (source != index) return source;
-        source = Alias(true, SamusPoseId.ShinesparkDiagonalLeftPose, SamusPoseId.ShinesparkHorizontalLeftPose, 1); if (source != index) return source;
-        source = Alias(false, SamusPoseId.FallingAimDownRightPose, SamusPoseId.UnusedPoseAE, 2); if (source != index) return source;
-        source = Alias(false, SamusPoseId.FallingAimDownLeftPose, SamusPoseId.UnusedPoseAF, 2); if (source != index) return source;
-        source = Alias(false, SamusPoseId.NormalJumpForwardRightPose, SamusPoseId.UnusedPoseAC, 2); if (source != index) return source;
-        source = Alias(false, SamusPoseId.NormalJumpForwardLeftPose, SamusPoseId.UnusedPoseAD, 2); if (source != index) return source;
-        source = Alias(false, SamusPoseId.UnusedPoseB0, SamusPoseId.UnusedPoseAC, 2); if (source != index) return source;
-        source = Alias(false, SamusPoseId.UnusedPoseB1, SamusPoseId.UnusedPoseAD, 2); if (source != index) return source;
-        source = Alias(false, SamusPoseId.NormalJumpAimDiagonalUpRightPose, SamusPoseId.NormalJumpAimUpRightPose, 2); if (source != index) return source;
-        source = Alias(false, SamusPoseId.NormalJumpAimDiagonalUpLeftPose, SamusPoseId.NormalJumpAimUpLeftPose, 2); if (source != index) return source;
-        source = Alias(false, SamusPoseId.FallingAimDiagonalUpRightPose, SamusPoseId.FallingAimUpRightPose, 3); if (source != index) return source;
-        source = Alias(false, SamusPoseId.FallingAimDiagonalUpLeftPose, SamusPoseId.FallingAimUpLeftPose, 3); if (source != index) return source;
-        source = Alias(false, SamusPoseId.FallingAimDiagonalDownRightPose, SamusPoseId.FallingAimUpRightPose, 3); if (source != index) return source;
-        source = Alias(false, SamusPoseId.FallingAimDiagonalDownLeftPose, SamusPoseId.FallingAimUpLeftPose, 3); if (source != index) return source;
-        source = Alias(false, SamusPoseId.GrappleCrouchingDownRightPose, SamusPoseId.CrouchingAimDiagonalUpRightPose, 1); if (source != index) return source;
-        source = Alias(false, SamusPoseId.GrappleCrouchingDownLeftPose, SamusPoseId.CrouchingAimDiagonalUpLeftPose, 1); if (source != index) return source;
-        source = Alias(false, SamusPoseId.ShinesparkDiagonalRightPose, SamusPoseId.ShinesparkHorizontalRightPose, 1); if (source != index) return source;
-        source = Alias(false, SamusPoseId.ShinesparkDiagonalLeftPose, SamusPoseId.ShinesparkHorizontalLeftPose, 1); if (source != index) return source;
+        source = Alias(Top, SamusPoseId.GrappleCrouchingRightPose, SamusPoseId.FacingRightNormalPose, 9); if (source != index) return source;
+        source = Alias(Top, SamusPoseId.GrappleCrouchingLeftPose, SamusPoseId.FacingLeftNormalPose, 9); if (source != index) return source;
+        source = Alias(Top, SamusPoseId.NormalJumpAimUpRightPose, SamusPoseId.StandingAimUpRightPose, 2); if (source != index) return source;
+        source = Alias(Top, SamusPoseId.NormalJumpAimUpLeftPose, SamusPoseId.StandingAimUpLeftPose, 2); if (source != index) return source;
+        source = Alias(Top, SamusPoseId.CrouchingAimUpRightPose, SamusPoseId.StandingAimUpRightPose, 2); if (source != index) return source;
+        source = Alias(Top, SamusPoseId.CrouchingAimUpLeftPose, SamusPoseId.StandingAimUpLeftPose, 2); if (source != index) return source;
+        source = Alias(Top, SamusPoseId.UnusedPoseAC, SamusPoseId.FiringLandingRightPose, 2); if (source != index) return source;
+        source = Alias(Top, SamusPoseId.UnusedPoseAD, SamusPoseId.FiringLandingLeftPose, 2); if (source != index) return source;
+        source = Alias(Top, SamusPoseId.NormalJumpForwardRightPose, SamusPoseId.FiringLandingRightPose, 2); if (source != index) return source;
+        source = Alias(Top, SamusPoseId.NormalJumpForwardLeftPose, SamusPoseId.FiringLandingLeftPose, 2); if (source != index) return source;
+        source = Alias(Top, SamusPoseId.FallingAimDownRightPose, SamusPoseId.UnusedPoseAE, 2); if (source != index) return source;
+        source = Alias(Top, SamusPoseId.FallingAimDownLeftPose, SamusPoseId.UnusedPoseAF, 2); if (source != index) return source;
+        source = Alias(Top, SamusPoseId.DraygonGrabbedFiringRightPose, SamusPoseId.StandingTransitionRightPose, 1); if (source != index) return source;
+        source = Alias(Top, SamusPoseId.DraygonGrabbedFiringLeftPose, SamusPoseId.StandingTransitionLeftPose, 1); if (source != index) return source;
+        source = Alias(Top, SamusPoseId.ShinesparkDiagonalRightPose, SamusPoseId.ShinesparkHorizontalRightPose, 1); if (source != index) return source;
+        source = Alias(Top, SamusPoseId.ShinesparkDiagonalLeftPose, SamusPoseId.ShinesparkHorizontalLeftPose, 1); if (source != index) return source;
+        source = Alias(Bottom, SamusPoseId.FallingAimDownRightPose, SamusPoseId.UnusedPoseAE, 2); if (source != index) return source;
+        source = Alias(Bottom, SamusPoseId.FallingAimDownLeftPose, SamusPoseId.UnusedPoseAF, 2); if (source != index) return source;
+        source = Alias(Bottom, SamusPoseId.NormalJumpForwardRightPose, SamusPoseId.UnusedPoseAC, 2); if (source != index) return source;
+        source = Alias(Bottom, SamusPoseId.NormalJumpForwardLeftPose, SamusPoseId.UnusedPoseAD, 2); if (source != index) return source;
+        source = Alias(Bottom, SamusPoseId.UnusedPoseB0, SamusPoseId.UnusedPoseAC, 2); if (source != index) return source;
+        source = Alias(Bottom, SamusPoseId.UnusedPoseB1, SamusPoseId.UnusedPoseAD, 2); if (source != index) return source;
+        source = Alias(Bottom, SamusPoseId.NormalJumpAimDiagonalUpRightPose, SamusPoseId.NormalJumpAimUpRightPose, 2); if (source != index) return source;
+        source = Alias(Bottom, SamusPoseId.NormalJumpAimDiagonalUpLeftPose, SamusPoseId.NormalJumpAimUpLeftPose, 2); if (source != index) return source;
+        source = Alias(Bottom, SamusPoseId.FallingAimDiagonalUpRightPose, SamusPoseId.FallingAimUpRightPose, 3); if (source != index) return source;
+        source = Alias(Bottom, SamusPoseId.FallingAimDiagonalUpLeftPose, SamusPoseId.FallingAimUpLeftPose, 3); if (source != index) return source;
+        source = Alias(Bottom, SamusPoseId.FallingAimDiagonalDownRightPose, SamusPoseId.FallingAimUpRightPose, 3); if (source != index) return source;
+        source = Alias(Bottom, SamusPoseId.FallingAimDiagonalDownLeftPose, SamusPoseId.FallingAimUpLeftPose, 3); if (source != index) return source;
+        source = Alias(Bottom, SamusPoseId.GrappleCrouchingDownRightPose, SamusPoseId.CrouchingAimDiagonalUpRightPose, 1); if (source != index) return source;
+        source = Alias(Bottom, SamusPoseId.GrappleCrouchingDownLeftPose, SamusPoseId.CrouchingAimDiagonalUpLeftPose, 1); if (source != index) return source;
+        source = Alias(Bottom, SamusPoseId.ShinesparkDiagonalRightPose, SamusPoseId.ShinesparkHorizontalRightPose, 1); if (source != index) return source;
+        source = Alias(Bottom, SamusPoseId.ShinesparkDiagonalLeftPose, SamusPoseId.ShinesparkHorizontalLeftPose, 1); if (source != index) return source;
 
-        source = Reverse(true, SamusPoseId.MoonwalkTurnJumpRightPose, SamusPoseId.MoonwalkTurnJumpLeftPose, 3); if (source != index) return source;
-        source = Reverse(true, SamusPoseId.MoonwalkTurnJumpAimUpRightPose, SamusPoseId.MoonwalkTurnJumpAimUpLeftPose, 3); if (source != index) return source;
-        source = Reverse(true, SamusPoseId.MoonwalkTurnJumpAimDownRightPose, SamusPoseId.MoonwalkTurnJumpAimDownLeftPose, 3); if (source != index) return source;
-        source = Reverse(true, SamusPoseId.UnmorphingTransitionRightPose, SamusPoseId.MorphingTransitionRightPose, 2); if (source != index) return source;
-        source = Reverse(true, SamusPoseId.UnmorphingTransitionLeftPose, SamusPoseId.MorphingTransitionLeftPose, 2); if (source != index) return source;
-        source = Reverse(true, SamusPoseId.UnusedPoseDd, SamusPoseId.UnusedPoseDb, 3); if (source != index) return source;
-        source = Reverse(true, SamusPoseId.UnusedPoseDe, SamusPoseId.UnusedPoseDc, 3); if (source != index) return source;
-        source = Reverse(false, SamusPoseId.MoonwalkTurnJumpRightPose, SamusPoseId.MoonwalkTurnJumpLeftPose, 3); if (source != index) return source;
-        source = Reverse(false, SamusPoseId.TurningLeftToRightCrouchingAimDiagonalUpPose, SamusPoseId.TurningRightToLeftCrouchingAimDiagonalUpPose, 3); if (source != index) return source;
+        source = Reverse(Top, SamusPoseId.MoonwalkTurnJumpRightPose, SamusPoseId.MoonwalkTurnJumpLeftPose, 3); if (source != index) return source;
+        source = Reverse(Top, SamusPoseId.MoonwalkTurnJumpAimUpRightPose, SamusPoseId.MoonwalkTurnJumpAimUpLeftPose, 3); if (source != index) return source;
+        source = Reverse(Top, SamusPoseId.MoonwalkTurnJumpAimDownRightPose, SamusPoseId.MoonwalkTurnJumpAimDownLeftPose, 3); if (source != index) return source;
+        source = Reverse(Top, SamusPoseId.UnmorphingTransitionRightPose, SamusPoseId.MorphingTransitionRightPose, 2); if (source != index) return source;
+        source = Reverse(Top, SamusPoseId.UnmorphingTransitionLeftPose, SamusPoseId.MorphingTransitionLeftPose, 2); if (source != index) return source;
+        source = Reverse(Top, SamusPoseId.UnusedPoseDd, SamusPoseId.UnusedPoseDb, 3); if (source != index) return source;
+        source = Reverse(Top, SamusPoseId.UnusedPoseDe, SamusPoseId.UnusedPoseDc, 3); if (source != index) return source;
+        source = Reverse(Bottom, SamusPoseId.MoonwalkTurnJumpRightPose, SamusPoseId.MoonwalkTurnJumpLeftPose, 3); if (source != index) return source;
+        source = Reverse(Bottom, SamusPoseId.TurningLeftToRightCrouchingAimDiagonalUpPose, SamusPoseId.TurningRightToLeftCrouchingAimDiagonalUpPose, 3); if (source != index) return source;
         // These body halves remain stationary throughout their named aiming/X-ray phases.
         phase = index - Top(SamusPoseId.StandingAimDiagonalUpRightPose); if ((uint)phase < 2) return index - phase;
         phase = index - Top(SamusPoseId.StandingAimDiagonalUpLeftPose); if ((uint)phase < 2) return index - phase;

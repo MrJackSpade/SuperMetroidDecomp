@@ -5,6 +5,7 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// <param name="Descending">
 /// True for Hyper Beam's descending program, which shows the fast spark first (native offsets four, two, zero).
 /// </param>
+[IndependentFlag("whether the authored flare components run in descending order, a fact of the data")]
 public readonly record struct ChargeFlareComponents(int Count, bool Descending)
 {
     /// <summary>The shown components in drawing order.</summary>

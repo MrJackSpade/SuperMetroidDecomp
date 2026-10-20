@@ -10,6 +10,7 @@ namespace SuperMetroid.Core.Enemies;
 /// <param name="BottomRight">The target's right and bottom edges.</param>
 /// <param name="SelectShotCallback">Whether the walker selects the shot callback with strict edges, rather than the touch callback with inclusive ones.</param>
 /// <param name="ArtworkInstalled">Whether the room has installed enemy artwork.</param>
+[IndependentFlag("independent probe facts: whether a shot callback is selected and whether artwork is installed")]
 internal readonly record struct EnemyHitboxProbe(
     Position16<RoomPixels> TopLeft, Position16<RoomPixels> BottomRight, bool SelectShotCallback, bool ArtworkInstalled)
 {

@@ -29,7 +29,7 @@ internal static class HopperAnimationDefinitionsVerification
             bool jumping = (selector & 2) != 0;
             AssertEqual(ReadHopperAnimationWord(rom, tables[selector] + variant * 2),
                 NativeEnemyProgramOracle.EntryOf(HopperNativeListAddresses.Entries,
-                    HopperAnimationDefinitions.Program(variant, upsideDown, jumping)),
+                    HopperAnimationDefinitions.Program(variant, upsideDown ? HopperSurface.Ceiling : HopperSurface.Floor, jumping ? HopperPhase.Jumping : HopperPhase.Landed)),
                 $"hopper animation variant {variant}, selector {selector}");
         }
 
@@ -55,12 +55,12 @@ internal static class HopperAnimationDefinitionsVerification
             slot.SetSpawnParameter1(upsideDown ? (ushort)1 : (ushort)0);
             enemies.HoppersBehavior.InitializeHopper(slot);
             HopperEnemyState state = enemies.HopperStates[0] ?? throw new InvalidOperationException("Verification requires enemies.HopperStates[0].");
-            HopperProgram landed = HopperAnimationDefinitions.Program(variant, upsideDown, jumping: false);
-            HopperProgram jumping = HopperAnimationDefinitions.Program(variant, upsideDown, jumping: true);
+            HopperProgram landed = HopperAnimationDefinitions.Program(variant, upsideDown ? HopperSurface.Ceiling : HopperSurface.Floor, HopperPhase.Landed);
+            HopperProgram jumping = HopperAnimationDefinitions.Program(variant, upsideDown ? HopperSurface.Ceiling : HopperSurface.Floor, HopperPhase.Jumping);
             AssertEqual(AnimationProgramCursor<HopperProgram>.Start(landed), state.Program, $"hopper initial landed program {context}");
 
             state.XVelocity = 3;
-            HoppersBehavior.StartHopperJump(slot, state, upsideDown, false);
+            HoppersBehavior.StartHopperJump(slot, state, upsideDown ? HopperSurface.Ceiling : HopperSurface.Floor, HopperHopDirection.Forward);
             AssertEqual(AnimationProgramCursor<HopperProgram>.Start(jumping), state.Program, $"hopper jumping program {context}");
             ushort airborne = HopperAnimationsConstants.Spritemaps(jumping).Single();
             AssertEqual(EnemyInstructionRunner.ExpectedFrames([airborne, airborne], [1, 1]),
@@ -86,10 +86,10 @@ internal static class HopperAnimationDefinitionsVerification
 
         Suite(nameof(VerifyTourianSidehopperInstructionAlias), () => VerifyTourianSidehopperInstructionAlias(artwork));
         AssertThrows<InvalidDataException>(
-            () => HopperAnimationDefinitions.Program(4, false, false),
+            () => HopperAnimationDefinitions.Program(4, HopperSurface.Floor, HopperPhase.Landed),
             "hopper animation variant beyond authored table");
         AssertThrows<InvalidDataException>(
-            () => HopperAnimationDefinitions.Program(ushort.MaxValue, true, true),
+            () => HopperAnimationDefinitions.Program(ushort.MaxValue, HopperSurface.Ceiling, HopperPhase.Jumping),
             "restored hopper animation variant does not wrap into authored table");
         Console.WriteLine(artwork is null
             ? "Hopper animations: the native selector tables, five production definitions and their sound, processing and readiness cues pass."

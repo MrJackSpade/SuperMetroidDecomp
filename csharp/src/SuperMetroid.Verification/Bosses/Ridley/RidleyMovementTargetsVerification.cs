@@ -42,7 +42,7 @@ internal static class RidleyMovementTargetsVerification
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
         Action<RoomEnemySlot, RidleyEnemyState> beginCarry = RidleyBehavior.BeginNorfairRidleyCarry;
         Func<RidleyEnemyState, int> readDivisor = RidleyBehavior.ReadRidleyHealthMovementDivisorIndex;
-        Action<RoomEnemySlot, RidleyEnemyState, SamusState?, bool> pogo = enemies.RidleyBehavior.TickNorfairRidleyPogo;
+        Action<RoomEnemySlot, RidleyEnemyState, SamusState?, VerticalDirection> pogo = enemies.RidleyBehavior.TickNorfairRidleyPogo;
         Action<RoomEnemySlot, RidleyEnemyState, SamusState?> moveSide = enemies.RidleyBehavior.TickNorfairRidleyGroundAttackMoveToSide;
         Action<RoomEnemySlot, RidleyEnemyState, SamusState?, SnesButton, RoomLevelData?> run = enemies.RidleyBehavior.RunNorfairRidleyFunction;
         var slot = enemies.SlotTable.Slots[0];
@@ -94,7 +94,7 @@ internal static class RidleyMovementTargetsVerification
             foreach (bool down in new[] { false, true })
             {
                 state.Velocity = new EightEightVector<RoomPixels>(new SnesSignedEightEight(0), new SnesSignedEightEight(0));
-                pogo(slot, state, null, down);
+                pogo(slot, state, null, down ? VerticalDirection.Down : VerticalDirection.Up);
                 ushort target = (down ? descending : ascending)[(int)facing];
                 AssertEqual(Expected(x, target, hover[health]), state.Velocity.X.RawValue, "Pogo side target and health divisor reach motion");
             }

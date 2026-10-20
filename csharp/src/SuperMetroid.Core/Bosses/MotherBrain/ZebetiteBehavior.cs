@@ -167,7 +167,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         if ((state.GenerationFlags & ZebetiteGenerationFlags.LinkedPair) != 0)
         {
-            RoomEnemySlot secondary = SpawnZebetite(linkedHalf: true);
+            RoomEnemySlot secondary = SpawnZebetite(ZebetiteHalf.Linked);
             secondary.RequireSpeciesState<ZebetiteEnemyState>().LinkedNativeIndex = slot.NativeIndex;
             state.LinkedNativeIndex = secondary.NativeIndex;
         }
@@ -210,7 +210,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
         PublishZebetiteGenerationEvents(nextGeneration);
         FinishZebetiteDeath(slot);
         if (nextGeneration < 4)
-            SpawnZebetite(linkedHalf: false);
+            SpawnZebetite(ZebetiteHalf.Primary);
     }
 
     /// <summary>Applies the shared two-color cycle using physical slot zero's native counter when no fade suppresses it.</summary>
@@ -239,7 +239,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Finds a free physical slot and initializes a primary or linked half from its population record.</summary>
-    internal RoomEnemySlot SpawnZebetite(bool linkedHalf)
+    internal RoomEnemySlot SpawnZebetite(ZebetiteHalf half)
     {
         // A0:9275 scans physical slots from zero. In particular, a primary's
         // death vacates its slot before spawning the next generation; surviving
@@ -249,11 +249,11 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
             throw new InvalidOperationException("Zebetite progression exhausted the 32-slot enemy pool.");
 
         RoomEnemyPopulationRecord population =
-            ZebetiteDefinitions.SpawnPopulation(linkedHalf);
+            ZebetiteDefinitions.SpawnPopulation(half);
         if (population.DefinitionPointer != EnemyDefinitionId.Zebetite)
         {
             throw new InvalidDataException(
-                $"Zebetite {(linkedHalf ? "linked" : "primary")} spawn record names enemy " +
+                $"Zebetite {half} spawn record names enemy " +
                 $"${(int)population.DefinitionPointer:X4}.");
         }
 
@@ -403,7 +403,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             AlwaysUsesCollisionPrelude = true,
             ExemptFromGenericDeath = true,
-            AfterCommon = (c, _) => ResolveZebetiteShotAfterCommon(c.Enemy),
+            AfterCommon = c => ResolveZebetiteShotAfterCommon(c.Enemy),
         });
     }
 
@@ -425,6 +425,6 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         table.AddTouch(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Zebetite &&
                                EnemyCollision.TouchAi(slot) == EnemyInteractionCallback.ZebetiteTouch,
-            context => _collision.ResolveNormalEnemyTouch(context.Slot, context.Samus, skipDeathAnimation: true));
+            context => _collision.ResolveNormalEnemyTouch(context.Slot, context.Samus, deathAnimation: TouchDeathAnimation.Skip));
     }
 }

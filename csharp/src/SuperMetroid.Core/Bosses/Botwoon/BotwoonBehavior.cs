@@ -210,7 +210,8 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         if (!state.PathComplete)
         {
-            RunBotwoonMovingFrame(head, state, samus, detectHole: true);
+            RunBotwoonMovingFrame(head, state, samus);
+            DetectBotwoonHole(head, state);
             return;
         }
 
@@ -254,7 +255,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        RunBotwoonMovingFrame(head, state, samus, detectHole: false);
+        RunBotwoonMovingFrame(head, state, samus);
     }
 
     /// <summary>Waits for the spit timer, then chooses whether the next path begins inside a hole.</summary>
@@ -295,8 +296,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
     private void RunBotwoonMovingFrame(
         RoomEnemySlot head,
         BotwoonEnemyState state,
-        SamusState samus,
-        bool detectHole)
+        SamusState samus)
     {
         RunBotwoonMovement(head, state);
         RecordBotwoonHeadPosition(head, state);
@@ -304,8 +304,6 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
         RunBotwoonHeadFunction(head, state, samus);
         OrientBotwoonBody(head, state);
         state.RingIndex = BotwoonNavigationDefinitions.WrapHistoryIndex(state.RingIndex + 1);
-        if (detectHole)
-            DetectBotwoonHole(head, state);
     }
 
     /// <summary>Dispatches movement toward a hole or through an authored path descriptor.</summary>
@@ -911,7 +909,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
                                                      EnemyCollision.ShotAi(enemy) == EnemyInteractionCallback.BotwoonShot)
         {
             ExemptFromGenericDeath = true,
-            AfterCommon = (c, _) =>
+            AfterCommon = c =>
             {
                 RequireBotwoonState(c.Enemy).PreviousHealth = c.HealthBefore;
                 ResolveBotwoonCombatAfterCommon(c.Enemy);
@@ -926,7 +924,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
                                EnemyCollision.TouchAi(slot) == EnemyInteractionCallback.BotwoonTouch,
             context =>
             {
-                _collision.ResolveNormalEnemyTouch(context.Slot, context.Samus, skipDeathAnimation: true);
+                _collision.ResolveNormalEnemyTouch(context.Slot, context.Samus, deathAnimation: TouchDeathAnimation.Skip);
                 ResolveBotwoonCombatAfterCommon(context.Slot);
             });
     }

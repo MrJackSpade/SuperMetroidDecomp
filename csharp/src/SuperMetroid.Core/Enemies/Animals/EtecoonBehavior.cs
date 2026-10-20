@@ -255,12 +255,12 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
                 if (unchecked((short)(direction - 5)) < 0)
                 {
                     InstallEtecoonInstruction(slot, state, EtecoonProgram.LookRightAtSamusAndRunLeft);
-                    state.Head(right: false);
+                    state.Head(side: HorizontalDirection.Left);
                 }
                 else
                 {
                     InstallEtecoonInstruction(slot, state, EtecoonProgram.LookLeftAtSamusAndRunRight);
-                    state.Head(right: true);
+                    state.Head(side: HorizontalDirection.Right);
                 }
                 state.FunctionTimer = NativeCountdown.Start(32);
                 state.Function = EtecoonAiFunction.FaceSamusPause;
@@ -314,7 +314,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
         SetEtecoonHorizontalVelocity(state, EtecoonRightVelocity);
         state.Function = EtecoonAiFunction.RunRightToWall;
         InstallEtecoonInstruction(slot, state, EtecoonProgram.RunningRight);
-        state.Head(right: true);
+        state.Head(side: HorizontalDirection.Right);
     }
 
     /// <summary>Runs right until the 32-pixel solid lookahead arms the airborne wall-jump state.</summary>
@@ -349,12 +349,12 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
             if (state.HeadsRightOrCountsHops)
             {
                 InstallEtecoonInstruction(slot, state, EtecoonProgram.WallJumpLeftEligible);
-                state.Head(right: false);
+                state.Head(side: HorizontalDirection.Left);
             }
             else
             {
                 InstallEtecoonInstruction(slot, state, EtecoonProgram.WallJumpRightEligible);
-                state.Head(right: true);
+                state.Head(side: HorizontalDirection.Right);
             }
             state.Function = EtecoonAiFunction.WallPause;
             state.FunctionTimer = NativeCountdown.Start(8);

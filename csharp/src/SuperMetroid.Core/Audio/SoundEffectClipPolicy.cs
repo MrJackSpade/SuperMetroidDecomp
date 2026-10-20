@@ -9,6 +9,7 @@ namespace SuperMetroid.Core.Audio;
 /// <param name="LowHealthMode">The effect on library 3's low-health mode.</param>
 /// <param name="IgnoresPriority">Whether the request is accepted while a high-priority sound plays.</param>
 /// <param name="IgnoresLowHealthMode">Whether the request is accepted while low-health mode is active.</param>
+[IndependentFlag("independent exemptions a clip carries: from the priority rule and from low-health mode")]
 public sealed record SoundEffectClipPolicy(
     int Voices,
     SoundEffectPriorityEffect Priority,

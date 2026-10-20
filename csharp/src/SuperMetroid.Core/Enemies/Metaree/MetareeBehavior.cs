@@ -153,11 +153,10 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemyEntityFactory
         // proven. Metaree writes the literal mask `$0003`; retaining it raw avoids inventing
         // a flags-enum contract while preserving collision/processing behavior exactly.
         slot.Properties = slot.Properties.WithFamilyData((byte)(slot.Properties.FamilyData | MetareeDefinitions.DescentPropertyBits));
-        if (EnemyTerrain.EnemyHasSolidHighBitAhead(
+        if (EnemyTerrain.EnemyHasSolidHighBitBelow(
                 level,
                 slot,
-                SnesSixteenSixteen.FromWhole(state.YVelocity),
-                movingDown: true))
+                SnesSixteenSixteen.FromWhole(state.YVelocity)))
         {
             slot.InstructionTimer = NativeCountdown.Start(1);
             slot.Timer = NativeCountdown.Start(0);

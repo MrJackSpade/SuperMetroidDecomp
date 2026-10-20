@@ -188,7 +188,7 @@ internal sealed class ProjectileTerrainCollision
         {
             RoomCollisionBlock block = level.GetCollisionBlock(new(unchecked((ushort)blockX), unchecked((ushort)blockY)));
             var context = new ShotSpan(span, rightBlock - blockX, targetY);
-            if (!RunShotReaction(level, slot, block, roomPlms, context, out bool endSpan, horizontalMovement: false))
+            if (!RunShotReaction(level, slot, block, roomPlms, context, out bool endSpan, axis: Axis.Vertical))
                 everyBlockSolid = false;
             if (endSpan) return true;
         }
@@ -258,7 +258,7 @@ internal sealed class ProjectileTerrainCollision
         RoomPlmSystem? roomPlms,
         ShotSpan span,
         out bool endSpan,
-        bool horizontalMovement = true)
+        Axis axis = Axis.Horizontal)
     {
         endSpan = false;
         // `$94:9411/$9447` are shared by shot, bomb, grapple, collision, and inside
@@ -271,13 +271,13 @@ internal sealed class ProjectileTerrainCollision
             return false;
         block = resolvedBlock.Value;
         if (block.CollisionType == RoomCollisionType.Slope && block.Bts.SlopeShape < 5)
-            return SquareSlopeShotReaction(slot, block, span, horizontalMovement);
+            return SquareSlopeShotReaction(slot, block, span, axis == Axis.Horizontal);
         if (block.CollisionType == RoomCollisionType.Slope && block.Bts.SlopeShape >= 5)
         {
             // $94:A147/A15E dispatch non-square slopes through the projectile's
             // perpendicular center block, not every row/column touched by its radius.
-            int centerBlock = horizontalMovement ? slot.Position.Y.Whole >> 4 : slot.Position.X.Whole >> 4;
-            int slopeBlock = horizontalMovement ? block.Index / level.Size.X : block.Index % level.Size.X;
+            int centerBlock = axis == Axis.Horizontal ? slot.Position.Y.Whole >> 4 : slot.Position.X.Whole >> 4;
+            int slopeBlock = axis == Axis.Horizontal ? block.Index / level.Size.X : block.Index % level.Size.X;
             if (centerBlock != slopeBlock) return false;
 
             int x = slot.Position.X.Whole & 15;
@@ -630,7 +630,7 @@ internal sealed class ProjectileTerrainCollision
             if (index < level.Size.X * level.Size.Y)
             {
                 RunShotReaction(level, slot, level.GetCollisionBlock(new(unchecked((ushort)(index % level.Size.X)), unchecked((ushort)(index / level.Size.X)))), roomPlms,
-                    new ShotSpan(span, remaining, targetY), out bool endSpan, horizontalMovement: false);
+                    new ShotSpan(span, remaining, targetY), out bool endSpan, axis: Axis.Vertical);
                 if (endSpan) return;
             }
             byteOffset = unchecked((ushort)(byteOffset + 2));

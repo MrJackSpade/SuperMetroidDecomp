@@ -72,6 +72,7 @@ public sealed class CeresElevatorShaftRoomMainState
     /// numbers; keeping that input explicit preserves the same ownership boundary.
     /// </param>
     /// <param name="scratch">Shared mutable room-main scratch: Var1 supplies and receives the encoded forward/reverse rotation index inherited by subsequent room owners; the countdown remains in this state's <see cref="RotationTimer"/>.</param>
+    [IndependentFlag("independent room facts the caller reads from data: the elevator door's state and whether departure is allowed")]
     public CeresElevatorShaftRoomMainResult Step(
         SamusState? samus,
         bool elevatorDoorDestroyed,
@@ -85,7 +86,7 @@ public sealed class CeresElevatorShaftRoomMainState
         // its escape status. In particular, the initial elevator descent retains door ASM's identity
         // matrix instead of prematurely consuming the rotation table.
         if (!IsActive || !elevatorDoorDestroyed)
-            return Snapshot(matrixChanged: false);
+            return new(Transform, MatrixChanged: false, DepartureRequestedThisFrame);
 
         if (allowDeparture &&
             !DepartureRequested &&
@@ -113,7 +114,7 @@ public sealed class CeresElevatorShaftRoomMainState
         NativeWordCounterStep timer = RotationTimer.Decrement();
         RotationTimer = timer.Remaining;
         if (timer.IsNonNegative)
-            return Snapshot(matrixChanged: false);
+            return new(Transform, MatrixChanged: false, DepartureRequestedThisFrame);
 
         // Native computes `(uint16)(6 * index) >> 1`, not a conventional array index.
         // The encoded phase $8044 relies on the multiplication wrapping before the shift,
@@ -145,7 +146,7 @@ public sealed class CeresElevatorShaftRoomMainState
                 : unchecked((ushort)(rotationIndex + 1));
         }
 
-        return Snapshot(matrixChanged: true);
+        return new(Transform, MatrixChanged: true, DepartureRequestedThisFrame);
     }
 
     /// <summary>
@@ -160,11 +161,6 @@ public sealed class CeresElevatorShaftRoomMainState
         samus.Kinematics.YSpeed.Whole == 0 &&
         samus.Kinematics.YSpeed.Fraction == 0;
 
-    /// <summary>Publishes the current Mode 7 matrix and this call's departure edge to the dispatcher.</summary>
-    private CeresElevatorShaftRoomMainResult Snapshot(bool matrixChanged) => new(
-        Transform,
-        matrixChanged,
-        DepartureRequestedThisFrame);
 
     /// <summary>Starts the shaft at the door ASM's identity matrix and fixed rotation center.</summary>
     private static SamusMode7Transform CreateInitialTransform() => new(

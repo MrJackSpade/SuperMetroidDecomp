@@ -159,9 +159,16 @@ public sealed class MotherBrainRainbowBeamAttackSequence
     public uint SmallPurpleBreathGenerationWriteCount { get; private set; }
 
     /// <summary>Records a body-AI write to the breath flag so a later brain-list opcode can remain a separate writer.</summary>
-    private void WriteSmallPurpleBreathGeneration(bool enabled)
+    private void EnableSmallPurpleBreathGeneration()
     {
-        SmallPurpleBreathGenerationEnabled = enabled;
+        SmallPurpleBreathGenerationEnabled = true;
+        SmallPurpleBreathGenerationWriteCount++;
+    }
+
+    /// <summary>Stops the small purple breath, counting the native write as <see cref="EnableSmallPurpleBreathGeneration"/> does.</summary>
+    private void DisableSmallPurpleBreathGeneration()
+    {
+        SmallPurpleBreathGenerationEnabled = false;
         SmallPurpleBreathGenerationWriteCount++;
     }
 
@@ -932,7 +939,7 @@ public sealed class MotherBrainRainbowBeamAttackSequence
     /// random value per projectile so later enemy AI sees the same RNG sequence.
     /// </summary>
     internal void GenerateDeathExplosions(
-        bool mixed,
+        MotherBrainDeathExplosionStyle style,
         Func<int>? nextRandomNumber,
         List<MotherBrainDeathExplosionRequest> requests)
     {
@@ -943,12 +950,12 @@ public sealed class MotherBrainRainbowBeamAttackSequence
         if (!DeathExplosionIntervalTimer.IsNegative)
             return;
 
-        DeathExplosionIntervalTimer = NativeCountdown.Start(mixed ? 8 : 16);
+        DeathExplosionIntervalTimer = NativeCountdown.Start(style == MotherBrainDeathExplosionStyle.Mixed ? 8 : 16);
         DeathAndEscapeExplosionIndex = DeathAndEscapeExplosionIndex.Decrement().Remaining;
         if (DeathAndEscapeExplosionIndex.IsNegative)
             DeathAndEscapeExplosionIndex = NativeCountdown.Start(MotherBrainDeathExplosionDefinitions.GroupCount - 1);
 
-        int simultaneousCount = mixed ? MotherBrainDeathExplosionDefinitions.AnchorsPerGroup : 2;
+        int simultaneousCount = style == MotherBrainDeathExplosionStyle.Mixed ? MotherBrainDeathExplosionDefinitions.AnchorsPerGroup : 2;
         int pairIndex = DeathAndEscapeExplosionIndex.RawValue * MotherBrainDeathExplosionDefinitions.AnchorsPerGroup;
         for (int explosionIndex = 0; explosionIndex < simultaneousCount; explosionIndex++)
         {
@@ -962,7 +969,7 @@ public sealed class MotherBrainRainbowBeamAttackSequence
             }
 
             int random = nextRandomNumber();
-            int parameter = mixed
+            int parameter = style == MotherBrainDeathExplosionStyle.Mixed
                 ? random < 16384 ? 0 : random < 57344 ? 1 : 2
                 : 1;
             (short xOffset, short yOffset) = MotherBrainDeathExplosionDefinitions.Anchor(pairIndex + explosionIndex);
@@ -1035,7 +1042,7 @@ public sealed class MotherBrainRainbowBeamAttackSequence
     private void RunContinuingBeamEffects(
         SamusState samus,
         int enemyFrameCounter,
-        bool increaseWidth,
+        MotherBrainRainbowBeamGrowth growth,
         ref bool soundQueued,
         ref bool paletteRequested,
         ref MotherBrainRainbowExplosionRequest? explosion)
@@ -1053,7 +1060,7 @@ public sealed class MotherBrainRainbowBeamAttackSequence
         // program itself remains presentation work, but its native cadence is observable.
         paletteRequested = (enemyFrameCounter & 2) != 0;
 
-        if (increaseWidth)
+        if (growth == MotherBrainRainbowBeamGrowth.Widening)
             IncreaseWidthAndAim(samus);
         else
             AimBeamAtSamus(samus);
@@ -1259,7 +1266,7 @@ public sealed class MotherBrainRainbowBeamAttackSequence
                 RunContinuingBeamEffects(
                     samus,
                     frame.EnemyFrameCounter,
-                    increaseWidth: true,
+                    growth: MotherBrainRainbowBeamGrowth.Widening,
                     ref soundQueued,
                     ref paletteRequested,
                     ref explosion);
@@ -1275,7 +1282,7 @@ public sealed class MotherBrainRainbowBeamAttackSequence
                 RunContinuingBeamEffects(
                     samus,
                     frame.EnemyFrameCounter,
-                    increaseWidth: true,
+                    growth: MotherBrainRainbowBeamGrowth.Widening,
                     ref soundQueued,
                     ref paletteRequested,
                     ref explosion);
@@ -1304,7 +1311,7 @@ public sealed class MotherBrainRainbowBeamAttackSequence
                 RunContinuingBeamEffects(
                     samus,
                     frame.EnemyFrameCounter,
-                    increaseWidth: true,
+                    growth: MotherBrainRainbowBeamGrowth.Widening,
                     ref soundQueued,
                     ref paletteRequested,
                     ref explosion);
@@ -1321,7 +1328,7 @@ public sealed class MotherBrainRainbowBeamAttackSequence
                 RunContinuingBeamEffects(
                     samus,
                     frame.EnemyFrameCounter,
-                    increaseWidth: false,
+                    growth: MotherBrainRainbowBeamGrowth.FullWidth,
                     ref soundQueued,
                     ref paletteRequested,
                     ref explosion);
@@ -1617,7 +1624,7 @@ public sealed class MotherBrainRainbowBeamAttackSequence
                     {
                         BrainHealth = 36000;
                         Phase2CorpseState = MotherBrainPhase2CorpseState.Corpse;
-                        WriteSmallPurpleBreathGeneration(false);
+                        DisableSmallPurpleBreathGeneration();
                         Body.Form = MotherBrainForm.SecondPhase;
                         Phase = MotherBrainRainbowBeamAttackPhase.Phase2ReviveSelfInanimateGrey;
                     }
@@ -1638,7 +1645,7 @@ public sealed class MotherBrainRainbowBeamAttackSequence
                 FunctionTimer = FunctionTimer.Decrement().Remaining;
                 if (FunctionTimer.IsNegative)
                 {
-                    WriteSmallPurpleBreathGeneration(true);
+                    EnableSmallPurpleBreathGeneration();
                     DroolGenerationEnabled = true;
                     Phase = MotherBrainRainbowBeamAttackPhase.Phase2ReviveSelfTransitionFromGrey;
                     FunctionTimer = NativeCountdown.Start(224);
@@ -1861,7 +1868,7 @@ public sealed class MotherBrainRainbowBeamAttackSequence
 
             case MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceIdleWhilstExploding:
                 GenerateDeathExplosions(
-                    mixed: false, frame.NextRandomNumber, deathExplosions);
+                    style: MotherBrainDeathExplosionStyle.Smoky, frame.NextRandomNumber, deathExplosions);
                 FunctionTimer = FunctionTimer.Decrement().Remaining;
                 if (FunctionTimer.IsNegative)
                     Phase = MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceStumbleToMiddleOfRoom;
@@ -1872,7 +1879,7 @@ public sealed class MotherBrainRainbowBeamAttackSequence
                 // Equality still starts a complete body program; only signed overshoot or the
                 // independent `$80` arena clamp reports carry and advances the death script.
                 GenerateDeathExplosions(
-                    mixed: false, frame.NextRandomNumber, deathExplosions);
+                    style: MotherBrainDeathExplosionStyle.Smoky, frame.NextRandomNumber, deathExplosions);
                 MotherBrainWalkResult dyingAdvance = RequestWalkForward(96, animationDelay: 2);
                 bodyWalkRequested = dyingAdvance.Requested;
                 if (dyingAdvance.ReachedTarget)
@@ -1888,7 +1895,7 @@ public sealed class MotherBrainRainbowBeamAttackSequence
 
             case MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceDisableBrainEffects:
                 GenerateDeathExplosions(
-                    mixed: false, frame.NextRandomNumber, deathExplosions);
+                    style: MotherBrainDeathExplosionStyle.Smoky, frame.NextRandomNumber, deathExplosions);
                 FunctionTimer = FunctionTimer.Decrement().Remaining;
                 if (FunctionTimer.IsNegative)
                 {
@@ -1898,7 +1905,7 @@ public sealed class MotherBrainRainbowBeamAttackSequence
                     LowerNeckMovementIndex = MotherBrainNeckMovement.None;
                     UpperNeckMovementIndex = MotherBrainNeckMovement.None;
                     DroolGenerationEnabled = false;
-                    WriteSmallPurpleBreathGeneration(false);
+                    DisableSmallPurpleBreathGeneration();
                     BrainPaletteHandlingEnabled = false;
                     HealthBasedPaletteHandlingEnabled = false;
                     BrainPalette = SnesObjPalettes.Palette(7);
@@ -1913,7 +1920,7 @@ public sealed class MotherBrainRainbowBeamAttackSequence
 
             case MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceSetupBodyFadeOut:
                 GenerateDeathExplosions(
-                    mixed: true, frame.NextRandomNumber, deathExplosions);
+                    style: MotherBrainDeathExplosionStyle.Mixed, frame.NextRandomNumber, deathExplosions);
                 FunctionTimer = FunctionTimer.Decrement().Remaining;
                 if (FunctionTimer.IsNegative)
                 {
@@ -1930,7 +1937,7 @@ public sealed class MotherBrainRainbowBeamAttackSequence
                 // is the null terminator and completes the transition without a copy.
                 BodyFlickerCallCount++;
                 GenerateDeathExplosions(
-                    mixed: true, frame.NextRandomNumber, deathExplosions);
+                    style: MotherBrainDeathExplosionStyle.Mixed, frame.NextRandomNumber, deathExplosions);
                 FunctionTimer = FunctionTimer.Decrement().Remaining;
                 if (FunctionTimer.IsNegative)
                 {
@@ -1953,7 +1960,7 @@ public sealed class MotherBrainRainbowBeamAttackSequence
 
             case MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceFinalFewExplosions:
                 GenerateDeathExplosions(
-                    mixed: true, frame.NextRandomNumber, deathExplosions);
+                    style: MotherBrainDeathExplosionStyle.Mixed, frame.NextRandomNumber, deathExplosions);
                 FunctionTimer = FunctionTimer.Decrement().Remaining;
                 if (FunctionTimer.IsNegative)
                     Phase = MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceRealizeDecapitation;

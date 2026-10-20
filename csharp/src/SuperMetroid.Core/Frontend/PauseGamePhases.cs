@@ -37,8 +37,8 @@ internal sealed class PauseGamePhases(FrontendSession session)
     internal void DispatchPausedA(SnesButton controllerInput)
     {
         session.GameplayRuntime.FrameBoundary.BeginAcceptedFrame(controllerInput);
-        session.pauseBrightness = session.screenFade.Advance(session.pauseBrightness, brightening: true);
-        session.ActivePauseMenu.AdvanceAnimations(session.GameplayRuntime.Clock.Counter8, advancePalette: false);
+        session.pauseBrightness = session.screenFade.Brighten(session.pauseBrightness);
+        session.ActivePauseMenu.AdvanceAnimations(session.GameplayRuntime.Clock.Counter8, PauseAnimationPhase.FadingIn);
         session.display.PublishMenu(session.ActivePauseMenu);
         session.ApplyDisplayBrightness(session.pauseBrightness);
         if (session.pauseBrightness == PauseFadeTiming.FullyLit)
@@ -77,9 +77,9 @@ internal sealed class PauseGamePhases(FrontendSession session)
     {
         session.GameplayRuntime.FrameBoundary.BeginAcceptedFrame(controllerInput);
         session.ActivePauseMenu.SynchronizeAcceptedHud(session.GameplayRuntime.AcceptedLayer3Plane);
-        session.ActivePauseMenu.AdvanceAnimations(session.GameplayRuntime.Clock.Counter8, fadingOut: true, advancePalette: false);
+        session.ActivePauseMenu.AdvanceAnimations(session.GameplayRuntime.Clock.Counter8, PauseAnimationPhase.FadingOut);
         session.display.PublishMenu(session.ActivePauseMenu);
-        session.pauseBrightness = session.screenFade.Advance(session.pauseBrightness, brightening: false);
+        session.pauseBrightness = session.screenFade.Darken(session.pauseBrightness);
         session.ApplyDisplayBrightness(session.pauseBrightness);
         if (session.pauseBrightness == 0)
             session.GameState = SuperMetroidGameState.UnpausingB;

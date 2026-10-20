@@ -3,6 +3,7 @@ using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Core.Rooms;
 
 /// <summary>Facts inspected by the cartridge's room-state selector functions.</summary>
+[IndependentFlag("independent equipment facts the room-state tests read")]
 public readonly record struct RoomStateSelectionContext(
     ReadOnlyMemory<byte> Events,
     BossBits BossBits,

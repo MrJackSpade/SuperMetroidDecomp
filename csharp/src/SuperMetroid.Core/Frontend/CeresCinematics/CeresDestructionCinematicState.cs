@@ -104,7 +104,7 @@ internal sealed class CeresDestructionCinematicState
     /// <param name="fixedColors">Installed power-bomb fixed colors for the station explosion.</param>
     /// <param name="artwork">Installed cinematic artwork; the scene cannot start without it.</param>
     /// <param name="paletteFxColors">Installed palette-FX colors for the engine-flicker program.</param>
-    /// <param name="withSamus">
+    /// <param name="outcome">
     /// Game state $25 rather than $22: the escape timer expired before Samus left, so the
     /// gunship never appears and the fade-out ends the game instead of flying to Zebes.
     /// </param>
@@ -113,9 +113,9 @@ internal sealed class CeresDestructionCinematicState
         PowerBombFixedColorCatalog? fixedColors = null,
         IntroCinematicArtworkCatalog? artwork = null,
         IPaletteFxColorSource? paletteFxColors = null,
-        bool withSamus = false)
+        CeresDestructionOutcome outcome = CeresDestructionOutcome.SamusEscaped)
     {
-        this.withSamus = withSamus;
+        this.withSamus = outcome == CeresDestructionOutcome.SamusAboard;
         this.audio = audio;
         this.paletteFxColors = paletteFxColors;
         this.artwork = artwork ?? throw new InvalidOperationException(
@@ -123,7 +123,7 @@ internal sealed class CeresDestructionCinematicState
         spriteArtwork = new CeresSceneSpritePresentation(
             artwork.CeresFlight.Sprites, artwork.CeresDestruction.Sprites);
         stationExplosion.PresentationColors = fixedColors;
-        objects = new ScreenSprites(CeresDestructionScreenImage.ObjectPage(CeresDestructionScreenImage.Compose(this.artwork, uploads, withSamus)),
+        objects = new ScreenSprites(CeresDestructionScreenImage.ObjectPage(CeresDestructionScreenImage.Compose(this.artwork, uploads, outcome == CeresDestructionOutcome.SamusAboard)),
             ObjectSelectionCodec.Sizes(MenuRenderDefinitions.ObjectSelection));
     }
 
@@ -301,7 +301,7 @@ internal sealed class CeresDestructionCinematicState
                 break;
 
             case CeresDestructionPhase.PlanetZebesTitle:
-                StepZebesActors(slidingAway: false);
+                StepZebesActors(motion: ZebesActorsMotion.Holding);
                 break;
 
             case CeresDestructionPhase.FlyingTowardZebesA:
@@ -311,7 +311,7 @@ internal sealed class CeresDestructionCinematicState
                     zoom += 4;
                 else
                     Phase = CeresDestructionPhase.FlyingTowardZebesB;
-                StepZebesActors(slidingAway: false);
+                StepZebesActors(motion: ZebesActorsMotion.Holding);
                 break;
 
             case CeresDestructionPhase.FlyingTowardZebesB:
@@ -326,7 +326,7 @@ internal sealed class CeresDestructionCinematicState
                     zoom += CeresDestructionRomData.Motion.SlowScaleStep;
                     angle = angle.AddTableUnits(-1);
                 }
-                StepZebesActors(slidingAway: false);
+                StepZebesActors(motion: ZebesActorsMotion.Holding);
                 break;
 
             case CeresDestructionPhase.FlyingTowardZebesC:
@@ -344,17 +344,17 @@ internal sealed class CeresDestructionCinematicState
                     phaseTimer = CeresDestructionRomData.Timing.ZebesHoldFrames;
                     Phase = CeresDestructionPhase.HoldCloseZebes;
                 }
-                StepZebesActors(slidingAway: false);
+                StepZebesActors(motion: ZebesActorsMotion.Holding);
                 break;
 
             case CeresDestructionPhase.HoldCloseZebes:
-                StepZebesActors(slidingAway: false);
+                StepZebesActors(motion: ZebesActorsMotion.Holding);
                 if (--phaseTimer <= 0)
                     Phase = CeresDestructionPhase.SlideZebesSceneAway;
                 break;
 
             case CeresDestructionPhase.SlideZebesSceneAway:
-                StepZebesActors(slidingAway: true);
+                StepZebesActors(motion: ZebesActorsMotion.SlidingAway);
                 break;
             // The cinematic has ended; its owner advances the game state.
             case CeresDestructionPhase.Finished:
@@ -718,12 +718,12 @@ internal sealed class CeresDestructionCinematicState
     }
 
     /// <summary>Advances the planet and title objects, applying slide acceleration and finishing on star deletion.</summary>
-    private void StepZebesActors(bool slidingAway)
+    private void StepZebesActors(ZebesActorsMotion motion)
     {
         for (int index = actors.Count - 1; index >= 0; index--)
         {
             IntroDiscoverySprite actor = actors[index];
-            if (slidingAway)
+            if (motion == ZebesActorsMotion.SlidingAway)
             {
                 CeresDestructionActorDefinition definition = ReferenceEquals(actor, zebesPlanetActor)
                     ? CeresDestructionActorDefinitions.ZebesActor(0)

@@ -38,6 +38,7 @@ public sealed record GameplayColorMathRenderLayer : RenderLayer
     /// <param name="math">The colour-math registers one composition uses: CGADSUB's sources and operation, CGWSEL's subscreen-or-fixed operand select, and COLDATA's five-bit fixed colour (#633).</param>
     /// <param name="subscreen">Optional captured 2-bpp plane competing on the subscreen.</param>
     /// <param name="subscreenUsesBg2">Whether gameplay BG2 also competes on the subscreen.</param>
+    [IndependentFlag("independent PPU facts of the captured frame: x-ray block reveal, and BG2 in the subscreen")]
     public GameplayColorMathRenderLayer(OrdinaryGameplayRenderLayer gameplay, ReadOnlySpan<XrayWindowLine> lines, bool revealBlocks, ColorMathRegisters math, Bg2BppColorMathRenderLayer? subscreen = null, bool subscreenUsesBg2 = false)
     {
         Ensure.NotNull(gameplay);

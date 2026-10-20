@@ -679,8 +679,8 @@ public sealed class SamusProjectileSystem
         for (int slotIndex = TrailSlotCount - 1; slotIndex >= 0; slotIndex--)
         {
             SamusProjectileTrailSlot slot = SlotTable.TrailSlots[slotIndex];
-            ProjectileTrails.AdvanceTrailSide(slot, timeIsFrozen, isLeft: true, artwork);
-            ProjectileTrails.AdvanceTrailSide(slot, timeIsFrozen, isLeft: false, artwork);
+            ProjectileTrails.AdvanceTrailSide(slot, timeIsFrozen, direction: HorizontalDirection.Left, artwork);
+            ProjectileTrails.AdvanceTrailSide(slot, timeIsFrozen, direction: HorizontalDirection.Right, artwork);
         }
     }
 
@@ -699,8 +699,8 @@ public sealed class SamusProjectileSystem
         for (int slotIndex = TrailSlotCount - 1; slotIndex >= 0; slotIndex--)
         {
             SamusProjectileTrailSlot slot = SlotTable.TrailSlots[slotIndex];
-            ProjectileTrails.DrawTrailSide(sprites, slot, slotIndex, layer1, isLeft: true, artwork, objects);
-            ProjectileTrails.DrawTrailSide(sprites, slot, slotIndex, layer1, isLeft: false, artwork, objects);
+            ProjectileTrails.DrawTrailSide(sprites, slot, slotIndex, layer1, direction: HorizontalDirection.Left, artwork, objects);
+            ProjectileTrails.DrawTrailSide(sprites, slot, slotIndex, layer1, direction: HorizontalDirection.Right, artwork, objects);
         }
     }
 

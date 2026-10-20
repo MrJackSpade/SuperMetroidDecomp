@@ -278,17 +278,17 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
         if (state.SweepsForward)
         {
             if (angle >= state.FirstTurnThreshold)
-                return new NuclearWaffleOrientation(TurnsCounterClockwise: true, NuclearWaffleTurnState.PastFallingThreshold);
+                return new NuclearWaffleOrientation(RotationDirection.Counterclockwise, NuclearWaffleTurnState.PastFallingThreshold);
             if (angle >= state.SecondTurnThreshold)
-                return new NuclearWaffleOrientation(TurnsCounterClockwise: false, NuclearWaffleTurnState.PastRisingThreshold);
-            return new NuclearWaffleOrientation(TurnsCounterClockwise: false, NuclearWaffleTurnState.BeforeTurns);
+                return new NuclearWaffleOrientation(RotationDirection.Clockwise, NuclearWaffleTurnState.PastRisingThreshold);
+            return new NuclearWaffleOrientation(RotationDirection.Clockwise, NuclearWaffleTurnState.BeforeTurns);
         }
 
         if (angle < state.FirstTurnThreshold)
-            return new NuclearWaffleOrientation(TurnsCounterClockwise: false, NuclearWaffleTurnState.PastFallingThreshold);
+            return new NuclearWaffleOrientation(RotationDirection.Clockwise, NuclearWaffleTurnState.PastFallingThreshold);
         if (angle < state.SecondTurnThreshold)
-            return new NuclearWaffleOrientation(TurnsCounterClockwise: true, NuclearWaffleTurnState.PastRisingThreshold);
-        return new NuclearWaffleOrientation(TurnsCounterClockwise: false, NuclearWaffleTurnState.BeforeTurns);
+            return new NuclearWaffleOrientation(RotationDirection.Counterclockwise, NuclearWaffleTurnState.PastRisingThreshold);
+        return new NuclearWaffleOrientation(RotationDirection.Clockwise, NuclearWaffleTurnState.BeforeTurns);
     }
 
     /// <summary>Emits a turn overlay and direction sprite, queuing sound on the rising turn.</summary>
@@ -303,7 +303,7 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
             graphicsAttributes.Raw);
         _ = _spriteObjects.SpawnRoomSpriteObject(
             position,
-            orientation.TurnsCounterClockwise
+            orientation.Turn == RotationDirection.Counterclockwise
                 ? RoomSpriteObjectKind.NuclearWaffleTurnCounterClockwise
                 : RoomSpriteObjectKind.NuclearWaffleTurnClockwise,
             graphicsAttributes.Raw);

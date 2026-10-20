@@ -87,7 +87,7 @@ internal static class ChargeFlareProductionVerification
         InstalledFixtures.BindProjectileArtwork(runtime);
         runtime.Projectiles.Charge.FlareCounter = 30;
         Array.Fill(runtime.Projectiles.Charge.FlareTimers, NativeCountdown.Start(100));
-        var game = new SuperMetroid.Core.Frontend.SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore(), null, renderGameplayFrames: true, SuperMetroid.Core.Frontend.SuperMetroidGameHostServices.Default, random);
+        var game = new SuperMetroid.Core.Frontend.SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore(), null, SuperMetroid.Core.Frontend.SuperMetroidGameHostServices.Default, random);
         game.AdoptRuntime(runtime);
         byte[] baseline = Draw(runtime);
         game.BindArtwork(game.Artwork with
@@ -133,7 +133,7 @@ internal static class ChargeFlareProductionVerification
         static byte[] Draw(SuperMetroidRuntime target)
         {
             target.Sprites.BeginFrame();
-            target.ActorDrawing.DrawGameplayActors(target.Room.LoadedScope, false, false);
+            target.ActorDrawing.DrawGameplayActors(target.Room.LoadedScope, SamusDrawOwner.Gameplay, SamusPaletteEffects.Hold);
             target.Sprites.FinalizeFrame();
             OamBuffer image = target.Sprites.FinalizedAsOam();
             return image.LowTable.ConcatToArray(image.HighTable).Concat(BitConverter.GetBytes(image.LastFinalizedSpriteCount)).ToArray();

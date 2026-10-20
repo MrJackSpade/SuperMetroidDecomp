@@ -13,8 +13,14 @@ namespace SuperMetroid.Core.Bosses.Crocomire;
 internal static class CrocomireArenaPlmDrawDefinitions
 {
     /// <summary>Decoded bridge or three-column wall geometry with its independently selected solid collision bit.</summary>
-    internal readonly record struct Draw(CrocomireArenaDraw Pointer, bool Wall, bool Solid, int WordsPerRun)
+    internal readonly record struct Draw(CrocomireArenaDraw Pointer, CrocomireArenaShape Shape, int WordsPerRun)
     {
+        /// <summary>Whether the draw writes wall columns rather than a bridge run.</summary>
+        internal bool Wall => Shape != CrocomireArenaShape.Bridge;
+
+        /// <summary>Whether the wall columns are solid.</summary>
+        internal bool Solid => Shape == CrocomireArenaShape.SolidWall;
+
         /// <summary>Wall layouts draw three columns; bridge layouts draw one horizontal run.</summary>
         internal int RunCount => Wall ? 3 : 1;
         /// <summary>Sets the vertical-run bit for wall columns while retaining the native cells per run.</summary>
@@ -57,10 +63,10 @@ internal static class CrocomireArenaPlmDrawDefinitions
     /// <summary>Assigns native run geometry to each of the five bounded arena draw pointers.</summary>
     private static Draw Describe(CrocomireArenaDraw pointer) => pointer switch
     {
-        CrocomireArenaDraw.ClearBridge => new(pointer, false, false, 10),
-        CrocomireArenaDraw.CrumbleBridgeBlock or CrocomireArenaDraw.ClearBridgeBlock => new(pointer, false, false, 1),
-        CrocomireArenaDraw.ClearInvisibleWall => new(pointer, true, false, 8),
-        CrocomireArenaDraw.CreateInvisibleWall => new(pointer, true, true, 8),
+        CrocomireArenaDraw.ClearBridge => new(pointer, CrocomireArenaShape.Bridge, 10),
+        CrocomireArenaDraw.CrumbleBridgeBlock or CrocomireArenaDraw.ClearBridgeBlock => new(pointer, CrocomireArenaShape.Bridge, 1),
+        CrocomireArenaDraw.ClearInvisibleWall => new(pointer, CrocomireArenaShape.ClearWall, 8),
+        CrocomireArenaDraw.CreateInvisibleWall => new(pointer, CrocomireArenaShape.SolidWall, 8),
         _ => throw new InvalidOperationException($"Undefined Crocomire arena draw {pointer}."),
     };
 

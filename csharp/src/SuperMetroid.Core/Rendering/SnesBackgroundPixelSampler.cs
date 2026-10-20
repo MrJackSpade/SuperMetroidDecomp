@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Rendering;
 /// </summary>
 [PpuLayoutBoundary("backend: software PPU per-pixel background character fetch")]
 internal sealed class SnesBackgroundPixelSampler(SnesVram vram, Rgba32[] colors,
-    IBgTileSource tiles, int characters, bool fourBit)
+    IBgTileSource tiles, int characters, BgBitDepth depth)
 {
     /// <summary>Tile word and source row of the cached decode; minus one forces the first fetch.</summary>
     private int cachedKey = -1;
@@ -18,7 +18,7 @@ internal sealed class SnesBackgroundPixelSampler(SnesVram vram, Rgba32[] colors,
     private SnesBitplaneBytes planes;
 
     /// <summary>Samples the plane pixel at a scrolled position; transparent where the background shows nothing.</summary>
-    internal (Rgba32 Color, bool High) Sample(Position16<BgPlanePixels> pixel, bool opaqueZero = false)
+    internal (Rgba32 Color, bool High) Sample(Position16<BgPlanePixels> pixel, ColorZero colorZero = ColorZero.Transparent)
     {
         if (!tiles.TrySample(pixel, out BgTileSample sample))
             return (default, false);
@@ -27,16 +27,16 @@ internal sealed class SnesBackgroundPixelSampler(SnesVram vram, Rgba32[] colors,
         int key = tile.Raw << 3 | py;
         if (key != cachedKey)
         {
-            int row = ((characters + tile.CharacterIndex * (fourBit ? 16 : 8)) * 2 + py * 2) & (SnesVram.ByteCount - 1);
+            int row = ((characters + tile.CharacterIndex * ((depth == BgBitDepth.FourBpp) ? 16 : 8)) * 2 + py * 2) & (SnesVram.ByteCount - 1);
             // Bitplanes pair up within a row's two bytes; a 4-bpp character's second pair follows sixteen bytes later.
             for (int plane = 0; plane < 4; plane++)
-                planes[plane] = plane < 2 || fourBit ? vram.ReadByte((row + plane % 2 + plane / 2 * 16) & (SnesVram.ByteCount - 1)) : 0;
+                planes[plane] = plane < 2 || (depth == BgBitDepth.FourBpp) ? vram.ReadByte((row + plane % 2 + plane / 2 * 16) & (SnesVram.ByteCount - 1)) : 0;
             cachedKey = key;
         }
         int shift = tile.FlipHorizontally ? sample.Pixel.X : 7 - sample.Pixel.X;
         int color = 0;
         for (int plane = 0; plane < 4; plane++)
             color |= (planes[plane] >> shift & 1) << plane;
-        return (color == 0 && !opaqueZero ? default : colors[tile.PaletteIndex * (fourBit ? 16 : 4) + color], tile.HasPriority);
+        return (color == 0 && colorZero != ColorZero.Opaque ? default : colors[tile.PaletteIndex * ((depth == BgBitDepth.FourBpp) ? 16 : 4) + color], tile.HasPriority);
     }
 }

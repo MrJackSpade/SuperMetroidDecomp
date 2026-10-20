@@ -45,17 +45,17 @@ public static class SoftwareGameplayColorMathRenderer
         for (int color = 0; color < colors.Length; color++) colors[color] = memory.Cgram.GetRgba(color);
         RoomBackgrounds rooms = layer.Gameplay.Rooms;
         var hud = new SnesBackgroundPixelSampler(memory.Vram, colors,
-            rooms.Bg3.Window(0, SnesPpuLayout.TilemapPageWidthInTiles), r.HudCharacterWord, false);
-        var bg1Sampler = new SnesBackgroundPixelSampler(memory.Vram, colors, rooms.Bg1Source, r.Bg1CharacterWord, true);
+            rooms.Bg3.Window(0, SnesPpuLayout.TilemapPageWidthInTiles), r.HudCharacterWord, BgBitDepth.TwoBpp);
+        var bg1Sampler = new SnesBackgroundPixelSampler(memory.Vram, colors, rooms.Bg1Source, r.Bg1CharacterWord, BgBitDepth.FourBpp);
         var bg2Sampler = new SnesBackgroundPixelSampler(memory.Vram, colors,
-            rooms.Bg2Shown(new VramBgTilemap(memory.Vram, r.Bg2TilemapWord, r.Bg2MapSize), r.Bg2MapSize), r.Bg2CharacterWord, true);
+            rooms.Bg2Shown(new VramBgTilemap(memory.Vram, r.Bg2TilemapWord, r.Bg2MapSize), r.Bg2MapSize), r.Bg2CharacterWord, BgBitDepth.FourBpp);
         var subSampler = layer.Subscreen is { } subLayer ? new SnesBackgroundPixelSampler(memory.Vram, colors,
             subLayer.Plane.Window(subLayer.FirstRow, subLayer.MapHeightTiles),
-            subLayer.CharacterWord, false) : null;
+            subLayer.CharacterWord, BgBitDepth.TwoBpp) : null;
         SnesObjRenderer.RenderResolved(memory.Sprites.Draws, memory.Cgram, new ObjRasterTargets(objects.AsSpan(0, output.Length), priorities.AsSpan(0, output.Length), palettes.AsSpan(0, output.Length)), new Extent16<ScreenPixels>(checked((ushort)width), checked((ushort)height)));
         for (int y = 0; y < SnesPpuLayout.GameplayHudHeightPixels; y++)
         for (int x = 0; x < width; x++)
-            output[y * width + x] = hud.Sample(new Position16<BgPlanePixels>((ushort)x, (ushort)y), opaqueZero: true).Color;
+            output[y * width + x] = hud.Sample(new Position16<BgPlanePixels>((ushort)x, (ushort)y), colorZero: ColorZero.Opaque).Color;
         for (int y = SnesPpuLayout.GameplayHudHeightPixels; y < height; y++)
         for (int x = 0; x < width; x++)
         {

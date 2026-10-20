@@ -197,8 +197,10 @@ internal static class InstalledFixtures
         SuperMetroidGameHostServices? hostServices = null, CartridgeRandom? random = null)
     {
         // A fixture game without a supplied word is a session of its own.
-        var game = new SuperMetroidGame(saves, gameOptions, renderGameplayFrames, hostServices ?? SuperMetroidGameHostServices.Default,
-            random ?? new CartridgeRandom());
+        SuperMetroidGameHostServices services = hostServices ?? SuperMetroidGameHostServices.Default;
+        if (!renderGameplayFrames)
+            services = services with { GameplayFrames = RetainedGameplayFrames.Instance };
+        var game = new SuperMetroidGame(saves, gameOptions, services, random ?? new CartridgeRandom());
         gameBindings.Value(game);
         return game;
     }

@@ -27,7 +27,7 @@ internal static class DraygonEyeEffectsVerification
             foreach (ushort frame in new ushort[] { 127, 128, 129 })
             {
                 eye.FrameCounter = frame;
-                runtime.Enemies.DraygonBehavior.TrackSamusWithDraygonEye(eye, samus, facingRight);
+                runtime.Enemies.DraygonBehavior.TrackSamusWithDraygonEye(eye, samus, facingRight ? HorizontalDirection.Right : HorizontalDirection.Left);
                 var particles = runtime.Enemies.Projectiles.EnemyProjectiles.Where(p =>
                     p.Kind == RoomEnemyProjectileKind.MiscDustExplosion).ToArray();
                 AssertEqual(frame == 127 ? 0 : 1, particles.Length, "Eye particle cadence with unchanged target angle");

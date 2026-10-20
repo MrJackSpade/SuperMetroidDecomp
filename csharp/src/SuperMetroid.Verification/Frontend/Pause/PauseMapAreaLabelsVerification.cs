@@ -81,7 +81,7 @@ internal static class PauseMapAreaLabelsVerification
                     if (nativePixels[i].A != 0) { visiblePixels++; AssertEqual(nativePixels[i], pixels[i], $"{area} visible native label at {px},{py}"); }
                 }
             AssertTrue(visiblePixels > 0, $"{area} reference label is on screen");
-            pause.AdvanceAnimations(fadingOut: true); _ = pause.Render();
+            pause.AdvanceAnimations(phase: PauseAnimationPhase.FadingOut); _ = pause.Render();
             AssertLabels(0, "outer unpause fade-out");
             var beforeRestore = pause.Render();
             using (var stream = new MemoryStream())

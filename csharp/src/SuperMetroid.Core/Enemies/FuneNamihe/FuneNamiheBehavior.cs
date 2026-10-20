@@ -36,16 +36,16 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
                 QueueFuneNamiheSpitSound();
                 break;
             case FuneNamiheCueKind.NamiheFireLeft:
-                SpawnFuneNamiheFireball(slot, movingRight: false, RoomEnemyProjectileKind.NamiheFireball);
+                SpawnFuneNamiheFireball(slot, direction: HorizontalDirection.Left, RoomEnemyProjectileKind.NamiheFireball);
                 break;
             case FuneNamiheCueKind.NamiheFireRight:
-                SpawnFuneNamiheFireball(slot, movingRight: true, RoomEnemyProjectileKind.NamiheFireball);
+                SpawnFuneNamiheFireball(slot, direction: HorizontalDirection.Right, RoomEnemyProjectileKind.NamiheFireball);
                 break;
             case FuneNamiheCueKind.FuneFireLeft:
-                SpawnFuneNamiheFireball(slot, movingRight: false, RoomEnemyProjectileKind.FuneFireball);
+                SpawnFuneNamiheFireball(slot, direction: HorizontalDirection.Left, RoomEnemyProjectileKind.FuneFireball);
                 break;
             case FuneNamiheCueKind.FuneFireRight:
-                SpawnFuneNamiheFireball(slot, movingRight: true, RoomEnemyProjectileKind.FuneFireball);
+                SpawnFuneNamiheFireball(slot, direction: HorizontalDirection.Right, RoomEnemyProjectileKind.FuneFireball);
                 break;
             case FuneNamiheCueKind.FinishActivity:
                 // Left/right lists use duplicate native opcodes with byte-for-byte state effects.
@@ -225,7 +225,7 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
     /// </summary>
     internal void SpawnFuneNamiheFireball(
         RoomEnemySlot source,
-        bool movingRight,
+        HorizontalDirection direction,
         RoomEnemyProjectileKind kind)
     {
         RoomEnemyProjectileSlot? projectile = _projectiles.AllocateEnemyProjectile();
@@ -236,12 +236,12 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
             projectile,
             kind,
             unchecked((ushort)(source.PaletteIndex | source.VramTilesIndex)));
-        projectile.InstallAnimation(new FuneNamiheFireballAnimation(movingRight ? FuneNamiheFireballProgram.Right : FuneNamiheFireballProgram.Left));
+        projectile.InstallAnimation(new FuneNamiheFireballAnimation(direction == HorizontalDirection.Right ? FuneNamiheFireballProgram.Right : FuneNamiheFireballProgram.Left));
         projectile.PreInstruction = NamiFuneFireballPreInstruction;
-        projectile.Variable0 = movingRight
+        projectile.Variable0 = direction == HorizontalDirection.Right
             ? (ushort)NamiFuneFireballFunction.MovingRight
             : (ushort)NamiFuneFireballFunction.MovingLeft;
-        projectile.DirectionParameter = movingRight ? (ushort)1 : (ushort)0;
+        projectile.DirectionParameter = direction == HorizontalDirection.Right ? (ushort)1 : (ushort)0;
 
         projectile.Position = source.Position;
 

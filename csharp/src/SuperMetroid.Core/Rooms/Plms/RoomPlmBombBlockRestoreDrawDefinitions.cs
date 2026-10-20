@@ -10,8 +10,14 @@ namespace SuperMetroid.Core.Rooms.Plms;
 internal static class RoomPlmBombBlockRestoreDrawDefinitions
 {
     /// <summary>One native restoration pointer with the geometry needed to reconstruct its parent and linked children.</summary>
-    internal readonly record struct Draw(ushort Pointer, bool Vertical, bool Square)
+    internal readonly record struct Draw(ushort Pointer, PlmRestoreShape Shape)
     {
+        /// <summary>Whether the restored blocks stack in one column.</summary>
+        internal bool Vertical => Shape == PlmRestoreShape.Vertical;
+
+        /// <summary>Whether the restoration is the two-by-two square.</summary>
+        internal bool Square => Shape == PlmRestoreShape.Square;
+
         /// <summary>Square restoration needs a second row; linear variants fit one run.</summary>
         internal int RunCount => Square ? 2 : 1;
 
@@ -41,9 +47,9 @@ internal static class RoomPlmBombBlockRestoreDrawDefinitions
         }
         draw = (BombBlockRestoreDraw)pointer switch
         {
-            BombBlockRestoreDraw.Horizontal => new(pointer, false, false),
-            BombBlockRestoreDraw.Vertical => new(pointer, true, false),
-            BombBlockRestoreDraw.Square => new(pointer, false, true),
+            BombBlockRestoreDraw.Horizontal => new(pointer, PlmRestoreShape.Horizontal),
+            BombBlockRestoreDraw.Vertical => new(pointer, PlmRestoreShape.Vertical),
+            BombBlockRestoreDraw.Square => new(pointer, PlmRestoreShape.Square),
             _ => throw new InvalidOperationException($"Undefined {nameof(BombBlockRestoreDraw)} {pointer:X4}."),
         };
         return true;
@@ -54,9 +60,9 @@ internal static class RoomPlmBombBlockRestoreDrawDefinitions
     {
         get
         {
-            yield return Export(new((ushort)BombBlockRestoreDraw.Horizontal, false, false));
-            yield return Export(new((ushort)BombBlockRestoreDraw.Vertical, true, false));
-            yield return Export(new((ushort)BombBlockRestoreDraw.Square, false, true));
+            yield return Export(new((ushort)BombBlockRestoreDraw.Horizontal, PlmRestoreShape.Horizontal));
+            yield return Export(new((ushort)BombBlockRestoreDraw.Vertical, PlmRestoreShape.Vertical));
+            yield return Export(new((ushort)BombBlockRestoreDraw.Square, PlmRestoreShape.Square));
         }
     }
 

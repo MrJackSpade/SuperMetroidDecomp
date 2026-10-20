@@ -813,7 +813,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemyProjectileSlot? laser = _roomActors.SpawnPirateLaser(
             head,
             head.Position.Whole + new Offset16<RoomPixels>(16, 4),
-            movingRight: true);
+            direction: HorizontalDirection.Right);
         if (laser is not null)
             _audio.QueueEnemySound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, EnemySoundEffectDefinitions.PirateMotherBrainLaserSound), maximumQueued: 6);
     }
@@ -2336,7 +2336,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
         switch (tubeState.Function ?? throw new InvalidDataException("A falling tube has no function."))
         {
             case MotherBrainTubeFunction.NonMainTube:
-                FallMotherBrainTube(tube, mainTube: false);
+                FallMotherBrainSideTube(tube);
                 return;
             case MotherBrainTubeFunction.MainTube_WaitingToFall:
                 // The main tube's fall delay expires when it passes zero.
@@ -2345,10 +2345,10 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
                 if (fallDelay.IsNonNegative)
                     return;
                 tubeState.Function = MotherBrainTubeFunction.MainTube_Falling;
-                FallMotherBrainTube(tube, mainTube: true);
+                FallMotherBrainMainTube(tube);
                 return;
             case MotherBrainTubeFunction.MainTube_Falling:
-                FallMotherBrainTube(tube, mainTube: true);
+                FallMotherBrainMainTube(tube);
                 return;
             default:
                 throw new InvalidDataException(
@@ -2356,21 +2356,29 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Moves a falling tube, with a distinct path for the main tube.</summary>
-    private void FallMotherBrainTube(RoomEnemySlot tube, bool mainTube)
+    /// <summary>Drops a side tube until it reaches the floor and explodes, trailing smoke as it falls.</summary>
+    private void FallMotherBrainSideTube(RoomEnemySlot tube)
+    {
+        MotherBrainFallingTubeState tubeState = AccelerateMotherBrainTube(tube);
+        if (tube.Position.Y.Whole >= tubeState.FloorY)
+            ExplodeMotherBrainTube(tube);
+        else
+            SpawnMotherBrainTubeSmoke(tube);
+    }
+
+    /// <summary>Accelerates a falling tube by six sub-pixels per update and moves it down by its fall speed.</summary>
+    private static MotherBrainFallingTubeState AccelerateMotherBrainTube(RoomEnemySlot tube)
     {
         MotherBrainFallingTubeState tubeState = tube.RequireSpeciesState<MotherBrainFallingTubeState>();
         tubeState.FallSpeed = new SnesSignedEightEight(unchecked((ushort)(tubeState.FallSpeed.RawValue + 6)));
         tube.Position = tube.Position.AdvanceY(tubeState.FallSpeed.ToSixteenSixteenDelta());
+        return tubeState;
+    }
 
-        if (!mainTube)
-        {
-            if (tube.Position.Y.Whole >= tubeState.FloorY)
-                ExplodeMotherBrainTube(tube);
-            else
-                SpawnMotherBrainTubeSmoke(tube);
-            return;
-        }
+    /// <summary>Drops the main tube, carrying Mother Brain's head with it and landing her body on the floor.</summary>
+    private void FallMotherBrainMainTube(RoomEnemySlot tube)
+    {
+        AccelerateMotherBrainTube(tube);
 
         // Hiding the tube and moving the brain are independent native branches.
         // The brain follows the tube throughout its descent, including before hiding.

@@ -42,10 +42,10 @@ internal sealed class IntroEggParticle
         // as a gravity-table index. Each velocity is a signed 16.16 pair stored high-word
         // first in ROM, exactly matching the actor's whole/subposition addition order.
         int xIndex = SnesLittleEndian.LowByte(sprite.GeneralTimer);
-        AddSixteenSixteenVelocity(sprite, horizontal: true, IntroEggMotionDefinitions.FragmentX(xIndex));
+        AddSixteenSixteenVelocity(sprite, axis: Axis.Horizontal, IntroEggMotionDefinitions.FragmentX(xIndex));
 
         int yIndex = SnesLittleEndian.HighByte(sprite.GeneralTimer);
-        AddSixteenSixteenVelocity(sprite, horizontal: false, IntroEggMotionDefinitions.FragmentY(yIndex));
+        AddSixteenSixteenVelocity(sprite, axis: Axis.Vertical, IntroEggMotionDefinitions.FragmentY(yIndex));
         if (unchecked((short)(sprite.WholePosition.Y - 168)) >= 0)
         {
             // Native code primes the shared one-word delete list, which the generic handler
@@ -68,10 +68,10 @@ internal sealed class IntroEggParticle
     /// <summary>Adds a compiled signed whole/fraction velocity to one axis without changing the other coordinate.</summary>
     private static void AddSixteenSixteenVelocity(
         IntroDiscoverySprite sprite,
-        bool horizontal,
+        Axis axis,
         SnesSignedSixteenSixteen velocity)
     {
-        sprite.Position = horizontal
+        sprite.Position = axis == Axis.Horizontal
             ? sprite.Position.WithX(IntroCinematicMotion.AddSixteenSixteen(sprite.Position.X, velocity.WholeWord, velocity.Fraction))
             : sprite.Position.WithY(IntroCinematicMotion.AddSixteenSixteen(sprite.Position.Y, velocity.WholeWord, velocity.Fraction));
     }

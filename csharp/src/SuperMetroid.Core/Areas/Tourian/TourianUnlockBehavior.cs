@@ -49,25 +49,31 @@ internal sealed class TourianUnlockBehavior
         }
     }
 
-    /// <summary>$87:8320/832F use the native bank-$86 definitions and eye-position tables.</summary>
-    public void SpawnTourianUnlockEffect(ushort parameter, bool soul)
+    /// <summary>$87:8320 spawns a statue eye's glow from the bank-$86 definition and lights the eye's colours.</summary>
+    public void SpawnTourianEyeGlow(ushort parameter)
     {
-        Position16<RoomPixels> position =
-            TourianStatueUnlockDefinitions.EyePosition(parameter);
+        if (SpawnAtStatueEye(RoomEnemyProjectileKind.TourianStatueEyeGlow, parameter) is null) return;
+        (_room.Artwork?.TourianStatueColors ?? throw new InvalidOperationException(
+            "Tourian statue eye requires installed colors."))
+            .ApplyEye(_presentation.Cgram, parameter);
+    }
+
+    /// <summary>$87:832F spawns a statue's released soul from the bank-$86 definition, rising from the eye.</summary>
+    public void SpawnTourianSoul(ushort parameter)
+    {
+        if (SpawnAtStatueEye(RoomEnemyProjectileKind.TourianStatueSoul, parameter) is not { } soul) return;
+        soul.Velocity = soul.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)-1024)));
+    }
+
+    /// <summary>Allocates an unlock effect at the statue's native eye position; null when every slot is busy.</summary>
+    private RoomEnemyProjectileSlot? SpawnAtStatueEye(RoomEnemyProjectileKind kind, ushort parameter)
+    {
+        Position16<RoomPixels> position = TourianStatueUnlockDefinitions.EyePosition(parameter);
         var projectile = _projectiles.AllocateEnemyProjectile();
-        if (projectile is null) return;
-        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
-            projectile,
-            soul
-                ? RoomEnemyProjectileKind.TourianStatueSoul
-                : RoomEnemyProjectileKind.TourianStatueEyeGlow,
-            0);
+        if (projectile is null) return null;
+        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(projectile, kind, 0);
         projectile.Position = projectile.Position.WithWhole(position);
-        if (soul) projectile.Velocity = projectile.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)-1024)));
-        else
-            (_room.Artwork?.TourianStatueColors ?? throw new InvalidOperationException(
-                "Tourian statue eye requires installed colors."))
-                .ApplyEye(_presentation.Cgram, parameter);
+        return projectile;
     }
 
     /// <summary>Spawns a splash, particle, or tail at its parent, applying water height or randomized motion.</summary>

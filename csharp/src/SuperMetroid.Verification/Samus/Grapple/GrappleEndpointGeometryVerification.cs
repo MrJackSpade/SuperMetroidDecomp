@@ -5,6 +5,7 @@ using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Samus.Grapple;
 using SuperMetroid.Core.Samus.Poses;
+using SuperMetroid.Core.Gameplay;
 namespace SuperMetroid.Verification.Samus.Grapple;
 
 /// <summary>Checks grapple endpoint clipping, wrapped subtraction, and OAM across poses and cameras.</summary>
@@ -81,7 +82,7 @@ internal static class GrappleEndpointGeometryVerification
             samus.Grapple.BeamStart = samus.Grapple.BeamStart.WithY(samus.Position.Y.Whole);
             samus.Grapple.SegmentAnimationTimers[15] = NativeCountdown.Start(1);
             runtime.Sprites.BeginFrame();
-            runtime.ActorDrawing.DrawGameplayActors(runtime.Room.LoadedScope, false, false);
+            runtime.ActorDrawing.DrawGameplayActors(runtime.Room.LoadedScope, SamusDrawOwner.Gameplay, SamusPaletteEffects.Hold);
             runtime.Sprites.FinalizeFrame();
             int endpoints = runtime.Sprites.Draws.Count(draw => draw.Source.Kind == SpriteSourceKind.SamusGrappleEndpoint);
             AssertEqual((int)pose == 1 ? 0 : 1, endpoints, $"Actual gameplay actor passes endpoint pose {(int)pose:X2}");

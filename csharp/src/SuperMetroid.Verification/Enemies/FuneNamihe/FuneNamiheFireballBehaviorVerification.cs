@@ -33,7 +33,7 @@ internal static class FuneNamiheFireballBehaviorVerification
             {
                 foreach (RoomEnemyProjectileSlot candidate in enemies.Projectiles.EnemyProjectiles)
                     candidate.Clear();
-                enemies.FuneNamiheBehavior.SpawnFuneNamiheFireball(source, movingRight, kind);
+                enemies.FuneNamiheBehavior.SpawnFuneNamiheFireball(source, movingRight ? HorizontalDirection.Right : HorizontalDirection.Left, kind);
                 RoomEnemyProjectileSlot fireball = enemies.Projectiles.EnemyProjectiles.Single(candidate => candidate.Kind == kind);
                 FuneNamiheFireballProgram program = movingRight ? FuneNamiheFireballProgram.Right : FuneNamiheFireballProgram.Left;
                 AssertTrue(fireball.Animation is FuneNamiheFireballAnimation animation && animation.Cursor.Program == program,

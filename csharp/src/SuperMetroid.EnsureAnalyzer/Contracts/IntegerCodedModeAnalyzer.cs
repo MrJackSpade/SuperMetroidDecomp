@@ -58,7 +58,8 @@ public sealed class IntegerCodedModeAnalyzer : DiagnosticAnalyzer
         DiagnosticSeverity.Error,
         isEnabledByDefault: true,
         description: "An integral member of SuperMetroid.Core compared by ==, != or an is pattern to two or more different " +
-            "integer literals codes categories in its values; a switch over an index is a lookup and is not counted (#1372).");
+            "integer literals codes categories in its values; a switch over an index is a lookup and is not counted (#1372).",
+        customTags: [WellKnownDiagnosticTags.CompilationEnd]);
 
     /// <inheritdoc />
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => [CategoricalLiteralRule, SeveralLiteralsRule];

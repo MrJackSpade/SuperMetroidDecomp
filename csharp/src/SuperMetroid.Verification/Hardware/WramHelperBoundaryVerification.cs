@@ -45,7 +45,7 @@ internal static class WramHelperBoundaryVerification
         var rows = new List<(ushort Row, bool Move)>();
         var finished = new List<ushort>();
         bool active = CorpseRottingTableProcessor.Step(table, 2, 1,
-            (row, move) => rows.Add((row, move)), finished.Add);
+            (row, operation) => rows.Add((row, operation == CorpseRowOperation.Move)), finished.Add);
         AssertTrue(active, "a finished non-final rot entry does not finish the scheduler");
         AssertTrue(rows.SequenceEqual(new[] { ((ushort)2, true), ((ushort)1, true), ((ushort)0, true) }),
             "rot callback order and late-move selection");

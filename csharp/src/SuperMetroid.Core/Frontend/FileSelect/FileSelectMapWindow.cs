@@ -86,21 +86,34 @@ public sealed class FileSelectMapWindow
                 : unchecked(edges[edge] + velocities[edge]);
         if (!IsReturning)
         {
-            ClampWholeWord(0, 1, lowerBound: true);
-            ClampWholeWord(1, 255, lowerBound: false);
-            ClampWholeWord(2, 1, lowerBound: true);
-            ClampWholeWord(3, 224, lowerBound: false);
+            RaiseWholeWord(0, 1);
+            LowerWholeWord(1, 255);
+            RaiseWholeWord(2, 1);
+            LowerWholeWord(3, 224);
         }
         timer = timer.Decrement().Remaining;
         IsComplete = timer.IsNegative;
         return IsComplete;
     }
 
-    /// <summary>Clamps one edge's whole-pixel word while retaining its fractional position.</summary>
-    private void ClampWholeWord(int edge, ushort limit, bool lowerBound)
+    /// <summary>Raises one edge's signed whole-pixel word to <paramref name="minimum"/>, retaining its fractional position.</summary>
+    private void RaiseWholeWord(int edge, ushort minimum)
     {
-        short position = unchecked((short)SnesSixteenSixteen.WholeOf(edges[edge]));
-        if (lowerBound ? position < limit : position > limit)
-            edges[edge] = SnesSixteenSixteen.Compose(limit, (ushort)SnesSixteenSixteen.FractionOf(edges[edge]));
+        if (WholeWord(edge) < minimum)
+            SetWholeWord(edge, minimum);
     }
+
+    /// <summary>Lowers one edge's signed whole-pixel word to <paramref name="maximum"/>, retaining its fractional position.</summary>
+    private void LowerWholeWord(int edge, ushort maximum)
+    {
+        if (WholeWord(edge) > maximum)
+            SetWholeWord(edge, maximum);
+    }
+
+    /// <summary>One edge's whole-pixel word, read as signed.</summary>
+    private short WholeWord(int edge) => unchecked((short)SnesSixteenSixteen.WholeOf(edges[edge]));
+
+    /// <summary>Replaces one edge's whole-pixel word, keeping its fraction.</summary>
+    private void SetWholeWord(int edge, ushort whole) =>
+        edges[edge] = SnesSixteenSixteen.Compose(whole, (ushort)SnesSixteenSixteen.FractionOf(edges[edge]));
 }

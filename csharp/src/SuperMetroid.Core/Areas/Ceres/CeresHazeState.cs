@@ -41,6 +41,7 @@ public sealed class CeresHazeState
     /// <param name="enabled">Whether the room's setup callback spawns the Ceres haze owner.</param>
     /// <param name="ridleyIsDead">Loaded area's boss-bit result selecting red rather than blue for this owner's lifetime.</param>
     /// <param name="immediateViewport">True for immediate viewport installation: starts holding at counter 16 with published strength 15; false starts waiting at zero for the door fade-in phase.</param>
+    [IndependentFlag("independent facts of the loaded room: whether it spawns the haze, Ridley's boss bit, and immediate viewport installation")]
     public CeresHazeState(bool enabled, bool ridleyIsDead, bool immediateViewport)
     {
         Enabled = enabled;
@@ -51,14 +52,16 @@ public sealed class CeresHazeState
     }
 
     /// <summary>One native pre-instruction call. Transition changes do not rewrite the selected channel.</summary>
-    /// <param name="roomFadeIn">Door-transition fade-in gate; a waiting owner enters fade-in and writes its first strength on this same update.</param>
-    /// <param name="roomFadeOut">Door-transition fade-out gate; a holding owner changes phase now but publishes its first fade-out strength on the following update.</param>
-    public void Step(bool roomFadeIn = false, bool roomFadeOut = false)
+    /// <param name="roomFade">
+    /// The door fade: on fade-in a waiting owner enters fade-in and writes its first strength on this same update; on
+    /// fade-out a holding owner changes phase now but publishes its first fade-out strength on the following update.
+    /// </param>
+    public void Step(CeresHazeRoomFade roomFade = CeresHazeRoomFade.None)
     {
         if (!Enabled) return;
         if (_phase == Phase.Waiting)
         {
-            if (!roomFadeIn) return;
+            if (roomFade != CeresHazeRoomFade.FadeIn) return;
             _phase = Phase.FadingIn;
         }
         switch (_phase)
@@ -68,7 +71,7 @@ public sealed class CeresHazeState
                 else Intensity = _counter++;
                 break;
             case Phase.Holding:
-                if (roomFadeOut) _phase = Phase.FadingOut;
+                if (roomFade == CeresHazeRoomFade.FadeOut) _phase = Phase.FadingOut;
                 break;
             case Phase.FadingOut:
                 if (_counter != 0) Intensity = _counter--;

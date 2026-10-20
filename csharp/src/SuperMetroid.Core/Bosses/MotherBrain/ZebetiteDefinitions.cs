@@ -48,6 +48,10 @@ internal static class ZebetiteDefinitions
     }
 
     /// <summary>Returns the exact embedded primary or linked-half enemy population record.</summary>
-    internal static RoomEnemyPopulationRecord SpawnPopulation(bool linkedHalf) =>
-        linkedHalf ? LinkedSpawn : PrimarySpawn;
+    internal static RoomEnemyPopulationRecord SpawnPopulation(ZebetiteHalf half) => half switch
+    {
+        ZebetiteHalf.Primary => PrimarySpawn,
+        ZebetiteHalf.Linked => LinkedSpawn,
+        _ => throw new InvalidOperationException($"Undefined {nameof(ZebetiteHalf)} {half}."),
+    };
 }

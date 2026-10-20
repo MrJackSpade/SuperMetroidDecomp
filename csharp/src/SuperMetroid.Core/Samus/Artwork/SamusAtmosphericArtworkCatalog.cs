@@ -34,8 +34,8 @@ public sealed class SamusAtmosphericArtworkCatalog
             if (sharedTypeFour[frame] != SamusAtmosphericArtworkDefinitions.Attributes(false, frame))
                 this.sharedTypeFour.Add(frame, sharedTypeFour[frame]);
         }
-        TypeOne = new FrameSequence(this, true);
-        SharedTypeFour = new FrameSequence(this, false);
+        TypeOne = new FrameSequence(this, AtmosphericFrameList.Footsteps);
+        SharedTypeFour = new FrameSequence(this, AtmosphericFrameList.SharedLavaDust);
     }
 
     /// <summary>SHA-256 of both selected atmospheric small-OBJ lists.</summary>
@@ -72,13 +72,13 @@ public sealed class SamusAtmosphericArtworkCatalog
             ? attributes : SamusAtmosphericArtworkDefinitions.Attributes(footstep, frame);
 
     /// <summary>Read-only four-frame view over one selected atmospheric attribute list.</summary>
-    private sealed class FrameSequence(SamusAtmosphericArtworkCatalog owner, bool footstep) : IReadOnlyList<ushort>
+    private sealed class FrameSequence(SamusAtmosphericArtworkCatalog owner, AtmosphericFrameList list) : IReadOnlyList<ushort>
     {
         /// <summary>The native direct-attribute list has four animation positions.</summary>
         public int Count => SamusMovementRomData.Environment.DirectAtmosphericFrameCount;
         /// <summary>Resolves a bounded frame from its owning footstep or shared lava/dust list.</summary>
         public ushort this[int index] => (uint)index < Count
-            ? owner.Resolve(footstep, index) : throw new ArgumentOutOfRangeException(nameof(index));
+            ? owner.Resolve(list == AtmosphericFrameList.Footsteps, index) : throw new ArgumentOutOfRangeException(nameof(index));
         /// <summary>Yields selected attribute words in animation-frame order.</summary>
         public IEnumerator<ushort> GetEnumerator()
         {

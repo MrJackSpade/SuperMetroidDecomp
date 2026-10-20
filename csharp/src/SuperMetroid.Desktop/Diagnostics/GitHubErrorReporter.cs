@@ -119,15 +119,15 @@ public sealed class GitHubErrorReporter : IDisposable
         worker.GetAwaiter().GetResult();
     }
 
-    /// <summary>Hashes exception and managed-method identity, adding room/state unless a typed dispatch error declares itself room-independent.</summary>
+    /// <summary>Hashes exception and managed-method identity, adding room/state unless the failure is a typed dispatch error.</summary>
     internal static string CreateFingerprint(Exception exception, GitHubErrorContext? context = null)
     {
         Ensure.NotNull(exception);
         var identity = new StringBuilder();
         AppendExceptionIdentity(identity, exception);
-        // Unknown failures are conservatively room-scoped. Only an explicit cartridge
-        // dispatch identity may declare that room/block location does not change the bug.
-        if (exception is not CartridgeDispatchException { IsRoomIndependent: true } && context is not null)
+        // Unknown failures are conservatively room-scoped. A cartridge dispatch identity names
+        // the untranslated routine, so room/block location does not change the bug.
+        if (exception is not CartridgeDispatchException && context is not null)
             identity.Append($"\nroom:{context.Room}/state:{context.RoomState}");
         byte[] digest = SHA256.HashData(Encoding.UTF8.GetBytes(identity.ToString()));
         return $"SMERR-{Convert.ToHexString(digest.AsSpan(0, 8))}";

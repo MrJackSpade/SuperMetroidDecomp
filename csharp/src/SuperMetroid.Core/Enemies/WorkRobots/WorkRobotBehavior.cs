@@ -422,7 +422,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
         table.AddShot(new EnemyShotReaction(enemy => IsWorkRobotDefinition(enemy.EnemyDefinitionPointer) &&
                                                      EnemyCollision.ShotAi(enemy) is EnemyInteractionCallback.WorkRobotShot or EnemyInteractionCallback.WorkRobotNoPowerShot)
         {
-            AfterCommon = (c, _) => ResolveWorkRobotShotAfterCommon(c.Enemy, c.Samus),
+            AfterCommon = c => ResolveWorkRobotShotAfterCommon(c.Enemy, c.Samus),
         });
     }
 
@@ -499,8 +499,8 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomLevelData level)
     {
         projectile.GraphicsIndex = 0;
-        if (EnemyProjectileEngine.MoveProjectileAxis(projectile, level, horizontal: true) ||
-            EnemyProjectileEngine.MoveProjectileAxis(projectile, level, horizontal: false))
+        if (EnemyProjectileEngine.MoveProjectileAxis(projectile, level, axis: Axis.Horizontal) ||
+            EnemyProjectileEngine.MoveProjectileAxis(projectile, level, axis: Axis.Vertical))
         {
             projectile.Clear();
         }

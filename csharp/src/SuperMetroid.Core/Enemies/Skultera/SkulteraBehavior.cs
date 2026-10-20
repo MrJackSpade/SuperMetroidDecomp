@@ -101,16 +101,16 @@ internal sealed class SkulteraBehavior : IEnemySpecies, IEnemyEntityFactory
         switch (state.Function)
         {
             case SkulteraEnemyFunction.SwimmingLeft:
-                SwimSkultera(slot, state, level, movingLeft: true);
+                SwimSkultera(slot, state, level, direction: HorizontalDirection.Left);
                 return;
             case SkulteraEnemyFunction.SwimmingRight:
-                SwimSkultera(slot, state, level, movingLeft: false);
+                SwimSkultera(slot, state, level, direction: HorizontalDirection.Right);
                 return;
             case SkulteraEnemyFunction.TurningRight:
-                FinishSkulteraTurn(slot, state, nowMovingLeft: false);
+                FinishSkulteraTurn(slot, state, direction: HorizontalDirection.Right);
                 return;
             case SkulteraEnemyFunction.TurningLeft:
-                FinishSkulteraTurn(slot, state, nowMovingLeft: true);
+                FinishSkulteraTurn(slot, state, direction: HorizontalDirection.Left);
                 return;
             default:
                 throw new InvalidDataException(
@@ -123,9 +123,9 @@ internal sealed class SkulteraBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemySlot slot,
         SkulteraEnemyState state,
         RoomLevelData level,
-        bool movingLeft)
+        HorizontalDirection direction)
     {
-        int horizontalDisplacement = (movingLeft
+        int horizontalDisplacement = (direction == HorizontalDirection.Left
             ? state.LeftVelocity
             : state.RightVelocity).RawValue;
         if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(
@@ -133,7 +133,7 @@ internal sealed class SkulteraBehavior : IEnemySpecies, IEnemyEntityFactory
                 slot,
                 horizontalDisplacement))
         {
-            BeginSkulteraTurn(slot, state, currentlyMovingLeft: movingLeft);
+            BeginSkulteraTurn(slot, state, currentlyMovingLeft: direction == HorizontalDirection.Left);
             // Horizontal collision jumps directly to the native merge label. Consequently
             // CurrentYOffset remains the preceding frame's word and is copied below again.
             state.PreviousYOffset = state.CurrentYOffset;
@@ -147,7 +147,7 @@ internal sealed class SkulteraBehavior : IEnemySpecies, IEnemyEntityFactory
         int yDifference = state.CurrentYOffset - state.PreviousYOffset;
         if (_terrain.MoveEnemyVertically(level, slot, SnesSixteenSixteen.FromWhole(yDifference)))
         {
-            BeginSkulteraTurn(slot, state, currentlyMovingLeft: movingLeft);
+            BeginSkulteraTurn(slot, state, currentlyMovingLeft: direction == HorizontalDirection.Left);
         }
         else
         {
@@ -180,19 +180,19 @@ internal sealed class SkulteraBehavior : IEnemySpecies, IEnemyEntityFactory
     private static void FinishSkulteraTurn(
         RoomEnemySlot slot,
         SkulteraEnemyState state,
-        bool nowMovingLeft)
+        HorizontalDirection direction)
     {
         if (!state.TurnFinished)
             return;
 
         state.TurnFinished = false;
-        state.Function = nowMovingLeft
+        state.Function = direction == HorizontalDirection.Left
             ? SkulteraEnemyFunction.SwimmingLeft
             : SkulteraEnemyFunction.SwimmingRight;
         state.AngleDelta = -state.AngleDelta;
         slot.InstructionTimer = NativeCountdown.Start(1);
         slot.Timer = NativeCountdown.Start(0);
-        state.Program = AnimationProgramCursor<SkulteraProgram>.Start(nowMovingLeft
+        state.Program = AnimationProgramCursor<SkulteraProgram>.Start(direction == HorizontalDirection.Left
             ? SkulteraProgram.SwimmingLeft
             : SkulteraProgram.SwimmingRight);
     }

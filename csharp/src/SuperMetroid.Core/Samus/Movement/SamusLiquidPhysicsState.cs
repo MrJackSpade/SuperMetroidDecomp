@@ -133,9 +133,10 @@ public sealed class SamusLiquidPhysicsState
     }
 
     /// <summary>Configures the exact room-FX words for a lava (type two) or acid (type four) surface.</summary>
-    public void ConfigureLavaAcid(int surfaceY, bool acid = false)
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="type"/> is neither lava nor acid.</exception>
+    public void ConfigureLavaAcid(int surfaceY, RoomFxType type = RoomFxType.Lava)
     {
-        FxType = acid ? RoomFxType.Acid : RoomFxType.Lava;
+        FxType = type is RoomFxType.Lava or RoomFxType.Acid ? type : throw new ArgumentOutOfRangeException(nameof(type), type, "Only lava or acid has a lava/acid surface.");
         FxYPosition = ushort.MaxValue;
         LavaAcidYPosition = surfaceY;
         LiquidOptions = RoomLiquidOptions.None;
@@ -259,6 +260,7 @@ public sealed class SamusLiquidPhysicsState
     /// timer: liquid delay, medium changes, four particle producers, sound requests, and
     /// lava/acid fixed-point damage accumulation.
     /// </summary>
+    [IndependentFlag("The liquid sound request frame and boss presence are independent facts of the frame.")]
     public void PrepareAnimationFrame(
         SamusState samus,
         CartridgeRandom random,

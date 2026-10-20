@@ -326,7 +326,7 @@ public static class SnesGameplayFrameRenderer
             bg2Scroll.X,
             bg2Scroll.Y,
             fx.LavaAcidBg2WavePhase,
-            verticalWave: false);
+            axis: Axis.Horizontal);
     }
 
     /// <summary>Resolves the Norfair heat-haze BG2VOFS waveform from <c>$88:B5A9</c>.</summary>
@@ -344,7 +344,7 @@ public static class SnesGameplayFrameRenderer
             bg2VerticalScroll,
             bg2VerticalScroll,
             fx.LavaAcidBg2WavePhase,
-            verticalWave: true);
+            axis: Axis.Vertical);
     }
 
     /// <summary>Expands the rotating sixteen-entry heat-haze wave into one BG2 scroll word per gameplay scanline.</summary>
@@ -352,7 +352,7 @@ public static class SnesGameplayFrameRenderer
         ushort baseScroll,
         ushort bg2VerticalScroll,
         int wavePhase,
-        bool verticalWave)
+        Axis axis)
     {
         var result = new ushort[Height - HudHeight];
         int verticalPhase = bg2VerticalScroll & 15;
@@ -364,7 +364,7 @@ public static class SnesGameplayFrameRenderer
             // waveform periods, so gameplay-local and physical scanline indices coincide.
             int waveIndex = (verticalPhase + line + wavePhase) &
                 (RoomFxRomData.LavaAcid.WaveDisplacementCount - 1);
-            short displacement = verticalWave
+            short displacement = axis == Axis.Vertical
                 ? RoomFxRomData.LavaAcid.VerticalWaveDisplacement(waveIndex)
                 : RoomFxRomData.LavaAcid.HorizontalWaveDisplacement(waveIndex);
             result[line] = unchecked((ushort)(baseScroll + displacement));

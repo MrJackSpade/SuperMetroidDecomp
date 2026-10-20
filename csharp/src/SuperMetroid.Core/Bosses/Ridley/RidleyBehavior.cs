@@ -133,10 +133,10 @@ internal sealed class RidleyBehavior : IEnemySpecies
                 _ridleyProjectiles.CalculateRidleyFireballVelocity(slot, samus);
                 return null;
             case RidleyBodyCueKind.SpawnFireballWithAfterburn:
-                _ridleyProjectiles.SpawnRidleyFireball(slot, spawnAfterburn: true);
+                _ridleyProjectiles.SpawnRidleyFireball(slot, afterburns: 3);
                 return null;
             case RidleyBodyCueKind.SpawnFireballWithoutAfterburn:
-                _ridleyProjectiles.SpawnRidleyFireball(slot, spawnAfterburn: false);
+                _ridleyProjectiles.SpawnRidleyFireball(slot, afterburns: 0);
                 return null;
             case RidleyBodyCueKind.CeresStartLiftoff:
             {
@@ -418,15 +418,15 @@ internal sealed class RidleyBehavior : IEnemySpecies
                 state.TailExtensionSpeed = 384;
                 state.Function = RidleyAiFunction.NorfairPogoDescending;
                 state.FunctionTimer = NativeCountdown.FromRaw(unchecked((ushort)(_room.Random.Read() % 32 + 32)));
-                TickNorfairRidleyPogo(slot, state, samus, descending: true);
+                TickNorfairRidleyPogo(slot, state, samus, direction: VerticalDirection.Down);
                 return;
 
             case RidleyAiFunction.NorfairPogoDescending:
-                TickNorfairRidleyPogo(slot, state, samus, descending: true);
+                TickNorfairRidleyPogo(slot, state, samus, direction: VerticalDirection.Down);
                 return;
 
             case RidleyAiFunction.NorfairPogoAscending:
-                TickNorfairRidleyPogo(slot, state, samus, descending: false);
+                TickNorfairRidleyPogo(slot, state, samus, direction: VerticalDirection.Up);
                 return;
 
             case RidleyAiFunction.NorfairFireballSetup:
@@ -697,10 +697,10 @@ internal sealed class RidleyBehavior : IEnemySpecies
         RoomEnemySlot slot,
         RidleyEnemyState state,
         SamusState? samus,
-        bool descending)
+        VerticalDirection direction)
     {
         RidleyFacing facing = state.FacingDirection;
-        ushort targetX = descending ? RidleyMovementTargets.DescendingPogoX(facing)
+        ushort targetX = direction == VerticalDirection.Down ? RidleyMovementTargets.DescendingPogoX(facing)
             : RidleyMovementTargets.AscendingPogoX(facing);
         ushort targetY = samus is null ? (ushort)352 : Math.Min(samus.Position.Y.Whole, (ushort)352);
         MoveNorfairRidleyToward(
@@ -723,7 +723,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
         if (!TickRidleyFunctionTimer(state))
             return;
 
-        state.Function = descending
+        state.Function = direction == VerticalDirection.Down
             ? RidleyAiFunction.NorfairPogoAscending
             : RidleyAiFunction.NorfairPogoDescending;
         state.FunctionTimer = NativeCountdown.Start(128);

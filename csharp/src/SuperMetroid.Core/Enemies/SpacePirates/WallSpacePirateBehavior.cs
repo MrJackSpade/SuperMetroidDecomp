@@ -122,11 +122,11 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
                 return;
 
             case WallSpacePirateFunction.WallJumpingRight:
-                StepWallSpacePirateJump(slot, state, rightward: true);
+                StepWallSpacePirateJump(slot, state, direction: HorizontalDirection.Right);
                 return;
 
             case WallSpacePirateFunction.WallJumpingLeft:
-                StepWallSpacePirateJump(slot, state, rightward: false);
+                StepWallSpacePirateJump(slot, state, direction: HorizontalDirection.Left);
                 return;
 
             default:
@@ -145,17 +145,17 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
     private static void StepWallSpacePirateJump(
         RoomEnemySlot slot,
         WallSpacePirateEnemyState state,
-        bool rightward)
+        HorizontalDirection direction)
     {
         PositionWallSpacePirateOnArc(slot, state);
-        state.WallJumpArcAngle = state.WallJumpArcAngle.AddTableUnits(rightward ? -state.JumpAngleDelta : state.JumpAngleDelta);
-        if (state.WallJumpArcAngle != (rightward ? state.RightJumpTargetAngle : state.LeftJumpTargetAngle))
+        state.WallJumpArcAngle = state.WallJumpArcAngle.AddTableUnits(direction == HorizontalDirection.Right ? -state.JumpAngleDelta : state.JumpAngleDelta);
+        if (state.WallJumpArcAngle != (direction == HorizontalDirection.Right ? state.RightJumpTargetAngle : state.LeftJumpTargetAngle))
             return;
 
         InstallWallSpacePirateInstruction(
             slot,
             state,
-            rightward ? WallSpacePirateProgram.LandedOnRightWall : WallSpacePirateProgram.LandedOnLeftWall);
+            direction == HorizontalDirection.Right ? WallSpacePirateProgram.LandedOnRightWall : WallSpacePirateProgram.LandedOnLeftWall);
         SnapWallSpacePirateXToTile(slot);
     }
 
@@ -208,7 +208,7 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
         WallSpacePirateEnemyState state,
         RoomLevelData? level,
         short downwardPixels,
-        bool onRightWall)
+        HorizontalDirection wall)
     {
         if (level is null)
         {
@@ -225,18 +225,18 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
         state.ClimbDirection = state.ClimbDirection == WallSpacePirateClimbDirection.Down
             ? WallSpacePirateClimbDirection.Up
             : WallSpacePirateClimbDirection.Down;
-        return SelectWallSpacePirateClimbList(onRightWall, state.ClimbDirection);
+        return SelectWallSpacePirateClimbList(wall == HorizontalDirection.Right, state.ClimbDirection);
     }
 
     /// <summary>Consumes one random value and returns the chosen up or down climb to continue at.</summary>
     private WallSpacePirateProgram RandomizeWallSpacePirateClimbDirection(
         WallSpacePirateEnemyState state,
-        bool onRightWall)
+        HorizontalDirection wall)
     {
         state.ClimbDirection = (_room.Random.Generate() & 1) == 0
             ? WallSpacePirateClimbDirection.Down
             : WallSpacePirateClimbDirection.Up;
-        return SelectWallSpacePirateClimbList(onRightWall, state.ClimbDirection);
+        return SelectWallSpacePirateClimbList(wall == HorizontalDirection.Right, state.ClimbDirection);
     }
 
     /// <summary>Selects the climb animation for a wall side and vertical climb direction.</summary>
@@ -260,28 +260,28 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
     private static void PrepareWallSpacePirateJump(
         RoomEnemySlot slot,
         WallSpacePirateEnemyState state,
-        bool jumpingRight)
+        HorizontalDirection direction)
     {
-        int signedSpan = jumpingRight ? slot.Spawn.Population.Parameter2 : -slot.Spawn.Population.Parameter2;
-        int signedHalfSpan = jumpingRight
+        int signedSpan = direction == HorizontalDirection.Right ? slot.Spawn.Population.Parameter2 : -slot.Spawn.Population.Parameter2;
+        int signedHalfSpan = direction == HorizontalDirection.Right
             ? slot.Spawn.Population.Parameter2 >> 1
             : -(slot.Spawn.Population.Parameter2 >> 1);
         state.WallJumpDestination = new(unchecked((ushort)(slot.Position.X.Whole + signedSpan)), 0);
         state.WallJumpArcCenter = new Position16<RoomPixels>(
             unchecked((ushort)(slot.Position.X.Whole + signedHalfSpan)),
             slot.Position.Y.Whole);
-        state.WallJumpArcAngle = jumpingRight ? SnesAngle.QuarterTurn : SnesAngle.ThreeQuarterTurn;
+        state.WallJumpArcAngle = direction == HorizontalDirection.Right ? SnesAngle.QuarterTurn : SnesAngle.ThreeQuarterTurn;
     }
 
     /// <summary>Emits a wall laser through the shared Pirate owner and queues sound only if allocation succeeds.</summary>
     private void FireWallSpacePirateLaser(
         RoomEnemySlot slot,
         WallSpacePirateEnemyState state,
-        bool movingRight)
+        HorizontalDirection direction)
     {
         // `$86:A009` queues $67 for every successful allocation. The later wall-jump opcode
         // independently queues $66; both are observable, distinct library-two requests.
-        if (_walkingSpacePirateBehavior.SpawnSpacePirateLaser(slot, movingRight, WallPirateLaserMuzzleYOffset))
+        if (_walkingSpacePirateBehavior.SpawnSpacePirateLaser(slot, direction == HorizontalDirection.Right, WallPirateLaserMuzzleYOffset))
         {
             state.SpawnedLaserCount++;
             _walkingSpacePirateBehavior.LastSpacePirateSoundEffect = SoundEffectId.FromCartridge(
@@ -300,24 +300,24 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
         switch (cue.Kind)
         {
             case WallSpacePirateCueKind.ClimbLeftWall:
-                return MoveWallSpacePirateAndReverseOnCollision(slot, state, level, cue.ClimbPixels, onRightWall: false);
+                return MoveWallSpacePirateAndReverseOnCollision(slot, state, level, cue.ClimbPixels, wall: HorizontalDirection.Left);
             case WallSpacePirateCueKind.ClimbRightWall:
-                return MoveWallSpacePirateAndReverseOnCollision(slot, state, level, cue.ClimbPixels, onRightWall: true);
+                return MoveWallSpacePirateAndReverseOnCollision(slot, state, level, cue.ClimbPixels, wall: HorizontalDirection.Right);
             case WallSpacePirateCueKind.ChooseLeftWallDirection:
-                return RandomizeWallSpacePirateClimbDirection(state, onRightWall: false);
+                return RandomizeWallSpacePirateClimbDirection(state, wall: HorizontalDirection.Left);
             case WallSpacePirateCueKind.ChooseRightWallDirection:
-                return RandomizeWallSpacePirateClimbDirection(state, onRightWall: true);
+                return RandomizeWallSpacePirateClimbDirection(state, wall: HorizontalDirection.Right);
             case WallSpacePirateCueKind.PrepareJumpRight:
-                PrepareWallSpacePirateJump(slot, state, jumpingRight: true);
+                PrepareWallSpacePirateJump(slot, state, direction: HorizontalDirection.Right);
                 return null;
             case WallSpacePirateCueKind.PrepareJumpLeft:
-                PrepareWallSpacePirateJump(slot, state, jumpingRight: false);
+                PrepareWallSpacePirateJump(slot, state, direction: HorizontalDirection.Left);
                 return null;
             case WallSpacePirateCueKind.FireLaserLeft:
-                FireWallSpacePirateLaser(slot, state, movingRight: false);
+                FireWallSpacePirateLaser(slot, state, direction: HorizontalDirection.Left);
                 return null;
             case WallSpacePirateCueKind.FireLaserRight:
-                FireWallSpacePirateLaser(slot, state, movingRight: true);
+                FireWallSpacePirateLaser(slot, state, direction: HorizontalDirection.Right);
                 return null;
             case WallSpacePirateCueKind.SetFunction:
                 state.Function = cue.Function;
@@ -381,7 +381,7 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
                 Position16<RoomPixels> dropOrigin = c.Enemy.Position.Whole;
                 _deathsAndDrops.StartGenericEnemyDeath(
                     c.Enemy,
-                    EnemyDeathsAndDrops.SelectNormalShotDeathAnimation(c.Enemy, c.ProjectileType, forcePirateBigExplosion: true));
+                    EnemyDeathsAndDrops.SelectNormalShotDeathAnimation(c.Enemy, c.ProjectileType, rule: ShotDeathAnimationRule.PirateBigExplosion));
                 if (spawnsGoldNinjaDrops)
                     _deathsAndDrops.SpawnEnemyDropScatterAround(EnemyDefinitionId.PirateGoldNinja, count: 5, dropOrigin);
                 return true;

@@ -48,7 +48,7 @@ internal static class TourianStatueProjectileInstructionProgramDefinitionsVerifi
         enemies.Presentation.BindCgram(new SnesCgram());
         enemies.VerificationServices().NextRandom = () => 4;
 
-        enemies.TourianUnlockBehavior.SpawnTourianUnlockEffect(0, soul: false);
+        enemies.TourianUnlockBehavior.SpawnTourianEyeGlow(0);
         RoomEnemyProjectileSlot eye = Single(RoomEnemyProjectileKind.TourianStatueEyeGlow);
         Run(eye, 10);
         AssertEqual((ushort)0xb7db, NativePointer(eye),
@@ -93,7 +93,7 @@ internal static class TourianStatueProjectileInstructionProgramDefinitionsVerifi
         Run(splash, 1);
         AssertTrue(!splash.IsActive, "water splash deletes on its fifth instruction tick");
 
-        enemies.TourianUnlockBehavior.SpawnTourianUnlockEffect(2, soul: true);
+        enemies.TourianUnlockBehavior.SpawnTourianSoul(2);
         RoomEnemyProjectileSlot soul = Single(RoomEnemyProjectileKind.TourianStatueSoul);
         Run(soul, 3);
         AssertEqual((ushort)0xb852, NativePointer(soul),

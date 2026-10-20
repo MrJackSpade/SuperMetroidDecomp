@@ -37,7 +37,7 @@ internal sealed class CeresVortexParts(bool odd, Offset16<OamPixels> anchor, IRe
         for (int index = 0; index < supplied.PartCount; index++)
             if (!(index >= tip && index < tip + 2) && !(index >= core && index < core + 11))
                 stars[next++] = supplied.Part(index);
-        IReadOnlyList<CompiledSpritePart> selectedStars = odd ? CeresStarPointParts.CalculateIfMatching(stars, false) : CeresReflectedStarParts.CalculateIfMatching(reflectionSource, stars);
+        IReadOnlyList<CompiledSpritePart> selectedStars = odd ? CeresStarPointParts.CalculateIfMatching(stars, SnesTileFlipFlags.None) : CeresReflectedStarParts.CalculateIfMatching(reflectionSource, stars);
         return supplied.CalculateIfMatching(new CeresVortexParts(odd, anchor, selectedStars));
     }
     /// <summary>Counts thirteen vortex parts plus the remaining stars for the selected frame.</summary>

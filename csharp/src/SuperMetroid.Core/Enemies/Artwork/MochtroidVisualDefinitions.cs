@@ -14,12 +14,18 @@ internal static class MochtroidVisualDefinitions
     internal static IEnumerable<EnemySpritemapDefinition> Frames()
     {
         for (int pose = 0; pose < 3; pose++)
-            yield return new(Bank, PosePointer(false, pose), $"mochtroid_flight_{pose}");
+            yield return new(Bank, PosePointer(FlightFrame, FlightParts, pose), $"mochtroid_flight_{pose}");
         for (int pose = 0; pose < 3; pose++)
-            yield return new(Bank, PosePointer(true, pose), $"mochtroid_attached_{pose}");
+            yield return new(Bank, PosePointer(AttachedFrame, AttachedParts, pose), $"mochtroid_attached_{pose}");
     }
 
-    /// <summary>Uses each pose's native record size: six parts in flight or four while attached.</summary>
-    private static ushort PosePointer(bool attached, int pose) =>
-        checked((ushort)((attached ? AttachedFrame : FlightFrame) + pose * (2 + 5 * (attached ? 4 : 6))));
+    /// <summary>Parts in each free-flight pose record.</summary>
+    private const int FlightParts = 6;
+
+    /// <summary>Parts in each attached pose record.</summary>
+    private const int AttachedParts = 4;
+
+    /// <summary>Steps through pose records of a two-byte count followed by five bytes per part.</summary>
+    private static ushort PosePointer(ushort first, int parts, int pose) =>
+        checked((ushort)(first + pose * (2 + 5 * parts)));
 }

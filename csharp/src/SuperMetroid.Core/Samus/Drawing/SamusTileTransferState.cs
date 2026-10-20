@@ -71,11 +71,11 @@ public sealed class SamusTileTransferState
         SamusBodyArtworkCatalog installed = Artwork ?? throw new InvalidOperationException(
             "Samus tile transfer requires installed body artwork.");
         SamusBodyFrameSelection frame = installed.Frame(pose, animationFrame);
-        TopDefinitionAddress = installed.DefinitionAddress(true, frame.TopSet, frame.TopPosition);
+        TopDefinitionAddress = installed.DefinitionAddress(SamusBodyHalf.Top, frame.TopSet, frame.TopPosition);
         TopTransferEnabled = true;
         if (frame.BottomSet != SamusRenderingRomData.TileTransfers.NoBottomTransferSet)
         {
-            BottomDefinitionAddress = installed.DefinitionAddress(false, frame.BottomSet,
+            BottomDefinitionAddress = installed.DefinitionAddress(SamusBodyHalf.Bottom, frame.BottomSet,
                 frame.BottomPosition);
             BottomTransferEnabled = true;
         }

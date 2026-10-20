@@ -37,7 +37,7 @@ internal sealed class NoobTubePlmAnimation(NoobTubeProgram program)
                 slot.PreInstruction = NoobTubePreInstructions.Inactive;
                 break;
             case NoobTubeCue.LockSamus:
-                tube.SetSamusLocked(true);
+                tube.LockSamus();
                 break;
             case NoobTubeCue.SpawnCrack:
                 tube.SpawnCrack(slot);
@@ -59,7 +59,7 @@ internal sealed class NoobTubePlmAnimation(NoobTubeProgram program)
                 tube.EnableWaterPhysics();
                 break;
             case NoobTubeCue.UnlockSamus:
-                tube.SetSamusLocked(false);
+                tube.UnlockSamus();
                 break;
             default:
                 throw new InvalidOperationException($"Undefined {nameof(NoobTubeCue)} {cue}.");

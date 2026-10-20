@@ -45,7 +45,8 @@ internal static class TourianStatueUnlockDefinitionsVerification
             bool soul = soulValue != 0;
             var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = InstalledFixtures.EnemyTiles };
             enemies.Presentation.BindCgram(new SnesCgram());
-            enemies.TourianUnlockBehavior.SpawnTourianUnlockEffect(parameter, soul);
+            if (soul) enemies.TourianUnlockBehavior.SpawnTourianSoul(parameter);
+            else enemies.TourianUnlockBehavior.SpawnTourianEyeGlow(parameter);
 
             Position16<RoomPixels> expected =
                 TourianStatueUnlockDefinitions.EyePosition(parameter);

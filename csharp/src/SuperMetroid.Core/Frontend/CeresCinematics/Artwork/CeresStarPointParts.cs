@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
 
 /// <summary>Calculate the common small-sprite attributes of Ceres star sheets.
 /// Point positions and selected star drawings remain a separate content mapping.</summary>
-internal sealed class CeresStarPointParts((int X, byte Y, int Tile)[] points, bool reflected)
+internal sealed class CeresStarPointParts((int X, byte Y, int Tile)[] points, SnesTileFlipFlags flips)
     : IReadOnlyList<CompiledSpritePart>
 {
     /// <summary>Reconstructs common attributes only for the 25-part Ceres star composition; otherwise retains supplied artwork.</summary>
@@ -13,11 +13,11 @@ internal sealed class CeresStarPointParts((int X, byte Y, int Tile)[] points, bo
     {
         if (pointer != CeresFlightSpriteDefinitions.Stars || supplied.PartCount != 25) return supplied;
         var parts = Enumerable.Range(0, supplied.PartCount).Select(supplied.Part).ToArray();
-        var selected = CalculateIfMatching(parts, true);
+        var selected = CalculateIfMatching(parts, SnesTileFlipFlags.Horizontal);
         return ReferenceEquals(parts, selected) ? supplied : supplied.CalculateIfMatching(selected);
     }
     /// <summary>Uses calculated common attributes only when all supplied parts already agree with them.</summary>
-    internal static IReadOnlyList<CompiledSpritePart> CalculateIfMatching(IReadOnlyList<CompiledSpritePart> supplied, bool reflected)
+    internal static IReadOnlyList<CompiledSpritePart> CalculateIfMatching(IReadOnlyList<CompiledSpritePart> supplied, SnesTileFlipFlags flips)
     {
         var points = new (int X, byte Y, int Tile)[supplied.Count];
         for (int index = 0; index < points.Length; index++)
@@ -25,7 +25,7 @@ internal sealed class CeresStarPointParts((int X, byte Y, int Tile)[] points, bo
             var part = supplied[index];
             points[index] = (part.X.SignedOffset, part.Y.Raw, part.Attributes.TileNumber);
         }
-        var calculated = new CeresStarPointParts(points, reflected);
+        var calculated = new CeresStarPointParts(points, flips);
         return supplied.SequenceEqual(calculated) ? calculated : supplied;
     }
     /// <summary>Number of points in the source star composition.</summary>
@@ -38,7 +38,7 @@ internal sealed class CeresStarPointParts((int X, byte Y, int Tile)[] points, bo
             if ((uint)index >= Count) throw new ArgumentOutOfRangeException(nameof(index));
             var point = points[index];
             return new(SnesSpritemapXWord.Create(point.X, false), new SnesSpritemapYByte(point.Y),
-                SnesObjAttributeWord.Create(point.Tile, 0, 0, reflected ? SnesTileFlipFlags.Horizontal : 0), true);
+                SnesObjAttributeWord.Create(point.Tile, 0, 0, flips), true);
         }
     }
     /// <summary>Enumerates the calculated star parts in source order.</summary>

@@ -44,13 +44,13 @@ public sealed class ChargeFlarePlacementCatalog
     /// <summary>Loads beam-charge flare placements corresponding to native <c>$90:C1A8-C203</c>, requiring the supported version and all 32 standing/running keys while rejecting duplicate or unknown JSON properties.</summary>
     /// <param name="json">UTF-8 JSON stream containing signed 16-bit X/Y offsets for every direction in both modes.</param>
     /// <returns>The immutable beam-flare placement catalog; use <see cref="LoadGrapple"/> for Grapple's distinct adjacent-row source contract.</returns>
-    public static ChargeFlarePlacementCatalog Load(Stream json) => Load(json, false);
+    public static ChargeFlarePlacementCatalog Load(Stream json) => Load(json, ChargeFlareSource.Beam);
     /// <summary>Imports the Grapple placement resource with its distinct adjacent-row owners.</summary>
     /// <param name="json">UTF-8 JSON stream containing the same 32-key placement schema for Grapple flare origins.</param>
     /// <returns>The immutable placement catalog interpreted with Grapple's native origin and adjacent-row definitions.</returns>
-    public static ChargeFlarePlacementCatalog LoadGrapple(Stream json) => Load(json, true);
+    public static ChargeFlarePlacementCatalog LoadGrapple(Stream json) => Load(json, ChargeFlareSource.Grapple);
     /// <summary>Validates all standing/running direction keys and binds their offsets to the import-selected source kind.</summary>
-    private static ChargeFlarePlacementCatalog Load(Stream json, bool grapple)
+    private static ChargeFlarePlacementCatalog Load(Stream json, ChargeFlareSource source)
     {
         ChargeFlarePlacementDocument document;
         try
@@ -73,7 +73,7 @@ public sealed class ChargeFlarePlacementCatalog
                 throw new InvalidDataException($"Missing charge-flare placement {key}.");
             offsets[mode * count + direction] = value.Offset;
         }
-        return new(offsets, grapple);
+        return new(offsets, source == ChargeFlareSource.Grapple);
     }
     /// <summary>Serializes the shared placement document as indented camel-case UTF-8 JSON and validates its version, complete key set, and signed offsets through the beam loader before returning it; the document does not encode its beam/Grapple import kind.</summary>
     /// <param name="document">Document containing every standing and running direction placement.</param>
@@ -87,5 +87,5 @@ public sealed class ChargeFlarePlacementCatalog
     /// <summary>Rejects duplicate top-level or nested object keys before deserialization can overwrite them.</summary>
     private static void ValidateUnique(JsonElement element) =>
         JsonAssetDocument.RejectDuplicateProperties(element, StringComparer.Ordinal,
-            name => new InvalidDataException("Duplicate charge-flare placement property."), descendArrays: false);
+            name => new InvalidDataException("Duplicate charge-flare placement property."), DuplicatePropertyScope.OutsideArrays);
 }

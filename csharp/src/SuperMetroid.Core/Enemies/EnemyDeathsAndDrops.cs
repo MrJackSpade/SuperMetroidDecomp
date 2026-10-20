@@ -154,9 +154,9 @@ internal sealed class EnemyDeathsAndDrops
     internal static ushort SelectNormalShotDeathAnimation(
         RoomEnemySlot enemy,
         SamusProjectileTypeWord projectileType,
-        bool forcePirateBigExplosion = false)
+        ShotDeathAnimationRule rule = ShotDeathAnimationRule.ByProjectile)
     {
-        if (forcePirateBigExplosion)
+        if (rule == ShotDeathAnimationRule.PirateBigExplosion)
             return 4;
 
         ushort causeOfDeath = (ushort)SamusProjectileFamilies.IndexOf(projectileType.Raw);

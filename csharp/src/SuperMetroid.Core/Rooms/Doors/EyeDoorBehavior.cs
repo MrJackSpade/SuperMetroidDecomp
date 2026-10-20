@@ -373,7 +373,7 @@ internal sealed class EyeDoorBehavior
             edge,
             unchecked((ushort)(projectile.Position.Y.Whole - projectile.Radius.Y)),
             unchecked((ushort)(projectile.Position.Y.Whole + projectile.Radius.Y - 1)),
-            verticalEdge: false))
+            edge: Axis.Horizontal))
         {
             projectile.Position = projectile.Position.WithFractionX(0);
             projectile.Position = projectile.Position.WithWholeX(SnapEnemyProjectileAxis(projectile.Position.X.Whole, edge, projectile.Radius.X,
@@ -417,7 +417,7 @@ internal sealed class EyeDoorBehavior
             edge,
             unchecked((ushort)(projectile.Position.X.Whole - projectile.Radius.X)),
             unchecked((ushort)(projectile.Position.X.Whole + projectile.Radius.X - 1)),
-            verticalEdge: true))
+            edge: Axis.Vertical))
         {
             projectile.Position = projectile.Position.WithFractionY(0);
             projectile.Position = projectile.Position.WithWholeY(SnapEnemyProjectileAxis(projectile.Position.Y.Whole, edge, projectile.Radius.Y,
@@ -441,14 +441,14 @@ internal sealed class EyeDoorBehavior
         int fixedAxisPixel,
         int spanStartPixel,
         int spanEndPixel,
-        bool verticalEdge)
+        Axis edge)
     {
         int fixedBlock = unchecked((ushort)fixedAxisPixel) >> 4;
         int startBlock = unchecked((ushort)spanStartPixel) >> 4;
         int extraBlocks = unchecked((ushort)(spanEndPixel - (spanStartPixel & ~15))) >> 4;
         int width = level.Size.X;
-        int linear = verticalEdge ? fixedBlock * width + startBlock : startBlock * width + fixedBlock;
-        int step = verticalEdge ? 1 : width;
+        int linear = edge == Axis.Vertical ? fixedBlock * width + startBlock : startBlock * width + fixedBlock;
+        int step = edge == Axis.Vertical ? 1 : width;
         for (int tested = 0; tested <= extraBlocks; tested++, linear += step)
         {
             if (tested > 0 && linear >= width * level.Size.Y)
@@ -456,8 +456,8 @@ internal sealed class EyeDoorBehavior
                 throw new InvalidDataException(
                     "Enemy projectile block scan ran past the room's level data into other WRAM.");
             }
-            int blockX = tested == 0 ? (verticalEdge ? startBlock : fixedBlock) : linear % width;
-            int blockY = tested == 0 ? (verticalEdge ? fixedBlock : startBlock) : linear / width;
+            int blockX = tested == 0 ? (edge == Axis.Vertical ? startBlock : fixedBlock) : linear % width;
+            int blockY = tested == 0 ? (edge == Axis.Vertical ? fixedBlock : startBlock) : linear / width;
             int blockIndex = EnemyTerrain.ResolveEnemyCollisionBlockIndex(level, new(unchecked((ushort)(blockX)), unchecked((ushort)(blockY))));
             if (blockIndex < 0)
                 return true;

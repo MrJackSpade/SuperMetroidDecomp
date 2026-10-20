@@ -15,6 +15,7 @@ namespace SuperMetroid.Core.Enemies;
 /// <param name="DeleteLiquidHdmaObjects">Mother Brain's tube landed ($A9:8C0C), deleting HDMA objects 0-3.</param>
 /// <param name="Gunship">The gunship lifecycle event, if any.</param>
 /// <param name="RoomEffects">The hardcoded PLMs and room writes enemy AI requested.</param>
+[IndependentFlag("independent events one enemy frame reports to the runtime")]
 public readonly record struct EnemyFrameResult(
     ElevatorFrameEvent Elevator,
     bool ElevatorClearedProjectileData,

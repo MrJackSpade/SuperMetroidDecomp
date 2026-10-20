@@ -16,6 +16,7 @@ namespace SuperMetroid.RenderVerification.Saves;
 using SuperMetroid.Core;
 using SuperMetroid.TestSupport.FrameCapture;
 using SuperMetroid.TestSupport.RepositoryInstallation;
+using SuperMetroid.Core.Spatial;
 
 /// <summary>Checks every captured frame of a retail save station cycle, including electricity and control release.</summary>
 internal static class RetailSaveCaptureTests
@@ -37,7 +38,7 @@ internal static class RetailSaveCaptureTests
         samus.Position = samus.Position.WithWhole(new((ushort)(station.BlockIndex % level.Size.X * 16 + 13), (ushort)(station.BlockIndex / level.Size.X * 16 - samus.Kinematics.Radius.Y)));
         samus.Control.Unlock(); samus.Presentation.PrimeGraphics();
         if (!runtime.Plms.Stations.TryNotifyStationCollision(station.BlockIndex, new RoomBlockBehavior((byte)StationAccessBehavior.SaveFloor),
-            samus.Pose, horizontal: false, movingPositive: true, roomWidthInBlocks: level.Size.X))
+            samus.Pose, Axis.Vertical, movingPositive: true, roomWidthInBlocks: level.Size.X))
             throw new InvalidOperationException("Save fixture could not trigger resident station.");
         bool confirmation = false, electricity = false, completion = false, finished = false;
         bool pressedLastFrame = false;

@@ -756,7 +756,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         table.AddShot(new EnemyShotReaction(enemy => enemy.EnemyDefinitionPointer == EnemyDefinitionId.Magdollite &&
                                                      EnemyCollision.ShotAi(enemy) == EnemyInteractionCallback.MagdolliteShot)
         {
-            AfterCommon = (c, _) => ResolveMagdolliteCombatAfterCommon(c.Enemy),
+            AfterCommon = c => ResolveMagdolliteCombatAfterCommon(c.Enemy),
         });
     }
 

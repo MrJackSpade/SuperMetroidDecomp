@@ -173,6 +173,19 @@ orientations and the enemy-projectile collision option were converted that way. 
 size says so at its declaration with `[IntegerQuantity(reason)]`; a packed native word whose bit fields a typed view
 decodes, and whose zero test asks whether it holds anything, says so with `[NativeWord(reason)]`.
 
+## Choices are named, not flagged
+
+**SME6423** reports, in `SuperMetroid.Core`, a by-value bool parameter of a method, constructor or delegate to which
+every argument in the compilation is a `true` or `false` literal (#1373). Such a bool chooses behaviour when the code is
+written, so the member is split in two or takes an enum naming the cases (`HorizontalDirection`, `Axis`,
+`GamePhaseAudio`, `StationSetupGate`, ...). **SME6424** reports a member taking two or more by-value bool parameters,
+whose combinations become an enum or a split member; ref and out bools are results, not choices, and are not counted.
+**SME6425** reports a field, property or parameter whose delegate type takes a bool input; the fact goes on the
+event's context as a named property, or the delegate is split. Overrides, implementations and
+method groups that escape to a delegate follow their contract and are not reported. Bools that are independent facts
+read from runtime state, such as saved options, equipment, or per-frame conditions, say so at the member, or for a
+record at its type, with `[IndependentFlag(reason)]`.
+
 ## Diagnostics are resolved, not disabled
 
 **SME6414** reports every `#pragma warning disable`, whatever diagnostic it names and whatever reason follows it

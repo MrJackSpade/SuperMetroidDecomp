@@ -30,7 +30,7 @@ internal static class BossDisplayBindingsFixtureVerification
         private readonly HitboxQuery hitbox;
         /// <summary>Queries an extended hitbox and returns its callback when touched.</summary>
         private delegate bool HitboxQuery(RoomEnemySlot actor, Position16<RoomPixels> position,
-            Extent16<RoomPixels> radius, bool shot, out EnemyInteractionCallback? callback);
+            Extent16<RoomPixels> radius, HitboxCallbackKind callbackKind, out EnemyInteractionCallback? callback);
 
         /// <summary>Installs one centered boss actor in <paramref name="slot"/> and enqueues it for the production draw path.</summary>
         internal BossDisplayFixture(EnemyDefinitionId definition, EnemyTileArtworkCatalog artwork, int slot = 0)
@@ -73,7 +73,7 @@ internal static class BossDisplayBindingsFixtureVerification
         [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
         internal (bool Hit, ushort Callback) Hitbox(Position16<RoomPixels> probe, bool shot)
         {
-            bool hit = hitbox(Actor, probe, new(2, 2), shot, out EnemyInteractionCallback? callback);
+            bool hit = hitbox(Actor, probe, new(2, 2), shot ? HitboxCallbackKind.Shot : HitboxCallbackKind.Touch, out EnemyInteractionCallback? callback);
             return (hit, callback is { } selected ? EnemyInteractionCallbackAccess.Word(selected) : (ushort)0);
         }
         /// <summary>Clears the boss BG2 tilemap before a presentation check.</summary>

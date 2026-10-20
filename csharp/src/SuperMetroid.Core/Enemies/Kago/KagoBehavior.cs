@@ -199,7 +199,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
         table.AddShot(new EnemyShotReaction(enemy => enemy.EnemyDefinitionPointer == EnemyDefinitionId.Kago &&
                                                      EnemyCollision.ShotAi(enemy) == EnemyInteractionCallback.KagoShot)
         {
-            AfterCommon = (c, _) => ResolveKagoShotAfterCommon(c.Enemy, c.Enemy.RequireSpeciesState<KagoEnemyState>()),
+            AfterCommon = c => ResolveKagoShotAfterCommon(c.Enemy, c.Enemy.RequireSpeciesState<KagoEnemyState>()),
         });
     }
     /// <summary>Signed eight-eight acceleration added to a bug's vertical velocity each unobstructed airborne frame.</summary>
@@ -289,7 +289,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
         StepKagoBugSound(projectile);
         EnableKagoBugShotCollisionWhenSeparated(projectile);
 
-        if (EnemyProjectileEngine.MoveProjectileAxis(projectile, level, horizontal: true))
+        if (EnemyProjectileEngine.MoveProjectileAxis(projectile, level, axis: Axis.Horizontal))
         {
             // A wall ends the rising phase immediately in the cartridge: both X velocity
             // and the upward component are replaced before selecting the falling list.
@@ -298,7 +298,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        if (EnemyProjectileEngine.MoveProjectileAxis(projectile, level, horizontal: false))
+        if (EnemyProjectileEngine.MoveProjectileAxis(projectile, level, axis: Axis.Vertical))
         {
             projectile.Velocity = projectile.Velocity.WithY(SnesSignedEightEight.FromSignedRaw(256));
             BeginKagoBugFall(projectile);
@@ -318,13 +318,13 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // The native routine is an if/else-if chain. A wall consumes this frame, zeros X,
         // and deliberately postpones both vertical motion and gravity until the next frame.
-        if (EnemyProjectileEngine.MoveProjectileAxis(projectile, level, horizontal: true))
+        if (EnemyProjectileEngine.MoveProjectileAxis(projectile, level, axis: Axis.Horizontal))
         {
             projectile.Velocity = projectile.Velocity.WithX(new SnesSignedEightEight(0));
             return;
         }
 
-        if (EnemyProjectileEngine.MoveProjectileAxis(projectile, level, horizontal: false))
+        if (EnemyProjectileEngine.MoveProjectileAxis(projectile, level, axis: Axis.Vertical))
         {
             projectile.PreInstruction = EnemyProjectilePreInstruction.RTS_86D0EB;
             projectile.StartAnimation(new KagoBugProjectileAnimation(KagoBugProjectileProgram.Landed));

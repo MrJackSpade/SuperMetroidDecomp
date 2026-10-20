@@ -126,6 +126,7 @@ internal static class FullMovieReplayVerification
             DoorMusicUploadNmis = uploadNmis,
             DoorLoaderProgress = loaderProgress,
             SoundAcknowledgements = soundAcknowledgements,
+            GameplayFrames = CapturedGameplayFrames.Instance,
         };
         SuperMetroidGame game;
         if (movie.Snapshot is not null)

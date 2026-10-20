@@ -112,7 +112,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // $A7:A9E4-A9E7.
         _zebetiteBehavior.CameraDistanceIndex = CameraDistanceMode.BossTracking;
-        ApplyKraidScrolls(grown: false);
+        ApplyKraidScrolls(layout: KraidScrollLayout.Initial);
         state.EjectionLimit = new Position16<RoomPixels>(0, 324);
         state.InitialHealth = body.Health;
 
@@ -136,10 +136,10 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Switches the arena scrolls between the small and grown boss layouts.</summary>
-    private void ApplyKraidScrolls(bool grown)
+    private void ApplyKraidScrolls(KraidScrollLayout layout)
     {
         for (int index = 0; index < KraidCameraDefinitions.ScreenCount; index++)
-            _room.Services.RoomScroll.Write(index, grown
+            _room.Services.RoomScroll.Write(index, layout == KraidScrollLayout.Grown
                 ? KraidCameraDefinitions.GrownScroll(index)
                 : KraidCameraDefinitions.InitialScroll(index));
     }
@@ -582,7 +582,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
                 _ = RequireKraidState(context.Slot);
                 context.Samus.Kinematics.ExtraDisplacement = context.Samus.Kinematics.ExtraDisplacement.WithWhole(new(4, -8));
                 Part(_slotTable.Slots[4]).Function = KraidAiFunction.LintFire;
-                _collision.ResolveNormalEnemyTouch(context.Slot, context.Samus, skipDeathAnimation: true);
+                _collision.ResolveNormalEnemyTouch(context.Slot, context.Samus, deathAnimation: TouchDeathAnimation.Skip);
             });
     }
     /// <summary>
@@ -1408,7 +1408,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
 
             case KraidAiFunction.DeathFadeOut:
                 _ = ProcessKraidHeadInstruction(body, state);
-                if (AdvanceKraidRoomBackgroundFade(fadeToBlack: true))
+                if (AdvanceKraidRoomBackgroundFade(fade: KraidBackdropFade.ToBlack))
                 {
                     state.Parts[body.SlotIndex].Function = KraidAiFunction.DeathUpdateTopTilemap;
                     state.HurtFrameTimer = NativeCountdown.Start(1);
@@ -1486,7 +1486,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
                     vramWriteQueue);
                 return;
             case KraidAiFunction.DeathFadeInBackground:
-                if (!AdvanceKraidRoomBackgroundFade(fadeToBlack: false))
+                if (!AdvanceKraidRoomBackgroundFade(fade: KraidBackdropFade.ToRoomColors))
                     return;
                 state.MusicRequest = MusicCommand.SelectTrack(3);
                 if (_room.Services.Bosses.IsDefeated(BossBits.AreaBoss))
@@ -1718,7 +1718,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
         switch (state.Parts[body.SlotIndex].Function)
         {
             case KraidAiFunction.GrowReleaseCamera:
-                ApplyKraidScrolls(grown: true);
+                ApplyKraidScrolls(layout: KraidScrollLayout.Grown);
                 state.Parts[body.SlotIndex].Function = KraidAiFunction.GrowBreakCeilingPlatforms;
                 state.CameraReleasedForSecondPhase = true;
                 state.EjectionLimit = new Position16<RoomPixels>(0, 164);
@@ -1776,7 +1776,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
 
             case KraidAiFunction.GrowFadeInRoomBackground:
-                if (!AdvanceKraidRoomBackgroundFade(fadeToBlack: false))
+                if (!AdvanceKraidRoomBackgroundFade(fade: KraidBackdropFade.ToRoomColors))
                     return;
                 FinishKraidGrowth(body, state);
                 return;
@@ -1835,7 +1835,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Steps room background colors toward their grown-form target.</summary>
     internal bool AdvanceKraidRoomBackgroundFade(
-        bool fadeToBlack)
+        KraidBackdropFade fade)
     {
         int step = _presentation.GradualColorChange.Numerator;
         if (step <= 13)
@@ -1843,7 +1843,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
             for (int color = 0; color < 16; color++)
             {
                 Bgr555 current = _presentation.BossPalettes.KraidRoomBackdrop[color];
-                Bgr555 target = fadeToBlack
+                Bgr555 target = fade == KraidBackdropFade.ToBlack
                     ? Bgr555.Black
                     : ReadKraidColor(KraidPaletteSource.RoomBackdrop, color);
                 _presentation.BossPalettes.KraidRoomBackdrop.Write(color, TransitionKraidColor(step, current, target));
@@ -2594,8 +2594,8 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemyProjectileSlot rock,
         RoomLevelData level)
     {
-        if (EnemyProjectileEngine.MoveProjectileAxis(rock, level, horizontal: true) ||
-            EnemyProjectileEngine.MoveProjectileAxis(rock, level, horizontal: false))
+        if (EnemyProjectileEngine.MoveProjectileAxis(rock, level, axis: Axis.Horizontal) ||
+            EnemyProjectileEngine.MoveProjectileAxis(rock, level, axis: Axis.Vertical))
         {
             rock.Clear();
             return;
@@ -2613,7 +2613,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemyProjectileSlot rock,
         RoomLevelData level)
     {
-        if (EnemyProjectileEngine.MoveProjectileAxis(rock, level, horizontal: false))
+        if (EnemyProjectileEngine.MoveProjectileAxis(rock, level, axis: Axis.Vertical))
         {
             rock.Clear();
             return;

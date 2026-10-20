@@ -227,7 +227,7 @@ firingLevel, firingSamus, SnesButton.X);
         firingLevel,
         deferredConnectionSamus,
         SnesButton.X,
-        deferConnectionPoseChange: true);
+        connectionPoseChange: GrapplePoseChange.Deferred);
     AssertTrue(deferredConnection.Phase is GrapplePhase.ConnectedSwinging or GrapplePhase.ConnectedLocked && !deferredConnection.OwnsMovement,
         "connection publishes its pose without prematurely taking beta movement");
     AssertEqual(GrapplePhase.ConnectedSwinging, deferredConnectionSamus.Grapple.Phase,

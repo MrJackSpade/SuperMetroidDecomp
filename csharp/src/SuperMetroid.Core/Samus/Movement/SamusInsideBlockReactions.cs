@@ -161,7 +161,7 @@ public static class SamusInsideBlockReactions
     /// its accepted sinking displacement. Pose-clearance probes consume carry only.
     /// </summary>
     public static bool ReactCollision(SamusKinematicsState body,
-        RoomCollisionBlock block, bool vertical, ref int displacement, out bool surfaceContact,
+        RoomCollisionBlock block, Axis axis, ref int displacement, out bool surfaceContact,
         SamusCollisionDirection? blockReactionDirection = null,
         RoomPlmSystem? plms = null)
     {
@@ -192,7 +192,7 @@ public static class SamusInsideBlockReactions
         }
         if (setup != SpecialAirReactionSetup.QuicksandSurfaceCollision) return false;
         SamusCollisionDirection reactionDirection = blockReactionDirection ??
-            (vertical
+            (axis == Axis.Vertical
                 ? displacement < 0 ? SamusCollisionDirection.Up : SamusCollisionDirection.Down
                 : displacement < 0 ? SamusCollisionDirection.Left : SamusCollisionDirection.Right);
         // The native bit-one direction test accepts vertical scans AND direction $F.

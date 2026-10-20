@@ -894,7 +894,7 @@ internal static void VerifySamusLiquidPhysics()
         speedBoosterEquipped: false);
     sample.HorizontalSpeed.SpeedBoostCounter = new SamusSpeedBoostCounter(0x0201);
     sample.HorizontalSpeed.ExtraRunSpeed = sample.HorizontalSpeed.ExtraRunSpeed.WithWhole(1);
-    sample.LiquidPhysics.ConfigureLavaAcid(surfaceY: 110, acid: true);
+    sample.LiquidPhysics.ConfigureLavaAcid(surfaceY: 110, RoomFxType.Acid);
     sample.LiquidPhysics.PrepareAnimationFrame(sample, new CartridgeRandom());
     AssertTrue(sample.HorizontalSpeed.HasRunningMomentum, "acid preserves running momentum");
     AssertEqual(0x0201, sample.HorizontalSpeed.SpeedBoostCounter.RawValue,

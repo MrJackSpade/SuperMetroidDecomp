@@ -99,10 +99,10 @@ public sealed class FileSelectRoomMapGraphics
     /// <summary>Captures the installed room map/frame and optional marker/arrows without advancing any animation.</summary>
     [PpuLayoutBoundary("codec: file-select room-map render packet layers")]
     public LayeredRenderSnapshot CaptureRenderSnapshot(Position16<MapPixels> scroll = default,
-        FileSelectStationMarker? marker = null, FileSelectMapAnimations? animations = null, bool frameOnly = false)
+        FileSelectStationMarker? marker = null, FileSelectMapAnimations? animations = null, RoomMapContent content = RoomMapContent.Scene)
     {
         var layers = new List<RenderLayer>();
-        if (frameOnly)
+        if (content == RoomMapContent.FrameOnly)
             layers.Add(new Bg4BppRenderLayer(MenuVramLayout.Bg2TilemapWord, FileSelectMapRomData.RoomCharacters, new Position16<BgPlanePixels>(0, FileSelectMapRomData.RoomFrameVerticalScroll), new Extent16<TilemapCells>(32, 32), null));
         else
             foreach (bool priority in new[] { false, true })
@@ -111,7 +111,7 @@ public sealed class FileSelectRoomMapGraphics
                 layers.Add(new Bg4BppRenderLayer(MenuVramLayout.Bg1TilemapWord, FileSelectMapRomData.RoomCharacters,
                     scroll.AsBgPlaneScroll(), new Extent16<TilemapCells>(64, 32), priority));
             }
-        if (marker is not null && !frameOnly)
+        if (marker is not null && content != RoomMapContent.FrameOnly)
         {
             PrepareIcons(scroll, marker, animations);
             layers.Add(new ObjRenderLayer());

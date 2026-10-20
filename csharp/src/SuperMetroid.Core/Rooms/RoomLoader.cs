@@ -423,6 +423,7 @@ internal sealed class RoomLoader
     /// BG2 is always disabled; BG1 is also disabled when either adjacent room requests the
     /// cartridge's CRE transition path.
     /// </summary>
+    [IndependentFlag("Whether the source and destination rooms are isolated are independent room properties.")]
     internal void BeginDoorTransitionIrqDisplay(bool sourceIsolated, bool destinationIsolated)
     {
         if (_room.DoorTransitionMainScreenLayers is not null)

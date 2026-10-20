@@ -66,7 +66,7 @@ internal static class ZebetiteDefinitionsVerification
         foreach (bool linkedHalf in new[] { false, true })
         {
             RoomEnemyPopulationRecord population =
-                ZebetiteDefinitions.SpawnPopulation(linkedHalf);
+                ZebetiteDefinitions.SpawnPopulation(linkedHalf ? ZebetiteHalf.Linked : ZebetiteHalf.Primary);
             ushort[] actual =
             [
                 (ushort)population.DefinitionPointer,
@@ -126,8 +126,8 @@ internal static class ZebetiteDefinitionsVerification
         foreach (bool linkedHalf in new[] { false, true })
         {
             var enemies = NewZebetiteDefinitionSystem(0);
-            RoomEnemySlot slot = enemies.ZebetiteBehavior.SpawnZebetite(linkedHalf);
-            AssertEqual(ZebetiteDefinitions.SpawnPopulation(linkedHalf), slot.Spawn.Population,
+            RoomEnemySlot slot = enemies.ZebetiteBehavior.SpawnZebetite(linkedHalf ? ZebetiteHalf.Linked : ZebetiteHalf.Primary);
+            AssertEqual(ZebetiteDefinitions.SpawnPopulation(linkedHalf ? ZebetiteHalf.Linked : ZebetiteHalf.Primary), slot.Spawn.Population,
                 $"production Zebetite {(linkedHalf ? "linked" : "primary")} population");
             AssertEqual(linkedHalf, slot.Spawn.Population.Parameter1 != 0,
                 $"production Zebetite {(linkedHalf ? "linked" : "primary")} role");

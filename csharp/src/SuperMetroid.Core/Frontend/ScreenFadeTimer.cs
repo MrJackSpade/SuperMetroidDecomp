@@ -36,10 +36,16 @@ internal sealed class ScreenFadeTimer
     /// counter-only frames during pause entry and gameplay restoration; skipping those frames changes the
     /// airborne pause/soft-morph timing window.
     /// </summary>
-    internal int Advance(int brightness, bool brightening)
+    internal int Brighten(int brightness) => Advance(brightness, 1);
+
+    /// <summary>Advances the counter once and returns the brightness after this frame, one step darker when it expires.</summary>
+    internal int Darken(int brightness) => Advance(brightness, -1);
+
+    /// <summary>Counts down the delay, then moves the brightness one <paramref name="step"/> within the fade's range.</summary>
+    private int Advance(int brightness, int step)
     {
         if (Counter-- > 0) return brightness;
         Counter = Delay;
-        return Math.Clamp(brightness + (brightening ? 1 : -1), 0, PauseFadeTiming.FullyLit);
+        return Math.Clamp(brightness + step, 0, PauseFadeTiming.FullyLit);
     }
 }

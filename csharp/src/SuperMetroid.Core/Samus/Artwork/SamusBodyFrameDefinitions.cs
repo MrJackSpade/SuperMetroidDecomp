@@ -103,12 +103,16 @@ internal static class SamusBodyFrameDefinitions
             return (uint)offset < frameCount * 4 && (half < 0 || offset % 4 / 2 == half)
                 ? SamusBodyPoseDefinitions.DefaultFrameList(basis) + offset - SamusBodyArtworkCatalog.FirstFrameOffset : index;
         }
-        int Range(SamusPoseId target, SamusPoseId basis, int count, int targetPhase = 0, int basisPhase = 0, bool reverse = false, int half = -1)
+        int Range(SamusPoseId target, SamusPoseId basis, int count, int targetPhase = 0, int basisPhase = 0, int half = -1) =>
+            Frames(target, basis, count, targetPhase, basisPhase, half, frame => frame);
+        int ReversedRange(SamusPoseId target, SamusPoseId basis, int count) =>
+            Frames(target, basis, count, 0, 0, -1, frame => count - 1 - frame);
+        int Frames(SamusPoseId target, SamusPoseId basis, int count, int targetPhase, int basisPhase, int half, Func<int, int> basisFrame)
         {
             int offset = address - SamusBodyPoseDefinitions.DefaultFrameList(target) - targetPhase * 4;
             return (uint)offset < count * 4 && (half < 0 || offset % 4 / 2 == half)
                 ? SamusBodyPoseDefinitions.DefaultFrameList(basis) - SamusBodyArtworkCatalog.FirstFrameOffset +
-                    (basisPhase + (reverse ? count - 1 - offset / 4 : offset / 4)) * 4 + offset % 4 : index;
+                    (basisPhase + basisFrame(offset / 4)) * 4 + offset % 4 : index;
         }
         foreach (SamusPoseId grapple in (ReadOnlySpan<SamusPoseId>)[ SamusPoseId.GrappleSwingRightPose, SamusPoseId.GrappleSwingLeftPose ])
         {
@@ -224,17 +228,17 @@ internal static class SamusBodyFrameDefinitions
                 return start - SamusBodyArtworkCatalog.FirstFrameOffset + (phase - withinQuarter + basis) * 4 + offset % 4;
             }
         }
-        int turn = Range(SamusPoseId.TurningLeftToRightPose, SamusPoseId.TurningRightToLeftPose, 3, reverse: true);
+        int turn = ReversedRange(SamusPoseId.TurningLeftToRightPose, SamusPoseId.TurningRightToLeftPose, 3);
         if (turn != index) return turn;
-        turn = Range(SamusPoseId.TurningLeftToRightAimUpPose, SamusPoseId.TurningRightToLeftAimUpPose, 3, reverse: true);
+        turn = ReversedRange(SamusPoseId.TurningLeftToRightAimUpPose, SamusPoseId.TurningRightToLeftAimUpPose, 3);
         if (turn != index) return turn;
-        turn = Range(SamusPoseId.TurningLeftToRightAimDiagonalDownPose, SamusPoseId.TurningRightToLeftAimDiagonalDownPose, 3, reverse: true);
+        turn = ReversedRange(SamusPoseId.TurningLeftToRightAimDiagonalDownPose, SamusPoseId.TurningRightToLeftAimDiagonalDownPose, 3);
         if (turn != index) return turn;
-        turn = Range(SamusPoseId.TurningLeftToRightJumpPose, SamusPoseId.TurningRightToLeftJumpPose, 3, reverse: true);
+        turn = ReversedRange(SamusPoseId.TurningLeftToRightJumpPose, SamusPoseId.TurningRightToLeftJumpPose, 3);
         if (turn != index) return turn;
-        turn = Range(SamusPoseId.TurningLeftToRightJumpAimUpPose, SamusPoseId.TurningRightToLeftJumpAimUpPose, 3, reverse: true);
+        turn = ReversedRange(SamusPoseId.TurningLeftToRightJumpAimUpPose, SamusPoseId.TurningRightToLeftJumpAimUpPose, 3);
         if (turn != index) return turn;
-        turn = Range(SamusPoseId.TurningLeftToRightJumpAimDownPose, SamusPoseId.TurningRightToLeftJumpAimDownPose, 3, reverse: true);
+        turn = ReversedRange(SamusPoseId.TurningLeftToRightJumpAimDownPose, SamusPoseId.TurningRightToLeftJumpAimDownPose, 3);
         if (turn != index) return turn;
         turn = Range(SamusPoseId.TurningRightToLeftAimUpPose, SamusPoseId.TurningRightToLeftPose, 3, half: 1);
         if (turn != index) return turn;
@@ -252,7 +256,7 @@ internal static class SamusBodyFrameDefinitions
         if (turn != index) return turn;
         int alias = Range(SamusPoseId.WallJumpLeftPose, SamusPoseId.WallJumpRightPose, 45, 2, 2);
         if (alias != index) return alias;
-        alias = Range(SamusPoseId.MorphBallGroundLeftPose, SamusPoseId.MorphBallGroundRightPose, 8, reverse: true);
+        alias = ReversedRange(SamusPoseId.MorphBallGroundLeftPose, SamusPoseId.MorphBallGroundRightPose, 8);
         if (alias != index) return alias;
         alias = Range(SamusPoseId.MorphBallGroundLeftPose, SamusPoseId.MorphBallGroundRightPose, 2, 8, 8);
         if (alias != index) return alias;
@@ -264,13 +268,13 @@ internal static class SamusBodyFrameDefinitions
         if (alias != index) return alias;
         alias = Range(SamusPoseId.SpringBallGroundLeftPose, SamusPoseId.MorphBallGroundLeftPose, 10);
         if (alias != index) return alias;
-        alias = Range(SamusPoseId.UnmorphingTransitionRightPose, SamusPoseId.MorphingTransitionRightPose, 2, reverse: true);
+        alias = ReversedRange(SamusPoseId.UnmorphingTransitionRightPose, SamusPoseId.MorphingTransitionRightPose, 2);
         if (alias != index) return alias;
-        alias = Range(SamusPoseId.UnmorphingTransitionLeftPose, SamusPoseId.MorphingTransitionLeftPose, 2, reverse: true);
+        alias = ReversedRange(SamusPoseId.UnmorphingTransitionLeftPose, SamusPoseId.MorphingTransitionLeftPose, 2);
         if (alias != index) return alias;
-        alias = Range(SamusPoseId.UnusedPoseDd, SamusPoseId.UnusedPoseDb, 3, reverse: true);
+        alias = ReversedRange(SamusPoseId.UnusedPoseDd, SamusPoseId.UnusedPoseDb, 3);
         if (alias != index) return alias;
-        alias = Range(SamusPoseId.UnusedPoseDe, SamusPoseId.UnusedPoseDc, 3, reverse: true);
+        alias = ReversedRange(SamusPoseId.UnusedPoseDe, SamusPoseId.UnusedPoseDc, 3);
         if (alias != index) return alias;
         foreach (bool left in (ReadOnlySpan<bool>)[ false, true ])
         {

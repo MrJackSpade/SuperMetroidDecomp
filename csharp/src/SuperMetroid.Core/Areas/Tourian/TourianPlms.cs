@@ -92,9 +92,9 @@ internal sealed class TourianPlms
             "Old Tourian escape-shaft wall has no enemy-projectile owner.")).SpawnOldTourianEscapeShaftWallExplosion();
     }
     /// <summary>$88:DB8A/DC69 spawn the native clear/crumble lists at block (6,12).</summary>
-    public bool TrySpawnTourianAccess(RoomLevelData level, bool clear)
+    public bool TrySpawnTourianAccess(RoomLevelData level, TourianAccessFloor floor)
     {
-        TourianAccessPlmDefinition definition = TourianAccessPlmDefinitions.ForState(clear);
+        TourianAccessPlmDefinition definition = TourianAccessPlmDefinitions.ForState(floor);
         if (_slotTable.SpawnHardcoded() is not { } slot)
             return false;
 

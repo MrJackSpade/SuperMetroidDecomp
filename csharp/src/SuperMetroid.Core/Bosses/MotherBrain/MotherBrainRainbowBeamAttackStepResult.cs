@@ -3,6 +3,7 @@ using SuperMetroid.Core.Fx.PaletteFx;
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>Debugger witness for one Mother Brain active-rainbow body-function call.</summary>
+[IndependentFlag("independent requests and edges one attack step reports to the room")]
 public readonly record struct MotherBrainRainbowBeamAttackStepResult(
     MotherBrainRainbowBeamAttackPhase PhaseBefore,
     MotherBrainRainbowBeamAttackPhase PhaseAfter,

@@ -15,8 +15,11 @@ internal interface ITourianStatueActors
     /// <summary>The water surface the unlock effects follow; only its Y axis is meaningful.</summary>
     Position16<RoomPixels> WaterSurface { get; set; }
 
-    /// <summary>Spawns an eye glow or, with <paramref name="soul"/>, a released soul.</summary>
-    void SpawnUnlockEffect(ushort parameter, bool soul);
+    /// <summary>Spawns a statue eye's glow.</summary>
+    void SpawnEyeGlow(ushort parameter);
+
+    /// <summary>Spawns a statue's released soul.</summary>
+    void SpawnSoul(ushort parameter);
 
     /// <summary>Spawns the descent's dust.</summary>
     void SpawnDescentDust();

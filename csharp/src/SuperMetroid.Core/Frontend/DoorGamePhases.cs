@@ -28,7 +28,7 @@ internal sealed class DoorGamePhases(FrontendSession session)
         // enemy/draw owners while sounds are still admitted, so an enemy instruction's
         // sound on this frame is queued before the door's cancels.
         session.doorTransition.Begin(session.GameplayRuntime);
-        session.GameplayRuntime.DoorTransition.DrawDoorTransitionActors(runEnemyProjectiles: false, session.GameplayRuntime.Room.LoadedScope);
+        session.GameplayRuntime.DoorTransition.DrawDoorTransitionActors(enemyProjectiles: DoorTransitionEnemyProjectiles.Held, session.GameplayRuntime.Room.LoadedScope);
         CollectDoorSoundWaitAudioRequests(session.GameplayRuntime);
         // $82:E26B calls $84:8250, which runs Samus code $1D, then $82:E272 queues
         // library-two $71 so movement/charge loops terminate rather than leaking

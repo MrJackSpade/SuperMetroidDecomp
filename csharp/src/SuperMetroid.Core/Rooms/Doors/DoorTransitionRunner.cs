@@ -118,11 +118,11 @@ internal sealed class DoorTransitionRunner
                 return;
 
             case DoorSetupCode.DoorASM_SetupElevatubeFromSouth:
-                SetUpMaridiaElevatube(fromSouth: true, plms, maridiaElevatube);
+                SetUpMaridiaElevatube(entry: ElevatubeEntry.FromSouth, plms, maridiaElevatube);
                 return;
 
             case DoorSetupCode.DoorASM_SetupElevatubeFromNorth:
-                SetUpMaridiaElevatube(fromSouth: false, plms, maridiaElevatube);
+                SetUpMaridiaElevatube(entry: ElevatubeEntry.FromNorth, plms, maridiaElevatube);
                 return;
 
             case DoorSetupCode.DoorASM_ResetElevatubeOnNorthExit:
@@ -233,14 +233,14 @@ internal sealed class DoorTransitionRunner
     }
 
     /// <summary>Positions Samus for the selected elevatube entrance and attempts its room PLM spawn.</summary>
-    private void SetUpMaridiaElevatube(bool fromSouth, RoomPlmSystem plms, MaridiaElevatubeRoomMainState maridiaElevatube)
+    private void SetUpMaridiaElevatube(ElevatubeEntry entry, RoomPlmSystem plms, MaridiaElevatubeRoomMainState maridiaElevatube)
     {
         if (_room.LevelData is null)
             throw new InvalidOperationException("Maridia elevatube setup requires active level data.");
         SamusState samus = _player.Samus ?? throw new InvalidOperationException(
             "Maridia elevatube setup requires an active Samus state.");
 
-        if (fromSouth)
+        if (entry == ElevatubeEntry.FromSouth)
             maridiaElevatube.SetUpFromSouth(samus);
         else
             maridiaElevatube.SetUpFromNorth(samus);
@@ -253,7 +253,7 @@ internal sealed class DoorTransitionRunner
     public void RunDoorSoundWaitFrame(SnesButton controllerInput, RoomScope room)
     {
         RunDoorSoundWaitPrologue(controllerInput, room.Plms, room.BombProjectiles, room);
-        DrawDoorTransitionActors(runEnemyProjectiles: false, room);
+        DrawDoorTransitionActors(enemyProjectiles: DoorTransitionEnemyProjectiles.Held, room);
     }
 
     /// <summary>
@@ -266,26 +266,26 @@ internal sealed class DoorTransitionRunner
     {
         plms.Sounds.BindPowerBombAudio(bombProjectiles.PowerBombExplosion);
         _frameBoundary.BeginAcceptedFrame(controllerInput);
-        AdvanceNonGameplayMainLoopRandom(hdmaObjectsEnabled: true, plms, room);
+        AdvanceNonGameplayMainLoopRandom(hdmaObjects: HdmaObjectProcessing.Run, plms, room);
     }
 
     /// <summary>Native enemy/instruction and draw pass shared by source-door waits and fading.</summary>
-    /// <param name="runEnemyProjectiles">
+    /// <param name="enemyProjectiles">
     /// True for the destination fade-in ($82:E743); the source waits ($E29E/$E2DB) run
     /// enemies and drawing without Enemy_Projectile_Handler.
     /// </param>
     /// <param name="room">The loaded room.</param>
-    internal void DrawDoorTransitionActors(bool runEnemyProjectiles, RoomScope room)
+    internal void DrawDoorTransitionActors(DoorTransitionEnemyProjectiles enemyProjectiles, RoomScope room)
     {
         _sprites.BeginFrame();
         // The draw handler can append spin-stop/charge sounds. Do not publish the
         // prior gameplay frame's liquid, movement, projectile or PLM requests again.
         _player.Samus?.LiquidPhysics.BeginFrameSoundRequests(room.BombProjectiles.PowerBombExplosion);
-        _enemyPhase.RunEnemyMainPhase(processingListPrepared: false, _room.Camera?.PreviousSamusPoint, room);
+        _enemyPhase.RunEnemyMainPhase(processingList: EnemyProcessingList.Unprepared, _room.Camera?.PreviousSamusPoint, room);
         // The Samus-collision pass belongs to gameplay only.
-        if (runEnemyProjectiles)
+        if (enemyProjectiles == DoorTransitionEnemyProjectiles.Run)
             RunEnemyProjectileHandler(room.BombProjectiles, room);
-        _actorDrawing.DrawGameplayActors(room, deathOwnsSamus: false, advanceSamusPalette: false);
+        _actorDrawing.DrawGameplayActors(room, SamusDrawOwner.Gameplay, SamusPaletteEffects.Hold);
         // EnsureSamusDrawnEachFrame bypasses ordinary hurt flicker after the shared
         // draw. Elevator-owned drawing retains its separate alternating cadence.
         if (room.Enemies.Elevator.ElevatorStatus == ElevatorActorStatus.Inactive && _player.Samus is not null && _room.Camera is not null)
@@ -307,9 +307,9 @@ internal sealed class DoorTransitionRunner
     }
 
     /// <summary>Shared HDMA/RNG prologue of an outer dispatch without a gameplay frame.</summary>
-    internal void AdvanceNonGameplayMainLoopRandom(bool hdmaObjectsEnabled, RoomPlmSystem plms, RoomScope room)
+    internal void AdvanceNonGameplayMainLoopRandom(HdmaObjectProcessing hdmaObjects, RoomPlmSystem plms, RoomScope room)
     {
-        if (hdmaObjectsEnabled)
+        if (hdmaObjects == HdmaObjectProcessing.Run)
         {
             _hdmaPhase.AdvanceHdmaObjectPreInstructions(plms, room);
             if (_player.Samus is not null && room.Layer3Fx.MovesLiquidInHdmaPass)

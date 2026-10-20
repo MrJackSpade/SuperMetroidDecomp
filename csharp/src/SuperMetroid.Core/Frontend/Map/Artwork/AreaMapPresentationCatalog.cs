@@ -340,16 +340,16 @@ public sealed class AreaMapPresentationCatalog : IVramAssetProvider, IGameplayPr
         // Version-seventeen overrides predate the Samus-in-heat rows. Preserve
         // their edits while inheriting only those new rows from current stock.
         RoomPaletteFxPresentation roomPaletteFx = MigratingResource<RoomPaletteFxPresentation>(RoomPaletteFxPresentationFormat.FileName,
-            "room palette effects", (s, current) => RoomPaletteFxPresentation.Load(s, current), frameStock: true);
+            "room palette effects", (s, current) => RoomPaletteFxPresentation.Load(s, current), StockFingerprint.StockAndSelected);
         MotherBrainHealthPalettePresentation motherBrainHealthPalette = Resource(MotherBrainHealthPaletteFormat.FileName, "Mother Brain health palette", s => MotherBrainHealthPalettePresentation.Load(s));
         // A version-two user override predates the fake-death rows. Preserve its edits
         // and fill only that new color family from verified, current stock content.
         MotherBrainRainbowPalettePresentation motherBrainRainbowPalette = MigratingResource<MotherBrainRainbowPalettePresentation>(MotherBrainRainbowPaletteFormat.FileName,
-            "Mother Brain rainbow palette", (s, current) => MotherBrainRainbowPalettePresentation.Load(s, current), frameStock: true);
+            "Mother Brain rainbow palette", (s, current) => MotherBrainRainbowPalettePresentation.Load(s, current), StockFingerprint.StockAndSelected);
         MotherBrainRoomColorPresentation motherBrainRoomColors = MigratingResource<MotherBrainRoomColorPresentation>(MotherBrainRoomColorFormat.FileName,
-            "Mother Brain room colors", (s, current) => MotherBrainRoomColorPresentation.Load(s, current), frameStock: true);
+            "Mother Brain room colors", (s, current) => MotherBrainRoomColorPresentation.Load(s, current), StockFingerprint.StockAndSelected);
         RoomFxAnimatedTileAtlas roomFxAnimatedTiles = MigratingResource<RoomFxAnimatedTileAtlas>(RoomFxAnimatedTileAtlasFormat.FileName,
-            "room-FX presentation", (s, current) => RoomFxAnimatedTileAtlas.Load(s, current), frameStock: false);
+            "room-FX presentation", (s, current) => RoomFxAnimatedTileAtlas.Load(s, current), StockFingerprint.SelectedOnly);
         RoomFxLayer3TilemapCatalog roomFxLayer3Tilemaps = Resource(RoomFxLayer3TilemapFormat.FileName, "room-FX presentation", s => RoomFxLayer3TilemapCatalog.Load(s));
         RoomFxPaletteBlendCatalog roomFxPaletteBlends = Resource(RoomFxPaletteBlendDefinitions.FileName, "room-FX presentation", s => RoomFxPaletteBlendCatalog.Load(s));
         PowerBombFixedColorCatalog powerBombFixedColors = Resource(PowerBombFixedColorFormat.FileName, "Power Bomb fixed colors", s => PowerBombFixedColorCatalog.Load(s));
@@ -360,7 +360,7 @@ public sealed class AreaMapPresentationCatalog : IVramAssetProvider, IGameplayPr
         CrystalFlashColorCatalog crystalFlashColors = Resource(CrystalFlashColorFormat.FileName, "Crystal Flash colors", s => CrystalFlashColorCatalog.Load(s));
         SamusChargeColorCatalog samusChargeColors = Resource(SamusChargeColorFormat.FileName, "Samus charge colors", s => SamusChargeColorCatalog.Load(s));
         CeresRidleyColorCatalog ceresRidleyColors = MigratingResource<CeresRidleyColorCatalog>(CeresRidleyColorFormat.FileName,
-            "Ceres Ridley colors", (s, current) => CeresRidleyColorCatalog.Load(s, current), frameStock: false);
+            "Ceres Ridley colors", (s, current) => CeresRidleyColorCatalog.Load(s, current), StockFingerprint.SelectedOnly);
         CeresRidleyMode7ColorCatalog ceresRidleyMode7Colors = Resource(CeresRidleyMode7ColorFormat.FileName, "Ceres Ridley Mode-7 colors", s => CeresRidleyMode7ColorCatalog.Load(s));
         SamusHyperBeamColorCatalog samusHyperBeamColors = Resource(SamusHyperBeamColorFormat.FileName, "Samus Hyper Beam colors", s => SamusHyperBeamColorCatalog.Load(s));
         stock.RequireAllManifestFilesRead();
@@ -370,16 +370,16 @@ public sealed class AreaMapPresentationCatalog : IVramAssetProvider, IGameplayPr
         T Resource<T>(string file, string description, Func<Stream, T> compile) where T : class =>
             MultiFileResource<T>([file], description, (streams, _) => compile(streams[0]));
 
-        T MigratingResource<T>(string file, string description, Func<Stream, T?, T> compile, bool frameStock) where T : class =>
-            MultiFileResource<T>([file], description, (streams, current) => compile(streams[0], current), frameStock);
+        T MigratingResource<T>(string file, string description, Func<Stream, T?, T> compile, StockFingerprint fingerprint) where T : class =>
+            MultiFileResource<T>([file], description, (streams, current) => compile(streams[0], current), fingerprint);
 
         // Stock is hash-checked and compiled exactly once. An unedited resource reuses that
         // compiled stock value; an edited one compiles its override against current stock.
-        T MultiFileResource<T>(string[] files, string description, Func<Stream[], T?, T> compile, bool frameStock = false) where T : class
+        T MultiFileResource<T>(string[] files, string description, Func<Stream[], T?, T> compile, StockFingerprint fingerprint = StockFingerprint.SelectedOnly) where T : class
         {
             ArraySegment<byte>[] stockBytes = files.Select(stock.Read).ToArray();
             T stockValue = Compile(files.Select(file => Path.Combine(stockDirectory, file)).ToArray(), stockBytes, null);
-            if (frameStock)
+            if (fingerprint == StockFingerprint.StockAndSelected)
                 foreach (ArraySegment<byte> bytes in stockBytes) AppendFramed(bytes);
             string?[] edited = files.Select(OverridePath).ToArray();
             var selected = new ArraySegment<byte>[files.Length];

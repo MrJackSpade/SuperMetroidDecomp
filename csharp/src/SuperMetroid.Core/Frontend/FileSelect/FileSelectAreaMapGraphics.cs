@@ -169,14 +169,14 @@ public sealed class FileSelectAreaMapGraphics
 
     /// <summary>Captures BG1/subscreen math followed by labels, preserving OBJ exclusion from color addition.</summary>
     [PpuLayoutBoundary("codec: file-select area-map render packet layers")]
-    public LayeredRenderSnapshot CaptureRenderSnapshot(ReadOnlySpan<ushort> usedStationMasks, bool includeBackdropInColorMath = true)
+    public LayeredRenderSnapshot CaptureRenderSnapshot(ReadOnlySpan<ushort> usedStationMasks, AreaMapColorMath colorMath = AreaMapColorMath.WithBackdrop)
     {
         PrepareLabels(usedStationMasks);
         var foreground = new Bg4BppRenderLayer(MenuVramLayout.Bg1TilemapWord, 0, new Position16<BgPlanePixels>(0, 0), new Extent16<TilemapCells>(32, 32), null);
         return new(MenuScreenImage.Capture(screen), new RenderLayer[] {
             foreground,
             new BgSubscreenAddRenderLayer(FileSelectMapRomData.AreaBackgroundVram,
-                FileSelectMapRomData.AreaBackgroundCharacters, includeBackdropInColorMath ? null : foreground),
+                FileSelectMapRomData.AreaBackgroundCharacters, colorMath == AreaMapColorMath.WithBackdrop ? null : foreground),
             new ObjRenderLayer() }, FileSelectMapRomData.ObjectSelection, SnesPpuLayout.MaximumMasterBrightness);
     }
 }

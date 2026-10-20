@@ -278,7 +278,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
         {
             MoveDeadSidehopperAxisDirect(
                 slot,
-                horizontal: true,
+                axis: Axis.Horizontal,
                 state.Velocity.X.RawValue);
         }
         else
@@ -300,7 +300,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
         {
             MoveDeadSidehopperAxisDirect(
                 slot,
-                horizontal: false,
+                axis: Axis.Vertical,
                 state.Velocity.Y.RawValue);
             return unchecked((short)(slot.Position.Y.Whole - 184)) >= 0;
         }
@@ -315,15 +315,15 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
     /// <summary>Applies signed 8.8 scripted motion to one 16.16 axis before terrain collision takes over.</summary>
     private static void MoveDeadSidehopperAxisDirect(
         RoomEnemySlot slot,
-        bool horizontal,
+        Axis axis,
         ushort velocity)
     {
-        ushort position = horizontal ? slot.Position.X.Whole : slot.Position.Y.Whole;
-        ushort subposition = horizontal ? slot.Position.X.Fraction : slot.Position.Y.Fraction;
+        ushort position = axis == Axis.Horizontal ? slot.Position.X.Whole : slot.Position.Y.Whole;
+        ushort subposition = axis == Axis.Horizontal ? slot.Position.X.Fraction : slot.Position.Y.Fraction;
         SnesFixedPosition moved = new SnesFixedPosition(position, subposition).AddEightEightToHighFraction(velocity);
         position = moved.Whole;
         subposition = moved.Fraction;
-        if (horizontal)
+        if (axis == Axis.Horizontal)
         {
             slot.Position = slot.Position.WithX(new(position, subposition));
         }
@@ -456,7 +456,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
             state.RotTable,
             state.YLimit,
             state.LateMoveEntryIndex,
-            (yOffset, move) => CopyOrMoveDeadSidehopperPixelRow(state, yOffset, move),
+            (yOffset, operation) => CopyOrMoveDeadSidehopperPixelRow(state, yOffset, operation),
             entryIndex => FinishDeadSidehopperCorpseRow(slot, state));
         if (!stillRotting)
             state.Function = DeadSidehopperAiFunction.WaitForSamusCollision;
@@ -486,7 +486,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
     internal void CopyOrMoveDeadSidehopperPixelRow(
         DeadSidehopperEnemyState state,
         ushort yOffset,
-        bool move)
+        CorpseRowOperation operation)
     {
         ushort sourceOffset = unchecked((ushort)(
             DeadMonsterRottingDefinitions.RotationOffset(CorpseRotationTable.Sidehopper, yOffset) + (yOffset & 7) * 2));
@@ -510,7 +510,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
                     _deadMonsters.ReadWorkWord(sourceWord + 8));
             }
 
-            if (move)
+            if (operation == CorpseRowOperation.Move)
             {
                 _deadMonsters.WriteWorkWord(sourceWord, 0);
                 _deadMonsters.WriteWorkWord(sourceWord + 8, 0);

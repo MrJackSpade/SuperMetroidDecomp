@@ -6,20 +6,20 @@ namespace SuperMetroid.Core.Frontend.Ending.Artwork;
 
 /// <summary>Standing suited body and its headless/armless variant share a
 /// thirty-part atlas grid. The full body prepends the four-tile arm strip.</summary>
-internal sealed class EndingRewardStandingParts(bool includeArm) : IReadOnlyList<CompiledSpritePart>
+internal sealed class EndingRewardStandingParts(int armParts) : IReadOnlyList<CompiledSpritePart>
 {
     /// <summary>Replaces matching stock standing poses with calculated parts while preserving edited compositions.</summary>
     internal static SpriteComposition CalculateIfMatching(ushort pointer, SpriteComposition supplied)
     {
         if (pointer == EndingRewardSpriteDefinitions.FramePointer(Pose.LargeSamusFromEndingStanding))
-            return supplied.CalculateIfMatching(new EndingRewardStandingParts(true));
+            return supplied.CalculateIfMatching(new EndingRewardStandingParts(armParts: 4));
         if (pointer == EndingRewardSpriteDefinitions.FramePointer(Pose.HeadlessArmlessSuitedSamus))
-            return supplied.CalculateIfMatching(new EndingRewardStandingParts(false));
+            return supplied.CalculateIfMatching(new EndingRewardStandingParts(armParts: 0));
         return supplied;
     }
 
     /// <summary>Counts thirty shared body parts and four optional arm-strip parts.</summary>
-    public int Count => includeArm ? 34 : 30;
+    public int Count => armParts + 30;
     /// <summary>Calculates an indexed body or arm part from its native atlas tile and screen offset.</summary>
     public CompiledSpritePart this[int index]
     {
@@ -28,14 +28,14 @@ internal sealed class EndingRewardStandingParts(bool includeArm) : IReadOnlyList
             if ((uint)index >= Count) throw new ArgumentOutOfRangeException(nameof(index));
             int x, y, tile;
             bool large;
-            if (includeArm && index < 4)
+            if (index < armParts)
             {
                 tile = SnesCharacterGrid.Cell(11, 14) - 32 * index;
                 x = 16; y = 8 - 16 * index; large = true;
             }
             else
             {
-                int piece = index - (includeArm ? 4 : 0);
+                int piece = index - armParts;
                 if (piece < 2) tile = SnesCharacterGrid.Cell(14, 6) - 16 * piece; // outer foot edge, bottom to top
                 else if (piece == 2) tile = EndingRewardStandingCellDefinitions.RightFoot;
                 else if (piece < 6) tile = SnesCharacterGrid.Cell(2, 6) - 16 * (piece - 3); // outer shoulder edge

@@ -480,21 +480,21 @@ internal sealed class EnemyProjectileEngine
     internal static bool MoveProjectileAxis(
         RoomEnemyProjectileSlot projectile,
         RoomLevelData level,
-        bool horizontal)
+        Axis axis)
     {
-        ushort position = horizontal ? projectile.Position.X.Whole : projectile.Position.Y.Whole;
-        ushort subposition = horizontal ? projectile.Position.X.Fraction : projectile.Position.Y.Fraction;
-        short velocity = unchecked((short)(horizontal ? projectile.Velocity.X.RawValue : projectile.Velocity.Y.RawValue));
+        ushort position = axis == Axis.Horizontal ? projectile.Position.X.Whole : projectile.Position.Y.Whole;
+        ushort subposition = axis == Axis.Horizontal ? projectile.Position.X.Fraction : projectile.Position.Y.Fraction;
+        short velocity = unchecked((short)(axis == Axis.Horizontal ? projectile.Velocity.X.RawValue : projectile.Velocity.Y.RawValue));
         int fixedPosition = unchecked((int)SnesSixteenSixteen.Compose(position, subposition));
         fixedPosition = unchecked(fixedPosition + (SnesSixteenSixteen.FromEightEight(velocity)));
         ushort nextPosition = SnesFixedPosition.WholeOf(fixedPosition);
         ushort nextSubposition = unchecked((ushort)fixedPosition);
 
-        ushort movementRadius = horizontal ? projectile.Radius.X : projectile.Radius.Y;
-        ushort perpendicularPosition = horizontal
+        ushort movementRadius = axis == Axis.Horizontal ? projectile.Radius.X : projectile.Radius.Y;
+        ushort perpendicularPosition = axis == Axis.Horizontal
             ? projectile.Position.Y.Whole
             : projectile.Position.X.Whole;
-        ushort perpendicularRadius = horizontal
+        ushort perpendicularRadius = axis == Axis.Horizontal
             ? projectile.Radius.Y
             : projectile.Radius.X;
 
@@ -507,13 +507,13 @@ internal sealed class EnemyProjectileEngine
         int lastPerpendicularBlock = (perpendicularPosition + perpendicularRadius - 1) >> 4;
         for (int block = firstPerpendicularBlock; block <= lastPerpendicularBlock; block++)
         {
-            int blockX = horizontal ? movementEdge >> 4 : block;
-            int blockY = horizontal ? block : movementEdge >> 4;
+            int blockX = axis == Axis.Horizontal ? movementEdge >> 4 : block;
+            int blockY = axis == Axis.Horizontal ? block : movementEdge >> 4;
             if (ProjectileAxisProbeHitsRoom(
                     level,
                     projectile,
                     new(unchecked((ushort)(blockX)), unchecked((ushort)(blockY))),
-                    horizontal,
+                    axis,
                     movingNegative: velocity < 0,
                     targetEdge: movementEdge,
                     slopeAlignedPosition: out ushort? slopeAlignedPosition))
@@ -530,7 +530,7 @@ internal sealed class EnemyProjectileEngine
                     ? snappedPosition <= position
                     : snappedPosition >= position);
 
-                if (horizontal)
+                if (axis == Axis.Horizontal)
                 {
                     projectile.Position = projectile.Position.WithFractionX(0);
                     if (snapDoesNotMoveBackwards)
@@ -546,7 +546,7 @@ internal sealed class EnemyProjectileEngine
             }
         }
 
-        if (horizontal)
+        if (axis == Axis.Horizontal)
         {
             projectile.Position = projectile.Position.WithX(new(nextPosition, nextSubposition));
         }
@@ -562,7 +562,7 @@ internal sealed class EnemyProjectileEngine
         RoomLevelData level,
         RoomEnemyProjectileSlot projectile,
         Position16<RoomBlocks> block,
-        bool horizontal,
+        Axis axis,
         bool movingNegative,
         ushort targetEdge,
         out ushort? slopeAlignedPosition)
@@ -587,14 +587,14 @@ internal sealed class EnemyProjectileEngine
         {
             // Bank $86 tests only occupied eight-pixel quadrants touched by the
             // leading edge. Empty halves of square slopes are not solid walls.
-            int perpendicularPosition = horizontal ? projectile.Position.Y.Whole : projectile.Position.X.Whole;
-            int perpendicularRadius = horizontal ? projectile.Radius.Y : projectile.Radius.X;
-            int blockStart = (horizontal ? block.Y : block.X) << 4;
+            int perpendicularPosition = (axis == Axis.Horizontal) ? projectile.Position.Y.Whole : projectile.Position.X.Whole;
+            int perpendicularRadius = (axis == Axis.Horizontal) ? projectile.Radius.Y : projectile.Radius.X;
+            int blockStart = ((axis == Axis.Horizontal) ? block.Y : block.X) << 4;
             int firstPixel = Math.Max(blockStart, perpendicularPosition - perpendicularRadius);
             int lastPixel = Math.Min(blockStart + 15, perpendicularPosition + perpendicularRadius - 1);
             for (int half = firstPixel >> 3; half <= lastPixel >> 3; half++)
             {
-                int quadrant = horizontal
+                int quadrant = (axis == Axis.Horizontal)
                     ? ((targetEdge & 8) >> 3) | ((half & 1) << 1)
                     : ((targetEdge & 8) >> 2) | (half & 1);
                 int tableIndex = 4 * collisionBlock.Bts.SlopeShape +
@@ -604,7 +604,7 @@ internal sealed class EnemyProjectileEngine
 
                 // The square-slope reaction places the projectile at an eight-pixel
                 // boundary before the caller's full-block clamp.
-                int radius = horizontal ? projectile.Radius.X : projectile.Radius.Y;
+                int radius = (axis == Axis.Horizontal) ? projectile.Radius.X : projectile.Radius.Y;
                 slopeAlignedPosition = movingNegative
                     ? unchecked((ushort)((targetEdge | HalfBlockPixelMask) + radius + 1))
                     : unchecked((ushort)((targetEdge & ~HalfBlockPixelMask) - radius));
@@ -618,7 +618,7 @@ internal sealed class EnemyProjectileEngine
             // Horizontal bank-$86 motion ignores non-square slopes; the following
             // vertical pass owns their height profile. Treating one as a full wall can
             // consume every Kago falling frame before Y collision is ever attempted.
-            if (horizontal)
+            if ((axis == Axis.Horizontal))
                 return false;
 
             // Bank $86's vertical projectile collision uses the same 16-sample slope
@@ -1035,7 +1035,7 @@ internal sealed class EnemyProjectileEngine
         table.RegisterPreInstruction(context =>
         {
             context.Projectile.Velocity = context.Projectile.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)(context.Projectile.Velocity.Y.RawValue + 16))));
-            if (EnemyProjectileEngine.MoveProjectileAxis(context.Projectile, context.Level, horizontal: false))
+            if (EnemyProjectileEngine.MoveProjectileAxis(context.Projectile, context.Level, axis: Axis.Vertical))
             {
                 ushort impactX = context.Projectile.Position.X.Whole;
                 ushort impactY = context.Projectile.Position.Y.Whole;

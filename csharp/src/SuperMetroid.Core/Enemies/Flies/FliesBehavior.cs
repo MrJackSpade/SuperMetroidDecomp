@@ -55,10 +55,10 @@ internal sealed class FliesBehavior : IEnemySpecies, IEnemyEntityFactory
         switch (state.Function)
         {
             case FlyEnemyFunction.ClockwiseCircle:
-                RunFlyCircle(slot, state, samus, clockwise: true);
+                RunFlyCircle(slot, state, samus, rotation: RotationDirection.Clockwise);
                 return;
             case FlyEnemyFunction.AntiClockwiseCircle:
-                RunFlyCircle(slot, state, samus, clockwise: false);
+                RunFlyCircle(slot, state, samus, rotation: RotationDirection.Counterclockwise);
                 return;
             case FlyEnemyFunction.AttackSamus:
                 RunFlyAttack(slot, state);
@@ -83,7 +83,7 @@ internal sealed class FliesBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemySlot slot,
         FlyEnemyState state,
         SamusState samus,
-        bool clockwise)
+        RotationDirection rotation)
     {
         if (!state.RetreatTimer.IsZero)
         {
@@ -97,10 +97,10 @@ internal sealed class FliesBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         MoveFlyAccordingToAngle(slot, state);
-        state.AdvanceCircle(clockwise);
+        state.AdvanceCircle(rotation == RotationDirection.Clockwise);
         if (state.Angle == SnesAngle.Zero)
         {
-            state.Function = clockwise
+            state.Function = rotation == RotationDirection.Clockwise
                 ? FlyEnemyFunction.AntiClockwiseCircle
                 : FlyEnemyFunction.ClockwiseCircle;
         }

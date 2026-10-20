@@ -142,32 +142,29 @@ public sealed class SuperMetroidGame
     public SuperMetroidGame(
         SaveSlotStore saves,
         SuperMetroidGameOptions? gameOptions = null)
-        : this(saves, gameOptions, renderGameplayFrames: true, SuperMetroidGameHostServices.Default, new CartridgeRandom())
+        : this(saves, gameOptions, SuperMetroidGameHostServices.Default, new CartridgeRandom())
     {
     }
 
     /// <summary>
-    /// Creates the dispatcher with an optional gameplay-software-PPU bypass for friend
-    /// verification hosts that inspect cartridge state rather than frame pixels.
+    /// Creates the dispatcher with host-supplied timing and display policies, which verification hosts use to
+    /// replay recorded evidence or to retain the display while they inspect cartridge state.
     /// </summary>
     /// <remarks>
-    /// Frontend screens remain rendered because their state machines own their own
-    /// compositors. The expensive room compositor is skipped only after a runtime exists;
-    /// production callers always enter through the public rendering constructor above.
+    /// Frontend screens are always rendered because their state machines own their own compositors; only
+    /// gameplay updates publish through <see cref="SuperMetroidGameHostServices.GameplayFrames"/>.
     /// </remarks>
     /// <param name="saves">The battery-backed saves the session owns.</param>
     /// <param name="gameOptions">Retained host options, or <see langword="null"/> to use a new default options record.</param>
-    /// <param name="renderGameplayFrames">Whether gameplay frames are composited.</param>
     /// <param name="hostServices">The hardware-timing policies; replay verification supplies recorded evidence here.</param>
     /// <param name="random">The session's random-number word, which the frontend and every gameplay runtime share.</param>
     internal SuperMetroidGame(
         SaveSlotStore saves,
         SuperMetroidGameOptions? gameOptions,
-        bool renderGameplayFrames,
         SuperMetroidGameHostServices hostServices,
         CartridgeRandom random)
     {
-        Session = new FrontendSession(saves, gameOptions, renderGameplayFrames, hostServices, random);
+        Session = new FrontendSession(saves, gameOptions, hostServices, random);
     }
 
     /// <summary>The session's battery-backed saves, which the host persists after <see cref="SaveRamChanged"/>.</summary>
@@ -232,10 +229,10 @@ public sealed class SuperMetroidGame
         // audio. This also restores its meaning for legacy snapshots without adding
         // another serialized flag that could disagree with the coroutine phase.
         GamePhaseAudio phaseAudio = Phases.Of(Session.GameState).Audio;
-        Session.audio.DoorTransitionSoundsDisabled = phaseAudio.DoorSoundsDisabled;
-        bool pauseInputEpilogue = phaseAudio.PauseInputEpilogue;
+        Session.audio.DoorTransitionSoundsDisabled = phaseAudio == GamePhaseAudio.DoorTransitionSoundsDisabled;
+        bool pauseInputEpilogue = phaseAudio == GamePhaseAudio.PauseInputEpilogue;
         bool messageWasActive = Session.runtime?.MessageBox.IsActive == true;
-        bool doorAudioDispatch = phaseAudio.DoorAudioDispatch;
+        bool doorAudioDispatch = phaseAudio is GamePhaseAudio.DoorTransition or GamePhaseAudio.DoorTransitionSoundsDisabled;
         DoorTransitionPhase startingDoorPhase = Session.doorTransition.Phase;
         // An update that resumes a dispatch after its NMI wait never reaches the main loop's
         // music prologue ($88:84B9) or its sound handler ($82:89EF).
@@ -245,7 +242,7 @@ public sealed class SuperMetroidGame
         // run after its coroutine returns. An accepted IRQ/NMI alone runs neither handler,
         // and a message box's lag frames run only the box's own calls (below).
         bool prologueMusicDispatch = !resumesNmiWait && !messageWasActive &&
-            (!doorAudioDispatch || !phaseAudio.DoorSoundsDisabled ||
+            (!doorAudioDispatch || phaseAudio != GamePhaseAudio.DoorTransitionSoundsDisabled ||
              startingDoorPhase is not (DoorTransitionPhase.WaitForDoorOpeningScroll or DoorTransitionPhase.FinishDoorLoading));
         IReadOnlyList<CartridgeAudioCommand> prologueMusicCommands = prologueMusicDispatch
             ? Session.audio.AdvanceMusicDispatch() : Array.Empty<CartridgeAudioCommand>();
@@ -348,17 +345,17 @@ public sealed class SuperMetroidGame
                 MainLoopRandomCall.RuntimeOwned,
                 step: (controllerInput, _) => DoorPhases.DispatchDoorCollisionAndLoading(controllerInput),
                 name: () => "Door collision",
-                audio: new GamePhaseAudio(DoorAudioDispatch: true, DoorSoundsDisabled: false, PauseInputEpilogue: false)),
+                audio: GamePhaseAudio.DoorTransition),
             new GamePhase(SuperMetroidGameState.LoadingNextRoomA,
                 MainLoopRandomCall.RuntimeOwned,
                 step: (controllerInput, _) => DoorPhases.DispatchDoorCollisionAndLoading(controllerInput),
                 name: () => "Loading destination room",
-                audio: new GamePhaseAudio(DoorAudioDispatch: true, DoorSoundsDisabled: false, PauseInputEpilogue: false)),
+                audio: GamePhaseAudio.DoorTransition),
             new GamePhase(SuperMetroidGameState.LoadingNextRoomB,
                 MainLoopRandomCall.RuntimeOwned,
                 step: (controllerInput, _) => DoorPhases.DispatchLoadingNextRoomB(controllerInput),
                 name: () => "Destination room ready",
-                audio: new GamePhaseAudio(DoorAudioDispatch: true, DoorSoundsDisabled: true, PauseInputEpilogue: false)),
+                audio: GamePhaseAudio.DoorTransitionSoundsDisabled),
             new GamePhase(SuperMetroidGameState.PausingDarkening,
                 MainLoopRandomCall.RuntimeOwned,
                 step: (controllerInput, gameplayAudio) => GameplayPhases.DispatchPausingDarkening(controllerInput, gameplayAudio),
@@ -367,29 +364,29 @@ public sealed class SuperMetroidGame
                 MainLoopRandomCall.NonGameplayHdmaThenAdvance,
                 step: (controllerInput, _) => PausePhases.DispatchPausing(controllerInput),
                 name: () => "Pausing: load pause assets",
-                audio: new GamePhaseAudio(DoorAudioDispatch: false, DoorSoundsDisabled: false, PauseInputEpilogue: true)),
+                audio: GamePhaseAudio.PauseInputEpilogue),
             // $82:894F runs once before each pause-only dispatcher as well.
             // Fade states $0C/$12 run StepFrame and retain its own RNG call.
             new GamePhase(SuperMetroidGameState.PausedA,
                 MainLoopRandomCall.Advance,
                 step: (controllerInput, _) => PausePhases.DispatchPausedA(controllerInput),
                 name: () => $"Paused: fade in ({Session.pauseBrightness})",
-                audio: new GamePhaseAudio(DoorAudioDispatch: false, DoorSoundsDisabled: false, PauseInputEpilogue: true)),
+                audio: GamePhaseAudio.PauseInputEpilogue),
             new GamePhase(SuperMetroidGameState.PausedB,
                 MainLoopRandomCall.Advance,
                 step: (controllerInput, _) => PausePhases.DispatchPausedB(controllerInput),
                 name: () => Session.pauseMenu?.ScreenMode == PauseScreenMode.Equipment ? "Paused: equipment" : "Paused: map",
-                audio: new GamePhaseAudio(DoorAudioDispatch: false, DoorSoundsDisabled: false, PauseInputEpilogue: true)),
+                audio: GamePhaseAudio.PauseInputEpilogue),
             new GamePhase(SuperMetroidGameState.UnpausingA,
                 MainLoopRandomCall.Advance,
                 step: (controllerInput, _) => PausePhases.DispatchUnpausingA(controllerInput),
                 name: () => $"Unpausing: fade out ({Session.pauseBrightness})",
-                audio: new GamePhaseAudio(DoorAudioDispatch: false, DoorSoundsDisabled: false, PauseInputEpilogue: true)),
+                audio: GamePhaseAudio.PauseInputEpilogue),
             new GamePhase(SuperMetroidGameState.UnpausingB,
                 MainLoopRandomCall.Advance,
                 step: (controllerInput, _) => PausePhases.DispatchUnpausingB(controllerInput),
                 name: () => "Unpausing: restore gameplay",
-                audio: new GamePhaseAudio(DoorAudioDispatch: false, DoorSoundsDisabled: false, PauseInputEpilogue: true)),
+                audio: GamePhaseAudio.PauseInputEpilogue),
             new GamePhase(SuperMetroidGameState.Unpausing,
                 MainLoopRandomCall.RuntimeOwned,
                 step: (controllerInput, gameplayAudio) => GameplayPhases.DispatchUnpausing(controllerInput, gameplayAudio),
@@ -605,7 +602,7 @@ public sealed class SuperMetroidGame
                 break;
             case MainLoopRandomCall.NonGameplayHdmaThenAdvance:
                 // HDMA runs before $0D disables it; lava swaps the live RNG bytes.
-                Session.GameplayRuntime.DoorTransition.AdvanceNonGameplayMainLoopRandom(hdmaObjectsEnabled: true, Session.GameplayRuntime.Room.LoadedScope.Plms, Session.GameplayRuntime.Room.LoadedScope);
+                Session.GameplayRuntime.DoorTransition.AdvanceNonGameplayMainLoopRandom(hdmaObjects: HdmaObjectProcessing.Run, Session.GameplayRuntime.Room.LoadedScope.Plms, Session.GameplayRuntime.Room.LoadedScope);
                 break;
             case MainLoopRandomCall.AdvanceUnlessResumingWait:
                 if (!NextUpdateResumesNmiWait)

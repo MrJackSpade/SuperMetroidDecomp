@@ -49,14 +49,14 @@ internal static class BeetomInstructionProgramDefinitionsVerification
         RunBeetomLoop(processArguments, slot, state, BeetomProgram.CrawlingLeftLoop, callsThroughGoto: 5);
         AssertTrue(!slot.Properties.HasAny(EnemyProperties.ProcessOffScreen), "left crawl stops off-screen processing");
 
-        BeetomBehavior.StartBeetomCrawling(slot, state, false);
+        BeetomBehavior.StartBeetomCrawling(slot, state, HorizontalDirection.Right);
         AssertEqual(AnimationProgramCursor<BeetomProgram>.Start(BeetomProgram.CrawlingRight), state.Program, "right crawl is installed");
         RunBeetomLoop(processArguments, slot, state, BeetomProgram.CrawlingRightLoop, callsThroughGoto: 5);
         AssertTrue(!slot.Properties.HasAny(EnemyProperties.ProcessOffScreen), "right crawl stops off-screen processing");
 
         foreach ((bool left, BeetomProgram hop) in new[] { (true, BeetomProgram.HopLeft), (false, BeetomProgram.HopRight) })
         {
-            BeetomBehavior.StartBeetomHop(slot, state, 0, left, longHop: false);
+            BeetomBehavior.StartBeetomHop(slot, state, 0, left ? HorizontalDirection.Left : HorizontalDirection.Right, BeetomHopLength.Short);
             AssertEqual(AnimationProgramCursor<BeetomProgram>.Start(hop), state.Program, $"{hop} is installed");
             RunBeetomCalls(processArguments, slot, 5);
             AnimationProgramCursor<BeetomProgram> held = state.Program;
@@ -69,7 +69,7 @@ internal static class BeetomInstructionProgramDefinitionsVerification
         foreach ((bool left, BeetomProgram drain, BeetomProgram loop) in new[]
                  { (true, BeetomProgram.DrainingLeft, BeetomProgram.DrainingLeftLoop), (false, BeetomProgram.DrainingRight, BeetomProgram.DrainingRightLoop) })
         {
-            BeetomBehavior.StartBeetomDrain(slot, state, left);
+            BeetomBehavior.StartBeetomDrain(slot, state, left ? HorizontalDirection.Left : HorizontalDirection.Right);
             AssertEqual(AnimationProgramCursor<BeetomProgram>.Start(drain), state.Program, $"{drain} is installed");
             RunBeetomLoop(processArguments, slot, state, loop, callsThroughGoto: 9);
         }

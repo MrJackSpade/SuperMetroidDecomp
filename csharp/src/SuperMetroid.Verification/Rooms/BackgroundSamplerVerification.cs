@@ -28,7 +28,7 @@ internal static class BackgroundSamplerVerification
             // Exercise VRAM wrapping as well as page boundaries and random flipped tiles.
             int map = 32760, characters = 32760;
             var sampler = new SnesBackgroundPixelSampler(vram, colors,
-                new VramBgTilemap(vram, map, new Extent16<TilemapCells>(width, height)), characters, fourBit);
+                new VramBgTilemap(vram, map, new Extent16<TilemapCells>(width, height)), characters, fourBit ? BgBitDepth.FourBpp : BgBitDepth.TwoBpp);
             for (int run = 0; run < 256; run++)
             {
                 int originX = random.Next(-1024, 1024), y = random.Next(-1024, 1024);
@@ -47,7 +47,7 @@ internal static class BackgroundSamplerVerification
                     int shift = 7 - px;
                     int color = (bytes[row] >> shift & 1) | (bytes[unchecked((ushort)(row + 1))] >> shift & 1) << 1;
                     if (fourBit) color |= (bytes[unchecked((ushort)(row + 16))] >> shift & 1) << 2 | (bytes[unchecked((ushort)(row + 17))] >> shift & 1) << 3;
-                    var actual = sampler.Sample(new Position16<BgPlanePixels>(unchecked((ushort)x), unchecked((ushort)y)), opaqueZero);
+                    var actual = sampler.Sample(new Position16<BgPlanePixels>(unchecked((ushort)x), unchecked((ushort)y)), opaqueZero ? ColorZero.Opaque : ColorZero.Transparent);
                     Rgba32 expected = color == 0 && !opaqueZero ? default : colors[tile.PaletteIndex * (fourBit ? 16 : 4) + color];
                     AssertEqual(expected, actual.Color, "cached background color matches scalar sampling");
                     AssertEqual(tile.HasPriority, actual.High, "cached background priority matches scalar sampling");

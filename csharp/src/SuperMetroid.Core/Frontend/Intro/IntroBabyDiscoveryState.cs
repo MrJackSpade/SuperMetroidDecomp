@@ -384,7 +384,7 @@ internal sealed class IntroBabyDiscoveryState
             BabyVelocity.Y,
             positiveLimit: 544,
             negativeLimit: -544));
-        AddEightEightVelocity(confusedBaby, horizontal: false, BabyVelocity.Y);
+        AddEightEightVelocity(confusedBaby, axis: Axis.Vertical, BabyVelocity.Y);
 
         // The first non-negative velocity marks the top of the initial arc. Native code
         // then holds for $80 frames before enabling the two-axis dance around Samus.
@@ -427,7 +427,7 @@ internal sealed class IntroBabyDiscoveryState
         SamusDisplay = unchecked((sbyte)(SnesEightEight.WholeOf(BabyVelocity.X.RawValue))) < 0
             ? IntroSamusDisplay.ObjectsFirst
             : IntroSamusDisplay.SamusFirst;
-        AddEightEightVelocity(confusedBaby, horizontal: true, BabyVelocity.X);
+        AddEightEightVelocity(confusedBaby, axis: Axis.Horizontal, BabyVelocity.X);
 
         ushort targetY = unchecked((ushort)(Samus.Position.Y.Whole - 8));
         BabyVelocity = BabyVelocity.WithY(AccelerateToward(
@@ -436,7 +436,7 @@ internal sealed class IntroBabyDiscoveryState
             BabyVelocity.Y,
             positiveLimit: 544,
             negativeLimit: -544));
-        AddEightEightVelocity(confusedBaby, horizontal: false, BabyVelocity.Y);
+        AddEightEightVelocity(confusedBaby, axis: Axis.Vertical, BabyVelocity.Y);
     }
 
     /// <summary>Adjusts an 8.8 velocity toward a target by one $20 step without exceeding its limits.</summary>
@@ -458,10 +458,10 @@ internal sealed class IntroBabyDiscoveryState
     /// <summary>Integrates one 8.8 velocity component into the actor's subpixel position.</summary>
     private static void AddEightEightVelocity(
         IntroDiscoverySprite sprite,
-        bool horizontal,
+        Axis axis,
         SnesSignedEightEight velocity)
     {
-        sprite.Position = horizontal
+        sprite.Position = axis == Axis.Horizontal
             ? sprite.Position.WithX(IntroCinematicMotion.AddEightEight(sprite.Position.X, velocity))
             : sprite.Position.WithY(IntroCinematicMotion.AddEightEight(sprite.Position.Y, velocity));
     }

@@ -68,7 +68,7 @@ internal static class GrappleConnectionDefinitionsVerification
     {
         // Read the native function, handler, or pose word used as a dispatch oracle.
         ushort Word(int address) => SnesLittleEndian.Word(GrappleConnectionDispatchRomByte(rom, address), GrappleConnectionDispatchRomByte(rom, address + 1));
-        Func<SamusState, SamusGrappleState, Position16<RoomPixels>, bool, bool, GrappleMovementResult> connect =
+        Func<SamusState, SamusGrappleState, Position16<RoomPixels>, GrappleAnchorKind, GrappleMovementResult> connect =
             SamusGrappleMovement.ConnectAcceptedFiring;
         SamusPoseId metadataPose = SamusPoseId.FacingRightNormalPose;
         var metadata = NewGrappleFiringReadGuard(rom, () => metadataPose);
@@ -92,7 +92,7 @@ internal static class GrappleConnectionDefinitionsVerification
             var g = samus.Grapple;
             g.FireDirection = (SuperMetroid.Core.Samus.Projectiles.SamusProjectileDirection)direction; g.Anchor = g.Anchor.WithX(536); g.Anchor = g.Anchor.WithY(520); g.RopeLength = 32;
             samus.LiquidPhysics.BeginFrameSoundRequests();
-            var result = connect(samus, g, new(512, 512), !enemy, enemy);
+            var result = connect(samus, g, new(512, 512), enemy ? GrappleAnchorKind.Enemy : GrappleAnchorKind.Block);
             AssertEqual(!enemy, g.ValidateAnchorBlock, "Connection preserves block owner");
             AssertEqual(enemy, g.ValidateAnchorEnemy, "Connection preserves enemy owner");
             AssertEqual(-8, g.RopeLengthDelta, "Connection caller begins native retraction");

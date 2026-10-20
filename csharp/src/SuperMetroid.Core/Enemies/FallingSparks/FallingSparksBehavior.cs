@@ -63,7 +63,7 @@ internal sealed class FallingSparksBehavior
         {
             // The spark's whole velocity word passes through the shared signed-8.8
             // Move_EnemyProjectile_Vertically ($86:897B), including its slope reactions.
-            if (EnemyProjectileEngine.MoveProjectileAxis(projectile, level, horizontal: false))
+            if (EnemyProjectileEngine.MoveProjectileAxis(projectile, level, axis: Axis.Vertical))
             {
                 BeginFallingSparkFloorImpact(projectile);
                 return;

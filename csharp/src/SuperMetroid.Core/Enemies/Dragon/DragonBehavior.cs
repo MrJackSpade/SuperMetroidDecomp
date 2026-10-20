@@ -361,7 +361,7 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
         table.AddShot(new EnemyShotReaction(enemy => enemy.EnemyDefinitionPointer == EnemyDefinitionId.Dragon &&
                                                      EnemyCollision.ShotAi(enemy) == EnemyInteractionCallback.DragonShot)
         {
-            AfterCommon = (c, _) => ResolveDragonCombatAfterCommon(c.Enemy),
+            AfterCommon = c => ResolveDragonCombatAfterCommon(c.Enemy),
         });
     }
 

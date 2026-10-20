@@ -115,10 +115,10 @@ internal sealed class ProjectileTrails
     internal static void AdvanceTrailSide(
         SamusProjectileTrailSlot pair,
         bool timeIsFrozen,
-        bool isLeft,
+        HorizontalDirection direction,
         SuperMetroid.Core.Samus.Artwork.ProjectileTrailCatalog? artwork)
     {
-        SamusProjectileTrailSide side = isLeft ? pair.Left : pair.Right;
+        SamusProjectileTrailSide side = direction == HorizontalDirection.Left ? pair.Left : pair.Right;
         if (side.InstructionTimer.IsZero)
             return;
 
@@ -151,7 +151,7 @@ internal sealed class ProjectileTrails
                     if (!Enum.IsDefined((ProjectileTrailInstruction)instructionOrTimer))
                     {
                         throw new InvalidOperationException(
-                            $"Unsupported {(isLeft ? "left" : "right")} projectile-trail " +
+                            $"Unsupported {(direction == HorizontalDirection.Left ? "left" : "right")} projectile-trail " +
                             $"instruction ${instructionOrTimer:X4} at $90:{unchecked((ushort)(pointer - 2)):X4}.");
                     }
                     switch ((ProjectileTrailInstruction)instructionOrTimer)
@@ -183,11 +183,11 @@ internal sealed class ProjectileTrails
         SamusProjectileTrailSlot pair,
         int slotIndex,
         Position16<RoomPixels> layer1,
-        bool isLeft,
+        HorizontalDirection direction,
         SuperMetroid.Core.Samus.Artwork.ProjectileTrailCatalog? artwork,
         ProjectileDrawArtwork objects)
     {
-        SamusProjectileTrailSide side = isLeft ? pair.Left : pair.Right;
+        SamusProjectileTrailSide side = direction == HorizontalDirection.Left ? pair.Left : pair.Right;
         // A finished side, including one that ended in this frame's advance, shows nothing.
         if (side.InstructionTimer.IsZero)
             return;
@@ -202,7 +202,7 @@ internal sealed class ProjectileTrails
 
         SnesObjAttributeWord attributes = artwork is null
             ? side.TileNumberAttributes : artwork.ResolveCurrent(checked((ushort)side.InstructionPointer), side.TileNumberAttributes);
-        sprites.Add(new SpriteDraw(new SpriteSource(SpriteSourceKind.SamusProjectileTrail, slotIndex * 2 + (isLeft ? 0 : 1)),
+        sprites.Add(new SpriteDraw(new SpriteSource(SpriteSourceKind.SamusProjectileTrail, slotIndex * 2 + (direction == HorizontalDirection.Left ? 0 : 1)),
             ObjPartFrames.SmallObject(attributes, 0), objects.Page,
             new Position16<ScreenPixels>(screenX, screenY), default, 0, 0));
     }

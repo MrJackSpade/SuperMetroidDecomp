@@ -202,10 +202,10 @@ public sealed class FileSelectMapMenuState
     /// <summary>Captures both map-memory owners and resolved window edges at the display boundary.</summary>
     public LayeredRenderSnapshot CaptureRenderSnapshot()
     {
-        LayeredRenderSnapshot Area(bool backdrop = true) => areaGraphics.CaptureRenderSnapshot(usedStations, backdrop);
-        LayeredRenderSnapshot Frame() => roomGraphics.CaptureRenderSnapshot(frameOnly: true);
-        LayeredRenderSnapshot Room(bool icons = true) => roomGraphics.CaptureRenderSnapshot(scroll.Scroll,
-            icons ? marker : null, drawArrows ? animations : null);
+        LayeredRenderSnapshot Area(AreaMapColorMath colorMath = AreaMapColorMath.WithBackdrop) => areaGraphics.CaptureRenderSnapshot(usedStations, colorMath);
+        LayeredRenderSnapshot Frame() => roomGraphics.CaptureRenderSnapshot(content: RoomMapContent.FrameOnly);
+        LayeredRenderSnapshot Room(FileSelectStationMarker? shownMarker) => roomGraphics.CaptureRenderSnapshot(scroll.Scroll,
+            shownMarker, drawArrows ? animations : null);
         if (!entry.IsComplete)
         {
             LayeredRenderSnapshot areaScene = Area();
@@ -218,10 +218,10 @@ public sealed class FileSelectMapMenuState
         LayeredRenderSnapshot scene = Phase switch
         {
             FileSelectMapNavigationPhase.ExpandingWindow or FileSelectMapNavigationPhase.InitializingRoom =>
-                Window(Area(false), Frame(), navigation.ActiveWindow),
-            FileSelectMapNavigationPhase.Room when !markerDrawn => Room(false),
-            FileSelectMapNavigationPhase.Room or FileSelectMapNavigationPhase.LoadRequested => Room(),
-            FileSelectMapNavigationPhase.AreaReturnRequested when pendingFrames == 0 => Room(),
+                Window(Area(AreaMapColorMath.ForegroundOnly), Frame(), navigation.ActiveWindow),
+            FileSelectMapNavigationPhase.Room when !markerDrawn => Room(null),
+            FileSelectMapNavigationPhase.Room or FileSelectMapNavigationPhase.LoadRequested => Room(marker),
+            FileSelectMapNavigationPhase.AreaReturnRequested when pendingFrames == 0 => Room(marker),
             FileSelectMapNavigationPhase.AreaReturnRequested when pendingFrames == FileSelectMapRomData.ReturnSetupFrames - 1 =>
                 Insert(Frame(), Area(), FileSelectMapRomData.EntryWindowLeft, FileSelectMapRomData.EntryWindowTop,
                     FileSelectMapRomData.EntryWindowRight + 1, SnesPpuLayout.ScreenHeightPixels - FileSelectMapRomData.EntryWindowTop),

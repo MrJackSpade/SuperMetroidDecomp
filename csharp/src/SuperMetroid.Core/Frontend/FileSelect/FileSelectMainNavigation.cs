@@ -12,12 +12,12 @@ internal static class FileSelectMainNavigation
     /// the previous InvalidDataException and diagnostic text.
     /// Direction is the existing caller's single Up or Down decision, after Up priority.
     /// </remarks>
-    internal static FileSelectItem Move(FileSelectItem selected, bool hasAnySave, bool down)
+    internal static FileSelectItem Move(FileSelectItem selected, bool hasAnySave, VerticalDirection direction)
     {
         if (!Visible(selected, hasAnySave))
             throw new InvalidDataException($"File-select item {selected} is not currently visible.");
 
-        if (down)
+        if (direction == VerticalDirection.Down)
         {
             if (selected == FileSelectItem.Exit) return FileSelectItem.SlotA;
             if (!hasAnySave && selected == FileSelectItem.SlotC) return FileSelectItem.Exit;

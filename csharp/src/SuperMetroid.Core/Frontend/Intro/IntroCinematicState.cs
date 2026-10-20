@@ -330,7 +330,7 @@ public sealed class IntroCinematicState
     /// <param name="controllerInput">The current raw controller-held word.</param>
     public void Step(SnesButton controllerInput)
     {
-        flashbackProjectiles.ImpactAudio.BeginImpactAudioFrame(cinematicActive: true);
+        flashbackProjectiles.ImpactAudio.BeginImpactAudioFrame(context: ImpactAudioContext.Cinematic);
         // Cinematic functions consume joypad1_newkeys, not the raw held word. Latching at
         // this state boundary preserves a one-frame edge and prevents a held A/Start from
         // skipping both the options menu and the first narration page.

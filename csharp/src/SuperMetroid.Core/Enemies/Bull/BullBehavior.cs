@@ -250,11 +250,11 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
         new(enemy => enemy.EnemyDefinitionPointer == EnemyDefinitionId.Bull &&
                      EnemyCollision.ShotAi(enemy) == EnemyInteractionCallback.BullShot)
         {
-            AfterCommon = (c, froze) =>
+            AfterCommon = c =>
             {
                 BullEnemyState bullState = c.Enemy.RequireSpeciesState<BullEnemyState>();
                 bullState.PreviousHealth = c.HealthBefore;
-                if (froze || c.Enemy.Health == c.HealthBefore)
+                if (c.Froze || c.Enemy.Health == c.HealthBefore)
                     ResolveBullImmuneShot(c.Enemy, bullState, c.ProjectileDirection.Raw);
             },
         };

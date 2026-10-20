@@ -56,9 +56,11 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
             case AlcoonCueKind.StartWalking:
                 return StartAlcoonWalking(state);
             case AlcoonCueKind.Step:
-                return MoveAlcoonHorizontally(slot, state, level, decrementStepCounter: true);
+                if (!state.StepCounter.IsZero)
+                    state.StepCounter = state.StepCounter.Decrement().Remaining;
+                return MoveAlcoonHorizontally(slot, state, level);
             case AlcoonCueKind.Move:
-                return MoveAlcoonHorizontally(slot, state, level, decrementStepCounter: false);
+                return MoveAlcoonHorizontally(slot, state, level);
             default:
                 throw new InvalidOperationException($"Undefined {nameof(AlcoonCueKind)} {cue.Kind}.");
         }
@@ -365,14 +367,10 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
     private AlcoonProgram? MoveAlcoonHorizontally(
         RoomEnemySlot slot,
         AlcoonEnemyState state,
-        RoomLevelData? level,
-        bool decrementStepCounter)
+        RoomLevelData? level)
     {
         if (level is null)
             throw new InvalidOperationException("Alcoon movement instruction requires room collision data.");
-
-        if (decrementStepCounter && !state.StepCounter.IsZero)
-            state.StepCounter = state.StepCounter.Decrement().Remaining;
 
         int displacement = state.Velocity.X.RawValue;
         if (!_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, slot, displacement))
@@ -464,8 +462,8 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
         // Unlike Ridley's fireball, this definition checks vertical collision first. If
         // either axis collides, the native routine clears the projectile ID immediately and
         // never applies horizontal deceleration on that frame.
-        if (EnemyProjectileEngine.MoveProjectileAxis(projectile, level, horizontal: false) ||
-            EnemyProjectileEngine.MoveProjectileAxis(projectile, level, horizontal: true))
+        if (EnemyProjectileEngine.MoveProjectileAxis(projectile, level, axis: Axis.Vertical) ||
+            EnemyProjectileEngine.MoveProjectileAxis(projectile, level, axis: Axis.Horizontal))
         {
             projectile.Clear();
             return;

@@ -25,6 +25,7 @@ namespace SuperMetroid.Verification.Samus.Projectiles;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Gameplay;
 
 /// <summary>Checks editable charge-flare offsets against native OAM placement and the production rendering paths.</summary>
 internal static class ChargeFlarePlacementVerification
@@ -178,7 +179,7 @@ internal static class ChargeFlarePlacementVerification
         byte[] Draw(SuperMetroid.Core.Runtime.SuperMetroidRuntime target)
         {
             target.Sprites.BeginFrame();
-            target.ActorDrawing.DrawGameplayActors(target.Room.LoadedScope, false, false);
+            target.ActorDrawing.DrawGameplayActors(target.Room.LoadedScope, SamusDrawOwner.Gameplay, SamusPaletteEffects.Hold);
             target.Sprites.FinalizeFrame();
             return target.Sprites.FinalizedAsOam().LowTable.ToArray();
         }

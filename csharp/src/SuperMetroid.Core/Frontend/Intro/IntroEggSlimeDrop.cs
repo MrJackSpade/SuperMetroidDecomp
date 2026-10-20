@@ -44,11 +44,11 @@ internal sealed class IntroEggSlimeDrop
                 throw new InvalidDataException(
                     $"Intro egg slime names invalid pre-instruction {sprite.PreInstruction}.");
             }
-            AddVelocity(horizontal: true, IntroEggMotionDefinitions.SlimeX(SnesLittleEndian.LowByte(sprite.GeneralTimer)));
+            AddVelocity(axis: Axis.Horizontal, IntroEggMotionDefinitions.SlimeX(SnesLittleEndian.LowByte(sprite.GeneralTimer)));
 
             // BIT #1 selects two different gravity curves. This is the parameter's parity,
             // not an animation-frame toggle: odd drops begin at -2 px/frame, evens at -3.
-            AddVelocity(horizontal: false, IntroEggMotionDefinitions.SlimeY(
+            AddVelocity(axis: Axis.Vertical, IntroEggMotionDefinitions.SlimeY(
                 SnesLittleEndian.HighByte(sprite.GeneralTimer), odd: (sprite.GeneralTimer & 1) != 0));
 
             if (unchecked((short)(sprite.WholePosition.Y - 168)) >= 0)
@@ -75,9 +75,9 @@ internal sealed class IntroEggSlimeDrop
         sprite.Draw(objects, installedArt: installedArt);
 
     /// <summary>Adds native 16.16 motion to one screen coordinate while preserving its fractional part.</summary>
-    private void AddVelocity(bool horizontal, SnesSignedSixteenSixteen velocity)
+    private void AddVelocity(Axis axis, SnesSignedSixteenSixteen velocity)
     {
-        sprite.Position = horizontal
+        sprite.Position = axis == Axis.Horizontal
             ? sprite.Position.WithX(IntroCinematicMotion.AddSixteenSixteen(sprite.Position.X, velocity.WholeWord, velocity.Fraction))
             : sprite.Position.WithY(IntroCinematicMotion.AddSixteenSixteen(sprite.Position.Y, velocity.WholeWord, velocity.Fraction));
     }

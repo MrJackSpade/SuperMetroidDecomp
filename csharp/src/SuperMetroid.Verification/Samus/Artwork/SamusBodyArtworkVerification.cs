@@ -64,7 +64,7 @@ internal static class SamusBodyArtworkVerification
                 for (int position = 0; position < entries.Count; position++)
                 {
                     SamusBodyTileDefinition entry = entries[position];
-                    int definitionAddress = stock.DefinitionAddress(upper, (byte)set, (byte)position);
+                    int definitionAddress = stock.DefinitionAddress(upper ? SamusBodyHalf.Top : SamusBodyHalf.Bottom, (byte)set, (byte)position);
                     int source = (CartridgeImportSource.Require(bus).ReadCartridgeLong(definitionAddress));
                     ushort first = CartridgeImportSource.Require(bus).ReadCartridgeWord(definitionAddress + 3);
                     ushort second = CartridgeImportSource.Require(bus).ReadCartridgeWord(definitionAddress + 5);

@@ -62,9 +62,9 @@ internal sealed class AttractGamePhases(FrontendSession session)
                     // script advances during the ninety-frame final-image hold.
                     session.GameplayRuntime.FrameBoundary.BeginAcceptedFrame(controllerInput);
                     if (session.GameplayRuntime.Controller1.NewlyPressed != 0)
-                        FinishAttractPlayback(cancelled: true);
+                        FinishAttractPlayback(end: AttractPlaybackEnd.Cancelled);
                     else if (--session.demoHoldFramesRemaining == 0)
-                        FinishAttractPlayback(cancelled: false);
+                        FinishAttractPlayback(end: AttractPlaybackEnd.Completed);
                 }
                 else
                 {
@@ -72,7 +72,7 @@ internal sealed class AttractGamePhases(FrontendSession session)
                     session.display.PublishGameplay(session.GameplayRuntime);
                     // Demo beta has restored the physical controller pair at this point.
                     if (session.GameplayRuntime.Controller1.NewlyPressed != 0)
-                        FinishAttractPlayback(cancelled: true);
+                        FinishAttractPlayback(end: AttractPlaybackEnd.Cancelled);
                     else if (--session.demoFramesRemaining <= 0)
                         session.demoHoldFramesRemaining = AttractDemoRomData.FinalImageHoldFrames;
                 }
@@ -167,9 +167,9 @@ internal sealed class AttractGamePhases(FrontendSession session)
     }
 
     /// <summary>Starts the native transition out of a completed or canceled demo scene.</summary>
-    private void FinishAttractPlayback(bool cancelled)
+    private void FinishAttractPlayback(AttractPlaybackEnd end)
     {
-        session.demoCancelled = cancelled;
+        session.demoCancelled = end == AttractPlaybackEnd.Cancelled;
         session.GameState = SuperMetroidGameState.TransitionFromDemoA;
         session.display.PublishBlack();
     }

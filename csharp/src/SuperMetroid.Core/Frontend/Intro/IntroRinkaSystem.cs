@@ -43,6 +43,7 @@ internal sealed class IntroRinkaSystem
     /// True once Mother Brain's explosions occupy cinematic slots. Their slots then share
     /// this range, so a Rinka spawn would need the whole table to allocate faithfully.
     /// </param>
+    [IndependentFlag("Mother Brain exploding and explosion slots being allocated are separate intro states read each frame.")]
     public void Step(SamusState samus, bool motherBrainExploding,
         bool explosionsAllocated)
     {

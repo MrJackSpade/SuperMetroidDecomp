@@ -1,7 +1,17 @@
 namespace SuperMetroid.Core.Frontend;
 
-/// <summary>The audio facts the main loop's prologue and epilogue read from the dispatched state.</summary>
-/// <param name="DoorAudioDispatch">The state belongs to the door transition, whose dispatch can stall on music uploads.</param>
-/// <param name="DoorSoundsDisabled">The door has disabled sound effects for this dispatch.</param>
-/// <param name="PauseInputEpilogue">$82:8AB0 publishes held input after the pause dispatcher returns.</param>
-internal readonly record struct GamePhaseAudio(bool DoorAudioDispatch, bool DoorSoundsDisabled, bool PauseInputEpilogue);
+/// <summary>The audio handling the main loop's prologue and epilogue give the dispatched state.</summary>
+internal enum GamePhaseAudio
+{
+    /// <summary>No special handling.</summary>
+    Ordinary,
+
+    /// <summary>A door-transition state, whose dispatch can stall on music uploads.</summary>
+    DoorTransition,
+
+    /// <summary>A door-transition state that has also disabled sound effects for this dispatch.</summary>
+    DoorTransitionSoundsDisabled,
+
+    /// <summary>A pause state: $82:8AB0 publishes held input after the pause dispatcher returns.</summary>
+    PauseInputEpilogue,
+}

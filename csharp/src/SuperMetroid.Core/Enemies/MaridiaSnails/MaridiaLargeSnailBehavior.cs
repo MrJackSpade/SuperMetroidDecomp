@@ -572,7 +572,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
                 }
                 return false;
             },
-            AfterCommon = (_, _) => ResolveMaridiaLargeSnailShotAfterCommon(),
+            AfterCommon = _ => ResolveMaridiaLargeSnailShotAfterCommon(),
         });
     }
 

@@ -47,13 +47,19 @@ internal static class DraygonCannonPlmProgramDefinitions
         _ => throw new InvalidOperationException($"Undefined {nameof(DraygonCannonProgram)} {program}."),
     };
 
-    /// <summary>The first program of a cannon facing <paramref name="orientation"/>, or of a destroyed one.</summary>
-    internal static DraygonCannonProgram FirstProgram(DraygonCannonOrientation orientation, bool destroyed) => (orientation, destroyed) switch
+    /// <summary>The first program of an intact cannon facing <paramref name="orientation"/>.</summary>
+    internal static DraygonCannonProgram StartProgram(DraygonCannonOrientation orientation) => orientation switch
     {
-        (DraygonCannonOrientation.Right, false) => DraygonCannonProgram.RightStart,
-        (DraygonCannonOrientation.Right, true) => DraygonCannonProgram.RightDestroy,
-        (DraygonCannonOrientation.Left, false) => DraygonCannonProgram.LeftStart,
-        (DraygonCannonOrientation.Left, true) => DraygonCannonProgram.LeftDestroy,
+        DraygonCannonOrientation.Right => DraygonCannonProgram.RightStart,
+        DraygonCannonOrientation.Left => DraygonCannonProgram.LeftStart,
+        _ => throw new InvalidOperationException($"Undefined {nameof(DraygonCannonOrientation)} {orientation}."),
+    };
+
+    /// <summary>The first program of a cannon facing <paramref name="orientation"/> that spawns already destroyed.</summary>
+    internal static DraygonCannonProgram DestroyProgram(DraygonCannonOrientation orientation) => orientation switch
+    {
+        DraygonCannonOrientation.Right => DraygonCannonProgram.RightDestroy,
+        DraygonCannonOrientation.Left => DraygonCannonProgram.LeftDestroy,
         _ => throw new InvalidOperationException($"Undefined {nameof(DraygonCannonOrientation)} {orientation}."),
     };
 

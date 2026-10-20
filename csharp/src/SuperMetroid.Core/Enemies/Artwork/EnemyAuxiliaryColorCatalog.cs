@@ -36,10 +36,10 @@ public sealed class EnemyAuxiliaryColorCatalog
     /// <summary>Recognizes each supplied family's stock paint relationship while retaining unmatched edits.</summary>
     private EnemyAuxiliaryColorCatalog(Dictionary<EnemyAuxiliaryPalette, Bgr555[][]> frames)
     {
-        faceBlock = new(frames[EnemyAuxiliaryPalette.FaceBlock], healthGradient: false, faceGlow: true);
-        deadSidehopper = new(frames[EnemyAuxiliaryPalette.DeadSidehopper], healthGradient: false, sidehopperDrain: true);
-        torizoBody = new(frames[EnemyAuxiliaryPalette.GoldenTorizoBody], healthGradient: true);
-        torizoBelly = new(frames[EnemyAuxiliaryPalette.GoldenTorizoBelly], healthGradient: true, rearTorizo: true);
+        faceBlock = new(frames[EnemyAuxiliaryPalette.FaceBlock], AuxiliaryPaint.FaceGlow);
+        deadSidehopper = new(frames[EnemyAuxiliaryPalette.DeadSidehopper], AuxiliaryPaint.SidehopperDrain);
+        torizoBody = new(frames[EnemyAuxiliaryPalette.GoldenTorizoBody], AuxiliaryPaint.TorizoFront);
+        torizoBelly = new(frames[EnemyAuxiliaryPalette.GoldenTorizoBelly], AuxiliaryPaint.TorizoRear);
     }
 
     /// <summary>Selects one of the four installed auxiliary color families by its defined identity.</summary>
@@ -95,8 +95,12 @@ public sealed class EnemyAuxiliaryColorCatalog
         /// <summary>Colors supplied per row, excluding sidehopper's native transparent slot zero.</summary>
         internal int ColorCount { get; }
         /// <summary>Accepts a calculated paint progression only when every supplied RGB5 word matches it.</summary>
-        internal PaletteRows(Bgr555[][] rows, bool healthGradient, bool faceGlow = false, bool sidehopperDrain = false, bool rearTorizo = false)
+        internal PaletteRows(Bgr555[][] rows, AuxiliaryPaint paint)
         {
+            bool healthGradient = paint is AuxiliaryPaint.TorizoFront or AuxiliaryPaint.TorizoRear;
+            bool faceGlow = paint == AuxiliaryPaint.FaceGlow;
+            bool sidehopperDrain = paint == AuxiliaryPaint.SidehopperDrain;
+            bool rearTorizo = paint == AuxiliaryPaint.TorizoRear;
             FrameCount = rows.Length;
             ColorCount = rows[0].Length;
             if (healthGradient && GoldenTorizoHealthPaintDefinitions.Matches(rows, rearTorizo))

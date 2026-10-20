@@ -14,10 +14,10 @@ internal sealed class ProjectileImpactAudio
         _impactSoundRequests is { } requests ? requests : Array.Empty<SoundRequest>();
 
     /// <summary>Starts an owner frame; cinematic_function suppresses missile impact SFX in $93:80CF.</summary>
-    public void BeginImpactAudioFrame(bool cinematicActive)
+    public void BeginImpactAudioFrame(ImpactAudioContext context)
     {
         _impactSoundRequests?.Clear();
-        _cinematicImpactAudioSuppressed = cinematicActive;
+        _cinematicImpactAudioSuppressed = context == ImpactAudioContext.Cinematic;
     }
 
     /// <summary>Queues library-two beam impact audio, marking it suppressed when a Power Bomb is active.</summary>

@@ -12,13 +12,13 @@ public sealed class RoomVisualLayoutCatalog
     /// <param name="layouts">Initial visual layouts keyed by their own full 24-bit <see cref="RoomVisualLayout.SourceAddress"/>.</param>
     /// <exception cref="InvalidDataException">A value is null, its source differs from its key, or a required source is absent.</exception>
     public RoomVisualLayoutCatalog(IReadOnlyDictionary<int, RoomVisualLayout> layouts)
-        : this(layouts, requireCompleteInstallation: true)
+        : this(layouts, requiredSources: RoomVisualLayoutSourceDefinitions.All)
     {
     }
 
-    /// <summary>Allows a caller to require every retail source or build a scoped catalog for verification.</summary>
+    /// <summary>Copies layouts and requires each of <paramref name="requiredSources"/> to be present.</summary>
     internal RoomVisualLayoutCatalog(IReadOnlyDictionary<int, RoomVisualLayout> layouts,
-        bool requireCompleteInstallation)
+        IEnumerable<int> requiredSources)
     {
         Ensure.NotNull(layouts);
         this.layouts = new Dictionary<int, RoomVisualLayout>(layouts);
@@ -26,11 +26,10 @@ public sealed class RoomVisualLayoutCatalog
             if (layout is null || layout.SourceAddress != source)
                 throw new InvalidDataException(
                     $"Room visual layout key ${source:X6} must contain its matching nonnull layout.");
-        if (requireCompleteInstallation)
-            foreach (int source in RoomVisualLayoutSourceDefinitions.All)
-                if (!this.layouts.ContainsKey(source))
-                    throw new InvalidDataException(
-                        $"Installed room visual layouts lack required source ${source:X6}.");
+        foreach (int source in Ensure.NotNull(requiredSources))
+            if (!this.layouts.ContainsKey(source))
+                throw new InvalidDataException(
+                    $"Installed room visual layouts lack required source ${source:X6}.");
     }
 
     /// <summary>SHA-256 of selected room geometry and both ordered visual planes.</summary>

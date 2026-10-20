@@ -29,9 +29,9 @@ public sealed class MotherBrainDeathColorCatalog
     private MotherBrainDeathColorCatalog(Bgr555[][] bodyFade, Bgr555[][] legFade,
         Bgr555[][] corpseFade, Bgr555[] explodedDoor)
     {
-        this.bodyFade = new(bodyFade, toBlack: true);
-        this.legFade = new(legFade, toBlack: true, backLeg: true);
-        this.corpseFade = new(corpseFade, toBlack: false);
+        this.bodyFade = new(bodyFade, MotherBrainFadeTarget.Black);
+        this.legFade = new(legFade, MotherBrainFadeTarget.Black, MotherBrainPalettePart.BackLeg);
+        this.corpseFade = new(corpseFade, MotherBrainFadeTarget.DrainedBody);
         this.explodedDoor = MotherBrainExplodedDoorPaintDefinitions.Matches(explodedDoor) ? null : explodedDoor;
     }
 
@@ -121,7 +121,7 @@ public sealed class MotherBrainDeathColorCatalog
         /// <summary>Edited starting colors, or null when the health palette supplies the stock start.</summary>
         internal readonly Bgr555[]? first;
         /// <summary>Selects the back-leg rather than body starting palette.</summary>
-        private readonly bool backLeg;
+        private readonly MotherBrainPalettePart part;
         /// <summary>Corpse fade endpoint; null selects black for the body and leg fades.</summary>
         internal readonly MotherBrainRainbowPalettePresentation.DrainedBodyColors? last;
         /// <summary>Exact edited frames retained when the calculated stock interpolation differs.</summary>
@@ -132,14 +132,14 @@ public sealed class MotherBrainDeathColorCatalog
         internal int ColorCount { get; }
 
         /// <summary>Detects whether the supplied stages follow stock interpolation or need exact storage.</summary>
-        internal ColorFade(Bgr555[][] frames, bool toBlack, bool backLeg = false)
+        internal ColorFade(Bgr555[][] frames, MotherBrainFadeTarget target, MotherBrainPalettePart part = MotherBrainPalettePart.Body)
         {
-            this.backLeg = backLeg;
+            this.part = part;
             ColorCount = frames[0].Length;
             for (int color = 0; color < ColorCount; color++)
-                if (frames[0][color] != MotherBrainHealthPalettePresentation.StockDeathStartColor(backLeg, color))
+                if (frames[0][color] != MotherBrainHealthPalettePresentation.StockDeathStartColor(part, color))
                 { first = frames[0]; break; }
-            last = toBlack ? null : new MotherBrainRainbowPalettePresentation.DrainedBodyColors(frames[^1]);
+            last = target == MotherBrainFadeTarget.Black ? null : new MotherBrainRainbowPalettePresentation.DrainedBodyColors(frames[^1]);
             FrameCount = frames.Length;
             for (int frame = 0; frame < FrameCount; frame++)
             for (int color = 0; color < ColorCount; color++)
@@ -160,7 +160,7 @@ public sealed class MotherBrainDeathColorCatalog
         private Bgr555 Calculate(int frame, int color)
         {
             int steps = FrameCount - 1;
-            Bgr555 start = first is null ? MotherBrainHealthPalettePresentation.StockDeathStartColor(backLeg, color) : first[color];
+            Bgr555 start = first is null ? MotherBrainHealthPalettePresentation.StockDeathStartColor(part, color) : first[color];
             // Without a supplied endpoint the fade ends at black with a one-unit bias.
             Bgr555 end = last is null ? Bgr555.Black : last[color];
             int bias = last is null ? 1 : steps / 2;

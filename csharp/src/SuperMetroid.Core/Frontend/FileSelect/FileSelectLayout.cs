@@ -56,28 +56,28 @@ internal static class FileSelectLayout
     /// energy and time labels occupy columns 3, 14 and 27; time values start on
     /// the following row at column 26. Convert 32-column cells to byte offsets.</remarks>
     public static int MainSlotDestination(int slot, FileSelectSlotField field) =>
-        SlotDestination(slot, field, dataPage: false);
+        SlotDestination(slot, field, page: FileSelectSlotPage.Main);
 
     /// <summary>Copy/clear slot field destinations from native $81:960F..9699.</summary>
     /// <remarks>Three slots start on tile row 8, separated by four rows. Labels,
     /// energy and time labels occupy columns 4, 12 and 26; time values start on
     /// the following row at column 25. Both Copy and Clear share this geometry.</remarks>
     public static int DataSlotDestination(int slot, FileSelectSlotField field) =>
-        SlotDestination(slot, field, dataPage: true);
+        SlotDestination(slot, field, page: FileSelectSlotPage.DataManagement);
 
     /// <summary>Converts a slot field's row and column on the selected page to a BG1 byte offset.</summary>
-    private static int SlotDestination(int slot, FileSelectSlotField field, bool dataPage)
+    private static int SlotDestination(int slot, FileSelectSlotField field, FileSelectSlotPage page)
     {
         if ((uint)slot >= SaveSlotCount) throw new ArgumentOutOfRangeException(nameof(slot));
         int column = field switch
         {
-            FileSelectSlotField.Label => dataPage ? 4 : 3,
-            FileSelectSlotField.Energy => dataPage ? 12 : 14,
-            FileSelectSlotField.TimeValue => dataPage ? 25 : 26,
-            FileSelectSlotField.TimeLabel => dataPage ? 26 : 27,
+            FileSelectSlotField.Label => page == FileSelectSlotPage.DataManagement ? 4 : 3,
+            FileSelectSlotField.Energy => page == FileSelectSlotPage.DataManagement ? 12 : 14,
+            FileSelectSlotField.TimeValue => page == FileSelectSlotPage.DataManagement ? 25 : 26,
+            FileSelectSlotField.TimeLabel => page == FileSelectSlotPage.DataManagement ? 26 : 27,
             _ => throw new ArgumentOutOfRangeException(nameof(field)),
         };
-        int row = dataPage ? 8 + 4 * slot : 5 + 5 * slot;
+        int row = page == FileSelectSlotPage.DataManagement ? 8 + 4 * slot : 5 + 5 * slot;
         if (field == FileSelectSlotField.TimeValue) row++;
         return (row * 32 + column) * sizeof(ushort);
     }

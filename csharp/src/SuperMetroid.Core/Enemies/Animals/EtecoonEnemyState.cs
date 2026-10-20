@@ -55,9 +55,9 @@ public sealed class EtecoonEnemyState
     internal bool HeadsRightOrCountsHops => HeadingRight || TeachingHops != 0;
 
     /// <summary>Stores a heading the way the cartridge stores the whole parameter word, which also clears the hop count.</summary>
-    internal void Head(bool right)
+    internal void Head(HorizontalDirection side)
     {
-        HeadingRight = right;
+        HeadingRight = side == HorizontalDirection.Right;
         TeachingHops = 0;
     }
 

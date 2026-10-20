@@ -128,10 +128,10 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
                 state.Function = SbugEnemyFunction.MoveForwardThenWait;
                 return;
             case SbugEnemyFunction.ActivateMoveTowardSamus:
-                ActivateSbugTowardOrAway(slot, state, samus, away: false);
+                ActivateSbugTowardOrAway(slot, state, samus, relativeHeading: SbugHeading.Toward);
                 return;
             case SbugEnemyFunction.ActivateMoveAwayFromSamus:
-                ActivateSbugTowardOrAway(slot, state, samus, away: true);
+                ActivateSbugTowardOrAway(slot, state, samus, relativeHeading: SbugHeading.Away);
                 return;
 
             case SbugEnemyFunction.MoveForward:
@@ -154,10 +154,10 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
                 RunSbugStraightReverseSegment(slot, state, samus);
                 return;
             case SbugEnemyFunction.ChooseRandomDirectionAndReverseWhenFar:
-                ChooseSbugRandomDirection(slot, state, reverseWhenFar: true);
+                ChooseSbugRandomDirection(slot, state, SbugEnemyFunction.MoveStraightAndReverseWhenFar);
                 return;
             case SbugEnemyFunction.ChooseRandomDirectionUntilCollision:
-                ChooseSbugRandomDirection(slot, state, reverseWhenFar: false);
+                ChooseSbugRandomDirection(slot, state, SbugEnemyFunction.MoveRandomlyUntilCollision);
                 return;
             default:
                 throw new InvalidDataException(
@@ -182,16 +182,16 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemySlot slot,
         SbugEnemyState state,
         SamusState samus,
-        bool away)
+        SbugHeading relativeHeading)
     {
         // CalculateAngleOfSamusFromEnemy uses zero-up/clockwise units. Subtracting it from
         // $40 converts to Sbug's zero-right/counter-clockwise mathematical convention;
         // adding $80 selects the exact opposite direction for behavior six.
         SnesByteAngle heading = EnemyMath.CalculateCartridgeAngle(
             new(unchecked((short)(samus.Position.X.Whole - slot.Position.X.Whole)), unchecked((short)(samus.Position.Y.Whole - slot.Position.Y.Whole)))).ToTableAngle();
-        state.FaceCustomHeading(heading.AddTableUnits(away ? SnesByteAngle.HalfTurn.RawValue : 0).ToAngle());
+        state.FaceCustomHeading(heading.AddTableUnits(relativeHeading == SbugHeading.Away ? SnesByteAngle.HalfTurn.RawValue : 0).ToAngle());
         RecalculateSbugCustomDirection(slot, state);
-        state.Function = away
+        state.Function = relativeHeading == SbugHeading.Away
             ? SbugEnemyFunction.MoveAwayFromSamus
             : SbugEnemyFunction.MoveTowardSamus;
     }
@@ -287,7 +287,7 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
     private void ChooseSbugRandomDirection(
         RoomEnemySlot slot,
         SbugEnemyState state,
-        bool reverseWhenFar)
+        SbugEnemyFunction movement)
     {
         // AND #$00FF / SBC #$0040 / AND #$00FF creates an unsigned byte delta; the later
         // trigonometry reads only the heading's low byte, which the turn wraps within.
@@ -296,9 +296,7 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
         state.TurnCustomHeading(angleDelta);
         RecalculateSbugCustomDirection(slot, state);
         state.MovementTimer = NativeCountdown.Start(SbugMovementSegmentFrames);
-        state.Function = reverseWhenFar
-            ? SbugEnemyFunction.MoveStraightAndReverseWhenFar
-            : SbugEnemyFunction.MoveRandomlyUntilCollision;
+        state.Function = movement;
     }
 
     /// <summary>Rebuilds signed velocity words and facing animation from the chosen custom angle.</summary>

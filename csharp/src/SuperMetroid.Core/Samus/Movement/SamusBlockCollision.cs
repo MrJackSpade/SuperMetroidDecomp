@@ -212,7 +212,7 @@ public static class SamusBlockCollision
                     case RoomCollisionType.SpecialAir:
                         // Sand's submerging callback clears vertical speed/gravity even
                         // when reached through the horizontal dispatcher.
-                        collided = SamusInsideBlockReactions.ReactCollision(state, block, false,
+                        collided = SamusInsideBlockReactions.ReactCollision(state, block, Axis.Horizontal,
                             ref acceptedDisplacement, out _, move.BlockReactionDirection, terrain.Plms);
                         if (collided) collisionBlock = block;
                         if (block.Bts == RoomBlockBehaviorValues.ScrollTrigger &&
@@ -282,7 +282,7 @@ public static class SamusBlockCollision
                                  block.Index,
                                  block.Bts,
                                  state.CollisionPose,
-                                 horizontal: true,
+                                 Axis.Horizontal,
                                  movingPositive: acceptedDisplacement > 0,
                                  roomWidthInBlocks: terrain.Level.Size.X)))
                         {
@@ -461,6 +461,7 @@ public static class SamusBlockCollision
     }
 
     /// <summary>Vertical scan result including sand contact, which can affect motion without blocking travel.</summary>
+    [IndependentFlag("independent scan facts: a collision, and sand contact")]
     private readonly record struct VerticalTerrainScan(int AcceptedDisplacement, bool Collided, bool SandContact);
 
     /// <summary>
@@ -567,7 +568,7 @@ public static class SamusBlockCollision
                 case RoomCollisionType.SpecialAir:
                     if (block.CollisionType == RoomCollisionType.SpecialAir)
                     {
-                        collided = SamusInsideBlockReactions.ReactCollision(state, block, true,
+                        collided = SamusInsideBlockReactions.ReactCollision(state, block, Axis.Vertical,
                             ref acceptedDisplacement, out bool touchedSand, move.BlockReactionDirection, terrain.Plms);
                         sandContact |= touchedSand;
                     }
@@ -670,7 +671,7 @@ public static class SamusBlockCollision
                              block.Index,
                              block.Bts,
                              state.CollisionPose,
-                             horizontal: false,
+                             Axis.Vertical,
                              movingPositive: acceptedDisplacement > 0,
                              roomWidthInBlocks: terrain.Level.Size.X)))
                     {
@@ -1152,22 +1153,22 @@ public static class SamusBlockCollision
     {
         // Native horizontal scans only populate scratch distances: this routine never
         // applies them. These probes do not trigger PLMs, doors, damage, or enemies.
-        int up = GrappleVerticalOverlap(level, state, down: true);
-        int down = GrappleVerticalOverlap(level, state, down: false);
+        int up = GrappleVerticalOverlap(level, state, direction: VerticalDirection.Down);
+        int down = GrappleVerticalOverlap(level, state, direction: VerticalDirection.Up);
         if (up == 0 || down != 0) return;
         state.Position -= new Offset16<RoomPixels>(0, unchecked((short)up));
         // Tall bodies may overlap two rows. Retail repeats once, not until clear.
         if (state.Radius.Y >= 16)
-            state.Position = state.Position.WithWholeY(unchecked((ushort)(state.Position.Y.Whole - GrappleVerticalOverlap(level, state, down: true))));
+            state.Position = state.Position.WithWholeY(unchecked((ushort)(state.Position.Y.Whole - GrappleVerticalOverlap(level, state, direction: VerticalDirection.Down))));
     }
 
     /// <summary>
     /// Measures block overlap in the selected vertical direction after grapple releases
     /// Samus, allowing the caller to eject her before the new pose radius is installed.
     /// </summary>
-    private static int GrappleVerticalOverlap(RoomLevelData level, SamusKinematicsState state, bool down)
+    private static int GrappleVerticalOverlap(RoomLevelData level, SamusKinematicsState state, VerticalDirection direction)
     {
-        int boundary = unchecked((ushort)(state.Position.Y.Whole + (down ? state.Radius.Y - 1 : -state.Radius.Y)));
+        int boundary = unchecked((ushort)(state.Position.Y.Whole + (direction == VerticalDirection.Down ? state.Radius.Y - 1 : -state.Radius.Y)));
         int left = unchecked((ushort)(state.Position.X.Whole - state.Radius.X));
         int right = unchecked((ushort)(state.Position.X.Whole + state.Radius.X - 1));
         int firstColumn = left >> 4;
@@ -1186,12 +1187,12 @@ public static class SamusBlockCollision
             else if (block.Bts.IsNonSquareSlope)
             {
                 if (column != state.Position.X.Whole >> 4) continue;
-                if (block.Bts.SlopeFlipsVertically == down)
+                if (block.Bts.SlopeFlipsVertically == (direction == VerticalDirection.Down))
                     depth = boundary & 15;
                 else
                 {
                     int difference = SamusSlopePhysics.ReadAlignmentHeight(block.Bts, state.Position.X.Whole) - (boundary & 15) - 1;
-                    depth = down ? (difference <= 0 ? ~difference : -1) : (difference >= 0 ? difference : -1);
+                    depth = direction == VerticalDirection.Down ? (difference <= 0 ? ~difference : -1) : (difference >= 0 ? difference : -1);
                 }
             }
             else
@@ -1205,7 +1206,7 @@ public static class SamusBlockCollision
                     collides = selected || SquareSlopeDefinitions.ReadSamusQuadrant(quadrant ^ 1) != 0;
                 else
                     collides = SquareSlopeDefinitions.ReadSamusQuadrant(quadrant ^ 1) != 0;
-                depth = collides ? (down ? boundary & 7 : (boundary & 7) ^ 7) : -1;
+                depth = collides ? (direction == VerticalDirection.Down ? boundary & 7 : (boundary & 7) ^ 7) : -1;
             }
             maximum = Math.Max(maximum, depth + 1);
         }

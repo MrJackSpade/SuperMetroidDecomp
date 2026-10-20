@@ -7,6 +7,7 @@ using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.Scrolling;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Samus.Projectiles;
+using SuperMetroid.Core.Spatial;
 
 /// <summary>Verification access to <see cref="RoomPlmSystem"/> members production does not use.</summary>
 internal static class RoomPlmSystemAccess
@@ -237,7 +238,7 @@ internal static class RoomPlmSystemAccess
 
         /// <summary>Typed BTS overload used by room collision dispatch.</summary>
         internal bool TryNotifyStationTouch(int accessBlockIndex, RoomBlockBehavior behavior)
-            => self.Stations.TryNotifyStationCollision(accessBlockIndex, behavior, (SamusPoseId)byte.MaxValue, true, true, 0, true);
+            => self.Stations.TryNotifyStationCollision(accessBlockIndex, behavior, (SamusPoseId)byte.MaxValue, Axis.Horizontal, true, 0, StationSetupGate.Bypassed);
 
         /// <summary>
         /// Runs setup <c>$84:CFB5</c> for BTS one or two and installs the corresponding PLM.

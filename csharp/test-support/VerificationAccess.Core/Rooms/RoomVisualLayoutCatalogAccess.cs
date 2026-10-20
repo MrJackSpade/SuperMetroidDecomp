@@ -9,6 +9,6 @@ internal static class RoomVisualLayoutCatalogAccess
         /// <summary>Explicitly partial geometry fixtures; never an installed production catalog.</summary>
         internal static RoomVisualLayoutCatalog FromLayoutsForVerification(
             IReadOnlyDictionary<int, RoomVisualLayout> layouts) =>
-            new RoomVisualLayoutCatalog(layouts, false);
+            new RoomVisualLayoutCatalog(layouts, requiredSources: []);
     }
 }

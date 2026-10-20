@@ -138,13 +138,10 @@ internal sealed class SamusPresentation
     internal void SetPoseAndAnimationFromScriptedController(
         SamusPoseId pose,
         ushort frame,
-        ushort timer,
-        bool refreshRadius)
+        ushort timer)
     {
-        // Both drained controllers store only $0A1C; $0A1E/$0A1F keep the prior movement.
+        // Both drained controllers store only $0A1C; $0A1E/$0A1F keep the prior movement and collision radii.
         _samus.WritePoseWithoutInitialization(pose);
-        if (refreshRadius)
-            _samus.PoseMetadata.RefreshCollisionRadii();
         _samus.AnimationDelayListAddress = ResolveAnimationDelayList();
         _samus.AnimationFrame = frame;
         _samus.AnimationFrameTimer = NativeCountdown.FromRaw(timer);

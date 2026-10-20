@@ -111,11 +111,11 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemyEntityFactory
         switch (state.Function)
         {
             case CacatacEnemyFunction.MovingLeft:
-                MoveCacatac(slot, state, movingRight: false);
+                MoveCacatac(slot, state, direction: HorizontalDirection.Left);
                 MaybeStartCacatacAttack(slot, state);
                 return;
             case CacatacEnemyFunction.MovingRight:
-                MoveCacatac(slot, state, movingRight: true);
+                MoveCacatac(slot, state, direction: HorizontalDirection.Right);
                 MaybeStartCacatacAttack(slot, state);
                 return;
             case CacatacEnemyFunction.Stopped:
@@ -133,11 +133,11 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemyEntityFactory
     private static void MoveCacatac(
         RoomEnemySlot slot,
         CacatacEnemyState state,
-        bool movingRight)
+        HorizontalDirection direction)
     {
-        slot.Position = slot.Position.AdvanceX(movingRight ? state.RightVelocity : state.LeftVelocity);
+        slot.Position = slot.Position.AdvanceX(direction == HorizontalDirection.Right ? state.RightVelocity : state.LeftVelocity);
 
-        if (!movingRight)
+        if (direction != HorizontalDirection.Right)
         {
             if ((slot.Position.Whole - state.LeftPatrolLimit).X >= 0)
                 return;

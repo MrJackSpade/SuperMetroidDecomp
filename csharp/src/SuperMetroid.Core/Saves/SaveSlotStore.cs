@@ -33,6 +33,7 @@ public sealed class SaveSlotStore
     public SaveSlotStore(IAreaMapSource? mapPresentation = null) => this.mapPresentation = mapPresentation;
 
     /// <summary>The store <see cref="SaveRamCodec.Decode"/> produces from an SRAM image.</summary>
+    [IndependentFlag("Game completion, the corrupt marker and the marker carry are separate facts decoded from save RAM.")]
     internal static SaveSlotStore Decoded(SuperMetroidSaveSlot?[] slots, int selectedSlot, bool gameCompleted,
         bool corruptMarkerWritten, bool markerCarry, IAreaMapSource maps)
     {

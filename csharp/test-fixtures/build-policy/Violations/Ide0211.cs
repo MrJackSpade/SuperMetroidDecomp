@@ -1,2 +1,3 @@
-// IDE0211: top-level statements instead of an explicit Program.Main.
-System.Console.WriteLine("policy fixture");
+System.Console.WriteLine(new BuildPolicy.Ca1822().Twice(1));
+System.Console.WriteLine(new BuildPolicy.Ide0330().Increment());
+System.Console.WriteLine(new BuildPolicy.Ide0032 { Value = 1 }.Value);

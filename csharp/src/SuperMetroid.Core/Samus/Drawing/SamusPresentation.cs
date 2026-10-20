@@ -527,6 +527,8 @@ internal sealed class SamusPresentation
         sbyte graphicsYOffset = _samus.PoseMetadata.ReadGraphicsYOffset();
         ushort spritemapX = unchecked((ushort)(renderX - layer1.X));
         ushort spritemapY;
+        // The part of the stored spritemap Y that OAM never shows: a landing frame's leaked neighbouring byte.
+        ushort hiddenOamYHighByte = 0;
         if (movementType == SamusMovementType.Standing &&
             _samus.Pose is SamusPoseId.ForwardFacingPowerSuitPose or SamusPoseId.ForwardFacingSuitedPose &&
             _samus.AnimationFrame >= 2)
@@ -541,8 +543,9 @@ internal sealed class SamusPresentation
         {
             // `$90:8CDC-$90:8CF6` indexes sixteen packed bytes, but performs a 16-bit
             // unaligned LDA. The following landing frame's byte therefore becomes the high
-            // byte of the subtraction. OAM ultimately displays only low Y, yet the complete
-            // wrapped `$0AFA` spritemap-position word is observable and is preserved here.
+            // byte of the subtraction. The complete wrapped `$0AFA` spritemap-position word
+            // is observable state and is preserved, but OAM displays only low Y, so the
+            // drawn origin takes back the leaked high byte (#1397).
             int landingOffsetIndex = (_samus.Pose - SamusPoseId.NormalLandingRightPose) * 4 +
                 _samus.AnimationFrame;
             if (TileTransfers.Artwork is not { } landingArt ||
@@ -550,6 +553,7 @@ internal sealed class SamusPresentation
                 throw new InvalidDataException($"Samus landing offset {landingOffsetIndex} lacks installed art.");
             spritemapY = unchecked((ushort)(
                 renderY - landingOffset - layer1.Y));
+            hiddenOamYHighByte = (ushort)(landingOffset - (byte)landingOffset);
         }
         else if (movementType == SamusMovementType.PostureTransition &&
             _samus.Pose >= SamusPoseId.CrouchingTransitionRightPose &&
@@ -589,6 +593,7 @@ internal sealed class SamusPresentation
             spritemapY = unchecked((ushort)(renderY - graphicsYOffset - layer1.Y));
         }
         SpritemapPosition = new(spritemapX, spritemapY);
+        Position16<ScreenPixels> drawOrigin = new(spritemapX, unchecked((ushort)(spritemapY + hiddenOamYHighByte)));
 
         var spritemaps = TileTransfers.Artwork?.Spritemaps ?? throw new InvalidOperationException(
             "Samus rendering requires installed spritemap artwork.");
@@ -597,7 +602,7 @@ internal sealed class SamusPresentation
         // `$92:8000` follows these spritemaps natively, but it only chooses the transfers the next NMI shows with
         // them. Selecting first lets the draws bind the characters they are displayed with; nothing between reads it.
         TileTransfers.SelectForPoseFrame(_samus.Pose, _samus.AnimationFrame);
-        sprites.AddSamusSpritemap(TopSpritemapIndex, SpritemapPosition, BodySpritemaps(spritemaps), new SpriteSource(SpriteSourceKind.Samus, 0));
+        sprites.AddSamusSpritemap(TopSpritemapIndex, drawOrigin, BodySpritemaps(spritemaps), new SpriteSource(SpriteSourceKind.Samus, 0));
 
         // `$90:868D-$90:86C4` writes one small OBJ directly between the top and bottom
         // spritemap calls when unsuited pose `$00` faces the screen. This is not a visor:
@@ -681,7 +686,7 @@ internal sealed class SamusPresentation
         {
             ushort bottomBase = spritemaps.BottomBase(_samus.Pose);
             BottomSpritemapIndex = unchecked((ushort)(bottomBase + _samus.AnimationFrame));
-            sprites.AddSamusSpritemap(BottomSpritemapIndex, SpritemapPosition, BodySpritemaps(spritemaps), new SpriteSource(SpriteSourceKind.Samus, 1));
+            sprites.AddSamusSpritemap(BottomSpritemapIndex, drawOrigin, BodySpritemaps(spritemaps), new SpriteSource(SpriteSourceKind.Samus, 1));
         }
 
         return true;

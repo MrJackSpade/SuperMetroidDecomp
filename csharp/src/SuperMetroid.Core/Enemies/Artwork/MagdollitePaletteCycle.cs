@@ -1,5 +1,3 @@
-using System.Text.Json;
-using System.Text.Json.Serialization;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Enemies.Magdollite;
 
@@ -42,14 +40,6 @@ public sealed class MagdollitePaletteCycle
                 edits.Add(frame * colors.Length + color, frames[frame][color]);
     }
 
-    /// <summary>Strict camel-case options for the editable glow-cycle document.</summary>
-    private static readonly JsonSerializerOptions JsonOptions = new()
-    {
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-        UnmappedMemberHandling = JsonUnmappedMemberHandling.Disallow,
-        WriteIndented = true,
-    };
-
     /// <summary>Returns one selected glow color, using the first row's native left rotation unless the requested later-row cell was independently edited.</summary>
     /// <param name="frame">Zero-based palette-cycle row 0..3, not an elapsed-update count.</param>
     /// <param name="color">Zero-based glow color 0..3, corresponding to OBJ palette colors nine through twelve.</param>
@@ -91,17 +81,7 @@ public sealed class MagdollitePaletteCycle
     {
         Ensure.NotNull(json);
         MagdollitePaletteCycleDocument document;
-        try
-        {
-            using JsonDocument parsed = JsonDocument.Parse(json);
-            RejectDuplicates(parsed.RootElement);
-            document = parsed.RootElement.Deserialize<MagdollitePaletteCycleDocument>(JsonOptions)
-                ?? throw new InvalidDataException("Magdollite palette cycle JSON is null.");
-        }
-        catch (JsonException error)
-        {
-            throw new InvalidDataException("Invalid Magdollite palette cycle JSON.", error);
-        }
+        document = JsonAssetDocument.Read<MagdollitePaletteCycleDocument>(json, ArtworkJson.Options, "Magdollite palette cycle");
 
         if (document.Version != MagdollitePaletteCycleFormat.Version ||
             document.Frames is null ||
@@ -132,15 +112,7 @@ public sealed class MagdollitePaletteCycle
     /// <param name="document">Four complete RGB5 glow rows to serialize; their arrays are not retained.</param>
     /// <returns>Validated JSON bytes for <see cref="MagdollitePaletteCycleFormat.FileName"/>.</returns>
     /// <exception cref="InvalidDataException">The serialized document fails schema, row-dimension, or RGB5-channel validation.</exception>
-    public static byte[] Write(MagdollitePaletteCycleDocument document)
-    {
-        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, JsonOptions);
-        _ = Load(new MemoryStream(bytes, writable: false));
-        return bytes;
-    }
+    public static byte[] Write(MagdollitePaletteCycleDocument document) =>
+        JsonAssetDocument.WriteValidated(document, ArtworkJson.Options, json => _ = Load(json));
 
-    /// <summary>Rejects repeated properties before JSON deserialization can replace an authored color row.</summary>
-    private static void RejectDuplicates(JsonElement value) =>
-        JsonAssetDocument.RejectDuplicateProperties(value, StringComparer.Ordinal,
-            name => new InvalidDataException($"Duplicate Magdollite palette property {name}."));
 }

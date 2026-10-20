@@ -185,17 +185,7 @@ public sealed class KraidColorCatalog
     {
         Ensure.NotNull(json);
         KraidColorDocument document;
-        try
-        {
-            using JsonDocument parsed = JsonDocument.Parse(json);
-            RejectDuplicates(parsed.RootElement);
-            document = parsed.RootElement.Deserialize<KraidColorDocument>(JsonOptions)
-                ?? throw new InvalidDataException("Kraid colors JSON is empty.");
-        }
-        catch (JsonException error)
-        {
-            throw new InvalidDataException("Invalid Kraid colors JSON.", error);
-        }
+        document = JsonAssetDocument.Read<KraidColorDocument>(json, JsonOptions, "Kraid colors");
         if (document.Version != KraidColorFormat.Version)
             throw new InvalidDataException("Kraid colors require the supported version.");
         return new(document);
@@ -205,12 +195,8 @@ public sealed class KraidColorCatalog
     /// <param name="document">Complete palette sources to serialize; the writer does not retain their arrays.</param>
     /// <returns>Validated JSON bytes for <see cref="KraidColorFormat.FileName"/>.</returns>
     /// <exception cref="InvalidDataException">The serialized document fails schema, palette-length, or RGB5-channel validation.</exception>
-    public static byte[] Write(KraidColorDocument document)
-    {
-        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, JsonOptions);
-        _ = Load(new MemoryStream(bytes, writable: false));
-        return bytes;
-    }
+    public static byte[] Write(KraidColorDocument document) =>
+        JsonAssetDocument.WriteValidated(document, JsonOptions, json => _ = Load(json));
 
     /// <summary>Validates one source's native length and RGB5 channels before packing its colors.</summary>
     private static Bgr555[] Compile(PaletteRgb5[]? source, KraidPaletteSource kind)
@@ -230,11 +216,6 @@ public sealed class KraidColorCatalog
         }
         return result;
     }
-
-    /// <summary>Rejects duplicate property names case-insensitively before deserialization can replace an authored source.</summary>
-    private static void RejectDuplicates(JsonElement value) =>
-        JsonAssetDocument.RejectDuplicateProperties(value, StringComparer.OrdinalIgnoreCase,
-            name => new InvalidDataException($"Duplicate Kraid color property {name}."));
 
     /// <summary>Writes indented camel-case JSON while accepting case-insensitive property names and rejecting unknown fields.</summary>
     private static readonly JsonSerializerOptions JsonOptions = new()

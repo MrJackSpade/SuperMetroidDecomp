@@ -61,6 +61,18 @@ internal static class JsonAssetDocument
         }
     }
 
+    /// <summary>
+    /// Serializes an editable document and proves it loads by handing the bytes to <paramref name="load"/>, which throws
+    /// for a document the loader would reject.
+    /// </summary>
+    internal static byte[] WriteValidated<T>(T document, JsonSerializerOptions options, Action<Stream> load)
+    {
+        Ensure.NotNull(load);
+        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, options);
+        load(new MemoryStream(bytes, writable: false));
+        return bytes;
+    }
+
     /// <summary>Rents a buffer for the remaining stream bytes, growing it only when length is unavailable.</summary>
     private static byte[] Rent(Stream json, out int byteCount)
     {

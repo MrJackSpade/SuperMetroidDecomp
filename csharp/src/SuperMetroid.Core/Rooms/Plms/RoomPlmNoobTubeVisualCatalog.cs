@@ -28,7 +28,7 @@ public sealed class RoomPlmNoobTubeVisualCatalog
     });
 
     /// <summary>Copied appearance edits for N00b-tube draw layouts that differ from stock visual bits.</summary>
-    private readonly Dictionary<ushort, ushort[]>? customBlocks;
+    private readonly PlmVisualOverrides customBlocks;
 
     /// <summary>Validates all seven N00b-tube layouts and copies visual differences without changing power-bomb gating, debris, event timing, water physics, or physical draw geometry.</summary>
     /// <param name="entries">One visual-only entry per compiled layout, retaining the full flattened count of its single-block or twelve-block native runs.</param>
@@ -37,34 +37,8 @@ public sealed class RoomPlmNoobTubeVisualCatalog
     public RoomPlmNoobTubeVisualCatalog(
         IEnumerable<RoomPlmVisualEntry> entries)
     {
-        Ensure.NotNull(entries);
-        var selected = new Dictionary<ushort, ushort[]>();
-        var seen = new HashSet<ushort>();
-        foreach (RoomPlmVisualEntry entry in entries)
-        {
-            if (entry is null || entry.Blocks is null ||
-                !NoobTubePlmDrawDefinitions.TryGetByVisualId(entry.Id,
-                    out var draw) ||
-                entry.Blocks.Length != draw.Runs.Span.Sum(run =>
-                    run.LevelWords.Length) ||
-                entry.Blocks.Any(word => !RoomLevelWord.IsValidVisualWord(word)))
-                throw new InvalidDataException(
-                    "N00b tube visuals changed a frame identity, draw shape, or visual word.");
-            if (!seen.Add(draw.Pointer))
-                throw new InvalidDataException(
-                    $"N00b tube visuals repeat frame {entry.Id}.");
-            NoobTubePlmDrawDefinitions.TryDescribe(draw.Pointer, out var shape);
-            int index = 0;
-            bool changed = false;
-            for (int run = 0; run < shape.RunCount; run++)
-            for (int word = 0; word < shape.WordCount(run); word++)
-                changed |= entry.Blocks[index++] != new RoomLevelWord(shape.WordAt(run, word)).VisualWord;
-            if (changed) selected.Add(draw.Pointer, entry.Blocks.ToArray());
-        }
-        if (seen.Count != NoobTubePlmDrawDefinitions.All.Count())
-            throw new InvalidDataException(
-                "N00b tube visuals do not cover all compiled frames.");
-        if (selected.Count != 0) customBlocks = selected;
+        customBlocks = new PlmVisualOverrides(entries, "N00b tube", NoobTubePlmDrawDefinitions.TryGetByVisualId,
+            NoobTubePlmDrawDefinitions.All.Count());
     }
 
     /// <summary>Resolves one N00b-tube visual block by projecting native run-local indices into the flattened authored layout.</summary>
@@ -85,7 +59,7 @@ public sealed class RoomPlmNoobTubeVisualCatalog
         int flatIndex = blockIndex;
         for (int run = 0; run < runIndex; run++)
             flatIndex += draw.WordCount(run);
-        return customBlocks is not null && customBlocks.TryGetValue(drawPointer, out var words)
+        return customBlocks.TryGet(drawPointer, out var words)
             ? words[flatIndex] : new RoomLevelWord(draw.WordAt(runIndex, blockIndex)).VisualWord;
     }
 }

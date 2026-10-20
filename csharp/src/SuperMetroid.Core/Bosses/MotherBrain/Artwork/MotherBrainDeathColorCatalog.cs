@@ -1,5 +1,3 @@
-using System.Text.Json;
-using System.Text.Json.Serialization;
 using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain.Artwork;
@@ -36,14 +34,6 @@ public sealed class MotherBrainDeathColorCatalog
         this.corpseFade = new(corpseFade, toBlack: false);
         this.explodedDoor = MotherBrainExplodedDoorPaintDefinitions.Matches(explodedDoor) ? null : explodedDoor;
     }
-
-    /// <summary>Strict camel-case settings for the editable death-color document.</summary>
-    private static readonly JsonSerializerOptions JsonOptions = new()
-    {
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-        UnmappedMemberHandling = JsonUnmappedMemberHandling.Disallow,
-        WriteIndented = true,
-    };
 
     /// <summary>Returns one body-fade color from the first segment of the native $AD:EA0A images, applied to both CGRAM 65..78 and 145..158 during the death fade.</summary>
     /// <param name="frame">Zero-based authored palette stage 0..15, not an elapsed gameplay-update count; the stock sequence ends at black.</param>
@@ -87,17 +77,7 @@ public sealed class MotherBrainDeathColorCatalog
     {
         Ensure.NotNull(json);
         MotherBrainDeathColorDocument document;
-        try
-        {
-            using JsonDocument parsed = JsonDocument.Parse(json);
-            RejectDuplicates(parsed.RootElement);
-            document = parsed.RootElement.Deserialize<MotherBrainDeathColorDocument>(JsonOptions) ??
-                throw new InvalidDataException("Mother Brain death color JSON is null.");
-        }
-        catch (JsonException error)
-        {
-            throw new InvalidDataException("Invalid Mother Brain death color JSON.", error);
-        }
+        document = JsonAssetDocument.Read<MotherBrainDeathColorDocument>(json, ArtworkJson.Options, "Mother Brain death color");
         if (document.Version != MotherBrainDeathColorFormat.Version)
             throw new InvalidDataException(
                 "Mother Brain death colors require the supported version.");
@@ -118,12 +98,8 @@ public sealed class MotherBrainDeathColorCatalog
     /// <param name="document">Palette-stage and door colors to serialize; their collections are not retained.</param>
     /// <returns>Validated JSON bytes ready to install under <see cref="MotherBrainDeathColorFormat.FileName"/>.</returns>
     /// <exception cref="InvalidDataException">The serialized document fails schema, dimension, or RGB5-channel validation.</exception>
-    public static byte[] Write(MotherBrainDeathColorDocument document)
-    {
-        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, JsonOptions);
-        _ = Load(new MemoryStream(bytes, writable: false));
-        return bytes;
-    }
+    public static byte[] Write(MotherBrainDeathColorDocument document) =>
+        JsonAssetDocument.WriteValidated(document, ArtworkJson.Options, json => _ = Load(json));
 
     /// <summary>Checks authored frame and color bounds before resolving a fade color.</summary>
     private static Bgr555 Resolve(ColorFade frames, int frame, int color, string name) =>
@@ -220,8 +196,4 @@ public sealed class MotherBrainDeathColorCatalog
     private static Bgr555[] Compile(PaletteRgb5[]? source, int count, string name) =>
         Rgb5Rows.Compile(source, count, $"Mother Brain death {name}");
 
-    /// <summary>Rejects duplicate JSON property names before deserializing color arrays.</summary>
-    private static void RejectDuplicates(JsonElement value) =>
-        JsonAssetDocument.RejectDuplicateProperties(value, StringComparer.Ordinal,
-            name => new InvalidDataException($"Duplicate Mother Brain death color property {name}."));
 }

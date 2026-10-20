@@ -1,6 +1,5 @@
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Frontend.Intro.Artwork;
 
@@ -38,18 +37,7 @@ public sealed class IntroMotherBrainExplosionSpritePresentation
     {
         Ensure.NotNull(json);
         IntroMotherBrainExplosionSpriteDocument document;
-        try
-        {
-            using JsonDocument parsed = JsonDocument.Parse(json);
-            EnemySpritemapCatalog.RejectDuplicateProperties(parsed.RootElement);
-            document = parsed.RootElement.Deserialize<IntroMotherBrainExplosionSpriteDocument>(
-                ArtworkJson.Options) ??
-                throw new InvalidDataException("Intro Mother Brain explosion sprite JSON is null.");
-        }
-        catch (JsonException error)
-        {
-            throw new InvalidDataException("Invalid intro Mother Brain explosion sprite JSON.", error);
-        }
+        document = JsonAssetDocument.Read<IntroMotherBrainExplosionSpriteDocument>(json, ArtworkJson.Options, "intro Mother Brain explosion sprite");
         IReadOnlyList<IntroSpriteFrameDefinition> definitions =
             IntroMotherBrainExplosionSpriteDefinitions.Frames;
         if (document.Version != IntroMotherBrainExplosionSpriteFormat.Version ||

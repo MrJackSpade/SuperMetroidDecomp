@@ -72,20 +72,7 @@ public sealed class EnemySpritemapCatalog
     {
         Ensure.NotNull(json);
         EnemySpritemapDocument document;
-        try
-        {
-            using JsonDocument parsed = JsonDocument.Parse(json);
-            RejectDuplicateProperties(parsed.RootElement);
-            document = parsed.RootElement.Deserialize<EnemySpritemapDocument>(new JsonSerializerOptions
-            {
-                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-                UnmappedMemberHandling = JsonUnmappedMemberHandling.Disallow,
-            }) ?? throw new InvalidDataException("Enemy composition JSON is null.");
-        }
-        catch (JsonException error)
-        {
-            throw new InvalidDataException("Invalid enemy composition JSON.", error);
-        }
+        document = JsonAssetDocument.Read<EnemySpritemapDocument>(json, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase, UnmappedMemberHandling = JsonUnmappedMemberHandling.Disallow, }, "enemy composition");
         var schema = (EnemySpritemapSchema)document.Version;
         int expectedCount = !Enum.IsDefined(schema) ||
             (schema != EnemySpritemapSchema.Current && stockForLegacyOverride is null)

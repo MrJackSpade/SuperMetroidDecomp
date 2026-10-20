@@ -27,7 +27,7 @@ public sealed class RoomPlmLinkedRestoreVisualCatalog
     });
 
     /// <summary>Only layouts whose visual words differ from the compiled common word need stored overrides.</summary>
-    private readonly Dictionary<ushort, ushort[]>? customWords;
+    private readonly PlmVisualOverrides customWords;
 
     /// <summary>Validates all six linked restoration layouts and copies visual differences without changing linked parent/child collision or restoration programs.</summary>
     /// <param name="entries">One visual-only entry per compiled layout with two words per native run and complete identity coverage.</param>
@@ -35,26 +35,8 @@ public sealed class RoomPlmLinkedRestoreVisualCatalog
     /// <exception cref="InvalidDataException">An entry is invalid, repeats an identity, changes a draw shape, or leaves compiled coverage incomplete.</exception>
     public RoomPlmLinkedRestoreVisualCatalog(IEnumerable<RoomPlmVisualEntry> entries)
     {
-        Ensure.NotNull(entries);
-        var selected = new Dictionary<ushort, ushort[]>();
-        var seen = new HashSet<ushort>();
-        foreach (RoomPlmVisualEntry entry in entries)
-        {
-            if (entry is null || entry.Blocks is null ||
-                !RoomPlmLinkedRestoreDrawDefinitions.TryGetByVisualId(entry.Id, out var draw) ||
-                !Describe(draw.Pointer, out int runs, out ushort stockWord) ||
-                entry.Blocks.Length != runs * 2 ||
-                entry.Blocks.Any(word => !RoomLevelWord.IsValidVisualWord(word)))
-                throw new InvalidDataException(
-                    "Linked restoration visuals changed a frame identity, draw shape, or visual word.");
-            if (!seen.Add(draw.Pointer))
-                throw new InvalidDataException($"Linked restoration visuals repeat frame {entry.Id}.");
-            if (entry.Blocks.Any(word => word != stockWord))
-                selected.Add(draw.Pointer, entry.Blocks.ToArray());
-        }
-        if (seen.Count != RoomPlmLinkedRestoreDrawDefinitions.All.Count())
-            throw new InvalidDataException("Linked restoration visuals do not cover all six compiled layouts.");
-        if (selected.Count != 0) customWords = selected;
+        customWords = new PlmVisualOverrides(entries, "Linked restoration", RoomPlmLinkedRestoreDrawDefinitions.TryGetByVisualId,
+            RoomPlmLinkedRestoreDrawDefinitions.All.Count());
     }
 
     /// <summary>Resolves one linked restoration block by native run and word ordinals, leaving its physical collision link compiled.</summary>
@@ -70,7 +52,7 @@ public sealed class RoomPlmLinkedRestoreVisualCatalog
             throw new InvalidDataException($"Linked restoration visuals lack frame ${drawPointer:X4}.");
         if ((uint)runIndex >= runs || (uint)blockIndex >= 2)
             throw new ArgumentOutOfRangeException(nameof(blockIndex));
-        return customWords is not null && customWords.TryGetValue(drawPointer, out var words)
+        return customWords.TryGet(drawPointer, out var words)
             ? words[runIndex * 2 + blockIndex] : stockWord;
     }
 

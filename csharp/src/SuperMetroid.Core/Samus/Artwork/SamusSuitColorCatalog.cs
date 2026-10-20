@@ -1,5 +1,3 @@
-using System.Text.Json;
-using System.Text.Json.Serialization;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Samus.Palettes;
 
@@ -49,14 +47,6 @@ public sealed class SamusSuitColorCatalog
         return differences;
     }
 
-    /// <summary>Uses stable camel-case resource output and rejects unknown suit-color properties.</summary>
-    private static readonly JsonSerializerOptions JsonOptions = new()
-    {
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-        UnmappedMemberHandling = JsonUnmappedMemberHandling.Disallow,
-        WriteIndented = true,
-    };
-
     /// <summary>Resolves one packed RGB555 color from the selected normal suit palette.</summary>
     /// <param name="suitTableOffset">Native categorical table offset: 0 for Power, 2 for Varia, or 4 for Gravity.</param>
     /// <param name="colorIndex">OBJ palette slot from 0 through 15, including the transparent slot.</param>
@@ -92,17 +82,7 @@ public sealed class SamusSuitColorCatalog
     {
         Ensure.NotNull(json);
         SamusSuitColorDocument document;
-        try
-        {
-            using JsonDocument parsed = JsonDocument.Parse(json);
-            RejectDuplicates(parsed.RootElement);
-            document = parsed.RootElement.Deserialize<SamusSuitColorDocument>(JsonOptions)
-                ?? throw new InvalidDataException("Samus suit color JSON is null.");
-        }
-        catch (JsonException error)
-        {
-            throw new InvalidDataException("Invalid Samus suit color JSON.", error);
-        }
+        document = JsonAssetDocument.Read<SamusSuitColorDocument>(json, ArtworkJson.Options, "Samus suit color");
         if (document.Version != SamusSuitColorFormat.Version)
             throw new InvalidDataException("Samus suit colors require the supported version.");
         return new(Compile(document.Power, "Power"), Compile(document.Varia, "Varia"),
@@ -112,12 +92,8 @@ public sealed class SamusSuitColorCatalog
     /// <summary>Validates and serializes a suit-color document as UTF-8 JSON.</summary>
     /// <param name="document">Document containing all three 16-color palettes.</param>
     /// <returns>A new caller-owned JSON byte array.</returns>
-    public static byte[] Write(SamusSuitColorDocument document)
-    {
-        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, JsonOptions);
-        _ = Load(new MemoryStream(bytes, writable: false));
-        return bytes;
-    }
+    public static byte[] Write(SamusSuitColorDocument document) =>
+        JsonAssetDocument.WriteValidated(document, ArtworkJson.Options, json => _ = Load(json));
 
     /// <summary>Validates all sixteen RGB5 slots, including color zero, and packs them into native words.</summary>
     private static Bgr555[] Compile(PaletteRgb5[]? source, string name)
@@ -136,8 +112,4 @@ public sealed class SamusSuitColorCatalog
         return result;
     }
 
-    /// <summary>Detects duplicate JSON properties before a suit palette can be silently replaced.</summary>
-    private static void RejectDuplicates(JsonElement value) =>
-        JsonAssetDocument.RejectDuplicateProperties(value, StringComparer.Ordinal,
-            name => new InvalidDataException($"Duplicate Samus suit color property {name}."));
 }

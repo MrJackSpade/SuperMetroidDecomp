@@ -1,5 +1,3 @@
-using System.Text.Json;
-using System.Text.Json.Serialization;
 using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Fx.Artwork;
@@ -45,14 +43,6 @@ public sealed class RoomFxPaletteBlendCatalog
     /// <summary>Cosmetic fixed-color tint selected after Ceres Ridley is defeated.</summary>
     public PaletteRgb5 CeresHazeRed { get; }
 
-    /// <summary>Strict camel-case JSON options for the editable room-FX palette document.</summary>
-    private static readonly JsonSerializerOptions JsonOptions = new()
-    {
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-        UnmappedMemberHandling = JsonUnmappedMemberHandling.Disallow,
-        WriteIndented = true,
-    };
-
     /// <summary>Loads all eight three-color room-FX blends and optional Ceres haze tints, rejecting duplicate or unknown JSON properties, incomplete selections, and RGB components outside 0..31.</summary>
     /// <param name="json">Caller-owned stream containing the supported blend-palette JSON document.</param>
     /// <returns>Installed BG3 inks plus fixed-color haze tints; native selectors, CGRAM destinations, and fade timing remain compiled mechanics.</returns>
@@ -61,17 +51,7 @@ public sealed class RoomFxPaletteBlendCatalog
     {
         Ensure.NotNull(json);
         RoomFxPaletteBlendDocument document;
-        try
-        {
-            using JsonDocument parsed = JsonDocument.Parse(json);
-            RejectDuplicates(parsed.RootElement);
-            document = parsed.RootElement.Deserialize<RoomFxPaletteBlendDocument>(JsonOptions)
-                ?? throw new InvalidDataException("Room-FX blend palette JSON is null.");
-        }
-        catch (JsonException error)
-        {
-            throw new InvalidDataException("Invalid room-FX blend palette JSON.", error);
-        }
+        document = JsonAssetDocument.Read<RoomFxPaletteBlendDocument>(json, ArtworkJson.Options, "room-FX blend palette");
         if (document.Version != RoomFxPaletteBlendDefinitions.Version ||
             document.Blends is null || document.Blends.Count != RoomFxPaletteBlendDefinitions.Ids.Count())
             throw new InvalidDataException("Room-FX blend palettes require the supported version and all eight selections.");
@@ -101,12 +81,8 @@ public sealed class RoomFxPaletteBlendCatalog
     /// <summary>Serializes a complete blend-palette document as UTF-8 JSON and validates it through <see cref="Load"/> before returning the bytes.</summary>
     /// <param name="document">Eight named blend selections and optional haze tint overrides.</param>
     /// <returns>The validated UTF-8 JSON payload; this method does not write an external resource.</returns>
-    public static byte[] Write(RoomFxPaletteBlendDocument document)
-    {
-        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, JsonOptions);
-        _ = Load(new MemoryStream(bytes, writable: false));
-        return bytes;
-    }
+    public static byte[] Write(RoomFxPaletteBlendDocument document) =>
+        JsonAssetDocument.WriteValidated(document, ArtworkJson.Options, json => _ = Load(json));
 
     /// <summary>Applies the native three-color write, or clears only color 27 for selection zero.</summary>
     public void Apply(IPaletteColors cgram, RoomFxPaletteBlend selection)
@@ -142,8 +118,4 @@ public sealed class RoomFxPaletteBlendCatalog
         return color;
     }
 
-    /// <summary>Rejects duplicate JSON properties before deserialization can overwrite them.</summary>
-    private static void RejectDuplicates(JsonElement value) =>
-        JsonAssetDocument.RejectDuplicateProperties(value, StringComparer.Ordinal,
-            name => new InvalidDataException($"Duplicate room-FX blend property {name}."));
 }

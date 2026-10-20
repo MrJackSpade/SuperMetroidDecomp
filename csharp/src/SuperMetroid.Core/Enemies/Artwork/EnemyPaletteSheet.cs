@@ -25,17 +25,7 @@ public sealed class EnemyPaletteSheet
     public static EnemyPaletteSheet Load(Stream json)
     {
         EnemyPaletteSheetDocument document;
-        try
-        {
-            using JsonDocument parsed = JsonDocument.Parse(json);
-            RejectDuplicates(parsed.RootElement);
-            document = parsed.RootElement.Deserialize<EnemyPaletteSheetDocument>(Options)
-                ?? throw new InvalidDataException("Enemy palette JSON is null.");
-        }
-        catch (JsonException error)
-        {
-            throw new InvalidDataException("Invalid enemy palette JSON.", error);
-        }
+        document = JsonAssetDocument.Read<EnemyPaletteSheetDocument>(json, Options, "enemy palette");
         if (document.Version != 1 || document.Colors is null || document.Colors.Length != ColorCount)
             throw new InvalidDataException("Enemy palette requires version 1 and exactly sixteen RGB5 colors.");
         var compiled = new Bgr555[ColorCount];
@@ -53,12 +43,8 @@ public sealed class EnemyPaletteSheet
     /// <summary>Serializes a palette document as indented camel-case UTF-8 JSON and validates it through <see cref="Load"/> before returning the bytes.</summary>
     /// <param name="document">Version-one document containing sixteen valid RGB5 colors.</param>
     /// <returns>Validated enemy-palette JSON bytes.</returns>
-    public static byte[] Write(EnemyPaletteSheetDocument document)
-    {
-        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, Options);
-        _ = Load(new MemoryStream(bytes, writable: false));
-        return bytes;
-    }
+    public static byte[] Write(EnemyPaletteSheetDocument document) =>
+        JsonAssetDocument.WriteValidated(document, Options, json => _ = Load(json));
 
     /// <summary>Copies all sixteen selected colors, including color zero, into consecutive current CGRAM entries; the room graphics-set owner selects the destination and controls palette animation.</summary>
     /// <param name="destination">The sixteen-colour OBJ palette row the room graphics-set record selects.</param>
@@ -73,8 +59,4 @@ public sealed class EnemyPaletteSheet
         WriteIndented = true,
     };
 
-    /// <summary>Rejects repeated palette property names even when they differ only by case.</summary>
-    private static void RejectDuplicates(JsonElement value) =>
-        JsonAssetDocument.RejectDuplicateProperties(value, StringComparer.OrdinalIgnoreCase,
-            name => new InvalidDataException($"Duplicate enemy palette property {name}."));
 }

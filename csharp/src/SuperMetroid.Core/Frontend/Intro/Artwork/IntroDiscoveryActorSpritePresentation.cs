@@ -1,6 +1,5 @@
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
 
 namespace SuperMetroid.Core.Frontend.Intro.Artwork;
@@ -36,18 +35,7 @@ public sealed class IntroDiscoveryActorSpritePresentation : IIntroCinematicSprit
     {
         Ensure.NotNull(json);
         IntroDiscoveryActorSpriteDocument document;
-        try
-        {
-            using JsonDocument parsed = JsonDocument.Parse(json);
-            EnemySpritemapCatalog.RejectDuplicateProperties(parsed.RootElement);
-            document = parsed.RootElement.Deserialize<IntroDiscoveryActorSpriteDocument>(
-                ArtworkJson.Options) ??
-                throw new InvalidDataException("Intro discovery actor sprite JSON is null.");
-        }
-        catch (JsonException error)
-        {
-            throw new InvalidDataException("Invalid intro discovery actor sprite JSON.", error);
-        }
+        document = JsonAssetDocument.Read<IntroDiscoveryActorSpriteDocument>(json, ArtworkJson.Options, "intro discovery actor sprite");
         IReadOnlyList<IntroSpriteFrameDefinition> definitions =
             IntroDiscoveryActorSpriteDefinitions.Frames;
         if (document.Version != IntroDiscoveryActorSpriteFormat.Version ||

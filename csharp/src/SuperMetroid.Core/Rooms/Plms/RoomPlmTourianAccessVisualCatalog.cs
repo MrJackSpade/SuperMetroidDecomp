@@ -27,7 +27,7 @@ public sealed class RoomPlmTourianAccessVisualCatalog
     });
 
     /// <summary>Copied visual-only words for Tourian access layouts that differ from compiled stock.</summary>
-    private readonly Dictionary<ushort, ushort[]>? customWords;
+    private readonly PlmVisualOverrides customWords;
 
     /// <summary>Validates all five Tourian access-floor layouts and captures their selected appearance independently of compiled physical words and row offsets.</summary>
     /// <param name="entries">The empty row, three visible crumble rows, and six-row clear exactly once, each with its compiled block count and valid visual-only words.</param>
@@ -37,30 +37,8 @@ public sealed class RoomPlmTourianAccessVisualCatalog
     public RoomPlmTourianAccessVisualCatalog(
         IEnumerable<RoomPlmVisualEntry> entries)
     {
-        Ensure.NotNull(entries);
-        var selected = new Dictionary<ushort, ushort[]>();
-        var seen = new HashSet<ushort>();
-        foreach (RoomPlmVisualEntry entry in entries)
-        {
-            if (entry is null || entry.Blocks is null ||
-                !TourianAccessPlmDrawDefinitions.TryGetByVisualId(entry.Id,
-                    out var draw) ||
-                !TourianAccessPlmDrawDefinitions.TryDescribe(draw.Pointer, out _, out ushort stockWord) ||
-                entry.Blocks.Length != draw.Runs.Span.Sum(run =>
-                    run.LevelWords.Length) ||
-                entry.Blocks.Any(word => !RoomLevelWord.IsValidVisualWord(word)))
-                throw new InvalidDataException(
-                    "Tourian access visuals changed a frame identity, draw shape, or visual word.");
-            if (!seen.Add(draw.Pointer))
-                throw new InvalidDataException(
-                    $"Tourian access visuals repeat frame {entry.Id}.");
-            if (entry.Blocks.Any(word => word != new RoomLevelWord(stockWord).VisualWord))
-                selected.Add(draw.Pointer, entry.Blocks.ToArray());
-        }
-        if (seen.Count != TourianAccessPlmDrawDefinitions.All.Count())
-            throw new InvalidDataException(
-                "Tourian access visuals do not cover all five compiled layouts.");
-        if (selected.Count != 0) customWords = selected;
+        customWords = new PlmVisualOverrides(entries, "Tourian access", TourianAccessPlmDrawDefinitions.TryGetByVisualId,
+            TourianAccessPlmDrawDefinitions.All.Count());
     }
 
     /// <summary>Resolves one Tourian access-floor visual cell from edited artwork or its compiled stock layout.</summary>
@@ -78,7 +56,7 @@ public sealed class RoomPlmTourianAccessVisualCatalog
         if ((uint)runIndex >= (uint)rows ||
             (uint)blockIndex >= 4)
             throw new ArgumentOutOfRangeException(nameof(blockIndex));
-        return customWords is not null && customWords.TryGetValue(drawPointer, out var words)
+        return customWords.TryGet(drawPointer, out var words)
             ? words[runIndex * 4 + blockIndex] : new RoomLevelWord(stockWord).VisualWord;
     }
 }

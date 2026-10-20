@@ -28,7 +28,7 @@ public sealed class RoomPlmEyeDoorVisualCatalog
     /// Copied visual overrides keyed by the eye-door frame's shared source pointer;
     /// null keeps the compiled appearance for every component and clearing frame.
     /// </summary>
-    private readonly Dictionary<ushort, ushort[]>? customBlocks;
+    private readonly PlmVisualOverrides customBlocks;
 
     /// <summary>Validates all twenty-three editable eye-door frames and copies visual differences without changing collision, attacks, hit counters, timing, or persistence.</summary>
     /// <remarks>The mirrored opening clear shares the clearing frame's artwork rather than requiring a separate authored entry.</remarks>
@@ -37,31 +37,8 @@ public sealed class RoomPlmEyeDoorVisualCatalog
     /// <exception cref="InvalidDataException">An entry is invalid, repeats an identity, changes a draw shape, or leaves editable frame coverage incomplete.</exception>
     public RoomPlmEyeDoorVisualCatalog(IEnumerable<RoomPlmVisualEntry> entries)
     {
-        Ensure.NotNull(entries);
-        var selected = new Dictionary<ushort, ushort[]>();
-        var seen = new HashSet<ushort>();
-        foreach (RoomPlmVisualEntry entry in entries)
-        {
-            if (entry is null || entry.Blocks is null ||
-                !EyeDoorPlmDrawDefinitions.TryGetByVisualId(entry.Id, out var draw) ||
-                draw.Runs.Length != 1 ||
-                entry.Blocks.Length != draw.Runs.Span[0].LevelWords.Length ||
-                entry.Blocks.Any(word => !RoomLevelWord.IsValidVisualWord(word)))
-                throw new InvalidDataException(
-                    "Eye-door visuals changed a frame identity, draw shape, or visual word.");
-            if (!seen.Add(draw.Pointer))
-                throw new InvalidDataException(
-                    $"Eye-door visuals repeat frame {entry.Id}.");
-            EyeDoorPlmDrawDefinitions.TryDescribe(draw.Pointer, out var shape);
-            bool changed = false;
-            for (int cell = 0; cell < shape.WordCount; cell++)
-                changed |= entry.Blocks[cell] != new RoomLevelWord(shape.WordAt(cell)).VisualWord;
-            if (changed) selected.Add(draw.Pointer, entry.Blocks.ToArray());
-        }
-        if (seen.Count != EyeDoorPlmDrawDefinitions.Editable.Count())
-            throw new InvalidDataException(
-                "Eye-door visuals do not cover all compiled frames.");
-        if (selected.Count != 0) customBlocks = selected;
+        customBlocks = new PlmVisualOverrides(entries, "Eye-door", EyeDoorPlmDrawDefinitions.TryGetByVisualId,
+            EyeDoorPlmDrawDefinitions.Editable.Count());
     }
 
     /// <summary>Resolves an eye-door visual block, sharing and horizontally mirroring the selected clearing artwork for the native opening-clear alias.</summary>
@@ -77,7 +54,7 @@ public sealed class RoomPlmEyeDoorVisualCatalog
             throw new InvalidDataException($"Eye-door visuals lack frame ${drawPointer:X4}.");
         if ((uint)blockIndex >= (uint)shape.WordCount)
             throw new ArgumentOutOfRangeException(nameof(blockIndex));
-        ushort word = customBlocks is not null && customBlocks.TryGetValue(visualSource, out var words)
+        ushort word = customBlocks.TryGet(visualSource, out var words)
             ? words[blockIndex] : new RoomLevelWord(shape.WordAt(blockIndex)).VisualWord;
         return (ushort)(word ^ (drawPointer != visualSource ? (ushort)LevelBlockFlipFlags.Horizontal : 0));
     }

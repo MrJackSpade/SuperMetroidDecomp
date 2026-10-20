@@ -1,4 +1,3 @@
-using System.Text.Json;
 using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Samus;
@@ -69,12 +68,8 @@ public sealed class SamusOverreadCatalog
     }
 
     /// <summary>Validates and serializes an overread document as JSON.</summary>
-    public static byte[] Write(SamusOverreadDocument document)
-    {
-        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, SamusOverreadFormat.JsonOptions);
-        _ = Load(new MemoryStream(bytes, writable: false));
-        return bytes;
-    }
+    public static byte[] Write(SamusOverreadDocument document) =>
+        JsonAssetDocument.WriteValidated(document, SamusOverreadFormat.JsonOptions, json => _ = Load(json));
 
     /// <summary>Decodes one base-64 range and requires its exact length.</summary>
     private static byte[] Decode(string? text, int length, string name)

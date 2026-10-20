@@ -1,5 +1,3 @@
-using System.Text.Json;
-using System.Text.Json.Serialization;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Areas.Ceres.Artwork;
 
@@ -43,13 +41,6 @@ public sealed class CeresRidleyColorCatalog
         this.baby = parts.Baby;
     }
 
-    /// <summary>Uses the installed asset's camel-case schema and rejects unknown properties during loading.</summary>
-    private static readonly JsonSerializerOptions JsonOptions = new()
-    {
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-        UnmappedMemberHandling = JsonUnmappedMemberHandling.Disallow,
-        WriteIndented = true,
-    };
     /// <summary>Returns one BGR555 retreat BG color, index 0..14, preserving supplied edits over the composition of body-fade row one, eye-fade row fourteen, and the neutral tail colors.</summary>
     public Bgr555 ResolveRetreatBg(int color)
     {
@@ -145,17 +136,7 @@ public sealed class CeresRidleyColorCatalog
     {
         Ensure.NotNull(json);
         CeresRidleyColorDocument document;
-        try
-        {
-            using JsonDocument parsed = JsonDocument.Parse(json);
-            RejectDuplicates(parsed.RootElement);
-            document = parsed.RootElement.Deserialize<CeresRidleyColorDocument>(JsonOptions)
-                ?? throw new InvalidDataException("Ceres Ridley color JSON is null.");
-        }
-        catch (JsonException error)
-        {
-            throw new InvalidDataException("Invalid Ceres Ridley color JSON.", error);
-        }
+        document = JsonAssetDocument.Read<CeresRidleyColorDocument>(json, ArtworkJson.Options, "Ceres Ridley color");
         var version = (CeresRidleyColorVersion)document.Version;
         if (!Enum.IsDefined(version) ||
             version != CeresRidleyColorVersion.Current && stockForLegacyOverride is null)
@@ -175,12 +156,8 @@ public sealed class CeresRidleyColorCatalog
     }
 
     /// <summary>Serializes a complete current-version color document as indented camel-case UTF-8 JSON, then reloads it to enforce the same schema, dimension, and RGB5 validation as asset loading.</summary>
-    public static byte[] Write(CeresRidleyColorDocument document)
-    {
-        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, JsonOptions);
-        _ = Load(new MemoryStream(bytes, writable: false));
-        return bytes;
-    }
+    public static byte[] Write(CeresRidleyColorDocument document) =>
+        JsonAssetDocument.WriteValidated(document, ArtworkJson.Options, json => _ = Load(json));
 
     /// <summary>Requires the palette family's exact row count and validates every row with its expected color width.</summary>
     private static Bgr555[][] CompileRows(PaletteRgb5[][]? rows, int count,
@@ -198,8 +175,4 @@ public sealed class CeresRidleyColorCatalog
     private static Bgr555[] Compile(PaletteRgb5[]? colors, int count, string name) =>
         Rgb5Rows.Compile(colors, count, $"Ceres Ridley {name}");
 
-    /// <summary>Rejects repeated JSON keys with ordinal name comparison before deserialization could discard an earlier value.</summary>
-    private static void RejectDuplicates(JsonElement value) =>
-        JsonAssetDocument.RejectDuplicateProperties(value, StringComparer.Ordinal,
-            name => new InvalidDataException($"Duplicate Ceres Ridley color property {name}."));
 }

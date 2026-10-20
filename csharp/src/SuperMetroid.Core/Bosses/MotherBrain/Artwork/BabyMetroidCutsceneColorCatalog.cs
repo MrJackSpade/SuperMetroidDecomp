@@ -1,5 +1,3 @@
-using System.Text.Json;
-using System.Text.Json.Serialization;
 using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain.Artwork;
@@ -25,14 +23,6 @@ public sealed class BabyMetroidCutsceneColorCatalog
         this.initial = new(initial);
         this.fade = new(fade);
     }
-
-    /// <summary>Strict camel-case artwork schema that rejects unknown JSON members.</summary>
-    private static readonly JsonSerializerOptions JsonOptions = new()
-    {
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-        UnmappedMemberHandling = JsonUnmappedMemberHandling.Disallow,
-        WriteIndented = true,
-    };
 
     /// <summary>Resolves one initial Baby Metroid sprite color, corresponding to the fifteen-word image at <c>$A9:94D4</c>; no CGRAM write or cutscene state change occurs.</summary>
     /// <param name="color">Zero-based image index from zero through 14, corresponding to colors 1..15 of OBJ palette seven; the transparent slot is excluded.</param>
@@ -108,17 +98,7 @@ public sealed class BabyMetroidCutsceneColorCatalog
     {
         Ensure.NotNull(json);
         BabyMetroidCutsceneColorDocument document;
-        try
-        {
-            using JsonDocument parsed = JsonDocument.Parse(json);
-            RejectDuplicates(parsed.RootElement);
-            document = parsed.RootElement.Deserialize<BabyMetroidCutsceneColorDocument>(JsonOptions) ??
-                throw new InvalidDataException("Cutscene Baby color JSON is null.");
-        }
-        catch (JsonException error)
-        {
-            throw new InvalidDataException("Invalid cutscene Baby color JSON.", error);
-        }
+        document = JsonAssetDocument.Read<BabyMetroidCutsceneColorDocument>(json, ArtworkJson.Options, "cutscene Baby color");
         if (document.Version != BabyMetroidCutsceneColorFormat.Version)
             throw new InvalidDataException("Cutscene Baby colors require the supported version.");
         if (document.Fade is null ||
@@ -135,19 +115,11 @@ public sealed class BabyMetroidCutsceneColorCatalog
     /// <param name="document">Initial and ordered fade images to serialize; the supplied arrays are not modified.</param>
     /// <returns>A newly allocated JSON byte array for <see cref="BabyMetroidCutsceneColorFormat.FileName"/>.</returns>
     /// <exception cref="InvalidDataException">The serialized document is null or fails schema, image-dimension, or RGB5 channel validation.</exception>
-    public static byte[] Write(BabyMetroidCutsceneColorDocument document)
-    {
-        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, JsonOptions);
-        _ = Load(new MemoryStream(bytes, writable: false));
-        return bytes;
-    }
+    public static byte[] Write(BabyMetroidCutsceneColorDocument document) =>
+        JsonAssetDocument.WriteValidated(document, ArtworkJson.Options, json => _ = Load(json));
 
     /// <summary>Validates an RGB5 row's length and channels before copying it to packed colors.</summary>
     private static Bgr555[] Compile(PaletteRgb5[]? source, int required, string name) =>
         Rgb5Rows.Compile(source, required, $"Cutscene Baby {name}");
 
-    /// <summary>Rejects ambiguous property names before deserializing the artwork document.</summary>
-    private static void RejectDuplicates(JsonElement value) =>
-        JsonAssetDocument.RejectDuplicateProperties(value, StringComparer.Ordinal,
-            name => new InvalidDataException($"Duplicate cutscene Baby color property {name}."));
 }

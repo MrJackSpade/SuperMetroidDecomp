@@ -1,5 +1,3 @@
-using System.Text.Json;
-using System.Text.Json.Serialization;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Enemies.Artwork;
 
@@ -53,14 +51,6 @@ public sealed class ShitroidColorCatalog
         this.deadSidehopper = new(deadSidehopper);
     }
 
-    /// <summary>Enforces the installed camel-case schema and rejects unrecognized JSON properties.</summary>
-    private static readonly JsonSerializerOptions JsonOptions = new()
-    {
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-        UnmappedMemberHandling = JsonUnmappedMemberHandling.Disallow,
-        WriteIndented = true,
-    };
-
     /// <summary>Gets a packed RGB5 ink from normal pulse phase 0–7 and ink 0–3, corresponding to $A9:F6D1 and written to CGRAM colors 165–168; phase cadence and cries remain actor behavior.</summary>
     public Bgr555 NormalColor(int frame, int color) =>
         (uint)frame < ShitroidColorRomData.NormalFrameCount && (uint)color < ShitroidColorRomData.NormalColorsPerFrame
@@ -88,17 +78,7 @@ public sealed class ShitroidColorCatalog
     {
         Ensure.NotNull(json);
         ShitroidColorDocument document;
-        try
-        {
-            using JsonDocument parsed = JsonDocument.Parse(json);
-            RejectDuplicates(parsed.RootElement);
-            document = parsed.RootElement.Deserialize<ShitroidColorDocument>(JsonOptions) ??
-                throw new InvalidDataException("Shitroid color JSON is null.");
-        }
-        catch (JsonException error)
-        {
-            throw new InvalidDataException("Invalid Shitroid color JSON.", error);
-        }
+        document = JsonAssetDocument.Read<ShitroidColorDocument>(json, ArtworkJson.Options, "Shitroid color");
         if (document.Version != ShitroidColorFormat.Version)
             throw new InvalidDataException("Shitroid colors require the supported version.");
         if (document.Normal is null ||
@@ -114,12 +94,8 @@ public sealed class ShitroidColorCatalog
     }
 
     /// <summary>Serializes the editable color document as indented camel-case UTF-8 JSON and validates the serialized schema, dimensions, and channel bounds before returning it.</summary>
-    public static byte[] Write(ShitroidColorDocument document)
-    {
-        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, JsonOptions);
-        _ = Load(new MemoryStream(bytes, writable: false));
-        return bytes;
-    }
+    public static byte[] Write(ShitroidColorDocument document) =>
+        JsonAssetDocument.WriteValidated(document, ArtworkJson.Options, json => _ = Load(json));
 
     /// <summary>Checks one authored color row for its required length and RGB5 channel range before packing it.</summary>
     private static Bgr555[] Compile(PaletteRgb5[]? source, int required, string name) =>
@@ -163,8 +139,4 @@ public sealed class ShitroidColorCatalog
             });
         }
     }
-    /// <summary>Rejects repeated property names before deserialization can silently replace an authored color row.</summary>
-    private static void RejectDuplicates(JsonElement value) =>
-        JsonAssetDocument.RejectDuplicateProperties(value, StringComparer.Ordinal,
-            name => new InvalidDataException($"Duplicate Shitroid color property {name}."));
 }

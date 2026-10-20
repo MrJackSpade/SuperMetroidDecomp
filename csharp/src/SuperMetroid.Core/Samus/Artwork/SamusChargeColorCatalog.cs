@@ -1,5 +1,3 @@
-using System.Text.Json;
-using System.Text.Json.Serialization;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Fx.Artwork;
 using SuperMetroid.Core.Samus.Palettes;
@@ -45,14 +43,6 @@ public sealed class SamusChargeColorCatalog
         this.hyperShot = hyperShot;
     }
 
-    /// <summary>Uses the installed camel-case schema and rejects unknown color properties.</summary>
-    private static readonly JsonSerializerOptions JsonOptions = new()
-    {
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-        UnmappedMemberHandling = JsonUnmappedMemberHandling.Disallow,
-        WriteIndented = true,
-    };
-
     /// <summary>Gets packed RGB5 ink 0–15 from Hyper-shot playback frame 0–9 in the native $91:D82B reverse-cycle pointer order; this asset's edits are independent of the full-body Hyper cycle.</summary>
     public Bgr555 ResolveHyper(int frame, int color)
     {
@@ -84,17 +74,7 @@ public sealed class SamusChargeColorCatalog
     {
         Ensure.NotNull(json);
         SamusChargeColorDocument document;
-        try
-        {
-            using JsonDocument parsed = JsonDocument.Parse(json);
-            RejectDuplicates(parsed.RootElement);
-            document = parsed.RootElement.Deserialize<SamusChargeColorDocument>(JsonOptions)
-                ?? throw new InvalidDataException("Samus charge color JSON is null.");
-        }
-        catch (JsonException error)
-        {
-            throw new InvalidDataException("Invalid Samus charge color JSON.", error);
-        }
+        document = JsonAssetDocument.Read<SamusChargeColorDocument>(json, ArtworkJson.Options, "Samus charge color");
         if (document.Version != SamusChargeColorFormat.Version)
             throw new InvalidDataException("Samus charge colors require the supported version.");
         return new(CompileCharge(document.ChargedBeam, "charged beam", false),
@@ -103,12 +83,8 @@ public sealed class SamusChargeColorCatalog
     }
 
     /// <summary>Serializes the charge/pseudo-Screw/Hyper-shot colors as indented camel-case UTF-8 JSON, validating schema, array dimensions, and RGB5 channel bounds before returning the bytes.</summary>
-    public static byte[] Write(SamusChargeColorDocument document)
-    {
-        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, JsonOptions);
-        _ = Load(new MemoryStream(bytes, writable: false));
-        return bytes;
-    }
+    public static byte[] Write(SamusChargeColorDocument document) =>
+        JsonAssetDocument.WriteValidated(document, ArtworkJson.Options, json => _ = Load(json));
 
     /// <summary>Shares native repeated phases without caching calculated palette rows.</summary>
     /// <remarks>Bank91 lists D7DB/D7E7/D7F3 select charge shades0,1,2,3,2,1;
@@ -239,8 +215,4 @@ public sealed class SamusChargeColorCatalog
         return result;
     }
 
-    /// <summary>Detects repeated ordinal JSON property names before deserialization could replace an earlier color family.</summary>
-    private static void RejectDuplicates(JsonElement value) =>
-        JsonAssetDocument.RejectDuplicateProperties(value, StringComparer.Ordinal,
-            name => new InvalidDataException($"Duplicate Samus charge color property {name}."));
 }

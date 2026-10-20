@@ -62,17 +62,7 @@ public sealed class EnemyProjectileSpritemapCatalog
     {
         Ensure.NotNull(json);
         EnemyProjectileSpritemapDocument document;
-        try
-        {
-            using JsonDocument parsed = JsonDocument.Parse(json);
-            EnemySpritemapCatalog.RejectDuplicateProperties(parsed.RootElement);
-            document = parsed.RootElement.Deserialize<EnemyProjectileSpritemapDocument>(Options)
-                ?? throw new InvalidDataException("Enemy-projectile compositions are null.");
-        }
-        catch (JsonException error)
-        {
-            throw new InvalidDataException("Invalid enemy-projectile compositions JSON.", error);
-        }
+        document = JsonAssetDocument.Read<EnemyProjectileSpritemapDocument>(json, Options, "enemy-projectile compositions");
         var version = (EnemyProjectileSpritemapVersion)document.Version;
         if (!Enum.IsDefined(version))
             throw new InvalidDataException(

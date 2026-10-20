@@ -89,6 +89,9 @@ internal static class RoomPlmShotBlockDrawDefinitions
         }
     }
 
+    /// <summary>Resolves a published visual resource identity to its compiled draw list.</summary>
+    internal delegate bool VisualLookup(string id, out DrawList list);
+
     /// <summary>A lookup of a compiled draw list by its bank-$84 pointer.</summary>
     internal delegate bool DrawListLookup(ushort pointer, out DrawList list);
 

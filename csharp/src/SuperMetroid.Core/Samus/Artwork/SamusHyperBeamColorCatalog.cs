@@ -1,5 +1,3 @@
-using System.Text.Json;
-using System.Text.Json.Serialization;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Fx.Artwork;
 
@@ -122,14 +120,6 @@ public sealed class SamusHyperBeamColorCatalog
         }
     }
 
-    /// <summary>Requires camel-case RGB5 documents with no unknown properties.</summary>
-    private static readonly JsonSerializerOptions JsonOptions = new()
-    {
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-        UnmappedMemberHandling = JsonUnmappedMemberHandling.Disallow,
-        WriteIndented = true,
-    };
-
     /// <summary>Validates and compiles the ten full-body Hyper Beam RGB5 rows, preserving independently supplied color edits while leaving palette-cycle timing to Samus's native handler.</summary>
     /// <param name="json">UTF-8 JSON source consumed from its current position and left open.</param>
     /// <returns>Compiled packed-color catalog detached from the document arrays, with shared hue/shade relationships resolved on demand.</returns>
@@ -139,17 +129,7 @@ public sealed class SamusHyperBeamColorCatalog
     {
         Ensure.NotNull(json);
         SamusHyperBeamColorDocument document;
-        try
-        {
-            using JsonDocument parsed = JsonDocument.Parse(json);
-            RejectDuplicates(parsed.RootElement);
-            document = parsed.RootElement.Deserialize<SamusHyperBeamColorDocument>(JsonOptions)
-                ?? throw new InvalidDataException("Samus Hyper Beam color JSON is null.");
-        }
-        catch (JsonException error)
-        {
-            throw new InvalidDataException("Invalid Samus Hyper Beam color JSON.", error);
-        }
+        document = JsonAssetDocument.Read<SamusHyperBeamColorDocument>(json, ArtworkJson.Options, "Samus Hyper Beam color");
         if (document.Version != SamusHyperBeamColorFormat.Version)
             throw new InvalidDataException("Samus Hyper Beam colors require the supported version.");
         return FromFrames(document.Frames);
@@ -183,12 +163,8 @@ public sealed class SamusHyperBeamColorCatalog
     /// <param name="document">Ten complete RGB5 palette rows to serialize; the writer does not retain their arrays.</param>
     /// <returns>Validated JSON bytes for <see cref="SamusHyperBeamColorFormat.FileName"/>.</returns>
     /// <exception cref="InvalidDataException">The serialized document fails schema, palette-dimension, or RGB5-channel validation.</exception>
-    public static byte[] Write(SamusHyperBeamColorDocument document)
-    {
-        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, JsonOptions);
-        _ = Load(new MemoryStream(bytes, writable: false));
-        return bytes;
-    }
+    public static byte[] Write(SamusHyperBeamColorDocument document) =>
+        JsonAssetDocument.WriteValidated(document, ArtworkJson.Options, json => _ = Load(json));
 
     /// <summary>Returns display color only; the frame clock remains cartridge-owned.</summary>
     /// <remarks>Cyan frame3 ink13 at9BA31A is the upward-rounded RGB5
@@ -285,8 +261,4 @@ public sealed class SamusHyperBeamColorCatalog
             return new(resolvedRed, resolvedGreen, blue ?? (redHue ? resolvedGreen : resolvedRed));
         }
     }
-    /// <summary>Rejects repeated palette JSON keys before deserialization can silently replace a color.</summary>
-    private static void RejectDuplicates(JsonElement value) =>
-        JsonAssetDocument.RejectDuplicateProperties(value, StringComparer.Ordinal,
-            name => new InvalidDataException($"Duplicate Samus Hyper Beam color property {name}."));
 }

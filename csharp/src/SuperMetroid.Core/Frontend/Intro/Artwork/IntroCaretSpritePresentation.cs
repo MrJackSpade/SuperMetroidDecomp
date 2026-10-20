@@ -1,6 +1,5 @@
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Frontend.Intro.Artwork;
 
@@ -36,18 +35,7 @@ public sealed class IntroCaretSpritePresentation
     {
         Ensure.NotNull(json);
         IntroCaretSpriteDocument document;
-        try
-        {
-            using JsonDocument parsed = JsonDocument.Parse(json);
-            EnemySpritemapCatalog.RejectDuplicateProperties(parsed.RootElement);
-            document = parsed.RootElement.Deserialize<IntroCaretSpriteDocument>(
-                ArtworkJson.Options) ??
-                throw new InvalidDataException("Opening caret composition JSON is null.");
-        }
-        catch (JsonException error)
-        {
-            throw new InvalidDataException("Invalid opening caret composition JSON.", error);
-        }
+        document = JsonAssetDocument.Read<IntroCaretSpriteDocument>(json, ArtworkJson.Options, "opening caret composition");
         var definitions = IntroCaretSpriteDefinitions.Frames;
         var version = (IntroCaretSpriteVersion)document.Version;
         bool previousVersion = version == IntroCaretSpriteVersion.Previous;

@@ -28,7 +28,7 @@ public sealed class RoomPlmCrocomireVisualCatalog
     });
 
     /// <summary>Copied visual-only differences for the five compiled Crocomire arena layouts.</summary>
-    private readonly Dictionary<ushort, ushort[]>? customWords;
+    private readonly PlmVisualOverrides customWords;
 
     /// <summary>Validates all five Crocomire arena layouts and copies visual differences without changing physical level words, run geometry, or PLM programs.</summary>
     /// <param name="entries">Exactly one visual-only entry per compiled draw identity with its full flattened block count.</param>
@@ -37,32 +37,8 @@ public sealed class RoomPlmCrocomireVisualCatalog
     public RoomPlmCrocomireVisualCatalog(
         IEnumerable<RoomPlmVisualEntry> entries)
     {
-        Ensure.NotNull(entries);
-        var selected = new Dictionary<ushort, ushort[]>();
-        var seen = new HashSet<ushort>();
-        foreach (RoomPlmVisualEntry entry in entries)
-        {
-            if (entry is null || entry.Blocks is null ||
-                !CrocomireArenaPlmDrawDefinitions.TryGetByVisualId(
-                    entry.Id, out var draw) ||
-                !CrocomireArenaPlmDrawDefinitions.TryDescribe(draw.Pointer, out var shape) ||
-                entry.Blocks.Length != shape.RunCount * shape.WordsPerRun ||
-                entry.Blocks.Any(word => !RoomLevelWord.IsValidVisualWord(word)))
-                throw new InvalidDataException(
-                    "Crocomire visuals changed a draw identity, shape, or visual word.");
-            if (!seen.Add(draw.Pointer))
-                throw new InvalidDataException(
-                    $"Crocomire visuals repeat draw {entry.Id}.");
-            bool changed = false;
-            for (int index = 0; index < entry.Blocks.Length; index++)
-                changed |= entry.Blocks[index] != new RoomLevelWord(
-                    shape.WordAt(index / shape.WordsPerRun, index % shape.WordsPerRun)).VisualWord;
-            if (changed) selected.Add(draw.Pointer, entry.Blocks.ToArray());
-        }
-        if (seen.Count != CrocomireArenaPlmDrawDefinitions.All.Count())
-            throw new InvalidDataException(
-                "Crocomire visuals do not cover all five compiled draws.");
-        if (selected.Count != 0) customWords = selected;
+        customWords = new PlmVisualOverrides(entries, "Crocomire", CrocomireArenaPlmDrawDefinitions.TryGetByVisualId,
+            CrocomireArenaPlmDrawDefinitions.All.Count());
     }
 
     /// <summary>Resolves one arena-layout block, translating native run-local indices into the flattened visual override.</summary>
@@ -81,7 +57,7 @@ public sealed class RoomPlmCrocomireVisualCatalog
             (uint)blockIndex >= (uint)draw.WordsPerRun)
             throw new ArgumentOutOfRangeException(nameof(blockIndex));
         int flatIndex = runIndex * draw.WordsPerRun + blockIndex;
-        return customWords is not null && customWords.TryGetValue(drawPointer, out var words)
+        return customWords.TryGet(drawPointer, out var words)
             ? words[flatIndex] : new RoomLevelWord(draw.WordAt(runIndex, blockIndex)).VisualWord;
     }
 }

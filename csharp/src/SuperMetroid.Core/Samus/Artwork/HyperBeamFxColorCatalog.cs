@@ -221,12 +221,8 @@ public sealed class HyperBeamFxColorCatalog
     /// <summary>Serializes the projectile-color document as indented camel-case UTF-8 JSON, then validates it through <see cref="Load"/> before returning the bytes.</summary>
     /// <param name="document">Document containing the supported version and all ten eight-color RGB5 rows.</param>
     /// <returns>Validated JSON bytes suitable for the projectile-color asset file.</returns>
-    public static byte[] Write(HyperBeamFxColorDocument document)
-    {
-        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, Options);
-        _ = Load(new MemoryStream(bytes, writable: false));
-        return bytes;
-    }
+    public static byte[] Write(HyperBeamFxColorDocument document) =>
+        JsonAssetDocument.WriteValidated(document, Options, json => _ = Load(json));
 
     /// <summary>Rejects duplicate palette properties before document deserialization.</summary>
     private static void RejectDuplicateProperties(JsonElement value) =>

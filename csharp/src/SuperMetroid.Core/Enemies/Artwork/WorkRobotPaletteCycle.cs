@@ -1,5 +1,3 @@
-using System.Text.Json;
-using System.Text.Json.Serialization;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Enemies.WorkRobots;
 
@@ -53,14 +51,6 @@ public sealed class WorkRobotPaletteCycle
         return new Bgr555(31 - 16 * (position >> 1) - 7 * (position & 1), 0, 0);
     }
 
-    /// <summary>Strict camel-case options for the editable six-frame document.</summary>
-    private static readonly JsonSerializerOptions JsonOptions = new()
-    {
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-        UnmappedMemberHandling = JsonUnmappedMemberHandling.Disallow,
-        WriteIndented = true,
-    };
-
     /// <summary>Resolves one packed RGB555 color from an authored Work Robot cycle frame.</summary>
     /// <param name="frame">Zero-based native palette record from 0 through 5.</param>
     /// <param name="color">Zero-based color within the four-color record.</param>
@@ -96,17 +86,7 @@ public sealed class WorkRobotPaletteCycle
     {
         Ensure.NotNull(json);
         WorkRobotPaletteCycleDocument document;
-        try
-        {
-            using JsonDocument parsed = JsonDocument.Parse(json);
-            RejectDuplicates(parsed.RootElement);
-            document = parsed.RootElement.Deserialize<WorkRobotPaletteCycleDocument>(JsonOptions)
-                ?? throw new InvalidDataException("Work Robot palette cycle JSON is null.");
-        }
-        catch (JsonException error)
-        {
-            throw new InvalidDataException("Invalid Work Robot palette cycle JSON.", error);
-        }
+        document = JsonAssetDocument.Read<WorkRobotPaletteCycleDocument>(json, ArtworkJson.Options, "Work Robot palette cycle");
 
         if (document.Version != WorkRobotPaletteCycleFormat.Version ||
             document.Frames is null ||
@@ -136,15 +116,7 @@ public sealed class WorkRobotPaletteCycle
     /// <summary>Validates and serializes a Work Robot palette-cycle document as UTF-8 JSON.</summary>
     /// <param name="document">Document containing all six ordered frames.</param>
     /// <returns>A new caller-owned JSON byte array.</returns>
-    public static byte[] Write(WorkRobotPaletteCycleDocument document)
-    {
-        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, JsonOptions);
-        _ = Load(new MemoryStream(bytes, writable: false));
-        return bytes;
-    }
+    public static byte[] Write(WorkRobotPaletteCycleDocument document) =>
+        JsonAssetDocument.WriteValidated(document, ArtworkJson.Options, json => _ = Load(json));
 
-    /// <summary>Rejects repeated JSON properties before a later value can silently replace a color row.</summary>
-    private static void RejectDuplicates(JsonElement value) =>
-        JsonAssetDocument.RejectDuplicateProperties(value, StringComparer.Ordinal,
-            name => new InvalidDataException($"Duplicate Work Robot palette property {name}."));
 }

@@ -1,6 +1,5 @@
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Frontend.Intro.Artwork;
 
@@ -37,18 +36,7 @@ public sealed class IntroEggEffectSpritePresentation : IIntroCinematicSpritePres
     {
         Ensure.NotNull(json);
         IntroEggEffectSpriteDocument document;
-        try
-        {
-            using JsonDocument parsed = JsonDocument.Parse(json);
-            EnemySpritemapCatalog.RejectDuplicateProperties(parsed.RootElement);
-            document = parsed.RootElement.Deserialize<IntroEggEffectSpriteDocument>(
-                ArtworkJson.Options) ??
-                throw new InvalidDataException("Intro egg effect sprite JSON is null.");
-        }
-        catch (JsonException error)
-        {
-            throw new InvalidDataException("Invalid intro egg effect sprite JSON.", error);
-        }
+        document = JsonAssetDocument.Read<IntroEggEffectSpriteDocument>(json, ArtworkJson.Options, "intro egg effect sprite");
         IReadOnlyList<SpritemapFrameDefinition> definitions =
             IntroEggEffectSpriteDefinitions.Frames;
         if (document.Version != IntroEggEffectSpriteFormat.Version ||

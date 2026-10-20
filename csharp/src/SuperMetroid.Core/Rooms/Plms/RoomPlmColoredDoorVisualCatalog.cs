@@ -24,7 +24,7 @@ public sealed class RoomPlmColoredDoorVisualCatalog
     });
 
     /// <summary>Copied artwork overrides keyed by compiled door-frame pointer; omitted frames use stock visual words.</summary>
-    private readonly Dictionary<ushort, ushort[]>? customBlocks;
+    private readonly PlmVisualOverrides customBlocks;
 
     /// <summary>Validates complete coverage of the forty-eight colored-door frames and copies visual differences while preserving compiled cap geometry and opening mechanics.</summary>
     /// <param name="entries">Exactly one four-word, visual-only entry for each compiled color, orientation, and frame identity.</param>
@@ -32,30 +32,8 @@ public sealed class RoomPlmColoredDoorVisualCatalog
     /// <exception cref="InvalidDataException">An entry is invalid, repeats an identity, changes a draw shape, or leaves frame coverage incomplete.</exception>
     public RoomPlmColoredDoorVisualCatalog(IEnumerable<RoomPlmVisualEntry> entries)
     {
-        Ensure.NotNull(entries);
-        var selected = new Dictionary<ushort, ushort[]>();
-        var seen = new HashSet<ushort>();
-        foreach (RoomPlmVisualEntry entry in entries)
-        {
-            if (entry is null || entry.Blocks is null ||
-                !ColoredDoorPlmDrawDefinitions.TryGetByVisualId(entry.Id, out var draw) ||
-                draw.Runs.Length != 1 ||
-                entry.Blocks.Length != draw.Runs.Span[0].LevelWords.Length ||
-                entry.Blocks.Any(word => !RoomLevelWord.IsValidVisualWord(word)))
-                throw new InvalidDataException(
-                    "Colored-door visuals changed a compiled frame identity, draw shape, or visual word.");
-            if (!seen.Add(draw.Pointer))
-                throw new InvalidDataException($"Colored-door visuals repeat frame {entry.Id}.");
-            ColoredDoorPlmDrawDefinitions.TryDescribe(draw.Pointer, out var shape);
-            bool changed = false;
-            for (int row = 0; row < entry.Blocks.Length; row++)
-                changed |= entry.Blocks[row] != new RoomLevelWord(shape.WordAt(row)).VisualWord;
-            if (changed) selected.Add(draw.Pointer, entry.Blocks.ToArray());
-        }
-        if (seen.Count != ColoredDoorPlmDrawDefinitions.All.Count())
-            throw new InvalidDataException(
-                "Colored-door visuals do not cover all compiled frames.");
-        if (selected.Count != 0) customBlocks = selected;
+        customBlocks = new PlmVisualOverrides(entries, "Colored-door", ColoredDoorPlmDrawDefinitions.TryGetByVisualId,
+            ColoredDoorPlmDrawDefinitions.All.Count());
     }
 
     /// <summary>Resolves one selected cap block without changing the physical collision word or door-opening rules.</summary>
@@ -71,7 +49,7 @@ public sealed class RoomPlmColoredDoorVisualCatalog
                 $"Colored-door visuals lack frame ${drawPointer:X4}.");
         if ((uint)blockIndex >= 4)
             throw new ArgumentOutOfRangeException(nameof(blockIndex));
-        return customBlocks is not null && customBlocks.TryGetValue(drawPointer, out var words)
+        return customBlocks.TryGet(drawPointer, out var words)
             ? words[blockIndex] : new RoomLevelWord(draw.WordAt(blockIndex)).VisualWord;
     }
 }

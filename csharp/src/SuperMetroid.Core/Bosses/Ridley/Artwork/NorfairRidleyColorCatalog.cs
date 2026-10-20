@@ -68,17 +68,7 @@ public sealed class NorfairRidleyColorCatalog
     public static NorfairRidleyColorCatalog Load(Stream json)
     {
         NorfairRidleyColorDocument document;
-        try
-        {
-            using JsonDocument parsed = JsonDocument.Parse(json);
-            RejectDuplicates(parsed.RootElement);
-            document = parsed.RootElement.Deserialize<NorfairRidleyColorDocument>(Options)
-                ?? throw new InvalidDataException("Norfair Ridley colors are null.");
-        }
-        catch (JsonException error)
-        {
-            throw new InvalidDataException("Invalid Norfair Ridley color JSON.", error);
-        }
+        document = JsonAssetDocument.Read<NorfairRidleyColorDocument>(json, Options, "Norfair Ridley color");
 
         if (document.Version != NorfairRidleyColorFormat.Version ||
             document.Initial is null ||
@@ -102,12 +92,8 @@ public sealed class NorfairRidleyColorCatalog
     /// <summary>Serializes a color document as indented camel-case UTF-8 JSON and validates the result through <see cref="Load"/> before returning it.</summary>
     /// <param name="document">Palette document to serialize; it must satisfy the loader's version, dimensions, and RGB5 constraints.</param>
     /// <returns>Validated JSON bytes suitable for the catalog asset file.</returns>
-    public static byte[] Write(NorfairRidleyColorDocument document)
-    {
-        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, Options);
-        _ = Load(new MemoryStream(bytes, writable: false));
-        return bytes;
-    }
+    public static byte[] Write(NorfairRidleyColorDocument document) =>
+        JsonAssetDocument.WriteValidated(document, Options, json => _ = Load(json));
 
     /// <summary>Validates each RGB5 channel and packs one authored row into SNES color words.</summary>
     private static Bgr555[] Compile(PaletteRgb5[] colors, string label)
@@ -124,8 +110,4 @@ public sealed class NorfairRidleyColorCatalog
         return words;
     }
 
-    /// <summary>Detects repeated JSON property names before deserialization can overwrite color arrays.</summary>
-    private static void RejectDuplicates(JsonElement value) =>
-        JsonAssetDocument.RejectDuplicateProperties(value, StringComparer.Ordinal,
-            name => new InvalidDataException("Duplicate Norfair Ridley color property."));
 }

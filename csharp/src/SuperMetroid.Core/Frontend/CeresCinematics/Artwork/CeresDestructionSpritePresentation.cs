@@ -1,6 +1,5 @@
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
 using SuperMetroid.Core.Frontend.Title.Artwork;
 
@@ -39,18 +38,7 @@ public sealed class CeresDestructionSpritePresentation : IIntroCinematicSpritePr
     {
         Ensure.NotNull(json);
         CeresDestructionSpriteDocument document;
-        try
-        {
-            using JsonDocument parsed = JsonDocument.Parse(json);
-            EnemySpritemapCatalog.RejectDuplicateProperties(parsed.RootElement);
-            document = parsed.RootElement.Deserialize<CeresDestructionSpriteDocument>(
-                ArtworkJson.Options) ??
-                throw new InvalidDataException("Ceres destruction sprite JSON is null.");
-        }
-        catch (JsonException error)
-        {
-            throw new InvalidDataException("Invalid Ceres destruction sprite JSON.", error);
-        }
+        document = JsonAssetDocument.Read<CeresDestructionSpriteDocument>(json, ArtworkJson.Options, "Ceres destruction sprite");
         IReadOnlyList<CeresDestructionSpriteFrameDefinition> definitions =
             CeresDestructionSpriteDefinitions.Frames;
         if (document.Version != CeresDestructionSpriteFormat.Version ||

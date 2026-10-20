@@ -80,12 +80,8 @@ public sealed class BeamPaletteCatalog
     /// <summary>Serializes a beam-palette document as indented camel-case UTF-8 JSON and validates it through <see cref="Load"/> before returning the bytes.</summary>
     /// <param name="document">Document containing the supported version and all twelve sixteen-color RGB5 palettes.</param>
     /// <returns>Validated JSON bytes suitable for the beam-palette asset file.</returns>
-    public static byte[] Write(BeamPaletteDocument document)
-    {
-        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, Options);
-        _ = Load(new MemoryStream(bytes, writable: false));
-        return bytes;
-    }
+    public static byte[] Write(BeamPaletteDocument document) =>
+        JsonAssetDocument.WriteValidated(document, Options, json => _ = Load(json));
 
     /// <summary>Rejects repeated property names before JSON deserialization can overwrite a color selection.</summary>
     private static void RejectDuplicates(JsonElement value) =>

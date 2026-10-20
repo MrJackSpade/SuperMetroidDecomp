@@ -26,7 +26,7 @@ public sealed class RoomPlmSporeSpawnCeilingVisualCatalog
     });
 
     /// <summary>Owned visual-only edits keyed by native frame pointer; null uses all compiled stock words.</summary>
-    private readonly Dictionary<ushort, ushort[]>? customWords;
+    private readonly PlmVisualOverrides customWords;
 
     /// <summary>Validates complete coverage of the clear and three crumble frames, capturing edited ceiling appearance without changing compiled geometry or collision.</summary>
     /// <param name="entries">Each of the four compiled visual identities exactly once, with four valid presentation-only words per frame.</param>
@@ -36,30 +36,8 @@ public sealed class RoomPlmSporeSpawnCeilingVisualCatalog
     public RoomPlmSporeSpawnCeilingVisualCatalog(
         IEnumerable<RoomPlmVisualEntry> entries)
     {
-        Ensure.NotNull(entries);
-        var selected = new Dictionary<ushort, ushort[]>();
-        var seen = new HashSet<ushort>();
-        foreach (RoomPlmVisualEntry entry in entries)
-        {
-            if (entry is null || entry.Blocks is null ||
-                !SporeSpawnCeilingPlmDrawDefinitions.TryGetByVisualId(
-                    entry.Id, out var draw) ||
-                !SporeSpawnCeilingPlmDrawDefinitions.TryGetWord(draw.Pointer, out ushort stockWord) ||
-                entry.Blocks.Length != draw.Runs.Span.Sum(run =>
-                    run.LevelWords.Length) ||
-                entry.Blocks.Any(word => !RoomLevelWord.IsValidVisualWord(word)))
-                throw new InvalidDataException(
-                    "Spore Spawn ceiling visuals changed a frame identity, draw shape, or visual word.");
-            if (!seen.Add(draw.Pointer))
-                throw new InvalidDataException(
-                    $"Spore Spawn ceiling visuals repeat frame {entry.Id}.");
-            if (entry.Blocks.Any(word => word != new RoomLevelWord(stockWord).VisualWord))
-                selected.Add(draw.Pointer, entry.Blocks.ToArray());
-        }
-        if (seen.Count != SporeSpawnCeilingPlmDrawDefinitions.All.Count())
-            throw new InvalidDataException(
-                "Spore Spawn ceiling visuals do not cover all four compiled frames.");
-        if (selected.Count != 0) customWords = selected;
+        customWords = new PlmVisualOverrides(entries, "Spore Spawn ceiling", SporeSpawnCeilingPlmDrawDefinitions.TryGetByVisualId,
+            SporeSpawnCeilingPlmDrawDefinitions.All.Count());
     }
 
     /// <summary>Resolves one visual-only cell from an edited or compiled Spore Spawn ceiling frame.</summary>
@@ -77,7 +55,7 @@ public sealed class RoomPlmSporeSpawnCeilingVisualCatalog
         if ((uint)runIndex >= 2 ||
             (uint)blockIndex >= 2)
             throw new ArgumentOutOfRangeException(nameof(blockIndex));
-        return customWords is not null && customWords.TryGetValue(drawPointer, out var words)
+        return customWords.TryGet(drawPointer, out var words)
             ? words[runIndex * 2 + blockIndex] : new RoomLevelWord(stockWord).VisualWord;
     }
 }

@@ -1,5 +1,3 @@
-using System.Text.Json;
-using System.Text.Json.Serialization;
 using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Bosses.Botwoon.Artwork;
@@ -25,14 +23,6 @@ public sealed class BotwoonColorCatalog
     /// <summary>Retains the validated color rows as runtime paint definitions.</summary>
     private BotwoonColorCatalog(Bgr555[][] rows) => health = new(rows);
 
-    /// <summary>Rejects unknown document fields while preserving readable editable JSON.</summary>
-    private static readonly JsonSerializerOptions JsonOptions = new()
-    {
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-        UnmappedMemberHandling = JsonUnmappedMemberHandling.Disallow,
-        WriteIndented = true,
-    };
-
     /// <summary>Gets one compiled BGR555 word from an independently editable health-band palette.</summary>
     /// <param name="band">Health-band index from zero through seven.</param>
     /// <param name="color">Color index from zero through fifteen within the complete palette.</param>
@@ -55,17 +45,7 @@ public sealed class BotwoonColorCatalog
     {
         Ensure.NotNull(json);
         BotwoonColorDocument document;
-        try
-        {
-            using JsonDocument parsed = JsonDocument.Parse(json);
-            RejectDuplicates(parsed.RootElement);
-            document = parsed.RootElement.Deserialize<BotwoonColorDocument>(JsonOptions) ??
-                throw new InvalidDataException("Botwoon color JSON is null.");
-        }
-        catch (JsonException error)
-        {
-            throw new InvalidDataException("Invalid Botwoon color JSON.", error);
-        }
+        document = JsonAssetDocument.Read<BotwoonColorDocument>(json, ArtworkJson.Options, "Botwoon color");
         if (document.Version != BotwoonColorFormat.Version)
             throw new InvalidDataException("Botwoon colors require the supported version.");
         if (document.Health is null ||
@@ -78,12 +58,8 @@ public sealed class BotwoonColorCatalog
     /// <summary>Serializes a Botwoon color document and validates the resulting JSON through <see cref="Load"/>.</summary>
     /// <param name="document">The eight complete RGB5 health palettes to serialize.</param>
     /// <returns>Validated UTF-8 JSON bytes.</returns>
-    public static byte[] Write(BotwoonColorDocument document)
-    {
-        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, JsonOptions);
-        _ = Load(new MemoryStream(bytes, writable: false));
-        return bytes;
-    }
+    public static byte[] Write(BotwoonColorDocument document) =>
+        JsonAssetDocument.WriteValidated(document, ArtworkJson.Options, json => _ = Load(json));
 
     /// <summary>Checks a health row's sixteen five-bit RGB values before packing its SNES colors.</summary>
     private static Bgr555[] Compile(PaletteRgb5[]? source, int band)
@@ -105,8 +81,4 @@ public sealed class BotwoonColorCatalog
         return compiled;
     }
 
-    /// <summary>Rejects repeated JSON property names before deserialization can silently replace a color row.</summary>
-    private static void RejectDuplicates(JsonElement value) =>
-        JsonAssetDocument.RejectDuplicateProperties(value, StringComparer.Ordinal,
-            name => new InvalidDataException($"Duplicate Botwoon color property {name}."));
 }

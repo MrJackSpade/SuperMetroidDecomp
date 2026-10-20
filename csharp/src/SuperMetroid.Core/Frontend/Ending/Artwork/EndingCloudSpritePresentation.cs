@@ -1,6 +1,5 @@
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
 
 namespace SuperMetroid.Core.Frontend.Ending.Artwork;
@@ -35,18 +34,7 @@ public sealed class EndingCloudSpritePresentation : IIntroCinematicSpritePresent
     {
         Ensure.NotNull(json);
         EndingCloudSpriteDocument document;
-        try
-        {
-            using JsonDocument parsed = JsonDocument.Parse(json);
-            EnemySpritemapCatalog.RejectDuplicateProperties(parsed.RootElement);
-            document = parsed.RootElement.Deserialize<EndingCloudSpriteDocument>(
-                ArtworkJson.Options) ??
-                throw new InvalidDataException("Ending cloud sprite JSON is null.");
-        }
-        catch (JsonException error)
-        {
-            throw new InvalidDataException("Invalid ending cloud sprite JSON.", error);
-        }
+        document = JsonAssetDocument.Read<EndingCloudSpriteDocument>(json, ArtworkJson.Options, "ending cloud sprite");
         IReadOnlyList<SpriteFrameDefinition> definitions =
             EndingCloudSpriteDefinitions.Frames;
         if (document.Version != EndingCloudSpriteFormat.Version ||

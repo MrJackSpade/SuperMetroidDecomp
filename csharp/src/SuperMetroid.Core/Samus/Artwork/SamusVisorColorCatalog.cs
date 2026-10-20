@@ -1,5 +1,3 @@
-using System.Text.Json;
-using System.Text.Json.Serialization;
 using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Samus.Artwork;
@@ -13,14 +11,6 @@ public sealed class SamusVisorColorCatalog
     /// <summary>Retains copied visor color edits independently of the mutable JSON document.</summary>
     private SamusVisorColorCatalog(Dictionary<int, Bgr555> colors) => this.colors = colors;
 
-    /// <summary>Rejects unknown properties while serializing stable camel-case visor resources.</summary>
-    private static readonly JsonSerializerOptions JsonOptions = new()
-    {
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-        UnmappedMemberHandling = JsonUnmappedMemberHandling.Disallow,
-        WriteIndented = true,
-    };
-
     /// <summary>Validates the six RGB5 visor colors and compiles independent edits relative to the reviewed $9B:A3C0 widening/cycling definitions.</summary>
     /// <param name="json">UTF-8 JSON source consumed from its current position and left open.</param>
     /// <returns>Compiled visor colors detached from the document array, without changing X-ray or room-cycle timing.</returns>
@@ -30,17 +20,7 @@ public sealed class SamusVisorColorCatalog
     {
         Ensure.NotNull(json);
         SamusVisorColorDocument document;
-        try
-        {
-            using JsonDocument parsed = JsonDocument.Parse(json);
-            RejectDuplicates(parsed.RootElement);
-            document = parsed.RootElement.Deserialize<SamusVisorColorDocument>(JsonOptions)
-                ?? throw new InvalidDataException("Samus visor color JSON is null.");
-        }
-        catch (JsonException error)
-        {
-            throw new InvalidDataException("Invalid Samus visor color JSON.", error);
-        }
+        document = JsonAssetDocument.Read<SamusVisorColorDocument>(json, ArtworkJson.Options, "Samus visor color");
         if (document.Version != SamusVisorColorFormat.Version ||
             document.Colors is null || document.Colors.Length != SamusVisorColorFormat.ColorCount)
             throw new InvalidDataException("Samus visor colors require the supported version and six RGB5 colors.");
@@ -62,12 +42,8 @@ public sealed class SamusVisorColorCatalog
     /// <param name="document">All six RGB5 visor colors to serialize; the array is not retained.</param>
     /// <returns>Validated JSON bytes for <see cref="SamusVisorColorFormat.FileName"/>.</returns>
     /// <exception cref="InvalidDataException">The serialized document fails schema, color-count, or RGB5-channel validation.</exception>
-    public static byte[] Write(SamusVisorColorDocument document)
-    {
-        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, JsonOptions);
-        _ = Load(new MemoryStream(bytes, writable: false));
-        return bytes;
-    }
+    public static byte[] Write(SamusVisorColorDocument document) =>
+        JsonAssetDocument.WriteValidated(document, ArtworkJson.Options, json => _ = Load(json));
 
     /// <summary>
     /// Resolves only the six installed even offsets. Corrupted or adjacent offsets
@@ -95,8 +71,4 @@ public sealed class SamusVisorColorCatalog
         return colors.TryGetValue(index, out Bgr555 color) ? color : SamusVisorColorDefinitions.Color(index);
     }
 
-    /// <summary>Detects repeated JSON properties before deserialization could silently replace a visor color.</summary>
-    private static void RejectDuplicates(JsonElement value) =>
-        JsonAssetDocument.RejectDuplicateProperties(value, StringComparer.Ordinal,
-            name => new InvalidDataException($"Duplicate Samus visor color property {name}."));
 }

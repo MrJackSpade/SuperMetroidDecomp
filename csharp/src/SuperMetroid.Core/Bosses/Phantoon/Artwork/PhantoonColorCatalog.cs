@@ -1,5 +1,3 @@
-using System.Text.Json;
-using System.Text.Json.Serialization;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Enemies.Artwork;
 
@@ -49,14 +47,6 @@ public sealed class PhantoonColorCatalog
             if (powerOn[color] != WreckedShipPowerPaintDefinitions.Color(color)) powerEdits.Add(color, powerOn[color]);
     }
 
-    /// <summary>Writes camel-case asset documents and rejects unknown properties on load.</summary>
-    private static readonly JsonSerializerOptions JsonOptions = new()
-    {
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-        UnmappedMemberHandling = JsonUnmappedMemberHandling.Disallow,
-        WriteIndented = true,
-    };
-
     /// <summary>
     /// $A7:CB41..CC40 health targets, selected by $A7:DC0F. All healthy material
     /// shades and red-tinted bands calculate; supplied edits remain independent
@@ -93,17 +83,7 @@ public sealed class PhantoonColorCatalog
     {
         Ensure.NotNull(json);
         PhantoonColorDocument document;
-        try
-        {
-            using JsonDocument parsed = JsonDocument.Parse(json);
-            RejectDuplicates(parsed.RootElement);
-            document = parsed.RootElement.Deserialize<PhantoonColorDocument>(JsonOptions)
-                ?? throw new InvalidDataException("Phantoon color JSON is null.");
-        }
-        catch (JsonException error)
-        {
-            throw new InvalidDataException("Invalid Phantoon color JSON.", error);
-        }
+        document = JsonAssetDocument.Read<PhantoonColorDocument>(json, ArtworkJson.Options, "Phantoon color");
         if (document.Version != PhantoonColorFormat.Version)
             throw new InvalidDataException("Phantoon colors require the supported version.");
         if (document.HealthBands is null ||
@@ -120,12 +100,8 @@ public sealed class PhantoonColorCatalog
     /// <summary>Validates and serializes a Phantoon color document as UTF-8 JSON.</summary>
     /// <param name="document">Document containing every required color source.</param>
     /// <returns>A new caller-owned JSON byte array.</returns>
-    public static byte[] Write(PhantoonColorDocument document)
-    {
-        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, JsonOptions);
-        _ = Load(new MemoryStream(bytes, writable: false));
-        return bytes;
-    }
+    public static byte[] Write(PhantoonColorDocument document) =>
+        JsonAssetDocument.WriteValidated(document, ArtworkJson.Options, json => _ = Load(json));
 
     /// <summary>Rejects a health palette index outside the eight Phantoon bands.</summary>
     private static int CheckBand(int band) =>
@@ -137,8 +113,4 @@ public sealed class PhantoonColorCatalog
     private static Bgr555[] Compile(PaletteRgb5[]? source, int count, string name) =>
         Rgb5Rows.Compile(source, count, $"Phantoon {name}");
 
-    /// <summary>Rejects duplicate JSON members before deserialization can hide an authored color value.</summary>
-    private static void RejectDuplicates(JsonElement value) =>
-        JsonAssetDocument.RejectDuplicateProperties(value, StringComparer.Ordinal,
-            name => new InvalidDataException($"Duplicate Phantoon color property {name}."));
 }

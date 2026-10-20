@@ -28,7 +28,7 @@ public sealed class RoomPlmSamusEaterVisualCatalog
     });
 
     /// <summary>Owned visual-word overrides keyed by plant pose; null uses every stock appearance.</summary>
-    private readonly Dictionary<ushort, ushort[]>? customWords;
+    private readonly PlmVisualOverrides customWords;
 
     /// <summary>Validates all eight three-run plant poses and copies authored visual differences without changing collision, run geometry, chewing timing, or Samus interaction.</summary>
     /// <param name="entries">Exactly one eight-word visual-only entry for each compiled floor and ceiling pose.</param>
@@ -37,32 +37,8 @@ public sealed class RoomPlmSamusEaterVisualCatalog
     public RoomPlmSamusEaterVisualCatalog(
         IEnumerable<RoomPlmVisualEntry> entries)
     {
-        Ensure.NotNull(entries);
-        var selected = new Dictionary<ushort, ushort[]>();
-        var seen = new HashSet<ushort>();
-        foreach (RoomPlmVisualEntry entry in entries)
-        {
-            if (entry is null || entry.Blocks is null ||
-                !SamusEaterPlmDrawDefinitions.TryGetByVisualId(entry.Id, out var draw) ||
-                entry.Blocks.Length != draw.Runs.Span.Sum(run =>
-                    run.LevelWords.Length) ||
-                entry.Blocks.Any(word => !RoomLevelWord.IsValidVisualWord(word)))
-                throw new InvalidDataException(
-                    "Samus Eater visuals changed a frame identity, draw shape, or visual word.");
-            if (!seen.Add(draw.Pointer))
-                throw new InvalidDataException(
-                    $"Samus Eater visuals repeat frame {entry.Id}.");
-            bool differs = false;
-            int index = 0;
-            foreach (var run in draw.Runs.Span)
-            foreach (ushort word in run.LevelWords.Span)
-                differs |= entry.Blocks[index++] != new RoomLevelWord(word).VisualWord;
-            if (differs) selected.Add(draw.Pointer, entry.Blocks.ToArray());
-        }
-        if (seen.Count != SamusEaterPlmDrawDefinitions.All.Count())
-            throw new InvalidDataException(
-                "Samus Eater visuals do not cover all eight compiled frames.");
-        if (selected.Count != 0) customWords = selected;
+        customWords = new PlmVisualOverrides(entries, "Samus Eater", SamusEaterPlmDrawDefinitions.TryGetByVisualId,
+            SamusEaterPlmDrawDefinitions.All.Count());
     }
 
     /// <summary>Resolves one selected plant block, translating native run-local indices into the flattened authored payload.</summary>
@@ -83,7 +59,7 @@ public sealed class RoomPlmSamusEaterVisualCatalog
         int flatIndex = blockIndex;
         for (int run = 0; run < runIndex; run++)
             flatIndex += SamusEaterPlmDrawDefinitions.Draw.Count(run);
-        return customWords is not null && customWords.TryGetValue(drawPointer, out var words)
+        return customWords.TryGet(drawPointer, out var words)
             ? words[flatIndex] : new RoomLevelWord(draw.WordAt(runIndex, blockIndex)).VisualWord;
     }
 }

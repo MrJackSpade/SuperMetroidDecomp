@@ -98,21 +98,7 @@ public sealed class EnemyExtendedFrameCatalog
     {
         Ensure.NotNull(json);
         EnemyExtendedFrameDocument document;
-        try
-        {
-            using JsonDocument parsed = JsonDocument.Parse(json);
-            EnemySpritemapCatalog.RejectDuplicateProperties(parsed.RootElement);
-            document = parsed.RootElement.Deserialize<EnemyExtendedFrameDocument>(
-                new JsonSerializerOptions
-                {
-                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-                    UnmappedMemberHandling = JsonUnmappedMemberHandling.Disallow,
-                }) ?? throw new InvalidDataException("Extended enemy composition JSON is null.");
-        }
-        catch (JsonException error)
-        {
-            throw new InvalidDataException("Invalid extended enemy composition JSON.", error);
-        }
+        document = JsonAssetDocument.Read<EnemyExtendedFrameDocument>(json, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase, UnmappedMemberHandling = JsonUnmappedMemberHandling.Disallow, }, "extended enemy composition");
         var schema = (EnemyExtendedFrameSchema)document.Version;
         if (!Enum.IsDefined(schema) ||
             (schema != EnemyExtendedFrameSchema.Current && stockForLegacyOverride is null))

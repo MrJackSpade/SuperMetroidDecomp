@@ -1,5 +1,3 @@
-using System.Text.Json;
-using System.Text.Json.Serialization;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Samus.Palettes;
 
@@ -22,14 +20,6 @@ public sealed class PowerBombFixedColorCatalog
         this.explosion = explosion;
     }
 
-    /// <summary>Writes camel-case resource JSON while rejecting unmapped members during load.</summary>
-    private static readonly JsonSerializerOptions JsonOptions = new()
-    {
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-        UnmappedMemberHandling = JsonUnmappedMemberHandling.Disallow,
-        WriteIndented = true,
-    };
-
     /// <summary>Validates the installed fixed-color JSON and compiles independent edits to the two native RGB5 sequences without changing phase or radius mechanics.</summary>
     /// <param name="json">UTF-8 JSON source consumed from its current position and left open.</param>
     /// <returns>Compiled component triplets detached from the document arrays, with stock colors resolved from reviewed definitions where available.</returns>
@@ -39,17 +29,7 @@ public sealed class PowerBombFixedColorCatalog
     {
         Ensure.NotNull(json);
         PowerBombFixedColorDocument document;
-        try
-        {
-            using JsonDocument parsed = JsonDocument.Parse(json);
-            RejectDuplicates(parsed.RootElement);
-            document = parsed.RootElement.Deserialize<PowerBombFixedColorDocument>(JsonOptions)
-                ?? throw new InvalidDataException("Power Bomb fixed-color JSON is null.");
-        }
-        catch (JsonException error)
-        {
-            throw new InvalidDataException("Invalid Power Bomb fixed-color JSON.", error);
-        }
+        document = JsonAssetDocument.Read<PowerBombFixedColorDocument>(json, ArtworkJson.Options, "Power Bomb fixed-color");
         if (document.Version != PowerBombFixedColorFormat.Version)
             throw new InvalidDataException("Power Bomb fixed colors require the supported version.");
         return new(Compile(document.PreExplosion,
@@ -62,12 +42,8 @@ public sealed class PowerBombFixedColorCatalog
     /// <param name="document">The two complete RGB5 color sequences to serialize; the writer does not retain their collections.</param>
     /// <returns>Validated JSON bytes for <see cref="PowerBombFixedColorFormat.FileName"/>.</returns>
     /// <exception cref="InvalidDataException">The serialized document fails schema, sequence-length, or RGB5-channel validation.</exception>
-    public static byte[] Write(PowerBombFixedColorDocument document)
-    {
-        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, JsonOptions);
-        _ = Load(new MemoryStream(bytes, writable: false));
-        return bytes;
-    }
+    public static byte[] Write(PowerBombFixedColorDocument document) =>
+        JsonAssetDocument.WriteValidated(document, ArtworkJson.Options, json => _ = Load(json));
 
     /// <summary>Returns authored display color; phase and radius indexing remain engine-owned.</summary>
     public (byte Red, byte Green, byte Blue) Resolve(PowerBombFixedColorSequence sequence, int index)
@@ -105,8 +81,4 @@ public sealed class PowerBombFixedColorCatalog
         return colors;
     }
 
-    /// <summary>Rejects duplicate JSON properties before deserialization can hide a supplied color.</summary>
-    private static void RejectDuplicates(JsonElement value) =>
-        JsonAssetDocument.RejectDuplicateProperties(value, StringComparer.Ordinal,
-            name => new InvalidDataException($"Duplicate Power Bomb fixed-color property {name}."));
 }

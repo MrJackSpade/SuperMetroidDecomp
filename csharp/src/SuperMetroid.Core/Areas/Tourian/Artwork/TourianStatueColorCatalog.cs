@@ -94,17 +94,7 @@ public sealed class TourianStatueColorCatalog
     public static TourianStatueColorCatalog Load(Stream json)
     {
         TourianStatueColorDocument document;
-        try
-        {
-            using JsonDocument parsed = JsonDocument.Parse(json);
-            RejectDuplicates(parsed.RootElement);
-            document = parsed.RootElement.Deserialize<TourianStatueColorDocument>(Options)
-                ?? throw new InvalidDataException("Tourian statue colors are null.");
-        }
-        catch (JsonException error)
-        {
-            throw new InvalidDataException("Invalid Tourian statue color JSON.", error);
-        }
+        document = JsonAssetDocument.Read<TourianStatueColorDocument>(json, Options, "Tourian statue color");
         if (document.Version != TourianStatueColorFormat.Version ||
             document.Eye is null || document.Eye.Length != TourianStatuePaletteRomData.EyeRowCount)
             throw new InvalidDataException("Tourian statue colors require four eye rows at the supported version.");
@@ -120,12 +110,8 @@ public sealed class TourianStatueColorCatalog
     }
 
     /// <summary>Serializes the editable colors as indented camel-case UTF-8 JSON, validating version, palette dimensions, and RGB5 bounds before returning the bytes.</summary>
-    public static byte[] Write(TourianStatueColorDocument document)
-    {
-        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, Options);
-        _ = Load(new MemoryStream(bytes, writable: false));
-        return bytes;
-    }
+    public static byte[] Write(TourianStatueColorDocument document) =>
+        JsonAssetDocument.WriteValidated(document, Options, json => _ = Load(json));
 
     /// <summary>Checks a band's required length and five-bit channels before converting to hardware color words.</summary>
     private static Bgr555[] Compile(PaletteRgb5[]? colors, int count, string label)
@@ -180,8 +166,4 @@ public sealed class TourianStatueColorCatalog
             for (int color = 0; color < count; color++) destination.Write(color, Read(color));
         }
     }
-    /// <summary>Rejects duplicate JSON properties before an authored palette value can be hidden.</summary>
-    private static void RejectDuplicates(JsonElement value) =>
-        JsonAssetDocument.RejectDuplicateProperties(value, StringComparer.Ordinal,
-            name => new InvalidDataException("Duplicate Tourian statue color property."));
 }

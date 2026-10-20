@@ -1,5 +1,3 @@
-using System.Text.Json;
-using System.Text.Json.Serialization;
 using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Samus.Artwork;
@@ -34,14 +32,6 @@ public sealed class SamusHurtColorCatalog
             .ToDictionary(index => index, index => hurt[index]);
     }
 
-    /// <summary>Strict camel-case JSON settings shared by hurt palette reading and writing.</summary>
-    private static readonly JsonSerializerOptions JsonOptions = new()
-    {
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-        UnmappedMemberHandling = JsonUnmappedMemberHandling.Disallow,
-        WriteIndented = true,
-    };
-
     /// <summary>Compiles the installed hurt and cinematic palettes into independent color edits and calculated native shade relationships.</summary>
     /// <param name="json">UTF-8 JSON input, consumed from its current position and left open.</param>
     /// <returns>A catalog with private compiled color state, independent of the input document's arrays.</returns>
@@ -51,17 +41,7 @@ public sealed class SamusHurtColorCatalog
     {
         Ensure.NotNull(json);
         SamusHurtColorDocument document;
-        try
-        {
-            using JsonDocument parsed = JsonDocument.Parse(json);
-            RejectDuplicates(parsed.RootElement);
-            document = parsed.RootElement.Deserialize<SamusHurtColorDocument>(JsonOptions)
-                ?? throw new InvalidDataException("Samus hurt color JSON is null.");
-        }
-        catch (JsonException error)
-        {
-            throw new InvalidDataException("Invalid Samus hurt color JSON.", error);
-        }
+        document = JsonAssetDocument.Read<SamusHurtColorDocument>(json, ArtworkJson.Options, "Samus hurt color");
         if (document.Version != SamusHurtColorFormat.Version)
             throw new InvalidDataException("Samus hurt colors require the supported version.");
         return new(Compile(document.Hurt, "hurt"), Compile(document.Intro, "intro"));
@@ -71,12 +51,8 @@ public sealed class SamusHurtColorCatalog
     /// <param name="document">Hurt and cinematic RGB5 artwork to serialize; its arrays are not modified.</param>
     /// <returns>A newly allocated JSON byte array suitable for <see cref="SamusHurtColorFormat.FileName"/>.</returns>
     /// <exception cref="InvalidDataException">The serialized document is null or fails the supported version, palette length, or RGB5 channel requirements.</exception>
-    public static byte[] Write(SamusHurtColorDocument document)
-    {
-        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, JsonOptions);
-        _ = Load(new MemoryStream(bytes, writable: false));
-        return bytes;
-    }
+    public static byte[] Write(SamusHurtColorDocument document) =>
+        JsonAssetDocument.WriteValidated(document, ArtworkJson.Options, json => _ = Load(json));
 
     /// <summary>Returns one display color; counter, phase, and sound rules remain in code.</summary>
     /// <param name="variant">Flash or cinematic restoration palette; this method does not select the palette from gameplay state.</param>
@@ -116,8 +92,4 @@ public sealed class SamusHurtColorCatalog
         return colors;
     }
 
-    /// <summary>Rejects duplicate palette properties before JSON deserialization can overwrite them.</summary>
-    private static void RejectDuplicates(JsonElement value) =>
-        JsonAssetDocument.RejectDuplicateProperties(value, StringComparer.Ordinal,
-            name => new InvalidDataException($"Duplicate Samus hurt color property {name}."));
 }

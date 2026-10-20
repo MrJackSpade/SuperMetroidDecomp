@@ -1,7 +1,6 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.Core.Samus.Drawing;
@@ -110,17 +109,7 @@ public sealed class SamusArmCannonArtworkCatalog
     internal static Placement LoadPlacement(Stream json)
     {
         SamusArmCannonArtworkDocument document;
-        try
-        {
-            using JsonDocument parsed = JsonDocument.Parse(json);
-            EnemySpritemapCatalog.RejectDuplicateProperties(parsed.RootElement);
-            document = parsed.RootElement.Deserialize<SamusArmCannonArtworkDocument>(Options)
-                ?? throw new InvalidDataException("Arm-cannon artwork JSON is empty.");
-        }
-        catch (JsonException error)
-        {
-            throw new InvalidDataException("Invalid arm-cannon artwork JSON.", error);
-        }
+        document = JsonAssetDocument.Read<SamusArmCannonArtworkDocument>(json, Options, "arm-cannon artwork");
         if (document.Version != SamusArmCannonArtworkFormat.Version ||
             document.PosePointers is null ||
             document.PosePointers.Length != SamusBodyArtworkCatalog.PoseCount ||

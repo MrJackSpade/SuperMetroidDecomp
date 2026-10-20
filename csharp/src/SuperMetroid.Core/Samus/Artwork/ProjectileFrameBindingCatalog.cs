@@ -34,17 +34,7 @@ public sealed class ProjectileFrameBindingCatalog
     public static ProjectileFrameBindingCatalog Load(Stream json)
     {
         ProjectileFrameBindingDocument document;
-        try
-        {
-            using JsonDocument parsed = JsonDocument.Parse(json);
-            RejectDuplicates(parsed.RootElement);
-            document = parsed.RootElement.Deserialize<ProjectileFrameBindingDocument>(Options)
-                ?? throw new InvalidDataException("Projectile frame bindings are null.");
-        }
-        catch (JsonException error)
-        {
-            throw new InvalidDataException("Invalid projectile frame-binding JSON.", error);
-        }
+        document = JsonAssetDocument.Read<ProjectileFrameBindingDocument>(json, Options, "projectile frame-binding");
         if (document.Version != ProjectileFrameBindingFormat.Version || document.Frames is null ||
             document.Frames.Count != ProjectileFrameBindingFormat.FrameCount)
             throw new InvalidDataException("Projectile frame bindings require version 1 and all 805 timed records.");
@@ -70,17 +60,8 @@ public sealed class ProjectileFrameBindingCatalog
     /// <param name="document">Complete timed-record assignments to serialize; the dictionary is not retained.</param>
     /// <returns>Validated JSON bytes for <see cref="ProjectileFrameBindingFormat.FileName"/>.</returns>
     /// <exception cref="InvalidDataException">The serialized document fails schema, required-record, or legal-sprite validation.</exception>
-    public static byte[] Write(ProjectileFrameBindingDocument document)
-    {
-        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, Options);
-        _ = Load(new MemoryStream(bytes, writable: false));
-        return bytes;
-    }
-
-    /// <summary>Rejects repeated frame-binding property names before JSON deserialization can collapse them.</summary>
-    private static void RejectDuplicates(JsonElement value) =>
-        JsonAssetDocument.RejectDuplicateProperties(value, StringComparer.Ordinal,
-            name => new InvalidDataException($"Duplicate projectile frame-binding property {name}."), descendArrays: false);
+    public static byte[] Write(ProjectileFrameBindingDocument document) =>
+        JsonAssetDocument.WriteValidated(document, Options, json => _ = Load(json));
 
     /// <summary>Strict camel-case schema options used consistently by load and write.</summary>
     private static readonly JsonSerializerOptions Options = new()

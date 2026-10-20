@@ -1,5 +1,3 @@
-using System.Text.Json;
-using System.Text.Json.Serialization;
 using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Bosses.SporeSpawn.Artwork;
@@ -74,14 +72,6 @@ public sealed class SporeSpawnColorCatalog
                     this.deathBackground[frame * SporeSpawnColorRomData.ColorsPerFrame + color] = deathBackground[frame][color];
         }
     }
-
-    /// <summary>Strict camel-case JSON contract used for both stock and editable color documents.</summary>
-    private static readonly JsonSerializerOptions JsonOptions = new()
-    {
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-        UnmappedMemberHandling = JsonUnmappedMemberHandling.Disallow,
-        WriteIndented = true,
-    };
 
     /// <summary>
     /// $A5:E359..E378 repeats the healthy body/spawner row at $E379..E398 in sprite
@@ -234,17 +224,7 @@ public sealed class SporeSpawnColorCatalog
     {
         Ensure.NotNull(json);
         SporeSpawnColorDocument document;
-        try
-        {
-            using JsonDocument parsed = JsonDocument.Parse(json);
-            RejectDuplicates(parsed.RootElement);
-            document = parsed.RootElement.Deserialize<SporeSpawnColorDocument>(JsonOptions)
-                ?? throw new InvalidDataException("Spore Spawn color JSON is null.");
-        }
-        catch (JsonException error)
-        {
-            throw new InvalidDataException("Invalid Spore Spawn color JSON.", error);
-        }
+        document = JsonAssetDocument.Read<SporeSpawnColorDocument>(json, ArtworkJson.Options, "Spore Spawn color");
         if (document.Version != SporeSpawnColorFormat.Version)
             throw new InvalidDataException("Spore Spawn colors require the supported version.");
         return new(
@@ -259,12 +239,8 @@ public sealed class SporeSpawnColorCatalog
     }
 
     /// <summary>Serializes the editable palette document as indented camel-case UTF-8 JSON, validating its version, dimensions, and RGB5 channel bounds before returning the bytes.</summary>
-    public static byte[] Write(SporeSpawnColorDocument document)
-    {
-        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, JsonOptions);
-        _ = Load(new MemoryStream(bytes, writable: false));
-        return bytes;
-    }
+    public static byte[] Write(SporeSpawnColorDocument document) =>
+        JsonAssetDocument.WriteValidated(document, ArtworkJson.Options, json => _ = Load(json));
 
     /// <summary>Checks a palette phase before its packed frame/color key is used.</summary>
     private static int CheckFrame(int frame, int count) =>
@@ -298,8 +274,4 @@ public sealed class SporeSpawnColorCatalog
         return compiled;
     }
 
-    /// <summary>Rejects duplicate color-document property names before deserialization can hide an edit.</summary>
-    private static void RejectDuplicates(JsonElement value) =>
-        JsonAssetDocument.RejectDuplicateProperties(value, StringComparer.Ordinal,
-            name => new InvalidDataException($"Duplicate Spore Spawn color property {name}."));
 }

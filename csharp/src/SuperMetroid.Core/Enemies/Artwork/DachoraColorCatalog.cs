@@ -1,5 +1,3 @@
-using System.Text.Json;
-using System.Text.Json.Serialization;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Enemies.Animals;
 
@@ -75,14 +73,6 @@ public sealed class DachoraColorCatalog
             .Select(frame => Enumerable.Range(0, DachoraColorRomData.ColorsPerFrame)
                 .Select(color => Resolve(phase, frame, color)).ToArray()).ToArray();
 
-    /// <summary>Writes camel-case palette JSON and rejects unmapped members during load.</summary>
-    private static readonly JsonSerializerOptions JsonOptions = new()
-    {
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-        UnmappedMemberHandling = JsonUnmappedMemberHandling.Disallow,
-        WriteIndented = true,
-    };
-
     /// <summary>Resolves one selected Dachora color, using the normal palette as a calculated animated basis while preserving every supplied speed/shine deviation.</summary>
     /// <param name="phase">Exclusive default, speed-boost, or stored-shine palette phase selected by enemy behavior.</param>
     /// <param name="frame">Zero for the default phase, or zero-based animated frame 0 through 3 for speed and shine.</param>
@@ -116,17 +106,7 @@ public sealed class DachoraColorCatalog
     {
         Ensure.NotNull(json);
         DachoraColorDocument document;
-        try
-        {
-            using JsonDocument parsed = JsonDocument.Parse(json);
-            RejectDuplicates(parsed.RootElement);
-            document = parsed.RootElement.Deserialize<DachoraColorDocument>(JsonOptions)
-                ?? throw new InvalidDataException("Dachora color JSON is null.");
-        }
-        catch (JsonException error)
-        {
-            throw new InvalidDataException("Invalid Dachora color JSON.", error);
-        }
+        document = JsonAssetDocument.Read<DachoraColorDocument>(json, ArtworkJson.Options, "Dachora color");
         if (document.Version != DachoraColorFormat.Version)
             throw new InvalidDataException("Dachora colors require the supported version.");
         return new(Compile(document.Normal, "normal"),
@@ -138,12 +118,8 @@ public sealed class DachoraColorCatalog
     /// <param name="document">Supported-version default palette and four-frame speed/shine sequences.</param>
     /// <returns>Validated JSON bytes ready to store as the Dachora color resource.</returns>
     /// <exception cref="InvalidDataException">The serialized document fails catalog validation.</exception>
-    public static byte[] Write(DachoraColorDocument document)
-    {
-        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, JsonOptions);
-        _ = Load(new MemoryStream(bytes, writable: false));
-        return bytes;
-    }
+    public static byte[] Write(DachoraColorDocument document) =>
+        JsonAssetDocument.WriteValidated(document, ArtworkJson.Options, json => _ = Load(json));
 
     /// <summary>Requires four animated frames and validates each sixteen-color row.</summary>
     private static Bgr555[][] CompileFrames(PaletteRgb5[][]? source, string name)
@@ -174,8 +150,4 @@ public sealed class DachoraColorCatalog
         return compiled;
     }
 
-    /// <summary>Rejects duplicate JSON members before deserialization can hide an authored color.</summary>
-    private static void RejectDuplicates(JsonElement value) =>
-        JsonAssetDocument.RejectDuplicateProperties(value, StringComparer.Ordinal,
-            name => new InvalidDataException($"Duplicate Dachora color property {name}."));
 }

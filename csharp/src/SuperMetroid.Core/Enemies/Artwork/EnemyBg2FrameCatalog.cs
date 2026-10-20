@@ -50,21 +50,7 @@ internal sealed class EnemyBg2FrameCatalog
     {
         Ensure.NotNull(json);
         EnemyBg2FrameDocument document;
-        try
-        {
-            using JsonDocument parsed = JsonDocument.Parse(json);
-            EnemySpritemapCatalog.RejectDuplicateProperties(parsed.RootElement);
-            document = parsed.RootElement.Deserialize<EnemyBg2FrameDocument>(
-                new JsonSerializerOptions
-                {
-                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-                    UnmappedMemberHandling = JsonUnmappedMemberHandling.Disallow,
-                }) ?? throw new InvalidDataException($"{family} BG2 frames are null.");
-        }
-        catch (JsonException error)
-        {
-            throw new InvalidDataException($"Invalid {family} BG2 frame JSON.", error);
-        }
+        document = JsonAssetDocument.Read<EnemyBg2FrameDocument>(json, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase, UnmappedMemberHandling = JsonUnmappedMemberHandling.Disallow, }, $"{family} BG2 frame");
         if (document.Version != version || document.Frames is null ||
             document.Frames.Count != definitions.Length)
             throw new InvalidDataException(

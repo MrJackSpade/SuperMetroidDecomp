@@ -1,6 +1,5 @@
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
 
 namespace SuperMetroid.Core.Frontend.Ending.Artwork;
@@ -33,18 +32,7 @@ public sealed class EndingRewardSpritePresentation : IIntroCinematicSpritePresen
     {
         Ensure.NotNull(json);
         EndingRewardSpriteDocument document;
-        try
-        {
-            using JsonDocument parsed = JsonDocument.Parse(json);
-            EnemySpritemapCatalog.RejectDuplicateProperties(parsed.RootElement);
-            document = parsed.RootElement.Deserialize<EndingRewardSpriteDocument>(
-                ArtworkJson.Options) ??
-                throw new InvalidDataException("Ending reward sprite JSON is null.");
-        }
-        catch (JsonException error)
-        {
-            throw new InvalidDataException("Invalid ending reward sprite JSON.", error);
-        }
+        document = JsonAssetDocument.Read<EndingRewardSpriteDocument>(json, ArtworkJson.Options, "ending reward sprite");
         IReadOnlyList<SpriteFrameDefinition> definitions =
             EndingRewardSpriteDefinitions.Frames;
         if (document.Version != EndingRewardSpriteFormat.Version ||

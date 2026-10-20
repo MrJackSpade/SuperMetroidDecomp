@@ -1,5 +1,3 @@
-using System.Text.Json;
-using System.Text.Json.Serialization;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.Core.Samus.Abilities;
@@ -35,14 +33,6 @@ public sealed class CrystalFlashColorCatalog
             if (bubble[frame][color] != CalculateBubble(frame, color))
                 this.bubble.Add(frame * CrystalFlashColorFormat.BubbleColorCount + color, bubble[frame][color]);
     }
-
-    /// <summary>Writes camel-case presentation JSON and rejects unrecognized document fields.</summary>
-    private static readonly JsonSerializerOptions JsonOptions = new()
-    {
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-        UnmappedMemberHandling = JsonUnmappedMemberHandling.Disallow,
-        WriteIndented = true,
-    };
 
     /// <summary>Returns one editable body color for a native playback record, calculating stock rows when they require no stored overrides.</summary>
     /// <param name="frame">Zero-based body record index, 0 through 9 in playback order.</param>
@@ -137,17 +127,7 @@ public sealed class CrystalFlashColorCatalog
     {
         Ensure.NotNull(json);
         CrystalFlashColorDocument document;
-        try
-        {
-            using JsonDocument parsed = JsonDocument.Parse(json);
-            RejectDuplicates(parsed.RootElement);
-            document = parsed.RootElement.Deserialize<CrystalFlashColorDocument>(JsonOptions)
-                ?? throw new InvalidDataException("Crystal Flash color JSON is null.");
-        }
-        catch (JsonException error)
-        {
-            throw new InvalidDataException("Invalid Crystal Flash color JSON.", error);
-        }
+        document = JsonAssetDocument.Read<CrystalFlashColorDocument>(json, ArtworkJson.Options, "Crystal Flash color");
         if (document.Version != CrystalFlashColorFormat.Version)
             throw new InvalidDataException("Crystal Flash colors require the supported version.");
         return new(Compile(document.Body, CrystalFlashColorFormat.BodyFrameCount,
@@ -160,12 +140,8 @@ public sealed class CrystalFlashColorCatalog
     /// <param name="document">Body and bubble RGB5 frame arrays with the supported schema version.</param>
     /// <returns>Validated JSON bytes ready to store as the catalog resource.</returns>
     /// <exception cref="InvalidDataException">The serialized document fails catalog validation.</exception>
-    public static byte[] Write(CrystalFlashColorDocument document)
-    {
-        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, JsonOptions);
-        _ = Load(new MemoryStream(bytes, writable: false));
-        return bytes;
-    }
+    public static byte[] Write(CrystalFlashColorDocument document) =>
+        JsonAssetDocument.WriteValidated(document, ArtworkJson.Options, json => _ = Load(json));
 
     /// <summary>Validates an authored palette grid's dimensions and RGB5 channels before packing its colors.</summary>
     private static Bgr555[][] Compile(PaletteRgb5[][]? source, int frameCount,
@@ -194,8 +170,4 @@ public sealed class CrystalFlashColorCatalog
         return result;
     }
 
-    /// <summary>Rejects repeated JSON property names before deserialization can replace a supplied palette.</summary>
-    private static void RejectDuplicates(JsonElement value) =>
-        JsonAssetDocument.RejectDuplicateProperties(value, StringComparer.Ordinal,
-            name => new InvalidDataException($"Duplicate Crystal Flash color property {name}."));
 }

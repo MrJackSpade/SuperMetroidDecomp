@@ -1,5 +1,3 @@
-using System.Text.Json;
-using System.Text.Json.Serialization;
 using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Bosses.Ridley.Artwork;
@@ -12,14 +10,6 @@ public sealed class CeresRidleyMode7ColorCatalog
 
     /// <summary>Copies validated RGB5 rows into the fixed zoom-shade selector.</summary>
     private CeresRidleyMode7ColorCatalog(Bgr555[][] rows) => this.rows = new(rows);
-
-    /// <summary>Uses stable camel-case output and rejects unknown authored color properties.</summary>
-    private static readonly JsonSerializerOptions JsonOptions = new()
-    {
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-        UnmappedMemberHandling = JsonUnmappedMemberHandling.Disallow,
-        WriteIndented = true,
-    };
 
     /// <summary>Reads an authored color by the high byte of the native zoom word.</summary>
     public Bgr555 Resolve(int zoomHighByte, int color)
@@ -50,17 +40,7 @@ public sealed class CeresRidleyMode7ColorCatalog
             CeresRidleyPaletteRomData.Mode7ZoomColorCount);
         Ensure.NotNull(json);
         CeresRidleyMode7ColorDocument document;
-        try
-        {
-            using JsonDocument parsed = JsonDocument.Parse(json);
-            RejectDuplicates(parsed.RootElement);
-            document = parsed.RootElement.Deserialize<CeresRidleyMode7ColorDocument>(JsonOptions)
-                ?? throw new InvalidDataException("Ceres Ridley Mode-7 colors are null.");
-        }
-        catch (JsonException error)
-        {
-            throw new InvalidDataException("Invalid Ceres Ridley Mode-7 color JSON.", error);
-        }
+        document = JsonAssetDocument.Read<CeresRidleyMode7ColorDocument>(json, ArtworkJson.Options, "Ceres Ridley Mode-7 color");
         if (document.Version != CeresRidleyMode7ColorFormat.Version ||
             !zoomShape.HasRows(document.ZoomRows))
             throw new InvalidDataException("Ceres Ridley Mode-7 colors require version one and nine zoom rows.");
@@ -86,15 +66,7 @@ public sealed class CeresRidleyMode7ColorCatalog
     /// <summary>Serializes all zoom shades as UTF-8 JSON and validates them through <see cref="Load"/> before returning the payload.</summary>
     /// <param name="document">Complete nine-row color document to validate and serialize.</param>
     /// <returns>Validated JSON bytes, without writing an external resource.</returns>
-    public static byte[] Write(CeresRidleyMode7ColorDocument document)
-    {
-        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, JsonOptions);
-        _ = Load(new MemoryStream(bytes, writable: false));
-        return bytes;
-    }
+    public static byte[] Write(CeresRidleyMode7ColorDocument document) =>
+        JsonAssetDocument.WriteValidated(document, ArtworkJson.Options, json => _ = Load(json));
 
-    /// <summary>Rejects repeated JSON property names before deserialization can silently overwrite a shade.</summary>
-    private static void RejectDuplicates(JsonElement value) =>
-        JsonAssetDocument.RejectDuplicateProperties(value, StringComparer.Ordinal,
-            name => new InvalidDataException($"Duplicate Ceres Ridley Mode-7 property {name}."));
 }

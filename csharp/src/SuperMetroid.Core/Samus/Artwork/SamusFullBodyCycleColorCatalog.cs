@@ -1,5 +1,3 @@
-using System.Text.Json;
-using System.Text.Json.Serialization;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Fx.Artwork;
 using SuperMetroid.Core.Samus.Palettes;
@@ -140,14 +138,6 @@ public sealed class SamusFullBodyCycleColorCatalog
         }
     }
 
-    /// <summary>Uses strict camel-case JSON and rejects unknown full-body palette fields.</summary>
-    private static readonly JsonSerializerOptions JsonOptions = new()
-    {
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-        UnmappedMemberHandling = JsonUnmappedMemberHandling.Disallow,
-        WriteIndented = true,
-    };
-
     /// <summary>Returns one BGR555 color at a compiled bank-$9B palette pointer.</summary>
     public Bgr555 Resolve(ushort pointer, int colorIndex)
     {
@@ -238,17 +228,7 @@ public sealed class SamusFullBodyCycleColorCatalog
     {
         Ensure.NotNull(json);
         SamusFullBodyCycleColorDocument document;
-        try
-        {
-            using JsonDocument parsed = JsonDocument.Parse(json);
-            RejectDuplicates(parsed.RootElement);
-            document = parsed.RootElement.Deserialize<SamusFullBodyCycleColorDocument>(JsonOptions)
-                ?? throw new InvalidDataException("Samus full-body cycle color JSON is null.");
-        }
-        catch (JsonException error)
-        {
-            throw new InvalidDataException("Invalid Samus full-body cycle color JSON.", error);
-        }
+        document = JsonAssetDocument.Read<SamusFullBodyCycleColorDocument>(json, ArtworkJson.Options, "Samus full-body cycle color");
         if (document.Version != SamusFullBodyCycleColorFormat.Version)
             throw new InvalidDataException("Samus full-body cycle colors require the supported version.");
 
@@ -261,12 +241,8 @@ public sealed class SamusFullBodyCycleColorCatalog
     }
 
     /// <summary>Validates and serializes a full-body cycle color document as JSON.</summary>
-    public static byte[] Write(SamusFullBodyCycleColorDocument document)
-    {
-        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, JsonOptions);
-        _ = Load(new MemoryStream(bytes, writable: false));
-        return bytes;
-    }
+    public static byte[] Write(SamusFullBodyCycleColorDocument document) =>
+        JsonAssetDocument.WriteValidated(document, ArtworkJson.Options, json => _ = Load(json));
 
     /// <summary>Validates a family's three suits and four shades, then places RGB5 colors at compiled native pointers.</summary>
     private static void AddFamily(Bgr555[][] destination,
@@ -303,8 +279,4 @@ public sealed class SamusFullBodyCycleColorCatalog
         }
     }
 
-    /// <summary>Rejects repeated JSON property names before deserialization can overwrite an authored palette.</summary>
-    private static void RejectDuplicates(JsonElement value) =>
-        JsonAssetDocument.RejectDuplicateProperties(value, StringComparer.Ordinal,
-            name => new InvalidDataException($"Duplicate full-body color property {name}."));
 }

@@ -1,5 +1,3 @@
-using System.Text.Json;
-using System.Text.Json.Serialization;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Bosses.Artwork;
 
@@ -77,14 +75,6 @@ public sealed class CrocomireColorCatalog
         for (int color = 0; color < transfer.Length; color++) transfer[color] = Get(band, color);
         content.AppendColors(label, transfer);
     }
-    /// <summary>Strict camel-case JSON options for the editable palette document.</summary>
-    private static readonly JsonSerializerOptions JsonOptions = new()
-    {
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-        UnmappedMemberHandling = JsonUnmappedMemberHandling.Disallow,
-        WriteIndented = true,
-    };
-
     /// <summary>Installs the native initialization transfers in order: seventeen wall words at CGRAM 160–176, then seventeen projectile words at 208–224, retaining each source overlap word.</summary>
     public void ApplyInitial(IPaletteColors cgram)
     {
@@ -111,17 +101,7 @@ public sealed class CrocomireColorCatalog
     {
         Ensure.NotNull(json);
         CrocomireColorDocument document;
-        try
-        {
-            using JsonDocument parsed = JsonDocument.Parse(json);
-            RejectDuplicates(parsed.RootElement);
-            document = parsed.RootElement.Deserialize<CrocomireColorDocument>(JsonOptions)
-                ?? throw new InvalidDataException("Crocomire color JSON is null.");
-        }
-        catch (JsonException error)
-        {
-            throw new InvalidDataException("Invalid Crocomire color JSON.", error);
-        }
+        document = JsonAssetDocument.Read<CrocomireColorDocument>(json, ArtworkJson.Options, "Crocomire color");
         if (document.Version != CrocomireColorFormat.Version)
             throw new InvalidDataException("Crocomire colors require the supported version.");
         return new(
@@ -137,12 +117,8 @@ public sealed class CrocomireColorCatalog
     }
 
     /// <summary>Serializes the five editable color bands as indented camel-case UTF-8 JSON, validating version, transfer lengths, and RGB5 channels before returning the bytes.</summary>
-    public static byte[] Write(CrocomireColorDocument document)
-    {
-        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, JsonOptions);
-        _ = Load(new MemoryStream(bytes, writable: false));
-        return bytes;
-    }
+    public static byte[] Write(CrocomireColorDocument document) =>
+        JsonAssetDocument.WriteValidated(document, ArtworkJson.Options, json => _ = Load(json));
 
     /// <summary>Returns an edited color or calculates the corresponding native stock paint.</summary>
     internal Bgr555 Get(Band band, int index)
@@ -161,8 +137,4 @@ public sealed class CrocomireColorCatalog
     private static Bgr555[] Compile(PaletteRgb5[]? source, int count, string name) =>
         Rgb5Rows.Compile(source, count, $"Crocomire {name}");
 
-    /// <summary>Rejects ambiguous property names before deserializing the palette document.</summary>
-    private static void RejectDuplicates(JsonElement value) =>
-        JsonAssetDocument.RejectDuplicateProperties(value, StringComparer.Ordinal,
-            name => new InvalidDataException($"Duplicate Crocomire color property {name}."));
 }

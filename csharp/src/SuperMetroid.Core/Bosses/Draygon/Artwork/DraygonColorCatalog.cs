@@ -1,5 +1,3 @@
-using System.Text.Json;
-using System.Text.Json.Serialization;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Bosses.Artwork;
 
@@ -57,14 +55,6 @@ public sealed class DraygonColorCatalog
             if (whiteFlash[color] != StockWhiteFlash(color)) this.whiteFlash.Add(color, whiteFlash[color]);
         this.healthBands = new(healthBands);
     }
-
-    /// <summary>Uses the published camel-case schema and rejects unknown JSON fields.</summary>
-    private static readonly JsonSerializerOptions JsonOptions = new()
-    {
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-        UnmappedMemberHandling = JsonUnmappedMemberHandling.Disallow,
-        WriteIndented = true,
-    };
 
     /// <summary>Gets one of the 25 selected RGB5 colors used by Draygon's opening palette.</summary>
     public Bgr555 ResolveIntro(int color) => intro.Color(color);
@@ -127,17 +117,7 @@ public sealed class DraygonColorCatalog
     {
         Ensure.NotNull(json);
         DraygonColorDocument document;
-        try
-        {
-            using JsonDocument parsed = JsonDocument.Parse(json);
-            RejectDuplicates(parsed.RootElement);
-            document = parsed.RootElement.Deserialize<DraygonColorDocument>(JsonOptions)
-                ?? throw new InvalidDataException("Draygon color JSON is null.");
-        }
-        catch (JsonException error)
-        {
-            throw new InvalidDataException("Invalid Draygon color JSON.", error);
-        }
+        document = JsonAssetDocument.Read<DraygonColorDocument>(json, ArtworkJson.Options, "Draygon color");
         if (document.Version != DraygonColorFormat.Version)
             throw new InvalidDataException("Draygon colors require the supported version.");
         if (document.HealthBands is null ||
@@ -154,12 +134,8 @@ public sealed class DraygonColorCatalog
     }
 
     /// <summary>Validates and serializes a Draygon color document as indented camel-case JSON.</summary>
-    public static byte[] Write(DraygonColorDocument document)
-    {
-        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, JsonOptions);
-        _ = Load(new MemoryStream(bytes, writable: false));
-        return bytes;
-    }
+    public static byte[] Write(DraygonColorDocument document) =>
+        JsonAssetDocument.WriteValidated(document, ArtworkJson.Options, json => _ = Load(json));
 
     /// <summary>Validates a health palette row before resolving one of its colors.</summary>
     private static int CheckBand(int band) =>
@@ -176,8 +152,4 @@ public sealed class DraygonColorCatalog
     private static Bgr555[] Compile(PaletteRgb5[]? source, int count, string name) =>
         Rgb5Rows.Compile(source, count, $"Draygon {name}");
 
-    /// <summary>Rejects repeated case-sensitive Draygon JSON property names before deserialization.</summary>
-    private static void RejectDuplicates(JsonElement value) =>
-        JsonAssetDocument.RejectDuplicateProperties(value, StringComparer.Ordinal,
-            name => new InvalidDataException($"Duplicate Draygon color property {name}."));
 }

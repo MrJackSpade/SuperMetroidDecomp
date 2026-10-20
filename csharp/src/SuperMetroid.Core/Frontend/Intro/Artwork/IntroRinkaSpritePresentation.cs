@@ -1,6 +1,5 @@
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Frontend.Intro.Artwork;
 
@@ -37,18 +36,7 @@ public sealed class IntroRinkaSpritePresentation : IIntroCinematicSpritePresenta
     {
         Ensure.NotNull(json);
         IntroRinkaSpriteDocument document;
-        try
-        {
-            using JsonDocument parsed = JsonDocument.Parse(json);
-            EnemySpritemapCatalog.RejectDuplicateProperties(parsed.RootElement);
-            document = parsed.RootElement.Deserialize<IntroRinkaSpriteDocument>(
-                ArtworkJson.Options) ??
-                throw new InvalidDataException("Intro Rinka sprite JSON is null.");
-        }
-        catch (JsonException error)
-        {
-            throw new InvalidDataException("Invalid intro Rinka sprite JSON.", error);
-        }
+        document = JsonAssetDocument.Read<IntroRinkaSpriteDocument>(json, ArtworkJson.Options, "intro Rinka sprite");
         IReadOnlyList<SpritemapFrameDefinition> definitions = IntroRinkaSpriteDefinitions.Frames;
         if (document.Version != IntroRinkaSpriteFormat.Version ||
             document.Frames is null || document.Frames.Count != definitions.Count)

@@ -29,7 +29,7 @@ public sealed class RoomPlmMotherBrainFakeDeathVisualCatalog
     });
 
     /// <summary>Only changed draw appearances, keyed by native pointer; unchanged draws use compiled visuals.</summary>
-    private readonly Dictionary<ushort, ushort[]>? customWords;
+    private readonly PlmVisualOverrides customWords;
 
     /// <summary>Validates all twenty-two fake-death room layouts and copies visual differences while retaining collision words, signed draw offsets, and PLM timing.</summary>
     /// <param name="entries">One visual-only entry per compiled layout, with the exact flattened count of all its native run words.</param>
@@ -38,33 +38,8 @@ public sealed class RoomPlmMotherBrainFakeDeathVisualCatalog
     public RoomPlmMotherBrainFakeDeathVisualCatalog(
         IEnumerable<RoomPlmVisualEntry> entries)
     {
-        Ensure.NotNull(entries);
-        var selected = new Dictionary<ushort, ushort[]>();
-        var seen = new HashSet<ushort>();
-        foreach (RoomPlmVisualEntry entry in entries)
-        {
-            if (entry is null || entry.Blocks is null ||
-                !MotherBrainFakeDeathPlmDrawDefinitions.TryGetByVisualId(
-                    entry.Id, out var draw) ||
-                entry.Blocks.Length != draw.Runs.Span.Sum(run =>
-                    run.LevelWords.Length) ||
-                entry.Blocks.Any(word => !RoomLevelWord.IsValidVisualWord(word)))
-                throw new InvalidDataException(
-                    "Mother Brain fake-death visuals changed a draw identity, shape, or visual word.");
-            if (!seen.Add(draw.Pointer))
-                throw new InvalidDataException(
-                    $"Mother Brain fake-death visuals repeat draw {entry.Id}.");
-            bool changed = false;
-            int index = 0;
-            foreach (var run in draw.Runs.Span)
-            foreach (ushort word in run.LevelWords.Span)
-                changed |= entry.Blocks[index++] != new RoomLevelWord(word).VisualWord;
-            if (changed) selected.Add(draw.Pointer, entry.Blocks.ToArray());
-        }
-        if (seen.Count != MotherBrainFakeDeathPlmDrawDefinitions.All.Count())
-            throw new InvalidDataException(
-                "Mother Brain fake-death visuals do not cover all twenty-two draws.");
-        if (selected.Count != 0) customWords = selected;
+        customWords = new PlmVisualOverrides(entries, "Mother Brain fake-death", MotherBrainFakeDeathPlmDrawDefinitions.TryGetByVisualId,
+            MotherBrainFakeDeathPlmDrawDefinitions.All.Count());
     }
 
     /// <summary>Resolves a fake-death room block's selected appearance, projecting native run-local indices into its flattened authored layout.</summary>
@@ -80,14 +55,14 @@ public sealed class RoomPlmMotherBrainFakeDeathVisualCatalog
         {
             if (runIndex != 0 || (uint)blockIndex >= 13)
                 throw new ArgumentOutOfRangeException(nameof(blockIndex));
-            return customWords is not null && customWords.TryGetValue(drawPointer, out var selectedBackground)
+            return customWords.TryGet(drawPointer, out var selectedBackground)
                 ? selectedBackground[blockIndex] : new RoomLevelWord(background.WordAt(blockIndex)).VisualWord;
         }
         if (MotherBrainFakeDeathPlmDrawDefinitions.TryDescribeRegular(drawPointer, out var regular))
         {
             if ((uint)runIndex >= regular.RunCount || (uint)blockIndex >= regular.Count(runIndex))
                 throw new ArgumentOutOfRangeException(nameof(blockIndex));
-            return customWords is not null && customWords.TryGetValue(drawPointer, out var selected)
+            return customWords.TryGet(drawPointer, out var selected)
                 ? selected[(runIndex == 0 ? 0 : regular.Count(0)) + blockIndex]
                 : new RoomLevelWord(regular.WordAt(runIndex, blockIndex)).VisualWord;
         }
@@ -100,7 +75,7 @@ public sealed class RoomPlmMotherBrainFakeDeathVisualCatalog
         int flatIndex = blockIndex;
         for (int run = 0; run < runIndex; run++)
             flatIndex += draw.Count(run);
-        return customWords is not null && customWords.TryGetValue(drawPointer, out var words)
+        return customWords.TryGet(drawPointer, out var words)
             ? words[flatIndex] : new RoomLevelWord(draw.WordAt(runIndex, blockIndex)).VisualWord;
     }
 }

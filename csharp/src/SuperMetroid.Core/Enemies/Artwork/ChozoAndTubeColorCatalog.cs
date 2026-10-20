@@ -1,5 +1,3 @@
-using System.Text.Json;
-using System.Text.Json.Serialization;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Core.Enemies.Chozo;
@@ -49,14 +47,6 @@ public sealed class ChozoAndTubeColorCatalog
                 lowerNorfairEdits.Add(color, lowerNorfair[color]);
         }
     }
-
-    /// <summary>Writes readable camel-case palette documents and rejects unmapped fields on load.</summary>
-    private static readonly JsonSerializerOptions JsonOptions = new()
-    {
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-        UnmappedMemberHandling = JsonUnmappedMemberHandling.Disallow,
-        WriteIndented = true,
-    };
 
     /// <summary>Gets packed RGB5 tube-crack ink 0–31 corresponding to $AA:E2DD; the stock second sixteen-color half repeats the first, while supplied edits remain independent.</summary>
     public Bgr555 ResolveTubeCracks(int color)
@@ -110,17 +100,7 @@ public sealed class ChozoAndTubeColorCatalog
     {
         Ensure.NotNull(json);
         ChozoAndTubeColorDocument document;
-        try
-        {
-            using JsonDocument parsed = JsonDocument.Parse(json);
-            RejectDuplicates(parsed.RootElement);
-            document = parsed.RootElement.Deserialize<ChozoAndTubeColorDocument>(JsonOptions)
-                ?? throw new InvalidDataException("Chozo/tube color JSON is null.");
-        }
-        catch (JsonException error)
-        {
-            throw new InvalidDataException("Invalid Chozo/tube color JSON.", error);
-        }
+        document = JsonAssetDocument.Read<ChozoAndTubeColorDocument>(json, ArtworkJson.Options, "Chozo/tube color");
         if (document.Version != ChozoAndTubeColorFormat.Version)
             throw new InvalidDataException("Chozo/tube colors require the supported version.");
         return new(
@@ -130,12 +110,8 @@ public sealed class ChozoAndTubeColorCatalog
     }
 
     /// <summary>Serializes the three color images as indented camel-case UTF-8 JSON, validating version, 32-color dimensions, and RGB5 channel bounds before returning the bytes.</summary>
-    public static byte[] Write(ChozoAndTubeColorDocument document)
-    {
-        byte[] bytes = JsonSerializer.SerializeToUtf8Bytes(document, JsonOptions);
-        _ = Load(new MemoryStream(bytes, writable: false));
-        return bytes;
-    }
+    public static byte[] Write(ChozoAndTubeColorDocument document) =>
+        JsonAssetDocument.WriteValidated(document, ArtworkJson.Options, json => _ = Load(json));
 
     /// <summary>Writes the selected statue's 32 inks into the shared boss OBJ palette range.</summary>
     private void Apply(IPaletteColors cgram, ChozoStatuePalette palette)
@@ -164,8 +140,4 @@ public sealed class ChozoAndTubeColorCatalog
         return compiled;
     }
 
-    /// <summary>Rejects repeated JSON property names before deserialization can overwrite palette edits.</summary>
-    private static void RejectDuplicates(JsonElement value) =>
-        JsonAssetDocument.RejectDuplicateProperties(value, StringComparer.Ordinal,
-            name => new InvalidDataException($"Duplicate Chozo/tube color property {name}."));
 }

@@ -98,7 +98,7 @@ internal static class PauseMapAreaLabelsVerification
             AssertLabels(0, "map-to-equipment fade-out");
             for (int frame = 0; frame < 29; frame++) pause.Step(0, 0);
             _ = pause.Render();
-            AssertEqual(1, pause.ScreenMode, "equipment page reached");
+            AssertEqual(PauseScreenMode.Equipment, pause.ScreenMode, "equipment page reached");
             AssertTrue(pause.screen.Objects.LastFinalizedSpriteCount * 4 < labelBytes, "equipment page emits no destination names");
             // Page input is accepted only once the equipment fade-in completes (#1266 cadence).
             for (int frame = 0; pause.IsPageTransitionActive; frame++)
@@ -109,7 +109,7 @@ internal static class PauseMapAreaLabelsVerification
             pause.Step(SnesButton.L, 0);
             for (int frame = 0; frame < 16; frame++) pause.Step(0, 0);
             _ = pause.Render();
-            AssertEqual(0, pause.ScreenMode, "map fade-in reached");
+            AssertEqual(PauseScreenMode.Map, pause.ScreenMode, "map fade-in reached");
             AssertLabels(pause.screen.Objects.LastFinalizedSpriteCount * 4 - labelBytes, "equipment-to-map fade-in");
             void AssertLabels(int firstByte, string phase)
             {

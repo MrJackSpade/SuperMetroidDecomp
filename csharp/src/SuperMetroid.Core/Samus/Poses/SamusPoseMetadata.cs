@@ -235,7 +235,7 @@ internal sealed class SamusPoseMetadata
 
         _samus.HorizontalSpeed.ExtraRunSpeed = default;
         _samus.HorizontalSpeed.BaseSpeed = default;
-        _samus.HorizontalSpeed.AccelerationMode = 0;
+        _samus.HorizontalSpeed.AccelerationMode = SamusAccelerationMode.Accelerating;
         _samus.Kinematics.YSpeed = default;
         _samus.Kinematics.YDirection = SamusVerticalDirection.None;
         _samus.MorphBallBounceState = SamusBallBounceState.None;

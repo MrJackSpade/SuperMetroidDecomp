@@ -49,6 +49,7 @@ public sealed class DeadSidehopperEnemyState
     /// <see cref="DeadSidehopperCorpseDefinitions.NoPaletteStage"/> for a corpse placed already dead. A stage of 8 or more
     /// lets a shot, touch or Power Bomb start rotting.
     /// </summary>
+    [IntegerQuantity("drain progress counted from zero to eight; comparisons test how far draining has gone")]
     public int PaletteStage { get; internal set; }
 
     /// <summary>Native signed 8.8 velocity: horizontal word 0A and vertical word 0B.</summary>

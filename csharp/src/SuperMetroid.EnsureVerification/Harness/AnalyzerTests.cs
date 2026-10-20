@@ -312,6 +312,33 @@ internal static class AnalyzerTests
         VerifySnippet("record KraidEntry(string Id, ushort[] Blocks); record CrocomireEntry(string Id, ushort[] Blocks);", null, null, analyzer, assemblyName: "Other");
     }
 
+    /// <summary>Checks that an integer-coded mode is reported, a quantity is not, and a justified member is not (#1372).</summary>
+    internal static void VerifyIntegerCodedModeAnalyzer()
+    {
+        var analyzer = new IntegerCodedModeAnalyzer();
+        void Expect(string source, string? id = null, string? message = null) =>
+            VerifySnippet(source, id, message, analyzer, assemblyName: IntegerCodedModeAnalyzer.CheckedAssembly);
+        const string attribute = "[System.AttributeUsage(System.AttributeTargets.All)] sealed class IntegerQuantityAttribute(string reason) : System.Attribute { }";
+
+        // SME6421: a categorically named integer compared to a literal, through ==, a cast, an is pattern or a switch.
+        Expect("class Pause { int ScreenMode; bool Map() => ScreenMode == 0; }", IntegerCodedModeAnalyzer.CategoricalLiteralId, "'ScreenMode'");
+        Expect("class Lift { ushort ElevatorDirection; bool Up() => (short)ElevatorDirection >= 0; }", IntegerCodedModeAnalyzer.CategoricalLiteralId);
+        Expect("class Menu { int SelectedItem; bool Slot() => SelectedItem is 3 or 4; }", IntegerCodedModeAnalyzer.CategoricalLiteralId);
+        Expect("class Gate { int TriggerMode; int Next() => TriggerMode switch { 1 => 2, _ => 3 }; }", IntegerCodedModeAnalyzer.CategoricalLiteralId);
+        // SME6422: any integer member compared for equality to two different literals.
+        Expect("class Cannon { int Drawing; bool A() => Drawing == 2; bool B() => Drawing == 1; }", IntegerCodedModeAnalyzer.SeveralLiteralsId, "1, 2");
+        // A quantity compared to one value or bounded relationally, a local, and a justified member pass.
+        Expect("class Ammo { int Count; bool Empty() => Count == 0; bool Full() => Count >= 99; }");
+        Expect("class C { bool M(int phase) => phase == 1; }");
+        // A switch mapping an index to data is a lookup.
+        Expect("class Frame { int Pose; int Map() => Pose switch { 0 => 10, 1 => 20, _ => 30 }; }");
+        Expect(attribute + " class Pause { [IntegerQuantity(\"counts screens scrolled\")] int ScreenMode; bool Map() => ScreenMode == 0; }");
+        Expect("[System.AttributeUsage(System.AttributeTargets.All)] sealed class NativeWordAttribute(string reason) : System.Attribute { } " +
+            "class Slot { [NativeWord(\"packed projectile type word\")] int Type; bool Empty() => Type == 0; bool Bomb() => Type == 0x500; }");
+        // Other assemblies are not checked.
+        VerifySnippet("class Pause { int ScreenMode; bool Map() => ScreenMode == 0; }", null, null, analyzer, assemblyName: "Other");
+    }
+
     /// <summary>Checks that every pragma warning disable is reported and the sanctioned per-site form is not (#1396).</summary>
     internal static void VerifyPragmaWarningDisableAnalyzer()
     {

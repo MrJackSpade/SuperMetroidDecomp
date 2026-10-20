@@ -21,11 +21,11 @@ internal static class DamageBoostJumpInitializerVerification
         samus.PoseMetadata.RefreshCollisionRadii();
         samus.Presentation.InitializeAnimation();
         samus.HorizontalSpeed.BaseSpeed = samus.HorizontalSpeed.BaseSpeed.WithWhole(5);
-        samus.HorizontalSpeed.AccelerationMode = SamusHorizontalAccelerationModes.Decelerating;
+        samus.HorizontalSpeed.AccelerationMode = SamusAccelerationMode.Decelerating;
 
         SamusKnockbackMovement.ApplyDamageBoostPoseTransition(samus, SamusPoseId.NeutralJumpLeftPose, 0);
         AssertEqual(SamusPoseId.NeutralJumpLeftPose, samus.Pose, "the boost exits to neutral jump $4E");
-        AssertEqual(SamusHorizontalAccelerationModes.Accelerating, samus.HorizontalSpeed.AccelerationMode,
+        AssertEqual(SamusAccelerationMode.Accelerating, samus.HorizontalSpeed.AccelerationMode,
             "with no extra run speed the initializer selects ordinary acceleration");
         Console.WriteLine("  Damage-boost jump initializer: the exit reselects the acceleration mode.");
     }

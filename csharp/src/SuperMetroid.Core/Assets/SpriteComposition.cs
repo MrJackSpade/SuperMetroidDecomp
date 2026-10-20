@@ -14,6 +14,7 @@ public sealed class SpriteComposition
     /// <summary>Wraps an immutable calculated part view. The caller must supply an immutable view, never a mutable document/list.</summary>
     internal static SpriteComposition FromCalculated(IReadOnlyList<CompiledSpritePart> parts) => new(parts);
     /// <summary>Number of OAM parts emitted in composition order.</summary>
+    [IntegerQuantity("number of sprite parts in the composition")]
     internal int PartCount => parts.Count;
     /// <summary>Selects one compiled OAM part by its drawing ordinal.</summary>
     internal CompiledSpritePart Part(int index) => parts[index];

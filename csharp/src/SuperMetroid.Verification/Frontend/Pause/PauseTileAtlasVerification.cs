@@ -56,9 +56,9 @@ internal static class PauseTileAtlasVerification
                 AssertEqual(native.ScreenMode, pause.ScreenMode, "pause PNG migration preserves page timing");
                 AssertTrue(native.Render().SequenceEqual(pause.Render()), "pause map/equipment transitions match native pixels with artwork reads blocked");
             }
-            AssertEqual(0, pause.ScreenMode, "pause PNG fixture returns to the map page");
+            AssertEqual(PauseScreenMode.Map, pause.ScreenMode, "pause PNG fixture returns to the map page");
             EnterPauseEquipment(pause);
-            AssertEqual(1, pause.ScreenMode, "artwork edit fixture reaches equipment page");
+            AssertEqual(PauseScreenMode.Equipment, pause.ScreenMode, "artwork edit fixture reaches equipment page");
             var before = pause.Render();
             var selected = (pause.SelectedCategory, pause.SelectedItem, samus.EquippedBeams, samus.CollectedBeams);
             pause.BindMapPresentation(edited);

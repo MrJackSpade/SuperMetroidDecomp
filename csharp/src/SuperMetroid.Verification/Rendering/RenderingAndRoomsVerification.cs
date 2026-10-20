@@ -621,11 +621,11 @@ internal static void VerifyMovedSamusCameraTracking()
     // Whether Samus is knocked back, and her native acceleration-mode and pose-facing values, decode to the context the
     // camera reads: a knockback reverses the target, only the turn mode keeps the old momentum, and
     // the pose byte is the facing.
-    AssertTrue(new HorizontalCameraContext(true, SamusMovementType.Standing, 0, 8, CameraDistanceMode.NormalTracking).KnockedBack,
+    AssertTrue(new HorizontalCameraContext(true, SamusMovementType.Standing, SamusAccelerationMode.Accelerating, 8, CameraDistanceMode.NormalTracking).KnockedBack,
         "a knockback reverses the camera target");
-    AssertTrue(new HorizontalCameraContext(false, SamusMovementType.Standing, 1, 8, CameraDistanceMode.NormalTracking).TurningAgainstMomentum,
-        "acceleration mode one is the momentum-keeping turn");
-    AssertTrue(!new HorizontalCameraContext(false, SamusMovementType.Standing, SamusHorizontalAccelerationModes.Decelerating, 8,
+    AssertTrue(new HorizontalCameraContext(false, SamusMovementType.Standing, SamusAccelerationMode.Turning, 8, CameraDistanceMode.NormalTracking).TurningAgainstMomentum,
+        "the turning acceleration mode is the momentum-keeping turn");
+    AssertTrue(!new HorizontalCameraContext(false, SamusMovementType.Standing, SamusAccelerationMode.Decelerating, 8,
         CameraDistanceMode.NormalTracking).TurningAgainstMomentum, "plain deceleration does not reverse the camera target");
     AssertTrue(new HorizontalCameraContext(false, SamusMovementType.Standing, 0, 4, CameraDistanceMode.NormalTracking).FacesLeft,
         "pose facing four is left");

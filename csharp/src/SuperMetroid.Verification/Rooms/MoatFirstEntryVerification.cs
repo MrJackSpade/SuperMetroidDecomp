@@ -69,7 +69,7 @@ internal static class MoatFirstEntryVerification
                 pause.Step(SnesButton.R,
                     SnesButton.R);
                 for (int frame = 0; frame < 64; frame++) pause.Step(0, 0);
-                AssertEqual(1, pause.ScreenMode, "pause fixture reaches equipment graphics");
+                AssertEqual(PauseScreenMode.Equipment, pause.ScreenMode, "pause fixture reaches equipment graphics");
                 _ = pause.Render();
                 AssertTrue(runtime.Vram.Bytes.SequenceEqual(gameplayBeforePause),
                     "pause graphics do not mutate gameplay VRAM");

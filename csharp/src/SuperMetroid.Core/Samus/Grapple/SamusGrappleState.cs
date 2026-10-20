@@ -33,6 +33,7 @@ public sealed class SamusGrappleState
     /// and cancels once it reaches 128, so it never leaves 0 through 132; writes outside 0 through 32767 are
     /// rejected, which keeps every signed length test an ordinary comparison.
     /// </summary>
+    [IntegerQuantity("rope length in pixels")]
     public int RopeLength
     {
         get;
@@ -134,6 +135,7 @@ public sealed class SamusGrappleState
     /// teardown returns it to zero before ordinary charge handling can resume. Writes outside 0 through 32767
     /// are rejected, which keeps the saturation test an ordinary comparison.
     /// </summary>
+    [IntegerQuantity("updates the grapple flare has shown")]
     public int FlareCounter
     {
         get;

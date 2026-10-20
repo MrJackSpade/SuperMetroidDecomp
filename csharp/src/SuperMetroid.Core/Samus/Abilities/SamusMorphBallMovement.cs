@@ -47,7 +47,7 @@ public static class SamusMorphBallMovement
             SamusPoseId.MorphBallGroundRightPose or SamusPoseId.MorphBallGroundLeftPose or
             SamusPoseId.SpringBallGroundRightPose or SamusPoseId.SpringBallGroundLeftPose;
         BlockMoveResult horizontal;
-        if (speed.AccelerationMode == 0 && stationaryPose)
+        if (speed.AccelerationMode == SamusAccelerationMode.Accelerating && stationaryPose)
         {
             // `$90:A546` passes an explicit zero base magnitude through the ordinary
             // direction-aware displacement path. With no external displacement this is a
@@ -101,7 +101,7 @@ public static class SamusMorphBallMovement
 
             // Only the stable-pose branch performs `$90:A551-$90:A561` cleanup, and only
             // after the no-speed Y path. A moving ball retains its newly calculated speed.
-            if (speed.AccelerationMode == 0 && stationaryPose)
+            if (speed.AccelerationMode == SamusAccelerationMode.Accelerating && stationaryPose)
                 speed.ClearHorizontalMomentum(samus.PoseMetadata.ReadFacingDirection());
         }
 
@@ -131,7 +131,7 @@ public static class SamusMorphBallMovement
 
         bool directionHeld = (controllerInput &
             (SnesButton.Left | SnesButton.Right)) != 0;
-        if (!directionHeld && samus.HorizontalSpeed.AccelerationMode == 0)
+        if (!directionHeld && samus.HorizontalSpeed.AccelerationMode == SamusAccelerationMode.Accelerating)
         {
             // The outer `$90:A5CD` wrapper clears persistent motion before dispatching to
             // either the falling or bouncing subroutine. The inner routine still calculates
@@ -165,7 +165,7 @@ public static class SamusMorphBallMovement
         AerialBaseSpeedResult calculation =
             speed.CalculateBaseSpeedDecelerationDisallowed(movementType);
         SamusHorizontalDisplacement requestedHorizontal;
-        if (!directionHeld && speed.AccelerationMode == 0)
+        if (!directionHeld && speed.AccelerationMode == SamusAccelerationMode.Accelerating)
         {
             speed.BaseSpeed = default;
             requestedHorizontal = SamusHorizontalDisplacement.ForPoseDirection(samus, baseSpeed: 0);
@@ -261,7 +261,7 @@ level, samus, controllerInput, nmiFrameCounter, plms, SamusMovementType.SpringBa
         int requestedHorizontal;
         // Null when native skips MoveSamus_Horizontally entirely ($90:902B): no probe runs.
         SamusCollisionDirection? collisionDirection = null;
-        if (speed.AccelerationMode == 0 && !directionHeld)
+        if (speed.AccelerationMode == SamusAccelerationMode.Accelerating && !directionHeld)
         {
             // `$90:901E` clears the displacement and persistent base words when no
             // horizontal direction is held; powered vertical motion continues unchanged.

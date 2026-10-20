@@ -720,6 +720,7 @@ internal sealed class CollectiblePlms : IPlmFamilySource
         /// <summary>Frames remaining in the current item instruction hold.</summary>
         public int Timer { get; set; }
         /// <summary>Current visible or respawn animation frame index.</summary>
+        [IntegerQuantity("animation frame index")]
         public int AnimationIndex { get; set; }
         /// <summary>Remaining paired visible frames in the item's animation loop.</summary>
         public int VisibleFramePairsRemaining { get; set; }

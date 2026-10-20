@@ -89,6 +89,7 @@ public sealed class DachoraEnemyState
     public int PaletteFrame => SnesLittleEndian.HighByte(_paletteCycle);
 
     /// <summary>The updates left before the speed palette cycle shows <see cref="PaletteFrame"/>.</summary>
+    [IntegerQuantity("updates left before the palette cycle advances")]
     public int PaletteTicks => SnesLittleEndian.LowByte(_paletteCycle);
 
     /// <summary>

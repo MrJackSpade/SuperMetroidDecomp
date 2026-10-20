@@ -38,7 +38,7 @@ internal static class RidleyMissedLungeVerification
             move(slot, state, false);
         }
         AssertTrue(slot.Position.Y.Whole < lowY, "missed lunge retreats upward instead of chasing Samus at floor level");
-        AssertEqual(0, state.GrabState, "retreat never falsely grabs Samus");
+        AssertEqual(RidleyGrabState.Released, state.GrabState, "retreat never falsely grabs Samus");
         void ResetLunge(ushort x, ushort y, RidleyFacing facing = RidleyFacing.Left)
         {
             slot.Position = FixedPosition<RoomPixels>.FromWhole(new(x, y));

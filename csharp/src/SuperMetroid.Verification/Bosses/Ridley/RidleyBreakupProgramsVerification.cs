@@ -36,13 +36,13 @@ internal static class RidleyBreakupProgramsVerification
         body.Bind(EnemyDefinitionId.Ridley, body.Definition);
         var state = new RidleyEnemyState
         {
-            GrabState = 1, FunctionTimer = NativeCountdown.Start(0),
+            GrabState = RidleyGrabState.CarryingSamus, FunctionTimer = NativeCountdown.Start(0),
             TailSegments = Enumerable.Range(0, 7).Select(index => new RidleyTailSegment
                 { Angle = index == 6 ? (ushort)0x10 : (ushort)0, Position = new Position16<RoomPixels>(128, 128) }).ToArray(),
         };
         enemies.RidleyEncounter.Ridley = state;
         death(body, state, new SamusState());
-        AssertEqual(0, state.GrabState, "Ridley death releases Samus before breakup");
+        AssertEqual(RidleyGrabState.Released, state.GrabState, "Ridley death releases Samus before breakup");
         var fragments = enemies.SlotTable.Slots.Where(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.RidleyExplosion).ToArray();
         AssertEqual(12, fragments.Length, "Ridley death spawns all twelve body/tail fragments");
         AssertEqual(RidleyBreakupFrame.TailTip1, state.BreakupPrograms[fragments[0].SlotIndex].Program,

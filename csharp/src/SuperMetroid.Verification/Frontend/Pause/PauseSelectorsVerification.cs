@@ -83,7 +83,7 @@ internal static class PauseSelectorsVerification
         var customSamus = new SamusState { CollectedBeams = SamusBeamFlags.Charge, EquippedBeams = SamusBeamFlags.Charge };
         var customMenu = new PauseMenuState(new PauseMenuEntry { Samus = customSamus, System = new Bank80SystemState(), AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), MapPresentation = edited });
         customMenu.Step(SnesButton.R, SnesButton.R);
-        while (customMenu.ScreenMode == 0) customMenu.Step(0, 0);
+        while (customMenu.ScreenMode == PauseScreenMode.Map) customMenu.Step(0, 0);
         AssertEqual((0, 4), customMenu.ItemSelectorAnimationState, "custom initial duration applies exactly at page setup");
         int expectedFrame = 0, expectedTimer = 4;
         for (int tick = 0; tick < 80; tick++)

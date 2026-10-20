@@ -119,7 +119,7 @@ public static class SamusAerialMovement
             SamusPoseId.NormalJumpTransitionAimDiagonalDownRightPose or
             SamusPoseId.NormalJumpTransitionAimDiagonalDownLeftPose)
         {
-            samus.HorizontalSpeed.AccelerationMode = 0;
+            samus.HorizontalSpeed.AccelerationMode = SamusAccelerationMode.Accelerating;
             var requested = SamusHorizontalDisplacement.ForPoseDirection(samus, baseSpeed: 0);
             BlockMoveResult horizontal = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, Plms = plms }, samus.Kinematics, new HorizontalBlockMove { Displacement = requested.Displacement, CollisionMovementDirection = requested.CollisionDirection });
             if (horizontal.Collided)
@@ -218,7 +218,7 @@ public static class SamusAerialMovement
         // The carry-set cap path bypasses this test exactly as $90:906C does.
         bool forwardHeld = IsForwardHeld(samus, controllerInput);
         bool allowHorizontal = calculation.ReachedMaximum ||
-            speed.AccelerationMode == 1 ||
+            speed.AccelerationMode == SamusAccelerationMode.Turning ||
             forwardHeld;
         if (!allowHorizontal)
         {
@@ -227,11 +227,11 @@ public static class SamusAerialMovement
             ClearBaseHorizontalMotion(speed);
             calculation = new AerialBaseSpeedResult(0, ReachedMaximum: false);
         }
-        else if (speed.AccelerationMode == 0)
+        else if (speed.AccelerationMode == SamusAccelerationMode.Accelerating)
         {
             // Mode two is not ordinary deceleration here. $90:9B1F tests only bit zero,
             // so mode two continues accelerating on subsequent airborne frames.
-            speed.AccelerationMode = 2;
+            speed.AccelerationMode = SamusAccelerationMode.Decelerating;
         }
 
         var requested = SamusHorizontalDisplacement.ForPoseDirection(samus, calculation.Speed);
@@ -516,7 +516,7 @@ public static class SamusAerialMovement
         // Native writes mode two every frame, so `$90:9A7E` always takes its deceleration
         // branch until it underflows and resets mode zero. Only then can an input-free frame
         // clear base speed instead of calling the horizontal mover.
-        speed.AccelerationMode = 2;
+        speed.AccelerationMode = SamusAccelerationMode.Decelerating;
         SamusLiquidMedium medium = samus.LiquidPhysics.DetermineMovementMedium(samus);
         SamusStandaloneSpeedRecord speedRecord = medium switch
         {
@@ -530,7 +530,7 @@ public static class SamusAerialMovement
         bool horizontalInput = (controllerInput &
             (SnesButton.Left | SnesButton.Right)) != 0;
         BlockMoveResult horizontal;
-        if (speed.AccelerationMode == 0 && !horizontalInput)
+        if (speed.AccelerationMode == SamusAccelerationMode.Accelerating && !horizontalInput)
         {
             // `$90:94AA-$94B4` clears both persistent base words and the frame displacement.
             speed.BaseSpeed = default;
@@ -577,12 +577,12 @@ public static class SamusAerialMovement
         // $90:8FEF-$8FFB: a wall jump promotes zero acceleration mode to two
         // after calculating speed, then bypasses the held-direction admission test.
         if (movementType == SamusMovementType.WallJumping &&
-            speed.AccelerationMode == SamusHorizontalAccelerationModes.Accelerating)
-            speed.AccelerationMode = SamusHorizontalAccelerationModes.Decelerating;
+            speed.AccelerationMode == SamusAccelerationMode.Accelerating)
+            speed.AccelerationMode = SamusAccelerationMode.Decelerating;
 
         bool directionHeld = (controllerInput &
             (SnesButton.Left | SnesButton.Right)) != 0;
-        if (speed.AccelerationMode == 0 && !directionHeld)
+        if (speed.AccelerationMode == SamusAccelerationMode.Accelerating && !directionHeld)
         {
             // $90:901E/$90:9185 clear both the DP displacement and persistent base speed.
             speed.BaseSpeed = default;
@@ -825,7 +825,7 @@ public static class SamusAerialMovement
     private static void ClearBaseHorizontalMotion(SamusHorizontalSpeedState speed)
     {
         speed.BaseSpeed = default;
-        speed.AccelerationMode = 0;
+        speed.AccelerationMode = SamusAccelerationMode.Accelerating;
     }
 
     /// <summary>Checks that terrain, address space and Samus state are available before an aerial step.</summary>

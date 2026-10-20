@@ -63,7 +63,7 @@ internal static class YardTrajectoriesVerification
         for (int x = 0; x < 32; x++) words[16 * 32 + x] = 0x8000;
         var floor = new RoomLevelData(new Extent16<RoomBlocks>(32, 32), new RoomLevelPlanes(words, new byte[words.Length], new ushort[words.Length]), new byte[8]);
         foreach (ushort direction in Enumerable.Range(0, 8).Select(x => (ushort)x))
-        foreach (ushort facing in new ushort[] { 0, 1 })
+        foreach (YardAirborneFacing facing in Enum.GetValues<YardAirborneFacing>())
         {
             var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new StandaloneRoomEnemyServices(() => 0)) { TileArtwork = FixtureEnemyTileArtwork() };
             enemies.Load(new RoomEnemyLoadRequest(room.State.EnemyPopulation, room.State.EnemyGraphicsSet, BgArtworkFixtures.For(new SnesVram()), new SnesCgram()));
@@ -83,7 +83,7 @@ internal static class YardTrajectoriesVerification
             // $A3:D1B3 calls E67A: speed from E5F0 and sign from properties,
             // not the still-stale eight-way direction used before falling.
             ushort speed = ReadNativeYardCrawlSpeed(bus, state.CrawlingSpeedIndex);
-            AssertEqual(facing == 0 ? unchecked((ushort)-speed) : speed, state.CrawlingVelocity.X.RawValue,
+            AssertEqual(facing == YardAirborneFacing.Left ? unchecked((ushort)-speed) : speed, state.CrawlingVelocity.X.RawValue,
                 $"landed Yard direction {direction}, facing {facing}: native X reset");
             AssertEqual(speed, state.CrawlingVelocity.Y.RawValue, "landed Yard probes downward");
         }

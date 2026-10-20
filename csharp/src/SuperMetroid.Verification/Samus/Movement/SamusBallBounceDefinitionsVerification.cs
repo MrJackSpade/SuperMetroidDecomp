@@ -43,7 +43,7 @@ internal static class SamusBallBounceDefinitionsVerification
                 samus.Kinematics.YSpeed = new SnesUnsignedSixteenSixteen((ushort)raw, ushort.MaxValue);
                 samus.Kinematics.YDirection = SamusVerticalDirection.Down;
                 samus.HorizontalSpeed.BaseSpeed = new SnesUnsignedSixteenSixteen(2, 0x8000);
-                samus.HorizontalSpeed.AccelerationMode = 2;
+                samus.HorizontalSpeed.AccelerationMode = SamusAccelerationMode.Decelerating;
                 bool grounded = spring
                     ? samus.PoseTransitions.ApplySpringBallLanding(controllerInput: 0)
                     : samus.PoseTransitions.ApplyMorphBallLanding();
@@ -62,7 +62,7 @@ internal static class SamusBallBounceDefinitionsVerification
                 AssertEqual(rebound ? pose : groundedPose, samus.Pose, "Rebound retains airborne pose until grounded");
                 AssertEqual(rebound ? 0x00028000u : 0u, samus.HorizontalSpeed.BaseFixed,
                     "Both ball families clear horizontal base momentum on final landing");
-                AssertEqual(rebound ? (ushort)2 : (ushort)0, samus.HorizontalSpeed.AccelerationMode,
+                AssertEqual(rebound ? SamusAccelerationMode.Decelerating : SamusAccelerationMode.Accelerating, samus.HorizontalSpeed.AccelerationMode,
                     "Both ball families clear horizontal acceleration on final landing");
                 AssertEqual((ushort)128, samus.Position.Y.Whole, "Landing handler does not move the collision-resolved center");
                 cases++;

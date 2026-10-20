@@ -126,7 +126,7 @@ floor, SamusPoseId.MorphingTransitionRightPose, nmiFrameCounter: 0),
         ProjectileFlareCounter = 0x003c,
     };
     fallingMorph.PoseMetadata.RefreshCollisionRadii();
-    fallingMorph.HorizontalSpeed.AccelerationMode = 1;
+    fallingMorph.HorizontalSpeed.AccelerationMode = SamusAccelerationMode.Turning;
     AssertTrue(fallingMorph.PoseTransitions.TryApplyMorphTransition(
 floor, SamusPoseId.MorphingTransitionLeftPose, nmiFrameCounter: 1),
         "compact falling pose begins cartridge morph transition");
@@ -142,7 +142,7 @@ floor, SamusPoseId.MorphingTransitionLeftPose, nmiFrameCounter: 1),
         SamusPoseId.MorphingTransitionLeftPose, 0), "near-floor morph is admitted");
     AssertEqual(57, clippedMorph.Position.Y.Whole,
         "command-seven nine-pixel request clips to three pixels at the floor");
-    AssertEqual(1, fallingMorph.HorizontalSpeed.AccelerationMode,
+    AssertEqual(SamusAccelerationMode.Turning, fallingMorph.HorizontalSpeed.AccelerationMode,
         "non-spin aerial morph retains acceleration mode");
     AssertEqual(0, fallingMorph.BombSpreadChargeTimeoutCounter,
         "morph initializer clears bomb-spread timeout");
@@ -159,7 +159,7 @@ floor, SamusPoseId.MorphingTransitionLeftPose, nmiFrameCounter: 1),
     AssertTrue(spinMorph.PoseTransitions.TryApplyMorphTransition(
 floor, SamusPoseId.MorphingTransitionLeftPose, nmiFrameCounter: 0),
         "spin pose begins cartridge morph transition");
-    AssertEqual(2, spinMorph.HorizontalSpeed.AccelerationMode,
+    AssertEqual(SamusAccelerationMode.Decelerating, spinMorph.HorizontalSpeed.AccelerationMode,
         "spin-source morph forces native aerial deceleration mode two");
 
     // The compiled retail transition is 03,03,F9: six animation ticks
@@ -182,14 +182,14 @@ floor, samus, nmiFrameCounter: 0);
     AssertEqual(0xc000, samus.HorizontalSpeed.BaseSpeed.Fraction, "type-four acceleration uses native definition");
 
     samus.PoseTransitions.ApplyMorphBallPoseChange(SamusPoseId.MorphBallMovingLeftPose);
-    AssertEqual(1, samus.HorizontalSpeed.AccelerationMode, "ball reversal selects momentum mode one");
+    AssertEqual(SamusAccelerationMode.Turning, samus.HorizontalSpeed.AccelerationMode, "ball reversal selects momentum mode one");
     AssertEqual(0xc000, samus.HorizontalSpeed.BaseSpeed.Fraction, "ball reversal preserves base magnitude");
 
     // Remove the floor and execute the stable grounded handler. Its failed +1 probe drives
     // the explicit `$1D/$41 -> $31/$32` walk-off transition and starts downward gravity.
     RoomLevelData empty = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(new ushort[width * height], new byte[width * height], new ushort[width * height]), new byte[8]);
     samus.PoseTransitions.ApplyMorphBallPoseChange(SamusPoseId.MorphBallGroundLeftPose);
-    samus.HorizontalSpeed.AccelerationMode = 0;
+    samus.HorizontalSpeed.AccelerationMode = SamusAccelerationMode.Accelerating;
     MorphBallMovementResult unsupported = SamusMorphBallMovement.StepGrounded(
 empty, samus, nmiFrameCounter: 1);
     AssertTrue(!unsupported.Vertical.Collided, "grounded ball detects missing floor");
@@ -376,7 +376,7 @@ empty, samus, nmiFrameCounter: 1);
 floor, samus, controllerInput: 0, nmiFrameCounter: 0);
     AssertTrue(hardLanding.Landed, "hard ball fall collides with floor");
     samus.HorizontalSpeed.BaseSpeed = new SnesUnsignedSixteenSixteen(2, 0x8000);
-    samus.HorizontalSpeed.AccelerationMode = 2;
+    samus.HorizontalSpeed.AccelerationMode = SamusAccelerationMode.Decelerating;
     AssertTrue(!samus.PoseTransitions.ApplyMorphBallLanding(), "hard landing launches first rebound");
     AssertEqual(0x00028000u, samus.HorizontalSpeed.BaseFixed, "first rebound retains horizontal momentum");
     AssertEqual(SamusBallBounceState.FirstRebound, samus.MorphBallBounceState, "first rebound state");
@@ -398,7 +398,7 @@ floor, samus, controllerInput: 0, nmiFrameCounter: 0);
     samus.Kinematics.YSpeed = samus.Kinematics.YSpeed.WithWhole(1);
     AssertTrue(samus.PoseTransitions.ApplyMorphBallLanding(), "second-bounce collision grounds ball");
     AssertEqual(0u, samus.HorizontalSpeed.BaseFixed, "final ball landing clears both base-speed words");
-    AssertEqual(0, samus.HorizontalSpeed.AccelerationMode, "final ball landing clears acceleration mode");
+    AssertEqual(SamusAccelerationMode.Accelerating, samus.HorizontalSpeed.AccelerationMode, "final ball landing clears acceleration mode");
     AssertEqual(SamusPoseId.MorphBallGroundLeftPose, samus.Pose, "bounce recovery uses facing-left ground pose");
     AssertEqual(SamusBallBounceState.None, samus.MorphBallBounceState, "grounding clears bounce state");
 
@@ -565,7 +565,7 @@ empty, spring, controllerInput: 0, nmiFrameCounter: 0);
         impact.Presentation.InitializeAnimation();
         impact.Kinematics.YSpeed = impact.Kinematics.YSpeed.WithWhole(impactSpeed);
         impact.HorizontalSpeed.BaseSpeed = new SnesUnsignedSixteenSixteen(1, 0x8000);
-        impact.HorizontalSpeed.AccelerationMode = 2;
+        impact.HorizontalSpeed.AccelerationMode = SamusAccelerationMode.Decelerating;
         bool grounded = springEquipped
             ? impact.PoseTransitions.ApplySpringBallLanding(controllerInput: 0)
             : impact.PoseTransitions.ApplyMorphBallLanding();
@@ -576,7 +576,7 @@ empty, spring, controllerInput: 0, nmiFrameCounter: 0);
             "signed threshold preserves the selected bounce family");
         AssertEqual(rebounds ? 0x00018000u : 0u, impact.HorizontalSpeed.BaseFixed,
             "Only settled ball landing clears both base-speed words");
-        AssertEqual(rebounds ? 2 : 0, impact.HorizontalSpeed.AccelerationMode,
+        AssertEqual(rebounds ? SamusAccelerationMode.Decelerating : SamusAccelerationMode.Accelerating, impact.HorizontalSpeed.AccelerationMode,
             "Both ball families share settled-landing acceleration cleanup");
     }
 
@@ -1567,7 +1567,7 @@ empty, bombJump, nmiFrameCounter: 1, PlmFixtures.Unbound());
     AssertTrue(!bombJump.BombJumpActive, "signed bomb-jump apex ends special handler");
     AssertEqual(0, bombJump.BombJumpDirection, "bomb-jump apex clears command word");
     AssertEqual(SamusVerticalDirection.Down, bombJump.Kinematics.YDirection, "bomb-jump apex hands off downward direction");
-    AssertEqual(2, bombJump.HorizontalSpeed.AccelerationMode, "diagonal apex selects mode two");
+    AssertEqual(SamusAccelerationMode.Decelerating, bombJump.HorizontalSpeed.AccelerationMode, "diagonal apex selects mode two");
 
     // Direction two deliberately omits horizontal calculation. A ceiling collision ends
     // the handler on that same frame and zeros vertical magnitude before normal movement

@@ -15,7 +15,7 @@ internal static class DownwardGatePlmDrawDefinitions
     private const ushort TriggerLeftFirst = 0xa5d7;
 
     /// <summary>Decoded column step or colored trigger shape; physical block words are calculated from this native draw identity.</summary>
-    internal readonly record struct Draw(bool Column, int Frame, bool Right)
+    internal readonly record struct Draw(bool Column, [property: IntegerQuantity("gate animation frame index")] int Frame, bool Right)
     {
         /// <summary>Columns and right triggers occupy one run; left triggers include a separate neighboring block.</summary>
         internal int RunCount => Column || Right ? 1 : 2;

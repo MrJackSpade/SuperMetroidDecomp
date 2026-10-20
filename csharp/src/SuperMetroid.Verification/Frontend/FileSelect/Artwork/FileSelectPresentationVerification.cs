@@ -108,7 +108,7 @@ internal static class FileSelectPresentationVerification
         AssertTrue(!stockMenu.Render().SequenceEqual(editedMenu.Render()),
             "file-select page, field and actor edits reach the real renderer");
         FileSelectPhase phaseBeforeRebind = stockMenu.Phase;
-        int selectionBeforeRebind = stockMenu.SelectedItem;
+        FileSelectItem selectionBeforeRebind = stockMenu.SelectedItem;
         Rgba32[] pixelsBeforeRebind = stockMenu.Render().ToArray();
         stockMenu.BindMapPresentation(edited);
         AssertEqual(phaseBeforeRebind, stockMenu.Phase,

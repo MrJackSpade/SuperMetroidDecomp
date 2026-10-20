@@ -102,7 +102,7 @@ internal static class EyeDoorPlmDrawDefinitions
     };
 
     /// <summary>Calculated component, animation phase, and facing for a native eye-door draw pointer.</summary>
-    internal readonly record struct Draw(ushort Pointer, Component Part, int Frame, bool Left)
+    internal readonly record struct Draw(ushort Pointer, Component Part, [property: IntegerQuantity("eye animation frame index")] int Frame, bool Left)
     {
         /// <summary>Whether the native run writes cells vertically rather than horizontally.</summary>
         internal bool Vertical => Part is Component.Eye or Component.Clear;

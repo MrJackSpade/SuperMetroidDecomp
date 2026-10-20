@@ -254,13 +254,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         state.MovedLeftRestTime = state.MovedLeftRestParameter * RestUpdatesPerParameterUnit;
         state.MovedRightRestTime = state.MovedRightRestParameter * RestUpdatesPerParameterUnit;
 
-        state.TriggerMode = unchecked((byte)slot.Spawn.Population.Parameter1);
-        state.InitialFunctionTableOffset = state.TriggerMode * 2;
-        if (state.InitialFunctionTableOffset > 8)
-        {
-            throw new InvalidDataException(
-                $"Horizontal shutter trigger mode {state.TriggerMode} exceeds its five-entry ROM table.");
-        }
+        state.TriggerMode = DecodeTriggerMode(unchecked((byte)slot.Spawn.Population.Parameter1), "Horizontal");
         state.TravelDistance = SnesLittleEndian.HighByte(slot.Spawn.Population.Parameter1);
         state.HorizontalProximityOrWaitTime = slot.Spawn.Population.Parameter2;
         state.FunctionTimer = NativeCountdown.FromRaw(checked((ushort)slot.Spawn.Population.Parameter2));
@@ -355,17 +349,28 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Decodes the population's trigger offset into timer, proximity, activation, or idle mode.</summary>
+    /// <summary>Decodes a population's trigger-mode byte, the index into each shutter's five-entry initial-function table.</summary>
+    /// <exception cref="InvalidDataException">The byte is past the table's five entries.</exception>
+    internal static ShutterTriggerMode DecodeTriggerMode(int mode, string shutter) => mode switch
+    {
+        0 => ShutterTriggerMode.Timer,
+        1 => ShutterTriggerMode.HorizontalProximity,
+        2 => ShutterTriggerMode.Immediate,
+        3 => ShutterTriggerMode.OneShotReaction,
+        4 => ShutterTriggerMode.RepeatableReaction,
+        _ => throw new InvalidDataException($"{shutter} shutter trigger mode {mode} exceeds its five-entry ROM table."),
+    };
+
+    /// <summary>Selects the population's timer, proximity, activation, or idle initial function.</summary>
     internal static void SelectInitialHorizontalShutterFunction(HorizontalShutterEnemyState state)
     {
-        state.Function = state.InitialFunctionTableOffset switch
+        state.Function = state.TriggerMode switch
         {
-            0 => HorizontalShutterFunction.WaitForTimer,
-            2 => HorizontalShutterFunction.WaitForHorizontalProximity,
-            4 => HorizontalShutterFunction.Activate,
-            6 or 8 => HorizontalShutterFunction.InitialNoOp,
-            _ => throw new InvalidDataException(
-                $"Horizontal shutter initial offset ${state.InitialFunctionTableOffset:X4} is invalid."),
+            ShutterTriggerMode.Timer => HorizontalShutterFunction.WaitForTimer,
+            ShutterTriggerMode.HorizontalProximity => HorizontalShutterFunction.WaitForHorizontalProximity,
+            ShutterTriggerMode.Immediate => HorizontalShutterFunction.Activate,
+            ShutterTriggerMode.OneShotReaction or ShutterTriggerMode.RepeatableReaction => HorizontalShutterFunction.InitialNoOp,
+            _ => throw new InvalidDataException($"Horizontal shutter trigger mode {state.TriggerMode} is invalid."),
         };
     }
 
@@ -429,7 +434,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         if (timer.IsNonNegative)
             return;
         bool reversesIntoPrimary = (state.PrimaryDirection == 0) != stoppedAtLeft;
-        state.Function = state.TriggerMode == 1 && reversesIntoPrimary
+        state.Function = state.TriggerMode == ShutterTriggerMode.HorizontalProximity && reversesIntoPrimary
             ? HorizontalShutterFunction.WaitForHorizontalProximity
             : stoppedAtLeft ? HorizontalShutterFunction.MovingRight : HorizontalShutterFunction.MovingLeft;
     }
@@ -467,10 +472,10 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
     private static void ReactHorizontalShutter(RoomEnemySlot slot)
     {
         HorizontalShutterEnemyState state = slot.RequireSpeciesState<HorizontalShutterEnemyState>();
-        if (state.InitialFunctionTableOffset < 6)
+        if (state.TriggerMode is not (ShutterTriggerMode.OneShotReaction or ShutterTriggerMode.RepeatableReaction))
             return;
 
-        if (state.InitialFunctionTableOffset == 6)
+        if (state.TriggerMode == ShutterTriggerMode.OneShotReaction)
         {
             if (state.ShotActivated)
                 return;
@@ -770,13 +775,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         state.MovedUpRestTime = state.MovedUpRestParameter * RestUpdatesPerParameterUnit;
         state.MovedDownRestTime = state.MovedDownRestParameter * RestUpdatesPerParameterUnit;
 
-        state.TriggerMode = unchecked((byte)slot.Spawn.Population.Parameter1);
-        state.InitialFunctionTableOffset = state.TriggerMode * 2;
-        if (state.InitialFunctionTableOffset > 8)
-        {
-            throw new InvalidDataException(
-                $"Vertical shutter trigger mode {state.TriggerMode} exceeds its five-entry ROM table.");
-        }
+        state.TriggerMode = DecodeTriggerMode(unchecked((byte)slot.Spawn.Population.Parameter1), "Vertical");
         state.TravelDistance = SnesLittleEndian.HighByte(slot.Spawn.Population.Parameter1);
         state.HorizontalProximityOrWaitTime = slot.Spawn.Population.Parameter2;
         state.FunctionTimer = NativeCountdown.FromRaw(checked((ushort)slot.Spawn.Population.Parameter2));
@@ -879,17 +878,16 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         }
     }
 
-    /// <summary>Decodes the vertical population mode into timer, proximity, activation, or idle state.</summary>
+    /// <summary>Selects the vertical population's timer, proximity, activation, or idle initial function.</summary>
     internal static VerticalShutterFunction SelectInitialVerticalShutterFunction(VerticalShutterEnemyState state)
     {
-        return state.InitialFunctionTableOffset switch
+        return state.TriggerMode switch
         {
-            0 => VerticalShutterFunction.WaitForTimer,
-            2 => VerticalShutterFunction.WaitForHorizontalProximity,
-            4 => VerticalShutterFunction.Activate,
-            6 or 8 => VerticalShutterFunction.InitialNoOp,
-            _ => throw new InvalidDataException(
-                $"Vertical shutter initial offset ${state.InitialFunctionTableOffset:X4} is invalid."),
+            ShutterTriggerMode.Timer => VerticalShutterFunction.WaitForTimer,
+            ShutterTriggerMode.HorizontalProximity => VerticalShutterFunction.WaitForHorizontalProximity,
+            ShutterTriggerMode.Immediate => VerticalShutterFunction.Activate,
+            ShutterTriggerMode.OneShotReaction or ShutterTriggerMode.RepeatableReaction => VerticalShutterFunction.InitialNoOp,
+            _ => throw new InvalidDataException($"Vertical shutter trigger mode {state.TriggerMode} is invalid."),
         };
     }
 
@@ -966,28 +964,28 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
 
         bool reversesIntoPrimary = (state.PrimaryDirection == 0) != stoppedAtTop;
-        state.Function = state.TriggerMode == 1 && reversesIntoPrimary
+        state.Function = state.TriggerMode == ShutterTriggerMode.HorizontalProximity && reversesIntoPrimary
             ? VerticalShutterFunction.WaitForHorizontalProximity
             : stoppedAtTop ? VerticalShutterFunction.MovingDown : VerticalShutterFunction.MovingUp;
         QueueShutterActivationSoundIfOnScreen(slot, camera);
     }
 
     /// <summary>
-    /// Ports $A2:F0B6. Modes zero through two merely make the acknowledgement sound;
-    /// mode three reacts once, while mode four may be reactivated after every stop.
+    /// Ports $A2:F0B6. Timer, proximity and immediate shutters merely make the acknowledgement sound;
+    /// a one-shot reaction reacts once, while a repeatable reaction may be reactivated after every stop.
     /// </summary>
     private void ReactVerticalShutter(
         RoomEnemySlot slot,
         Position16<RoomPixels> camera)
     {
         VerticalShutterEnemyState state = slot.RequireSpeciesState<VerticalShutterEnemyState>();
-        if (state.InitialFunctionTableOffset < 6)
+        if (state.TriggerMode is not (ShutterTriggerMode.OneShotReaction or ShutterTriggerMode.RepeatableReaction))
         {
             QueueShutterActivationSoundIfOnScreen(slot, camera);
             return;
         }
 
-        if (state.InitialFunctionTableOffset == 6)
+        if (state.TriggerMode == ShutterTriggerMode.OneShotReaction)
         {
             if (state.ShotActivated)
                 return;

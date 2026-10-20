@@ -92,7 +92,7 @@ public static class SamusBombJumpMovement
             samus.Kinematics.YSpeed = default;
             samus.Kinematics.YDirection = SamusVerticalDirection.Down;
             if (direction != 2)
-                samus.HorizontalSpeed.AccelerationMode = 2;
+                samus.HorizontalSpeed.AccelerationMode = SamusAccelerationMode.Decelerating;
         }
         else if (samus.Kinematics.YDirection == SamusVerticalDirection.Up && samus.Kinematics.YSpeed.Whole == 0)
         {

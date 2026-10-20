@@ -160,6 +160,19 @@ members of their own: they are one record type. A one-field record is a typed id
 type, whose distinct type is its purpose, and is not compared. A copy that must stay separate says why at its site
 with `[IntendedDuplicate(reason)]`.
 
+## Modes are named, not numbered
+
+**SME6421** reports, in `SuperMetroid.Core`, an integral field or property whose name says it holds a category (`Mode`,
+`State`, `Phase`, `Direction`, `Kind`, `Page`, `Selection`, `SelectedItem`, `Function`, `Stage`, `Status`, `Type`) and
+that is compared to a literal (#1372). **SME6422** reports such a member, whatever its name, once at its declaration
+when equality comparisons or `is` patterns test it against two or more distinct literals; switch arms are index lookups
+and are not counted. The member becomes an enum, or a state object, with semantic members, and the native word is
+converted once at the import or snapshot codec. Samus's acceleration mode, the pause page, the game-over and file-select
+Yes/No prompts, the file-select rows, Ridley's grab, shutter trigger modes, Yard's airborne facing, door-cap
+orientations and the enemy-projectile collision option were converted that way. A genuine count, index, coordinate or
+size says so at its declaration with `[IntegerQuantity(reason)]`; a packed native word whose bit fields a typed view
+decodes, and whose zero test asks whether it holds anything, says so with `[NativeWord(reason)]`.
+
 ## Diagnostics are resolved, not disabled
 
 **SME6414** reports every `#pragma warning disable`, whatever diagnostic it names and whatever reason follows it

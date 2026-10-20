@@ -55,7 +55,7 @@ internal static class CrampedAerialLandingVerification
             Position = FixedPosition<RoomPixels>.FromWhole(new(0x0094, 0x0034)),
         };
         samus.PoseMetadata.RefreshCollisionRadii();
-        samus.HorizontalSpeed.AccelerationMode = 2;
+        samus.HorizontalSpeed.AccelerationMode = SamusAccelerationMode.Decelerating;
         samus.HorizontalSpeed.BaseSpeed = samus.HorizontalSpeed.BaseSpeed.WithWhole(3);
         samus.Kinematics.YDirection = SamusVerticalDirection.Down;
         samus.Kinematics.YSpeed = samus.Kinematics.YSpeed.WithWhole(4);
@@ -84,7 +84,7 @@ internal static class CrampedAerialLandingVerification
             "crouch bottom remains on the barrier floor");
         // Original F404 returns changed-pose carry for this substitution. The caller
         // skips command five; #461's original-CPU trajectory proves this retained state.
-        AssertEqual(2, samus.HorizontalSpeed.AccelerationMode,
+        AssertEqual(SamusAccelerationMode.Decelerating, samus.HorizontalSpeed.AccelerationMode,
             "rejected full landing skips collision command five");
         AssertEqual(3, samus.HorizontalSpeed.BaseSpeed.Whole,
             "cramped landing preserves horizontal speed");

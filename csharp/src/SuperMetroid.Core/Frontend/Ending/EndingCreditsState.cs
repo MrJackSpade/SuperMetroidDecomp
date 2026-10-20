@@ -69,6 +69,7 @@ internal sealed class EndingCreditsState
     /// <summary>Shared fade progression through scene and palette handoffs.</summary>
     private int fadeCounter;
     /// <summary>Master brightness during cinematic fades, from 0 (black) through 15 (full); every fade step clamps to that range.</summary>
+    [IntegerQuantity("screen brightness level, zero through fifteen")]
     internal int brightness;
     /// <summary>Mode-7 translation; only X uses a subpixel because native Y has no fractional word.</summary>
     internal FixedPosition<Mode7Pixels> mode7;

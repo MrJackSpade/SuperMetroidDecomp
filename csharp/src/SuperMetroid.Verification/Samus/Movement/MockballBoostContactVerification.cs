@@ -65,7 +65,7 @@ internal static class MockballBoostContactVerification
             speed.ContactDamageIndex = SamusContactDamageIndex.None;
             samus.Pose = pose == SamusPoseId.MorphBallMovingRightPose
                 ? SamusPoseId.MorphBallGroundRightPose : SamusPoseId.SpringBallGroundRightPose;
-            speed.AccelerationMode = 0;
+            speed.AccelerationMode = SamusAccelerationMode.Accelerating;
             SamusMorphBallMovement.StepGrounded(floor, samus, 5);
             AssertEqual(SamusContactDamageIndex.None, speed.ContactDamageIndex, "stationary ball does not run the moving-ball boost publication");
             AssertEqual(0, speed.SpeedBoostCounter.RawValue, "stopping retains native boost cancellation");

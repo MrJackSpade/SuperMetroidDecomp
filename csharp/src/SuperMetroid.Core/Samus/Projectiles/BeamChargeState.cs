@@ -7,6 +7,7 @@ internal sealed class BeamChargeState
 {
 
     /// <summary>WRAM <c>$0CD0</c>, 0 through 65535; 60 frames arms a charged shot, 120 is the SBA clamp.</summary>
+    [IntegerQuantity("updates the charge flare has shown")]
     public int FlareCounter
     {
         get;

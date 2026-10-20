@@ -260,7 +260,7 @@ level, targetPose, nmiFrameCounter, plms))
             // `$90:DF6E` is reached only after the vertical helper, so horizontal wall
             // contact alone does not clear these vertical words. Bottom alignment is already
             // represented by bank-$94's accepted displacement against the current radius.
-            speed.AccelerationMode = 0;
+            speed.AccelerationMode = SamusAccelerationMode.Accelerating;
             speed.BaseSpeed = default;
             samus.Kinematics.YSpeed = default;
             samus.Kinematics.YDirection = SamusVerticalDirection.None;

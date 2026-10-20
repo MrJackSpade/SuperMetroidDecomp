@@ -108,7 +108,7 @@ level, samus, 0, unchecked((ushort)(frame + 3))),
 
     // Aerial mode two accelerates because $90:9B22 tests only bit zero. This guards the
     // counterintuitive distinction from the grounded deceleration-allowed routine.
-    var aerialSpeed = new SamusHorizontalSpeedState { AccelerationMode = 2 };
+    var aerialSpeed = new SamusHorizontalSpeedState { AccelerationMode = SamusAccelerationMode.Decelerating };
     aerialSpeed.SelectNormalAirSpeedTable();
     AerialBaseSpeedResult accelerated =
         aerialSpeed.CalculateBaseSpeedDecelerationDisallowed(movementType: SamusMovementType.NormalJumping);
@@ -136,7 +136,7 @@ level, samus, 0, unchecked((ushort)(frame + 3))),
     AssertEqual(-0x00016000,
         ((SnesSixteenSixteen.FromWhole(spinLeft.Position.X.Whole)) | spinLeft.Kinematics.Position.X.Fraction) - spinStartX,
         "left spin jump reaches native cap");
-    AssertEqual(2, spinLeft.HorizontalSpeed.AccelerationMode, "spin jump selects aerial mode two");
+    AssertEqual(SamusAccelerationMode.Decelerating, spinLeft.HorizontalSpeed.AccelerationMode, "spin jump selects aerial mode two");
     AssertEqual(46, spinLeft.Position.X.Whole, "left spin jump whole X");
     AssertEqual(0xa000, spinLeft.Kinematics.Position.X.Fraction, "left spin jump fractional X");
 
@@ -476,7 +476,7 @@ internal static void VerifySamusSpaceJumpAndScrewAttack()
         "spin Fire preserves whole vertical speed");
     AssertEqual(0x4567, spinFire.Kinematics.YSpeed.Fraction,
         "spin Fire preserves fractional vertical speed");
-    AssertEqual(2, spinFire.HorizontalSpeed.AccelerationMode,
+    AssertEqual(SamusAccelerationMode.Decelerating, spinFire.HorizontalSpeed.AccelerationMode,
         "spin Fire retains extra-run aerial acceleration");
     AssertEqual(0x8002, spinFire.PoseTransitionShotDirection,
         "spin Fire publishes target shot direction");

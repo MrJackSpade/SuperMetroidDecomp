@@ -943,7 +943,7 @@ internal sealed class SamusPoseTransitionPhase
             // Reset deceleration and cancel the momentum flag after movement.
             // Extra speed survives this command, but the next normal mover
             // consumes the cancellation through HandleExtraRunSpeed.
-            samus.HorizontalSpeed.AccelerationMode = 0;
+            samus.HorizontalSpeed.AccelerationMode = SamusAccelerationMode.Accelerating;
             samus.HorizontalSpeed.CancelRunningMomentum(samus.PoseMetadata.ReadFacingDirection());
         }
         else if (frame.PoseAtFrameStart is SamusPoseId.DamageBoostRightPose or SamusPoseId.DamageBoostLeftPose &&
@@ -1013,7 +1013,7 @@ internal sealed class SamusPoseTransitionPhase
             // residue selects mode two deceleration; exact zero falls through to
             // command two's stopped mode and definition fallback on the next frame.
             samus.HorizontalSpeed.AccelerationMode =
-                samus.HorizontalSpeed.BaseFixed != 0 ? (ushort)2 : (ushort)0;
+                samus.HorizontalSpeed.BaseFixed != 0 ? SamusAccelerationMode.Decelerating : SamusAccelerationMode.Accelerating;
         }
         else if ((frame.PoseAtFrameStart is SamusPoseId.MorphBallMovingRightPose or
                      SamusPoseId.MorphBallMovingLeftPose or
@@ -1043,7 +1043,7 @@ internal sealed class SamusPoseTransitionPhase
         else if (SamusPoseMetadata.IsRightFacingRunningPose(frame.PoseAtFrameStart) &&
                  _player.ProspectiveSamusFallbackPose == SamusPoseId.FacingRightNormalPose)
         {
-            samus.HorizontalSpeed.AccelerationMode = 0;
+            samus.HorizontalSpeed.AccelerationMode = SamusAccelerationMode.Accelerating;
             if (frame.PoseAtFrameStart == SamusPoseId.MovingRightNormalPose)
                 samus.PoseTransitions.ApplyRunningRightToStandingRight();
             else
@@ -1052,7 +1052,7 @@ internal sealed class SamusPoseTransitionPhase
         else if (SamusPoseMetadata.IsLeftFacingRunningPose(frame.PoseAtFrameStart) &&
                  _player.ProspectiveSamusFallbackPose == SamusPoseId.FacingLeftNormalPose)
         {
-            samus.HorizontalSpeed.AccelerationMode = 0;
+            samus.HorizontalSpeed.AccelerationMode = SamusAccelerationMode.Accelerating;
             if (frame.PoseAtFrameStart == SamusPoseId.MovingLeftNormalPose)
                 samus.PoseTransitions.ApplyRunningLeftToStandingLeft();
             else

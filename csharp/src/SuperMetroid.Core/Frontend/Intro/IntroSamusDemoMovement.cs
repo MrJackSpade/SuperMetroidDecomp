@@ -108,11 +108,11 @@ internal static class IntroSamusDemoMovement
             // Momentum command one rechecks speed after beta movement. A remaining residue
             // selects deceleration mode two; exact zero lets next frame choose standing.
             samus.HorizontalSpeed.AccelerationMode =
-                samus.HorizontalSpeed.BaseFixed != 0 ? (ushort)2 : (ushort)0;
+                samus.HorizontalSpeed.BaseFixed != 0 ? SamusAccelerationMode.Decelerating : SamusAccelerationMode.Accelerating;
         }
         else if (fallback is { } fallbackPose)
         {
-            samus.HorizontalSpeed.AccelerationMode = 0;
+            samus.HorizontalSpeed.AccelerationMode = SamusAccelerationMode.Accelerating;
             ApplyPoseTransition(samus, poseAtFrameStart, fallbackPose);
         }
 

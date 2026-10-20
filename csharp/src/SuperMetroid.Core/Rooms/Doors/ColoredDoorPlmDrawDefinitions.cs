@@ -11,10 +11,10 @@ internal static class ColoredDoorPlmDrawDefinitions
     internal const int DrawListBytes = 12;
 
     /// <summary>Color, direction, and animation phase decoded from one native cap pointer.</summary>
-    internal readonly record struct Draw(int Color, int Orientation, int Frame) : IPlmCapDrawShape
+    internal readonly record struct Draw(int Color, ColoredDoorOrientation Orientation, [property: IntegerQuantity("cap animation frame index")] int Frame) : IPlmCapDrawShape
     {
         /// <summary>Left and right caps draw a vertical four-cell run in native list orientation.</summary>
-        internal bool Vertical => Orientation < 2;
+        internal bool Vertical => Orientation is ColoredDoorOrientation.Left or ColoredDoorOrientation.Right;
         /// <summary>Encodes the native run direction and four-cell count.</summary>
         internal ushort DirectionAndCount => Vertical ? (ushort)0x8004 : (ushort)4;
 
@@ -34,10 +34,10 @@ internal static class ColoredDoorPlmDrawDefinitions
             bool inner = cell is 1 or 2;
             int tile = Color * 4 + (Vertical ? Frame + (inner ? 32 : 0) :
                 0x10 + Frame / 2 * 2 + Frame % 2 * 32 + (inner ? 0 : 1));
-            int flips = Vertical ? (Orientation == 1 ? 0x400 : 0) | (cell >= 2 ? 0x800 : 0) :
-                (cell < 2 ? 0x400 : 0) | (Orientation == 3 ? 0x800 : 0);
+            int flips = Vertical ? (Orientation == ColoredDoorOrientation.Right ? 0x400 : 0) | (cell >= 2 ? 0x800 : 0) :
+                (cell < 2 ? 0x400 : 0) | (Orientation == ColoredDoorOrientation.Down ? 0x800 : 0);
             int collision = Frame == 0 ? (cell == 0 ? 12 : Vertical ? 13 : 5) :
-                Frame == 3 && inner && (Orientation == 0 || (Orientation == 1 && Color != 0) || (Orientation == 3 && Color == 0)) ? 0 : 8;
+                Frame == 3 && inner && (Orientation == ColoredDoorOrientation.Left || (Orientation == ColoredDoorOrientation.Right && Color != 0) || (Orientation == ColoredDoorOrientation.Down && Color == 0)) ? 0 : 8;
             return (ushort)(collision << 12 | flips | tile);
         }
     }
@@ -48,7 +48,7 @@ internal static class ColoredDoorPlmDrawDefinitions
         int offset = pointer - YellowLeft;
         bool owned = offset >= 0 && offset < 48 * DrawListBytes && offset % DrawListBytes == 0;
         int index = offset / DrawListBytes;
-        draw = owned ? new(index / 16, index / 4 % 4, index % 4) : default;
+        draw = owned ? new(index / 16, DoorCapOrientations.FromTableIndex(index / 4 % 4), index % 4) : default;
         return owned;
     }
 
@@ -74,7 +74,7 @@ internal static class ColoredDoorPlmDrawDefinitions
     {
         if (!TryDescribe(pointer, out var draw))
             throw new InvalidDataException($"Colored-door draw ${pointer:X4} has no visual ID.");
-        string direction = draw.Orientation switch { 0 => "left", 1 => "right", 2 => "up", _ => "down" };
+        string direction = DoorCapOrientations.VisualName(draw.Orientation);
         string color = draw.Color switch { 0 => "yellow", 1 => "green", _ => "red" };
         return $"{color}-{direction}-frame-{draw.Frame}";
     }

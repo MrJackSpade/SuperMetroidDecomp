@@ -64,7 +64,7 @@ public sealed class FileSelectMenuState
         this.saves = Ensure.NotNull(saves);
         for (int slot = 0; slot < saveSlots.Length; slot++)
             saveSlots[slot] = saves.ReadSlot(slot);
-        SelectedItem = saves.ReadSelectedSlot();
+        SelectedItem = FileSelectItemRows.ForSaveSlot(saves.ReadSelectedSlot());
 
         BuildSaveTilemap();
         bg1Tilemap.CopyTo(screen.Tilemaps.Bg1);
@@ -76,7 +76,7 @@ public sealed class FileSelectMenuState
     }
 
     /// <summary>Native main-menu selection: slots A-C, Copy, Clear, or Exit.</summary>
-    public int SelectedItem { get; private set; }
+    public FileSelectItem SelectedItem { get; private set; }
 
     /// <summary>Current translated native menu phase.</summary>
     public FileSelectPhase Phase { get; private set; }
@@ -84,12 +84,13 @@ public sealed class FileSelectMenuState
     /// <summary>True once a selected slot, empty or occupied, finishes its helmet turn and fade-out, requesting the game-options screen.</summary>
     public bool NewGameRequested { get; private set; }
 
-    /// <summary>Selected physical SRAM slot, restricted to A-C once a game is requested.</summary>
-    public int SelectedSaveSlot => Math.Clamp(SelectedItem, 0, 2);
+    /// <summary>Selected physical SRAM slot, restricted to A-C once a game is requested; a command row reads as slot C.</summary>
+    public int SelectedSaveSlot =>
+        FileSelectItemRows.TryGetSaveSlot(SelectedItem, out int slot) ? slot : FileSelectLayout.SaveSlotCount - 1;
 
     /// <summary>Whether the selected A-C slot passed either native checksum directory.</summary>
     public bool SelectedSlotContainsSave =>
-        SelectedItem < saveSlots.Length && saveSlots[SelectedItem] is not null;
+        FileSelectItemRows.TryGetSaveSlot(SelectedItem, out int slot) && saveSlots[slot] is not null;
 
     /// <summary>True when Exit/B completes the native fade back toward reset.</summary>
     public bool TitleRequested { get; private set; }
@@ -223,7 +224,7 @@ public sealed class FileSelectMenuState
             // Menu index 32 fades with the completed (or Start-shortened) helmet turn
             // still resident in OAM. Resetting to the first frame during the fade produces
             // a one-frame-visible head snap immediately before loading.
-            int frame = slot == SelectedItem && Phase is
+            int frame = FileSelectItemRows.ForSaveSlot(slot) == SelectedItem && Phase is
                     FileSelectPhase.TurnSelectedHelmet or FileSelectPhase.FadeOutToOptions
                 ? helmetAnimationFrame
                 : 0;
@@ -361,13 +362,13 @@ public sealed class FileSelectMenuState
     /// <summary>Chooses submenu border and cursor layout during cross-page fade phases.</summary>
     private bool showDataManagementScreen;
     /// <summary>Selected slot or Exit row in source, destination, and clear menus.</summary>
-    private int submenuSelection;
+    private FileSelectItem submenuSelection;
     /// <summary>Source slot retained while choosing a copy destination or confirming a clear.</summary>
     private int operationSourceSlot;
     /// <summary>Copy target retained through confirmation and completion pages.</summary>
     private int operationDestinationSlot;
     /// <summary>Yes or No row selected on the copy or clear confirmation page.</summary>
-    private int confirmationSelection;
+    private YesNoChoice confirmationSelection;
     /// <summary>Updates remaining before the copy arrow rotates its CGRAM colors.</summary>
     private int copyArrowPaletteTimer;
 
@@ -418,7 +419,7 @@ public sealed class FileSelectMenuState
         if ((pressed & (SnesButton.Start | SnesButton.A)) == 0)
             return;
 
-        if (SelectedItem < 3)
+        if (FileSelectItemRows.TryGetSaveSlot(SelectedItem, out _))
         {
             audio?.QueueSound(SoundEffectLibrary1Sounds.FileSelectSwoosh, maximumQueued: 6);
             // `menu_index += 27` enters index 31 and enables only the selected helmet.
@@ -427,16 +428,16 @@ public sealed class FileSelectMenuState
             Phase = FileSelectPhase.TurnSelectedHelmet;
             return;
         }
-        if (SelectedItem is 3 or 4)
+        if (SelectedItem is FileSelectItem.Copy or FileSelectItem.Clear)
         {
             if (!HasAnySave)
                 throw new InvalidOperationException("Hidden data-management item became selectable.");
             QueueCursorSound();
-            pendingDataMode = SelectedItem == 3 ? FileSelectDataMode.Copy : FileSelectDataMode.Clear;
+            pendingDataMode = SelectedItem == FileSelectItem.Copy ? FileSelectDataMode.Copy : FileSelectDataMode.Clear;
             Phase = FileSelectPhase.FadeOutToDataManagement;
             return;
         }
-        if (SelectedItem == 5)
+        if (SelectedItem == FileSelectItem.Exit)
         {
             QueueCursorSound();
             Phase = FileSelectPhase.FadeOutToTitle;
@@ -482,10 +483,10 @@ public sealed class FileSelectMenuState
     /// <summary>Starts Copy or Clear on the first occupied slot and builds the corresponding page.</summary>
     private void InitializeDataManagementScreen()
     {
-        submenuSelection = FindFirstNonemptySlot();
+        submenuSelection = FileSelectItemRows.ForSaveSlot(FindFirstNonemptySlot());
         operationSourceSlot = 0;
         operationDestinationSlot = 0;
-        confirmationSelection = 0;
+        confirmationSelection = YesNoChoice.Yes;
         if (pendingDataMode == FileSelectDataMode.Copy)
         {
             BuildCopySourceTilemap();
@@ -525,7 +526,7 @@ public sealed class FileSelectMenuState
                 if (pressed != SnesButton.None)
                 {
                     QueueCursorSound();
-                    SelectedItem = saves.ReadSelectedSlot();
+                    SelectedItem = FileSelectItemRows.ForSaveSlot(saves.ReadSelectedSlot());
                     Phase = FileSelectPhase.FadeOutToMain;
                 }
                 break;
@@ -557,7 +558,7 @@ public sealed class FileSelectMenuState
             submenuSelection, occupiedSlots, pressed));
 
         if ((pressed & SnesButton.B) != 0 ||
-            ((pressed & (SnesButton.Start | SnesButton.A)) != 0 && submenuSelection == 3))
+            ((pressed & (SnesButton.Start | SnesButton.A)) != 0 && submenuSelection == FileSelectItem.Exit))
         {
             QueueCursorSound();
             Phase = FileSelectPhase.FadeOutToMain;
@@ -567,18 +568,18 @@ public sealed class FileSelectMenuState
             return;
 
         QueueCursorSound();
-        operationSourceSlot = submenuSelection;
+        operationSourceSlot = FileSelectItemRows.SaveSlot(submenuSelection);
         if (sourceSelection)
         {
-            submenuSelection = Enumerable.Range(0, 3)
-                .First(slot => slot != operationSourceSlot);
+            submenuSelection = FileSelectItemRows.ForSaveSlot(Enumerable.Range(0, FileSelectLayout.SaveSlotCount)
+                .First(slot => slot != operationSourceSlot));
             BuildCopyDestinationTilemap();
             UploadBg1Tilemap();
             Phase = FileSelectPhase.CopySelectDestination;
         }
         else
         {
-            confirmationSelection = 0;
+            confirmationSelection = YesNoChoice.Yes;
             BuildClearConfirmationTilemap();
             UploadBg1Tilemap();
             Phase = FileSelectPhase.ClearConfirm;
@@ -593,7 +594,7 @@ public sealed class FileSelectMenuState
         if ((pressed & SnesButton.B) != 0)
         {
             QueueCursorSound();
-            submenuSelection = operationSourceSlot;
+            submenuSelection = FileSelectItemRows.ForSaveSlot(operationSourceSlot);
             BuildCopySourceTilemap();
             UploadBg1Tilemap();
             Phase = FileSelectPhase.CopySelectSource;
@@ -602,13 +603,13 @@ public sealed class FileSelectMenuState
         if ((pressed & (SnesButton.Start | SnesButton.A)) == 0)
             return;
         QueueCursorSound();
-        if (submenuSelection == 3)
+        if (submenuSelection == FileSelectItem.Exit)
         {
             Phase = FileSelectPhase.FadeOutToMain;
             return;
         }
-        operationDestinationSlot = submenuSelection;
-        confirmationSelection = 0;
+        operationDestinationSlot = FileSelectItemRows.SaveSlot(submenuSelection);
+        confirmationSelection = YesNoChoice.Yes;
         copyArrowPaletteTimer = FileCopyArrowDefinitions.InitialPaletteDelay;
         BuildCopyConfirmationTilemap();
         UploadBg1Tilemap();
@@ -634,7 +635,7 @@ public sealed class FileSelectMenuState
     {
         if ((pressed & (SnesButton.Up | SnesButton.Down)) != 0)
         {
-            confirmationSelection ^= 1;
+            confirmationSelection = confirmationSelection == YesNoChoice.Yes ? YesNoChoice.No : YesNoChoice.Yes;
             QueueCursorSound();
             return;
         }
@@ -648,7 +649,7 @@ public sealed class FileSelectMenuState
             return;
 
         audio?.QueueSound(SoundEffectLibrary1Sounds.MenuConfirm, maximumQueued: 6);
-        if (confirmationSelection != 0)
+        if (confirmationSelection != YesNoChoice.Yes)
         {
             ReturnFromConfirmation(copy);
             return;
@@ -676,7 +677,7 @@ public sealed class FileSelectMenuState
     /// <summary>Restores the prior source or destination selection page after B or No.</summary>
     private void ReturnFromConfirmation(bool copy)
     {
-        submenuSelection = copy ? operationDestinationSlot : operationSourceSlot;
+        submenuSelection = FileSelectItemRows.ForSaveSlot(copy ? operationDestinationSlot : operationSourceSlot);
         if (copy)
         {
             BuildCopyDestinationTilemap();
@@ -691,7 +692,7 @@ public sealed class FileSelectMenuState
     }
 
     /// <summary>Updates a changed submenu row and queues one cursor sound.</summary>
-    private void MoveSubmenuSelection(int next)
+    private void MoveSubmenuSelection(FileSelectItem next)
     {
         if (next == submenuSelection)
             return;
@@ -869,18 +870,18 @@ public sealed class FileSelectMenuState
         {
             bool confirmation = Phase is FileSelectPhase.CopyConfirm or
                 FileSelectPhase.ClearConfirm;
-            int selected = IsMainScreenPhase
-                ? SelectedItem
-                : confirmation ? confirmationSelection : submenuSelection;
+            int row = IsMainScreenPhase
+                ? FileSelectItemRows.MainRow(SelectedItem)
+                : confirmation ? (confirmationSelection == YesNoChoice.Yes ? 0 : 1) : FileSelectItemRows.DataRow(submenuSelection);
             Position16<OamPixels> point = mapPresentation.FileSelect.CursorPosition(
-                IsMainScreenPhase, confirmation, selected);
+                IsMainScreenPhase, confirmation, row);
             return point;
         }
         if (!showDataManagementScreen)
-            return new(14, FileSelectLayout.MainSelectionY(SelectedItem));
+            return new(14, FileSelectLayout.MainSelectionY(FileSelectItemRows.MainRow(SelectedItem)));
         if (Phase is FileSelectPhase.CopyConfirm or FileSelectPhase.ClearConfirm)
-            return new(94, confirmationSelection == 0 ? (ushort)184 : (ushort)208);
-        return new(22, FileSelectLayout.DataSelectionY(submenuSelection));
+            return new(94, confirmationSelection == YesNoChoice.Yes ? (ushort)184 : (ushort)208);
+        return new(22, FileSelectLayout.DataSelectionY(FileSelectItemRows.DataRow(submenuSelection)));
     }
 
     /// <summary>Copies the staged BG1 menu page into menu VRAM.</summary>

@@ -7,6 +7,6 @@ internal readonly record struct YardDirectionDefinition(
     YardProgram CrawlingProgram,
     byte PropertyBits,
     YardProgram HidingProgram,
-    ushort AirborneFacingDirection,
+    YardAirborneFacing AirborneFacingDirection,
     ushort OppositeDirection,
     YardMovementFunction MovementFunction);

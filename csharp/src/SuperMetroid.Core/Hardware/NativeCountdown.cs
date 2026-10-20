@@ -23,6 +23,7 @@ public readonly record struct NativeCountdown
     private NativeCountdown(ushort rawValue) => RawValue = rawValue;
 
     /// <summary>The exact native word, for sites that also read the timer as a number or index.</summary>
+    [IntegerQuantity("the countdown's remaining count")]
     public ushort RawValue { get; }
 
     /// <summary>Whether the stored word is <c>$0000</c> (LDA then BEQ/BNE).</summary>

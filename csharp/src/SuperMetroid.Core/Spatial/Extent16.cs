@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Spatial;
 /// <typeparam name="TSpace">The coordinate space the extent is measured in.</typeparam>
 [SpatialComponents("Spatial value type: owns its X and Y extents.")]
 [SnesEncodingOwner]
-public readonly record struct Extent16<TSpace>(ushort X, ushort Y)
+public readonly record struct Extent16<TSpace>([property: IntegerQuantity("width in pixels")] ushort X, [property: IntegerQuantity("height in pixels")] ushort Y)
     where TSpace : ISpatialSpace
 {
     /// <summary>No extent.</summary>

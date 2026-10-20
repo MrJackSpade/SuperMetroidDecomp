@@ -9,6 +9,7 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Enemies.Shutters;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.TestSupport.ScenarioFixtures;
 
 /// <summary>Checks the shutters' and Kamer's typed animations, their initial function tables and their export frames.</summary>
 internal static class ShutterBehaviorVerification
@@ -74,7 +75,7 @@ internal static class ShutterBehaviorVerification
         return slot;
     }
 
-    /// <summary>Checks native vertical shutter function selection and invalid offset rejection.</summary>
+    /// <summary>Checks native vertical shutter function selection and invalid trigger-mode rejection.</summary>
     internal static void VerifyVerticalShutterInitialFunctionSelection(SuperMetroidAddressSpace rom)
     {
         Func<VerticalShutterEnemyState, VerticalShutterFunction> select = ShuttersBehavior.SelectInitialVerticalShutterFunction;
@@ -82,42 +83,33 @@ internal static class ShutterBehaviorVerification
         {
             Function = VerticalShutterFunction.Initial,
         };
-        for (ushort offset = 0; offset <= 8; offset += 2)
+        foreach (ShutterTriggerMode mode in Enum.GetValues<ShutterTriggerMode>())
         {
-            state.InitialFunctionTableOffset = offset;
-            ushort native = ReadShutterWord(rom, ShutterNativeTableAddresses.VerticalInitialFunctions.AddWithinBank(offset));
+            state.TriggerMode = mode;
+            ushort native = ReadShutterWord(rom, ShutterNativeTableAddresses.VerticalInitialFunctions.AddWithinBank(ShutterTriggerModeCodec.ToNativeOffset(mode)));
             AssertEqual(native, (ushort)select(state), "vertical shutter native initial function pointer");
             AssertEqual(VerticalShutterFunction.Initial, state.Function,
                 "vertical initial dispatch selects a function without installing it");
         }
-        foreach (ushort offset in new ushort[] { 1, 3, 5, 7, 9, 10, 256, 65534, 65535 })
-        {
-            state.InitialFunctionTableOffset = offset;
-            AssertThrows<InvalidDataException>(() => select(state), "vertical shutter invalid initial offset");
-            AssertEqual(VerticalShutterFunction.Initial, state.Function, "invalid vertical selector preserves state");
-        }
+        foreach (int mode in new[] { 5, 6, 128, 255 })
+            AssertThrows<InvalidDataException>(() => ShuttersBehavior.DecodeTriggerMode(mode, "Vertical"), "vertical shutter invalid trigger mode");
     }
 
-    /// <summary>Checks horizontal shutter function installation and invalid offset rejection.</summary>
+    /// <summary>Checks horizontal shutter function installation and invalid trigger-mode rejection.</summary>
     internal static void VerifyHorizontalShutterInitialFunctionSelection(SuperMetroidAddressSpace rom)
     {
         Action<HorizontalShutterEnemyState> select = ShuttersBehavior.SelectInitialHorizontalShutterFunction;
         var state = new HorizontalShutterEnemyState();
-        for (ushort offset = 0; offset <= 8; offset += 2)
+        foreach (ShutterTriggerMode mode in Enum.GetValues<ShutterTriggerMode>())
         {
             state.Function = HorizontalShutterFunction.Initial;
-            state.InitialFunctionTableOffset = offset;
-            ushort native = ReadShutterWord(rom, ShutterNativeTableAddresses.HorizontalInitialFunctions.AddWithinBank(offset));
+            state.TriggerMode = mode;
+            ushort native = ReadShutterWord(rom, ShutterNativeTableAddresses.HorizontalInitialFunctions.AddWithinBank(ShutterTriggerModeCodec.ToNativeOffset(mode)));
             select(state);
             AssertEqual(native, (ushort)state.Function, "horizontal shutter installs native initial function pointer");
         }
-        foreach (ushort offset in new ushort[] { 1, 3, 5, 7, 9, 10, 256, 65534, 65535 })
-        {
-            state.Function = HorizontalShutterFunction.Initial;
-            state.InitialFunctionTableOffset = offset;
-            AssertThrows<InvalidDataException>(() => select(state), "horizontal shutter invalid initial offset");
-            AssertEqual(HorizontalShutterFunction.Initial, state.Function, "invalid horizontal selector preserves state");
-        }
+        foreach (int mode in new[] { 5, 6, 128, 255 })
+            AssertThrows<InvalidDataException>(() => ShuttersBehavior.DecodeTriggerMode(mode, "Horizontal"), "horizontal shutter invalid trigger mode");
     }
 
     /// <summary>

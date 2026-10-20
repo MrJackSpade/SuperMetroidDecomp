@@ -140,7 +140,7 @@ public sealed class SamusSuitPickupState
         samus.HorizontalSpeed.CancelRunningMomentum(samus.PoseMetadata.ReadFacingDirection());
         samus.HorizontalSpeed.ExtraRunSpeed = default;
         samus.HorizontalSpeed.BaseSpeed = default;
-        samus.HorizontalSpeed.AccelerationMode = 0;
+        samus.HorizontalSpeed.AccelerationMode = SamusAccelerationMode.Accelerating;
         samus.Kinematics.YSpeed = default;
         samus.Kinematics.YDirection = SamusVerticalDirection.None;
         samus.MorphBallBounceState = SamusBallBounceState.None;

@@ -1810,10 +1810,10 @@ internal static class LookupStream4Verification
             var samus = new SamusState { Pose = (SamusPoseId)pose };
             byte flags = rom.ReadCartridgeByte(0xa6bd04 + rom.ReadCartridgeByte(0x91b62a + pose * 8));
             AssertEqual((flags & 0x80) != 0, canGrab(samus), "Actual grab policy preserves each native real-pose classification");
-            var state = new RidleyEnemyState { GrabState = 1, TailWhipRequest = 0, TailFunctionIndex = RidleyTailFunction.Pogo, IntangibilityTimer = NativeCountdown.Start(99) };
+            var state = new RidleyEnemyState { GrabState = RidleyGrabState.CarryingSamus, TailWhipRequest = 0, TailFunctionIndex = RidleyTailFunction.Pogo, IntangibilityTimer = NativeCountdown.Start(99) };
             release(state, samus);
             AssertEqual((flags & 0x40) != 0 ? morphedFrames : ordinaryFrames, state.IntangibilityTimer.RawValue, "Actual release preserves native movement-dependent intangibility");
-            AssertEqual(0, state.GrabState, "Actual release clears grab");
+            AssertEqual(RidleyGrabState.Released, state.GrabState, "Actual release clears grab");
             AssertEqual(1, state.TailWhipRequest, "Actual release requests tail whip");
             AssertEqual(RidleyTailFunction.Neutral, state.TailFunctionIndex, "Actual release resets tail controller");
         }

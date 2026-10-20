@@ -47,7 +47,7 @@ internal static class WallJumpSpinExitVerification
             samus.Kinematics.YDirection = SamusVerticalDirection.Up;
             samus.Kinematics.YSpeed = samus.Kinematics.YSpeed.WithWhole(3);
             samus.HorizontalSpeed.BaseSpeed = new SnesUnsignedSixteenSixteen(1, 0x6000);
-            samus.HorizontalSpeed.AccelerationMode = 2;
+            samus.HorizontalSpeed.AccelerationMode = SamusAccelerationMode.Decelerating;
 
             runtime.StepFrame(0);
             string label = speedKept ? "Space Jump promotion" : "plain spin jump";
@@ -57,7 +57,7 @@ internal static class WallJumpSpinExitVerification
                 $"{label}: input-free wall jump falls back to the expected spin art");
             AssertEqual(speedKept ? (ushort)1 : (ushort)0, samus.HorizontalSpeed.BaseSpeed.Whole, $"{label}: base speed");
             AssertEqual(speedKept ? (ushort)0x6000 : (ushort)0, samus.HorizontalSpeed.BaseSpeed.Fraction, $"{label}: base subspeed");
-            AssertEqual(speedKept ? (ushort)2 : (ushort)0, samus.HorizontalSpeed.AccelerationMode, $"{label}: acceleration mode");
+            AssertEqual(speedKept ? SamusAccelerationMode.Decelerating : SamusAccelerationMode.Accelerating, samus.HorizontalSpeed.AccelerationMode, $"{label}: acceleration mode");
         }
     }
 

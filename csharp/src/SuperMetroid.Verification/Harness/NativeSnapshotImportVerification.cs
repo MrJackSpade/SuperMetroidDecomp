@@ -184,7 +184,7 @@ internal static class NativeSnapshotImportVerification
         samus.PoseHistory.LastDifferentDirectionAndMovement = W(NativeSnapshotMemory.LastDifferentDirection);
         samus.HorizontalSpeed.BaseSpeed = new SnesUnsignedSixteenSixteen(W(NativeSnapshotMemory.BaseSpeed), W(NativeSnapshotMemory.BaseFraction));
         samus.HorizontalSpeed.ExtraRunSpeed = new SnesUnsignedSixteenSixteen(W(NativeSnapshotMemory.ExtraSpeed), W(NativeSnapshotMemory.ExtraFraction));
-        samus.HorizontalSpeed.AccelerationMode = W(NativeSnapshotMemory.AccelerationMode);
+        samus.HorizontalSpeed.AccelerationMode = SamusAccelerationModeImport.FromNative(W(NativeSnapshotMemory.AccelerationMode));
         samus.HorizontalSpeed.HasRunningMomentum = W(NativeSnapshotMemory.Momentum) != 0;
         samus.HorizontalSpeed.SpeedBoostCounter = new SamusSpeedBoostCounter(W(NativeSnapshotMemory.BoostCounter));
         samus.Kinematics.YSpeed = new SnesUnsignedSixteenSixteen(W(NativeSnapshotMemory.VerticalSpeed), W(NativeSnapshotMemory.VerticalFraction));

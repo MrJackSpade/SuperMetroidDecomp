@@ -113,9 +113,10 @@ public sealed class RidleyEnemyState
     public int SwoopSpeedMagnitude { get; internal set; }
 
     /// <summary>Gets Lower Norfair's health-table stage from zero through three, changing below 9000, 5400, and 1800 health.</summary>
+    [IntegerQuantity("count of health thresholds passed, zero through three, indexing the health tables")]
     public int HealthStage { get; internal set; }
     /// <summary>Gets the Lower Norfair grabbed-Samus state controlling claw attachment and release: one while Ridley carries Samus, otherwise zero.</summary>
-    public int GrabState { get; internal set; }
+    public RidleyGrabState GrabState { get; internal set; }
     /// <summary>Gets the Lower Norfair countdown keeping the body intangible after a grab release.</summary>
     public NativeCountdown IntangibilityTimer { get; internal set; }
     /// <summary>Gets the current Lower Norfair movement target's whole-pixel room position.</summary>

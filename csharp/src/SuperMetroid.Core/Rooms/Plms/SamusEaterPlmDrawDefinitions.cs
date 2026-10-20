@@ -13,7 +13,7 @@ namespace SuperMetroid.Core.Rooms.Plms;
 internal static class SamusEaterPlmDrawDefinitions
 {
     /// <summary>Floor or ceiling orientation and one of four mouth animation phases for a native draw list.</summary>
-    internal readonly record struct Draw(bool Ceiling, int Phase)
+    internal readonly record struct Draw(bool Ceiling, [property: IntegerQuantity("animation frame index within the eater's draw cycle")] int Phase)
     {
         /// <summary>The mouth runs each contain two blocks; the foliage run contains four.</summary>
         internal static int Count(int run) => run switch

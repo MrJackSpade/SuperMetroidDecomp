@@ -135,6 +135,7 @@ internal sealed class FrontendSession
     /// <summary>Palette transition for the escape time-up sequence.</summary>
     internal CartridgePaletteTransition? timeUpPaletteFade;
     /// <summary>Brightness during the death-state blackout, 0 (black) through 15.</summary>
+    [IntegerQuantity("screen brightness level the death fade counts down")]
     internal int deathFadeBrightness = 15;
     /// <summary>Cadence counter for the death fade.</summary>
     internal int deathFadeCounter;

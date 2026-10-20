@@ -768,7 +768,7 @@ internal static void VerifySamusGrabbedByDraygon()
 
     samus.HorizontalSpeed.BaseSpeed = new SnesUnsignedSixteenSixteen(3, 0x4000);
     samus.HorizontalSpeed.ExtraRunSpeed = new SnesUnsignedSixteenSixteen(2, 0x8000);
-    samus.HorizontalSpeed.AccelerationMode = 2;
+    samus.HorizontalSpeed.AccelerationMode = SamusAccelerationMode.Decelerating;
     samus.Kinematics.YSpeed = new SnesUnsignedSixteenSixteen(4, 0xc000);
     samus.Kinematics.YDirection = SamusVerticalDirection.Down;
     samus.MorphBallBounceState = SamusBallBounceState.SecondRebound;
@@ -793,7 +793,7 @@ internal static void VerifySamusGrabbedByDraygon()
     AssertEqual(0, samus.Kinematics.YSpeed.Fraction, "release clears Y subspeed");
     AssertEqual(SamusVerticalDirection.None, samus.Kinematics.YDirection, "release clears Y direction");
     AssertEqual(SamusBallBounceState.None, samus.MorphBallBounceState, "release clears bounce state");
-    AssertEqual(0, samus.HorizontalSpeed.AccelerationMode,
+    AssertEqual(SamusAccelerationMode.Accelerating, samus.HorizontalSpeed.AccelerationMode,
         "release clears X acceleration mode");
     AssertTrue(samus.DraygonGrabbed.ConsumeOwnerReleaseSignal(),
         "release publishes one owner-consumed bit");

@@ -167,7 +167,7 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
             // Initializer $BB92 writes collision option one for these four links. Property
             // $8000 admits the beam overlap; this independent flag selects the persistent
             // dud response rather than the definition's delete-on-shot instruction list.
-            segment.CollisionOption = 1;
+            segment.CollisionOption = EnemyProjectileCollisionOption.IndestructibleDud;
             state.ProjectileSegments[segmentIndex] = segment;
         }
     }

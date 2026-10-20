@@ -58,7 +58,7 @@ public sealed class GameOverMenuState
     }
 
     /// <summary>Zero selects Yes; one selects No, matching <c>file_select_map_area_index</c>.</summary>
-    public int SelectedItem { get; private set; }
+    public YesNoChoice SelectedItem { get; private set; }
 
     /// <summary>Current native menu index; these enum ordinals are not native menu-index words.</summary>
     public GameOverMenuPhase Phase { get; internal set; }
@@ -152,7 +152,7 @@ public sealed class GameOverMenuState
                 babyStep = null;
                 babyInstructionTimer = NativeCountdown.Start(0);
                 StepBabyMetroid();
-                SelectedItem = 0;
+                SelectedItem = YesNoChoice.Yes;
                 brightness = 0;
                 // $81:9260 unblanks and waits for NMI before advancing the index.
                 ResumesAfterNmiWait = true;
@@ -182,7 +182,7 @@ public sealed class GameOverMenuState
                     audio.QueueSound(
                         SoundEffectLibrary1Sounds.MenuCursor,
                         maximumQueued: GameOverRomData.MaximumQueuedSounds);
-                    SelectedItem ^= 1;
+                    SelectedItem = SelectedItem == YesNoChoice.Yes ? YesNoChoice.No : YesNoChoice.Yes;
                 }
                 else if ((pressed & SnesButton.A) != 0)
                 {
@@ -190,10 +190,10 @@ public sealed class GameOverMenuState
                     // answer is accepted, while the selected fade owner continues drawing.
                     babyInstructionTimer =
                         NativeCountdown.Start(GameOverRomData.BabyAnimation.AcceptedAnswerHoldDuration);
-                    if (SelectedItem == 0 && continueLoadsCeresArrival)
+                    if (SelectedItem == YesNoChoice.Yes && continueLoadsCeresArrival)
                         CeresArrivalRequested = true;
                     else
-                        Phase = SelectedItem == 0
+                        Phase = SelectedItem == YesNoChoice.Yes
                             ? GameOverMenuPhase.FadeOutToContinue
                             : GameOverMenuPhase.FadeOutToTitle;
                 }
@@ -242,7 +242,7 @@ public sealed class GameOverMenuState
         GameOverBabyInstruction instruction = GameOverBabyAnimation.Get(babyStep ?? 0);
         content.GameOver.DrawBaby(sprites, instruction.Frame);
         content.GameOver.DrawEgg(sprites);
-        content.GameOver.DrawCursor(sprites, missile.Frame, SelectedItem != 0);
+        content.GameOver.DrawCursor(sprites, missile.Frame, SelectedItem != YesNoChoice.Yes);
         sprites.FinishFrame();
     }
 

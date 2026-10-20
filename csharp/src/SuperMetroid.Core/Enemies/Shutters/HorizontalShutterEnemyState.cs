@@ -34,19 +34,18 @@ public sealed class HorizontalShutterEnemyState
     /// <summary>Spawn speed selector, 0 through 255: the common linear-speed record holding the rightward and leftward velocities.</summary>
     public int SpeedTableIndex { get; internal set; }
     /// <summary>Spawn direction selector, 0 through 255: zero starts leftward; any other value starts rightward.</summary>
+    [NativeWord("population direction byte: zero starts toward the left end, any other value toward the right; ReactionDirection is its bit-0 complement")]
     public int PrimaryDirection { get; internal set; }
     /// <summary>Left endpoint's rest length in sixteen-update units, 0 through 255; 255 selects an inert endpoint.</summary>
     public int MovedLeftRestParameter { get; internal set; }
     /// <summary>Right endpoint's rest length in sixteen-update units, 0 through 255; 255 selects an inert endpoint.</summary>
     public int MovedRightRestParameter { get; internal set; }
-    /// <summary>Population trigger mode, validated to 0 through 4: timer, horizontal proximity, immediate, one-shot reaction, or repeatable reaction activation.</summary>
-    public int TriggerMode { get; internal set; }
+    /// <summary>Population trigger mode: timer, horizontal proximity, immediate, one-shot reaction, or repeatable reaction activation.</summary>
+    public ShutterTriggerMode TriggerMode { get; internal set; }
     /// <summary>Whole-pixel X separation of the two endpoints, 0 through 255; the native storage calls this field YDistance.</summary>
     public int TravelDistance { get; internal set; }
     /// <summary>Parameter 2, 0 through 65535: initial AI-update wait or strict absolute horizontal pixel-distance threshold, according to trigger mode.</summary>
     public int HorizontalProximityOrWaitTime { get; internal set; }
-    /// <summary>Twice the trigger mode, 0 through 8: the even offset selecting one of the five initial functions.</summary>
-    public int InitialFunctionTableOffset { get; internal set; }
     /// <summary>Left endpoint's rest length in AI updates, sixteen per parameter unit (0 through 4080); 4080 installs the inert function.</summary>
     public int MovedLeftRestTime { get; internal set; }
     /// <summary>Right endpoint's rest length in AI updates, sixteen per parameter unit (0 through 4080); 4080 installs the inert function.</summary>
@@ -64,6 +63,7 @@ public sealed class HorizontalShutterEnemyState
     /// toggled before each reaction, which moves left for zero and right otherwise. A primary direction above one
     /// therefore never reacts leftward.
     /// </summary>
+    [NativeWord("bit-0 complement of the population direction byte, tested against zero when a shot reverses the shutter")]
     public int ReactionDirection { get; internal set; }
 
     /// <summary>Empties the values the cartridge keeps in the enemy's common record.</summary>

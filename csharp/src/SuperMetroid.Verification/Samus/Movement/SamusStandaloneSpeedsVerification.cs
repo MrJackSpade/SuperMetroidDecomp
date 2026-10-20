@@ -26,7 +26,7 @@ internal static class SamusStandaloneSpeedsVerification
             SpeedTableEntry native = Read(rom.ReadCartridgeByte, address);
             AssertTrue(SamusHorizontalMotionDefinitions.TryResolveStandalone(address, out var compiled), "Authored standalone record recognized");
             AssertEqual(native, compiled, "All six native standalone words match");
-            foreach (ushort mode in new ushort[] { 0, 1, 2, ushort.MaxValue })
+            foreach (SamusAccelerationMode mode in Enum.GetValues<SamusAccelerationMode>())
             foreach (byte multiplier in new byte[] { 0, 1, 255 })
             for (int raw = 0; raw <= ushort.MaxValue; raw++)
             {

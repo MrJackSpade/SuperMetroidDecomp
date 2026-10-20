@@ -4,6 +4,7 @@ namespace SuperMetroid.Core.Samus.Drawing;
 public sealed class SamusAtmosphericEffectSlot
 {
     /// <summary>Low byte animation frame, high byte graphics type; 0 through 65535.</summary>
+    [NativeWord("packed slot word: low byte animation frame, high byte graphics type; zero marks an empty slot")]
     public int FrameAndType
     {
         get;

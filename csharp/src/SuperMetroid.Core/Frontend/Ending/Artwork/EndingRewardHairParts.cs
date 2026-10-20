@@ -10,6 +10,7 @@ namespace SuperMetroid.Core.Frontend.Ending.Artwork;
 internal sealed class EndingRewardHairParts : IReadOnlyList<CompiledSpritePart>
 {
     /// <summary>Index in the seven-step hair release sequence used to choose atlas regions and part counts.</summary>
+    [IntegerQuantity("hair animation step index")]
     private readonly int stage;
     /// <summary>Supplied forearm positions retained only when they do not follow the symmetric pose rule.</summary>
     private readonly (int X, int Y)[]? moving;

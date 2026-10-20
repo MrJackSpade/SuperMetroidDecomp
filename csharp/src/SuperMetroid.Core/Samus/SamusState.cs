@@ -100,6 +100,7 @@ public sealed class SamusState
     }
 
     /// <summary>Current animation-frame index, corresponding to WRAM <c>$0A96</c>.</summary>
+    [IntegerQuantity("frame index within the current pose animation")]
     public int AnimationFrame
     {
         get;
@@ -183,6 +184,7 @@ public sealed class SamusState
     /// the one stored value is both a movement-speed divisor and the no-FX animation delay buffer, and its setter
     /// rejects values outside that range.
     /// </summary>
+    [IntegerQuantity("right-shift applied to horizontal speed, zero when undivided")]
     public int XSpeedDivisor
     {
         get => HorizontalSpeed.SpeedDivisor;
@@ -333,6 +335,7 @@ public sealed class SamusState
     /// fresh-shot normal-jump transition and `$0100` marks a moonwalk turn. Keeping the raw
     /// word visible makes both native producers and the single consumer debugger-auditable.
     /// </remarks>
+    [NativeWord("packed transition word: the low byte is the shot direction and the high byte records which native producer wrote it")]
     public int PoseTransitionShotDirection
     {
         get;
@@ -380,6 +383,7 @@ public sealed class SamusState
     /// WRAM `$0A56`: low byte 1/2/3 is left/straight/right; bit `$0800` marks the bank-$91
     /// special prospective command as accepted and prevents the same explosion rearming it.
     /// </summary>
+    [NativeWord("WRAM $0A56: low byte left, straight or right, plus the $0800 accepted-command bit; zero means no bomb jump")]
     public int BombJumpDirection
     {
         get;

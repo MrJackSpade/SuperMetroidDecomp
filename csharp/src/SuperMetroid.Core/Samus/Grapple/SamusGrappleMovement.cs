@@ -1455,7 +1455,7 @@ public static class SamusGrappleMovement
             samus.Pose = fallback;
             samus.PoseMetadata.RefreshCollisionRadii();
             samus.Presentation.InitializeAnimation(initialFrame: 0);
-            samus.HorizontalSpeed.AccelerationMode = 0;
+            samus.HorizontalSpeed.AccelerationMode = SamusAccelerationMode.Accelerating;
             samus.HorizontalSpeed.BaseSpeed = default;
             samus.HorizontalSpeed.ExtraRunSpeed = default;
         }
@@ -1576,7 +1576,7 @@ public static class SamusGrappleMovement
         bool movingDown = grapple.AngularVelocity >= 0 ? cosine >= 0 : cosine < 0;
         samus.Kinematics.YDirection = movingDown ? SamusVerticalDirection.Down : SamusVerticalDirection.Up;
 
-        samus.HorizontalSpeed.AccelerationMode = 2;
+        samus.HorizontalSpeed.AccelerationMode = SamusAccelerationMode.Decelerating;
         int phaseOffset = 64 - 3 * (doubledVelocity >> 9);
         byte horizontalAngle = grapple.Angle.AddTableUnits(-phaseOffset).TableIndex;
         int horizontalSine = Math.Abs(ReadSignedSine(horizontalAngle + 64));

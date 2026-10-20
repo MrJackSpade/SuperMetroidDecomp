@@ -361,6 +361,7 @@ internal sealed class SuperMetroidRuntime
     /// debugger seam for forcing preconditions without constructing an explosion.
     /// </summary>
     /// <remarks>Before the first room exists there is no explosion, so its status is the cleared one.</remarks>
+    [NativeWord("HDMA explosion status word: zero is no explosion and the top bit set is the active state")]
     public int PowerBombExplosionStatus
     {
         get => Room.BombProjectiles?.PowerBombExplosion.Status ?? 0;

@@ -1127,7 +1127,7 @@ internal static class LookupStream2Verification
             var context = new HorizontalCameraContext(
                 reversal == 1,
                 reversal == 2 ? SamusMovementType.Moonwalking : 0,
-                reversal == 3 ? (ushort)1 : (ushort)0, facing, mode);
+                reversal == 3 ? SamusAccelerationMode.Turning : SamusAccelerationMode.Accelerating, facing, mode);
             bool right = reversal == 0 ? facing != 4 : facing == 4;
             ushort nativeOffset = ReadVerificationWord(rom, (right ? 0x90963f : 0x909647) + (int)mode);
             AssertEqual(nativeOffset, HorizontalCameraTargetDefinitions.Offset(mode, right), "Native mode/facing target offset");

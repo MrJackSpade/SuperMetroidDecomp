@@ -35,35 +35,35 @@ internal static class YardDirectionDefinitions
         {
             SurfaceDirection.UpsideRightMovingUp => new YardDirectionDefinition(
                 YardProgram.CrawlingUpsideRightMovingUp, 0,
-                YardProgram.HidingUpsideRightMovingUp, 0, 0,
+                YardProgram.HidingUpsideRightMovingUp, YardAirborneFacing.Left, 0,
                 YardMovementFunction.CrawlingUpsideDownMovingLeft),
             SurfaceDirection.UpsideRightMovingDown => new YardDirectionDefinition(
                 YardProgram.CrawlingUpsideRightMovingDown, 0,
-                YardProgram.HidingUpsideRightMovingDown, 1, 0,
+                YardProgram.HidingUpsideRightMovingDown, YardAirborneFacing.Right, 0,
                 YardMovementFunction.CrawlingUpsideRightMovingDown),
             SurfaceDirection.UpsideLeftMovingUp => new YardDirectionDefinition(
                 YardProgram.CrawlingUpsideLeftMovingUp, 0,
-                YardProgram.HidingUpsideLeftMovingUp, 1, 0,
+                YardProgram.HidingUpsideLeftMovingUp, YardAirborneFacing.Right, 0,
                 YardMovementFunction.CrawlingUpsideLeftMovingUp),
             SurfaceDirection.UpsideLeftMovingDown => new YardDirectionDefinition(
                 YardProgram.CrawlingUpsideLeftMovingDown, 0,
-                YardProgram.HidingUpsideLeftMovingDown, 0, 0,
+                YardProgram.HidingUpsideLeftMovingDown, YardAirborneFacing.Left, 0,
                 YardMovementFunction.CrawlingUpsideLeftMovingDown),
             SurfaceDirection.UpsideDownMovingLeft => new YardDirectionDefinition(
                 YardProgram.CrawlingUpsideDownMovingLeft, 0,
-                YardProgram.HidingUpsideDownMovingLeft, 1, 0,
+                YardProgram.HidingUpsideDownMovingLeft, YardAirborneFacing.Right, 0,
                 YardMovementFunction.CrawlingUpsideRightMovingUp),
             SurfaceDirection.UpsideDownMovingRight => new YardDirectionDefinition(
                 YardProgram.CrawlingUpsideDownMovingRight, 0,
-                YardProgram.HidingUpsideDownMovingRight, 0, 0,
+                YardProgram.HidingUpsideDownMovingRight, YardAirborneFacing.Left, 0,
                 YardMovementFunction.CrawlingUpsideDownMovingRight),
             SurfaceDirection.UpsideUpMovingLeft => new YardDirectionDefinition(
                 YardProgram.CrawlingUpsideUpMovingLeft, 0,
-                YardProgram.HidingUpsideUpMovingLeft, 0, 0,
+                YardProgram.HidingUpsideUpMovingLeft, YardAirborneFacing.Left, 0,
                 YardMovementFunction.CrawlingUpsideUpMovingLeft),
             SurfaceDirection.UpsideUpMovingRight => new YardDirectionDefinition(
                 YardProgram.CrawlingUpsideUpMovingRight, 0,
-                YardProgram.HidingUpsideUpMovingRight, 1, 0,
+                YardProgram.HidingUpsideUpMovingRight, YardAirborneFacing.Right, 0,
                 YardMovementFunction.CrawlingUpsideUpMovingRight),
             _ => throw new InvalidDataException(
                 $"Yard direction ${direction:X4} exceeds its eight cartridge definitions."),
@@ -79,13 +79,13 @@ internal static class YardDirectionDefinitions
     /// Chooses visible and hidden airborne animations by facing. Native detach,
     /// contact-kick and shot-launch repeat these pairs at $A3:D1AB, $D50F and $D5A4.
     /// </summary>
-    internal static YardAirborneInstructionDefinition ForAirborneFacing(int facing) => facing switch
+    internal static YardAirborneInstructionDefinition ForAirborneFacing(YardAirborneFacing facing) => facing switch
     {
-        0 => new(YardProgram.AirborneFacingLeft,
+        YardAirborneFacing.Left => new(YardProgram.AirborneFacingLeft,
             YardProgram.HiddenUpsideUpMovingLeft),
-        1 => new(YardProgram.AirborneFacingRight,
+        YardAirborneFacing.Right => new(YardProgram.AirborneFacingRight,
             YardProgram.HiddenUpsideUpMovingRight),
         _ => throw new InvalidDataException(
-            $"Yard airborne facing ${facing:X4} exceeds its two cartridge definitions."),
+            $"Yard airborne facing {facing} exceeds its two cartridge definitions."),
     };
 }

@@ -226,6 +226,6 @@ internal static class PauseEquipmentRulesVerification
     internal static void EnterPauseEquipment(PauseMenuState pause)
     {
         ChangePausePage(pause, SnesButton.R);
-        AssertEqual(1, pause.ScreenMode, "fixture actually enters equipment screen");
+        AssertEqual(PauseScreenMode.Equipment, pause.ScreenMode, "fixture actually enters equipment screen");
     }
 }

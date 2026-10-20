@@ -75,7 +75,7 @@ internal static class PauseWireframesVerification
                 AssertPixels();
                 ChangePausePage(pause, SnesButton.L, StepBoth);
                 AssertPixels();
-                AssertEqual(0, pause.ScreenMode, "wireframe fixture returns to the map page");
+                AssertEqual(PauseScreenMode.Map, pause.ScreenMode, "wireframe fixture returns to the map page");
                 // Rebind on the map must not replace the map's shared BG1 page.
                 byte[] map = pause.CaptureRenderSnapshot().Memory.Vram.Slice(0x6000, 0x1000).ToArray();
                 pause.BindMapPresentation(edited);
@@ -137,7 +137,7 @@ internal static class PauseWireframesVerification
         Console.WriteLine("Pause wireframes: four exact patches/untouched surroundings, 576 guarded native transition frames, isolated visual edits, actual equipment toggles, current-content restore and strict failures pass.");
 
         static void EnterEquipment(PauseMenuState pause)
-        { EnterPauseEquipment(pause); AssertEqual(1, pause.ScreenMode, "wireframe fixture enters equipment"); }
+        { EnterPauseEquipment(pause); AssertEqual(PauseScreenMode.Equipment, pause.ScreenMode, "wireframe fixture enters equipment"); }
         static void AssertPage(PauseMenuState pause, AreaMapPresentationCatalog catalog, PauseWireframeKind kind)
         {
             byte[] actual = pause.CaptureRenderSnapshot().Memory.Vram.Slice(0x6000, 0x800).ToArray();

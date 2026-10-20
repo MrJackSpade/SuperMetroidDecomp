@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Spatial;
 /// <typeparam name="TSpace">The coordinate space; positions in different spaces never convert implicitly.</typeparam>
 [SpatialComponents("Spatial value type: owns its X and Y words.")]
 [SnesEncodingOwner]
-public readonly record struct Position16<TSpace>(ushort X, ushort Y)
+public readonly record struct Position16<TSpace>([property: IntegerQuantity("horizontal coordinate")] ushort X, [property: IntegerQuantity("vertical coordinate")] ushort Y)
     where TSpace : ISpatialSpace
 {
     /// <summary>The origin.</summary>

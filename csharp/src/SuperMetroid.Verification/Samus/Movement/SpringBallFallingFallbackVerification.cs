@@ -44,7 +44,7 @@ internal static class SpringBallFallingFallbackVerification
         // The movie's state entering update 349335: base 1.4000, extra 1.E000, mode two.
         samus.HorizontalSpeed.BaseSpeed = new SnesUnsignedSixteenSixteen(1, 0x4000);
         samus.HorizontalSpeed.ExtraRunSpeed = new SnesUnsignedSixteenSixteen(1, 0xe000);
-        samus.HorizontalSpeed.AccelerationMode = 2;
+        samus.HorizontalSpeed.AccelerationMode = SamusAccelerationMode.Decelerating;
         ushort x0 = samus.Position.X.Whole;
 
         runtime.StepFrame(SnesButton.A);
@@ -54,7 +54,7 @@ internal static class SpringBallFallingFallbackVerification
         AssertEqual(0, samus.HorizontalSpeed.BaseSpeed.Fraction, "command six clears base subspeed");
         AssertEqual(0, samus.HorizontalSpeed.ExtraRunSpeed.Whole, "command eight clears extra run speed");
         AssertEqual(0, samus.HorizontalSpeed.ExtraRunSpeed.Fraction, "command eight clears extra run subspeed");
-        AssertEqual(0, samus.HorizontalSpeed.AccelerationMode, "command six clears the acceleration mode");
+        AssertEqual(SamusAccelerationMode.Accelerating, samus.HorizontalSpeed.AccelerationMode, "command six clears the acceleration mode");
         Console.WriteLine("Spring Ball falling fallback: command six clears horizontal speed after movement.");
     }
 

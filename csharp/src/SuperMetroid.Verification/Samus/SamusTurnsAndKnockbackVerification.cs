@@ -144,7 +144,7 @@ internal static void VerifySamusAerialTurnsAndWallJump()
             $"{(jumping ? "jump" : "fall")} turn direction {shotDirection} fits");
         AssertEqual(expectedPose, samus.Pose, $"{(jumping ? "jump" : "fall")} selector direction {shotDirection}");
         AssertEqual(0x00018000u, samus.HorizontalSpeed.BaseFixed, "aerial selector folds extra speed");
-        AssertEqual(1, samus.HorizontalSpeed.AccelerationMode, "aerial selector starts turn mode");
+        AssertEqual(SamusAccelerationMode.Turning, samus.HorizontalSpeed.AccelerationMode, "aerial selector starts turn mode");
     }
 
     // Isolate one diagonal-up jumping turn with its real three-frame `$F8,$6A` stream.
@@ -170,7 +170,7 @@ internal static void VerifySamusAerialTurnsAndWallJump()
         turn.Presentation.AnimateNoFx(new SamusAnimationStep { Random = new CartridgeRandom() });
     AssertTrue(turn.PoseTransitions.ApplyPendingVerifiedAnimationTransition(), "aerial turn F8 applies");
     AssertEqual(SamusPoseId.NormalJumpAimDiagonalUpLeftPose, turn.Pose, "aerial turn preserves diagonal-up aim endpoint");
-    AssertEqual(0, turn.HorizontalSpeed.AccelerationMode,
+    AssertEqual(SamusAccelerationMode.Accelerating, turn.HorizontalSpeed.AccelerationMode,
         "finished aerial turn reinitializes normal-jump acceleration instead of retaining reverse drift");
 
     // Cover both jumping/falling endpoints and both facings. These animation-owned
@@ -195,22 +195,22 @@ internal static void VerifySamusAerialTurnsAndWallJump()
         endpoint.PoseMetadata.RefreshCollisionRadii();
         endpoint.Presentation.InitializeAnimation();
         endpoint.HorizontalSpeed.BaseSpeed = endpoint.HorizontalSpeed.BaseSpeed.WithFraction(0x4800);
-        endpoint.HorizontalSpeed.AccelerationMode = 1;
+        endpoint.HorizontalSpeed.AccelerationMode = SamusAccelerationMode.Turning;
         endpoint.HorizontalSpeed.ExtraRunSpeed = new SnesUnsignedSixteenSixteen(SnesFixedPosition.WholeOf(unchecked((int)extra)), (ushort)extra);
         for (int tick = 0; tick < 6; tick++)
             endpoint.Presentation.AnimateNoFx(new SamusAnimationStep { Random = new CartridgeRandom() });
         AssertTrue(endpoint.PoseTransitions.ApplyPendingVerifiedAnimationTransition(), "turn endpoint command consumed");
-        AssertEqual(extra == 0 ? 0 : 2, endpoint.HorizontalSpeed.AccelerationMode, "turn endpoint uses cartridge dash predicate");
+        AssertEqual(extra == 0 ? SamusAccelerationMode.Accelerating : SamusAccelerationMode.Decelerating, endpoint.HorizontalSpeed.AccelerationMode, "turn endpoint uses cartridge dash predicate");
         AssertEqual(0x4800u, endpoint.HorizontalSpeed.BaseFixed, "turn endpoint retains base speed");
         AssertEqual(SnesFixedPosition.WholeOf(unchecked((int)extra)), endpoint.HorizontalSpeed.ExtraRunSpeed.Whole, "turn endpoint retains whole dash speed");
         AssertEqual((ushort)extra, endpoint.HorizontalSpeed.ExtraRunSpeed.Fraction, "turn endpoint retains fractional dash speed");
 
         endpoint.Pose = source;
         endpoint.Presentation.InitializeAnimation();
-        endpoint.HorizontalSpeed.AccelerationMode = 1;
+        endpoint.HorizontalSpeed.AccelerationMode = SamusAccelerationMode.Turning;
         ushort timerBeforeRelease = endpoint.AnimationFrameTimer.RawValue;
         endpoint.PoseTransitions.ApplyTurnInputFallback(endpoint.PoseMetadata.ReadMovementType());
-        AssertEqual(0, endpoint.HorizontalSpeed.AccelerationMode, "released turn invokes momentum command two");
+        AssertEqual(SamusAccelerationMode.Accelerating, endpoint.HorizontalSpeed.AccelerationMode, "released turn invokes momentum command two");
         AssertEqual(source, endpoint.Pose, "released turn retains unfinished pose");
         AssertEqual(timerBeforeRelease, endpoint.AnimationFrameTimer.RawValue, "released turn does not restart animation");
         AssertEqual(0x4800u, endpoint.HorizontalSpeed.BaseFixed, "released turn retains base speed until next movement");
@@ -238,7 +238,7 @@ internal static void VerifySamusAerialTurnsAndWallJump()
     releasedWallJump.PoseTransitions.ApplyWallJumpTrigger();
     uint beforeReleasedWallX = releasedWallJump.Kinematics.Position.X.RawValue;
     SamusAerialMovement.StepWallJump(level, releasedWallJump, 0, 0);
-    AssertEqual(2, releasedWallJump.HorizontalSpeed.AccelerationMode,
+    AssertEqual(SamusAccelerationMode.Decelerating, releasedWallJump.HorizontalSpeed.AccelerationMode,
         "walljump movement promotes zero acceleration mode after speed calculation");
     AssertTrue(releasedWallJump.Kinematics.Position.X.RawValue > beforeReleasedWallX,
         "walljump movement bypasses held-direction gate before pose fallback is applied");

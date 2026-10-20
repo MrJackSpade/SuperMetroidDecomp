@@ -30,7 +30,7 @@ internal static class FileSelectNavigationLookupVerification
         }
         foreach (int invalid in new[] { int.MinValue, -1, 8, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() =>
-                FileSelectDataNavigation.MoveSourceOrClear(3, invalid, SnesButton.None),
+                FileSelectDataNavigation.MoveSourceOrClear(FileSelectItem.Exit, invalid, SnesButton.None),
                 "unsupported occupancy mask");
         Console.WriteLine("Source/clear navigation: all eight original choice lists, 20 selectable states, input priority and rejection pass.");
     }
@@ -59,7 +59,7 @@ internal static class FileSelectNavigationLookupVerification
         }
         foreach (int invalid in new[] { int.MinValue, -1, 3, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() =>
-                FileSelectDataNavigation.MoveCopyDestination(3, invalid, SnesButton.None),
+                FileSelectDataNavigation.MoveCopyDestination(FileSelectItem.Exit, invalid, SnesButton.None),
                 "unsupported copy source");
         Console.WriteLine("Copy destination navigation: all three original choice lists, nine selectable states, input priority and rejection pass.");
     }
@@ -70,7 +70,7 @@ internal static class FileSelectNavigationLookupVerification
 
     /// <summary>Uses the former ordinal-list behavior to check each selectable row and rejected row under directional inputs.</summary>
     private static void VerifyOriginalSubmenuChoices(int[] original,
-        Func<int, SnesButton, int> actual, string description)
+        Func<FileSelectItem, SnesButton, FileSelectItem> actual, string description)
     {
         // The complete four directional equivalence classes, also with every
         // irrelevant controller bit set, cover the helper's input masking.
@@ -86,12 +86,13 @@ internal static class FileSelectNavigationLookupVerification
                 int nextOrdinal = ordinal;
                 if ((pressed & SnesButton.Up) != 0) nextOrdinal = Math.Max(0, ordinal - 1);
                 else if ((pressed & SnesButton.Down) != 0) nextOrdinal = Math.Min(original.Length - 1, ordinal + 1);
-                AssertEqual(original[nextOrdinal], actual(original[ordinal], pressed),
+                AssertEqual(FileSelectItemRows.DataItem(original[nextOrdinal]), actual(FileSelectItemRows.DataItem(original[ordinal]), pressed),
                     $"{description} row={original[ordinal]} input={pressed}");
             }
-            foreach (int rejected in new[] { int.MinValue, -1, 0, 1, 2, 4, int.MaxValue })
+            FileSelectItem[] selectable = original.Select(FileSelectItemRows.DataItem).ToArray();
+            foreach (FileSelectItem rejected in Enum.GetValues<FileSelectItem>())
             {
-                if (Array.IndexOf(original, rejected) >= 0) continue;
+                if (selectable.Contains(rejected)) continue;
                 try
                 {
                     actual(rejected, pressed);
@@ -117,13 +118,14 @@ internal static class FileSelectNavigationLookupVerification
             for (int ordinal = 0; ordinal < original.Length; ordinal++)
             foreach (bool down in new[] { false, true })
             {
-                int expected = original[(ordinal + (down ? 1 : -1) + original.Length) % original.Length];
-                AssertEqual(expected, FileSelectMainNavigation.Move(original[ordinal], hasSave, down),
+                FileSelectItem expected = FileSelectItemRows.MainItem(original[(ordinal + (down ? 1 : -1) + original.Length) % original.Length]);
+                AssertEqual(expected, FileSelectMainNavigation.Move(FileSelectItemRows.MainItem(original[ordinal]), hasSave, down),
                     $"main navigation saves={hasSave} row={original[ordinal]} down={down}");
             }
-            foreach (int selected in new[] { int.MinValue, -1, 3, 4, 6, int.MaxValue })
+            FileSelectItem[] visible = original.Select(FileSelectItemRows.MainItem).ToArray();
+            foreach (FileSelectItem selected in Enum.GetValues<FileSelectItem>())
             {
-                if (Array.IndexOf(original, selected) >= 0) continue;
+                if (visible.Contains(selected)) continue;
                 foreach (bool down in new[] { false, true })
                 {
                     try

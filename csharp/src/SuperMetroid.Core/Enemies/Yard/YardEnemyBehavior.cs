@@ -469,7 +469,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
         // Yard deliberately tail-calls the common crawler initializer after landing, but
         // retains its own state and main AI. Reproduce only those shared velocity/sign words.
         slot.Properties = slot.Properties.WithFamilyData(
-            (byte)((slot.Properties.FamilyData & ~YardPropertyMasks.FacingBits) | checked((byte)state.AirborneFacingDirection)));
+            (byte)((slot.Properties.FamilyData & ~YardPropertyMasks.FacingBits) | (state.AirborneFacingDirection == YardAirborneFacing.Right ? 1 : 0)));
         // Surface direction can still describe a wall or ceiling. E67A instead uses
         // the new floor-facing property bits for its downward probe and horizontal sign.
         state.CrawlingVelocity = CrawlersBehavior.ResetCrawlerVelocitiesFromProperties(slot, state.CrawlingSpeedIndex, state.CrawlingVelocity);
@@ -500,7 +500,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
         YardEnemyState state,
         SamusState samus)
     {
-        bool shouldTurn = state.AirborneFacingDirection != 0
+        bool shouldTurn = state.AirborneFacingDirection == YardAirborneFacing.Right
             ? slot.Position.X.Whole >= samus.Position.X.Whole
             : slot.Position.X.Whole < samus.Position.X.Whole;
         return shouldTurn && TurnYardAround(slot, state);
@@ -618,7 +618,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
         SnesButton heldButtons = controllerInput;
         bool pressingExactlyRight =
             (heldButtons & SnesButtons.HorizontalDirections) == SnesButton.Right;
-        bool yardFacesRight = (state.AirborneFacingDirection & 1) != 0;
+        bool yardFacesRight = state.AirborneFacingDirection == YardAirborneFacing.Right;
         return pressingExactlyRight ? !yardFacesRight : yardFacesRight;
     }
 

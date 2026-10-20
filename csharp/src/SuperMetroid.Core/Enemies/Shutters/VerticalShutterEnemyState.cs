@@ -34,19 +34,18 @@ public sealed class VerticalShutterEnemyState
     /// <summary>Spawn speed selector, 0 through 255: the common linear-speed record containing the downward and upward velocities.</summary>
     public int SpeedTableIndex { get; internal set; }
     /// <summary>Spawn direction selector, 0 through 255: zero starts upward; any other value starts downward.</summary>
+    [NativeWord("population direction byte: zero starts toward the top end, any other value toward the bottom; ReactionDirection is its bit-0 complement")]
     public int PrimaryDirection { get; internal set; }
     /// <summary>Upward endpoint's rest length in sixteen-update units, 0 through 255; 255 selects the inert endpoint.</summary>
     public int MovedUpRestParameter { get; internal set; }
     /// <summary>Downward endpoint's rest length in sixteen-update units, 0 through 255; 255 selects the inert endpoint.</summary>
     public int MovedDownRestParameter { get; internal set; }
-    /// <summary>Population trigger mode, validated to 0 through 4: timer, proximity, immediate, one-shot reaction, or repeatable reaction activation.</summary>
-    public int TriggerMode { get; internal set; }
+    /// <summary>Population trigger mode: timer, proximity, immediate, one-shot reaction, or repeatable reaction activation.</summary>
+    public ShutterTriggerMode TriggerMode { get; internal set; }
     /// <summary>Whole-pixel separation of the two Y endpoints, 0 through 255.</summary>
     public int TravelDistance { get; internal set; }
     /// <summary>Parameter 2, 0 through 65535: initial AI-update wait in timer mode, or strict absolute-X pixel-distance threshold in proximity mode.</summary>
     public int HorizontalProximityOrWaitTime { get; internal set; }
-    /// <summary>Twice the trigger mode, 0 through 8: the even offset selecting one of the five initial functions.</summary>
-    public int InitialFunctionTableOffset { get; internal set; }
     /// <summary>Upward endpoint's rest length in AI updates, sixteen per parameter unit (0 through 4080); 4080 selects the inert function instead of counting down.</summary>
     public int MovedUpRestTime { get; internal set; }
     /// <summary>Downward endpoint's rest length in AI updates, sixteen per parameter unit (0 through 4080); 4080 selects the inert function instead of counting down.</summary>
@@ -62,6 +61,7 @@ public sealed class VerticalShutterEnemyState
     /// <summary>Lower whole-pixel travel endpoint derived from spawn position and travel distance; downward motion stops upon reaching or passing its Y.</summary>
     public Position16<RoomPixels> LowerEndpoint { get; internal set; }
     /// <summary>Next reaction's direction selector, 0 through 255, initially the primary direction: zero moves up, any other value moves down, then bit zero is toggled.</summary>
+    [NativeWord("bit-0 complement of the population direction byte, tested against zero when a shot reverses the shutter")]
     public int ReactionDirection { get; internal set; }
 
     /// <summary>Empties the values the cartridge keeps in the enemy's common record.</summary>

@@ -480,7 +480,7 @@ internal static void VerifySamusGroundedMovement()
     // Momentum routine one selects acceleration mode two after Right is released. The next
     // $90:9A7E pass subtracts $0000.8000; from $0000.6000 this underflows the signed high
     // word and therefore clears both base halves and restores mode zero.
-    running.HorizontalSpeed.AccelerationMode = 2;
+    running.HorizontalSpeed.AccelerationMode = SamusAccelerationMode.Decelerating;
     GroundedMovementResult decelerated = SamusGroundedMovement.StepRunning(
 
         level,
@@ -488,7 +488,7 @@ internal static void VerifySamusGroundedMovement()
         nmiFrameCounter: 0);
     AssertEqual(0, running.HorizontalSpeed.BaseSpeed.Whole, "running deceleration underflow clears whole speed");
     AssertEqual(0, running.HorizontalSpeed.BaseSpeed.Fraction, "running deceleration underflow clears fraction");
-    AssertEqual(0, running.HorizontalSpeed.AccelerationMode, "running deceleration underflow restores acceleration mode");
+    AssertEqual(SamusAccelerationMode.Accelerating, running.HorizontalSpeed.AccelerationMode, "running deceleration underflow restores acceleration mode");
     AssertEqual(0, decelerated.Horizontal.AcceptedDisplacement, "cleared deceleration frame has no X displacement");
 
     // Standing executes its zero-base MoveX/grounding calls before clearing momentum. Base
@@ -633,7 +633,7 @@ internal static void VerifySamusGroundedReversal()
     reversedRunningRight.Kinematics.Position = reversedRunningRight.Kinematics.Position.WithWhole(new(64, 11));
     reversedRunningRight.Kinematics.Radius = new(5, 5);
     reversedRunningRight.HorizontalSpeed.BaseSpeed = reversedRunningRight.HorizontalSpeed.BaseSpeed.WithWhole(1);
-    reversedRunningRight.HorizontalSpeed.AccelerationMode = 1;
+    reversedRunningRight.HorizontalSpeed.AccelerationMode = SamusAccelerationMode.Turning;
     GroundedMovementResult reversedRightFrame = SamusGroundedMovement.StepRunning(
 
         level,
@@ -646,7 +646,7 @@ internal static void VerifySamusGroundedReversal()
     reversedRunningLeft.Kinematics.Position = reversedRunningLeft.Kinematics.Position.WithWhole(new(64, 11));
     reversedRunningLeft.Kinematics.Radius = new(5, 5);
     reversedRunningLeft.HorizontalSpeed.BaseSpeed = reversedRunningLeft.HorizontalSpeed.BaseSpeed.WithWhole(1);
-    reversedRunningLeft.HorizontalSpeed.AccelerationMode = 1;
+    reversedRunningLeft.HorizontalSpeed.AccelerationMode = SamusAccelerationMode.Turning;
     GroundedMovementResult reversedLeftFrame = SamusGroundedMovement.StepRunning(
 
         level,
@@ -666,7 +666,7 @@ internal static void VerifySamusGroundedReversal()
     turnTowardLeft.Kinematics.Position = turnTowardLeft.Kinematics.Position.WithWhole(new(64, 11));
     turnTowardLeft.Kinematics.Radius = new(5, 5);
     turnTowardLeft.HorizontalSpeed.BaseSpeed = turnTowardLeft.HorizontalSpeed.BaseSpeed.WithWhole(1);
-    turnTowardLeft.HorizontalSpeed.AccelerationMode = 1;
+    turnTowardLeft.HorizontalSpeed.AccelerationMode = SamusAccelerationMode.Turning;
     GroundedMovementResult carriedRight = SamusGroundedMovement.StepTurningOnGround(
 
         level,
@@ -681,7 +681,7 @@ internal static void VerifySamusGroundedReversal()
     turnTowardRight.Kinematics.Position = turnTowardRight.Kinematics.Position.WithWhole(new(64, 11));
     turnTowardRight.Kinematics.Radius = new(5, 5);
     turnTowardRight.HorizontalSpeed.BaseSpeed = turnTowardRight.HorizontalSpeed.BaseSpeed.WithWhole(1);
-    turnTowardRight.HorizontalSpeed.AccelerationMode = 1;
+    turnTowardRight.HorizontalSpeed.AccelerationMode = SamusAccelerationMode.Turning;
     GroundedMovementResult carriedLeft = SamusGroundedMovement.StepTurningOnGround(
 
         level,
@@ -695,14 +695,14 @@ internal static void VerifySamusGroundedReversal()
     exhaustedTurn.Kinematics.Position = exhaustedTurn.Kinematics.Position.WithWhole(new(64, 11));
     exhaustedTurn.Kinematics.Radius = new(5, 5);
     exhaustedTurn.HorizontalSpeed.BaseSpeed = exhaustedTurn.HorizontalSpeed.BaseSpeed.WithFraction(0x2000);
-    exhaustedTurn.HorizontalSpeed.AccelerationMode = 1;
+    exhaustedTurn.HorizontalSpeed.AccelerationMode = SamusAccelerationMode.Turning;
     GroundedMovementResult stopped = SamusGroundedMovement.StepTurningOnGround(
 
         level,
         exhaustedTurn,
         nmiFrameCounter: 0);
     AssertEqual(0, exhaustedTurn.HorizontalSpeed.BaseSpeed.Fraction, "turn underflow clears speed");
-    AssertEqual(0, exhaustedTurn.HorizontalSpeed.AccelerationMode, "turn underflow clears mode one");
+    AssertEqual(SamusAccelerationMode.Accelerating, exhaustedTurn.HorizontalSpeed.AccelerationMode, "turn underflow clears mode one");
     AssertEqual(0, stopped.Horizontal.AcceptedDisplacement, "turn underflow does not reverse early");
 
     // Seed the exact retail pose metadata and delay bytecode needed by $09->$25->$02.
@@ -732,14 +732,14 @@ internal static void VerifySamusGroundedReversal()
         "power-suit forward view retains generic left-turn target");
     AssertEqual(0xc000, forwardToLeft.HorizontalSpeed.BaseSpeed.Fraction,
         "forward left turn still folds extra run speed");
-    AssertEqual(1, forwardToLeft.HorizontalSpeed.AccelerationMode,
+    AssertEqual(SamusAccelerationMode.Turning, forwardToLeft.HorizontalSpeed.AccelerationMode,
         "forward left turn selects mode one");
 
     var forwardToRight = new SamusState { Pose = SamusPoseId.ForwardFacingSuitedPose };
     forwardToRight.PoseTransitions.ApplyGroundedTurn(SamusPoseId.TurningLeftToRightPose);
     AssertEqual(SamusPoseId.TurningLeftToRightPose, forwardToRight.Pose,
         "suited forward view retains generic right-turn target");
-    AssertEqual(1, forwardToRight.HorizontalSpeed.AccelerationMode,
+    AssertEqual(SamusAccelerationMode.Turning, forwardToRight.HorizontalSpeed.AccelerationMode,
         "forward right turn selects mode one");
 
     var animatedTurn = new SamusState { Pose = SamusPoseId.MovingRightNormalPose };
@@ -749,7 +749,7 @@ internal static void VerifySamusGroundedReversal()
     AssertEqual(SamusPoseId.TurningRightToLeftPose, animatedTurn.Pose, "input reversal installs pose $25");
     AssertEqual(0xc000, animatedTurn.HorizontalSpeed.BaseSpeed.Fraction, "turn setup folds extra into base speed");
     AssertEqual(0, animatedTurn.HorizontalSpeed.ExtraRunSpeed.Fraction, "turn setup consumes extra speed");
-    AssertEqual(1, animatedTurn.HorizontalSpeed.AccelerationMode, "turn setup selects mode one");
+    AssertEqual(SamusAccelerationMode.Turning, animatedTurn.HorizontalSpeed.AccelerationMode, "turn setup selects mode one");
 
     // Three two-tick art frames lead to byte index three, command $F8. Its operand $02 is
     // pending until the transition seam; applying it initializes pose $02 frame zero.
@@ -856,7 +856,7 @@ internal static void VerifySamusGroundedReversal()
         AssertEqual(2, aimedTurn.HorizontalSpeed.BaseSpeed.Whole, $"aimed turn speed carry case {caseIndex}");
         AssertEqual(0x2000, aimedTurn.HorizontalSpeed.BaseSpeed.Fraction, $"aimed turn folded fraction case {caseIndex}");
         AssertEqual(0, aimedTurn.HorizontalSpeed.ExtraRunSpeed.Fraction, $"aimed turn consumes extra fraction case {caseIndex}");
-        AssertEqual(1, aimedTurn.HorizontalSpeed.AccelerationMode, $"aimed turn mode one case {caseIndex}");
+        AssertEqual(SamusAccelerationMode.Turning, aimedTurn.HorizontalSpeed.AccelerationMode, $"aimed turn mode one case {caseIndex}");
 
         GroundedMovementResult carriedMomentum = SamusGroundedMovement.StepTurningOnGround(
 
@@ -950,7 +950,7 @@ internal static void VerifySamusGroundedReversal()
         crouchedTurn.PoseTransitions.ApplyGroundedTurn(testCase.GenericTurn);
         AssertEqual(testCase.SelectedTurn, crouchedTurn.Pose, $"crouched turn selector case {caseIndex}");
         AssertEqual(16, crouchedTurn.Kinematics.Radius.Y, $"crouched turn radius case {caseIndex}");
-        AssertEqual(1, crouchedTurn.HorizontalSpeed.AccelerationMode, $"crouched turn mode one case {caseIndex}");
+        AssertEqual(SamusAccelerationMode.Turning, crouchedTurn.HorizontalSpeed.AccelerationMode, $"crouched turn mode one case {caseIndex}");
 
         GroundedMovementResult crouchedMomentum = SamusGroundedMovement.StepTurningOnGround(
 
@@ -1057,7 +1057,7 @@ internal static void VerifySamusMoonwalking()
         "disabled Moonwalk option substitutes ordinary turn");
     AssertEqual(0x6000, disabled.HorizontalSpeed.BaseSpeed.Fraction,
         "disabled Moonwalk substitution folds extra momentum");
-    AssertEqual(1, disabled.HorizontalSpeed.AccelerationMode,
+    AssertEqual(SamusAccelerationMode.Turning, disabled.HorizontalSpeed.AccelerationMode,
         "disabled Moonwalk substitution starts mode one");
 
     // `$A4-$A7/$E0-$E7` all use the ordinary standing input records. A backward direction
@@ -1744,7 +1744,7 @@ floor, walker, nmiFrameCounter: 0);
         AssertEqual((ushort)(SamusProjectileRomData.MoonwalkPoseHandoffTag | sourceMuzzleDirection),
             turn.PoseTransitionShotDirection, "all six Moonwalk jump routes publish their original muzzle direction");
         AssertEqual(target, turn.Pose, $"moonwalk ${(int)source:X2} selects exact turn ${(int)target:X2}");
-        AssertEqual(1, turn.HorizontalSpeed.AccelerationMode,
+        AssertEqual(SamusAccelerationMode.Turning, turn.HorizontalSpeed.AccelerationMode,
             $"moonwalk turn ${(int)target:X2} preserves reversal mode");
         AssertEqual(SamusVerticalDirection.None, turn.Kinematics.YDirection,
             $"moonwalk turn ${(int)target:X2} remains grounded before completion");
@@ -1945,7 +1945,7 @@ internal static void VerifySamusRanIntoWall()
         AssertTrue(movement.Vertical.Collided, $"wall pose ${(int)pose:X2} remains grounded");
         AssertEqual(0u, stopped.HorizontalSpeed.BaseFixed,
             $"wall pose ${(int)pose:X2} clears base speed");
-        AssertEqual(0, stopped.HorizontalSpeed.AccelerationMode,
+        AssertEqual(SamusAccelerationMode.Accelerating, stopped.HorizontalSpeed.AccelerationMode,
             $"wall pose ${(int)pose:X2} clears acceleration mode");
         stopped.Presentation.InitializeAnimation();
         stopped.Presentation.SetAnimationFrameFromSpecialHandler(0, 9);

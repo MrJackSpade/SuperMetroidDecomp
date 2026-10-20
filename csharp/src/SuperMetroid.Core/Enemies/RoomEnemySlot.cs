@@ -16,6 +16,7 @@ public sealed class RoomEnemySlot
     }
 
     /// <summary>Zero-based managed slot number, fixed for the slot object's lifetime; room populations occupy at most 32 native slots.</summary>
+    [IntegerQuantity("position of the slot in the enemy table")]
     public int SlotIndex { get; }
     /// <summary>Native byte index into EnemyData, equal to <see cref="SlotIndex"/> times $40, rather than a WRAM address.</summary>
     public int NativeIndex => SlotIndex * RoomEnemySystem.NativeSlotSize;

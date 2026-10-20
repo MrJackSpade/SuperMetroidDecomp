@@ -40,6 +40,7 @@ using SuperMetroid.Core.Map;
 namespace SuperMetroid.Verification.Bosses.Ridley;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.TestSupport.VerificationImporters;
+using SuperMetroid.TestSupport.ScenarioFixtures;
 
 /// <summary>Focused Ridley fight checks and the full recorded-movie gameplay comparison.</summary>
 internal static class RidleyFullMovieVerification
@@ -164,7 +165,7 @@ internal static class RidleyFullMovieVerification
         body.Position = body.Position.WithWhole(new(211, 346));
         (state ?? throw new InvalidOperationException("Verification requires state.")).Velocity = state.Velocity.WithX(new SnesSignedEightEight(0xc0)); state.Velocity = state.Velocity.WithY(new SnesSignedEightEight(0x400));
         state.FacingDirection = RidleyFacing.Right; state.Function = RidleyAiFunction.NorfairFireballAttack;
-        state.GrabState = 0; state.FeetDistanceIndex = 0;
+        state.GrabState = RidleyGrabState.Released; state.FeetDistanceIndex = 0;
         samus.Position = samus.Position.WithWhole(new(198, 402)); samus.Pose = SamusPoseId.KnockbackLeftPose;
         samus.PoseMetadata.RefreshCollisionRadii();
         runtime.Enemies.RidleyBehavior.TickNorfairRidleyGroundAttack(body, state, samus, runtime.Room.LevelData);
@@ -186,7 +187,7 @@ internal static class RidleyFullMovieVerification
         body.Position = new(new(172, 0x6300), new(345, 0x0a00));
         state.Velocity = state.Velocity.WithX(new SnesSignedEightEight(0x2b0)); state.Velocity = state.Velocity.WithY(new SnesSignedEightEight(0x3cd));
         state.FacingDirection = RidleyFacing.Right; state.HealthStage = 3; state.HitRoomBoundary = false;
-        state.GrabState = 0; state.FeetDistanceIndex = 0;
+        state.GrabState = RidleyGrabState.Released; state.FeetDistanceIndex = 0;
         samus.Position = samus.Position.WithWhole(new(156, 411)); samus.Pose = SamusPoseId.FacingLeftNormalPose;
         samus.PoseMetadata.RefreshCollisionRadii();
         runtime.Enemies.RidleyBehavior.TickNorfairRidleyGrabApproach(body, state, samus);
@@ -197,7 +198,7 @@ internal static class RidleyFullMovieVerification
         // Source10132 takes the zero-health branch, whose JMP executes C538 immediately.
         body.Position = new(new(134, 0x7d00), new(356, 0xec00)); body.Health = 0;
         state.Velocity = state.Velocity.WithX(new SnesSignedEightEight(0x1de)); state.Velocity = state.Velocity.WithY(new SnesSignedEightEight(0x419));
-        state.FightMode = RidleyFightMode.Fighting; state.GrabState = 0; state.FunctionTimer = NativeCountdown.Start(0x29);
+        state.FightMode = RidleyFightMode.Fighting; state.GrabState = RidleyGrabState.Released; state.FunctionTimer = NativeCountdown.Start(0x29);
         samus.Position = samus.Position.WithWhole(new(134, 411)); samus.Pose = SamusPoseId.FacingRightNormalPose;
         samus.PoseMetadata.RefreshCollisionRadii();
         runtime.Enemies.RidleyBehavior.TickNorfairRidleyGrabApproach(body, state, samus);
@@ -519,14 +520,14 @@ internal static class RidleyFullMovieVerification
         samus.Presentation.SetAnimationFrameFromSpecialHandler(5, 3);
         samus.Position = new(new(79, 0x8000), new(425, ushort.MaxValue));
         samus.HorizontalSpeed.BaseSpeed = samus.HorizontalSpeed.BaseSpeed.WithWhole(3); samus.HorizontalSpeed.BaseSpeed = samus.HorizontalSpeed.BaseSpeed.WithFraction(0xc000);
-        samus.HorizontalSpeed.AccelerationMode = 0;
+        samus.HorizontalSpeed.AccelerationMode = SamusAccelerationMode.Accelerating;
         runtime.Controller1.Latch(SnesButton.Left);
         // Original movie source 1616 -> 1617: release Left while rolling.
         runtime.StepFrame(0);
         AssertEqual(0x004c4000u, samus.Kinematics.Position.X.RawValue, "spring release retains native final displacement");
         AssertEqual(SamusPoseId.SpringBallGroundLeftPose, samus.Pose, "spring release selects stationary pose immediately");
         AssertEqual(0u, samus.HorizontalSpeed.BaseFixed, "spring release clears base momentum after movement");
-        AssertEqual(0, samus.HorizontalSpeed.AccelerationMode, "spring release clears acceleration mode");
+        AssertEqual(SamusAccelerationMode.Accelerating, samus.HorizontalSpeed.AccelerationMode, "spring release clears acceleration mode");
         runtime.StepFrame(0);
         AssertEqual(0x004c4000u, samus.Kinematics.Position.X.RawValue, "released spring ball stays stopped next update");
         // Original source 1983: stationary Spring Ball keeps command six even
@@ -638,10 +639,10 @@ internal static class RidleyFullMovieVerification
     {
         var samus = new SamusState { MaxReserveEnergy = 300, ReserveEnergy = 300, ReserveTankMode = ReserveTankMode.Auto };
         var menu = new PauseMenuState(new PauseMenuEntry { Samus = samus, System = new Bank80SystemState(), AreaIndex = AreaId.Norfair, RoomMapPosition = new(0, 0), MapPresentation = RetailPresentationFixture() });
-        for (int direction = 0; direction < 2; direction++)
+        foreach (PauseScreenMode source in Enum.GetValues<PauseScreenMode>())
         {
-            int source = direction, destination = 1 - direction;
-            menu.Step((direction == 0 ? SnesButton.R : SnesButton.L), 0);
+            PauseScreenMode destination = source == PauseScreenMode.Map ? PauseScreenMode.Equipment : PauseScreenMode.Map;
+            menu.Step((source == PauseScreenMode.Map ? SnesButton.R : SnesButton.L), 0);
             AssertEqual(source, menu.ScreenMode, "page-switch request retains source page");
             for (int update = 1; update <= 15; update++)
             {
@@ -649,7 +650,7 @@ internal static class RidleyFullMovieVerification
                 AssertEqual(source, menu.ScreenMode, "source page remains through fade-out");
                 AssertEqual(15 - update, menu.transitionBrightness, "native zero-delay fade-out brightness");
             }
-            AssertEqual(direction == 0 ? PauseMenuTransition.MapToEquipmentLoad : PauseMenuTransition.EquipmentToMapLoad,
+            AssertEqual(source == PauseScreenMode.Map ? PauseMenuTransition.MapToEquipmentLoad : PauseMenuTransition.EquipmentToMapLoad,
                 menu.transition, "black frame returns into separate load dispatcher");
             menu.Step(0, 0);
             AssertEqual(destination, menu.ScreenMode, "separate load dispatch installs destination");
@@ -1213,7 +1214,7 @@ internal static class RidleyFullMovieVerification
             Check("Samus fractional health word", checked((ushort)samus.SubunitHealth), NativeSnapshotMemory.SubunitHealth);
             Check("Samus selected HUD weapon", samus.SelectedHudItem.ToNativeWord(), NativeSnapshotMemory.SelectedHudItem);
             Check("Samus auto-cancel HUD selection", samus.AutoCancelHudItemIndex.ToNativeWord(), NativeSnapshotMemory.AutoCancelHudItemIndex);
-            Check("Samus acceleration mode", samus.HorizontalSpeed.AccelerationMode, NativeSnapshotMemory.AccelerationMode);
+            Check("Samus acceleration mode", SamusAccelerationModeCodec.ToNative(samus.HorizontalSpeed.AccelerationMode), NativeSnapshotMemory.AccelerationMode);
             Check("Samus maximum health", SamusQuantity.Encode(samus.MaxHealth), NativeSnapshotMemory.MaxHealth);
             Check("Samus equipped items", samus.EquippedItems.ToNativeWord(), NativeSnapshotMemory.Items);
             Check("Samus collected items", samus.CollectedItems.ToNativeWord(), NativeSnapshotMemory.CollectedItems);
@@ -1691,7 +1692,7 @@ internal static class RidleyFullMovieVerification
                 if (projectile.Kind != RoomEnemyProjectileKind.CeresRidleyFireball)
                     Check(owner + " variable F", variableF, NativeSnapshotMemory.EnemyProjectileVariableF + index);
                 Check(owner + " variable G", projectile.CollidedProjectileType, NativeSnapshotMemory.EnemyProjectileVariableG + index);
-                Check(owner + " collision option", projectile.CollisionOption, NativeSnapshotMemory.EnemyProjectileCollisionOption + index);
+                Check(owner + " collision option", EnemyProjectileCollisionOptionCodec.ToNative(projectile.CollisionOption), NativeSnapshotMemory.EnemyProjectileCollisionOption + index);
                 if (projectile.Kind is RoomEnemyProjectileKind.EnemyDeathExplosion or RoomEnemyProjectileKind.EnemyDeathPickup)
                 {
                     AssertTrue(projectile.DropChancesOverride is null,

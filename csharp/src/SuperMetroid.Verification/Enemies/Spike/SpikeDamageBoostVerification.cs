@@ -108,7 +108,7 @@ internal static class SpikeDamageBoostVerification
         samus.HorizontalSpeed.BaseSpeed = new SnesUnsignedSixteenSixteen(1, 0x6000);
         samus.HorizontalSpeed.ExtraRunSpeed = new SnesUnsignedSixteenSixteen(2, 0);
         samus.HorizontalSpeed.HasRunningMomentum = true;
-        samus.HorizontalSpeed.AccelerationMode = 1;
+        samus.HorizontalSpeed.AccelerationMode = SamusAccelerationMode.Turning;
         runtime.Controller1.Latch(0);
         (ushort Input, uint X, uint Y, uint Base, ushort Extra)[] carriedFrames =
         [
@@ -174,7 +174,7 @@ internal static class SpikeDamageBoostVerification
         samus.Kinematics.YSpeed = new SnesUnsignedSixteenSixteen(0, 0x9800);
         samus.Kinematics.YDirection = SamusVerticalDirection.Down;
         samus.HorizontalSpeed.BaseSpeed = new SnesUnsignedSixteenSixteen(0, 0x9000);
-        samus.HorizontalSpeed.AccelerationMode = 1;
+        samus.HorizontalSpeed.AccelerationMode = SamusAccelerationMode.Turning;
         runtime.Controller1.Latch((SnesButton.Left | SnesButton.A));
         runtime.StepFrame((SnesButton.Left | SnesButton.A));
         AssertEqual((0x0063c000u, 0x00edffffu, 0x0000a000u),

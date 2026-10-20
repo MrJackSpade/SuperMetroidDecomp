@@ -13,10 +13,10 @@ internal static class FileSelectDataNavigation
     /// Independently reviewed for #1165 against native source/clear selection and
     /// the prior managed filtered lists. Bits0..2 represent the live occupancy of
     /// slots A..C; the native bit selectors at $81:975B and $81:9BEC are 1 shifted
-    /// by the slot. Exit3 is always selectable, including an empty occupancy mask.
+    /// by the slot. Exit is always selectable, including an empty occupancy mask.
     /// No ordinal lookup or generated list is required.
     /// </remarks>
-    internal static int MoveSourceOrClear(int selected, int occupiedSlots, SnesButton pressed)
+    internal static FileSelectItem MoveSourceOrClear(FileSelectItem selected, int occupiedSlots, SnesButton pressed)
     {
         if ((uint)occupiedSlots > AllSlots)
             throw new ArgumentOutOfRangeException(nameof(occupiedSlots));
@@ -27,7 +27,7 @@ internal static class FileSelectDataNavigation
     /// <remarks>Copy destinations exclude the source regardless of occupancy.
     /// The source is a validated save-slot identity0..2. Native $81:983D..9848
     /// and $81:98A5..98AD skip that identity while moving in either direction.</remarks>
-    internal static int MoveCopyDestination(int selected, int sourceSlot, SnesButton pressed)
+    internal static FileSelectItem MoveCopyDestination(FileSelectItem selected, int sourceSlot, SnesButton pressed)
     {
         if ((uint)sourceSlot >= FileSelectLayout.SaveSlotCount)
             throw new ArgumentOutOfRangeException(nameof(sourceSlot));
@@ -35,10 +35,9 @@ internal static class FileSelectDataNavigation
     }
 
     /// <summary>Validates the selected row, gives Up priority, and scans toward the next enabled slot or Exit without wrapping.</summary>
-    private static int Move(int selected, int enabledSlots, SnesButton pressed)
+    private static FileSelectItem Move(FileSelectItem selected, int enabledSlots, SnesButton pressed)
     {
-        const int exit = FileSelectLayout.DataSelectionCount - 1;
-        if ((uint)selected > exit || !Selectable(selected))
+        if (!Selectable(selected))
             throw new InvalidDataException($"Submenu item {selected} is not selectable.");
 
         // Preserve the managed input order, including validation on idle frames
@@ -46,10 +45,11 @@ internal static class FileSelectDataNavigation
         int step = (pressed & SnesButton.Up) != 0 ? -1
             : (pressed & SnesButton.Down) != 0 ? 1 : 0;
         if (step == 0) return selected;
-        for (int next = selected + step; next is >= 0 and <= exit; next += step)
-            if (Selectable(next)) return next;
+        for (int row = FileSelectItemRows.DataRow(selected) + step; row is >= 0 and < FileSelectLayout.DataSelectionCount; row += step)
+            if (Selectable(FileSelectItemRows.DataItem(row))) return FileSelectItemRows.DataItem(row);
         return selected;
 
-        bool Selectable(int row) => row == exit || (enabledSlots & (1 << row)) != 0;
+        bool Selectable(FileSelectItem item) => item == FileSelectItem.Exit ||
+            (FileSelectItemRows.TryGetSaveSlot(item, out int slot) && (enabledSlots & (1 << slot)) != 0);
     }
 }

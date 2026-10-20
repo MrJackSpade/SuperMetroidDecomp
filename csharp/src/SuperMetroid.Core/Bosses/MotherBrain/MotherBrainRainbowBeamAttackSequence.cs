@@ -130,6 +130,7 @@ public sealed class MotherBrainRainbowBeamAttackSequence
     public NativeCountdown BrainMainShakeTimer { get; internal set; }
 
     /// <summary>Current zero-based painful-walk stage at WRAM <c>$7E:802A</c>, 0 through 8.</summary>
+    [IntegerQuantity("zero-based count of painful-walk steps taken, 0 through 8")]
     public int PainfulWalkingStage { get; internal set; }
 
     /// <summary>Walk animation delay derived from the current stage: 2, 4, 6, 8 or 10 updates.</summary>

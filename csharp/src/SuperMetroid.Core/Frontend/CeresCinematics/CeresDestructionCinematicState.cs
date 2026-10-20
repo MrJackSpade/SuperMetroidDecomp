@@ -72,6 +72,7 @@ internal sealed class CeresDestructionCinematicState
     /// <summary>Mode-7 rotation angle sampled from the compiled signed sine table.</summary>
     private SnesAngle angle;
     /// <summary>Master brightness from zero (black) to fifteen (full); the slow fades clamp every step to that range.</summary>
+    [IntegerQuantity("screen brightness level, zero through fifteen")]
     private int brightness;
     /// <summary>Alternating-call delay between brightness changes.</summary>
     private int fadeCounter = 1;

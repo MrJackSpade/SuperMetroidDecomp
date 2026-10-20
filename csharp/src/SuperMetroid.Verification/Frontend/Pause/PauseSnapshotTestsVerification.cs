@@ -43,7 +43,7 @@ internal static class PauseSnapshotTestsVerification
         for (int i = 0; i < hud.Length; i++) hud[i] = (ushort)(0x2000 | (i % 64));
         gameplayVram.ExecuteWordTransfer(hud, GameplayVramLayout.HudTilemapWord, 1);
         var pause = CreateRetailPauseFixture(new PauseMenuEntry { Samus = samus, System = system, AreaIndex = AreaId.Maridia, RoomMapPosition = new(28, 1), GameplayLayer3 = Layer3PlaneFixtures.FromVram(gameplayVram) });
-        var pages = new HashSet<int>();
+        var pages = new HashSet<PauseScreenMode>();
         var levels = new HashSet<int>();
         for (int frame = 0; frame < 128; frame++)
         {

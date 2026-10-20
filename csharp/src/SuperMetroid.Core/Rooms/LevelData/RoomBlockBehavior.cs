@@ -13,6 +13,7 @@ namespace SuperMetroid.Core.Rooms.LevelData;
 public readonly record struct RoomBlockBehavior(int Value)
 {
     /// <summary>The unchanged block-type-specific BTS byte, 0 through 255.</summary>
+    [NativeWord("block BTS byte whose meaning the block type decodes")]
     public int Value { get; init; } = Ensure.BetweenInclusive(0, byte.MaxValue, Value);
 
     /// <summary>The low five bits: a slope's shape.</summary>
@@ -63,6 +64,7 @@ public readonly record struct RoomBlockBehavior(int Value)
     public bool RejectsGrappleReaction => (Value & HighBit) != 0;
 
     /// <summary>Low-seven-bit grapple reaction-table index.</summary>
+    [NativeWord("low seven bits of the BTS byte, an index into the grapple reaction table")]
     public int GrappleReactionIndex => Value & LowSevenBits;
 
     /// <summary>Persistent grapple anchors are table entries zero and three.</summary>
@@ -74,6 +76,7 @@ public readonly record struct RoomBlockBehavior(int Value)
         !RejectsGrappleReaction && GrappleReactionIndex is 1 or 2;
 
     /// <summary>Validated direct index for a non-area projectile/bomb reaction table.</summary>
+    [NativeWord("the BTS byte as an index into the block reaction table")]
     public int NormalReactionIndex => Value;
 
     /// <summary>Entries zero through three restore after their break animation.</summary>

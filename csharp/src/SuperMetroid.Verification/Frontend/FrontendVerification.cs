@@ -346,7 +346,7 @@ internal static void VerifyFileSelectFreshSaveTilemap()
     PulseFileSelect(copyMenu, SnesButton.Down);
     PulseFileSelect(copyMenu, SnesButton.Down);
     PulseFileSelect(copyMenu, SnesButton.Down);
-    AssertEqual(3, copyMenu.SelectedItem, "file-select reaches DATA COPY");
+    AssertEqual(FileSelectItem.Copy, copyMenu.SelectedItem, "file-select reaches DATA COPY");
     PulseFileSelect(copyMenu, SnesButton.A);
     AdvanceFileSelectFade(copyMenu, FileSelectPhase.CopySelectSource);
     PulseFileSelect(copyMenu, SnesButton.A);
@@ -371,7 +371,7 @@ internal static void VerifyFileSelectFreshSaveTilemap()
     AdvanceFileSelectToMain(clearMenu);
     for (int move = 0; move < 4; move++)
         PulseFileSelect(clearMenu, SnesButton.Down);
-    AssertEqual(4, clearMenu.SelectedItem, "file-select reaches DATA CLEAR");
+    AssertEqual(FileSelectItem.Clear, clearMenu.SelectedItem, "file-select reaches DATA CLEAR");
     PulseFileSelect(clearMenu, SnesButton.A);
     AdvanceFileSelectFade(clearMenu, FileSelectPhase.ClearSelectSlot);
     PulseFileSelect(clearMenu, SnesButton.A);

@@ -232,7 +232,12 @@ internal static class NativeEnemyFamilyStateImport
         if (slot.SpeciesState<YardEnemyState>() is { } yardRecord)
         {
             yardRecord.CrawlingVelocity = new(new SnesSignedEightEight(words.A), new SnesSignedEightEight(words.B));
-            yardRecord.AirborneFacingDirection = words.C;
+            yardRecord.AirborneFacingDirection = words.C switch
+            {
+                0 => YardAirborneFacing.Left,
+                1 => YardAirborneFacing.Right,
+                _ => throw new InvalidDataException($"Native Yard airborne facing {words.C:X4} is neither left nor right."),
+            };
             yardRecord.ConsecutiveTurnCounter = words.E;
             yardRecord.MovementFunction = words.F == 0 ? null : (YardMovementFunction)words.F;
         }

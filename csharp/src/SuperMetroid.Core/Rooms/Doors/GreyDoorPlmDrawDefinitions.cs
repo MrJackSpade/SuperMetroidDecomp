@@ -14,10 +14,10 @@ internal static class GreyDoorPlmDrawDefinitions
     internal const int DrawListBytes = 12;
 
     /// <summary>One of twenty twelve-byte records at $84:A677..A766.</summary>
-    internal readonly record struct Draw(int Orientation, int Frame) : IPlmCapDrawShape
+    internal readonly record struct Draw(ColoredDoorOrientation Orientation, [property: IntegerQuantity("cap animation frame index")] int Frame) : IPlmCapDrawShape
     {
         /// <summary>Left and right caps use a vertical four-cell run.</summary>
-        internal bool Vertical => Orientation < 2;
+        internal bool Vertical => Orientation is ColoredDoorOrientation.Left or ColoredDoorOrientation.Right;
         /// <summary>Encodes four blocks and the native vertical-run flag for the draw interpreter.</summary>
         internal ushort DirectionAndCount => Vertical ? (ushort)0x8004 : (ushort)4;
 
@@ -42,10 +42,10 @@ internal static class GreyDoorPlmDrawDefinitions
             else
                 tile = Vertical ? 0xae + Frame + (inner ? 32 : 0) :
                     0xb2 + Frame / 2 * 2 + Frame % 2 * 32 + (inner ? 0 : 1);
-            int flips = Vertical ? (Orientation == 1 ? 0x400 : 0) | (cell >= 2 ? 0x800 : 0) :
-                (cell < 2 ? 0x400 : 0) | (Orientation == 3 ? 0x800 : 0);
+            int flips = Vertical ? (Orientation == ColoredDoorOrientation.Right ? 0x400 : 0) | (cell >= 2 ? 0x800 : 0) :
+                (cell < 2 ? 0x400 : 0) | (Orientation == ColoredDoorOrientation.Down ? 0x800 : 0);
             int collision = Frame < 0 ? 0 : Frame == 0 ? (cell == 0 ? 12 : Vertical ? 13 : 5) :
-                Frame == 3 && inner && Orientation is 0 or 3 ? 0 : 8;
+                Frame == 3 && inner && Orientation is ColoredDoorOrientation.Left or ColoredDoorOrientation.Down ? 0 : 8;
             return (ushort)(collision << 12 | flips | tile);
         }
     }
@@ -56,7 +56,7 @@ internal static class GreyDoorPlmDrawDefinitions
         int offset = pointer - ClearLeft;
         bool owned = offset >= 0 && offset < 20 * DrawListBytes && offset % DrawListBytes == 0;
         int index = offset / DrawListBytes;
-        draw = owned ? new(index < 4 ? index : (index - 4) / 4, index < 4 ? -1 : (index - 4) % 4) : default;
+        draw = owned ? new(DoorCapOrientations.FromTableIndex(index < 4 ? index : (index - 4) / 4), index < 4 ? -1 : (index - 4) % 4) : default;
         return owned;
     }
 
@@ -82,7 +82,7 @@ internal static class GreyDoorPlmDrawDefinitions
     {
         if (!TryDescribe(pointer, out var draw))
             throw new InvalidDataException($"Grey-door draw ${pointer:X4} has no visual ID.");
-        string direction = draw.Orientation switch { 0 => "left", 1 => "right", 2 => "up", _ => "down" };
+        string direction = DoorCapOrientations.VisualName(draw.Orientation);
         return draw.Frame < 0 ? $"clear-{direction}" : $"grey-{direction}-frame-{draw.Frame}";
     }
 

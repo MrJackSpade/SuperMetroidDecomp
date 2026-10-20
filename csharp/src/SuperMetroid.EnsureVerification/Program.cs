@@ -62,6 +62,7 @@ internal static class Program
                 (nameof(VerifyNumberedSequenceAnalyzer), VerifyNumberedSequenceAnalyzer),
                 (nameof(VerifyMirroredMethodPairAnalyzer), VerifyMirroredMethodPairAnalyzer),
                 (nameof(VerifyStructuralCloneAnalyzer), VerifyStructuralCloneAnalyzer),
+                (nameof(VerifyIntegerCodedModeAnalyzer), VerifyIntegerCodedModeAnalyzer),
                 (nameof(VerifyDspRegisterAccessAnalyzer), VerifyDspRegisterAccessAnalyzer),
                 (nameof(VerifySpcMemoryAccessAnalyzer), VerifySpcMemoryAccessAnalyzer),
                 (nameof(VerifyParameterListAnalyzer), VerifyParameterListAnalyzer),

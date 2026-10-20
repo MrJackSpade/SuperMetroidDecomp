@@ -24,7 +24,7 @@ internal static class ReportedShaftMomentumVerification
         samus.Kinematics.YDirection = SamusVerticalDirection.Down;
         samus.Kinematics.YSpeed = samus.Kinematics.YSpeed.WithWhole(2);
         samus.HorizontalSpeed.BaseSpeed = new SnesUnsignedSixteenSixteen(1, 0x6000);
-        samus.HorizontalSpeed.AccelerationMode = 2;
+        samus.HorizontalSpeed.AccelerationMode = SamusAccelerationMode.Decelerating;
         for (ushort frame = 0; frame < 8; frame++)
         {
             // Whole and fractional X as one 16.16 position, so the accepted displacement

@@ -69,6 +69,7 @@ public sealed class BotwoonEnemyState
     /// <summary>The next movement sample of the current path, advanced or reversed by one sample per step.</summary>
     public int PathSampleIndex { get; internal set; }
     /// <summary>Signed descriptor direction: negative walks the samples backward and negates accumulated displacements; nonnegative walks forward.</summary>
+    [NativeWord("signed path descriptor word; only its sign is read, choosing backward or forward sample order")]
     public short PathDirection { get; internal set; }
     /// <summary>The head animation the AI last installed; reinstalling the same program does not restart it.</summary>
     internal BotwoonHeadProgram HeadProgram { get; set; } = BotwoonHeadProgram.Hidden;
@@ -87,6 +88,7 @@ public sealed class BotwoonEnemyState
     /// <summary>Native previous-health extended-word snapshot, initialized from the head's spawn health separately from its maximum/threshold fields.</summary>
     public int PreviousHealth { get; internal set; }
     /// <summary>Movement/spit speed record index 0, 1, or 2, refreshed when choosing a path outside a hole according to half/quarter-health thresholds.</summary>
+    [IntegerQuantity("count of health thresholds passed, zero through two, indexing the speed records")]
     public int HealthPhase { get; internal set; }
     /// <summary>Whether the head travels within the wall/hole; crossing a hole rectangle toggles this state and hidden movement disables collision.</summary>
     public bool InsideHole { get; internal set; }

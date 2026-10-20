@@ -116,7 +116,7 @@ internal static class PauseReserveUiAssetsVerification
         static void EnterEquipment(PauseMenuState pause)
         {
             byte nmiFrame = 0; ChangePausePage(pause, SnesButton.R, input => pause.Step(input, input, nmiFrameCounter8: nmiFrame++));
-            AssertEqual(1, pause.ScreenMode, "reserve UI fixture enters equipment");
+            AssertEqual(PauseScreenMode.Equipment, pause.ScreenMode, "reserve UI fixture enters equipment");
         }
     }
 

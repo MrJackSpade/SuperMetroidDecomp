@@ -24,6 +24,7 @@ public readonly record struct SnesSignedSixteenSixteen
     public ushort WholeWord => unchecked((ushort)(RawValue >> 16));
 
     /// <summary>The signed whole-pixel word.</summary>
+    [IntegerQuantity("whole-pixel part of a signed distance")]
     public short WholePixels => unchecked((short)(RawValue >> 16));
 
     /// <summary>The unsigned fractional word.</summary>

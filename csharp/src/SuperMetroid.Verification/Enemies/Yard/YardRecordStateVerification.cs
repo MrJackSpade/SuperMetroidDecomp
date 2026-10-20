@@ -17,13 +17,13 @@ internal static class YardRecordStateVerification
         var state = new YardEnemyState();
         slot.SetSpeciesState(state, state.ClearWithRecord);
         state.CrawlingVelocity = new EightEightVector<RoomPixels>(new SnesSignedEightEight(1), default);
-        state.AirborneFacingDirection = 1;
+        state.AirborneFacingDirection = YardAirborneFacing.Right;
         state.ConsecutiveTurnCounter = 1;
         state.MovementFunction = Enum.GetValues<YardMovementFunction>()[^1];
 
         slot.Clear();
         AssertEqual<EightEightVector<RoomPixels>>(default(EightEightVector<RoomPixels>), state.CrawlingVelocity, "a kill empties CrawlingVelocity");
-        AssertEqual<int>(0, state.AirborneFacingDirection, "a kill empties AirborneFacingDirection");
+        AssertEqual(YardAirborneFacing.Left, state.AirborneFacingDirection, "a kill empties AirborneFacingDirection");
         AssertEqual<int>(0, state.ConsecutiveTurnCounter, "a kill empties ConsecutiveTurnCounter");
         AssertEqual<YardMovementFunction?>(null, state.MovementFunction, "a kill empties MovementFunction");
         Console.WriteLine("Yard record state: a kill empties every value the record holds.");

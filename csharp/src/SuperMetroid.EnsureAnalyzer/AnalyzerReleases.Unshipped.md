@@ -16,6 +16,8 @@ SME6417 | Design | Error | NumberedSequenceAnalyzer
 SME6418 | Design | Error | MirroredMethodPairAnalyzer
 SME6419 | Design | Error | StructuralCloneAnalyzer
 SME6420 | Design | Error | StructuralCloneAnalyzer
+SME6421 | Design | Error | IntegerCodedModeAnalyzer
+SME6422 | Design | Error | IntegerCodedModeAnalyzer
 SME6340 | Design | Warning | CartridgeEncodingAnalyzer
 SME6341 | Design | Warning | CartridgeEncodingAnalyzer
 SME6342 | Design | Warning | CartridgeEncodingAnalyzer

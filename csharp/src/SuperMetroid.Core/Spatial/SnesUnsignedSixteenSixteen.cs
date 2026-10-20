@@ -15,6 +15,7 @@ public readonly record struct SnesUnsignedSixteenSixteen
     }
 
     /// <summary>The whole word, 0 through 65535.</summary>
+    [IntegerQuantity("whole-pixel part of an unsigned distance")]
     public int Whole { get; }
 
     /// <summary>The fraction word, 0 through 65535.</summary>

@@ -30,7 +30,7 @@ internal static class BombJumpRunMomentumVerification
         AssertTrue(samus.PoseMetadata.TrySetupPublishedBombJump(floor, timeIsFrozen: false, nmiFrameCounter: 0, controllerNewInput: 0),
             "a running Samus accepts the bomb jump");
         AssertEqual(SamusPoseId.NormalJumpForwardLeftPose, samus.Pose, "the bomb jump installs pose $52");
-        AssertEqual(SamusHorizontalAccelerationModes.Decelerating, samus.HorizontalSpeed.AccelerationMode,
+        AssertEqual(SamusAccelerationMode.Decelerating, samus.HorizontalSpeed.AccelerationMode,
             "retained extra run speed selects deceleration");
         Console.WriteLine("  Bomb-jump run momentum: the forward-jump pose decelerates retained dash speed.");
     }

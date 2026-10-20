@@ -133,10 +133,10 @@ internal static void VerifySamusHorizontalSpeed()
 
     // Deceleration subtracts 0.8000 per call. Crossing below zero makes the signed high
     // word negative, clearing both halves and restoring acceleration mode zero.
-    speed.AccelerationMode = 2;
+    speed.AccelerationMode = SamusAccelerationMode.Decelerating;
     StepFrames(6, _ => speed.CalculateBaseSpeed(movementType: SamusMovementType.Running));
     AssertEqual(0u, speed.BaseFixed, "running deceleration underflow clears speed");
-    AssertEqual(0, speed.AccelerationMode, "running deceleration restores acceleration mode");
+    AssertEqual(SamusAccelerationMode.Accelerating, speed.AccelerationMode, "running deceleration restores acceleration mode");
 
     // `$90:973E` adds the literal no-booster 0.1000 pair once per running+B frame. The
     // native cap test runs before addition, so call 32 reaches exactly 2.0000 and call 33

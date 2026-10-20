@@ -185,7 +185,7 @@ internal static class MotherBrainFakeDeathPlmDrawDefinitions
     /// bytes apart. Top/bottom rows retain collision type one; interior rows
     /// are air. Visual bits remain independent from these physical boundaries.
     /// </summary>
-    internal readonly record struct BackgroundDraw(int Row)
+    internal readonly record struct BackgroundDraw([property: IntegerQuantity("tile row within the background draw")] int Row)
     {
         /// <summary>Combines a selected mural tile with solid collision only on its upper and lower border rows.</summary>
         internal ushort WordAt(int column)

@@ -14,6 +14,7 @@ internal sealed class SidehopperCorpsePalette
     /// <summary>Uses reviewed stock paint definitions for a matching sixteen-color target.</summary>
     private readonly bool stockTarget;
     /// <summary>Number of colors in the imported fifteen-color prefix or full target palette.</summary>
+    [IntegerQuantity("number of colors in the palette row")]
     internal int Count { get; }
 
     /// <summary>Preserves supplied paint unless its gradient has one exact reproducible endpoint.</summary>

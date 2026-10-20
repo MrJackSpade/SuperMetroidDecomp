@@ -507,7 +507,7 @@ firingLevel, cancelledSamus, controllerInput: 0);
                 // be cleared by the shared special-pose-command tail after connection.
                 connectionSamus.Kinematics.YSpeed = connectionSamus.Kinematics.YSpeed.WithFraction(1);
             }
-            connectionSamus.HorizontalSpeed.AccelerationMode = 7;
+            connectionSamus.HorizontalSpeed.AccelerationMode = SamusAccelerationMode.Turning;
             connectionSamus.HorizontalSpeed.BaseSpeed = new SnesUnsignedSixteenSixteen(1, 2);
             connectionSamus.HorizontalSpeed.ExtraRunSpeed = new SnesUnsignedSixteenSixteen(3, 4);
 
@@ -541,7 +541,7 @@ firingLevel, cancelledSamus, controllerInput: 0);
                 "connection clears whole extra run speed");
             AssertEqual(0, connectionSamus.HorizontalSpeed.ExtraRunSpeed.Fraction,
                 "connection clears fractional extra run speed");
-            AssertEqual(7, connectionSamus.HorizontalSpeed.AccelerationMode,
+            AssertEqual(SamusAccelerationMode.Turning, connectionSamus.HorizontalSpeed.AccelerationMode,
                 "connection leaves acceleration mode untouched");
             AssertEqual(0, connectionSamus.Kinematics.YSpeed.Whole,
                 "connection clears whole Y speed");
@@ -769,7 +769,7 @@ firingLevel, cancelledSamus, controllerInput: 0);
     AssertEqual(SamusVerticalDirection.Up, samus.Kinematics.YDirection, "positive swing with negative cosine launches up");
     AssertEqual(2, samus.HorizontalSpeed.BaseSpeed.Whole, "grapple release whole X speed");
     AssertEqual(0x13d0, samus.HorizontalSpeed.BaseSpeed.Fraction, "grapple release fractional X speed");
-    AssertEqual(2, samus.HorizontalSpeed.AccelerationMode, "release selects deceleration mode");
+    AssertEqual(SamusAccelerationMode.Decelerating, samus.HorizontalSpeed.AccelerationMode, "release selects deceleration mode");
 
     GrappleMovementResult released = SamusGrappleMovement.Step(new SamusTerrain { Level = swingLevel }, samus, 0, 0);
     AssertTrue(released.Phase == GrapplePhase.Inactive, "queued grapple release completes");

@@ -147,14 +147,10 @@ public sealed class SamusHorizontalSpeedState
     }
 
     /// <summary>
-    /// Acceleration mode at WRAM <c>$0B4A</c>: zero accelerates, while every nonzero value
-    /// takes the deceleration branch in <c>$90:9A7E</c>.
+    /// Acceleration mode at WRAM <c>$0B4A</c>: accelerating speeds up, while turning and decelerating both take the
+    /// deceleration branch in <c>$90:9A7E</c>.
     /// </summary>
-    public int AccelerationMode
-    {
-        get;
-        set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
-    }
+    public SamusAccelerationMode AccelerationMode { get; set; }
 
     /// <summary>
     /// Optional deceleration multiplier, 0 through 255. Zero selects the table's plain
@@ -672,13 +668,13 @@ public sealed class SamusHorizontalSpeedState
     {
         ExtraRunSpeed = default;
         BaseSpeed = default;
-        AccelerationMode = 0;
+        AccelerationMode = SamusAccelerationMode.Accelerating;
     }
 
     /// <summary>Runs input fallback command two: stop acceleration and cancel boost, without clearing velocity words.</summary>
     public void ApplyStoppedInputFallback(SamusFacingDirection facingDirection)
     {
-        AccelerationMode = SamusHorizontalAccelerationModes.Accelerating;
+        AccelerationMode = SamusAccelerationMode.Accelerating;
         CancelRunningMomentum(facingDirection);
     }
 
@@ -692,10 +688,10 @@ public sealed class SamusHorizontalSpeedState
         {
             SetBaseFixed(unchecked(BaseFixed + ExtraRunSpeed.RawValue));
             ExtraRunSpeed = default;
-            AccelerationMode = 2;
+            AccelerationMode = SamusAccelerationMode.Decelerating;
         }
         else
-            AccelerationMode = 0;
+            AccelerationMode = SamusAccelerationMode.Accelerating;
         CancelRunningMomentum(facingDirection);
     }
 
@@ -807,7 +803,7 @@ public sealed class SamusHorizontalSpeedState
     internal uint CalculateBaseSpeed(SpeedTableEntry entry)
     {
 
-        if (AccelerationMode != 0)
+        if (AccelerationMode != SamusAccelerationMode.Accelerating)
         {
             SetBaseFixed(unchecked(BaseFixed - (uint)ScaledDeceleration(entry).RawValue));
 
@@ -816,7 +812,7 @@ public sealed class SamusHorizontalSpeedState
             if (unchecked((short)BaseSpeed.Whole) < 0)
             {
                 BaseSpeed = default;
-                AccelerationMode = 0;
+                AccelerationMode = SamusAccelerationMode.Accelerating;
             }
         }
         else
@@ -851,7 +847,7 @@ public sealed class SamusHorizontalSpeedState
     {
         SpeedTableEntry entry = ReadEntry(movementType);
 
-        if ((AccelerationMode & 1) != 0)
+        if (AccelerationMode == SamusAccelerationMode.Turning)
         {
             // This is byte-for-byte the same asymmetric multiplier calculation used by
             // the deceleration-allowed routine. The distinction between the two native
@@ -860,7 +856,7 @@ public sealed class SamusHorizontalSpeedState
             if (unchecked((short)BaseSpeed.Whole) < 0)
             {
                 BaseSpeed = default;
-                AccelerationMode = 0;
+                AccelerationMode = SamusAccelerationMode.Accelerating;
             }
 
             // Every path through $90:9B5E-$90:9BC3 exits with carry clear.

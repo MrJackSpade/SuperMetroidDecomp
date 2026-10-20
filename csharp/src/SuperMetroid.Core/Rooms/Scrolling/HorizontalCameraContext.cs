@@ -30,26 +30,23 @@ public readonly record struct HorizontalCameraContext(
     /// </summary>
     /// <param name="KnockedBack">Whether a knockback is pending or running.</param>
     /// <param name="MovementType">Samus's movement type.</param>
-    /// <param name="XAccelerationMode">Samus's horizontal acceleration mode word.</param>
+    /// <param name="XAccelerationMode">Samus's horizontal acceleration mode.</param>
     /// <param name="PoseXDirection">Samus's pose-definition facing byte.</param>
     /// <param name="CameraDistanceIndex">How far ahead of Samus the camera target sits.</param>
     public HorizontalCameraContext(
         bool KnockedBack,
         SamusMovementType MovementType,
-        int XAccelerationMode,
+        SamusAccelerationMode XAccelerationMode,
         byte PoseXDirection,
         CameraDistanceMode CameraDistanceIndex)
         : this(
             KnockedBack,
             MovementType,
-            TurningAgainstMomentum: XAccelerationMode == TurningAccelerationMode,
+            TurningAgainstMomentum: XAccelerationMode == SamusAccelerationMode.Turning,
             FacesLeft: PoseXDirection == LeftFacingPose,
             CameraDistanceIndex)
     {
     }
-
-    /// <summary>The acceleration mode a turn that keeps Samus's old momentum selects.</summary>
-    private const ushort TurningAccelerationMode = 1;
 
     /// <summary>The pose facing byte of a left-facing pose.</summary>
     private const byte LeftFacingPose = 4;

@@ -454,7 +454,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
         bool wasInside = state.SegmentInsideHole[segmentIndex];
         state.SegmentInsideHole[segmentIndex] = !wasInside;
         segment.CanDamageSamus = wasInside;
-        segment.CollisionOption = wasInside ? (ushort)1 : (ushort)2;
+        segment.CollisionOption = wasInside ? EnemyProjectileCollisionOption.IndestructibleDud : EnemyProjectileCollisionOption.NoCollision;
 
         if (segmentIndex != 0)
             return;
@@ -960,7 +960,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
         int segmentIndex = spawnArgument >> 1;
         state.BodySegments[segmentIndex] = segment;
         state.SegmentInsideHole[segmentIndex] = true;
-        segment.CollisionOption = 2;
+        segment.CollisionOption = EnemyProjectileCollisionOption.NoCollision;
         segment.CanDamageSamus = false;
     }
 
@@ -1062,7 +1062,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
         segment.StartAnimation(new MiscDustProjectileAnimation(MiscDustProjectileProgram.BigExplosion));
         segment.GraphicsIndex = EnemyPaletteBits.Palette5;
         segment.CanDamageSamus = false;
-        segment.CollisionOption = 2;
+        segment.CollisionOption = EnemyProjectileCollisionOption.NoCollision;
         LastBotwoonSoundEffect = BotwoonSoundDefinitions.Explosion;
 
         // Native projectile index $0A is the last allocated body point and owns the

@@ -17,7 +17,7 @@ internal static class RidleyNeutralTailVerification
         {
             var state = new RidleyEnemyState
             {
-                FightMode = RidleyFightMode.Fighting, GrabState = 0,
+                FightMode = RidleyFightMode.Fighting, GrabState = RidleyGrabState.Released,
                 TailFunctionIndex = RidleyTailFunction.Pogo, TailAngleDelta = (ushort)raw,
                 FeetDistanceIndex = raw % 3,
             };
@@ -28,10 +28,10 @@ internal static class RidleyNeutralTailVerification
             AssertEqual(RidleyAiFunction.NorfairGrabApproach, state.Function, "Power Bomb lunge handoff");
         }
         foreach (RidleyFightMode fight in Enum.GetValues<RidleyFightMode>())
-        foreach (ushort grab in new ushort[] { 0, 1 })
+        foreach (RidleyGrabState grab in Enum.GetValues<RidleyGrabState>())
         foreach (bool flag in new[] { false, true })
         {
-            if (fight == RidleyFightMode.Fighting && grab == 0 && flag) continue;
+            if (fight == RidleyFightMode.Fighting && grab == RidleyGrabState.Released && flag) continue;
             var state = new RidleyEnemyState
             {
                 FightMode = fight, GrabState = grab,

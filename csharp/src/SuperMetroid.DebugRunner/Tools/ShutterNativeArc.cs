@@ -121,7 +121,7 @@ internal static class ShutterNativeArc
         Word(0xB2C, k.YSpeed.Fraction); Word(0xB2E, k.YSpeed.Whole);
         Word(0xB32, k.YAcceleration.Fraction); Word(0xB34, k.YAcceleration.Whole); Word(0xB36, (ushort)k.YDirection);
         Word(0xB42, speed.ExtraRunSpeed.Whole); Word(0xB44, speed.ExtraRunSpeed.Fraction);
-        Word(0xB46, speed.BaseSpeed.Whole); Word(0xB48, speed.BaseSpeed.Fraction); Word(0xB4A, speed.AccelerationMode);
+        Word(0xB46, speed.BaseSpeed.Whole); Word(0xB48, speed.BaseSpeed.Fraction); Word(0xB4A, SamusAccelerationModeCodec.ToNative(speed.AccelerationMode));
         Word(0x195E, 0xFFFF); Word(0x1962, 0xFFFF);
         Word(0x5B6, runtime.Clock.Counter);
         // Retain both solid platforms, even though only slot zero is moving here.
@@ -141,7 +141,7 @@ internal static class ShutterNativeArc
         Word(0xFA8, (ushort)((shutter ?? throw new InvalidOperationException("Verification requires shutter.")).Function ?? throw new InvalidOperationException("The live shutter has no function.")));
         Word(0xFB0, shutter.UpVelocity.Fraction); Word(0xFB2, shutter.UpVelocity.WholeWord);
         Word(0xFAC, shutter.DownVelocity.Fraction); Word(0xFAE, shutter.DownVelocity.WholeWord);
-        Word(0x780E, shutter.InitialFunctionTableOffset); Word(0x7818, shutter.ShotActivated ? 1 : 0);
+        Word(0x780E, ShutterTriggerModeCodec.ToNativeOffset(shutter.TriggerMode)); Word(0x7818, shutter.ShotActivated ? 1 : 0);
         Word(0x7812, shutter.MovedDownRestTime); Word(0x7820, shutter.LowerEndpoint.Y);
         Word(0x8000, shutter.ReactionDirection);
         Word(0x781E, shutter.UpperEndpoint.Y); Word(0x7810, shutter.MovedUpRestTime);

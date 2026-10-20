@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Spatial;
 /// <param name="Whole">The unsigned whole-position word, wrapping at the native sixteen-bit boundary.</param>
 /// <param name="Fraction">The unsigned fractional-position word representing fractions of one pixel.</param>
 [SnesEncodingOwner]
-public readonly record struct SnesFixedPosition(ushort Whole, ushort Fraction)
+public readonly record struct SnesFixedPosition([property: IntegerQuantity("whole-pixel coordinate")] ushort Whole, ushort Fraction)
 {
     /// <summary>The whole-pixel word of a native 16.16 value: its upper sixteen bits, whatever its sign.</summary>
     public static ushort WholeOf(int rawValue) => unchecked((ushort)(rawValue >> 16));

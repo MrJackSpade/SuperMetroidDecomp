@@ -18,6 +18,7 @@ internal sealed class SidehopperInitialPalette
     /// <summary>Whether all sixteen colors use the reviewed standalone stock paint catalog.</summary>
     private readonly bool stockTarget;
     /// <summary>Fifteen for the shifted auxiliary import or sixteen for the standalone target.</summary>
+    [IntegerQuantity("number of colors in the palette row")]
     internal int Count { get; }
 
     /// <summary>Selects stock, calculated, or independent paint ownership from the supplied palette values.</summary>

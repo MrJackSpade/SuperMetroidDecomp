@@ -110,7 +110,7 @@ internal static class PauseMenuVerification
         system.MarkExploredMapTile(0, new(30, 5));
         var pause = new PauseMenuState(new PauseMenuEntry { Samus = samus, System = system, AreaIndex = AreaId.Crateria, RoomMapPosition = new(28, 1), GameplayLayer3 = Layer3PlaneFixtures.FromVram(gameplayVram), MapPresentation = presentation });
 
-        AssertEqual(0, pause.ScreenMode, "pause begins on map page");
+        AssertEqual(PauseScreenMode.Map, pause.ScreenMode, "pause begins on map page");
         AssertEqual(0x0804, pause.ReadReserveSupplyDigit(0).Raw,
             "pause equipment reserve-supply hundreds digit renders current supply");
         AssertEqual(0x0808, pause.ReadReserveSupplyDigit(1).Raw,
@@ -135,7 +135,7 @@ internal static class PauseMenuVerification
         AssertEqual(0x0800, pause.ReadPauseButtonLabelWord(822) & 0x1c00,
             "pause equipment label dim palette reached BG2");
         EnterPauseEquipment(pause);
-        AssertEqual(1, pause.ScreenMode, "pause R transition reaches equipment page");
+        AssertEqual(PauseScreenMode.Equipment, pause.ScreenMode, "pause R transition reaches equipment page");
         // $82:ABAD-$ABB5 selects the reserve mode control whenever reserve capacity exists (#1266).
         AssertEqual((PauseEquipmentCategory.Reserves, PauseReserveTransferRomData.ModeItem),
             (pause.SelectedCategory, pause.SelectedItem), "pause entry selects the reserve mode control");

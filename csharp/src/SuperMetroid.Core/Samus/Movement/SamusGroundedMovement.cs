@@ -171,7 +171,7 @@ public static class SamusGroundedMovement
         // special-case it, even if another input-side transition has already changed the
         // visible running pose.
         uint baseSpeed = speed.CalculateBaseSpeed(movementType: SamusMovementType.Running);
-        bool movesLeft = (speed.AccelerationMode is 0 or 2) == facingLeft;
+        bool movesLeft = (speed.AccelerationMode is SamusAccelerationMode.Accelerating or SamusAccelerationMode.Decelerating) == facingLeft;
         var requestedHorizontal = SamusHorizontalDisplacement.Toward(movesLeft, samus, baseSpeed);
         BlockMoveResult horizontal = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, Plms = plms }, samus.Kinematics, new HorizontalBlockMove { Displacement = requestedHorizontal.Displacement, CollisionMovementDirection = requestedHorizontal.CollisionDirection });
 

@@ -21,6 +21,7 @@ public sealed class SamusPowerBombExplosionState
     public PowerBombFixedColorCatalog? PresentationColors { get; set; }
 
     /// <summary>The HDMA explosion status, 0 through 65535; the top bit set is the normal active state.</summary>
+    [NativeWord("HDMA explosion status word: zero is no explosion and the top bit set is the active state")]
     public int Status
     {
         get;

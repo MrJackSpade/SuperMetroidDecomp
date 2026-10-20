@@ -8,6 +8,7 @@ using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Saves;
 using SuperMetroid.Core.Frontend.CeresCinematics;
 using SuperMetroid.Core.Gameplay;
+using SuperMetroid.Core.Frontend.Pause;
 
 namespace SuperMetroid.Core.Frontend;
 
@@ -377,7 +378,7 @@ public sealed class SuperMetroidGame
             new GamePhase(SuperMetroidGameState.PausedB,
                 MainLoopRandomCall.Advance,
                 step: (controllerInput, _) => PausePhases.DispatchPausedB(controllerInput),
-                name: () => Session.pauseMenu?.ScreenMode == 1 ? "Paused: equipment" : "Paused: map",
+                name: () => Session.pauseMenu?.ScreenMode == PauseScreenMode.Equipment ? "Paused: equipment" : "Paused: map",
                 audio: new GamePhaseAudio(DoorAudioDispatch: false, DoorSoundsDisabled: false, PauseInputEpilogue: true)),
             new GamePhase(SuperMetroidGameState.UnpausingA,
                 MainLoopRandomCall.Advance,

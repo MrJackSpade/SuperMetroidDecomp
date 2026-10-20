@@ -162,7 +162,7 @@ internal sealed class EnemyProjectileEngine
                 _enemyProjectiles[enemyProjectileIndex];
             if (!enemyProjectile.IsActive ||
                 !enemyProjectile.BlocksSamusProjectiles ||
-                enemyProjectile.CollisionOption == 2)
+                enemyProjectile.CollisionOption == EnemyProjectileCollisionOption.NoCollision)
                 continue;
 
             foreach (SamusProjectileSlot shot in projectiles.Slots.Take(5))
@@ -193,7 +193,7 @@ internal sealed class EnemyProjectileEngine
                 if ((collidedProjectileType & 8) == 0)
                     shot.Direction = shot.PackedDirection.WithCollisionLifecycleState();
 
-                if (enemyProjectile.CollisionOption == 1)
+                if (enemyProjectile.CollisionOption == EnemyProjectileCollisionOption.IndestructibleDud)
                 {
                     LastEnemyProjectileDudSoundEffect = SoundEffectLibrary1Sounds.DudShot;
                 }
@@ -452,7 +452,7 @@ internal sealed class EnemyProjectileEngine
         projectile.CanDamageSamus = definition.CanDamageSamus;
         projectile.PersistsOnSamusContact = definition.PersistsOnSamusContact;
         projectile.BlocksSamusProjectiles = definition.BlocksSamusProjectiles;
-        projectile.CollisionOption = 0;
+        projectile.CollisionOption = EnemyProjectileCollisionOption.RunShotList;
         projectile.CollidedProjectileType = 0;
         projectile.GraphicsIndex = graphicsIndex;
     }

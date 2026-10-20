@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 /// <param name="MouthStage">How far the mouth is open, from zero (closed) to <see cref="FullyOpenMouthStage"/>.</param>
 /// <param name="VulnerableShape">The shape a shot hurts Kraid through while this pose is shown.</param>
 /// <param name="InvulnerableShape">The inner shape that deflects shots, or null for the closed mouth, which has none.</param>
-internal readonly record struct KraidHeadFrame(int MouthStage, KraidMouthHitbox VulnerableShape, KraidMouthHitbox? InvulnerableShape)
+internal readonly record struct KraidHeadFrame([property: IntegerQuantity("how far open the mouth is, counted from closed")] int MouthStage, KraidMouthHitbox VulnerableShape, KraidMouthHitbox? InvulnerableShape)
 {
     /// <summary>The mouth stage of a fully open head, the stage whose timer paces the spat rocks.</summary>
     internal const int FullyOpenMouthStage = 3;

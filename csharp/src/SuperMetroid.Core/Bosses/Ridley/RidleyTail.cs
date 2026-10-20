@@ -382,7 +382,7 @@ internal sealed class RidleyTail
         RidleyEnemyState? state = _ridleyEncounter.Ridley;
         // $A6:CAF5 checks the newly solved tail, independently of the earlier
         // extended-body contact pass, and never damages Samus while carrying her.
-        if (state is null || state.GrabState != 0 || !samus.InvincibilityTimer.IsZero ||
+        if (state is null || state.GrabState != RidleyGrabState.Released || !samus.InvincibilityTimer.IsZero ||
             body.Properties.HasAny(EnemyProperties.IgnoreSamusCollision) ||
             !state.MovementAnimationEnabled || state.TailSegments.Length != 7)
             return false;

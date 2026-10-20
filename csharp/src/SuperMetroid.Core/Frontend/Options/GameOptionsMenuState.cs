@@ -111,6 +111,7 @@ public sealed class GameOptionsMenuState
     }
 
     /// <summary>Current menu row within the active page.</summary>
+    [IntegerQuantity("cursor row position on the current page; each page decodes it into its own row type")]
     public int SelectedItem { get; private set; }
 
     /// <summary>

@@ -353,7 +353,7 @@ internal static void VerifyEnemyProjectileCollisionLifecycle()
     eyeShot.Kind = RoomEnemyProjectileKind.EyeDoorProjectile;
     eyeShot.Position = eyeShot.Position.WithWhole(new(0x01b5, 0x0180));
     eyeShot.BlocksSamusProjectiles = true;
-    eyeShot.CollisionOption = 0;
+    eyeShot.CollisionOption = EnemyProjectileCollisionOption.RunShotList;
     SeedEnemyProjectileDefinitionWord(bus, eyeShot.Kind, 12, 0xb5fb);
 
     var shots = new SamusProjectileSystem(new BeamChargeState(), SamusProjectileResidue.None);

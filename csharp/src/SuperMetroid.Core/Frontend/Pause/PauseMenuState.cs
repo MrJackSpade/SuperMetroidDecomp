@@ -155,7 +155,7 @@ internal sealed class PauseMenuState
     }
 
     /// <summary>Zero for the map and one for the equipment page, matching WRAM $0753.</summary>
-    public int ScreenMode { get; private set; }
+    public PauseScreenMode ScreenMode { get; private set; }
 
     /// <summary>
     /// Runs state-$0F menu input after the caller has latched NMI input and invoked the
@@ -168,7 +168,7 @@ internal sealed class PauseMenuState
         // Stable pause states draw and therefore advance one page-specific sprite animation
         // every frame. Fade states call AdvanceAnimations explicitly from the frontend.
         AdvanceAnimations(nmiFrameCounter8);
-        if (ScreenMode == 0 && transition == PauseMenuTransition.None)
+        if (ScreenMode == PauseScreenMode.Map && transition == PauseMenuTransition.None)
             MapArrows.StepArrows(direction => MapScrollBounds.CanScroll(direction, mapScrollPosition));
         SnesButton delayedPressed = delayedHeldInput;
         SnesButton newlyPressed = newlyPressedInput;
@@ -178,7 +178,7 @@ internal sealed class PauseMenuState
             return false;
         }
 
-        if (ScreenMode == 0)
+        if (ScreenMode == PauseScreenMode.Map)
         {
             // `$82:9120`: L/R, then Start, then map scrolling. A Start press does not stop
             // the same frame's scroll pulse.
@@ -251,7 +251,7 @@ internal sealed class PauseMenuState
         // outer pause/unpause fades draw sprites without advancing this owner.
         if (advancePalette && paletteAnimation.Step(screen.Palette))
             audio?.QueueSound(SoundEffectLibrary3Sounds.MapPaletteLoop, maximumQueued: 6);
-        if (ScreenMode == 0)
+        if (ScreenMode == PauseScreenMode.Map)
             StepMapIndicatorAnimation();
         else
             StepItemSelectorAnimation();
@@ -262,10 +262,10 @@ internal sealed class PauseMenuState
     public LayeredRenderSnapshot CaptureRenderSnapshot()
     {
         PrepareRenderSprites();
-        ushort mapX = ScreenMode == 0 ? mapScrollPosition.X : (ushort)0;
+        ushort mapX = ScreenMode == PauseScreenMode.Map ? mapScrollPosition.X : (ushort)0;
         // BG fetches start on physical scanline one; OBJ coordinates already use
         // output-space Y. Keep the cartridge scroll and sprite origins unchanged.
-        ushort mapY = unchecked((ushort)((ScreenMode == 0 ? mapScrollPosition.Y : 0) + SnesPpuLayout.FirstVisibleBackgroundScanline));
+        ushort mapY = unchecked((ushort)((ScreenMode == PauseScreenMode.Map ? mapScrollPosition.Y : 0) + SnesPpuLayout.FirstVisibleBackgroundScanline));
         var bg1 = new Bg4BppRenderLayer(PauseMenuLayout.Bg1TilemapWord, 0, new Position16<BgPlanePixels>(mapX, mapY), new Extent16<TilemapCells>(64, 32), false);
         var bg2 = new Bg4BppRenderLayer(PauseMenuLayout.Bg2TilemapWord, 0, new Position16<BgPlanePixels>(0, SnesPpuLayout.FirstVisibleBackgroundScanline), new Extent16<TilemapCells>(32, 32), false);
         var bg3 = new Bg2BppViewportRenderLayer(GameplayVramLayout.HudTilemapWord,
@@ -286,7 +286,7 @@ internal sealed class PauseMenuState
     private void PrepareRenderSprites()
     {
         screen.Objects.BeginFrame();
-        if (ScreenMode == 0)
+        if (ScreenMode == PauseScreenMode.Map)
         {
             var icons = new FileSelectMapIcons(system, area);
             icons.BindLandmarks(mapPresentation?.Landmarks);
@@ -327,7 +327,7 @@ internal sealed class PauseMenuState
             case PauseMenuTransition.EquipmentToMapLoad:
                 if (transition == PauseMenuTransition.MapToEquipmentLoad)
                 {
-                    ScreenMode = 1;
+                    ScreenMode = PauseScreenMode.Equipment;
                     // $82:AB47 resets the selector on each equipment-page entry.
                     SelectFirstCollectedEquipment();
                     // Equipment setup lights the arrow when reserves are nonempty;
@@ -339,7 +339,7 @@ internal sealed class PauseMenuState
                 }
                 else
                 {
-                    ScreenMode = 0;
+                    ScreenMode = PauseScreenMode.Map;
                     LoadPauseMapTilemap();
                     transition = PauseMenuTransition.EquipmentToMapFadeIn;
                 }
@@ -957,7 +957,7 @@ internal sealed class PauseMenuState
             else if (selectedCategory == PauseEquipmentCategory.Reserves)
                 UpdateReserveArrow(pauseNmiFrameCounter8);
         }
-        if (ScreenMode != 0) UploadEquipmentTilemap();
+        if (ScreenMode != PauseScreenMode.Map) UploadEquipmentTilemap();
         // The serialized live button palette rows still own their overlay on
         // the refreshed backdrop, including a Start/fade highlight.
         // Do not rerun controls or rebuild equipment: that would erase native
@@ -965,7 +965,7 @@ internal sealed class PauseMenuState
         UploadButtonRows();
         // Preserve the serialized scroll position and transition timing. Only refresh
         // BG1 when it currently contains the map; the equipment page shares that VRAM.
-        if (ScreenMode == 0) LoadPauseMapTilemap();
+        if (ScreenMode == PauseScreenMode.Map) LoadPauseMapTilemap();
     }
 
     /// <summary>Loads the selected area's installed pause backdrop into BG2.</summary>

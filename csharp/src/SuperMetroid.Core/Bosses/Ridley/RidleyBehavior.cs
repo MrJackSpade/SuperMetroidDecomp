@@ -263,7 +263,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
             if (samusProjectiles is not null)
                 _ridleyTail.ResolveRidleyTailProjectileHits(slot, state, samusProjectiles);
             // Native Main places carried Samus after body/tail movement.
-            if (state.GrabState != 0 && samus is not null)
+            if (state.GrabState != RidleyGrabState.Released && samus is not null)
                 UpdateNorfairRidleyGrabbedSamus(slot, state, samus);
         }
 
@@ -917,7 +917,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
         ushort clawX = GetNorfairRidleyClawX(slot, state);
         ushort clawY = GetNorfairRidleyClawY(slot, state);
         state.GrabOffset = samus.Position.Whole - new Position16<RoomPixels>(clawX, clawY);
-        state.GrabState = 1;
+        state.GrabState = RidleyGrabState.CarryingSamus;
         samus.Control.LockStationary();
         slot.Properties = slot.Properties.With(EnemyProperties.IgnoreSamusCollision);
         if (slot.Health == 0)
@@ -948,7 +948,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
     /// <summary>Releases Samus's script lock and grants movement-dependent intangibility outside death.</summary>
     internal static void ReleaseNorfairRidleyGrab(RidleyEnemyState state, SamusState? samus)
     {
-        state.GrabState = 0;
+        state.GrabState = RidleyGrabState.Released;
         samus?.Control.Unlock();
         state.TailWhipRequest = 1;
         state.TailFunctionIndex = RidleyTailFunction.Neutral;
@@ -1180,7 +1180,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
     {
         if (state.FightMode is RidleyFightMode.NotFighting or RidleyFightMode.Dying or RidleyFightMode.PowerBombDodge)
             return;
-        if (!sharedProjectiles.PowerBombExplosion.IsArmed || state.GrabState != 0)
+        if (!sharedProjectiles.PowerBombExplosion.IsArmed || state.GrabState != RidleyGrabState.Released)
             return;
 
         // Function $B84D resets both tail control words before the lunge.
@@ -1223,7 +1223,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
         UpdateNorfairRidleyHealthPalette(body, state);
 
         state.HurtMovementClamp = Math.Min(8, state.HurtMovementClamp + 1);
-        if (state.GrabState != 0 && state.HurtMovementClamp >= 8 && samus is not null)
+        if (state.GrabState != RidleyGrabState.Released && state.HurtMovementClamp >= 8 && samus is not null)
             UpdateNorfairRidleyGrabbedSamus(body, state, samus);
     }
 
@@ -1336,7 +1336,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
         if (!TickRidleyFunctionTimer(state))
             return;
 
-        if (state.GrabState != 0)
+        if (state.GrabState != RidleyGrabState.Released)
             ReleaseNorfairRidleyGrab(state, samus);
         state.Function = RidleyAiFunction.NorfairDeathImpact;
         state.Velocity = new EightEightVector<RoomPixels>(0, 0);
@@ -1572,7 +1572,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
         if (_audio.PowerBomb is not { IsArmed: true } bomb)
         {
             state.FightMode = RidleyFightMode.Fighting;
-            state.Function = state.GrabState == 0
+            state.Function = state.GrabState == RidleyGrabState.Released
                 ? RidleyAiFunction.NorfairSelectAttack : RidleyAiFunction.NorfairCarrySetup;
             return;
         }

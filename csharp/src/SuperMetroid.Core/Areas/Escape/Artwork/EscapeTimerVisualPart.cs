@@ -11,6 +11,7 @@ public sealed record EscapeTimerVisualPart
     /// <summary>Gameplay OBJ character number from $1E0, the timer's first character, through $1F8, its last; a 16-pixel part must also fit its other three characters in that range.</summary>
     public required int TileNumber { get; init; }
     /// <summary>Square sprite side length in pixels, either 8 or 16, selecting the small or large gameplay OBJ size.</summary>
+    [IntegerQuantity("sprite edge length in pixels, eight or sixteen")]
     public required int Size { get; init; }
     /// <summary>OBJ priority tier from 0 through 3; stock timer parts use 3.</summary>
     public required int Priority { get; init; }

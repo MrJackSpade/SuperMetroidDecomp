@@ -85,7 +85,7 @@ internal static class MochtroidBotwoonClipVerification
         samus.HorizontalSpeed.BaseSpeed = default;
         samus.HorizontalSpeed.ExtraRunSpeed = default;
         samus.HorizontalSpeed.HasRunningMomentum = false;
-        samus.HorizontalSpeed.AccelerationMode = 0;
+        samus.HorizontalSpeed.AccelerationMode = SamusAccelerationMode.Accelerating;
         samus.Pose = SamusPoseId.CrouchingAimUpRightPose;
         samus.EquippedItems = samus.CollectedItems = (SamusEquipmentFlags)((ushort)(
             SamusEquipmentFlags.MorphBall |

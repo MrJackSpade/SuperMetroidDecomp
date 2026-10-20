@@ -32,7 +32,7 @@ internal static class YardDirectionDefinitionsVerification
                 $"Yard direction {direction} property bits");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((record + 4)), NativeEnemyProgramOracle.EntryOf(YardNativeListAddresses.Entries, definition.HidingProgram),
                 $"Yard direction {direction} hiding list");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((record + 6)), definition.AirborneFacingDirection,
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((record + 6)), definition.AirborneFacingDirection == YardAirborneFacing.Right ? (ushort)1 : (ushort)0,
                 $"Yard direction {direction} airborne facing");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((oppositeAddress + direction * 2)),
                 definition.OppositeDirection,
@@ -43,14 +43,15 @@ internal static class YardDirectionDefinitionsVerification
         }
 
         foreach (int source in airborneAddresses)
-        for (ushort facing = 0; facing < 2; facing++)
+        foreach (YardAirborneFacing facing in Enum.GetValues<YardAirborneFacing>())
         {
+            int row = facing == YardAirborneFacing.Right ? 1 : 0;
             YardAirborneInstructionDefinition definition =
                 YardDirectionDefinitions.ForAirborneFacing(facing);
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((source + facing * 4)),
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((source + row * 4)),
                 NativeEnemyProgramOracle.EntryOf(YardNativeListAddresses.Entries, definition.VisibleProgram),
                 $"Yard airborne ${source:X6} facing {facing} visible list");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((source + facing * 4 + 2)),
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((source + row * 4 + 2)),
                 NativeEnemyProgramOracle.EntryOf(YardNativeListAddresses.Entries, definition.HidingProgram),
                 $"Yard airborne ${source:X6} facing {facing} hiding list");
         }
@@ -59,7 +60,7 @@ internal static class YardDirectionDefinitionsVerification
             () => YardDirectionDefinitions.ForDirection(8),
             "Yard invalid direction definition");
         AssertThrows<InvalidDataException>(
-            () => YardDirectionDefinitions.ForAirborneFacing(2),
+            () => YardDirectionDefinitions.ForAirborneFacing((YardAirborneFacing)2),
             "Yard invalid airborne facing definition");
 
         var guarded = NewYardDirectionReadGuard(rom);
@@ -109,7 +110,7 @@ internal static class YardDirectionDefinitionsVerification
             slot.Bind(EnemyDefinitionId.Yard, slot.Definition);
             YardEnemyBehavior.InitializeYard(slot);
             YardEnemyState state = (enemies.YardStates[0] ?? throw new InvalidOperationException("Verification requires enemies.YardStates[0]."));
-            int facing = state.AirborneFacingDirection;
+            YardAirborneFacing facing = state.AirborneFacingDirection;
             YardAirborneInstructionDefinition expected =
                 YardDirectionDefinitions.ForAirborneFacing(facing);
 

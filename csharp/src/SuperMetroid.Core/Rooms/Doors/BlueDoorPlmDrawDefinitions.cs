@@ -20,10 +20,10 @@ internal static class BlueDoorPlmDrawDefinitions
     internal const int DrawListBytes = 12;
 
     /// <summary>One of twenty twelve-byte records at $84:A9A7..AA96.</summary>
-    internal readonly record struct Draw(int Orientation, int Frame) : IPlmCapDrawShape
+    internal readonly record struct Draw(ColoredDoorOrientation Orientation, int Frame) : IPlmCapDrawShape
     {
         /// <summary>Whether this cap's four blocks are laid out as a vertical run.</summary>
-        internal bool Vertical => Orientation < 2;
+        internal bool Vertical => Orientation is ColoredDoorOrientation.Left or ColoredDoorOrientation.Right;
         /// <summary>Native run header: four blocks with the vertical direction bit when needed.</summary>
         internal ushort DirectionAndCount => Vertical ? (ushort)0x8004 : (ushort)4;
 
@@ -44,8 +44,8 @@ internal static class BlueDoorPlmDrawDefinitions
             bool inner = cell is 1 or 2;
             int tile = Vertical ? 0x0c + frame + (inner ? 32 : 0) :
                 0x1c + frame / 2 * 2 + frame % 2 * 32 + (inner ? 0 : 1);
-            int flips = Vertical ? (Orientation == 1 ? 0x400 : 0) | (cell >= 2 ? 0x800 : 0) :
-                (cell < 2 ? 0x400 : 0) | (Orientation == 3 ? 0x800 : 0);
+            int flips = Vertical ? (Orientation == ColoredDoorOrientation.Right ? 0x400 : 0) | (cell >= 2 ? 0x800 : 0) :
+                (cell < 2 ? 0x400 : 0) | (Orientation == ColoredDoorOrientation.Down ? 0x800 : 0);
             int collision = frame == 0 ? (cell == 0 ? (Frame < 0 ? 8 : 12) : Vertical ? 13 : 5) :
                 frame == 3 && Vertical && inner ? 0 : 8;
             return (ushort)(collision << 12 | flips | tile);
@@ -58,7 +58,7 @@ internal static class BlueDoorPlmDrawDefinitions
         int offset = pointer - (LeftFrame0 - DrawListBytes);
         bool owned = offset >= 0 && offset < 20 * DrawListBytes && offset % DrawListBytes == 0;
         int index = offset / DrawListBytes;
-        draw = owned ? new(index / 5, index % 5 - 1) : default;
+        draw = owned ? new(DoorCapOrientations.FromTableIndex(index / 5), index % 5 - 1) : default;
         return owned;
     }
 
@@ -95,7 +95,7 @@ internal static class BlueDoorPlmDrawDefinitions
     {
         if (!TryDescribe(pointer, out var draw))
             throw new InvalidDataException($"Blue-door draw ${pointer:X4} has no visual ID.");
-        string direction = draw.Orientation switch { 0 => "left", 1 => "right", 2 => "up", _ => "down" };
+        string direction = DoorCapOrientations.VisualName(draw.Orientation);
         return $"{direction}-frame-{Math.Max(draw.Frame, 0)}";
     }
 

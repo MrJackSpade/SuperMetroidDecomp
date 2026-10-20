@@ -47,7 +47,7 @@ internal static class PauseEquipmentBaseAssetsVerification
             AssertTrue(native.Render().SequenceEqual(installed.Render()),
                 "equipment base migration retains native pixels with its source forbidden");
         }
-        AssertEqual(0, installed.ScreenMode, "equipment base fixture returns to the map page");
+        AssertEqual(PauseScreenMode.Map, installed.ScreenMode, "equipment base fixture returns to the map page");
 
         const int editedCell = 194;
         AssertTrue(!PauseEquipmentBaseDefinitions.IsLiveOwnedCell(editedCell) &&
@@ -131,7 +131,7 @@ internal static class PauseEquipmentBaseAssetsVerification
         static void EnterEquipment(PauseMenuState pause)
         {
             byte nmiFrame = 0; ChangePausePage(pause, SnesButton.R, input => pause.Step(input, input, nmiFrameCounter8: nmiFrame++));
-            AssertEqual(1, pause.ScreenMode, "equipment-base fixture enters equipment");
+            AssertEqual(PauseScreenMode.Equipment, pause.ScreenMode, "equipment-base fixture enters equipment");
         }
         static int FirstDifference(ReadOnlySpan<byte> left, ReadOnlySpan<byte> right)
         {

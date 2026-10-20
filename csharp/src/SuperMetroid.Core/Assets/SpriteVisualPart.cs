@@ -13,6 +13,7 @@ public sealed record SpriteVisualPart
     /// <summary>Zero-based tile row in the presentation's indexed artwork atlas.</summary>
     public required int TileRow { get; init; }
     /// <summary>Square OBJ size in pixels, either 8 or 16.</summary>
+    [IntegerQuantity("sprite edge length in pixels, eight or sixteen")]
     public required int Size { get; init; }
     /// <summary>SNES OBJ priority tier from 0 through 3.</summary>
     public required int Priority { get; init; }

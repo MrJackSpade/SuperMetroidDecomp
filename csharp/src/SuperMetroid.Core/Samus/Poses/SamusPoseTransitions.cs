@@ -29,8 +29,8 @@ internal sealed class SamusPoseTransitions
     {
         _samus.HorizontalSpeed.AccelerationMode =
             _samus.HorizontalSpeed.ExtraRunSpeed.Whole != 0 || _samus.HorizontalSpeed.ExtraRunSpeed.Fraction != 0
-                ? SamusHorizontalAccelerationModes.Decelerating
-                : SamusHorizontalAccelerationModes.Accelerating;
+                ? SamusAccelerationMode.Decelerating
+                : SamusAccelerationMode.Accelerating;
     }
 
     /// <summary>
@@ -59,7 +59,7 @@ internal sealed class SamusPoseTransitions
         if (movementType is not (SamusMovementType.TurningOnGround or
             SamusMovementType.TurningWhileJumping or SamusMovementType.TurningWhileFalling))
             throw new InvalidOperationException($"Turn fallback requires a turning movement type, not ${(byte)movementType:X2}.");
-        _samus.HorizontalSpeed.AccelerationMode = SamusHorizontalAccelerationModes.Accelerating;
+        _samus.HorizontalSpeed.AccelerationMode = SamusAccelerationMode.Accelerating;
         _samus.HorizontalSpeed.CancelRunningMomentum(_samus.PoseMetadata.ReadFacingDirection());
     }
     /// <summary>
@@ -350,7 +350,7 @@ level, targetPose, nmiFrameCounter, plms, out int centerAdjustment);
         // `$90:9949` installs the launch. It deliberately does *not* touch the extra-run
         // pair at `$0B42/$0B44` or the running-momentum flag at `$0B3C`: a wall jump made
         // out of a Dash therefore carries that speed into movement type $14.
-        _samus.HorizontalSpeed.AccelerationMode = 0;
+        _samus.HorizontalSpeed.AccelerationMode = SamusAccelerationMode.Accelerating;
         _samus.HorizontalSpeed.BaseSpeed = default;
 
         // SolidVerticalCollision_WallJumpTriggered queues library-three sound five with a
@@ -389,7 +389,7 @@ level, targetPose, nmiFrameCounter, plms, out int centerAdjustment);
         // `$9B:C9CE` clears the ordinary base-speed pair, then the normal pose-transition
         // machinery reaches `$90:9949`. Like the non-grapple route, it leaves both the
         // extra-run pair and `$0B3C` intact, so Dash momentum survives this wall launch.
-        _samus.HorizontalSpeed.AccelerationMode = 0;
+        _samus.HorizontalSpeed.AccelerationMode = SamusAccelerationMode.Accelerating;
         _samus.HorizontalSpeed.BaseSpeed = default;
 
         // `$9B:C9CE` uses generic QueueSound: library one, sound seven, maximum fifteen.
@@ -510,7 +510,7 @@ level, targetPose, nmiFrameCounter, plms, out int centerAdjustment);
             speed.ExtraRunSpeed.RawValue);
         speed.BaseSpeed = new SnesUnsignedSixteenSixteen(unchecked((ushort)(SnesSixteenSixteen.WholeOf(combinedSpeed))), unchecked((ushort)combinedSpeed));
         speed.ExtraRunSpeed = default;
-        speed.AccelerationMode = 1;
+        speed.AccelerationMode = SamusAccelerationMode.Turning;
     }
 
     /// <summary>
@@ -1639,7 +1639,7 @@ level, targetPose, nmiFrameCounter, plms, out int centerAdjustment);
         // one. $90:8EA9 interprets that mode as “move opposite the NEW facing direction”
         // while $90:9A7E decelerates, which is how reversal preserves old momentum.
         speed.ExtraRunSpeed = default;
-        speed.AccelerationMode = 1;
+        speed.AccelerationMode = SamusAccelerationMode.Turning;
 
         ApplySimpleGroundedPoseChange(_samus.Pose, selectedTurnPose, "Grounded turn");
 
@@ -1998,7 +1998,7 @@ level, SnesSixteenSixteen.FromWhole(SamusPostureDefinitions.MorphEntryDownwardPi
             // `$91:F7D6-$F7E4` deliberately recognizes a spin-jump source and forces mode
             // two so the compact body retains decelerating aerial momentum after morphing.
             if (previousMovementType == SamusMovementType.SpinJumping)
-                _samus.HorizontalSpeed.AccelerationMode = 2;
+                _samus.HorizontalSpeed.AccelerationMode = SamusAccelerationMode.Decelerating;
 
             // This is `$91:F7E7`, not the arm-cannon flare counter. Bomb-spread charging is
             // invalid once the body has entered either ordinary or Spring Ball form.
@@ -2162,7 +2162,7 @@ level, SnesSixteenSixteen.FromWhole(SamusPostureDefinitions.MorphEntryDownwardPi
             // explicit extra-word clear. Preserve that ordering even for ordinary Dash.
             _samus.HorizontalSpeed.CancelRunningMomentum(currentDirection);
             _samus.HorizontalSpeed.ExtraRunSpeed = default;
-            _samus.HorizontalSpeed.AccelerationMode = 1;
+            _samus.HorizontalSpeed.AccelerationMode = SamusAccelerationMode.Turning;
         }
     }
 
@@ -2214,7 +2214,7 @@ level, SnesSixteenSixteen.FromWhole(SamusPostureDefinitions.MorphEntryDownwardPi
         ApplyMorphBallPoseChange(groundedPose);
         // $91:F02D-$F033 clears base momentum only when the bounce handler returns
         // carry clear. Both airborne rebounds above retain their horizontal speed.
-        _samus.HorizontalSpeed.AccelerationMode = 0;
+        _samus.HorizontalSpeed.AccelerationMode = SamusAccelerationMode.Accelerating;
         _samus.HorizontalSpeed.BaseSpeed = default;
         return true;
     }
@@ -2268,7 +2268,7 @@ level, SnesSixteenSixteen.FromWhole(SamusPostureDefinitions.MorphEntryDownwardPi
         ApplyMorphBallPoseChange(groundPose);
         // The common landing caller clears base speed when the bounce routine
         // returns carry clear. Spring Ball shares this with ordinary ball landing.
-        _samus.HorizontalSpeed.AccelerationMode = 0;
+        _samus.HorizontalSpeed.AccelerationMode = SamusAccelerationMode.Accelerating;
         _samus.HorizontalSpeed.BaseSpeed = default;
         return true;
     }
@@ -2548,7 +2548,7 @@ level, targetPose, nmiFrameCounter, plms, out int centerAdjustment);
         // $91:F1EC installs the same one-shot input handler used by F8.
         // Its short held-Jump window is evaluated next alpha, not during landing.
         if (!_samus.Control.AlphaLocked) _samus.InputSnapshot.AutoJumpInputPending = true;
-        _samus.HorizontalSpeed.AccelerationMode = 0;
+        _samus.HorizontalSpeed.AccelerationMode = SamusAccelerationMode.Accelerating;
         _samus.HorizontalSpeed.BaseSpeed = default;
         _samus.Kinematics.YSpeed = default;
 

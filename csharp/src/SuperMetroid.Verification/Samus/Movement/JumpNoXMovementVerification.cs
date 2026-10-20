@@ -32,7 +32,7 @@ internal static class JumpNoXMovementVerification
         samus.Kinematics.YDirection = SamusVerticalDirection.Down;
         samus.Kinematics.YSpeed = default;
         samus.Kinematics.YAcceleration = samus.Kinematics.YAcceleration.WithFraction(0x1c00);
-        samus.HorizontalSpeed.AccelerationMode = 0;
+        samus.HorizontalSpeed.AccelerationMode = SamusAccelerationMode.Accelerating;
 
         SamusAerialMovement.StepNormalJump(runtime.Room.LoadedLevelData, samus,
             (SnesButton.A | SnesButton.B), nmiFrameCounter: 0);

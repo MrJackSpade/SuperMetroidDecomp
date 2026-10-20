@@ -27,7 +27,7 @@ internal static class PauseReserveLabelsVerification
                 CollectedItems = SamusEquipmentFlags.MorphBall };
             var pause = new PauseMenuState(new PauseMenuEntry { Samus = samus, System = new Bank80SystemState(), AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), MapPresentation = RetailPresentationFixture() });
             EnterPauseEquipment(pause);
-            AssertEqual(1, pause.ScreenMode, "reserve label test reached equipment page");
+            AssertEqual(PauseScreenMode.Equipment, pause.ScreenMode, "reserve label test reached equipment page");
             var snapshot = pause.CaptureRenderSnapshot();
             byte[] expectedVram = snapshot.Memory.Vram.ToArray();
             // Reset the label regions from the cartridge template first. Otherwise

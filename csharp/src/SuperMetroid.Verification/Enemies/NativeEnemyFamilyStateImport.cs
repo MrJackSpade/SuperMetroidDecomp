@@ -255,10 +255,11 @@ internal static class NativeEnemyFamilyStateImport
         }
         if (slot.SpeciesState<OwtchEnemyState>() is { } owtchRecord)
         {
-            owtchRecord.RightVelocity = owtchRecord.RightVelocity.WithWholePixels(unchecked((short)words.A));
-            owtchRecord.LeftVelocity = SnesSignedSixteenSixteen.FromParts(unchecked((short)words.C), words.B);
-            owtchRecord.Behavior = (OwtchBehaviorState)words.D;
-            owtchRecord.BurialDepth = words.E;
+            // $A2:A423-$A435: fraction then whole for each direction, then the state and the sink depth.
+            owtchRecord.RightVelocity = SnesSignedSixteenSixteen.FromParts(unchecked((short)words.B), words.A);
+            owtchRecord.LeftVelocity = SnesSignedSixteenSixteen.FromParts(unchecked((short)words.D), words.C);
+            owtchRecord.Behavior = (OwtchBehaviorState)words.E;
+            owtchRecord.BurialDepth = words.F;
         }
         if (slot.SpeciesState<BullEnemyState>() is { } bullRecord)
         {

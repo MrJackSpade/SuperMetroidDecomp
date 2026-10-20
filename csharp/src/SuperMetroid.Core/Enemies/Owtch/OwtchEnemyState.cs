@@ -12,13 +12,14 @@ public sealed class OwtchEnemyState
     internal AnimationProgramCursor<OwtchProgram> Program { get; set; }
 
     /// <summary>
-    /// The signed 16.16 rightward patrol speed in pixels per update, taken from the shared linear-speed table. A kill
-    /// empties only its whole pixels; its fraction lives outside the record and survives.
+    /// The signed 16.16 rightward patrol speed in pixels per update, taken from the shared linear-speed table; the
+    /// record keeps its fraction in variable 0 and its whole pixels in variable 1.
     /// </summary>
     public SnesSignedSixteenSixteen RightVelocity { get; internal set; }
 
     /// <summary>
-    /// The signed 16.16 leftward patrol speed in pixels per update, the negative half of the same linear-speed record.
+    /// The signed 16.16 leftward patrol speed in pixels per update, the negative half of the same linear-speed record;
+    /// the record keeps its fraction in variable 2 and its whole pixels in variable 3.
     /// </summary>
     public SnesSignedSixteenSixteen LeftVelocity { get; internal set; }
 
@@ -68,7 +69,7 @@ public sealed class OwtchEnemyState
     /// <summary>Empties the values the cartridge keeps in the enemy's common record.</summary>
     internal void ClearWithRecord()
     {
-        RightVelocity = RightVelocity.WithWholePixels(0);
+        RightVelocity = SnesSignedSixteenSixteen.Zero;
         LeftVelocity = SnesSignedSixteenSixteen.Zero;
         Behavior = default;
         BurialDepth = 0;

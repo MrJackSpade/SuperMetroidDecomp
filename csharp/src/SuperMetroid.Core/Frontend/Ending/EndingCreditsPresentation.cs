@@ -49,7 +49,7 @@ internal sealed class EndingCreditsPresentation
             layers.Add(new Bg4BppRenderLayer(EndingCreditsRomData.Rendering.CreditsTilemapWord,
                 EndingCreditsRomData.Rendering.CreditsCharacterWord, _ending.Credits.ScrollPosition, new Extent16<TilemapCells>(32, 32), null));
             // Credits intentionally do not run the sprite draw routine.
-            memory = PpuMemorySnapshot.CaptureFrontend(_ending.vram, _ending.cgram, []);
+            memory = new PpuMemorySnapshot(_ending.Image(), _ending.screen.Palette.Colors, []);
         }
         else
         {
@@ -175,12 +175,12 @@ internal sealed class EndingCreditsPresentation
 
     /// <summary>The scene's memories with this frame's sprite entries over the OBJ page <paramref name="objectSelection"/> selects.</summary>
     internal PpuMemorySnapshot CaptureMemory(byte objectSelection) =>
-        PpuMemorySnapshot.CaptureFrontend(_ending.vram, _ending.cgram, PrepareSprites(objectSelection).Draws);
+        new(_ending.Image(), _ending.screen.Palette.Colors, PrepareSprites(objectSelection).Draws);
 
     /// <summary>Places the scene's sprite entries at the simulation display boundary without advancing sprite state.</summary>
     internal ScreenSprites PrepareSprites(byte objectSelection)
     {
-        var objects = new ScreenSprites(FrontendOamDraws.Page(_ending.vram, objectSelection), ObjectSelectionCodec.Sizes(objectSelection));
+        var objects = new ScreenSprites(FrontendOamDraws.Page(_ending.Image(), objectSelection), ObjectSelectionCodec.Sizes(objectSelection));
         objects.BeginFrame();
         if (_ending.endingLogo is not null) _ending.endingLogo.Draw(objects, _ending.objectArtwork?.LogoSprites);
         else if (_ending.rewardGesture is not null) _ending.rewardGesture.Draw(objects, _ending.objectArtwork?.RewardSprites);

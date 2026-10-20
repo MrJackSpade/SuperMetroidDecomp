@@ -431,9 +431,9 @@ internal static void VerifyEndingCreditsState()
             MaxPowerBombs: 50,
             CollectedItems: (SamusEquipmentFlags)0xf32f,
             CollectedBeams: (SamusBeamFlags)0x100f), JapaneseText = false, Presentation = RetailPresentationFixture().EndingText, InstalledSequence = EndingTextSequence.ItemPercentage });
-    var percentageVram = new SnesVram();
+    var percentageScreen = new EndingScreen();
     for (int frame = 0; frame < 4_000 && !percentage.Completed; frame++)
-        percentage.Step(percentageVram);
+        percentage.Step(percentageScreen);
     AssertTrue(percentage.Completed && percentage.RequestedItemPercentageScroll,
         "item-percentage object reaches its native scroll handoff");
     AssertEqual((ushort)0x3861, percentageTilemap[462], "100% hundreds top tile");

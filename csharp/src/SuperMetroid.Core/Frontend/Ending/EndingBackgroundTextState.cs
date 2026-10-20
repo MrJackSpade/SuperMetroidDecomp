@@ -66,13 +66,13 @@ internal sealed class EndingBackgroundTextState
     public bool RequestedItemPercentageScroll { get; private set; }
 
     /// <summary>Consumes one ending text tick and uploads the tilemap when a glyph or terminal change appears.</summary>
-    public void Step(SnesVram vram)
+    public void Step(EndingScreen screen)
     {
-        Ensure.NotNull(vram);
+        Ensure.NotNull(screen);
         if (installedProgram is null)
             throw new InvalidOperationException(
                 "Ending text host content must be rebound after state restoration.");
-        StepInstalled(vram);
+        StepInstalled(screen);
     }
 
     /// <summary>Rebinds current host content after debugger-state restoration.</summary>
@@ -88,7 +88,7 @@ internal sealed class EndingBackgroundTextState
     }
 
     /// <summary>Runs the initial delay, four-frame character cadence, optional percentage hold, and completion handoff.</summary>
-    private void StepInstalled(SnesVram vram)
+    private void StepInstalled(EndingScreen screen)
     {
         if (Completed || !(instructionTimer = instructionTimer.Decrement().Remaining).IsZero) return;
         if (installedInitialMarkerPending)
@@ -105,7 +105,7 @@ internal sealed class EndingBackgroundTextState
             if (character.BottomWord is { } bottom)
                 tilemap[target + EndingTextDefinitions.TilemapWidth] = bottom.Raw;
             instructionTimer = NativeCountdown.Start(EndingTextDefinitions.CharacterDelayFrames);
-            Upload(vram);
+            Upload(screen);
             return;
         }
         if (installedSequence == EndingTextSequence.ItemPercentage && !installedHoldStarted)
@@ -117,7 +117,7 @@ internal sealed class EndingBackgroundTextState
                     EndingCreditsRomData.Text.JapaneseSubtitleWords));
             installedHoldStarted = true;
             instructionTimer = NativeCountdown.Start(EndingTextDefinitions.PercentageHoldFrames);
-            Upload(vram);
+            Upload(screen);
             return;
         }
         if (installedSequence == EndingTextSequence.ItemPercentage)
@@ -128,7 +128,7 @@ internal sealed class EndingBackgroundTextState
             RequestedItemPercentageScroll = true;
         }
         Completed = true;
-        Upload(vram);
+        Upload(screen);
     }
 
     /// <summary>Counts collected expansions and item bits, clamps to 100, and writes native two-row digits and percent mark.</summary>
@@ -170,11 +170,7 @@ internal sealed class EndingBackgroundTextState
     }
 
     /// <summary>Transfers the current staging tilemap to the selected background map.</summary>
-    [PpuLayoutBoundary("codec: ending text staging tilemap DMA to its scene-selected VMADD")]
-    private void Upload(SnesVram vram) =>
-        vram.ExecuteWordTransfer(
-            tilemap,
-            EndingVram.TextTilemapWord(destinationTilemap),
-            wordIncrement: 1);
+    private void Upload(EndingScreen screen) =>
+        screen.Record(EndingUploadKind.TextTilemap, (int)destinationTilemap, tilemap);
 
 }

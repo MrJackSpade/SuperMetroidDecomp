@@ -82,10 +82,7 @@ internal sealed class CreditsObjectState
     }
 
     /// <summary>Uploads the live circular tilemap to native BG1 base word $4800.</summary>
-    public void UploadTilemap(SnesVram vram)
-    {
-        Ensure.NotNull(vram);
-        new EndingVram(vram).CreditsTilemap.Write(tilemap);
-    }
+    public void UploadTilemap(EndingScreen screen) =>
+        Ensure.NotNull(screen).Record(EndingUploadKind.CreditsTilemap, 0, tilemap);
 
 }

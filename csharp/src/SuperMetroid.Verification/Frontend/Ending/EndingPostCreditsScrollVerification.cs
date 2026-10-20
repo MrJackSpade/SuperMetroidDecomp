@@ -29,7 +29,7 @@ internal static class EndingPostCreditsScrollVerification
         // A leftover scroll from an earlier scroll-down must not survive the white flash.
         var leftover = new Position16<BgPlanePixels>(0, ScrollWordRange - ScrollDownCalls * PixelsPerCall);
         ending.postCreditsScroll = leftover;
-        ending.postShot = new EndingPostShot(ending.cgram, installation.LoadMaps().EndingFont, installation.LoadEndingObjectArt());
+        ending.postShot = new EndingPostShot(ending.screen.Palette);
         ending.rewardJump = new EndingRewardJump(ending.EndingReward, _ => { });
         ending.Phase = EndingCreditsPhase.PostCreditsShot;
         for (int call = 0; ending.Phase == EndingCreditsPhase.PostCreditsShot; call++)

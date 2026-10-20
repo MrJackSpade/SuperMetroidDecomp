@@ -25,7 +25,7 @@ internal static class FrontendOamDrawsConstants
         byte obsel = checked((byte)objectSelection);
         if (oam.LastFinalizedSpriteCount == 0)
             return null;
-        SpriteArtwork page = FrontendOamDraws.Page(vram, obsel);
+        SpriteArtwork page = FrontendOamDraws.Page(vram.Bytes, obsel);
         ScreenObjectSizes sizes = ObjectSelectionCodec.Sizes(obsel);
         (int smallWidth, int smallHeight, int largeWidth, int largeHeight) = (sizes.Small.X, sizes.Small.Y, sizes.Large.X, sizes.Large.Y);
         var parts = ImmutableArray.CreateBuilder<SpriteFramePart>();

@@ -74,15 +74,4 @@ public sealed class PpuMemorySnapshot
         backgrounds.ComposeOver(image);
         return new(image, cgram.Colors.ToArray(), sprites.Draws);
     }
-
-    /// <summary>Captures a frontend screen's VRAM and CGRAM with the sprite entries it publishes.</summary>
-    /// <param name="vram">The screen's VRAM.</param>
-    /// <param name="cgram">The screen's CGRAM.</param>
-    /// <param name="draws">The screen's sprite entries, frontmost first.</param>
-    public static PpuMemorySnapshot CaptureFrontend(SnesVram vram, SnesCgram cgram, ImmutableArray<SpriteDraw> draws)
-    {
-        Ensure.NotNull(vram);
-        Ensure.NotNull(cgram);
-        return new(vram.CaptureImage(), cgram.Colors.ToArray(), draws);
-    }
 }

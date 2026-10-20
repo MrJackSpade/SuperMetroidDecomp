@@ -18,14 +18,13 @@ public static class FrontendOamDraws
     /// <summary>Characters in one OBJ name table.</summary>
     private const int NameTableCharacters = 256;
 
-    /// <summary>The OBJ characters <paramref name="vram"/> holds under <paramref name="objectSelection"/>, as one page in name order.</summary>
-    public static SpriteArtwork Page(SnesVram vram, int objectSelection)
+    /// <summary>The OBJ characters memory image <paramref name="image"/> holds under <paramref name="objectSelection"/>, as one page in name order.</summary>
+    public static SpriteArtwork Page(ReadOnlySpan<byte> image, int objectSelection)
     {
-        Ensure.NotNull(vram);
         byte obsel = checked((byte)objectSelection);
         var characters = new byte[ObjCharacterPage.Characters * SpriteArtwork.CharacterByteCount];
         for (int name = 0; name < ObjCharacterPage.Characters; name++)
-            vram.Bytes.Slice(ResolveTileByteAddress(name, obsel), SpriteArtwork.CharacterByteCount)
+            image.Slice(ResolveTileByteAddress(name, obsel), SpriteArtwork.CharacterByteCount)
                 .CopyTo(characters.AsSpan(name * SpriteArtwork.CharacterByteCount));
         return new SpriteArtwork(new SpriteArtworkId(SpriteArtworkKind.FrontendObjects), characters);
     }

@@ -20,22 +20,24 @@ internal static class EndingPostShotVerification
     {
         Suite(nameof(VerifyEndingPostShotTransferFields), () => VerifyEndingPostShotTransferFields(bus));
         var guardedBus = NewPostShotUploadTableReadGuard(bus);
-        var cgram = new SnesCgram();
-        SuperMetroid.AssetExtraction.Cartridge.CartridgePaletteImporter.LoadToCgram(cgram, bus, 0x8ce7e9);
-        Bgr555[] initial = cgram.Colors.ToArray();
-        var vram = new SnesVram();
-        var expected = Enumerable.Repeat((byte)0xa5, SnesVram.ByteCount).ToArray();
-        vram.LoadBytes(0, expected);
+        var nativeCgram = new SnesCgram();
+        SuperMetroid.AssetExtraction.Cartridge.CartridgePaletteImporter.LoadToCgram(nativeCgram, bus, 0x8ce7e9);
+        Bgr555[] initial = nativeCgram.Colors.ToArray();
+        var screen = new EndingScreen();
+        for (int color = 0; color < initial.Length; color++)
+            screen.Palette.SetColor(color, initial[color]);
+        var expected = new byte[SnesVram.ByteCount];
         byte[] font = RomDataReader.Decompress(SuperMetroid.AssetExtraction.Cartridge.CartridgeImportSource.Require(bus), 0x97e7de, 0x8000);
         using var fontPng = new MemoryStream(
             SuperMetroid.AssetExtraction.Frontend.Ending.EndingFontAtlasExtractor.Extract(bus), writable: false);
         EndingFontAtlas fontAtlas = EndingFontAtlas.Load(fontPng);
-        var shot = new EndingPostShot(cgram, fontAtlas, RepositoryInstallation.Installation.LoadEndingObjectArt());
+        var shot = new EndingPostShot(screen.Palette);
+        var artwork = new EndingScreenArtwork(null, null, RepositoryInstallation.Installation.LoadEndingObjectArt(), fontAtlas, EndingReward.Armored);
         byte[] tiles = RomDataReader.Decompress(SuperMetroid.AssetExtraction.Cartridge.CartridgeImportSource.Require(bus), 0x99e089, 0x8000);
         byte[] map = RomDataReader.Decompress(SuperMetroid.AssetExtraction.Cartridge.CartridgeImportSource.Require(bus), 0x99ecc4, 0x8000);
         for (int frame = 1; frame <= 216; frame++)
         {
-            shot.Step(vram, cgram);
+            shot.Step(screen);
             AssertEqual(Math.Max(24, 2304 - Math.Min(frame, 36) * 64), shot.Scale, "native post-shot scale trajectory");
             AssertEqual(SnesAngle.FromTableIndex(unchecked((byte)(-8 * Math.Min(frame, 36)))), shot.Angle, "native post-shot rotation trajectory, wrapping below zero");
             AssertEqual(frame >= 36, shot.RotationFinished, "rotation handoff occurs on call 36");
@@ -50,7 +52,7 @@ internal static class EndingPostShotVerification
                     ushort faded = (ushort)(((color.ToWord() & 31) * remaining / 32)
                         | ((color.ToWord() >> 5 & 31) * remaining / 32) << 5
                         | ((color.ToWord() >> 10 & 31) * remaining / 32) << 10);
-                    AssertEqual(faded, cgram.Colors[i], "post-shot palette component and delayed Samus fade");
+                    AssertEqual(faded, screen.Palette.Colors[i], "post-shot palette component and delayed Samus fade");
                 }
             }
             if (frame == 48) font.AsSpan(0x1000, 0x400).CopyTo(expected.AsSpan(0x9000));
@@ -60,7 +62,7 @@ internal static class EndingPostShotVerification
                 tiles.AsSpan(offset, 0x800).CopyTo(expected.AsSpan(0xc000 + offset));
             }
             if (frame == 53) map.AsSpan(0, 0x800).CopyTo(expected.AsSpan(0xa800));
-            AssertTrue(expected.SequenceEqual(vram.Bytes), "each native logo transfer changes exactly its intended VRAM bytes");
+            AssertTrue(expected.AsSpan().SequenceEqual(EndingScreenFixtures.Vram(screen, artwork).Bytes), "each native logo transfer changes exactly its intended VRAM bytes");
         }
         AssertEqual(0, guardedBus.ForbiddenReadAttempts,
             "post-shot uploads never reread the fixed cartridge transfer table");

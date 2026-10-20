@@ -193,15 +193,4 @@ public sealed class SnesVram
             if (high) destinationWord = (destinationWord + increment) & WordAddressMask;
         }
     }
-
-    /// <summary>
-    /// Clears all VRAM. This is a host-side convenience for resets and isolated tests;
-    /// the original game normally clears memory through explicit PPU/DMA operations.
-    /// </summary>
-    public void Clear()
-    {
-        writeGeneration++;
-        Array.Clear(_bytes);
-        StampWords(0, WordCount, BeginWrite());
-    }
 }

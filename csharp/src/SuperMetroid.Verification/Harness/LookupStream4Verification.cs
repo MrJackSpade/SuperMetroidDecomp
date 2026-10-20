@@ -1235,8 +1235,9 @@ internal static class LookupStream4Verification
             var state = new EndingBackgroundTextState(new EndingBackgroundTextSetup { Tilemap = tilemap, Inventory = default, JapaneseText = true, Presentation = presentation, InstalledSequence = EndingTextSequence.ItemPercentage });
             state.installedInitialMarkerPending = false;
             state.installedCharacterIndex = presentation.Compile(EndingTextSequence.ItemPercentage).Length;
-            var vram = new SnesVram();
-            state.Step(vram);
+            var screen = new EndingScreen();
+            state.Step(screen);
+            SnesVram vram = EndingScreenFixtures.Vram(screen);
             int destination = EndingCreditsRomData.Text.JapaneseSubtitleDestination;
             AssertTrue(expected.SequenceEqual(tilemap.AsSpan(destination, expected.Length)), "Actual ending state draws the calculated/edited subtitle");
             for (int cell = 0; cell < expected.Length; cell++)
@@ -1245,7 +1246,7 @@ internal static class LookupStream4Verification
                 AssertEqual(expected[cell], (ushort)(SnesLittleEndian.Word(vram.Bytes[address], vram.Bytes[address + 1])), "Actual subtitle reaches VRAM unchanged");
             }
             state.instructionTimer = NativeCountdown.Start((ushort)1);
-            state.Step(vram);
+            state.Step(screen);
             AssertTrue(tilemap.AsSpan(destination, expected.Length).All(word => word == EndingCreditsRomData.Rendering.BlankTile), "Actual ending state clears the subtitle at its hold boundary");
             AssertTrue(state.Completed && state.RequestedItemPercentageScroll, "Subtitle clear preserves completion and scroll handoff");
         }

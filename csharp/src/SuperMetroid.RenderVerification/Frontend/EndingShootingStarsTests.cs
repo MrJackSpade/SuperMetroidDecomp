@@ -98,7 +98,7 @@ internal static class EndingShootingStarsTests
             seen.Contains(EndingCreditsPhase.PostCreditsWaitingBackdrop) && seen.Contains(EndingCreditsPhase.PostCreditsWaitingSamus), "Confirmation covers star fade, additive reveal, wave and text masking");
         // A later logo owner must append stars after its own actors, including after
         // the icon's actor program completes and the final text remains on screen.
-        var cgram = scene.cgram;
+        var cgram = scene.screen.Palette;
         var logo = new EndingLogo(cgram, () => { }, installed.LoadEndingPalettes());
         scene.endingLogo = logo;
         scene.Phase = EndingCreditsPhase.PostCreditsLogo;

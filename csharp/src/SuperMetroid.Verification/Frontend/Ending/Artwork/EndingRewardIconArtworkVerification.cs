@@ -110,19 +110,16 @@ internal static class EndingRewardIconArtworkVerification
                 }
                 EndingMode7ArtworkCatalog edited = installation.LoadEndingMode7Art();
                 var uploadBus = NewEndingMode7SourceReadGuard(new SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace(rom));
-                var upload = new EndingRewardGraphicsUpload(stock.RewardIcon);
-                var partialVram = new SnesVram();
-                partialVram.LoadBytes(0, Enumerable.Repeat((byte)0xa5,
-                    SnesVram.ByteCount).ToArray());
+                var partial = new EndingScreen();
                 for (int chunk = 0; chunk < 8; chunk++)
-                    upload.Upload(partialVram, chunk);
-                upload.BindArtwork(edited.RewardIcon, partialVram);
+                    partial.Record(EndingUploadKind.RewardChunk, chunk);
+                SnesVram partialVram = EndingScreenFixtures.Vram(partial, new EndingScreenArtwork(edited, null, null, null, EndingReward.Armored));
                 AssertTrue(partialVram.Bytes[..(8 * EndingRewardGraphicsUploadDefinitions.ChunkBytes)]
                         .SequenceEqual(edited.RewardIcon.Transfer.Span
                             [..(8 * EndingRewardGraphicsUploadDefinitions.ChunkBytes)]) &&
                         partialVram.Bytes[(8 * EndingRewardGraphicsUploadDefinitions.ChunkBytes)..]
-                            .All(value => value == 0xa5),
-                    $"{name} rebinds eight completed chunks without touching pending VRAM");
+                            .All(value => value == 0),
+                    $"{name} rebinds eight completed chunks without writing pending ones");
                 AssertEqual(0, uploadBus.ForbiddenReadAttempts,
                     $"{name} partial upload never reads compressed ROM icon art");
                 var sceneBus = NewEndingMode7SourceReadGuard(new SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace(rom));

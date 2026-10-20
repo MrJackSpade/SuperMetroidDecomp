@@ -6,7 +6,4 @@ public readonly struct VramStore(SnesVram vram)
 {
     /// <summary>All 32,768 words.</summary>
     public VramRegion All => new(vram, PpuMemoryLayout.Vram);
-
-    /// <summary>Zeroes every word, as a screen's full-VRAM clear does before installing its own image.</summary>
-    public void Clear() => vram.Clear();
 }

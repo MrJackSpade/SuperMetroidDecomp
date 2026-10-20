@@ -51,12 +51,12 @@ internal static class EndingTextPresentationVerification
                 EndingCreditsRomData.Rendering.TilemapWords).ToArray();
             // The installed sequence runs to completion with its text streams guarded.
             var installed = new EndingBackgroundTextState(new EndingBackgroundTextSetup { Tilemap = installedTilemap, Inventory = default, JapaneseText = true, Presentation = presentation, InstalledSequence = sequence });
-            var installedVram = new SnesVram();
+            var installedScreen = new EndingScreen();
             for (int frame = 0; !installed.Completed; frame++)
             {
                 if (frame == 2048)
                     throw new InvalidOperationException($"Ending {sequence} did not terminate.");
-                installed.Step(installedVram);
+                installed.Step(installedScreen);
                 comparedFrames++;
             }
             AssertTrue(installedTilemap.Any(word => word != EndingCreditsRomData.Rendering.BlankTile),
@@ -83,16 +83,16 @@ internal static class EndingTextPresentationVerification
 
         var saved = new EndingBackgroundTextState(new EndingBackgroundTextSetup { Tilemap = Enumerable.Repeat(EndingCreditsRomData.Rendering.BlankTile,
                 EndingCreditsRomData.Rendering.TilemapWords).ToArray(), Inventory = default, JapaneseText = false, Presentation = presentation, InstalledSequence = EndingTextSequence.FinalMessage });
-        saved.Step(new SnesVram());
+        saved.Step(new EndingScreen());
         using var snapshot = new MemoryStream();
         SuperMetroid.Diagnostics.SaveStates.DebuggerObjectGraphSerializer.Serialize(snapshot, saved);
         snapshot.Position = 0;
         var restored = SuperMetroid.Diagnostics.SaveStates.DebuggerObjectGraphSerializer
             .Deserialize<EndingBackgroundTextState>(snapshot);
-        AssertThrows<InvalidOperationException>(() => restored.Step(new SnesVram()),
+        AssertThrows<InvalidOperationException>(() => restored.Step(new EndingScreen()),
             "restored ending text fails loudly until host content is rebound");
         restored.BindPresentation(presentation);
-        restored.Step(new SnesVram());
+        restored.Step(new EndingScreen());
 
         editedDocument["finalMessage"] = "lowercase";
         AssertThrows<InvalidDataException>(() => EndingTextPresentation.Load(

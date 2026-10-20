@@ -30,12 +30,11 @@ internal static class EndingRewardGestureVerification
         Suite(nameof(VerifyEndingLogo), () => VerifyEndingLogo(bus));
         Suite(nameof(VerifyEndingCloudMotion), () => VerifyEndingCloudMotion());
         var uploadBus = NewEndingRewardUploadDefinitionReadGuard(bus);
-        var graphicsUpload = new EndingRewardGraphicsUpload(RepositoryInstallation.Installation.LoadEndingMode7Art().RewardIcon);
-        var graphicsVram = new SnesVram();
+        var rewardArtwork = new EndingScreenArtwork(RepositoryInstallation.Installation.LoadEndingMode7Art(), null, null, null, EndingReward.Armored);
+        var graphicsScreen = new EndingScreen();
         byte[] expectedGraphics = RomDataReader.Decompress(bus,
             EndingCreditsRomData.Assets.PostCreditsMode7Characters,
             EndingCreditsRomData.Rendering.DecompressionLimit);
-        graphicsVram.LoadBytes(0, Enumerable.Repeat((byte)0xa5, SnesVram.ByteCount).ToArray());
         for (int chunk = 0; chunk < 16; chunk++)
         {
             AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
@@ -46,12 +45,13 @@ internal static class EndingRewardGestureVerification
                     EndingRewardGraphicsUploadDefinitions.DestinationTable + chunk * sizeof(ushort)),
                 EndingRewardGraphicsUploadDefinitions.DestinationWord(chunk),
                 $"reward graphics destination address {chunk} matches pinned cartridge");
-            graphicsUpload.Upload(graphicsVram, chunk);
+            graphicsScreen.Record(EndingUploadKind.RewardChunk, chunk);
+            SnesVram graphicsVram = EndingScreenFixtures.Vram(graphicsScreen, rewardArtwork);
             int uploadedBytes = (chunk + 1) * 2048;
             AssertTrue(graphicsVram.Bytes[..uploadedBytes].SequenceEqual(expectedGraphics.AsSpan(0, uploadedBytes)),
                 "reward graphics DMA preserves both interleaved lanes at every upload boundary");
-            AssertTrue(graphicsVram.Bytes[uploadedBytes..].All(value => value == 0xa5),
-                "reward graphics upload preserves pending chunks and the shooting OBJ sheet");
+            AssertTrue(graphicsVram.Bytes[uploadedBytes..].All(value => value == 0),
+                "reward graphics upload leaves pending chunks unwritten");
         }
         AssertEqual(0, uploadBus.ForbiddenReadAttempts,
             "reward icon upload no longer rereads either native address table");

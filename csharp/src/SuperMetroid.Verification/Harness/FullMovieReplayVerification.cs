@@ -13,6 +13,7 @@ using SuperMetroid.Verification.Frontend.Intro;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
+using SuperMetroid.Core.Audio;
 namespace SuperMetroid.Verification.Harness;
 
 /// <summary>Runs complete converted controller timelines against native checkpoints without importing later gameplay state.</summary>
@@ -20,7 +21,7 @@ internal static class FullMovieReplayVerification
 {
     /// <summary>One movie's own checks of the port after checkpointed update <paramref name="update"/>.</summary>
     /// <returns>Each mismatch, reported with the shared comparison's.</returns>
-    internal delegate IEnumerable<string> MovieUpdateChecks(SuperMetroidGame game, int update);
+    internal delegate IEnumerable<string> MovieUpdateChecks(SuperMetroidGame game, int update, NativeCheckpointMemory native);
 
     /// <summary>Repository fixture for the 100% Snes9x playthrough.</summary>
     internal const string FullPlaythroughMoviePath = "csharp/test-fixtures/full-100-percent/Super Metroid 100%.smv";
@@ -56,7 +57,14 @@ internal static class FullMovieReplayVerification
     internal static void VerifyLowPercentPlaythroughMovie(string traceDirectory, int? traceFromUpdate = null, MovieReplayVideo? video = null) =>
         VerifyPlaythroughMovie(
             ReplayMovie.Load("13%", LowPercentPlaythroughMoviePath, LowPercentPlaythroughMovieSha256),
-            traceDirectory, traceFromUpdate, new LowPercentIntroReplayChecks().Compare, video);
+            traceDirectory, traceFromUpdate, LowPercentIntroChecks(), video);
+
+    /// <summary>The 13% movie's intro checks, which read only the port's state after each update.</summary>
+    private static MovieUpdateChecks LowPercentIntroChecks()
+    {
+        var checks = new LowPercentIntroReplayChecks();
+        return (game, update, _) => checks.Compare(game, update);
+    }
 
     /// <summary>The #1275 "Samus drunk" Snes9x 1.60 power-on playthrough.</summary>
     internal static void VerifyDrunkPlaythroughMovie(string traceDirectory, int? traceFromUpdate = null) =>
@@ -70,11 +78,6 @@ internal static class FullMovieReplayVerification
             ReplayMovie.Load("lowc", LowcPlaythroughMoviePath, LowcPlaythroughMovieSha256),
             traceDirectory, traceFromUpdate);
 
-    /// <summary>The #1275 Mother Brain glitch movie, which starts from a snapshot paused in her room.</summary>
-    internal static void VerifyMotherBrainGlitchMovie(string traceDirectory, int? traceFromUpdate = null) =>
-        VerifyPlaythroughMovie(
-            ReplayMovie.Load("Mother Brain glitch", MotherBrainGlitchMoviePath, MotherBrainGlitchMovieSha256),
-            traceDirectory, traceFromUpdate);
 
     /// <summary>
     /// Replays a supplied movie through production frontend and gameplay code. The only
@@ -267,7 +270,7 @@ internal static class FullMovieReplayVerification
                 TraceMovieSamus(game, memory, update, step);
             List<string> mismatches = CompareMovieDesyncState(game, memory);
             if (movieChecks is not null)
-                mismatches.AddRange(movieChecks(game, update));
+                mismatches.AddRange(movieChecks(game, update, memory));
             if (mismatches.Count != 0)
             {
                 Console.Error.WriteLine("Recent converted inputs: " + string.Join(", ", recentInputs));
@@ -550,6 +553,46 @@ internal static class FullMovieReplayVerification
     {
         VerifyLowcPlaythroughMovie(traceDirectory, int.Parse(traceFromUpdate, CultureInfo.InvariantCulture));
         return 0;
+    }
+
+    /// <summary>
+    /// The #1275 Mother Brain glitch movie, which starts from a snapshot paused in her room. It also counts her
+    /// library-two cries ($6F low, $7E high: the stretching, recoil, drool, onion-ring, bomb and Baby-attack head lists):
+    /// every cry the cartridge starts, by the APU's current library-two sound, must be one the game publishes (#1391).
+    /// </summary>
+    internal static void VerifyMotherBrainGlitchMovie(string traceDirectory, int? traceFromUpdate = null)
+    {
+        const int library2 = 1;
+        int cries = 0, nativeCries = 0;
+        int lastWrite = -1;
+        byte nativeCurrent = 0;
+        CartridgeAudioState? audio = null;
+        IEnumerable<string> CountCries(SuperMetroidGame game, int update, NativeCheckpointMemory native)
+        {
+            // $064E is the library-two sound the cartridge last sent to the APU.
+            byte current = native[0x064e];
+            if (current != nativeCurrent && current is 0x6f or 0x7e)
+                nativeCries++;
+            nativeCurrent = current;
+            if (!ReferenceEquals(audio, game.Session.audio))
+            {
+                audio = game.Session.audio;
+                lastWrite = audio.SoundWritePositions[library2];
+            }
+            int write = audio.SoundWritePositions[library2];
+            for (int index = lastWrite; index != write; index = (index + 1) & AudioRomData.Queues.SoundIndexMask)
+            {
+                if (audio.SoundQueues[library2, index] is 0x6f or 0x7e)
+                    cries++;
+            }
+            lastWrite = write;
+            return [];
+        }
+        VerifyPlaythroughMovie(ReplayMovie.Load("Mother Brain glitch", MotherBrainGlitchMoviePath, MotherBrainGlitchMovieSha256),
+            traceDirectory, traceFromUpdate, CountCries);
+        Console.WriteLine($"Mother Brain cries: the cartridge starts {nativeCries}, the port publishes {cries}.");
+        AssertTrue(nativeCries > 0, "the replayed fight has cartridge cries to compare");
+        AssertTrue(cries >= nativeCries, "every cry the cartridge starts during the fight is published");
     }
 
     /// <summary>Runs the issue 1275 snapshot-start Mother Brain recording against its native trace.</summary>

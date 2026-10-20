@@ -722,6 +722,10 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Carries out one cue of a brain program.</summary>
     /// <returns>The program a random hold or drool cue redirects to; otherwise null.</returns>
+    /// <remarks>
+    /// The brain program advances in the <c>$A9:87D0</c> draw hook, after EnemyMain has collected the frame's legacy
+    /// sound slots, so its sounds go straight to the enemy audio queue at their native limits (#1391).
+    /// </remarks>
     private MotherBrainHeadProgram? ApplyMotherBrainHeadCue(MotherBrainEnemyState state, SamusState? samus, MotherBrainHeadCue cue)
     {
         switch (cue.Kind)
@@ -736,10 +740,9 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
                 SpawnMotherBrainPurpleBreathBig(state);
                 return null;
             case MotherBrainHeadCueKind.QueueSound:
-                state.LastSoundEffect = cue.Sound ?? throw new InvalidOperationException("A sound cue carries no sound.");
-                return null;
             case MotherBrainHeadCueKind.QueueLibrary3Sound:
-                state.LastSoundEffectLibrary3 = cue.Sound ?? throw new InvalidOperationException("A sound cue carries no sound.");
+                // `QueueSoundX_Lib2_Max6` / `QueueSoundX_Lib3_Max6`.
+                _audio.QueueEnemySound(cue.Sound ?? throw new InvalidOperationException("A sound cue carries no sound."), maximumQueued: 6);
                 return null;
             case MotherBrainHeadCueKind.DisableNeckMovement:
                 state.NeckMovementEnabled = false;
@@ -779,11 +782,11 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
             case MotherBrainHeadCueKind.QueueBabyMetroidAttackSound:
                 // `$A9:9DF7` skips the attack cry once the attack counter reaches eleven.
                 if (RequireLiveMotherBrainRainbowSequence(state).BabyMetroidAttackCounter != 11)
-                    state.LastSoundEffect = MotherBrainSoundDefinitions.AttackCry;
+                    _audio.QueueEnemySound(MotherBrainSoundDefinitions.AttackCry, maximumQueued: 6);
                 return null;
             case MotherBrainHeadCueKind.PrepareRainbowBeamCharge:
                 state.SmallPurpleBreathGenerationEnabled = false;
-                state.LastSoundEffect = MotherBrainSoundDefinitions.RainbowBeamCharge;
+                _audio.QueueEnemySound(MotherBrainSoundDefinitions.RainbowBeamCharge, maximumQueued: 6);
                 return null;
             case MotherBrainHeadCueKind.SpawnRainbowBeamChargeParticle:
                 SpawnMotherBrainRainbowChargingProjectile();
@@ -820,7 +823,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
             head.Position.Whole + new Offset16<RoomPixels>(16, 4),
             movingRight: true);
         if (laser is not null)
-            state.LastSoundEffect = SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, EnemySoundEffectDefinitions.PirateMotherBrainLaserSound);
+            _audio.QueueEnemySound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, EnemySoundEffectDefinitions.PirateMotherBrainLaserSound), maximumQueued: 6);
     }
 
     /// <summary>

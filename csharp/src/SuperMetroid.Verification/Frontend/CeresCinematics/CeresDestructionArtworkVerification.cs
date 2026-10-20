@@ -60,7 +60,7 @@ internal static class CeresDestructionArtworkVerification
                 else
                     DrawImportedSpritemap(bus, nativeOam, source, new(120, y), 0x0800, originIsOnScreen: false);
                 nativeOam.FinalizeFrame();
-                var installedOam = new OamBuffer();
+                var installedOam = ScreenSpritesFixtures.Blank();
                 installedOam.BeginFrame();
                 stock.CeresDestruction.Sprites.Draw(frame.Pointer, installedOam,
                     new(120, y), 0x0800, onScreen);

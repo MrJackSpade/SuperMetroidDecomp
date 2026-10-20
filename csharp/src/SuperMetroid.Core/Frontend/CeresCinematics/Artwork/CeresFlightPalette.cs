@@ -112,7 +112,7 @@ public sealed class CeresFlightPalette
 
     /// <summary>Replaces all 256 current CGRAM entries with the selected approach palette, including backdrop and OBJ colors; cinematic timing, brightness, and fades remain the caller's responsibility.</summary>
     /// <param name="cgram">Destination color memory to overwrite in color-entry order.</param>
-    public void LoadTo(SnesCgram cgram)
+    public void LoadTo(IPaletteColors cgram)
     {
         Ensure.NotNull(cgram);
         Span<Bgr555> image = stackalloc Bgr555[CgramPalettes.ColorCount];

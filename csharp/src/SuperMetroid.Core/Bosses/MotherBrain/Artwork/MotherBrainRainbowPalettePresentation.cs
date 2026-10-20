@@ -141,22 +141,22 @@ public sealed class MotherBrainRainbowPalettePresentation
     }
 
     /// <summary>Copies one cartridge rainbow-list entry to the three body/brain/leg slots.</summary>
-    public void ApplyRainbow(SnesCgram cgram, int frame) => ApplyFull(cgram, rainbow, frame);
+    public void ApplyRainbow(IPaletteColors cgram, int frame) => ApplyFull(cgram, rainbow, frame);
 
     /// <summary>Restores the two fixed normal-palette sources after the beam finishes.</summary>
-    public void ApplyNormal(SnesCgram cgram) =>
+    public void ApplyNormal(IPaletteColors cgram) =>
         ApplyColors(cgram, normal);
 
     /// <summary>Copies a drain fade.</summary>
-    public void ApplyToGrey(SnesCgram cgram, int frame) =>
+    public void ApplyToGrey(IPaletteColors cgram, int frame) =>
         ApplyGrey(cgram, toGrey, frame);
 
     /// <summary>Copies a revival fade, preserving the two native body/brain tail colors.</summary>
-    public void ApplyFromGrey(SnesCgram cgram, int frame) =>
+    public void ApplyFromGrey(IPaletteColors cgram, int frame) =>
         ApplyGrey(cgram, fromGrey, frame);
 
     /// <summary>Changes only the three brain colors during the fake-death descent.</summary>
-    public void ApplyFakeDeathToGrey(SnesCgram cgram, int frame)
+    public void ApplyFakeDeathToGrey(IPaletteColors cgram, int frame)
     {
         Ensure.NotNull(cgram);
         if ((uint)frame >= fakeDeathToGrey.Length)
@@ -167,7 +167,7 @@ public sealed class MotherBrainRainbowPalettePresentation
     }
 
     /// <summary>Restores only those three colors, reusing the cartridge's revival source table.</summary>
-    public void ApplyFakeDeathFromGrey(SnesCgram cgram, int frame)
+    public void ApplyFakeDeathFromGrey(IPaletteColors cgram, int frame)
     {
         Ensure.NotNull(cgram);
         if ((uint)frame >= fromGrey.Length)
@@ -177,7 +177,7 @@ public sealed class MotherBrainRainbowPalettePresentation
     }
 
     /// <summary>Copies a complete selected rainbow phase into body, brain, and rear-leg CGRAM slots.</summary>
-    private static void ApplyFull(SnesCgram cgram, PaletteFrame[] frames, int frame)
+    private static void ApplyFull(IPaletteColors cgram, PaletteFrame[] frames, int frame)
     {
         Ensure.NotNull(cgram);
         if ((uint)frame >= frames.Length)
@@ -189,7 +189,7 @@ public sealed class MotherBrainRainbowPalettePresentation
     /// Copies a grey-transition phase. The cartridge also writes the trailing rear color to <c>$7E:017C</c>, a word
     /// nothing reads, so the port does not keep it.
     /// </summary>
-    private static void ApplyGrey(SnesCgram cgram, IPaletteFade frames, int frame)
+    private static void ApplyGrey(IPaletteColors cgram, IPaletteFade frames, int frame)
     {
         Ensure.NotNull(cgram);
         if ((uint)frame >= frames.Length)
@@ -205,7 +205,7 @@ public sealed class MotherBrainRainbowPalettePresentation
     }
 
     /// <summary>Mirrors body inks to the brain palette and writes the selected rear-leg inks.</summary>
-    private static void ApplyColors(SnesCgram cgram, PaletteFrame selected)
+    private static void ApplyColors(IPaletteColors cgram, PaletteFrame selected)
     {
         for (int color = 0; color < selected.Body.Length; color++)
         {

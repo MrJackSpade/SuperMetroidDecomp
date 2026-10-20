@@ -55,7 +55,7 @@ internal sealed class SamusPresentation
     /// Copies <c>SamusPalettes_PowerSuit</c> at <c>$9B:9400</c> to palette-buffer/CGRAM
     /// entries 192–207, porting <c>Samus_LoadSuitPalette</c>'s no-suit branch.
     /// </summary>
-    public static void LoadPowerSuitPalette(SnesCgram cgram,
+    public static void LoadPowerSuitPalette(IPaletteColors cgram,
         SamusSuitColorCatalog? suitColors = null)
     {
         Ensure.NotNull(cgram);
@@ -69,7 +69,7 @@ internal sealed class SamusPresentation
     /// Ports <c>Samus_LoadSuitPalette</c> at <c>$91:DEBA</c>, giving Gravity priority over
     /// Varia and falling back to Power Suit when neither equipment bit is enabled.
     /// </summary>
-    public void LoadSuitPalette(SnesCgram cgram)
+    public void LoadSuitPalette(IPaletteColors cgram)
     {
         Ensure.NotNull(cgram);
 

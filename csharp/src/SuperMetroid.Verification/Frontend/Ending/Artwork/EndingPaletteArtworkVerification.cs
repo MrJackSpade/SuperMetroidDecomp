@@ -364,7 +364,7 @@ internal static class EndingPaletteArtworkVerification
                         "logo override fixture reaches its first palette transfer");
                 }
                 AssertTrue(!new CgramPalettes(stockCgram).ImageEquals(new CgramPalettes(editedCgram)) &&
-                    stockLogo.Draw(installation.LoadEndingObjectArt().LogoSprites).LowTable.SequenceEqual(editedLogo.Draw(installation.LoadEndingObjectArt().LogoSprites).LowTable),
+                    ScreenSpritesFixtures.Frame(objects => stockLogo.Draw(objects, installation.LoadEndingObjectArt().LogoSprites)).LowTable.SequenceEqual(ScreenSpritesFixtures.Frame(objects => editedLogo.Draw(objects, installation.LoadEndingObjectArt().LogoSprites)).LowTable),
                     $"edited {id} color changes logo CGRAM without changing actors");
             }
             File.Delete(overridePath);

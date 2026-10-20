@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Hardware;
+﻿namespace SuperMetroid.Core.Hardware;
 
 /// <summary>
 /// SNES Object Attribute Memory staging buffer used by Super Metroid at WRAM
@@ -18,7 +18,7 @@ public sealed class OamBuffer
     public const int SpriteCount = SnesPpuLayout.OamSpriteCount;
     /// <summary>Byte length of the 128 four-byte coordinate and attribute records.</summary>
     [PpuLayoutAccess]
-    public const int LowTableByteCount = SnesPpuLayout.OamLowTableByteCount;
+    public const int LowTableByteCount = SnesPpuLayoutConstants.OamLowTableByteCount;
 
     /// <summary>The values of one byte: a coordinate sum at or past it carried out of the low byte.</summary>
     private const int ByteRange = 256;
@@ -32,9 +32,9 @@ public sealed class OamBuffer
     /// <summary>Four sprites share one high-OAM byte of X-high and size pairs.</summary>
     private const int HighPairsPerByte = 4;
     /// <summary>Mutable low-OAM bytes staged before the next hardware upload.</summary>
-    internal readonly byte[] LowTableBytes = new byte[PpuMemoryLayout.OamLow.Count * LowRecordByteCount];
+    internal readonly byte[] LowTableBytes = new byte[PpuMemoryLayoutConstants.OamLow.Count * LowRecordByteCount];
     /// <summary>Mutable two-bit sprite pairs staged after the low table.</summary>
-    internal readonly byte[] HighTableBytes = new byte[PpuMemoryLayout.OamHigh.Count / HighPairsPerByte];
+    internal readonly byte[] HighTableBytes = new byte[PpuMemoryLayoutConstants.OamHigh.Count / HighPairsPerByte];
 
     /// <summary>
     /// Byte offset of the next low-table record, equivalent to WRAM <c>$0590</c>. It moves

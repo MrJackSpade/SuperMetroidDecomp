@@ -15,7 +15,7 @@ internal sealed class PauseScreen
     public PauseScreen(AreaMapPresentationCatalog artwork)
     {
         Artwork = Ensure.NotNull(artwork);
-        Objects = new ScreenSprites(artwork.Sprites.Page);
+        Objects = new ScreenSprites(artwork.Sprites.Page, ObjectSelectionCodec.Sizes(PauseMenuLayout.ObjectSelection));
     }
 
     /// <summary>The installed artwork the screen draws.</summary>

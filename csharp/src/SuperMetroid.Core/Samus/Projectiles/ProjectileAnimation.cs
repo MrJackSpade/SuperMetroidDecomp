@@ -182,7 +182,7 @@ internal sealed class ProjectileAnimation
 
     /// <summary>Restores sixteen suit colors from installed artwork and retains the native selection pointer for diagnostics.</summary>
     internal static ushort LoadNormalSuitPalette(
-        SnesCgram cgram,
+        IPaletteColors cgram,
         SamusState samus)
     {
         // Preserve the native pointer as the diagnostic result while the installed

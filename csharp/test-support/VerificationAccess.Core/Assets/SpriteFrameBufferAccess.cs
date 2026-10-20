@@ -43,8 +43,8 @@ internal static class SpriteFrameBufferAccess
         [PpuLayoutBoundary("exact hardware test: rebuilds native OAM tables from whole-frame draws")]
         internal OamBuffer AssembledOam(bool parkUnused)
         {
-            var low = new byte[SnesPpuLayout.OamLowTableByteCount];
-            var high = new byte[SnesPpuLayoutConstants.OamUploadByteCount - SnesPpuLayout.OamLowTableByteCount];
+            var low = new byte[SnesPpuLayoutConstants.OamLowTableByteCount];
+            var high = new byte[SnesPpuLayoutConstants.OamUploadByteCount - SnesPpuLayoutConstants.OamLowTableByteCount];
             int slot = 0;
             foreach (SpriteDraw entry in sprites.Draws)
             {

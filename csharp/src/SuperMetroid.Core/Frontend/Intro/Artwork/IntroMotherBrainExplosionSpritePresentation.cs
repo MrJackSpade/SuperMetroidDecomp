@@ -19,15 +19,15 @@ public sealed class IntroMotherBrainExplosionSpritePresentation
 
     /// <summary>Draws one installed small- or large-explosion composition at its script-owned screen anchor.</summary>
     /// <param name="pointer">Native bank-$8C spritemap identity for one of the twelve frames.</param>
-    /// <param name="oam">The OAM buffer receiving the ordered sprite parts.</param>
+    /// <param name="objects">The OAM buffer receiving the ordered sprite parts.</param>
     /// <param name="origin">Native wrapped sixteen-bit screen origin in pixels.</param>
     /// <param name="paletteBits">OBJ palette attribute bits applied to inherited-palette parts.</param>
-    public void Draw(ushort pointer, OamBuffer oam, Position16<OamPixels> origin, ushort paletteBits)
+    public void Draw(ushort pointer, ScreenSprites objects, Position16<OamPixels> origin, ushort paletteBits)
     {
         if (!frames.TryGetValue(pointer, out SpriteComposition? frame))
             throw new InvalidDataException(
                 $"Intro Mother Brain explosion frame $8C:{pointer:X4} is not installed.");
-        frame.DrawOnScreen(oam, origin, paletteBits);
+        frame.Draw(objects, origin, paletteBits);
     }
 
     /// <summary>Loads and validates all six small and six large fourth-hit explosion frames.</summary>

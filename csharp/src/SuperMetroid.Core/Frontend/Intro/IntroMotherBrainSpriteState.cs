@@ -57,7 +57,7 @@ internal sealed class IntroMotherBrainSpriteState
     /// Runs the actor pre-instruction that precedes its instruction-list timer decrement.
     /// </summary>
     public void RunPreInstruction(
-        SnesCgram cgram,
+        IPaletteColors cgram,
         ReadOnlySpan<Bgr555> introPalette,
         ushort cinematicFrameCounter,
         ushort introCrossfadeTimer)
@@ -91,7 +91,7 @@ internal sealed class IntroMotherBrainSpriteState
     /// <summary>
     /// Eight-frame white/normal alternation loaded into OBJ palette seven by <c>$8B:B846</c>.
     /// </summary>
-    public void ApplyHurtFlash(SnesCgram cgram, ReadOnlySpan<Bgr555> introPalette)
+    public void ApplyHurtFlash(IPaletteColors cgram, ReadOnlySpan<Bgr555> introPalette)
     {
         Ensure.NotNull(cgram);
         if (hurtFlashTimer.IsZero)

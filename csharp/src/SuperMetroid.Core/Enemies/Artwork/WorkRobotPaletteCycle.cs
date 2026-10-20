@@ -79,7 +79,7 @@ public sealed class WorkRobotPaletteCycle
     /// <param name="frame">Zero-based cycle record from 0 through 5.</param>
     /// <param name="destination">First CGRAM color index receiving the record.</param>
     [PpuLayoutBoundary("codec: palette-cycle colours at their native CGRAM index operand")]
-    public void ApplyFrame(SnesCgram cgram, int frame, int destination)
+    public void ApplyFrame(IPaletteColors cgram, int frame, int destination)
     {
         Ensure.NotNull(cgram);
         if (destination < 0 ||

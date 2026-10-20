@@ -92,16 +92,16 @@ public sealed class ChozoAndTubeColorCatalog
         Enumerable.Range(0, ChozoAndTubeColorRomData.ColorCount).Select(color => ResolveStatue(palette, color)).ToArray();
 
     /// <summary>Installs the tube-crack image at CGRAM 144–175, matching palette-only initializer $AA:E716; tube destruction and the initializer actor's removal remain runtime behavior.</summary>
-    public void ApplyTubeCracks(SnesCgram cgram)
+    public void ApplyTubeCracks(IPaletteColors cgram)
     {
         Ensure.NotNull(cgram);
         for (int color = 0; color < ChozoAndTubeColorRomData.ColorCount; color++)
             new BossPalettes(cgram).ChozoAndTube.Write(color, ResolveTubeCracks(color));
     }
     /// <summary>Installs the 32 selected Wrecked Ship Chozo inks at CGRAM 144–175, replacing the $AA:E31D image copied by initializer $AA:E75C.</summary>
-    public void ApplyWreckedShip(SnesCgram cgram) => Apply(cgram, ChozoStatuePalette.WreckedShip);
+    public void ApplyWreckedShip(IPaletteColors cgram) => Apply(cgram, ChozoStatuePalette.WreckedShip);
     /// <summary>Installs the 32 selected Lower Norfair Chozo inks at CGRAM 144–175, replacing the $AA:E35D image copied by initializer $AA:E784.</summary>
-    public void ApplyLowerNorfair(SnesCgram cgram) => Apply(cgram, ChozoStatuePalette.LowerNorfair);
+    public void ApplyLowerNorfair(IPaletteColors cgram) => Apply(cgram, ChozoStatuePalette.LowerNorfair);
 
     /// <summary>Loads version-1 <c>chozo-and-tube-colors.json</c>, requiring three independent 32-color images and RGB5 channels from 0 through 31.</summary>
     /// <param name="json">Caller-owned stream consumed from its current position and left open; unknown and duplicate JSON properties are rejected.</param>
@@ -138,7 +138,7 @@ public sealed class ChozoAndTubeColorCatalog
     }
 
     /// <summary>Writes the selected statue's 32 inks into the shared boss OBJ palette range.</summary>
-    private void Apply(SnesCgram cgram, ChozoStatuePalette palette)
+    private void Apply(IPaletteColors cgram, ChozoStatuePalette palette)
     {
         Ensure.NotNull(cgram);
         for (int color = 0; color < ChozoAndTubeColorRomData.ColorCount; color++)

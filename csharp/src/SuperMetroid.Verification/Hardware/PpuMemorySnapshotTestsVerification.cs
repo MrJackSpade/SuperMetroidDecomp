@@ -28,8 +28,8 @@ internal static class PpuMemorySnapshotTestsVerification
         sprites.FinalizeFrame();
         Bgr555[] expectedPalette = cgram.Colors.ToArray();
 
-        PpuMemorySnapshot first = PpuMemorySnapshot.Capture(vram, cgram, sprites);
-        PpuMemorySnapshot repeated = PpuMemorySnapshot.Capture(vram, cgram, sprites);
+        PpuMemorySnapshot first = PpuMemorySnapshotConstants.Capture(vram, cgram, sprites);
+        PpuMemorySnapshot repeated = PpuMemorySnapshotConstants.Capture(vram, cgram, sprites);
         AssertTrue(first.Vram.SequenceEqual(characters), "VRAM capture changed byte order");
         AssertTrue(first.Cgram.SequenceEqual(expectedPalette), "CGRAM capture changed native words");
         AssertTrue(first.SpriteDraws.SequenceEqual(sprites.Draws), "capture keeps the frame's draws in emission order");

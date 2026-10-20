@@ -26,7 +26,7 @@ internal static class IntroEyeInstructionsVerification
         IntroEyeTilemapPresentation artwork = DistinctFrames();
         var narration = IntroNarrationPresentation.Load(
             new MemoryStream(IntroNarrationExtractor.Extract(rom), writable: false));
-        var vram = new SnesVram();
+        var vram = new IntroTilemaps();
         var objects = new IntroCinematicObjectSystem(vram, new ushort[IntroCinematicRomData.Layers.TextTilemapWordCount],
             new IntroJapaneseSubtitles(enabled: false), narrationPresentation: narration, eyeArtwork: artwork);
 
@@ -40,7 +40,7 @@ internal static class IntroEyeInstructionsVerification
 
     /// <summary>Steps the objects and the native reader together, comparing the drawn eye frame and the eye countdown.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
-    private static void Compare(IntroCinematicObjectSystem objects, SnesVram vram, IntroEyeTilemapPresentation artwork,
+    private static void Compare(IntroCinematicObjectSystem objects, IntroTilemaps vram, IntroEyeTilemapPresentation artwork,
         NativeEyeReader native, int updates, string phase)
     {
         Position16<TilemapCells> cell = IntroEyeAnimationDefinitions.PortraitCell;
@@ -57,7 +57,7 @@ internal static class IntroEyeInstructionsVerification
             {
                 int word = IntroCinematicRomData.Layers.PortraitTilemapWord +
                     (cell.Y + row) * IntroCinematicRomData.Layers.TilemapWidth + cell.X + column;
-                AssertEqual(expected[row * size.X + column], vram.ReadWord(word), $"{at}: portrait eye frame");
+                AssertEqual(expected[row * size.X + column], IntroTilemapsFixtures.Vram(vram).ReadWord(word), $"{at}: portrait eye frame");
             }
         }
     }

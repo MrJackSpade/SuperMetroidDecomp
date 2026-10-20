@@ -20,20 +20,20 @@ public sealed class EndingRewardSpritePresentation : IIntroCinematicSpritePresen
 
     /// <summary>Draws an installed post-credits Samus composition by its bank-$8C identity.</summary>
     /// <param name="pointer">Bank-relative native OAM record pointer.</param>
-    /// <param name="oam">Destination OAM buffer.</param>
+    /// <param name="objects">Destination OAM buffer.</param>
     /// <param name="origin">Native wrapped sixteen-bit screen origin in pixels.</param>
     /// <param name="paletteBits">Packed OBJ palette bits inherited by applicable parts.</param>
     /// <param name="originIsOnScreen">Whether the origin uses on-screen wrapping rules.</param>
-    public void Draw(ushort pointer, OamBuffer oam, Position16<OamPixels> origin,
+    public void Draw(ushort pointer, ScreenSprites objects, Position16<OamPixels> origin,
         ushort paletteBits, bool originIsOnScreen)
     {
         if (!frames.TryGetValue(pointer, out SpriteComposition? frame))
             throw new InvalidDataException(
                 $"Ending reward sprite frame $8C:{pointer:X4} is not installed.");
         if (originIsOnScreen)
-            frame.DrawOnScreen(oam, origin, paletteBits);
+            frame.Draw(objects, origin, paletteBits);
         else
-            frame.DrawOffScreen(oam, origin, paletteBits);
+            frame.DrawOffScreen(objects, origin, paletteBits);
     }
 
     /// <summary>Loads and validates all 37 named post-credits Samus visual frames.</summary>

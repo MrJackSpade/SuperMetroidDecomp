@@ -357,7 +357,7 @@ public sealed class SamusHorizontalSpeedState
     /// <c>Handle_ScrewAttack_SpeedBoosting_Palette</c> at <c>$91:D9B2</c>.
     /// </summary>
     /// <returns>True when this call copied a ROM-authored palette into CGRAM.</returns>
-    public bool UpdateSpeedBoosterPalette(SnesCgram cgram, SpeedBoosterPaletteFrame frame, SamusSuitColorCatalog? suitColors = null, SamusFullBodyCycleColorCatalog? cycleColors = null,
+    public bool UpdateSpeedBoosterPalette(IPaletteColors cgram, SpeedBoosterPaletteFrame frame, SamusSuitColorCatalog? suitColors = null, SamusFullBodyCycleColorCatalog? cycleColors = null,
         SamusOverreadCatalog? overreads = null)
     {
         Ensure.NotNull(cgram);
@@ -460,7 +460,7 @@ public sealed class SamusHorizontalSpeedState
     /// replace their colors in the same frame; they must not erase a later charge flash.
     /// </summary>
     public bool ApplyPendingNormalSuitPaletteRestore(
-        SnesCgram cgram, SuperMetroid.Core.Samus.SamusEquipmentFlags equippedItems,
+        IPaletteColors cgram, SuperMetroid.Core.Samus.SamusEquipmentFlags equippedItems,
         SamusSuitColorCatalog? suitColors = null)
     {
         Ensure.NotNull(cgram);
@@ -474,7 +474,7 @@ public sealed class SamusHorizontalSpeedState
 
     /// <summary>Copies one of the six ROM-authored Screw Attack palettes and wraps its offset.</summary>
     private void CopyAndAdvanceScrewAttackPalette(
-        SnesCgram cgram,
+        IPaletteColors cgram,
         ushort suitTableOffset,
         SamusFullBodyCycleColorCatalog? cycleColors)
     {
@@ -493,7 +493,7 @@ public sealed class SamusHorizontalSpeedState
 
     /// <summary>Loads the normal Power/Varia/Gravity palette selected by the native suit index.</summary>
     private static void LoadNormalSuitPalette(
-        SnesCgram cgram,
+        IPaletteColors cgram,
         SuperMetroid.Core.Samus.SamusEquipmentFlags equippedItems,
         SamusSuitColorCatalog? suitColors)
     {

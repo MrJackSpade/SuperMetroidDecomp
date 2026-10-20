@@ -595,14 +595,14 @@ internal static class IntroCinematicArtworkVerification
         IntroCinematicArtworkCatalog stock, GameInstallation installation)
     {
         var guarded = NewIntroArtworkSourceReadGuard(bus);
-        var nativeVram = new SnesVram();
-        var installedVram = new SnesVram();
+        var nativeVram = new IntroTilemaps();
+        var installedVram = new IntroTilemaps();
         var native = new IntroCinematicObjectSystem(nativeVram, new ushort[1024], new IntroJapaneseSubtitles(enabled: false), narrationPresentation: RetailPresentationFixture().IntroNarration, eyeArtwork: stock.EyeFrames);
         var installed = new IntroCinematicObjectSystem(installedVram,
             new ushort[1024], new IntroJapaneseSubtitles(enabled: false), narrationPresentation: RetailPresentationFixture().IntroNarration, eyeArtwork: stock.EyeFrames);
         native.Step(0);
         installed.Step(0);
-        AssertTrue(installedVram.ImageEquals(nativeVram),
+        AssertTrue(IntroTilemapsFixtures.Vram(installedVram).ImageEquals(IntroTilemapsFixtures.Vram(nativeVram)),
             "installed opening eye frame draws the exact native portrait rectangle");
         AssertEqual(0, guarded.ForbiddenReadAttempts,
             "installed opening eye script and frame do not reread ROM");
@@ -631,17 +631,17 @@ internal static class IntroCinematicArtworkVerification
         var eyeCell = IntroEyeAnimationDefinitions.PortraitCell;
         int destination = IntroCinematicRomData.Layers.PortraitTilemapWord +
             eyeCell.Y * IntroCinematicRomData.Layers.TilemapWidth + eyeCell.X;
-        AssertEqual(edited.FrameWords(0)[0], installedVram.ReadWord(destination),
+        AssertEqual(edited.FrameWords(0)[0], IntroTilemapsFixtures.Vram(installedVram).ReadWord(destination),
             "eye JSON edit reaches the active portrait tile");
         installed.BindEyeArtwork(stock.EyeFrames);
-        AssertTrue(installedVram.ImageEquals(nativeVram),
+        AssertTrue(IntroTilemapsFixtures.Vram(installedVram).ImageEquals(IntroTilemapsFixtures.Vram(nativeVram)),
             "restoring stock eye art restores exact native VRAM without restarting script");
 
         for (int frame = 0; frame < 160; frame++)
         {
             native.Step(0);
             installed.Step(0);
-            AssertTrue(installedVram.ImageEquals(nativeVram),
+            AssertTrue(IntroTilemapsFixtures.Vram(installedVram).ImageEquals(IntroTilemapsFixtures.Vram(nativeVram)),
                 $"installed normal eye blink preserves native VRAM at frame {frame}");
         }
         native.StartEnglishPageSix();
@@ -650,7 +650,7 @@ internal static class IntroCinematicArtworkVerification
         {
             native.Step(0);
             installed.Step(0);
-            AssertTrue(installedVram.ImageEquals(nativeVram),
+            AssertTrue(IntroTilemapsFixtures.Vram(installedVram).ImageEquals(IntroTilemapsFixtures.Vram(nativeVram)),
                 $"installed page-six eye blink preserves native VRAM at frame {frame}");
         }
         AssertEqual(0, guarded.ForbiddenReadAttempts,
@@ -674,7 +674,7 @@ internal static class IntroCinematicArtworkVerification
                 (int)new SnesAddress(IntroCinematicRomData.Banks.Spritemaps,
                     definition.Pointer), new(originX, originY), paletteBits);
             native.FinalizeFrame();
-            var installed = new OamBuffer();
+            var installed = ScreenSpritesFixtures.Blank();
             installed.BeginFrame();
             stock.CaretSprites.Draw(definition.Pointer, installed,
                 new(originX, originY), paletteBits);
@@ -706,12 +706,12 @@ internal static class IntroCinematicArtworkVerification
             });
             previousJson.Position = 0;
             IntroCaretSpritePresentation previous = IntroCaretSpritePresentation.Load(previousJson);
-            var previousOam = new OamBuffer();
+            var previousOam = ScreenSpritesFixtures.Blank();
             previousOam.BeginFrame();
             previous.Draw(IntroCaretSpriteDefinitions.Still, previousOam,
                 new(originX, originY), paletteBits);
             previousOam.FinalizeFrame();
-            var stockOam = new OamBuffer();
+            var stockOam = ScreenSpritesFixtures.Blank();
             stockOam.BeginFrame();
             stock.CaretSprites.Draw(IntroCaretSpriteDefinitions.Still, stockOam,
                 new(originX, originY), paletteBits);
@@ -725,11 +725,11 @@ internal static class IntroCinematicArtworkVerification
         IntroCaretSpritePresentation.Write(editedJson, document);
         editedJson.Position = 0;
         IntroCaretSpritePresentation edited = IntroCaretSpritePresentation.Load(editedJson);
-        var changed = new OamBuffer();
+        var changed = ScreenSpritesFixtures.Blank();
         changed.BeginFrame();
         edited.Draw(IntroCaretSpriteDefinitions.Still, changed, new(originX, originY), paletteBits);
         changed.FinalizeFrame();
-        var original = new OamBuffer();
+        var original = ScreenSpritesFixtures.Blank();
         original.BeginFrame();
         stock.CaretSprites.Draw(IntroCaretSpriteDefinitions.Still, original,
             new(originX, originY), paletteBits);
@@ -746,15 +746,15 @@ internal static class IntroCinematicArtworkVerification
         installedState.SetupFirstIllustratedPage();
         ((nativeState.objects ?? throw new InvalidOperationException("Verification requires nativeState.objects."))).Step(0);
         ((installedState.objects ?? throw new InvalidOperationException("Verification requires installedState.objects."))).Step(0);
-        var nativeOam = nativeState.PrepareIllustratedPageOam().FinalizedAsOam();
-        var installedOam = installedState.PrepareIllustratedPageOam().FinalizedAsOam();
+        var nativeOam = nativeState.PrepareIllustratedPageSprites().FinalizedAsOam();
+        var installedOam = installedState.PrepareIllustratedPageSprites().FinalizedAsOam();
         AssertTrue(installedOam.ImageEquals(nativeOam),
             "installed illustrated page draws caret without cartridge spritemap reads");
         AssertEqual(0, guarded.ForbiddenReadAttempts,
             "installed caret art avoids the native OAM composition source");
 
-        var nativeBlink = new IntroCinematicObjectSystem(new SnesVram(), new ushort[1024], new IntroJapaneseSubtitles(enabled: false), narrationPresentation: RetailPresentationFixture().IntroNarration, eyeArtwork: stock.EyeFrames);
-        var installedBlink = new IntroCinematicObjectSystem(new SnesVram(),
+        var nativeBlink = new IntroCinematicObjectSystem(new IntroTilemaps(), new ushort[1024], new IntroJapaneseSubtitles(enabled: false), narrationPresentation: RetailPresentationFixture().IntroNarration, eyeArtwork: stock.EyeFrames);
+        var installedBlink = new IntroCinematicObjectSystem(new IntroTilemaps(),
             new ushort[1024], new IntroJapaneseSubtitles(enabled: false), narrationPresentation: RetailPresentationFixture().IntroNarration, eyeArtwork: stock.EyeFrames);
         nativeBlink.SetCaretBlinking();
         installedBlink.SetCaretBlinking();
@@ -813,7 +813,7 @@ internal static class IntroCinematicArtworkVerification
                 new(IntroMotherBrainSpriteState.Position.X, IntroMotherBrainSpriteState.Position.Y),
                 IntroMotherBrainSpriteState.PaletteBits);
             native.FinalizeFrame();
-            var installed = new OamBuffer();
+            var installed = ScreenSpritesFixtures.Blank();
             installed.BeginFrame();
             stock.MotherBrainSprites.Draw(definition.Pointer, installed,
                 IntroMotherBrainSpriteState.Position.ToOam(),
@@ -835,13 +835,13 @@ internal static class IntroCinematicArtworkVerification
         using (var output = File.Create(overridePath))
             IntroMotherBrainSpritePresentation.Write(output, document);
         IntroCinematicArtworkCatalog edited = installation.LoadIntroCinematicArt();
-        var stockOam = new OamBuffer();
+        var stockOam = ScreenSpritesFixtures.Blank();
         stockOam.BeginFrame();
         stock.MotherBrainSprites.Draw(IntroMotherBrainSpriteDefinitions.FrameZero, stockOam,
             IntroMotherBrainSpriteState.Position.ToOam(),
             IntroMotherBrainSpriteState.PaletteBits);
         stockOam.FinalizeFrame();
-        var editedOam = new OamBuffer();
+        var editedOam = ScreenSpritesFixtures.Blank();
         editedOam.BeginFrame();
         edited.MotherBrainSprites.Draw(IntroMotherBrainSpriteDefinitions.FrameZero, editedOam,
             IntroMotherBrainSpriteState.Position.ToOam(),
@@ -893,7 +893,7 @@ internal static class IntroCinematicArtworkVerification
                 (int)new SnesAddress(IntroCinematicRomData.Banks.Spritemaps,
                     definition.Pointer), new(x, y), palette);
             native.FinalizeFrame();
-            var installed = new OamBuffer();
+            var installed = ScreenSpritesFixtures.Blank();
             installed.BeginFrame();
             stock.MotherBrainExplosionSprites.Draw(definition.Pointer, installed,
                 new(x, y), palette);
@@ -920,11 +920,11 @@ internal static class IntroCinematicArtworkVerification
         var explosions = new IntroMotherBrainExplosionSystem();
         explosions.SpawnFourthHitExplosions();
         explosions.Step(introCrossfadeTimer: 1);
-        var stockOam = new OamBuffer();
+        var stockOam = ScreenSpritesFixtures.Blank();
         stockOam.BeginFrame();
         explosions.Draw(stockOam, stock.MotherBrainExplosionSprites);
         stockOam.FinalizeFrame();
-        var editedOam = new OamBuffer();
+        var editedOam = ScreenSpritesFixtures.Blank();
         editedOam.BeginFrame();
         explosions.Draw(editedOam, edited.MotherBrainExplosionSprites);
         editedOam.FinalizeFrame();

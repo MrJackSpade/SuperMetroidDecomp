@@ -120,7 +120,7 @@ public sealed class CeresDoorVisualCatalog
     /// <param name="cgram">Current palette receiving the setup image.</param>
     /// <param name="destination">First CGRAM color index, not a byte offset; the actor uses 161 for the inactive variant-three target or 241 for the active door palette.</param>
     [PpuLayoutBoundary("codec: Ceres door colours written at their native CGRAM index operand")]
-    public void LoadNormalColors(SnesCgram cgram, int destination)
+    public void LoadNormalColors(IPaletteColors cgram, int destination)
     {
         Ensure.NotNull(cgram);
         if (destination < 0 || destination + CeresDoorVisualRomData.SetupColorCount > CgramPalettes.ColorCount)
@@ -133,7 +133,7 @@ public sealed class CeresDoorVisualCatalog
     /// <param name="cgram">Current palette receiving the setup image.</param>
     /// <param name="destination">First CGRAM color index, not a byte offset; the active door uses 241, leaving its transparent slot unchanged.</param>
     [PpuLayoutBoundary("codec: Ceres door colours written at their native CGRAM index operand")]
-    public void LoadEscapeColors(SnesCgram cgram, int destination)
+    public void LoadEscapeColors(IPaletteColors cgram, int destination)
     {
         Ensure.NotNull(cgram);
         if (destination < 0 || destination + CeresDoorVisualRomData.SetupColorCount > CgramPalettes.ColorCount)
@@ -146,7 +146,7 @@ public sealed class CeresDoorVisualCatalog
     private Bgr555 EscapeColor(int color) => escape.ColorAt(color);
 
     /// <summary>Installs six selected inks at CGRAM 41–46 from animation row 0–7 corresponding to $A6:F871; the actor derives the row from its frame bits 3–5.</summary>
-    public void LoadAnimationColors(SnesCgram cgram, int row)
+    public void LoadAnimationColors(IPaletteColors cgram, int row)
     {
         Ensure.NotNull(cgram);
         if ((uint)row >= CeresDoorVisualRomData.AnimationRowCount) throw new IndexOutOfRangeException();

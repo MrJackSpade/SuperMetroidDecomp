@@ -41,7 +41,12 @@ internal static class PpuLayoutBoundaryVerification
     {
         AssertTrue(entries.Count > 0, "production catalogs declare PPU layout cells");
         foreach (PpuLayoutRegion region in Enum.GetValues<PpuLayoutRegion>())
-            AssertTrue(entries.Any(entry => entry.Cell.Region == region), $"the catalogs name at least one {region} location");
+        {
+            // OAM is no longer production state (#1358): frontends publish sprite entries and gameplay sprite draws.
+            bool oam = region is PpuLayoutRegion.OamLow or PpuLayoutRegion.OamHigh;
+            AssertEqual(!oam, entries.Any(entry => entry.Cell.Region == region),
+                oam ? $"the catalogs name no {region} location" : $"the catalogs name at least one {region} location");
+        }
         IReadOnlyList<string> violations = PpuLayoutCatalogInventory.Violations(entries);
         AssertTrue(violations.Count == 0, "catalog rules hold:" + Environment.NewLine + string.Join(Environment.NewLine, violations));
     }

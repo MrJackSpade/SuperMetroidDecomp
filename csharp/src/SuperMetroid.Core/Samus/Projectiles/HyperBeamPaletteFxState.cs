@@ -64,7 +64,7 @@ public sealed class HyperBeamPaletteFxState
     }
 
     /// <summary>Runs one call of <c>PaletteFXObject_Handler</c> for the Hyper Beam object.</summary>
-    public HyperBeamPaletteFxStepResult Step(SnesCgram cgram,
+    public HyperBeamPaletteFxStepResult Step(IPaletteColors cgram,
         HyperBeamFxColorCatalog? presentationColors = null)
     {
         Ensure.NotNull(cgram);

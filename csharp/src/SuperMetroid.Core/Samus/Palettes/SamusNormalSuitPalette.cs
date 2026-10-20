@@ -12,7 +12,7 @@ public static class SamusNormalSuitPalette
     /// <returns>The stock bank-$9B palette pointer identity ($9400, $9520, or $9800) for diagnostics, not an address read to obtain the displayed colors.</returns>
     /// <exception cref="ArgumentNullException">CGRAM is null.</exception>
     /// <exception cref="InvalidOperationException">Installed suit colors are absent.</exception>
-    public static ushort Load(SnesCgram cgram, SuperMetroid.Core.Samus.SamusEquipmentFlags equippedItems,
+    public static ushort Load(IPaletteColors cgram, SuperMetroid.Core.Samus.SamusEquipmentFlags equippedItems,
         SamusSuitColorCatalog? colors)
     {
         Ensure.NotNull(cgram);
@@ -30,7 +30,7 @@ public static class SamusNormalSuitPalette
     /// <param name="colors">Required installed normal-suit artwork; selects its Power palette at native table offset zero.</param>
     /// <exception cref="ArgumentNullException">CGRAM is null.</exception>
     /// <exception cref="InvalidOperationException">Installed suit colors are absent.</exception>
-    public static void LoadPower(SnesCgram cgram, SamusSuitColorCatalog? colors)
+    public static void LoadPower(IPaletteColors cgram, SamusSuitColorCatalog? colors)
     {
         Ensure.NotNull(cgram);
         if (colors is null)

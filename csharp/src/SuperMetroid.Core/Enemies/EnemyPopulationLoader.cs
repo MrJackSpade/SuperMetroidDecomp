@@ -69,7 +69,7 @@ internal sealed class EnemyPopulationLoader
         IRoomEnemyDefinitionSource definitions,
         RoomEnemyGraphicsSetDefinition graphicsSet,
         SnesVram vram,
-        SnesCgram cgram)
+        IPaletteColors cgram)
     {
         int nextEnemyTileIndex = 0;
         int nextStagingOffset = RoomEnemyRomLayout.OrdinaryStagingOffset;

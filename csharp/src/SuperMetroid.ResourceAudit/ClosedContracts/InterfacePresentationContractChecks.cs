@@ -8,6 +8,8 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
 using SuperMetroid.ResourceAudit.Reports;
 using SuperMetroid.ResourceAudit.Resources;
+using SuperMetroid.Core.Rendering;
+using SuperMetroid.Core.Frontend.Menus;
 
 namespace SuperMetroid.ResourceAudit.ClosedContracts;
 
@@ -22,7 +24,9 @@ internal static class InterfacePresentationContractChecks
             Frames = IntroDiscoveryActorSpriteDefinitions.Frames.ToDictionary(frame => frame.Name, _ => Array.Empty<SpriteVisualPart>()) };
         Stream Json() => new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options));
         IntroDiscoveryActorSpritePresentation actor = IntroDiscoveryActorSpritePresentation.Load(Json());
-        ((IIntroCinematicSpritePresentation)actor).Draw(IntroDiscoveryActorSpriteDefinitions.Frames[0].Pointer, new OamBuffer(), new(0, 0), 0, true);
+        ((IIntroCinematicSpritePresentation)actor).Draw(IntroDiscoveryActorSpriteDefinitions.Frames[0].Pointer,
+            new ScreenSprites(new SpriteArtwork(new SpriteArtworkId(SpriteArtworkKind.IntroObjects), new byte[SpriteArtwork.CharacterByteCount]),
+                ObjectSelectionCodec.Sizes(MenuRenderDefinitions.ObjectSelection)), new(0, 0), 0, true);
         document.Frames.Remove(IntroDiscoveryActorSpriteDefinitions.Frames[0].Name);
         bool rejected = false;
         try { _ = IntroDiscoveryActorSpritePresentation.Load(Json()); }

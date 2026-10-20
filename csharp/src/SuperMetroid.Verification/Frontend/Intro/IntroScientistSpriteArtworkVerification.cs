@@ -39,7 +39,7 @@ internal static class IntroScientistSpriteArtworkVerification
                 else
                     DrawImportedSpritemap(bus, native, source, new(x, y), palette, originIsOnScreen: false);
                 native.FinalizeFrame();
-                var installed = new OamBuffer();
+                var installed = ScreenSpritesFixtures.Blank();
                 installed.BeginFrame();
                 stock.ScientistSprites.Draw(definition.Pointer, installed, new(x, y),
                     palette, onScreen);
@@ -90,7 +90,7 @@ internal static class IntroScientistSpriteArtworkVerification
 
         var examination = IntroScientistCutsceneState.CreateExamination();
         examination.Step(0, introCrossfadeTimer: 0x007f);
-        var installedExamination = new OamBuffer();
+        var installedExamination = ScreenSpritesFixtures.Blank();
         installedExamination.BeginFrame();
         examination.Draw(installedExamination, stock.ScientistSprites);
         installedExamination.FinalizeFrame();

@@ -93,11 +93,11 @@ public sealed class DraygonColorCatalog
     private static Bgr555 StockWhiteFlash(int color) => color == 0 ? DraygonMaterialPaintDefinitions.ClearTarget : Bgr555.FromWord(0x7fff);
 
     /// <summary>Installs the selected opening colors at their native CGRAM destination.</summary>
-    public void ApplyIntro(SnesCgram cgram) =>
+    public void ApplyIntro(IPaletteColors cgram) =>
         ApplyCalculated(new BossPalettes(cgram).DraygonIntro, DraygonColorRomData.IntroCount, ResolveIntro);
 
     /// <summary>Installs Draygon's normal or white-flash material colors and the active health band.</summary>
-    public void ApplyHurt(SnesCgram cgram, bool whiteFrame, int healthBand)
+    public void ApplyHurt(IPaletteColors cgram, bool whiteFrame, int healthBand)
     {
         if (whiteFrame)
             ApplyCalculated(new BossPalettes(cgram).DraygonBackground, DraygonColorRomData.WhiteFlashCount, ResolveWhiteFlash);
@@ -112,7 +112,7 @@ public sealed class DraygonColorCatalog
     }
 
     /// <summary>Installs the four-color health band 0-7.</summary>
-    public void ApplyHealthBand(SnesCgram cgram, int band)
+    public void ApplyHealthBand(IPaletteColors cgram, int band)
     {
         if (band is < 0 or >= DraygonColorRomData.HealthBandCount)
             throw new InvalidDataException($"Draygon health palette band {band} is not authored.");

@@ -86,22 +86,22 @@ public sealed class CrocomireColorCatalog
     };
 
     /// <summary>Installs the native initialization transfers in order: seventeen wall words at CGRAM 160–176, then seventeen projectile words at 208–224, retaining each source overlap word.</summary>
-    public void ApplyInitial(SnesCgram cgram)
+    public void ApplyInitial(IPaletteColors cgram)
     {
         Apply(new BossPalettes(cgram).CrocomireInitialWall, Band.InitialWall);
         Apply(new BossPalettes(cgram).CrocomireInitialProjectile, Band.InitialProjectile);
     }
 
     /// <summary>Restores the eight selected body/head BG inks from the $A4:B89D role at CGRAM 112–119; the actor separately decides whether a hurt update should show white instead.</summary>
-    public void ApplyFightBody(SnesCgram cgram) =>
+    public void ApplyFightBody(IPaletteColors cgram) =>
         Apply(new BossPalettes(cgram).CrocomireFightBody, Band.FightBody);
 
     /// <summary>Installs the sixteen skeleton-arm OBJ inks corresponding to $A4:B8FD at CGRAM 144–159 when the wall-break sequence begins.</summary>
-    public void ApplySkeletonArm(SnesCgram cgram) =>
+    public void ApplySkeletonArm(IPaletteColors cgram) =>
         Apply(new BossPalettes(cgram).CrocomireSkeletonArm, Band.SkeletonArm);
 
     /// <summary>Installs the sixteen wall-spike OBJ inks corresponding to $A4:B91D at CGRAM 176–191 when the rumble script reaches its terminator.</summary>
-    public void ApplyWallSpikes(SnesCgram cgram) =>
+    public void ApplyWallSpikes(IPaletteColors cgram) =>
         Apply(new BossPalettes(cgram).CrocomireWallSpikes, Band.WallSpikes);
 
     /// <summary>Loads version-1 <c>crocomire-colors.json</c>, validating the five native transfer lengths and RGB5 channel bounds while keeping hurt-flash and death transitions in actor code.</summary>

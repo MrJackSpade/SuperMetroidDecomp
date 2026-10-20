@@ -33,7 +33,7 @@ public sealed class CeresRidleyMode7ColorCatalog
     /// <param name="cgram">Destination palette memory.</param>
     /// <param name="zoomHighByte">High byte of the current native zoom word, 0..8; not a frame timer or byte offset into the stored rows.</param>
     /// <exception cref="ArgumentOutOfRangeException">The zoom row is outside 0..8.</exception>
-    public void Apply(SnesCgram cgram, int zoomHighByte)
+    public void Apply(IPaletteColors cgram, int zoomHighByte)
     {
         Ensure.NotNull(cgram);
         _ = Resolve(zoomHighByte, 0);

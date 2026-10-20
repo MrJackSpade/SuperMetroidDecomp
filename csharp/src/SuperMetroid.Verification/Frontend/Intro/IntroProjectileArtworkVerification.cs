@@ -30,7 +30,7 @@ internal static class IntroProjectileArtworkVerification
         var game = CreateRetailGameFixture(new SuperMetroid.Core.Saves.SaveSlotStore());
         game.Session.intro = intro;
         game.GameState = SuperMetroidGameState.IntroCinematic;
-        byte[] Draw(IntroCinematicState scene) => scene.PrepareMotherBrainOam().FinalizedAsOam().LowTable.ToArray();
+        byte[] Draw(IntroCinematicState scene) => scene.PrepareMotherBrainSprites().FinalizedAsOam().LowTable.ToArray();
         foreach (ushort family in new ushort[] { 0x10, 0x700 })
         {
             projectiles.Reset();
@@ -113,9 +113,9 @@ internal static class IntroProjectileArtworkVerification
     private static void BindRestoredIntroDrawFixture(IntroCinematicState intro)
     {
         // This fixture isolates projectile/trail rebinding. Supply the other draw
-        // dependencies without invoking the separate cinematic-sheet reupload path,
-        // which deliberately replaces VRAM and is covered by the cinematic art fixture.
-        intro.characterArtwork = InstalledFixtures.IntroArtwork;
+        // dependencies through the restore path the game takes.
+        intro.BindIntroFont(InstalledFixtures.Maps.IntroFont);
+        intro.BindCharacterArtwork(InstalledFixtures.IntroArtwork);
         intro.BindSamusBodyArtwork(InstalledFixtures.SamusBody);
         intro.BindBeamArtwork(InstalledFixtures.Projectiles.BeamTiles);
         intro.ProjectileCompositions = InstalledFixtures.Projectiles.Catalog;
@@ -126,8 +126,7 @@ internal static class IntroProjectileArtworkVerification
     private static void VerifyIntroTrailPng(ISnesAddressSpace bus, IntroCinematicState intro,
         SuperMetroidGame game, byte[] json, Func<IntroCinematicState, byte[]> draw, ushort sprite)
     {
-        var vram = intro.vram;
-        byte[] native = vram.Bytes.ToArray();
+        byte[] native = intro.Image();
         byte[] png = ProjectileTrailAtlasExtractor.Extract(bus);
         var stock = ProjectileTrailCatalog.Load(new MemoryStream(json), ProjectileTrailAtlas.Load(new MemoryStream(png)));
         game.BindArtwork(game.Artwork with
@@ -135,7 +134,7 @@ internal static class IntroProjectileArtworkVerification
             TrailArtwork = stock,
         });
         draw(intro);
-        AssertTrue(native.SequenceEqual(vram.Bytes), "Intro stock trail PNG preserves every VRAM byte, including compressed cinematic sprites");
+        AssertTrue(native.SequenceEqual(intro.Image()), "Intro stock trail PNG preserves every shown VRAM byte, including compressed cinematic sprites");
         var image = IndexedPng.Read(new MemoryStream(png), new(ProjectileTrailAtlasDefinitions.Width, ProjectileTrailAtlasDefinitions.Height));
         image.Pixels[0] ^= 1;
         image.Pixels[64] ^= 1;
@@ -156,10 +155,9 @@ internal static class IntroProjectileArtworkVerification
             {
                 TrailArtwork = edited,
             });
-            var actual = pair.Item2.vram;
-            AssertTrue(native.SequenceEqual(actual.Bytes), "Intro PNG rebind does not mutate the retained display before preparation");
+            AssertTrue(native.SequenceEqual(pair.Item2.Image()), "Intro PNG rebind does not change the shown image before preparation");
             SpriteArtwork page = DrawnProjectilePage(pair.Item2);
-            AssertTrue(native.SequenceEqual(actual.Bytes), "Intro trail PNG is a page binding, not a VRAM write");
+            AssertTrue(native.SequenceEqual(pair.Item2.Image()), "Intro trail PNG is a page binding, not a shown-image write");
             AssertTrue(page.Characters.Slice(ProjectileObjectPageDefinitions.IceWaveTrailFirstCharacter * SpriteArtwork.CharacterByteCount,
                     editedTiles.IceAndWave.Length).SequenceEqual(editedTiles.IceAndWave.Span) &&
                 page.Characters.Slice(ProjectileObjectPageDefinitions.MissileTrailFirstCharacter * SpriteArtwork.CharacterByteCount,
@@ -184,7 +182,7 @@ internal static class IntroProjectileArtworkVerification
             var shot = scene.flashbackProjectiles.Slots[0];
             shot.Type = 0x10; shot.Cursor = ProjectileFixtureCursors.Active; shot.SpritemapPointer = sprite;
             shot.Position = shot.Position.WithWhole(new(100, 100));
-            SpriteArtwork page = scene.PrepareMotherBrainOam().Draws
+            SpriteArtwork page = scene.PrepareMotherBrainSprites().Draws
                 .First(entry => entry.Source.Kind == SpriteSourceKind.SamusProjectile).Artwork;
             scene.flashbackProjectiles.Reset();
             return page;

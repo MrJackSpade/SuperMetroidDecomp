@@ -17,7 +17,7 @@ internal static class SnesObjRendererAccess
         internal static Rgba32[] Render(
             OamBuffer oam,
             SnesVram vram,
-            SnesCgram cgram,
+            IPaletteColors cgram,
             byte obsel,
             Extent16<ScreenPixels>? size = null,
             int? priority = null)
@@ -27,7 +27,7 @@ internal static class SnesObjRendererAccess
             Ensure.NotNull(cgram);
             Extent16<ScreenPixels> frame = size ?? SnesPpuLayout.ScreenSize;
             var output = new Rgba32[frame.X * frame.Y];
-            SnesObjRendererConstants.Render(output, FrontendOamDraws.Draws(oam, vram, obsel), cgram, frame, priority);
+            SnesObjRendererConstants.Render(output, FrontendOamDrawsConstants.Draws(oam, vram, obsel), cgram, frame, priority);
             return output;
         }
 
@@ -46,7 +46,7 @@ internal static class SnesObjRendererAccess
         internal static ResolvedObjFrame RenderResolved(
             OamBuffer oam,
             SnesVram vram,
-            SnesCgram cgram,
+            IPaletteColors cgram,
             byte obsel,
             Extent16<ScreenPixels>? size = null)
         {
@@ -57,13 +57,13 @@ internal static class SnesObjRendererAccess
 
             var pixels = new Rgba32[frame.X * frame.Y];
             var priorities = new byte[pixels.Length];
-            SnesObjRenderer.RenderResolved(FrontendOamDraws.Draws(oam, vram, obsel), cgram, new ObjRasterTargets(pixels, priorities), frame);
+            SnesObjRenderer.RenderResolved(FrontendOamDrawsConstants.Draws(oam, vram, obsel), cgram, new ObjRasterTargets(pixels, priorities), frame);
 
             return new ResolvedObjFrame(pixels, priorities);
         }
 
         /// <summary>Renders the draws over a transparent canvas; color index zero stays transparent.</summary>
-        internal static Rgba32[] Render(ImmutableArray<SpriteDraw> draws, SnesCgram cgram, Extent16<ScreenPixels>? size = null)
+        internal static Rgba32[] Render(ImmutableArray<SpriteDraw> draws, IPaletteColors cgram, Extent16<ScreenPixels>? size = null)
         {
             Extent16<ScreenPixels> frame = size ?? SnesPpuLayout.ScreenSize;
             var output = new Rgba32[frame.X * frame.Y];
@@ -72,7 +72,7 @@ internal static class SnesObjRendererAccess
         }
 
         /// <summary>Resolves the winning draw and its BG-relative priority for every output pixel.</summary>
-        internal static ResolvedObjFrame RenderResolved(ImmutableArray<SpriteDraw> draws, SnesCgram cgram,
+        internal static ResolvedObjFrame RenderResolved(ImmutableArray<SpriteDraw> draws, IPaletteColors cgram,
             Extent16<ScreenPixels>? size = null)
         {
             Extent16<ScreenPixels> frame = size ?? SnesPpuLayout.ScreenSize;

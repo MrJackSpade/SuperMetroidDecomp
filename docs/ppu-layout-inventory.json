@@ -970,6 +970,7 @@
       "encoding": "4-bpp OBJ characters",
       "aliasOf": "PpuMemoryLayout.Vram",
       "consumers": [
+        "csharp/src/SuperMetroid.Core/Frontend/CeresCinematics/CeresDestructionScreenImage.cs",
         "csharp/src/SuperMetroid.Core/Frontend/CeresCinematics/CeresVram.cs",
         "csharp/src/SuperMetroid.Verification/Frontend/CeresCinematics/CeresDestructionVerification.cs",
         "csharp/src/SuperMetroid.Verification/Frontend/CeresCinematics/CeresFlightArtworkVerification.cs"
@@ -1733,12 +1734,12 @@
         "csharp/src/SuperMetroid.Core/Hardware/GameplayVram.cs",
         "csharp/src/SuperMetroid.Core/Hardware/ObjCharacterUploads.cs",
         "csharp/src/SuperMetroid.Core/Samus/Artwork/SamusDeathTileAtlas.cs",
-        "csharp/src/SuperMetroid.Core/Samus/Drawing/SamusVramLayout.cs",
         "csharp/src/SuperMetroid.Verification/Areas/Escape/Artwork/EscapeTimerPresentationVerification.cs",
         "csharp/src/SuperMetroid.Verification/Bosses/BossSpriteEntriesVerification.cs",
         "csharp/src/SuperMetroid.Verification/Bosses/MotherBrain/MotherBrainCorpseArtworkVerification.cs",
         "csharp/src/SuperMetroid.Verification/Bosses/Torizo/Artwork/TorizoInstructionVramArtworkVerification.cs",
         "csharp/src/SuperMetroid.Verification/Samus/Artwork/SamusBodyArtworkVerification.cs",
+        "csharp/test-support/VerificationAccess.Core/Samus/Drawing/SamusVramLayout.cs",
         "csharp/test-support/VerificationOracles/ObjCharacterVramImage.cs"
       ]
     },
@@ -2045,30 +2046,6 @@
     },
     {
       "owner": "SuperMetroid.Core.Hardware.PpuMemoryLayout",
-      "name": "OamHigh",
-      "region": "OamHigh",
-      "offset": "$0000",
-      "count": 128,
-      "encoding": "SnesOamHighTablePair (2 bits per OBJ)",
-      "aliasOf": null,
-      "consumers": [
-        "csharp/src/SuperMetroid.Core/Hardware/OamBuffer.cs"
-      ]
-    },
-    {
-      "owner": "SuperMetroid.Core.Hardware.PpuMemoryLayout",
-      "name": "OamLow",
-      "region": "OamLow",
-      "offset": "$0000",
-      "count": 128,
-      "encoding": "OBJ records (X low, Y, SnesObjAttributeWord)",
-      "aliasOf": null,
-      "consumers": [
-        "csharp/src/SuperMetroid.Core/Hardware/OamBuffer.cs"
-      ]
-    },
-    {
-      "owner": "SuperMetroid.Core.Hardware.PpuMemoryLayout",
       "name": "ObjPalette0",
       "region": "Cgram",
       "offset": "$0080",
@@ -2236,54 +2213,6 @@
       "aliasOf": "PpuMemoryLayout.BackgroundPalettes",
       "consumers": [
         "csharp/src/SuperMetroid.Core/Rooms/LevelData/RoomGraphicsVram.cs"
-      ]
-    },
-    {
-      "owner": "SuperMetroid.Core.Samus.Drawing.SamusVramLayout",
-      "name": "BodyBottomFirst",
-      "region": "Vram",
-      "offset": "$6080",
-      "count": 128,
-      "encoding": "4-bpp OBJ characters",
-      "aliasOf": "GameplayVramLayout.ObjectCharacters",
-      "consumers": [
-        "csharp/src/SuperMetroid.Core/Samus/Drawing/SamusVram.cs"
-      ]
-    },
-    {
-      "owner": "SuperMetroid.Core.Samus.Drawing.SamusVramLayout",
-      "name": "BodyBottomSecond",
-      "region": "Vram",
-      "offset": "$6180",
-      "count": 128,
-      "encoding": "4-bpp OBJ characters",
-      "aliasOf": "GameplayVramLayout.ObjectCharacters",
-      "consumers": [
-        "csharp/src/SuperMetroid.Core/Samus/Drawing/SamusVram.cs"
-      ]
-    },
-    {
-      "owner": "SuperMetroid.Core.Samus.Drawing.SamusVramLayout",
-      "name": "BodyTopFirst",
-      "region": "Vram",
-      "offset": "$6000",
-      "count": 128,
-      "encoding": "4-bpp OBJ characters",
-      "aliasOf": "GameplayVramLayout.ObjectCharacters",
-      "consumers": [
-        "csharp/src/SuperMetroid.Core/Samus/Drawing/SamusVram.cs"
-      ]
-    },
-    {
-      "owner": "SuperMetroid.Core.Samus.Drawing.SamusVramLayout",
-      "name": "BodyTopSecond",
-      "region": "Vram",
-      "offset": "$6100",
-      "count": 128,
-      "encoding": "4-bpp OBJ characters",
-      "aliasOf": "GameplayVramLayout.ObjectCharacters",
-      "consumers": [
-        "csharp/src/SuperMetroid.Core/Samus/Drawing/SamusVram.cs"
       ]
     },
     {

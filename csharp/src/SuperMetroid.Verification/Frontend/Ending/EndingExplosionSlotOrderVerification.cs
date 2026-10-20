@@ -29,16 +29,19 @@ internal static class EndingExplosionSlotOrderVerification
         var afterglow = new IntroDiscoverySprite(new(definition.Position.X, definition.Position.Y),
             definition.Attributes.Raw, definition.Program);
         afterglow.Step();
-        var expected = new OamBuffer();
+        var expected = ScreenSpritesFixtures.Blank();
         expected.BeginFrame();
         afterglow.Draw(expected, installedArt: RepositoryInstallation.Installation.LoadEndingObjectArt().ExplosionSprites);
         expected.FinalizeFrame();
         AssertEqual(37, expected.LastFinalizedSpriteCount, "retail afterglow component count");
         var snapshot = ending.Presentation.CaptureRenderSnapshot();
         var actual = snapshot.Memory;
-        PlacedSpritePart[] afterglowParts = PlacedSpritePart.OfOam(expected, snapshot.ObjectSelection);
-        AssertTrue(actual.SpriteParts().Take(afterglowParts.Length).SequenceEqual(afterglowParts),
-            "native slot order preserves all 37 afterglow pieces before starfield OAM overflow");
+        PlacedSpritePart[] afterglowParts = PlacedSpritePart.Of(expected.Draws);
+        PlacedSpritePart[] liveParts = [.. actual.SpriteParts().Take(afterglowParts.Length)];
+        int[] mismatches = [.. Enumerable.Range(0, afterglowParts.Length).Where(index => index >= liveParts.Length || liveParts[index] != afterglowParts[index])];
+        AssertTrue(mismatches.Length == 0,
+            "native slot order preserves all 37 afterglow pieces before starfield OAM overflow" +
+            string.Concat(mismatches.Select(index => $" [part {index}: live {(index < liveParts.Length ? liveParts[index].Part.ToString() : "missing")}, native {afterglowParts[index].Part}]")));
         var background = snapshot.LayersOf<Mode7RenderLayer>().Single();
         AssertTrue(actual.SpriteParts().All(part => part.Part.Priority == 0), "live flyaway actors use native priority zero");
         var fixedWhite = snapshot.LayersOf<FixedColorAddRenderLayer>().Single();

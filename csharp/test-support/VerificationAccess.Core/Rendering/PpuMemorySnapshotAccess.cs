@@ -21,7 +21,7 @@ internal static class PpuMemorySnapshotAccess
             oam.LoadUploadPayload(oamUpload, spriteCount);
             var image = new SnesVram();
             image.LoadBytes(0, vram);
-            return new(vram, cgram, FrontendOamDraws.Draws(oam, image, objectSelection));
+            return new(vram, cgram, FrontendOamDrawsConstants.Draws(oam, image, objectSelection));
         }
     }
 

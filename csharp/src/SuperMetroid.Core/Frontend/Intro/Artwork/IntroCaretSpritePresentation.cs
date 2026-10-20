@@ -19,14 +19,14 @@ public sealed class IntroCaretSpritePresentation
 
     /// <summary>Appends the installed visible caret composition to screen-space OAM; a missing frame is rejected, and blink visibility must be handled by the cinematic script rather than by this draw call.</summary>
     /// <param name="pointer">Bank-$8C spritemap identity; the installed visible caret is <c>$8D68</c>, while zero denotes script-controlled invisibility and is not a drawable frame.</param>
-    /// <param name="oam">Destination OAM buffer, preserving the authored order of sprite parts.</param>
+    /// <param name="objects">Destination OAM buffer, preserving the authored order of sprite parts.</param>
     /// <param name="origin">Native wrapped sixteen-bit screen origin in pixels.</param>
     /// <param name="paletteBits">Encoded OBJ palette bits applied only to parts whose palette is inherited rather than explicitly authored.</param>
-    public void Draw(ushort pointer, OamBuffer oam, Position16<OamPixels> origin, ushort paletteBits)
+    public void Draw(ushort pointer, ScreenSprites objects, Position16<OamPixels> origin, ushort paletteBits)
     {
         if (!frames.TryGetValue(pointer, out SpriteComposition? frame))
             throw new InvalidDataException($"Opening caret frame $8C:{pointer:X4} is not installed.");
-        frame.DrawOnScreen(oam, origin, paletteBits);
+        frame.Draw(objects, origin, paletteBits);
     }
 
     /// <summary>Loads and validates the visible caret's OAM composition, rejecting duplicate properties, unsupported schemas, missing frame names, and invalid sprite parts; version-one documents retain only their <c>caret-still</c> composition.</summary>

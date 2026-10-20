@@ -223,7 +223,7 @@ public sealed class SamusFullBodyCycleColorCatalog
     }
 
     /// <summary>Copies sixteen display colors to Samus OBJ palette four.</summary>
-    public void Apply(SnesCgram cgram, ushort pointer)
+    public void Apply(IPaletteColors cgram, ushort pointer)
     {
         Ensure.NotNull(cgram);
         for (int index = 0; index < SamusFullBodyCycleColorFormat.ColorsPerPalette; index++)

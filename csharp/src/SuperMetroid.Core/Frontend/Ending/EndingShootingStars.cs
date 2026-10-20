@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Assets;
+
 namespace SuperMetroid.Core.Frontend.Ending;
 
 /// <summary>$8B:E7BB/E812: bounded post-credits star records, independent of explosion stars.</summary>
@@ -58,15 +60,14 @@ internal sealed class EndingShootingStars
         }
     }
 
-    /// <summary>Draws only active stars with a nonzero animation frame into the supplied OAM buffer.</summary>
-    [PpuLayoutBoundary("frontend OAM writer: EndingShootingStars.Draw until #1358 moves it onto sprite entries")]
-    internal void Draw(OamBuffer oam)
+    /// <summary>Draws only active stars with a nonzero animation frame as the supplied sprite entries.</summary>
+    internal void Draw(ScreenSprites objects)
     {
         foreach (var star in stars)
         {
             if (star.Delayed || star.AnimationFrame == 0) continue;
             Position16<ScreenPixels> origin = star.Position.Whole - EndingShootingStarDefinitions.SpriteCenter;
-            oam.AddRawSmallSprite(origin.ToOam(), EndingShootingStarDefinitions.Attribute(star.AnimationFrame));
+            objects.AddSmallObject(origin.ToOam(), EndingShootingStarDefinitions.Attribute(star.AnimationFrame));
         }
     }
 

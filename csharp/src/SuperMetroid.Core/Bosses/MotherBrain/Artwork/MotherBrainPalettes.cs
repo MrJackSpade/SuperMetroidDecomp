@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 
 /// <summary>Typed view of Mother Brain's palette ranges (#630).</summary>
 [PpuLayoutBoundary("rendering view: Mother Brain palettes")]
-public readonly struct MotherBrainPalettes(SnesCgram cgram)
+public readonly struct MotherBrainPalettes(IPaletteColors cgram)
 {
     /// <summary>Body colours.</summary>
     public CgramPalette Body => new(cgram, MotherBrainCgramLayout.Body);

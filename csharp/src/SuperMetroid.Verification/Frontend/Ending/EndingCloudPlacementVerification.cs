@@ -58,7 +58,7 @@ internal static class EndingCloudPlacementVerification
                         unchecked((ushort)(actor.Sprite.WholePosition.Y + (index < 2 ? 1 : -1))));
                 actor.Sprite.Step();
             }
-            var oam = new OamBuffer();
+            var oam = ScreenSpritesFixtures.Blank();
             oam.BeginFrame();
             foreach (var actor in actors) actor.Sprite.Draw(oam, installedArt: cloudSprites);
             oam.FinalizeFrame();

@@ -129,7 +129,7 @@ public sealed class CartridgeRoomAssets
 
     /// <summary>Binds the room's two character regions (#1350) and installs its first 128 CGRAM colors.</summary>
     [PpuLayoutBoundary("codec: the room's character uploads' native VRAM destinations")]
-    public void LoadGraphics(BgArtworkBindings backgrounds, SnesCgram cgram)
+    public void LoadGraphics(BgArtworkBindings backgrounds, IPaletteColors cgram)
     {
         Ensure.NotNull(backgrounds);
         Ensure.NotNull(cgram);

@@ -66,7 +66,7 @@ internal sealed class RenderScratch : IDisposable
         ResolveObjects(memory.Sprites, memory.Cgram);
 
     /// <summary>The frame's sprite draws resolved into scratch color and priority planes.</summary>
-    public ResolvedObjFrame ResolveObjects(SpriteFrameBuffer sprites, Hardware.SnesCgram cgram)
+    public ResolvedObjFrame ResolveObjects(SpriteFrameBuffer sprites, Hardware.IPaletteColors cgram)
     {
         Extent16<ScreenPixels> screen = Hardware.SnesPpuLayout.ScreenSize;
         int count = screen.X * screen.Y;

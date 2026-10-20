@@ -1,3 +1,5 @@
+﻿using SuperMetroid.Core.Hardware;
+
 namespace SuperMetroid.Core.Samus.Drawing;
 
 /// <summary>Typed view of Samus's OBJ character VRAM (#630).</summary>

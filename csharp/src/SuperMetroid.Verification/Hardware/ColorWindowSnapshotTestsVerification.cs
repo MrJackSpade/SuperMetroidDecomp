@@ -23,7 +23,7 @@ internal static class ColorWindowSnapshotTestsVerification
         var cgram = new SnesCgram();
         cgram.SetColor(0, Bgr555.FromWord(0x396b));
         var oam = new OamBuffer(); oam.BeginFrame(); oam.FinalizeFrame();
-        var memory = PpuMemorySnapshot.CaptureFrontend(new SnesVram(), cgram, oam, 3);
+        var memory = PpuMemorySnapshotConstants.CaptureFrontend(new SnesVram(), cgram, oam, 3);
         Rgba32[] baseline = SnesLayerCompositor.CreateBackdrop(cgram, 256 * 224);
         int samples = 0;
         foreach (bool dead in new[] { false, true })

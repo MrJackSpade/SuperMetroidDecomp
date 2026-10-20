@@ -53,8 +53,8 @@ internal static class IntroScientistPartsVerification
                 var native = new OamBuffer(); native.BeginFrame();
                 DrawImportedSpritemap(rom, native, 0x8c0000 + definition.Pointer, new(120, y), 0x0c00, originIsOnScreen: y == 72);
                 native.FinalizeFrame();
-                var actual = new OamBuffer(); actual.BeginFrame();
-                if (y == 72) result.DrawOnScreen(actual, new(120, y), 0x0c00);
+                var actual = ScreenSpritesFixtures.Blank(); actual.BeginFrame();
+                if (y == 72) result.Draw(actual, new(120, y), 0x0c00);
                 else result.DrawOffScreen(actual, new(120, y), 0x0c00);
                 actual.FinalizeFrame();
                 AssertTrue(native.ImageEquals(actual)
@@ -81,7 +81,7 @@ internal static class IntroScientistPartsVerification
                 IntroCaretSpritePresentation.Write(json, new() { Version = (int)version, Frames = frames });
                 json.Position = 0;
                 var presentation = IntroCaretSpritePresentation.Load(json);
-                var actual = new OamBuffer(); actual.BeginFrame();
+                var actual = ScreenSpritesFixtures.Blank(); actual.BeginFrame();
                 presentation.Draw(pointer, actual, new(120, 72), 0x0c00);
                 actual.FinalizeFrame();
                 AssertTrue(expected.ImageEquals(actual)

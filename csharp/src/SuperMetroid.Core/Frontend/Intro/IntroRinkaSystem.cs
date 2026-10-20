@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Frontend.Intro;
 
@@ -76,13 +77,13 @@ internal sealed class IntroRinkaSystem
     }
 
     /// <summary>Adds each visible Rinka in the native descending slot order.</summary>
-    public void Draw(OamBuffer oam,
+    public void Draw(ScreenSprites objects,
         IntroRinkaSpritePresentation? installedArt = null)
     {
         for (int slot = SpawnerSlot; slot >= LowestSlot; slot--)
         {
             if (slots[slot] is { } actor && !ReferenceEquals(actor, spawner))
-                actor.Draw(oam, installedArt: installedArt);
+                actor.Draw(objects, installedArt: installedArt);
         }
     }
 

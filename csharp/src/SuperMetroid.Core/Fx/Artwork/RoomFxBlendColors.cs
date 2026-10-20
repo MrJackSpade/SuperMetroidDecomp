@@ -27,7 +27,7 @@ internal sealed class RoomFxBlendColors
     }
 
     /// <summary>Writes the three resulting blend inks to BG3 palette entries 25 through 27.</summary>
-    public void Apply(SnesCgram cgram)
+    public void Apply(IPaletteColors cgram)
     {
         new RoomFxPalettes(cgram).Layer3Blend.Write(0, primary.CreateColor());
         new RoomFxPalettes(cgram).Layer3Blend.Write(1, secondary.CreateColor());

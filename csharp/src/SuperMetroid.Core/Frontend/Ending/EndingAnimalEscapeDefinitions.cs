@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Frontend.Intro.Artwork;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Frontend.Ending;
 
@@ -32,14 +33,13 @@ internal sealed class EndingAnimalEscapeDefinitions : IIntroCinematicSpritePrese
     /// <summary>$8C:BC43 starts the priority-three, palette-seven pod tiles $1E0-$1E3.</summary>
     private const ushort FirstAttributes = 0x3fe0;
     /// <summary>Draws the selected one-part pod frame centered on the actor using its authored attributes.</summary>
-    [PpuLayoutBoundary("frontend OAM writer: EndingAnimalEscapeDefinitions.Draw until #1358 moves it onto sprite entries")]
-    public void Draw(ushort pointer, OamBuffer oam, Position16<OamPixels> origin, ushort paletteBits, bool originIsOnScreen)
+    public void Draw(ushort pointer, ScreenSprites objects, Position16<OamPixels> origin, ushort paletteBits, bool originIsOnScreen)
     {
         int offset = pointer - FrameStart;
         if (offset < 0 || offset % FrameStride != 0 || offset / FrameStride >= FrameCount)
             throw new InvalidDataException($"Animal escape sprite $8C:{pointer:X4} is outside its four frames.");
         Position16<OamPixels> corner = origin - new Offset16<OamPixels>((short)SpriteOffset, (short)SpriteOffset);
-        oam.AddRawSmallSprite(corner,
+        objects.AddSmallObject(corner,
             (ushort)(FirstAttributes + offset / FrameStride));
     }
 }

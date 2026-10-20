@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Frontend.Ending;
 
@@ -40,16 +41,12 @@ internal sealed class EndingRewardGesture
         actors.RemoveAll(actor => !actor.IsActive);
     }
 
-    /// <summary>Draws current actors into a supplied OAM frame or creates and finalizes a standalone frame.</summary>
-    [PpuLayoutBoundary("frontend OAM writer: EndingRewardGesture.Draw until #1358 moves it onto sprite entries")]
-    public OamBuffer Draw(EndingRewardSpritePresentation? installedArt = null, OamBuffer? destination = null)
+    /// <summary>Places current actors as the supplied sprite entries.</summary>
+    public void Draw(ScreenSprites destination, EndingRewardSpritePresentation? installedArt)
     {
-        var oam = destination ?? new OamBuffer();
-        if (destination is null) oam.BeginFrame();
+        Ensure.NotNull(destination);
         foreach (IntroDiscoverySprite actor in actors)
-            actor.Draw(oam, installedArt: installedArt);
-        if (destination is null) oam.FinalizeFrame();
-        return oam;
+            actor.Draw(destination, installedArt: installedArt);
     }
 
     /// <summary>Converts the jump cue into a suited or suitless handoff.</summary>

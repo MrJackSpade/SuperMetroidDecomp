@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Hardware;
+﻿namespace SuperMetroid.Core.Hardware;
 
 /// <summary>A readable projection of one hardware OAM record.</summary>
 /// <param name="Position">

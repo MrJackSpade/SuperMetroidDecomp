@@ -29,6 +29,10 @@ public sealed class CeresFlightArtworkCatalog
     public ReadOnlyMemory<byte> Mode7Maps { get; }
     /// <summary>Owned $4000-byte stream of 512 planar 4-bpp characters, imported from <c>Tiles_Space_Ceres</c> at <c>$96:D10A</c> and uploaded to VRAM bytes $C000-$FFFF.</summary>
     public ReadOnlyMemory<byte> ObjectCharacters { get; }
+
+    /// <summary>The flight OBJ page the space, gunship and station compositions draw from: the OBJ sheet as $BCCD uploads it (#1358).</summary>
+    public SpriteArtwork ObjectPage => field ??= new SpriteArtwork(new SpriteArtworkId(SpriteArtworkKind.CeresFlightObjects),
+        ObjectCharacters.Span[..CeresFlightRomData.Vram.ObjectCharacterByteCount]);
     /// <summary>Selected full 256-color RGB5 palette image for the approach; the native source is <c>$8C:E5E9</c>, separate from the PNGs' transport palettes.</summary>
     public CeresFlightPalette Palette { get; }
     /// <summary>Selected six-frame OAM compositions for stars, station, asteroids, and vortex, shared with the Ceres destruction presentation.</summary>

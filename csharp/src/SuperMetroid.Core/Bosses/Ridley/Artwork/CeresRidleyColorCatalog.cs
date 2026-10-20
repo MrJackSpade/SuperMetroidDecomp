@@ -69,7 +69,7 @@ public sealed class CeresRidleyColorCatalog
     }
 
     /// <summary>Copies the 32 startup colors from native $A6:E16F into CGRAM entries 160..191, initializing the door/container and Baby OBJ palettes.</summary>
-    public void ApplyStart(SnesCgram cgram)
+    public void ApplyStart(IPaletteColors cgram)
     {
         Ensure.NotNull(cgram);
         for (int color = 0; color < CeresRidleyPaletteRomData.StartColorCount; color++)
@@ -77,7 +77,7 @@ public sealed class CeresRidleyColorCatalog
     }
 
     /// <summary>Copies one eye-fade row, index 0..15, to CGRAM entries 252..254; native $A6:E2AA's three-color rows fade from full eye paint to black.</summary>
-    public void ApplyEyeFade(SnesCgram cgram, int row)
+    public void ApplyEyeFade(IPaletteColors cgram, int row)
     {
         eyeFade.ValidateRow(row);
         Ensure.NotNull(cgram);
@@ -86,7 +86,7 @@ public sealed class CeresRidleyColorCatalog
     }
 
     /// <summary>Copies one eleven-color body-fade row, index 0..15, to both BG CGRAM entries 145..155 and OBJ entries 241..251; native $A6:E30A progresses from black to full body paint.</summary>
-    public void ApplyBodyFade(SnesCgram cgram, int row)
+    public void ApplyBodyFade(IPaletteColors cgram, int row)
     {
         bodyFade.ValidateRow(row);
         Ensure.NotNull(cgram);
@@ -96,7 +96,7 @@ public sealed class CeresRidleyColorCatalog
             new RidleyPalettes(cgram).CeresBodyFade.Write(color, bodyFade.Resolve(row, color));
     }
     /// <summary>Copies one fourteen-color health row, index 0..2, from the shared $A6:E46A palette family to CGRAM entries 241..254; encounter AI separately selects by Ceres shot count or Norfair health.</summary>
-    public void ApplyHealth(SnesCgram cgram, int row)
+    public void ApplyHealth(IPaletteColors cgram, int row)
     {
         _ = health.Resolve(row, 0);
         Ensure.NotNull(cgram);
@@ -105,7 +105,7 @@ public sealed class CeresRidleyColorCatalog
     }
 
     /// <summary>Copies one self-destruct EMERGENCY-text phase, index 0..15, to CGRAM entries 97..99, preserving the reflected three-color cycle at native $A6:C1DF.</summary>
-    public void ApplyAlarm(SnesCgram cgram, int row)
+    public void ApplyAlarm(IPaletteColors cgram, int row)
     {
         _ = CeresRidleyAlarmColorDefinitions.SourceRow(row);
         Ensure.NotNull(cgram);
@@ -114,7 +114,7 @@ public sealed class CeresRidleyColorCatalog
     }
 
     /// <summary>Installs the retreat's fifteen BG colors at CGRAM 81..95 and eight shared colors at both BG 33..40 and OBJ 241..248, matching $A6:A9E3/$AA01.</summary>
-    public void ApplyRetreat(SnesCgram cgram)
+    public void ApplyRetreat(IPaletteColors cgram)
     {
         Ensure.NotNull(cgram);
         for (int color = 0; color < CeresRidleyPaletteRomData.RetreatBgColorCount; color++)
@@ -128,7 +128,7 @@ public sealed class CeresRidleyColorCatalog
     }
 
     /// <summary>Copies one private Baby/container draw shade, index 0..3, from native $A6:E1F1 to OBJ palette-three entries 177..191; row selection and pose timing remain owned by the Baby draw callback.</summary>
-    public void ApplyBaby(SnesCgram cgram, int row)
+    public void ApplyBaby(IPaletteColors cgram, int row)
     {
         _ = baby.Resolve(row, 0);
         Ensure.NotNull(cgram);

@@ -52,7 +52,7 @@ internal static class EndingLogoVerification
                         AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0x8c0000 | (pointer - 30 + i * 2)),
                             cgram.Colors[(p == 0 ? 16 : 240) + i], "native logo crossfade palette table entry");
                 }
-            poses.Add(Convert.ToHexString(logo.Draw(logoSprites).LowTable));
+            poses.Add(Convert.ToHexString(ScreenSpritesFixtures.Frame(objects => logo.Draw(objects, logoSprites)).LowTable));
         }
         AssertTrue(logo.Completed, "logo actors reach the final palette handoff");
         AssertEqual(171, fadeStart, "native circle list waits 96+5+5+64 frames before grey-out instruction");

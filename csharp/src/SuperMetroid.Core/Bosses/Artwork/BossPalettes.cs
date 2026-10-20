@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Bosses.Artwork;
 
 /// <summary>Typed view of the other boss and set-piece palette ranges (#630).</summary>
 [PpuLayoutBoundary("rendering view: boss and set-piece palettes")]
-public readonly struct BossPalettes(SnesCgram cgram)
+public readonly struct BossPalettes(IPaletteColors cgram)
 {
     /// <summary>Draygon opening colours.</summary>
     public CgramPalette DraygonIntro => new(cgram, BossCgramLayout.DraygonIntro);

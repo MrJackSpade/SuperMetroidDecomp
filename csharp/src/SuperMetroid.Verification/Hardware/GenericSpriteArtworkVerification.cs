@@ -91,19 +91,19 @@ internal static class GenericSpriteArtworkVerification
         intro.SetupFirstIllustratedPage();
         var caret = intro.objects;
         (caret ?? throw new InvalidOperationException("Verification requires caret.")).Step(0);
-        PlacedSpritePart[] actualParts = PlacedSpritePart.Of(intro.PrepareIllustratedPageOam().Draws);
+        PlacedSpritePart[] actualParts = PlacedSpritePart.Of(intro.PrepareIllustratedPageSprites().Draws);
         expected = new OamBuffer();
         expected = new OamBuffer(); expected.BeginFrame();
         DrawImportedSpritemap(reference, expected,
             (int)new SnesAddress(IntroCinematicRomData.Banks.Spritemaps, SuperMetroid.Verification.Frontend.Intro.CinematicSpritePoseSpritemaps.Of(caret.CaretPose)),
             new(caret.Caret.X, caret.Caret.Y), IntroCinematicRomData.Objects.ScientistPalette.Raw);
         expected.FinalizeFrame();
-        EqualParts(PlacedSpritePart.OfOam(expected, MenuRenderDefinitions.ObjectSelection), actualParts, "illustrated-page caret owner parity");
+        EqualParts(PlacedSpritePart.OfOamObjects(expected, MenuRenderDefinitions.ObjectSelection, new SpriteArtworkId(SpriteArtworkKind.IntroObjects)), actualParts, "illustrated-page caret owner parity");
 
         intro.SetupMotherBrainFlashback();
         var motherBrain = intro.flashbackMotherBrain;
         (motherBrain ?? throw new InvalidOperationException("Verification requires motherBrain.")).Step();
-        actualParts = PlacedSpritePart.Of(intro.PrepareMotherBrainOam().Draws);
+        actualParts = PlacedSpritePart.Of(intro.PrepareMotherBrainSprites().Draws);
         var expectedFrame = new SpriteFrameBuffer();
         expectedFrame.BeginFrame();
         (intro.flashbackSamus ?? throw new InvalidOperationException("Verification requires intro.flashbackSamus.")).Presentation.Draw(expectedFrame, new(0, 0), 0);
@@ -115,13 +115,13 @@ internal static class GenericSpriteArtworkVerification
             IntroMotherBrainSpriteState.PaletteBits);
         motherBrainOam.FinalizeFrame();
         expectedFrame.FinalizeFrame();
-        EqualParts([.. PlacedSpritePart.Of(expectedFrame.Draws), .. PlacedSpritePart.OfOam(motherBrainOam, MenuRenderDefinitions.ObjectSelection)],
+        EqualParts([.. PlacedSpritePart.Of(expectedFrame.Draws), .. PlacedSpritePart.OfOamObjects(motherBrainOam, MenuRenderDefinitions.ObjectSelection, new SpriteArtworkId(SpriteArtworkKind.IntroObjects))],
             actualParts, "Mother Brain owner preserves actor order and exact sprite parts");
 
         var explosions = new IntroMotherBrainExplosionSystem();
         explosions.SpawnFourthHitExplosions();
         explosions.Step(introCrossfadeTimer: 1);
-        var actual = new OamBuffer(); actual.BeginFrame();
+        var actual = ScreenSpritesFixtures.Blank(); actual.BeginFrame();
         explosions.Draw(actual, introArtwork.MotherBrainExplosionSprites);
         actual.FinalizeFrame();
         expected = new OamBuffer();
@@ -136,7 +136,7 @@ internal static class GenericSpriteArtworkVerification
                 IntroCinematicRomData.Objects.ExplosionPalette.Raw);
         }
         expected.FinalizeFrame();
-        EqualOam(expected, actual, "intro explosion owner preserves native placements and ordering");
+        EqualSprites(expected, actual, "intro explosion owner preserves native placements and ordering");
         AssertTrue(actual.LastFinalizedSpriteCount > 0, "intro explosion comparison contains visible parts");
 
         // The opposite origin-wrap rule is also compared exhaustively against an
@@ -148,11 +148,12 @@ internal static class GenericSpriteArtworkVerification
         {
             actual.BeginFrame();
             if (onScreen)
-                actual.AddOnScreenSpritePart(SnesSpritemapXWord.Create(5, true), new SnesSpritemapYByte((byte)offset),
+                actual.AddPart(SnesSpritemapXWord.Create(5, true), new SnesSpritemapYByte((byte)offset),
                     SnesObjAttributeWord.Create(3, 2, 1, SnesTileFlipFlags.Horizontal), new Position16<OamPixels>(12, (ushort)origin));
             else
-                actual.AddOffScreenSpritePart(SnesSpritemapXWord.Create(5, true), new SnesSpritemapYByte((byte)offset),
+                actual.AddOffScreenPart(SnesSpritemapXWord.Create(5, true), new SnesSpritemapYByte((byte)offset),
                     SnesObjAttributeWord.Create(3, 2, 1, SnesTileFlipFlags.Horizontal), new Position16<OamPixels>(12, (ushort)origin));
+            actual.FinishFrame();
             int signedY = origin + unchecked((sbyte)offset);
             bool hide = signedY is < -32 or >= 224;
             if (!onScreen) hide = !hide;
@@ -162,12 +163,6 @@ internal static class GenericSpriteArtworkVerification
             wrapCases++;
         }
         Console.WriteLine($"Generic sprite artwork: {titleCases} title cases, copyright/caret/Mother Brain/explosion owners and {wrapCases} origin-wrap cases pass without a runtime cartridge.");
-
-        static void EqualOam(OamBuffer expected, OamBuffer actual, string context)
-        {
-            AssertEqual(expected.LastFinalizedSpriteCount, actual.LastFinalizedSpriteCount, context + " count");
-            AssertTrue(expected.ImageEquals(actual), context + " packed bytes");
-        }
 
         static void EqualSprites(OamBuffer expected, ScreenSprites actual, string context)
         {

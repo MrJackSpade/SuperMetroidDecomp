@@ -20,20 +20,20 @@ public sealed class EndingCompletionTextSpritePresentation : IIntroCinematicSpri
 
     /// <summary>Appends the selected completion-text composition's parts in authored OAM order, preserving inherited palettes and the native on-screen/off-screen clipping path.</summary>
     /// <param name="pointer">Bank-$8C spritemap identity for a phrase prefix, digit, or colon; an uninstalled identity is rejected.</param>
-    /// <param name="oam">Destination OAM buffer for this frame's text parts.</param>
+    /// <param name="objects">Destination OAM buffer for this frame's text parts.</param>
     /// <param name="origin">Native wrapped sixteen-bit screen origin in pixels.</param>
     /// <param name="paletteBits">Packed OBJ palette bits used only by parts whose editable palette is null.</param>
     /// <param name="originIsOnScreen">Selects ordinary origin clipping when true or the native negative-origin Y-wrap path when false.</param>
-    public void Draw(ushort pointer, OamBuffer oam, Position16<OamPixels> origin,
+    public void Draw(ushort pointer, ScreenSprites objects, Position16<OamPixels> origin,
         ushort paletteBits, bool originIsOnScreen)
     {
         if (!frames.TryGetValue(pointer, out SpriteComposition? frame))
             throw new InvalidDataException(
                 $"Ending completion text frame $8C:{pointer:X4} is not installed.");
         if (originIsOnScreen)
-            frame.DrawOnScreen(oam, origin, paletteBits);
+            frame.Draw(objects, origin, paletteBits);
         else
-            frame.DrawOffScreen(oam, origin, paletteBits);
+            frame.DrawOffScreen(objects, origin, paletteBits);
     }
 
     /// <summary>Loads version-1 <c>ending-completion-text-sprites.json</c>, requiring all 56 named compositions and validating each ordered part's offsets, tile region, size, palette, and priority.</summary>

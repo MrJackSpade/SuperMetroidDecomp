@@ -149,14 +149,14 @@ internal static class LookupStream3Verification
         {
             for (int frame = 0; frame < expected.Length; frame++)
                 AssertTrue(expected[frame].SequenceEqual(selected.FrameWords(frame)), $"eye rectangle {frame}");
-            var vram = new SnesVram();
-            var objects = new IntroCinematicObjectSystem(vram, new ushort[1024], new IntroJapaneseSubtitles(enabled: false), eyeArtwork: selected);
+            var tilemaps = new IntroTilemaps();
+            var objects = new IntroCinematicObjectSystem(tilemaps, new ushort[1024], new IntroJapaneseSubtitles(enabled: false), eyeArtwork: selected);
             IntroEyeFrame[] eyeFrames = [IntroEyeFrame.Open, IntroEyeFrame.HalfOpen, IntroEyeFrame.Closed, IntroEyeFrame.Deadpan];
             for (int frame = 0; frame < expected.Length; frame++)
             {
                 objects.ShowEyeFrame(eyeFrames[frame]);
                 for (int cell = 0; cell < 6; cell++)
-                    AssertEqual(expected[frame][cell], vram.ReadWord(0x4800 + (13 + cell / 3) * 32 + 17 + cell % 3),
+                    AssertEqual(expected[frame][cell], tilemaps.Portrait[(13 + cell / 3) * 32 + 17 + cell % 3],
                         "actual eye patch draw preserves native and independently supplied cells");
             }
             string identity = SelectedPresentationHash.Create(nameof(IntroEyeTilemapPresentation), content =>

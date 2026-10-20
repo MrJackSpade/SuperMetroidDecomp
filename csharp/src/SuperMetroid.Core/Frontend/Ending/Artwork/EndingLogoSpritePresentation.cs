@@ -20,20 +20,20 @@ public sealed class EndingLogoSpritePresentation : IIntroCinematicSpritePresenta
 
     /// <summary>Draws the ending-logo composition identified by its bank-$8C spritemap pointer.</summary>
     /// <param name="pointer">Bank-$8C pointer identifying one of the eight installed logo frames.</param>
-    /// <param name="oam">Object-attribute buffer that receives the composition.</param>
+    /// <param name="objects">Object-attribute buffer that receives the composition.</param>
     /// <param name="origin">Native wrapped sixteen-bit screen origin in pixels.</param>
     /// <param name="paletteBits">SNES OAM attribute bits to combine with each part.</param>
     /// <param name="originIsOnScreen">Whether the origin is already in the visible coordinate range.</param>
-    public void Draw(ushort pointer, OamBuffer oam, Position16<OamPixels> origin,
+    public void Draw(ushort pointer, ScreenSprites objects, Position16<OamPixels> origin,
         ushort paletteBits, bool originIsOnScreen)
     {
         if (!frames.TryGetValue(pointer, out SpriteComposition? frame))
             throw new InvalidDataException(
                 $"Ending logo sprite frame $8C:{pointer:X4} is not installed.");
         if (originIsOnScreen)
-            frame.DrawOnScreen(oam, origin, paletteBits);
+            frame.Draw(objects, origin, paletteBits);
         else
-            frame.DrawOffScreen(oam, origin, paletteBits);
+            frame.DrawOffScreen(objects, origin, paletteBits);
     }
 
     /// <summary>Loads and validates the eight named final-logo compositions from JSON.</summary>

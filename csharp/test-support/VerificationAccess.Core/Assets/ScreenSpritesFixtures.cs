@@ -10,7 +10,26 @@ internal static class ScreenSpritesFixtures
 {
     /// <summary>Sprite entries over a blank 512-character OBJ page, for checks of placement only.</summary>
     internal static ScreenSprites Blank() =>
-        new(new SpriteArtwork(new SpriteArtworkId(SpriteArtworkKind.FrontendObjects), new byte[2 * 256 * SpriteArtwork.CharacterByteCount]));
+        Blank(SuperMetroid.Core.Frontend.Menus.MenuRenderDefinitions.ObjectSelection);
+
+    /// <summary>Sprite entries over a blank 512-character OBJ page whose objects draw at <paramref name="objectSelection"/>'s sizes.</summary>
+    internal static ScreenSprites Blank(int objectSelection) =>
+        new(new SpriteArtwork(new SpriteArtworkId(SpriteArtworkKind.FrontendObjects), new byte[2 * 256 * SpriteArtwork.CharacterByteCount]),
+            SuperMetroid.Core.Rendering.ObjectSelectionCodec.Sizes(objectSelection));
+
+    /// <summary>One finished frame of the entries <paramref name="draw"/> places, over a blank page.</summary>
+    internal static ScreenSprites Frame(Action<ScreenSprites> draw) =>
+        Frame(SuperMetroid.Core.Frontend.Menus.MenuRenderDefinitions.ObjectSelection, draw);
+
+    /// <summary>One finished frame of the entries <paramref name="draw"/> places, over a blank page sized by <paramref name="objectSelection"/>.</summary>
+    internal static ScreenSprites Frame(int objectSelection, Action<ScreenSprites> draw)
+    {
+        ScreenSprites sprites = Blank(objectSelection);
+        sprites.BeginFrame();
+        draw(sprites);
+        sprites.FinishFrame();
+        return sprites;
+    }
 
     /// <summary>The OAM records <paramref name="sprites"/>'s finished draws stand for, finalized.</summary>
     internal static OamBuffer ToOam(ScreenSprites sprites)
@@ -22,7 +41,7 @@ internal static class ScreenSpritesFixtures
             SpriteDraw draw = sprites.Draws[index];
             SpriteFramePart part = draw.Frame.Parts.Single();
             int x = draw.Origin.X & 0x1ff;
-            bool large = part.Size.X > SpriteArtwork.CharacterPixels;
+            bool large = part.Size != sprites.Sizes.Small;
             var attributes = SnesObjAttributeWord.Create(part.Character, part.Palette ?? draw.Palette, part.Priority ?? draw.Priority, part.Flip);
             oam.LowTableBytes[index * 4] = unchecked((byte)x);
             oam.LowTableBytes[index * 4 + 1] = unchecked((byte)draw.Origin.Y);

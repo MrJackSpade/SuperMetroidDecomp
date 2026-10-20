@@ -41,8 +41,15 @@ public sealed class ScreenSprites
     [NonSerialized]
     private SpriteDraw[]? draws;
 
-    /// <summary>Starts with an empty frame over <paramref name="artwork"/>.</summary>
-    public ScreenSprites(SpriteArtwork artwork) => Artwork = Ensure.NotNull(artwork);
+    /// <summary>Starts with an empty frame over <paramref name="artwork"/>, whose objects draw at <paramref name="sizes"/>.</summary>
+    public ScreenSprites(SpriteArtwork artwork, ScreenObjectSizes sizes)
+    {
+        Artwork = Ensure.NotNull(artwork);
+        Sizes = sizes;
+    }
+
+    /// <summary>The sizes a small and a large object draw at, from the screen's OBJ size selection.</summary>
+    public ScreenObjectSizes Sizes { get; }
 
     /// <summary>The OBJ character page the screen's parts name.</summary>
     [field: NonSerialized]
@@ -75,13 +82,33 @@ public sealed class ScreenSprites
     }
 
     /// <summary>Places one compiled spritemap part relative to an on-screen <paramref name="origin"/>.</summary>
-    public void AddPart(SnesSpritemapXWord x, SnesSpritemapYByte y, SnesObjAttributeWord attributes, Position16<OamPixels> origin)
+    public void AddPart(SnesSpritemapXWord x, SnesSpritemapYByte y, SnesObjAttributeWord attributes, Position16<OamPixels> origin) =>
+        AddPart(x, y, attributes, origin, originIsOnScreen: true);
+
+    /// <summary>Places one compiled spritemap part relative to a negative <paramref name="origin"/> ($81:8853's reversed wrap).</summary>
+    public void AddOffScreenPart(SnesSpritemapXWord x, SnesSpritemapYByte y, SnesObjAttributeWord attributes, Position16<OamPixels> origin) =>
+        AddPart(x, y, attributes, origin, originIsOnScreen: false);
+
+    /// <summary>
+    /// Places one small object whose attributes name its character, flips, palette and priority. Like a direct OAM
+    /// store, the object index wraps after the last object instead of stopping.
+    /// </summary>
+    public void AddSmallObject(Position16<OamPixels> position, SnesObjAttributeWord attributes)
+    {
+        placed[next] = new ScreenObject(attributes, IsLarge: false, position);
+        next = (next + 1) % Capacity;
+    }
+
+    /// <summary>Applies the spritemap loader's vertical-wrap hiding and places the part, until the frame is full.</summary>
+    private void AddPart(SnesSpritemapXWord x, SnesSpritemapYByte y, SnesObjAttributeWord attributes, Position16<OamPixels> origin,
+        bool originIsOnScreen)
     {
         if (next >= Capacity)
             return;
         ushort placedX = unchecked((ushort)(origin.X + x.Raw));
         int placedY = (byte)origin.Y + y.Raw;
-        if (Hides(placedY, y.IsNegative))
+        // The off-screen branch inverts the on-screen test: a part shows exactly when the on-screen loader would hide it.
+        if (Hides(placedY, y.IsNegative) == originIsOnScreen)
         {
             placedX = ParkedX;
             placedY = SnesPpuLayout.ScreenHeightPixels;
@@ -118,9 +145,9 @@ public sealed class ScreenSprites
         int y = placedObject.Position.Y;
         int screenX = nineBitX >= XRange / 2 ? nineBitX - XRange : nineBitX;
         int screenY = y >= SnesPpuLayout.ScreenHeightPixels ? y - ByteRange : y;
-        int size = placedObject.IsLarge ? 2 * SpriteArtwork.CharacterPixels : SpriteArtwork.CharacterPixels;
+        Extent16<ScreenPixels> size = placedObject.IsLarge ? Sizes.Large : Sizes.Small;
         SnesObjAttributeWord attributes = placedObject.Attributes;
-        var part = new SpriteFramePart(default, new Extent16<ScreenPixels>((ushort)size, (ushort)size),
+        var part = new SpriteFramePart(default, size,
             attributes.TileNumber, attributes.FlipFlags, attributes.PaletteIndex, attributes.Priority);
         return new SpriteDraw(new SpriteSource(SpriteSourceKind.FrontendObjects, index), new SpriteFrame("frontend object", [part]), Artwork,
             new Position16<ScreenPixels>(unchecked((ushort)screenX), unchecked((ushort)screenY)), default, 0, 0);

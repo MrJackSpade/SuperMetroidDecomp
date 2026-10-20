@@ -10,6 +10,7 @@ using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Samus.Death;
 using SuperMetroid.AssetExtraction.Installation;
+using SuperMetroid.Core.Samus.Drawing;
 namespace SuperMetroid.RenderVerification.Samus;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core;

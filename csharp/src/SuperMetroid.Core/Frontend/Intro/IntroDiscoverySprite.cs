@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Frontend.Intro;
 
@@ -176,7 +177,7 @@ internal sealed class IntroDiscoverySprite
     }
 
     /// <summary>Draws the current frame at the whole position minus <paramref name="scroll"/>.</summary>
-    public void Draw(OamBuffer oam, Offset16<ScreenPixels> scroll = default,
+    public void Draw(ScreenSprites objects, Offset16<ScreenPixels> scroll = default,
         IIntroCinematicSpritePresentation? installedArt = null)
     {
         if (!IsActive || Pose is not { } pose)
@@ -196,6 +197,6 @@ internal sealed class IntroDiscoverySprite
             ((y & CinematicSpriteDrawDefinitions.OriginYHighByteMask)) == 0;
         (installedArt ?? throw new InvalidOperationException(
             "Cinematic sprites require installed artwork."))
-            .Draw(spritemap, oam, origin.ToOam(), Attributes.Raw, originIsOnScreen);
+            .Draw(spritemap, objects, origin.ToOam(), Attributes.Raw, originIsOnScreen);
     }
 }

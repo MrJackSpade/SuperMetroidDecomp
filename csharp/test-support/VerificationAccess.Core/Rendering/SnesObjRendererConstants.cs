@@ -14,7 +14,7 @@ internal static class SnesObjRendererConstants
     public static void Render(
         Span<Rgba32> output,
         ImmutableArray<SpriteDraw> draws,
-        SnesCgram cgram,
+        IPaletteColors cgram,
         Extent16<ScreenPixels>? size = null,
         int? priority = null)
     {

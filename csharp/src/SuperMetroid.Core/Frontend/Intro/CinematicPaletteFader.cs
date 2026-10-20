@@ -93,14 +93,14 @@ public sealed class CinematicPaletteFader
     }
 
     /// <summary>Ports <c>ComposeFadingPalettes</c> at $8B:8CEA into live CGRAM.</summary>
-    public void ComposeInto(SnesCgram cgram)
+    public void ComposeInto(IPaletteColors cgram)
     {
         Ensure.NotNull(cgram);
         Span<Bgr555> image = stackalloc Bgr555[CgramPalettes.ColorCount];
         for (int color = 0; color < image.Length; color++)
         {
-            // High bytes supply the visible five-bit components. Writing through
-            // SnesCgram matches the following native NMI upload into physical CGRAM.
+            // High bytes supply the visible five-bit components, as the following native
+            // NMI upload writes them into physical CGRAM.
             image[color] = new Bgr555(
                 (SnesLittleEndian.HighByte(currentRed[color])) & Bgr555.MaxChannel,
                 (SnesLittleEndian.HighByte(currentGreen[color])) & Bgr555.MaxChannel,

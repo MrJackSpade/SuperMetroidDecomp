@@ -52,30 +52,19 @@ public sealed class PpuMemorySnapshot
         foreach (SpriteDraw draw in spriteDraws)
             if (draw is null)
                 throw new ArgumentException("Each sprite draw needs an entry.", nameof(spriteDraws));
-        if (vram.Length != SnesPpuLayout.VramByteCount)
-            throw new ArgumentException("A frame requires a complete VRAM image.", nameof(vram));
-        if (cgram.Length != SnesPpuLayout.CgramColorCount)
-            throw new ArgumentException("A frame requires a complete CGRAM image.", nameof(cgram));
+        Ensure.LengthEqual<byte>(vram, SnesPpuLayout.VramByteCount);
+        Ensure.LengthEqual<Bgr555>(cgram, SnesPpuLayout.CgramColorCount);
         this.vram = vram;
         this.cgram = cgram;
         this.spriteDraws = ImmutableCollectionsMarshal.AsArray(spriteDraws) ?? throw new ArgumentException(
             "A frame requires a draw list.", nameof(spriteDraws));
     }
 
-    /// <summary>Captures currently published memories and the displayed frame's whole-frame sprite draws.</summary>
-    public static PpuMemorySnapshot Capture(SnesVram vram, SnesCgram cgram, SpriteFrameBuffer sprites)
-    {
-        Ensure.NotNull(vram);
-        Ensure.NotNull(cgram);
-        Ensure.NotNull(sprites);
-        return new(vram.CaptureImage(), cgram.Colors.ToArray(), sprites.Draws);
-    }
-
     /// <summary>
     /// Captures gameplay's memories with its background character artwork composed over the VRAM image (#1350): each
     /// binding shows over the words VRAM has not written since it was made.
     /// </summary>
-    public static PpuMemorySnapshot Capture(SnesVram vram, SnesCgram cgram, SpriteFrameBuffer sprites, BgArtworkBindings backgrounds)
+    public static PpuMemorySnapshot Capture(SnesVram vram, IPaletteColors cgram, SpriteFrameBuffer sprites, BgArtworkBindings backgrounds)
     {
         Ensure.NotNull(vram);
         Ensure.NotNull(cgram);
@@ -86,15 +75,14 @@ public sealed class PpuMemorySnapshot
         return new(image, cgram.Colors.ToArray(), sprites.Draws);
     }
 
-    /// <summary>Captures a frontend screen's memories, converting its OAM storage into the draw it stands for.</summary>
+    /// <summary>Captures a frontend screen's VRAM and CGRAM with the sprite entries it publishes.</summary>
     /// <param name="vram">The screen's VRAM.</param>
     /// <param name="cgram">The screen's CGRAM.</param>
-    /// <param name="oam">The screen's finalized OAM storage.</param>
-    /// <param name="objectSelection">The screen's OBSEL value.</param>
-    public static PpuMemorySnapshot CaptureFrontend(SnesVram vram, SnesCgram cgram, OamBuffer oam, int objectSelection)
+    /// <param name="draws">The screen's sprite entries, frontmost first.</param>
+    public static PpuMemorySnapshot CaptureFrontend(SnesVram vram, SnesCgram cgram, ImmutableArray<SpriteDraw> draws)
     {
         Ensure.NotNull(vram);
         Ensure.NotNull(cgram);
-        return new(vram.CaptureImage(), cgram.Colors.ToArray(), FrontendOamDraws.Draws(oam, vram, objectSelection));
+        return new(vram.CaptureImage(), cgram.Colors.ToArray(), draws);
     }
 }

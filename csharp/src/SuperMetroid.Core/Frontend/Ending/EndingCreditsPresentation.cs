@@ -17,13 +17,12 @@ internal sealed class EndingCreditsPresentation
         _ending = owner;
     }
     /// <summary>Resolves the ending display at its existing draw boundary, without rasterization.</summary>
-    [PpuLayoutBoundary("frontend OAM writer: EndingCreditsPresentation.CaptureRenderSnapshot until #1358 moves it onto sprite entries")]
     public LayeredRenderSnapshot CaptureRenderSnapshot()
     {
         if (_ending.UsesExplosionFinaleDisplay) return _ending.CaptureExplosionFinale();
         var layers = new List<RenderLayer>();
         byte objectSelection = ObjectSelection(CurrentEscapeObjectSheet);
-        OamBuffer oam;
+        PpuMemorySnapshot memory;
         if (_ending.endingLogo is not null)
         {
             if (_ending.endingLogo.CrossfadeStarted)
@@ -31,8 +30,7 @@ internal sealed class EndingCreditsPresentation
                     new Position16<BgPlanePixels>(0, 0), new Extent16<TilemapCells>(32, 32), null));
             layers.Add(new ObjRenderLayer(_ending.endingLogo.CrossfadeStarted));
             layers.Add(PostCreditsLayer());
-            return new(PpuMemorySnapshot.CaptureFrontend(_ending.vram, _ending.cgram,
-                PrepareSprites(), 3), layers.ToArray(), 3, checked((byte)_ending.brightness));
+            return new(CaptureMemory(3), layers.ToArray(), 3, checked((byte)_ending.brightness));
         }
         if (_ending.postShot is not null)
         {
@@ -43,7 +41,7 @@ internal sealed class EndingCreditsPresentation
             layers.Add(new ObjPriorityRenderLayer(1));
             layers.Add(new ObjPriorityRenderLayer(2));
             layers.Add(new ObjPriorityRenderLayer(3));
-            return new(PpuMemorySnapshot.CaptureFrontend(_ending.vram, _ending.cgram, PrepareSprites(), ObjectSelection(CurrentRewardObjectSheet)), layers.ToArray(),
+            return new(CaptureMemory(ObjectSelection(CurrentRewardObjectSheet)), layers.ToArray(),
                 ObjectSelection(CurrentRewardObjectSheet), checked((byte)_ending.brightness));
         }
         if (_ending.Phase == EndingCreditsPhase.Credits)
@@ -51,7 +49,7 @@ internal sealed class EndingCreditsPresentation
             layers.Add(new Bg4BppRenderLayer(EndingCreditsRomData.Rendering.CreditsTilemapWord,
                 EndingCreditsRomData.Rendering.CreditsCharacterWord, _ending.Credits.ScrollPosition, new Extent16<TilemapCells>(32, 32), null));
             // Credits intentionally do not run the sprite draw routine.
-            oam = new OamBuffer(); oam.BeginFrame(); oam.FinalizeFrame();
+            memory = PpuMemorySnapshot.CaptureFrontend(_ending.vram, _ending.cgram, []);
         }
         else
         {
@@ -81,7 +79,7 @@ internal sealed class EndingCreditsPresentation
                     _ending.mode7.Whole.AsSignedRegister(), WrapOutsideMap: AtmosphericMapWraps),
                     AddBg1Subscreen: AtmosphericMapWraps));
             }
-            oam = PrepareSprites();
+            memory = CaptureMemory(objectSelection);
             if (EndingObjectsEnabled && !AtmosphericMapWraps)
             {
                 if (UsesFlyawayMode7Priority)
@@ -103,7 +101,7 @@ internal sealed class EndingCreditsPresentation
             if (_ending.Phase == EndingCreditsPhase.PostCreditsWhiteFlash)
                 layers.Add(EndingCreditsState.WhiteAddition(_ending.whiteFlashColor));
         }
-        return new(PpuMemorySnapshot.CaptureFrontend(_ending.vram, _ending.cgram, oam, objectSelection), layers.ToArray(), objectSelection, checked((byte)_ending.brightness));
+        return new(memory, layers.ToArray(), objectSelection, checked((byte)_ending.brightness));
     }
 
     /// <summary>Mode 7 matrix and center for the post-shot reward scene.</summary>
@@ -175,15 +173,18 @@ internal sealed class EndingCreditsPresentation
                 _ending.postCreditsScroll, size, null);
     }
 
-    /// <summary>Builds scene OAM at the simulation display boundary without advancing sprite state.</summary>
-    [PpuLayoutBoundary("frontend OAM writer: EndingCreditsPresentation.PrepareSprites until #1358 moves it onto sprite entries")]
-    internal OamBuffer PrepareSprites()
+    /// <summary>The scene's memories with this frame's sprite entries over the OBJ page <paramref name="objectSelection"/> selects.</summary>
+    internal PpuMemorySnapshot CaptureMemory(byte objectSelection) =>
+        PpuMemorySnapshot.CaptureFrontend(_ending.vram, _ending.cgram, PrepareSprites(objectSelection).Draws);
+
+    /// <summary>Places the scene's sprite entries at the simulation display boundary without advancing sprite state.</summary>
+    internal ScreenSprites PrepareSprites(byte objectSelection)
     {
-        var oam = new OamBuffer();
-        oam.BeginFrame();
-        if (_ending.endingLogo is not null) _ending.endingLogo.Draw(_ending.objectArtwork?.LogoSprites, oam);
-        else if (_ending.rewardGesture is not null) _ending.rewardGesture.Draw(_ending.objectArtwork?.RewardSprites, oam);
-        else if (_ending.rewardJump is not null) _ending.rewardJump.Draw(_ending.objectArtwork?.RewardSprites, oam);
+        var objects = new ScreenSprites(FrontendOamDraws.Page(_ending.vram, objectSelection), ObjectSelectionCodec.Sizes(objectSelection));
+        objects.BeginFrame();
+        if (_ending.endingLogo is not null) _ending.endingLogo.Draw(objects, _ending.objectArtwork?.LogoSprites);
+        else if (_ending.rewardGesture is not null) _ending.rewardGesture.Draw(objects, _ending.objectArtwork?.RewardSprites);
+        else if (_ending.rewardJump is not null) _ending.rewardJump.Draw(objects, _ending.objectArtwork?.RewardSprites);
         else
         {
             foreach (EndingSprite wrapper in _ending.sprites.OrderByDescending(actor => actor.NativeSlot))
@@ -197,12 +198,12 @@ internal sealed class EndingCreditsPresentation
                     EndingSpriteFamily.AnimalEscape => EndingAnimalEscapeDefinitions.Presentation,
                     var family => throw new InvalidOperationException($"Undefined ending sprite family {family}."),
                 };
-                wrapper.Sprite.Draw(oam, installedArt: spriteArt);
+                wrapper.Sprite.Draw(objects, installedArt: spriteArt);
             }
         }
-        if (_ending.Phase >= EndingCreditsPhase.PostCreditsBlank) _ending.shootingStars?.Draw(oam);
-        oam.FinalizeFrame();
-        return oam;
+        if (_ending.Phase >= EndingCreditsPhase.PostCreditsBlank) _ending.shootingStars?.Draw(objects);
+        objects.FinishFrame();
+        return objects;
     }
 
     /// <summary>Reads a signed sine component from the installed enemy trigonometry table.</summary>

@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Frontend.Intro.Artwork;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Frontend.Intro;
 
@@ -60,9 +61,9 @@ internal sealed class IntroEggParticle
     }
 
     /// <summary>Draws the fragment's current cinematic pose using installed art when supplied.</summary>
-    public void Draw(OamBuffer oam,
+    public void Draw(ScreenSprites objects,
         IntroEggEffectSpritePresentation? installedArt = null) =>
-        sprite.Draw(oam, installedArt: installedArt);
+        sprite.Draw(objects, installedArt: installedArt);
 
     /// <summary>Adds a compiled signed whole/fraction velocity to one axis without changing the other coordinate.</summary>
     private static void AddSixteenSixteenVelocity(

@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Frontend.Ending;
 
@@ -75,16 +76,12 @@ internal sealed class EndingRewardJump
         body.Step(HandleCue);
     }
 
-    /// <summary>Draws the active head and body into a supplied frame or a newly finalized OAM buffer.</summary>
-    [PpuLayoutBoundary("frontend OAM writer: EndingRewardJump.Draw until #1358 moves it onto sprite entries")]
-    public OamBuffer Draw(EndingRewardSpritePresentation? installedArt = null, OamBuffer? destination = null)
+    /// <summary>Places the active head and body as the supplied sprite entries.</summary>
+    public void Draw(ScreenSprites destination, EndingRewardSpritePresentation? installedArt)
     {
-        var oam = destination ?? new OamBuffer();
-        if (destination is null) oam.BeginFrame();
-        head?.Draw(oam, installedArt: installedArt);
-        body.Draw(oam, installedArt: installedArt);
-        if (destination is null) oam.FinalizeFrame();
-        return oam;
+        Ensure.NotNull(destination);
+        head?.Draw(destination, installedArt: installedArt);
+        body.Draw(destination, installedArt: installedArt);
     }
 
     /// <summary>Applies gravity to shared velocity and moves an actor using packed fixed-point height.</summary>

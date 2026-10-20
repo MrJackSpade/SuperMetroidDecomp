@@ -189,7 +189,7 @@ public sealed class RoomLayer3FxState
     /// <param name="room">The room, for rooms that suppress the earthquake sound.</param>
     public static RoomLayer3FxState ForRoom(
         RoomFxSession session,
-        SnesCgram cgram,
+        IPaletteColors cgram,
         RoomFxDefinition? fx,
         CartridgeDoorHeader? door,
         int randomNumber,
@@ -200,7 +200,7 @@ public sealed class RoomLayer3FxState
     /// <param name="session">The Fireflea state, COLDATA shadows and installed FX artwork, which outlive each room.</param>
     /// <param name="cgram">CGRAM receiving the record's palette blend.</param>
     /// <param name="source">The FX record's source.</param>
-    internal static RoomLayer3FxState ForRecord(RoomFxSession session, SnesCgram cgram, RoomFxLoadSource source)
+    internal static RoomLayer3FxState ForRecord(RoomFxSession session, IPaletteColors cgram, RoomFxLoadSource source)
     {
         var fx = new RoomLayer3FxState(session);
         fx.SelectRecord(cgram, source);
@@ -211,7 +211,7 @@ public sealed class RoomLayer3FxState
     /// Selects the door's FX record and initializes the liquid and palette state shared by room effects and PLMs.
     /// The BG3 plane the room shows is cleared under the HUD with the effect's page from row 31 (<see cref="Layer3Plane"/>).
     /// </summary>
-    private void SelectRecord(SnesCgram cgram, RoomFxLoadSource source)
+    private void SelectRecord(IPaletteColors cgram, RoomFxLoadSource source)
     {
         Ensure.NotNull(cgram);
 
@@ -493,7 +493,7 @@ public sealed class RoomLayer3FxState
     /// $89:AB02 LoadFxEntry reloads motion, blending and three colors, but does not restart
     /// HDMA, animated tiles, or the liquid's current motion phase as a room load would.
     /// </summary>
-    internal LayerBlendingConfiguration ApplyEntry(SnesCgram cgram,
+    internal LayerBlendingConfiguration ApplyEntry(IPaletteColors cgram,
         RoomFxRecordDefinition definition)
     {
         Ensure.NotNull(definition);
@@ -510,7 +510,7 @@ public sealed class RoomLayer3FxState
     }
 
     /// <summary>Applies the selected FX blend colors from installed presentation data.</summary>
-    private void ApplyPaletteBlend(SnesCgram cgram, byte selection)
+    private void ApplyPaletteBlend(IPaletteColors cgram, byte selection)
     {
         (PaletteBlendColors ?? throw new InvalidOperationException(
             "Room FX requires installed palette-blend colors.")).Apply(cgram,

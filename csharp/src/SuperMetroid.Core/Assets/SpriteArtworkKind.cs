@@ -32,4 +32,8 @@ public enum SpriteArtworkKind
     MenuObjects,
     /// <summary>The title OBJ page: the installed title object sheet the title and copyright compositions draw from.</summary>
     TitleObjects,
+    /// <summary>The Ceres flight OBJ page: the installed space, gunship and station sheet the flight's compositions draw from.</summary>
+    CeresFlightObjects,
+    /// <summary>The Ceres destruction OBJ page: the characters the scene's transfers leave, station and cinematic sheets then Zebes.</summary>
+    CeresDestructionObjects,
 }

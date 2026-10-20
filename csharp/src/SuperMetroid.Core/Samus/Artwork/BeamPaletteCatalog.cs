@@ -70,7 +70,7 @@ public sealed class BeamPaletteCatalog
     /// <summary>Copies all sixteen colors of an ordinary beam selection to CGRAM entries 224..239 (OBJ palette 6), matching native <c>Load_Beam_Palette_withStackPrepped</c> at <c>$90:ACCD</c>; does not run charge or Hyper Beam color animation.</summary>
     /// <param name="cgram">Destination color memory to update.</param>
     /// <param name="selection">Retail beam combination $0..$B.</param>
-    public void LoadTo(SnesCgram cgram, SamusBeamCombination selection)
+    public void LoadTo(IPaletteColors cgram, SamusBeamCombination selection)
     {
         if (!selection.IsRetail) throw new ArgumentOutOfRangeException(nameof(selection), selection, "Beam palettes cover retail combinations only.");
         for (int i = 0; i < BeamPaletteDefinitions.ColorCount; i++)

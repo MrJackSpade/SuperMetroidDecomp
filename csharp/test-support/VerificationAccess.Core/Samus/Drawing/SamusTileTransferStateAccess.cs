@@ -1,3 +1,7 @@
+using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Samus.Poses;
+using SuperMetroid.Core.Samus.Artwork;
+using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Core.Samus.Drawing;
 
@@ -12,6 +16,29 @@ internal static class SamusTileTransferStateAccess
         {
             self.TopTransferEnabled = false;
             self.BottomTransferEnabled = false;
+        }
+        /// <summary>
+        /// Ports <c>TransferSamusTilesToVRAM</c> at <c>$80:9376</c> for one accepted NMI.
+        /// </summary>
+        public void TransferToVram(SnesVram vram)
+        {
+            Ensure.NotNull(vram);
+
+            // Samus has a dedicated DMA path instead of using the ordinary seven-byte VRAM
+            // queue. The four destinations form two interleaved character regions selected by
+            // the pose spritemaps' tile numbers under gameplay OBSEL=$03.
+            SamusBodyArtworkCatalog installed = self.Artwork ?? throw new InvalidOperationException(
+                "Samus tile transfer requires installed body artwork.");
+            var samusVram = new SamusVram(vram);
+            if (self.TopTransferEnabled)
+                SamusTileTransferStateConstants.ExecuteInstalledDefinition(installed.DefinitionAt(self.TopDefinitionAddress),
+                    samusVram.BodyTopFirst, samusVram.BodyTopSecond);
+            if (self.BottomTransferEnabled)
+                SamusTileTransferStateConstants.ExecuteInstalledDefinition(installed.DefinitionAt(self.BottomDefinitionAddress),
+                    samusVram.BodyBottomFirst, samusVram.BodyBottomSecond);
+
+            // These flags are intentionally not cleared. The original NMI routine leaves them
+            // set, and Samus_Draw refreshes the selected definitions during each main-loop pass.
         }
     }
 }

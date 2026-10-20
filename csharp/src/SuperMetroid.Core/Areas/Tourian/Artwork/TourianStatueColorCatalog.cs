@@ -61,7 +61,7 @@ public sealed class TourianStatueColorCatalog
     public Bgr555 ResolveGrey(int color) => greyColors.Read(color);
 
     /// <summary>Installs all sixteen base-decoration inks at CGRAM 240–255 and all sixteen statue inks at 160–175, matching the entrance initializer's two OBJ palette bands.</summary>
-    public void ApplyEntrance(SnesCgram cgram)
+    public void ApplyEntrance(IPaletteColors cgram)
     {
         baseColors.Apply(new BossPalettes(cgram).TourianStatueBase);
         statueColors.Apply(new BossPalettes(cgram).TourianStatue);
@@ -70,7 +70,7 @@ public sealed class TourianStatueColorCatalog
     /// <summary>Installs the selected four-color eye glow at CGRAM 249–252 without altering boss completion or animated-tile state.</summary>
     /// <param name="cgram">Current palette receiving the selected eye colors.</param>
     /// <param name="doubledBossParameter">Native doubled selector: Phantoon 0, Ridley 2, Draygon 4, or Kraid 6.</param>
-    public void ApplyEye(SnesCgram cgram, ushort doubledBossParameter)
+    public void ApplyEye(IPaletteColors cgram, ushort doubledBossParameter)
     {
         if (doubledBossParameter > 6 || (doubledBossParameter & 1) != 0)
             throw new ArgumentOutOfRangeException(nameof(doubledBossParameter));
@@ -83,7 +83,7 @@ public sealed class TourianStatueColorCatalog
     /// <param name="cgram">Current palette to update.</param>
     /// <param name="destinationColor">First CGRAM color index, obtained by dividing the native byte-index operand by two.</param>
     [PpuLayoutBoundary("codec: Tourian grey ink at its native CGRAM index operand")]
-    public void ApplyGrey(SnesCgram cgram, int destinationColor) =>
+    public void ApplyGrey(IPaletteColors cgram, int destinationColor) =>
         greyColors.Apply(new CgramPalettes(cgram).All.Slice(destinationColor, TourianStatuePaletteRomData.GreyColorCount));
 
     /// <summary>Loads version-1 <c>tourian-statue-colors.json</c>, validating sixteen-color base/statue bands, four four-color eye rows, eight grey inks, and RGB5 channels from 0 through 31.</summary>

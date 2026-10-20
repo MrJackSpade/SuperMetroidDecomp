@@ -11,6 +11,7 @@ using SuperMetroid.Core.Fx.Artwork;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Frontend.CeresCinematics;
 
@@ -30,20 +31,25 @@ internal sealed class CeresDestructionCinematicState
 {
     /// <summary>Shared queue for Ceres music and the final station blast sound.</summary>
     private readonly CartridgeAudioState? audio;
-    /// <summary>Retains scene tilemaps and OBJ characters across native phase transfers.</summary>
-    internal readonly SnesVram vram = new();
-    /// <summary>Receives the Ceres base palette and later engine-flicker program.</summary>
-    internal readonly SnesCgram cgram = new();
-    /// <summary>Contiguous Ceres scene, front-gunship, and clear Mode-7 map source regions.</summary>
-    private byte[] ceresTilemaps;
+    /// <summary>The scene's graphics transfers in the order the phases made them; the capture replays them over the bound artwork (#1358).</summary>
+    private readonly List<CeresDestructionUpload> uploads = [];
+    /// <summary>The scene's colors: the Ceres base palette and later engine-flicker program (#1358).</summary>
+    internal readonly ScreenPalette palette = new();
+    /// <summary>The live actors' sprite entries over the OBJ characters the uploads leave (#1358).</summary>
+    internal readonly ScreenSprites objects;
+    /// <summary>The replayed memory image of the bound artwork, until an upload or a rebind changes it.</summary>
+    [NonSerialized] private byte[]? image;
     /// <summary>Installed art rebound after debugger restoration rather than serialized with scene state.</summary>
     [NonSerialized] private IntroCinematicArtworkCatalog? artwork;
     /// <summary>Host-owned sprite compositions for Ceres and Zebes actors.</summary>
     [NonSerialized] private IIntroCinematicSpritePresentation? spriteArtwork;
     /// <summary>Live asteroid, blast, planet, star, and title objects in update order.</summary>
     internal readonly List<IntroDiscoverySprite> actors = [];
-    /// <summary>Native OBJ slot ownership for Ceres actors when explosions reuse freed slots.</summary>
-    private readonly Dictionary<IntroDiscoverySprite, int> ceresActorSlots = [];
+    /// <summary>
+    /// Native OBJ slot ownership for Ceres actors when explosions reuse freed slots. Entries name their actor by
+    /// reference, which a debugger restore preserves; a hash table of actors would not survive it.
+    /// </summary>
+    private readonly List<CeresActorSlot> ceresActorSlots = [];
     /// <summary>Runs the final station blast through the ordinary power-bomb color curve.</summary>
     private readonly SamusPowerBombExplosionState stationExplosion = new();
     /// <summary>Engine-flicker palette program created at the Zebes reveal boundary.</summary>
@@ -118,7 +124,8 @@ internal sealed class CeresDestructionCinematicState
         spriteArtwork = new CeresSceneSpritePresentation(
             artwork.CeresFlight.Sprites, artwork.CeresDestruction.Sprites);
         stationExplosion.PresentationColors = fixedColors;
-        ceresTilemaps = LoadCeresTilemaps();
+        objects = new ScreenSprites(CeresDestructionScreenImage.ObjectPage(CeresDestructionScreenImage.Compose(this.artwork, uploads, withSamus)),
+            ObjectSelectionCodec.Sizes(MenuRenderDefinitions.ObjectSelection));
     }
 
     /// <summary>
@@ -153,43 +160,10 @@ internal sealed class CeresDestructionCinematicState
         artwork = value;
         spriteArtwork = value is null ? null : new CeresSceneSpritePresentation(
             value.CeresFlight.Sprites, value.CeresDestruction.Sprites);
+        image = null;
         if (value is null) return;
-        ceresTilemaps = LoadCeresTilemaps();
         if (Phase <= CeresDestructionPhase.FlyToZebesInitial)
-            value.CeresFlight.Palette.LoadTo(cgram);
-        if (Phase <= CeresDestructionPhase.FadeOutCeres)
-        {
-            new Mode7Vram(vram).LoadCharacters(value.CeresFlight.Mode7Characters.Span);
-            new CeresVram(vram).ObjectCharacters.Load(value.CeresFlight.ObjectCharacters.Span);
-            new CeresVram(vram).ObjectCharacters.Load(value.IntroObjectCharacters.Transfer.Span[..CeresDestructionRomData.Vram.SharedObjectCharacterBytes]);
-            int offset = Phase < CeresDestructionPhase.FlyingAwayFromExplosion
-                ? CeresDestructionRomData.Vram.CeresSceneTilemapOffset : 0;
-            new Mode7Vram(vram).LoadMap(ceresTilemaps.AsSpan(offset,
-                CeresDestructionRomData.Vram.CeresSceneTilemapBytes));
-            if (Phase >= CeresDestructionPhase.FlyingAwayFromExplosion)
-                LoadFinalExplosionMaps();
-        }
-        else
-        {
-            new Mode7Vram(vram).LoadCharacters(value.CeresFlight.Mode7Characters.Span);
-            new Mode7Vram(vram).LoadMap(ceresTilemaps.AsSpan(
-                CeresDestructionRomData.Vram.MapHalfBytes,
-                CeresDestructionRomData.Vram.MapHalfBytes));
-            new CeresVram(vram).ZebesTilemap.Load(value.CeresDestruction.ZebesMap.Transfer.Span);
-            new CeresVram(vram).ObjectCharacters.Load(value.CeresDestruction.ZebesCharacters.Transfer.Span);
-        }
-    }
-
-    /// <summary>Joins installed Ceres flight and destruction maps into the native contiguous transfer source.</summary>
-    private byte[] LoadCeresTilemaps()
-    {
-        IntroCinematicArtworkCatalog content = artwork ?? throw new InvalidOperationException(
-            "Ceres destruction requires installed cinematic artwork.");
-        var maps = new byte[CeresDestructionRomData.Vram.CeresMinimumTilemapBytes];
-        content.CeresFlight.Mode7Maps.Span.CopyTo(maps);
-        content.CeresDestruction.CeresMaps.Span.CopyTo(
-            maps.AsSpan(content.CeresFlight.Mode7Maps.Length));
-        return maps;
+            value.CeresFlight.Palette.LoadTo(palette);
     }
 
     /// <summary>Current native dispatcher phase, including the alternate game-over route.</summary>
@@ -406,7 +380,7 @@ internal sealed class CeresDestructionCinematicState
                 paletteFx = new RoomPaletteFxSystem(new PaletteFxSessionState());
                 paletteFx.SpawnDefinition(CeresDestructionRomData.PaletteFx.EngineFlicker, 0);
             }
-            paletteFx.Step(cgram, paletteFxColors ?? throw new InvalidOperationException(
+            paletteFx.Step(palette, paletteFxColors ?? throw new InvalidOperationException(
                     "Ceres palette FX requires installed palette colors."), new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
             if (paletteFx.SoundRequests.Count != 0 || paletteFx.MusicRequests.Count != 0)
                 throw new InvalidDataException("Ceres engine palette program unexpectedly requested audio.");
@@ -423,39 +397,21 @@ internal sealed class CeresDestructionCinematicState
     {
         IntroCinematicArtworkCatalog content = artwork ?? throw new InvalidOperationException(
             "Ceres destruction requires installed cinematic artwork.");
-        byte[] characters = content.CeresFlight.Mode7Characters.ToArray();
-        byte[] objectCharacters = content.CeresFlight.ObjectCharacters.ToArray();
-        RequireMinimum(characters, CeresDestructionRomData.Vram.Mode7CharacterBytes,
+        RequireMinimum(content.CeresFlight.Mode7Characters.Length, CeresDestructionRomData.Vram.Mode7CharacterBytes,
             "Ceres destruction Mode-7 characters");
         // The stream is four adjacent native work-RAM regions, not merely the two Ceres
         // screens used by this setup call. `$8B:C345` later consumes the front-gunship
         // screen at +$000 and the clear screen at +$C00 without decompressing again.
-        RequireMinimum(ceresTilemaps, CeresDestructionRomData.Vram.CeresMinimumTilemapBytes,
-            "Ceres cinematic tilemaps");
-        RequireMinimum(objectCharacters, CeresDestructionRomData.Vram.Mode7CharacterBytes,
+        RequireMinimum(content.CeresFlight.Mode7Maps.Length + content.CeresDestruction.CeresMaps.Length,
+            CeresDestructionRomData.Vram.CeresMinimumTilemapBytes, "Ceres cinematic tilemaps");
+        RequireMinimum(content.CeresFlight.ObjectCharacters.Length, CeresDestructionRomData.Vram.Mode7CharacterBytes,
             "Ceres cinematic OBJ characters");
 
         // C11B selects bytes $600-$BFF: the third/fourth 24-row Ceres map pair. The
         // intro uses offsets zero and $300, so reusing either intro slice produces a
         // coherent but completely incorrect destruction shot.
-        new Mode7Vram(vram).LoadCharacters(
-            characters.AsSpan(0, CeresDestructionRomData.Vram.Mode7CharacterBytes));
-        new Mode7Vram(vram).FillMap(
-            CeresDestructionRomData.Vram.InitialMode7MapCharacter,
-            CeresDestructionRomData.Vram.Mode7MapCapacityBytes);
-        new Mode7Vram(vram).LoadMap(ceresTilemaps.AsSpan(
-            CeresDestructionRomData.Vram.CeresSceneTilemapOffset,
-            CeresDestructionRomData.Vram.CeresSceneTilemapBytes));
-        new CeresVram(vram).ObjectCharacters.Load(
-            objectCharacters.AsSpan(0, CeresDestructionRomData.Vram.Mode7CharacterBytes));
-
-        // The final C11B DMA overwrites the first $1A00 OBJ bytes with the standard
-        // cinematic sheet at $9A:D200. Preserve that overlap instead of displaying the
-        // decompressed source's stale characters for explosion spritemaps.
-        new CeresVram(vram).ObjectCharacters.Load(
-            content.IntroObjectCharacters.Transfer.Span
-                [..CeresDestructionRomData.Vram.SharedObjectCharacterBytes]);
-        content.CeresFlight.Palette.LoadTo(cgram);
+        Upload(CeresDestructionUpload.CeresScene);
+        content.CeresFlight.Palette.LoadTo(palette);
 
         actors.Clear();
         for (int index = 0; index < CeresDestructionActorDefinitions.InitialActorCount; index++)
@@ -470,9 +426,9 @@ internal sealed class CeresDestructionCinematicState
             actors.Add(CreateActor(definition));
         }
         ceresActorSlots.Clear();
-        ceresActorSlots.Add(actors[0], CeresDestructionRomData.Sprites.AsteroidSlot);
-        ceresActorSlots.Add(actors[1], CeresDestructionRomData.Sprites.SmallAsteroidSlot);
-        ceresActorSlots.Add(actors[2], CeresDestructionRomData.Sprites.VortexSlot);
+        ceresActorSlots.Add(new CeresActorSlot(actors[0], CeresDestructionRomData.Sprites.AsteroidSlot));
+        ceresActorSlots.Add(new CeresActorSlot(actors[1], CeresDestructionRomData.Sprites.SmallAsteroidSlot));
+        ceresActorSlots.Add(new CeresActorSlot(actors[2], CeresDestructionRomData.Sprites.VortexSlot));
         Phase = CeresDestructionPhase.WaitForMusicQueue;
     }
 
@@ -481,22 +437,14 @@ internal sealed class CeresDestructionCinematicState
     {
         IntroCinematicArtworkCatalog content = artwork ?? throw new InvalidOperationException(
             "Zebes reveal requires installed cinematic artwork.");
-        byte[] zebesTilemap = content.CeresDestruction.ZebesMap.Transfer.ToArray();
-        byte[] zebesCharacters = content.CeresDestruction.ZebesCharacters.Transfer.ToArray();
-        RequireMinimum(zebesTilemap, CeresDestructionRomData.Vram.ZebesTilemapMinimumBytes,
+        RequireMinimum(content.CeresDestruction.ZebesMap.Transfer.Length, CeresDestructionRomData.Vram.ZebesTilemapMinimumBytes,
             "Zebes reveal tilemap");
-        RequireMinimum(zebesCharacters, CeresDestructionRomData.Vram.Mode7CharacterBytes,
+        RequireMinimum(content.CeresDestruction.ZebesCharacters.Transfer.Length, CeresDestructionRomData.Vram.Mode7CharacterBytes,
             "Zebes reveal characters");
 
         // C699 starts in Mode 1. It also stages the rear-gunship low-byte map at VRAM
         // zero; that dormant map becomes visible only when C7CA later selects Mode 7.
-        new Mode7Vram(vram).LoadMap(ceresTilemaps.AsSpan(
-            CeresDestructionRomData.Vram.MapHalfBytes,
-            CeresDestructionRomData.Vram.MapHalfBytes));
-        new CeresVram(vram).ZebesTilemap.Load(
-            zebesTilemap.AsSpan(0, CeresDestructionRomData.Vram.ZebesTilemapMinimumBytes));
-        new CeresVram(vram).ObjectCharacters.Load(
-            zebesCharacters.AsSpan(0, CeresDestructionRomData.Vram.Mode7CharacterBytes));
+        Upload(CeresDestructionUpload.ZebesReveal);
 
         actors.Clear();
         background = FixedPosition<Mode7Pixels>.Zero;
@@ -595,12 +543,12 @@ internal sealed class CeresDestructionCinematicState
     }
 
     /// <summary>Rejects an extracted artwork stream too short for the native DMA slice.</summary>
-    private static void RequireMinimum(byte[] bytes, int minimum, string name)
+    private static void RequireMinimum(int length, int minimum, string name)
     {
-        if (bytes.Length < minimum)
+        if (length < minimum)
         {
             throw new InvalidDataException(
-                $"The {name} stream expanded to ${bytes.Length:X}, expected at least ${minimum:X}.");
+                $"The {name} stream expanded to ${length:X}, expected at least ${minimum:X}.");
         }
     }
 
@@ -660,7 +608,7 @@ internal sealed class CeresDestructionCinematicState
             actor.Step();
             if (!actor.IsActive)
             {
-                ceresActorSlots.Remove(actor);
+                ceresActorSlots.RemoveAll(entry => entry.Actor == actor);
                 actors.RemoveAt(index);
             }
         }
@@ -673,16 +621,24 @@ internal sealed class CeresDestructionCinematicState
     /// cleared. Leaving the original Ceres screens in either half makes the station itself
     /// flee the explosion and later attaches those stale tiles to the Zebes approach.
     /// </summary>
-    private void LoadFinalExplosionMaps()
+    private void LoadFinalExplosionMaps() => Upload(CeresDestructionUpload.FinalExplosionMaps);
+
+    /// <summary>Records one of the scene's graphics transfers; the next capture replays it.</summary>
+    private void Upload(CeresDestructionUpload upload)
     {
-        int upperSource = withSamus ? CeresDestructionRomData.Vram.ClearMapSourceOffset : 0;
-        var mode7 = new Mode7Vram(vram);
-        mode7.LoadMap(ceresTilemaps.AsSpan(upperSource, CeresDestructionRomData.Vram.MapHalfBytes));
-        mode7.LoadMap(
-            ceresTilemaps.AsSpan(
-                CeresDestructionRomData.Vram.ClearMapSourceOffset,
-                CeresDestructionRomData.Vram.MapHalfBytes),
-            cell: CeresDestructionRomData.Vram.ClearMapDestinationWord);
+        uploads.Add(upload);
+        image = null;
+    }
+
+    /// <summary>The memory image the scene's transfers leave over the bound artwork, rebinding the OBJ page it shows.</summary>
+    internal byte[] Image()
+    {
+        if (image is not null)
+            return image;
+        image = CeresDestructionScreenImage.Compose(artwork ?? throw new InvalidOperationException(
+            "Ceres destruction rendering requires installed cinematic artwork."), uploads, withSamus);
+        objects.BindArtwork(CeresDestructionScreenImage.ObjectPage(image));
+        return image;
     }
 
     /// <summary>Starts the power-bomb blast, queues sound, adds its sprite, and replaces the station maps.</summary>
@@ -737,8 +693,8 @@ internal sealed class CeresDestructionCinematicState
             if (slot == CeresDestructionRomData.Sprites.SpawnerSlot &&
                 explosionSpawnerFrame <= CeresExplosionDefinitions.SpawnerFinalFrame)
                 continue;
-            if (ceresActorSlots.ContainsValue(slot)) continue;
-            ceresActorSlots.Add(actor, slot);
+            if (ceresActorSlots.Exists(entry => entry.Slot == slot)) continue;
+            ceresActorSlots.Add(new CeresActorSlot(actor, slot));
             actors.Add(actor);
             return true;
         }
@@ -859,7 +815,8 @@ internal sealed class CeresDestructionCinematicState
     /// <summary>Captures the scene's exact Mode 7/OBJ insertion order or Mode 1 planet plane.</summary>
     public LayeredRenderSnapshot CaptureRenderSnapshot()
     {
-        OamBuffer oam = PrepareRenderOam();
+        byte[] shown = Image();
+        PrepareRenderSprites();
         RenderLayer[] layers;
         if (usesMode7 && (mainScreenLayers & SnesMainScreenLayers.Bg1) == 0)
         {
@@ -886,29 +843,31 @@ internal sealed class CeresDestructionCinematicState
         }
         if (CaptureStationExplosion() is { } blast)
             layers = [.. layers, blast];
-        return new(PpuMemorySnapshot.CaptureFrontend(vram, cgram, oam, MenuRenderDefinitions.ObjectSelection), layers,
+        return new(new PpuMemorySnapshot(shown, palette.Colors, objects.Draws), layers,
             MenuRenderDefinitions.ObjectSelection, checked((byte)brightness));
     }
+
+    /// <summary>One Ceres actor's native OBJ slot.</summary>
+    /// <param name="Actor">The actor holding the slot.</param>
+    /// <param name="Slot">The slot it holds.</param>
+    private sealed record CeresActorSlot(IntroDiscoverySprite Actor, int Slot);
 
     /// <summary>Captures the active station blast's scanline color addition as a render layer.</summary>
     private ScanlineColorAddRenderLayer? CaptureStationExplosion() =>
         SnesGameplayFrameRenderer.CapturePowerBombColorMath(PowerBombRenderSnapshot.Capture(stationExplosion),
             layer1: Position16<RoomPixels>.Zero, firstVisibleScanline: 0);
 
-    /// <summary>Draws live actors into OAM, retaining native slot order when Ceres explosions recycle slots.</summary>
-    [PpuLayoutBoundary("frontend OAM writer: CeresDestructionCinematicState.PrepareRenderOam until #1358 moves it onto sprite entries")]
-    private OamBuffer PrepareRenderOam()
+    /// <summary>Places live actors as sprite entries, retaining native slot order when Ceres explosions recycle slots.</summary>
+    private void PrepareRenderSprites()
     {
-        var oam = new OamBuffer();
-        oam.BeginFrame();
+        objects.BeginFrame();
         // Same-priority OBJ overlap is decided by OAM order. Allocation order is
         // not stable slot order after an earlier explosion dies and its slot is reused.
         IEnumerable<IntroDiscoverySprite> drawActors = Phase <= CeresDestructionPhase.FadeOutCeres
-            ? actors.OrderByDescending(actor => ceresActorSlots[actor]) : actors;
+            ? actors.OrderByDescending(actor => ceresActorSlots.First(entry => entry.Actor == actor).Slot) : actors;
         foreach (IntroDiscoverySprite actor in drawActors)
-            actor.Draw(oam, installedArt: spriteArtwork);
-        oam.FinalizeFrame();
-        return oam;
+            actor.Draw(objects, installedArt: spriteArtwork);
+        objects.FinishFrame();
     }
 
     /// <summary>Builds the Mode-7 rotation and scale matrix from signed cartridge sine samples.</summary>

@@ -974,12 +974,13 @@ internal static class LookupStream5Verification
         static void Check(CeresDestructionSpritePresentation catalog, ushort pointer, SpriteVisualPart[] parts)
         {
             var expected = IntroCinematicSpriteCompiler.Compile(parts, "star-reference");
-            var actualOam = new OamBuffer();
+            var actualOam = ScreenSpritesFixtures.Blank();
             var expectedOam = new OamBuffer();
             actualOam.BeginFrame(); expectedOam.BeginFrame();
             catalog.Draw(pointer, actualOam, new(128, 112), 0x0800, true);
             expected.DrawOnScreen(expectedOam, new(128, 112), 0x0800);
-            AssertEqual(expectedOam.NextByteOffset, actualOam.NextByteOffset, "Star OAM count/order");
+            actualOam.FinishFrame(); expectedOam.FinalizeFrame();
+            AssertEqual(expectedOam.LastFinalizedSpriteCount, actualOam.LastFinalizedSpriteCount, "Star OAM count/order");
             AssertTrue(expectedOam.LowTable.SequenceEqual(actualOam.LowTable), "Exact star low OAM");
             AssertTrue(expectedOam.HighTable.SequenceEqual(actualOam.HighTable), "Exact star high OAM");
         }

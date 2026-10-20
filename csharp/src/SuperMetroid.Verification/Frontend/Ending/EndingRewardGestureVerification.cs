@@ -14,6 +14,7 @@ using SuperMetroid.TestSupport.RepositoryInstallation;
 namespace SuperMetroid.Verification.Frontend.Ending;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Frontend.Intro;
+using SuperMetroid.Core.Assets;
 
 /// <summary>Checks post-credits reward actors, graphics uploads, gesture timing, and jump handoffs against bank-$8B source data.</summary>
 internal static class EndingRewardGestureVerification
@@ -71,7 +72,7 @@ internal static class EndingRewardGestureVerification
             {
                 gesture.Step();
                 calls++;
-                maps.Add(Convert.ToHexString(gesture.Draw(rewardSprites).LowTable));
+                maps.Add(Convert.ToHexString(ScreenSpritesFixtures.Frame(objects => gesture.Draw(objects, rewardSprites)).LowTable));
             }
             AssertTrue(gesture.JumpRequested, "native reward gesture reaches jumping-actor instruction");
             AssertEqual(reward == EndingReward.Suitless, gesture.SuitlessJumpRequested, "reward-specific jump request");

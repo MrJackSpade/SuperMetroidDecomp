@@ -9,6 +9,7 @@ using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Frontend.Intro;
 
@@ -161,18 +162,18 @@ internal sealed class IntroBabyDiscoveryState
     }
 
     /// <summary>Draws egg, baby, and hatch effects in the cinematic object order used by this scene.</summary>
-    public void DrawActors(OamBuffer oam,
+    public void DrawActors(ScreenSprites objects,
         IntroEggEffectSpritePresentation? eggEffectArt = null,
         IntroDiscoveryActorSpritePresentation? actorArt = null)
     {
         // IntroSamusDisplayFlag=+1 makes cinematic objects enter OAM before Samus. The egg
         // was spawned before the confused-baby object and retains its own list and timer.
-        egg.Draw(oam, installedArt: actorArt);
-        confusedBaby.Draw(oam, installedArt: actorArt);
+        egg.Draw(objects, installedArt: actorArt);
+        confusedBaby.Draw(objects, installedArt: actorArt);
         foreach (IntroEggParticle particle in eggParticles)
-            particle.Draw(oam, eggEffectArt);
+            particle.Draw(objects, eggEffectArt);
         foreach (IntroEggSlimeDrop slimeDrop in slimeDrops)
-            slimeDrop.Draw(oam, eggEffectArt);
+            slimeDrop.Draw(objects, eggEffectArt);
     }
 
     /// <summary>Changes the demo from running to waiting or ending at its scripted position and crossfade edges.</summary>

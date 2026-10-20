@@ -42,7 +42,7 @@ public sealed class MotherBrainRoomColorPresentation
     /// <param name="frame">The flash frame, 0..13.</param>
     /// <exception cref="InvalidDataException"><paramref name="frame"/> is not one of the fourteen authored frames.</exception>
     /// <exception cref="ArgumentNullException"><paramref name="cgram"/> is null.</exception>
-    public void ApplyFlash(SnesCgram cgram, int frame)
+    public void ApplyFlash(IPaletteColors cgram, int frame)
     {
         if ((uint)frame >= MotherBrainRoomPaletteProgramDefinitions.PresentationWordCount)
             throw new InvalidDataException($"Mother Brain room-flash frame {frame} is not authored.");
@@ -59,12 +59,12 @@ public sealed class MotherBrainRoomColorPresentation
     /// <summary>Applies the final grey room colors when the flash program is stopped.</summary>
     /// <param name="cgram">Destination color memory; the same 52..63, 83..94 and mirrored 115..126 slices as <see cref="ApplyFlash"/> are replaced.</param>
     /// <exception cref="ArgumentNullException"><paramref name="cgram"/> is null.</exception>
-    public void ApplyFinal(SnesCgram cgram) => ApplyRoom(cgram, finalRoom);
+    public void ApplyFinal(IPaletteColors cgram) => ApplyRoom(cgram, finalRoom);
 
     /// <summary>Installs the two nontransparent OBJ palettes before phase two starts.</summary>
     /// <param name="cgram">Destination color memory; attack colors 161..175 and rear-leg colors 177..191 are replaced while palette color zero is preserved.</param>
     /// <exception cref="ArgumentNullException"><paramref name="cgram"/> is null.</exception>
-    public void ApplyPhaseTwoInitial(SnesCgram cgram)
+    public void ApplyPhaseTwoInitial(IPaletteColors cgram)
     {
         Ensure.NotNull(cgram);
         for (int index = 0; index < MotherBrainRoomColorRomData.PhaseTwoColors; index++)
@@ -79,7 +79,7 @@ public sealed class MotherBrainRoomColorPresentation
     /// <summary>Installs room-entry glass-shard and tube-projectile sprite colors.</summary>
     /// <param name="cgram">Destination color memory; glass colors 177..191 and tube-projectile colors 241..255 are replaced without their transparent color-zero entries.</param>
     /// <exception cref="ArgumentNullException"><paramref name="cgram"/> is null.</exception>
-    public void ApplyRoomEntry(SnesCgram cgram)
+    public void ApplyRoomEntry(IPaletteColors cgram)
     {
         Ensure.NotNull(cgram);
         for (int index = 0; index < MotherBrainRoomColorRomData.InitialColors; index++)
@@ -95,7 +95,7 @@ public sealed class MotherBrainRoomColorPresentation
     /// out colors 1..E of BG palettes 3 and 5, the same slices later restored by $AD:F24B.</summary>
     /// <param name="cgram">Destination color memory; all entries outside indices 49..62 and 81..94 remain unchanged.</param>
     /// <exception cref="ArgumentNullException"><paramref name="cgram"/> is null.</exception>
-    public static void ApplyBabyMetroidDeathBlackout(SnesCgram cgram)
+    public static void ApplyBabyMetroidDeathBlackout(IPaletteColors cgram)
     {
         Ensure.NotNull(cgram);
         for (int index = 0; index < MotherBrainRoomColorRomData.RecoveryLightsColorsPerDestination; index++)
@@ -110,7 +110,7 @@ public sealed class MotherBrainRoomColorPresentation
     /// <param name="frame">Recovery image 0..6 in playback order, corresponding to native source $AD:F3D3 - frame * $38; this call does not advance the cutscene's timer.</param>
     /// <exception cref="ArgumentNullException"><paramref name="cgram"/> is null.</exception>
     /// <exception cref="InvalidDataException"><paramref name="frame"/> is outside the seven authored images.</exception>
-    public void ApplyRecoveryLights(SnesCgram cgram, int frame)
+    public void ApplyRecoveryLights(IPaletteColors cgram, int frame)
     {
         Ensure.NotNull(cgram);
         if ((uint)frame >= MotherBrainRoomColorRomData.RecoveryLightsFrames)
@@ -127,7 +127,7 @@ public sealed class MotherBrainRoomColorPresentation
     }
 
     /// <summary>Writes final room colors into both room slices and mirrors the second slice.</summary>
-    private static void ApplyRoom(SnesCgram cgram, FinalRoomPalette colors)
+    private static void ApplyRoom(IPaletteColors cgram, FinalRoomPalette colors)
     {
         Ensure.NotNull(cgram);
         for (int index = 0; index < MotherBrainRoomColorRomData.SliceColors; index++)

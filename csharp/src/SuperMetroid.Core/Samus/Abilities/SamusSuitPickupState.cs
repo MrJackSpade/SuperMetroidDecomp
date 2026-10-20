@@ -173,7 +173,7 @@ public sealed class SamusSuitPickupState
     }
 
     /// <summary>Runs one installed bank-$88 HDMA pre-instruction.</summary>
-    public void Step(SamusState samus, SnesCgram cgram)
+    public void Step(SamusState samus, IPaletteColors cgram)
     {
         Ensure.NotNull(samus);
         Ensure.NotNull(cgram);
@@ -329,7 +329,7 @@ public sealed class SamusSuitPickupState
     }
 
     /// <summary>Installs the equipment bit, suited front pose, and palette at the native third-stage handoff.</summary>
-    private void RevealSuit(SamusState samus, SnesCgram cgram)
+    private void RevealSuit(SamusState samus, IPaletteColors cgram)
     {
         SamusEquipmentFlags mask = Kind == SamusSuitPickupKind.Varia
             ? SamusEquipmentFlags.VariaSuit

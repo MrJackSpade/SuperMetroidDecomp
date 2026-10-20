@@ -129,7 +129,7 @@ public sealed class SamusDeathSequenceState
     /// </summary>
     public SamusDeathSequenceStepResult Step(
         SamusState samus,
-        SnesCgram cgram,
+        IPaletteColors cgram,
         SamusDeathPaletteArtworkCatalog? artwork = null)
     {
         Ensure.NotNull(samus);
@@ -241,7 +241,7 @@ public sealed class SamusDeathSequenceState
     /// <summary>Advances the explosion timer, palette and terminal whiteout, returning whether to draw this frame.</summary>
     private bool StepSuitExplosion(
         SamusState samus,
-        SnesCgram cgram,
+        IPaletteColors cgram,
         bool applyWhiteoutFirst,
         ref bool paletteChanged,
         ref bool whiteoutChanged,
@@ -275,7 +275,7 @@ public sealed class SamusDeathSequenceState
     }
 
     /// <summary>Advances the room whiteout shade while preserving the first explosion frame's original background.</summary>
-    private bool ApplyWhiteout(SnesCgram cgram,
+    private bool ApplyWhiteout(IPaletteColors cgram,
         SamusDeathPaletteArtworkCatalog? artwork)
     {
         // Index zero suppresses whiteout completely. This is why the first 21-tick explosion
@@ -297,7 +297,7 @@ public sealed class SamusDeathSequenceState
     /// <summary>Loads suited and suitless death colors selected by equipment and animation frame.</summary>
     private static void WritePalettePair(
         SamusState samus,
-        SnesCgram cgram,
+        IPaletteColors cgram,
         int paletteIndex,
         SamusDeathPaletteArtworkCatalog? artwork)
     {

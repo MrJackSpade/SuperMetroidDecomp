@@ -4,6 +4,7 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Frontend.Menus;
 using SuperMetroid.Core.Frontend.CeresCinematics;
 using SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Frontend.Intro;
 
@@ -12,12 +13,16 @@ internal sealed class IntroCeresFlightState
 {
     /// <summary>Holds the music queue whose drain gates the initial display.</summary>
     internal readonly CartridgeAudioState audio;
-    /// <summary>Contains loaded Mode 7 and OBJ character data for this scene.</summary>
-    private readonly SnesVram vram = new();
-    /// <summary>Contains the installed Ceres flight palette used by rendering.</summary>
-    private readonly SnesCgram cgram = new();
-    /// <summary>Decompressed front and rear Mode 7 map slices selected at the view transition.</summary>
-    private byte[] tilemap;
+    /// <summary>The flight's colors, loaded from the installed palette (#1358).</summary>
+    internal readonly ScreenPalette palette = new();
+    /// <summary>The front-star or rear-view actors' sprite entries over the flight OBJ page (#1358).</summary>
+    internal readonly ScreenSprites objects;
+    /// <summary>Installed flight artwork the captured image is composed from, rebound after debugger restoration.</summary>
+    [NonSerialized] private CeresFlightArtworkCatalog? artwork;
+    /// <summary>The composed Mode 7 view and OBJ characters of the bound artwork, until the view or the artwork changes.</summary>
+    [NonSerialized] private byte[]? viewImage;
+    /// <summary>Whether <see cref="viewImage"/> shows the rear-view map.</summary>
+    [NonSerialized] private bool viewImageIsRear;
     /// <summary>Installed sprite compositions, rebound without restarting the scene.</summary>
     [NonSerialized] private CeresFlightSpritePresentation? spriteArtwork;
     /// <summary>Optional edited rear-view actor positions.</summary>
@@ -77,26 +82,18 @@ internal sealed class IntroCeresFlightState
 
         CeresFlightArtworkCatalog content = artwork ?? throw new InvalidOperationException(
             "Ceres approach requires installed cinematic artwork.");
-        byte[] characters = content.Mode7Characters.ToArray();
-        tilemap = content.Mode7Maps.ToArray();
-        byte[] objectCharacters = content.ObjectCharacters.ToArray();
-        RequireMinimum(characters, CeresFlightRomData.Vram.Mode7CharacterByteCount,
+        RequireMinimum(content.Mode7Characters.Length, CeresFlightRomData.Vram.Mode7CharacterByteCount,
             "gunship/Ceres Mode 7 characters");
-        RequireMinimum(tilemap, CeresFlightRomData.Vram.Mode7MapByteCount,
+        RequireMinimum(content.Mode7Maps.Length, CeresFlightRomData.Vram.Mode7MapByteCount,
             "gunship front/rear Mode 7 tilemaps");
-        RequireMinimum(objectCharacters, CeresFlightRomData.Vram.ObjectCharacterByteCount,
+        RequireMinimum(content.ObjectCharacters.Length, CeresFlightRomData.Vram.ObjectCharacterByteCount,
             "space/Ceres OBJ characters");
+        this.artwork = content;
 
-        // $BCCD writes all $4000 character bytes to $2119, fills every corresponding low
-        // byte with tile $8C, then overwrites only the front-view map's first $300 bytes.
-        new Mode7Vram(vram).LoadCharacters(characters.AsSpan(0,
-            CeresFlightRomData.Vram.Mode7CharacterByteCount));
-        new Mode7Vram(vram).FillMap(CeresFlightRomData.Vram.Mode7BlankMapTile,
-            CeresFlightRomData.Vram.Mode7MapFillWordCount);
-        new Mode7Vram(vram).LoadMap(tilemap.AsSpan(0,
-            CeresFlightRomData.Vram.Mode7MapSliceByteCount));
-        new CeresVram(vram).ObjectCharacters.Load(objectCharacters.AsSpan(0, CeresFlightRomData.Vram.ObjectCharacterByteCount));
-        content.Palette.LoadTo(cgram);
+        // $BCCD uploads the Mode 7 characters, the blank-filled front-view map and the OBJ characters;
+        // the scene binds that artwork and its capture composes them.
+        objects = new ScreenSprites(content.ObjectPage, ObjectSelectionCodec.Sizes(MenuRenderDefinitions.ObjectSelection));
+        content.Palette.LoadTo(palette);
         // The PPU loads above are invisible: the screen stays in forced blank until $8B:BDE4.
         // $8B:BCA0 itself runs as the next dispatch's cinematic function.
         Phase = IntroCeresFlightPhase.Initial;
@@ -107,19 +104,11 @@ internal sealed class IntroCeresFlightState
     {
         spriteArtwork = artwork?.Sprites;
         actorLayout = artwork?.Actors;
+        this.artwork = artwork;
+        viewImage = null;
         if (artwork is null) return;
-        tilemap = artwork.Mode7Maps.ToArray();
-        new Mode7Vram(vram).LoadCharacters(artwork.Mode7Characters.Span);
-        new Mode7Vram(vram).FillMap(CeresFlightRomData.Vram.Mode7BlankMapTile,
-            CeresFlightRomData.Vram.Mode7MapFillWordCount);
-        int mapOffset = Phase is IntroCeresFlightPhase.Initial or
-            IntroCeresFlightPhase.WaitForMusicQueue or
-            IntroCeresFlightPhase.FlyingIntoCamera
-            ? 0 : CeresFlightRomData.Vram.Mode7MapSliceByteCount;
-        new Mode7Vram(vram).LoadMap(tilemap.AsSpan(mapOffset,
-            CeresFlightRomData.Vram.Mode7MapSliceByteCount));
-        new CeresVram(vram).ObjectCharacters.Load(artwork.ObjectCharacters.Span);
-        artwork.Palette.LoadTo(cgram);
+        objects.BindArtwork(artwork.ObjectPage);
+        artwork.Palette.LoadTo(palette);
     }
 
     /// <summary>Current native cinematic dispatch phase, including the final handoff to Ceres gameplay.</summary>
@@ -202,7 +191,7 @@ internal sealed class IntroCeresFlightState
     /// <summary>Captures matrix, ordered layers and rear-view fixed-color registers without rasterizing.</summary>
     public LayeredRenderSnapshot CaptureRenderSnapshot()
     {
-        OamBuffer oam = PrepareRenderOam();
+        PrepareRenderSprites();
         var layers = new List<RenderLayer> { new ObjPriorityRenderLayer(0) };
         if (Phase is IntroCeresFlightPhase.SpaceColonyTitle or IntroCeresFlightPhase.FadeOut or
             IntroCeresFlightPhase.StartGameAtCeres or IntroCeresFlightPhase.Finished)
@@ -228,32 +217,44 @@ internal sealed class IntroCeresFlightState
             byte flash = checked((byte)flashIntensity);
             layers.Add(new FixedColorAddRenderLayer(flash, flash, flash));
         }
-        return new(PpuMemorySnapshot.CaptureFrontend(vram, cgram, oam, MenuRenderDefinitions.ObjectSelection), layers.ToArray(),
+        return new(new PpuMemorySnapshot(Image(), palette.Colors, objects.Draws), layers.ToArray(),
             MenuRenderDefinitions.ObjectSelection, checked((byte)brightness));
     }
 
-    /// <summary>Draws the front stars or surviving rear-view actors into the current OAM pass.</summary>
-    [PpuLayoutBoundary("frontend OAM writer: IntroCeresFlightState.PrepareRenderOam until #1358 moves it onto sprite entries")]
-    private OamBuffer PrepareRenderOam()
+    /// <summary>Places the front stars or surviving rear-view actors as this frame's sprite entries.</summary>
+    private void PrepareRenderSprites()
     {
-        var oam = new OamBuffer();
-        oam.BeginFrame();
+        objects.BeginFrame();
         if (Phase is IntroCeresFlightPhase.FlyingTowardCeres or IntroCeresFlightPhase.SpaceColonyTitle or IntroCeresFlightPhase.FadeOut)
             foreach (IntroDiscoverySprite actor in rearViewActors)
-                actor.Draw(oam, installedArt: spriteArtwork);
-        else stars.Draw(oam, installedArt: spriteArtwork);
-        oam.FinalizeFrame();
-        return oam;
+                actor.Draw(objects, installedArt: spriteArtwork);
+        else stars.Draw(objects, installedArt: spriteArtwork);
+        objects.FinishFrame();
+    }
+
+    /// <summary>
+    /// The memory image the scene shows: the bound artwork's view (the rear-view map once $BE22 has queued it) with the
+    /// SPACE COLONY caption tilemap over it.
+    /// </summary>
+    private byte[] Image()
+    {
+        CeresFlightArtworkCatalog content = artwork ?? throw new InvalidOperationException(
+            "Ceres approach rendering requires installed cinematic artwork.");
+        bool rear = Phase is not (IntroCeresFlightPhase.Initial or IntroCeresFlightPhase.WaitForMusicQueue or
+            IntroCeresFlightPhase.FlyingIntoCamera);
+        if (viewImage is null || viewImageIsRear != rear)
+        {
+            viewImage = CeresFlightScreenImage.View(content, rear);
+            viewImageIsRear = rear;
+        }
+        return CeresFlightScreenImage.WithCaption(viewImage, spaceColonyTilemap);
     }
 
     /// <summary>Loads the rear map, places five actors, and primes the white fixed-color flash.</summary>
     private void SetupRearView()
     {
         // $BE22 queues the second $300-byte map immediately behind the front view in the
-        // same decompressed stream. Only low bytes change; the shared character plane and
-        // the surrounding tile-$8C star field remain resident.
-        new Mode7Vram(vram).LoadMap(tilemap.AsSpan(CeresFlightRomData.Vram.Mode7MapSliceByteCount,
-            CeresFlightRomData.Vram.Mode7MapSliceByteCount));
+        // same decompressed stream; the rear view's phase selects it in the composed image.
         background = new(new(unchecked((ushort)-32), 0), new(unchecked((ushort)-128), 0));
         angle = SnesAngle.FromTableIndex(32);
 
@@ -363,13 +364,12 @@ internal sealed class IntroCeresFlightState
         Phase = IntroCeresFlightPhase.FadeOut;
     }
 
-    /// <summary>Writes one authored title glyph to the caption tilemap and VRAM.</summary>
+    /// <summary>Writes one authored title glyph to the caption tilemap.</summary>
     private void WriteNextSpaceColonyLetter()
     {
         (int column, ushort tile) = SpaceColonyCaptionDefinitions.Letter(spaceColonyLetterIndex++);
         const int CaptionRow = 24;
         spaceColonyTilemap[CaptionRow * 32 + column] = tile;
-        new CeresVram(vram).SpaceColonyTilemap.Write(spaceColonyTilemap);
     }
 
     /// <summary>Writes the alternate Japanese caption below the English title.</summary>
@@ -379,7 +379,6 @@ internal sealed class IntroCeresFlightState
         for (int index = 0; index < tiles.Length; index++)
             spaceColonyTilemap[(SpaceColonyCaptionDefinitions.JapaneseRow + index / SpaceColonyCaptionDefinitions.JapaneseWidth) * 32 +
                 SpaceColonyCaptionDefinitions.JapaneseColumn + index % SpaceColonyCaptionDefinitions.JapaneseWidth] = tiles[index];
-        new CeresVram(vram).SpaceColonyTilemap.Write(spaceColonyTilemap);
     }
 
     /// <summary>Lowers brightness every other dispatch until forced blank permits the Ceres handoff.</summary>
@@ -473,9 +472,9 @@ internal sealed class IntroCeresFlightState
         unchecked((short)(SnesEightEight.Multiply(component, checked((short)scalar))));
 
     /// <summary>Rejects installed art streams shorter than the native transfer size.</summary>
-    private static void RequireMinimum(byte[] bytes, int minimum, string name)
+    private static void RequireMinimum(int length, int minimum, string name)
     {
-        if (bytes.Length < minimum)
-            throw new InvalidDataException($"The {name} stream expanded to ${bytes.Length:X}, expected ${minimum:X}.");
+        if (length < minimum)
+            throw new InvalidDataException($"The {name} stream expanded to ${length:X}, expected ${minimum:X}.");
     }
 }

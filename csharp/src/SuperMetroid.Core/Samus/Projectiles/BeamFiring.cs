@@ -50,7 +50,7 @@ internal sealed class BeamFiring
     /// clear its visible flare and restore the normal suit palette. Unlike HUD
     /// cancellation, this does not rewrite the previous-charge sampling word.
     /// </summary>
-    public void ConsumePseudoScrewCharge(SnesCgram cgram, SamusState samus)
+    public void ConsumePseudoScrewCharge(IPaletteColors cgram, SamusState samus)
     {
         _charge.SamusChargePaletteIndex = 0;
         _charge.FlareCounter = 0;

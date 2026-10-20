@@ -28,7 +28,7 @@ public static class SnesMode7Renderer
     /// backdrop and avoid a second full-frame raster plus copy.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveOptimization)]
-    public static void CompositeViewport(Span<Rgba32> output, SnesVram vram, SnesCgram cgram, Mode7RenderRegisters registers, Extent16<ScreenPixels>? size = null) =>
+    public static void CompositeViewport(Span<Rgba32> output, SnesVram vram, IPaletteColors cgram, Mode7RenderRegisters registers, Extent16<ScreenPixels>? size = null) =>
         CompositeViewport(output, vram, cgram, registers, map: null, size);
 
     /// <summary>
@@ -36,7 +36,7 @@ public static class SnesMode7Renderer
     /// map plane when a frontend scene's map lives there.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveOptimization)]
-    public static void CompositeViewport(Span<Rgba32> output, SnesVram vram, SnesCgram cgram, Mode7RenderRegisters registers,
+    public static void CompositeViewport(Span<Rgba32> output, SnesVram vram, IPaletteColors cgram, Mode7RenderRegisters registers,
         Mode7MapSnapshot? map, Extent16<ScreenPixels>? size = null)
     {
         Ensure.NotNull(vram);

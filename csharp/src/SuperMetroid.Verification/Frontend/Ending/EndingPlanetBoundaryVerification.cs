@@ -161,7 +161,7 @@ internal static class EndingPlanetBoundaryVerification
                 LayeredRenderSnapshot sample = ending.Presentation.CaptureRenderSnapshot();
                 capture.Snapshots[frame] = sample;
                 File.WriteAllBytes(Path.Combine(capture.Directory, $"later-{frame:D4}-{ending.Phase}.ppu"),
-                    NativeProbeInput(sample, ending.Presentation.PrepareSprites()));
+                    NativeProbeInput(sample, ScreenSpritesFixtures.ToOam(ending.Presentation.PrepareSprites(checked((byte)sample.ObjectSelection)))));
             }
             ending.Step();
             audio.AdvanceFrame(default);

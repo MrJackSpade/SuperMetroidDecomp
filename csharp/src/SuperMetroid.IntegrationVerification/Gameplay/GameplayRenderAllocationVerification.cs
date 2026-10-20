@@ -20,7 +20,7 @@ internal static class GameplayRenderAllocationVerification
             SnesMainScreenLayers.Bg1 | SnesMainScreenLayers.Bg2 | SnesMainScreenLayers.Obj);
         var rooms = RoomBackgroundsFixtures.Seeded(new Random(1346), registers.Bg1Scroll.AsBgPlaneScroll(),
             registers.Bg2Scroll.AsBgPlaneScroll(), door: true, overlay: true);
-        var snapshot = new LayeredRenderSnapshot(PpuMemorySnapshot.Capture(vram, cgram, sprites),
+        var snapshot = new LayeredRenderSnapshot(PpuMemorySnapshotConstants.Capture(vram, cgram, sprites),
             [new OrdinaryGameplayRenderLayer(registers, rooms)], 3, 15);
         var expected = SnesGameplayFrameRenderer.RenderHudOrdinaryBackgroundsAndObjs(vram, cgram, sprites,
             new OrdinaryGameplayRenderLayer(registers, rooms));
@@ -44,7 +44,7 @@ internal static class GameplayRenderAllocationVerification
         if (!SoftwareLayeredSnapshotRenderer.Render(snapshot, reusable).SequenceEqual(expected))
             throw new InvalidDataException("Reusable output retained previous frame pixels.");
         Console.WriteLine($"Reusable gameplay packet allocation: {allocated} bytes; identity and dirty-buffer parity passed.");
-        var memory = PpuMemorySnapshot.Capture(vram, cgram, sprites);
+        var memory = PpuMemorySnapshotConstants.Capture(vram, cgram, sprites);
         var xray = new LayeredRenderSnapshot(memory,
             [new GameplayColorMathRenderLayer(new OrdinaryGameplayRenderLayer(registers, rooms), Enumerable.Repeat(new XrayWindowLine(40, 160), 224).ToArray(), true, new ColorMathRegisters { ColorMath = SnesColorMathControl.Bg1 | SnesColorMathControl.Backdrop | SnesColorMathControl.Half, AddSubscreen = false, FixedRed = 3, FixedGreen = 7, FixedBlue = 11 })], 3, 15);
         var xrayReference = SoftwareLayeredSnapshotRenderer.Render(xray);

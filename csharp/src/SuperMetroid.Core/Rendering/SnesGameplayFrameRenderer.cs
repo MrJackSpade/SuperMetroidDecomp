@@ -33,7 +33,7 @@ public static class SnesGameplayFrameRenderer
     /// </summary>
     public static Rgba32[] RenderHudOrdinaryBackgroundsAndObjs(
         SnesVram vram,
-        SnesCgram cgram,
+        IPaletteColors cgram,
         SpriteFrameBuffer sprites,
         OrdinaryGameplayRenderLayer layer,
         byte obsel = DefaultObjectSelection,
@@ -93,7 +93,7 @@ public static class SnesGameplayFrameRenderer
     private static void CompositeOrdinaryGameplayViewport(
         Span<Rgba32> output,
         SnesVram vram,
-        SnesCgram cgram,
+        IPaletteColors cgram,
         ReadOnlySpan<Rgba32> objectPixels,
         ReadOnlySpan<byte> objectPriorities,
         OrdinaryGameplayRenderLayer layer,
@@ -273,7 +273,7 @@ public static class SnesGameplayFrameRenderer
     internal static void DrawHud(
         Span<Rgba32> output,
         SnesVram vram,
-        SnesCgram cgram,
+        IPaletteColors cgram,
         Layer3Plane plane,
         int characterBaseWord)
     {
@@ -483,7 +483,7 @@ public static class SnesGameplayFrameRenderer
     }
 
     /// <summary>Fills a correctly sized gameplay frame with CGRAM color zero before any visible PPU layer is composed.</summary>
-    internal static Rgba32[] CreateBackdrop(SnesCgram cgram, Rgba32[]? outputBuffer = null)
+    internal static Rgba32[] CreateBackdrop(IPaletteColors cgram, Rgba32[]? outputBuffer = null)
     {
         Ensure.NotNull(cgram);
 

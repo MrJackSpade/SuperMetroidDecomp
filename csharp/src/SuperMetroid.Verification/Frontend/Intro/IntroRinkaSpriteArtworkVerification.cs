@@ -51,7 +51,7 @@ internal static class IntroRinkaSpriteArtworkVerification
                 else
                     DrawImportedSpritemap(bus, native, source, new(x, y), palette, originIsOnScreen: false);
                 native.FinalizeFrame();
-                var installed = new OamBuffer();
+                var installed = ScreenSpritesFixtures.Blank();
                 installed.BeginFrame();
                 stock.RinkaSprites.Draw(definition.Pointer, installed, new(x, y), palette,
                     onScreen);
@@ -81,7 +81,7 @@ internal static class IntroRinkaSpriteArtworkVerification
             rinkas.Step(samus, motherBrainExploding: false, explosionsAllocated: false);
         AssertEqual(2, rinkas.LiveRinkas.Count,
             "intro Rinka first two-wave actors exist for installed artwork test");
-        var stockOam = new OamBuffer();
+        var stockOam = ScreenSpritesFixtures.Blank();
         stockOam.BeginFrame();
         rinkas.Draw(stockOam, stock.RinkaSprites);
         stockOam.FinalizeFrame();
@@ -92,7 +92,7 @@ internal static class IntroRinkaSpriteArtworkVerification
         nativeLiveOam.FinalizeFrame();
         AssertTrue(stockOam.ImageEquals(nativeLiveOam),
             "installed intro Rinkas preserve native live-actor OAM placement and attributes");
-        var editedOam = new OamBuffer();
+        var editedOam = ScreenSpritesFixtures.Blank();
         editedOam.BeginFrame();
         rinkas.Draw(editedOam, edited.RinkaSprites);
         editedOam.FinalizeFrame();

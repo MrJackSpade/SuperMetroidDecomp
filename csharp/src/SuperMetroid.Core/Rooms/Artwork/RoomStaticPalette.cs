@@ -61,7 +61,7 @@ public sealed class RoomStaticPalette
 
     /// <summary>Loads all 128 colors into CGRAM beginning at color zero.</summary>
     /// <param name="cgram">The color memory that receives the 256-byte native transfer.</param>
-    public void LoadTo(SnesCgram cgram)
+    public void LoadTo(IPaletteColors cgram)
     {
         Ensure.NotNull(cgram);
         new CgramPalettes(cgram).Background.LoadPortBytes(nativeBytes);

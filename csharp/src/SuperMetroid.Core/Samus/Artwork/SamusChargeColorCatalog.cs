@@ -65,11 +65,11 @@ public sealed class SamusChargeColorCatalog
     /// <param name="pseudo">True for pseudo-Screw's bright/normal holds; false for the charged-beam whitening pulse.</param>
     /// <param name="suit">Suit index: Power 0, Varia 1, Gravity 2.</param>
     /// <param name="phase">Playback phase 0–5; stock charge shades follow 0/1/2/3/2/1, while pseudo-Screw holds bright for 0–2 and normal for 3–5.</param>
-    public void ApplyCharge(SnesCgram cgram, bool pseudo, int suit, int phase) =>
+    public void ApplyCharge(IPaletteColors cgram, bool pseudo, int suit, int phase) =>
         Apply(cgram, pseudo ? pseudoScrew : chargedBeam, suit, phase);
 
     /// <summary>Installs all sixteen Hyper-shot inks at CGRAM 192–207 for playback frame 0–9; shot-glow timing and the native decrementing palette cursor remain engine-owned.</summary>
-    public void ApplyHyper(SnesCgram cgram, int frame)
+    public void ApplyHyper(IPaletteColors cgram, int frame)
     {
         Ensure.NotNull(cgram);
         if ((uint)frame >= SamusChargeColorFormat.HyperFrameCount) throw new ArgumentOutOfRangeException(nameof(frame));
@@ -182,7 +182,7 @@ public sealed class SamusChargeColorCatalog
     }
 
     /// <summary>Copies the selected sixteen-ink row into Samus's OBJ palette without altering phase timing.</summary>
-    private static void Apply(SnesCgram cgram, ChargeInputs source, int suit, int phase)
+    private static void Apply(IPaletteColors cgram, ChargeInputs source, int suit, int phase)
     {
         Ensure.NotNull(cgram);
         for (int color = 0; color < SamusChargeColorFormat.ColorsPerPalette; color++)

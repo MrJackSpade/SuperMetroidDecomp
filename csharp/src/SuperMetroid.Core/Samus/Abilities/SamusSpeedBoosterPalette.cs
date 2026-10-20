@@ -11,7 +11,7 @@ internal static class SamusSpeedBoosterPalette
     /// overrun pointers instead copy their operand-driven bus words through the 15-bit
     /// CGRAM port, preserving the unrolled cartridge read behavior.
     /// </summary>
-    internal static void Apply(SnesCgram cgram, ushort pointer,
+    internal static void Apply(IPaletteColors cgram, ushort pointer,
         SamusFullBodyCycleColorCatalog? colors, SamusOverreadCatalog? overreads)
     {
         if (Enum.IsDefined((SpeedBoosterPaletteOverrun)pointer))

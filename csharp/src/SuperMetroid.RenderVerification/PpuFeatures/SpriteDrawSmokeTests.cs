@@ -66,7 +66,7 @@ internal static class SpriteDrawSmokeTests
             oam.AddRawSmallSprite(new Position16<OamPixels>(60, 50), SnesObjAttributeWord.Create(1, 0, 3));
             oam.AddRawSmallSprite(new Position16<OamPixels>(62, 50), SnesObjAttributeWord.Create(1, 1, 3));
             oam.FinalizeFrame();
-            draws = draws.AddRange(FrontendOamDraws.Draws(oam, vram, objectSelection: 0));
+            draws = draws.AddRange(FrontendOamDrawsConstants.Draws(oam, vram, objectSelection: 0));
             var memory = new PpuMemorySnapshot(vramBytes, palette, draws);
             Rgba32[] pixels = Check(memory, [new ObjRenderLayer()], "ordering and flip");
             Rgba32 red = new(255, 0, 0), green = new(0, 255, 0), blue = new(0, 0, 255), yellow = new(255, 255, 0);

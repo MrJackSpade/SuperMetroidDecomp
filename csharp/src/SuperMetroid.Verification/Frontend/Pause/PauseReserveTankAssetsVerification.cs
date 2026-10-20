@@ -71,7 +71,7 @@ internal static class PauseReserveTankAssetsVerification
         var menu = Create(guard, samus, edited);
         var snapshot = menu.CaptureRenderSnapshot();
         // The authored 16-pixel part at the edited anchor: X 120+12, Y 140-4, tile 50, palette 5, priority 3, both flips.
-        var tankParts = new ScreenSprites(edited.Sprites.Page);
+        var tankParts = new ScreenSprites(edited.Sprites.Page, ObjectSelectionCodec.Sizes(PauseMenuLayout.ObjectSelection));
         tankParts.BeginFrame();
         tankParts.AddPart(SnesSpritemapXWord.Create(0, true), new SnesSpritemapYByte(0),
             SnesObjAttributeWord.Create(50, 5, 3, SnesTileFlipFlags.Horizontal | SnesTileFlipFlags.Vertical), new Position16<OamPixels>(132, 136));

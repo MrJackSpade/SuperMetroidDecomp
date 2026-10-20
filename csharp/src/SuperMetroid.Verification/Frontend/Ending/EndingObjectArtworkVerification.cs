@@ -177,7 +177,7 @@ internal static class EndingObjectArtworkVerification
                 else
                     DrawImportedSpritemap(bus, nativeOam, source, new(120, y), 0x0800, originIsOnScreen: false);
                 nativeOam.FinalizeFrame();
-                var installedOam = new OamBuffer();
+                var installedOam = ScreenSpritesFixtures.Blank();
                 installedOam.BeginFrame();
                 stock.CloudSprites.Draw(definition.Pointer, installedOam,
                     new(120, y), 0x0800, onScreen);
@@ -410,12 +410,12 @@ internal static class EndingObjectArtworkVerification
                 repaired.LoadEndingObjectArt().Explosion.Transfer.Span.SequenceEqual(
                     stock.Explosion.Transfer.Span),
             "stock OBJ repair restores native pixels and preserves the player's cloud override");
-        var preservedCloudOam = new OamBuffer();
+        var preservedCloudOam = ScreenSpritesFixtures.Blank();
         preservedCloudOam.BeginFrame();
         repaired.LoadEndingObjectArt().CloudSprites.Draw(0xb83b, preservedCloudOam,
             new(120, 72), 0x0800, originIsOnScreen: true);
         preservedCloudOam.FinalizeFrame();
-        var editedCloudOam = new OamBuffer();
+        var editedCloudOam = ScreenSpritesFixtures.Blank();
         editedCloudOam.BeginFrame();
         editedCloudSprites.CloudSprites.Draw(0xb83b, editedCloudOam,
             new(120, 72), 0x0800, originIsOnScreen: true);

@@ -45,7 +45,7 @@ public sealed class MotherBrainHealthPalettePresentation
     /// <param name="damageState">Zero-based health-band selector: zero for health at least 9000, one for 5400..8999, two for 1800..5399, and three below 1800; health selection itself remains in gameplay code.</param>
     /// <exception cref="ArgumentNullException"><paramref name="cgram"/> is null.</exception>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="damageState"/> is outside zero through three.</exception>
-    public void Apply(SnesCgram cgram, int damageState)
+    public void Apply(IPaletteColors cgram, int damageState)
     {
         Ensure.NotNull(cgram);
         if ((uint)damageState >= MotherBrainHealthPaletteFormat.StateCount)

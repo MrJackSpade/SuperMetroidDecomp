@@ -70,7 +70,7 @@ internal static class SpanQueriesVerification
         var oam = new OamBuffer();
         oam.BeginFrame();
         oam.FinalizeFrame();
-        var memory = PpuMemorySnapshot.CaptureFrontend(new SnesVram(), cgram, oam, 3);
+        var memory = PpuMemorySnapshotConstants.CaptureFrontend(new SnesVram(), cgram, oam, 3);
         var red = new FixedColorAddRenderLayer(31, 0, 0);
         var objects = new ObjPriorityRenderLayer(2);
         var blue = new FixedColorAddRenderLayer(0, 0, 31);

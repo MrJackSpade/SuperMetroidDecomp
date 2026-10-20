@@ -18,7 +18,7 @@ public static class SamusSpecialSuperPalette
 
     /// <returns>True when the special branch owned—and wrote—the visible Samus palette.</returns>
     public static bool Update(
-        SnesCgram cgram,
+        IPaletteColors cgram,
         SamusState samus)
     {
         Ensure.NotNull(cgram);

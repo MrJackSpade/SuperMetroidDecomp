@@ -68,7 +68,7 @@ internal static class RidleyAcidVerification
 
         void AssertAcidVisible(bool expectedVisible)
         {
-            var memory = PpuMemorySnapshot.Capture(runtime.Vram, runtime.Cgram, runtime.DisplayedSprites);
+            var memory = PpuMemorySnapshotConstants.Capture(runtime.Vram, runtime.Cgram, runtime.DisplayedSprites);
             // The room's BG3 plane under a blank HUD: the acid page the room effect chose.
             var plane = Layer3Plane.Compose(new ushort[Layer3Plane.HudRows * Layer3Plane.Columns], fx.EffectPageWords());
             var effect = SnesGameplayFrameRenderer.CaptureRoomLayer3Fx((fx.CaptureForDisplay() ?? throw new InvalidOperationException("Verification requires fx.CaptureForDisplay().")), plane);

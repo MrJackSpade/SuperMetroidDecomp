@@ -58,27 +58,12 @@ public sealed class SpriteComposition
             sprites.AddPart(part.X, part.Y, part.InheritPalette ? part.Attributes.WithPaletteBits(paletteBits) : part.Attributes, origin);
     }
 
-    /// <summary>Appends all parts using the ordinary on-screen origin clipping path.</summary>
-    /// <param name="oam">Object-attribute buffer that receives the ordered parts.</param>
-    /// <param name="origin">Composition origin in screen-space pixels.</param>
-    /// <param name="paletteBits">OBJ palette bits applied only to parts configured to inherit them.</param>
-    [PpuLayoutBoundary("frontend OAM writer: SpriteComposition.DrawOnScreen until #1358 moves it onto sprite entries")]
-    public void DrawOnScreen(OamBuffer oam, Position16<OamPixels> origin, ushort paletteBits)
+    /// <summary>Places all parts as sprite entries using the native off-screen origin's reversed vertical-wrap clipping (#1358).</summary>
+    public void DrawOffScreen(ScreenSprites sprites, Position16<OamPixels> origin, ushort paletteBits)
     {
+        Ensure.NotNull(sprites);
         _ = SnesObjAttributeWord.FromPaletteBits(paletteBits);
         foreach (var part in parts)
-            oam.AddOnScreenSpritePart(part.X, part.Y,
-                part.InheritPalette ? part.Attributes.WithPaletteBits(paletteBits) : part.Attributes, origin);
-    }
-
-    /// <summary>Preserves the cartridge's opposite Y-wrap clipping for negative origins.</summary>
-    [PpuLayoutBoundary("frontend OAM writer: SpriteComposition.DrawOffScreen until #1358 moves it onto sprite entries")]
-    public void DrawOffScreen(OamBuffer oam, Position16<OamPixels> origin, ushort paletteBits)
-    {
-        _ = SnesObjAttributeWord.FromPaletteBits(paletteBits);
-        foreach (var part in parts)
-            oam.AddOffScreenSpritePart(part.X, part.Y,
-                part.InheritPalette ? part.Attributes.WithPaletteBits(paletteBits) : part.Attributes,
-                origin);
+            sprites.AddOffScreenPart(part.X, part.Y, part.InheritPalette ? part.Attributes.WithPaletteBits(paletteBits) : part.Attributes, origin);
     }
 }

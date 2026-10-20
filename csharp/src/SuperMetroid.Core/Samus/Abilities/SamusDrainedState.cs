@@ -198,7 +198,7 @@ public sealed class SamusDrainedState
     /// value becomes the delay between advances of the ten-entry palette index.
     /// </remarks>
     /// <returns>True when this state owned the current frame's Samus palette dispatch.</returns>
-    public bool UpdatePalette(SnesCgram cgram, SuperMetroid.Core.Samus.SamusEquipmentFlags equippedItems,
+    public bool UpdatePalette(IPaletteColors cgram, SuperMetroid.Core.Samus.SamusEquipmentFlags equippedItems,
         SamusSuitColorCatalog? suitColors = null)
     {
         Ensure.NotNull(cgram);

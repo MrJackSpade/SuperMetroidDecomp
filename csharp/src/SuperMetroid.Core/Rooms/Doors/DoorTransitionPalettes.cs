@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Rooms.Doors;
 /// <c>$82:E52B-$E52E</c> resets when door scrolling completes.
 /// </summary>
 [PpuLayoutBoundary("rendering view: door transition live palette writes")]
-public readonly struct DoorTransitionPalettes(SnesCgram cgram)
+public readonly struct DoorTransitionPalettes(IPaletteColors cgram)
 {
     /// <summary>Copies the beam colours from <paramref name="cgramImage"/>, a whole CGRAM image in colour order.</summary>
     public void RestoreBeamFrom(ReadOnlySpan<Bgr555> cgramImage)

@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Hardware;
+﻿namespace SuperMetroid.Core.Hardware;
 
 /// <summary>
 /// The two-bit high-OAM pair belonging to one sprite: X coordinate bit eight followed by

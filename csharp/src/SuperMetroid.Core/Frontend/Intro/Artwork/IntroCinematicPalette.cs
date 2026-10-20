@@ -58,7 +58,7 @@ public sealed class IntroCinematicPalette
     /// <summary>Replaces all 256 CGRAM colors with the installed opening palette, corresponding to native $8C:E3E9-E5E8; does not advance or reset cinematic fade timers.</summary>
     /// <param name="cgram">Destination CGRAM image, receiving the complete $0200-byte BGR555 transfer.</param>
     [PpuLayoutBoundary("codec: native 512-byte CGRAM transfer image of the opening palette")]
-    public void LoadTo(SnesCgram cgram)
+    public void LoadTo(IPaletteColors cgram)
     {
         Ensure.NotNull(cgram);
         new CgramPalettes(cgram).All.LoadPortBytes(Transfer.Span);

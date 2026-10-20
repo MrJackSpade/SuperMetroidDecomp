@@ -25,7 +25,7 @@ internal static class CeresDestructionCinematicStateAccess
         {
             if ((uint)mapByteIndex >= CeresDestructionRomData.Vram.Mode7MapCapacityBytes)
                 throw new ArgumentOutOfRangeException(nameof(mapByteIndex));
-            return self.vram.ReadByte(mapByteIndex * 2);
+            return self.Image()[mapByteIndex * 2];
         }
     }
 }

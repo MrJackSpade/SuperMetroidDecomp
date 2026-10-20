@@ -111,7 +111,7 @@ internal static class CeresEnginePaletteBindingVerification
             (owner.Session.ceresDestruction ?? throw new InvalidOperationException("Verification requires owner.ceresDestruction."));
 
         static Bgr555[] Colors(CeresDestructionCinematicState owner) =>
-            (owner.cgram).Colors.ToArray();
+            owner.palette.Colors.ToArray();
     }
 
     /// <summary>Runs the focused Ceres engine palette binding regression against the installed artwork.</summary>

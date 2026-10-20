@@ -17,5 +17,8 @@ internal static class SnesPpuLayoutConstants
     public const int OamHighTableByteCount = SnesPpuLayout.OamSpriteCount / 4;
     /// <summary>Complete low-plus-high OAM DMA payload.</summary>
     [PpuLayoutAccess]
-    public const int OamUploadByteCount = SnesPpuLayout.OamLowTableByteCount + OamHighTableByteCount;
+    public const int OamUploadByteCount = SnesPpuLayoutConstants.OamLowTableByteCount + OamHighTableByteCount;
+    /// <summary>Size of OAM's four-byte-per-OBJ low table.</summary>
+    [PpuLayoutAccess]
+    public const int OamLowTableByteCount = SnesPpuLayout.OamSpriteCount * 4;
 }

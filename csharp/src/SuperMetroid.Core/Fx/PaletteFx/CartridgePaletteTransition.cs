@@ -33,7 +33,7 @@ internal sealed class CartridgePaletteTransition
     /// no-op, number denominator+1 reaches the exact target, and the following call returns
     /// complete while resetting the native counter.
     /// </summary>
-    public bool Step(SnesCgram cgram, ushort paletteMask = ushort.MaxValue)
+    public bool Step(IPaletteColors cgram, ushort paletteMask = ushort.MaxValue)
     {
         Ensure.NotNull(cgram);
         int transitionNumber = numerator.Numerator;

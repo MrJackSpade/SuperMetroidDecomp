@@ -322,7 +322,7 @@ internal sealed class DoorTransitionState
     }
 
     /// <summary>Restores the faded source colors after destination loading replaces CGRAM.</summary>
-    private static void RestorePalette(SnesCgram cgram, ReadOnlySpan<Bgr555> colors)
+    private static void RestorePalette(IPaletteColors cgram, ReadOnlySpan<Bgr555> colors)
     {
         new CgramPalettes(cgram).LoadImage(colors);
     }

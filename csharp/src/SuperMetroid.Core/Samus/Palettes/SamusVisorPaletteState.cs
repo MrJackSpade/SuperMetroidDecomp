@@ -42,7 +42,7 @@ public sealed class SamusVisorPaletteState
     /// Advances one palette-handler call and optionally writes CGRAM color 196.
     /// </summary>
     public SamusVisorPaletteStepResult Update(
-        SnesCgram cgram,
+        IPaletteColors cgram,
         SamusSpecialPaletteType specialSamusPaletteType,
         LayerBlendingConfiguration layerBlendingDefaultConfig)
     {

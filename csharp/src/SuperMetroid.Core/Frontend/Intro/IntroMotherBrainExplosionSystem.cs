@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Frontend.Intro.Artwork;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Frontend.Intro;
 
@@ -40,9 +41,9 @@ internal sealed class IntroMotherBrainExplosionSystem
     }
 
     /// <summary>Adds each visible spritemap in native actor order to cinematic OAM.</summary>
-    public void Draw(OamBuffer oam, IntroMotherBrainExplosionSpritePresentation installedArt)
+    public void Draw(ScreenSprites objects, IntroMotherBrainExplosionSpritePresentation installedArt)
     {
-        Ensure.NotNull(oam);
+        Ensure.NotNull(objects);
         Ensure.NotNull(installedArt);
         foreach (ExplosionActor actor in actors)
         {
@@ -53,7 +54,7 @@ internal sealed class IntroMotherBrainExplosionSystem
             if (spritemap == 0)
                 continue;
 
-            installedArt.Draw(spritemap, oam, actor.Position.ToOam(), IntroCinematicRomData.Objects.ExplosionPalette.Raw);
+            installedArt.Draw(spritemap, objects, actor.Position.ToOam(), IntroCinematicRomData.Objects.ExplosionPalette.Raw);
         }
     }
 

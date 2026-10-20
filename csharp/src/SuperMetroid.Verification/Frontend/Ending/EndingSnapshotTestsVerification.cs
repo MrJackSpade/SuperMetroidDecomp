@@ -141,16 +141,19 @@ internal static class EndingSnapshotTestsVerification
                     else
                         (referenceJump ?? throw new InvalidOperationException("Verification requires referenceJump.")).Step();
                     var jumpFrame = legacy.Presentation.CaptureRenderSnapshot();
-                    var expectedOam = referenceJump.Draw(rewardArt);
+                    var expectedOam = ScreenSpritesFixtures.Frame(jumpFrame.ObjectSelection, objects => referenceJump.Draw(objects, rewardArt));
                     AssertEqual(referenceJump.FallingSheetSelected
                             ? EndingCreditsRomData.Rendering.FallingRewardObjectSelection
                             : EndingCreditsRomData.Rendering.RewardObjectSelection,
                         jumpFrame.ObjectSelection,
                         "live reward switches OBJ sheet on the same native flight frame");
                     // The live ending also appends the restored shooting stars after the reference jump actors.
-                    PlacedSpritePart[] jumpParts = PlacedSpritePart.OfOam(expectedOam, jumpFrame.ObjectSelection);
-                    AssertTrue(jumpFrame.Memory.SpriteParts().Take(jumpParts.Length).SequenceEqual(jumpParts),
-                        "live reward preserves native actor positions, sizes, tile indices and palettes on every jump frame");
+                    PlacedSpritePart[] jumpParts = PlacedSpritePart.Of(expectedOam.Draws);
+                    PlacedSpritePart[] liveParts = [.. jumpFrame.Memory.SpriteParts().Take(jumpParts.Length)];
+                    int[] mismatches = [.. Enumerable.Range(0, jumpParts.Length).Where(index => index >= liveParts.Length || liveParts[index] != jumpParts[index])];
+                    AssertTrue(mismatches.Length == 0,
+                        "live reward preserves native actor positions, sizes, tile indices and palettes on every jump frame" +
+                        string.Concat(mismatches.Select(index => $" [part {index}: live {(index < liveParts.Length ? liveParts[index].Part.ToString() : "missing")}, native {jumpParts[index].Part}]")));
                     AssertTrue(jumpFrame.Layers.All(layer => layer is ObjRenderLayer),
                         "reward flight and landing keep BG disabled during icon graphics replacement");
                 }
@@ -278,12 +281,12 @@ internal static class EndingSnapshotTestsVerification
                 {
                     // E58A clears cinematic actors; the independent star field survives.
                     var stars = legacy.shootingStars;
-                    var starOnlyOam = new OamBuffer();
+                    var starOnlyOam = ScreenSpritesFixtures.Blank();
                     starOnlyOam.BeginFrame();
                     stars?.Draw(starOnlyOam);
                     starOnlyOam.FinalizeFrame();
                     var actual = legacy.Presentation.CaptureRenderSnapshot();
-                    AssertTrue(PlacedSpritePart.OfOam(starOnlyOam, actual.ObjectSelection).SequenceEqual(actual.Memory.SpriteParts()),
+                    AssertTrue(PlacedSpritePart.Of(starOnlyOam.Draws).SequenceEqual(actual.Memory.SpriteParts()),
                         "native E58A leaves only the independent shooting stars before final percentage text");
                 }
                 if (legacy.Phase == EndingCreditsPhase.PlanetEscapeFast && sample)

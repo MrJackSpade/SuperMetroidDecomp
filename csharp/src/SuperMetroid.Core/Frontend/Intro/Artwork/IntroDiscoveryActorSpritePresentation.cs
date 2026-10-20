@@ -20,19 +20,19 @@ public sealed class IntroDiscoveryActorSpritePresentation : IIntroCinematicSprit
 
     /// <summary>Draws one installed egg, remnant, confused-baby, or hatched-baby composition.</summary>
     /// <param name="pointer">Native bank-$8C spritemap identity for one of the twenty actor frames.</param>
-    /// <param name="oam">The OAM buffer receiving the ordered sprite parts.</param>
+    /// <param name="objects">The OAM buffer receiving the ordered sprite parts.</param>
     /// <param name="origin">Native wrapped sixteen-bit screen origin in pixels.</param>
     /// <param name="paletteBits">OBJ palette attribute bits applied to inherited-palette parts.</param>
     /// <param name="originIsOnScreen">Whether the anchor is already in screen space rather than the off-screen cinematic space.</param>
-    public void Draw(ushort pointer, OamBuffer oam, Position16<OamPixels> origin,
+    public void Draw(ushort pointer, ScreenSprites objects, Position16<OamPixels> origin,
         ushort paletteBits, bool originIsOnScreen)
     {
         if (!frames.TryGetValue(pointer, out SpriteComposition? frame))
             throw new InvalidDataException($"Intro discovery actor frame $8C:{pointer:X4} is not installed.");
         if (originIsOnScreen)
-            frame.DrawOnScreen(oam, origin, paletteBits);
+            frame.Draw(objects, origin, paletteBits);
         else
-            frame.DrawOffScreen(oam, origin, paletteBits);
+            frame.DrawOffScreen(objects, origin, paletteBits);
     }
 
     /// <summary>Loads and validates all sixteen egg/remnant and four baby visual frames.</summary>

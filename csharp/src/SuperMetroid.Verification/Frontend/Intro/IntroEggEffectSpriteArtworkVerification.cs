@@ -42,7 +42,7 @@ internal static class IntroEggEffectSpriteArtworkVerification
                 else
                     DrawImportedSpritemap(bus, native, source, new(x, y), palette, originIsOnScreen: false);
                 native.FinalizeFrame();
-                var installed = new OamBuffer();
+                var installed = ScreenSpritesFixtures.Blank();
                 installed.BeginFrame();
                 stock.EggEffectSprites.Draw(definition.Pointer, installed, new(x, y),
                     palette, onScreen);
@@ -69,7 +69,7 @@ internal static class IntroEggEffectSpriteArtworkVerification
         var guarded = NewIntroArtworkSourceReadGuard(bus, IntroArtworkSources.IntroEggEffects);
         var fragment = new IntroEggParticle(index: 0);
         fragment.Step();
-        var stockOam = new OamBuffer();
+        var stockOam = ScreenSpritesFixtures.Blank();
         stockOam.BeginFrame();
         fragment.Draw(stockOam, stock.EggEffectSprites);
         stockOam.FinalizeFrame();
@@ -79,7 +79,7 @@ internal static class IntroEggEffectSpriteArtworkVerification
         nativeLiveOam.FinalizeFrame();
         AssertTrue(stockOam.ImageEquals(nativeLiveOam),
             "installed egg fragment preserves native live-actor OAM");
-        var editedOam = new OamBuffer();
+        var editedOam = ScreenSpritesFixtures.Blank();
         editedOam.BeginFrame();
         fragment.Draw(editedOam, edited.EggEffectSprites);
         editedOam.FinalizeFrame();
@@ -91,7 +91,7 @@ internal static class IntroEggEffectSpriteArtworkVerification
         for (int frame = 0; frame < 31; frame++)
         {
             slime.Step();
-            var slimeOam = new OamBuffer();
+            var slimeOam = ScreenSpritesFixtures.Blank();
             slimeOam.BeginFrame();
             slime.Draw(slimeOam, stock.EggEffectSprites);
             slimeOam.FinalizeFrame();

@@ -11,5 +11,5 @@ public static class RoomGraphicsVram
     public const int CollectibleSlotWordCount = 128;
 
     /// <summary>The tileset palette in <paramref name="cgram"/>.</summary>
-    public static CgramPalette TilesetPalette(SnesCgram cgram) => new(cgram, RoomGraphicsLayout.TilesetPalette);
+    public static CgramPalette TilesetPalette(IPaletteColors cgram) => new(cgram, RoomGraphicsLayout.TilesetPalette);
 }

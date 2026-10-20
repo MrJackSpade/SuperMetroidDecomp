@@ -72,7 +72,7 @@ public sealed class MagdollitePaletteCycle
     /// <exception cref="ArgumentNullException">The CGRAM target is null.</exception>
     /// <exception cref="ArgumentOutOfRangeException">The row index or four-color destination range is invalid.</exception>
     [PpuLayoutBoundary("codec: palette-cycle colours at their native CGRAM index operand")]
-    public void ApplyFrame(SnesCgram cgram, int frame, int destination)
+    public void ApplyFrame(IPaletteColors cgram, int frame, int destination)
     {
         Ensure.NotNull(cgram);
         if (destination < 0 ||

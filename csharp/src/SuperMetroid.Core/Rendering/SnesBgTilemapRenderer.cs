@@ -15,7 +15,7 @@ public static class SnesBgTilemapRenderer
     /// untouched, allowing a PPU compositor to build its priority ladder without allocating
     /// and copying a temporary full-plane RGBA array for every BG insertion.
     /// </summary>
-    public static void Composite4BppViewport(Span<Rgba32> output, SnesVram vram, SnesCgram cgram, BgVramAddresses addresses, BgViewport viewport, bool? priority = null)
+    public static void Composite4BppViewport(Span<Rgba32> output, SnesVram vram, IPaletteColors cgram, BgVramAddresses addresses, BgViewport viewport, bool? priority = null)
     {
         Ensure.NotNull(vram);
         Ensure.NotNull(cgram);
@@ -82,7 +82,7 @@ public static class SnesBgTilemapRenderer
     /// the background shows nothing at, transparent character pixels and nonmatching priority tiles leave the
     /// destination untouched.
     /// </summary>
-    public static void Composite4BppViewport(Span<Rgba32> output, SnesVram vram, SnesCgram cgram, IBgTileSource tiles,
+    public static void Composite4BppViewport(Span<Rgba32> output, SnesVram vram, IPaletteColors cgram, IBgTileSource tiles,
         int characterBaseWord, BgViewport viewport, bool? priority = null)
     {
         Ensure.NotNull(vram);
@@ -120,7 +120,7 @@ public static class SnesBgTilemapRenderer
     /// Renders BG3 directly into caller-owned storage. Gameplay uses the first 32 scanlines
     /// of its final frame, avoiding a temporary 32 KiB HUD raster and subsequent copy.
     /// </summary>
-    public static void Render2Bpp(Span<Rgba32> output, SnesVram vram, SnesCgram cgram, BgVramAddresses addresses, int rowCount, bool transparentColorZero = false, bool? priority = null)
+    public static void Render2Bpp(Span<Rgba32> output, SnesVram vram, IPaletteColors cgram, BgVramAddresses addresses, int rowCount, bool transparentColorZero = false, bool? priority = null)
     {
         Ensure.NotNull(vram);
         if (rowCount is <= 0 or > 32)
@@ -135,8 +135,8 @@ public static class SnesBgTilemapRenderer
         Render2BppEntries(output, vram, cgram, addresses.CharacterBaseWord, entries, transparentColorZero, priority);
     }
 
-    /// <summary>Renders the top <paramref name="rowCount"/> rows of the BG3 plane (#1348), as <see cref="Render2Bpp(Span{Rgba32}, SnesVram, SnesCgram, BgVramAddresses, int, bool, bool?)"/> renders a VRAM tilemap.</summary>
-    public static void Render2Bpp(Span<Rgba32> output, SnesVram vram, SnesCgram cgram, Layer3Plane plane, int characterBaseWord, int rowCount, bool transparentColorZero = false)
+    /// <summary>Renders the top <paramref name="rowCount"/> rows of the BG3 plane (#1348), as <see cref="Render2Bpp(Span{Rgba32}, SnesVram, IPaletteColors, BgVramAddresses, int, bool, bool?)"/> renders a VRAM tilemap.</summary>
+    public static void Render2Bpp(Span<Rgba32> output, SnesVram vram, IPaletteColors cgram, Layer3Plane plane, int characterBaseWord, int rowCount, bool transparentColorZero = false)
     {
         Ensure.NotNull(plane);
         if (rowCount is <= 0 or > 32)
@@ -146,7 +146,7 @@ public static class SnesBgTilemapRenderer
     }
 
     /// <summary>Renders 32-wide rows of 2-bpp tilemap words: one row per 32 entries.</summary>
-    private static void Render2BppEntries(Span<Rgba32> output, SnesVram vram, SnesCgram cgram, int characterBaseWord,
+    private static void Render2BppEntries(Span<Rgba32> output, SnesVram vram, IPaletteColors cgram, int characterBaseWord,
         ReadOnlySpan<ushort> entries, bool transparentColorZero, bool? priority)
     {
         int rowCount = entries.Length / SnesPpuLayout.TilemapPageWidthInTiles;

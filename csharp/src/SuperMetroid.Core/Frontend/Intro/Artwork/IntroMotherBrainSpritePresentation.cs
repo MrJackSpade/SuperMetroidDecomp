@@ -19,15 +19,15 @@ public sealed class IntroMotherBrainSpritePresentation
 
     /// <summary>Appends one installed Mother Brain composition through the on-screen OAM path used by the opening flashback, without advancing animation.</summary>
     /// <param name="pointer">Native bank-$8C frame identity $8C00, $8C2F, or $8C5E; $8C8D belongs to Rinka, not Mother Brain.</param>
-    /// <param name="oam">Destination object-attribute buffer; authored part order is preserved for sprite overlap.</param>
+    /// <param name="objects">Destination object-attribute buffer; authored part order is preserved for sprite overlap.</param>
     /// <param name="origin">Native wrapped sixteen-bit screen origin in pixels.</param>
     /// <param name="paletteBits">Actor's OBJ palette bits, applied only to parts configured to inherit the palette.</param>
     /// <exception cref="InvalidDataException">The requested frame identity is not installed.</exception>
-    public void Draw(ushort pointer, OamBuffer oam, Position16<OamPixels> origin, ushort paletteBits)
+    public void Draw(ushort pointer, ScreenSprites objects, Position16<OamPixels> origin, ushort paletteBits)
     {
         if (!frames.TryGetValue(pointer, out SpriteComposition? frame))
             throw new InvalidDataException($"Intro Mother Brain frame $8C:{pointer:X4} is not installed.");
-        frame.DrawOnScreen(oam, origin, paletteBits);
+        frame.Draw(objects, origin, paletteBits);
     }
 
     /// <summary>Validates and compiles the three named intro Mother Brain frames into independently owned visual compositions.</summary>

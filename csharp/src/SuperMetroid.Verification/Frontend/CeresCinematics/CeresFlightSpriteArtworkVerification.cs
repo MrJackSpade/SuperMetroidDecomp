@@ -32,7 +32,7 @@ internal static class CeresFlightSpriteArtworkVerification
                 else
                     DrawImportedSpritemap(bus, native, source, new(120, y), 0x0800, originIsOnScreen: false);
                 native.FinalizeFrame();
-                var installed = new OamBuffer();
+                var installed = ScreenSpritesFixtures.Blank();
                 installed.BeginFrame();
                 stock.Sprites.Draw(frame.Pointer, installed, new(120, y), 0x0800, onScreen);
                 installed.FinalizeFrame();

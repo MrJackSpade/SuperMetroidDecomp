@@ -29,7 +29,7 @@ internal sealed class EndingPostShot
     public bool ReadyForWhiteFlash { get; private set; }
 
     /// <summary>Captures the starting palette and installed art for the post-shot rotation and logo transfers.</summary>
-    public EndingPostShot(SnesCgram cgram, EndingFontAtlas fontAtlas,
+    public EndingPostShot(IPaletteColors cgram, EndingFontAtlas fontAtlas,
         EndingObjectArtworkCatalog? artwork = null)
     {
         Ensure.NotNull(fontAtlas);
@@ -85,7 +85,7 @@ internal sealed class EndingPostShot
     }
 
     /// <summary>Advances the native rotation, both palette fades, timed VRAM uploads, and white-flash handoff by one update.</summary>
-    public void Step(SnesVram vram, SnesCgram cgram)
+    public void Step(SnesVram vram, IPaletteColors cgram)
     {
         if (ReadyForWhiteFlash) throw new InvalidOperationException("Post-shot white-flash handoff must be consumed.");
         calls++;
@@ -117,7 +117,7 @@ internal sealed class EndingPostShot
 
     /// <summary>Fades one CGRAM palette range from its captured colors using the native 32-step component progression.</summary>
     [PpuLayoutBoundary("codec: native ending fade over its CGRAM index range")]
-    private void ApplyFade(SnesCgram cgram, int start, int elapsed)
+    private void ApplyFade(IPaletteColors cgram, int start, int elapsed)
     {
         int remaining = EndingPostShotDefinitions.FadeFrames - elapsed;
         for (int index = start; index < start + EndingPostShotDefinitions.PaletteColors; index++)

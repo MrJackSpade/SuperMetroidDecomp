@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Frontend.Intro.Artwork;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Frontend.Intro;
 
@@ -69,9 +70,9 @@ internal sealed class IntroEggSlimeDrop
     }
 
     /// <summary>Draws the drop's current frame with installed egg-effect artwork when provided.</summary>
-    public void Draw(OamBuffer oam,
+    public void Draw(ScreenSprites objects,
         IntroEggEffectSpritePresentation? installedArt = null) =>
-        sprite.Draw(oam, installedArt: installedArt);
+        sprite.Draw(objects, installedArt: installedArt);
 
     /// <summary>Adds native 16.16 motion to one screen coordinate while preserving its fractional part.</summary>
     private void AddVelocity(bool horizontal, SnesSignedSixteenSixteen velocity)

@@ -24,7 +24,7 @@ internal static class MessageSnapshotTestsVerification
         var cgram = new SnesCgram();
         for (int i = 0; i < SnesCgram.ColorCount; i++) cgram.SetColor(i, Bgr555.FromWord((ushort)(i * 101 & 32767)));
         var oam = new OamBuffer(); oam.BeginFrame(); oam.FinalizeFrame();
-        var memory = PpuMemorySnapshot.CaptureFrontend(vram, cgram, oam, 3);
+        var memory = PpuMemorySnapshotConstants.CaptureFrontend(vram, cgram, oam, 3);
         Rgba32[] baseline = SnesLayerCompositor.CreateBackdrop(cgram, 256 * 224);
         int samples = 0;
         foreach (GameplayMessageId id in Enum.GetValues<GameplayMessageId>())
@@ -81,7 +81,7 @@ internal static class MessageSnapshotTestsVerification
         // intersection of the art's centered extent and the half-open reveal window.
         vram = new SnesVram();
         for (int y = 0; y < 8; y++) vram.LoadBytes(GameplayVramLayout.HudCharacterWord * 2 + y * 2, [255, 0]);
-        memory = PpuMemorySnapshot.CaptureFrontend(vram, cgram, oam, 3);
+        memory = PpuMemorySnapshotConstants.CaptureFrontend(vram, cgram, oam, 3);
         for (int rows = 3; rows <= 6; rows++)
         for (int radius = 0; radius <= 24; radius++)
         {

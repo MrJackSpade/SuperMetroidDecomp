@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Frontend.Ending;
 
@@ -24,7 +25,7 @@ internal sealed class EndingLogo
     public bool Completed => PaletteStep == EndingLogoDefinitions.PaletteSteps;
 
     /// <summary>Creates four logo actors and loads the initial artwork palette into CGRAM.</summary>
-    public EndingLogo(SnesCgram cgram, Action landed,
+    public EndingLogo(IPaletteColors cgram, Action landed,
         EndingPaletteCatalog? paletteArtwork = null)
     {
         this.landed = landed;
@@ -48,7 +49,7 @@ internal sealed class EndingLogo
     public void BindPaletteArtwork(EndingPaletteCatalog? value) => paletteArtwork = value;
 
     /// <summary>Applies the pending crossfade pair before moving actors and interpreting their next instructions.</summary>
-    public void Step(SnesCgram cgram)
+    public void Step(IPaletteColors cgram)
     {
         if (Completed) throw new InvalidOperationException("Completed logo must hand off to percentage text.");
         // The cinematic function runs before sprite instructions, so the first palette
@@ -98,16 +99,12 @@ internal sealed class EndingLogo
         CrossfadeStarted = true;
     }
 
-    /// <summary>Draws active logo actors into supplied OAM or a newly finalized frame buffer.</summary>
-    [PpuLayoutBoundary("frontend OAM writer: EndingLogo.Draw until #1358 moves it onto sprite entries")]
-    public OamBuffer Draw(EndingLogoSpritePresentation? installedArt = null, OamBuffer? destination = null)
+    /// <summary>Places active logo actors as the supplied sprite entries.</summary>
+    public void Draw(ScreenSprites destination, EndingLogoSpritePresentation? installedArt)
     {
-        var oam = destination ?? new OamBuffer();
-        if (destination is null) oam.BeginFrame();
+        Ensure.NotNull(destination);
         if (!Completed)
             foreach (var actor in actors)
-                actor.Draw(oam, EndingLogoDefinitions.Camera, installedArt);
-        if (destination is null) oam.FinalizeFrame();
-        return oam;
+                actor.Draw(destination, EndingLogoDefinitions.Camera, installedArt);
     }
 }

@@ -19,21 +19,21 @@ public sealed class IntroEggEffectSpritePresentation : IIntroCinematicSpritePres
 
     /// <summary>Appends an installed shell-fragment or slime composition to OAM without advancing the actor's motion or animation.</summary>
     /// <param name="pointer">Bank-$8C frame identity: $8F7E..$8FA1 for six fragments or $8FA8..$8FC4 for five slime frames, in seven-byte native record steps.</param>
-    /// <param name="oam">Destination object-attribute buffer; parts retain their authored draw order.</param>
+    /// <param name="objects">Destination object-attribute buffer; parts retain their authored draw order.</param>
     /// <param name="origin">Native wrapped sixteen-bit screen origin in pixels.</param>
     /// <param name="paletteBits">Drawing actor's OBJ palette bits, used only by parts whose palette is inherited.</param>
     /// <param name="originIsOnScreen">Whether to use the ordinary origin clipping path; false preserves the negative-origin Y-wrap clipping used by cinematic sprites.</param>
     /// <exception cref="InvalidDataException">The requested frame identity is not installed.</exception>
-    public void Draw(ushort pointer, OamBuffer oam, Position16<OamPixels> origin,
+    public void Draw(ushort pointer, ScreenSprites objects, Position16<OamPixels> origin,
         ushort paletteBits, bool originIsOnScreen)
     {
         if (!frames.TryGetValue(pointer, out SpriteComposition? frame))
             throw new InvalidDataException(
                 $"Intro egg effect frame $8C:{pointer:X4} is not installed.");
         if (originIsOnScreen)
-            frame.DrawOnScreen(oam, origin, paletteBits);
+            frame.Draw(objects, origin, paletteBits);
         else
-            frame.DrawOffScreen(oam, origin, paletteBits);
+            frame.DrawOffScreen(objects, origin, paletteBits);
     }
 
     /// <summary>Validates and compiles all eleven named egg-effect frames from editable JSON into independently owned visual compositions.</summary>

@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Samus.Palettes;
 
 /// <summary>Typed view of Samus's CGRAM ranges (#630).</summary>
 [PpuLayoutBoundary("rendering view: Samus CGRAM ranges")]
-public readonly struct SamusPalettes(SnesCgram cgram)
+public readonly struct SamusPalettes(IPaletteColors cgram)
 {
     /// <summary>Samus's suit palette.</summary>
     public CgramPalette Suit => new(cgram, SamusPaletteLayout.Suit);

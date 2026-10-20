@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Bosses.Ridley.Artwork;
 
 /// <summary>Typed view of the Ridley palette ranges (#630).</summary>
 [PpuLayoutBoundary("rendering view: Ridley palettes")]
-public readonly struct RidleyPalettes(SnesCgram cgram)
+public readonly struct RidleyPalettes(IPaletteColors cgram)
 {
     /// <summary>Ceres door/container and Baby palettes.</summary>
     public CgramPalette CeresStart => new(cgram, RidleyCgramLayout.CeresStart);

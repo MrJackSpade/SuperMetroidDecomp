@@ -40,7 +40,7 @@ internal static class IntroDiscoveryActorSpriteArtworkVerification
                 else
                     DrawImportedSpritemap(bus, native, source, new(x, y), palette, originIsOnScreen: false);
                 native.FinalizeFrame();
-                var installed = new OamBuffer();
+                var installed = ScreenSpritesFixtures.Blank();
                 installed.BeginFrame();
                 stock.DiscoveryActorSprites.Draw(definition.Pointer, installed, new(x, y),
                     palette, onScreen);

@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Frontend.Intro.Artwork;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
 
@@ -8,11 +9,11 @@ internal sealed class CeresSceneSpritePresentation(
     CeresDestructionSpritePresentation destruction) : IIntroCinematicSpritePresentation
 {
     /// <summary>Dispatches a scene frame to the unique destruction catalog or the shared Ceres flight catalog.</summary>
-    public void Draw(ushort pointer, OamBuffer oam, Position16<OamPixels> origin,
+    public void Draw(ushort pointer, ScreenSprites objects, Position16<OamPixels> origin,
         ushort paletteBits, bool originIsOnScreen)
     {
         IIntroCinematicSpritePresentation owner = destruction.Contains(pointer)
             ? destruction : flight;
-        owner.Draw(pointer, oam, origin, paletteBits, originIsOnScreen);
+        owner.Draw(pointer, objects, origin, paletteBits, originIsOnScreen);
     }
 }

@@ -44,7 +44,7 @@ public sealed class NorfairRidleyColorCatalog
 
     /// <summary>Installs the 32 initial RGB5 colors in CGRAM entries 160..191 (OBJ palettes 2 and 3), matching the native copy from <c>$A6:E1CF</c>; subsequent palette clearing is the caller's responsibility.</summary>
     /// <param name="cgram">Destination color memory to update.</param>
-    public void ApplyInitial(SnesCgram cgram)
+    public void ApplyInitial(IPaletteColors cgram)
     {
         Ensure.NotNull(cgram);
         for (int color = 0; color < NorfairRidleyPaletteRomData.InitialColorCount; color++)
@@ -54,7 +54,7 @@ public sealed class NorfairRidleyColorCatalog
     /// <summary>Copies one arena-reveal row to CGRAM entries 113..126 (BG palette 7, colors 1..14), matching <c>FadeInRidleyRoomBackground</c> at <c>$A6:A4D6</c>; does not advance the reveal timer or process its terminator.</summary>
     /// <param name="cgram">Destination color memory to update.</param>
     /// <param name="row">Zero-based reveal row, from 0 through 14; row 15 is the runtime terminator, not a color row.</param>
-    public void ApplyReveal(SnesCgram cgram, int row)
+    public void ApplyReveal(IPaletteColors cgram, int row)
     {
         NorfairRidleyRevealPaintDefinitions.ValidateRow(row);
         Ensure.NotNull(cgram);

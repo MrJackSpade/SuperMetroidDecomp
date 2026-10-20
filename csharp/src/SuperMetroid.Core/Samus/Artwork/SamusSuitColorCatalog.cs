@@ -77,7 +77,7 @@ public sealed class SamusSuitColorCatalog
     }
 
     /// <summary>Writes only Samus's sixteen OBJ colors; no equipment or phase state changes.</summary>
-    public void Apply(SnesCgram cgram, ushort suitTableOffset)
+    public void Apply(IPaletteColors cgram, ushort suitTableOffset)
     {
         Ensure.NotNull(cgram);
         for (int index = 0; index < SamusSuitColorFormat.ColorsPerSuit; index++)

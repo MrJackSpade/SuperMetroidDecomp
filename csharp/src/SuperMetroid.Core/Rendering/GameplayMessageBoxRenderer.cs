@@ -32,7 +32,7 @@ public static class GameplayMessageBoxRenderer
     /// <param name="layer">The message layer.</param>
     /// <param name="cgram">The displayed palette.</param>
     [PpuLayoutBoundary("backend: software message-box palette from the displayed CGRAM")]
-    public static void Composite(Span<Rgba32> frame, MessageBoxRenderLayer layer, SnesCgram cgram)
+    public static void Composite(Span<Rgba32> frame, MessageBoxRenderLayer layer, IPaletteColors cgram)
     {
         Ensure.NotNull(layer);
         Ensure.NotNull(cgram);

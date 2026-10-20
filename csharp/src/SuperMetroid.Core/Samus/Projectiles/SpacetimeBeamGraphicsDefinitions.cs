@@ -18,7 +18,7 @@ internal static class SpacetimeBeamGraphicsDefinitions
     internal const ushort PaletteWord = 0x0000;
 
     /// <summary>Loads the SpaceTime beam's defined palette.</summary>
-    internal static void LoadPalette(SnesCgram cgram)
+    internal static void LoadPalette(IPaletteColors cgram)
     {
         for (ushort color = 0; color < SuperMetroid.Core.Samus.Artwork.BeamPaletteDefinitions.ColorCount; color++)
             new SamusPalettes(cgram).Beam.Write(color, Bgr555.FromCgramPortWord(PaletteWord));

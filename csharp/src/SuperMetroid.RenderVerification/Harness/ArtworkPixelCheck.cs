@@ -45,7 +45,7 @@ internal sealed class ArtworkPixelCheck(D3D11RenderDevice device, D3D11FrameRend
         Compare(a, first, context + " retained stock after replacement");
 
         RenderFrameSnapshot Packet(SnesVram vram) => new(new(++sequence, 1, 0),
-            new LayeredRenderSnapshot(PpuMemorySnapshot.CaptureFrontend(vram, colors, oam, 3),
+            new LayeredRenderSnapshot(PpuMemorySnapshotConstants.CaptureFrontend(vram, colors, oam, 3),
                 [new ObjRenderLayer()], 3, 15));
     }
 

@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Enemies.Drawing;
 
 /// <summary>Typed view of the enemy and boss CGRAM ranges (#630).</summary>
 [PpuLayoutBoundary("rendering view: enemy and boss CGRAM ranges")]
-public readonly struct EnemyPalettes(SnesCgram cgram)
+public readonly struct EnemyPalettes(IPaletteColors cgram)
 {
     /// <summary>Torizo body row.</summary>
     public CgramPalette TorizoBody => new(cgram, EnemyPaletteLayout.TorizoBody);

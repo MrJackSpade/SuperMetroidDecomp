@@ -32,7 +32,7 @@ public static class SamusHurtFlashPalette
     /// <param name="presentationColors">Installed hurt/intro colors, required only when the selected flash call loads one of those palettes.</param>
     /// <returns>An empty step marker; counter, palette, and audio outcomes are applied directly to the supplied state.</returns>
     public static SamusHurtFlashPaletteStepResult Update(
-        SnesCgram cgram,
+        IPaletteColors cgram,
         SamusState samus,
         SnesButton controllerInput,
         SamusHurtColorCatalog? presentationColors = null)

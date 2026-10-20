@@ -54,8 +54,8 @@ internal static class IntroMotherBrainExplosionPartsVerification
                 var native = new OamBuffer(); native.BeginFrame();
                 DrawImportedSpritemap(rom, native, 0x8c0000 + definition.Pointer, new(120, y), 0x0a00, originIsOnScreen: y == 72);
                 native.FinalizeFrame();
-                var actual = new OamBuffer(); actual.BeginFrame();
-                if (y == 72) result.DrawOnScreen(actual, new(120, y), 0x0a00);
+                var actual = ScreenSpritesFixtures.Blank(); actual.BeginFrame();
+                if (y == 72) result.Draw(actual, new(120, y), 0x0a00);
                 else result.DrawOffScreen(actual, new(120, y), 0x0a00);
                 actual.FinalizeFrame();
                 AssertTrue(native.ImageEquals(actual)
@@ -81,7 +81,7 @@ internal static class IntroMotherBrainExplosionPartsVerification
             if (y == 72) reference.DrawOnScreen(expected, new(120, y), 0x0a00);
             else reference.DrawOffScreen(expected, new(120, y), 0x0a00);
             expected.FinalizeFrame();
-            var actual = new OamBuffer(); actual.BeginFrame();
+            var actual = ScreenSpritesFixtures.Blank(); actual.BeginFrame();
             presentation.Draw(pointer, actual, new(120, y), 0x0a00, y == 72);
             actual.FinalizeFrame();
             AssertTrue(expected.ImageEquals(actual)

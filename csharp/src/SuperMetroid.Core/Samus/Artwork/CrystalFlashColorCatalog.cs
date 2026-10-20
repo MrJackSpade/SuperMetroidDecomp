@@ -108,7 +108,7 @@ public sealed class CrystalFlashColorCatalog
     /// <param name="frame">Zero-based body playback record index, 0 through 9.</param>
     /// <exception cref="ArgumentNullException"><paramref name="cgram"/> is null.</exception>
     /// <exception cref="ArgumentOutOfRangeException">The body frame index is outside the sequence.</exception>
-    public void ApplyBody(SnesCgram cgram, int frame)
+    public void ApplyBody(IPaletteColors cgram, int frame)
     {
         Ensure.NotNull(cgram);
         for (int color = 0; color < CrystalFlashColorFormat.BodyColorCount; color++)
@@ -120,7 +120,7 @@ public sealed class CrystalFlashColorCatalog
     /// <param name="frame">Zero-based bubble palette index, 0 through 5.</param>
     /// <exception cref="ArgumentNullException"><paramref name="cgram"/> is null.</exception>
     /// <exception cref="ArgumentOutOfRangeException">The bubble frame index is outside the sequence.</exception>
-    public void ApplyBubble(SnesCgram cgram, int frame)
+    public void ApplyBubble(IPaletteColors cgram, int frame)
     {
         Ensure.NotNull(cgram);
         for (int color = 0; color < CrystalFlashColorFormat.BubbleColorCount; color++)

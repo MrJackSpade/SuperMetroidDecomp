@@ -109,7 +109,7 @@ public sealed class RoomFxPaletteBlendCatalog
     }
 
     /// <summary>Applies the native three-color write, or clears only color 27 for selection zero.</summary>
-    public void Apply(SnesCgram cgram, RoomFxPaletteBlend selection)
+    public void Apply(IPaletteColors cgram, RoomFxPaletteBlend selection)
     {
         Ensure.NotNull(cgram);
         if (selection == RoomFxPaletteBlend.None)

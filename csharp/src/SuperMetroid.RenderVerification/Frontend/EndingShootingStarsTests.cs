@@ -11,6 +11,7 @@ using SuperMetroid.Rendering.Direct3D11.Frames;
 namespace SuperMetroid.RenderVerification.Frontend;
 using SuperMetroid.TestSupport.FrameCapture;
 using SuperMetroid.TestSupport.RepositoryInstallation;
+using SuperMetroid.Core.Assets;
 
 /// <summary>Checks post-credits shooting-star motion, OAM, phase masks, and CPU/GPU rendering.</summary>
 internal static class EndingShootingStarsTests
@@ -48,7 +49,7 @@ internal static class EndingShootingStarsTests
                     "Delay expires on underflow, skips motion, and joins the drawing timer on that call");
             if (frame == 32)
             {
-                var oam = new OamBuffer(); oam.BeginFrame(); stars.Draw(oam); oam.FinalizeFrame();
+                var oam = ScreenSpritesFixtures.Blank(); oam.BeginFrame(); stars.Draw(oam); oam.FinishFrame();
                 Require(oam.LastFinalizedSpriteCount > 0, "Stars publish visible OAM after the 32-call lead-in");
                 Require(oam.LowTable[..4].SequenceEqual(new byte[] {148,121,0xf0,0x09}), "First star's exact native position and attributes");
             }

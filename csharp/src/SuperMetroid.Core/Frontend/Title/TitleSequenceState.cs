@@ -105,7 +105,7 @@ public sealed class TitleSequenceState
 
         // `$8B:9B87` expands the four artwork streams and uploads them; the title binds that
         // artwork and its capture places the Mode 7 planes, OBJ characters and Baby page.
-        objects = new ScreenSprites(this.titleGraphicsPresentation.ObjectPage);
+        objects = new ScreenSprites(this.titleGraphicsPresentation.ObjectPage, ObjectSelectionCodec.Sizes(TitleSequenceRomData.Sprites.ObjectSizeAndBaseSelector));
         titlePalettePresentation.Apply(palette);
         ResetConsolePaletteFx();
 

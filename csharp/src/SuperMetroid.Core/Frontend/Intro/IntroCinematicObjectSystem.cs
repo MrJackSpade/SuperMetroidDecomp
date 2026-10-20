@@ -12,8 +12,8 @@ internal sealed class IntroCinematicObjectSystem
 {
     /// <summary>Queues alternating non-space typewriter sounds when audio is present.</summary>
     private readonly CartridgeAudioState? audio;
-    /// <summary>Receives eye-frame rectangles in the portrait tilemap.</summary>
-    private readonly SnesVram vram;
+    /// <summary>The shown portrait and narration tilemaps: eye-frame rectangles and narration uploads land here.</summary>
+    private readonly IntroTilemaps tilemaps;
     /// <summary>Receives narration glyph words at their authored row and column.</summary>
     private readonly ushort[] textTilemap;
     /// <summary>Where the persistent portrait eye's program resumes when its frame expires.</summary>
@@ -51,9 +51,9 @@ internal sealed class IntroCinematicObjectSystem
     /// <summary>Tracks subtitle page transitions and the Japanese input wait.</summary>
     private readonly IntroJapaneseSubtitles subtitles;
 
-    /// <summary>Binds eye, caret, narration, VRAM, subtitle, and optional audio owners.</summary>
+    /// <summary>Binds eye, caret, narration, shown tilemaps, subtitle, and optional audio owners.</summary>
     public IntroCinematicObjectSystem(
-        SnesVram vram,
+        IntroTilemaps tilemaps,
         ushort[] textTilemap,
         IntroJapaneseSubtitles subtitles,
         CartridgeAudioState? audio = null,
@@ -61,7 +61,7 @@ internal sealed class IntroCinematicObjectSystem
         IntroEyeTilemapPresentation? eyeArtwork = null)
     {
         this.subtitles = Ensure.NotNull(subtitles);
-        this.vram = Ensure.NotNull(vram);
+        this.tilemaps = Ensure.NotNull(tilemaps);
         this.textTilemap = Ensure.NotNull(textTilemap);
         this.audio = audio;
         this.narrationPresentation = narrationPresentation;
@@ -202,8 +202,7 @@ internal sealed class IntroCinematicObjectSystem
 
         // UpdateCinematicBgTilemap queues $780 bytes from $7E:3000 to VMADD $4C00.
         // Applying it immediately is the desktop equivalent of observing the following NMI.
-        new IntroVram(vram).NarrationTilemap.Write(
-            textTilemap.AsSpan(0, IntroCinematicRomData.Layers.VisibleTextTransferWordCount));
+        textTilemap.AsSpan(0, IntroCinematicRomData.Layers.VisibleTextTransferWordCount).CopyTo(tilemaps.Narration);
     }
 
     /// <summary>Rebinds host-owned narration content after override reload or state restore.</summary>
@@ -383,11 +382,11 @@ internal sealed class IntroCinematicObjectSystem
         ValidateRectangle(destination, size);
         if (source.Length != size.Area)
             throw new InvalidDataException("Opening eye frame does not match its native rectangle size.");
-        VramRegion portrait = new IntroVram(vram).PortraitTilemap;
+        Span<ushort> portrait = tilemaps.Portrait;
         for (int row = 0; row < size.Y; row++)
         {
-            portrait.Write(source.Slice(row * size.X, size.X),
-                (destination.Y + row) * IntroCinematicRomData.Layers.TilemapWidth + destination.X);
+            source.Slice(row * size.X, size.X).CopyTo(
+                portrait[((destination.Y + row) * IntroCinematicRomData.Layers.TilemapWidth + destination.X)..]);
         }
     }
 

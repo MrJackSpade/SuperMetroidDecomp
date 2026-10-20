@@ -138,7 +138,7 @@ public sealed class SamusProjectileSystem
     /// pages bind the equipped beam's characters (<see cref="SuperMetroid.Core.Samus.Artwork.ProjectileObjectPages"/>).
     /// </summary>
     public static void LoadBeamPalette(
-        SnesCgram cgram,
+        IPaletteColors cgram,
         SuperMetroid.Core.Samus.Projectiles.SamusBeamFlags equippedBeams,
         SuperMetroid.Core.Samus.Artwork.BeamPaletteCatalog? palettes)
     {
@@ -155,7 +155,7 @@ public sealed class SamusProjectileSystem
             nameof(equippedBeams), equippedBeams, "Equipped-beam index is outside the beam-combination tables.");
 
     /// <summary>Loads a selected beam's final CGRAM palette from installed art or the special beam definitions.</summary>
-    private static void LoadSelectedBeamPalette(SnesCgram cgram,
+    private static void LoadSelectedBeamPalette(IPaletteColors cgram,
         SamusBeamCombination selection, SuperMetroid.Core.Samus.Artwork.BeamPaletteCatalog? palettes)
     {
         switch (selection)
@@ -180,7 +180,7 @@ public sealed class SamusProjectileSystem
     }
 
     /// <summary>Writes the glitched Chainsaw beam palette's sixteen colours into the beam palette.</summary>
-    private static void LoadChainsawPalette(SnesCgram cgram)
+    private static void LoadChainsawPalette(IPaletteColors cgram)
     {
         var beam = new SamusPalettes(cgram).Beam;
         for (int color = 0; color < ChainsawBeamGraphicsDefinitions.Palette.Count; color++)
@@ -199,7 +199,7 @@ public sealed class SamusProjectileSystem
     /// That action models carry set at `$91:D70B`, bypassing special handlers for one frame.
     /// </remarks>
     public SamusBeamChargePaletteStepResult UpdateBeamChargePalette(
-        SnesCgram cgram,
+        IPaletteColors cgram,
         SamusState samus,
         LayerBlendingConfiguration layerBlendingDefaultConfig =
             LayerBlendingConfiguration.NormalGameplay)

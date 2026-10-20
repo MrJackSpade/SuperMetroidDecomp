@@ -357,7 +357,7 @@ public sealed class SamusCrystalFlashState
     /// currently equipped beam combination.
     /// </remarks>
     public bool UpdatePalette(
-        SnesCgram cgram,
+        IPaletteColors cgram,
         SamusState samus,
         SuperMetroid.Core.Samus.Artwork.BeamPaletteCatalog? palettes = null,
         SuperMetroid.Core.Samus.Artwork.CrystalFlashColorCatalog? colors = null)

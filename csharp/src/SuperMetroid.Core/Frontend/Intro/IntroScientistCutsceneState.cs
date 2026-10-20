@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Frontend.Intro.Artwork;
+using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Frontend.Intro;
 
@@ -85,9 +86,9 @@ internal sealed class IntroScientistCutsceneState
     }
 
     /// <summary>Draws the current Baby actor frame through the installed scientist-scene sprite presentation.</summary>
-    public void Draw(OamBuffer oam,
+    public void Draw(ScreenSprites objects,
         IntroScientistSpritePresentation? installedArt = null) =>
-        baby.Draw(oam, installedArt: installedArt);
+        baby.Draw(objects, installedArt: installedArt);
 
     /// <summary>Requests the next intro page when the Baby's program reaches its page cue.</summary>
     private void HandleCue(CinematicSpriteCueKind cue)

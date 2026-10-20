@@ -53,7 +53,7 @@ internal static class IntroNarrationPresentationVerification
             // extraction copied its text from the cartridge.
             ushort[] installedTilemap = CreateBlankIntroTilemap();
             var installed = new IntroCinematicObjectSystem(
-                new SnesVram(), installedTilemap, new IntroJapaneseSubtitles(enabled: false),
+                new IntroTilemaps(), installedTilemap, new IntroJapaneseSubtitles(enabled: false),
                 narrationPresentation: presentation, eyeArtwork: eyeArtwork);
             StartPage(installed, page);
             for (int frame = 0; !IsPageComplete(installed, page); frame++)
@@ -76,7 +76,7 @@ internal static class IntroNarrationPresentationVerification
             new MemoryStream(editedBytes, writable: false));
         ushort[] editedTilemap = CreateBlankIntroTilemap();
         var editedState = new IntroCinematicObjectSystem(
-            new SnesVram(), editedTilemap, new IntroJapaneseSubtitles(enabled: false),
+            new IntroTilemaps(), editedTilemap, new IntroJapaneseSubtitles(enabled: false),
             narrationPresentation: edited, eyeArtwork: eyeArtwork);
         editedState.StartEnglishPageSix();
         editedState.Step(0);
@@ -87,7 +87,7 @@ internal static class IntroNarrationPresentationVerification
 
         ushort[] reboundTilemap = CreateBlankIntroTilemap();
         var rebound = new IntroCinematicObjectSystem(
-            new SnesVram(), reboundTilemap, new IntroJapaneseSubtitles(enabled: false),
+            new IntroTilemaps(), reboundTilemap, new IntroJapaneseSubtitles(enabled: false),
             narrationPresentation: presentation, eyeArtwork: eyeArtwork);
         rebound.StartEnglishPageSix();
         rebound.Step(0);
@@ -98,7 +98,7 @@ internal static class IntroNarrationPresentationVerification
             "active opening narration accepts current replacement content");
 
         var saved = new IntroCinematicObjectSystem(
-            new SnesVram(), CreateBlankIntroTilemap(), new IntroJapaneseSubtitles(enabled: false),
+            new IntroTilemaps(), CreateBlankIntroTilemap(), new IntroJapaneseSubtitles(enabled: false),
             narrationPresentation: presentation, eyeArtwork: eyeArtwork);
         saved.StartEnglishPageSix();
         saved.Step(0);

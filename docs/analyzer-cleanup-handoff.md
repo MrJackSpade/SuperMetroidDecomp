@@ -16,9 +16,40 @@ results to the progress log at the end of this file. Do not ask the owner anythi
 3. `docs/analyzer-cleanup.md` (census mechanics, plus the scope note at the top), `docs/cartridge-encoding.md`,
    `docs/spatial-types.md`, `docs/ppu-layout-boundary.md`, `docs/spc-memory-boundary.md` and
    `docs/godot-architecture.md`.
-4. `owner-questions.md`. Every entry has the owner's answer. The standing rule from question 2 is: **whether to
-   comply with an analyzer rule is never an owner question. Do what the analyzer asks**, including whole-subsystem
-   representation changes. Nothing is deferred to "a later run".
+4. "Owner decisions" below. The standing rule from question 2 is: **whether to comply with an analyzer rule is
+   never an owner question. Do what the analyzer asks**, including whole-subsystem representation changes. Nothing
+   is deferred to "a later run".
+
+### Owner decisions
+
+The progress log cites these by number ("owner question N", "QN"). Questions 4, 6–11 are complete and are recorded in
+the progress log and their commits; the entries below are the ones still in force.
+
+- **Q1, Android.** `SuperMetroid.Android` is only a window into Core and becomes irrelevant with the Godot port. Its
+  CS0246 set (missing Android workload) is the one accepted environmental failure. Do not install the workload and do
+  not clean its findings.
+- **Q2, Samus projectile slots** (`Samus/Projectiles/`: packed type/direction/lifecycle words, address-valued
+  instruction and spritemap pointers, the multipurpose `Variable`, wrapping 8.8 Power Bomb radii). Approved, in this
+  order, each step its own batch owning every consumer: typed per-slot state (family enum with arbitrary values,
+  direction enum plus lifecycle flag, `int` damage, parity checks through one codec); a named wrapping unsigned 8.8
+  radius type for the Power Bomb (its wrap at `$88:90DF` is load-bearing and stays exact); typed projectile programs
+  following Botwoon's `AnimationTimeline`; the trail timeline.
+- **Q3, committed overrun bytes** (`SpacetimeBeamCopyDefinitions.cs`, `SpeedBoosterPaletteOverrunDefinitions.cs`).
+  Manifesto §1 outranks the existing pattern: the committed ROM bytes go. Either the overrun's observable effect is
+  bounded and reproduced from data the import pipeline reads from the player's ROM (for the speed-booster palette,
+  `SamusFullBodyCycleColorExtractor`), or it is removed under AGENTS.md "Emulation scope limits". Decide by
+  investigation and record the evidence.
+- **Q5, enemy frame identity** (`RoomEnemySlot.SpritemapPointer` and the boss `*Frame` records' `ushort Spritemap`).
+  Approved as a cross-family change: the slot holds a typed frame reference, frame records stop exposing an address,
+  and the address-to-frame mapping lives only in extraction and the ROM oracles. Converting the address property to
+  a method was rejected as rule evasion.
+- **Q12, Evir initial half-cycle.** `EvirBehavior.ReadFirstHalfCycle` accepts only the retail speed records (8 and
+  12) and throws `InvalidDataException` for any other, instead of reading arbitrary enemy RAM. Retail gameplay is
+  unchanged; keep the explicit model.
+- **Q13, Ceres Mode 7 transfer source address** (`CeresMode7Transfer.SourceOffset`, stored into
+  `Mode7TransferQueueResidue` by `CeresRidleyBehavior`). It follows Q3: the batch that owns the speed-booster overrun
+  establishes whether the residue's effect is bounded (the address becomes an imported typed reference) or closes it
+  under the emulation scope limit.
 
 ## 2. Scope and current state
 
@@ -104,7 +135,7 @@ These are condensed from the manifesto and AGENTS.md; the full text wins.
   errors this run were guessed members or missed consumers. Before changing any member's type, grep **every**
   consumer across `csharp/` and `tools/` (not only Core) and adapt each one.
 - **Genuine conflicts.** A real conflict between two sources (manifesto, docs, AGENTS.md, existing pattern), or a
-  gameplay-behaviour red flag, goes into `owner-questions.md` as a new numbered entry: the file and site, the
+  gameplay-behaviour red flag, goes into the progress log as a new numbered owner question: the file and site, the
   conflict, the evidence, and the option you chose. Then continue with that option. "The fix is big" is not a
   conflict.
 
@@ -299,7 +330,7 @@ Evir (commit `cb2dc15cc`) is the pattern. For each family, one batch:
 
 ### 5.4 Larger representation changes
 
-Do these only if 5.1–5.3 are exhausted; all are approved in `owner-questions.md`. Pick one and do it completely, in
+Do these only if 5.1–5.3 are exhausted; all are approved owner decisions. Pick one and do it completely, in
 ordered commits:
 
 - Q5: enemy frame identity
@@ -318,7 +349,7 @@ Leave the working tree clean, with everything committed and pushed. Then append 
 
 - each commit with its rule counts
 - anything you reverted or left unfinished, with the reason
-- any new `owner-questions.md` entry
+- any new owner question, numbered after Q13
 - the final census site count
 
 Commit and push that update too.

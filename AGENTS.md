@@ -199,6 +199,18 @@ pinned local sources; reference annotations do not replace reproducing a reporte
 - If the version is unknown, record `Unknown (awaiting player version)` and ask
   for it. Update the issue when supplied, preserving earlier reported versions.
 
+## Milestones
+
+- Every open ticket belongs to a GitHub milestone named for the release that ships it
+  (`v0.6.0`, `v1.0.0`, ...). Place every new ticket in the appropriate milestone when
+  creating it, including child tickets and source-inspection findings. A ticket left
+  without a milestone is an error to correct.
+- Minor versions (`0.x.0`) are planned release bands; read each milestone's description
+  for its scope. Patch versions (`0.x.y`) are reserved for bugfix releases.
+- `v1.0.0` is the full Godot port (umbrella #1393); `v1.1.0` adds widescreen support.
+- Work is ordered by milestone: take tickets from the earliest open milestone, subject
+  to "Single ticket development".
+
 ## Issue-fix workflow
 
 - On the first attempt to fix an issue, exact reproduction is optional when the report is clear and the defect is small or mechanically obvious. Reproduce first whenever diagnosis is uncertain, the change is risky, or the reported property cannot otherwise be verified confidently.

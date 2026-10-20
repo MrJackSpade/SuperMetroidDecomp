@@ -20,9 +20,6 @@ public sealed class SkyTilemap : IBgTileSource
     /// <summary>Rows in one chunk: the 32 rows of one tilemap page.</summary>
     private const int RowsPerChunk = 32;
 
-    /// <summary>Bytes of one row: 32 tile words.</summary>
-    private const int RowBytes = Columns * sizeof(ushort);
-
     /// <summary>The vertical position bits that select a row; positions repeat beyond them.</summary>
     private const int PositionMask = Rows * SnesPpuLayout.BackgroundTileSizePixels - 1;
 

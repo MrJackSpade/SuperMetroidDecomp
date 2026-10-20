@@ -1,6 +1,4 @@
-﻿using SuperMetroid.Core.Samus;
-using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Programs;
+﻿using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies.Skultera.Artwork;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms;
@@ -195,12 +193,6 @@ internal sealed class SkulteraBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Program = AnimationProgramCursor<SkulteraProgram>.Start(direction == HorizontalDirection.Left
             ? SkulteraProgram.SwimmingLeft
             : SkulteraProgram.SwimmingRight);
-    }
-
-    /// <summary>Ports Skultera's initialization AI.</summary>
-    internal static void RunSkulteraInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
-    {
-        InitializeSkultera(slot);
     }
 
     /// <summary>Ports Skultera's main AI.</summary>

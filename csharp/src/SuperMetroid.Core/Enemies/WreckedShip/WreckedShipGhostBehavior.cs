@@ -1,6 +1,4 @@
-﻿using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Programs;
+﻿using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies.WreckedShip.Artwork;
 using SuperMetroid.Core.Samus;
 
@@ -417,12 +415,6 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
     internal static void AdvanceWreckedShipGhostTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _) =>
         EnemyProgramAnimation.Advance(slot, WreckedShipGhostAnimations.Programs, WreckedShipGhostFrameDefinitions.ShownFrames.Of,
             static (WreckedShipGhostEnemyState state) => state.Program, static (state, cursor) => state.Program = cursor);
-
-    /// <summary>Ports WreckedShipGhost's initialization AI.</summary>
-    internal void RunWreckedShipGhostInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
-    {
-        InitializeWreckedShipGhost(slot);
-    }
 
     /// <summary>Ports WreckedShipGhost's main AI.</summary>
     internal void RunWreckedShipGhostMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)

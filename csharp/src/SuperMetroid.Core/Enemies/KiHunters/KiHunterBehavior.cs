@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies.KiHunters.Artwork;
 using System.Diagnostics.CodeAnalysis;
@@ -870,18 +869,6 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             StartKiHunterAcidMovement(context.Projectile, direction: HorizontalDirection.Right);
         }, EnemyProjectilePreInstruction.KiHunterAcid_Right);
-    }
-
-    /// <summary>Ports KihunterGreen's initialization AI.</summary>
-    internal static void RunKihunterGreenInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
-    {
-        InitializeKiHunter(slot);
-    }
-
-    /// <summary>Ports KihunterGreenWings's initialization AI.</summary>
-    internal void RunKihunterGreenWingsInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
-    {
-        InitializeKiHunterWings(slot);
     }
 
     /// <summary>Ports KiHunter's main AI.</summary>

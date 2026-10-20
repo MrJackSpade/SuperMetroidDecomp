@@ -8,7 +8,7 @@ internal sealed class StokeEntity(StokeBehavior species, RoomEnemySlot slot, Ene
     : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation
 {
     /// <inheritdoc/>
-    public EnemyInitializationAiHandler? FindInitialization() => StokeBehavior.RunStokeInitializationAi;
+    public EnemyInitializationAiHandler? FindInitialization() => StokeBehavior.InitializeStoke;
 
     /// <inheritdoc/>
     public EnemyMainAiHandler? FindMain() => species.RunStokeMainAi;

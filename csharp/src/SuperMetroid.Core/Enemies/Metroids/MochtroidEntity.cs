@@ -8,7 +8,7 @@ internal sealed class MochtroidEntity(MochtroidBehavior species, RoomEnemySlot s
     : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation, IEnemyPrivateShotCallback
 {
     /// <inheritdoc/>
-    public EnemyInitializationAiHandler? FindInitialization() => MochtroidBehavior.RunMochtroidInitializationAi;
+    public EnemyInitializationAiHandler? FindInitialization() => MochtroidBehavior.InitializeMochtroid;
 
     /// <inheritdoc/>
     public EnemyMainAiHandler? FindMain() => species.RunMochtroidMainAi;

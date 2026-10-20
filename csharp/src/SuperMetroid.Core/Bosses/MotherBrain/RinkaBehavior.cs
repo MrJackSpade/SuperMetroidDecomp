@@ -1,6 +1,4 @@
-﻿using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Programs;
+﻿using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies.Deaths;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core.Enemies;
@@ -106,7 +104,7 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Ports <c>Rinka_Init</c> at $A2:B602.</summary>
-    private void InitializeRinka(RoomEnemySlot slot)
+    internal void InitializeRinka(RoomEnemySlot slot)
     {
         var state = new RinkaEnemyState();
         slot.SetSpeciesState(state, state.ClearWithRecord);
@@ -481,12 +479,6 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
             RunsGenericDeath = false,
             AfterCommon = c => ResolveRinkaCombatAfterCommon(c.Enemy),
         });
-    }
-
-    /// <summary>Ports Rinka's initialization AI.</summary>
-    internal void RunRinkaInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
-    {
-        InitializeRinka(slot);
     }
 
     /// <summary>Ports Rinka's main AI.</summary>

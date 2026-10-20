@@ -5,7 +5,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>A Mother Brain fake-death room mutation PLM's typed program.</summary>
 internal sealed class MotherBrainFakeDeathPlmAnimation(MotherBrainFakeDeathProgram program)
-    : PlmProgramAnimation<MotherBrainFakeDeathProgram, MotherBrainFakeDeathDraw, PlmNoCue>(program)
+    : PlmCuelessProgramAnimation<MotherBrainFakeDeathProgram, MotherBrainFakeDeathDraw>(program)
 {
     /// <inheritdoc/>
     private protected override AnimationProgramSet<MotherBrainFakeDeathProgram, MotherBrainFakeDeathDraw, PlmNoCue> Programs =>
@@ -13,8 +13,4 @@ internal sealed class MotherBrainFakeDeathPlmAnimation(MotherBrainFakeDeathProgr
 
     /// <inheritdoc/>
     private protected override ushort DrawList(MotherBrainFakeDeathDraw frame) => (ushort)frame;
-
-    /// <inheritdoc/>
-    private protected override MotherBrainFakeDeathProgram? Publish(PlmNoCue cue, PlmSlot slot, PlmStepContext context) =>
-        throw new InvalidOperationException($"Mother Brain's fake-death programs publish no cues; got {cue}.");
 }

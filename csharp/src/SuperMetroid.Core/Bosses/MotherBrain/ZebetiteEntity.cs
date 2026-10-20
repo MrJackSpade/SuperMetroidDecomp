@@ -10,13 +10,13 @@ internal sealed class ZebetiteEntity(ZebetiteBehavior species, RoomEnemySlot slo
     : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation, IEnemyPrivateShotCallback
 {
     /// <inheritdoc/>
-    public EnemyInitializationAiHandler? FindInitialization() => species.RunZebetiteInitializationAi;
+    public EnemyInitializationAiHandler? FindInitialization() => species.InitializeZebetite;
 
     /// <inheritdoc/>
     public EnemyMainAiHandler? FindMain() => species.RunZebetiteMainAi;
 
     /// <inheritdoc/>
-    public Action<RoomEnemySlot, EnemyInstructionContext>? FindTypedAnimation() => ZebetiteBehavior.AdvanceZebetiteTypedAnimation;
+    public Action<RoomEnemySlot, EnemyInstructionContext>? FindTypedAnimation() => (enemy, _) => ZebetiteBehavior.AdvanceZebetiteAnimation(enemy);
 
     /// <summary>The Zebetite's own shot callback, which normal bombs dispatch like the common one.</summary>
     /// <param name="callback">The named callback the selected pointer decodes to, or null.</param>

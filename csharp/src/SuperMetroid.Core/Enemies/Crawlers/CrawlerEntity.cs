@@ -15,7 +15,7 @@ internal sealed class CrawlerEntity(CrawlersBehavior species, RoomEnemySlot slot
         CrawlersPart.Viola => CrawlersBehavior.InitializeViolaAi,
         CrawlersPart.Zeela or CrawlersPart.Sova or CrawlersPart.Zoomer or CrawlersPart.MZoomer =>
             CrawlersBehavior.InitializeSharedCrawlerAi,
-        CrawlersPart.HZoomer => CrawlersBehavior.InitializeHZoomerAi,
+        CrawlersPart.HZoomer => CrawlersBehavior.InitializeHZoomer,
         _ => throw new InvalidOperationException($"Crawler entity bound to {Slot.EnemyDefinitionPointer}."),
     };
 

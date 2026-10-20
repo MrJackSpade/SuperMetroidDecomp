@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies.Elevator.Artwork;
@@ -299,9 +298,9 @@ internal sealed class ElevatorBehavior : IEnemySpecies, IEnemyEntityFactory, IEl
             static (ElevatorEnemyState state) => state.Program, static (state, cursor) => state.Program = cursor);
 
     /// <summary>Ports Elevator's initialization AI.</summary>
-    internal void RunElevatorInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? samus, SnesButton _1, ushort _2)
+    internal void RunElevatorInitializationAi(RoomEnemySlot slot, EnemySpawnSurroundings surroundings)
     {
-        InitializeElevator(slot, samus);
+        InitializeElevator(slot, surroundings.Samus);
     }
 
     /// <summary>Ports Elevator's main AI.</summary>

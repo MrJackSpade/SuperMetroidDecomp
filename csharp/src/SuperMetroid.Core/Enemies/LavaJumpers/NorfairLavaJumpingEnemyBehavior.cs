@@ -1,6 +1,3 @@
-using SuperMetroid.Core.Samus;
-using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Enemies.LavaJumpers.Artwork;
@@ -225,12 +222,6 @@ internal sealed class NorfairLavaJumpingEnemyBehavior : IEnemySpecies, IEnemyEnt
             state.InstalledProgram = installed;
             state.Program = AnimationProgramCursor<NorfairLavaJumperProgram>.Start(installed);
         });
-
-    /// <summary>Ports NorfairLavaJumpingEnemy's initialization AI.</summary>
-    internal void RunNorfairLavaJumpingEnemyInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
-    {
-        InitializeNorfairLavaJumpingEnemy(slot);
-    }
 
     /// <summary>Ports NorfairLavaJumpingEnemy's main AI.</summary>
     internal void RunNorfairLavaJumpingEnemyMainAi(RoomEnemySlot slot, IEnemyAiFrame _)

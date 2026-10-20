@@ -1,5 +1,4 @@
-﻿using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Enemies.SpacePirates.Artwork;
+﻿using SuperMetroid.Core.Enemies.SpacePirates.Artwork;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Rooms.LevelData;
@@ -577,12 +576,6 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
             if (cue.Kind == SpacePirateProjectileCueKind.StartMovingNow)
                 RunPirateMotherBrainLaserPreInstruction(context.Projectile, context.Camera);
         });
-    }
-
-    /// <summary>Ports WalkingSpacePirate's initialization AI.</summary>
-    internal static void RunWalkingSpacePirateInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
-    {
-        InitializeWalkingSpacePirate(slot);
     }
 
     /// <summary>Ports WalkingSpacePirate's main AI.</summary>

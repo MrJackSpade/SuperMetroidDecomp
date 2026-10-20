@@ -5,10 +5,10 @@ namespace SuperMetroid.Core.Enemies.Magdollite;
 /// <param name="slot">The slot the enemy occupies.</param>
 /// <param name="common">The shared participation.</param>
 internal sealed class MagdolliteEntity(MagdolliteBehavior species, RoomEnemySlot slot, EnemyCommonParticipation common)
-    : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation, IEnemyPrivateShotCallback
+    : CommonParticipationEnemyEntity(slot, common), IEnemySurroundingsInitialization, IEnemyMainAi, IEnemyTypedAnimation, IEnemyPrivateShotCallback
 {
     /// <inheritdoc/>
-    public EnemyInitializationAiHandler? FindInitialization() => species.RunMagdolliteInitializationAi;
+    public EnemySurroundingsInitializationAiHandler? FindSurroundingsInitialization() => species.RunMagdolliteInitializationAi;
 
     /// <inheritdoc/>
     public EnemyMainAiHandler? FindMain() => species.RunMagdolliteMainAi;

@@ -1,6 +1,4 @@
-﻿using SuperMetroid.Core.Samus;
-using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Programs;
+﻿using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies.Crawlers.Artwork;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms;
@@ -141,12 +139,6 @@ internal sealed class MultiviolaBehavior : IEnemySpecies, IEnemyEntityFactory
     internal static void AdvanceMultiviolaTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _) =>
         EnemyProgramAnimation.Advance(slot, MultiviolaAnimations.Programs, MultiviolaFrameDefinitions.ShownFrames.Of,
             static (MultiviolaEnemyState state) => state.Program, static (state, cursor) => state.Program = cursor);
-
-    /// <summary>Ports Multiviola's initialization AI.</summary>
-    internal static void RunMultiviolaInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
-    {
-        InitializeMultiviola(slot);
-    }
 
     /// <summary>Ports Multiviola's main AI.</summary>
     internal void RunMultiviolaMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)

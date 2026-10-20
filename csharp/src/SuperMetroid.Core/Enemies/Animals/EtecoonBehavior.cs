@@ -1,5 +1,4 @@
-﻿using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Programs;
+﻿using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies.Animals.Artwork;
 using SuperMetroid.Core.Enemies.Elevator;
 using SuperMetroid.Core.Fx;
@@ -755,12 +754,6 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
     internal static void AdvanceEtecoonTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _) =>
         EnemyProgramAnimation.Advance(slot, EtecoonAnimations.Programs, EtecoonFrameDefinitions.ShownFrames.Of,
             static (EtecoonEnemyState state) => state.Program, static (state, cursor) => state.Program = cursor);
-
-    /// <summary>Ports Etecoon's initialization AI.</summary>
-    internal static void RunEtecoonInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
-    {
-        InitializeEtecoon(slot);
-    }
 
     /// <summary>Ports Etecoon's main AI.</summary>
     internal void RunEtecoonMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)

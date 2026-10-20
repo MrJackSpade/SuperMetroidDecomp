@@ -8,7 +8,7 @@ internal sealed class WaverEntity(WaverBehavior species, RoomEnemySlot slot, Ene
     : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation
 {
     /// <inheritdoc/>
-    public EnemyInitializationAiHandler? FindInitialization() => WaverBehavior.RunWaverInitializationAi;
+    public EnemyInitializationAiHandler? FindInitialization() => WaverBehavior.InitializeWaver;
 
     /// <inheritdoc/>
     public EnemyMainAiHandler? FindMain() => species.RunWaverMainAi;

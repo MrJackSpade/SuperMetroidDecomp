@@ -1,7 +1,4 @@
-﻿using SuperMetroid.Core.Samus;
-using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Programs;
+﻿using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Enemies.Owtch.Artwork;
 namespace SuperMetroid.Core.Enemies.Owtch;
@@ -219,12 +216,6 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             Rejects = c => !OwtchAcceptsOrdinaryShot(c.Enemy.RequireSpeciesState<OwtchEnemyState>()),
         });
-    }
-
-    /// <summary>Ports Owtch's initialization AI.</summary>
-    internal static void RunOwtchInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
-    {
-        InitializeOwtch(slot);
     }
 
     /// <summary>Ports Owtch's main AI.</summary>

@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies;
@@ -62,13 +61,6 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Last delayed music command queued during this Shitroid frame.</summary>
     public DelayedMusicRequest? LastShitroidMusicRequest { get; private set; }
-
-    /// <summary>Clears frame-local wall, camera, sound, and music requests before AI dispatch.</summary>
-    internal void BeginShitroidFrame()
-    {
-        LastShitroidSoundEffectLibrary2 = null;
-        LastShitroidMusicRequest = null;
-    }
 
     /// <summary>Ports <c>Shitroid_Init</c> at <c>$A9:EF37</c>.</summary>
     internal void InitializeShitroid(RoomEnemySlot slot, ushort cameraX)
@@ -836,21 +828,15 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Ports Shitroid's initialization AI.</summary>
-    internal void RunShitroidInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort cameraX)
+    internal void RunShitroidInitializationAi(RoomEnemySlot slot, EnemySpawnSurroundings surroundings)
     {
-        InitializeShitroid(slot, cameraX);
+        InitializeShitroid(slot, surroundings.Camera.X);
     }
 
     /// <summary>Ports Shitroid's main AI.</summary>
     internal void RunShitroidMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
         RunShitroidMain(slot, frame.Samus, frame.Camera, frame.SharedProjectiles);
-    }
-
-    /// <summary>Advances Shitroid's typed animation.</summary>
-    internal void AdvanceShitroidTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _)
-    {
-        AdvanceShitroidAnimation(slot);
     }
 
     /// <summary>
@@ -938,7 +924,8 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <inheritdoc/>
     public void BeginEnemyFrame(RoomEnemyFrame frame)
     {
-        BeginShitroidFrame();
+        LastShitroidSoundEffectLibrary2 = null;
+        LastShitroidMusicRequest = null;
     }
 
     /// <summary>Queues this frame's published sound effects through the shared enemy audio queue, in the retail queue limits.</summary>

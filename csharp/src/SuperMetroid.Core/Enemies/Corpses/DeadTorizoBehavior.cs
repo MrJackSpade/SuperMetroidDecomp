@@ -1,6 +1,4 @@
-﻿using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Enemies.Corpses.Artwork;
+﻿using SuperMetroid.Core.Enemies.Corpses.Artwork;
 using System.Buffers.Binary;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Enemies.Projectiles;
@@ -421,12 +419,6 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
         if (!EnemyProgramAnimation.Expire(slot))
             return;
         EnemyProgramAnimation.Run(slot, DeadTorizoAnimations.Programs, ref DeadTorizoProgram, DeadTorizoFrameDefinitions.ShownFrames.Of);
-    }
-
-    /// <summary>Ports DeadTorizo's initialization AI.</summary>
-    internal void RunDeadTorizoInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
-    {
-        InitializeDeadTorizo(slot);
     }
 
     /// <summary>Ports DeadTorizo's main AI.</summary>

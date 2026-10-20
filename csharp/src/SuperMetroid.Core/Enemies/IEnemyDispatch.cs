@@ -1,7 +1,3 @@
-using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.Core.Samus;
-
 namespace SuperMetroid.Core.Enemies;
 
 /// <summary>
@@ -15,10 +11,9 @@ internal interface IEnemyDispatch
 
     /// <summary>
     /// Runs the slot's initialization AI. A population load supplies its live room, Samus, controller and
-    /// camera; a species spawning on another enemy's behalf runs it without that context.
+    /// camera; a species spawning on another enemy's behalf runs it with <see cref="EnemySpawnSurroundings.None"/>.
     /// </summary>
-    void RunInitializationAi(RoomEnemySlot slot, RoomLevelData? level = null, SamusState? samus = null,
-        SnesButton controllerInput = SnesButton.None, ushort cameraX = 0);
+    void RunInitializationAi(RoomEnemySlot slot, EnemySpawnSurroundings surroundings);
 
     /// <summary>
     /// Native <c>SpawnEnemy</c> ($A0:92DB): installs <paramref name="population"/> in the first free slot, runs its

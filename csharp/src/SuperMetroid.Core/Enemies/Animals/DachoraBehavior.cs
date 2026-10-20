@@ -1,5 +1,4 @@
-﻿using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Programs;
+﻿using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies.Animals.Artwork;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
@@ -560,12 +559,6 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
     internal static void AdvanceDachoraTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _) =>
         EnemyProgramAnimation.Advance(slot, DachoraAnimations.Programs, DachoraFrameDefinitions.ShownFrames.Of,
             static (DachoraEnemyState state) => state.Program, static (state, cursor) => state.Program = cursor);
-
-    /// <summary>Ports Dachora's initialization AI.</summary>
-    internal static void RunDachoraInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
-    {
-        InitializeDachora(slot);
-    }
 
     /// <summary>Ports Dachora's main AI.</summary>
     internal void RunDachoraMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)

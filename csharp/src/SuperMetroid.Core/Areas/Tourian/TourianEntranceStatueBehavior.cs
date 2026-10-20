@@ -1,7 +1,4 @@
-﻿using SuperMetroid.Core.Samus;
-using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Areas.Tourian.Artwork;
+﻿using SuperMetroid.Core.Areas.Tourian.Artwork;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Programs;
@@ -143,18 +140,5 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies, IEnemyEntit
             throw new InvalidOperationException($"Tourian entrance statue slot {slot.SlotIndex} has no animation.");
         EnemyProgramAnimation.Run(slot, TourianEntranceStatueAnimations.Programs, ref cursor, TourianEntranceStatueFrameDefinitions.ShownFrames.Of);
         Extensions[slot.SlotIndex].Program = cursor;
-    }
-
-    /// <summary>Ports TourianEntranceStatue's initialization AI.</summary>
-    internal void RunTourianEntranceStatueInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
-    {
-        InitializeTourianEntranceStatue(slot);
-    }
-
-    /// <summary>Ports TourianEntranceStatue's main AI.</summary>
-    internal static void RunTourianEntranceStatueMainAi(RoomEnemySlot _, IEnemyAiFrame _1)
-    {
-        // $AA:D7C7 is the one-byte RTL immediately before the initializer. The
-        // three enemy records animate exclusively through their ROM lists.
     }
 }

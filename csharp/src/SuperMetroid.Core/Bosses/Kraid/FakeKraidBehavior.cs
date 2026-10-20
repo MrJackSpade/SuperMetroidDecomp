@@ -1,5 +1,4 @@
-﻿using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Programs;
+﻿using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Bosses.Kraid.Artwork;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
@@ -389,9 +388,9 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Ports FakeKraid's initialization AI.</summary>
-    internal void RunFakeKraidInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? samus, SnesButton _1, ushort _2)
+    internal void RunFakeKraidInitializationAi(RoomEnemySlot slot, EnemySpawnSurroundings surroundings)
     {
-        InitializeFakeKraid(slot, samus);
+        InitializeFakeKraid(slot, surroundings.Samus);
     }
 
     /// <summary>Ports FakeKraid's main AI.</summary>

@@ -8,7 +8,7 @@ internal sealed class NuclearWaffleEntity(NuclearWaffleBehavior species, RoomEne
     : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation
 {
     /// <inheritdoc/>
-    public EnemyInitializationAiHandler? FindInitialization() => species.RunNuclearWaffleInitializationAi;
+    public EnemyInitializationAiHandler? FindInitialization() => species.InitializeNuclearWaffle;
 
     /// <inheritdoc/>
     public EnemyMainAiHandler? FindMain() => species.RunNuclearWaffleMainAi;

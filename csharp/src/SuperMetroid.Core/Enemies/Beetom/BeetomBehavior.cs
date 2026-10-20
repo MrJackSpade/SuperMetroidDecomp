@@ -580,9 +580,9 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Ports Beetom's initialization AI.</summary>
-    internal void RunBeetomInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? samus, SnesButton controllerInput, ushort _1)
+    internal void RunBeetomInitializationAi(RoomEnemySlot slot, EnemySpawnSurroundings surroundings)
     {
-        InitializeBeetom(slot, samus, controllerInput);
+        InitializeBeetom(slot, surroundings.Samus, surroundings.ControllerInput);
     }
 
     /// <summary>Ports Beetom's main AI.</summary>

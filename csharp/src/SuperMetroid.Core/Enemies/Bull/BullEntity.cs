@@ -1,7 +1,3 @@
-using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.Core.Samus;
-
 namespace SuperMetroid.Core.Enemies.Bull;
 
 /// <summary>
@@ -15,7 +11,7 @@ internal sealed class BullEntity(BullBehavior species, RoomEnemySlot slot, Enemy
     : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation, IEnemyPrivateShotCallback
 {
     /// <inheritdoc/>
-    public EnemyInitializationAiHandler? FindInitialization() => Initialize;
+    public EnemyInitializationAiHandler? FindInitialization() => species.InitializeBull;
 
     /// <inheritdoc/>
     public EnemyMainAiHandler? FindMain() => RunMain;
@@ -33,10 +29,6 @@ internal sealed class BullEntity(BullBehavior species, RoomEnemySlot slot, Enemy
     /// <summary>Bull's bomb recoil, ahead of the shared common bomb reactions, which follow it in the shared list.</summary>
     public override EnemyBombReaction? FindBombCommon(EnemyBombContext context) =>
         species.BombReaction.Matches(context) ? species.BombReaction : base.FindBombCommon(context);
-
-    /// <summary>Ports <c>InitAI_Bull</c>.</summary>
-    private void Initialize(RoomEnemySlot slot, RoomLevelData? level, SamusState? samus, SnesButton controllerInput, ushort cameraX) =>
-        species.InitializeBull(slot);
 
     /// <summary>Ports <c>MainAI_Bull</c>.</summary>
     private void RunMain(RoomEnemySlot slot, IEnemyAiFrame frame) =>

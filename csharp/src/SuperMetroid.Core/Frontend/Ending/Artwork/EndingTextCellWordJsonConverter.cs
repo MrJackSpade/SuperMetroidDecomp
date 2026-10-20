@@ -10,6 +10,7 @@ namespace SuperMetroid.Core.Frontend.Ending.Artwork;
 internal sealed class EndingTextCellWordJsonConverter : JsonConverter<SnesBgTilemapWord>
 {
     /// <summary>Accepts only an unsigned sixteen-bit JSON number; anything else is a malformed document.</summary>
+    [ExternalContract("System.Text.Json's JsonConverter<T>.Read fixes the signature.")]
     public override SnesBgTilemapWord Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
         if (reader.TokenType != JsonTokenType.Number || !reader.TryGetUInt16(out ushort entry))

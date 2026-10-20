@@ -5,10 +5,10 @@ namespace SuperMetroid.Core.Enemies.FaceBlocks;
 /// <param name="slot">The slot the enemy occupies.</param>
 /// <param name="common">The shared participation.</param>
 internal sealed class BlueBrinstarFaceBlockEntity(BlueBrinstarFaceBlockBehavior species, RoomEnemySlot slot, EnemyCommonParticipation common)
-    : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation, IEnemyPrivateShotCallback
+    : CommonParticipationEnemyEntity(slot, common), IEnemySurroundingsInitialization, IEnemyMainAi, IEnemyTypedAnimation, IEnemyPrivateShotCallback
 {
     /// <inheritdoc/>
-    public EnemyInitializationAiHandler? FindInitialization() => species.RunBlueBrinstarFaceBlockInitializationAi;
+    public EnemySurroundingsInitializationAiHandler? FindSurroundingsInitialization() => species.RunBlueBrinstarFaceBlockInitializationAi;
 
     /// <inheritdoc/>
     public EnemyMainAiHandler? FindMain() => species.RunBlueBrinstarFaceBlockMainAi;

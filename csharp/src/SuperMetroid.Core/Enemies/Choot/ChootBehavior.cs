@@ -1,6 +1,4 @@
 ﻿using SuperMetroid.Core.Programs;
-using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Enemies.Choot.Artwork;
 using SuperMetroid.Core.Samus;
 
@@ -215,12 +213,6 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemyEntityFactory
             _ => throw new InvalidOperationException($"Undefined {nameof(ChootCueKind)} {cue.Kind}."),
         };
         return null;
-    }
-
-    /// <summary>Ports Choot's initialization AI.</summary>
-    internal void RunChootInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
-    {
-        InitializeChoot(slot);
     }
 
     /// <summary>Ports Choot's main AI.</summary>

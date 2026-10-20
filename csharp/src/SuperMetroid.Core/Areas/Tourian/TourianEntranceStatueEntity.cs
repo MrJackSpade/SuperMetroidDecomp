@@ -10,10 +10,11 @@ internal sealed class TourianEntranceStatueEntity(TourianEntranceStatueBehavior 
     : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation
 {
     /// <inheritdoc/>
-    public EnemyInitializationAiHandler? FindInitialization() => species.RunTourianEntranceStatueInitializationAi;
+    public EnemyInitializationAiHandler? FindInitialization() => species.InitializeTourianEntranceStatue;
 
     /// <inheritdoc/>
-    public EnemyMainAiHandler? FindMain() => TourianEntranceStatueBehavior.RunTourianEntranceStatueMainAi;
+    /// <remarks>$AA:D7C7 is the one-byte RTL before the initializer; the statues animate through their ROM lists.</remarks>
+    public EnemyMainAiHandler? FindMain() => EnemyNoOpAi.Main;
 
     /// <inheritdoc/>
     public Action<RoomEnemySlot, EnemyInstructionContext>? FindTypedAnimation() => species.AdvanceTourianEntranceStatueTypedAnimation;

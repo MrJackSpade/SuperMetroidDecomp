@@ -10,6 +10,7 @@ namespace SuperMetroid.Core.Samus.Artwork;
 internal sealed class SamusSpritePartYJsonConverter : JsonConverter<SnesSpritemapYByte>
 {
     /// <summary>Accepts only an unsigned eight-bit JSON number; anything else is a malformed document.</summary>
+    [ExternalContract("System.Text.Json's JsonConverter<T>.Read fixes the signature.")]
     public override SnesSpritemapYByte Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
         if (reader.TokenType != JsonTokenType.Number || !reader.TryGetByte(out byte y))

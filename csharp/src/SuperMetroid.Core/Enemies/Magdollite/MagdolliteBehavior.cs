@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies.Magdollite.Artwork;
 using SuperMetroid.Core.Enemies.Projectiles;
@@ -53,12 +51,6 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Last library-two sound emitted by throw opcode $A8:AE12 this frame.</summary>
     public SoundEffectId? LastMagdolliteSoundEffect { get; private set; }
-
-    /// <summary>Clears events whose public meaning is limited to one enemy frame.</summary>
-    internal void ResetMagdolliteFrameEvents()
-    {
-        LastMagdolliteSoundEffect = null;
-    }
 
     /// <summary>Ports <c>NorfairLavaMan_Init</c> at $A8:AF8B.</summary>
     internal void InitializeMagdollite(RoomEnemySlot slot, SamusState? samus)
@@ -723,9 +715,9 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Ports Magdollite's initialization AI.</summary>
-    internal void RunMagdolliteInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? samus, SnesButton _1, ushort _2)
+    internal void RunMagdolliteInitializationAi(RoomEnemySlot slot, EnemySpawnSurroundings surroundings)
     {
-        InitializeMagdollite(slot, samus);
+        InitializeMagdollite(slot, surroundings.Samus);
     }
 
     /// <summary>Ports Magdollite's main AI.</summary>
@@ -832,7 +824,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <inheritdoc/>
     public void BeginEnemyFrame(RoomEnemyFrame frame)
     {
-        ResetMagdolliteFrameEvents();
+        LastMagdolliteSoundEffect = null;
     }
 
     /// <summary>Queues this frame's published sound effects through the shared enemy audio queue, in the retail queue limits.</summary>

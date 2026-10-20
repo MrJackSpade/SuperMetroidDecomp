@@ -8,7 +8,7 @@ internal sealed class OwtchEntity(OwtchBehavior species, RoomEnemySlot slot, Ene
     : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation, IEnemyPrivateShotCallback
 {
     /// <inheritdoc/>
-    public EnemyInitializationAiHandler? FindInitialization() => OwtchBehavior.RunOwtchInitializationAi;
+    public EnemyInitializationAiHandler? FindInitialization() => OwtchBehavior.InitializeOwtch;
 
     /// <inheritdoc/>
     public EnemyMainAiHandler? FindMain() => species.RunOwtchMainAi;

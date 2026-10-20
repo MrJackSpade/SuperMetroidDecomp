@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies.Skree.Artwork;
 using SuperMetroid.Core.Enemies.Projectiles;
@@ -206,12 +205,6 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Program = AnimationProgramCursor<SkreeMetareeProgram>.Start(SkreeMetareeAnimationDefinitions.MetareeProgram(requested));
         slot.InstructionTimer = NativeCountdown.Start(1);
         slot.Timer = NativeCountdown.Start(0);
-    }
-
-    /// <summary>Ports Metaree's initialization AI.</summary>
-    internal static void RunMetareeInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
-    {
-        InitializeMetaree(slot);
     }
 
     /// <summary>Ports Metaree's main AI.</summary>

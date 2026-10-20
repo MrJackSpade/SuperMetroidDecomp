@@ -1,5 +1,4 @@
-﻿using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Programs;
+﻿using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies.Animals.Artwork;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.LevelData;
@@ -240,22 +239,9 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.Position = slot.Position.WithX(SnesFixedPosition.FromRaw(unchecked(fixedPosition)));
     }
 
-    /// <summary>Ports the escape Etecoon's initialization AI.</summary>
-    internal void RunEscapeEtecoonInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3) =>
-        InitializeEscapeEtecoon(slot);
-
-    /// <summary>Ports the escape Dachora's initialization AI.</summary>
-    internal void RunEscapeDachoraInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3) =>
-        InitializeEscapeDachora(slot);
-
     /// <summary>Ports the escape Etecoon's main AI.</summary>
     internal void RunEscapeEtecoonMainAi(RoomEnemySlot slot, IEnemyAiFrame frame) =>
         RunEscapeEtecoonMain(slot, slot.RequireSpeciesState<EscapeEtecoonEnemyState>(), frame.Level);
-
-    /// <summary>Ports the escape Dachora's main AI, the literal RTL at $B3:EB1A; its movement lives in its instruction program.</summary>
-    internal static void RunEscapeDachoraMainAi(RoomEnemySlot _, IEnemyAiFrame _1)
-    {
-    }
 
     /// <summary>Advances either escape animal's typed animation.</summary>
     internal void AdvanceEscapeAnimalTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext context) =>

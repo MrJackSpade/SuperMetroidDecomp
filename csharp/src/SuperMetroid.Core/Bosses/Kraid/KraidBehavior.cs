@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Enemies;
@@ -80,7 +79,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
     public KraidSoundRequest? LastKraidSoundEffect { get; private set; }
 
     /// <summary>Creates slot-zero encounter state and restores the defeated room when the area-boss flag is set.</summary>
-    private void InitializeKraidBody(RoomEnemySlot body)
+    internal void InitializeKraidBody(RoomEnemySlot body)
     {
         if (body.SlotIndex != 0)
         {
@@ -145,7 +144,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Installs the arm part in its native slot with the rising-or-sinking program.</summary>
-    private void InitializeKraidArm(RoomEnemySlot arm)
+    internal void InitializeKraidArm(RoomEnemySlot arm)
     {
         KraidEnemyState state = RequireKraidState(arm);
         if (_room.Services.Bosses.IsDefeated(BossBits.AreaBoss))
@@ -181,7 +180,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Installs a foot part with its initial animation and shared body state.</summary>
-    private void InitializeKraidFoot(RoomEnemySlot foot)
+    internal void InitializeKraidFoot(RoomEnemySlot foot)
     {
         KraidEnemyState state = RequireKraidState(foot);
         if (_room.Services.Bosses.IsDefeated(BossBits.AreaBoss))
@@ -368,50 +367,32 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
         }, EnemyProjectilePreInstruction.KraidCeilingRocks);
     }
 
-    /// <summary>Ports Kraid's initialization AI.</summary>
-    internal void RunKraidInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
-    {
-        InitializeKraidBody(slot);
-    }
-
-    /// <summary>Ports KraidArm's initialization AI.</summary>
-    internal void RunKraidArmInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
-    {
-        InitializeKraidArm(slot);
-    }
-
     /// <summary>Ports KraidLintTop's initialization AI.</summary>
-    internal void RunKraidLintTopInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
+    internal void RunKraidLintTopInitializationAi(RoomEnemySlot slot)
     {
         InitializeKraidLint(slot, expectedSlot: 2);
     }
 
     /// <summary>Ports KraidLintMiddle's initialization AI.</summary>
-    internal void RunKraidLintMiddleInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
+    internal void RunKraidLintMiddleInitializationAi(RoomEnemySlot slot)
     {
         InitializeKraidLint(slot, expectedSlot: 3);
     }
 
     /// <summary>Ports KraidLintBottom's initialization AI.</summary>
-    internal void RunKraidLintBottomInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
+    internal void RunKraidLintBottomInitializationAi(RoomEnemySlot slot)
     {
         InitializeKraidLint(slot, expectedSlot: 4);
     }
 
-    /// <summary>Ports KraidFoot's initialization AI.</summary>
-    internal void RunKraidFootInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
-    {
-        InitializeKraidFoot(slot);
-    }
-
     /// <summary>Ports KraidNail's initialization AI.</summary>
-    internal void RunKraidNailInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
+    internal void RunKraidNailInitializationAi(RoomEnemySlot slot)
     {
         InitializeKraidNail(slot, expectedSlot: 6);
     }
 
     /// <summary>Ports KraidNailBad's initialization AI.</summary>
-    internal void RunKraidNailBadInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
+    internal void RunKraidNailBadInitializationAi(RoomEnemySlot slot)
     {
         InitializeKraidNail(slot, expectedSlot: 7);
     }
@@ -466,12 +447,6 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
                     throw new InvalidOperationException($"Undefined {nameof(KraidRockCue)} {cue}.");
             }
         });
-    }
-
-    /// <summary>Advances Kraid's typed animation.</summary>
-    internal void AdvanceKraidTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _)
-    {
-        AdvanceKraidPartAnimation(slot);
     }
 
     /// <summary>Installs <paramref name="program"/> as the part's program, as a native list-pointer store does; the caller sets the timer.</summary>

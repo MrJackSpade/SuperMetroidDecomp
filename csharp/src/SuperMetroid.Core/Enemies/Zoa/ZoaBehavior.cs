@@ -1,6 +1,4 @@
 ﻿using SuperMetroid.Core.Programs;
-using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Enemies.Zoa.Artwork;
 using SuperMetroid.Core.Samus;
 
@@ -16,7 +14,7 @@ internal sealed class ZoaBehavior : IEnemySpecies, IEnemyEntityFactory
     public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new ZoaEntity(slot, common);
 
     /// <summary>Advances Zoa's typed animation (#641) where the interpreter would run its native list.</summary>
-    private static void AdvanceZoaAnimation(RoomEnemySlot slot)
+    internal static void AdvanceZoaAnimation(RoomEnemySlot slot)
     {
         if (!EnemyProgramAnimation.Expire(slot))
             return;
@@ -176,21 +174,9 @@ internal sealed class ZoaBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.Timer = NativeCountdown.Start(0);
     }
 
-    /// <summary>Ports Zoa's initialization AI.</summary>
-    internal static void RunZoaInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
-    {
-        InitializeZoa(slot);
-    }
-
     /// <summary>Ports Zoa's main AI.</summary>
     internal static void RunZoaMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
         RunZoaMain(slot, slot.RequireSpeciesState<ZoaEnemyState>(), frame.Samus, frame.Camera);
-    }
-
-    /// <summary>Advances Zoa's typed animation.</summary>
-    internal static void AdvanceZoaTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _)
-    {
-        AdvanceZoaAnimation(slot);
     }
 }

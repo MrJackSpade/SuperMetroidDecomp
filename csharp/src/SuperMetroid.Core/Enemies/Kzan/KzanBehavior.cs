@@ -1,6 +1,4 @@
-﻿using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Programs;
+﻿using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies.Kzan.Artwork;
 using SuperMetroid.Core.Samus;
 
@@ -74,10 +72,10 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Places the lower actor twelve pixels below the preceding top during setup.</summary>
-    private void InitializeKzanBottom(RoomEnemySlot slot) => FollowKzanTop(slot);
+    internal void InitializeKzanBottom(RoomEnemySlot slot) => FollowKzanTop(slot);
 
     /// <summary>Keeps the lower actor twelve pixels below the top on every enemy update.</summary>
-    private void RunKzanBottomMain(RoomEnemySlot slot) => FollowKzanTop(slot);
+    internal void RunKzanBottomMain(RoomEnemySlot slot) => FollowKzanTop(slot);
 
     /// <summary>
     /// Reproduces the literal <c>Enemy[-1]</c> reads. Retail populations always place the
@@ -248,28 +246,10 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
         EnemyProgramAnimation.Advance(slot, KzanAnimations.Programs, KzanFrameDefinitions.ShownFrames.Of,
             static (KzanEnemyState state) => state.Program, static (state, cursor) => state.Program = cursor);
 
-    /// <summary>Ports KzanTop's initialization AI.</summary>
-    internal void RunKzanTopInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
-    {
-        InitializeKzanTop(slot);
-    }
-
-    /// <summary>Ports KzanBottom's initialization AI.</summary>
-    internal void RunKzanBottomInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
-    {
-        InitializeKzanBottom(slot);
-    }
-
     /// <summary>Ports KzanTop's main AI.</summary>
     internal void RunKzanTopMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
         RunKzanTopMain(slot, slot.RequireSpeciesState<KzanEnemyState>(), frame.Samus);
-    }
-
-    /// <summary>Ports KzanBottom's main AI.</summary>
-    internal void RunKzanBottomMainAi(RoomEnemySlot slot, IEnemyAiFrame _)
-    {
-        RunKzanBottomMain(slot);
     }
 
     /// <summary>Last library-two Kzan landing sound this enemy pass, using the Max6 queue entry; cleared at the next enemy-frame boundary.</summary>

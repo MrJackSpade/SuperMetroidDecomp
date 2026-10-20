@@ -7,11 +7,11 @@ internal sealed class ZoaEntity(RoomEnemySlot slot, EnemyCommonParticipation com
     : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation
 {
     /// <inheritdoc/>
-    public EnemyInitializationAiHandler? FindInitialization() => ZoaBehavior.RunZoaInitializationAi;
+    public EnemyInitializationAiHandler? FindInitialization() => ZoaBehavior.InitializeZoa;
 
     /// <inheritdoc/>
     public EnemyMainAiHandler? FindMain() => ZoaBehavior.RunZoaMainAi;
 
     /// <inheritdoc/>
-    public Action<RoomEnemySlot, EnemyInstructionContext>? FindTypedAnimation() => ZoaBehavior.AdvanceZoaTypedAnimation;
+    public Action<RoomEnemySlot, EnemyInstructionContext>? FindTypedAnimation() => (enemy, _) => ZoaBehavior.AdvanceZoaAnimation(enemy);
 }

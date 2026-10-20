@@ -8,7 +8,7 @@ internal sealed class NorfairRioEntity(NorfairRioBehavior species, RoomEnemySlot
     : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation
 {
     /// <inheritdoc/>
-    public EnemyInitializationAiHandler? FindInitialization() => species.RunNorfairRioInitializationAi;
+    public EnemyInitializationAiHandler? FindInitialization() => species.InitializeNorfairRio;
 
     /// <inheritdoc/>
     public EnemyMainAiHandler? FindMain() => species.RunNorfairRioMainAi;

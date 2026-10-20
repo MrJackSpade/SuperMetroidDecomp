@@ -8,7 +8,7 @@ internal sealed class WalkingSpacePirateEntity(WalkingSpacePirateBehavior specie
     : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation, IEnemyExtendedHitboxes, IEnemyPrivateShotCallback
 {
     /// <inheritdoc/>
-    public EnemyInitializationAiHandler? FindInitialization() => WalkingSpacePirateBehavior.RunWalkingSpacePirateInitializationAi;
+    public EnemyInitializationAiHandler? FindInitialization() => WalkingSpacePirateBehavior.InitializeWalkingSpacePirate;
 
     /// <inheritdoc/>
     public EnemyMainAiHandler? FindMain() => species.RunWalkingSpacePirateMainAi;

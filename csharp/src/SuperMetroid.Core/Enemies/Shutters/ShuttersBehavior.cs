@@ -1,5 +1,4 @@
-﻿using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.Core.Programs;
+﻿using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies.Shutters.Artwork;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Enemies.Platforms;
@@ -629,24 +628,6 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         AnimationProgramCursor<ShutterProgram> cursor = state.Program;
         EnemyProgramAnimation.Run(slot, ShutterAnimations.Programs, ref cursor, ShutterFrameDefinitions.ShownFrames.Of);
         state.Program = cursor;
-    }
-
-    /// <summary>Ports ShutterGrowing's initialization AI.</summary>
-    internal static void RunShutterGrowingInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
-    {
-        InitializeGrowingShutter(slot);
-    }
-
-    /// <summary>Ports ShutterShootable's initialization AI.</summary>
-    internal static void RunShutterShootableInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
-    {
-        InitializeVerticalShutter(slot);
-    }
-
-    /// <summary>Ports ShutterHorizShootable's initialization AI.</summary>
-    internal static void RunShutterHorizShootableInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
-    {
-        InitializeHorizontalShutter(slot);
     }
 
     /// <summary>Ports ShutterGrowing's main AI.</summary>

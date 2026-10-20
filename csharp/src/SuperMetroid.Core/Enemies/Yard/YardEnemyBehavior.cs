@@ -637,12 +637,6 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
         LastYardSoundEffect = YardBounceSound;
     }
 
-    /// <summary>Ports Yard's initialization AI.</summary>
-    internal static void RunYardInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
-    {
-        InitializeYard(slot);
-    }
-
     /// <summary>Ports Yard's main AI.</summary>
     internal void RunYardMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {

@@ -5,10 +5,10 @@ namespace SuperMetroid.Core.Enemies.Beetom;
 /// <param name="slot">The slot the enemy occupies.</param>
 /// <param name="common">The shared participation.</param>
 internal sealed class BeetomEntity(BeetomBehavior species, RoomEnemySlot slot, EnemyCommonParticipation common)
-    : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation, IEnemyPrivateShotCallback
+    : CommonParticipationEnemyEntity(slot, common), IEnemySurroundingsInitialization, IEnemyMainAi, IEnemyTypedAnimation, IEnemyPrivateShotCallback
 {
     /// <inheritdoc/>
-    public EnemyInitializationAiHandler? FindInitialization() => species.RunBeetomInitializationAi;
+    public EnemySurroundingsInitializationAiHandler? FindSurroundingsInitialization() => species.RunBeetomInitializationAi;
 
     /// <inheritdoc/>
     public EnemyMainAiHandler? FindMain() => species.RunBeetomMainAi;

@@ -523,12 +523,6 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
         });
     }
 
-    /// <summary>Ports MaridiaLargeSnail's initialization AI.</summary>
-    internal static void RunMaridiaLargeSnailInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
-    {
-        InitializeMaridiaLargeSnail(slot);
-    }
-
     /// <summary>Ports MaridiaLargeSnail's main AI.</summary>
     internal void RunMaridiaLargeSnailMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {

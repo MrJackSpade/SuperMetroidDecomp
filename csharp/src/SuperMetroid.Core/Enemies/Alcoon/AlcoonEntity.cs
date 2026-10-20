@@ -5,10 +5,10 @@ namespace SuperMetroid.Core.Enemies.Alcoon;
 /// <param name="slot">The slot the enemy occupies.</param>
 /// <param name="common">The shared participation.</param>
 internal sealed class AlcoonEntity(AlcoonBehavior species, RoomEnemySlot slot, EnemyCommonParticipation common)
-    : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation
+    : CommonParticipationEnemyEntity(slot, common), IEnemySurroundingsInitialization, IEnemyMainAi, IEnemyTypedAnimation
 {
     /// <inheritdoc/>
-    public EnemyInitializationAiHandler? FindInitialization() => species.RunAlcoonInitializationAi;
+    public EnemySurroundingsInitializationAiHandler? FindSurroundingsInitialization() => species.RunAlcoonInitializationAi;
 
     /// <inheritdoc/>
     public EnemyMainAiHandler? FindMain() => species.RunAlcoonMainAi;

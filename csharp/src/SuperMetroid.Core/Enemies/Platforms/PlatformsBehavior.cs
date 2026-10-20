@@ -1,5 +1,4 @@
-﻿using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Programs;
+﻿using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies.Platforms.Artwork;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
@@ -349,12 +348,6 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
                     c.Enemy.Frame = TripperFrozenFrame(c.Enemy.RequireSpeciesState<PlatformEnemyState>().XMovement);
             },
         });
-    }
-
-    /// <summary>Ports Platforms's initialization AI.</summary>
-    internal static void RunPlatformsInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
-    {
-        InitializePlatform(slot);
     }
 
     /// <summary>Ports Platforms's main AI.</summary>

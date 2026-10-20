@@ -8,7 +8,7 @@ internal sealed class HibashiEntity(HibashiBehavior species, RoomEnemySlot slot,
     : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation
 {
     /// <inheritdoc/>
-    public EnemyInitializationAiHandler? FindInitialization() => HibashiBehavior.RunHibashiInitializationAi;
+    public EnemyInitializationAiHandler? FindInitialization() => HibashiBehavior.InitializeHibashi;
 
     /// <inheritdoc/>
     public EnemyMainAiHandler? FindMain() => species.RunHibashiMainAi;

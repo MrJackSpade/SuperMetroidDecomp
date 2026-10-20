@@ -809,9 +809,9 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
             : throw new InvalidOperationException($"Enemy projectile {projectile.Kind} is not running a Torizo program.");
 
     /// <summary>Ports BombTorizo's initialization AI.</summary>
-    internal void RunBombTorizoInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? samus, SnesButton controllerInput, ushort _1)
+    internal void RunBombTorizoInitializationAi(RoomEnemySlot slot, EnemySpawnSurroundings surroundings)
     {
-        InitializeBombTorizo(slot, samus, controllerInput);
+        InitializeBombTorizo(slot, surroundings.Samus, surroundings.ControllerInput);
     }
 
     /// <summary>Ports BombTorizo's main AI.</summary>

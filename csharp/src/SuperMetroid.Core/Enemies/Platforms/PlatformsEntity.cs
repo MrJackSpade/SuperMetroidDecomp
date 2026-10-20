@@ -8,7 +8,7 @@ internal sealed class PlatformsEntity(PlatformsBehavior species, RoomEnemySlot s
     : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation, IEnemyPrivateShotCallback
 {
     /// <inheritdoc/>
-    public EnemyInitializationAiHandler? FindInitialization() => PlatformsBehavior.RunPlatformsInitializationAi;
+    public EnemyInitializationAiHandler? FindInitialization() => PlatformsBehavior.InitializePlatform;
 
     /// <inheritdoc/>
     public EnemyMainAiHandler? FindMain() => species.RunPlatformsMainAi;

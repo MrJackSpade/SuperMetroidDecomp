@@ -1,6 +1,4 @@
-﻿using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Programs;
+﻿using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies.Corpses.Artwork;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Samus;
@@ -287,12 +285,6 @@ internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemyEntityFactory
         EnemyProgramAnimation.Run(slot, DeadTourianAnimations.Programs, ref cursor, DeadTourianFrameDefinitions.ShownFrames.Of,
             (cue, _) => throw new InvalidDataException($"A corpse pose published {cue.Kind}."));
         Extensions[slot.SlotIndex].Program = cursor;
-    }
-
-    /// <summary>Ports DeadTourian's initialization AI.</summary>
-    internal void RunDeadTourianInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
-    {
-        InitializeDeadTourianCorpse(slot);
     }
 
     /// <summary>Ports DeadTourian's main AI.</summary>

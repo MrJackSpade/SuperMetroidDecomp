@@ -31,7 +31,7 @@ internal static class GoldenTorizoCodeVerification
             var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
             enemies.Presentation.BindCgram(new SnesCgram());
             enemies.VerificationServices().IsAreaTorizoDefeated = () => defeated;
-            var initialize = new Action<RoomEnemySlot, RoomLevelData?, SamusState?, SnesButton, ushort>(RoomEnemySystem.RunInitializationAi);
+            var initialize = new Action<RoomEnemySlot, EnemySpawnSurroundings>(RoomEnemySystem.RunInitializationAi);
             var actor = enemies.SlotTable.Slots[0];
             actor.Bind(header, actor.Definition);
             actor.Bind(actor.EnemyDefinitionPointer, RoomEnemyDefinitionCatalog.Get(header));
@@ -43,7 +43,7 @@ internal static class GoldenTorizoCodeVerification
                 EquippedBeams = 0, CollectedBeams = 0, ReserveTankMode = ReserveTankMode.Manual, ReserveMissiles = 7,
             };
             ushort[] before = Snapshot(samus);
-            initialize(actor, null, samus, held, 0);
+            initialize(actor, EnemySpawnSurroundings.None with { Samus = samus, ControllerInput = held });
             ushort[] expected = grants
                 ? [native[0], native[0], native[1], native[1], native[2], native[2],
                    native[3], native[3], native[4], native[4], native[5], native[5], native[6], native[6]]

@@ -8,7 +8,7 @@ internal sealed class ChootEntity(ChootBehavior species, RoomEnemySlot slot, Ene
     : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation
 {
     /// <inheritdoc/>
-    public EnemyInitializationAiHandler? FindInitialization() => species.RunChootInitializationAi;
+    public EnemyInitializationAiHandler? FindInitialization() => species.InitializeChoot;
 
     /// <inheritdoc/>
     public EnemyMainAiHandler? FindMain() => ChootBehavior.RunChootMainAi;

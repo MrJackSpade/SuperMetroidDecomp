@@ -5,10 +5,10 @@ namespace SuperMetroid.Core.Enemies.Elevator;
 /// <param name="slot">The slot the enemy occupies.</param>
 /// <param name="common">The shared participation.</param>
 internal sealed class ElevatorEntity(ElevatorBehavior species, RoomEnemySlot slot, EnemyCommonParticipation common)
-    : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation
+    : CommonParticipationEnemyEntity(slot, common), IEnemySurroundingsInitialization, IEnemyMainAi, IEnemyTypedAnimation
 {
     /// <inheritdoc/>
-    public EnemyInitializationAiHandler? FindInitialization() => species.RunElevatorInitializationAi;
+    public EnemySurroundingsInitializationAiHandler? FindSurroundingsInitialization() => species.RunElevatorInitializationAi;
 
     /// <inheritdoc/>
     public EnemyMainAiHandler? FindMain() => species.RunElevatorMainAi;

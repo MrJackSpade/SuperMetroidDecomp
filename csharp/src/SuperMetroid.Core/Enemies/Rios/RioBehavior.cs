@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies.Rios.Artwork;
 using System.Diagnostics.CodeAnalysis;
@@ -252,12 +251,6 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         if (level is null)
             throw new InvalidOperationException("Rio movement requires the current room level data.");
-    }
-
-    /// <summary>Ports Rio's initialization AI.</summary>
-    internal static void RunRioInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
-    {
-        InitializeRio(slot);
     }
 
     /// <summary>Ports Rio's main AI.</summary>

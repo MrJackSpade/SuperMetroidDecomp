@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
@@ -66,7 +65,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
     private const ushort PhantoonWavyPhaseDelta = 8;
 
     /// <summary>Ports <c>InitAI_PhantoonBody</c> at $A7:CDF3.</summary>
-    private void InitializePhantoonBody(RoomEnemySlot body)
+    internal void InitializePhantoonBody(RoomEnemySlot body)
     {
         if (body.SlotIndex != 0)
         {
@@ -96,7 +95,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Ports the shared part initializer at $A7:CE55.</summary>
-    private void InitializePhantoonPart(RoomEnemySlot part)
+    internal void InitializePhantoonPart(RoomEnemySlot part)
     {
         PhantoonEnemyState state = RequirePhantoonState(part);
         PhantoonPartProgram program = part.Spawn.Population.Parameter2 switch
@@ -774,18 +773,6 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
                     throw new InvalidOperationException($"Undefined {nameof(PhantoonFlameCue)} {cue}.");
             }
         });
-    }
-
-    /// <summary>Ports PhantoonBody's initialization AI.</summary>
-    internal void RunPhantoonBodyInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
-    {
-        InitializePhantoonBody(slot);
-    }
-
-    /// <summary>Ports PhantoonEye's initialization AI.</summary>
-    internal void RunPhantoonEyeInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
-    {
-        InitializePhantoonPart(slot);
     }
 
     /// <summary>Accumulated damage required to alter Phantoon's vulnerable-eye phase.</summary>
@@ -1756,11 +1743,6 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
         eye.FadeNumerator = unchecked((ushort)(numerator + 1));
         return false;
     }
-    /// <summary>Advances Phantoon's typed animation.</summary>
-    internal void AdvancePhantoonTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _)
-    {
-        AdvancePhantoonPartAnimation(slot);
-    }
 
     /// <summary>
     /// Runs a Phantoon part's program where the enemy instruction interpreter would: the frame expires on the update
@@ -2255,20 +2237,6 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void RunPhantoonBodyMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
         RunPhantoonMain(slot, frame.Samus, frame.Camera);
-    }
-
-    /// <summary>Ports PhantoonEye's main AI.</summary>
-    internal static void RunPhantoonEyeMainAi(RoomEnemySlot _, IEnemyAiFrame _1)
-    {
-        // Phantoon's eye is positioned by the body and animated by its own list;
-        // the header main is the literal common RTL at the start of bank $A7.
-    }
-
-    /// <summary>Ports PhantoonTentacles's main AI.</summary>
-    internal static void RunPhantoonTentaclesMainAi(RoomEnemySlot _, IEnemyAiFrame _1)
-    {
-        // $A7:E011 is a literal RTL. These drawing parts animate entirely through
-        // their independent bank-$A7 instruction lists after the shared body main.
     }
 
     /// <summary>Binds Phantoon body contact to the shared enemy collision path.</summary>

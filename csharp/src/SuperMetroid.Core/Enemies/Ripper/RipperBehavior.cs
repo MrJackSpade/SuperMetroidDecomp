@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Samus;
-using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Programs;
 using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.Core.Enemies.Ripper.Artwork;
@@ -235,24 +233,6 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             AfterCommon = c => ResolveGRipperRipper2ShotAfterCommon(c.Enemy),
         });
-    }
-
-    /// <summary>Ports GRipper's initialization AI.</summary>
-    internal void RunGRipperInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
-    {
-        InitializeGRipper(slot);
-    }
-
-    /// <summary>Ports Ripper2's initialization AI.</summary>
-    internal void RunRipper2InitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
-    {
-        InitializeRipper2(slot);
-    }
-
-    /// <summary>Ports Ripper's initialization AI.</summary>
-    internal void RunRipperInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
-    {
-        InitializeRipper(slot);
     }
 
     /// <summary>Ports GRipper's main AI.</summary>

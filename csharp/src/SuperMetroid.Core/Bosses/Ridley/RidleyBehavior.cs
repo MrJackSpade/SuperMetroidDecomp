@@ -1137,12 +1137,8 @@ internal sealed class RidleyBehavior : IEnemySpecies
             .ApplyHealth(_presentation.Cgram, row);
     }
 
-    /// <summary>Ports Lower Norfair Ridley's initialization AI.</summary>
-    internal void RunRidleyInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3) =>
-        InitializeNorfairRidley(slot);
-
     /// <summary>Ports the breakup explosion actor's initialization AI.</summary>
-    internal void RunRidleyExplosionInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3) =>
+    internal void RunRidleyExplosionInitializationAi(RoomEnemySlot slot) =>
         InitializeNorfairRidleyExplosion(
             slot,
             _ridleyEncounter.Body,
@@ -1160,15 +1156,9 @@ internal sealed class RidleyBehavior : IEnemySpecies
             frame.SharedProjectiles,
             frame.Camera);
 
-    /// <summary>Ports the breakup explosion actor's main AI.</summary>
-    internal void RunRidleyExplosionMainAi(RoomEnemySlot slot, IEnemyAiFrame _) => RunNorfairRidleyExplosionMain(slot);
-
     /// <summary>Runs Ceres and Lower Norfair Ridley's body as typed programs in place of their bank-$A6 lists (#641).</summary>
     internal void AdvanceRidleyBodyTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext context) =>
         AdvanceRidleyBodyAnimation(slot, context.Samus);
-
-    /// <summary>Runs the breakup explosion actor's typed program.</summary>
-    internal void AdvanceRidleyBreakupTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _) => AdvanceRidleyBreakupAnimation(slot);
     /// <summary>
     /// <c>LungeIfPowerBombActiveAndNotHoldingSamus</c> at $A6:BD2C, run before the function on
     /// every main and even hurt frame. It reads $0CEE, which is set as soon as a power bomb is

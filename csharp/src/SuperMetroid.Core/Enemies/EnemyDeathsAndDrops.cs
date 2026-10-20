@@ -608,7 +608,7 @@ internal sealed class EnemyDeathsAndDrops
         // or what its init AI wrote, until its first instruction. A zero spritemap is also
         // $A0:A08C's contact gate, so the respawned actor cannot touch Samus before then.
         _dispatch.InitializeSlotFromDefinition(slot, spawn.Population, definition);
-        _dispatch.RunInitializationAi(slot);
+        _dispatch.RunInitializationAi(slot, EnemySpawnSurroundings.None);
     }
 
     /// <summary>Connects pickup lifetime and contact handling to the projectile engine.</summary>

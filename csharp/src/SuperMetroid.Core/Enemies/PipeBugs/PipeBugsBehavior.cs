@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies.PipeBugs.Artwork;
 using System.Diagnostics.CodeAnalysis;
@@ -672,24 +670,6 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
     internal static void AdvancePipeBugsTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _) =>
         EnemyProgramAnimation.Advance(slot, PipeBugAnimations.Programs, PipeBugFrameDefinitions.ShownFrames.Of,
             static (PipeBugEnemyState state) => state.Program, static (state, cursor) => state.Program = cursor);
-
-    /// <summary>Ports Zeb's initialization AI.</summary>
-    internal static void RunZebInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
-    {
-        InitializeBrinstarPipeBug(slot);
-    }
-
-    /// <summary>Ports Gamet's initialization AI.</summary>
-    internal static void RunGametInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
-    {
-        InitializeNorfairPipeBug(slot);
-    }
-
-    /// <summary>Ports Geega's initialization AI.</summary>
-    internal static void RunGeegaInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
-    {
-        InitializeYellowPipeBug(slot);
-    }
 
     /// <summary>Ports PipeBugs's main AI.</summary>
     internal void RunPipeBugsMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)

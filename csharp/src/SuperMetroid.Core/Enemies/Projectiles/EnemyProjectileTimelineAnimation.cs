@@ -18,6 +18,9 @@ internal abstract class EnemyProjectileTimelineAnimation<TFrame, TCue> : EnemyPr
     /// <summary>The timeline this animation plays.</summary>
     private protected abstract AnimationTimeline<TFrame, TCue> Timeline { get; }
 
+    /// <summary>Plays the timeline again from its first step, as reinstalling an instruction list does.</summary>
+    private protected void Restart() => Position = 0;
+
     /// <summary>The projectile frame <paramref name="frame"/> shows.</summary>
     private protected abstract EnemyProjectileFrameId Present(TFrame frame);
 

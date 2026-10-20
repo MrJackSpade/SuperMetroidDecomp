@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies.Hoppers.Artwork;
 using System.Diagnostics.CodeAnalysis;
@@ -349,12 +348,6 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Program = AnimationProgramCursor<HopperProgram>.Start(program);
         slot.InstructionTimer = NativeCountdown.Start(1);
         slot.Timer = NativeCountdown.Start(0);
-    }
-
-    /// <summary>Ports Hoppers's initialization AI.</summary>
-    internal void RunHoppersInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
-    {
-        InitializeHopper(slot);
     }
 
     /// <summary>Ports Hoppers's main AI.</summary>

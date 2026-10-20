@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies.YappingMaws.Artwork;
 using SuperMetroid.Core.Enemies.Projectiles;
@@ -591,12 +589,6 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             AfterCommon = c => ResolveYappingMawShotAfterCommon(c.Enemy, c.Enemy.RequireSpeciesState<YappingMawEnemyState>(), c.Samus),
         });
-    }
-
-    /// <summary>Ports YappingMaw's initialization AI.</summary>
-    internal void RunYappingMawInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
-    {
-        InitializeYappingMaw(slot);
     }
 
     /// <summary>Ports YappingMaw's main AI.</summary>

@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies.Powamp.Artwork;
 using SuperMetroid.Core.Enemies.Projectiles;
@@ -528,12 +527,6 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
     internal static void AdvancePowampTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _) =>
         EnemyProgramAnimation.Advance(slot, PowampAnimations.Programs, PowampFrameDefinitions.ShownFrames.Of,
             static (PowampEnemyState state) => state.Program, static (state, cursor) => state.Program = cursor);
-
-    /// <summary>Ports Powamp's initialization AI.</summary>
-    internal void RunPowampInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
-    {
-        InitializePowamp(slot);
-    }
 
     /// <summary>Ports Powamp's main AI.</summary>
     internal void RunPowampMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)

@@ -8,7 +8,7 @@ internal sealed class NinjaSpacePirateEntity(NinjaSpacePirateBehavior species, R
     : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation, IEnemyExtendedHitboxes, IEnemyPrivateShotCallback
 {
     /// <inheritdoc/>
-    public EnemyInitializationAiHandler? FindInitialization() => species.RunNinjaSpacePirateInitializationAi;
+    public EnemyInitializationAiHandler? FindInitialization() => species.InitializeNinjaSpacePirate;
 
     /// <inheritdoc/>
     public EnemyMainAiHandler? FindMain() => species.RunNinjaSpacePirateMainAi;

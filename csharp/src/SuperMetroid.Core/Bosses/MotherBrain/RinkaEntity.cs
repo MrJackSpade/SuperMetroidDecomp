@@ -10,7 +10,7 @@ internal sealed class RinkaEntity(RinkaBehavior species, RoomEnemySlot slot, Ene
     : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation, IEnemyPrivateShotCallback
 {
     /// <inheritdoc/>
-    public EnemyInitializationAiHandler? FindInitialization() => species.RunRinkaInitializationAi;
+    public EnemyInitializationAiHandler? FindInitialization() => species.InitializeRinka;
 
     /// <inheritdoc/>
     public EnemyMainAiHandler? FindMain() => species.RunRinkaMainAi;

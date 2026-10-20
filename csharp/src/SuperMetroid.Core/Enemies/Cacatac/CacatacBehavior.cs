@@ -1,7 +1,4 @@
-﻿using SuperMetroid.Core.Samus;
-using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Programs;
+﻿using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies.Cacatac.Artwork;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Enemies.Artwork;
@@ -193,12 +190,6 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemyEntityFactory
             // Cacatac spike: ten direction-table movers.
             RunCacatacSpikePreInstruction(context.Projectile, context.Camera);
         }, EnemyProjectilePreInstruction.CacatacSpike);
-    }
-
-    /// <summary>Ports Cacatac's initialization AI.</summary>
-    internal static void RunCacatacInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
-    {
-        InitializeCacatac(slot);
     }
 
     /// <summary>Ports Cacatac's main AI.</summary>

@@ -7,7 +7,7 @@ internal sealed class AtomicEntity(RoomEnemySlot slot, EnemyCommonParticipation 
     : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation
 {
     /// <inheritdoc/>
-    public EnemyInitializationAiHandler? FindInitialization() => AtomicBehavior.RunAtomicInitializationAi;
+    public EnemyInitializationAiHandler? FindInitialization() => AtomicBehavior.InitializeAtomic;
 
     /// <inheritdoc/>
     public EnemyMainAiHandler? FindMain() => AtomicBehavior.RunAtomicMainAi;

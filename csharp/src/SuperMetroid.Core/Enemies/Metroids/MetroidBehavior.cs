@@ -466,12 +466,6 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
             });
     }
 
-    /// <summary>Ports Metroid's initialization AI.</summary>
-    internal void RunMetroidInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
-    {
-        InitializeMetroid(slot);
-    }
-
     /// <summary>Ports Metroid's main AI.</summary>
     internal void RunMetroidMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {

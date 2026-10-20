@@ -1,6 +1,4 @@
 ﻿using SuperMetroid.Core.Programs;
-using SuperMetroid.Core.Samus;
-using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Enemies.Waver.Artwork;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms;
@@ -138,12 +136,6 @@ internal sealed class WaverBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Program = AnimationProgramCursor<WaverProgram>.Start(WaverAnimationDefinitions.Program(requested));
         slot.InstructionTimer = NativeCountdown.Start(1);
         slot.Timer = NativeCountdown.Start(0);
-    }
-
-    /// <summary>Ports Waver's initialization AI.</summary>
-    internal static void RunWaverInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
-    {
-        InitializeWaver(slot);
     }
 
     /// <summary>Ports Waver's main AI.</summary>

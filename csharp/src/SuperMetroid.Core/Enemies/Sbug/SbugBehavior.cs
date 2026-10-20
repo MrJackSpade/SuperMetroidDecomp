@@ -1,5 +1,4 @@
-﻿using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Programs;
+﻿using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies.Sbug.Artwork;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
@@ -456,12 +455,6 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
     internal static void AdvanceSbugTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _) =>
         EnemyProgramAnimation.Advance(slot, SbugAnimations.Programs, SbugFrameDefinitions.ShownFrames.Of,
             static (SbugEnemyState state) => state.Program, static (state, cursor) => state.Program = cursor);
-
-    /// <summary>Ports Sbug's initialization AI.</summary>
-    internal static void RunSbugInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
-    {
-        InitializeSbug(slot);
-    }
 
     /// <summary>Ports Sbug's main AI.</summary>
     internal void RunSbugMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)

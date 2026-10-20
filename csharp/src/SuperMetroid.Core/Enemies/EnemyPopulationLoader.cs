@@ -1,7 +1,4 @@
-﻿using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.Core.Samus;
-using SuperMetroid.Core.Enemies.Artwork;
+﻿using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Enemies;
 
@@ -128,10 +125,7 @@ internal sealed class EnemyPopulationLoader
     internal void LoadPopulation(
         IRoomEnemyDefinitionSource definitions,
         RoomEnemyPopulationDefinition populationDefinition,
-        RoomLevelData? level,
-        SamusState? samus,
-        SnesButton controllerInput,
-        ushort cameraX)
+        EnemySpawnSurroundings surroundings)
     {
         ReadOnlySpan<RoomEnemyPopulationRecord> records = populationDefinition.Records.Span;
         for (int slotIndex = 0; slotIndex < records.Length; slotIndex++)
@@ -149,7 +143,7 @@ internal sealed class EnemyPopulationLoader
             _dispatch.InitializeSlotFromDefinition(slot, population, definition);
             if (definition.BossId != 0)
                 _roomStatus.BossId = definition.BossId;
-            _dispatch.RunInitializationAi(slot, level, samus, controllerInput, cameraX);
+            _dispatch.RunInitializationAi(slot, surroundings);
 
             // InitializeEnemies deliberately clears the init routine's immediate map.
             // Disable-Samus-collision actors receive the canonical empty map until their

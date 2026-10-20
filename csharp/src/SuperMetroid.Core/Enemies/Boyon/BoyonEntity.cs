@@ -1,7 +1,3 @@
-using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.Core.Samus;
-
 namespace SuperMetroid.Core.Enemies.Boyon;
 
 /// <summary>
@@ -16,17 +12,13 @@ internal sealed class BoyonEntity(BoyonBehavior species, RoomEnemySlot slot, Ene
     : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation
 {
     /// <inheritdoc/>
-    public EnemyInitializationAiHandler? FindInitialization() => Initialize;
+    public EnemyInitializationAiHandler? FindInitialization() => BoyonBehavior.InitializeBoyon;
 
     /// <inheritdoc/>
     public EnemyMainAiHandler? FindMain() => RunMain;
 
     /// <inheritdoc/>
     public Action<RoomEnemySlot, EnemyInstructionContext>? FindTypedAnimation() => species.AdvanceBoyonAnimation;
-
-    /// <summary>Ports <c>InitAI_Boyon</c>.</summary>
-    private void Initialize(RoomEnemySlot slot, RoomLevelData? level, SamusState? samus, SnesButton controllerInput, ushort cameraX) =>
-        BoyonBehavior.InitializeBoyon(slot);
 
     /// <summary>Ports <c>MainAI_Boyon</c>.</summary>
     private void RunMain(RoomEnemySlot slot, IEnemyAiFrame frame) =>

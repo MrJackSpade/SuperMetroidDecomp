@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies.Evir.Artwork;
 using SuperMetroid.Core.Samus;
@@ -529,15 +527,9 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Ports Evir's initialization AI.</summary>
-    internal void RunEvirInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? samus, SnesButton _1, ushort _2)
+    internal void RunEvirInitializationAi(RoomEnemySlot slot, EnemySpawnSurroundings surroundings)
     {
-        InitializeEvir(slot, samus);
-    }
-
-    /// <summary>Ports EvirProjectile's initialization AI.</summary>
-    internal void RunEvirProjectileInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
-    {
-        InitializeEvirProjectile(slot);
+        InitializeEvir(slot, surroundings.Samus);
     }
 
     /// <summary>Ports Evir's main AI.</summary>

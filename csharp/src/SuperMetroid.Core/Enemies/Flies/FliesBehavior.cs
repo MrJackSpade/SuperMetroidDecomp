@@ -1,6 +1,4 @@
-﻿using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Programs;
+﻿using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies.Flies.Artwork;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Enemies.Artwork;
@@ -168,12 +166,6 @@ internal sealed class FliesBehavior : IEnemySpecies, IEnemyEntityFactory
         AnimationProgramCursor<FlyProgram> cursor = state.Program;
         EnemyProgramAnimation.Run(slot, FlyAnimations.Programs, ref cursor, FlyFrameDefinitions.ShownFrames.Of);
         state.Program = cursor;
-    }
-
-    /// <summary>Ports Flies's initialization AI.</summary>
-    internal static void RunFliesInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
-    {
-        InitializeFly(slot);
     }
 
     /// <summary>Ports Flies's main AI.</summary>

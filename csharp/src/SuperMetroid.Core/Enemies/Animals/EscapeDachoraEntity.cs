@@ -8,10 +8,11 @@ internal sealed class EscapeDachoraEntity(EscapeAnimalsBehavior species, RoomEne
     : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation
 {
     /// <inheritdoc/>
-    public EnemyInitializationAiHandler? FindInitialization() => species.RunEscapeDachoraInitializationAi;
+    public EnemyInitializationAiHandler? FindInitialization() => species.InitializeEscapeDachora;
 
     /// <inheritdoc/>
-    public EnemyMainAiHandler? FindMain() => EscapeAnimalsBehavior.RunEscapeDachoraMainAi;
+    /// <remarks>$B3:EB1A is a literal RTL; the escape Dachora moves through its instruction program.</remarks>
+    public EnemyMainAiHandler? FindMain() => EnemyNoOpAi.Main;
 
     /// <inheritdoc/>
     public Action<RoomEnemySlot, EnemyInstructionContext>? FindTypedAnimation() => species.AdvanceEscapeAnimalTypedAnimation;

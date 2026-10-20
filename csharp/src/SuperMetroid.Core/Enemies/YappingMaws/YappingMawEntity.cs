@@ -8,7 +8,7 @@ internal sealed class YappingMawEntity(YappingMawBehavior species, RoomEnemySlot
     : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation, IEnemyPrivateShotCallback
 {
     /// <inheritdoc/>
-    public EnemyInitializationAiHandler? FindInitialization() => species.RunYappingMawInitializationAi;
+    public EnemyInitializationAiHandler? FindInitialization() => species.InitializeYappingMaw;
 
     /// <inheritdoc/>
     public EnemyMainAiHandler? FindMain() => species.RunYappingMawMainAi;

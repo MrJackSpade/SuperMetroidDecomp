@@ -1,7 +1,4 @@
-﻿using SuperMetroid.Core.Samus;
-using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Programs;
+﻿using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies.Hibashi.Artwork;
 namespace SuperMetroid.Core.Enemies.Hibashi;
 
@@ -180,12 +177,6 @@ internal sealed class HibashiBehavior : IEnemySpecies, IEnemyEntityFactory
         if (graphics.SlotIndex >= RoomEnemySystem.MaximumEnemyCount - 1)
             throw new InvalidDataException("Hibashi graphics part has no following enemy slot.");
         return _slotTable.Slots[graphics.SlotIndex + 1];
-    }
-
-    /// <summary>Ports Hibashi's initialization AI.</summary>
-    internal static void RunHibashiInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
-    {
-        InitializeHibashi(slot);
     }
 
     /// <summary>Ports Hibashi's main AI.</summary>

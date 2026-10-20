@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Input;
 using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Enemies;
@@ -177,7 +176,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Ports <c>InitAI_CrocomireTongue</c> at $A4:F67A.</summary>
-    private void InitializeCrocomireTongue(RoomEnemySlot slot)
+    internal void InitializeCrocomireTongue(RoomEnemySlot slot)
     {
         if (_room.Services.Bosses.IsDefeated(BossBits.AreaMiniBoss))
         {
@@ -394,18 +393,6 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             RunCrocomireBridgeFragment(context.Projectile, context.Level);
         }, EnemyProjectilePreInstruction.CrocomireBridgeCrumbling);
-    }
-
-    /// <summary>Ports Crocomire's initialization AI.</summary>
-    internal void RunCrocomireInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
-    {
-        InitializeCrocomire(slot);
-    }
-
-    /// <summary>Ports CrocomireTongue's initialization AI.</summary>
-    internal void RunCrocomireTongueInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
-    {
-        InitializeCrocomireTongue(slot);
     }
 
     /// <summary>Routes power-bomb hits on each Crocomire component to their authored reactions.</summary>
@@ -1500,12 +1487,6 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
         AdvanceCrocomireBodyAnimation(slot, context.Samus, context.Level, context.Camera.X);
     }
 
-    /// <summary>Advances CrocomireTongue's typed animation.</summary>
-    internal void AdvanceCrocomireTongueTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _)
-    {
-        AdvanceCrocomireTongueAnimation(slot);
-    }
-
     /// <summary>
     /// Runs Crocomire's body program where the enemy instruction interpreter would: the frame expires on the
     /// update its native timer would, and a newly shown frame raises the new-frame flag exactly as a native
@@ -2451,13 +2432,6 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void RunCrocomireMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
         RunCrocomireMain(slot, frame.Samus, frame.Camera);
-    }
-
-    /// <summary>Ports CrocomireTongue's main AI.</summary>
-    internal static void RunCrocomireTongueMainAi(RoomEnemySlot _, IEnemyAiFrame _1)
-    {
-        // $A4:F6BB is a literal RTL. The tongue's bank-$A4 instruction list and
-        // extended map position the component relative to Crocomire's body.
     }
 
     /// <summary>

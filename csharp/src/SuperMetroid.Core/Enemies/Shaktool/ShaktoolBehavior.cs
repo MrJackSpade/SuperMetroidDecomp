@@ -1,6 +1,4 @@
-﻿using SuperMetroid.Core.Samus;
-using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Programs;
+﻿using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies.Shaktool.Artwork;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Rooms.LevelData;
@@ -529,12 +527,6 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             RunShaktoolLinkedCirclePreInstruction(context.Projectile, context.Level);
         }, EnemyProjectilePreInstruction.ShaktoolsAttack_MiddleBack_Moving);
-    }
-
-    /// <summary>Ports Shaktool's initialization AI.</summary>
-    internal void RunShaktoolInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
-    {
-        InitializeShaktool(slot);
     }
 
     /// <summary>Ports Shaktool's main AI.</summary>

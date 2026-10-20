@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies.FaceBlocks.Artwork;
 using System.Diagnostics.CodeAnalysis;
@@ -206,9 +204,9 @@ internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies, IEnemyEntit
     }
 
     /// <summary>Ports BlueBrinstarFaceBlock's initialization AI.</summary>
-    internal void RunBlueBrinstarFaceBlockInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? samus, SnesButton _1, ushort _2)
+    internal void RunBlueBrinstarFaceBlockInitializationAi(RoomEnemySlot slot, EnemySpawnSurroundings surroundings)
     {
-        InitializeBlueBrinstarFaceBlock(slot, samus);
+        InitializeBlueBrinstarFaceBlock(slot, surroundings.Samus);
     }
 
     /// <summary>Ports BlueBrinstarFaceBlock's main AI.</summary>

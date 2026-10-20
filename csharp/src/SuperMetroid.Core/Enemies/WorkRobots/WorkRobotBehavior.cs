@@ -1,5 +1,4 @@
-﻿using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Programs;
+﻿using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies.WorkRobots.Artwork;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Progression;
@@ -80,7 +79,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
         definitionPointer is EnemyDefinitionId.Robot or EnemyDefinitionId.RobotNoPower;
 
     /// <summary>Ports <c>InitAI_Robot</c> at $A8:CB77.</summary>
-    private void InitializeWorkRobot(RoomEnemySlot slot)
+    internal void InitializeWorkRobot(RoomEnemySlot slot)
     {
         var state = new WorkRobotEnemyState();
         slot.SetSpeciesState(state, state.ClearWithRecord);
@@ -398,12 +397,6 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
         }, EnemyProjectilePreInstruction.WreckedShipRobotLaser);
     }
 
-    /// <summary>Ports WorkRobot's initialization AI.</summary>
-    internal void RunWorkRobotInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
-    {
-        InitializeWorkRobot(slot);
-    }
-
     /// <summary>Ports WorkRobot's main AI.</summary>
     internal void RunWorkRobotMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
@@ -517,10 +510,5 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         if (LastWorkRobotSoundEffect is SoundEffectId sound)
             audio.QueueEnemySound(sound, maximumQueued: 6);
-    }
-
-    /// <summary>Ports the unpowered robot's main AI, the native RTL at $A8:CC66.</summary>
-    internal static void RunUnpoweredWorkRobotMainAi(RoomEnemySlot _, IEnemyAiFrame _1)
-    {
     }
 }

@@ -121,7 +121,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Ports <c>InitAI_MotherBrainBody</c> at <c>$A9:8687</c>.</summary>
-    private void InitializeMotherBrainBody(RoomEnemySlot body)
+    internal void InitializeMotherBrainBody(RoomEnemySlot body)
     {
         if (body.SlotIndex != 0)
         {
@@ -177,7 +177,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Ports <c>InitAI_MotherBrainHead</c> at <c>$A9:8705</c>.</summary>
-    private void InitializeMotherBrainHead(RoomEnemySlot head)
+    internal void InitializeMotherBrainHead(RoomEnemySlot head)
     {
         MotherBrainEnemyState state = _motherBrainEncounter.MotherBrain ??
             throw new InvalidDataException("Mother Brain's head appeared before its body record.");
@@ -607,12 +607,6 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
         return advance.Frame;
     }
 
-    /// <summary>Advances MotherBrainTubes's typed animation.</summary>
-    internal void AdvanceMotherBrainTubesTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _)
-    {
-        AdvanceMotherBrainTubeAnimation(slot);
-    }
-
     /// <summary>Advances MotherBrainBody's typed animation.</summary>
     internal void AdvanceMotherBrainBodyTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext context)
     {
@@ -1028,24 +1022,6 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
         });
     }
 
-    /// <summary>Ports MotherBrainBody's initialization AI.</summary>
-    internal void RunMotherBrainBodyInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
-    {
-        InitializeMotherBrainBody(slot);
-    }
-
-    /// <summary>Ports MotherBrainHead's initialization AI.</summary>
-    internal void RunMotherBrainHeadInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
-    {
-        InitializeMotherBrainHead(slot);
-    }
-
-    /// <summary>Ports MotherBrainTubes's initialization AI.</summary>
-    internal void RunMotherBrainTubesInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
-    {
-        InitializeMotherBrainFallingTube(slot);
-    }
-
     /// <summary>Ports MotherBrainBody's main AI.</summary>
     internal void RunMotherBrainBodyMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
@@ -1056,12 +1032,6 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void RunMotherBrainHeadMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
         RunMotherBrainHeadMain(slot, frame.Samus);
-    }
-
-    /// <summary>Ports MotherBrainTubes's main AI.</summary>
-    internal void RunMotherBrainTubesMainAi(RoomEnemySlot slot, IEnemyAiFrame _)
-    {
-        RunMotherBrainFallingTubeMain(slot);
     }
 
     /// <summary>Binds head and body shot responses for each combat phase.</summary>

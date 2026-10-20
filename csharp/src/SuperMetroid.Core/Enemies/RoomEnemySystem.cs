@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.Core.Areas.Escape;
 using SuperMetroid.Core.Areas.Tourian;
@@ -811,10 +810,7 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
         PopulationLoader.LoadPopulation(
             definitions,
             population,
-            request.Level,
-            request.Samus,
-            request.ControllerInput,
-            request.Camera.X);
+            new EnemySpawnSurroundings(request.Level, request.Samus, request.ControllerInput, request.Camera));
     }
 
     /// <summary>
@@ -1032,19 +1028,26 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
     }
 
     /// <summary>Dispatches the definition's banked initialization pointer for the newly loaded slot.</summary>
-    internal static void RunInitializationAi(
-        RoomEnemySlot slot,
-        RoomLevelData? level = null,
-        SamusState? samus = null,
-        SnesButton controllerInput = SnesButton.None,
-        ushort cameraX = 0)
+    internal static void RunInitializationAi(RoomEnemySlot slot, EnemySpawnSurroundings surroundings)
     {
-        EnemyInitializationAiHandler handler = (slot.Entity as IEnemyInitialization)?.FindInitialization() ??
-            throw new InvalidDataException(
-                $"Enemy ${(int)slot.EnemyDefinitionPointer:X4} initialization AI " +
-                $"${(int)new SnesAddress(slot.Definition.Bank, slot.Definition.InitializationAiPointer):X6} is not translated.");
-        handler(slot, level, samus, controllerInput, cameraX);
+        Ensure.NotNull(surroundings);
+        switch (slot.Entity)
+        {
+            case IEnemySurroundingsInitialization entity:
+                (entity.FindSurroundingsInitialization() ?? throw Untranslated(slot))(slot, surroundings);
+                break;
+            case IEnemyInitialization entity:
+                (entity.FindInitialization() ?? throw Untranslated(slot))(slot);
+                break;
+            default:
+                throw Untranslated(slot);
+        }
     }
+
+    /// <summary>The failure for a slot whose definition names an initialization AI this build does not translate.</summary>
+    private static InvalidDataException Untranslated(RoomEnemySlot slot) =>
+        new($"Enemy ${(int)slot.EnemyDefinitionPointer:X4} initialization AI " +
+            $"${(int)new SnesAddress(slot.Definition.Bank, slot.Definition.InitializationAiPointer):X6} is not translated.");
 
     /// <summary>Exposes physical-slot population setup to the enemy loader.</summary>
     void IEnemyDispatch.InitializeSlotFromDefinition(
@@ -1052,9 +1055,8 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
         InitializeSlotFromDefinition(slot, population, definition);
 
     /// <summary>Lets the population loader invoke the slot's compiled initialization handler.</summary>
-    void IEnemyDispatch.RunInitializationAi(RoomEnemySlot slot, RoomLevelData? level, SamusState? samus,
-        SnesButton controllerInput, ushort cameraX) =>
-        RunInitializationAi(slot, level, samus, controllerInput, cameraX);
+    void IEnemyDispatch.RunInitializationAi(RoomEnemySlot slot, EnemySpawnSurroundings surroundings) =>
+        RunInitializationAi(slot, surroundings);
 
     /// <inheritdoc/>
     RoomEnemySlot? IEnemyDispatch.SpawnEnemy(RoomEnemyPopulationRecord population)
@@ -1064,7 +1066,7 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
             return null;
         RoomEnemySlot slot = SlotTable.Slots[slotIndex];
         InitializeSlotFromDefinition(slot, population, Room.LoadedDefinitions.ReadEnemyDefinition(population.DefinitionPointer));
-        RunInitializationAi(slot);
+        RunInitializationAi(slot, EnemySpawnSurroundings.None);
         // SpawnEnemy's post-init $A0:93D9 write precedes the first instruction tick.
         slot.Frame = slot.Properties.HasAny(EnemyProperties.ProcessInstructions)
             ? EnemyFrameId.Empty

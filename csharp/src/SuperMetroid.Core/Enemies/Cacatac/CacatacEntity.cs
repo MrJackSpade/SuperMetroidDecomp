@@ -8,7 +8,7 @@ internal sealed class CacatacEntity(CacatacBehavior species, RoomEnemySlot slot,
     : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation
 {
     /// <inheritdoc/>
-    public EnemyInitializationAiHandler? FindInitialization() => CacatacBehavior.RunCacatacInitializationAi;
+    public EnemyInitializationAiHandler? FindInitialization() => CacatacBehavior.InitializeCacatac;
 
     /// <inheritdoc/>
     public EnemyMainAiHandler? FindMain() => species.RunCacatacMainAi;

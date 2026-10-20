@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
@@ -79,7 +77,7 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
         RoomEnemySlot babySlot = _slotTable.Slots[slotIndex];
         RoomEnemyDefinition definition = _room.LoadedDefinitions.ReadEnemyDefinition(population.DefinitionPointer);
         _dispatch.InitializeSlotFromDefinition(babySlot, population, definition);
-        _dispatch.RunInitializationAi(babySlot);
+        _dispatch.RunInitializationAi(babySlot, EnemySpawnSurroundings.None);
 
         // SpawnEnemy installs the canonical empty map after init when property $2000 is set.
         // The actor's list is still live and produces its first visible map on its first
@@ -92,7 +90,7 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
     }
 
     /// <summary>Creates the physical Baby only after the rainbow sequence exists and installs its first list and fifteen nontransparent palette colors.</summary>
-    private void InitializeMotherBrainBabyMetroid(RoomEnemySlot slot)
+    internal void InitializeMotherBrainBabyMetroid(RoomEnemySlot slot)
     {
         MotherBrainEnemyState state = _motherBrainEncounter.MotherBrain ?? throw new InvalidDataException(
             "The cutscene Baby was initialized without Mother Brain's physical records.");
@@ -290,22 +288,10 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
                 colors.FadeColor(palette.PaletteIndex, color));
     }
 
-    /// <summary>Ports BabyMetroidCutscene's initialization AI.</summary>
-    internal void RunBabyMetroidCutsceneInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
-    {
-        InitializeMotherBrainBabyMetroid(slot);
-    }
-
     /// <summary>Ports BabyMetroidCutscene's main AI.</summary>
     internal void RunBabyMetroidCutsceneMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
         RunMotherBrainBabyMetroidMain(slot, frame.Samus, frame.Camera);
-    }
-
-    /// <summary>Advances BabyMetroidCutscene's typed animation.</summary>
-    internal void AdvanceBabyMetroidCutsceneTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _)
-    {
-        AdvanceBabyMetroidCutsceneAnimation(slot);
     }
 
     /// <summary>

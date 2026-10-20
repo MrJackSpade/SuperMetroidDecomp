@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies.Corpses.Artwork;
 using SuperMetroid.Core.Bosses.MotherBrain;
@@ -79,12 +78,6 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
 
     /// <summary>The living victim activates once the camera's left edge is left of this room pixel column.</summary>
     private static readonly Position16<RoomPixels> VictimActivationCamera = new(513, 0);
-
-    /// <summary>Clears the per-frame corpse DMA and sound records before enemy AI runs.</summary>
-    internal void BeginDeadSidehopperFrame()
-    {
-        _deadMonsters.Clear();
-    }
 
     /// <summary>Ports <c>DeadSidehopper_Init</c> at <c>$A9:D7B6</c>.</summary>
     internal void InitializeDeadSidehopper(RoomEnemySlot slot)
@@ -570,7 +563,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
     /// <inheritdoc/>
     public void BeginEnemyFrame(RoomEnemyFrame frame)
     {
-        BeginDeadSidehopperFrame();
+        _deadMonsters.Clear();
     }
 
     /// <summary>Routes bomb-special hits on the corpse shot callback to its decay check.</summary>
@@ -579,12 +572,6 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
         table.AddBombSpecialAfterNoOp(c => c.Enemy.EnemyDefinitionPointer == EnemyDefinitionId.CorpseSidehopper &&
                                            c.SelectedShotAi == EnemyInteractionCallback.DeadSidehopperShot,
             c => ResolveDeadSidehopperShot(c.Enemy));
-    }
-
-    /// <summary>Ports DeadSidehopper's initialization AI.</summary>
-    internal void RunDeadSidehopperInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
-    {
-        InitializeDeadSidehopper(slot);
     }
 
     /// <summary>Ports DeadSidehopper's main AI.</summary>

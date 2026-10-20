@@ -8,7 +8,7 @@ internal sealed class MetroidEntity(MetroidBehavior species, RoomEnemySlot slot,
     : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation, IEnemyPrivateShotCallback
 {
     /// <inheritdoc/>
-    public EnemyInitializationAiHandler? FindInitialization() => species.RunMetroidInitializationAi;
+    public EnemyInitializationAiHandler? FindInitialization() => species.InitializeMetroid;
 
     /// <inheritdoc/>
     public EnemyMainAiHandler? FindMain() => species.RunMetroidMainAi;

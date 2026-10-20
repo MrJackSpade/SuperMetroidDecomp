@@ -10,8 +10,8 @@ internal sealed class ChozoStatueEntity(ChozoStatueBehavior species, RoomEnemySl
     /// <inheritdoc/>
     public EnemyInitializationAiHandler? FindInitialization() => ChozoStatuePartDefinitions.Parts[Slot.EnemyDefinitionPointer] switch
     {
-        ChozoStatuePart.NoobTubeCrack => species.RunNoobTubeCrackInitializationAi,
-        ChozoStatuePart.Chozo => species.RunChozoInitializationAi,
+        ChozoStatuePart.NoobTubeCrack => _ => species.InitializeN00bTubeCracks(),
+        ChozoStatuePart.Chozo => species.InitializeChozoStatue,
         _ => throw new InvalidOperationException($"ChozoStatue entity bound to {Slot.EnemyDefinitionPointer}."),
     };
 

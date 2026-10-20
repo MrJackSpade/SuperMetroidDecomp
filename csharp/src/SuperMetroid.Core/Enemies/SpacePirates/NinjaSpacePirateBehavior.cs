@@ -1,5 +1,4 @@
-﻿using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Enemies.SpacePirates.Artwork;
+﻿using SuperMetroid.Core.Enemies.SpacePirates.Artwork;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Rooms.LevelData;
@@ -663,12 +662,6 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
         {
             RunNinjaPirateClawPreInstruction(context.Projectile, context.Camera);
         }, EnemyProjectilePreInstruction.PirateClaw_Left, EnemyProjectilePreInstruction.PirateClaw_Right);
-    }
-
-    /// <summary>Ports NinjaSpacePirate's initialization AI.</summary>
-    internal void RunNinjaSpacePirateInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
-    {
-        InitializeNinjaSpacePirate(slot);
     }
 
     /// <summary>Ports NinjaSpacePirate's main AI.</summary>

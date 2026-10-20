@@ -1,6 +1,4 @@
-﻿using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Enemies.Polyp.Artwork;
+﻿using SuperMetroid.Core.Enemies.Polyp.Artwork;
 using SuperMetroid.Core.Enemies.Cacatac;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Programs;
@@ -136,12 +134,6 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
     internal static void AdvancePolypTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _) =>
         EnemyProgramAnimation.Advance(slot, PolypAnimations.Programs, PolypFrameDefinitions.ShownFrames.Of,
             static (PolypEnemyState state) => state.Program, static (state, cursor) => state.Program = cursor);
-
-    /// <summary>Ports Polyp's initialization AI.</summary>
-    internal void RunPolypInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
-    {
-        InitializePolyp(slot);
-    }
 
     /// <summary>Ports Polyp's main AI.</summary>
     internal void RunPolypMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)

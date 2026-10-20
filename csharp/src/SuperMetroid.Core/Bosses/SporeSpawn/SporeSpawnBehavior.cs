@@ -1,6 +1,4 @@
 using SuperMetroid.Core.Bosses.Draygon.Artwork;
-using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
@@ -8,7 +6,6 @@ using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.Core.Rooms.Scrolling;
 using SuperMetroid.Core.Rooms.SpriteObjects;
-using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Bosses.SporeSpawn.Artwork;
 using SuperMetroid.Core.Enemies.Drawing;
@@ -76,13 +73,6 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Last sound requested by the boss or one of its instructions in the current enemy frame.</summary>
     public SoundEffectId? LastSporeSpawnSoundEffect { get; private set; }
-
-    /// <summary>Clears one-frame publications before the next enemy update.</summary>
-    internal void BeginSporeSpawnFrame()
-    {
-        LastSporeSpawnSoundEffect = null;
-        SporeSpawnDropRequests.Clear();
-    }
 
     /// <summary>
     /// Runs the global scrolling-finished callback installed by live Spore Spawn at
@@ -388,22 +378,10 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         });
     }
 
-    /// <summary>Ports SporeSpawn's initialization AI.</summary>
-    internal void RunSporeSpawnInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
-    {
-        InitializeSporeSpawn(slot);
-    }
-
     /// <summary>Ports SporeSpawn's main AI.</summary>
     internal void RunSporeSpawnMainAi(RoomEnemySlot slot, IEnemyAiFrame _)
     {
         RunSporeSpawnMain(slot, RequireSporeSpawnState(slot));
-    }
-
-    /// <summary>Advances SporeSpawn's typed animation.</summary>
-    internal void AdvanceSporeSpawnTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _)
-    {
-        AdvanceSporeSpawnAnimation(slot);
     }
 
     /// <summary>Runs Spore Spawn's body program where the enemy instruction interpreter would.</summary>
@@ -833,7 +811,8 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <inheritdoc/>
     public void BeginEnemyFrame(RoomEnemyFrame frame)
     {
-        BeginSporeSpawnFrame();
+        LastSporeSpawnSoundEffect = null;
+        SporeSpawnDropRequests.Clear();
     }
     /// <summary>Single active boss state, absent outside a room containing Spore Spawn.</summary>
     internal SporeSpawnEnemyState? SporeSpawn;

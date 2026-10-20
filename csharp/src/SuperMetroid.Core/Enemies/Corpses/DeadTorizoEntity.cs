@@ -8,7 +8,7 @@ internal sealed class DeadTorizoEntity(DeadTorizoBehavior species, RoomEnemySlot
     : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation, IEnemyPrivateShotCallback
 {
     /// <inheritdoc/>
-    public EnemyInitializationAiHandler? FindInitialization() => species.RunDeadTorizoInitializationAi;
+    public EnemyInitializationAiHandler? FindInitialization() => species.InitializeDeadTorizo;
 
     /// <inheritdoc/>
     public EnemyMainAiHandler? FindMain() => species.RunDeadTorizoMainAi;

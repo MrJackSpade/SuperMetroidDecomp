@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies.Rios.Artwork;
 using System.Diagnostics.CodeAnalysis;
@@ -310,12 +309,6 @@ internal sealed class LowerNorfairRioBehavior : IEnemySpecies, IEnemyEntityFacto
     {
         if (level is null)
             throw new InvalidOperationException("Lower Norfair Rio movement requires room level data.");
-    }
-
-    /// <summary>Ports LowerNorfairRio's initialization AI.</summary>
-    internal void RunLowerNorfairRioInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
-    {
-        InitializeLowerNorfairRio(slot);
     }
 
     /// <summary>Ports LowerNorfairRio's main AI.</summary>

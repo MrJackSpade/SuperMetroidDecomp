@@ -12,12 +12,12 @@ internal sealed class KraidEntity(KraidBehavior species, RoomEnemySlot slot, Ene
     /// <inheritdoc/>
     public EnemyInitializationAiHandler? FindInitialization() => KraidPartDefinitions.Parts[Slot.EnemyDefinitionPointer] switch
     {
-        KraidPart.Kraid => species.RunKraidInitializationAi,
-        KraidPart.Arm => species.RunKraidArmInitializationAi,
+        KraidPart.Kraid => species.InitializeKraidBody,
+        KraidPart.Arm => species.InitializeKraidArm,
         KraidPart.LintTop => species.RunKraidLintTopInitializationAi,
         KraidPart.LintMiddle => species.RunKraidLintMiddleInitializationAi,
         KraidPart.LintBottom => species.RunKraidLintBottomInitializationAi,
-        KraidPart.Foot => species.RunKraidFootInitializationAi,
+        KraidPart.Foot => species.InitializeKraidFoot,
         KraidPart.Nail => species.RunKraidNailInitializationAi,
         KraidPart.NailBad => species.RunKraidNailBadInitializationAi,
         _ => throw new InvalidOperationException($"Kraid entity bound to {Slot.EnemyDefinitionPointer}."),
@@ -37,7 +37,7 @@ internal sealed class KraidEntity(KraidBehavior species, RoomEnemySlot slot, Ene
     /// <inheritdoc/>
     public Action<RoomEnemySlot, EnemyInstructionContext>? FindTypedAnimation() => KraidPartDefinitions.Parts[Slot.EnemyDefinitionPointer] switch
     {
-        KraidPart.Arm or KraidPart.LintTop or KraidPart.LintMiddle or KraidPart.LintBottom or KraidPart.Foot or KraidPart.Nail or KraidPart.NailBad => species.AdvanceKraidTypedAnimation,
+        KraidPart.Arm or KraidPart.LintTop or KraidPart.LintMiddle or KraidPart.LintBottom or KraidPart.Foot or KraidPart.Nail or KraidPart.NailBad => (enemy, _) => species.AdvanceKraidPartAnimation(enemy),
         KraidPart.Kraid => null,
         _ => throw new InvalidOperationException($"Kraid entity bound to {Slot.EnemyDefinitionPointer}."),
     };

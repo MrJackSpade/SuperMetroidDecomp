@@ -8,7 +8,7 @@ internal sealed class SkulteraEntity(SkulteraBehavior species, RoomEnemySlot slo
     : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation
 {
     /// <inheritdoc/>
-    public EnemyInitializationAiHandler? FindInitialization() => SkulteraBehavior.RunSkulteraInitializationAi;
+    public EnemyInitializationAiHandler? FindInitialization() => SkulteraBehavior.InitializeSkultera;
 
     /// <inheritdoc/>
     public EnemyMainAiHandler? FindMain() => species.RunSkulteraMainAi;

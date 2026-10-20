@@ -1,7 +1,4 @@
-﻿using SuperMetroid.Core.Samus;
-using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Programs;
+﻿using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Areas.Ceres.Artwork;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Drawing;
@@ -39,7 +36,7 @@ internal sealed class CeresSteamBehavior : IEnemyEntityFactory
     internal readonly Dictionary<int, AnimationProgramCursor<CeresSteamProgram>> VentPrograms = [];
 
     /// <summary>Runs a vent's typed program where the enemy instruction interpreter would.</summary>
-    private void AdvanceCeresSteamAnimation(RoomEnemySlot slot)
+    internal void AdvanceCeresSteamAnimation(RoomEnemySlot slot)
     {
         if (!EnemyProgramAnimation.Expire(slot))
             return;
@@ -153,22 +150,10 @@ internal sealed class CeresSteamBehavior : IEnemyEntityFactory
         }
     }
 
-    /// <summary>Ports CeresSteam's initialization AI.</summary>
-    internal void RunCeresSteamInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
-    {
-        InitializeCeresSteam(slot);
-    }
-
     /// <summary>Ports CeresSteam's main AI.</summary>
     internal static void RunCeresSteamMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
         RunCeresSteamMain(slot, frame.Mode7Transform);
-    }
-
-    /// <summary>Advances CeresSteam's typed animation.</summary>
-    internal void AdvanceCeresSteamTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _)
-    {
-        AdvanceCeresSteamAnimation(slot);
     }
 
     /// <summary>Registers contact handling only for steam's authored extended hitbox callback.</summary>

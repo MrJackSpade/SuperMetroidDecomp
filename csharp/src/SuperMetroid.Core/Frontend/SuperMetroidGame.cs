@@ -299,7 +299,7 @@ public sealed class SuperMetroidGame
         return CurrentFrame;
     }
 
-    /// <summary>One phase per game state, in native state order; each runs that state's dispatch.</summary>
+    /// <summary>One phase per reachable game state, in native state order; each runs that state's dispatch.</summary>
     [field: NonSerialized]
     private GamePhaseTable Phases => field ??= new GamePhaseTable(
         [
@@ -315,7 +315,6 @@ public sealed class SuperMetroidGame
                 MainLoopRandomCall.Advance,
                 step: (controllerInput, _) => MenuPhases.DispatchGameOptionsMenu(controllerInput),
                 name: () => Session.ActiveOptions.Phase.ToString()),
-            new UnreachableGamePhase(SuperMetroidGameState.Unused03),
             new GamePhase(SuperMetroidGameState.FileSelectMenus,
                 MainLoopRandomCall.AdvanceUnlessResumingWait,
                 step: (controllerInput, _) => MenuPhases.DispatchFileSelectMenus(controllerInput),
@@ -430,8 +429,6 @@ public sealed class SuperMetroidGame
                 MainLoopRandomCall.RuntimeOwned,
                 step: (controllerInput, gameplayAudio) => GameplayPhases.DispatchReserveTanksAuto(controllerInput, gameplayAudio),
                 name: () => nameof(SuperMetroidGameState.ReserveTanksAuto)),
-            new UnreachableGamePhase(SuperMetroidGameState.Unused1c),
-            new UnreachableGamePhase(SuperMetroidGameState.DebugGameOverMenu),
             new GamePhase(SuperMetroidGameState.IntroCinematic,
                 MainLoopRandomCall.Advance,
                 step: (controllerInput, _) => CinematicPhases.DispatchIntroCinematic(controllerInput),
@@ -500,7 +497,8 @@ public sealed class SuperMetroidGame
                 MainLoopRandomCall.RuntimeOwned,
                 step: (controllerInput, gameplayAudio) => AttractPhases.DispatchAttractDemo(controllerInput, gameplayAudio),
                 name: () => nameof(SuperMetroidGameState.TransitionFromDemoB)),
-        ]);
+        ],
+        [SuperMetroidGameState.Unused03, SuperMetroidGameState.Unused1c, SuperMetroidGameState.DebugGameOverMenu]);
 
     /// <summary>Reads the current status without advancing the dispatcher.</summary>
     public FrontendFrame CurrentFrame => new(Session.GameState, PhaseName, FrameNumber);

@@ -14,8 +14,8 @@ internal sealed class DraygonEntity(DraygonBehavior species, RoomEnemySlot slot,
     /// <inheritdoc/>
     public EnemyInitializationAiHandler? FindInitialization() => DraygonPartDefinitions.Parts[Slot.EnemyDefinitionPointer] switch
     {
-        DraygonPart.Body => species.RunDraygonBodyInitializationAi,
-        DraygonPart.Eye or DraygonPart.Tail or DraygonPart.Arms => species.RunDraygonEyeInitializationAi,
+        DraygonPart.Body => species.InitializeDraygonBody,
+        DraygonPart.Eye or DraygonPart.Tail or DraygonPart.Arms => species.InitializeDraygonPart,
         _ => throw new InvalidOperationException($"Draygon entity bound to {Slot.EnemyDefinitionPointer}."),
     };
 

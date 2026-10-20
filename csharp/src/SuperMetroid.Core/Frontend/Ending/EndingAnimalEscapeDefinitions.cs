@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Frontend.Intro.Artwork;
 using SuperMetroid.Core.Assets;
+using System.Diagnostics.CodeAnalysis;
 
 namespace SuperMetroid.Core.Frontend.Ending;
 
@@ -33,6 +34,8 @@ internal sealed class EndingAnimalEscapeDefinitions : IIntroCinematicSpritePrese
     /// <summary>$8C:BC43 starts the priority-three, palette-seven pod tiles $1E0-$1E3.</summary>
     private const ushort FirstAttributes = 0x3fe0;
     /// <summary>Draws the selected one-part pod frame centered on the actor using its authored attributes.</summary>
+    [SuppressMessage("Design", "SME6426", Justification =
+        "The pod frame's attribute word is authored in full, so no palette bits are inherited, and its one small object is placed through ScreenSprites; every other cinematic sprite presentation reads both values.")]
     public void Draw(ushort pointer, ScreenSprites objects, Position16<OamPixels> origin, ushort paletteBits, bool originIsOnScreen)
     {
         int offset = pointer - FrameStart;

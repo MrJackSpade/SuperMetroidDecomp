@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Bosses.Draygon.Artwork;
-using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
@@ -107,7 +106,7 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Ports the independent initializers at <c>$A5:C46B/C599/C5AD</c>.</summary>
-    private void InitializeDraygonPart(RoomEnemySlot part)
+    internal void InitializeDraygonPart(RoomEnemySlot part)
     {
         DraygonEnemyState state = Draygon ??
             throw new InvalidDataException("Draygon part appeared before the body record.");
@@ -1057,18 +1056,6 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
                     throw new InvalidOperationException($"Undefined {nameof(DraygonProjectileCue)} {cue}.");
             }
         });
-    }
-
-    /// <summary>Ports DraygonBody's initialization AI.</summary>
-    internal void RunDraygonBodyInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
-    {
-        InitializeDraygonBody(slot);
-    }
-
-    /// <summary>Ports DraygonEye's initialization AI.</summary>
-    internal void RunDraygonEyeInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
-    {
-        InitializeDraygonPart(slot);
     }
 
     /// <summary>Ports DraygonBody's main AI.</summary>

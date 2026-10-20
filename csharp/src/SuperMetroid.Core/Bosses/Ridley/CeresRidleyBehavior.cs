@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.Core.Areas.Escape;
 using SuperMetroid.Core.Enemies;
@@ -1112,10 +1110,6 @@ internal sealed class CeresRidleyBehavior
             c => ResolveCeresRidleyShotAfterCollision(c.Enemy));
     }
 
-    /// <summary>Ports Ceres Ridley's initialization AI (the bank-$A6 Ridley initializer for the Ceres header).</summary>
-    internal void RunCeresRidleyInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3) =>
-        InitializeCeresRidley(slot);
-
     /// <summary>Ports Ceres Ridley's main dispatcher.</summary>
     internal void RunCeresRidleyMainAi(RoomEnemySlot slot, IEnemyAiFrame frame) =>
         RunCeresRidleyMain(slot, frame.Samus, frame.VramWriteQueue);
@@ -1370,7 +1364,7 @@ internal sealed class CeresRidleyBehavior
             Parameter2: 0);
         RoomEnemySlot wall = _slotTable.Slots[slotIndex];
         _dispatch.InitializeSlotFromDefinition(wall, population, definition);
-        _dispatch.RunInitializationAi(wall);
+        _dispatch.RunInitializationAi(wall, EnemySpawnSurroundings.None);
         _slotTable.EnemyCount = unchecked((ushort)Math.Max(_slotTable.EnemyCount, slotIndex + 1));
         _slotTable.FirstFreeEnemyIndex = unchecked((ushort)((slotIndex + 1) * RoomEnemySystem.NativeSlotSize));
     }

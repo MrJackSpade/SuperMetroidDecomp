@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Programs;
@@ -81,7 +79,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
     public DelayedMusicRequest? LastBotwoonMusicRequest { get; private set; }
 
     /// <summary>Ports <c>Botwoon_Init</c> at <c>$B3:9583</c>.</summary>
-    private void InitializeBotwoon(RoomEnemySlot head)
+    internal void InitializeBotwoon(RoomEnemySlot head)
     {
         var state = new BotwoonEnemyState();
         BotwoonState = state;
@@ -877,12 +875,6 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             RunBotwoonSpitPreInstruction(context.Projectile, context.Camera);
         }, EnemyProjectilePreInstruction.BotwoonsSpit);
-    }
-
-    /// <summary>Ports Botwoon's initialization AI.</summary>
-    internal void RunBotwoonInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
-    {
-        InitializeBotwoon(slot);
     }
 
     /// <summary>Ports Botwoon's main AI.</summary>

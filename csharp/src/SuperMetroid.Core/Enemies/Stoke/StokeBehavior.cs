@@ -1,6 +1,4 @@
-﻿using SuperMetroid.Core.Samus;
-using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Enemies.Stoke.Artwork;
+﻿using SuperMetroid.Core.Enemies.Stoke.Artwork;
 using SuperMetroid.Core.Enemies.Cacatac;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Programs;
@@ -210,12 +208,6 @@ internal sealed class StokeBehavior : IEnemySpecies, IEnemyEntityFactory
             // Stoke shot: horizontal motion and viewport cull.
             RunStokeProjectilePreInstruction(context.Projectile, context.Camera);
         }, EnemyProjectilePreInstruction.StokeFireball);
-    }
-
-    /// <summary>Ports Stoke's initialization AI.</summary>
-    internal static void RunStokeInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
-    {
-        InitializeStoke(slot);
     }
 
     /// <summary>Ports Stoke's main AI.</summary>

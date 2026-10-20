@@ -14,9 +14,9 @@ internal sealed class MotherBrainEntity(MotherBrainBehavior species, RoomEnemySl
     /// <inheritdoc/>
     public EnemyInitializationAiHandler? FindInitialization() => MotherBrainPartDefinitions.Parts[Slot.EnemyDefinitionPointer] switch
     {
-        MotherBrainPart.Body => species.RunMotherBrainBodyInitializationAi,
-        MotherBrainPart.Head => species.RunMotherBrainHeadInitializationAi,
-        MotherBrainPart.Tubes => species.RunMotherBrainTubesInitializationAi,
+        MotherBrainPart.Body => species.InitializeMotherBrainBody,
+        MotherBrainPart.Head => species.InitializeMotherBrainHead,
+        MotherBrainPart.Tubes => species.InitializeMotherBrainFallingTube,
         _ => throw new InvalidOperationException($"MotherBrain entity bound to {Slot.EnemyDefinitionPointer}."),
     };
 
@@ -25,14 +25,14 @@ internal sealed class MotherBrainEntity(MotherBrainBehavior species, RoomEnemySl
     {
         MotherBrainPart.Body => species.RunMotherBrainBodyMainAi,
         MotherBrainPart.Head => species.RunMotherBrainHeadMainAi,
-        MotherBrainPart.Tubes => species.RunMotherBrainTubesMainAi,
+        MotherBrainPart.Tubes => (enemy, _) => species.RunMotherBrainFallingTubeMain(enemy),
         _ => throw new InvalidOperationException($"MotherBrain entity bound to {Slot.EnemyDefinitionPointer}."),
     };
 
     /// <inheritdoc/>
     public Action<RoomEnemySlot, EnemyInstructionContext>? FindTypedAnimation() => MotherBrainPartDefinitions.Parts[Slot.EnemyDefinitionPointer] switch
     {
-        MotherBrainPart.Tubes => species.AdvanceMotherBrainTubesTypedAnimation,
+        MotherBrainPart.Tubes => (enemy, _) => species.AdvanceMotherBrainTubeAnimation(enemy),
         MotherBrainPart.Body or MotherBrainPart.Head => species.AdvanceMotherBrainBodyTypedAnimation,
         _ => throw new InvalidOperationException($"MotherBrain entity bound to {Slot.EnemyDefinitionPointer}."),
     };

@@ -21,8 +21,8 @@ internal sealed class RidleyEntity(
     /// <inheritdoc/>
     public EnemyInitializationAiHandler? FindInitialization() => RidleyPartDefinitions.Parts[Slot.EnemyDefinitionPointer] switch
     {
-        RidleyPart.Ridley => ridley.RunRidleyInitializationAi,
-        RidleyPart.Ceres => ceres.RunCeresRidleyInitializationAi,
+        RidleyPart.Ridley => ridley.InitializeNorfairRidley,
+        RidleyPart.Ceres => ceres.InitializeCeresRidley,
         RidleyPart.Explosion => ridley.RunRidleyExplosionInitializationAi,
         _ => throw new InvalidOperationException($"Ridley entity bound to {Slot.EnemyDefinitionPointer}."),
     };
@@ -32,7 +32,7 @@ internal sealed class RidleyEntity(
     {
         RidleyPart.Ridley => ridley.RunRidleyMainAi,
         RidleyPart.Ceres => ceres.RunCeresRidleyMainAi,
-        RidleyPart.Explosion => ridley.RunRidleyExplosionMainAi,
+        RidleyPart.Explosion => (enemy, _) => ridley.RunNorfairRidleyExplosionMain(enemy),
         _ => throw new InvalidOperationException($"Ridley entity bound to {Slot.EnemyDefinitionPointer}."),
     };
 
@@ -40,7 +40,7 @@ internal sealed class RidleyEntity(
     public Action<RoomEnemySlot, EnemyInstructionContext>? FindTypedAnimation() => RidleyPartDefinitions.Parts[Slot.EnemyDefinitionPointer] switch
     {
         RidleyPart.Ridley or RidleyPart.Ceres => ridley.AdvanceRidleyBodyTypedAnimation,
-        RidleyPart.Explosion => ridley.AdvanceRidleyBreakupTypedAnimation,
+        RidleyPart.Explosion => (enemy, _) => ridley.AdvanceRidleyBreakupAnimation(enemy),
         _ => throw new InvalidOperationException($"Ridley entity bound to {Slot.EnemyDefinitionPointer}."),
     };
 

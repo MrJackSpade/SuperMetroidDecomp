@@ -1,11 +1,9 @@
-using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies.Kago.Artwork;
 using SuperMetroid.Core.Bosses.Kraid;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.Core.Samus;
 
 namespace SuperMetroid.Core.Enemies.Kago;
 
@@ -179,12 +177,6 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
         AnimationProgramCursor<KagoProgram> cursor = state.Program;
         EnemyProgramAnimation.Run(slot, KagoAnimations.Programs, ref cursor, KagoFrameDefinitions.ShownFrames.Of);
         state.Program = cursor;
-    }
-
-    /// <summary>Ports Kago's initialization AI.</summary>
-    internal static void RunKagoInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
-    {
-        InitializeKago(slot);
     }
 
     /// <summary>Ports Kago's main AI.</summary>

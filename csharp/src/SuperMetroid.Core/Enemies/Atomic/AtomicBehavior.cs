@@ -1,6 +1,4 @@
 ﻿using SuperMetroid.Core.Programs;
-using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Enemies.Atomic.Artwork;
 using SuperMetroid.Core.Samus;
 
@@ -112,12 +110,6 @@ internal sealed class AtomicBehavior : IEnemySpecies, IEnemyEntityFactory
     internal static void AdvanceAtomicTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _) =>
         EnemyProgramAnimation.Advance(slot, AtomicAnimations.Programs, AtomicFrameDefinitions.ShownFrames.Of,
             static (AtomicEnemyState state) => state.Program, static (state, cursor) => state.Program = cursor);
-
-    /// <summary>Ports Atomic's initialization AI.</summary>
-    internal static void RunAtomicInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
-    {
-        InitializeAtomic(slot);
-    }
 
     /// <summary>Ports Atomic's main AI.</summary>
     internal static void RunAtomicMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)

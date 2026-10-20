@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies.MamaTurtles.Artwork;
 using System.Diagnostics.CodeAnalysis;
@@ -115,7 +114,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
     public SoundEffectId? LastMamaTurtleSoundEffect { get; private set; }
 
     /// <summary>Ports Mama Turtle initialization AI <c>$A2:8D6C</c>.</summary>
-    private static void InitializeMamaTurtle(RoomEnemySlot slot)
+    internal static void InitializeMamaTurtle(RoomEnemySlot slot)
     {
         var state = new MamaTurtleEnemyState
         {
@@ -135,7 +134,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Ports Baby Turtle initialization AI <c>$A2:8D9D</c>.</summary>
-    private static void InitializeBabyTurtle(RoomEnemySlot slot)
+    internal static void InitializeBabyTurtle(RoomEnemySlot slot)
     {
         var state = new BabyTurtleEnemyState
         {
@@ -858,18 +857,6 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             AfterCommon = c => ResolveBabyTurtleShotAfterCommon(c.Enemy.RequireSpeciesState<BabyTurtleEnemyState>()),
         });
-    }
-
-    /// <summary>Ports MamaTurtle's initialization AI.</summary>
-    internal static void RunMamaTurtleInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
-    {
-        InitializeMamaTurtle(slot);
-    }
-
-    /// <summary>Ports BabyTurtle's initialization AI.</summary>
-    internal static void RunBabyTurtleInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
-    {
-        InitializeBabyTurtle(slot);
     }
 
     /// <summary>Ports MamaTurtle's main AI.</summary>

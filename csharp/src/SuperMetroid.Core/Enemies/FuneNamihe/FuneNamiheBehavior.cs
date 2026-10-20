@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Enemies.FuneNamihe.Artwork;
 using SuperMetroid.Core.Enemies.Cacatac;
 using SuperMetroid.Core.Enemies.Projectiles;
@@ -193,12 +191,6 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
             // Fune/Namihe: directional 8.8 flight and cull.
             RunFuneNamiheFireballPreInstruction(context.Projectile, context.Camera);
         }, EnemyProjectilePreInstruction.NamiFuneFireball);
-    }
-
-    /// <summary>Ports FuneNamihe's initialization AI.</summary>
-    internal static void RunFuneNamiheInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
-    {
-        InitializeFuneNamihe(slot);
     }
 
     /// <summary>Ports FuneNamihe's main AI.</summary>

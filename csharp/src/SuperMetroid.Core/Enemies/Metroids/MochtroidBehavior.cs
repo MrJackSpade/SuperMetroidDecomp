@@ -256,12 +256,6 @@ internal sealed class MochtroidBehavior : IEnemySpecies, IEnemyEntityFactory
         EnemyProgramAnimation.Advance(slot, MochtroidAnimations.Programs, MochtroidFrameDefinitions.ShownFrames.Of,
             static (MochtroidEnemyState state) => state.Program, static (state, cursor) => state.Program = cursor);
 
-    /// <summary>Ports Mochtroid's initialization AI.</summary>
-    internal static void RunMochtroidInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
-    {
-        InitializeMochtroid(slot);
-    }
-
     /// <summary>Ports Mochtroid's main AI.</summary>
     internal void RunMochtroidMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {

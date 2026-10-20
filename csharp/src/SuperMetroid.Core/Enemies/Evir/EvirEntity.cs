@@ -5,13 +5,13 @@ namespace SuperMetroid.Core.Enemies.Evir;
 /// <param name="slot">The slot the enemy occupies.</param>
 /// <param name="common">The shared participation.</param>
 internal sealed class EvirEntity(EvirBehavior species, RoomEnemySlot slot, EnemyCommonParticipation common)
-    : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation, IEnemyPrivateShotCallback
+    : CommonParticipationEnemyEntity(slot, common), IEnemySurroundingsInitialization, IEnemyMainAi, IEnemyTypedAnimation, IEnemyPrivateShotCallback
 {
     /// <inheritdoc/>
-    public EnemyInitializationAiHandler? FindInitialization() => EvirPartDefinitions.Parts[Slot.EnemyDefinitionPointer] switch
+    public EnemySurroundingsInitializationAiHandler? FindSurroundingsInitialization() => EvirPartDefinitions.Parts[Slot.EnemyDefinitionPointer] switch
     {
         EvirPart.Evir => species.RunEvirInitializationAi,
-        EvirPart.Projectile => species.RunEvirProjectileInitializationAi,
+        EvirPart.Projectile => (projectile, _) => species.InitializeEvirProjectile(projectile),
         _ => throw new InvalidOperationException($"Evir entity bound to {Slot.EnemyDefinitionPointer}."),
     };
 

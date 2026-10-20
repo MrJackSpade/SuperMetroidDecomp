@@ -10,13 +10,13 @@ internal sealed class SporeSpawnEntity(SporeSpawnBehavior species, RoomEnemySlot
     : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation, IEnemyExtendedHitboxes, IEnemyPrivateShotCallback
 {
     /// <inheritdoc/>
-    public EnemyInitializationAiHandler? FindInitialization() => species.RunSporeSpawnInitializationAi;
+    public EnemyInitializationAiHandler? FindInitialization() => species.InitializeSporeSpawn;
 
     /// <inheritdoc/>
     public EnemyMainAiHandler? FindMain() => species.RunSporeSpawnMainAi;
 
     /// <inheritdoc/>
-    public Action<RoomEnemySlot, EnemyInstructionContext>? FindTypedAnimation() => species.AdvanceSporeSpawnTypedAnimation;
+    public Action<RoomEnemySlot, EnemyInstructionContext>? FindTypedAnimation() => (enemy, _) => species.AdvanceSporeSpawnAnimation(enemy);
 
     /// <inheritdoc/>
     public bool? FindHitboxCallback(EnemyHitboxProbe probe, out EnemyInteractionCallback? callback)

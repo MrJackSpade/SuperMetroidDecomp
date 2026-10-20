@@ -1,5 +1,4 @@
-﻿using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Programs;
+﻿using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies.Skree.Artwork;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Rooms.LevelData;
@@ -151,12 +150,6 @@ internal sealed class SkreeBehavior : IEnemySpecies, IEnemyEntityFactory
             state.RequestedInstructionIndex));
         slot.InstructionTimer = NativeCountdown.Start(1);
         slot.Timer = NativeCountdown.Start(0);
-    }
-
-    /// <summary>Ports Skree's initialization AI.</summary>
-    internal static void RunSkreeInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
-    {
-        InitializeSkree(slot);
     }
 
     /// <summary>Ports Skree's main AI.</summary>

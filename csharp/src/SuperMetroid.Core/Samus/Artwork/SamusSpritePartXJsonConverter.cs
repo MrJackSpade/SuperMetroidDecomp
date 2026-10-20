@@ -10,6 +10,7 @@ namespace SuperMetroid.Core.Samus.Artwork;
 internal sealed class SamusSpritePartXJsonConverter : JsonConverter<SnesSpritemapXWord>
 {
     /// <summary>Accepts only an unsigned sixteen-bit JSON number; anything else is a malformed document.</summary>
+    [ExternalContract("System.Text.Json's JsonConverter<T>.Read fixes the signature.")]
     public override SnesSpritemapXWord Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
         if (reader.TokenType != JsonTokenType.Number || !reader.TryGetUInt16(out ushort x))

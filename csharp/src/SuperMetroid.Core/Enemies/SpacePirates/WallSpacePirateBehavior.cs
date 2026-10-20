@@ -1,5 +1,4 @@
-﻿using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Programs;
+﻿using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Enemies.SpacePirates.Artwork;
 using SuperMetroid.Core.Rooms.LevelData;
@@ -329,12 +328,6 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
             default:
                 throw new InvalidOperationException($"The wall Space Pirates' animations have no {cue.Kind} cue.");
         }
-    }
-
-    /// <summary>Ports WallSpacePirate's initialization AI.</summary>
-    internal static void RunWallSpacePirateInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
-    {
-        InitializeWallSpacePirate(slot);
     }
 
     /// <summary>Ports WallSpacePirate's main AI.</summary>

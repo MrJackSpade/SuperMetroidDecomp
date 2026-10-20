@@ -8,7 +8,7 @@ internal sealed class WreckedShipGhostEntity(WreckedShipGhostBehavior species, R
     : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation
 {
     /// <inheritdoc/>
-    public EnemyInitializationAiHandler? FindInitialization() => species.RunWreckedShipGhostInitializationAi;
+    public EnemyInitializationAiHandler? FindInitialization() => species.InitializeWreckedShipGhost;
 
     /// <inheritdoc/>
     public EnemyMainAiHandler? FindMain() => species.RunWreckedShipGhostMainAi;

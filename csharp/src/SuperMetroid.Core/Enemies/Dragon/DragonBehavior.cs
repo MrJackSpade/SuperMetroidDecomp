@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies.Dragon.Artwork;
 using SuperMetroid.Core.Enemies.Projectiles;
@@ -325,12 +323,6 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             RunDragonFireballPreInstruction(context.Projectile, context.Camera.Y);
         }, EnemyProjectilePreInstruction.DragonFireball);
-    }
-
-    /// <summary>Ports Dragon's initialization AI.</summary>
-    internal static void RunDragonInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
-    {
-        InitializeDragon(slot);
     }
 
     /// <summary>Ports Dragon's main AI.</summary>

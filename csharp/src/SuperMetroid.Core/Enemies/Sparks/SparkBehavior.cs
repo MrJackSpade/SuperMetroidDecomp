@@ -1,7 +1,4 @@
-﻿using SuperMetroid.Core.Samus;
-using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Programs;
+﻿using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies.Sparks.Artwork;
 using SuperMetroid.Core.Enemies.FallingSparks;
 using SuperMetroid.Core.Progression;
@@ -158,12 +155,6 @@ internal sealed class SparkBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         state.Program = AnimationProgramCursor<SparkProgram>.Start(program);
         slot.InstructionTimer = NativeCountdown.Start(1);
-    }
-
-    /// <summary>Ports Spark's initialization AI.</summary>
-    internal void RunSparkInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
-    {
-        InitializeSpark(slot);
     }
 
     /// <summary>Ports Spark's main AI.</summary>

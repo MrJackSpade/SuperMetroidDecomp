@@ -15,8 +15,8 @@ internal sealed class PhantoonEntity(PhantoonBehavior species, RoomEnemySlot slo
     /// <inheritdoc/>
     public EnemyInitializationAiHandler? FindInitialization() => PhantoonPartDefinitions.Parts[Slot.EnemyDefinitionPointer] switch
     {
-        PhantoonPart.Body => species.RunPhantoonBodyInitializationAi,
-        PhantoonPart.Eye or PhantoonPart.Tentacles or PhantoonPart.Mouth => species.RunPhantoonEyeInitializationAi,
+        PhantoonPart.Body => species.InitializePhantoonBody,
+        PhantoonPart.Eye or PhantoonPart.Tentacles or PhantoonPart.Mouth => species.InitializePhantoonPart,
         _ => throw new InvalidOperationException($"Phantoon entity bound to {Slot.EnemyDefinitionPointer}."),
     };
 
@@ -24,13 +24,15 @@ internal sealed class PhantoonEntity(PhantoonBehavior species, RoomEnemySlot slo
     public EnemyMainAiHandler? FindMain() => PhantoonPartDefinitions.Parts[Slot.EnemyDefinitionPointer] switch
     {
         PhantoonPart.Body => species.RunPhantoonBodyMainAi,
-        PhantoonPart.Eye => PhantoonBehavior.RunPhantoonEyeMainAi,
-        PhantoonPart.Tentacles or PhantoonPart.Mouth => PhantoonBehavior.RunPhantoonTentaclesMainAi,
+        // The eye's main is the literal RTL at the start of bank $A7; the body positions it and its own list animates it.
+        PhantoonPart.Eye => EnemyNoOpAi.Main,
+        // $A7:E011 is a literal RTL; these drawing parts animate through their own bank-$A7 lists.
+        PhantoonPart.Tentacles or PhantoonPart.Mouth => EnemyNoOpAi.Main,
         _ => throw new InvalidOperationException($"Phantoon entity bound to {Slot.EnemyDefinitionPointer}."),
     };
 
     /// <inheritdoc/>
-    public Action<RoomEnemySlot, EnemyInstructionContext>? FindTypedAnimation() => species.AdvancePhantoonTypedAnimation;
+    public Action<RoomEnemySlot, EnemyInstructionContext>? FindTypedAnimation() => (enemy, _) => species.AdvancePhantoonPartAnimation(enemy);
 
     /// <inheritdoc/>
     public bool? FindHitboxCallback(EnemyHitboxProbe probe, out EnemyInteractionCallback? callback) => PhantoonBehavior.FindPhantoonHitboxCallback(Slot, probe, out callback);

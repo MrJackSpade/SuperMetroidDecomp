@@ -1,7 +1,6 @@
 ﻿using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies.Crawlers.Artwork;
 using SuperMetroid.Core.Fx;
-using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Projectiles;
@@ -523,24 +522,20 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
     internal static ushort Negate16(ushort value) => unchecked((ushort)-value);
 
     /// <summary>Ports Sciser's initializer wrapper.</summary>
-    internal static void InitializeSciserAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3) =>
+    internal static void InitializeSciserAi(RoomEnemySlot slot) =>
         InitializeCrawler(slot, CrawlerAnimationFamily.Sciser, speciesInstructionOffset: 8);
 
     /// <summary>Ports Zero's initializer wrapper.</summary>
-    internal static void InitializeZeroAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3) =>
+    internal static void InitializeZeroAi(RoomEnemySlot slot) =>
         InitializeCrawler(slot, CrawlerAnimationFamily.Zero, speciesInstructionOffset: 10);
 
     /// <summary>Ports Viola's initializer wrapper.</summary>
-    internal static void InitializeViolaAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3) =>
+    internal static void InitializeViolaAi(RoomEnemySlot slot) =>
         InitializeCrawler(slot, CrawlerAnimationFamily.Viola, speciesInstructionOffset: 6);
 
     /// <summary>Ports the shared initializer wrapper Zeela, Sova, Zoomer and MZoomer use.</summary>
-    internal static void InitializeSharedCrawlerAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3) =>
+    internal static void InitializeSharedCrawlerAi(RoomEnemySlot slot) =>
         InitializeCrawler(slot, CrawlerAnimationFamily.Shared);
-
-    /// <summary>Ports orange Zoomer's initializer.</summary>
-    internal static void InitializeHZoomerAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3) =>
-        InitializeHZoomer(slot);
 
     /// <summary>Ports the shared crawler main AI.</summary>
     internal void RunCrawlerMainAi(RoomEnemySlot slot, IEnemyAiFrame frame) => RunCrawlerMain(slot, frame.Level);

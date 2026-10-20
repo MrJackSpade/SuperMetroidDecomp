@@ -1,7 +1,4 @@
-﻿using SuperMetroid.Core.Samus;
-using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Programs;
+﻿using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies.Nuclear.Artwork;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Rooms.SpriteObjects;
@@ -343,12 +340,6 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
         AnimationProgramCursor<NuclearWaffleProgram> cursor = state.Program;
         EnemyProgramAnimation.Run(slot, NuclearWaffleAnimations.Programs, ref cursor, NuclearWaffleFrameDefinitions.ShownFrames.Of);
         state.Program = cursor;
-    }
-
-    /// <summary>Ports NuclearWaffle's initialization AI.</summary>
-    internal void RunNuclearWaffleInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
-    {
-        InitializeNuclearWaffle(slot);
     }
 
     /// <summary>Ports NuclearWaffle's main AI.</summary>

@@ -8,7 +8,7 @@ internal sealed class PowampEntity(PowampBehavior species, RoomEnemySlot slot, E
     : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation, IEnemyPrivateShotCallback
 {
     /// <inheritdoc/>
-    public EnemyInitializationAiHandler? FindInitialization() => species.RunPowampInitializationAi;
+    public EnemyInitializationAiHandler? FindInitialization() => species.InitializePowamp;
 
     /// <inheritdoc/>
     public EnemyMainAiHandler? FindMain() => species.RunPowampMainAi;

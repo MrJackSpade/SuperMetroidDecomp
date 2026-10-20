@@ -346,6 +346,46 @@ internal static class AnalyzerTests
         VerifySnippet("class Draw { static int Shape(bool x, bool y) => 0; }", null, null, analyzer, assemblyName: "Other");
     }
 
+    /// <summary>Checks discarded parameters and pure forwarders, with narrow and externally fixed signatures passing (#1374).</summary>
+    internal static void VerifyForwardingContractAnalyzer()
+    {
+        var analyzer = new ForwardingContractAnalyzer();
+        void Expect(string source, string? id = null, string? message = null) =>
+            VerifySnippet(source, id, message, analyzer, assemblyName: ForwardingContractAnalyzer.CheckedAssembly);
+        const string attribute = "[System.AttributeUsage(System.AttributeTargets.All)] sealed class ExternalContractAttribute(string reason) : System.Attribute { }";
+
+        // SME6426: two or more parameters the body never reads, discards and named parameters alike.
+        Expect("class Shutter { int count; void Run(int slot, string? _, object? _1) { count = slot; } }",
+            ForwardingContractAnalyzer.DiscardedParametersId, "_, _1");
+        Expect("class Shutter { static int Run(int slot, int level, int samus) => slot; }", ForwardingContractAnalyzer.DiscardedParametersId, "level, samus");
+        // One unread parameter, an out result, and parameters read through a lambda or nameof pass.
+        Expect("class Shutter { static int Run(int slot, int level) => slot; }");
+        Expect("class Shutter { static bool Run(int slot, out int level) { level = slot; return true; } }");
+        Expect("class Shutter { static System.Func<int> Run(int slot, int level) => () => slot + level; }");
+        Expect("class Shutter { static string Run(int slot, int level) => nameof(slot) + nameof(level); }");
+        // SME6427: one call to the same type passing a strict subset of the parameters unchanged.
+        Expect("class Shutter { void Init(int slot) { } void Run(int slot, int level) => Init(slot); }",
+            ForwardingContractAnalyzer.PureForwarderId, "only passes 1 of its 2 parameters unchanged to 'Init'");
+        Expect("class Shutter { static int Init() => 0; static int Run(int slot) { return Init(); } }", ForwardingContractAnalyzer.PureForwarderId);
+        // Binding a value, passing every parameter, calling another type, or doing more than the call is not a pure forward.
+        Expect("class Kraid { int seen; void Init(int slot, int expected) => seen = slot + expected; void Run(int slot) => Init(slot, 2); }");
+        Expect("class Door { int seen; void Init(int slot, int level) => seen = slot + level; void Run(int slot, int level) => Init(slot, level); }");
+        Expect("class Door { readonly Other other = new(); void Run(int slot, int level) => other.Init(slot); } class Other { public void Init(int slot) { } }");
+        Expect("class Door { int seen; void Init(int slot) { } void Run(int slot, int level) { seen = level; Init(slot); } }");
+        // A declaration without a body reads nothing, even when its parameters have default values.
+        Expect("interface IPalette { void Load(byte[] bytes, int destination = 0, int count = 0); }");
+        // A forwarder with an optional parameter is still a forwarder.
+        Expect("class Door { void Init(int slot) { } void Run(int slot, int level = 0) => Init(slot); }", ForwardingContractAnalyzer.PureForwarderId);
+        // An implementation of an external contract is justified at its one site.
+        const string comparer = " class AllEqual : System.Collections.Generic.IEqualityComparer<int> { {0}public bool Equals(int x, int y) => true; " +
+            "public int GetHashCode(int value) => 0; }";
+        Expect(attribute + comparer.Replace("{0}", "", StringComparison.Ordinal), ForwardingContractAnalyzer.DiscardedParametersId, "x, y");
+        Expect(attribute + comparer.Replace("{0}", "[ExternalContract(\"IEqualityComparer fixes the shape\")] ", StringComparison.Ordinal));
+        Expect(attribute + " class Door { void Init(int slot) { } [ExternalContract(\"engine callback\")] void Run(int slot, int level, int camera) => Init(slot); }");
+        // Other assemblies are not checked.
+        VerifySnippet("class Shutter { static int Run(int slot, int level, int samus) => slot; }", null, null, analyzer, assemblyName: "Other");
+    }
+
     /// <summary>Checks that an integer-coded mode is reported, a quantity is not, and a justified member is not (#1372).</summary>
     internal static void VerifyIntegerCodedModeAnalyzer()
     {

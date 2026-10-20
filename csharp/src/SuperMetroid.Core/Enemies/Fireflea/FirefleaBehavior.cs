@@ -1,6 +1,4 @@
-﻿using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Programs;
+﻿using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies.Fireflea.Artwork;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Rooms;
@@ -161,12 +159,6 @@ internal sealed class FirefleaBehavior : IEnemySpecies, IEnemyEntityFactory
     internal static void AdvanceFirefleaTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _) =>
         EnemyProgramAnimation.Advance(slot, FirefleaAnimations.Programs, FirefleaFrameDefinitions.ShownFrames.Of,
             static (FirefleaEnemyState state) => state.Program, static (state, cursor) => state.Program = cursor);
-
-    /// <summary>Ports Fireflea's initialization AI.</summary>
-    internal void RunFirefleaInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
-    {
-        InitializeFireflea(slot);
-    }
 
     /// <summary>Ports Fireflea's main AI.</summary>
     internal static void RunFirefleaMainAi(RoomEnemySlot slot, IEnemyAiFrame _)

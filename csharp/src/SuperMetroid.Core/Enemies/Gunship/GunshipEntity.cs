@@ -10,8 +10,8 @@ internal sealed class GunshipEntity(GunshipBehavior species, RoomEnemySlot slot,
     /// <inheritdoc/>
     public EnemyInitializationAiHandler? FindInitialization() => GunshipPartDefinitions.Parts[Slot.EnemyDefinitionPointer] switch
     {
-        GunshipPart.ShipTop => species.RunShipTopInitializationAi,
-        GunshipPart.ShipBottomEntrance => species.RunShipBottomEntranceInitializationAi,
+        GunshipPart.ShipTop => species.InitializeGunshipTop,
+        GunshipPart.ShipBottomEntrance => species.InitializeGunshipBottom,
         _ => throw new InvalidOperationException($"Gunship entity bound to {Slot.EnemyDefinitionPointer}."),
     };
 
@@ -24,5 +24,5 @@ internal sealed class GunshipEntity(GunshipBehavior species, RoomEnemySlot slot,
     };
 
     /// <inheritdoc/>
-    public Action<RoomEnemySlot, EnemyInstructionContext>? FindTypedAnimation() => species.AdvanceGunshipTypedAnimation;
+    public Action<RoomEnemySlot, EnemyInstructionContext>? FindTypedAnimation() => (enemy, _) => species.AdvanceGunshipAnimation(enemy);
 }

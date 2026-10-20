@@ -8,7 +8,7 @@ internal sealed class FuneNamiheEntity(FuneNamiheBehavior species, RoomEnemySlot
     : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation
 {
     /// <inheritdoc/>
-    public EnemyInitializationAiHandler? FindInitialization() => FuneNamiheBehavior.RunFuneNamiheInitializationAi;
+    public EnemyInitializationAiHandler? FindInitialization() => FuneNamiheBehavior.InitializeFuneNamihe;
 
     /// <inheritdoc/>
     public EnemyMainAiHandler? FindMain() => FuneNamiheBehavior.RunFuneNamiheMainAi;

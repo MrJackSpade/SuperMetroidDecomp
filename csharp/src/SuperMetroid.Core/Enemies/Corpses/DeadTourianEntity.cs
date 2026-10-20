@@ -8,7 +8,7 @@ internal sealed class DeadTourianEntity(DeadTourianBehavior species, RoomEnemySl
     : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation, IEnemyPrivateShotCallback
 {
     /// <inheritdoc/>
-    public EnemyInitializationAiHandler? FindInitialization() => species.RunDeadTourianInitializationAi;
+    public EnemyInitializationAiHandler? FindInitialization() => species.InitializeDeadTourianCorpse;
 
     /// <inheritdoc/>
     public EnemyMainAiHandler? FindMain() => species.RunDeadTourianMainAi;

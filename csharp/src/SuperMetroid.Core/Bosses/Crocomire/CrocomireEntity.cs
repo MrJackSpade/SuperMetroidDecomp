@@ -14,8 +14,8 @@ internal sealed class CrocomireEntity(CrocomireBehavior species, RoomEnemySlot s
     /// <inheritdoc/>
     public EnemyInitializationAiHandler? FindInitialization() => CrocomirePartDefinitions.Parts[Slot.EnemyDefinitionPointer] switch
     {
-        CrocomirePart.Crocomire => species.RunCrocomireInitializationAi,
-        CrocomirePart.Tongue => species.RunCrocomireTongueInitializationAi,
+        CrocomirePart.Crocomire => species.InitializeCrocomire,
+        CrocomirePart.Tongue => species.InitializeCrocomireTongue,
         _ => throw new InvalidOperationException($"Crocomire entity bound to {Slot.EnemyDefinitionPointer}."),
     };
 
@@ -23,7 +23,8 @@ internal sealed class CrocomireEntity(CrocomireBehavior species, RoomEnemySlot s
     public EnemyMainAiHandler? FindMain() => CrocomirePartDefinitions.Parts[Slot.EnemyDefinitionPointer] switch
     {
         CrocomirePart.Crocomire => species.RunCrocomireMainAi,
-        CrocomirePart.Tongue => CrocomireBehavior.RunCrocomireTongueMainAi,
+        // $A4:F6BB is a literal RTL; the tongue follows the body through its instruction list and extended map.
+        CrocomirePart.Tongue => EnemyNoOpAi.Main,
         _ => throw new InvalidOperationException($"Crocomire entity bound to {Slot.EnemyDefinitionPointer}."),
     };
 
@@ -31,7 +32,7 @@ internal sealed class CrocomireEntity(CrocomireBehavior species, RoomEnemySlot s
     public Action<RoomEnemySlot, EnemyInstructionContext>? FindTypedAnimation() => CrocomirePartDefinitions.Parts[Slot.EnemyDefinitionPointer] switch
     {
         CrocomirePart.Crocomire => species.AdvanceCrocomireTypedAnimation,
-        CrocomirePart.Tongue => species.AdvanceCrocomireTongueTypedAnimation,
+        CrocomirePart.Tongue => (enemy, _) => species.AdvanceCrocomireTongueAnimation(enemy),
         _ => throw new InvalidOperationException($"Crocomire entity bound to {Slot.EnemyDefinitionPointer}."),
     };
 

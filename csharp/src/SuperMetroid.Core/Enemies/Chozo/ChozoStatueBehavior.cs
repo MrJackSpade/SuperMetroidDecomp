@@ -1,5 +1,4 @@
-﻿using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Programs;
+﻿using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies.Chozo.Artwork;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Progression;
@@ -408,18 +407,6 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
     private static RoomLevelData RequireChozoLevel(RoomLevelData? level) =>
         level ?? throw new InvalidOperationException(
             "Chozo statue movement requires the active room level.");
-
-    /// <summary>Ports NoobTubeCrack's initialization AI.</summary>
-    internal void RunNoobTubeCrackInitializationAi(RoomEnemySlot _, RoomLevelData? _1, SamusState? _2, SnesButton _3, ushort _4)
-    {
-        InitializeN00bTubeCracks();
-    }
-
-    /// <summary>Ports Chozo's initialization AI.</summary>
-    internal void RunChozoInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
-    {
-        InitializeChozoStatue(slot);
-    }
 
     /// <summary>Ports ChozoStatue's main AI.</summary>
     internal void RunChozoStatueMainAi(RoomEnemySlot slot, IEnemyAiFrame _)

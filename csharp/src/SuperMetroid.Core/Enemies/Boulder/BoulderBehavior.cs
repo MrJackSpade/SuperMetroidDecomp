@@ -1,5 +1,4 @@
-﻿using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Programs;
+﻿using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies.Boulder.Artwork;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Rooms.LevelData;
@@ -316,12 +315,6 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
     internal static void AdvanceBoulderTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _) =>
         EnemyProgramAnimation.Advance(slot, BoulderAnimations.Programs, BoulderFrameDefinitions.ShownFrames.Of,
             static (BoulderEnemyState state) => state.Program, static (state, cursor) => state.Program = cursor);
-
-    /// <summary>Ports Boulder's initialization AI.</summary>
-    internal static void RunBoulderInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
-    {
-        InitializeBoulder(slot);
-    }
 
     /// <summary>Ports Boulder's main AI.</summary>
     internal void RunBoulderMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)

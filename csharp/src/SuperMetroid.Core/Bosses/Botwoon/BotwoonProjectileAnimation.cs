@@ -5,16 +5,13 @@ using SuperMetroid.Core.Bosses.Botwoon.Artwork;
 namespace SuperMetroid.Core.Bosses.Botwoon;
 
 /// <summary>A Botwoon body segment's or spit's typed animation.</summary>
-internal sealed class BotwoonProjectileAnimation : EnemyProjectileAnimation
+internal sealed class BotwoonProjectileAnimation : EnemyProjectileTimelineAnimation<BotwoonProjectileFrame, NoAnimationCue>
 {
     /// <summary>Uses a segment program when present; null selects the looping spit timeline.</summary>
     private BotwoonProjectileAnimation(BotwoonSegmentProgram? segment) => Segment = segment;
 
     /// <summary>The segment program shown, or null for a spit.</summary>
     internal BotwoonSegmentProgram? Segment { get; private set; }
-
-    /// <summary>The next step of the timeline.</summary>
-    internal int Position { get; private set; }
 
     /// <summary>A spit's cycling animation.</summary>
     internal static BotwoonProjectileAnimation Spit() => new(null);
@@ -34,24 +31,15 @@ internal sealed class BotwoonProjectileAnimation : EnemyProjectileAnimation
         if (Segment == program)
             return false;
         Segment = program;
-        Position = 0;
+        Restart();
         return true;
     }
 
-    /// <summary>Advances the segment or spit timeline and maps its frame to installed projectile artwork.</summary>
-    private protected override bool TryShowNextFrame(
-        EnemyProjectileCueContext context, EnemyProjectileHandlerTable handlers, out int duration, out EnemyProjectileFrameId frame)
-    {
-        var timeline = Segment is { } segment ? BotwoonAnimations.Segment(segment) : BotwoonAnimations.Spit;
-        int position = Position;
-        AnimationAdvance<BotwoonProjectileFrame> advance = timeline.Advance(ref position, NoCues);
-        Position = position;
-        duration = advance.Duration;
-        frame = advance.Held ? default : BotwoonVisualDefinitions.ShownProjectileFrames[advance.Frame];
-        return !advance.Held;
-    }
+    /// <inheritdoc/>
+    private protected override AnimationTimeline<BotwoonProjectileFrame, NoAnimationCue> Timeline =>
+        Segment is { } segment ? BotwoonAnimations.Segment(segment) : BotwoonAnimations.Spit;
 
-    /// <summary>Rejects unexpected timeline cues; Botwoon projectile frames carry only pose and duration.</summary>
-    private static void NoCues(NoAnimationCue cue) =>
-        throw new InvalidOperationException($"A Botwoon projectile timeline published cue {cue}.");
+    /// <inheritdoc/>
+    private protected override EnemyProjectileFrameId Present(BotwoonProjectileFrame frame) =>
+        BotwoonVisualDefinitions.ShownProjectileFrames[frame];
 }

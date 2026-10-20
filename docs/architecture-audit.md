@@ -186,6 +186,18 @@ method groups that escape to a delegate follow their contract and are not report
 read from runtime state, such as saved options, equipment, or per-frame conditions, say so at the member, or for a
 record at its type, with `[IndependentFlag(reason)]`.
 
+## Contracts are as narrow as their implementations
+
+**SME6426** reports, in `SuperMetroid.Core`, a method whose body never reads two or more of its parameters, discards
+and named parameters alike (#1374). **SME6427** reports a method whose whole body is one call to another method of its
+own type, passing a strict subset of its parameters unchanged. Both mean a delegate, interface or base shape is wider
+than the method needs, so the shape is narrowed and the real method is registered directly. An enemy's initialization
+AI takes only its slot; the few species that read the room, Samus, the controller or the camera implement
+`IEnemySurroundingsInitialization` and receive the spawn's `EnemySpawnSurroundings`. A main AI or typed animation that
+needs only the slot is bound with a lambda at its entity, literal-RTL routines share `EnemyNoOpAi`, and cueless PLM
+programs derive from `PlmCuelessProgramAnimation`. A method fulfilling a contract outside the repository, such as a
+`System.Text.Json` converter, says so with `[ExternalContract(reason)]`.
+
 ## Diagnostics are resolved, not disabled
 
 **SME6414** reports every `#pragma warning disable`, whatever diagnostic it names and whatever reason follows it

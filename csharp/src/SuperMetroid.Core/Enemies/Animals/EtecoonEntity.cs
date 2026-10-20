@@ -8,7 +8,7 @@ internal sealed class EtecoonEntity(EtecoonBehavior species, RoomEnemySlot slot,
     : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation
 {
     /// <inheritdoc/>
-    public EnemyInitializationAiHandler? FindInitialization() => EtecoonBehavior.RunEtecoonInitializationAi;
+    public EnemyInitializationAiHandler? FindInitialization() => EtecoonBehavior.InitializeEtecoon;
 
     /// <inheritdoc/>
     public EnemyMainAiHandler? FindMain() => species.RunEtecoonMainAi;

@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies.Alcoon.Artwork;
 using SuperMetroid.Core.Enemies.Projectiles;
@@ -396,9 +395,9 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Ports Alcoon's initialization AI.</summary>
-    internal void RunAlcoonInitializationAi(RoomEnemySlot slot, RoomLevelData? level, SamusState? _, SnesButton _1, ushort _2)
+    internal void RunAlcoonInitializationAi(RoomEnemySlot slot, EnemySpawnSurroundings surroundings)
     {
-        InitializeAlcoon(slot, level);
+        InitializeAlcoon(slot, surroundings.Level);
     }
 
     /// <summary>Ports Alcoon's main AI.</summary>

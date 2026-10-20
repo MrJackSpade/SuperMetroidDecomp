@@ -1,6 +1,3 @@
-using SuperMetroid.Core.Samus;
-using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies.Deaths;
 using SuperMetroid.Core.Enemies;
@@ -260,7 +257,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemySlot spawned = _slotTable.Slots[slotIndex];
         RoomEnemyDefinition definition = _room.LoadedDefinitions.ReadEnemyDefinition(population.DefinitionPointer);
         _dispatch.InitializeSlotFromDefinition(spawned, population, definition);
-        _dispatch.RunInitializationAi(spawned);
+        _dispatch.RunInitializationAi(spawned, EnemySpawnSurroundings.None);
         _slotTable.EnemyCount = unchecked((ushort)Math.Max(_slotTable.EnemyCount, slotIndex + 1));
         _slotTable.FirstFreeEnemyIndex = unchecked((ushort)Math.Max(_slotTable.FirstFreeEnemyIndex, (slotIndex + 1) * RoomEnemySystem.NativeSlotSize));
         return spawned;
@@ -328,12 +325,6 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
             _room.Services.Events.Clear(eventNumber);
     }
 
-    /// <summary>Advances Zebetite's typed animation.</summary>
-    internal static void AdvanceZebetiteTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _)
-    {
-        AdvanceZebetiteAnimation(slot);
-    }
-
     /// <summary>
     /// Runs a half's health program where the enemy instruction interpreter would: its pose shows on the update the
     /// native timer expires, raising the new-frame flag, and the native sleep then keeps it.
@@ -381,12 +372,6 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
             RunsGenericDeath = false,
             AfterCommon = c => ResolveZebetiteShotAfterCommon(c.Enemy),
         });
-    }
-
-    /// <summary>Ports Zebetite's initialization AI.</summary>
-    internal void RunZebetiteInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
-    {
-        InitializeZebetite(slot);
     }
 
     /// <summary>Ports Zebetite's main AI.</summary>

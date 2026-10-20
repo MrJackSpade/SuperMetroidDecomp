@@ -10,8 +10,8 @@ internal sealed class KzanEntity(KzanBehavior species, RoomEnemySlot slot, Enemy
     /// <inheritdoc/>
     public EnemyInitializationAiHandler? FindInitialization() => KzanPartDefinitions.Parts[Slot.EnemyDefinitionPointer] switch
     {
-        KzanPart.Top => species.RunKzanTopInitializationAi,
-        KzanPart.Bottom => species.RunKzanBottomInitializationAi,
+        KzanPart.Top => species.InitializeKzanTop,
+        KzanPart.Bottom => species.InitializeKzanBottom,
         _ => throw new InvalidOperationException($"Kzan entity bound to {Slot.EnemyDefinitionPointer}."),
     };
 
@@ -19,7 +19,7 @@ internal sealed class KzanEntity(KzanBehavior species, RoomEnemySlot slot, Enemy
     public EnemyMainAiHandler? FindMain() => KzanPartDefinitions.Parts[Slot.EnemyDefinitionPointer] switch
     {
         KzanPart.Top => species.RunKzanTopMainAi,
-        KzanPart.Bottom => species.RunKzanBottomMainAi,
+        KzanPart.Bottom => (enemy, _) => species.RunKzanBottomMain(enemy),
         _ => throw new InvalidOperationException($"Kzan entity bound to {Slot.EnemyDefinitionPointer}."),
     };
 

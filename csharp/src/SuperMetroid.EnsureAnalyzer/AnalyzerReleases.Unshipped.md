@@ -21,6 +21,8 @@ SME6422 | Design | Error | IntegerCodedModeAnalyzer
 SME6423 | Design | Error | BoolFlagAnalyzer
 SME6424 | Design | Error | BoolFlagAnalyzer
 SME6425 | Design | Error | BoolFlagAnalyzer
+SME6426 | Design | Error | ForwardingContractAnalyzer
+SME6427 | Design | Error | ForwardingContractAnalyzer
 SME6340 | Design | Warning | CartridgeEncodingAnalyzer
 SME6341 | Design | Warning | CartridgeEncodingAnalyzer
 SME6342 | Design | Warning | CartridgeEncodingAnalyzer

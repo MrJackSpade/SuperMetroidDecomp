@@ -8,7 +8,7 @@ internal sealed class DeadSidehopperEntity(DeadSidehopperBehavior species, RoomE
     : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation, IEnemyPrivateShotCallback
 {
     /// <inheritdoc/>
-    public EnemyInitializationAiHandler? FindInitialization() => species.RunDeadSidehopperInitializationAi;
+    public EnemyInitializationAiHandler? FindInitialization() => species.InitializeDeadSidehopper;
 
     /// <inheritdoc/>
     public EnemyMainAiHandler? FindMain() => species.RunDeadSidehopperMainAi;

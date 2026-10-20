@@ -1,6 +1,4 @@
-﻿using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Bosses.Ridley;
+﻿using SuperMetroid.Core.Bosses.Ridley;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Fx;
@@ -190,7 +188,7 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Dispatches the door's main-AI function.</summary>
-    private void RunCeresDoorMain(RoomEnemySlot slot)
+    internal void RunCeresDoorMain(RoomEnemySlot slot)
     {
         CeresDoorEnemyState state = slot.RequireSpeciesState<CeresDoorEnemyState>();
         CeresDoorFunction function = state.Function
@@ -330,18 +328,6 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory
         // Bits 3..5 of the frame counter: a new row of six colors every eight frames.
         int colorRow = (frame >> 3) % 8;
         SelectedCeresDoorVisual.LoadAnimationColors(_presentation.Cgram, colorRow);
-    }
-
-    /// <summary>Ports CeresDoor's initialization AI.</summary>
-    internal void RunCeresDoorInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
-    {
-        InitializeCeresDoor(slot);
-    }
-
-    /// <summary>Ports CeresDoor's main AI.</summary>
-    internal void RunCeresDoorMainAi(RoomEnemySlot slot, IEnemyAiFrame _)
-    {
-        RunCeresDoorMain(slot);
     }
 
     /// <summary>Advances CeresDoor's typed animation.</summary>

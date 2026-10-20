@@ -8,7 +8,7 @@ internal sealed class MaridiaLargeSnailEntity(MaridiaLargeSnailBehavior species,
     : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation, IEnemyExtendedHitboxes, IEnemyPrivateShotCallback
 {
     /// <inheritdoc/>
-    public EnemyInitializationAiHandler? FindInitialization() => MaridiaLargeSnailBehavior.RunMaridiaLargeSnailInitializationAi;
+    public EnemyInitializationAiHandler? FindInitialization() => MaridiaLargeSnailBehavior.InitializeMaridiaLargeSnail;
 
     /// <inheritdoc/>
     public EnemyMainAiHandler? FindMain() => species.RunMaridiaLargeSnailMainAi;

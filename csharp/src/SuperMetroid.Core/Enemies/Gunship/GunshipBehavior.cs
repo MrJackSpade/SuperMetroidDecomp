@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Enemies.Gunship.Artwork;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Enemies.Artwork;
@@ -95,7 +94,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
     }
 
     /// <summary>Runs a hull or pad piece's typed program where the enemy instruction interpreter would.</summary>
-    private void AdvanceGunshipAnimation(RoomEnemySlot slot)
+    internal void AdvanceGunshipAnimation(RoomEnemySlot slot)
     {
         if (!EnemyProgramAnimation.Expire(slot))
             return;
@@ -103,12 +102,6 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
         EnemyProgramAnimation.Run(slot, GunshipAnimations.Programs, ref cursor, GunshipFrameDefinitions.ShownFrames.Of,
             (cue, _) => throw new InvalidOperationException($"The gunship's programs publish no cue; got {cue}."));
         _shipPrograms[slot.SlotIndex] = cursor;
-    }
-
-    /// <summary>Advances Gunship's typed animation.</summary>
-    internal void AdvanceGunshipTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _)
-    {
-        AdvanceGunshipAnimation(slot);
     }
 
     /// <summary>Initializes the top hull and selects ordinary idle or post-Ceres descent.</summary>
@@ -647,18 +640,6 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
         if (current >= maximum)
             return current;
         return Math.Min(current + 2, maximum);
-    }
-
-    /// <summary>Ports ShipTop's initialization AI.</summary>
-    internal void RunShipTopInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
-    {
-        InitializeGunshipTop(slot);
-    }
-
-    /// <summary>Ports ShipBottomEntrance's initialization AI.</summary>
-    internal void RunShipBottomEntranceInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
-    {
-        InitializeGunshipBottom(slot);
     }
 
     /// <summary>Ports Gunship's main AI.</summary>

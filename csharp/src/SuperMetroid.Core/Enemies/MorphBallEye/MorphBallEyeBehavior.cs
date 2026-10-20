@@ -1,6 +1,4 @@
-﻿using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Programs;
+﻿using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies.MorphBallEye.Artwork;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Enemies.Artwork;
@@ -327,12 +325,6 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
     internal static void AdvanceMorphBallEyeTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _) =>
         EnemyProgramAnimation.Advance(slot, MorphBallEyeAnimations.Programs, MorphBallEyeFrameDefinitions.ShownFrames.Of,
             static (MorphBallEyeEnemyState state) => state.Program, static (state, cursor) => state.Program = cursor);
-
-    /// <summary>Ports MorphBallEye's initialization AI.</summary>
-    internal void RunMorphBallEyeInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
-    {
-        InitializeMorphBallEye(slot);
-    }
 
     /// <summary>Ports MorphBallEye's main AI.</summary>
     internal void RunMorphBallEyeMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)

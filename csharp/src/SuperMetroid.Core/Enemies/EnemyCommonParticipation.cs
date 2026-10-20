@@ -1,7 +1,3 @@
-using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.Core.Samus;
-
 namespace SuperMetroid.Core.Enemies;
 
 /// <summary>
@@ -17,13 +13,13 @@ internal sealed class EnemyCommonParticipation(Func<EnemySharedReactions> reacti
     /// <summary>The common no-op initialization when <paramref name="slot"/>'s header names it; otherwise null.</summary>
     internal static EnemyInitializationAiHandler? FindInitialization(RoomEnemySlot slot) =>
         NoOpRoutine(slot.Definition.Bank, slot.Definition.InitializationAiPointer) is not EnemyCommonNoOpRoutine.None
-            ? NoOpInitialization
+            ? EnemyNoOpAi.Initialization
             : null;
 
     /// <summary>The common no-op main AI when <paramref name="slot"/>'s header names one; otherwise null.</summary>
     internal static EnemyMainAiHandler? FindMain(RoomEnemySlot slot) =>
         NoOpRoutine(slot.Definition.Bank, slot.Definition.MainAiPointer) is not EnemyCommonNoOpRoutine.None
-            ? NoOpMain
+            ? EnemyNoOpAi.Main
             : null;
 
     /// <summary>Decodes a banked header routine pointer as a shared no-op, or None.</summary>
@@ -59,14 +55,4 @@ internal sealed class EnemyCommonParticipation(Func<EnemySharedReactions> reacti
 
     /// <summary>The first power-bomb reaction matching <paramref name="slot"/>, or null.</summary>
     internal EnemyPowerBombReaction? FindPowerBomb(RoomEnemySlot slot) => Reactions.FindPowerBomb(slot);
-
-    /// <summary>The shared initialization no-op.</summary>
-    private static void NoOpInitialization(RoomEnemySlot _, RoomLevelData? _1, SamusState? _2, SnesButton _3, ushort _4)
-    {
-    }
-
-    /// <summary>The shared main-AI no-op.</summary>
-    private static void NoOpMain(RoomEnemySlot _, IEnemyAiFrame _1)
-    {
-    }
 }

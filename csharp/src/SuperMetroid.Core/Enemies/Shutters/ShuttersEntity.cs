@@ -10,9 +10,9 @@ internal sealed class ShuttersEntity(ShuttersBehavior species, RoomEnemySlot slo
     /// <inheritdoc/>
     public EnemyInitializationAiHandler? FindInitialization() => ShuttersPartDefinitions.Parts[Slot.EnemyDefinitionPointer] switch
     {
-        ShuttersPart.ShutterGrowing => ShuttersBehavior.RunShutterGrowingInitializationAi,
-        ShuttersPart.ShutterShootable or ShuttersPart.ShutterDestroyable or ShuttersPart.Kamer => ShuttersBehavior.RunShutterShootableInitializationAi,
-        ShuttersPart.ShutterHorizShootable => ShuttersBehavior.RunShutterHorizShootableInitializationAi,
+        ShuttersPart.ShutterGrowing => ShuttersBehavior.InitializeGrowingShutter,
+        ShuttersPart.ShutterShootable or ShuttersPart.ShutterDestroyable or ShuttersPart.Kamer => ShuttersBehavior.InitializeVerticalShutter,
+        ShuttersPart.ShutterHorizShootable => ShuttersBehavior.InitializeHorizontalShutter,
         _ => throw new InvalidOperationException($"Shutters entity bound to {Slot.EnemyDefinitionPointer}."),
     };
 

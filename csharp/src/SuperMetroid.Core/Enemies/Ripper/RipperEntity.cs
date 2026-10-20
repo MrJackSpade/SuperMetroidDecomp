@@ -10,9 +10,9 @@ internal sealed class RipperEntity(RipperBehavior species, RoomEnemySlot slot, E
     /// <inheritdoc/>
     public EnemyInitializationAiHandler? FindInitialization() => RipperPartDefinitions.Parts[Slot.EnemyDefinitionPointer] switch
     {
-        RipperPart.GRipper => species.RunGRipperInitializationAi,
-        RipperPart.Ripper2 => species.RunRipper2InitializationAi,
-        RipperPart.Ripper => species.RunRipperInitializationAi,
+        RipperPart.GRipper => species.InitializeGRipper,
+        RipperPart.Ripper2 => species.InitializeRipper2,
+        RipperPart.Ripper => species.InitializeRipper,
         _ => throw new InvalidOperationException($"Ripper entity bound to {Slot.EnemyDefinitionPointer}."),
     };
 

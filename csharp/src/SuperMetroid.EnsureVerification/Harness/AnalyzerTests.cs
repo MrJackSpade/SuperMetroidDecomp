@@ -200,6 +200,21 @@ internal static class AnalyzerTests
             throw new InvalidOperationException($"#region and #endregion must each be reported once: {string.Join("; ", regions)}");
     }
 
+    /// <summary>Checks that every pragma warning disable is reported and the sanctioned per-site form is not (#1396).</summary>
+    internal static void VerifyPragmaWarningDisableAnalyzer()
+    {
+        var analyzer = new PragmaWarningDisableAnalyzer();
+        void Expect(string source, string? id = null) => VerifySnippet(source, id, null, analyzer);
+
+        // SME6414: a disable with a reason, without one, and naming several diagnostics.
+        Expect("class C { void M() {\n#pragma warning disable CS0168 // the reason\n int x;\n#pragma warning restore CS0168\n } }", PragmaWarningDisableAnalyzer.Id);
+        Expect("class C { void M() {\n#pragma warning disable CS0168\n int x; } }", PragmaWarningDisableAnalyzer.Id);
+        Expect("#pragma warning disable CS0618, CS0672\nclass C { }", PragmaWarningDisableAnalyzer.Id);
+        // A restore on its own and a justified SuppressMessage pass.
+        Expect("class C { void M() {\n#pragma warning restore CS0168\n } }");
+        Expect("class C { [System.Diagnostics.CodeAnalysis.SuppressMessage(\"Usage\", \"CA1801\", Justification = \"The platform calls it by name.\")] void M(int unused) { } }");
+    }
+
     /// <summary>Checks that only the PLM slot table claims a PLM slot (#1361).</summary>
     internal static void VerifyPlmSlotAllocationAnalyzer()
     {

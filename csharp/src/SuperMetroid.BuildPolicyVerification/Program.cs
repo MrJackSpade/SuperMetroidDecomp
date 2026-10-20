@@ -91,8 +91,7 @@ internal static class Program
                 string line = lines[index];
                 if (!gated.IsMatch(line))
                     continue;
-                if (extension == ".cs" && (line.Contains("#pragma warning disable", StringComparison.Ordinal) ||
-                                           line.Contains("SuppressMessage", StringComparison.Ordinal)))
+                if (extension == ".cs" && line.Contains("SuppressMessage", StringComparison.Ordinal))
                     findings.Add($"{Relative(root, file)}:{index + 1} suppresses a gated diagnostic");
                 else if (extension != ".cs" && (line.Contains("NoWarn", StringComparison.Ordinal) ||
                                                 line.Contains("WarningsNotAsErrors", StringComparison.Ordinal) ||

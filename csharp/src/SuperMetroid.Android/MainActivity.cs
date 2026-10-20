@@ -9,6 +9,10 @@ using SuperMetroid.Core.Frontend;
 using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.Diagnostics.Android;
 using SuperMetroid.Diagnostics.SaveStates;
+using AndroidX.Activity;
+using AndroidX.Activity.Result;
+using AndroidX.Activity.Result.Contract;
+using AndroidX.Core.View;
 
 namespace SuperMetroid.Android;
 
@@ -18,8 +22,12 @@ namespace SuperMetroid.Android;
 /// </summary>
 [Activity(Label = "Super Metroid C# Testing", MainLauncher = true, Exported = true,
     ConfigurationChanges = ConfigChanges.Orientation | ConfigChanges.ScreenSize)]
-public sealed class MainActivity : Activity
+public sealed class MainActivity : ComponentActivity
 {
+    /// <summary>The MIME types the open-document pickers accept: any file, validated after it is chosen.</summary>
+    private static readonly string[] AnyDocument = ["*/*"];
+    /// <summary>The document pickers, registered at creation before the activity can launch any of them.</summary>
+    private AndroidDocumentPickers? documentPickers;
     /// <summary>Installed game's worker and input owner, created only after cartridge setup succeeds.</summary>
     private AndroidGameSession? session;
     /// <summary>Activity lifecycle input to the gameplay and audio run gate.</summary>
@@ -35,6 +43,11 @@ public sealed class MainActivity : Activity
     protected override void OnCreate(Bundle? savedInstanceState)
     {
         base.OnCreate(savedInstanceState);
+        documentPickers = new AndroidDocumentPickers(
+            DiagnosticExport: RegisterDocumentPicker(new ActivityResultContracts.CreateDocument("application/zip"), AndroidDocumentRequest.DiagnosticExport),
+            StateImport: RegisterDocumentPicker(new ActivityResultContracts.OpenDocument(), AndroidDocumentRequest.StateImport),
+            SaveImport: RegisterDocumentPicker(new ActivityResultContracts.OpenDocument(), AndroidDocumentRequest.SaveImport),
+            RomImport: RegisterDocumentPicker(new ActivityResultContracts.OpenDocument(), AndroidDocumentRequest.RomImport));
         ActionBar?.Hide();
         EnterImmersiveMode();
         InitializeHostFocus();
@@ -97,24 +110,12 @@ public sealed class MainActivity : Activity
     private void EnterImmersiveMode()
     {
         if (Window is not { } window) return;
-        if (OperatingSystem.IsAndroidVersionAtLeast(30))
-        {
-            // Edge-to-edge is enforced on newer targets; older releases need the opt-in.
-            if (!OperatingSystem.IsAndroidVersionAtLeast(35)) window.SetDecorFitsSystemWindows(false);
-            if (window.InsetsController is { } controller)
-            {
-                controller.SystemBarsBehavior = (int)WindowInsetsControllerBehavior.ShowTransientBarsBySwipe;
-                controller.Hide(WindowInsets.Type.SystemBars());
-            }
-        }
-        else
-        {
-#pragma warning disable CS0618 // API 26-29 compatibility; modern devices use insets above.
-            window.DecorView.SystemUiVisibility = (StatusBarVisibility)(SystemUiFlags.Fullscreen |
-                SystemUiFlags.HideNavigation | SystemUiFlags.ImmersiveSticky |
-                SystemUiFlags.LayoutFullscreen | SystemUiFlags.LayoutHideNavigation | SystemUiFlags.LayoutStable);
-#pragma warning restore CS0618
-        }
+        // Edge-to-edge is enforced from API 35; earlier releases need the opt-in.
+        if (!OperatingSystem.IsAndroidVersionAtLeast(35)) WindowCompat.SetDecorFitsSystemWindows(window, false);
+        WindowInsetsControllerCompat controller = WindowCompat.GetInsetsController(window, window.DecorView)
+            ?? throw new InvalidOperationException("AndroidX supplied no window insets controller.");
+        controller.SystemBarsBehavior = WindowInsetsControllerCompat.BehaviorShowTransientBarsBySwipe;
+        controller.Hide(WindowInsetsCompat.Type.SystemBars());
     }
 
     /// <summary>Routes mapped controller keys to the session input latch while gameplay can run, and opens the testing menu on Back/Mode release.</summary>
@@ -245,13 +246,8 @@ public sealed class MainActivity : Activity
             {
                 try
                 {
-                    using var intent = new Intent(Intent.ActionCreateDocument);
-                    intent.AddCategory(Intent.CategoryOpenable);
-                    intent.SetType("application/zip");
-                    intent.PutExtra(Intent.ExtraTitle, $"SuperMetroid-diagnostics-{DateTime.Now:yyyyMMdd-HHmmss}.zip");
-#pragma warning disable CS0618 // Plain Activity host; result is handled explicitly below.
-                    StartActivityForResult(intent, (int)AndroidDocumentRequest.DiagnosticExport);
-#pragma warning restore CS0618
+                    LaunchDocumentPicker(AndroidDocumentRequest.DiagnosticExport,
+                        new Java.Lang.String($"SuperMetroid-diagnostics-{DateTime.Now:yyyyMMdd-HHmmss}.zip"));
                 }
                 catch (Exception error) { _ = ShowStateResult(Task.FromException<string>(error)); }
             });
@@ -260,21 +256,26 @@ public sealed class MainActivity : Activity
         dialog2.Show();
     }
 
-#pragma warning disable CS0672, CS0618 // Paired with the document request above; no AndroidX dependency.
+    /// <summary>Registers the picker for <paramref name="request"/>, whose result is routed by <see cref="OnDocumentChosen"/>.</summary>
+    private ActivityResultLauncher RegisterDocumentPicker(ActivityResultContract contract, AndroidDocumentRequest request) =>
+        RegisterForActivityResult(contract, new AndroidDocumentResult(uri => OnDocumentChosen(request, uri)));
+
+    /// <summary>Opens the picker for <paramref name="request"/> with the contract's input: a suggested file name or the accepted MIME types.</summary>
+    private void LaunchDocumentPicker(AndroidDocumentRequest request, Java.Lang.Object input) =>
+        (documentPickers ?? throw new InvalidOperationException("Document pickers are registered when the activity is created."))
+            .For(request).Launch(input);
+
     /// <summary>Routes document-picker results to cartridge setup, private diagnostic export, debugger-state import, or regular-save import.</summary>
-    /// <remarks>Cancelled cartridge selection returns to setup; cancelled export/import returns to the testing menu. Unknown request codes receive only framework handling.</remarks>
-    protected override void OnActivityResult(int requestCode, Result resultCode, Intent? data)
+    /// <remarks>Cancelled cartridge selection returns to setup; cancelled export/import returns to the testing menu.</remarks>
+    private void OnDocumentChosen(AndroidDocumentRequest request, global::Android.Net.Uri? uri)
     {
-        base.OnActivityResult(requestCode, resultCode, data);
-        if (!Enum.IsDefined((AndroidDocumentRequest)requestCode)) return;
-        var request = (AndroidDocumentRequest)requestCode;
         if (request == AndroidDocumentRequest.RomImport)
         {
-            if (resultCode == Result.Ok && data?.Data is { } romUri) _ = ImportRomDocument(romUri);
+            if (uri is not null) _ = ImportRomDocument(uri);
             else ShowRomSetup();
             return;
         }
-        if (resultCode != Result.Ok || data?.Data is not { } uri)
+        if (uri is null)
         {
             menuOpen = false;
             ShowTestingMenu();
@@ -286,10 +287,9 @@ public sealed class MainActivity : Activity
             AndroidDocumentRequest.StateImport => ImportDocument(uri, true),
             AndroidDocumentRequest.SaveImport => ImportDocument(uri, false),
             AndroidDocumentRequest.RomImport => throw new InvalidOperationException("ROM import results are routed to cartridge setup."),
-            _ => throw new InvalidOperationException($"Undefined {nameof(AndroidDocumentRequest)} {(int)request}."),
+            _ => throw new InvalidOperationException($"Undefined {nameof(AndroidDocumentRequest)} {request}."),
         });
     }
-#pragma warning restore CS0672, CS0618
 
     /// <summary>Stages a diagnostic ZIP, copies it to the chosen document, and removes the staging file.</summary>
     private async Task<string> ExportDiagnostics(global::Android.Net.Uri uri)
@@ -452,12 +452,7 @@ public sealed class MainActivity : Activity
             {
                 try
                 {
-                    using var intent = new Intent(Intent.ActionOpenDocument);
-                    intent.AddCategory(Intent.CategoryOpenable);
-                    intent.SetType("*/*");
-#pragma warning disable CS0618 // Plain Activity host without AndroidX; OnActivityResult handles the document result.
-                    StartActivityForResult(intent, (int)(state ? AndroidDocumentRequest.StateImport : AndroidDocumentRequest.SaveImport));
-#pragma warning restore CS0618
+                    LaunchDocumentPicker(state ? AndroidDocumentRequest.StateImport : AndroidDocumentRequest.SaveImport, AnyDocument);
                 }
                 catch (Exception error) { _ = ShowStateResult(Task.FromException<string>(error)); }
             });
@@ -504,12 +499,7 @@ public sealed class MainActivity : Activity
         {
             try
             {
-                using var intent = new Intent(Intent.ActionOpenDocument);
-                intent.AddCategory(Intent.CategoryOpenable);
-                intent.SetType("*/*");
-#pragma warning disable CS0618 // Plain Activity host without AndroidX; OnActivityResult handles the document result.
-                StartActivityForResult(intent, (int)AndroidDocumentRequest.RomImport);
-#pragma warning restore CS0618
+                LaunchDocumentPicker(AndroidDocumentRequest.RomImport, AnyDocument);
             }
             catch (Exception failure) { ShowRomSetup(failure.Message); }
         };

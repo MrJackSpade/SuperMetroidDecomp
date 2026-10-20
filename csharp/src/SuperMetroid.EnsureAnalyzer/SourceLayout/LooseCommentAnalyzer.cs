@@ -84,7 +84,7 @@ public sealed class LooseCommentAnalyzer : DiagnosticAnalyzer
     /// (assembly attributes, the target-framework attribute, framework source generators' output). The repository
     /// authors no generator for these and cannot change their text, so they are not repository source.
     /// </summary>
-    private static bool IsSdkBuildOutput(SyntaxTree tree, CancellationToken cancellation) =>
+    internal static bool IsSdkBuildOutput(SyntaxTree tree, CancellationToken cancellation) =>
         tree.FilePath.Replace('\\', '/').Contains("/obj/", StringComparison.Ordinal) && GeneratedSource.IsGenerated(tree, cancellation);
 
     /// <summary>Whether <paramref name="trivia"/> lies within the span of an executable body.</summary>

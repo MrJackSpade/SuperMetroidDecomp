@@ -41,6 +41,8 @@
   <ItemGroup>
     <!-- Opt-in device probes are excluded from normal player APKs. -->
     <Compile Include="../../tools/android-probes/AudioFocusProbe.cs" Condition="'$(AndroidHostProbes)' == 'true'" />
+    <PackageReference Include="Xamarin.AndroidX.Activity" Version="1.10.1.3" />
+    <PackageReference Include="Xamarin.AndroidX.Core" Version="1.16.0.3" />
     <ProjectReference Include="../SuperMetroid.Core/SuperMetroid.Core.csproj" />
     <ProjectReference Include="../SuperMetroid.Diagnostics/SuperMetroid.Diagnostics.csproj" />
     <ProjectReference Include="../SuperMetroid.AssetExtraction/SuperMetroid.AssetExtraction.csproj" />

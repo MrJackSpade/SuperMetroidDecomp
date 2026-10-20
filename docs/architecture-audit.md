@@ -123,6 +123,15 @@ reviewed same-line `// cartridge-encoding: allow(Class) - reason` and `// magic-
 allowances. Repository generators emit only that marker and document their provenance on the generated type. Files
 the .NET SDK writes into a project's `obj` directory are not repository source and are not analyzed.
 
+## Diagnostics are resolved, not disabled
+
+**SME6414** reports every `#pragma warning disable`, whatever diagnostic it names and whatever reason follows it
+(#1396). A disable hides a finding for a span of source instead of resolving it, so the code is fixed. A genuine false
+positive is justified at its one site with `[SuppressMessage]` and a real `Justification`, which names the rule and the
+reason where reports can find them; that attribute is not reported. `#pragma warning restore` on its own changes
+nothing and is not reported. SME6414 is the one owner of the rule: the build-policy scan checks only that a gated
+diagnostic is not suppressed by attribute or lowered in project configuration.
+
 ## Core source layout
 
 Core is organized by gameplay domain first and then by cohesive feature. Each directory is a module whose

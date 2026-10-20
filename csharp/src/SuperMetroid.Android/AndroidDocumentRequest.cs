@@ -4,11 +4,11 @@ namespace SuperMetroid.Android;
 internal enum AndroidDocumentRequest
 {
     /// <summary>Result for choosing a destination for the private diagnostic ZIP export.</summary>
-    DiagnosticExport = 1,
+    DiagnosticExport,
     /// <summary>Result for selecting a private debugger state to replace the chosen slot.</summary>
-    StateImport = 2,
+    StateImport,
     /// <summary>Result for selecting a JSON regular save to activate on next launch.</summary>
-    SaveImport = 3,
+    SaveImport,
     /// <summary>Result for selecting the user's cartridge during first-launch setup.</summary>
-    RomImport = 4,
+    RomImport,
 }

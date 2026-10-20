@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Fx;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using static SuperMetroid.Verification.Samus.Movement.WallJumpExpansionVerification;
@@ -23,16 +24,16 @@ internal static class WallJumpDustVerification
             samus.Pose = grapple
                 ? facingRight ? SamusPoseId.GrappleWallContactRightPose : SamusPoseId.GrappleWallContactLeftPose
                 : facingRight ? SamusPoseId.SpinJumpRightPose : SamusPoseId.SpinJumpLeftPose;
-            samus.PoseMetadata.RefreshCollisionRadii();
-            samus.Presentation.InitializeAnimation();
+            SamusPoseMetadata.RefreshCollisionRadii(samus);
+            SamusPresentation.InitializeAnimation(samus);
             var liquid = samus.LiquidPhysics;
             liquid.FxYPosition = medium is 1 or 3 ? (ushort)100 : medium == 4 ? (ushort)114 : ushort.MaxValue;
             liquid.LavaAcidYPosition = medium == 2 ? (ushort)100 : ushort.MaxValue;
             liquid.LiquidOptions = medium == 3 ? RoomLiquidOptions.WaterPhysicsDisabledOrHorizontalHeatWave : RoomLiquidOptions.None;
             liquid.AtmosphericEffects.SetSlot(3, 1, 2, 7, new(33, 44));
             liquid.AtmosphericEffects.SetSlot(2, 1, 1, 9, new(55, 66));
-            if (grapple) samus.PoseTransitions.ApplyGrappleWallJump();
-            else samus.PoseTransitions.ApplyWallJumpTrigger();
+            if (grapple) SamusPoseTransitions.ApplyGrappleWallJump(samus);
+            else SamusPoseTransitions.ApplyWallJumpTrigger(samus);
 
             bool suppressed = medium is 1 or 2;
             var dust = liquid.AtmosphericEffects.Slots[3];

@@ -127,7 +127,7 @@ internal static class EnemyGameplayAcceptanceVerification
         EnemyTileArtworkCatalog edited = EnemyTileArtworkFiles.Load(stockPath, overridePath);
         (RoomEnemySystem changed, SnesVram afterVram, SnesCgram afterColors) = Load(edited);
         byte[] expectedVram = beforeVram.Bytes.ToArray();
-        foreach (RoomEnemyGraphicsSetEntry entry in baseline.GraphicsSet
+        foreach (RoomEnemyGraphicsSetEntry entry in baseline.GraphicsSet.Entries
                      .Where(entry => entry.Definition.TileDataAddress == editedDefinition.TileDataAddress &&
                          entry.Definition.TileDataSize == editedDefinition.TileDataSize))
             expectedVram[RoomEnemyRomLayout.VramByteBase + entry.StagingOffset] ^= 0x80;

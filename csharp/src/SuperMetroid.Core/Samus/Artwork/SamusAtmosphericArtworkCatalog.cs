@@ -34,8 +34,8 @@ public sealed class SamusAtmosphericArtworkCatalog
             if (sharedTypeFour[frame] != SamusAtmosphericArtworkDefinitions.Attributes(false, frame))
                 this.sharedTypeFour.Add(frame, sharedTypeFour[frame]);
         }
-        TypeOne = new FrameSequence(this, AtmosphericFrameList.Footsteps);
-        SharedTypeFour = new FrameSequence(this, AtmosphericFrameList.SharedLavaDust);
+        TypeOne = [.. Enumerable.Range(0, SamusMovementRomData.Environment.DirectAtmosphericFrameCount).Select(frame => Resolve(true, frame))];
+        SharedTypeFour = [.. Enumerable.Range(0, SamusMovementRomData.Environment.DirectAtmosphericFrameCount).Select(frame => Resolve(false, frame))];
     }
 
     /// <summary>SHA-256 of both selected atmospheric small-OBJ lists.</summary>
@@ -70,21 +70,4 @@ public sealed class SamusAtmosphericArtworkCatalog
     private ushort Resolve(bool footstep, int frame) =>
         (footstep ? typeOne : sharedTypeFour).TryGetValue(frame, out ushort attributes)
             ? attributes : SamusAtmosphericArtworkDefinitions.Attributes(footstep, frame);
-
-    /// <summary>Read-only four-frame view over one selected atmospheric attribute list.</summary>
-    private sealed class FrameSequence(SamusAtmosphericArtworkCatalog owner, AtmosphericFrameList list) : IReadOnlyList<ushort>
-    {
-        /// <summary>The native direct-attribute list has four animation positions.</summary>
-        public int Count => SamusMovementRomData.Environment.DirectAtmosphericFrameCount;
-        /// <summary>Resolves a bounded frame from its owning footstep or shared lava/dust list.</summary>
-        public ushort this[int index] => (uint)index < Count
-            ? owner.Resolve(list == AtmosphericFrameList.Footsteps, index) : throw new ArgumentOutOfRangeException(nameof(index));
-        /// <summary>Yields selected attribute words in animation-frame order.</summary>
-        public IEnumerator<ushort> GetEnumerator()
-        {
-            for (int frame = 0; frame < Count; frame++) yield return this[frame];
-        }
-        /// <summary>Exposes the same attribute sequence to non-generic consumers.</summary>
-        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
-    }
 }

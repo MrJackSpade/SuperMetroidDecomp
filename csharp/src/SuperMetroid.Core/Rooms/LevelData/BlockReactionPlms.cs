@@ -10,17 +10,17 @@ namespace SuperMetroid.Core.Rooms.LevelData;
 [RoomLifetime]
 internal sealed class BlockReactionPlms
 {
-    /// <summary>Provides room-specific state used when block reaction programs are installed.</summary>
-    private readonly PlmRoomBindings _bindings;
+    /// <summary>The room's area.</summary>
+    private readonly AreaId _area;
     /// <summary>Handles the animal-escape reaction reserved by the shot-block BTS table.</summary>
     private readonly EscapeAnimalPlms _escapeAnimals;
     /// <summary>Allocates reaction PLMs in descending native slot order.</summary>
     private readonly PlmSlotTable _slotTable;
 
     /// <summary>Connects block reactions to the active room, escape-animal branch, and shared PLM pool.</summary>
-    internal BlockReactionPlms(PlmRoomBindings bindings, EscapeAnimalPlms escapeAnimals, PlmSlotTable slotTable)
+    internal BlockReactionPlms(AreaId area, EscapeAnimalPlms escapeAnimals, PlmSlotTable slotTable)
     {
-        _bindings = bindings;
+        _area = area;
         _escapeAnimals = escapeAnimals;
         _slotTable = slotTable;
     }
@@ -154,7 +154,7 @@ internal sealed class BlockReactionPlms
         Ensure.NotNull(samus);
         if (!SpeedBoosterBlockPlmDefinitions.TryResolve(
                 bts,
-                _bindings.Area,
+                _area,
                 out SpeedBoosterBlockPlmDefinition definition))
         {
             return false;

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Runtime;
@@ -32,8 +33,8 @@ internal static class CollectibleMessageTimingVerification
         samus.Position = samus.Position.WithWhole(new(1296, 110));
         samus.Health = 49;
         samus.MaxHealth = 99;
-        samus.PoseMetadata.RefreshCollisionRadii();
-        samus.Presentation.InitializeAnimation();
+        SamusPoseMetadata.RefreshCollisionRadii(samus);
+        SamusPresentation.InitializeAnimation(samus);
         runtime.StepFrame(0);
         runtime.StepFrame(0);
         var item = runtime.Plms.CollectiblePlms.Collectibles.Single(i => i.Kind == InWorldCollectibleKind.EnergyTank);

@@ -77,7 +77,7 @@ internal sealed class GameplayHudSetup
         // queueing the source records here makes enemy art win again at the accepted NMI.
         // Before the gameplay runtime's first room there is no enemy population to upload.
         if (_room.Scope?.Enemies is { IsLoaded: true } enemies)
-            enemies.PopulationLoader.QueueGraphicsUploads(_vramWrites);
+            enemies.GraphicsSet.QueueGraphicsUploads(_vramWrites);
 
         // The immutable first row bypasses WRAM and is DMAed straight from $80:988B.
         if (_artwork.MapPresentation is null)

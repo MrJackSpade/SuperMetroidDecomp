@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Drawing;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Frontend;
@@ -33,8 +34,8 @@ internal static class XrayNoFxDarkeningVerification
         var samus = runtime.Player.IntroducedSamus;
         samus.Pose = SamusPoseId.FacingRightNormalPose;
         samus.Kinematics.YSpeed = default;
-        samus.PoseMetadata.RefreshCollisionRadii();
-        samus.Presentation.InitializeAnimation();
+        SamusPoseMetadata.RefreshCollisionRadii(samus);
+        SamusPresentation.InitializeAnimation(samus);
         AssertTrue(samus.Xray.TryBegin(samus, SamusMovementType.Standing, new XrayBeginConditions { GameState = SuperMetroidGameState.MainGameplay }), "fixture enters X-ray");
         // The closed-beam setup state makes the selected pixels unambiguously outside.
         samus.Xray.SetupStage = XraySetupStage.ReadBg1FirstScreen;

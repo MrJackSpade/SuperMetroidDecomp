@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
@@ -53,8 +54,8 @@ internal static class AlcoonInstructionProgramDefinitionsVerification
             Pose = SamusPoseId.FacingRightNormalPose,
             Position = FixedPosition<RoomPixels>.FromWhole(new(unchecked((ushort)(actor.Position.X.Whole + 1)), state.LandingPosition.Y)),
         };
-        samus.PoseMetadata.RefreshCollisionRadii();
-        samus.Presentation.InitializeAnimation();
+        SamusPoseMetadata.RefreshCollisionRadii(samus);
+        SamusPresentation.InitializeAnimation(samus);
 
         bool sawLeftFireball = false;
         bool sawRightFireball = false;

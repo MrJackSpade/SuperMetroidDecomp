@@ -8,13 +8,22 @@ namespace SuperMetroid.Core.Rooms.Plms;
 [RoomLifetime]
 internal sealed class SpeedBoosterEscapePlms
 {
-    /// <summary>Live room owners for Samus, events, layer 3 FX, and earthquake timing.</summary>
-    private readonly PlmRoomBindings _bindings;
+    /// <summary>Samus as the room reads and changes her.</summary>
+    private readonly IRoomSamusAccess? _samus;
+    /// <summary>The game's event flags.</summary>
+    private readonly IGlobalEventFlags? _events;
+    /// <summary>The room's layer-3 FX.</summary>
+    private readonly RoomLayer3FxState? _roomFx;
+    /// <summary>The room's earthquake.</summary>
+    private readonly IRoomEarthquakeWriter? _earthquake;
 
     /// <summary>Binds the escape PLM behavior to its room-level state owners.</summary>
-    internal SpeedBoosterEscapePlms(PlmRoomBindings bindings)
+    internal SpeedBoosterEscapePlms(IRoomSamusAccess? samus, IGlobalEventFlags? events, RoomLayer3FxState? roomFx, IRoomEarthquakeWriter? earthquake)
     {
-        _bindings = bindings;
+        _samus = samus;
+        _events = events;
+        _roomFx = roomFx;
+        _earthquake = earthquake;
     }
 
     /// <summary>
@@ -23,13 +32,13 @@ internal sealed class SpeedBoosterEscapePlms
     /// </summary>
     internal void SetupSpeedBoosterEscapeSlot(PlmSlot slot)
     {
-        if (_bindings.Events is null || _bindings.RoomFx is null || _bindings.Earthquake is null)
+        if (_events is null || _roomFx is null || _earthquake is null)
         {
             throw new InvalidOperationException(
                 "Speed Booster escape PLM requires event, room-FX, and earthquake owners.");
         }
 
-        if (_bindings.Events.Has(EventNumber.OutranSpeedBoosterLavaquake))
+        if (_events.Has(EventNumber.OutranSpeedBoosterLavaquake))
             slot.Clear();
         else
             slot.StartAnimation(new SpeedBoosterEscapePlmAnimation());
@@ -38,10 +47,10 @@ internal sealed class SpeedBoosterEscapePlms
     /// <summary>Dispatches the exact callback pointer installed by the cartridge list.</summary>
     internal void RunSpeedBoosterEscapePreInstruction(PlmSlot slot, SpeedBoosterEscapePreInstruction preInstruction)
     {
-        RoomLayer3FxState fx = _bindings.RoomFx
+        RoomLayer3FxState fx = _roomFx
             ?? throw new InvalidOperationException(
                 "Resident Speed Booster escape PLM lost its room-FX owner.");
-        SamusState samus = _bindings.Samus?.Current
+        SamusState samus = _samus?.Current
             ?? throw new InvalidOperationException(
                 "Resident Speed Booster escape PLM has no live Samus owner.");
 
@@ -81,7 +90,7 @@ internal sealed class SpeedBoosterEscapePlms
                 targetYPosition: ushort.MaxValue,
                 packedYVelocity: 0,
                 timer: 0);
-            (_bindings.Earthquake ?? throw new InvalidOperationException(
+            (_earthquake ?? throw new InvalidOperationException(
                 "Speed Booster escape PLM lost its earthquake owner.")).SetTimer(0);
             slot.Clear();
             return;
@@ -109,7 +118,7 @@ internal sealed class SpeedBoosterEscapePlms
             SpeedBoosterEscapeStageDefinitions.Resolve(checked((ushort)slot.LoopTimer));
         if (stage is null)
         {
-            (_bindings.Events ?? throw new InvalidOperationException(
+            (_events ?? throw new InvalidOperationException(
                 "Speed Booster escape PLM lost its event writer.")).Set(
                     EventNumber.OutranSpeedBoosterLavaquake);
             return;

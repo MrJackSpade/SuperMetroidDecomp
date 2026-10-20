@@ -223,9 +223,9 @@ internal static class EndingExplosionSpriteArtworkVerification
                 scene.Phase != EndingCreditsPhase.PlanetEscapeFast && !visible; frame++)
             {
                 scene.BindObjectArtwork(stock);
-                LayeredRenderSnapshot before = scene.Presentation.CaptureRenderSnapshot();
+                LayeredRenderSnapshot before = EndingCreditsPresentation.CaptureRenderSnapshot(scene);
                 scene.BindObjectArtwork(edited);
-                LayeredRenderSnapshot after = scene.Presentation.CaptureRenderSnapshot();
+                LayeredRenderSnapshot after = EndingCreditsPresentation.CaptureRenderSnapshot(scene);
                 visible = !before.Memory.SpriteParts().SequenceEqual(after.Memory.SpriteParts()) &&
                     !SoftwareLayeredSnapshotRenderer.Render(before).SequenceEqual(
                         SoftwareLayeredSnapshotRenderer.Render(after));

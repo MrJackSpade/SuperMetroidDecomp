@@ -16,9 +16,9 @@ internal static class KnockbackHorizontalStopVerification
         foreach (bool right in new[] { false, true })
         {
             var samus = new SamusState { Pose = SamusPoseId.FacingLeftNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(100, 100)) };
-            samus.PoseMetadata.RefreshCollisionRadii();
+            SamusPoseMetadata.RefreshCollisionRadii(samus);
             SamusKnockbackMovement.Start(samus, 0, new KnockbackLaunch { KnockbackXDirection = right ? KnockbackHorizontalDirection.Right : KnockbackHorizontalDirection.Left }, level: level);
-            samus.PoseMetadata.RefreshCollisionRadii();
+            SamusPoseMetadata.RefreshCollisionRadii(samus);
             samus.Kinematics.InteractiveEnemies =
             [new SolidEnemyCollisionBody(0, new((ushort)(right ? 111 : 89), 100), new(5, 8), false, new EnemyPropertyWord(EnemyProperties.SolidToSamus))];
             uint clippedBefore = samus.Kinematics.Position.X.RawValue;

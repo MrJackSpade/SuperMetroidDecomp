@@ -3,6 +3,7 @@
 /// <summary>
 /// Visual state of the room's shot-reactive PLM blocks.
 /// </summary>
+[ArchitectureReview("context-bag", "The installed PLM visual catalogs a host binds; every member is immutable artwork data, not a service.")]
 internal sealed class PlmShotBlockVisuals
 {
     /// <summary>Nonserialized visual-only shot-block selection; native collision words remain compiled.</summary>

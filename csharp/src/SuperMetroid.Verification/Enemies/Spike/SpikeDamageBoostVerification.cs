@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Runtime;
@@ -35,9 +36,9 @@ internal static class SpikeDamageBoostVerification
         samus.Health = 99;
         samus.EquippedItems = SamusEquipmentFlags.MorphBall;
         samus.Pose = SamusPoseId.MorphBallGroundRightPose;
-        samus.PoseMetadata.RefreshCollisionRadii();
-        samus.Presentation.InitializeAnimation();
-        samus.Presentation.SetAnimationFrameFromSpecialHandler(0, 1);
+        SamusPoseMetadata.RefreshCollisionRadii(samus);
+        SamusPresentation.InitializeAnimation(samus);
+        SamusPresentation.SetAnimationFrameFromSpecialHandler(samus, 0, 1);
         samus.Position = samus.Position.WithWhole(new(128, 160));
         samus.Kinematics.Position = samus.Kinematics.Position.WithFractionX(0).WithFractionY(0);
 
@@ -69,8 +70,8 @@ internal static class SpikeDamageBoostVerification
         samus = runtime.Player.Samus;
         (samus ?? throw new InvalidOperationException("Verification requires samus.")).Control.Unlock();
         samus.Pose = SamusPoseId.KnockbackRightPose;
-        samus.PoseMetadata.RefreshCollisionRadii();
-        samus.Presentation.InitializeAnimation();
+        SamusPoseMetadata.RefreshCollisionRadii(samus);
+        SamusPresentation.InitializeAnimation(samus);
         samus.Position = samus.Position.WithWholeX(83);
         samus.Kinematics.Position = samus.Kinematics.Position.WithFractionX(0x4000);
         samus.Position = samus.Position.WithWholeY(232);
@@ -129,7 +130,7 @@ internal static class SpikeDamageBoostVerification
         samus.KnockbackActive = false;
         samus.KnockbackTimer = NativeCountdown.Start(0);
         samus.KnockbackDirection = 0;
-        samus.HorizontalSpeed.ClearHorizontalMomentum(samus.PoseMetadata.ReadFacingDirection());
+        samus.HorizontalSpeed.ClearHorizontalMomentum(SamusPoseMetadata.ReadFacingDirection(samus));
         foreach (SamusPoseId retainedPose in new SamusPoseId[]
         {
             SamusPoseId.FacingRightNormalPose, SamusPoseId.FacingLeftNormalPose,
@@ -139,15 +140,15 @@ internal static class SpikeDamageBoostVerification
         })
         {
             samus.Pose = retainedPose;
-            samus.PoseMetadata.RefreshCollisionRadii();
-            samus.Presentation.InitializeAnimation();
-            samus.Presentation.SetAnimationFrameFromSpecialHandler(0, 5);
+            SamusPoseMetadata.RefreshCollisionRadii(samus);
+            SamusPresentation.InitializeAnimation(samus);
+            SamusPresentation.SetAnimationFrameFromSpecialHandler(samus, 0, 5);
             samus.Position = samus.Position.WithWholeY(200);
             samus.Kinematics.Position = samus.Kinematics.Position.WithFractionY(0);
             samus.Kinematics.YDirection = SamusVerticalDirection.Down;
             samus.PoseHistory.PreviousPose = retainedPose;
             samus.PoseHistory.PreviousDirectionAndMovement =
-                SnesLittleEndian.Word((byte)(samus.PoseMetadata.IsFacing(SamusFacingDirection.Left) ? 4 : 8), (byte)samus.PoseMetadata.ReadMovementType());
+                SnesLittleEndian.Word((byte)(SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left) ? 4 : 8), (byte)SamusPoseMetadata.ReadMovementType(samus));
             samus.PoseHistory.LastDifferentPose = SamusPoseId.NormalLandingRightPose;
             // Standing must have floor support; spin stays above that floor. Held Jump
             // without a new edge selects definition fallback rather than a fresh jump.
@@ -163,9 +164,9 @@ internal static class SpikeDamageBoostVerification
         // Native carry mode 6 / water / forward / delay 11, end of frame 25.
         // Contact with the floor and the final F8 turn command coincide next frame.
         samus.Pose = SamusPoseId.TurningRightToLeftFallingPose;
-        samus.PoseMetadata.RefreshCollisionRadii();
-        samus.Presentation.InitializeAnimation();
-        samus.Presentation.SetAnimationFrameFromSpecialHandler(2, 1);
+        SamusPoseMetadata.RefreshCollisionRadii(samus);
+        SamusPresentation.InitializeAnimation(samus);
+        SamusPresentation.SetAnimationFrameFromSpecialHandler(samus, 2, 1);
         samus.LiquidPhysics.ConfigureWater(8);
         samus.Position = samus.Position.WithWholeX(99);
         samus.Kinematics.Position = samus.Kinematics.Position.WithFractionX(0x3800);

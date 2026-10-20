@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Palettes;
@@ -147,14 +148,14 @@ public sealed class SamusCrystalFlashState
 
         // `$90:D5ED-$D600` considers direction byte four left and every other value right.
         // Read that byte from the source pose before replacing it with Crystal Flash art.
-        bool facingLeft = samus.PoseMetadata.IsFacing(SamusFacingDirection.Left);
+        bool facingLeft = SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left);
         samus.Pose = facingLeft
             ? SamusPoseId.CrystalFlashLeftPose
             : SamusPoseId.CrystalFlashRightPose;
-        samus.PoseMetadata.RefreshCollisionRadii();
-        if (samus.PoseMetadata.ReadMovementKind() != SamusMovementType.Special)
+        SamusPoseMetadata.RefreshCollisionRadii(samus);
+        if (SamusPoseMetadata.ReadMovementKind(samus) != SamusMovementType.Special)
             throw new InvalidDataException("ROM pose $D3/$D4 no longer has movement type $1B.");
-        samus.Presentation.InitializeAnimation(initialFrame: 0);
+        SamusPresentation.InitializeAnimation(samus, initialFrame: 0);
         // Successful HDMA-owned activation publishes history directly, before
         // installing its movement handler. Rejected activation must not shift it.
         samus.CommitPoseHistory();
@@ -257,7 +258,7 @@ public sealed class SamusCrystalFlashState
 
         // The delay program is already on its raise loop, but the movement handler forces
         // frame six and timer three so main art begins on this precise transition frame.
-        samus.Presentation.SetAnimationFrameFromSpecialHandler(frame: 6, timer: 3);
+        SamusPresentation.SetAnimationFrameFromSpecialHandler(samus, frame: 6, timer: 3);
         RaisedPosition = Position16<RoomPixels>.Zero.WithY(samus.Position.Y.Whole);
         Phase = CrystalFlashPhase.DrainingAmmo;
         BubbleHdmaRequested = true;
@@ -315,7 +316,7 @@ public sealed class SamusCrystalFlashState
         // `$90:D742-$D757` switches to finish art directly; it does not wait for the main
         // four-frame animation loop to reach a command byte.
         Phase = CrystalFlashPhase.Finishing;
-        samus.Presentation.SetAnimationFrameFromSpecialHandler(frame: 12, timer: 3);
+        SamusPresentation.SetAnimationFrameFromSpecialHandler(samus, frame: 12, timer: 3);
     }
 
     /// <summary>Waits for standing pose after the finish art, then releases input locks and requests palette restoration.</summary>
@@ -330,7 +331,7 @@ public sealed class SamusCrystalFlashState
         // The ROM delay list ends in `$FD,$01/$02`; pose transition occurs after movement.
         // Therefore cleanup naturally happens on the following beta pass, once type zero is
         // observable here, and that frame performs no ordinary standing movement.
-        if (samus.PoseMetadata.ReadMovementKind() != SamusMovementType.Standing)
+        if (SamusPoseMetadata.ReadMovementKind(samus) != SamusMovementType.Standing)
             return;
 
         SpecialPaletteTimer = NativeCountdown.Start(ushort.MaxValue);

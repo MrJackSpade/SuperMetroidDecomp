@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using System.Security.Cryptography;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -185,6 +186,7 @@ public static class ProjectilePresentationFiles
     private sealed record Manifest(int Version, string RomSha256, string ContentSha256, Dictionary<string, string> BeamHashes, string PaletteSha256, string HyperBeamFxColorsSha256, string TrailSha256, string TrailTilesSha256, string FlarePlacementSha256, string FlareCompositionsSha256, string GrappleTilesSha256, string GrappleSpritesSha256, string GrappleFlareSha256, string GrappleSwingSha256, string FrameBindingsSha256);
 
     /// <summary>The extracted projectile presentation files whose contents form the presentation identity (#633).</summary>
+    [ArchitectureReview("context-bag", "The projectile presentation's source files read for one extraction; every member is file content, not a service.")]
     private sealed record ProjectilePresentationSourceFiles
     {
         /// <summary>Enemy projectile OAM compositions keyed by native frame.</summary>

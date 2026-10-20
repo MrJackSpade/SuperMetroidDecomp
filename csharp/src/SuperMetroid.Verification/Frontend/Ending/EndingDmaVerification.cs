@@ -31,12 +31,12 @@ internal static class EndingDmaVerification
         for (int call = 0; call <= EndingCreditsRomData.SetupNmiWaits; call++)
             ending.Step();
         AssertEqual(EndingCreditsPhase.WaitForEscapeMusic, ending.Phase, "ending setup completes after its NMI waits");
-        var projection = ending.Presentation.CaptureRenderSnapshot().LayersOf<SuperMetroid.Core.Rendering.Mode7RenderLayer>().Single().Registers;
+        var projection = EndingCreditsPresentation.CaptureRenderSnapshot(ending).LayersOf<SuperMetroid.Core.Rendering.Mode7RenderLayer>().Single().Registers;
         AssertEqual((short)0, projection.Scroll.X, "native atmospheric scroll X");
         AssertEqual((short)0, projection.Scroll.Y, "native atmospheric scroll Y");
         AssertEqual((short)45, projection.MatrixA, "native initial angle 32, scale 64 cosine");
         AssertEqual((short)45, projection.MatrixB, "native initial angle 32, scale 64 sine");
-        var memory = ending.Presentation.CaptureRenderSnapshot().Memory;
+        var memory = EndingCreditsPresentation.CaptureRenderSnapshot(ending).Memory;
         byte[] interleaved = RomDataReader.Decompress(bus, 0x99d17e, 0x8000);
         byte[] characters = RomDataReader.Decompress(bus, 0x98bcd6, 0x8000);
         // $8B:D4FC/D51C use mode-1 DMA to both ports; D55C then overwrites
@@ -54,7 +54,7 @@ internal static class EndingDmaVerification
         }
         AssertEqual(EndingCreditsPhase.Credits, ending.Phase, "ending reaches credits setup");
         byte[] reward = RomDataReader.Decompress(bus, 0x97b957, 0x8000);
-        AssertTrue(reward.AsSpan(0, 0x4000).SequenceEqual(ending.Presentation.CaptureRenderSnapshot().Memory.Vram[..0x4000]),
+        AssertTrue(reward.AsSpan(0, 0x4000).SequenceEqual(EndingCreditsPresentation.CaptureRenderSnapshot(ending).Memory.Vram[..0x4000]),
             "native post-credits reward DMA writes contiguous bytes, not the Mode-7 high lane");
     }
 

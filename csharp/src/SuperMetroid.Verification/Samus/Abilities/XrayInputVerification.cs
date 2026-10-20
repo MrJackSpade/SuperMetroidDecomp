@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Hardware;
@@ -32,8 +33,8 @@ internal static class XrayInputVerification
         var samus = runtime.Player.IntroducedSamus;
         samus.Control.Unlock();
         samus.Pose = SamusPoseId.FacingRightNormalPose;
-        samus.PoseMetadata.RefreshCollisionRadii();
-        samus.Presentation.InitializeAnimation();
+        SamusPoseMetadata.RefreshCollisionRadii(samus);
+        SamusPresentation.InitializeAnimation(samus);
         // The platform's lowest position is a Morph-only tunnel. Standing there
         // embeds the torso in terrain and cannot validate a visible X-ray beam.
         // Use the open floor in the Scope chamber instead.
@@ -134,12 +135,12 @@ internal static class XrayInputVerification
             runtime.LoadCartridgeRoomForDebug(excludedRoom);
             samus.Control.Unlock();
             samus.Pose = SamusPoseId.FacingRightNormalPose;
-            samus.PoseMetadata.RefreshCollisionRadii();
-            samus.Presentation.InitializeAnimation();
+            SamusPoseMetadata.RefreshCollisionRadii(samus);
+            SamusPresentation.InitializeAnimation(samus);
             samus.Kinematics.YSpeed = default;
             // This fixture checks display selection only; X-ray freezes the seeded
             // position so it need not drive an unrelated room's entrance sequence.
-            AssertTrue(samus.Xray.TryBegin(samus, samus.PoseMetadata.ReadMovementType(), new XrayBeginConditions { GameState = SuperMetroidGameState.MainGameplay }), "excluded-room capture fixture activates");
+            AssertTrue(samus.Xray.TryBegin(samus, SamusPoseMetadata.ReadMovementType(samus), new XrayBeginConditions { GameState = SuperMetroidGameState.MainGameplay }), "excluded-room capture fixture activates");
             for (int frame = 0; frame < 90; frame++) runtime.StepFrame(runtime.Options.ControllerBindings.Dash);
             var baseFrame = GameplayDisplayCapture.CaptureOrdinaryBase(runtime.PublishDisplayFrame());
             var excludedFrame = GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame());

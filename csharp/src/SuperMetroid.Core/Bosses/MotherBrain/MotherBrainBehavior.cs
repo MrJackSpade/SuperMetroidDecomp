@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Core.Input;
+﻿using SuperMetroid.Core.Samus.Poses;
+using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Areas.Escape;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
@@ -3323,7 +3324,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
         state.AttackPhase = MotherBrainAttackPhase.Cooldown;
 
         byte randomLow = unchecked((byte)_room.Random.Read());
-        SamusMovementType movementType = samus.PoseMetadata.ReadMovementType();
+        SamusMovementType movementType = SamusPoseMetadata.ReadMovementType(samus);
         if ((byte)movementType >= 28)
         {
             throw new InvalidDataException(
@@ -4505,7 +4506,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
                 // the head's visible flash length between the cartridge's 13/14-frame
                 // cadence; every other movement type returns without changing either actor.
                 RoomEnemySlot slot = context.Slot;
-                if (context.Samus.PoseMetadata.ReadMovementType() == SamusMovementType.SpinJumping)
+                if (SamusPoseMetadata.ReadMovementType(context.Samus) == SamusMovementType.SpinJumping)
                     slot.FlashTimer = NativeCountdown.FromRaw(!slot.FlashTimer.IsZero && (slot.FlashTimer.RawValue & 1) != 0
                         ? (ushort)14
                         : (ushort)13);

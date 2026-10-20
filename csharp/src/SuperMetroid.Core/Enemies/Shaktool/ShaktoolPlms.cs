@@ -9,15 +9,18 @@ namespace SuperMetroid.Core.Enemies.Shaktool;
 [RoomLifetime]
 internal sealed class ShaktoolPlms
 {
-    /// <summary>Room owners needed by the controller's event and Samus-position checks.</summary>
-    private readonly PlmRoomBindings _bindings;
+    /// <summary>Samus as the room reads and changes her.</summary>
+    private readonly IRoomSamusAccess? _samus;
+    /// <summary>The game's event flags.</summary>
+    private readonly IGlobalEventFlags? _events;
     /// <summary>Physical PLM slots scanned from highest index for the hardcoded spawn.</summary>
     private readonly PlmSlotTable _slotTable;
 
     /// <summary>Connects Shaktool's room controller to the resident PLM slots and room owners.</summary>
-    internal ShaktoolPlms(PlmRoomBindings bindings, PlmSlotTable slotTable)
+    internal ShaktoolPlms(IRoomSamusAccess? samus, IGlobalEventFlags? events, PlmSlotTable slotTable)
     {
-        _bindings = bindings;
+        _samus = samus;
+        _events = events;
         _slotTable = slotTable;
     }
     /// <summary>Runs $8F:C8D3's hardcoded spawn and $84:B8DC's scroll setup.</summary>
@@ -42,7 +45,7 @@ internal sealed class ShaktoolPlms
     internal void RunShaktoolRoomPreInstruction(PlmSlot slot, RoomScrollGrid? scrolls,
         int powerBombExplosionStatus)
     {
-        if (scrolls is null || _bindings.Samus?.Current is not { } samus || _bindings.Events is null)
+        if (scrolls is null || _samus?.Current is not { } samus || _events is null)
             throw new InvalidOperationException("Shaktool room controller requires scroll, Samus, and event owners.");
         // The cartridge tests the entire status word, not just its active high bit.
         // This also admits the pending/time-frozen status value.
@@ -50,7 +53,7 @@ internal sealed class ShaktoolPlms
             for (int cell = 0; cell < ShaktoolRoomPlmRomData.ScrollCellCount; cell++)
                 scrolls.SetStorage(cell, RoomScrollState.Blue);
         if (samus.Position.X.Whole <= ShaktoolRoomPlmRomData.ClearedPathXBoundary) return;
-        _bindings.Events.Set(EventNumber.ShaktoolClearedPath);
+        _events.Set(EventNumber.ShaktoolClearedPath);
         // B8D2 clears only the ID; inactive instruction/timer words remain in RAM.
         slot.HeaderPointer = 0;
         slot.Delete();

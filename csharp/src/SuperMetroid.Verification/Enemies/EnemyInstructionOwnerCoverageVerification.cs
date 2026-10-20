@@ -85,7 +85,7 @@ internal static class EnemyInstructionOwnerCoverageVerification
                 bool translatedRecord = true;
                 try
                 {
-                    RoomEnemySystem.RunInitializationAi(slot, EnemySpawnSurroundings.None with { Samus = new SamusState() });
+                    EnemySlotDispatch.RunInitializationAi(slot, EnemySpawnSurroundings.None with { Samus = new SamusState() });
                 }
                 catch (Exception exception)
                     when (IsUntranslatedEnemyInitializer(

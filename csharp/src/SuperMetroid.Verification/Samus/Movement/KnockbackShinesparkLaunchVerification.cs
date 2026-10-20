@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Drawing;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus;
@@ -18,14 +19,14 @@ internal static class KnockbackShinesparkLaunchVerification
     internal static void VerifyKnockbackShinesparkLaunch()
     {
         var samus = new SamusState { Pose = SamusPoseId.ShinesparkWindupLeftPose, Position = FixedPosition<RoomPixels>.FromWhole(new(0x6c, 0x98)) };
-        samus.PoseMetadata.RefreshCollisionRadii();
-        samus.Presentation.InitializeAnimation();
+        SamusPoseMetadata.RefreshCollisionRadii(samus);
+        SamusPresentation.InitializeAnimation(samus);
         AssertTrue(samus.Shinespark.TryStoreFromSpeedBooster(new SamusSpeedBoostCounter(0x0400)), "a shine is stored");
         samus.Shinespark.BeginWindup(samus);
         samus.Shinespark.RelinquishMovementHandler();
         AssertEqual(ShinesparkPhase.Inactive, samus.Shinespark.Phase, "normal movement replaced the windup handler");
 
-        samus.PoseTransitions.ApplyShinesparkDirectionTransition(SamusPoseId.ShinesparkHorizontalLeftPose);
+        SamusPoseTransitions.ApplyShinesparkDirectionTransition(samus, SamusPoseId.ShinesparkHorizontalLeftPose);
 
         AssertEqual(ShinesparkPhase.Horizontal, samus.Shinespark.Phase, "the left launch installs the horizontal handler");
         AssertEqual(SamusPoseId.ShinesparkHorizontalLeftPose, samus.Pose, "Samus takes the left launch pose");

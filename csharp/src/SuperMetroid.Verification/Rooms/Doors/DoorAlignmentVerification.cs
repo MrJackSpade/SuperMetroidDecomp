@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Drawing;
 using System.Globalization;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Runtime;
@@ -134,8 +135,8 @@ internal static class DoorAlignmentVerification
         samus.HorizontalSpeed.BaseSpeed = new SnesUnsignedSixteenSixteen(1, 0x8000);
         samus.HorizontalSpeed.ExtraRunSpeed = new SnesUnsignedSixteenSixteen(2, 0x4000);
         samus.HorizontalSpeed.HasRunningMomentum = true;
-        samus.PoseMetadata.RefreshCollisionRadii();
-        samus.Presentation.InitializeAnimation();
+        SamusPoseMetadata.RefreshCollisionRadii(samus);
+        SamusPresentation.InitializeAnimation(samus);
         runtime.Room.LoadedLevelData.ResolveDoorCollision(behavior, samus.Pose, true);
         runtime.Room.LoadedCamera.SetPosition(
             new Position16<RoomPixels>(runtime.Room.LoadedCamera.PixelPosition.X, unchecked((ushort)(runtime.Room.LoadedCamera.PixelPosition.Y + 2))));

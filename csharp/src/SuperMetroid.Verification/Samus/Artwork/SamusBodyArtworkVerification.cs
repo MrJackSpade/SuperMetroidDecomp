@@ -560,21 +560,21 @@ internal static class SamusBodyArtworkVerification
         };
         stockLandingSamus.Presentation.TileTransfers.BindArtwork(stock);
         editedLandingSamus.Presentation.TileTransfers.BindArtwork(replacement);
-        stockLandingSamus.Presentation.Draw(new SpriteFrameBuffer(), layer1: new(0, 0));
-        editedLandingSamus.Presentation.Draw(new SpriteFrameBuffer(), layer1: new(0, 0));
+        stockLandingSamus.Presentation.Draw(stockLandingSamus, new SpriteFrameBuffer(), layer1: new(0, 0));
+        editedLandingSamus.Presentation.Draw(editedLandingSamus, new SpriteFrameBuffer(), layer1: new(0, 0));
         AssertEqual(unchecked((ushort)(stockLandingSamus.Presentation.SpritemapPosition.Y - 1)),
             editedLandingSamus.Presentation.SpritemapPosition.Y,
             "edited landing visual offset changes production OAM origin without a ROM read");
         var editedSamus = new SamusState { Pose = SamusPoseId.FacingRightNormalPose };
         editedSamus.Presentation.TileTransfers.BindArtwork(replacement);
         AssertEqual((sbyte)(originalYOffset + 1),
-            editedSamus.PoseMetadata.ReadGraphicsYOffset(),
+            SamusPoseMetadata.ReadGraphicsYOffset(editedSamus),
             "edited Samus visual Y offset is used without a cartridge read");
         var stockSamus = new SamusState { Pose = SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)) };
         stockSamus.Presentation.TileTransfers.BindArtwork(stock);
         editedSamus.Position = editedSamus.Position.WithWhole(stockSamus.Position.Whole);
-        stockSamus.Presentation.Draw(new SpriteFrameBuffer(), layer1: new(0, 0));
-        editedSamus.Presentation.Draw(new SpriteFrameBuffer(), layer1: new(0, 0));
+        stockSamus.Presentation.Draw(stockSamus, new SpriteFrameBuffer(), layer1: new(0, 0));
+        editedSamus.Presentation.Draw(editedSamus, new SpriteFrameBuffer(), layer1: new(0, 0));
         AssertEqual(unchecked((ushort)(stockSamus.Presentation.SpritemapPosition.Y - 1)),
             editedSamus.Presentation.SpritemapPosition.Y,
             "edited pose graphics Y offset shifts the actual Samus OAM origin one pixel");

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Frontend;
@@ -40,8 +41,8 @@ internal static class GunshipEscapeTimerVerification
         samus.Control.Unlock();
         samus.Pose = SamusPoseId.FacingRightNormalPose;
         samus.Position = samus.Position.WithWhole(new(top.Position.X.Whole, (ushort)(top.Position.Y.Whole - 30)));
-        samus.Presentation.InitializeAnimation();
-        samus.Presentation.PrimeGraphics();
+        SamusPresentation.InitializeAnimation(samus);
+        samus.Presentation.PrimeGraphics(samus);
         runtime.EscapeTimer.SelectRunningStatus(EscapeTimerState.RunningInPlace);
         runtime.EscapeTimer.SetTime(PackedBcd.FromDecimal(2), PackedBcd.FromDecimal(59), PackedBcd.FromDecimal(50));
         runtime.QueueEscapeTimerSpriteTiles();
@@ -51,7 +52,7 @@ internal static class GunshipEscapeTimerVerification
         AssertTrue(TimerSpritesPresent(), "Ordinary escape timer remains visible before boarding");
         samus.Pose = SamusPoseId.FacingRightNormalPose;
         samus.Position = samus.Position.WithWholeY(0x0440);
-        samus.Presentation.InitializeAnimation();
+        SamusPresentation.InitializeAnimation(samus);
         var timeBeforeBoarding = Time();
         runtime.StepFrame(SnesButton.Down);
         AssertEqual(GunshipFrameEvent.EntryStarted, runtime.Enemies.LastEnemyFrame.Gunship, "Down starts actual Landing Site boarding");

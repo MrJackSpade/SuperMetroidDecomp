@@ -14,11 +14,11 @@ internal static class SamusGrappleHudInput
             samus.SelectedHudItem != HudItem.Grapple)
             return false;
 
-        SamusHudHandler handler = SamusHudDefinitions.MovementHandler(samus.PoseMetadata.ReadMovementType());
+        SamusHudHandler handler = SamusHudDefinitions.MovementHandler(SamusPoseMetadata.ReadMovementType(samus));
         return handler switch
         {
             SamusHudHandler.Standard or SamusHudHandler.Grapple => true,
-            SamusHudHandler.DraygonHeld => samus.PoseMetadata.ReadMovementType() == SamusMovementType.DraygonHeld,
+            SamusHudHandler.DraygonHeld => SamusPoseMetadata.ReadMovementType(samus) == SamusMovementType.DraygonHeld,
             SamusHudHandler.Turning => samus.PoseTransitionShotDirection != 0,
             SamusHudHandler.Transition => SamusHudInput.PostureTransitionAdmitsWeapons(samus.Pose, grappleActive: false, overreads),
             SamusHudHandler.MorphBall or SamusHudHandler.Jump => false,

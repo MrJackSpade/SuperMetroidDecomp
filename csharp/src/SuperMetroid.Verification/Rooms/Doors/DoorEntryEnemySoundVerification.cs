@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Runtime;
@@ -39,8 +40,8 @@ internal static class DoorEntryEnemySoundVerification
         samus.PoseId = SamusPoseId.FacingRightNormalPose;
         samus.Position = samus.Position.WithWhole(new(64, 128));
         samus.Control.LockHandlers();
-        samus.PoseMetadata.RefreshCollisionRadii();
-        samus.Presentation.InitializeAnimation();
+        SamusPoseMetadata.RefreshCollisionRadii(samus);
+        SamusPresentation.InitializeAnimation(samus);
         var body = runtime.Enemies.SlotTable.Slots.First(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.KihunterGreen);
         var state = runtime.Enemies.KiHunterStates[body.NativeIndex / 64];
         body.Position = body.Position.WithWhole(new(128, 128));

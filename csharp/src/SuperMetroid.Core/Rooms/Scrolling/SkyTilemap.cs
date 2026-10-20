@@ -31,15 +31,14 @@ public sealed class SkyTilemap : IBgTileSource
     /// <summary>Reads each row from the page its chunk selects in <paramref name="variant"/>'s table.</summary>
     /// <param name="pages">The installed sky pages.</param>
     /// <param name="variant">The land or ocean chunk table.</param>
-    public SkyTilemap(RoomSkyTilemapCatalog pages, ScrollingSkyChunkTable variant)
+    public SkyTilemap(ReadOnlySpan<byte> pages, ScrollingSkyChunkTable variant)
     {
-        Ensure.NotNull(pages);
         Variant = variant;
         for (int row = 0; row < Rows; row++)
         {
             if (!ScrollingSkyChunkDefinitions.TryGetPageIndex(variant, row / RowsPerChunk, out int page))
                 continue;
-            ReadOnlySpan<byte> bytes = pages.Row(page, row % RowsPerChunk);
+            ReadOnlySpan<byte> bytes = RoomSkyTilemapCatalog.Row(pages, page, row % RowsPerChunk);
             for (int column = 0; column < Columns; column++)
                 words[row * Columns + column] = SnesLittleEndian.Word(bytes[column * 2], bytes[column * 2 + 1]);
             shown[row] = true;

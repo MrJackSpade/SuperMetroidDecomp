@@ -106,7 +106,7 @@ internal sealed class EnemyFramePhase
                 // clears flare/projectile state, but cannot restore runtime-owned CGRAM.
                 // Without this write, cancelling charge leaves its last flashing colors
                 // behind after the palette handler becomes inactive.
-                _player.IntroducedSamus.Presentation.LoadSuitPalette(_cgram);
+                _player.IntroducedSamus.Presentation.LoadSuitPalette(_player.IntroducedSamus, _cgram);
             }
             if (result.DraygonDiscardedSamusPoseRequests)
             {
@@ -172,7 +172,7 @@ internal sealed class EnemyFramePhase
                     // ship explicitly clears elevator status after installing locked demo
                     // handlers. The enemy system owns pose/motion; these two global words
                     // remain runtime-owned and are applied on its typed event boundary.
-                    _player.Samus.Presentation.LoadSuitPalette(_cgram);
+                    _player.Samus.Presentation.LoadSuitPalette(_player.Samus, _cgram);
                     room.Enemies.Elevator.ResetStatus();
                 }
                 else if (result.Gunship == GunshipFrameEvent.LandingCompleted)

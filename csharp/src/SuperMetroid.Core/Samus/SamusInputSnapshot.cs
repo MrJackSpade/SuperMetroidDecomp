@@ -7,21 +7,13 @@ namespace SuperMetroid.Core.Samus;
 /// <summary>The input Samus's handlers see: the filtered held and new input of the previous draw, the auto-jump timer and pending jump, and the pose input locks for Shinespark and Crystal Flash.</summary>
 internal sealed class SamusInputSnapshot
 {
-    /// <summary>Samus owner supplying shine, Flash, and health state to input admission.</summary>
-    private readonly SamusState _samus;
-
-    /// <summary>Binds draw-time input history to the active Samus actor.</summary>
-    internal SamusInputSnapshot(SamusState owner)
-    {
-        _samus = owner;
-    }
     /// <summary>
     /// Live WRAM $0A68: ordinary stored-shine countdown or Crystal Flash's palette
     /// timer. A grab-interrupted Flash keeps the latter ticking indefinitely, so
     /// native jump admission still sees a nonzero shine without a Stored phase.
     /// </summary>
-    public int SharedShineTimer => _samus.CrystalFlash.SpecialPaletteKind == SamusSpecialPaletteType.CrystalFlash
-        ? _samus.CrystalFlash.SpecialPaletteTimer.RawValue : _samus.Shinespark.ShineTimer.RawValue;
+    public static int SharedShineTimer(SamusState samus) => samus.CrystalFlash.SpecialPaletteKind == SamusSpecialPaletteType.CrystalFlash
+        ? samus.CrystalFlash.SpecialPaletteTimer.RawValue : samus.Shinespark.ShineTimer.RawValue;
 
     /// <summary>
     /// WRAM $0E00, joypad1_newinput_samusfilter: the Fire edge retained by $90:EAB3
@@ -84,10 +76,10 @@ internal sealed class SamusInputSnapshot
     }
 
     /// <summary>Health-feedback tail of $90:EAB3, independent of knockback admission.</summary>
-    internal void UpdateHurtFlashFromHealthLoss()
+    internal static void UpdateHurtFlashFromHealthLoss(SamusState samus)
     {
-        if (_samus.Health < _samus.PreviousHealthForHurtCheck && _samus.HurtFlashCounter == 0)
-            _samus.HurtFlashCounter = 1;
-        _samus.PreviousHealthForHurtCheck = _samus.Health;
+        if (samus.Health < samus.PreviousHealthForHurtCheck && samus.HurtFlashCounter == 0)
+            samus.HurtFlashCounter = 1;
+        samus.PreviousHealthForHurtCheck = samus.Health;
     }
 }

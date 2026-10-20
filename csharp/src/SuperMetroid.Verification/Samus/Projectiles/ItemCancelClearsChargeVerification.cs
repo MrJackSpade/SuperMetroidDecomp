@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Drawing;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
@@ -32,8 +33,8 @@ internal static class ItemCancelClearsChargeVerification
         samus.EquippedBeams = SamusBeamFlags.Charge;
         samus.Pose = SamusPoseId.FacingRightNormalPose;
         samus.Position = samus.Position.WithWhole(new(512, 490));
-        samus.PoseMetadata.RefreshCollisionRadii();
-        samus.Presentation.InitializeAnimation();
+        SamusPoseMetadata.RefreshCollisionRadii(samus);
+        SamusPresentation.InitializeAnimation(samus);
         runtime.Room.LoadedCamera.SetPosition(new Position16<RoomPixels>(400, 350));
         for (int frame = 0; frame < 64; frame++)
             runtime.StepFrame(0);

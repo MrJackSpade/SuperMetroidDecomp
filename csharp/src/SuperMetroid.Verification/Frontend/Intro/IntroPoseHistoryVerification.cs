@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Drawing;
 using static SuperMetroid.Verification.Runtime.Attract.AttractCaptureTestsVerification;
 using static SuperMetroid.Verification.Frontend.FrontendRenderCaptureTestsVerification;
 using static SuperMetroid.Verification.Runtime.GameplayCaptureIntegrationTestsVerification;
@@ -25,8 +26,8 @@ internal static class IntroPoseHistoryVerification
         var entries = new ushort[16 * 32];
         for (int x = 0; x < 16; x++) entries[16 * 16 + x] = 0x8000;
         var room = CreateRoom(new(16, 32), entries, new byte[entries.Length]);
-        samus.PoseMetadata.RefreshCollisionRadii();
-        samus.Presentation.InitializeAnimation();
+        SamusPoseMetadata.RefreshCollisionRadii(samus);
+        SamusPresentation.InitializeAnimation(samus);
         var history = samus.PoseHistory;
         var random = new CartridgeRandom();
         history.PreviousPose = samus.Pose;
@@ -115,7 +116,7 @@ internal static class IntroPoseHistoryVerification
                 continue;
             }
             var history = after.PoseHistory;
-            ushort metadata = SnesLittleEndian.Word(after.PoseMetadata.ReadPoseXDirection(), (byte)after.PoseMetadata.ReadMovementType());
+            ushort metadata = SnesLittleEndian.Word(SamusPoseMetadata.ReadPoseXDirection(after), (byte)SamusPoseMetadata.ReadMovementType(after));
             if (history.LastDifferentPose != priorPose || history.LastDifferentDirectionAndMovement != priorMetadata ||
                 history.PreviousPose != after.Pose || history.PreviousDirectionAndMovement != metadata)
                 failures.Add($"tick {tick}: {context} did not perform the native four-word history shift");

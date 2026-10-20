@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
@@ -29,7 +30,7 @@ internal static class RetailElevatorDepartureTests
         var samus = runtime.Player.IntroducedSamus;
         samus.Control.Unlock();
         samus.Pose = SamusPoseId.FacingRightNormalPose;
-        samus.Presentation.InitializeAnimation();
+        SamusPresentation.InitializeAnimation(samus);
         runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.ElevToBlueBrinstar);
         var actor = runtime.Enemies.SlotTable.Slots.First(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Elevator);
         samus.Position = samus.Position.WithWhole(new(actor.Position.X.Whole, unchecked((ushort)(actor.Position.Y.Whole - ElevatorCaptureFixtureDefinitions.SamusAttachmentOffset))));

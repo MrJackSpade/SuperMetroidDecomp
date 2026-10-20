@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Drawing;
 using static SuperMetroid.Verification.Samus.Movement.RunningCadenceVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Hardware;
@@ -59,7 +60,7 @@ internal static class SamusAnimationDelayDefinitionsVerification
         {
             Pose = SamusPoseId.FacingLeftNormalPose,
         };
-        flashbackSamus.Presentation.InitializeAnimation();
+        SamusPresentation.InitializeAnimation(flashbackSamus);
         AssertEqual(0x910000 |
             SamusAnimationDelayDefinitions.PointerForPose(SamusPoseId.FacingLeftNormalPose),
             flashbackSamus.AnimationDelayListAddress,

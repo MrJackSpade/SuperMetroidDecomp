@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hud;
@@ -46,8 +47,8 @@ internal static class SamusLandingDrawVerification
         SamusState samus = runtime.Player.IntroducedSamus;
         samus.Control.Unlock();
         samus.Pose = SamusPoseId.FacingRightNormalPose;
-        samus.PoseMetadata.RefreshCollisionRadii();
-        samus.Presentation.InitializeAnimation();
+        SamusPoseMetadata.RefreshCollisionRadii(samus);
+        SamusPresentation.InitializeAnimation(samus);
         setup(runtime);
         // Let the camera settle on the box before the checked updates.
         for (int settle = 0; settle < 20; settle++) runtime.StepFrame(0);

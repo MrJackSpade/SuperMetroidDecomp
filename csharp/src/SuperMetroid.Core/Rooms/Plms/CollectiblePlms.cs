@@ -20,8 +20,12 @@ internal sealed class CollectiblePlms : IPlmFamilySource
             TryStepCollectible(context.Level, slot) ? PlmStepOutcome.Consumed : PlmStepOutcome.Shared);
     }
 
-    /// <summary>Supplies Samus, persistence, and room-FX owners at pickup time.</summary>
-    private readonly PlmRoomBindings _bindings;
+    /// <summary>The room's system and event state.</summary>
+    private readonly Bank80SystemState? _system;
+    /// <summary>Samus as the room reads and changes her.</summary>
+    private readonly IRoomSamusAccess? _samus;
+    /// <summary>The room's layer-3 FX.</summary>
+    private readonly RoomLayer3FxState? _roomFx;
     /// <summary>Updates level blocks and queues their tilemap draws.</summary>
     private readonly PlmBlockDrawing _drawing;
     /// <summary>Enumerates active item PLMs in native slot order.</summary>
@@ -30,9 +34,11 @@ internal sealed class CollectiblePlms : IPlmFamilySource
     private readonly PlmSoundQueue _sounds;
 
     /// <summary>Connects permanent-item PLMs to room state, drawing, and sound services.</summary>
-    internal CollectiblePlms(PlmRoomBindings bindings, PlmBlockDrawing drawing, PlmSlotTable slotTable, PlmSoundQueue sounds)
+    internal CollectiblePlms(Bank80SystemState? system, IRoomSamusAccess? samus, RoomLayer3FxState? roomFx, PlmBlockDrawing drawing, PlmSlotTable slotTable, PlmSoundQueue sounds)
     {
-        _bindings = bindings;
+        _system = system;
+        _samus = samus;
+        _roomFx = roomFx;
         _drawing = drawing;
         _slotTable = slotTable;
         _sounds = sounds;
@@ -80,7 +86,7 @@ internal sealed class CollectiblePlms : IPlmFamilySource
     {
         if (!_pendingSpeedBoosterPickupContinuation)
             return;
-        RoomLayer3FxState fx = _bindings.RoomFx
+        RoomLayer3FxState fx = _roomFx
             ?? throw new InvalidOperationException("Speed Booster pickup has no room-FX owner.");
         fx.ApplyCartridgeMotionWrites(
             packedYVelocity: SpeedBoosterPickupDefinitions.LavaRiseVelocity);
@@ -497,10 +503,10 @@ internal sealed class CollectiblePlms : IPlmFamilySource
     {
         CollectiblePlmState item = (slot.Family as CollectiblePlmState)
             ?? throw new InvalidOperationException("A non-item PLM attempted acquisition.");
-        SamusState samus = _bindings.Samus?.Current
+        SamusState samus = _samus?.Current
             ?? throw new InvalidOperationException(
                 "A live collectible was triggered before the room owned Samus state.");
-        Bank80SystemState system = _bindings.System
+        Bank80SystemState system = _system
             ?? throw new InvalidOperationException("A live collectible has no persistence owner.");
 
         if (unchecked((short)slot.RoomArgument) >= 0)

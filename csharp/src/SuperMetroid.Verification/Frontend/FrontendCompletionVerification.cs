@@ -393,7 +393,7 @@ internal static void VerifyEndingCreditsState()
         {
             previous = ending.Phase;
             reached.Add(previous);
-            Rgba32[] pixels = ending.Presentation.Render();
+            Rgba32[] pixels = ending.Render();
             AssertEqual(FrontendFrame.Width * FrontendFrame.Height, pixels.Length,
                 $"ending {previous} frame size");
             renderedTransitions++;

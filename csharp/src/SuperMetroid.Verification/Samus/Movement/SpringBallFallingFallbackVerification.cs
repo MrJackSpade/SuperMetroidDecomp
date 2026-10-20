@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
@@ -38,8 +39,8 @@ internal static class SpringBallFallingFallbackVerification
         samus.EquippedItems = (SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.SpringBall);
         samus.Pose = SamusPoseId.SpringBallFallingRightPose;
         samus.Position = samus.Position.WithWhole(new(512, 400));
-        samus.PoseMetadata.RefreshCollisionRadii();
-        samus.Presentation.InitializeAnimation();
+        SamusPoseMetadata.RefreshCollisionRadii(samus);
+        SamusPresentation.InitializeAnimation(samus);
         samus.Kinematics.YDirection = SamusVerticalDirection.Down;
         // The movie's state entering update 349335: base 1.4000, extra 1.E000, mode two.
         samus.HorizontalSpeed.BaseSpeed = new SnesUnsignedSixteenSixteen(1, 0x4000);

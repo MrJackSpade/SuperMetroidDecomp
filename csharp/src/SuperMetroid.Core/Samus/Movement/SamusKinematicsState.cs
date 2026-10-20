@@ -23,31 +23,18 @@ public sealed class SamusKinematicsState
         [ushort.MaxValue, ushort.MaxValue, ushort.MaxValue, ushort.MaxValue];
 
     /// <summary>
-    /// Full Samus owner for bank-$94 collision side effects that cannot be represented by
-    /// position words alone, notably spike damage and hurt timers. Standalone synthetic
-    /// kinematics remain valid and intentionally have no damage owner.
-    /// </summary>
-    internal SamusState? SamusOwner { get; }
-
-    /// <summary>
     /// Contact-damage snapshot for ownerless geometry probes. Sand still reads this
     /// native collision input even when a probe deliberately cannot mutate the full owner.
     /// </summary>
     internal SamusContactDamageIndex? ProbeContactDamageIndex { get; init; }
 
-    /// <summary>Live contact mode, or the captured mode while testing a prospective pose.</summary>
-    internal SamusContactDamageIndex CollisionContactDamageIndex =>
-        ProbeContactDamageIndex ?? SamusOwner?.HorizontalSpeed.ContactDamageIndex ?? SamusContactDamageIndex.None;
+    /// <summary>The captured contact mode of an ownerless probe, otherwise <paramref name="owner"/>'s live mode.</summary>
+    internal SamusContactDamageIndex CollisionContactDamageIndex(SamusState? owner) =>
+        ProbeContactDamageIndex ?? owner?.HorizontalSpeed.ContactDamageIndex ?? SamusContactDamageIndex.None;
 
     /// <summary>Constructs an ownerless kinematics fixture for block-only probes.</summary>
     public SamusKinematicsState()
     {
-    }
-
-    /// <summary>Constructs the live collision child owned by one <see cref="SamusState"/>.</summary>
-    internal SamusKinematicsState(SamusState samusOwner)
-    {
-        SamusOwner = Ensure.NotNull(samusOwner);
     }
 
     /// <summary>
@@ -57,9 +44,7 @@ public sealed class SamusKinematicsState
     /// </summary>
     internal SamusKinematicsState CreateCollisionProbe()
     {
-        SamusKinematicsState probe = SamusOwner is null
-            ? new SamusKinematicsState { ProbeContactDamageIndex = CollisionContactDamageIndex }
-            : new SamusKinematicsState(SamusOwner);
+        var probe = new SamusKinematicsState { ProbeContactDamageIndex = ProbeContactDamageIndex };
         probe.CollisionPose = CollisionPose;
         probe.Position = Position;
         probe.Radius = Radius;

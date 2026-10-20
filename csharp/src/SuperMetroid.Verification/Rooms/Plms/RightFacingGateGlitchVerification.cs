@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
@@ -191,8 +192,8 @@ internal static class RightFacingGateGlitchVerification
         samus.EquippedBeams = (SamusBeamFlags.Ice | SamusBeamFlags.Wave);
         samus.SelectedHudItem = HudItem.SuperMissile;
         samus.SuperMissiles = samus.MaxSuperMissiles = 10;
-        samus.PoseMetadata.RefreshCollisionRadii();
-        samus.Presentation.InitializeAnimation();
+        SamusPoseMetadata.RefreshCollisionRadii(samus);
+        SamusPresentation.InitializeAnimation(samus);
         runtime.Room.LoadedCamera.SetPosition(new Position16<RoomPixels>(128, 0));
 
         RoomEnemySlot frozen = runtime.Enemies.SlotTable.Slots.First(slot =>

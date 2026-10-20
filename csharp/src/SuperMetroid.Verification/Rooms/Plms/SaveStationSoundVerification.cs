@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Drawing;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
 using static SuperMetroid.Verification.Harness.RetailPresentationFixtureVerification;
@@ -37,8 +38,8 @@ internal static class SaveStationSoundVerification
         int row = station.BlockIndex / width;
         SamusState samus = runtime.Player.IntroducedSamus;
         samus.Pose = SamusPoseId.FacingRightNormalPose;
-        samus.PoseMetadata.RefreshCollisionRadii();
-        samus.Presentation.InitializeAnimation();
+        SamusPoseMetadata.RefreshCollisionRadii(samus);
+        SamusPresentation.InitializeAnimation(samus);
         samus.Position = FixedPosition<RoomPixels>.FromWhole(new(
             (ushort)(column * 16 + SaveStationTriggerGeometry.HorizontalProbeOffset + 8),
             (ushort)(row * 16 - samus.Kinematics.Radius.Y - 1)));

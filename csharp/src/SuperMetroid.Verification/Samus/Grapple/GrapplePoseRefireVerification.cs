@@ -37,7 +37,7 @@ internal static class GrapplePoseRefireVerification
             }
             var grapple = samus.Grapple;
             AssertEqual(GrapplePhase.Firing, grapple.Phase, "early direction change refires");
-            AssertEqual((SuperMetroid.Core.Samus.Projectiles.SamusProjectileDirection)samus.PoseMetadata.ReadShotDirection(), grapple.FireDirection,
+            AssertEqual((SuperMetroid.Core.Samus.Projectiles.SamusProjectileDirection)SamusPoseMetadata.ReadShotDirection(samus), grapple.FireDirection,
                 "refire uses current pose direction");
             AssertEqual(10, grapple.PoseChangeAutoFireTimer.RawValue, "refire resets native ten-frame timer");
             AssertTrue(samus.LiquidPhysics.SoundRequests.SequenceEqual(new[] {

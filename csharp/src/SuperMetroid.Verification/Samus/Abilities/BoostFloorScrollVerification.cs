@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Drawing;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Rooms;
@@ -27,8 +28,8 @@ internal static class BoostFloorScrollVerification
         samus.PoseId = SamusPoseId.MovingRightNormalPose;
         samus.EquippedItems = SamusEquipmentFlags.SpeedBooster;
         samus.Position = samus.Position.WithWhole(new(1040, 171));
-        samus.PoseMetadata.RefreshCollisionRadii();
-        samus.Presentation.InitializeAnimation();
+        SamusPoseMetadata.RefreshCollisionRadii(samus);
+        SamusPresentation.InitializeAnimation(samus);
         // Seed an already established boost at the reported floor, avoiding the
         // unrelated bomb-tunnel approach. All subsequent movement/contacts are live.
         samus.HorizontalSpeed.HasRunningMomentum = true;

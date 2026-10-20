@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus.Movement;
@@ -117,7 +118,7 @@ public sealed class SamusDrainedState
             samus.Pose == SamusPoseId.DrainedCrouchingLeftPose &&
             samus.AnimationFrame >= 8)
         {
-            samus.Presentation.SetAnimationFrameFromSpecialHandler(frame: 13, timer: 1);
+            SamusPresentation.SetAnimationFrameFromSpecialHandler(samus, frame: 13, timer: 1);
 
             // `$90:E0BE` replaces the hack pointer with an RTS after the first accepted Up
             // edge. Further presses cannot restart the stand-up stream.
@@ -131,7 +132,7 @@ public sealed class SamusDrainedState
         {
             // Unlike the able branch, `$90:E0C5` retains its own function pointer. A later
             // visit to frames 8..11 can therefore react to another fresh Up edge.
-            samus.Presentation.SetAnimationFrameFromSpecialHandler(frame: 18, timer: 1);
+            SamusPresentation.SetAnimationFrameFromSpecialHandler(samus, frame: 18, timer: 1);
             return true;
         }
 
@@ -143,7 +144,7 @@ public sealed class SamusDrainedState
     public static void FreezeForHyperBeamAcquisition(SamusState samus)
     {
         Ensure.NotNull(samus);
-        samus.Presentation.SetAnimationFrameFromSpecialHandler(frame: 28, timer: 1);
+        SamusPresentation.SetAnimationFrameFromSpecialHandler(samus, frame: 28, timer: 1);
         samus.CancelPendingPoseTransition();
     }
 
@@ -182,7 +183,7 @@ public sealed class SamusDrainedState
         CommonPaletteTimer = NativeCountdown.Start(0);
         ChargePaletteIndex = 0;
         _suitPaletteRestoreRequested = true;
-        samus.Presentation.SetAnimationFrameFromSpecialHandler(frame: 13, timer: 1);
+        SamusPresentation.SetAnimationFrameFromSpecialHandler(samus, frame: 13, timer: 1);
     }
 
     /// <summary>
@@ -254,18 +255,18 @@ public sealed class SamusDrainedState
 
         // Direction byte four is left; every other byte chooses the right-facing record.
         // Read it before replacing the pose, exactly as `$91:E50D` does.
-        bool facingLeft = samus.PoseMetadata.IsFacing(SamusFacingDirection.Left);
+        bool facingLeft = SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left);
         samus.Pose = facingLeft
             ? SamusPoseId.DrainedCrouchingLeftPose
             : SamusPoseId.DrainedCrouchingRightPose;
-        samus.PoseMetadata.RefreshCollisionRadii();
-        if (samus.PoseMetadata.ReadMovementKind() != SamusMovementType.Special ||
+        SamusPoseMetadata.RefreshCollisionRadii(samus);
+        if (SamusPoseMetadata.ReadMovementKind(samus) != SamusMovementType.Special ||
             samus.Kinematics.Radius.Y != 21)
             throw new InvalidDataException("ROM drained pose $E8/$E9 metadata changed unexpectedly.");
 
         // NewPoseSamusAnimationFrame is literally two. The animation is initialized here,
         // but movement remains the normal RTS type-$1B handler until command `$F7` appears.
-        samus.Presentation.InitializeAnimation(initialFrame: 2);
+        SamusPresentation.InitializeAnimation(samus, initialFrame: 2);
         ClearBaseAndVerticalSpeed(samus);
         samus.Kinematics.YDirection = SamusVerticalDirection.Down;
         _suitPaletteRestoreRequested = true;
@@ -325,7 +326,7 @@ public sealed class SamusDrainedState
             // `$90:94D3-$94E8` restores the normal movement pointer, jumps directly to art
             // frame seven for eight ticks, and clears both velocity halves. It does not
             // clear Y direction and it does not select a new pose.
-            samus.Presentation.SetAnimationFrameFromSpecialHandler(frame: 7, timer: 8);
+            SamusPresentation.SetAnimationFrameFromSpecialHandler(samus, frame: 7, timer: 8);
             samus.Kinematics.YSpeed = default;
             Phase = DrainedSamusPhase.OnFloor;
         }
@@ -339,8 +340,8 @@ public sealed class SamusDrainedState
     public void PutStanding(SamusState samus)
     {
         Ensure.NotNull(samus);
-        bool facingLeft = samus.PoseMetadata.IsFacing(SamusFacingDirection.Left);
-        samus.Presentation.SetPoseAndAnimationFromScriptedController(
+        bool facingLeft = SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left);
+        SamusPresentation.SetPoseAndAnimationFromScriptedController(samus, 
             facingLeft ? SamusPoseId.DrainedStandingLeftPose : SamusPoseId.DrainedStandingRightPose,
             frame: 0,
             timer: 16);
@@ -352,8 +353,8 @@ public sealed class SamusDrainedState
     public void PutCrouchingOrFalling(SamusState samus)
     {
         Ensure.NotNull(samus);
-        bool facingLeft = samus.PoseMetadata.IsFacing(SamusFacingDirection.Left);
-        samus.Presentation.SetPoseAndAnimationFromScriptedController(
+        bool facingLeft = SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left);
+        SamusPresentation.SetPoseAndAnimationFromScriptedController(samus, 
             facingLeft ? SamusPoseId.DrainedCrouchingLeftPose : SamusPoseId.DrainedCrouchingRightPose,
             frame: 8,
             timer: 16);
@@ -370,13 +371,13 @@ public sealed class SamusDrainedState
         // frame counts. In particular, left `$E9` index 13 names an operand byte; native
         // intentionally draws that index until the next animation decrement advances it.
         if (samus.Pose is SamusPoseId.DrainedCrouchingRightPose or SamusPoseId.DrainedCrouchingLeftPose)
-            samus.Presentation.SetAnimationFrameFromSpecialHandler(frame: 13, timer: 1);
+            SamusPresentation.SetAnimationFrameFromSpecialHandler(samus, frame: 13, timer: 1);
         else if (samus.Pose is SamusPoseId.DrainedStandingRightPose or SamusPoseId.DrainedStandingLeftPose)
-            samus.Presentation.SetAnimationFrameFromSpecialHandler(frame: 4, timer: 1);
+            SamusPresentation.SetAnimationFrameFromSpecialHandler(samus, frame: 4, timer: 1);
 
         // The merge path executes even for an unexpected pose. Preserve that surprisingly
         // broad native behavior instead of rejecting a caller that the 65816 accepts.
-        samus.PoseMetadata.RefreshCollisionRadii();
+        SamusPoseMetadata.RefreshCollisionRadii(samus);
         ClearBaseAndVerticalSpeed(samus);
         samus.Kinematics.YDirection = SamusVerticalDirection.Down;
         Phase = DrainedSamusPhase.Releasing;
@@ -406,8 +407,8 @@ public sealed class SamusDrainedState
         // Both commands unconditionally choose left-facing knockback pose `$54`, even when
         // Samus had faced right. This is why controller zero later selects drained pose `$E9`.
         samus.Pose = SamusPoseId.KnockbackLeftPose;
-        samus.PoseMetadata.RefreshCollisionRadii();
-        samus.Presentation.InitializeAnimation(initialFrame: 0);
+        SamusPoseMetadata.RefreshCollisionRadii(samus);
+        SamusPresentation.InitializeAnimation(samus, initialFrame: 0);
         // Shared rainbow setup calls the native previous-pose helper before lock.
         samus.CommitPoseHistory();
         // Shared `$90:F394` installs the locked current/new state handlers after changing art.

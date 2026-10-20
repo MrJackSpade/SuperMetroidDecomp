@@ -80,7 +80,7 @@ public sealed class SamusDeathSequenceState
         if (IsActive)
             throw new InvalidOperationException("Samus death sequence is already owned by bank $9B.");
 
-        SamusMovementType sourceMovementType = samus.PoseMetadata.ReadMovementType();
+        SamusMovementType sourceMovementType = SamusPoseMetadata.ReadMovementType(samus);
         var initialFrames =
             SamusSpecialSequenceRomData.Death.InitialFramesByMovementType;
         if ((byte)sourceMovementType >= initialFrames.Length)
@@ -89,7 +89,7 @@ public sealed class SamusDeathSequenceState
                 $"Death-pose frame table has no movement type ${(byte)sourceMovementType:X2}.");
         }
 
-        FacingLeft = samus.PoseMetadata.IsFacing(SamusFacingDirection.Left);
+        FacingLeft = SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left);
         SamusPoseId deathPose = FacingLeft
             ? SamusPoseId.DeathSequenceLeftPose
             : SamusPoseId.DeathSequenceRightPose;
@@ -99,12 +99,12 @@ public sealed class SamusDeathSequenceState
         // with the movement-type table result. All six delays are two, so the timer produced
         // by frame-zero initialization remains the correct literal value for every start.
         samus.Pose = deathPose;
-        samus.PoseMetadata.RefreshCollisionRadii();
-        samus.Presentation.InitializeAnimation(initialFrame: 0);
+        SamusPoseMetadata.RefreshCollisionRadii(samus);
+        SamusPresentation.InitializeAnimation(samus, initialFrame: 0);
         // Death entry publishes history itself, before overriding the starting
         // animation frame; the ordinary gameplay pose dispatcher is not running.
         samus.CommitPoseHistory();
-        samus.Presentation.SetAnimationFrameFromSpecialHandler(initialFrame, timer: 2);
+        SamusPresentation.SetAnimationFrameFromSpecialHandler(samus, initialFrame, timer: 2);
 
         // The cartridge subtracts layer 1 directly from Samus's live words because its death
         // renderer adds layer 1 back before emitting OAM. Retain world coordinates in Samus
@@ -147,7 +147,7 @@ public sealed class SamusDeathSequenceState
             case SamusDeathSequencePhase.PreFlashing:
                 // `$90:8976` advances the `$D7/$D8` delay stream only during state `$16`.
                 // State `$17` freezes that final body frame while its palettes alternate.
-                samus.Presentation.AnimateDeathFrame();
+                SamusPresentation.AnimateDeathFrame(samus);
                 drawPose = true;
                 PreFlashingTimer = PreFlashingTimer.Decrement().Remaining;
                 if (PreFlashingTimer.IsZero || PreFlashingTimer.IsNegative)

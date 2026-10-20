@@ -11,10 +11,10 @@ internal static class DrainedPoseHistoryVerification
         foreach (SamusPoseId source in new[] { SamusPoseId.CrouchingRightPose, SamusPoseId.CrouchingLeftPose })
         {
             var samus = new SamusState { Pose = source, Position = FixedPosition<RoomPixels>.FromWhole(new(0, 100)) };
-            samus.PoseMetadata.RefreshCollisionRadii();
+            SamusPoseMetadata.RefreshCollisionRadii(samus);
             var history = samus.PoseHistory;
             history.PreviousPose = source;
-            history.PreviousDirectionAndMovement = SnesLittleEndian.Word(samus.PoseMetadata.ReadPoseXDirection(), (byte)samus.PoseMetadata.ReadMovementType());
+            history.PreviousDirectionAndMovement = SnesLittleEndian.Word(SamusPoseMetadata.ReadPoseXDirection(samus), (byte)SamusPoseMetadata.ReadMovementType(samus));
             history.LastDifferentPose = SamusPoseId.SpinJumpRightPose;
             history.LastDifferentDirectionAndMovement = 0x0308;
             (string Name, Action Apply)[] commands =
@@ -34,7 +34,7 @@ internal static class DrainedPoseHistoryVerification
                 AssertEqual(previousPose, history.LastDifferentPose, $"drain {command.Name} shifts previous pose");
                 AssertEqual(previousMetadata, history.LastDifferentDirectionAndMovement, $"drain {command.Name} shifts metadata");
                 AssertEqual(samus.Pose, history.PreviousPose, $"drain {command.Name} publishes current pose");
-                AssertEqual(SnesLittleEndian.Word(samus.PoseMetadata.ReadPoseXDirection(), (byte)samus.PoseMetadata.ReadMovementType()),
+                AssertEqual(SnesLittleEndian.Word(SamusPoseMetadata.ReadPoseXDirection(samus), (byte)SamusPoseMetadata.ReadMovementType(samus)),
                     history.PreviousDirectionAndMovement, $"drain {command.Name} publishes current metadata");
             }
             SamusPoseId olderPose = history.LastDifferentPose;

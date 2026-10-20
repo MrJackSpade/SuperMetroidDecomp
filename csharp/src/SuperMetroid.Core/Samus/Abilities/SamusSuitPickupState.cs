@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.Core.Samus.Poses;
@@ -137,7 +138,7 @@ public sealed class SamusSuitPickupState
         // `$91:D4F7-$D53A/$D5CD-$D610` cancels every independent speed component before
         // changing pose. CancelRunningMomentum also preserves the native departing-echo
         // side effect and publishes the immediate palette restore only when boost was live.
-        samus.HorizontalSpeed.CancelRunningMomentum(samus.PoseMetadata.ReadFacingDirection());
+        samus.HorizontalSpeed.CancelRunningMomentum(SamusPoseMetadata.ReadFacingDirection(samus));
         samus.HorizontalSpeed.ExtraRunSpeed = default;
         samus.HorizontalSpeed.BaseSpeed = default;
         samus.HorizontalSpeed.AccelerationMode = SamusAccelerationMode.Accelerating;
@@ -154,8 +155,8 @@ public sealed class SamusSuitPickupState
         samus.Pose = otherSuitAlreadyEquipped
             ? SamusPoseId.ForwardFacingSuitedPose
             : SamusPoseId.ForwardFacingPowerSuitPose;
-        samus.PoseMetadata.RefreshCollisionRadii();
-        samus.Presentation.InitializeAnimation();
+        SamusPoseMetadata.RefreshCollisionRadii(samus);
+        SamusPresentation.InitializeAnimation(samus);
         // Entry's Samus command $15 publishes history before locking gameplay.
         samus.CommitPoseHistory();
         samus.Control.LockForSuitPickup();
@@ -337,12 +338,12 @@ public sealed class SamusSuitPickupState
         samus.EquippedItems |= mask;
         samus.CollectedItems |= mask;
         samus.Pose = SamusPoseId.ForwardFacingSuitedPose;
-        samus.PoseMetadata.RefreshCollisionRadii();
-        samus.Presentation.InitializeAnimation();
+        SamusPoseMetadata.RefreshCollisionRadii(samus);
+        SamusPresentation.InitializeAnimation(samus);
         // The reveal phase publishes another transition, even if the other suit
         // already selected this same front-facing pose at entry.
         samus.CommitPoseHistory();
-        samus.Presentation.LoadSuitPalette(cgram);
+        samus.Presentation.LoadSuitPalette(samus, cgram);
         Stage = SamusSuitPickupStage.LightBeamShrinks;
     }
 

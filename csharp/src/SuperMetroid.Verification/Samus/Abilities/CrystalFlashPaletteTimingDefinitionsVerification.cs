@@ -50,7 +50,7 @@ internal static class CrystalFlashPaletteTimingDefinitionsVerification
             SuperMissiles = 10,
             PowerBombs = 10,
         };
-        samus.PoseMetadata.RefreshCollisionRadii();
+        SamusPoseMetadata.RefreshCollisionRadii(samus);
         samus.HorizontalSpeed.SpecialPaletteTimer = NativeCountdown.Start(0);
         AssertTrue(
             samus.CrystalFlash.TryBegin(

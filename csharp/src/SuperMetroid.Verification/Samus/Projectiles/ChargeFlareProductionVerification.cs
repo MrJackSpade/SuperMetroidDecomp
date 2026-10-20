@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core;
@@ -83,7 +84,7 @@ internal static class ChargeFlareProductionVerification
         runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.Player.IntroducedSamus.Pose = SamusPoseId.FacingRightNormalPose;
         runtime.Player.IntroducedSamus.Position = runtime.Player.IntroducedSamus.Position.WithWhole(new((ushort)(runtime.Room.LoadedCamera.PixelPosition.X + 100), (ushort)(runtime.Room.LoadedCamera.PixelPosition.Y + 100)));
-        runtime.Player.IntroducedSamus.Presentation.InitializeAnimation(); runtime.Player.IntroducedSamus.Presentation.PrimeGraphics();
+        SamusPresentation.InitializeAnimation(runtime.Player.IntroducedSamus); runtime.Player.IntroducedSamus.Presentation.PrimeGraphics(runtime.Player.IntroducedSamus);
         InstalledFixtures.BindProjectileArtwork(runtime);
         runtime.Projectiles.Charge.FlareCounter = 30;
         Array.Fill(runtime.Projectiles.Charge.FlareTimers, NativeCountdown.Start(100));

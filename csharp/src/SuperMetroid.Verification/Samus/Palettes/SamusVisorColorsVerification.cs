@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Drawing;
 using System.Text;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
@@ -160,8 +161,8 @@ internal static class SamusVisorColorsVerification
             Pose = SamusPoseId.FacingRightNormalPose,
             Position = FixedPosition<RoomPixels>.FromWhole(new(100, 200)),
         };
-        samus.PoseMetadata.RefreshCollisionRadii();
-        samus.Presentation.InitializeAnimation();
+        SamusPoseMetadata.RefreshCollisionRadii(samus);
+        SamusPresentation.InitializeAnimation(samus);
         AssertTrue(samus.Xray.TryBegin(samus, SamusMovementType.Standing, new XrayBeginConditions { GameState = SuperMetroidGameState.MainGameplay }),
             "stock X-ray setup is accepted");
         return samus;

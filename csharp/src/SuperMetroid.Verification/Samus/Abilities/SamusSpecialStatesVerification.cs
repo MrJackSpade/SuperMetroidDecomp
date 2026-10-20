@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Drawing;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
@@ -116,7 +117,7 @@ internal static void VerifySamusCrystalFlash()
         PowerBombs = 10,
         InvincibilityTimer = NativeCountdown.Start(96),
     };
-    samus.PoseMetadata.RefreshCollisionRadii();
+    SamusPoseMetadata.RefreshCollisionRadii(samus);
 
     samus.PoseHistory.PreviousPose = SamusPoseId.FacingRightNormalPose;
     samus.PoseHistory.PreviousDirectionAndMovement = 8;
@@ -184,7 +185,7 @@ internal static void VerifySamusCrystalFlash()
         AssertEqual(CrystalFlashPhase.Raising, samus.CrystalFlash.Phase,
             $"raise frame {frame} retains start handler");
         AssertEqual(77, samus.InvincibilityTimer.RawValue, "ordinary raise handler does not clear immunity");
-        samus.Presentation.AnimateNoFx(new SamusAnimationStep { Random = new CartridgeRandom(), ControllerInput = chord });
+        SamusPresentation.AnimateNoFx(samus, new SamusAnimationStep { Random = new CartridgeRandom(), ControllerInput = chord });
     }
     AssertEqual((initialY - 18), samus.Position.Y.Whole, "first nine raise calls move 18 pixels");
 
@@ -252,7 +253,7 @@ internal static void VerifySamusCrystalFlash()
         "Crystal Flash HDMA cleanup clears phase");
     AssertEqual(0, crystalWindow.Status,
         "Crystal Flash HDMA cleanup clears shared status");
-    samus.Presentation.AnimateNoFx(new SamusAnimationStep { Random = new CartridgeRandom(), ControllerInput = chord });
+    SamusPresentation.AnimateNoFx(samus, new SamusAnimationStep { Random = new CartridgeRandom(), ControllerInput = chord });
     AssertEqual(2, samus.AnimationFrameTimer.RawValue,
         "same beta frame decrements forced timer three to two");
 
@@ -287,16 +288,16 @@ internal static void VerifySamusCrystalFlash()
 
     // Finish animation is ROM bytecode, not a host countdown. Movement runs before animation
     // each frame; `$FD,$01` publishes standing-right, which is committed after animation.
-    samus.Presentation.AnimateNoFx(new SamusAnimationStep { Random = new CartridgeRandom(), ControllerInput = chord });
+    SamusPresentation.AnimateNoFx(samus, new SamusAnimationStep { Random = new CartridgeRandom(), ControllerInput = chord });
     int finishFrames = 0;
     while (samus.PendingTransitionalPose is null && finishFrames++ < 20)
     {
         samus.CrystalFlash.Step(samus, (ushort)(0x0100 + finishFrames));
-        samus.Presentation.AnimateNoFx(new SamusAnimationStep { Random = new CartridgeRandom(), ControllerInput = chord });
+        SamusPresentation.AnimateNoFx(samus, new SamusAnimationStep { Random = new CartridgeRandom(), ControllerInput = chord });
     }
     AssertEqual<SamusPoseId?>(SamusPoseId.FacingRightNormalPose, samus.PendingTransitionalPose,
         "Crystal Flash ROM finish command publishes standing right");
-    AssertTrue(samus.PoseTransitions.ApplyPendingVerifiedAnimationTransition(),
+    AssertTrue(SamusPoseTransitions.ApplyPendingVerifiedAnimationTransition(samus),
         "Crystal Flash standing transition is applied");
     AssertEqual(CrystalFlashPhase.Finishing, samus.CrystalFlash.Phase,
         "pose transition does not prematurely replace installed handler");
@@ -324,7 +325,7 @@ internal static void VerifySamusCrystalFlash()
         SuperMissiles = 10,
         PowerBombs = 10,
     };
-    left.PoseMetadata.RefreshCollisionRadii();
+    SamusPoseMetadata.RefreshCollisionRadii(left);
     left.PoseHistory.PreviousPose = left.Pose;
     left.PoseHistory.PreviousDirectionAndMovement = 4;
     AssertTrue(left.CrystalFlash.TryBegin(left, chord),
@@ -412,8 +413,8 @@ internal static void VerifySamusXray()
         Position = FixedPosition<RoomPixels>.FromWhole(new(100, 200)),
     };
     standing.Xray.PresentationColors = xrayColors;
-    standing.PoseMetadata.RefreshCollisionRadii();
-    standing.Presentation.InitializeAnimation();
+    SamusPoseMetadata.RefreshCollisionRadii(standing);
+    SamusPresentation.InitializeAnimation(standing);
 
     AssertTrue(
         standing.Xray.TryBegin(standing, previousMovementType: SamusMovementType.Standing, conditions: new XrayBeginConditions { GameState = SuperMetroidGameState.MainGameplay }),
@@ -435,7 +436,7 @@ internal static void VerifySamusXray()
     AssertEqual(2, (standing.Xray.StepMovement(standing) ?? throw new InvalidOperationException("Verification requires standing.Xray.StepMovement(bus, standing).")),
         "angle 40 selects forward X-ray frame");
     AssertEqual(15, standing.AnimationFrameTimer.RawValue, "X-ray movement forces timer fifteen");
-    standing.Presentation.AnimateNoFx(new SamusAnimationStep { Random = new CartridgeRandom() });
+    SamusPresentation.AnimateNoFx(standing, new SamusAnimationStep { Random = new CartridgeRandom() });
     AssertEqual(14, standing.AnimationFrameTimer.RawValue,
         "generic animation follows X-ray movement timer write");
 
@@ -540,7 +541,7 @@ internal static void VerifySamusXray()
     AssertTrue(standing.Xray.StepMovement(standing) is null,
         "X-ray movement is RTS during type-E turn");
     for (int tick = 0; tick < 5; tick++)
-        standing.Presentation.AnimateNoFx(new SamusAnimationStep { Random = new CartridgeRandom() });
+        SamusPresentation.AnimateNoFx(standing, new SamusAnimationStep { Random = new CartridgeRandom() });
     AssertEqual(2, standing.AnimationFrame, "X-ray turn reaches frame two");
     AssertEqual(1, standing.AnimationFrameTimer.RawValue, "X-ray turn reaches timer one");
     standing.Xray.HandlePoseInput(standing, 0);
@@ -585,8 +586,8 @@ internal static void VerifySamusXray()
         Pose = SamusPoseId.CrouchingRightPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(100, 200)),
     };
-    crouched.PoseMetadata.RefreshCollisionRadii();
-    crouched.Presentation.InitializeAnimation();
+    SamusPoseMetadata.RefreshCollisionRadii(crouched);
+    SamusPresentation.InitializeAnimation(crouched);
     AssertTrue(crouched.Xray.TryBegin(crouched, previousMovementType: SamusMovementType.Crouching, conditions: new XrayBeginConditions { GameState = SuperMetroidGameState.MainGameplay }),
         "crouched X-ray setup accepted");
     AssertEqual(SamusPoseId.XrayingCrouchingRightPose, crouched.Pose, "right crouched X-ray pose");
@@ -618,8 +619,8 @@ internal static void VerifySamusXray()
         Pose = SamusPoseId.FacingLeftNormalPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(0x0174, 0x028b)),
     };
-    interrupted.PoseMetadata.RefreshCollisionRadii();
-    interrupted.Presentation.InitializeAnimation();
+    SamusPoseMetadata.RefreshCollisionRadii(interrupted);
+    SamusPresentation.InitializeAnimation(interrupted);
     AssertTrue(interrupted.Xray.TryBegin(interrupted, previousMovementType: SamusMovementType.Standing, conditions: new XrayBeginConditions { GameState = SuperMetroidGameState.MainGameplay }, XrayActivation.Deferred),
         "X-Mode fixture admits deferred left-facing X-Ray setup");
     AssertTrue(interrupted.Xray.IsActive && !interrupted.Xray.OwnsSamusControl,
@@ -654,8 +655,8 @@ internal static void VerifySamusXray()
     SamusState Rejected(SamusPoseId pose, ushort ySpeed = 0, ushort ySubspeed = 0)
     {
         var sample = new SamusState { Pose = pose };
-        sample.PoseMetadata.RefreshCollisionRadii();
-        sample.Presentation.InitializeAnimation();
+        SamusPoseMetadata.RefreshCollisionRadii(sample);
+        SamusPresentation.InitializeAnimation(sample);
         sample.Kinematics.YSpeed = new SnesUnsignedSixteenSixteen(ySpeed, ySubspeed);
         return sample;
     }
@@ -781,13 +782,13 @@ internal static void VerifySamusDeathSequence()
         Pose = SamusPoseId.FacingRightNormalPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(0x0480, 0x04c0)),
     };
-    samus.PoseMetadata.RefreshCollisionRadii();
-    samus.Presentation.InitializeAnimation();
+    SamusPoseMetadata.RefreshCollisionRadii(samus);
+    SamusPresentation.InitializeAnimation(samus);
     samus.PoseHistory.PreviousPose = samus.Pose;
     samus.PoseHistory.PreviousDirectionAndMovement = 8;
     samus.PoseHistory.LastDifferentPose = SamusPoseId.SpinJumpLeftPose;
     samus.PoseHistory.LastDifferentDirectionAndMovement = 0x0304;
-    SamusMovementType deathSourceMovementType = samus.PoseMetadata.ReadMovementType();
+    SamusMovementType deathSourceMovementType = SamusPoseMetadata.ReadMovementType(samus);
     samus.DeathSequence.Begin(
         samus,
         layer1: new(0x03e0, 0x0400));
@@ -796,7 +797,7 @@ internal static void VerifySamusDeathSequence()
     AssertEqual(SamusPoseId.FacingRightNormalPose, samus.PoseHistory.LastDifferentPose, "death shifts prior pose");
     AssertEqual(8, samus.PoseHistory.LastDifferentDirectionAndMovement, "death shifts prior metadata");
     AssertEqual(SamusPoseId.DeathSequenceRightPose, samus.PoseHistory.PreviousPose, "death commits right pose");
-    AssertEqual(SnesLittleEndian.Word(samus.PoseMetadata.ReadPoseXDirection(), (byte)samus.PoseMetadata.ReadMovementType()),
+    AssertEqual(SnesLittleEndian.Word(SamusPoseMetadata.ReadPoseXDirection(samus), (byte)SamusPoseMetadata.ReadMovementType(samus)),
         samus.PoseHistory.PreviousDirectionAndMovement, "death commits right metadata");
     AssertEqual(5, samus.AnimationFrame, "ordinary death starts unmorphed frame five");
     AssertEqual(new Position16<ScreenPixels>(0x00a0, 0x00c0), samus.DeathSequence.ScreenPosition, "death captures screen position");
@@ -860,8 +861,8 @@ internal static void VerifySamusDeathSequence()
         Pose = SamusPoseId.MorphBallGroundLeftPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(64, 80)),
     };
-    morphedLeft.PoseMetadata.RefreshCollisionRadii();
-    morphedLeft.Presentation.InitializeAnimation();
+    SamusPoseMetadata.RefreshCollisionRadii(morphedLeft);
+    SamusPresentation.InitializeAnimation(morphedLeft);
     morphedLeft.PoseHistory.PreviousPose = morphedLeft.Pose;
     morphedLeft.PoseHistory.PreviousDirectionAndMovement = 0x0404;
     morphedLeft.DeathSequence.Begin(
@@ -870,13 +871,13 @@ internal static void VerifySamusDeathSequence()
     AssertEqual(SamusPoseId.MorphBallGroundLeftPose, morphedLeft.PoseHistory.LastDifferentPose, "left death shifts prior pose");
     AssertEqual(0x0404, morphedLeft.PoseHistory.LastDifferentDirectionAndMovement, "left death shifts prior metadata");
     AssertEqual(SamusPoseId.DeathSequenceLeftPose, morphedLeft.PoseHistory.PreviousPose, "death commits left pose");
-    AssertEqual(SnesLittleEndian.Word(morphedLeft.PoseMetadata.ReadPoseXDirection(), (byte)morphedLeft.PoseMetadata.ReadMovementType()),
+    AssertEqual(SnesLittleEndian.Word(SamusPoseMetadata.ReadPoseXDirection(morphedLeft), (byte)SamusPoseMetadata.ReadMovementType(morphedLeft)),
         morphedLeft.PoseHistory.PreviousDirectionAndMovement, "death commits left metadata");
     AssertEqual(1, morphedLeft.AnimationFrame, "Morph death begins unmorph frame one");
 
     var spinning = new SamusState { Pose = SamusPoseId.SpinJumpRightPose };
-    spinning.PoseMetadata.RefreshCollisionRadii();
-    spinning.Presentation.InitializeAnimation();
+    SamusPoseMetadata.RefreshCollisionRadii(spinning);
+    SamusPresentation.InitializeAnimation(spinning);
     spinning.DeathSequence.Begin(
         spinning, layer1: new(0, 0));
     AssertTrue(spinning.DeathSequence.SpinJumpSoundRequested, "spin death requests sound $32");

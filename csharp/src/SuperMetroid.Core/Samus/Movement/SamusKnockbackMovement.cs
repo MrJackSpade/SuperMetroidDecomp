@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.Plms;
@@ -81,7 +82,7 @@ public static class SamusKnockbackMovement
         if (samus.KnockbackActive || samus.KnockbackDirection != SamusKnockbackDirection.None)
             throw new InvalidOperationException("Normal knockback is already active or pending.");
 
-        SamusMovementType sourceMovementType = samus.PoseMetadata.ReadMovementType();
+        SamusMovementType sourceMovementType = SamusPoseMetadata.ReadMovementType(samus);
         bool morphed = sourceMovementType is
             SamusMovementType.MorphBallGround or
             SamusMovementType.MorphBallFalling or
@@ -141,7 +142,7 @@ public static class SamusKnockbackMovement
             // Native interrupted poses pass through the same expansion check as ordinary
             // input poses before command one initializes knockback. Scripted cinematic
             // callers without room terrain retain their explicitly positioned behavior.
-            if (level is not null && !samus.PoseTransitions.TryResolveKnockbackPoseCollision(
+            if (level is not null && !SamusPoseTransitions.TryResolveKnockbackPoseCollision(samus, 
 level, targetPose, nmiFrameCounter, plms))
                 return false;
             samus.Pose = targetPose;
@@ -157,7 +158,7 @@ level, targetPose, nmiFrameCounter, plms))
             samus.Pose = facingLeft
                 ? SamusPoseId.UnusedKnockbackLeftPose
                 : SamusPoseId.UnusedKnockbackRightPose;
-            samus.PoseMetadata.RefreshCollisionRadii();
+            SamusPoseMetadata.RefreshCollisionRadii(samus);
             humanoid = true;
         }
 
@@ -210,7 +211,7 @@ level, targetPose, nmiFrameCounter, plms))
         samus.Kinematics.YDirection = SamusVerticalDirection.Up;
         SamusAerialMovement.ConfigureEnvironmentGravity(samus);
         if (humanoid)
-            samus.Presentation.InitializeAnimation(initialFrame: 0);
+            SamusPresentation.InitializeAnimation(samus, initialFrame: 0);
         return true;
     }
 
@@ -237,14 +238,14 @@ level, targetPose, nmiFrameCounter, plms))
         speed.SelectEnvironmentSpeedTable(samus.LiquidPhysics.DetermineMovementMedium(samus));
         // The special handler does not replace the pose's speed-table index.
         // Morphed bodies retain their own movement type throughout hurt movement.
-        uint baseSpeed = speed.CalculateBaseSpeed(samus.PoseMetadata.ReadMovementType());
+        uint baseSpeed = speed.CalculateBaseSpeed(SamusPoseMetadata.ReadMovementType(samus));
         var requestedX = SamusHorizontalDisplacement.Toward(samus.KnockbackXDirection == KnockbackHorizontalDirection.Left, samus, baseSpeed);
-        BlockMoveResult horizontal = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, Plms = plms }, samus.Kinematics, new HorizontalBlockMove { Displacement = requestedX.Displacement, CollisionMovementDirection = requestedX.CollisionDirection });
+        BlockMoveResult horizontal = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, Plms = plms }, samus.Kinematics, samus, new HorizontalBlockMove { Displacement = requestedX.Displacement, CollisionMovementDirection = requestedX.CollisionDirection });
         // Knockback uses the ordinary left/right wrapper, whose collision branch
         // cancels X momentum before the vertical pass. Retaining the clipped move's
         // base speed incorrectly accelerates the next frame away from the obstacle.
         if (horizontal.Collided)
-            speed.ClearHorizontalMomentum(samus.PoseMetadata.ReadFacingDirection());
+            speed.ClearHorizontalMomentum(SamusPoseMetadata.ReadFacingDirection(samus));
 
         BlockMoveResult vertical = samus.KnockbackDirection is SamusKnockbackDirection.UpLeft or SamusKnockbackDirection.UpRight
             ? MoveWithSharedVerticalSpeedCalculation(level, samus, nmiFrameCounter, plms)
@@ -295,9 +296,9 @@ level, targetPose, nmiFrameCounter, plms))
         // reset in `$91:8113` does not run for a merely prospective type change.
         // Preserve velocity and hurt words until the common expiry handoff consumes them.
         samus.Pose = targetPose;
-        samus.PoseMetadata.RefreshCollisionRadii();
+        SamusPoseMetadata.RefreshCollisionRadii(samus);
         samus.KnockbackActive = false;
-        samus.Presentation.InitializeAnimation(initialFrame: 0);
+        SamusPresentation.InitializeAnimation(samus, initialFrame: 0);
     }
 
     /// <summary>Installs a same-family target selected by the two `$91:A3F6/A40A` tables.</summary>
@@ -326,9 +327,9 @@ level, targetPose, nmiFrameCounter, plms))
         // reselects the acceleration mode from extra run speed, and can start a spark from
         // stored shine. The selected target's delay stream starts at frame zero.
         samus.Pose = targetPose;
-        samus.PoseMetadata.RefreshCollisionRadii();
-        if (!samus.PoseTransitions.InitializeInstalledNormalJumpPose(SamusMovementType.DamageBoost, controllerNewInput))
-            samus.Presentation.InitializeAnimation(initialFrame: 0);
+        SamusPoseMetadata.RefreshCollisionRadii(samus);
+        if (!SamusPoseTransitions.InitializeInstalledNormalJumpPose(samus, SamusMovementType.DamageBoost, controllerNewInput))
+            SamusPresentation.InitializeAnimation(samus, initialFrame: 0);
     }
 
     /// <summary>
@@ -442,7 +443,7 @@ level, targetPose, nmiFrameCounter, plms))
         int requested = SamusExtraDisplacement.CalculateNoSpeedVerticalDisplacement(
             samus.Kinematics,
             samus.HorizontalSpeed);
-        return SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, Plms = plms }, samus.Kinematics, new VerticalBlockMove { Displacement = requested, ScanLeftToRight = (nmiFrameCounter & 1) == 0 });
+        return SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, Plms = plms }, samus.Kinematics, samus, new VerticalBlockMove { Displacement = requested, ScanLeftToRight = (nmiFrameCounter & 1) == 0 });
     }
 
 }

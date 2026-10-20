@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
@@ -108,13 +109,13 @@ public static class GitHubErrorReporterSmokeTest
         var samus = new SamusState { Pose = SamusPoseId.MovingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(100, 200)) };
         runtime.Player.Samus = samus;
         samus.Drained.GetUpHandler = DrainedGetUpHandler.UnableToStand;
-        samus.Presentation.SetAnimationFrameFromSpecialHandler(8, 1);
+        SamusPresentation.SetAnimationFrameFromSpecialHandler(samus, 8, 1);
         samus.LiquidPhysics.FxType = RoomFxType.Acid;
         samus.LiquidPhysics.LavaAcidYPosition = 100;
         var game = new SuperMetroid.Core.Frontend.SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore(), null, SuperMetroid.Core.Frontend.SuperMetroidGameHostServices.Default, random);
         game.AdoptRuntime(runtime);
         string before = game.CaptureGameplayFailureContext();
-        samus.Presentation.SetAnimationFrameFromSpecialHandler(18, 1);
+        SamusPresentation.SetAnimationFrameFromSpecialHandler(samus, 18, 1);
         string after = game.CaptureGameplayFailureContext();
         Require(before.Contains("animationFrame=8;") && !before.Contains("animationFrame=18;"),
             "Before-frame snapshot changed with mutable Samus state.");

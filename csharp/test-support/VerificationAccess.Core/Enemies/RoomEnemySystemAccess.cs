@@ -293,9 +293,6 @@ internal static class RoomEnemySystemAccess
         internal IReadOnlyList<DragonEnemyState?> DragonStates =>
             [.. self.SlotTable.Slots.Select(slot => slot.EntityState<DragonEntity, DragonEnemyState>())];
 
-        /// <summary>The room's terminated bank-$B4 graphics-set records.</summary>
-        internal IReadOnlyList<RoomEnemyGraphicsSetEntry> GraphicsSet => self.PopulationLoader.GraphicsSet;
-
         /// <summary>Typed state for all 32 physical Puyo-capable enemy slots.</summary>
         internal IReadOnlyList<PuyoEnemyState?> PuyoStates =>
             [.. self.SlotTable.Slots.Select(slot => slot.EntityState<PuyoEntity, PuyoEnemyState>())];

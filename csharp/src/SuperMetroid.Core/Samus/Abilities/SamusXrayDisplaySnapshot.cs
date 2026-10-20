@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Samus.Movement;
 namespace SuperMetroid.Core.Samus.Abilities;
 
@@ -36,7 +37,7 @@ public readonly record struct SamusXrayDisplaySnapshot(
         bool finished = lastBeamStep is { Completed: true, PhaseAtStart: XrayBeamPhase.Finish };
         if (samus is null || !samus.Xray.IsActive && !finished) return null;
         return new(finished, samus.Xray.SetupStage, samus.Xray.BeamPhase, samus.Xray.Angle,
-            samus.Xray.AngularWidth, samus.Position.Whole, samus.PoseMetadata.IsFacing(SamusFacingDirection.Left),
-            samus.PoseMetadata.ReadMovementType() == SamusMovementType.Crouching);
+            samus.Xray.AngularWidth, samus.Position.Whole, SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left),
+            SamusPoseMetadata.ReadMovementType(samus) == SamusMovementType.Crouching);
     }
 }

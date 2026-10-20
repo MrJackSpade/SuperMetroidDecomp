@@ -47,8 +47,8 @@ internal static class PostCreditsCharacterArtworkVerification
                 if (native.Phase >= EndingCreditsPhase.Credits &&
                     checkedPhases.Add(native.Phase))
                 {
-                    LayeredRenderSnapshot expected = native.Presentation.CaptureRenderSnapshot();
-                    LayeredRenderSnapshot actual = installed.Presentation.CaptureRenderSnapshot();
+                    LayeredRenderSnapshot expected = EndingCreditsPresentation.CaptureRenderSnapshot(native);
+                    LayeredRenderSnapshot actual = EndingCreditsPresentation.CaptureRenderSnapshot(installed);
                     AssertTrue(actual.Memory.Vram.SequenceEqual(expected.Memory.Vram) &&
                             actual.Memory.Cgram.SequenceEqual(expected.Memory.Cgram) &&
                             SoftwareLayeredSnapshotRenderer.Render(actual).SequenceEqual(
@@ -80,8 +80,8 @@ internal static class PostCreditsCharacterArtworkVerification
                 nativeAudio.AdvanceFrame(default);
                 installedAudio.AdvanceFrame(default);
                 if (frame < 47) continue;
-                LayeredRenderSnapshot expected = native.Presentation.CaptureRenderSnapshot();
-                LayeredRenderSnapshot actual = installed.Presentation.CaptureRenderSnapshot();
+                LayeredRenderSnapshot expected = EndingCreditsPresentation.CaptureRenderSnapshot(native);
+                LayeredRenderSnapshot actual = EndingCreditsPresentation.CaptureRenderSnapshot(installed);
                 AssertTrue(actual.Memory.Vram.SequenceEqual(expected.Memory.Vram) &&
                         actual.Memory.Cgram.SequenceEqual(expected.Memory.Cgram) &&
                         SoftwareLayeredSnapshotRenderer.Render(actual).SequenceEqual(
@@ -101,8 +101,8 @@ internal static class PostCreditsCharacterArtworkVerification
                         $"installed logo phase at frame {frame}");
                     if (frame % 29 == 0 || native.Phase == EndingCreditsPhase.PostCreditsLogo)
                     {
-                        LayeredRenderSnapshot expected = native.Presentation.CaptureRenderSnapshot();
-                        LayeredRenderSnapshot actual = installed.Presentation.CaptureRenderSnapshot();
+                        LayeredRenderSnapshot expected = EndingCreditsPresentation.CaptureRenderSnapshot(native);
+                        LayeredRenderSnapshot actual = EndingCreditsPresentation.CaptureRenderSnapshot(installed);
                         AssertTrue(actual.Memory.Vram.SequenceEqual(expected.Memory.Vram) &&
                                 actual.Memory.Cgram.SequenceEqual(expected.Memory.Cgram) &&
                                 SoftwareLayeredSnapshotRenderer.Render(actual).SequenceEqual(
@@ -111,7 +111,7 @@ internal static class PostCreditsCharacterArtworkVerification
                         if (native.Phase == EndingCreditsPhase.PostCreditsLogo)
                         {
                             installed.BindObjectArtwork(editedLogo);
-                            LayeredRenderSnapshot changed = installed.Presentation.CaptureRenderSnapshot();
+                            LayeredRenderSnapshot changed = EndingCreditsPresentation.CaptureRenderSnapshot(installed);
                             visibleLogoEdit |= !actual.Memory.SpriteParts().SequenceEqual(changed.Memory.SpriteParts()) &&
                                 !SoftwareLayeredSnapshotRenderer.Render(actual).SequenceEqual(
                                     SoftwareLayeredSnapshotRenderer.Render(changed));
@@ -227,8 +227,8 @@ internal static class PostCreditsCharacterArtworkVerification
                 {
                     if (frame % 8 == 0)
                     {
-                        LayeredRenderSnapshot original = stockState.Presentation.CaptureRenderSnapshot();
-                        LayeredRenderSnapshot changed = editedState.Presentation.CaptureRenderSnapshot();
+                        LayeredRenderSnapshot original = EndingCreditsPresentation.CaptureRenderSnapshot(stockState);
+                        LayeredRenderSnapshot changed = EndingCreditsPresentation.CaptureRenderSnapshot(editedState);
                         bool changedVram = !original.Memory.Vram.SequenceEqual(changed.Memory.Vram);
                         if (!postShotLogo || changedVram)
                         {
@@ -270,8 +270,8 @@ internal static class PostCreditsCharacterArtworkVerification
                     stockState.BindObjectArtwork(edited);
                     AssertEqual(phaseBeforeRebind, stockState.Phase,
                         $"rebind {fileName} preserves the live ending phase");
-                    LayeredRenderSnapshot rebound = stockState.Presentation.CaptureRenderSnapshot();
-                    LayeredRenderSnapshot expectedRebind = editedState.Presentation.CaptureRenderSnapshot();
+                    LayeredRenderSnapshot rebound = EndingCreditsPresentation.CaptureRenderSnapshot(stockState);
+                    LayeredRenderSnapshot expectedRebind = EndingCreditsPresentation.CaptureRenderSnapshot(editedState);
                     AssertTrue(rebound.Memory.Vram.SequenceEqual(expectedRebind.Memory.Vram) &&
                             SoftwareLayeredSnapshotRenderer.Render(rebound).SequenceEqual(
                                 SoftwareLayeredSnapshotRenderer.Render(expectedRebind)),

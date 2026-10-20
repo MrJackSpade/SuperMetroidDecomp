@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies.Yard.Artwork;
 using SuperMetroid.Core.Input;
@@ -192,7 +193,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
 
         bool withinVerticalBand = unchecked((short)(slot.Position.Y.Whole - samus.Position.Y.Whole)) >= -96;
-        byte samusFacing = samus.PoseMetadata.ReadPoseXDirection();
+        byte samusFacing = SamusPoseMetadata.ReadPoseXDirection(samus);
         bool samusLookingAtYard = slot.Position.X.Whole < samus.Position.X.Whole
             ? samusFacing == (byte)SamusFacingDirection.Left
             : samusFacing == (byte)SamusFacingDirection.Right;
@@ -541,7 +542,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
 
         var horizontal = SnesSignedSixteenSixteen.FromRaw(unchecked((int)samus.AbsoluteMovedLastFrameXFixed));
         SnesSignedSixteenSixteen kick = YardKickDefinitions.ForHorizontalSpeed(horizontal.WholeWord);
-        if ((samus.PoseMetadata.ReadPoseXDirection() & 4) != 0)
+        if ((SamusPoseMetadata.ReadPoseXDirection(samus) & 4) != 0)
             horizontal = NegateWordsSeparately(horizontal);
         state.AirborneVelocity = new FixedVector<RoomPixels>(
             horizontal,
@@ -559,7 +560,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
         SetYardAirborneLists(slot, state);
         // Only the whole words are stored; both fraction words keep their previous values.
         state.AirborneVelocity = state.AirborneVelocity.WithWhole(new Offset16<RoomPixels>(
-            samus.PoseMetadata.ReadPoseXDirection() == (byte)SamusFacingDirection.Left ? (short)-1 : (short)1,
+            SamusPoseMetadata.ReadPoseXDirection(samus) == (byte)SamusFacingDirection.Left ? (short)-1 : (short)1,
             -1));
     }
 

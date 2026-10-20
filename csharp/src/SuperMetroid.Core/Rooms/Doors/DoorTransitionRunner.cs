@@ -289,7 +289,7 @@ internal sealed class DoorTransitionRunner
         // EnsureSamusDrawnEachFrame bypasses ordinary hurt flicker after the shared
         // draw. Elevator-owned drawing retains its separate alternating cadence.
         if (room.Enemies.Elevator.ElevatorStatus == ElevatorActorStatus.Inactive && _player.Samus is not null && _room.Camera is not null)
-            _player.Samus.Presentation.Draw(_sprites,
+            _player.Samus.Presentation.Draw(_player.Samus, _sprites,
                 _room.Camera.PixelPosition, mode7Transform: _display.ActiveSamusMode7Transform);
         _sprites.FinalizeFrame();
     }

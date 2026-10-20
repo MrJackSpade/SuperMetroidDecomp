@@ -11,15 +11,21 @@ namespace SuperMetroid.Core.Areas.Tourian;
 [RoomLifetime]
 internal sealed class TourianPlms
 {
-    /// <summary>Room event, Samus, and enemy-projectile owners used by Tourian PLM callbacks.</summary>
-    private readonly PlmRoomBindings _bindings;
+    /// <summary>Samus as the room reads and changes her.</summary>
+    private readonly IRoomSamusAccess? _samus;
+    /// <summary>The game's event flags.</summary>
+    private readonly IGlobalEventFlags? _events;
+    /// <summary>The enemy effects room objects trigger.</summary>
+    private readonly IRoomPlmEnemyEffects? _enemies;
     /// <summary>Native forty-slot PLM table scanned from the final slot during hardcoded spawns.</summary>
     private readonly PlmSlotTable _slotTable;
 
     /// <summary>Binds Tourian room callbacks to the active room's services and PLM slots.</summary>
-    internal TourianPlms(PlmRoomBindings bindings, PlmSlotTable slotTable)
+    internal TourianPlms(IRoomSamusAccess? samus, IGlobalEventFlags? events, IRoomPlmEnemyEffects? enemies, PlmSlotTable slotTable)
     {
-        _bindings = bindings;
+        _samus = samus;
+        _events = events;
+        _enemies = enemies;
         _slotTable = slotTable;
     }
     /// <summary>
@@ -43,7 +49,7 @@ internal sealed class TourianPlms
         if (enemyDeaths < enemyDeathQuota)
             return;
 
-        (_bindings.Events ?? throw new InvalidOperationException(
+        (_events ?? throw new InvalidOperationException(
             "Metroids-cleared PLM reached its kill quota without a room event writer.")).Set(eventNumber);
     }
 
@@ -78,7 +84,7 @@ internal sealed class TourianPlms
     /// </summary>
     internal void RunOldTourianEscapeShaftWallWait(PlmSlot slot)
     {
-        SamusState samus = _bindings.Samus?.Current
+        SamusState samus = _samus?.Current
             ?? throw new InvalidOperationException("Old Tourian escape-shaft wall has no live Samus owner.");
         if (OldTourianEscapeShaftWallPlmDefinitions.WakeTargetX >= samus.Position.X.Whole ||
             OldTourianEscapeShaftWallPlmDefinitions.WakeTargetY >= samus.Position.Y.Whole)
@@ -88,7 +94,7 @@ internal sealed class TourianPlms
         // leaves the loop timer alone.
         (slot.Animation ?? throw new InvalidOperationException("The old Tourian escape wall waits without its program.")).WakePastSleep();
         slot.InstructionTimer = NativeCountdown.Start(1);
-        (_bindings.Enemies ?? throw new InvalidOperationException(
+        (_enemies ?? throw new InvalidOperationException(
             "Old Tourian escape-shaft wall has no enemy-projectile owner.")).SpawnOldTourianEscapeShaftWallExplosion();
     }
     /// <summary>$88:DB8A/DC69 spawn the native clear/crumble lists at block (6,12).</summary>

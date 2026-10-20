@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
@@ -45,11 +46,11 @@ internal static class XraySetupVerification
         var support = runtime.Enemies.SlotTable.Slots[1];
         samus.Control.Unlock();
         samus.Pose = SamusPoseId.FacingRightNormalPose;
-        samus.PoseMetadata.RefreshCollisionRadii();
-        samus.Presentation.InitializeAnimation();
+        SamusPoseMetadata.RefreshCollisionRadii(samus);
+        SamusPresentation.InitializeAnimation(samus);
         samus.Position = samus.Position.WithWhole(new(support.Position.X.Whole, (ushort)(support.Position.Y.Whole - support.Radius.Y - samus.Kinematics.Radius.Y)));
         runtime.StepFrame(0);
-        AssertTrue(samus.Xray.TryBegin(samus, samus.PoseMetadata.ReadMovementType(), new XrayBeginConditions { GameState = SuperMetroidGameState.MainGameplay }), "setup fixture activates X-ray");
+        AssertTrue(samus.Xray.TryBegin(samus, SamusPoseMetadata.ReadMovementType(samus), new XrayBeginConditions { GameState = SuperMetroidGameState.MainGameplay }), "setup fixture activates X-ray");
         SnesButton held = runtime.Options.ControllerBindings.Dash;
         runtime.StepFrame(held); // Stage one, before either BG1 page is captured.
         RoomLevelData level = runtime.Room.LoadedLevelData;

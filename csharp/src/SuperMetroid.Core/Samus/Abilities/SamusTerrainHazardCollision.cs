@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Enemies.Spike;
 using SuperMetroid.Core.Rooms.LevelData;
@@ -102,7 +103,7 @@ public static class SamusTerrainHazardCollision
         // The native expression `((pose_x_dir ^ $0C) & $08) != 0` maps right-facing
         // records to leftward knockback and both left/front-special records to the other
         // direction. A switch over the proven pose discriminator states that intent.
-        samus.KnockbackXDirection = samus.PoseMetadata.ReadFacingDirection() == SamusFacingDirection.Right
+        samus.KnockbackXDirection = SamusPoseMetadata.ReadFacingDirection(samus) == SamusFacingDirection.Right
             ? KnockbackHorizontalDirection.Left
             : KnockbackHorizontalDirection.Right;
     }

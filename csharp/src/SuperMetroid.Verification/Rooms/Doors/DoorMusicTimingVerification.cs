@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Runtime;
@@ -46,8 +47,8 @@ internal static class DoorMusicTimingVerification
         samus.Control.Unlock();
         samus.PoseId = SamusPoseId.FacingRightNormalPose;
         samus.Position = samus.Position.WithWhole(new((ushort)(doorX * 16 + 8), (ushort)(doorY * 16 + 8)));
-        samus.PoseMetadata.RefreshCollisionRadii();
-        samus.Presentation.InitializeAnimation();
+        SamusPoseMetadata.RefreshCollisionRadii(samus);
+        SamusPresentation.InitializeAnimation(samus);
         runtime.Room.LoadedLevelData.ResolveDoorCollision(behavior, samus.Pose, true);
         var game = CreateRetailGameFixture(new SuperMetroid.Core.Saves.SaveSlotStore(), renderGameplayFrames: false,
             hostServices: SuperMetroidGameHostServices.Default with { SoundAcknowledgements = PortWriteEchoAcknowledgements.Instance }, random: random);

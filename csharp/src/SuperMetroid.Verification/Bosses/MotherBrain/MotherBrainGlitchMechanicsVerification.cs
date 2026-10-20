@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Bosses.MotherBrain.BabyMetroidFixtureHeadVerification;
 using SuperMetroid.Core.Bosses.MotherBrain;
@@ -22,18 +23,18 @@ internal static class MotherBrainGlitchMechanicsVerification
 
         // $91:E571 writes only $0A1C: the spin jump's $0A1E/$0A1F stay in force.
         var spinning = new SamusState { Pose = SamusPoseId.SpinJumpRightPose, Position = FixedPosition<RoomPixels>.FromWhole(new(0x80, 0x80)) };
-        spinning.PoseMetadata.RefreshCollisionRadii();
-        spinning.Presentation.InitializeAnimation();
+        SamusPoseMetadata.RefreshCollisionRadii(spinning);
+        SamusPresentation.InitializeAnimation(spinning);
         spinning.Drained.PutStanding(spinning);
         AssertEqual(SamusPoseId.DrainedStandingRightPose, spinning.Pose, "drained controller installs the standing drained pose");
         AssertEqual(SamusPoseId.SpinJumpRightPose, spinning.InitializedPose, "drained controller skips InitializeSamusPose_1");
-        AssertEqual(SamusMovementType.SpinJumping, spinning.PoseMetadata.ReadMovementType(), "cached $0A1F keeps the spin-jump movement type");
+        AssertEqual(SamusMovementType.SpinJumping, SamusPoseMetadata.ReadMovementType(spinning), "cached $0A1F keeps the spin-jump movement type");
 
         // $90:9DB2 tests only the Screw Attack poses; any other pose rewinds to frame $0A.
-        spinning.PoseTransitions.ApplyWallContactAnimationRewind();
+        SamusPoseTransitions.ApplyWallContactAnimationRewind(spinning);
         AssertEqual(0x0a, spinning.AnimationFrame, "wall-contact rewind runs for the drained pose");
         // $91:EABE is gated by the spin mover, i.e. the cached type, not the live pose.
-        spinning.PoseTransitions.ApplyWallJumpTrigger();
+        SamusPoseTransitions.ApplyWallJumpTrigger(spinning);
         AssertEqual(SamusPoseId.WallJumpRightPose, spinning.Pose, "a drained spinning Samus wall-jumps out");
         AssertEqual(SamusPoseId.WallJumpRightPose, spinning.InitializedPose, "the wall jump initializes its pose");
 
@@ -47,7 +48,7 @@ internal static class MotherBrainGlitchMechanicsVerification
         ushort LatchVelocity(int startDx, ushort invincibility)
         {
             var samus = new SamusState { Health = 99, Position = FixedPosition<RoomPixels>.FromWhole(new(0x0080, 0x00a0)), InvincibilityTimer = NativeCountdown.FromRaw(invincibility) };
-            samus.PoseMetadata.RefreshCollisionRadii();
+            SamusPoseMetadata.RefreshCollisionRadii(samus);
             var baby = new BabyMetroidCutsceneState();
             baby.Initialize(previousOccupant: FixedPosition<RoomPixels>.Zero);
             baby.Phase = BabyMetroidCutscenePhase.LatchOntoSamus;

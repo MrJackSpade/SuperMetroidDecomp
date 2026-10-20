@@ -12,17 +12,20 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 [RoomLifetime]
 internal sealed class MotherBrainGlassPlms
 {
-    /// <summary>Boss and event services used by the glass PLM's conditional instructions.</summary>
-    private readonly PlmRoomBindings _bindings;
+    /// <summary>The area's boss-defeat flags.</summary>
+    private readonly IAreaBossFlagReader? _bosses;
+    /// <summary>The game's event flags.</summary>
+    private readonly IGlobalEventFlags? _events;
     /// <summary>Physical PLM slots used to retain the glass argument across deletion.</summary>
     private readonly PlmSlotTable _slotTable;
     /// <summary>Room sound queue receiving the glass-shatter effect.</summary>
     private readonly PlmSoundQueue _sounds;
 
     /// <summary>Binds glass instruction handling to the room's PLM slots, event services, and sound queue.</summary>
-    internal MotherBrainGlassPlms(PlmRoomBindings bindings, PlmSlotTable slotTable, PlmSoundQueue sounds)
+    internal MotherBrainGlassPlms(IAreaBossFlagReader? bosses, IGlobalEventFlags? events, PlmSlotTable slotTable, PlmSoundQueue sounds)
     {
-        _bindings = bindings;
+        _bosses = bosses;
+        _events = events;
         _slotTable = slotTable;
         _sounds = sounds;
     }
@@ -105,10 +108,10 @@ internal sealed class MotherBrainGlassPlms
         slot.LoopTimer = 0;
     }
     /// <summary>Whether Mother Brain, the area boss, is dead.</summary>
-    internal bool IsBossDead() => _bindings.Bosses?.IsDefeated(BossBits.AreaBoss) == true;
+    internal bool IsBossDead() => _bosses?.IsDefeated(BossBits.AreaBoss) == true;
 
     /// <summary>Whether the glass was destroyed on an earlier visit.</summary>
-    internal bool IsGlassDestroyed() => _bindings.Events?.Has(EventNumber.MotherBrainGlassDestroyed) == true;
+    internal bool IsGlassDestroyed() => _events?.Has(EventNumber.MotherBrainGlassDestroyed) == true;
 
     /// <summary>
     /// <c>$84:D30B</c>: queues the shatter sound and spawns a burst of four shard projectiles at the glass's block.
@@ -126,7 +129,7 @@ internal sealed class MotherBrainGlassPlms
 
     /// <summary>Sets the glass-destroyed event.</summary>
     internal void SetGlassDestroyed() =>
-        (_bindings.Events ?? throw new InvalidOperationException("Mother Brain glass has no event writer.")).Set(EventNumber.MotherBrainGlassDestroyed);
+        (_events ?? throw new InvalidOperationException("Mother Brain glass has no event writer.")).Set(EventNumber.MotherBrainGlassDestroyed);
 
     /// <summary>The shatter sound's native queue cap.</summary>
     private const int ShatterSoundMaximumQueued = 15;

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Drawing;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms.LevelData;
@@ -87,12 +88,12 @@ internal static class ReserveModeVerification
         while (secondRecovery.IsActive)
             secondRecovery.StepAfterNmi(knockbackVariant, 0);
         knockbackVariant.Pose = SamusPoseId.FacingRightNormalPose;
-        knockbackVariant.PoseMetadata.RefreshCollisionRadii();
-        knockbackVariant.Presentation.InitializeAnimation();
+        SamusPoseMetadata.RefreshCollisionRadii(knockbackVariant);
+        SamusPresentation.InitializeAnimation(knockbackVariant);
         knockbackVariant.HorizontalSpeed.SpeedBoostCounter = new SamusSpeedBoostCounter(
             SamusSpecialSequenceRomData.Shinespark.ActiveSpeedBoostCounter);
         var level = new RoomLevelData(new Extent16<RoomBlocks>(16, 16), new RoomLevelPlanes(new ushort[256], new byte[256], new ushort[256]), new byte[8]);
-        AssertTrue(knockbackVariant.PoseTransitions.TryApplyPostureTransition(
+        AssertTrue(SamusPoseTransitions.TryApplyPostureTransition(knockbackVariant, 
 
                 level,
                 SamusPoseId.CrouchingTransitionRightPose,
@@ -126,8 +127,8 @@ internal static class ReserveModeVerification
             ReserveTankMode = reserveEnergy == 0 ? ReserveTankMode.None : ReserveTankMode.Auto,
             EquippedItems = SamusEquipmentFlags.XrayScope,
         };
-        samus.PoseMetadata.RefreshCollisionRadii();
-        samus.Presentation.InitializeAnimation();
+        SamusPoseMetadata.RefreshCollisionRadii(samus);
+        SamusPresentation.InitializeAnimation(samus);
         AssertTrue(samus.Xray.TryBegin(samus, SamusMovementType.Standing, new XrayBeginConditions { GameState = SuperMetroidGameState.MainGameplay }),
             "X-Ray fixture activation");
         return samus;

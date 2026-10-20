@@ -100,7 +100,7 @@ internal static class ScrollPlmsVerification
             Position = FixedPosition<RoomPixels>.FromWhole(new(56, 56)),
             Radius = new(8, 7),
         };
-        BlockMoveResult movement = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, Plms = plms }, body, new HorizontalBlockMove { Displacement = 1 << 16 });
+        BlockMoveResult movement = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, Plms = plms }, body, null, new HorizontalBlockMove { Displacement = 1 << 16 });
         AssertTrue(!movement.Collided,
             "scroll extension remains traversable special air");
         AssertTrue(plms.ScrollPlmTriggered(origin),
@@ -121,7 +121,7 @@ internal static class ScrollPlmsVerification
             Pose = SamusPoseId.MorphBallGroundRightPose,
             Position = FixedPosition<RoomPixels>.FromWhole(new(56, 56)),
         };
-        ball.PoseMetadata.RefreshCollisionRadii();
+        SamusPoseMetadata.RefreshCollisionRadii(ball);
         ball.Kinematics.ExtraDisplacement = ball.Kinematics.ExtraDisplacement.WithX(SnesSignedSixteenSixteen.FromParts(1, 0));
         ushort ballStartX = ball.Position.X.Whole;
         SamusMorphBallMovement.StepGrounded(
@@ -150,7 +150,7 @@ internal static class ScrollPlmsVerification
             EquippedItems = SamusEquipmentFlags.Bombs,
             Position = FixedPosition<RoomPixels>.FromWhole(new(56, 40)),
         };
-        bombJump.PoseMetadata.RefreshCollisionRadii();
+        SamusPoseMetadata.RefreshCollisionRadii(bombJump);
         bombJump.Kinematics.YAcceleration = default;
         bombJump.RequestMorphedBombJump(2);
         SamusBombJumpMovement.Start(bombJump);

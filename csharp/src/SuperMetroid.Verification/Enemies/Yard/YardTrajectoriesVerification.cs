@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
@@ -36,8 +37,8 @@ internal static class YardTrajectoriesVerification
             var state = enemies.YardStates[focus];
             var samus = new SamusState { Health = 999, MaxHealth = 999,
                 Pose = SamusPoseId.FacingLeftNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(unchecked((ushort)(actor.Position.X.Whole - 64)), actor.Position.Y.Whole)) };
-            samus.PoseMetadata.RefreshCollisionRadii();
-            samus.Presentation.InitializeAnimation();
+            SamusPoseMetadata.RefreshCollisionRadii(samus);
+            SamusPresentation.InitializeAnimation(samus);
             int largest = 0;
             for (int frame = 0; frame < 1200; frame++)
             {
@@ -77,7 +78,7 @@ internal static class YardTrajectoriesVerification
             state.AirborneVelocity = state.AirborneVelocity.WithWholeY(1);
             var samus = new SamusState { Health = 999, MaxHealth = 999,
                 Pose = SamusPoseId.FacingLeftNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(32, 32)) };
-            samus.PoseMetadata.RefreshCollisionRadii();
+            SamusPoseMetadata.RefreshCollisionRadii(samus);
             enemies.StepFrame(new RoomEnemyFrame { Camera = new(128, 128), TimeIsFrozen = false, Samus = samus, Level = floor });
             AssertEqual(YardBehavior.NormalCrawling, state.Behavior, "dropped Yard lands without becoming aggressive");
             // $A3:D1B3 calls E67A: speed from E5F0 and sign from properties,

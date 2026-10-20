@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Samus.Movement;
@@ -123,11 +124,11 @@ internal sealed class ProjectileAnimation
     /// <summary>Reads Samus's shot direction and movement metadata before drawing an eligible charge-flare component.</summary>
     internal void DrawFlareComponent(SpriteFrameBuffer sprites, SamusState samus, Position16<RoomPixels> layer1, int component, SamusMode7Transform? mode7Transform, ChargeFlareArtwork artwork)
     {
-        byte direction = samus.PoseMetadata.ReadShotDirection();
+        byte direction = SamusPoseMetadata.ReadShotDirection(samus);
         if (direction >= 16)
             return;
 
-        DrawFlareComponentWithMetadata(sprites, samus, layer1, component, mode7Transform, artwork, new ChargeFlarePose { Direction = direction, Running = samus.PoseMetadata.ReadMovementKind() == SamusMovementType.Running, PoseYOffset = unchecked((byte)samus.PoseMetadata.ReadGraphicsYOffset()), FacingLeft = samus.PoseMetadata.IsFacing(SamusFacingDirection.Left) });
+        DrawFlareComponentWithMetadata(sprites, samus, layer1, component, mode7Transform, artwork, new ChargeFlarePose { Direction = direction, Running = SamusPoseMetadata.ReadMovementKind(samus) == SamusMovementType.Running, PoseYOffset = unchecked((byte)SamusPoseMetadata.ReadGraphicsYOffset(samus)), FacingLeft = SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left) });
     }
 
     /// <summary>Applies pose muzzle offsets after optional Ceres Mode-7 center transform, then draws the installed component frame.</summary>

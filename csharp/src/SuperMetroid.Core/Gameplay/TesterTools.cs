@@ -74,6 +74,6 @@ internal sealed class TesterTools
         _player.Samus.PowerBombs = _player.Samus.MaxPowerBombs = TesterInventoryDefinitions.PowerBombs;
         for (int bit = 0; bit < Bank80SystemState.ItemBitByteCount * 8; bit++)
             _system.SetCollectedItemBit(bit);
-        _player.Samus.Presentation.LoadSuitPalette(_cgram);
+        _player.Samus.Presentation.LoadSuitPalette(_player.Samus, _cgram);
     }
 }

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Drawing;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
@@ -31,8 +32,8 @@ internal static class ChozoGrabAnimationVerification
         var samus = runtime.Player.IntroducedSamus;
         samus.Pose = SamusPoseId.MorphBallGroundRightPose;
         samus.CollectedItems = samus.EquippedItems = SamusEquipmentFlags.MorphBall;
-        samus.PoseMetadata.RefreshCollisionRadii();
-        samus.Presentation.InitializeAnimation();
+        SamusPoseMetadata.RefreshCollisionRadii(samus);
+        SamusPresentation.InitializeAnimation(samus);
         samus.CommitPoseHistory();
         samus.AnimationFrame = 2;
         samus.AnimationFrameTimer = NativeCountdown.Start(3);

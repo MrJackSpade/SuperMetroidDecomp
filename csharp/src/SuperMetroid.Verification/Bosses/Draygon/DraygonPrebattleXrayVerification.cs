@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Runtime;
@@ -35,8 +36,8 @@ internal static class DraygonPrebattleXrayVerification
         samus.Position = samus.Position.WithWhole(new(456, 459));
         samus.EquippedItems = SamusEquipmentFlags.XrayScope;
         samus.SelectedHudItem = HudItem.XRay;
-        samus.PoseMetadata.RefreshCollisionRadii();
-        samus.Presentation.InitializeAnimation();
+        SamusPoseMetadata.RefreshCollisionRadii(samus);
+        SamusPresentation.InitializeAnimation(samus);
         runtime.StepFrame(0);
         runtime.StepFrame(runtime.Options.ControllerBindings.Dash);
         AssertTrue(samus.Xray.IsActive, "bottom-right arena position activates X-Ray through held Run");

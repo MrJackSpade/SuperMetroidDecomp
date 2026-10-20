@@ -15,7 +15,7 @@ internal static class VramDmaProducerContracts
             "SuperMetroid.Core.Samus.Artwork.ProjectileTrailAtlas.QueueTo" => "trails",
             "SuperMetroid.Core.Bosses.Ridley.CeresRidleyBehavior.QueueNextCeresEscapeTransfer" => "ceres",
             "SuperMetroid.Core.Bosses.Kraid.KraidBehavior.AdvanceKraidDeathBg3Transfer" => "kraid",
-            "SuperMetroid.Core.Enemies.EnemyPopulationLoader.QueueGraphicsUploads" => "enemies",
+            "SuperMetroid.Core.Enemies.EnemyGraphicsSet.QueueGraphicsUploads" => "enemies",
             "SuperMetroid.Core.Enemies.Gunship.GunshipBehavior.QueueGunshipTakeoffTiles" => "gunship",
             "SuperMetroid.Core.Fx.RoomFxAnimatedTilesState.Step" => "fx",
             "SuperMetroid.Core.Samus.Drawing.SamusArmCannonState.Draw" => "arm",

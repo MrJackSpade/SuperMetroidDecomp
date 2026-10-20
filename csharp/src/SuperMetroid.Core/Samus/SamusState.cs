@@ -36,12 +36,6 @@ public sealed class SamusState
     /// <summary>The <see cref="SamusPresentation"/> owner of this SamusState.</summary>
     internal SamusPresentation Presentation { get; }
 
-    /// <summary>The <see cref="SamusPoseMetadata"/> owner of this SamusState.</summary>
-    internal SamusPoseMetadata PoseMetadata { get; }
-
-    /// <summary>The <see cref="SamusPoseTransitions"/> owner of this SamusState.</summary>
-    internal SamusPoseTransitions PoseTransitions { get; }
-
     /// <summary>Current one-byte pose index, corresponding to WRAM <c>$0A1C</c>.</summary>
     /// <remarks>
     /// An ordinary write also models <c>InitializeSamusPose_1</c> ($91:F433), publishing the
@@ -529,12 +523,10 @@ public sealed class SamusState
     /// <remarks>Construction performs no cartridge reads and does not initialize room position, pose-dependent radii, animation data, or installed artwork; gameplay setup supplies those separately.</remarks>
     public SamusState()
     {
-        HudSelection = new SamusHudSelection(this);
-        InputSnapshot = new SamusInputSnapshot(this);
-        Presentation = new SamusPresentation(this);
-        PoseMetadata = new SamusPoseMetadata(this);
-        PoseTransitions = new SamusPoseTransitions(this);
-        Kinematics = new SamusKinematicsState(this);
+        HudSelection = new SamusHudSelection();
+        InputSnapshot = new SamusInputSnapshot();
+        Presentation = new SamusPresentation();
+        Kinematics = new SamusKinematicsState();
         // The backing field supplies the retail standing-right default without invoking
         // the setter before property initializers have constructed Kinematics.
         Kinematics.CollisionPose = Pose;
@@ -748,7 +740,7 @@ level,
             SamusKinematicsState probe = Kinematics.CreateCollisionProbe();
             probe.CollisionPose = targetPose;
             BlockMoveResult result = SamusBlockCollision.ProbeChangedPoseVertical(
-level, probe, amount, scanLeftToRight, plms);
+level, probe, this, amount, scanLeftToRight, plms);
             // Submerging sand clears native speed/gravity even during an observation.
             // Preserve these reaction writes without committing the probe's position.
             Kinematics.YSpeed = probe.YSpeed;
@@ -769,7 +761,7 @@ level, probe, amount, scanLeftToRight, plms);
     internal void ApplyPoseChangeCollisionCrouchFallback(SamusPoseId sourcePose)
     {
         ushort oldRadius = Kinematics.Radius.Y;
-        SamusPoseId fallbackPose = PoseMetadata.IsFacing(SamusFacingDirection.Left)
+        SamusPoseId fallbackPose = SamusPoseMetadata.IsFacing(this, SamusFacingDirection.Left)
             ? SamusPoseId.CrouchingLeftPose
             : SamusPoseId.CrouchingRightPose;
         if (sourcePose == fallbackPose)
@@ -788,7 +780,7 @@ level, probe, amount, scanLeftToRight, plms);
                 Kinematics.Position.Y.Whole - (fallbackRadius - oldRadius))));
             WritePreviousYPosition(Kinematics.Position.Y.Whole);
         }
-        Presentation.InitializeAnimation(initialFrame: 0);
+        SamusPresentation.InitializeAnimation(this, initialFrame: 0);
     }
 
     /// <summary>
@@ -933,7 +925,7 @@ level, probe, amount, scanLeftToRight, plms);
     public void ReconcilePauseBallEquipment()
     {
         bool springEquipped = EquippedItems.HasAny(SamusEquipmentFlags.SpringBall);
-        SamusMovementType movement = PoseMetadata.ReadMovementType();
+        SamusMovementType movement = SamusPoseMetadata.ReadMovementType(this);
         bool enable = springEquipped && movement is
             SamusMovementType.MorphBallGround or SamusMovementType.MorphBallFalling;
         bool disable = !springEquipped && movement is
@@ -943,14 +935,14 @@ level, probe, amount, scanLeftToRight, plms);
 
         // The native handlers select the stationary pose even while airborne. Keeping
         // ascent intact here permits the equipment-toggle mid-air Spring Ball jump.
-        bool left = PoseMetadata.IsFacing(SamusFacingDirection.Left);
+        bool left = SamusPoseMetadata.IsFacing(this, SamusFacingDirection.Left);
         Pose = enable
             ? left ? SamusPoseId.SpringBallGroundLeftPose : SamusPoseId.SpringBallGroundRightPose
             : left ? SamusPoseId.MorphBallGroundLeftPose : SamusPoseId.MorphBallGroundRightPose;
-        PoseMetadata.RefreshCollisionRadii();
+        SamusPoseMetadata.RefreshCollisionRadii(this);
         // $91:F9F4/FA56 preserve animation only within the same ball family. Crossing
         // families through the equipment menu therefore runs the normal frame-zero setup.
-        Presentation.InitializeAnimation();
+        SamusPresentation.InitializeAnimation(this);
     }
 
     /// <summary>
@@ -968,7 +960,7 @@ level, probe, amount, scanLeftToRight, plms);
     /// </summary>
     internal void CommitPoseHistory()
     {
-        ushort metadata = SnesLittleEndian.Word(PoseMetadata.ReadPoseXDirection(), (byte)PoseMetadata.ReadMovementType());
+        ushort metadata = SnesLittleEndian.Word(SamusPoseMetadata.ReadPoseXDirection(this), (byte)SamusPoseMetadata.ReadMovementType(this));
         PoseHistory.CommitTransition(Pose, metadata);
     }
 }

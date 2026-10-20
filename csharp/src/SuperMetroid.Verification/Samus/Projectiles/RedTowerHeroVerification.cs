@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Drawing;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
@@ -33,8 +34,8 @@ internal static class RedTowerHeroVerification
             samus.Control.Unlock();
             samus.PoseId = SamusPoseId.StandingAimUpRightPose;
             samus.Position = samus.Position.WithWhole(new(116, 587));
-            samus.PoseMetadata.RefreshCollisionRadii();
-            samus.Presentation.InitializeAnimation();
+            SamusPoseMetadata.RefreshCollisionRadii(samus);
+            SamusPresentation.InitializeAnimation(samus);
 
             // Preserve every retail enemy and terrain block. Activate the upper
             // Rippers before settling the lower viewport; otherwise their initial

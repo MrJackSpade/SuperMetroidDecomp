@@ -31,13 +31,13 @@ internal static class EndingWavySamusTests
         scene.Phase = EndingCreditsPhase.PostCreditsShootingStars;
         scene.PhaseTimer = 1;
         scene.Brightness = 15;
-        Require(!scene.Presentation.CaptureRenderSnapshot().LayersOf<BgSubscreenAddRenderLayer>().Any(), "Wave must not start during the palette fade");
+        Require(!EndingCreditsPresentation.CaptureRenderSnapshot(scene).LayersOf<BgSubscreenAddRenderLayer>().Any(), "Wave must not start during the palette fade");
         scene.Step();
         Rgba32[]? previous = null;
         for (int age = 0; age < 180; age++)
         {
             Require(scene.Phase == EndingCreditsPhase.PostCreditsWaitingBackdrop, "Native wave lasts exactly the 180-frame hold");
-            var snapshot = scene.Presentation.CaptureRenderSnapshot();
+            var snapshot = EndingCreditsPresentation.CaptureRenderSnapshot(scene);
             var wave = snapshot.LayersOf<BgSubscreenAddRenderLayer>().Single();
             for (int line = 0; line < 224; line++)
             {
@@ -65,7 +65,7 @@ internal static class EndingWavySamusTests
                 }
                 Require(changed > 0, "Native artwork must visibly add the blue transformation effect");
                 var packet = new RenderFrameSnapshot(new(age + 1, 1, (ushort)age), snapshot);
-                PixelComparison.Verify(packet, expected, scene.Presentation.Render(), "Ending direct render matches native BG3 addition");
+                PixelComparison.Verify(packet, expected, scene.Render(), "Ending direct render matches native BG3 addition");
                 PixelComparison.Verify(packet, expected, renderer.RenderForReadback(packet), "Ending wave frame on the GPU matches native BG3 addition");
                 PixelComparison.Verify(packet, expected, renderer.RenderForReadback(packet), "Repeated wave rendering does not advance simulation");
                 if (age == 0)
@@ -81,7 +81,7 @@ internal static class EndingWavySamusTests
             scene.Step();
         }
         Require(scene.Phase == EndingCreditsPhase.PostCreditsWaitingSamus, "Result panel replaces the wave after its wait");
-        Require(!scene.Presentation.CaptureRenderSnapshot().LayersOf<BgSubscreenAddRenderLayer>().Any(), "Result panel disables BG3 addition");
+        Require(!EndingCreditsPresentation.CaptureRenderSnapshot(scene).LayersOf<BgSubscreenAddRenderLayer>().Any(), "Result panel disables BG3 addition");
         Console.WriteLine($"{device.Kind}: ending wave native scrolls, moving blue pixels, BG2-only addition and 180-frame lifecycle passed.");
 
         ushort NativeX(int age, int line)

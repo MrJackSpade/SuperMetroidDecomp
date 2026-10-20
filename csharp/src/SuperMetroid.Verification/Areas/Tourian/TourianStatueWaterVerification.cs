@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Runtime;
@@ -37,8 +38,8 @@ internal static class TourianStatueWaterVerification
         var samus = runtime.Player.IntroducedSamus;
         samus.Pose = SamusPoseId.FacingRightNormalPose;
         samus.Position = samus.Position.WithWhole(new(64, 120));
-        samus.PoseMetadata.RefreshCollisionRadii();
-        samus.Presentation.InitializeAnimation();
+        SamusPoseMetadata.RefreshCollisionRadii(samus);
+        SamusPresentation.InitializeAnimation(samus);
         samus.CommitPoseHistory();
         samus.Control.Unlock();
         runtime.Room.LoadedCamera.SetPosition(new Position16<RoomPixels>(0, 0));

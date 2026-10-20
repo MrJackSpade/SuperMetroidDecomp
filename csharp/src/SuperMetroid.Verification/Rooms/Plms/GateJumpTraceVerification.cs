@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Input;
@@ -38,8 +39,8 @@ internal static class GateJumpTraceVerification
             samus.EquippedItems = 0; samus.EquippedBeams = 0;
             samus.SelectedHudItem = HudItem.Missile;
             samus.Missiles = samus.MaxMissiles = 10;
-            samus.PoseMetadata.RefreshCollisionRadii();
-            samus.Presentation.InitializeAnimation();
+            SamusPoseMetadata.RefreshCollisionRadii(samus);
+            SamusPresentation.InitializeAnimation(samus);
             runtime.Room.LoadedCamera.SetPosition(new Position16<RoomPixels>(0, 224));
             bool activated = false;
             for (int frame = -60; frame < 80; frame++)

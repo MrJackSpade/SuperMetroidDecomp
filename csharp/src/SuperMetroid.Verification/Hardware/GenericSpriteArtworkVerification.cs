@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus;
 using SuperMetroid.Tooling;
 using static SuperMetroid.Verification.Harness.RepositoryInputsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -104,7 +105,8 @@ internal static class GenericSpriteArtworkVerification
         actualParts = PlacedSpritePart.Of(intro.PrepareMotherBrainSprites().Draws);
         var expectedFrame = new SpriteFrameBuffer();
         expectedFrame.BeginFrame();
-        (intro.CurrentFlashbackSamus ?? throw new InvalidOperationException("Verification requires intro.flashbackSamus.")).Presentation.Draw(expectedFrame, new(0, 0), 0);
+        SamusState flashbackSamus = (intro.CurrentFlashbackSamus ?? throw new InvalidOperationException("Verification requires intro.flashbackSamus."));
+        flashbackSamus.Presentation.Draw(flashbackSamus, expectedFrame, new(0, 0), 0);
         var motherBrainOam = new OamBuffer();
         motherBrainOam.BeginFrame();
         DrawImportedSpritemap(reference, motherBrainOam,

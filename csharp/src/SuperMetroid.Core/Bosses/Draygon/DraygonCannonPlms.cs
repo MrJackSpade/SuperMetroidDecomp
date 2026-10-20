@@ -16,13 +16,13 @@ internal sealed class DraygonCannonPlms : IPlmFamilySource
         table.Register(PlmFamily.DraygonCannon, static (_, _) => PlmStepOutcome.Shared);
     }
 
-    /// <summary>Enemy control-word writer notified when a cannon is destroyed.</summary>
-    private readonly PlmRoomBindings _bindings;
+    /// <summary>The enemy effects room objects trigger.</summary>
+    private readonly IRoomPlmEnemyEffects? _enemies;
 
     /// <summary>Connects cannon PLM instruction handling to the active room's enemy services.</summary>
-    internal DraygonCannonPlms(PlmRoomBindings bindings)
+    internal DraygonCannonPlms(IRoomPlmEnemyEffects? enemies)
     {
-        _bindings = bindings;
+        _enemies = enemies;
     }
 
     /// <summary>Recognizes the active right, pre-destroyed right, and left retail cannon headers.</summary>
@@ -396,7 +396,7 @@ internal sealed class DraygonCannonPlms : IPlmFamilySource
     {
         DraygonCannonPlmState state = (slot.Family as DraygonCannonPlmState)
             ?? throw new InvalidOperationException("Draygon cannon damage reached a slot without cannon state.");
-        (_bindings.Enemies ?? throw new InvalidOperationException(
+        (_enemies ?? throw new InvalidOperationException(
             "Draygon cannon bytecode has no enemy-control-word writer.")).DisableDraygonCannon(
                 state.ControlWord);
         WriteDraygonCannonTypeAndBts(

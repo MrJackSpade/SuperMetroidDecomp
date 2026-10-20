@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Runtime;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
@@ -26,8 +27,8 @@ internal static class JumpNoXMovementVerification
         var samus = runtime.Player.IntroducedSamus;
         samus.Pose = SamusPoseId.NormalJumpAimDownLeftPose;
         samus.Position = samus.Position.WithWhole(new(0x0225, 0x004a));
-        samus.PoseMetadata.RefreshCollisionRadii();
-        samus.Presentation.InitializeAnimation();
+        SamusPoseMetadata.RefreshCollisionRadii(samus);
+        SamusPresentation.InitializeAnimation(samus);
         samus.Kinematics.Position = samus.Kinematics.Position.WithFractionX(0).WithFractionY(0);
         samus.Kinematics.YDirection = SamusVerticalDirection.Down;
         samus.Kinematics.YSpeed = default;

@@ -7,15 +7,15 @@ namespace SuperMetroid.Core.Rooms.Plms;
 [RoomLifetime]
 internal sealed class SamusEaterPlms
 {
-    /// <summary>Live room owners used to find held Samus and allocate PLM slots.</summary>
-    private readonly PlmRoomBindings _bindings;
+    /// <summary>Samus as the room reads and changes her.</summary>
+    private readonly IRoomSamusAccess? _samus;
     /// <summary>Descending native PLM slot allocation table.</summary>
     private readonly PlmSlotTable _slotTable;
 
     /// <summary>Binds the active room and its PLM slot population.</summary>
-    internal SamusEaterPlms(PlmRoomBindings bindings, PlmSlotTable slotTable)
+    internal SamusEaterPlms(IRoomSamusAccess? samus, PlmSlotTable slotTable)
     {
-        _bindings = bindings;
+        _samus = samus;
         _slotTable = slotTable;
     }
     /// <summary>Runs the native feet/head alignment gate and allocates the ordinary ROM coroutine.</summary>
@@ -42,7 +42,7 @@ internal sealed class SamusEaterPlms
     }
 
     /// <summary>Requires the live Samus instance associated with the plant's room.</summary>
-    internal SamusState RequirePlantSamus() => _bindings.Samus?.Current
+    internal SamusState RequirePlantSamus() => _samus?.Current
         ?? throw new InvalidOperationException("Samus Eater PLM requires the live Samus owner.");
 
     /// <summary>Repositions held Samus after normal movement and ORs in the native invincibility bit.</summary>

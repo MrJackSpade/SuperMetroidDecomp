@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Palettes;
@@ -33,7 +34,7 @@ public static class SamusPostDrawAudio
             samus.LiquidPhysics.QueueMovementSound(SoundEffectLibrary3Sounds.StopSpeedBoosterEcho, maximumQueued: 15);
         }
         if (previousMovement is not (SamusMovementType.SpinJumping or SamusMovementType.WallJumping) ||
-            samus.PoseMetadata.ReadMovementType() is SamusMovementType.SpinJumping or SamusMovementType.WallJumping)
+            SamusPoseMetadata.ReadMovementType(samus) is SamusMovementType.SpinJumping or SamusMovementType.WallJumping)
             return;
 
         samus.LiquidPhysics.QueueMovementSound(SoundEffectLibrary1Sounds.StopSpinJump, maximumQueued: 15);

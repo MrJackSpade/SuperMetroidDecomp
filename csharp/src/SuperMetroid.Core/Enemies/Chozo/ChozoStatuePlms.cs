@@ -12,15 +12,18 @@ namespace SuperMetroid.Core.Enemies.Chozo;
 [RoomLifetime]
 internal sealed class ChozoStatuePlms
 {
-    /// <summary>Room progression, area, and other services used by statue hand setup.</summary>
-    private readonly PlmRoomBindings _bindings;
+    /// <summary>The room's system and event state.</summary>
+    private readonly Bank80SystemState? _system;
+    /// <summary>The room's area.</summary>
+    private readonly AreaId _area;
     /// <summary>Descending native PLM allocation scanned for temporary reactions and persistent statue actors.</summary>
     private readonly PlmSlotTable _slotTable;
 
     /// <summary>Binds Chozo hand behavior to its room services and PLM slot allocation.</summary>
-    internal ChozoStatuePlms(PlmRoomBindings bindings, PlmSlotTable slotTable)
+    internal ChozoStatuePlms(Bank80SystemState? system, AreaId area, PlmSlotTable slotTable)
     {
-        _bindings = bindings;
+        _system = system;
+        _area = area;
         _slotTable = slotTable;
     }
     /// <summary>Bound enemy owner for statue hand activation; reattached after room load or state restore.</summary>
@@ -40,9 +43,9 @@ internal sealed class ChozoStatuePlms
     public void NotifyChozoStatueHandCollision(RoomLevelData level,
         RoomCollisionBlock block, SamusState samus, SamusPoseId collisionPose, bool movingDown)
     {
-        bool wreckedShip = _bindings.Area == AreaId.WreckedShip &&
+        bool wreckedShip = _area == AreaId.WreckedShip &&
             block.Bts == ChozoStatuePlmRomData.WreckedShipHandBts;
-        bool lowerNorfair = _bindings.Area == AreaId.Norfair &&
+        bool lowerNorfair = _area == AreaId.Norfair &&
             block.Bts == ChozoStatuePlmRomData.LowerNorfairHandBts;
         if (!wreckedShip && !lowerNorfair) return;
         // Both native setups return SEC regardless of admission. The morph-left pose
@@ -51,8 +54,8 @@ internal sealed class ChozoStatuePlms
             (SamusPoseId.MorphBallGroundRightPose or
              SamusPoseId.SpringBallGroundRightPose or SamusPoseId.SpringBallGroundLeftPose);
         eligible &= wreckedShip
-            ? (_bindings.System ?? throw new InvalidOperationException("Chozo hand has no progression owner."))
-                .HasAnyBossBits(_bindings.Area, BossBits.AreaBoss)
+            ? (_system ?? throw new InvalidOperationException("Chozo hand has no progression owner."))
+                .HasAnyBossBits(_area, BossBits.AreaBoss)
             : (samus.CollectedItems & SamusEquipmentFlags.SpaceJump) != 0;
         if (_slotTable.SpawnAtCurrentBlock() is not { } reaction)
             return;
@@ -108,7 +111,7 @@ internal sealed class ChozoStatuePlms
 
     /// <summary>Whether the Lower Norfair acid has been lowered, the event the hand's program branches on.</summary>
     internal bool HasLoweredLowerNorfairAcid =>
-        (_bindings.System ?? throw new InvalidOperationException("Chozo hand has no progression owner."))
+        (_system ?? throw new InvalidOperationException("Chozo hand has no progression owner."))
             .HasEvent(EventNumber.LowerNorfairChozoLoweredAcid);
 
     /// <summary>Turns the Wrecked Ship Chozo spikes into slopes.</summary>

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Drawing;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
@@ -50,8 +51,8 @@ internal static class ReserveAutoFrontendVerification
         runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.AlphaPowerBomb);
         var samus = runtime.Player.IntroducedSamus;
         samus.PoseId = SamusPoseId.FacingRightNormalPose;
-        samus.PoseMetadata.RefreshCollisionRadii();
-        samus.Presentation.InitializeAnimation();
+        SamusPoseMetadata.RefreshCollisionRadii(samus);
+        SamusPresentation.InitializeAnimation(samus);
         samus.Health = 0; samus.MaxHealth = 99;
         samus.ReserveEnergy = 2; samus.MaxReserveEnergy = 100; samus.ReserveTankMode = ReserveTankMode.Auto;
         var game = new SuperMetroid.Core.Frontend.SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore(), null, SuperMetroid.Core.Frontend.SuperMetroidGameHostServices.Default, random);

@@ -105,7 +105,7 @@ internal static class FrozenGateGlitchVerification
         samus.Kinematics.Position = samus.Kinematics.Position.WithFractionX(0);
         samus.Position = samus.Position.WithWholeY(FrozenGateY);
         samus.Kinematics.Position = samus.Kinematics.Position.WithFractionY(0);
-        samus.PoseMetadata.RefreshCollisionRadii();
+        SamusPoseMetadata.RefreshCollisionRadii(samus);
         AssertEqual((ushort)5, samus.Kinematics.Radius.X,
             "standing Samus horizontal collision radius");
         AssertEqual((ushort)21, samus.Kinematics.Radius.Y,
@@ -121,7 +121,7 @@ internal static class FrozenGateGlitchVerification
                 zero.Properties),
         ];
 
-        BlockMoveResult movement = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, Plms = plms }, samus.Kinematics, new HorizontalBlockMove { Displacement = SnesSixteenSixteen.FromWhole(expected.Distance) });
+        BlockMoveResult movement = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, Plms = plms }, samus.Kinematics, samus, new HorizontalBlockMove { Displacement = SnesSixteenSixteen.FromWhole(expected.Distance) });
         AssertTrue(movement.Collided,
             $"{expected.Distance}-pixel native case collides with enemy or terrain");
         AssertEqual(expected.EnemyCollision, movement.EnemyCollision.HasValue,

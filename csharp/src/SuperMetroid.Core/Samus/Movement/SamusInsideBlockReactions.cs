@@ -160,11 +160,12 @@ public static class SamusInsideBlockReactions
     /// separate from carry: native downward movement grounds on sand without discarding
     /// its accepted sinking displacement. Pose-clearance probes consume carry only.
     /// </summary>
-    public static bool ReactCollision(SamusKinematicsState body,
+    public static bool ReactCollision(SamusCollisionContact contact,
         RoomCollisionBlock block, Axis axis, ref int displacement, out bool surfaceContact,
         SamusCollisionDirection? blockReactionDirection = null,
         RoomPlmSystem? plms = null)
     {
+        SamusKinematicsState body = contact.Body;
         surfaceContact = false;
         if (!block.Bts.UsesAreaReactionTable) return false;
         SpecialAirReactionDefinition areaReaction =
@@ -214,7 +215,7 @@ public static class SamusInsideBlockReactions
                 throw new InvalidOperationException(
                     $"Undefined {nameof(SamusVerticalDirection)} {(int)body.YDirection}.");
         }
-        if (body.CollisionContactDamageIndex == SamusContactDamageIndex.SpeedBooster)
+        if (contact.ContactDamage == SamusContactDamageIndex.SpeedBooster)
         {
             displacement = 0;
             return true;

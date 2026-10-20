@@ -96,7 +96,7 @@ namespace SuperMetroid.Core.Enemies;
 /// cleaner while destroying behavior that the original code expects.
 /// </remarks>
 [RoomLifetime]
-public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSource, IEnemyFrameResults
+public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrameResults, IEnemyDisplaySources
 {
     /// <summary>The <see cref="EnemyDrawList"/> owner of this RoomEnemySystem.</summary>
     internal EnemyDrawList Drawing { get; }
@@ -109,6 +109,12 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
 
     /// <summary>The <see cref="EnemyProcessingWindow"/> owner of this RoomEnemySystem.</summary>
     internal EnemyProcessingWindow ProcessingWindow { get; }
+
+    /// <summary>The room's bank-$B4 enemy graphics set.</summary>
+    internal EnemyGraphicsSet GraphicsSet { get; }
+
+    /// <summary>Puts populations into slots and runs their banked AI.</summary>
+    internal EnemySlotDispatch Dispatch { get; }
 
     /// <summary>The <see cref="GunshipBehavior"/> owner of this RoomEnemySystem.</summary>
     internal GunshipBehavior GunshipBehavior { get; }
@@ -519,8 +525,27 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
     internal ITourianStatueActors TourianStatue => field ??= new TourianStatueActors(TourianEntranceStatueBehavior, TourianUnlockBehavior);
 
     /// <summary>The live enemy state the display latch and drawing read.</summary>
-    [field: NonSerialized]
-    internal IEnemyDisplaySources DisplaySources => field ??= new EnemyDisplaySources(this);
+    internal IEnemyDisplaySources DisplaySources => this;
+
+    /// <inheritdoc/>
+    MotherBrainEnemyState? IEnemyDisplaySources.MotherBrain => MotherBrainEncounter.MotherBrain;
+    /// <inheritdoc/>
+    DraygonEnemyState? IEnemyDisplaySources.Draygon => DraygonBehavior.Draygon;
+    /// <inheritdoc/>
+    PhantoonEnemyState? IEnemyDisplaySources.Phantoon => PhantoonBehavior.Phantoon;
+    /// <inheritdoc/>
+    RidleyEnemyState? IEnemyDisplaySources.CeresRidley => RidleyEncounter.CeresRidley;
+    /// <inheritdoc/>
+    BossBg2Layer? IEnemyDisplaySources.KraidBody => KraidBehavior.CaptureBodyLayer();
+    /// <inheritdoc/>
+    EnemyBg2ImageSnapshot? IEnemyDisplaySources.EnemyBg2 => Presentation.Bg2Image?.Publish();
+    /// <inheritdoc/>
+    Position16<Bg2Pixels>? IEnemyDisplaySources.CrocomireBg2Scroll =>
+        CrocomireBehavior.Crocomire is not null ? CrocomireBehavior.CrocomireBg2Scroll : null;
+    /// <inheritdoc/>
+    MorphBallEyeBeamState IEnemyDisplaySources.MorphBallEyeBeam => MorphBallEyeBehavior.MorphBallEyeBeam;
+    /// <inheritdoc/>
+    IReadOnlyList<MorphBallEyeEnemyState?> IEnemyDisplaySources.MorphBallEyeStates => MorphBallEyeBehavior.MorphBallEyeStates;
 
     /// <summary>Grapple endpoint resolution against the room's enemies.</summary>
     internal IGrappleTargets GrappleTargets => GrappleBehavior;
@@ -551,7 +576,11 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
         FrameContext = new EnemyFrameContext(session);
         Presentation = new EnemyPresentation(Room);
         SlotTable = new EnemySlotTable();
-        PopulationLoader = new EnemyPopulationLoader(Room, RoomStatus, SlotTable, this);
+        MorphBallEyeBehavior = new MorphBallEyeBehavior(SlotTable);
+        ProcessingWindow = new EnemyProcessingWindow(FrameContext, MorphBallEyeBehavior, Room, SlotTable);
+        GraphicsSet = new EnemyGraphicsSet(Room);
+        Dispatch = new EnemySlotDispatch(Room, SlotTable, GraphicsSet, ProcessingWindow);
+        PopulationLoader = new EnemyPopulationLoader(Room, RoomStatus, SlotTable, Dispatch);
         RidleyEncounter = new RidleyEncounter(SlotTable, session);
         Earthquake = new RoomEarthquake();
         SpriteObjects = new RoomSpriteObjectPool(Room);
@@ -563,12 +592,12 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
         DeadMonsters = new DeadMonsterFrame(Room);
         MotherBrainEncounter = new MotherBrainEncounter(Presentation, Room);
         RidleyTail = new RidleyTail(FrameContext, Projectiles, RidleyEncounter, Room, SlotTable);
-        DeathsAndDrops = new EnemyDeathsAndDrops(RoomStatus, Projectiles, Room, SlotTable, this);
-        Collision = new EnemyCollision(new EnemyCollisionDependencies { Dispatch = this, Audio = Audio, DeathsAndDrops = DeathsAndDrops, Earthquake = Earthquake, FrameContext = FrameContext, Presentation = Presentation, Projectiles = Projectiles, Room = Room, SlotTable = SlotTable });
+        DeathsAndDrops = new EnemyDeathsAndDrops(RoomStatus, Projectiles, Room, SlotTable, Dispatch);
+        Collision = new EnemyCollision(new EnemyCollisionDependencies { Dispatch = Dispatch, Audio = Audio, DeathsAndDrops = DeathsAndDrops, Earthquake = Earthquake, FrameContext = FrameContext, Presentation = Presentation, Projectiles = Projectiles, Room = Room, SlotTable = SlotTable });
         RidleyProjectiles = new RidleyProjectiles(DeathsAndDrops, Projectiles, RidleyEncounter);
         ZoaBehavior = new ZoaBehavior();
         ElevatorBehavior = new ElevatorBehavior(Room, Audio, FrameResults);
-        ZebetiteBehavior = new ZebetiteBehavior(new ZebetiteBehaviorDependencies { Dispatch = this, Room = Room, Projectiles = Projectiles, Earthquake = Earthquake, SlotTable = SlotTable, Presentation = Presentation, ElevatorBehavior = ElevatorBehavior, RoomStatus = RoomStatus, Collision = Collision });
+        ZebetiteBehavior = new ZebetiteBehavior(new ZebetiteBehaviorDependencies { Dispatch = Dispatch, Room = Room, Projectiles = Projectiles, Earthquake = Earthquake, SlotTable = SlotTable, Presentation = Presentation, ElevatorBehavior = ElevatorBehavior, RoomStatus = RoomStatus, Collision = Collision });
         YardBehavior = new YardEnemyBehavior(Room, Terrain, Earthquake, Collision);
         YappingMawBehavior = new YappingMawBehavior(Projectiles, SpriteObjects, ScrollCap);
         WreckedShipGhostBehavior = new WreckedShipGhostBehavior(Presentation);
@@ -592,8 +621,8 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
         RipperBehavior = new RipperBehavior(Terrain);
         RioBehavior = new RioBehavior(Room, Terrain);
         RinkaBehavior = new RinkaBehavior(SlotTable, Collision, FrameContext, Projectiles, DeathsAndDrops);
-        CeresRidleyBehavior = new CeresRidleyBehavior(new CeresRidleyBehaviorDependencies { FrameResults = FrameResults, Dispatch = this, Room = Room, Earthquake = Earthquake, Audio = Audio, SlotTable = SlotTable, Presentation = Presentation, Collision = Collision, RidleyEncounter = RidleyEncounter, RidleyTail = RidleyTail, RoomStatus = RoomStatus });
-        RidleyBehavior = new RidleyBehavior(new RidleyBehaviorDependencies { Dispatch = this, Room = Room, Earthquake = Earthquake, Audio = Audio, Presentation = Presentation, DeathsAndDrops = DeathsAndDrops, RidleyEncounter = RidleyEncounter, RidleyTail = RidleyTail, CeresRidleyBehavior = CeresRidleyBehavior, RidleyProjectiles = RidleyProjectiles, RoomStatus = RoomStatus, RoomFx = RoomFx });
+        CeresRidleyBehavior = new CeresRidleyBehavior(new CeresRidleyBehaviorDependencies { FrameResults = FrameResults, Dispatch = Dispatch, Room = Room, Earthquake = Earthquake, Audio = Audio, SlotTable = SlotTable, Presentation = Presentation, Collision = Collision, RidleyEncounter = RidleyEncounter, RidleyTail = RidleyTail, RoomStatus = RoomStatus });
+        RidleyBehavior = new RidleyBehavior(new RidleyBehaviorDependencies { Dispatch = Dispatch, Room = Room, Earthquake = Earthquake, Audio = Audio, Presentation = Presentation, DeathsAndDrops = DeathsAndDrops, RidleyEncounter = RidleyEncounter, RidleyTail = RidleyTail, CeresRidleyBehavior = CeresRidleyBehavior, RidleyProjectiles = RidleyProjectiles, RoomStatus = RoomStatus, RoomFx = RoomFx });
         PuyoBehavior = new PuyoBehavior(Room, Terrain);
         PrePhantoonRoomBehavior = new PrePhantoonRoomBehavior(Room, Projectiles);
         PowampBehavior = new PowampBehavior(Terrain, Projectiles, SlotTable, Collision, DeathsAndDrops);
@@ -609,10 +638,8 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
         NoobTubeBehavior = new NoobTubeBehavior(Room, Projectiles);
         NinjaSpacePirateBehavior = new NinjaSpacePirateBehavior(Room, Terrain, Projectiles, SpriteObjects, Presentation, WalkingSpacePirateBehavior);
         MultiviolaBehavior = new MultiviolaBehavior(Terrain);
-        BabyMetroidCutsceneBehavior = new BabyMetroidCutsceneBehavior(new BabyMetroidCutsceneBehaviorDependencies { Dispatch = this, Room = Room, Audio = Audio, SlotTable = SlotTable, Presentation = Presentation, FrameContext = FrameContext, Projectiles = Projectiles, MotherBrainEncounter = MotherBrainEncounter });
-        MotherBrainBehavior = new MotherBrainBehavior(new MotherBrainBehaviorDependencies { FrameResults = FrameResults, Dispatch = this, Room = Room, Projectiles = Projectiles, Earthquake = Earthquake, Audio = Audio, Presentation = Presentation, FrameContext = FrameContext, Collision = Collision, DeathsAndDrops = DeathsAndDrops, MotherBrainEncounter = MotherBrainEncounter, RoomActors = new MotherBrainRoomActors(BabyMetroidCutsceneBehavior, RinkaBehavior, WalkingSpacePirateBehavior, RidleyProjectiles) });
-        MorphBallEyeBehavior = new MorphBallEyeBehavior(SlotTable);
-        ProcessingWindow = new EnemyProcessingWindow(FrameContext, MorphBallEyeBehavior, Room, SlotTable);
+        BabyMetroidCutsceneBehavior = new BabyMetroidCutsceneBehavior(new BabyMetroidCutsceneBehaviorDependencies { Dispatch = Dispatch, Room = Room, Audio = Audio, SlotTable = SlotTable, Presentation = Presentation, FrameContext = FrameContext, Projectiles = Projectiles, MotherBrainEncounter = MotherBrainEncounter });
+        MotherBrainBehavior = new MotherBrainBehavior(new MotherBrainBehaviorDependencies { FrameResults = FrameResults, Dispatch = Dispatch, Room = Room, Projectiles = Projectiles, Earthquake = Earthquake, Audio = Audio, Presentation = Presentation, FrameContext = FrameContext, Collision = Collision, DeathsAndDrops = DeathsAndDrops, MotherBrainEncounter = MotherBrainEncounter, RoomActors = new MotherBrainRoomActors(BabyMetroidCutsceneBehavior, RinkaBehavior, WalkingSpacePirateBehavior, RidleyProjectiles) });
         MochtroidBehavior = new MochtroidBehavior(Terrain, Audio, FrameContext, Collision);
         MetroidBehavior = new MetroidBehavior(Room, Terrain, Audio, SpriteObjects, FrameContext, DeathsAndDrops);
         MetareeBehavior = new MetareeBehavior(Projectiles);
@@ -626,7 +653,7 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
         KagoBehavior = new KagoBehavior(Room, Projectiles, Earthquake, SlotTable, DeathsAndDrops, RoomStatus);
         HoppersBehavior = new HoppersBehavior(Room, Terrain);
         HibashiBehavior = new HibashiBehavior(SlotTable, Audio);
-        GrappleBehavior = new GrappleBehavior(this, Room, SlotTable, DeathsAndDrops);
+        GrappleBehavior = new GrappleBehavior(Dispatch, Room, SlotTable, DeathsAndDrops);
         FuneNamiheBehavior = new FuneNamiheBehavior(Projectiles);
         FliesBehavior = new FliesBehavior(Room);
         FirefleaBehavior = new FirefleaBehavior(Collision, DeathsAndDrops, RoomStatus);
@@ -806,7 +833,7 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
         // CGRAM or VRAM merely because its state happens to retain a non-empty set pointer.
         RoomEnemyPopulationDefinition population = request.Population;
         if (!population.Records.IsEmpty)
-            PopulationLoader.LoadGraphicsSet(definitions, request.GraphicsSet, request.Vram, request.Cgram);
+            GraphicsSet.LoadGraphicsSet(definitions, request.GraphicsSet, request.Vram, request.Cgram);
         PopulationLoader.LoadPopulation(
             definitions,
             population,
@@ -925,7 +952,7 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
                 }
                 else if (!ranActorAi)
                 {
-                    RunMainAi(slot, aiFrame);
+                    EnemySlotDispatch.RunMainAi(slot, aiFrame);
                     ranActorAi = true;
                 }
 
@@ -996,100 +1023,6 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
             SpriteObjects.StepRoomSpriteObjects();
         CollectLegacyEnemyAudioRequests();
         return FrameResults.Build();
-    }
-
-    /// <summary>
-    /// Copies population and definition fields into a physical slot, resolving room graphics
-    /// indexes and recording a spawn snapshot before initialization AI runs.
-    /// </summary>
-    internal void InitializeSlotFromDefinition(
-        RoomEnemySlot slot,
-        RoomEnemyPopulationRecord population,
-        RoomEnemyDefinition definition)
-    {
-        (ushort tileIndex, ushort paletteIndex) = PopulationLoader.FindGraphicsIndexes(population.DefinitionPointer);
-
-        slot.Bind(population.DefinitionPointer, definition);
-        slot.Radius = new(definition.Radius.X, definition.Radius.Y);
-        slot.Health = definition.Health;
-        slot.Layer = definition.Layer;
-        slot.Position = slot.Position.WithWhole(new(population.Position.X, population.Position.Y));
-        slot.CurrentInstruction = population.InitializationParameter;
-        slot.Properties = population.Properties;
-        slot.ExtraProperties = population.ExtraProperties;
-        slot.AiStates = EnemyAiStates.None;
-        slot.Timer = NativeCountdown.Start(0);
-        slot.InstructionTimer = NativeCountdown.Start(1);
-        slot.FrameCounter = 0;
-        slot.HurtAiTime = definition.HurtAiTime;
-        slot.PaletteIndex = paletteIndex;
-        slot.VramTilesIndex = tileIndex;
-        slot.Spawn = new RoomEnemySpawnSnapshot(population);
-    }
-
-    /// <summary>Dispatches the definition's banked initialization pointer for the newly loaded slot.</summary>
-    internal static void RunInitializationAi(RoomEnemySlot slot, EnemySpawnSurroundings surroundings)
-    {
-        Ensure.NotNull(surroundings);
-        switch (slot.Entity)
-        {
-            case IEnemySurroundingsInitialization entity:
-                (entity.FindSurroundingsInitialization() ?? throw Untranslated(slot))(slot, surroundings);
-                break;
-            case IEnemyInitialization entity:
-                (entity.FindInitialization() ?? throw Untranslated(slot))(slot);
-                break;
-            default:
-                throw Untranslated(slot);
-        }
-    }
-
-    /// <summary>The failure for a slot whose definition names an initialization AI this build does not translate.</summary>
-    private static InvalidDataException Untranslated(RoomEnemySlot slot) =>
-        new($"Enemy ${(int)slot.EnemyDefinitionPointer:X4} initialization AI " +
-            $"${(int)new SnesAddress(slot.Definition.Bank, slot.Definition.InitializationAiPointer):X6} is not translated.");
-
-    /// <summary>Exposes physical-slot population setup to the enemy loader.</summary>
-    void IEnemyDispatch.InitializeSlotFromDefinition(
-        RoomEnemySlot slot, RoomEnemyPopulationRecord population, RoomEnemyDefinition definition) =>
-        InitializeSlotFromDefinition(slot, population, definition);
-
-    /// <summary>Lets the population loader invoke the slot's compiled initialization handler.</summary>
-    void IEnemyDispatch.RunInitializationAi(RoomEnemySlot slot, EnemySpawnSurroundings surroundings) =>
-        RunInitializationAi(slot, surroundings);
-
-    /// <inheritdoc/>
-    RoomEnemySlot? IEnemyDispatch.SpawnEnemy(RoomEnemyPopulationRecord population)
-    {
-        int slotIndex = SlotTable.FindFreeSlotIndex();
-        if (slotIndex < 0)
-            return null;
-        RoomEnemySlot slot = SlotTable.Slots[slotIndex];
-        InitializeSlotFromDefinition(slot, population, Room.LoadedDefinitions.ReadEnemyDefinition(population.DefinitionPointer));
-        RunInitializationAi(slot, EnemySpawnSurroundings.None);
-        // SpawnEnemy's post-init $A0:93D9 write precedes the first instruction tick.
-        slot.Frame = slot.Properties.HasAny(EnemyProperties.ProcessInstructions)
-            ? EnemyFrameId.Empty
-            : null;
-        SlotTable.EnemyCount = unchecked((ushort)Math.Max(SlotTable.EnemyCount, slotIndex + 1));
-        SlotTable.FirstFreeEnemyIndex = unchecked((ushort)((slotIndex + 1) * NativeSlotSize));
-        return slot;
-    }
-
-    /// <summary>Routes a scheduled enemy update through its banked main AI handler.</summary>
-    void IEnemyDispatch.RunMainAi(RoomEnemySlot slot, IEnemyAiFrame frame) =>
-        RunMainAi(slot, frame);
-
-    /// <summary>Exposes native slot offsets selected for Samus collision checks this frame.</summary>
-    IReadOnlyList<int> IEnemyDispatch.InteractiveEnemyIndexes => ProcessingWindow.InteractiveEnemyIndexes;
-
-    /// <summary>Dispatches a loaded slot's banked main AI pointer through the compiled table.</summary>
-    internal static void RunMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
-    {
-        EnemyMainAiHandler handler = (slot.Entity as IEnemyMainAi)?.FindMain() ?? throw new InvalidDataException(
-            $"Enemy ${(int)slot.EnemyDefinitionPointer:X4} main AI " +
-            $"${(int)new SnesAddress(slot.Definition.Bank, slot.Definition.MainAiPointer):X6} is not translated.");
-        handler(slot, frame);
     }
 
     /// <summary>Ports <c>Handle_Room_Shaking</c> at $A0:8687-$8711: the earthquake's frame step, then the actor shake it selects.</summary>

@@ -3,6 +3,7 @@ using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Core.Frontend.Ending.Artwork;
 
 /// <summary>Independent static and animated color resources used by the ending.</summary>
+[ArchitectureReview("context-bag", "Seven installed ending palettes selected by id; every member is immutable color data, not a service.")]
 public sealed class EndingPaletteCatalog
 {
     /// <summary>Escape and cloud-scene color image.</summary>

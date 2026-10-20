@@ -321,7 +321,7 @@ public sealed class SamusBombProjectileSystem
     {
         if (gameState != SuperMetroid.Core.Gameplay.SuperMetroidGameState.MainGameplay)
             return;
-        if (samus.PoseMetadata.ReadMovementType() is SamusMovementType.SpinJumping or SamusMovementType.WallJumping)
+        if (SamusPoseMetadata.ReadMovementType(samus) is SamusMovementType.SpinJumping or SamusMovementType.WallJumping)
         {
             if (SamusSpinSoundCommand.Select(samus) is { } spinSound)
                 samus.LiquidPhysics.QueueMovementSound(spinSound, maximumQueued: 9);
@@ -1108,7 +1108,7 @@ public sealed class SamusBombProjectileSystem
                 : unchecked((short)(samus.Position.X.Whole - slot.Position.X.Whole)) < 0
                     ? SamusBombJumpDirection.Left
                     : SamusBombJumpDirection.Right;
-            samus.PoseMetadata.PublishBombJumpDirection(publishedDirection);
+            SamusPoseMetadata.PublishBombJumpDirection(samus, publishedDirection);
         }
 
         return publishedDirection;

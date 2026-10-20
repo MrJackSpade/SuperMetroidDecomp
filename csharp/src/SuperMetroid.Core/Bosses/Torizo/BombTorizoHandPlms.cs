@@ -11,15 +11,15 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 [RoomLifetime]
 internal sealed class BombTorizoHandPlms
 {
-    /// <summary>Live room bindings used to inspect Samus's collected equipment during the hand's wake check.</summary>
-    private readonly PlmRoomBindings _bindings;
+    /// <summary>Samus as the room reads and changes her.</summary>
+    private readonly IRoomSamusAccess? _samus;
     /// <summary>Physical PLM slots searched for active native header pointers.</summary>
     private readonly PlmSlotTable _slotTable;
 
     /// <summary>Connects the statue-hand interpreter to the current room and PLM slot table.</summary>
-    internal BombTorizoHandPlms(PlmRoomBindings bindings, PlmSlotTable slotTable)
+    internal BombTorizoHandPlms(IRoomSamusAccess? samus, PlmSlotTable slotTable)
     {
-        _bindings = bindings;
+        _samus = samus;
         _slotTable = slotTable;
     }
     /// <summary>VRAM transfers queued by the hand's copy-from-RAM instruction for this frame.</summary>
@@ -78,7 +78,7 @@ internal sealed class BombTorizoHandPlms
     /// </summary>
     internal void RunBombTorizoHandPreInstruction(PlmSlot slot)
     {
-        SamusState samus = _bindings.Samus?.Current
+        SamusState samus = _samus?.Current
             ?? throw new InvalidOperationException(
                 "A live Bomb Torizo hand PLM has no active Samus inventory owner.");
         if (!samus.CollectedItems.HasAny(SamusEquipmentFlags.Bombs))

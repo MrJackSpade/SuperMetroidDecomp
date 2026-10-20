@@ -175,9 +175,9 @@ internal static class NativeSnapshotImportVerification
         samus.Pose = (SamusPoseId)W(NativeSnapshotMemory.Pose);
         samus.Position = samus.Position.WithWhole(new(W(NativeSnapshotMemory.X), W(NativeSnapshotMemory.Y)));
         samus.Kinematics.Position = samus.Kinematics.Position.WithFractionX(W(NativeSnapshotMemory.XFraction)).WithFractionY(W(NativeSnapshotMemory.YFraction));
-        samus.PoseMetadata.RefreshCollisionRadii();
-        samus.Presentation.InitializeAnimation();
-        samus.Presentation.SetAnimationFrameFromSpecialHandler(W(NativeSnapshotMemory.Animation), W(NativeSnapshotMemory.AnimationTimer));
+        SamusPoseMetadata.RefreshCollisionRadii(samus);
+        SamusPresentation.InitializeAnimation(samus);
+        SamusPresentation.SetAnimationFrameFromSpecialHandler(samus, W(NativeSnapshotMemory.Animation), W(NativeSnapshotMemory.AnimationTimer));
         samus.PoseHistory.PreviousPose = (SamusPoseId)W(NativeSnapshotMemory.PreviousPose);
         samus.PoseHistory.PreviousDirectionAndMovement = W(NativeSnapshotMemory.PreviousDirection);
         samus.PoseHistory.LastDifferentPose = (SamusPoseId)W(NativeSnapshotMemory.LastDifferentPose);

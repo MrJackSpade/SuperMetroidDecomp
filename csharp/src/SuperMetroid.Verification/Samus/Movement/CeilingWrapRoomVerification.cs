@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Drawing;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
@@ -31,8 +32,8 @@ internal static class CeilingWrapRoomVerification
         samus.PoseId = SamusPoseId.StandingAimDiagonalUpLeftPose;
         samus.Position = samus.Position.WithWhole(new(1237, 139));
         samus.EquippedBeams = (SamusBeamFlags)beams; samus.EquippedItems = 0;
-        samus.PoseMetadata.RefreshCollisionRadii();
-        samus.Presentation.InitializeAnimation();
+        SamusPoseMetadata.RefreshCollisionRadii(samus);
+        SamusPresentation.InitializeAnimation(samus);
         runtime.Room.LoadedCamera.SetPosition(new Position16<RoomPixels>(1109, 0));
         int mismatches = 0;
         for (int frame = 0; frame < native.Length; frame++)
@@ -63,7 +64,7 @@ internal static class CeilingWrapRoomVerification
         var shots = CreateProjectileFixture();
         var bombs = CreateBombFixture();
         ushort blocker = level.GetCollisionBlock(new(76, 9)).PackedWord.Raw;
-        var before = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, Plms = plms }, samus.Kinematics, new HorizontalBlockMove { Displacement = -65536 });
+        var before = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, Plms = plms }, samus.Kinematics, samus, new HorizontalBlockMove { Displacement = -65536 });
         AssertTrue(before.Collided, "Ordinary speedless contact blocks before ceiling overload");
         int firstFull = -1;
         for (int frame = 0; frame < 344; frame++)
@@ -76,7 +77,7 @@ internal static class CeilingWrapRoomVerification
             if (firstFull < 0 && plms.SlotTable.ActiveCount == 40) firstFull = frame;
         }
         AssertEqual(343, firstFull, "Authored room reaches full pool with live PLM timers");
-        var after = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, Plms = plms }, samus.Kinematics, new HorizontalBlockMove { Displacement = -65536 });
+        var after = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, Plms = plms }, samus.Kinematics, samus, new HorizontalBlockMove { Displacement = -65536 });
         AssertTrue(!after.Collided, "Native full-pool collision remains carry clear without Speed Booster");
         AssertEqual((ushort)1236, samus.Position.X.Whole, "Samus enters first speed block without a clip or teleport");
         AssertEqual(blocker, level.GetCollisionBlock(new(76, 9)).PackedWord.Raw, "Exhaustion bypass does not break the block");

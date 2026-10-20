@@ -10,15 +10,15 @@ namespace SuperMetroid.Core.Enemies.Animals;
 [RoomLifetime]
 internal sealed class EscapeAnimalPlms
 {
-    /// <summary>Room event owner used to gate the Crateria escape passage.</summary>
-    private readonly PlmRoomBindings _bindings;
+    /// <summary>The game's event flags.</summary>
+    private readonly IGlobalEventFlags? _events;
     /// <summary>Native PLM slot pool searched from the final slot toward the first.</summary>
     private readonly PlmSlotTable _slotTable;
 
     /// <summary>Binds the animal-rescue PLM behaviors to room events and the shared slot table.</summary>
-    internal EscapeAnimalPlms(PlmRoomBindings bindings, PlmSlotTable slotTable)
+    internal EscapeAnimalPlms(IGlobalEventFlags? events, PlmSlotTable slotTable)
     {
-        _bindings = bindings;
+        _events = events;
         _slotTable = slotTable;
     }
     /// <summary>Runs $84:B9C5: make the three-block rescue wall shootable, preserving artwork.</summary>
@@ -42,7 +42,7 @@ internal sealed class EscapeAnimalPlms
     public bool TrySpawnCrateriaMainstreetEscapePassage(RoomLevelData level)
     {
         Ensure.NotNull(level);
-        IGlobalEventFlags events = _bindings.Events ?? throw new InvalidOperationException(
+        IGlobalEventFlags events = _events ?? throw new InvalidOperationException(
             "Crateria mainstreet escape passage requires the room event owner.");
         if (_slotTable.IsFull)
             return false;

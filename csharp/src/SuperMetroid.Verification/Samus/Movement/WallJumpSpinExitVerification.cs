@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
@@ -42,8 +43,8 @@ internal static class WallJumpSpinExitVerification
             samus.EquippedItems = (SamusEquipmentFlags)((ushort)items);
             samus.Pose = SamusPoseId.WallJumpRightPose;
             samus.Position = samus.Position.WithWhole(new(512, 400));
-            samus.PoseMetadata.RefreshCollisionRadii();
-            samus.Presentation.InitializeAnimation();
+            SamusPoseMetadata.RefreshCollisionRadii(samus);
+            SamusPresentation.InitializeAnimation(samus);
             samus.Kinematics.YDirection = SamusVerticalDirection.Up;
             samus.Kinematics.YSpeed = samus.Kinematics.YSpeed.WithWhole(3);
             samus.HorizontalSpeed.BaseSpeed = new SnesUnsignedSixteenSixteen(1, 0x6000);

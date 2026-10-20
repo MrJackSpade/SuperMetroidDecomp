@@ -33,7 +33,7 @@ internal static class SamusStateAccess
                 throw new InvalidOperationException(
                     $"Spin-fire compatibility route requires pose $13/$14, not ${(int)targetPose:X2}.");
             }
-            return self.PoseTransitions.TryApplySpinOrWallJumpToNormalJumpTransition(
+            return SamusPoseTransitions.TryApplySpinOrWallJumpToNormalJumpTransition(self, 
 
                 level,
                 targetPose,
@@ -46,7 +46,7 @@ internal static class SamusStateAccess
         /// Convenience debugger/test entry that performs both native phases: publishing the
         /// bank-$A0 timer-eight overlap direction, then consuming it through $90:DF99 and
         /// special command three $91:EE80. Live runtime code calls those phases on either
-        /// side of movement through <see cref="SamusPoseMetadata.PublishBombJumpDirection(byte)"/> and
+        /// side of movement through <see cref="SamusPoseMetadata.PublishBombJumpDirection(SamusState, byte)"/> and
         /// <see cref="SamusPoseMetadata.TrySetupPublishedBombJump"/>.
         /// </summary>
         internal void RequestMorphedBombJump(byte direction)
@@ -57,8 +57,8 @@ internal static class SamusStateAccess
                     $"The morphed bomb-jump fixture requires a stable ball pose, not ${(int)self.Pose:X2}.");
             }
 
-            self.PoseMetadata.PublishBombJumpDirection(direction);
-            self.PoseMetadata.ArmPublishedBombJump();
+            SamusPoseMetadata.PublishBombJumpDirection(self, direction);
+            SamusPoseMetadata.ArmPublishedBombJump(self);
         }
     }
 }

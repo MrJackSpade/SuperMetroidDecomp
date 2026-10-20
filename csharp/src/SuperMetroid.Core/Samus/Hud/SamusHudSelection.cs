@@ -6,14 +6,6 @@ namespace SuperMetroid.Core.Samus.Hud;
 /// <summary>One frame of HandleSwitchingHudSelection ($90:C4B5): HUD item cycling and availability.</summary>
 internal sealed class SamusHudSelection
 {
-    /// <summary>Samus state whose selected item and native stabilization counter this handler updates.</summary>
-    private readonly SamusState _samus;
-
-    /// <summary>Binds HUD selection logic to the owning Samus state.</summary>
-    internal SamusHudSelection(SamusState owner)
-    {
-        _samus = owner;
-    }
     /// <summary>
     /// Selection stability: one on a selection change, then two after the selection remains stable for another
     /// frame, where it saturates; zero before the first update. The arm-cannon cover animation uses this
@@ -33,21 +25,21 @@ internal sealed class SamusHudSelection
     /// records the chosen item for native auto-cancel behavior.
     /// </remarks>
     /// <returns>Whether an item's switched-to handler ran.</returns>
-    public HudSelectionOutcome HandleHudSelection(
+    public HudSelectionOutcome HandleHudSelection(SamusState samus, 
         SnesButton controllerInput,
         SnesButton controllerNewInput,
         SnesButton itemSwitchButton = SnesButton.Select,
         SnesButton itemCancelButton = SnesButton.Y)
     {
-        HudItem previousSelection = _samus.SelectedHudItem;
+        HudItem previousSelection = samus.SelectedHudItem;
         SnesButton switchMask = itemSwitchButton;
         SnesButton cancelMask = itemCancelButton;
         bool itemHandlerAccepted = (controllerNewInput & (cancelMask | switchMask)) != 0;
 
         if ((controllerNewInput & cancelMask) != 0)
         {
-            _samus.AutoCancelHudItemIndex = HudItem.Beam;
-            _samus.SelectedHudItem = HudItem.Beam;
+            samus.AutoCancelHudItemIndex = HudItem.Beam;
+            samus.SelectedHudItem = HudItem.Beam;
         }
         else if ((controllerNewInput & switchMask) != 0)
         {
@@ -56,16 +48,16 @@ internal sealed class SamusHudSelection
             // entry zero is the unconditional Nothing handler.
             do
             {
-                _samus.SelectedHudItem = HudItems.Next(_samus.SelectedHudItem);
+                samus.SelectedHudItem = HudItems.Next(samus.SelectedHudItem);
             }
-            while (!IsHudItemAvailable(_samus.SelectedHudItem));
+            while (!IsHudItemAvailable(samus, samus.SelectedHudItem));
 
-            _samus.AutoCancelHudItemIndex = (controllerInput & cancelMask) != 0
-                ? _samus.SelectedHudItem
+            samus.AutoCancelHudItemIndex = (controllerInput & cancelMask) != 0
+                ? samus.SelectedHudItem
                 : HudItem.Beam;
         }
 
-        if (_samus.SelectedHudItem != previousSelection)
+        if (samus.SelectedHudItem != previousSelection)
         {
             HudItemChangedThisFrame = 1;
         }
@@ -79,14 +71,14 @@ internal sealed class SamusHudSelection
     }
 
     /// <summary>Applies the native switched-to handlers' ammo and equipment admission rules.</summary>
-    private bool IsHudItemAvailable(HudItem item) => item switch
+    private static bool IsHudItemAvailable(SamusState samus, HudItem item) => item switch
     {
         HudItem.Beam => true,
-        HudItem.Missile => _samus.Missiles != 0,
-        HudItem.SuperMissile => _samus.SuperMissiles != 0,
-        HudItem.PowerBomb => _samus.PowerBombs != 0,
-        HudItem.Grapple => _samus.EquippedItems.HasAny(SamusEquipmentFlags.GrappleBeam),
-        HudItem.XRay => _samus.EquippedItems.HasAny(SamusEquipmentFlags.XrayScope),
+        HudItem.Missile => samus.Missiles != 0,
+        HudItem.SuperMissile => samus.SuperMissiles != 0,
+        HudItem.PowerBomb => samus.PowerBombs != 0,
+        HudItem.Grapple => samus.EquippedItems.HasAny(SamusEquipmentFlags.GrappleBeam),
+        HudItem.XRay => samus.EquippedItems.HasAny(SamusEquipmentFlags.XrayScope),
         _ => throw new InvalidDataException(
             $"HUD item {(ushort)item} escaped the cartridge's six-entry switch table."),
     };

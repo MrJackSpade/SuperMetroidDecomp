@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Poses;
 namespace SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>Beam combination attacks (charge plus special weapon): activation, and the ice, plasma, spazer and wave combo steps with the Spacetime palette copy tail.</summary>
@@ -89,7 +90,7 @@ internal sealed class BeamCombos
             _slotTable.ProjectileCounter = 4;
             shared.SetSharedCooldown(SamusProjectileCooldownDefinitions.ReadByte(SamusProjectileRomData.Beams.UnchargedCooldowns + (_slotTable.Slots[0].Type & 63)));
             ComboState = kind == SamusComboKind.Spazer ? 0
-                : kind == SamusComboKind.Wave || samus.PoseMetadata.IsFacing(SamusFacingDirection.Right) ? 4 : -4;
+                : kind == SamusComboKind.Wave || SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Right) ? 4 : -4;
             sound = kind switch
             {
                 SamusComboKind.Wave => 40,

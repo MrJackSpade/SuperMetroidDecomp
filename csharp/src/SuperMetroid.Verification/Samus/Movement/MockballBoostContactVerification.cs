@@ -27,7 +27,7 @@ internal static class MockballBoostContactVerification
                 EquippedItems = (SamusEquipmentFlags.SpeedBooster | SamusEquipmentFlags.MorphBall),
             };
             var fixture = CreateEnemyDropFixture(samus, [1]);
-            samus.PoseMetadata.RefreshCollisionRadii();
+            SamusPoseMetadata.RefreshCollisionRadii(samus);
             ushort[] blocks = new ushort[32 * 8];
             for (int x = 0; x < 32; x++) blocks[4 * 32 + x] = 0x8000;
             var floor = CreateRoom(new(32, 8), blocks, new byte[blocks.Length]);

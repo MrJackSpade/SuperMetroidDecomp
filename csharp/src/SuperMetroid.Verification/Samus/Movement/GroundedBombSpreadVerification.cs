@@ -26,7 +26,7 @@ internal static class GroundedBombSpreadVerification
             var samus = new SamusState { Pose = SamusPoseId.MorphBallGroundRightPose,
                 EquippedItems = (SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.Bombs),
                 Position = FixedPosition<RoomPixels>.FromWhole(new(512, 512)), ProjectileFlareCounter = SamusBombSpreadRomData.RequiredChargeFrames };
-            samus.PoseMetadata.RefreshCollisionRadii();
+            SamusPoseMetadata.RefreshCollisionRadii(samus);
             samus.Kinematics.YAcceleration = new SnesUnsignedSixteenSixteen(0, 0x1c00);
             var bombs = CreateBombFixture();
             SnesButton shootDown = (SnesButton.X | SnesButton.Down);

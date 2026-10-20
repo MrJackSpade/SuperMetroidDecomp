@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
@@ -51,12 +52,12 @@ internal sealed class IntroBabyDiscoveryState
         Samus.Pose = SamusPoseId.FacingLeftNormalPose;
         Samus.Position = Samus.Position.WithWhole(new(376, 147));
         Samus.SelectedHudItem = HudItem.Beam;
-        Samus.PoseMetadata.RefreshCollisionRadii();
+        SamusPoseMetadata.RefreshCollisionRadii(Samus);
         // $8B:AF95-$AF99: the flashback leaves Samus in pose two already, so her animation
         // keeps running rather than restarting.
-        Samus.Presentation.SetAnimationFrameIfPoseChanged();
+        SamusPresentation.SetAnimationFrameIfPoseChanged(Samus);
         Samus.CommitPoseHistory();
-        Samus.Presentation.PrimeGraphics();
+        Samus.Presentation.PrimeGraphics(Samus);
 
         // $8B:AFDF copies exactly $300 bytes into a room declared 32x16 blocks. The final
         // 128 foreground words and all BTS bytes retain the earlier zero initialization.
@@ -103,7 +104,7 @@ internal sealed class IntroBabyDiscoveryState
             demo.Step((_, preInstruction) => RunDemoPreInstruction(preInstruction, introCrossfadeTimer), HandleDemoCue);
             // $90:E70D ends the current-state handler with ResetMovementAndPoseChangeVariables,
             // before this dispatch's movement records new distances.
-            Samus.PoseTransitions.ClearPoseTransitionShotDirection();
+            SamusPoseTransitions.ClearPoseTransitionShotDirection(Samus);
             Samus.ProjectileInheritance.ClearMovement();
 
             // An end instruction read above already replaced the new-state handler, so this
@@ -112,7 +113,7 @@ internal sealed class IntroBabyDiscoveryState
             {
                 // The native intro-demo alpha publishes the current pose's collision radius
                 // before input/movement, rather than requiring pose setters to publish early.
-                Samus.PoseMetadata.RefreshCollisionRadii();
+                SamusPoseMetadata.RefreshCollisionRadii(Samus);
                 IntroSamusDemoMovement.StepGroundedLeft(
 
                     Level,

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Enemies;
@@ -8,23 +9,15 @@ using SuperMetroid.Core.Samus.Movement;
 namespace SuperMetroid.Core.Samus.Poses;
 
 /// <summary>Reads of the cartridge pose tables for Samus: collision radii, facing and movement kind, and the per-pose metadata the movement handlers consult, including the bomb-jump direction publication.</summary>
-internal sealed class SamusPoseMetadata
+internal static class SamusPoseMetadata
 {
-    /// <summary>Live Samus state receiving radii, pose changes, and transition publications.</summary>
-    private readonly SamusState _samus;
-
-    /// <summary>Binds pose-table interpretation to one Samus state instance.</summary>
-    internal SamusPoseMetadata(SamusState owner)
-    {
-        _samus = owner;
-    }
     /// <summary>
     /// Ports <c>Samus_SetRadius</c> at <c>$90:EC22</c>: every pose is five pixels wide and
     /// reads its vertical radius from pose-definition byte six.
     /// </summary>
-    public void RefreshCollisionRadii()
+    public static void RefreshCollisionRadii(SamusState samus)
     {
-        _samus.Kinematics.Radius = new(5, ReadPoseYRadius(_samus.Pose));
+        samus.Kinematics.Radius = new(5, ReadPoseYRadius(samus.Pose));
     }
 
     /// <summary>Reads a prospective pose's radius without publishing it to live collision state.</summary>
@@ -32,9 +25,9 @@ internal sealed class SamusPoseMetadata
         SamusPoseCollisionDefinitions.ReadVerticalRadius(pose);
 
     /// <summary>Reads pose-definition byte zero, the direction consumed by camera tracking.</summary>
-    public byte ReadPoseXDirection()
+    public static byte ReadPoseXDirection(SamusState samus)
     {
-        return ReadPoseXDirection(_samus.InitializedPose);
+        return ReadPoseXDirection(samus.InitializedPose);
     }
 
     /// <summary>
@@ -52,16 +45,16 @@ internal sealed class SamusPoseMetadata
     /// diagnostics and unknown records, while gameplay decisions no longer compare an
     /// unexplained byte to literals four and eight.
     /// </summary>
-    public SamusFacingDirection ReadFacingDirection() =>
-        (SamusFacingDirection)ReadPoseXDirection();
+    public static SamusFacingDirection ReadFacingDirection(SamusState samus) =>
+        (SamusFacingDirection)ReadPoseXDirection(samus);
 
     /// <summary>Typed facing view for an arbitrary current or prospective pose.</summary>
     public static SamusFacingDirection ReadFacingDirection(SamusPoseId pose) =>
         (SamusFacingDirection)ReadPoseXDirection(pose);
 
     /// <summary>Whether the current pose faces <paramref name="direction"/>: pose-definition value four is left, eight right.</summary>
-    public bool IsFacing(SamusFacingDirection direction) =>
-        ReadFacingDirection() == direction;
+    public static bool IsFacing(SamusState samus, SamusFacingDirection direction) =>
+        ReadFacingDirection(samus) == direction;
 
     /// <summary>Left-facing query for an arbitrary pose without mutating live state.</summary>
     public static bool IsFacingLeft(SamusPoseId pose) =>
@@ -70,17 +63,17 @@ internal sealed class SamusPoseMetadata
     /// <summary>
     /// Reads and validates pose-definition byte one, the exclusive movement dispatcher.
     /// </summary>
-    public SamusMovementType ReadMovementType()
+    public static SamusMovementType ReadMovementType(SamusState samus)
     {
-        return ReadMovementType(_samus.InitializedPose);
+        return ReadMovementType(samus.InitializedPose);
     }
 
     /// <summary>
     /// Compatibility spelling retained for callers that describe the value as a movement
     /// kind. Both APIs now return the same validated discriminator.
     /// </summary>
-    public SamusMovementType ReadMovementKind() =>
-        ReadMovementType();
+    public static SamusMovementType ReadMovementKind(SamusState samus) =>
+        ReadMovementType(samus);
 
     /// <summary>
     /// Reads pose-definition byte one for a prospective pose without mutating Samus.
@@ -108,18 +101,18 @@ internal sealed class SamusPoseMetadata
     /// Reads pose-definition byte two, the pose selected by <c>$91:82D9</c> when no
     /// controller bits are held and the transition table therefore is not consulted.
     /// </summary>
-    public SamusPoseId ReadNoInputFallbackPose()
+    public static SamusPoseId ReadNoInputFallbackPose(SamusState samus)
     {
-        return SamusPoseDispatchDefinitions.ReadNoInputPose(_samus.Pose);
+        return SamusPoseDispatchDefinitions.ReadNoInputPose(samus.Pose);
     }
 
     /// <summary>
     /// Reads pose-definition byte three, the ten-way arm-cannon direction consumed by
     /// the native normal-jump landing selector at <c>$91:E974</c>.
     /// </summary>
-    public byte ReadShotDirection()
+    public static byte ReadShotDirection(SamusState samus)
     {
-        return ReadShotDirection(_samus.Pose);
+        return ReadShotDirection(samus.Pose);
     }
 
     /// <summary>Reads pose-definition byte three for a current or prospective pose.</summary>
@@ -133,11 +126,11 @@ internal sealed class SamusPoseMetadata
     /// Physical beam/Grapple origins use their separate compiled correction; replacing
     /// artwork must not shift a projectile's collision position.
     /// </summary>
-    public sbyte ReadGraphicsYOffset()
+    public static sbyte ReadGraphicsYOffset(SamusState samus)
     {
-        return (_samus.Presentation.TileTransfers.Artwork ?? throw new InvalidOperationException(
+        return (samus.Presentation.TileTransfers.Artwork ?? throw new InvalidOperationException(
             "Samus pose presentation requires installed body artwork."))
-            .GraphicsYOffset(_samus.Pose);
+            .GraphicsYOffset(samus.Pose);
     }
 
     /// <summary>True for the four movement-type-zero, right-facing standing poses.</summary>
@@ -162,12 +155,12 @@ internal sealed class SamusPoseMetadata
     /// <c>$90:F23C-$90:F271</c> do. Gravity bit <c>$0020</c> and Varia bit <c>$0001</c>
     /// have equal precedence: either selects the shared suited pose <c>$9B</c>.
     /// </summary>
-    private void SelectForwardFacingPose()
+    private static void SelectForwardFacingPose(SamusState samus)
     {
-        _samus.Pose = _samus.EquippedItems.HasAny(SamusEquipmentFlags.VariaSuit | SamusEquipmentFlags.GravitySuit)
+        samus.Pose = samus.EquippedItems.HasAny(SamusEquipmentFlags.VariaSuit | SamusEquipmentFlags.GravitySuit)
             ? SamusPoseId.ForwardFacingSuitedPose
             : SamusPoseId.ForwardFacingPowerSuitPose;
-        _samus.AnimationFrame = 0;
+        samus.AnimationFrame = 0;
     }
 
     /// <summary>
@@ -176,10 +169,10 @@ internal sealed class SamusPoseMetadata
     /// <see cref="SamusPoseMetadata.ApplyForwardFacingPoseSetup"/> it neither shifts pose history, lifts
     /// Samus nor clears motion. Callers own the palette object and the special frame.
     /// </summary>
-    public void ApplyZebesStartPoseSetup()
+    public static void ApplyZebesStartPoseSetup(SamusState samus)
     {
-        SelectForwardFacingPose();
-        _samus.Presentation.InitializeAnimation(initialFrame: 0);
+        SelectForwardFacingPose(samus);
+        SamusPresentation.InitializeAnimation(samus, initialFrame: 0);
     }
 
     /// <summary>
@@ -187,19 +180,19 @@ internal sealed class SamusPoseMetadata
     /// the riding-elevator handlers. Used on boarding ($A3:9548) and on a downward
     /// arrival's door finish ($82:E721).
     /// </summary>
-    public void SetupForElevator()
+    public static void SetupForElevator(SamusState samus)
     {
-        ApplyForwardFacingPoseSetup();
+        ApplyForwardFacingPoseSetup(samus);
         // Command seven replaces both physical movement/input pointers. An uncrashed
         // spark keeps its boost counter as the out-of-bounds elevator Blue Suit, while an
         // admitted Flash keeps only its independent palette timer. Neither movement owner
         // may resume after elevator travel; the command restores ordinary pose input.
-        _samus.Shinespark.RelinquishMovementHandler();
-        _samus.InputSnapshot.ShinesparkPoseInputLocked = false;
-        _samus.CrystalFlash.RelinquishMovementHandler();
-        _samus.InputSnapshot.CrystalFlashPoseInputLocked = false;
-        _samus.Control.LockHandlers();
-        _samus.Presentation.PrimeGraphics();
+        samus.Shinespark.RelinquishMovementHandler();
+        samus.InputSnapshot.ShinesparkPoseInputLocked = false;
+        samus.CrystalFlash.RelinquishMovementHandler();
+        samus.InputSnapshot.CrystalFlashPoseInputLocked = false;
+        samus.Control.LockHandlers();
+        samus.Presentation.PrimeGraphics(samus);
     }
 
     /// <summary>
@@ -216,29 +209,29 @@ internal sealed class SamusPoseMetadata
     /// input lock, palette, grapple, and priming the first graphics DMA before their first
     /// visible NMI.
     /// </remarks>
-    public void ApplyForwardFacingPoseSetup()
+    public static void ApplyForwardFacingPoseSetup(SamusState samus)
     {
-        SelectForwardFacingPose();
-        _samus.Presentation.InitializeAnimation(initialFrame: 0);
+        SelectForwardFacingPose(samus);
+        SamusPresentation.InitializeAnimation(samus, initialFrame: 0);
 
         // This forced owner shifts history even when already facing forward.
         // It does not pass through the ordinary input-transition epilogue.
-        _samus.CommitPoseHistory();
+        samus.CommitPoseHistory();
 
         // `$91:E438-$91:E44A` compares the live radius, still the previous pose's, and
         // lifts both Y words by three unless it is already the front view's 24.
-        if (_samus.Kinematics.Radius.Y != 24)
+        if (samus.Kinematics.Radius.Y != 24)
         {
-            _samus.Kinematics.Position -= new Offset16<RoomPixels>(0, 3);
-            _samus.WritePreviousYPosition(_samus.Kinematics.Position.Y.Whole);
+            samus.Kinematics.Position -= new Offset16<RoomPixels>(0, 3);
+            samus.WritePreviousYPosition(samus.Kinematics.Position.Y.Whole);
         }
 
-        _samus.HorizontalSpeed.ExtraRunSpeed = default;
-        _samus.HorizontalSpeed.BaseSpeed = default;
-        _samus.HorizontalSpeed.AccelerationMode = SamusAccelerationMode.Accelerating;
-        _samus.Kinematics.YSpeed = default;
-        _samus.Kinematics.YDirection = SamusVerticalDirection.None;
-        _samus.MorphBallBounceState = SamusBallBounceState.None;
+        samus.HorizontalSpeed.ExtraRunSpeed = default;
+        samus.HorizontalSpeed.BaseSpeed = default;
+        samus.HorizontalSpeed.AccelerationMode = SamusAccelerationMode.Accelerating;
+        samus.Kinematics.YSpeed = default;
+        samus.Kinematics.YDirection = SamusVerticalDirection.None;
+        samus.MorphBallBounceState = SamusBallBounceState.None;
     }
 
     /// <summary>
@@ -299,12 +292,12 @@ internal sealed class SamusPoseMetadata
     /// Every admitted record stays within one facing, retains radius 21, and restarts the
     /// target's cartridge delay list at byte zero through the normal pose initializer.
     /// </summary>
-    public void ApplyDraygonGrabbedPoseChange(SamusPoseId targetPose)
+    public static void ApplyDraygonGrabbedPoseChange(SamusState samus, SamusPoseId targetPose)
     {
 
-        bool leftFamily = IsLeftFacingDraygonGrabbedPose(_samus.Pose) &&
+        bool leftFamily = IsLeftFacingDraygonGrabbedPose(samus.Pose) &&
             IsLeftFacingDraygonGrabbedPose(targetPose);
-        bool rightFamily = IsRightFacingDraygonGrabbedPose(_samus.Pose) &&
+        bool rightFamily = IsRightFacingDraygonGrabbedPose(samus.Pose) &&
             IsRightFacingDraygonGrabbedPose(targetPose);
         if (!leftFamily && !rightFamily)
         {
@@ -314,19 +307,19 @@ internal sealed class SamusPoseMetadata
             // cross-family request to this table-transition API is a caller contract error,
             // not an omitted input record.
             throw new InvalidOperationException(
-                $"Draygon-grabbed input transition ${(int)_samus.Pose:X2} -> ${(int)targetPose:X2} crosses owner-controlled facing families.");
+                $"Draygon-grabbed input transition ${(int)samus.Pose:X2} -> ${(int)targetPose:X2} crosses owner-controlled facing families.");
         }
 
-        ushort oldRadius = _samus.Kinematics.Radius.Y;
-        _samus.Pose = targetPose;
-        RefreshCollisionRadii();
-        if (_samus.Kinematics.Radius.Y != oldRadius)
+        ushort oldRadius = samus.Kinematics.Radius.Y;
+        samus.Pose = targetPose;
+        RefreshCollisionRadii(samus);
+        if (samus.Kinematics.Radius.Y != oldRadius)
         {
             throw new InvalidDataException(
-                $"Draygon pose ${(int)targetPose:X2} unexpectedly changed radius {oldRadius} -> {_samus.Kinematics.Radius.Y}.");
+                $"Draygon pose ${(int)targetPose:X2} unexpectedly changed radius {oldRadius} -> {samus.Kinematics.Radius.Y}.");
         }
 
-        _samus.Presentation.InitializeAnimation(initialFrame: 0);
+        SamusPresentation.InitializeAnimation(samus, initialFrame: 0);
     }
 
     /// <summary>
@@ -554,10 +547,10 @@ internal sealed class SamusPoseMetadata
     /// <c>Setup_Collision_RespawningBombBlock</c> ($84:CE83) breaks the block when the boost
     /// stage is active or Samus is screw attacking ($81/$82) or shinesparking ($C9-$CE).
     /// </summary>
-    public bool BreaksCollisionBombBlocks =>
-        _samus.HorizontalSpeed.IsActivelySpeedBoosting ||
-        IsScrewAttackPose(_samus.Pose) ||
-        _samus.Pose is >= SamusPoseId.ShinesparkHorizontalRightPose
+    public static bool BreaksCollisionBombBlocks(SamusState samus) =>
+        samus.HorizontalSpeed.IsActivelySpeedBoosting ||
+        IsScrewAttackPose(samus.Pose) ||
+        samus.Pose is >= SamusPoseId.ShinesparkHorizontalRightPose
             and <= SamusPoseId.ShinesparkDiagonalLeftPose;
 
     /// <summary>True only for the two Space Jump animation records `$1B/$1C`.</summary>
@@ -612,8 +605,8 @@ internal sealed class SamusPoseMetadata
     /// left, straight and right. The gameplay loop does this after frame-handler alpha; setup considers it after
     /// movement and hurt arbitration.
     /// </summary>
-    public void PublishBombJumpDirection(SuperMetroid.Core.Samus.Projectiles.SamusBombJumpDirection direction) =>
-        PublishBombJumpDirection(direction switch
+    public static void PublishBombJumpDirection(SamusState samus, SuperMetroid.Core.Samus.Projectiles.SamusBombJumpDirection direction) =>
+        PublishBombJumpDirection(samus, direction switch
         {
             SuperMetroid.Core.Samus.Projectiles.SamusBombJumpDirection.Left => 1,
             SuperMetroid.Core.Samus.Projectiles.SamusBombJumpDirection.Straight => 2,
@@ -627,7 +620,7 @@ internal sealed class SamusPoseMetadata
     /// Stores only bank-$A0's low-byte bomb direction. The gameplay loop does this after
     /// frame-handler alpha; setup considers it after movement and hurt arbitration.
     /// </summary>
-    public void PublishBombJumpDirection(byte direction)
+    public static void PublishBombJumpDirection(SamusState samus, byte direction)
     {
         if (direction is < 1 or > 3)
         {
@@ -639,7 +632,7 @@ internal sealed class SamusPoseMetadata
 
         // $A0:984B writes the complete word, not just its low byte. A timer-eight overlap
         // therefore publishes exactly $0001/$0002/$0003.
-        _samus.BombJumpDirection = direction;
+        samus.BombJumpDirection = direction;
     }
 
     /// <summary>
@@ -653,23 +646,23 @@ internal sealed class SamusPoseMetadata
     /// families clear the published direction exactly like the table's carry-clear routines.
     /// </remarks>
     /// <returns>True when the pending low-byte direction was rejected and cleared.</returns>
-    public bool RejectUnsupportedPublishedBombJump(bool timeIsFrozen)
+    public static bool RejectUnsupportedPublishedBombJump(SamusState samus, bool timeIsFrozen)
     {
-        if (_samus.BombJumpDirection == 0 || (SnesLittleEndian.HighByteInPlace(checked((ushort)_samus.BombJumpDirection))) != 0)
+        if (samus.BombJumpDirection == 0 || (SnesLittleEndian.HighByteInPlace(checked((ushort)samus.BombJumpDirection))) != 0)
             return false;
-        SamusMovementType movement = ReadMovementKind();
+        SamusMovementType movement = ReadMovementKind(samus);
         bool reject = movement is SamusMovementType.NormalJumping or SamusMovementType.SpinJumping or
             SamusMovementType.TurningOnGround or SamusMovementType.PostureTransition or
             SamusMovementType.TurningWhileJumping or SamusMovementType.TurningWhileFalling or
             SamusMovementType.DamageBoost or SamusMovementType.DraygonHeld or SamusMovementType.Special ||
             timeIsFrozen && movement is (SamusMovementType.Standing or SamusMovementType.Crouching);
-        if (reject) _samus.BombJumpDirection = 0;
+        if (reject) samus.BombJumpDirection = 0;
         return reject;
     }
 
     /// <summary>Applies the admitted bomb-jump setup after the interruption's rejection side effects.</summary>
     /// <remarks>The newly pressed buttons feed the transition-shot test at $91:F5CF.</remarks>
-    public bool TrySetupPublishedBombJump(
+    public static bool TrySetupPublishedBombJump(SamusState samus, 
 
         RoomLevelData level,
         bool timeIsFrozen,
@@ -679,11 +672,11 @@ internal sealed class SamusPoseMetadata
     {
 
         Ensure.NotNull(level);
-        if (RejectUnsupportedPublishedBombJump(timeIsFrozen) ||
-            _samus.BombJumpDirection == 0 || (SnesLittleEndian.HighByteInPlace(checked((ushort)_samus.BombJumpDirection))) != 0)
+        if (RejectUnsupportedPublishedBombJump(samus, timeIsFrozen) ||
+            samus.BombJumpDirection == 0 || (SnesLittleEndian.HighByteInPlace(checked((ushort)samus.BombJumpDirection))) != 0)
             return false;
 
-        SamusMovementType movementType = ReadMovementKind();
+        SamusMovementType movementType = ReadMovementKind(samus);
         switch (movementType)
         {
             case SamusMovementType.Standing:
@@ -692,7 +685,7 @@ internal sealed class SamusPoseMetadata
                 // complete 16-bit STZ, so no high-byte provenance survives rejection.
                 if (timeIsFrozen)
                 {
-                    _samus.BombJumpDirection = 0;
+                    samus.BombJumpDirection = 0;
                     return false;
                 }
                 goto case SamusMovementType.Running;
@@ -708,8 +701,8 @@ internal sealed class SamusPoseMetadata
             case SamusMovementType.Grappling:
                 // `$90:DFF7` tests the pose-definition direction, not the descriptive pose
                 // number. Any value other than literal four follows the right-facing path.
-                SamusPoseId sourcePose = _samus.Pose;
-                SamusPoseId targetPose = ReadPoseXDirection() == (byte)SamusFacingDirection.Left
+                SamusPoseId sourcePose = samus.Pose;
+                SamusPoseId targetPose = ReadPoseXDirection(samus) == (byte)SamusFacingDirection.Left
                     ? SamusPoseId.NormalJumpForwardLeftPose
                     : SamusPoseId.NormalJumpForwardRightPose;
 
@@ -717,7 +710,7 @@ internal sealed class SamusPoseMetadata
                 // expansion collision used by controller-selected pose changes. This is
                 // observable for a crouching bomb jump: radius 16 grows to 21 and may be
                 // rejected by a low ceiling instead of clipping Samus into terrain.
-                LargerPoseCollisionOutcome collision = _samus.ResolveLargerPoseCollision(
+                LargerPoseCollisionOutcome collision = samus.ResolveLargerPoseCollision(
 
                     level,
                     targetPose,
@@ -727,28 +720,28 @@ internal sealed class SamusPoseMetadata
                 if (collision != LargerPoseCollisionOutcome.Allowed)
                 {
                     if (collision == LargerPoseCollisionOutcome.CrouchFallback)
-                        _samus.ApplyPoseChangeCollisionCrouchFallback(sourcePose);
+                        samus.ApplyPoseChangeCollisionCrouchFallback(sourcePose);
                     return false;
                 }
 
-                _samus.Pose = targetPose;
-                RefreshCollisionRadii();
-                _samus.Kinematics.Position = _samus.Kinematics.Position.WithWholeY(unchecked((ushort)(
-                    _samus.Kinematics.Position.Y.Whole + centerAdjustment)));
+                samus.Pose = targetPose;
+                RefreshCollisionRadii(samus);
+                samus.Kinematics.Position = samus.Kinematics.Position.WithWholeY(unchecked((ushort)(
+                    samus.Kinematics.Position.Y.Whole + centerAdjustment)));
 
                 // The special target installs through $91:F433, which dispatches the new
                 // normal-jumping type to $91:F543 ($51/$52 cannot start a spark there). $F433
                 // then restores the suit palette after a wall jump with Screw Attack.
-                _samus.PoseTransitions.InitializeInstalledNormalJumpPose(movementType, controllerNewInput);
+                SamusPoseTransitions.InitializeInstalledNormalJumpPose(samus, movementType, controllerNewInput);
                 if (movementType == SamusMovementType.WallJumping &&
-                    _samus.EquippedItems.HasAny(SamusEquipmentFlags.ScrewAttack))
-                    _samus.HorizontalSpeed.RequestNormalSuitPaletteRestore();
+                    samus.EquippedItems.HasAny(SamusEquipmentFlags.ScrewAttack))
+                    samus.HorizontalSpeed.RequestNormalSuitPaletteRestore();
 
                 // The selected forward-jump poses are NOT the transition poses that
                 // initialize ordinary jump speed (or apply the crouch jump offset).
                 // Preserve this frame's velocity; bomb start replaces it next frame.
-                _samus.Presentation.InitializeAnimation(initialFrame: 0);
-                ArmPublishedBombJump();
+                SamusPresentation.InitializeAnimation(samus, initialFrame: 0);
+                ArmPublishedBombJump(samus);
                 return true;
 
             case SamusMovementType.MorphBallGround:
@@ -761,7 +754,7 @@ internal sealed class SamusPoseMetadata
             case SamusMovementType.SpringBallFalling:
                 // `$90:E012` copies the current pose into SpecialProspectivePose. Because
                 // that pose already matches, bank $91 immediately executes command three.
-                ArmPublishedBombJump();
+                ArmPublishedBombJump(samus);
                 return true;
 
             case SamusMovementType.NormalJumping:
@@ -773,35 +766,35 @@ internal sealed class SamusPoseMetadata
             case SamusMovementType.DamageBoost:
             case SamusMovementType.DraygonHeld:
             case SamusMovementType.Special:
-                _samus.BombJumpDirection = 0;
+                samus.BombJumpDirection = 0;
                 return false;
 
             default:
                 // The retail pose table never exceeds `$1B`; this is corrupt metadata,
                 // analogous to indexing beyond `$90:DFB5` into unrelated bank words.
                 throw new InvalidDataException(
-                    $"Bomb-jump setup cannot dispatch invalid movement type ${(byte)movementType:X2} for pose ${(int)_samus.Pose:X2}.");
+                    $"Bomb-jump setup cannot dispatch invalid movement type ${(byte)movementType:X2} for pose ${(int)samus.Pose:X2}.");
         }
     }
 
     /// <summary>Executes special prospective-pose command three at `$91:EE80`.</summary>
-    internal void ArmPublishedBombJump()
+    internal static void ArmPublishedBombJump(SamusState samus)
     {
         // Command three replaces, rather than suspends, the movement pointer.
         // A suit-interrupted spark may still own it despite the ordinary body pose.
         // Keep its independently running palette/boost words, but never resume it
         // when the bomb arc restores normal movement and input.
-        _samus.Shinespark.RelinquishMovementHandler();
-        _samus.InputSnapshot.ShinesparkPoseInputLocked = false;
+        samus.Shinespark.RelinquishMovementHandler();
+        samus.InputSnapshot.ShinesparkPoseInputLocked = false;
         // The same pointer replacement applies when suit pickup suspended Flash.
         // Its palette keeps running, but its raising/drain handler must never
         // resume after the bomb arc returns control to normal movement.
-        _samus.CrystalFlash.RelinquishMovementHandler();
-        _samus.InputSnapshot.CrystalFlashPoseInputLocked = false;
-        _samus.BombJumpDirection |= SamusBombJumpMovement.ActiveFlag;
-        _samus.BombJumpStarting = true;
-        _samus.BombJumpActive = false;
-        _samus.BombJumpPoseInputLocked = true;
+        samus.CrystalFlash.RelinquishMovementHandler();
+        samus.InputSnapshot.CrystalFlashPoseInputLocked = false;
+        samus.BombJumpDirection |= SamusBombJumpMovement.ActiveFlag;
+        samus.BombJumpStarting = true;
+        samus.BombJumpActive = false;
+        samus.BombJumpPoseInputLocked = true;
     }
 
     /// <summary>True for the admitted right-facing movement-type-two normal-jump poses.</summary>

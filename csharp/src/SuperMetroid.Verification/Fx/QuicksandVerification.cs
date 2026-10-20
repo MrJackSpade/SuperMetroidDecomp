@@ -39,11 +39,11 @@ internal static class QuicksandVerification
             AssertEqual(0x7fff, samus.HorizontalSpeed.BaseSpeed.Fraction, "quicksand retains low fractional X");
             AssertEqual(0, samus.HorizontalSpeed.BaseSpeed.Whole, "quicksand clears whole base X");
             AssertEqual(false, samus.HorizontalSpeed.HasRunningMomentum, "quicksand cancels running momentum");
-            var move = SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level }, body, new VerticalBlockMove { Displacement = 0x28000, ScanLeftToRight = true });
+            var move = SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level }, body, samus, new VerticalBlockMove { Displacement = 0x28000, ScanLeftToRight = true });
             AssertEqual(direction == SamusVerticalDirection.None ? 0x3000 : 0x28000, move.AcceptedDisplacement, "surface probe accepts native sinking distance");
             AssertEqual(direction != SamusVerticalDirection.Up, move.Collided, "surface publishes grounded contact separately from carry");
             body.Position = body.Position.WithWholeY(24);
-            var poseProbe = SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level }, body, new VerticalBlockMove { Displacement = 0x28000, ScanLeftToRight = true, PublishQuicksandGrounding = false });
+            var poseProbe = SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level }, body, samus, new VerticalBlockMove { Displacement = 0x28000, ScanLeftToRight = true, PublishQuicksandGrounding = false });
             AssertEqual(false, poseProbe.Collided, "pose clearance does not treat sand contact as solid carry");
         }
         for (int kind = 0; kind < 3; kind++)
@@ -57,7 +57,7 @@ internal static class QuicksandVerification
             SamusInsideBlockReactions.PrepareFrame(sand, samus, AreaId.Maridia);
             AssertEqual(kind == 0 ? 0x12000 : kind == 1 ? 0x14000 : 0x1c000,
                 samus.Kinematics.ExtraDisplacement.Y.RawValue, "submerging and sandfall forces");
-            SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = sand }, samus.Kinematics, new HorizontalBlockMove { Displacement = 1 << 16 });
+            SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = sand }, samus.Kinematics, samus, new HorizontalBlockMove { Displacement = 1 << 16 });
             AssertEqual(kind == 0 ? (ushort)0 : (ushort)4, samus.Kinematics.YSpeed.Whole, "submerging horizontal collision speed side effect");
             AssertEqual(kind == 0 ? (ushort)0 : (ushort)0x1c00, samus.Kinematics.YAcceleration.Fraction, "submerging horizontal collision gravity side effect");
         }
@@ -125,7 +125,7 @@ internal static class QuicksandVerification
             };
             int displacement = 0x28000;
             bool collided = SamusInsideBlockReactions.ReactCollision(
-                body,
+                new(body, body.CollisionContactDamageIndex(null)),
                 new RoomCollisionBlock(0, 0x3000, new RoomBlockBehavior(0x80 + index)),
                 axis: Axis.Vertical,
                 ref displacement,

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Drawing;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Frontend;
@@ -48,8 +49,8 @@ internal static class PauseDoorShinesparkVerification
             samus.Control.Unlock();
             samus.Health = 999;
             samus.Pose = SamusPoseId.FacingRightNormalPose;
-            samus.PoseMetadata.RefreshCollisionRadii();
-            samus.Presentation.InitializeAnimation();
+            SamusPoseMetadata.RefreshCollisionRadii(samus);
+            SamusPresentation.InitializeAnimation(samus);
             samus.Shinespark.TryStoreFromSpeedBooster(new SamusSpeedBoostCounter(SamusSpecialSequenceRomData.Shinespark.ActiveSpeedBoostCounter));
             samus.Shinespark.BeginWindup(samus);
             samus.Shinespark.BeginDirectionalLaunch(samus, SamusPoseId.ShinesparkHorizontalRightPose);

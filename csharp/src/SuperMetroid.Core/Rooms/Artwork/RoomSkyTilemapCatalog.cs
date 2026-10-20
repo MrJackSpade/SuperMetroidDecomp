@@ -41,19 +41,20 @@ public sealed class RoomSkyTilemapCatalog : IInstalledArtworkTransferSource
     /// <summary>The sky rows the land or ocean chunk table selects from these pages (#1347).</summary>
     public SkyTilemap Tilemap(ScrollingSkyChunkTable variant) => variant switch
     {
-        ScrollingSkyChunkTable.Land => land ??= new SkyTilemap(this, variant),
-        ScrollingSkyChunkTable.Ocean => ocean ??= new SkyTilemap(this, variant),
+        ScrollingSkyChunkTable.Land => land ??= new SkyTilemap(pages, variant),
+        ScrollingSkyChunkTable.Ocean => ocean ??= new SkyTilemap(pages, variant),
         _ => throw new ArgumentOutOfRangeException(nameof(variant), variant, "Unknown scrolling-sky chunk table."),
     };
 
-    /// <summary>The tile words of one row of one sky page, as little-endian bytes.</summary>
+    /// <summary>The tile words of one row of one sky page within <paramref name="pages"/>, as little-endian bytes.</summary>
+    /// <param name="pages">The seven sky pages in scrolling order.</param>
     /// <param name="page">The page, 0 through 6.</param>
     /// <param name="row">The row within the page, 0 through 31.</param>
-    internal ReadOnlySpan<byte> Row(int page, int row)
+    internal static ReadOnlySpan<byte> Row(ReadOnlySpan<byte> pages, int page, int row)
     {
         Ensure.BetweenInclusive(0, RoomSkyTilemapFormat.PageCount - 1, page);
         Ensure.BetweenInclusive(0, RoomSkyTilemapFormat.RowsPerPage - 1, row);
-        return pages.AsSpan(page * RoomSkyTilemapFormat.PageByteCount + row * RoomSkyTilemapFormat.RowByteCount,
+        return pages.Slice(page * RoomSkyTilemapFormat.PageByteCount + row * RoomSkyTilemapFormat.RowByteCount,
             RoomSkyTilemapFormat.RowByteCount);
     }
 

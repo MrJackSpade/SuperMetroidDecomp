@@ -149,17 +149,17 @@ internal static void VerifyRoomEnemyLoading()
     AssertEqual(1, enemies.PopulationLoader.DeathQuota, "population terminator death quota");
     AssertEqual(0, enemies.RoomStatus.EnemiesKilled, "room load clears killed-enemy count");
     AssertEqual(0x1234, enemies.RoomStatus.BossId, "nonzero definition publishes room boss ID");
-    AssertEqual(2, enemies.GraphicsSet.Count, "terminated enemy graphics-set count");
+    AssertEqual(2, enemies.GraphicsSet.Entries.Count, "terminated enemy graphics-set count");
 
-    RoomEnemyGraphicsSetEntry ordinaryGraphics = enemies.GraphicsSet[0];
-    RoomEnemyGraphicsSetEntry specialGraphics = enemies.GraphicsSet[1];
+    RoomEnemyGraphicsSetEntry ordinaryGraphics = enemies.GraphicsSet.Entries[0];
+    RoomEnemyGraphicsSetEntry specialGraphics = enemies.GraphicsSet.Entries[1];
     AssertEqual(0x0800, ordinaryGraphics.StagingOffset, "ordinary enemy staging offset");
     AssertEqual(0x0200, specialGraphics.StagingOffset, "high-bit enemy encoded staging offset");
     AssertEqual(2, specialGraphics.VramTilesIndex,
         "second enemy tile index includes first definition size");
     // Room load stages the tiles; they reach VRAM, and the OBJ characters' record, through the NMI queue.
     var tileQueue = new VramWriteQueue();
-    enemies.PopulationLoader.QueueGraphicsUploads(tileQueue);
+    enemies.GraphicsSet.QueueGraphicsUploads(tileQueue);
     var seededTiles = new SeededEnemyTileTransfers(new Dictionary<int, byte[]>
     {
         [0xa29100] = primaryTileBytes,
@@ -215,7 +215,7 @@ internal static void VerifyRoomEnemyLoading()
     var installedCgram = new SnesCgram();
     installedEnemies.Load(new RoomEnemyLoadRequest(bus.ReadEnemyPopulation(populationPointer), bus.ReadEnemyGraphicsSet(tilesetPointer), BgArtworkFixtures.For(installedVram), installedCgram));
     var installedQueue = new VramWriteQueue();
-    installedEnemies.PopulationLoader.QueueGraphicsUploads(installedQueue);
+    installedEnemies.GraphicsSet.QueueGraphicsUploads(installedQueue);
     installedQueue.DrainTo(installedVram, seededTiles, installedEnemies.Room.Session.ObjCharacters, BgArtworkFixtures.For(installedVram));
     AssertTrue(vram.ImageEquals(installedVram),
         "installed enemy PNGs preserve both native ordinary and high-bit VRAM placements");
@@ -246,7 +246,7 @@ internal static void VerifyRoomEnemyLoading()
     enemies.Load(new RoomEnemyLoadRequest(bus.ReadEnemyPopulation(emptyPopulationPointer), TestAddressSpace.UnusedGraphicsSet, BgArtworkFixtures.For(vram), cgram));
 
     AssertEqual(0, enemies.SlotTable.EnemyCount, "empty population clears enemy count");
-    AssertEqual(0, enemies.GraphicsSet.Count, "empty population skips graphics set");
+    AssertEqual(0, enemies.GraphicsSet.Entries.Count, "empty population skips graphics set");
     AssertEqual(RoomEnemySystem.NativeSlotSize, enemies.SlotTable.FirstFreeEnemyIndex,
         "empty population preserves native first-free quirk");
     AssertEqual(1, enemies.PopulationLoader.DeathQuota, "empty population preserves native death-quota quirk");

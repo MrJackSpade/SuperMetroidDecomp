@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Input;
@@ -32,8 +33,8 @@ internal static class MetroidBombPlacementVerification
         var samus = new SamusState { Health = 999, MaxHealth = 999, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),
             Pose = SamusPoseId.MorphBallGroundRightPose,
             EquippedItems = (SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.Bombs) };
-        samus.PoseMetadata.RefreshCollisionRadii();
-        samus.Presentation.InitializeAnimation();
+        SamusPoseMetadata.RefreshCollisionRadii(samus);
+        SamusPresentation.InitializeAnimation(samus);
         var target = enemies.SlotTable.Slots[0];
         target.Position = target.Position.WithWhole(new(samus.Position.X.Whole, (ushort)(samus.Position.Y.Whole - 8)));
         enemies.StepFrame(new RoomEnemyFrame { Camera = new(0, 0), TimeIsFrozen = false, Samus = samus, Level = assets.LevelData });
@@ -102,9 +103,9 @@ internal static class MetroidBombPlacementVerification
         samus.Health = samus.MaxHealth = 999;
         samus.Position = samus.Position.WithWhole(new(128, 153));
         samus.Kinematics.Position = samus.Kinematics.Position.WithFractionX(0).WithFractionY(0);
-        samus.PoseMetadata.RefreshCollisionRadii();
-        samus.Presentation.InitializeAnimation();
-        samus.Presentation.SetAnimationFrameFromSpecialHandler(0, 1);
+        SamusPoseMetadata.RefreshCollisionRadii(samus);
+        SamusPresentation.InitializeAnimation(samus);
+        SamusPresentation.SetAnimationFrameFromSpecialHandler(samus, 0, 1);
         samus.PoseHistory.PreviousPose = samus.Pose;
         samus.PoseHistory.PreviousDirectionAndMovement =
             SnesLittleEndian.Word((byte)SamusFacingDirection.Right, (byte)SamusMovementType.MorphBallGround);

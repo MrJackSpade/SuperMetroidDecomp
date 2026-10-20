@@ -34,7 +34,7 @@ internal static class EndingExplosionSlotOrderVerification
         afterglow.Draw(expected, installedArt: RepositoryInstallation.Installation.LoadEndingObjectArt().ExplosionSprites);
         expected.FinalizeFrame();
         AssertEqual(37, expected.LastFinalizedSpriteCount, "retail afterglow component count");
-        var snapshot = ending.Presentation.CaptureRenderSnapshot();
+        var snapshot = EndingCreditsPresentation.CaptureRenderSnapshot(ending);
         var actual = snapshot.Memory;
         PlacedSpritePart[] afterglowParts = PlacedSpritePart.Of(expected.Draws);
         PlacedSpritePart[] liveParts = [.. actual.SpriteParts().Take(afterglowParts.Length)];
@@ -48,7 +48,7 @@ internal static class EndingExplosionSlotOrderVerification
         RenderLayer[] order = [fixedWhite, new ObjRenderLayer(FixedColor: fixedWhite), background];
         var nativePixels = SoftwareLayeredSnapshotRenderer.Render(new(actual, order,
             snapshot.ObjectSelection, snapshot.Brightness));
-        var actualPixels = ending.Presentation.Render();
+        var actualPixels = ending.Render();
 
         AssertTrue(actualPixels.SequenceEqual(nativePixels),
             "live getaway ship occludes priority-zero afterglow pixels");

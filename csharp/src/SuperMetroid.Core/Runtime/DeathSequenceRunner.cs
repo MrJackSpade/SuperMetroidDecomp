@@ -59,7 +59,7 @@ internal sealed class DeathSequenceRunner
         // The next accepted NMI must see pose `$D7/$D8` definitions. Native game state 15
         // draws once before setup and state 16 draws the new pose on its following call;
         // priming here preserves that same first-visible-frame contract in this thin host.
-        _player.Samus.Presentation.PrimeGraphics();
+        _player.Samus.Presentation.PrimeGraphics(_player.Samus);
         return result;
     }
 
@@ -75,7 +75,7 @@ internal sealed class DeathSequenceRunner
 
         _frameBoundary.BeginAcceptedFrame(controllerInput);
         _sprites.BeginFrame();
-        _player.Samus.Presentation.Draw(
+        _player.Samus.Presentation.Draw(_player.Samus, 
             _sprites,
             _room.Camera.PixelPosition,
             mode7Transform: _display.ActiveSamusMode7Transform);
@@ -100,7 +100,7 @@ internal sealed class DeathSequenceRunner
             _artwork.SamusBodyArt?.DeathPalettes);
         if (_player.LastDeathSequenceStep.Value.DrawPose)
         {
-            _player.Samus.Presentation.Draw(
+            _player.Samus.Presentation.Draw(_player.Samus, 
                 _sprites,
                 _room.Camera.PixelPosition,
                 mode7Transform: _display.ActiveSamusMode7Transform);

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Input;
@@ -620,7 +621,7 @@ public sealed class IntroCinematicState : IFrontendScreen
         {
             // Intro-demo alpha refreshes the live radius before projectiles and beta movement.
             // Pose commits at the end of the previous frame deliberately leave it unchanged.
-            CurrentFlashbackSamus.PoseMetadata.RefreshCollisionRadii();
+            SamusPoseMetadata.RefreshCollisionRadii(CurrentFlashbackSamus);
 
             // $90:E91D runs DemoInputObjectHandler inside Samus's current-state handler,
             // after the cinematic function, so a demo loaded by $8B:AEB8 plays its first
@@ -700,10 +701,10 @@ public sealed class IntroCinematicState : IFrontendScreen
         // intro palette restoration and suppress gameplay-only sound/landing effects.
         CurrentFlashbackSamus.LiquidPhysics.CinematicFunctionActive = true;
         CurrentFlashbackSamus.Presentation.TileTransfers.BindArtwork(samusBodyArtwork);
-        CurrentFlashbackSamus.PoseMetadata.RefreshCollisionRadii();
-        CurrentFlashbackSamus.Presentation.InitializeAnimation();
+        SamusPoseMetadata.RefreshCollisionRadii(CurrentFlashbackSamus);
+        SamusPresentation.InitializeAnimation(CurrentFlashbackSamus);
         CurrentFlashbackSamus.CommitPoseHistory();
-        CurrentFlashbackSamus.Presentation.PrimeGraphics();
+        CurrentFlashbackSamus.Presentation.PrimeGraphics(CurrentFlashbackSamus);
         // The native NMI consumes the freshly selected top/bottom definitions before the
         // next displayed OAM image. Apply that dedicated DMA now so the first host-rendered
         // flashback frame names initialized OBJ characters rather than stale intro art.
@@ -1035,7 +1036,7 @@ public sealed class IntroCinematicState : IFrontendScreen
         // $90:E70D/$90:E71C: both the demo and locked handlers end with
         // ResetMovementAndPoseChangeVariables, so a later missile inherits only the
         // movement recorded in its own dispatch.
-        FlashbackSamus.PoseTransitions.ClearPoseTransitionShotDirection();
+        SamusPoseTransitions.ClearPoseTransitionShotDirection(FlashbackSamus);
         FlashbackSamus.ProjectileInheritance.ClearMovement();
     }
 
@@ -1103,19 +1104,19 @@ level, samus, NmiFrameWord(elapsedUpdates));
         // Intro-demo state is not an animation shortcut. `$90:E83F` advances the same
         // cartridge delay programs as gameplay, including every visible hurt/fall frame.
         if (!groundedDemoStepped)
-            samus.Presentation.AnimateNoFx(new SamusAnimationStep { ControllerInput = demoInput, NmiFrameCounter = NmiFrameWord(elapsedUpdates), Random = Random });
+            SamusPresentation.AnimateNoFx(samus, new SamusAnimationStep { ControllerInput = demoInput, NmiFrameCounter = NmiFrameWord(elapsedUpdates), Random = Random });
 
         // Delay opcodes `$F8/$FD` publish a prospective pose; they are not ordinary frame
         // delays. `$90:E849` consumes that publication before the byte following the opcode
         // can ever be misread as another animation duration. This completes landing art's
         // native A5 -> 02 transition instead of walking beyond its ROM delay list.
-        bool animationTransitionApplied = samus.PoseTransitions.ApplyPendingVerifiedAnimationTransition();
+        bool animationTransitionApplied = SamusPoseTransitions.ApplyPendingVerifiedAnimationTransition(samus);
         animationTransitionApplied |= SamusKnockbackMovement.TryFinishExpiredHitInterruption(samus);
         transitionAccepted |= animationTransitionApplied;
 
         if (!animationTransitionApplied && hurtEndingProbe is { IsUnobstructedDownwardMovement: true })
         {
-            samus.PoseTransitions.ApplyWalkedOffFloorTransition(level, samus.PoseTransitions.SelectFallingPoseForCurrentAim(), NmiFrameWord(elapsedUpdates));
+            SamusPoseTransitions.ApplyWalkedOffFloorTransition(samus, level, SamusPoseTransitions.SelectFallingPoseForCurrentAim(samus), NmiFrameWord(elapsedUpdates));
             animationTransitionApplied = transitionAccepted = true;
         }
 
@@ -1124,7 +1125,7 @@ level, samus, NmiFrameWord(elapsedUpdates));
         // next animation list all come from the same bank-$91 implementation as gameplay.
         if (!animationTransitionApplied && fallingMovement is { Landed: true })
         {
-            samus.PoseTransitions.ApplyAerialLanding(wasSpinning: samus.Pose == SamusPoseId.SpinJumpLeftPose, demoInput);
+            SamusPoseTransitions.ApplyAerialLanding(samus, wasSpinning: samus.Pose == SamusPoseId.SpinJumpLeftPose, demoInput);
             transitionAccepted = true;
         }
 
@@ -1168,9 +1169,9 @@ level, samus, NmiFrameWord(elapsedUpdates));
         // this scoped frontend yet; freezing input after the exact pose change has the same
         // observable contract for the remaining Mother Brain explosion frames.
         FlashbackSamus.Pose = SamusPoseId.FacingLeftNormalPose;
-        FlashbackSamus.PoseMetadata.RefreshCollisionRadii();
+        SamusPoseMetadata.RefreshCollisionRadii(FlashbackSamus);
         // $91:874B: a Samus already in pose two keeps her running animation.
-        FlashbackSamus.Presentation.SetAnimationFrameIfPoseChanged();
+        SamusPresentation.SetAnimationFrameIfPoseChanged(FlashbackSamus);
         FlashbackSamus.CommitPoseHistory();
         FlashbackDemoInput.Disable();
     }
@@ -1206,7 +1207,7 @@ level, samus, NmiFrameWord(elapsedUpdates));
         // cinematic objects; once $B842 clears it, only the objects remain.
         if (flashbackSamusDisplay != IntroSamusDisplay.Hidden)
         {
-            FlashbackSamus.Presentation.Draw(sprites, layer1: Position16<RoomPixels>.Zero, NmiFrameWord(elapsedUpdates));
+            FlashbackSamus.Presentation.Draw(FlashbackSamus, sprites, layer1: Position16<RoomPixels>.Zero, NmiFrameWord(elapsedUpdates));
             // The flashback's VRAM holds the power beam's characters whatever beam its Samus fires.
             var projectileArtwork = new ProjectileDrawArtwork(ProjectileCompositions, projectilePages, EquippedBeams: 0);
             flashbackProjectiles.DrawLiveProjectiles(sprites, Position16<RoomPixels>.Zero, NmiFrameWord(elapsedUpdates), projectileArtwork);
@@ -1267,7 +1268,7 @@ level, samus, NmiFrameWord(elapsedUpdates));
         // This cinematic deliberately keeps layer1_x_pos at zero. Samus starts at $178,
         // outside the 256-pixel viewport, and the demo makes her enter from the right; the
         // $54 BG1 screen-base selects different art, not a hidden +$100 camera coordinate.
-        BabyDiscovery.Samus.Presentation.Draw(sprites, layer1: Position16<RoomPixels>.Zero, NmiFrameWord(elapsedUpdates));
+        BabyDiscovery.Samus.Presentation.Draw(BabyDiscovery.Samus, sprites, layer1: Position16<RoomPixels>.Zero, NmiFrameWord(elapsedUpdates));
     }
 
     /// <summary>Collects scientist-scene objects for the current cinematic display.</summary>

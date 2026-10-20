@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Enemies;
@@ -64,7 +65,7 @@ internal sealed class AttractDemoDriver : IAttractSamusInput
         if (_attractSession.Input is null) return;
         _player.IntroducedSamus.InputSnapshot.PreviousDrawNewInput = _attractSession.Input.Script.NewlyPressed;
         _attractSession.Input.StepStock(SuperMetroidGameState.PlayingDemo,
-            _player.IntroducedSamus.PoseMetadata.ReadMovementType());
+            SamusPoseMetadata.ReadMovementType(_player.IntroducedSamus));
         _attractSession.InputRestore = _controller1.UseDemoInput(
             _attractSession.Input.Script.Held, _attractSession.Input.Script.NewlyPressed);
     }
@@ -124,10 +125,10 @@ internal sealed class AttractDemoDriver : IAttractSamusInput
             RoomViewportLoadMode.DisplayInitialViewport);
         // The scene's room setup acts on the demo room the load just built.
         ApplyAttractRoomSetup(scene.RoomSetupPointer, _room.LoadedScope.Enemies);
-        _player.Samus.Presentation.LoadSuitPalette(_cgram);
-        _player.Samus.PoseMetadata.RefreshCollisionRadii();
-        _player.Samus.Presentation.InitializeAnimation();
-        _player.Samus.Presentation.PrimeGraphics();
+        _player.Samus.Presentation.LoadSuitPalette(_player.Samus, _cgram);
+        SamusPoseMetadata.RefreshCollisionRadii(_player.Samus);
+        SamusPresentation.InitializeAnimation(_player.Samus);
+        _player.Samus.Presentation.PrimeGraphics(_player.Samus);
         _player.Samus.LiquidPhysics.RoomIdentity = room.Identity;
         _player.GroundedSamusMovementEnabled = true;
         _attractSession.Input = new AttractDemoInput(scene);
@@ -140,7 +141,7 @@ internal sealed class AttractDemoDriver : IAttractSamusInput
         switch (pointer)
         {
             case AttractDemoSamusSetup.LandingSite:
-                samus.PoseMetadata.ApplyForwardFacingPoseSetup();
+                SamusPoseMetadata.ApplyForwardFacingPoseSetup(samus);
                 break;
             case AttractDemoSamusSetup.StandingRight:
                 samus.Pose = SamusPoseId.FacingRightNormalPose;

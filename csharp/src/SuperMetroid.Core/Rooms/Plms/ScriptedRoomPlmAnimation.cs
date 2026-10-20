@@ -45,7 +45,7 @@ internal sealed class ScriptedRoomPlmAnimation(ScriptedRoomPlmProgram program)
                 slot.PreInstruction = PlmPreInstructions.Inert;
                 return null;
             case ScriptedRoomPlmCue.Command { Kind: ScriptedRoomPlmCueKind.SetAnimalsEscapedEvent }:
-                (context.Plms.Bindings.Events ?? throw new InvalidOperationException("Animal rescue requires the room event owner."))
+                (context.Plms.Events ?? throw new InvalidOperationException("Animal rescue requires the room event owner."))
                     .Set(EventNumber.CrittersEscaped);
                 return null;
             case ScriptedRoomPlmCue.Command { Kind: ScriptedRoomPlmCueKind.MoveRightFourBlocks }:

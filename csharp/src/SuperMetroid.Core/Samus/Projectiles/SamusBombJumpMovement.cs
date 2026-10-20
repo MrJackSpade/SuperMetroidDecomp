@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.Core.Samus.Movement;
@@ -75,12 +76,12 @@ public static class SamusBombJumpMovement
             uint baseSpeed = samus.HorizontalSpeed.CalculateBaseSpeed(
                 SamusStandaloneSpeedRecord.DiagonalBombJump);
             var displacement = SamusHorizontalDisplacement.Toward(direction == 1, samus, baseSpeed);
-            horizontal = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, Plms = plms }, samus.Kinematics, new HorizontalBlockMove { Displacement = displacement.Displacement, CollisionMovementDirection = displacement.CollisionDirection });
+            horizontal = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, Plms = plms }, samus.Kinematics, samus, new HorizontalBlockMove { Displacement = displacement.Displacement, CollisionMovementDirection = displacement.CollisionDirection });
             // The native direction-aware X mover clears momentum on a wall hit
             // before the later Y scan replaces its collision result. This must
             // not end the bomb ascent, but it must stop horizontal acceleration.
             if (horizontal.Value.Collided)
-                samus.HorizontalSpeed.ClearHorizontalMomentum(samus.PoseMetadata.ReadFacingDirection());
+                samus.HorizontalSpeed.ClearHorizontalMomentum(SamusPoseMetadata.ReadFacingDirection(samus));
         }
 
         // `$90:8F1B` changes signed underflow to the falling direction. A diagonal jump
@@ -140,7 +141,7 @@ public static class SamusBombJumpMovement
         int displacement = SamusExtraDisplacement.AddToVerticalSpeedDisplacement(
             state,
             unchecked(-(int)oldSpeed));
-        BlockMoveResult result = SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, Plms = plms }, state, new VerticalBlockMove { Displacement = displacement, ScanLeftToRight = (nmiFrameCounter & 1) == 0 });
+        BlockMoveResult result = SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, Plms = plms }, state, samus, new VerticalBlockMove { Displacement = displacement, ScanLeftToRight = (nmiFrameCounter & 1) == 0 });
         if (result.Collided)
         {
             state.YSpeed = default;

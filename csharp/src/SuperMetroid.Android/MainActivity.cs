@@ -1,3 +1,4 @@
+using SuperMetroid.Core;
 using Android.OS;
 using Android.Views;
 using Android.Content.PM;
@@ -406,6 +407,7 @@ public sealed class MainActivity : ComponentActivity
     }
 
     /// <summary>Relays Android audio-focus and input-device changes into the activity run gate.</summary>
+    [ArchitectureReview("back-reference", "An Android audio-focus and input-device callback; the framework delivers it to this listener, which must pause or resume the activity that registered it.")]
     private sealed class HostFocusListener(MainActivity owner) : Java.Lang.Object,
         AudioManager.IOnAudioFocusChangeListener, InputManager.IInputDeviceListener
     {

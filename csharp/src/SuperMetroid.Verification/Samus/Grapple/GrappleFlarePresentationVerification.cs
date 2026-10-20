@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Frontend;
@@ -170,7 +171,7 @@ internal static class GrappleFlarePresentationVerification
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug); runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
         var samus = runtime.Player.IntroducedSamus;
         samus.Pose = SamusPoseId.FacingRightNormalPose; samus.Position = samus.Position.WithWhole(new((ushort)(runtime.Room.LoadedCamera.PixelPosition.X + 100), (ushort)(runtime.Room.LoadedCamera.PixelPosition.Y + 100)));
-        samus.Presentation.InitializeAnimation(); samus.Presentation.PrimeGraphics();
+        SamusPresentation.InitializeAnimation(samus); samus.Presentation.PrimeGraphics(samus);
         samus.Grapple.Phase = GrapplePhase.ConnectedLocked;
         samus.Grapple.BeamStart = samus.Grapple.BeamStart.WithX(samus.Position.X.Whole); samus.Grapple.BeamStart = samus.Grapple.BeamStart.WithY(samus.Position.Y.Whole);
         samus.Grapple.FlareCounter = 2; samus.Grapple.FlareAnimationFrame = 16; samus.Grapple.FlareAnimationTimer = NativeCountdown.Start(100);

@@ -89,6 +89,7 @@ public sealed class MapSpriteCatalog
     /// Retains the 26 named compositions in their drawing roles after JSON validation; the three indicator animation
     /// frames are one list indexed by frame.
     /// </summary>
+    [ArchitectureReview("context-bag", "The map screen's compiled sprite compositions by role; every member is immutable artwork data, not a service.")]
     private sealed record FrameSet(
         SpriteComposition? ArrowRight,
         SpriteComposition? ArrowLeft,

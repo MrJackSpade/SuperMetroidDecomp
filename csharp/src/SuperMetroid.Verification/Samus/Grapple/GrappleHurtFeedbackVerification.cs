@@ -87,7 +87,7 @@ internal static class GrappleHurtFeedbackVerification
         current.Position = 0;
         var restored = DebuggerObjectGraphSerializer.Deserialize<SamusState>(current);
         AssertEqual(99, restored.PreviousHealthForHurtCheck, "current captures preserve pending health-loss history");
-        restored.InputSnapshot.UpdateHurtFlashFromHealthLoss();
+        SamusInputSnapshot.UpdateHurtFlashFromHealthLoss(restored);
         AssertEqual(1, restored.HurtFlashCounter, "restored pending health loss starts feedback");
 
         // Construct the immediately preceding graph layout by removing only this

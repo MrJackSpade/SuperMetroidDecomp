@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Drawing;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Runtime;
@@ -60,8 +61,8 @@ internal static class AcidStatueFirstEntryVerification
         samus.Control.Unlock();
         samus.PoseId = SamusPoseId.FacingRightNormalPose;
         samus.Position = samus.Position.WithWhole(new((ushort)(doorX * 16 + 8), (ushort)(doorY * 16 + 8)));
-        samus.PoseMetadata.RefreshCollisionRadii();
-        samus.Presentation.InitializeAnimation();
+        SamusPoseMetadata.RefreshCollisionRadii(samus);
+        SamusPresentation.InitializeAnimation(samus);
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         runtime.Room.LoadedLevelData.ResolveDoorCollision(behavior, samus.Pose, true);
 

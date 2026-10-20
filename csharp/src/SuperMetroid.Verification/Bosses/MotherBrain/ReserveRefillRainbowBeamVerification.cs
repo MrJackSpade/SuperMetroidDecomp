@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Drawing;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Poses;
@@ -20,8 +21,8 @@ internal static class ReserveRefillRainbowBeamVerification
             Pose = SamusPoseId.FacingLeftNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(0x00eb, 0x007d)),
             Health = 0, MaxHealth = 99, ReserveEnergy = 3, MaxReserveEnergy = 100, ReserveTankMode = ReserveTankMode.Auto,
         };
-        samus.PoseMetadata.RefreshCollisionRadii();
-        samus.Presentation.InitializeAnimation();
+        SamusPoseMetadata.RefreshCollisionRadii(samus);
+        SamusPresentation.InitializeAnimation(samus);
         samus.Drained.SetupForRainbowBeam(samus);
         AssertTrue(samus.Control.Mode.Beta == SamusBetaHandler.RainbowBeam, "the rainbow beam holds Samus");
 

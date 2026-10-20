@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
@@ -51,8 +52,8 @@ internal static class CrocomirePresentation1193Verification
             samus.Pose = SamusPoseId.FacingRightNormalPose;
             samus.Health = samus.MaxHealth = 999;
             samus.Position = samus.Position.WithWhole(new(600, 120));
-            samus.PoseMetadata.RefreshCollisionRadii();
-            samus.Presentation.InitializeAnimation();
+            SamusPoseMetadata.RefreshCollisionRadii(samus);
+            SamusPresentation.InitializeAnimation(samus);
             samus.CommitPoseHistory();
             samus.Control.Unlock();
             runtime.Room.LoadedCamera.SetPosition(new Position16<RoomPixels>(512, 0));

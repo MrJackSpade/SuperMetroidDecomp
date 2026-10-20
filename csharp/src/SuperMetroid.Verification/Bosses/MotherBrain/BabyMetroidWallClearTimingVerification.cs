@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Input;
@@ -44,8 +45,8 @@ internal static class BabyMetroidWallClearTimingVerification
         samus.Control.Unlock();
         samus.Pose = SamusPoseId.MovingRightNormalPose;
         samus.Position = samus.Position.WithWhole(new(0x02f9, 0x00bb));
-        samus.PoseMetadata.RefreshCollisionRadii();
-        samus.Presentation.InitializeAnimation();
+        SamusPoseMetadata.RefreshCollisionRadii(samus);
+        SamusPresentation.InitializeAnimation(samus);
         samus.HorizontalSpeed.BaseSpeed = samus.HorizontalSpeed.BaseSpeed.WithFraction(0x3000);
         samus.HorizontalSpeed.ExtraRunSpeed = new SnesUnsignedSixteenSixteen(2, 0xc000);
         runtime.Room.LoadedCamera.SetPosition(new Position16<RoomPixels>(0x0200, 0x0000));

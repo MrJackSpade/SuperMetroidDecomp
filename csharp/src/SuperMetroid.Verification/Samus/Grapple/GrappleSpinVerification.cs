@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Drawing;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Runtime;
@@ -29,8 +30,8 @@ internal static class GrappleSpinVerification
             samus.Control.Unlock();
             samus.Position = samus.Position.WithWhole(new(512, 256));
             samus.Pose = left ? SamusPoseId.SpinJumpLeftPose : SamusPoseId.SpinJumpRightPose;
-            samus.PoseMetadata.RefreshCollisionRadii();
-            samus.Presentation.InitializeAnimation();
+            SamusPoseMetadata.RefreshCollisionRadii(samus);
+            SamusPresentation.InitializeAnimation(samus);
             samus.SelectedHudItem = HudItem.Grapple;
             samus.EquippedItems |= SamusEquipmentFlags.GrappleBeam;
             samus.Kinematics.YDirection = SamusVerticalDirection.Down;

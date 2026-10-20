@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Poses;
 namespace SuperMetroid.Core.Samus.Movement;
 
 /// <summary>
@@ -31,7 +32,7 @@ public readonly record struct SamusHorizontalDisplacement(int Displacement, Samu
     /// </summary>
     public static SamusHorizontalDisplacement ForPoseDirection(SamusState samus, uint baseSpeed)
     {
-        byte direction = samus.PoseMetadata.ReadPoseXDirection();
+        byte direction = SamusPoseMetadata.ReadPoseXDirection(samus);
         bool reversePoseDirection = samus.HorizontalSpeed.AccelerationMode is not (SamusAccelerationMode.Accelerating or SamusAccelerationMode.Decelerating);
         return Toward(reversePoseDirection ? direction == 8 : direction == 4, samus, baseSpeed);
     }

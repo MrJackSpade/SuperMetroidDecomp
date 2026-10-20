@@ -234,7 +234,7 @@ internal static class CollectiblesVerification
         {
             Position = FixedPosition<RoomPixels>.FromWhole(new(1124, 651)), Radius = new(5, 14),
         };
-        SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = fixture.Level, Plms = fixture.Plms }, movement, new HorizontalBlockMove { Displacement = -1 << 16, AlignToSlopeAfterMovement = false });
+        SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = fixture.Level, Plms = fixture.Plms }, movement, null, new HorizontalBlockMove { Displacement = -1 << 16, AlignToSlopeAfterMovement = false });
         fixture.Plms.Step(fixture.Level);
         AssertTrue(fixture.System.HasCollectedItemBit(26), "Morph Ball pickup persists");
         AssertPermanentCollectibleEffect(InWorldCollectibleKind.MorphBall, fixture.Samus);
@@ -246,7 +246,7 @@ internal static class CollectiblesVerification
         fixture.Plms.CollectiblePlms.CompleteCollectibleMessage(fixture.Level);
         AssertEqual((ushort)0x00ff, fixture.Level.GetCollisionBlockByIndex(fixture.BlockIndex).PackedWord.Raw,
             "Morph Ball pickup draws native empty level word on message return");
-        var next = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = fixture.Level, Plms = fixture.Plms }, movement, new HorizontalBlockMove { Displacement = -1 << 16, AlignToSlopeAfterMovement = false });
+        var next = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = fixture.Level, Plms = fixture.Plms }, movement, null, new HorizontalBlockMove { Displacement = -1 << 16, AlignToSlopeAfterMovement = false });
         AssertEqual((ushort)1122, movement.Position.X.Whole, "message-return horizontal movement advances");
         AssertTrue(!next.Collided, "message-return Morph Ball block remains passable");
         AssertEqual(CollectiblePhase.EmptyAwaitingDelete, fixture.Plms.CollectiblePhases[0],
@@ -254,7 +254,7 @@ internal static class CollectiblesVerification
         fixture.Plms.Step(fixture.Level);
         AssertEqual(0, fixture.Plms.SlotTable.ActiveCount, "Morph Ball owner deletes on the next PLM pass"); 
         AssertEqual(0, fixture.Plms.CollectiblePlms.CollectiblePickupEvents.Count, "Morph Ball cannot be awarded twice");
-        var cleared = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = fixture.Level, Plms = fixture.Plms }, movement, new HorizontalBlockMove { Displacement = -1 << 16, AlignToSlopeAfterMovement = false });
+        var cleared = SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = fixture.Level, Plms = fixture.Plms }, movement, null, new HorizontalBlockMove { Displacement = -1 << 16, AlignToSlopeAfterMovement = false });
         AssertTrue(!cleared.Collided, "deleted Morph Ball leaves passable air");
         AssertEqual((ushort)1121, movement.Position.X.Whole, "movement also advances after owner deletion");
         Console.WriteLine("  Morph Ball message return and subsequent horizontal collision agree.");
@@ -800,7 +800,7 @@ internal static class CollectiblesVerification
 
         // Gravity has priority when both suit bits are equipped, matching `$91:DEBA`.
         samus.EquippedItems |= SamusEquipmentFlags.GravitySuit;
-        samus.Presentation.LoadSuitPalette(cgram);
+        samus.Presentation.LoadSuitPalette(samus, cgram);
         AssertEqual(0x7c00, cgram.Colors[192],
             "normal suit palette loader gives Gravity priority over Varia");
     }
@@ -906,7 +906,7 @@ internal static class CollectiblesVerification
             var pickup = new SamusSuitPickupState();
             pickup.Begin(samus, new(0, 0), kind);
             SamusPoseId initialPose = samus.Pose;
-            ushort initialMetadata = SnesLittleEndian.Word(samus.PoseMetadata.ReadPoseXDirection(), (byte)samus.PoseMetadata.ReadMovementType());
+            ushort initialMetadata = SnesLittleEndian.Word(SamusPoseMetadata.ReadPoseXDirection(samus), (byte)SamusPoseMetadata.ReadMovementType(samus));
             AssertEqual(SamusPoseId.SpinJumpRightPose, history.LastDifferentPose, "suit entry shifts prior pose");
             AssertEqual(0x0308, history.LastDifferentDirectionAndMovement, "suit entry shifts prior metadata");
             AssertEqual(initialPose, history.PreviousPose, "suit entry commits front pose");
@@ -918,7 +918,7 @@ internal static class CollectiblesVerification
             AssertEqual(initialPose, history.LastDifferentPose, "suit reveal shifts initial pose even if already suited");
             AssertEqual(initialMetadata, history.LastDifferentDirectionAndMovement, "suit reveal shifts initial metadata");
             AssertEqual(SamusPoseId.ForwardFacingSuitedPose, history.PreviousPose, "suit reveal commits suited pose");
-            AssertEqual(SnesLittleEndian.Word(samus.PoseMetadata.ReadPoseXDirection(), (byte)samus.PoseMetadata.ReadMovementType()),
+            AssertEqual(SnesLittleEndian.Word(SamusPoseMetadata.ReadPoseXDirection(samus), (byte)SamusPoseMetadata.ReadMovementType(samus)),
                 history.PreviousDirectionAndMovement, "suit reveal commits suited metadata");
             AssertTrue(!history.AllowsWallJumpProbe, "suit reveal clears pre-acquisition spin eligibility");
         }

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Drawing;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Hardware;
@@ -32,8 +33,8 @@ internal static class XrayControlsVerification
             samus.Control.Unlock();
             samus.Pose = SamusPoseId.FacingRightNormalPose;
             samus.Position = samus.Position.WithWhole(new(128, 139));
-            samus.PoseMetadata.RefreshCollisionRadii();
-            samus.Presentation.InitializeAnimation();
+            SamusPoseMetadata.RefreshCollisionRadii(samus);
+            SamusPresentation.InitializeAnimation(samus);
             samus.EquippedItems = SamusEquipmentFlags.XrayScope;
             samus.EquippedBeams = 0;
             samus.Missiles = samus.SuperMissiles = samus.PowerBombs = 0;
@@ -62,7 +63,7 @@ internal static class XrayControlsVerification
             AssertTrue(samus.Xray.IsActive && runtime.Freeze.TimeIsFrozen,
                 "configured Run takes priority over Shoot and activates scanning");
             AssertEqual(samus.Pose, samus.PoseHistory.PreviousPose, "X-ray activation commits interrupted pose");
-            AssertEqual(SnesLittleEndian.Word(samus.PoseMetadata.ReadPoseXDirection(), (byte)samus.PoseMetadata.ReadMovementType()),
+            AssertEqual(SnesLittleEndian.Word(SamusPoseMetadata.ReadPoseXDirection(samus), (byte)SamusPoseMetadata.ReadMovementType(samus)),
                 samus.PoseHistory.PreviousDirectionAndMovement, "X-ray activation commits interrupted metadata");
             AssertEqual(poseBeforeActivation, samus.PoseHistory.LastDifferentPose, "X-ray activation shifts prior pose exactly once");
             AssertEqual(metadataBeforeActivation, samus.PoseHistory.LastDifferentDirectionAndMovement,

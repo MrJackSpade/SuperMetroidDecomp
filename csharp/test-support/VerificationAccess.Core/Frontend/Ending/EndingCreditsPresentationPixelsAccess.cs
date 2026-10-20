@@ -6,9 +6,9 @@ namespace SuperMetroid.Core.Frontend.Ending;
 internal static class EndingCreditsPresentationPixelsAccess
 {
     /// <summary>The scene's published pixels.</summary>
-    extension(EndingCreditsPresentation scene)
+    extension(EndingCreditsState scene)
     {
         /// <summary>Captures the scene and rasterizes its snapshot in software.</summary>
-        internal Rgba32[] Render() => FrontendScenePixelsAccess.Pixels(scene.CaptureRenderSnapshot());
+        internal Rgba32[] Render() => FrontendScenePixelsAccess.Pixels(EndingCreditsPresentation.CaptureRenderSnapshot(scene));
     }
 }

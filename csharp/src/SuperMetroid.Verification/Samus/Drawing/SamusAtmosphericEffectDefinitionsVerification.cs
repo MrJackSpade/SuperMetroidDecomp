@@ -112,7 +112,7 @@ internal static class SamusAtmosphericEffectDefinitionsVerification
                 Kinematics = { Radius = new(5, 12) },
             };
             samus.LiquidPhysics.RoomIdentity = new RoomIdentity(AreaId.Maridia, 0);
-            samus.Presentation.InitializeAnimation(frame);
+            SamusPresentation.InitializeAnimation(samus, frame);
             AdvanceToFootContactTick(samus);
             samus.LiquidPhysics.PrepareAnimationFrame(samus, new CartridgeRandom(), nmiFrameCounter: 1);
 
@@ -144,7 +144,7 @@ internal static class SamusAtmosphericEffectDefinitionsVerification
             runner.LiquidPhysics.RoomIdentity = new RoomIdentity(AreaId.Crateria, room);
             if ((policy & CrateriaAtmosphericEffectFlags.LandingSite) != 0)
                 runner.LiquidPhysics.ConfigureNonLiquidRoomFx(RoomFxType.Rain);
-            runner.Presentation.InitializeAnimation(initialFrame: 2);
+            SamusPresentation.InitializeAnimation(runner, initialFrame: 2);
             AdvanceToFootContactTick(runner);
             runner.LiquidPhysics.PrepareAnimationFrame(runner, new CartridgeRandom(), nmiFrameCounter: 1);
             AssertEqual(wet ? SamusAtmosphericEffectType.FootstepSplash : SamusAtmosphericEffectType.Inactive,
@@ -179,7 +179,7 @@ internal static class SamusAtmosphericEffectDefinitionsVerification
         AssertTrue(samus.AnimationFrameTimer.RawValue is > 0 and <= 32,
             "running fixture starts with a bounded native animation delay");
         while (samus.AnimationFrameTimer.RawValue > 1)
-            samus.Presentation.AnimateNoFx(new SamusAnimationStep { Random = new CartridgeRandom() });
+            SamusPresentation.AnimateNoFx(samus, new SamusAnimationStep { Random = new CartridgeRandom() });
     }
 
     /// <summary>Forbids production reads of migrated splash, foot-contact, and both Crateria policy tables.</summary>

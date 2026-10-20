@@ -1072,7 +1072,7 @@ internal static class LookupStream1Verification
             if (frame is 12 or 13 or 17 or 18 or 24 or 25 or 27 or 28 or 30 or 31) continue;
             var samus = new SamusState { Pose = SamusPoseId.DrainedCrouchingLeftPose, AnimationFrame = frame, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)) };
             samus.Presentation.TileTransfers.BindArtwork(stock);
-            samus.Presentation.Draw(new SpriteFrameBuffer(), new(0, 0));
+            samus.Presentation.Draw(samus, new SpriteFrameBuffer(), new(0, 0));
             AssertEqual(unchecked((ushort)(128 + native[frame])), samus.Presentation.SpritemapPosition.Y,
                 "Actual drained drawing uses exact signed native correction");
             AssertEqual((ushort)128, samus.Position.Y.Whole, "Drawing preserves physical center");
@@ -1143,7 +1143,7 @@ internal static class LookupStream1Verification
             {
                 var samus = new SamusState { Pose = pose, AnimationFrame = frame, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)) };
                 samus.Presentation.TileTransfers.BindArtwork(stock);
-                samus.Presentation.Draw(new SpriteFrameBuffer(), new(0, 0));
+                samus.Presentation.Draw(samus, new SpriteFrameBuffer(), new(0, 0));
                 AssertEqual(unchecked((ushort)(128 + native[((int)pose - 0x35) * 2 + frame])), samus.Presentation.SpritemapPosition.Y,
                     "Actual transition rendering preserves native support correction");
                 AssertEqual((ushort)128, samus.Position.Y.Whole, "Posture art never mutates physical center");
@@ -1224,7 +1224,7 @@ internal static class LookupStream1Verification
                 Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)),
             };
             samus.Presentation.TileTransfers.BindArtwork(stock);
-            samus.Presentation.Draw(new SpriteFrameBuffer(), layer1: new(0, 0));
+            samus.Presentation.Draw(samus, new SpriteFrameBuffer(), layer1: new(0, 0));
             ushort nativeWord = SnesLittleEndian.Word(unchecked((byte)landing[index]), unchecked((byte)landing[index + 1]));
             AssertEqual(unchecked((ushort)(128 - nativeWord)), samus.Presentation.SpritemapPosition.Y, "Actual rendering preserves every bounded native landing word");
             AssertEqual((ushort)128, samus.Position.Y.Whole, "Visual landing correction does not change physical position");

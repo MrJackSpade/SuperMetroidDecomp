@@ -54,13 +54,13 @@ internal static class CrampedAerialLandingVerification
             Pose = SamusPoseId.SpinJumpRightPose,
             Position = FixedPosition<RoomPixels>.FromWhole(new(0x0094, 0x0034)),
         };
-        samus.PoseMetadata.RefreshCollisionRadii();
+        SamusPoseMetadata.RefreshCollisionRadii(samus);
         samus.HorizontalSpeed.AccelerationMode = SamusAccelerationMode.Decelerating;
         samus.HorizontalSpeed.BaseSpeed = samus.HorizontalSpeed.BaseSpeed.WithWhole(3);
         samus.Kinematics.YDirection = SamusVerticalDirection.Down;
         samus.Kinematics.YSpeed = samus.Kinematics.YSpeed.WithWhole(4);
 
-        bool installedLanding = samus.PoseTransitions.TryApplyAerialLanding(
+        bool installedLanding = SamusPoseTransitions.TryApplyAerialLanding(samus, 
 
             level,
             wasSpinning: true,
@@ -75,7 +75,7 @@ internal static class CrampedAerialLandingVerification
             "crouch fallback preserves the captured floor boundary");
         AssertEqual(12, samus.Kinematics.Radius.Y,
             "collision-selected crouch retains the live spin radius until next alpha");
-        samus.PoseMetadata.RefreshCollisionRadii();
+        SamusPoseMetadata.RefreshCollisionRadii(samus);
         AssertEqual(16, samus.Kinematics.Radius.Y,
             "crouch fallback fits the 32-pixel retail barrier opening");
         AssertEqual(0x0020, samus.Position.Y.Whole - samus.Kinematics.Radius.Y,
@@ -97,8 +97,8 @@ internal static class CrampedAerialLandingVerification
             [0x08, 0x03, 0xff, 0xff, 0x00, 0x00, 0x0c, 0x00]);
         samus.Pose = SamusPoseId.ScrewAttackRightPose;
         samus.Position = samus.Position.WithWholeY(0x0034);
-        samus.PoseMetadata.RefreshCollisionRadii();
-        samus.PoseTransitions.TryApplyAerialLanding(level, true, 0, 39440);
+        SamusPoseMetadata.RefreshCollisionRadii(samus);
+        SamusPoseTransitions.TryApplyAerialLanding(samus, level, true, 0, 39440);
         AssertTrue(samus.HorizontalSpeed.NormalSuitPaletteRestoreRequested,
             "rejected landing still performs pre-command suit palette restoration");
     }

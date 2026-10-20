@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Fx;
@@ -602,7 +603,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
         RoomLevelData? level)
     {
         RidleyAttackSituation situation;
-        if (samus?.PoseMetadata.ReadMovementType() == SamusMovementType.SpinJumping)
+        if (samus is not null && SamusPoseMetadata.ReadMovementType(samus) == SamusMovementType.SpinJumping)
         {
             situation = RidleyAttackSituation.SpinJumping;
         }
@@ -710,7 +711,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
             ReadRidleyHealthMovementDivisorIndex(state));
         state.TailWhipRequest = 1;
 
-        if (samus?.PoseMetadata.ReadMovementType() != SamusMovementType.SpinJumping)
+        if (samus is null || SamusPoseMetadata.ReadMovementType(samus) != SamusMovementType.SpinJumping)
         {
             BeginNorfairRidleyGroundAttack(state);
             return;
@@ -955,7 +956,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
         // $A6:BC8F-BC93 leaves the timer untouched once death owns the fight.
         if (state.FightMode != RidleyFightMode.Dying)
         {
-            SamusMovementType movement = samus?.PoseMetadata.ReadMovementType() ?? SamusMovementType.Standing;
+            SamusMovementType movement = samus is null ? SamusMovementType.Standing : SamusPoseMetadata.ReadMovementType(samus);
             state.IntangibilityTimer = NativeCountdown.FromRaw(RidleySamusInteractionDefinitions.ReleaseIntangibilityFrames(movement));
         }
     }
@@ -1039,7 +1040,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
     {
         if (samus is null)
             return false;
-        SamusMovementType movement = samus.PoseMetadata.ReadMovementType();
+        SamusMovementType movement = SamusPoseMetadata.ReadMovementType(samus);
         return RidleySamusInteractionDefinitions.CanGrab(movement);
     }
 

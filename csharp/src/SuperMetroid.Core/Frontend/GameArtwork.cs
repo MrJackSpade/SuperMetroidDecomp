@@ -20,6 +20,7 @@ namespace SuperMetroid.Core.Frontend;
 /// enemy and projectile artwork. Hosts load one set from an installation and bind it with
 /// <see cref="SuperMetroidGame.BindArtwork"/>; a restored debugger state rebinds the same set.
 /// </summary>
+[ArchitectureReview("context-bag", "The installed artwork set a host binds as one value; every member is an immutable artwork catalog, not a service.")]
 public sealed record GameArtwork : IGameplayArtwork
 {
     /// <summary>No catalog bound: the state of a new game, or of a restored one before its host rebinds.</summary>

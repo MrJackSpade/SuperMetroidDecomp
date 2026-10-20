@@ -1,8 +1,10 @@
+using SuperMetroid.Core;
 using SuperMetroid.Core.Rooms.Plms;
 
 namespace SuperMetroid.AssetExtraction.Rooms;
 
 /// <summary>Every room PLM visual catalog whose contents form the PLM presentation identity (#633).</summary>
+[ArchitectureReview("context-bag", "The extracted PLM visual catalogs, one per object family; every member is immutable artwork data, not a service.")]
 public sealed record RoomPlmVisualCatalogSet
 {
     /// <summary>Shot block.</summary>

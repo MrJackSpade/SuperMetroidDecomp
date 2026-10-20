@@ -44,9 +44,6 @@ internal sealed class EndingCreditsState : IFrontendScreen
         if (!ReferenceEquals(previous.EndingPaletteArt, artwork.EndingPaletteArt))
             BindPaletteArtwork(artwork.EndingPaletteArt);
     }
-
-    /// <summary>The <see cref="EndingCreditsPresentation"/> owner of this EndingCreditsState.</summary>
-    internal EndingCreditsPresentation Presentation { get; }
     /// <summary>Queues the authored ending music transitions.</summary>
     private readonly CartridgeAudioState audio;
     /// <summary>Saved clear-time hours, as the game clock or the configured override supplies them, used to select the post-credits reward.</summary>
@@ -148,7 +145,6 @@ internal sealed class EndingCreditsState : IFrontendScreen
     /// <summary>Initializes state-$27 from the saved clear-time and ending setup snapshot.</summary>
     public EndingCreditsState(CartridgeAudioState audio, EndingCreditsSetup setup)
     {
-        Presentation = new EndingCreditsPresentation(this);
         this.audio = Ensure.NotNull(audio);
         this.gameTimeHours = setup.GameTimeHours;
         this.gameTimeMinutes = setup.GameTimeMinutes;
@@ -1160,7 +1156,7 @@ internal sealed class EndingCreditsState : IFrontendScreen
     /// <summary>Whether the explosion actor installed its initial burst arrangement.</summary>
     private bool explosionBurstDisplay;
     /// <summary>Whether the explosion currently uses its dedicated color-math composition.</summary>
-    internal bool UsesExplosionFinaleDisplay => (explosionFinaleDisplay || explosionBurstDisplay) && !Presentation.ExplosionWhiteout
+    internal bool UsesExplosionFinaleDisplay => (explosionFinaleDisplay || explosionBurstDisplay) && !EndingCreditsPresentation.ExplosionWhiteout(this)
         && Phase < EndingCreditsPhase.PlanetEscapeFast;
 
     /// <summary>Captures the finale BG priority planes and one winning subscreen color-add layer.</summary>
@@ -1180,8 +1176,8 @@ internal sealed class EndingCreditsState : IFrontendScreen
                 EndingExplosionDisplayDefinitions.Characters, FourBpp: true, IncludeObjects: true,
                 VerticalScroll: EndingExplosionDisplayDefinitions.FirstVisibleBackgroundRow),
         ];
-        return new(Presentation.CaptureMemory(EndingCreditsPresentation.ObjectSelection(Presentation.CurrentEscapeObjectSheet)), layers,
-            EndingCreditsPresentation.ObjectSelection(Presentation.CurrentEscapeObjectSheet), checked((byte)Brightness));
+        return new(EndingCreditsPresentation.CaptureMemory(this, EndingCreditsPresentation.ObjectSelection(EndingCreditsPresentation.CurrentEscapeObjectSheet(this))), layers,
+            EndingCreditsPresentation.ObjectSelection(EndingCreditsPresentation.CurrentEscapeObjectSheet(this)), checked((byte)Brightness));
 
         static Bg4BppRenderLayer Plane(ushort map, BgTilePriority priority) => new(map,
             EndingExplosionDisplayDefinitions.Characters,
@@ -1205,8 +1201,8 @@ internal sealed class EndingCreditsState : IFrontendScreen
                 EndingExplosionDisplayDefinitions.Characters, main, FourBpp: true, MainObjects: true,
                 VerticalScroll: EndingExplosionDisplayDefinitions.FirstVisibleBackgroundRow),
         ];
-        return new(Presentation.CaptureMemory(EndingCreditsPresentation.ObjectSelection(Presentation.CurrentEscapeObjectSheet)), layers,
-            EndingCreditsPresentation.ObjectSelection(Presentation.CurrentEscapeObjectSheet), checked((byte)Brightness));
+        return new(EndingCreditsPresentation.CaptureMemory(this, EndingCreditsPresentation.ObjectSelection(EndingCreditsPresentation.CurrentEscapeObjectSheet(this))), layers,
+            EndingCreditsPresentation.ObjectSelection(EndingCreditsPresentation.CurrentEscapeObjectSheet(this)), checked((byte)Brightness));
     }
 
     /// <summary>CGRAM snapshot taken before the planet explosion's object/background crossfade.</summary>

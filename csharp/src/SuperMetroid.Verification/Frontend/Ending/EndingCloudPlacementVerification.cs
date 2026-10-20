@@ -62,13 +62,13 @@ internal static class EndingCloudPlacementVerification
             oam.BeginFrame();
             foreach (var actor in actors) actor.Sprite.Draw(oam, installedArt: cloudSprites);
             oam.FinalizeFrame();
-            var actual = ending.Presentation.CaptureRenderSnapshot();
+            var actual = EndingCreditsPresentation.CaptureRenderSnapshot(ending);
             byte[] oamBytes = [.. oam.LowTable.ToArray(), .. oam.HighTable.ToArray()];
             var expectedMemory = PpuMemorySnapshot.FromOam(actual.Memory.Vram, actual.Memory.Cgram,
                 oamBytes, oam.LastFinalizedSpriteCount, actual.ObjectSelection);
             var expected = SoftwareLayeredSnapshotRenderer.Render(new(expectedMemory, actual.Layers,
                 actual.ObjectSelection, actual.Brightness));
-            var pixels = ending.Presentation.Render();
+            var pixels = ending.Render();
             if (frame == 19 || !pixels.SequenceEqual(expected))
             {
 
@@ -94,7 +94,7 @@ internal static class EndingCloudPlacementVerification
         }
         AssertEqual(EndingCreditsPhase.EscapeSceneA, ending.Phase, "takeoff color-math scene reached");
         for (int frame = 0; frame < 90; frame++) ending.Step();
-        var snapshot = ending.Presentation.CaptureRenderSnapshot();
+        var snapshot = EndingCreditsPresentation.CaptureRenderSnapshot(ending);
         var memory = new SoftwarePpuSnapshotMemory(snapshot.Memory);
         var registers = snapshot.LayersOf<Mode7RenderLayer>().First().Registers;
         var background = SnesMode7Renderer.RenderViewport(memory.Vram, memory.Cgram, new Mode7RenderRegisters { MatrixA = registers.MatrixA, MatrixB = registers.MatrixB, MatrixC = registers.MatrixC, MatrixD = registers.MatrixD, Center = new Offset16<Mode7Pixels>(registers.Center.X, registers.Center.Y), Scroll = new Offset16<Mode7Pixels>(registers.Scroll.X, registers.Scroll.Y), WrapOutsideMap = registers.WrapOutsideMap });
@@ -132,7 +132,7 @@ internal static class EndingCloudPlacementVerification
                 main = new Rgba32(Add(main.R, background[i].R), Add(main.G, background[i].G), Add(main.B, background[i].B));
             expected[i] = main;
         }
-        var actual = ending.Presentation.Render();
+        var actual = ending.Render();
 
         if (checkWrapping)
         {

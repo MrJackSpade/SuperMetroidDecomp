@@ -61,9 +61,9 @@ internal static void VerifySamusAerialTurnsAndWallJump()
         var endpoint = new SamusState { Pose = source };
         if (locked)
             endpoint.Control.LockHandlers();
-        endpoint.Presentation.InitializeAnimation();
+        SamusPresentation.InitializeAnimation(endpoint);
         for (int tick = 0; tick < 6; tick++)
-            endpoint.Presentation.AnimateNoFx(new SamusAnimationStep { Random = new CartridgeRandom(), ProspectiveInputPose = selected });
+            SamusPresentation.AnimateNoFx(endpoint, new SamusAnimationStep { Random = new CartridgeRandom(), ProspectiveInputPose = selected });
         bool jumpWins = !locked && selected.HasValue && selected != SamusPoseId.MovingRightNormalPose;
         AssertEqual(jumpWins ? null : SamusPoseId.FacingRightNormalPose,
             endpoint.PendingTransitionalPose, "F8 respects selected jump and disabled-input exception");
@@ -87,7 +87,7 @@ internal static void VerifySamusAerialTurnsAndWallJump()
         {
             Position = new(new(x, 0x4321), new(48, 0x1234)), Radius = new(5, 5),
         };
-        var result = SamusBlockCollision.ProbeWallHorizontal(level, probeState, SnesSixteenSixteen.FromWhole(distance));
+        var result = SamusBlockCollision.ProbeWallHorizontal(level, probeState, null, SnesSixteenSixteen.FromWhole(distance));
         AssertEqual(hit, result.Collided, "wall probe detects the constructed wall");
         AssertEqual(x, probeState.Position.X.Whole, "wall probe preserves whole-pixel X");
         AssertEqual(fraction, probeState.Position.X.Fraction, "wall probe preserves native fractional write");
@@ -133,14 +133,14 @@ internal static void VerifySamusAerialTurnsAndWallJump()
             Pose = sourcePose,
             Position = FixedPosition<RoomPixels>.FromWhole(new(32, 48)),
         };
-        samus.PoseMetadata.RefreshCollisionRadii();
+        SamusPoseMetadata.RefreshCollisionRadii(samus);
         samus.HorizontalSpeed.BaseSpeed = samus.HorizontalSpeed.BaseSpeed.WithWhole(1);
         samus.HorizontalSpeed.ExtraRunSpeed = samus.HorizontalSpeed.ExtraRunSpeed.WithFraction(0x8000);
         SamusPoseId genericTarget = jumping
             ? targetFacesLeft ? SamusPoseId.TurningRightToLeftJumpPose : SamusPoseId.TurningLeftToRightJumpPose
             : targetFacesLeft ? SamusPoseId.TurningRightToLeftFallingPose : SamusPoseId.TurningLeftToRightFallingPose;
         AssertTrue(
-            samus.PoseTransitions.TryApplyAerialTurn(level, genericTarget, nmiFrameCounter: 0),
+            SamusPoseTransitions.TryApplyAerialTurn(samus, level, genericTarget, nmiFrameCounter: 0),
             $"{(jumping ? "jump" : "fall")} turn direction {shotDirection} fits");
         AssertEqual(expectedPose, samus.Pose, $"{(jumping ? "jump" : "fall")} selector direction {shotDirection}");
         AssertEqual(0x00018000u, samus.HorizontalSpeed.BaseFixed, "aerial selector folds extra speed");
@@ -155,20 +155,20 @@ internal static void VerifySamusAerialTurnsAndWallJump()
     WritePoseAnimationDelays(bus, SamusPoseId.NormalJumpAimDiagonalUpLeftPose, 0xc110, [3]);
     SeedAerialTurnDryVerticalAcceleration(bus);
     var turn = new SamusState { Pose = SamusPoseId.NormalJumpAimDiagonalUpRightPose, Position = FixedPosition<RoomPixels>.FromWhole(new(32, 48)) };
-    turn.PoseMetadata.RefreshCollisionRadii();
+    SamusPoseMetadata.RefreshCollisionRadii(turn);
     turn.HorizontalSpeed.BaseSpeed = turn.HorizontalSpeed.BaseSpeed.WithWhole(1);
     turn.HorizontalSpeed.ExtraRunSpeed = turn.HorizontalSpeed.ExtraRunSpeed.WithFraction(0x8000);
     turn.Kinematics.YDirection = SamusVerticalDirection.Up;
     turn.Kinematics.YSpeed = turn.Kinematics.YSpeed.WithWhole(2);
     turn.Kinematics.YAcceleration = turn.Kinematics.YAcceleration.WithFraction(0x2800);
-    AssertTrue(turn.PoseTransitions.TryApplyAerialTurn(level, SamusPoseId.TurningRightToLeftJumpPose, 0), "diagonal-up aerial turn installs");
+    AssertTrue(SamusPoseTransitions.TryApplyAerialTurn(turn, level, SamusPoseId.TurningRightToLeftJumpPose, 0), "diagonal-up aerial turn installs");
     uint turnXBefore = turn.Kinematics.Position.X.RawValue;
     SamusAerialMovement.StepTurningInAir(level, turn, 0);
     AssertEqual(0x00010000, unchecked((int)(turn.Kinematics.Position.X.RawValue - turnXBefore)), "turn retains old rightward momentum after native 0.8000 deceleration");
     AssertEqual(33, turn.Position.X.Whole, "turn moves in old direction despite new facing");
     for (int tick = 0; tick < 6; tick++)
-        turn.Presentation.AnimateNoFx(new SamusAnimationStep { Random = new CartridgeRandom() });
-    AssertTrue(turn.PoseTransitions.ApplyPendingVerifiedAnimationTransition(), "aerial turn F8 applies");
+        SamusPresentation.AnimateNoFx(turn, new SamusAnimationStep { Random = new CartridgeRandom() });
+    AssertTrue(SamusPoseTransitions.ApplyPendingVerifiedAnimationTransition(turn), "aerial turn F8 applies");
     AssertEqual(SamusPoseId.NormalJumpAimDiagonalUpLeftPose, turn.Pose, "aerial turn preserves diagonal-up aim endpoint");
     AssertEqual(SamusAccelerationMode.Accelerating, turn.HorizontalSpeed.AccelerationMode,
         "finished aerial turn reinitializes normal-jump acceleration instead of retaining reverse drift");
@@ -192,24 +192,24 @@ internal static void VerifySamusAerialTurnsAndWallJump()
         // by F8 and the corresponding jump/fall target. The compiled delay
         // definitions supersede fake-bus ROM writes here too.
         var endpoint = new SamusState { Pose = source, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 96)) };
-        endpoint.PoseMetadata.RefreshCollisionRadii();
-        endpoint.Presentation.InitializeAnimation();
+        SamusPoseMetadata.RefreshCollisionRadii(endpoint);
+        SamusPresentation.InitializeAnimation(endpoint);
         endpoint.HorizontalSpeed.BaseSpeed = endpoint.HorizontalSpeed.BaseSpeed.WithFraction(0x4800);
         endpoint.HorizontalSpeed.AccelerationMode = SamusAccelerationMode.Turning;
         endpoint.HorizontalSpeed.ExtraRunSpeed = new SnesUnsignedSixteenSixteen(SnesFixedPosition.WholeOf(unchecked((int)extra)), (ushort)extra);
         for (int tick = 0; tick < 6; tick++)
-            endpoint.Presentation.AnimateNoFx(new SamusAnimationStep { Random = new CartridgeRandom() });
-        AssertTrue(endpoint.PoseTransitions.ApplyPendingVerifiedAnimationTransition(), "turn endpoint command consumed");
+            SamusPresentation.AnimateNoFx(endpoint, new SamusAnimationStep { Random = new CartridgeRandom() });
+        AssertTrue(SamusPoseTransitions.ApplyPendingVerifiedAnimationTransition(endpoint), "turn endpoint command consumed");
         AssertEqual(extra == 0 ? SamusAccelerationMode.Accelerating : SamusAccelerationMode.Decelerating, endpoint.HorizontalSpeed.AccelerationMode, "turn endpoint uses cartridge dash predicate");
         AssertEqual(0x4800u, endpoint.HorizontalSpeed.BaseFixed, "turn endpoint retains base speed");
         AssertEqual(SnesFixedPosition.WholeOf(unchecked((int)extra)), endpoint.HorizontalSpeed.ExtraRunSpeed.Whole, "turn endpoint retains whole dash speed");
         AssertEqual((ushort)extra, endpoint.HorizontalSpeed.ExtraRunSpeed.Fraction, "turn endpoint retains fractional dash speed");
 
         endpoint.Pose = source;
-        endpoint.Presentation.InitializeAnimation();
+        SamusPresentation.InitializeAnimation(endpoint);
         endpoint.HorizontalSpeed.AccelerationMode = SamusAccelerationMode.Turning;
         ushort timerBeforeRelease = endpoint.AnimationFrameTimer.RawValue;
-        endpoint.PoseTransitions.ApplyTurnInputFallback(endpoint.PoseMetadata.ReadMovementType());
+        SamusPoseTransitions.ApplyTurnInputFallback(endpoint, SamusPoseMetadata.ReadMovementType(endpoint));
         AssertEqual(SamusAccelerationMode.Accelerating, endpoint.HorizontalSpeed.AccelerationMode, "released turn invokes momentum command two");
         AssertEqual(source, endpoint.Pose, "released turn retains unfinished pose");
         AssertEqual(timerBeforeRelease, endpoint.AnimationFrameTimer.RawValue, "released turn does not restart animation");
@@ -217,11 +217,11 @@ internal static void VerifySamusAerialTurnsAndWallJump()
 
         var lavaEndpoint = new SamusState { Pose = source, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 96)) };
         lavaEndpoint.LiquidPhysics.ConfigureLavaAcid(8);
-        lavaEndpoint.PoseMetadata.RefreshCollisionRadii();
-        lavaEndpoint.Presentation.InitializeAnimation();
-        lavaEndpoint.Presentation.SetAnimationFrameFromSpecialHandler(2, 1);
-        lavaEndpoint.Presentation.AnimateNoFx(new SamusAnimationStep { Random = new CartridgeRandom(), NmiFrameCounter = 1 });
-        AssertTrue(lavaEndpoint.PoseTransitions.ApplyPendingVerifiedAnimationTransition(), "lava turn consumes command three");
+        SamusPoseMetadata.RefreshCollisionRadii(lavaEndpoint);
+        SamusPresentation.InitializeAnimation(lavaEndpoint);
+        SamusPresentation.SetAnimationFrameFromSpecialHandler(lavaEndpoint, 2, 1);
+        SamusPresentation.AnimateNoFx(lavaEndpoint, new SamusAnimationStep { Random = new CartridgeRandom(), NmiFrameCounter = 1 });
+        AssertTrue(SamusPoseTransitions.ApplyPendingVerifiedAnimationTransition(lavaEndpoint), "lava turn consumes command three");
         AssertEqual(falling ? 12 : 6, lavaEndpoint.AnimationFrameTimer.RawValue,
             "command three adds lava and pose-change buffers to native jump/fall target delay (2 or 8, plus 2+2)");
     }
@@ -235,7 +235,7 @@ internal static void VerifySamusAerialTurnsAndWallJump()
 
     var earlyContact = CreateSpinSamus(animationFrame: 0);
     var releasedWallJump = CreateSpinSamus(animationFrame: 0x0b);
-    releasedWallJump.PoseTransitions.ApplyWallJumpTrigger();
+    SamusPoseTransitions.ApplyWallJumpTrigger(releasedWallJump);
     uint beforeReleasedWallX = releasedWallJump.Kinematics.Position.X.RawValue;
     SamusAerialMovement.StepWallJump(level, releasedWallJump, 0, 0);
     AssertEqual(SamusAccelerationMode.Decelerating, releasedWallJump.HorizontalSpeed.AccelerationMode,
@@ -362,7 +362,7 @@ level, heldOnly, (SnesButton.Left | SnesButton.A), 0, 0);
     eligible.HorizontalSpeed.ExtraRunSpeed = new SnesUnsignedSixteenSixteen(1, 0x7000);
     eligible.HorizontalSpeed.HasRunningMomentum = true;
     eligible.LiquidPhysics.BeginFrameSoundRequests();
-    eligible.PoseTransitions.ApplyWallJumpTrigger();
+    SamusPoseTransitions.ApplyWallJumpTrigger(eligible);
     SamusAtmosphericEffectSlot wallDust = eligible.LiquidPhysics.AtmosphericEffects.Slots[3];
     AssertEqual(0x0600, wallDust.FrameAndType, "wall jump creates native dust in slot three");
     AssertEqual(3, wallDust.AnimationTimer.RawValue, "wall dust begins with timer three");
@@ -382,7 +382,7 @@ level, heldOnly, (SnesButton.Left | SnesButton.A), 0, 0);
     // Pose $83's native stream starts 05,05,FB,03; the FB branch occurs
     // after ten ticks, not the old synthetic eight-tick delay.
     for (int tick = 0; tick < 10; tick++)
-        eligible.Presentation.AnimateNoFx(new SamusAnimationStep { Random = new CartridgeRandom() });
+        SamusPresentation.AnimateNoFx(eligible, new SamusAnimationStep { Random = new CartridgeRandom() });
     AssertEqual(3, eligible.AnimationFrame, "ordinary dry wall animation selects frame three");
 
     eligible.ProjectileFlareCounter = 0x003c;
@@ -413,8 +413,8 @@ level, heldOnly, (SnesButton.Left | SnesButton.A), 0, 0);
         var samus = new SamusState { Pose = SamusPoseId.SpinJumpRightPose, Position = FixedPosition<RoomPixels>.FromWhole(new(52, 48)) };
         // This fixture begins mid-spin after a spin-direction transition.
         samus.PoseHistory.LastDifferentDirectionAndMovement = 0x0304;
-        samus.PoseMetadata.RefreshCollisionRadii();
-        samus.Presentation.InitializeAnimation(0);
+        SamusPoseMetadata.RefreshCollisionRadii(samus);
+        SamusPresentation.InitializeAnimation(samus, 0);
         samus.AnimationFrame = animationFrame;
         samus.Kinematics.YDirection = SamusVerticalDirection.Up;
         samus.Kinematics.YSpeed = samus.Kinematics.YSpeed.WithWhole(2);
@@ -430,8 +430,8 @@ level, heldOnly, (SnesButton.Left | SnesButton.A), 0, 0);
             Position = FixedPosition<RoomPixels>.FromWhole(new(92, 48)),
         };
         samus.PoseHistory.LastDifferentDirectionAndMovement = 0x0308;
-        samus.PoseMetadata.RefreshCollisionRadii();
-        samus.Presentation.InitializeAnimation(0);
+        SamusPoseMetadata.RefreshCollisionRadii(samus);
+        SamusPresentation.InitializeAnimation(samus, 0);
         samus.AnimationFrame = animationFrame;
         samus.Kinematics.YDirection = SamusVerticalDirection.Up;
         samus.Kinematics.YSpeed = samus.Kinematics.YSpeed.WithWhole(2);
@@ -585,7 +585,7 @@ internal static void VerifySamusKnockbackAndDamageBoost()
     AssertTrue(pendingTerrainHit.KnockbackActive,
         "terrain hit interruption installs special movement handler");
 
-    samus.PoseMetadata.RefreshCollisionRadii(); // Next alpha publishes the hurt body's radius before movement.
+    SamusPoseMetadata.RefreshCollisionRadii(samus); // Next alpha publishes the hurt body's radius before movement.
     uint hurtXBefore = samus.Kinematics.Position.X.RawValue;
     uint hurtYBefore = samus.Kinematics.Position.Y.RawValue;
     SamusKnockbackMovement.Step(empty, samus, 0);
@@ -614,7 +614,7 @@ internal static void VerifySamusKnockbackAndDamageBoost()
         Pose = SamusPoseId.FacingRightNormalPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(96, 75)),
     };
-    downKnockback.PoseMetadata.RefreshCollisionRadii();
+    SamusPoseMetadata.RefreshCollisionRadii(downKnockback);
     SamusKnockbackMovement.Start(downKnockback, controllerInput: SnesButton.Right, launch: new KnockbackLaunch { KnockbackXDirection = KnockbackHorizontalDirection.Left });
     // The no-speed-calculation down probe does not change the vertical words, so the
     // impact speed seen by `$91:F078` is the live speed entering this frame.
@@ -639,7 +639,7 @@ floorLevel, downKnockback, nmiFrameCounter: 0);
     AssertEqual(SamusPoseId.DamageBoostRightPose, samus.Pose, "damage-boost entry pose");
     AssertEqual(
         SamusMovementType.DamageBoost,
-        samus.PoseMetadata.ReadMovementType(),
+        SamusPoseMetadata.ReadMovementType(samus),
         "damage-boost movement type");
     AssertTrue(!samus.KnockbackActive, "damage boost restores normal handler");
     AssertEqual(SamusKnockbackDirection.UpRight, samus.KnockbackDirection, "damage boost preserves knockback direction");
@@ -654,7 +654,7 @@ floorLevel, downKnockback, nmiFrameCounter: 0);
         Pose = SamusPoseId.FallingLeftPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(96, 96)),
     };
-    finalHurtFrameBoost.PoseMetadata.RefreshCollisionRadii();
+    SamusPoseMetadata.RefreshCollisionRadii(finalHurtFrameBoost);
     SamusKnockbackMovement.ApplyDamageBoostTransition(
         finalHurtFrameBoost,
         SamusPoseId.KnockbackLeftPose,
@@ -697,8 +697,8 @@ floorLevel, downKnockback, nmiFrameCounter: 0);
         Pose = SamusPoseId.DamageBoostRightPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(96, 96)),
     };
-    boostLanding.PoseMetadata.RefreshCollisionRadii();
-    boostLanding.PoseTransitions.ApplyAerialLanding(wasSpinning: false);
+    SamusPoseMetadata.RefreshCollisionRadii(boostLanding);
+    SamusPoseTransitions.ApplyAerialLanding(boostLanding, wasSpinning: false);
     AssertEqual(SamusPoseId.NormalLandingLeftPose, boostLanding.Pose,
         "damage-boost FF shot direction selects ordinary metadata-direction landing");
     AssertEqual(94, boostLanding.Position.Y.Whole,
@@ -712,7 +712,7 @@ floorLevel, downKnockback, nmiFrameCounter: 0);
         Position = FixedPosition<RoomPixels>.FromWhole(new(96, 96)),
     };
     SamusKnockbackMovement.Start(expires, 0, new KnockbackLaunch { KnockbackXDirection = KnockbackHorizontalDirection.Right });
-    expires.PoseMetadata.RefreshCollisionRadii();
+    SamusPoseMetadata.RefreshCollisionRadii(expires);
     // The runtime shifts pose history every gameplay frame. By command-one expiry an
     // uninterrupted hurt body therefore names the same hurt pose as both current and
     // previous; seed that real invariant in this direct movement-unit fixture.
@@ -754,8 +754,8 @@ floorLevel, downKnockback, nmiFrameCounter: 0);
             BombJumpDirection = 0x0802,
             MorphBallBounceState = SamusBallBounceState.SpringBallSecondRebound,
         };
-        ball.PoseMetadata.RefreshCollisionRadii();
-        ball.Presentation.InitializeAnimation(initialFrame: 3);
+        SamusPoseMetadata.RefreshCollisionRadii(ball);
+        SamusPresentation.InitializeAnimation(ball, initialFrame: 3);
         ball.HorizontalSpeed.ContactDamageIndex = SamusContactDamageIndex.ScrewAttack;
         int preservedFrame = ball.AnimationFrame;
         ushort preservedTimer = ball.AnimationFrameTimer.RawValue;
@@ -764,7 +764,7 @@ floorLevel, downKnockback, nmiFrameCounter: 0);
         AssertEqual(
             pose,
             ball.Pose,
-            $"morphed type ${(byte)ball.PoseMetadata.ReadMovementType():X2} retains pose");
+            $"morphed type ${(byte)SamusPoseMetadata.ReadMovementType(ball):X2} retains pose");
         AssertEqual(expectedDirection, (ushort)ball.KnockbackDirection,
             $"morphed pose ${(int)pose:X2} chooses direction from facing only");
         AssertEqual(preservedFrame, ball.AnimationFrame,
@@ -795,8 +795,8 @@ floorLevel, downKnockback, nmiFrameCounter: 0);
         Position = FixedPosition<RoomPixels>.FromWhole(new(96, 96)),
         MorphBallBounceState = SamusBallBounceState.SecondRebound,
     };
-    ballExpires.PoseMetadata.RefreshCollisionRadii();
-    ballExpires.Presentation.InitializeAnimation(initialFrame: 3);
+    SamusPoseMetadata.RefreshCollisionRadii(ballExpires);
+    SamusPresentation.InitializeAnimation(ballExpires, initialFrame: 3);
     SamusKnockbackMovement.Start(ballExpires, controllerInput: SnesButton.Right, launch: new KnockbackLaunch { KnockbackXDirection = KnockbackHorizontalDirection.Left });
     ballExpires.PoseHistory.PreviousPose = SamusPoseId.MorphBallGroundRightPose;
     int retainedBallFrame = ballExpires.AnimationFrame;
@@ -860,7 +860,7 @@ floorLevel, downKnockback, nmiFrameCounter: 0);
     floorClipOverlap.Kinematics.YDirection = SamusVerticalDirection.None;
     floorClipOverlap.PoseHistory.PreviousPose =
         SamusPoseId.TurningLeftToRightJumpAimDownPose;
-    floorClipOverlap.PoseMetadata.RefreshCollisionRadii();
+    SamusPoseMetadata.RefreshCollisionRadii(floorClipOverlap);
 
     AssertTrue(SamusKnockbackMovement.TryFinishExpiredHitInterruption(floorClipOverlap),
         "floor-clip hurt expiry consumes command eight");
@@ -888,7 +888,7 @@ floorLevel, downKnockback, nmiFrameCounter: 0);
         KnockbackTimer = NativeCountdown.Start(0),
     };
     sameRadiusExpiry.PoseHistory.PreviousPose = SamusPoseId.NormalJumpAimDownRightPose;
-    sameRadiusExpiry.PoseMetadata.RefreshCollisionRadii();
+    SamusPoseMetadata.RefreshCollisionRadii(sameRadiusExpiry);
     AssertTrue(SamusKnockbackMovement.TryFinishExpiredHitInterruption(sameRadiusExpiry),
         "same-radius adjacent expiry still consumes its native command");
     AssertEqual(0x0696, sameRadiusExpiry.Position.Y.Whole,

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies.Elevator.Artwork;
@@ -215,7 +216,7 @@ internal sealed class ElevatorBehavior : IEnemySpecies, IEnemyEntityFactory, IEl
         // them as two requests matters because each library owns an independent SPC port.
         _audio.QueueEnemySound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library3, EnemySoundEffectDefinitions.ElevatorDepartureSoundLibrary3), maximumQueued: 6);
         _audio.QueueEnemySound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library1, EnemySoundEffectDefinitions.ElevatorDepartureSoundLibrary1), maximumQueued: 6);
-        samus.PoseMetadata.SetupForElevator();
+        SamusPoseMetadata.SetupForElevator(samus);
         samusProjectiles?.Reset();
         _frameResults.ElevatorClearedProjectileData = true;
         PinSamusToElevator(slot, samus);

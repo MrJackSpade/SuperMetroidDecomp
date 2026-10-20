@@ -277,7 +277,7 @@ public sealed class SamusLiquidPhysicsState
         if (beginSoundRequestFrame)
             BeginFrameSoundRequests();
 
-        SamusMovementType movementType = samus.PoseMetadata.ReadMovementType();
+        SamusMovementType movementType = SamusPoseMetadata.ReadMovementType(samus);
         TrySpawnRunningFootsteps(samus, movementType, bossPresent);
 
         // Samus_Animate's FX handlers call $90:EC3E, whose occupied bottom
@@ -325,7 +325,7 @@ public sealed class SamusLiquidPhysicsState
                 // Cancel_SpeedBoosting owns the momentum/counter/palette/echo transition;
                 // the two extra-run words are then cleared explicitly by the FX handler.
                 // Acid deliberately skips all three writes.
-                samus.HorizontalSpeed.CancelRunningMomentum(samus.PoseMetadata.ReadFacingDirection());
+                samus.HorizontalSpeed.CancelRunningMomentum(SamusPoseMetadata.ReadFacingDirection(samus));
                 samus.HorizontalSpeed.ExtraRunSpeed = default;
             }
 
@@ -746,7 +746,7 @@ public sealed class SamusLiquidPhysicsState
         // This is $0A68, not $0AD0: the latter is already nonzero during boost buildup.
         if (!CinematicFunctionActive &&
             !bossPresent &&
-            samus.InputSnapshot.SharedShineTimer == 0 &&
+            SamusInputSnapshot.SharedShineTimer(samus) == 0 &&
             !samus.HorizontalSpeed.SpeedBoostCounter.HasActiveStageBit)
         {
             QueueSound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library3, 6), maximumQueued: 6);
@@ -756,7 +756,7 @@ public sealed class SamusLiquidPhysicsState
     /// <summary>Places the two running-footstep particles on opposite sides of Samus according to facing.</summary>
     private void SpawnFootstepPair(SamusState samus, byte type)
     {
-        bool directionIsFour = samus.PoseMetadata.IsFacing(SamusFacingDirection.Left);
+        bool directionIsFour = SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left);
         ushort firstX = directionIsFour
             ? unchecked((ushort)(samus.Position.X.Whole - 12))
             : unchecked((ushort)(samus.Position.X.Whole + 12));
@@ -806,7 +806,7 @@ public sealed class SamusLiquidPhysicsState
         ushort bottom = unchecked((ushort)(samus.Position.Y.Whole + SamusPoseMetadata.ReadPoseYRadius(samus.Pose) - 1));
         if (DetermineRawMediumAtBoundary(bottom) != SamusLiquidMedium.Air)
             return;
-        int offset = samus.PoseMetadata.IsFacing(SamusFacingDirection.Right)
+        int offset = SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Right)
             ? -SamusWallJumpDustDefinitions.HorizontalOffset
             : SamusWallJumpDustDefinitions.HorizontalOffset;
         AtmosphericEffects.SetSlot(SamusWallJumpDustDefinitions.Slot,

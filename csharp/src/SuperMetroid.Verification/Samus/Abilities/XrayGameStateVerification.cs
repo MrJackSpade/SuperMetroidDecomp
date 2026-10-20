@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
@@ -35,8 +36,8 @@ internal static class XrayGameStateVerification
             SamusState samus = runtime.Player.IntroducedSamus;
             samus.Control.Unlock();
             samus.Pose = SamusPoseId.FacingRightNormalPose;
-            samus.PoseMetadata.RefreshCollisionRadii();
-            samus.Presentation.InitializeAnimation();
+            SamusPoseMetadata.RefreshCollisionRadii(samus);
+            SamusPresentation.InitializeAnimation(samus);
             // Open floor in the Scope chamber, as used by the X-ray input fixture.
             samus.Position = samus.Position.WithWhole(new(128, 139));
             samus.EquippedItems = SamusEquipmentFlags.XrayScope;

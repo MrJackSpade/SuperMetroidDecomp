@@ -31,8 +31,8 @@ internal static class EndingFlyawayArtworkVerification
                 $"installed ending flyaway preserves native phase at frame {frame}");
             if (native.Phase == EndingCreditsPhase.ZebesExplosionTileUpload)
             {
-                LayeredRenderSnapshot expected = native.Presentation.CaptureRenderSnapshot();
-                LayeredRenderSnapshot actual = installed.Presentation.CaptureRenderSnapshot();
+                LayeredRenderSnapshot expected = EndingCreditsPresentation.CaptureRenderSnapshot(native);
+                LayeredRenderSnapshot actual = EndingCreditsPresentation.CaptureRenderSnapshot(installed);
                 AssertTrue(actual.Memory.Vram.SequenceEqual(expected.Memory.Vram) &&
                         actual.Memory.Cgram.SequenceEqual(expected.Memory.Cgram) &&
                         SoftwareLayeredSnapshotRenderer.Render(actual).SequenceEqual(
@@ -91,9 +91,9 @@ internal static class EndingFlyawayArtworkVerification
         }
         AssertEqual(EndingCreditsPhase.ZebesExplosionTileUpload, restored.Phase,
             "first map chunk leaves seven scheduled uploads pending");
-        byte originalMapByte = restored.Presentation.CaptureRenderSnapshot().Memory.Vram[0];
+        byte originalMapByte = EndingCreditsPresentation.CaptureRenderSnapshot(restored).Memory.Vram[0];
         restored.BindFlightArtwork(overrideArt);
-        AssertEqual((byte)edited.FrontTiles[0], restored.Presentation.CaptureRenderSnapshot().Memory.Vram[0],
+        AssertEqual((byte)edited.FrontTiles[0], EndingCreditsPresentation.CaptureRenderSnapshot(restored).Memory.Vram[0],
             "restored ending reuploads the edited front-view map byte");
         AssertTrue(originalMapByte != edited.FrontTiles[0],
             "front-view edit changes an already transferred ending map byte");

@@ -117,7 +117,7 @@ internal sealed class FrontendDisplay
     internal void PublishEnding(EndingCreditsState scene)
     {
         using var publicationTiming = RenderPublicationProfile.Measure();
-        capturedDisplay = new(NextIdentity(), scene.Presentation.CaptureRenderSnapshot());
+        capturedDisplay = new(NextIdentity(), EndingCreditsPresentation.CaptureRenderSnapshot(scene));
     }
 
     /// <summary>Publishes the file-select map after its selection and animation state updates.</summary>

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
@@ -34,9 +35,9 @@ internal static class RetailSaveCaptureTests
         var samus = runtime.Player.IntroducedSamus;
         samus.Pose = SamusPoseId.FacingRightNormalPose;
         samus.AnimationFrame = 0;
-        samus.PoseMetadata.RefreshCollisionRadii(); samus.Presentation.InitializeAnimation();
+        SamusPoseMetadata.RefreshCollisionRadii(samus); SamusPresentation.InitializeAnimation(samus);
         samus.Position = samus.Position.WithWhole(new((ushort)(station.BlockIndex % level.Size.X * 16 + 13), (ushort)(station.BlockIndex / level.Size.X * 16 - samus.Kinematics.Radius.Y)));
-        samus.Control.Unlock(); samus.Presentation.PrimeGraphics();
+        samus.Control.Unlock(); samus.Presentation.PrimeGraphics(samus);
         if (!runtime.Plms.Stations.TryNotifyStationCollision(station.BlockIndex, new RoomBlockBehavior((byte)StationAccessBehavior.SaveFloor),
             samus.Pose, Axis.Vertical, movingPositive: true, roomWidthInBlocks: level.Size.X))
             throw new InvalidOperationException("Save fixture could not trigger resident station.");

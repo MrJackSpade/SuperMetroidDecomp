@@ -16,17 +16,20 @@ internal sealed class GatePlms : IPlmFamilySource
         table.Register(PlmFamily.DownwardGate, static (_, _) => PlmStepOutcome.Shared);
     }
 
-    /// <summary>Current room and Samus state used by gate-column proximity checks.</summary>
-    private readonly PlmRoomBindings _bindings;
+    /// <summary>Samus as the room reads and changes her.</summary>
+    private readonly IRoomSamusAccess? _samus;
+    /// <summary>The room's level, whose width locates a gate's column.</summary>
+    private readonly RoomLevelData? _level;
     /// <summary>Fixed PLM pool used for temporary shot triggers and resident gates.</summary>
     private readonly PlmSlotTable _slotTable;
     /// <summary>Sound queue receiving accepted gate wake and rejected-shot effects.</summary>
     private readonly PlmSoundQueue _sounds;
 
     /// <summary>Binds the gate PLM owner to the active room, slot pool, and sound queue.</summary>
-    internal GatePlms(PlmRoomBindings bindings, PlmSlotTable slotTable, PlmSoundQueue sounds)
+    internal GatePlms(IRoomSamusAccess? samus, RoomLevelData? level, PlmSlotTable slotTable, PlmSoundQueue sounds)
     {
-        _bindings = bindings;
+        _samus = samus;
+        _level = level;
         _slotTable = slotTable;
         _sounds = sounds;
     }
@@ -199,13 +202,13 @@ internal sealed class GatePlms : IPlmFamilySource
     /// <summary>Tests Samus's block position against the resident gate's five-cell vertical column.</summary>
     private bool IsSamusInsideDownwardGateColumn(PlmSlot slot)
     {
-        SamusState? samus = _bindings.Samus?.Current;
+        SamusState? samus = _samus?.Current;
         if (samus is null)
             return false;
-        if (_bindings.RoomWidth <= 0)
+        if (_level is not { Size.X: > 0 } level)
             throw new InvalidOperationException("Downward gate has no active room width.");
-        int gateX = slot.BlockIndex % _bindings.RoomWidth;
-        int gateY = slot.BlockIndex / _bindings.RoomWidth;
+        int gateX = slot.BlockIndex % level.Size.X;
+        int gateY = slot.BlockIndex / level.Size.X;
         return (samus.Position.X.Whole >> 4) == gateX &&
             unchecked((ushort)((samus.Position.Y.Whole >> 4) - gateY)) <
                 DownwardGatePlmRomData.GateHeightInBlocks;

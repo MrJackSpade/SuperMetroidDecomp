@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Bosses.Crocomire;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using System.Collections.Immutable;
@@ -834,9 +835,9 @@ internal sealed class SuperMetroidRuntime
                     currentCameraPoint,
                     new HorizontalCameraContext(
                         KnockedBack: samus.KnockbackDirection != Samus.Movement.SamusKnockbackDirection.None,
-                        MovementType: samus.PoseMetadata.ReadMovementType(),
+                        MovementType: SamusPoseMetadata.ReadMovementType(samus),
                         XAccelerationMode: samus.HorizontalSpeed.AccelerationMode,
-                        PoseXDirection: samus.PoseMetadata.ReadPoseXDirection(),
+                        PoseXDirection: SamusPoseMetadata.ReadPoseXDirection(samus),
                         CameraDistanceIndex: Room.LoadedScope.Enemies.RoomMainHooks.ZebetiteCameraDistanceIndex),
                     Freeze.TimeIsFrozen);
                 camera.TrackMovedSamusVertically(

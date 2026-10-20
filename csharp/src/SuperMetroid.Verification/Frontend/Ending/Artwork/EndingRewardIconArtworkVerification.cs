@@ -50,8 +50,8 @@ internal static class EndingRewardIconArtworkVerification
             if (nativeScene.Phase == EndingCreditsPhase.PostCreditsJump)
             {
                 jumpFrames++;
-                LayeredRenderSnapshot expected = nativeScene.Presentation.CaptureRenderSnapshot();
-                LayeredRenderSnapshot actual = installedScene.Presentation.CaptureRenderSnapshot();
+                LayeredRenderSnapshot expected = EndingCreditsPresentation.CaptureRenderSnapshot(nativeScene);
+                LayeredRenderSnapshot actual = EndingCreditsPresentation.CaptureRenderSnapshot(installedScene);
                 AssertTrue(actual.Memory.Vram.SequenceEqual(expected.Memory.Vram) &&
                         actual.Memory.Cgram.SequenceEqual(expected.Memory.Cgram) &&
                         SoftwareLayeredSnapshotRenderer.Render(actual).SequenceEqual(
@@ -71,7 +71,7 @@ internal static class EndingRewardIconArtworkVerification
             "reward icon integration covers the full native jump and landing upload interval");
         AssertEqual(0, installedBus.ForbiddenReadAttempts,
             "installed reward icon never rereads its compressed cartridge stream");
-        AssertTrue(installedScene.Presentation.CaptureRenderSnapshot().Memory.Vram
+        AssertTrue(EndingCreditsPresentation.CaptureRenderSnapshot(installedScene).Memory.Vram
                 [..EndingRewardIconArtworkFormat.TransferBytes].SequenceEqual(
                     stock.RewardIcon.Transfer.Span),
             "all sixteen native landing chunks reconstruct the installed icon image");
@@ -142,9 +142,9 @@ internal static class EndingRewardIconArtworkVerification
                 }
                 AssertEqual(EndingCreditsPhase.PostCreditsJump, scene.Phase,
                     $"{name} override fixture remains in the native landing upload");
-                LayeredRenderSnapshot before = scene.Presentation.CaptureRenderSnapshot();
+                LayeredRenderSnapshot before = EndingCreditsPresentation.CaptureRenderSnapshot(scene);
                 scene.BindMode7Artwork(edited);
-                LayeredRenderSnapshot rebound = scene.Presentation.CaptureRenderSnapshot();
+                LayeredRenderSnapshot rebound = EndingCreditsPresentation.CaptureRenderSnapshot(scene);
                 AssertTrue(scene.Phase == EndingCreditsPhase.PostCreditsJump &&
                         before.Memory.Cgram.SequenceEqual(rebound.Memory.Cgram) &&
                         !before.Memory.Vram.SequenceEqual(rebound.Memory.Vram),
@@ -157,12 +157,12 @@ internal static class EndingRewardIconArtworkVerification
                 }
                 AssertEqual(EndingCreditsPhase.PostCreditsShot, scene.Phase,
                     $"{name} edited icon reaches the native shooting phase");
-                AssertTrue(scene.Presentation.CaptureRenderSnapshot().Memory.Vram
+                AssertTrue(EndingCreditsPresentation.CaptureRenderSnapshot(scene).Memory.Vram
                         [..EndingRewardIconArtworkFormat.TransferBytes]
                         .SequenceEqual(edited.RewardIcon.Transfer.Span),
                     $"{name} supplies every final native upload byte");
-                LayeredRenderSnapshot baseline = installedScene.Presentation.CaptureRenderSnapshot();
-                LayeredRenderSnapshot changed = scene.Presentation.CaptureRenderSnapshot();
+                LayeredRenderSnapshot baseline = EndingCreditsPresentation.CaptureRenderSnapshot(installedScene);
+                LayeredRenderSnapshot changed = EndingCreditsPresentation.CaptureRenderSnapshot(scene);
                 AssertTrue(!SoftwareLayeredSnapshotRenderer.Render(baseline)
                         .SequenceEqual(
                             SoftwareLayeredSnapshotRenderer.Render(changed)),

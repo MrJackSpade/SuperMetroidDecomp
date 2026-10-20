@@ -19,8 +19,10 @@ internal sealed class StationPlms : IPlmFamilySource
             TryStepStation(context.Level, slot) ? PlmStepOutcome.Consumed : PlmStepOutcome.Shared);
     }
 
-    /// <summary>Provides the live Samus and persistent area state used by station activation.</summary>
-    private readonly PlmRoomBindings _bindings;
+    /// <summary>The room's system and event state.</summary>
+    private readonly Bank80SystemState? _system;
+    /// <summary>Samus as the room reads and changes her.</summary>
+    private readonly IRoomSamusAccess? _samus;
     /// <summary>Applies the station and access-arm draw lists to the room tilemap.</summary>
     private readonly PlmBlockDrawing _drawing;
     /// <summary>Locates resident station PLMs when collision or frontend confirmation arrives.</summary>
@@ -29,9 +31,10 @@ internal sealed class StationPlms : IPlmFamilySource
     private readonly PlmSoundQueue _sounds;
 
     /// <summary>Connects station activation to room state, PLM drawing, resident slots, and sound requests.</summary>
-    internal StationPlms(PlmRoomBindings bindings, PlmBlockDrawing drawing, PlmSlotTable slotTable, PlmSoundQueue sounds)
+    internal StationPlms(Bank80SystemState? system, IRoomSamusAccess? samus, PlmBlockDrawing drawing, PlmSlotTable slotTable, PlmSoundQueue sounds)
     {
-        _bindings = bindings;
+        _system = system;
+        _samus = samus;
         _drawing = drawing;
         _slotTable = slotTable;
         _sounds = sounds;
@@ -120,11 +123,11 @@ internal sealed class StationPlms : IPlmFamilySource
             return false;
         }
 
-        SamusState samus = _bindings.Samus?.Current
+        SamusState samus = _samus?.Current
             ?? throw new InvalidOperationException("Confirmed save station has no live Samus owner.");
         // Rounds Samus to the nearest block boundary.
         samus.Position = samus.Position.WithWholeX(unchecked((ushort)(((samus.Position.X.Whole + 8) >> 4) << 4)));
-        samus.PoseMetadata.ApplyForwardFacingPoseSetup();
+        SamusPoseMetadata.ApplyForwardFacingPoseSetup(samus);
         samus.Control.LockHandlers();
 
         station.SavePhase = SaveStationPhase.Animating;
@@ -148,7 +151,7 @@ internal sealed class StationPlms : IPlmFamilySource
                 $"message $18 while in {station.SavePhase}.");
         }
 
-        SamusState samus = _bindings.Samus?.Current
+        SamusState samus = _samus?.Current
             ?? throw new InvalidOperationException("Completed save station has no live Samus owner.");
         samus.Control.Unlock();
         station.SavePhase = SaveStationPhase.Idle;
@@ -684,7 +687,7 @@ internal sealed class StationPlms : IPlmFamilySource
                 // animation running to release her. Collision itself remains solid.
                 if (station.Kind is StationKind.Energy or StationKind.Missile)
                 {
-                    SamusState samus = _bindings.Samus?.Current
+                    SamusState samus = _samus?.Current
                         ?? throw new InvalidOperationException("Recharge setup has no live Samus owner.");
                     if (station.Kind == StationKind.Energy
                         ? samus.Health == samus.MaxHealth
@@ -705,7 +708,7 @@ internal sealed class StationPlms : IPlmFamilySource
                 // resident list and does not execute command six at this setup seam.
                 if (station.Kind != StationKind.Save)
                 {
-                    SamusState samus = _bindings.Samus?.Current
+                    SamusState samus = _samus?.Current
                         ?? throw new InvalidOperationException(
                             $"{station.Kind} station setup has no live Samus owner.");
                     samus.Control.LockIntoRefillStation();
@@ -720,7 +723,7 @@ internal sealed class StationPlms : IPlmFamilySource
     private bool IsSaveStationTriggerCentered(int blockIndex, int roomWidthInBlocks)
     {
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(roomWidthInBlocks);
-        SamusState samus = _bindings.Samus?.Current
+        SamusState samus = _samus?.Current
             ?? throw new InvalidOperationException("Save-station collision requires the room's Samus owner.");
         ushort probeX = unchecked((ushort)(samus.Position.X.Whole - SaveStationTriggerGeometry.HorizontalProbeOffset));
         return (probeX >> SaveStationTriggerGeometry.BlockCoordinateShift) == blockIndex % roomWidthInBlocks;
@@ -733,7 +736,7 @@ internal sealed class StationPlms : IPlmFamilySource
         if (station is null)
             return false;
 
-        SamusState samus = _bindings.Samus?.Current
+        SamusState samus = _samus?.Current
             ?? throw new InvalidOperationException(
                 $"{station.Kind} station has no live Samus owner.");
 
@@ -745,7 +748,7 @@ internal sealed class StationPlms : IPlmFamilySource
             station.Triggered = false;
             bool canActivate = station.Kind switch
             {
-                StationKind.Map => !(_bindings.System ?? throw new InvalidOperationException(
+                StationKind.Map => !(_system ?? throw new InvalidOperationException(
                     "Map station has no bank-$80 state owner.")).HasAreaMap(station.AreaIndex),
                 StationKind.Energy => samus.Health != samus.MaxHealth,
                 StationKind.Missile => samus.Missiles != samus.MaxMissiles,
@@ -938,7 +941,7 @@ internal sealed class StationPlms : IPlmFamilySource
         switch (station.Kind)
         {
             case StationKind.Map:
-                (_bindings.System ?? throw new InvalidOperationException(
+                (_system ?? throw new InvalidOperationException(
                     "Map station has no bank-$80 state owner."))
                     .SetAreaMapAcquired(station.AreaIndex);
                 station.AnimationList = station.CompletedAnimationList;

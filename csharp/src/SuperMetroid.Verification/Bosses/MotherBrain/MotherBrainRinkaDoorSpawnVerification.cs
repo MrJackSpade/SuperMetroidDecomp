@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Runtime;
 using static SuperMetroid.Verification.Harness.RetailGameFixtureVerification;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
@@ -36,8 +37,8 @@ internal static class MotherBrainRinkaDoorSpawnVerification
         samus.PoseId = SamusPoseId.FacingLeftNormalPose;
         samus.Position = samus.Position.WithWhole(new(0x14, 0x028b));
         samus.Control.LockHandlers();
-        samus.PoseMetadata.RefreshCollisionRadii();
-        samus.Presentation.InitializeAnimation();
+        SamusPoseMetadata.RefreshCollisionRadii(samus);
+        SamusPresentation.InitializeAnimation(samus);
         var game = CreateRetailGameFixture(new SuperMetroid.Core.Saves.SaveSlotStore(), renderGameplayFrames: false,
             hostServices: SuperMetroidGameHostServices.Default with { DoorLoaderProgress = new CameraReachedLoaderProgress(runtime, 0x038c) }, random: random);
         game.AdoptRuntime(runtime);

@@ -14,6 +14,7 @@ using SuperMetroid.Core.Rooms.Artwork;
 namespace SuperMetroid.Core.Enemies.Artwork;
 
 /// <summary>The installed enemy sheets, palettes, spritemaps and per-enemy artwork catalogs an enemy tile artwork catalog is built from (#633).</summary>
+[ArchitectureReview("context-bag", "A record of installed artwork catalogs; its members are data, not services.")]
 public sealed record EnemyTileArtworkParts
 {
     /// <summary>Sheets.</summary>

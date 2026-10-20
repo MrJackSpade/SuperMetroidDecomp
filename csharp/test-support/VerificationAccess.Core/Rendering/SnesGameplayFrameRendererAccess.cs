@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Samus;
@@ -101,8 +102,8 @@ internal static class SnesGameplayFrameRendererAccess
                 return;
             }
 
-            bool facingLeft = samus.PoseMetadata.ReadPoseXDirection() == 4;
-            SamusMovementType movementType = samus.PoseMetadata.ReadMovementType();
+            bool facingLeft = SamusPoseMetadata.ReadPoseXDirection(samus) == 4;
+            SamusMovementType movementType = SamusPoseMetadata.ReadMovementType(samus);
 
             // `$88:88B8-$88F3` anchors the ray three pixels in front of Samus. Standing and
             // turning bodies place it sixteen pixels above the center; only stable movement

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Bosses.Draygon;
 using SuperMetroid.Core.Samus.Movement;
@@ -82,8 +83,8 @@ public sealed class SamusDraygonGrabbedState
         samus.Pose = draygonFacingRight
             ? SamusPoseId.DraygonGrabbedNeutralRightPose
             : SamusPoseId.DraygonGrabbedNeutralLeftPose;
-        samus.PoseMetadata.RefreshCollisionRadii();
-        samus.Presentation.InitializeAnimation(initialFrame: 0);
+        SamusPoseMetadata.RefreshCollisionRadii(samus);
+        SamusPresentation.InitializeAnimation(samus, initialFrame: 0);
 
         IsActive = true;
         MovementHandlerReplaced = false;
@@ -187,13 +188,13 @@ public sealed class SamusDraygonGrabbedState
     {
         Ensure.NotNull(samus);
 
-        bool facingLeft = samus.PoseMetadata.IsFacing(SamusFacingDirection.Left);
+        bool facingLeft = SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left);
         samus.Pose = facingLeft
             ? SamusPoseId.FacingLeftNormalPose
             : SamusPoseId.FacingRightNormalPose;
-        samus.PoseMetadata.RefreshCollisionRadii();
+        SamusPoseMetadata.RefreshCollisionRadii(samus);
         if (samus.Pose != samus.PoseHistory.PreviousPose)
-            samus.Presentation.InitializeAnimation(initialFrame: 0);
+            SamusPresentation.InitializeAnimation(samus, initialFrame: 0);
         // Death calls this even when Samus was never grabbed. Installing normal
         // movement interrupts a spark without resetting its independent boost/palette.
         samus.Shinespark.RelinquishMovementHandler();

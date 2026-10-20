@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Movement;
@@ -28,8 +29,8 @@ internal static class SamusBallBounceDefinitionsVerification
                 ? left ? SamusPoseId.SpringBallGroundLeftPose : SamusPoseId.SpringBallGroundRightPose
                 : left ? SamusPoseId.MorphBallGroundLeftPose : SamusPoseId.MorphBallGroundRightPose;
             var samus = new SamusState { Pose = pose, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)) };
-            samus.PoseMetadata.RefreshCollisionRadii();
-            samus.Presentation.InitializeAnimation();
+            SamusPoseMetadata.RefreshCollisionRadii(samus);
+            SamusPresentation.InitializeAnimation(samus);
             for (int phase = 0; phase < 3; phase++)
             for (int raw = 0; raw <= ushort.MaxValue; raw++)
             {
@@ -45,8 +46,8 @@ internal static class SamusBallBounceDefinitionsVerification
                 samus.HorizontalSpeed.BaseSpeed = new SnesUnsignedSixteenSixteen(2, 0x8000);
                 samus.HorizontalSpeed.AccelerationMode = SamusAccelerationMode.Decelerating;
                 bool grounded = spring
-                    ? samus.PoseTransitions.ApplySpringBallLanding(controllerInput: 0)
-                    : samus.PoseTransitions.ApplyMorphBallLanding();
+                    ? SamusPoseTransitions.ApplySpringBallLanding(samus, controllerInput: 0)
+                    : SamusPoseTransitions.ApplyMorphBallLanding(samus);
                 bool first = phase == 0 && unchecked((short)(raw - 3)) >= 0;
                 bool rebound = first || phase == 1;
                 AssertEqual(!rebound, grounded, "Native rebound versus grounded return");

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using static SuperMetroid.Verification.Areas.Ceres.CeresShaftRotationVerification;
@@ -40,8 +41,8 @@ internal static class CeresEscapeHandoffVerification
         SamusState samus = CreateSamus(
             SamusPoseId.FacingRightNormalPose,
             position: new(100, 100));
-        samus.PoseMetadata.RefreshCollisionRadii();
-        samus.Presentation.InitializeAnimation();
+        SamusPoseMetadata.RefreshCollisionRadii(samus);
+        SamusPresentation.InitializeAnimation(samus);
         RoomLevelData emptyRoom = CreateEmptyRoom(new(32, 32));
 
         samus.PoseHistory.PreviousPose = SamusPoseId.FacingRightNormalPose;
@@ -110,8 +111,8 @@ internal static class CeresEscapeHandoffVerification
         // that interrupts a radius-$13 airborne body raises it by 21-19 = 2 pixels and keeps
         // the live radius until the following frame's pose epilogue.
         SamusState airborne = CreateSamus(SamusPoseId.FallingRightPose, position: new(100, 100));
-        airborne.PoseMetadata.RefreshCollisionRadii();
-        airborne.Presentation.InitializeAnimation();
+        SamusPoseMetadata.RefreshCollisionRadii(airborne);
+        SamusPresentation.InitializeAnimation(airborne);
         airborne.PoseHistory.PreviousPose = SamusPoseId.FallingRightPose;
         airborne.CeresRidleyEjection.Request(airborne);
         airborne.CeresRidleyEjection.Step(emptyRoom, airborne, layer1X: 0, nmiFrameCounter: 0);

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Enemies.Ripper;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
@@ -63,9 +64,9 @@ internal static class CrystalFlashCleanupVerification
         samus.PowerBombs = samus.MaxPowerBombs = capacity;
         samus.SelectedHudItem = HudItem.PowerBomb;
         samus.Position = samus.Position.WithWholeX(512);
-        samus.PoseMetadata.RefreshCollisionRadii();
+        SamusPoseMetadata.RefreshCollisionRadii(samus);
         samus.Position = samus.Position.WithWholeY((ushort)(511 - samus.Kinematics.Radius.Y));
-        samus.Presentation.InitializeAnimation();
+        SamusPresentation.InitializeAnimation(samus);
         runtime.StepFrame(0);
         ushort startingY = samus.Position.Y.Whole;
         runtime.StepFrame(runtime.Options.ControllerBindings.Shoot);

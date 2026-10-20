@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
@@ -46,7 +47,7 @@ internal static class KraidSuperMissileDamageVerification
         runtime.Room.Adopt((runtime.Room.Scope ?? throw new InvalidOperationException("Verification requires a loaded room.")) with { LevelData = level });
         var samus=runtime.Player.IntroducedSamus;samus.Pose=SamusPoseId.FacingRightNormalPose;
         samus.Health=samus.MaxHealth=999;samus.SuperMissiles=samus.MaxSuperMissiles=10;samus.SelectedHudItem=HudItem.SuperMissile;
-        samus.PoseMetadata.RefreshCollisionRadii();samus.Presentation.InitializeAnimation();samus.CommitPoseHistory();
+        SamusPoseMetadata.RefreshCollisionRadii(samus);SamusPresentation.InitializeAnimation(samus);samus.CommitPoseHistory();
         samus.Position = samus.Position.WithWhole(new(120, (ushort)(512-samus.Kinematics.Radius.Y)));samus.Control.Unlock();
         runtime.Room.LoadedCamera.SetPosition(new Position16<RoomPixels>(0, 384));
         game.GameState = SuperMetroidGameState.MainGameplay;

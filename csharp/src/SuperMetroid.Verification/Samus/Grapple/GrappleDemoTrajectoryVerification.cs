@@ -37,7 +37,7 @@ internal static class GrappleDemoTrajectoryVerification
         GrapplePhase previousPhase = GrapplePhase.Inactive;
         for (int frame = 0; frame < scene.Duration; frame++)
         {
-            input.Step(SuperMetroidGameState.PlayingDemo, samus.PoseMetadata.ReadMovementType());
+            input.Step(SuperMetroidGameState.PlayingDemo, SamusPoseMetadata.ReadMovementType(samus));
             if ((input.Script.NewlyPressed & (ushort)SnesButton.X) != 0) scriptedShots++;
             runtime.StepFrame(0, new RuntimeFrameRequest { Policy = RuntimeFramePolicy.Gameplay with { AdvanceGameTime = false } });
             if (frame == 164)

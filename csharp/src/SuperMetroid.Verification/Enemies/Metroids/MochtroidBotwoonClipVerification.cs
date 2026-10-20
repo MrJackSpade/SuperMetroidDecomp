@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Drawing;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using System.Globalization;
 using SuperMetroid.Core.Hardware;
@@ -93,8 +94,8 @@ internal static class MochtroidBotwoonClipVerification
         samus.EquippedBeams = samus.CollectedBeams = SamusBeamFlags.Ice;
         samus.Health = samus.MaxHealth = 1499;
         samus.InvincibilityTimer = NativeCountdown.Start(120);
-        samus.PoseMetadata.RefreshCollisionRadii();
-        samus.Presentation.InitializeAnimation();
+        SamusPoseMetadata.RefreshCollisionRadii(samus);
+        SamusPresentation.InitializeAnimation(samus);
         samus.CommitPoseHistory();
 
         RoomEnemySlot mochtroid = runtime.Enemies.SlotTable.Slots.Single(

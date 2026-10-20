@@ -144,7 +144,7 @@ internal sealed class GameplayActorDrawing
                     LastBeamChargePaletteStep.Action == SamusBeamChargePaletteAction.RestoredNormalSuit;
 
                 if (!chargeGlowRestoredNormalPalette)
-                    _player.Samus.HorizontalSpeed.UpdateSpeedBoosterPalette(_cgram, new SpeedBoosterPaletteFrame { MovementType = _player.Samus.PoseMetadata.ReadMovementType(), AnimationFrame = _player.Samus.AnimationFrame, EquippedItems = _player.Samus.EquippedItems, SuppressActiveSpeedBoosterPalette = _player.Samus.Shinespark.PaletteType != SamusSpecialPaletteType.None ||
+                    _player.Samus.HorizontalSpeed.UpdateSpeedBoosterPalette(_cgram, new SpeedBoosterPaletteFrame { MovementType = SamusPoseMetadata.ReadMovementType(_player.Samus), AnimationFrame = _player.Samus.AnimationFrame, EquippedItems = _player.Samus.EquippedItems, SuppressActiveSpeedBoosterPalette = _player.Samus.Shinespark.PaletteType != SamusSpecialPaletteType.None ||
                         _player.Samus.CrystalFlash.SpecialPaletteKind ==
                             SamusSpecialPaletteType.CrystalFlash ||
                         _player.Samus.Xray.SpecialPaletteKind == SamusSpecialPaletteType.Xray, BottomBoundarySubmerged = _player.Samus.LiquidPhysics.IsBottomBoundarySubmerged(_player.Samus) }, suitColors: _artwork.MapPresentation?.SamusSuitColors, cycleColors: _artwork.MapPresentation?.SamusFullBodyCycleColors,
@@ -202,7 +202,7 @@ internal sealed class GameplayActorDrawing
         {
             if (_player.LastDeathSequenceStep is { DrawPose: true })
             {
-                _player.Samus.Presentation.Draw(
+                _player.Samus.Presentation.Draw(_player.Samus, 
                     _sprites,
                     _room.Camera.PixelPosition,
                     mode7Transform: _display.ActiveSamusMode7Transform);
@@ -235,7 +235,7 @@ internal sealed class GameplayActorDrawing
                     // Omitting the live counter intentionally selects `Draw`'s default
                     // even value. Native `$90:EB86` calls `$90:85D2`, below `$85E2`'s
                     // ordinary invincibility test, so this path cannot flicker twice.
-                    _player.Samus.Presentation.Draw(
+                    _player.Samus.Presentation.Draw(_player.Samus, 
                         _sprites,
                         _room.Camera.PixelPosition,
                         mode7Transform: _display.ActiveSamusMode7Transform);
@@ -250,12 +250,12 @@ internal sealed class GameplayActorDrawing
                 // paths, ordinary departing speed echoes, and grapple graphics. It
                 // draws the live body first, then crash slot one before slot zero on
                 // odd NMIs. The shared projectile/trail tail below still follows.
-                _player.Samus.Presentation.Draw(
+                _player.Samus.Presentation.Draw(_player.Samus, 
                     _sprites,
                     _room.Camera.PixelPosition,
                     _clock.Counter,
                     _display.ActiveSamusMode7Transform);
-                _player.Samus.Presentation.DrawShinesparkCrashEchoes(
+                _player.Samus.Presentation.DrawShinesparkCrashEchoes(_player.Samus, 
                     _sprites,
                     _room.Camera.PixelPosition,
                     _clock.Counter);
@@ -323,7 +323,7 @@ internal sealed class GameplayActorDrawing
                         _room.Camera.PixelPosition,
                         _clock.Counter);
                 }
-                _player.Samus.Presentation.Draw(
+                _player.Samus.Presentation.Draw(_player.Samus, 
                     _sprites,
                     _room.Camera.PixelPosition,
                     _clock.Counter,
@@ -355,10 +355,10 @@ internal sealed class GameplayActorDrawing
                     // Ordinary `$90:EB55` and grapple's signed-range fallback share this
                     // exact echo tail. The latter still suppresses charge flare and rope
                     // because `$90:EB52` and the active half of `$90:EB86` were bypassed.
-                    _player.Samus.Presentation.DrawSpeedBoosterEchoes(
+                    _player.Samus.Presentation.DrawSpeedBoosterEchoes(_player.Samus, 
                         _sprites,
                         _room.Camera.PixelPosition);
-                    _player.Samus.Presentation.DrawReleasedShinesparkCrashEchoes(
+                    _player.Samus.Presentation.DrawReleasedShinesparkCrashEchoes(_player.Samus, 
                         _sprites,
                         _room.Camera.PixelPosition,
                         _clock.Counter);
@@ -383,7 +383,7 @@ internal sealed class GameplayActorDrawing
             // particular, Fire can first cancel a spin and then start Grapple without
             // requiring another physical press after the prospective pose is applied.
             _player.Samus.InputSnapshot.SnapshotDrawInput(_controller1.Current, _controller1.NewlyPressed);
-            _player.Samus.InputSnapshot.UpdateHurtFlashFromHealthLoss();
+            SamusInputSnapshot.UpdateHurtFlashFromHealthLoss(_player.Samus);
             // $91:F1EC never replaces the demo input handler with auto-jump.
             if (_attractSession.IsAttractDemo) _player.Samus.InputSnapshot.AutoJumpInputPending = false;
 

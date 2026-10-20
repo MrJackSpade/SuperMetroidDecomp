@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Drawing;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Movement;
@@ -18,8 +19,8 @@ internal static class DamageBoostJumpInitializerVerification
     internal static void VerifyDamageBoostJumpInitializer()
     {
         var samus = new SamusState { Pose = SamusPoseId.DamageBoostLeftPose, Position = FixedPosition<RoomPixels>.FromWhole(new(0x00b6, 0x0082)) };
-        samus.PoseMetadata.RefreshCollisionRadii();
-        samus.Presentation.InitializeAnimation();
+        SamusPoseMetadata.RefreshCollisionRadii(samus);
+        SamusPresentation.InitializeAnimation(samus);
         samus.HorizontalSpeed.BaseSpeed = samus.HorizontalSpeed.BaseSpeed.WithWhole(5);
         samus.HorizontalSpeed.AccelerationMode = SamusAccelerationMode.Decelerating;
 

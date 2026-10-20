@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Runtime;
@@ -49,8 +50,8 @@ internal static class ReleasedSamusFallsOffDraygonVerification
         samus.HorizontalSpeed.ContactDamageIndex = SamusContactDamageIndex.ScrewAttack;
         // Inside the upper body's touch boxes, in thin water with no floor below.
         samus.Position = samus.Position.WithWhole(new(unchecked((ushort)(draygon.Body.Position.X.Whole - 8)), unchecked((ushort)(draygon.Body.Position.Y.Whole - 64))));
-        samus.PoseMetadata.RefreshCollisionRadii();
-        samus.Presentation.InitializeAnimation();
+        SamusPoseMetadata.RefreshCollisionRadii(samus);
+        SamusPresentation.InitializeAnimation(samus);
         // EnemyMain processes only on-screen enemies; frame the swooping body.
         runtime.Room.LoadedCamera.SetPosition(new Position16<RoomPixels>(0, 0x0100));
         runtime.StepFrame(0);

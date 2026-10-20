@@ -16,17 +16,17 @@ internal sealed class DoorPlms : IPlmFamilySource
         table.Register(PlmFamily.ColoredDoor, static (_, _) => PlmStepOutcome.Shared);
     }
 
-    /// <summary>Supplies the room's door-bit persistence owner.</summary>
-    private readonly PlmRoomBindings _bindings;
+    /// <summary>The room's system and event state.</summary>
+    private readonly Bank80SystemState? _system;
     /// <summary>Allocates fallback closing and blue-door actors from the native PLM pool.</summary>
     private readonly PlmSlotTable _slotTable;
     /// <summary>Queues the library-two response to rejected colored-door hits.</summary>
     private readonly PlmSoundQueue _sounds;
 
     /// <summary>Binds door PLM logic to room persistence, drawing, allocation, and sound owners.</summary>
-    internal DoorPlms(PlmRoomBindings bindings, PlmSlotTable slotTable, PlmSoundQueue sounds)
+    internal DoorPlms(Bank80SystemState? system, PlmSlotTable slotTable, PlmSoundQueue sounds)
     {
-        _bindings = bindings;
+        _system = system;
         _slotTable = slotTable;
         _sounds = sounds;
     }
@@ -217,7 +217,7 @@ internal sealed class DoorPlms : IPlmFamilySource
 
     /// <summary>The room's door-bit persistence owner.</summary>
     private Bank80SystemState RequireSystem() =>
-        _bindings.System ?? throw new InvalidOperationException("A resident door has no persistence owner.");
+        _system ?? throw new InvalidOperationException("A resident door has no persistence owner.");
 
     /// <summary>Decodes a colored-door header into its color family and four-way orientation.</summary>
     internal static bool TryIdentifyColoredDoor(

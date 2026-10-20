@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Drawing;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Input;
@@ -36,8 +37,8 @@ internal static class ShutterEmbeddingVerification
             samus.Pose = SamusPoseId.MorphBallGroundRightPose;
             samus.Control.Unlock();
             samus.EquippedItems |= SamusEquipmentFlags.Bombs;
-            samus.PoseMetadata.RefreshCollisionRadii();
-            samus.Presentation.InitializeAnimation();
+            SamusPoseMetadata.RefreshCollisionRadii(samus);
+            SamusPresentation.InitializeAnimation(samus);
             samus.Position = samus.Position.WithWhole(new((ushort)(platform.Position.X.Whole + offset), (ushort)(platform.Position.Y.Whole - platform.Radius.Y - samus.Kinematics.Radius.Y)));
             runtime.StepFrame(0);
             bool activated = false;

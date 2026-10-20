@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Core.Progression;
+﻿using SuperMetroid.Core.Areas.Tourian;
+using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.Plms;
 
@@ -15,18 +16,24 @@ internal sealed class GreyDoorPlms : IPlmFamilySource
         table.Register(PlmFamily.GreyDoor, static (_, _) => PlmStepOutcome.Shared);
     }
 
-    /// <summary>Room progression and statue state used to evaluate resident-door unlock conditions.</summary>
-    private readonly PlmRoomBindings _bindings;
+    /// <summary>The room's system and event state.</summary>
+    private readonly Bank80SystemState? _system;
+    /// <summary>The room's area.</summary>
+    private readonly AreaId _area;
+    /// <summary>The Tourian statue sequence's progress.</summary>
+    private readonly ITourianStatueProgress? _tourianStatue;
     /// <summary>Queues the cartridge's dud sound for shots rejected while the door is locked.</summary>
     private readonly PlmSoundQueue _sounds;
     /// <summary>The coloured-door owner whose door-bit bookkeeping grey caps share.</summary>
     private readonly DoorPlms _doors;
 
     /// <summary>Binds progression checks, block drawing, and PLM sound requests.</summary>
-    internal GreyDoorPlms(PlmRoomBindings bindings, PlmSoundQueue sounds, DoorPlms doors)
+    internal GreyDoorPlms(Bank80SystemState? system, AreaId area, ITourianStatueProgress? tourianStatue, PlmSoundQueue sounds, DoorPlms doors)
     {
         _doors = doors;
-        _bindings = bindings;
+        _system = system;
+        _area = area;
+        _tourianStatue = tourianStatue;
         _sounds = sounds;
     }
 
@@ -95,7 +102,7 @@ internal sealed class GreyDoorPlms : IPlmFamilySource
 
     /// <summary>The room's progression owner.</summary>
     private Bank80SystemState RequireSystem() =>
-        _bindings.System ?? throw new InvalidOperationException("A resident grey door has no progression-state owner.");
+        _system ?? throw new InvalidOperationException("A resident grey door has no progression-state owner.");
 
     /// <summary>Whether the unlock check <paramref name="preInstruction"/> passes.</summary>
     private bool IsUnlocked(GreyDoorPreInstruction preInstruction, int enemyDeaths, int enemyDeathQuota)
@@ -103,11 +110,11 @@ internal sealed class GreyDoorPlms : IPlmFamilySource
         Bank80SystemState system = RequireSystem();
         return preInstruction switch
         {
-            GreyDoorPreInstruction.WakeIfAreaBossDead => system.HasAnyBossBits(_bindings.Area, BossBits.AreaBoss),
-            GreyDoorPreInstruction.WakeIfAreaMiniBossDead => system.HasAnyBossBits(_bindings.Area, BossBits.AreaMiniBoss),
-            GreyDoorPreInstruction.WakeIfAreaTorizoDead => system.HasAnyBossBits(_bindings.Area, BossBits.AreaTorizo),
+            GreyDoorPreInstruction.WakeIfAreaBossDead => system.HasAnyBossBits(_area, BossBits.AreaBoss),
+            GreyDoorPreInstruction.WakeIfAreaMiniBossDead => system.HasAnyBossBits(_area, BossBits.AreaMiniBoss),
+            GreyDoorPreInstruction.WakeIfAreaTorizoDead => system.HasAnyBossBits(_area, BossBits.AreaTorizo),
             GreyDoorPreInstruction.WakeIfEnemiesDead => enemyDeaths >= enemyDeathQuota,
-            GreyDoorPreInstruction.WakeIfTourianStatueFinished => _bindings.TourianStatue?.IsFinished == true,
+            GreyDoorPreInstruction.WakeIfTourianStatueFinished => _tourianStatue?.IsFinished == true,
             GreyDoorPreInstruction.WakeIfCrittersEscaped => system.HasEvent(EventNumber.CrittersEscaped),
             GreyDoorPreInstruction.None or
                 GreyDoorPreInstruction.WakeWhenShot or

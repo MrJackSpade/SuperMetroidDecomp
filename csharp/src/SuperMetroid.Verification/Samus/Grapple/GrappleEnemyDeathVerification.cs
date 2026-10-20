@@ -103,7 +103,7 @@ internal static class GrappleEnemyDeathVerification
         {
             var samus = CreateDropTestSamus();
             samus.Pose = pose;
-            samus.PoseMetadata.RefreshCollisionRadii();
+            SamusPoseMetadata.RefreshCollisionRadii(samus);
             // The logged 51->01 request used the standing-size live radius, retained
             // across a pose handoff; C8C5 branches on that word, not pose metadata.
             samus.Kinematics.Radius = samus.Kinematics.Radius.WithY(17);

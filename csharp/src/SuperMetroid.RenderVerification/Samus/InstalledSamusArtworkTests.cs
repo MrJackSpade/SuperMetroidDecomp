@@ -41,7 +41,7 @@ internal static class InstalledSamusArtworkTests
         {
             var stock = new SamusState { Pose = (SamusPoseId)pose, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)), Health = 99 };
             var edited = new SamusState { Pose = stock.Pose, Position = FixedPosition<RoomPixels>.FromWhole(stock.Position.Whole), Health = stock.Health };
-            stock.PoseMetadata.RefreshCollisionRadii(); edited.PoseMetadata.RefreshCollisionRadii();
+            SamusPoseMetadata.RefreshCollisionRadii(stock); SamusPoseMetadata.RefreshCollisionRadii(edited);
             stock.Presentation.TileTransfers.BindArtwork(fixture.Stock);
             stock.Presentation.TileTransfers.BindStandardObjects(SpriteFrameTestArtwork.StandardObjects);
             edited.Presentation.TileTransfers.BindArtwork(fixture.Edited);
@@ -50,8 +50,8 @@ internal static class InstalledSamusArtworkTests
             var a = new SnesVram(); var b = new SnesVram();
             var oaFrame = new SpriteFrameBuffer(); var obFrame = new SpriteFrameBuffer();
             oaFrame.BeginFrame(); obFrame.BeginFrame();
-            bool visible = stock.Presentation.Draw(oaFrame, new(0, 0));
-            Require(visible == edited.Presentation.Draw(obFrame, new(0, 0)), $"pose {pose:X2}: visibility changed");
+            bool visible = stock.Presentation.Draw(stock, oaFrame, new(0, 0));
+            Require(visible == edited.Presentation.Draw(edited, obFrame, new(0, 0)), $"pose {pose:X2}: visibility changed");
             stock.Presentation.TileTransfers.TransferToVram(a);
             edited.Presentation.TileTransfers.TransferToVram(b);
             OamBuffer oa = oaFrame.FinalizeAsOam(), ob = obFrame.FinalizeAsOam();

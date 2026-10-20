@@ -124,7 +124,7 @@ internal static class SpeedBoosterPlmProgramsVerification
                 int blockIndex) = CreateSpeedBoosterBlockFixture(bts, area);
             var guarded = NewSpeedBoosterPlmReadGuard(bus);
             SamusState samus = CreateSpeedBoosterCollisionSamus(active: true);
-            BlockMoveResult contact = SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, Plms = plms }, samus.Kinematics, new VerticalBlockMove { Displacement = 4 << 16, ScanLeftToRight = true });
+            BlockMoveResult contact = SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, Plms = plms }, samus.Kinematics, samus, new VerticalBlockMove { Displacement = 4 << 16, ScanLeftToRight = true });
             AssertTrue(!contact.Collided,
                 $"boosted contact with BTS ${bts.Value:X2} admits the real PLM");
             for (int frame = 0; frame < 100 && plms.SlotTable.ActiveCount != 0; frame++)

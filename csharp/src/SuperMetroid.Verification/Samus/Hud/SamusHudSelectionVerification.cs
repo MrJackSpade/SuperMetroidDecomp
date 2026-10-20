@@ -11,7 +11,7 @@ internal static class SamusHudSelectionVerification
     internal static bool SelectionChanged(SamusState samus, SnesButton controllerInput, SnesButton controllerNewInput)
     {
         HudItem before = samus.SelectedHudItem;
-        samus.HudSelection.HandleHudSelection(controllerInput, controllerNewInput);
+        samus.HudSelection.HandleHudSelection(samus, controllerInput, controllerNewInput);
         return samus.SelectedHudItem != before;
     }
 
@@ -88,10 +88,10 @@ internal static class SamusHudSelectionVerification
         // $90:C4C7 runs the Nothing handler for any new Y edge, so a cancel with nothing
         // selected changes no index but still clears the charge.
         HudItem beforeIdleCancel = samus.SelectedHudItem;
-        HudSelectionOutcome idleCancel = samus.HudSelection.HandleHudSelection(cancel, cancel);
+        HudSelectionOutcome idleCancel = samus.HudSelection.HandleHudSelection(samus, cancel, cancel);
         AssertTrue(samus.SelectedHudItem == beforeIdleCancel && idleCancel.ItemHandlerAccepted,
             "item-cancel with nothing selected runs the Nothing handler");
-        AssertTrue(!samus.HudSelection.HandleHudSelection(cancel, 0).ItemHandlerAccepted,
+        AssertTrue(!samus.HudSelection.HandleHudSelection(samus, cancel, 0).ItemHandlerAccepted,
             "held item-cancel without a new edge runs no handler");
 
         Console.WriteLine(

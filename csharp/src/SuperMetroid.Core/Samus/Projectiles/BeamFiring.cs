@@ -264,7 +264,7 @@ internal sealed class BeamFiring
 
         byte direction = samus.PoseTransitionShotDirection != 0
             ? unchecked((byte)samus.PoseTransitionShotDirection)
-            : samus.PoseMetadata.ReadShotDirection();
+            : SamusPoseMetadata.ReadShotDirection(samus);
 
         if (!new SamusProjectileDirectionWord(direction).IsValidInitialDirection)
         {
@@ -361,7 +361,7 @@ internal sealed class BeamFiring
 
         // As for ordinary beams, the slot keeps its previous occupant's uninitialized words.
         SamusProjectileSlot slot = _slotTable.Slots[slotIndex];
-        byte direction = samus.PoseMetadata.ReadShotDirection();
+        byte direction = SamusPoseMetadata.ReadShotDirection(samus);
         if (!new SamusProjectileDirectionWord(direction).IsValidInitialDirection)
         {
             _slotTable.ProjectileCounter = NativeWordCounter.Decrement(_slotTable.ProjectileCounter).Value;
@@ -449,7 +449,7 @@ internal sealed class BeamFiring
 
         // As for beams, the slot keeps its previous occupant's uninitialized words.
         SamusProjectileSlot slot = _slotTable.Slots[slotIndex];
-        byte direction = samus.PoseMetadata.ReadShotDirection();
+        byte direction = SamusPoseMetadata.ReadShotDirection(samus);
         if (!new SamusProjectileDirectionWord(direction).IsValidInitialDirection)
             return (null, null);
         slot.Direction = direction;
@@ -506,7 +506,7 @@ internal sealed class BeamFiring
         SamusProjectileSlot slot)
     {
         byte poseYOffset = SamusPoseProjectileOriginDefinitions.ReadYOffset(samus.Pose);
-        SamusMovementType movementType = samus.PoseMetadata.ReadMovementType();
+        SamusMovementType movementType = SamusPoseMetadata.ReadMovementType(samus);
 
         // `$90:BA94` uses the running/moonwalk origin table for movement type one and for
         // the two diagonally-up moonwalk poses $75/$76. Every other pose uses the default.

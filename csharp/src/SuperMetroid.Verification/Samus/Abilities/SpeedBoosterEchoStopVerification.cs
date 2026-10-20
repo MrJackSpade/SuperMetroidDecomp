@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
@@ -25,8 +26,8 @@ internal static class SpeedBoosterEchoStopVerification
         renderer.RenderFrame([new CartridgeAudioCommand.Upload(AudioBank.GreenBrinstar)]);
         var libraries = renderer.PlayerForVerification.soundLibraries;
         var samus = new SamusState { Pose = SamusPoseId.RanIntoWallRightPose, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 128)) };
-        samus.PoseMetadata.RefreshCollisionRadii();
-        samus.Presentation.InitializeAnimation();
+        SamusPoseMetadata.RefreshCollisionRadii(samus);
+        SamusPresentation.InitializeAnimation(samus);
         var speed = samus.HorizontalSpeed;
         speed.HasRunningMomentum = true;
         speed.SpeedBoostCounter = new SamusSpeedBoostCounter(0x0301);

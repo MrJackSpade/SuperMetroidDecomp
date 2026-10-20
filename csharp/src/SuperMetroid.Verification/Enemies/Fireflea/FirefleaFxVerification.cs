@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
@@ -155,8 +156,8 @@ internal static class FirefleaFxVerification
         var samus = runtime.Player.IntroducedSamus;
         samus.Control.Unlock();
         samus.Pose = SamusPoseId.FacingRightNormalPose;
-        samus.PoseMetadata.RefreshCollisionRadii();
-        samus.Presentation.InitializeAnimation();
+        SamusPoseMetadata.RefreshCollisionRadii(samus);
+        SamusPresentation.InitializeAnimation(samus);
         // Seed a late darkness shade through the production FX owner. X-ray freezes
         // the producer, so its display must preserve this value rather than substitute
         // ordinary X-ray's constant seven or restart the flash cycle.
@@ -175,7 +176,7 @@ internal static class FirefleaFxVerification
             "ordinary Fireflea darkness has no X-ray exemption window");
         AssertTrue(!darkLayer.RevealBlocks && !darkLayer.AddSubscreen,
             "ordinary Fireflea keeps both room maps and subtracts fixed color");
-        AssertTrue(samus.Xray.TryBegin(samus, samus.PoseMetadata.ReadMovementType(), new XrayBeginConditions { GameState = SuperMetroidGameState.MainGameplay }), "Fireflea display fixture activates X-ray");
+        AssertTrue(samus.Xray.TryBegin(samus, SamusPoseMetadata.ReadMovementType(samus), new XrayBeginConditions { GameState = SuperMetroidGameState.MainGameplay }), "Fireflea display fixture activates X-ray");
         for (int frame = 0; frame < 90; frame++) runtime.StepFrame(runtime.Options.ControllerBindings.Dash);
         var packet = GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame());
         AssertTrue(packet.Layers[0] is GameplayColorMathRenderLayer, "Fireflea capture uses source-aware X-ray compositor");

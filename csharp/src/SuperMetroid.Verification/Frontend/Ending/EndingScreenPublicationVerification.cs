@@ -40,7 +40,7 @@ internal static class EndingScreenPublicationVerification
             }
             AssertEqual(target, ending.Phase, $"the ending reaches {target}");
             AssertTrue(ending.screen.Uploads.Count < 64, $"the ending's transfer record stays bounded at {target}");
-            PpuMemorySnapshot shown = ending.Presentation.CaptureRenderSnapshot().Memory;
+            PpuMemorySnapshot shown = EndingCreditsPresentation.CaptureRenderSnapshot(ending).Memory;
             EndingCreditsState restored = RoundTrip(ending);
             restored.BindFlightArtwork(InstalledFixtures.IntroArtwork.CeresFlight);
             restored.BindMode7Artwork(RepositoryInstallation.Installation.LoadEndingMode7Art());
@@ -50,7 +50,7 @@ internal static class EndingScreenPublicationVerification
             restored.BindEndingFont(InstalledFixtures.Maps.EndingFont);
             restored.BindStaffCredits(InstalledFixtures.Maps.StaffCredits);
             restored.BindEndingText(InstalledFixtures.Maps.EndingText);
-            PpuMemorySnapshot restoredShown = restored.Presentation.CaptureRenderSnapshot().Memory;
+            PpuMemorySnapshot restoredShown = EndingCreditsPresentation.CaptureRenderSnapshot(restored).Memory;
             AssertTrue(shown.Vram.SequenceEqual(restoredShown.Vram), $"a restored ending shows the same image at {target}");
             AssertTrue(shown.Cgram.SequenceEqual(restoredShown.Cgram), $"a restored ending shows the same palette at {target}");
             AssertTrue(PlacedSpritePart.Of(shown.SpriteDraws).SequenceEqual(PlacedSpritePart.Of(restoredShown.SpriteDraws)),

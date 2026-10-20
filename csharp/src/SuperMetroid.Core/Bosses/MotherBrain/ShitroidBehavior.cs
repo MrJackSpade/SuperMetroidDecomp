@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies;
@@ -664,7 +665,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
 
         BreakReleasedShitroidFollow(state);
-        if (samus.PoseMetadata.ReadMovementType() == SamusMovementType.SpinJumping &&
+        if (SamusPoseMetadata.ReadMovementType(samus) == SamusMovementType.SpinJumping &&
             unchecked((short)(samus.Position.X.Whole - 512)) >= 0)
         {
             // The native expression `$80-angle+$80`, truncated to a byte, is simply the

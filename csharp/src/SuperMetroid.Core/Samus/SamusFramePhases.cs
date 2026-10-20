@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Enemies.Elevator;
@@ -199,7 +200,7 @@ internal sealed class SamusFramePhases
     {
         RoomLevelData level = _room.LevelData ?? throw new InvalidOperationException(
             "Uninitialized-pose movement requires active room level data.");
-        switch (_player.IntroducedSamus.PoseMetadata.ReadMovementType())
+        switch (SamusPoseMetadata.ReadMovementType(_player.IntroducedSamus))
         {
             case SamusMovementType.Special:
                 // `$90:A7DA` only clears the momentum-transition selector.
@@ -240,7 +241,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, plms);
             case SamusMovementType.DraygonHeld:
             default:
                 throw new NotSupportedException(
-                    $"Cached movement type ${(byte)_player.IntroducedSamus.PoseMetadata.ReadMovementType():X2} under " +
+                    $"Cached movement type ${(byte)SamusPoseMetadata.ReadMovementType(_player.IntroducedSamus):X2} under " +
                     $"uninitialized pose ${(int)_player.IntroducedSamus.Pose:X2} has no translated $90:A337 mover.");
         }
     }
@@ -342,13 +343,13 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, plms);
             // Each clears the charge and restores suit colors, except grapple's
             // while a grapple is already active ($90:C59A), which changes nothing.
             if (!frame.AlphaInputLocked(samus) && !SamusPoseMetadata.IsForwardFacingPose(samus.Pose) &&
-                samus.HudSelection.HandleHudSelection(_controller1.Current, _controller1.NewlyPressed).ItemHandlerAccepted &&
+                samus.HudSelection.HandleHudSelection(samus, _controller1.Current, _controller1.NewlyPressed).ItemHandlerAccepted &&
                 (samus.SelectedHudItem != HudItem.Grapple ||
                  samus.Grapple.Phase == GrapplePhase.Inactive))
             {
                 room.Projectiles.Firing.CancelChargeForHudSelection();
                 samus.ProjectileFlareCounter = 0;
-                samus.Presentation.LoadSuitPalette(_cgram);
+                samus.Presentation.LoadSuitPalette(samus, _cgram);
             }
 
             // The selected scope uses held Run, not Fire. Setup installs its
@@ -373,7 +374,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, plms);
             {
                 room.Projectiles.Firing.CancelChargeForBombSpread();
                 samus.ProjectileFlareCounter = 0;
-                samus.Presentation.LoadSuitPalette(_cgram);
+                samus.Presentation.LoadSuitPalette(samus, _cgram);
             }
 
         }
@@ -399,7 +400,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, plms);
             // immediately clears `$0B5E`. Pose initialization occurs later in the
             // new-state handler, so a bridge published below survives precisely
             // until this point in the following gameplay frame.
-            samus.PoseTransitions.ClearPoseTransitionShotDirection();
+            SamusPoseTransitions.ClearPoseTransitionShotDirection(samus);
             samus.ProjectileInheritance.ClearMovement();
 
             // `$0CD0` is one shared WRAM word, not independent projectile/movement
@@ -412,7 +413,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, plms);
         // before beta applies animation/input transitions. Admission reads the
         // preceding snapshot; a newly queued X-ray pose is not installed yet.
         _player.PreviousMovementTypeForXray = frame.XrayActivatedThisFrame
-            ? frame.MovementBeforeXrayAdmission : samus.PoseMetadata.ReadMovementType();
+            ? frame.MovementBeforeXrayAdmission : SamusPoseMetadata.ReadMovementType(samus);
     }
 
     /// <summary>
@@ -732,7 +733,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, plms);
         // It only clears the momentum-transition selector. This path is reachable
         // when hurt-expiry command one replaces a freshly installed Shinespark
         // handler while retaining its `$C7/$C8` body and palette (Shinespark Suit).
-        else if (samus.PoseMetadata.ReadMovementType() == SamusMovementType.Special)
+        else if (SamusPoseMetadata.ReadMovementType(samus) == SamusMovementType.Special)
         {
             // No positional movement.
         }
@@ -1103,7 +1104,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, plms);
         // turn `$44` can retain downward direction while its type remains
         // `$0E`; treating that word as type `$17` sent it into A790 and
         // produced the live replay crash from issue 58.
-        SamusMovementType turnMovementType = samus.PoseMetadata.ReadMovementKind();
+        SamusMovementType turnMovementType = SamusPoseMetadata.ReadMovementKind(samus);
         if (turnMovementType == SamusMovementType.TurningOnGround ||
             (turnMovementType == SamusMovementType.TurningWhileJumping &&
              samus.Kinematics.YDirection == SamusVerticalDirection.None))
@@ -1203,14 +1204,14 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, plms);
         // the boarding pose's radius.
         if (_player.GroundedSamusMovementEnabled && !_freeze.TimeIsFrozen && !frame.AlphaInputLocked(samus) &&
             !samus.DeathSequence.IsActive && !room.Enemies.Elevator.ElevatorDoorTransitionActive)
-            samus.PoseMetadata.RefreshCollisionRadii();
+            SamusPoseMetadata.RefreshCollisionRadii(samus);
         // Native Samus beta precedes PLMs. A lock/unlock issued by a PLM
         // affects the next beta, not the animation already owned this frame.
         // Suit command $15 installs an empty beta, not just locked pose input:
         // the suspended movement pointer and all of its timers survive, so command
         // $0B can resume it after the HDMA transformation (including Blue Suit).
         // The empty beta also skips periodic damage and the energy checks.
-        frame.SampleMovementType(samus.PoseMetadata.ReadMovementType());
+        frame.SampleMovementType(SamusPoseMetadata.ReadMovementType(samus));
 
         // Direction bits already use the transition table's canonical layout. Input
         // matching belongs to frame-handler alpha, before beta moves the CURRENT pose;
@@ -1225,7 +1226,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, plms);
         // Sound queues are global persistent engines on hardware, but this typed host
         // publication is scoped to one frame's Samus handler. It opened before the HDMA
         // pass, ahead of `$91:F046`'s landing sounds during collision.
-        frame.BeginControl(mode, samus.Xray.OwnsSamusControl && !frame.DeathOwnsSamus, samus.PoseMetadata.ReadMovementType());
+        frame.BeginControl(mode, samus.Xray.OwnsSamusControl && !frame.DeathOwnsSamus, SamusPoseMetadata.ReadMovementType(samus));
         if (frame.XrayOwnsPoseInput)
         {
             samus.Xray.HandlePoseInput(
@@ -1263,9 +1264,9 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, plms);
         if (_player.GroundedSamusMovementEnabled && frame.UsePoseDefinitionFallback)
         {
             _player.ProspectiveSamusFallbackPose = SamusLookupFailurePose.Resolve(
-                samus.PoseMetadata.ReadMovementType(),
+                SamusPoseMetadata.ReadMovementType(samus),
                 samus.Pose,
-                samus.PoseMetadata.ReadNoInputFallbackPose(),
+                SamusPoseMetadata.ReadNoInputFallbackPose(samus),
                 frame.DeceleratingFallbackHasMomentum).ProspectivePose;
         }
     }
@@ -1349,7 +1350,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, plms);
         // Command six's bare RTL beta ($90:E8D6) skips animation like the locked beta.
         else if (frame.Mode.Beta is not (SamusBetaHandler.ScriptLocked or SamusBetaHandler.RefillStation or SamusBetaHandler.SuitPickup))
         {
-            samus.Presentation.AnimateNoFx(new SamusAnimationStep { BossPresent = room.Enemies.RoomStatus.BossId != 0, ControllerInput = _controller1.Current, NmiFrameCounter = _clock.Counter, Random = _system.Random, BeginLiquidSoundRequestFrame = false, ProspectiveInputPose = _player.ProspectiveSamusPose?.ProspectivePose ?? _player.ProspectiveSamusFallbackPose, DemoPoseInput = _attractDemo.IsAttractDemo, QueueEchoSound = audio.QueueEchoSound });
+            SamusPresentation.AnimateNoFx(samus, new SamusAnimationStep { BossPresent = room.Enemies.RoomStatus.BossId != 0, ControllerInput = _controller1.Current, NmiFrameCounter = _clock.Counter, Random = _system.Random, BeginLiquidSoundRequestFrame = false, ProspectiveInputPose = _player.ProspectiveSamusPose?.ProspectivePose ?? _player.ProspectiveSamusFallbackPose, DemoPoseInput = _attractDemo.IsAttractDemo, QueueEchoSound = audio.QueueEchoSound });
             StepSamusLoadAppearance(room);
         }
 

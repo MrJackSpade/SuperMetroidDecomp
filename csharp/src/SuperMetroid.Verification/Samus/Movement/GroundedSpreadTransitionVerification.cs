@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Drawing;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
@@ -53,8 +54,8 @@ internal static class GroundedSpreadTransitionVerification
         samus.Position = samus.Position.WithWhole(new(512, 490));
         AssertEqual((ushort)0, samus.Kinematics.Position.X.Fraction, "fixture initial X fraction matches native cleared RAM");
         AssertEqual((ushort)0, samus.Kinematics.Position.Y.Fraction, "fixture initial Y fraction matches native cleared RAM");
-        samus.PoseMetadata.RefreshCollisionRadii();
-        samus.Presentation.InitializeAnimation();
+        SamusPoseMetadata.RefreshCollisionRadii(samus);
+        SamusPresentation.InitializeAnimation(samus);
         for (int frame = 0; frame < 120; frame++)
         {
             SnesButton input = runtime.Options.ControllerBindings.Shoot;

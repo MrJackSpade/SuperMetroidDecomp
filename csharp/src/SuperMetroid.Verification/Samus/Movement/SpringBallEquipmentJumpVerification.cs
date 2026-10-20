@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Drawing;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
@@ -41,10 +42,10 @@ internal static class SpringBallEquipmentJumpVerification
             samus.CollectedItems = (SamusEquipmentFlags)((ushort)(samus.EquippedItems | SamusEquipmentFlags.SpringBall));
             samus.Position = samus.Position.WithWhole(new(128, (ushort)(runtime.RoomLayer3Fx.Surface.Y + 96)));
             samus.Pose = left ? SamusPoseId.MorphBallFallingLeftPose : SamusPoseId.MorphBallFallingRightPose;
-            samus.PoseMetadata.RefreshCollisionRadii();
+            SamusPoseMetadata.RefreshCollisionRadii(samus);
             runtime.RoomLayer3Fx.ApplyToSamusLiquidPhysics(samus.LiquidPhysics);
             AssertEqual(SamusLiquidMedium.Water, samus.LiquidPhysics.DetermineMovementMedium(samus), "fixture is underwater without Gravity Suit");
-            samus.Presentation.InitializeAnimation(3);
+            SamusPresentation.InitializeAnimation(samus, 3);
             samus.Kinematics.YDirection = SamusVerticalDirection.Up;
             samus.Kinematics.YSpeed = new SnesUnsignedSixteenSixteen(1, 0x8000);
             for (int jump = 0; jump < 2; jump++)

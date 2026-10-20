@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Rooms;
@@ -48,7 +49,7 @@ internal static class AirSpikeAlphaRadiusVerification
         // Radius 21 puts the top at Y 474, inside the spike row (464-479). The live radius
         // still holds the previous pose's 12, whose top (483) is in the air row below.
         samus.Position = samus.Position.WithWholeY(495);
-        samus.Presentation.InitializeAnimation();
+        SamusPresentation.InitializeAnimation(samus);
         samus.Kinematics.Radius = new(5, 12);
         samus.InvincibilityTimer = NativeCountdown.Start(0);
         runtime.Room.LoadedCamera.SetPosition(new Position16<RoomPixels>(400, 350));

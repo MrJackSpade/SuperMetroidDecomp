@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.Core.Samus.Grapple;
 using SuperMetroid.Core.Samus.Poses;
@@ -63,8 +64,8 @@ internal static class SamusGrappleMovementAccess
             samus.Pose = faceRight
                 ? SamusPoseId.GrappleSwingRightPose
                 : SamusPoseId.GrappleSwingLeftPose;
-            samus.PoseMetadata.RefreshCollisionRadii();
-            samus.Presentation.InitializeAnimation(initialFrame: 0);
+            SamusPoseMetadata.RefreshCollisionRadii(samus);
+            SamusPresentation.InitializeAnimation(samus, initialFrame: 0);
 
             // $94:AC11 and $9B:BD95 run as soon as the connection is accepted. Publishing the
             // first pendulum position now prevents one frame of stale pre-grapple coordinates.

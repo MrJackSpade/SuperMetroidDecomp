@@ -11,15 +11,27 @@ namespace SuperMetroid.Core.Rooms.Plms;
 [RoomLifetime]
 internal sealed class NoobTubePlms
 {
-    /// <summary>Room services receiving tube event, Samus, FX, and projectile effects.</summary>
-    private readonly PlmRoomBindings _bindings;
+    /// <summary>Samus as the room reads and changes her.</summary>
+    private readonly IRoomSamusAccess? _samus;
+    /// <summary>The game's event flags.</summary>
+    private readonly IGlobalEventFlags? _events;
+    /// <summary>The room's layer-3 FX.</summary>
+    private readonly RoomLayer3FxState? _roomFx;
+    /// <summary>The room's earthquake.</summary>
+    private readonly IRoomEarthquakeWriter? _earthquake;
+    /// <summary>The enemy effects room objects trigger.</summary>
+    private readonly IRoomPlmEnemyEffects? _enemies;
     /// <summary>Queue used for ineffective shot feedback while the tube waits.</summary>
     private readonly PlmSoundQueue _sounds;
 
-    /// <summary>Shares the room service bindings and sound queue used by the tube PLM interpreter.</summary>
-    internal NoobTubePlms(PlmRoomBindings bindings, PlmSoundQueue sounds)
+    /// <summary>Shares the room services and sound queue used by the tube PLM interpreter.</summary>
+    internal NoobTubePlms(IRoomSamusAccess? samus, IGlobalEventFlags? events, RoomLayer3FxState? roomFx, IRoomEarthquakeWriter? earthquake, IRoomPlmEnemyEffects? enemies, PlmSoundQueue sounds)
     {
-        _bindings = bindings;
+        _samus = samus;
+        _events = events;
+        _roomFx = roomFx;
+        _earthquake = earthquake;
+        _enemies = enemies;
         _sounds = sounds;
     }
 
@@ -95,20 +107,20 @@ internal sealed class NoobTubePlms
     /// <summary>Starts the break earthquake.</summary>
     internal void TriggerEarthquake()
     {
-        (_bindings.Earthquake ?? throw new InvalidOperationException(
+        (_earthquake ?? throw new InvalidOperationException(
             "N00b tube has no earthquake-type writer.")).SetType(NoobTubePlmRomData.EarthquakeType);
-        _bindings.Earthquake.SetTimer(NoobTubePlmRomData.EarthquakeTimer);
+        _earthquake.SetTimer(NoobTubePlmRomData.EarthquakeTimer);
     }
 
     /// <summary>Sets the tube's broken event.</summary>
     internal void SetBrokenEvent() =>
-        (_bindings.Events ?? throw new InvalidOperationException(
+        (_events ?? throw new InvalidOperationException(
             "N00b tube has no event writer.")).Set(NoobTubePlmRomData.BrokenEvent);
 
     /// <summary>Enables the room's water physics and applies them to Samus.</summary>
     internal void EnableWaterPhysics()
     {
-        RoomLayer3FxState roomFx = _bindings.RoomFx
+        RoomLayer3FxState roomFx = _roomFx
             ?? throw new InvalidOperationException(
                 "N00b tube has no room-FX owner for its water-physics write.");
         roomFx.EnableWaterPhysics();
@@ -117,16 +129,16 @@ internal sealed class NoobTubePlms
 
     /// <summary>Requires the room event owner before testing the broken-tube event.</summary>
     private IGlobalEventFlags RequireNoobTubeEvents() =>
-        _bindings.Events ?? throw new InvalidOperationException("N00b tube has no event reader.");
+        _events ?? throw new InvalidOperationException("N00b tube has no event reader.");
 
     /// <summary>Requires a live Samus actor for tube script locks or water-physics publication.</summary>
     private SamusState RequireNoobTubeSamus() =>
-        _bindings.Samus?.Current ?? throw new InvalidOperationException(
+        _samus?.Current ?? throw new InvalidOperationException(
             "N00b tube has no active Samus actor.");
 
     /// <summary>Routes a crack, shard, or bubble spawn to the enemy system at the tube's block.</summary>
     private void SpawnNoobTubeProjectile(PlmSlot slot, NoobTubeProjectileDefinition definition, ushort parameter) =>
-        (_bindings.Enemies ?? throw new InvalidOperationException(
+        (_enemies ?? throw new InvalidOperationException(
             "N00b tube has no enemy-projectile spawner.")).SpawnNoobTubeProjectile(
             new NoobTubeProjectileRequest(definition, parameter, slot.BlockIndex));
 }

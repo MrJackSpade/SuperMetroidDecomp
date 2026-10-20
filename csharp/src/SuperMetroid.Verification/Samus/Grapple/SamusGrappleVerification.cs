@@ -615,7 +615,7 @@ firingLevel, cancelledSamus, controllerInput: 0);
     AssertEqual(SamusPoseId.GrappleSwingRightPose, samus.Pose, "grapple connection pose");
     AssertEqual(
         SamusMovementType.Grappling,
-        samus.PoseMetadata.ReadMovementType(),
+        SamusPoseMetadata.ReadMovementType(samus),
         "grapple movement type from pose record");
     AssertEqual(200, samus.Grapple.BeamStart.X, "initial grapple beam-start X");
     AssertEqual(154, samus.Grapple.BeamStart.Y, "initial grapple beam-start Y");

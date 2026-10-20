@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.Plms;
@@ -276,7 +277,7 @@ public sealed class SamusShinesparkState
     public void BeginWindup(SamusState samus)
     {
         Ensure.NotNull(samus);
-        if (samus.InputSnapshot.SharedShineTimer == 0)
+        if (SamusInputSnapshot.SharedShineTimer(samus) == 0)
             throw new InvalidOperationException("Shinespark windup requires a live stored shine.");
 
         InitializeWindup(samus);
@@ -631,8 +632,8 @@ public sealed class SamusShinesparkState
     internal static void ApplyDirectionalLaunchPose(SamusState samus, SamusPoseId pose)
     {
         samus.Pose = pose;
-        samus.PoseMetadata.RefreshCollisionRadii();
-        samus.Presentation.InitializeAnimation(initialFrame: 0);
+        SamusPoseMetadata.RefreshCollisionRadii(samus);
+        SamusPresentation.InitializeAnimation(samus, initialFrame: 0);
     }
 
     /// <summary>Runs one installed special-handler frame from <c>$90:D068-$D2B9</c>.</summary>
@@ -654,7 +655,7 @@ public sealed class SamusShinesparkState
             SamusPoseId? pendingLaunchPose = null;
             if (timedOut)
             {
-                SamusPoseId verticalPose = samus.PoseMetadata.IsFacing(SamusFacingDirection.Left)
+                SamusPoseId verticalPose = SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left)
                     ? SamusPoseId.ShinesparkVerticalLeftPose
                     : SamusPoseId.ShinesparkVerticalRightPose;
                 BeginDirectionalLaunch(samus, verticalPose, frame.DeferTimeoutPoseChange);
@@ -796,7 +797,7 @@ false);
         // EndSuperJump retains this frame's contact damage. The shared frame
         // prologue clears it before the newly installed crash handler runs next.
         samus.HurtFlashCounter = 0;
-        bool facingLeft = samus.PoseMetadata.IsFacing(SamusFacingDirection.Left);
+        bool facingLeft = SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left);
         FirstCrashEchoAngle = SnesAngle.FromTableIndex(facingLeft ? (byte)32 : (byte)224);
         SecondCrashEchoAngle = SnesAngle.FromTableIndex(facingLeft ? (byte)160 : (byte)96);
         CrashAngularDelta = facingLeft ? (short)4 : (short)-4;
@@ -955,7 +956,7 @@ false,             CrashSequenceFinished: true);
         // replaces a drained pose's movement word too: a Samus drained mid-crash is free.
         samus.InputSnapshot.ShinesparkPoseInputLocked = false;
         samus.Drained.RelinquishMovementHandler();
-        SamusPoseId standingPose = samus.PoseMetadata.IsFacing(SamusFacingDirection.Left)
+        SamusPoseId standingPose = SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left)
             ? SamusPoseId.FacingLeftNormalPose
             : SamusPoseId.FacingRightNormalPose;
         ushort previousRadius = samus.Kinematics.Radius.Y;
@@ -964,7 +965,7 @@ false,             CrashSequenceFinished: true);
         // aligns the standing body's bottom with the old crash body. Alpha alone
         // publishes the new live radius on the following frame.
         samus.AlignBottomAfterPoseChange(previousRadius, SamusPoseMetadata.ReadPoseYRadius(standingPose));
-        samus.Presentation.InitializeAnimation(initialFrame: 0);
+        SamusPresentation.InitializeAnimation(samus, initialFrame: 0);
     }
 
     /// <summary>
@@ -1098,8 +1099,8 @@ false,             CrashSequenceFinished: true);
             samus.HorizontalSpeed.ExtraRunSpeed = new SnesUnsignedSixteenSixteen(15, 0);
         }
 
-        var displacement = SamusHorizontalDisplacement.Toward(samus.PoseMetadata.IsFacing(SamusFacingDirection.Left), samus, baseSpeed: 0);
-        return SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, Plms = plms }, samus.Kinematics, new HorizontalBlockMove { Displacement = displacement.Displacement, CanBreakBombBlocks = true, CollisionMovementDirection = displacement.CollisionDirection });
+        var displacement = SamusHorizontalDisplacement.Toward(SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left), samus, baseSpeed: 0);
+        return SamusBlockCollision.MoveHorizontal(new SamusTerrain { Level = level, Plms = plms }, samus.Kinematics, samus, new HorizontalBlockMove { Displacement = displacement.Displacement, CanBreakBombBlocks = true, CollisionMovementDirection = displacement.CollisionDirection });
     }
 
     /// <summary>Accumulates upward spark acceleration while capping only the temporary collision displacement and probing solid enemies first.</summary>
@@ -1153,7 +1154,7 @@ false,             CrashSequenceFinished: true);
         if (enemy.Collided)
             return new BlockMoveResult(0, true, EnemyCollision: enemy);
 
-        return SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, Plms = plms }, samus.Kinematics, new VerticalBlockMove { Displacement = upwardDisplacement, ScanLeftToRight = (nmiFrameCounter & 1) == 0, CanBreakBombBlocks = true, IncludeSolidEnemies = false });
+        return SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level, Plms = plms }, samus.Kinematics, samus, new VerticalBlockMove { Displacement = upwardDisplacement, ScanLeftToRight = (nmiFrameCounter & 1) == 0, CanBreakBombBlocks = true, IncludeSolidEnemies = false });
     }
 
     /// <summary>

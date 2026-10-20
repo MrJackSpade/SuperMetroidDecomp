@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Runtime;
@@ -59,8 +60,8 @@ internal sealed class ShutterBombArcScenario
         samus.Control.Unlock();
         samus.Pose = SamusPoseId.MorphBallGroundRightPose;
         samus.EquippedItems |= SamusEquipmentFlags.Bombs;
-        samus.PoseMetadata.RefreshCollisionRadii();
-        samus.Presentation.InitializeAnimation();
+        SamusPoseMetadata.RefreshCollisionRadii(samus);
+        SamusPresentation.InitializeAnimation(samus);
         samus.Position = samus.Position.WithWhole(new((ushort)(platform.Position.X.Whole - (approach ? Toward * 32 : 0)), (ushort)(platform.Position.Y.Whole - platform.Radius.Y - samus.Kinematics.Radius.Y)));
         Runtime.StepFrame(0, new RuntimeFrameRequest());
     }

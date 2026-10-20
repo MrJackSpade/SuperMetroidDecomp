@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Input;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Hardware;
@@ -81,9 +82,9 @@ internal static class GrappleBodyPlacementVerification
                 AssertEqual((native.AnimationFrame + 11) & 31, changed.AnimationFrame, "Edited frame reaches actual pendulum updater");
                 AssertEqual(native.AnimationFrameTimer.RawValue, changed.AnimationFrameTimer.RawValue, "Visual mapping cannot change swing timing");
                 int displayed = changed.AnimationFrame;
-                changed.Presentation.SetGrappleSwingAnimationFrame(native.AnimationFrame);
+                SamusPresentation.SetGrappleSwingAnimationFrame(changed, native.AnimationFrame);
                 AssertTrue(GraphDigest(native).SequenceEqual(GraphDigest(changed)), "Entire swing simulation state matches except displayed frame");
-                changed.Presentation.SetGrappleSwingAnimationFrame(displayed);
+                SamusPresentation.SetGrappleSwingAnimationFrame(changed, displayed);
             }
         }
         Console.WriteLine("Grapple body placement: 524288 extracted/installed updates preserve physical offsets independently of edited JSON frames, mirror angle, facing and anchor wrapping; installed selector ROM reads forbidden.");

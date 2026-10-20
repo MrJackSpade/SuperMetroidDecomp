@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Samus;
@@ -205,7 +206,7 @@ public sealed class HudState
                 presentation?.DeselectedPalette ?? GameplayHudDefinitions.DeselectedPalette);
             PreviousSelectedItem = samus.SelectedHudItem;
 
-            SamusMovementType movementType = samus.PoseMetadata.ReadMovementType();
+            SamusMovementType movementType = SamusPoseMetadata.ReadMovementType(samus);
             SelectionSoundRequestedThisFrame =
                 movementType is not (SamusMovementType.SpinJumping or SamusMovementType.WallJumping) &&
                 samus.Grapple.Phase == GrapplePhase.Inactive &&

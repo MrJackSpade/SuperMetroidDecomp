@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Enemies.Elevator;
@@ -34,7 +35,7 @@ internal sealed class DoorGamePhases(FrontendSession session)
         // into the next room.
         SamusState doorSamus = session.GameplayRuntime.Player.Samus
             ?? throw new InvalidOperationException("Door transition requires live Samus state.");
-        SamusMovementType doorMovementType = doorSamus.PoseMetadata.ReadMovementType();
+        SamusMovementType doorMovementType = SamusPoseMetadata.ReadMovementType(doorSamus);
         // A live power-bomb explosion drops all three requests inside the queue
         // routines, so neither ring holds anything for $E29E to wait on.
         bool doorSoundsSuppressed = session.GameplayRuntime.PowerBombExplosionSuppressesSounds;

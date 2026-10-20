@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
@@ -63,8 +64,8 @@ internal sealed class BombSpreadTransitionScenario
         samus.EquippedItems = (SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.Bombs);
         samus.EquippedBeams = SamusBeamFlags.Charge;
         samus.Position = samus.Position.WithWhole(new(512, 490));
-        samus.PoseMetadata.RefreshCollisionRadii();
-        samus.Presentation.InitializeAnimation();
+        SamusPoseMetadata.RefreshCollisionRadii(samus);
+        SamusPresentation.InitializeAnimation(samus);
     }
 
     /// <summary>Controller word for <paramref name="frame"/>.</summary>

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Areas.Tourian;
 using SuperMetroid.Core.Bosses.Draygon;
 using SuperMetroid.Core.Bosses.MotherBrain;
@@ -41,8 +42,8 @@ public sealed class RoomPlmSystem
     /// <summary>Applies boss encounter mutations to the active room's PLM slots.</summary>
     internal BossRoomMutationPlms BossRoomMutations { get; }
 
-    /// <summary>Connects room events, enemy actors, and memory to the PLM family handlers.</summary>
-    internal PlmRoomBindings Bindings { get; }
+    /// <summary>The game's event flags, which scripted room objects set.</summary>
+    internal IGlobalEventFlags? Events { get; }
 
     /// <summary>Forty native word-indexed PLM slots shared by the room's object families.</summary>
     internal PlmSlotTable SlotTable { get; }
@@ -117,11 +118,14 @@ public sealed class RoomPlmSystem
     internal GreyDoorPlms GreyDoors { get; }
 
     /// <summary>Creates one room's forty empty PLM slots and the PLM family owners that run in them.</summary>
-    /// <param name="bindings">The room's service owners, which every resident PLM uses.</param>
+    /// <param name="room">The room the objects live in.</param>
+    /// <param name="services">The room's service owners; each PLM family receives the ones it uses.</param>
     /// <param name="visuals">The host's installed PLM artwork.</param>
-    internal RoomPlmSystem(PlmRoomBindings bindings, PlmShotBlockVisuals visuals)
+    internal RoomPlmSystem(PlmRoom room, RoomPlmServices services, PlmShotBlockVisuals visuals)
     {
-        Bindings = Ensure.NotNull(bindings);
+        Ensure.NotNull(room);
+        Ensure.NotNull(services);
+        Events = services.Events;
         SlotTable = new PlmSlotTable();
         Sounds = new PlmSoundQueue();
         Drawing = new PlmBlockDrawing(visuals);
@@ -130,24 +134,24 @@ public sealed class RoomPlmSystem
         Quicksand = new QuicksandPlms(SlotTable);
         Scrolls = new ScrollPlms(SlotTable);
         WreckedShipTreadmill = new WreckedShipTreadmillPlms(SlotTable);
-        Shaktool = new ShaktoolPlms(Bindings, SlotTable);
-        SamusEater = new SamusEaterPlms(Bindings, SlotTable);
-        EscapeAnimals = new EscapeAnimalPlms(Bindings, SlotTable);
-        SpeedBoosterEscape = new SpeedBoosterEscapePlms(Bindings);
-        ChozoStatue = new ChozoStatuePlms(Bindings, SlotTable);
-        DraygonCannons = new DraygonCannonPlms(Bindings);
-        BombTorizoHand = new BombTorizoHandPlms(Bindings, SlotTable);
-        NoobTube = new NoobTubePlms(Bindings, Sounds);
-        Gates = new GatePlms(Bindings, SlotTable, Sounds);
-        MotherBrainGlass = new MotherBrainGlassPlms(Bindings, SlotTable, Sounds);
-        Stations = new StationPlms(Bindings, Drawing, SlotTable, Sounds);
-        CollectiblePlms = new CollectiblePlms(Bindings, Drawing, SlotTable, Sounds);
-        EyeDoors = new EyeDoorPlms(Bindings, Sounds);
-        DoorPlms = new DoorPlms(Bindings, SlotTable, Sounds);
-        GreyDoors = new GreyDoorPlms(Bindings, Sounds, DoorPlms);
-        Tourian = new TourianPlms(Bindings, SlotTable);
+        Shaktool = new ShaktoolPlms(services.Samus, services.Events, SlotTable);
+        SamusEater = new SamusEaterPlms(services.Samus, SlotTable);
+        EscapeAnimals = new EscapeAnimalPlms(services.Events, SlotTable);
+        SpeedBoosterEscape = new SpeedBoosterEscapePlms(services.Samus, services.Events, services.RoomFx, services.Earthquake);
+        ChozoStatue = new ChozoStatuePlms(room.System, room.AreaIndex, SlotTable);
+        DraygonCannons = new DraygonCannonPlms(services.Enemies);
+        BombTorizoHand = new BombTorizoHandPlms(services.Samus, SlotTable);
+        NoobTube = new NoobTubePlms(services.Samus, services.Events, services.RoomFx, services.Earthquake, services.Enemies, Sounds);
+        Gates = new GatePlms(services.Samus, room.Level, SlotTable, Sounds);
+        MotherBrainGlass = new MotherBrainGlassPlms(services.Bosses, services.Events, SlotTable, Sounds);
+        Stations = new StationPlms(room.System, services.Samus, Drawing, SlotTable, Sounds);
+        CollectiblePlms = new CollectiblePlms(room.System, services.Samus, services.RoomFx, Drawing, SlotTable, Sounds);
+        EyeDoors = new EyeDoorPlms(room.System, services.Samus, services.Enemies, Sounds);
+        DoorPlms = new DoorPlms(room.System, SlotTable, Sounds);
+        GreyDoors = new GreyDoorPlms(room.System, room.AreaIndex, services.TourianStatue, Sounds, DoorPlms);
+        Tourian = new TourianPlms(services.Samus, services.Events, services.Enemies, SlotTable);
         PopulationLoader = new PlmPopulationLoader(new PlmPopulationLoaderDependencies { BombTorizoHand = BombTorizoHand, CollectiblePlms = CollectiblePlms, EyeDoors = EyeDoors, Gates = Gates, MotherBrainGlass = MotherBrainGlass, SlotTable = SlotTable, SpeedBoosterEscape = SpeedBoosterEscape });
-        BlockReactions = new BlockReactionPlms(Bindings, EscapeAnimals, SlotTable);
+        BlockReactions = new BlockReactionPlms(room.AreaIndex, EscapeAnimals, SlotTable);
         BossRoomMutations = new BossRoomMutationPlms(SlotTable);
         foreach (IPlmFamilySource source in (IPlmFamilySource[])[Scrolls, WreckedShipTreadmill, Stations, CollectiblePlms, DoorPlms, GreyDoors, Gates, EyeDoors, DraygonCannons])
             source.RegisterPlmFamilies(_families);

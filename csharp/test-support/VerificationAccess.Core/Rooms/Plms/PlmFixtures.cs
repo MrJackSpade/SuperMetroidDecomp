@@ -17,8 +17,9 @@ internal static class PlmFixtures
     internal static RoomPlmSystem Unbound(PlmShotBlockVisuals? visuals = null)
     {
         visuals ??= new PlmShotBlockVisuals();
-        var bindings = (PlmRoomBindings)RuntimeHelpers.GetUninitializedObject(typeof(PlmRoomBindings));
-        var plms = new RoomPlmSystem(bindings, visuals);
+        var room = (PlmRoom)RuntimeHelpers.GetUninitializedObject(typeof(PlmRoom));
+        var services = (RoomPlmServices)RuntimeHelpers.GetUninitializedObject(typeof(RoomPlmServices));
+        var plms = new RoomPlmSystem(room, services, visuals);
         visualsByFixture.Add(plms, visuals);
         return plms;
     }
@@ -27,7 +28,7 @@ internal static class PlmFixtures
     internal static RoomPlmSystem Bound(PlmRoom room, RoomPlmServices services, RoomPlmSystem fixture)
     {
         PlmShotBlockVisuals visuals = VisualsOf(fixture);
-        var plms = new RoomPlmSystem(new PlmRoomBindings(room, services), visuals);
+        var plms = new RoomPlmSystem(room, services, visuals);
         visualsByFixture.Add(plms, visuals);
         return plms;
     }

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Runtime;
@@ -26,7 +27,7 @@ internal static class RetailCrocomireCaptureTests
         var samus = runtime.Player.IntroducedSamus;
         samus.Position = samus.Position.WithWhole(new(CrocomireCaptureFixture.InitialSamusX, 120));
         samus.Pose = SamusPoseId.FacingRightNormalPose;
-        samus.PoseMetadata.RefreshCollisionRadii(); samus.Presentation.InitializeAnimation();
+        SamusPoseMetadata.RefreshCollisionRadii(samus); SamusPresentation.InitializeAnimation(samus);
         var boss = runtime.Enemies.CrocomireBehavior.Crocomire ?? throw new InvalidOperationException("Crocomire did not initialize.");
         var death = runtime.Enemies.CrocomireBehavior.CrocomireDeath;
         // Before either melting object is spawned, BG2 must use the actor's ordinary

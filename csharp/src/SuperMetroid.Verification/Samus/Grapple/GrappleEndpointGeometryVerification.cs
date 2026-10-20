@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
@@ -73,7 +74,7 @@ internal static class GrappleEndpointGeometryVerification
         {
             samus.Pose = pose;
             samus.Position = samus.Position.WithWhole(new((ushort)(runtime.Room.LoadedCamera.PixelPosition.X + 100), (ushort)(runtime.Room.LoadedCamera.PixelPosition.Y + 100)));
-            samus.Presentation.InitializeAnimation(); samus.Presentation.PrimeGraphics();
+            SamusPresentation.InitializeAnimation(samus); samus.Presentation.PrimeGraphics(samus);
             samus.Grapple.Phase = GrapplePhase.ConnectedLocked;
             samus.Grapple.RopeLength = 8;
             samus.Grapple.Anchor = samus.Grapple.Anchor.WithX(samus.Position.X.Whole);

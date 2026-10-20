@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
@@ -66,7 +67,7 @@ internal static class SpikeShinesparkSuitVerification
         uint frozenY = frozenSamus.Kinematics.Position.Y.RawValue;
         int frozenAnimationFrame = frozenSamus.AnimationFrame;
         ushort frozenAnimationTimer = frozenSamus.AnimationFrameTimer.RawValue;
-        int frozenShineTimer = frozenSamus.InputSnapshot.SharedShineTimer;
+        int frozenShineTimer = SamusInputSnapshot.SharedShineTimer(frozenSamus);
         SamusSpecialPaletteType frozenPalette = frozenSamus.Shinespark.PaletteType;
         ushort frozenKnockbackTimer = frozenSamus.KnockbackTimer.RawValue;
         frozenRuntime.StepFrame(0, new RuntimeFrameRequest { AfterAcceptedNmi = () =>
@@ -78,7 +79,7 @@ internal static class SpikeShinesparkSuitVerification
             (frozenSamus.AnimationFrame, frozenSamus.AnimationFrameTimer.RawValue),
             "Reserve command zero freezes the unmorph animation cursor");
         AssertEqual((frozenShineTimer, frozenPalette),
-            (frozenSamus.InputSnapshot.SharedShineTimer, frozenSamus.Shinespark.PaletteType),
+            (SamusInputSnapshot.SharedShineTimer(frozenSamus), frozenSamus.Shinespark.PaletteType),
             "Reserve command zero freezes stored-shine palette progression");
         AssertEqual(frozenKnockbackTimer - 1, frozenSamus.KnockbackTimer.RawValue,
             "global hurt timer continues while Reserve owns Samus");
@@ -103,7 +104,7 @@ internal static class SpikeShinesparkSuitVerification
             bool retainedSuit = samus.Pose == SamusPoseId.ShinesparkWindupRightPose &&
                 samus.Shinespark.Phase == ShinesparkPhase.Inactive &&
                 samus.Shinespark.PaletteType == SamusSpecialPaletteType.Shinesparking &&
-                samus.InputSnapshot.SharedShineTimer != 0;
+                SamusInputSnapshot.SharedShineTimer(samus) != 0;
             AssertEqual(expected.RetainsSuit, retainedSuit,
                 $"underwater Reserve suit freeze {expected.FreezeAfter}, launch {expected.LaunchAfter}");
         }
@@ -179,8 +180,8 @@ internal static class SpikeShinesparkSuitVerification
             samus.LiquidPhysics.ConfigureWater(8, RoomLiquidOptions.SmallTide);
         samus.Kinematics.Position = samus.Kinematics.Position.WithWholeX(200).WithFractionX(0).WithWholeY(166).WithFractionY(0);
         samus.Kinematics.YSpeed = default;
-        samus.PoseMetadata.RefreshCollisionRadii();
-        samus.Presentation.InitializeAnimation();
+        SamusPoseMetadata.RefreshCollisionRadii(samus);
+        SamusPresentation.InitializeAnimation(samus);
         samus.PoseHistory.PreviousPose = samus.Pose;
         samus.PoseHistory.PreviousDirectionAndMovement =
             SnesLittleEndian.Word(8, (byte)SamusMovementType.MorphBallGround);

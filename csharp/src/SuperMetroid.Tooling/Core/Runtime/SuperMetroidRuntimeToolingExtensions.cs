@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Core.Rooms;
+﻿using SuperMetroid.Core.Samus.Poses;
+using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Spatial;
 using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Rooms.Scrolling;
@@ -64,8 +65,8 @@ internal static class SuperMetroidRuntimeToolingExtensions
                 camera,
                 RoomViewportLoadMode.DisplayInitialViewport);
             self.Player.Samus.LiquidPhysics.RoomIdentity = room.Identity;
-            self.Player.Samus.PoseMetadata.RefreshCollisionRadii();
-            self.Player.Samus.Presentation.PrimeGraphics();
+            SamusPoseMetadata.RefreshCollisionRadii(self.Player.Samus);
+            self.Player.Samus.Presentation.PrimeGraphics(self.Player.Samus);
             self.Player.GroundedSamusMovementEnabled = true;
             return viewport;
         }

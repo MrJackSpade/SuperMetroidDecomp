@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Drawing;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using System.Globalization;
 using SuperMetroid.Core.Hardware;
@@ -107,8 +108,8 @@ internal static class GreenHillGateGlitchVerification
         samus.HorizontalSpeed.SpeedBoostCounter = new SamusSpeedBoostCounter(
             SamusSpeedBoostCounterFixtures.ActiveStageWord);
         samus.HorizontalSpeed.ContactDamageIndex = SamusContactDamageIndex.SpeedBooster;
-        samus.PoseMetadata.RefreshCollisionRadii();
-        samus.Presentation.InitializeAnimation();
+        SamusPoseMetadata.RefreshCollisionRadii(samus);
+        SamusPresentation.InitializeAnimation(samus);
 
         int openFrame = -1;
         for (int frame = 0; frame < 21; frame++)

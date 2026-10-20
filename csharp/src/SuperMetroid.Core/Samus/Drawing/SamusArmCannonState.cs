@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Samus.Artwork;
 
@@ -129,7 +130,7 @@ public sealed class SamusArmCannonState
         ushort offsetAddress = unchecked((ushort)(offsetsBase + samus.AnimationFrame * 2));
         sbyte xOffset = unchecked((sbyte)ReadDrawingByte(offsetAddress));
         sbyte yOffset = unchecked((sbyte)ReadDrawingByte(unchecked((ushort)(offsetAddress + 1))));
-        sbyte graphicsYOffset = samus.PoseMetadata.ReadGraphicsYOffset();
+        sbyte graphicsYOffset = SamusPoseMetadata.ReadGraphicsYOffset(samus);
 
         short screenX = unchecked((short)(samus.Position.X.Whole + xOffset - layer1.X));
         short screenY = unchecked((short)(

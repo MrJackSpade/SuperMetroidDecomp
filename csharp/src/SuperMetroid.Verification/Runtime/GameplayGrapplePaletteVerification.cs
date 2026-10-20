@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Drawing;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
@@ -48,8 +49,8 @@ internal static class GameplayGrapplePaletteVerification
             samus.EquippedItems = samus.CollectedItems = SamusEquipmentFlags.GrappleBeam;
             samus.EquippedBeams = (SamusBeamFlags)beam;
             samus.SelectedHudItem = HudItem.Grapple;
-            samus.PoseMetadata.RefreshCollisionRadii();
-            samus.Presentation.InitializeAnimation();
+            SamusPoseMetadata.RefreshCollisionRadii(samus);
+            SamusPresentation.InitializeAnimation(samus);
             samus.CommitPoseHistory();
             samus.Position = samus.Position.WithWhole(new(128, (ushort)(192 - samus.Kinematics.Radius.Y)));
             samus.Kinematics.YSpeed = default;
@@ -60,8 +61,8 @@ internal static class GameplayGrapplePaletteVerification
             AssertTrue(runtime.Player.LastGrappleMovement is { Fired: true }, "normal HUD input fires grapple");
             AssertPalette("normal firing");
             samus.Pose = SamusPoseId.StandingAimDiagonalUpRightPose;
-            samus.PoseMetadata.RefreshCollisionRadii();
-            samus.Presentation.InitializeAnimation();
+            SamusPoseMetadata.RefreshCollisionRadii(samus);
+            SamusPresentation.InitializeAnimation(samus);
             samus.CommitPoseHistory();
             palettes.LoadTo(runtime.Cgram, SamusBeamCombinations.FromTableIndex(beam));
             runtime.Cgram.SetColor(223, Bgr555.FromWord(0x1234));

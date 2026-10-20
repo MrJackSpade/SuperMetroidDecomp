@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Drawing;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
@@ -168,17 +169,17 @@ internal static void VerifySamusHorizontalSpeed()
     // rewrite the cartridge pointer/delay ROM in the fake bus: gameplay now reads
     // those immutable definitions from SamusRunningCadenceDefinitions.
     var dashAnimation = new SamusState { Pose = SamusPoseId.MovingRightNormalPose };
-    dashAnimation.Presentation.InitializeAnimation();
+    SamusPresentation.InitializeAnimation(dashAnimation);
     dashAnimation.HorizontalSpeed.HandleExtraRunSpeed(
         movementType: SamusMovementType.Running,
         controllerInput: SnesButton.B,
         speedBoosterEquipped: false);
     for (int tick = 0; tick < 2; tick++)
-        dashAnimation.Presentation.AnimateNoFx(new SamusAnimationStep { Random = new CartridgeRandom(), ControllerInput = SnesButton.B });
+        SamusPresentation.AnimateNoFx(dashAnimation, new SamusAnimationStep { Random = new CartridgeRandom(), ControllerInput = SnesButton.B });
     AssertEqual(1, dashAnimation.AnimationFrame, "Dash advances into running frame one");
     AssertEqual(2, dashAnimation.AnimationFrameTimer.RawValue, "Dash selects native frame-one delay");
     for (int tick = 0; tick < 18; tick++)
-        dashAnimation.Presentation.AnimateNoFx(new SamusAnimationStep { Random = new CartridgeRandom(), ControllerInput = SnesButton.B });
+        SamusPresentation.AnimateNoFx(dashAnimation, new SamusAnimationStep { Random = new CartridgeRandom(), ControllerInput = SnesButton.B });
     AssertEqual(0, dashAnimation.AnimationFrame, "Dash command interception restarts frame zero");
     AssertEqual(2, dashAnimation.AnimationFrameTimer.RawValue, "Dash restart uses shared frame-zero delay");
 

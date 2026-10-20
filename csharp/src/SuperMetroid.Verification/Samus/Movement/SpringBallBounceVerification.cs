@@ -22,7 +22,7 @@ internal static class SpringBallBounceVerification
                 Position = FixedPosition<RoomPixels>.FromWhole(new(0x80, 0x169)),
                 MorphBallBounceState = bounceState,
             };
-            samus.PoseMetadata.RefreshCollisionRadii();
+            SamusPoseMetadata.RefreshCollisionRadii(samus);
             samus.Kinematics.Position = samus.Kinematics.Position.WithFractionY(0xffff);
             samus.Kinematics.YDirection = SamusVerticalDirection.Up;
             samus.Kinematics.YSpeed = new SnesUnsignedSixteenSixteen(1, 0);

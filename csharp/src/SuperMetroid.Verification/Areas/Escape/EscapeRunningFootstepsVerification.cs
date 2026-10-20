@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Drawing;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Runtime;
@@ -25,8 +26,8 @@ internal static class EscapeRunningFootstepsVerification
         foreach (SamusPoseId pose in new[] { SamusPoseId.MovingRightNormalPose, SamusPoseId.MovingLeftNormalPose })
         {
             var samus = new SamusState { Pose = SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(100, 100)) };
-            samus.PoseMetadata.RefreshCollisionRadii();
-            samus.Presentation.InitializeAnimation();
+            SamusPoseMetadata.RefreshCollisionRadii(samus);
+            SamusPresentation.InitializeAnimation(samus);
             if (able) samus.Drained.SetupForRainbowBeamAbleToStand(samus);
             else samus.Drained.SetupForRainbowBeamUnableToStand(samus);
             samus.Drained.PutCrouchingOrFalling(samus);
@@ -54,15 +55,15 @@ internal static class EscapeRunningFootstepsVerification
 
             samus.Pose = pose;
             samus.Control.Unlock();
-            samus.PoseMetadata.RefreshCollisionRadii();
-            samus.Presentation.InitializeAnimation(initialFrame: 8);
-            samus.Presentation.SetAnimationFrameFromSpecialHandler(8, 1);
+            SamusPoseMetadata.RefreshCollisionRadii(samus);
+            SamusPresentation.InitializeAnimation(samus, initialFrame: 8);
+            SamusPresentation.SetAnimationFrameFromSpecialHandler(samus, 8, 1);
             samus.LiquidPhysics.FxType = RoomFxType.Acid;
             samus.LiquidPhysics.LavaAcidYPosition = 0;
             samus.Drained.StepGetUpHandler(samus, (SnesButton.Up | SnesButton.A));
             // Before the fix, the stale failed-stand callback selects 18/1 here and the
             // real animation/footstep path throws the exact player-reported exception.
-            samus.Presentation.AnimateNoFx(new SamusAnimationStep { Random = new CartridgeRandom(), ControllerInput = (SnesButton.Up | SnesButton.A) });
+            SamusPresentation.AnimateNoFx(samus, new SamusAnimationStep { Random = new CartridgeRandom(), ControllerInput = (SnesButton.Up | SnesButton.A) });
             AssertEqual(DrainedGetUpHandler.Inactive, samus.Drained.GetUpHandler,
                 "escape timer replaces the drained hack handler");
             AssertEqual(9, samus.AnimationFrame, "Up edge in acid advances the running animation normally");

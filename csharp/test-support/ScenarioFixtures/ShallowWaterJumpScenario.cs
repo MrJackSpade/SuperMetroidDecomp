@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
@@ -38,8 +39,8 @@ internal sealed class ShallowWaterJumpScenario
         samus.Position = samus.Position.WithWhole(new(104, 427));
         samus.Kinematics.Position = samus.Kinematics.Position.WithFractionY(0xffff);
         samus.EquippedItems = 0;
-        samus.PoseMetadata.RefreshCollisionRadii();
-        samus.Presentation.InitializeAnimation();
+        SamusPoseMetadata.RefreshCollisionRadii(samus);
+        SamusPresentation.InitializeAnimation(samus);
         runtime.StepFrame(0, new RuntimeFrameRequest());
         runtime.StepFrame(0, new RuntimeFrameRequest());
     }

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Hardware;
@@ -32,7 +33,7 @@ internal static class RetailKraidCaptureTests
         // Match the existing Kraid rise audit's stationary approach position.
         samus.Position = samus.Position.WithWhole(new(128, 456));
         samus.Pose = SamusPoseId.FacingRightNormalPose;
-        samus.PoseMetadata.RefreshCollisionRadii(); samus.Presentation.InitializeAnimation();
+        SamusPoseMetadata.RefreshCollisionRadii(samus); SamusPresentation.InitializeAnimation(samus);
         var boss = runtime.Enemies.KraidBehavior.Kraid ?? throw new InvalidOperationException("Kraid did not initialize.");
         var body = runtime.Enemies.SlotTable.Slots[0];
         KraidAiFunction BodyFunction() =>

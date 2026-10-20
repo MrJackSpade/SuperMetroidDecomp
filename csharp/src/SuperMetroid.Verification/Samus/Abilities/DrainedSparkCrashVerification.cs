@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Rooms;
@@ -31,8 +32,8 @@ internal static class DrainedSparkCrashVerification
         SamusState samus = runtime.Player.IntroducedSamus;
         samus.Control.Unlock();
         samus.Pose = SamusPoseId.FacingLeftNormalPose;
-        samus.PoseMetadata.RefreshCollisionRadii();
-        samus.Presentation.InitializeAnimation();
+        SamusPoseMetadata.RefreshCollisionRadii(samus);
+        SamusPresentation.InitializeAnimation(samus);
         // Two calls left in the echo hold after the echoes finish circling Samus.
         samus.Shinespark.Phase = ShinesparkPhase.CrashEchoCircle;
         samus.Shinespark.StartStopTimer = NativeCountdown.Start(2);

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Drawing;
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Poses;
@@ -21,10 +22,10 @@ internal static class WallJumpExpansionVerification
                 Position = FixedPosition<RoomPixels>.FromWhole(new(left ? (ushort)119 : (ushort)137, 127)),
             };
             samus.Kinematics.Position = samus.Kinematics.Position.WithFractionY(0x1000);
-            samus.PoseMetadata.RefreshCollisionRadii();
-            samus.Presentation.InitializeAnimation();
+            SamusPoseMetadata.RefreshCollisionRadii(samus);
+            SamusPresentation.InitializeAnimation(samus);
             ushort beforeX = samus.Position.X.Whole;
-            samus.PoseTransitions.ApplyWallJumpTrigger(room);
+            SamusPoseTransitions.ApplyWallJumpTrigger(samus, room);
             AssertEqual(left ? SamusPoseId.WallJumpLeftPose : SamusPoseId.WallJumpRightPose,
                 samus.Pose, "walljump expansion selects facing-preserving pose");
             AssertEqual(beforeX, samus.Position.X.Whole, "vertical expansion preserves X");

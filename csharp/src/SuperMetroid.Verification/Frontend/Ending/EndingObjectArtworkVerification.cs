@@ -209,8 +209,8 @@ internal static class EndingObjectArtworkVerification
                 $"installed ending OBJ art preserves phase at frame {frame}");
             if (phases.Add(native.Phase) || frame % 211 == 0)
             {
-                LayeredRenderSnapshot expected = native.Presentation.CaptureRenderSnapshot();
-                LayeredRenderSnapshot actual = installed.Presentation.CaptureRenderSnapshot();
+                LayeredRenderSnapshot expected = EndingCreditsPresentation.CaptureRenderSnapshot(native);
+                LayeredRenderSnapshot actual = EndingCreditsPresentation.CaptureRenderSnapshot(installed);
                 AssertTrue(actual.Memory.Vram.SequenceEqual(expected.Memory.Vram) &&
                         actual.Memory.Cgram.SequenceEqual(expected.Memory.Cgram) &&
                         SoftwareLayeredSnapshotRenderer.Render(actual).SequenceEqual(
@@ -271,9 +271,9 @@ internal static class EndingObjectArtworkVerification
             !visibleCloudEdit; frame++)
         {
             cloudScene.BindObjectArtwork(stock);
-            LayeredRenderSnapshot beforeCloudEdit = cloudScene.Presentation.CaptureRenderSnapshot();
+            LayeredRenderSnapshot beforeCloudEdit = EndingCreditsPresentation.CaptureRenderSnapshot(cloudScene);
             cloudScene.BindObjectArtwork(editedCloudSprites);
-            LayeredRenderSnapshot afterCloudEdit = cloudScene.Presentation.CaptureRenderSnapshot();
+            LayeredRenderSnapshot afterCloudEdit = EndingCreditsPresentation.CaptureRenderSnapshot(cloudScene);
             visibleCloudEdit = !beforeCloudEdit.Memory.SpriteParts().SequenceEqual(
                     afterCloudEdit.Memory.SpriteParts()) &&
                 !SoftwareLayeredSnapshotRenderer.Render(beforeCloudEdit).SequenceEqual(
@@ -332,7 +332,7 @@ internal static class EndingObjectArtworkVerification
                 scene.Step();
                 audio.AdvanceFrame(default);
             }
-            LayeredRenderSnapshot baseline = scene.Presentation.CaptureRenderSnapshot();
+            LayeredRenderSnapshot baseline = EndingCreditsPresentation.CaptureRenderSnapshot(scene);
             EndingCreditsPhase baselinePhase = scene.Phase;
             AssertTrue(baseline.Brightness > 0,
                 $"ending {name} reaches a visible override frame");
@@ -349,7 +349,7 @@ internal static class EndingObjectArtworkVerification
                 IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels, image.Palette);
             EndingObjectArtworkCatalog edited = installation.LoadEndingObjectArt();
             scene.BindObjectArtwork(edited);
-            LayeredRenderSnapshot changed = scene.Presentation.CaptureRenderSnapshot();
+            LayeredRenderSnapshot changed = EndingCreditsPresentation.CaptureRenderSnapshot(scene);
             AssertTrue(!baseline.Memory.Vram.SequenceEqual(changed.Memory.Vram) &&
                     baseline.Memory.Vram[..(EndingVramLayout.ExplosionObjects.Offset * 2)]
                         .SequenceEqual(changed.Memory.Vram
@@ -366,9 +366,9 @@ internal static class EndingObjectArtworkVerification
                 if (frame % 6 == 0)
                 {
                     scene.BindObjectArtwork(stock);
-                    LayeredRenderSnapshot nativeArt = scene.Presentation.CaptureRenderSnapshot();
+                    LayeredRenderSnapshot nativeArt = EndingCreditsPresentation.CaptureRenderSnapshot(scene);
                     scene.BindObjectArtwork(edited);
-                    LayeredRenderSnapshot editedArt = scene.Presentation.CaptureRenderSnapshot();
+                    LayeredRenderSnapshot editedArt = EndingCreditsPresentation.CaptureRenderSnapshot(scene);
                     visibleEdit = !SoftwareLayeredSnapshotRenderer.Render(nativeArt)
                         .SequenceEqual(
                             SoftwareLayeredSnapshotRenderer.Render(editedArt));

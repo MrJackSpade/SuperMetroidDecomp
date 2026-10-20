@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
@@ -146,7 +147,7 @@ internal static class CinematicCrystalFlashVerification
         }
         AssertEqual(DrainedSamusPhase.Inactive, superSamus.Drained.Phase,
             "Super Metroid release reaches an ordinary posture");
-        SamusMovementType releasedMovement = superSamus.PoseMetadata.ReadMovementType();
+        SamusMovementType releasedMovement = SamusPoseMetadata.ReadMovementType(superSamus);
         bool xrayAdmitted = superSamus.Xray.TryBegin(superSamus, releasedMovement, new XrayBeginConditions { GameState = SuperMetroidGameState.MainGameplay });
         AssertTrue(xrayAdmitted, "X-Ray admits from the released immobile suit posture");
         AssertTrue(!superSamus.InputSnapshot.CrystalFlashPoseInputLocked,
@@ -268,8 +269,8 @@ internal static class CinematicCrystalFlashVerification
         samus.SuperMissiles = samus.MaxSuperMissiles = 10;
         samus.PowerBombs = samus.MaxPowerBombs = 10;
         samus.Kinematics.YSpeed = default;
-        samus.PoseMetadata.RefreshCollisionRadii();
-        samus.Presentation.InitializeAnimation();
+        SamusPoseMetadata.RefreshCollisionRadii(samus);
+        SamusPresentation.InitializeAnimation(samus);
 
         bool admitted = samus.CrystalFlash.TryBegin(
             samus,

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Enemies;
@@ -43,7 +44,7 @@ public static class SamusGrappleMovement
 
         bool movingHeld = samus.Pose is SamusPoseId.DraygonGrabbedMovingLeftPose or
             SamusPoseId.DraygonGrabbedMovingRightPose;
-        byte direction = movingHeld ? ReadDraygonHeldDirection(samus.Pose, controllerInput) : samus.PoseMetadata.ReadShotDirection();
+        byte direction = movingHeld ? ReadDraygonHeldDirection(samus.Pose, controllerInput) : SamusPoseMetadata.ReadShotDirection(samus);
         if (direction >= 16)
         {
             // $9B:C53F-C547 treats ROM sentinel directions as ordinary cancellation,
@@ -68,10 +69,10 @@ public static class SamusGrappleMovement
         // `$9B:C4F0` selects run offsets solely for movement type one. Moonwalking is
         // distinct type `$10`, so every stable/aimed moonwalk pose naturally takes the
         // no-run origin and flare tables without a pose-number exception.
-        bool useRunOffsets = samus.PoseMetadata.ReadMovementKind() == SamusMovementType.Running;
+        bool useRunOffsets = SamusPoseMetadata.ReadMovementKind(samus) == SamusMovementType.Running;
         var origin = GrappleFiringDefinitions.Origin(direction, useRunOffsets);
         var flare = ReadFlareOrigin(grapple, direction, useRunOffsets);
-        sbyte graphicsYOffset = movingHeld ? SamusGrappleRomData.Firing.DraygonMovingGraphicsYOffset : samus.PoseMetadata.ReadGraphicsYOffset();
+        sbyte graphicsYOffset = movingHeld ? SamusGrappleRomData.Firing.DraygonMovingGraphicsYOffset : SamusPoseMetadata.ReadGraphicsYOffset(samus);
         int physicalYOffset = movingHeld ? SamusGrappleRomData.Firing.DraygonMovingGraphicsYOffset :
             SamusPoseProjectileOriginDefinitions.ReadYOffset(samus.Pose);
 
@@ -644,13 +645,13 @@ public static class SamusGrappleMovement
         // `$90:9CAC` probes solid/frozen enemies first, then 16 pixels of room blocks toward
         // the wall named by the contact pose's direction byte. The shared probe preserves
         // square slopes, BTS dispatch, available distance, and enemy identity.
-        int signedProbe = samus.PoseMetadata.IsFacing(SamusFacingDirection.Left)
+        int signedProbe = SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left)
             ? -(16 << 16)
             : 16 << 16;
         BlockMoveResult wall = SamusBlockCollision.ProbeWallHorizontal(
 
             level,
-            samus.Kinematics,
+            samus.Kinematics, samus,
             signedProbe);
         bool jumpNew = (newlyPressedInput & SnesButton.A) != 0;
         if (wall.Collided && jumpNew)
@@ -680,7 +681,7 @@ public static class SamusGrappleMovement
         // function-pointer handoff. The Samus helper keeps the peculiar `$B8->$84` and
         // `$B9->$83` reversal separate from ordinary spin-contact wall jumps.
         SamusBlockCollision.EjectAfterGrapple(level, samus.Kinematics);
-        samus.PoseTransitions.ApplyGrappleWallJump();
+        SamusPoseTransitions.ApplyGrappleWallJump(samus);
         ClearConnectedGrapple(grapple);
         return new GrappleMovementResult(
             GrapplePhase.Inactive,
@@ -704,9 +705,9 @@ public static class SamusGrappleMovement
         // slot. Normal beta movement still runs before that pose is committed.
         samus.HorizontalSpeed.BaseSpeed = default;
         samus.Kinematics.YSpeed = default;
-        bool emptyBeta = samus.PoseMetadata.ReadMovementKind() == SamusMovementType.Grappling;
+        bool emptyBeta = SamusPoseMetadata.ReadMovementKind(samus) == SamusMovementType.Grappling;
         if (!deferPoseChange)
-            samus.PoseTransitions.ApplyGrappleDropTransition(level, targetPose, nmiFrameCounter, plms);
+            SamusPoseTransitions.ApplyGrappleDropTransition(samus, level, targetPose, nmiFrameCounter, plms);
         ClearConnectedGrapple(grapple);
         return new GrappleMovementResult(
             GrapplePhase.Inactive,
@@ -724,13 +725,13 @@ public static class SamusGrappleMovement
         if (samus.Pose == SamusPoseId.GrappleSwingLeftPose)
             return SamusPoseId.FacingLeftNormalPose;
 
-        byte shotDirection = samus.PoseMetadata.ReadShotDirection();
+        byte shotDirection = SamusPoseMetadata.ReadShotDirection(samus);
         bool ordinaryDirection = shotDirection < 10;
         if (!ordinaryDirection)
         {
             // `$9B:C8DB/$C93C` use the pose direction when the direction byte is a command
             // sentinel. Standing selects `$01/$02`; compact bodies select `$27/$28`.
-            bool facingLeft = samus.PoseMetadata.IsFacing(SamusFacingDirection.Left);
+            bool facingLeft = SamusPoseMetadata.IsFacing(samus, SamusFacingDirection.Left);
             return samus.Kinematics.Radius.Y >= 17
                 ? facingLeft ? SamusPoseId.FacingLeftNormalPose : SamusPoseId.FacingRightNormalPose
                 : facingLeft ? SamusPoseId.CrouchingLeftPose : SamusPoseId.CrouchingRightPose;
@@ -766,8 +767,8 @@ public static class SamusGrappleMovement
 
             samus.Pose = special.Pose;
             samus.Position = samus.Position.WithWhole(grapple.Anchor + special.SamusOffset);
-            samus.PoseMetadata.RefreshCollisionRadii();
-            samus.Presentation.InitializeAnimation(initialFrame: 0);
+            SamusPoseMetadata.RefreshCollisionRadii(samus);
+            SamusPresentation.InitializeAnimation(samus, initialFrame: 0);
             grapple.Phase = phase;
             grapple.WallJumpTimer = NativeCountdown.Start(0);
             grapple.SlowScrolling = false; // $9B:BB0D
@@ -1019,7 +1020,7 @@ public static class SamusGrappleMovement
         QueueGrappleSound(samus, SamusGrappleRomData.Sounds.Attach);
         // $9B:B98C bypasses ordinary connection pose/position setup while Draygon owns
         // Samus. Only the beam locks; the enemy continues to place the held body.
-        SamusMovementType sourceMovementType = samus.PoseMetadata.ReadMovementType();
+        SamusMovementType sourceMovementType = SamusPoseMetadata.ReadMovementType(samus);
         if (sourceMovementType == SamusMovementType.DraygonHeld)
         {
             grapple.Phase = GrapplePhase.ConnectedLocked;
@@ -1156,8 +1157,8 @@ public static class SamusGrappleMovement
         SamusGrappleState grapple = samus.Grapple;
 
         samus.Pose = pending.Pose;
-        samus.PoseMetadata.RefreshCollisionRadii();
-        samus.Presentation.InitializeAnimation(initialFrame: 0);
+        SamusPoseMetadata.RefreshCollisionRadii(samus);
+        SamusPresentation.InitializeAnimation(samus, initialFrame: 0);
 
         if (pending.Swinging)
         {
@@ -1258,10 +1259,10 @@ public static class SamusGrappleMovement
         SamusState samus,
         SamusGrappleState grapple)
     {
-        bool useRunOffsets = samus.PoseMetadata.ReadMovementKind() == SamusMovementType.Running;
+        bool useRunOffsets = SamusPoseMetadata.ReadMovementKind(samus) == SamusMovementType.Running;
         var origin = GrappleFiringDefinitions.Origin((byte)grapple.FireDirection, useRunOffsets);
         var flare = ReadFlareOrigin(grapple, (byte)grapple.FireDirection, useRunOffsets);
-        sbyte graphicsYOffset = samus.PoseMetadata.ReadGraphicsYOffset();
+        sbyte graphicsYOffset = SamusPoseMetadata.ReadGraphicsYOffset(samus);
         byte physicalYOffset = SamusPoseProjectileOriginDefinitions.ReadYOffset(samus.Pose);
 
         // Recompute from the final pose/position, not cached launch offsets. Physical
@@ -1437,7 +1438,7 @@ public static class SamusGrappleMovement
             // `$9B:C856` calls `$91:82D9` while the current movement type is `$16`.
             // Its command-six table entry kills all X/run momentum and the pose-definition
             // byte selects the exact standing/crouching body that existed before locking.
-            SamusPoseId fallback = samus.PoseMetadata.ReadNoInputFallbackPose();
+            SamusPoseId fallback = SamusPoseMetadata.ReadNoInputFallbackPose(samus);
             if (fallback == SamusMovementRomData.Poses.RetainCurrentPoseFallback)
             {
                 throw new InvalidDataException(
@@ -1445,8 +1446,8 @@ public static class SamusGrappleMovement
             }
 
             samus.Pose = fallback;
-            samus.PoseMetadata.RefreshCollisionRadii();
-            samus.Presentation.InitializeAnimation(initialFrame: 0);
+            SamusPoseMetadata.RefreshCollisionRadii(samus);
+            SamusPresentation.InitializeAnimation(samus, initialFrame: 0);
             samus.HorizontalSpeed.AccelerationMode = SamusAccelerationMode.Accelerating;
             samus.HorizontalSpeed.BaseSpeed = default;
             samus.HorizontalSpeed.ExtraRunSpeed = default;
@@ -1487,8 +1488,8 @@ public static class SamusGrappleMovement
     {
         var grapple = samus.Grapple;
         grapple.PoseChangeAutoFireTimer = grapple.PoseChangeAutoFireTimer.DecrementToZero();
-        byte direction = samus.PoseMetadata.ReadShotDirection();
-        bool banned = GrappleConnectionDefinitions.CancelsFiring(samus.PoseMetadata.ReadMovementType());
+        byte direction = SamusPoseMetadata.ReadShotDirection(samus);
+        bool banned = GrappleConnectionDefinitions.CancelsFiring(SamusPoseMetadata.ReadMovementType(samus));
         if (!banned && direction < 16)
         {
             if (direction == (byte)grapple.FireDirection) return null;
@@ -1546,7 +1547,7 @@ public static class SamusGrappleMovement
         var offset = GrappleBodyPlacementDefinitions.Offset(grapple.MirroredAngle.ToByteAngle(),
             SamusPoseMetadata.IsFacingLeft(samus.Pose));
 
-        samus.Presentation.SetGrappleSwingAnimationFrame(artFrame);
+        SamusPresentation.SetGrappleSwingAnimationFrame(samus, artFrame);
         samus.Position = samus.Position.WithWhole(new(unchecked((ushort)(ropeStart.Pixel.X + offset.X)), unchecked((ushort)(ropeStart.Pixel.Y + offset.Y))));
     }
 
@@ -1615,8 +1616,8 @@ public static class SamusGrappleMovement
     internal static void ApplyReleasePose(SamusState samus, SamusPoseId releasePose)
     {
         samus.Pose = releasePose;
-        samus.PoseMetadata.RefreshCollisionRadii();
-        samus.Presentation.InitializeAnimation(initialFrame: 0);
+        SamusPoseMetadata.RefreshCollisionRadii(samus);
+        SamusPresentation.InitializeAnimation(samus, initialFrame: 0);
     }
 
     /// <summary>Resets grapple-owned movement and rendering state so a later shot cannot inherit connection state.</summary>

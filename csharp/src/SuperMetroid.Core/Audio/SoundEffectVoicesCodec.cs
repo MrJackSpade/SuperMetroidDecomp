@@ -9,6 +9,23 @@ namespace SuperMetroid.Core.Audio;
 [SnesEncodingOwner]
 public static class SoundEffectVoicesCodec
 {
+    /// <summary>The voices in mask order: the first voice is the lowest bit.</summary>
+    private static readonly SoundEffectVoices[] VoicesInMaskOrder =
+    [
+        SoundEffectVoices.Voice0, SoundEffectVoices.Voice1, SoundEffectVoices.Voice2, SoundEffectVoices.Voice3,
+        SoundEffectVoices.Voice4, SoundEffectVoices.Voice5, SoundEffectVoices.Voice6, SoundEffectVoices.Voice7,
+    ];
+
     /// <summary>The voice set a renderer voice mask names; every bit of the mask is a voice.</summary>
-    public static SoundEffectVoices FromVoiceMask(int mask) => (SoundEffectVoices)Ensure.BetweenInclusive(0, byte.MaxValue, mask);
+    public static SoundEffectVoices FromVoiceMask(int mask)
+    {
+        Ensure.BetweenInclusive(0, byte.MaxValue, mask);
+        SoundEffectVoices voices = SoundEffectVoices.None;
+        for (int voice = 0; voice < VoicesInMaskOrder.Length; voice++)
+        {
+            if ((mask & (1 << voice)) != 0)
+                voices |= VoicesInMaskOrder[voice];
+        }
+        return voices;
+    }
 }

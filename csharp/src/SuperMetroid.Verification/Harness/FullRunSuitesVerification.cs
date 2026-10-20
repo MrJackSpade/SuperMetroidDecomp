@@ -351,6 +351,7 @@ using static SuperMetroid.Verification.Samus.Abilities.SpeedBoosterVisualsVerifi
 using static SuperMetroid.Verification.Samus.Abilities.SpeedPaletteOverrunVerification;
 using static SuperMetroid.Verification.Enemies.Spike.SpikeDamageBoostVerification;
 using static SuperMetroid.Verification.Samus.Artwork.SamusLandingDrawVerification;
+using static SuperMetroid.Verification.Rooms.Doors.DoorTransitionAutosaveVerification;
 using static SuperMetroid.Verification.Enemies.Spike.SpikeShinesparkSuitVerification;
 using static SuperMetroid.Verification.Bosses.SporeSpawn.SporeSpawnCeilingPlmsVerification;
 using static SuperMetroid.Verification.Bosses.SporeSpawn.SporeSpawnCeilingVisualsVerification;
@@ -476,6 +477,7 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifyProjectileRuntimePhase), () => VerifyProjectileRuntimePhase()),
         new(nameof(VerifyMorphedSpikeRelease), () => VerifyMorphedSpikeRelease()),
         new(nameof(VerifySamusLandingDraws), () => VerifySamusLandingDraws()),
+        new(nameof(VerifyDoorTransitionAutosave), () => VerifyDoorTransitionAutosave()),
         new(nameof(VerifySpikeShinesparkSuit), () => VerifySpikeShinesparkSuit()),
         new(nameof(VerifyReserveMode), () => VerifyReserveMode("csharp/test-fixtures/movement-release/reserve-mode-433.csv")),
         new(nameof(VerifyCinematicCrystalFlash), () => VerifyCinematicCrystalFlash("csharp/test-fixtures/movement-release/cinematic-flash-432.csv")),

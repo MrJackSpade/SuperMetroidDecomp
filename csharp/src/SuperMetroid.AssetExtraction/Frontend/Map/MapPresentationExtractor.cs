@@ -4,7 +4,6 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Spatial;
 using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Areas.Escape.Artwork;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core.Bosses.Ridley.Artwork;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
@@ -31,6 +30,7 @@ using SuperMetroid.AssetExtraction.Hud;
 using SuperMetroid.AssetExtraction.Samus;
 using SuperMetroid.Core.Map;
 using SuperMetroid.Core.Map.Artwork;
+using SuperMetroid.Core.Escape.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Frontend.Map;
 

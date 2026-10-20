@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Escape;
 
 namespace SuperMetroid.Core.Areas.Escape;
 

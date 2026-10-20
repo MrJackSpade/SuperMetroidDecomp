@@ -1,6 +1,4 @@
 using SuperMetroid.Core;
-using SuperMetroid.Core.Areas.Escape;
-using SuperMetroid.Core.Areas.Escape.Artwork;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Hud;
@@ -10,6 +8,8 @@ using SuperMetroid.Core.Runtime;
 using SuperMetroid.Verification.Harness;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
+using SuperMetroid.Core.Escape;
+using SuperMetroid.Core.Escape.Artwork;
 
 namespace SuperMetroid.Verification.Fx;
 

@@ -1,7 +1,7 @@
 ﻿using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Gameplay;
-using SuperMetroid.Core.Areas.Escape;
+using SuperMetroid.Core.Escape;
 
 namespace SuperMetroid.Core.World;
 

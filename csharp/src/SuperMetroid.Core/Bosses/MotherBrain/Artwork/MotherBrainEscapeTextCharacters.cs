@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.Escape.Artwork;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 
@@ -10,8 +11,8 @@ internal sealed record MotherBrainEscapeTextCharacters(int Page) : ObjCharacterS
     public override ReadOnlyMemory<byte> Resolve(IObjCharacterSourceResolver resolver) =>
         (InstalledObjCharacterArtwork.Of(resolver).EnemyTiles.MotherBrainEscapeText ?? throw new InvalidDataException(
             "Installed enemy artwork is missing mother-brain-escape-text-tiles.png.")).Transfer.Slice(
-            checked((int)MotherBrainEscapeTextArtworkDefinitions.PageSource(Page)) - MotherBrainEscapeTextArtworkDefinitions.SourceAddress,
-            MotherBrainEscapeTextArtworkDefinitions.PageByteCount(Page));
+            checked((int)EscapeTextArtworkDefinitions.PageSource(Page)) - EscapeTextArtworkDefinitions.SourceAddress,
+            EscapeTextArtworkDefinitions.PageByteCount(Page));
 
     /// <summary>Names the source for diagnostics.</summary>
     public override string ToString() => $"Mother Brain escape text page {Page}";

@@ -11,7 +11,6 @@ using static SuperMetroid.Verification.Hardware.ImportedSpritemapsVerification;
 using static SuperMetroid.Verification.Frontend.Map.MapSpritesVerification;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
-using SuperMetroid.Core.Areas.Escape;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Samus;
@@ -23,6 +22,7 @@ using SuperMetroid.Core.Gameplay;
 namespace SuperMetroid.Verification.Hardware;
 
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Escape;
 
 /// <summary>Checks hardware math, timing, controller input, memory, DMA, and OAM contracts.</summary>
 internal static class HardwareVerification

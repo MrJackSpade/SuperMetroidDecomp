@@ -13,6 +13,7 @@ using SuperMetroid.Core.Enemies.WreckedShip;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.Core.World;
+using SuperMetroid.Core.Escape.Artwork;
 
 namespace SuperMetroid.Core.Runtime;
 

@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
+using SuperMetroid.Core.Escape.Artwork;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
@@ -50,24 +51,24 @@ internal sealed class MotherBrainEncounter
                     .Single(index => MotherBrainSpecialSpriteArtworkDefinitions.All[index] == sheet), page, transfer.Size));
             return;
         }
-        if (MotherBrainEscapeTextArtworkDefinitions.ContainsSource(transfer.SourceAddress) &&
+        if (EscapeTextArtworkDefinitions.ContainsSource(transfer.SourceAddress) &&
             _room.Artwork is not null)
         {
             int page = -1;
-            for (int index = 0; index < MotherBrainEscapeTextArtworkDefinitions.PageCount;
+            for (int index = 0; index < EscapeTextArtworkDefinitions.PageCount;
                  index++)
             {
                 if (transfer.SourceAddress ==
-                    MotherBrainEscapeTextArtworkDefinitions.PageSource(index))
+                    EscapeTextArtworkDefinitions.PageSource(index))
                 {
                     page = index;
                     break;
                 }
             }
             if (page < 0 ||
-                transfer.Size != MotherBrainEscapeTextArtworkDefinitions.PageByteCount(page) ||
+                transfer.Size != EscapeTextArtworkDefinitions.PageByteCount(page) ||
                 transfer.VramDestination !=
-                    MotherBrainEscapeTextArtworkDefinitions.PageDestination(page))
+                    EscapeTextArtworkDefinitions.PageDestination(page))
                 throw new InvalidDataException(
                     $"Invalid Mother Brain escape-text sprite transfer {transfer}.");
 

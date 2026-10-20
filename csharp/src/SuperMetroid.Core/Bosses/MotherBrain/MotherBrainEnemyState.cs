@@ -1,7 +1,7 @@
 using SuperMetroid.Core.Programs;
-using SuperMetroid.Core.Areas.Escape;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Fx;
+using SuperMetroid.Core.Escape;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 

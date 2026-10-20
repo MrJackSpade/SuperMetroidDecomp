@@ -1,11 +1,11 @@
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Areas.Escape;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Rooms.SpriteObjects;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.Core.World;
+using SuperMetroid.Core.Escape;
 
 namespace SuperMetroid.Verification.Areas.Escape;
 

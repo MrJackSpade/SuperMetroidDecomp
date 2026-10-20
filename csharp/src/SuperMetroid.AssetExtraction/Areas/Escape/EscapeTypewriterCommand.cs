@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Areas.Escape;
+using SuperMetroid.Core.Escape;
 
 namespace SuperMetroid.AssetExtraction.Areas.Escape;
 

@@ -5,6 +5,7 @@ using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core.Rooms.Artwork;
 using System.Diagnostics.CodeAnalysis;
+using SuperMetroid.Core.Escape.Artwork;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
@@ -124,10 +125,10 @@ internal sealed class MotherBrainThirdPhaseDeath
     internal MotherBrainSpriteTileTransferRequest CreateNextEscapeTimerTileTransfer()
     {
         int index = EscapeTimerTileTransferIndex;
-        if ((uint)index >= MotherBrainEscapeTextArtworkDefinitions.TransferCount)
+        if ((uint)index >= EscapeTextArtworkDefinitions.TransferCount)
             throw new InvalidOperationException("Escape-timer sprite-tile transfer list is already complete.");
 
-        MotherBrainSpriteTileTransferRequest request = MotherBrainEscapeTextArtworkDefinitions.Transfer(index);
+        MotherBrainSpriteTileTransferRequest request = EscapeTextArtworkDefinitions.Transfer(index);
         EscapeTimerTileTransferIndex++;
         return request;
     }
@@ -580,7 +581,7 @@ internal sealed class MotherBrainThirdPhaseDeath
     internal bool RunThirdPhaseDeathLoadEscapeTimerTiles(MotherBrainRainbowBeamStepRequests requests)
     {
         requests.EscapeSequenceTileTransfers.Add(CreateNextEscapeTimerTileTransfer());
-        if (EscapeTimerTileTransferIndex == MotherBrainEscapeTextArtworkDefinitions.TransferCount)
+        if (EscapeTimerTileTransferIndex == EscapeTextArtworkDefinitions.TransferCount)
         {
             // Carry set after entry six clears the shared list cursor, installs
             // `$B26D`, and falls through far enough to emit exploded-door entry zero

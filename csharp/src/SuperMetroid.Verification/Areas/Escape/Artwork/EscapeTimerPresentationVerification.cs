@@ -4,7 +4,6 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Frontend.Map.MapSpritesVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
-using SuperMetroid.Core.Areas.Escape;
 using SuperMetroid.Core.Areas.Escape.Artwork;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Enemies.Drawing;
@@ -14,6 +13,8 @@ using SuperMetroid.TestSupport.CpuBusTestDoubles;
 namespace SuperMetroid.Verification.Areas.Escape.Artwork;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Runtime;
+using SuperMetroid.Core.Escape;
+using SuperMetroid.Core.Escape.Artwork;
 
 /// <summary>Compares installed escape-timer artwork, tile transfers, and digit layout with the cartridge.</summary>
 internal static class EscapeTimerPresentationVerification

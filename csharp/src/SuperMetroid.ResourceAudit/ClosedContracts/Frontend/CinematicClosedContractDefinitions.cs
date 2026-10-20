@@ -43,7 +43,7 @@ internal static class CinematicClosedContractDefinitions
              new("csharp/src/SuperMetroid.Core/Areas/Ceres/CeresDoorVisualRomData.cs"),
              new("csharp/src/SuperMetroid.Core/Rooms/Artwork/RoomCharacterAtlas.cs"),
              new("csharp/src/SuperMetroid.Core/Areas/Ceres/CeresMode7TransferDefinitions.cs")]),
-        new("SuperMetroid.Core.Areas.Escape.Artwork.EscapeTimerPresentation", "escape-timer-complete-decimal-and-label-art", ["Draw"],
+        new("SuperMetroid.Core.Escape.Artwork.EscapeTimerPresentation", "escape-timer-complete-decimal-and-label-art", ["Draw"],
             [new("csharp/src/SuperMetroid.Core/Areas/Escape/Artwork/EscapeTimerPresentation.cs"),
              new("csharp/src/SuperMetroid.Core/Areas/Escape/Artwork/EscapeTimerPresentationDefinitions.cs"),
              new("csharp/src/SuperMetroid.Core/Assets/SpriteComposition.cs"),

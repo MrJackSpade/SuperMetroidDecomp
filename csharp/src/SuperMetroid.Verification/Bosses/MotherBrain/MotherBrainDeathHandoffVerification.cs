@@ -3,9 +3,10 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Areas.Escape;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.Plms;
-using SuperMetroid.Core.Areas.Escape.Artwork;
 namespace SuperMetroid.Verification.Bosses.MotherBrain;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Escape;
+using SuperMetroid.Core.Escape.Artwork;
 
 /// <summary>Checks escape typewriter timing and Mother Brain room door mutation during death handoff.</summary>
 internal static class MotherBrainDeathHandoffVerification

@@ -8,6 +8,7 @@ using SuperMetroid.Core.Rooms.SpriteObjects;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 namespace SuperMetroid.Verification.Enemies.Metroids;
+
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
 

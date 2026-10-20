@@ -4,7 +4,6 @@ using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
-using SuperMetroid.Core.Areas.Escape.Artwork;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.AssetExtraction.Areas.Escape;
@@ -15,6 +14,7 @@ using SuperMetroid.Verification.Harness;
 using SuperMetroid.TestSupport.VerificationOracles;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.World;
+using SuperMetroid.Core.Escape.Artwork;
 
 /// <summary>Checks installed Mother Brain sprite transfers, native leg records and the mutable corpse WRAM source.</summary>
 internal static class MotherBrainSpecialSpriteArtworkVerification

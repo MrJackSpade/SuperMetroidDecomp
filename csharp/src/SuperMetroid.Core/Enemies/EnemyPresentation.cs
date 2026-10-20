@@ -1,11 +1,11 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Fx.PaletteFx;
-using SuperMetroid.Core.Areas.Escape.Artwork;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core.Bosses.Ridley.Artwork;
 using SuperMetroid.Core.Hud.Artwork;
 using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.Escape.Artwork;
 
 namespace SuperMetroid.Core.Enemies;
 

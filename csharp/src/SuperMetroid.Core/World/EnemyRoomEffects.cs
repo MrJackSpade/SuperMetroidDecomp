@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Areas.Escape;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.Plms;
@@ -7,6 +6,7 @@ using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.Fx.PaletteFx;
 using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Escape;
 
 namespace SuperMetroid.Core.World;
 

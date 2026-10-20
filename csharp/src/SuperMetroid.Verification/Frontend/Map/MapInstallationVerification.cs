@@ -4,7 +4,6 @@ using static SuperMetroid.Verification.Harness.RepositoryInputsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using System.Security.Cryptography;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Areas.Escape.Artwork;
 using SuperMetroid.Core.Frontend.FileSelect.Artwork;
 using SuperMetroid.Core.Frontend.GameOver.Artwork;
 using SuperMetroid.Core.Frontend.Map.Artwork;
@@ -20,6 +19,7 @@ using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Map.Artwork;
 namespace SuperMetroid.Verification.Frontend.Map;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Escape.Artwork;
 
 /// <summary>Verifies that installed map and projectile overrides survive import, loading, and host startup.</summary>
 internal static class MapInstallationVerification

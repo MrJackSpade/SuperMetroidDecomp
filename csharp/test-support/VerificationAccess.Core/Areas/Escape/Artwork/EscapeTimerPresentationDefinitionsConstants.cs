@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Escape.Artwork;
+
 namespace SuperMetroid.Core.Areas.Escape.Artwork;
 
 /// <summary>Cartridge values of <see cref="EscapeTimerPresentationDefinitions"/> that only verification reads.</summary>

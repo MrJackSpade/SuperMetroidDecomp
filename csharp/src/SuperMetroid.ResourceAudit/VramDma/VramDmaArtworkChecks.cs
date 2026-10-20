@@ -1,11 +1,11 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Runtime;
-using SuperMetroid.Core.Areas.Escape.Artwork;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Hud.Artwork;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core.Gameplay;
+using SuperMetroid.Core.Escape.Artwork;
 
 namespace SuperMetroid.ResourceAudit.VramDma;
 

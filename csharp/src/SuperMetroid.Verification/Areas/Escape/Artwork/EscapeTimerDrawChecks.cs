@@ -1,7 +1,7 @@
-using SuperMetroid.Core.Areas.Escape;
-using SuperMetroid.Core.Areas.Escape.Artwork;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Escape;
+using SuperMetroid.Core.Escape.Artwork;
 
 namespace SuperMetroid.Verification.Areas.Escape.Artwork;
 

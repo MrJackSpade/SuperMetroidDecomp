@@ -13,7 +13,6 @@ using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
 using static SuperMetroid.Verification.Hardware.SignedSineFixtureVerification;
 using static SuperMetroid.Verification.Harness.SyntheticEnemyCartridgeFixturesVerification;
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
-using SuperMetroid.Core.Areas.Escape;
 using SuperMetroid.Core.Bosses.Ridley;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
@@ -24,7 +23,6 @@ using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Areas.Ceres.Artwork;
-using SuperMetroid.Core.Areas.Escape.Artwork;
 using SuperMetroid.Core.Bosses.Ridley.Artwork;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -38,6 +36,8 @@ using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.World;
+using SuperMetroid.Core.Escape;
+using SuperMetroid.Core.Escape.Artwork;
 
 /// <summary>
 /// Focused room-enemy loading and actor verifications that use cartridge-shaped

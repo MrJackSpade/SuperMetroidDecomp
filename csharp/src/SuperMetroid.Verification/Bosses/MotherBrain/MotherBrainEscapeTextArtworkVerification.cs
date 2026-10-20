@@ -3,7 +3,6 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
-using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Enemies;
@@ -11,6 +10,7 @@ using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.TestSupport.VerificationOracles;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.World;
+using SuperMetroid.Core.Escape.Artwork;
 
 namespace SuperMetroid.Verification.Bosses.MotherBrain;
 
@@ -27,8 +27,8 @@ internal static class MotherBrainEscapeTextArtworkVerification
             throw new InvalidDataException("Extracted Mother Brain escape-text PNG was not bound.");
         var rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
         byte[] native = RomDataReader.ReadFixedBank(rom,
-            MotherBrainEscapeTextArtworkDefinitions.SourceAddress,
-            MotherBrainEscapeTextArtworkDefinitions.ByteCount);
+            EscapeTextArtworkDefinitions.SourceAddress,
+            EscapeTextArtworkDefinitions.ByteCount);
         AssertTrue(artwork.Transfer.Span.SequenceEqual(native),
             "installed Mother Brain escape-text PNG preserves native characters");
 
@@ -43,13 +43,13 @@ internal static class MotherBrainEscapeTextArtworkVerification
             int destination = SnesLittleEndian.Word(CpuBusRegionRead.Read(rom, record + 5), CpuBusRegionRead.Read(rom, record + 6));
             cartridgeVram.LoadBytes(destination * 2, RomDataReader.ReadFixedBank(rom, source, count));
         }
-        for (int page = 0; page < MotherBrainEscapeTextArtworkDefinitions.PageCount; page++)
+        for (int page = 0; page < EscapeTextArtworkDefinitions.PageCount; page++)
         {
-            int sourceOffset = checked((int)MotherBrainEscapeTextArtworkDefinitions.PageSource(page) -
-                MotherBrainEscapeTextArtworkDefinitions.SourceAddress);
+            int sourceOffset = checked((int)EscapeTextArtworkDefinitions.PageSource(page) -
+                EscapeTextArtworkDefinitions.SourceAddress);
             int destinationOffset =
-                MotherBrainEscapeTextArtworkDefinitions.PageDestination(page) * 2;
-            int byteCount = MotherBrainEscapeTextArtworkDefinitions.PageByteCount(page);
+                EscapeTextArtworkDefinitions.PageDestination(page) * 2;
+            int byteCount = EscapeTextArtworkDefinitions.PageByteCount(page);
             AssertTrue(installedVram.Bytes.Slice(destinationOffset, byteCount)
                 .SequenceEqual(native.AsSpan(sourceOffset, byteCount)),
                 $"installed Mother Brain escape-text VRAM page {page} matches native bytes");
@@ -58,9 +58,9 @@ internal static class MotherBrainEscapeTextArtworkVerification
                 $"installed and cartridge Mother Brain escape-text VRAM page {page} agree");
         }
 
-        string fileName = MotherBrainEscapeTextArtworkDefinitions.FileName;
+        string fileName = EscapeTextArtworkDefinitions.FileName;
         int tileCount = RoomCharacterAtlasFormat.ValidateTileCount(
-            MotherBrainEscapeTextArtworkDefinitions.ByteCount);
+            EscapeTextArtworkDefinitions.ByteCount);
         int columns = Math.Min(RoomCharacterAtlasFormat.TileColumns, tileCount);
         int rows = (tileCount + columns - 1) / columns;
         using var input = new MemoryStream(File.ReadAllBytes(Path.Combine(directory, fileName)));
@@ -73,14 +73,14 @@ internal static class MotherBrainEscapeTextArtworkVerification
             IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels, image.Palette);
         EnemyTileArtworkCatalog edited = EnemyTileArtworkFiles.Load(directory, overrideDirectory);
         SnesVram editedVram = TransferMotherBrainEscapeTextPages(edited);
-        int firstDestination = MotherBrainEscapeTextArtworkDefinitions.PageDestination(0) * 2;
+        int firstDestination = EscapeTextArtworkDefinitions.PageDestination(0) * 2;
         AssertEqual((byte)(installedVram.ReadByte(firstDestination) ^ 0x80),
             editedVram.ReadByte(firstDestination),
             "Mother Brain escape-text PNG pixel edit changes live sprite VRAM");
         AssertTrue(installedVram.Bytes.Slice(firstDestination + 1,
-                MotherBrainEscapeTextArtworkDefinitions.PageByteCount(0) - 1)
+                EscapeTextArtworkDefinitions.PageByteCount(0) - 1)
             .SequenceEqual(editedVram.Bytes.Slice(firstDestination + 1,
-                MotherBrainEscapeTextArtworkDefinitions.PageByteCount(0) - 1)),
+                EscapeTextArtworkDefinitions.PageByteCount(0) - 1)),
             "Mother Brain escape-text edit leaves neighboring source bytes unchanged");
         RoomCharacterAtlas reloaded = (EnemyTileArtworkFiles.Load(directory, overrideDirectory)
             .MotherBrainEscapeText ?? throw new InvalidOperationException("Verification requires EnemyTileArtworkFiles.Load(directory, overrideDirectory) .MotherBrainEscapeText."));
@@ -102,13 +102,13 @@ internal static class MotherBrainEscapeTextArtworkVerification
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork };
         SnesVram ObjVram() => ObjCharacterVramImage.Of(enemies.Room.Session.ObjCharacters,
             new EnemyTileTransfers(enemies.TileArtwork ?? InstalledFixtures.EnemyTiles));
-        for (int page = 0; page < MotherBrainEscapeTextArtworkDefinitions.PageCount; page++)
+        for (int page = 0; page < EscapeTextArtworkDefinitions.PageCount; page++)
         {
             var request = new MotherBrainSpriteTileTransferRequest(
                 (ushort)(page + 2),
-                MotherBrainEscapeTextArtworkDefinitions.PageByteCount(page),
-                MotherBrainEscapeTextArtworkDefinitions.PageSource(page),
-                MotherBrainEscapeTextArtworkDefinitions.PageDestination(page));
+                EscapeTextArtworkDefinitions.PageByteCount(page),
+                EscapeTextArtworkDefinitions.PageSource(page),
+                EscapeTextArtworkDefinitions.PageDestination(page));
             enemies.MotherBrainEncounter.ApplyMotherBrainRainbowTileTransfer(request);
         }
         return ObjVram();

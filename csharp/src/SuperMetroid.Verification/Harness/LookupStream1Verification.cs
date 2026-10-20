@@ -52,6 +52,8 @@ namespace SuperMetroid.Verification.Harness;
 
 using SuperMetroid.Verification.Enemies;
 using SuperMetroid.Core.World;
+using SuperMetroid.Core.Escape;
+using SuperMetroid.Core.Escape.Artwork;
 
 /// <summary>Cartridge-oracle checks for the first group of compiled gameplay and presentation catalogs.</summary>
 internal static class LookupStream1Verification

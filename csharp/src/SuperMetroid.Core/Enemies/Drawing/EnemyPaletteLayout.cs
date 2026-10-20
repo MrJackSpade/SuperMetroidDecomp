@@ -1,9 +1,9 @@
-using SuperMetroid.Core.Areas.Escape;
 using SuperMetroid.Core.Bosses.Botwoon;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Bosses.Phantoon;
 using SuperMetroid.Core.Bosses.SporeSpawn;
 using SuperMetroid.Core.Enemies.SpacePirates;
+using SuperMetroid.Core.Escape;
 
 namespace SuperMetroid.Core.Enemies.Drawing;
 

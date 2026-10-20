@@ -57,6 +57,7 @@ namespace SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.TestSupport.VerificationOracles;
 using SuperMetroid.Core.Enemies.Corpses;
+using SuperMetroid.Core.Escape.Artwork;
 
 /// <summary>Checks stream-three compiled enemy, projectile, and room lookup contracts against native sources.</summary>
 internal static class LookupStream3Verification
@@ -1388,7 +1389,7 @@ internal static class LookupStream3Verification
                 int address = start + index * 7;
                 var expected = new MotherBrainSpriteTileTransferRequest((ushort)index, CartridgeImportSource.Require(rom).ReadCartridgeWord(address),
                     (uint)(CartridgeImportSource.Require(rom).ReadCartridgeLong((address + 2))), CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 5)));
-                var calculated = timerList ? MotherBrainEscapeTextArtworkDefinitions.Transfer(index)
+                var calculated = timerList ? EscapeTextArtworkDefinitions.Transfer(index)
                     : MotherBrainSpecialSpriteArtworkDefinitions.ExplodedDoor.Transfer(index);
                 AssertEqual(expected, calculated, "stream 3 native escape graphics record");
                 AssertEqual(expected, method(),
@@ -1405,12 +1406,12 @@ internal static class LookupStream3Verification
         }
         foreach (int invalid in new[] { -1, 5, int.MaxValue })
         {
-            AssertThrows<ArgumentOutOfRangeException>(() => MotherBrainEscapeTextArtworkDefinitions.PageSource(invalid), "stream 3 text page source bounds");
-            AssertThrows<ArgumentOutOfRangeException>(() => MotherBrainEscapeTextArtworkDefinitions.PageDestination(invalid), "stream 3 text page destination bounds");
-            AssertThrows<ArgumentOutOfRangeException>(() => MotherBrainEscapeTextArtworkDefinitions.PageByteCount(invalid), "stream 3 text page size bounds");
+            AssertThrows<ArgumentOutOfRangeException>(() => EscapeTextArtworkDefinitions.PageSource(invalid), "stream 3 text page source bounds");
+            AssertThrows<ArgumentOutOfRangeException>(() => EscapeTextArtworkDefinitions.PageDestination(invalid), "stream 3 text page destination bounds");
+            AssertThrows<ArgumentOutOfRangeException>(() => EscapeTextArtworkDefinitions.PageByteCount(invalid), "stream 3 text page size bounds");
         }
         foreach (int invalid in new[] { -1, 7, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => MotherBrainEscapeTextArtworkDefinitions.Transfer(invalid), "stream 3 escape transfer bounds");
+            AssertThrows<ArgumentOutOfRangeException>(() => EscapeTextArtworkDefinitions.Transfer(invalid), "stream 3 escape transfer bounds");
         foreach (int invalid in new[] { -1, 2, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => MotherBrainSpecialSpriteArtworkDefinitions.ExplodedDoor.Transfer(invalid), "stream 3 door transfer bounds");
         using var temporary = new TestScratchDirectory("map-catalog");

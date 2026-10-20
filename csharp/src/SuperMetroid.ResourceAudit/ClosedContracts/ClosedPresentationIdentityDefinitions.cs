@@ -10,7 +10,6 @@ using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus.Projectiles;
-using SuperMetroid.Core.Areas.Escape.Artwork;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
@@ -19,6 +18,7 @@ using SuperMetroid.Core.Frontend.Title.Artwork;
 using SuperMetroid.Core.Fx.Artwork;
 using SuperMetroid.Core.Hud.Artwork;
 using SuperMetroid.Core.Samus.Artwork;
+using SuperMetroid.Core.Escape.Artwork;
 
 namespace SuperMetroid.ResourceAudit.ClosedContracts;
 

@@ -6,7 +6,7 @@ internal static class TextAndMapClosedContractDefinitions
     /// <summary>Reviewed finite text, credits, and map presentation loaders with their guarded methods and source ownership files.</summary>
     internal static readonly ClosedPresentationContract[] All =
     [
-        new("SuperMetroid.Core.Areas.Escape.Artwork.EscapeTypewriterPresentation", "escape-text-complete-program-membership", ["Get"],
+        new("SuperMetroid.Core.Escape.Artwork.EscapeTypewriterPresentation", "escape-text-complete-program-membership", ["Get"],
             [new("csharp/src/SuperMetroid.Core/Areas/Escape/Artwork/EscapeTypewriterPresentation.cs"),
              new("csharp/src/SuperMetroid.Core/Areas/Escape/Artwork/EscapeTypewriterDefinitions.cs")]),
         new("SuperMetroid.Core.Frontend.Intro.Artwork.IntroNarrationPresentation", "narration-complete-compiled-pages", ["GetLines", "Compile"],

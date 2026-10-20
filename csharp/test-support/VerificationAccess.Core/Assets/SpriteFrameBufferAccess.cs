@@ -94,7 +94,7 @@ internal static class SpriteFrameBufferAccess
     /// <summary>The OBJ character an artwork's character 0 stands for in the gameplay OBJ table.</summary>
     internal static int FirstObjCharacter(SpriteArtworkKind kind) => kind switch
     {
-        SpriteArtworkKind.EscapeTimerTiles => SuperMetroid.Core.Areas.Escape.Artwork.EscapeTimerPresentationDefinitions.FirstCharacter,
+        SpriteArtworkKind.EscapeTimerTiles => SuperMetroid.Core.Escape.Artwork.EscapeTimerPresentationDefinitions.FirstCharacter,
         SpriteArtworkKind.SamusArmCannonCover => ArmCannonCoverCharacter,
         SpriteArtworkKind.GrappleTiles => SuperMetroid.Core.Samus.Artwork.GrappleTileDefinitions.FirstCharacter,
         SpriteArtworkKind.StandardObjects or

@@ -9,7 +9,7 @@ internal static class VramDmaProducerContracts
     {
         family = owner switch
         {
-            "SuperMetroid.Core.Areas.Escape.Artwork.EscapeTimerTileAtlas.TryQueueNativeTransfer" => "timer",
+            "SuperMetroid.Core.Escape.Artwork.EscapeTimerTileAtlas.TryQueueNativeTransfer" => "timer",
             "SuperMetroid.Core.Samus.Artwork.GrappleTileAtlas.QueuePoint" => "grapple-point",
             "SuperMetroid.Core.Samus.Artwork.GrappleTileAtlas.QueueSegments" => "grapple-segment",
             "SuperMetroid.Core.Samus.Artwork.ProjectileTrailAtlas.QueueTo" => "trails",

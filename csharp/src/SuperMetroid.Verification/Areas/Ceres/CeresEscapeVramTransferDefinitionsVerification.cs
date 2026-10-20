@@ -6,7 +6,6 @@ using SuperMetroid.Core.Bosses.Ridley;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Areas.Ceres.Artwork;
-using SuperMetroid.Core.Areas.Escape.Artwork;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.AssetExtraction.Areas.Ceres;
 using SuperMetroid.AssetExtraction.Areas.Escape;
@@ -17,6 +16,7 @@ using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.TestSupport.VerificationOracles;
 using SuperMetroid.Core.World;
+using SuperMetroid.Core.Escape.Artwork;
 
 /// <summary>Checks Ceres escape VRAM descriptors and installed timer and Japanese overlay transfers.</summary>
 internal static class CeresEscapeVramTransferDefinitionsVerification

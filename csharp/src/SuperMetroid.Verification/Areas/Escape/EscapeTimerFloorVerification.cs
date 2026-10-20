@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Areas.Escape;
+using SuperMetroid.Core.Escape;
 
 namespace SuperMetroid.Verification.Areas.Escape;
 

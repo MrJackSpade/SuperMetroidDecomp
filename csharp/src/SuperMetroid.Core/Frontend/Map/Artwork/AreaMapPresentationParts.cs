@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Areas.Escape.Artwork;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core.Bosses.Ridley.Artwork;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
@@ -13,6 +12,7 @@ using SuperMetroid.Core.Hud.Artwork;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core.Map;
 using SuperMetroid.Core.Map.Artwork;
+using SuperMetroid.Core.Escape.Artwork;
 
 namespace SuperMetroid.Core.Frontend.Map.Artwork;
 

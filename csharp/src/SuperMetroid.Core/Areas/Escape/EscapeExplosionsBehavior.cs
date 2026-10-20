@@ -1,5 +1,6 @@
 ﻿using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Rooms.SpriteObjects;
+using SuperMetroid.Core.Escape;
 
 namespace SuperMetroid.Core.Areas.Escape;
 

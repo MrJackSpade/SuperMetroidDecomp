@@ -1,11 +1,11 @@
 ﻿using SuperMetroid.Core.Areas.Ceres;
-using SuperMetroid.Core.Areas.Escape;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Areas.Ceres.Artwork;
-using SuperMetroid.Core.Areas.Escape.Artwork;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Escape;
+using SuperMetroid.Core.Escape.Artwork;
 
 namespace SuperMetroid.Core.Bosses.Ridley;
 

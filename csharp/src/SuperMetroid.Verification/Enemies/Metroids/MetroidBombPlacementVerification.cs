@@ -14,6 +14,7 @@ using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Enemies.Metroids;
+
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
 

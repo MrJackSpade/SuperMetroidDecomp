@@ -4,7 +4,6 @@ using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Runtime;
-using SuperMetroid.Core.Areas.Escape;
 using SuperMetroid.Core.Enemies.Gunship;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Progression;
@@ -16,6 +15,7 @@ namespace SuperMetroid.Verification.Enemies.Gunship;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Escape;
 /// <summary>Checks escape-timer suspension and OAM removal as Samus boards the Landing Site gunship.</summary>
 internal static class GunshipEscapeTimerVerification
 {

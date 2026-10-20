@@ -3,6 +3,7 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Metroids;
 namespace SuperMetroid.Verification.Enemies.Metroids;
+
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
 

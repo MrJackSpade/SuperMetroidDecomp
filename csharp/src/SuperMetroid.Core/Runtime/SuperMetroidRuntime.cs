@@ -9,7 +9,6 @@ using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Areas.Escape;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Fx.PaletteFx;
@@ -23,6 +22,7 @@ using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.Map;
 using SuperMetroid.Core.Runtime.Attract;
 using SuperMetroid.Core.World;
+using SuperMetroid.Core.Escape;
 
 namespace SuperMetroid.Core.Runtime;
 

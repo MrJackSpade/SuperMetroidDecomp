@@ -1,8 +1,8 @@
 using SuperMetroid.Core;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Areas.Escape;
-using SuperMetroid.Core.Areas.Escape.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.Core.Escape;
+using SuperMetroid.Core.Escape.Artwork;
 
 namespace SuperMetroid.AssetExtraction.Areas.Escape;
 

@@ -1185,6 +1185,9 @@ internal static void VerifySamusAtmosphericEffects()
     runner.LiquidPhysics.PrepareAnimationFrame(runner, new CartridgeRandom(), nmiFrameCounter: 1);
     AssertEqual(new SamusSoundRequest(SoundEffectId.FromCartridge(SoundEffectLibrary.Library3, 6), 6),
         runner.LiquidPhysics.SoundRequests.Single(), "boost palette timer does not suppress footsteps");
+    // #1386: $90:A409 reads the live boss ID; the same footstep in a boss room queues no sound.
+    runner.LiquidPhysics.PrepareAnimationFrame(runner, new CartridgeRandom(), nmiFrameCounter: 1, bossPresent: true);
+    AssertEqual(0, runner.LiquidPhysics.SoundRequests.Count, "a nonzero boss ID suppresses footsteps");
     AssertTrue(runner.Shinespark.TryStoreFromSpeedBooster(new SamusSpeedBoostCounter(0x0400)), "seed stored shine sound gate");
     runner.HorizontalSpeed.SpecialPaletteTimer = NativeCountdown.Start(0);
     runner.LiquidPhysics.PrepareAnimationFrame(runner, new CartridgeRandom(), nmiFrameCounter: 1);

@@ -184,7 +184,8 @@ internal sealed class SamusPresentation
             _samus,
             step.Random,
             checked((ushort)step.NmiFrameCounter),
-            step.BeginLiquidSoundRequestFrame);
+            step.BeginLiquidSoundRequestFrame,
+            step.BossPresent);
 
         // $90:8032 keeps neutral-jump frame one alive in four-tick chunks while Samus is
         // still rising. This is intentionally tested before DEC and applies only when the

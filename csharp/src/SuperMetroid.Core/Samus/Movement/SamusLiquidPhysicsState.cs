@@ -121,12 +121,6 @@ public sealed class SamusLiquidPhysicsState
     /// <summary>Nonzero cinematic-function state suppresses ordinary footstep audio.</summary>
     public bool CinematicFunctionActive { get; set; }
 
-    /// <summary>
-    /// Whether the room's boss identity is set; a boss room suppresses ordinary footstep audio.
-    /// No producer in the port sets it, so footsteps play in boss rooms.
-    /// </summary>
-    public bool BossPresent { get; set; }
-
     /// <summary>Configures water words while preserving the ordinary or statue room's native FX identity.</summary>
     public void ConfigureWater(int surfaceY, RoomLiquidOptions liquidOptions = RoomLiquidOptions.None, RoomFxType type = RoomFxType.Water)
     {
@@ -269,7 +263,8 @@ public sealed class SamusLiquidPhysicsState
         SamusState samus,
         CartridgeRandom random,
         int nmiFrameCounter = 0,
-        bool beginSoundRequestFrame = true)
+        bool beginSoundRequestFrame = true,
+        bool bossPresent = false)
     {
         Ensure.NotNull(samus);
 
@@ -281,7 +276,7 @@ public sealed class SamusLiquidPhysicsState
             BeginFrameSoundRequests();
 
         SamusMovementType movementType = samus.PoseMetadata.ReadMovementType();
-        TrySpawnRunningFootsteps(samus, movementType);
+        TrySpawnRunningFootsteps(samus, movementType, bossPresent);
 
         // Samus_Animate's FX handlers call $90:EC3E, whose occupied bottom
         // pixel is Y + pose radius - 1. The exclusive collision boundary would
@@ -704,7 +699,8 @@ public sealed class SamusLiquidPhysicsState
     /// <summary>Emits room-dependent wet or boosted footstep art at running contact frames and applies native sound suppression.</summary>
     private void TrySpawnRunningFootsteps(
         SamusState samus,
-        SamusMovementType movementType)
+        SamusMovementType movementType,
+        bool bossPresent)
     {
         if (movementType != SamusMovementType.Running ||
             samus.AnimationFrameTimer.RawValue != 1 ||
@@ -745,7 +741,7 @@ public sealed class SamusLiquidPhysicsState
         // a stored shinespark, and boost stage four each suppress library-three sound $06.
         // This is $0A68, not $0AD0: the latter is already nonzero during boost buildup.
         if (!CinematicFunctionActive &&
-            !BossPresent &&
+            !bossPresent &&
             samus.InputSnapshot.SharedShineTimer == 0 &&
             !samus.HorizontalSpeed.SpeedBoostCounter.HasActiveStageBit)
         {

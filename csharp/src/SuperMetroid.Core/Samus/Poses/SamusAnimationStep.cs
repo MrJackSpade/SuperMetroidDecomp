@@ -31,6 +31,9 @@ public sealed record SamusAnimationStep
     /// <summary>Demo pose input.</summary>
     public bool DemoPoseInput { get; init; } = false;
 
+    /// <summary>Whether the room's boss ID ($179C) is nonzero, which suppresses the running-footstep sound ($90:A409).</summary>
+    public bool BossPresent { get; init; } = false;
+
     /// <summary>Queue echo sound.</summary>
     public Func<ushort>? QueueEchoSound { get; init; } = null;
 }

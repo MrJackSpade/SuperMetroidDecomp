@@ -20,7 +20,7 @@ internal sealed class ZoaBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         if (!EnemyProgramAnimation.Expire(slot))
             return;
-        ZoaEnemyState state = RequireZoaState(slot);
+        ZoaEnemyState state = slot.RequireSpeciesState<ZoaEnemyState>();
         AnimationProgramCursor<ZoaProgram> cursor = state.Program;
         EnemyProgramAnimation.Run(slot, ZoaAnimations.Programs, ref cursor, ZoaFrameDefinitions.ShownFrames.Of,
             (cue, _) => ApplyZoaCue(state, cue));
@@ -176,11 +176,6 @@ internal sealed class ZoaBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.Timer = NativeCountdown.Start(0);
     }
 
-    /// <summary>Fails if an AI or instruction callback reaches a room slot before Zoa initialization.</summary>
-    internal static ZoaEnemyState RequireZoaState(RoomEnemySlot slot) =>
-        slot.SpeciesState<ZoaEnemyState>() ?? throw new InvalidOperationException(
-            $"Enemy slot {slot.SlotIndex} has no initialized Zoa state.");
-
     /// <summary>Ports Zoa's initialization AI.</summary>
     internal static void RunZoaInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
     {
@@ -190,7 +185,7 @@ internal sealed class ZoaBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Ports Zoa's main AI.</summary>
     internal static void RunZoaMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
-        RunZoaMain(slot, RequireZoaState(slot), frame.Samus, frame.Camera);
+        RunZoaMain(slot, slot.RequireSpeciesState<ZoaEnemyState>(), frame.Samus, frame.Camera);
     }
 
     /// <summary>Advances Zoa's typed animation.</summary>

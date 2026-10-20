@@ -50,7 +50,7 @@ internal static class KzanBehaviorVerification
         slot.SetSpawnParameter2(32 * 256);
         slot.Position = slot.Position.WithWhole(new(128, 65520));
         enemies.KzanBehavior.InitializeKzanTop(slot);
-        KzanEnemyState state = KzanBehavior.RequireKzanState(slot);
+        KzanEnemyState state = slot.RequireSpeciesState<KzanEnemyState>();
         AssertEqual(new Position16<RoomPixels>(0, 16), state.FallingTarget, "the falling target wraps past the room's bottom edge");
         AssertEqual(new Position16<RoomPixels>(0, 65520), state.RisingTarget, "the rising target is the spawn position");
         var frame = new ClockedEnemyAiFrame(

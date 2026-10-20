@@ -40,7 +40,7 @@ internal sealed class BullEntity(BullBehavior species, RoomEnemySlot slot, Enemy
 
     /// <summary>Ports <c>MainAI_Bull</c>.</summary>
     private void RunMain(RoomEnemySlot slot, IEnemyAiFrame frame) =>
-        BullBehavior.RunBullMain(slot, BullBehavior.RequireBullState(slot), frame.Samus);
+        BullBehavior.RunBullMain(slot, slot.RequireSpeciesState<BullEnemyState>(), frame.Samus);
 
     /// <summary>The Bull's own shot callback, which normal bombs dispatch like the common one.</summary>
     /// <param name="callback">The named callback the selected pointer decodes to, or null.</param>

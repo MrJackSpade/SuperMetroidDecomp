@@ -292,7 +292,7 @@ internal static class LookupStream1Verification
             initialize(body);
             body.Position = body.Position.WithWholeY(100);
             var slot = isBody ? body : balloon;
-            PowampEnemyState slotState = PowampBehavior.RequirePowampState(slot);
+            PowampEnemyState slotState = slot.RequireSpeciesState<PowampEnemyState>();
             slotState.Program = AnimationProgramCursor<PowampProgram>.Start(root switch
             {
                 0xc163 => PowampProgram.BodyFast,
@@ -300,7 +300,7 @@ internal static class LookupStream1Verification
                 0xc183 => PowampProgram.BalloonInflate0,
                 _ => PowampProgram.BalloonStartSinking,
             });
-            var pair = new PowampBalloon(balloon, PowampBehavior.RequirePowampState(balloon));
+            var pair = new PowampBalloon(balloon, balloon.RequireSpeciesState<PowampEnemyState>());
             slot.InstructionTimer = NativeCountdown.Start(1);
             object?[] arguments = [slot, null, null, Position16<RoomPixels>.Zero, SnesButton.None];
             int calls = 0;

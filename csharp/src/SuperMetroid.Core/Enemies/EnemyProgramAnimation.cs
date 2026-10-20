@@ -50,6 +50,62 @@ internal static class EnemyProgramAnimation
             (cue, continuation) => publish(cue, continuation) is { } program ? AnimationProgramCursor<TProgram>.Start(program) : null);
     }
 
+    /// <summary>
+    /// One typed-animation step of a species whose state holds its program cursor: when the slot's frame has expired,
+    /// runs the program the state's cursor names and stores the cursor back.
+    /// </summary>
+    /// <param name="slot">The enemy.</param>
+    /// <param name="programs">The species' program set.</param>
+    /// <param name="frame">The installed frame a program frame shows.</param>
+    /// <param name="read">Reads the species state's program cursor.</param>
+    /// <param name="write">Stores the cursor back on the species state.</param>
+    internal static void Advance<TState, TProgram, TFrame>(
+        RoomEnemySlot slot,
+        AnimationProgramSet<TProgram, TFrame, NoAnimationCue> programs,
+        Func<TFrame, EnemyFrameId> frame,
+        Func<TState, AnimationProgramCursor<TProgram>> read,
+        Action<TState, AnimationProgramCursor<TProgram>> write)
+        where TState : class
+        where TProgram : struct, Enum
+        where TFrame : struct
+    {
+        Ensure.NotNull(slot);
+        if (!Expire(slot))
+            return;
+        TState state = slot.RequireSpeciesState<TState>();
+        AnimationProgramCursor<TProgram> cursor = read(state);
+        Run(slot, programs, ref cursor, frame);
+        write(state, cursor);
+    }
+
+    /// <summary>Like the cue-free step, for a program set whose cues <paramref name="publish"/> carries out against the state.</summary>
+    /// <param name="slot">The enemy.</param>
+    /// <param name="programs">The species' program set.</param>
+    /// <param name="frame">The installed frame a program frame shows.</param>
+    /// <param name="read">Reads the species state's program cursor.</param>
+    /// <param name="write">Stores the cursor back on the species state.</param>
+    /// <param name="publish">Carries out a cue, returning the program a goto cue continues at.</param>
+    internal static void Advance<TState, TProgram, TFrame, TCue>(
+        RoomEnemySlot slot,
+        AnimationProgramSet<TProgram, TFrame, TCue> programs,
+        Func<TFrame, EnemyFrameId> frame,
+        Func<TState, AnimationProgramCursor<TProgram>> read,
+        Action<TState, AnimationProgramCursor<TProgram>> write,
+        Func<TState, TCue, AnimationProgramCursor<TProgram>, TProgram?> publish)
+        where TState : class
+        where TProgram : struct, Enum
+        where TFrame : struct
+        where TCue : notnull
+    {
+        Ensure.NotNull(slot);
+        if (!Expire(slot))
+            return;
+        TState state = slot.RequireSpeciesState<TState>();
+        AnimationProgramCursor<TProgram> cursor = read(state);
+        Run(slot, programs, ref cursor, frame, (cue, continuation) => publish(state, cue, continuation));
+        write(state, cursor);
+    }
+
     /// <summary>Runs a program set whose lists publish no cues, after the slot's frame expired.</summary>
     internal static void Run<TProgram, TFrame>(
         RoomEnemySlot slot,

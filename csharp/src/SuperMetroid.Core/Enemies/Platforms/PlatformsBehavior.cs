@@ -334,13 +334,8 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemySlot slot,
         PlatformHorizontalMovement movement)
     {
-        RequirePlatformState(slot).XMovement = movement;
+        slot.RequireSpeciesState<PlatformEnemyState>().XMovement = movement;
     }
-
-    /// <summary>Requires typed platform movement state after the shared initializer has run.</summary>
-    private static PlatformEnemyState RequirePlatformState(RoomEnemySlot slot) =>
-        slot.SpeciesState<PlatformEnemyState>() ?? throw new InvalidOperationException(
-            $"Enemy slot {slot.SlotIndex} has no initialized Tripper/Kamer state.");
 
     /// <summary>Replaces a frozen Tripper's map after common Bomb reaction using its movement direction.</summary>
     internal static void RegisterPlatformsBombReactions(EnemySharedReactions table)
@@ -351,7 +346,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
             AfterCommon = c =>
             {
                 if (!c.Enemy.FrozenTimer.IsZero)
-                    c.Enemy.Frame = TripperFrozenFrame(RequirePlatformState(c.Enemy).XMovement);
+                    c.Enemy.Frame = TripperFrozenFrame(c.Enemy.RequireSpeciesState<PlatformEnemyState>().XMovement);
             },
         });
     }
@@ -365,20 +360,14 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Ports Platforms's main AI.</summary>
     internal void RunPlatformsMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
-        RunPlatformMain(slot, RequirePlatformState(slot), frame.Samus, frame.Level);
+        RunPlatformMain(slot, slot.RequireSpeciesState<PlatformEnemyState>(), frame.Samus, frame.Level);
     }
 
     /// <summary>Advances Platforms's typed animation.</summary>
-    internal static void AdvancePlatformsTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _)
-    {
-        if (!EnemyProgramAnimation.Expire(slot))
-            return;
-        var state = RequirePlatformState(slot);
-        AnimationProgramCursor<PlatformProgram> cursor = state.Program;
-        EnemyProgramAnimation.Run(slot, PlatformAnimations.Programs, ref cursor, PlatformFrameDefinitions.ShownFrames.Of,
-                (cue, _) => ApplyPlatformCue(slot, cue));
-        state.Program = cursor;
-    }
+    internal static void AdvancePlatformsTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _) =>
+        EnemyProgramAnimation.Advance(slot, PlatformAnimations.Programs, PlatformFrameDefinitions.ShownFrames.Of,
+            static (PlatformEnemyState state) => state.Program, static (state, cursor) => state.Program = cursor,
+            (state, cue, _) => ApplyPlatformCue(slot, cue));
 
     /// <summary>Applies Tripper's direction-specific frozen map after a successful common shot freeze.</summary>
     internal static void RegisterPlatformsShotReactions(EnemySharedReactions table)
@@ -391,7 +380,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
             AfterCommon = (c, froze) =>
             {
                 if (froze)
-                    c.Enemy.Frame = TripperFrozenFrame(RequirePlatformState(c.Enemy).XMovement);
+                    c.Enemy.Frame = TripperFrozenFrame(c.Enemy.RequireSpeciesState<PlatformEnemyState>().XMovement);
             },
         });
     }

@@ -227,21 +227,10 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
         state.ShotReactionDisabled = true;
     }
 
-    /// <summary>Rejects a Bull callback whose slot has not received species initialization.</summary>
-    internal static BullEnemyState RequireBullState(RoomEnemySlot slot) =>
-        slot.SpeciesState<BullEnemyState>() ?? throw new InvalidOperationException(
-            $"Enemy slot {slot.SlotIndex} has no initialized Bull state.");
-
     /// <summary>Runs Bull's normal and immune-shot animations as typed programs (#641).</summary>
-    internal static void AdvanceBullAnimation(RoomEnemySlot slot, EnemyInstructionContext _)
-    {
-        if (!EnemyProgramAnimation.Expire(slot))
-            return;
-        var state = RequireBullState(slot);
-        AnimationProgramCursor<BullProgram> cursor = state.Program;
-        EnemyProgramAnimation.Run(slot, BullAnimations.Programs, ref cursor, BullFrameDefinitions.ShownFrames.Of);
-        state.Program = cursor;
-    }
+    internal static void AdvanceBullAnimation(RoomEnemySlot slot, EnemyInstructionContext _) =>
+        EnemyProgramAnimation.Advance(slot, BullAnimations.Programs, BullFrameDefinitions.ShownFrames.Of,
+            static (BullEnemyState state) => state.Program, static (state, cursor) => state.Program = cursor);
 
     /// <summary>Applies Bull's immune-hit recoil after common bomb damage handling.</summary>
     internal EnemyBombReaction BombReaction { get; } =
@@ -249,7 +238,7 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             AfterCommon = c =>
             {
-                BullEnemyState bullState = RequireBullState(c.Enemy);
+                BullEnemyState bullState = c.Enemy.RequireSpeciesState<BullEnemyState>();
                 bullState.PreviousHealth = c.HealthBefore;
                 if (c.Enemy.Health == c.HealthBefore)
                     ResolveBullImmuneShot(c.Enemy, bullState, c.Bomb.PackedDirection.Raw);
@@ -263,7 +252,7 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             AfterCommon = (c, froze) =>
             {
-                BullEnemyState bullState = RequireBullState(c.Enemy);
+                BullEnemyState bullState = c.Enemy.RequireSpeciesState<BullEnemyState>();
                 bullState.PreviousHealth = c.HealthBefore;
                 if (froze || c.Enemy.Health == c.HealthBefore)
                     ResolveBullImmuneShot(c.Enemy, bullState, c.ProjectileDirection.Raw);

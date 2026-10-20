@@ -95,7 +95,7 @@ internal static class DachoraMotionStateVerification
         slot.SetSpawnParameter1(parameter);
         slot.Radius = new(8, 8);
         DachoraBehavior.InitializeDachora(slot);
-        return (enemies, slot, DachoraBehavior.RequireDachoraState(slot));
+        return (enemies, slot, slot.RequireSpeciesState<DachoraEnemyState>());
     }
 
     /// <summary>Runs Dachora's motion-state and echo-lifetime checks.</summary>

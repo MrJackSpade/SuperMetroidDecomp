@@ -122,11 +122,6 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
         return unchecked((short)(magnitude - PolypProximity)) < 0;
     }
 
-    /// <summary>Rejects a main-AI dispatch before its slot has received Polyp initialization.</summary>
-    internal static PolypEnemyState RequirePolypState(RoomEnemySlot slot) =>
-        slot.SpeciesState<PolypEnemyState>() ?? throw new InvalidOperationException(
-            $"Enemy slot {slot.SlotIndex} has no initialized Polyp state.");
-
     /// <summary>Routes Polyp rock projectiles through their rise, fall, and viewport-culling routine.</summary>
     internal static void RegisterPolypProjectiles(EnemyProjectileHandlerTable table)
     {
@@ -138,15 +133,9 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Advances Polyp's typed animation.</summary>
-    internal static void AdvancePolypTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _)
-    {
-        if (!EnemyProgramAnimation.Expire(slot))
-            return;
-        var state = RequirePolypState(slot);
-        AnimationProgramCursor<PolypProgram> cursor = state.Program;
-        EnemyProgramAnimation.Run(slot, PolypAnimations.Programs, ref cursor, PolypFrameDefinitions.ShownFrames.Of);
-        state.Program = cursor;
-    }
+    internal static void AdvancePolypTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _) =>
+        EnemyProgramAnimation.Advance(slot, PolypAnimations.Programs, PolypFrameDefinitions.ShownFrames.Of,
+            static (PolypEnemyState state) => state.Program, static (state, cursor) => state.Program = cursor);
 
     /// <summary>Ports Polyp's initialization AI.</summary>
     internal void RunPolypInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
@@ -157,7 +146,7 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Ports Polyp's main AI.</summary>
     internal void RunPolypMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
-        RunPolypMain(slot, RequirePolypState(slot), frame.Samus);
+        RunPolypMain(slot, slot.RequireSpeciesState<PolypEnemyState>(), frame.Samus);
     }
 
     /// <summary>Native projectile pre-instruction installed on each launched rock.</summary>

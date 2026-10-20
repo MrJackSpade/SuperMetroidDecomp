@@ -217,11 +217,6 @@ internal sealed class BoyonBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.Timer = NativeCountdown.Start(0);
     }
 
-    /// <summary>Returns the initialized state paired with this physical enemy slot.</summary>
-    internal static BoyonEnemyState RequireBoyonState(RoomEnemySlot slot) =>
-        slot.SpeciesState<BoyonEnemyState>() ?? throw new InvalidOperationException(
-            $"Enemy slot {slot.SlotIndex} has no initialized Boyon state.");
-
     /// <summary>Instruction <c>$A2:88C6</c>: permit the arc and request sound $0E.</summary>
     private void StartBoyonBounce(BoyonEnemyState state)
     {
@@ -230,16 +225,10 @@ internal sealed class BoyonBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Runs Boyon's idle and bouncing loops as typed programs (#641).</summary>
-    internal void AdvanceBoyonAnimation(RoomEnemySlot slot, EnemyInstructionContext _)
-    {
-        if (!EnemyProgramAnimation.Expire(slot))
-            return;
-        var state = RequireBoyonState(slot);
-        AnimationProgramCursor<BoyonProgram> cursor = state.Program;
-        EnemyProgramAnimation.Run(slot, BoyonAnimations.Programs, ref cursor, BoyonFrameDefinitions.ShownFrames.Of,
-                (cue, _) => ApplyBoyonCue(slot, state, cue));
-        state.Program = cursor;
-    }
+    internal void AdvanceBoyonAnimation(RoomEnemySlot slot, EnemyInstructionContext _) =>
+        EnemyProgramAnimation.Advance(slot, BoyonAnimations.Programs, BoyonFrameDefinitions.ShownFrames.Of,
+            static (BoyonEnemyState state) => state.Program, static (state, cursor) => state.Program = cursor,
+            (state, cue, _) => ApplyBoyonCue(slot, state, cue));
 
 
     /// <inheritdoc/>

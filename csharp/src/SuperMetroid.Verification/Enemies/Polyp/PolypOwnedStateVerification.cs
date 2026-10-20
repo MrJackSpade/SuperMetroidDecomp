@@ -18,7 +18,7 @@ internal static class PolypOwnedStateVerification
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.LavaRocks, slot.Definition);
         enemies.PolypBehavior.InitializePolyp(slot);
-        PolypEnemyState state = PolypBehavior.RequirePolypState(slot);
+        PolypEnemyState state = slot.RequireSpeciesState<PolypEnemyState>();
         AssertEqual<PolypEnemyFunction?>(PolypEnemyFunction.WaitingForSamus, state.Function, "a new Polyp waits for Samus");
         AssertEqual(NativeCountdown.Start(0), state.CooldownTimer, "a new Polyp has no cooldown");
 

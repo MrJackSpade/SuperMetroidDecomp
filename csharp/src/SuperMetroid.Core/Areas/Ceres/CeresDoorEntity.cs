@@ -23,5 +23,5 @@ internal sealed class CeresDoorEntity(CeresDoorBehavior species, RoomEnemySlot s
     /// Whether the door's program has handed its drawing to Ridley's scene (<see cref="CeresDoorCueKind.HandDrawingToRidley"/>)
     /// and not yet taken it back (<see cref="CeresDoorCueKind.MakeVisibleAndTakeDrawingBack"/>).
     /// </summary>
-    public bool HandsDrawingToRidley => CeresDoorBehavior.RequireCeresDoorState(Slot).HandsDrawingToRidley;
+    public bool HandsDrawingToRidley => Slot.RequireSpeciesState<CeresDoorEnemyState>().HandsDrawingToRidley;
 }

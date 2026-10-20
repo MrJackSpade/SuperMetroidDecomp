@@ -96,7 +96,7 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.Frame = EnemyFrameId.Empty;
         slot.InstructionTimer = NativeCountdown.Start(1);
         slot.Timer = NativeCountdown.Start(0);
-        RequireEscapeDachoraState(slot).Program = AnimationProgramCursor<EscapeDachoraProgram>.Start(EscapeDachoraProgram.RunningAroundLowTide);
+        slot.RequireSpeciesState<EscapeDachoraEnemyState>().Program = AnimationProgramCursor<EscapeDachoraProgram>.Start(EscapeDachoraProgram.RunningAroundLowTide);
     }
 
     /// <summary>Ports <c>EscapeEtecoon_Main</c> and its complete indirect dispatch.</summary>
@@ -170,14 +170,14 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         if (slot.EnemyDefinitionPointer == EnemyDefinitionId.EtecoonEscape)
         {
-            EscapeEtecoonEnemyState state = RequireEscapeEtecoonState(slot);
+            EscapeEtecoonEnemyState state = slot.RequireSpeciesState<EscapeEtecoonEnemyState>();
             AnimationProgramCursor<EscapeEtecoonProgram> cursor = state.Program;
             EnemyProgramAnimation.Run(slot, EscapeEtecoonAnimations.Programs, ref cursor, EscapeEtecoonFrameDefinitions.ShownFrames.Of,
                 (cue, _) => ApplyEscapeEtecoonCue(slot, state, samus, cue));
             state.Program = cursor;
             return;
         }
-        EscapeDachoraEnemyState dachora = RequireEscapeDachoraState(slot);
+        EscapeDachoraEnemyState dachora = slot.RequireSpeciesState<EscapeDachoraEnemyState>();
         AnimationProgramCursor<EscapeDachoraProgram> dachoraCursor = dachora.Program;
         EnemyProgramAnimation.Run(slot, EscapeDachoraAnimations.Programs, ref dachoraCursor, EscapeDachoraFrameDefinitions.ShownFrames.Of,
             (cue, _) => ApplyEscapeDachoraCue(slot, samus, cue));
@@ -240,16 +240,6 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.Position = slot.Position.WithX(SnesFixedPosition.FromRaw(unchecked(fixedPosition)));
     }
 
-    /// <summary>Fetches the typed Dachora state after initialization, failing for an uninitialized slot.</summary>
-    private static EscapeDachoraEnemyState RequireEscapeDachoraState(RoomEnemySlot slot) =>
-        slot.SpeciesState<EscapeDachoraEnemyState>() ?? throw new InvalidOperationException(
-            $"Enemy slot {slot.SlotIndex} has no initialized escape-Dachora state.");
-
-    /// <summary>Fetches the typed Etecoon dispatch state after initialization, failing for an uninitialized slot.</summary>
-    internal static EscapeEtecoonEnemyState RequireEscapeEtecoonState(RoomEnemySlot slot) =>
-        slot.SpeciesState<EscapeEtecoonEnemyState>() ?? throw new InvalidOperationException(
-            $"Enemy slot {slot.SlotIndex} has no initialized escape-Etecoon state.");
-
     /// <summary>Ports the escape Etecoon's initialization AI.</summary>
     internal void RunEscapeEtecoonInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3) =>
         InitializeEscapeEtecoon(slot);
@@ -260,7 +250,7 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Ports the escape Etecoon's main AI.</summary>
     internal void RunEscapeEtecoonMainAi(RoomEnemySlot slot, IEnemyAiFrame frame) =>
-        RunEscapeEtecoonMain(slot, RequireEscapeEtecoonState(slot), frame.Level);
+        RunEscapeEtecoonMain(slot, slot.RequireSpeciesState<EscapeEtecoonEnemyState>(), frame.Level);
 
     /// <summary>Ports the escape Dachora's main AI, the literal RTL at $B3:EB1A; its movement lives in its instruction program.</summary>
     internal static void RunEscapeDachoraMainAi(RoomEnemySlot _, IEnemyAiFrame _1)

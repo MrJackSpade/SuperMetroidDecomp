@@ -157,8 +157,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
         RegisterKraidPart(arm, state);
         arm.PaletteIndex = _slotTable.Slots[0].PaletteIndex;
         state.Parts[arm.SlotIndex].Function = KraidAiFunction.NoOperation;
-        SetKraidPartProgram(arm, KraidPartProgram.ArmRisingOrSinking);
-        arm.InstructionTimer = NativeCountdown.Start(1);
+        StartKraidPartProgram(arm, KraidPartProgram.ArmRisingOrSinking);
         state.Parts[arm.SlotIndex].NextFunction = KraidAiFunction.NoOperation;
     }
 
@@ -193,8 +192,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
         EnsureKraidSlot(foot, 5, "foot");
         RegisterKraidPart(foot, state);
         foot.PaletteIndex = _slotTable.Slots[0].PaletteIndex;
-        SetKraidPartProgram(foot, KraidPartProgram.FootInitial);
-        foot.InstructionTimer = NativeCountdown.Start(1);
+        StartKraidPartProgram(foot, KraidPartProgram.FootInitial);
         state.Parts[foot.SlotIndex].Function = KraidAiFunction.NoOperation;
         state.Parts[foot.SlotIndex].NextFunction = 0;
     }
@@ -479,6 +477,13 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Installs <paramref name="program"/> as the part's program, as a native list-pointer store does; the caller sets the timer.</summary>
     private void SetKraidPartProgram(RoomEnemySlot part, KraidPartProgram program) =>
         RequireKraidState(part).Parts[part.SlotIndex].Cursor = AnimationProgramCursor<KraidPartProgram>.Start(program);
+
+    /// <summary>Sets a part's program and runs its first instruction on the next frame.</summary>
+    private void StartKraidPartProgram(RoomEnemySlot part, KraidPartProgram program)
+    {
+        SetKraidPartProgram(part, program);
+        part.InstructionTimer = NativeCountdown.Start(1);
+    }
 
     /// <summary>
     /// The program a part's stored cursor belongs to. A cursor resting on a fall-through already belongs to the next
@@ -1430,10 +1435,8 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
                 body.Properties = body.Properties.With(EnemyProperties.SolidToSamus);
                 _earthquake.EarthquakeType = 1;
                 _earthquake.EarthquakeTimer = NativeCountdown.Start(256);
-                SetKraidPartProgram(_slotTable.Slots[1], KraidPartProgram.ArmRisingOrSinking);
-                _slotTable.Slots[1].InstructionTimer = NativeCountdown.Start(1);
-                SetKraidPartProgram(_slotTable.Slots[5], KraidPartProgram.FootInitial);
-                _slotTable.Slots[5].InstructionTimer = NativeCountdown.Start(1);
+                StartKraidPartProgram(_slotTable.Slots[1], KraidPartProgram.ArmRisingOrSinking);
+                StartKraidPartProgram(_slotTable.Slots[5], KraidPartProgram.FootInitial);
                 state.Parts[_slotTable.Slots[5].SlotIndex].Function = KraidAiFunction.NoOperation;
                 TransferKraidBottomTilemap(state);
                 return;
@@ -1569,8 +1572,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
             _presentation.BossPalettes.KraidBody.Write(
                 color,
                 ReadKraidColor(KraidPaletteSource.DeathArm, color));
-        SetKraidPartProgram(_slotTable.Slots[1], KraidPartProgram.ArmDyingOrPreparingToLunge);
-        _slotTable.Slots[1].InstructionTimer = NativeCountdown.Start(1);
+        StartKraidPartProgram(_slotTable.Slots[1], KraidPartProgram.ArmDyingOrPreparingToLunge);
         state.Parts[body.SlotIndex].Function = KraidAiFunction.DeathFadeOut;
         state.HeadProgram = KraidHeadAnimations.DeathAfterEntryFrame;
         state.Parts[body.SlotIndex].HeadTimer = KraidHeadAnimations.DeathEntryDuration;
@@ -1700,12 +1702,10 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
         _earthquake.EarthquakeTimer = NativeCountdown.Start(340);
 
         RoomEnemySlot foot = _slotTable.Slots[5];
-        SetKraidPartProgram(foot, KraidPartProgram.FootInitial);
-        foot.InstructionTimer = NativeCountdown.Start(1);
+        StartKraidPartProgram(foot, KraidPartProgram.FootInitial);
         state.Parts[foot.SlotIndex].Function = KraidAiFunction.NoOperation;
         RoomEnemySlot arm = _slotTable.Slots[1];
-        SetKraidPartProgram(arm, KraidPartProgram.ArmNormal);
-        arm.InstructionTimer = NativeCountdown.Start(1);
+        StartKraidPartProgram(arm, KraidPartProgram.ArmNormal);
         for (int lintSlot = 2; lintSlot <= 4; lintSlot++)
             _slotTable.Slots[lintSlot].Properties = _slotTable.Slots[lintSlot].Properties.With(EnemyProperties.Invisible);
         arm.Properties = arm.Properties.With(EnemyProperties.IgnoreSamusCollision);
@@ -1754,8 +1754,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
             case KraidAiFunction.GrowFinishBg2Update:
                 state.Parts[body.SlotIndex].Function = KraidAiFunction.GrowDrawRoomBackground;
                 RoomEnemySlot foot = _slotTable.Slots[5];
-                SetKraidPartProgram(foot, KraidPartProgram.FootNeutral);
-                foot.InstructionTimer = NativeCountdown.Start(1);
+                StartKraidPartProgram(foot, KraidPartProgram.FootNeutral);
                 for (int lintSlot = 2; lintSlot <= 4; lintSlot++)
                 {
                     SetKraidPartProgram(_slotTable.Slots[lintSlot], KraidPartProgram.LintPostGrowth);
@@ -1898,8 +1897,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
         state.WalkTarget = new Position16<RoomPixels>(288, 0);
         RoomEnemySlot foot = _slotTable.Slots[5];
         state.Parts[foot.SlotIndex].Function = KraidAiFunction.FootSecondPhaseWalkToStart;
-        SetKraidPartProgram(foot, KraidPartProgram.FootWalkingBackward);
-        foot.InstructionTimer = NativeCountdown.Start(1);
+        StartKraidPartProgram(foot, KraidPartProgram.FootWalkingBackward);
     }
     /// <summary>
     /// Ports <c>$A7:8A8F</c>: below half health the arm switches to its slow swing, unless its stored program is
@@ -2354,10 +2352,8 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemySlot arm = _slotTable.Slots[1];
         if (KraidPartResidentProgram(arm) < KraidPartProgram.ArmNormalPause)
             return;
-        SetKraidPartProgram(arm, KraidPartProgram.ArmDyingOrPreparingToLunge);
-        arm.InstructionTimer = NativeCountdown.Start(1);
-        SetKraidPartProgram(foot, KraidPartProgram.FootLungeForward);
-        foot.InstructionTimer = NativeCountdown.Start(1);
+        StartKraidPartProgram(arm, KraidPartProgram.ArmDyingOrPreparingToLunge);
+        StartKraidPartProgram(foot, KraidPartProgram.FootLungeForward);
         Part(foot).Function = KraidAiFunction.FootFirstPhaseLunge;
         Part(foot).FunctionTimer = 0;
     }
@@ -2399,8 +2395,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
         if (step.IsZero)
         {
             Part(foot).Function = part.NextFunction;
-            SetKraidPartProgram(foot, KraidPartProgram.FootWalkingBackward);
-            foot.InstructionTimer = NativeCountdown.Start(1);
+            StartKraidPartProgram(foot, KraidPartProgram.FootWalkingBackward);
         }
     }
 
@@ -2419,18 +2414,15 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
         if (body.Position.X.Whole == 176)
         {
             RoomEnemySlot arm = _slotTable.Slots[1];
-            SetKraidPartProgram(arm, KraidPartProgram.ArmNormal);
-            arm.InstructionTimer = NativeCountdown.Start(1);
-            SetKraidPartProgram(foot, KraidPartProgram.FootNeutral);
-            foot.InstructionTimer = NativeCountdown.Start(1);
+            StartKraidPartProgram(arm, KraidPartProgram.ArmNormal);
+            StartKraidPartProgram(foot, KraidPartProgram.FootNeutral);
             Part(foot).Function = KraidAiFunction.FootFirstPhaseThinking;
             Part(foot).FunctionTimer = 300;
             part.NextFunction = KraidAiFunction.FootPrepareFirstPhaseLunge;
         }
         else
         {
-            SetKraidPartProgram(foot, KraidPartProgram.FootWalkingBackward);
-            foot.InstructionTimer = NativeCountdown.Start(1);
+            StartKraidPartProgram(foot, KraidPartProgram.FootWalkingBackward);
         }
     }
 
@@ -2452,8 +2444,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
         Part(foot).Function = KraidAiFunction.HandleFunctionTimer;
         Part(foot).FunctionTimer = 180;
         part.NextFunction = KraidAiFunction.FootSecondPhaseInitialize;
-        SetKraidPartProgram(foot, KraidPartProgram.FootNeutral);
-        foot.InstructionTimer = NativeCountdown.Start(1);
+        StartKraidPartProgram(foot, KraidPartProgram.FootNeutral);
     }
 
     /// <summary>Chooses the grown foot's next walking target and direction after its think timer ends.</summary>
@@ -2484,8 +2475,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
         RequireKraidState(foot).WalkTarget = new Position16<RoomPixels>(targetX, 0);
         part.ThinkTimer = NativeCountdown.FromRaw(thinkTimer);
         Part(foot).Function = rightward ? KraidAiFunction.FootSecondPhaseWalkingRight : KraidAiFunction.FootSecondPhaseWalkingLeft;
-        SetKraidPartProgram(foot, rightward ? KraidPartProgram.FootWalkingBackward : KraidPartProgram.FootWalkingForward);
-        foot.InstructionTimer = NativeCountdown.Start(1);
+        StartKraidPartProgram(foot, rightward ? KraidPartProgram.FootWalkingBackward : KraidPartProgram.FootWalkingForward);
     }
 
     /// <summary>Moves the body and foot toward the selected rightward target.</summary>
@@ -2501,8 +2491,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
         if (KraidPartResidentProgram(foot) >= KraidPartProgram.FootWalkingBackwardLoop)
         {
             Part(foot).Function = KraidAiFunction.FootSecondPhaseThinking;
-            SetKraidPartProgram(foot, KraidPartProgram.FootNeutral);
-            foot.InstructionTimer = NativeCountdown.Start(1);
+            StartKraidPartProgram(foot, KraidPartProgram.FootNeutral);
         }
     }
 
@@ -2514,8 +2503,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             if (KraidPartResidentProgram(foot) == KraidPartProgram.FootWalkingForwardFinished)
             {
-                SetKraidPartProgram(foot, KraidPartProgram.FootWalkingForward);
-                foot.InstructionTimer = NativeCountdown.Start(1);
+                StartKraidPartProgram(foot, KraidPartProgram.FootWalkingForward);
             }
             return;
         }
@@ -2523,8 +2511,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
         if (KraidPartResidentProgram(foot) == KraidPartProgram.FootWalkingForwardFinished)
         {
             Part(foot).Function = KraidAiFunction.FootSecondPhaseThinking;
-            SetKraidPartProgram(foot, KraidPartProgram.FootNeutral);
-            foot.InstructionTimer = NativeCountdown.Start(1);
+            StartKraidPartProgram(foot, KraidPartProgram.FootNeutral);
         }
     }
 
@@ -2718,8 +2705,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
                     state.Parts[foot.SlotIndex].Function = KraidAiFunction.FootFirstPhaseThinking;
                     state.Parts[foot.SlotIndex].FunctionTimer = 300;
                     state.Parts[5].NextFunction = KraidAiFunction.FootPrepareFirstPhaseLunge;
-                    SetKraidPartProgram(_slotTable.Slots[1], KraidPartProgram.ArmNormal);
-                    _slotTable.Slots[1].InstructionTimer = NativeCountdown.Start(1);
+                    StartKraidPartProgram(_slotTable.Slots[1], KraidPartProgram.ArmNormal);
                 }
                 return;
 

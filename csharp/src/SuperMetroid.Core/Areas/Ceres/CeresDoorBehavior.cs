@@ -102,13 +102,13 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory
                 slot.Properties = slot.Properties.Without(EnemyProperties.IgnoreSamusCollision);
                 return null;
             case CeresDoorCueKind.HandDrawingToRidley:
-                RequireCeresDoorState(slot).HandsDrawingToRidley = true;
+                slot.RequireSpeciesState<CeresDoorEnemyState>().HandsDrawingToRidley = true;
                 return null;
             case CeresDoorCueKind.MakeInvisible:
                 slot.Properties = slot.Properties.With(EnemyProperties.Invisible);
                 return null;
             case CeresDoorCueKind.MakeVisibleAndTakeDrawingBack:
-                RequireCeresDoorState(slot).HandsDrawingToRidley = false;
+                slot.RequireSpeciesState<CeresDoorEnemyState>().HandsDrawingToRidley = false;
                 slot.Properties = slot.Properties.Without(EnemyProperties.Invisible);
                 return null;
             case CeresDoorCueKind.MakeVisible:
@@ -192,7 +192,7 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Dispatches the door's main-AI function.</summary>
     private void RunCeresDoorMain(RoomEnemySlot slot)
     {
-        CeresDoorEnemyState state = RequireCeresDoorState(slot);
+        CeresDoorEnemyState state = slot.RequireSpeciesState<CeresDoorEnemyState>();
         CeresDoorFunction function = state.Function
             ?? throw new InvalidDataException("A Ceres door has no main function.");
         switch (function)
@@ -269,7 +269,7 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Ports the 49-call destruction state at $A6:F7DC exactly.</summary>
     internal void RunCeresDoorRumbleAndExplosions(RoomEnemySlot slot)
     {
-        CeresDoorEnemyState state = RequireCeresDoorState(slot);
+        CeresDoorEnemyState state = slot.RequireSpeciesState<CeresDoorEnemyState>();
         NativeWordCounterStep rumble = NativeWordCounter.Decrement(checked((ushort)state.RumbleCallsLeft));
         state.RumbleCallsLeft = rumble.Value;
         if (rumble.IsNegative)
@@ -356,7 +356,4 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory
         LastCeresDoorSoundEffect = null;
     }
 
-    /// <summary>The door's state, failing if the door never initialized.</summary>
-    internal static CeresDoorEnemyState RequireCeresDoorState(RoomEnemySlot slot) =>
-        slot.SpeciesState<CeresDoorEnemyState>() ?? throw new InvalidOperationException("A Ceres door has no state.");
 }

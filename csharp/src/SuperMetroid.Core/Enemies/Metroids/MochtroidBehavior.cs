@@ -73,7 +73,7 @@ internal sealed class MochtroidBehavior : IEnemySpecies, IEnemyEntityFactory
         if (level is null)
             throw new InvalidOperationException("Mochtroid movement requires room level data.");
 
-        MochtroidEnemyState state = RequireMochtroidState(slot);
+        MochtroidEnemyState state = slot.RequireSpeciesState<MochtroidEnemyState>();
         MochtroidMovementMode selectedMode = state.MovementMode;
         state.MovementMode = MochtroidMovementMode.NotTouchingSamus;
         switch (selectedMode)
@@ -262,21 +262,10 @@ internal sealed class MochtroidBehavior : IEnemySpecies, IEnemyEntityFactory
         samus.KnockbackTimer = NativeCountdown.Start(0);
     }
 
-    /// <summary>Returns the state initialized for this physical enemy slot.</summary>
-    internal static MochtroidEnemyState RequireMochtroidState(RoomEnemySlot slot) =>
-        slot.SpeciesState<MochtroidEnemyState>() ?? throw new InvalidOperationException(
-            $"Enemy slot {slot.SlotIndex} has no initialized Mochtroid state.");
-
     /// <summary>Advances Mochtroid's typed animation.</summary>
-    internal static void AdvanceMochtroidTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _)
-    {
-        if (!EnemyProgramAnimation.Expire(slot))
-            return;
-        var state = RequireMochtroidState(slot);
-        AnimationProgramCursor<MochtroidProgram> cursor = state.Program;
-        EnemyProgramAnimation.Run(slot, MochtroidAnimations.Programs, ref cursor, MochtroidFrameDefinitions.ShownFrames.Of);
-        state.Program = cursor;
-    }
+    internal static void AdvanceMochtroidTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _) =>
+        EnemyProgramAnimation.Advance(slot, MochtroidAnimations.Programs, MochtroidFrameDefinitions.ShownFrames.Of,
+            static (MochtroidEnemyState state) => state.Program, static (state, cursor) => state.Program = cursor);
 
     /// <summary>Ports Mochtroid's initialization AI.</summary>
     internal static void RunMochtroidInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
@@ -295,7 +284,7 @@ internal sealed class MochtroidBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         table.AddTouch(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Mochtroid &&
                                EnemyCollision.TouchAi(slot) == EnemyInteractionCallback.MochtroidTouch,
-            context => ResolveMochtroidTouch(context.Slot, RequireMochtroidState(context.Slot), context.Samus));
+            context => ResolveMochtroidTouch(context.Slot, context.Slot.RequireSpeciesState<MochtroidEnemyState>(), context.Samus));
     }
 
 

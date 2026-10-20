@@ -99,7 +99,7 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
         if (samus is null)
             throw new InvalidOperationException("Sbug AI requires the active Samus actor.");
 
-        SbugEnemyState state = RequireSbugState(slot);
+        SbugEnemyState state = slot.RequireSpeciesState<SbugEnemyState>();
         switch (state.Function)
         {
             case SbugEnemyFunction.WaitForSamus:
@@ -454,21 +454,10 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
         _room.Random.Seed(SbugRandomSeed);
     }
 
-    /// <summary>Rejects a Sbug dispatch before its slot's initializer has run.</summary>
-    internal static SbugEnemyState RequireSbugState(RoomEnemySlot slot) =>
-        slot.SpeciesState<SbugEnemyState>() ?? throw new InvalidOperationException(
-            $"Enemy slot {slot.SlotIndex} has no initialized Sbug state.");
-
     /// <summary>Advances Sbug's typed animation.</summary>
-    internal static void AdvanceSbugTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _)
-    {
-        if (!EnemyProgramAnimation.Expire(slot))
-            return;
-        var state = RequireSbugState(slot);
-        AnimationProgramCursor<SbugProgram> cursor = state.Program;
-        EnemyProgramAnimation.Run(slot, SbugAnimations.Programs, ref cursor, SbugFrameDefinitions.ShownFrames.Of);
-        state.Program = cursor;
-    }
+    internal static void AdvanceSbugTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _) =>
+        EnemyProgramAnimation.Advance(slot, SbugAnimations.Programs, SbugFrameDefinitions.ShownFrames.Of,
+            static (SbugEnemyState state) => state.Program, static (state, cursor) => state.Program = cursor);
 
     /// <summary>Ports Sbug's initialization AI.</summary>
     internal static void RunSbugInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)

@@ -140,7 +140,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
             throw new InvalidOperationException("Yard AI requires the active Samus actor.");
         if (level is null)
             throw new InvalidOperationException("Yard movement requires room collision data.");
-        YardEnemyState state = RequireYardState(slot);
+        YardEnemyState state = slot.RequireSpeciesState<YardEnemyState>();
 
         // A super-missile earthquake drops an attached/hiding Yard, but cannot restart one
         // that is already falling, kicked, or shot through the air.
@@ -637,11 +637,6 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
         LastYardSoundEffect = YardBounceSound;
     }
 
-    /// <summary>Finds the state paired with a live Yard slot and rejects an uninitialized callback.</summary>
-    internal static YardEnemyState RequireYardState(RoomEnemySlot slot) =>
-        slot.SpeciesState<YardEnemyState>() ?? throw new InvalidOperationException(
-            $"Enemy slot {slot.SlotIndex} has no initialized Yard state.");
-
     /// <summary>Ports Yard's initialization AI.</summary>
     internal static void RunYardInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
     {
@@ -659,7 +654,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         if (!EnemyProgramAnimation.Expire(slot))
             return;
-        var state = RequireYardState(slot);
+        var state = slot.RequireSpeciesState<YardEnemyState>();
         AnimationProgramCursor<YardProgram> cursor = state.Program;
         EnemyProgramAnimation.RunTo(slot, YardAnimations.Programs, ref cursor, YardFrameDefinitions.ShownFrames.Of,
                 (cue, continuation) => ApplyYardCue(slot, state, cue, continuation));
@@ -682,7 +677,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
                     return false;
                 if (c.Samus is null)
                     throw new InvalidOperationException("Yard beam launch requires the active Samus actor.");
-                ResolveYardBeamLaunch(c.Enemy, RequireYardState(c.Enemy), c.Samus);
+                ResolveYardBeamLaunch(c.Enemy, c.Enemy.RequireSpeciesState<YardEnemyState>(), c.Samus);
                 return true;
             },
         });
@@ -693,7 +688,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         table.AddTouch(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Yard &&
                                EnemyCollision.TouchAi(slot) == EnemyInteractionCallback.YardTouch,
-            context => ResolveYardTouch(context.Slot, RequireYardState(context.Slot), context.Samus, context.ControllerInput));
+            context => ResolveYardTouch(context.Slot, context.Slot.RequireSpeciesState<YardEnemyState>(), context.Samus, context.ControllerInput));
     }
 
     /// <summary>Library-two sound $70 queued by a Yard shell kick, launch or wall bounce.</summary>

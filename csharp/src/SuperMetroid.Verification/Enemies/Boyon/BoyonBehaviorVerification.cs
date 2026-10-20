@@ -79,7 +79,7 @@ internal static class BoyonBehaviorVerification
             slot.SetSpawnParameter2(64);
             slot.Position = slot.Position.WithWhole(new(256, 512));
             BoyonBehavior.InitializeBoyon(slot);
-            BoyonEnemyState state = BoyonBehavior.RequireBoyonState(slot);
+            BoyonEnemyState state = slot.RequireSpeciesState<BoyonEnemyState>();
             var samus = new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(slot.Position.Whole) };
 
             BoyonBehavior.RunBoyonMain(slot, state, samus);

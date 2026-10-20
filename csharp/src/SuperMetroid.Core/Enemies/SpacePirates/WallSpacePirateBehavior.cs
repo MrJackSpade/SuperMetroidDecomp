@@ -296,7 +296,7 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
     /// </summary>
     private WallSpacePirateProgram? ApplyWallSpacePirateCue(RoomEnemySlot slot, WallSpacePirateCue cue, RoomLevelData? level)
     {
-        WallSpacePirateEnemyState state = RequireWallSpacePirateState(slot);
+        WallSpacePirateEnemyState state = slot.RequireSpeciesState<WallSpacePirateEnemyState>();
         switch (cue.Kind)
         {
             case WallSpacePirateCueKind.ClimbLeftWall:
@@ -331,11 +331,6 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
         }
     }
 
-    /// <summary>Rejects a wall-Pirate callback before its slot has initialized species state.</summary>
-    internal static WallSpacePirateEnemyState RequireWallSpacePirateState(RoomEnemySlot slot) =>
-        slot.SpeciesState<WallSpacePirateEnemyState>() ?? throw new InvalidOperationException(
-            $"Enemy slot {slot.SlotIndex} has no initialized wall Space Pirate state.");
-
     /// <summary>Ports WallSpacePirate's initialization AI.</summary>
     internal static void RunWallSpacePirateInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
     {
@@ -347,21 +342,15 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
     {
         RunWallSpacePirateMain(
             slot,
-            RequireWallSpacePirateState(slot),
+            slot.RequireSpeciesState<WallSpacePirateEnemyState>(),
             frame.Samus);
     }
 
     /// <summary>Advances WallSpacePirate's typed animation.</summary>
-    internal void AdvanceWallSpacePirateTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext context)
-    {
-        if (!EnemyProgramAnimation.Expire(slot))
-            return;
-        var state = RequireWallSpacePirateState(slot);
-        AnimationProgramCursor<WallSpacePirateProgram> cursor = state.Program;
-        EnemyProgramAnimation.Run(slot, WallSpacePirateAnimations.Programs, ref cursor, WallSpacePirateFrameDefinitions.ShownFrames.Of,
-                (cue, _) => ApplyWallSpacePirateCue(slot, cue, context.Level));
-        state.Program = cursor;
-    }
+    internal void AdvanceWallSpacePirateTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext context) =>
+        EnemyProgramAnimation.Advance(slot, WallSpacePirateAnimations.Programs, WallSpacePirateFrameDefinitions.ShownFrames.Of,
+            static (WallSpacePirateEnemyState state) => state.Program, static (state, cursor) => state.Program = cursor,
+            (state, cue, _) => ApplyWallSpacePirateCue(slot, cue, context.Level));
 
     /// <summary>Applies the ordinary Pirate power-bomb callback across wall, walking, and Ninja variants.</summary>
     internal static void RegisterWallSpacePiratePowerBombReactions(EnemySharedReactions table)

@@ -2329,14 +2329,10 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
         tube.SetSpeciesState(state, state.ClearWithRecord);
     }
 
-    /// <summary>A falling tube's state, failing if the tube never initialized.</summary>
-    private static MotherBrainFallingTubeState RequireFallingTubeState(RoomEnemySlot tube) =>
-        tube.SpeciesState<MotherBrainFallingTubeState>() ?? throw new InvalidOperationException("A falling tube has no state.");
-
     /// <summary>Ports the $A9:8B85 function-pointer dispatcher for physical tube enemies.</summary>
     internal void RunMotherBrainFallingTubeMain(RoomEnemySlot tube)
     {
-        MotherBrainFallingTubeState tubeState = RequireFallingTubeState(tube);
+        MotherBrainFallingTubeState tubeState = tube.RequireSpeciesState<MotherBrainFallingTubeState>();
         switch (tubeState.Function ?? throw new InvalidDataException("A falling tube has no function."))
         {
             case MotherBrainTubeFunction.NonMainTube:
@@ -2363,7 +2359,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Moves a falling tube, with a distinct path for the main tube.</summary>
     private void FallMotherBrainTube(RoomEnemySlot tube, bool mainTube)
     {
-        MotherBrainFallingTubeState tubeState = RequireFallingTubeState(tube);
+        MotherBrainFallingTubeState tubeState = tube.RequireSpeciesState<MotherBrainFallingTubeState>();
         tubeState.FallSpeed = new SnesSignedEightEight(unchecked((ushort)(tubeState.FallSpeed.RawValue + 6)));
         tube.Position = tube.Position.AdvanceY(tubeState.FallSpeed.ToSixteenSixteenDelta());
 
@@ -2414,7 +2410,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
     private void SpawnMotherBrainTubeSmoke(RoomEnemySlot tube)
     {
         // The smoke cadence counts down and emits when it passes zero.
-        MotherBrainFallingTubeState tubeState = RequireFallingTubeState(tube);
+        MotherBrainFallingTubeState tubeState = tube.RequireSpeciesState<MotherBrainFallingTubeState>();
         NativeWordCounterStep smokeDelay = tubeState.SmokeDelay.Decrement();
         tubeState.SmokeDelay = smokeDelay.Remaining;
         if (smokeDelay.IsNonNegative)

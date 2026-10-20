@@ -75,7 +75,7 @@ internal static class OwtchPatrolStateVerification
         slot.SetSpawnParameter2(0);
         slot.Position = FixedPosition<RoomPixels>.FromWhole(new(100, 64));
         OwtchBehavior.InitializeOwtch(slot);
-        return (enemies, slot, OwtchBehavior.RequireOwtchState(slot));
+        return (enemies, slot, slot.RequireSpeciesState<OwtchEnemyState>());
     }
 
     /// <summary>Runs the Owtch patrol-state check.</summary>

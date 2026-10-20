@@ -195,11 +195,6 @@ internal sealed class StokeBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.Timer = NativeCountdown.Start(0);
     }
 
-    /// <summary>Looks up initialized Stoke dispatch state, failing if a slot reached AI before initialization.</summary>
-    internal static StokeEnemyState RequireStokeState(RoomEnemySlot slot) =>
-        slot.SpeciesState<StokeEnemyState>() ?? throw new InvalidOperationException(
-            $"Enemy slot {slot.SlotIndex} has no initialized Stoke state.");
-
     /// <summary>Instructions <c>$A2:8990</c> (left) and <c>$A2:899D</c> (right): resume movement in <paramref name="direction"/>.</summary>
     private static void SetStokeMoving(StokeEnemyState state, StokeDirection direction)
     {
@@ -226,20 +221,14 @@ internal sealed class StokeBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Ports Stoke's main AI.</summary>
     internal void RunStokeMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
-        RunStokeMain(slot, RequireStokeState(slot), frame.Level);
+        RunStokeMain(slot, slot.RequireSpeciesState<StokeEnemyState>(), frame.Level);
     }
 
     /// <summary>Advances Stoke's typed animation.</summary>
-    internal void AdvanceStokeTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _)
-    {
-        if (!EnemyProgramAnimation.Expire(slot))
-            return;
-        var state = RequireStokeState(slot);
-        AnimationProgramCursor<StokeProgram> cursor = state.Program;
-        EnemyProgramAnimation.Run(slot, StokeAnimations.Programs, ref cursor, StokeFrameDefinitions.ShownFrames.Of,
-                (cue, _) => ApplyStokeCue(slot, state, cue));
-        state.Program = cursor;
-    }
+    internal void AdvanceStokeTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _) =>
+        EnemyProgramAnimation.Advance(slot, StokeAnimations.Programs, StokeFrameDefinitions.ShownFrames.Of,
+            static (StokeEnemyState state) => state.Program, static (state, cursor) => state.Program = cursor,
+            (state, cue, _) => ApplyStokeCue(slot, state, cue));
 
     /// <summary>
     /// Ports <c>SpawnEnemyProjectileY_ParameterA_XGraphics</c> followed by Stoke projectile

@@ -35,7 +35,7 @@ internal static class MaridiaLargeSnailBounceVerification
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.Bind(EnemyDefinitionId.Oum, slot.Definition);
             MaridiaLargeSnailBehavior.InitializeMaridiaLargeSnail(slot);
-            MaridiaLargeSnailEnemyState state = MaridiaLargeSnailBehavior.RequireMaridiaLargeSnailState(slot);
+            MaridiaLargeSnailEnemyState state = slot.RequireSpeciesState<MaridiaLargeSnailEnemyState>();
             slot.Radius = new(16, 16);
             // On the floor level the lowest pixel row already rests in the floor, so even a sub-pixel fall lands.
             slot.Position = FixedPosition<RoomPixels>.FromWhole(new(64, level == floor ? (ushort)49 : (ushort)48));

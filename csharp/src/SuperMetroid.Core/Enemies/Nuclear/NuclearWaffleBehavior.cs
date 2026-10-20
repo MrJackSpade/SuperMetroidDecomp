@@ -333,11 +333,6 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
     private static void AddNuclearWaffleAngularSpeed(NuclearWaffleEnemyState state) =>
         state.SweepAngle += state.AngularSpeed;
 
-    /// <summary>Gets the orbit state attached to a Puromi slot and rejects an uninitialized slot.</summary>
-    internal static NuclearWaffleEnemyState RequireNuclearWaffleState(RoomEnemySlot slot) =>
-        slot.SpeciesState<NuclearWaffleEnemyState>() ?? throw new InvalidOperationException(
-            $"Enemy slot {slot.SlotIndex} has no initialized Nuclear Waffle state.");
-
     /// <summary>Advances NuclearWaffle's typed animation.</summary>
     internal static void AdvanceNuclearWaffleTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _)
     {
@@ -359,7 +354,7 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Ports NuclearWaffle's main AI.</summary>
     internal void RunNuclearWaffleMainAi(RoomEnemySlot slot, IEnemyAiFrame _)
     {
-        RunNuclearWaffleMain(slot, RequireNuclearWaffleState(slot));
+        RunNuclearWaffleMain(slot, slot.RequireSpeciesState<NuclearWaffleEnemyState>());
     }
 
     /// <inheritdoc/>

@@ -199,22 +199,11 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.Timer = NativeCountdown.Start(0);
     }
 
-    /// <summary>Rejects Choot AI dispatch for an enemy slot that has not run its initializer.</summary>
-    internal static ChootEnemyState RequireChootState(RoomEnemySlot slot) =>
-        slot.SpeciesState<ChootEnemyState>() ?? throw new InvalidOperationException(
-            $"Enemy slot {slot.SlotIndex} has no initialized Choot state.");
-
     /// <summary>Advances Choot's typed animation.</summary>
-    internal static void AdvanceChootTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _)
-    {
-        if (!EnemyProgramAnimation.Expire(slot))
-            return;
-        var state = RequireChootState(slot);
-        AnimationProgramCursor<ChootProgram> cursor = state.Program;
-        EnemyProgramAnimation.Run(slot, ChootAnimations.Programs, ref cursor, ChootFrameDefinitions.ShownFrames.Of,
-                (cue, _) => ApplyChootCue(slot, cue));
-        state.Program = cursor;
-    }
+    internal static void AdvanceChootTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _) =>
+        EnemyProgramAnimation.Advance(slot, ChootAnimations.Programs, ChootFrameDefinitions.ShownFrames.Of,
+            static (ChootEnemyState state) => state.Program, static (state, cursor) => state.Program = cursor,
+            (state, cue, _) => ApplyChootCue(slot, cue));
 
     /// <summary>Carries out one cue of Choot's animation: each switches off-screen processing on or off.</summary>
     private static ChootProgram? ApplyChootCue(RoomEnemySlot slot, ChootCue cue)
@@ -237,6 +226,6 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Ports Choot's main AI.</summary>
     internal static void RunChootMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
-        RunChootMain(slot, RequireChootState(slot), frame.Samus);
+        RunChootMain(slot, slot.RequireSpeciesState<ChootEnemyState>(), frame.Samus);
     }
 }

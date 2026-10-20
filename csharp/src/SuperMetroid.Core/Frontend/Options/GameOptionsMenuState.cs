@@ -40,10 +40,8 @@ public sealed class GameOptionsMenuState
     private int brightness;
     /// <summary>BG1 scroll used to expose the lower controller rows.</summary>
     private int bg1VerticalScroll;
-    /// <summary>Countdown to the next selection-missile animation frame.</summary>
-    private int missileTimer = 1;
-    /// <summary>Current selection-missile artwork frame.</summary>
-    private int missileFrame;
+    /// <summary>The selection missile's frame cycle.</summary>
+    private readonly MenuMissileAnimation missile = new();
 
     /// <summary>Creates the complete primary, controller, and special options-menu state.</summary>
     /// <param name="audio">Optional cartridge audio queues for cursor and confirmation sounds.</param>
@@ -150,7 +148,7 @@ public sealed class GameOptionsMenuState
         // The selection missile is spawned by index one ($82:ECD3); the object handler
         // then runs after every index's work, including that first one.
         if (Phase != GameOptionsPhase.FinishFadingOut)
-            StepMissile();
+            missile.Step(mapPresentation?.GameOptions.CursorFrameDuration);
 
         switch (Phase)
         {
@@ -263,7 +261,7 @@ public sealed class GameOptionsMenuState
         string pageName = PresentationPageName(page);
         content.GameOptions.DrawHeading(sprites, pageName, bg1VerticalScroll);
         (ushort authoredCursorX, ushort authoredCursorY) = CursorPosition();
-        content.GameOptions.DrawCursor(sprites, missileFrame,
+        content.GameOptions.DrawCursor(sprites, missile.Frame,
             new(authoredCursorX, authoredCursorY));
         sprites.FinishFrame();
     }
@@ -524,16 +522,6 @@ public sealed class GameOptionsMenuState
             "Options cursor requires installed presentation assets."))
             .GameOptions.CursorPosition(PresentationPageName(cursorPage.Value), SelectedItem);
         return (checked(point.X), checked(point.Y));
-    }
-
-    /// <summary>Advances the selection missile after its installed frame duration.</summary>
-    private void StepMissile()
-    {
-        if (--missileTimer != 0)
-            return;
-        missileFrame = (missileFrame + 1) % MenuMissileAnimationDefinitions.FrameCount;
-        missileTimer = mapPresentation?.GameOptions.CursorFrameDuration ??
-            MenuMissileAnimationDefinitions.FrameDuration;
     }
 
     /// <summary>Maps the active menu page to its installed presentation key.</summary>

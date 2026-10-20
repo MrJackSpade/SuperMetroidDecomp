@@ -413,21 +413,10 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
     private CgramPalette WreckedShipGhostPalette(RoomEnemySlot slot) =>
         _presentation.CgramRows.ObjectRow((slot.PaletteIndex >> 9) & 7);
 
-    /// <summary>Rejects a ghost main callback before its slot has initialized apparition state.</summary>
-    internal static WreckedShipGhostEnemyState RequireWreckedShipGhostState(RoomEnemySlot slot) =>
-        slot.SpeciesState<WreckedShipGhostEnemyState>() ?? throw new InvalidOperationException(
-            $"Wrecked Ship ghost slot {slot.SlotIndex} has no initialized native state.");
-
     /// <summary>Advances WreckedShipGhost's typed animation.</summary>
-    internal static void AdvanceWreckedShipGhostTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _)
-    {
-        if (!EnemyProgramAnimation.Expire(slot))
-            return;
-        var state = RequireWreckedShipGhostState(slot);
-        AnimationProgramCursor<WreckedShipGhostProgram> cursor = state.Program;
-        EnemyProgramAnimation.Run(slot, WreckedShipGhostAnimations.Programs, ref cursor, WreckedShipGhostFrameDefinitions.ShownFrames.Of);
-        state.Program = cursor;
-    }
+    internal static void AdvanceWreckedShipGhostTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _) =>
+        EnemyProgramAnimation.Advance(slot, WreckedShipGhostAnimations.Programs, WreckedShipGhostFrameDefinitions.ShownFrames.Of,
+            static (WreckedShipGhostEnemyState state) => state.Program, static (state, cursor) => state.Program = cursor);
 
     /// <summary>Ports WreckedShipGhost's initialization AI.</summary>
     internal void RunWreckedShipGhostInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
@@ -438,6 +427,6 @@ internal sealed class WreckedShipGhostBehavior : IEnemySpecies, IEnemyEntityFact
     /// <summary>Ports WreckedShipGhost's main AI.</summary>
     internal void RunWreckedShipGhostMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
-        RunWreckedShipGhostMain(slot, RequireWreckedShipGhostState(slot), frame.Samus);
+        RunWreckedShipGhostMain(slot, slot.RequireSpeciesState<WreckedShipGhostEnemyState>(), frame.Samus);
     }
 }

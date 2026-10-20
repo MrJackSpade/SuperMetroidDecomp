@@ -179,7 +179,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
             2,
             EnemyDefinitionId.EvirProjectile,
             "body projectile");
-        EvirEnemyState projectileState = RequireEvirState(projectile);
+        EvirEnemyState projectileState = projectile.RequireSpeciesState<EvirEnemyState>();
 
         // Direction is allowed to follow Samus only while the projectile is fully present.
         // During regeneration the mouth, arms, and projectile retain their launch facing.
@@ -269,7 +269,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
     private void PositionEvirArms(RoomEnemySlot arms, EvirEnemyState state, bool initializing = false)
     {
         RoomEnemySlot body = RequireEvirRelativeSlot(arms, -1, EnemyDefinitionId.Evir, "arms body", initializing);
-        EvirEnemyState bodyState = RequireEvirState(body);
+        EvirEnemyState bodyState = body.RequireSpeciesState<EvirEnemyState>();
         state.Facing = bodyState.Facing;
         arms.Position = arms.Position.WithWhole(new(unchecked((ushort)(
             body.Position.X.Whole + (state.Facing == EvirFacing.Left ? -4 : 4))), unchecked((ushort)(body.Position.Y.Whole + 10))));
@@ -289,7 +289,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
             -2,
             EnemyDefinitionId.Evir,
             "projectile body");
-        EvirEnemyState bodyState = RequireEvirState(body);
+        EvirEnemyState bodyState = body.RequireSpeciesState<EvirEnemyState>();
         state.Facing = bodyState.Facing;
         projectile.Position = projectile.Position.WithWhole(new(unchecked((ushort)(
             body.Position.X.Whole + (state.Facing == EvirFacing.Left ? -4 : 4))), unchecked((ushort)(body.Position.Y.Whole + 18))));
@@ -479,11 +479,6 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
         return _slotTable.Slots[targetIndex];
     }
 
-    /// <summary>Requires an initialized extension at the given physical slot.</summary>
-    private static EvirEnemyState RequireEvirState(RoomEnemySlot slot) =>
-        slot.SpeciesState<EvirEnemyState>() ?? throw new InvalidOperationException(
-            $"Enemy slot {slot.SlotIndex} has no initialized Evir state.");
-
     /// <summary>
     /// Ports $A8:8B16 after common touch/shot/power-bomb damage. Native applies its +$40
     /// and +$80 physical-slot aliases relative to whichever $E63F record received the
@@ -548,7 +543,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Ports Evir's main AI.</summary>
     internal void RunEvirMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
-        RunEvirMain(slot, RequireEvirState(slot), frame.Samus);
+        RunEvirMain(slot, slot.RequireSpeciesState<EvirEnemyState>(), frame.Samus);
     }
 
     /// <summary>Ports EvirProjectile's main AI.</summary>
@@ -556,7 +551,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         RunEvirProjectileMain(
             slot,
-            RequireEvirState(slot),
+            slot.RequireSpeciesState<EvirEnemyState>(),
             frame.Samus,
             frame.Camera);
     }
@@ -566,7 +561,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         if (!EnemyProgramAnimation.Expire(slot))
             return;
-        var state = RequireEvirState(slot);
+        var state = slot.RequireSpeciesState<EvirEnemyState>();
         AnimationProgramCursor<EvirProgram> cursor = state.Program ??
             throw new InvalidOperationException($"Evir slot {slot.SlotIndex} has no installed animation.");
         EnemyProgramAnimation.Run(slot, EvirAnimations.Programs, ref cursor, EvirFrameDefinitions.ShownFrames.Of,

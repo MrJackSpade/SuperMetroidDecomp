@@ -112,18 +112,13 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
             state.SpawnedBugCount++;
     }
 
-    /// <summary>Rejects a shot or main callback that arrived before the shell initialized its slot state.</summary>
-    internal static KagoEnemyState RequireKagoState(RoomEnemySlot slot) =>
-        slot.SpeciesState<KagoEnemyState>() ?? throw new InvalidOperationException(
-            $"Enemy slot {slot.SlotIndex} has no initialized Kago state.");
-
     /// <summary>Routes bomb hits through common shot AI before applying Kago's quake, counter, and bug spawn.</summary>
     internal void RegisterKagoBombReactions(EnemySharedReactions table)
     {
         table.AddBombCommon(new EnemyBombReaction(c => c.Enemy.EnemyDefinitionPointer == EnemyDefinitionId.Kago &&
                                                        c.SelectedShotAi == EnemyInteractionCallback.KagoShot)
         {
-            AfterCommon = c => ResolveKagoShotAfterCommon(c.Enemy, RequireKagoState(c.Enemy)),
+            AfterCommon = c => ResolveKagoShotAfterCommon(c.Enemy, c.Enemy.RequireSpeciesState<KagoEnemyState>()),
         });
     }
 
@@ -180,7 +175,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         if (!EnemyProgramAnimation.Expire(slot))
             return;
-        KagoEnemyState state = RequireKagoState(slot);
+        KagoEnemyState state = slot.RequireSpeciesState<KagoEnemyState>();
         AnimationProgramCursor<KagoProgram> cursor = state.Program;
         EnemyProgramAnimation.Run(slot, KagoAnimations.Programs, ref cursor, KagoFrameDefinitions.ShownFrames.Of);
         state.Program = cursor;
@@ -195,7 +190,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Ports Kago's main AI.</summary>
     internal static void RunKagoMainAi(RoomEnemySlot slot, IEnemyAiFrame _)
     {
-        RunKagoMain(RequireKagoState(slot));
+        RunKagoMain(slot.RequireSpeciesState<KagoEnemyState>());
     }
 
     /// <summary>Applies Kago's shell response after the common projectile-shot callback has resolved damage.</summary>
@@ -204,7 +199,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
         table.AddShot(new EnemyShotReaction(enemy => enemy.EnemyDefinitionPointer == EnemyDefinitionId.Kago &&
                                                      EnemyCollision.ShotAi(enemy) == EnemyInteractionCallback.KagoShot)
         {
-            AfterCommon = (c, _) => ResolveKagoShotAfterCommon(c.Enemy, RequireKagoState(c.Enemy)),
+            AfterCommon = (c, _) => ResolveKagoShotAfterCommon(c.Enemy, c.Enemy.RequireSpeciesState<KagoEnemyState>()),
         });
     }
     /// <summary>Signed eight-eight acceleration added to a bug's vertical velocity each unobstructed airborne frame.</summary>

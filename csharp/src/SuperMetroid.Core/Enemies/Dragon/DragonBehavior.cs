@@ -132,7 +132,7 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
             throw new InvalidOperationException("Dragon facing selection requires the active Samus actor.");
 
         RoomEnemySlot wing = GetDragonWing(body);
-        DragonEnemyState wingState = RequireDragonState(wing);
+        DragonEnemyState wingState = wing.RequireSpeciesState<DragonEnemyState>();
         bodyState.FunctionTimer = NativeCountdown.Start(DragonRiseOrSinkFrames);
         bodyState.Function = DragonEnemyFunction.Rising;
 
@@ -230,7 +230,7 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Ports instruction opcode $A2:E5FB.</summary>
     private static void FinishDragonAttackAnimation(RoomEnemySlot body)
     {
-        DragonEnemyState state = RequireDragonState(body);
+        DragonEnemyState state = body.RequireSpeciesState<DragonEnemyState>();
         if (state.IsWing)
         {
             throw new InvalidDataException(
@@ -308,11 +308,6 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
         return state;
     }
 
-    /// <summary>Rejects a Dragon callback that arrives before its physical slot has initialized state.</summary>
-    internal static DragonEnemyState RequireDragonState(RoomEnemySlot slot) =>
-        slot.SpeciesState<DragonEnemyState>() ?? throw new InvalidOperationException(
-            $"Enemy slot {slot.SlotIndex} has no initialized Dragon state.");
-
     /// <summary>Applies Dragon's paired-body combat tail after the common bomb-as-shot callback.</summary>
     internal void RegisterDragonBombReactions(EnemySharedReactions table)
     {
@@ -341,20 +336,14 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Ports Dragon's main AI.</summary>
     internal void RunDragonMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
-        RunDragonMain(slot, RequireDragonState(slot), frame.Samus);
+        RunDragonMain(slot, slot.RequireSpeciesState<DragonEnemyState>(), frame.Samus);
     }
 
     /// <summary>Advances Dragon's typed animation.</summary>
-    internal static void AdvanceDragonTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _)
-    {
-        if (!EnemyProgramAnimation.Expire(slot))
-            return;
-        var state = RequireDragonState(slot);
-        AnimationProgramCursor<DragonProgram> cursor = state.Program;
-        EnemyProgramAnimation.Run(slot, DragonAnimations.Programs, ref cursor, DragonFrameDefinitions.ShownFrames.Of,
-                (cue, _) => ApplyDragonCue(slot, cue));
-        state.Program = cursor;
-    }
+    internal static void AdvanceDragonTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _) =>
+        EnemyProgramAnimation.Advance(slot, DragonAnimations.Programs, DragonFrameDefinitions.ShownFrames.Of,
+            static (DragonEnemyState state) => state.Program, static (state, cursor) => state.Program = cursor,
+            (state, cue, _) => ApplyDragonCue(slot, cue));
 
     /// <summary>Synchronizes wing and body state after a Dragon power-bomb reaction.</summary>
     internal void RegisterDragonPowerBombReactions(EnemySharedReactions table)

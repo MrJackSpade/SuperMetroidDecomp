@@ -284,7 +284,7 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
         if (slot.Health != 0)
             return;
 
-        RinkaEnemyState state = RequireRinkaState(slot);
+        RinkaEnemyState state = slot.RequireSpeciesState<RinkaEnemyState>();
         ReleaseSpecialRinkaSpawn(state);
         if (!IsSpecialRinka(slot))
         {
@@ -310,7 +310,7 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
         if (!_rinkaTerminationFlag)
             return false;
 
-        ReleaseSpecialRinkaSpawn(RequireRinkaState(slot));
+        ReleaseSpecialRinkaSpawn(slot.RequireSpeciesState<RinkaEnemyState>());
         RunRinkaDeathAnimation(slot);
         return true;
     }
@@ -472,11 +472,6 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Distinguishes Mother Brain's parameterized spawn-sharing actors from ordinary room Rinkas.</summary>
     private static bool IsSpecialRinka(RoomEnemySlot slot) => slot.Spawn.Population.Parameter1 != 0;
 
-    /// <summary>Requires an initialized per-slot Rinka state before running its lifecycle.</summary>
-    private static RinkaEnemyState RequireRinkaState(RoomEnemySlot slot) =>
-        slot.SpeciesState<RinkaEnemyState>() ?? throw new InvalidOperationException(
-            $"Enemy slot {slot.SlotIndex} has no initialized Rinka state.");
-
     /// <summary>Runs the private lethal-health tail after common bomb damage without generic death.</summary>
     internal void RegisterRinkaBombReactions(EnemySharedReactions table)
     {
@@ -497,20 +492,14 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Ports Rinka's main AI.</summary>
     internal void RunRinkaMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
-        RunRinkaMain(slot, RequireRinkaState(slot), frame.Samus);
+        RunRinkaMain(slot, slot.RequireSpeciesState<RinkaEnemyState>(), frame.Samus);
     }
 
     /// <summary>Advances Rinka's typed animation.</summary>
-    internal void AdvanceRinkaTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _)
-    {
-        if (!EnemyProgramAnimation.Expire(slot))
-            return;
-        var state = RequireRinkaState(slot);
-        AnimationProgramCursor<RinkaProgram> cursor = state.Program;
-        EnemyProgramAnimation.Run(slot, RinkaAnimations.Programs, ref cursor, RinkaFrameDefinitions.ShownFrames.Of,
-                (cue, _) => ApplyRinkaCue(slot, state, cue));
-        state.Program = cursor;
-    }
+    internal void AdvanceRinkaTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _) =>
+        EnemyProgramAnimation.Advance(slot, RinkaAnimations.Programs, RinkaFrameDefinitions.ShownFrames.Of,
+            static (RinkaEnemyState state) => state.Program, static (state, cursor) => state.Program = cursor,
+            (state, cue, _) => ApplyRinkaCue(slot, state, cue));
 
     /// <summary>Skips invisible actors and applies the private death lifecycle after power-bomb damage.</summary>
     internal void RegisterRinkaPowerBombReactions(EnemySharedReactions table)

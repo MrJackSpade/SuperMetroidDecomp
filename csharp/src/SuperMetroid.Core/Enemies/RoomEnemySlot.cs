@@ -44,6 +44,11 @@ public sealed class RoomEnemySlot
     /// </summary>
     private readonly Dictionary<string, Action> _clearWithRecord = new(StringComparer.Ordinal);
 
+    /// <summary>The slot's species state, which its species installs before reading it.</summary>
+    /// <exception cref="InvalidOperationException">The slot holds no <typeparamref name="T"/>.</exception>
+    internal T RequireSpeciesState<T>() where T : class =>
+        SpeciesState<T>() ?? throw new InvalidOperationException($"Enemy slot {SlotIndex} has no initialized {typeof(T).Name}.");
+
     /// <summary>The <typeparamref name="T"/> state last installed in this slot this room, or null.</summary>
     internal T? SpeciesState<T>() where T : class =>
         _speciesStates.TryGetValue(StateKey<T>(), out object? state) ? (T)state : null;

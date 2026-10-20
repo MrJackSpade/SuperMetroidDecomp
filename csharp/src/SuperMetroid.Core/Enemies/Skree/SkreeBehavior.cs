@@ -73,7 +73,7 @@ internal sealed class SkreeBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         if (samus is null)
             throw new InvalidOperationException("Skree AI requires the active Samus actor.");
-        SkreeEnemyState state = RequireSkreeState(slot);
+        SkreeEnemyState state = slot.RequireSpeciesState<SkreeEnemyState>();
         switch (state.Function)
         {
             case SkreeEnemyFunction.Idling:
@@ -173,11 +173,6 @@ internal sealed class SkreeBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.Timer = NativeCountdown.Start(0);
     }
 
-    /// <summary>Rejects Skree AI dispatch for a slot lacking room-load initialization.</summary>
-    internal static SkreeEnemyState RequireSkreeState(RoomEnemySlot slot) =>
-        slot.SpeciesState<SkreeEnemyState>() ?? throw new InvalidOperationException(
-            $"Enemy slot {slot.SlotIndex} has no initialized Skree state.");
-
     /// <summary>Ports Skree's initialization AI.</summary>
     internal static void RunSkreeInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
     {
@@ -191,16 +186,10 @@ internal sealed class SkreeBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Advances Skree's typed animation.</summary>
-    internal static void AdvanceSkreeTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _)
-    {
-        if (!EnemyProgramAnimation.Expire(slot))
-            return;
-        var state = RequireSkreeState(slot);
-        AnimationProgramCursor<SkreeMetareeProgram> cursor = state.Program;
-        EnemyProgramAnimation.Run(slot, SkreeMetareeAnimations.Programs, ref cursor, SkreeMetareeFrameDefinitions.ShownFrames.Of,
-                (cue, _) => ApplySkreeCue(slot, state, cue));
-        state.Program = cursor;
-    }
+    internal static void AdvanceSkreeTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _) =>
+        EnemyProgramAnimation.Advance(slot, SkreeMetareeAnimations.Programs, SkreeMetareeFrameDefinitions.ShownFrames.Of,
+            static (SkreeEnemyState state) => state.Program, static (state, cursor) => state.Program = cursor,
+            (state, cue, _) => ApplySkreeCue(slot, state, cue));
 
 
     /// <summary>Spawns Skree's four debris actors before generic death processing of a lethal shot.</summary>

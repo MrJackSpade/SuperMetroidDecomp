@@ -36,10 +36,8 @@ public sealed class FileSelectMenuState
     internal readonly ushort[] bg1Tilemap = new ushort[32 * 32];
     /// <summary>Decoded slots whose null entries failed or lacked native SRAM checksums.</summary>
     private readonly SuperMetroidSaveSlot?[] saveSlots = new SuperMetroidSaveSlot?[3];
-    /// <summary>Updates remaining before the selection missile advances its sprite frame.</summary>
-    private int missileAnimationTimer = 1;
-    /// <summary>Current frame of the four-frame selection missile cycle.</summary>
-    private int missileAnimationFrame;
+    /// <summary>The selection missile's frame cycle.</summary>
+    private readonly MenuMissileAnimation missile = new();
     /// <summary>Updates remaining in the selected helmet's current turn frame.</summary>
     private int helmetAnimationTimer;
     /// <summary>Selected helmet turn frame retained through the options fade.</summary>
@@ -113,7 +111,7 @@ public sealed class FileSelectMenuState
         SnesButton pressed = controller.NewlyPressed;
 
         if (!IsEntryPhase)
-            StepMissileAnimation();
+            missile.Step(mapPresentation?.FileSelect.CursorFrameDuration);
         switch (Phase)
         {
             case FileSelectPhase.EnterBlankScreen:
@@ -219,7 +217,7 @@ public sealed class FileSelectMenuState
                 : FileSelectPresentationDefinitions.MainBorder;
         presentation.DrawBorder(sprites, borderName);
         if (ShouldDrawSelectionMissile)
-            presentation.DrawCursor(sprites, missileAnimationFrame, GetSelectionMissilePosition());
+            presentation.DrawCursor(sprites, missile.Frame, GetSelectionMissilePosition());
         for (int slot = 0; mainScreen && slot < 3; slot++)
         {
             // Menu index 32 fades with the completed (or Start-shortened) helmet turn
@@ -354,15 +352,6 @@ public sealed class FileSelectMenuState
             next = FileSelectHelmetAnimation.FrameCount - 1;
         }
         helmetAnimationFrame = next;
-    }
-
-    /// <summary>Advances the four-frame missile cursor when its presentation-defined delay expires.</summary>
-    private void StepMissileAnimation()
-    {
-        if (--missileAnimationTimer != 0)
-            return;
-        missileAnimationFrame = (missileAnimationFrame + 1) & 3;
-        missileAnimationTimer = mapPresentation?.FileSelect.CursorFrameDuration ?? MenuMissileAnimationDefinitions.FrameDuration;
     }
 
     /// <summary>Copy or Clear mode selected on the main page before its fade finishes.</summary>

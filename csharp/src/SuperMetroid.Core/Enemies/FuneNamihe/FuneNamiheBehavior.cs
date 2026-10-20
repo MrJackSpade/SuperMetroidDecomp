@@ -185,11 +185,6 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
             : FuneNamiheEnemyFunction.FuneWaitForCooldown;
     }
 
-    /// <summary>Rejects a family AI or finish opcode before the slot's variant state has been initialized.</summary>
-    internal static FuneNamiheEnemyState RequireFuneNamiheState(RoomEnemySlot slot) =>
-        slot.SpeciesState<FuneNamiheEnemyState>() ?? throw new InvalidOperationException(
-            $"Enemy slot {slot.SlotIndex} has no initialized Fune/Namihe state.");
-
     /// <summary>Binds the shared fireball pre-instruction to 8.8 horizontal travel and inclusive camera culling.</summary>
     internal static void RegisterFuneNamiheProjectiles(EnemyProjectileHandlerTable table)
     {
@@ -209,20 +204,14 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Ports FuneNamihe's main AI.</summary>
     internal static void RunFuneNamiheMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
-        RunFuneNamiheMain(slot, RequireFuneNamiheState(slot), frame.Samus);
+        RunFuneNamiheMain(slot, slot.RequireSpeciesState<FuneNamiheEnemyState>(), frame.Samus);
     }
 
     /// <summary>Advances FuneNamihe's typed animation.</summary>
-    internal void AdvanceFuneNamiheTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _)
-    {
-        if (!EnemyProgramAnimation.Expire(slot))
-            return;
-        var state = RequireFuneNamiheState(slot);
-        AnimationProgramCursor<FuneNamiheProgram> cursor = state.Program;
-        EnemyProgramAnimation.Run(slot, FuneNamiheAnimations.Programs, ref cursor, FuneNamiheFrameDefinitions.ShownFrames.Of,
-                (cue, _) => ApplyFuneNamiheCue(slot, state, cue));
-        state.Program = cursor;
-    }
+    internal void AdvanceFuneNamiheTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _) =>
+        EnemyProgramAnimation.Advance(slot, FuneNamiheAnimations.Programs, FuneNamiheFrameDefinitions.ShownFrames.Of,
+            static (FuneNamiheEnemyState state) => state.Program, static (state, cursor) => state.Program = cursor,
+            (state, cue, _) => ApplyFuneNamiheCue(slot, state, cue));
 
     /// <summary>Shared projectile movement callback installed for both Fune and Namihe fireballs.</summary>
     private const EnemyProjectilePreInstruction NamiFuneFireballPreInstruction =

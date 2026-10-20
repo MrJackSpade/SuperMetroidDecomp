@@ -160,7 +160,7 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
         if (statue.EnemyDefinitionPointer != EnemyDefinitionId.Chozo)
             throw new InvalidOperationException("Chozo hand trigger requires statue $F0FF in enemy slot zero.");
 
-        ChozoStatueState state = RequireChozoStatueState(statue);
+        ChozoStatueState state = statue.RequireSpeciesState<ChozoStatueState>();
         int triggerBlockX = state.IsWreckedShip ? ChozoStatuePlmRomData.WreckedShipHandBlock.X : ChozoStatuePlmRomData.LowerNorfairTriggerX;
         int triggerBlockY = state.IsWreckedShip ? ChozoStatuePlmRomData.WreckedShipHandBlock.Y : ChozoStatuePlmRomData.LowerNorfairTriggerY;
         int triggerBlockIndex = collisionBlockIndex ?? level.GetBlockIndex(new(unchecked((ushort)triggerBlockX), unchecked((ushort)triggerBlockY)));
@@ -238,7 +238,7 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
         SamusState? samus,
         RoomLevelData? level)
     {
-        ChozoStatueState state = RequireChozoStatueState(statue);
+        ChozoStatueState state = statue.RequireSpeciesState<ChozoStatueState>();
         switch (cue.Kind)
         {
             case ChozoStatueCueKind.SetPreInstruction:
@@ -397,11 +397,6 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
             block,
             IsHardcoded: true));
 
-    /// <summary>Requires initialized bank-$AA state before statue AI dispatch.</summary>
-    private static ChozoStatueState RequireChozoStatueState(RoomEnemySlot statue) =>
-        statue.SpeciesState<ChozoStatueState>() ?? throw new InvalidOperationException(
-            $"Chozo statue slot {statue.SlotIndex} has no initialized bank-$AA state.");
-
     /// <summary>Requires the live Samus actor for cutscene carry movement.</summary>
     private static SamusState RequireChozoSamus(SamusState? samus) =>
         samus ?? throw new InvalidOperationException(
@@ -427,18 +422,12 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Ports ChozoStatue's main AI.</summary>
     internal void RunChozoStatueMainAi(RoomEnemySlot slot, IEnemyAiFrame _)
     {
-        RunChozoStatueMain(slot, RequireChozoStatueState(slot));
+        RunChozoStatueMain(slot, slot.RequireSpeciesState<ChozoStatueState>());
     }
 
     /// <summary>Advances ChozoStatue's typed animation.</summary>
-    internal void AdvanceChozoStatueTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext context)
-    {
-        if (!EnemyProgramAnimation.Expire(slot))
-            return;
-        var state = RequireChozoStatueState(slot);
-        AnimationProgramCursor<ChozoStatueProgram> cursor = state.Program;
-        EnemyProgramAnimation.Run(slot, ChozoStatueAnimations.Programs, ref cursor, ChozoStatueFrameDefinitions.ShownFrames.Of,
-                (cue, _) => ApplyChozoStatueCue(slot, cue, context.Samus, context.Level));
-        state.Program = cursor;
-    }
+    internal void AdvanceChozoStatueTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext context) =>
+        EnemyProgramAnimation.Advance(slot, ChozoStatueAnimations.Programs, ChozoStatueFrameDefinitions.ShownFrames.Of,
+            static (ChozoStatueState state) => state.Program, static (state, cursor) => state.Program = cursor,
+            (state, cue, _) => ApplyChozoStatueCue(slot, cue, context.Samus, context.Level));
 }

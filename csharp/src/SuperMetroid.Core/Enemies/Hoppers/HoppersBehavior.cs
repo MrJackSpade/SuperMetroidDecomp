@@ -102,7 +102,7 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
         SamusState? samus,
         RoomLevelData? level)
     {
-        HopperEnemyState state = RequireHopperState(slot);
+        HopperEnemyState state = slot.RequireSpeciesState<HopperEnemyState>();
         switch (state.Function)
         {
             case HopperEnemyFunction.ChooseHopSize:
@@ -346,11 +346,6 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.Timer = NativeCountdown.Start(0);
     }
 
-    /// <summary>Requires initialized per-slot hop state before dispatching AI or private animation commands.</summary>
-    private static HopperEnemyState RequireHopperState(RoomEnemySlot slot) =>
-        slot.SpeciesState<HopperEnemyState>() ?? throw new InvalidOperationException(
-            $"Enemy slot {slot.SlotIndex} has no initialized Hopper state.");
-
     /// <summary>Ports Hoppers's initialization AI.</summary>
     internal void RunHoppersInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
     {
@@ -368,7 +363,7 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         if (!EnemyProgramAnimation.Expire(slot))
             return;
-        HopperEnemyState state = RequireHopperState(slot);
+        HopperEnemyState state = slot.RequireSpeciesState<HopperEnemyState>();
         AnimationProgramCursor<HopperProgram> cursor = state.Program;
         EnemyProgramAnimation.Run(slot, HopperAnimations.Programs, ref cursor, HopperFrameDefinitions.ShownFrames.Of,
             (cue, _) => ApplyHopperCue(slot, state, cue));

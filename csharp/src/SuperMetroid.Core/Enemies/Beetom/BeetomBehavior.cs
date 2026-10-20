@@ -565,11 +565,6 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
             throw new InvalidOperationException("Beetom movement requires room level data.");
     }
 
-    /// <summary>Requires an initialized Beetom extension for a physical slot.</summary>
-    internal static BeetomEnemyState RequireBeetomState(RoomEnemySlot slot) =>
-        slot.SpeciesState<BeetomEnemyState>() ?? throw new InvalidOperationException(
-            $"Enemy slot {slot.SlotIndex} has no initialized Beetom state.");
-
     /// <summary>Runs Beetom's attachment-clearing tail after common bomb damage.</summary>
     internal static void RegisterBeetomBombReactions(EnemySharedReactions table)
     {
@@ -579,7 +574,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
                                                        EnemyCollision.ShotAi(c.Enemy) == EnemyInteractionCallback.BeetomShot &&
                                                        c.SelectedShotAi == EnemyInteractionCallback.BeetomShot)
         {
-            AfterCommon = c => ResolveBeetomShotAfterCommon(c.Enemy, RequireBeetomState(c.Enemy)),
+            AfterCommon = c => ResolveBeetomShotAfterCommon(c.Enemy, c.Enemy.RequireSpeciesState<BeetomEnemyState>()),
         });
     }
 
@@ -592,20 +587,14 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Ports Beetom's main AI.</summary>
     internal void RunBeetomMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
-        RunBeetomMain(slot, RequireBeetomState(slot), frame.Samus, frame.Level, frame.ControllerInput);
+        RunBeetomMain(slot, slot.RequireSpeciesState<BeetomEnemyState>(), frame.Samus, frame.Level, frame.ControllerInput);
     }
 
     /// <summary>Advances Beetom's typed animation.</summary>
-    internal static void AdvanceBeetomTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _)
-    {
-        if (!EnemyProgramAnimation.Expire(slot))
-            return;
-        var state = RequireBeetomState(slot);
-        AnimationProgramCursor<BeetomProgram> cursor = state.Program;
-        EnemyProgramAnimation.Run(slot, BeetomAnimations.Programs, ref cursor, BeetomFrameDefinitions.ShownFrames.Of,
-                (cue, _) => ApplyBeetomCue(slot, cue));
-        state.Program = cursor;
-    }
+    internal static void AdvanceBeetomTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _) =>
+        EnemyProgramAnimation.Advance(slot, BeetomAnimations.Programs, BeetomFrameDefinitions.ShownFrames.Of,
+            static (BeetomEnemyState state) => state.Program, static (state, cursor) => state.Program = cursor,
+            (state, cue, _) => ApplyBeetomCue(slot, cue));
 
     /// <summary>Clears attachment after every accepted common shot, including zero damage.</summary>
     internal static void RegisterBeetomShotReactions(EnemySharedReactions table)
@@ -615,7 +604,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
         table.AddShot(new EnemyShotReaction(enemy => enemy.EnemyDefinitionPointer == EnemyDefinitionId.Beetom &&
                                                      EnemyCollision.ShotAi(enemy) == EnemyInteractionCallback.BeetomShot)
         {
-            AfterCommon = (c, _) => ResolveBeetomShotAfterCommon(c.Enemy, RequireBeetomState(c.Enemy)),
+            AfterCommon = (c, _) => ResolveBeetomShotAfterCommon(c.Enemy, c.Enemy.RequireSpeciesState<BeetomEnemyState>()),
         });
     }
 
@@ -624,6 +613,6 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         table.AddTouch(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Beetom &&
                                EnemyCollision.TouchAi(slot) == EnemyInteractionCallback.BeetomTouch,
-            context => ResolveBeetomTouch(context.Slot, RequireBeetomState(context.Slot), context.Samus));
+            context => ResolveBeetomTouch(context.Slot, context.Slot.RequireSpeciesState<BeetomEnemyState>(), context.Samus));
     }
 }

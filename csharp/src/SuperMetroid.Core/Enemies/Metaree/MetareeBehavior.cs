@@ -231,11 +231,6 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.Timer = NativeCountdown.Start(0);
     }
 
-    /// <summary>Rejects main AI or private instruction dispatch before slot state has been initialized.</summary>
-    internal static MetareeEnemyState RequireMetareeState(RoomEnemySlot slot) =>
-        slot.SpeciesState<MetareeEnemyState>() ?? throw new InvalidOperationException(
-            $"Enemy slot {slot.SlotIndex} has no initialized Metaree state.");
-
     /// <summary>Ports Metaree's initialization AI.</summary>
     internal static void RunMetareeInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
     {
@@ -245,20 +240,14 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Ports Metaree's main AI.</summary>
     internal void RunMetareeMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
-        RunMetareeMain(slot, RequireMetareeState(slot), frame.Samus, frame.Level);
+        RunMetareeMain(slot, slot.RequireSpeciesState<MetareeEnemyState>(), frame.Samus, frame.Level);
     }
 
     /// <summary>Advances Metaree's typed animation.</summary>
-    internal static void AdvanceMetareeTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _)
-    {
-        if (!EnemyProgramAnimation.Expire(slot))
-            return;
-        var state = RequireMetareeState(slot);
-        AnimationProgramCursor<SkreeMetareeProgram> cursor = state.Program;
-        EnemyProgramAnimation.Run(slot, SkreeMetareeAnimations.Programs, ref cursor, SkreeMetareeFrameDefinitions.ShownFrames.Of,
-                (cue, _) => ApplyMetareeCue(slot, state, cue));
-        state.Program = cursor;
-    }
+    internal static void AdvanceMetareeTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _) =>
+        EnemyProgramAnimation.Advance(slot, SkreeMetareeAnimations.Programs, SkreeMetareeFrameDefinitions.ShownFrames.Of,
+            static (MetareeEnemyState state) => state.Program, static (state, cursor) => state.Program = cursor,
+            (state, cue, _) => ApplyMetareeCue(slot, state, cue));
 
     /// <summary>Last library-two Metaree dive ($5B) or floor-impact ($5C) sound this enemy pass, using the Max6 queue entry; cleared before the next pass.</summary>
     public SoundEffectId? LastMetareeSoundEffect { get; private set; }

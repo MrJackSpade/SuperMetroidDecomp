@@ -137,21 +137,10 @@ internal sealed class MultiviolaBehavior : IEnemySpecies, IEnemyEntityFactory
         SnesSignedSixteenSixteen.FromParts(
             unchecked((short)~axis.WholeWord), unchecked((ushort)(~axis.Fraction + 1)));
 
-    /// <summary>Gets the initialized state for an enemy slot or reports a missing room-load setup.</summary>
-    internal static MultiviolaEnemyState RequireMultiviolaState(RoomEnemySlot slot) =>
-        slot.SpeciesState<MultiviolaEnemyState>() ?? throw new InvalidOperationException(
-            $"Enemy slot {slot.SlotIndex} has no initialized Multiviola state.");
-
     /// <summary>Advances Multiviola's typed animation.</summary>
-    internal static void AdvanceMultiviolaTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _)
-    {
-        if (!EnemyProgramAnimation.Expire(slot))
-            return;
-        var state = RequireMultiviolaState(slot);
-        AnimationProgramCursor<MultiviolaProgram> cursor = state.Program;
-        EnemyProgramAnimation.Run(slot, MultiviolaAnimations.Programs, ref cursor, MultiviolaFrameDefinitions.ShownFrames.Of);
-        state.Program = cursor;
-    }
+    internal static void AdvanceMultiviolaTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _) =>
+        EnemyProgramAnimation.Advance(slot, MultiviolaAnimations.Programs, MultiviolaFrameDefinitions.ShownFrames.Of,
+            static (MultiviolaEnemyState state) => state.Program, static (state, cursor) => state.Program = cursor);
 
     /// <summary>Ports Multiviola's initialization AI.</summary>
     internal static void RunMultiviolaInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
@@ -162,6 +151,6 @@ internal sealed class MultiviolaBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Ports Multiviola's main AI.</summary>
     internal void RunMultiviolaMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
-        RunMultiviolaMain(slot, RequireMultiviolaState(slot), frame.Level);
+        RunMultiviolaMain(slot, slot.RequireSpeciesState<MultiviolaEnemyState>(), frame.Level);
     }
 }

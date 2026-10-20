@@ -257,11 +257,6 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
             throw new InvalidOperationException("Rio movement requires the current room level data.");
     }
 
-    /// <summary>Returns the initialized Rio state paired with this physical enemy slot.</summary>
-    internal static RioEnemyState RequireRioState(RoomEnemySlot slot) =>
-        slot.SpeciesState<RioEnemyState>() ?? throw new InvalidOperationException(
-            $"Enemy slot {slot.SlotIndex} has no initialized Rio state.");
-
     /// <summary>Ports Rio's initialization AI.</summary>
     internal static void RunRioInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
     {
@@ -273,23 +268,17 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         RunRioMain(
             slot,
-            RequireRioState(slot),
+            slot.RequireSpeciesState<RioEnemyState>(),
             frame.Samus,
             frame.Level,
             frame.Camera);
     }
 
     /// <summary>Advances Rio's typed animation.</summary>
-    internal static void AdvanceRioTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _)
-    {
-        if (!EnemyProgramAnimation.Expire(slot))
-            return;
-        var state = RequireRioState(slot);
-        AnimationProgramCursor<RioProgram> cursor = state.Program;
-        EnemyProgramAnimation.Run(slot, RioAnimations.Programs, ref cursor, RioFrameDefinitions.ShownFrames.Of,
-                (cue, _) => ApplyRioCue(state, cue));
-        state.Program = cursor;
-    }
+    internal static void AdvanceRioTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _) =>
+        EnemyProgramAnimation.Advance(slot, RioAnimations.Programs, RioFrameDefinitions.ShownFrames.Of,
+            static (RioEnemyState state) => state.Program, static (state, cursor) => state.Program = cursor,
+            (state, cue, _) => ApplyRioCue(state, cue));
 
     /// <inheritdoc/>
     public void BeginEnemyFrame(RoomEnemyFrame frame)

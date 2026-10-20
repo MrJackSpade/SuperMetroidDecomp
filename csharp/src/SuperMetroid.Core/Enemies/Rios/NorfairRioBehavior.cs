@@ -232,7 +232,7 @@ internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
         }
         ValidateNorfairRioParent(follower);
 
-        NorfairRioEnemyState parentState = RequireNorfairRioState(parent);
+        NorfairRioEnemyState parentState = parent.RequireSpeciesState<NorfairRioEnemyState>();
         follower.FrozenTimer = parent.FrozenTimer;
         if (!parent.FrozenTimer.IsZero ||
             parentState.InstalledProgram == NorfairRioProgram.Idle)
@@ -324,11 +324,6 @@ internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
             throw new InvalidOperationException("Norfair Rio movement requires room level data.");
     }
 
-    /// <summary>Gets initialized AI state for a Rio slot or reports a missing binding.</summary>
-    internal static NorfairRioEnemyState RequireNorfairRioState(RoomEnemySlot slot) =>
-        slot.SpeciesState<NorfairRioEnemyState>() ?? throw new InvalidOperationException(
-            $"Enemy slot {slot.SlotIndex} has no initialized Norfair Rio state.");
-
     /// <summary>Ports NorfairRio's initialization AI.</summary>
     internal void RunNorfairRioInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
     {
@@ -340,22 +335,16 @@ internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         RunNorfairRioMain(
             slot,
-            RequireNorfairRioState(slot),
+            slot.RequireSpeciesState<NorfairRioEnemyState>(),
             frame.Samus,
             frame.Level);
     }
 
     /// <summary>Advances NorfairRio's typed animation.</summary>
-    internal static void AdvanceNorfairRioTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _)
-    {
-        if (!EnemyProgramAnimation.Expire(slot))
-            return;
-        var state = RequireNorfairRioState(slot);
-        AnimationProgramCursor<NorfairRioProgram> cursor = state.Program;
-        EnemyProgramAnimation.Run(slot, NorfairRioAnimations.Programs, ref cursor, NorfairRioFrameDefinitions.ShownFrames.Of,
-                (cue, _) => ApplyNorfairRioCue(state, cue));
-        state.Program = cursor;
-    }
+    internal static void AdvanceNorfairRioTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _) =>
+        EnemyProgramAnimation.Advance(slot, NorfairRioAnimations.Programs, NorfairRioFrameDefinitions.ShownFrames.Of,
+            static (NorfairRioEnemyState state) => state.Program, static (state, cursor) => state.Program = cursor,
+            (state, cue, _) => ApplyNorfairRioCue(state, cue));
 
     /// <inheritdoc/>
     public void BeginEnemyFrame(RoomEnemyFrame frame)

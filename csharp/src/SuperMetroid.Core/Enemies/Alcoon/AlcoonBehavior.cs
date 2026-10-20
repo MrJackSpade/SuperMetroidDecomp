@@ -388,11 +388,6 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
             : AlcoonProgram.WalkingRightLoop;
     }
 
-    /// <summary>Requires per-slot state created by the Alcoon initializer.</summary>
-    internal static AlcoonEnemyState RequireAlcoonState(RoomEnemySlot slot) =>
-        slot.SpeciesState<AlcoonEnemyState>() ?? throw new InvalidOperationException(
-            $"Enemy slot {slot.SlotIndex} has no initialized Alcoon state.");
-
     /// <summary>Connects Alcoon fireballs to their bank-$86 movement pre-instruction.</summary>
     internal static void RegisterAlcoonProjectiles(EnemyProjectileHandlerTable table)
     {
@@ -411,20 +406,14 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Ports Alcoon's main AI.</summary>
     internal void RunAlcoonMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
-        RunAlcoonMain(slot, RequireAlcoonState(slot), frame.Samus, frame.Level);
+        RunAlcoonMain(slot, slot.RequireSpeciesState<AlcoonEnemyState>(), frame.Samus, frame.Level);
     }
 
     /// <summary>Advances Alcoon's typed animation.</summary>
-    internal void AdvanceAlcoonTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext context)
-    {
-        if (!EnemyProgramAnimation.Expire(slot))
-            return;
-        var state = RequireAlcoonState(slot);
-        AnimationProgramCursor<AlcoonProgram> cursor = state.Program;
-        EnemyProgramAnimation.Run(slot, AlcoonAnimations.Programs, ref cursor, AlcoonFrameDefinitions.ShownFrames.Of,
-                (cue, _) => ApplyAlcoonCue(slot, state, context.Level, cue));
-        state.Program = cursor;
-    }
+    internal void AdvanceAlcoonTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext context) =>
+        EnemyProgramAnimation.Advance(slot, AlcoonAnimations.Programs, AlcoonFrameDefinitions.ShownFrames.Of,
+            static (AlcoonEnemyState state) => state.Program, static (state, cursor) => state.Program = cursor,
+            (state, cue, _) => ApplyAlcoonCue(slot, state, context.Level, cue));
 
     /// <summary>Initial horizontal fireball speed in native 8.8 units.</summary>
     private const ushort AlcoonFireballGraphicsHorizontalSpeed = 1024;
@@ -449,7 +438,7 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
         if (projectile is null)
             return;
 
-        AlcoonEnemyState state = RequireAlcoonState(alcoon);
+        AlcoonEnemyState state = alcoon.RequireSpeciesState<AlcoonEnemyState>();
         bool movingLeft = state.Velocity.X.WholePixels < 0;
 
         // SpawnEnemyProjectileY_ParameterA_XGraphics copies the complete seven-word $9E90

@@ -110,7 +110,7 @@ internal static class SbugMovementDefinitionsVerification
         slot.SetSpawnParameter2(1);
         slot.Position = slot.Position.WithWhole(new(512, 512));
         SbugBehavior.InitializeSbug(slot);
-        SbugEnemyState state = SbugBehavior.RequireSbugState(slot);
+        SbugEnemyState state = slot.RequireSpeciesState<SbugEnemyState>();
         state.FaceCustomHeading(SnesAngle.FromTableIndex(240));
         state.Function = SbugEnemyFunction.ChooseRandomDirectionAndReverseWhenFar;
         var samus = new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(Position16<RoomPixels>.Zero) };

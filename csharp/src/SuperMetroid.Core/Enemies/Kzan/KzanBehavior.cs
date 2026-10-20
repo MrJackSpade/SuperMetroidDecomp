@@ -243,21 +243,10 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
         samus.Kinematics.ExtraDisplacement += new Offset16<RoomPixels>(0, (slot.Position.Whole - state.PreviousPosition).Y);
     }
 
-    /// <summary>Rejects a top AI call before its matching per-slot state has been initialized.</summary>
-    internal static KzanEnemyState RequireKzanState(RoomEnemySlot slot) =>
-        slot.SpeciesState<KzanEnemyState>() ?? throw new InvalidOperationException(
-            $"Enemy slot {slot.SlotIndex} has no initialized Kzan-top state.");
-
     /// <summary>Advances Kzan's typed animation.</summary>
-    internal static void AdvanceKzanTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _)
-    {
-        if (!EnemyProgramAnimation.Expire(slot))
-            return;
-        var state = RequireKzanState(slot);
-        AnimationProgramCursor<KzanProgram> cursor = state.Program;
-        EnemyProgramAnimation.Run(slot, KzanAnimations.Programs, ref cursor, KzanFrameDefinitions.ShownFrames.Of);
-        state.Program = cursor;
-    }
+    internal static void AdvanceKzanTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _) =>
+        EnemyProgramAnimation.Advance(slot, KzanAnimations.Programs, KzanFrameDefinitions.ShownFrames.Of,
+            static (KzanEnemyState state) => state.Program, static (state, cursor) => state.Program = cursor);
 
     /// <summary>Ports KzanTop's initialization AI.</summary>
     internal void RunKzanTopInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
@@ -274,7 +263,7 @@ internal sealed class KzanBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Ports KzanTop's main AI.</summary>
     internal void RunKzanTopMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
-        RunKzanTopMain(slot, RequireKzanState(slot), frame.Samus);
+        RunKzanTopMain(slot, slot.RequireSpeciesState<KzanEnemyState>(), frame.Samus);
     }
 
     /// <summary>Ports KzanBottom's main AI.</summary>

@@ -583,18 +583,13 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
         return unchecked((ushort)((2 * (SnesLittleEndian.HighByte(negatedProduct))) | EnemyWordMasks.SignExtendedHighByte));
     }
 
-    /// <summary>Requires the state installed by Maw initialization for a given enemy slot.</summary>
-    internal static YappingMawEnemyState RequireYappingMawState(RoomEnemySlot slot) =>
-        slot.SpeciesState<YappingMawEnemyState>() ?? throw new InvalidOperationException(
-            $"Yapping Maw slot {slot.SlotIndex} has no initialized native state.");
-
     /// <summary>Routes bomb hits through the Maw's shared shot callback.</summary>
     internal static void RegisterYappingMawBombReactions(EnemySharedReactions table)
     {
         table.AddBombCommon(new EnemyBombReaction(c => c.Enemy.EnemyDefinitionPointer == EnemyDefinitionId.YappingMaw &&
                                                        c.SelectedShotAi == EnemyInteractionCallback.YappingMawShot)
         {
-            AfterCommon = c => ResolveYappingMawShotAfterCommon(c.Enemy, RequireYappingMawState(c.Enemy), c.Samus),
+            AfterCommon = c => ResolveYappingMawShotAfterCommon(c.Enemy, c.Enemy.RequireSpeciesState<YappingMawEnemyState>(), c.Samus),
         });
     }
 
@@ -609,22 +604,16 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         RunYappingMawMain(
             slot,
-            RequireYappingMawState(slot),
+            slot.RequireSpeciesState<YappingMawEnemyState>(),
             frame.Samus,
             frame.Camera);
     }
 
     /// <summary>Advances YappingMaw's typed animation.</summary>
-    internal void AdvanceYappingMawTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _)
-    {
-        if (!EnemyProgramAnimation.Expire(slot))
-            return;
-        var state = RequireYappingMawState(slot);
-        AnimationProgramCursor<YappingMawProgram> cursor = state.Program;
-        EnemyProgramAnimation.Run(slot, YappingMawAnimations.Programs, ref cursor, YappingMawFrameDefinitions.ShownFrames.Of,
-                (cue, _) => ApplyYappingMawCue(state, cue));
-        state.Program = cursor;
-    }
+    internal void AdvanceYappingMawTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _) =>
+        EnemyProgramAnimation.Advance(slot, YappingMawAnimations.Programs, YappingMawFrameDefinitions.ShownFrames.Of,
+            static (YappingMawEnemyState state) => state.Program, static (state, cursor) => state.Program = cursor,
+            (state, cue, _) => ApplyYappingMawCue(state, cue));
 
     /// <summary>Handles frozen release and death cleanup after common shot damage.</summary>
     internal static void RegisterYappingMawShotReactions(EnemySharedReactions table)
@@ -632,7 +621,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
         table.AddShot(new EnemyShotReaction(enemy => enemy.EnemyDefinitionPointer == EnemyDefinitionId.YappingMaw &&
                                                      EnemyCollision.ShotAi(enemy) == EnemyInteractionCallback.YappingMawShot)
         {
-            AfterCommon = (c, _) => ResolveYappingMawShotAfterCommon(c.Enemy, RequireYappingMawState(c.Enemy), c.Samus),
+            AfterCommon = (c, _) => ResolveYappingMawShotAfterCommon(c.Enemy, c.Enemy.RequireSpeciesState<YappingMawEnemyState>(), c.Samus),
         });
     }
 
@@ -643,7 +632,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
         // ownership to the mouth state machine.
         table.AddTouch(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.YappingMaw &&
                                EnemyCollision.TouchAi(slot) == EnemyInteractionCallback.YappingMawTouch,
-            context => ResolveYappingMawTouch(RequireYappingMawState(context.Slot), context.Samus));
+            context => ResolveYappingMawTouch(context.Slot.RequireSpeciesState<YappingMawEnemyState>(), context.Samus));
     }
 
     /// <inheritdoc/>
@@ -662,5 +651,5 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Routes frozen palette updates to all body links and the root sprite object.</summary>
     internal static void RegisterYappingMawFrozenAi(EnemySharedReactions table) =>
         table.AddFrozen(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.YappingMaw,
-            slot => RunYappingMawFrozen(slot, RequireYappingMawState(slot)));
+            slot => RunYappingMawFrozen(slot, slot.RequireSpeciesState<YappingMawEnemyState>()));
 }

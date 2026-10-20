@@ -185,11 +185,6 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.Timer = NativeCountdown.Start(0);
     }
 
-    /// <summary>Requires an initialized typed state before a Cacatac AI or list callback runs.</summary>
-    internal static CacatacEnemyState RequireCacatacState(RoomEnemySlot slot) =>
-        slot.SpeciesState<CacatacEnemyState>() ?? throw new InvalidOperationException(
-            $"Enemy slot {slot.SlotIndex} has no initialized Cacatac state.");
-
     /// <summary>Registers the spike's ten direction-table movers and viewport cull.</summary>
     internal static void RegisterCacatacProjectiles(EnemyProjectileHandlerTable table)
     {
@@ -209,20 +204,14 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Ports Cacatac's main AI.</summary>
     internal void RunCacatacMainAi(RoomEnemySlot slot, IEnemyAiFrame _)
     {
-        RunCacatacMain(slot, RequireCacatacState(slot));
+        RunCacatacMain(slot, slot.RequireSpeciesState<CacatacEnemyState>());
     }
 
     /// <summary>Advances Cacatac's typed animation.</summary>
-    internal void AdvanceCacatacTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _)
-    {
-        if (!EnemyProgramAnimation.Expire(slot))
-            return;
-        var state = RequireCacatacState(slot);
-        AnimationProgramCursor<CacatacProgram> cursor = state.Program;
-        EnemyProgramAnimation.Run(slot, CacatacAnimations.Programs, ref cursor, CacatacFrameDefinitions.ShownFrames.Of,
-                (cue, _) => ApplyCacatacCue(slot, state, cue));
-        state.Program = cursor;
-    }
+    internal void AdvanceCacatacTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _) =>
+        EnemyProgramAnimation.Advance(slot, CacatacAnimations.Programs, CacatacFrameDefinitions.ShownFrames.Of,
+            static (CacatacEnemyState state) => state.Program, static (state, cursor) => state.Program = cursor,
+            (state, cue, _) => ApplyCacatacCue(slot, state, cue));
 
     /// <summary>
     /// Ports <c>SpawnEnemyProjectileY_ParameterA_XGraphics</c> and initializer $86:D992.

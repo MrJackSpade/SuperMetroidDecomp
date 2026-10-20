@@ -312,21 +312,10 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
     /// </summary>
     private static int AddAndCap(int value, int increment, int maximum) => Math.Min(value + increment, maximum);
 
-    /// <summary>Rejects main AI before the slot's Boulder state has been initialized.</summary>
-    internal static BoulderEnemyState RequireBoulderState(RoomEnemySlot slot) =>
-        slot.SpeciesState<BoulderEnemyState>() ?? throw new InvalidOperationException(
-            $"Enemy slot {slot.SlotIndex} has no initialized Boulder state.");
-
     /// <summary>Advances Boulder's typed animation.</summary>
-    internal static void AdvanceBoulderTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _)
-    {
-        if (!EnemyProgramAnimation.Expire(slot))
-            return;
-        var state = RequireBoulderState(slot);
-        AnimationProgramCursor<BoulderProgram> cursor = state.Program;
-        EnemyProgramAnimation.Run(slot, BoulderAnimations.Programs, ref cursor, BoulderFrameDefinitions.ShownFrames.Of);
-        state.Program = cursor;
-    }
+    internal static void AdvanceBoulderTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _) =>
+        EnemyProgramAnimation.Advance(slot, BoulderAnimations.Programs, BoulderFrameDefinitions.ShownFrames.Of,
+            static (BoulderEnemyState state) => state.Program, static (state, cursor) => state.Program = cursor);
 
     /// <summary>Ports Boulder's initialization AI.</summary>
     internal static void RunBoulderInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
@@ -337,7 +326,7 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Ports Boulder's main AI.</summary>
     internal void RunBoulderMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
-        RunBoulderMain(slot, RequireBoulderState(slot), frame.Samus, frame.Level);
+        RunBoulderMain(slot, slot.RequireSpeciesState<BoulderEnemyState>(), frame.Samus, frame.Level);
     }
 
     /// <inheritdoc/>

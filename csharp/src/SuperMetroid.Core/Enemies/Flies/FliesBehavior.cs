@@ -51,7 +51,7 @@ internal sealed class FliesBehavior : IEnemySpecies, IEnemyEntityFactory
         // $A2:B11F advances the global RNG even though this family does not consume the
         // returned word. The side effect matters when several random enemies share a room.
         _room.Random.Generate();
-        FlyEnemyState state = RequireFlyState(slot);
+        FlyEnemyState state = slot.RequireSpeciesState<FlyEnemyState>();
         switch (state.Function)
         {
             case FlyEnemyFunction.ClockwiseCircle:
@@ -159,17 +159,12 @@ internal sealed class FliesBehavior : IEnemySpecies, IEnemyEntityFactory
         return EnemyTrigonometryTables.SignedNegativeCosineWord(index);
     }
 
-    /// <summary>Requires the motion state installed for a live fly slot before its AI runs.</summary>
-    private static FlyEnemyState RequireFlyState(RoomEnemySlot slot) =>
-        slot.SpeciesState<FlyEnemyState>() ?? throw new InvalidOperationException(
-            $"Enemy slot {slot.SlotIndex} has no initialized fly state.");
-
     /// <summary>Advances Flies's typed animation.</summary>
     internal static void AdvanceFliesTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _)
     {
         if (!EnemyProgramAnimation.Expire(slot))
             return;
-        FlyEnemyState state = RequireFlyState(slot);
+        FlyEnemyState state = slot.RequireSpeciesState<FlyEnemyState>();
         AnimationProgramCursor<FlyProgram> cursor = state.Program;
         EnemyProgramAnimation.Run(slot, FlyAnimations.Programs, ref cursor, FlyFrameDefinitions.ShownFrames.Of);
         state.Program = cursor;

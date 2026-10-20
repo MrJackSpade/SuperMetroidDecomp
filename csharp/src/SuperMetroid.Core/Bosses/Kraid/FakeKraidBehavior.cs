@@ -51,10 +51,10 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
             case FakeKraidCueKind.Move:
                 // Walk opcode: advance one four-pixel step unless its random reversal
                 // clock expires, then refresh the live facing marker from Samus.
-                ProcessFakeKraidWalkInstruction(slot, RequireFakeKraidState(slot), samus, level);
+                ProcessFakeKraidWalkInstruction(slot, slot.RequireSpeciesState<FakeKraidEnemyState>(), samus, level);
                 return null;
             case FakeKraidCueKind.ChooseAction:
-                return SelectFakeKraidAction(RequireFakeKraidState(slot));
+                return SelectFakeKraidAction(slot.RequireSpeciesState<FakeKraidEnemyState>());
             case FakeKraidCueKind.PlayCrySound:
                 // `$A6:9BB2` queues sound $16 only while the actor origin is inside the
                 // inclusive 256x256 native screen rectangle.
@@ -62,10 +62,10 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
                     LastFakeKraidSoundEffect = KraidSoundDefinitions.MiniKraidCry;
                 return null;
             case FakeKraidCueKind.SpitLeft:
-                SpawnFakeKraidSpitPair(slot, RequireFakeKraidState(slot), movingRight: false);
+                SpawnFakeKraidSpitPair(slot, slot.RequireSpeciesState<FakeKraidEnemyState>(), movingRight: false);
                 return null;
             case FakeKraidCueKind.SpitRight:
-                SpawnFakeKraidSpitPair(slot, RequireFakeKraidState(slot), movingRight: true);
+                SpawnFakeKraidSpitPair(slot, slot.RequireSpeciesState<FakeKraidEnemyState>(), movingRight: true);
                 return null;
             default:
                 throw new InvalidOperationException($"Mini-Kraid's animations have no {cue.Kind} cue.");
@@ -336,11 +336,6 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
         unchecked((short)(slot.Position.Y.Whole - camera.Y)) >= 0 &&
         unchecked((short)(camera.Y + 256 - slot.Position.Y.Whole)) >= 0;
 
-    /// <summary>Rejects a callback for a Mini-Kraid slot whose species state has not initialized.</summary>
-    internal static FakeKraidEnemyState RequireFakeKraidState(RoomEnemySlot slot) =>
-        slot.SpeciesState<FakeKraidEnemyState>() ?? throw new InvalidOperationException(
-            $"Enemy slot {slot.SlotIndex} has no initialized Fake Kraid state.");
-
     /// <summary>
     /// Ports <c>Reaction_MiniKraid_Common</c> ($A6:9C50): <c>EnemyDeath</c> spawns death
     /// explosion three and clears the slot, then <c>MiniKraidDeathItemDropRoutine</c>
@@ -404,21 +399,15 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         RunFakeKraidMain(
             slot,
-            RequireFakeKraidState(slot),
+            slot.RequireSpeciesState<FakeKraidEnemyState>(),
             frame.Camera);
     }
 
     /// <summary>Advances FakeKraid's typed animation.</summary>
-    internal void AdvanceFakeKraidTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext context)
-    {
-        if (!EnemyProgramAnimation.Expire(slot))
-            return;
-        var state = RequireFakeKraidState(slot);
-        AnimationProgramCursor<FakeKraidProgram> cursor = state.Program;
-        EnemyProgramAnimation.Run(slot, FakeKraidAnimations.Programs, ref cursor, FakeKraidFrameDefinitions.ShownFrames.Of,
-                (cue, _) => ApplyFakeKraidCue(slot, cue, context.Samus, context.Level, context.Camera));
-        state.Program = cursor;
-    }
+    internal void AdvanceFakeKraidTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext context) =>
+        EnemyProgramAnimation.Advance(slot, FakeKraidAnimations.Programs, FakeKraidFrameDefinitions.ShownFrames.Of,
+            static (FakeKraidEnemyState state) => state.Program, static (state, cursor) => state.Program = cursor,
+            (state, cue, _) => ApplyFakeKraidCue(slot, cue, context.Samus, context.Level, context.Camera));
 
     /// <summary>Spawns Mini-Kraid's own explosion and four drops after a lethal power bomb.</summary>
     internal void RegisterFakeKraidPowerBombReactions(EnemySharedReactions table)

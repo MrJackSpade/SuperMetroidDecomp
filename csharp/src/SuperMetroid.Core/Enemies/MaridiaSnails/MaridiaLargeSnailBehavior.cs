@@ -513,11 +513,6 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
     private void ResolveMaridiaLargeSnailShotAfterCommon() =>
         LastMaridiaLargeSnailSoundEffect = MaridiaLargeSnailShotSound;
 
-    /// <summary>Requires an initialized Oum extension for the physical enemy slot.</summary>
-    internal static MaridiaLargeSnailEnemyState RequireMaridiaLargeSnailState(RoomEnemySlot slot) =>
-        slot.SpeciesState<MaridiaLargeSnailEnemyState>() ?? throw new InvalidOperationException(
-            $"Enemy slot {slot.SlotIndex} has no initialized Maridia Large Snail state.");
-
     /// <summary>Publishes Oum's native shot sound after common bomb damage.</summary>
     internal void RegisterMaridiaLargeSnailBombReactions(EnemySharedReactions table)
     {
@@ -539,23 +534,17 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
     {
         RunMaridiaLargeSnailMain(
             slot,
-            RequireMaridiaLargeSnailState(slot),
+            slot.RequireSpeciesState<MaridiaLargeSnailEnemyState>(),
             frame.Samus,
             frame.Level,
             frame.ControllerInput);
     }
 
     /// <summary>Advances MaridiaLargeSnail's typed animation.</summary>
-    internal void AdvanceMaridiaLargeSnailTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _)
-    {
-        if (!EnemyProgramAnimation.Expire(slot))
-            return;
-        var state = RequireMaridiaLargeSnailState(slot);
-        AnimationProgramCursor<MaridiaLargeSnailProgram> cursor = state.Program;
-        EnemyProgramAnimation.Run(slot, MaridiaLargeSnailAnimations.Programs, ref cursor, MaridiaLargeSnailFrameDefinitions.ShownFrames.Of,
-                (cue, _) => ApplyMaridiaLargeSnailCue(state, cue));
-        state.Program = cursor;
-    }
+    internal void AdvanceMaridiaLargeSnailTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _) =>
+        EnemyProgramAnimation.Advance(slot, MaridiaLargeSnailAnimations.Programs, MaridiaLargeSnailFrameDefinitions.ShownFrames.Of,
+            static (MaridiaLargeSnailEnemyState state) => state.Program, static (state, cursor) => state.Program = cursor,
+            (state, cue, _) => ApplyMaridiaLargeSnailCue(state, cue));
 
     /// <summary>Preserves protected-shell no-op hits and runs common damage only for vulnerable hitboxes.</summary>
     internal void RegisterMaridiaLargeSnailShotReactions(EnemySharedReactions table)

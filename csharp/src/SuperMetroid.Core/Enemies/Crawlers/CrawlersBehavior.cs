@@ -152,7 +152,7 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
             throw new InvalidOperationException("HZoomer AI requires the active Samus actor.");
         if (level is null)
             throw new InvalidOperationException("HZoomer movement requires room collision data.");
-        CrawlerEnemyState state = RequireCrawlerState(slot);
+        CrawlerEnemyState state = slot.RequireSpeciesState<CrawlerEnemyState>();
         switch (state.Function)
         {
             case CrawlerEnemyFunction.HZoomerInstructionPending:
@@ -301,7 +301,7 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         if (level is null)
             throw new InvalidOperationException("Crawler movement requires active room collision data.");
-        CrawlerEnemyState state = RequireCrawlerState(slot);
+        CrawlerEnemyState state = slot.RequireSpeciesState<CrawlerEnemyState>();
         switch (state.Function)
         {
             case CrawlerEnemyFunction.InstructionPending:
@@ -507,11 +507,6 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
         return SnesSixteenSixteen.FromEightEight(velocity.X.SignedRawValue);
     }
 
-    /// <summary>Rejects a crawler callback before its physical slot initializes surface state.</summary>
-    internal static CrawlerEnemyState RequireCrawlerState(RoomEnemySlot slot) =>
-        slot.SpeciesState<CrawlerEnemyState>() ?? throw new InvalidOperationException(
-            $"Enemy slot {slot.SlotIndex} has no initialized crawler state.");
-
     /// <summary>Gives the occupant's entity its freshly initialized state.</summary>
     private static void Bind(RoomEnemySlot slot, CrawlerEnemyState state) =>
         slot.SetSpeciesState(state, state.ClearWithRecord);
@@ -555,14 +550,8 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
         RunHZoomerMain(slot, frame.Samus, frame.Level);
 
     /// <summary>Runs the crawlers' surface animations as typed programs (#641).</summary>
-    internal static void AdvanceCrawlerTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _)
-    {
-        if (!EnemyProgramAnimation.Expire(slot))
-            return;
-        var state = RequireCrawlerState(slot);
-        AnimationProgramCursor<CrawlerProgram> cursor = state.Program;
-        EnemyProgramAnimation.Run(slot, CrawlerAnimations.Programs, ref cursor, CrawlerFrameDefinitions.ShownFrames.Of,
-                (cue, _) => ApplyCrawlerCue(state, cue));
-        state.Program = cursor;
-    }
+    internal static void AdvanceCrawlerTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _) =>
+        EnemyProgramAnimation.Advance(slot, CrawlerAnimations.Programs, CrawlerFrameDefinitions.ShownFrames.Of,
+            static (CrawlerEnemyState state) => state.Program, static (state, cursor) => state.Program = cursor,
+            (state, cue, _) => ApplyCrawlerCue(state, cue));
 }

@@ -751,21 +751,10 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.InstructionTimer = NativeCountdown.Start(1);
     }
 
-    /// <summary>Finds initialized state for a live Etecoon or rejects an unrelated slot callback.</summary>
-    internal static EtecoonEnemyState RequireEtecoonState(RoomEnemySlot slot) =>
-        slot.SpeciesState<EtecoonEnemyState>() ?? throw new InvalidOperationException(
-            $"Enemy slot {slot.SlotIndex} has no initialized Etecoon state.");
-
     /// <summary>Advances Etecoon's typed animation.</summary>
-    internal static void AdvanceEtecoonTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _)
-    {
-        if (!EnemyProgramAnimation.Expire(slot))
-            return;
-        var state = RequireEtecoonState(slot);
-        AnimationProgramCursor<EtecoonProgram> cursor = state.Program;
-        EnemyProgramAnimation.Run(slot, EtecoonAnimations.Programs, ref cursor, EtecoonFrameDefinitions.ShownFrames.Of);
-        state.Program = cursor;
-    }
+    internal static void AdvanceEtecoonTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _) =>
+        EnemyProgramAnimation.Advance(slot, EtecoonAnimations.Programs, EtecoonFrameDefinitions.ShownFrames.Of,
+            static (EtecoonEnemyState state) => state.Program, static (state, cursor) => state.Program = cursor);
 
     /// <summary>Ports Etecoon's initialization AI.</summary>
     internal static void RunEtecoonInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
@@ -776,7 +765,7 @@ internal sealed class EtecoonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Ports Etecoon's main AI.</summary>
     internal void RunEtecoonMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
-        RunEtecoonMain(slot, RequireEtecoonState(slot), frame.Samus, frame.Level);
+        RunEtecoonMain(slot, slot.RequireSpeciesState<EtecoonEnemyState>(), frame.Samus, frame.Level);
     }
 
     /// <inheritdoc/>

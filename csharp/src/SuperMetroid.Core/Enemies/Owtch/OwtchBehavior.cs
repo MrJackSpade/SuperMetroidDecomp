@@ -210,11 +210,6 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.Timer = NativeCountdown.Start(0);
     }
 
-    /// <summary>Rejects Owtch AI or collision callbacks before slot initialization.</summary>
-    internal static OwtchEnemyState RequireOwtchState(RoomEnemySlot slot) =>
-        slot.SpeciesState<OwtchEnemyState>() ?? throw new InvalidOperationException(
-            $"Enemy slot {slot.SlotIndex} has no initialized Owtch state.");
-
     /// <summary>Allows common bomb damage only while Owtch occupies vulnerable movement state zero.</summary>
     internal static void RegisterOwtchBombReactions(EnemySharedReactions table)
     {
@@ -222,7 +217,7 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
         table.AddBombCommon(new EnemyBombReaction(c => c.Enemy.EnemyDefinitionPointer == EnemyDefinitionId.Owtch &&
                                                        c.SelectedShotAi == EnemyInteractionCallback.OwtchShot)
         {
-            Rejects = c => !OwtchAcceptsOrdinaryShot(RequireOwtchState(c.Enemy)),
+            Rejects = c => !OwtchAcceptsOrdinaryShot(c.Enemy.RequireSpeciesState<OwtchEnemyState>()),
         });
     }
 
@@ -235,20 +230,14 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Ports Owtch's main AI.</summary>
     internal void RunOwtchMainAi(RoomEnemySlot slot, IEnemyAiFrame _)
     {
-        RunOwtchMain(slot, RequireOwtchState(slot));
+        RunOwtchMain(slot, slot.RequireSpeciesState<OwtchEnemyState>());
     }
 
     /// <summary>Advances Owtch's typed animation.</summary>
-    internal static void AdvanceOwtchTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _)
-    {
-        if (!EnemyProgramAnimation.Expire(slot))
-            return;
-        var state = RequireOwtchState(slot);
-        AnimationProgramCursor<OwtchProgram> cursor = state.Program;
-        EnemyProgramAnimation.Run(slot, OwtchAnimations.Programs, ref cursor, OwtchFrameDefinitions.ShownFrames.Of,
-                (cue, _) => ApplyOwtchCue(state, cue));
-        state.Program = cursor;
-    }
+    internal static void AdvanceOwtchTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _) =>
+        EnemyProgramAnimation.Advance(slot, OwtchAnimations.Programs, OwtchFrameDefinitions.ShownFrames.Of,
+            static (OwtchEnemyState state) => state.Program, static (state, cursor) => state.Program = cursor,
+            (state, cue, _) => ApplyOwtchCue(state, cue));
 
     /// <summary>Preserves collision marking while rejecting ordinary shots against Owtch's shell.</summary>
     internal static void RegisterOwtchShotReactions(EnemySharedReactions table)
@@ -262,7 +251,7 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
             // immune while moving right, sinking, buried, or rising.
             AfterSuperMissileQuake = (in EnemyShotContext c) =>
             {
-                if (OwtchAcceptsOrdinaryShot(RequireOwtchState(c.Enemy)))
+                if (OwtchAcceptsOrdinaryShot(c.Enemy.RequireSpeciesState<OwtchEnemyState>()))
                     return false;
                 if (c.MarksCollision)
                     c.Projectile.Direction = unchecked((ushort)(c.Projectile.Direction | SamusProjectileDirectionMasks.Spent));

@@ -19,10 +19,8 @@ public sealed class GameOverMenuState
     private readonly ControllerInputState controller = new();
     /// <summary>Native master brightness stepped once per fade update.</summary>
     private int brightness;
-    /// <summary>Counts updates until the selection missile advances a frame.</summary>
-    internal int missileTimer = 1;
-    /// <summary>Current cursor animation frame shared by Yes and No positions.</summary>
-    private int missileFrame;
+    /// <summary>The selection missile's frame cycle, shared by the Yes and No positions.</summary>
+    internal readonly MenuMissileAnimation missile = new();
     /// <summary>Current step of the Baby pose program, or null before the first animation update of this visit.</summary>
     internal int? babyStep;
     /// <summary>Remaining duration of the current Baby pose or accepted-answer hold.</summary>
@@ -135,7 +133,7 @@ public sealed class GameOverMenuState
         // Only indexes three, four, five and seven draw the selection missile.
         if (Phase is GameOverMenuPhase.FadeIn or GameOverMenuPhase.Main or
             GameOverMenuPhase.FadeOutToContinue or GameOverMenuPhase.FadeOutToTitle)
-            StepMissileAnimation();
+            missile.Step(mapPresentation?.GameOver.CursorFrameDuration);
 
         switch (Phase)
         {
@@ -244,7 +242,7 @@ public sealed class GameOverMenuState
         GameOverBabyInstruction instruction = GameOverBabyAnimation.Get(babyStep ?? 0);
         content.GameOver.DrawBaby(sprites, instruction.Frame);
         content.GameOver.DrawEgg(sprites);
-        content.GameOver.DrawCursor(sprites, missileFrame, SelectedItem != 0);
+        content.GameOver.DrawCursor(sprites, missile.Frame, SelectedItem != 0);
         sprites.FinishFrame();
     }
 
@@ -292,13 +290,4 @@ public sealed class GameOverMenuState
         audio.QueueSound(effect, maximumQueued: GameOverRomData.MaximumQueuedSounds);
     }
 
-    /// <summary>Cycles the selection cursor when its installed frame duration expires.</summary>
-    private void StepMissileAnimation()
-    {
-        if (--missileTimer != 0)
-            return;
-        missileFrame = (missileFrame + 1) % MenuMissileAnimationDefinitions.FrameCount;
-        missileTimer = mapPresentation?.GameOver.CursorFrameDuration ??
-            MenuMissileAnimationDefinitions.FrameDuration;
-    }
 }

@@ -168,7 +168,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
         if ((state.GenerationFlags & ZebetiteGenerationFlags.LinkedPair) != 0)
         {
             RoomEnemySlot secondary = SpawnZebetite(linkedHalf: true);
-            RequireZebetiteState(secondary).LinkedNativeIndex = slot.NativeIndex;
+            secondary.RequireSpeciesState<ZebetiteEnemyState>().LinkedNativeIndex = slot.NativeIndex;
             state.LinkedNativeIndex = secondary.NativeIndex;
         }
 
@@ -216,7 +216,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Applies the shared two-color cycle using physical slot zero's native counter when no fade suppresses it.</summary>
     internal void CycleZebetitePalette(RoomEnemySlot slot)
     {
-        if (PaletteChangeNumber != 0 || RequireZebetiteState(slot).IsSecondaryHalf)
+        if (PaletteChangeNumber != 0 || slot.RequireSpeciesState<ZebetiteEnemyState>().IsSecondaryHalf)
             return;
 
         int paletteCycle = (SharedPaletteCycle + 1) & ZebetiteDefinitions.PaletteCycleMask;
@@ -270,7 +270,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
     private void ResolveZebetiteShotAfterCommon(RoomEnemySlot struck)
     {
         LastZebetiteSoundEffect = ZebetiteShotSound;
-        ushort linkedIndex = checked((ushort)RequireZebetiteState(struck).LinkedNativeIndex);
+        ushort linkedIndex = checked((ushort)struck.RequireSpeciesState<ZebetiteEnemyState>().LinkedNativeIndex);
         if (linkedIndex >= RoomEnemySystem.MaximumEnemyCount * RoomEnemySystem.NativeSlotSize ||
             linkedIndex % RoomEnemySystem.NativeSlotSize != 0)
         {
@@ -328,11 +328,6 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
             _room.Services.Events.Clear(eventNumber);
     }
 
-    /// <summary>Gets the initialized state for a Zebetite slot and rejects a missing binding.</summary>
-    private static ZebetiteEnemyState RequireZebetiteState(RoomEnemySlot slot) =>
-        slot.SpeciesState<ZebetiteEnemyState>() ?? throw new InvalidOperationException(
-            $"Enemy slot {slot.SlotIndex} has no initialized Zebetite state.");
-
     /// <summary>Advances Zebetite's typed animation.</summary>
     internal static void AdvanceZebetiteTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _)
     {
@@ -345,7 +340,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
     /// </summary>
     internal static void AdvanceZebetiteAnimation(RoomEnemySlot slot)
     {
-        ZebetiteEnemyState state = RequireZebetiteState(slot);
+        ZebetiteEnemyState state = slot.RequireSpeciesState<ZebetiteEnemyState>();
         ushort oldTimer = slot.InstructionTimer.RawValue;
         slot.InstructionTimer = NativeCountdown.FromRaw(unchecked((ushort)(oldTimer - 1)));
         if (oldTimer != 1)
@@ -397,7 +392,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Ports Zebetite's main AI.</summary>
     internal void RunZebetiteMainAi(RoomEnemySlot slot, IEnemyAiFrame _)
     {
-        RunZebetiteMain(slot, RequireZebetiteState(slot));
+        RunZebetiteMain(slot, slot.RequireSpeciesState<ZebetiteEnemyState>());
     }
 
     /// <summary>Registers shot damage with the Zebetite-specific linked-health tail and no generic death.</summary>

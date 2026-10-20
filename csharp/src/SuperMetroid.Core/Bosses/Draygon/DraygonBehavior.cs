@@ -271,7 +271,7 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
         if (part.EnemyDefinitionPointer != EnemyDefinitionId.DraygonEye)
             throw new InvalidDataException("Draygon part dispatcher received another family.");
 
-        DraygonEyeFunction function = RequireEyeState(part).Function
+        DraygonEyeFunction function = part.RequireSpeciesState<DraygonEyeState>().Function
             ?? throw new InvalidDataException("Draygon's eye has no function.");
         switch (function)
         {
@@ -428,8 +428,7 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
         // whole/subpixel words consumed by AddToHiLo during descent.
         ushort distance = EnemyMath.WrappedMagnitude(unchecked((ushort)(
             state.LeftSideReset.X - samus.Position.X.Whole)));
-        uint velocity = SnesSixteenSixteen.FromWhole((uint)distance) / (uint)frameCount;
-        state.SwoopVelocity = velocity;
+        SetDraygonSwoopVelocity(state, distance, frameCount);
         state.SwoopOffset = byteOffset;
         state.SwoopEndOffset = byteOffset;
     }
@@ -489,8 +488,7 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
         if (frameCount == 0)
             throw new InvalidDataException("Draygon lost the swoop duration at the apex.");
         ushort distance = unchecked((ushort)(672 - body.Position.X.Whole));
-        uint velocity = SnesSixteenSixteen.FromWhole((uint)distance) / (uint)frameCount;
-        state.SwoopVelocity = velocity;
+        SetDraygonSwoopVelocity(state, distance, frameCount);
         state.Function = RightSwoop.Ascending;
     }
 
@@ -562,8 +560,7 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
 
         ushort distance = EnemyMath.WrappedMagnitude(unchecked((ushort)(
             state.RightSideReset.X - samus.Position.X.Whole)));
-        uint velocity = SnesSixteenSixteen.FromWhole((uint)distance) / (uint)frameCount;
-        state.SwoopVelocity = velocity;
+        SetDraygonSwoopVelocity(state, distance, frameCount);
         state.Function = DraygonAiFunction.SwoopLeftDescending;
         StartDraygonProgram(state.Body, DraygonProgram.BodyFacingLeftReset);
         state.FacingRight = false;
@@ -590,10 +587,16 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
             ? unchecked((ushort)(
                 unchecked((ushort)-resetX) + body.Position.X.Whole))
             : unchecked((ushort)(body.Position.X.Whole - resetX));
-        uint velocity = SnesSixteenSixteen.FromWhole((uint)distance) / (uint)frameCount;
-        state.SwoopVelocity = velocity;
+        SetDraygonSwoopVelocity(state, distance, frameCount);
         state.Function = LeftSwoop.Ascending;
     }
+
+    /// <summary>
+    /// Sets the swoop's 16.16 horizontal velocity: the whole-pixel distance promoted to 16.16 and divided by the path's
+    /// frame count, the quotient native code splits into the var_D/E whole and subpixel words.
+    /// </summary>
+    private static void SetDraygonSwoopVelocity(DraygonEnemyState state, ushort distance, int frameCount) =>
+        state.SwoopVelocity = SnesSixteenSixteen.FromWhole((uint)distance) / (uint)frameCount;
 
     /// <summary>Moves Draygon right or left by the current 16.16 velocity without losing its fraction.</summary>
     private static void MoveDraygonHorizontally(DraygonEnemyState state, bool rightward)
@@ -878,10 +881,10 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
                 state.RoomLoadingIrqCommand = RoomLoadingInterruptCommand.BeginHudDraw;
                 return null;
             case DraygonCue.SetEyeFunction eyeFunction:
-                RequireEyeState(RequirePart(state.Eye)).Function = eyeFunction.Function;
+                (RequirePart(state.Eye)).RequireSpeciesState<DraygonEyeState>().Function = eyeFunction.Function;
                 return null;
             case DraygonCue.SetOwnEyeFunction ownFunction:
-                RequireEyeState(part).Function = ownFunction.Function;
+                part.RequireSpeciesState<DraygonEyeState>().Function = ownFunction.Function;
                 return null;
             case DraygonCue.DisplaceBodyGraphics displace:
                 state.BodyGraphicsDisplacement = displace.Offset;
@@ -920,10 +923,6 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
     private static RoomEnemySlot RequirePart(RoomEnemySlot? part) =>
         part ?? throw new InvalidDataException("A Draygon program ran before all four parts loaded.");
 
-    /// <summary>The eye's state, failing if the eye never initialized.</summary>
-    private static DraygonEyeState RequireEyeState(RoomEnemySlot eye) =>
-        eye.SpeciesState<DraygonEyeState>() ?? throw new InvalidDataException("Draygon's eye has no state.");
-
     /// <summary>Checks Draygon's frame cadence for turret and eye direction updates.</summary>
     private void ObserveDraygonTurretCadence(
         DraygonEnemyState state,
@@ -958,7 +957,7 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
             eye.Position.X.Whole + (facingRight ? 24 : -24)))));
         short deltaY = unchecked((short)(samus.Position.Y.Whole - unchecked((ushort)(eye.Position.Y.Whole - 32))));
         byte angle = EnemyMath.CalculateCartridgeAngle(new(deltaX, deltaY)).RawValue;
-        DraygonEyeState eyeState = RequireEyeState(eye);
+        DraygonEyeState eyeState = eye.RequireSpeciesState<DraygonEyeState>();
         if (angle == (byte)eyeState.LookAngle)
             return;
 
@@ -1193,7 +1192,7 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
             state.FacingRight
                 ? DraygonProgram.EyeFacingRightDying
                 : DraygonProgram.EyeFacingLeftDying);
-        RequireEyeState(RequirePart(state.Eye)).Function = DraygonEyeFunction.Inert;
+        (RequirePart(state.Eye)).RequireSpeciesState<DraygonEyeState>().Function = DraygonEyeFunction.Inert;
         state.Function = DraygonAiFunction.Dying;
 
         // The native death callback releases Samus unconditionally, even during an
@@ -1281,7 +1280,7 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
             state.FacingRight
                 ? DraygonProgram.EyeFacingRightDead
                 : DraygonProgram.EyeFacingLeftDead);
-        RequireEyeState(eye).Function = DraygonEyeFunction.Inert;
+        eye.RequireSpeciesState<DraygonEyeState>().Function = DraygonEyeFunction.Inert;
     }
 
     /// <summary>Advances burial sprite motion while the pre-sink countdown expires.</summary>

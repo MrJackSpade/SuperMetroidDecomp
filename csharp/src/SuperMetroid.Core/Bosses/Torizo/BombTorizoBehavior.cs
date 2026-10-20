@@ -308,8 +308,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
                     MusicCommand.SelectTrack(6),
                     MusicCommandDelay.EightFrames);
                 torizo.Properties = torizo.Properties.Without(EnemyProperties.SolidToSamus);
-                state.BodyProgram = AnimationProgramCursor<TorizoBodyProgram>.Start(TorizoAnimations.AfterSleep(state.BodyProgram.Program));
-                torizo.InstructionTimer = NativeCountdown.Start(1);
+                StartTorizoBodyProgram(torizo, state, AnimationProgramCursor<TorizoBodyProgram>.Start(TorizoAnimations.AfterSleep(state.BodyProgram.Program)));
                 state.AwakeningReleased = true;
                 return;
 
@@ -322,8 +321,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
                 // lower-right trigger rectangle. This is the authored statue wake-up gate.
                 if (samus is not null && samus.Position.Y.Whole > 320 && samus.Position.X.Whole > 368)
                 {
-                    state.BodyProgram = AnimationProgramCursor<TorizoBodyProgram>.Start(TorizoAnimations.AfterSleep(state.BodyProgram.Program));
-                    torizo.InstructionTimer = NativeCountdown.Start(1);
+                    StartTorizoBodyProgram(torizo, state, AnimationProgramCursor<TorizoBodyProgram>.Start(TorizoAnimations.AfterSleep(state.BodyProgram.Program)));
                 }
                 return;
 
@@ -373,8 +371,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
             torizo.Health < BombTorizoHeadExplosionHealth)
         {
             state.InterruptedCursor = state.BodyProgram;
-            state.BodyProgram = AnimationProgramCursor<TorizoBodyProgram>.Start(TorizoBodyProgram.SpecialCallableBlowUpBombTorizosGut);
-            torizo.InstructionTimer = NativeCountdown.Start(1);
+            StartTorizoBodyProgram(torizo, state, AnimationProgramCursor<TorizoBodyProgram>.Start(TorizoBodyProgram.SpecialCallableBlowUpBombTorizosGut));
             return;
         }
 
@@ -384,8 +381,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
             state.ReturnCursor = AnimationProgramCursor<TorizoBodyProgram>.Start(FacesRight(torizo)
                 ? TorizoBodyProgram.FacingLeftFacelessTurningLeft
                 : TorizoBodyProgram.FacingRightFacelessTurningRight);
-            state.BodyProgram = AnimationProgramCursor<TorizoBodyProgram>.Start(TorizoBodyProgram.CallableBlowUpBombTorizosFace);
-            torizo.InstructionTimer = NativeCountdown.Start(1);
+            StartTorizoBodyProgram(torizo, state, AnimationProgramCursor<TorizoBodyProgram>.Start(TorizoBodyProgram.CallableBlowUpBombTorizosFace));
             return;
         }
 
@@ -474,8 +470,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
                 torizo,
                 SnesSixteenSixteen.FromEightEight(state.Velocity.Y.SignedRawValue)))
         {
-            state.BodyProgram = state.ReturnCursor;
-            torizo.InstructionTimer = NativeCountdown.Start(1);
+            StartTorizoBodyProgram(torizo, state, state.ReturnCursor);
             state.Velocity = state.Velocity.WithY(new SnesSignedEightEight(256));
             _earthquake.EarthquakeType = 4;
             _earthquake.EarthquakeTimer = NativeCountdown.Start(32);
@@ -497,14 +492,13 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
             state.AirTransitionTimer = state.AirTransitionTimer.Decrement().Remaining;
             if (state.AirTransitionTimer.IsZero)
             {
-                state.BodyProgram = AnimationProgramCursor<TorizoBodyProgram>.Start(alternateLanding
+                StartTorizoBodyProgram(torizo, state, AnimationProgramCursor<TorizoBodyProgram>.Start(alternateLanding
                     ? (FacesRight(torizo)
                         ? TorizoBodyProgram.FacingLeftFacelessTurningLeft
                         : TorizoBodyProgram.FacingRightFacelessTurningRight)
                     : (FacesRight(torizo)
                         ? TorizoBodyProgram.FacingLeftTurningLeft
-                        : TorizoBodyProgram.FacingRightTurningRight));
-                torizo.InstructionTimer = NativeCountdown.Start(1);
+                        : TorizoBodyProgram.FacingRightTurningRight)));
                 return;
             }
         }
@@ -514,10 +508,9 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             // $AA:C752 swaps to the authored in-air list while the downward probe remains
             // clear. Landing itself is handled by the list-installed gravity/jump callback.
-            RequireBombTorizoState(torizo).BodyProgram = AnimationProgramCursor<TorizoBodyProgram>.Start(FacesRight(torizo)
+            StartTorizoBodyProgram(torizo, RequireBombTorizoState(torizo), AnimationProgramCursor<TorizoBodyProgram>.Start(FacesRight(torizo)
                 ? TorizoBodyProgram.FacingRightFalling0
-                : TorizoBodyProgram.FacingLeftFalling0);
-            torizo.InstructionTimer = NativeCountdown.Start(1);
+                : TorizoBodyProgram.FacingLeftFalling0));
             state.Velocity = new EightEightVector<RoomPixels>(0, 256);
         }
     }
@@ -535,10 +528,9 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
             state.AirTransitionTimer = state.AirTransitionTimer.Decrement().Remaining;
             if (state.AirTransitionTimer.IsZero)
             {
-                RequireBombTorizoState(torizo).BodyProgram = AnimationProgramCursor<TorizoBodyProgram>.Start(FacesRight(torizo)
+                StartTorizoBodyProgram(torizo, RequireBombTorizoState(torizo), AnimationProgramCursor<TorizoBodyProgram>.Start(FacesRight(torizo)
                     ? TorizoBodyProgram.GoldenTurningLeft
-                    : TorizoBodyProgram.GoldenTurningRight);
-                torizo.InstructionTimer = NativeCountdown.Start(1);
+                    : TorizoBodyProgram.GoldenTurningRight));
                 return;
             }
         }
@@ -548,10 +540,9 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
             15);
         if (!_terrain.MoveEnemyVertically(level, torizo, SnesSixteenSixteen.FromWhole(fallingSpeed)))
         {
-            RequireBombTorizoState(torizo).BodyProgram = AnimationProgramCursor<TorizoBodyProgram>.Start(FacesRight(torizo)
+            StartTorizoBodyProgram(torizo, RequireBombTorizoState(torizo), AnimationProgramCursor<TorizoBodyProgram>.Start(FacesRight(torizo)
                 ? TorizoBodyProgram.FacingRightFalling0
-                : TorizoBodyProgram.FacingLeftFalling0);
-            torizo.InstructionTimer = NativeCountdown.Start(1);
+                : TorizoBodyProgram.FacingLeftFalling0));
             state.Velocity = new EightEightVector<RoomPixels>(0, 256);
         }
     }
@@ -596,8 +587,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         state.DeathStarted = true;
         state.Function = TorizoFunction.Idle;
-        state.BodyProgram = AnimationProgramCursor<TorizoBodyProgram>.Start(TorizoBodyProgram.DeathSequence0);
-        torizo.InstructionTimer = NativeCountdown.Start(1);
+        StartTorizoBodyProgram(torizo, state, AnimationProgramCursor<TorizoBodyProgram>.Start(TorizoBodyProgram.DeathSequence0));
         SetBehavior(torizo, TorizoBehaviorFlags.GutBlownUp | TorizoBehaviorFlags.FaceBlownUp);
         // EnemyShot_Torizo_Normal `$AA:C9B7-$AA:C9BD` sets property $0400 when
         // entering the death stream. This removes the dying actor from Samus contact and
@@ -2307,5 +2297,12 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
             }
         }
         return false;
+    }
+
+    /// <summary>Installs a body program cursor and runs its first instruction on the next frame.</summary>
+    private static void StartTorizoBodyProgram(RoomEnemySlot torizo, TorizoEnemyState state, AnimationProgramCursor<TorizoBodyProgram> cursor)
+    {
+        state.BodyProgram = cursor;
+        torizo.InstructionTimer = NativeCountdown.Start(1);
     }
 }

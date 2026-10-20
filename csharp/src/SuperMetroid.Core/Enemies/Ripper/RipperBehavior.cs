@@ -145,7 +145,7 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
         // $A0:C6AB consumes the signed 16.16 velocity as a displacement. On collision the
         // native helper aligns the actor flush with the wall before Ripper swaps direction
         // and animation.
-        RipperEnemyState state = RequireRipperState(slot);
+        RipperEnemyState state = slot.RequireSpeciesState<RipperEnemyState>();
         int displacement = state.XVelocity.RawValue;
         if (!_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, slot, displacement))
             return;
@@ -174,7 +174,7 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         if (slot.FrozenTimer.IsZero)
             return;
-        slot.Frame = RequireRipperState(slot).XVelocity.WholePixels < 0
+        slot.Frame = slot.RequireSpeciesState<RipperEnemyState>().XVelocity.WholePixels < 0
             ? EnemyFrameId.RipperSharedFrozenLeft
             : EnemyFrameId.RipperSharedFrozenRight;
     }
@@ -203,7 +203,7 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
         RipperProgram positiveProgram,
         RipperProgram negativeProgram)
     {
-        RipperEnemyState state = RequireRipperState(slot);
+        RipperEnemyState state = slot.RequireSpeciesState<RipperEnemyState>();
         bool wasMovingNegative = state.XVelocity.WholePixels < 0;
         LoadRipperVelocity(state, movingRight: wasMovingNegative);
         SetRipperProgram(slot, wasMovingNegative ? positiveProgram : negativeProgram);
@@ -226,11 +226,6 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
         EnemyProgramAnimation.Run(slot, RipperAnimations.Programs, ref cursor, RipperFrameDefinitions.ShownFrames.Of);
         Extensions[slot.SlotIndex].Program = cursor;
     }
-
-    /// <summary>Requires variant initialization before dispatching GRipper or Ripper II main AI.</summary>
-    private static RipperEnemyState RequireRipperState(RoomEnemySlot slot) =>
-        slot.SpeciesState<RipperEnemyState>() ?? throw new InvalidOperationException(
-            $"Enemy slot {slot.SlotIndex} has no initialized GRipper/Ripper II state.");
 
     /// <summary>Preserves the direction-specific frozen map after common bomb reactions.</summary>
     internal static void RegisterRipperBombReactions(EnemySharedReactions table)
@@ -263,13 +258,13 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Ports GRipper's main AI.</summary>
     internal void RunGRipperMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
-        RunGRipperMain(slot, RequireRipperState(slot), frame.Level);
+        RunGRipperMain(slot, slot.RequireSpeciesState<RipperEnemyState>(), frame.Level);
     }
 
     /// <summary>Ports Ripper2's main AI.</summary>
     internal void RunRipper2MainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
-        RunRipper2Main(slot, RequireRipperState(slot), frame.Level);
+        RunRipper2Main(slot, slot.RequireSpeciesState<RipperEnemyState>(), frame.Level);
     }
 
     /// <summary>Ports Ripper's main AI.</summary>

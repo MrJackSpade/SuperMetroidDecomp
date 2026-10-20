@@ -224,7 +224,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         InstallMagdolliteInstructionList(head, state);
 
         (_, _, RoomEnemySlot overlay) = RequireMagdolliteComposite(head);
-        MagdolliteEnemyState overlayState = RequireMagdolliteState(overlay);
+        MagdolliteEnemyState overlayState = overlay.RequireSpeciesState<MagdolliteEnemyState>();
         if (!EnemyMath.IsNegative16(overlayState.AttackTimer.RawValue))
             return;
 
@@ -250,7 +250,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
 
         (_, RoomEnemySlot body, _) = RequireMagdolliteComposite(head);
         state.HeadWaitsForBodyLanding = true;
-        RequireMagdolliteState(body).BodyWakeRequested = false;
+        body.RequireSpeciesState<MagdolliteEnemyState>().BodyWakeRequested = false;
         state.Function = MagdolliteEnemyFunction.HeadWaitingForBodyLanding;
     }
 
@@ -314,7 +314,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         // The native arm reads velocity at X-$40: the preceding head owns the
         // population speed parameter. The arm's own parameter is zero in retail.
         (RoomEnemySlot head, _, _) = RequireMagdolliteComposite(body);
-        MagdolliteEnemyState speedOwner = RequireMagdolliteState(head);
+        MagdolliteEnemyState speedOwner = head.RequireSpeciesState<MagdolliteEnemyState>();
         state.RiseDisplacement += AddMagdolliteY(body, speedOwner.UpwardVelocity);
 
         ushort upwardDistance = unchecked((ushort)-state.RiseDisplacement.Y);
@@ -354,14 +354,14 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         MagdolliteEnemyState state)
     {
         (RoomEnemySlot speedHead, _, _) = RequireMagdolliteComposite(body);
-        MagdolliteEnemyState speedOwner = RequireMagdolliteState(speedHead);
+        MagdolliteEnemyState speedOwner = speedHead.RequireSpeciesState<MagdolliteEnemyState>();
         state.RiseDisplacement += AddMagdolliteY(body, speedOwner.DownwardVelocity);
 
         if (state.RiseDisplacement.Y >= 0)
         {
             state.BodyWakeRequested = true;
             (RoomEnemySlot head, _, _) = RequireMagdolliteComposite(body);
-            RequireMagdolliteState(head).HeadWaitsForBodyLanding = false;
+            head.RequireSpeciesState<MagdolliteEnemyState>().HeadWaitsForBodyLanding = false;
             state.Function = MagdolliteEnemyFunction.BodyDormant;
             return;
         }
@@ -384,7 +384,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         MagdolliteEnemyState state)
     {
         (RoomEnemySlot head, _, _) = RequireMagdolliteComposite(overlay);
-        if (RequireMagdolliteState(head).Function ==
+        if (head.RequireSpeciesState<MagdolliteEnemyState>().Function ==
             MagdolliteEnemyFunction.HeadWaitingForAttackAnimation)
         {
             state.Function = MagdolliteEnemyFunction.OverlayTrackingRisingBody;
@@ -399,7 +399,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         if (!state.AnimationBusy)
         {
             (_, RoomEnemySlot body, _) = RequireMagdolliteComposite(overlay);
-            MagdolliteEnemyState bodyState = RequireMagdolliteState(body);
+            MagdolliteEnemyState bodyState = body.RequireSpeciesState<MagdolliteEnemyState>();
             state.DesiredProgram = MagdolliteProgram.PillarCap;
             InstallMagdolliteInstructionList(overlay, state);
             bodyState.Function = MagdolliteEnemyFunction.BodyFalling;
@@ -418,7 +418,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         SamusState? samus)
     {
         (_, RoomEnemySlot body, _) = RequireMagdolliteComposite(overlay);
-        MagdolliteEnemyState bodyState = RequireMagdolliteState(body);
+        MagdolliteEnemyState bodyState = body.RequireSpeciesState<MagdolliteEnemyState>();
         if (bodyState.BodyReachedApex)
         {
             bool samusIsRight = samus is not null &&
@@ -447,8 +447,8 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         MagdolliteEnemyState state)
     {
         (RoomEnemySlot head, RoomEnemySlot body, _) = RequireMagdolliteComposite(overlay);
-        MagdolliteEnemyState headState = RequireMagdolliteState(head);
-        MagdolliteEnemyState bodyState = RequireMagdolliteState(body);
+        MagdolliteEnemyState headState = head.RequireSpeciesState<MagdolliteEnemyState>();
+        MagdolliteEnemyState bodyState = body.RequireSpeciesState<MagdolliteEnemyState>();
         if (headState.Function == MagdolliteEnemyFunction.HeadWaiting)
         {
             state.Function = MagdolliteEnemyFunction.OverlayWaitingForAttack;
@@ -501,11 +501,6 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.Timer = NativeCountdown.Start(0);
     }
 
-    /// <summary>Rejects a physical enemy slot that has no Magdollite state for the current room.</summary>
-    internal static MagdolliteEnemyState RequireMagdolliteState(RoomEnemySlot slot) =>
-        slot.SpeciesState<MagdolliteEnemyState>() ?? throw new InvalidDataException(
-            $"Magdollite slot {slot.SlotIndex} has no typed state.");
-
     /// <summary>Finds and validates the retail-ordered head, body and overlay around any one component.</summary>
     private (RoomEnemySlot Head, RoomEnemySlot Body, RoomEnemySlot Overlay)
         RequireMagdolliteComposite(RoomEnemySlot member)
@@ -556,7 +551,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         MagdolliteCue cue,
         Position16<RoomPixels> camera)
     {
-        MagdolliteEnemyState state = RequireMagdolliteState(slot);
+        MagdolliteEnemyState state = slot.RequireSpeciesState<MagdolliteEnemyState>();
         switch (cue.Kind)
         {
             case MagdolliteCueKind.PlaySoundIfOnScreen:
@@ -736,20 +731,14 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Ports Magdollite's main AI.</summary>
     internal void RunMagdolliteMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
-        RunMagdolliteMain(slot, RequireMagdolliteState(slot), frame.Samus);
+        RunMagdolliteMain(slot, slot.RequireSpeciesState<MagdolliteEnemyState>(), frame.Samus);
     }
 
     /// <summary>Advances Magdollite's typed animation.</summary>
-    internal void AdvanceMagdolliteTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext context)
-    {
-        if (!EnemyProgramAnimation.Expire(slot))
-            return;
-        var state = RequireMagdolliteState(slot);
-        AnimationProgramCursor<MagdolliteProgram> cursor = state.Program;
-        EnemyProgramAnimation.Run(slot, MagdolliteAnimations.Programs, ref cursor, MagdolliteFrameDefinitions.ShownFrames.Of,
-                (cue, _) => ApplyMagdolliteCue(slot, cue, context.Camera));
-        state.Program = cursor;
-    }
+    internal void AdvanceMagdolliteTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext context) =>
+        EnemyProgramAnimation.Advance(slot, MagdolliteAnimations.Programs, MagdolliteFrameDefinitions.ShownFrames.Of,
+            static (MagdolliteEnemyState state) => state.Program, static (state, cursor) => state.Program = cursor,
+            (state, cue, _) => ApplyMagdolliteCue(slot, cue, context.Camera));
 
     /// <summary>Propagates common power-bomb death and freezing effects to following composite records.</summary>
     internal void RegisterMagdollitePowerBombReactions(EnemySharedReactions table)

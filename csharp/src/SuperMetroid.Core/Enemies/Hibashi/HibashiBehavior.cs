@@ -148,7 +148,7 @@ internal sealed class HibashiBehavior : IEnemySpecies, IEnemyEntityFactory
         if ((uint)frameIndex >= 22)
             throw new ArgumentOutOfRangeException(nameof(frameIndex));
 
-        HibashiEnemyState state = RequireHibashiState(graphics);
+        HibashiEnemyState state = graphics.RequireSpeciesState<HibashiEnemyState>();
         RoomEnemySlot hitbox = GetFollowingHibashiPart(graphics);
         HibashiActivityDefinition frame = HibashiDefinitions.ActivityFrame(frameIndex);
         hitbox.Position = hitbox.Position.WithWholeY(unchecked((ushort)(
@@ -161,7 +161,7 @@ internal sealed class HibashiBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Ports finish-activity instruction <c>$A6:8FD1</c>.</summary>
     private void FinishHibashiActivity(RoomEnemySlot graphics)
     {
-        HibashiEnemyState state = RequireHibashiState(graphics);
+        HibashiEnemyState state = graphics.RequireSpeciesState<HibashiEnemyState>();
         RoomEnemySlot hitbox = GetFollowingHibashiPart(graphics);
 
         state.ActivityFinished = true;
@@ -182,11 +182,6 @@ internal sealed class HibashiBehavior : IEnemySpecies, IEnemyEntityFactory
         return _slotTable.Slots[graphics.SlotIndex + 1];
     }
 
-    /// <summary>Rejects geyser AI or instruction dispatch for an uninitialized slot.</summary>
-    internal static HibashiEnemyState RequireHibashiState(RoomEnemySlot slot) =>
-        slot.SpeciesState<HibashiEnemyState>() ?? throw new InvalidOperationException(
-            $"Enemy slot {slot.SlotIndex} has no initialized Hibashi state.");
-
     /// <summary>Ports Hibashi's initialization AI.</summary>
     internal static void RunHibashiInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
     {
@@ -196,18 +191,12 @@ internal sealed class HibashiBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Ports Hibashi's main AI.</summary>
     internal void RunHibashiMainAi(RoomEnemySlot slot, IEnemyAiFrame _)
     {
-        RunHibashiMain(slot, RequireHibashiState(slot));
+        RunHibashiMain(slot, slot.RequireSpeciesState<HibashiEnemyState>());
     }
 
     /// <summary>Advances Hibashi's typed animation.</summary>
-    internal void AdvanceHibashiTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _)
-    {
-        if (!EnemyProgramAnimation.Expire(slot))
-            return;
-        var state = RequireHibashiState(slot);
-        AnimationProgramCursor<HibashiProgram> cursor = state.Program;
-        EnemyProgramAnimation.Run(slot, HibashiAnimations.Programs, ref cursor, HibashiFrameDefinitions.ShownFrames.Of,
-                (cue, _) => ApplyHibashiCue(slot, cue));
-        state.Program = cursor;
-    }
+    internal void AdvanceHibashiTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _) =>
+        EnemyProgramAnimation.Advance(slot, HibashiAnimations.Programs, HibashiFrameDefinitions.ShownFrames.Of,
+            static (HibashiEnemyState state) => state.Program, static (state, cursor) => state.Program = cursor,
+            (state, cue, _) => ApplyHibashiCue(slot, cue));
 }

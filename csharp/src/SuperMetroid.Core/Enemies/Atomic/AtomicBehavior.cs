@@ -108,21 +108,10 @@ internal sealed class AtomicBehavior : IEnemySpecies, IEnemyEntityFactory
         return new(whole, unchecked((ushort)fractionalSum));
     }
 
-    /// <summary>Requires initialized Atomic state for a physical enemy slot before main AI runs.</summary>
-    internal static AtomicEnemyState RequireAtomicState(RoomEnemySlot slot) =>
-        slot.SpeciesState<AtomicEnemyState>() ?? throw new InvalidOperationException(
-            $"Enemy slot {slot.SlotIndex} has no initialized Atomic state.");
-
     /// <summary>Advances Atomic's typed animation.</summary>
-    internal static void AdvanceAtomicTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _)
-    {
-        if (!EnemyProgramAnimation.Expire(slot))
-            return;
-        var state = RequireAtomicState(slot);
-        AnimationProgramCursor<AtomicProgram> cursor = state.Program;
-        EnemyProgramAnimation.Run(slot, AtomicAnimations.Programs, ref cursor, AtomicFrameDefinitions.ShownFrames.Of);
-        state.Program = cursor;
-    }
+    internal static void AdvanceAtomicTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _) =>
+        EnemyProgramAnimation.Advance(slot, AtomicAnimations.Programs, AtomicFrameDefinitions.ShownFrames.Of,
+            static (AtomicEnemyState state) => state.Program, static (state, cursor) => state.Program = cursor);
 
     /// <summary>Ports Atomic's initialization AI.</summary>
     internal static void RunAtomicInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
@@ -133,6 +122,6 @@ internal sealed class AtomicBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Ports Atomic's main AI.</summary>
     internal static void RunAtomicMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
-        RunAtomicMain(slot, RequireAtomicState(slot), frame.Samus);
+        RunAtomicMain(slot, slot.RequireSpeciesState<AtomicEnemyState>(), frame.Samus);
     }
 }

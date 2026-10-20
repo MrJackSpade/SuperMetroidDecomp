@@ -330,7 +330,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
         if (samus is null)
             throw new InvalidOperationException("Work Robot shot recoil requires the active Samus actor.");
 
-        WorkRobotEnemyState state = RequireWorkRobotState(robot);
+        WorkRobotEnemyState state = robot.RequireSpeciesState<WorkRobotEnemyState>();
         bool facingLeft = state.LaserVelocity.X.SignedRawValue < 0;
         if (facingLeft)
         {
@@ -374,11 +374,6 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
         WorkRobotPaletteAnimationRecord = record + 1;
     }
 
-    /// <summary>Rejects a robot callback before its slot initializes movement and laser state.</summary>
-    internal static WorkRobotEnemyState RequireWorkRobotState(RoomEnemySlot slot) =>
-        slot.SpeciesState<WorkRobotEnemyState>() ?? throw new InvalidOperationException(
-            $"Enemy slot {slot.SlotIndex} has no initialized Work Robot state.");
-
     /// <summary>Rejects powered-robot bomb damage before Phantoon's defeat and applies recoil after admitted hits.</summary>
     internal void RegisterWorkRobotBombReactions(EnemySharedReactions table)
     {
@@ -412,20 +407,14 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Ports WorkRobot's main AI.</summary>
     internal void RunWorkRobotMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
-        RunWorkRobotMain(slot, RequireWorkRobotState(slot), frame.Level);
+        RunWorkRobotMain(slot, slot.RequireSpeciesState<WorkRobotEnemyState>(), frame.Level);
     }
 
     /// <summary>Advances WorkRobot's typed animation.</summary>
-    internal void AdvanceWorkRobotTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext context)
-    {
-        if (!EnemyProgramAnimation.Expire(slot))
-            return;
-        var state = RequireWorkRobotState(slot);
-        AnimationProgramCursor<WorkRobotProgram> cursor = state.Program;
-        EnemyProgramAnimation.Run(slot, WorkRobotAnimations.Programs, ref cursor, WorkRobotFrameDefinitions.ShownFrames.Of,
-                (cue, _) => ApplyWorkRobotCue(slot, state, context, cue));
-        state.Program = cursor;
-    }
+    internal void AdvanceWorkRobotTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext context) =>
+        EnemyProgramAnimation.Advance(slot, WorkRobotAnimations.Programs, WorkRobotFrameDefinitions.ShownFrames.Of,
+            static (WorkRobotEnemyState state) => state.Program, static (state, cursor) => state.Program = cursor,
+            (state, cue, _) => ApplyWorkRobotCue(slot, state, context, cue));
 
     /// <summary>Applies the powered robot's accepted-impact recoil tail after common projectile shots.</summary>
     internal void RegisterWorkRobotShotReactions(EnemySharedReactions table)

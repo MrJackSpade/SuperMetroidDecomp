@@ -375,7 +375,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
         }
         if (body.Health == 0)
         {
-            PowampEnemyState bodyState = RequirePowampState(body);
+            PowampEnemyState bodyState = body.RequireSpeciesState<PowampEnemyState>();
             bodyState.Function = PowampEnemyFunction.FatalDamage;
             bodyState.RefusesContact = true;
         }
@@ -499,13 +499,8 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
             throw new InvalidDataException(
                 $"Powamp body slot {body.SlotIndex} is not preceded by its balloon half.");
         }
-        return new(balloon, RequirePowampState(balloon));
+        return new(balloon, balloon.RequireSpeciesState<PowampEnemyState>());
     }
-
-    /// <summary>Requires the per-slot state installed by Powamp initialization.</summary>
-    internal static PowampEnemyState RequirePowampState(RoomEnemySlot slot) =>
-        slot.SpeciesState<PowampEnemyState>() ?? throw new InvalidOperationException(
-            $"Enemy slot {slot.SlotIndex} has no initialized Powamp state.");
 
     /// <summary>Routes bomb hits through common shot logic and mirrors damage state to the balloon.</summary>
     internal void RegisterPowampBombReactions(EnemySharedReactions table)
@@ -530,15 +525,9 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Advances Powamp's typed animation.</summary>
-    internal static void AdvancePowampTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _)
-    {
-        if (!EnemyProgramAnimation.Expire(slot))
-            return;
-        var state = RequirePowampState(slot);
-        AnimationProgramCursor<PowampProgram> cursor = state.Program;
-        EnemyProgramAnimation.Run(slot, PowampAnimations.Programs, ref cursor, PowampFrameDefinitions.ShownFrames.Of);
-        state.Program = cursor;
-    }
+    internal static void AdvancePowampTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _) =>
+        EnemyProgramAnimation.Advance(slot, PowampAnimations.Programs, PowampFrameDefinitions.ShownFrames.Of,
+            static (PowampEnemyState state) => state.Program, static (state, cursor) => state.Program = cursor);
 
     /// <summary>Ports Powamp's initialization AI.</summary>
     internal void RunPowampInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
@@ -549,7 +538,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Ports Powamp's main AI.</summary>
     internal void RunPowampMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
-        RunPowampMain(slot, RequirePowampState(slot), frame.Level);
+        RunPowampMain(slot, slot.RequireSpeciesState<PowampEnemyState>(), frame.Level);
     }
 
     /// <summary>Propagates power-bomb reaction state from the body to its balloon.</summary>
@@ -575,7 +564,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
             // Powamp refuses contact as soon as a lethal shot starts its private 32-frame death. Later
             // overlaps return before common shot AI, so they must not consume or explode the projectile while the
             // body is still visibly deflating.
-            SkipsEnemy = enemy => RequirePowampState(enemy).RefusesContact,
+            SkipsEnemy = enemy => enemy.RequireSpeciesState<PowampEnemyState>().RefusesContact,
             ExemptFromGenericDeath = true,
             AfterCommon = (c, _) => ResolvePowampShotAfterCommon(c.Enemy),
         });
@@ -590,7 +579,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
                                EnemyCollision.TouchAi(slot) == EnemyInteractionCallback.PowampTouch,
             context =>
             {
-                if (!RequirePowampState(context.Slot).RefusesContact)
+                if (!context.Slot.RequireSpeciesState<PowampEnemyState>().RefusesContact)
                     ResolvePowampTouch(context.Slot, context.Samus);
             });
     }

@@ -160,11 +160,6 @@ internal sealed class SparkBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.InstructionTimer = NativeCountdown.Start(1);
     }
 
-    /// <summary>Returns initialized state for the enemy slot or reports a broken lifecycle.</summary>
-    internal static SparkEnemyState RequireSparkState(RoomEnemySlot slot) =>
-        slot.SpeciesState<SparkEnemyState>() ?? throw new InvalidOperationException(
-            $"Enemy slot {slot.SlotIndex} has no initialized Spark state.");
-
     /// <summary>Ports Spark's initialization AI.</summary>
     internal void RunSparkInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
     {
@@ -174,7 +169,7 @@ internal sealed class SparkBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Ports Spark's main AI.</summary>
     internal void RunSparkMainAi(RoomEnemySlot slot, IEnemyAiFrame _)
     {
-        RunSparkMain(slot, RequireSparkState(slot));
+        RunSparkMain(slot, slot.RequireSpeciesState<SparkEnemyState>());
     }
 
     /// <summary>Advances Spark's typed animation.</summary>
@@ -182,7 +177,7 @@ internal sealed class SparkBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         if (!EnemyProgramAnimation.Expire(slot))
             return;
-        SparkEnemyState state = RequireSparkState(slot);
+        SparkEnemyState state = slot.RequireSpeciesState<SparkEnemyState>();
         // Selector three's list word is the main-AI function pointer that follows the table: code, not a list.
         AnimationProgramCursor<SparkProgram> cursor = state.Program ?? throw new InvalidDataException(
             "Spark selector three starts at the main-AI function pointer, which is not an animation list.");

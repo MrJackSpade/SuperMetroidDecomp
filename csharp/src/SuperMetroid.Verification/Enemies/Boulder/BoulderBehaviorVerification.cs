@@ -56,7 +56,7 @@ internal static class BoulderBehaviorVerification
             slot.Bind(EnemyDefinitionId.Boulder, slot.Definition);
             slot.Position = slot.Position.WithWhole(new(256, 512));
             BoulderBehavior.InitializeBoulder(slot);
-            BoulderEnemyState state = BoulderBehavior.RequireBoulderState(slot);
+            BoulderEnemyState state = slot.RequireSpeciesState<BoulderEnemyState>();
             state.Function = BoulderAiFunction.Rebound;
             state.BounceSpeedAccumulator = start;
             var frame = new ClockedEnemyAiFrame(

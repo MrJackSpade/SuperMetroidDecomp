@@ -306,7 +306,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         RoomEnemySlot[] formation = RequireNorfairPipeBugFormation(slot);
         if (formation.All(member =>
-                RequirePipeBugState(member).Function == PipeBugEnemyFunction.NorfairWaitForFormation))
+                member.RequireSpeciesState<PipeBugEnemyState>().Function == PipeBugEnemyFunction.NorfairWaitForFormation))
         {
             state.Function = PipeBugEnemyFunction.NorfairWaitForSamus;
         }
@@ -335,15 +335,15 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemySlot[] formation = RequireNorfairPipeBugFormation(leader);
         foreach (RoomEnemySlot member in formation)
         {
-            RequirePipeBugState(member).Program = AnimationProgramCursor<PipeBugProgram>.Start(samusIsRight
+            member.RequireSpeciesState<PipeBugEnemyState>().Program = AnimationProgramCursor<PipeBugProgram>.Start(samusIsRight
                 ? PipeBugProgram.GametRisingRight
                 : PipeBugProgram.GametRisingLeft);
-            RequirePipeBugState(member).Function = PipeBugEnemyFunction.NorfairRise;
+            member.RequireSpeciesState<PipeBugEnemyState>().Function = PipeBugEnemyFunction.NorfairRise;
         }
 
         for (int index = 0; index < formation.Length; index++)
         {
-            PipeBugEnemyState memberState = RequirePipeBugState(formation[index]);
+            PipeBugEnemyState memberState = formation[index].RequireSpeciesState<PipeBugEnemyState>();
             memberState.StaggerTarget = PipeBugDefinitions.NorfairStaggerTarget(index);
             memberState.NorfairPostRiseFunction = PipeBugDefinitions.NorfairPostRiseFunction(index);
         }
@@ -653,11 +653,6 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         return state;
     }
 
-    /// <summary>Finds initialized state for a callback and rejects an unrelated or uninitialized slot.</summary>
-    private static PipeBugEnemyState RequirePipeBugState(RoomEnemySlot slot) =>
-        slot.SpeciesState<PipeBugEnemyState>() ?? throw new InvalidOperationException(
-            $"Enemy slot {slot.SlotIndex} has no initialized Pipe Bug state.");
-
     /// <summary>Restarts an animation at timer one and clears its animation frame timer.</summary>
     internal static void InstallPipeBugProgram(RoomEnemySlot slot, PipeBugEnemyState state, PipeBugProgram program)
     {
@@ -674,15 +669,9 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Advances PipeBugs's typed animation.</summary>
-    internal static void AdvancePipeBugsTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _)
-    {
-        if (!EnemyProgramAnimation.Expire(slot))
-            return;
-        var state = RequirePipeBugState(slot);
-        AnimationProgramCursor<PipeBugProgram> cursor = state.Program;
-        EnemyProgramAnimation.Run(slot, PipeBugAnimations.Programs, ref cursor, PipeBugFrameDefinitions.ShownFrames.Of);
-        state.Program = cursor;
-    }
+    internal static void AdvancePipeBugsTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _) =>
+        EnemyProgramAnimation.Advance(slot, PipeBugAnimations.Programs, PipeBugFrameDefinitions.ShownFrames.Of,
+            static (PipeBugEnemyState state) => state.Program, static (state, cursor) => state.Program = cursor);
 
     /// <summary>Ports Zeb's initialization AI.</summary>
     internal static void RunZebInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
@@ -707,7 +696,7 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         RunPipeBugMain(
             slot,
-            RequirePipeBugState(slot),
+            slot.RequireSpeciesState<PipeBugEnemyState>(),
             frame.Samus,
             frame.Camera);
     }

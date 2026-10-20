@@ -113,7 +113,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
         if (level is null)
             throw new InvalidOperationException("Metroid movement requires room level data.");
 
-        MetroidEnemyState state = RequireMetroidState(slot);
+        MetroidEnemyState state = slot.RequireSpeciesState<MetroidEnemyState>();
         ushort targetY = unchecked((ushort)(samus.Position.Y.Whole - 8));
         switch (state.Function)
         {
@@ -231,7 +231,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Ports the family-specific tail of <c>Metroid_Frozen</c>.</summary>
     internal static void RunMetroidFrozen(RoomEnemySlot slot)
     {
-        MetroidEnemyState state = RequireMetroidState(slot);
+        MetroidEnemyState state = slot.RequireSpeciesState<MetroidEnemyState>();
         if (!state.EscapeTimer.IsZero)
         {
             state.EscapeTimer = state.EscapeTimer.Decrement().Remaining;
@@ -245,7 +245,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Ports the palette-bit modulation in custom hurt AI <c>$A3:EB33</c>.</summary>
     internal static void ApplyMetroidHurt(RoomEnemySlot slot)
     {
-        MetroidEnemyState state = RequireMetroidState(slot);
+        MetroidEnemyState state = slot.RequireSpeciesState<MetroidEnemyState>();
         if ((slot.FlashTimer.RawValue & 2) != 0)
         {
             state.OuterBodyA.Attributes = state.OuterBodyA.Attributes
@@ -262,7 +262,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Ports ordinary/contact-damage branches of <c>Metroid_Touch</c>.</summary>
     private void ResolveMetroidTouch(RoomEnemySlot slot, SamusState samus)
     {
-        MetroidEnemyState state = RequireMetroidState(slot);
+        MetroidEnemyState state = slot.RequireSpeciesState<MetroidEnemyState>();
         ushort targetY = unchecked((ushort)(samus.Position.Y.Whole - 8));
         if (samus.HorizontalSpeed.ContactDamageIndex != SamusContactDamageIndex.None)
         {
@@ -327,7 +327,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
         Position16<RoomPixels> recoilOrigin,
         SamusState? samus)
     {
-        MetroidEnemyState state = RequireMetroidState(slot);
+        MetroidEnemyState state = slot.RequireSpeciesState<MetroidEnemyState>();
         SamusProjectileFamily family = new SamusProjectileTypeWord(collisionProjectileType).Family;
         if (state.Function == MetroidAiFunction.AttachedToSamus)
         {
@@ -382,7 +382,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Kills both composited outer layers and clears Samus's Metroid flash state.</summary>
     internal static void FinishMetroidDeath(RoomEnemySlot slot, SamusState? samus)
     {
-        MetroidEnemyState state = RequireMetroidState(slot);
+        MetroidEnemyState state = slot.RequireSpeciesState<MetroidEnemyState>();
         state.Velocity = state.Velocity.WithWholeX(0);
         state.OuterBodyA.Cursor = null;
         state.OuterBodyB.Cursor = null;
@@ -457,11 +457,6 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.InstructionTimer = NativeCountdown.Start(1);
     }
 
-    /// <summary>Finds initialized Metroid state for a live enemy slot or rejects an invalid callback.</summary>
-    internal static MetroidEnemyState RequireMetroidState(RoomEnemySlot slot) =>
-        slot.SpeciesState<MetroidEnemyState>() ?? throw new InvalidOperationException(
-            $"Enemy slot {slot.SlotIndex} has no initialized Metroid state.");
-
     /// <summary>Routes bomb-family collisions through Metroid's attachment and recoil rules.</summary>
     internal void RegisterMetroidBombReactions(EnemySharedReactions table)
     {
@@ -492,16 +487,10 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Advances Metroid's typed animation.</summary>
-    internal void AdvanceMetroidTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _)
-    {
-        if (!EnemyProgramAnimation.Expire(slot))
-            return;
-        var state = RequireMetroidState(slot);
-        AnimationProgramCursor<MetroidProgram> cursor = state.Program;
-        EnemyProgramAnimation.Run(slot, MetroidAnimations.Programs, ref cursor, MetroidFrameDefinitions.ShownFrames.Of,
-                (cue, _) => ApplyMetroidCue(cue));
-        state.Program = cursor;
-    }
+    internal void AdvanceMetroidTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _) =>
+        EnemyProgramAnimation.Advance(slot, MetroidAnimations.Programs, MetroidFrameDefinitions.ShownFrames.Of,
+            static (MetroidEnemyState state) => state.Program, static (state, cursor) => state.Program = cursor,
+            (state, cue, _) => ApplyMetroidCue(cue));
 
     /// <summary>Registers the Metroid Power Bomb callback that clears its outer body before generic death.</summary>
     internal static void RegisterMetroidPowerBombReactions(EnemySharedReactions table)

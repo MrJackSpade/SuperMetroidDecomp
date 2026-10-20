@@ -425,21 +425,10 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.Timer = NativeCountdown.Start(0);
     }
 
-    /// <summary>Requires initialized per-slot Puyo state before its AI dispatcher runs.</summary>
-    internal static PuyoEnemyState RequirePuyoState(RoomEnemySlot slot) =>
-        slot.SpeciesState<PuyoEnemyState>() ?? throw new InvalidOperationException(
-            $"Enemy slot {slot.SlotIndex} has no initialized Puyo state.");
-
     /// <summary>Advances Puyo's typed animation.</summary>
-    internal static void AdvancePuyoTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _)
-    {
-        if (!EnemyProgramAnimation.Expire(slot))
-            return;
-        var state = RequirePuyoState(slot);
-        AnimationProgramCursor<PuyoProgram> cursor = state.Program;
-        EnemyProgramAnimation.Run(slot, PuyoAnimations.Programs, ref cursor, PuyoFrameDefinitions.ShownFrames.Of);
-        state.Program = cursor;
-    }
+    internal static void AdvancePuyoTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _) =>
+        EnemyProgramAnimation.Advance(slot, PuyoAnimations.Programs, PuyoFrameDefinitions.ShownFrames.Of,
+            static (PuyoEnemyState state) => state.Program, static (state, cursor) => state.Program = cursor);
 
     /// <summary>Ports Puyo's initialization AI.</summary>
     internal static void RunPuyoInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
@@ -450,6 +439,6 @@ internal sealed class PuyoBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Ports Puyo's main AI.</summary>
     internal void RunPuyoMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
-        RunPuyoMain(slot, RequirePuyoState(slot), frame.Samus, frame.Level);
+        RunPuyoMain(slot, slot.RequireSpeciesState<PuyoEnemyState>(), frame.Samus, frame.Level);
     }
 }

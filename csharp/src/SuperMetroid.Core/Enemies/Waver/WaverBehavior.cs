@@ -140,11 +140,6 @@ internal sealed class WaverBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.Timer = NativeCountdown.Start(0);
     }
 
-    /// <summary>Requires initialization state for a live Waver before processing its AI or spin opcode.</summary>
-    internal static WaverEnemyState RequireWaverState(RoomEnemySlot slot) =>
-        slot.SpeciesState<WaverEnemyState>() ?? throw new InvalidOperationException(
-            $"Enemy slot {slot.SlotIndex} has no initialized Waver state.");
-
     /// <summary>Ports Waver's initialization AI.</summary>
     internal static void RunWaverInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
     {
@@ -154,18 +149,12 @@ internal sealed class WaverBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Ports Waver's main AI.</summary>
     internal void RunWaverMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
-        RunWaverMain(slot, RequireWaverState(slot), frame.Level);
+        RunWaverMain(slot, slot.RequireSpeciesState<WaverEnemyState>(), frame.Level);
     }
 
     /// <summary>Advances Waver's typed animation.</summary>
-    internal static void AdvanceWaverTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _)
-    {
-        if (!EnemyProgramAnimation.Expire(slot))
-            return;
-        var state = RequireWaverState(slot);
-        AnimationProgramCursor<WaverProgram> cursor = state.Program;
-        EnemyProgramAnimation.Run(slot, WaverAnimations.Programs, ref cursor, WaverFrameDefinitions.ShownFrames.Of,
-                (cue, _) => ApplyWaverCue(state, cue));
-        state.Program = cursor;
-    }
+    internal static void AdvanceWaverTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _) =>
+        EnemyProgramAnimation.Advance(slot, WaverAnimations.Programs, WaverFrameDefinitions.ShownFrames.Of,
+            static (WaverEnemyState state) => state.Program, static (state, cursor) => state.Program = cursor,
+            (state, cue, _) => ApplyWaverCue(state, cue));
 }

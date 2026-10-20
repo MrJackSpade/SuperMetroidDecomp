@@ -50,7 +50,7 @@ internal static class BullBehaviorVerification
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.Bull, slot.Definition);
         enemies.BullBehavior.InitializeBull(slot);
-        BullEnemyState state = BullBehavior.RequireBullState(slot);
+        BullEnemyState state = slot.RequireSpeciesState<BullEnemyState>();
         state.Function = BullEnemyFunction.Decelerating;
         state.Speed = 10;
         state.Acceleration = 48;

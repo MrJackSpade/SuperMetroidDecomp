@@ -25,8 +25,8 @@ internal static class PowampOwnedStateVerification
         body.Bind(EnemyDefinitionId.Powamp, body.Definition);
         enemies.PowampBehavior.InitializePowamp(body);
 
-        PowampEnemyState balloonState = PowampBehavior.RequirePowampState(balloon);
-        PowampEnemyState bodyState = PowampBehavior.RequirePowampState(body);
+        PowampEnemyState balloonState = balloon.RequireSpeciesState<PowampEnemyState>();
+        PowampEnemyState bodyState = body.RequireSpeciesState<PowampEnemyState>();
         AssertTrue(balloonState.IsBalloon && !bodyState.IsBalloon, "parameter one selects the balloon half");
         AssertEqual(new Position16<RoomPixels>(0x0180, 0x0020), balloonState.BalloonSpawn, "the balloon keeps its spawn");
         AssertEqual(65535, balloonState.BalloonGrappleTravelDistance, "the grapple rise keeps parameter two's full word");

@@ -340,9 +340,9 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Function = DachoraAiFunction.Shinesparking;
 
         RoomEnemySlot[] echoes = RequireDachoraEchoSlots(slot);
-        RequireDachoraState(echoes[0]).EchoPositionTimer = NativeCountdown.Start(0);
+        echoes[0].RequireSpeciesState<DachoraEnemyState>().EchoPositionTimer = NativeCountdown.Start(0);
         foreach (RoomEnemySlot echo in echoes)
-            RequireDachoraState(echo).EchoLifetime = NativeCountdown.Start(0);
+            echo.RequireSpeciesState<DachoraEnemyState>().EchoLifetime = NativeCountdown.Start(0);
         state.VerticalAcceleration = SnesSignedSixteenSixteen.Zero;
         slot.Position = slot.Position.WithWholeY(unchecked((ushort)(slot.Position.Y.Whole - 8)));
         LastDachoraSoundEffect = DachoraLaunchSound;
@@ -351,7 +351,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
             ? DachoraProgram.EchoRight
             : DachoraProgram.EchoLeft;
         foreach (RoomEnemySlot echo in echoes)
-            InstallDachoraInstruction(echo, RequireDachoraState(echo), echoList);
+            InstallDachoraInstruction(echo, echo.RequireSpeciesState<DachoraEnemyState>(), echoList);
     }
 
     /// <summary>Ports upward acceleration, trail placement, and ceiling collision at $A7:F806.</summary>
@@ -429,7 +429,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
     private void UpdateDachoraEchoPositions(RoomEnemySlot body)
     {
         RoomEnemySlot[] echoes = RequireDachoraEchoSlots(body);
-        DachoraEnemyState first = RequireDachoraState(echoes[0]);
+        DachoraEnemyState first = echoes[0].RequireSpeciesState<DachoraEnemyState>();
         if (!first.EchoPositionTimer.IsZero)
         {
             first.EchoPositionTimer = first.EchoPositionTimer.Decrement().Remaining;
@@ -439,7 +439,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
         first.EchoPositionTimer = NativeCountdown.Start(DachoraEchoPositionInterval);
         foreach (RoomEnemySlot echo in echoes)
         {
-            DachoraEnemyState echoState = RequireDachoraState(echo);
+            DachoraEnemyState echoState = echo.RequireSpeciesState<DachoraEnemyState>();
             if (!echoState.EchoLifetime.IsZero)
                 continue;
 
@@ -518,11 +518,6 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
         return echoes;
     }
 
-    /// <summary>Finds initialized Dachora state for a body or echo callback.</summary>
-    internal static DachoraEnemyState RequireDachoraState(RoomEnemySlot slot) =>
-        slot.SpeciesState<DachoraEnemyState>() ?? throw new InvalidOperationException(
-            $"Dachora slot {slot.SlotIndex} has no initialized native state.");
-
     /// <summary>Starts an authored Dachora animation at its first tick.</summary>
     private static void InstallDachoraInstruction(RoomEnemySlot slot, DachoraEnemyState state, DachoraProgram program)
     {
@@ -562,15 +557,9 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
             samus.Kinematics.YAcceleration.Fraction);
 
     /// <summary>Advances Dachora's typed animation.</summary>
-    internal static void AdvanceDachoraTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _)
-    {
-        if (!EnemyProgramAnimation.Expire(slot))
-            return;
-        var state = RequireDachoraState(slot);
-        AnimationProgramCursor<DachoraProgram> cursor = state.Program;
-        EnemyProgramAnimation.Run(slot, DachoraAnimations.Programs, ref cursor, DachoraFrameDefinitions.ShownFrames.Of);
-        state.Program = cursor;
-    }
+    internal static void AdvanceDachoraTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _) =>
+        EnemyProgramAnimation.Advance(slot, DachoraAnimations.Programs, DachoraFrameDefinitions.ShownFrames.Of,
+            static (DachoraEnemyState state) => state.Program, static (state, cursor) => state.Program = cursor);
 
     /// <summary>Ports Dachora's initialization AI.</summary>
     internal static void RunDachoraInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
@@ -583,7 +572,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         RunDachoraMain(
             slot,
-            RequireDachoraState(slot),
+            slot.RequireSpeciesState<DachoraEnemyState>(),
             frame.Samus,
             frame.Level,
             frame.Clock.Counter8);

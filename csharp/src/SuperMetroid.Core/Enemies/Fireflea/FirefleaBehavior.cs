@@ -143,11 +143,6 @@ internal sealed class FirefleaBehavior : IEnemySpecies, IEnemyEntityFactory
             _roomStatus.FirefleaDarknessLevel = next;
     }
 
-    /// <summary>Rejects main-AI dispatch for a slot that has not run Fireflea initialization.</summary>
-    internal static FirefleaEnemyState RequireFirefleaState(RoomEnemySlot slot) =>
-        slot.SpeciesState<FirefleaEnemyState>() ?? throw new InvalidOperationException(
-            $"Enemy slot {slot.SlotIndex} has no initialized Fireflea state.");
-
     /// <summary>Advances darkness after common bomb damage kills a Fireflea.</summary>
     internal void RegisterFirefleaBombReactions(EnemySharedReactions table)
     {
@@ -163,15 +158,9 @@ internal sealed class FirefleaBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Advances Fireflea's typed animation.</summary>
-    internal static void AdvanceFirefleaTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _)
-    {
-        if (!EnemyProgramAnimation.Expire(slot))
-            return;
-        var state = RequireFirefleaState(slot);
-        AnimationProgramCursor<FirefleaProgram> cursor = state.Program;
-        EnemyProgramAnimation.Run(slot, FirefleaAnimations.Programs, ref cursor, FirefleaFrameDefinitions.ShownFrames.Of);
-        state.Program = cursor;
-    }
+    internal static void AdvanceFirefleaTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _) =>
+        EnemyProgramAnimation.Advance(slot, FirefleaAnimations.Programs, FirefleaFrameDefinitions.ShownFrames.Of,
+            static (FirefleaEnemyState state) => state.Program, static (state, cursor) => state.Program = cursor);
 
     /// <summary>Ports Fireflea's initialization AI.</summary>
     internal void RunFirefleaInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
@@ -182,7 +171,7 @@ internal sealed class FirefleaBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Ports Fireflea's main AI.</summary>
     internal static void RunFirefleaMainAi(RoomEnemySlot slot, IEnemyAiFrame _)
     {
-        RunFirefleaMain(slot, RequireFirefleaState(slot));
+        RunFirefleaMain(slot, slot.RequireSpeciesState<FirefleaEnemyState>());
     }
 
     /// <summary>Advances darkness before a lethal common power-bomb death is finalized.</summary>

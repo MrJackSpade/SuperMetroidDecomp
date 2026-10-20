@@ -197,11 +197,6 @@ internal sealed class SkulteraBehavior : IEnemySpecies, IEnemyEntityFactory
             : SkulteraProgram.SwimmingRight);
     }
 
-    /// <summary>Gets the initialized state for a Skultera slot, rejecting calls before its setup.</summary>
-    internal static SkulteraEnemyState RequireSkulteraState(RoomEnemySlot slot) =>
-        slot.SpeciesState<SkulteraEnemyState>() ?? throw new InvalidOperationException(
-            $"Enemy slot {slot.SlotIndex} has no initialized Skultera state.");
-
     /// <summary>Ports Skultera's initialization AI.</summary>
     internal static void RunSkulteraInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
     {
@@ -211,18 +206,12 @@ internal sealed class SkulteraBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Ports Skultera's main AI.</summary>
     internal void RunSkulteraMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
-        RunSkulteraMain(slot, RequireSkulteraState(slot), frame.Level);
+        RunSkulteraMain(slot, slot.RequireSpeciesState<SkulteraEnemyState>(), frame.Level);
     }
 
     /// <summary>Advances Skultera's typed animation.</summary>
-    internal static void AdvanceSkulteraTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _)
-    {
-        if (!EnemyProgramAnimation.Expire(slot))
-            return;
-        var state = RequireSkulteraState(slot);
-        AnimationProgramCursor<SkulteraProgram> cursor = state.Program;
-        EnemyProgramAnimation.Run(slot, SkulteraAnimations.Programs, ref cursor, SkulteraFrameDefinitions.ShownFrames.Of,
-                (cue, _) => ApplySkulteraCue(slot, state, cue));
-        state.Program = cursor;
-    }
+    internal static void AdvanceSkulteraTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _) =>
+        EnemyProgramAnimation.Advance(slot, SkulteraAnimations.Programs, SkulteraFrameDefinitions.ShownFrames.Of,
+            static (SkulteraEnemyState state) => state.Program, static (state, cursor) => state.Program = cursor,
+            (state, cue, _) => ApplySkulteraCue(slot, state, cue));
 }

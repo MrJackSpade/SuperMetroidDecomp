@@ -601,7 +601,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
     /// </summary>
     private NinjaSpacePirateProgram? ApplyNinjaSpacePirateCue(RoomEnemySlot slot, NinjaSpacePirateCue cue, SamusState? samus)
     {
-        NinjaSpacePirateEnemyState state = RequireNinjaSpacePirateState(slot);
+        NinjaSpacePirateEnemyState state = slot.RequireSpeciesState<NinjaSpacePirateEnemyState>();
         switch (cue.Kind)
         {
             case NinjaSpacePirateCueKind.SetFunction:
@@ -656,11 +656,6 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
         slot.InstructionTimer = NativeCountdown.Start(1);
     }
 
-    /// <summary>Gets the state attached to a ninja slot and rejects an uninitialized actor.</summary>
-    internal static NinjaSpacePirateEnemyState RequireNinjaSpacePirateState(RoomEnemySlot slot) =>
-        slot.SpeciesState<NinjaSpacePirateEnemyState>() ?? throw new InvalidOperationException(
-            $"Enemy slot {slot.SlotIndex} has no initialized ninja Space Pirate state.");
-
     /// <summary>Binds both claw directions to the same outbound-and-return pre-instruction.</summary>
     internal static void RegisterNinjaSpacePirateProjectiles(EnemyProjectileHandlerTable table)
     {
@@ -681,23 +676,17 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
     {
         RunNinjaSpacePirateMain(
             slot,
-            RequireNinjaSpacePirateState(slot),
+            slot.RequireSpeciesState<NinjaSpacePirateEnemyState>(),
             frame.Samus,
             frame.Level,
             frame.SamusProjectiles);
     }
 
     /// <summary>Advances NinjaSpacePirate's typed animation.</summary>
-    internal void AdvanceNinjaSpacePirateTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext context)
-    {
-        if (!EnemyProgramAnimation.Expire(slot))
-            return;
-        var state = RequireNinjaSpacePirateState(slot);
-        AnimationProgramCursor<NinjaSpacePirateProgram> cursor = state.Program;
-        EnemyProgramAnimation.Run(slot, NinjaSpacePirateAnimations.Programs, ref cursor, NinjaSpacePirateFrameDefinitions.ShownFrames.Of,
-                (cue, _) => ApplyNinjaSpacePirateCue(slot, cue, context.Samus));
-        state.Program = cursor;
-    }
+    internal void AdvanceNinjaSpacePirateTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext context) =>
+        EnemyProgramAnimation.Advance(slot, NinjaSpacePirateAnimations.Programs, NinjaSpacePirateFrameDefinitions.ShownFrames.Of,
+            static (NinjaSpacePirateEnemyState state) => state.Program, static (state, cursor) => state.Program = cursor,
+            (state, cue, _) => ApplyNinjaSpacePirateCue(slot, cue, context.Samus));
 
 
     /// <summary>Accepts gold ninja extended-hitbox bomb overlaps without damage or generic death.</summary>

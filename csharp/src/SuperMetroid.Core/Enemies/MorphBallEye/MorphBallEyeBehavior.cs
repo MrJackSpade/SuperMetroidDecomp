@@ -249,7 +249,7 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
     private void InitializeMorphBallEyeBeamObject()
     {
         RoomEnemySlot body = RequireMorphBallEyeBeamBody();
-        MorphBallEyeEnemyState state = RequireMorphBallEyeState(body);
+        MorphBallEyeEnemyState state = body.RequireSpeciesState<MorphBallEyeEnemyState>();
 
         MorphBallEyeBeam.Red = MorphBallEyeBeamDefinitions.InitialRed;
         MorphBallEyeBeam.Green = MorphBallEyeBeamDefinitions.InitialGreen;
@@ -279,7 +279,7 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Cycles the sixteen native beam colors while the body stays activated, otherwise begins fading.</summary>
     internal void StepFullMorphBallEyeBeam()
     {
-        MorphBallEyeEnemyState bodyState = RequireMorphBallEyeState(RequireMorphBallEyeBeamBody());
+        MorphBallEyeEnemyState bodyState = (RequireMorphBallEyeBeamBody()).RequireSpeciesState<MorphBallEyeEnemyState>();
         if (!bodyState.IsActivated)
         {
             MorphBallEyeBeam.Phase = MorphBallEyeBeamPhase.Deactivating;
@@ -323,21 +323,10 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
         return _slotTable.Slots[index];
     }
 
-    /// <summary>Rejects AI or beam processing before the eye slot's native state exists.</summary>
-    private static MorphBallEyeEnemyState RequireMorphBallEyeState(RoomEnemySlot slot) =>
-        slot.SpeciesState<MorphBallEyeEnemyState>() ?? throw new InvalidOperationException(
-            $"Morph-ball eye slot {slot.SlotIndex} has no initialized native state.");
-
     /// <summary>Advances MorphBallEye's typed animation.</summary>
-    internal static void AdvanceMorphBallEyeTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _)
-    {
-        if (!EnemyProgramAnimation.Expire(slot))
-            return;
-        var state = RequireMorphBallEyeState(slot);
-        AnimationProgramCursor<MorphBallEyeProgram> cursor = state.Program;
-        EnemyProgramAnimation.Run(slot, MorphBallEyeAnimations.Programs, ref cursor, MorphBallEyeFrameDefinitions.ShownFrames.Of);
-        state.Program = cursor;
-    }
+    internal static void AdvanceMorphBallEyeTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _) =>
+        EnemyProgramAnimation.Advance(slot, MorphBallEyeAnimations.Programs, MorphBallEyeFrameDefinitions.ShownFrames.Of,
+            static (MorphBallEyeEnemyState state) => state.Program, static (state, cursor) => state.Program = cursor);
 
     /// <summary>Ports MorphBallEye's initialization AI.</summary>
     internal void RunMorphBallEyeInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
@@ -348,7 +337,7 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Ports MorphBallEye's main AI.</summary>
     internal void RunMorphBallEyeMainAi(RoomEnemySlot slot, IEnemyAiFrame frame)
     {
-        RunMorphBallEyeMain(slot, RequireMorphBallEyeState(slot), frame.Samus);
+        RunMorphBallEyeMain(slot, slot.RequireSpeciesState<MorphBallEyeEnemyState>(), frame.Samus);
     }
 
     /// <inheritdoc/>

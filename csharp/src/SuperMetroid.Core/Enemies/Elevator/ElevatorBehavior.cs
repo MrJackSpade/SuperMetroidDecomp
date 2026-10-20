@@ -118,11 +118,6 @@ internal sealed class ElevatorBehavior : IEnemySpecies, IEnemyEntityFactory, IEl
         ElevatorFlags = ElevatorJourneyFlag.None;
     }
 
-    /// <summary>Requires the elevator slot to have been initialized before main AI dispatch.</summary>
-    internal static ElevatorEnemyState RequireElevatorState(RoomEnemySlot slot) =>
-        slot.SpeciesState<ElevatorEnemyState>() ?? throw new InvalidOperationException(
-            $"Elevator slot {slot.SlotIndex} was not initialized.");
-
     /// <summary>Ports <c>Elevator_Init</c> at $A3:94E6.</summary>
     internal void InitializeElevator(RoomEnemySlot slot, SamusState? samus)
     {
@@ -299,15 +294,9 @@ internal sealed class ElevatorBehavior : IEnemySpecies, IEnemyEntityFactory, IEl
     }
 
     /// <summary>Advances Elevator's typed animation.</summary>
-    internal static void AdvanceElevatorTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _)
-    {
-        if (!EnemyProgramAnimation.Expire(slot))
-            return;
-        var state = RequireElevatorState(slot);
-        AnimationProgramCursor<ElevatorProgram> cursor = state.Program;
-        EnemyProgramAnimation.Run(slot, ElevatorAnimations.Programs, ref cursor, ElevatorFrameDefinitions.ShownFrames.Of);
-        state.Program = cursor;
-    }
+    internal static void AdvanceElevatorTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _) =>
+        EnemyProgramAnimation.Advance(slot, ElevatorAnimations.Programs, ElevatorFrameDefinitions.ShownFrames.Of,
+            static (ElevatorEnemyState state) => state.Program, static (state, cursor) => state.Program = cursor);
 
     /// <summary>Ports Elevator's initialization AI.</summary>
     internal void RunElevatorInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? samus, SnesButton _1, ushort _2)
@@ -320,7 +309,7 @@ internal sealed class ElevatorBehavior : IEnemySpecies, IEnemyEntityFactory, IEl
     {
         RunElevatorMain(
             slot,
-            RequireElevatorState(slot),
+            slot.RequireSpeciesState<ElevatorEnemyState>(),
             frame.Samus,
             frame.NewlyPressedControllerInput,
             frame.SamusProjectiles);

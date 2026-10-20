@@ -230,11 +230,6 @@ internal sealed class NorfairLavaJumpingEnemyBehavior : IEnemySpecies, IEnemyEnt
         slot.Timer = NativeCountdown.Start(0);
     }
 
-    /// <summary>Returns the state initialized for this physical enemy slot.</summary>
-    internal static NorfairLavaJumpingEnemyState RequireNorfairLavaJumpingEnemyState(RoomEnemySlot slot) =>
-        slot.SpeciesState<NorfairLavaJumpingEnemyState>() ?? throw new InvalidOperationException(
-            $"Enemy slot {slot.SlotIndex} has no initialized Norfair lava-jumping state.");
-
     /// <summary>Ports NorfairLavaJumpingEnemy's initialization AI.</summary>
     internal void RunNorfairLavaJumpingEnemyInitializationAi(RoomEnemySlot slot, RoomLevelData? _, SamusState? _1, SnesButton _2, ushort _3)
     {
@@ -246,20 +241,14 @@ internal sealed class NorfairLavaJumpingEnemyBehavior : IEnemySpecies, IEnemyEnt
     {
         RunNorfairLavaJumpingEnemyMain(
             slot,
-            RequireNorfairLavaJumpingEnemyState(slot));
+            slot.RequireSpeciesState<NorfairLavaJumpingEnemyState>());
     }
 
     /// <summary>Advances NorfairLavaJumpingEnemy's typed animation.</summary>
-    internal static void AdvanceNorfairLavaJumpingEnemyTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _)
-    {
-        if (!EnemyProgramAnimation.Expire(slot))
-            return;
-        var state = RequireNorfairLavaJumpingEnemyState(slot);
-        AnimationProgramCursor<NorfairLavaJumperProgram> cursor = state.Program;
-        EnemyProgramAnimation.Run(slot, NorfairLavaJumperAnimations.Programs, ref cursor, NorfairLavaJumperFrameDefinitions.ShownFrames.Of,
-                (cue, _) => ApplyNorfairLavaJumperCue(state, cue));
-        state.Program = cursor;
-    }
+    internal static void AdvanceNorfairLavaJumpingEnemyTypedAnimation(RoomEnemySlot slot, EnemyInstructionContext _) =>
+        EnemyProgramAnimation.Advance(slot, NorfairLavaJumperAnimations.Programs, NorfairLavaJumperFrameDefinitions.ShownFrames.Of,
+            static (NorfairLavaJumpingEnemyState state) => state.Program, static (state, cursor) => state.Program = cursor,
+            (state, cue, _) => ApplyNorfairLavaJumperCue(state, cue));
 
     /// <inheritdoc/>
     public void BeginEnemyFrame(RoomEnemyFrame frame)

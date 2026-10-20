@@ -41,6 +41,17 @@ public static class ScrollingSkyChunkDefinitions
         return offset >= 0 && offset % PageByteCount == 0 && offset / PageByteCount < PageCount;
     }
 
+    /// <summary>The sky page, 0 through 6, a chunk selects; false for a compatibility word, which selects no page.</summary>
+    /// <param name="pointerTable">The land or ocean table.</param>
+    /// <param name="index">The chunk index.</param>
+    /// <param name="page">The page's position among the seven sky pages when the chunk selects one.</param>
+    public static bool TryGetPageIndex(ScrollingSkyChunkTable pointerTable, int index, out int page)
+    {
+        bool selects = TryGetPage(pointerTable, index, out ushort word);
+        page = selects ? (word - FirstPage) / PageByteCount : -1;
+        return selects;
+    }
+
     /// <summary>Selects a page or native compatibility word for the exact supported domain.</summary>
     public static ushort Get(ScrollingSkyChunkTable pointerTable, int index)
     {

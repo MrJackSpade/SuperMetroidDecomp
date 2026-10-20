@@ -41,9 +41,9 @@ public sealed class SkyTilemap : IBgTileSource
         Variant = variant;
         for (int row = 0; row < Rows; row++)
         {
-            if (!ScrollingSkyChunkDefinitions.TryGetPage(variant, row / RowsPerChunk, out ushort page))
+            if (!ScrollingSkyChunkDefinitions.TryGetPageIndex(variant, row / RowsPerChunk, out int page))
                 continue;
-            ReadOnlySpan<byte> bytes = pages.Read(RoomFxRomData.Banks.Tilemaps | (page + row % RowsPerChunk * RowBytes), RowBytes);
+            ReadOnlySpan<byte> bytes = pages.Row(page, row % RowsPerChunk);
             for (int column = 0; column < Columns; column++)
                 words[row * Columns + column] = SnesLittleEndian.Word(bytes[column * 2], bytes[column * 2 + 1]);
             shown[row] = true;

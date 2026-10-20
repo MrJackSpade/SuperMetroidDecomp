@@ -47,16 +47,15 @@ public sealed class RoomSkyTilemapCatalog : IInstalledArtworkTransferSource
         _ => throw new ArgumentOutOfRangeException(nameof(variant), variant, "Unknown scrolling-sky chunk table."),
     };
 
-    /// <summary>The bytes at a bank-$8A address inside the seven pages.</summary>
-    /// <param name="sourceAddress">Full 24-bit bank-$8A source address.</param>
-    /// <param name="byteCount">Bytes to read; they must lie inside the pages.</param>
-    internal ReadOnlySpan<byte> Read(int sourceAddress, int byteCount)
+    /// <summary>The tile words of one row of one sky page, as little-endian bytes.</summary>
+    /// <param name="page">The page, 0 through 6.</param>
+    /// <param name="row">The row within the page, 0 through 31.</param>
+    internal ReadOnlySpan<byte> Row(int page, int row)
     {
-        int offset = sourceAddress - RoomSkyTilemapFormat.FirstSourceAddress;
-        if (offset < 0 || byteCount < 0 || offset + byteCount > pages.Length)
-            throw new ArgumentOutOfRangeException(nameof(sourceAddress), sourceAddress,
-                $"${sourceAddress:X6}+${byteCount:X} lies outside the scrolling-sky pages.");
-        return pages.AsSpan(offset, byteCount);
+        Ensure.BetweenInclusive(0, RoomSkyTilemapFormat.PageCount - 1, page);
+        Ensure.BetweenInclusive(0, RoomSkyTilemapFormat.RowsPerPage - 1, row);
+        return pages.AsSpan(page * RoomSkyTilemapFormat.PageByteCount + row * RoomSkyTilemapFormat.RowByteCount,
+            RoomSkyTilemapFormat.RowByteCount);
     }
 
     /// <summary>Resolves a whole aligned page from installed artwork.</summary>

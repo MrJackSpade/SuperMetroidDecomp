@@ -33,7 +33,7 @@ internal static class CinematicClosedContractDefinitions
             [new("csharp/src/SuperMetroid.Core/Frontend/Intro/Artwork/IntroMotherBrainExplosionSpritePresentation.cs"),
              new("csharp/src/SuperMetroid.Core/Frontend/Intro/Artwork/IntroMotherBrainExplosionSpriteDefinitions.cs")]),
         new("SuperMetroid.Core.Areas.Ceres.Artwork.CeresDoorVisualCatalog", "ceres-door-complete-tile-and-color-images",
-            ["LoadTiles", "LoadNormalColors", "LoadEscapeColors", "LoadAnimationColors", "LoadMode7DoorFrame"],
+            ["LoadTiles", "LoadNormalColors", "LoadEscapeColors", "LoadAnimationColors", "Mode7DoorFrame"],
             [new("csharp/src/SuperMetroid.Core/Areas/Ceres/Artwork/CeresDoorVisualCatalog.cs"),
              new("csharp/src/SuperMetroid.Core/Areas/Ceres/Artwork/CeresDoorAnimationPaintDefinitions.cs"),
              new("csharp/src/SuperMetroid.Core/Areas/Ceres/Artwork/CeresDoorEscapePaintDefinitions.cs"),

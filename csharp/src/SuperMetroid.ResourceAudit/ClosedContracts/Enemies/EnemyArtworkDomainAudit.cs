@@ -18,14 +18,6 @@ internal static class EnemyArtworkDomainAudit
         if (operation.TargetMethod.ContainingType.ToDisplayString() != typeof(EnemyTileArtworkCatalog).FullName) return null;
         int? Constant(string name) => operation.Arguments.Single(argument => argument.Parameter?.Name == name)
             .Value.ConstantValue is { HasValue: true, Value: not null } value ? Convert.ToInt32(value.Value) : null;
-        if (operation.TargetMethod.Name == "LoadTo")
-        {
-            if (Constant("definitionPointer") is not int pointer || Constant("byteCount") is not int count) return null;
-            EnemyTileSourceDefinition? owned = EnemyTileSourceDefinitions.All.Where(definition => (ushort)definition.DefinitionPointer == pointer)
-                .Select(definition => (EnemyTileSourceDefinition?)definition).SingleOrDefault();
-            return owned is { } definition && count != definition.ByteCount
-                ? $"Enemy ${pointer:X4} requires {definition.ByteCount} tile bytes, not {count}." : null;
-        }
         if (operation.TargetMethod.Name != "TryResolve" || Constant("sourceAddress") is not int source ||
             Constant("byteCount") is not int byteCount) return null;
         bool ordinary = EnemyTileSourceDefinitions.All.Any(definition => definition.SourceAddress == source);

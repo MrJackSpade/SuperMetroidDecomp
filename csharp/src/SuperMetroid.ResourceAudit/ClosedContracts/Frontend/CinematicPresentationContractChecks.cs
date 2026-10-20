@@ -33,7 +33,7 @@ internal static class CinematicPresentationContractChecks
                     IntroCaretSpritePresentation caret, IntroMotherBrainSpritePresentation motherBrain,
                     IntroMotherBrainExplosionSpritePresentation explosions, CeresDoorVisualCatalog door,
                     EscapeTimerPresentation timer, CeresEscapeOverlayTilemapCatalog overlay,
-                    EscapeTimer countdown, SnesVram vram, SnesCgram cgram, OamBuffer oam,
+                    EscapeTimer countdown, SnesVram vram, SnesCgram cgram, SuperMetroid.Core.Assets.ScreenSprites oam,
                     SuperMetroid.Core.Assets.SpriteFrameBuffer sprites, SuperMetroid.Core.Assets.SpriteArtwork timerArtwork,
                     SuperMetroid.Core.Assets.ScreenSprites titleSprites) {
                     palette.Apply(cgram);
@@ -54,8 +54,8 @@ internal static class CinematicPresentationContractChecks
                     door.LoadEscapeColors(cgram, CeresDoorVisualRomData.ActiveTargetColor);
                     door.LoadAnimationColors(cgram, CeresDoorVisualRomData.AnimationRowCount - 1);
                     door.LoadAnimationColors(cgram, CeresDoorVisualRomData.AnimationRowCount);
-                    door.LoadMode7DoorFrame(vram, CeresDoorVisualRomData.Mode7FrameCount - 1);
-                    door.LoadMode7DoorFrame(vram, CeresDoorVisualRomData.Mode7FrameCount);
+                    door.Mode7DoorFrame(CeresDoorVisualRomData.Mode7FrameCount - 1);
+                    door.Mode7DoorFrame(CeresDoorVisualRomData.Mode7FrameCount);
                     timer.Draw(countdown, sprites, timerArtwork);
                     overlay.TryResolve(CeresEscapeOverlayTilemapDefinitions.Emergency.SourceAddress, 18, out _);
                     overlay.TryResolve(CeresEscapeOverlayTilemapDefinitions.Emergency.SourceAddress, 0, out _);

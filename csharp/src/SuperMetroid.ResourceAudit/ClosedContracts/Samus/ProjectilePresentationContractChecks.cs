@@ -27,7 +27,7 @@ internal static class ProjectilePresentationContractChecks
                 void Inspect(BeamTileCatalog beams, ChargeFlarePlacementCatalog placement,
                     ChargeFlareSpriteCatalog flare, ProjectileTrailCatalog trails,
                     ProjectileFrameBindingCatalog bindings, GrappleSpriteCatalog grapple,
-                    GrappleSwingFrameCatalog swing, ProjectileSpriteCatalog sprites, OamBuffer oam) {
+                    GrappleSwingFrameCatalog swing, ProjectileSpriteCatalog sprites, SuperMetroid.Core.Assets.ScreenSprites oam) {
                     beams.Resolve(VramAssetId.BeamPowerTiles);
                     beams.Resolve(VramAssetId.BeamPlasmaIceWaveTiles);
                     beams.Resolve(VramAssetId.StandardHudTiles);
@@ -44,7 +44,7 @@ internal static class ProjectilePresentationContractChecks
                     bindings.Resolve(0);
                     grapple.Segment(3);
                     grapple.Segment(4);
-                    swing.Resolve(byte.MaxValue);
+                    swing.Resolve(new SnesByteAngle(byte.MaxValue));
                     sprites.Frame(ProjectileSpriteDefinitions.NativePointers[0]);
                     sprites.Frame(0);
                 }

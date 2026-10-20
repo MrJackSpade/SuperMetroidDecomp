@@ -30,7 +30,6 @@ internal static class SamusArtworkClosedContractDefinitions
              new("csharp/src/SuperMetroid.Core/Hardware/SnesTileFlipFlags.cs"),
              new("csharp/src/SuperMetroid.Core/Hardware/SnesBgTilemapWord.cs"),
              new("csharp/src/SuperMetroid.Core/Hardware/SnesObjAttributeWord.cs"),
-             new("csharp/src/SuperMetroid.Core/Hardware/SnesOamHighTablePair.cs"),
              new("csharp/src/SuperMetroid.Core/Hardware/SnesSpritemapXWord.cs"),
              new("csharp/src/SuperMetroid.Core/Samus/Poses/SamusPoseCollisionDefinitions.cs")]),
         new("SuperMetroid.Core.Samus.Artwork.SamusSpritemapArtworkCatalog", "samus-complete-indexed-composition-membership",
@@ -54,7 +53,6 @@ internal static class SamusArtworkClosedContractDefinitions
              new("csharp/src/SuperMetroid.Core/Hardware/SnesTileFlipFlags.cs"),
              new("csharp/src/SuperMetroid.Core/Hardware/SnesBgTilemapWord.cs"),
              new("csharp/src/SuperMetroid.Core/Hardware/SnesObjAttributeWord.cs"),
-             new("csharp/src/SuperMetroid.Core/Hardware/SnesOamHighTablePair.cs"),
              new("csharp/src/SuperMetroid.Core/Hardware/SnesSpritemapXWord.cs"),
              new("csharp/src/SuperMetroid.Core/Samus/Poses/SamusPoseCollisionDefinitions.cs")]),
         new("SuperMetroid.Core.Samus.Artwork.SamusAtmosphericArtworkCatalog", "samus-complete-direct-atmospheric-membership", ["TryResolve"],
@@ -94,7 +92,6 @@ internal static class SamusArtworkClosedContractDefinitions
              new("csharp/src/SuperMetroid.Core/Hardware/SnesTileFlipFlags.cs"),
              new("csharp/src/SuperMetroid.Core/Hardware/SnesBgTilemapWord.cs"),
              new("csharp/src/SuperMetroid.Core/Hardware/SnesObjAttributeWord.cs"),
-             new("csharp/src/SuperMetroid.Core/Hardware/SnesOamHighTablePair.cs"),
              new("csharp/src/SuperMetroid.Core/Hardware/SnesSpritemapXWord.cs"),
              new("csharp/src/SuperMetroid.Core/Samus/Poses/SamusPoseCollisionDefinitions.cs")]),
     ];

@@ -27,7 +27,7 @@ internal static class PausePresentationContractChecks
                 void Inspect(PauseEquipmentBasePresentation baseImage, PauseBackdropPresentation backdrop,
                     PauseWireframePresentation wireframe, PauseEquipmentLabelPresentation labels,
                     PauseSelectorPresentation selector, PauseReserveTankPresentation tanks,
-                    Span<byte> page, Span<ushort> tilemap, OamBuffer oam) {
+                    Span<byte> page, Span<ushort> tilemap, SuperMetroid.Core.Assets.ScreenSprites oam) {
                     baseImage.CreateTilemap();
                     baseImage.RebindBaseInto(page, labels);
                     baseImage.RebindBeforeInventoryRefreshInto(page);

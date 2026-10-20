@@ -27,9 +27,6 @@ internal static class EnemyArtworkStaticContractChecks
             class EnemyArtworkConsumer {
                 void Inspect(EnemyTileArtworkCatalog art, SuperMetroid.Core.Enemies.EnemyDefinitionId pointer, int source, int length,
                     VramRegion vram, CgramPalette cgram) {
-                    art.LoadTo((SuperMetroid.Core.Enemies.EnemyDefinitionId){{(ushort)first.DefinitionPointer}}, {{first.ByteCount}}, vram, 0);
-                    art.LoadTo((SuperMetroid.Core.Enemies.EnemyDefinitionId){{(ushort)first.DefinitionPointer}}, {{first.ByteCount + 1}}, vram, 0);
-                    art.LoadTo(0, {{first.ByteCount}}, vram, 0);
                     art.LoadPaletteTo((SuperMetroid.Core.Enemies.EnemyDefinitionId){{(ushort)first.DefinitionPointer}}, cgram);
                     art.LoadPaletteTo(0, cgram);
                     art.TryResolve({{first.SourceAddress}}, {{first.ByteCount}}, out _);
@@ -39,7 +36,6 @@ internal static class EnemyArtworkStaticContractChecks
                     art.TryResolve({{overlay.SourceAddress}}, {{overlay.WordCount * sizeof(ushort)}}, out _);
                     art.TryResolve({{overlay.SourceAddress}}, 1, out _);
                     art.TryResolve(0, int.MinValue, out _);
-                    art.LoadTo(pointer, length, vram, 0);
                     art.LoadPaletteTo(pointer, cgram);
                     art.TryResolve(source, length, out _);
                 }
@@ -62,8 +58,8 @@ internal static class EnemyArtworkStaticContractChecks
         }
         CSharpCompilation compilation = Compile(trees);
         AuditReport before = Inspect(compilation, false), after = Inspect(compilation, true);
-        Require(before.UnresolvedCount == 15 && before.Consumers.Count == 15, "all identified boundaries are retained before adaptation" + " (" + before.Describe() + ")");
-        Require(after.Classifications.Count == 9 && after.UnresolvedCount == 6 && after.MissingCount == 0 && after.Consumers.Count == 15,
+        Require(before.UnresolvedCount == 11 && before.Consumers.Count == 11, "all identified boundaries are retained before adaptation" + " (" + before.Describe() + ")");
+        Require(after.Classifications.Count == 7 && after.UnresolvedCount == 4 && after.MissingCount == 0 && after.Consumers.Count == 11,
             "valid identities/lengths qualify while invalid known selectors remain findings" + " (" + after.Describe() + ")");
         SyntaxTree extraMetadata = CSharpSyntaxTree.ParseText(
             "namespace SuperMetroid.Core.Enemies; public static partial class RoomEnemyGraphicsSetDefinitions { }",
@@ -71,9 +67,9 @@ internal static class EnemyArtworkStaticContractChecks
         Revoked(Inspect(Compile(trees.Append(extraMetadata)), true), "additional metadata declaration");
     }
 
-    /// <summary>Requires all fifteen calls to become unresolved when a reviewed artwork proof is invalidated.</summary>
+    /// <summary>Requires all eleven calls to become unresolved when a reviewed artwork proof is invalidated.</summary>
     private static void Revoked(AuditReport report, string reason) => Require(
-        report.Classifications.Count == 0 && report.UnresolvedCount == 15 && report.Consumers.Count == 15, reason);
+        report.Classifications.Count == 0 && report.UnresolvedCount == 11 && report.Consumers.Count == 11, reason);
 
     /// <summary>Reports an enemy-artwork contract failure through the audit process boundary.</summary>
     private static void Require(bool valid, string reason)

@@ -91,14 +91,13 @@ internal static class DefinitionAudit
     /// <summary>Locates the declaration of a selector in generated tables or calculated visual definitions.</summary>
     private static string SelectorSource(string root, int bank, int address)
     {
+        // Only the bank-$86 fireballs compute their selectors; every other bank's are literal generated entries.
         bool calculated = CompiledEnemyVisualSelectors.IsCalculatedSelector(address);
-        string calculatedMethod = bank == 0x86 ? "Spritemap" : "FrameAt";
+        const string calculatedMethod = "Spritemap";
         string relative = calculated
-            ? bank == 0x86
-                ? AlcoonFireballFrameDefinitions.TryFrame((ushort)address, out _)
-                    ? "csharp/src/SuperMetroid.Tooling/Core/Enemies/Alcoon/Artwork/AlcoonFireballFrameToolingDefinitions.cs"
-                    : "csharp/src/SuperMetroid.Tooling/Core/Enemies/FuneNamihe/Artwork/FuneNamiheFireballFrameToolingDefinitions.cs"
-                : "csharp/src/SuperMetroid.Core/Bosses/Kraid/Artwork/KraidVisualDefinitions.cs"
+            ? AlcoonFireballFrameDefinitions.TryFrame((ushort)address, out _)
+                ? "csharp/src/SuperMetroid.Tooling/Core/Enemies/Alcoon/Artwork/AlcoonFireballFrameToolingDefinitions.cs"
+                : "csharp/src/SuperMetroid.Tooling/Core/Enemies/FuneNamihe/Artwork/FuneNamiheFireballFrameToolingDefinitions.cs"
             : $"csharp/src/SuperMetroid.Tooling/Core/Enemies/Artwork/CompiledEnemyVisualSelectors.Bank{bank:X2}.Definitions.Generated.cs";
         int line = 0;
         foreach (string text in File.ReadLines(Path.Combine(root, relative)))

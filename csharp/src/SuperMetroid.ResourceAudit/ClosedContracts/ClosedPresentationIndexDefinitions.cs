@@ -24,6 +24,7 @@ using SuperMetroid.Core.Hud.Artwork;
 using SuperMetroid.Core.Samus.Death;
 using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.ResourceAudit.Reports;
+using SuperMetroid.Core.Rooms.Artwork;
 
 namespace SuperMetroid.ResourceAudit.ClosedContracts;
 
@@ -131,7 +132,9 @@ internal static class ClosedPresentationIndexDefinitions
         ("PauseReserveTankPresentation", "Anchor" or "Draw", "index") => new(0, PauseReserveTankDefinitions.AnchorCount),
         ("IntroEyeTilemapPresentation", "FrameWords", "index") => new(0, IntroEyeTilemapFormat.FrameCount),
         ("CeresDoorVisualCatalog", "LoadAnimationColors", "row") => new(0, CeresDoorVisualRomData.AnimationRowCount),
-        ("CeresDoorVisualCatalog", "LoadMode7DoorFrame", "frame") => new(0, CeresDoorVisualRomData.Mode7FrameCount),
+        ("CeresDoorVisualCatalog", "Mode7DoorFrame", "frame") => new(0, CeresDoorVisualRomData.Mode7FrameCount),
+        ("RoomSkyTilemapCatalog", "Row", "page") => new(0, RoomSkyTilemapFormat.PageCount),
+        ("RoomSkyTilemapCatalog", "Row", "row") => new(0, RoomSkyTilemapFormat.RowsPerPage),
         ("BeamTileCatalog", "Resolve", "asset") => new((int)VramAssetId.BeamPowerTiles, BeamTileAtlasDefinitions.SelectionCount, Additional: (int)VramAssetId.BeamChainsawTiles, AdditionalMaximum: (int)VramAssetId.BeamSpacetimeTiles),
         ("ChargeFlarePlacementCatalog", "Resolve", "direction") => new(0, ChargeFlarePlacementDefinitions.DirectionCount),
         ("ChargeFlareSpriteCatalog", "Frame", "selector") => new(0, ChargeFlareSpriteDefinitions.Selectors.Length),

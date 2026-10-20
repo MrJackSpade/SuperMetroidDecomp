@@ -43,7 +43,7 @@ internal static class InterfacePresentationContractChecks
             using SuperMetroid.Core.Fx.PaletteFx;
             using SuperMetroid.Core.Hardware;
             class InterfaceConsumer {
-                void Inspect(IIntroCinematicSpritePresentation sprites, IPaletteFxColorSource colors, ushort pointer, PaletteFxColorKey key, OamBuffer oam) {
+                void Inspect(IIntroCinematicSpritePresentation sprites, IPaletteFxColorSource colors, ushort pointer, PaletteFxColorKey key, SuperMetroid.Core.Assets.ScreenSprites oam) {
                     sprites.Draw(pointer, oam, default, 0, true);
                     sprites.Draw(0, oam, default, 0, true);
                     colors.TryReadColor(key, out _);
@@ -70,7 +70,7 @@ internal static class InterfacePresentationContractChecks
         Require(after.Classifications.Count == 2 && after.UnresolvedCount == 1 && after.Consumers.Count == 3,
             "reviewed interface operations qualify but an unowned cinematic frame remains a finding" + " (" + after.Describe() + ")");
         foreach (string extra in new[] {
-            "class OtherSprite : SuperMetroid.Core.Frontend.Intro.Artwork.IIntroCinematicSpritePresentation { public void Draw(ushort pointer, SuperMetroid.Core.Hardware.OamBuffer oam, ushort x, ushort y, ushort paletteBits, bool originIsOnScreen) {} }",
+            "class OtherSprite : SuperMetroid.Core.Frontend.Intro.Artwork.IIntroCinematicSpritePresentation { public void Draw(ushort pointer, SuperMetroid.Core.Assets.ScreenSprites objects, SuperMetroid.Core.Spatial.Position16<SuperMetroid.Core.Spatial.OamPixels> origin, ushort paletteBits, bool originIsOnScreen) {} }",
             "class OtherColors : SuperMetroid.Core.Fx.Artwork.IPaletteFxColorSource { public bool TryReadColor(SuperMetroid.Core.Fx.PaletteFx.PaletteFxColorKey key, out SuperMetroid.Core.Hardware.Bgr555 color) { color = default; return false; } }" })
         {
             AuditReport revoked = Inspect(Compile(trees.Append(CSharpSyntaxTree.ParseText(extra, path: "fixture-unreviewed-interface-owner.cs"))), true);

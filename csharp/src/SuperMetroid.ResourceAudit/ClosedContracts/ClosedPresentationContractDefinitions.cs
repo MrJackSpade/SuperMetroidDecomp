@@ -50,7 +50,7 @@ internal static class ClosedPresentationContractDefinitions
         .. PlmDoorClosedContractDefinitions.All,
         new("SuperMetroid.Core.Hud.Artwork.GameplayHudPresentation", "hud-v2-complete-valid-domain",
             ["ApplyTemplate", "TryApplyIcon", "ApplyEnergy", "ApplyAmmo", "ApplyAutoReserve",
-                "ClearAutoReserve", "ToggleItemHighlight", "MinimapCellIndex"],
+                "ClearAutoReserve", "ToggleItemHighlight", "MinimapCellIndex", "TopRow"],
             [new("csharp/src/SuperMetroid.Core/Hud/Artwork/GameplayHudPresentation.cs"),
              new("csharp/src/SuperMetroid.Core/Hud/Artwork/GameplayHudDefinitions.cs")]),
         new("SuperMetroid.Core.Frontend.FileSelect.Artwork.FileSelectPresentation", "file-select-v1-bounded-fields",

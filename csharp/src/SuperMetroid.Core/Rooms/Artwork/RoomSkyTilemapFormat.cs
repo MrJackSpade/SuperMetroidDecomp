@@ -12,6 +12,12 @@ public static class RoomSkyTilemapFormat
     /// <summary>Total contiguous byte length of all seven compiled tilemap pages.</summary>
     public const int TotalByteCount = PageCount * PageByteCount;
 
+    /// <summary>Rows in one 32-by-32 page.</summary>
+    public const int RowsPerPage = 32;
+
+    /// <summary>Bytes in one page row: 32 tile words.</summary>
+    public const int RowByteCount = PageByteCount / RowsPerPage;
+
     /// <summary>The manifest file that orders the seven editable sky-page resources.</summary>
     public const string ManifestFileName = "scrolling-sky.json";
 

@@ -68,8 +68,10 @@ internal static class RoomArtworkPresentationContractChecks
         CSharpCompilation compilation = Compile(trees);
         AuditReport before = Inspect(compilation, false), after = Inspect(compilation, true);
         Require(before.UnresolvedCount == 17, "constructed calls must first expose absent adapters" + " (" + before.Describe() + ")");
-        Require(after.Classifications.Count == 9 && after.UnresolvedCount == 8 && after.MissingCount == 0 &&
-            after.Consumers.Count == 17, "required sources and complete sky page/row/false queries qualify, not optional keys or bad transfers" + " (" + after.Describe() + ")");
+        // The sky uploads whole aligned pages only; its rows are read from the pages, not transferred (#1347). So the
+        // first page and the two queries outside the pages qualify, and every partial-page transfer stays a finding.
+        Require(after.Classifications.Count == 6 && after.UnresolvedCount == 11 && after.MissingCount == 0 &&
+            after.Consumers.Count == 17, "required sources, whole sky pages and false queries qualify, not optional keys, partial pages or bad transfers" + " (" + after.Describe() + ")");
         Require(after.Findings.Any(item => item.Owner == "RoomBackgroundTilemapCatalog.Get"),
             "an unowned background source must not borrow required graphics-set source closure");
     }

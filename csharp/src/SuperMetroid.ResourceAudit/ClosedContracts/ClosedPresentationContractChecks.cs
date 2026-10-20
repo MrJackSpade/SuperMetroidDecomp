@@ -50,7 +50,7 @@ internal static class ClosedPresentationContractChecks
                     ChozoAndTubeColorCatalog chozo, GameplayBasePaletteCatalog basePalette,
                     SamusDeathPaletteArtworkCatalog samusDeath,
                     SnesCgram cgram, Span<ushort> tiles, Span<byte> bytes,
-                    OamBuffer oam, int dynamicIndex, string dynamicName) {
+                    ScreenSprites oam, int dynamicIndex, string dynamicName) {
                     hud.ApplyAmmo(tiles, dynamicIndex, 123);
                     hud.MinimapCellIndex(new SuperMetroid.Core.Spatial.Position16<SuperMetroid.Core.Spatial.TilemapCells>(99, 0));
                     menu.DrawCursor(oam, dynamicIndex, new(0,0));

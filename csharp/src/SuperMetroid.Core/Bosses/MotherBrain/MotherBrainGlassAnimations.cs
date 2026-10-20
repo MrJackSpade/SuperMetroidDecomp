@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Programs;
+using Step = SuperMetroid.Core.Programs.AnimationProgramStep<SuperMetroid.Core.Bosses.MotherBrain.MotherBrainGlassProgram, SuperMetroid.Core.Bosses.MotherBrain.MotherBrainGlassFrame, SuperMetroid.Core.Bosses.MotherBrain.MotherBrainGlassCue>;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
@@ -10,33 +11,27 @@ internal static class MotherBrainGlassAnimations
     /// <summary>Frames in the sparkle.</summary>
     internal const int SparklePhaseCount = 4;
 
-    /// <summary>The timeline of <paramref name="program"/>.</summary>
-    internal static AnimationTimeline<MotherBrainGlassFrame, MotherBrainGlassCue> Timeline(MotherBrainGlassProgram program) =>
-        Timelines[(int)program];
-
-    /// <summary>Every program's timeline, by program.</summary>
-    private static readonly AnimationTimeline<MotherBrainGlassFrame, MotherBrainGlassCue>[] Timelines =
-        [.. Enum.GetValues<MotherBrainGlassProgram>().Select(Build)];
-
     /// <summary>
-    /// A shard spins through its eight frames with the symmetric 4, 3, 2, 3 cadence twice and loops; the sparkle
-    /// alternates six and eight updates over four frames, then deletes itself.
+    /// Every glass program: a shard spins through its eight frames with the symmetric 4, 3, 2, 3 cadence twice and
+    /// loops; the sparkle alternates six and eight updates over four frames, then deletes itself.
     /// </summary>
-    private static AnimationTimeline<MotherBrainGlassFrame, MotherBrainGlassCue> Build(MotherBrainGlassProgram program) =>
+    internal static AnimationProgramSet<MotherBrainGlassProgram, MotherBrainGlassFrame, MotherBrainGlassCue> Programs { get; } = new(
+        Enum.GetValues<MotherBrainGlassProgram>().ToDictionary(program => program, Build));
+
+    /// <summary>The steps of <paramref name="program"/>.</summary>
+    private static Step[] Build(MotherBrainGlassProgram program) =>
         program == MotherBrainGlassProgram.Sparkle
-            ? new(
+            ?
             [
-                .. Enumerable.Range(0, SparklePhaseCount).Select(phase =>
-                    AnimationStep<MotherBrainGlassFrame, MotherBrainGlassCue>.Show(new(program, phase), phase % 2 == 0 ? 6 : 8)),
-                AnimationStep<MotherBrainGlassFrame, MotherBrainGlassCue>.Publish(MotherBrainGlassCue.Delete),
-                AnimationStep<MotherBrainGlassFrame, MotherBrainGlassCue>.Hold,
-            ])
-            : new(
+                .. Enumerable.Range(0, SparklePhaseCount).Select(phase => Step.Show(new(program, phase), phase % 2 == 0 ? 6 : 8)),
+                Step.Publish(MotherBrainGlassCue.Delete),
+                Step.Hold,
+            ]
+            :
             [
-                .. Enumerable.Range(0, ShardPhaseCount).Select(phase =>
-                    AnimationStep<MotherBrainGlassFrame, MotherBrainGlassCue>.Show(new(program, phase), ShardDuration(phase))),
-                AnimationStep<MotherBrainGlassFrame, MotherBrainGlassCue>.Loop,
-            ]);
+                .. Enumerable.Range(0, ShardPhaseCount).Select(phase => Step.Show(new(program, phase), ShardDuration(phase))),
+                Step.GoTo(program),
+            ];
 
     /// <summary>The 4, 3, 2, 3 cadence of a shard's spin.</summary>
     private static int ShardDuration(int phase) => (phase % 4) switch

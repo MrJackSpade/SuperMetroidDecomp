@@ -10,7 +10,7 @@ public sealed class PlanetZebesTextPaletteFxColorDefinition
     public PlanetZebesTextPaletteFxProgramOwner Owner { get; }
 
     /// <summary>The program's records, consecutive from the first its program shows, and the colours each writes.</summary>
-    public PaletteFxColorRows Rows => new(Owner == PlanetZebesTextPaletteFxProgramOwner.FadeIn ? 42 : 50, PlanetZebesTextPaletteFxColorDefinitions.FrameCount, PlanetZebesTextPaletteFxColorDefinitions.ColorsPerFrame);
+    public PaletteFxColorRows Rows => PaletteFxColorRows.Of(Owner == PlanetZebesTextPaletteFxProgramOwner.FadeIn ? PaletteFxProgram.FadeInPlanetZebesText : PaletteFxProgram.FadeOutPlanetZebesText, PlanetZebesTextPaletteFxColorDefinitions.ColorsPerFrame);
 
     /// <summary>Colour <paramref name="color"/> of record <paramref name="frame"/>.</summary>
     public PaletteFxColorKey Color(int frame, int color) => Rows.Color(frame, color);

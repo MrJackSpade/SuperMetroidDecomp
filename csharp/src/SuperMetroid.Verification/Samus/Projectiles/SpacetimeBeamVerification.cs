@@ -100,7 +100,7 @@ internal static class SpacetimeBeamVerification
         system.LoadOpenedDoorBytes(a5Doors);
         system.LoadUsedSaveStationBytes(a5Stations);
         system.LoadMapStationBytes(a5Maps);
-        system.LoadSavedLoadingGameState(SaveLoadingGameStates.OpeningCinematic);
+        system.LoadSavedLoadingGameState(SaveLoadingGameStateCodec.Word(SaveLoadingGameState.OpeningCinematic));
 
         var shared = CreateBombFixture();
         var projectiles = CreateProjectileFixture();
@@ -220,7 +220,7 @@ internal static class SpacetimeBeamVerification
                 CollectedBeams = (SamusBeamFlags)0x100f,
                 EquippedItems = SamusEquipmentFlags.GravitySuit,
                 CollectedItems = SamusEquipmentFlags.GravitySuit,
-                LoadingGameState = SaveLoadingGameStates.OpeningCinematic,
+                LoadingGameState = SaveLoadingGameStateCodec.Word(SaveLoadingGameState.OpeningCinematic),
             };
             Array.Fill(snapshot.EventBytes, byte.MaxValue);
             return snapshot;

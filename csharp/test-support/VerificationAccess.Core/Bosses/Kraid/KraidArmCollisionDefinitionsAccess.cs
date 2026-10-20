@@ -18,7 +18,7 @@ internal static class KraidArmCollisionDefinitionsAccess
         {
             if ((uint)index >= KraidArmCollisionDefinitions.FrameCount) throw new ArgumentOutOfRangeException(nameof(index));
             return (ushort)(index < 20 ? KraidArmCollisionDefinitions.FirstGeneralFrame + KraidArmCollisionDefinitions.GeneralFrameBytes * index
-                : KraidArmCollisionDefinitions.FirstSingleComponentFrame + SingleComponentFrameBytes * (index - 20));
+                : KraidArmCollisionDefinitionsConstants.FirstSingleComponentFrame + SingleComponentFrameBytes * (index - 20));
         }
     }
 }

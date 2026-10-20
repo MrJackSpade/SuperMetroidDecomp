@@ -51,13 +51,13 @@ public static class PauseEquipmentLabelDefinitions
     public static int ItemCount(PauseEquipmentCategory category) => PauseEquipmentCategories.Get(category).ItemCount;
 
     /// <summary>The ordinary label view of the selector anchors, derived once rather than per lookup.</summary>
-    public static IReadOnlyList<(PauseEquipmentCategory Category, int Item, string Key)> Labels() => labels.Value;
+    public static IReadOnlyList<PauseEquipmentLabelKey> Labels() => labels.Value;
 
     /// <summary>Non-reserve selector anchors projected once into the fourteen ordinary inventory label identities.</summary>
-    private static readonly Lazy<(PauseEquipmentCategory Category, int Item, string Key)[]> labels = new(() =>
+    private static readonly Lazy<PauseEquipmentLabelKey[]> labels = new(() =>
         PauseSelectorDefinitions.Anchors()
             .Where(anchor => anchor.Category != PauseEquipmentCategory.Reserves)
-            .Select(anchor => (anchor.Category, anchor.Item, anchor.Name)).ToArray());
+            .Select(anchor => new PauseEquipmentLabelKey(anchor.Category, anchor.Item, anchor.Name)).ToArray());
 
     /// <summary>Returns the ordinary category strip width in sixteen-bit tile words, not bytes; Hyper's stored width and Plasma's button-patch overrun are separate contracts.</summary>
     /// <param name="category">Native equipment category: one denotes beams; every other integer returns the equipment width without category validation.</param>

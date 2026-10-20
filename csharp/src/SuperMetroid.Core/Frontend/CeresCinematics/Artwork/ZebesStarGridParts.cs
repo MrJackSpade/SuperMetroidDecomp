@@ -11,16 +11,16 @@ namespace SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
 internal sealed class ZebesStarGridParts : IReadOnlyList<CompiledSpritePart>
 {
     /// <summary>Grid positions and tile identities recovered from the supplied decorative star composition.</summary>
-    private readonly (sbyte X, sbyte Y, ushort Tile)[] placements;
+    private readonly ZebesStarPlacement[] placements;
     /// <summary>Stores each star as a tile position on the eight-pixel grid.</summary>
     private ZebesStarGridParts(SpriteComposition supplied)
     {
-        placements = new (sbyte, sbyte, ushort)[supplied.PartCount];
+        placements = new ZebesStarPlacement[supplied.PartCount];
         for (int index = 0; index < placements.Length; index++)
         {
             CompiledSpritePart part = supplied.Part(index);
-            placements[index] = ((sbyte)(part.X.SignedOffset / 8),
-                (sbyte)(part.Y.SignedOffset / 8), (ushort)part.Attributes.TileNumber);
+            placements[index] = new(new Offset16<TilemapCells>((short)(part.X.SignedOffset / 8), (short)(part.Y.SignedOffset / 8)),
+                part.Attributes.TileNumber);
         }
     }
     /// <summary>Uses a calculated star grid only when every reconstructed OAM field matches the edited composition.</summary>
@@ -41,7 +41,7 @@ internal sealed class ZebesStarGridParts : IReadOnlyList<CompiledSpritePart>
         get
         {
             var point = placements[index];
-            return new(SnesSpritemapXWord.Create(point.X * 8, false), SnesSpritemapYByte.Create(point.Y * 8),
+            return new(SnesSpritemapXWord.Create(point.Cell.X * 8, false), SnesSpritemapYByte.Create(point.Cell.Y * 8),
                 SnesObjAttributeWord.Create(point.Tile, 0, 0), true);
         }
     }

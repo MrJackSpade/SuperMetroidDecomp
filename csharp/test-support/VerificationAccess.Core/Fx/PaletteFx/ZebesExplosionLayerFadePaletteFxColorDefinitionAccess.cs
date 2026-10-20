@@ -9,7 +9,7 @@ internal static class ZebesExplosionLayerFadePaletteFxColorDefinitionAccess
     {
         /// <summary>The complete one-shot fade duration in frames.</summary>
         internal int CycleFrames =>
-            ZebesExplosionLayerFadePaletteFxColorDefinitions.FrameCount *
+            ZebesExplosionLayerFadePaletteFxColorDefinitionsConstants.FrameCount *
             self.FrameDuration;
         /// <summary>Colour <paramref name="color"/> of record <paramref name="frame"/>.</summary>
         public PaletteFxColorKey Color(int frame, int color) => self.Rows.Color(frame, color);

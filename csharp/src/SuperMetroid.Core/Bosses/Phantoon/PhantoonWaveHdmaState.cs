@@ -14,7 +14,7 @@ public sealed class PhantoonWaveHdmaState
     /// The phase, amplitude and base scroll the channel's data last held (#1353): its last pass, or the death fill as a
     /// flat zero-amplitude wave. Setup and deletion keep them, as native keeps its data words.
     /// </summary>
-    private (int Phase, int Amplitude, int BaseScroll) _built;
+    private PhantoonWaveShape _built;
     /// <summary>Whether an HDMA setup has run and the channel has not subsequently observed eye parameter one equal to zero; scheduling Begin alone does not activate it.</summary>
     public bool Active { get; private set; }
     /// <summary>
@@ -36,7 +36,7 @@ public sealed class PhantoonWaveHdmaState
     /// advancing setup or changing the latched display.
     /// </summary>
     /// <param name="bg2HorizontalScroll">Base BG2 horizontal-scroll word in whole pixels every line shows.</param>
-    public void InitializeDeathScroll(ushort bg2HorizontalScroll) => _built = (_built.Phase, 0, bg2HorizontalScroll);
+    public void InitializeDeathScroll(ushort bg2HorizontalScroll) => _built = new(_built.Phase, 0, bg2HorizontalScroll);
 
     /// <summary>$88:E487 schedules a new channel; its instruction setup runs at the next HDMA pass.</summary>
     /// <param name="mode">Nonzero native eye-parameter-one value; bit zero selects a 128-line cycle instead of 64 lines. A new request replaces any pending mode.</param>
@@ -71,7 +71,7 @@ public sealed class PhantoonWaveHdmaState
         Phase = (Phase + 2 * boss.Parts[boss.Mouth.SlotIndex].WavyPhaseDelta) & PhantoonWaveRomData.PhaseMask;
         if (boss.Parts[boss.Eye.SlotIndex].WaveMode != _setupMode)
             throw new InvalidOperationException($"Phantoon's wave mode {boss.Parts[boss.Eye.SlotIndex].WaveMode} changed from its setup mode {_setupMode}.");
-        _built = (Phase, boss.Parts[boss.Mouth.SlotIndex].WaveAmplitude, boss.Bg2Scroll.X);
+        _built = new(Phase, boss.Parts[boss.Mouth.SlotIndex].WaveAmplitude, boss.Bg2Scroll.X);
     }
 
     /// <summary>Latch the completed wave with the accepted NMI's other presentation state.</summary>

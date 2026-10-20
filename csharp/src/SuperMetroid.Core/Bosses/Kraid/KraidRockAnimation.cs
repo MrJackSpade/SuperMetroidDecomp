@@ -5,13 +5,13 @@ using SuperMetroid.Core.Bosses.Kraid.Artwork;
 namespace SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>A Kraid rock's (or the Kago bug's initial) typed animation.</summary>
-internal sealed class KraidRockAnimation(KraidRockProgram program) : EnemyProjectileTimelineAnimation<KraidRockFrame, KraidRockCue>
+/// <param name="program">The program to play.</param>
+internal sealed class KraidRockAnimation(KraidRockProgram program)
+    : EnemyProjectileProgramAnimation<KraidRockProgram, KraidRockFrame, KraidRockCue>(program)
 {
-    /// <summary>The program played.</summary>
-    internal KraidRockProgram Program { get; } = program;
 
     /// <inheritdoc/>
-    private protected override AnimationTimeline<KraidRockFrame, KraidRockCue> Timeline => KraidRockAnimations.Timeline(Program);
+    private protected override AnimationProgramSet<KraidRockProgram, KraidRockFrame, KraidRockCue> Programs => KraidRockAnimations.Programs;
 
     /// <inheritdoc/>
     private protected override EnemyProjectileFrameId Present(KraidRockFrame frame) =>

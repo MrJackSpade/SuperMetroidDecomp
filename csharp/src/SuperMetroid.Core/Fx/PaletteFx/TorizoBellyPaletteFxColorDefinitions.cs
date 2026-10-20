@@ -18,13 +18,10 @@ public static class TorizoBellyPaletteFxColorDefinitions
     /// <summary>Three BGR555 colors are presentation-owned by each timed record.</summary>
     public const int ColorsPerFrame = 3;
 
-    /// <summary>Six timed records form one complete belly-color cycle.</summary>
-    public const int FrameCount = 6;
-
     /// <summary>The Bomb and Golden Torizo programs in palette-definition order.</summary>
     public static IReadOnlyList<TorizoBellyPaletteFxColorDefinition> All { get; } =
     [
-        new(TorizoBellyPaletteOwner.BombTorizo, PaletteFxObject.BombTorizoBelly, 287),
-        new(TorizoBellyPaletteOwner.GoldenTorizo, PaletteFxObject.GoldenTorizoBelly, 293),
+        new(TorizoBellyPaletteOwner.BombTorizo, PaletteFxObject.BombTorizoBelly, PaletteFxProgram.BombTorizoBelly1),
+        new(TorizoBellyPaletteOwner.GoldenTorizo, PaletteFxObject.GoldenTorizoBelly, PaletteFxProgram.GoldenTorizoBelly1),
     ];
 }

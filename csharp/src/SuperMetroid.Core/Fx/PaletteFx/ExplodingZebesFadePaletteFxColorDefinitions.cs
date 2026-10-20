@@ -19,12 +19,9 @@ namespace SuperMetroid.Core.Fx.PaletteFx;
 public static class ExplodingZebesFadePaletteFxColorDefinitions
 {
 
-    /// <summary>The one-shot fade contains seven timed records.</summary>
-    public const int FrameCount = 7;
-
     /// <summary>Each record writes eight live BGR555 colors.</summary>
     public const int ColorsPerFrame = 8;
 
     /// <summary>The family's records, consecutive from the first its program shows, and the colours each writes.</summary>
-    public static PaletteFxColorRows Rows { get; } = new(86, FrameCount, ColorsPerFrame);
+    public static PaletteFxColorRows Rows { get; } = PaletteFxColorRows.Of(PaletteFxProgram.FadeOutZoomedOutExplodingZebes, ColorsPerFrame);
 }

@@ -20,7 +20,7 @@ namespace SuperMetroid.Core.Fx.PaletteFx;
 public static class PlanetZebesTextPaletteFxColorDefinitions
 {
     /// <summary>$8D:C912..C960: eight brightness records per fade.</summary>
-    public const int FrameCount = 8;
+    public static int FrameCount => All[0].Rows.FrameCount;
 
     /// <summary>$8D:C914..C918: three text colors per record.</summary>
     public const int ColorsPerFrame = 3;

@@ -218,7 +218,7 @@ public sealed class FileSelectMenuState
                 : FileSelectPresentationDefinitions.MainBorder;
         presentation.DrawBorder(sprites, borderName);
         if (ShouldDrawSelectionMissile)
-            presentation.DrawCursor(sprites, missile.Frame, GetSelectionMissilePosition());
+            presentation.DrawCursor(sprites, missile.Frame, GetSelectionMissilePosition(presentation));
         for (int slot = 0; mainScreen && slot < 3; slot++)
         {
             // Menu index 32 fades with the completed (or Start-shortened) helmet turn
@@ -668,28 +668,20 @@ public sealed class FileSelectMenuState
             "Data-management screen requires at least one nonempty save slot.");
     }
 
-    /// <summary>Places the cursor on the active main, slot, or confirmation row for installed or ROM layouts.</summary>
-    private Position16<OamPixels> GetSelectionMissilePosition()
+    /// <summary>Places the cursor on the active main, slot, or confirmation row at the installed presentation's anchor.</summary>
+    private Position16<OamPixels> GetSelectionMissilePosition(FileSelectPresentation presentation)
     {
-        if (mapPresentation is not null)
+        FileSelectCursorPage page = IsMainScreenPhase ? FileSelectCursorPage.Main
+            : Phase is FileSelectPhase.CopyConfirm or FileSelectPhase.ClearConfirm ? FileSelectCursorPage.Confirmation
+            : FileSelectCursorPage.DataManagement;
+        int row = page switch
         {
-            FileSelectCursorPage page = IsMainScreenPhase ? FileSelectCursorPage.Main
-                : Phase is FileSelectPhase.CopyConfirm or FileSelectPhase.ClearConfirm ? FileSelectCursorPage.Confirmation
-                : FileSelectCursorPage.DataManagement;
-            int row = page switch
-            {
-                FileSelectCursorPage.Main => FileSelectItemRows.MainRow(SelectedItem),
-                FileSelectCursorPage.Confirmation => confirmationSelection == YesNoChoice.Yes ? 0 : 1,
-                FileSelectCursorPage.DataManagement => FileSelectItemRows.DataRow(submenuSelection),
-                _ => throw new InvalidOperationException($"Undefined {nameof(FileSelectCursorPage)} {page}."),
-            };
-            return mapPresentation.FileSelect.CursorPosition(page, row);
-        }
-        if (!showDataManagementScreen)
-            return new(14, FileSelectLayout.MainSelectionY(FileSelectItemRows.MainRow(SelectedItem)));
-        if (Phase is FileSelectPhase.CopyConfirm or FileSelectPhase.ClearConfirm)
-            return new(94, confirmationSelection == YesNoChoice.Yes ? (ushort)184 : (ushort)208);
-        return new(22, FileSelectLayout.DataSelectionY(FileSelectItemRows.DataRow(submenuSelection)));
+            FileSelectCursorPage.Main => FileSelectItemRows.MainRow(SelectedItem),
+            FileSelectCursorPage.Confirmation => confirmationSelection == YesNoChoice.Yes ? 0 : 1,
+            FileSelectCursorPage.DataManagement => FileSelectItemRows.DataRow(submenuSelection),
+            _ => throw new InvalidOperationException($"Undefined {nameof(FileSelectCursorPage)} {page}."),
+        };
+        return presentation.CursorPosition(page, row);
     }
 
     /// <summary>Copies the staged BG1 menu page into menu VRAM.</summary>

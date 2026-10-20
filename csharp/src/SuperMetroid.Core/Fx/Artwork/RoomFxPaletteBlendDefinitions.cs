@@ -23,13 +23,13 @@ public static class RoomFxPaletteBlendDefinitions
     /// </summary>
     public static PaletteRgb5 StockCeresHaze(CeresHazeColor color)
     {
-        var tint = StockCeresHazeComponents(color == CeresHazeColor.Red);
+        Bgr555 tint = StockCeresHazeTint(color == CeresHazeColor.Red);
         return new() { Red = tint.Red, Green = tint.Green, Blue = tint.Blue };
     }
 
-    /// <summary>The same native tint as scalar components, without constructing a per-scanline record.</summary>
-    internal static (int Red, int Green, int Blue) StockCeresHazeComponents(bool ridleyIsDead) =>
-        (ridleyIsDead ? CeresHazeDefinitions.FadeSteps - 1 : 0, 0,
+    /// <summary>The same native tint as a colour value, without constructing a per-scanline record.</summary>
+    internal static Bgr555 StockCeresHazeTint(bool ridleyIsDead) =>
+        new(ridleyIsDead ? CeresHazeDefinitions.FadeSteps - 1 : 0, 0,
             ridleyIsDead ? 0 : CeresHazeDefinitions.FadeSteps - 1);
 
     /// <summary>The eight named retail blend resources in document order, without stored identities.</summary>

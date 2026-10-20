@@ -386,6 +386,44 @@ internal static class AnalyzerTests
         VerifySnippet("class Shutter { static int Run(int slot, int level, int samus) => slot; }", null, null, analyzer, assemblyName: "Other");
     }
 
+    /// <summary>Checks mirrored constants, successor switches and tuple domain types, with their near misses passing (#1375).</summary>
+    internal static void VerifyDuplicateConceptAnalyzer()
+    {
+        var analyzer = new DuplicateConceptAnalyzer();
+        void Expect(string source, string? id = null, string? message = null) =>
+            VerifySnippet(source, id, message, analyzer, assemblyName: DuplicateConceptAnalyzer.CheckedAssembly);
+
+        // SME6428: an enum assigned from another type's constants, and a constants class mirroring an enum.
+        Expect("static class LoadStates { public const ushort Idle = 0; public const ushort Busy = 1; } enum LoadState : ushort { Idle = LoadStates.Idle, Busy = LoadStates.Busy }",
+            DuplicateConceptAnalyzer.MirroredConstantsId, "'LoadState' and 'LoadStates'");
+        Expect("static class LoadStates { public const ushort Idle = 0; public const ushort Busy = 1; } enum LoadState { Idle, Busy }",
+            DuplicateConceptAnalyzer.MirroredConstantsId, "'LoadState' and 'LoadStates'");
+        // Constants whose names or values differ from every enum, and an enum assigned from its own members, pass.
+        Expect("static class Limits { public const int Idle = 4; public const int Busy = 9; } enum LoadState { Idle, Busy }");
+        Expect("enum Flags { A = 1, B = 2, Both = A | B }");
+        // An enum that derives some members from a constant, by offset or alongside literals, does not mirror it.
+        Expect("static class Draws { public const ushort First = 0xa345; } enum Crumble : ushort { First = Draws.First, Second = Draws.First + 6, Clear = 0x930f }");
+        // SME6429: every arm maps a member to the next declared member, as an expression or as returning sections.
+        Expect("enum Stage { A, B, C } static class S { static Stage Next(Stage s) => s switch { Stage.A => Stage.B, Stage.B => Stage.C, _ => throw new System.ArgumentOutOfRangeException() }; }",
+            DuplicateConceptAnalyzer.SuccessorSwitchId, "'Stage'");
+        Expect("enum Stage { A, B, C } static class S { static Stage Next(Stage s) { switch (s) { case Stage.A: return Stage.B; case Stage.B: return Stage.C; default: throw new System.ArgumentOutOfRangeException(); } } }",
+            DuplicateConceptAnalyzer.SuccessorSwitchId);
+        // A switch that skips, repeats or maps to other data is not the declaration order.
+        Expect("enum Stage { A, B, C } static class S { static Stage Next(Stage s) => s switch { Stage.A => Stage.C, Stage.B => Stage.C, _ => Stage.A }; }");
+        Expect("enum Stage { A, B, C } static class S { static int Cost(Stage s) => s switch { Stage.A => 1, Stage.B => 2, _ => 3 }; }");
+        // SME6430: a tuple matching a declared type, and a three-element tuple in a signature.
+        Expect("readonly record struct Rgb(byte Red, byte Green, byte Blue); static class P { static (byte Red, byte Green, byte Blue) Mix() => default; }",
+            DuplicateConceptAnalyzer.TupleDomainTypeId, "use the declared type 'Rgb'");
+        Expect("static class P { static System.Collections.Generic.IReadOnlyList<(int X, byte Y, int Tile)>? Points; }",
+            DuplicateConceptAnalyzer.TupleDomainTypeId, "declare a named type");
+        // Two named elements with no matching type, an unnamed tuple and a tuple local pass.
+        Expect("static class P { static (int First, int Last) Range() => (0, 1); }");
+        Expect("static class P { static (int, int, int) Triple() => (0, 1, 2); }");
+        Expect("static class P { static int Sum() { (int A, int B, int C) t = (1, 2, 3); return t.A + t.B + t.C; } }");
+        // Other assemblies are not checked.
+        VerifySnippet("static class P { static (byte R, byte G, byte B) Mix() => default; }", null, null, analyzer, assemblyName: "Other");
+    }
+
     /// <summary>Checks that an integer-coded mode is reported, a quantity is not, and a justified member is not (#1372).</summary>
     internal static void VerifyIntegerCodedModeAnalyzer()
     {

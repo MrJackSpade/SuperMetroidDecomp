@@ -105,7 +105,7 @@ internal static class GunshipInstalledCompositionsVerification
         while (game.Session.ResumesGameLoadingWait)
             game.StepCaptured(0, ++sequence, 1);
         game.GameplayRuntimeForVerification.System.SetBossBits(AreaId.Ceres, BossBits.AreaBoss);
-        game.GameplayRuntimeForVerification.System.LoadSavedLoadingGameState(SaveLoadingGameStates.CeresDestruction);
+        game.GameplayRuntimeForVerification.System.LoadSavedLoadingGameState(SaveLoadingGameStateCodec.Word(SaveLoadingGameState.CeresDestruction));
         SetState(game, SuperMetroidGameState.CeresGoesBoom);
         game.StepCaptured(0, ++sequence, 1);
         var scene = game.Session.ceresDestruction;

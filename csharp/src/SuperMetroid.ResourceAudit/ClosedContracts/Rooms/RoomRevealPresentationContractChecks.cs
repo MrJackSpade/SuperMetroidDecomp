@@ -70,11 +70,11 @@ internal static class RoomRevealPresentationContractChecks
     {
         // Construct the already identified 305-entry provider contract from compiled
         // rules, not ROM or room input. Four chosen requests confirm this API change.
-        var entries = new List<(RoomCollisionType, byte, XrayRevealVisualWords)>();
+        var entries = new List<XrayRevealVisualDefinition>();
         foreach (RoomCollisionType type in Enum.GetValues<RoomCollisionType>())
         for (int value = 0; value <= byte.MaxValue; value++)
             if (XrayRevealTable.Find(type, (byte)value) is { } rule && XrayRevealVisualCatalog.IsDrawable(rule.Command))
-                entries.Add((type, (byte)value, new(1, 2, 3, 4)));
+                entries.Add(new(type, (byte)value, new(1, 2, 3, 4)));
         var catalog = new XrayRevealVisualCatalog(entries);
         Require(catalog.Apply(RoomCollisionType.ShootableBlock, 2) is { } tall &&
             tall.Command == XrayRevealCommand.CopyTall && tall.TopLeft == 1 && tall.BottomLeft == 3,

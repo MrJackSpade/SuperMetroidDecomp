@@ -20,8 +20,6 @@ namespace SuperMetroid.Core.Fx.PaletteFx;
 /// </remarks>
 public static class ZebesExplosionLayerFadePaletteFxColorDefinitions
 {
-    /// <summary>Both one-shot fades contain eight timed records.</summary>
-    public const int FrameCount = 8;
 
     /// <summary>Each record writes fifteen live BGR555 colors.</summary>
     public const int ColorsPerFrame = 15;
@@ -32,13 +30,13 @@ public static class ZebesExplosionLayerFadePaletteFxColorDefinitions
         new(
             ZebesExplosionLayerFadePaletteFxProgramOwner.Crust,
             paletteFxObject: PaletteFxObject.FadeOutExplodingZebesCrust,
-            firstRecord: 185,
+            program: PaletteFxProgram.FadeOutExplodingZebesCrust,
             colorByteIndex: 0x0082,
             frameDuration: 20),
         new(
             ZebesExplosionLayerFadePaletteFxProgramOwner.GreyClouds,
             paletteFxObject: PaletteFxObject.FadeOutExplodingZebesGreyClouds,
-            firstRecord: 193,
+            program: PaletteFxProgram.FadeOutExplodingZebesGreyClouds,
             colorByteIndex: 0x00a2,
             frameDuration: 14),
     ];

@@ -7,23 +7,21 @@ namespace SuperMetroid.Core.Rendering;
 public static class ObjectSelectionCodec
 {
     /// <summary>The eight size pairs, by OBSEL bits 5-7.</summary>
-    private static readonly (int SmallWidth, int SmallHeight, int LargeWidth, int LargeHeight)[] SizePairs =
+    private static readonly ScreenObjectSizes[] SizePairs =
     [
-        (8, 8, 16, 16),
-        (8, 8, 32, 32),
-        (8, 8, 64, 64),
-        (16, 16, 32, 32),
-        (16, 16, 64, 64),
-        (32, 32, 64, 64),
-        (16, 32, 32, 64),
-        (16, 32, 32, 32),
+        new(new(8, 8), new(16, 16)),
+        new(new(8, 8), new(32, 32)),
+        new(new(8, 8), new(64, 64)),
+        new(new(16, 16), new(32, 32)),
+        new(new(16, 16), new(64, 64)),
+        new(new(32, 32), new(64, 64)),
+        new(new(16, 32), new(32, 64)),
+        new(new(16, 32), new(32, 32)),
     ];
 
     /// <summary>The object sizes <paramref name="objectSelection"/> selects.</summary>
     public static ScreenObjectSizes Sizes(int objectSelection)
     {
-        (int smallWidth, int smallHeight, int largeWidth, int largeHeight) = SizePairs[(checked((byte)objectSelection) >> 5) & 7];
-        return new ScreenObjectSizes(new Extent16<ScreenPixels>((ushort)smallWidth, (ushort)smallHeight),
-            new Extent16<ScreenPixels>((ushort)largeWidth, (ushort)largeHeight));
+        return SizePairs[(checked((byte)objectSelection) >> 5) & 7];
     }
 }

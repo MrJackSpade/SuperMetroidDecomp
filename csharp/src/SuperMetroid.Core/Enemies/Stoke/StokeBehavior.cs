@@ -75,7 +75,7 @@ internal sealed class StokeBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             RightVelocity = right,
             LeftVelocity = left,
-            Function = StokeAiFunction.MovingLeft,
+            Function = StokeAiFunction.Moving,
             Direction = (StokeDirection)slot.Spawn.Population.Parameter1,
         };
         slot.SetSpeciesState(state, state.ClearWithRecord);
@@ -88,7 +88,6 @@ internal sealed class StokeBehavior : IEnemySpecies, IEnemyEntityFactory
         if (slot.Spawn.Population.Parameter1 != 0)
         {
             SetStokeProgram(slot, state, StokeProgram.MovingRight);
-            state.Function = StokeAiFunction.MovingRight;
         }
     }
 
@@ -103,22 +102,16 @@ internal sealed class StokeBehavior : IEnemySpecies, IEnemyEntityFactory
             case StokeAiFunction.IdleDuringAttack:
                 return;
 
-            case StokeAiFunction.MovingLeft:
+            case StokeAiFunction.Moving:
+                // A nonzero spawn direction other than one takes the native right-facing branch, so only the left
+                // word walks left.
+                bool left = state.Direction == StokeDirection.Left;
                 RunMovingStoke(
                     slot,
                     state,
                     level,
-                    state.LeftVelocity.RawValue,
-                    StokeProgram.AttackingLeft);
-                return;
-
-            case StokeAiFunction.MovingRight:
-                RunMovingStoke(
-                    slot,
-                    state,
-                    level,
-                    state.RightVelocity.RawValue,
-                    StokeProgram.AttackingRight);
+                    left ? state.LeftVelocity.RawValue : state.RightVelocity.RawValue,
+                    left ? StokeProgram.AttackingLeft : StokeProgram.AttackingRight);
                 return;
 
             default:
@@ -196,7 +189,7 @@ internal sealed class StokeBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Instructions <c>$A2:8990</c> (left) and <c>$A2:899D</c> (right): resume movement in <paramref name="direction"/>.</summary>
     private static void SetStokeMoving(StokeEnemyState state, StokeDirection direction)
     {
-        state.Function = direction == StokeDirection.Left ? StokeAiFunction.MovingLeft : StokeAiFunction.MovingRight;
+        state.Function = StokeAiFunction.Moving;
         state.Direction = direction;
     }
 

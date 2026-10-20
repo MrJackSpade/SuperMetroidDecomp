@@ -1315,7 +1315,7 @@ internal static class LookupStream3Verification
             }
         }
         var sequence = new MotherBrainRainbowBeamAttackSequence();
-        sequence.Phase = MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceStartEscape;
+        sequence.Phase = MotherBrainBodyFunction.ThirdPhaseDeathStartEscape;
         var bus = new TestAddressSpace();
         var samus = new SamusState { Health = 99 };
         var firstPage = sequence.Step(samus, new RainbowBeamAttackFrame { EnemyFrameCounter = 0, MainEnemyExecutionCounter = 0 });
@@ -2341,7 +2341,7 @@ internal static class LookupStream3Verification
                 }
             }
         var legacy = node.DeepClone();
-        legacy["version"] = MotherBrainRoomColorFormat.PreRecoveryLightsVersion;
+        legacy["version"] = MotherBrainRoomColorFormatConstants.PreRecoveryLightsVersion;
         legacy.AsObject().Remove("recoveryLights");
         var oldOverride = MotherBrainRoomColorPresentation.Load(new MemoryStream(
             System.Text.Encoding.UTF8.GetBytes(legacy.ToJsonString())), stock);
@@ -2905,10 +2905,10 @@ internal static class LookupStream3Verification
             Confirm(Load(document), document);
             document.RecoveryLights[6][14] = original;
         }
-        foreach (int version in new[] { MotherBrainRoomColorFormat.PreRoomEntryVersion, MotherBrainRoomColorFormat.PreRecoveryLightsVersion })
+        foreach (int version in new[] { MotherBrainRoomColorFormatConstants.PreRoomEntryVersion, MotherBrainRoomColorFormatConstants.PreRecoveryLightsVersion })
         {
             var legacy = document with { Version = version, RecoveryLights = null };
-            if (version == MotherBrainRoomColorFormat.PreRoomEntryVersion)
+            if (version == MotherBrainRoomColorFormatConstants.PreRoomEntryVersion)
                 legacy = legacy with { InitialGlassShard = null, InitialTubeProjectile = null };
             Confirm(Load(legacy, stock), document);
         }

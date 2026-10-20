@@ -7,13 +7,13 @@ public sealed class CrateriaEscapeLightningPaletteFxColorDefinition
     internal CrateriaEscapeLightningPaletteFxColorDefinition(
         CrateriaEscapeLightningPaletteOwner owner,
         PaletteFxObject paletteFxObject,
-        int firstRecord,
+        PaletteFxProgram program,
         ushort colorByteIndex,
         int colorsPerFrame)
     {
         Owner = owner;
         Object = paletteFxObject;
-        Rows = new(firstRecord, CrateriaEscapeLightningPaletteFxColorDefinitions.FrameCount, colorsPerFrame);
+        Rows = PaletteFxColorRows.Of(program, colorsPerFrame);
         ColorByteIndex = colorByteIndex;
         ColorsPerFrame = colorsPerFrame;
     }

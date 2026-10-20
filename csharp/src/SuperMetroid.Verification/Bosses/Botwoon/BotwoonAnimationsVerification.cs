@@ -134,7 +134,7 @@ internal static class BotwoonAnimationsVerification
         for (ushort selector = 0; selector < 64; selector += 2)
         {
             ushort native = CartridgeImportSource.Require(rom).ReadCartridgeWord((BotwoonSegmentListTable + selector));
-            _ = BotwoonAnimations.Segment(BotwoonSegmentProgram.FromSelector(selector));
+            _ = BotwoonAnimations.SegmentPrograms.Steps(BotwoonSegmentProgram.FromSelector(selector));
             AssertTrue(native != 0, $"Botwoon segment selector ${selector:X2} has a native list");
         }
         AssertThrows<ArgumentOutOfRangeException>(() => BotwoonSegmentProgram.FromSelector(1), "odd Botwoon segment selector");

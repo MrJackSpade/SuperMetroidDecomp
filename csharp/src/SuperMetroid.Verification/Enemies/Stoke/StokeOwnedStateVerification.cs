@@ -26,7 +26,8 @@ internal static class StokeOwnedStateVerification
             SnesSignedSixteenSixteen left = EnemyLinearSpeedDefinitions.Read(record * EnemyLinearSpeedDefinitions.RecordSize + 4);
             AssertEqual(right, state.RightVelocity, $"record {record} rightward speed");
             AssertEqual(left, state.LeftVelocity, $"record {record} leftward speed");
-            AssertEqual(StokeAiFunction.MovingRight, state.Function, $"record {record} walks right");
+            AssertEqual(StokeAiFunction.Moving, state.Function, $"record {record} walks");
+            AssertEqual(StokeDirection.Right, state.Direction, $"record {record} walks right");
         }
 
         slot.Clear();

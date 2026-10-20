@@ -527,10 +527,10 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>The faster clone of a run loop, where native's 28-byte speed-up jump lands at the same pose.</summary>
     private static DachoraProgram FasterDachoraRun(DachoraProgram program) => program switch
     {
-        DachoraProgram.RunningLeft => DachoraProgram.RunningLeftFast,
-        DachoraProgram.RunningLeftFast => DachoraProgram.RunningLeftVeryFast,
-        DachoraProgram.RunningRight => DachoraProgram.RunningRightFast,
-        DachoraProgram.RunningRightFast => DachoraProgram.RunningRightVeryFast,
+        DachoraProgram.RunningLeft
+            or DachoraProgram.RunningLeftFast
+            or DachoraProgram.RunningRight
+            or DachoraProgram.RunningRightFast => EnumOrder.Next(program),
         DachoraProgram.RunningLeftVeryFast or
             DachoraProgram.IdleLeft or
             DachoraProgram.BlinkLeft or

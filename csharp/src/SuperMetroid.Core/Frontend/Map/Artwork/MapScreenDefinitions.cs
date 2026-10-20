@@ -37,13 +37,13 @@ public static class MapScreenDefinitions
         ? area.ToString() : throw new ArgumentOutOfRangeException(nameof(area));
 
     /// <summary>Named pages select one of the authored PNG atlases, never a VRAM address.</summary>
-    public static IEnumerable<(string Id, int TileColumns, int TileCount)> Pages()
+    public static IEnumerable<MapScreenPage> Pages()
     {
-        yield return (WorldForeground, WorldMapArtworkFormat.TileColumns, WorldMapArtworkFormat.ForegroundTileCount);
+        yield return new(WorldForeground, WorldMapArtworkFormat.TileColumns, WorldMapArtworkFormat.ForegroundTileCount);
         for (int area = 0; area < ZebesAreas; area++)
         {
-            yield return (WorldBackground((AreaId)area), WorldMapArtworkFormat.TileColumns, WorldMapArtworkFormat.BackgroundTileCount);
-            yield return (RoomFrame((AreaId)area), MapTileAtlasFormat.TileColumns, MapTileAtlasFormat.ByteCount / 32);
+            yield return new(WorldBackground((AreaId)area), WorldMapArtworkFormat.TileColumns, WorldMapArtworkFormat.BackgroundTileCount);
+            yield return new(RoomFrame((AreaId)area), MapTileAtlasFormat.TileColumns, MapTileAtlasFormat.ByteCount / 32);
         }
     }
 }

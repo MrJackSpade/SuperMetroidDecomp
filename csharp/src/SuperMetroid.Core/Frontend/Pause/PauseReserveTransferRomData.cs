@@ -4,9 +4,7 @@ namespace SuperMetroid.Core.Frontend.Pause;
 internal static class PauseReserveTransferRomData
 {
     /// <summary>$82:AC87, first tank subdispatcher: mode selector.</summary>
-    public const int ModeItem = 0;
-    /// <summary>$82:AC89, second tank subdispatcher: manual energy transfer.</summary>
-    public const int TransferItem = 1;
+    public const int ModeItem = (int)PauseReserveItem.Mode;
     /// <summary>$82:AF62-$AF75 rounds the initial countdown up to eight and tests its low three bits.</summary>
     public const ushort SoundCadenceMask = 7;
     /// <summary>$82:AF7A, manual reserve refill uses library-three sound $2D.</summary>

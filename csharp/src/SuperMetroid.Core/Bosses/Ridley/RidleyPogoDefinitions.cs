@@ -8,7 +8,7 @@ public static class RidleyPogoDefinitions
     /// magnitudes; stage selects acceleration and bounce height. The first two
     /// stages remain addressable although ordinary health selects stages two to five.
     /// </summary>
-    public static (ushort X, ushort Y, ushort UpwardAcceleration, ushort DownwardAcceleration) Read(int pattern, int stage)
+    public static RidleyPogoDefinition Read(int pattern, int stage)
     {
         if ((uint)pattern >= 4) throw new ArgumentOutOfRangeException(nameof(pattern));
         if ((uint)stage >= 6) throw new ArgumentOutOfRangeException(nameof(stage));
@@ -38,6 +38,7 @@ public static class RidleyPogoDefinitions
         }
         int upward = stage == 0 ? 0x0a : 0x10 * stage;
         int downward = stage < 4 ? 0x10 << stage : 0x100 * stage;
-        return ((ushort)horizontal, unchecked((ushort)-verticalMagnitude), (ushort)upward, (ushort)downward);
+        return new(new EightEightVector<RoomPixels>(new SnesSignedEightEight((ushort)horizontal), new SnesSignedEightEight(unchecked((ushort)-verticalMagnitude))),
+            (ushort)upward, (ushort)downward);
     }
 }

@@ -327,12 +327,12 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        int position = state.TonguePosition;
-        AnimationAdvance<CrocomireTongueFrame> advance = CrocomireAnimations.Tongue(state.TongueProgram)
-            .Advance(ref position, cue => throw new InvalidOperationException($"A Crocomire tongue timeline published cue {cue}."));
-        state.TonguePosition = position;
+        var cursor = new AnimationProgramCursor<CrocomireTongueProgram>(state.TongueProgram, state.TonguePosition);
+        AnimationProgramAdvance<CrocomireTongueFrame> advance = CrocomireAnimations.TonguePrograms.Advance(ref cursor,
+            cue => throw new InvalidOperationException($"A Crocomire tongue program published cue {cue}."));
+        state.TonguePosition = cursor.Position;
         // A hold is the native sleep: the timer wraps from zero and the last frame stays.
-        if (advance.Held)
+        if (advance.Kind == AnimationProgramAdvanceKind.Hold)
             return;
         tongue.InstructionTimer = NativeCountdown.FromRaw((ushort)advance.Duration);
         tongue.Frame = CrocomireTongueFrameDefinitions.ShownFrames.Of(advance.Frame);

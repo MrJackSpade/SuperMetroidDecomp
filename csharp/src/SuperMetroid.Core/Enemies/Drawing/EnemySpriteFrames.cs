@@ -14,7 +14,7 @@ namespace SuperMetroid.Core.Enemies.Drawing;
 internal static class EnemySpriteFrames
 {
     /// <summary>Frames per composition owner, keyed by the composition's range, tile base and palette bits.</summary>
-    private static readonly ConditionalWeakTable<object, ConcurrentDictionary<(int Start, int Count, ushort Base, ushort Palette), SpriteFrame>> Frames = new();
+    private static readonly ConditionalWeakTable<object, ConcurrentDictionary<EnemySpriteFrameRange, SpriteFrame>> Frames = new();
 
     /// <summary>The frame an installed composition shows with the given tile base and palette bits.</summary>
     /// <param name="parts">The composition, frontmost part first.</param>
@@ -23,7 +23,7 @@ internal static class EnemySpriteFrames
     public static SpriteFrame Frame(EnemySpritemapParts parts, ushort baseTileIndex, ushort paletteBits)
     {
         Ensure.NotNull(parts);
-        return Frames.GetValue(parts, _ => new()).GetOrAdd((0, parts.Count, baseTileIndex, paletteBits),
+        return Frames.GetValue(parts, _ => new()).GetOrAdd(new EnemySpriteFrameRange(0, parts.Count, baseTileIndex, paletteBits),
             key => Compile(parts.ToArray(), key.Base, key.Palette));
     }
 
@@ -36,7 +36,7 @@ internal static class EnemySpriteFrames
     {
         if (!MemoryMarshal.TryGetArray(parts, out ArraySegment<SpritemapPart> segment) || segment.Array is null)
             throw new ArgumentException("Enemy spritemap compositions are array-backed installed data.", nameof(parts));
-        return Frames.GetValue(segment.Array, _ => new()).GetOrAdd((segment.Offset, segment.Count, baseTileIndex, paletteBits),
+        return Frames.GetValue(segment.Array, _ => new()).GetOrAdd(new EnemySpriteFrameRange(segment.Offset, segment.Count, baseTileIndex, paletteBits),
             key => Compile(parts.Span, key.Base, key.Palette));
     }
 

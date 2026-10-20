@@ -95,7 +95,7 @@ public sealed record SuperMetroidSaveSnapshot
     public int GameTimeHours { get; init; }
 
     /// <summary>The startup dispatcher route, carried unchanged including values the dispatcher does not name.</summary>
-    public int LoadingGameState { get; init; } = SaveLoadingGameStates.MainGame;
+    public int LoadingGameState { get; init; } = SaveLoadingGameStateCodec.Word(SaveLoadingGameState.MainGame);
 
     /// <summary>The zero-based load-station index within <see cref="Area"/>.</summary>
     public int SaveStation { get; init; }

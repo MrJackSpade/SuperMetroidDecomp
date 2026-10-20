@@ -9,7 +9,7 @@ internal static class OldTourianEscapeAccentPaletteFxColorDefinitionAccess
         /// <summary>The terminal <c>goto</c> command after all timed records.</summary>
         public ushort LoopInstructionPointer => unchecked((ushort)(
             self.FirstFramePointer +
-            OldTourianEscapeAccentPaletteFxColorDefinitions.FrameCount *
+            OldTourianEscapeAccentPaletteFxColorDefinitionsConstants.FrameCount *
             OldTourianEscapeAccentPaletteFxColorDefinitionsConstants.FrameByteCount));
         /// <summary>Colour <paramref name="color"/> of record <paramref name="frame"/>.</summary>
         public PaletteFxColorKey Color(int frame, int color) => self.Rows.Color(frame, color);

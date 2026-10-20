@@ -23,9 +23,6 @@ public static class BrinstarBlueSporePaletteFxColorDefinitions
     private static readonly BrinstarBlueSporePaletteFxColorDefinition SporeSpawn =
         new(BrinstarBlueSporePaletteOwner.SporeSpawnRoom);
 
-    /// <summary>Fourteen ten-frame records form one complete spore-color cycle.</summary>
-    public const int FrameCount = 14;
-
     /// <summary>Three BGR555 colors are presentation-owned by each timed record.</summary>
     public const int ColorsPerFrame = 3;
 

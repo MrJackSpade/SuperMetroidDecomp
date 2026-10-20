@@ -13,7 +13,7 @@ internal static class BackgroundTransferClosedContractDefinitions
         "csharp/src/SuperMetroid.Core/Enemies/Artwork/EnemyBg2FrameDefinitionSequence.cs");
     /// <summary>Shared frame layout reviewed by each enemy BG2 transfer contract.</summary>
     private static readonly ReviewedSource SharedBg2Layout = new(
-        "csharp/src/SuperMetroid.Core/Enemies/Artwork/SpritemapFrameDefinition.cs");
+        "csharp/src/SuperMetroid.Core/Assets/SpritemapFrameDefinition.cs");
 
     /// <summary>Closed contracts for boss BG2 frames, room FX transfers, ending fragments, and gunship takeoff artwork.</summary>
     internal static readonly ClosedPresentationContract[] All =

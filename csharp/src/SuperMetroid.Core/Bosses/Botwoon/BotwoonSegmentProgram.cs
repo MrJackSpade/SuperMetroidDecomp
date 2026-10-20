@@ -6,6 +6,9 @@ internal readonly record struct BotwoonSegmentProgram(BotwoonSegmentProgramKind 
     /// <summary>The hidden segment. Facing is irrelevant and fixed so equal programs compare equal.</summary>
     internal static BotwoonSegmentProgram Hidden => new(BotwoonSegmentProgramKind.Hidden, BotwoonFacing.Up);
 
+    /// <summary>The spit's program. Facing is irrelevant and fixed so equal programs compare equal.</summary>
+    internal static BotwoonSegmentProgram Spit => new(BotwoonSegmentProgramKind.Spit, BotwoonFacing.Up);
+
     /// <summary>
     /// Decodes the selector the AI keeps in the segment's direction word: an even byte offset 0 through
     /// 62 into <c>BotwoonsBodyTail_InstListPointers</c> ($86:E9F1). Word index bit 4 selects the tail,

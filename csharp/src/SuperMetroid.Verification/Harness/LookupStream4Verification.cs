@@ -2067,8 +2067,8 @@ internal static class LookupStream4Verification
             var actual = RidleyPogoDefinitions.Read(pattern, stage);
             int x = 0xa60000 | CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6b965 + 2 * pattern));
             int y = 0xa60000 | CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6b96d + 2 * pattern));
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((x + 2 * stage)), actual.X, "stream4 native pogo horizontal magnitude");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((y + 2 * stage)), actual.Y, "stream4 native pogo signed vertical speed");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((x + 2 * stage)), actual.Velocity.X.RawValue, "stream4 native pogo horizontal magnitude");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((y + 2 * stage)), actual.Velocity.Y.RawValue, "stream4 native pogo signed vertical speed");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6b94d + 2 * stage)), actual.UpwardAcceleration, "stream4 native pogo upward acceleration");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6b959 + 2 * stage)), actual.DownwardAcceleration, "stream4 native pogo downward acceleration");
         }
@@ -2314,7 +2314,7 @@ internal static class LookupStream4Verification
             for (int index = 0; index < count; index++)
             {
                 int address = PowerBombFixedColorFormat.SourceAddress(sequence) + index * 3;
-                var native = (rom.ReadCartridgeByte(address), rom.ReadCartridgeByte(address + 1), rom.ReadCartridgeByte(address + 2));
+                var native = new Bgr555(rom.ReadCartridgeByte(address), rom.ReadCartridgeByte(address + 1), rom.ReadCartridgeByte(address + 2));
                 AssertEqual(native, catalog.Resolve(sequence, index), "installed Power Bomb native RGB channels");
                 bool calculated = PowerBombFixedColorFormat.TryCalculateStock(sequence, index, out var color);
                 AssertEqual(sequence == PowerBombFixedColorSequence.PreExplosion || index <= 20, calculated,
@@ -2337,7 +2337,7 @@ internal static class LookupStream4Verification
             for (int index = 0; index < PowerBombFixedColorFormat.Count(sequence); index++)
             {
                 var source = (sequence == PowerBombFixedColorSequence.PreExplosion ? document.PreExplosion : document.Explosion)[index];
-                AssertEqual(((byte)source.Red, (byte)source.Green, (byte)source.Blue), installed.Resolve(sequence, index),
+                AssertEqual(new Bgr555(source.Red, source.Green, source.Blue), installed.Resolve(sequence, index),
                     "Power Bomb supplied JSON color edits remain independent");
             }
             AssertEqual(edit.Item1 == PowerBombFixedColorSequence.PreExplosion ? 1 : 0, installed.preExplosion.Count, "only changed pre-explosion content stays stored");

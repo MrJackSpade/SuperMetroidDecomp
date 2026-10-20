@@ -1,4 +1,6 @@
 using SuperMetroid.Core.Programs;
+using ProjectileStep = SuperMetroid.Core.Programs.AnimationProgramStep<SuperMetroid.Core.Bosses.Crocomire.CrocomireProjectileFrameKind, SuperMetroid.Core.Bosses.Crocomire.CrocomireProjectileFrame, SuperMetroid.Core.Bosses.Crocomire.CrocomireProjectileCue>;
+using TongueStep = SuperMetroid.Core.Programs.AnimationProgramStep<SuperMetroid.Core.Bosses.Crocomire.CrocomireTongueProgram, SuperMetroid.Core.Bosses.Crocomire.CrocomireTongueFrame, SuperMetroid.Core.Programs.NoAnimationCue>;
 
 namespace SuperMetroid.Core.Bosses.Crocomire;
 
@@ -12,66 +14,60 @@ internal static class CrocomireAnimations
     /// <summary>The bridge and spike frames last the native maximum, so their loops never advance in play.</summary>
     private const int StillFrameDuration = 32767;
 
-    /// <summary>The tongue's fight loop.</summary>
-    private static readonly AnimationTimeline<CrocomireTongueFrame, NoAnimationCue> TongueFight = new(
-    [
-        .. new[] { CrocomireTongueFrame.Fight0, CrocomireTongueFrame.Fight1, CrocomireTongueFrame.Fight2, CrocomireTongueFrame.Fight3 }
-            .Select(frame => AnimationStep<CrocomireTongueFrame, NoAnimationCue>.Show(frame, 5)),
-        AnimationStep<CrocomireTongueFrame, NoAnimationCue>.Loop,
-    ]);
-
-    /// <summary>The hidden tongue's bare sleep.</summary>
-    private static readonly AnimationTimeline<CrocomireTongueFrame, NoAnimationCue> TongueSleep =
-        new(AnimationStep<CrocomireTongueFrame, NoAnimationCue>.Hold);
-
-    /// <summary>The tongue's melting loop.</summary>
-    private static readonly AnimationTimeline<CrocomireTongueFrame, NoAnimationCue> TongueMelting = new(
-    [
-        .. new[]
+    /// <summary>The tongue's programs: the fight loop, the hidden tongue's bare sleep, and the melting loop.</summary>
+    internal static AnimationProgramSet<CrocomireTongueProgram, CrocomireTongueFrame, NoAnimationCue> TonguePrograms { get; } = new(
+        new Dictionary<CrocomireTongueProgram, TongueStep[]>
         {
-            CrocomireTongueFrame.MeltingPose0, CrocomireTongueFrame.MeltingPose1, CrocomireTongueFrame.MeltingPose2,
-            CrocomireTongueFrame.MeltingPose3, CrocomireTongueFrame.MeltingPose4,
-        }.Select(frame => AnimationStep<CrocomireTongueFrame, NoAnimationCue>.Show(frame, 5)),
-        AnimationStep<CrocomireTongueFrame, NoAnimationCue>.Loop,
-    ]);
-
-    /// <summary>The timeline of <paramref name="program"/>.</summary>
-    internal static AnimationTimeline<CrocomireTongueFrame, NoAnimationCue> Tongue(CrocomireTongueProgram program) => program switch
-    {
-        CrocomireTongueProgram.Fight => TongueFight,
-        CrocomireTongueProgram.Sleep => TongueSleep,
-        CrocomireTongueProgram.Melting => TongueMelting,
-        _ => throw new ArgumentOutOfRangeException(nameof(program), program, "Undefined Crocomire tongue program."),
-    };
-
-    /// <summary><c>InstList_EnemyProjectile_CrocomiresProjectile</c> ($86:8FCF): six three-update frames, looping.</summary>
-    internal static AnimationTimeline<CrocomireProjectileFrame, CrocomireProjectileCue> Mouth { get; } = new(
-    [
-        .. Enumerable.Range(0, MouthPhaseCount)
-            .Select(phase => AnimationStep<CrocomireProjectileFrame, CrocomireProjectileCue>.Show(new(CrocomireProjectileFrameKind.Mouth, phase), 3)),
-        AnimationStep<CrocomireProjectileFrame, CrocomireProjectileCue>.Loop,
-    ]);
-
-    /// <summary><c>InstList_EnemyProjectile_CrocomireBridgeCrumbling</c> ($86:8FEB): one still frame, looping.</summary>
-    internal static AnimationTimeline<CrocomireProjectileFrame, CrocomireProjectileCue> BridgeFragment { get; } = new(
-        AnimationStep<CrocomireProjectileFrame, CrocomireProjectileCue>.Show(new(CrocomireProjectileFrameKind.BridgeFragment, 0), StillFrameDuration),
-        AnimationStep<CrocomireProjectileFrame, CrocomireProjectileCue>.Loop);
-
-    /// <summary><c>InstList_EnemyProjectile_CrocomireSpikeWallPieces</c> ($86:8FF3): one still frame, looping.</summary>
-    internal static AnimationTimeline<CrocomireProjectileFrame, CrocomireProjectileCue> SpikeWallPiece { get; } = new(
-        AnimationStep<CrocomireProjectileFrame, CrocomireProjectileCue>.Show(new(CrocomireProjectileFrameKind.SpikeWallPiece, 0), StillFrameDuration),
-        AnimationStep<CrocomireProjectileFrame, CrocomireProjectileCue>.Loop);
+            [CrocomireTongueProgram.Fight] =
+            [
+                .. new[] { CrocomireTongueFrame.Fight0, CrocomireTongueFrame.Fight1, CrocomireTongueFrame.Fight2, CrocomireTongueFrame.Fight3 }
+                    .Select(frame => TongueStep.Show(frame, 5)),
+                TongueStep.GoTo(CrocomireTongueProgram.Fight),
+            ],
+            [CrocomireTongueProgram.Sleep] = [TongueStep.Hold],
+            [CrocomireTongueProgram.Melting] =
+            [
+                .. new[]
+                {
+                    CrocomireTongueFrame.MeltingPose0, CrocomireTongueFrame.MeltingPose1, CrocomireTongueFrame.MeltingPose2,
+                    CrocomireTongueFrame.MeltingPose3, CrocomireTongueFrame.MeltingPose4,
+                }.Select(frame => TongueStep.Show(frame, 5)),
+                TongueStep.GoTo(CrocomireTongueProgram.Melting),
+            ],
+        });
 
     /// <summary>
-    /// <c>InstList_EnemyProjectile_Shot_CrocomiresProjectile</c> ($86:9007): five four-update explosion frames,
-    /// then a drop with Crocomire's chances and deletion.
+    /// The projectile programs, one per projectile kind: <c>InstList_EnemyProjectile_CrocomiresProjectile</c> ($86:8FCF)
+    /// loops six three-update frames; the bridge fragment ($86:8FEB) and spike-wall piece ($86:8FF3) loop one still frame;
+    /// <c>InstList_EnemyProjectile_Shot_CrocomiresProjectile</c> ($86:9007) shows five four-update explosion frames, then a
+    /// drop with Crocomire's chances and deletion.
     /// </summary>
-    internal static AnimationTimeline<CrocomireProjectileFrame, CrocomireProjectileCue> Shot { get; } = new(
-    [
-        .. Enumerable.Range(0, ShotPhaseCount)
-            .Select(phase => AnimationStep<CrocomireProjectileFrame, CrocomireProjectileCue>.Show(new(CrocomireProjectileFrameKind.Shot, phase), 4)),
-        AnimationStep<CrocomireProjectileFrame, CrocomireProjectileCue>.Publish(CrocomireProjectileCue.SpawnDrops),
-        AnimationStep<CrocomireProjectileFrame, CrocomireProjectileCue>.Publish(CrocomireProjectileCue.Delete),
-        AnimationStep<CrocomireProjectileFrame, CrocomireProjectileCue>.Hold,
-    ]);
+    internal static AnimationProgramSet<CrocomireProjectileFrameKind, CrocomireProjectileFrame, CrocomireProjectileCue> ProjectilePrograms { get; } = new(
+        new Dictionary<CrocomireProjectileFrameKind, ProjectileStep[]>
+        {
+            [CrocomireProjectileFrameKind.Mouth] =
+            [
+                .. Enumerable.Range(0, MouthPhaseCount)
+                    .Select(phase => ProjectileStep.Show(new(CrocomireProjectileFrameKind.Mouth, phase), 3)),
+                ProjectileStep.GoTo(CrocomireProjectileFrameKind.Mouth),
+            ],
+            [CrocomireProjectileFrameKind.BridgeFragment] =
+            [
+                ProjectileStep.Show(new(CrocomireProjectileFrameKind.BridgeFragment, 0), StillFrameDuration),
+                ProjectileStep.GoTo(CrocomireProjectileFrameKind.BridgeFragment),
+            ],
+            [CrocomireProjectileFrameKind.SpikeWallPiece] =
+            [
+                ProjectileStep.Show(new(CrocomireProjectileFrameKind.SpikeWallPiece, 0), StillFrameDuration),
+                ProjectileStep.GoTo(CrocomireProjectileFrameKind.SpikeWallPiece),
+            ],
+            [CrocomireProjectileFrameKind.Shot] =
+            [
+                .. Enumerable.Range(0, ShotPhaseCount)
+                    .Select(phase => ProjectileStep.Show(new(CrocomireProjectileFrameKind.Shot, phase), 4)),
+                ProjectileStep.Publish(CrocomireProjectileCue.SpawnDrops),
+                ProjectileStep.Publish(CrocomireProjectileCue.Delete),
+                ProjectileStep.Hold,
+            ],
+        });
 }

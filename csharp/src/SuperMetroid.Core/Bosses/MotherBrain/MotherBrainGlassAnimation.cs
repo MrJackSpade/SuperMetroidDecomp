@@ -5,15 +5,14 @@ using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>A glass shard's or sparkle's typed animation.</summary>
+/// <param name="program">The program to play.</param>
 internal sealed class MotherBrainGlassAnimation(MotherBrainGlassProgram program)
-    : EnemyProjectileTimelineAnimation<MotherBrainGlassFrame, MotherBrainGlassCue>
+    : EnemyProjectileProgramAnimation<MotherBrainGlassProgram, MotherBrainGlassFrame, MotherBrainGlassCue>(program)
 {
-    /// <summary>The program played.</summary>
-    internal MotherBrainGlassProgram Program { get; } = program;
 
     /// <inheritdoc/>
-    private protected override AnimationTimeline<MotherBrainGlassFrame, MotherBrainGlassCue> Timeline =>
-        MotherBrainGlassAnimations.Timeline(Program);
+    private protected override AnimationProgramSet<MotherBrainGlassProgram, MotherBrainGlassFrame, MotherBrainGlassCue> Programs =>
+        MotherBrainGlassAnimations.Programs;
 
     /// <inheritdoc/>
     private protected override EnemyProjectileFrameId Present(MotherBrainGlassFrame frame) =>

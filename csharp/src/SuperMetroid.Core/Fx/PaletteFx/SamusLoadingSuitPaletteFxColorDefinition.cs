@@ -8,11 +8,11 @@ public sealed class SamusLoadingSuitPaletteFxColorDefinition
     internal SamusLoadingSuitPaletteFxColorDefinition(
         SamusLoadingSuitPaletteFxProgramOwner owner,
         PaletteFxObject paletteFxObject,
-        int firstRecord)
+        PaletteFxProgram program)
     {
         Owner = owner;
         Object = paletteFxObject;
-        Rows = new(firstRecord, SamusLoadingSuitPaletteFxColorDefinitions.FrameCount, SamusLoadingSuitPaletteFxColorDefinitions.ColorsPerFrame);
+        Rows = PaletteFxColorRows.Of(program, SamusLoadingSuitPaletteFxColorDefinitions.ColorsPerFrame);
     }
 
     /// <summary>The mutually exclusive suit palette.</summary>

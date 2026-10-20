@@ -8,13 +8,13 @@ public sealed class NorfairEnvironmentalPaletteFxColorDefinition
     internal NorfairEnvironmentalPaletteFxColorDefinition(
         NorfairEnvironmentalPaletteOwner owner,
         PaletteFxObject paletteFxObject,
-        int firstRecord,
+        PaletteFxProgram program,
         ushort colorByteIndex,
         bool publishesHeatPhase)
     {
         Owner = owner;
         Object = paletteFxObject;
-        Rows = new(firstRecord, NorfairEnvironmentalPaletteFxColorDefinitions.FrameCount, NorfairEnvironmentalPaletteFxColorDefinitions.ColorsPerFrame);
+        Rows = PaletteFxColorRows.Of(program, NorfairEnvironmentalPaletteFxColorDefinitions.ColorsPerFrame);
         ColorByteIndex = colorByteIndex;
         PublishesHeatPhase = publishesHeatPhase;
     }

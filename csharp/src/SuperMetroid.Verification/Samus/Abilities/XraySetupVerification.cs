@@ -25,15 +25,14 @@ internal static class XraySetupVerification
         var runtime = CreateRetailRuntimeFixture();
         // Change only the installed art for air reveals; the runtime still executes
         // the cartridge's compiled collision lookup and X-ray setup stages.
-        var visualEntries = new List<(RoomCollisionType Type, byte Bts,
-            XrayRevealVisualWords Visual)>();
+        var visualEntries = new List<XrayRevealVisualDefinition>();
         foreach (RoomCollisionType type in Enum.GetValues<RoomCollisionType>())
         for (int bts = 0; bts <= byte.MaxValue; bts++)
         {
             XrayRevealDefinition? native = XrayRevealTable.Find(type, unchecked((byte)bts));
             if (native is not { } definition ||
                 !XrayRevealVisualCatalog.IsDrawable(definition.Command)) continue;
-            visualEntries.Add((type, unchecked((byte)bts), new XrayRevealVisualWords(
+            visualEntries.Add(new(type, unchecked((byte)bts), new XrayRevealVisualWords(
                 type == RoomCollisionType.Air ? (ushort)0x00fe : definition.TopLeft,
                 definition.TopRight, definition.BottomLeft, definition.BottomRight)));
         }

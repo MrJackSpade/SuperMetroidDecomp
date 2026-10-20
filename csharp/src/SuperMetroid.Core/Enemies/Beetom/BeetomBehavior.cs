@@ -287,7 +287,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
         bool left = unchecked((short)(samus.Position.X.Whole - slot.Position.X.Whole)) < 0;
         state.YSpeedTableIndex = state.InitialLungeYSpeedIndex;
         state.FacingRight = !left;
-        state.Function = left ? BeetomEnemyFunction.LungeLeft : BeetomEnemyFunction.LungeRight;
+        state.Function = state.FacingRight ? BeetomEnemyFunction.LungeRight : BeetomEnemyFunction.LungeLeft;
         state.Falling = false;
         SetBeetomInstructionList(
             slot,

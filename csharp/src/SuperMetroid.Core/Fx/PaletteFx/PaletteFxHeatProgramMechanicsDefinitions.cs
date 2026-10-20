@@ -17,11 +17,11 @@ namespace SuperMetroid.Core.Fx.PaletteFx;
 public static class PaletteFxHeatProgramMechanicsDefinitions
 {
     /// <summary>Compiled heat palette control for the Power Suit.</summary>
-    private static readonly PaletteFxHeatProgramDefinition Power = new(PaletteFxHeatSuit.Power, 299);
+    private static readonly PaletteFxHeatProgramDefinition Power = new(PaletteFxHeatSuit.Power, PaletteFxProgram.SamusInHeatPowerSuit1);
     /// <summary>Compiled heat palette control for the Varia Suit.</summary>
-    private static readonly PaletteFxHeatProgramDefinition Varia = new(PaletteFxHeatSuit.Varia, 315);
+    private static readonly PaletteFxHeatProgramDefinition Varia = new(PaletteFxHeatSuit.Varia, PaletteFxProgram.SamusInHeatVariaSuit2);
     /// <summary>Compiled heat palette control for the Gravity Suit.</summary>
-    private static readonly PaletteFxHeatProgramDefinition Gravity = new(PaletteFxHeatSuit.Gravity, 331);
+    private static readonly PaletteFxHeatProgramDefinition Gravity = new(PaletteFxHeatSuit.Gravity, PaletteFxProgram.SamusInHeatGravitySuit2);
 
     /// <summary>The Power, Varia, and Gravity programs in native selection order.</summary>
     public static IReadOnlyList<PaletteFxHeatProgramDefinition> All { get; } = [Power, Varia, Gravity];

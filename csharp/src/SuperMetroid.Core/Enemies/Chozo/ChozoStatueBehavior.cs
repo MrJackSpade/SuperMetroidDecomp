@@ -320,7 +320,7 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // The two 32-word tables are joint offsets indexed by the same record.
         // Writing Samus after collision reproduces the native cutscene's absolute ownership.
-        samus.Position = samus.Position.WithWhole(new(unchecked((ushort)(statue.Position.X.Whole + motion.SamusX)), unchecked((ushort)(statue.Position.Y.Whole + motion.SamusY))));
+        samus.Position = samus.Position.WithWhole(new(unchecked((ushort)(statue.Position.X.Whole + motion.SamusOffset.X)), unchecked((ushort)(statue.Position.Y.Whole + motion.SamusOffset.Y))));
     }
 
     /// <summary>Spawns a plug-crumble PLM and spike-footstep only when the offset floor block has the native special type.</summary>

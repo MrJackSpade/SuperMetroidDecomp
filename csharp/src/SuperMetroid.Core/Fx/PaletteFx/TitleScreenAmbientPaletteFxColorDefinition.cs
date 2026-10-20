@@ -22,7 +22,7 @@ public sealed class TitleScreenAmbientPaletteFxColorDefinition
         : TitleScreenAmbientPaletteFxColorDefinitions.DisplayLastColor) - FirstColor + 1;
 
     /// <summary>The program's records, consecutive from the first its program shows, and the colours each writes.</summary>
-    public PaletteFxColorRows Rows => new(IsTubeLight ? 16 : 24, FrameCount, ColorsPerFrame);
+    public PaletteFxColorRows Rows => PaletteFxColorRows.Of(IsTubeLight ? PaletteFxProgram.TitleScreenBabyMetroidTubeLight1 : PaletteFxProgram.TitleScreenFlickeringDisplays1, ColorsPerFrame);
 
     /// <summary>Colour <paramref name="color"/> of record <paramref name="frame"/>.</summary>
     public PaletteFxColorKey Color(int frame, int color) => Rows.Color(frame, color);

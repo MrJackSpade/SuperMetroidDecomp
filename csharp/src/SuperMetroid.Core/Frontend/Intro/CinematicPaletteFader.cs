@@ -6,25 +6,17 @@ namespace SuperMetroid.Core.Frontend.Intro;
 /// </summary>
 /// <remarks>
 /// The native implementation keeps three current-component tables and three step tables
-/// in the large <c>tilemap_stuff</c> WRAM union. A target five-bit component is stored as
+/// in the large <c>tilemap_stuff</c> WRAM union; here each colour's three components are one <see cref="CinematicFadeColor"/>. A target five-bit component is stored as
 /// <c>component &lt;&lt; 8</c>; its per-update step is <c>component &lt;&lt; 3</c>, so exactly
 /// 32 calls move between black and the target. Keeping those words here reproduces the
 /// observable rounding and 16-bit wrapping instead of substituting floating-point lerp.
 /// </remarks>
 public sealed class CinematicPaletteFader
 {
-    /// <summary>Current red 8.8 component for each of 256 CGRAM colors.</summary>
-    private readonly ushort[] currentRed = new ushort[CgramPalettes.ColorCount];
-    /// <summary>Current green 8.8 component for each CGRAM color.</summary>
-    private readonly ushort[] currentGreen = new ushort[CgramPalettes.ColorCount];
-    /// <summary>Current blue 8.8 component for each CGRAM color.</summary>
-    private readonly ushort[] currentBlue = new ushort[CgramPalettes.ColorCount];
-    /// <summary>One thirty-second of each red target component in 8.8 form.</summary>
-    private readonly ushort[] redStep = new ushort[CgramPalettes.ColorCount];
-    /// <summary>One thirty-second of each green target component in 8.8 form.</summary>
-    private readonly ushort[] greenStep = new ushort[CgramPalettes.ColorCount];
-    /// <summary>One thirty-second of each blue target component in 8.8 form.</summary>
-    private readonly ushort[] blueStep = new ushort[CgramPalettes.ColorCount];
+    /// <summary>Current 8.8 colour for each of 256 CGRAM colors.</summary>
+    private readonly CinematicFadeColor[] current = new CinematicFadeColor[CgramPalettes.ColorCount];
+    /// <summary>One thirty-second of each target colour in 8.8 form.</summary>
+    private readonly CinematicFadeColor[] step = new CinematicFadeColor[CgramPalettes.ColorCount];
 
     /// <summary>Ports <c>DecomposePaletteDataForFading</c> at $8B:8C09.</summary>
     public CinematicPaletteFader(ReadOnlySpan<Bgr555> targetPalette)
@@ -33,18 +25,8 @@ public sealed class CinematicPaletteFader
 
         for (int color = 0; color < targetPalette.Length; color++)
         {
-            ushort red = (ushort)targetPalette[color].Red;
-            ushort green = (ushort)targetPalette[color].Green;
-            ushort blue = (ushort)targetPalette[color].Blue;
-
-            // The first triplet is the live 8.8 value. The second is 1/32 of the target,
-            // also in 8.8 form. These shifts are literals from $8B:8C19-$8C59.
-            currentRed[color] = (ushort)SnesEightEight.FromWhole(red);
-            currentGreen[color] = (ushort)SnesEightEight.FromWhole(green);
-            currentBlue[color] = (ushort)SnesEightEight.FromWhole(blue);
-            redStep[color] = (ushort)(red << 3);
-            greenStep[color] = (ushort)(green << 3);
-            blueStep[color] = (ushort)(blue << 3);
+            current[color] = CinematicFadeColor.Target(targetPalette[color]);
+            step[color] = CinematicFadeColor.Step(targetPalette[color]);
         }
     }
 
@@ -53,12 +35,7 @@ public sealed class CinematicPaletteFader
     public void Clear(IntroPaletteSpan span)
     {
         (int firstColor, int exclusiveEnd) = ValidateRange(span);
-        for (int color = firstColor; color < exclusiveEnd; color++)
-        {
-            currentRed[color] = 0;
-            currentGreen[color] = 0;
-            currentBlue[color] = 0;
-        }
+        Array.Fill(current, default, firstColor, exclusiveEnd - firstColor);
     }
 
     /// <summary>Ports <c>FadeOutYColorsFromIndexX</c> at $8B:8C83: the span's colors take one step toward black.</summary>
@@ -66,15 +43,10 @@ public sealed class CinematicPaletteFader
     public void FadeOut(IntroPaletteSpan span)
     {
         (int firstColor, int exclusiveEnd) = ValidateRange(span);
+        // The known intro ranges reach exactly zero after 32 calls, but preserving the native
+        // wrap makes this helper faithful and makes accidental over-stepping visible in a debugger.
         for (int color = firstColor; color < exclusiveEnd; color++)
-        {
-            // Native SBC stores a wrapping 16-bit result. The known intro ranges reach
-            // exactly zero after 32 calls, but preserving wrap makes this helper faithful
-            // and makes accidental over-stepping visible in a debugger.
-            currentRed[color] = unchecked((ushort)(currentRed[color] - redStep[color]));
-            currentGreen[color] = unchecked((ushort)(currentGreen[color] - greenStep[color]));
-            currentBlue[color] = unchecked((ushort)(currentBlue[color] - blueStep[color]));
-        }
+            current[color] = current[color].Minus(step[color]);
     }
 
     /// <summary>Ports <c>FadeInYColorsFromIndexX</c> at $8B:8CB2: the span's colors take one step toward their target.</summary>
@@ -83,13 +55,7 @@ public sealed class CinematicPaletteFader
     {
         (int firstColor, int exclusiveEnd) = ValidateRange(span);
         for (int color = firstColor; color < exclusiveEnd; color++)
-        {
-            // The wrap to thirteen bits (the $1FFF mask) is not a generic clamp. It is present
-            // in each of the three retail ADC paths and must occur after every addition.
-            currentRed[color] = (ushort)((currentRed[color] + redStep[color]) % 8192);
-            currentGreen[color] = (ushort)((currentGreen[color] + greenStep[color]) % 8192);
-            currentBlue[color] = (ushort)((currentBlue[color] + blueStep[color]) % 8192);
-        }
+            current[color] = current[color].PlusWrapped(step[color]);
     }
 
     /// <summary>Ports <c>ComposeFadingPalettes</c> at $8B:8CEA into live CGRAM.</summary>
@@ -98,14 +64,7 @@ public sealed class CinematicPaletteFader
         Ensure.NotNull(cgram);
         Span<Bgr555> image = stackalloc Bgr555[CgramPalettes.ColorCount];
         for (int color = 0; color < image.Length; color++)
-        {
-            // High bytes supply the visible five-bit components, as the following native
-            // NMI upload writes them into physical CGRAM.
-            image[color] = new Bgr555(
-                (SnesLittleEndian.HighByte(currentRed[color])) & Bgr555.MaxChannel,
-                (SnesLittleEndian.HighByte(currentGreen[color])) & Bgr555.MaxChannel,
-                (SnesLittleEndian.HighByte(currentBlue[color])) & Bgr555.MaxChannel);
-        }
+            image[color] = current[color].Visible;
         new CgramPalettes(cgram).LoadImage(image);
     }
 

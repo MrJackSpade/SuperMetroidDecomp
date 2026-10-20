@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Fx.Artwork;
 internal enum RoomPaletteFxPresentationRevision
 {
     /// <summary>Revision 17: the Samus-in-heat rows are inherited from current stock.</summary>
-    Previous = RoomPaletteFxPresentationFormat.PreviousVersion,
+    Previous = 17,
     /// <summary>Revision 18: every color family is supplied by the document.</summary>
-    Current = RoomPaletteFxPresentationFormat.Version,
+    Current = 18,
 }

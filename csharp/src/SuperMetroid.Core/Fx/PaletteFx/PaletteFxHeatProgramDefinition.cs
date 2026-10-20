@@ -8,10 +8,10 @@ public sealed class PaletteFxHeatProgramDefinition
     public const int ColorsPerFrame = 15;
 
     /// <summary>Binds a suit identity to its sixteen phase records.</summary>
-    internal PaletteFxHeatProgramDefinition(PaletteFxHeatSuit suit, int firstRecord)
+    internal PaletteFxHeatProgramDefinition(PaletteFxHeatSuit suit, PaletteFxProgram program)
     {
         Suit = suit;
-        Rows = new(firstRecord, PaletteFxHeatInstructionListDefinitions.PhaseCount, ColorsPerFrame);
+        Rows = PaletteFxColorRows.Of(program, ColorsPerFrame);
     }
 
     /// <summary>The mutually exclusive suit palette represented by this program.</summary>

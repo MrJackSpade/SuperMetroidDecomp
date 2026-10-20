@@ -1542,7 +1542,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
             SpawnMotherBrainDeathExplosion(explosion);
             state.LastSoundEffectLibrary3 = explosion.SoundEffect;
         }
-        if (step.PhaseBefore == MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceDisableBrainEffects &&
+        if (step.PhaseBefore == MotherBrainBodyFunction.ThirdPhaseDeathDisableBrainEffects &&
             step.PhaseAfter != step.PhaseBefore)
         {
             _presentation.BossPalettes.MotherBrainCorpse.CopyFrom(_presentation.BossPalettes.MotherBrainBrain.Colors);
@@ -1550,8 +1550,8 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
             state.BrainPaletteHandlingEnabled = false;
             state.DroolGenerationEnabled = false;
         }
-        bool bodyFade = step.PhaseBefore == MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceFadeOutBody ||
-            step.PhaseAfter == MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceFadeOutBody;
+        bool bodyFade = step.PhaseBefore == MotherBrainBodyFunction.ThirdPhaseDeathFadeOutBody ||
+            step.PhaseAfter == MotherBrainBodyFunction.ThirdPhaseDeathFadeOutBody;
         if (bodyFade)
         {
             // ADF41C flickers the body and BG2 together on every call, not just palette ticks.
@@ -1583,7 +1583,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
             state.BrainFunction = MotherBrainBrainFunction.SetupBrainToBeDrawn;
             state.Head.Position = state.Head.Position.WithWhole(sequence.BrainPosition);
         }
-        if (step.PhaseBefore == MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceFadeToGrey && step.PaletteRequested)
+        if (step.PhaseBefore == MotherBrainBodyFunction.ThirdPhaseDeathFadeToGrey && step.PaletteRequested)
             LoadMotherBrainDeathCorpseFade(sequence.GreyTransitionCounter - 1);
         foreach (var transfer in step.CorpseRottingVramTransfers) _motherBrainEncounter.ApplyMotherBrainRainbowTileTransfer(transfer);
         foreach (var dust in step.CorpseDustRequests)
@@ -1626,8 +1626,8 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
                 PinMotherBrainEscapeSubtitle(subtitle);
             }
         }
-        if (step.PhaseBefore == MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceBrainFallsToGround &&
-            step.PhaseAfter == MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceLoadCorpseTiles ||
+        if (step.PhaseBefore == MotherBrainBodyFunction.ThirdPhaseDeathBrainFallsToGround &&
+            step.PhaseAfter == MotherBrainBodyFunction.ThirdPhaseDeathLoadCorpseTiles ||
             step.EscapeMusicTrackQueued || step.EarthquakeTimerRefreshed)
         {
             _earthquake.EarthquakeType = checked((ushort)sequence.EarthquakeType);
@@ -1751,12 +1751,12 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
     /// $A9:8B5D/8B67/8B71: collision radii and landing floor selected by piece role. The two
     /// outer and two inner pieces share their values; the main tube has its own floor.
     /// </summary>
-    internal static (ushort XRadius, ushort YRadius, ushort Floor) MotherBrainFallingTubeBody(int tubeIndex) =>
+    internal static MotherBrainFallingTubeDefinition MotherBrainFallingTubeBody(int tubeIndex) =>
         tubeIndex switch
         {
-            0 or 1 => (16, 32, 248),
-            2 or 3 => (8, 24, 240),
-            4 => (16, 32, 246),
+            0 or 1 => new(new(16, 32), 248),
+            2 or 3 => new(new(8, 24), 240),
+            4 => new(new(16, 32), 246),
             _ => throw new InvalidDataException($"Mother Brain falling tube index {tubeIndex} is outside its five pieces."),
         };
     /// <summary>$A9:8C61: authored smoke puff X offsets cycled while a tube lands.</summary>
@@ -2285,15 +2285,15 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void InitializeMotherBrainFallingTube(RoomEnemySlot tube)
     {
         int tubeIndex = tube.Spawn.Population.Parameter1 / 2;
-        (ushort xRadius, ushort yRadius, ushort floor) = MotherBrainFallingTubeBody(tubeIndex);
+        MotherBrainFallingTubeDefinition tubeBody = MotherBrainFallingTubeBody(tubeIndex);
         Extensions[tube.SlotIndex].FallingTubeCursor = AnimationProgramCursor<MotherBrainTubePiece>.Start((MotherBrainTubePiece)tubeIndex);
-        tube.Radius = new(xRadius, yRadius);
+        tube.Radius = tubeBody.Radius;
         var state = new MotherBrainFallingTubeState
         {
             Function = tubeIndex == (int)MotherBrainTubePiece.Main
                 ? MotherBrainTubeFunction.MainTube_WaitingToFall
                 : MotherBrainTubeFunction.NonMainTube,
-            FloorY = floor,
+            FloorY = tubeBody.Floor,
             FallDelay = NativeCountdown.FromRaw(checked((ushort)tube.Spawn.Population.Parameter2)),
         };
         tube.SetSpeciesState(state, state.ClearWithRecord);
@@ -4202,8 +4202,8 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
         SynchronizeLiveMotherBrainRainbowActor(state, sequence);
 
         bool typewriterFinished = false;
-        if (sequence.Phase is MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceTypeOutZebesEscapeText or
-            MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceSpawnTimeBombSetSubtitle)
+        if (sequence.Phase is MotherBrainBodyFunction.ThirdPhaseDeathTypeOutZebesEscapeText or
+            MotherBrainBodyFunction.ThirdPhaseDeathSpawnTimeBombSetSubtitle)
         {
             var text = state.EscapeTypewriter ?? throw new InvalidOperationException("Mother Brain escape text was not initialized.");
             typewriterFinished = text.Step(out EscapeTypewriterGlyph? glyph);
@@ -4259,7 +4259,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
             SetMotherBrainBodyProgram(state, bodyProgram);
         }
 
-        state.Function = MapLiveMotherBrainRainbowFunction(sequence.Phase);
+        state.Function = sequence.Phase ?? throw new InvalidDataException("The live Mother Brain rainbow sequence has no body function yet.");
         state.FunctionTimer = sequence.FunctionTimer;
         state.NeckAngleDelta = sequence.NeckAngleDelta;
         state.NeckMovementEnabled = sequence.NeckMovementEnabled;
@@ -4303,8 +4303,8 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
 
         state.RainbowBeamPaletteRequested = current.PaletteRequested;
-        if (current.PhaseBefore == MotherBrainRainbowBeamAttackPhase.FireFinalRainbowBeam &&
-            current.PhaseAfter == MotherBrainRainbowBeamAttackPhase.FinalRainbowBeamHolding)
+        if (current.PhaseBefore == MotherBrainBodyFunction.SecondPhaseFinishSamusOffFireFinalBeam &&
+            current.PhaseAfter == MotherBrainBodyFunction.SecondPhaseFinalRainbowBeamHolding)
             state.RainbowPaletteCursor = 0;
         ApplyMotherBrainRainbowPalette(state, current);
         // $A9:D1E4 runs after body AI. Its health handler is enabled during revival,
@@ -4325,19 +4325,19 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // `$BA0F` seeds the short quake, `$BA27` replaces it with the full drain duration,
         // and `$BA93` clears it when the beam contracts below its minimum width.
-        if (current.PhaseBefore == MotherBrainRainbowBeamAttackPhase.OneFrameDelay &&
-            current.PhaseAfter == MotherBrainRainbowBeamAttackPhase.StartDrainingSamus)
+        if (current.PhaseBefore == MotherBrainBodyFunction.SecondPhaseRainbowOneFrameDelay &&
+            current.PhaseAfter == MotherBrainBodyFunction.SecondPhaseRainbowStartDrainingSamus)
         {
             _earthquake.EarthquakeType = 8;
             _earthquake.EarthquakeTimer = NativeCountdown.Start(8);
         }
-        else if (current.PhaseBefore == MotherBrainRainbowBeamAttackPhase.StartDrainingSamus)
+        else if (current.PhaseBefore == MotherBrainBodyFunction.SecondPhaseRainbowStartDrainingSamus)
         {
             _earthquake.EarthquakeType = 8;
             _earthquake.EarthquakeTimer = NativeCountdown.Start(299);
         }
-        else if (current.PhaseBefore == MotherBrainRainbowBeamAttackPhase.FinishFiring &&
-            current.PhaseAfter == MotherBrainRainbowBeamAttackPhase.LetSamusFall)
+        else if (current.PhaseBefore == MotherBrainBodyFunction.SecondPhaseRainbowFinishFiring &&
+            current.PhaseAfter == MotherBrainBodyFunction.SecondPhaseRainbowLetSamusFall)
         {
             _earthquake.EarthquakeTimer = NativeCountdown.Start(0);
             state.LastSoundEffectLibrary1 = MotherBrainSoundDefinitions.StopRainbowDrain;
@@ -4345,18 +4345,18 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
 
         if (sharedProjectiles is not null)
         {
-            if (current.PhaseBefore == MotherBrainRainbowBeamAttackPhase.WaitForCharge &&
-                current.PhaseAfter == MotherBrainRainbowBeamAttackPhase.StartFiring)
+            if (current.PhaseBefore == MotherBrainBodyFunction.SecondPhaseRainbowWaitForCharge &&
+                current.PhaseAfter == MotherBrainBodyFunction.SecondPhaseRainbowStartFiring)
             {
                 sharedProjectiles.SetSharedCooldown(8);
             }
-            else if (current.PhaseBefore == MotherBrainRainbowBeamAttackPhase.StartFiring &&
-                current.PhaseAfter == MotherBrainRainbowBeamAttackPhase.MoveSamusTowardWall)
+            else if (current.PhaseBefore == MotherBrainBodyFunction.SecondPhaseRainbowStartFiring &&
+                current.PhaseAfter == MotherBrainBodyFunction.SecondPhaseRainbowMoveSamusTowardWall)
             {
                 sharedProjectiles.SetSharedCooldown(0);
             }
-            else if (current.PhaseBefore == MotherBrainRainbowBeamAttackPhase.FinishFiring &&
-                current.PhaseAfter == MotherBrainRainbowBeamAttackPhase.LetSamusFall)
+            else if (current.PhaseBefore == MotherBrainBodyFunction.SecondPhaseRainbowFinishFiring &&
+                current.PhaseAfter == MotherBrainBodyFunction.SecondPhaseRainbowLetSamusFall)
             {
                 sharedProjectiles.SetSharedCooldown(8);
             }
@@ -4431,159 +4431,12 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
         projectile.Position = projectile.Position.WithWhole(new(unchecked((ushort)(target.Position.X.Whole + projectile.Velocity.X.RawValue)), unchecked((ushort)(target.Position.Y.Whole + projectile.Velocity.Y.RawValue))));
     }
 
-    /// <summary>Maps rainbow sequence phases to the matching body AI phase.</summary>
-    internal static MotherBrainBodyFunction MapLiveMotherBrainRainbowFunction(
-        MotherBrainRainbowBeamAttackPhase phase) => phase switch
-        {
-            MotherBrainRainbowBeamAttackPhase.RepeatAttack =>
-                MotherBrainBodyFunction.SecondPhaseRainbowExtendNeck,
-            MotherBrainRainbowBeamAttackPhase.StartCharging =>
-                MotherBrainBodyFunction.SecondPhaseRainbowStartCharging,
-            MotherBrainRainbowBeamAttackPhase.RetractNeck =>
-                MotherBrainBodyFunction.SecondPhaseRainbowRetractNeck,
-            MotherBrainRainbowBeamAttackPhase.WaitForCharge =>
-                MotherBrainBodyFunction.SecondPhaseRainbowWaitForCharge,
-            MotherBrainRainbowBeamAttackPhase.ExtendNeckDown =>
-                MotherBrainBodyFunction.SecondPhaseRainbowExtendNeckDown,
-            MotherBrainRainbowBeamAttackPhase.StartFiring =>
-                MotherBrainBodyFunction.SecondPhaseRainbowStartFiring,
-            MotherBrainRainbowBeamAttackPhase.MoveSamusTowardWall =>
-                MotherBrainBodyFunction.SecondPhaseRainbowMoveSamusTowardWall,
-            MotherBrainRainbowBeamAttackPhase.OneFrameDelay =>
-                MotherBrainBodyFunction.SecondPhaseRainbowOneFrameDelay,
-            MotherBrainRainbowBeamAttackPhase.StartDrainingSamus =>
-                MotherBrainBodyFunction.SecondPhaseRainbowStartDrainingSamus,
-            MotherBrainRainbowBeamAttackPhase.DrainingSamus =>
-                MotherBrainBodyFunction.SecondPhaseRainbowDrainingSamus,
-            MotherBrainRainbowBeamAttackPhase.FinishFiring =>
-                MotherBrainBodyFunction.SecondPhaseRainbowFinishFiring,
-            MotherBrainRainbowBeamAttackPhase.LetSamusFall =>
-                MotherBrainBodyFunction.SecondPhaseRainbowLetSamusFall,
-            MotherBrainRainbowBeamAttackPhase.WaitForSamusToLand =>
-                MotherBrainBodyFunction.SecondPhaseRainbowWaitForSamusToLand,
-            MotherBrainRainbowBeamAttackPhase.LowerHead =>
-                MotherBrainBodyFunction.SecondPhaseRainbowLowerHead,
-            MotherBrainRainbowBeamAttackPhase.DecideNextAction =>
-                MotherBrainBodyFunction.SecondPhaseRainbowDecideNextAction,
-            MotherBrainRainbowBeamAttackPhase.FinishSamusOff =>
-                MotherBrainBodyFunction.SecondPhaseFinishSamusOff,
-            MotherBrainRainbowBeamAttackPhase.FinishStandUp =>
-                MotherBrainBodyFunction.SecondPhaseFinishSamusOffStandUp,
-            MotherBrainRainbowBeamAttackPhase.AdmireJobWellDone =>
-                MotherBrainBodyFunction.SecondPhaseFinishSamusOffAdmire,
-            MotherBrainRainbowBeamAttackPhase.ChargeFinalRainbowBeam =>
-                MotherBrainBodyFunction.SecondPhaseFinishSamusOffChargeFinalBeam,
-            MotherBrainRainbowBeamAttackPhase.LoadBabyMetroidTiles =>
-                MotherBrainBodyFunction.SecondPhaseFinishSamusOffLoadBabyTiles,
-            MotherBrainRainbowBeamAttackPhase.FireFinalRainbowBeam =>
-                MotherBrainBodyFunction.SecondPhaseFinishSamusOffFireFinalBeam,
-            MotherBrainRainbowBeamAttackPhase.FinalRainbowBeamHolding =>
-                MotherBrainBodyFunction.SecondPhaseFinalRainbowBeamHolding,
-            MotherBrainRainbowBeamAttackPhase.DrainedByBabyMetroidTakenAback =>
-                MotherBrainBodyFunction.SecondPhaseDrainedByBabyTakenAback,
-            MotherBrainRainbowBeamAttackPhase.DrainedByBabyMetroidRegainBalance =>
-                MotherBrainBodyFunction.SecondPhaseDrainedByBabyRegainBalance,
-            MotherBrainRainbowBeamAttackPhase.DrainedByBabyMetroidFiringRainbowBeam =>
-                MotherBrainBodyFunction.SecondPhaseDrainedByBabyFiringRainbowBeam,
-            MotherBrainRainbowBeamAttackPhase.DrainedByBabyMetroidRainbowBeamRunOut =>
-                MotherBrainBodyFunction.SecondPhaseDrainedByBabyRainbowBeamRunOut,
-            MotherBrainRainbowBeamAttackPhase.DrainedByBabyMetroidMoveToBackOfRoom =>
-                MotherBrainBodyFunction.SecondPhaseDrainedByBabyMoveToBackOfRoom,
-            MotherBrainRainbowBeamAttackPhase.DrainedByBabyMetroidGoIntoLowPowerMode =>
-                MotherBrainBodyFunction.SecondPhaseDrainedByBabyGoIntoLowPowerMode,
-            MotherBrainRainbowBeamAttackPhase.DrainedByBabyMetroidPrepareTransitionToGrey =>
-                MotherBrainBodyFunction.SecondPhaseDrainedByBabyPrepareTransitionToGrey,
-            MotherBrainRainbowBeamAttackPhase.DrainedByBabyMetroidTransitionToGrey =>
-                MotherBrainBodyFunction.SecondPhaseDrainedByBabyTransitionToGrey,
-            MotherBrainRainbowBeamAttackPhase.Phase2ReviveSelfInanimateGrey =>
-                MotherBrainBodyFunction.SecondPhaseReviveInanimateGrey,
-            MotherBrainRainbowBeamAttackPhase.Phase2ReviveSelfShowSignsOfLife =>
-                MotherBrainBodyFunction.SecondPhaseReviveShowSignsOfLife,
-            MotherBrainRainbowBeamAttackPhase.Phase2ReviveSelfTransitionFromGrey =>
-                MotherBrainBodyFunction.SecondPhaseReviveTransitionFromGrey,
-            MotherBrainRainbowBeamAttackPhase.Phase2ReviveSelfWakeUp =>
-                MotherBrainBodyFunction.SecondPhaseReviveWakeUp,
-            MotherBrainRainbowBeamAttackPhase.Phase2ReviveSelfWakeUpStretch =>
-                MotherBrainBodyFunction.SecondPhaseReviveWakeUpStretch,
-            MotherBrainRainbowBeamAttackPhase.Phase2ReviveSelfWalkUpToBabyMetroid =>
-                MotherBrainBodyFunction.SecondPhaseReviveWalkUpToBaby,
-            MotherBrainRainbowBeamAttackPhase.Phase2ReviveSelfPrepareNeckForBabyMetroidDeath =>
-                MotherBrainBodyFunction.SecondPhaseRevivePrepareNeckForBabyDeath,
-            MotherBrainRainbowBeamAttackPhase.Phase2ReviveSelfFinishPreparingForBabyMetroidDeath =>
-                MotherBrainBodyFunction.SecondPhaseReviveFinishPreparingForBabyDeath,
-            MotherBrainRainbowBeamAttackPhase.Phase2MurderBabyMetroidAttack =>
-                MotherBrainBodyFunction.SecondPhaseMurderBabyAttack,
-            MotherBrainRainbowBeamAttackPhase.Phase2MurderBabyMetroidAttackCooldown =>
-                MotherBrainBodyFunction.SecondPhaseMurderBabyAttackCooldown,
-            MotherBrainRainbowBeamAttackPhase.PrepareForFinalBabyMetroidAttack =>
-                MotherBrainBodyFunction.SecondPhasePrepareForFinalBabyAttack,
-            MotherBrainRainbowBeamAttackPhase.ExecuteFinalBabyMetroidAttack =>
-                MotherBrainBodyFunction.SecondPhaseExecuteFinalBabyAttack,
-            MotherBrainRainbowBeamAttackPhase.FinalBabyMetroidAttackHolding =>
-                MotherBrainBodyFunction.SecondPhaseFinalBabyAttackHolding,
-            MotherBrainRainbowBeamAttackPhase.Phase3RecoverFromCutsceneMakeSomeDistance =>
-                MotherBrainBodyFunction.ThirdPhaseRecoverMakeSomeDistance,
-            MotherBrainRainbowBeamAttackPhase.Phase3RecoverFromCutsceneSetupForFighting =>
-                MotherBrainBodyFunction.ThirdPhaseRecoverSetupForFighting,
-            MotherBrainRainbowBeamAttackPhase.Phase3FightingMain =>
-                MotherBrainBodyFunction.ThirdPhaseFightingMain,
-            MotherBrainRainbowBeamAttackPhase.Phase3FightingAttackCooldown =>
-                MotherBrainBodyFunction.ThirdPhaseFightingAttackCooldown,
-            MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceMoveToBackOfRoom =>
-                MotherBrainBodyFunction.ThirdPhaseDeathMoveToBackOfRoom,
-            MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceIdleWhilstExploding =>
-                MotherBrainBodyFunction.ThirdPhaseDeathIdleWhilstExploding,
-            MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceStumbleToMiddleOfRoom =>
-                MotherBrainBodyFunction.ThirdPhaseDeathStumbleToMiddleOfRoom,
-            MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceDisableBrainEffects =>
-                MotherBrainBodyFunction.ThirdPhaseDeathDisableBrainEffects,
-            MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceSetupBodyFadeOut =>
-                MotherBrainBodyFunction.ThirdPhaseDeathSetupBodyFadeOut,
-            MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceFadeOutBody =>
-                MotherBrainBodyFunction.ThirdPhaseDeathFadeOutBody,
-            MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceFinalFewExplosions =>
-                MotherBrainBodyFunction.ThirdPhaseDeathFinalFewExplosions,
-            MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceRealizeDecapitation =>
-                MotherBrainBodyFunction.ThirdPhaseDeathRealizeDecapitation,
-            MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceBrainFallsToGround =>
-                MotherBrainBodyFunction.ThirdPhaseDeathBrainFallsToGround,
-            MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceLoadCorpseTiles =>
-                MotherBrainBodyFunction.ThirdPhaseDeathLoadCorpseTiles,
-            MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceSetupFadeToGrey =>
-                MotherBrainBodyFunction.ThirdPhaseDeathSetupFadeToGrey,
-            MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceFadeToGrey =>
-                MotherBrainBodyFunction.ThirdPhaseDeathFadeToGrey,
-            MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceCorpseTipsOver =>
-                MotherBrainBodyFunction.ThirdPhaseDeathCorpseTipsOver,
-            MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceCorpseRotsAway =>
-                MotherBrainBodyFunction.ThirdPhaseDeathCorpseRotsAway,
-            MotherBrainRainbowBeamAttackPhase.Phase3DeathSequence20FrameDelay =>
-                MotherBrainBodyFunction.ThirdPhaseDeath20FrameDelay,
-            MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceLoadEscapeTimerTiles =>
-                MotherBrainBodyFunction.ThirdPhaseDeathLoadEscapeTimerTiles,
-            MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceStartEscape =>
-                MotherBrainBodyFunction.ThirdPhaseDeathStartEscape,
-            MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceSpawnTimeBombSetSubtitle =>
-                MotherBrainBodyFunction.ThirdPhaseDeathSpawnTimeBombSetSubtitle,
-            MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceTypeOutZebesEscapeText =>
-                MotherBrainBodyFunction.ThirdPhaseDeathTypeOutZebesEscapeText,
-            MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceDoorExplodingStartTimer =>
-                MotherBrainBodyFunction.ThirdPhaseDeathDoorExplodingStartTimer,
-            MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceBlowUpEscapeDoor =>
-                MotherBrainBodyFunction.ThirdPhaseDeathBlowUpEscapeDoor,
-            MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceKeepEarthquakeGoing =>
-                MotherBrainBodyFunction.ThirdPhaseDeathKeepEarthquakeGoing,
-            MotherBrainRainbowBeamAttackPhase.Inactive => throw new InvalidDataException(
-                $"Live Mother Brain rainbow phase {phase} is not attached to a room function yet."),
-            _ => throw new InvalidDataException(
-                $"Live Mother Brain rainbow phase {phase} is not attached to a room function yet."),
-        };
     /// <summary>Runs $A9:BCFD at the body-frame cadence, then $BD1D's three literal copies.</summary>
     private void ApplyMotherBrainRainbowPalette(MotherBrainEnemyState state,
         MotherBrainRainbowBeamAttackStepResult step)
     {
-        bool draining = step.PhaseBefore == MotherBrainRainbowBeamAttackPhase.DrainedByBabyMetroidTransitionToGrey;
-        bool reviving = step.PhaseBefore == MotherBrainRainbowBeamAttackPhase.Phase2ReviveSelfTransitionFromGrey;
+        bool draining = step.PhaseBefore == MotherBrainBodyFunction.SecondPhaseDrainedByBabyTransitionToGrey;
+        bool reviving = step.PhaseBefore == MotherBrainBodyFunction.SecondPhaseReviveTransitionFromGrey;
         if ((draining || reviving) && step.PaletteRequested)
         {
             // The sequence increments before publishing this request. Keep the distinct
@@ -4595,16 +4448,16 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
             else installed.ApplyFromGrey(_presentation.Cgram, index);
             return;
         }
-        if (step.PhaseBefore == MotherBrainRainbowBeamAttackPhase.FinishFiring &&
-            step.PhaseAfter == MotherBrainRainbowBeamAttackPhase.LetSamusFall)
+        if (step.PhaseBefore == MotherBrainBodyFunction.SecondPhaseRainbowFinishFiring &&
+            step.PhaseAfter == MotherBrainBodyFunction.SecondPhaseRainbowLetSamusFall)
         {
             var installed = _presentation.MotherBrainRainbowColors ?? throw new InvalidDataException(
                 "Mother Brain's normal palette requires installed artwork.");
             installed.ApplyNormal(_presentation.Cgram);
             return;
         }
-        if (step.PhaseBefore == MotherBrainRainbowBeamAttackPhase.DrainedByBabyMetroidFiringRainbowBeam &&
-            step.PhaseAfter == MotherBrainRainbowBeamAttackPhase.DrainedByBabyMetroidRainbowBeamRunOut)
+        if (step.PhaseBefore == MotherBrainBodyFunction.SecondPhaseDrainedByBabyFiringRainbowBeam &&
+            step.PhaseAfter == MotherBrainBodyFunction.SecondPhaseDrainedByBabyRainbowBeamRunOut)
         {
             var installed = _presentation.MotherBrainRainbowColors ?? throw new InvalidDataException(
                 "Mother Brain's drained palette requires installed artwork.");
@@ -4612,13 +4465,13 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
         bool rainbowPhase = step.PhaseBefore is
-            MotherBrainRainbowBeamAttackPhase.MoveSamusTowardWall or
-            MotherBrainRainbowBeamAttackPhase.OneFrameDelay or
-            MotherBrainRainbowBeamAttackPhase.StartDrainingSamus or
-            MotherBrainRainbowBeamAttackPhase.DrainingSamus or
-            MotherBrainRainbowBeamAttackPhase.FinishFiring or
-            MotherBrainRainbowBeamAttackPhase.DrainedByBabyMetroidRegainBalance or
-            MotherBrainRainbowBeamAttackPhase.DrainedByBabyMetroidFiringRainbowBeam;
+            MotherBrainBodyFunction.SecondPhaseRainbowMoveSamusTowardWall or
+            MotherBrainBodyFunction.SecondPhaseRainbowOneFrameDelay or
+            MotherBrainBodyFunction.SecondPhaseRainbowStartDrainingSamus or
+            MotherBrainBodyFunction.SecondPhaseRainbowDrainingSamus or
+            MotherBrainBodyFunction.SecondPhaseRainbowFinishFiring or
+            MotherBrainBodyFunction.SecondPhaseDrainedByBabyRegainBalance or
+            MotherBrainBodyFunction.SecondPhaseDrainedByBabyFiringRainbowBeam;
         if (!rainbowPhase || !step.PaletteRequested || (state.Body.FrameCounter & 2) == 0)
             return;
 

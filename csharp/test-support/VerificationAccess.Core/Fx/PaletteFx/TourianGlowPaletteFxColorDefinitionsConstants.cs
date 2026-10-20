@@ -25,4 +25,6 @@ internal static class TourianGlowPaletteFxColorDefinitionsConstants
     public const ushort ColorByteIndex = 0x00e8;
     /// <summary>Colour <paramref name="color"/> of record <paramref name="frame"/>.</summary>
     public static PaletteFxColorKey Color(int frame, int color) => TourianGlowPaletteFxColorDefinitions.Rows.Color(frame, color);
+    /// <summary>Eleven ten-frame records form one complete glow cycle.</summary>
+    public static int FrameCount => TourianGlowPaletteFxColorDefinitions.Rows.FrameCount;
 }

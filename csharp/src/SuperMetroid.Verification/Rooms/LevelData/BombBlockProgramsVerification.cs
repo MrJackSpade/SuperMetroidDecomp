@@ -19,18 +19,18 @@ internal static class BombBlockProgramsVerification
     private static void VerifyBombBlockRestorationMapping(SuperMetroidAddressSpace rom)
     {
         ushort[] pointers = [0xa4c7, 0xa4cf, 0xa4d7];
-        AssertTrue(pointers.SequenceEqual(RoomPlmBombBlockRestoreDrawDefinitions.All.Select(draw => draw.Pointer)),
+        AssertTrue(pointers.SequenceEqual(RoomPlmLinkedRestoreDefinition.BombBlock.All.Select(draw => draw.Pointer)),
             "bomb restoration export order matches native layouts");
         for (int pointer = 0; pointer <= ushort.MaxValue; pointer++)
         {
             bool expected = pointers.Contains((ushort)pointer);
-            bool found = RoomPlmBombBlockRestoreDrawDefinitions.TryDescribe((ushort)pointer, out var draw);
-            bool exported = RoomPlmBombBlockRestoreDrawDefinitions.TryGet((ushort)pointer, out var list);
+            bool found = RoomPlmLinkedRestoreDefinition.BombBlock.TryDescribe((ushort)pointer, out var draw);
+            bool exported = RoomPlmLinkedRestoreDefinition.BombBlock.TryGet((ushort)pointer, out var list);
             AssertEqual(expected, found, "bomb restoration full native pointer domain");
             AssertEqual(expected, exported, "bomb restoration export pointer domain");
             if (!found)
             {
-                AssertEqual(default(RoomPlmBombBlockRestoreDrawDefinitions.Draw), draw, "missing restoration descriptor cleared");
+                AssertEqual(default(RoomPlmLinkedRestoreDefinition.Draw), draw, "missing restoration descriptor cleared");
                 AssertEqual(default(RoomPlmShotBlockDrawDefinitions.DrawList), list, "missing restoration export cleared");
                 continue;
             }

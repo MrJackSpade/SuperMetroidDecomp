@@ -7,14 +7,14 @@ public sealed class CinematicGlowPaletteFxColorDefinition
     internal CinematicGlowPaletteFxColorDefinition(
         CinematicGlowPaletteFxProgramOwner owner,
         PaletteFxObject paletteFxObject,
-        int firstRecord,
+        PaletteFxProgram program,
         ushort colorByteIndex,
         int colorsPerFrame,
         ushort frameDuration)
     {
         Owner = owner;
         Object = paletteFxObject;
-        Rows = new(firstRecord, CinematicGlowPaletteFxColorDefinitions.FrameCount, colorsPerFrame);
+        Rows = PaletteFxColorRows.Of(program, colorsPerFrame);
         ColorByteIndex = colorByteIndex;
         ColorsPerFrame = colorsPerFrame;
         FrameDuration = frameDuration;

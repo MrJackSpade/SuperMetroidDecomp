@@ -133,7 +133,7 @@ internal static class MotherBrainRoomColorsVerification
             }, ArtworkJson.Options))), "reject truncated room-light recovery sequence");
         byte[] previousVersion = JsonSerializer.SerializeToUtf8Bytes(document with
         {
-            Version = MotherBrainRoomColorFormat.PreRecoveryLightsVersion,
+            Version = MotherBrainRoomColorFormatConstants.PreRecoveryLightsVersion,
             RecoveryLights = null,
         }, ArtworkJson.Options);
         File.WriteAllBytes(replacement, previousVersion);
@@ -152,7 +152,7 @@ internal static class MotherBrainRoomColorsVerification
             "version-two override keeps its edited room-entry colors");
         byte[] legacy = JsonSerializer.SerializeToUtf8Bytes(document with
         {
-            Version = MotherBrainRoomColorFormat.PreRoomEntryVersion,
+            Version = MotherBrainRoomColorFormatConstants.PreRoomEntryVersion,
             InitialGlassShard = null,
             InitialTubeProjectile = null,
             RecoveryLights = null,

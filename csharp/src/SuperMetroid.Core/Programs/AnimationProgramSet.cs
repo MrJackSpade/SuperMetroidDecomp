@@ -4,10 +4,16 @@ namespace SuperMetroid.Core.Programs;
 /// A family of typed animation programs that jump into one another (#641): frames with durations, cues whose
 /// handlers may redirect to another program, gotos, fall-through into the next authored program, waits, counted
 /// repeats, holds and stops. Owners keep the cartridge's timer gate themselves, so a frame shown here lasts exactly
-/// as long as the native frame did. Use <see cref="AnimationTimeline{TFrame, TCue}"/> for a self-contained animation.
+/// as long as the native frame did. A self-contained looping animation is one program that goes to its own start.
 /// </summary>
+/// <typeparam name="TProgram">
+/// The family's program identity: an enum, whose every member must be a program, or a value type naming its programs
+/// by the keys given, such as a program kind with a facing.
+/// </typeparam>
+/// <typeparam name="TFrame">The family's frame identity.</typeparam>
+/// <typeparam name="TCue">The family's cue type.</typeparam>
 internal sealed class AnimationProgramSet<TProgram, TFrame, TCue>
-    where TProgram : struct, Enum
+    where TProgram : struct
     where TFrame : struct
     where TCue : notnull
 {
@@ -21,13 +27,16 @@ internal sealed class AnimationProgramSet<TProgram, TFrame, TCue>
     internal bool CountsLoops { get; }
 
     /// <summary>
-    /// Creates a set; every program of <typeparamref name="TProgram"/> must be present and end in a hold, stop, goto
-    /// or fall-through, and only those steps may end a program.
+    /// Creates a set; every program must end in a hold, stop, goto or fall-through, and only those steps may end a
+    /// program. When <typeparamref name="TProgram"/> is an enum, every member must be present.
     /// </summary>
     internal AnimationProgramSet(IReadOnlyDictionary<TProgram, AnimationProgramStep<TProgram, TFrame, TCue>[]> programs)
     {
         Ensure.NotNull(programs);
-        foreach (TProgram program in Enum.GetValues<TProgram>())
+        IEnumerable<TProgram> required = typeof(TProgram).IsEnum
+            ? Enum.GetValues(typeof(TProgram)).Cast<TProgram>()
+            : programs.Keys;
+        foreach (TProgram program in required)
         {
             if (!programs.TryGetValue(program, out var steps) || steps.Length == 0)
                 throw new ArgumentException($"Animation program {program} has no steps.", nameof(programs));
@@ -61,6 +70,24 @@ internal sealed class AnimationProgramSet<TProgram, TFrame, TCue>
     }
 
     /// <summary>
+    /// Runs from <paramref name="cursor"/> for an owner that keeps no loop counter, which a set without counted loops
+    /// never reads. Each cue goes to <paramref name="publish"/>, which carries it out.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">The set counts loops, so its owner must keep the counter.</exception>
+    internal AnimationProgramAdvance<TFrame> Advance(ref AnimationProgramCursor<TProgram> cursor, Action<TCue> publish)
+    {
+        Ensure.NotNull(publish);
+        if (CountsLoops)
+            throw new InvalidOperationException("This program set counts loops; its owner must keep the loop counter.");
+        NativeCountdown counter = default;
+        return Advance(ref cursor, ref counter, (cue, _) =>
+        {
+            publish(cue);
+            return null;
+        });
+    }
+
+    /// <summary>
     /// Runs from <paramref name="cursor"/> until a frame is shown, a wait begins, or a program holds or stops. Each
     /// cue goes to <paramref name="publish"/> with the cursor just past it; a program it returns starts at once.
     /// Counter steps load and count down <paramref name="counter"/>, the owner's native loop timer. On return
@@ -77,7 +104,7 @@ internal sealed class AnimationProgramSet<TProgram, TFrame, TCue>
     }
 
     /// <summary>
-    /// Like <see cref="Advance"/>, but a cue may resume anywhere: <paramref name="publish"/> returns the cursor the
+    /// Like <see cref="Advance(ref AnimationProgramCursor{TProgram}, ref NativeCountdown, Func{TCue, AnimationProgramCursor{TProgram}, TProgram?})"/>, but a cue may resume anywhere: <paramref name="publish"/> returns the cursor the
     /// program continues at, as a native return to a saved instruction pointer does, or null to run on.
     /// </summary>
     internal AnimationProgramAdvance<TFrame> AdvanceTo(

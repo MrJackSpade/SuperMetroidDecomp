@@ -41,7 +41,7 @@ internal sealed class MenuHeadingBorderDefinitions(string heading) : IReadOnlyLi
     /// <summary>Perimeter OAM parts for both horizontal edges and the two vertical sides.</summary>
     public int Count => 2 * (Columns + Rows - 2);
     /// <summary>Calculates an indexed glyph or border cell in native heading traversal order.</summary>
-    private (int Column, int Row) Position(int index)
+    private MenuHeadingCell Position(int index)
     {
         bool primary = heading == "Heading.Primary";
         bool fileSelect = heading.StartsWith("Border.", StringComparison.Ordinal);
@@ -50,27 +50,27 @@ internal sealed class MenuHeadingBorderDefinitions(string heading) : IReadOnlyLi
             bool clear = heading == "Border.Clear";
             if (clear)
             {
-                if (index < 2) return (OuterRunLength + 1, index == 0 ? 0 : Rows - 1);
+                if (index < 2) return new(OuterRunLength + 1, index == 0 ? 0 : Rows - 1);
                 index -= 2;
             }
             if (heading != "Border.Main")
             {
                 if (index < 8)
-                    return (OuterRunLength + 1 + (clear ? 1 : 0) + (index % 4 + 2) % 4,
+                    return new(OuterRunLength + 1 + (clear ? 1 : 0) + (index % 4 + 2) % 4,
                         index < 4 ? Rows - 1 : 0);
                 index -= 8;
             }
         }
         else if (primary)
         {
-            if (index < 4) return (OuterRunLength + 1 - index / 2, index % 2 == 0 ? Rows - 1 : 0);
+            if (index < 4) return new(OuterRunLength + 1 - index / 2, index % 2 == 0 ? Rows - 1 : 0);
             index -= 4;
         }
         else
         {
             ReadOnlySpan<byte> center = heading == "Heading.Controller" ? ControllerCenter : SpecialCenter;
             if (index < center.Length * 2)
-                return (OuterRunLength + 3 + center[index % center.Length], index < center.Length ? Rows - 1 : 0);
+                return new(OuterRunLength + 3 + center[index % center.Length], index < center.Length ? Rows - 1 : 0);
             index -= center.Length * 2;
             if (index < 10)
             {
@@ -78,11 +78,11 @@ internal sealed class MenuHeadingBorderDefinitions(string heading) : IReadOnlyLi
                 int rightOuter = Columns - OuterRunLength - 2, rightInner = rightOuter - 1, rightNear = rightOuter - 2;
                 return index switch
                 {
-                    0 => (leftOuter, 0), 1 => (leftOuter, Rows - 1),
-                    2 => (rightInner, Rows - 1), 3 => (rightOuter, Rows - 1),
-                    4 => (leftInner, Rows - 1), 5 => (rightNear, Rows - 1),
-                    6 => (rightInner, 0), 7 => (rightOuter, 0),
-                    8 => (leftInner, 0), _ => (rightNear, 0),
+                    0 => new(leftOuter, 0), 1 => new(leftOuter, Rows - 1),
+                    2 => new(rightInner, Rows - 1), 3 => new(rightOuter, Rows - 1),
+                    4 => new(leftInner, Rows - 1), 5 => new(rightNear, Rows - 1),
+                    6 => new(rightInner, 0), 7 => new(rightOuter, 0),
+                    8 => new(leftInner, 0), _ => new(rightNear, 0),
                 };
             }
             index -= 10;
@@ -90,19 +90,19 @@ internal sealed class MenuHeadingBorderDefinitions(string heading) : IReadOnlyLi
         if (index < 8)
             return index switch
             {
-                0 => (0, Rows - 2), 1 => (0, 1),
-                2 => (Columns - 1, Rows - 2), 3 => (Columns - 1, 1),
-                4 => (Columns - 1, Rows - 1), 5 => (0, Rows - 1),
-                6 => (Columns - 1, 0), _ => (0, 0),
+                0 => new(0, Rows - 2), 1 => new(0, 1),
+                2 => new(Columns - 1, Rows - 2), 3 => new(Columns - 1, 1),
+                4 => new(Columns - 1, Rows - 1), 5 => new(0, Rows - 1),
+                6 => new(Columns - 1, 0), _ => new(0, 0),
             };
         index -= 8;
         int leftLength = OuterRunLength - (primary ? 1 : 0);
-        if (index < leftLength) return (leftLength - index, Rows - 1);
+        if (index < leftLength) return new(leftLength - index, Rows - 1);
         index -= leftLength;
         if (index < OuterRunLength * 2)
-            return (Columns - 2 - index % OuterRunLength, index < OuterRunLength ? Rows - 1 : 0);
+            return new(Columns - 2 - index % OuterRunLength, index < OuterRunLength ? Rows - 1 : 0);
         index -= OuterRunLength * 2;
-        return (leftLength - index, 0);
+        return new(leftLength - index, 0);
     }
     /// <summary>Builds one OAM part from the selected border cell and its atlas tile.</summary>
     public CompiledSpritePart this[int index]

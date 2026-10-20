@@ -61,8 +61,8 @@ public static class SamusGrappleMovement
         grapple.FireDirection = (SamusProjectileDirection)direction;
         grapple.PoseChangeAutoFireTimer = NativeCountdown.Start(SamusGrappleRomData.Firing.PoseChangeAutoFireFrames);
         var launch = GrappleFiringDefinitions.Launch(direction);
-        grapple.ExtensionVelocity = new(launch.XVelocity, launch.YVelocity);
-        grapple.Angle = SnesAngle.FromRaw(launch.Angle);
+        grapple.ExtensionVelocity = launch.Velocity;
+        grapple.Angle = launch.Angle;
         grapple.MirroredAngle = grapple.Angle;
 
         // `$9B:C4F0` selects run offsets solely for movement type one. Moonwalking is

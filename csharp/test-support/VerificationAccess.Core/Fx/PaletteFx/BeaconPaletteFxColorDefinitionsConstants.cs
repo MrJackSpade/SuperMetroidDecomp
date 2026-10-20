@@ -23,4 +23,6 @@ internal static class BeaconPaletteFxColorDefinitionsConstants
     public const ushort ColorByteIndex = 0x00e2;
     /// <summary>Colour <paramref name="color"/> of record <paramref name="frame"/>.</summary>
     public static PaletteFxColorKey Color(int frame, int color) => BeaconPaletteFxColorDefinitions.Rows.Color(frame, color);
+    /// <summary>Ten ten-frame records form one complete flash cycle.</summary>
+    public static int FrameCount => BeaconPaletteFxColorDefinitions.Rows.FrameCount;
 }

@@ -1246,7 +1246,7 @@ internal static class LookupStream5Verification
                 unchecked((short)ReadVerificationWord(rom, 0xa890d2 + direction * 2)),
                 ReadVerificationWord(rom, 0xa890da + direction * 2));
             var mount = MorphBallEyeGeometryDefinitions.Mount(direction);
-            AssertEqual(expected, (mount.X, mount.Y, NativeEnemyProgramOracle.EntryOf(MorphBallEyeNativeListAddresses.Entries, mount.Program)),
+            AssertEqual(expected, (mount.Offset.X, mount.Offset.Y, NativeEnemyProgramOracle.EntryOf(MorphBallEyeNativeListAddresses.Entries, mount.Program)),
                 "Native directional mount tuple");
             foreach (ushort origin in new ushort[] { 0, 65535 })
             {
@@ -1368,7 +1368,7 @@ internal static class LookupStream5Verification
                 int source = Word(native + 2) - 0xc000;
                 int destination = Word(native + 5) - 0x2000;
                 int length = Word(native + 8) + 1;
-                AssertEqual((source, destination, length),
+                AssertEqual(new CorpseGraphicsCopy(source, destination, length),
                     DeadMonsterRottingDefinitions.SidehopperInitialCopy(variant, row), "Native Sidehopper MVN geometry");
                 ReadSidehopperCorpseRomBytes(rom, 0xb7c000 + source, length).CopyTo(expected, destination);
             }
@@ -1465,8 +1465,8 @@ internal static class LookupStream5Verification
         {
             var placement = PhantoonPatternDefinitions.RainPlacement(i);
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa7cdad + i * 8)), placement.Cursor, "Native rain figure-eight cursor");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa7cdaf + i * 8)), placement.X, "Native rain body X");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa7cdb1 + i * 8)), placement.Y, "Native rain body Y");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa7cdaf + i * 8)), placement.Position.X, "Native rain body X");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa7cdb1 + i * 8)), placement.Position.Y, "Native rain body Y");
             AssertEqual((ushort)0, CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa7cdb3 + i * 8)), "Native unused rain record word");
             AssertEqual(rom.ReadCartridgeByte(0xa7cfc2 + i), PhantoonPatternDefinitions.FirstRainColumns[i], "Native first rain column");
         }

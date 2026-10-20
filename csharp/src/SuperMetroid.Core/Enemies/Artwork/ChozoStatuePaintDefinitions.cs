@@ -35,7 +35,7 @@ internal static class ChozoStatuePaintDefinitions
         1 => Pack(31, 25, 24),
         2 => Pack(31, 20, 18),
         3 => Pack(31, 14, 11),
-        >= 8 and <= 11 => Ramp((31, 31, 9), (6, 6, 0), local - 8, 3),
+        >= 8 and <= 11 => Ramp(new Bgr555(31, 31, 9), new Bgr555(6, 6, 0), local - 8, 3),
         12 => Pack(31, 31, 15),
         13 => Pack(25, 25, 10),
         _ => null,
@@ -45,8 +45,8 @@ internal static class ChozoStatuePaintDefinitions
     private static Bgr555 WreckedShip(int local, bool second) => local switch
     {
         >= 4 and <= 7 => second
-            ? Ramp((16, 16, 16), (4, 4, 4), local - 4, 3)
-            : Ramp((25, 25, 25), (6, 6, 6), local - 4, 3),
+            ? Ramp(new Bgr555(16, 16, 16), new Bgr555(4, 4, 4), local - 4, 3)
+            : Ramp(new Bgr555(25, 25, 25), new Bgr555(6, 6, 6), local - 4, 3),
         14 => second ? Pack(20, 20, 20) : Pack(31, 31, 31),
         15 => Bgr555.Black,
         _ => throw new ArgumentOutOfRangeException(nameof(local)),
@@ -72,7 +72,7 @@ internal static class ChozoStatuePaintDefinitions
     }
 
     /// <summary>Interpolates each RGB5 channel between authored material endpoints with nearest-integer rounding.</summary>
-    private static Bgr555 Ramp((int Red, int Green, int Blue) start, (int Red, int Green, int Blue) end, int step, int steps) =>
+    private static Bgr555 Ramp(Bgr555 start, Bgr555 end, int step, int steps) =>
         Pack(Nearest(start.Red, end.Red, step, steps), Nearest(start.Green, end.Green, step, steps),
             Nearest(start.Blue, end.Blue, step, steps));
 

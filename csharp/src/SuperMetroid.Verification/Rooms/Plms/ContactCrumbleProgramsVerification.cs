@@ -83,18 +83,18 @@ internal static class ContactCrumbleProgramsVerification
     private static void VerifyContactCrumbleRestorationMapping(SuperMetroidAddressSpace rom)
     {
         ushort[] pointers = [0xa4a1, 0xa4a9, 0xa4b1];
-        AssertTrue(pointers.SequenceEqual(RoomPlmContactCrumbleRestoreDrawDefinitions.All.Select(draw => draw.Pointer)),
+        AssertTrue(pointers.SequenceEqual(RoomPlmLinkedRestoreDefinition.ContactCrumble.All.Select(draw => draw.Pointer)),
             "contact restoration export order matches native layouts");
         for (int pointer = 0; pointer <= ushort.MaxValue; pointer++)
         {
             bool expected = pointers.Contains((ushort)pointer);
-            bool found = RoomPlmContactCrumbleRestoreDrawDefinitions.TryDescribe((ushort)pointer, out var draw);
-            bool exported = RoomPlmContactCrumbleRestoreDrawDefinitions.TryGet((ushort)pointer, out var list);
+            bool found = RoomPlmLinkedRestoreDefinition.ContactCrumble.TryDescribe((ushort)pointer, out var draw);
+            bool exported = RoomPlmLinkedRestoreDefinition.ContactCrumble.TryGet((ushort)pointer, out var list);
             AssertEqual(expected, found, "contact restoration full native pointer domain");
             AssertEqual(expected, exported, "contact restoration export pointer domain");
             if (!found)
             {
-                AssertEqual(default(RoomPlmContactCrumbleRestoreDrawDefinitions.Draw), draw, "missing restoration descriptor cleared");
+                AssertEqual(default(RoomPlmLinkedRestoreDefinition.Draw), draw, "missing restoration descriptor cleared");
                 AssertEqual(default(RoomPlmShotBlockDrawDefinitions.DrawList), list, "missing restoration export cleared");
                 continue;
             }

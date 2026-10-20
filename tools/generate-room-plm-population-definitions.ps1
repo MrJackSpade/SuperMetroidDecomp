@@ -81,7 +81,7 @@ public static class PlmHeaderGenerationProcessPolicy {
             }
             if (-not $headerNames.ContainsKey($header)) { throw ('Retail header {0:X4} lacks a domain name.' -f $header) }
             $argument = [int]$rom[$offset + 4] -bor ([int]$rom[$offset + 5] -shl 8)
-            $lines.Add(('        (PlmHeaderId.{0}, {1}, {2}, 0x{3:X4}),' -f $headerNames[$header], $rom[$offset + 2], $rom[$offset + 3], $argument))
+            $lines.Add(('        new(PlmHeaderId.{0}, new({1}, {2}), 0x{3:X4}),' -f $headerNames[$header], $rom[$offset + 2], $rom[$offset + 3], $argument))
             $offset += 6
         }
         $recordTotal += $count

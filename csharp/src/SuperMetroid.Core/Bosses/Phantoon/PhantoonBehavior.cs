@@ -1252,7 +1252,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
         ushort pattern = unchecked((ushort)(_room.Random.Generate() & 7));
         var placement = PhantoonPatternDefinitions.RainPlacement(pattern);
         state.Parts[body.SlotIndex].PathCursor = placement.Cursor;
-        body.Position = body.Position.WithWhole(new(placement.X, placement.Y));
+        body.Position = body.Position.WithWhole(placement.Position);
         state.Parts[state.Eye.SlotIndex].FigureEightReversed = false;
         state.Parts[body.SlotIndex].Function = PhantoonAiFunction.BecomeSolidAfterFlameRain;
         SpawnPhantoonFlameRain(body, pattern);
@@ -1564,17 +1564,17 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
 
         RoomEnemySlot tentacles = state.Tentacles;
-        var (xOffset, yOffset, explosionType, delay) = PhantoonDeathExplosionDefinitions.Read(state.Parts[tentacles.SlotIndex].ExplosionIndex);
-        state.Parts[body.SlotIndex].FunctionTimer = delay;
-        ushort x = unchecked((ushort)(body.Position.X.Whole + xOffset));
-        ushort y = unchecked((ushort)(body.Position.Y.Whole + yOffset));
+        PhantoonDeathExplosionDefinition explosion = PhantoonDeathExplosionDefinitions.Read(state.Parts[tentacles.SlotIndex].ExplosionIndex);
+        state.Parts[body.SlotIndex].FunctionTimer = explosion.Delay;
+        ushort x = unchecked((ushort)(body.Position.X.Whole + explosion.Offset.X));
+        ushort y = unchecked((ushort)(body.Position.Y.Whole + explosion.Offset.Y));
 
         int before = _projectiles.EnemyProjectiles.Count(projectile => projectile.IsActive);
         state.DeathExplosionRequests++;
-        _projectiles.SpawnRoomGraphicsDustExplosion(new(x, y), explosionType);
+        _projectiles.SpawnRoomGraphicsDustExplosion(new(x, y), explosion.Type);
         if (_projectiles.EnemyProjectiles.Count(projectile => projectile.IsActive) > before)
             state.DeathExplosionsSpawned++;
-        state.LastCombatSoundEffect = explosionType == MiscDustAnimation.BigExplosion
+        state.LastCombatSoundEffect = explosion.Type == MiscDustAnimation.BigExplosion
             ? PhantoonSoundDefinitions.BigDeathExplosionSound
             : PhantoonSoundDefinitions.DeathExplosionSound;
 

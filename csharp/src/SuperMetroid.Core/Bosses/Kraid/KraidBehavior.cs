@@ -887,7 +887,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Places a mouth shape's left, top and bottom edges at Kraid's body position, wrapping as the cartridge does.</summary>
     internal static KraidCollisionScratch LoadKraidCollisionScratch(
-        RoomEnemySlot body, (short Left, short Top, short Bottom) shape)
+        RoomEnemySlot body, KraidMouthCollisionEdges shape)
     {
         (short left, short top, short bottom) = shape;
         return new()
@@ -1992,9 +1992,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
         int siblingIndex = nail.SlotIndex == 6 ? 7 : 6;
         KraidPartState siblingPart = RequireKraidState(nail).Parts[siblingIndex];
         int random = _room.Random.Read();
-        (ushort xFraction, ushort xWhole, ushort yFraction, ushort yWhole) =
-            KraidNailLaunchDefinitions.FromSiblingVelocity(siblingPart.NailVelocity.Y.WholeWord);
-        part.NailVelocity = FixedVector<RoomPixels>.FromWords(xWhole, xFraction, yWhole, yFraction);
+        part.NailVelocity = KraidNailLaunchDefinitions.FromSiblingVelocity(siblingPart.NailVelocity.Y.WholeWord);
         part.NailLaunched = true;
         nail.Properties = nail.Properties.Without(
             EnemyProperties.IgnoreSamusCollision | EnemyProperties.Invisible);

@@ -21,13 +21,13 @@ public static class PostCreditsIconGlarePaletteFxColorDefinitions
 {
 
     /// <summary>The one-shot glare contains fourteen timed records.</summary>
-    public const int FrameCount = 14;
+    public static int FrameCount => Rows.FrameCount;
 
     /// <summary>Each record writes sixteen live BGR555 colors.</summary>
     public const int ColorsPerFrame = 16;
 
     /// <summary>The family's records, consecutive from the first its program shows, and the colours each writes.</summary>
-    public static PaletteFxColorRows Rows { get; } = new(265, FrameCount, ColorsPerFrame);
+    public static PaletteFxColorRows Rows { get; } = PaletteFxColorRows.Of(PaletteFxProgram.PostCreditsSuperMetroidIconGlare, ColorsPerFrame);
 
     /// <summary>Colour <paramref name="color"/> of record <paramref name="frame"/>.</summary>
     public static PaletteFxColorKey Color(int frame, int color) => Rows.Color(frame, color);

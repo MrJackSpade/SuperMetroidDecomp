@@ -9,4 +9,9 @@ internal enum BotwoonSegmentProgramKind
     Tail,
     /// <summary>A link or tail inside the wall: nothing drawn (<c>InstList_EnemyProjectile_BotwoonsBodyTail_Hidden</c>).</summary>
     Hidden,
+    /// <summary>
+    /// Not a segment: a spit, which runs the same projectile animation through its cycling frames
+    /// (<c>InstList_EnemyProjectile_BotwoonsSpit</c>).
+    /// </summary>
+    Spit,
 }

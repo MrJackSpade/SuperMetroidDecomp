@@ -16,8 +16,6 @@ namespace SuperMetroid.Core.Samus.Movement;
 /// </remarks>
 internal static class SamusRunningCadenceDefinitions
 {
-    /// <summary>$91:B5D1 AnimationDelayTable_Running_NoSpeedBooster_pointer selects ten two-tick frames and a loop command.</summary>
-    private const int OrdinaryPointer = 0x91b5d1;
     /// <summary>$91:B5D3 AnimationDelayTable_Running_NoSpeedBooster, eleven cadence/command bytes.</summary>
     private const int OrdinaryDelays = 0x91b5d3;
     /// <summary>$91:B5DE AnimationDelayTable_Running_SpeedBooster_pointers, five native bank-$91 pointers.</summary>
@@ -26,11 +24,6 @@ internal static class SamusRunningCadenceDefinitions
     private const int BoostDelays = 0x91b5e8;
     /// <summary>$91:B61F SpeedBoostTimerResetValues: stages zero through three reset to one, stage four to two.</summary>
     private const int ResetWords = 0x91b61f;
-    /// <summary>
-    /// `$91:B629-$B62A` are the two zero bytes observed when the native echo-sound call
-    /// returns admitted queue occupancy five and the reset lookup crosses into pose zero.
-    /// </summary>
-    private const int SoundQueueStageFiveResetWord = 0x91b629;
     /// <summary>Each native running cadence stream has ten frames followed by the $FF loop instruction.</summary>
     private const int StreamLength = 11;
     /// <summary>
@@ -90,10 +83,10 @@ internal static class SamusRunningCadenceDefinitions
     /// <summary>The two compiled 16-bit words outside the cadence streams and reset table, valued by address.</summary>
     private enum StandaloneWord
     {
-        /// <summary>$91:B5D1, the ordinary cadence list pointer.</summary>
-        OrdinaryPointer = SamusRunningCadenceDefinitions.OrdinaryPointer,
-        /// <summary>$91:B629, the zero word read by the stage-five reset lookup.</summary>
-        SoundQueueStageFiveReset = SoundQueueStageFiveResetWord,
+        /// <summary>$91:B5D1, AnimationDelayTable_Running_NoSpeedBooster_pointer: selects ten two-tick frames and a loop command.</summary>
+        OrdinaryPointer = 0x91b5d1,
+        /// <summary>$91:B629-$B62A, the two zero bytes read when the native echo-sound call returns admitted queue occupancy five and the reset lookup crosses into pose zero.</summary>
+        SoundQueueStageFiveReset = 0x91b629,
     }
 
     /// <summary>Decodes the ordinary-list pointer or stage-five zero reset word outside the cadence streams.</summary>

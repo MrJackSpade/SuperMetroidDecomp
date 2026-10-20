@@ -9,9 +9,6 @@ namespace SuperMetroid.Core.Fx.PaletteFx;
 public static class OldTourianEscapeAccentPaletteFxColorDefinitions
 {
 
-    /// <summary>Both loops contain fifteen timed records.</summary>
-    public const int FrameCount = 15;
-
     /// <summary>Each record writes three live BGR555 colors.</summary>
     public const int ColorsPerFrame = 3;
 
@@ -22,7 +19,7 @@ public static class OldTourianEscapeAccentPaletteFxColorDefinitions
     /// <summary>The orange-railing and yellow-panel programs in definition order, projecting the two palette destinations onto their separate but rhythm-matched lists.</summary>
     public static IReadOnlyList<OldTourianEscapeAccentPaletteFxColorDefinition> All { get; } =
     [
-        new(OldTourianEscapeAccentPaletteOwner.OrangeRailings, PaletteFxObject.OldTourianBackgroundRailingsFlashYellow, 581, RailingsColorByteIndex),
-        new(OldTourianEscapeAccentPaletteOwner.YellowPanels, PaletteFxObject.OldTourianBackgroundPanelsFlashYellow, 596, PanelsColorByteIndex),
+        new(OldTourianEscapeAccentPaletteOwner.OrangeRailings, PaletteFxObject.OldTourianBackgroundRailingsFlashYellow, PaletteFxProgram.Crateria101, RailingsColorByteIndex),
+        new(OldTourianEscapeAccentPaletteOwner.YellowPanels, PaletteFxObject.OldTourianBackgroundPanelsFlashYellow, PaletteFxProgram.Crateria201, PanelsColorByteIndex),
     ];
 }

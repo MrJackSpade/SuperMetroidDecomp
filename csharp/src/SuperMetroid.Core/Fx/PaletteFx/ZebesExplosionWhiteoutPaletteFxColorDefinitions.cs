@@ -21,12 +21,9 @@ namespace SuperMetroid.Core.Fx.PaletteFx;
 public static class ZebesExplosionWhiteoutPaletteFxColorDefinitions
 {
 
-    /// <summary>The shared one-shot ramp contains fifteen timed records.</summary>
-    public const int FrameCount = 15;
-
     /// <summary>Each record writes one live BGR555 color.</summary>
     public const int ColorsPerFrame = 1;
 
     /// <summary>The family's records, consecutive from the first its program shows, and the colours each writes.</summary>
-    public static PaletteFxColorRows Rows { get; } = new(154, FrameCount, ColorsPerFrame);
+    public static PaletteFxColorRows Rows { get; } = PaletteFxColorRows.Of(PaletteFxProgram.CommonZebesExplosion, ColorsPerFrame);
 }

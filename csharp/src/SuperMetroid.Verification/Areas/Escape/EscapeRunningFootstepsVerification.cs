@@ -38,7 +38,7 @@ internal static class EscapeRunningFootstepsVerification
 
             // Begin at the identified native timer-handoff phase, not a boss playthrough.
             var sequence = new MotherBrainRainbowBeamAttackSequence();
-            sequence.Phase = MotherBrainRainbowBeamAttackPhase.Phase3DeathSequenceDoorExplodingStartTimer;
+            sequence.Phase = MotherBrainBodyFunction.ThirdPhaseDeathDoorExplodingStartTimer;
             var request = sequence.Step(samus, new RainbowBeamAttackFrame { EnemyFrameCounter = 0, MainEnemyExecutionCounter = 0, NextRandomNumber = () => 0 });
             AssertTrue(request.TimerHandlingEnableRequested && request.MotherBrainEscapeTimerStartRequested,
                 "native death phase emits command F and timer start together");

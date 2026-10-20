@@ -7,14 +7,14 @@ public sealed class TourianEscapeRedFlashPaletteFxColorDefinition
     internal TourianEscapeRedFlashPaletteFxColorDefinition(
         TourianEscapeRedFlashPaletteOwner owner,
         PaletteFxObject paletteFxObject,
-        int firstRecord,
+        PaletteFxProgram program,
         ushort colorByteIndex,
         ushort duration,
         int colorsPerFrame)
     {
         Owner = owner;
         Object = paletteFxObject;
-        Rows = new(firstRecord, TourianEscapeRedFlashPaletteFxColorDefinitions.FrameCount, colorsPerFrame);
+        Rows = PaletteFxColorRows.Of(program, colorsPerFrame);
         ColorByteIndex = colorByteIndex;
         Duration = duration;
         ColorsPerFrame = colorsPerFrame;

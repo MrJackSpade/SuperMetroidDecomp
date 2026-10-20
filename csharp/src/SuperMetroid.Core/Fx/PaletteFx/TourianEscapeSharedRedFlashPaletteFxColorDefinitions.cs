@@ -9,12 +9,9 @@ namespace SuperMetroid.Core.Fx.PaletteFx;
 public static class TourianEscapeSharedRedFlashPaletteFxColorDefinitions
 {
 
-    /// <summary>The shared loop contains fourteen records.</summary>
-    public const int FrameCount = 14;
-
     /// <summary>Each record writes seven live BGR555 colors.</summary>
     public const int ColorsPerFrame = 7;
 
     /// <summary>The family's records, consecutive from the first its program shows, and the colours each writes.</summary>
-    public static PaletteFxColorRows Rows { get; } = new(553, FrameCount, ColorsPerFrame);
+    public static PaletteFxColorRows Rows { get; } = PaletteFxColorRows.Of(PaletteFxProgram.CommonTourian20Tourian40, ColorsPerFrame);
 }

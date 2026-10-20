@@ -620,10 +620,10 @@ public static class SnesGameplayFrameRenderer
         Array.Fill(windows, ColorAddWindow.Empty);
         for (int y = HudHeight; y < Height; y++)
         {
-            (byte red, byte green, byte blue) = CeresHazeRenderDefinitions.ResolveComponents(
+            Bgr555 haze = CeresHazeRenderDefinitions.ResolveComponents(
                 y, intensity, ridleyIsDead, colors);
-            windows[y] = new(0, Width - 1, ExpandFiveBit(red),
-                ExpandFiveBit(green), ExpandFiveBit(blue));
+            windows[y] = new(0, Width - 1, ExpandFiveBit(haze.Red),
+                ExpandFiveBit(haze.Green), ExpandFiveBit(haze.Blue));
         }
         return new(windows);
     }

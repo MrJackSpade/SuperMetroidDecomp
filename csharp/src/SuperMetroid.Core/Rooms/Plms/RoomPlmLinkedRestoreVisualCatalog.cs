@@ -62,16 +62,10 @@ public sealed class RoomPlmLinkedRestoreVisualCatalog
     /// </summary>
     private static bool Describe(ushort pointer, out int runs, out ushort stockWord)
     {
-        if (RoomPlmBombBlockRestoreDrawDefinitions.TryDescribe(pointer, out var bomb))
+        if (RoomPlmLinkedRestoreDefinition.TryDescribeAny(pointer, out var draw))
         {
-            runs = bomb.RunCount;
-            stockWord = new RoomLevelWord(bomb.WordAt(0, 0)).VisualWord;
-            return true;
-        }
-        if (RoomPlmContactCrumbleRestoreDrawDefinitions.TryDescribe(pointer, out var crumble))
-        {
-            runs = crumble.RunCount;
-            stockWord = new RoomLevelWord(crumble.WordAt(0, 0)).VisualWord;
+            runs = draw.RunCount;
+            stockWord = new RoomLevelWord(draw.WordAt(0, 0)).VisualWord;
             return true;
         }
         runs = 0;

@@ -1735,9 +1735,9 @@ internal static class TorizoAnimations
     /// </summary>
     internal static TorizoBodyProgram AfterSleep(TorizoBodyProgram program) => program switch
     {
-        P.BombTorizoInitial0 => P.BombTorizoInitial0Resumed,
-        P.FacingLeftFacelessWalkingLeftLegMovingTrailing => P.FacingLeftFacelessWalkingLeftLegMovingTrailingResumed,
-        P.GoldenInitial0 => P.GoldenInitial0Resumed,
+        P.BombTorizoInitial0
+            or P.FacingLeftFacelessWalkingLeftLegMovingTrailing
+            or P.GoldenInitial0 => EnumOrder.Next(program),
         P.SpecialCallableBlowUpBombTorizosGut or
             P.CallableBlowUpBombTorizosFace or
             P.DeathSequence0 or

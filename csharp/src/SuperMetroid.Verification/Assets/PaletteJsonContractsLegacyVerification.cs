@@ -29,7 +29,7 @@ internal static class PaletteJsonContractsLegacyVerification
         JsonObject effects = documents["room effects"];
         var effectsStock = ReadPaletteContract(effects, json => RoomPaletteFxPresentation.Load(json));
         var oldEffects = (JsonObject)effects.DeepClone();
-        oldEffects["version"] = RoomPaletteFxPresentationFormat.PreviousVersion;
+        oldEffects["version"] = RoomPaletteFxPresentationFormatConstants.PreviousVersion;
         foreach (string field in new[] { "samusHeatPowerSuit", "samusHeatVariaSuit", "samusHeatGravitySuit" }) oldEffects.Remove(field);
         var editedColor = (JsonObject)oldEffects.Required("norfairForegroundPalette4").Required(0).Required(0);
         editedColor["red"] = (editedColor.Required("red").GetValue<int>() + 1) % 32;
@@ -52,12 +52,12 @@ internal static class PaletteJsonContractsLegacyVerification
 
         JsonObject room = documents["Mother Brain room"];
         var roomStock = ReadPaletteContract(room, json => MotherBrainRoomColorPresentation.Load(json));
-        foreach (int version in new[] { MotherBrainRoomColorFormat.PreRoomEntryVersion, MotherBrainRoomColorFormat.PreRecoveryLightsVersion })
+        foreach (int version in new[] { MotherBrainRoomColorFormatConstants.PreRoomEntryVersion, MotherBrainRoomColorFormatConstants.PreRecoveryLightsVersion })
         {
             var oldRoom = (JsonObject)room.DeepClone();
             oldRoom["version"] = version;
             oldRoom.Remove("recoveryLights");
-            if (version == MotherBrainRoomColorFormat.PreRoomEntryVersion)
+            if (version == MotherBrainRoomColorFormatConstants.PreRoomEntryVersion)
             { oldRoom.Remove("initialGlassShard"); oldRoom.Remove("initialTubeProjectile"); }
             ((JsonObject)oldRoom.Required("finalRoom").Required(0))["red"] = 31;
             AssertThrows<InvalidDataException>(() => ReadPaletteContract(oldRoom, json => MotherBrainRoomColorPresentation.Load(json)),

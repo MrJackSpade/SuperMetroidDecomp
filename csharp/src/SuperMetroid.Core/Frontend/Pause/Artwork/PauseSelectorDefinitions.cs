@@ -27,12 +27,12 @@ public static class PauseSelectorDefinitions
     public const int Bank = 0x820000;
     /// <summary>Enumerates every editable selector anchor in native category/item order: two reserve controls, five beams, six suit/miscellaneous items, and three boots; does not alter navigation or eligibility.</summary>
     /// <returns>Sixteen tuples containing the compiled category, item index, and stable asset anchor name.</returns>
-    public static IEnumerable<(PauseEquipmentCategory Category, int Item, string Name)> Anchors()
+    public static IEnumerable<PauseSelectorAnchor> Anchors()
     {
         foreach (PauseEquipmentCategory category in Enum.GetValues<PauseEquipmentCategory>())
         {
             int count = category == PauseEquipmentCategory.Reserves ? 2 : PauseEquipmentCategories.Get(category).ItemCount;
-            for (int item = 0; item < count; item++) yield return (category, item, Anchor(category, item));
+            for (int item = 0; item < count; item++) yield return new(category, item, Anchor(category, item));
         }
     }
     /// <summary>Names the selected native equipment control rather than indexing a name table.</summary>

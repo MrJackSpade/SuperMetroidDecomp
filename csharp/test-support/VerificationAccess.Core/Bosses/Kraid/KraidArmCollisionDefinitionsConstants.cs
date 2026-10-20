@@ -1,4 +1,3 @@
-
 namespace SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>Cartridge values of <see cref="KraidArmCollisionDefinitions"/> that only verification reads.</summary>
@@ -13,4 +12,6 @@ internal static class KraidArmCollisionDefinitionsConstants
         /// <inheritdoc cref="KraidArmCollisionDefinitionsConstants.FrameCount"/>
         internal static int FrameCount => KraidArmCollisionDefinitionsConstants.FrameCount;
     }
+    /// <summary>$A7:92A1, ExtendedSpritemap_KraidArm_Dying_PreparingToLungeForward_0.</summary>
+    internal const ushort FirstSingleComponentFrame = (ushort)KraidArmCollisionDefinitions.SingleComponentFrame.First;
 }

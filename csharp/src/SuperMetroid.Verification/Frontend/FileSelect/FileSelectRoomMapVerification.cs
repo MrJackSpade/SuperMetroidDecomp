@@ -308,7 +308,7 @@ internal static class FileSelectRoomMapVerification
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var saves = new SuperMetroid.Core.Saves.SaveSlotStore(RetailPresentationFixture());
         var snapshot = new SuperMetroidSaveSnapshot { Area = savedArea, SaveStation = 0, Health = 99, MaxHealth = 99,
-            LoadingGameState = savedArea == 6 ? SaveLoadingGameStates.CeresElevatorArrival : SaveLoadingGameStates.MainGame };
+            LoadingGameState = savedArea == 6 ? SaveLoadingGameStateCodec.Word(SaveLoadingGameState.CeresElevatorArrival) : SaveLoadingGameStateCodec.Word(SaveLoadingGameState.MainGame) };
         snapshot.UsedSaveStationBytes[savedArea * 2] = 1;
         if (savedArea < 6)
         {

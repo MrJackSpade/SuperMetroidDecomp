@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Programs;
 /// <param name="Target">The program a goto, fall-through or repeat continues at.</param>
 internal readonly record struct AnimationProgramStep<TProgram, TFrame, TCue>(
     AnimationProgramStepKind Kind, TFrame Frame, int Duration, TCue? Cue, TProgram Target)
-    where TProgram : struct, Enum
+    where TProgram : struct
     where TFrame : struct
     where TCue : notnull
 {

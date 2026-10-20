@@ -93,7 +93,7 @@ internal static class GameplayContentIdentityVerification
         png.Position = 0;
         RoomCharacterAtlas sprites = RoomCharacterAtlas.Load(png, RoomCharacterAtlasFormat.BytesPerTile);
 
-        var entries = new List<(RoomCollisionType Type, byte Bts, XrayRevealVisualWords Visual)>();
+        var entries = new List<XrayRevealVisualDefinition>();
         bool editedOperands = false;
         foreach (RoomCollisionType type in Enum.GetValues<RoomCollisionType>())
         for (int bts = 0; bts <= byte.MaxValue; bts++)
@@ -112,7 +112,7 @@ internal static class GameplayContentIdentityVerification
                 };
                 editedOperands = true;
             }
-            entries.Add((type, (byte)bts, visual));
+            entries.Add(new(type, (byte)bts, visual));
         }
         AssertEqual(305, entries.Count, "complete compiled drawable rule fixture");
         var items = new ushort[XrayOverlayRomData.DynamicGraphicsSlots * 2];

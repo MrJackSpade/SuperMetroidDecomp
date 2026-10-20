@@ -198,6 +198,18 @@ needs only the slot is bound with a lambda at its entity, literal-RTL routines s
 programs derive from `PlmCuelessProgramAnimation`. A method fulfilling a contract outside the repository, such as a
 `System.Text.Json` converter, says so with `[ExternalContract(reason)]`.
 
+## Concepts are defined once
+
+**SME6428** reports, in `SuperMetroid.Core`, an enum whose every member is assigned one constant of the same other type,
+and a static class of integral constants whose names and values all appear in one enum (#1375). Each value is written
+once: in the enum, with any constant others read derived from it, or in the constant, with the enum gone. **SME6429**
+reports a switch over an enum whose every arm maps a member to the member after it; a sequence's order is its enum's
+order, stepped with `EnumOrder.Next` or `EnumOrder.NextWrapping`, and a partial map lists the members that have a
+successor in one arm. **SME6430** reports a member signature carrying a tuple with three or more named elements, or a
+tuple shaped like a type Core declares; the value gets its declared type, held to the same spatial and encoding rules
+as any other. Palette-FX colour families read their rows from their programs (`PaletteFxColorRows.Of`), the rainbow-beam
+sequence runs on Mother Brain's body functions, and timeline animations run on the one program-set engine.
+
 ## Diagnostics are resolved, not disabled
 
 **SME6414** reports every `#pragma warning disable`, whatever diagnostic it names and whatever reason follows it

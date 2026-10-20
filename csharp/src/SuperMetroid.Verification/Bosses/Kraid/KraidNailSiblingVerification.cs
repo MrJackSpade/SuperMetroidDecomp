@@ -11,23 +11,23 @@ internal static class KraidNailSiblingVerification
 {
     /// <summary>Compares the fractional X launch word across sibling velocity signs and RNG offsets.</summary>
     internal static void VerifyKraidNailLaunchXFraction(SuperMetroidAddressSpace rom) =>
-        Suite(nameof(VerifyKraidNailLaunchField), () => VerifyKraidNailLaunchField(rom, 0, value => value.XFraction));
+        Suite(nameof(VerifyKraidNailLaunchField), () => VerifyKraidNailLaunchField(rom, 0, value => value.X.Fraction));
 
     /// <summary>Compares the whole X launch word across sibling velocity signs and RNG offsets.</summary>
     internal static void VerifyKraidNailLaunchXWhole(SuperMetroidAddressSpace rom) =>
-        Suite(nameof(VerifyKraidNailLaunchField), () => VerifyKraidNailLaunchField(rom, 2, value => value.XWhole));
+        Suite(nameof(VerifyKraidNailLaunchField), () => VerifyKraidNailLaunchField(rom, 2, value => value.X.WholeWord));
 
     /// <summary>Compares the fractional Y launch word across sibling velocity signs and RNG offsets.</summary>
     internal static void VerifyKraidNailLaunchYFraction(SuperMetroidAddressSpace rom) =>
-        Suite(nameof(VerifyKraidNailLaunchField), () => VerifyKraidNailLaunchField(rom, 4, value => value.YFraction));
+        Suite(nameof(VerifyKraidNailLaunchField), () => VerifyKraidNailLaunchField(rom, 4, value => value.Y.Fraction));
 
     /// <summary>Compares the whole Y launch word across sibling velocity signs and RNG offsets.</summary>
     internal static void VerifyKraidNailLaunchYWhole(SuperMetroidAddressSpace rom) =>
-        Suite(nameof(VerifyKraidNailLaunchField), () => VerifyKraidNailLaunchField(rom, 6, value => value.YWhole));
+        Suite(nameof(VerifyKraidNailLaunchField), () => VerifyKraidNailLaunchField(rom, 6, value => value.Y.WholeWord));
 
     /// <summary>Reads the native indirect launch record selected by sibling sign and RNG bits for one field.</summary>
     private static void VerifyKraidNailLaunchField(SuperMetroidAddressSpace rom, int fieldOffset,
-        Func<(ushort XFraction, ushort XWhole, ushort YFraction, ushort YWhole), ushort> field)
+        Func<FixedVector<RoomPixels>, ushort> field)
     {
         ushort Word(int address) => SnesLittleEndian.Word(KraidNailLaunchFieldRomByte(rom, address), KraidNailLaunchFieldRomByte(rom, address + 1));
         for (int raw = 0; raw <= ushort.MaxValue; raw++)

@@ -17,8 +17,6 @@ namespace SuperMetroid.Core.Fx.PaletteFx;
 /// </remarks>
 public static class NorfairEnvironmentalPaletteFxColorDefinitions
 {
-    /// <summary>All four programs contain sixteen phases.</summary>
-    public const int FrameCount = 16;
 
     /// <summary>Each phase writes five live BGR555 colors.</summary>
     public const int ColorsPerFrame = 5;
@@ -30,6 +28,14 @@ public static class NorfairEnvironmentalPaletteFxColorDefinitions
         PaletteFxObject.NorfairForegroundPalette4,
         PaletteFxObject.NorfairForegroundPalette5,
         PaletteFxObject.NorfairForegroundPalette6,
+    ];
+    /// <summary>The program each object runs, by owner: the heat-phase program, then palettes four, five and six.</summary>
+    private static readonly PaletteFxProgram[] Programs =
+    [
+        PaletteFxProgram.Norfair21,
+        PaletteFxProgram.Norfair41,
+        PaletteFxProgram.Norfair81,
+        PaletteFxProgram.Norfair101,
     ];
     /// <summary>$8D:F08E publishes heat phases while writing foreground palette three.</summary>
     private const int HeatPalette = 3;
@@ -58,7 +64,7 @@ public static class NorfairEnvironmentalPaletteFxColorDefinitions
                 int regular = index - (int)NorfairEnvironmentalPaletteOwner.ForegroundPalette4;
                 int palette = heat ? HeatPalette : RegularFirstPalette + regular;
                 int color = heat ? HeatFirstColor : RegularFirstColor;
-                return new(owner, Objects[index], FirstRecord + index * FrameCount,
+                return new(owner, Objects[index], Programs[index],
                     (ushort)((palette * 16 + color) * sizeof(ushort)), heat);
             }
         }
@@ -73,7 +79,4 @@ public static class NorfairEnvironmentalPaletteFxColorDefinitions
     /// <summary>The four real environmental programs in definition order.</summary>
     public static IReadOnlyList<NorfairEnvironmentalPaletteFxColorDefinition> All =>
         Definitions;
-
-    /// <summary>The heat-phase program's first record; the three palette programs follow it, sixteen records each.</summary>
-    private const int FirstRecord = 434;
 }

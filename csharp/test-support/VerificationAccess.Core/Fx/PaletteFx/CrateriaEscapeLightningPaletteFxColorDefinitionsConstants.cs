@@ -1,4 +1,4 @@
-
+﻿
 namespace SuperMetroid.Core.Fx.PaletteFx;
 
 /// <summary>Cartridge values of <see cref="CrateriaEscapeLightningPaletteFxColorDefinitions"/> that only verification reads.</summary>
@@ -19,7 +19,9 @@ internal static class CrateriaEscapeLightningPaletteFxColorDefinitionsConstants
         0 => 49,
         5 => 17,
         7 => 24,
-        >= 0 and < CrateriaEscapeLightningPaletteFxColorDefinitions.FrameCount => 1,
+        >= 0 when frame < CrateriaEscapeLightningPaletteFxColorDefinitionsConstants.FrameCount => 1,
         _ => throw new ArgumentOutOfRangeException(nameof(frame)),
     };
+    /// <summary>Both loops contain eleven timed records.</summary>
+    public static int FrameCount => CrateriaEscapeLightningPaletteFxColorDefinitions.All[0].Rows.FrameCount;
 }

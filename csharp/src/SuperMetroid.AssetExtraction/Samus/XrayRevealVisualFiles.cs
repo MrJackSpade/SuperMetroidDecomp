@@ -144,7 +144,7 @@ public static class XrayRevealVisualFiles
             selected.Rooms.Length != stock.Rooms.Length)
             throw new InvalidDataException($"X-ray visuals {selectedPath} changed overlay count.");
 
-        var mappings = new List<(RoomCollisionType Type, byte Bts, XrayRevealVisualWords Visual)>();
+        var mappings = new List<XrayRevealVisualDefinition>();
         for (int index = 0; index < stock.Entries.Length; index++)
         {
             XrayRevealVisualEntry original = stock.Entries[index];
@@ -157,7 +157,7 @@ public static class XrayRevealVisualFiles
             var visual = new XrayRevealVisualWords(checked((ushort)edited.TopLeft), checked((ushort)edited.TopRight),
                 checked((ushort)edited.BottomLeft), checked((ushort)edited.BottomRight));
             foreach (int bts in edited.BtsValues)
-                mappings.Add((edited.CollisionType, unchecked((byte)bts), visual));
+                mappings.Add(new XrayRevealVisualDefinition(edited.CollisionType, unchecked((byte)bts), visual));
         }
         for (int index = 0; index < stock.Rooms.Length; index++)
         {

@@ -17,7 +17,7 @@ internal static class DeadTorizoGeometryDefinitions
     internal static int Columns => Bounds.Right - Bounds.Left;
 
     /// <summary>Unions the tile extents of stationary sprite parts to define the corpse crop.</summary>
-    private static (int Left, int Top, int Right, int Bottom) Bounds
+    private static DeadTorizoBounds Bounds
     {
         get
         {
@@ -25,20 +25,20 @@ internal static class DeadTorizoGeometryDefinitions
             for (int index = 0; index < DeadTorizoStationaryCompositionDefinitions.Count; index++)
             {
                 var part = SourcePart(index);
-                left = Math.Min(left, part.X); top = Math.Min(top, part.Y);
-                right = Math.Max(right, part.X + part.Extent); bottom = Math.Max(bottom, part.Y + part.Extent);
+                left = Math.Min(left, part.Corner.X); top = Math.Min(top, part.Corner.Y);
+                right = Math.Max(right, part.Corner.X + part.Extent); bottom = Math.Max(bottom, part.Corner.Y + part.Extent);
             }
-            return (left, top, right, bottom);
+            return new(left, top, right, bottom);
         }
     }
 
     /// <summary>Converts an indexed stationary sprite part into source-sheet tile coordinates.</summary>
-    private static (int X, int Y, int Extent) SourcePart(int index)
+    private static DeadTorizoSourcePart SourcePart(int index)
     {
         DeadTorizoStockPart part = DeadTorizoStationaryCompositionDefinitions.Part(index);
         int tile = part.Tile - DeadTorizoStationaryCompositionDefinitions.SourceTileBase;
-        return (tile % DeadTorizoStationaryCompositionDefinitions.SourceColumns,
-            tile / DeadTorizoStationaryCompositionDefinitions.SourceColumns, part.TileExtent);
+        return new(new((ushort)(tile % DeadTorizoStationaryCompositionDefinitions.SourceColumns),
+            (ushort)(tile / DeadTorizoStationaryCompositionDefinitions.SourceColumns)), part.TileExtent);
     }
 
     /// <summary>Calculate each native MVN's source, destination and length from the stock sprite tile union.</summary>
@@ -50,8 +50,8 @@ internal static class DeadTorizoGeometryDefinitions
         for (int index = 0; index < DeadTorizoStationaryCompositionDefinitions.Count; index++)
         {
             var part = SourcePart(index);
-            if (sourceRow < part.Y || sourceRow >= part.Y + part.Extent) continue;
-            left = Math.Min(left, part.X); right = Math.Max(right, part.X + part.Extent);
+            if (sourceRow < part.Corner.Y || sourceRow >= part.Corner.Y + part.Extent) continue;
+            left = Math.Min(left, part.Corner.X); right = Math.Max(right, part.Corner.X + part.Extent);
         }
         return new((sourceRow * DeadTorizoStationaryCompositionDefinitions.SourceColumns + left) * TileBytes,
             (row * (bounds.Right - bounds.Left) + left - bounds.Left) * TileBytes, (right - left) * TileBytes);
@@ -73,8 +73,8 @@ internal static class DeadTorizoGeometryDefinitions
         for (int index = 0; index < DeadTorizoStationaryCompositionDefinitions.Count; index++)
         {
             var part = SourcePart(index);
-            if (sourceColumn >= part.X && sourceColumn < part.X + part.Extent)
-                firstRow = Math.Min(firstRow, part.Y);
+            if (sourceColumn >= part.Corner.X && sourceColumn < part.Corner.X + part.Extent)
+                firstRow = Math.Min(firstRow, part.Corner.Y);
         }
         return (firstRow - bounds.Top) * TilePixels;
     }

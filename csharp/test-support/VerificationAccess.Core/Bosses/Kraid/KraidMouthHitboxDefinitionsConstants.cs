@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Core.Programs;
+﻿using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Programs;
 
 namespace SuperMetroid.Core.Bosses.Kraid;
 
@@ -19,7 +20,7 @@ internal static class KraidMouthHitboxDefinitionsConstants
     /// The existing semantic cases preserve the otherwise unused right edge and
     /// zero shape. Live low-half geometry remains a separate caller-owned path.
     /// </remarks>
-    public static (short Left, short Top, short Right, short Bottom) Resolve(ushort pointer) =>
+    public static EnemyHitboxRectangle Resolve(ushort pointer) =>
         KraidMouthHitboxDefinitions.Resolve(ClosedNativeWords.Decode<KraidMouthHitbox>(pointer, "Kraid mouth hitbox"));
     /// <summary>
     /// Resolves compiled cartridge geometry or a genuine bank-$A7 low-half live-memory,
@@ -27,14 +28,10 @@ internal static class KraidMouthHitboxDefinitionsConstants
     /// record crosses $7FFF are retained explicitly; unrelated cartridge addresses are not
     /// accepted as hitboxes.
     /// </summary>
-    public static (short Left, short Top, short Bottom) ResolveCollision(
-        ushort pointer)
+    public static KraidMouthCollisionEdges ResolveCollision(ushort pointer)
     {
         if (IsDefined(pointer))
-        {
-            (short left, short top, _, short bottom) = Resolve(pointer);
-            return (left, top, bottom);
-        }
+            return KraidMouthHitboxDefinitions.ResolveCollision((KraidMouthHitbox)pointer);
         throw new InvalidDataException(
             $"Kraid mouth hitbox $A7:{pointer:X4} is outside the compiled geometry catalog.");
     }

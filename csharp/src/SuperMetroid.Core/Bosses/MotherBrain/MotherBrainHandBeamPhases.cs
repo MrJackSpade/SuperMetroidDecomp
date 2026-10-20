@@ -7,9 +7,9 @@ public static class MotherBrainHandBeamPhases
     /// <exception cref="InvalidOperationException">The finishing phase has no successor.</exception>
     public static MotherBrainHandBeamPhase Next(MotherBrainHandBeamPhase phase) => phase switch
     {
-        MotherBrainHandBeamPhase.BackUp => MotherBrainHandBeamPhase.WaitForBombs,
-        MotherBrainHandBeamPhase.WaitForBombs => MotherBrainHandBeamPhase.Firing,
-        MotherBrainHandBeamPhase.Firing => MotherBrainHandBeamPhase.Finish,
+        MotherBrainHandBeamPhase.BackUp
+            or MotherBrainHandBeamPhase.WaitForBombs
+            or MotherBrainHandBeamPhase.Firing => EnumOrder.Next(phase),
         MotherBrainHandBeamPhase.Finish => throw new InvalidOperationException(
             "Mother Brain's hand-beam phase cannot advance past finishing."),
         _ => throw new InvalidOperationException($"Undefined {nameof(MotherBrainHandBeamPhase)} {(int)phase}."),

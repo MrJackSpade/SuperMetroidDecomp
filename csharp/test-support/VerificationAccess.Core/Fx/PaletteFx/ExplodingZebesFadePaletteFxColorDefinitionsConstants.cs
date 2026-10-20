@@ -21,4 +21,6 @@ internal static class ExplodingZebesFadePaletteFxColorDefinitionsConstants
     public const ushort ColorByteIndex = 0x01e0;
     /// <summary>Colour <paramref name="color"/> of record <paramref name="frame"/>.</summary>
     public static PaletteFxColorKey Color(int frame, int color) => ExplodingZebesFadePaletteFxColorDefinitions.Rows.Color(frame, color);
+    /// <summary>The one-shot fade contains seven timed records.</summary>
+    public static int FrameCount => ExplodingZebesFadePaletteFxColorDefinitions.Rows.FrameCount;
 }

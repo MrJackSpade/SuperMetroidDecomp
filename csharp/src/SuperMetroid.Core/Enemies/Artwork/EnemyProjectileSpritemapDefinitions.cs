@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Assets;
+
 namespace SuperMetroid.Core.Enemies.Artwork;
 
 /// <summary>Cartridge visual identities translated for bank-$8D projectile drawing.</summary>
@@ -21,12 +23,12 @@ public static class EnemyProjectileSpritemapDefinitions
     public const int TileRows = 64;
 
     /// <summary>Ceres arrival frames and Skree/Metaree debris selected by their bank-$86 programs.</summary>
-    internal static readonly (ushort Pointer, string Name)[] Frames =
+    internal static readonly SpritemapFrameDefinition[] Frames =
     [
-        (0xb1ba, "ceres_elevator_pad_0"),
-        (0xb1d0, "ceres_elevator_pad_1"),
-        (0x846d, "ceres_elevator_platform"),
-        (SkreeMetareeParticleVisualDefinitions.SkreeComposition, "skree_debris"),
-        (SkreeMetareeParticleVisualDefinitions.MetareeComposition, "metaree_debris"),
+        new(0xb1ba, "ceres_elevator_pad_0"),
+        new(0xb1d0, "ceres_elevator_pad_1"),
+        new(0x846d, "ceres_elevator_platform"),
+        new(SkreeMetareeParticleVisualDefinitions.SkreeComposition, "skree_debris"),
+        new(SkreeMetareeParticleVisualDefinitions.MetareeComposition, "metaree_debris"),
     ];
 }

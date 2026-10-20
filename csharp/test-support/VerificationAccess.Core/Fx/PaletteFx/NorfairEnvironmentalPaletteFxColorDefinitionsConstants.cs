@@ -21,9 +21,11 @@ internal static class NorfairEnvironmentalPaletteFxColorDefinitionsConstants
     /// </remarks>
     internal static ushort Duration(int frame)
     {
-        if ((uint)frame >= NorfairEnvironmentalPaletteFxColorDefinitions.FrameCount)
+        if ((uint)frame >= NorfairEnvironmentalPaletteFxColorDefinitionsConstants.FrameCount)
             throw new ArgumentOutOfRangeException(nameof(frame));
-        int distance = Math.Min(frame, NorfairEnvironmentalPaletteFxColorDefinitions.FrameCount - 1 - frame);
+        int distance = Math.Min(frame, NorfairEnvironmentalPaletteFxColorDefinitionsConstants.FrameCount - 1 - frame);
         return (ushort)(distance == 0 ? 16 : Math.Clamp(distance + 2, 4, 8));
     }
+    /// <summary>All four programs contain sixteen phases.</summary>
+    public static int FrameCount => NorfairEnvironmentalPaletteFxColorDefinitions.All[0].Rows.FrameCount;
 }

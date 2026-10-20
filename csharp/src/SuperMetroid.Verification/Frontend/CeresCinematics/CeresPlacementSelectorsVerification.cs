@@ -12,13 +12,13 @@ internal static class CeresPlacementSelectorsVerification
     {
         // Original maintained extraction table at d12fa8fa; IDs are asset-format identities,
         // not ROM strings. Native initializer operands independently confirm their source views.
-        (string Id, ushort XAddress, ushort YAddress)[] original =
+        CinematicPlacementSourceDefinition[] original =
         [
-            ("large-asteroid", 0xbf23, 0xbf29),
-            ("station-under-attack", 0xbf4d, 0xbf53),
-            ("small-asteroid", 0xbf77, 0xbf7d),
-            ("vortex", 0xbfb4, 0xbfba),
-            ("rear-stars", 0xbea3, 0xbea9),
+            new("large-asteroid", 0xbf23, 0xbf29),
+            new("station-under-attack", 0xbf4d, 0xbf53),
+            new("small-asteroid", 0xbf77, 0xbf7d),
+            new("vortex", 0xbfb4, 0xbfba),
+            new("rear-stars", 0xbea3, 0xbea9),
         ];
         AssertEqual(original.Length, CeresFlightActorDefinitions.RearViewActorCount, "rear placement count");
         for (int i = 0; i < original.Length; i++)
@@ -36,14 +36,14 @@ internal static class CeresPlacementSelectorsVerification
     /// <summary>Checks six Zebes reveal actors and their X and Y native placement words.</summary>
     internal static void VerifyCeresRevealPlacementSelector(ISnesAddressSpace rom)
     {
-        (string Id, ushort XAddress, ushort YAddress)[] original =
+        CinematicPlacementSourceDefinition[] original =
         [
-            ("planet", 0xc83c, 0xc842),
-            ("stars-upper-left", 0xc944, 0xc94a),
-            ("stars-upper-right", 0xc958, 0xc95e),
-            ("stars-lower-left", 0xc96c, 0xc972),
-            ("stars-lower-right", 0xc980, 0xc986),
-            ("planet-zebes-title", 0xc993, 0xc999),
+            new("planet", 0xc83c, 0xc842),
+            new("stars-upper-left", 0xc944, 0xc94a),
+            new("stars-upper-right", 0xc958, 0xc95e),
+            new("stars-lower-left", 0xc96c, 0xc972),
+            new("stars-lower-right", 0xc980, 0xc986),
+            new("planet-zebes-title", 0xc993, 0xc999),
         ];
         AssertEqual(original.Length, CeresDestructionActorDefinitions.ZebesActorCount, "reveal placement count");
         for (int i = 0; i < original.Length; i++)

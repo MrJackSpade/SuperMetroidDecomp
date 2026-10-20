@@ -22,7 +22,7 @@ internal static class CeresHazeRenderDefinitions
     /// Resolves only the cosmetic RGB amplitude. The native scanline bands and fade
     /// counter remain compiled and are shared by software and captured-PPU rendering.
     /// </summary>
-    internal static (byte Red, byte Green, byte Blue) ResolveComponents(
+    internal static Bgr555 ResolveComponents(
         int screenY, int intensity, bool ridleyIsDead, RoomFxPaletteBlendCatalog? colors)
     {
         int component = screenY < RampFirstLine
@@ -31,11 +31,11 @@ internal static class CeresHazeRenderDefinitions
                 RampFirstComponent + (screenY - RampFirstLine) / BandHeight);
         component = Math.Max(0, component + intensity - MaximumComponent);
         PaletteRgb5? custom = ridleyIsDead ? colors?.CeresHazeRed : colors?.CeresHazeBlue;
-        (int Red, int Green, int Blue) tint = custom is null
-            ? RoomFxPaletteBlendDefinitions.StockCeresHazeComponents(ridleyIsDead)
-            : (custom.Red, custom.Green, custom.Blue);
-        static byte Scale(int component, int channel) =>
-            (byte)Math.Min(31, (component * channel + MaximumComponent / 2) / MaximumComponent);
-        return (Scale(component, tint.Red), Scale(component, tint.Green), Scale(component, tint.Blue));
+        Bgr555 tint = custom is null
+            ? RoomFxPaletteBlendDefinitions.StockCeresHazeTint(ridleyIsDead)
+            : new Bgr555(custom.Red, custom.Green, custom.Blue);
+        static int Scale(int component, int channel) =>
+            Math.Min(Bgr555.MaxChannel, (component * channel + MaximumComponent / 2) / MaximumComponent);
+        return new Bgr555(Scale(component, tint.Red), Scale(component, tint.Green), Scale(component, tint.Blue));
     }
 }

@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Programs;
+using Step = SuperMetroid.Core.Programs.AnimationProgramStep<SuperMetroid.Core.Bosses.MotherBrain.MotherBrainHandBeamProgram, SuperMetroid.Core.Bosses.MotherBrain.MotherBrainHandBeamFrame, SuperMetroid.Core.Bosses.MotherBrain.MotherBrainHandBeamCue>;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
@@ -12,19 +13,23 @@ internal static class MotherBrainHandBeamAnimations
     /// Three stages, each spawning the next beam after its first frame and fading over seven frames held 3, 3, 2, 2,
     /// 1, 1 and 1 updates, then the deletion. The charging beam and every fired beam run it.
     /// </summary>
-    internal static AnimationTimeline<MotherBrainHandBeamFrame, MotherBrainHandBeamCue> Timeline { get; } = new(
-    [
-        .. Enumerable.Range(0, StageCount).SelectMany(Stage),
-        AnimationStep<MotherBrainHandBeamFrame, MotherBrainHandBeamCue>.Publish(MotherBrainHandBeamCue.Delete),
-        AnimationStep<MotherBrainHandBeamFrame, MotherBrainHandBeamCue>.Hold,
-    ]);
+    internal static AnimationProgramSet<MotherBrainHandBeamProgram, MotherBrainHandBeamFrame, MotherBrainHandBeamCue> Programs { get; } = new(
+        new Dictionary<MotherBrainHandBeamProgram, Step[]>
+        {
+            [MotherBrainHandBeamProgram.Beam] =
+            [
+                .. Enumerable.Range(0, StageCount).SelectMany(Stage),
+                Step.Publish(MotherBrainHandBeamCue.Delete),
+                Step.Hold,
+            ],
+        });
 
     /// <summary>The steps of stage <paramref name="stage"/>.</summary>
-    private static IEnumerable<AnimationStep<MotherBrainHandBeamFrame, MotherBrainHandBeamCue>> Stage(int stage)
+    private static IEnumerable<Step> Stage(int stage)
     {
-        yield return AnimationStep<MotherBrainHandBeamFrame, MotherBrainHandBeamCue>.Show(new(stage, 0), 3);
-        yield return AnimationStep<MotherBrainHandBeamFrame, MotherBrainHandBeamCue>.Publish(MotherBrainHandBeamCue.SpawnNextBeam);
+        yield return Step.Show(new(stage, 0), 3);
+        yield return Step.Publish(MotherBrainHandBeamCue.SpawnNextBeam);
         foreach ((int phase, int duration) in new[] { (1, 3), (2, 2), (3, 2), (4, 1), (5, 1), (6, 1) })
-            yield return AnimationStep<MotherBrainHandBeamFrame, MotherBrainHandBeamCue>.Show(new(stage, phase), duration);
+            yield return Step.Show(new(stage, phase), duration);
     }
 }

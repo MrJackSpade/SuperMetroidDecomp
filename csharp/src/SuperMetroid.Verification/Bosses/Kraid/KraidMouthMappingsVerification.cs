@@ -1,5 +1,6 @@
-using SuperMetroid.Core.Hardware;
+﻿using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Bosses.Kraid;
+using SuperMetroid.Core.Enemies;
 using SuperMetroid.AssetExtraction.Cartridge;
 
 namespace SuperMetroid.Verification.Bosses.Kraid;
@@ -15,10 +16,10 @@ internal static class KraidMouthMappingsVerification
         {
             ushort pointer = (ushort)(0x9788 + 8 * entry);
             int address = 0xa70000 | pointer;
-            var expected = (Word(address), Word(address + 2), Word(address + 4), Word(address + 6));
+            var expected = new EnemyHitboxRectangle(Word(address), Word(address + 2), Word(address + 4), Word(address + 6));
             AssertTrue(KraidMouthHitboxDefinitionsConstants.IsDefined(pointer), "Native mouth shape is defined");
             AssertEqual(expected, KraidMouthHitboxDefinitionsConstants.Resolve(pointer), "Native mouth shape case");
-            AssertEqual((expected.Item1, expected.Item2, expected.Item4),
+            AssertEqual(new KraidMouthCollisionEdges(expected.Left, expected.Top, expected.Bottom),
                 KraidMouthHitboxDefinitionsConstants.ResolveCollision(pointer), "Collision uses left/top/bottom only");
         }
         for (int raw = 0x9787; raw <= 0x97c8; raw++)

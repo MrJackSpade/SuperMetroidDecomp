@@ -60,5 +60,5 @@ public sealed record GameSaveSlotJsonDocument
     /// The startup dispatcher route, carried unchanged including values the dispatcher does not name. Older JSON
     /// saves omitted this translated field and therefore retain the ordinary main-game default.
     /// </summary>
-    public int LoadingGameState { get; init; } = SaveLoadingGameStates.MainGame;
+    public int LoadingGameState { get; init; } = SaveLoadingGameStateCodec.Word(SaveLoadingGameState.MainGame);
 }

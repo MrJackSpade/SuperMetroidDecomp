@@ -30,8 +30,7 @@ public sealed class XrayRevealVisualCatalog
     /// <param name="overlays">Installed item/special-room visuals, or null for a noninstalled fixture.</param>
     /// <exception cref="ArgumentNullException">The entry sequence is null.</exception>
     /// <exception cref="InvalidDataException">An entry has no drawable rule, duplicates another pair, or leaves native drawable coverage incomplete.</exception>
-    public XrayRevealVisualCatalog(IEnumerable<(RoomCollisionType Type, byte Bts,
-        XrayRevealVisualWords Visual)> entries, XrayOverlayVisualCatalog? overlays = null)
+    public XrayRevealVisualCatalog(IEnumerable<XrayRevealVisualDefinition> entries, XrayOverlayVisualCatalog? overlays = null)
     {
         Ensure.NotNull(entries);
         Overlays = overlays;

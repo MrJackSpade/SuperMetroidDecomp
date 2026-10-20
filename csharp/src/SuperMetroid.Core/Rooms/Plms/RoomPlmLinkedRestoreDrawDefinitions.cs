@@ -12,8 +12,7 @@ internal static class RoomPlmLinkedRestoreDrawDefinitions
 {
     /// <summary>Combines the three bomb-block and three contact-crumble restoration layouts for shared visual export.</summary>
     internal static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> All =>
-        RoomPlmBombBlockRestoreDrawDefinitions.All.Concat(
-            RoomPlmContactCrumbleRestoreDrawDefinitions.All);
+        RoomPlmLinkedRestoreDefinition.Families.SelectMany(family => family.All);
 
     /// <summary>Maps a compiled restore draw pointer to a bomb or crumble artwork key and rejects unknown identities.</summary>
     internal static string VisualId(ushort pointer)

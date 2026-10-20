@@ -79,8 +79,6 @@ public static class ProjectileSpriteDefinitions
         sprite = default;
         return false;
     }
-    /// <summary>$93:873B: upward Wave's invisible lead-in before the shared vertical-travel oscillation.</summary>
-    private const ushort WaveInvisibleLeadIn = 0x873b;
     /// <summary>$93:8743-8952: four sixteen-record Wave loops in vertical, rising diagonal, horizontal, falling diagonal travel order, each ending in a four-byte self-jump.</summary>
     private const ushort WaveProgramStart = 0x8743;
     /// <summary>$93:8953-8976: Ice's four successive centered glyph poses followed by its self-jump.</summary>
@@ -121,8 +119,6 @@ public static class ProjectileSpriteDefinitions
     private const ushort MissileProgramStart = 0x9ebb;
     /// <summary>$93:9F1B-9F7A: eight one-record super-missile compass programs.</summary>
     private const ushort SuperMissileProgramStart = 0x9f1b;
-    /// <summary>$93:9F7B: the super-missile link has no visible composition.</summary>
-    private const ushort SuperMissileLinkProgram = 0x9f7b;
 
     /// <summary>Resolves one of eight one-record missile compass programs from its bank-$93 pointer.</summary>
     private static bool TryCompassPose(ushort pointer, ushort start, out int pose)
@@ -140,10 +136,10 @@ public static class ProjectileSpriteDefinitions
     private const ushort PowerBombProgram = 0x9f87, FastPowerBombProgram = 0x9fa3;
     /// <summary>$93:9FBF and9FE3: normal/fast Bomb cycles each traverse the same four poses.</summary>
     private const ushort BombProgram = 0x9fbf, FastBombProgram = 0x9fe3;
-    /// <summary>$93:8F17/8F1F: invisible upward charged-Wave lead-in followed by four sixteen-frame travel-axis loops.</summary>
-    private const ushort ChargedWaveLeadIn = 0x8f17, ChargedWaveProgram = 0x8f1f;
-    /// <summary>$93:9153/915B: corresponding charged IceWave lead-in and four travel-axis loops.</summary>
-    private const ushort ChargedIceWaveLeadIn = 0x9153, ChargedIceWaveProgram = 0x915b;
+    /// <summary>$93:8F1F: the four sixteen-frame travel-axis loops after the invisible upward charged-Wave lead-in.</summary>
+    private const ushort ChargedWaveProgram = 0x8f1f;
+    /// <summary>$93:915B: the corresponding charged IceWave travel-axis loops.</summary>
+    private const ushort ChargedIceWaveProgram = 0x915b;
 
     /// <summary>Resolves a charged Wave travel-loop record to its selected paired-lobe composition.</summary>
     private static bool TryChargedWaveCycle(ushort pointer, ushort programStart, ushort compositionStart, out ushort sprite)
@@ -572,14 +568,14 @@ public static class ProjectileSpriteDefinitions
     /// <summary>The standalone invisible programs whose single record selects the empty composition, by bank-$93 address.</summary>
     private enum InvisibleSingleRecordProgram : ushort
     {
-        /// <summary>$93:873B: upward Wave's invisible lead-in.</summary>
-        WaveLeadIn = WaveInvisibleLeadIn,
+        /// <summary>$93:873B: upward Wave's invisible lead-in before the shared vertical-travel oscillation.</summary>
+        WaveLeadIn = 0x873b,
         /// <summary>$93:8F17: invisible upward charged-Wave lead-in.</summary>
-        ChargedWaveLeadIn = ProjectileSpriteDefinitions.ChargedWaveLeadIn,
+        ChargedWaveLeadIn = 0x8f17,
         /// <summary>$93:9153: invisible upward charged IceWave lead-in.</summary>
-        ChargedIceWaveLeadIn = ProjectileSpriteDefinitions.ChargedIceWaveLeadIn,
+        ChargedIceWaveLeadIn = 0x9153,
         /// <summary>$93:9F7B: the super-missile link has no visible composition.</summary>
-        SuperMissileLink = SuperMissileLinkProgram,
+        SuperMissileLink = 0x9f7b,
     }
     /// <summary>Resolves a timed projectile instruction pointer to its derived native composition when the visual layout is fully modeled.</summary>
     internal static bool TryCalculatedFrameSprite(ushort instructionPointer, out ushort sprite)

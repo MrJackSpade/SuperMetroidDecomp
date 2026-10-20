@@ -19,8 +19,8 @@ internal static class PhantoonDeathExplosionsVerification
         for (int i = 0; i < 13; i++)
         {
             var entry = PhantoonDeathExplosionDefinitions.Read(i);
-            AssertEqual(unchecked((sbyte)rom.ReadCartridgeByte(0xa7da1d + i * 4)), entry.X, "Native death explosion X offset");
-            AssertEqual(unchecked((sbyte)rom.ReadCartridgeByte(0xa7da1e + i * 4)), entry.Y, "Native death explosion Y offset");
+            AssertEqual(unchecked((sbyte)rom.ReadCartridgeByte(0xa7da1d + i * 4)), entry.Offset.X, "Native death explosion X offset");
+            AssertEqual(unchecked((sbyte)rom.ReadCartridgeByte(0xa7da1e + i * 4)), entry.Offset.Y, "Native death explosion Y offset");
             AssertEqual((MiscDustAnimation)rom.ReadCartridgeByte(0xa7da1f + i * 4), entry.Type, "Native death explosion type");
             AssertEqual(rom.ReadCartridgeByte(0xa7da20 + i * 4), entry.Delay, "Native death explosion delay");
         }

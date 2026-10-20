@@ -242,17 +242,17 @@ internal static class GrappleFiringDefinitionsVerification
     /// <summary>Checks launch X velocity for every direction.</summary>
     internal static void VerifyGrappleLaunchXSelection(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyGrappleLaunchField), () => VerifyGrappleLaunchField(rom, GrappleFiringDefinitions.XVelocityReferenceAddress,
-            direction => unchecked((ushort)GrappleFiringDefinitions.Launch(direction).XVelocity), "X velocity"));
+            direction => GrappleFiringDefinitions.Launch(direction).Velocity.X.RawValue, "X velocity"));
 
     /// <summary>Checks launch Y velocity for every direction.</summary>
     internal static void VerifyGrappleLaunchYSelection(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyGrappleLaunchField), () => VerifyGrappleLaunchField(rom, GrappleFiringDefinitions.YVelocityReferenceAddress,
-            direction => unchecked((ushort)GrappleFiringDefinitions.Launch(direction).YVelocity), "Y velocity"));
+            direction => GrappleFiringDefinitions.Launch(direction).Velocity.Y.RawValue, "Y velocity"));
 
     /// <summary>Checks initial Grapple angle for every direction.</summary>
     internal static void VerifyGrappleLaunchAngleAlgorithm(SuperMetroidAddressSpace rom) =>
         Suite(nameof(VerifyGrappleLaunchField), () => VerifyGrappleLaunchField(rom, GrappleFiringDefinitions.AngleReferenceAddress,
-            direction => GrappleFiringDefinitions.Launch(direction).Angle, "angle"));
+            direction => GrappleFiringDefinitions.Launch(direction).Angle.RawValue, "angle"));
 
     /// <summary>Compares one launch field with all native table entries and checks selector bounds.</summary>
     private static void VerifyGrappleLaunchField(SuperMetroidAddressSpace rom, int source,

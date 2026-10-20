@@ -438,7 +438,7 @@ public sealed class MotherBrainRainbowPalettePresentation
         /// <summary>Independent head, plate, and tissue anchors used to reconstruct red-origin gradients.</summary>
         private readonly Bgr555 head, plateStart, plateEnd, tissueStart, tissueEnd;
         /// <summary>The dark head keeps its own green/blue under the shared head red ramp.</summary>
-        private readonly (int Green, int Blue) darkHead;
+        private readonly MotherBrainDarkHeadShade darkHead;
         /// <summary>The three interior tissue shades keep their own green levels.</summary>
         private readonly int[] tissueGreens;
         /// <summary>Final two inks lack a supported interpolation relationship.</summary>
@@ -447,7 +447,7 @@ public sealed class MotherBrainRainbowPalettePresentation
         private RedOriginColors(BodyColors colors)
         {
             head = colors[0];
-            darkHead = (colors[RedOriginLayout.DarkHead].Green, colors[RedOriginLayout.DarkHead].Blue);
+            darkHead = new(colors[RedOriginLayout.DarkHead].Green, colors[RedOriginLayout.DarkHead].Blue);
             plateStart = colors[RedOriginLayout.PlateStart];
             plateEnd = colors[RedOriginLayout.PlateEnd];
             tissueStart = colors[RedOriginLayout.TissueStart];
@@ -641,8 +641,8 @@ public sealed class MotherBrainRainbowPalettePresentation
             if (colors.Length is not (3 or 13 or 15)) { supplied = colors; return; }
             var light = MotherBrainDrainedPaintDefinitions.HighlightRgb8;
             var dark = MotherBrainDrainedPaintDefinitions.DarkestTissueRgb8;
-            tissueLight = new(light.Red, light.Green, light.Blue);
-            tissueDark = new(dark.Red, dark.Green, dark.Blue);
+            tissueLight = light;
+            tissueDark = dark;
             outline = MotherBrainDrainedPaintDefinitions.Outline;
             bool stock = true;
             for (int color = 0; stock && color < colors.Length; color++) stock = colors[color] == Calculate(color);
@@ -694,18 +694,6 @@ public sealed class MotherBrainRainbowPalettePresentation
                 (tissueLight.Blue * (12 - color) + tissueDark.Blue * (color - 8)) / 32);
         }
 
-        /// <summary>Unquantized tissue endpoint; interpolation occurs before conversion to RGB5.</summary>
-        private readonly record struct Rgb8(int Red, int Green, int Blue)
-        {
-            /// <summary>Selects an eight-bit endpoint channel for interpolation.</summary>
-            internal int this[ColorChannel channel] => channel switch
-            {
-                ColorChannel.Red => Red,
-                ColorChannel.Green => Green,
-                ColorChannel.Blue => Blue,
-                _ => throw new ArgumentOutOfRangeException(nameof(channel), channel, "Undefined color channel."),
-            };
-        }
     }
     /// <summary>Common frame geometry for straight and revival-specific fade models.</summary>
     private interface IPaletteFade

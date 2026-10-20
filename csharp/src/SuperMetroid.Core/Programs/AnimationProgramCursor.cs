@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Programs;
 /// <param name="Program">The program being run.</param>
 /// <param name="Position">The step to run next.</param>
 internal readonly record struct AnimationProgramCursor<TProgram>(TProgram Program, int Position)
-    where TProgram : struct, Enum
+    where TProgram : struct
 {
     /// <summary>The start of <paramref name="program"/>.</summary>
     internal static AnimationProgramCursor<TProgram> Start(TProgram program) => new(program, 0);

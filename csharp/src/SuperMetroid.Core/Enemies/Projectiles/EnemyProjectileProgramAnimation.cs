@@ -13,7 +13,7 @@ namespace SuperMetroid.Core.Enemies.Projectiles;
 /// <typeparam name="TFrame">The family's frame identity.</typeparam>
 /// <typeparam name="TCue">The family's cue type.</typeparam>
 internal abstract class EnemyProjectileProgramAnimation<TProgram, TFrame, TCue> : EnemyProjectileAnimation
-    where TProgram : struct, Enum
+    where TProgram : struct
     where TFrame : struct
     where TCue : notnull
 {

@@ -113,7 +113,7 @@ public sealed class Bank80SystemState
         private set => field = SaveFieldValue.IsInRange(value)
             ? value
             : throw new ArgumentOutOfRangeException(nameof(value), value, "The saved loading game state is a save field.");
-    } = SaveLoadingGameStates.MainGame;
+    } = SaveLoadingGameStateCodec.Word(SaveLoadingGameState.MainGame);
 
     /// <summary>Creates the bank-$80 state over its own random-number word, with the game's power-on seed.</summary>
     public Bank80SystemState()

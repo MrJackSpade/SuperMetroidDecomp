@@ -17,7 +17,7 @@ internal static class GrappleFiringDefinitions
     /// Angle is (0x8000+0x2000*q) modulo 65536, q=d for d&lt;=4 else d-1.
     /// throw ArgumentOutOfRangeException for unsupported directions.
     /// </remarks>
-    internal static (short XVelocity, short YVelocity, ushort Angle) Launch(byte direction)
+    internal static GrappleLaunchDefinition Launch(byte direction)
     {
         if (direction >= 10) throw new ArgumentOutOfRangeException(nameof(direction));
         short x = direction switch
@@ -37,7 +37,7 @@ internal static class GrappleFiringDefinitions
             _ => 0,
         };
         int octant = direction <= 4 ? direction : direction - 1;
-        return (x, y, unchecked((ushort)(0x8000 + 0x2000 * octant)));
+        return new(new EightEightVector<RoomPixels>(x, y), SnesAngle.FromRaw(unchecked((ushort)(0x8000 + 0x2000 * octant))));
     }
 
     /// <summary>$9B:C122/$C172 X and $C136/$C186 Y hand anchors selected by firing pose.

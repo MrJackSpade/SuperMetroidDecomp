@@ -18,12 +18,9 @@ namespace SuperMetroid.Core.Fx.PaletteFx;
 public static class BeaconPaletteFxColorDefinitions
 {
 
-    /// <summary>Ten ten-frame records form one complete flash cycle.</summary>
-    public const int FrameCount = 10;
-
     /// <summary>Four live BGR555 colors are written by each timed record.</summary>
     public const int ColorsPerFrame = 4;
 
     /// <summary>The family's records, consecutive from the first its program shows, and the colours each writes.</summary>
-    public static PaletteFxColorRows Rows { get; } = new(424, FrameCount, ColorsPerFrame);
+    public static PaletteFxColorRows Rows { get; } = PaletteFxColorRows.Of(PaletteFxProgram.Crateria80Brinstar41, ColorsPerFrame);
 }

@@ -7,14 +7,14 @@ namespace SuperMetroid.Core.Samus.Artwork;
 public sealed class PowerBombFixedColorCatalog
 {
     /// <summary>Authored pre-explosion colors that differ from the calculated sixteen-entry stock sequence.</summary>
-    internal readonly Dictionary<int, (byte Red, byte Green, byte Blue)> preExplosion;
+    internal readonly Dictionary<int, Bgr555> preExplosion;
     /// <summary>Authored explosion colors, including later entries without a calculated stock definition.</summary>
-    internal readonly Dictionary<int, (byte Red, byte Green, byte Blue)> explosion;
+    internal readonly Dictionary<int, Bgr555> explosion;
 
     /// <summary>Retains validated component edits separately for the two radius-selected sequences.</summary>
     private PowerBombFixedColorCatalog(
-        Dictionary<int, (byte Red, byte Green, byte Blue)> preExplosion,
-        Dictionary<int, (byte Red, byte Green, byte Blue)> explosion)
+        Dictionary<int, Bgr555> preExplosion,
+        Dictionary<int, Bgr555> explosion)
     {
         this.preExplosion = preExplosion;
         this.explosion = explosion;
@@ -46,9 +46,9 @@ public sealed class PowerBombFixedColorCatalog
         JsonAssetDocument.WriteValidated(document, ArtworkJson.Options, json => _ = Load(json));
 
     /// <summary>Returns authored display color; phase and radius indexing remain engine-owned.</summary>
-    public (byte Red, byte Green, byte Blue) Resolve(PowerBombFixedColorSequence sequence, int index)
+    public Bgr555 Resolve(PowerBombFixedColorSequence sequence, int index)
     {
-        Dictionary<int, (byte Red, byte Green, byte Blue)> colors = sequence switch
+        Dictionary<int, Bgr555> colors = sequence switch
         {
             PowerBombFixedColorSequence.PreExplosion => preExplosion,
             PowerBombFixedColorSequence.Explosion => explosion,
@@ -62,19 +62,19 @@ public sealed class PowerBombFixedColorCatalog
     }
 
     /// <summary>Checks RGB5 channels and keeps entries that differ from the calculated stock sequence.</summary>
-    private static Dictionary<int, (byte Red, byte Green, byte Blue)> Compile(
+    private static Dictionary<int, Bgr555> Compile(
         PaletteRgb5[]? source, int count, PowerBombFixedColorSequence sequence, string name)
     {
         if (source is null || source.Length != count)
             throw new InvalidDataException($"Power Bomb {name} requires {count} RGB5 colors.");
-        var colors = new Dictionary<int, (byte Red, byte Green, byte Blue)>();
+        var colors = new Dictionary<int, Bgr555>();
         for (int index = 0; index < source.Length; index++)
         {
             PaletteRgb5? color = source[index];
             if (color is null || (uint)color.Red > 31 ||
                 (uint)color.Green > 31 || (uint)color.Blue > 31)
                 throw new InvalidDataException($"Power Bomb {name} color {index} requires components from zero through 31.");
-            var supplied = ((byte)color.Red, (byte)color.Green, (byte)color.Blue);
+            var supplied = new Bgr555(color.Red, color.Green, color.Blue);
             if (!PowerBombFixedColorFormat.TryCalculateStock(sequence, index, out var calculated) || supplied != calculated)
                 colors.Add(index, supplied);
         }

@@ -19,13 +19,13 @@ public static class TourianStatueGreyPaletteFxColorDefinitions
 {
 
     /// <summary>Eight eight-frame records form the statue grey-out sequence.</summary>
-    public const int FrameCount = 8;
+    public static int FrameCount => Rows.FrameCount;
 
     /// <summary>Eight BGR555 colors are presentation-owned by each timed record.</summary>
     public const int ColorsPerFrame = 8;
 
     /// <summary>The family's records, consecutive from the first its program shows, and the colours each writes.</summary>
-    public static PaletteFxColorRows Rows { get; } = new(279, FrameCount, ColorsPerFrame);
+    public static PaletteFxColorRows Rows { get; } = PaletteFxColorRows.Of(PaletteFxProgram.CommonGreyOutTourianStatue, ColorsPerFrame);
 
     /// <summary>Colour <paramref name="color"/> of record <paramref name="frame"/>.</summary>
     public static PaletteFxColorKey Color(int frame, int color) => Rows.Color(frame, color);

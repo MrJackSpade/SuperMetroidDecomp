@@ -68,7 +68,7 @@ internal sealed class BeamFiring
     }
 
     /// <summary>Handles held Shoot, release, pose-transition release, Hyper Beam, and special attack timing.</summary>
-    internal (int? Slot, SoundEffectId? Sound, int MaximumQueued) HandleBeamInput(
+    internal BeamFiringResult HandleBeamInput(
         RoomLevelData level,
         SamusState samus,
         SnesButton controllerInput,
@@ -87,7 +87,7 @@ internal sealed class BeamFiring
             (int? slot, SoundEffectId? sound) = (controllerInput & shoot) != 0
                 ? TryFireHyperBeam(level, samus, sharedProjectiles, roomPlms)
                 : (null, null);
-            return (slot, sound, sound is null ? 0 : 15);
+            return new(slot, sound, sound is null ? 0 : 15);
         }
 
         // Retail inventory normally owns twelve low-nibble combinations, but the native
@@ -111,7 +111,7 @@ internal sealed class BeamFiring
                     roomPlms,
                     charged: false)
                 : (null, null);
-            return (slot, sound, sound is null ? 0 : 15);
+            return new(slot, sound, sound is null ? 0 : 15);
         }
 
         if (samus.PoseTransitionShotDirection != 0)
@@ -151,7 +151,7 @@ internal sealed class BeamFiring
                         sharedProjectiles,
                         roomPlms,
                         charged: false);
-                    return (slot, sound, sound is null ? 0 : 15);
+                    return new(slot, sound, sound is null ? 0 : 15);
                 }
 
                 // `$90:BAFC` owns both flare graphics and their audio. Its draw-time call
@@ -160,7 +160,7 @@ internal sealed class BeamFiring
                 // here, on the alpha pass that advances the counter to sixteen.
                 if (_charge.FlareCounter == SamusProjectileRomData.Beams.ChargeSoundStartCounter)
                 {
-                    return (null, SoundEffectLibrary1Sounds.ChargeBeamStart, MaximumQueued: 9);
+                    return new(null, SoundEffectLibrary1Sounds.ChargeBeamStart, MaximumQueued: 9);
                 }
             }
             else if (_combos.TryActivateCombo(samus, sharedProjectiles, out ushort comboSound))
@@ -171,13 +171,13 @@ internal sealed class BeamFiring
                 _charge.FlareCounter = 0;
                 _animation.ClearFlareAnimationState();
                 samus.HorizontalSpeed.RequestNormalSuitPaletteRestore();
-                return (null, LibraryOneRequest(comboSound), 6);
+                return new(null, LibraryOneRequest(comboSound), 6);
             }
-            return (null, null, 0);
+            return new(null, null, 0);
         }
 
         if (_charge.FlareCounter == 0)
-            return (null, null, 0);
+            return new(null, null, 0);
 
         bool releaseCharged =
             _charge.FlareCounter >= SamusProjectileRomData.Beams.FullyChargedCounter;
@@ -198,7 +198,7 @@ internal sealed class BeamFiring
     /// muzzle initialization rejects a release after counter sixteen, the cartridge queues
     /// library-one `$02` instead so the sustained charge cannot remain audible.
     /// </summary>
-    private (int? Slot, SoundEffectId? Sound, int MaximumQueued) CompleteBeamRelease(
+    private BeamFiringResult CompleteBeamRelease(
         (int? Slot, SoundEffectId? Sound) firing)
     {
         // FireChargedBeam's success path queues the indexed sound value even when an
@@ -207,12 +207,12 @@ internal sealed class BeamFiring
         // tail which cancels an audible charge. Murder Beam is the observable index-15
         // case: it allocates a persistent projectile while requesting no new sound.
         if (firing.Slot is not null)
-            return (firing.Slot, firing.Sound, MaximumQueued: 15);
+            return new(firing.Slot, firing.Sound, MaximumQueued: 15);
 
         return _charge.PreviousBeamChargeCounter >=
             SamusProjectileRomData.Beams.ChargeSoundStartCounter
-            ? (null, SoundEffectLibrary1Sounds.CancelAll, MaximumQueued: 15)
-            : (null, null, 0);
+            ? new(null, SoundEffectLibrary1Sounds.CancelAll, MaximumQueued: 15)
+            : new(null, null, 0);
     }
 
     /// <summary>

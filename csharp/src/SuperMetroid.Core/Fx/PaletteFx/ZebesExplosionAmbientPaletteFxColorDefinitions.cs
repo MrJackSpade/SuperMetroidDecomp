@@ -30,17 +30,15 @@ public static class ZebesExplosionAmbientPaletteFxColorDefinitions
         new(
             ZebesExplosionAmbientPaletteFxProgramOwner.PlanetAfterglow,
             paletteFxObject: PaletteFxObject.ZebesExplosionPlanetAfterglow,
-            firstRecord: 169,
+            program: PaletteFxProgram.ZebesExplosionPlanetAfterGlow1,
             colorByteIndex: 0x01c2,
-            frameCount: 6,
             colorsPerFrame: 8,
             cycleFrames: 96),
         new(
             ZebesExplosionAmbientPaletteFxProgramOwner.Lava,
             paletteFxObject: PaletteFxObject.ExplodingZebesLava,
-            firstRecord: 175,
+            program: PaletteFxProgram.ExplodingZebesLava1,
             colorByteIndex: 0x0080,
-            frameCount: 10,
             colorsPerFrame: 1,
             cycleFrames: 70),
     ];

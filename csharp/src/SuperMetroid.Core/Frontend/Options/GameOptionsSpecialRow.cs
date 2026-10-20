@@ -4,9 +4,9 @@ namespace SuperMetroid.Core.Frontend.Options;
 public enum GameOptionsSpecialRow
 {
     /// <summary>Special row zero: toggles Icon Cancel.</summary>
-    IconCancel = GameOptionsRomData.Rows.SpecialIconCancel,
+    IconCancel,
     /// <summary>Special row one: toggles Moonwalk.</summary>
-    Moonwalk = GameOptionsRomData.Rows.SpecialMoonwalk,
+    Moonwalk,
     /// <summary>Special row two: returns to the primary page.</summary>
-    Exit = GameOptionsRomData.Rows.SpecialExit,
+    Exit,
 }

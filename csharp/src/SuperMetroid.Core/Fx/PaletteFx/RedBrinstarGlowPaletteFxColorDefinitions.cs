@@ -9,12 +9,9 @@ namespace SuperMetroid.Core.Fx.PaletteFx;
 public static class RedBrinstarGlowPaletteFxColorDefinitions
 {
 
-    /// <summary>Fourteen ten-frame records form one complete glow cycle.</summary>
-    public const int FrameCount = 14;
-
     /// <summary>Eight BGR555 colors are presentation-owned by each timed record.</summary>
     public const int ColorsPerFrame = 8;
 
     /// <summary>The family's records, consecutive from the first its program shows, and the colours each writes.</summary>
-    public static PaletteFxColorRows Rows { get; } = new(410, FrameCount, ColorsPerFrame);
+    public static PaletteFxColorRows Rows { get; } = PaletteFxColorRows.Of(PaletteFxProgram.Brinstar21, ColorsPerFrame);
 }

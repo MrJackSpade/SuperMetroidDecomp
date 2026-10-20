@@ -22,12 +22,9 @@ namespace SuperMetroid.Core.Fx.PaletteFx;
 public static class UnusedCinematicFadePaletteFxColorDefinitions
 {
 
-    /// <summary>The one-shot fade contains eleven timed records.</summary>
-    public const int FrameCount = 11;
-
     /// <summary>Each record writes sixteen live BGR555 colors.</summary>
     public const int ColorsPerFrame = 16;
 
     /// <summary>The family's records, consecutive from the first its program shows, and the colours each writes.</summary>
-    public static PaletteFxColorRows Rows { get; } = new(227, FrameCount, ColorsPerFrame);
+    public static PaletteFxColorRows Rows { get; } = PaletteFxColorRows.Of(PaletteFxProgram.ListD9D0, ColorsPerFrame);
 }

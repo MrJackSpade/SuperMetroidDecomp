@@ -249,9 +249,9 @@ public sealed class EscapeTimer
     /// <summary>Selects the next step of the running sequence, keeping the timer active.</summary>
     private void AdvanceState() => State = State switch
     {
-        EscapeTimerState.InitialDelay => EscapeTimerState.RunningMovementDelayed,
-        EscapeTimerState.RunningMovementDelayed => EscapeTimerState.RunningMovingIntoPlace,
-        EscapeTimerState.RunningMovingIntoPlace => EscapeTimerState.RunningInPlace,
+        EscapeTimerState.InitialDelay
+            or EscapeTimerState.RunningMovementDelayed
+            or EscapeTimerState.RunningMovingIntoPlace => EnumOrder.Next(State),
         EscapeTimerState.Inactive or
             EscapeTimerState.CeresStart or
             EscapeTimerState.MotherBrainStart or

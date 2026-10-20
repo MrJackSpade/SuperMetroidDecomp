@@ -24,12 +24,12 @@ internal static class EndingRewardActorDefinitions
     };
 
     /// <summary>Literal position/palette writes made by the four native reward initialization routines.</summary>
-    public static (int X, int Y, int Palette) GetInitialization(EndingRewardInitialization address) => address switch
+    public static EndingRewardActorInitializationDefinition GetInitialization(EndingRewardInitialization address) => address switch
     {
-        EndingRewardInitialization.Suitless => (120, 136, 0x0a00),
-        EndingRewardInitialization.SuitedBody => (120, 152, 0x0c00),
-        EndingRewardInitialization.HelmetedHead => (124, 108, 0x0c00),
-        EndingRewardInitialization.HelmetlessHead => (121, 107, 0x0a00),
+        EndingRewardInitialization.Suitless => new(new(120, 136), 0x0a00),
+        EndingRewardInitialization.SuitedBody => new(new(120, 152), 0x0c00),
+        EndingRewardInitialization.HelmetedHead => new(new(124, 108), 0x0c00),
+        EndingRewardInitialization.HelmetlessHead => new(new(121, 107), 0x0a00),
         _ => throw new InvalidOperationException($"Undefined {nameof(EndingRewardInitialization)} {(int)address:X4}."),
     };
 }

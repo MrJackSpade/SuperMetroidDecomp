@@ -22,12 +22,9 @@ namespace SuperMetroid.Core.Fx.PaletteFx;
 public static class ZebesExplosionFinalePaletteFxColorDefinitions
 {
 
-    /// <summary>The finale contains 45 timed records.</summary>
-    public const int FrameCount = 45;
-
     /// <summary>Each record writes fifteen live BGR555 colors.</summary>
     public const int ColorsPerFrame = 15;
 
     /// <summary>The family's records, consecutive from the first its program shows, and the colours each writes.</summary>
-    public static PaletteFxColorRows Rows { get; } = new(109, FrameCount, ColorsPerFrame);
+    public static PaletteFxColorRows Rows { get; } = PaletteFxColorRows.Of(PaletteFxProgram.ZebesExplosionFinale, ColorsPerFrame);
 }

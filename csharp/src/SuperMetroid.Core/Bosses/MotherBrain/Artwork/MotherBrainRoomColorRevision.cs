@@ -4,9 +4,9 @@ namespace SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 internal enum MotherBrainRoomColorRevision
 {
     /// <summary>Revision 1: room-entry and recovery-light artwork are inherited from current stock.</summary>
-    PreRoomEntry = MotherBrainRoomColorFormat.PreRoomEntryVersion,
+    PreRoomEntry = 1,
     /// <summary>Revision 2: recovery-light artwork is inherited from current stock.</summary>
-    PreRecoveryLights = MotherBrainRoomColorFormat.PreRecoveryLightsVersion,
+    PreRecoveryLights = 2,
     /// <summary>Revision 3: every field is supplied by the document.</summary>
-    Current = MotherBrainRoomColorFormat.Version,
+    Current = 3,
 }

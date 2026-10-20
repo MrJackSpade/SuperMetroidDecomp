@@ -5,30 +5,26 @@ using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 
 /// <summary>A turret's, bullet's or impact smoke's typed animation.</summary>
-internal sealed class MotherBrainTurretAnimation : EnemyProjectileTimelineAnimation<MotherBrainTurretFrame, MotherBrainTurretCue>
+internal sealed class MotherBrainTurretAnimation
+    : EnemyProjectileProgramAnimation<MotherBrainTurretPose, MotherBrainTurretFrame, MotherBrainTurretCue>
 {
-    /// <summary>The timeline played.</summary>
-    private readonly AnimationTimeline<MotherBrainTurretFrame, MotherBrainTurretCue> timeline;
-
     /// <summary>Plays the still pose of <paramref name="program"/> facing <paramref name="direction"/>.</summary>
     internal MotherBrainTurretAnimation(MotherBrainTurretProgram program, MotherBrainTurretDirection direction)
+        : base(program == MotherBrainTurretProgram.BulletImpact
+            ? throw new ArgumentOutOfRangeException(nameof(program), program, "Only turrets and bullets have direction poses.")
+            : new MotherBrainTurretPose(program, direction))
     {
-        Program = program;
-        timeline = MotherBrainTurretAnimations.Pose(program, direction);
     }
 
     /// <summary>Plays a bullet's impact smoke.</summary>
     internal MotherBrainTurretAnimation()
+        : base(MotherBrainTurretPose.BulletImpact)
     {
-        Program = MotherBrainTurretProgram.BulletImpact;
-        timeline = MotherBrainTurretAnimations.BulletImpact;
     }
 
-    /// <summary>The program played.</summary>
-    internal MotherBrainTurretProgram Program { get; }
-
     /// <inheritdoc/>
-    private protected override AnimationTimeline<MotherBrainTurretFrame, MotherBrainTurretCue> Timeline => timeline;
+    private protected override AnimationProgramSet<MotherBrainTurretPose, MotherBrainTurretFrame, MotherBrainTurretCue> Programs =>
+        MotherBrainTurretAnimations.Programs;
 
     /// <inheritdoc/>
     private protected override EnemyProjectileFrameId Present(MotherBrainTurretFrame frame) =>

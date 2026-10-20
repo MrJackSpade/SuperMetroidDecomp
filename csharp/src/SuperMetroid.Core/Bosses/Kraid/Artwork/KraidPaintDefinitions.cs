@@ -20,9 +20,9 @@ internal static class KraidPaintDefinitions
     private const int BandColors = KraidPaletteRomData.BandColors;
 
     /// <summary>First and last colors of the first health band's hide ramp (colors four to eleven).</summary>
-    private static readonly (int Red, int Green, int Blue) RampLight = (26, 19, 4);
+    private static readonly Bgr555 RampLight = new(26, 19, 4);
     /// <summary>Dark endpoint of the first health band's eight-shade hide ramp.</summary>
-    private static readonly (int Red, int Green, int Blue) RampDark = (3, 1, 0);
+    private static readonly Bgr555 RampDark = new(3, 1, 0);
     /// <summary>First slot of the first health band's calculated hide ramp.</summary>
     private const int RampFirst = 4;
     /// <summary>Last slot of that ramp before independently chosen eye and claw inks.</summary>

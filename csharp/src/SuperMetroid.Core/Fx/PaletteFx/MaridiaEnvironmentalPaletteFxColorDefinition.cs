@@ -20,9 +20,9 @@ public sealed class MaridiaEnvironmentalPaletteFxColorDefinition
     /// <summary>The program's records, consecutive from the first its program shows, and the colours each writes.</summary>
     public PaletteFxColorRows Rows => Owner switch
     {
-        MaridiaEnvironmentalPaletteOwner.SandPits => new(498, FrameCount, ColorsPerFrame),
-        MaridiaEnvironmentalPaletteOwner.SandFalls => new(502, FrameCount, ColorsPerFrame),
-        MaridiaEnvironmentalPaletteOwner.BackgroundWaterfalls => new(506, FrameCount, ColorsPerFrame),
+        MaridiaEnvironmentalPaletteOwner.SandPits => PaletteFxColorRows.Of(PaletteFxProgram.Maridia11, ColorsPerFrame),
+        MaridiaEnvironmentalPaletteOwner.SandFalls => PaletteFxColorRows.Of(PaletteFxProgram.Maridia21, ColorsPerFrame),
+        MaridiaEnvironmentalPaletteOwner.BackgroundWaterfalls => PaletteFxColorRows.Of(PaletteFxProgram.Maridia41, ColorsPerFrame),
         _ => throw new InvalidOperationException("Unsupported Maridia palette owner."),
     };
 

@@ -20,26 +20,17 @@ namespace SuperMetroid.Core.Fx.PaletteFx;
 public static class SamusLoadingSuitPaletteFxColorDefinitions
 {
 
-    /// <summary>Each program has four independently counted two-record groups.</summary>
-    public const int GroupCount = 4;
-
-    /// <summary>Each counted group contains two palette records.</summary>
-    public const int FramesPerGroup = 2;
-
-    /// <summary>Each complete program contains eight counted records and one final record.</summary>
-    public const int FrameCount = GroupCount * FramesPerGroup + 1;
-
     /// <summary>Each record writes sixteen live BGR555 colors.</summary>
     public const int ColorsPerFrame = 16;
     /// <summary>Native Power-suit definition $8D:E1F4 selects program $DB62.</summary>
     private static readonly SamusLoadingSuitPaletteFxColorDefinition Power =
-        new(SamusLoadingSuitPaletteFxProgramOwner.PowerSuit, PaletteFxObject.SamusLoadingPowerSuit, 238);
+        new(SamusLoadingSuitPaletteFxProgramOwner.PowerSuit, PaletteFxObject.SamusLoadingPowerSuit, PaletteFxProgram.SamusLoadingPowerSuit1);
     /// <summary>Native Varia-suit definition $8D:E1F8 selects program $DCC8.</summary>
     private static readonly SamusLoadingSuitPaletteFxColorDefinition Varia =
-        new(SamusLoadingSuitPaletteFxProgramOwner.VariaSuit, PaletteFxObject.SamusLoadingVariaSuit, 247);
+        new(SamusLoadingSuitPaletteFxProgramOwner.VariaSuit, PaletteFxObject.SamusLoadingVariaSuit, PaletteFxProgram.SamusLoadingVairaSuit1);
     /// <summary>Native Gravity-suit definition $8D:E1FC selects program $DE2E.</summary>
     private static readonly SamusLoadingSuitPaletteFxColorDefinition Gravity =
-        new(SamusLoadingSuitPaletteFxProgramOwner.GravitySuit, PaletteFxObject.SamusLoadingGravitySuit, 256);
+        new(SamusLoadingSuitPaletteFxProgramOwner.GravitySuit, PaletteFxObject.SamusLoadingGravitySuit, PaletteFxProgram.SamusLoadingGravitySuit1);
 
     /// <summary>The power, Varia, and gravity programs in definition order.</summary>
     /// <remarks>Named program identities replace the former indexed descriptor array.

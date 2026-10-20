@@ -92,21 +92,83 @@ internal static class NativeSnapshotImportMotherBrainVerification
         state.HandBeamNextAngle = W(MotherBrainMemory.DeathBeamNext + 12);
         state.OnionRingsTargetAngle = W(MotherBrainMemory.OnionRingsTargetAngle);
         state.RainbowBeamAngularWidth = W(MotherBrainMemory.RainbowBeamAngularWidth);
-        if (RainbowPhaseOfFunction.Value.TryGetValue(state.Function, out MotherBrainRainbowBeamAttackPhase phase))
-            ImportNativeMotherBrainRainbowSequence(runtime, state, phase, W);
+        if (RainbowSequenceFunctions.Contains(state.Function))
+            ImportNativeMotherBrainRainbowSequence(runtime, state, state.Function, W);
     }
 
-    /// <summary>
-    /// The live rainbow sequence's phase for each body function it publishes, inverted from
-    /// the room adapter's own map. Only <see cref="MotherBrainRainbowBeamAttackPhase.Inactive"/>
-    /// publishes no function.
-    /// </summary>
-    private static readonly Lazy<Dictionary<MotherBrainBodyFunction, MotherBrainRainbowBeamAttackPhase>> RainbowPhaseOfFunction =
-        new(() => Enum.GetValues<MotherBrainRainbowBeamAttackPhase>()
-            .Where(phase => phase != MotherBrainRainbowBeamAttackPhase.Inactive)
-            .ToDictionary(
-                phase => MotherBrainBehavior.MapLiveMotherBrainRainbowFunction(phase),
-                phase => phase));
+    /// <summary>The body functions the live rainbow sequence runs, which a recorded function in this set resumes.</summary>
+    private static readonly HashSet<MotherBrainBodyFunction> RainbowSequenceFunctions =
+    [
+        MotherBrainBodyFunction.SecondPhaseRainbowExtendNeck,
+        MotherBrainBodyFunction.SecondPhaseRainbowStartCharging,
+        MotherBrainBodyFunction.SecondPhaseRainbowRetractNeck,
+        MotherBrainBodyFunction.SecondPhaseRainbowWaitForCharge,
+        MotherBrainBodyFunction.SecondPhaseRainbowExtendNeckDown,
+        MotherBrainBodyFunction.SecondPhaseRainbowStartFiring,
+        MotherBrainBodyFunction.SecondPhaseRainbowMoveSamusTowardWall,
+        MotherBrainBodyFunction.SecondPhaseRainbowOneFrameDelay,
+        MotherBrainBodyFunction.SecondPhaseRainbowStartDrainingSamus,
+        MotherBrainBodyFunction.SecondPhaseRainbowDrainingSamus,
+        MotherBrainBodyFunction.SecondPhaseRainbowFinishFiring,
+        MotherBrainBodyFunction.SecondPhaseRainbowLetSamusFall,
+        MotherBrainBodyFunction.SecondPhaseRainbowWaitForSamusToLand,
+        MotherBrainBodyFunction.SecondPhaseRainbowLowerHead,
+        MotherBrainBodyFunction.SecondPhaseRainbowDecideNextAction,
+        MotherBrainBodyFunction.SecondPhaseFinishSamusOff,
+        MotherBrainBodyFunction.SecondPhaseFinishSamusOffStandUp,
+        MotherBrainBodyFunction.SecondPhaseFinishSamusOffAdmire,
+        MotherBrainBodyFunction.SecondPhaseFinishSamusOffChargeFinalBeam,
+        MotherBrainBodyFunction.SecondPhaseFinishSamusOffLoadBabyTiles,
+        MotherBrainBodyFunction.SecondPhaseFinishSamusOffFireFinalBeam,
+        MotherBrainBodyFunction.SecondPhaseFinalRainbowBeamHolding,
+        MotherBrainBodyFunction.SecondPhaseDrainedByBabyTakenAback,
+        MotherBrainBodyFunction.SecondPhaseDrainedByBabyRegainBalance,
+        MotherBrainBodyFunction.SecondPhaseDrainedByBabyFiringRainbowBeam,
+        MotherBrainBodyFunction.SecondPhaseDrainedByBabyRainbowBeamRunOut,
+        MotherBrainBodyFunction.SecondPhaseDrainedByBabyMoveToBackOfRoom,
+        MotherBrainBodyFunction.SecondPhaseDrainedByBabyGoIntoLowPowerMode,
+        MotherBrainBodyFunction.SecondPhaseDrainedByBabyPrepareTransitionToGrey,
+        MotherBrainBodyFunction.SecondPhaseDrainedByBabyTransitionToGrey,
+        MotherBrainBodyFunction.SecondPhaseReviveInanimateGrey,
+        MotherBrainBodyFunction.SecondPhaseReviveShowSignsOfLife,
+        MotherBrainBodyFunction.SecondPhaseReviveTransitionFromGrey,
+        MotherBrainBodyFunction.SecondPhaseReviveWakeUp,
+        MotherBrainBodyFunction.SecondPhaseReviveWakeUpStretch,
+        MotherBrainBodyFunction.SecondPhaseReviveWalkUpToBaby,
+        MotherBrainBodyFunction.SecondPhaseRevivePrepareNeckForBabyDeath,
+        MotherBrainBodyFunction.SecondPhaseReviveFinishPreparingForBabyDeath,
+        MotherBrainBodyFunction.SecondPhaseMurderBabyAttack,
+        MotherBrainBodyFunction.SecondPhaseMurderBabyAttackCooldown,
+        MotherBrainBodyFunction.SecondPhasePrepareForFinalBabyAttack,
+        MotherBrainBodyFunction.SecondPhaseExecuteFinalBabyAttack,
+        MotherBrainBodyFunction.SecondPhaseFinalBabyAttackHolding,
+        MotherBrainBodyFunction.ThirdPhaseRecoverMakeSomeDistance,
+        MotherBrainBodyFunction.ThirdPhaseRecoverSetupForFighting,
+        MotherBrainBodyFunction.ThirdPhaseFightingMain,
+        MotherBrainBodyFunction.ThirdPhaseFightingAttackCooldown,
+        MotherBrainBodyFunction.ThirdPhaseDeathMoveToBackOfRoom,
+        MotherBrainBodyFunction.ThirdPhaseDeathIdleWhilstExploding,
+        MotherBrainBodyFunction.ThirdPhaseDeathStumbleToMiddleOfRoom,
+        MotherBrainBodyFunction.ThirdPhaseDeathDisableBrainEffects,
+        MotherBrainBodyFunction.ThirdPhaseDeathSetupBodyFadeOut,
+        MotherBrainBodyFunction.ThirdPhaseDeathFadeOutBody,
+        MotherBrainBodyFunction.ThirdPhaseDeathFinalFewExplosions,
+        MotherBrainBodyFunction.ThirdPhaseDeathRealizeDecapitation,
+        MotherBrainBodyFunction.ThirdPhaseDeathBrainFallsToGround,
+        MotherBrainBodyFunction.ThirdPhaseDeathLoadCorpseTiles,
+        MotherBrainBodyFunction.ThirdPhaseDeathSetupFadeToGrey,
+        MotherBrainBodyFunction.ThirdPhaseDeathFadeToGrey,
+        MotherBrainBodyFunction.ThirdPhaseDeathCorpseTipsOver,
+        MotherBrainBodyFunction.ThirdPhaseDeathCorpseRotsAway,
+        MotherBrainBodyFunction.ThirdPhaseDeath20FrameDelay,
+        MotherBrainBodyFunction.ThirdPhaseDeathLoadEscapeTimerTiles,
+        MotherBrainBodyFunction.ThirdPhaseDeathStartEscape,
+        MotherBrainBodyFunction.ThirdPhaseDeathSpawnTimeBombSetSubtitle,
+        MotherBrainBodyFunction.ThirdPhaseDeathTypeOutZebesEscapeText,
+        MotherBrainBodyFunction.ThirdPhaseDeathDoorExplodingStartTimer,
+        MotherBrainBodyFunction.ThirdPhaseDeathBlowUpEscapeDoor,
+        MotherBrainBodyFunction.ThirdPhaseDeathKeepEarthquakeGoing,
+    ];
 
     /// <summary>
     /// Rebuilds the rainbow-beam sequence that owns phase two from the beam onward. The
@@ -114,7 +176,7 @@ internal static class NativeSnapshotImportMotherBrainVerification
     /// before each step, so only the sequence-owned words are imported here.
     /// </summary>
     private static void ImportNativeMotherBrainRainbowSequence(SuperMetroidRuntime runtime, MotherBrainEnemyState state,
-        MotherBrainRainbowBeamAttackPhase phase, Func<int, ushort> W)
+        MotherBrainBodyFunction phase, Func<int, ushort> W)
     {
         var artwork = runtime.Enemies.Room.MotherBrainCorpseArtwork;
         var sequence = new MotherBrainRainbowBeamAttackSequence(artwork);

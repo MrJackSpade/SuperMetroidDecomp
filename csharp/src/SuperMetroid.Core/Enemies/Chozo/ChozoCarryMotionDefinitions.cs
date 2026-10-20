@@ -60,7 +60,7 @@ public static class ChozoCarryMotionDefinitions
     /// pixel offset after moving the statue, with 16-bit position wrapping.
     /// Records outside the table are rejected. Investigation: #625 / #666.
     /// </remarks>
-    public static (short Velocity, short SamusX, short SamusY) Read(int record)
+    public static ChozoCarryStepDefinition Read(int record)
     {
         if (record is < 0 or >= RecordCount)
             throw new InvalidDataException($"Chozo carry record {record} is outside its {RecordCount} records.");
@@ -68,6 +68,6 @@ public static class ChozoCarryMotionDefinitions
         int local = index % 16;
         int sign = index < 16 ? -1 : 1;
         int x = local == 0 ? 28 : local == 1 ? 30 : 32;
-        return ((short)(sign * Magnitude(local)), (short)(sign * x), SamusYOffset(local));
+        return new((short)(sign * Magnitude(local)), new((short)(sign * x), SamusYOffset(local)));
     }
 }

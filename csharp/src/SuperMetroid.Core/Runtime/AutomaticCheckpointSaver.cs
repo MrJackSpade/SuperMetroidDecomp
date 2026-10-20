@@ -16,24 +16,24 @@ internal static class AutomaticCheckpointSaver
     /// $8B:C100-$C116 publishes $1F before saving the initial Ceres checkpoint.
     /// </summary>
     public static void SaveCeresArrival(SaveSlotStore saves, SuperMetroidRuntime runtime, int slot) =>
-        SaveCeresCheckpoint(saves, runtime, slot, SaveLoadingGameStates.CeresElevatorArrival);
+        SaveCeresCheckpoint(saves, runtime, slot, SaveLoadingGameState.CeresElevatorArrival);
 
     /// <summary>
     /// $82:83D6-$83E3 publishes $22 before saving at the completed escape blackout.
     /// This checkpoint resumes the destruction cinematic, never the escaping room.
     /// </summary>
     public static void SaveCeresDeparture(SaveSlotStore saves, SuperMetroidRuntime runtime, int slot) =>
-        SaveCeresCheckpoint(saves, runtime, slot, SaveLoadingGameStates.CeresDestruction);
+        SaveCeresCheckpoint(saves, runtime, slot, SaveLoadingGameState.CeresDestruction);
 
     /// <summary>Publishes the requested Ceres loading state, then saves Samus, system state, game time, and player options through the ordinary SRAM encoder.</summary>
     private static void SaveCeresCheckpoint(
-        SaveSlotStore saves, SuperMetroidRuntime runtime, int slot, ushort loadingGameState)
+        SaveSlotStore saves, SuperMetroidRuntime runtime, int slot, SaveLoadingGameState route)
     {
         Ensure.NotNull(saves);
         Ensure.NotNull(runtime);
         SamusState samus = runtime.Player.Samus
             ?? throw new InvalidOperationException("Ceres checkpoint requires a live Samus actor.");
-        runtime.System.LoadSavedLoadingGameState(loadingGameState);
+        runtime.System.LoadSavedLoadingGameState(SaveLoadingGameStateCodec.Word(route));
         saves.SaveSlot(slot, SuperMetroidSaveSnapshot.Capture(samus, runtime.System, new SaveSnapshotContext { Area = AreaId.Ceres, SaveStation = 0, GameTime = runtime.GameTime, ControllerBindings = runtime.Options.ControllerBindings, MoonwalkEnabled = runtime.Options.MoonwalkEnabled, IconCancelEnabled = runtime.Options.IconCancelEnabled, JapaneseText = runtime.JapaneseText }));
     }
 
@@ -58,7 +58,7 @@ internal static class AutomaticCheckpointSaver
         // `$A2:A987` executes `ORA #$0001` on $D8F8 before changing load station 18 to
         // station zero and calling SaveToSram. The marker controls ship/save-point display
         // after reload and therefore belongs inside the atomic checkpoint operation.
-        runtime.System.LoadSavedLoadingGameState(SaveLoadingGameStates.MainGame);
+        runtime.System.LoadSavedLoadingGameState(SaveLoadingGameStateCodec.Word(SaveLoadingGameState.MainGame));
         runtime.System.MarkSaveStationUsed(areaIndex: AreaId.Crateria, stationBitIndex: 0);
         saves.SaveSlot(
             selectedSaveSlot,

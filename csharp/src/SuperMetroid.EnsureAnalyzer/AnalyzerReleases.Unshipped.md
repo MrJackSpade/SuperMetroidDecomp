@@ -23,6 +23,9 @@ SME6424 | Design | Error | BoolFlagAnalyzer
 SME6425 | Design | Error | BoolFlagAnalyzer
 SME6426 | Design | Error | ForwardingContractAnalyzer
 SME6427 | Design | Error | ForwardingContractAnalyzer
+SME6428 | Design | Error | DuplicateConceptAnalyzer
+SME6429 | Design | Error | DuplicateConceptAnalyzer
+SME6430 | Design | Error | DuplicateConceptAnalyzer
 SME6340 | Design | Warning | CartridgeEncodingAnalyzer
 SME6341 | Design | Warning | CartridgeEncodingAnalyzer
 SME6342 | Design | Warning | CartridgeEncodingAnalyzer

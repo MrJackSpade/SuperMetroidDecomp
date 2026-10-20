@@ -28,14 +28,14 @@ internal static class CeresDestructionActorDefinitions
     /// <remarks>Role cases follow $C810..C831 spawn order and identify X/Y immediates in each
     /// initializer. #1165 verifies all six original entries and ROM operands. Invalid indices
     /// throw ArgumentOutOfRangeException.</remarks>
-    public static (string Id, ushort XAddress, ushort YAddress) ZebesPlacementSource(int index) => index switch
+    public static CinematicPlacementSourceDefinition ZebesPlacementSource(int index) => index switch
     {
-        0 => ("planet", 0xc83c, 0xc842),
-        1 => ("stars-upper-left", 0xc944, 0xc94a),
-        2 => ("stars-upper-right", 0xc958, 0xc95e),
-        3 => ("stars-lower-left", 0xc96c, 0xc972),
-        4 => ("stars-lower-right", 0xc980, 0xc986),
-        5 => ("planet-zebes-title", 0xc993, 0xc999),
+        0 => new("planet", 0xc83c, 0xc842),
+        1 => new("stars-upper-left", 0xc944, 0xc94a),
+        2 => new("stars-upper-right", 0xc958, 0xc95e),
+        3 => new("stars-lower-left", 0xc96c, 0xc972),
+        4 => new("stars-lower-right", 0xc980, 0xc986),
+        5 => new("planet-zebes-title", 0xc993, 0xc999),
         _ => throw new ArgumentOutOfRangeException(nameof(index)),
     };
 

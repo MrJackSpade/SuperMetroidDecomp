@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Frontend.Pause;
 internal enum PauseReserveItem
 {
     /// <summary>$82:AC87, first tank subdispatcher: mode selector.</summary>
-    Mode = PauseReserveTransferRomData.ModeItem,
+    Mode,
     /// <summary>$82:AC89, second tank subdispatcher: manual energy transfer.</summary>
-    Transfer = PauseReserveTransferRomData.TransferItem,
+    Transfer,
 }

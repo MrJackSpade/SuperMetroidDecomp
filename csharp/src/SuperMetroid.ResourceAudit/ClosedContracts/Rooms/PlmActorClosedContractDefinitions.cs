@@ -33,7 +33,6 @@ internal static class PlmActorClosedContractDefinitions
             [SharedDrawShape,
              new("csharp/src/SuperMetroid.Core/Rooms/Plms/RoomPlmLinkedRestoreVisualCatalog.cs"),
              new("csharp/src/SuperMetroid.Core/Rooms/Plms/RoomPlmLinkedRestoreDrawDefinitions.cs"),
-             new("csharp/src/SuperMetroid.Core/Rooms/Plms/RoomPlmBombBlockRestoreDrawDefinitions.cs"),
-             new("csharp/src/SuperMetroid.Core/Rooms/Plms/RoomPlmContactCrumbleRestoreDrawDefinitions.cs")]),
+             new("csharp/src/SuperMetroid.Core/Rooms/Plms/RoomPlmLinkedRestoreDefinition.cs")]),
     ];
 }

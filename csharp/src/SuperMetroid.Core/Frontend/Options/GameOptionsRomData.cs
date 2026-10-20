@@ -72,12 +72,6 @@ public static class GameOptionsRomData
         public const int ControllerReset = 8;
         /// <summary>Nine controller-page rows, bounding selection wrap and the native cursor records at $82:F31B.</summary>
         public const int ControllerCount = 9;
-        /// <summary>Special row zero: toggles Icon Cancel, selected by the $09EA entry of native $82:F0AE.</summary>
-        public const int SpecialIconCancel = 0;
-        /// <summary>Special row one: toggles Moonwalk, selected by the $09E4 entry of native $82:F0AE.</summary>
-        public const int SpecialMoonwalk = 1;
-        /// <summary>Special row two: returns to the primary page without indexing the two-entry setting-address table.</summary>
-        public const int SpecialExit = 2;
         /// <summary>Three special-page rows, bounding selection wrap and the native cursor records at $82:F33F.</summary>
         public const int SpecialCount = 3;
 
@@ -238,9 +232,9 @@ public static class GameOptionsRomData
     public static class SpecialToggles
     {
         /// <summary>Native $82:F149/$F14B/$F14D/$F14F choice-box byte offsets for the two-row Icon Cancel toggle.</summary>
-        public static GameOptionsToggleLayout IconCancel => Layout(Rows.SpecialIconCancel);
+        public static GameOptionsToggleLayout IconCancel => Layout((int)GameOptionsSpecialRow.IconCancel);
         /// <summary>Native $82:F151/$F153/$F155/$F157 choice-box byte offsets for the two-row Moonwalk toggle, six tile rows below Icon Cancel.</summary>
-        public static GameOptionsToggleLayout Moonwalk => Layout(Rows.SpecialMoonwalk);
+        public static GameOptionsToggleLayout Moonwalk => Layout((int)GameOptionsSpecialRow.Moonwalk);
         /// <summary>Bytes recolored in each toggle-choice row: six native tilemap words, with only their palette bits replaced.</summary>
         public const int PaletteRegionByteCount = 0x0c;
 
@@ -251,7 +245,7 @@ public static class GameOptionsRomData
         /// </summary>
         public static GameOptionsToggleLayout Layout(int setting)
         {
-            if ((uint)setting >= Rows.SpecialExit) throw new ArgumentOutOfRangeException(nameof(setting));
+            if ((uint)setting >= (int)GameOptionsSpecialRow.Exit) throw new ArgumentOutOfRangeException(nameof(setting));
             int rowStride = MenuTilemapWidth * sizeof(ushort);
             int origin = 0x1e0 + 6 * rowStride * setting;
             int choiceStride = 7 * sizeof(ushort);

@@ -77,18 +77,10 @@ internal sealed class EnemyProjectileHandlerTable
 
     /// <summary>Registers the handler that carries out every cue of type <typeparamref name="TCue"/> and may redirect its program.</summary>
     internal void RegisterBranchingCue<TProgram, TCue>(EnemyProjectileBranchingCueHandler<TProgram, TCue> handler)
-        where TProgram : struct, Enum
+        where TProgram : struct
     {
         if (!_cues.TryAdd(typeof(TCue), Ensure.NotNull(handler)))
             throw new InvalidOperationException($"Enemy projectile cue {typeof(TCue).Name} is registered twice.");
-    }
-
-    /// <summary>Carries out <paramref name="cue"/> with its family's registered handler.</summary>
-    internal void PublishCue<TCue>(EnemyProjectileCueContext context, TCue cue)
-    {
-        if (!_cues.TryGetValue(typeof(TCue), out Delegate? handler))
-            throw new InvalidOperationException($"Enemy projectile cue {typeof(TCue).Name}.{cue} has no registered handler.");
-        ((EnemyProjectileCueHandler<TCue>)handler)(context, cue);
     }
 
     /// <summary>
@@ -96,7 +88,7 @@ internal sealed class EnemyProjectileHandlerTable
     /// program a branching handler redirects to, or null.
     /// </summary>
     internal TProgram? PublishProgramCue<TProgram, TCue>(EnemyProjectileCueContext context, TCue cue)
-        where TProgram : struct, Enum
+        where TProgram : struct
     {
         if (!_cues.TryGetValue(typeof(TCue), out Delegate? handler))
             throw new InvalidOperationException($"Enemy projectile cue {typeof(TCue).Name}.{cue} has no registered handler.");

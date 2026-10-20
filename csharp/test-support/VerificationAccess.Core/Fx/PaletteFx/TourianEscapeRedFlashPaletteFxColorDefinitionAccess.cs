@@ -9,7 +9,7 @@ internal static class TourianEscapeRedFlashPaletteFxColorDefinitionAccess
     {
         /// <summary>Frames from the first record through the next first record.</summary>
         internal int CycleFrames =>
-            TourianEscapeRedFlashPaletteFxColorDefinitions.FrameCount * self.Duration;
+            TourianEscapeRedFlashPaletteFxColorDefinitionsConstants.FrameCount * self.Duration;
         /// <summary>Colour <paramref name="color"/> of record <paramref name="frame"/>.</summary>
         public PaletteFxColorKey Color(int frame, int color) => self.Rows.Color(frame, color);
     }

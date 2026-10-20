@@ -12,17 +12,17 @@ internal static class ProjectileTrailCoordinateDefinitions
     /// <summary>$9BA4E3: BeamTrailOffsets_spazerSBA, pointer selections.</summary>
     private const int BeamTrailOffsets_spazerSBA = 0x9ba4e3;
     /// <summary>$9BA4F7: UnchargedBeamTrails_Wave_WaveIce, pointer selections.</summary>
-    private const int UnchargedBeamTrails_Wave_WaveIce = 0x9ba4f7;
+    private const int UnchargedBeamTrails_Wave_WaveIce = (int)TrailFamily.UnchargedBeamTrailsWaveWaveIce;
     /// <summary>$9BA50B: UnchargedBeamTrails_Default, pointer selections.</summary>
-    private const int UnchargedBeamTrails_Default = 0x9ba50b;
+    private const int UnchargedBeamTrails_Default = (int)TrailFamily.UnchargedBeamTrailsDefault;
     /// <summary>$9BA51F: UnchargedBeamTrails_IceSpazer, pointer selections.</summary>
-    private const int UnchargedBeamTrails_IceSpazer = 0x9ba51f;
+    private const int UnchargedBeamTrails_IceSpazer = (int)TrailFamily.UnchargedBeamTrailsIceSpazer;
     /// <summary>$9BA533: UnchargedBeamTrails_WaveIceSpazer, pointer selections.</summary>
-    private const int UnchargedBeamTrails_WaveIceSpazer = 0x9ba533;
+    private const int UnchargedBeamTrails_WaveIceSpazer = (int)TrailFamily.UnchargedBeamTrailsWaveIceSpazer;
     /// <summary>$9BA547: UnchargedBeamTrails_IcePlasma, pointer selections.</summary>
-    private const int UnchargedBeamTrails_IcePlasma = 0x9ba547;
+    private const int UnchargedBeamTrails_IcePlasma = (int)TrailFamily.UnchargedBeamTrailsIcePlasma;
     /// <summary>$9BA55B: UnchargedBeamTrails_WaveIcePlasma, pointer selections.</summary>
-    private const int UnchargedBeamTrails_WaveIcePlasma = 0x9ba55b;
+    private const int UnchargedBeamTrails_WaveIcePlasma = (int)TrailFamily.UnchargedBeamTrailsWaveIcePlasma;
     /// <summary>$9BA56F: UnchargedBeamTrails_Default_0, left X/Y and right X/Y placement frames.</summary>
     private const int UnchargedBeamTrails_Default_0 = 0x9ba56f;
     /// <summary>$9BA58F: UnchargedBeamTrails_Wave_WaveIce_0, left X/Y and right X/Y placement frames.</summary>
@@ -56,17 +56,17 @@ internal static class ProjectileTrailCoordinateDefinitions
     /// <summary>Placement frames in each UnchargedBeamTrails_WaveIcePlasma record.</summary>
     private const int UnchargedBeamTrails_WaveIcePlasmaFrames = 9;
     /// <summary>$9BA98F: ChargedBeamTrails_Default, pointer selections.</summary>
-    private const int ChargedBeamTrails_Default = 0x9ba98f;
+    private const int ChargedBeamTrails_Default = (int)TrailFamily.ChargedBeamTrailsDefault;
     /// <summary>$9BA9A3: ChargedBeamTrails_Wave_WaveIce, pointer selections.</summary>
-    private const int ChargedBeamTrails_Wave_WaveIce = 0x9ba9a3;
+    private const int ChargedBeamTrails_Wave_WaveIce = (int)TrailFamily.ChargedBeamTrailsWaveWaveIce;
     /// <summary>$9BA9B7: ChargedBeamTrails_IceSpazer, pointer selections.</summary>
-    private const int ChargedBeamTrails_IceSpazer = 0x9ba9b7;
+    private const int ChargedBeamTrails_IceSpazer = (int)TrailFamily.ChargedBeamTrailsIceSpazer;
     /// <summary>$9BA9CB: ChargedBeamTrails_WaveIceSpazer, pointer selections.</summary>
-    private const int ChargedBeamTrails_WaveIceSpazer = 0x9ba9cb;
+    private const int ChargedBeamTrails_WaveIceSpazer = (int)TrailFamily.ChargedBeamTrailsWaveIceSpazer;
     /// <summary>$9BA9DF: ChargedBeamTrails_IcePlasma, pointer selections.</summary>
-    private const int ChargedBeamTrails_IcePlasma = 0x9ba9df;
+    private const int ChargedBeamTrails_IcePlasma = (int)TrailFamily.ChargedBeamTrailsIcePlasma;
     /// <summary>$9BA9F3: ChargedBeamTrails_WaveIcePlasma, pointer selections.</summary>
-    private const int ChargedBeamTrails_WaveIcePlasma = 0x9ba9f3;
+    private const int ChargedBeamTrails_WaveIcePlasma = (int)TrailFamily.ChargedBeamTrailsWaveIcePlasma;
     /// <summary>$9BAA07: ChargedBeamTrails_Default_0, left X/Y and right X/Y placement frames.</summary>
     private const int ChargedBeamTrails_Default_0 = 0x9baa07;
     /// <summary>$9BAA27: ChargedBeamTrails_Wave_WaveIce_0, left X/Y and right X/Y placement frames.</summary>
@@ -92,13 +92,13 @@ internal static class ProjectileTrailCoordinateDefinitions
     /// <summary>Placement frames in each ChargedBeamTrails_WaveIcePlasma record.</summary>
     private const int ChargedBeamTrails_WaveIcePlasmaFrames = 22;
     /// <summary>$9BB327: SpazerSBATrail_WaveSpazer, pointer selections.</summary>
-    private const int SpazerSBATrail_WaveSpazer = 0x9bb327;
+    private const int SpazerSBATrail_WaveSpazer = (int)TrailFamily.SpazerSBATrailWaveSpazer;
     /// <summary>$9BB33B: SpazerSBATrail_WaveSpazer_0, the first of 4 adjacent left X/Y and right X/Y placement frames records indexed by record.</summary>
     private const int SpazerSBATrail_WaveSpazerFirst = 0x9bb33b;
     /// <summary>Placement frames in each SpazerSBATrail_WaveSpazer record.</summary>
     private const int SpazerSBATrail_WaveSpazerFrames = 4;
     /// <summary>$9BB37B: UNSUED_SpazerSBATrail_Spazer_IceSpazer_9BB37B, pointer selections.</summary>
-    private const int UNSUED_SpazerSBATrail_Spazer_IceSpazer_9BB37B = 0x9bb37b;
+    private const int UNSUED_SpazerSBATrail_Spazer_IceSpazer_9BB37B = (int)TrailFamily.UnusedSpazerSBATrailSpazerIceSpazer;
     /// <summary>$9BB38F: UNSUED_SpazerSBATrail_Spazer_IceSpazer_0_9BB38F, left X/Y and right X/Y placement frames.</summary>
     private const int UNSUED_SpazerSBATrail_Spazer_IceSpazer_0_9BB38F = 0x9bb38f;
     /// <summary>$9B:B3A7, first adjacent-code byte reachable by a restored low-six-bit projectile type paired with a cataloged animation frame.</summary>
@@ -313,33 +313,33 @@ internal static class ProjectileTrailCoordinateDefinitions
     private enum TrailFamily
     {
         /// <summary><c>UnchargedBeamTrails_Default</c> direction pointers.</summary>
-        UnchargedBeamTrailsDefault = UnchargedBeamTrails_Default,
+        UnchargedBeamTrailsDefault = 0x9ba50b,
         /// <summary><c>ChargedBeamTrails_Default</c> direction pointers.</summary>
-        ChargedBeamTrailsDefault = ChargedBeamTrails_Default,
+        ChargedBeamTrailsDefault = 0x9ba98f,
         /// <summary><c>UnchargedBeamTrails_Wave_WaveIce</c> direction pointers.</summary>
-        UnchargedBeamTrailsWaveWaveIce = UnchargedBeamTrails_Wave_WaveIce,
+        UnchargedBeamTrailsWaveWaveIce = 0x9ba4f7,
         /// <summary><c>ChargedBeamTrails_Wave_WaveIce</c> direction pointers.</summary>
-        ChargedBeamTrailsWaveWaveIce = ChargedBeamTrails_Wave_WaveIce,
+        ChargedBeamTrailsWaveWaveIce = 0x9ba9a3,
         /// <summary><c>UnchargedBeamTrails_IceSpazer</c> direction pointers.</summary>
-        UnchargedBeamTrailsIceSpazer = UnchargedBeamTrails_IceSpazer,
+        UnchargedBeamTrailsIceSpazer = 0x9ba51f,
         /// <summary><c>UnchargedBeamTrails_WaveIceSpazer</c> direction pointers.</summary>
-        UnchargedBeamTrailsWaveIceSpazer = UnchargedBeamTrails_WaveIceSpazer,
+        UnchargedBeamTrailsWaveIceSpazer = 0x9ba533,
         /// <summary><c>UnchargedBeamTrails_IcePlasma</c> direction pointers.</summary>
-        UnchargedBeamTrailsIcePlasma = UnchargedBeamTrails_IcePlasma,
+        UnchargedBeamTrailsIcePlasma = 0x9ba547,
         /// <summary><c>UnchargedBeamTrails_WaveIcePlasma</c> direction pointers.</summary>
-        UnchargedBeamTrailsWaveIcePlasma = UnchargedBeamTrails_WaveIcePlasma,
+        UnchargedBeamTrailsWaveIcePlasma = 0x9ba55b,
         /// <summary><c>ChargedBeamTrails_IceSpazer</c> direction pointers.</summary>
-        ChargedBeamTrailsIceSpazer = ChargedBeamTrails_IceSpazer,
+        ChargedBeamTrailsIceSpazer = 0x9ba9b7,
         /// <summary><c>ChargedBeamTrails_WaveIceSpazer</c> direction pointers.</summary>
-        ChargedBeamTrailsWaveIceSpazer = ChargedBeamTrails_WaveIceSpazer,
+        ChargedBeamTrailsWaveIceSpazer = 0x9ba9cb,
         /// <summary><c>ChargedBeamTrails_IcePlasma</c> direction pointers.</summary>
-        ChargedBeamTrailsIcePlasma = ChargedBeamTrails_IcePlasma,
+        ChargedBeamTrailsIcePlasma = 0x9ba9df,
         /// <summary><c>ChargedBeamTrails_WaveIcePlasma</c> direction pointers.</summary>
-        ChargedBeamTrailsWaveIcePlasma = ChargedBeamTrails_WaveIcePlasma,
+        ChargedBeamTrailsWaveIcePlasma = 0x9ba9f3,
         /// <summary><c>SpazerSBATrail_WaveSpazer</c> direction pointers.</summary>
-        SpazerSBATrailWaveSpazer = SpazerSBATrail_WaveSpazer,
+        SpazerSBATrailWaveSpazer = 0x9bb327,
         /// <summary><c>UNSUED_SpazerSBATrail_Spazer_IceSpazer_9BB37B</c> direction pointers.</summary>
-        UnusedSpazerSBATrailSpazerIceSpazer = UNSUED_SpazerSBATrail_Spazer_IceSpazer_9BB37B,
+        UnusedSpazerSBATrailSpazerIceSpazer = 0x9bb37b,
     }
 
     /// <summary>

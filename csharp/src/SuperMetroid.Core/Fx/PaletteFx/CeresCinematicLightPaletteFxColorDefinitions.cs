@@ -12,19 +12,14 @@ namespace SuperMetroid.Core.Fx.PaletteFx;
 /// </remarks>
 public static class CeresCinematicLightPaletteFxColorDefinitions
 {
-    /// <summary>The gunship-engine loop contains two timed records.</summary>
-    public const int GunshipEngineFrameCount = 2;
     /// <summary>Each gunship-engine record writes one live BGR555 color.</summary>
     public const int GunshipEngineColorsPerFrame = 1;
-
-    /// <summary>The shared Ceres navigation-light loop contains fourteen timed records.</summary>
-    public const int NavigationLightsFrameCount = 14;
     /// <summary>Each Ceres navigation-light record writes two live BGR555 colors.</summary>
     public const int NavigationLightsColorsPerFrame = 2;
 
     /// <summary>The gunship engine's records and the colour each writes.</summary>
-    public static PaletteFxColorRows GunshipEngineRows { get; } = new(26, GunshipEngineFrameCount, GunshipEngineColorsPerFrame);
+    public static PaletteFxColorRows GunshipEngineRows { get; } = PaletteFxColorRows.Of(PaletteFxProgram.CutsceneGunshipEngineFlicker1, GunshipEngineColorsPerFrame);
 
     /// <summary>The navigation lights' records and the colours each writes.</summary>
-    public static PaletteFxColorRows NavigationLightsRows { get; } = new(28, NavigationLightsFrameCount, NavigationLightsColorsPerFrame);
+    public static PaletteFxColorRows NavigationLightsRows { get; } = PaletteFxColorRows.Of(PaletteFxProgram.CommonCeresNavigationLights, NavigationLightsColorsPerFrame);
 }

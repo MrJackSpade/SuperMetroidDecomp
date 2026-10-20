@@ -4,16 +4,7 @@ namespace SuperMetroid.Core.Samus;
 public static class HudItems
 {
     /// <summary>The next entry of the <c>$90:C51D</c> selection ring, wrapping after X-ray.</summary>
-    public static HudItem Next(HudItem item) => item switch
-    {
-        HudItem.XRay => HudItem.Beam,
-        HudItem.Beam or
-            HudItem.Missile or
-            HudItem.SuperMissile or
-            HudItem.PowerBomb or
-            HudItem.Grapple => item + 1,
-        _ => throw new InvalidDataException($"HUD item {(ushort)item} is outside the six-entry dispatcher."),
-    };
+    public static HudItem Next(HudItem item) => EnumOrder.NextWrapping(item);
 
     /// <summary>A stored word as a HUD item; any other word is corrupt.</summary>
     public static HudItem Decode(ushort word) => Enum.IsDefined((HudItem)word)

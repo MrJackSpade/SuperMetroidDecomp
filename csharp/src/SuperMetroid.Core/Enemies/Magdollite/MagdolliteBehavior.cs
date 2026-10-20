@@ -494,8 +494,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Finds and validates the retail-ordered head, body and overlay around any one component.</summary>
-    private (RoomEnemySlot Head, RoomEnemySlot Body, RoomEnemySlot Overlay)
-        RequireMagdolliteComposite(RoomEnemySlot member)
+    private MagdolliteComposite RequireMagdolliteComposite(RoomEnemySlot member)
     {
         int headIndex = member.SlotIndex - checked(member.Spawn.Population.Parameter1);
         if (headIndex < 0 || headIndex + 2 >= RoomEnemySystem.MaximumEnemyCount)
@@ -511,7 +510,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
             throw new InvalidDataException(
                 $"Magdollite slot {member.SlotIndex} is not inside a retail-ordered 0/1/2 composite.");
         }
-        return (head, body, overlay);
+        return new(head, body, overlay);
     }
 
     /// <summary>Ports the global graphics-drawn palette hook at $A8:B0B2.</summary>

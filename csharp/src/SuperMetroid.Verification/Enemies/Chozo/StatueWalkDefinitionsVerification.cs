@@ -44,8 +44,8 @@ internal static class StatueWalkDefinitionsVerification
             short xOffset = unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((0xaae670 + offset)));
             short yOffset = unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((0xaae6b0 + offset)));
             AssertEqual(velocity, data.Velocity, "Chozo native movement velocity");
-            AssertEqual(xOffset, data.SamusX, "Chozo native hand X");
-            AssertEqual(yOffset, data.SamusY, "Chozo native hand Y");
+            AssertEqual(xOffset, data.SamusOffset.X, "Chozo native hand X");
+            AssertEqual(yOffset, data.SamusOffset.Y, "Chozo native hand Y");
             slot.Position = new(new(256, 0x8123), new(256, 0x8123));
             uint start = 0x01008123;
             carry(slot, statue, samus, level, record);

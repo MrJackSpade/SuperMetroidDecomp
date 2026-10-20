@@ -7,13 +7,13 @@ public sealed class ZebesExplosionLayerFadePaletteFxColorDefinition
     internal ZebesExplosionLayerFadePaletteFxColorDefinition(
         ZebesExplosionLayerFadePaletteFxProgramOwner owner,
         PaletteFxObject paletteFxObject,
-        int firstRecord,
+        PaletteFxProgram program,
         ushort colorByteIndex,
         ushort frameDuration)
     {
         Owner = owner;
         Object = paletteFxObject;
-        Rows = new(firstRecord, ZebesExplosionLayerFadePaletteFxColorDefinitions.FrameCount, ZebesExplosionLayerFadePaletteFxColorDefinitions.ColorsPerFrame);
+        Rows = PaletteFxColorRows.Of(program, ZebesExplosionLayerFadePaletteFxColorDefinitions.ColorsPerFrame);
         ColorByteIndex = colorByteIndex;
         FrameDuration = frameDuration;
     }

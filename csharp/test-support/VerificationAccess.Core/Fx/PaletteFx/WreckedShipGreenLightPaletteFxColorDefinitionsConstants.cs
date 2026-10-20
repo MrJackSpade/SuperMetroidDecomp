@@ -21,4 +21,6 @@ internal static class WreckedShipGreenLightPaletteFxColorDefinitionsConstants
     public const ushort ColorByteIndex = 0x0098;
     /// <summary>Colour <paramref name="color"/> of record <paramref name="frame"/>.</summary>
     public static PaletteFxColorKey Color(int frame, int color) => WreckedShipGreenLightPaletteFxColorDefinitions.Rows.Color(frame, color);
+    /// <summary>Eight ten-frame records form the powered-light cycle.</summary>
+    public static int FrameCount => WreckedShipGreenLightPaletteFxColorDefinitions.Rows.FrameCount;
 }

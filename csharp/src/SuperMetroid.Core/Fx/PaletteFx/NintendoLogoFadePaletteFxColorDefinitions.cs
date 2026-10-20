@@ -18,12 +18,9 @@ namespace SuperMetroid.Core.Fx.PaletteFx;
 public static class NintendoLogoFadePaletteFxColorDefinitions
 {
 
-    /// <summary>The shared one-shot fade contains eight timed records.</summary>
-    public const int FrameCount = 8;
-
     /// <summary>Each record writes two live BGR555 colors.</summary>
     public const int ColorsPerFrame = 2;
 
     /// <summary>The family's records, consecutive from the first its program shows, and the colours each writes.</summary>
-    public static PaletteFxColorRows Rows { get; } = new(8, FrameCount, ColorsPerFrame);
+    public static PaletteFxColorRows Rows { get; } = PaletteFxColorRows.Of(PaletteFxProgram.CommonFadeInLogo, ColorsPerFrame);
 }

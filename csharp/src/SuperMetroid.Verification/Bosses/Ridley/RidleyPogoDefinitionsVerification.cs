@@ -27,7 +27,9 @@ internal static class RidleyPogoDefinitionsVerification
                 CartridgeImportSource.Require(rom).ReadCartridgeWord((EnemyRomTablePointers.Ridley.PogoUpwardAccelerationWords + stage * 2)),
                 CartridgeImportSource.Require(rom).ReadCartridgeWord((EnemyRomTablePointers.Ridley.PogoDownwardAccelerationWords + stage * 2)));
             reference[pattern, stage] = native;
-            AssertTrue(native == RidleyPogoDefinitions.Read(pattern, stage), "All indirect native pogo records and accelerations");
+            RidleyPogoDefinition compiled = RidleyPogoDefinitions.Read(pattern, stage);
+            AssertTrue(native == (compiled.Velocity.X.RawValue, compiled.Velocity.Y.RawValue, compiled.UpwardAcceleration, compiled.DownwardAcceleration),
+                "All indirect native pogo records and accelerations");
         }
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
         int reads = 0, advances = 0;

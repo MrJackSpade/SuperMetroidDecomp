@@ -535,9 +535,11 @@ public sealed class SamusPowerBombExplosionState
     /// <summary>Loads the installed fixed-color triplet for a sequence and radius-derived index.</summary>
     private void ReadFixedColor(PowerBombFixedColorSequence sequence, int colorIndex)
     {
-        (FixedColorRed, FixedColorGreen, FixedColorBlue) =
-            (PresentationColors ?? throw new InvalidOperationException(
+        Bgr555 color = (PresentationColors ?? throw new InvalidOperationException(
                 "Power Bomb color requires installed fixed-color definitions."))
             .Resolve(sequence, colorIndex);
+        FixedColorRed = color.Red;
+        FixedColorGreen = color.Green;
+        FixedColorBlue = color.Blue;
     }
 }

@@ -22,10 +22,10 @@ internal static class MotherBrainDrainedPaintDefinitions
     /// gradient. Low bits are interpolation precision selected by the supplied gradient;
     /// this does not claim knowledge of the historical palette-authoring tool.
     /// </summary>
-    internal static (int Red, int Green, int Blue) HighlightRgb8 =>
-        ((Highlight.Red) * 8 + 1, (Highlight.Green) * 8, (Highlight.Blue) * 8 + 3);
+    internal static Rgb8 HighlightRgb8 =>
+        new(Highlight.Red * 8 + 1, Highlight.Green * 8, Highlight.Blue * 8 + 3);
 
     /// <summary>Exact bounded RGB8 representation (79,83,55) of DarkestTissue for that same four-interval native gradient.</summary>
-    internal static (int Red, int Green, int Blue) DarkestTissueRgb8 =>
-        ((DarkestTissue.Red) * 8 + 7, (DarkestTissue.Green) * 8 + 3, (DarkestTissue.Blue) * 8 + 7);
+    internal static Rgb8 DarkestTissueRgb8 =>
+        new(DarkestTissue.Red * 8 + 7, DarkestTissue.Green * 8 + 3, DarkestTissue.Blue * 8 + 7);
 }

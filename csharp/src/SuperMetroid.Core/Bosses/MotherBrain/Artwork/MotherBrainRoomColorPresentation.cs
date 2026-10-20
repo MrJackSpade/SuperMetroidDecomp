@@ -255,8 +255,8 @@ public sealed class MotherBrainRoomColorPresentation
         /// <summary>The final-room color indexes between the shadow ramp and the gray ramp that own individual paint; the rest are black.</summary>
         private enum PanelColor
         {
-            /// <summary>Amber panel light.</summary>
-            Amber = MotherBrainRoomColorRomData.RoomAmberColor,
+            /// <summary>Amber panel light, $A9:D096 between black slots at D092/D094/D098; its pixel role remains unresolved.</summary>
+            Amber = 10,
             /// <summary>Panel outline field.</summary>
             Outline = MotherBrainRoomColorRomData.RoomOutlineColor,
         }
@@ -366,7 +366,7 @@ public sealed class MotherBrainRoomColorPresentation
             /// <summary>Glass dark gray, shared with the room's metal contour shadow.</summary>
             DarkGray = MotherBrainRoomColorRomData.GlassDarkGrayColor,
             /// <summary>Glass neutral casing highlight.</summary>
-            Neutral = MotherBrainRoomColorRomData.GlassNeutralColor,
+            Neutral = 12,
         }
     }
     /// <summary>Relates tube-projectile casing and outline shades to the final room palette.</summary>

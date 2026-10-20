@@ -8,11 +8,9 @@ namespace SuperMetroid.Core.Fx.PaletteFx;
 /// </remarks>
 public static class UpperCrateriaEscapeRedFlashPaletteFxColorDefinitions
 {
-    /// <summary>The loop contains fourteen timed records.</summary>
-    public const int FrameCount = 14;
     /// <summary>Each record writes seven live BGR555 colors.</summary>
     public const int ColorsPerFrame = 7;
 
     /// <summary>The family's records, consecutive from the first its program shows, and the colours each writes.</summary>
-    public static PaletteFxColorRows Rows { get; } = new(611, FrameCount, ColorsPerFrame);
+    public static PaletteFxColorRows Rows { get; } = PaletteFxColorRows.Of(PaletteFxProgram.Crateria21, ColorsPerFrame);
 }

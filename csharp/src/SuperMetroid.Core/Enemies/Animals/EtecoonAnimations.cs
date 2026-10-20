@@ -152,14 +152,14 @@ internal static class EtecoonAnimations
     /// <summary>The program a sleeping list resumes into when its owner steps the list past the sleep.</summary>
     internal static EtecoonProgram AfterSleep(EtecoonProgram program) => program switch
     {
-        P.LookRightAtSamusAndRunLeft => P.BeginRunningLeft,
-        P.HoppingFacingLeft => P.ContinueHoppingFacingLeft,
-        P.HitCeiling => P.WallJumpLeftEligible,
-        P.WallJumpLeftEligible => P.LookLeftAtSamusAndRunRight,
-        P.LookLeftAtSamusAndRunRight => P.BeginRunningRight,
-        P.HoppingFacingRight => P.ContinueHoppingFacingRight,
-        P.ContinueHoppingFacingRight => P.WallJumpRightEligible,
-        P.WallJumpRightEligible => P.Initial,
+        P.LookRightAtSamusAndRunLeft
+            or P.HoppingFacingLeft
+            or P.HitCeiling
+            or P.WallJumpLeftEligible
+            or P.LookLeftAtSamusAndRunRight
+            or P.HoppingFacingRight
+            or P.ContinueHoppingFacingRight
+            or P.WallJumpRightEligible => EnumOrder.Next(program),
         P.BeginRunningLeft or
             P.RunningLeft or
             P.WallJumpLeft or

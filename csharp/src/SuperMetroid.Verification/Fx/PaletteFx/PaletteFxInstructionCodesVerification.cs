@@ -161,7 +161,7 @@ internal static class PaletteFxInstructionCodesVerification
             AssertEqual(0, guarded.ForbiddenReadAttempts,
                 $"{owner} fade avoids mechanics ROM reads");
             AssertEqual(
-                NintendoLogoFadePaletteFxColorDefinitions.FrameCount *
+                NintendoLogoFadePaletteFxColorDefinitionsConstants.FrameCount *
                 NintendoLogoFadePaletteFxColorDefinitions.ColorsPerFrame *
                 sizeof(ushort),
                 guardedPresentationReads.Value,
@@ -197,7 +197,7 @@ internal static class PaletteFxInstructionCodesVerification
         AssertEqual(0, guarded.ForbiddenReadAttempts,
             "title-logo fade avoids mechanics ROM reads");
         AssertEqual(
-            TitleLogoFadePaletteFxColorDefinitions.FrameCount *
+            TitleLogoFadePaletteFxColorDefinitionsConstants.FrameCount *
             TitleLogoFadePaletteFxColorDefinitions.ColorsPerFrame * sizeof(ushort),
             guardedPresentationReads.Value,
             "title-logo fade retains every live color");
@@ -291,7 +291,7 @@ internal static class PaletteFxInstructionCodesVerification
         AssertEqual(0, guarded.ForbiddenReadAttempts,
             "unused cinematic fade avoids mechanics ROM reads");
         AssertEqual(
-            UnusedCinematicFadePaletteFxColorDefinitions.FrameCount *
+            UnusedCinematicFadePaletteFxColorDefinitionsConstants.FrameCount *
             UnusedCinematicFadePaletteFxColorDefinitions.ColorsPerFrame *
             sizeof(ushort),
             guardedPresentationReads.Value,
@@ -378,7 +378,7 @@ internal static class PaletteFxInstructionCodesVerification
             AssertEqual(0, guarded.ForbiddenReadAttempts,
                 $"{owner} whiteout avoids mechanics ROM reads");
             AssertEqual(
-                ZebesExplosionWhiteoutPaletteFxColorDefinitions.FrameCount *
+                ZebesExplosionWhiteoutPaletteFxColorDefinitionsConstants.FrameCount *
                 ZebesExplosionWhiteoutPaletteFxColorDefinitions.ColorsPerFrame *
                 sizeof(ushort),
                 guardedPresentationReads.Value,
@@ -410,7 +410,7 @@ internal static class PaletteFxInstructionCodesVerification
         AssertEqual(0, guarded.ForbiddenReadAttempts,
             "Zebes explosion finale avoids mechanics ROM reads");
         AssertEqual(
-            ZebesExplosionFinalePaletteFxColorDefinitions.FrameCount *
+            ZebesExplosionFinalePaletteFxColorDefinitionsConstants.FrameCount *
             ZebesExplosionFinalePaletteFxColorDefinitions.ColorsPerFrame *
             sizeof(ushort),
             guardedPresentationReads.Value,
@@ -441,7 +441,7 @@ internal static class PaletteFxInstructionCodesVerification
         AssertEqual(0, guarded.ForbiddenReadAttempts,
             "Zebes explosion foreground avoids mechanics ROM reads");
         AssertEqual(
-            ZebesExplosionForegroundPaletteFxColorDefinitions.FrameCount *
+            ZebesExplosionForegroundPaletteFxColorDefinitionsConstants.FrameCount *
             ZebesExplosionForegroundPaletteFxColorDefinitions.ColorsPerFrame *
             sizeof(ushort),
             guardedPresentationReads.Value,
@@ -472,7 +472,7 @@ internal static class PaletteFxInstructionCodesVerification
         AssertEqual(0, guarded.ForbiddenReadAttempts,
             "exploding-Zebes fade avoids mechanics ROM reads");
         AssertEqual(
-            ExplodingZebesFadePaletteFxColorDefinitions.FrameCount *
+            ExplodingZebesFadePaletteFxColorDefinitionsConstants.FrameCount *
             ExplodingZebesFadePaletteFxColorDefinitions.ColorsPerFrame *
             sizeof(ushort),
             guardedPresentationReads.Value,
@@ -508,9 +508,9 @@ internal static class PaletteFxInstructionCodesVerification
                 : CeresCinematicLightPaletteFxColorDefinitions
                     .NavigationLightsCycleFrames;
             int frameCount = isGunship
-                ? CeresCinematicLightPaletteFxColorDefinitions
+                ? CeresCinematicLightPaletteFxColorDefinitionsConstants
                     .GunshipEngineFrameCount
-                : CeresCinematicLightPaletteFxColorDefinitions
+                : CeresCinematicLightPaletteFxColorDefinitionsConstants
                     .NavigationLightsFrameCount;
             int colorsPerFrame = isGunship
                 ? CeresCinematicLightPaletteFxColorDefinitions
@@ -550,7 +550,7 @@ internal static class PaletteFxInstructionCodesVerification
         AssertTrue(paletteFx.IsDefinitionActive(UpperCrateriaEscapeRedFlashPaletteFxColorDefinitions.DefinitionPointer),
             "upper-Crateria escape flash completes and repeats its cycle");
         AssertEqual(0, guarded.ForbiddenReadAttempts, "upper-Crateria escape flash avoids mechanics ROM reads");
-        AssertEqual((UpperCrateriaEscapeRedFlashPaletteFxColorDefinitions.FrameCount + 1) *
+        AssertEqual((UpperCrateriaEscapeRedFlashPaletteFxColorDefinitionsConstants.FrameCount + 1) *
             UpperCrateriaEscapeRedFlashPaletteFxColorDefinitions.ColorsPerFrame * sizeof(ushort),
             guardedPresentationReads.Value, "upper-Crateria escape flash retains every live color");
     }
@@ -581,7 +581,7 @@ internal static class PaletteFxInstructionCodesVerification
         AssertEqual(0, guarded.ForbiddenReadAttempts,
             "old-Tourian red flash avoids mechanics ROM reads");
         AssertEqual(
-            (OldTourianEscapeRedFlashPaletteFxColorDefinitions.FrameCount + 1) *
+            (OldTourianEscapeRedFlashPaletteFxColorDefinitionsConstants.FrameCount + 1) *
                 OldTourianEscapeRedFlashPaletteFxColorDefinitions.ColorsPerFrame *
                 sizeof(ushort),
             guardedPresentationReads.Value,
@@ -613,7 +613,7 @@ internal static class PaletteFxInstructionCodesVerification
             AssertEqual(0, guarded.ForbiddenReadAttempts,
                 $"{definition.Owner} avoids mechanics ROM reads");
             AssertEqual(
-                (TourianEscapeSharedRedFlashPaletteFxColorDefinitions.FrameCount + 1) *
+                (TourianEscapeSharedRedFlashPaletteFxColorDefinitionsConstants.FrameCount + 1) *
                     TourianEscapeSharedRedFlashPaletteFxColorDefinitions.ColorsPerFrame *
                     sizeof(ushort),
                 guardedPresentationReads.Value,
@@ -663,7 +663,7 @@ internal static class PaletteFxInstructionCodesVerification
         AssertEqual(0, guarded.ForbiddenReadAttempts,
             "beacon avoids mechanics ROM reads");
         AssertEqual(
-            (BeaconPaletteFxColorDefinitions.FrameCount + 1) *
+            (BeaconPaletteFxColorDefinitionsConstants.FrameCount + 1) *
                 BeaconPaletteFxColorDefinitions.ColorsPerFrame * 2,
             guardedPresentationReads.Value,
             "beacon retains every live color read through its complete cycle");
@@ -707,7 +707,7 @@ internal static class PaletteFxInstructionCodesVerification
             AssertEqual(0, guarded.ForbiddenReadAttempts,
                 $"Tourian glow definition $8D:{definition:X4} avoids mechanics ROM reads");
             AssertEqual(
-                (TourianGlowPaletteFxColorDefinitions.FrameCount + 1) *
+                (TourianGlowPaletteFxColorDefinitionsConstants.FrameCount + 1) *
                     TourianGlowPaletteFxColorDefinitions.ColorsPerFrame * 2,
                 guardedPresentationReads.Value,
                 $"Tourian glow definition $8D:{definition:X4} retains all live colors");
@@ -749,8 +749,8 @@ internal static class PaletteFxInstructionCodesVerification
         const ushort definition =
             RedBrinstarGlowPaletteFxColorDefinitionsConstants.DefinitionPointer;
         paletteFx.SpawnDefinition(definition, equippedItems: 0);
-        const int cycleFrames =
-            RedBrinstarGlowPaletteFxColorDefinitions.FrameCount * 10;
+        int cycleFrames =
+            RedBrinstarGlowPaletteFxColorDefinitionsConstants.FrameCount * 10;
         for (int step = 0; step <= cycleFrames; step++)
         {
             paletteFx.Step(cgram, new ReferencePaletteFxColorSource(guarded), new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
@@ -761,7 +761,7 @@ internal static class PaletteFxInstructionCodesVerification
         AssertEqual(0, guarded.ForbiddenReadAttempts,
             "Red Brinstar glow program avoids mechanics ROM reads");
         AssertEqual(
-            (RedBrinstarGlowPaletteFxColorDefinitions.FrameCount + 1) *
+            (RedBrinstarGlowPaletteFxColorDefinitionsConstants.FrameCount + 1) *
                 RedBrinstarGlowPaletteFxColorDefinitions.ColorsPerFrame *
                 sizeof(ushort),
             guardedPresentationReads.Value,
@@ -818,7 +818,7 @@ internal static class PaletteFxInstructionCodesVerification
             var cgram = new SnesCgram();
             paletteFx.SpawnDefinition(definition, equippedItems: 0);
             int steps = 1 +
-                WreckedShipGreenLightPaletteFxColorDefinitions.FrameCount * 10;
+                WreckedShipGreenLightPaletteFxColorDefinitionsConstants.FrameCount * 10;
             for (int step = 0; step <= steps; step++)
             {
                 paletteFx.Step(cgram, new ReferencePaletteFxColorSource(guarded), new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
@@ -827,7 +827,7 @@ internal static class PaletteFxInstructionCodesVerification
             AssertEqual(0, guarded.ForbiddenReadAttempts,
                 $"palette-FX definition $8D:{definition:X4} avoids green-light mechanics ROM reads");
             AssertEqual(
-                (WreckedShipGreenLightPaletteFxColorDefinitions.FrameCount + 1) *
+                (WreckedShipGreenLightPaletteFxColorDefinitionsConstants.FrameCount + 1) *
                     WreckedShipGreenLightPaletteFxColorDefinitions.ColorsPerFrame *
                     sizeof(ushort),
                 guardedPresentationReads.Value,
@@ -971,7 +971,7 @@ internal static class PaletteFxInstructionCodesVerification
             }
 
             for (int frame = 0;
-                 frame < NintendoLogoFadePaletteFxColorDefinitions.FrameCount;
+                 frame < NintendoLogoFadePaletteFxColorDefinitionsConstants.FrameCount;
                  frame++)
             {
                 int offset = source.Offset - unchecked((ushort)(
@@ -987,7 +987,7 @@ internal static class PaletteFxInstructionCodesVerification
             }
 
             for (int frame = 0;
-                 frame < TitleLogoFadePaletteFxColorDefinitions.FrameCount;
+                 frame < TitleLogoFadePaletteFxColorDefinitionsConstants.FrameCount;
                  frame++)
             {
                 int offset = source.Offset - unchecked((ushort)(
@@ -1003,7 +1003,7 @@ internal static class PaletteFxInstructionCodesVerification
             }
 
             for (int frame = 0;
-                 frame < CeresCinematicLightPaletteFxColorDefinitions
+                 frame < CeresCinematicLightPaletteFxColorDefinitionsConstants
                      .GunshipEngineFrameCount;
                  frame++)
             {
@@ -1020,7 +1020,7 @@ internal static class PaletteFxInstructionCodesVerification
             }
 
             for (int frame = 0;
-                 frame < CeresCinematicLightPaletteFxColorDefinitions
+                 frame < CeresCinematicLightPaletteFxColorDefinitionsConstants
                      .NavigationLightsFrameCount;
                  frame++)
             {
@@ -1059,7 +1059,7 @@ internal static class PaletteFxInstructionCodesVerification
                      CinematicGlowPaletteFxColorDefinitions.All)
             {
                 for (int frame = 0;
-                     frame < CinematicGlowPaletteFxColorDefinitions.FrameCount;
+                     frame < CinematicGlowPaletteFxColorDefinitionsConstants.FrameCount;
                      frame++)
                 {
                     int offset = source.Offset - unchecked((ushort)(
@@ -1073,7 +1073,7 @@ internal static class PaletteFxInstructionCodesVerification
             }
 
             for (int frame = 0;
-                 frame < ExplodingZebesFadePaletteFxColorDefinitions.FrameCount;
+                 frame < ExplodingZebesFadePaletteFxColorDefinitionsConstants.FrameCount;
                  frame++)
             {
                 int offset = source.Offset - unchecked((ushort)(
@@ -1089,7 +1089,7 @@ internal static class PaletteFxInstructionCodesVerification
             }
 
             for (int frame = 0;
-                 frame < ZebesExplosionForegroundPaletteFxColorDefinitions
+                 frame < ZebesExplosionForegroundPaletteFxColorDefinitionsConstants
                      .FrameCount;
                  frame++)
             {
@@ -1106,7 +1106,7 @@ internal static class PaletteFxInstructionCodesVerification
             }
 
             for (int frame = 0;
-                 frame < ZebesExplosionFinalePaletteFxColorDefinitions.FrameCount;
+                 frame < ZebesExplosionFinalePaletteFxColorDefinitionsConstants.FrameCount;
                  frame++)
             {
                 int offset = source.Offset - unchecked((ushort)(
@@ -1122,7 +1122,7 @@ internal static class PaletteFxInstructionCodesVerification
             }
 
             for (int frame = 0;
-                 frame < ZebesExplosionWhiteoutPaletteFxColorDefinitions
+                 frame < ZebesExplosionWhiteoutPaletteFxColorDefinitionsConstants
                      .FrameCount;
                  frame++)
             {
@@ -1157,7 +1157,7 @@ internal static class PaletteFxInstructionCodesVerification
                      ZebesExplosionLayerFadePaletteFxColorDefinitions.All)
             {
                 for (int frame = 0;
-                     frame < ZebesExplosionLayerFadePaletteFxColorDefinitions
+                     frame < ZebesExplosionLayerFadePaletteFxColorDefinitionsConstants
                          .FrameCount;
                      frame++)
                 {
@@ -1191,7 +1191,7 @@ internal static class PaletteFxInstructionCodesVerification
             }
 
             for (int frame = 0;
-                 frame < UnusedCinematicFadePaletteFxColorDefinitions
+                 frame < UnusedCinematicFadePaletteFxColorDefinitionsConstants
                      .FrameCount;
                  frame++)
             {
@@ -1211,7 +1211,7 @@ internal static class PaletteFxInstructionCodesVerification
                      SamusLoadingSuitPaletteFxColorDefinitions.All)
             {
                 for (int frame = 0;
-                     frame < SamusLoadingSuitPaletteFxColorDefinitions.FrameCount;
+                     frame < SamusLoadingSuitPaletteFxColorDefinitionsConstants.FrameCount;
                      frame++)
                 {
                     int offset = source.Offset - unchecked((ushort)(
@@ -1259,7 +1259,7 @@ internal static class PaletteFxInstructionCodesVerification
             }
 
             for (int frame = 0;
-                 frame < WreckedShipGreenLightPaletteFxColorDefinitions.FrameCount;
+                 frame < WreckedShipGreenLightPaletteFxColorDefinitionsConstants.FrameCount;
                  frame++)
             {
                 ushort firstColor = unchecked((ushort)(
@@ -1296,7 +1296,7 @@ internal static class PaletteFxInstructionCodesVerification
                      TorizoBellyPaletteFxColorDefinitions.All)
             {
                 for (int frame = 0;
-                     frame < TorizoBellyPaletteFxColorDefinitions.FrameCount;
+                     frame < TorizoBellyPaletteFxColorDefinitionsConstants.FrameCount;
                      frame++)
                 {
                     ushort firstColor = definition.ColorPointer(frame, 0);
@@ -1315,7 +1315,7 @@ internal static class PaletteFxInstructionCodesVerification
                      BrinstarBlueSporePaletteFxColorDefinitions.All)
             {
                 for (int frame = 0;
-                     frame < BrinstarBlueSporePaletteFxColorDefinitions.FrameCount;
+                     frame < BrinstarBlueSporePaletteFxColorDefinitionsConstants.FrameCount;
                      frame++)
                 {
                     ushort firstColor = definition.ColorPointer(frame, 0);
@@ -1331,7 +1331,7 @@ internal static class PaletteFxInstructionCodesVerification
             }
 
             for (int frame = 0;
-                 frame < RedBrinstarGlowPaletteFxColorDefinitions.FrameCount;
+                 frame < RedBrinstarGlowPaletteFxColorDefinitionsConstants.FrameCount;
                  frame++)
             {
                 ushort firstColor =
@@ -1381,7 +1381,7 @@ internal static class PaletteFxInstructionCodesVerification
             }
 
             for (int frame = 0;
-                 frame < TourianGlowPaletteFxColorDefinitions.FrameCount;
+                 frame < TourianGlowPaletteFxColorDefinitionsConstants.FrameCount;
                  frame++)
             {
                 bool presentationByte = false;
@@ -1403,7 +1403,7 @@ internal static class PaletteFxInstructionCodesVerification
             }
 
             for (int frame = 0;
-                 frame < BeaconPaletteFxColorDefinitions.FrameCount;
+                 frame < BeaconPaletteFxColorDefinitionsConstants.FrameCount;
                  frame++)
             {
                 ushort framePointer =
@@ -1426,7 +1426,7 @@ internal static class PaletteFxInstructionCodesVerification
                      NorfairEnvironmentalPaletteFxColorDefinitions.All)
             {
                 for (int frame = 0;
-                     frame < NorfairEnvironmentalPaletteFxColorDefinitions.FrameCount;
+                     frame < NorfairEnvironmentalPaletteFxColorDefinitionsConstants.FrameCount;
                      frame++)
                 {
                     bool presentationByte = false;
@@ -1450,7 +1450,7 @@ internal static class PaletteFxInstructionCodesVerification
                      TourianEscapeRedFlashPaletteFxColorDefinitions.All)
             {
                 for (int frame = 0;
-                     frame < TourianEscapeRedFlashPaletteFxColorDefinitions.FrameCount;
+                     frame < TourianEscapeRedFlashPaletteFxColorDefinitionsConstants.FrameCount;
                      frame++)
                 {
                     int offset = source.Offset - unchecked((ushort)(
@@ -1464,7 +1464,7 @@ internal static class PaletteFxInstructionCodesVerification
             }
 
             for (int frame = 0;
-                 frame < TourianEscapeSharedRedFlashPaletteFxColorDefinitions.FrameCount;
+                 frame < TourianEscapeSharedRedFlashPaletteFxColorDefinitionsConstants.FrameCount;
                  frame++)
             {
                 ushort framePointer =
@@ -1486,7 +1486,7 @@ internal static class PaletteFxInstructionCodesVerification
             }
 
             for (int frame = 0;
-                 frame < OldTourianEscapeRedFlashPaletteFxColorDefinitions.FrameCount;
+                 frame < OldTourianEscapeRedFlashPaletteFxColorDefinitionsConstants.FrameCount;
                  frame++)
             {
                 ushort framePointer =
@@ -1507,7 +1507,7 @@ internal static class PaletteFxInstructionCodesVerification
                      OldTourianEscapeAccentPaletteFxColorDefinitions.All)
             {
                 for (int frame = 0;
-                     frame < OldTourianEscapeAccentPaletteFxColorDefinitions.FrameCount;
+                     frame < OldTourianEscapeAccentPaletteFxColorDefinitionsConstants.FrameCount;
                      frame++)
                 {
                     int offset = source.Offset - unchecked((ushort)(
@@ -1522,7 +1522,7 @@ internal static class PaletteFxInstructionCodesVerification
                 }
             }
 
-            for (int frame = 0; frame < UpperCrateriaEscapeRedFlashPaletteFxColorDefinitions.FrameCount; frame++)
+            for (int frame = 0; frame < UpperCrateriaEscapeRedFlashPaletteFxColorDefinitionsConstants.FrameCount; frame++)
             {
                 int offset = source.Offset - unchecked((ushort)(
                     UpperCrateriaEscapeRedFlashPaletteFxColorDefinitions.FramePointer(frame) + sizeof(ushort)));
@@ -1536,7 +1536,7 @@ internal static class PaletteFxInstructionCodesVerification
             foreach (CrateriaEscapeLightningPaletteFxColorDefinition definition in
                      CrateriaEscapeLightningPaletteFxColorDefinitions.All)
             {
-                for (int frame = 0; frame < CrateriaEscapeLightningPaletteFxColorDefinitions.FrameCount; frame++)
+                for (int frame = 0; frame < CrateriaEscapeLightningPaletteFxColorDefinitionsConstants.FrameCount; frame++)
                 {
                     int offset = source.Offset - unchecked((ushort)(definition.FramePointer(frame) + sizeof(ushort)));
                     if ((uint)offset < definition.ColorsPerFrame * sizeof(ushort))

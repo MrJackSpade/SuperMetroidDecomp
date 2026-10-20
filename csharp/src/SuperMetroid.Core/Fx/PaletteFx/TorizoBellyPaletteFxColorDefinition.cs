@@ -7,11 +7,11 @@ public sealed class TorizoBellyPaletteFxColorDefinition
     internal TorizoBellyPaletteFxColorDefinition(
         TorizoBellyPaletteOwner owner,
         PaletteFxObject paletteFxObject,
-        int firstRecord)
+        PaletteFxProgram program)
     {
         Owner = owner;
         Object = paletteFxObject;
-        Rows = new(firstRecord, TorizoBellyPaletteFxColorDefinitions.FrameCount, TorizoBellyPaletteFxColorDefinitions.ColorsPerFrame);
+        Rows = PaletteFxColorRows.Of(program, TorizoBellyPaletteFxColorDefinitions.ColorsPerFrame);
     }
 
     /// <summary>The Torizo variant represented by this program.</summary>

@@ -74,7 +74,7 @@ internal static class PaletteFxProgramLayoutAccess
             : checked((ushort)(0xf1d1 + ((int)self.Owner - (int)NorfairEnvironmentalPaletteOwner.ForegroundPalette4) * 264));
 
         /// <summary>The loop command after the sixteen records.</summary>
-        internal ushort LoopInstructionPointer => checked((ushort)(self.FirstFramePointer + NorfairEnvironmentalPaletteFxColorDefinitions.FrameCount * self.FrameByteCount));
+        internal ushort LoopInstructionPointer => checked((ushort)(self.FirstFramePointer + NorfairEnvironmentalPaletteFxColorDefinitionsConstants.FrameCount * self.FrameByteCount));
     }
 
     /// <summary>The old Tourian accents' native list entries.</summary>

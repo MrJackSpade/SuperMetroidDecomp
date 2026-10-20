@@ -33,13 +33,13 @@ internal static class DeadMonsterRottingDefinitions
     /// The native atlas is sixteen tiles wide; each staged silhouette is five tiles wide.
     /// The second silhouette starts after five staged rows, nine atlas tiles to the right.
     /// </summary>
-    internal static (int SourceOffset, int DestinationOffset, int Length) SidehopperInitialCopy(int variant, int row)
+    internal static CorpseGraphicsCopy SidehopperInitialCopy(int variant, int row)
     {
         if ((uint)row >= 5) throw new ArgumentOutOfRangeException(nameof(row));
         int silhouette = variant == 0 ? 0 : 1;
         int leftClip = row == 0 && silhouette == 0 ? 2 : 0;
         int width = row == 0 ? (silhouette == 0 ? 3 : 2) : 5;
-        return ((silhouette * 9 + row * 16 + leftClip) * 32,
+        return new((silhouette * 9 + row * 16 + leftClip) * 32,
             (silhouette * 25 + row * 5 + leftClip) * 32, width * 32);
     }
 

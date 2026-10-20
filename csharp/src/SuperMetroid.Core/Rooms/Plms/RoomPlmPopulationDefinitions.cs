@@ -12,25 +12,25 @@ internal static class RoomPlmPopulationDefinitions
     /// <summary>The LandingSiteState012 room PLM population.</summary>
     public static RoomPlmPopulationDefinition LandingSiteState012 { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(LandingSiteState012),
     [
-        (PlmHeaderId.ScrollTrigger, 30, 40, 0x92B0),
-        (PlmHeaderId.UpwardsScrollExtension, 30, 39, 0x8000),
-        (PlmHeaderId.UpwardsScrollExtension, 30, 38, 0x8000),
-        (PlmHeaderId.UpwardsScrollExtension, 30, 37, 0x8000),
-        (PlmHeaderId.GreenDoorFacingLeft, 142, 70, 0x0000),
-        (PlmHeaderId.YellowDoorFacingLeft, 142, 22, 0x0001),
+        new(PlmHeaderId.ScrollTrigger, new(30, 40), 0x92B0),
+        new(PlmHeaderId.UpwardsScrollExtension, new(30, 39), 0x8000),
+        new(PlmHeaderId.UpwardsScrollExtension, new(30, 38), 0x8000),
+        new(PlmHeaderId.UpwardsScrollExtension, new(30, 37), 0x8000),
+        new(PlmHeaderId.GreenDoorFacingLeft, new(142, 70), 0x0000),
+        new(PlmHeaderId.YellowDoorFacingLeft, new(142, 22), 0x0001),
     ]);
 
     /// <summary>The LandingSiteState3 room PLM population.</summary>
     public static RoomPlmPopulationDefinition LandingSiteState3 { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(LandingSiteState3),
     [
-        (PlmHeaderId.ScrollTrigger, 30, 40, 0x92B0),
-        (PlmHeaderId.UpwardsScrollExtension, 30, 39, 0x8000),
-        (PlmHeaderId.UpwardsScrollExtension, 30, 38, 0x8000),
-        (PlmHeaderId.UpwardsScrollExtension, 30, 37, 0x8000),
-        (PlmHeaderId.SetMetroidsClearedStatesWhenRequired, 8, 8, 0x0008),
-        (PlmHeaderId.GreyDoorFacingRight, 1, 38, 0x9002),
-        (PlmHeaderId.GreyDoorFacingLeft, 142, 70, 0x9003),
-        (PlmHeaderId.GreyDoorFacingLeft, 142, 22, 0x9004),
+        new(PlmHeaderId.ScrollTrigger, new(30, 40), 0x92B0),
+        new(PlmHeaderId.UpwardsScrollExtension, new(30, 39), 0x8000),
+        new(PlmHeaderId.UpwardsScrollExtension, new(30, 38), 0x8000),
+        new(PlmHeaderId.UpwardsScrollExtension, new(30, 37), 0x8000),
+        new(PlmHeaderId.SetMetroidsClearedStatesWhenRequired, new(8, 8), 0x0008),
+        new(PlmHeaderId.GreyDoorFacingRight, new(1, 38), 0x9002),
+        new(PlmHeaderId.GreyDoorFacingLeft, new(142, 70), 0x9003),
+        new(PlmHeaderId.GreyDoorFacingLeft, new(142, 22), 0x9004),
     ]);
 
     /// <summary>The GauntletEntranceState01 room PLM population.</summary>
@@ -41,94 +41,94 @@ internal static class RoomPlmPopulationDefinitions
     /// <summary>The ParlorState01 room PLM population.</summary>
     public static RoomPlmPopulationDefinition ParlorState01 { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(ParlorState01),
     [
-        (PlmHeaderId.ScrollTrigger, 63, 11, 0x9389),
-        (PlmHeaderId.ScrollTrigger, 67, 11, 0x938C),
-        (PlmHeaderId.ScrollTrigger, 22, 13, 0x938F),
-        (PlmHeaderId.RightwardsScrollExtension, 23, 13, 0x8000),
-        (PlmHeaderId.RightwardsScrollExtension, 24, 13, 0x8000),
-        (PlmHeaderId.RightwardsScrollExtension, 25, 13, 0x8000),
-        (PlmHeaderId.ScrollTrigger, 22, 11, 0x9396),
-        (PlmHeaderId.RightwardsScrollExtension, 23, 11, 0x8000),
-        (PlmHeaderId.RightwardsScrollExtension, 24, 11, 0x8000),
-        (PlmHeaderId.RightwardsScrollExtension, 25, 11, 0x8000),
-        (PlmHeaderId.ScrollTrigger, 14, 9, 0x9399),
-        (PlmHeaderId.UpwardsScrollExtension, 14, 8, 0x8000),
-        (PlmHeaderId.UpwardsScrollExtension, 14, 7, 0x8000),
-        (PlmHeaderId.ScrollTrigger, 28, 10, 0x939C),
-        (PlmHeaderId.UpwardsScrollExtension, 28, 9, 0x8000),
-        (PlmHeaderId.UpwardsScrollExtension, 28, 8, 0x8000),
-        (PlmHeaderId.UpwardsScrollExtension, 28, 7, 0x8000),
-        (PlmHeaderId.UpwardsScrollExtension, 28, 6, 0x8000),
-        (PlmHeaderId.UpwardsScrollExtension, 28, 5, 0x8000),
-        (PlmHeaderId.ScrollTrigger, 50, 11, 0x939F),
-        (PlmHeaderId.ScrollTrigger, 60, 11, 0x939F),
-        (PlmHeaderId.ScrollTrigger, 58, 17, 0x93A2),
-        (PlmHeaderId.RightwardsScrollExtension, 59, 17, 0x8000),
-        (PlmHeaderId.RightwardsScrollExtension, 60, 17, 0x8000),
-        (PlmHeaderId.RightwardsScrollExtension, 61, 17, 0x8000),
-        (PlmHeaderId.RightwardsScrollExtension, 62, 17, 0x8000),
-        (PlmHeaderId.ScrollTrigger, 52, 14, 0x93A5),
-        (PlmHeaderId.RedDoorFacingLeft, 30, 54, 0x0005),
+        new(PlmHeaderId.ScrollTrigger, new(63, 11), 0x9389),
+        new(PlmHeaderId.ScrollTrigger, new(67, 11), 0x938C),
+        new(PlmHeaderId.ScrollTrigger, new(22, 13), 0x938F),
+        new(PlmHeaderId.RightwardsScrollExtension, new(23, 13), 0x8000),
+        new(PlmHeaderId.RightwardsScrollExtension, new(24, 13), 0x8000),
+        new(PlmHeaderId.RightwardsScrollExtension, new(25, 13), 0x8000),
+        new(PlmHeaderId.ScrollTrigger, new(22, 11), 0x9396),
+        new(PlmHeaderId.RightwardsScrollExtension, new(23, 11), 0x8000),
+        new(PlmHeaderId.RightwardsScrollExtension, new(24, 11), 0x8000),
+        new(PlmHeaderId.RightwardsScrollExtension, new(25, 11), 0x8000),
+        new(PlmHeaderId.ScrollTrigger, new(14, 9), 0x9399),
+        new(PlmHeaderId.UpwardsScrollExtension, new(14, 8), 0x8000),
+        new(PlmHeaderId.UpwardsScrollExtension, new(14, 7), 0x8000),
+        new(PlmHeaderId.ScrollTrigger, new(28, 10), 0x939C),
+        new(PlmHeaderId.UpwardsScrollExtension, new(28, 9), 0x8000),
+        new(PlmHeaderId.UpwardsScrollExtension, new(28, 8), 0x8000),
+        new(PlmHeaderId.UpwardsScrollExtension, new(28, 7), 0x8000),
+        new(PlmHeaderId.UpwardsScrollExtension, new(28, 6), 0x8000),
+        new(PlmHeaderId.UpwardsScrollExtension, new(28, 5), 0x8000),
+        new(PlmHeaderId.ScrollTrigger, new(50, 11), 0x939F),
+        new(PlmHeaderId.ScrollTrigger, new(60, 11), 0x939F),
+        new(PlmHeaderId.ScrollTrigger, new(58, 17), 0x93A2),
+        new(PlmHeaderId.RightwardsScrollExtension, new(59, 17), 0x8000),
+        new(PlmHeaderId.RightwardsScrollExtension, new(60, 17), 0x8000),
+        new(PlmHeaderId.RightwardsScrollExtension, new(61, 17), 0x8000),
+        new(PlmHeaderId.RightwardsScrollExtension, new(62, 17), 0x8000),
+        new(PlmHeaderId.ScrollTrigger, new(52, 14), 0x93A5),
+        new(PlmHeaderId.RedDoorFacingLeft, new(30, 54), 0x0005),
     ]);
 
     /// <summary>The ParlorState2 room PLM population.</summary>
     public static RoomPlmPopulationDefinition ParlorState2 { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(ParlorState2),
     [
-        (PlmHeaderId.ScrollTrigger, 63, 11, 0x9389),
-        (PlmHeaderId.ScrollTrigger, 67, 11, 0x938C),
-        (PlmHeaderId.ScrollTrigger, 22, 13, 0x938F),
-        (PlmHeaderId.RightwardsScrollExtension, 23, 13, 0x8000),
-        (PlmHeaderId.RightwardsScrollExtension, 24, 13, 0x8000),
-        (PlmHeaderId.RightwardsScrollExtension, 25, 13, 0x8000),
-        (PlmHeaderId.ScrollTrigger, 22, 11, 0x9396),
-        (PlmHeaderId.RightwardsScrollExtension, 23, 11, 0x8000),
-        (PlmHeaderId.RightwardsScrollExtension, 24, 11, 0x8000),
-        (PlmHeaderId.RightwardsScrollExtension, 25, 11, 0x8000),
-        (PlmHeaderId.ScrollTrigger, 14, 9, 0x9399),
-        (PlmHeaderId.UpwardsScrollExtension, 14, 8, 0x8000),
-        (PlmHeaderId.UpwardsScrollExtension, 14, 7, 0x8000),
-        (PlmHeaderId.ScrollTrigger, 28, 10, 0x939C),
-        (PlmHeaderId.UpwardsScrollExtension, 28, 9, 0x8000),
-        (PlmHeaderId.UpwardsScrollExtension, 28, 8, 0x8000),
-        (PlmHeaderId.UpwardsScrollExtension, 28, 7, 0x8000),
-        (PlmHeaderId.UpwardsScrollExtension, 28, 6, 0x8000),
-        (PlmHeaderId.UpwardsScrollExtension, 28, 5, 0x8000),
-        (PlmHeaderId.ScrollTrigger, 50, 11, 0x939F),
-        (PlmHeaderId.ScrollTrigger, 60, 11, 0x939F),
-        (PlmHeaderId.ScrollTrigger, 58, 17, 0x93A2),
-        (PlmHeaderId.RightwardsScrollExtension, 59, 17, 0x8000),
-        (PlmHeaderId.RightwardsScrollExtension, 60, 17, 0x8000),
-        (PlmHeaderId.RightwardsScrollExtension, 61, 17, 0x8000),
-        (PlmHeaderId.RightwardsScrollExtension, 62, 17, 0x8000),
-        (PlmHeaderId.ScrollTrigger, 52, 14, 0x93A5),
-        (PlmHeaderId.SetMetroidsClearedStatesWhenRequired, 8, 8, 0x000A),
-        (PlmHeaderId.GreyDoorFacingRight, 1, 6, 0x9006),
-        (PlmHeaderId.GreyDoorFacingRight, 17, 38, 0x9007),
-        (PlmHeaderId.GreyDoorFacingRight, 17, 54, 0x9008),
-        (PlmHeaderId.GreyDoorFacingLeft, 30, 54, 0x9009),
-        (PlmHeaderId.GreyDoorFacingUp, 22, 77, 0x900A),
+        new(PlmHeaderId.ScrollTrigger, new(63, 11), 0x9389),
+        new(PlmHeaderId.ScrollTrigger, new(67, 11), 0x938C),
+        new(PlmHeaderId.ScrollTrigger, new(22, 13), 0x938F),
+        new(PlmHeaderId.RightwardsScrollExtension, new(23, 13), 0x8000),
+        new(PlmHeaderId.RightwardsScrollExtension, new(24, 13), 0x8000),
+        new(PlmHeaderId.RightwardsScrollExtension, new(25, 13), 0x8000),
+        new(PlmHeaderId.ScrollTrigger, new(22, 11), 0x9396),
+        new(PlmHeaderId.RightwardsScrollExtension, new(23, 11), 0x8000),
+        new(PlmHeaderId.RightwardsScrollExtension, new(24, 11), 0x8000),
+        new(PlmHeaderId.RightwardsScrollExtension, new(25, 11), 0x8000),
+        new(PlmHeaderId.ScrollTrigger, new(14, 9), 0x9399),
+        new(PlmHeaderId.UpwardsScrollExtension, new(14, 8), 0x8000),
+        new(PlmHeaderId.UpwardsScrollExtension, new(14, 7), 0x8000),
+        new(PlmHeaderId.ScrollTrigger, new(28, 10), 0x939C),
+        new(PlmHeaderId.UpwardsScrollExtension, new(28, 9), 0x8000),
+        new(PlmHeaderId.UpwardsScrollExtension, new(28, 8), 0x8000),
+        new(PlmHeaderId.UpwardsScrollExtension, new(28, 7), 0x8000),
+        new(PlmHeaderId.UpwardsScrollExtension, new(28, 6), 0x8000),
+        new(PlmHeaderId.UpwardsScrollExtension, new(28, 5), 0x8000),
+        new(PlmHeaderId.ScrollTrigger, new(50, 11), 0x939F),
+        new(PlmHeaderId.ScrollTrigger, new(60, 11), 0x939F),
+        new(PlmHeaderId.ScrollTrigger, new(58, 17), 0x93A2),
+        new(PlmHeaderId.RightwardsScrollExtension, new(59, 17), 0x8000),
+        new(PlmHeaderId.RightwardsScrollExtension, new(60, 17), 0x8000),
+        new(PlmHeaderId.RightwardsScrollExtension, new(61, 17), 0x8000),
+        new(PlmHeaderId.RightwardsScrollExtension, new(62, 17), 0x8000),
+        new(PlmHeaderId.ScrollTrigger, new(52, 14), 0x93A5),
+        new(PlmHeaderId.SetMetroidsClearedStatesWhenRequired, new(8, 8), 0x000A),
+        new(PlmHeaderId.GreyDoorFacingRight, new(1, 6), 0x9006),
+        new(PlmHeaderId.GreyDoorFacingRight, new(17, 38), 0x9007),
+        new(PlmHeaderId.GreyDoorFacingRight, new(17, 54), 0x9008),
+        new(PlmHeaderId.GreyDoorFacingLeft, new(30, 54), 0x9009),
+        new(PlmHeaderId.GreyDoorFacingUp, new(22, 77), 0x900A),
     ]);
 
     /// <summary>The CrateriaPowerBombs room PLM population.</summary>
     public static RoomPlmPopulationDefinition CrateriaPowerBombs { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(CrateriaPowerBombs),
     [
-        (PlmHeaderId.ExposedPowerBombTank, 29, 7, 0x0000),
+        new(PlmHeaderId.ExposedPowerBombTank, new(29, 7), 0x0000),
     ]);
 
     /// <summary>The CrateriaSave room PLM population.</summary>
     public static RoomPlmPopulationDefinition CrateriaSave { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(CrateriaSave),
     [
-        (PlmHeaderId.SaveStation, 5, 11, 0x0001),
+        new(PlmHeaderId.SaveStation, new(5, 11), 0x0001),
     ]);
 
     /// <summary>The WestOcean room PLM population.</summary>
     public static RoomPlmPopulationDefinition WestOcean { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(WestOcean),
     [
-        (PlmHeaderId.GreyDoorFacingLeft, 94, 54, 0x900B),
-        (PlmHeaderId.GreenDoorFacingLeft, 126, 70, 0x000C),
-        (PlmHeaderId.ExposedMissileTank, 2, 91, 0x0001),
-        (PlmHeaderId.ShotBlockMissileTank, 28, 3, 0x0002),
-        (PlmHeaderId.ExposedMissileTank, 1, 47, 0x0003),
+        new(PlmHeaderId.GreyDoorFacingLeft, new(94, 54), 0x900B),
+        new(PlmHeaderId.GreenDoorFacingLeft, new(126, 70), 0x000C),
+        new(PlmHeaderId.ExposedMissileTank, new(2, 91), 0x0001),
+        new(PlmHeaderId.ShotBlockMissileTank, new(28, 3), 0x0002),
+        new(PlmHeaderId.ExposedMissileTank, new(1, 47), 0x0003),
     ]);
 
     /// <summary>The BowlingAlleyPath room PLM population.</summary>
@@ -139,20 +139,20 @@ internal static class RoomPlmPopulationDefinitions
     /// <summary>The CrateriaKihunter room PLM population.</summary>
     public static RoomPlmPopulationDefinition CrateriaKihunter { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(CrateriaKihunter),
     [
-        (PlmHeaderId.ScrollTrigger, 23, 15, 0x94C2),
-        (PlmHeaderId.RightwardsScrollExtension, 24, 15, 0x8000),
-        (PlmHeaderId.ScrollTrigger, 22, 12, 0x94C7),
-        (PlmHeaderId.RightwardsScrollExtension, 23, 12, 0x8000),
-        (PlmHeaderId.RightwardsScrollExtension, 24, 12, 0x8000),
-        (PlmHeaderId.RightwardsScrollExtension, 25, 12, 0x8000),
-        (PlmHeaderId.YellowDoorFacingLeft, 46, 6, 0x000D),
-        (PlmHeaderId.YellowDoorFacingUp, 22, 45, 0x000E),
+        new(PlmHeaderId.ScrollTrigger, new(23, 15), 0x94C2),
+        new(PlmHeaderId.RightwardsScrollExtension, new(24, 15), 0x8000),
+        new(PlmHeaderId.ScrollTrigger, new(22, 12), 0x94C7),
+        new(PlmHeaderId.RightwardsScrollExtension, new(23, 12), 0x8000),
+        new(PlmHeaderId.RightwardsScrollExtension, new(24, 12), 0x8000),
+        new(PlmHeaderId.RightwardsScrollExtension, new(25, 12), 0x8000),
+        new(PlmHeaderId.YellowDoorFacingLeft, new(46, 6), 0x000D),
+        new(PlmHeaderId.YellowDoorFacingUp, new(22, 45), 0x000E),
     ]);
 
     /// <summary>The ForgottenHighwayElev room PLM population.</summary>
     public static RoomPlmPopulationDefinition ForgottenHighwayElev { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(ForgottenHighwayElev),
     [
-        (PlmHeaderId.ScrollTrigger, 8, 13, 0x94FA),
+        new(PlmHeaderId.ScrollTrigger, new(8, 13), 0x94FA),
     ]);
 
     /// <summary>The EastOcean room PLM population.</summary>
@@ -173,7 +173,7 @@ internal static class RoomPlmPopulationDefinitions
     /// <summary>The ForgottenHighwayElbow room PLM population.</summary>
     public static RoomPlmPopulationDefinition ForgottenHighwayElbow { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(ForgottenHighwayElbow),
     [
-        (PlmHeaderId.YellowDoorFacingUp, 6, 13, 0x000F),
+        new(PlmHeaderId.YellowDoorFacingUp, new(6, 13), 0x000F),
     ]);
 
     /// <summary>The CrateriaTube room PLM population.</summary>
@@ -184,21 +184,21 @@ internal static class RoomPlmPopulationDefinitions
     /// <summary>The Moat room PLM population.</summary>
     public static RoomPlmPopulationDefinition Moat { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(Moat),
     [
-        (PlmHeaderId.ExposedMissileTank, 14, 9, 0x0004),
+        new(PlmHeaderId.ExposedMissileTank, new(14, 9), 0x0004),
     ]);
 
     /// <summary>The RedBinstarElev room PLM population.</summary>
     public static RoomPlmPopulationDefinition RedBinstarElev { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(RedBinstarElev),
     [
-        (PlmHeaderId.ScrollTrigger, 8, 13, 0x9658),
-        (PlmHeaderId.YellowDoorFacingDown, 6, 2, 0x0010),
+        new(PlmHeaderId.ScrollTrigger, new(8, 13), 0x9658),
+        new(PlmHeaderId.YellowDoorFacingDown, new(6, 2), 0x0010),
     ]);
 
     /// <summary>The GauntletETank room PLM population.</summary>
     public static RoomPlmPopulationDefinition GauntletETank { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(GauntletETank),
     [
-        (PlmHeaderId.ScrollTrigger, 84, 12, 0x968C),
-        (PlmHeaderId.ExposedEnergyTank, 83, 8, 0x0005),
+        new(PlmHeaderId.ScrollTrigger, new(84, 12), 0x968C),
+        new(PlmHeaderId.ExposedEnergyTank, new(83, 8), 0x0005),
     ]);
 
     /// <summary>The PreBowling room PLM population.</summary>
@@ -209,118 +209,118 @@ internal static class RoomPlmPopulationDefinitions
     /// <summary>The ClimbState01 room PLM population.</summary>
     public static RoomPlmPopulationDefinition ClimbState01 { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(ClimbState01),
     [
-        (PlmHeaderId.ScrollTrigger, 29, 5, 0x9747),
-        (PlmHeaderId.ScrollTrigger, 32, 5, 0x9744),
-        (PlmHeaderId.ScrollTrigger, 29, 118, 0x974D),
-        (PlmHeaderId.ScrollTrigger, 32, 118, 0x974A),
-        (PlmHeaderId.LeftwardsScrollExtension, 18, 133, 0x8000),
-        (PlmHeaderId.LeftwardsScrollExtension, 19, 133, 0x8000),
-        (PlmHeaderId.UpwardsScrollExtension, 20, 133, 0x8000),
-        (PlmHeaderId.UpwardsScrollExtension, 20, 134, 0x8000),
-        (PlmHeaderId.UpwardsScrollExtension, 20, 135, 0x8000),
-        (PlmHeaderId.UpwardsScrollExtension, 20, 136, 0x8000),
-        (PlmHeaderId.ScrollTrigger, 20, 137, 0x9753),
-        (PlmHeaderId.UpwardsScrollExtension, 15, 134, 0x8000),
-        (PlmHeaderId.UpwardsScrollExtension, 15, 135, 0x8000),
-        (PlmHeaderId.UpwardsScrollExtension, 15, 136, 0x8000),
-        (PlmHeaderId.ScrollTrigger, 15, 137, 0x9750),
-        (PlmHeaderId.UpwardsScrollExtension, 13, 134, 0x8000),
-        (PlmHeaderId.UpwardsScrollExtension, 13, 135, 0x8000),
-        (PlmHeaderId.UpwardsScrollExtension, 13, 136, 0x8000),
-        (PlmHeaderId.ScrollTrigger, 13, 137, 0x9756),
-        (PlmHeaderId.UpwardsScrollExtension, 8, 134, 0x8000),
-        (PlmHeaderId.UpwardsScrollExtension, 8, 135, 0x8000),
-        (PlmHeaderId.UpwardsScrollExtension, 8, 136, 0x8000),
-        (PlmHeaderId.ScrollTrigger, 8, 137, 0x9759),
-        (PlmHeaderId.GreyDoorFacingLeft, 46, 6, 0x9011),
-        (PlmHeaderId.GreyDoorFacingRight, 1, 134, 0x9012),
-        (PlmHeaderId.YellowDoorFacingLeft, 46, 118, 0x0013),
+        new(PlmHeaderId.ScrollTrigger, new(29, 5), 0x9747),
+        new(PlmHeaderId.ScrollTrigger, new(32, 5), 0x9744),
+        new(PlmHeaderId.ScrollTrigger, new(29, 118), 0x974D),
+        new(PlmHeaderId.ScrollTrigger, new(32, 118), 0x974A),
+        new(PlmHeaderId.LeftwardsScrollExtension, new(18, 133), 0x8000),
+        new(PlmHeaderId.LeftwardsScrollExtension, new(19, 133), 0x8000),
+        new(PlmHeaderId.UpwardsScrollExtension, new(20, 133), 0x8000),
+        new(PlmHeaderId.UpwardsScrollExtension, new(20, 134), 0x8000),
+        new(PlmHeaderId.UpwardsScrollExtension, new(20, 135), 0x8000),
+        new(PlmHeaderId.UpwardsScrollExtension, new(20, 136), 0x8000),
+        new(PlmHeaderId.ScrollTrigger, new(20, 137), 0x9753),
+        new(PlmHeaderId.UpwardsScrollExtension, new(15, 134), 0x8000),
+        new(PlmHeaderId.UpwardsScrollExtension, new(15, 135), 0x8000),
+        new(PlmHeaderId.UpwardsScrollExtension, new(15, 136), 0x8000),
+        new(PlmHeaderId.ScrollTrigger, new(15, 137), 0x9750),
+        new(PlmHeaderId.UpwardsScrollExtension, new(13, 134), 0x8000),
+        new(PlmHeaderId.UpwardsScrollExtension, new(13, 135), 0x8000),
+        new(PlmHeaderId.UpwardsScrollExtension, new(13, 136), 0x8000),
+        new(PlmHeaderId.ScrollTrigger, new(13, 137), 0x9756),
+        new(PlmHeaderId.UpwardsScrollExtension, new(8, 134), 0x8000),
+        new(PlmHeaderId.UpwardsScrollExtension, new(8, 135), 0x8000),
+        new(PlmHeaderId.UpwardsScrollExtension, new(8, 136), 0x8000),
+        new(PlmHeaderId.ScrollTrigger, new(8, 137), 0x9759),
+        new(PlmHeaderId.GreyDoorFacingLeft, new(46, 6), 0x9011),
+        new(PlmHeaderId.GreyDoorFacingRight, new(1, 134), 0x9012),
+        new(PlmHeaderId.YellowDoorFacingLeft, new(46, 118), 0x0013),
     ]);
 
     /// <summary>The ClimbState2 room PLM population.</summary>
     public static RoomPlmPopulationDefinition ClimbState2 { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(ClimbState2),
     [
-        (PlmHeaderId.ScrollTrigger, 29, 5, 0x9747),
-        (PlmHeaderId.ScrollTrigger, 32, 5, 0x9744),
-        (PlmHeaderId.ScrollTrigger, 29, 118, 0x974D),
-        (PlmHeaderId.ScrollTrigger, 32, 118, 0x974A),
-        (PlmHeaderId.LeftwardsScrollExtension, 18, 133, 0x8000),
-        (PlmHeaderId.LeftwardsScrollExtension, 19, 133, 0x8000),
-        (PlmHeaderId.UpwardsScrollExtension, 20, 133, 0x8000),
-        (PlmHeaderId.UpwardsScrollExtension, 20, 134, 0x8000),
-        (PlmHeaderId.UpwardsScrollExtension, 20, 135, 0x8000),
-        (PlmHeaderId.UpwardsScrollExtension, 20, 136, 0x8000),
-        (PlmHeaderId.ScrollTrigger, 20, 137, 0x9753),
-        (PlmHeaderId.UpwardsScrollExtension, 15, 134, 0x8000),
-        (PlmHeaderId.UpwardsScrollExtension, 15, 135, 0x8000),
-        (PlmHeaderId.UpwardsScrollExtension, 15, 136, 0x8000),
-        (PlmHeaderId.ScrollTrigger, 15, 137, 0x9750),
-        (PlmHeaderId.UpwardsScrollExtension, 13, 134, 0x8000),
-        (PlmHeaderId.UpwardsScrollExtension, 13, 135, 0x8000),
-        (PlmHeaderId.UpwardsScrollExtension, 13, 136, 0x8000),
-        (PlmHeaderId.ScrollTrigger, 13, 137, 0x9756),
-        (PlmHeaderId.UpwardsScrollExtension, 8, 134, 0x8000),
-        (PlmHeaderId.UpwardsScrollExtension, 8, 135, 0x8000),
-        (PlmHeaderId.UpwardsScrollExtension, 8, 136, 0x8000),
-        (PlmHeaderId.ScrollTrigger, 8, 137, 0x9759),
-        (PlmHeaderId.SetMetroidsClearedStatesWhenRequired, 8, 8, 0x000C),
-        (PlmHeaderId.GreyDoorFacingLeft, 46, 6, 0x9014),
-        (PlmHeaderId.GreyDoorFacingLeft, 46, 118, 0x9015),
-        (PlmHeaderId.GreyDoorFacingLeft, 30, 134, 0x9016),
-        (PlmHeaderId.GreyDoorFacingRight, 1, 134, 0x9017),
+        new(PlmHeaderId.ScrollTrigger, new(29, 5), 0x9747),
+        new(PlmHeaderId.ScrollTrigger, new(32, 5), 0x9744),
+        new(PlmHeaderId.ScrollTrigger, new(29, 118), 0x974D),
+        new(PlmHeaderId.ScrollTrigger, new(32, 118), 0x974A),
+        new(PlmHeaderId.LeftwardsScrollExtension, new(18, 133), 0x8000),
+        new(PlmHeaderId.LeftwardsScrollExtension, new(19, 133), 0x8000),
+        new(PlmHeaderId.UpwardsScrollExtension, new(20, 133), 0x8000),
+        new(PlmHeaderId.UpwardsScrollExtension, new(20, 134), 0x8000),
+        new(PlmHeaderId.UpwardsScrollExtension, new(20, 135), 0x8000),
+        new(PlmHeaderId.UpwardsScrollExtension, new(20, 136), 0x8000),
+        new(PlmHeaderId.ScrollTrigger, new(20, 137), 0x9753),
+        new(PlmHeaderId.UpwardsScrollExtension, new(15, 134), 0x8000),
+        new(PlmHeaderId.UpwardsScrollExtension, new(15, 135), 0x8000),
+        new(PlmHeaderId.UpwardsScrollExtension, new(15, 136), 0x8000),
+        new(PlmHeaderId.ScrollTrigger, new(15, 137), 0x9750),
+        new(PlmHeaderId.UpwardsScrollExtension, new(13, 134), 0x8000),
+        new(PlmHeaderId.UpwardsScrollExtension, new(13, 135), 0x8000),
+        new(PlmHeaderId.UpwardsScrollExtension, new(13, 136), 0x8000),
+        new(PlmHeaderId.ScrollTrigger, new(13, 137), 0x9756),
+        new(PlmHeaderId.UpwardsScrollExtension, new(8, 134), 0x8000),
+        new(PlmHeaderId.UpwardsScrollExtension, new(8, 135), 0x8000),
+        new(PlmHeaderId.UpwardsScrollExtension, new(8, 136), 0x8000),
+        new(PlmHeaderId.ScrollTrigger, new(8, 137), 0x9759),
+        new(PlmHeaderId.SetMetroidsClearedStatesWhenRequired, new(8, 8), 0x000C),
+        new(PlmHeaderId.GreyDoorFacingLeft, new(46, 6), 0x9014),
+        new(PlmHeaderId.GreyDoorFacingLeft, new(46, 118), 0x9015),
+        new(PlmHeaderId.GreyDoorFacingLeft, new(30, 134), 0x9016),
+        new(PlmHeaderId.GreyDoorFacingRight, new(1, 134), 0x9017),
     ]);
 
     /// <summary>The Pit0 room PLM population.</summary>
     public static RoomPlmPopulationDefinition Pit0 { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(Pit0),
     [
-        (PlmHeaderId.ScrollTrigger, 4, 15, 0x97AB),
-        (PlmHeaderId.ScrollTrigger, 6, 15, 0x97AB),
-        (PlmHeaderId.ScrollTrigger, 5, 9, 0x97B0),
-        (PlmHeaderId.GreyDoorFacingRight, 1, 6, 0x9018),
+        new(PlmHeaderId.ScrollTrigger, new(4, 15), 0x97AB),
+        new(PlmHeaderId.ScrollTrigger, new(6, 15), 0x97AB),
+        new(PlmHeaderId.ScrollTrigger, new(5, 9), 0x97B0),
+        new(PlmHeaderId.GreyDoorFacingRight, new(1, 6), 0x9018),
     ]);
 
     /// <summary>The Pit1 room PLM population.</summary>
     public static RoomPlmPopulationDefinition Pit1 { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(Pit1),
     [
-        (PlmHeaderId.ScrollTrigger, 4, 15, 0x97AB),
-        (PlmHeaderId.ScrollTrigger, 6, 15, 0x97AB),
-        (PlmHeaderId.ScrollTrigger, 5, 9, 0x97B0),
-        (PlmHeaderId.GreyDoorFacingLeft, 46, 6, 0x0C19),
-        (PlmHeaderId.GreyDoorFacingRight, 1, 6, 0x0C1A),
-        (PlmHeaderId.ExposedMissileTank, 5, 26, 0x0006),
+        new(PlmHeaderId.ScrollTrigger, new(4, 15), 0x97AB),
+        new(PlmHeaderId.ScrollTrigger, new(6, 15), 0x97AB),
+        new(PlmHeaderId.ScrollTrigger, new(5, 9), 0x97B0),
+        new(PlmHeaderId.GreyDoorFacingLeft, new(46, 6), 0x0C19),
+        new(PlmHeaderId.GreyDoorFacingRight, new(1, 6), 0x0C1A),
+        new(PlmHeaderId.ExposedMissileTank, new(5, 26), 0x0006),
     ]);
 
     /// <summary>The ElevToBlueBrinstarState01 room PLM population.</summary>
     public static RoomPlmPopulationDefinition ElevToBlueBrinstarState01 { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(ElevToBlueBrinstarState01),
     [
-        (PlmHeaderId.ScrollTrigger, 7, 13, 0x9801),
+        new(PlmHeaderId.ScrollTrigger, new(7, 13), 0x9801),
     ]);
 
     /// <summary>The BombTorizoState01 room PLM population.</summary>
     public static RoomPlmPopulationDefinition BombTorizoState01 { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(BombTorizoState01),
     [
-        (PlmHeaderId.BombTorizoGreyDoor, 1, 6, 0x081B),
-        (PlmHeaderId.ChozoBombs, 12, 10, 0x0007),
-        (PlmHeaderId.BombTorizoHand, 13, 11, 0x0000),
+        new(PlmHeaderId.BombTorizoGreyDoor, new(1, 6), 0x081B),
+        new(PlmHeaderId.ChozoBombs, new(12, 10), 0x0007),
+        new(PlmHeaderId.BombTorizoHand, new(13, 11), 0x0000),
     ]);
 
     /// <summary>The BombTorizoState2 room PLM population.</summary>
     public static RoomPlmPopulationDefinition BombTorizoState2 { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(BombTorizoState2),
     [
-        (PlmHeaderId.SetMetroidsClearedStatesWhenRequired, 8, 8, 0x000E),
-        (PlmHeaderId.GreyDoorFacingRight, 1, 6, 0x181C),
+        new(PlmHeaderId.SetMetroidsClearedStatesWhenRequired, new(8, 8), 0x000E),
+        new(PlmHeaderId.GreyDoorFacingRight, new(1, 6), 0x181C),
     ]);
 
     /// <summary>The FlywayState01 room PLM population.</summary>
     public static RoomPlmPopulationDefinition FlywayState01 { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(FlywayState01),
     [
-        (PlmHeaderId.RedDoorFacingLeft, 46, 6, 0x001D),
+        new(PlmHeaderId.RedDoorFacingLeft, new(46, 6), 0x001D),
     ]);
 
     /// <summary>The FlywayState2 room PLM population.</summary>
     public static RoomPlmPopulationDefinition FlywayState2 { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(FlywayState2),
     [
-        (PlmHeaderId.SetMetroidsClearedStatesWhenRequired, 8, 8, 0x0010),
+        new(PlmHeaderId.SetMetroidsClearedStatesWhenRequired, new(8, 8), 0x0010),
     ]);
 
     /// <summary>The PreMapFlyway room PLM population.</summary>
@@ -331,13 +331,13 @@ internal static class RoomPlmPopulationDefinitions
     /// <summary>The Terminator room PLM population.</summary>
     public static RoomPlmPopulationDefinition Terminator { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(Terminator),
     [
-        (PlmHeaderId.ExposedEnergyTank, 7, 42, 0x0008),
+        new(PlmHeaderId.ExposedEnergyTank, new(7, 42), 0x0008),
     ]);
 
     /// <summary>The GreenBrinstarElev room PLM population.</summary>
     public static RoomPlmPopulationDefinition GreenBrinstarElev { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(GreenBrinstarElev),
     [
-        (PlmHeaderId.ScrollTrigger, 7, 13, 0x9966),
+        new(PlmHeaderId.ScrollTrigger, new(7, 13), 0x9966),
     ]);
 
     /// <summary>The LowerMushrooms room PLM population.</summary>
@@ -348,25 +348,25 @@ internal static class RoomPlmPopulationDefinitions
     /// <summary>The CrateriaMap room PLM population.</summary>
     public static RoomPlmPopulationDefinition CrateriaMap { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(CrateriaMap),
     [
-        (PlmHeaderId.MapStation, 11, 10, 0x8000),
+        new(PlmHeaderId.MapStation, new(11, 10), 0x8000),
     ]);
 
     /// <summary>The GreenPiratesShaft room PLM population.</summary>
     public static RoomPlmPopulationDefinition GreenPiratesShaft { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(GreenPiratesShaft),
     [
-        (PlmHeaderId.ScrollTrigger, 7, 67, 0x99F3),
-        (PlmHeaderId.RightwardsScrollExtension, 8, 67, 0x8000),
-        (PlmHeaderId.ScrollTrigger, 9, 70, 0x99F6),
-        (PlmHeaderId.RightwardsScrollExtension, 10, 70, 0x8000),
-        (PlmHeaderId.ExposedMissileTank, 13, 27, 0x0009),
-        (PlmHeaderId.ExposedMissileTank, 2, 27, 0x000A),
-        (PlmHeaderId.RedDoorFacingLeft, 14, 102, 0x001E),
+        new(PlmHeaderId.ScrollTrigger, new(7, 67), 0x99F3),
+        new(PlmHeaderId.RightwardsScrollExtension, new(8, 67), 0x8000),
+        new(PlmHeaderId.ScrollTrigger, new(9, 70), 0x99F6),
+        new(PlmHeaderId.RightwardsScrollExtension, new(10, 70), 0x8000),
+        new(PlmHeaderId.ExposedMissileTank, new(13, 27), 0x0009),
+        new(PlmHeaderId.ExposedMissileTank, new(2, 27), 0x000A),
+        new(PlmHeaderId.RedDoorFacingLeft, new(14, 102), 0x001E),
     ]);
 
     /// <summary>The CrateriaSuper room PLM population.</summary>
     public static RoomPlmPopulationDefinition CrateriaSuper { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(CrateriaSuper),
     [
-        (PlmHeaderId.ExposedSuperMissileTank, 59, 9, 0x000B),
+        new(PlmHeaderId.ExposedSuperMissileTank, new(59, 9), 0x000B),
     ]);
 
     /// <summary>The FinalMissileBombwayState0 room PLM population.</summary>
@@ -387,229 +387,229 @@ internal static class RoomPlmPopulationDefinitions
     /// <summary>The FinalMissileState1 room PLM population.</summary>
     public static RoomPlmPopulationDefinition FinalMissileState1 { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(FinalMissileState1),
     [
-        (PlmHeaderId.ExposedMissileTank, 4, 7, 0x000C),
+        new(PlmHeaderId.ExposedMissileTank, new(4, 7), 0x000C),
     ]);
 
     /// <summary>The GreenBrinstarMainShaft room PLM population.</summary>
     public static RoomPlmPopulationDefinition GreenBrinstarMainShaft { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(GreenBrinstarMainShaft),
     [
-        (PlmHeaderId.ScrollTrigger, 7, 113, 0x9B46),
-        (PlmHeaderId.ScrollTrigger, 16, 168, 0x9B4B),
-        (PlmHeaderId.ScrollTrigger, 33, 168, 0x9B4B),
-        (PlmHeaderId.ScrollTrigger, 13, 172, 0x9B52),
-        (PlmHeaderId.ElevatorPlatform, 6, 44, 0x8000),
-        (PlmHeaderId.ChozoPowerBombTank, 60, 122, 0x000D),
-        (PlmHeaderId.RedDoorFacingRight, 1, 86, 0x001F),
-        (PlmHeaderId.RedDoorFacingRight, 1, 70, 0x0020),
-        (PlmHeaderId.RedDoorFacingLeft, 14, 70, 0x0021),
-        (PlmHeaderId.RedDoorFacingLeft, 14, 102, 0x0022),
-        (PlmHeaderId.RedDoorFacingRight, 1, 102, 0x0023),
-        (PlmHeaderId.GreyDoorFacingLeft, 14, 118, 0x9024),
+        new(PlmHeaderId.ScrollTrigger, new(7, 113), 0x9B46),
+        new(PlmHeaderId.ScrollTrigger, new(16, 168), 0x9B4B),
+        new(PlmHeaderId.ScrollTrigger, new(33, 168), 0x9B4B),
+        new(PlmHeaderId.ScrollTrigger, new(13, 172), 0x9B52),
+        new(PlmHeaderId.ElevatorPlatform, new(6, 44), 0x8000),
+        new(PlmHeaderId.ChozoPowerBombTank, new(60, 122), 0x000D),
+        new(PlmHeaderId.RedDoorFacingRight, new(1, 86), 0x001F),
+        new(PlmHeaderId.RedDoorFacingRight, new(1, 70), 0x0020),
+        new(PlmHeaderId.RedDoorFacingLeft, new(14, 70), 0x0021),
+        new(PlmHeaderId.RedDoorFacingLeft, new(14, 102), 0x0022),
+        new(PlmHeaderId.RedDoorFacingRight, new(1, 102), 0x0023),
+        new(PlmHeaderId.GreyDoorFacingLeft, new(14, 118), 0x9024),
     ]);
 
     /// <summary>The SporeSpawnSuper room PLM population.</summary>
     public static RoomPlmPopulationDefinition SporeSpawnSuper { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(SporeSpawnSuper),
     [
-        (PlmHeaderId.ScrollTrigger, 23, 11, 0x9B98),
-        (PlmHeaderId.RightwardsScrollExtension, 24, 11, 0x8000),
-        (PlmHeaderId.ChozoSuperMissileTank, 26, 135, 0x000E),
+        new(PlmHeaderId.ScrollTrigger, new(23, 11), 0x9B98),
+        new(PlmHeaderId.RightwardsScrollExtension, new(24, 11), 0x8000),
+        new(PlmHeaderId.ChozoSuperMissileTank, new(26, 135), 0x000E),
     ]);
 
     /// <summary>The BrinstarPreMap room PLM population.</summary>
     public static RoomPlmPopulationDefinition BrinstarPreMap { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(BrinstarPreMap),
     [
-        (PlmHeaderId.GreyDoorFacingLeft, 46, 6, 0x0C25),
+        new(PlmHeaderId.GreyDoorFacingLeft, new(46, 6), 0x0C25),
     ]);
 
     /// <summary>The EarlySupers room PLM population.</summary>
     public static RoomPlmPopulationDefinition EarlySupers { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(EarlySupers),
     [
-        (PlmHeaderId.ScrollTrigger, 41, 14, 0x9BF9),
-        (PlmHeaderId.RightwardsScrollExtension, 42, 14, 0x8000),
-        (PlmHeaderId.RightwardsScrollExtension, 43, 14, 0x8000),
-        (PlmHeaderId.ScrollTrigger, 4, 19, 0x9C00),
-        (PlmHeaderId.ScrollTrigger, 4, 15, 0x9BF9),
-        (PlmHeaderId.RedDoorFacingLeft, 46, 22, 0x0026),
-        (PlmHeaderId.ExposedMissileTank, 19, 27, 0x000F),
-        (PlmHeaderId.ExposedSuperMissileTank, 4, 6, 0x0010),
+        new(PlmHeaderId.ScrollTrigger, new(41, 14), 0x9BF9),
+        new(PlmHeaderId.RightwardsScrollExtension, new(42, 14), 0x8000),
+        new(PlmHeaderId.RightwardsScrollExtension, new(43, 14), 0x8000),
+        new(PlmHeaderId.ScrollTrigger, new(4, 19), 0x9C00),
+        new(PlmHeaderId.ScrollTrigger, new(4, 15), 0x9BF9),
+        new(PlmHeaderId.RedDoorFacingLeft, new(46, 22), 0x0026),
+        new(PlmHeaderId.ExposedMissileTank, new(19, 27), 0x000F),
+        new(PlmHeaderId.ExposedSuperMissileTank, new(4, 6), 0x0010),
     ]);
 
     /// <summary>The BrinstarReserveTank room PLM population.</summary>
     public static RoomPlmPopulationDefinition BrinstarReserveTank { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(BrinstarReserveTank),
     [
-        (PlmHeaderId.ScrollTrigger, 14, 11, 0x9C32),
-        (PlmHeaderId.ChozoReserveTank, 11, 7, 0x0011),
-        (PlmHeaderId.ShotBlockMissileTank, 30, 7, 0x0012),
-        (PlmHeaderId.ExposedMissileTank, 25, 7, 0x0013),
+        new(PlmHeaderId.ScrollTrigger, new(14, 11), 0x9C32),
+        new(PlmHeaderId.ChozoReserveTank, new(11, 7), 0x0011),
+        new(PlmHeaderId.ShotBlockMissileTank, new(30, 7), 0x0012),
+        new(PlmHeaderId.ExposedMissileTank, new(25, 7), 0x0013),
     ]);
 
     /// <summary>The GreenBrinstarMap room PLM population.</summary>
     public static RoomPlmPopulationDefinition GreenBrinstarMap { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(GreenBrinstarMap),
     [
-        (PlmHeaderId.MapStation, 5, 10, 0x8000),
+        new(PlmHeaderId.MapStation, new(5, 10), 0x8000),
     ]);
 
     /// <summary>The GreenBrinstarFirefleas room PLM population.</summary>
     public static RoomPlmPopulationDefinition GreenBrinstarFirefleas { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(GreenBrinstarFirefleas),
     [
-        (PlmHeaderId.GreenDoorFacingRight, 1, 38, 0x0027),
+        new(PlmHeaderId.GreenDoorFacingRight, new(1, 38), 0x0027),
     ]);
 
     /// <summary>The GreenBrinstarMissileRefill room PLM population.</summary>
     public static RoomPlmPopulationDefinition GreenBrinstarMissileRefill { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(GreenBrinstarMissileRefill),
     [
-        (PlmHeaderId.MissileStation, 4, 10, 0x0014),
+        new(PlmHeaderId.MissileStation, new(4, 10), 0x0014),
     ]);
 
     /// <summary>The Dachora room PLM population.</summary>
     public static RoomPlmPopulationDefinition Dachora { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(Dachora),
     [
-        (PlmHeaderId.DownwardsScrollExtension, 69, 14, 0x8000),
-        (PlmHeaderId.LeftwardsScrollExtension, 69, 13, 0x8000),
-        (PlmHeaderId.LeftwardsScrollExtension, 70, 13, 0x8000),
-        (PlmHeaderId.LeftwardsScrollExtension, 71, 13, 0x8000),
-        (PlmHeaderId.LeftwardsScrollExtension, 72, 13, 0x8000),
-        (PlmHeaderId.LeftwardsScrollExtension, 73, 13, 0x8000),
-        (PlmHeaderId.ScrollTrigger, 74, 13, 0x9D11),
-        (PlmHeaderId.UpwardsScrollExtension, 64, 8, 0x8000),
-        (PlmHeaderId.UpwardsScrollExtension, 64, 9, 0x8000),
-        (PlmHeaderId.UpwardsScrollExtension, 64, 10, 0x8000),
-        (PlmHeaderId.ScrollTrigger, 64, 11, 0x9D14),
-        (PlmHeaderId.DownwardsScrollExtension, 75, 11, 0x8000),
-        (PlmHeaderId.DownwardsScrollExtension, 75, 10, 0x8000),
-        (PlmHeaderId.RightwardsScrollExtension, 75, 9, 0x8000),
-        (PlmHeaderId.RightwardsScrollExtension, 74, 9, 0x8000),
-        (PlmHeaderId.RightwardsScrollExtension, 73, 9, 0x8000),
-        (PlmHeaderId.RightwardsScrollExtension, 72, 9, 0x8000),
-        (PlmHeaderId.RightwardsScrollExtension, 71, 9, 0x8000),
-        (PlmHeaderId.RightwardsScrollExtension, 70, 9, 0x8000),
-        (PlmHeaderId.RightwardsScrollExtension, 69, 9, 0x8000),
-        (PlmHeaderId.UpwardsScrollExtension, 68, 9, 0x8000),
-        (PlmHeaderId.UpwardsScrollExtension, 68, 10, 0x8000),
-        (PlmHeaderId.ScrollTrigger, 68, 11, 0x9D14),
+        new(PlmHeaderId.DownwardsScrollExtension, new(69, 14), 0x8000),
+        new(PlmHeaderId.LeftwardsScrollExtension, new(69, 13), 0x8000),
+        new(PlmHeaderId.LeftwardsScrollExtension, new(70, 13), 0x8000),
+        new(PlmHeaderId.LeftwardsScrollExtension, new(71, 13), 0x8000),
+        new(PlmHeaderId.LeftwardsScrollExtension, new(72, 13), 0x8000),
+        new(PlmHeaderId.LeftwardsScrollExtension, new(73, 13), 0x8000),
+        new(PlmHeaderId.ScrollTrigger, new(74, 13), 0x9D11),
+        new(PlmHeaderId.UpwardsScrollExtension, new(64, 8), 0x8000),
+        new(PlmHeaderId.UpwardsScrollExtension, new(64, 9), 0x8000),
+        new(PlmHeaderId.UpwardsScrollExtension, new(64, 10), 0x8000),
+        new(PlmHeaderId.ScrollTrigger, new(64, 11), 0x9D14),
+        new(PlmHeaderId.DownwardsScrollExtension, new(75, 11), 0x8000),
+        new(PlmHeaderId.DownwardsScrollExtension, new(75, 10), 0x8000),
+        new(PlmHeaderId.RightwardsScrollExtension, new(75, 9), 0x8000),
+        new(PlmHeaderId.RightwardsScrollExtension, new(74, 9), 0x8000),
+        new(PlmHeaderId.RightwardsScrollExtension, new(73, 9), 0x8000),
+        new(PlmHeaderId.RightwardsScrollExtension, new(72, 9), 0x8000),
+        new(PlmHeaderId.RightwardsScrollExtension, new(71, 9), 0x8000),
+        new(PlmHeaderId.RightwardsScrollExtension, new(70, 9), 0x8000),
+        new(PlmHeaderId.RightwardsScrollExtension, new(69, 9), 0x8000),
+        new(PlmHeaderId.UpwardsScrollExtension, new(68, 9), 0x8000),
+        new(PlmHeaderId.UpwardsScrollExtension, new(68, 10), 0x8000),
+        new(PlmHeaderId.ScrollTrigger, new(68, 11), 0x9D14),
     ]);
 
     /// <summary>The BigPink room PLM population.</summary>
     public static RoomPlmPopulationDefinition BigPink { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(BigPink),
     [
-        (PlmHeaderId.ScrollTrigger, 46, 107, 0x9D84),
-        (PlmHeaderId.ScrollTrigger, 32, 122, 0x9D8B),
-        (PlmHeaderId.ScrollTrigger, 61, 87, 0x9D8E),
-        (PlmHeaderId.ScrollTrigger, 64, 87, 0x9D91),
-        (PlmHeaderId.ScrollTrigger, 31, 8, 0x9D96),
-        (PlmHeaderId.ScrollTrigger, 33, 8, 0x9D99),
-        (PlmHeaderId.ExposedMissileTank, 36, 50, 0x0015),
-        (PlmHeaderId.ExposedMissileTank, 34, 103, 0x0016),
-        (PlmHeaderId.ChozoChargeBeam, 37, 118, 0x0017),
-        (PlmHeaderId.YellowDoorFacingLeft, 62, 70, 0x0028),
-        (PlmHeaderId.GreenDoorFacingLeft, 62, 102, 0x0029),
-        (PlmHeaderId.RedDoorFacingLeft, 62, 6, 0x002A),
-        (PlmHeaderId.RedDoorFacingRight, 1, 150, 0x002B),
+        new(PlmHeaderId.ScrollTrigger, new(46, 107), 0x9D84),
+        new(PlmHeaderId.ScrollTrigger, new(32, 122), 0x9D8B),
+        new(PlmHeaderId.ScrollTrigger, new(61, 87), 0x9D8E),
+        new(PlmHeaderId.ScrollTrigger, new(64, 87), 0x9D91),
+        new(PlmHeaderId.ScrollTrigger, new(31, 8), 0x9D96),
+        new(PlmHeaderId.ScrollTrigger, new(33, 8), 0x9D99),
+        new(PlmHeaderId.ExposedMissileTank, new(36, 50), 0x0015),
+        new(PlmHeaderId.ExposedMissileTank, new(34, 103), 0x0016),
+        new(PlmHeaderId.ChozoChargeBeam, new(37, 118), 0x0017),
+        new(PlmHeaderId.YellowDoorFacingLeft, new(62, 70), 0x0028),
+        new(PlmHeaderId.GreenDoorFacingLeft, new(62, 102), 0x0029),
+        new(PlmHeaderId.RedDoorFacingLeft, new(62, 6), 0x002A),
+        new(PlmHeaderId.RedDoorFacingRight, new(1, 150), 0x002B),
     ]);
 
     /// <summary>The SporeSpawnKihunters room PLM population.</summary>
     public static RoomPlmPopulationDefinition SporeSpawnKihunters { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(SporeSpawnKihunters),
     [
-        (PlmHeaderId.GreyDoorFacingRight, 1, 6, 0x0C2C),
-        (PlmHeaderId.GreyDoorFacingDown, 54, 3, 0x0C2D),
+        new(PlmHeaderId.GreyDoorFacingRight, new(1, 6), 0x0C2C),
+        new(PlmHeaderId.GreyDoorFacingDown, new(54, 3), 0x0C2D),
     ]);
 
     /// <summary>The SporeSpawnState01 room PLM population.</summary>
     public static RoomPlmPopulationDefinition SporeSpawnState01 { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(SporeSpawnState01),
     [
-        (PlmHeaderId.GreenDoorFacingUp, 6, 46, 0x002E),
+        new(PlmHeaderId.GreenDoorFacingUp, new(6, 46), 0x002E),
     ]);
 
     /// <summary>The PinkBrinstarPowerBombs room PLM population.</summary>
     public static RoomPlmPopulationDefinition PinkBrinstarPowerBombs { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(PinkBrinstarPowerBombs),
     [
-        (PlmHeaderId.ScrollTrigger, 8, 14, 0x9E40),
-        (PlmHeaderId.ScrollTrigger, 8, 11, 0x9E49),
-        (PlmHeaderId.GreyDoorFacingLeft, 30, 6, 0x0C2F),
-        (PlmHeaderId.ExposedPowerBombTank, 6, 23, 0x0018),
+        new(PlmHeaderId.ScrollTrigger, new(8, 14), 0x9E40),
+        new(PlmHeaderId.ScrollTrigger, new(8, 11), 0x9E49),
+        new(PlmHeaderId.GreyDoorFacingLeft, new(30, 6), 0x0C2F),
+        new(PlmHeaderId.ExposedPowerBombTank, new(6, 23), 0x0018),
     ]);
 
     /// <summary>The GreenHillZone room PLM population.</summary>
     public static RoomPlmPopulationDefinition GreenHillZone { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(GreenHillZone),
     [
-        (PlmHeaderId.DownwardGate, 100, 55, 0x8000),
-        (PlmHeaderId.DownwardGateShotBlock, 100, 55, 0x0000),
-        (PlmHeaderId.YellowDoorFacingLeft, 30, 6, 0x0030),
-        (PlmHeaderId.ExposedMissileTank, 61, 24, 0x0019),
+        new(PlmHeaderId.DownwardGate, new(100, 55), 0x8000),
+        new(PlmHeaderId.DownwardGateShotBlock, new(100, 55), 0x0000),
+        new(PlmHeaderId.YellowDoorFacingLeft, new(30, 6), 0x0030),
+        new(PlmHeaderId.ExposedMissileTank, new(61, 24), 0x0019),
     ]);
 
     /// <summary>The MorphBallState0 room PLM population.</summary>
     public static RoomPlmPopulationDefinition MorphBallState0 { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(MorphBallState0),
     [
-        (PlmHeaderId.ScrollTrigger, 31, 43, 0x9F05),
-        (PlmHeaderId.UpwardsScrollExtension, 8, 35, 0x8000),
-        (PlmHeaderId.UpwardsScrollExtension, 8, 36, 0x8000),
-        (PlmHeaderId.UpwardsScrollExtension, 8, 37, 0x8000),
-        (PlmHeaderId.UpwardsScrollExtension, 8, 38, 0x8000),
-        (PlmHeaderId.UpwardsScrollExtension, 8, 39, 0x8000),
-        (PlmHeaderId.UpwardsScrollExtension, 8, 40, 0x8000),
-        (PlmHeaderId.UpwardsScrollExtension, 8, 41, 0x8000),
-        (PlmHeaderId.UpwardsScrollExtension, 8, 42, 0x8000),
-        (PlmHeaderId.ScrollTrigger, 8, 43, 0x9F08),
-        (PlmHeaderId.RightwardsScrollExtension, 88, 33, 0x8000),
-        (PlmHeaderId.ScrollTrigger, 87, 33, 0x9F0B),
-        (PlmHeaderId.RightwardsScrollExtension, 88, 10, 0x8000),
-        (PlmHeaderId.ScrollTrigger, 87, 10, 0x9F0B),
-        (PlmHeaderId.RightwardsScrollExtension, 88, 38, 0x8000),
-        (PlmHeaderId.ScrollTrigger, 87, 38, 0x9F0E),
-        (PlmHeaderId.ExposedMorphBall, 69, 41, 0x001A),
+        new(PlmHeaderId.ScrollTrigger, new(31, 43), 0x9F05),
+        new(PlmHeaderId.UpwardsScrollExtension, new(8, 35), 0x8000),
+        new(PlmHeaderId.UpwardsScrollExtension, new(8, 36), 0x8000),
+        new(PlmHeaderId.UpwardsScrollExtension, new(8, 37), 0x8000),
+        new(PlmHeaderId.UpwardsScrollExtension, new(8, 38), 0x8000),
+        new(PlmHeaderId.UpwardsScrollExtension, new(8, 39), 0x8000),
+        new(PlmHeaderId.UpwardsScrollExtension, new(8, 40), 0x8000),
+        new(PlmHeaderId.UpwardsScrollExtension, new(8, 41), 0x8000),
+        new(PlmHeaderId.UpwardsScrollExtension, new(8, 42), 0x8000),
+        new(PlmHeaderId.ScrollTrigger, new(8, 43), 0x9F08),
+        new(PlmHeaderId.RightwardsScrollExtension, new(88, 33), 0x8000),
+        new(PlmHeaderId.ScrollTrigger, new(87, 33), 0x9F0B),
+        new(PlmHeaderId.RightwardsScrollExtension, new(88, 10), 0x8000),
+        new(PlmHeaderId.ScrollTrigger, new(87, 10), 0x9F0B),
+        new(PlmHeaderId.RightwardsScrollExtension, new(88, 38), 0x8000),
+        new(PlmHeaderId.ScrollTrigger, new(87, 38), 0x9F0E),
+        new(PlmHeaderId.ExposedMorphBall, new(69, 41), 0x001A),
     ]);
 
     /// <summary>The MorphBallState1 room PLM population.</summary>
     public static RoomPlmPopulationDefinition MorphBallState1 { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(MorphBallState1),
     [
-        (PlmHeaderId.ScrollTrigger, 31, 43, 0x9F05),
-        (PlmHeaderId.UpwardsScrollExtension, 8, 35, 0x8000),
-        (PlmHeaderId.UpwardsScrollExtension, 8, 36, 0x8000),
-        (PlmHeaderId.UpwardsScrollExtension, 8, 37, 0x8000),
-        (PlmHeaderId.UpwardsScrollExtension, 8, 38, 0x8000),
-        (PlmHeaderId.UpwardsScrollExtension, 8, 39, 0x8000),
-        (PlmHeaderId.UpwardsScrollExtension, 8, 40, 0x8000),
-        (PlmHeaderId.UpwardsScrollExtension, 8, 41, 0x8000),
-        (PlmHeaderId.UpwardsScrollExtension, 8, 42, 0x8000),
-        (PlmHeaderId.ScrollTrigger, 8, 43, 0x9F08),
-        (PlmHeaderId.RightwardsScrollExtension, 88, 33, 0x8000),
-        (PlmHeaderId.ScrollTrigger, 87, 33, 0x9F0B),
-        (PlmHeaderId.RightwardsScrollExtension, 88, 10, 0x8000),
-        (PlmHeaderId.ScrollTrigger, 87, 10, 0x9F0B),
-        (PlmHeaderId.RightwardsScrollExtension, 88, 38, 0x8000),
-        (PlmHeaderId.ScrollTrigger, 87, 38, 0x9F0E),
-        (PlmHeaderId.GreyDoorFacingRight, 1, 38, 0x0C31),
-        (PlmHeaderId.ExposedPowerBombTank, 40, 42, 0x001B),
+        new(PlmHeaderId.ScrollTrigger, new(31, 43), 0x9F05),
+        new(PlmHeaderId.UpwardsScrollExtension, new(8, 35), 0x8000),
+        new(PlmHeaderId.UpwardsScrollExtension, new(8, 36), 0x8000),
+        new(PlmHeaderId.UpwardsScrollExtension, new(8, 37), 0x8000),
+        new(PlmHeaderId.UpwardsScrollExtension, new(8, 38), 0x8000),
+        new(PlmHeaderId.UpwardsScrollExtension, new(8, 39), 0x8000),
+        new(PlmHeaderId.UpwardsScrollExtension, new(8, 40), 0x8000),
+        new(PlmHeaderId.UpwardsScrollExtension, new(8, 41), 0x8000),
+        new(PlmHeaderId.UpwardsScrollExtension, new(8, 42), 0x8000),
+        new(PlmHeaderId.ScrollTrigger, new(8, 43), 0x9F08),
+        new(PlmHeaderId.RightwardsScrollExtension, new(88, 33), 0x8000),
+        new(PlmHeaderId.ScrollTrigger, new(87, 33), 0x9F0B),
+        new(PlmHeaderId.RightwardsScrollExtension, new(88, 10), 0x8000),
+        new(PlmHeaderId.ScrollTrigger, new(87, 10), 0x9F0B),
+        new(PlmHeaderId.RightwardsScrollExtension, new(88, 38), 0x8000),
+        new(PlmHeaderId.ScrollTrigger, new(87, 38), 0x9F0E),
+        new(PlmHeaderId.GreyDoorFacingRight, new(1, 38), 0x0C31),
+        new(PlmHeaderId.ExposedPowerBombTank, new(40, 42), 0x001B),
     ]);
 
     /// <summary>The ConstructionZoneState01 room PLM population.</summary>
     public static RoomPlmPopulationDefinition ConstructionZoneState01 { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(ConstructionZoneState01),
     [
-        (PlmHeaderId.ScrollTrigger, 4, 11, 0x9F5F),
-        (PlmHeaderId.RightwardsScrollExtension, 5, 11, 0x8000),
-        (PlmHeaderId.RightwardsScrollExtension, 6, 11, 0x8000),
-        (PlmHeaderId.RightwardsScrollExtension, 7, 11, 0x8000),
-        (PlmHeaderId.RightwardsScrollExtension, 8, 11, 0x8000),
-        (PlmHeaderId.RightwardsScrollExtension, 9, 11, 0x8000),
-        (PlmHeaderId.RightwardsScrollExtension, 10, 11, 0x8000),
-        (PlmHeaderId.RightwardsScrollExtension, 11, 11, 0x8000),
-        (PlmHeaderId.RedDoorFacingLeft, 14, 6, 0x0032),
+        new(PlmHeaderId.ScrollTrigger, new(4, 11), 0x9F5F),
+        new(PlmHeaderId.RightwardsScrollExtension, new(5, 11), 0x8000),
+        new(PlmHeaderId.RightwardsScrollExtension, new(6, 11), 0x8000),
+        new(PlmHeaderId.RightwardsScrollExtension, new(7, 11), 0x8000),
+        new(PlmHeaderId.RightwardsScrollExtension, new(8, 11), 0x8000),
+        new(PlmHeaderId.RightwardsScrollExtension, new(9, 11), 0x8000),
+        new(PlmHeaderId.RightwardsScrollExtension, new(10, 11), 0x8000),
+        new(PlmHeaderId.RightwardsScrollExtension, new(11, 11), 0x8000),
+        new(PlmHeaderId.RedDoorFacingLeft, new(14, 6), 0x0032),
     ]);
 
     /// <summary>The BlueBrinstarETankState01 room PLM population.</summary>
     public static RoomPlmPopulationDefinition BlueBrinstarETankState01 { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(BlueBrinstarETankState01),
     [
-        (PlmHeaderId.ScrollTrigger, 39, 11, 0x9FB7),
-        (PlmHeaderId.ScrollTrigger, 39, 38, 0x9FB7),
-        (PlmHeaderId.ExposedMissileTank, 46, 41, 0x001C),
-        (PlmHeaderId.ShotBlockEnergyTank, 28, 34, 0x001D),
+        new(PlmHeaderId.ScrollTrigger, new(39, 11), 0x9FB7),
+        new(PlmHeaderId.ScrollTrigger, new(39, 38), 0x9FB7),
+        new(PlmHeaderId.ExposedMissileTank, new(46, 41), 0x001C),
+        new(PlmHeaderId.ShotBlockEnergyTank, new(28, 34), 0x001D),
     ]);
 
     /// <summary>The NoobBridge room PLM population.</summary>
     public static RoomPlmPopulationDefinition NoobBridge { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(NoobBridge),
     [
-        (PlmHeaderId.GreenDoorFacingLeft, 94, 6, 0x0033),
+        new(PlmHeaderId.GreenDoorFacingLeft, new(94, 6), 0x0033),
     ]);
 
     /// <summary>The GreenBrinstarBeetoms room PLM population.</summary>
@@ -620,65 +620,65 @@ internal static class RoomPlmPopulationDefinitions
     /// <summary>The EtecoonETank room PLM population.</summary>
     public static RoomPlmPopulationDefinition EtecoonETank { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(EtecoonETank),
     [
-        (PlmHeaderId.ScrollTrigger, 7, 11, 0xA04A),
-        (PlmHeaderId.RightwardsScrollExtension, 8, 11, 0x8000),
-        (PlmHeaderId.RightwardsScrollExtension, 9, 11, 0x8000),
-        (PlmHeaderId.ExposedEnergyTank, 5, 9, 0x001E),
-        (PlmHeaderId.GreenDoorFacingRight, 1, 6, 0x0034),
+        new(PlmHeaderId.ScrollTrigger, new(7, 11), 0xA04A),
+        new(PlmHeaderId.RightwardsScrollExtension, new(8, 11), 0x8000),
+        new(PlmHeaderId.RightwardsScrollExtension, new(9, 11), 0x8000),
+        new(PlmHeaderId.ExposedEnergyTank, new(5, 9), 0x001E),
+        new(PlmHeaderId.GreenDoorFacingRight, new(1, 6), 0x0034),
     ]);
 
     /// <summary>The EtecoonSuper room PLM population.</summary>
     public static RoomPlmPopulationDefinition EtecoonSuper { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(EtecoonSuper),
     [
-        (PlmHeaderId.ExposedSuperMissileTank, 7, 9, 0x001F),
+        new(PlmHeaderId.ExposedSuperMissileTank, new(7, 9), 0x001F),
     ]);
 
     /// <summary>The DachoraEnergyRefill room PLM population.</summary>
     public static RoomPlmPopulationDefinition DachoraEnergyRefill { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(DachoraEnergyRefill),
     [
-        (PlmHeaderId.EnergyStation, 4, 10, 0x0020),
+        new(PlmHeaderId.EnergyStation, new(4, 10), 0x0020),
     ]);
 
     /// <summary>The SporeSpawnFarming room PLM population.</summary>
     public static RoomPlmPopulationDefinition SporeSpawnFarming { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(SporeSpawnFarming),
     [
-        (PlmHeaderId.GreenDoorFacingRight, 1, 6, 0x0035),
+        new(PlmHeaderId.GreenDoorFacingRight, new(1, 6), 0x0035),
     ]);
 
     /// <summary>The WaterwayETank room PLM population.</summary>
     public static RoomPlmPopulationDefinition WaterwayETank { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(WaterwayETank),
     [
-        (PlmHeaderId.UpwardsScrollExtension, 15, 9, 0x8000),
-        (PlmHeaderId.UpwardsScrollExtension, 15, 10, 0x8000),
-        (PlmHeaderId.ScrollTrigger, 15, 11, 0xA104),
-        (PlmHeaderId.ExposedEnergyTank, 4, 9, 0x0021),
+        new(PlmHeaderId.UpwardsScrollExtension, new(15, 9), 0x8000),
+        new(PlmHeaderId.UpwardsScrollExtension, new(15, 10), 0x8000),
+        new(PlmHeaderId.ScrollTrigger, new(15, 11), 0xA104),
+        new(PlmHeaderId.ExposedEnergyTank, new(4, 9), 0x0021),
     ]);
 
     /// <summary>The FirstMissile room PLM population.</summary>
     public static RoomPlmPopulationDefinition FirstMissile { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(FirstMissile),
     [
-        (PlmHeaderId.ChozoMissileTank, 4, 7, 0x0022),
+        new(PlmHeaderId.ChozoMissileTank, new(4, 7), 0x0022),
     ]);
 
     /// <summary>The PinkBrinstarHoppers room PLM population.</summary>
     public static RoomPlmPopulationDefinition PinkBrinstarHoppers { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(PinkBrinstarHoppers),
     [
-        (PlmHeaderId.DownwardGate, 17, 4, 0x8000),
-        (PlmHeaderId.DownwardGateShotBlock, 17, 4, 0x0002),
-        (PlmHeaderId.GreyDoorFacingRight, 1, 22, 0x0C36),
-        (PlmHeaderId.GreyDoorFacingLeft, 30, 22, 0x0C37),
+        new(PlmHeaderId.DownwardGate, new(17, 4), 0x8000),
+        new(PlmHeaderId.DownwardGateShotBlock, new(17, 4), 0x0002),
+        new(PlmHeaderId.GreyDoorFacingRight, new(1, 22), 0x0C36),
+        new(PlmHeaderId.GreyDoorFacingLeft, new(30, 22), 0x0C37),
     ]);
 
     /// <summary>The HopperETank room PLM population.</summary>
     public static RoomPlmPopulationDefinition HopperETank { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(HopperETank),
     [
-        (PlmHeaderId.ExposedEnergyTank, 11, 9, 0x0023),
+        new(PlmHeaderId.ExposedEnergyTank, new(11, 9), 0x0023),
     ]);
 
     /// <summary>The BigPinkSaveRoom room PLM population.</summary>
     public static RoomPlmPopulationDefinition BigPinkSaveRoom { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(BigPinkSaveRoom),
     [
-        (PlmHeaderId.SaveStation, 5, 11, 0x0000),
+        new(PlmHeaderId.SaveStation, new(5, 11), 0x0000),
     ]);
 
     /// <summary>The BlueBrinstarBoulders room PLM population.</summary>
@@ -689,41 +689,41 @@ internal static class RoomPlmPopulationDefinitions
     /// <summary>The BillyMays room PLM population.</summary>
     public static RoomPlmPopulationDefinition BillyMays { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(BillyMays),
     [
-        (PlmHeaderId.ExposedMissileTank, 7, 9, 0x0024),
-        (PlmHeaderId.ShotBlockMissileTank, 5, 12, 0x0025),
+        new(PlmHeaderId.ExposedMissileTank, new(7, 9), 0x0024),
+        new(PlmHeaderId.ShotBlockMissileTank, new(5, 12), 0x0025),
     ]);
 
     /// <summary>The GreenBrinstarSave room PLM population.</summary>
     public static RoomPlmPopulationDefinition GreenBrinstarSave { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(GreenBrinstarSave),
     [
-        (PlmHeaderId.SaveStation, 5, 11, 0x0001),
+        new(PlmHeaderId.SaveStation, new(5, 11), 0x0001),
     ]);
 
     /// <summary>The EtecoonSave room PLM population.</summary>
     public static RoomPlmPopulationDefinition EtecoonSave { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(EtecoonSave),
     [
-        (PlmHeaderId.SaveStation, 5, 11, 0x0002),
+        new(PlmHeaderId.SaveStation, new(5, 11), 0x0002),
     ]);
 
     /// <summary>The RedTower room PLM population.</summary>
     public static RoomPlmPopulationDefinition RedTower { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(RedTower),
     [
-        (PlmHeaderId.ScrollTrigger, 9, 106, 0xA28E),
-        (PlmHeaderId.RightwardsScrollExtension, 10, 106, 0x8000),
-        (PlmHeaderId.GreenDoorFacingRight, 1, 150, 0x0038),
-        (PlmHeaderId.YellowDoorFacingRight, 1, 102, 0x0039),
+        new(PlmHeaderId.ScrollTrigger, new(9, 106), 0xA28E),
+        new(PlmHeaderId.RightwardsScrollExtension, new(10, 106), 0x8000),
+        new(PlmHeaderId.GreenDoorFacingRight, new(1, 150), 0x0038),
+        new(PlmHeaderId.YellowDoorFacingRight, new(1, 102), 0x0039),
     ]);
 
     /// <summary>The RedBrinstarFirefleas room PLM population.</summary>
     public static RoomPlmPopulationDefinition RedBrinstarFirefleas { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(RedBrinstarFirefleas),
     [
-        (PlmHeaderId.RedDoorFacingRight, 1, 6, 0x003A),
+        new(PlmHeaderId.RedDoorFacingRight, new(1, 6), 0x003A),
     ]);
 
     /// <summary>The XrayScope room PLM population.</summary>
     public static RoomPlmPopulationDefinition XrayScope { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(XrayScope),
     [
-        (PlmHeaderId.ChozoXrayScope, 5, 7, 0x0026),
+        new(PlmHeaderId.ChozoXrayScope, new(5, 7), 0x0026),
     ]);
 
     /// <summary>The Hellway room PLM population.</summary>
@@ -734,41 +734,41 @@ internal static class RoomPlmPopulationDefinitions
     /// <summary>The Caterpillar room PLM population.</summary>
     public static RoomPlmPopulationDefinition Caterpillar { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(Caterpillar),
     [
-        (PlmHeaderId.ScrollTrigger, 5, 94, 0xA36F),
-        (PlmHeaderId.RightwardsScrollExtension, 6, 94, 0x8000),
-        (PlmHeaderId.ScrollTrigger, 16, 55, 0xA374),
-        (PlmHeaderId.ScrollTrigger, 13, 55, 0xA379),
-        (PlmHeaderId.ElevatorPlatform, 6, 44, 0x8000),
-        (PlmHeaderId.DownwardGate, 38, 53, 0x8000),
-        (PlmHeaderId.DownwardGateShotBlock, 38, 53, 0x000A),
-        (PlmHeaderId.GreenDoorFacingRight, 1, 54, 0x003B),
-        (PlmHeaderId.YellowDoorFacingRight, 1, 86, 0x003C),
-        (PlmHeaderId.GreenDoorFacingRight, 1, 118, 0x003D),
+        new(PlmHeaderId.ScrollTrigger, new(5, 94), 0xA36F),
+        new(PlmHeaderId.RightwardsScrollExtension, new(6, 94), 0x8000),
+        new(PlmHeaderId.ScrollTrigger, new(16, 55), 0xA374),
+        new(PlmHeaderId.ScrollTrigger, new(13, 55), 0xA379),
+        new(PlmHeaderId.ElevatorPlatform, new(6, 44), 0x8000),
+        new(PlmHeaderId.DownwardGate, new(38, 53), 0x8000),
+        new(PlmHeaderId.DownwardGateShotBlock, new(38, 53), 0x000A),
+        new(PlmHeaderId.GreenDoorFacingRight, new(1, 54), 0x003B),
+        new(PlmHeaderId.YellowDoorFacingRight, new(1, 86), 0x003C),
+        new(PlmHeaderId.GreenDoorFacingRight, new(1, 118), 0x003D),
     ]);
 
     /// <summary>The BetaPowerBomb room PLM population.</summary>
     public static RoomPlmPopulationDefinition BetaPowerBomb { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(BetaPowerBomb),
     [
-        (PlmHeaderId.ScrollTrigger, 7, 14, 0xA3A9),
-        (PlmHeaderId.RightwardsScrollExtension, 8, 14, 0x8000),
-        (PlmHeaderId.ExposedPowerBombTank, 4, 19, 0x0027),
-        (PlmHeaderId.GreyDoorFacingLeft, 30, 6, 0x0C3E),
+        new(PlmHeaderId.ScrollTrigger, new(7, 14), 0xA3A9),
+        new(PlmHeaderId.RightwardsScrollExtension, new(8, 14), 0x8000),
+        new(PlmHeaderId.ExposedPowerBombTank, new(4, 19), 0x0027),
+        new(PlmHeaderId.GreyDoorFacingLeft, new(30, 6), 0x0C3E),
     ]);
 
     /// <summary>The AlphaPowerBomb room PLM population.</summary>
     public static RoomPlmPopulationDefinition AlphaPowerBomb { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(AlphaPowerBomb),
     [
-        (PlmHeaderId.UpwardsScrollExtension, 15, 4, 0x8000),
-        (PlmHeaderId.UpwardsScrollExtension, 15, 5, 0x8000),
-        (PlmHeaderId.UpwardsScrollExtension, 15, 6, 0x8000),
-        (PlmHeaderId.UpwardsScrollExtension, 15, 7, 0x8000),
-        (PlmHeaderId.UpwardsScrollExtension, 15, 8, 0x8000),
-        (PlmHeaderId.UpwardsScrollExtension, 15, 9, 0x8000),
-        (PlmHeaderId.UpwardsScrollExtension, 15, 10, 0x8000),
-        (PlmHeaderId.UpwardsScrollExtension, 15, 11, 0x8000),
-        (PlmHeaderId.ScrollTrigger, 15, 12, 0xA3DA),
-        (PlmHeaderId.ChozoPowerBombTank, 20, 9, 0x0028),
-        (PlmHeaderId.ExposedMissileTank, 2, 8, 0x0029),
+        new(PlmHeaderId.UpwardsScrollExtension, new(15, 4), 0x8000),
+        new(PlmHeaderId.UpwardsScrollExtension, new(15, 5), 0x8000),
+        new(PlmHeaderId.UpwardsScrollExtension, new(15, 6), 0x8000),
+        new(PlmHeaderId.UpwardsScrollExtension, new(15, 7), 0x8000),
+        new(PlmHeaderId.UpwardsScrollExtension, new(15, 8), 0x8000),
+        new(PlmHeaderId.UpwardsScrollExtension, new(15, 9), 0x8000),
+        new(PlmHeaderId.UpwardsScrollExtension, new(15, 10), 0x8000),
+        new(PlmHeaderId.UpwardsScrollExtension, new(15, 11), 0x8000),
+        new(PlmHeaderId.ScrollTrigger, new(15, 12), 0xA3DA),
+        new(PlmHeaderId.ChozoPowerBombTank, new(20, 9), 0x0028),
+        new(PlmHeaderId.ExposedMissileTank, new(2, 8), 0x0029),
     ]);
 
     /// <summary>The SkreeBoost room PLM population.</summary>
@@ -779,86 +779,86 @@ internal static class RoomPlmPopulationDefinitions
     /// <summary>The BelowSpazer room PLM population.</summary>
     public static RoomPlmPopulationDefinition BelowSpazer { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(BelowSpazer),
     [
-        (PlmHeaderId.ScrollTrigger, 16, 17, 0xA439),
-        (PlmHeaderId.RightwardsScrollExtension, 17, 17, 0x8000),
-        (PlmHeaderId.RightwardsScrollExtension, 18, 17, 0x8000),
-        (PlmHeaderId.RightwardsScrollExtension, 19, 17, 0x8000),
-        (PlmHeaderId.ScrollTrigger, 16, 20, 0xA43E),
-        (PlmHeaderId.RightwardsScrollExtension, 17, 20, 0x8000),
-        (PlmHeaderId.RightwardsScrollExtension, 18, 20, 0x8000),
-        (PlmHeaderId.RightwardsScrollExtension, 19, 20, 0x8000),
-        (PlmHeaderId.ScrollTrigger, 8, 17, 0xA439),
-        (PlmHeaderId.ScrollTrigger, 8, 20, 0xA43E),
-        (PlmHeaderId.ScrollTrigger, 2, 17, 0xA439),
-        (PlmHeaderId.ScrollTrigger, 2, 20, 0xA43E),
-        (PlmHeaderId.GreenDoorFacingLeft, 30, 6, 0x003F),
+        new(PlmHeaderId.ScrollTrigger, new(16, 17), 0xA439),
+        new(PlmHeaderId.RightwardsScrollExtension, new(17, 17), 0x8000),
+        new(PlmHeaderId.RightwardsScrollExtension, new(18, 17), 0x8000),
+        new(PlmHeaderId.RightwardsScrollExtension, new(19, 17), 0x8000),
+        new(PlmHeaderId.ScrollTrigger, new(16, 20), 0xA43E),
+        new(PlmHeaderId.RightwardsScrollExtension, new(17, 20), 0x8000),
+        new(PlmHeaderId.RightwardsScrollExtension, new(18, 20), 0x8000),
+        new(PlmHeaderId.RightwardsScrollExtension, new(19, 20), 0x8000),
+        new(PlmHeaderId.ScrollTrigger, new(8, 17), 0xA439),
+        new(PlmHeaderId.ScrollTrigger, new(8, 20), 0xA43E),
+        new(PlmHeaderId.ScrollTrigger, new(2, 17), 0xA439),
+        new(PlmHeaderId.ScrollTrigger, new(2, 20), 0xA43E),
+        new(PlmHeaderId.GreenDoorFacingLeft, new(30, 6), 0x003F),
     ]);
 
     /// <summary>The Spazer room PLM population.</summary>
     public static RoomPlmPopulationDefinition Spazer { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(Spazer),
     [
-        (PlmHeaderId.ChozoSpazerBeam, 11, 9, 0x002A),
+        new(PlmHeaderId.ChozoSpazerBeam, new(11, 9), 0x002A),
     ]);
 
     /// <summary>The WarehouseZeela room PLM population.</summary>
     public static RoomPlmPopulationDefinition WarehouseZeela { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(WarehouseZeela),
     [
-        (PlmHeaderId.ScrollTrigger, 2, 11, 0xA4A2),
-        (PlmHeaderId.ScrollTrigger, 2, 25, 0xA4A9),
-        (PlmHeaderId.ScrollTrigger, 7, 25, 0xA4AE),
-        (PlmHeaderId.ScrollTrigger, 21, 25, 0xA4A9),
-        (PlmHeaderId.GreyDoorFacingRight, 1, 22, 0x0040),
+        new(PlmHeaderId.ScrollTrigger, new(2, 11), 0xA4A2),
+        new(PlmHeaderId.ScrollTrigger, new(2, 25), 0xA4A9),
+        new(PlmHeaderId.ScrollTrigger, new(7, 25), 0xA4AE),
+        new(PlmHeaderId.ScrollTrigger, new(21, 25), 0xA4A9),
+        new(PlmHeaderId.GreyDoorFacingRight, new(1, 22), 0x0040),
     ]);
 
     /// <summary>The WarehouseETank room PLM population.</summary>
     public static RoomPlmPopulationDefinition WarehouseETank { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(WarehouseETank),
     [
-        (PlmHeaderId.GreyDoorFacingLeft, 14, 6, 0x0C41),
-        (PlmHeaderId.ShotBlockEnergyTank, 5, 4, 0x002B),
+        new(PlmHeaderId.GreyDoorFacingLeft, new(14, 6), 0x0C41),
+        new(PlmHeaderId.ShotBlockEnergyTank, new(5, 4), 0x002B),
     ]);
 
     /// <summary>The WarehouseKihunter room PLM population.</summary>
     public static RoomPlmPopulationDefinition WarehouseKihunter { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(WarehouseKihunter),
     [
-        (PlmHeaderId.ScrollTrigger, 23, 11, 0xA50F),
-        (PlmHeaderId.ScrollTrigger, 23, 14, 0xA514),
-        (PlmHeaderId.UpwardsScrollExtension, 11, 4, 0x8000),
-        (PlmHeaderId.UpwardsScrollExtension, 11, 5, 0x8000),
-        (PlmHeaderId.UpwardsScrollExtension, 11, 6, 0x8000),
-        (PlmHeaderId.UpwardsScrollExtension, 11, 7, 0x8000),
-        (PlmHeaderId.UpwardsScrollExtension, 11, 8, 0x8000),
-        (PlmHeaderId.UpwardsScrollExtension, 11, 9, 0x8000),
-        (PlmHeaderId.UpwardsScrollExtension, 11, 10, 0x8000),
-        (PlmHeaderId.ScrollTrigger, 11, 11, 0xA519),
-        (PlmHeaderId.ScrollTrigger, 39, 12, 0xA51C),
-        (PlmHeaderId.ScrollTrigger, 46, 12, 0xA51C),
-        (PlmHeaderId.ShotBlockMissileTank, 46, 8, 0x002C),
+        new(PlmHeaderId.ScrollTrigger, new(23, 11), 0xA50F),
+        new(PlmHeaderId.ScrollTrigger, new(23, 14), 0xA514),
+        new(PlmHeaderId.UpwardsScrollExtension, new(11, 4), 0x8000),
+        new(PlmHeaderId.UpwardsScrollExtension, new(11, 5), 0x8000),
+        new(PlmHeaderId.UpwardsScrollExtension, new(11, 6), 0x8000),
+        new(PlmHeaderId.UpwardsScrollExtension, new(11, 7), 0x8000),
+        new(PlmHeaderId.UpwardsScrollExtension, new(11, 8), 0x8000),
+        new(PlmHeaderId.UpwardsScrollExtension, new(11, 9), 0x8000),
+        new(PlmHeaderId.UpwardsScrollExtension, new(11, 10), 0x8000),
+        new(PlmHeaderId.ScrollTrigger, new(11, 11), 0xA519),
+        new(PlmHeaderId.ScrollTrigger, new(39, 12), 0xA51C),
+        new(PlmHeaderId.ScrollTrigger, new(46, 12), 0xA51C),
+        new(PlmHeaderId.ShotBlockMissileTank, new(46, 8), 0x002C),
     ]);
 
     /// <summary>The MiniKraidState01 room PLM population.</summary>
     public static RoomPlmPopulationDefinition MiniKraidState01 { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(MiniKraidState01),
     [
-        (PlmHeaderId.GreyDoorFacingLeft, 94, 6, 0x0C42),
-        (PlmHeaderId.GreyDoorFacingRight, 1, 6, 0x0C43),
+        new(PlmHeaderId.GreyDoorFacingLeft, new(94, 6), 0x0C42),
+        new(PlmHeaderId.GreyDoorFacingRight, new(1, 6), 0x0C43),
     ]);
 
     /// <summary>The KraidEyeDoor room PLM population.</summary>
     public static RoomPlmPopulationDefinition KraidEyeDoor { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(KraidEyeDoor),
     [
-        (PlmHeaderId.ScrollTrigger, 3, 18, 0xA59C),
-        (PlmHeaderId.RightwardsScrollExtension, 4, 18, 0x8000),
-        (PlmHeaderId.RightwardsScrollExtension, 5, 18, 0x8000),
-        (PlmHeaderId.GreenDoorFacingLeft, 14, 6, 0x0044),
-        (PlmHeaderId.EyeDoorFacingLeft, 30, 22, 0x0045),
-        (PlmHeaderId.EyeDoorBottomFacingLeft, 30, 25, 0x0045),
-        (PlmHeaderId.EyeDoorEyeFacingLeft, 30, 23, 0x0045),
+        new(PlmHeaderId.ScrollTrigger, new(3, 18), 0xA59C),
+        new(PlmHeaderId.RightwardsScrollExtension, new(4, 18), 0x8000),
+        new(PlmHeaderId.RightwardsScrollExtension, new(5, 18), 0x8000),
+        new(PlmHeaderId.GreenDoorFacingLeft, new(14, 6), 0x0044),
+        new(PlmHeaderId.EyeDoorFacingLeft, new(30, 22), 0x0045),
+        new(PlmHeaderId.EyeDoorBottomFacingLeft, new(30, 25), 0x0045),
+        new(PlmHeaderId.EyeDoorEyeFacingLeft, new(30, 23), 0x0045),
     ]);
 
     /// <summary>The KraidState01 room PLM population.</summary>
     public static RoomPlmPopulationDefinition KraidState01 { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(KraidState01),
     [
-        (PlmHeaderId.GreyDoorFacingLeft, 30, 22, 0x0046),
-        (PlmHeaderId.GreyDoorFacingRight, 1, 22, 0x0047),
+        new(PlmHeaderId.GreyDoorFacingLeft, new(30, 22), 0x0046),
+        new(PlmHeaderId.GreyDoorFacingRight, new(1, 22), 0x0047),
     ]);
 
     /// <summary>The StatuesHallway room PLM population.</summary>
@@ -869,61 +869,61 @@ internal static class RoomPlmPopulationDefinitions
     /// <summary>The RedTowerRefill room PLM population.</summary>
     public static RoomPlmPopulationDefinition RedTowerRefill { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(RedTowerRefill),
     [
-        (PlmHeaderId.EnergyStation, 4, 10, 0x002D),
+        new(PlmHeaderId.EnergyStation, new(4, 10), 0x002D),
     ]);
 
     /// <summary>The KraidRefill room PLM population.</summary>
     public static RoomPlmPopulationDefinition KraidRefill { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(KraidRefill),
     [
-        (PlmHeaderId.MissileStation, 9, 10, 0x002E),
-        (PlmHeaderId.EnergyStation, 7, 10, 0x002F),
+        new(PlmHeaderId.MissileStation, new(9, 10), 0x002E),
+        new(PlmHeaderId.EnergyStation, new(7, 10), 0x002F),
     ]);
 
     /// <summary>The Statues room PLM population.</summary>
     public static RoomPlmPopulationDefinition Statues { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(Statues),
     [
-        (PlmHeaderId.GreyDoorFacingRight, 1, 6, 0x9448),
+        new(PlmHeaderId.GreyDoorFacingRight, new(1, 6), 0x9448),
     ]);
 
     /// <summary>The WarehouseEntrance room PLM population.</summary>
     public static RoomPlmPopulationDefinition WarehouseEntrance { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(WarehouseEntrance),
     [
-        (PlmHeaderId.ScrollTrigger, 7, 12, 0xA6D6),
-        (PlmHeaderId.RightwardsScrollExtension, 8, 12, 0x8000),
-        (PlmHeaderId.ScrollTrigger, 16, 9, 0xA6D9),
-        (PlmHeaderId.UpwardsScrollExtension, 16, 8, 0x8000),
-        (PlmHeaderId.UpwardsScrollExtension, 16, 7, 0x8000),
-        (PlmHeaderId.ScrollTrigger, 18, 9, 0xA6DC),
-        (PlmHeaderId.UpwardsScrollExtension, 18, 8, 0x8000),
-        (PlmHeaderId.UpwardsScrollExtension, 18, 7, 0x8000),
-        (PlmHeaderId.UpwardsScrollExtension, 18, 6, 0x8000),
-        (PlmHeaderId.ScrollTrigger, 19, 11, 0xA6DF),
-        (PlmHeaderId.RightwardsScrollExtension, 20, 11, 0x8000),
-        (PlmHeaderId.UpwardsScrollExtension, 20, 10, 0x8000),
-        (PlmHeaderId.UpwardsScrollExtension, 20, 9, 0x8000),
-        (PlmHeaderId.UpwardsScrollExtension, 20, 8, 0x8000),
-        (PlmHeaderId.UpwardsScrollExtension, 20, 7, 0x8000),
-        (PlmHeaderId.UpwardsScrollExtension, 20, 6, 0x8000),
-        (PlmHeaderId.UpwardsScrollExtension, 20, 5, 0x8000),
-        (PlmHeaderId.UpwardsScrollExtension, 20, 4, 0x8000),
+        new(PlmHeaderId.ScrollTrigger, new(7, 12), 0xA6D6),
+        new(PlmHeaderId.RightwardsScrollExtension, new(8, 12), 0x8000),
+        new(PlmHeaderId.ScrollTrigger, new(16, 9), 0xA6D9),
+        new(PlmHeaderId.UpwardsScrollExtension, new(16, 8), 0x8000),
+        new(PlmHeaderId.UpwardsScrollExtension, new(16, 7), 0x8000),
+        new(PlmHeaderId.ScrollTrigger, new(18, 9), 0xA6DC),
+        new(PlmHeaderId.UpwardsScrollExtension, new(18, 8), 0x8000),
+        new(PlmHeaderId.UpwardsScrollExtension, new(18, 7), 0x8000),
+        new(PlmHeaderId.UpwardsScrollExtension, new(18, 6), 0x8000),
+        new(PlmHeaderId.ScrollTrigger, new(19, 11), 0xA6DF),
+        new(PlmHeaderId.RightwardsScrollExtension, new(20, 11), 0x8000),
+        new(PlmHeaderId.UpwardsScrollExtension, new(20, 10), 0x8000),
+        new(PlmHeaderId.UpwardsScrollExtension, new(20, 9), 0x8000),
+        new(PlmHeaderId.UpwardsScrollExtension, new(20, 8), 0x8000),
+        new(PlmHeaderId.UpwardsScrollExtension, new(20, 7), 0x8000),
+        new(PlmHeaderId.UpwardsScrollExtension, new(20, 6), 0x8000),
+        new(PlmHeaderId.UpwardsScrollExtension, new(20, 5), 0x8000),
+        new(PlmHeaderId.UpwardsScrollExtension, new(20, 4), 0x8000),
     ]);
 
     /// <summary>The VariaSuit room PLM population.</summary>
     public static RoomPlmPopulationDefinition VariaSuit { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(VariaSuit),
     [
-        (PlmHeaderId.ChozoVariaSuit, 7, 9, 0x0030),
+        new(PlmHeaderId.ChozoVariaSuit, new(7, 9), 0x0030),
     ]);
 
     /// <summary>The WarehouseSave room PLM population.</summary>
     public static RoomPlmPopulationDefinition WarehouseSave { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(WarehouseSave),
     [
-        (PlmHeaderId.SaveStation, 7, 11, 0x0003),
+        new(PlmHeaderId.SaveStation, new(7, 11), 0x0003),
     ]);
 
     /// <summary>The RedBrinstarSave room PLM population.</summary>
     public static RoomPlmPopulationDefinition RedBrinstarSave { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(RedBrinstarSave),
     [
-        (PlmHeaderId.SaveStation, 7, 11, 0x0004),
+        new(PlmHeaderId.SaveStation, new(7, 11), 0x0004),
     ]);
 
     /// <summary>The IceBeamAcid room PLM population.</summary>
@@ -934,30 +934,30 @@ internal static class RoomPlmPopulationDefinitions
     /// <summary>The Cathedral room PLM population.</summary>
     public static RoomPlmPopulationDefinition Cathedral { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(Cathedral),
     [
-        (PlmHeaderId.ShotBlockMissileTank, 34, 28, 0x0031),
-        (PlmHeaderId.GreenDoorFacingLeft, 46, 22, 0x0049),
+        new(PlmHeaderId.ShotBlockMissileTank, new(34, 28), 0x0031),
+        new(PlmHeaderId.GreenDoorFacingLeft, new(46, 22), 0x0049),
     ]);
 
     /// <summary>The CathedralEntrance room PLM population.</summary>
     public static RoomPlmPopulationDefinition CathedralEntrance { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(CathedralEntrance),
     [
-        (PlmHeaderId.RedDoorFacingLeft, 46, 6, 0x004A),
+        new(PlmHeaderId.RedDoorFacingLeft, new(46, 6), 0x004A),
     ]);
 
     /// <summary>The BusinessCenter room PLM population.</summary>
     public static RoomPlmPopulationDefinition BusinessCenter { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(BusinessCenter),
     [
-        (PlmHeaderId.ElevatorPlatform, 6, 44, 0x8000),
-        (PlmHeaderId.GreenDoorFacingRight, 1, 54, 0x004B),
-        (PlmHeaderId.YellowDoorFacingRight, 1, 70, 0x004C),
-        (PlmHeaderId.RedDoorFacingRight, 1, 86, 0x004D),
+        new(PlmHeaderId.ElevatorPlatform, new(6, 44), 0x8000),
+        new(PlmHeaderId.GreenDoorFacingRight, new(1, 54), 0x004B),
+        new(PlmHeaderId.YellowDoorFacingRight, new(1, 70), 0x004C),
+        new(PlmHeaderId.RedDoorFacingRight, new(1, 86), 0x004D),
     ]);
 
     /// <summary>The IceBeamGate room PLM population.</summary>
     public static RoomPlmPopulationDefinition IceBeamGate { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(IceBeamGate),
     [
-        (PlmHeaderId.ScrollTrigger, 55, 45, 0xA860),
-        (PlmHeaderId.RightwardsScrollExtension, 56, 45, 0x8000),
+        new(PlmHeaderId.ScrollTrigger, new(55, 45), 0xA860),
+        new(PlmHeaderId.RightwardsScrollExtension, new(56, 45), 0x8000),
     ]);
 
     /// <summary>The IceBeamTutorial room PLM population.</summary>
@@ -968,116 +968,116 @@ internal static class RoomPlmPopulationDefinitions
     /// <summary>The IceBeam room PLM population.</summary>
     public static RoomPlmPopulationDefinition IceBeam { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(IceBeam),
     [
-        (PlmHeaderId.ChozoIceBeam, 12, 7, 0x0032),
+        new(PlmHeaderId.ChozoIceBeam, new(12, 7), 0x0032),
     ]);
 
     /// <summary>The IceBeamSnake room PLM population.</summary>
     public static RoomPlmPopulationDefinition IceBeamSnake { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(IceBeamSnake),
     [
-        (PlmHeaderId.ScrollTrigger, 15, 23, 0xA8EC),
-        (PlmHeaderId.ScrollTrigger, 13, 23, 0xA8EF),
-        (PlmHeaderId.ScrollTrigger, 17, 23, 0xA8F2),
-        (PlmHeaderId.ScrollTrigger, 19, 23, 0xA8F5),
+        new(PlmHeaderId.ScrollTrigger, new(15, 23), 0xA8EC),
+        new(PlmHeaderId.ScrollTrigger, new(13, 23), 0xA8EF),
+        new(PlmHeaderId.ScrollTrigger, new(17, 23), 0xA8F2),
+        new(PlmHeaderId.ScrollTrigger, new(19, 23), 0xA8F5),
     ]);
 
     /// <summary>The CrumbleShaft room PLM population.</summary>
     public static RoomPlmPopulationDefinition CrumbleShaft { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(CrumbleShaft),
     [
-        (PlmHeaderId.ShotBlockMissileTank, 1, 8, 0x0033),
+        new(PlmHeaderId.ShotBlockMissileTank, new(1, 8), 0x0033),
     ]);
 
     /// <summary>The CrocomireSpeedway room PLM population.</summary>
     public static RoomPlmPopulationDefinition CrocomireSpeedway { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(CrocomireSpeedway),
     [
-        (PlmHeaderId.ScrollTrigger, 158, 40, 0xA980),
-        (PlmHeaderId.UpwardsScrollExtension, 158, 39, 0x8000),
-        (PlmHeaderId.UpwardsScrollExtension, 158, 38, 0x8000),
-        (PlmHeaderId.UpwardsScrollExtension, 158, 37, 0x8000),
-        (PlmHeaderId.UpwardsScrollExtension, 158, 36, 0x8000),
-        (PlmHeaderId.ScrollTrigger, 190, 41, 0xA987),
-        (PlmHeaderId.UpwardsScrollExtension, 190, 40, 0x8000),
-        (PlmHeaderId.UpwardsScrollExtension, 190, 39, 0x8000),
-        (PlmHeaderId.ScrollTrigger, 194, 41, 0xA98A),
-        (PlmHeaderId.UpwardsScrollExtension, 194, 40, 0x8000),
-        (PlmHeaderId.UpwardsScrollExtension, 194, 39, 0x8000),
-        (PlmHeaderId.UpwardsScrollExtension, 194, 38, 0x8000),
-        (PlmHeaderId.GreenDoorFacingUp, 198, 45, 0x004E),
+        new(PlmHeaderId.ScrollTrigger, new(158, 40), 0xA980),
+        new(PlmHeaderId.UpwardsScrollExtension, new(158, 39), 0x8000),
+        new(PlmHeaderId.UpwardsScrollExtension, new(158, 38), 0x8000),
+        new(PlmHeaderId.UpwardsScrollExtension, new(158, 37), 0x8000),
+        new(PlmHeaderId.UpwardsScrollExtension, new(158, 36), 0x8000),
+        new(PlmHeaderId.ScrollTrigger, new(190, 41), 0xA987),
+        new(PlmHeaderId.UpwardsScrollExtension, new(190, 40), 0x8000),
+        new(PlmHeaderId.UpwardsScrollExtension, new(190, 39), 0x8000),
+        new(PlmHeaderId.ScrollTrigger, new(194, 41), 0xA98A),
+        new(PlmHeaderId.UpwardsScrollExtension, new(194, 40), 0x8000),
+        new(PlmHeaderId.UpwardsScrollExtension, new(194, 39), 0x8000),
+        new(PlmHeaderId.UpwardsScrollExtension, new(194, 38), 0x8000),
+        new(PlmHeaderId.GreenDoorFacingUp, new(198, 45), 0x004E),
     ]);
 
     /// <summary>The CrocomireState01 room PLM population.</summary>
     public static RoomPlmPopulationDefinition CrocomireState01 { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(CrocomireState01),
     [
-        (PlmHeaderId.GreyDoorFacingDown, 54, 2, 0x044F),
-        (PlmHeaderId.ExposedEnergyTank, 125, 6, 0x0034),
+        new(PlmHeaderId.GreyDoorFacingDown, new(54, 2), 0x044F),
+        new(PlmHeaderId.ExposedEnergyTank, new(125, 6), 0x0034),
     ]);
 
     /// <summary>The HiJumpBoots room PLM population.</summary>
     public static RoomPlmPopulationDefinition HiJumpBoots { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(HiJumpBoots),
     [
-        (PlmHeaderId.ChozoHiJumpBoots, 3, 10, 0x0035),
+        new(PlmHeaderId.ChozoHiJumpBoots, new(3, 10), 0x0035),
     ]);
 
     /// <summary>The CrocomireEscape room PLM population.</summary>
     public static RoomPlmPopulationDefinition CrocomireEscape { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(CrocomireEscape),
     [
-        (PlmHeaderId.DownwardGate, 6, 5, 0x8000),
-        (PlmHeaderId.DownwardGateShotBlock, 6, 5, 0x000A),
-        (PlmHeaderId.ExposedMissileTank, 13, 9, 0x0036),
+        new(PlmHeaderId.DownwardGate, new(6, 5), 0x8000),
+        new(PlmHeaderId.DownwardGateShotBlock, new(6, 5), 0x000A),
+        new(PlmHeaderId.ExposedMissileTank, new(13, 9), 0x0036),
     ]);
 
     /// <summary>The HiJumpETank room PLM population.</summary>
     public static RoomPlmPopulationDefinition HiJumpETank { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(HiJumpETank),
     [
-        (PlmHeaderId.ScrollTrigger, 16, 12, 0xAA75),
-        (PlmHeaderId.ScrollTrigger, 15, 5, 0xAA70),
-        (PlmHeaderId.ScrollTrigger, 8, 28, 0xAA7C),
-        (PlmHeaderId.ScrollTrigger, 11, 18, 0xAA7F),
-        (PlmHeaderId.GreyDoorFacingLeft, 30, 6, 0x0C50),
-        (PlmHeaderId.ExposedMissileTank, 9, 6, 0x0037),
-        (PlmHeaderId.ExposedEnergyTank, 23, 8, 0x0038),
+        new(PlmHeaderId.ScrollTrigger, new(16, 12), 0xAA75),
+        new(PlmHeaderId.ScrollTrigger, new(15, 5), 0xAA70),
+        new(PlmHeaderId.ScrollTrigger, new(8, 28), 0xAA7C),
+        new(PlmHeaderId.ScrollTrigger, new(11, 18), 0xAA7F),
+        new(PlmHeaderId.GreyDoorFacingLeft, new(30, 6), 0x0C50),
+        new(PlmHeaderId.ExposedMissileTank, new(9, 6), 0x0037),
+        new(PlmHeaderId.ExposedEnergyTank, new(23, 8), 0x0038),
     ]);
 
     /// <summary>The PostCrocFarming room PLM population.</summary>
     public static RoomPlmPopulationDefinition PostCrocFarming { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(PostCrocFarming),
     [
-        (PlmHeaderId.RedDoorFacingRight, 1, 6, 0x0051),
+        new(PlmHeaderId.RedDoorFacingRight, new(1, 6), 0x0051),
     ]);
 
     /// <summary>The PostCrocSave room PLM population.</summary>
     public static RoomPlmPopulationDefinition PostCrocSave { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(PostCrocSave),
     [
-        (PlmHeaderId.SaveStation, 7, 11, 0x0000),
+        new(PlmHeaderId.SaveStation, new(7, 11), 0x0000),
     ]);
 
     /// <summary>The PostCrocPowerBombs room PLM population.</summary>
     public static RoomPlmPopulationDefinition PostCrocPowerBombs { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(PostCrocPowerBombs),
     [
-        (PlmHeaderId.ExposedPowerBombTank, 7, 8, 0x0039),
+        new(PlmHeaderId.ExposedPowerBombTank, new(7, 8), 0x0039),
     ]);
 
     /// <summary>The PostCrocShaft room PLM population.</summary>
     public static RoomPlmPopulationDefinition PostCrocShaft { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(PostCrocShaft),
     [
-        (PlmHeaderId.RedDoorFacingLeft, 14, 54, 0x0052),
+        new(PlmHeaderId.RedDoorFacingLeft, new(14, 54), 0x0052),
     ]);
 
     /// <summary>The PostCrocMissile room PLM population.</summary>
     public static RoomPlmPopulationDefinition PostCrocMissile { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(PostCrocMissile),
     [
-        (PlmHeaderId.ExposedMissileTank, 60, 9, 0x003A),
+        new(PlmHeaderId.ExposedMissileTank, new(60, 9), 0x003A),
     ]);
 
     /// <summary>The GrappleTutorial3 room PLM population.</summary>
     public static RoomPlmPopulationDefinition GrappleTutorial3 { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(GrappleTutorial3),
     [
-        (PlmHeaderId.DownwardGate, 42, 5, 0x8000),
-        (PlmHeaderId.DownwardGateShotBlock, 42, 5, 0x0008),
+        new(PlmHeaderId.DownwardGate, new(42, 5), 0x8000),
+        new(PlmHeaderId.DownwardGateShotBlock, new(42, 5), 0x0008),
     ]);
 
     /// <summary>The PostCrocJump room PLM population.</summary>
     public static RoomPlmPopulationDefinition PostCrocJump { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(PostCrocJump),
     [
-        (PlmHeaderId.ExposedMissileTank, 67, 9, 0x003B),
+        new(PlmHeaderId.ExposedMissileTank, new(67, 9), 0x003B),
     ]);
 
     /// <summary>The GrappleTutorial2 room PLM population.</summary>
@@ -1093,69 +1093,69 @@ internal static class RoomPlmPopulationDefinitions
     /// <summary>The GrappleBeam room PLM population.</summary>
     public static RoomPlmPopulationDefinition GrappleBeam { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(GrappleBeam),
     [
-        (PlmHeaderId.ChozoGrappleBeam, 4, 39, 0x003C),
+        new(PlmHeaderId.ChozoGrappleBeam, new(4, 39), 0x003C),
     ]);
 
     /// <summary>The NorfairReserveTank room PLM population.</summary>
     public static RoomPlmPopulationDefinition NorfairReserveTank { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(NorfairReserveTank),
     [
-        (PlmHeaderId.ChozoReserveTank, 2, 7, 0x003D),
-        (PlmHeaderId.ShotBlockMissileTank, 7, 11, 0x003E),
+        new(PlmHeaderId.ChozoReserveTank, new(2, 7), 0x003D),
+        new(PlmHeaderId.ShotBlockMissileTank, new(7, 11), 0x003E),
     ]);
 
     /// <summary>The GreenBubblesMissiles room PLM population.</summary>
     public static RoomPlmPopulationDefinition GreenBubblesMissiles { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(GreenBubblesMissiles),
     [
-        (PlmHeaderId.ScrollTrigger, 16, 5, 0xACB0),
-        (PlmHeaderId.ExposedMissileTank, 20, 10, 0x003F),
+        new(PlmHeaderId.ScrollTrigger, new(16, 5), 0xACB0),
+        new(PlmHeaderId.ExposedMissileTank, new(20, 10), 0x003F),
     ]);
 
     /// <summary>The BubbleMountain room PLM population.</summary>
     public static RoomPlmPopulationDefinition BubbleMountain { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(BubbleMountain),
     [
-        (PlmHeaderId.GreenDoorFacingRight, 1, 6, 0x0053),
-        (PlmHeaderId.GreenDoorFacingLeft, 30, 6, 0x0054),
-        (PlmHeaderId.ExposedMissileTank, 20, 60, 0x0040),
+        new(PlmHeaderId.GreenDoorFacingRight, new(1, 6), 0x0053),
+        new(PlmHeaderId.GreenDoorFacingLeft, new(30, 6), 0x0054),
+        new(PlmHeaderId.ExposedMissileTank, new(20, 60), 0x0040),
     ]);
 
     /// <summary>The SpeedBoosterHall room PLM population.</summary>
     public static RoomPlmPopulationDefinition SpeedBoosterHall { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(SpeedBoosterHall),
     [
-        (PlmHeaderId.SpeedBoosterEscape, 0, 0, 0x8000),
-        (PlmHeaderId.ShotBlockMissileTank, 188, 19, 0x0041),
-        (PlmHeaderId.RedDoorFacingLeft, 190, 22, 0x0055),
+        new(PlmHeaderId.SpeedBoosterEscape, new(0, 0), 0x8000),
+        new(PlmHeaderId.ShotBlockMissileTank, new(188, 19), 0x0041),
+        new(PlmHeaderId.RedDoorFacingLeft, new(190, 22), 0x0055),
     ]);
 
     /// <summary>The SpeedBooster room PLM population.</summary>
     public static RoomPlmPopulationDefinition SpeedBooster { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(SpeedBooster),
     [
-        (PlmHeaderId.ChozoSpeedBooster, 11, 6, 0x0042),
+        new(PlmHeaderId.ChozoSpeedBooster, new(11, 6), 0x0042),
     ]);
 
     /// <summary>The SingleChamber room PLM population.</summary>
     public static RoomPlmPopulationDefinition SingleChamber { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(SingleChamber),
     [
-        (PlmHeaderId.ScrollTrigger, 13, 8, 0xADA7),
-        (PlmHeaderId.ScrollTrigger, 16, 8, 0xADAA),
-        (PlmHeaderId.UpwardsScrollExtension, 77, 10, 0x8000),
-        (PlmHeaderId.UpwardsScrollExtension, 77, 11, 0x8000),
-        (PlmHeaderId.ScrollTrigger, 77, 12, 0xADAA),
-        (PlmHeaderId.RedDoorFacingLeft, 14, 22, 0x0056),
+        new(PlmHeaderId.ScrollTrigger, new(13, 8), 0xADA7),
+        new(PlmHeaderId.ScrollTrigger, new(16, 8), 0xADAA),
+        new(PlmHeaderId.UpwardsScrollExtension, new(77, 10), 0x8000),
+        new(PlmHeaderId.UpwardsScrollExtension, new(77, 11), 0x8000),
+        new(PlmHeaderId.ScrollTrigger, new(77, 12), 0xADAA),
+        new(PlmHeaderId.RedDoorFacingLeft, new(14, 22), 0x0056),
     ]);
 
     /// <summary>The DoubleChamber room PLM population.</summary>
     public static RoomPlmPopulationDefinition DoubleChamber { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(DoubleChamber),
     [
-        (PlmHeaderId.DownwardGate, 26, 5, 0x8000),
-        (PlmHeaderId.DownwardGateShotBlock, 26, 5, 0x0000),
-        (PlmHeaderId.ExposedMissileTank, 31, 9, 0x0043),
-        (PlmHeaderId.RedDoorFacingLeft, 62, 6, 0x0057),
+        new(PlmHeaderId.DownwardGate, new(26, 5), 0x8000),
+        new(PlmHeaderId.DownwardGateShotBlock, new(26, 5), 0x0000),
+        new(PlmHeaderId.ExposedMissileTank, new(31, 9), 0x0043),
+        new(PlmHeaderId.RedDoorFacingLeft, new(62, 6), 0x0057),
     ]);
 
     /// <summary>The WaveBeam room PLM population.</summary>
     public static RoomPlmPopulationDefinition WaveBeam { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(WaveBeam),
     [
-        (PlmHeaderId.ChozoWaveBeam, 11, 6, 0x0044),
+        new(PlmHeaderId.ChozoWaveBeam, new(11, 6), 0x0044),
     ]);
 
     /// <summary>The SpikyPlatformsTunnel room PLM population.</summary>
@@ -1166,32 +1166,32 @@ internal static class RoomPlmPopulationDefinitions
     /// <summary>The Volcano room PLM population.</summary>
     public static RoomPlmPopulationDefinition Volcano { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(Volcano),
     [
-        (PlmHeaderId.ScrollTrigger, 32, 41, 0xAE66),
-        (PlmHeaderId.ScrollTrigger, 31, 41, 0xAE6B),
-        (PlmHeaderId.UpwardsScrollExtension, 25, 36, 0x8000),
-        (PlmHeaderId.UpwardsScrollExtension, 25, 37, 0x8000),
-        (PlmHeaderId.UpwardsScrollExtension, 25, 38, 0x8000),
-        (PlmHeaderId.UpwardsScrollExtension, 25, 39, 0x8000),
-        (PlmHeaderId.UpwardsScrollExtension, 25, 40, 0x8000),
-        (PlmHeaderId.ScrollTrigger, 25, 41, 0xAE6E),
-        (PlmHeaderId.UpwardsScrollExtension, 38, 38, 0x8000),
-        (PlmHeaderId.UpwardsScrollExtension, 38, 39, 0x8000),
-        (PlmHeaderId.UpwardsScrollExtension, 38, 40, 0x8000),
-        (PlmHeaderId.ScrollTrigger, 38, 41, 0xAE71),
+        new(PlmHeaderId.ScrollTrigger, new(32, 41), 0xAE66),
+        new(PlmHeaderId.ScrollTrigger, new(31, 41), 0xAE6B),
+        new(PlmHeaderId.UpwardsScrollExtension, new(25, 36), 0x8000),
+        new(PlmHeaderId.UpwardsScrollExtension, new(25, 37), 0x8000),
+        new(PlmHeaderId.UpwardsScrollExtension, new(25, 38), 0x8000),
+        new(PlmHeaderId.UpwardsScrollExtension, new(25, 39), 0x8000),
+        new(PlmHeaderId.UpwardsScrollExtension, new(25, 40), 0x8000),
+        new(PlmHeaderId.ScrollTrigger, new(25, 41), 0xAE6E),
+        new(PlmHeaderId.UpwardsScrollExtension, new(38, 38), 0x8000),
+        new(PlmHeaderId.UpwardsScrollExtension, new(38, 39), 0x8000),
+        new(PlmHeaderId.UpwardsScrollExtension, new(38, 40), 0x8000),
+        new(PlmHeaderId.ScrollTrigger, new(38, 41), 0xAE71),
     ]);
 
     /// <summary>The KronicBoost room PLM population.</summary>
     public static RoomPlmPopulationDefinition KronicBoost { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(KronicBoost),
     [
-        (PlmHeaderId.ScrollTrigger, 15, 23, 0xAEA9),
-        (PlmHeaderId.ScrollTrigger, 17, 23, 0xAEAC),
-        (PlmHeaderId.UpwardsScrollExtension, 8, 21, 0x8000),
-        (PlmHeaderId.UpwardsScrollExtension, 8, 22, 0x8000),
-        (PlmHeaderId.UpwardsScrollExtension, 8, 23, 0x8000),
-        (PlmHeaderId.ScrollTrigger, 8, 24, 0xAEB1),
-        (PlmHeaderId.DownwardGate, 7, 20, 0x8000),
-        (PlmHeaderId.DownwardGateShotBlock, 7, 20, 0x0000),
-        (PlmHeaderId.YellowDoorFacingRight, 17, 38, 0x0058),
+        new(PlmHeaderId.ScrollTrigger, new(15, 23), 0xAEA9),
+        new(PlmHeaderId.ScrollTrigger, new(17, 23), 0xAEAC),
+        new(PlmHeaderId.UpwardsScrollExtension, new(8, 21), 0x8000),
+        new(PlmHeaderId.UpwardsScrollExtension, new(8, 22), 0x8000),
+        new(PlmHeaderId.UpwardsScrollExtension, new(8, 23), 0x8000),
+        new(PlmHeaderId.ScrollTrigger, new(8, 24), 0xAEB1),
+        new(PlmHeaderId.DownwardGate, new(7, 20), 0x8000),
+        new(PlmHeaderId.DownwardGateShotBlock, new(7, 20), 0x0000),
+        new(PlmHeaderId.YellowDoorFacingRight, new(17, 38), 0x0058),
     ]);
 
     /// <summary>The MagdolliteTunnel room PLM population.</summary>
@@ -1202,12 +1202,12 @@ internal static class RoomPlmPopulationDefinitions
     /// <summary>The PurpleShaft room PLM population.</summary>
     public static RoomPlmPopulationDefinition PurpleShaft { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(PurpleShaft),
     [
-        (PlmHeaderId.ScrollTrigger, 2, 11, 0xAF0F),
-        (PlmHeaderId.RightwardsScrollExtension, 3, 11, 0x8000),
-        (PlmHeaderId.RightwardsScrollExtension, 4, 11, 0x8000),
-        (PlmHeaderId.ScrollTrigger, 11, 11, 0xAF0F),
-        (PlmHeaderId.RightwardsScrollExtension, 12, 11, 0x8000),
-        (PlmHeaderId.RightwardsScrollExtension, 13, 11, 0x8000),
+        new(PlmHeaderId.ScrollTrigger, new(2, 11), 0xAF0F),
+        new(PlmHeaderId.RightwardsScrollExtension, new(3, 11), 0x8000),
+        new(PlmHeaderId.RightwardsScrollExtension, new(4, 11), 0x8000),
+        new(PlmHeaderId.ScrollTrigger, new(11, 11), 0xAF0F),
+        new(PlmHeaderId.RightwardsScrollExtension, new(12, 11), 0x8000),
+        new(PlmHeaderId.RightwardsScrollExtension, new(13, 11), 0x8000),
     ]);
 
     /// <summary>The LavaDive room PLM population.</summary>
@@ -1218,14 +1218,14 @@ internal static class RoomPlmPopulationDefinitions
     /// <summary>The LowerNorfairElev room PLM population.</summary>
     public static RoomPlmPopulationDefinition LowerNorfairElev { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(LowerNorfairElev),
     [
-        (PlmHeaderId.ScrollTrigger, 8, 11, 0xAF6F),
+        new(PlmHeaderId.ScrollTrigger, new(8, 11), 0xAF6F),
     ]);
 
     /// <summary>The UpperNorfairFarming room PLM population.</summary>
     public static RoomPlmPopulationDefinition UpperNorfairFarming { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(UpperNorfairFarming),
     [
-        (PlmHeaderId.DownwardGate, 6, 21, 0x8000),
-        (PlmHeaderId.DownwardGateShotBlock, 6, 21, 0x0000),
+        new(PlmHeaderId.DownwardGate, new(6, 21), 0x8000),
+        new(PlmHeaderId.DownwardGateShotBlock, new(6, 21), 0x0000),
     ]);
 
     /// <summary>The RisingTide room PLM population.</summary>
@@ -1246,7 +1246,7 @@ internal static class RoomPlmPopulationDefinitions
     /// <summary>The UpperNorfairRefill room PLM population.</summary>
     public static RoomPlmPopulationDefinition UpperNorfairRefill { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(UpperNorfairRefill),
     [
-        (PlmHeaderId.EnergyStation, 7, 10, 0x0045),
+        new(PlmHeaderId.EnergyStation, new(7, 10), 0x0045),
     ]);
 
     /// <summary>The PurpleFarming room PLM population.</summary>
@@ -1257,26 +1257,26 @@ internal static class RoomPlmPopulationDefinitions
     /// <summary>The BatCave room PLM population.</summary>
     public static RoomPlmPopulationDefinition BatCave { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(BatCave),
     [
-        (PlmHeaderId.ScrollTrigger, 9, 12, 0xB0A7),
-        (PlmHeaderId.RightwardsScrollExtension, 10, 12, 0x8000),
-        (PlmHeaderId.ScrollTrigger, 9, 16, 0xB0AC),
-        (PlmHeaderId.RightwardsScrollExtension, 10, 16, 0x8000),
-        (PlmHeaderId.ScrollTrigger, 6, 19, 0xB0B1),
-        (PlmHeaderId.RightwardsScrollExtension, 7, 19, 0x8000),
-        (PlmHeaderId.RightwardsScrollExtension, 8, 19, 0x8000),
-        (PlmHeaderId.RightwardsScrollExtension, 9, 19, 0x8000),
+        new(PlmHeaderId.ScrollTrigger, new(9, 12), 0xB0A7),
+        new(PlmHeaderId.RightwardsScrollExtension, new(10, 12), 0x8000),
+        new(PlmHeaderId.ScrollTrigger, new(9, 16), 0xB0AC),
+        new(PlmHeaderId.RightwardsScrollExtension, new(10, 16), 0x8000),
+        new(PlmHeaderId.ScrollTrigger, new(6, 19), 0xB0B1),
+        new(PlmHeaderId.RightwardsScrollExtension, new(7, 19), 0x8000),
+        new(PlmHeaderId.RightwardsScrollExtension, new(8, 19), 0x8000),
+        new(PlmHeaderId.RightwardsScrollExtension, new(9, 19), 0x8000),
     ]);
 
     /// <summary>The NorfairMap room PLM population.</summary>
     public static RoomPlmPopulationDefinition NorfairMap { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(NorfairMap),
     [
-        (PlmHeaderId.MapStation, 5, 10, 0x8000),
+        new(PlmHeaderId.MapStation, new(5, 10), 0x8000),
     ]);
 
     /// <summary>The BubbleMountainSave room PLM population.</summary>
     public static RoomPlmPopulationDefinition BubbleMountainSave { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(BubbleMountainSave),
     [
-        (PlmHeaderId.SaveStation, 5, 11, 0x0001),
+        new(PlmHeaderId.SaveStation, new(5, 11), 0x0001),
     ]);
 
     /// <summary>The FrogSpeedway room PLM population.</summary>
@@ -1292,91 +1292,91 @@ internal static class RoomPlmPopulationDefinitions
     /// <summary>The FrogSave room PLM population.</summary>
     public static RoomPlmPopulationDefinition FrogSave { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(FrogSave),
     [
-        (PlmHeaderId.SaveStation, 7, 11, 0x0002),
+        new(PlmHeaderId.SaveStation, new(7, 11), 0x0002),
     ]);
 
     /// <summary>The CrocomireSave room PLM population.</summary>
     public static RoomPlmPopulationDefinition CrocomireSave { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(CrocomireSave),
     [
-        (PlmHeaderId.SaveStation, 7, 11, 0x0003),
+        new(PlmHeaderId.SaveStation, new(7, 11), 0x0003),
     ]);
 
     /// <summary>The LNElevSave room PLM population.</summary>
     public static RoomPlmPopulationDefinition LNElevSave { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(LNElevSave),
     [
-        (PlmHeaderId.SaveStation, 5, 11, 0x0004),
+        new(PlmHeaderId.SaveStation, new(5, 11), 0x0004),
     ]);
 
     /// <summary>The AcidStatue room PLM population.</summary>
     public static RoomPlmPopulationDefinition AcidStatue { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(AcidStatue),
     [
-        (PlmHeaderId.ScrollTrigger, 12, 30, 0xB224),
-        (PlmHeaderId.ScrollTrigger, 12, 35, 0xB22D),
+        new(PlmHeaderId.ScrollTrigger, new(12, 30), 0xB224),
+        new(PlmHeaderId.ScrollTrigger, new(12, 35), 0xB22D),
     ]);
 
     /// <summary>The MainHall room PLM population.</summary>
     public static RoomPlmPopulationDefinition MainHall { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(MainHall),
     [
-        (PlmHeaderId.ScrollTrigger, 71, 8, 0xB27D),
-        (PlmHeaderId.RightwardsScrollExtension, 72, 8, 0x8000),
-        (PlmHeaderId.ScrollTrigger, 71, 35, 0xB27D),
-        (PlmHeaderId.RightwardsScrollExtension, 72, 35, 0x8000),
-        (PlmHeaderId.ScrollTrigger, 71, 41, 0xB280),
-        (PlmHeaderId.RightwardsScrollExtension, 72, 41, 0x8000),
-        (PlmHeaderId.ElevatorPlatform, 70, 42, 0x8000),
+        new(PlmHeaderId.ScrollTrigger, new(71, 8), 0xB27D),
+        new(PlmHeaderId.RightwardsScrollExtension, new(72, 8), 0x8000),
+        new(PlmHeaderId.ScrollTrigger, new(71, 35), 0xB27D),
+        new(PlmHeaderId.RightwardsScrollExtension, new(72, 35), 0x8000),
+        new(PlmHeaderId.ScrollTrigger, new(71, 41), 0xB280),
+        new(PlmHeaderId.RightwardsScrollExtension, new(72, 41), 0x8000),
+        new(PlmHeaderId.ElevatorPlatform, new(70, 42), 0x8000),
     ]);
 
     /// <summary>The GoldenTorizoState01 room PLM population.</summary>
     public static RoomPlmPopulationDefinition GoldenTorizoState01 { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(GoldenTorizoState01),
     [
-        (PlmHeaderId.ScrollTrigger, 4, 12, 0xB2D1),
-        (PlmHeaderId.RightwardsScrollExtension, 5, 12, 0x8000),
-        (PlmHeaderId.RightwardsScrollExtension, 6, 12, 0x8000),
-        (PlmHeaderId.RightwardsScrollExtension, 7, 12, 0x8000),
-        (PlmHeaderId.RightwardsScrollExtension, 8, 12, 0x8000),
-        (PlmHeaderId.RightwardsScrollExtension, 9, 12, 0x8000),
-        (PlmHeaderId.RightwardsScrollExtension, 10, 12, 0x8000),
-        (PlmHeaderId.RightwardsScrollExtension, 11, 12, 0x8000),
-        (PlmHeaderId.ExposedMissileTank, 13, 8, 0x0046),
-        (PlmHeaderId.ShotBlockSuperMissileTank, 21, 8, 0x0047),
-        (PlmHeaderId.GreyDoorFacingLeft, 30, 22, 0x0859),
+        new(PlmHeaderId.ScrollTrigger, new(4, 12), 0xB2D1),
+        new(PlmHeaderId.RightwardsScrollExtension, new(5, 12), 0x8000),
+        new(PlmHeaderId.RightwardsScrollExtension, new(6, 12), 0x8000),
+        new(PlmHeaderId.RightwardsScrollExtension, new(7, 12), 0x8000),
+        new(PlmHeaderId.RightwardsScrollExtension, new(8, 12), 0x8000),
+        new(PlmHeaderId.RightwardsScrollExtension, new(9, 12), 0x8000),
+        new(PlmHeaderId.RightwardsScrollExtension, new(10, 12), 0x8000),
+        new(PlmHeaderId.RightwardsScrollExtension, new(11, 12), 0x8000),
+        new(PlmHeaderId.ExposedMissileTank, new(13, 8), 0x0046),
+        new(PlmHeaderId.ShotBlockSuperMissileTank, new(21, 8), 0x0047),
+        new(PlmHeaderId.GreyDoorFacingLeft, new(30, 22), 0x0859),
     ]);
 
     /// <summary>The FastRipper room PLM population.</summary>
     public static RoomPlmPopulationDefinition FastRipper { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(FastRipper),
     [
-        (PlmHeaderId.DownwardGate, 52, 5, 0x8000),
-        (PlmHeaderId.DownwardGateShotBlock, 52, 5, 0x0008),
+        new(PlmHeaderId.DownwardGate, new(52, 5), 0x8000),
+        new(PlmHeaderId.DownwardGateShotBlock, new(52, 5), 0x0008),
     ]);
 
     /// <summary>The GTEnergyRefill room PLM population.</summary>
     public static RoomPlmPopulationDefinition GTEnergyRefill { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(GTEnergyRefill),
     [
-        (PlmHeaderId.EnergyStation, 8, 10, 0x0048),
+        new(PlmHeaderId.EnergyStation, new(8, 10), 0x0048),
     ]);
 
     /// <summary>The RidleyState01 room PLM population.</summary>
     public static RoomPlmPopulationDefinition RidleyState01 { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(RidleyState01),
     [
-        (PlmHeaderId.GreyDoorFacingLeft, 14, 6, 0x005A),
-        (PlmHeaderId.GreyDoorFacingRight, 1, 22, 0x005B),
+        new(PlmHeaderId.GreyDoorFacingLeft, new(14, 6), 0x005A),
+        new(PlmHeaderId.GreyDoorFacingRight, new(1, 22), 0x005B),
     ]);
 
     /// <summary>The LNFarming room PLM population.</summary>
     public static RoomPlmPopulationDefinition LNFarming { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(LNFarming),
     [
-        (PlmHeaderId.EyeDoorFacingRight, 1, 6, 0x005C),
-        (PlmHeaderId.EyeDoorBottomFacingRight, 1, 9, 0x005C),
-        (PlmHeaderId.EyeDoorEyeFacingRight, 1, 7, 0x005C),
+        new(PlmHeaderId.EyeDoorFacingRight, new(1, 6), 0x005C),
+        new(PlmHeaderId.EyeDoorBottomFacingRight, new(1, 9), 0x005C),
+        new(PlmHeaderId.EyeDoorEyeFacingRight, new(1, 7), 0x005C),
     ]);
 
     /// <summary>The FastPillarsSetup room PLM population.</summary>
     public static RoomPlmPopulationDefinition FastPillarsSetup { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(FastPillarsSetup),
     [
-        (PlmHeaderId.ScrollTrigger, 7, 33, 0xB3D9),
-        (PlmHeaderId.RightwardsScrollExtension, 8, 33, 0x8000),
-        (PlmHeaderId.ScrollTrigger, 7, 27, 0xB3DC),
-        (PlmHeaderId.RightwardsScrollExtension, 8, 27, 0x8000),
+        new(PlmHeaderId.ScrollTrigger, new(7, 33), 0xB3D9),
+        new(PlmHeaderId.RightwardsScrollExtension, new(8, 33), 0x8000),
+        new(PlmHeaderId.ScrollTrigger, new(7, 27), 0xB3DC),
+        new(PlmHeaderId.RightwardsScrollExtension, new(8, 27), 0x8000),
     ]);
 
     /// <summary>The UnusedRoom8FB3EE room PLM population.</summary>
@@ -1387,22 +1387,22 @@ internal static class RoomPlmPopulationDefinitions
     /// <summary>The MickeyMouse room PLM population.</summary>
     public static RoomPlmPopulationDefinition MickeyMouse { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(MickeyMouse),
     [
-        (PlmHeaderId.ScrollTrigger, 48, 22, 0xB445),
-        (PlmHeaderId.ScrollTrigger, 50, 22, 0xB448),
-        (PlmHeaderId.ScrollTrigger, 45, 22, 0xB44B),
-        (PlmHeaderId.UpwardsScrollExtension, 43, 20, 0x8000),
-        (PlmHeaderId.UpwardsScrollExtension, 43, 21, 0x8000),
-        (PlmHeaderId.UpwardsScrollExtension, 43, 22, 0x8000),
-        (PlmHeaderId.ScrollTrigger, 43, 23, 0xB44E),
-        (PlmHeaderId.UpwardsScrollExtension, 56, 54, 0x8000),
-        (PlmHeaderId.UpwardsScrollExtension, 56, 55, 0x8000),
-        (PlmHeaderId.UpwardsScrollExtension, 56, 56, 0x8000),
-        (PlmHeaderId.ScrollTrigger, 56, 57, 0xB451),
-        (PlmHeaderId.RightwardsScrollExtension, 61, 52, 0x8000),
-        (PlmHeaderId.RightwardsScrollExtension, 60, 52, 0x8000),
-        (PlmHeaderId.ScrollTrigger, 59, 52, 0xB454),
-        (PlmHeaderId.GreyDoorFacingRight, 1, 54, 0x0C5D),
-        (PlmHeaderId.ExposedMissileTank, 39, 27, 0x0049),
+        new(PlmHeaderId.ScrollTrigger, new(48, 22), 0xB445),
+        new(PlmHeaderId.ScrollTrigger, new(50, 22), 0xB448),
+        new(PlmHeaderId.ScrollTrigger, new(45, 22), 0xB44B),
+        new(PlmHeaderId.UpwardsScrollExtension, new(43, 20), 0x8000),
+        new(PlmHeaderId.UpwardsScrollExtension, new(43, 21), 0x8000),
+        new(PlmHeaderId.UpwardsScrollExtension, new(43, 22), 0x8000),
+        new(PlmHeaderId.ScrollTrigger, new(43, 23), 0xB44E),
+        new(PlmHeaderId.UpwardsScrollExtension, new(56, 54), 0x8000),
+        new(PlmHeaderId.UpwardsScrollExtension, new(56, 55), 0x8000),
+        new(PlmHeaderId.UpwardsScrollExtension, new(56, 56), 0x8000),
+        new(PlmHeaderId.ScrollTrigger, new(56, 57), 0xB451),
+        new(PlmHeaderId.RightwardsScrollExtension, new(61, 52), 0x8000),
+        new(PlmHeaderId.RightwardsScrollExtension, new(60, 52), 0x8000),
+        new(PlmHeaderId.ScrollTrigger, new(59, 52), 0xB454),
+        new(PlmHeaderId.GreyDoorFacingRight, new(1, 54), 0x0C5D),
+        new(PlmHeaderId.ExposedMissileTank, new(39, 27), 0x0049),
     ]);
 
     /// <summary>The Pillar room PLM population.</summary>
@@ -1418,16 +1418,16 @@ internal static class RoomPlmPopulationDefinitions
     /// <summary>The WorstRoomInTheGame room PLM population.</summary>
     public static RoomPlmPopulationDefinition WorstRoomInTheGame { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(WorstRoomInTheGame),
     [
-        (PlmHeaderId.ScrollTrigger, 3, 16, 0xB4E0),
-        (PlmHeaderId.RightwardsScrollExtension, 4, 16, 0x8000),
-        (PlmHeaderId.RightwardsScrollExtension, 5, 16, 0x8000),
-        (PlmHeaderId.RightwardsScrollExtension, 6, 16, 0x8000),
-        (PlmHeaderId.RightwardsScrollExtension, 7, 16, 0x8000),
-        (PlmHeaderId.RightwardsScrollExtension, 8, 16, 0x8000),
-        (PlmHeaderId.RightwardsScrollExtension, 9, 16, 0x8000),
-        (PlmHeaderId.RightwardsScrollExtension, 10, 16, 0x8000),
-        (PlmHeaderId.RightwardsScrollExtension, 11, 16, 0x8000),
-        (PlmHeaderId.RightwardsScrollExtension, 12, 16, 0x8000),
+        new(PlmHeaderId.ScrollTrigger, new(3, 16), 0xB4E0),
+        new(PlmHeaderId.RightwardsScrollExtension, new(4, 16), 0x8000),
+        new(PlmHeaderId.RightwardsScrollExtension, new(5, 16), 0x8000),
+        new(PlmHeaderId.RightwardsScrollExtension, new(6, 16), 0x8000),
+        new(PlmHeaderId.RightwardsScrollExtension, new(7, 16), 0x8000),
+        new(PlmHeaderId.RightwardsScrollExtension, new(8, 16), 0x8000),
+        new(PlmHeaderId.RightwardsScrollExtension, new(9, 16), 0x8000),
+        new(PlmHeaderId.RightwardsScrollExtension, new(10, 16), 0x8000),
+        new(PlmHeaderId.RightwardsScrollExtension, new(11, 16), 0x8000),
+        new(PlmHeaderId.RightwardsScrollExtension, new(12, 16), 0x8000),
     ]);
 
     /// <summary>The Amphitheatre room PLM population.</summary>
@@ -1438,146 +1438,146 @@ internal static class RoomPlmPopulationDefinitions
     /// <summary>The LNSpringBallMaze room PLM population.</summary>
     public static RoomPlmPopulationDefinition LNSpringBallMaze { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(LNSpringBallMaze),
     [
-        (PlmHeaderId.ScrollTrigger, 12, 9, 0xB547),
-        (PlmHeaderId.UpwardsScrollExtension, 12, 8, 0x8000),
-        (PlmHeaderId.UpwardsScrollExtension, 12, 7, 0x8000),
-        (PlmHeaderId.UpwardsScrollExtension, 12, 6, 0x8000),
-        (PlmHeaderId.ScrollTrigger, 3, 18, 0xB54E),
-        (PlmHeaderId.RightwardsScrollExtension, 4, 18, 0x8000),
-        (PlmHeaderId.RightwardsScrollExtension, 5, 18, 0x8000),
-        (PlmHeaderId.RightwardsScrollExtension, 6, 18, 0x8000),
-        (PlmHeaderId.RightwardsScrollExtension, 7, 18, 0x8000),
-        (PlmHeaderId.RightwardsScrollExtension, 8, 18, 0x8000),
-        (PlmHeaderId.RightwardsScrollExtension, 9, 18, 0x8000),
-        (PlmHeaderId.RightwardsScrollExtension, 10, 18, 0x8000),
-        (PlmHeaderId.ScrollTrigger, 47, 3, 0xB555),
-        (PlmHeaderId.ExposedMissileTank, 43, 7, 0x004A),
+        new(PlmHeaderId.ScrollTrigger, new(12, 9), 0xB547),
+        new(PlmHeaderId.UpwardsScrollExtension, new(12, 8), 0x8000),
+        new(PlmHeaderId.UpwardsScrollExtension, new(12, 7), 0x8000),
+        new(PlmHeaderId.UpwardsScrollExtension, new(12, 6), 0x8000),
+        new(PlmHeaderId.ScrollTrigger, new(3, 18), 0xB54E),
+        new(PlmHeaderId.RightwardsScrollExtension, new(4, 18), 0x8000),
+        new(PlmHeaderId.RightwardsScrollExtension, new(5, 18), 0x8000),
+        new(PlmHeaderId.RightwardsScrollExtension, new(6, 18), 0x8000),
+        new(PlmHeaderId.RightwardsScrollExtension, new(7, 18), 0x8000),
+        new(PlmHeaderId.RightwardsScrollExtension, new(8, 18), 0x8000),
+        new(PlmHeaderId.RightwardsScrollExtension, new(9, 18), 0x8000),
+        new(PlmHeaderId.RightwardsScrollExtension, new(10, 18), 0x8000),
+        new(PlmHeaderId.ScrollTrigger, new(47, 3), 0xB555),
+        new(PlmHeaderId.ExposedMissileTank, new(43, 7), 0x004A),
     ]);
 
     /// <summary>The LNEscapePowerBombs room PLM population.</summary>
     public static RoomPlmPopulationDefinition LNEscapePowerBombs { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(LNEscapePowerBombs),
     [
-        (PlmHeaderId.ExposedPowerBombTank, 12, 8, 0x004B),
+        new(PlmHeaderId.ExposedPowerBombTank, new(12, 8), 0x004B),
     ]);
 
     /// <summary>The RedKihunterShaft room PLM population.</summary>
     public static RoomPlmPopulationDefinition RedKihunterShaft { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(RedKihunterShaft),
     [
-        (PlmHeaderId.ScrollTrigger, 17, 72, 0xB5C3),
-        (PlmHeaderId.RightwardsScrollExtension, 9, 70, 0x8000),
-        (PlmHeaderId.UpwardsScrollExtension, 8, 70, 0x8000),
-        (PlmHeaderId.ScrollTrigger, 8, 71, 0xB5C8),
-        (PlmHeaderId.ScrollTrigger, 31, 72, 0xB5C3),
-        (PlmHeaderId.ScrollTrigger, 36, 72, 0xB5C8),
-        (PlmHeaderId.ScrollTrigger, 6, 14, 0xB5CD),
-        (PlmHeaderId.RightwardsScrollExtension, 7, 14, 0x8000),
-        (PlmHeaderId.RightwardsScrollExtension, 8, 14, 0x8000),
-        (PlmHeaderId.RightwardsScrollExtension, 9, 14, 0x8000),
-        (PlmHeaderId.ScrollTrigger, 6, 11, 0xB5D2),
-        (PlmHeaderId.RightwardsScrollExtension, 7, 11, 0x8000),
-        (PlmHeaderId.RightwardsScrollExtension, 8, 11, 0x8000),
-        (PlmHeaderId.RightwardsScrollExtension, 9, 11, 0x8000),
-        (PlmHeaderId.YellowDoorFacingUp, 38, 77, 0x005E),
+        new(PlmHeaderId.ScrollTrigger, new(17, 72), 0xB5C3),
+        new(PlmHeaderId.RightwardsScrollExtension, new(9, 70), 0x8000),
+        new(PlmHeaderId.UpwardsScrollExtension, new(8, 70), 0x8000),
+        new(PlmHeaderId.ScrollTrigger, new(8, 71), 0xB5C8),
+        new(PlmHeaderId.ScrollTrigger, new(31, 72), 0xB5C3),
+        new(PlmHeaderId.ScrollTrigger, new(36, 72), 0xB5C8),
+        new(PlmHeaderId.ScrollTrigger, new(6, 14), 0xB5CD),
+        new(PlmHeaderId.RightwardsScrollExtension, new(7, 14), 0x8000),
+        new(PlmHeaderId.RightwardsScrollExtension, new(8, 14), 0x8000),
+        new(PlmHeaderId.RightwardsScrollExtension, new(9, 14), 0x8000),
+        new(PlmHeaderId.ScrollTrigger, new(6, 11), 0xB5D2),
+        new(PlmHeaderId.RightwardsScrollExtension, new(7, 11), 0x8000),
+        new(PlmHeaderId.RightwardsScrollExtension, new(8, 11), 0x8000),
+        new(PlmHeaderId.RightwardsScrollExtension, new(9, 11), 0x8000),
+        new(PlmHeaderId.YellowDoorFacingUp, new(38, 77), 0x005E),
     ]);
 
     /// <summary>The Wasteland room PLM population.</summary>
     public static RoomPlmPopulationDefinition Wasteland { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(Wasteland),
     [
-        (PlmHeaderId.ScrollTrigger, 23, 13, 0xB612),
-        (PlmHeaderId.RightwardsScrollExtension, 24, 13, 0x8000),
-        (PlmHeaderId.ScrollTrigger, 21, 8, 0xB615),
-        (PlmHeaderId.RightwardsScrollExtension, 22, 8, 0x8000),
-        (PlmHeaderId.RightwardsScrollExtension, 23, 8, 0x8000),
-        (PlmHeaderId.RightwardsScrollExtension, 24, 8, 0x8000),
-        (PlmHeaderId.RightwardsScrollExtension, 25, 8, 0x8000),
-        (PlmHeaderId.RightwardsScrollExtension, 26, 8, 0x8000),
-        (PlmHeaderId.ScrollTrigger, 79, 9, 0xB61A),
-        (PlmHeaderId.ScrollTrigger, 81, 9, 0xB622),
-        (PlmHeaderId.ScrollTrigger, 15, 11, 0xB61D),
-        (PlmHeaderId.ScrollTrigger, 60, 9, 0xB622),
-        (PlmHeaderId.ScrollTrigger, 63, 9, 0xB61A),
-        (PlmHeaderId.ScrollTrigger, 20, 7, 0xB625),
-        (PlmHeaderId.UpwardsScrollExtension, 20, 6, 0x8000),
-        (PlmHeaderId.UpwardsScrollExtension, 20, 5, 0x8000),
-        (PlmHeaderId.UpwardsScrollExtension, 20, 4, 0x8000),
-        (PlmHeaderId.ScrollTrigger, 9, 9, 0xB628),
-        (PlmHeaderId.UpwardsScrollExtension, 9, 8, 0x8000),
-        (PlmHeaderId.UpwardsScrollExtension, 9, 7, 0x8000),
-        (PlmHeaderId.UpwardsScrollExtension, 9, 6, 0x8000),
-        (PlmHeaderId.UpwardsScrollExtension, 9, 5, 0x8000),
-        (PlmHeaderId.GreenDoorFacingRight, 17, 38, 0x005F),
-        (PlmHeaderId.ExposedPowerBombTank, 7, 8, 0x004C),
+        new(PlmHeaderId.ScrollTrigger, new(23, 13), 0xB612),
+        new(PlmHeaderId.RightwardsScrollExtension, new(24, 13), 0x8000),
+        new(PlmHeaderId.ScrollTrigger, new(21, 8), 0xB615),
+        new(PlmHeaderId.RightwardsScrollExtension, new(22, 8), 0x8000),
+        new(PlmHeaderId.RightwardsScrollExtension, new(23, 8), 0x8000),
+        new(PlmHeaderId.RightwardsScrollExtension, new(24, 8), 0x8000),
+        new(PlmHeaderId.RightwardsScrollExtension, new(25, 8), 0x8000),
+        new(PlmHeaderId.RightwardsScrollExtension, new(26, 8), 0x8000),
+        new(PlmHeaderId.ScrollTrigger, new(79, 9), 0xB61A),
+        new(PlmHeaderId.ScrollTrigger, new(81, 9), 0xB622),
+        new(PlmHeaderId.ScrollTrigger, new(15, 11), 0xB61D),
+        new(PlmHeaderId.ScrollTrigger, new(60, 9), 0xB622),
+        new(PlmHeaderId.ScrollTrigger, new(63, 9), 0xB61A),
+        new(PlmHeaderId.ScrollTrigger, new(20, 7), 0xB625),
+        new(PlmHeaderId.UpwardsScrollExtension, new(20, 6), 0x8000),
+        new(PlmHeaderId.UpwardsScrollExtension, new(20, 5), 0x8000),
+        new(PlmHeaderId.UpwardsScrollExtension, new(20, 4), 0x8000),
+        new(PlmHeaderId.ScrollTrigger, new(9, 9), 0xB628),
+        new(PlmHeaderId.UpwardsScrollExtension, new(9, 8), 0x8000),
+        new(PlmHeaderId.UpwardsScrollExtension, new(9, 7), 0x8000),
+        new(PlmHeaderId.UpwardsScrollExtension, new(9, 6), 0x8000),
+        new(PlmHeaderId.UpwardsScrollExtension, new(9, 5), 0x8000),
+        new(PlmHeaderId.GreenDoorFacingRight, new(17, 38), 0x005F),
+        new(PlmHeaderId.ExposedPowerBombTank, new(7, 8), 0x004C),
     ]);
 
     /// <summary>The MetalPirates room PLM population.</summary>
     public static RoomPlmPopulationDefinition MetalPirates { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(MetalPirates),
     [
-        (PlmHeaderId.GreyDoorFacingRight, 1, 6, 0x0C60),
+        new(PlmHeaderId.GreyDoorFacingRight, new(1, 6), 0x0C60),
     ]);
 
     /// <summary>The ThreeMusketeers room PLM population.</summary>
     public static RoomPlmPopulationDefinition ThreeMusketeers { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(ThreeMusketeers),
     [
-        (PlmHeaderId.ScrollTrigger, 11, 42, 0xB68D),
-        (PlmHeaderId.UpwardsScrollExtension, 11, 41, 0x8000),
-        (PlmHeaderId.UpwardsScrollExtension, 11, 40, 0x8000),
-        (PlmHeaderId.UpwardsScrollExtension, 11, 39, 0x8000),
-        (PlmHeaderId.UpwardsScrollExtension, 11, 38, 0x8000),
-        (PlmHeaderId.UpwardsScrollExtension, 11, 37, 0x8000),
-        (PlmHeaderId.ScrollTrigger, 15, 42, 0xB690),
-        (PlmHeaderId.ScrollTrigger, 20, 42, 0xB695),
-        (PlmHeaderId.ExposedMissileTank, 8, 41, 0x004D),
+        new(PlmHeaderId.ScrollTrigger, new(11, 42), 0xB68D),
+        new(PlmHeaderId.UpwardsScrollExtension, new(11, 41), 0x8000),
+        new(PlmHeaderId.UpwardsScrollExtension, new(11, 40), 0x8000),
+        new(PlmHeaderId.UpwardsScrollExtension, new(11, 39), 0x8000),
+        new(PlmHeaderId.UpwardsScrollExtension, new(11, 38), 0x8000),
+        new(PlmHeaderId.UpwardsScrollExtension, new(11, 37), 0x8000),
+        new(PlmHeaderId.ScrollTrigger, new(15, 42), 0xB690),
+        new(PlmHeaderId.ScrollTrigger, new(20, 42), 0xB695),
+        new(PlmHeaderId.ExposedMissileTank, new(8, 41), 0x004D),
     ]);
 
     /// <summary>The RidleyETank room PLM population.</summary>
     public static RoomPlmPopulationDefinition RidleyETank { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(RidleyETank),
     [
-        (PlmHeaderId.ShotBlockEnergyTank, 14, 11, 0x004E),
+        new(PlmHeaderId.ShotBlockEnergyTank, new(14, 11), 0x004E),
     ]);
 
     /// <summary>The ScrewAttack room PLM population.</summary>
     public static RoomPlmPopulationDefinition ScrewAttack { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(ScrewAttack),
     [
-        (PlmHeaderId.ChozoScrewAttack, 11, 40, 0x004F),
+        new(PlmHeaderId.ChozoScrewAttack, new(11, 40), 0x004F),
     ]);
 
     /// <summary>The LNFireflea room PLM population.</summary>
     public static RoomPlmPopulationDefinition LNFireflea { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(LNFireflea),
     [
-        (PlmHeaderId.UpwardsScrollExtension, 31, 54, 0x8000),
-        (PlmHeaderId.UpwardsScrollExtension, 31, 55, 0x8000),
-        (PlmHeaderId.ScrollTrigger, 31, 56, 0xB72D),
-        (PlmHeaderId.RightwardsScrollExtension, 45, 57, 0x8000),
-        (PlmHeaderId.RightwardsScrollExtension, 44, 57, 0x8000),
-        (PlmHeaderId.ScrollTrigger, 43, 57, 0xB730),
-        (PlmHeaderId.UpwardsScrollExtension, 15, 6, 0x8000),
-        (PlmHeaderId.UpwardsScrollExtension, 15, 7, 0x8000),
-        (PlmHeaderId.UpwardsScrollExtension, 15, 8, 0x8000),
-        (PlmHeaderId.ScrollTrigger, 15, 9, 0xB737),
-        (PlmHeaderId.RightwardsScrollExtension, 27, 11, 0x8000),
-        (PlmHeaderId.RightwardsScrollExtension, 26, 11, 0x8000),
-        (PlmHeaderId.RightwardsScrollExtension, 25, 11, 0x8000),
-        (PlmHeaderId.RightwardsScrollExtension, 24, 11, 0x8000),
-        (PlmHeaderId.RightwardsScrollExtension, 23, 11, 0x8000),
-        (PlmHeaderId.RightwardsScrollExtension, 22, 11, 0x8000),
-        (PlmHeaderId.RightwardsScrollExtension, 21, 11, 0x8000),
-        (PlmHeaderId.ScrollTrigger, 20, 11, 0xB73C),
-        (PlmHeaderId.ExposedEnergyTank, 42, 81, 0x0050),
+        new(PlmHeaderId.UpwardsScrollExtension, new(31, 54), 0x8000),
+        new(PlmHeaderId.UpwardsScrollExtension, new(31, 55), 0x8000),
+        new(PlmHeaderId.ScrollTrigger, new(31, 56), 0xB72D),
+        new(PlmHeaderId.RightwardsScrollExtension, new(45, 57), 0x8000),
+        new(PlmHeaderId.RightwardsScrollExtension, new(44, 57), 0x8000),
+        new(PlmHeaderId.ScrollTrigger, new(43, 57), 0xB730),
+        new(PlmHeaderId.UpwardsScrollExtension, new(15, 6), 0x8000),
+        new(PlmHeaderId.UpwardsScrollExtension, new(15, 7), 0x8000),
+        new(PlmHeaderId.UpwardsScrollExtension, new(15, 8), 0x8000),
+        new(PlmHeaderId.ScrollTrigger, new(15, 9), 0xB737),
+        new(PlmHeaderId.RightwardsScrollExtension, new(27, 11), 0x8000),
+        new(PlmHeaderId.RightwardsScrollExtension, new(26, 11), 0x8000),
+        new(PlmHeaderId.RightwardsScrollExtension, new(25, 11), 0x8000),
+        new(PlmHeaderId.RightwardsScrollExtension, new(24, 11), 0x8000),
+        new(PlmHeaderId.RightwardsScrollExtension, new(23, 11), 0x8000),
+        new(PlmHeaderId.RightwardsScrollExtension, new(22, 11), 0x8000),
+        new(PlmHeaderId.RightwardsScrollExtension, new(21, 11), 0x8000),
+        new(PlmHeaderId.ScrollTrigger, new(20, 11), 0xB73C),
+        new(PlmHeaderId.ExposedEnergyTank, new(42, 81), 0x0050),
     ]);
 
     /// <summary>The LNSave room PLM population.</summary>
     public static RoomPlmPopulationDefinition LNSave { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(LNSave),
     [
-        (PlmHeaderId.SaveStation, 7, 11, 0x0005),
+        new(PlmHeaderId.SaveStation, new(7, 11), 0x0005),
     ]);
 
     /// <summary>The BowlingAlleyState0 room PLM population.</summary>
     public static RoomPlmPopulationDefinition BowlingAlleyState0 { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(BowlingAlleyState0),
     [
-        (PlmHeaderId.ScrollTrigger, 31, 45, 0xC9EC),
-        (PlmHeaderId.UpwardsScrollExtension, 65, 38, 0x8000),
-        (PlmHeaderId.UpwardsScrollExtension, 65, 39, 0x8000),
-        (PlmHeaderId.ScrollTrigger, 65, 40, 0xC9F1),
+        new(PlmHeaderId.ScrollTrigger, new(31, 45), 0xC9EC),
+        new(PlmHeaderId.UpwardsScrollExtension, new(65, 38), 0x8000),
+        new(PlmHeaderId.UpwardsScrollExtension, new(65, 39), 0x8000),
+        new(PlmHeaderId.ScrollTrigger, new(65, 40), 0xC9F1),
     ]);
 
     /// <summary>The WreckedShipEntranceState0 room PLM population.</summary>
@@ -1588,9 +1588,9 @@ internal static class RoomPlmPopulationDefinitions
     /// <summary>The AtticState0 room PLM population.</summary>
     public static RoomPlmPopulationDefinition AtticState0 { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(AtticState0),
     [
-        (PlmHeaderId.GreyDoorFacingRight, 1, 6, 0x0080),
-        (PlmHeaderId.GreyDoorFacingLeft, 110, 6, 0x0081),
-        (PlmHeaderId.WreckedShipAttic, 8, 8, 0x8000),
+        new(PlmHeaderId.GreyDoorFacingRight, new(1, 6), 0x0080),
+        new(PlmHeaderId.GreyDoorFacingLeft, new(110, 6), 0x0081),
+        new(PlmHeaderId.WreckedShipAttic, new(8, 8), 0x8000),
     ]);
 
     /// <summary>The AssemblyLineState0 room PLM population.</summary>
@@ -1601,15 +1601,15 @@ internal static class RoomPlmPopulationDefinitions
     /// <summary>The WreckedShipMainShaft room PLM population.</summary>
     public static RoomPlmPopulationDefinition WreckedShipMainShaft { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(WreckedShipMainShaft),
     [
-        (PlmHeaderId.ScrollTrigger, 62, 87, 0xCB7A),
-        (PlmHeaderId.ScrollTrigger, 81, 105, 0xCB7D),
-        (PlmHeaderId.ScrollTrigger, 65, 87, 0xCB80),
-        (PlmHeaderId.ScrollTrigger, 78, 105, 0xCB83),
-        (PlmHeaderId.ScrollTrigger, 71, 109, 0xCB86),
-        (PlmHeaderId.ExposedMissileTank, 2, 89, 0x0080),
-        (PlmHeaderId.GreyDoorFacingRight, 65, 102, 0x0082),
-        (PlmHeaderId.GreyDoorFacingLeft, 78, 70, 0x0083),
-        (PlmHeaderId.GreenDoorFacingUp, 70, 125, 0x0084),
+        new(PlmHeaderId.ScrollTrigger, new(62, 87), 0xCB7A),
+        new(PlmHeaderId.ScrollTrigger, new(81, 105), 0xCB7D),
+        new(PlmHeaderId.ScrollTrigger, new(65, 87), 0xCB80),
+        new(PlmHeaderId.ScrollTrigger, new(78, 105), 0xCB83),
+        new(PlmHeaderId.ScrollTrigger, new(71, 109), 0xCB86),
+        new(PlmHeaderId.ExposedMissileTank, new(2, 89), 0x0080),
+        new(PlmHeaderId.GreyDoorFacingRight, new(65, 102), 0x0082),
+        new(PlmHeaderId.GreyDoorFacingLeft, new(78, 70), 0x0083),
+        new(PlmHeaderId.GreenDoorFacingUp, new(70, 125), 0x0084),
     ]);
 
     /// <summary>The SpikyDeathState0 room PLM population.</summary>
@@ -1620,8 +1620,8 @@ internal static class RoomPlmPopulationDefinitions
     /// <summary>The ElectricDeathState0 room PLM population.</summary>
     public static RoomPlmPopulationDefinition ElectricDeathState0 { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(ElectricDeathState0),
     [
-        (PlmHeaderId.ScrollTrigger, 7, 16, 0xCC24),
-        (PlmHeaderId.RightwardsScrollExtension, 8, 16, 0x8000),
+        new(PlmHeaderId.ScrollTrigger, new(7, 16), 0xCC24),
+        new(PlmHeaderId.RightwardsScrollExtension, new(8, 16), 0x8000),
     ]);
 
     /// <summary>The WreckedShipETankState0 room PLM population.</summary>
@@ -1632,11 +1632,11 @@ internal static class RoomPlmPopulationDefinitions
     /// <summary>The BasementState0 room PLM population.</summary>
     public static RoomPlmPopulationDefinition BasementState0 { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(BasementState0),
     [
-        (PlmHeaderId.ScrollTrigger, 64, 12, 0xCCC0),
-        (PlmHeaderId.ScrollTrigger, 70, 12, 0xCCC5),
-        (PlmHeaderId.EyeDoorFacingLeft, 78, 6, 0x0085),
-        (PlmHeaderId.EyeDoorBottomFacingLeft, 78, 9, 0x0085),
-        (PlmHeaderId.EyeDoorEyeFacingLeft, 78, 7, 0x0085),
+        new(PlmHeaderId.ScrollTrigger, new(64, 12), 0xCCC0),
+        new(PlmHeaderId.ScrollTrigger, new(70, 12), 0xCCC5),
+        new(PlmHeaderId.EyeDoorFacingLeft, new(78, 6), 0x0085),
+        new(PlmHeaderId.EyeDoorBottomFacingLeft, new(78, 9), 0x0085),
+        new(PlmHeaderId.EyeDoorEyeFacingLeft, new(78, 7), 0x0085),
     ]);
 
     /// <summary>The WreckedShipMapState0 room PLM population.</summary>
@@ -1647,7 +1647,7 @@ internal static class RoomPlmPopulationDefinitions
     /// <summary>The Phantoon room PLM population.</summary>
     public static RoomPlmPopulationDefinition Phantoon { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(Phantoon),
     [
-        (PlmHeaderId.GreyDoorFacingRight, 1, 6, 0x0086),
+        new(PlmHeaderId.GreyDoorFacingRight, new(1, 6), 0x0086),
     ]);
 
     /// <summary>The SpongeBathState0 room PLM population.</summary>
@@ -1663,7 +1663,7 @@ internal static class RoomPlmPopulationDefinitions
     /// <summary>The WSEastSuperState0 room PLM population.</summary>
     public static RoomPlmPopulationDefinition WSEastSuperState0 { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(WSEastSuperState0),
     [
-        (PlmHeaderId.ScrollTrigger, 47, 7, 0xCE3D),
+        new(PlmHeaderId.ScrollTrigger, new(47, 7), 0xCE3D),
     ]);
 
     /// <summary>The GravitySuitState0WreckedShipSaveState0 room PLM population.</summary>
@@ -1674,19 +1674,19 @@ internal static class RoomPlmPopulationDefinitions
     /// <summary>The WreckedShipSaveState1 room PLM population.</summary>
     public static RoomPlmPopulationDefinition WreckedShipSaveState1 { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(WreckedShipSaveState1),
     [
-        (PlmHeaderId.SaveStation, 7, 11, 0x0000),
+        new(PlmHeaderId.SaveStation, new(7, 11), 0x0000),
     ]);
 
     /// <summary>The BowlingAlleyState1 room PLM population.</summary>
     public static RoomPlmPopulationDefinition BowlingAlleyState1 { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(BowlingAlleyState1),
     [
-        (PlmHeaderId.ScrollTrigger, 31, 45, 0xC9EC),
-        (PlmHeaderId.UpwardsScrollExtension, 65, 38, 0x8000),
-        (PlmHeaderId.UpwardsScrollExtension, 65, 39, 0x8000),
-        (PlmHeaderId.ScrollTrigger, 65, 40, 0xC9F1),
-        (PlmHeaderId.ChozoReserveTank, 83, 11, 0x0081),
-        (PlmHeaderId.ExposedMissileTank, 60, 38, 0x0082),
-        (PlmHeaderId.GreyDoorFacingRight, 1, 22, 0x9087),
+        new(PlmHeaderId.ScrollTrigger, new(31, 45), 0xC9EC),
+        new(PlmHeaderId.UpwardsScrollExtension, new(65, 38), 0x8000),
+        new(PlmHeaderId.UpwardsScrollExtension, new(65, 39), 0x8000),
+        new(PlmHeaderId.ScrollTrigger, new(65, 40), 0xC9F1),
+        new(PlmHeaderId.ChozoReserveTank, new(83, 11), 0x0081),
+        new(PlmHeaderId.ExposedMissileTank, new(60, 38), 0x0082),
+        new(PlmHeaderId.GreyDoorFacingRight, new(1, 22), 0x9087),
     ]);
 
     /// <summary>The WreckedShipEntranceState1 room PLM population.</summary>
@@ -1697,16 +1697,16 @@ internal static class RoomPlmPopulationDefinitions
     /// <summary>The AtticState1 room PLM population.</summary>
     public static RoomPlmPopulationDefinition AtticState1 { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(AtticState1),
     [
-        (PlmHeaderId.GreyDoorFacingRight, 1, 6, 0x0C88),
-        (PlmHeaderId.GreyDoorFacingLeft, 110, 6, 0x0C89),
-        (PlmHeaderId.GreyDoorFacingUp, 70, 14, 0x0C8A),
-        (PlmHeaderId.WreckedShipAttic, 8, 8, 0x8000),
+        new(PlmHeaderId.GreyDoorFacingRight, new(1, 6), 0x0C88),
+        new(PlmHeaderId.GreyDoorFacingLeft, new(110, 6), 0x0C89),
+        new(PlmHeaderId.GreyDoorFacingUp, new(70, 14), 0x0C8A),
+        new(PlmHeaderId.WreckedShipAttic, new(8, 8), 0x8000),
     ]);
 
     /// <summary>The AssemblyLineState1 room PLM population.</summary>
     public static RoomPlmPopulationDefinition AssemblyLineState1 { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(AssemblyLineState1),
     [
-        (PlmHeaderId.ExposedMissileTank, 45, 8, 0x0083),
+        new(PlmHeaderId.ExposedMissileTank, new(45, 8), 0x0083),
     ]);
 
     /// <summary>The SpikyDeathState1 room PLM population.</summary>
@@ -1717,28 +1717,28 @@ internal static class RoomPlmPopulationDefinitions
     /// <summary>The ElectricDeathState1 room PLM population.</summary>
     public static RoomPlmPopulationDefinition ElectricDeathState1 { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(ElectricDeathState1),
     [
-        (PlmHeaderId.ScrollTrigger, 7, 16, 0xCC24),
-        (PlmHeaderId.RightwardsScrollExtension, 8, 16, 0x8000),
-        (PlmHeaderId.RedDoorFacingRight, 1, 6, 0x008B),
+        new(PlmHeaderId.ScrollTrigger, new(7, 16), 0xCC24),
+        new(PlmHeaderId.RightwardsScrollExtension, new(8, 16), 0x8000),
+        new(PlmHeaderId.RedDoorFacingRight, new(1, 6), 0x008B),
     ]);
 
     /// <summary>The WreckedShipETankState1 room PLM population.</summary>
     public static RoomPlmPopulationDefinition WreckedShipETankState1 { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(WreckedShipETankState1),
     [
-        (PlmHeaderId.ExposedEnergyTank, 3, 6, 0x0084),
+        new(PlmHeaderId.ExposedEnergyTank, new(3, 6), 0x0084),
     ]);
 
     /// <summary>The BasementState1 room PLM population.</summary>
     public static RoomPlmPopulationDefinition BasementState1 { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(BasementState1),
     [
-        (PlmHeaderId.ScrollTrigger, 64, 12, 0xCCC0),
-        (PlmHeaderId.ScrollTrigger, 70, 12, 0xCCC5),
+        new(PlmHeaderId.ScrollTrigger, new(64, 12), 0xCCC0),
+        new(PlmHeaderId.ScrollTrigger, new(70, 12), 0xCCC5),
     ]);
 
     /// <summary>The WreckedShipMapState1 room PLM population.</summary>
     public static RoomPlmPopulationDefinition WreckedShipMapState1 { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(WreckedShipMapState1),
     [
-        (PlmHeaderId.MapStation, 5, 10, 0x8000),
+        new(PlmHeaderId.MapStation, new(5, 10), 0x8000),
     ]);
 
     /// <summary>The SpongeBathState1 room PLM population.</summary>
@@ -1749,47 +1749,47 @@ internal static class RoomPlmPopulationDefinitions
     /// <summary>The WSWestSuperState1 room PLM population.</summary>
     public static RoomPlmPopulationDefinition WSWestSuperState1 { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(WSWestSuperState1),
     [
-        (PlmHeaderId.ExposedSuperMissileTank, 2, 7, 0x0085),
+        new(PlmHeaderId.ExposedSuperMissileTank, new(2, 7), 0x0085),
     ]);
 
     /// <summary>The WSEastSuperState1 room PLM population.</summary>
     public static RoomPlmPopulationDefinition WSEastSuperState1 { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(WSEastSuperState1),
     [
-        (PlmHeaderId.ScrollTrigger, 47, 7, 0xCE3D),
-        (PlmHeaderId.ExposedSuperMissileTank, 56, 9, 0x0086),
+        new(PlmHeaderId.ScrollTrigger, new(47, 7), 0xCE3D),
+        new(PlmHeaderId.ExposedSuperMissileTank, new(56, 9), 0x0086),
     ]);
 
     /// <summary>The GravitySuitState1 room PLM population.</summary>
     public static RoomPlmPopulationDefinition GravitySuitState1 { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(GravitySuitState1),
     [
-        (PlmHeaderId.ChozoGravitySuit, 7, 9, 0x0087),
+        new(PlmHeaderId.ChozoGravitySuit, new(7, 9), 0x0087),
     ]);
 
     /// <summary>The GlassTunnelSave room PLM population.</summary>
     public static RoomPlmPopulationDefinition GlassTunnelSave { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(GlassTunnelSave),
     [
-        (PlmHeaderId.SaveStation, 7, 11, 0x0000),
+        new(PlmHeaderId.SaveStation, new(7, 11), 0x0000),
     ]);
 
     /// <summary>The GlassTunnelState01 room PLM population.</summary>
     public static RoomPlmPopulationDefinition GlassTunnelState01 { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(GlassTunnelState01),
     [
-        (PlmHeaderId.ScrollTrigger, 3, 20, 0xCF4C),
-        (PlmHeaderId.RightwardsScrollExtension, 4, 20, 0x8000),
-        (PlmHeaderId.RightwardsScrollExtension, 5, 20, 0x8000),
-        (PlmHeaderId.RightwardsScrollExtension, 6, 20, 0x8000),
-        (PlmHeaderId.ScrollTrigger, 9, 20, 0xCF4C),
-        (PlmHeaderId.RightwardsScrollExtension, 10, 20, 0x8000),
-        (PlmHeaderId.RightwardsScrollExtension, 11, 20, 0x8000),
-        (PlmHeaderId.RightwardsScrollExtension, 12, 20, 0x8000),
-        (PlmHeaderId.ScrollTrigger, 5, 29, 0xCF4F),
-        (PlmHeaderId.RightwardsScrollExtension, 6, 29, 0x8000),
-        (PlmHeaderId.RightwardsScrollExtension, 7, 29, 0x8000),
-        (PlmHeaderId.RightwardsScrollExtension, 8, 29, 0x8000),
-        (PlmHeaderId.RightwardsScrollExtension, 9, 29, 0x8000),
-        (PlmHeaderId.RightwardsScrollExtension, 10, 29, 0x8000),
-        (PlmHeaderId.NoobTube, 2, 21, 0x0080),
-        (PlmHeaderId.RedDoorFacingLeft, 14, 38, 0x008C),
+        new(PlmHeaderId.ScrollTrigger, new(3, 20), 0xCF4C),
+        new(PlmHeaderId.RightwardsScrollExtension, new(4, 20), 0x8000),
+        new(PlmHeaderId.RightwardsScrollExtension, new(5, 20), 0x8000),
+        new(PlmHeaderId.RightwardsScrollExtension, new(6, 20), 0x8000),
+        new(PlmHeaderId.ScrollTrigger, new(9, 20), 0xCF4C),
+        new(PlmHeaderId.RightwardsScrollExtension, new(10, 20), 0x8000),
+        new(PlmHeaderId.RightwardsScrollExtension, new(11, 20), 0x8000),
+        new(PlmHeaderId.RightwardsScrollExtension, new(12, 20), 0x8000),
+        new(PlmHeaderId.ScrollTrigger, new(5, 29), 0xCF4F),
+        new(PlmHeaderId.RightwardsScrollExtension, new(6, 29), 0x8000),
+        new(PlmHeaderId.RightwardsScrollExtension, new(7, 29), 0x8000),
+        new(PlmHeaderId.RightwardsScrollExtension, new(8, 29), 0x8000),
+        new(PlmHeaderId.RightwardsScrollExtension, new(9, 29), 0x8000),
+        new(PlmHeaderId.RightwardsScrollExtension, new(10, 29), 0x8000),
+        new(PlmHeaderId.NoobTube, new(2, 21), 0x0080),
+        new(PlmHeaderId.RedDoorFacingLeft, new(14, 38), 0x008C),
     ]);
 
     /// <summary>The WestTunnel room PLM population.</summary>
@@ -1800,55 +1800,55 @@ internal static class RoomPlmPopulationDefinitions
     /// <summary>The EastTunnel room PLM population.</summary>
     public static RoomPlmPopulationDefinition EastTunnel { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(EastTunnel),
     [
-        (PlmHeaderId.ScrollTrigger, 5, 9, 0xCFB5),
-        (PlmHeaderId.ScrollTrigger, 5, 16, 0xCFBC),
-        (PlmHeaderId.ScrollTrigger, 5, 22, 0xCFC1),
-        (PlmHeaderId.UpwardsScrollExtension, 10, 3, 0x8000),
-        (PlmHeaderId.UpwardsScrollExtension, 10, 4, 0x8000),
-        (PlmHeaderId.UpwardsScrollExtension, 10, 5, 0x8000),
-        (PlmHeaderId.UpwardsScrollExtension, 10, 6, 0x8000),
-        (PlmHeaderId.UpwardsScrollExtension, 10, 7, 0x8000),
-        (PlmHeaderId.UpwardsScrollExtension, 10, 8, 0x8000),
-        (PlmHeaderId.ScrollTrigger, 10, 9, 0xCFC6),
-        (PlmHeaderId.DownwardGate, 22, 5, 0x8000),
-        (PlmHeaderId.DownwardGateShotBlock, 22, 5, 0x000A),
+        new(PlmHeaderId.ScrollTrigger, new(5, 9), 0xCFB5),
+        new(PlmHeaderId.ScrollTrigger, new(5, 16), 0xCFBC),
+        new(PlmHeaderId.ScrollTrigger, new(5, 22), 0xCFC1),
+        new(PlmHeaderId.UpwardsScrollExtension, new(10, 3), 0x8000),
+        new(PlmHeaderId.UpwardsScrollExtension, new(10, 4), 0x8000),
+        new(PlmHeaderId.UpwardsScrollExtension, new(10, 5), 0x8000),
+        new(PlmHeaderId.UpwardsScrollExtension, new(10, 6), 0x8000),
+        new(PlmHeaderId.UpwardsScrollExtension, new(10, 7), 0x8000),
+        new(PlmHeaderId.UpwardsScrollExtension, new(10, 8), 0x8000),
+        new(PlmHeaderId.ScrollTrigger, new(10, 9), 0xCFC6),
+        new(PlmHeaderId.DownwardGate, new(22, 5), 0x8000),
+        new(PlmHeaderId.DownwardGateShotBlock, new(22, 5), 0x000A),
     ]);
 
     /// <summary>The MainStreet room PLM population.</summary>
     public static RoomPlmPopulationDefinition MainStreet { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(MainStreet),
     [
-        (PlmHeaderId.ScrollTrigger, 37, 41, 0xD012),
-        (PlmHeaderId.RedDoorFacingLeft, 30, 118, 0x008D),
-        (PlmHeaderId.ExposedMissileTank, 14, 53, 0x0088),
-        (PlmHeaderId.ExposedSuperMissileTank, 22, 40, 0x0089),
+        new(PlmHeaderId.ScrollTrigger, new(37, 41), 0xD012),
+        new(PlmHeaderId.RedDoorFacingLeft, new(30, 118), 0x008D),
+        new(PlmHeaderId.ExposedMissileTank, new(14, 53), 0x0088),
+        new(PlmHeaderId.ExposedSuperMissileTank, new(22, 40), 0x0089),
     ]);
 
     /// <summary>The FishTank room PLM population.</summary>
     public static RoomPlmPopulationDefinition FishTank { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(FishTank),
     [
-        (PlmHeaderId.UpwardsScrollExtension, 31, 38, 0x8000),
-        (PlmHeaderId.UpwardsScrollExtension, 31, 39, 0x8000),
-        (PlmHeaderId.UpwardsScrollExtension, 31, 40, 0x8000),
-        (PlmHeaderId.ScrollTrigger, 31, 41, 0xD052),
-        (PlmHeaderId.UpwardsScrollExtension, 48, 38, 0x8000),
-        (PlmHeaderId.UpwardsScrollExtension, 48, 39, 0x8000),
-        (PlmHeaderId.UpwardsScrollExtension, 48, 40, 0x8000),
-        (PlmHeaderId.ScrollTrigger, 48, 41, 0xD052),
-        (PlmHeaderId.RedDoorFacingLeft, 62, 38, 0x008E),
+        new(PlmHeaderId.UpwardsScrollExtension, new(31, 38), 0x8000),
+        new(PlmHeaderId.UpwardsScrollExtension, new(31, 39), 0x8000),
+        new(PlmHeaderId.UpwardsScrollExtension, new(31, 40), 0x8000),
+        new(PlmHeaderId.ScrollTrigger, new(31, 41), 0xD052),
+        new(PlmHeaderId.UpwardsScrollExtension, new(48, 38), 0x8000),
+        new(PlmHeaderId.UpwardsScrollExtension, new(48, 39), 0x8000),
+        new(PlmHeaderId.UpwardsScrollExtension, new(48, 40), 0x8000),
+        new(PlmHeaderId.ScrollTrigger, new(48, 41), 0xD052),
+        new(PlmHeaderId.RedDoorFacingLeft, new(62, 38), 0x008E),
     ]);
 
     /// <summary>The MamaTurtle room PLM population.</summary>
     public static RoomPlmPopulationDefinition MamaTurtle { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(MamaTurtle),
     [
-        (PlmHeaderId.ExposedEnergyTank, 31, 10, 0x008A),
-        (PlmHeaderId.ShotBlockMissileTank, 44, 29, 0x008B),
+        new(PlmHeaderId.ExposedEnergyTank, new(31, 10), 0x008A),
+        new(PlmHeaderId.ShotBlockMissileTank, new(44, 29), 0x008B),
     ]);
 
     /// <summary>The CrabTunnel room PLM population.</summary>
     public static RoomPlmPopulationDefinition CrabTunnel { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(CrabTunnel),
     [
-        (PlmHeaderId.DownwardGate, 14, 7, 0x8000),
-        (PlmHeaderId.DownwardGateShotBlock, 14, 7, 0x0008),
+        new(PlmHeaderId.DownwardGate, new(14, 7), 0x8000),
+        new(PlmHeaderId.DownwardGateShotBlock, new(14, 7), 0x0008),
     ]);
 
     /// <summary>The MtEverest room PLM population.</summary>
@@ -1859,59 +1859,59 @@ internal static class RoomPlmPopulationDefinitions
     /// <summary>The RedFish room PLM population.</summary>
     public static RoomPlmPopulationDefinition RedFish { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(RedFish),
     [
-        (PlmHeaderId.ScrollTrigger, 32, 6, 0xD135),
-        (PlmHeaderId.ScrollTrigger, 30, 6, 0xD138),
+        new(PlmHeaderId.ScrollTrigger, new(32, 6), 0xD135),
+        new(PlmHeaderId.ScrollTrigger, new(30, 6), 0xD138),
     ]);
 
     /// <summary>The WateringHole room PLM population.</summary>
     public static RoomPlmPopulationDefinition WateringHole { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(WateringHole),
     [
-        (PlmHeaderId.ScrollTrigger, 7, 31, 0xD16A),
-        (PlmHeaderId.ExposedSuperMissileTank, 4, 38, 0x008C),
-        (PlmHeaderId.ExposedMissileTank, 11, 39, 0x008D),
+        new(PlmHeaderId.ScrollTrigger, new(7, 31), 0xD16A),
+        new(PlmHeaderId.ExposedSuperMissileTank, new(4, 38), 0x008C),
+        new(PlmHeaderId.ExposedMissileTank, new(11, 39), 0x008D),
     ]);
 
     /// <summary>The NWestMaridiaBug room PLM population.</summary>
     public static RoomPlmPopulationDefinition NWestMaridiaBug { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(NWestMaridiaBug),
     [
-        (PlmHeaderId.UpwardsScrollExtension, 32, 22, 0x8000),
-        (PlmHeaderId.UpwardsScrollExtension, 32, 23, 0x8000),
-        (PlmHeaderId.UpwardsScrollExtension, 32, 24, 0x8000),
-        (PlmHeaderId.ScrollTrigger, 32, 25, 0xD1A0),
-        (PlmHeaderId.UpwardsScrollExtension, 15, 22, 0x8000),
-        (PlmHeaderId.UpwardsScrollExtension, 15, 23, 0x8000),
-        (PlmHeaderId.UpwardsScrollExtension, 15, 24, 0x8000),
-        (PlmHeaderId.ScrollTrigger, 15, 25, 0xD1A0),
+        new(PlmHeaderId.UpwardsScrollExtension, new(32, 22), 0x8000),
+        new(PlmHeaderId.UpwardsScrollExtension, new(32, 23), 0x8000),
+        new(PlmHeaderId.UpwardsScrollExtension, new(32, 24), 0x8000),
+        new(PlmHeaderId.ScrollTrigger, new(32, 25), 0xD1A0),
+        new(PlmHeaderId.UpwardsScrollExtension, new(15, 22), 0x8000),
+        new(PlmHeaderId.UpwardsScrollExtension, new(15, 23), 0x8000),
+        new(PlmHeaderId.UpwardsScrollExtension, new(15, 24), 0x8000),
+        new(PlmHeaderId.ScrollTrigger, new(15, 25), 0xD1A0),
     ]);
 
     /// <summary>The CrabShaft room PLM population.</summary>
     public static RoomPlmPopulationDefinition CrabShaft { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(CrabShaft),
     [
-        (PlmHeaderId.ScrollTrigger, 7, 45, 0xD1D8),
-        (PlmHeaderId.RightwardsScrollExtension, 8, 45, 0x8000),
-        (PlmHeaderId.GreenDoorFacingLeft, 30, 54, 0x008F),
+        new(PlmHeaderId.ScrollTrigger, new(7, 45), 0xD1D8),
+        new(PlmHeaderId.RightwardsScrollExtension, new(8, 45), 0x8000),
+        new(PlmHeaderId.GreenDoorFacingLeft, new(30, 54), 0x008F),
     ]);
 
     /// <summary>The PseudoPlasmaSpark room PLM population.</summary>
     public static RoomPlmPopulationDefinition PseudoPlasmaSpark { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(PseudoPlasmaSpark),
     [
-        (PlmHeaderId.UpwardsScrollExtension, 31, 38, 0x8000),
-        (PlmHeaderId.UpwardsScrollExtension, 31, 39, 0x8000),
-        (PlmHeaderId.UpwardsScrollExtension, 31, 40, 0x8000),
-        (PlmHeaderId.ScrollTrigger, 31, 41, 0xD216),
-        (PlmHeaderId.UpwardsScrollExtension, 29, 38, 0x8000),
-        (PlmHeaderId.UpwardsScrollExtension, 29, 39, 0x8000),
-        (PlmHeaderId.UpwardsScrollExtension, 29, 40, 0x8000),
-        (PlmHeaderId.ScrollTrigger, 29, 41, 0xD219),
-        (PlmHeaderId.ExposedMissileTank, 44, 40, 0x008E),
+        new(PlmHeaderId.UpwardsScrollExtension, new(31, 38), 0x8000),
+        new(PlmHeaderId.UpwardsScrollExtension, new(31, 39), 0x8000),
+        new(PlmHeaderId.UpwardsScrollExtension, new(31, 40), 0x8000),
+        new(PlmHeaderId.ScrollTrigger, new(31, 41), 0xD216),
+        new(PlmHeaderId.UpwardsScrollExtension, new(29, 38), 0x8000),
+        new(PlmHeaderId.UpwardsScrollExtension, new(29, 39), 0x8000),
+        new(PlmHeaderId.UpwardsScrollExtension, new(29, 40), 0x8000),
+        new(PlmHeaderId.ScrollTrigger, new(29, 41), 0xD219),
+        new(PlmHeaderId.ExposedMissileTank, new(44, 40), 0x008E),
     ]);
 
     /// <summary>The CrabHole room PLM population.</summary>
     public static RoomPlmPopulationDefinition CrabHole { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(CrabHole),
     [
-        (PlmHeaderId.ScrollTrigger, 8, 14, 0xD24D),
-        (PlmHeaderId.ScrollTrigger, 8, 17, 0xD24D),
-        (PlmHeaderId.RedDoorFacingLeft, 14, 22, 0x0090),
+        new(PlmHeaderId.ScrollTrigger, new(8, 14), 0xD24D),
+        new(PlmHeaderId.ScrollTrigger, new(8, 17), 0xD24D),
+        new(PlmHeaderId.RedDoorFacingLeft, new(14, 22), 0x0090),
     ]);
 
     /// <summary>The WestSandHallTunnel room PLM population.</summary>
@@ -1927,8 +1927,8 @@ internal static class RoomPlmPopulationDefinitions
     /// <summary>The Plasma room PLM population.</summary>
     public static RoomPlmPopulationDefinition Plasma { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(Plasma),
     [
-        (PlmHeaderId.GreyDoorFacingRight, 1, 6, 0x0C91),
-        (PlmHeaderId.ChozoPlasmaBeam, 25, 38, 0x008F),
+        new(PlmHeaderId.GreyDoorFacingRight, new(1, 6), 0x0C91),
+        new(PlmHeaderId.ChozoPlasmaBeam, new(25, 38), 0x008F),
     ]);
 
     /// <summary>The ThreadTheNeedle room PLM population.</summary>
@@ -1939,15 +1939,15 @@ internal static class RoomPlmPopulationDefinitions
     /// <summary>The MaridiaElev room PLM population.</summary>
     public static RoomPlmPopulationDefinition MaridiaElev { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(MaridiaElev),
     [
-        (PlmHeaderId.ElevatorPlatform, 6, 44, 0x8000),
-        (PlmHeaderId.RedDoorFacingLeft, 14, 70, 0x0092),
+        new(PlmHeaderId.ElevatorPlatform, new(6, 44), 0x8000),
+        new(PlmHeaderId.RedDoorFacingLeft, new(14, 70), 0x0092),
     ]);
 
     /// <summary>The PlasmaSpark room PLM population.</summary>
     public static RoomPlmPopulationDefinition PlasmaSpark { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(PlasmaSpark),
     [
-        (PlmHeaderId.GreyDoorFacingLeft, 46, 22, 0x0093),
-        (PlmHeaderId.GreenDoorFacingUp, 6, 45, 0x0094),
+        new(PlmHeaderId.GreyDoorFacingLeft, new(46, 22), 0x0093),
+        new(PlmHeaderId.GreenDoorFacingUp, new(6, 45), 0x0094),
     ]);
 
     /// <summary>The Kassiuz room PLM population.</summary>
@@ -1958,13 +1958,13 @@ internal static class RoomPlmPopulationDefinitions
     /// <summary>The MaridiaMap room PLM population.</summary>
     public static RoomPlmPopulationDefinition MaridiaMap { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(MaridiaMap),
     [
-        (PlmHeaderId.MapStation, 11, 10, 0x8000),
+        new(PlmHeaderId.MapStation, new(11, 10), 0x8000),
     ]);
 
     /// <summary>The ForgottenHighwaySave room PLM population.</summary>
     public static RoomPlmPopulationDefinition ForgottenHighwaySave { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(ForgottenHighwaySave),
     [
-        (PlmHeaderId.SaveStation, 7, 11, 0x0001),
+        new(PlmHeaderId.SaveStation, new(7, 11), 0x0001),
     ]);
 
     /// <summary>The Toilet room PLM population.</summary>
@@ -1985,17 +1985,17 @@ internal static class RoomPlmPopulationDefinitions
     /// <summary>The Oasis room PLM population.</summary>
     public static RoomPlmPopulationDefinition Oasis { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(Oasis),
     [
-        (PlmHeaderId.ScrollTrigger, 3, 20, 0xD4BD),
-        (PlmHeaderId.RightwardsScrollExtension, 4, 20, 0x8000),
-        (PlmHeaderId.RightwardsScrollExtension, 5, 20, 0x8000),
-        (PlmHeaderId.RightwardsScrollExtension, 6, 20, 0x8000),
-        (PlmHeaderId.RightwardsScrollExtension, 7, 20, 0x8000),
-        (PlmHeaderId.RightwardsScrollExtension, 8, 20, 0x8000),
-        (PlmHeaderId.RightwardsScrollExtension, 9, 20, 0x8000),
-        (PlmHeaderId.RightwardsScrollExtension, 10, 20, 0x8000),
-        (PlmHeaderId.RightwardsScrollExtension, 11, 20, 0x8000),
-        (PlmHeaderId.RightwardsScrollExtension, 12, 20, 0x8000),
-        (PlmHeaderId.GreenDoorFacingDown, 6, 2, 0x0095),
+        new(PlmHeaderId.ScrollTrigger, new(3, 20), 0xD4BD),
+        new(PlmHeaderId.RightwardsScrollExtension, new(4, 20), 0x8000),
+        new(PlmHeaderId.RightwardsScrollExtension, new(5, 20), 0x8000),
+        new(PlmHeaderId.RightwardsScrollExtension, new(6, 20), 0x8000),
+        new(PlmHeaderId.RightwardsScrollExtension, new(7, 20), 0x8000),
+        new(PlmHeaderId.RightwardsScrollExtension, new(8, 20), 0x8000),
+        new(PlmHeaderId.RightwardsScrollExtension, new(9, 20), 0x8000),
+        new(PlmHeaderId.RightwardsScrollExtension, new(10, 20), 0x8000),
+        new(PlmHeaderId.RightwardsScrollExtension, new(11, 20), 0x8000),
+        new(PlmHeaderId.RightwardsScrollExtension, new(12, 20), 0x8000),
+        new(PlmHeaderId.GreenDoorFacingDown, new(6, 2), 0x0095),
     ]);
 
     /// <summary>The EastSandHall room PLM population.</summary>
@@ -2006,15 +2006,15 @@ internal static class RoomPlmPopulationDefinitions
     /// <summary>The WestSandHole room PLM population.</summary>
     public static RoomPlmPopulationDefinition WestSandHole { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(WestSandHole),
     [
-        (PlmHeaderId.ExposedMissileTank, 6, 4, 0x0090),
-        (PlmHeaderId.ChozoReserveTank, 15, 4, 0x0091),
+        new(PlmHeaderId.ExposedMissileTank, new(6, 4), 0x0090),
+        new(PlmHeaderId.ChozoReserveTank, new(15, 4), 0x0091),
     ]);
 
     /// <summary>The EastSandHole room PLM population.</summary>
     public static RoomPlmPopulationDefinition EastSandHole { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(EastSandHole),
     [
-        (PlmHeaderId.ExposedMissileTank, 3, 7, 0x0092),
-        (PlmHeaderId.ExposedPowerBombTank, 25, 16, 0x0093),
+        new(PlmHeaderId.ExposedMissileTank, new(3, 7), 0x0092),
+        new(PlmHeaderId.ExposedPowerBombTank, new(25, 16), 0x0093),
     ]);
 
     /// <summary>The WestAqueductQuicksand room PLM population.</summary>
@@ -2030,15 +2030,15 @@ internal static class RoomPlmPopulationDefinitions
     /// <summary>The Aqueduct room PLM population.</summary>
     public static RoomPlmPopulationDefinition Aqueduct { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(Aqueduct),
     [
-        (PlmHeaderId.RedDoorFacingRight, 1, 38, 0x0096),
-        (PlmHeaderId.ExposedMissileTank, 76, 9, 0x0094),
-        (PlmHeaderId.ExposedSuperMissileTank, 92, 8, 0x0095),
+        new(PlmHeaderId.RedDoorFacingRight, new(1, 38), 0x0096),
+        new(PlmHeaderId.ExposedMissileTank, new(76, 9), 0x0094),
+        new(PlmHeaderId.ExposedSuperMissileTank, new(92, 8), 0x0095),
     ]);
 
     /// <summary>The Butterfly room PLM population.</summary>
     public static RoomPlmPopulationDefinition Butterfly { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(Butterfly),
     [
-        (PlmHeaderId.GreyDoorFacingLeft, 14, 6, 0x0097),
+        new(PlmHeaderId.GreyDoorFacingLeft, new(14, 6), 0x0097),
     ]);
 
     /// <summary>The BotwoonHallway room PLM population.</summary>
@@ -2049,50 +2049,50 @@ internal static class RoomPlmPopulationDefinitions
     /// <summary>The Pants room PLM population.</summary>
     public static RoomPlmPopulationDefinition Pants { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(Pants),
     [
-        (PlmHeaderId.ScrollTrigger, 6, 50, 0xD67D),
-        (PlmHeaderId.RightwardsScrollExtension, 7, 50, 0x8000),
-        (PlmHeaderId.RightwardsScrollExtension, 8, 50, 0x8000),
-        (PlmHeaderId.RightwardsScrollExtension, 9, 50, 0x8000),
-        (PlmHeaderId.ScrollTrigger, 13, 12, 0xD67D),
-        (PlmHeaderId.UpwardsScrollExtension, 13, 11, 0x8000),
-        (PlmHeaderId.UpwardsScrollExtension, 13, 10, 0x8000),
-        (PlmHeaderId.UpwardsScrollExtension, 13, 9, 0x8000),
-        (PlmHeaderId.UpwardsScrollExtension, 13, 8, 0x8000),
-        (PlmHeaderId.UpwardsScrollExtension, 13, 7, 0x8000),
-        (PlmHeaderId.UpwardsScrollExtension, 13, 6, 0x8000),
-        (PlmHeaderId.UpwardsScrollExtension, 13, 5, 0x8000),
-        (PlmHeaderId.UpwardsScrollExtension, 13, 4, 0x8000),
-        (PlmHeaderId.ScrollTrigger, 18, 14, 0xD68A),
-        (PlmHeaderId.UpwardsScrollExtension, 18, 13, 0x8000),
-        (PlmHeaderId.UpwardsScrollExtension, 18, 12, 0x8000),
-        (PlmHeaderId.UpwardsScrollExtension, 18, 11, 0x8000),
-        (PlmHeaderId.UpwardsScrollExtension, 18, 10, 0x8000),
-        (PlmHeaderId.UpwardsScrollExtension, 18, 9, 0x8000),
-        (PlmHeaderId.UpwardsScrollExtension, 18, 8, 0x8000),
-        (PlmHeaderId.UpwardsScrollExtension, 18, 7, 0x8000),
-        (PlmHeaderId.ScrollTrigger, 21, 43, 0xD695),
-        (PlmHeaderId.RightwardsScrollExtension, 22, 43, 0x8000),
-        (PlmHeaderId.RightwardsScrollExtension, 23, 43, 0x8000),
+        new(PlmHeaderId.ScrollTrigger, new(6, 50), 0xD67D),
+        new(PlmHeaderId.RightwardsScrollExtension, new(7, 50), 0x8000),
+        new(PlmHeaderId.RightwardsScrollExtension, new(8, 50), 0x8000),
+        new(PlmHeaderId.RightwardsScrollExtension, new(9, 50), 0x8000),
+        new(PlmHeaderId.ScrollTrigger, new(13, 12), 0xD67D),
+        new(PlmHeaderId.UpwardsScrollExtension, new(13, 11), 0x8000),
+        new(PlmHeaderId.UpwardsScrollExtension, new(13, 10), 0x8000),
+        new(PlmHeaderId.UpwardsScrollExtension, new(13, 9), 0x8000),
+        new(PlmHeaderId.UpwardsScrollExtension, new(13, 8), 0x8000),
+        new(PlmHeaderId.UpwardsScrollExtension, new(13, 7), 0x8000),
+        new(PlmHeaderId.UpwardsScrollExtension, new(13, 6), 0x8000),
+        new(PlmHeaderId.UpwardsScrollExtension, new(13, 5), 0x8000),
+        new(PlmHeaderId.UpwardsScrollExtension, new(13, 4), 0x8000),
+        new(PlmHeaderId.ScrollTrigger, new(18, 14), 0xD68A),
+        new(PlmHeaderId.UpwardsScrollExtension, new(18, 13), 0x8000),
+        new(PlmHeaderId.UpwardsScrollExtension, new(18, 12), 0x8000),
+        new(PlmHeaderId.UpwardsScrollExtension, new(18, 11), 0x8000),
+        new(PlmHeaderId.UpwardsScrollExtension, new(18, 10), 0x8000),
+        new(PlmHeaderId.UpwardsScrollExtension, new(18, 9), 0x8000),
+        new(PlmHeaderId.UpwardsScrollExtension, new(18, 8), 0x8000),
+        new(PlmHeaderId.UpwardsScrollExtension, new(18, 7), 0x8000),
+        new(PlmHeaderId.ScrollTrigger, new(21, 43), 0xD695),
+        new(PlmHeaderId.RightwardsScrollExtension, new(22, 43), 0x8000),
+        new(PlmHeaderId.RightwardsScrollExtension, new(23, 43), 0x8000),
     ]);
 
     /// <summary>The EastPants room PLM population.</summary>
     public static RoomPlmPopulationDefinition EastPants { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(EastPants),
     [
-        (PlmHeaderId.ScrollTrigger, 5, 34, 0xD6C8),
-        (PlmHeaderId.RightwardsScrollExtension, 6, 34, 0x8000),
-        (PlmHeaderId.RightwardsScrollExtension, 7, 34, 0x8000),
-        (PlmHeaderId.RightwardsScrollExtension, 8, 34, 0x8000),
-        (PlmHeaderId.RightwardsScrollExtension, 9, 34, 0x8000),
-        (PlmHeaderId.RightwardsScrollExtension, 10, 18, 0x8000),
-        (PlmHeaderId.ScrollTrigger, 5, 27, 0xD6CB),
-        (PlmHeaderId.RightwardsScrollExtension, 6, 27, 0x8000),
-        (PlmHeaderId.RightwardsScrollExtension, 7, 27, 0x8000),
+        new(PlmHeaderId.ScrollTrigger, new(5, 34), 0xD6C8),
+        new(PlmHeaderId.RightwardsScrollExtension, new(6, 34), 0x8000),
+        new(PlmHeaderId.RightwardsScrollExtension, new(7, 34), 0x8000),
+        new(PlmHeaderId.RightwardsScrollExtension, new(8, 34), 0x8000),
+        new(PlmHeaderId.RightwardsScrollExtension, new(9, 34), 0x8000),
+        new(PlmHeaderId.RightwardsScrollExtension, new(10, 18), 0x8000),
+        new(PlmHeaderId.ScrollTrigger, new(5, 27), 0xD6CB),
+        new(PlmHeaderId.RightwardsScrollExtension, new(6, 27), 0x8000),
+        new(PlmHeaderId.RightwardsScrollExtension, new(7, 27), 0x8000),
     ]);
 
     /// <summary>The Springball room PLM population.</summary>
     public static RoomPlmPopulationDefinition Springball { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(Springball),
     [
-        (PlmHeaderId.ChozoSpringBall, 24, 22, 0x0096),
+        new(PlmHeaderId.ChozoSpringBall, new(24, 22), 0x0096),
     ]);
 
     /// <summary>The BelowBotwoonETank room PLM population.</summary>
@@ -2103,50 +2103,50 @@ internal static class RoomPlmPopulationDefinitions
     /// <summary>The Colosseum room PLM population.</summary>
     public static RoomPlmPopulationDefinition Colosseum { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(Colosseum),
     [
-        (PlmHeaderId.RedDoorFacingLeft, 110, 6, 0x0098),
-        (PlmHeaderId.GreenDoorFacingLeft, 78, 38, 0x0099),
-        (PlmHeaderId.GreenDoorFacingLeft, 110, 22, 0x009A),
+        new(PlmHeaderId.RedDoorFacingLeft, new(110, 6), 0x0098),
+        new(PlmHeaderId.GreenDoorFacingLeft, new(78, 38), 0x0099),
+        new(PlmHeaderId.GreenDoorFacingLeft, new(110, 22), 0x009A),
     ]);
 
     /// <summary>The AqueductSave room PLM population.</summary>
     public static RoomPlmPopulationDefinition AqueductSave { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(AqueductSave),
     [
-        (PlmHeaderId.SaveStation, 5, 11, 0x0002),
+        new(PlmHeaderId.SaveStation, new(5, 11), 0x0002),
     ]);
 
     /// <summary>The ThePreciousState01 room PLM population.</summary>
     public static RoomPlmPopulationDefinition ThePreciousState01 { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(ThePreciousState01),
     [
-        (PlmHeaderId.ScrollTrigger, 4, 14, 0xD7DF),
-        (PlmHeaderId.RightwardsScrollExtension, 5, 14, 0x8000),
-        (PlmHeaderId.RightwardsScrollExtension, 6, 14, 0x8000),
-        (PlmHeaderId.RightwardsScrollExtension, 7, 14, 0x8000),
-        (PlmHeaderId.RightwardsScrollExtension, 8, 14, 0x8000),
-        (PlmHeaderId.RightwardsScrollExtension, 9, 14, 0x8000),
-        (PlmHeaderId.RightwardsScrollExtension, 10, 14, 0x8000),
-        (PlmHeaderId.RightwardsScrollExtension, 11, 14, 0x8000),
-        (PlmHeaderId.EyeDoorFacingRight, 1, 38, 0x009B),
-        (PlmHeaderId.EyeDoorBottomFacingRight, 1, 41, 0x009B),
-        (PlmHeaderId.EyeDoorEyeFacingRight, 1, 39, 0x009B),
-        (PlmHeaderId.ShotBlockMissileTank, 28, 6, 0x0097),
+        new(PlmHeaderId.ScrollTrigger, new(4, 14), 0xD7DF),
+        new(PlmHeaderId.RightwardsScrollExtension, new(5, 14), 0x8000),
+        new(PlmHeaderId.RightwardsScrollExtension, new(6, 14), 0x8000),
+        new(PlmHeaderId.RightwardsScrollExtension, new(7, 14), 0x8000),
+        new(PlmHeaderId.RightwardsScrollExtension, new(8, 14), 0x8000),
+        new(PlmHeaderId.RightwardsScrollExtension, new(9, 14), 0x8000),
+        new(PlmHeaderId.RightwardsScrollExtension, new(10, 14), 0x8000),
+        new(PlmHeaderId.RightwardsScrollExtension, new(11, 14), 0x8000),
+        new(PlmHeaderId.EyeDoorFacingRight, new(1, 38), 0x009B),
+        new(PlmHeaderId.EyeDoorBottomFacingRight, new(1, 41), 0x009B),
+        new(PlmHeaderId.EyeDoorEyeFacingRight, new(1, 39), 0x009B),
+        new(PlmHeaderId.ShotBlockMissileTank, new(28, 6), 0x0097),
     ]);
 
     /// <summary>The BotwoonETank room PLM population.</summary>
     public static RoomPlmPopulationDefinition BotwoonETank { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(BotwoonETank),
     [
-        (PlmHeaderId.ExposedEnergyTank, 50, 5, 0x0098),
+        new(PlmHeaderId.ExposedEnergyTank, new(50, 5), 0x0098),
     ]);
 
     /// <summary>The DraygonSave room PLM population.</summary>
     public static RoomPlmPopulationDefinition DraygonSave { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(DraygonSave),
     [
-        (PlmHeaderId.SaveStation, 7, 11, 0x0003),
+        new(PlmHeaderId.SaveStation, new(7, 11), 0x0003),
     ]);
 
     /// <summary>The MaridiaMissileRefill room PLM population.</summary>
     public static RoomPlmPopulationDefinition MaridiaMissileRefill { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(MaridiaMissileRefill),
     [
-        (PlmHeaderId.MissileStation, 8, 10, 0x0099),
+        new(PlmHeaderId.MissileStation, new(8, 10), 0x0099),
     ]);
 
     /// <summary>The PlasmaBeachQuicksand room PLM population.</summary>
@@ -2167,31 +2167,31 @@ internal static class RoomPlmPopulationDefinitions
     /// <summary>The HalfieClimb room PLM population.</summary>
     public static RoomPlmPopulationDefinition HalfieClimb { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(HalfieClimb),
     [
-        (PlmHeaderId.ScrollTrigger, 16, 41, 0xD951),
-        (PlmHeaderId.ScrollTrigger, 11, 41, 0xD956),
-        (PlmHeaderId.UpwardsScrollExtension, 11, 40, 0x8000),
-        (PlmHeaderId.UpwardsScrollExtension, 11, 39, 0x8000),
-        (PlmHeaderId.UpwardsScrollExtension, 11, 38, 0x8000),
-        (PlmHeaderId.ScrollTrigger, 14, 41, 0xD95B),
-        (PlmHeaderId.GreyDoorFacingRight, 1, 22, 0x009C),
+        new(PlmHeaderId.ScrollTrigger, new(16, 41), 0xD951),
+        new(PlmHeaderId.ScrollTrigger, new(11, 41), 0xD956),
+        new(PlmHeaderId.UpwardsScrollExtension, new(11, 40), 0x8000),
+        new(PlmHeaderId.UpwardsScrollExtension, new(11, 39), 0x8000),
+        new(PlmHeaderId.UpwardsScrollExtension, new(11, 38), 0x8000),
+        new(PlmHeaderId.ScrollTrigger, new(14, 41), 0xD95B),
+        new(PlmHeaderId.GreyDoorFacingRight, new(1, 22), 0x009C),
     ]);
 
     /// <summary>The BotwoonState01 room PLM population.</summary>
     public static RoomPlmPopulationDefinition BotwoonState01 { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(BotwoonState01),
     [
-        (PlmHeaderId.GreyDoorFacingRight, 1, 6, 0x049D),
+        new(PlmHeaderId.GreyDoorFacingRight, new(1, 6), 0x049D),
     ]);
 
     /// <summary>The SpaceJump room PLM population.</summary>
     public static RoomPlmPopulationDefinition SpaceJump { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(SpaceJump),
     [
-        (PlmHeaderId.ChozoSpaceJump, 4, 8, 0x009A),
+        new(PlmHeaderId.ChozoSpaceJump, new(4, 8), 0x009A),
     ]);
 
     /// <summary>The MaridiaEnergyRefill room PLM population.</summary>
     public static RoomPlmPopulationDefinition MaridiaEnergyRefill { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(MaridiaEnergyRefill),
     [
-        (PlmHeaderId.EnergyStation, 8, 10, 0x009B),
+        new(PlmHeaderId.EnergyStation, new(8, 10), 0x009B),
     ]);
 
     /// <summary>The WestCactusAlley room PLM population.</summary>
@@ -2207,46 +2207,46 @@ internal static class RoomPlmPopulationDefinitions
     /// <summary>The DraygonState01 room PLM population.</summary>
     public static RoomPlmPopulationDefinition DraygonState01 { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(DraygonState01),
     [
-        (PlmHeaderId.GreyDoorFacingLeft, 30, 6, 0x009E),
-        (PlmHeaderId.GreyDoorFacingRight, 1, 22, 0x009F),
-        (PlmHeaderId.DraygonCannonFacingRightDestroyed, 2, 11, 0x8802),
-        (PlmHeaderId.DraygonCannonFacingRight, 2, 18, 0x8804),
-        (PlmHeaderId.DraygonCannonFacingLeft, 29, 15, 0x8806),
-        (PlmHeaderId.DraygonCannonFacingLeft, 29, 21, 0x8808),
+        new(PlmHeaderId.GreyDoorFacingLeft, new(30, 6), 0x009E),
+        new(PlmHeaderId.GreyDoorFacingRight, new(1, 22), 0x009F),
+        new(PlmHeaderId.DraygonCannonFacingRightDestroyed, new(2, 11), 0x8802),
+        new(PlmHeaderId.DraygonCannonFacingRight, new(2, 18), 0x8804),
+        new(PlmHeaderId.DraygonCannonFacingLeft, new(29, 15), 0x8806),
+        new(PlmHeaderId.DraygonCannonFacingLeft, new(29, 21), 0x8808),
     ]);
 
     /// <summary>The TourianFirst room PLM population.</summary>
     public static RoomPlmPopulationDefinition TourianFirst { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(TourianFirst),
     [
-        (PlmHeaderId.ElevatorPlatform, 6, 44, 0x8000),
+        new(PlmHeaderId.ElevatorPlatform, new(6, 44), 0x8000),
     ]);
 
     /// <summary>The Metroids1State01 room PLM population.</summary>
     public static RoomPlmPopulationDefinition Metroids1State01 { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(Metroids1State01),
     [
-        (PlmHeaderId.SetMetroidsClearedStatesWhenRequired, 8, 8, 0x0012),
-        (PlmHeaderId.GreyDoorFacingRight, 1, 6, 0x0CA0),
+        new(PlmHeaderId.SetMetroidsClearedStatesWhenRequired, new(8, 8), 0x0012),
+        new(PlmHeaderId.GreyDoorFacingRight, new(1, 6), 0x0CA0),
     ]);
 
     /// <summary>The Metroids2State01 room PLM population.</summary>
     public static RoomPlmPopulationDefinition Metroids2State01 { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(Metroids2State01),
     [
-        (PlmHeaderId.SetMetroidsClearedStatesWhenRequired, 8, 8, 0x0014),
-        (PlmHeaderId.GreyDoorFacingLeft, 14, 22, 0x0CA1),
+        new(PlmHeaderId.SetMetroidsClearedStatesWhenRequired, new(8, 8), 0x0014),
+        new(PlmHeaderId.GreyDoorFacingLeft, new(14, 22), 0x0CA1),
     ]);
 
     /// <summary>The Metroids3State01 room PLM population.</summary>
     public static RoomPlmPopulationDefinition Metroids3State01 { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(Metroids3State01),
     [
-        (PlmHeaderId.SetMetroidsClearedStatesWhenRequired, 8, 8, 0x0016),
-        (PlmHeaderId.GreyDoorFacingLeft, 94, 6, 0x0CA2),
+        new(PlmHeaderId.SetMetroidsClearedStatesWhenRequired, new(8, 8), 0x0016),
+        new(PlmHeaderId.GreyDoorFacingLeft, new(94, 6), 0x0CA2),
     ]);
 
     /// <summary>The Metroids4State01 room PLM population.</summary>
     public static RoomPlmPopulationDefinition Metroids4State01 { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(Metroids4State01),
     [
-        (PlmHeaderId.SetMetroidsClearedStatesWhenRequired, 8, 8, 0x0018),
-        (PlmHeaderId.GreyDoorFacingUp, 6, 30, 0x0CA3),
+        new(PlmHeaderId.SetMetroidsClearedStatesWhenRequired, new(8, 8), 0x0018),
+        new(PlmHeaderId.GreyDoorFacingUp, new(6, 30), 0x0CA3),
     ]);
 
     /// <summary>The BlueHopperState01 room PLM population.</summary>
@@ -2257,87 +2257,87 @@ internal static class RoomPlmPopulationDefinitions
     /// <summary>The DustTorizoState01 room PLM population.</summary>
     public static RoomPlmPopulationDefinition DustTorizoState01 { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(DustTorizoState01),
     [
-        (PlmHeaderId.GreyDoorFacingLeft, 30, 6, 0x90A4),
-        (PlmHeaderId.GreyDoorFacingRight, 1, 6, 0x0CA5),
+        new(PlmHeaderId.GreyDoorFacingLeft, new(30, 6), 0x90A4),
+        new(PlmHeaderId.GreyDoorFacingRight, new(1, 6), 0x0CA5),
     ]);
 
     /// <summary>The BigBoyState01 room PLM population.</summary>
     public static RoomPlmPopulationDefinition BigBoyState01 { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(BigBoyState01),
     [
-        (PlmHeaderId.GreyDoorFacingLeft, 62, 6, 0x90A6),
+        new(PlmHeaderId.GreyDoorFacingLeft, new(62, 6), 0x90A6),
     ]);
 
     /// <summary>The Seaweed room PLM population.</summary>
     public static RoomPlmPopulationDefinition Seaweed { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(Seaweed),
     [
-        (PlmHeaderId.RedDoorFacingLeft, 14, 22, 0x00A7),
+        new(PlmHeaderId.RedDoorFacingLeft, new(14, 22), 0x00A7),
     ]);
 
     /// <summary>The TourianRecharge room PLM population.</summary>
     public static RoomPlmPopulationDefinition TourianRecharge { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(TourianRecharge),
     [
-        (PlmHeaderId.MissileStation, 8, 10, 0x009C),
-        (PlmHeaderId.EnergyStation, 6, 10, 0x009D),
+        new(PlmHeaderId.MissileStation, new(8, 10), 0x009C),
+        new(PlmHeaderId.EnergyStation, new(6, 10), 0x009D),
     ]);
 
     /// <summary>The MotherBrainState012 room PLM population.</summary>
     public static RoomPlmPopulationDefinition MotherBrainState012 { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(MotherBrainState012),
     [
-        (PlmHeaderId.MotherBrainGlass, 9, 5, 0x8000),
+        new(PlmHeaderId.MotherBrainGlass, new(9, 5), 0x8000),
     ]);
 
     /// <summary>The TourianEyeDoor room PLM population.</summary>
     public static RoomPlmPopulationDefinition TourianEyeDoor { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(TourianEyeDoor),
     [
-        (PlmHeaderId.EyeDoorFacingLeft, 62, 6, 0x00A8),
-        (PlmHeaderId.EyeDoorBottomFacingLeft, 62, 9, 0x00A8),
-        (PlmHeaderId.EyeDoorEyeFacingLeft, 62, 7, 0x00A8),
+        new(PlmHeaderId.EyeDoorFacingLeft, new(62, 6), 0x00A8),
+        new(PlmHeaderId.EyeDoorBottomFacingLeft, new(62, 9), 0x00A8),
+        new(PlmHeaderId.EyeDoorEyeFacingLeft, new(62, 7), 0x00A8),
     ]);
 
     /// <summary>The RinkaShaft room PLM population.</summary>
     public static RoomPlmPopulationDefinition RinkaShaft { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(RinkaShaft),
     [
-        (PlmHeaderId.RedDoorFacingRight, 1, 38, 0x00A9),
+        new(PlmHeaderId.RedDoorFacingRight, new(1, 38), 0x00A9),
     ]);
 
     /// <summary>The MotherBrainSave room PLM population.</summary>
     public static RoomPlmPopulationDefinition MotherBrainSave { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(MotherBrainSave),
     [
-        (PlmHeaderId.SaveStation, 5, 11, 0x0000),
+        new(PlmHeaderId.SaveStation, new(5, 11), 0x0000),
     ]);
 
     /// <summary>The TourianEscape1 room PLM population.</summary>
     public static RoomPlmPopulationDefinition TourianEscape1 { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(TourianEscape1),
     [
-        (PlmHeaderId.SetMetroidsClearedStatesWhenRequired, 8, 8, 0x0000),
-        (PlmHeaderId.MotherBrainEscapeRoomGate, 31, 6, 0x8000),
+        new(PlmHeaderId.SetMetroidsClearedStatesWhenRequired, new(8, 8), 0x0000),
+        new(PlmHeaderId.MotherBrainEscapeRoomGate, new(31, 6), 0x8000),
     ]);
 
     /// <summary>The TourianEscape2 room PLM population.</summary>
     public static RoomPlmPopulationDefinition TourianEscape2 { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(TourianEscape2),
     [
-        (PlmHeaderId.SetMetroidsClearedStatesWhenRequired, 8, 8, 0x0002),
-        (PlmHeaderId.GreyDoorFacingDown, 6, 3, 0x90AA),
+        new(PlmHeaderId.SetMetroidsClearedStatesWhenRequired, new(8, 8), 0x0002),
+        new(PlmHeaderId.GreyDoorFacingDown, new(6, 3), 0x90AA),
     ]);
 
     /// <summary>The TourianEscape3 room PLM population.</summary>
     public static RoomPlmPopulationDefinition TourianEscape3 { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(TourianEscape3),
     [
-        (PlmHeaderId.SetMetroidsClearedStatesWhenRequired, 8, 8, 0x0004),
-        (PlmHeaderId.GreyDoorFacingRight, 1, 22, 0x90AB),
+        new(PlmHeaderId.SetMetroidsClearedStatesWhenRequired, new(8, 8), 0x0004),
+        new(PlmHeaderId.GreyDoorFacingRight, new(1, 22), 0x90AB),
     ]);
 
     /// <summary>The TourianEscape4 room PLM population.</summary>
     public static RoomPlmPopulationDefinition TourianEscape4 { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(TourianEscape4),
     [
-        (PlmHeaderId.SetMetroidsClearedStatesWhenRequired, 8, 8, 0x0006),
-        (PlmHeaderId.GreyDoorFacingRight, 1, 54, 0x90AC),
+        new(PlmHeaderId.SetMetroidsClearedStatesWhenRequired, new(8, 8), 0x0006),
+        new(PlmHeaderId.GreyDoorFacingRight, new(1, 54), 0x90AC),
     ]);
 
     /// <summary>The UpperTourianSave room PLM population.</summary>
     public static RoomPlmPopulationDefinition UpperTourianSave { get; } = RoomPlmPopulationDefinition.FromRecords(nameof(UpperTourianSave),
     [
-        (PlmHeaderId.SaveStation, 7, 11, 0x0001),
+        new(PlmHeaderId.SaveStation, new(7, 11), 0x0001),
     ]);
 
     /// <summary>The CeresElevState01 room PLM population.</summary>

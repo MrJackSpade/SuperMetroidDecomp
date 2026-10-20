@@ -33,11 +33,11 @@ public sealed class ClipAudioCatalog
     /// <summary>Music clips by (bank, track).</summary>
     private readonly Dictionary<(AudioBank Bank, int Track), MusicClipEntry> music;
     /// <summary>Sound-effect entries by (bank context, library, command).</summary>
-    private readonly Dictionary<(AudioBank? Context, SoundEffectLibrary Library, int Command), SoundEffectClipEntry> soundEffects;
+    private readonly Dictionary<SoundEffectClipKey, SoundEffectClipEntry> soundEffects;
     /// <summary>Each request's acceptance policy, the same in every bank context.</summary>
     private readonly Dictionary<(SoundEffectLibrary Library, int Command), SoundEffectClipPolicy> policies = [];
     /// <summary>Effects with no clip in a context, by (bank context, library, command).</summary>
-    private readonly Dictionary<(AudioBank? Context, SoundEffectLibrary Library, int Command), UnrenderableSoundEffect> unrenderable;
+    private readonly Dictionary<SoundEffectClipKey, UnrenderableSoundEffect> unrenderable;
     /// <summary>Each override replacement clip's absolute path; every other clip lives beneath <see cref="root"/>.</summary>
     private readonly IReadOnlyDictionary<AudioClipFile, string> overrideFiles;
 
@@ -57,7 +57,7 @@ public sealed class ClipAudioCatalog
         soundEffects = [];
         foreach (SoundEffectClipEntry entry in manifest.SoundEffects)
         {
-            if (!soundEffects.TryAdd((entry.Context, entry.Library, entry.Command), entry))
+            if (!soundEffects.TryAdd(new SoundEffectClipKey(entry.Context, entry.Library, entry.Command), entry))
                 throw new InvalidDataException($"Clip manifest repeats {entry.Library} ${entry.Command:X2} in {ContextName(entry.Context)}.");
             if (!policies.TryAdd((entry.Library, entry.Command), entry.Policy) && policies[(entry.Library, entry.Command)] != entry.Policy)
                 throw new InvalidDataException($"Clip manifest gives {entry.Library} ${entry.Command:X2} different policies by context.");
@@ -65,8 +65,8 @@ public sealed class ClipAudioCatalog
         unrenderable = [];
         foreach (UnrenderableSoundEffect entry in manifest.Unrenderable)
         {
-            if (soundEffects.ContainsKey((entry.Context, entry.Library, entry.Command)) ||
-                !unrenderable.TryAdd((entry.Context, entry.Library, entry.Command), entry))
+            if (soundEffects.ContainsKey(new SoundEffectClipKey(entry.Context, entry.Library, entry.Command)) ||
+                !unrenderable.TryAdd(new SoundEffectClipKey(entry.Context, entry.Library, entry.Command), entry))
             {
                 throw new InvalidDataException(
                     $"Clip manifest lists {entry.Library} ${entry.Command:X2} in {ContextName(entry.Context)} twice.");
@@ -171,9 +171,9 @@ public sealed class ClipAudioCatalog
     /// <exception cref="KeyNotFoundException">The library has no such effect.</exception>
     public SoundEffectClipEntry GetSoundEffect(AudioBank? context, SoundEffectLibrary library, int command)
     {
-        if (soundEffects.TryGetValue((context, library, command), out SoundEffectClipEntry? entry))
+        if (soundEffects.TryGetValue(new SoundEffectClipKey(context, library, command), out SoundEffectClipEntry? entry))
             return entry;
-        if (unrenderable.TryGetValue((context, library, command), out UnrenderableSoundEffect? missing))
+        if (unrenderable.TryGetValue(new SoundEffectClipKey(context, library, command), out UnrenderableSoundEffect? missing))
         {
             throw new InvalidDataException(
                 $"{library} ${command:X2} has no clip in {ContextName(context)}: the upload lacks " +

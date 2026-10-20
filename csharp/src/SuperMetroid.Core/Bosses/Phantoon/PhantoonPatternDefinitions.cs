@@ -7,15 +7,15 @@ public static class PhantoonPatternDefinitions
     /// <param name="pattern">Native random-bucket index, 0..7; patterns zero and four share the same body placement.</param>
     /// <returns>The body variable-A path cursor and whole-pixel room coordinates; does not draw RNG or move the boss.</returns>
     /// <exception cref="ArgumentOutOfRangeException">The pattern is outside 0..7.</exception>
-    public static (ushort Cursor, ushort X, ushort Y) RainPlacement(int pattern) => pattern switch
+    public static PhantoonRainPlacementDefinition RainPlacement(int pattern) => pattern switch
     {
-        0 or 4 => (1, 128, 96),
-        1 => (71, 168, 64),
-        2 => (136, 208, 96),
-        3 => (201, 168, 128),
-        5 => (334, 88, 64),
-        6 => (399, 48, 96),
-        7 => (465, 88, 128),
+        0 or 4 => new(1, new(128, 96)),
+        1 => new(71, new(168, 64)),
+        2 => new(136, new(208, 96)),
+        3 => new(201, new(168, 128)),
+        5 => new(334, new(88, 64)),
+        6 => new(399, new(48, 96)),
+        7 => new(465, new(88, 128)),
         _ => throw new ArgumentOutOfRangeException(nameof(pattern)),
     };
 
@@ -41,7 +41,7 @@ public static class PhantoonPatternDefinitions
                 if ((uint)pattern >= Count) throw new ArgumentOutOfRangeException(nameof(pattern));
                 int origin = PhantoonFlameSpawnDefinitions.RainX(0);
                 int spacing = PhantoonFlameSpawnDefinitions.RainX(1) - origin;
-                int bodyColumn = (RainPlacement(pattern).X - origin) / spacing;
+                int bodyColumn = (RainPlacement(pattern).Position.X - origin) / spacing;
                 return (byte)((bodyColumn + 1) % 9);
             }
         }

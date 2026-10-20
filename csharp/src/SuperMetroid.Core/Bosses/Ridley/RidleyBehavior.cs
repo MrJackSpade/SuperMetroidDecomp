@@ -860,8 +860,8 @@ internal sealed class RidleyBehavior : IEnemySpecies
         var definition = RidleyPogoDefinitions.Read(randomIndex, Math.Min(state.HealthStage, 3) + 2);
         state.PogoUpwardAcceleration = definition.UpwardAcceleration;
         state.PogoDownwardAcceleration = definition.DownwardAcceleration;
-        state.Velocity = state.Velocity.WithY(new SnesSignedEightEight(definition.Y));
-        ushort horizontalMagnitude = definition.X;
+        state.Velocity = state.Velocity.WithY(definition.Velocity.Y);
+        ushort horizontalMagnitude = definition.Velocity.X.RawValue;
         state.Velocity = state.Velocity.WithX(new SnesSignedEightEight(state.Velocity.X.SignedRawValue < 0
             ? unchecked((ushort)-(short)horizontalMagnitude)
             : horizontalMagnitude));

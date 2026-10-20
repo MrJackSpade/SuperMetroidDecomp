@@ -21,4 +21,6 @@ internal static class UpperCrateriaEscapeRedFlashPaletteFxColorDefinitionsConsta
     public const ushort ColorByteIndex = 0x0082;
     /// <summary>Colour <paramref name="color"/> of record <paramref name="frame"/>.</summary>
     public static PaletteFxColorKey Color(int frame, int color) => UpperCrateriaEscapeRedFlashPaletteFxColorDefinitions.Rows.Color(frame, color);
+    /// <summary>The loop contains fourteen timed records.</summary>
+    public static int FrameCount => UpperCrateriaEscapeRedFlashPaletteFxColorDefinitions.Rows.FrameCount;
 }

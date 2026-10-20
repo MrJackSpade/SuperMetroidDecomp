@@ -7,17 +7,16 @@ public sealed class ZebesExplosionAmbientPaletteFxColorDefinition
     internal ZebesExplosionAmbientPaletteFxColorDefinition(
         ZebesExplosionAmbientPaletteFxProgramOwner owner,
         PaletteFxObject paletteFxObject,
-        int firstRecord,
+        PaletteFxProgram program,
         ushort colorByteIndex,
-        int frameCount,
         int colorsPerFrame,
         int cycleFrames)
     {
         Owner = owner;
         Object = paletteFxObject;
-        Rows = new(firstRecord, frameCount, colorsPerFrame);
+        Rows = PaletteFxColorRows.Of(program, colorsPerFrame);
         ColorByteIndex = colorByteIndex;
-        FrameCount = frameCount;
+        FrameCount = Rows.FrameCount;
         ColorsPerFrame = colorsPerFrame;
         CycleFrames = cycleFrames;
     }

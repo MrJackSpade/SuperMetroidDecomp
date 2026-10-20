@@ -17,9 +17,9 @@ public static class CeresFlightSpriteDefinitions
     /// <summary>8C:90FE, SpaceSpritemaps_CeresSmallAsteroids, selected by 8B:CC4F.</summary>
     internal const ushort SmallAsteroids = 0x90fe;
     /// <summary>8C:8FE7, SpaceSpritemaps_CeresPurpleVortexFrame1, first drawing in 8B:CC57.</summary>
-    internal const ushort VortexEven = 0x8fe7;
+    internal const ushort VortexEven = (ushort)CeresVortexFrame.Even;
     /// <summary>8C:93D1, SpaceSpritemaps_CeresPurpleVortexFrame2, second drawing in 8B:CC57.</summary>
-    internal const ushort VortexOdd = 0x93d1;
+    internal const ushort VortexOdd = (ushort)CeresVortexFrame.Odd;
 
     /// <summary>Immutable six-name bank-$8C catalog in stable stars, large-asteroid, station, small-asteroid, and two-vortex order; maps editable composition names to native visual identities and descriptive stock OAM counts, not instruction timing.</summary>
     public static IReadOnlyList<SpriteFrameDefinition> Frames { get; } = new FrameList();

@@ -35,9 +35,9 @@ public sealed class RoomPlmPopulationDefinition
     /// <summary>Builds a retail population from its compiled records, binding scroll triggers to their compiled program identities.</summary>
     /// <param name="name">The population's name.</param>
     /// <param name="records">Each record's PLM header, block coordinates and room argument, in native order.</param>
-    internal static RoomPlmPopulationDefinition FromRecords(string name, (PlmHeaderId Header, byte X, byte Y, ushort Argument)[] records) =>
+    internal static RoomPlmPopulationDefinition FromRecords(string name, RoomPlmPlacementDefinition[] records) =>
         new(name, Ensure.NotNull(records).Select(record => new RoomPlmPlacement(
-            RoomPlmHeaderDefinitions.Get(record.Header), new(record.X, record.Y), record.Argument)
+            RoomPlmHeaderDefinitions.Get(record.Header), record.Block, record.Argument)
             { CompiledScrollSource = record.Header == PlmHeaderId.ScrollTrigger ? record.Argument : null }));
 
     /// <summary>Copies one placement's payloads and rejects malformed scroll programs or collectible graphics.</summary>

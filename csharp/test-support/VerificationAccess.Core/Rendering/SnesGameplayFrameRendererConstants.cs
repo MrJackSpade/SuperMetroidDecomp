@@ -156,11 +156,11 @@ internal static class SnesGameplayFrameRendererConstants
 
         for (int screenY = SnesGameplayFrameRenderer.HudHeight; screenY < SnesGameplayFrameRenderer.Height; screenY++)
         {
-            (byte red, byte green, byte blue) = CeresHazeRenderDefinitions.ResolveComponents(
+            Bgr555 haze = CeresHazeRenderDefinitions.ResolveComponents(
                 screenY, intensity, ridleyIsDead, colors);
-            byte addRed = SnesGameplayFrameRenderer.ExpandFiveBit(red);
-            byte addGreen = SnesGameplayFrameRenderer.ExpandFiveBit(green);
-            byte addBlue = SnesGameplayFrameRenderer.ExpandFiveBit(blue);
+            byte addRed = SnesGameplayFrameRenderer.ExpandFiveBit(haze.Red);
+            byte addGreen = SnesGameplayFrameRenderer.ExpandFiveBit(haze.Green);
+            byte addBlue = SnesGameplayFrameRenderer.ExpandFiveBit(haze.Blue);
             int row = screenY * SnesGameplayFrameRenderer.Width;
             for (int screenX = 0; screenX < SnesGameplayFrameRenderer.Width; screenX++)
             {

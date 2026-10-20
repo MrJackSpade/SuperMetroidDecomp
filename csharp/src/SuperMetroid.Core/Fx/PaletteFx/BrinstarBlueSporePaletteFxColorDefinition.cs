@@ -18,5 +18,5 @@ public sealed class BrinstarBlueSporePaletteFxColorDefinition
     public bool DeletesWithAreaMiniBoss => Owner == BrinstarBlueSporePaletteOwner.SporeSpawnRoom;
 
     /// <summary>The program's records, consecutive from the first its program shows, and the colours each writes.</summary>
-    public PaletteFxColorRows Rows => new(DeletesWithAreaMiniBoss ? 396 : 382, BrinstarBlueSporePaletteFxColorDefinitions.FrameCount, BrinstarBlueSporePaletteFxColorDefinitions.ColorsPerFrame);
+    public PaletteFxColorRows Rows => PaletteFxColorRows.Of(DeletesWithAreaMiniBoss ? PaletteFxProgram.Brinstar81 : PaletteFxProgram.Brinstar11, BrinstarBlueSporePaletteFxColorDefinitions.ColorsPerFrame);
 }

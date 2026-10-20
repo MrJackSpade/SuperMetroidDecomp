@@ -44,10 +44,7 @@ public sealed record SuperMetroidSaveSlot(
     /// The startup route $82:EEB4 selects for <see cref="LoadingGameState"/>; a value the
     /// dispatcher does not name resumes the main game.
     /// </summary>
-    public SaveLoadingGameState StartupRoute =>
-        SaveFieldValue.IsInRange(LoadingGameState) && Enum.IsDefined((SaveLoadingGameState)LoadingGameState)
-            ? (SaveLoadingGameState)LoadingGameState
-            : SaveLoadingGameState.MainGame;
+    public SaveLoadingGameState StartupRoute => SaveLoadingGameStateCodec.Route(LoadingGameState);
 
     /// <summary>The checksum-backed seven-action controller permutation.</summary>
     public ControllerBindings ControllerBindings { get; init; } = ControllerBindings.Default;

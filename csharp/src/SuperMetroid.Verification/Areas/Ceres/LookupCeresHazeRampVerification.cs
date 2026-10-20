@@ -63,7 +63,7 @@ internal static class LookupCeresHazeRampVerification
                     byte red = (byte)((flags & 0x20) != 0 ? original[y] : 0);
                     byte green = (byte)((flags & 0x40) != 0 ? original[y] : 0);
                     byte blue = (byte)((flags & 0x80) != 0 ? original[y] : 0);
-                    AssertEqual((red, green, blue), actual, "Every native fade counter and physical scanline");
+                    AssertEqual(new Bgr555(red, green, blue), actual, "Every native fade counter and physical scanline");
                     byte Expand(byte component) => y < 32 ? (byte)0 : (byte)((component << 3) | (component >> 2));
                     AssertEqual(Expand(red), captured.Windows[y].Red, "Captured red preserves native ramp/HUD mask");
                     AssertEqual(Expand(green), captured.Windows[y].Green, "Captured green preserves native ramp/HUD mask");
@@ -102,7 +102,7 @@ internal static class LookupCeresHazeRampVerification
                 // Independent nearest-integer definition of the pre-existing RGB5 scaling contract.
                 byte expected = (byte)Math.Min(31, Math.Round((double)original * selected / (lastCounter - 1), MidpointRounding.AwayFromZero));
                 var actual = CeresHazeRenderDefinitions.ResolveComponents(200, counter, dead, colors);
-                AssertEqual((expected, expected, expected), actual, "All reachable amplitudes and RGB5 channel values scale exactly");
+                AssertEqual(new Bgr555(expected, expected, expected), actual, "All reachable amplitudes and RGB5 channel values scale exactly");
             }
         }
     }

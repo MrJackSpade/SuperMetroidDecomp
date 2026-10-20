@@ -7,12 +7,12 @@ public sealed class OldTourianEscapeAccentPaletteFxColorDefinition
     internal OldTourianEscapeAccentPaletteFxColorDefinition(
         OldTourianEscapeAccentPaletteOwner owner,
         PaletteFxObject paletteFxObject,
-        int firstRecord,
+        PaletteFxProgram program,
         ushort colorByteIndex)
     {
         Owner = owner;
         Object = paletteFxObject;
-        Rows = new(firstRecord, OldTourianEscapeAccentPaletteFxColorDefinitions.FrameCount, OldTourianEscapeAccentPaletteFxColorDefinitions.ColorsPerFrame);
+        Rows = PaletteFxColorRows.Of(program, OldTourianEscapeAccentPaletteFxColorDefinitions.ColorsPerFrame);
         ColorByteIndex = colorByteIndex;
     }
 

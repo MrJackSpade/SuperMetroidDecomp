@@ -236,18 +236,11 @@ internal sealed class PlmBlockDrawing(PlmShotBlockVisuals visuals)
                 DrawPlmWordAt(level, drawPointer, origin + new Offset16<RoomBlocks>(0, checked((short)row)), BotwoonWallPlmDrawDefinitions.LevelWordAt(row), BotwoonWallVisuals?.GetWord(drawPointer, 0, row));
             return;
         }
-        if (RoomPlmBombBlockRestoreDrawDefinitions.TryDescribe(drawPointer, out var bombRestore))
+        if (RoomPlmLinkedRestoreDefinition.TryDescribeAny(drawPointer, out var linkedRestore))
         {
-            for (int run = 0; run < bombRestore.RunCount; run++)
+            for (int run = 0; run < linkedRestore.RunCount; run++)
             for (int block = 0; block < 2; block++)
-                DrawPlmWordAt(level, drawPointer, origin + new Offset16<RoomBlocks>(checked((short)(bombRestore.Vertical ? 0 : block)), checked((short)(bombRestore.Vertical ? block : run))), bombRestore.WordAt(run, block), LinkedRestoreVisuals?.GetWord(drawPointer, run, block));
-            return;
-        }
-        if (RoomPlmContactCrumbleRestoreDrawDefinitions.TryDescribe(drawPointer, out var crumbleRestore))
-        {
-            for (int run = 0; run < crumbleRestore.RunCount; run++)
-            for (int block = 0; block < 2; block++)
-                DrawPlmWordAt(level, drawPointer, origin + new Offset16<RoomBlocks>(checked((short)(crumbleRestore.Vertical ? 0 : block)), checked((short)(crumbleRestore.Vertical ? block : run))), crumbleRestore.WordAt(run, block), LinkedRestoreVisuals?.GetWord(drawPointer, run, block));
+                DrawPlmWordAt(level, drawPointer, origin + new Offset16<RoomBlocks>(checked((short)(linkedRestore.Vertical ? 0 : block)), checked((short)(linkedRestore.Vertical ? block : run))), linkedRestore.WordAt(run, block), LinkedRestoreVisuals?.GetWord(drawPointer, run, block));
             return;
         }
         if (BlueDoorPlmDrawDefinitions.TryDescribe(drawPointer, out var blueDoor))

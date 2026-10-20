@@ -17,12 +17,9 @@ namespace SuperMetroid.Core.Fx.PaletteFx;
 public static class TourianGlowPaletteFxColorDefinitions
 {
 
-    /// <summary>Eleven ten-frame records form one complete glow cycle.</summary>
-    public const int FrameCount = 11;
-
     /// <summary>Eight live BGR555 colors are written by each record.</summary>
     public const int ColorsPerFrame = 8;
 
     /// <summary>The family's records, consecutive from the first its program shows, and the colours each writes.</summary>
-    public static PaletteFxColorRows Rows { get; } = new(514, FrameCount, ColorsPerFrame);
+    public static PaletteFxColorRows Rows { get; } = PaletteFxColorRows.Of(PaletteFxProgram.CommonTourian2Tourian41, ColorsPerFrame);
 }

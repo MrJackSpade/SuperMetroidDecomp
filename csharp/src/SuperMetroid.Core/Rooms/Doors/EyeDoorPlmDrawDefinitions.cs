@@ -15,9 +15,9 @@ internal static class EyeDoorPlmDrawDefinitions
     /// <summary>Left-facing bottom component begins at $84:9C3D.</summary>
     private const ushort LeftBottomFirst = 0x9c3d;
     /// <summary>Left-facing eye's four-block clearing frame is $84:9C4F.</summary>
-    private const ushort LeftEyeClear = 0x9c4f;
+    private const ushort LeftEyeClear = (ushort)ClearFrame.LeftEye;
     /// <summary>$84:9BF7 is the horizontally mirrored four-block clear used by the left eye's opening list.</summary>
-    internal const ushort MirroredOpeningClear = 0x9bf7;
+    internal const ushort MirroredOpeningClear = (ushort)ClearFrame.MirroredOpening;
     /// <summary>Right-facing eye animation begins at $84:9C5B.</summary>
     private const ushort RightEyeFirst = 0x9c5b;
     /// <summary>$84:9C5B minus $84:9C03: the right-facing draws follow the left-facing ones by 88 bytes.</summary>
@@ -88,9 +88,9 @@ internal static class EyeDoorPlmDrawDefinitions
     private enum ClearFrame : ushort
     {
         /// <summary>$84:9BF7, the mirrored clear drawn by the left eye's opening list.</summary>
-        MirroredOpening = MirroredOpeningClear,
+        MirroredOpening = 0x9bf7,
         /// <summary>$84:9C4F, the left-facing eye's clearing frame.</summary>
-        LeftEye = LeftEyeClear,
+        LeftEye = 0x9c4f,
     }
 
     /// <summary>Distinguishes the mirrored opening clear from the ordinary left-eye clear.</summary>

@@ -462,7 +462,16 @@ internal static class NativeEnemyFamilyStateImport
             stoke.RightVelocity = SnesSignedSixteenSixteen.FromParts(unchecked((short)words.B), words.A);
             stoke.LeftVelocity = SnesSignedSixteenSixteen.FromParts(unchecked((short)words.D), words.C);
             stoke.Direction = (StokeDirection)words.E;
-            stoke.Function = words.F == 0 ? null : (StokeAiFunction)words.F;
+            stoke.Function = words.F switch
+            {
+                0 => null,
+                0x8a75 => StokeAiFunction.IdleDuringAttack,
+                // The two moving routines must agree with the direction word, which alone carries the side.
+                0x8a43 when stoke.Direction == StokeDirection.Left => StokeAiFunction.Moving,
+                0x8a5c when stoke.Direction != StokeDirection.Left => StokeAiFunction.Moving,
+                _ => throw new InvalidDataException(
+                    $"Recorded Stoke function ${words.F:X4} does not agree with direction word ${words.E:X4}."),
+            };
         }
         if (enemies.SkulteraStates[index] is { } skultera)
         {

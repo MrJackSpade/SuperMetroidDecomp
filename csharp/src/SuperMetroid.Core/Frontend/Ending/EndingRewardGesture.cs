@@ -103,11 +103,11 @@ internal sealed class EndingRewardGesture
     private void Spawn(EndingRewardActor definition)
     {
         EndingRewardActorDefinition record = EndingRewardActorDefinitions.Get(definition);
-        var (x, y, palette) =
+        EndingRewardActorInitializationDefinition initialization =
             EndingRewardActorDefinitions.GetInitialization(record.Initialization);
         var actor = new IntroDiscoverySprite(
-            new((ushort)x, (ushort)y),
-            (ushort)palette,
+            initialization.Position,
+            initialization.PaletteBits,
             record.Program);
         actor.InstallPreInstruction(record.PreInstruction);
         actors.Add(actor);

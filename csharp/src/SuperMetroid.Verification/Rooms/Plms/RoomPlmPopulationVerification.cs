@@ -1253,7 +1253,7 @@ internal static class RoomPlmPopulationVerification
         var artworkDocument = new EnemyProjectileSpritemapDocument
         {
             Version = (int)EnemyProjectileSpritemapVersion.Current,
-            Frames = EnemyProjectileSpritemapDefinitions.Frames.ToDictionary(frame => frame.Item2, _ => Array.Empty<SpriteVisualPart>()),
+            Frames = EnemyProjectileSpritemapDefinitions.Frames.ToDictionary(frame => frame.Name, _ => Array.Empty<SpriteVisualPart>()),
             ProgramFrames = EnemyProjectilePresentationFrameSets.All.ToDictionary(
                 frame => frame.Name, frame => electricityOperands.Contains(frame.OperandAddress) ? new[] { visible } : Array.Empty<SpriteVisualPart>()),
         };

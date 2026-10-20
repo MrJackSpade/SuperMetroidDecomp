@@ -17,8 +17,6 @@ namespace SuperMetroid.Core.Fx.PaletteFx;
 /// </remarks>
 public static class CinematicGlowPaletteFxColorDefinitions
 {
-    /// <summary>Both glow loops contain fourteen timed records.</summary>
-    public const int FrameCount = 14;
 
     /// <summary>$0028: CGRAM byte destination of the old Mother Brain lights.</summary>
     private const ushort MotherBrainColorByte = 0x0028;
@@ -36,11 +34,11 @@ public static class CinematicGlowPaletteFxColorDefinitions
             {
                 CinematicGlowPaletteFxProgramOwner.OldMotherBrainBackgroundLights => new(
                     CinematicGlowPaletteFxProgramOwner.OldMotherBrainBackgroundLights,
-                    PaletteFxObject.OldMotherBrainFightBackgroundLights, 58, MotherBrainColorByte,
+                    PaletteFxObject.OldMotherBrainFightBackgroundLights, PaletteFxProgram.OldMotherBrainFightBGLights1, MotherBrainColorByte,
                     colorsPerFrame: 3, frameDuration: 6),
                 CinematicGlowPaletteFxProgramOwner.GunshipGlow => new(
                     CinematicGlowPaletteFxProgramOwner.GunshipGlow,
-                    PaletteFxObject.GunshipGlow, 72, GunshipColorByte,
+                    PaletteFxObject.GunshipGlow, PaletteFxProgram.GunshipGlow1, GunshipColorByte,
                     colorsPerFrame: 1, frameDuration: 5),
                 _ => throw new ArgumentOutOfRangeException(nameof(index)),
             };

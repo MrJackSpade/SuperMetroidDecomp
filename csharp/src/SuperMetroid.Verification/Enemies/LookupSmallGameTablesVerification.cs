@@ -33,8 +33,8 @@ internal static class LookupSmallGameTablesVerification
         for (int tube = 0; tube < 5; tube++)
         {
             var body = MotherBrainBehavior.MotherBrainFallingTubeBody(tube);
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa98b5d + 2 * tube)), body.XRadius, $"Falling tube {tube} X radius");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa98b67 + 2 * tube)), body.YRadius, $"Falling tube {tube} Y radius");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa98b5d + 2 * tube)), body.Radius.X, $"Falling tube {tube} X radius");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa98b67 + 2 * tube)), body.Radius.Y, $"Falling tube {tube} Y radius");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa98b71 + 2 * tube)), body.Floor, $"Falling tube {tube} floor");
         }
         AssertThrows<InvalidDataException>(() => MotherBrainBehavior.MotherBrainFallingTubeBody(5), "Falling tube upper bound");

@@ -588,8 +588,8 @@ internal static class TorizoProjectileAnimations
     /// <summary>The program a sleeping egg resumes into when its hatch timer steps the list past the sleep.</summary>
     internal static TorizoProjectileProgram AfterSleep(TorizoProjectileProgram program) => program switch
     {
-        P.EggBouncingLeft => P.EggBouncingLeftHatching,
-        P.EggBouncingRight => P.EggBouncingRightHatching,
+        P.EggBouncingLeft
+            or P.EggBouncingRight => EnumOrder.Next(program),
         P.ExplosionLowHealthInitial or
             P.ExplosionLowHealthInitialLoop or
             P.ExplosionDeathInitial or

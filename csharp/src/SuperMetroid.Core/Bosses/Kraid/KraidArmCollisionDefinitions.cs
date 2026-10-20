@@ -35,10 +35,6 @@ internal static class KraidArmCollisionDefinitions
 
     /// <summary>$A7:8F59, ExtendedSpritemap_KraidArm_General_0; twenty five-component frames follow.</summary>
     internal const ushort FirstGeneralFrame = 0x8f59;
-    /// <summary>$A7:92A1, ExtendedSpritemap_KraidArm_Dying_PreparingToLungeForward_0.</summary>
-    internal const ushort FirstSingleComponentFrame = 0x92a1;
-    /// <summary>$A7:92AB, ExtendedSpritemap_KraidArm_Dying_PreparingToLungeForward_1.</summary>
-    private const ushort SecondSingleComponentFrame = 0x92ab;
     /// <summary>Native byte stride of a five-component extended frame, including its count word.</summary>
     internal const int GeneralFrameBytes = 2 + 5 * 8;
     /// <summary>Ordered physical rectangles; callbacks are calculated separately from the index.</summary>
@@ -160,12 +156,12 @@ internal static class KraidArmCollisionDefinitions
         return new(positions[component < 2 ? component : component - 1], hitbox);
     }
     /// <summary>The two single-component arm frames, valued by their bank-$A7 spritemap pointer.</summary>
-    private enum SingleComponentFrame : ushort
+    internal enum SingleComponentFrame : ushort
     {
         /// <summary>$A7:92A1, ExtendedSpritemap_KraidArm_Dying_PreparingToLungeForward_0.</summary>
-        First = FirstSingleComponentFrame,
+        First = 0x92a1,
         /// <summary>$A7:92AB, ExtendedSpritemap_KraidArm_Dying_PreparingToLungeForward_1.</summary>
-        Second = SecondSingleComponentFrame,
+        Second = 0x92ab,
     }
 
     /// <summary>Single-component frames follow the ten shared five-component pose ordinals.</summary>
@@ -214,24 +210,24 @@ internal static class KraidArmCollisionDefinitions
             : throw new InvalidDataException($"Kraid-arm hitbox list $A7:{pointer:X4} is not compiled.");
 
     /// <summary>Each compiled hitbox list's pointer and its slice of the rectangle geometry: first rectangle and count.</summary>
-    private static readonly (ushort List, int First, int Count)[] HitboxListSlices =
+    private static readonly KraidHitboxListDefinition[] HitboxListSlices =
     [
-        (0x92d1, 0, 2),
-        (0x92eb, 2, 1),
-        (0x92f9, 3, 2),
-        (0x9313, 5, 1),
-        (0x9321, 6, 2),
-        (0x933b, 8, 1),
-        (0x9349, 9, 2),
-        (0x9371, 11, 1),
-        (0x937f, 12, 2),
-        (0x9399, 14, 1),
-        (0x93f7, 15, 2),
-        (0x9411, 17, 1),
-        (0x941f, 18, 2),
-        (0x9439, 20, 2),
-        (0x946f, 22, 1),
-        (0x947d, 23, 1),
+        new(0x92d1, 0, 2),
+        new(0x92eb, 2, 1),
+        new(0x92f9, 3, 2),
+        new(0x9313, 5, 1),
+        new(0x9321, 6, 2),
+        new(0x933b, 8, 1),
+        new(0x9349, 9, 2),
+        new(0x9371, 11, 1),
+        new(0x937f, 12, 2),
+        new(0x9399, 14, 1),
+        new(0x93f7, 15, 2),
+        new(0x9411, 17, 1),
+        new(0x941f, 18, 2),
+        new(0x9439, 20, 2),
+        new(0x946f, 22, 1),
+        new(0x947d, 23, 1),
     ];
 
     /// <summary>Each compiled hitbox list's rectangles in collision order, keyed by list pointer.</summary>

@@ -9,16 +9,13 @@ namespace SuperMetroid.Core.Fx.PaletteFx;
 public static class TourianEscapeRedFlashPaletteFxColorDefinitions
 {
 
-    /// <summary>Both loops contain fourteen timed records.</summary>
-    public const int FrameCount = 14;
-
     /// <summary>Shutter and background loops with distinct CGRAM starts, frame durations, and color extents.</summary>
     private static readonly TourianEscapeRedFlashPaletteFxColorDefinition[] Definitions =
     [
         new(TourianEscapeRedFlashPaletteOwner.Shutter,
-            PaletteFxObject.TourianShutterRedFlashing, 525, 0x0132, 2, 6),
+            PaletteFxObject.TourianShutterRedFlashing, PaletteFxProgram.Tourian81, 0x0132, 2, 6),
         new(TourianEscapeRedFlashPaletteOwner.Background,
-            PaletteFxObject.TourianBackgroundRedFlashing, 539, 0x0070, 4, 4),
+            PaletteFxObject.TourianBackgroundRedFlashing, PaletteFxProgram.Tourian101, 0x0070, 4, 4),
     ];
 
     /// <summary>The shutter and background red-flash programs in definition order.</summary>

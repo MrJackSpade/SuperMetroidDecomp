@@ -83,8 +83,6 @@ public static class MotherBrainRoomColorRomData
     public const int RoomWallFirst = 0, RoomWallCount = 4;
     /// <summary>$A9:D08A-D090, final-room four-color darker wall ramp.</summary>
     public const int RoomShadowFirst = 4, RoomShadowCount = 4;
-    /// <summary>$A9:D096, final-room BG palette3 inkE amber between black slots at D092/D094/D098; its pixel role remains unresolved.</summary>
-    public const int RoomAmberColor = 10;
     /// <summary>$A9:D09C-D0A0, three neutral shades from intensity20 to8; middle14 interpolates.</summary>
     public const int RoomGrayCount = 3;
     /// <summary>$A9:D0A4-D0AA, red and blue indicator pairs sharing an active-channel shade decrease.</summary>
@@ -98,7 +96,7 @@ public static class MotherBrainRoomColorRomData
     /// <summary>$A9:951A-9528, Palette_MotherBrain_GlassShards eight-color RGB5 shade ramp.</summary>
     public const int GlassRampFirst = 3, GlassRampCount = 8;
     /// <summary>$A9:952A-952C, glass dark-neutral and neutral-highlight slots.</summary>
-    public const int GlassDarkGrayColor = 11, GlassNeutralColor = 12;
+    public const int GlassDarkGrayColor = 11;
     /// <summary>$A9:94F4/94F6 repeat recovery-light neutral highlight; following twelve slots repeat final-room12..23.</summary>
     public const int TubeNeutralCount = 2;
 }

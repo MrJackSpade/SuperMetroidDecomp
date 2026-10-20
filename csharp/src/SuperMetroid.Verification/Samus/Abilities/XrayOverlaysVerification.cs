@@ -24,12 +24,12 @@ internal static class XrayOverlaysVerification
             {
                 (SpecialRoom, new XrayRoomOverlayVisual[] { new(new(1, 1), new RoomLevelWord(0x0809)), new(new(17, 1), new RoomLevelWord(10)) }),
             });
-        var entries = new List<(RoomCollisionType Type, byte Bts, XrayRevealVisualWords Visual)>();
+        var entries = new List<XrayRevealVisualDefinition>();
         foreach (RoomCollisionType type in Enum.GetValues<RoomCollisionType>())
         for (int bts = 0; bts <= byte.MaxValue; bts++)
             if (XrayRevealTable.Find(type, (byte)bts) is { } definition &&
                 XrayRevealVisualCatalog.IsDrawable(definition.Command))
-                entries.Add((type, (byte)bts, new(definition.TopLeft, definition.TopRight,
+                entries.Add(new(type, (byte)bts, new(definition.TopLeft, definition.TopRight,
                     definition.BottomLeft, definition.BottomRight)));
         var visuals = new XrayRevealVisualCatalog(entries, overlays);
         var definitions = new byte[1024 * 8];

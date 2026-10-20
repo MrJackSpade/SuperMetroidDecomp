@@ -1204,7 +1204,7 @@ internal static void VerifySamusAtmosphericEffects()
     };
     WritePoseDefinition(bus, 0x19, [8, 3, 0xff, 0xff, 0, 0, 12, 0]);
     landing.PoseMetadata.RefreshCollisionRadii();
-    landing.Kinematics.YSpeed = new SnesUnsignedSixteenSixteen(4, 0);
+    landing.Kinematics.YSpeed = new SnesUnsignedSixteenSixteen(4, 1);
     landing.LiquidPhysics.RoomIdentity = new RoomIdentity(AreaId.Norfair, 0);
     landing.LiquidPhysics.BeginFrameSoundRequests();
     landing.LiquidPhysics.HandleLandingSoundEffectsAndGraphics(
@@ -1240,6 +1240,22 @@ internal static void VerifySamusAtmosphericEffects()
         landing.LiquidPhysics.SoundRequests[0], "Screw Attack termination sound");
     AssertEqual(new SamusSoundRequest(SoundEffectId.FromCartridge(SoundEffectLibrary.Library3, 0x04), 6),
         landing.LiquidPhysics.SoundRequests[1], "speed-five hard landing sound");
+    // #1389: `$91:F07D` compares signed, so a whole speed of $8005 or more is below five; a sub-five
+    // whole speed with no sub-speed returns before sound and graphics, as zero does.
+    foreach (ushort whole in new ushort[] { 2, 0x8005 })
+    {
+        landing.LiquidPhysics.BeginFrameSoundRequests();
+        landing.LiquidPhysics.HandleLandingSoundEffectsAndGraphics(
+            landing, previousMovementType: SamusMovementType.Falling, previousPose: SamusPoseId.FallingRightPose,
+            new SnesUnsignedSixteenSixteen(whole, 0));
+        AssertEqual(0, landing.LiquidPhysics.SoundRequests.Count, $"whole speed ${whole:X4} with no sub-speed lands silently");
+    }
+    landing.LiquidPhysics.BeginFrameSoundRequests();
+    landing.LiquidPhysics.HandleLandingSoundEffectsAndGraphics(
+        landing, previousMovementType: SamusMovementType.Falling, previousPose: SamusPoseId.FallingRightPose,
+        new SnesUnsignedSixteenSixteen(0x8005, 1));
+    AssertEqual(new SamusSoundRequest(SoundEffectId.FromCartridge(SoundEffectLibrary.Library3, 0x05), 6),
+        landing.LiquidPhysics.SoundRequests.Single(), "whole speed $8005 is below five as a signed word");
     landing.LiquidPhysics.CinematicFunctionActive = true;
     landing.LiquidPhysics.BeginFrameSoundRequests();
     landing.LiquidPhysics.HandleLandingSoundEffectsAndGraphics(

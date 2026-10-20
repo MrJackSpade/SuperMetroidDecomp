@@ -400,15 +400,17 @@ public sealed class SamusLiquidPhysicsState
                 maximumQueued: 6);
         }
 
-        // A truly stationary grounding probe returns before impact audio AND graphics. Any
-        // nonzero fractional descent is a soft landing; whole speed five or greater is hard.
-        // Native Y speed is an unsigned magnitude, so CMP #$0005/BPL is equivalent here.
-        if (impactYSpeed == default)
+        // `$91:F078-$F085`: a nonzero whole speed passing CMP #$0005/BPL, a signed test, is a hard
+        // landing. Anything else, including a whole speed of $8005 or more, falls to the
+        // sub-speed test: with no sub-speed it returns before both sound and graphics, and
+        // otherwise it is a soft landing.
+        bool hardLanding = impactYSpeed.Whole != 0 && unchecked((short)(impactYSpeed.Whole - 5)) >= 0;
+        if (!hardLanding && impactYSpeed.Fraction == 0)
             return;
 
         if (!CinematicFunctionActive)
         {
-            QueueSound(impactYSpeed.Whole >= 5
+            QueueSound(hardLanding
                     ? SoundEffectLibrary3Sounds.HardLanding
                     : SoundEffectLibrary3Sounds.SoftLanding,
                 maximumQueued: 6);

@@ -165,7 +165,7 @@ internal static class SamusAtmosphericEffectDefinitionsVerification
                 landing,
                 previousMovementType: SamusMovementType.Falling,
                 previousPose: pose,
-                impactYSpeed: new SnesUnsignedSixteenSixteen(1, 0));
+                impactYSpeed: new SnesUnsignedSixteenSixteen(1, 1));
             AssertEqual(wet ? SamusAtmosphericEffectType.FootstepSplash : SamusAtmosphericEffectType.Inactive,
                 landing.LiquidPhysics.AtmosphericEffects.Slots[2].Type,
                 $"production Crateria landing policy ${room:X2}");

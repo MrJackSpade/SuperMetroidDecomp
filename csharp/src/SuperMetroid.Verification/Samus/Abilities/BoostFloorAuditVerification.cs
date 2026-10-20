@@ -23,7 +23,7 @@ internal static class BoostFloorAuditVerification
         runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.DoubleChamber);
         var level = runtime.Room.LoadedLevelData;
         var samus = runtime.Player.IntroducedSamus;
-        samus.InputLocked = false;
+        samus.Control.Unlock();
         samus.Pose = SamusPoseId.FacingRightNormalPose;
         samus.EquippedItems = (SamusEquipmentFlags.SpeedBooster | SamusEquipmentFlags.VariaSuit);
         samus.Position = samus.Position.WithWhole(new(80, 420));

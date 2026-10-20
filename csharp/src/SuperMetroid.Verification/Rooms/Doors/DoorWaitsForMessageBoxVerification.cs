@@ -34,7 +34,7 @@ internal static class DoorWaitsForMessageBoxVerification
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.LandingSite);
-        runtime.Player.IntroducedSamus.InputLocked = false;
+        runtime.Player.IntroducedSamus.Control.Unlock();
         CartridgeDoorHeader door = RetailDoorHeaderCatalog.EnumeratePointers()
             .Select(pointer => CartridgeDoorHeaderImporter.Load(bus, pointer))
             .First();

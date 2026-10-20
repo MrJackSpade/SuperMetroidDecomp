@@ -26,7 +26,7 @@ internal static class RetailRidleyEscapeTests
             runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
             runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.CeresRidley, new Position16<RoomPixels>(0, 0));
             var samus = runtime.Player.IntroducedSamus;
-            samus.InputLocked = false;
+            samus.Control.Unlock();
             var ridley = runtime.Enemies.RidleyEncounter.CeresRidley;
             bool triggered = false, finished = false;
             int samples = 0, mixedFrames = 0;

@@ -56,7 +56,7 @@ internal static class SquareSlopeBeamCollisionVerification
             level.SetBehavior(index, type == RoomCollisionType.Slope ? slopeBts : (byte)0);
         }
         SamusState samus = runtime.Player.IntroducedSamus;
-        samus.InputLocked = false;
+        samus.Control.Unlock();
         samus.Pose = SamusPoseId.FacingRightNormalPose;
         samus.Position = samus.Position.WithWhole(new(512, 490));
         samus.PoseMetadata.RefreshCollisionRadii();

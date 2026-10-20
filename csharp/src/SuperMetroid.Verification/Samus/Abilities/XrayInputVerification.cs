@@ -32,7 +32,7 @@ internal static class XrayInputVerification
         runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.XrayScope);
         var samus = runtime.Player.IntroducedSamus;
-        samus.InputLocked = false;
+        samus.Control.Unlock();
         samus.Pose = SamusPoseId.FacingRightNormalPose;
         samus.PoseMetadata.RefreshCollisionRadii();
         samus.Presentation.InitializeAnimation();
@@ -134,7 +134,7 @@ internal static class XrayInputVerification
         foreach (RoomHeaderDefinition excludedRoom in new[] { RoomHeaderDefinitions.Statues, RoomHeaderDefinitions.GlassTunnel })
         {
             runtime.LoadCartridgeRoomForDebug(excludedRoom);
-            samus.InputLocked = false;
+            samus.Control.Unlock();
             samus.Pose = SamusPoseId.FacingRightNormalPose;
             samus.PoseMetadata.RefreshCollisionRadii();
             samus.Presentation.InitializeAnimation();

@@ -119,7 +119,7 @@ internal static class NativeSnapshotImportVerification
 
         SamusState samus = runtime.Player.Samus ?? throw new InvalidDataException(
             "The native Ridley checkpoint did not load Samus.");
-        samus.InputLocked = false;
+        samus.Control.Unlock();
         samus.Presentation.TopSpritemapIndex = W(NativeSnapshotMemory.SamusTopSpritemap);
         samus.Presentation.BottomSpritemapIndex = W(NativeSnapshotMemory.SamusBottomSpritemap);
         samus.Presentation.SpritemapPosition = new Position16<ScreenPixels>(W(NativeSnapshotMemory.SamusSpriteX), W(NativeSnapshotMemory.SamusSpriteY));

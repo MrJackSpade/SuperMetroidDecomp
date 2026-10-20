@@ -38,7 +38,7 @@ internal static class YappingMawGrappleReleaseVerification
         samus.Grapple.CancelFromConnectedPose = false;
         samus.EquippedItems |= SamusEquipmentFlags.GrappleBeam;
         samus.SelectedHudItem = HudItem.Grapple;
-        samus.InputLocked = true;
+        samus.Control.LockHandlers();
         // Stage the last two frames of the actual Maw's held delay. The report's
         // (936,172) is this population mouth (936,192) plus native held offset (0,-20).
         var maw = runtime.Enemies.YappingMawStates.Single(state => state?.Origin.X == 936);
@@ -51,16 +51,16 @@ internal static class YappingMawGrappleReleaseVerification
         // completes in the next frame's handler, before the Maw's delay underflows.
         runtime.StepFrame((SnesButton.Left | SnesButton.X | SnesButton.R));
         AssertEqual(GrapplePhase.Dropped, samus.Grapple.Phase, "command three queues the C8C5 drop while held");
-        AssertTrue(samus.InputLocked && maw.HasGrabbedSamus, "Maw retains input until native delay underflows");
+        AssertTrue(samus.Control.AlphaLocked && maw.HasGrabbedSamus, "Maw retains input until native delay underflows");
         runtime.StepFrame((SnesButton.B | SnesButton.Left | SnesButton.R));
         SamusPoseId heldPose = samus.Pose;
         var heldMovement = runtime.Player.LastGrappleMovement;
-        Console.WriteLine($"Maw drop frame: pose=${(int)heldPose:X2}, grapple={samus.Grapple.Phase}, locked={samus.InputLocked}.");
+        Console.WriteLine($"Maw drop frame: pose=${(int)heldPose:X2}, grapple={samus.Grapple.Phase}, locked={samus.Control.AlphaLocked}.");
         AssertEqual(GrapplePhase.Inactive, samus.Grapple.Phase, "the next grapple handler completes the queued drop");
         AssertEqual(SamusPoseId.FacingLeftNormalPose, heldPose, "command three drops swing to native standing pose while held");
         // Only the `$9B:C8C5` drop completion publishes a deferred drop pose.
         AssertTrue(heldMovement is { Phase: GrapplePhase.Inactive, PendingDropPose: SamusPoseId.FacingLeftNormalPose }, "Maw uses C8C5 deferred drop, not C856 cancellation");
-        AssertTrue(!samus.InputLocked && !maw.HasGrabbedSamus, "native timer expiry releases player control");
+        AssertTrue(!samus.Control.AlphaLocked && !maw.HasGrabbedSamus, "native timer expiry releases player control");
         AssertTrue(samus.PoseMetadata.ReadMovementType() != SamusMovementType.Grappling, "released Samus has an ordinary movement body");
         runtime.StepFrame((SnesButton.Left | SnesButton.X | SnesButton.R));
         AssertTrue(runtime.Player.LastGrappleMovement is { Fired: true }, "released control accepts a new shoot edge as a new grapple");

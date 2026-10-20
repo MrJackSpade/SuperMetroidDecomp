@@ -53,7 +53,7 @@ internal static class CeresEscapeHandoffVerification
             "installing the ejection handler does not publish pose history early");
         AssertEqual(SamusPoseId.FacingRightNormalPose, samus.Pose, "request does not execute gamma early");
         AssertTrue(samus.CeresRidleyEjection.IsActive, "room-main request installs Ridley ejection");
-        AssertTrue(!samus.InputLocked, "installed ejection replaces movement but not pose input");
+        AssertTrue(!samus.Control.AlphaLocked, "installed ejection replaces movement but not pose input");
 
         bool initializationWasPending = samus.CeresRidleyEjection.InitializationPending;
         uint xBeforeInitialization = samus.Kinematics.Position.X.RawValue;
@@ -92,7 +92,7 @@ internal static class CeresEscapeHandoffVerification
             nmiFrameCounter: 1);
         AssertEqual(CeresRidleyShoveDirection.None, samus.CeresRidleyEjection.PushDirection, "room-wall contact terminates Ceres ejection");
         AssertTrue(!samus.CeresRidleyEjection.IsActive, "wall contact restores normal movement");
-        AssertTrue(!samus.InputLocked, "wall contact leaves ordinary pose input available");
+        AssertTrue(!samus.Control.AlphaLocked, "wall contact leaves ordinary pose input available");
         // The push never sets knockback direction `$0A52`, so `$90:DDE9` has no knockback
         // to finish: the hurt pose remains for the ordinary movement handler (retail 100%
         // movie: `$53` on the wall frame, then landing `$A4`).
@@ -175,7 +175,7 @@ internal static class CeresEscapeHandoffVerification
         CeresElevatorShaftRoomMainResult requested =
             trigger.Step(samus, elevatorDoorDestroyed: true, allowDeparture: true, triggerScratch);
         AssertTrue(requested.DepartureRequestedThisFrame, "inclusive lower Y/exclusive lower X trigger admits Samus");
-        AssertTrue(samus.InputLocked, "departure trigger installs SamusCode_00 lock");
+        AssertTrue(samus.Control.AlphaLocked, "departure trigger installs SamusCode_00 lock");
         AssertEqual(SamusPoseId.FacingRightNormalPose, samus.Pose, "departure keeps right-facing standing pose");
 
         CeresElevatorShaftRoomMainResult repeated =

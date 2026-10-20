@@ -28,19 +28,19 @@ internal static class MotherBrainFakeDeathLockVerification
         runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.MotherBrain);
         SamusState samus = runtime.Player.IntroducedSamus;
-        samus.InputLocked = false;
+        samus.Control.Unlock();
         MotherBrainEnemyState state = (runtime.Enemies.MotherBrainEncounter.MotherBrain ?? throw new InvalidOperationException("Verification requires runtime.Enemies.MotherBrainEncounter.MotherBrain."));
         (state ?? throw new InvalidOperationException("Verification requires state.")).Function = MotherBrainBodyFunction.FakeDeathDescentPauseBeforeLock;
         state.FunctionTimer = NativeCountdown.Start(0);
 
         runtime.Enemies.MotherBrainBehavior.RunMotherBrainFakeDeath(state, samus);
-        AssertTrue(samus.InputLocked && samus.ScriptLocks.StationaryScriptControlLocked,
+        AssertTrue(samus.Control.AlphaLocked && samus.Control.Mode.Beta == SamusBetaHandler.ScriptLocked,
             "the descent locks Samus with command zero's stationary handlers");
 
         state.Function = MotherBrainBodyFunction.FakeDeathDescentPauseBeforeUnlock;
         state.FunctionTimer = NativeCountdown.Start(0);
         runtime.Enemies.MotherBrainBehavior.RunMotherBrainFakeDeath(state, samus);
-        AssertTrue(!samus.InputLocked && !samus.ScriptLocks.StationaryScriptControlLocked,
+        AssertTrue(!samus.Control.AlphaLocked && samus.Control.Mode.Beta != SamusBetaHandler.ScriptLocked,
             "command one restores the normal handlers");
         Console.WriteLine("  Mother Brain fake-death lock: command zero locks Samus, command one frees her.");
     }

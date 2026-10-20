@@ -167,7 +167,7 @@ internal static class DoorTransitionAutosaveVerification
                     if (door.Door?.DestinationRoom != destination) continue;
                     runtime.LoadCartridgeRoomForDebug(source, camera: new Position16<RoomPixels>((ushort)(x / 16 * 256), (ushort)(y / 16 * 256)));
                     var samus = runtime.Player.IntroducedSamus;
-                    samus.InputLocked = false;
+                    samus.Control.Unlock();
                     samus.PoseId = SamusPoseId.FacingRightNormalPose;
                     samus.Position = samus.Position.WithWhole(new((ushort)(x * 16 + 8), (ushort)(y * 16 + 8)));
                     samus.PoseMetadata.RefreshCollisionRadii(); samus.Presentation.InitializeAnimation();

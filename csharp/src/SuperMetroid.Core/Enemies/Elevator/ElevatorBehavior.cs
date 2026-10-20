@@ -280,7 +280,7 @@ internal sealed class ElevatorBehavior : IEnemySpecies, IEnemyEntityFactory, IEl
         ElevatorFlags = ElevatorJourneyFlag.None;
         _audio.QueueEnemySound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library3, EnemySoundEffectDefinitions.ElevatorArrivalSoundLibrary3), maximumQueued: 6);
         slot.Position = slot.Position.WithWholeY(state.RestingHeight.Y);
-        samus.InputLocked = false;
+        samus.Control.Unlock();
         PinSamusToElevator(slot, samus);
         _frameResults.Elevator = ElevatorFrameEvent.ArrivalCompleted;
     }

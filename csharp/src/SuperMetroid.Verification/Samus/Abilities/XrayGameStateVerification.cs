@@ -36,7 +36,7 @@ internal static class XrayGameStateVerification
             runtime.RoomLoader.InitializeCeresStartSamus();
             runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.XrayScope);
             SamusState samus = runtime.Player.IntroducedSamus;
-            samus.InputLocked = false;
+            samus.Control.Unlock();
             samus.Pose = SamusPoseId.FacingRightNormalPose;
             samus.PoseMetadata.RefreshCollisionRadii();
             samus.Presentation.InitializeAnimation();

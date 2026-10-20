@@ -902,7 +902,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
         ushort clawY = GetNorfairRidleyClawY(slot, state);
         state.GrabOffset = samus.Position.Whole - new Position16<RoomPixels>(clawX, clawY);
         state.GrabState = 1;
-        samus.ScriptLocks.SetStationaryScriptControlLock(true);
+        samus.Control.LockStationary();
         slot.Properties = slot.Properties.With(EnemyProperties.IgnoreSamusCollision);
         if (slot.Health == 0)
         {
@@ -933,7 +933,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
     internal static void ReleaseNorfairRidleyGrab(RidleyEnemyState state, SamusState? samus)
     {
         state.GrabState = 0;
-        samus?.ScriptLocks.SetStationaryScriptControlLock(false);
+        samus?.Control.Unlock();
         state.TailWhipRequest = 1;
         state.TailFunctionIndex = RidleyTailFunction.Neutral;
         // $A6:BC8F-BC93 leaves the timer untouched once death owns the fight.

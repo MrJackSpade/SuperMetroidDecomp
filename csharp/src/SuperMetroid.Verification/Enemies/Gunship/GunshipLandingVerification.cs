@@ -45,8 +45,8 @@ internal static class GunshipLandingVerification
             // the top to SamusY-17. The ordinary station-zero deck coordinate $0440 is
             // produced only after the complete descent and lift sequence.
             Position = FixedPosition<RoomPixels>.FromWhole(new(0x0480, 0x0080)),
-            InputLocked = true,
         };
+        samus.Control.LockHandlers();
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: new GunshipMotionFixtureGuard(bus), services: new StandaloneRoomEnemyServices(() => 0) { Events = new FixtureEventFlags { HasEvent = eventNumber =>
                 zebesTimebombSet && eventNumber == EventNumber.ZebesTimebombSet } }) { TileArtwork = InstalledFixtures.EnemyTiles };
         samus.Presentation.TileTransfers.BindArtwork(
@@ -143,7 +143,7 @@ internal static class GunshipLandingVerification
             "gunship completes post-Ceres landing");
         AssertEqual(641, frames, "gunship full landing frame count");
         AssertEqual(GunshipFunction.Idle, GunshipPartState.Of(top).Function, "gunship installs ordinary idle function");
-        AssertTrue(!samus.InputLocked, "gunship completion restores Samus input handler");
+        AssertTrue(!samus.Control.AlphaLocked, "gunship completion restores Samus input handler");
         AssertEqual(0x0440, samus.Position.Y.Whole, "gunship raises Samus to deck standing Y");
 
         var openingSound = new EnemySoundRequest(

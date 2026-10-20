@@ -185,7 +185,7 @@ internal sealed class EnemyFramePhase
                 else if (result.Gunship == GunshipFrameEvent.LandingCompleted)
                 {
                     // `$A2:A987` restores the ordinary Samus handler pair only after the
-                    // closing-pad hold. Enemy AI has already unlocked Samus.InputLocked;
+                    // closing-pad hold. Enemy AI has already restored Samus's normal pair;
                     // publish the runtime's matching movement gate at the same boundary.
                     _player.GroundedSamusMovementEnabled = true;
                 }

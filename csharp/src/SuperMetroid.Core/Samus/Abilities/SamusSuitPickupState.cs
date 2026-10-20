@@ -158,7 +158,7 @@ public sealed class SamusSuitPickupState
         samus.Presentation.InitializeAnimation();
         // Entry's Samus command $15 publishes history before locking gameplay.
         samus.CommitPoseHistory();
-        samus.InputLocked = true;
+        samus.Control.LockForSuitPickup();
 
         // Native writes whole positions but leaves fractional words untouched. These are
         // fixed screen coordinates, not a room-specific item-location approximation.
@@ -400,7 +400,7 @@ public sealed class SamusSuitPickupState
         FixedColorRed = 0;
         FixedColorGreen = 0;
         FixedColorBlue = 0;
-        samus.InputLocked = false;
+        samus.Control.Unlock();
         IsActive = false;
     }
 

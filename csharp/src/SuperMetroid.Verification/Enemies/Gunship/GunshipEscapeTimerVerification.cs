@@ -14,6 +14,7 @@ using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Enemies.Gunship;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Samus;
 /// <summary>Checks escape-timer suspension and OAM removal as Samus boards the Landing Site gunship.</summary>
 internal static class GunshipEscapeTimerVerification
 {
@@ -37,7 +38,7 @@ internal static class GunshipEscapeTimerVerification
         runtime.Room.LoadedCamera.SetPosition(new Position16<RoomPixels>(0x0400, 0x0400));
         var samus = runtime.Player.IntroducedSamus;
         var top = runtime.Enemies.SlotTable.Slots.First(slot => slot.Definition.InitializationAiPointer == 0xa644);
-        samus.InputLocked = false;
+        samus.Control.Unlock();
         samus.Pose = SamusPoseId.FacingRightNormalPose;
         samus.Position = samus.Position.WithWhole(new(top.Position.X.Whole, (ushort)(top.Position.Y.Whole - 30)));
         samus.Presentation.InitializeAnimation();
@@ -47,7 +48,7 @@ internal static class GunshipEscapeTimerVerification
         runtime.QueueEscapeTimerSpriteTiles();
         runtime.StepFrame(0);
         var timerTilesBefore = runtime.Vram.Bytes.Slice(0xfc00, 0x400).ToArray();
-        AssertTrue(!runtime.Enemies.GunshipHealthBehavior.HasGunshipHealthHandler, "Idle ship retains normal Samus handler");
+        AssertTrue(samus.Control.Mode.Beta != SamusBetaHandler.Gunship, "Idle ship retains normal Samus handler");
         AssertTrue(TimerSpritesPresent(), "Ordinary escape timer remains visible before boarding");
         samus.Pose = SamusPoseId.FacingRightNormalPose;
         samus.Position = samus.Position.WithWholeY(0x0440);

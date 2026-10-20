@@ -34,7 +34,7 @@ internal static class ProjectileContactPhaseVerification
         foreach (var actor in runtime.Enemies.Projectiles.EnemyProjectiles) actor.Clear();
         runtime.InitializeDebugGroundedSamus(128, 235, 16);
         var samus = runtime.Player.IntroducedSamus;
-        samus.InputLocked = false;
+        samus.Control.Unlock();
         samus.Health = 99;
         samus.Kinematics.Position = samus.Kinematics.Position.WithFractionX(0).WithFractionY(0);
         var projectile = runtime.Enemies.Projectiles.EnemyProjectiles[^1];

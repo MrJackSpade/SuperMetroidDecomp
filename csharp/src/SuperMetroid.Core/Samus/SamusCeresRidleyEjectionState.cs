@@ -52,7 +52,7 @@ public sealed class SamusCeresRidleyEjectionState
         // installed: held controller chords are still matched, projectile/HUD input still
         // runs, and `$90:E1C8` specifically discards a prospective `$4F/$50` damage boost
         // while the shove remains active. Runtime owns that narrow prospective-pose clear.
-        // Do not use the broader host InputLocked flag here; doing so changes controller
+        // Do not install a locked handler pair here; doing so changes controller
         // semantics and made this cutscene indistinguishable from an elevator/message lock.
     }
 

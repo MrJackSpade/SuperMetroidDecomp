@@ -28,7 +28,7 @@ internal static class CeilingWrapRoomVerification
         runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.FrogSpeedway);
         var samus = runtime.Player.IntroducedSamus;
-        samus.InputLocked = false;
+        samus.Control.Unlock();
         samus.PoseId = SamusPoseId.StandingAimDiagonalUpLeftPose;
         samus.Position = samus.Position.WithWhole(new(1237, 139));
         samus.EquippedBeams = (SamusBeamFlags)beams; samus.EquippedItems = 0;

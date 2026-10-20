@@ -59,7 +59,7 @@ internal sealed class BombSpreadTransitionScenario
             level.SetBehavior(index, 0);
         }
         var samus = Samus;
-        samus.InputLocked = false;
+        samus.Control.Unlock();
         samus.Pose = left ? SamusPoseId.FacingLeftNormalPose : SamusPoseId.FacingRightNormalPose;
         samus.EquippedItems = (SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.Bombs);
         samus.EquippedBeams = SamusBeamFlags.Charge;

@@ -31,7 +31,7 @@ internal static class RedTowerHeroVerification
             runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.RedTower);
             var level = runtime.Room.LoadedLevelData;
             var samus = runtime.Player.IntroducedSamus;
-            samus.InputLocked = false;
+            samus.Control.Unlock();
             samus.PoseId = SamusPoseId.StandingAimUpRightPose;
             samus.Position = samus.Position.WithWhole(new(116, 587));
             samus.PoseMetadata.RefreshCollisionRadii();

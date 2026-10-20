@@ -28,7 +28,7 @@ internal static class RetailElevatorDepartureTests
         runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.RoomLoader.InitializePostCeresZebesRoom();
         var samus = runtime.Player.IntroducedSamus;
-        samus.InputLocked = false;
+        samus.Control.Unlock();
         samus.Pose = SamusPoseId.FacingRightNormalPose;
         samus.Presentation.InitializeAnimation();
         runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.ElevToBlueBrinstar);
@@ -69,7 +69,7 @@ internal static class RetailElevatorDepartureTests
         {
             runtime.StepFrame(0); returning++; Compare("arrival");
         }
-        if (returning == 0 || runtime.Enemies.ElevatorBehavior.ElevatorStatus != ElevatorActorStatus.Inactive || samus.InputLocked)
+        if (returning == 0 || runtime.Enemies.ElevatorBehavior.ElevatorStatus != ElevatorActorStatus.Inactive || samus.Control.AlphaLocked)
             throw new InvalidOperationException("Downward arrival did not restore control.");
         for (int tick = 0; tick < 8; tick++) { runtime.StepFrame(0); Compare("settled"); }
         Console.WriteLine($"{device.Kind}: downward elevator {samples} exact frames, {departure} departure, " +

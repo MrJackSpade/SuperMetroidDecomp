@@ -313,9 +313,6 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
     /// <summary>The <see cref="HibashiBehavior"/> owner of this RoomEnemySystem.</summary>
     internal HibashiBehavior HibashiBehavior { get; }
 
-    /// <summary>The <see cref="GunshipHealthBehavior"/> owner of this RoomEnemySystem.</summary>
-    internal GunshipHealthBehavior GunshipHealthBehavior { get; }
-
     /// <summary>The <see cref="GrappleBehavior"/> owner of this RoomEnemySystem.</summary>
     internal GrappleBehavior GrappleBehavior { get; }
 
@@ -496,7 +493,7 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
 
     /// <summary>The gunship's save prompt and health handler.</summary>
     [field: NonSerialized]
-    internal IGunshipSession Gunship => field ??= new GunshipSession(GunshipBehavior, GunshipHealthBehavior);
+    internal IGunshipSession Gunship => field ??= new GunshipSession(GunshipBehavior);
 
     /// <summary>The Ceres encounter's status and runtime operations.</summary>
     [field: NonSerialized]
@@ -631,7 +628,6 @@ public sealed class RoomEnemySystem : IEnemyDispatch, IEnemyProjectileHandlerSou
         KagoBehavior = new KagoBehavior(Room, Projectiles, Earthquake, SlotTable, DeathsAndDrops, RoomStatus);
         HoppersBehavior = new HoppersBehavior(Room, Terrain);
         HibashiBehavior = new HibashiBehavior(SlotTable, Audio);
-        GunshipHealthBehavior = new GunshipHealthBehavior(SlotTable);
         GrappleBehavior = new GrappleBehavior(this, Room, SlotTable, DeathsAndDrops);
         FuneNamiheBehavior = new FuneNamiheBehavior(Projectiles);
         FliesBehavior = new FliesBehavior(Room);

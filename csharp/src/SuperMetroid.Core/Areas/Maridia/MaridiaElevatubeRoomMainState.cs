@@ -47,7 +47,7 @@ public sealed class MaridiaElevatubeRoomMainState
         TrackedPosition = new(0, MaridiaElevatubeRomData.SouthStartingPosition);
         Velocity = new(MaridiaElevatubeRomData.SouthStartingVelocity);
         Acceleration = new(MaridiaElevatubeRomData.SouthAcceleration);
-        samus.ScriptLocks.SetStationaryScriptControlLock(true);
+        samus.Control.LockStationary();
     }
 
     /// <summary>Applies door callback $8F:E291 for entry from Plasma Spark to the north.</summary>
@@ -59,7 +59,7 @@ public sealed class MaridiaElevatubeRoomMainState
         TrackedPosition = new(0, MaridiaElevatubeRomData.NorthStartingPosition);
         Velocity = new(MaridiaElevatubeRomData.NorthStartingVelocity);
         Acceleration = new(MaridiaElevatubeRomData.NorthAcceleration);
-        samus.ScriptLocks.SetStationaryScriptControlLock(true);
+        samus.Control.LockStationary();
     }
 
     /// <summary>
@@ -69,7 +69,7 @@ public sealed class MaridiaElevatubeRoomMainState
     public void ResetOnExit(SamusState samus)
     {
         Ensure.NotNull(samus);
-        samus.ScriptLocks.SetStationaryScriptControlLock(false);
+        samus.Control.Unlock();
         IsActive = false;
     }
 

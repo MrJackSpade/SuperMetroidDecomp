@@ -153,23 +153,23 @@ internal static class NoobTubePlmVerification
             "power bomb wakes the input wait, linked to the break");
 
         StepNoobTube(plms, level, SnesButton.Right);
-        AssertTrue(samus.InputLocked, "break sequence locks Samus");
-        AssertTrue(samus.ScriptLocks.StationaryScriptControlLocked, "break sequence installs stationary command-zero animation ownership");
+        AssertTrue(samus.Control.AlphaLocked, "break sequence locks Samus");
+        AssertTrue(samus.Control.Mode.Beta == SamusBetaHandler.ScriptLocked, "break sequence installs stationary command-zero animation ownership");
         var fields = MetadataShape.Fields(typeof(SamusState), System.Reflection.BindingFlags.Instance |
             System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Public)
             .Where(field => !field.IsDefined(typeof(NonSerializedAttribute), false))
             .OrderBy(field => field.MetadataToken).ToArray();
-        AssertTrue(fields.Any(field => field.Name == "<InputLocked>k__BackingField"),
-            "existing input-lock serialized identity remains unchanged");
+        AssertTrue(fields.Any(field => field.Name == "<Control>k__BackingField"),
+            "the installed handler pair is serialized with Samus");
         using (var saved = new MemoryStream())
         {
             SuperMetroid.Diagnostics.SaveStates.DebuggerObjectGraphSerializer.Serialize(saved, samus);
             saved.Position = 0;
             var restored = SuperMetroid.Diagnostics.SaveStates.DebuggerObjectGraphSerializer.Deserialize<SamusState>(saved);
-            AssertTrue(restored.InputLocked && restored.ScriptLocks.StationaryScriptControlLocked,
+            AssertTrue(restored.Control.AlphaLocked && restored.Control.Mode.Beta == SamusBetaHandler.ScriptLocked,
                 "mid-script state retains input and animation ownership");
-            restored.InputLocked = false;
-            AssertTrue(!restored.ScriptLocks.StationaryScriptControlLocked, "generic unlock clears stale stationary ownership");
+            restored.Control.Unlock();
+            AssertTrue(restored.Control.Mode.Beta != SamusBetaHandler.ScriptLocked, "generic unlock clears stale stationary ownership");
         }
         AssertEqual(1, projectiles.Count, "break sequence initially spawns only the crack");
         AssertEqual(NoobTubeProjectileDefinition.Crack, projectiles[0].DefinitionPointer,
@@ -201,8 +201,8 @@ internal static class NoobTubePlmVerification
         for (int frame = 0; frame < 96; frame++)
             StepNoobTube(plms, level);
         AssertTrue(brokenEvent, "n00b-tube completion sets event $0B");
-        AssertTrue(!samus.InputLocked, "n00b-tube completion unlocks Samus");
-        AssertTrue(!samus.ScriptLocks.StationaryScriptControlLocked, "completion restores normal animation ownership");
+        AssertTrue(!samus.Control.AlphaLocked, "n00b-tube completion unlocks Samus");
+        AssertTrue(samus.Control.Mode.Beta != SamusBetaHandler.ScriptLocked, "completion restores normal animation ownership");
         AssertEqual(RoomLiquidOptions.SmallTide,
             roomFx.LiquidOptions,
             "n00b-tube completion clears the disable bit on shared room FX");
@@ -310,7 +310,7 @@ internal static class NoobTubePlmVerification
     {
         const ushort populationPointer = 0x9400;
         var projectiles = new List<NoobTubeProjectileRequest>();
-        samus.InputLocked = false;
+        samus.Control.Unlock();
         RoomLayer3FxState roomFx = CreateNoobTubeWaterFx();
         roomFx.ApplyToSamusLiquidPhysics(samus.LiquidPhysics);
         var guarded = NewNoobTubeProgramReadGuard(bus);

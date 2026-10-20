@@ -4,6 +4,7 @@ using SuperMetroid.Core.Enemies.Elevator;
 using SuperMetroid.Core.Fx.PaletteFx;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rooms.Doors;
+using SuperMetroid.Core.Samus;
 
 namespace SuperMetroid.Core.Runtime;
 
@@ -49,7 +50,7 @@ internal sealed class DoorTransitionState
             throw new InvalidOperationException("A door transition is already active.");
 
         runtime.Hud.EnableMinimapAfterDoorEntry();
-        runtime.Player.Samus.InputLocked = true;
+        runtime.Player.Samus.Control.LockHandlers();
         runtime.Room.LoadedScope.Enemies.Elevator.ElevatorDoorTransitionActive = true;
         runtime.Room.LoadedScope.Enemies.RoomStatus.EnemyDoorTransitionActive = true;
         door = runtime.RoomLoader.PendingDoorTransition;
@@ -289,8 +290,8 @@ internal sealed class DoorTransitionState
                     // does not replace that handler: release only our temporary door
                     // input gate, never a stationary script's movement ownership.
                     if (runtime.Room.LoadedScope.Enemies.Elevator.ElevatorStatus == ElevatorActorStatus.Inactive &&
-                        runtime.Player.Samus is { } arrivingSamus && !arrivingSamus.ScriptLocks.StationaryScriptControlLocked)
-                        arrivingSamus.InputLocked = false;
+                        runtime.Player.Samus is { } arrivingSamus && arrivingSamus.Control.Mode.Beta != SamusBetaHandler.ScriptLocked)
+                        arrivingSamus.Control.Unlock();
                     Phase = DoorTransitionPhase.Complete;
                 }
                 break;

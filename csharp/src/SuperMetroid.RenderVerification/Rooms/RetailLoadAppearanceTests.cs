@@ -59,8 +59,8 @@ internal static class RetailLoadAppearanceTests
             if (sawAppearance && legacy.RuntimeForVerification is { } runtime && !runtime.SamusLoadAppearanceActive &&
                 legacy.GameState == SuperMetroidGameState.MainGameplay)
             {
-                if (runtime.Player.IntroducedSamus.InputLocked || captured.GameplayRuntimeForVerification.SamusLoadAppearanceActive ||
-                    captured.GameplayRuntimeForVerification.Player.IntroducedSamus.InputLocked)
+                if (runtime.Player.IntroducedSamus.Control.AlphaLocked || captured.GameplayRuntimeForVerification.SamusLoadAppearanceActive ||
+                    captured.GameplayRuntimeForVerification.Player.IntroducedSamus.Control.AlphaLocked)
                     throw new InvalidOperationException("Load appearance did not release both owners.");
                 completed = true; break;
             }

@@ -32,7 +32,7 @@ internal static class DoorAnimatedTilesVerification
             runtime.System.SetBossBits(area, BossBits.AreaBoss);
         runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.StatuesHallway);
         var samus = runtime.Player.IntroducedSamus;
-        samus.InputLocked = true;
+        samus.Control.LockHandlers();
 
         // Select the source room's door into the statue room.
         var level = runtime.Room.LoadedLevelData;

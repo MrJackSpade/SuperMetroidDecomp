@@ -47,7 +47,7 @@ internal static class GroundedSpreadTransitionVerification
             level.SetBehavior(index, 0);
         }
         var samus = runtime.Player.IntroducedSamus;
-        samus.InputLocked = false;
+        samus.Control.Unlock();
         samus.Pose = left ? SamusPoseId.FacingLeftNormalPose : SamusPoseId.FacingRightNormalPose;
         samus.EquippedItems = (SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.Bombs);
         samus.EquippedBeams = SamusBeamFlags.Charge;

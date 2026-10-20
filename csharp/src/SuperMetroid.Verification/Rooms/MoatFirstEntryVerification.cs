@@ -54,7 +54,7 @@ internal static class MoatFirstEntryVerification
             runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.Get(source),
                 camera: new Position16<RoomPixels>((ushort)(doorX / 16 * 256), (ushort)(doorY / 16 * 256)));
             var samus = runtime.Player.IntroducedSamus;
-            samus.InputLocked = false;
+            samus.Control.Unlock();
             samus.PoseId = SamusPoseId.FacingRightNormalPose;
             samus.Position = samus.Position.WithWhole(new((ushort)(doorX * 16 + 8), (ushort)(doorY * 16 + 8)));
             samus.PoseMetadata.RefreshCollisionRadii();

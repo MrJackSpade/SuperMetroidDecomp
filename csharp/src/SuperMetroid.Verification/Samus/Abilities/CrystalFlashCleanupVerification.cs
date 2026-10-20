@@ -54,7 +54,7 @@ internal static class CrystalFlashCleanupVerification
             level.SetBehavior(index, 0);
         }
         var samus = runtime.Player.IntroducedSamus;
-        samus.InputLocked = false;
+        samus.Control.Unlock();
         samus.Pose = SamusPoseId.MorphBallGroundRightPose;
         samus.EquippedItems = (SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.Bombs);
         samus.Health = 49; samus.MaxHealth = 1499;

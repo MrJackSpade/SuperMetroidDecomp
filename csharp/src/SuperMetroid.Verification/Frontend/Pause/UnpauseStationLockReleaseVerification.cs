@@ -32,8 +32,8 @@ internal static class UnpauseStationLockReleaseVerification
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
         SamusState samus = runtime.Player.IntroducedSamus;
-        samus.InputLocked = false;
-        samus.ScriptLocks.LockIntoRefillStation();
+        samus.Control.Unlock();
+        samus.Control.LockIntoRefillStation();
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         var pause = CreateRetailPauseFixture(new PauseMenuEntry { Samus = samus, System = runtime.System, AreaIndex = AreaId.Crateria, RoomMapPosition = new(0, 0), GameplayLayer3 = runtime.AcceptedLayer3Plane });
         EnterPauseEquipment(pause);
@@ -46,12 +46,12 @@ internal static class UnpauseStationLockReleaseVerification
         for (int frame = 0; frame < 8 && game.GameState == SuperMetroidGameState.PausedB; frame++)
             game.StepCaptured(SnesButton.Start, ++sequence, 1);
         AssertEqual(SuperMetroidGameState.UnpausingA, game.GameState, "Start closes the menu");
-        AssertTrue(samus.InputLocked && samus.ScriptLocks.RefillStationLocked, "the station lock holds through the fade");
+        AssertTrue(samus.Control.AlphaLocked && samus.Control.Mode.Beta == SamusBetaHandler.RefillStation, "the station lock holds through the fade");
         while (game.GameState != SuperMetroidGameState.Unpausing)
             game.StepCaptured(0, ++sequence, 1);
 
-        AssertTrue(!samus.InputLocked, "gameplay resume restores Samus's normal handlers");
-        AssertTrue(!samus.ScriptLocks.RefillStationLocked, "and clears the station lock");
+        AssertTrue(!samus.Control.AlphaLocked, "gameplay resume restores Samus's normal handlers");
+        AssertTrue(samus.Control.Mode.Beta != SamusBetaHandler.RefillStation, "and clears the station lock");
         Console.WriteLine("  Unpause station lock: command $0C frees a station-locked Samus.");
     }
 

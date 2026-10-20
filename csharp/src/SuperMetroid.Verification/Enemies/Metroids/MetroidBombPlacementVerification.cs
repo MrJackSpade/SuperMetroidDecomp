@@ -96,7 +96,7 @@ internal static class MetroidBombPlacementVerification
         }
         runtime.InitializeDebugGroundedSamus(128, 100, 10);
         var samus = runtime.Player.IntroducedSamus;
-        samus.InputLocked = false;
+        samus.Control.Unlock();
         samus.PoseId = SamusPoseId.MorphBallGroundRightPose;
         samus.EquippedItems = (SamusEquipmentFlags.MorphBall | SamusEquipmentFlags.Bombs);
         samus.Health = samus.MaxHealth = 999;

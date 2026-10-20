@@ -667,10 +667,10 @@ internal sealed class SuperMetroidRuntime
         // the locked alpha has already run, so it still sees the lock below.
         if (frame.EnemyMainAlreadyRan)
         {
-            bool lockedBeforeEnemyMain = Player.Samus?.InputLocked == true;
+            bool lockedBeforeEnemyMain = Player.Samus?.Control.AlphaLocked == true;
             EnemyPhase.RunEnemyMainPhase(processingListPrepared: true,
                 Room.Camera?.PreviousSamusPoint ?? context.SamusCameraPointAtFrameStart, Room.LoadedScope);
-            frame.EnemyMainReleasedAlphaLock = lockedBeforeEnemyMain && Player.Samus?.InputLocked == false;
+            frame.EnemyMainReleasedAlphaLock = lockedBeforeEnemyMain && Player.Samus?.Control.AlphaLocked == false;
         }
     }
 
@@ -799,7 +799,7 @@ internal sealed class SuperMetroidRuntime
                 // Command $0E installed a locked Samus handler before the projectiles
                 // were spawned. Re-enable the translated ordinary movement path only
                 // after the pad reaches the native Y=$0048 deletion condition.
-                samus.InputLocked = false;
+                samus.Control.Unlock();
                 Player.GroundedSamusMovementEnabled = true;
             }
         }
@@ -824,7 +824,7 @@ internal sealed class SuperMetroidRuntime
 
             // GameState_8 calls MainScrollingRoutine after movement/PLMs and before
             // DrawSamusEnemiesAndProjectiles regardless of which Samus input handler is
-            // installed. InputLocked suppresses controller transitions; it does not
+            // installed. A locked alpha suppresses controller transitions; it does not
             // suppress scrolling. That is why the station-eighteen gunship can carry
             // Samus down several screens while her ordinary movement handler is absent.
             if (samus.Grapple.SlowScrolling)

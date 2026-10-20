@@ -26,7 +26,7 @@ internal static class EscapeRoomEffectsVerification
             runtime.RoomLoader.InitializeCeresStartSamus();
             runtime.System.SetEvent(EventNumber.ZebesTimebombSet);
             runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.Get(room));
-            runtime.Player.IntroducedSamus.InputLocked = true;
+            runtime.Player.IntroducedSamus.Control.LockHandlers();
             int explosionFrames = 0;
             bool visibleExplosion = false, visibleShake = false;
             var offsets = new HashSet<(short, short)>();

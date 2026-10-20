@@ -367,7 +367,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
         if (!state.RetractedDelayTimer.IsNegative || samus.DeathSequence.IsActive)
             return;
 
-        samus.InputLocked = false;
+        samus.Control.Unlock();
         state.HasGrabbedSamus = false;
         state.GrabCooldown = NativeCountdown.Start(YappingMawGrabCooldownFrames);
         state.RetractedDelayTimer = NativeCountdown.Start(YappingMawRetractedDelayFrames);
@@ -420,7 +420,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
 
         state.GrabCooldown = NativeCountdown.Start(0);
         state.HasGrabbedSamus = true;
-        samus.InputLocked = true;
+        samus.Control.LockHandlers();
     }
 
     /// <summary>
@@ -453,7 +453,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
         SamusState? samus)
     {
         if (samus is not null && !samus.DeathSequence.IsActive)
-            samus.InputLocked = false;
+            samus.Control.Unlock();
         state.HasGrabbedSamus = false;
     }
 

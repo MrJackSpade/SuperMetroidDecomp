@@ -59,7 +59,7 @@ internal static class RetailEndingHandoffTests
             // The staged hull starts outside this fixture's camera. Explicitly keep
             // its AI active; this is handoff coverage, not full departure validation.
             top.Properties = top.Properties.With(EnemyProperties.ProcessOffScreen);
-            runtime.Player.IntroducedSamus.InputLocked = true;
+            runtime.Player.IntroducedSamus.Control.LockHandlers();
             runtime.Player.IntroducedSamus.Position = runtime.Player.IntroducedSamus.Position.WithWholeY(EndingHandoffFixtureDefinitions.TakeoffBoundaryY);
             runtime.FrameBoundary.BeginAcceptedFrame(0);
         }

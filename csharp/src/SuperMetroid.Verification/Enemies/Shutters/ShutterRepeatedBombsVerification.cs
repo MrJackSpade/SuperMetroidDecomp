@@ -28,7 +28,7 @@ internal static class ShutterRepeatedBombsVerification
             runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.XrayScope);
             var samus = runtime.Player.IntroducedSamus;
             var platform = runtime.Enemies.SlotTable.Slots[slotIndex];
-            samus.InputLocked = false;
+            samus.Control.Unlock();
             samus.Pose = SamusPoseId.MorphBallGroundRightPose;
             samus.EquippedItems |= SamusEquipmentFlags.Bombs;
             samus.PoseMetadata.RefreshCollisionRadii();

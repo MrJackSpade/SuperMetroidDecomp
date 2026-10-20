@@ -75,8 +75,14 @@ internal sealed class NoobTubePlms
     internal bool IsBroken() => RequireNoobTubeEvents().Has(NoobTubePlmRomData.BrokenEvent);
 
     /// <summary>Locks or unlocks Samus for the break sequence.</summary>
-    internal void SetSamusLocked(bool locked) =>
-        RequireNoobTubeSamus().ScriptLocks.SetStationaryScriptControlLock(locked);
+    internal void SetSamusLocked(bool locked)
+    {
+        SamusControl control = RequireNoobTubeSamus().Control;
+        if (locked)
+            control.LockStationary();
+        else
+            control.Unlock();
+    }
 
     /// <summary>Spawns the crack projectile at the tube.</summary>
     internal void SpawnCrack(PlmSlot slot) => SpawnNoobTubeProjectile(slot, NoobTubeProjectileDefinition.Crack, 0);

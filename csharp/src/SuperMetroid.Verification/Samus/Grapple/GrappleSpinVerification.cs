@@ -27,7 +27,7 @@ internal static class GrappleSpinVerification
             runtime.RoomLoader.InitializeCeresStartSamus();
             runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.WestOcean);
             var samus = runtime.Player.IntroducedSamus;
-            samus.InputLocked = false;
+            samus.Control.Unlock();
             samus.Position = samus.Position.WithWhole(new(512, 256));
             samus.Pose = left ? SamusPoseId.SpinJumpLeftPose : SamusPoseId.SpinJumpRightPose;
             samus.PoseMetadata.RefreshCollisionRadii();

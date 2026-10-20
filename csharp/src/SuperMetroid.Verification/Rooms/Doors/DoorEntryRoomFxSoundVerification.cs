@@ -54,7 +54,7 @@ internal static class DoorEntryRoomFxSoundVerification
             loaded.RoomLoader.InitializeStartingCeresRoom();
             loaded.RoomLoader.InitializeCeresStartSamus();
             loaded.LoadCartridgeRoomThroughDoorForVerification(door);
-            loaded.Player.IntroducedSamus.InputLocked = true;
+            loaded.Player.IntroducedSamus.Control.LockHandlers();
             return loaded;
         }
 

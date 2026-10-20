@@ -304,10 +304,10 @@ internal static class RoomPlmPopulationVerification
             "energy setup installs BTS $49");
         AssertTrue(plms.TryNotifyStationTouch(level.GetBlockIndex(new(21, 8)), 0x49),
             "generic BTS dispatcher locates energy-station parent");
-        AssertTrue(samus.InputLocked,
+        AssertTrue(samus.Control.AlphaLocked,
             "station access setup runs command six before its first PLM handler pass");
         plms.Step(level);
-        AssertTrue(samus.InputLocked,
+        AssertTrue(samus.Control.AlphaLocked,
             "station access command locks Samus during six-plus-$60 insertion");
         AssertTrue(plms.Sounds.SoundRequests.Contains(new PlmSoundRequest(SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, 0x37), 6)),
             "station access begins with cartridge extension sound $37");
@@ -1122,7 +1122,7 @@ internal static class RoomPlmPopulationVerification
 
         AssertTrue(plms.TryNotifyStationTouch(level.GetBlockIndex(new(7, 6)), 0x47),
             "map access resolves parent");
-        AssertTrue(samus.InputLocked,
+        AssertTrue(samus.Control.AlphaLocked,
             "map access setup locks Samus before the resident PLM advances");
         AssertTrue(plms.TryNotifyStationTouch(level.GetBlockIndex(new(13, 6)), 0x4b),
             "missile access resolves parent");
@@ -1143,7 +1143,7 @@ internal static class RoomPlmPopulationVerification
             "two station parents publish two explicit activations");
         // $84:8CE7 runs Samus command one as soon as the missile message returns; the map
         // activation never unlocks, but both fixtures share this Samus owner.
-        AssertTrue(!samus.InputLocked,
+        AssertTrue(!samus.Control.AlphaLocked,
             "missile activation releases Samus after its completion message");
 
         // The runtime freezes this PLM while the message is open. Once bank $85 returns,
@@ -1157,7 +1157,7 @@ internal static class RoomPlmPopulationVerification
             "map access retracts its linked left-side block");
         AssertEqual(0xb4c3, level.GetCollisionBlock(new(13, 6)).PackedWord.Raw,
             "missile access retracts to its compiled resource word");
-        AssertTrue(!samus.InputLocked,
+        AssertTrue(!samus.Control.AlphaLocked,
             "Samus stays released through the post-message retraction");
 
         AssertTrue(plms.TryNotifyStationTouch(level.GetBlockIndex(new(18, 6)), 0x4d),
@@ -1185,7 +1185,7 @@ internal static class RoomPlmPopulationVerification
             "save animation centers Samus on the station's 16-pixel boundary");
         AssertTrue(SamusPoseMetadata.IsForwardFacingPose(samus.Pose),
             "save animation applies shared MakeSamusFaceForward setup");
-        AssertTrue(samus.InputLocked, "save animation owns Samus input");
+        AssertTrue(samus.Control.AlphaLocked, "save animation owns Samus input");
         AssertEqual(level.GetBlockIndex(new(18, 6)), saveRequest.BlockIndex,
             "save activation retains the executing PLM block for bank-$86 electricity");
         Suite(nameof(VerifySaveStationElectricity), () => VerifySaveStationElectricity(bus, level, saveRequest.BlockIndex));
@@ -1214,7 +1214,7 @@ internal static class RoomPlmPopulationVerification
         AssertEqual(GameplayMessageIds.SaveCompleted, completion.MessageBoxIndex,
             "save animation publishes game-saved message only after its draw loop");
         plms.Stations.CompleteSaveStation(completion);
-        AssertTrue(!samus.InputLocked, "game-saved message return unlocks Samus");
+        AssertTrue(!samus.Control.AlphaLocked, "game-saved message return unlocks Samus");
         AssertTrue(plms.StationSnapshots.Single(station => station.Kind == StationKind.Save)
             .SaveStationLockedOut,
             "save completion installs once-per-room-entry lockout");

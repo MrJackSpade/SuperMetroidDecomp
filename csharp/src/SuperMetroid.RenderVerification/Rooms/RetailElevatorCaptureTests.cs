@@ -49,7 +49,7 @@ internal static class RetailElevatorCaptureTests
                 $"{device.Kind}: Ceres elevator {tick}, pad Y={arrival.PadPosition.Y}, complete={arrival.IsComplete}");
             samples++;
             if (arrival.IsComplete && expected.GameState == SuperMetroidGameState.MainGameplay &&
-                legacy.GameplayRuntimeForVerification.Player.Samus is { InputLocked: false })
+                legacy.GameplayRuntimeForVerification.Player.Samus is { Control.AlphaLocked: false })
             {
                 if (++releasedFrames == 60) break;
             }

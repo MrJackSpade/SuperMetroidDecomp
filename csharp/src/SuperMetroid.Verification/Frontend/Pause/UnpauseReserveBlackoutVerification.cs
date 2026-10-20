@@ -34,7 +34,7 @@ internal static class UnpauseReserveBlackoutVerification
             runtime.RoomLoader.InitializeStartingCeresRoom();
             runtime.RoomLoader.InitializeCeresStartSamus();
             runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.LandingSite);
-            runtime.Player.IntroducedSamus.InputLocked = false;
+            runtime.Player.IntroducedSamus.Control.Unlock();
             var game = CreateRetailGameFixture(new SuperMetroid.Core.Saves.SaveSlotStore(), renderGameplayFrames: false, random: random);
             game.AdoptRuntime(runtime);
             game.Session.lastAudioRoomState = runtime.Room.LoadedRoom.State;

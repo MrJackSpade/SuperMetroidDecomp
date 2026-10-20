@@ -63,7 +63,7 @@ internal static class CinematicCrystalFlashVerification
         {
             MotherBrainRainbowBeamAttackStepResult step = motherRainbow.Step(motherSamus, new RainbowBeamAttackFrame { EnemyFrameCounter = frame, MainEnemyExecutionCounter = frame });
             // `$90:F117` command one clears the input lock as the beam installs LetSamusFall.
-            bool unlockedSamus = !motherSamus.InputLocked &&
+            bool unlockedSamus = !motherSamus.Control.AlphaLocked &&
                 step.PhaseBefore != MotherBrainRainbowBeamAttackPhase.LetSamusFall &&
                 step.PhaseAfter == MotherBrainRainbowBeamAttackPhase.LetSamusFall;
             motherRuntime.StepFrame(0);
@@ -258,7 +258,7 @@ internal static class CinematicCrystalFlashVerification
         runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.LandingSite, camera: new Position16<RoomPixels>(0, 0));
         SamusState samus = runtime.Player.IntroducedSamus;
-        samus.InputLocked = false;
+        samus.Control.Unlock();
         samus.Pose = SamusPoseId.FacingRightNormalPose;
         samus.Position = samus.Position.WithWhole(new(128, 128));
         samus.Health = 49;

@@ -241,7 +241,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
                 {
                     Part(top).Function = GunshipFunction.Idle;
                     if (samus is not null)
-                        samus.InputLocked = false;
+                        samus.Control.Unlock();
                     _frameResults.Gunship = GunshipFrameEvent.LandingCompleted;
                 }
                 return;
@@ -278,7 +278,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
                 {
                     Part(top).Function = GunshipFunction.Idle;
                     if (samus is not null)
-                        samus.InputLocked = false;
+                        samus.Control.Unlock();
                     _frameResults.Gunship = GunshipFrameEvent.ExitCompleted;
                 }
                 return;
@@ -442,7 +442,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
                 samus.WritePreviousXPosition(samus.Position.X.Whole);
             }
             samus.PoseMetadata.ApplyForwardFacingPoseSetup();
-            samus.InputLocked = true;
+            samus.Control.EnterGunship();
             samus.Presentation.PrimeGraphics();
             pad.Position = pad.Position.WithWholeY(unchecked((ushort)(top.Position.Y.Whole - 1)));
             StartGunshipProgram(pad, GunshipProgram.EntrancePadOpening);

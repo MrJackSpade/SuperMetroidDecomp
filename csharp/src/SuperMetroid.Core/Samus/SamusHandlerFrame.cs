@@ -21,12 +21,6 @@ internal sealed class SamusHandlerFrame
     /// <summary>The pose beta dispatches on, which EnemyMain can replace after alpha.</summary>
     internal SamusPoseId PoseAtBetaMovement;
 
-    /// <summary>Whether a stationary script owns Samus for this beta; a PLM lock applies from the next one.</summary>
-    internal bool StationaryScriptControlLocked;
-
-    /// <summary>Whether suit command $15 installed the empty beta.</summary>
-    internal bool SuitOwnsSamus;
-
     /// <summary>The movement type of the pose at frame start.</summary>
     internal SamusMovementType MovementTypeAtFrameStart;
 
@@ -45,7 +39,10 @@ internal sealed class SamusHandlerFrame
     /// <summary>Whether the input lookup fell through to the pose-definition fallback ($91:82D9).</summary>
     internal bool UsePoseDefinitionFallback;
 
-    /// <summary>The installed alpha and beta handlers; beta-handler gates read <see cref="SamusControlMode.Beta"/>.</summary>
+    /// <summary>
+    /// The alpha installed at the frame's start and the beta the frame dispatches, read from the installed pair when
+    /// alpha begins and again before beta; beta-handler gates read <see cref="SamusControlMode.Beta"/>.
+    /// </summary>
     internal SamusControlMode Mode;
 
     /// <summary>Whether horizontal momentum remained when the fallback pose was selected.</summary>
@@ -65,9 +62,6 @@ internal sealed class SamusHandlerFrame
     /// already been installed for this frame, so only alpha's checks still see the lock.
     /// </summary>
     internal bool EnemyMainReleasedAlphaLock;
-
-    /// <summary>Whether the refill-station lock owns Samus for this beta.</summary>
-    internal bool RefillStationLocked;
 
     /// <summary>Whether X-ray owns pose input this frame.</summary>
     internal bool XrayOwnsPoseInput;
@@ -91,5 +85,5 @@ internal sealed class SamusHandlerFrame
     /// Whether this frame's alpha handler is the locked one installed at its start. Read live at each check: X-ray
     /// admission can change the lock between them.
     /// </summary>
-    internal bool AlphaInputLocked(SamusState samus) => samus.InputLocked || EnemyMainReleasedAlphaLock;
+    internal bool AlphaInputLocked(SamusState samus) => samus.Control.AlphaLocked || EnemyMainReleasedAlphaLock;
 }

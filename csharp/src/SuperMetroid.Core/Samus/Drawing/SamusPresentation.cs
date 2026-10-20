@@ -337,12 +337,12 @@ internal sealed class SamusPresentation
                 // higher-priority animation transition. A jump selected by alpha
                 // must survive this final turn frame; checking held Jump instead
                 // would incorrectly accept inputs that never matched the ROM table.
-                if (!_samus.InputLocked && !demoPoseInput && prospectiveInputPose is
+                if (!_samus.Control.AlphaLocked && !demoPoseInput && prospectiveInputPose is
                     SamusPoseId.NeutralJumpTransitionRightPose or
                     SamusPoseId.NeutralJumpTransitionLeftPose or
                     SamusPoseId.SpinJumpRightPose or SamusPoseId.SpinJumpLeftPose)
                     return;
-                if (!_samus.InputLocked && !demoPoseInput) _samus.InputSnapshot.AutoJumpInputPending = true;
+                if (!_samus.Control.AlphaLocked && !demoPoseInput) _samus.InputSnapshot.AutoJumpInputPending = true;
                 // $90:8370 falls through to command $FD's one-byte pose operand. For the
                 // grounded $25/$26 sequences this publishes $02/$01 through command three;
                 // it does NOT select a new delay or advance the visible animation frame.

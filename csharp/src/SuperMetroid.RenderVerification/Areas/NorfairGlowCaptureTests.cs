@@ -21,7 +21,7 @@ internal static class NorfairGlowCaptureTests
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug); runtime.FrameBoundary.BeginAcceptedFrame(0);
         runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.Cathedral, new Position16<RoomPixels>(0, 0));
-        runtime.Player.IntroducedSamus.InputLocked = true;
+        runtime.Player.IntroducedSamus.Control.LockHandlers();
         LayeredRenderSnapshot? original = null;
         SuperMetroid.Core.Hardware.Rgba32[]? initialPixels = null;
         int maximumChanged = 0;

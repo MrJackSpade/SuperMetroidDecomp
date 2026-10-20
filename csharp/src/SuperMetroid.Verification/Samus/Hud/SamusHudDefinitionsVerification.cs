@@ -53,7 +53,8 @@ internal static class SamusHudDefinitionsVerification
             {
                 if (rom.ReadCartridgeByte(SamusMovementRomData.Poses.Definitions + pose * 8 + 1) != movement) continue;
                 metadataPose = samus.Pose = (SamusPoseId)pose;
-                samus.InputLocked = locked; samus.SelectedHudItem = HudItems.Decode(selected); setTurn(samus, turn);
+                if (locked) samus.Control.LockHandlers(); else samus.Control.Unlock();
+                samus.SelectedHudItem = HudItems.Decode(selected); setTurn(samus, turn);
                 bool expected = !locked && pose is not (0 or 0x9b) && selected == 4 &&
                     (handler is 0xdd3d or 0xdd6f or 0xddd8 || handler == 0xdd74 && turn != 0 ||
                         handler == 0xdd8c && Transition((SamusPoseId)pose, false));

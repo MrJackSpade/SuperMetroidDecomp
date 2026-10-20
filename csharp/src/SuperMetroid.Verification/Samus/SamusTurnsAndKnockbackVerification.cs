@@ -57,7 +57,9 @@ internal static void VerifySamusAerialTurnsAndWallJump()
         // Retail pose $26 has 02,02,02,F8,01. Its compiled pointer and
         // command stream are immutable gameplay definitions, so drive the six
         // native ticks that reach F8 instead of rewriting fake-bus ROM bytes.
-        var endpoint = new SamusState { Pose = source, InputLocked = locked };
+        var endpoint = new SamusState { Pose = source };
+        if (locked)
+            endpoint.Control.LockHandlers();
         endpoint.Presentation.InitializeAnimation();
         for (int tick = 0; tick < 6; tick++)
             endpoint.Presentation.AnimateNoFx(new SamusAnimationStep { Random = new CartridgeRandom(), ProspectiveInputPose = selected });

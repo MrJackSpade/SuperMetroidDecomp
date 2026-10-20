@@ -47,7 +47,7 @@ internal static class GameplayGrapplePaletteVerification
         foreach (ushort beam in new ushort[] { 0, 4 })
         {
             samus.Pose = SamusPoseId.FacingRightNormalPose;
-            samus.InputLocked = false;
+            samus.Control.Unlock();
             samus.EquippedItems = samus.CollectedItems = SamusEquipmentFlags.GrappleBeam;
             samus.EquippedBeams = (SamusBeamFlags)beam;
             samus.SelectedHudItem = HudItem.Grapple;

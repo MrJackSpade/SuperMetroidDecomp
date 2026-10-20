@@ -56,7 +56,7 @@ internal sealed class StationPlms : IPlmFamilySource
     /// <summary>
     /// The map station's side of gameplay resume ($82:A2E3). Map access-list deletion does
     /// not restore the normal Samus handlers; leaving the automatically opened map does,
-    /// through command $0C (<see cref="SuperMetroid.Core.Samus.SamusScriptLocks.ReleaseRefillStationLockOnUnpause"/>).
+    /// through command $0C (<see cref="SuperMetroid.Core.Samus.SamusControl.ReleaseRefillStationOnUnpause"/>).
     /// </summary>
     public void ResumeMapStationsAfterUnpause()
     {
@@ -111,7 +111,7 @@ internal sealed class StationPlms : IPlmFamilySource
         // Rounds Samus to the nearest block boundary.
         samus.Position = samus.Position.WithWholeX(unchecked((ushort)(((samus.Position.X.Whole + 8) >> 4) << 4)));
         samus.PoseMetadata.ApplyForwardFacingPoseSetup();
-        samus.InputLocked = true;
+        samus.Control.LockHandlers();
 
         station.SavePhase = SaveStationPhase.Animating;
         station.AnimationFrame = 0;
@@ -136,7 +136,7 @@ internal sealed class StationPlms : IPlmFamilySource
 
         SamusState samus = _bindings.Samus?.Current
             ?? throw new InvalidOperationException("Completed save station has no live Samus owner.");
-        samus.InputLocked = false;
+        samus.Control.Unlock();
         station.SavePhase = SaveStationPhase.Idle;
         SaveStationLockedOut = true;
     }
@@ -402,7 +402,7 @@ internal sealed class StationPlms : IPlmFamilySource
                     SamusState samus = _bindings.Samus?.Current
                         ?? throw new InvalidOperationException(
                             $"{station.Kind} station setup has no live Samus owner.");
-                    samus.ScriptLocks.LockIntoRefillStation();
+                    samus.Control.LockIntoRefillStation();
                 }
             }
             return true;
@@ -450,7 +450,7 @@ internal sealed class StationPlms : IPlmFamilySource
             {
                 // The access-list full-resource branch runs command one before deleting
                 // itself. A refill between setup and this pass must release control too.
-                samus.InputLocked = false;
+                samus.Control.Unlock();
                 station.AccessBlockIndex = -1;
                 station.AccessBehavior = null;
             }
@@ -497,7 +497,7 @@ internal sealed class StationPlms : IPlmFamilySource
                         // right after their message box, before the access retracts. The
                         // map activation leaves input locked for pause teardown's command.
                         if (station.Kind != StationKind.Map)
-                            samus.InputLocked = false;
+                            samus.Control.Unlock();
                         station.OperationPhase = StationOperationPhase.PostActivationHold;
                         station.OperationTimer = NativeCountdown.Start(StationAccessMovementFrames);
                         break;
@@ -512,7 +512,7 @@ internal sealed class StationPlms : IPlmFamilySource
                         station.OperationTimer = NativeCountdown.Start(StationAccessMovementFrames);
                         break;
                     case StationOperationPhase.FinalRetractionHold:
-                        station.OperationPhase = station.Kind == StationKind.Map && samus.InputLocked
+                        station.OperationPhase = station.Kind == StationKind.Map && samus.Control.AlphaLocked
                             ? StationOperationPhase.AwaitingMapUnpause
                             : StationOperationPhase.Idle;
                         station.AccessBlockIndex = -1;

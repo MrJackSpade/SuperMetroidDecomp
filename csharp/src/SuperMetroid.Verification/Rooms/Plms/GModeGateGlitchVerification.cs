@@ -381,7 +381,7 @@ internal static class GModeGateGlitchVerification
                 accessBlock,
                 new RoomBlockBehavior((byte)StationAccessBehavior.EnergyRight)),
             "G-Mode fixture reaches the resident Energy Station through its real access setup");
-        AssertTrue(samus.InputLocked,
+        AssertTrue(samus.Control.AlphaLocked,
             "station setup executes Samus command six before the suspended PLM handler");
         AssertTrue(plms.StationSnapshots.Single().Triggered,
             "disabled PLM handler leaves the station activation pending");
@@ -394,7 +394,7 @@ internal static class GModeGateGlitchVerification
         plms.Step(level);
         AssertTrue(!plms.StationSnapshots.Single().Triggered,
             "first post-G-Mode PLM pass consumes the pending station setup");
-        AssertTrue(samus.InputLocked,
+        AssertTrue(samus.Control.AlphaLocked,
             "resumed station owns Samus until the full access sequence finishes");
     }
 
@@ -456,7 +456,7 @@ internal static class GModeGateGlitchVerification
             "Power Bomb publishes its hit to the intact glass-tube resident");
         AssertEqual((ushort)0x8300, plms.PopulationSlots.Single().LoopTimer,
             "G-Mode-disabled tube retains the marked Power Bomb request");
-        AssertTrue(!brokenEvent && projectiles.Count == 0 && !samus.InputLocked,
+        AssertTrue(!brokenEvent && projectiles.Count == 0 && !samus.Control.AlphaLocked,
             "without a PLM handler pass the glass tube cannot arm, break, or lock Samus");
         AssertTrue((roomFx.LiquidOptions & RoomLiquidOptions.WaterPhysicsDisabledOrHorizontalHeatWave) != 0,
             "suspended glass tube leaves its water-physics disable bit intact");

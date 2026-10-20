@@ -80,7 +80,7 @@ internal static class RetailDeathCaptureTests
                 var expectedSamus = expectedRuntime.Player.IntroducedSamus;
                 var actualSamus = actualRuntime.Player.IntroducedSamus;
                 if (expectedSamus.Health != actualSamus.Health || expectedSamus.ReserveEnergy != actualSamus.ReserveEnergy ||
-                    expectedSamus.InputLocked != actualSamus.InputLocked ||
+                    expectedSamus.Control.AlphaLocked != actualSamus.Control.AlphaLocked ||
                     expectedRuntime.Freeze.GameplayTimeFrozen != actualRuntime.Freeze.GameplayTimeFrozen)
                     throw new InvalidOperationException("Death/recovery state diverged between captured and legacy owners.");
             }
@@ -93,7 +93,7 @@ internal static class RetailDeathCaptureTests
             var samus = legacy.GameplayRuntimeForVerification.Player.IntroducedSamus;
             if (frames == 2000 || !states.Contains(SuperMetroidGameState.ReserveTanksAuto) ||
                 legacy.GameState != SuperMetroidGameState.MainGameplay || samus.Health == 0 ||
-                samus.ReserveEnergy != 0 || samus.InputLocked || legacy.GameplayRuntimeForVerification.Freeze.GameplayTimeFrozen)
+                samus.ReserveEnergy != 0 || samus.Control.AlphaLocked || legacy.GameplayRuntimeForVerification.Freeze.GameplayTimeFrozen)
                 throw new InvalidOperationException("Reserve fixture missed recovery, depletion or release.");
             Console.WriteLine($"{device.Kind}: {frames + 1} exact automatic reserve recovery frames, matching PCM, energy/lock/freeze state and gameplay handoff.");
             return;

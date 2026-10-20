@@ -50,7 +50,7 @@ internal static class ReserveModeVerification
             "command $1B replaces X-Ray Samus handlers but retains shared freeze");
         for (ushort frame = 0; recovery.IsActive; frame++)
             recovery.StepAfterNmi(reserve, frame);
-        AssertTrue(reserve.Xray.IsReserveMode && !reserve.ScriptLocks.StationaryScriptControlLocked,
+        AssertTrue(reserve.Xray.IsReserveMode && reserve.Control.Mode.Beta != SamusBetaHandler.ScriptLocked,
             "reserve exhaustion restores normal control under the live X-Ray object");
 
         AdvanceXrayToFinish(reserve);

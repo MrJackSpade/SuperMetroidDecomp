@@ -29,7 +29,7 @@ internal static class RespawnedEnemyContactVerification
         runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.Hellway);
         var samus = runtime.Player.IntroducedSamus;
-        samus.InputLocked = false;
+        samus.Control.Unlock();
 
         RoomEnemySlot enemy = runtime.Enemies.SlotTable.Slots.Single(slot =>
             slot.EnemyDefinitionPointer == respawningEnemy && slot.Position.X.Whole == respawnX);

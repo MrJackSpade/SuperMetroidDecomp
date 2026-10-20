@@ -218,7 +218,7 @@ internal sealed class IntroBabyDiscoveryState
         // $91:8682 replaces both Samus handlers with RTL $90:E8CD, disables demo input, and
         // returns into the following shared delete opcode. Samus is never processed again.
         demo.Disable();
-        Samus.InputLocked = true;
+        Samus.Control.LockHandlers();
         samusHandlersEnded = true;
     }
 

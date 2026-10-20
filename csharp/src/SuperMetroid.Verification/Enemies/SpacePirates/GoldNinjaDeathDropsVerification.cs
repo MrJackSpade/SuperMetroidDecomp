@@ -28,7 +28,7 @@ internal static class GoldNinjaDeathDropsVerification
         var samus = runtime.Player.IntroducedSamus;
         RoomEnemySlot pirate = runtime.Enemies.SlotTable.Slots.First(slot =>
             slot.EnemyDefinitionPointer == EnemyDefinitionId.PirateGoldNinja);
-        samus.InputLocked = true;
+        samus.Control.LockHandlers();
         // The Gold Ninja is invincible in almost every frame. Install
         // ExtendedSpritemaps_PirateNinja_28 ($B2:8EA2), whose lower piece
         // (Hitboxes_PirateNinja_1A: X -7..6, Y 0..30) uses EnemyShot_SpacePirate_Normal

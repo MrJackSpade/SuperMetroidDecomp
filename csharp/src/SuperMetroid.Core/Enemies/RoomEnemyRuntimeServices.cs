@@ -61,7 +61,10 @@ internal sealed class RoomEnemyRuntimeServices(
     {
         SamusState samus = player.Samus ?? throw new InvalidOperationException(
             "Chozo control command requires an active Samus actor.");
-        samus.ScriptLocks.SetStationaryScriptControlLock(!enabled);
+        if (enabled)
+            samus.Control.Unlock();
+        else
+            samus.Control.LockStationary();
         player.GroundedSamusMovementEnabled = enabled;
     }
 

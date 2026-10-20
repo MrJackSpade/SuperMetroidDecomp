@@ -27,7 +27,7 @@ internal static class CollectibleMessageTimingVerification
         runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.GauntletETank, camera: new Position16<RoomPixels>(1280, 0));
         var samus = runtime.Player.IntroducedSamus;
-        samus.InputLocked = false;
+        samus.Control.Unlock();
         samus.PoseId = SamusPoseId.MovingRightNormalPose;
         samus.Position = samus.Position.WithWhole(new(1296, 110));
         samus.Health = 49;

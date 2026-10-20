@@ -60,7 +60,7 @@ internal static class ElevatorInputDefinitionsVerification
                 $"elevator departure input {direction}");
             AssertEqual(ElevatorFrameEvent.DepartureStarted, enemies.LastEnemyFrame.Elevator,
                 $"elevator departure event {direction}");
-            AssertEqual(true, samus.InputLocked, $"elevator Samus input lock {direction}");
+            AssertEqual(true, samus.Control.AlphaLocked, $"elevator Samus input lock {direction}");
             AssertEqual(2, enemies.Audio.SoundRequests.Count, $"elevator departure sounds {direction}");
         }
 

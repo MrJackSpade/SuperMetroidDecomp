@@ -169,7 +169,7 @@ internal static class SpikeShinesparkSuitVerification
         }
 
         SamusState samus = runtime.Player.IntroducedSamus;
-        samus.InputLocked = false;
+        samus.Control.Unlock();
         samus.Pose = SamusPoseId.MorphBallGroundRightPose;
         samus.EquippedItems = samus.CollectedItems = (SamusEquipmentFlags)((ushort)(
             SamusEquipmentFlags.MorphBall |

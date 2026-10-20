@@ -674,7 +674,7 @@ internal static class RoomFxRetailInventoryVerification
         runtime.LoadCartridgeRoomThroughDoorForVerification(door);
         if (runtime.Player.Samus is null)
             throw new InvalidDataException("Room $02/$28 runtime load omitted Samus.");
-        runtime.Player.Samus.InputLocked = true;
+        runtime.Player.Samus.Control.LockHandlers();
 
         int referenceSoundTimer = 0, referenceSoundIndex = 0, referenceSoundCount = 0;
         void StepAndVerifySound(int frame)

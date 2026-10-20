@@ -233,21 +233,14 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, plms);
     /// The beta handler installed for this beta: the first of death, the suit's empty beta, command zero, command six,
     /// the attract demo, the gunship's handler and another lock that holds, otherwise the normal handler.
     /// </summary>
-    private SamusBetaHandler DeriveBetaHandler(SamusHandlerFrame frame, SamusState samus, RoomScope room)
+    private SamusBetaHandler DispatchedBetaHandler(SamusHandlerFrame frame, SamusState samus)
     {
         if (frame.DeathOwnsSamus)
             return SamusBetaHandler.Fatal;
-        if (frame.SuitOwnsSamus)
-            return SamusBetaHandler.SuitPickup;
-        if (frame.StationaryScriptControlLocked)
-            return SamusBetaHandler.ScriptLocked;
-        if (frame.RefillStationLocked)
-            return SamusBetaHandler.RefillStation;
-        if (_attractDemo.IsAttractDemo)
-            return SamusBetaHandler.TitleDemo;
-        if (room.Enemies.Gunship.HealthHandlerActive)
-            return SamusBetaHandler.Gunship;
-        return samus.InputLocked ? SamusBetaHandler.Locked : SamusBetaHandler.Normal;
+        SamusBetaHandler installed = samus.Control.Mode.Beta;
+        if (installed is SamusBetaHandler.SuitPickup or SamusBetaHandler.ScriptLocked or SamusBetaHandler.RefillStation)
+            return installed;
+        return _attractDemo.IsAttractDemo ? SamusBetaHandler.TitleDemo : installed;
     }
 
     /// <summary>
@@ -298,7 +291,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, plms);
         // which never dispatches block-inside detection. Automatic Reserve recovery
         // uses this exact lock; re-sampling spikes while it owns Samus changes the
         // post-recovery knockback window used by Shinespark Suit.
-        if (!samus.ScriptLocks.StationaryScriptControlLocked)
+        if (samus.Control.Mode.Beta != SamusBetaHandler.ScriptLocked)
         {
             SamusTerrainHazardCollision.PrepareFrame(
                 _room.LevelData,
@@ -422,8 +415,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, plms);
             _player.ProspectiveSamusFallbackPose = null;
         }
         // Actor commands replace beta before its dispatch in this same update.
-        frame.StationaryScriptControlLocked = samus.ScriptLocks.StationaryScriptControlLocked;
-        frame.Mode = frame.Mode with { Beta = DeriveBetaHandler(frame, samus, room) };
+        frame.Mode = frame.Mode with { Beta = DispatchedBetaHandler(frame, samus) };
         if (!_freeze.TimeIsFrozen && !frame.DeathOwnsSamus)
             // Ceres Ridley's dedicated updated-beam adapter; ordinary projectiles collide before each enemy's AI.
             room.Enemies.Ceres.ResolveCeresRidleyProjectileHits(projectiles, bombProjectiles);
@@ -625,7 +617,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, plms);
         // interruption continues Flash immediately. Model the physical beta owner,
         // not merely the fact that a cinematic pose exists.
         else if (samus.CrystalFlash.Phase != CrystalFlashPhase.Inactive &&
-            !(samus.Drained.Phase == DrainedSamusPhase.RainbowBeamLocked && samus.InputLocked))
+            !(samus.Drained.Phase == DrainedSamusPhase.RainbowBeamLocked && samus.Control.AlphaLocked))
         {
             _player.ProspectiveSamusPose = null;
             _player.ProspectiveSamusFallbackPose = null;
@@ -658,7 +650,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, plms);
         else if (samus.Drained.Phase != DrainedSamusPhase.Inactive &&
             !(samus.Drained.Phase is DrainedSamusPhase.Standing or DrainedSamusPhase.Crouching &&
               !SamusPoseMetadata.IsDrainedPose(samus.Pose)) &&
-            !(samus.Drained.Phase == DrainedSamusPhase.RainbowBeamLocked && !samus.InputLocked) &&
+            !(samus.Drained.Phase == DrainedSamusPhase.RainbowBeamLocked && !samus.Control.AlphaLocked) &&
             (samus.Drained.Phase == DrainedSamusPhase.RainbowBeamLocked || !samus.Shinespark.OwnsMovementHandler))
         {
             _player.ProspectiveSamusPose = null;
@@ -703,7 +695,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, plms);
         // translated special movement owners above take priority; an otherwise
         // locked standing body must not run generic ground collision or drift while
         // state $20 waits at the Ceres elevator.
-        else if (samus.InputLocked &&
+        else if (samus.Control.AlphaLocked &&
             !(SamusPoseMetadata.IsForwardFacingPose(samus.Pose) &&
               room.Enemies.Elevator.ElevatorRunsSamusMovement))
         {
@@ -1124,13 +1116,10 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, plms);
             samus.PoseMetadata.RefreshCollisionRadii();
         // Native Samus beta precedes PLMs. A lock/unlock issued by a PLM
         // affects the next beta, not the animation already owned this frame.
-        frame.StationaryScriptControlLocked = samus.ScriptLocks.StationaryScriptControlLocked;
-        frame.RefillStationLocked = samus.ScriptLocks.RefillStationLocked;
-        // Suit command $15 installs an empty beta, not just locked pose input.
-        // Preserve the suspended movement pointer and all of its timers so command
+        // Suit command $15 installs an empty beta, not just locked pose input:
+        // the suspended movement pointer and all of its timers survive, so command
         // $0B can resume it after the HDMA transformation (including Blue Suit).
         // The empty beta also skips periodic damage and the energy checks.
-        frame.SuitOwnsSamus = _suitPickup.IsActive;
         frame.MovementTypeAtFrameStart = samus.PoseMetadata.ReadMovementType();
 
         // Direction bits already use the transition table's canonical layout. Input
@@ -1142,7 +1131,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, plms);
         // data and can appear to select nonsense transitions after several frames, so
         // suppressing only their application would be too late and observably wrong.
         frame.DeathOwnsSamus = samus.DeathSequence.IsActive;
-        frame.Mode = new SamusControlMode(DeriveBetaHandler(frame, samus, room));
+        frame.Mode = new SamusControlMode(samus.Control.Mode.Alpha, DispatchedBetaHandler(frame, samus));
         // Sound queues are global persistent engines on hardware, but this typed host
         // publication is scoped to one frame's Samus handler. It opened before the HDMA
         // pass, ahead of `$91:F046`'s landing sounds during collision.
@@ -1327,7 +1316,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, plms);
         // PlaySamusFanfare publishes its same-pose history shift only on the
         // completion call, before the ordinary handlers regain control.
         samus.CommitPoseHistory();
-        samus.InputLocked = false;
+        samus.Control.Unlock();
         _player.GroundedSamusMovementEnabled = true;
         _player.EndLoadAppearance();
     }

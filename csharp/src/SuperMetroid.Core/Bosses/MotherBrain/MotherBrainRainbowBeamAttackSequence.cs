@@ -1322,7 +1322,7 @@ public sealed class MotherBrainRainbowBeamAttackSequence
                     HdmaActive = false;
                     EarthquakeTimer = NativeCountdown.Start(0);
                     RainbowBeamSoundPlaying = false;
-                    samus.InputLocked = false; // Samus command one at `$90:F117`.
+                    samus.Control.Unlock(); // Samus command one at `$90:F117`.
                     SamusProjectileCooldownTimer = NativeCountdown.Start(8);
                     Phase = MotherBrainRainbowBeamAttackPhase.LetSamusFall;
                 }

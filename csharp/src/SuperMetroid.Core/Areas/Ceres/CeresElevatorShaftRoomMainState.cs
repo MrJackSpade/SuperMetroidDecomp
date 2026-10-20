@@ -103,7 +103,7 @@ public sealed class CeresElevatorShaftRoomMainState
                 : SamusPoseId.FacingRightNormalPose;
             samus.PoseMetadata.RefreshCollisionRadii();
             samus.Presentation.InitializeAnimation();
-            samus.InputLocked = true;
+            samus.Control.LockHandlers();
             DepartureRequested = true;
             DepartureRequestedThisFrame = true;
         }

@@ -584,7 +584,7 @@ internal sealed class InstalledSamusIsolationTests
             pair.Check($"{kind} suit transformation {frames}");
             pair.Draw($"{kind} suit transformation {frames++}");
         }
-        Require(!stock.IsActive && !edited.IsActive && !pair.Stock.Samus.InputLocked,
+        Require(!stock.IsActive && !edited.IsActive && !pair.Stock.Samus.Control.AlphaLocked,
             $"{kind} suit transformation did not release control");
         Require(pair.Stock.Samus.EquippedItems.HasAny(kind == SamusSuitPickupKind.Varia
             ? SamusEquipmentFlags.VariaSuit : SamusEquipmentFlags.GravitySuit), "Suit was not granted");
@@ -645,6 +645,6 @@ internal sealed class InstalledSamusIsolationTests
             Require(pair.Stock.Samus.AnimationFrame == initialFrame, "Reserve recovery must not advance Samus animation");
         }
         Require(!stock.IsActive && pair.Stock.Samus.Health == 42 && pair.Stock.Samus.ReserveEnergy == 0 &&
-            !pair.Stock.Samus.InputLocked, "Reserve recovery failed to refill and release");
+            !pair.Stock.Samus.Control.AlphaLocked, "Reserve recovery failed to refill and release");
     }
 }

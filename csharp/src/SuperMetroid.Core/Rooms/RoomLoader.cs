@@ -262,7 +262,7 @@ internal sealed class RoomLoader
             loadAppearance,
             _player.IntroducedSamus.EquippedItems,
             _system.HasAnyBossBits(room.AreaIndex, BossBits.AreaMiniBoss));
-        _player.IntroducedSamus.InputLocked = true;
+        _player.IntroducedSamus.Control.LockHandlers();
         _player.PreviousMovementTypeForXray = _player.IntroducedSamus.PoseMetadata.ReadMovementType();
         _player.GroundedSamusMovementEnabled = false;
         return viewport;
@@ -344,7 +344,7 @@ internal sealed class RoomLoader
         samus.Health = samus.MaxHealth;
         samus.PreviousHealthForHurtCheck = samus.Health;
         samus.Kinematics.Position = samus.Kinematics.Position.WithX(new SnesFixedPosition(station.SamusPosition.X, 0)).WithY(new SnesFixedPosition(station.SamusPosition.Y, 0));
-        samus.InputLocked = true;
+        samus.Control.LockHandlers();
 
         // The special loader still executes the normal room-object teardown before it
         // constructs Landing Site. CeresElevatorArrival models two bank-$86 projectiles
@@ -669,7 +669,7 @@ internal sealed class RoomLoader
             if (!_room.LoadedScope.Enemies.Elevator.ElevatorTravelsUpward)
                 _player.Samus.PoseMetadata.SetupForElevator();
             else
-                _player.Samus.InputLocked = true;
+                _player.Samus.Control.LockHandlers();
         }
         _doorOpeningScroll = null;
         _room.DoorSourceBackground = null;

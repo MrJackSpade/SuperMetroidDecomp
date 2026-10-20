@@ -1847,7 +1847,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
                 if (!DecrementMotherBrainTimerPastZero(state))
                     return;
                 // $A9:8874: Samus command one restores the normal handler pair.
-                samus?.ScriptLocks.SetStationaryScriptControlLock(false);
+                samus?.Control.Unlock();
                 state.Function = MotherBrainBodyFunction.FakeDeathDescentPauseBeforeFlash;
                 state.FunctionTimer = NativeCountdown.Start(8);
                 RunMotherBrainFakeDeath(state, samus);
@@ -1942,7 +1942,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
             "Mother Brain's fake-death input lock requires the active Samus state.");
         // $A9:8832 runs Samus command zero, the stationary lock: its alpha handler places
         // no bombs and fires nothing new while the arena drains.
-        requiredSamus.ScriptLocks.SetStationaryScriptControlLock(true);
+        requiredSamus.Control.LockStationary();
         _room.Services.RoomScroll.Write(1, RoomScrollState.RedBoundary);
 
         state.Function = MotherBrainBodyFunction.FakeDeathDescentPauseBeforeMusic;

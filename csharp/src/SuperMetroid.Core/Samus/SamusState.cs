@@ -27,8 +27,8 @@ public sealed class SamusState
     /// <summary>The <see cref="SamusHudSelection"/> owner of this SamusState.</summary>
     internal SamusHudSelection HudSelection { get; }
 
-    /// <summary>The <see cref="SamusScriptLocks"/> owner of this SamusState.</summary>
-    internal SamusScriptLocks ScriptLocks { get; }
+    /// <summary>The installed frame-handler pair and the Samus commands that replace it.</summary>
+    internal SamusControl Control { get; } = new();
 
     /// <summary>The <see cref="SamusInputSnapshot"/> owner of this SamusState.</summary>
     internal SamusInputSnapshot InputSnapshot { get; }
@@ -284,25 +284,6 @@ public sealed class SamusState
     public HudItem AutoCancelHudItemIndex { get; set; }
 
     /// <summary>
-    /// Debugger-readable identity of the normal-versus-locked Samus state-handler pair.
-    /// Mother Brain command five/<c>$18</c> locks input; command one unlocks it after the
-    /// rainbow beam has narrowed. Movement type alone cannot represent this independent word.
-    /// </summary>
-    public bool InputLocked
-    {
-        get;
-        set
-        {
-            field = value;
-            if (!value)
-            {
-                ScriptLocks.StationaryScriptControlLocked = false;
-                ScriptLocks.RefillStationLocked = false;
-            }
-        }
-    }
-
-    /// <summary>
     /// Equipped beam bitfield at WRAM `$09A6`. Drained-controller function three replaces
     /// this with `$1009`, the exact charge/wave/plasma plus hyper-beam configuration.
     /// </summary>
@@ -545,7 +526,6 @@ public sealed class SamusState
     public SamusState()
     {
         HudSelection = new SamusHudSelection(this);
-        ScriptLocks = new SamusScriptLocks(this);
         InputSnapshot = new SamusInputSnapshot(this);
         Presentation = new SamusPresentation(this);
         PoseMetadata = new SamusPoseMetadata(this);

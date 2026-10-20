@@ -60,14 +60,14 @@ internal static class ChozoGrabAnimationVerification
             expectedExplosion.Spawn(new(bombX, samus.Position.Y.Whole));
         }
         runtime.Plms.ChozoStatue.NotifyChozoStatueHandCollision(level, block, samus, samus.Pose, movingDown: true);
-        AssertTrue(samus.ScriptLocks.StationaryScriptControlLocked && samus.InputLocked,
+        AssertTrue(samus.Control.Mode.Beta == SamusBetaHandler.ScriptLocked && samus.Control.AlphaLocked,
             "hand trigger installs native stationary handlers");
         AssertEqual((ushort)2, samus.AnimationFrame, "grab preserves captured ball frame");
         AssertEqual((ushort)3, samus.AnimationFrameTimer.RawValue, "grab preserves captured ball timer");
         ushort startX = samus.Position.X.Whole, startY = samus.Position.Y.Whole;
         bool carried = false;
         int frames = 0;
-        while (samus.ScriptLocks.StationaryScriptControlLocked && frames < 2000)
+        while (samus.Control.Mode.Beta == SamusBetaHandler.ScriptLocked && frames < 2000)
         {
             runtime.StepFrame(SnesButton.Right);
             if (powerBomb)
@@ -85,7 +85,7 @@ internal static class ChozoGrabAnimationVerification
                 AssertEqual(expectedExplosion.FixedColorBlue, actual.FixedColorBlue, "carried blast blue");
                 AssertEqual(expectedExplosion.Status, actual.Status, $"carried Power Bomb cleanup at frame {frames}");
             }
-            if (samus.ScriptLocks.StationaryScriptControlLocked)
+            if (samus.Control.Mode.Beta == SamusBetaHandler.ScriptLocked)
             {
                 AssertEqual((ushort)2, samus.AnimationFrame, "ball frame remains frozen while carried");
                 AssertEqual((ushort)3, samus.AnimationFrameTimer.RawValue, "ball animation timer remains frozen while carried");
@@ -97,7 +97,7 @@ internal static class ChozoGrabAnimationVerification
             AssertTrue(!runtime.BombProjectiles.PowerBombExplosion.IsActive && !runtime.BombProjectiles.PowerBombExplosion.IsArmed,
                 "Power Bomb completes and releases its armed flag during the statue ride");
         AssertTrue(carried, "statue still moves Samus while animation is locked");
-        AssertTrue(!samus.ScriptLocks.StationaryScriptControlLocked && !samus.InputLocked && runtime.Player.GroundedSamusMovementEnabled,
+        AssertTrue(samus.Control.Mode.Beta != SamusBetaHandler.ScriptLocked && !samus.Control.AlphaLocked && runtime.Player.GroundedSamusMovementEnabled,
             "native release restores handlers and movement");
         bool animationResumed = false;
         for (int frame = 0; frame < 12; frame++)

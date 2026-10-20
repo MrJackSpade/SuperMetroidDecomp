@@ -132,7 +132,7 @@ internal sealed class PauseGamePhases(FrontendSession session)
         // Equipment bits are live, but the restored gameplay palette is cached.
         resumedSamus.Presentation.LoadSuitPalette(session.GameplayRuntime.Cgram);
         session.GameplayRuntime.Room.LoadedScope.Plms.Stations.ResumeMapStationsAfterUnpause();
-        resumedSamus.ScriptLocks.ReleaseRefillStationLockOnUnpause();
+        resumedSamus.Control.ReleaseRefillStationOnUnpause();
         session.GameplayRuntime.Room.LoadedScope.Enemies.Elevator.ClearElevatorFlagsOnGameplayResume();
         session.GameplayRuntime.FrameBoundary.BeginAcceptedFrame(controllerInput);
         session.pauseMenu = null;

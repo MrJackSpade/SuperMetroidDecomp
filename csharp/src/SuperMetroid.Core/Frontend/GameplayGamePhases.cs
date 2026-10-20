@@ -227,13 +227,13 @@ internal sealed class GameplayGamePhases(FrontendSession session)
         // `$90:EA45` only runs from SamusNewStateHandler_Normal. Station command six
         // replaces that handler with the inert `$90:E8D6`, so its entire insertion,
         // message/data-load, and retraction sequence bypasses pause-check even though game
-        // state remains eight. InputLocked is the semantic representation of that handler
+        // state remains eight. The locked alpha installed with it stands for that handler
         // replacement; the remaining clauses are the predicate inside EA45 itself.
         return session.GameState == SuperMetroidGameState.MainGameplay &&
                !messageBoxOwnedFrame &&
                !session.runtime.MessageBox.IsActive &&
                !samusInputLockedAtFrameStart &&
-               !samus.InputLocked &&
+               !samus.Control.AlphaLocked &&
                session.runtime.PowerBombExplosionStatus == 0 &&
                !samus.Xray.TimeIsFrozen &&
                !session.runtime.RoomLoader.HasPendingDoorTransition &&
@@ -259,7 +259,7 @@ internal sealed class GameplayGamePhases(FrontendSession session)
         // Station command six installs an inert new-state handler before this
         // frame. Retraction can restore normal input later in StepFrame, after the
         // cartridge's Samus-handler call site has already passed pause-check.
-        bool samusInputLockedAtFrameStart = session.GameplayRuntime.Player.Samus?.InputLocked == true;
+        bool samusInputLockedAtFrameStart = session.GameplayRuntime.Player.Samus?.Control.AlphaLocked == true;
         session.GameplayRuntime.StepFrame(controllerInput, new RuntimeFrameRequest { Audio = gameplayAudio.GameplayFrameAudio(session.GameplayRuntime) });
         bool timeUp = session.GameplayRuntime.ConsumeTimeUpRequest();
         HandleSaveStationPersistence();
@@ -335,7 +335,7 @@ internal sealed class GameplayGamePhases(FrontendSession session)
             // CallSomeSamusCode($11) disables palette effects and installs fatal-input and
             // fatal-draw handlers. Input locking is the shared translated representation;
             // the following named death states own palette and animation side effects.
-            samus.InputLocked = true;
+            samus.Control.LockHandlers();
             session.GameState = SuperMetroidGameState.DeathSequenceStart;
         }
         return true;

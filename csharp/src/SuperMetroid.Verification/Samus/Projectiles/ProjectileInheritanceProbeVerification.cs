@@ -181,7 +181,7 @@ internal static class ProjectileInheritanceProbeVerification
             level.SetBehavior(index, 0);
         }
         var samus = runtime.Player.IntroducedSamus;
-        samus.InputLocked = false;
+        samus.Control.Unlock();
         samus.SelectedHudItem = HudItems.Decode(weapon);
         samus.Missiles = samus.MaxMissiles = 10;
         samus.SuperMissiles = samus.MaxSuperMissiles = 10;
@@ -217,7 +217,7 @@ internal static class ProjectileInheritanceProbeVerification
         AssertTrue(beforeFreeze.SequenceEqual(records.CaptureDistanceRecords()),
             "Frozen gameplay skips the projectile alpha and preserves directional records");
         runtime.Freeze.GameplayTimeFrozen = false;
-        samus.InputLocked = true;
+        samus.Control.LockHandlers();
         runtime.StepFrame(0);
         AssertTrue(records.CaptureDistanceRecords().All(value => value == 0),
             "Input-locked projectile alpha still clears directional movement records");

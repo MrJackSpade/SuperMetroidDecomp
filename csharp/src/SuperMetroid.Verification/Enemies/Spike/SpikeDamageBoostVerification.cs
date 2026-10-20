@@ -33,7 +33,7 @@ internal static class SpikeDamageBoostVerification
         level.SetBehavior(hazardBlock, SamusTerrainHazardRomData.DamagingSpikeAirBehavior);
         runtime.InitializeDebugGroundedSamus(128, 160, 16);
         var samus = runtime.Player.IntroducedSamus;
-        samus.InputLocked = false;
+        samus.Control.Unlock();
         samus.Health = 99;
         samus.EquippedItems = SamusEquipmentFlags.MorphBall;
         samus.Pose = SamusPoseId.MorphBallGroundRightPose;
@@ -69,7 +69,7 @@ internal static class SpikeDamageBoostVerification
         // frame 27. Hurt just expired above the floor; normal type-$0A probes downward.
         runtime.InitializeDebugGroundedSamus(83, 232, 16);
         samus = runtime.Player.Samus;
-        (samus ?? throw new InvalidOperationException("Verification requires samus.")).InputLocked = false;
+        (samus ?? throw new InvalidOperationException("Verification requires samus.")).Control.Unlock();
         samus.Pose = SamusPoseId.KnockbackRightPose;
         samus.PoseMetadata.RefreshCollisionRadii();
         samus.Presentation.InitializeAnimation();

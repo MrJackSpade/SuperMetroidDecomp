@@ -44,7 +44,7 @@ internal static class PillarFirstEntryVerification
         runtime.LoadCartridgeRoomForDebug(source,
             new Position16<RoomPixels>((ushort)(doorX / 16 * 256), (ushort)(doorY / 16 * 256)));
         var samus = runtime.Player.IntroducedSamus;
-        samus.InputLocked = false;
+        samus.Control.Unlock();
         samus.EquippedItems = samus.CollectedItems = (SamusEquipmentFlags.ScrewAttack |
             SamusEquipmentFlags.VariaSuit | SamusEquipmentFlags.GravitySuit | SamusEquipmentFlags.HiJumpBoots |
             SamusEquipmentFlags.SpaceJump);

@@ -56,7 +56,7 @@ internal static class CrocomirePresentation1193Verification
             samus.PoseMetadata.RefreshCollisionRadii();
             samus.Presentation.InitializeAnimation();
             samus.CommitPoseHistory();
-            samus.InputLocked = false;
+            samus.Control.Unlock();
             runtime.Room.LoadedCamera.SetPosition(new Position16<RoomPixels>(512, 0));
         }
         game.GameState = SuperMetroidGameState.MainGameplay;

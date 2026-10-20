@@ -54,7 +54,7 @@ internal static class EscapeRunningFootstepsVerification
             }, runtime.Plms, runtime.RoomLayer3Fx, runtime.RoomPaletteFx);
 
             samus.Pose = pose;
-            samus.InputLocked = false;
+            samus.Control.Unlock();
             samus.PoseMetadata.RefreshCollisionRadii();
             samus.Presentation.InitializeAnimation(initialFrame: 8);
             samus.Presentation.SetAnimationFrameFromSpecialHandler(8, 1);

@@ -36,7 +36,7 @@ internal static class RainbowReleaseKnockbackVerification
         runtime.StepFrame(0);
         AssertEqual((ushort)0x007d, samus.Position.Y.Whole, "the locked beta moves nothing");
 
-        samus.InputLocked = false; // Samus command one, as the rainbow sequence's finish runs it.
+        samus.Control.Unlock(); // Samus command one, as the rainbow sequence's finish runs it.
         runtime.StepFrame(0);
         AssertTrue(samus.Position.Y.Whole > 0x007d, "the restored beta runs the knockback mover and Samus falls");
         Console.WriteLine("Rainbow release knockback: command one restores the type-$0A mover on its own frame.");

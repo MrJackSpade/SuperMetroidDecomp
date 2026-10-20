@@ -182,7 +182,7 @@ internal static class RightFacingGateGlitchVerification
             "Authored East Tunnel green-right trigger table row");
 
         SamusState samus = runtime.Player.IntroducedSamus;
-        samus.InputLocked = false;
+        samus.Control.Unlock();
         samus.PoseId = SamusPoseId.FacingRightNormalPose;
         samus.Position = samus.Position.WithWholeX(238);
         samus.Kinematics.Position = samus.Kinematics.Position.WithFractionX(8191);

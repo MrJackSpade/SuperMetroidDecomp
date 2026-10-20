@@ -206,7 +206,7 @@ internal sealed class SamusPoseMetadata
         _samus.InputSnapshot.ShinesparkPoseInputLocked = false;
         _samus.CrystalFlash.RelinquishMovementHandler();
         _samus.InputSnapshot.CrystalFlashPoseInputLocked = false;
-        _samus.InputLocked = true;
+        _samus.Control.LockHandlers();
         _samus.Presentation.PrimeGraphics();
     }
 

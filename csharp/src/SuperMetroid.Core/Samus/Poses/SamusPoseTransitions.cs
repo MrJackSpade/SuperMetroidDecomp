@@ -2290,7 +2290,7 @@ level, targetPose, nmiFrameCounter, plms, out int centerAdjustment);
     {
         // $91:F1EC installs the same one-shot input handler used by F8.
         // Its short held-Jump window is evaluated next alpha, not during landing.
-        if (!_samus.InputLocked) _samus.InputSnapshot.AutoJumpInputPending = true;
+        if (!_samus.Control.AlphaLocked) _samus.InputSnapshot.AutoJumpInputPending = true;
         _samus.HorizontalSpeed.AccelerationMode = 0;
         _samus.HorizontalSpeed.BaseSpeed = default;
         _samus.Kinematics.YSpeed = default;

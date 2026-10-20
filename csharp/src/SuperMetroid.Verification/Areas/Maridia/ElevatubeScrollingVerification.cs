@@ -7,6 +7,7 @@ using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Rooms.Doors;
 namespace SuperMetroid.Verification.Areas.Maridia;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Samus;
 
 /// <summary>Checks Samus and camera movement through the Maridia elevatube from both entrances.</summary>
 internal static class ElevatubeScrollingVerification
@@ -38,7 +39,7 @@ internal static class ElevatubeScrollingVerification
             {
                 uint beforeY = samus.Kinematics.Position.Y.RawValue;
                 uint expectedY = unchecked(beforeY + (uint)(SnesSixteenSixteen.FromEightEight(runtime.MaridiaElevatube.Velocity.SignedRawValue)));
-                AssertTrue(samus.ScriptLocks.StationaryScriptControlLocked,
+                AssertTrue(samus.Control.Mode.Beta == SamusBetaHandler.ScriptLocked,
                     "both tube entry callbacks install native command-zero ownership");
                 runtime.StepFrame(0);
                 AssertEqual(expectedY, samus.Kinematics.Position.Y.RawValue,

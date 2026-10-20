@@ -79,7 +79,7 @@ internal static class NoobTubeProjectileBehaviorVerification
         RoomEnemySystem NewSystem()
         {
             var system = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
-            system.VerificationServices().NextRandom = (Func<ushort>)(() => 16448);
+            system.VerificationServices().NextRandom = () => 16448;
             return system;
         }
 
@@ -90,6 +90,127 @@ internal static class NoobTubeProjectileBehaviorVerification
                 RoomEnemyProjectileKind.NoobTubeCrack => NoobTubeProjectileDefinition.Crack,
                 RoomEnemyProjectileKind.NoobTubeShard => NoobTubeProjectileDefinition.Shard,
                 RoomEnemyProjectileKind.NoobTubeReleasedAirBubble => NoobTubeProjectileDefinition.ReleasedAirBubble,
+                RoomEnemyProjectileKind.None or
+                    RoomEnemyProjectileKind.PrePhantoonRoom or
+                    RoomEnemyProjectileKind.YappingMawBody or
+                    RoomEnemyProjectileKind.SkreeParticleDownRight or
+                    RoomEnemyProjectileKind.SkreeParticleUpRight or
+                    RoomEnemyProjectileKind.SkreeParticleDownLeft or
+                    RoomEnemyProjectileKind.SkreeParticleUpLeft or
+                    RoomEnemyProjectileKind.MetareeParticleDownRight or
+                    RoomEnemyProjectileKind.MetareeParticleUpRight or
+                    RoomEnemyProjectileKind.MetareeParticleDownLeft or
+                    RoomEnemyProjectileKind.MetareeParticleUpLeft or
+                    RoomEnemyProjectileKind.CrocomireProjectile or
+                    RoomEnemyProjectileKind.CrocomireBridgeCrumbling or
+                    RoomEnemyProjectileKind.CrocomireSpikeWallPieces or
+                    RoomEnemyProjectileKind.KraidSpitRock or
+                    RoomEnemyProjectileKind.KraidCeilingRock or
+                    RoomEnemyProjectileKind.KraidRisingRockLeft or
+                    RoomEnemyProjectileKind.KraidRisingRockRight or
+                    RoomEnemyProjectileKind.PhantoonDestroyableFlame or
+                    RoomEnemyProjectileKind.PhantoonStartingFlame or
+                    RoomEnemyProjectileKind.DraygonGoop or
+                    RoomEnemyProjectileKind.DraygonWallTurret or
+                    RoomEnemyProjectileKind.MotherBrainRoomTurret or
+                    RoomEnemyProjectileKind.MotherBrainRoomTurretBullet or
+                    RoomEnemyProjectileKind.MotherBrainGlassShard or
+                    RoomEnemyProjectileKind.MotherBrainGlassSparkle or
+                    RoomEnemyProjectileKind.MotherBrainOnionRing or
+                    RoomEnemyProjectileKind.OldTourianEscapeShaftFakeWallExplosion or
+                    RoomEnemyProjectileKind.MotherBrainBomb or
+                    RoomEnemyProjectileKind.MotherBrainHandBeamCharging or
+                    RoomEnemyProjectileKind.MotherBrainHandBeamFired or
+                    RoomEnemyProjectileKind.MotherBrainRainbowBeamCharging or
+                    RoomEnemyProjectileKind.MotherBrainPurpleBreathBig or
+                    RoomEnemyProjectileKind.MotherBrainPurpleBreathSmall or
+                    RoomEnemyProjectileKind.MotherBrainDrool or
+                    RoomEnemyProjectileKind.MotherBrainDyingDrool or
+                    RoomEnemyProjectileKind.MotherBrainRainbowBeamExplosion or
+                    RoomEnemyProjectileKind.MotherBrainDeathExplosion or
+                    RoomEnemyProjectileKind.MotherBrainEscapeDoorFragment or
+                    RoomEnemyProjectileKind.MotherBrainEscapeSubtitle or
+                    RoomEnemyProjectileKind.MotherBrainTopRightTube or
+                    RoomEnemyProjectileKind.MotherBrainTopLeftTube or
+                    RoomEnemyProjectileKind.MotherBrainTopMiddleLeftTube or
+                    RoomEnemyProjectileKind.MotherBrainTopMiddleRightTube or
+                    RoomEnemyProjectileKind.CeresRidleyFireball or
+                    RoomEnemyProjectileKind.CeresRidleyHorizontalAfterburnCenter or
+                    RoomEnemyProjectileKind.CeresRidleyVerticalAfterburnCenter or
+                    RoomEnemyProjectileKind.CeresRidleyHorizontalAfterburnRight or
+                    RoomEnemyProjectileKind.CeresRidleyHorizontalAfterburnLeft or
+                    RoomEnemyProjectileKind.CeresRidleyVerticalAfterburnUp or
+                    RoomEnemyProjectileKind.CeresRidleyVerticalAfterburnDown or
+                    RoomEnemyProjectileKind.CeresFallingDebrisLight or
+                    RoomEnemyProjectileKind.CeresFallingDebrisDark or
+                    RoomEnemyProjectileKind.GunshipLiftoffDustCloud or
+                    RoomEnemyProjectileKind.AlcoonFireball or
+                    RoomEnemyProjectileKind.PowampSpike or
+                    RoomEnemyProjectileKind.WorkRobotLaserUpLeft or
+                    RoomEnemyProjectileKind.WorkRobotLaserHorizontal or
+                    RoomEnemyProjectileKind.WorkRobotLaserDownLeft or
+                    RoomEnemyProjectileKind.WorkRobotLaserUpRight or
+                    RoomEnemyProjectileKind.WorkRobotLaserDownRight or
+                    RoomEnemyProjectileKind.FallingSpark or
+                    RoomEnemyProjectileKind.NuclearWaffleBody or
+                    RoomEnemyProjectileKind.FakeKraidSpit or
+                    RoomEnemyProjectileKind.FakeKraidSpikeLeft or
+                    RoomEnemyProjectileKind.FakeKraidSpikeRight or
+                    RoomEnemyProjectileKind.KiHunterAcidSpitLeft or
+                    RoomEnemyProjectileKind.KiHunterAcidSpitRight or
+                    RoomEnemyProjectileKind.PirateMotherBrainLaser or
+                    RoomEnemyProjectileKind.PirateClaw or
+                    RoomEnemyProjectileKind.PolypRock or
+                    RoomEnemyProjectileKind.CacatacSpike or
+                    RoomEnemyProjectileKind.StokeProjectile or
+                    RoomEnemyProjectileKind.NamiheFireball or
+                    RoomEnemyProjectileKind.FuneFireball or
+                    RoomEnemyProjectileKind.LavaThrownByMagdollite or
+                    RoomEnemyProjectileKind.DragonFireball or
+                    RoomEnemyProjectileKind.EyeDoorProjectile or
+                    RoomEnemyProjectileKind.EyeDoorSweat or
+                    RoomEnemyProjectileKind.EyeDoorSmoke or
+                    RoomEnemyProjectileKind.MiscDustExplosion or
+                    RoomEnemyProjectileKind.EnemyDeathPickup or
+                    RoomEnemyProjectileKind.EnemyDeathExplosion or
+                    RoomEnemyProjectileKind.KagoBug or
+                    RoomEnemyProjectileKind.BotwoonBody or
+                    RoomEnemyProjectileKind.BotwoonSpit or
+                    RoomEnemyProjectileKind.BombTorizoLowHealthDrool or
+                    RoomEnemyProjectileKind.BombTorizoInitialDrool or
+                    RoomEnemyProjectileKind.BombTorizoExplosiveSwipe or
+                    RoomEnemyProjectileKind.BombTorizoLowHealthExplosion or
+                    RoomEnemyProjectileKind.BombTorizoDeathExplosion or
+                    RoomEnemyProjectileKind.BombTorizoStatueBreaking or
+                    RoomEnemyProjectileKind.BombTorizoChozoOrb or
+                    RoomEnemyProjectileKind.BombTorizoSonicBoom or
+                    RoomEnemyProjectileKind.GoldenTorizoChozoOrb or
+                    RoomEnemyProjectileKind.GoldenTorizoSonicBoom or
+                    RoomEnemyProjectileKind.BombTorizoRightFootDust or
+                    RoomEnemyProjectileKind.BombTorizoLeftFootDust or
+                    RoomEnemyProjectileKind.GoldenTorizoEgg or
+                    RoomEnemyProjectileKind.GoldenTorizoSuperMissile or
+                    RoomEnemyProjectileKind.GoldenTorizoEyeBeam or
+                    RoomEnemyProjectileKind.TourianStatueSplash or
+                    RoomEnemyProjectileKind.TourianStatueEyeGlow or
+                    RoomEnemyProjectileKind.TourianStatueParticle or
+                    RoomEnemyProjectileKind.TourianStatueTail or
+                    RoomEnemyProjectileKind.TourianStatueSoul or
+                    RoomEnemyProjectileKind.TourianStatueRidley or
+                    RoomEnemyProjectileKind.TourianStatuePhantoon or
+                    RoomEnemyProjectileKind.TourianStatueBaseDecoration or
+                    RoomEnemyProjectileKind.WreckedShipChozoSpikeFootstep or
+                    RoomEnemyProjectileKind.WreckedShipChozoSpikeFootstepAlternate or
+                    RoomEnemyProjectileKind.TourianStatueDescentDust or
+                    RoomEnemyProjectileKind.ShaktoolAttackFrontCircle or
+                    RoomEnemyProjectileKind.ShaktoolAttackMiddleCircle or
+                    RoomEnemyProjectileKind.ShaktoolAttackBackCircle or
+                    RoomEnemyProjectileKind.SporeSpawnStalk or
+                    RoomEnemyProjectileKind.SporeSpawnSpore or
+                    RoomEnemyProjectileKind.SporeSpawnSpawner or
+                    RoomEnemyProjectileKind.SaveStationElectricity or
+                    RoomEnemyProjectileKind.DownwardGateMoving or
+                    RoomEnemyProjectileKind.DownwardGateClosed => throw new ArgumentOutOfRangeException(nameof(kind)),
                 _ => throw new ArgumentOutOfRangeException(nameof(kind)),
             };
             system.NoobTubeBehavior.SpawnNoobTubeProjectile(

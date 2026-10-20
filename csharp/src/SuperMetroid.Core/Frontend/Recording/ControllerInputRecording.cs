@@ -217,7 +217,7 @@ public sealed record ControllerInputRecording
 
         // Refuse impossible/truncated counts before allocating. Seekable files get an exact
         // length check; streams still receive ReadExactly plus the trailing-byte probe below.
-        long payloadByteCount = (long)saveRamLength + (long)inputCount * sizeof(ushort);
+        long payloadByteCount = saveRamLength + (long)inputCount * sizeof(ushort);
         if (source.CanSeek && source.Length - source.Position != payloadByteCount)
         {
             throw new InvalidDataException(

@@ -15,6 +15,7 @@ internal static class MotherBrainTurretAnimations
         {
             MotherBrainTurretProgram.TurretPose => TurretPoses[(int)direction],
             MotherBrainTurretProgram.BulletPose => BulletPoses[(int)direction],
+            MotherBrainTurretProgram.BulletImpact => throw new ArgumentOutOfRangeException(nameof(program), program, "Only turrets and bullets have direction poses."),
             _ => throw new ArgumentOutOfRangeException(nameof(program), program, "Only turrets and bullets have direction poses."),
         };
 

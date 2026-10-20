@@ -59,7 +59,7 @@ internal static class RoomHeaderDefinitionsVerification
     }
 
     /// <summary>Checks the room index stored at header byte zero.</summary>
-    private static void VerifyRoomHeaderRoomIndex(SuperMetroidAddressSpace rom, ushort[] rooms) => VerifyRoomHeaderField(rom, rooms, 0, header => (int)header.RoomIndex);
+    private static void VerifyRoomHeaderRoomIndex(SuperMetroidAddressSpace rom, ushort[] rooms) => VerifyRoomHeaderField(rom, rooms, 0, header => header.RoomIndex);
     /// <summary>Checks the area byte and its production area lookup.</summary>
     private static void VerifyRoomHeaderAreaIndex(SuperMetroidAddressSpace rom, ushort[] rooms) => VerifyRoomHeaderField(rom, rooms, 1, header => (int)header.AreaIndex);
     /// <summary>Checks each room's horizontal map coordinate against header byte two.</summary>
@@ -71,11 +71,11 @@ internal static class RoomHeaderDefinitionsVerification
     /// <summary>Checks room height in screen units against header byte five.</summary>
     private static void VerifyRoomHeaderHeightInScreens(SuperMetroidAddressSpace rom, ushort[] rooms) => VerifyRoomHeaderField(rom, rooms, 5, header => header.Size.Y);
     /// <summary>Checks the upward scroller setting at header byte six.</summary>
-    private static void VerifyRoomHeaderUpScroller(SuperMetroidAddressSpace rom, ushort[] rooms) => VerifyRoomHeaderField(rom, rooms, 6, header => (int)header.UpScroller);
+    private static void VerifyRoomHeaderUpScroller(SuperMetroidAddressSpace rom, ushort[] rooms) => VerifyRoomHeaderField(rom, rooms, 6, header => header.UpScroller);
     /// <summary>Checks the downward scroller setting at header byte seven.</summary>
-    private static void VerifyRoomHeaderDownScroller(SuperMetroidAddressSpace rom, ushort[] rooms) => VerifyRoomHeaderField(rom, rooms, 7, header => (int)header.DownScroller);
+    private static void VerifyRoomHeaderDownScroller(SuperMetroidAddressSpace rom, ushort[] rooms) => VerifyRoomHeaderField(rom, rooms, 7, header => header.DownScroller);
     /// <summary>Checks the CRE selection bits at header byte eight.</summary>
-    private static void VerifyRoomHeaderCreBitset(SuperMetroidAddressSpace rom, ushort[] rooms) => VerifyRoomHeaderField(rom, rooms, 8, header => (int)header.CreBitset);
+    private static void VerifyRoomHeaderCreBitset(SuperMetroidAddressSpace rom, ushort[] rooms) => VerifyRoomHeaderField(rom, rooms, 8, header => header.CreBitset);
     /// <summary>Checks the two-byte door-list pointer at the end of each header.</summary>
     private static void VerifyRoomHeaderDoorListPointer(SuperMetroidAddressSpace rom, ushort[] rooms) => VerifyRoomHeaderField(rom, rooms, 9, header => RoomDoorListDefinitions.ListPointerOf(header));
 

@@ -31,7 +31,7 @@ internal static class EvirDeathFrameVerification
             slot.Radius = new(slot.Definition.Radius.X, slot.Definition.Radius.Y);
             slot.Health = slot.Definition.Health;
             slot.SpritemapPointer = 0x8b59;
-            slot.Properties = EnemyPropertyWord.FromNativeWord((ushort)(index == 6 ? (ushort)0 : (ushort)EnemyProperties.IgnoreSamusCollision));
+            slot.Properties = EnemyPropertyWord.FromNativeWord(index == 6 ? (ushort)0 : (ushort)EnemyProperties.IgnoreSamusCollision);
             slot.SetSpawnParameter1(index == 7 ? (ushort)1 : (ushort)0);
             // The body bobs at speed record 8, one of the two records retail Evirs use.
             if (index == 6) slot.SetSpawnParameter2(8);
@@ -49,7 +49,7 @@ internal static class EvirDeathFrameVerification
         AssertEqual(1, enemies.RoomStatus.EnemiesKilled, "only body counts as a killed enemy");
         AssertTrue(arms.Properties.HasAny(EnemyProperties.Deleted) && projectile.Properties.HasAny(EnemyProperties.Deleted),
             "Evir contact tail marks both following physical slots deleted");
-        AssertEqual((ushort)1, arms.FrameCounter, "already-selected arms still receive their native final AI call");
+        AssertEqual(1, arms.FrameCounter, "already-selected arms still receive their native final AI call");
         AssertEqual((ushort)0xfffc, arms.Position.X.Whole, "arms read cleared body X and facing rather than stale pre-death values");
         AssertEqual((ushort)10, arms.Position.Y.Whole, "arms use cleared body Y plus native offset");
         AssertEqual((ushort)0xfffc, projectile.Position.X.Whole, "idle spit retains the physical cleared-body alias");

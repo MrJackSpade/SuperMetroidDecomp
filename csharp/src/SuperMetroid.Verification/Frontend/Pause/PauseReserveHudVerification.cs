@@ -81,7 +81,7 @@ internal static class PauseReserveHudVerification
         foreach ((int index, int offset) in new[] { (8, 0), (9, 2), (40, 4), (41, 6), (72, 8), (73, 10) })
             AssertEqual(bus.ReadCartridgeWord((0x809997 + offset)), Displayed().ReadWord(HudState.VramDestination + index), "empty AUTO uses native table");
         foreach (int index in Enumerable.Range(0, HudState.MutableTileCount).Except(ReserveDisplayCells))
-            AssertEqual((ushort)(SnesLittleEndian.Word(initialHud[index * 2], initialHud[index * 2 + 1])),
+            AssertEqual(SnesLittleEndian.Word(initialHud[index * 2], initialHud[index * 2 + 1]),
                 Displayed().ReadWord(HudState.VramDestination + index), "reserve updates preserve other HUD cells");
         AssertTrue(initialFx.SequenceEqual(Displayed().Bytes.Slice(0xb100, 0x700)), "HUD synchronization preserves cleared pause FX rows");
         for (int frame = 0; frame < 8 && game.GameState == SuperMetroidGameState.PausedB; frame++)

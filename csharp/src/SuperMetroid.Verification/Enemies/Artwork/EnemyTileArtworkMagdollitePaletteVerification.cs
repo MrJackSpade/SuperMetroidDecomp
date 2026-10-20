@@ -77,7 +77,7 @@ internal static class EnemyTileArtworkMagdollitePaletteVerification
         var cgram = new SnesCgram();
         enemies.Presentation.BindCgram(cgram);
         enemies.MagdolliteBehavior.MagdollitePaletteAnimationInstalled = true;
-        enemies.MagdolliteBehavior.MagdollitePaletteAnimationTimer = NativeCountdown.Start((ushort)8);
+        enemies.MagdolliteBehavior.MagdollitePaletteAnimationTimer = NativeCountdown.Start(8);
         enemies.MagdolliteBehavior.MagdollitePaletteFrame = 0;
         enemies.MagdolliteBehavior.MagdollitePaletteBaseColor = 0x80;
         Action step = enemies.MagdolliteBehavior.StepMagdollitePaletteAnimation;
@@ -110,7 +110,7 @@ internal static class EnemyTileArtworkMagdollitePaletteVerification
         AssertEqual(xBefore, untouched.Position.X.Whole,
             "Magdollite visual-cycle edit does not change enemy position");
         AssertEqual((ushort)8,
-            (ushort)enemies.MagdolliteBehavior.MagdollitePaletteAnimationTimer.RawValue,
+            enemies.MagdolliteBehavior.MagdollitePaletteAnimationTimer.RawValue,
             "Magdollite color edits preserve the eight-tick cadence");
 
         File.WriteAllBytes(overrideFile, [0]);

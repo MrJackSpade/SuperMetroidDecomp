@@ -28,7 +28,7 @@ internal static class BabyMetroidDeathCryVerification
         var state = new MotherBrainEnemyState(enemies.SlotTable.Slots[0]);
         var baby = new BabyMetroidCutsceneState();
         baby.Phase = BabyMetroidCutscenePhase.FinalCharge;
-        baby.Health = (ushort)79;
+        baby.Health = 79;
         var sequence = new MotherBrainRainbowBeamAttackSequence();
         var samus = new SamusState();
         Action<MotherBrainEnemyState, BabyMetroidCutsceneStepResult> apply = enemies.BabyMetroidCutsceneBehavior.ApplyBabyMetroidFrameEffects;
@@ -46,8 +46,8 @@ internal static class BabyMetroidDeathCryVerification
         AssertEqual(1, enemies.Audio.SoundRequests.Count, "Fatal transition emits exactly one death cry");
         var request = enemies.Audio.SoundRequests.Single();
         AssertEqual(SoundEffectLibrary.Library3, request.SoundEffect.Library, "Death cry belongs to library three");
-        AssertEqual((byte)0x19, request.SoundEffect.Value, "Death cry retains native sequence 19");
-        AssertEqual((byte)6, request.MaximumQueued, "Death cry uses native Max6");
+        AssertEqual(0x19, request.SoundEffect.Value, "Death cry retains native sequence 19");
+        AssertEqual(6, request.MaximumQueued, "Death cry uses native Max6");
         for (int frame = 0; frame < 3; frame++)
         {
             enemies.BeginEnemySoundRequestFrame();

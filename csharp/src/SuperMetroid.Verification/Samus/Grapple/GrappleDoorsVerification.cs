@@ -27,7 +27,7 @@ internal static class GrappleDoorsVerification
             int stride = verticalCap ? width : 1;
             var words = new ushort[width * width];
             var bts = new byte[words.Length];
-            words[origin] = (ushort)((int)RoomCollisionType.ShootableBlock << 12);
+            words[origin] = (int)RoomCollisionType.ShootableBlock << 12;
             bts[origin] = (byte)(RoomBlockBehaviorValues.BlueDoorFacingLeft.Value + (int)orientation);
             for (int offset = 1; offset < 4; offset++)
             {

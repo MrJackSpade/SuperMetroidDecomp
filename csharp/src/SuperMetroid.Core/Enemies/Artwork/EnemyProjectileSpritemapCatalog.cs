@@ -131,6 +131,9 @@ public sealed class EnemyProjectileSpritemapCatalog
                     EnemyProjectilePresentationFrameSets.PrePolypRock.ToArray(),
                 EnemyProjectileSpritemapVersion.Current =>
                     EnemyProjectilePresentationFrameSets.All.ToArray(),
+                EnemyProjectileSpritemapVersion.CeresOnly or
+                    EnemyProjectileSpritemapVersion.PreProgramFrames => throw new InvalidOperationException(
+                    $"Enemy-projectile schema {version} has no program frames."),
                 _ => throw new InvalidOperationException(
                     $"Enemy-projectile schema {version} has no program frames."),
             };

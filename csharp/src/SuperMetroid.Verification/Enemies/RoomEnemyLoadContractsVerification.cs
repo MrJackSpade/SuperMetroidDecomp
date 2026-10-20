@@ -38,13 +38,13 @@ internal static class RoomEnemyLoadContractsVerification
             RoomEnemyPopulationDefinitions.DraygonState1MotherBrainState2, RoomEnemyGraphicsSetDefinitions.Draygon1MotherBrain2, BgArtworkFixtures.For(new SnesVram()), new SnesCgram()).GunshipScenario,
             "the ordinary gunship scenario is the named default");
 
-        AssertEqual((ushort)0x1234, services.Random.Generate(), "the standalone RNG generates through its installed generator");
+        AssertEqual(0x1234, services.Random.Generate(), "the standalone RNG generates through its installed generator");
         AssertThrows<InvalidOperationException>(() => services.Random.Read(), "an uninstalled RNG read fails at the dependency");
         AssertThrows<InvalidOperationException>(() => services.Events.Has(EventNumber.ZebesAwake), "uninstalled event bits fail at the dependency");
         int seed = 0;
         var seeded = new StandaloneRoomEnemyServices(() => 0) { ReadRandom = () => seed, SeedRandom = value => seed = value };
         seeded.Random.Seed(0x0017);
-        AssertEqual((ushort)0x0017, seeded.Random.Read(), "installed RNG seed reads and writes share the word");
+        AssertEqual(0x0017, seeded.Random.Read(), "installed RNG seed reads and writes share the word");
     }
 
     /// <summary>Runs the focused room-enemy load and service contract check.</summary>

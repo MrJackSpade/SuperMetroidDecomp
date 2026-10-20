@@ -11,7 +11,7 @@ internal static class RoomPlmContactCrumbleProgramDefinitionsAccess
         {
             for (int index = 0; index < RoomPlmContactCrumbleProgramDefinitions.ProgramCount; index++)
             {
-                var program = RoomPlmContactCrumbleProgramDefinitions.ProgramAt((int)(index));
+                var program = RoomPlmContactCrumbleProgramDefinitions.ProgramAt(index);
                 yield return program.Start;
                 for (int frame = 0; frame < program.FrameCount; frame++)
                     yield return checked((ushort)(program.Start + 3 + 4 * frame));
@@ -26,7 +26,7 @@ internal static class RoomPlmContactCrumbleProgramDefinitionsAccess
         internal static IEnumerable<ushort> MechanicsByteAddresses()
         {
             for (int index = 0; index < RoomPlmContactCrumbleProgramDefinitions.ProgramCount; index++)
-                yield return checked((ushort)((RoomPlmContactCrumbleProgramDefinitions.ProgramAt((int)(index))).Start + 2));
+                yield return checked((ushort)((RoomPlmContactCrumbleProgramDefinitions.ProgramAt(index)).Start + 2));
         }
     }
 }

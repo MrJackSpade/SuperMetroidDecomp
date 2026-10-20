@@ -10,6 +10,7 @@ public static class MapArrowDefinitions
     {
         MapScrollDirection.Left => MapSpriteId.ArrowLeft, MapScrollDirection.Right => MapSpriteId.ArrowRight,
         MapScrollDirection.Up => MapSpriteId.ArrowUp, MapScrollDirection.Down => MapSpriteId.ArrowDown,
+        MapScrollDirection.None => throw new ArgumentOutOfRangeException(nameof(direction)),
         _ => throw new ArgumentOutOfRangeException(nameof(direction))
     };
 }

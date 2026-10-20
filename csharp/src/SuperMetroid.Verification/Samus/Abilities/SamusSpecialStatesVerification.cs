@@ -750,7 +750,7 @@ static void SeedSamusDeathSequenceCartridge(TestAddressSpace bus, ushort[] shade
 static SamusDeathPaletteArtworkCatalog DecodeSamusDeathFixtureArtwork(TestAddressSpace bus, ushort[] shades)
 {
     ushort[] FixturePalette(int pointer) => Enumerable.Range(0, 16)
-        .Select(color => (ushort)(SnesLittleEndian.Word(bus.ReadByte(pointer + color * 2), bus.ReadByte(pointer + color * 2 + 1)))).ToArray();
+        .Select(color => SnesLittleEndian.Word(bus.ReadByte(pointer + color * 2), bus.ReadByte(pointer + color * 2 + 1))).ToArray();
     ushort[][] suitColors = Enumerable.Range(0, 10).Select(palette => FixturePalette(0x9bc000 + palette * 0x20)).ToArray();
     ushort[][] suitlessColors = Enumerable.Range(0, 10).Select(palette => FixturePalette(0x9bd400 + palette * 0x20)).ToArray();
     ushort[] paletteIndices = Enumerable.Range(0, SamusDeathExplosionTimingDefinitions.RecordCount)

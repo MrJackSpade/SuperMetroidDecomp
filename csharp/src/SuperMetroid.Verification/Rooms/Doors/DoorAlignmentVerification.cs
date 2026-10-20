@@ -175,13 +175,13 @@ internal static class DoorAlignmentVerification
         AssertEqual(56, runtime.GameTime.Seconds, "door transition excludes game-time seconds");
         AssertEqual(34, runtime.GameTime.Minutes, "door transition excludes game-time minutes");
         AssertEqual(12, runtime.GameTime.Hours, "door transition excludes game-time hours");
-        AssertEqual((ushort)1, samus.HorizontalSpeed.BaseSpeed.Whole,
+        AssertEqual(1, samus.HorizontalSpeed.BaseSpeed.Whole,
             "door transition retains base running speed");
-        AssertEqual((ushort)0x8000, samus.HorizontalSpeed.BaseSpeed.Fraction,
+        AssertEqual(0x8000, samus.HorizontalSpeed.BaseSpeed.Fraction,
             "door transition retains base running subspeed");
-        AssertEqual((ushort)2, samus.HorizontalSpeed.ExtraRunSpeed.Whole,
+        AssertEqual(2, samus.HorizontalSpeed.ExtraRunSpeed.Whole,
             "door transition retains extra running speed");
-        AssertEqual((ushort)0x4000, samus.HorizontalSpeed.ExtraRunSpeed.Fraction,
+        AssertEqual(0x4000, samus.HorizontalSpeed.ExtraRunSpeed.Fraction,
             "door transition retains extra running subspeed");
         AssertTrue(samus.HorizontalSpeed.HasRunningMomentum,
             "door transition retains the running-momentum flag");

@@ -29,7 +29,7 @@ internal static class BeetomOwnedStateVerification
         AssertEqual(64, arc.YSpeedTableIndex, "falling holds at the maximum");
 
         var enemies = new RoomEnemySystem(new EnemySession(), services: new VerificationRoomEnemyServices(null));
-        enemies.VerificationServices().SeedRandom = (Action<ushort>)(_ => { });
+        enemies.VerificationServices().SeedRandom = _ => { };
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.Beetom, slot.Definition);
         enemies.BeetomBehavior.InitializeBeetom(slot, new SamusState(), 0);

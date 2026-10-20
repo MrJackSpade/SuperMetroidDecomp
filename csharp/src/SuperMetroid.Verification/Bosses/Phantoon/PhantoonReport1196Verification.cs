@@ -70,7 +70,7 @@ internal static class PhantoonReport1196Verification
         wave.Step(boss);
         boss.Bg2Scroll = boss.Bg2Scroll.WithX(13);
         boss.Body.Health = 0;
-        enemies.PhantoonBehavior.ResolvePhantoonShotReaction(boss.Body, boss, (ushort)0x0100, (ushort)100);
+        enemies.PhantoonBehavior.ResolvePhantoonShotReaction(boss.Body, boss, 0x0100, 100);
         PhantoonBehavior.BeginPhantoonWavyMosaicDeath(boss.Body, boss);
         wave.Step(boss);
         wave.LatchDisplay();
@@ -94,7 +94,7 @@ internal static class PhantoonReport1196Verification
         AssertTrue((wave.DisplayedWave?.GameplayScrolls().ToArray() ?? throw new InvalidOperationException("Verification requires a latched Phantoon wave.")).All(scroll => scroll == 13), "every first-frame death scroll equals native BG2 X");
         boss.Parts[boss.Mouth.SlotIndex].WaveAmplitude = 3072;
         wave.Step(boss);
-        AssertEqual((ushort)14, wave.Phase, "following HDMA pass resumes native phase advancement");
+        AssertEqual(14, wave.Phase, "following HDMA pass resumes native phase advancement");
         AssertTrue(wave.ScrollCycle.Any(scroll => scroll != 13), "following pass rebuilds the animated wave");
         Console.WriteLine("Phantoon death: retained intro data is initialized before setup-only death frame; all rendered rows align before wave advancement.");
     }

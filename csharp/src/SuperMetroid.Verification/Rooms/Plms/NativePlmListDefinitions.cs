@@ -172,7 +172,7 @@ internal static class NativePlmListDefinitions
                 if ((word & InstructionBit) == 0)
                 {
                     AssertEqual(AnimationProgramStepKind.Show, step.Kind, $"{at}: timed draw");
-                    AssertEqual((int)word, step.Duration, $"{at}: duration");
+                    AssertEqual(word, step.Duration, $"{at}: duration");
                     AssertEqual(Word(cursor + 2), drawList(program, step.Frame), $"{at}: draw list");
                     cursor = unchecked((ushort)(cursor + 4));
                     index++;
@@ -202,7 +202,7 @@ internal static class NativePlmListDefinitions
                         return Ends(index);
                     case RoomPlmInstruction.SetEightBitTimer:
                         AssertEqual(AnimationProgramStepKind.SetCounter, step.Kind, $"{at}: loop timer");
-                        AssertEqual((int)ReadOperandByte(cartridge, cursor + 2), step.Duration, $"{at}: loop count");
+                        AssertEqual(ReadOperandByte(cartridge, cursor + 2), step.Duration, $"{at}: loop count");
                         cursor = unchecked((ushort)(cursor + 3));
                         index++;
                         continue;
@@ -212,6 +212,57 @@ internal static class NativePlmListDefinitions
                         cursor = unchecked((ushort)(cursor + 4));
                         index++;
                         continue;
+                    case RoomPlmInstruction.SetGreyDoorPreInstruction:
+                    case RoomPlmInstruction.InstallPreInstruction:
+                    case RoomPlmInstruction.ClearPreInstruction:
+                    case RoomPlmInstruction.LinkInstruction:
+                    case RoomPlmInstruction.GotoIfDoorBitSet:
+                    case RoomPlmInstruction.IncrementDoorHitCounterAndGoto:
+                    case RoomPlmInstruction.IncrementArgumentAndGotoIfGreaterOrEqual:
+                    case RoomPlmInstruction.GotoIfSamusNear:
+                    case RoomPlmInstruction.CopyFromRamToVram:
+                    case RoomPlmInstruction.GotoIfAreaBossBitSet:
+                    case RoomPlmInstruction.GotoIfEventSet:
+                    case RoomPlmInstruction.SetEvent:
+                    case RoomPlmInstruction.SetPlmBtsFromByte:
+                    case RoomPlmInstruction.DrawPlmBlock:
+                    case RoomPlmInstruction.DrawPlmBlockClone:
+                    case RoomPlmInstruction.QueueSoundLibrary2Maximum6:
+                    case RoomPlmInstruction.QueueSoundLibrary3Maximum6:
+                    case RoomPlmInstruction.ClearDownwardGateTrigger:
+                    case RoomPlmInstruction.SpawnDownwardGateProjectile:
+                    case RoomPlmInstruction.WakeDownwardGateProjectile:
+                    case RoomPlmInstruction.ShootEyeDoorProjectile:
+                    case RoomPlmInstruction.SpawnEyeDoorSweat:
+                    case RoomPlmInstruction.SpawnTwoEyeDoorSmoke:
+                    case RoomPlmInstruction.SpawnEyeDoorSmoke:
+                    case RoomPlmInstruction.MoveUpAndMakeBlueDoorFacingRight:
+                    case RoomPlmInstruction.MoveUpAndMakeBlueDoorFacingLeft:
+                    case RoomPlmInstruction.DamageDraygonCannonFacingRight:
+                    case RoomPlmInstruction.DamageDraygonCannonFacingLeft:
+                    case RoomPlmInstruction.QueueSoundLibrary2Maximum3:
+                    case RoomPlmInstruction.QueueSoundLibrary2Maximum1:
+                    case RoomPlmInstruction.QueueSoundLibrary2Maximum1Direct:
+                    case RoomPlmInstruction.GotoIfSamusHasNoBombs:
+                    case RoomPlmInstruction.SetPlmBtsToOne:
+                    case RoomPlmInstruction.GotoIfRoomArgumentLess:
+                    case RoomPlmInstruction.SpawnFourMotherBrainGlassShards:
+                    case RoomPlmInstruction.SpawnTorizoStatueBreaking:
+                    case RoomPlmInstruction.QueueSongOneMusicTrack:
+                    case RoomPlmInstruction.EnableNoobTubeWaterPhysics:
+                    case RoomPlmInstruction.SpawnNoobTubeCrack:
+                    case RoomPlmInstruction.TriggerNoobTubeEarthquake:
+                    case RoomPlmInstruction.SpawnNoobTubeShardsAndBubbles:
+                    case RoomPlmInstruction.LockSamus:
+                    case RoomPlmInstruction.UnlockSamus:
+                    case RoomPlmInstruction.MoveRightFourBlocks:
+                    case RoomPlmInstruction.SetAnimalsEscapedEvent:
+                    case RoomPlmInstruction.SamusEaterDamage:
+                    case RoomPlmInstruction.SamusEaterReleaseImmunity:
+                    case RoomPlmInstruction.MoveTourianAccessDown:
+                    case RoomPlmInstruction.TransformSpikesToSlopes:
+                    case RoomPlmInstruction.RevertSlopesToSpikes:
+                    case RoomPlmInstruction.SetLoweredAcidHeight:
                     default:
                         if (showAt is not null && showAt(cartridge, cursor, out TFrame shown, out int shownFor, out int showLength))
                         {

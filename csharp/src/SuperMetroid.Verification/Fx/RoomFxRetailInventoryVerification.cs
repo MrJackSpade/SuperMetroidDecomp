@@ -727,7 +727,7 @@ internal static class RoomFxRetailInventoryVerification
         RoomFxSoundRequest sound = runtime.RoomLayer3Fx.SoundRequests[0];
         AssertEqual(SoundEffectLibrary2Sounds.Earthquake, sound.SoundEffect,
             "room $02/$28 earthquake sound identity");
-        AssertEqual((byte)6, sound.MaximumQueued,
+        AssertEqual(6, sound.MaximumQueued,
             "room $02/$28 earthquake sound queue cap");
         AssertEqual(RoomFxRomData.Earthquake.RisingLiquidType, runtime.Enemies.Earthquake.EarthquakeType,
             "room $02/$28 earthquake type");

@@ -21,7 +21,7 @@ internal static class DeadTorizoCollisionVerification
         foreach (string trigger in new[] { "contact", "shot", "power bomb", "solid collision delay" })
         {
             var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null)) { TileArtwork = InstalledFixtures.EnemyTiles };
-            enemies.VerificationServices().ReadRandom = (Func<ushort>)(() => 0);
+            enemies.VerificationServices().ReadRandom = () => 0;
             var slot = enemies.SlotTable.Slots[0];
             slot.Bind(EnemyDefinitionId.CorpseTorizo, slot.Definition);
             slot.Position = slot.Position.WithWhole(new(120, 100));
@@ -71,7 +71,7 @@ internal static class DeadTorizoCollisionVerification
             bool IsInteractive()
             {
                 enemies.ProcessingWindow.DetermineWhichEnemiesToProcess(Position16<RoomPixels>.Zero);
-                return ((IReadOnlyList<int>)enemies.ProcessingWindow.InteractiveEnemyIndexes).Contains(slot.NativeIndex);
+                return enemies.ProcessingWindow.InteractiveEnemyIndexes.Contains(slot.NativeIndex);
             }
             SolidEnemyCollisionResult Probe() => SamusSolidEnemyCollision.Probe(samus.Kinematics,
                 IsInteractive() ? [new SolidEnemyCollisionBody(slot.NativeIndex, slot.Position.Whole, new(slot.Radius.X, slot.Radius.Y), !slot.FrozenTimer.IsZero, slot.Properties)] : [],

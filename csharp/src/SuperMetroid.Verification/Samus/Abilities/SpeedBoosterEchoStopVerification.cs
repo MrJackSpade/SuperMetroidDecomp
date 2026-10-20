@@ -68,7 +68,7 @@ internal static class SpeedBoosterEchoStopVerification
             finalPeak = pcm.Max(sample => Math.Abs((int)sample));
             if (frame == 39)
             {
-                AssertEqual((byte)3, libraries[2].CurrentSound, "boost echo remains active before wall contact");
+                AssertEqual(3, libraries[2].CurrentSound, "boost echo remains active before wall contact");
                 AssertTrue(finalPeak > 0, "boost echo is audible before wall contact");
                 AssertEqual(0, stopRequests, "active boost does not cancel its echo");
             }
@@ -76,7 +76,7 @@ internal static class SpeedBoosterEchoStopVerification
         AssertEqual(1, starts, "one native boost-start request");
         AssertEqual(1, stopRequests, "one native post-draw stop request");
         AssertEqual(1, stops, "one stop request reaches the SPC");
-        AssertEqual((byte)0, libraries[2].CurrentSound, "SPC echo ends without footsteps or landing sounds");
+        AssertEqual(0, libraries[2].CurrentSound, "SPC echo ends without footsteps or landing sounds");
         AssertEqual(0, finalPeak, "echo PCM reaches silence after wall cancellation");
         Suite(nameof(VerifyEchoFlagOwnership), () => VerifyEchoFlagOwnership());
         Console.WriteLine("Speed Booster echo: one start, no premature stop, one wall-cancellation stop, then SPC/PCM silence.");
@@ -93,14 +93,14 @@ internal static class SpeedBoosterEchoStopVerification
         speed.TryAdvanceSpeedBoosterAnimationStage(null, SamusMovementType.Running, SnesButton.B,
             0, ref animation, out _);
         AssertTrue(speed.ConsumeEchoSoundRequest(), "deferred producer publishes its start request");
-        AssertEqual((ushort)1, speed.EchoSoundFlag, "consuming the start event retains the persistent echo flag");
+        AssertEqual(1, speed.EchoSoundFlag, "consuming the start event retains the persistent echo flag");
         speed.SpeedBoostCounter = new SamusSpeedBoostCounter(0);
         samus.ResumeChargingBeamSound = ResumeChargingBeamSoundLatch.SignedLatch;
         SamusPostDrawAudio.Step(samus, SamusMovementType.Standing, 0);
-        AssertEqual((ushort)1, speed.EchoSoundFlag, "negative charging latch skips echo cleanup in native order");
+        AssertEqual(1, speed.EchoSoundFlag, "negative charging latch skips echo cleanup in native order");
         AssertEqual(0, samus.LiquidPhysics.SoundRequests.Count, "negative charging latch sends no stop");
         SamusPostDrawAudio.Step(samus, SamusMovementType.Standing, 0);
-        AssertEqual((ushort)0, speed.EchoSoundFlag, "next post-draw pass consumes the echo flag");
+        AssertEqual(0, speed.EchoSoundFlag, "next post-draw pass consumes the echo flag");
         AssertEqual(SoundEffectLibrary3Sounds.StopSpeedBoosterEcho, samus.LiquidPhysics.SoundRequests.Single().SoundEffect,
             "deferred producer receives the same native stop");
 
@@ -109,7 +109,7 @@ internal static class SpeedBoosterEchoStopVerification
         DebuggerObjectGraphSerializer.Serialize(encoded, speed);
         encoded.Position = 0;
         var restored = DebuggerObjectGraphSerializer.Deserialize<SamusHorizontalSpeedState>(encoded);
-        AssertEqual((ushort)1, restored.EchoSoundFlag, "serialized flag survives even after boost has stopped");
+        AssertEqual(1, restored.EchoSoundFlag, "serialized flag survives even after boost has stopped");
 
         samus.Position = samus.Position.WithWhole(new(24, 24));
         samus.Kinematics.Radius = samus.Kinematics.Radius.WithY(8);
@@ -119,7 +119,7 @@ internal static class SpeedBoosterEchoStopVerification
         samus.LiquidPhysics.BeginFrameSoundRequests();
         var sand = new RoomLevelData(new Extent16<RoomBlocks>(4, 4), new RoomLevelPlanes(Enumerable.Repeat((ushort)0x3000, 16).ToArray(), Enumerable.Repeat((byte)0x80, 16).ToArray(), new ushort[16]), new byte[8]);
         SamusInsideBlockReactions.PrepareFrame(sand, samus, AreaId.Maridia);
-        AssertEqual((ushort)0, speed.EchoSoundFlag, "quicksand clears the native persistent flag");
+        AssertEqual(0, speed.EchoSoundFlag, "quicksand clears the native persistent flag");
         AssertTrue(speed.EchoSoundRequested, "quicksand does not retract a previously published start command");
         SamusPostDrawAudio.Step(samus, SamusMovementType.Standing, 0);
         AssertEqual(0, samus.LiquidPhysics.SoundRequests.Count, "quicksand silently suppresses the post-draw stop");

@@ -176,6 +176,8 @@ public sealed class SamusFullBodyCycleColorCatalog
             case 250: return screwPowerBright10.Apply(ScrewExpected(15, 10));
             case 255: return screwPowerBright15.Apply(ScrewExpected(15, 15));
             case 498: return screwVariaBright2.Apply(ScrewExpected(31, 2));
+            default:
+                break;
         }
         if (colors.TryGetValue(index, out Bgr555 value)) return value;
         if (index is 513 or 524)

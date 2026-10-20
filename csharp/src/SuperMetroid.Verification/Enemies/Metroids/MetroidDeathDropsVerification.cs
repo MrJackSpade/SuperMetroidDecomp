@@ -48,7 +48,7 @@ internal static class MetroidDeathDropsVerification
         shot.Radius = new(4, 4);
         shot.Cursor = ProjectileFixtureCursors.Active; shot.InstructionTimer = NativeCountdown.Start(1);
         runtime.Enemies.Collision.ResolveOrdinaryProjectileHits(runtime.Projectiles, runtime.BombProjectiles, samus);
-        AssertEqual((ushort)0, metroid.Health, $"the missile kills the frozen Metroid (already marked: {alreadyMarked})");
+        AssertEqual(0, metroid.Health, $"the missile kills the frozen Metroid (already marked: {alreadyMarked})");
 
         var projectiles = runtime.Enemies.Projectiles.EnemyProjectiles;
         int explosion = projectiles.Count - 1;

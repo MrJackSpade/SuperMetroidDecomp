@@ -175,8 +175,8 @@ public static class GameplayDisplayCapture
 
     /// <summary>The Mode 7 registers Ceres Ridley's latched shadows program, before room shake.</summary>
     internal static Mode7RenderRegisters CeresRidleyRegisters(CeresRidleyMode7Snapshot ridley) => new(
-        unchecked((short)ridley.MatrixA), unchecked((short)ridley.MatrixB),
-        unchecked((short)ridley.MatrixC), unchecked((short)ridley.MatrixD),
+        unchecked(ridley.MatrixA), unchecked(ridley.MatrixB),
+        unchecked(ridley.MatrixC), unchecked(ridley.MatrixD),
         ridley.Center.AsSignedRegister(), ridley.Offset);
 
     /// <summary>The sky's HDMA BG2HOFS per gameplay line with the latched room shake added, or null without one.</summary>
@@ -273,8 +273,8 @@ public static class GameplayDisplayCapture
         {
             SamusMode7Transform m = latched.SamusMode7Transform
                 ?? throw new InvalidOperationException("The Ceres elevator shaft has no NMI-published Mode 7 matrix.");
-            registers = new(unchecked((short)m.MatrixA), unchecked((short)m.MatrixB),
-                unchecked((short)m.MatrixC), unchecked((short)m.MatrixA),
+            registers = new(unchecked(m.MatrixA), unchecked(m.MatrixB),
+                unchecked(m.MatrixC), unchecked(m.MatrixA),
                 m.Center.AsMode7Register(),
                 new Offset16<Mode7Pixels>(
                     unchecked((short)Add(ppu.Bg1Scroll.X, shake.Bg1.X)),

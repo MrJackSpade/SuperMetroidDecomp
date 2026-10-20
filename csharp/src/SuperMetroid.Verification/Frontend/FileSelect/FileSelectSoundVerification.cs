@@ -27,7 +27,7 @@ internal static class FileSelectSoundVerification
         {
             // Accept on the first update the native main menu reads input.
             bool accept = !accepted && menu.Phase == FileSelectPhase.Main;
-            menu.Step(accept ? SnesButton.A : (ushort)0);
+            menu.Step(accept ? SnesButton.A : 0);
             var commands = audio.AdvanceFrame(renderer.Acknowledgements);
             writes += commands.Count(command => command.Kind == CartridgeAudioCommandKind.WritePort && command.InputPort == ApuPort.SoundLibrary1 && command.Value == SoundEffectLibrary1Sounds.FileSelectSwoosh.Value);
             var pcm = renderer.RenderFrame(commands);

@@ -53,7 +53,7 @@ internal static class MamaTurtleShellContourVerification
         for (short difference = -30; difference <= 30; difference++)
         {
             mama.Radius = mama.Radius.WithY(0xffff);
-            mama.Properties = EnemyPropertyWord.FromNativeWord((ushort)(0));
+            mama.Properties = EnemyPropertyWord.FromNativeWord(0);
             samus.Position = samus.Position.WithWholeX(unchecked((ushort)(mama.Position.X.Whole - difference)));
             runAsleep(mama, state, samus);
 

@@ -315,6 +315,8 @@ public sealed class D3D11RenderWorker
                             case D3D11PresentationResult.Occluded:
                                 opportunity = false; wasOccluded = true; Interlocked.Increment(ref occluded); break;
                             case D3D11PresentationResult.StaleGeneration: Interlocked.Increment(ref stale); break;
+                            default:
+                                throw new InvalidOperationException($"Undefined {nameof(D3D11PresentationResult)} {presentationResult}.");
                         }
                         retained = packet;
                         consecutiveLosses = 0;

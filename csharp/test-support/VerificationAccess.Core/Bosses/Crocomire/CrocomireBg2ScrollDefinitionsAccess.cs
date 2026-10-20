@@ -17,7 +17,7 @@ internal static class CrocomireBg2ScrollDefinitionsAccess
             if ((uint)index >= CrocomireBg2ScrollDefinitions.EntryCount) throw new IndexOutOfRangeException();
             ushort frame = (ushort)(index < 12 ? CrocomireBg2ScrollDefinitions.ChargeStepFrameStart + 0x32 * index
                 : CrocomireBg2ScrollDefinitions.MovingClawsFrameStart + 0x32 * (index - 12));
-            return new(frame, unchecked((ushort)((int)(CrocomireBg2ScrollDefinitions.Correction((ushort)(frame))))));
+            return new(frame, unchecked((ushort)CrocomireBg2ScrollDefinitions.Correction(frame)));
         }
     }
 }

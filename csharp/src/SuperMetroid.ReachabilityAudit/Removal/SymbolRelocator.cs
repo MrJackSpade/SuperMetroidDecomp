@@ -200,7 +200,7 @@ internal static class SymbolRelocator
                     var (left, name) = node switch
                     {
                         MemberAccessExpressionSyntax access => ((SyntaxNode)access.Expression, access.Name),
-                        QualifiedNameSyntax qualified => (qualified.Left, (SimpleNameSyntax)qualified.Right),
+                        QualifiedNameSyntax qualified => (qualified.Left, qualified.Right),
                         _ => throw new InvalidOperationException(),
                     };
                     var bound = SymbolIdentity.Normalize(model.GetSymbolInfo(name).Symbol);

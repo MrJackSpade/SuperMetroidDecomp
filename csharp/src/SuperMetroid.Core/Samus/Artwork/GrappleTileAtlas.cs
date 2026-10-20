@@ -75,6 +75,37 @@ public sealed class GrappleTileAtlas : IVramAssetProvider, IInstalledArtworkTran
                 GrappleBeamTilePatterns.VerticalSegments(SegmentBytes(0).Span),
             VramAssetId.GrappleHorizontalSegmentTiles or VramAssetId.GrappleDiagonalSegmentTiles =>
                 SegmentBytes(transfer.AtlasOffset - 128),
+            VramAssetId.None or
+                VramAssetId.StandardHudTiles or
+                VramAssetId.EscapeTimerFirstTiles or
+                VramAssetId.EscapeTimerSecondTiles or
+                VramAssetId.BeamPowerTiles or
+                VramAssetId.BeamWaveTiles or
+                VramAssetId.BeamIceTiles or
+                VramAssetId.BeamIceWaveTiles or
+                VramAssetId.BeamSpazerTiles or
+                VramAssetId.BeamSpazerWaveTiles or
+                VramAssetId.BeamSpazerIceTiles or
+                VramAssetId.BeamSpazerIceWaveTiles or
+                VramAssetId.BeamPlasmaTiles or
+                VramAssetId.BeamPlasmaWaveTiles or
+                VramAssetId.BeamPlasmaIceTiles or
+                VramAssetId.BeamPlasmaIceWaveTiles or
+                VramAssetId.ProjectileIceWaveTrailTiles or
+                VramAssetId.ProjectileMissileTrailTiles or
+                VramAssetId.KraidBg3RestoreQuarter0 or
+                VramAssetId.KraidBg3RestoreQuarter1 or
+                VramAssetId.KraidBg3RestoreQuarter2 or
+                VramAssetId.KraidBg3RestoreQuarter3 or
+                VramAssetId.GunshipLiftoffFirstTiles or
+                VramAssetId.GunshipLiftoffSecondTiles or
+                VramAssetId.GunshipLiftoffThirdTiles or
+                VramAssetId.GunshipLiftoffFourthTiles or
+                VramAssetId.GunshipLiftoffFifthTiles or
+                VramAssetId.BeamChainsawTiles or
+                VramAssetId.BeamSpacetimeTiles or
+                VramAssetId.StandardObjectTiles or
+                VramAssetId.HudTopRowTilemap => throw new InvalidDataException($"Not a Grapple tile asset: {asset}."),
             _ => throw new InvalidDataException($"Not a Grapple tile asset: {asset}."),
         };
     }

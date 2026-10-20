@@ -41,7 +41,7 @@ internal static class GameplayCaptureIntegrationTestsVerification
         OrdinaryGameplayRegisters acceptedRegisters =
             ((OrdinaryGameplayRenderLayer)GameplayDisplayCapture.CaptureOrdinaryBase(runtime.PublishDisplayFrame())
                 .Layers[0]).Registers;
-        AssertEqual((byte)0x12, acceptedRegisters.Windows.ObjectColorLogic,
+        AssertEqual(0x12, acceptedRegisters.Windows.ObjectColorLogic,
             "accepted NMI publishes Chainsaw WOBJLOG store");
         AssertEqual(SnesMainScreenLayers.Bg3, acceptedRegisters.MainScreenLayers,
             "accepted NMI publishes slot-four Chainsaw TM overwrite");
@@ -83,7 +83,7 @@ internal static class GameplayCaptureIntegrationTestsVerification
         bool sawMode7Packet = false;
         for (int tick = 0; tick < 2000 && legacy.GameState != SuperMetroidGameState.MainGameplay; tick++)
         {
-            SnesButton input = tick % 47 == 0 ? SnesButton.Start : (ushort)0;
+            SnesButton input = tick % 47 == 0 ? SnesButton.Start : 0;
             FrontendFrame reference = legacy.Step(input);
             CapturedFrontendFrame actual = packets.StepCaptured(input, ++sequence, 1);
             Compare(reference, actual);
@@ -114,7 +114,7 @@ internal static class GameplayCaptureIntegrationTestsVerification
         for (int tick = 0; tick < 180; tick++)
         {
             if (fadeFrames.ContainsKey(legacy.GameState)) fadeFrames[legacy.GameState]++;
-            SnesButton input = tick is 10 or >= 100 and <= 105 ? SnesButton.Start : (ushort)0;
+            SnesButton input = tick is 10 or >= 100 and <= 105 ? SnesButton.Start : 0;
             FrontendFrame reference = legacy.Step(input);
             CapturedFrontendFrame actual = packets.StepCaptured(input, ++sequence, 1);
             Compare(reference, actual);

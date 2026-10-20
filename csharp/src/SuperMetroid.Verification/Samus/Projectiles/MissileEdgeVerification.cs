@@ -31,10 +31,10 @@ internal static class MissileEdgeVerification
             var shared = CreateBombFixture();
             for (int frame = 0; frame < 20; frame++)
             {
-                SnesButton input = frame == 0 ? SnesButton.X : (ushort)0;
+                SnesButton input = frame == 0 ? SnesButton.X : 0;
                 shared.StepFrame(new SamusTerrain { Level = room }, samus, input, input);
                 projectiles.StepFrame(new SamusTerrain { Level = room }, samus, new ProjectileButtonInput { ControllerInput = input, ControllerNewInput = input }, new((ushort)(edge == 1 ? 192 : 384), 0), shared);
-                if (frame == 0) AssertEqual(4, (int)samus.Missiles,
+                if (frame == 0) AssertEqual(4, samus.Missiles,
                     "Missile edge fixture uses actual fire dispatch");
                 var shot = projectiles.Slots[0];
                 ushort[] actual = [shot.Position.X.Whole, shot.Position.X.Fraction, shot.Position.Y.Whole, shot.Position.Y.Fraction,

@@ -19,7 +19,7 @@ internal static class AbsoluteTangentDefinitionsVerification
         var mother = new Func<int, int>(RainbowBeamWindowBuilder.Tangent);
         for (int index = 0; index <= 128; index++)
         {
-            AssertEqual((ushort)CartridgeImportSource.Require(rom).ReadCartridgeWord(0x91c9d4 + index * 2), AbsoluteTangentDefinitions.Sample(index), "All native tangent words including endpoint");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(0x91c9d4 + index * 2), AbsoluteTangentDefinitions.Sample(index), "All native tangent words including endpoint");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(0x91c9d4 + index * 2), eye(index), "Eye actual tangent reader without ROM");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(0x91c9d4 + index * 2), mother(index), "Mother Brain actual tangent reader without ROM");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(0x91c9d4 + index * 2), mother(index - 256), "Mother Brain caller byte wrap");

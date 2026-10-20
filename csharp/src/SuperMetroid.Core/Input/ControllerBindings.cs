@@ -85,6 +85,12 @@ public readonly record struct ControllerBindings(
         SnesButton.Y => 4,
         SnesButton.L => 5,
         SnesButton.R => 6,
+        SnesButton.None or
+            SnesButton.Right or
+            SnesButton.Left or
+            SnesButton.Down or
+            SnesButton.Up or
+            SnesButton.Start => null,
         _ => null,
     };
 

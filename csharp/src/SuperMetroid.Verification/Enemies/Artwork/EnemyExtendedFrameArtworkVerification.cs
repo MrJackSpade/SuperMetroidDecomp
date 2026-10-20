@@ -1375,7 +1375,7 @@ internal static class EnemyExtendedFrameArtworkVerification
         ushort sampleY = unchecked((ushort)(slot.Position.Y.Whole + component.Offset.Y +
             (hitbox.Top + hitbox.Bottom) / 2));
         object?[] arguments =
-            [slot, new Position16<RoomPixels>(sampleX, sampleY), new Extent16<RoomPixels>((ushort)0, (ushort)0), false, (ushort)0];
+            [slot, new Position16<RoomPixels>(sampleX, sampleY), new Extent16<RoomPixels>(0, 0), false, (ushort)0];
         AssertTrue(ExtendedHitboxWalker.Find(enemies, arguments),
             "Space Pirate stock hitbox contains its sampled point");
         return (ushort)(arguments[4] ?? throw new InvalidOperationException("Verification requires arguments[4]."));

@@ -419,7 +419,7 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
         byte tableAngle = angle.AddTableUnits(phase).RawValue;
         int sineMagnitude = EnemyTrigonometryTables.EightBitHalfWave(tableAngle & EnemyByteAngleDefinitions.HalfWaveIndexMask);
         ushort product = unchecked((ushort)(sineMagnitude * speed));
-        ushort pixel = unchecked((ushort)(SnesUnsignedEightEight.Whole(product)));
+        ushort pixel = unchecked(SnesUnsignedEightEight.Whole(product));
         ushort subpixel = unchecked((ushort)SnesSixteenSixteen.FromEightEight(product));
         if ((tableAngle & EnemyByteAngleDefinitions.HalfTurn) != 0)
         {

@@ -30,7 +30,7 @@ internal static class AreaAnimatedTileObjectDefinitionsAccess
                     nameof(bit), bit, $"Animated-tile bit must be 0..{AreaAnimatedTileObjectDefinitions.ObjectsPerArea - 1}.");
             }
 
-            return ((ushort)(AreaAnimatedTileObjectDefinitions.SelectObject((int)(nativeAreaIndex), (int)(bit))));
+            return ((ushort)(AreaAnimatedTileObjectDefinitions.SelectObject(nativeAreaIndex, bit)));
         }
 
         /// <summary>Restricts native animation-list lookup to its eight physical table rows.</summary>

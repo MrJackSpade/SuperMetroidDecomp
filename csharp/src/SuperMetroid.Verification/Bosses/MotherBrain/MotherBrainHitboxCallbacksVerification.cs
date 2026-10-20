@@ -29,7 +29,7 @@ internal static class MotherBrainHitboxCallbacksVerification
             EnemyExtendedFrameDefinition frame = MotherBrainBodyVisualDefinitions.Frame(index);
             int root = (int)new SnesAddress(frame.Bank, frame.Pointer);
             ReadOnlySpan<MotherBrainCollisionComponent> components = MotherBrainCollisionDefinitions.ComponentsAt(frame.Pointer);
-            AssertEqual((int)rom.ReadCartridgeByte(root), components.Length, $"frame {frame.Name} component count");
+            AssertEqual(rom.ReadCartridgeByte(root), components.Length, $"frame {frame.Name} component count");
             for (int component = 0; component < components.Length; component++)
             {
                 int record = root + 2 + component * ComponentRecordBytes;
@@ -39,7 +39,7 @@ internal static class MotherBrainHitboxCallbacksVerification
                 AssertEqual(cartridge.ReadCartridgeWord(record + 2), unchecked((ushort)compiled.Offset.Y),
                     $"frame {frame.Name} component {component} Y");
                 int list = (int)new SnesAddress(MotherBrainCollisionDefinitions.Bank, cartridge.ReadCartridgeWord(record + 6));
-                AssertEqual((int)cartridge.ReadCartridgeWord(list), compiled.Hitboxes.Count,
+                AssertEqual(cartridge.ReadCartridgeWord(list), compiled.Hitboxes.Count,
                     $"frame {frame.Name} component {component} rectangle count");
                 for (int box = 0; box < compiled.Hitboxes.Count; box++)
                 {

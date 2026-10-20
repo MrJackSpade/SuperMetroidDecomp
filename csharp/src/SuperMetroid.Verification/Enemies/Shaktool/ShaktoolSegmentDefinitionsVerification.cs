@@ -41,7 +41,7 @@ internal static class ShaktoolSegmentDefinitionsVerification
             RoomEnemySlot slot = enemies.SlotTable.Slots[index];
             slot.Bind(EnemyDefinitionId.Shaktool, slot.Definition);
             slot.SetSpawnParameter2(unchecked((ushort)(index * 2)));
-            slot.Properties = EnemyPropertyWord.FromNativeWord((ushort)(0x0010));
+            slot.Properties = EnemyPropertyWord.FromNativeWord(0x0010);
             slot.Position = slot.Position.WithWhole(new(unchecked((ushort)(0x0100 + index * 16)), 0x0200));
             initialize(slot);
 
@@ -52,7 +52,7 @@ internal static class ShaktoolSegmentDefinitionsVerification
                 $"Shaktool production owner {index}");
             AssertEqual(definition.PreInstruction, state.PreInstruction,
                 $"Shaktool production callback {index}");
-            AssertEqual((int)definition.AngularVelocity, state.AngularVelocity,
+            AssertEqual(definition.AngularVelocity, state.AngularVelocity,
                 $"Shaktool production angular velocity {index}");
             AssertEqual(definition.InitialOrbitAngle, state.OrbitAngle,
                 $"Shaktool production orbit angle {index}");
@@ -66,7 +66,7 @@ internal static class ShaktoolSegmentDefinitionsVerification
 
         foreach (ShaktoolSegmentState? state in enemies.ShaktoolSegments.Take(7))
             (state ?? throw new InvalidOperationException("Verification requires state.")).PreInstruction = ShaktoolPreInstruction.IdleAfterAttack;
-        AssertEqual((ShaktoolProgram?)null, enemies.ShaktoolBehavior.ApplyShaktoolCue(
+        AssertEqual(null, enemies.ShaktoolBehavior.ApplyShaktoolCue(
                 enemies.SlotTable.Slots[0], enemies.ShaktoolSegments[0] ?? throw new InvalidOperationException("Verification requires enemies.ShaktoolSegments[0]."),
                 new ShaktoolCue(ShaktoolCueKind.ResetFunctions)),
             "Shaktool production reset cue runs on");

@@ -23,7 +23,7 @@ internal static class ChozoTourianDustBehaviorVerification
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
         // The scatter draws again while a candidate falls below its center, so the fixture's random sequence advances.
         ushort random = 0;
-        enemies.VerificationServices().NextRandom = (Func<ushort>)(() => random = unchecked((ushort)(random + 4951)));
+        enemies.VerificationServices().NextRandom = () => random = unchecked((ushort)(random + 4951));
         foreach ((RoomEnemyProjectileKind kind, ChozoTourianDustProgram program) in new (RoomEnemyProjectileKind, ChozoTourianDustProgram)[]
                  {
                      (RoomEnemyProjectileKind.WreckedShipChozoSpikeFootstep, ChozoTourianDustProgram.Footsteps),

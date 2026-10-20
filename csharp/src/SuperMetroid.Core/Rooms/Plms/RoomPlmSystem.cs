@@ -147,10 +147,10 @@ public sealed class RoomPlmSystem
         Stations = new StationPlms(Bindings, Drawing, SlotTable, Sounds);
         CollectiblePlms = new CollectiblePlms(Bindings, Drawing, SlotTable, Sounds);
         EyeDoors = new EyeDoorPlms(Bindings, Sounds);
-        DoorPlms = new DoorPlms(Bindings, Drawing, SlotTable, Sounds);
-        GreyDoors = new GreyDoorPlms(Bindings, Drawing, Sounds, DoorPlms);
+        DoorPlms = new DoorPlms(Bindings, SlotTable, Sounds);
+        GreyDoors = new GreyDoorPlms(Bindings, Sounds, DoorPlms);
         Tourian = new TourianPlms(Bindings, SlotTable);
-        PopulationLoader = new PlmPopulationLoader(new PlmPopulationLoaderDependencies { Bindings = Bindings, BombTorizoHand = BombTorizoHand, CollectiblePlms = CollectiblePlms, EyeDoors = EyeDoors, Gates = Gates, MotherBrainGlass = MotherBrainGlass, SlotTable = SlotTable, SpeedBoosterEscape = SpeedBoosterEscape });
+        PopulationLoader = new PlmPopulationLoader(new PlmPopulationLoaderDependencies { BombTorizoHand = BombTorizoHand, CollectiblePlms = CollectiblePlms, EyeDoors = EyeDoors, Gates = Gates, MotherBrainGlass = MotherBrainGlass, SlotTable = SlotTable, SpeedBoosterEscape = SpeedBoosterEscape });
         BlockReactions = new BlockReactionPlms(Bindings, EscapeAnimals, SlotTable);
         BossRoomMutations = new BossRoomMutationPlms(SlotTable);
         foreach (IPlmFamilySource source in (IPlmFamilySource[])[Scrolls, WreckedShipTreadmill, Stations, CollectiblePlms, DoorPlms, GreyDoors, Gates, EyeDoors, DraygonCannons])

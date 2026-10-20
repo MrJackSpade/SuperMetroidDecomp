@@ -20,6 +20,7 @@ public static class EndingPaletteDefinitions
         EndingPaletteId.Explosion => EndingCreditsRomData.Assets.ExplosionPalette,
         EndingPaletteId.FinalGunship => EndingCreditsRomData.Assets.FinalGunshipPalette,
         EndingPaletteId.LogoInitial => EndingLogoDefinitions.InitialPalette,
+        EndingPaletteId.LogoCrossfade => throw new ArgumentOutOfRangeException(nameof(id)),
         _ => throw new ArgumentOutOfRangeException(nameof(id)),
     };
 

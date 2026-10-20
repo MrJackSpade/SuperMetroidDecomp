@@ -271,7 +271,7 @@ internal static class CeresRidleyColorsVerification
                         $"edited Ceres alarm frame {frame} CGRAM {color}");
                 }
             }
-            AssertEqual((ushort)0, editedState.CeresEscapePaletteFrame,
+            AssertEqual(0, editedState.CeresEscapePaletteFrame,
                 "Ceres alarm frame sixteen wraps to zero");
             AssertEqual(0, guarded.ForbiddenReadAttempts,
                 "installed Ceres alarm never reads its source color rows");

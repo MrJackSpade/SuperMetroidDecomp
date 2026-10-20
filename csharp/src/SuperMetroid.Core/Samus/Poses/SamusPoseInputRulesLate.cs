@@ -54,6 +54,49 @@ internal static class SamusPoseInputRulesLate
         MoonwalkTurnJumpAimUpRightPoseList => MatchMoonwalkTurnJumpAimUpRightPoseList(held, newlyPressed),
         MoonwalkTurnJumpAimDownLeftPoseList => MatchMoonwalkTurnJumpAimDownLeftPoseList(held, newlyPressed),
         MoonwalkTurnJumpAimDownRightPoseList => MatchMoonwalkTurnJumpAimDownRightPoseList(held, newlyPressed),
+        SamusPoseInputList.EmptyTransitionList or
+            SamusPoseInputList.ForwardFacingPowerSuitPoseList or
+            SamusPoseInputList.FacingRightNormalPoseList or
+            SamusPoseInputList.FacingLeftNormalPoseList or
+            SamusPoseInputList.MovingRightNormalPoseList or
+            SamusPoseInputList.MovingLeftNormalPoseList or
+            SamusPoseInputList.NeutralJumpTransitionRightPoseList or
+            SamusPoseInputList.NeutralJumpTransitionLeftPoseList or
+            SamusPoseInputList.NormalJumpAimUpRightPoseList or
+            SamusPoseInputList.NormalJumpAimUpLeftPoseList or
+            SamusPoseInputList.DamageBoostLeftPoseList or
+            SamusPoseInputList.DamageBoostRightPoseList or
+            SamusPoseInputList.SpinJumpRightPoseList or
+            SamusPoseInputList.SpinJumpLeftPoseList or
+            SamusPoseInputList.SpaceJumpRightPoseList or
+            SamusPoseInputList.SpaceJumpLeftPoseList or
+            SamusPoseInputList.ScrewAttackRightPoseList or
+            SamusPoseInputList.ScrewAttackLeftPoseList or
+            SamusPoseInputList.MorphBallGroundRightPoseList or
+            SamusPoseInputList.MorphBallMovingRightPoseList or
+            SamusPoseInputList.MorphBallMovingLeftPoseList or
+            SamusPoseInputList.MorphBallGroundLeftPoseList or
+            SamusPoseInputList.UnusedPose20List or
+            SamusPoseInputList.UnusedPose23List or
+            SamusPoseInputList.UnusedPose42List or
+            SamusPoseInputList.CrouchingRightPoseList or
+            SamusPoseInputList.CrouchingLeftPoseList or
+            SamusPoseInputList.FallingRightPoseList or
+            SamusPoseInputList.FallingLeftPoseList or
+            SamusPoseInputList.MorphBallFallingRightPoseList or
+            SamusPoseInputList.MorphBallFallingLeftPoseList or
+            SamusPoseInputList.UnusedKnockbackRightPoseList or
+            SamusPoseInputList.UnusedKnockbackLeftPoseList or
+            SamusPoseInputList.UnusedPose45List or
+            SamusPoseInputList.UnusedPose46List or
+            SamusPoseInputList.UnusedPose47List or
+            SamusPoseInputList.UnusedPose48List or
+            SamusPoseInputList.MoonwalkFacingLeftPoseList or
+            SamusPoseInputList.MoonwalkFacingRightPoseList or
+            SamusPoseInputList.KnockbackRightPoseList or
+            SamusPoseInputList.KnockbackLeftPoseList or
+            SamusPoseInputList.UnusedPose5BList or
+            SamusPoseInputList.UnusedPose5CList => throw new InvalidOperationException($"Pose-input list {pointer} belongs to the other rule section."),
         _ => throw new InvalidOperationException($"Pose-input list {pointer} belongs to the other rule section."),
     };
 

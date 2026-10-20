@@ -161,6 +161,8 @@ internal static class TypeInventory
                                                        !SymbolEqualityComparer.Default.Equals(propertyType, type):
                         otherUses.Add(Key(propertyType));
                         break;
+                    default:
+                        break;
                 }
             }
         }
@@ -255,6 +257,17 @@ internal static class TypeInventory
         TypeKind.Interface => "interface",
         TypeKind.Delegate => "delegate",
         TypeKind.Struct => type.IsRecord ? "record struct" : "struct",
+        TypeKind.Unknown or
+            TypeKind.Array or
+            TypeKind.Class or
+            TypeKind.Dynamic or
+            TypeKind.Error or
+            TypeKind.Module or
+            TypeKind.Pointer or
+            TypeKind.TypeParameter or
+            TypeKind.Submission or
+            TypeKind.FunctionPointer or
+            TypeKind.Extension => type.IsRecord ? "record" : type.IsStatic ? "static class" : "class",
         _ => type.IsRecord ? "record" : type.IsStatic ? "static class" : "class",
     };
 

@@ -122,7 +122,7 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemyEntityFactory
         int upwardDisplacement = EnemyMath.ReadQuadraticEnemySpeed(state.YSpeedTableIndex, negative: true);
         uint fixedY = slot.Position.Y.RawValue;
         fixedY = unchecked(fixedY + (uint)upwardDisplacement);
-        slot.Position = slot.Position.WithY(SnesFixedPosition.FromRaw(unchecked((uint)fixedY)));
+        slot.Position = slot.Position.WithY(SnesFixedPosition.FromRaw(unchecked(fixedY)));
 
         state.YSpeedTableIndex -= 2;
         if (state.YSpeedTableIndex >= 0)

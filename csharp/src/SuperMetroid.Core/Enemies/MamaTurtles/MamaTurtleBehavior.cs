@@ -20,13 +20,11 @@ namespace SuperMetroid.Core.Enemies.MamaTurtles;
 internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <inheritdoc/>
-    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.BabyTurtle, EnemyDefinitionId.MamaTurtle];
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [.. MamaTurtlePartDefinitions.Parts.Keys];
 
     /// <inheritdoc/>
     public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new MamaTurtleEntity(this, slot, common);
 
-    /// <summary>Provides the live Samus address space for baby-turtle facing decisions.</summary>
-    private readonly EnemyRoomBinding _room;
     /// <summary>Moves parent and children against room blocks during hover, fall, and crawling.</summary>
     private readonly EnemyTerrain _terrain;
     /// <summary>Records the wall-impact shake from Mama Turtle's hover collision.</summary>
@@ -37,9 +35,8 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
     private readonly EnemyCollision _collision;
 
     /// <summary>Connects the tatori family to room terrain, collision, slots, and earthquake output.</summary>
-    internal MamaTurtleBehavior(EnemyRoomBinding room, EnemyTerrain terrain, RoomEarthquake earthquake, EnemySlotTable slotTable, EnemyCollision collision)
+    internal MamaTurtleBehavior(EnemyTerrain terrain, RoomEarthquake earthquake, EnemySlotTable slotTable, EnemyCollision collision)
     {
-        _room = room;
         _terrain = terrain;
         _earthquake = earthquake;
         _slotTable = slotTable;
@@ -63,6 +60,11 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
             case MamaTurtleCueKind.PlaySpinningSound:
                 LastMamaTurtleSoundEffect = EnemySoundEffectDefinitions.MamaTurtleSpinSound;
                 return null;
+            case MamaTurtleCueKind.Crawl:
+            case MamaTurtleCueKind.LeaveShell:
+            case MamaTurtleCueKind.LeftShell:
+            case MamaTurtleCueKind.LoopOrTurnAround:
+            case MamaTurtleCueKind.SetSpinningStoppable:
             default:
                 throw new InvalidOperationException($"The Mama Turtle's animations have no {cue.Kind} cue.");
         }
@@ -91,6 +93,9 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
             case MamaTurtleCueKind.PlaySpinningSound:
                 LastMamaTurtleSoundEffect = EnemySoundEffectDefinitions.MamaTurtleSpinSound;
                 return null;
+            case MamaTurtleCueKind.EnterShell:
+            case MamaTurtleCueKind.RiseToHoverLeftwards:
+            case MamaTurtleCueKind.RiseToHoverRightwards:
             default:
                 throw new InvalidOperationException($"A baby turtle's animations have no {cue.Kind} cue.");
         }
@@ -108,7 +113,6 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
     private const ushort MamaTurtleMaximumFallingSpeed = 4;
     /// <summary>Whole-speed cap for horizontal hover acceleration.</summary>
     private const ushort MamaTurtleMaximumHoveringSpeed = 3;
-
 
     /// <summary>Last library-two sound requested by this family during the enemy frame.</summary>
     public SoundEffectId? LastMamaTurtleSoundEffect { get; private set; }

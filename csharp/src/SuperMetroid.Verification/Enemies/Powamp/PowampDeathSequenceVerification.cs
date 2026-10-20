@@ -27,8 +27,8 @@ internal static class PowampDeathSequenceVerification
         runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.MtEverest);
         RoomEnemySlot body = runtime.Enemies.SlotTable.Slots.First(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Powamp &&
-            !((PowampEnemyState)PowampBehavior.RequirePowampState(slot)).IsBalloon);
-        var state = (PowampEnemyState)PowampBehavior.RequirePowampState(body);
+            !PowampBehavior.RequirePowampState(slot).IsBalloon);
+        var state = PowampBehavior.RequirePowampState(body);
 
         body.Health = 0;
         state.Function = PowampEnemyFunction.DeathSequence;

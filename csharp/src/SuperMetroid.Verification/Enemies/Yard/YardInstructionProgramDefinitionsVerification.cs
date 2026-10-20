@@ -59,7 +59,7 @@ internal static class YardInstructionProgramDefinitionsVerification
         for (int update = 0; update < updates; update++)
         {
             yard.InstructionTimer = NativeCountdown.Start(1);
-            EnemyInstructionInterpreter.ProcessInstructions(yard, null, null, Position16<RoomPixels>.Zero, (ushort)0);
+            EnemyInstructionInterpreter.ProcessInstructions(yard, null, null, Position16<RoomPixels>.Zero, 0);
         }
     }
 
@@ -68,7 +68,7 @@ internal static class YardInstructionProgramDefinitionsVerification
         out RoomEnemySlot yard)
     {
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
-        enemies.VerificationServices().NextRandom = (Func<ushort>)(() => 0);
+        enemies.VerificationServices().NextRandom = () => 0;
 
         yard = enemies.SlotTable.Slots[0];
         yard.Bind(EnemyDefinitionId.Yard, yard.Definition);

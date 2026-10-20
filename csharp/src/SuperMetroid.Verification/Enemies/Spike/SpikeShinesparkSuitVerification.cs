@@ -38,7 +38,7 @@ internal static class SpikeShinesparkSuitVerification
             {
                 runtime.StepFrame(frame is 1 || frame == expected.LaunchFrame
                     ? SnesButton.A
-                    : (ushort)0);
+                    : 0);
             }
             AssertEqual(expected.Phase, samus.Shinespark.Phase,
                 $"dry spike-suit launch frame {expected.LaunchFrame} movement ownership");
@@ -55,7 +55,7 @@ internal static class SpikeShinesparkSuitVerification
         SuperMetroidRuntime frozenRuntime = CreateSpikeSuitRuntime(underwater: true);
         SamusState frozenSamus = frozenRuntime.Player.IntroducedSamus;
         for (int frame = 0; frame < 8; frame++)
-            frozenRuntime.StepFrame(frame == 1 ? SnesButton.A : (ushort)0);
+            frozenRuntime.StepFrame(frame == 1 ? SnesButton.A : 0);
         frozenSamus.Health = 0;
         frozenSamus.MaxHealth = 99;
         frozenSamus.ReserveEnergy = frozenSamus.MaxReserveEnergy = 2;
@@ -121,7 +121,7 @@ internal static class SpikeShinesparkSuitVerification
         SuperMetroidRuntime runtime = CreateSpikeSuitRuntime(underwater: true);
         SamusState samus = runtime.Player.IntroducedSamus;
         for (int frame = 0; frame < freezeAfter; frame++)
-            runtime.StepFrame(frame == 1 ? SnesButton.A : (ushort)0);
+            runtime.StepFrame(frame == 1 ? SnesButton.A : 0);
 
         samus.Health = 0;
         samus.MaxHealth = 99;
@@ -135,7 +135,7 @@ internal static class SpikeShinesparkSuitVerification
         {
             SnesButton input = samus.ReserveEnergy == 1 && launchAfter == 0
                 ? SnesButton.A
-                : (ushort)0;
+                : 0;
             runtime.StepFrame(input, new RuntimeFrameRequest { AfterAcceptedNmi = () =>
             {
                 if (recovery.StepAfterNmi(samus, runtime.Clock.Counter).Completed)
@@ -143,7 +143,7 @@ internal static class SpikeShinesparkSuitVerification
             } });
         }
         for (int frame = 1; frame < 25; frame++)
-            runtime.StepFrame(frame == launchAfter ? SnesButton.A : (ushort)0);
+            runtime.StepFrame(frame == launchAfter ? SnesButton.A : 0);
         return samus;
     }
 
@@ -192,7 +192,7 @@ internal static class SpikeShinesparkSuitVerification
             "spike-suit fixture accepts stored Shinespark");
 
         int centerBlock = (samus.Position.Y.Whole >> 4) * level.Size.X + (samus.Position.X.Whole >> 4);
-        level.SetForegroundEntry(centerBlock, (ushort)((ushort)RoomCollisionType.SpikeAir << 12));
+        level.SetForegroundEntry(centerBlock, (ushort)RoomCollisionType.SpikeAir << 12);
         level.SetBehavior(centerBlock, SamusTerrainHazardRomData.DamagingSpikeAirBehavior);
         if (underwater)
         {
@@ -201,7 +201,7 @@ internal static class SpikeShinesparkSuitVerification
             // coupling this timing test to any one retail room's surrounding geometry.
             for (int block = 0; block < level.Size.X * level.Size.Y; block++)
             {
-                level.SetForegroundEntry(block, (ushort)((ushort)RoomCollisionType.SpikeAir << 12));
+                level.SetForegroundEntry(block, (ushort)RoomCollisionType.SpikeAir << 12);
                 level.SetBehavior(block, SamusTerrainHazardRomData.DamagingSpikeAirBehavior);
             }
         }

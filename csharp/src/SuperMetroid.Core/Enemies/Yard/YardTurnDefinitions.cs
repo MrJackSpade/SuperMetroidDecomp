@@ -38,6 +38,10 @@ internal static class YardTurnDefinitions
             YardProgram.InsideTurnUpsideDownMovingLeft),
         YardMovementFunction.CrawlingUpsideLeftMovingUp => new(new(0, -7), YardProgram.OutsideTurnUpsideLeftMovingUp,
             YardProgram.InsideTurnUpsideLeftMovingUp),
+        YardMovementFunction.InstructionPending or
+            YardMovementFunction.Hiding or
+            YardMovementFunction.Airborne => throw new InvalidDataException(
+            $"Yard crawl function $A3:{(ushort)movement:X4} has no turn definition."),
         _ => throw new InvalidDataException(
             $"Yard crawl function $A3:{(ushort)movement:X4} has no turn definition."),
     };

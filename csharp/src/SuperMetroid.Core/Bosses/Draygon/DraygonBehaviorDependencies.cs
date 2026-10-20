@@ -41,9 +41,6 @@ internal sealed record DraygonBehaviorDependencies
     /// <summary>Deaths and drops.</summary>
     public required EnemyDeathsAndDrops DeathsAndDrops { get; init; }
 
-    /// <summary>Room status.</summary>
-    public required EnemyRoomStatus RoomStatus { get; init; }
-
     /// <summary>Scroll cap.</summary>
     public required SamusScrollCap ScrollCap { get; init; }
 }

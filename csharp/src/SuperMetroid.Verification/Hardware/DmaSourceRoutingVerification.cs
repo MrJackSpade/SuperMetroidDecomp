@@ -22,7 +22,7 @@ internal static class DmaSourceRoutingVerification
 
         var cgram = new SnesCgram();
         SuperMetroid.AssetExtraction.Cartridge.CartridgePaletteImporter.LoadToCgram(cgram, source, 0x80ffff, colorCount: 1);
-        AssertEqual((ushort)0x3322, cgram.Colors[0],
+        AssertEqual(0x3322, cgram.Colors[0],
             "CGRAM word straddles cartridge and WRAM mirror");
         AssertThrows<InvalidOperationException>(
             () => SuperMetroid.AssetExtraction.Cartridge.CartridgePaletteImporter.LoadToCgram(cgram, source, 0x700010, colorCount: 1, destinationIndex: 1),

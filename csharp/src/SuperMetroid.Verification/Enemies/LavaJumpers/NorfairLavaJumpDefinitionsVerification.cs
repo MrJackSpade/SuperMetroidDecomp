@@ -28,11 +28,11 @@ internal static class NorfairLavaJumpDefinitionsVerification
         ushort nextRandom = 0;
         int advances = 0;
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
-        enemies.VerificationServices().NextRandom = (Func<ushort>)(() =>
+        enemies.VerificationServices().NextRandom = () =>
             {
                 advances++;
                 return nextRandom;
-            });
+            };
         Action<RoomEnemySlot, NorfairLavaJumpingEnemyState> runMain = enemies.NorfairLavaJumpingEnemyBehavior.RunNorfairLavaJumpingEnemyMain;
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         var state = new NorfairLavaJumpingEnemyState();
@@ -43,7 +43,7 @@ internal static class NorfairLavaJumpDefinitionsVerification
             advances = 0;
             state.Function = NorfairLavaJumpingEnemyFunction.BeginJump;
             state.YVelocity = default;
-            slot.Properties = EnemyPropertyWord.FromNativeWord((ushort)(0));
+            slot.Properties = EnemyPropertyWord.FromNativeWord(0);
             runMain(slot, state);
 
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa2be86 + ((SnesLittleEndian.HighByte(unchecked((ushort)random))) & 6))), state.YVelocity.RawValue,

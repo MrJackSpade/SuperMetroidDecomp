@@ -77,7 +77,7 @@ internal static class RidleyAnimationsVerification
             {
                 case NativeEnemyListDefinitions.WordKind.Frame:
                     AssertEqual(AnimationProgramStepKind.Show, step.Kind, $"{at}: frame");
-                    AssertEqual((int)word, step.Duration, $"{at}: duration");
+                    AssertEqual(word, step.Duration, $"{at}: duration");
                     AssertEqual(operand, (ushort)step.Frame, $"{at}: spritemap");
                     cursor = unchecked((ushort)(cursor + 4));
                     continue;
@@ -99,12 +99,25 @@ internal static class RidleyAnimationsVerification
                             break;
                         case RidleyBodyCueKind.SetFeetDistance:
                             // The native operand is the pose's byte offset into the word-sized claw-height table.
-                            AssertEqual((int)operand, cue.FeetDistanceIndex * sizeof(ushort), $"{at}: claw-height pose");
+                            AssertEqual(operand, cue.FeetDistanceIndex * sizeof(ushort), $"{at}: claw-height pose");
                             break;
                         case RidleyBodyCueKind.Move:
                             AssertEqual(unchecked((short)operand), cue.Displacement.X, $"{at}: X move");
                             AssertEqual(unchecked((short)cartridge.ReadCartridgeWord(address + 4)), cue.Displacement.Y, $"{at}: Y move");
                             break;
+                        case RidleyBodyCueKind.Roar:
+                        case RidleyBodyCueKind.ClearRoaringFlag:
+                        case RidleyBodyCueKind.FaceForward:
+                        case RidleyBodyCueKind.FlipLeft:
+                        case RidleyBodyCueKind.FlipRight:
+                        case RidleyBodyCueKind.AimFireball:
+                        case RidleyBodyCueKind.SpawnFireballWithAfterburn:
+                        case RidleyBodyCueKind.SpawnFireballWithoutAfterburn:
+                        case RidleyBodyCueKind.CeresStartLiftoff:
+                        case RidleyBodyCueKind.StartLiftoff:
+                            break;
+                        default:
+                            throw new InvalidOperationException($"Undefined {nameof(RidleyBodyCueKind)} {instruction.Kind}.");
                     }
                     cursor = unchecked((ushort)(cursor + 2 + 2 * instruction.Operands));
                     continue;
@@ -136,7 +149,7 @@ internal static class RidleyAnimationsVerification
             string at = $"Ridley breakup {frame}";
             AssertEqual(2, steps.Count, $"{at}: one frame and a hold");
             AssertEqual(AnimationProgramStepKind.Show, steps[0].Kind, $"{at}: frame");
-            AssertEqual((int)cartridge.ReadCartridgeWord(address), steps[0].Duration, $"{at}: duration");
+            AssertEqual(cartridge.ReadCartridgeWord(address), steps[0].Duration, $"{at}: duration");
             AssertEqual(cartridge.ReadCartridgeWord(address + 2), RidleyBreakupFrameDefinitionsConstants.Spritemap(steps[0].Frame), $"{at}: spritemap");
             AssertEqual(NativeEnemyListDefinitions.WordKind.Sleep, NativeEnemyListDefinitions.Classify(cartridge.ReadCartridgeWord(address + 4)), $"{at}: sleep");
             AssertEqual(AnimationProgramStepKind.Hold, steps[1].Kind, $"{at}: hold");
@@ -174,7 +187,7 @@ internal static class RidleyAnimationsVerification
             if ((word & NativeEnemyListDefinitions.InstructionBit) == 0)
             {
                 AssertEqual(AnimationProgramStepKind.Show, step.Kind, $"{at}: frame");
-                AssertEqual((int)word, step.Duration, $"{at}: duration");
+                AssertEqual(word, step.Duration, $"{at}: duration");
                 AssertEqual(unchecked((ushort)(cursor + 2)), EnemyProjectileFrames.ProgramFrameKey(RidleyFireballVisualDefinitions.ShownProjectileFrames[step.Frame]), $"{at}: presentation key");
                 cursor = unchecked((ushort)(cursor + 4));
                 continue;
@@ -201,6 +214,88 @@ internal static class RidleyAnimationsVerification
                     AssertEqual(steps.Count, index + 2, $"{at}: deletion ends the program");
                     addresses[index + 1] = cursor;
                     return addresses;
+                case NativeEnemyProjectileInstruction.Properties_OrY:
+                case NativeEnemyProjectileInstruction.Properties_AndY:
+                case NativeEnemyProjectileInstruction.UNUSED_Inst_EnemyProj_EnableCollisionWithSamusProj_868248:
+                case NativeEnemyProjectileInstruction.DisableCollisionWIthSamusProj:
+                case NativeEnemyProjectileInstruction.DisableCollisionWithSamus:
+                case NativeEnemyProjectileInstruction.UNUSED_Inst_EnemyProjectile_EnableCollisionWithSamus_868266:
+                case NativeEnemyProjectileInstruction.UNUSED_Inst_EnemyProjectile_SetToNotDieOnContact_868270:
+                case NativeEnemyProjectileInstruction.UNUSED_Instruction_EnemyProjectile_SetToDieOnContact_86827A:
+                case NativeEnemyProjectileInstruction.SetHighPriority:
+                case NativeEnemyProjectileInstruction.UNUSED_Instruction_EnemyProjectile_SetLowPriority_86828E:
+                case NativeEnemyProjectileInstruction.XYRadiusInY:
+                case NativeEnemyProjectileInstruction.UNUSED_Instruction_EnemyProjectile_XYRadius_0:
+                case NativeEnemyProjectileInstruction.UNUSED_Instruction_EnemyProjectile_QueueMusicTrackInY:
+                case NativeEnemyProjectileInstruction.UNUSED_Inst_EnemyProjectile_QueueSoundInY_Lib1_Max6_868309:
+                case NativeEnemyProjectileInstruction.QueueSoundInY_Lib2_Max6:
+                case NativeEnemyProjectileInstruction.QueueSoundInY_Lib3_Max6:
+                case NativeEnemyProjectileInstruction.QueueSoundInY_Lib1_Max15:
+                case NativeEnemyProjectileInstruction.UNUSED_Inst_EnemyProjectile_QueueSoundInY_Lib2_Max15_86832D:
+                case NativeEnemyProjectileInstruction.UNUSED_Inst_EnemyProjectile_QueueSoundInY_Lib3_Max15_868336:
+                case NativeEnemyProjectileInstruction.UNUSED_Inst_EnemyProjectile_QueueSoundInY_Lib1_Max3_86833F:
+                case NativeEnemyProjectileInstruction.UNUSED_Inst_EnemyProjectile_QueueSoundInY_Lib2_Max3_868348:
+                case NativeEnemyProjectileInstruction.UNUSED_Inst_EnemyProjectile_QueueSoundInY_Lib3_Max3_868351:
+                case NativeEnemyProjectileInstruction.UNUSED_Inst_EnemyProjectile_QueueSoundInY_Lib1_Max9_86835A:
+                case NativeEnemyProjectileInstruction.UNUSED_Inst_EnemyProjectile_QueueSoundInY_Lib2_Max9_868363:
+                case NativeEnemyProjectileInstruction.UNUSED_Inst_EnemyProjectile_QueueSoundInY_Lib1_Max9_86836C:
+                case NativeEnemyProjectileInstruction.UNUSED_Inst_EnemyProjectile_QueueSoundInY_Lib1_Max1_868375:
+                case NativeEnemyProjectileInstruction.QueueSoundInY_Lib2_Max1:
+                case NativeEnemyProjectileInstruction.QueueSoundInY_Lib3_Max1:
+                case NativeEnemyProjectileInstruction.Sleep:
+                case NativeEnemyProjectileInstruction.CalculateDirectionTowardsSamus:
+                case NativeEnemyProjectileInstruction.DownwardGateSetYVelocityInstruction:
+                case NativeEnemyProjectileInstruction.CallExternalFunctionInY:
+                case NativeEnemyProjectileInstruction.SetPreInst_DraygonsWallTurretProjectile_Fired:
+                case NativeEnemyProjectileInstruction.DraygonGoop_SamusCollision:
+                case NativeEnemyProjectileInstruction.GotoY_Y:
+                case NativeEnemyProjectileInstruction.DecrementTimer_GotoYIfNonZero:
+                case NativeEnemyProjectileInstruction.UNUSED_Inst_EnemyProj_DecrementTimer_GotoY_YIfNonZero_8681CE:
+                case NativeEnemyProjectileInstruction.TimerInY:
+                case NativeEnemyProjectileInstruction.NoobTubeShardAssignFallingAngle:
+                case NativeEnemyProjectileInstruction.NoobTubeBubbleAssignFallingAngle:
+                case NativeEnemyProjectileInstruction.NoobTubeShardReflectFlicker:
+                case NativeEnemyProjectileInstruction.NoobTubeShardFlicker:
+                case NativeEnemyProjectileInstruction.RTS_8681DE:
+                case NativeEnemyProjectileInstruction.MoveRandomlyWithinXRadius_YRadius:
+                case NativeEnemyProjectileInstruction.PreInstructionInY_ExecuteY:
+                case NativeEnemyProjectileInstruction.Torizo_ResetPosition:
+                case NativeEnemyProjectileInstruction.UNUSED_Instruction_EnemyProj_MoveHorizontally_GotoY_86AD92:
+                case NativeEnemyProjectileInstruction.GoldenTorizoEgg_GoToHatched:
+                case NativeEnemyProjectileInstruction.AimSuperMissile_Rightwards:
+                case NativeEnemyProjectileInstruction.AimSuperMissile_Leftwards:
+                case NativeEnemyProjectileInstruction.GotoYIfEyeBeamExplosionsDisabled:
+                case NativeEnemyProjectileInstruction.UNUSED_Instruction_ResetPosition_86B436:
+                case NativeEnemyProjectileInstruction.MotherBrainsTurretBullets_GotoY:
+                case NativeEnemyProjectileInstruction.GotoY_Probability_1_4:
+                case NativeEnemyProjectileInstruction.SpawnEnemyDropsWIthYDropChances:
+                case NativeEnemyProjectileInstruction.Spawn_HorizontalAfterburn_EnemyProjectiles:
+                case NativeEnemyProjectileInstruction.Spawn_VerticalAfterburn_EnemyProjectiles:
+                case NativeEnemyProjectileInstruction.SpawnNext_Afterburn_EnemyProjectile:
+                case NativeEnemyProjectileInstruction.SpawnPhantoonDrop:
+                case NativeEnemyProjectileInstruction.SpawnEnemyDropsWithDraygonEyeChances:
+                case NativeEnemyProjectileInstruction.SpawnEnemyDropsWithCrocomireChances:
+                case NativeEnemyProjectileInstruction.KagoBugStartJumpInstruction:
+                case NativeEnemyProjectileInstruction.KagoBugStartIdleInstruction:
+                case NativeEnemyProjectileInstruction.KagoBugUsePaletteZeroInstruction:
+                case NativeEnemyProjectileInstruction.KagoBugSpawnDropInstruction:
+                case NativeEnemyProjectileInstruction.MagdolliteFlame_SpawnDrops:
+                case NativeEnemyProjectileInstruction.EnemyDeathExpl_SpawnSpriteObjectInY_20:
+                case NativeEnemyProjectileInstruction.EnemyDeathExpl_SpawnSpriteObjectInY_10:
+                case NativeEnemyProjectileInstruction.EnemyDeathExpl_QueueEnemyKilledSoundFX:
+                case NativeEnemyProjectileInstruction.EDeathExplo_QueueSmallExplosionSoundFX:
+                case NativeEnemyProjectileInstruction.EDeathExplo_QueueContactKilledSoundFX:
+                case NativeEnemyProjectileInstruction.Spores_SetProperties3000:
+                case NativeEnemyProjectileInstruction.Spores_SpawnEnemyDrops:
+                case NativeEnemyProjectileInstruction.SporeSpawner_SpawnSpore:
+                case NativeEnemyProjectileInstruction.TorizoLandingDustClouds:
+                case NativeEnemyProjectileInstruction.EnemyDeathExplosion_BecomePickup:
+                case NativeEnemyProjectileInstruction.Pickup_HandleRespawningEnemy:
+                case NativeEnemyProjectileInstruction.MotherBrainPurpleBreath_Inactive:
+                case NativeEnemyProjectileInstruction.UsePalette0:
+                case NativeEnemyProjectileInstruction.UsePalette0_Duplicate:
+                case NativeEnemyProjectileInstruction.MotherBrainsDrool_MoveDownCPixels:
+                case NativeEnemyProjectileInstruction.TourianStatueResetDustPosition:
                 default:
                     AssertTrue(FireballCallbacks.TryGetValue(word, out RidleyFireballCue callback), $"{at}: native callback ${word:X4} is known");
                     AssertEqual(AnimationProgramStepKind.Cue, step.Kind, $"{at}: callback");

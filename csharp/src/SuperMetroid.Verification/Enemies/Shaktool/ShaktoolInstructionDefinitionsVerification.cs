@@ -46,7 +46,7 @@ internal static class ShaktoolInstructionDefinitionsVerification
             centerState.ResetOrientation();
             (nextState ?? throw new InvalidOperationException("Verification requires nextState.")).OrbitAngle = SnesAngle.FromRaw(midpoint);
             orient(center, centerState);
-            AssertEqual((int)bucket, centerState.OrientationBucket,
+            AssertEqual(bucket, centerState.OrientationBucket,
                 $"Shaktool production orientation bucket {bucket:X2}");
             AssertEqual(AnimationProgramCursor<ShaktoolProgram>.Start(ShaktoolInstructionDefinitions.ForOrientationBucket(bucket)),
                 centerState.Program,

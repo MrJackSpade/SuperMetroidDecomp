@@ -26,7 +26,7 @@ internal static class MotherBrainGlassSuperMissileVerification
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
         int glassHits = 0;
-        enemies.VerificationServices().IncrementMotherBrainGlassRoomArgument = (Action)(() => glassHits++);
+        enemies.VerificationServices().IncrementMotherBrainGlassRoomArgument = () => glassHits++;
         var head = enemies.SlotTable.Slots[1];
         head.Bind(EnemyDefinitionId.MotherBrainHead, head.Definition);
         head.Bind(head.EnemyDefinitionPointer, RoomEnemyDefinitionCatalog.Get(head.EnemyDefinitionPointer));
@@ -57,7 +57,7 @@ internal static class MotherBrainGlassSuperMissileVerification
         }
 
         AssertEqual(1, enemies.Collision.ResolveOrdinaryProjectileHits(shots, bombs, samus), "the glass accepts one projectile per pass");
-        AssertEqual((ushort)2700, head.Health, "one Super Missile deals 300 to the glass");
+        AssertEqual(2700, head.Health, "one Super Missile deals 300 to the glass");
         AssertEqual(1, glassHits, "the hit advances the glass PLM argument once");
         AssertTrue(enemies.Audio.SoundRequests.Any(request => request.SoundEffect == SoundEffectLibrary2Sounds.MotherBrainGlassHit),
             "the hit queues library-two $6E");
@@ -70,7 +70,7 @@ internal static class MotherBrainGlassSuperMissileVerification
         head.FlashTimer = NativeCountdown.Start(0);
         head.InvincibilityTimer = NativeCountdown.Start(0);
         AssertEqual(0, enemies.Collision.ResolveOrdinaryProjectileHits(shots, bombs, samus), "nothing of the pair is left to hit the glass");
-        AssertEqual((ushort)2700, head.Health, "the glass takes no second hit");
+        AssertEqual(2700, head.Health, "the glass takes no second hit");
         Console.WriteLine("Mother Brain glass Super Missile: one marked hit, $6E, and the pair removed on the next pass.");
     }
 

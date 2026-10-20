@@ -60,8 +60,8 @@ internal static class EnemyInstructionOwnerCoverageVerification
                 var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
                 enemies.Presentation.BindVram(BgArtworkFixtures.For(new SnesVram()));
                 enemies.Presentation.BindCgram(new SnesCgram());
-                enemies.VerificationServices().NextRandom = ((Func<ushort>)(() => 0));
-                enemies.VerificationServices().ReadRandom = ((Func<ushort>)(() => 0));
+                enemies.VerificationServices().NextRandom = () => 0;
+                enemies.VerificationServices().ReadRandom = () => 0;
 
                 RoomEnemySlot slot = enemies.SlotTable.Slots[0];
                 try
@@ -88,7 +88,7 @@ internal static class EnemyInstructionOwnerCoverageVerification
                 bool translatedRecord = true;
                 try
                 {
-                    RoomEnemySystem.RunInitializationAi(slot, null, new SamusState(), (ushort)0, (ushort)0);
+                    RoomEnemySystem.RunInitializationAi(slot, null, new SamusState(), 0, 0);
                 }
                 catch (Exception exception)
                     when (IsUntranslatedEnemyInitializer(

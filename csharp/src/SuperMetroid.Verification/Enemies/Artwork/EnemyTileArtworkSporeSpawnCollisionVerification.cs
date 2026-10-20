@@ -49,7 +49,7 @@ internal static class EnemyTileArtworkSporeSpawnCollisionVerification
             int root = ((int)new SnesAddress(frame.Bank, frame.Pointer));
             SporeSpawnCollisionDefinitions.ComponentSequence components =
                 SporeSpawnCollisionDefinitions.ComponentsAt(frame.Pointer);
-            AssertEqual((int)rom.ReadCartridgeByte(root), components.Length,
+            AssertEqual(rom.ReadCartridgeByte(root), components.Length,
                 $"Spore Spawn frame {frame.Pointer:X4} native component count");
             for (int component = 0; component < components.Length; component++)
             {
@@ -72,7 +72,7 @@ internal static class EnemyTileArtworkSporeSpawnCollisionVerification
                 ushort targetX = unchecked((ushort)(0x100 + x));
                 ushort targetY = unchecked((ushort)(0x100 + y));
                 object?[] installedArguments =
-                    [installedSlot, new Position16<RoomPixels>(targetX, targetY), new Extent16<RoomPixels>((ushort)2, (ushort)2), shot != 0, (ushort)0];
+                    [installedSlot, new Position16<RoomPixels>(targetX, targetY), new Extent16<RoomPixels>(2, 2), shot != 0, (ushort)0];
                 bool nativeFound = NativeCallback(root, targetX, targetY, shot != 0, out ushort nativeCallback);
                 bool installedFound = ExtendedHitboxWalker.Find(installed, installedArguments);
                 AssertEqual(nativeFound, installedFound,
@@ -109,7 +109,7 @@ internal static class EnemyTileArtworkSporeSpawnCollisionVerification
         void AssertHitboxListMatchesRom(ushort pointer, IReadOnlyList<SporeSpawnCollisionHitbox> hitboxes, string at)
         {
             int list = ((int)new SnesAddress(DraygonBg2FrameDefinitions.Bank, pointer));
-            AssertEqual((int)CartridgeImportSource.Require(rom).ReadCartridgeWord(list), hitboxes.Count,
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(list), hitboxes.Count,
                 $"{at} native hitbox count");
             for (int index = 0; index < hitboxes.Count; index++)
             {

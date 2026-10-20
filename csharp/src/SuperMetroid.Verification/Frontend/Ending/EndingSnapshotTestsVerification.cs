@@ -100,8 +100,8 @@ internal static class EndingSnapshotTestsVerification
                 {
                     var burst = legacy.Presentation.CaptureRenderSnapshot();
                     var sub = burst.LayersOf<BgSubscreenAddRenderLayer>().Single();
-                    AssertEqual((ushort)0x7c00, sub.TilemapWord, "F2B7 selects burst BG2 map");
-                    AssertEqual((ushort)0x7000, (sub.MainCoverage ?? throw new InvalidOperationException("Verification requires sub.MainCoverage.")).TilemapWord, "F2B7 keeps BG1 map and excludes backdrop color math");
+                    AssertEqual(0x7c00, sub.TilemapWord, "F2B7 selects burst BG2 map");
+                    AssertEqual(0x7000, (sub.MainCoverage ?? throw new InvalidOperationException("Verification requires sub.MainCoverage.")).TilemapWord, "F2B7 keeps BG1 map and excludes backdrop color math");
 
                     burstDisplayFrames++;
                 }
@@ -177,7 +177,7 @@ internal static class EndingSnapshotTestsVerification
                     var add = flash.LayersOf<FixedColorAddRenderLayer>().Single();
                     AssertEqual((byte)Math.Max(0, 31 - elapsed), add.Red, "native post-shot white fade component");
                     var textPlane = flash.LayersOf<Bg4BppRenderLayer>().Single();
-                    AssertEqual((ushort)0x4c00, textPlane.TilemapWord, "final text uses native upper screen");
+                    AssertEqual(0x4c00, textPlane.TilemapWord, "final text uses native upper screen");
                     AssertEqual(64, textPlane.MapSize.Y, "final text map is two screens tall");
                     if (firstPhaseFrame)
                         AssertTrue(legacy.Presentation.Render().All(pixel => pixel == new Rgba32(255, 255, 255)), "post-shot flash begins fully white");
@@ -231,14 +231,14 @@ internal static class EndingSnapshotTestsVerification
                     var copyright = legacy.Presentation.CaptureRenderSnapshot();
                     AssertTrue(!copyright.Layers.Any(layer => layer is ObjRenderLayer),
                         "native E293 hides reward actors during copyright panel");
-                    AssertEqual((ushort)0x4800, copyright.LayersOf<Bg4BppRenderLayer>().Single().TilemapWord,
+                    AssertEqual(0x4800, copyright.LayersOf<Bg4BppRenderLayer>().Single().TilemapWord,
                         "native E293 selects copyright BG1 after first 64 reveal frames");
                 }
                 if (legacy.Phase is EndingCreditsPhase.WaitForPlanetEscapeMusic or EndingCreditsPhase.WaitForPlanetEscapeMusicQueue)
                 {
                     var flash = legacy.Presentation.CaptureRenderSnapshot();
                     AssertEqual(0, flash.Layers.Length, "native F32B disables both screens for explosion whiteout");
-                    AssertEqual((ushort)0x7fff, flash.Memory.Cgram[0], "native explosion whiteout backdrop");
+                    AssertEqual(0x7fff, flash.Memory.Cgram[0], "native explosion whiteout backdrop");
                     if (firstPhaseFrame)
                         AssertTrue(legacy.Presentation.Render().All(pixel => pixel == new Rgba32(255, 255, 255)),
                             "explosion whiteout is white across the actual rendered viewport");
@@ -249,8 +249,8 @@ internal static class EndingSnapshotTestsVerification
                     AssertEqual(hours >= 10 ? 0 : 1, backgrounds.Length, "native reward reveal background enable mask");
                     if (hours < 10)
                     {
-                        AssertEqual((ushort)0x4c00, backgrounds[0].TilemapWord, "reward reveal selects waiting BG2, not producer BG1");
-                        AssertEqual((ushort)0x5000, backgrounds[0].CharacterWord, "reward reveal uses waiting BG2 characters");
+                        AssertEqual(0x4c00, backgrounds[0].TilemapWord, "reward reveal selects waiting BG2, not producer BG1");
+                        AssertEqual(0x5000, backgrounds[0].CharacterWord, "reward reveal uses waiting BG2 characters");
                     }
                 }
                 if (legacy.Phase is EndingCreditsPhase.PlanetEscapeFast or EndingCreditsPhase.PlanetEscapeSlow or EndingCreditsPhase.PlanetEscapeAccelerating)
@@ -300,9 +300,9 @@ internal static class EndingSnapshotTestsVerification
                         AssertEqual(word < 0x300 ? map[word] : (byte)0x8c, memory.Vram[word * 2],
                             "native flyaway map upload and padded background");
                     }
-                    AssertEqual((ushort)0, memory.Cgram[0], "flyaway clears explosion backdrop");
+                    AssertEqual(0, memory.Cgram[0], "flyaway clears explosion backdrop");
                     if (firstPhaseFrame)
-                        AssertEqual((ushort)0x7fff, memory.Cgram[81], "native gunship emergence palette starts white");
+                        AssertEqual(0x7fff, memory.Cgram[81], "native gunship emergence palette starts white");
                 }
                 if (legacy.Phase == EndingCreditsPhase.PostCreditsBlank)
                 {

@@ -184,6 +184,9 @@ internal sealed class GatePlms : IPlmFamilySource
             DownwardGatePreInstruction.WakeIfTriggered => slot.LoopTimer != 0,
             DownwardGatePreInstruction.WakeIfTriggeredOrSamusBelow =>
                 slot.LoopTimer != 0 || IsSamusInsideDownwardGateColumn(slot),
+            DownwardGatePreInstruction.None or
+                DownwardGatePreInstruction.Inert => throw new InvalidOperationException(
+                $"Undefined downward gate pre-instruction {preInstruction}."),
             _ => throw new InvalidOperationException(
                 $"Undefined downward gate pre-instruction {preInstruction}."),
         };

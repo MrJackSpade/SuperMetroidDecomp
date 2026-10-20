@@ -16,7 +16,7 @@ internal static class PolypBehaviorVerification
     internal static void VerifyPolypBehavior()
     {
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
-        enemies.VerificationServices().SeedRandom = (Action<ushort>)(_ => { });
+        enemies.VerificationServices().SeedRandom = _ => { };
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.LavaRocks, slot.Definition);
         slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = PolypFrameToolingDefinitions.Bank });

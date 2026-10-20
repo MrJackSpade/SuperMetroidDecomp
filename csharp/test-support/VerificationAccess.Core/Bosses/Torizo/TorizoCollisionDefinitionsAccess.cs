@@ -21,24 +21,24 @@ internal static class TorizoCollisionDefinitionsAccess
                 foreach (GoldenTorizoCollisionComponent[] frame in TorizoCollisionDefinitions.LeftFrames)
                 {
                     yield return cursor;
-                    cursor = ((ushort)(TorizoCollisionDefinitions.Next((ushort)(cursor), (int)(frame.Length))));
+                    cursor = TorizoCollisionDefinitions.Next(cursor, frame.Length);
                 }
                 cursor = TorizoCollisionDefinitions.AwakeningStart;
                 foreach (GoldenTorizoCollisionComponent[] frame in TorizoCollisionDefinitions.AwakeningFrames)
                 {
                     yield return cursor;
-                    cursor = ((ushort)(TorizoCollisionDefinitions.Next((ushort)(cursor), (int)(frame.Length))));
+                    cursor = TorizoCollisionDefinitions.Next(cursor, frame.Length);
                 }
                 cursor = TorizoCollisionDefinitions.RightStart;
                 for (int index = 0; index < TorizoCollisionDefinitions.MirroredCount; index++)
                 {
                     yield return cursor;
-                    cursor = ((ushort)(TorizoCollisionDefinitions.Next((ushort)(cursor), (int)(((GoldenTorizoCollisionComponent[])(TorizoCollisionDefinitions.LeftFacing((int)(index)))).Length))));
+                    cursor = TorizoCollisionDefinitions.Next(cursor, TorizoCollisionDefinitions.LeftFacing(index).Length);
                 }
                 foreach (GoldenTorizoCollisionComponent[] frame in TorizoCollisionDefinitions.JumpBackFrames)
                 {
                     yield return cursor;
-                    cursor = ((ushort)(TorizoCollisionDefinitions.Next((ushort)(cursor), (int)(frame.Length))));
+                    cursor = TorizoCollisionDefinitions.Next(cursor, frame.Length);
                 }
             }
         }

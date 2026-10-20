@@ -187,7 +187,7 @@ internal static class SporeSpawnCeilingVisualsVerification
             level.GetCollisionBlockByIndex(blockIndex).PackedWord.Raw,
             $"Spore Spawn {(clear ? "clear" : "crumble")} edited art retains physical word");
         // The redraw identifies its block by the block's DrawPLM BG1 ring destination.
-        AssertEqual((ushort)expectedVisual, level.DisplayedBlockTiles(blockIndex).TopLeft.Raw,
+        AssertEqual(expectedVisual, level.DisplayedBlockTiles(blockIndex).TopLeft.Raw,
             $"Spore Spawn {(clear ? "clear" : "crumble")} edit reaches immediate redraw");
         AssertEqual(expectedVisual,
             level.DisplayedBlockTiles(blockIndex).TopLeft.Raw,

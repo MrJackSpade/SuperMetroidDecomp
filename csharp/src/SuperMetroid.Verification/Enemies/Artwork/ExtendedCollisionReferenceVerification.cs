@@ -24,7 +24,7 @@ internal static class ExtendedCollisionReferenceVerification
         arguments[4] = (ushort)0;
         int bank = (int)new SnesAddress((enemy ?? throw new InvalidOperationException("Verification requires enemy.")).Definition.Bank, 0);
         byte Byte(int offset) => source.ReadCartridgeByte(bank | (ushort)offset);
-        ushort Word(int offset) => (ushort)(SnesLittleEndian.Word(Byte(offset), Byte(offset + 1)));
+        ushort Word(int offset) => SnesLittleEndian.Word(Byte(offset), Byte(offset + 1));
         static bool Negative(int value) => unchecked((short)value) < 0;
         ushort targetLeft = unchecked((ushort)(x - radiusX));
         ushort targetRight = unchecked((ushort)(x + radiusX));

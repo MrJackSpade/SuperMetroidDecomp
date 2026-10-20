@@ -63,7 +63,7 @@ internal static class SnesGameplayFrameRendererAccess
                     .CopyTo(output.AsSpan(screenY * SnesGameplayFrameRenderer.Width, SnesGameplayFrameRenderer.Width));
             }
 
-            SnesGameplayFrameRendererConstants.DrawHudAndObjects((Rgba32[])(output), (SnesVram)(vram), (SnesCgram)(cgram), sprites);
+            SnesGameplayFrameRendererConstants.DrawHudAndObjects(output, vram, cgram, sprites);
             return output;
         }
 
@@ -122,8 +122,8 @@ internal static class SnesGameplayFrameRendererAccess
             bool horizontalLine = angularWidth == 0 &&
                 (centerAngle == SnesAngle.QuarterTurn.TableIndex ||
                  centerAngle == SnesAngle.ThreeQuarterTurn.TableIndex);
-            var leftEdge = SnesGameplayFrameRenderer.ReadXrayDirection((int)(leftEdgeAngle));
-            var rightEdge = SnesGameplayFrameRenderer.ReadXrayDirection((int)(rightEdgeAngle));
+            var leftEdge = SnesGameplayFrameRenderer.ReadXrayDirection(leftEdgeAngle);
+            var rightEdge = SnesGameplayFrameRenderer.ReadXrayDirection(rightEdgeAngle);
 
             for (int screenY = SnesGameplayFrameRenderer.HudHeight; screenY < SnesGameplayFrameRenderer.Height; screenY++)
             {

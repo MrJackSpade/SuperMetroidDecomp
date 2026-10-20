@@ -57,7 +57,7 @@ public static class XrayRevealOverlays
         for (int col = 0; col < 2; col++)
         {
             int offset = source + (flip ? 1 - row : row) * 4 + col * 2;
-            tilemap[destination + row * 32 + col] = (ushort)(SnesLittleEndian.Word(definitions[offset], definitions[offset + 1]));
+            tilemap[destination + row * 32 + col] = SnesLittleEndian.Word(definitions[offset], definitions[offset + 1]);
         }
     }
 

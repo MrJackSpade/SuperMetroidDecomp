@@ -18,7 +18,7 @@ internal static class KraidRockLaunchDefinitionsVerification
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
         {
             int address = 0xa7bc65 + (raw & 14);
-            ushort expected = (ushort)(SnesLittleEndian.Word(KraidRockLaunchSpeedSelectionRomByte(rom, address), KraidRockLaunchSpeedSelectionRomByte(rom, address + 1)));
+            ushort expected = SnesLittleEndian.Word(KraidRockLaunchSpeedSelectionRomByte(rom, address), KraidRockLaunchSpeedSelectionRomByte(rom, address + 1));
             AssertEqual(expected, KraidRockLaunchDefinitions.FromRandom((ushort)raw),
                 "Every native Kraid rock velocity selection");
         }
@@ -37,12 +37,12 @@ internal static class KraidRockLaunchDefinitionsVerification
             Console.WriteLine("Kraid spit speeds: all65536 RNG words match the eight native signed8.8 choices.");
             return;
         }
-        ushort Word(int address) => (ushort)(SnesLittleEndian.Word(KraidRockLaunchDefinitionsRomByte(rom, address), KraidRockLaunchDefinitionsRomByte(rom, address + 1)));
+        ushort Word(int address) => SnesLittleEndian.Word(KraidRockLaunchDefinitionsRomByte(rom, address), KraidRockLaunchDefinitionsRomByte(rom, address + 1));
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
         ushort random = 0;
         int reads = 0;
-        enemies.VerificationServices().ReadRandom = (Func<ushort>)(() => { reads++; return random; });
-        enemies.VerificationServices().NextRandom = (Func<ushort>)(() => throw new InvalidOperationException("Kraid rock must not advance RNG."));
+        enemies.VerificationServices().ReadRandom = () => { reads++; return random; };
+        enemies.VerificationServices().NextRandom = () => throw new InvalidOperationException("Kraid rock must not advance RNG.");
         Func<RoomEnemySlot, bool> spawn = enemies.KraidBehavior.SpawnKraidSpitRock;
         var body = enemies.SlotTable.Slots[0];
         var rock = enemies.Projectiles.EnemyProjectiles[^1];
@@ -63,7 +63,7 @@ internal static class KraidRockLaunchDefinitionsVerification
             AssertEqual(unchecked((ushort)(ushort.MaxValue - raw - 96)), rock.Position.Y.Whole, "Kraid mouth Y offset and wrap");
             AssertEqual((ushort)0, rock.Position.X.Fraction, "Clear stale rock X fraction");
             AssertEqual((ushort)0, rock.Position.Y.Fraction, "Clear stale rock Y fraction");
-            AssertEqual((ushort)0x0600, rock.GraphicsIndex, "Native rock palette/tile binding");
+            AssertEqual(0x0600, rock.GraphicsIndex, "Native rock palette/tile binding");
         }
         foreach (var occupied in enemies.Projectiles.EnemyProjectiles) occupied.Kind = RoomEnemyProjectileKind.KraidSpitRock;
         ushort previousX = rock.Position.X.Whole;

@@ -24,6 +24,8 @@ internal static class IntroBackgroundTilemapDefinitions
                 case 1: DiscoveryCave(canvas); break;
                 case 2: DeliveryPortrait(canvas); break;
                 case 3: ExaminationRoom(canvas); break;
+                default:
+                    throw new InvalidOperationException($"Intro background page {page} has no tilemap.");
             }
         }
         return output;

@@ -37,7 +37,7 @@ internal static class ChozoGrabAnimationVerification
         samus.Presentation.InitializeAnimation();
         samus.CommitPoseHistory();
         samus.AnimationFrame = 2;
-        samus.AnimationFrameTimer = NativeCountdown.Start((ushort)3);
+        samus.AnimationFrameTimer = NativeCountdown.Start(3);
         samus.Position = samus.Position.WithWhole(new(0x4a * 16 + 8, (ushort)(0x17 * 16 - samus.Kinematics.Radius.Y)));
         var level = runtime.Room.LoadedLevelData;
         var block = level.GetCollisionBlockByIndex(level.GetBlockIndex(new(0x4a, 0x17)));
@@ -60,7 +60,7 @@ internal static class ChozoGrabAnimationVerification
         runtime.Plms.ChozoStatue.NotifyChozoStatueHandCollision(level, block, samus, samus.Pose, movingDown: true);
         AssertTrue(samus.Control.Mode.Beta == SamusBetaHandler.ScriptLocked && samus.Control.AlphaLocked,
             "hand trigger installs native stationary handlers");
-        AssertEqual((ushort)2, samus.AnimationFrame, "grab preserves captured ball frame");
+        AssertEqual(2, samus.AnimationFrame, "grab preserves captured ball frame");
         AssertEqual((ushort)3, samus.AnimationFrameTimer.RawValue, "grab preserves captured ball timer");
         ushort startX = samus.Position.X.Whole, startY = samus.Position.Y.Whole;
         bool carried = false;
@@ -85,7 +85,7 @@ internal static class ChozoGrabAnimationVerification
             }
             if (samus.Control.Mode.Beta == SamusBetaHandler.ScriptLocked)
             {
-                AssertEqual((ushort)2, samus.AnimationFrame, "ball frame remains frozen while carried");
+                AssertEqual(2, samus.AnimationFrame, "ball frame remains frozen while carried");
                 AssertEqual((ushort)3, samus.AnimationFrameTimer.RawValue, "ball animation timer remains frozen while carried");
             }
             carried |= samus.Position.X.Whole != startX || samus.Position.Y.Whole != startY;

@@ -145,7 +145,7 @@ internal static class EnemyMath
         int byteAngle = angle.RawValue;
         int sample = EnemyTrigonometryTables.EightBitHalfWave(byteAngle & EnemyByteAngleDefinitions.HalfWaveIndexMask);
         ushort product = unchecked((ushort)(sample * (SnesLittleEndian.LowByte(radius))));
-        ushort whole = unchecked((ushort)(SnesUnsignedEightEight.Whole(product)));
+        ushort whole = unchecked(SnesUnsignedEightEight.Whole(product));
         ushort fraction = unchecked((ushort)SnesSixteenSixteen.FromEightEight(product));
         if (byteAngle >= EnemyByteAngleDefinitions.HalfTurn)
         {

@@ -1257,38 +1257,80 @@ internal static class EnemySpritemapDefinitions
     {
         (byte bank, ushort pointer) = frame switch
         {
-            >= NamedFrameId.boyon_idle_0 and <= NamedFrameId.boyon_idle_2 =>
+            NamedFrameId.boyon_idle_0 or
+                NamedFrameId.boyon_idle_1 or
+                NamedFrameId.boyon_idle_2 =>
                 (BoyonBank, (ushort)(0x88da + ((int)frame - (int)NamedFrameId.boyon_idle_0) * NativeFrameBytes(1))),
-            >= NamedFrameId.boyon_bounce_0 and <= NamedFrameId.boyon_bounce_3 =>
+            NamedFrameId.boyon_bounce_0 or
+                NamedFrameId.boyon_bounce_1 or
+                NamedFrameId.boyon_bounce_2 or
+                NamedFrameId.boyon_bounce_3 =>
                 (BoyonBank, (ushort)(0x88ef + ((int)frame - (int)NamedFrameId.boyon_bounce_0) * NativeFrameBytes(1))),
-            >= NamedFrameId.cacatac_upright_idle_0 and <= NamedFrameId.cacatac_upright_idle_7 =>
+            NamedFrameId.cacatac_upright_idle_0 or
+                NamedFrameId.cacatac_upright_idle_1 or
+                NamedFrameId.cacatac_upright_idle_2 or
+                NamedFrameId.cacatac_upright_idle_3 or
+                NamedFrameId.cacatac_upright_idle_4 or
+                NamedFrameId.cacatac_upright_idle_5 or
+                NamedFrameId.cacatac_upright_idle_6 or
+                NamedFrameId.cacatac_upright_idle_7 =>
                 (BoyonBank, (ushort)(0xa0bb + ((int)frame - (int)NamedFrameId.cacatac_upright_idle_0) * NativeFrameBytes(6))),
             NamedFrameId.cacatac_upright_attack_1 => (BoyonBank, (ushort)0xa1bb),
             NamedFrameId.cacatac_upright_attack_2 => (BoyonBank, (ushort)0xa1ef),
-            >= NamedFrameId.cacatac_inverted_idle_0 and <= NamedFrameId.cacatac_inverted_idle_7 =>
+            NamedFrameId.cacatac_inverted_idle_0 or
+                NamedFrameId.cacatac_inverted_idle_1 or
+                NamedFrameId.cacatac_inverted_idle_2 or
+                NamedFrameId.cacatac_inverted_idle_3 or
+                NamedFrameId.cacatac_inverted_idle_4 or
+                NamedFrameId.cacatac_inverted_idle_5 or
+                NamedFrameId.cacatac_inverted_idle_6 or
+                NamedFrameId.cacatac_inverted_idle_7 =>
                 (BoyonBank, (ushort)(0xa223 + ((int)frame - (int)NamedFrameId.cacatac_inverted_idle_0) * NativeFrameBytes(6))),
             NamedFrameId.cacatac_inverted_attack_1 => (BoyonBank, (ushort)0xa323),
             NamedFrameId.cacatac_inverted_attack_2 => (BoyonBank, (ushort)0xa357),
-            >= NamedFrameId.boulder_roll_0 and <= NamedFrameId.boulder_roll_7 =>
+            NamedFrameId.boulder_roll_0 or
+                NamedFrameId.boulder_roll_1 or
+                NamedFrameId.boulder_roll_2 or
+                NamedFrameId.boulder_roll_3 or
+                NamedFrameId.boulder_roll_4 or
+                NamedFrameId.boulder_roll_5 or
+                NamedFrameId.boulder_roll_6 or
+                NamedFrameId.boulder_roll_7 =>
                 (BoulderBank, (ushort)(0x8a59 + ((int)frame - (int)NamedFrameId.boulder_roll_0) * NativeFrameBytes(4))),
-            >= NamedFrameId.atomic_up_right_0 and <= NamedFrameId.atomic_up_right_4 =>
+            NamedFrameId.atomic_up_right_0 or
+                NamedFrameId.atomic_up_right_1 or
+                NamedFrameId.atomic_up_right_2 or
+                NamedFrameId.atomic_up_right_3 or
+                NamedFrameId.atomic_up_right_4 =>
                 (AtomicBank, (ushort)(0xe489 + ((int)frame - (int)NamedFrameId.atomic_up_right_0) * NativeFrameBytes(4))),
             NamedFrameId.atomic_up_right_5 => (AtomicBank, (ushort)0xe4f2),
-            >= NamedFrameId.atomic_up_left_0 and <= NamedFrameId.atomic_up_left_4 =>
+            NamedFrameId.atomic_up_left_0 or
+                NamedFrameId.atomic_up_left_1 or
+                NamedFrameId.atomic_up_left_2 or
+                NamedFrameId.atomic_up_left_3 or
+                NamedFrameId.atomic_up_left_4 =>
                 (AtomicBank, (ushort)(0xe508 + ((int)frame - (int)NamedFrameId.atomic_up_left_0) * NativeFrameBytes(4))),
             NamedFrameId.atomic_up_left_5 => (AtomicBank, (ushort)0xe571),
-            >= NamedFrameId.skultera_swim_left_0 and <= NamedFrameId.skultera_swim_left_2 =>
+            NamedFrameId.skultera_swim_left_0 or
+                NamedFrameId.skultera_swim_left_1 or
+                NamedFrameId.skultera_swim_left_2 =>
                 (SkulteraBank, (ushort)(0x928a + ((int)frame - (int)NamedFrameId.skultera_swim_left_0) * NativeFrameBytes(5))),
-            >= NamedFrameId.skultera_turn_right_0 and <= NamedFrameId.skultera_turn_right_2 =>
+            NamedFrameId.skultera_turn_right_0 or
+                NamedFrameId.skultera_turn_right_1 or
+                NamedFrameId.skultera_turn_right_2 =>
                 (SkulteraBank, (ushort)(0x92db + ((int)frame - (int)NamedFrameId.skultera_turn_right_0) * NativeFrameBytes(5))),
             NamedFrameId.skultera_turn_right_3 => (SkulteraBank, (ushort)0x9327),
             NamedFrameId.skultera_turn_right_4 => (SkulteraBank, (ushort)0x933d),
             NamedFrameId.skultera_turn_right_5 => (SkulteraBank, (ushort)0x934e),
             NamedFrameId.skultera_turn_right_6 => (SkulteraBank, (ushort)0x9364),
             NamedFrameId.skultera_turn_right_7 => (SkulteraBank, (ushort)0x937f),
-            >= NamedFrameId.skultera_swim_right_0 and <= NamedFrameId.skultera_swim_right_2 =>
+            NamedFrameId.skultera_swim_right_0 or
+                NamedFrameId.skultera_swim_right_1 or
+                NamedFrameId.skultera_swim_right_2 =>
                 (SkulteraBank, (ushort)(0x939a + ((int)frame - (int)NamedFrameId.skultera_swim_right_0) * NativeFrameBytes(5))),
-            >= NamedFrameId.skultera_turn_left_0 and <= NamedFrameId.skultera_turn_left_2 =>
+            NamedFrameId.skultera_turn_left_0 or
+                NamedFrameId.skultera_turn_left_1 or
+                NamedFrameId.skultera_turn_left_2 =>
                 (SkulteraBank, (ushort)(0x93eb + ((int)frame - (int)NamedFrameId.skultera_turn_left_0) * NativeFrameBytes(5))),
             NamedFrameId.skultera_turn_left_3 => (SkulteraBank, (ushort)0x9437),
             NamedFrameId.skultera_turn_left_4 => (SkulteraBank, (ushort)0x944d),
@@ -1315,47 +1357,93 @@ internal static class EnemySpritemapDefinitions
             NamedFrameId.skree_idle_2 => (SkreeMetareeBank, (ushort)0xc884),
             NamedFrameId.skree_idle_3 => (SkreeMetareeBank, (ushort)0xc89a),
             NamedFrameId.skree_prepare_1 => (SkreeMetareeBank, (ushort)0xc862),
-            >= NamedFrameId.zoa_shoot_left_0 and <= NamedFrameId.zoa_shoot_left_2 =>
+            NamedFrameId.zoa_shoot_left_0 or
+                NamedFrameId.zoa_shoot_left_1 or
+                NamedFrameId.zoa_shoot_left_2 =>
                 (ZoaBank, (ushort)(0xb55f + ((int)frame - (int)NamedFrameId.zoa_shoot_left_0) * NativeFrameBytes(1))),
             NamedFrameId.zoa_rise_left_0 => (ZoaBank, (ushort)0xb57b),
             NamedFrameId.zoa_rise_left_1 => (ZoaBank, (ushort)0xb574),
             NamedFrameId.zoa_rise_left_2 => (ZoaBank, (ushort)0xb582),
-            >= NamedFrameId.zoa_shoot_right_0 and <= NamedFrameId.zoa_shoot_right_2 =>
+            NamedFrameId.zoa_shoot_right_0 or
+                NamedFrameId.zoa_shoot_right_1 or
+                NamedFrameId.zoa_shoot_right_2 =>
                 (ZoaBank, (ushort)(0xb589 + ((int)frame - (int)NamedFrameId.zoa_shoot_right_0) * NativeFrameBytes(1))),
             NamedFrameId.zoa_rise_right_0 => (ZoaBank, (ushort)0xb5a5),
             NamedFrameId.zoa_rise_right_1 => (ZoaBank, (ushort)0xb59e),
             NamedFrameId.zoa_rise_right_2 => (ZoaBank, (ushort)0xb5ac),
-            >= NamedFrameId.pipe_brinstar_normal_left_0 and <= NamedFrameId.pipe_brinstar_normal_left_4 =>
+            NamedFrameId.pipe_brinstar_normal_left_0 or
+                NamedFrameId.pipe_brinstar_normal_left_1 or
+                NamedFrameId.pipe_brinstar_normal_left_2 or
+                NamedFrameId.pipe_brinstar_normal_left_3 or
+                NamedFrameId.pipe_brinstar_normal_left_4 =>
                 (PipeBugBank, (ushort)(0x89b7 + ((int)frame - (int)NamedFrameId.pipe_brinstar_normal_left_0) * NativeFrameBytes(1))),
-            >= NamedFrameId.pipe_brinstar_normal_right_0 and <= NamedFrameId.pipe_brinstar_normal_right_4 =>
+            NamedFrameId.pipe_brinstar_normal_right_0 or
+                NamedFrameId.pipe_brinstar_normal_right_1 or
+                NamedFrameId.pipe_brinstar_normal_right_2 or
+                NamedFrameId.pipe_brinstar_normal_right_3 or
+                NamedFrameId.pipe_brinstar_normal_right_4 =>
                 (PipeBugBank, (ushort)(0x89da + ((int)frame - (int)NamedFrameId.pipe_brinstar_normal_right_0) * NativeFrameBytes(1))),
-            >= NamedFrameId.pipe_brinstar_strong_shoot_left_0 and <= NamedFrameId.pipe_brinstar_strong_shoot_left_2 =>
+            NamedFrameId.pipe_brinstar_strong_shoot_left_0 or
+                NamedFrameId.pipe_brinstar_strong_shoot_left_1 or
+                NamedFrameId.pipe_brinstar_strong_shoot_left_2 =>
                 (PipeBugBank, (ushort)(0x8a6d + ((int)frame - (int)NamedFrameId.pipe_brinstar_strong_shoot_left_0) * NativeFrameBytes(1))),
-            >= NamedFrameId.pipe_brinstar_strong_rise_left_0 and <= NamedFrameId.pipe_brinstar_strong_rise_left_2 =>
+            NamedFrameId.pipe_brinstar_strong_rise_left_0 or
+                NamedFrameId.pipe_brinstar_strong_rise_left_1 or
+                NamedFrameId.pipe_brinstar_strong_rise_left_2 =>
                 (PipeBugBank, (ushort)(0x8a82 + ((int)frame - (int)NamedFrameId.pipe_brinstar_strong_rise_left_0) * NativeFrameBytes(1))),
-            >= NamedFrameId.pipe_brinstar_strong_shoot_right_0 and <= NamedFrameId.pipe_brinstar_strong_shoot_right_2 =>
+            NamedFrameId.pipe_brinstar_strong_shoot_right_0 or
+                NamedFrameId.pipe_brinstar_strong_shoot_right_1 or
+                NamedFrameId.pipe_brinstar_strong_shoot_right_2 =>
                 (PipeBugBank, (ushort)(0x8a97 + ((int)frame - (int)NamedFrameId.pipe_brinstar_strong_shoot_right_0) * NativeFrameBytes(1))),
-            >= NamedFrameId.pipe_brinstar_strong_rise_right_0 and <= NamedFrameId.pipe_brinstar_strong_rise_right_2 =>
+            NamedFrameId.pipe_brinstar_strong_rise_right_0 or
+                NamedFrameId.pipe_brinstar_strong_rise_right_1 or
+                NamedFrameId.pipe_brinstar_strong_rise_right_2 =>
                 (PipeBugBank, (ushort)(0x8aac + ((int)frame - (int)NamedFrameId.pipe_brinstar_strong_rise_right_0) * NativeFrameBytes(1))),
-            >= NamedFrameId.pipe_norfair_left_0 and <= NamedFrameId.pipe_norfair_left_4 =>
+            NamedFrameId.pipe_norfair_left_0 or
+                NamedFrameId.pipe_norfair_left_1 or
+                NamedFrameId.pipe_norfair_left_2 or
+                NamedFrameId.pipe_norfair_left_3 or
+                NamedFrameId.pipe_norfair_left_4 =>
                 (PipeBugBank, (ushort)(0x8e96 + ((int)frame - (int)NamedFrameId.pipe_norfair_left_0) * NativeFrameBytes(1))),
-            >= NamedFrameId.pipe_norfair_right_0 and <= NamedFrameId.pipe_norfair_right_4 =>
+            NamedFrameId.pipe_norfair_right_0 or
+                NamedFrameId.pipe_norfair_right_1 or
+                NamedFrameId.pipe_norfair_right_2 or
+                NamedFrameId.pipe_norfair_right_3 or
+                NamedFrameId.pipe_norfair_right_4 =>
                 (PipeBugBank, (ushort)(0x8eb9 + ((int)frame - (int)NamedFrameId.pipe_norfair_right_0) * NativeFrameBytes(1))),
-            >= NamedFrameId.pipe_yellow_fly_left_0 and <= NamedFrameId.pipe_yellow_fly_left_2 =>
+            NamedFrameId.pipe_yellow_fly_left_0 or
+                NamedFrameId.pipe_yellow_fly_left_1 or
+                NamedFrameId.pipe_yellow_fly_left_2 =>
                 (PipeBugBank, (ushort)(0x92ad + ((int)frame - (int)NamedFrameId.pipe_yellow_fly_left_0) * NativeFrameBytes(1))),
-            >= NamedFrameId.pipe_yellow_arc_left_0 and <= NamedFrameId.pipe_yellow_arc_left_2 =>
+            NamedFrameId.pipe_yellow_arc_left_0 or
+                NamedFrameId.pipe_yellow_arc_left_1 or
+                NamedFrameId.pipe_yellow_arc_left_2 =>
                 (PipeBugBank, (ushort)(0x92c2 + ((int)frame - (int)NamedFrameId.pipe_yellow_arc_left_0) * NativeFrameBytes(1))),
-            >= NamedFrameId.pipe_yellow_fly_right_0 and <= NamedFrameId.pipe_yellow_fly_right_2 =>
+            NamedFrameId.pipe_yellow_fly_right_0 or
+                NamedFrameId.pipe_yellow_fly_right_1 or
+                NamedFrameId.pipe_yellow_fly_right_2 =>
                 (PipeBugBank, (ushort)(0x92d7 + ((int)frame - (int)NamedFrameId.pipe_yellow_fly_right_0) * NativeFrameBytes(1))),
-            >= NamedFrameId.pipe_yellow_arc_right_0 and <= NamedFrameId.pipe_yellow_arc_right_2 =>
+            NamedFrameId.pipe_yellow_arc_right_0 or
+                NamedFrameId.pipe_yellow_arc_right_1 or
+                NamedFrameId.pipe_yellow_arc_right_2 =>
                 (PipeBugBank, (ushort)(0x92ec + ((int)frame - (int)NamedFrameId.pipe_yellow_arc_right_0) * NativeFrameBytes(1))),
-            >= NamedFrameId.fake_kraid_walk_left_0 and <= NamedFrameId.fake_kraid_walk_left_3 =>
+            NamedFrameId.fake_kraid_walk_left_0 or
+                NamedFrameId.fake_kraid_walk_left_1 or
+                NamedFrameId.fake_kraid_walk_left_2 or
+                NamedFrameId.fake_kraid_walk_left_3 =>
                 (FakeKraidBank, (ushort)(0x9c64 + ((int)frame - (int)NamedFrameId.fake_kraid_walk_left_0) * NativeFrameBytes(16))),
-            >= NamedFrameId.fake_kraid_spit_left_0 and <= NamedFrameId.fake_kraid_spit_left_2 =>
+            NamedFrameId.fake_kraid_spit_left_0 or
+                NamedFrameId.fake_kraid_spit_left_1 or
+                NamedFrameId.fake_kraid_spit_left_2 =>
                 (FakeKraidBank, (ushort)(0x9dac + ((int)frame - (int)NamedFrameId.fake_kraid_spit_left_0) * NativeFrameBytes(16))),
-            >= NamedFrameId.fake_kraid_walk_right_0 and <= NamedFrameId.fake_kraid_walk_right_3 =>
+            NamedFrameId.fake_kraid_walk_right_0 or
+                NamedFrameId.fake_kraid_walk_right_1 or
+                NamedFrameId.fake_kraid_walk_right_2 or
+                NamedFrameId.fake_kraid_walk_right_3 =>
                 (FakeKraidBank, (ushort)(0x9ea2 + ((int)frame - (int)NamedFrameId.fake_kraid_walk_right_0) * NativeFrameBytes(16))),
-            >= NamedFrameId.fake_kraid_spit_right_0 and <= NamedFrameId.fake_kraid_spit_right_2 =>
+            NamedFrameId.fake_kraid_spit_right_0 or
+                NamedFrameId.fake_kraid_spit_right_1 or
+                NamedFrameId.fake_kraid_spit_right_2 =>
                 (FakeKraidBank, (ushort)(0x9fea + ((int)frame - (int)NamedFrameId.fake_kraid_spit_right_0) * NativeFrameBytes(16))),
             NamedFrameId.kraid_nail_0 => (KraidNailBank, (ushort)0xa617),
             NamedFrameId.kraid_nail_1 => (KraidNailBank, (ushort)0xa623),
@@ -1365,7 +1453,9 @@ internal static class EnemySpritemapDefinitions
             NamedFrameId.kraid_nail_5 => (KraidNailBank, (ushort)0xa667),
             NamedFrameId.kraid_nail_6 => (KraidNailBank, (ushort)0xa67d),
             NamedFrameId.kraid_nail_7 => (KraidNailBank, (ushort)0xa689),
-            >= NamedFrameId.owtch_left_0 and <= NamedFrameId.owtch_left_2 =>
+            NamedFrameId.owtch_left_0 or
+                NamedFrameId.owtch_left_1 or
+                NamedFrameId.owtch_left_2 =>
                 (OwtchStokeBank, (ushort)(0xa589 + ((int)frame - (int)NamedFrameId.owtch_left_0) * NativeFrameBytes(1))),
             NamedFrameId.stoke_walk_left_0 => (OwtchStokeBank, (ushort)0x8aca),
             NamedFrameId.stoke_walk_left_1 => (OwtchStokeBank, (ushort)0x8ad6),
@@ -1385,24 +1475,56 @@ internal static class EnemySpritemapDefinitions
             NamedFrameId.ripper_shared_right_2 => (RipperBank, (ushort)0xe429),
             NamedFrameId.ripper_shared_frozen_left => (RipperBank, (ushort)0xe43f),
             NamedFrameId.ripper_shared_frozen_right => (RipperBank, (ushort)0xe44b),
-            >= NamedFrameId.ripper_left_0 and <= NamedFrameId.ripper_left_2 =>
+            NamedFrameId.ripper_left_0 or
+                NamedFrameId.ripper_left_1 or
+                NamedFrameId.ripper_left_2 =>
                 (RipperBank, (ushort)(0xe527 + ((int)frame - (int)NamedFrameId.ripper_left_0) * NativeFrameBytes(2))),
-            >= NamedFrameId.ripper_right_0 and <= NamedFrameId.ripper_right_2 =>
+            NamedFrameId.ripper_right_0 or
+                NamedFrameId.ripper_right_1 or
+                NamedFrameId.ripper_right_2 =>
                 (RipperBank, (ushort)(0xe54b + ((int)frame - (int)NamedFrameId.ripper_right_0) * NativeFrameBytes(2))),
-            >= NamedFrameId.fireflea_cycle_0 and <= NamedFrameId.fireflea_cycle_20 =>
+            NamedFrameId.fireflea_cycle_0 or
+                NamedFrameId.fireflea_cycle_1 or
+                NamedFrameId.fireflea_cycle_2 or
+                NamedFrameId.fireflea_cycle_3 or
+                NamedFrameId.fireflea_cycle_4 or
+                NamedFrameId.fireflea_cycle_5 or
+                NamedFrameId.fireflea_cycle_6 or
+                NamedFrameId.fireflea_cycle_7 or
+                NamedFrameId.fireflea_cycle_8 or
+                NamedFrameId.fireflea_cycle_9 or
+                NamedFrameId.fireflea_cycle_10 or
+                NamedFrameId.fireflea_cycle_11 or
+                NamedFrameId.fireflea_cycle_12 or
+                NamedFrameId.fireflea_cycle_13 or
+                NamedFrameId.fireflea_cycle_14 or
+                NamedFrameId.fireflea_cycle_15 or
+                NamedFrameId.fireflea_cycle_16 or
+                NamedFrameId.fireflea_cycle_17 or
+                NamedFrameId.fireflea_cycle_18 or
+                NamedFrameId.fireflea_cycle_19 or
+                NamedFrameId.fireflea_cycle_20 =>
                 (FirefleaBank, (ushort)(0x8ea5 + ((int)frame - (int)NamedFrameId.fireflea_cycle_0) * NativeFrameBytes(3))),
-            >= NamedFrameId.magdollite_left_idle_0 and <= NamedFrameId.magdollite_left_idle_2 =>
+            NamedFrameId.magdollite_left_idle_0 or
+                NamedFrameId.magdollite_left_idle_1 or
+                NamedFrameId.magdollite_left_idle_2 =>
                 (MagdolliteBank, (ushort)(0xb448 + ((int)frame - (int)NamedFrameId.magdollite_left_idle_0) * NativeFrameBytes(3))),
-            >= NamedFrameId.magdollite_left_throw_0 and <= NamedFrameId.magdollite_left_throw_2 =>
+            NamedFrameId.magdollite_left_throw_0 or
+                NamedFrameId.magdollite_left_throw_1 or
+                NamedFrameId.magdollite_left_throw_2 =>
                 (MagdolliteBank, (ushort)(0xb47b + ((int)frame - (int)NamedFrameId.magdollite_left_throw_0) * NativeFrameBytes(3))),
             NamedFrameId.magdollite_left_throw_3 => (MagdolliteBank, (ushort)0xb4a9),
             NamedFrameId.magdollite_pillar_cap => (MagdolliteBank, (ushort)0xb4b5),
             NamedFrameId.magdollite_left_submerge_0 => (MagdolliteBank, (ushort)0xb4c1),
             NamedFrameId.magdollite_left_submerge_1 => (MagdolliteBank, (ushort)0xb4cf),
             NamedFrameId.magdollite_left_submerge_2 => (MagdolliteBank, (ushort)0xb4e0),
-            >= NamedFrameId.magdollite_right_idle_0 and <= NamedFrameId.magdollite_right_idle_2 =>
+            NamedFrameId.magdollite_right_idle_0 or
+                NamedFrameId.magdollite_right_idle_1 or
+                NamedFrameId.magdollite_right_idle_2 =>
                 (MagdolliteBank, (ushort)(0xb4f1 + ((int)frame - (int)NamedFrameId.magdollite_right_idle_0) * NativeFrameBytes(3))),
-            >= NamedFrameId.magdollite_right_throw_0 and <= NamedFrameId.magdollite_right_throw_2 =>
+            NamedFrameId.magdollite_right_throw_0 or
+                NamedFrameId.magdollite_right_throw_1 or
+                NamedFrameId.magdollite_right_throw_2 =>
                 (MagdolliteBank, (ushort)(0xb524 + ((int)frame - (int)NamedFrameId.magdollite_right_throw_0) * NativeFrameBytes(3))),
             NamedFrameId.magdollite_right_throw_3 => (MagdolliteBank, (ushort)0xb552),
             NamedFrameId.magdollite_right_submerge_0 => (MagdolliteBank, (ushort)0xb56a),
@@ -1419,11 +1541,15 @@ internal static class EnemySpritemapDefinitions
             NamedFrameId.ceres_door_rotating_overlay => (CeresDoorFrameDefinitions.Bank, (ushort)0xf921),
             NamedFrameId.ceres_door_left_hold => (CeresDoorFrameDefinitions.Bank, (ushort)0xf95f),
             NamedFrameId.ceres_door_left_transition_0 => (CeresDoorFrameDefinitions.Bank, (ushort)0xf989),
-            >= NamedFrameId.ceres_door_left_transition_1 and <= NamedFrameId.ceres_door_left_transition_3 =>
+            NamedFrameId.ceres_door_left_transition_1 or
+                NamedFrameId.ceres_door_left_transition_2 or
+                NamedFrameId.ceres_door_left_transition_3 =>
                 (CeresDoorFrameDefinitions.Bank, (ushort)(0xf9b3 + ((int)frame - (int)NamedFrameId.ceres_door_left_transition_1) * NativeFrameBytes(6))),
             NamedFrameId.ceres_door_right_hold => (CeresDoorFrameDefinitions.Bank, (ushort)0xfa13),
             NamedFrameId.ceres_door_right_transition_0 => (CeresDoorFrameDefinitions.Bank, (ushort)0xfa3d),
-            >= NamedFrameId.ceres_door_right_transition_1 and <= NamedFrameId.ceres_door_right_transition_3 =>
+            NamedFrameId.ceres_door_right_transition_1 or
+                NamedFrameId.ceres_door_right_transition_2 or
+                NamedFrameId.ceres_door_right_transition_3 =>
                 (CeresDoorFrameDefinitions.Bank, (ushort)(0xfa67 + ((int)frame - (int)NamedFrameId.ceres_door_right_transition_1) * NativeFrameBytes(6))),
             NamedFrameId.ceres_door_initial => (CeresDoorFrameDefinitions.Bank, CeresDoorFrameDefinitions.InitialSpritemap),
             NamedFrameId.ceres_door_mode7_left_wall => (CeresDoorFrameDefinitions.Bank, (ushort)0xface),
@@ -1478,16 +1604,22 @@ internal static class EnemySpritemapDefinitions
             NamedFrameId.norfair_rio_c5d6 => (NorfairRioBank, (ushort)0xc5d6),
             NamedFrameId.norfair_rio_c5e2 => (NorfairRioBank, (ushort)0xc5e2),
             NamedFrameId.norfair_rio_c5ee => (NorfairRioBank, (ushort)0xc5ee),
-            >= NamedFrameId.puyo_ground_0 and <= NamedFrameId.puyo_ground_2 =>
+            NamedFrameId.puyo_ground_0 or
+                NamedFrameId.puyo_ground_1 or
+                NamedFrameId.puyo_ground_2 =>
                 (PuyoBank, (ushort)(0x9df6 + ((int)frame - (int)NamedFrameId.puyo_ground_0) * NativeFrameBytes(2))),
             NamedFrameId.puyo_air_0 => (PuyoBank, (ushort)0x9e1a),
             NamedFrameId.puyo_air_1 => (PuyoBank, (ushort)0x9e26),
             NamedFrameId.puyo_air_2 => (PuyoBank, (ushort)0x9e37),
             NamedFrameId.puyo_air_3 => (PuyoBank, (ushort)0x9e4d),
             NamedFrameId.puyo_air_4 => (PuyoBank, (ushort)0x9e5e),
-            >= NamedFrameId.bull_idle_0 and <= NamedFrameId.bull_idle_2 =>
+            NamedFrameId.bull_idle_0 or
+                NamedFrameId.bull_idle_1 or
+                NamedFrameId.bull_idle_2 =>
                 (BullBank, (ushort)(0xdb76 + ((int)frame - (int)NamedFrameId.bull_idle_0) * NativeFrameBytes(4))),
-            >= NamedFrameId.alcoon_left_walk_0 and <= NamedFrameId.alcoon_left_walk_2 =>
+            NamedFrameId.alcoon_left_walk_0 or
+                NamedFrameId.alcoon_left_walk_1 or
+                NamedFrameId.alcoon_left_walk_2 =>
                 (AlcoonBank, (ushort)(0xdfa2 + ((int)frame - (int)NamedFrameId.alcoon_left_walk_0) * NativeFrameBytes(6))),
             NamedFrameId.alcoon_left_walk_3 => (AlcoonBank, (ushort)0xe007),
             NamedFrameId.alcoon_left_fire_0 => (AlcoonBank, (ushort)0xe027),
@@ -1495,7 +1627,9 @@ internal static class EnemySpritemapDefinitions
             NamedFrameId.alcoon_left_fire_2 => (AlcoonBank, (ushort)0xe06c),
             NamedFrameId.alcoon_left_fire_3 => (AlcoonBank, (ushort)0xe09b),
             NamedFrameId.alcoon_left_air_up => (AlcoonBank, (ushort)0xe0bb),
-            >= NamedFrameId.alcoon_right_walk_0 and <= NamedFrameId.alcoon_right_walk_2 =>
+            NamedFrameId.alcoon_right_walk_0 or
+                NamedFrameId.alcoon_right_walk_1 or
+                NamedFrameId.alcoon_right_walk_2 =>
                 (AlcoonBank, (ushort)(0xe0db + ((int)frame - (int)NamedFrameId.alcoon_right_walk_0) * NativeFrameBytes(6))),
             NamedFrameId.alcoon_right_walk_3 => (AlcoonBank, (ushort)0xe140),
             NamedFrameId.alcoon_right_fire_0 => (AlcoonBank, (ushort)0xe160),
@@ -1503,19 +1637,29 @@ internal static class EnemySpritemapDefinitions
             NamedFrameId.alcoon_right_fire_2 => (AlcoonBank, (ushort)0xe1a5),
             NamedFrameId.alcoon_right_fire_3 => (AlcoonBank, (ushort)0xe1d4),
             NamedFrameId.alcoon_right_air_up => (AlcoonBank, (ushort)0xe1f4),
-            >= NamedFrameId.beetom_left_crawl_0 and <= NamedFrameId.beetom_left_crawl_2 =>
+            NamedFrameId.beetom_left_crawl_0 or
+                NamedFrameId.beetom_left_crawl_1 or
+                NamedFrameId.beetom_left_crawl_2 =>
                 (BeetomBank, (ushort)(0xbed3 + ((int)frame - (int)NamedFrameId.beetom_left_crawl_0) * NativeFrameBytes(5))),
             NamedFrameId.beetom_left_hop_0 => (BeetomBank, (ushort)0xbf24),
             NamedFrameId.beetom_left_hop_1 => (BeetomBank, (ushort)0xbf3f),
-            >= NamedFrameId.beetom_left_drain_0 and <= NamedFrameId.beetom_left_drain_3 =>
+            NamedFrameId.beetom_left_drain_0 or
+                NamedFrameId.beetom_left_drain_1 or
+                NamedFrameId.beetom_left_drain_2 or
+                NamedFrameId.beetom_left_drain_3 =>
                 (BeetomBank, (ushort)(0xbf5a + ((int)frame - (int)NamedFrameId.beetom_left_drain_0) * NativeFrameBytes(5))),
             NamedFrameId.beetom_left_drain_4 => (BeetomBank, (ushort)0xbfcb),
             NamedFrameId.beetom_left_drain_5 => (BeetomBank, (ushort)0xbfeb),
-            >= NamedFrameId.beetom_right_crawl_0 and <= NamedFrameId.beetom_right_crawl_2 =>
+            NamedFrameId.beetom_right_crawl_0 or
+                NamedFrameId.beetom_right_crawl_1 or
+                NamedFrameId.beetom_right_crawl_2 =>
                 (BeetomBank, (ushort)(0xc00b + ((int)frame - (int)NamedFrameId.beetom_right_crawl_0) * NativeFrameBytes(5))),
             NamedFrameId.beetom_right_hop_0 => (BeetomBank, (ushort)0xc05c),
             NamedFrameId.beetom_right_hop_1 => (BeetomBank, (ushort)0xc077),
-            >= NamedFrameId.beetom_right_drain_0 and <= NamedFrameId.beetom_right_drain_3 =>
+            NamedFrameId.beetom_right_drain_0 or
+                NamedFrameId.beetom_right_drain_1 or
+                NamedFrameId.beetom_right_drain_2 or
+                NamedFrameId.beetom_right_drain_3 =>
                 (BeetomBank, (ushort)(0xc092 + ((int)frame - (int)NamedFrameId.beetom_right_drain_0) * NativeFrameBytes(5))),
             NamedFrameId.beetom_right_drain_4 => (BeetomBank, (ushort)0xc103),
             NamedFrameId.beetom_right_drain_5 => (BeetomBank, (ushort)0xc123),
@@ -1547,50 +1691,108 @@ internal static class EnemySpritemapDefinitions
             NamedFrameId.choot_jump => (ChootBank, (ushort)0xe15c),
             NamedFrameId.choot_jump_apex => (ChootBank, (ushort)0xe168),
             NamedFrameId.choot_fall_end => (ChootBank, (ushort)0xe16f),
-            >= NamedFrameId.hzoomer_upside_right_0 and <= NamedFrameId.hzoomer_upside_right_4 =>
+            NamedFrameId.hzoomer_upside_right_0 or
+                NamedFrameId.hzoomer_upside_right_1 or
+                NamedFrameId.hzoomer_upside_right_2 or
+                NamedFrameId.hzoomer_upside_right_3 or
+                NamedFrameId.hzoomer_upside_right_4 =>
                 (HZoomerBank, (ushort)(0xe50e + ((int)frame - (int)NamedFrameId.hzoomer_upside_right_0) * NativeFrameBytes(4))),
-            >= NamedFrameId.hzoomer_upside_left_0 and <= NamedFrameId.hzoomer_upside_left_4 =>
+            NamedFrameId.hzoomer_upside_left_0 or
+                NamedFrameId.hzoomer_upside_left_1 or
+                NamedFrameId.hzoomer_upside_left_2 or
+                NamedFrameId.hzoomer_upside_left_3 or
+                NamedFrameId.hzoomer_upside_left_4 =>
                 (HZoomerBank, (ushort)(0xe3c4 + ((int)frame - (int)NamedFrameId.hzoomer_upside_left_0) * NativeFrameBytes(4))),
-            >= NamedFrameId.hzoomer_upside_down_0 and <= NamedFrameId.hzoomer_upside_down_4 =>
+            NamedFrameId.hzoomer_upside_down_0 or
+                NamedFrameId.hzoomer_upside_down_1 or
+                NamedFrameId.hzoomer_upside_down_2 or
+                NamedFrameId.hzoomer_upside_down_3 or
+                NamedFrameId.hzoomer_upside_down_4 =>
                 (HZoomerBank, (ushort)(0xe432 + ((int)frame - (int)NamedFrameId.hzoomer_upside_down_0) * NativeFrameBytes(4))),
-            >= NamedFrameId.hzoomer_upside_up_0 and <= NamedFrameId.hzoomer_upside_up_4 =>
+            NamedFrameId.hzoomer_upside_up_0 or
+                NamedFrameId.hzoomer_upside_up_1 or
+                NamedFrameId.hzoomer_upside_up_2 or
+                NamedFrameId.hzoomer_upside_up_3 or
+                NamedFrameId.hzoomer_upside_up_4 =>
                 (HZoomerBank, (ushort)(0xe2e8 + ((int)frame - (int)NamedFrameId.hzoomer_upside_up_0) * NativeFrameBytes(4))),
-            >= NamedFrameId.sbug_right_0 and <= NamedFrameId.sbug_right_2 =>
+            NamedFrameId.sbug_right_0 or
+                NamedFrameId.sbug_right_1 or
+                NamedFrameId.sbug_right_2 =>
                 (SbugBank, (ushort)(0xa67d + ((int)frame - (int)NamedFrameId.sbug_right_0) * NativeFrameBytes(1))),
-            >= NamedFrameId.sbug_up_right_0 and <= NamedFrameId.sbug_up_right_2 =>
+            NamedFrameId.sbug_up_right_0 or
+                NamedFrameId.sbug_up_right_1 or
+                NamedFrameId.sbug_up_right_2 =>
                 (SbugBank, (ushort)(0xa692 + ((int)frame - (int)NamedFrameId.sbug_up_right_0) * NativeFrameBytes(1))),
-            >= NamedFrameId.sbug_up_0 and <= NamedFrameId.sbug_up_2 =>
+            NamedFrameId.sbug_up_0 or
+                NamedFrameId.sbug_up_1 or
+                NamedFrameId.sbug_up_2 =>
                 (SbugBank, (ushort)(0xa6a7 + ((int)frame - (int)NamedFrameId.sbug_up_0) * NativeFrameBytes(1))),
-            >= NamedFrameId.sbug_up_left_0 and <= NamedFrameId.sbug_up_left_2 =>
+            NamedFrameId.sbug_up_left_0 or
+                NamedFrameId.sbug_up_left_1 or
+                NamedFrameId.sbug_up_left_2 =>
                 (SbugBank, (ushort)(0xa6bc + ((int)frame - (int)NamedFrameId.sbug_up_left_0) * NativeFrameBytes(1))),
-            >= NamedFrameId.sbug_left_0 and <= NamedFrameId.sbug_left_2 =>
+            NamedFrameId.sbug_left_0 or
+                NamedFrameId.sbug_left_1 or
+                NamedFrameId.sbug_left_2 =>
                 (SbugBank, (ushort)(0xa6d1 + ((int)frame - (int)NamedFrameId.sbug_left_0) * NativeFrameBytes(1))),
-            >= NamedFrameId.sbug_down_left_0 and <= NamedFrameId.sbug_down_left_2 =>
+            NamedFrameId.sbug_down_left_0 or
+                NamedFrameId.sbug_down_left_1 or
+                NamedFrameId.sbug_down_left_2 =>
                 (SbugBank, (ushort)(0xa6e6 + ((int)frame - (int)NamedFrameId.sbug_down_left_0) * NativeFrameBytes(1))),
-            >= NamedFrameId.sbug_down_0 and <= NamedFrameId.sbug_down_2 =>
+            NamedFrameId.sbug_down_0 or
+                NamedFrameId.sbug_down_1 or
+                NamedFrameId.sbug_down_2 =>
                 (SbugBank, (ushort)(0xa6fb + ((int)frame - (int)NamedFrameId.sbug_down_0) * NativeFrameBytes(1))),
-            >= NamedFrameId.sbug_down_right_0 and <= NamedFrameId.sbug_down_right_2 =>
+            NamedFrameId.sbug_down_right_0 or
+                NamedFrameId.sbug_down_right_1 or
+                NamedFrameId.sbug_down_right_2 =>
                 (SbugBank, (ushort)(0xa710 + ((int)frame - (int)NamedFrameId.sbug_down_right_0) * NativeFrameBytes(1))),
             NamedFrameId.fune_left_idle => (FuneNamiheBank, (ushort)0x93f9),
-            >= NamedFrameId.fune_left_active_0 and <= NamedFrameId.fune_left_active_3 =>
+            NamedFrameId.fune_left_active_0 or
+                NamedFrameId.fune_left_active_1 or
+                NamedFrameId.fune_left_active_2 or
+                NamedFrameId.fune_left_active_3 =>
                 (FuneNamiheBank, (ushort)(0x9423 + ((int)frame - (int)NamedFrameId.fune_left_active_0) * NativeFrameBytes(8))),
             NamedFrameId.fune_right_idle => (FuneNamiheBank, (ushort)0x94cb),
-            >= NamedFrameId.fune_right_active_0 and <= NamedFrameId.fune_right_active_3 =>
+            NamedFrameId.fune_right_active_0 or
+                NamedFrameId.fune_right_active_1 or
+                NamedFrameId.fune_right_active_2 or
+                NamedFrameId.fune_right_active_3 =>
                 (FuneNamiheBank, (ushort)(0x94f5 + ((int)frame - (int)NamedFrameId.fune_right_active_0) * NativeFrameBytes(8))),
             NamedFrameId.namihe_left_idle => (FuneNamiheBank, (ushort)0x97b4),
-            >= NamedFrameId.namihe_left_active_0 and <= NamedFrameId.namihe_left_active_4 =>
+            NamedFrameId.namihe_left_active_0 or
+                NamedFrameId.namihe_left_active_1 or
+                NamedFrameId.namihe_left_active_2 or
+                NamedFrameId.namihe_left_active_3 or
+                NamedFrameId.namihe_left_active_4 =>
                 (FuneNamiheBank, (ushort)(0x97de + ((int)frame - (int)NamedFrameId.namihe_left_active_0) * NativeFrameBytes(8))),
             NamedFrameId.namihe_right_idle => (FuneNamiheBank, (ushort)0x98b0),
-            >= NamedFrameId.namihe_right_active_0 and <= NamedFrameId.namihe_right_active_4 =>
+            NamedFrameId.namihe_right_active_0 or
+                NamedFrameId.namihe_right_active_1 or
+                NamedFrameId.namihe_right_active_2 or
+                NamedFrameId.namihe_right_active_3 or
+                NamedFrameId.namihe_right_active_4 =>
                 (FuneNamiheBank, (ushort)(0x98da + ((int)frame - (int)NamedFrameId.namihe_right_active_0) * NativeFrameBytes(8))),
-            >= NamedFrameId.kamer_platform_0 and <= NamedFrameId.kamer_platform_3 =>
+            NamedFrameId.kamer_platform_0 or
+                NamedFrameId.kamer_platform_1 or
+                NamedFrameId.kamer_platform_2 or
+                NamedFrameId.kamer_platform_3 =>
                 (KamerPlatformBank, (ushort)(0xf468 + ((int)frame - (int)NamedFrameId.kamer_platform_0) * NativeFrameBytes(2))),
             NamedFrameId.elevator_platform_0 => (ElevatorBank, (ushort)0x962f),
             NamedFrameId.elevator_platform_1 => (ElevatorBank, (ushort)0x9645),
-            >= NamedFrameId.draygon_intro_evir_0 and <= NamedFrameId.draygon_intro_evir_3 =>
+            NamedFrameId.draygon_intro_evir_0 or
+                NamedFrameId.draygon_intro_evir_1 or
+                NamedFrameId.draygon_intro_evir_2 or
+                NamedFrameId.draygon_intro_evir_3 =>
                 (RoomSpriteObjectBank, (ushort)(0xdb42 + ((int)frame - (int)NamedFrameId.draygon_intro_evir_0) * NativeFrameBytes(12))),
             NamedFrameId.draygon_breath_bubble_0 => (RoomSpriteObjectBank, (ushort)0xc920),
-            >= NamedFrameId.draygon_breath_bubble_1 and <= NamedFrameId.draygon_breath_bubble_7 =>
+            NamedFrameId.draygon_breath_bubble_1 or
+                NamedFrameId.draygon_breath_bubble_2 or
+                NamedFrameId.draygon_breath_bubble_3 or
+                NamedFrameId.draygon_breath_bubble_4 or
+                NamedFrameId.draygon_breath_bubble_5 or
+                NamedFrameId.draygon_breath_bubble_6 or
+                NamedFrameId.draygon_breath_bubble_7 =>
                 (RoomSpriteObjectBank, (ushort)(0xc927 + ((int)frame - (int)NamedFrameId.draygon_breath_bubble_1) * NativeFrameBytes(3))),
             NamedFrameId.draygon_breath_bubble_8 => (RoomSpriteObjectBank, (ushort)0xc999),
             _ => throw new IndexOutOfRangeException(),

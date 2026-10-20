@@ -424,6 +424,8 @@ internal sealed class SamusPresentation
                 _samus.AnimationFrame = 0;
                 break;
 
+            default:
+                throw new InvalidOperationException($"Samus animation command ${delayOrCommand:X2} has no handler.");
         }
 
         byte selectedDelay = ReadAnimationByte(_samus.AnimationFrame);

@@ -97,7 +97,7 @@ internal static class EnemyTileArtworkSporeSpawnColorsVerification
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null)) { TileArtwork = edited };
         Type type = typeof(RoomEnemySystem);
         enemies.Presentation.BindCgram(cgram);
-        enemies.VerificationServices().IsAreaMiniBossDefeated = (Func<bool>)(() => false);
+        enemies.VerificationServices().IsAreaMiniBossDefeated = () => false;
         RoomEnemySlot body = enemies.SlotTable.Slots[0];
         body.Bind(EnemyDefinitionId.SporeSpawn, body.Definition);
         body.Bind(body.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = 0xa5 });

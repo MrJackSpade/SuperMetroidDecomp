@@ -116,7 +116,7 @@ internal static class GModeGateGlitchVerification
                     $"frame {frame} X-Ray activation restores native subsystem words");
             }
 
-            SnesButton input = frame == 0 ? SnesButton.X : (ushort)0;
+            SnesButton input = frame == 0 ? SnesButton.X : 0;
             bombs.StepFrame(new SamusTerrain { Level = level }, samus, input, input);
             shots.StepFrame(new SamusTerrain { Level = level, Plms = plms }, samus, new ProjectileButtonInput { ControllerInput = input, ControllerNewInput = input }, layer1: new(0, 224), sharedProjectiles: bombs);
 
@@ -217,7 +217,7 @@ internal static class GModeGateGlitchVerification
             "forty-first G-Mode sand contact cannot exceed the cartridge PLM pool");
         AssertEqual(0, samus.Kinematics.ExtraDisplacement.Y.RawValue,
             "overloaded G-Mode sand runs no setup and contributes no sinking displacement");
-        AssertEqual((ushort)4, samus.HorizontalSpeed.BaseSpeed.Whole,
+        AssertEqual(4, samus.HorizontalSpeed.BaseSpeed.Whole,
             "overloaded G-Mode sand no longer cancels horizontal momentum");
         AssertTrue(samus.HorizontalSpeed.HasRunningMomentum,
             "overloaded G-Mode sand preserves the running-momentum flag");

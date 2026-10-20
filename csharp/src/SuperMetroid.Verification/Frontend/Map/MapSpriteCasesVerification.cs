@@ -82,7 +82,7 @@ internal static class MapSpriteCasesVerification
         }
         foreach (ushort invalid in new ushort[] { 0, 3, 8, 12, 0x37, 0x3f, 0x58, 0x5e, 0x64, ushort.MaxValue })
             AssertThrows<InvalidOperationException>(() => stock.Draw((MapSpriteId)invalid, ScreenSpritesFixtures.Blank(), new(0, 0), 0), "undefined map sprite identity fails");
-        AssertThrows<InvalidOperationException>(() => stock.Draw((MapSpriteId)0, ScreenSpritesFixtures.Blank(), new(0, 0), 0xffff), "undefined identity precedes invalid palette");
+        AssertThrows<InvalidOperationException>(() => stock.Draw(0, ScreenSpritesFixtures.Blank(), new(0, 0), 0xffff), "undefined identity precedes invalid palette");
         MapSpriteCatalog Load(Dictionary<string, SpriteVisualPart[]> frames)
         {
             byte[] json = JsonSerializer.SerializeToUtf8Bytes(document with { Frames = frames }, ArtworkJson.Options);

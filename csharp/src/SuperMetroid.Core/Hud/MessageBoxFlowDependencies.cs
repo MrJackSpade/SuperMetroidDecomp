@@ -13,11 +13,6 @@ namespace SuperMetroid.Core.Hud;
 /// <summary>The collaborators a <see cref="MessageBoxFlow"/> is constructed with, built once by the owner that creates it (#621).</summary>
 internal sealed record MessageBoxFlowDependencies
 {
-    /// <summary>Background scroll.</summary>
-    public required BackgroundScrollState BackgroundScroll { get; init; }
-
-
-
     /// <summary>Freeze.</summary>
     public required GameplayTimeFreeze Freeze { get; init; }
 
@@ -30,7 +25,6 @@ internal sealed record MessageBoxFlowDependencies
     /// <summary>Player.</summary>
     public required SamusFrameState Player { get; init; }
 
-
     /// <summary>Room.</summary>
     public required ActiveRoomState Room { get; init; }
 
@@ -39,9 +33,6 @@ internal sealed record MessageBoxFlowDependencies
 
     /// <summary>System.</summary>
     public required Bank80SystemState System { get; init; }
-
-    /// <summary>Vram.</summary>
-    public required SnesVram Vram { get; init; }
 
     /// <summary>Vram writes.</summary>
     public required VramWriteQueue VramWrites { get; init; }

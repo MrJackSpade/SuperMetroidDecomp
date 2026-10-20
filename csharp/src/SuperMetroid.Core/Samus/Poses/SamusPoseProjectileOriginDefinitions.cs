@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Samus.Poses;
 internal static class SamusPoseProjectileOriginDefinitions
 {
     /// <summary>$91:B62D PoseDefinitions Y offset, record stride eight. Beam/Grapple calculations zero-extend this byte, including the drained-pose $FC correction.</summary>
-    internal static byte ReadYOffset(SamusPoseId pose) => (SamusPoseId)pose switch
+    internal static byte ReadYOffset(SamusPoseId pose) => pose switch
     {
         SamusPoseId.SpinJumpRightPose or
         SamusPoseId.SpinJumpLeftPose or
@@ -265,8 +265,9 @@ internal static class SamusPoseProjectileOriginDefinitions
         SamusPoseId.DrainedStandingRightPose or
         SamusPoseId.DrainedStandingLeftPose => 252,
         // Bounded adjacent instruction observations, not additional native pose identities.
-        (SamusPoseId)0xfd => 0xc2, // $91:BE15: REP immediate opcode.
-        (SamusPoseId)0xfe => 0x16, // $91:BE1D: operand of STA direct-page $16.
-        (SamusPoseId)0xff => 0x85, // $91:BE25: STA direct-page opcode.
+        SamusPoseId.AdjacentCodePoseFD => 0xc2, // $91:BE15: REP immediate opcode.
+        SamusPoseId.AdjacentCodePoseFE => 0x16, // $91:BE1D: operand of STA direct-page $16.
+        SamusPoseId.AdjacentCodePoseFF => 0x85, // $91:BE25: STA direct-page opcode.
+        var undefined => throw new InvalidOperationException($"Undefined {nameof(SamusPoseId)} {undefined}."),
     };
 }

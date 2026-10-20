@@ -58,7 +58,7 @@ internal static class EscapeEtecoonDefinitionsVerification
         for (ushort parameter = 0; parameter < 6; parameter++)
         {
             var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
-            enemies.VerificationServices().HasEvent = (Func<EventNumber, bool>)(_ => false);
+            enemies.VerificationServices().HasEvent = _ => false;
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.SetSpawnParameter1(parameter);
             slot.Position = slot.Position.WithWhole(new(0xaaaa, 0xbbbb));
@@ -149,7 +149,7 @@ internal static class EscapeEtecoonDefinitionsVerification
 )
     {
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
-        enemies.VerificationServices().HasEvent = (Func<EventNumber, bool>)(_ => false);
+        enemies.VerificationServices().HasEvent = _ => false;
         RoomEnemySlot etecoon = enemies.SlotTable.Slots[0];
         etecoon.Bind(EnemyDefinitionId.EtecoonEscape, etecoon.Definition);
         etecoon.Bind(etecoon.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = 0xb3 });

@@ -84,6 +84,7 @@ internal sealed class VerificationRoomEnemyServices(IRoomEnemyServices? loaded) 
         BossBits.AreaBoss => IsAreaBossDefeated,
         BossBits.AreaMiniBoss => IsAreaMiniBossDefeated,
         BossBits.AreaTorizo => IsAreaTorizoDefeated,
+        BossBits.None => null,
         _ => null,
     }) is { } query ? query() : Loaded($"read the area {bits} flag").Bosses.IsDefeated(bits);
 

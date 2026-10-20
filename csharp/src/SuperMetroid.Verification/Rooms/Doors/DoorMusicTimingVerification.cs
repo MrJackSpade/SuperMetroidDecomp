@@ -60,8 +60,8 @@ internal static class DoorMusicTimingVerification
         audio.AdvanceFrame(default);
         audio.QueueRoomMusic(9, 5);
         for (int frame = 0; frame < 40; frame++) audio.AdvanceFrame(default);
-        AssertEqual((byte)9, audio.MusicDataIndex, "source music data is active");
-        AssertEqual((byte)5, audio.MusicTrackIndex, "source track is active");
+        AssertEqual(9, audio.MusicDataIndex, "source music data is active");
+        AssertEqual(5, audio.MusicTrackIndex, "source track is active");
         int trackFrame = -1, musicWaitFrame = -1, uploadFrame = -1;
         for (int frame = 0; frame < 400; frame++)
         {
@@ -86,7 +86,7 @@ internal static class DoorMusicTimingVerification
         AssertEqual(musicWaitFrame + 15, uploadFrame, "stop and upload delays advance on outer dispatches after scrolling");
         AssertEqual(uploadFrame + 9, trackFrame, "track queued after upload is acquired on the next prologue, then waits eight dispatches");
         AssertEqual(SuperMetroidGameState.MainGameplay, game.GameState, "music transition resumes gameplay");
-        AssertEqual((byte)6, audio.MusicDataIndex, "destination music bank is active");
+        AssertEqual(6, audio.MusicDataIndex, "destination music bank is active");
         audio.QueueRoomMusicTrack(6, 5);
         AssertTrue(!audio.HasQueuedMusic, "unchanged native music pair queues nothing");
         audio.QueueRoomMusicTrack(0, 0);

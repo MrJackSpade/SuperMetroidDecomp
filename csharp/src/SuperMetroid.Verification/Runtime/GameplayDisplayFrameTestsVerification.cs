@@ -171,13 +171,13 @@ internal static class GameplayDisplayFrameTestsVerification
             "Fireflea blend selector waits for the NMI");
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         var darkness = (GameplayColorMathRenderLayer)GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()).Layers[0];
-        AssertEqual((byte)9, darkness.FixedRed, "Fireflea COLDATA publishes with its blend selector");
+        AssertEqual(9, darkness.FixedRed, "Fireflea COLDATA publishes with its blend selector");
         AssertEqual(LatchMarker, darkness.Gameplay.Registers.Windows.ObjectColorLogic, "Fireflea COLDATA publishes with the frame's window latch");
         fixedColor.Red = 32 + 4;
-        AssertEqual((byte)9, ((GameplayColorMathRenderLayer)GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()).Layers[0]).FixedRed,
+        AssertEqual(9, ((GameplayColorMathRenderLayer)GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()).Layers[0]).FixedRed,
             "a main-loop COLDATA write waits for the next accepted NMI");
         runtime.FrameBoundary.BeginAcceptedFrame(0);
-        AssertEqual((byte)4, ((GameplayColorMathRenderLayer)GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()).Layers[0]).FixedRed,
+        AssertEqual(4, ((GameplayColorMathRenderLayer)GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()).Layers[0]).FixedRed,
             "the next accepted NMI publishes the COLDATA write");
         runtime.RoomLayer3Fx.Type = originalFx;
         fixedColor.Red = 32; fixedColor.Green = 64; fixedColor.Blue = 128;

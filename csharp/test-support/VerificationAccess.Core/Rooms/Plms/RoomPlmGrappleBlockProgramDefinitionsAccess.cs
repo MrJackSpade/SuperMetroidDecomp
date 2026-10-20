@@ -11,7 +11,7 @@ internal static class RoomPlmGrappleBlockProgramDefinitionsAccess
         {
             for (int index = 0; index < RoomPlmGrappleBlockProgramDefinitions.ProgramCount; index++)
             {
-                var program = RoomPlmGrappleBlockProgramDefinitions.ProgramAt((int)(index));
+                var program = RoomPlmGrappleBlockProgramDefinitions.ProgramAt(index);
                 yield return program.Start;
                 yield return checked((ushort)(program.Start + 4));
                 for (int frame = 0; frame < program.FrameCount; frame++)
@@ -29,7 +29,7 @@ internal static class RoomPlmGrappleBlockProgramDefinitionsAccess
         internal static IEnumerable<ushort> MechanicsByteAddresses()
         {
             for (int index = 0; index < RoomPlmGrappleBlockProgramDefinitions.ProgramCount; index++)
-                yield return checked((ushort)((RoomPlmGrappleBlockProgramDefinitions.ProgramAt((int)(index))).Start + 6));
+                yield return checked((ushort)((RoomPlmGrappleBlockProgramDefinitions.ProgramAt(index)).Start + 6));
         }
     }
 }

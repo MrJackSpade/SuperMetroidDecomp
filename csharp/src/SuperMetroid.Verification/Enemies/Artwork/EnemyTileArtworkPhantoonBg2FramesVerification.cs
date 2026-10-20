@@ -224,7 +224,7 @@ internal static class EnemyTileArtworkPhantoonBg2FramesVerification
         slot.SpritemapPointer = pointer;
         slot.Position = slot.Position.WithWhole(new(0x0080, 0x0080));
         object?[] arguments =
-            [slot, target, new Extent16<RoomPixels>((ushort)2, (ushort)2), selectShot, null];
+            [slot, target, new Extent16<RoomPixels>(2, 2), selectShot, null];
         bool found = ExtendedHitboxWalker.Find(enemies, arguments);
         return found ? (ushort)(arguments[4] ?? throw new InvalidOperationException("Verification requires arguments[4].")) : (ushort)0;
     }

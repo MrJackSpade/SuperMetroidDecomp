@@ -146,8 +146,8 @@ public sealed class MotherBrainRainbowBeamSamusMovement
 
         // BMI/BPL are signed tests of the subtraction result, not unsigned C# comparisons.
         // This distinction is observable if a malformed/debug position wraps around zero.
-        ushort? boundary = unchecked((short)(candidate - 48)) < 0 ? (ushort)48
-            : unchecked((short)(candidate - 192)) >= 0 ? (ushort)192
+        ushort? boundary = unchecked((short)(candidate - 48)) < 0 ? 48
+            : unchecked((short)(candidate - 192)) >= 0 ? 192
             : null;
         if (boundary is ushort clamped)
         {

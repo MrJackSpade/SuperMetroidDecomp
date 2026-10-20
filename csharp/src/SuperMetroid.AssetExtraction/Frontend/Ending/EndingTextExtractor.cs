@@ -109,7 +109,7 @@ public static class EndingTextExtractor
                 throw new InvalidDataException($"Native {sequence} glyph halves disagree.");
             text.Add(glyph);
             compiled.Add(new(row, column, new SnesBgTilemapWord(top),
-                bottom is { } lower ? new SnesBgTilemapWord(lower) : (SnesBgTilemapWord?)null));
+                bottom is { } lower ? new SnesBgTilemapWord(lower) : null));
             cursor = Add(cursor, 6);
         }
         throw new InvalidDataException($"Native {sequence} did not terminate within the bounded record count.");

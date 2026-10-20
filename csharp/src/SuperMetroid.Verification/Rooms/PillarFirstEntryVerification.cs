@@ -90,8 +90,8 @@ internal static class PillarFirstEntryVerification
                 int x = heads[actor].Position.X.Whole - runtime.Room.LoadedCamera.PixelPosition.X;
                 int y = heads[actor].Position.Y.Whole - runtime.Room.LoadedCamera.PixelPosition.Y;
                 if (x < 8 || x >= 248 || y < 40 || y >= 216) continue;
-                if (Math.Abs((int)samus.Position.X.Whole - heads[actor].Position.X.Whole) < 32 &&
-                    Math.Abs((int)samus.Position.Y.Whole - heads[actor].Position.Y.Whole) < 40) continue;
+                if (Math.Abs(samus.Position.X.Whole - heads[actor].Position.X.Whole) < 32 &&
+                    Math.Abs(samus.Position.Y.Whole - heads[actor].Position.Y.Whole) < 40) continue;
                 int changed = 0;
                 for (int dy = -8; dy < 8; dy++)
                 for (int dx = -8; dx < 8; dx++)

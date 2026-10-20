@@ -398,7 +398,10 @@ public static class SamusArmCannonArtworkFormat
             SamusPoseId.CrouchingAimUpLeftPose => (ushort)ArmCannonDrawing.FacingLeftCrouchingAimingUp,
             SamusPoseId.NormalLandingRightPose => (ushort)ArmCannonDrawing.FacingRightLandingFromNormalJump,
             SamusPoseId.SpinLandingRightPose => (ushort)ArmCannonDrawing.FacingRightLandingFromSpinJump,
-            _ => throw new ArgumentOutOfRangeException(nameof(pose)),
+            SamusPoseId.AdjacentCodePoseFD or
+                SamusPoseId.AdjacentCodePoseFE or
+                SamusPoseId.AdjacentCodePoseFF => throw new ArgumentOutOfRangeException(nameof(pose)),
+            var undefined => throw new InvalidOperationException($"Undefined {nameof(SamusPoseId)} {undefined}."),
         };
     }
 
@@ -535,19 +538,19 @@ public static class SamusArmCannonArtworkFormat
             (ArmCannonDrawing.FacingRightAimingUp, 0) or
             (ArmCannonDrawing.FacingRightNormalJumpAimingUp, 0) or
             (ArmCannonDrawing.FacingRightFallingAimingUp, 0) or
-            (ArmCannonDrawing.FacingRightCrouchingAimingUp, 0) => (byte)(FrameDependentDirectionFlag | (byte)SamusProjectileDirection.UpRight),
+            (ArmCannonDrawing.FacingRightCrouchingAimingUp, 0) => FrameDependentDirectionFlag | (byte)SamusProjectileDirection.UpRight,
             (ArmCannonDrawing.FacingRightAimingUp, 2) or
             (ArmCannonDrawing.FacingRightNormalJumpAimingUp, 2) or
             (ArmCannonDrawing.FacingRightFallingAimingUp, 2) or
-            (ArmCannonDrawing.FacingRightCrouchingAimingUp, 2) => (byte)(FrameDependentDirectionFlag | (byte)SamusProjectileDirection.UpFacingRight),
+            (ArmCannonDrawing.FacingRightCrouchingAimingUp, 2) => FrameDependentDirectionFlag | (byte)SamusProjectileDirection.UpFacingRight,
             (ArmCannonDrawing.FacingLeftAimingUp, 0) or
             (ArmCannonDrawing.FacingLeftNormalJumpAimingUp, 0) or
             (ArmCannonDrawing.FacingLeftFallingAimingUp, 0) or
-            (ArmCannonDrawing.FacingLeftCrouchingAimingUp, 0) => (byte)(FrameDependentDirectionFlag | (byte)SamusProjectileDirection.UpLeft),
+            (ArmCannonDrawing.FacingLeftCrouchingAimingUp, 0) => FrameDependentDirectionFlag | (byte)SamusProjectileDirection.UpLeft,
             (ArmCannonDrawing.FacingLeftAimingUp, 2) or
             (ArmCannonDrawing.FacingLeftNormalJumpAimingUp, 2) or
             (ArmCannonDrawing.FacingLeftFallingAimingUp, 2) or
-            (ArmCannonDrawing.FacingLeftCrouchingAimingUp, 2) => (byte)(FrameDependentDirectionFlag | (byte)SamusProjectileDirection.UpFacingLeft),
+            (ArmCannonDrawing.FacingLeftCrouchingAimingUp, 2) => FrameDependentDirectionFlag | (byte)SamusProjectileDirection.UpFacingLeft,
             (ArmCannonDrawing.FacingRightAimingUpRight, 0) or
             (ArmCannonDrawing.MovingRightAimingUpRight, 0) or
             (ArmCannonDrawing.FacingRightNormalJumpAimingUpRight, 0) or

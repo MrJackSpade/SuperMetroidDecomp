@@ -47,6 +47,10 @@ internal static class SamusProjectileSelectionDefinitions
                 SamusBeamCombination.Power or SamusBeamCombination.Ice or SamusBeamCombination.IceWave or
                     SamusBeamCombination.SpazerIce or SamusBeamCombination.SpazerIceWave or
                     SamusBeamCombination.PlasmaIce or SamusBeamCombination.PlasmaIceWave => 0,
+                SamusBeamCombination.SpazerPlasma or
+                    SamusBeamCombination.SpazerPlasmaWave or
+                    SamusBeamCombination.SpazerPlasmaIce or
+                    SamusBeamCombination.SpazerPlasmaIceWave => throw new InvalidOperationException($"The special-attack selector table has no {SamusBeamCombinations.FromTableIndex((address - SpecialSelectors) / 2)} row."),
                 var beams => throw new InvalidOperationException($"The special-attack selector table has no {beams} row."),
             });
         if (address < BeamHeaderStart)

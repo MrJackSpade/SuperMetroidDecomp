@@ -45,6 +45,7 @@ internal static class LibraryBackgroundProgramsVerification
                     case LibraryBackgroundCommand.ClearBg2:
                     case LibraryBackgroundCommand.ClearBg2ForKraid:
                         break;
+                    case LibraryBackgroundCommand.End:
                     default:
                         throw new InvalidDataException(
                             $"Unexpected compiled library BG command {instruction.Command}.");
@@ -79,7 +80,7 @@ internal static class LibraryBackgroundProgramsVerification
         ushort ReadWord(ushort pointer)
         {
             int address = RoomAssetRomData.LibraryBackground.CommandBank | pointer;
-            return unchecked((ushort)(SnesLittleEndian.Word(CompiledLibraryBackgroundProgramsRomByte(bus, address), CompiledLibraryBackgroundProgramsRomByte(bus, address + 1))));
+            return unchecked(SnesLittleEndian.Word(CompiledLibraryBackgroundProgramsRomByte(bus, address), CompiledLibraryBackgroundProgramsRomByte(bus, address + 1)));
         }
 
         int ReadLong(ushort pointer)

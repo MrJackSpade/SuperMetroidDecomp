@@ -35,18 +35,18 @@ internal static class BombSpreadLaunchDefinitionsVerification
                 ushort y=unchecked((ushort)-(expected.YSpeed.Whole+((hold>>6)&3)));
                 AssertEqual(expected.FuseTimer,slot.BombTimer.RawValue,"Spread fuse by physical slot");
                 AssertEqual(BombSpreadHorizontalVelocity.FromLaunchWord(expected.XVelocity),slot.BombSpreadHorizontal,"Spread horizontal direction and speed");
-                AssertEqual((int)expected.XVelocity,slot.BombSpreadDirectionMagnitude,"Spread horizontal travel re-encodes the native direction/magnitude word");
+                AssertEqual(expected.XVelocity, slot.BombSpreadDirectionMagnitude,"Spread horizontal travel re-encodes the native direction/magnitude word");
                 var launchVelocity=SnesSignedSixteenSixteen.FromParts(unchecked((short)y),expected.YSpeed.Fraction);
                 AssertEqual(launchVelocity,slot.BombSpreadLaunchVelocity,"Spread hold modifier, negated whole velocity and authored fraction");
                 AssertEqual(launchVelocity,slot.BombSpreadVerticalVelocity,"Spread live velocity starts at the launch velocity");
-                AssertEqual((int)y,slot.BombSpreadYVelocity,"Spread whole velocity word");
-                AssertEqual((int)expected.YSpeed.Fraction,slot.BombSpreadYSubvelocity,"Spread fractional velocity word");
+                AssertEqual(y, slot.BombSpreadYVelocity,"Spread whole velocity word");
+                AssertEqual(expected.YSpeed.Fraction, slot.BombSpreadYSubvelocity,"Spread fractional velocity word");
                 AssertEqual(samus.Position.X.Whole,slot.Position.X.Whole,"Spread launch X wraps with Samus");
                 AssertEqual(samus.Position.Y.Whole,slot.Position.Y.Whole,"Spread launch Y wraps with Samus");
             }
             AssertEqual(SamusBombSpreadRomData.SlotCount,bombs.BombCounter,"Spread allocates all five slots");
-            AssertEqual((ushort)0,samus.ProjectileFlareCounter,"Spread consumes charge");
-            AssertEqual((ushort)0,samus.BombSpreadChargeTimeoutCounter,"Spread clears hold counter");
+            AssertEqual(0, samus.ProjectileFlareCounter,"Spread consumes charge");
+            AssertEqual(0, samus.BombSpreadChargeTimeoutCounter,"Spread clears hold counter");
         }
         Console.WriteLine("Bomb Spread launch: twenty native words and 327680 actual slot initializations match with launch ROM reads forbidden.");
         VerifyBombSpreadMotionWraps();

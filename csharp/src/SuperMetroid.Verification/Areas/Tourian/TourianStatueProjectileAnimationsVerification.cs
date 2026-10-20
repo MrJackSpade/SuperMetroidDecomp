@@ -56,11 +56,18 @@ internal static class TourianStatueProjectileAnimationsVerification
                     AssertEqual(SoundEffectLibrary2Sounds.TourianStatueRelease.Value, (int)operands[0], $"{at}: sound");
                     break;
                 case TourianStatueProjectileCueKind.MoveDown:
-                    AssertEqual((int)(short)(operands[0] | operands[1] << 8), cue.Pixels, $"{at}: Y offset");
+                    AssertEqual((short)(operands[0] | operands[1] << 8), cue.Pixels, $"{at}: Y offset");
                     break;
                 case TourianStatueProjectileCueKind.StartMoving:
                     AssertEqual((ushort)(operands[0] | operands[1] << 8), EnemyProjectilePreInstructionAccess.Word(cue.Movement), $"{at}: movement");
                     break;
+                case TourianStatueProjectileCueKind.Delete:
+                case TourianStatueProjectileCueKind.Earthquake:
+                case TourianStatueProjectileCueKind.SpawnParticle:
+                case TourianStatueProjectileCueKind.SpawnTail:
+                    break;
+                default:
+                    throw new InvalidOperationException($"Undefined {nameof(TourianStatueProjectileCueKind)} {cue.Kind}.");
             }
         },
         cue => cue.Kind == TourianStatueProjectileCueKind.Delete,

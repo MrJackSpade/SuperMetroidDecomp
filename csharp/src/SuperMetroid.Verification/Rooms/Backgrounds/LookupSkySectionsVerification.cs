@@ -16,7 +16,7 @@ internal static class LookupSkySectionsVerification
         AssertEqual(23, originalCount, "Native sky loop bound");
         AssertEqual(originalCount, RoomFxRomData.ScrollingSky.SectionCount, "Compiled sky section domain");
         for (int index = 0; index < originalCount; index++)
-            AssertEqual((int)ReadVerificationWord(rom, 0x88aec1 + index * 8),
+            AssertEqual(ReadVerificationWord(rom, 0x88aec1 + index * 8),
                 RoomFxRomData.ScrollingSky.GetSection(index).TopPosition, "Sky native band boundary");
         foreach (int invalid in new[] { int.MinValue, -1, 23, int.MaxValue })
             AssertThrows<IndexOutOfRangeException>(() => RoomFxRomData.ScrollingSky.GetSection(invalid),

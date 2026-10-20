@@ -14,7 +14,7 @@ namespace SuperMetroid.Core.Enemies.Evir;
 internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <inheritdoc/>
-    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Evir, EnemyDefinitionId.EvirProjectile];
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [.. EvirPartDefinitions.Parts.Keys];
 
     /// <inheritdoc/>
     public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new EvirEntity(this, slot, common);
@@ -241,6 +241,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
             case EvirAiFunction.ProjectileRegenerating:
                 RunRegeneratingEvirProjectile(slot, state);
                 break;
+            case EvirAiFunction.HandleBodyOrArms:
             default:
                 throw new InvalidDataException(
                     $"Evir projectile function {state.Function} is not translated.");

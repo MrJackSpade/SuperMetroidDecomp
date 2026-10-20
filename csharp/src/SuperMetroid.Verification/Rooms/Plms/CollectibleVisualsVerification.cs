@@ -178,22 +178,6 @@ internal static class CollectibleVisualsVerification
     internal static ushort ReadCollectibleVisualWord(ISnesAddressSpace bus,
         ushort pointer) => CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(0x840000 | pointer);
 
-    /// <summary>Rejects runtime reads from compiled collectible draw lists and dynamic selector tables.</summary>
-    private static CartridgeReadGuard NewCollectibleDrawReadGuard(ISnesAddressSpace source)
-    {
-        var blocked = new HashSet<int>();
-        foreach (RoomPlmCollectibleDrawFrame frame in RoomPlmCollectibleDrawDefinitions.All)
-            for (int offset = 0; offset < 6; offset++)
-                blocked.Add(0x840000 | checked((ushort)(frame.Pointer + offset)));
-        foreach (ushort table in new ushort[]
-                 { RoomPlmCollectibleDrawDefinitions.DynamicFrame0Table,
-                   RoomPlmCollectibleDrawDefinitions.DynamicFrame1Table })
-            for (int offset = 0; offset < 8; offset++)
-                blocked.Add(0x840000 | checked((ushort)(table + offset)));
-        return new CartridgeReadGuard(source).Forbid(blocked.Contains,
-            address => $"Live collectible read compiled draw or selector byte ${address:X6}.");
-    }
-
     /// <summary>Runs collectible visual and pickup isolation checks.</summary>
     [VerificationCommand("--collectible-visuals")]
     internal static int CollectibleVisualsCommand()

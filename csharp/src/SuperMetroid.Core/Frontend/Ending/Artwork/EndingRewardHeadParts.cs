@@ -28,7 +28,39 @@ internal sealed class EndingRewardHeadParts(Pose pose) : IReadOnlyList<CompiledS
         Pose.LargeSamusHelmetFromEndingFrame1 or Pose.LargeSamusHelmetFromEndingFrame2 => 5,
         Pose.JumpingSamusHeadFromEnding => 3,
         Pose.SamusHeadWithHelmetFromEnding => 4,
-        >= Pose.SamusHeadFromEndingFrame1 and <= Pose.SamusHeadFromEndingFrame4 => 2,
+        Pose.SamusHeadFromEndingFrame1 or
+            Pose.SamusHeadFromEndingFrame2 or
+            Pose.SamusHeadFromEndingFrame3 or
+            Pose.SamusHeadFromEndingFrame4 => 2,
+        Pose.LargeSamusFromEndingStanding or
+            Pose.LargeSamusFromEndingPreparingToJump or
+            Pose.LargeSamusFromEndingJumping or
+            Pose.SamusArmFromEndingFrame1 or
+            Pose.SamusArmFromEndingFrame2 or
+            Pose.SamusArmFromEndingFrame3 or
+            Pose.SamusArmFromEndingFrame4 or
+            Pose.SamusArmFromEndingFrame5 or
+            Pose.SamusArmFromEndingFrame6 or
+            Pose.SamusArmFromEndingFrame7 or
+            Pose.SamusArmFromEndingFrame8 or
+            Pose.HeadlessArmlessSuitedSamus or
+            Pose.SamusFalling or
+            Pose.SamusLanding or
+            Pose.SamusLanded or
+            Pose.SamusShooting or
+            Pose.SuitlessSamusStanding or
+            Pose.SuitlessSamusPreparingToJump or
+            Pose.SuitlessSamusJumping or
+            Pose.SuitlessSamusStandingArmsStraight or
+            Pose.SuitlessSamusOpeningHairFrame1 or
+            Pose.SuitlessSamusOpeningHairFrame2 or
+            Pose.SuitlessSamusOpeningHairFrame3 or
+            Pose.SuitlessSamusOpeningHairFrame4 or
+            Pose.SuitlessSamusOpeningHairFrame5 or
+            Pose.SuitlessSamusOpeningHairFrame6 or
+            Pose.SuitlessSamusOpeningHairFrame7 or
+            Pose.SuitlessSamusOpeningHairFrame8 or
+            Pose.SuitlessSamusLowerBody => throw new ArgumentOutOfRangeException(nameof(pose)),
         _ => throw new ArgumentOutOfRangeException(nameof(pose)),
     };
 

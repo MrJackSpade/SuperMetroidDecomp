@@ -16,8 +16,6 @@ internal static class MotherBrainBodyPresentationFixtureVerification
     /// <summary>Runs the actual body instruction processor and public drawing path with mutable RAM only.</summary>
     internal sealed class MotherBrainPresentationFixture
     {
-        /// <summary>Reflection flags for the production instruction processor.</summary>
-        private const BindingFlags Private = BindingFlags.Instance | BindingFlags.NonPublic;
         /// <summary>Owns the enemy system, Samus, room, and installed artwork for this fixture.</summary>
         internal EnemyAnimationFixture Inner { get; }
         /// <summary>Body slot whose instruction pointer and OAM frame are exercised.</summary>
@@ -50,8 +48,8 @@ internal static class MotherBrainBodyPresentationFixtureVerification
         internal void SetFrame(ushort frame, bool fresh)
         {
             Body.SpritemapPointer = frame;
-            Body.ExtraProperties = EnemyExtraPropertyWord.FromNativeWord((ushort)((ushort)(EnemyExtraProperties.UsesExtendedSpritemap |
-                (fresh ? EnemyExtraProperties.NewInstructionFrame : 0))));
+            Body.ExtraProperties = EnemyExtraPropertyWord.FromNativeWord((ushort)(EnemyExtraProperties.UsesExtendedSpritemap |
+                (fresh ? EnemyExtraProperties.NewInstructionFrame : 0)));
         }
 
         /// <summary>Starts a body program at its next one-tick dispatch.</summary>

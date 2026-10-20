@@ -84,7 +84,7 @@ internal static class HeroShotRuntimeVerification
             for (int frame = 0; frame < 100; frame++)
             {
                 SnesButton input = frame == 0 ? runtime.Options.ControllerBindings.Shoot
-                    : walkAfterShot ? SnesButton.Right : (ushort)0;
+                    : walkAfterShot ? SnesButton.Right : 0;
                 runtime.StepFrame(input);
                 var shot = runtime.Projectiles.Slots[0];
                 CompareNative(frame);

@@ -131,8 +131,8 @@ internal static class LookupStream4Verification
             AssertTrue(fx.IsDefinitionActive(ZebesExplosionForegroundPaletteFxColorDefinitions.DefinitionPointer), "Foreground remains active during native exposure");
             ticks++;
         }
-        AssertEqual((int)rom.ReadCartridgeWord(0x8beb71), ticks, "Native stars handoff matches complete foreground exposure");
-        AssertEqual((int)rom.ReadCartridgeWord(0x8beb71), CinematicSpriteAnimations.Programs.Steps(CinematicSpriteProgram.ZebesExplosionRightStars)[0].Duration, "Actual actor program retains the shared native handoff");
+        AssertEqual(rom.ReadCartridgeWord(0x8beb71), ticks, "Native stars handoff matches complete foreground exposure");
+        AssertEqual(rom.ReadCartridgeWord(0x8beb71), CinematicSpriteAnimations.Programs.Steps(CinematicSpriteProgram.ZebesExplosionRightStars)[0].Duration, "Actual actor program retains the shared native handoff");
         AssertEqual(ticks, ZebesExplosionForegroundPaletteFxColorDefinitionsConstants.CycleFrames, "Derived complete exposure");
         fx.Step(cgram, new ReferencePaletteFxColorSource(guarded), new PaletteFxConditions { SamusY = 0, EquippedItems = 0, EnemyZeroIsDead = false, AreaMiniBossDefeated = false });
         AssertTrue(!fx.IsDefinitionActive(ZebesExplosionForegroundPaletteFxColorDefinitions.DefinitionPointer), "Foreground deletes immediately after final hold");
@@ -613,8 +613,8 @@ internal static class LookupStream4Verification
                         if (!eyes) AssertEqual(expected, cgram.Colors[241 + color], "body fade duplicates its BG colors into OBJ palette");
                         AssertEqual(Native(row, color), eyes ? stock.ResolveEyeFade(row, color) : stock.ResolveBodyFade(row, color), "stock fade remains immutable");
                     }
-                    AssertEqual((ushort)0, cgram.Colors[eyes ? 251 : 144], "preceding fade CGRAM unchanged");
-                    AssertEqual((ushort)0, cgram.Colors[eyes ? 255 : 156], "following fade CGRAM unchanged");
+                    AssertEqual(0, cgram.Colors[eyes ? 251 : 144], "preceding fade CGRAM unchanged");
+                    AssertEqual(0, cgram.Colors[eyes ? 255 : 156], "following fade CGRAM unchanged");
                 }
             }
             foreach (int row in new[] { -1, 16, int.MinValue, int.MaxValue })
@@ -696,8 +696,8 @@ internal static class LookupStream4Verification
                     AssertEqual(expected, cgram.Colors[97 + color], "actual alarm CGRAM write");
                     AssertEqual(Native(row, color), stock.ResolveAlarm(row, color), "stock alarm remains immutable");
                 }
-                AssertEqual((ushort)0x1234, cgram.Colors[96], "alarm preceding CGRAM unchanged");
-                AssertEqual((ushort)0x2345, cgram.Colors[100], "alarm following CGRAM unchanged");
+                AssertEqual(0x1234, cgram.Colors[96], "alarm preceding CGRAM unchanged");
+                AssertEqual(0x2345, cgram.Colors[100], "alarm following CGRAM unchanged");
             }
         }
         foreach (int version in new[] { 1, 2 })
@@ -808,7 +808,7 @@ internal static class LookupStream4Verification
             AssertEqual(SnesFixedPosition.WholeOf(unchecked((int)finalPosition)), state.mode7.X.Whole, "terminal negative sample wraps whole position before handoff");
             AssertEqual((ushort)finalPosition, state.mode7.X.Fraction, "terminal fraction is preserved before handoff");
             AssertEqual(fast ? EndingCreditsPhase.PlanetEscapeSlow : EndingCreditsPhase.PlanetEscapeAccelerating, state.Phase, "native zoom boundary chooses next phase after selected motion");
-            AssertEqual((ushort)0, state.planetMotionIndex, "handoff preserves wrapped/reset index");
+            AssertEqual(0, state.planetMotionIndex, "handoff preserves wrapped/reset index");
             if (!fast)
             {
                 AssertEqual((short)0, state.planetVelocity.WholePixels, "slow handoff initializes independent acceleration whole");
@@ -952,13 +952,13 @@ internal static class LookupStream4Verification
             if (!unresolved)
             {
                 int offset = SporeSpawnDeathColorDefinitions.LevelPaletteByteOffset + color * 2;
-                AssertEqual((ushort)(SnesLittleEndian.Word(palette[offset], palette[offset + 1])),
+                AssertEqual(SnesLittleEndian.Word(palette[offset], palette[offset + 1]),
                     SporeSpawnDeathColorDefinitions.InitialLevelColor(color), "Level basis matches exact original decoded room color");
             }
             for (int frame = 0; frame < 7; frame++)
             {
                 AssertEqual(frame == 6 || unresolved, values.ContainsKey(frame * 16 + color), "Only explicit unresolved columns and final colors remain stored");
-                bool calculated = SporeSpawnDeathColorDefinitions.TryLevelColor(Bgr555.FromWord(checked((ushort)(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa5e5b9 + color * 2))))), frame, color, out Bgr555 value);
+                bool calculated = SporeSpawnDeathColorDefinitions.TryLevelColor(Bgr555.FromWord(checked(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa5e5b9 + color * 2)))), frame, color, out Bgr555 value);
                 AssertEqual(!unresolved, calculated, "Required trajectories are never disguised as calculated defaults");
                 if (calculated)
                     AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa5e4f9 + frame * 32 + color * 2)), value, "Direct level interpolation matches original native words");
@@ -1016,7 +1016,7 @@ internal static class LookupStream4Verification
         foreach (int color in Enumerable.Range(1, 11).Concat(UpperBackgroundColors))
         {
             int offset = SporeSpawnDeathColorDefinitions.BackgroundPaletteByteOffset + color * 2;
-            AssertEqual((ushort)(SnesLittleEndian.Word(palette[offset], palette[offset + 1])),
+            AssertEqual(SnesLittleEndian.Word(palette[offset], palette[offset + 1]),
                 SporeSpawnDeathColorDefinitions.InitialBackgroundColor(color), "Every required initial color matches the original decoded room palette");
         }
         byte[] source = SporeSpawnColorExtractor.Extract(rom);
@@ -1028,7 +1028,7 @@ internal static class LookupStream4Verification
             {
                 AssertEqual(frame == 6, values.ContainsKey(frame * 16 + color), "Stock background has no interior fallback samples");
                 AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa5e5d9 + frame * 32 + color * 2)),
-                    SporeSpawnDeathColorDefinitions.BackgroundColor(Bgr555.FromWord(checked((ushort)(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa5e699 + color * 2))))), frame, color),
+                    SporeSpawnDeathColorDefinitions.BackgroundColor(Bgr555.FromWord(checked(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa5e699 + color * 2)))), frame, color),
                     "Direct background calculation matches every original word independently of catalog loading");
             }
         Verify(stock, -1, -1);
@@ -1088,7 +1088,7 @@ internal static class LookupStream4Verification
             {
                 AssertEqual(frame == 7, values.ContainsKey(frame * 16 + color), "Only final endpoint row remains stored in stock fade");
                 AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa5e3f9 + frame * 32 + color * 2)),
-                    SporeSpawnColorCatalog.CalculateDeathSpriteColor(Bgr555.FromWord(checked((ushort)(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa5e3f9 + color * 2))))), Bgr555.FromWord(checked((ushort)(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa5e4d9 + color * 2))))), frame),
+                    SporeSpawnColorCatalog.CalculateDeathSpriteColor(Bgr555.FromWord(checked(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa5e3f9 + color * 2)))), Bgr555.FromWord(checked(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa5e4d9 + color * 2)))), frame),
                     "Direct channel interpolation equals every original sprite death word without loading fallback samples");
             }
         for (int color = 0; color < 16; color++)
@@ -1243,9 +1243,9 @@ internal static class LookupStream4Verification
             for (int cell = 0; cell < expected.Length; cell++)
             {
                 int address = (EndingCreditsRomData.Rendering.PostCreditsTilemapWord + destination + cell) * 2;
-                AssertEqual(expected[cell], (ushort)(SnesLittleEndian.Word(vram.Bytes[address], vram.Bytes[address + 1])), "Actual subtitle reaches VRAM unchanged");
+                AssertEqual(expected[cell], SnesLittleEndian.Word(vram.Bytes[address], vram.Bytes[address + 1]), "Actual subtitle reaches VRAM unchanged");
             }
-            state.instructionTimer = NativeCountdown.Start((ushort)1);
+            state.instructionTimer = NativeCountdown.Start(1);
             state.Step(screen);
             AssertTrue(tilemap.AsSpan(destination, expected.Length).All(word => word == EndingCreditsRomData.Rendering.BlankTile), "Actual ending state clears the subtitle at its hold boundary");
             AssertTrue(state.Completed && state.RequestedItemPercentageScroll, "Subtitle clear preserves completion and scroll handoff");
@@ -1293,10 +1293,10 @@ internal static class LookupStream4Verification
         update(extending);
         for (int link = 1; link < 7; link++)
         {
-            AssertEqual((ushort)0, extending.TailSegments[link].TargetDistance, "Actual tail extension clears the passed target first");
+            AssertEqual(0, extending.TailSegments[link].TargetDistance, "Actual tail extension clears the passed target first");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6cf72 + (link - 1) * 0x36)), extending.TailSegments[link].Distance, "Actual tail still extends and clamps on the target-clearing frame");
         }
-        AssertEqual((ushort)123, extending.TailSegments[0].Distance, "Tail base stays outside extension updates");
+        AssertEqual(123, extending.TailSegments[0].Distance, "Tail base stays outside extension updates");
         Console.WriteLine("Tail rest geometry: seven initial distances, six original shrink thresholds and actual boundary/extension ordering pass; chosen lengths remain required.");
     }
 
@@ -1490,7 +1490,7 @@ internal static class LookupStream4Verification
             for(int column=0;column<32;column++)
             {
                 var cell=document.TopRow[column];ushort expected=SnesBgTilemapWord.Create(cell.TileRow*32+cell.TileColumn,cell.Palette,cell.Priority,(cell.FlipX?SnesTileFlipFlags.Horizontal:0)|(cell.FlipY?SnesTileFlipFlags.Vertical:0)).Raw;
-                AssertEqual(expected, (ushort)(SnesLittleEndian.Word(transfer.Span[column*2], transfer.Span[column*2+1])), "Every supplied top-row cell survives output packing");
+                AssertEqual(expected, SnesLittleEndian.Word(transfer.Span[column * 2], transfer.Span[column * 2 + 1]), "Every supplied top-row cell survives output packing");
                 AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(0x80988b+column*2),GameplayHudDefinitions.TopRowWord(column),"Native calculated top-row word");
             }
             var vram=new SnesVram();vram.LoadBytes(0xb000,transfer.Span);
@@ -1817,8 +1817,8 @@ internal static class LookupStream4Verification
             var state = new RidleyEnemyState { GrabState = 1, TailWhipRequest = 0, TailFunctionIndex = RidleyTailFunction.Pogo, IntangibilityTimer = NativeCountdown.Start(99) };
             release(state, samus);
             AssertEqual((flags & 0x40) != 0 ? morphedFrames : ordinaryFrames, state.IntangibilityTimer.RawValue, "Actual release preserves native movement-dependent intangibility");
-            AssertEqual((ushort)0, state.GrabState, "Actual release clears grab");
-            AssertEqual((ushort)1, state.TailWhipRequest, "Actual release requests tail whip");
+            AssertEqual(0, state.GrabState, "Actual release clears grab");
+            AssertEqual(1, state.TailWhipRequest, "Actual release requests tail whip");
             AssertEqual(RidleyTailFunction.Neutral, state.TailFunctionIndex, "Actual release resets tail controller");
         }
         AssertTrue(!canGrab(null), "Missing Samus remains ungrabbable");
@@ -2578,7 +2578,7 @@ internal static class LookupStream4Verification
                 selected.ApplyHurt(cgram,white,3);
                 for(int color=0;color<256;color++)
                 {
-                    ushort expected=(ushort)0x1234;
+                    ushort expected= 0x1234;
                     if(color is >=80 and <96) expected=white?Pack(document.WhiteFlash[color-80]):color is >=89 and <93?Pack(document.HealthBands[3][color-89]):Pack(document.Background[color-80]);
                     if(color>=240) expected=Pack((white?document.WhiteFlash:document.Sprite)[color-240]);
                     AssertEqual(expected,cgram.Colors[color],"Full normal/white copy with native belly overwrite order");
@@ -2653,7 +2653,7 @@ internal static class LookupStream4Verification
                     AssertEqual(band, state.HealthPaletteBand, "Actual health threshold selects native color band");
                     for (int shade = 0; shade < 4; shade++) AssertEqual(Pack(document.HealthBands[band][shade]), cgram.Colors[89 + shade], "Actual health producer copy");
                     cgram.SetColor(89, Bgr555.FromWord(0x1234)); update(state);
-                    AssertEqual((ushort)0x1234, cgram.Colors[89], "Same health band does not spuriously recopy colors");
+                    AssertEqual(0x1234, cgram.Colors[89], "Same health band does not spuriously recopy colors");
                     body.FlashTimer = NativeCountdown.Start(2); hurt(body,state,null);
                     for (int color = 0; color < 16; color++) AssertEqual(Pack(document.WhiteFlash[color]),cgram.Colors[80 + color],"Actual white hurt phase");
                     body.FlashTimer = NativeCountdown.Start(0); hurt(body,state,null);
@@ -2740,7 +2740,7 @@ internal static class LookupStream4Verification
         {
             ushort expected = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6a693 + color * 2));
             AssertEqual(expected, NorfairRidleyRevealPaintDefinitions.Endpoint(color), "Exact immutable room material endpoint");
-            AssertEqual(expected, (ushort)(SnesLittleEndian.Word(roomPalette[(113 + color) * 2], roomPalette[(113 + color) * 2 + 1])),
+            AssertEqual(expected, SnesLittleEndian.Word(roomPalette[(113 + color) * 2], roomPalette[(113 + color) * 2 + 1]),
                 "Identical room-theme9 occurrence remains separately accounted");
         }
         for (int edit = -1; edit < 630; edit++)
@@ -2781,7 +2781,7 @@ internal static class LookupStream4Verification
                 var cgram = new SnesCgram();
                 for (int color = 0; color < 256; color++) cgram.SetColor(color, Bgr555.FromWord(0x1234));
                 enemies.Presentation.BindCgram(cgram);
-                enemies.VerificationServices().IsAreaBossDefeated = (Func<bool>)(() => false);
+                enemies.VerificationServices().IsAreaBossDefeated = () => false;
                 RoomEnemySlot slot = enemies.SlotTable.Slots[0]; slot.Bind(EnemyDefinitionId.Ridley, slot.Definition);
                 new Action<RoomEnemySlot>(enemies.RidleyBehavior.InitializeNorfairRidley)(slot);
                 RidleyEnemyState state = (enemies.RidleyEncounter.Ridley ?? throw new InvalidOperationException("Verification requires enemies.RidleyEncounter.Ridley."));
@@ -2872,7 +2872,7 @@ internal static class LookupStream4Verification
                 var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null)) { TileArtwork = artwork };
                 var guard = NewProjectileCompositionForbiddenBus();
                 enemies.Presentation.BindCgram(cgram);
-                enemies.VerificationServices().IsAreaBossDefeated = (Func<bool>)(() => false);
+                enemies.VerificationServices().IsAreaBossDefeated = () => false;
                 RoomEnemySlot slot = enemies.SlotTable.Slots[0];
                 slot.Bind(EnemyDefinitionId.Ridley, slot.Definition);
                 new Action<RoomEnemySlot>(enemies.RidleyBehavior.InitializeNorfairRidley)(slot);
@@ -2964,7 +2964,7 @@ internal static class LookupStream4Verification
                     head.Health = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xb3981b + band * 2));
                     update(head, state);
                     AssertEqual(band, state.PalettePhase, "exact threshold does not advance");
-                    for (int color = 0; color < 256; color++) AssertEqual((ushort)0x1234, cgram.Colors[color], "exact threshold preserves CGRAM");
+                    for (int color = 0; color < 256; color++) AssertEqual(0x1234, cgram.Colors[color], "exact threshold preserves CGRAM");
                     head.Health--;
                     update(head, state);
                     AssertEqual(band + 1, state.PalettePhase, "below threshold advances exactly one band");
@@ -3012,7 +3012,7 @@ internal static class LookupStream4Verification
             AssertEqual(expected, actual, "Calculated Oum record identity matches original frame operand");
             selectedLists.Add(actual);
             var boxes = MaridiaLargeSnailCollisionDefinitions.HitboxesAt(actual);
-            AssertEqual((int)CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa20000 | expected)), boxes.Length, "Calculated Oum pointer reaches the native rectangle count");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa20000 | expected)), boxes.Length, "Calculated Oum pointer reaches the native rectangle count");
             for (int index = 0; index < boxes.Length; index++)
             {
                 int pointer = 0xa20000 | (expected + 2 + index * 12);
@@ -3043,7 +3043,7 @@ internal static class LookupStream4Verification
             foreach (RoomEnemySlot slot in enemies.SlotTable.Slots) slot.Bind((EnemyDefinitionId)0xffff, slot.Definition);
             for (int index = 1; index <= freeSlots; index++) enemies.SlotTable.Slots[index].Clear();
             int randomCalls = 0;
-            enemies.VerificationServices().NextRandom = (Func<ushort>)(() => (ushort)(0x100 + 0x10 * randomCalls++));
+            enemies.VerificationServices().NextRandom = () => (ushort)(0x100 + 0x10 * randomCalls++);
             Action<RidleyEnemyState> spawn = enemies.RidleyBehavior.SpawnNorfairRidleyBreakupActors;
             var state = new RidleyEnemyState
             {
@@ -3082,8 +3082,8 @@ internal static class LookupStream4Verification
         int diagonalX = CartridgeImportSource.Require(rom).ReadCartridgeWord(0x93D110) & 0x1FF;
         if (diagonalX >= 0x100) diagonalX -= 0x200;
         AssertEqual(diagonalX, SpazerCompositionGeometryDefinitions.DiagonalFirstPairOriginX, "shared diagonal origin matches original component");
-        AssertEqual((int)unchecked((sbyte)rom.ReadCartridgeByte(0x93D112)), SpazerCompositionGeometryDefinitions.DiagonalFirstPairOriginY, "shared diagonal Y remains exact source input");
-        AssertEqual((int)unchecked((sbyte)rom.ReadCartridgeByte(0x93D6EE)), SpazerCompositionGeometryDefinitions.HorizontalStripOriginY, "horizontal strip centers the native small OBJ");
+        AssertEqual(unchecked((sbyte)rom.ReadCartridgeByte(0x93D112)), SpazerCompositionGeometryDefinitions.DiagonalFirstPairOriginY, "shared diagonal Y remains exact source input");
+        AssertEqual(unchecked((sbyte)rom.ReadCartridgeByte(0x93D6EE)), SpazerCompositionGeometryDefinitions.HorizontalStripOriginY, "horizontal strip centers the native small OBJ");
         AssertEqual(0x32, CartridgeImportSource.Require(rom).ReadCartridgeWord(0x93D113) & 0x1FF, "first H-flipped diagonal component is raw tile2");
         AssertEqual(0x31, CartridgeImportSource.Require(rom).ReadCartridgeWord(0x93D118) & 0x1FF, "second H-flipped diagonal component is raw tile1");
         AssertEqual(0x4000, CartridgeImportSource.Require(rom).ReadCartridgeWord(0x93D113) & 0x4000, "diagonal first component horizontal flip");
@@ -3181,8 +3181,8 @@ internal static class LookupStream4Verification
         // (native immediates: $0100 bytes at VMADD $6300), and leaves the characters around them alone.
         void VerifyQueued(BeamTileCatalog selected, int selection, byte[] expected)
         {
-            AssertEqual((int)CartridgeImportSource.Require(rom).ReadCartridgeWord(0x90ac9f), expected.Length, "Bound beam characters span native immediate0100");
-            int first = ((int)CartridgeImportSource.Require(rom).ReadCartridgeWord(0x90acb6) - 0x6000) / 16;
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(0x90ac9f), expected.Length, "Bound beam characters span native immediate0100");
+            int first = (CartridgeImportSource.Require(rom).ReadCartridgeWord(0x90acb6) - 0x6000) / 16;
             var pages = new ProjectileObjectPages(SpriteFrameTestArtwork.StandardObjects, selected, InstalledFixtures.Projectiles.Trails.Tiles
                 ?? throw new InvalidOperationException("The installation has no trail characters."));
             ReadOnlySpan<byte> page = pages.For((SamusBeamFlags)((ushort)selection)).Characters;
@@ -3336,7 +3336,7 @@ internal static class LookupStream4Verification
                 var state = new RidleyEnemyState { BabyProgram = new AnimationProgramCursor<CeresBabyProgram>(CeresBabyProgram.ExpressiveLoop, 1 + 2 * phase), BabyInstructionTimer = 1, BabyVerticalVelocity = 1 };
                 AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa60000 | (cursor + 6)), advance(state), "Actual palette instruction selects matching native pose");
                 AssertEqual(new AnimationProgramCursor<CeresBabyProgram>(CeresBabyProgram.ExpressiveLoop, 3 + 2 * phase), state.BabyProgram, "Palette instruction runs on to its pose");
-                AssertEqual((ushort)1, state.BabyInstructionTimer, "The new pose starts its elapsed count at one");
+                AssertEqual(1, state.BabyInstructionTimer, "The new pose starts its elapsed count at one");
                 for (int color = 0; color < 15; color++)
                     AssertEqual((ushort)(Native(row, color) ^ (variation == 0 && row == 2 && color == 0 ? 1 : 0)), cgram.Colors[177 + color], "Actual pose-selected palette preserves independent edits");
             }

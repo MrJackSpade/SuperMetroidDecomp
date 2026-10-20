@@ -39,7 +39,7 @@ internal static class EndingGlyphMappingVerification
             int cursor = start, count = 0;
             int nativeRow = bus.ReadCartridgeByte(start + 3);
             AssertEqual(nativeRow, actual.Row, "native typewriter row");
-            AssertEqual((int)bus.ReadCartridgeByte(start + 2), actual.Column, "native first typewriter column");
+            AssertEqual(bus.ReadCartridgeByte(start + 2), actual.Column, "native first typewriter column");
             AssertEqual(style, actual.Style, "typewriter style");
             var text = new System.Text.StringBuilder();
             while (count < 32 && CartridgeImportSource.Require(bus).ReadCartridgeWord(cursor) < 0x8000 && bus.ReadCartridgeByte(cursor + 3) == nativeRow)
@@ -126,6 +126,7 @@ internal static class EndingGlyphMappingVerification
                 EndingTextStyle.ResultSmall => 0x8cdc9b,
                 EndingTextStyle.CopyrightLarge => 0x8cdedb,
                 EndingTextStyle.PercentageSmall => 0x8ce1e7,
+                EndingTextStyle.FinalLarge => bottom ? 0x8ce137 : 0x8ce135,
                 _ => bottom ? 0x8ce137 : 0x8ce135,
             }));
             var expected = new Dictionary<ushort, char> { [blank] = ' ' };

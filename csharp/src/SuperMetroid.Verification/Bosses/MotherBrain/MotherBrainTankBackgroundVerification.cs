@@ -40,7 +40,7 @@ internal static class MotherBrainTankBackgroundVerification
         for (int index = 0; index < 0x800; index++)
             AssertEqual((ushort)0x0338, ReadStaged(index), "Initializer prepares all enemy BG2 staging words");
         var state = runtime.Enemies.MotherBrainEncounter.MotherBrain;
-        AssertEqual((ushort)0x800, (state ?? throw new InvalidOperationException("Verification requires state.")).EnemyBg2TilemapSize, "Native default transfer size is bytes, not words");
+        AssertEqual(0x800, (state ?? throw new InvalidOperationException("Verification requires state.")).EnemyBg2TilemapSize, "Native default transfer size is bytes, not words");
         runtime.Enemies.MotherBrainBehavior.SetupMotherBrainPhaseTwoGraphics(state);
         var blank = Enumerable.Repeat((ushort)0x0338, 0x400).ToArray();
         expectedVram.ExecuteWordTransfer(blank, 0x4800, 1);
@@ -51,7 +51,7 @@ internal static class MotherBrainTankBackgroundVerification
         AssertTrue(((artwork ?? throw new InvalidOperationException("Verification requires artwork.")).MotherBrainBodyBg2Frames ?? throw new InvalidOperationException("Verification requires (artwork ?? throw new InvalidOperationException(\"Verification requires artwork.\")).Moth....")).TryGet(0xa252, out var writes),
             "Crouched body BG2 artwork is installed");
         state.Body.ExtraProperties = state.Body.ExtraProperties.With(EnemyExtraProperties.NewInstructionFrame);
-        runtime.Enemies.Instructions.ApplyInstalledEnemyBg2Frame(state.Body, (ushort)0xa252);
+        runtime.Enemies.Instructions.ApplyInstalledEnemyBg2Frame(state.Body, 0xa252);
         foreach (var write in writes.Span)
         {
             expectedVram.ExecuteWordTransfer(write.Tiles.Span, (ushort)(0x4800 + write.DestinationWord), 1);

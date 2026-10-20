@@ -168,7 +168,7 @@ public sealed class GameOptionsPresentation
             : headingAnchors.TryGetValue(page, out Position16<OamPixels> edited) ? edited
                 : throw new InvalidDataException($"Options heading {page} is not authored.");
         // The authored X is validated on screen; scrolling the heading wraps its Y word.
-        Position16<OamPixels> origin = new(checked((ushort)point.X), unchecked((ushort)(point.Y - verticalScroll)));
+        Position16<OamPixels> origin = new(checked(point.X), unchecked((ushort)(point.Y - verticalScroll)));
         this.sprites[GameOptionsPresentationDefinitions.HeadingFrameName(page)].Draw(
             sprites, origin,
             PaletteBits(CursorPalette));

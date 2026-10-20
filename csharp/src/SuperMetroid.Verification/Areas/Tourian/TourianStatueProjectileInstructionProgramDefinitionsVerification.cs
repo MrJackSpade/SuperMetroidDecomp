@@ -47,7 +47,7 @@ internal static class TourianStatueProjectileInstructionProgramDefinitionsVerifi
             TourianStatueProjectileAnimationsVerification.Family.NativePointers(CartridgeImportSource.Require(rom));
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null)) { TileArtwork = InstalledFixtures.EnemyTiles };
         enemies.Presentation.BindCgram(new SnesCgram());
-        enemies.VerificationServices().NextRandom = (Func<ushort>)(() => 4);
+        enemies.VerificationServices().NextRandom = () => 4;
 
         enemies.TourianUnlockBehavior.SpawnTourianUnlockEffect(0, soul: false);
         RoomEnemyProjectileSlot eye = Single(RoomEnemyProjectileKind.TourianStatueEyeGlow);
@@ -59,7 +59,7 @@ internal static class TourianStatueProjectileInstructionProgramDefinitionsVerifi
         AssertEqual(4, enemies.Projectiles.EnemyProjectiles.Count(
             projectile => projectile.Kind == RoomEnemyProjectileKind.TourianStatueParticle),
             "eye glow releases four real unlocking particles");
-        AssertEqual((ushort)1, enemies.Earthquake.EarthquakeType, "eye glow starts the native earthquake");
+        AssertEqual(1, enemies.Earthquake.EarthquakeType, "eye glow starts the native earthquake");
         AssertEqual((ushort)0x20, enemies.Earthquake.EarthquakeTimer.RawValue,
             "eye glow publishes the native earthquake duration bit");
 

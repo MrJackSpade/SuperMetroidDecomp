@@ -291,7 +291,7 @@ internal static class SamusSpritemapPoseDefinitions
     private const ushort TopDraygonGrabbedMovingRightBase = 0x0433;
 
     /// <summary>$92:9263 pose table: exactly253 named real-pose top-half identities.</summary>
-    internal static ushort TopBase(SamusPoseId pose) => (SamusPoseId)pose switch
+    internal static ushort TopBase(SamusPoseId pose) => pose switch
     {
         SamusPoseId.ForwardFacingPowerSuitPose => TopForwardFacingPowerSuitBase,
         SamusPoseId.FacingRightNormalPose or
@@ -546,7 +546,10 @@ internal static class SamusSpritemapPoseDefinitions
         SamusPoseId.DraygonGrabbedFiringRightPose => TopDraygonGrabbedFiringRightBase,
         SamusPoseId.DraygonGrabbedAimDownRightPose => TopDraygonGrabbedAimDownRightBase,
         SamusPoseId.DraygonGrabbedMovingRightPose => TopDraygonGrabbedMovingRightBase,
-        _ => throw new ArgumentOutOfRangeException(nameof(pose)),
+        SamusPoseId.AdjacentCodePoseFD or
+            SamusPoseId.AdjacentCodePoseFE or
+            SamusPoseId.AdjacentCodePoseFF => throw new ArgumentOutOfRangeException(nameof(pose)),
+        var undefined => throw new InvalidOperationException($"Undefined {nameof(SamusPoseId)} {undefined}."),
     };
 
     /// <summary>$92:945D selects bottom frame-sequence index$0062 for ForwardFacingPowerSuitPose and the aliases below; underlying pointer/OBJ payload remains REQUIRED.</summary>
@@ -775,7 +778,7 @@ internal static class SamusSpritemapPoseDefinitions
     private const ushort BottomDraygonGrabbedMovingRightBase = 0x069b;
 
     /// <summary>$92:945D pose table: exactly253 named real-pose bottom-half identities.</summary>
-    internal static ushort BottomBase(SamusPoseId pose) => (SamusPoseId)pose switch
+    internal static ushort BottomBase(SamusPoseId pose) => pose switch
     {
         SamusPoseId.ForwardFacingPowerSuitPose => BottomForwardFacingPowerSuitBase,
         SamusPoseId.FacingRightNormalPose or
@@ -1030,7 +1033,10 @@ internal static class SamusSpritemapPoseDefinitions
         SamusPoseId.DraygonGrabbedFiringRightPose or
         SamusPoseId.DraygonGrabbedAimDownRightPose => BottomDraygonGrabbedNeutralRightBase,
         SamusPoseId.DraygonGrabbedMovingRightPose => BottomDraygonGrabbedMovingRightBase,
-        _ => throw new ArgumentOutOfRangeException(nameof(pose)),
+        SamusPoseId.AdjacentCodePoseFD or
+            SamusPoseId.AdjacentCodePoseFE or
+            SamusPoseId.AdjacentCodePoseFF => throw new ArgumentOutOfRangeException(nameof(pose)),
+        var undefined => throw new InvalidOperationException($"Undefined {nameof(SamusPoseId)} {undefined}."),
     };
 
 }

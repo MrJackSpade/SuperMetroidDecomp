@@ -93,28 +93,6 @@ internal static class RoomFxRecordDefinitionsVerification
             "Ceres compiled treadmill animation count");
     }
 
-    /// <summary>The native record bytes compiled room FX consumers must no longer request.</summary>
-    private static readonly HashSet<int> ForbiddenRoomFxRecordBytes = BuildForbiddenRoomFxRecordBytes();
-
-    /// <summary>Wraps the source bus so any room FX record reread fails with the offending address.</summary>
-    private static CartridgeReadGuard NewRoomFxRecordReadGuard(ISnesAddressSpace source) =>
-        new CartridgeReadGuard(source).Forbid(ForbiddenRoomFxRecordBytes.Contains,
-            address => $"Compiled room-FX consumer reread source record byte ${address:X6}.");
-
-    /// <summary>Collects each exported FX record's native byte range, including short terminator records.</summary>
-    private static HashSet<int> BuildForbiddenRoomFxRecordBytes()
-    {
-        var result = new HashSet<int>();
-        foreach (ushort pointer in RoomFxDefinitions.RecordPointers)
-        {
-            int length = RoomFxDefinitions.RecordAt(pointer).Terminates
-                ? sizeof(ushort) : RoomFxToolingRomData.Record.ByteCount;
-            for (int offset = 0; offset < length; offset++)
-                result.Add(RoomFxRomDataBanksTooling.RoomDefinitions | (pointer + offset));
-        }
-        return result;
-    }
-
     /// <summary>Runs the room FX catalog comparison through the verification command dispatcher.</summary>
     [VerificationCommand("--room-fx-record-definitions")]
     internal static int RoomFxRecordDefinitionsCommand()

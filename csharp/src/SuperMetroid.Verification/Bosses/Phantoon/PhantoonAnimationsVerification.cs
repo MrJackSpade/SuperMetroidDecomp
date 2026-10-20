@@ -29,7 +29,7 @@ internal static class PhantoonAnimationsVerification
     internal static RoomEnemySystem CreatePhantoonSystem()
     {
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
-        enemies.VerificationServices().NextRandom = (Func<ushort>)(() => 0);
+        enemies.VerificationServices().NextRandom = () => 0;
         RoomEnemySlot body = enemies.SlotTable.Slots[0];
         RoomEnemySlot eye = enemies.SlotTable.Slots[1];
         RoomEnemySlot tentacles = enemies.SlotTable.Slots[2];
@@ -101,7 +101,7 @@ internal static class PhantoonAnimationsVerification
             {
                 case NativeEnemyListDefinitions.WordKind.Frame:
                     AssertEqual(AnimationProgramStepKind.Show, steps[index].Kind, $"{at}: frame");
-                    AssertEqual((int)word, steps[index].Duration, $"{at}: duration");
+                    AssertEqual(word, steps[index].Duration, $"{at}: duration");
                     AssertEqual(operand, PhantoonPartFrameSpritemapsConstants.Spritemap(steps[index].Frame), $"{at}: spritemap");
                     cursor = unchecked((ushort)(cursor + 4));
                     index++;
@@ -231,7 +231,7 @@ internal static class PhantoonAnimationsVerification
     private static RoomEnemySystem NewFlameSystem()
     {
         RoomEnemySystem enemies = CreatePhantoonSystem();
-        enemies.VerificationServices().NextRandom = (Func<ushort>)(() => 128);
+        enemies.VerificationServices().NextRandom = () => 128;
         enemies.DeathsAndDrops.BindSamus(new SamusState { Health = 99, MaxHealth = 99 });
         RoomEnemySlot body = enemies.SlotTable.Slots[0];
         body.Position = body.Position.WithWhole(new(128, 96));

@@ -27,7 +27,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
     private readonly EnemyFrameResultBuilder _frameResults;
 
     /// <inheritdoc/>
-    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Crocomire, EnemyDefinitionId.CrocomireTongue];
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [.. CrocomirePartDefinitions.Parts.Keys];
 
     /// <inheritdoc/>
     public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new CrocomireEntity(this, slot, common);
@@ -690,6 +690,124 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
                 // Some extended-map records deliberately point at the body header's RTL.
                 return;
 
+            case EnemyInteractionCallback.NormalEnemyTouch:
+            case EnemyInteractionCallback.NormalEnemyShot:
+            case EnemyInteractionCallback.DudShot:
+            case EnemyInteractionCallback.NoOp:
+            case EnemyInteractionCallback.NoOpShortReturn:
+            case EnemyInteractionCallback.OwtchShot:
+            case EnemyInteractionCallback.DragonTouch:
+            case EnemyInteractionCallback.DragonShot:
+            case EnemyInteractionCallback.DragonPowerBomb:
+            case EnemyInteractionCallback.GRipperRipper2Shot:
+            case EnemyInteractionCallback.MamaTurtleTouch:
+            case EnemyInteractionCallback.BabyTurtleTouch:
+            case EnemyInteractionCallback.BabyTurtleShot:
+            case EnemyInteractionCallback.MaridiaLargeSnailDamagingTouch:
+            case EnemyInteractionCallback.MaridiaLargeSnailNonDamagingTouch:
+            case EnemyInteractionCallback.MaridiaLargeSnailShot:
+            case EnemyInteractionCallback.RinkaTouch:
+            case EnemyInteractionCallback.RinkaShot:
+            case EnemyInteractionCallback.RinkaPowerBomb:
+            case EnemyInteractionCallback.VerticalShutterTouch:
+            case EnemyInteractionCallback.ShootableVerticalShutterShot:
+            case EnemyInteractionCallback.DestroyableVerticalShutterShot:
+            case EnemyInteractionCallback.VerticalShutterPowerBomb:
+            case EnemyInteractionCallback.HorizontalShutterTouch:
+            case EnemyInteractionCallback.HorizontalShutterShot:
+            case EnemyInteractionCallback.HorizontalShutterPowerBomb:
+            case EnemyInteractionCallback.SkreeShot:
+            case EnemyInteractionCallback.MetareeShot:
+            case EnemyInteractionCallback.FirefleaTouch:
+            case EnemyInteractionCallback.FirefleaPowerBomb:
+            case EnemyInteractionCallback.FirefleaShot:
+            case EnemyInteractionCallback.MochtroidTouch:
+            case EnemyInteractionCallback.MochtroidShot:
+            case EnemyInteractionCallback.MetroidTouch:
+            case EnemyInteractionCallback.MetroidShot:
+            case EnemyInteractionCallback.MetroidPowerBomb:
+            case EnemyInteractionCallback.YardTouch:
+            case EnemyInteractionCallback.YardShot:
+            case EnemyInteractionCallback.PlatformNoOpTouch:
+            case EnemyInteractionCallback.TripperShot:
+            case EnemyInteractionCallback.CrocomireClawTouch:
+            case EnemyInteractionCallback.CrocomirePowerBomb:
+            case EnemyInteractionCallback.SporeSpawnTouch:
+            case EnemyInteractionCallback.SporeSpawnShot:
+            case EnemyInteractionCallback.DraygonTouch:
+            case EnemyInteractionCallback.DraygonShot:
+            case EnemyInteractionCallback.DraygonPowerBomb:
+            case EnemyInteractionCallback.FakeKraidTouch:
+            case EnemyInteractionCallback.FakeKraidShot:
+            case EnemyInteractionCallback.CeresSteamTouch:
+            case EnemyInteractionCallback.RidleyExtendedTouch:
+            case EnemyInteractionCallback.RidleyShot:
+            case EnemyInteractionCallback.RidleyPowerBomb:
+            case EnemyInteractionCallback.ZebetiteTouch:
+            case EnemyInteractionCallback.ZebetiteShot:
+            case EnemyInteractionCallback.KraidBackgroundTouch:
+            case EnemyInteractionCallback.KraidArmTouch:
+            case EnemyInteractionCallback.KraidNoOpShot:
+            case EnemyInteractionCallback.KraidArmShot:
+            case EnemyInteractionCallback.KraidNailTouch:
+            case EnemyInteractionCallback.KraidBadNailTouch:
+            case EnemyInteractionCallback.EvirTouch:
+            case EnemyInteractionCallback.EvirPowerBomb:
+            case EnemyInteractionCallback.EvirShot:
+            case EnemyInteractionCallback.MagdollitePowerBomb:
+            case EnemyInteractionCallback.MagdolliteTouch:
+            case EnemyInteractionCallback.MagdolliteShot:
+            case EnemyInteractionCallback.BeetomTouch:
+            case EnemyInteractionCallback.BeetomShot:
+            case EnemyInteractionCallback.PowampTouch:
+            case EnemyInteractionCallback.PowampShot:
+            case EnemyInteractionCallback.PowampPowerBomb:
+            case EnemyInteractionCallback.WorkRobotTouch:
+            case EnemyInteractionCallback.WorkRobotNoPowerShot:
+            case EnemyInteractionCallback.WorkRobotShot:
+            case EnemyInteractionCallback.BullShot:
+            case EnemyInteractionCallback.KagoShot:
+            case EnemyInteractionCallback.KiHunterShot:
+            case EnemyInteractionCallback.SparkShot:
+            case EnemyInteractionCallback.BlueBrinstarFaceBlockShot:
+            case EnemyInteractionCallback.YappingMawTouch:
+            case EnemyInteractionCallback.YappingMawShot:
+            case EnemyInteractionCallback.MotherBrainBodyShot:
+            case EnemyInteractionCallback.MotherBrainHeadShot:
+            case EnemyInteractionCallback.MotherBrainBodyTouch:
+            case EnemyInteractionCallback.MotherBrainHeadTouch:
+            case EnemyInteractionCallback.DeadTorizoTouchAndShot:
+            case EnemyInteractionCallback.DeadTorizoPowerBomb:
+            case EnemyInteractionCallback.DeadSidehopperTouch:
+            case EnemyInteractionCallback.DeadSidehopperShot:
+            case EnemyInteractionCallback.DeadSidehopperPowerBomb:
+            case EnemyInteractionCallback.ShitroidTouch:
+            case EnemyInteractionCallback.ShitroidShot:
+            case EnemyInteractionCallback.ShitroidPowerBomb:
+            case EnemyInteractionCallback.BombTorizoTouch:
+            case EnemyInteractionCallback.BombTorizoShot:
+            case EnemyInteractionCallback.TorizoStandUpSitDownShot:
+            case EnemyInteractionCallback.GoldenTorizoShot:
+            case EnemyInteractionCallback.ShaktoolTouch:
+            case EnemyInteractionCallback.ShaktoolShot:
+            case EnemyInteractionCallback.SpacePiratePowerBomb:
+            case EnemyInteractionCallback.SpacePirateTouch:
+            case EnemyInteractionCallback.SpacePirateShot:
+            case EnemyInteractionCallback.GoldNinjaVulnerableHitboxShot:
+            case EnemyInteractionCallback.GoldNinjaInvincibleHitboxShot:
+            case EnemyInteractionCallback.BotwoonTouch:
+            case EnemyInteractionCallback.BotwoonShot:
+            case EnemyInteractionCallback.BotwoonPowerBomb:
+            case EnemyInteractionCallback.PhantoonTouch:
+            case EnemyInteractionCallback.PhantoonShot:
+            case EnemyInteractionCallback.DeadZoomerTouchAndShot:
+            case EnemyInteractionCallback.DeadZoomerPowerBomb:
+            case EnemyInteractionCallback.DeadRipperTouchAndShot:
+            case EnemyInteractionCallback.DeadRipperPowerBomb:
+            case EnemyInteractionCallback.DeadSkreeTouchAndShot:
+            case EnemyInteractionCallback.DeadSkreePowerBomb:
+            case EnemyInteractionCallback.CeresDoorNoOpShot:
+            case EnemyInteractionCallback.ChozoNoOpShot:
             default:
                 throw new InvalidOperationException($"Crocomire hitbox shot AI {callback?.ToString() ?? "(unnamed)"} is not translated.");
         }
@@ -1742,6 +1860,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
                 state.FightFunction = CrocomireFightFunction.SteppingBack;
                 return null;
 
+            case CrocomireFightFunction.UnwrittenTableEntry:
             default:
                 throw new InvalidDataException(
                     $"Crocomire fight function {state.FightFunction} is not translated.");
@@ -2259,7 +2378,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
         byte maximumVelocity = CrocomireSpikeMotionDefinitions.MaximumVelocity(slot);
         if (unchecked((sbyte)(velocityWhole - maximumVelocity)) >= 0)
             velocityWhole = maximumVelocity;
-        projectile.Velocity = projectile.Velocity.WithX(new SnesSignedEightEight(unchecked((ushort)(SnesLittleEndian.Word(velocityFraction, velocityWhole)))));
+        projectile.Velocity = projectile.Velocity.WithX(new SnesSignedEightEight(unchecked(SnesLittleEndian.Word(velocityFraction, velocityWhole))));
 
         // Move X with the same split-byte math. Only the high subposition byte participates;
         // its low byte remains untouched, exactly like EnemyProjectile_XSubPositions+1,X.
@@ -2274,7 +2393,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
         projectile.Variable1 = unchecked((ushort)velocity);
         uint position = unchecked(projectile.Position.Y.RawValue);
         position = unchecked(position + velocity);
-        projectile.Position = projectile.Position.WithY(SnesFixedPosition.FromRaw(unchecked((uint)position)));
+        projectile.Position = projectile.Position.WithY(SnesFixedPosition.FromRaw(unchecked(position)));
 
         if (projectile.Position.Y.Whole < 168)
             return;

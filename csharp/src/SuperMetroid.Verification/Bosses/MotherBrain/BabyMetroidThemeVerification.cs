@@ -20,7 +20,7 @@ internal static class BabyMetroidThemeVerification
         enemies.Presentation.BindCgram(new SnesCgram());
         var baby = new BabyMetroidCutsceneState();
         baby.Phase = BabyMetroidCutscenePhase.FinalCharge;
-        baby.Health = (ushort)0;
+        baby.Health = 0;
         var sequence = new MotherBrainRainbowBeamAttackSequence();
         var samus = new SamusState();
         Action<MotherBrainEnemyState, BabyMetroidCutsceneStepResult> apply = enemies.BabyMetroidCutsceneBehavior.ApplyBabyMetroidFrameEffects;
@@ -39,7 +39,7 @@ internal static class BabyMetroidThemeVerification
             for (int index = 0; index < expected.Length; index++)
             {
                 AssertEqual(expected[index], enemies.Audio.MusicRequests[index].Command.RawValue, "Stop, data upload and track retain native ordering");
-                AssertEqual((ushort)8, enemies.Audio.MusicRequests[index].Delay.Frames, "Each native command retains its eight-frame queue delay");
+                AssertEqual(8, enemies.Audio.MusicRequests[index].Delay.Frames, "Each native command retains its eight-frame queue delay");
             }
             if (frame == 72)
             {

@@ -86,7 +86,7 @@ internal static class RidleyMovementTargetsVerification
             // Setup stores 32 and then falls through into the shared timer decrement.
             AssertEqual((ushort)31, state.FunctionTimer.RawValue, "Carry setup timer");
             AssertEqual(RidleyAiFunction.NorfairCarryMoveToAnchor, state.Function, "Carry setup phase");
-            AssertEqual((int)hover[Math.Min(raw, 3)], readDivisor(state), "Every health word preserves existing divisor clamp");
+            AssertEqual(hover[Math.Min(raw, 3)], readDivisor(state), "Every health word preserves existing divisor clamp");
         }
         foreach (RidleyFacing facing in Enum.GetValues<RidleyFacing>())
         foreach (ushort x in new ushort[] { 0, 128, 0xffff })

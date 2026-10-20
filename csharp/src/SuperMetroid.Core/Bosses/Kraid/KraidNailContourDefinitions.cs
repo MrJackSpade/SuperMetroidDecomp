@@ -46,7 +46,7 @@ internal static class KraidNailContourDefinitions
         return record switch
         {
             3 => unchecked((ushort)-128),
-            4 => (ushort)((HandleFirstPhase >> 8) | LoadOpcode << 8),
+            4 => (HandleFirstPhase >> 8) | LoadOpcode << 8,
             _ => unchecked((ushort)(CompareOpcode | ArmNormalPauseList << 8)),
         };
     }

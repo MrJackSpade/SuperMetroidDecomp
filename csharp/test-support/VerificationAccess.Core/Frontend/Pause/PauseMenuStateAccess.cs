@@ -52,8 +52,8 @@ internal static class PauseMenuStateAccess
                 throw new ArgumentOutOfRangeException(nameof(digitIndex));
 
             int byteOffset = PauseMenuLayout.ReserveSupplyDigitsByteOffset + digitIndex * 2;
-            return unchecked((ushort)(
-                SnesLittleEndian.Word(self.equipmentTilemap[byteOffset], self.equipmentTilemap[byteOffset + 1])));
+            return unchecked(
+                SnesLittleEndian.Word(self.equipmentTilemap[byteOffset], self.equipmentTilemap[byteOffset + 1]));
         }
     }
 }

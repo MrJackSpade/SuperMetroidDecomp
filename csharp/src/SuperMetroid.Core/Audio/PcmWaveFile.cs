@@ -135,7 +135,7 @@ public static class PcmWaveFile
 
     /// <summary>Decodes a two-byte little-endian RIFF field from a validated chunk span.</summary>
     private static ushort ReadWord(ReadOnlySpan<byte> bytes, int offset) =>
-        unchecked((ushort)(SnesLittleEndian.Word(bytes[offset], bytes[offset + 1])));
+        unchecked(SnesLittleEndian.Word(bytes[offset], bytes[offset + 1]));
 
     /// <summary>Decodes a four-byte little-endian RIFF size or sample-rate field.</summary>
     private static uint ReadDword(ReadOnlySpan<byte> bytes, int offset) =>

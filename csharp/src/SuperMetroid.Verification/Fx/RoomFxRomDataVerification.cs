@@ -208,6 +208,15 @@ internal static class RoomFxRomDataVerification
             RoomFxType.Water => LayerBlendingConfiguration.LiquidOrFogAdditive,
             RoomFxType.Rain => LayerBlendingConfiguration.Rain,
             RoomFxType.Fog => LayerBlendingConfiguration.FogAdditive,
+            RoomFxType.None or
+                RoomFxType.Spores or
+                RoomFxType.ScrollingSky or
+                RoomFxType.UnusedScrollingSky or
+                RoomFxType.Fireflea or
+                RoomFxType.TourianEntranceStatue or
+                RoomFxType.CeresRidley or
+                RoomFxType.CeresElevator or
+                RoomFxType.CeresHaze => throw new InvalidOperationException($"Unexpected renderable room FX {type}."),
             _ => throw new InvalidOperationException($"Unexpected renderable room FX {type}."),
         };
         SeedSyntheticRoomFxByte(bus, record,
@@ -386,6 +395,16 @@ internal static class RoomFxRomDataVerification
             RoomFxType.Lava or RoomFxType.Acid => LayerBlendingConfiguration.NormalGameplay,
             RoomFxType.Water => LayerBlendingConfiguration.NormalGameplay,
             RoomFxType.Rain => LayerBlendingConfiguration.FogAdditive,
+            RoomFxType.None or
+                RoomFxType.Spores or
+                RoomFxType.Fog or
+                RoomFxType.ScrollingSky or
+                RoomFxType.UnusedScrollingSky or
+                RoomFxType.Fireflea or
+                RoomFxType.TourianEntranceStatue or
+                RoomFxType.CeresRidley or
+                RoomFxType.CeresElevator or
+                RoomFxType.CeresHaze => LayerBlendingConfiguration.Rain,
             _ => LayerBlendingConfiguration.Rain,
         };
         AssertThrows<InvalidDataException>(
@@ -408,7 +427,7 @@ internal static class RoomFxRomDataVerification
     {
         int address = 0x830000 | pointer;
         byte Byte(int offset) => bus.ReadByte(address + offset);
-        ushort Word(int offset) => (ushort)(SnesLittleEndian.Word(Byte(offset), Byte(offset + 1)));
+        ushort Word(int offset) => SnesLittleEndian.Word(Byte(offset), Byte(offset + 1));
         ushort door = Word(0);
         return new RoomFxRecordDefinition(
             door is 0 or ushort.MaxValue ? null : DoorDefinitions.Get(door), door == ushort.MaxValue, Word(2), Word(4), Word(6), Byte(8), Byte(9), Byte(10), Byte(11),

@@ -212,6 +212,7 @@ public sealed class SamusDeathSequenceState
                 // owner has not been translated into this gameplay host, so remain locked.
                 break;
 
+            case SamusDeathSequencePhase.Inactive:
             default:
                 throw new InvalidOperationException($"Unknown death phase {Phase}.");
         }

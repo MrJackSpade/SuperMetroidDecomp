@@ -15,7 +15,7 @@ namespace SuperMetroid.Core.Enemies.Ripper;
 internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <inheritdoc/>
-    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.GRipper, EnemyDefinitionId.Ripper, EnemyDefinitionId.Ripper2];
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [.. RipperPartDefinitions.Parts.Keys];
 
     /// <inheritdoc/>
     public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new RipperEntity(this, slot, common);

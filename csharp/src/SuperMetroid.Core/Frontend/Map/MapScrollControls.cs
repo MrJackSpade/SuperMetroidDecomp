@@ -26,6 +26,7 @@ internal static class MapScrollControls
         MapScrollDirection.Right => new(FileSelectMapRomData.ScrollStepPixels, 0),
         MapScrollDirection.Up => new(0, -FileSelectMapRomData.ScrollStepPixels),
         MapScrollDirection.Down => new(0, FileSelectMapRomData.ScrollStepPixels),
+        MapScrollDirection.None => throw new ArgumentOutOfRangeException(nameof(direction), direction, "No map scroll step is active."),
         _ => throw new ArgumentOutOfRangeException(nameof(direction), direction, "No map scroll step is active."),
     };
 
@@ -39,6 +40,7 @@ internal static class MapScrollControls
         MapScrollDirection.Right => SnesButton.Right,
         MapScrollDirection.Up => SnesButton.Up,
         MapScrollDirection.Down => SnesButton.Down,
+        MapScrollDirection.None => throw new ArgumentOutOfRangeException(nameof(direction)),
         _ => throw new ArgumentOutOfRangeException(nameof(direction)),
     };
 }

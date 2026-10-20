@@ -518,12 +518,12 @@ public sealed class GameOptionsMenuState
             Position16<OamPixels> hidden = (mapPresentation ?? throw new InvalidOperationException(
                 "Options cursor requires installed presentation assets."))
                 .GameOptions.HiddenCursor;
-            return (checked((ushort)hidden.X), checked((ushort)hidden.Y));
+            return (checked(hidden.X), checked(hidden.Y));
         }
         Position16<OamPixels> point = (mapPresentation ?? throw new InvalidOperationException(
             "Options cursor requires installed presentation assets."))
             .GameOptions.CursorPosition(PresentationPageName(cursorPage.Value), SelectedItem);
-        return (checked((ushort)point.X), checked((ushort)point.Y));
+        return (checked(point.X), checked(point.Y));
     }
 
     /// <summary>Advances the selection missile after its installed frame duration.</summary>

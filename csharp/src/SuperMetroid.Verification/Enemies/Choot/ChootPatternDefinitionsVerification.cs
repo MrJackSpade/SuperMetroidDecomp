@@ -64,7 +64,7 @@ internal static class ChootPatternDefinitionsVerification
                     loopCount * (SnesLittleEndian.LowByte(definition.FallingPatternYDistance))));
                 AssertEqual<ChootFallingPath?>(definition.FallingPatternPointer, (state ?? throw new InvalidOperationException("Verification requires state.")).FallingPath,
                     $"Choot production pattern {patternIndex}/{loopCount}");
-                AssertEqual((int)definition.FallingPatternYDistance, state.FallingPatternYDistance,
+                AssertEqual(definition.FallingPatternYDistance, state.FallingPatternYDistance,
                     $"Choot production pattern distance {patternIndex}/{loopCount}");
                 AssertEqual(slot.Position.X.Whole, state.InitialFallingPosition.X,
                     $"Choot production initial falling X {patternIndex}/{loopCount}");

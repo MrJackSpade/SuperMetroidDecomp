@@ -85,7 +85,7 @@ internal static class EnemyTileArtworkBotwoonColorsVerification
                 AssertEqual(colors.HealthColor(band, color),
                     cgram.Colors[BotwoonHealthPaletteDefinitions.DestinationColor + color],
                     $"live Botwoon health band {band} color {color}");
-            AssertEqual((ushort)0x1234,
+            AssertEqual(0x1234,
                 cgram.Colors[BotwoonHealthPaletteDefinitions.DestinationColor - 1],
                 $"Botwoon health band {band} preserves adjacent palette");
         }

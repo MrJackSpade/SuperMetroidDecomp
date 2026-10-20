@@ -223,6 +223,8 @@ internal static class CartridgeEncodingScanner
                             "integral collection literal holding hexadecimal words", collection.OpenBracketToken.GetLocation()));
                     }
                     break;
+                default:
+                    break;
             }
         }
         return occurrences;
@@ -304,20 +306,16 @@ internal static class CartridgeEncodingScanner
     {
         if (model.GetConstantValue(binary, cancellationToken).HasValue)
             return false;
-        switch (binary.Kind())
-        {
-            case SyntaxKind.BitwiseAndExpression:
-                return IsSignBitConstant(binary.Right, binary.Left, relational: false, model, cancellationToken) && IsCountdownOperand(binary.Left, model, cancellationToken) ||
-                    IsSignBitConstant(binary.Left, binary.Right, relational: false, model, cancellationToken) && IsCountdownOperand(binary.Right, model, cancellationToken);
-            case SyntaxKind.LessThanExpression or SyntaxKind.GreaterThanOrEqualExpression:
-                return IsSignBitConstant(binary.Right, binary.Left, relational: true, model, cancellationToken) && IsCountdownOperand(binary.Left, model, cancellationToken) ||
-                    IsZero(binary.Right, model, cancellationToken) && IsSignedReinterpretation(binary.Left, model, cancellationToken);
-            case SyntaxKind.GreaterThanExpression or SyntaxKind.LessThanOrEqualExpression:
-                return IsSignBitConstant(binary.Left, binary.Right, relational: true, model, cancellationToken) && IsCountdownOperand(binary.Right, model, cancellationToken) ||
-                    IsZero(binary.Left, model, cancellationToken) && IsSignedReinterpretation(binary.Right, model, cancellationToken);
-            default:
-                return false;
-        }
+        if (binary.IsKind(SyntaxKind.BitwiseAndExpression))
+            return IsSignBitConstant(binary.Right, binary.Left, relational: false, model, cancellationToken) && IsCountdownOperand(binary.Left, model, cancellationToken) ||
+                IsSignBitConstant(binary.Left, binary.Right, relational: false, model, cancellationToken) && IsCountdownOperand(binary.Right, model, cancellationToken);
+        if (binary.IsKind(SyntaxKind.LessThanExpression) || binary.IsKind(SyntaxKind.GreaterThanOrEqualExpression))
+            return IsSignBitConstant(binary.Right, binary.Left, relational: true, model, cancellationToken) && IsCountdownOperand(binary.Left, model, cancellationToken) ||
+                IsZero(binary.Right, model, cancellationToken) && IsSignedReinterpretation(binary.Left, model, cancellationToken);
+        if (binary.IsKind(SyntaxKind.GreaterThanExpression) || binary.IsKind(SyntaxKind.LessThanOrEqualExpression))
+            return IsSignBitConstant(binary.Left, binary.Right, relational: true, model, cancellationToken) && IsCountdownOperand(binary.Right, model, cancellationToken) ||
+                IsZero(binary.Left, model, cancellationToken) && IsSignedReinterpretation(binary.Right, model, cancellationToken);
+        return false;
     }
 
     /// <summary>
@@ -403,6 +401,49 @@ internal static class CartridgeEncodingScanner
         {
             SpecialType.System_Byte or SpecialType.System_SByte => ByteSignBits,
             SpecialType.System_UInt16 or SpecialType.System_Int16 => WordSignBits,
+            SpecialType.None or
+                SpecialType.System_Object or
+                SpecialType.System_Enum or
+                SpecialType.System_MulticastDelegate or
+                SpecialType.System_Delegate or
+                SpecialType.System_ValueType or
+                SpecialType.System_Void or
+                SpecialType.System_Boolean or
+                SpecialType.System_Char or
+                SpecialType.System_Int32 or
+                SpecialType.System_UInt32 or
+                SpecialType.System_Int64 or
+                SpecialType.System_UInt64 or
+                SpecialType.System_Decimal or
+                SpecialType.System_Single or
+                SpecialType.System_Double or
+                SpecialType.System_String or
+                SpecialType.System_IntPtr or
+                SpecialType.System_UIntPtr or
+                SpecialType.System_Array or
+                SpecialType.System_Collections_IEnumerable or
+                SpecialType.System_Collections_Generic_IEnumerable_T or
+                SpecialType.System_Collections_Generic_IList_T or
+                SpecialType.System_Collections_Generic_ICollection_T or
+                SpecialType.System_Collections_IEnumerator or
+                SpecialType.System_Collections_Generic_IEnumerator_T or
+                SpecialType.System_Collections_Generic_IReadOnlyList_T or
+                SpecialType.System_Collections_Generic_IReadOnlyCollection_T or
+                SpecialType.System_Nullable_T or
+                SpecialType.System_DateTime or
+                SpecialType.System_Runtime_CompilerServices_IsVolatile or
+                SpecialType.System_IDisposable or
+                SpecialType.System_TypedReference or
+                SpecialType.System_ArgIterator or
+                SpecialType.System_RuntimeArgumentHandle or
+                SpecialType.System_RuntimeFieldHandle or
+                SpecialType.System_RuntimeMethodHandle or
+                SpecialType.System_RuntimeTypeHandle or
+                SpecialType.System_IAsyncResult or
+                SpecialType.System_AsyncCallback or
+                SpecialType.System_Runtime_CompilerServices_RuntimeFeature or
+                SpecialType.System_Runtime_CompilerServices_PreserveBaseOverridesAttribute or
+                SpecialType.System_Runtime_CompilerServices_InlineArrayAttribute => relational ? WordSignBits : SignBits,
             _ => relational ? WordSignBits : SignBits,
         };
         return operandSignBits.Contains(value);
@@ -480,12 +521,10 @@ internal static class CartridgeEncodingScanner
     }
 
     /// <summary>Explains which byte, word, or bank lane a raw mask or shift manipulates.</summary>
-    private static string WidthBasis(BinaryExpressionSyntax binary) => binary.Kind() switch
-    {
-        SyntaxKind.BitwiseAndExpression => $"'{binary}' keeps a byte, word or bank lane",
-        SyntaxKind.LeftShiftExpression => $"'{binary}' moves a value up by a byte, word or bank width",
-        _ => $"'{binary}' moves a value down by a byte, word or bank width",
-    };
+    private static string WidthBasis(BinaryExpressionSyntax binary) =>
+        binary.IsKind(SyntaxKind.BitwiseAndExpression) ? $"'{binary}' keeps a byte, word or bank lane"
+        : binary.IsKind(SyntaxKind.LeftShiftExpression) ? $"'{binary}' moves a value up by a byte, word or bank width"
+        : $"'{binary}' moves a value down by a byte, word or bank width";
 
     /// <summary>
     /// Whether the literal is an enum member's value: an enum is a named definition set wherever its file lives, so

@@ -33,7 +33,7 @@ internal static class GreyDoorPlmDrawDefinitionsVerification
     {
         Suite(nameof(VerifyGreyDoorProgramDefinitions), () => VerifyGreyDoorProgramDefinitions(rom));
         static ushort ReadWord(ISnesAddressSpace bus, int address) =>
-            (ushort)(SnesLittleEndian.Word(GreyDoorPlmDrawDefinitionsRomByte(bus, address), GreyDoorPlmDrawDefinitionsRomByte(bus, address + 1)));
+            SnesLittleEndian.Word(GreyDoorPlmDrawDefinitionsRomByte(bus, address), GreyDoorPlmDrawDefinitionsRomByte(bus, address + 1));
 
         RoomPlmShotBlockDrawDefinitions.DrawList[] lists =
             GreyDoorPlmDrawDefinitions.All.OrderBy(list => list.Pointer).ToArray();

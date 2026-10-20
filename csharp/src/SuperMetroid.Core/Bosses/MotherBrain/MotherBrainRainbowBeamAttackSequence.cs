@@ -890,7 +890,7 @@ public sealed class MotherBrainRainbowBeamAttackSequence
     private MotherBrainSpriteTileTransferRequest CreateNextCorpseTileTransfer()
     {
         int index = CorpseTileTransferIndex;
-        if ((uint)index >= (uint)MotherBrainCorpseArtworkDefinitions.RowCount)
+        if ((uint)index >= MotherBrainCorpseArtworkDefinitions.RowCount)
             throw new InvalidOperationException("Mother Brain corpse tile transfer list is already complete.");
 
         var request = new MotherBrainSpriteTileTransferRequest(
@@ -906,7 +906,7 @@ public sealed class MotherBrainRainbowBeamAttackSequence
     internal MotherBrainSpriteTileTransferRequest CreateNextEscapeTimerTileTransfer()
     {
         int index = EscapeTimerTileTransferIndex;
-        if ((uint)index >= (uint)MotherBrainEscapeTextArtworkDefinitions.TransferCount)
+        if ((uint)index >= MotherBrainEscapeTextArtworkDefinitions.TransferCount)
             throw new InvalidOperationException("Escape-timer sprite-tile transfer list is already complete.");
 
         MotherBrainSpriteTileTransferRequest request = MotherBrainEscapeTextArtworkDefinitions.Transfer(index);
@@ -1972,7 +1972,7 @@ public sealed class MotherBrainRainbowBeamAttackSequence
                 // its high byte as this frame's whole-pixel displacement, and accumulate Y.
                 // Crossing `$C4` clamps the head and publishes earthquake type two for 20.
                 FunctionTimer = NativeCountdown.FromRaw(unchecked((ushort)(FunctionTimer.RawValue + 32)));
-                ushort fallingDisplacement = (ushort)(SnesLittleEndian.HighByte(FunctionTimer.RawValue));
+                ushort fallingDisplacement = SnesLittleEndian.HighByte(FunctionTimer.RawValue);
                 ushort candidateBrainY = unchecked((ushort)(BrainPosition.Y + fallingDisplacement));
                 if (candidateBrainY >= 196)
                 {
@@ -2196,6 +2196,7 @@ public sealed class MotherBrainRainbowBeamAttackSequence
                 }
                 break;
 
+            case MotherBrainRainbowBeamAttackPhase.Inactive:
             default:
                 throw new InvalidOperationException($"Unsupported rainbow-beam phase {Phase}.");
         }

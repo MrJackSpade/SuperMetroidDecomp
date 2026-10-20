@@ -74,7 +74,7 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
 
         int mountDirection = slot.Spawn.Population.Parameter2 & MorphBallEyeBeamDefinitions.MountDirectionBits;
         var mount = MorphBallEyeGeometryDefinitions.Mount(mountDirection);
-        slot.Position += new Offset16<RoomPixels>(unchecked((short)(mount.X)), unchecked((short)(mount.Y)));
+        slot.Position += new Offset16<RoomPixels>(unchecked(mount.X), unchecked(mount.Y));
         state.Function = MorphBallEyeAiFunction.MountNoOp;
         state.Program = AnimationProgramCursor<MorphBallEyeProgram>.Start(mount.Program);
 

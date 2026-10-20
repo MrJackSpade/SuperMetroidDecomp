@@ -127,7 +127,7 @@ internal static class MotherBrainFakeDeathVisualsVerification
             level.GetCollisionBlockByIndex(blockIndex).PackedWord.Raw,
             $"Mother Brain visual header ${(int)header:X4} retains physical block");
         // The redraw identifies its block by the block's DrawPLM BG1 ring destination.
-        AssertEqual((ushort)visualWord, level.DisplayedBlockTiles(blockIndex).TopLeft.Raw,
+        AssertEqual(visualWord, level.DisplayedBlockTiles(blockIndex).TopLeft.Raw,
             $"Mother Brain visual header ${(int)header:X4} presents edited tile");
         AssertEqual(0, guard.ForbiddenReadAttempts,
             $"Mother Brain visual header ${(int)header:X4} reads no compiled source");

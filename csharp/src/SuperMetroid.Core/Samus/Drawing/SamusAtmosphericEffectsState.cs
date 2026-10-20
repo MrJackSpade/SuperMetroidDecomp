@@ -62,7 +62,7 @@ public sealed class SamusAtmosphericEffectsState
             throw new ArgumentOutOfRangeException(nameof(type), type, "Atmospheric type must fit the native 0..7 table.");
 
         SamusAtmosphericEffectSlot slot = _slots[slotIndex];
-        slot.FrameAndType = unchecked((ushort)(SnesLittleEndian.Word(animationFrame, type)));
+        slot.FrameAndType = unchecked(SnesLittleEndian.Word(animationFrame, type));
         slot.AnimationTimer = NativeCountdown.FromRaw(animationTimer);
         slot.Position = anchor;
     }

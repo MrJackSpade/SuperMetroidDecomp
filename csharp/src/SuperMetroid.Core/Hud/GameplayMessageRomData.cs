@@ -119,6 +119,19 @@ public static class GameplayMessageRomData
             var bits when (bits & SnesButton.Select) != 0 => Select,
             var bits when (bits & SnesButton.L) != 0 => L,
             var bits when (bits & SnesButton.R) != 0 => R,
+            SnesButton.None or
+                SnesButton.R or
+                SnesButton.L or
+                SnesButton.X or
+                SnesButton.A or
+                SnesButton.Right or
+                SnesButton.Left or
+                SnesButton.Down or
+                SnesButton.Up or
+                SnesButton.Start or
+                SnesButton.Select or
+                SnesButton.Y or
+                SnesButton.B => UnknownGlyph.Raw,
             _ => UnknownGlyph.Raw,
         };
 

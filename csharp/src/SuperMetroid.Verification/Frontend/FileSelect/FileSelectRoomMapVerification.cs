@@ -314,7 +314,7 @@ internal static class FileSelectRoomMapVerification
         {
             var station = SuperMetroid.TestSupport.VerificationImporters.LoadStationEntryImporter.Load(bus, (AreaId)savedArea, 0);
             var room = SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(bus, (station.Room ?? throw new InvalidDataException("Station 0 has no room.")).Pointer);
-            var cell = room.MapPosition + new Offset16<MapTiles>(checked((short)(SnesLittleEndian.HighByte(station.SamusPosition.X))), checked((short)((SnesLittleEndian.HighByte(station.SamusPosition.Y)) + 1)));
+            var cell = room.MapPosition + new Offset16<MapTiles>(checked(SnesLittleEndian.HighByte(station.SamusPosition.X)), checked((short)((SnesLittleEndian.HighByte(station.SamusPosition.Y)) + 1)));
             snapshot.ExploredMapBytes[savedArea * 256 + AreaMapLayout.GetBitByteIndex(cell)] |= AreaMapLayout.GetBitMask(cell.X);
         }
         saves.SaveSlot(0, snapshot);

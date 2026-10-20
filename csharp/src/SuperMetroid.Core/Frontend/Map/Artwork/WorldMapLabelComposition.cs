@@ -41,6 +41,26 @@ internal sealed class WorldMapLabelComposition
         MapSpriteId.WorldWreckedShip => "WRECKEDSHIP",
         MapSpriteId.WorldMaridia => "MARIDIA",
         MapSpriteId.WorldTourian => "TOURIAN",
+        MapSpriteId.ArrowRight or
+            MapSpriteId.ArrowLeft or
+            MapSpriteId.ArrowUp or
+            MapSpriteId.ArrowDown or
+            MapSpriteId.MarkerBoss or
+            MapSpriteId.StationEnergy or
+            MapSpriteId.StationMissile or
+            MapSpriteId.StationMap or
+            MapSpriteId.MarkerDefeatedBoss or
+            MapSpriteId.MarkerGunship or
+            MapSpriteId.IndicatorBacking or
+            MapSpriteId.IndicatorFrame0 or
+            MapSpriteId.IndicatorFrame1 or
+            MapSpriteId.IndicatorFrame2 or
+            MapSpriteId.ElevatorCrateria or
+            MapSpriteId.ElevatorBrinstar or
+            MapSpriteId.ElevatorNorfair or
+            MapSpriteId.ElevatorWreckedShip or
+            MapSpriteId.ElevatorMaridia or
+            MapSpriteId.WorldTitle => throw new ArgumentOutOfRangeException(nameof(id)),
         _ => throw new ArgumentOutOfRangeException(nameof(id)),
     };
 

@@ -246,8 +246,8 @@ internal static class MotherBrainRoomColorsVerification
     /// <summary>Constructs the native source, two destinations, and slice width for one recovery-light frame.</summary>
     private static MotherBrainBackgroundPaletteTransferRequest RecoveryRequest(ushort frame) =>
         new(frame, (uint)MotherBrainRoomColorRomData.RecoveryLightsSource(frame),
-            (ushort)(MotherBrainRoomColorRomData.RecoveryLightsFirstColor * sizeof(ushort)),
-            (ushort)(MotherBrainRoomColorRomData.RecoveryLightsSecondColor * sizeof(ushort)),
+            MotherBrainRoomColorRomData.RecoveryLightsFirstColor * sizeof(ushort),
+            MotherBrainRoomColorRomData.RecoveryLightsSecondColor * sizeof(ushort),
             MotherBrainRoomColorRomData.RecoveryLightsColorsPerDestination);
 
     /// <summary>Checks room-entry glass and tube edits change exactly their two selected CGRAM words.</summary>

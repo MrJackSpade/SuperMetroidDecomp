@@ -46,7 +46,7 @@ internal static class SpeedPaletteOverrunVerification
                 ushort expected = pointer == 0x68ad ? (ushort)0 : (ushort)(Read(0x9b0000 | (pointer + color * 2)) & 0x7fff);
                 AssertEqual(expected, cgram.Colors[192 + color], $"phase {phase} native overrun color {color}");
             }
-            AssertEqual((ushort)6, speed.SpecialPaletteFrame, "native clamps the phase only after the overrun read");
+            AssertEqual(6, speed.SpecialPaletteFrame, "native clamps the phase only after the overrun read");
             AssertEqual((ushort)4, speed.SpecialPaletteTimer.RawValue, "native reloads the four-frame timer");
             string actualTrace = $"{phase},{speed.SpecialPaletteFrame},{speed.SpecialPaletteTimer.RawValue}," +
                 string.Concat(cgram.Colors.Slice(192, 16).SelectToArray(color => color.ToWord().ToString("X4")));

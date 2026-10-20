@@ -158,7 +158,7 @@ public sealed class BackgroundScrollState
         // its high product byte, and factor*high contributes its low product word. Together
         // they equal floor(position * factor / 256), modulo 16 bits.
         uint factor = (uint)scroll.Factor;
-        result = unchecked((ushort)SnesEightEight.WholeOf((uint)layer1Position * factor));
+        result = unchecked((ushort)SnesEightEight.WholeOf(layer1Position * factor));
         return true;
     }
 

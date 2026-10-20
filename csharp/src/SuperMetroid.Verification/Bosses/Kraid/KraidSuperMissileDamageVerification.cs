@@ -38,7 +38,7 @@ internal static class KraidSuperMissileDamageVerification
         runtime.System.SetEvent(EventNumber.ZebesAwake);
         runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.Kraid);
         var body=runtime.Enemies.SlotTable.Slots[0];
-        var state=(KraidEnemyState)(runtime.Enemies.KraidBehavior.Kraid ?? throw new InvalidOperationException("Verification requires runtime.Enemies.KraidBehavior.Kraid."));
+        var state= runtime.Enemies.KraidBehavior.Kraid ?? throw new InvalidOperationException("Verification requires runtime.Enemies.KraidBehavior.Kraid.");
         state.Parts[0].Function=KraidAiFunction.MainAttackWithMouthOpen;
         state.HeadProgram=RoarPastOpenPose;state.Parts[0].HeadTimer=64;
         (state ?? throw new InvalidOperationException("Verification requires state.")).DisplayedHeadFrame = FullyOpenRoarFrame();
@@ -58,7 +58,7 @@ internal static class KraidSuperMissileDamageVerification
         int oldHealth=body.Health;
         for(int frame=0;frame<60;frame++)
         {
-            var result=game.Step(frame is 0 or 24 ? SnesButton.X : (ushort)0);
+            var result=game.Step(frame is 0 or 24 ? SnesButton.X : 0);
             if(body.Health!=oldHealth || frame%8==0)
             {
                 Console.WriteLine($"frame={frame} hp={body.Health} ammo={samus.SuperMissiles} samus={samus.Position.X.Whole},{samus.Position.Y.Whole} samusHp={samus.Health} pose={samus.Pose} mouth={state.DisplayedHeadFrame?.InvulnerableShape}");
@@ -68,7 +68,7 @@ internal static class KraidSuperMissileDamageVerification
             {
                 AssertEqual(frame == 8 ? (ushort)700 : (ushort)400, body.Health,
                     "Each actual close-range Super Missile deals exactly 300 damage");
-                AssertEqual((ushort)2, runtime.Projectiles.SlotTable.ProjectileCounter,
+                AssertEqual(2, runtime.Projectiles.SlotTable.ProjectileCounter,
                     "Mouth collision defers owner/link removal to projectile pre-instructions");
                 AssertEqual(SamusProjectilePreInstruction.SuperMissile,
                     runtime.Projectiles.Slots[0].PreInstruction, "Owner retains native pre-instruction");
@@ -79,7 +79,7 @@ internal static class KraidSuperMissileDamageVerification
             }
             if (frame is 9 or 33)
             {
-                AssertEqual((ushort)0, runtime.Projectiles.SlotTable.ProjectileCounter,
+                AssertEqual(0, runtime.Projectiles.SlotTable.ProjectileCounter,
                     "Marked link clears itself and its owner on the next projectile update");
                 AssertEqual(false, runtime.Projectiles.Slots.Any(shot => shot.IsActive),
                     "No stranded Super Missile or link survives the hit");
@@ -87,11 +87,11 @@ internal static class KraidSuperMissileDamageVerification
             oldHealth=body.Health;
         }
         Console.WriteLine($"final hp={body.Health} ammo={samus.SuperMissiles}");
-        AssertEqual((ushort)400, body.Health, "Two actual close-range Super Missiles must deal 600 damage, including their spawned links");
-        AssertEqual((ushort)8, samus.SuperMissiles, "Exactly two Super Missile ammo units consumed");
+        AssertEqual(400, body.Health, "Two actual close-range Super Missiles must deal 600 damage, including their spawned links");
+        AssertEqual(8, samus.SuperMissiles, "Exactly two Super Missile ammo units consumed");
         // Native first mouth hit leaves DP $12 = projectile type $8200.
         // $A7:B001 then CMPs the next shot's Y-radius-1 against that clobbered word.
-        ushort nextTop=unchecked((ushort)(486-8-1));
+        ushort nextTop=unchecked(486 - 8 - 1);
         ushort nativeCompare=unchecked((ushort)(nextTop-0x8200));
         Console.WriteLine($"native next top={nextTop:X4} clobberedBottom=8200 CMP={nativeCompare:X4} BPL-reject={(nativeCompare&0x8000)==0}");
         if((nativeCompare&0x8000)!=0)throw new InvalidDataException("Native scratch-word rejection is not satisfied by the reproduced coordinates.");
@@ -133,18 +133,18 @@ internal static class KraidSuperMissileDamageVerification
         Prepare(0);
         Place(0);
         runtime.Enemies.ResolveKraidProjectileHits(bus, projectiles, runtime.BombProjectiles);
-        AssertEqual((ushort)1000, body.Health, "Zero projectile count skips even overlapping slot zero");
+        AssertEqual(1000, body.Health, "Zero projectile count skips even overlapping slot zero");
 
         Prepare(1);
         Place(4);
         runtime.Enemies.ResolveKraidProjectileHits(bus, projectiles, runtime.BombProjectiles);
-        AssertEqual((ushort)1000, body.Health, "Counter-derived native traversal excludes late slots");
+        AssertEqual(1000, body.Health, "Counter-derived native traversal excludes late slots");
 
         Prepare(1);
         Place(1);
         Place(0);
         runtime.Enemies.ResolveKraidProjectileHits(bus, projectiles, runtime.BombProjectiles);
-        AssertEqual((ushort)700, body.Health,
+        AssertEqual(700, body.Health,
             "Inclusive count slot hits without an activity sentinel; clobbered scratch rejects slot zero");
         AssertEqual(true, projectiles.Slots[1].PackedDirection.HasLowByteLifecycleState,
             "The inclusive count slot, not only count minus one, receives the collision");
@@ -158,7 +158,7 @@ internal static class KraidSuperMissileDamageVerification
             shot.Damage = 60;
         }
         runtime.Enemies.ResolveKraidProjectileHits(bus, projectiles, runtime.BombProjectiles);
-        AssertEqual((ushort)880, body.Health,
+        AssertEqual(880, body.Health,
             "Charged shots whose clobbered comparisons still pass both damage Kraid; no one-hit cap");
 
         Prepare(5);
@@ -168,7 +168,7 @@ internal static class KraidSuperMissileDamageVerification
         bomb.Position = bomb.Position.WithWhole(new(176, 486));
         bomb.Radius = new(8, 8);
         runtime.Enemies.ResolveKraidProjectileHits(bus, projectiles, runtime.BombProjectiles);
-        AssertEqual((ushort)1000, body.Health, "First bomb slot uses Kraid's zero bomb vulnerability");
+        AssertEqual(1000, body.Health, "First bomb slot uses Kraid's zero bomb vulnerability");
         AssertEqual(true, bomb.PackedDirection.HasLowByteLifecycleState,
             "Count five reaches and marks the adjacent physical bomb slot");
         AssertEqual(true, runtime.Enemies.RoomSpriteObjects.Any(sprite =>

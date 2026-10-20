@@ -35,8 +35,8 @@ internal static class FakeKraidInstructionProgramDefinitionsVerification
     {
 
         int population = EnemyRomTablePointers.Kraid.FakeKraidPopulationRecord;
-        EnemyDefinitionId populationDefinition = EnemyDefinitionIds.FromHeaderPointer((ushort)(SnesLittleEndian.Word(FakeKraidInstructionProgramDefinitionsRomByte(rom, population), FakeKraidInstructionProgramDefinitionsRomByte(rom, population + 1))));
-        ushort extraProperties = (ushort)(SnesLittleEndian.Word(FakeKraidInstructionProgramDefinitionsRomByte(rom, population + 10), FakeKraidInstructionProgramDefinitionsRomByte(rom, population + 11)));
+        EnemyDefinitionId populationDefinition = EnemyDefinitionIds.FromHeaderPointer(SnesLittleEndian.Word(FakeKraidInstructionProgramDefinitionsRomByte(rom, population), FakeKraidInstructionProgramDefinitionsRomByte(rom, population + 1)));
+        ushort extraProperties = SnesLittleEndian.Word(FakeKraidInstructionProgramDefinitionsRomByte(rom, population + 10), FakeKraidInstructionProgramDefinitionsRomByte(rom, population + 11));
         AssertEqual(EnemyDefinitionId.MiniKraid, populationDefinition,
             "retail Fake Kraid population matches the installed visual family");
         AssertTrue((extraProperties &
@@ -207,7 +207,7 @@ internal static class FakeKraidInstructionProgramDefinitionsVerification
             out FakeKraidEnemyState state)
         {
             var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
-            enemies.VerificationServices().ReadRandom = (Func<ushort>)(() => 0);
+            enemies.VerificationServices().ReadRandom = () => 0;
             Action<RoomEnemySlot, SamusState?> initialize = enemies.FakeKraidBehavior.InitializeFakeKraid;
 
             slot = enemies.SlotTable.Slots[0];

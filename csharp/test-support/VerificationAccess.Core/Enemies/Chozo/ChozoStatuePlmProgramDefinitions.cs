@@ -73,7 +73,7 @@ internal static class ChozoStatuePlmProgramDefinitions
         value = 0;
         if (!TryLocate(address, out ProgramList list) || address == EndOf(list)) return false;
         int offset = address - StartOf(list);
-        value = (ushort)(SnesLittleEndian.Word(ByteAt(list, offset), ByteAt(list, offset + 1)));
+        value = SnesLittleEndian.Word(ByteAt(list, offset), ByteAt(list, offset + 1));
         return true;
     }
     /// <summary>Projects one bank-$84 byte from a compiled Chozo statue instruction list.</summary>

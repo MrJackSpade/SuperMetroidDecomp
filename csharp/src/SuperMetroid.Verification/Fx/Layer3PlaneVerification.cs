@@ -99,8 +99,8 @@ internal static class Layer3PlaneVerification
         }
         AssertEqual(4, typed.Count, "the space types no glyph");
         int[] destinations = [0x5105, 0x5106, 0x5108, 0x5109];
-        ushort[] tiles = [EscapeTypewriterRomData.ZebesTileBase, (ushort)(EscapeTypewriterRomData.ZebesTileBase + 1),
-            (ushort)(EscapeTypewriterRomData.ZebesTileBase + 2), (ushort)(EscapeTypewriterRomData.ZebesTileBase + 26)];
+        ushort[] tiles = [EscapeTypewriterRomData.ZebesTileBase, (EscapeTypewriterRomData.ZebesTileBase + 1),
+            (EscapeTypewriterRomData.ZebesTileBase + 2), (EscapeTypewriterRomData.ZebesTileBase + 26)];
         for (int index = 0; index < typed.Count; index++)
         {
             AssertEqual(destinations[index], typed[index].Destination, $"glyph {index} lands at its program destination");

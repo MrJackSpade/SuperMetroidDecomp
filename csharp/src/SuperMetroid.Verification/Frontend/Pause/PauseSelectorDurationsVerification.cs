@@ -64,12 +64,12 @@ internal static class PauseSelectorDurationsVerification
         int phases = 0;
         while (rom.ReadCartridgeByte(program + phases * 3) != 255)
         {
-            AssertEqual((int)rom.ReadCartridgeByte(program + phases * 3), selector.Duration(phases), "original selector duration");
+            AssertEqual(rom.ReadCartridgeByte(program + phases * 3), selector.Duration(phases), "original selector duration");
             phases++;
             AssertTrue(phases <= 14, "original bounded selector program");
         }
         AssertEqual(phases, selector.PhaseCount, "selector native terminator");
-        AssertEqual((int)rom.ReadCartridgeByte(0x82c10c), selector.InitialDurationTicks, "separate native initial delay");
-        AssertEqual((int)rom.ReadCartridgeByte(program), selector.Duration(phases), "selector wraps before timing rule");
+        AssertEqual(rom.ReadCartridgeByte(0x82c10c), selector.InitialDurationTicks, "separate native initial delay");
+        AssertEqual(rom.ReadCartridgeByte(program), selector.Duration(phases), "selector wraps before timing rule");
     }
 }

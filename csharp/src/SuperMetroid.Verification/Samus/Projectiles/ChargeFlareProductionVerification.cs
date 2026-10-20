@@ -86,7 +86,7 @@ internal static class ChargeFlareProductionVerification
         runtime.Player.IntroducedSamus.Position = runtime.Player.IntroducedSamus.Position.WithWhole(new((ushort)(runtime.Room.LoadedCamera.PixelPosition.X + 100), (ushort)(runtime.Room.LoadedCamera.PixelPosition.Y + 100)));
         runtime.Player.IntroducedSamus.Presentation.InitializeAnimation(); runtime.Player.IntroducedSamus.Presentation.PrimeGraphics();
         InstalledFixtures.BindProjectileArtwork(runtime);
-        runtime.Projectiles.Charge.FlareCounter = (ushort)30;
+        runtime.Projectiles.Charge.FlareCounter = 30;
         Array.Fill(runtime.Projectiles.Charge.FlareTimers, NativeCountdown.Start(100));
         var game = new SuperMetroid.Core.Frontend.SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore(), null, renderGameplayFrames: true, SuperMetroid.Core.Frontend.SuperMetroidGameHostServices.Default, random);
         game.AdoptRuntime(runtime);
@@ -142,7 +142,7 @@ internal static class ChargeFlareProductionVerification
         static SamusProjectileSystem Create()
         {
             var system = new SamusProjectileSystem(new BeamChargeState(), SamusProjectileResidue.None);
-            system.Charge.FlareCounter = (ushort)30;
+            system.Charge.FlareCounter = 30;
             var frames = system.Charge.FlareFrames;
             Array.Fill(frames, (ushort)3);
             Array.Fill(system.Charge.FlareTimers, NativeCountdown.Start(3));

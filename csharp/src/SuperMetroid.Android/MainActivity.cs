@@ -635,6 +635,8 @@ public sealed class MainActivity : Activity
                     case 6: ChooseDiagnosticExport(); break;
                     case 7: ChooseImport(state: true); break;
                     case 8: ChooseImport(state: false); break;
+                    default:
+                        throw new InvalidOperationException($"Testing menu has no item {args.Which}.");
                 }
             });
         dialog5.SetOnCancelListener(new MenuCancelled(this));

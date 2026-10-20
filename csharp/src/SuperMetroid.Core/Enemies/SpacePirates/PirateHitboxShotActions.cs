@@ -50,6 +50,11 @@ internal static class PirateHitboxShotActions
             SamusProjectileFamily.Missile => EnemyVulnerabilityDefinitions.MissileOffset,
             SamusProjectileFamily.SuperMissile =>
                 EnemyVulnerabilityDefinitions.SuperMissileOffset,
+            SamusProjectileFamily.PowerBomb or
+                SamusProjectileFamily.Bomb or
+                SamusProjectileFamily.BeamExplosion or
+                SamusProjectileFamily.MissileExplosion => throw new InvalidDataException(
+                $"Gold Ninja projectile family ${(ushort)family:X3} has no vulnerability field."),
             _ => throw new InvalidDataException(
                 $"Gold Ninja projectile family ${(ushort)family:X3} has no vulnerability field."),
         };

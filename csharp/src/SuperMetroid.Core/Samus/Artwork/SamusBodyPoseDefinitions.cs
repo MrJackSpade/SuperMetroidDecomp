@@ -474,7 +474,7 @@ internal static class SamusBodyPoseDefinitions
     private const ushort DraygonGrabbedMovingRightFrames = 0xe848;
 
     /// <summary>$92:D94E..DB47: exactly253 real-pose selectors; FD..FF are outside the installed body domain.</summary>
-    internal static ushort DefaultFrameList(SamusPoseId pose) => (SamusPoseId)pose switch
+    internal static ushort DefaultFrameList(SamusPoseId pose) => pose switch
     {
         SamusPoseId.ForwardFacingPowerSuitPose => ForwardFacingPowerSuitFrames,
         SamusPoseId.FacingRightNormalPose or
@@ -729,6 +729,9 @@ internal static class SamusBodyPoseDefinitions
         SamusPoseId.DraygonGrabbedFiringRightPose => DraygonGrabbedFiringRightFrames,
         SamusPoseId.DraygonGrabbedAimDownRightPose => DraygonGrabbedAimDownRightFrames,
         SamusPoseId.DraygonGrabbedMovingRightPose => DraygonGrabbedMovingRightFrames,
-        _ => throw new ArgumentOutOfRangeException(nameof(pose)),
+        SamusPoseId.AdjacentCodePoseFD or
+            SamusPoseId.AdjacentCodePoseFE or
+            SamusPoseId.AdjacentCodePoseFF => throw new ArgumentOutOfRangeException(nameof(pose)),
+        var undefined => throw new InvalidOperationException($"Undefined {nameof(SamusPoseId)} {undefined}."),
     };
 }

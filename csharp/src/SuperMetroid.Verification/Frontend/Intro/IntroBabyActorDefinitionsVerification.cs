@@ -25,8 +25,8 @@ internal static class IntroBabyActorDefinitionsVerification
         compiledInput.Clear();
         compiledInput.Enable();
         compiledInput.Load(IntroDemoInputObjectDefinitions.IntroBabyDiscovery);
-        ushort NativeInputWord(ushort pointer) => (ushort)(
-            SnesLittleEndian.Word(IntroBabyActorDefinitionsRomByte(retail, DemoInputRomData.BankBase | pointer), IntroBabyActorDefinitionsRomByte(retail, DemoInputRomData.BankBase | unchecked((ushort)(pointer + 1)))));
+        ushort NativeInputWord(ushort pointer) =>
+            SnesLittleEndian.Word(IntroBabyActorDefinitionsRomByte(retail, DemoInputRomData.BankBase | pointer), IntroBabyActorDefinitionsRomByte(retail, DemoInputRomData.BankBase | unchecked((ushort)(pointer + 1))));
         var cartridgeInput = new NativeDemoInputReference(NativeInputWord);
         cartridgeInput.Enable();
         cartridgeInput.Load(DemoInputListWords.IntroBabyDiscoveryObject, initializationParameter: 0);
@@ -76,7 +76,7 @@ internal static class IntroBabyActorDefinitionsVerification
         for (int block = 0; block < discovery.Level.ForegroundEntries.Length; block++)
         {
             ushort expected = block * sizeof(ushort) < nativeCollision.Length
-                ? (ushort)(SnesLittleEndian.Word(nativeCollision[block * 2], nativeCollision[block * 2 + 1]))
+                ? SnesLittleEndian.Word(nativeCollision[block * 2], nativeCollision[block * 2 + 1])
                 : (ushort)0;
             AssertEqual(expected, discovery.Level.ForegroundEntries.Span[block],
                 $"SR388 discovery physical block {block} preserves native word");

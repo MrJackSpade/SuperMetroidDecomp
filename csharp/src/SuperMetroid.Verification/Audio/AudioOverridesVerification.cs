@@ -72,7 +72,7 @@ internal static class AudioOverridesVerification
 
         ClipAudioCatalog selected = installation.LoadAudioClips();
         MusicClipEntry song = selected.GetMusic(AudioBank.GreenBrinstar, ReplacedTrack);
-        AssertEqual((long)ToneFrames, song.Clip.Frames, "the replacement's length selects the song");
+        AssertEqual(ToneFrames, song.Clip.Frames, "the replacement's length selects the song");
         AssertEqual<long?>(ToneLoop, song.LoopStart, "the replacement's loop selects the song");
         AssertSequenceEqual(tone, selected.ReadClip(song.Clip), "the session plays the replacement's samples");
         AssertTrue(selected.ContentIdentity != stock.ContentIdentity, "a replacement changes the selected audio identity");

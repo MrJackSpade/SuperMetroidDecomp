@@ -127,7 +127,7 @@ internal static void VerifyRoomEnemyLoading()
         var palette = new PaletteRgb5[EnemyPaletteSheet.ColorCount];
         for (int color = 0; color < palette.Length; color++)
         {
-            ushort word = (ushort)(SnesLittleEndian.Word(paletteBytes[color * 2], paletteBytes[color * 2 + 1]));
+            ushort word = SnesLittleEndian.Word(paletteBytes[color * 2], paletteBytes[color * 2 + 1]);
             palette[color] = new PaletteRgb5
             {
                 Red = word & 31,
@@ -497,8 +497,8 @@ internal static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool 
             foreach (bool intangible in new[] { false, true })
             foreach (ushort initial in new ushort[] { 0, 1, 2, 10, ushort.MaxValue })
             {
-                ripper.Properties = EnemyPropertyWord.FromNativeWord((ushort)((ushort)(EnemyProperties.Invisible | EnemyProperties.ProcessOffScreen |
-                    (intangible ? EnemyProperties.IgnoreSamusCollision : default(EnemyProperties)))));
+                ripper.Properties = EnemyPropertyWord.FromNativeWord((ushort)(EnemyProperties.Invisible | EnemyProperties.ProcessOffScreen |
+                    (intangible ? EnemyProperties.IgnoreSamusCollision : default(EnemyProperties))));
                 ripper.InvincibilityTimer = NativeCountdown.FromRaw(initial);
                 ripper.FlashTimer = NativeCountdown.Start(16);
                 ripper.FrozenTimer = NativeCountdown.Start(400);
@@ -1117,7 +1117,7 @@ internal static void VerifyCeresRidleyRoomEntry()
         sharedProjectiles.StepFrame(new SamusTerrain { Level = air }, samus, 0, 0);
         SamusProjectileSlotObservation slotsBeforeFire = projectiles.ObserveSlots();
         projectiles.StepFrame(new SamusTerrain { Level = air }, samus, new ProjectileButtonInput { ControllerInput = SnesButton.X, ControllerNewInput = SnesButton.X }, new(0, 0), sharedProjectiles);
-        AssertEqual((int?)0, slotsBeforeFire.FiredSlot(projectiles),
+        AssertEqual(0, slotsBeforeFire.FiredSlot(projectiles),
             $"Ceres Ridley hit {hit + 1} allocates the power-beam slot");
         AssertTrue(projectiles.Slots[0].Position.X.Whole - projectiles.Slots[0].Radius.X > ridley.Position.X.Whole + 8,
             $"Ceres Ridley hit {hit + 1} is outside the header collision radius");
@@ -1491,7 +1491,7 @@ static void SeedCeresDoorQuakeOverlay(TestAddressSpace bus)
 static (ushort[] PaletteWords, byte[] Planar) ReadCeresRidleyFixtureArtwork(TestAddressSpace bus)
 {
     ushort[] paletteWords = Enumerable.Range(0, EnemyPaletteSheet.ColorCount)
-        .Select(color => (ushort)(SnesLittleEndian.Word(bus.ReadByte(0xa6e14f + color * 2), bus.ReadByte(0xa6e150 + color * 2))))
+        .Select(color => SnesLittleEndian.Word(bus.ReadByte(0xa6e14f + color * 2), bus.ReadByte(0xa6e150 + color * 2)))
         .ToArray();
     byte[] planar = Enumerable.Range(0, 0x20)
         .Select(offset => bus.ReadByte(0xa69000 + offset)).ToArray();

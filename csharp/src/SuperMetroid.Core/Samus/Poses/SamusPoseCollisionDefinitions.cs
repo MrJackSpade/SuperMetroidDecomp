@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Samus.Poses;
 internal static class SamusPoseCollisionDefinitions
 {
     /// <summary>Native PoseDefinitions column at $91:B62F with eight-byte stride; FD..FF preserve bounded adjacent instruction bytes.</summary>
-    internal static byte ReadVerticalRadius(SamusPoseId pose) => (SamusPoseId)pose switch
+    internal static byte ReadVerticalRadius(SamusPoseId pose) => pose switch
     {
         SamusPoseId.MorphBallGroundRightPose or
         SamusPoseId.MorphBallMovingRightPose or
@@ -267,8 +267,9 @@ internal static class SamusPoseCollisionDefinitions
         SamusPoseId.ForwardFacingPowerSuitPose or
         SamusPoseId.ForwardFacingSuitedPose => 24,
         // These byte indices observe Calc_Xray_HDMADataTable_OffScreen, not additional poses.
-        (SamusPoseId)0xfd => 138,
-        (SamusPoseId)0xfe => 24,
-        (SamusPoseId)0xff => 16,
+        SamusPoseId.AdjacentCodePoseFD => 138,
+        SamusPoseId.AdjacentCodePoseFE => 24,
+        SamusPoseId.AdjacentCodePoseFF => 16,
+        var undefined => throw new InvalidOperationException($"Undefined {nameof(SamusPoseId)} {undefined}."),
     };
 }

@@ -35,7 +35,7 @@ internal static class MaridiaLargeSnailInstructionDefinitionsVerification
             slot.InstructionTimer = NativeCountdown.Start(0x1234);
             slot.Timer = NativeCountdown.Start(0x5678);
             MaridiaLargeSnailBehavior.InstallMaridiaLargeSnailInstructionList(slot, state);
-            AssertEqual((int)animationIndex, state.InstalledInstructionListIndex, $"Oum installed selector {animationIndex}");
+            AssertEqual(animationIndex, state.InstalledInstructionListIndex, $"Oum installed selector {animationIndex}");
             AssertEqual(AnimationProgramCursor<MaridiaLargeSnailProgram>.Start(program), state.Program, $"Oum installed animation {animationIndex}");
             AssertEqual((ushort)1, slot.InstructionTimer.RawValue, $"Oum instruction timer {animationIndex}");
             AssertEqual((ushort)0, slot.Timer.RawValue, $"Oum general timer {animationIndex}");

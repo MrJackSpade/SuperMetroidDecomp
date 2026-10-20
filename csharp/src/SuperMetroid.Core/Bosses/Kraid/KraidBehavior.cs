@@ -27,7 +27,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
     private readonly EnemyFrameResultBuilder _frameResults;
 
     /// <inheritdoc/>
-    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Kraid, EnemyDefinitionId.KraidArm, EnemyDefinitionId.KraidFoot, EnemyDefinitionId.KraidLintBottom, EnemyDefinitionId.KraidLintMiddle, EnemyDefinitionId.KraidLintTop, EnemyDefinitionId.KraidNail, EnemyDefinitionId.KraidNailBad];
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [.. KraidPartDefinitions.Parts.Keys];
 
     /// <inheritdoc/>
     public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new KraidEntity(this, slot, common);
@@ -1068,6 +1068,31 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
                 RunKraidDeathFunction(body, state, vramWriteQueue, cameraX);
                 return;
 
+            case KraidAiFunction.NoOperation:
+            case KraidAiFunction.LintInactive:
+            case KraidAiFunction.LintProduce:
+            case KraidAiFunction.LintCharge:
+            case KraidAiFunction.LintFire:
+            case KraidAiFunction.FingernailWaitForLint:
+            case KraidAiFunction.AlignPartToKraid:
+            case KraidAiFunction.DecrementFunctionTimerAndStartWalk:
+            case KraidAiFunction.FootFirstPhaseThinking:
+            case KraidAiFunction.FootSecondPhaseThinking:
+            case KraidAiFunction.FootSecondPhaseWalkingRight:
+            case KraidAiFunction.FootSecondPhaseWalkToStart:
+            case KraidAiFunction.FootSecondPhaseInitialize:
+            case KraidAiFunction.FootSecondPhaseWalkingLeft:
+            case KraidAiFunction.FingernailInitialize:
+            case KraidAiFunction.FingernailFire:
+            case KraidAiFunction.FootPrepareFirstPhaseLunge:
+            case KraidAiFunction.FootFirstPhaseLunge:
+            case KraidAiFunction.FootFirstPhaseRetreat:
+            case KraidAiFunction.RestrictSamusToFirstScreen:
+            case KraidAiFunction.RaiseKraidThroughFloor:
+            case KraidAiFunction.RaiseLoadBottomTilemap:
+            case KraidAiFunction.RaiseRocksEvery16Frames:
+            case KraidAiFunction.RaiseRocksEvery8Frames:
+            case KraidAiFunction.RaiseBody:
             default:
                 throw new InvalidDataException(
                     $"Kraid body function {state.Parts[body.SlotIndex].Function} is not translated.");
@@ -1479,6 +1504,46 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
             case KraidAiFunction.DeathFinishedWasDead:
                 MarkKraidDeadUnlessDeadAtLeftEdge(body, cameraX);
                 return;
+            case KraidAiFunction.NoOperation:
+            case KraidAiFunction.GrowBreakCeilingPlatforms:
+            case KraidAiFunction.GrowSetBg2Priority:
+            case KraidAiFunction.GrowFinishBg2Update:
+            case KraidAiFunction.GrowDrawRoomBackground:
+            case KraidAiFunction.GrowFadeInRoomBackground:
+            case KraidAiFunction.MainloopThinking:
+            case KraidAiFunction.SecondPhaseThinking:
+            case KraidAiFunction.MouthOpenReaction:
+            case KraidAiFunction.InitializeEyeGlow:
+            case KraidAiFunction.GlowEye:
+            case KraidAiFunction.UnglowEye:
+            case KraidAiFunction.LintInactive:
+            case KraidAiFunction.LintProduce:
+            case KraidAiFunction.LintCharge:
+            case KraidAiFunction.LintFire:
+            case KraidAiFunction.FingernailWaitForLint:
+            case KraidAiFunction.AlignPartToKraid:
+            case KraidAiFunction.HandleFunctionTimer:
+            case KraidAiFunction.DecrementFunctionTimerAndStartWalk:
+            case KraidAiFunction.FootFirstPhaseThinking:
+            case KraidAiFunction.ProcessHeadInstructionAndTimer:
+            case KraidAiFunction.FootSecondPhaseThinking:
+            case KraidAiFunction.FootSecondPhaseWalkingRight:
+            case KraidAiFunction.FootSecondPhaseWalkToStart:
+            case KraidAiFunction.FootSecondPhaseInitialize:
+            case KraidAiFunction.FootSecondPhaseWalkingLeft:
+            case KraidAiFunction.MainAttackWithMouthOpen:
+            case KraidAiFunction.FingernailInitialize:
+            case KraidAiFunction.FingernailFire:
+            case KraidAiFunction.FootPrepareFirstPhaseLunge:
+            case KraidAiFunction.FootFirstPhaseLunge:
+            case KraidAiFunction.FootFirstPhaseRetreat:
+            case KraidAiFunction.GrowReleaseCamera:
+            case KraidAiFunction.RestrictSamusToFirstScreen:
+            case KraidAiFunction.RaiseKraidThroughFloor:
+            case KraidAiFunction.RaiseLoadBottomTilemap:
+            case KraidAiFunction.RaiseRocksEvery16Frames:
+            case KraidAiFunction.RaiseRocksEvery8Frames:
+            case KraidAiFunction.RaiseBody:
             default:
                 throw new InvalidOperationException($"Kraid body function {state.Parts[body.SlotIndex].Function} is not a death function.");
         }
@@ -1716,6 +1781,54 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
                     return;
                 FinishKraidGrowth(body, state);
                 return;
+            case KraidAiFunction.NoOperation:
+            case KraidAiFunction.MainloopThinking:
+            case KraidAiFunction.SecondPhaseThinking:
+            case KraidAiFunction.MouthOpenReaction:
+            case KraidAiFunction.InitializeEyeGlow:
+            case KraidAiFunction.GlowEye:
+            case KraidAiFunction.UnglowEye:
+            case KraidAiFunction.LintInactive:
+            case KraidAiFunction.LintProduce:
+            case KraidAiFunction.LintCharge:
+            case KraidAiFunction.LintFire:
+            case KraidAiFunction.FingernailWaitForLint:
+            case KraidAiFunction.AlignPartToKraid:
+            case KraidAiFunction.HandleFunctionTimer:
+            case KraidAiFunction.DecrementFunctionTimerAndStartWalk:
+            case KraidAiFunction.FootFirstPhaseThinking:
+            case KraidAiFunction.ProcessHeadInstructionAndTimer:
+            case KraidAiFunction.FootSecondPhaseThinking:
+            case KraidAiFunction.FootSecondPhaseWalkingRight:
+            case KraidAiFunction.FootSecondPhaseWalkToStart:
+            case KraidAiFunction.FootSecondPhaseInitialize:
+            case KraidAiFunction.FootSecondPhaseWalkingLeft:
+            case KraidAiFunction.MainAttackWithMouthOpen:
+            case KraidAiFunction.FingernailInitialize:
+            case KraidAiFunction.FingernailFire:
+            case KraidAiFunction.FootPrepareFirstPhaseLunge:
+            case KraidAiFunction.FootFirstPhaseLunge:
+            case KraidAiFunction.FootFirstPhaseRetreat:
+            case KraidAiFunction.DeathInitialize:
+            case KraidAiFunction.DeathFadeOut:
+            case KraidAiFunction.DeathUpdateTopTilemap:
+            case KraidAiFunction.DeathUpdateBottomTilemap:
+            case KraidAiFunction.DeathSink:
+            case KraidAiFunction.DeathClearTopTilemap:
+            case KraidAiFunction.DeathClearBottomTilemap:
+            case KraidAiFunction.DeathLoadBg3Quarter1:
+            case KraidAiFunction.DeathLoadBg3Quarter2:
+            case KraidAiFunction.DeathLoadBg3Quarter3:
+            case KraidAiFunction.DeathLoadBg3Quarter4:
+            case KraidAiFunction.DeathFadeInBackground:
+            case KraidAiFunction.DeathFinishedWasAlive:
+            case KraidAiFunction.DeathFinishedWasDead:
+            case KraidAiFunction.RestrictSamusToFirstScreen:
+            case KraidAiFunction.RaiseKraidThroughFloor:
+            case KraidAiFunction.RaiseLoadBottomTilemap:
+            case KraidAiFunction.RaiseRocksEvery16Frames:
+            case KraidAiFunction.RaiseRocksEvery8Frames:
+            case KraidAiFunction.RaiseBody:
             default:
                 throw new InvalidOperationException($"Kraid body function {state.Parts[body.SlotIndex].Function} is not a growth function.");
         }
@@ -1842,6 +1955,56 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
                 TickKraidNailFlight(nail, level);
                 return;
 
+            case KraidAiFunction.NoOperation:
+            case KraidAiFunction.GrowBreakCeilingPlatforms:
+            case KraidAiFunction.GrowSetBg2Priority:
+            case KraidAiFunction.GrowFinishBg2Update:
+            case KraidAiFunction.GrowDrawRoomBackground:
+            case KraidAiFunction.GrowFadeInRoomBackground:
+            case KraidAiFunction.MainloopThinking:
+            case KraidAiFunction.SecondPhaseThinking:
+            case KraidAiFunction.MouthOpenReaction:
+            case KraidAiFunction.InitializeEyeGlow:
+            case KraidAiFunction.GlowEye:
+            case KraidAiFunction.UnglowEye:
+            case KraidAiFunction.LintInactive:
+            case KraidAiFunction.LintProduce:
+            case KraidAiFunction.LintCharge:
+            case KraidAiFunction.LintFire:
+            case KraidAiFunction.AlignPartToKraid:
+            case KraidAiFunction.DecrementFunctionTimerAndStartWalk:
+            case KraidAiFunction.FootFirstPhaseThinking:
+            case KraidAiFunction.ProcessHeadInstructionAndTimer:
+            case KraidAiFunction.FootSecondPhaseThinking:
+            case KraidAiFunction.FootSecondPhaseWalkingRight:
+            case KraidAiFunction.FootSecondPhaseWalkToStart:
+            case KraidAiFunction.FootSecondPhaseInitialize:
+            case KraidAiFunction.FootSecondPhaseWalkingLeft:
+            case KraidAiFunction.MainAttackWithMouthOpen:
+            case KraidAiFunction.FootPrepareFirstPhaseLunge:
+            case KraidAiFunction.FootFirstPhaseLunge:
+            case KraidAiFunction.FootFirstPhaseRetreat:
+            case KraidAiFunction.GrowReleaseCamera:
+            case KraidAiFunction.DeathInitialize:
+            case KraidAiFunction.DeathFadeOut:
+            case KraidAiFunction.DeathUpdateTopTilemap:
+            case KraidAiFunction.DeathUpdateBottomTilemap:
+            case KraidAiFunction.DeathSink:
+            case KraidAiFunction.DeathClearTopTilemap:
+            case KraidAiFunction.DeathClearBottomTilemap:
+            case KraidAiFunction.DeathLoadBg3Quarter1:
+            case KraidAiFunction.DeathLoadBg3Quarter2:
+            case KraidAiFunction.DeathLoadBg3Quarter3:
+            case KraidAiFunction.DeathLoadBg3Quarter4:
+            case KraidAiFunction.DeathFadeInBackground:
+            case KraidAiFunction.DeathFinishedWasAlive:
+            case KraidAiFunction.DeathFinishedWasDead:
+            case KraidAiFunction.RestrictSamusToFirstScreen:
+            case KraidAiFunction.RaiseKraidThroughFloor:
+            case KraidAiFunction.RaiseLoadBottomTilemap:
+            case KraidAiFunction.RaiseRocksEvery16Frames:
+            case KraidAiFunction.RaiseRocksEvery8Frames:
+            case KraidAiFunction.RaiseBody:
             default:
                 throw new InvalidDataException(
                     $"Kraid fingernail function {state.Parts[nail.SlotIndex].Function} is not translated.");
@@ -1961,6 +2124,55 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
             case KraidAiFunction.LintFire:
                 FireKraidLint(lint, part, samus);
                 return;
+            case KraidAiFunction.NoOperation:
+            case KraidAiFunction.GrowBreakCeilingPlatforms:
+            case KraidAiFunction.GrowSetBg2Priority:
+            case KraidAiFunction.GrowFinishBg2Update:
+            case KraidAiFunction.GrowDrawRoomBackground:
+            case KraidAiFunction.GrowFadeInRoomBackground:
+            case KraidAiFunction.MainloopThinking:
+            case KraidAiFunction.SecondPhaseThinking:
+            case KraidAiFunction.MouthOpenReaction:
+            case KraidAiFunction.InitializeEyeGlow:
+            case KraidAiFunction.GlowEye:
+            case KraidAiFunction.UnglowEye:
+            case KraidAiFunction.FingernailWaitForLint:
+            case KraidAiFunction.HandleFunctionTimer:
+            case KraidAiFunction.DecrementFunctionTimerAndStartWalk:
+            case KraidAiFunction.FootFirstPhaseThinking:
+            case KraidAiFunction.ProcessHeadInstructionAndTimer:
+            case KraidAiFunction.FootSecondPhaseThinking:
+            case KraidAiFunction.FootSecondPhaseWalkingRight:
+            case KraidAiFunction.FootSecondPhaseWalkToStart:
+            case KraidAiFunction.FootSecondPhaseInitialize:
+            case KraidAiFunction.FootSecondPhaseWalkingLeft:
+            case KraidAiFunction.MainAttackWithMouthOpen:
+            case KraidAiFunction.FingernailInitialize:
+            case KraidAiFunction.FingernailFire:
+            case KraidAiFunction.FootPrepareFirstPhaseLunge:
+            case KraidAiFunction.FootFirstPhaseLunge:
+            case KraidAiFunction.FootFirstPhaseRetreat:
+            case KraidAiFunction.GrowReleaseCamera:
+            case KraidAiFunction.DeathInitialize:
+            case KraidAiFunction.DeathFadeOut:
+            case KraidAiFunction.DeathUpdateTopTilemap:
+            case KraidAiFunction.DeathUpdateBottomTilemap:
+            case KraidAiFunction.DeathSink:
+            case KraidAiFunction.DeathClearTopTilemap:
+            case KraidAiFunction.DeathClearBottomTilemap:
+            case KraidAiFunction.DeathLoadBg3Quarter1:
+            case KraidAiFunction.DeathLoadBg3Quarter2:
+            case KraidAiFunction.DeathLoadBg3Quarter3:
+            case KraidAiFunction.DeathLoadBg3Quarter4:
+            case KraidAiFunction.DeathFadeInBackground:
+            case KraidAiFunction.DeathFinishedWasAlive:
+            case KraidAiFunction.DeathFinishedWasDead:
+            case KraidAiFunction.RestrictSamusToFirstScreen:
+            case KraidAiFunction.RaiseKraidThroughFloor:
+            case KraidAiFunction.RaiseLoadBottomTilemap:
+            case KraidAiFunction.RaiseRocksEvery16Frames:
+            case KraidAiFunction.RaiseRocksEvery8Frames:
+            case KraidAiFunction.RaiseBody:
             default:
                 throw new InvalidDataException(
                     $"Kraid lint slot {lint.SlotIndex} function {state.Parts[lint.SlotIndex].Function} " +
@@ -2086,6 +2298,48 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
             case KraidAiFunction.FootSecondPhaseWalkingLeft:
                 RunKraidSecondPhaseWalkingLeft(body, foot);
                 return;
+            case KraidAiFunction.GrowBreakCeilingPlatforms:
+            case KraidAiFunction.GrowSetBg2Priority:
+            case KraidAiFunction.GrowFinishBg2Update:
+            case KraidAiFunction.GrowDrawRoomBackground:
+            case KraidAiFunction.GrowFadeInRoomBackground:
+            case KraidAiFunction.MainloopThinking:
+            case KraidAiFunction.SecondPhaseThinking:
+            case KraidAiFunction.MouthOpenReaction:
+            case KraidAiFunction.InitializeEyeGlow:
+            case KraidAiFunction.GlowEye:
+            case KraidAiFunction.UnglowEye:
+            case KraidAiFunction.LintInactive:
+            case KraidAiFunction.LintProduce:
+            case KraidAiFunction.LintCharge:
+            case KraidAiFunction.LintFire:
+            case KraidAiFunction.FingernailWaitForLint:
+            case KraidAiFunction.AlignPartToKraid:
+            case KraidAiFunction.ProcessHeadInstructionAndTimer:
+            case KraidAiFunction.MainAttackWithMouthOpen:
+            case KraidAiFunction.FingernailInitialize:
+            case KraidAiFunction.FingernailFire:
+            case KraidAiFunction.GrowReleaseCamera:
+            case KraidAiFunction.DeathInitialize:
+            case KraidAiFunction.DeathFadeOut:
+            case KraidAiFunction.DeathUpdateTopTilemap:
+            case KraidAiFunction.DeathUpdateBottomTilemap:
+            case KraidAiFunction.DeathSink:
+            case KraidAiFunction.DeathClearTopTilemap:
+            case KraidAiFunction.DeathClearBottomTilemap:
+            case KraidAiFunction.DeathLoadBg3Quarter1:
+            case KraidAiFunction.DeathLoadBg3Quarter2:
+            case KraidAiFunction.DeathLoadBg3Quarter3:
+            case KraidAiFunction.DeathLoadBg3Quarter4:
+            case KraidAiFunction.DeathFadeInBackground:
+            case KraidAiFunction.DeathFinishedWasAlive:
+            case KraidAiFunction.DeathFinishedWasDead:
+            case KraidAiFunction.RestrictSamusToFirstScreen:
+            case KraidAiFunction.RaiseKraidThroughFloor:
+            case KraidAiFunction.RaiseLoadBottomTilemap:
+            case KraidAiFunction.RaiseRocksEvery16Frames:
+            case KraidAiFunction.RaiseRocksEvery8Frames:
+            case KraidAiFunction.RaiseBody:
             default:
                 throw new InvalidDataException(
                     $"Kraid foot function {state.Parts[foot.SlotIndex].Function} is not translated.");
@@ -2294,7 +2548,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         uint position = slot.Position.X.RawValue;
         position = unchecked(position + (uint)displacement);
-        slot.Position = slot.Position.WithX(SnesFixedPosition.FromRaw(unchecked((uint)position)));
+        slot.Position = slot.Position.WithX(SnesFixedPosition.FromRaw(unchecked(position)));
     }
     /// <summary>Emits a mouth rock when a projectile slot is available.</summary>
     internal bool SpawnKraidSpitRock(RoomEnemySlot body)
@@ -2482,6 +2736,54 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
                 }
                 return;
 
+            case KraidAiFunction.NoOperation:
+            case KraidAiFunction.GrowBreakCeilingPlatforms:
+            case KraidAiFunction.GrowSetBg2Priority:
+            case KraidAiFunction.GrowFinishBg2Update:
+            case KraidAiFunction.GrowDrawRoomBackground:
+            case KraidAiFunction.GrowFadeInRoomBackground:
+            case KraidAiFunction.MainloopThinking:
+            case KraidAiFunction.SecondPhaseThinking:
+            case KraidAiFunction.MouthOpenReaction:
+            case KraidAiFunction.InitializeEyeGlow:
+            case KraidAiFunction.GlowEye:
+            case KraidAiFunction.UnglowEye:
+            case KraidAiFunction.LintInactive:
+            case KraidAiFunction.LintProduce:
+            case KraidAiFunction.LintCharge:
+            case KraidAiFunction.LintFire:
+            case KraidAiFunction.FingernailWaitForLint:
+            case KraidAiFunction.AlignPartToKraid:
+            case KraidAiFunction.HandleFunctionTimer:
+            case KraidAiFunction.DecrementFunctionTimerAndStartWalk:
+            case KraidAiFunction.FootFirstPhaseThinking:
+            case KraidAiFunction.ProcessHeadInstructionAndTimer:
+            case KraidAiFunction.FootSecondPhaseThinking:
+            case KraidAiFunction.FootSecondPhaseWalkingRight:
+            case KraidAiFunction.FootSecondPhaseWalkToStart:
+            case KraidAiFunction.FootSecondPhaseInitialize:
+            case KraidAiFunction.FootSecondPhaseWalkingLeft:
+            case KraidAiFunction.MainAttackWithMouthOpen:
+            case KraidAiFunction.FingernailInitialize:
+            case KraidAiFunction.FingernailFire:
+            case KraidAiFunction.FootPrepareFirstPhaseLunge:
+            case KraidAiFunction.FootFirstPhaseLunge:
+            case KraidAiFunction.FootFirstPhaseRetreat:
+            case KraidAiFunction.GrowReleaseCamera:
+            case KraidAiFunction.DeathInitialize:
+            case KraidAiFunction.DeathFadeOut:
+            case KraidAiFunction.DeathUpdateTopTilemap:
+            case KraidAiFunction.DeathUpdateBottomTilemap:
+            case KraidAiFunction.DeathSink:
+            case KraidAiFunction.DeathClearTopTilemap:
+            case KraidAiFunction.DeathClearBottomTilemap:
+            case KraidAiFunction.DeathLoadBg3Quarter1:
+            case KraidAiFunction.DeathLoadBg3Quarter2:
+            case KraidAiFunction.DeathLoadBg3Quarter3:
+            case KraidAiFunction.DeathLoadBg3Quarter4:
+            case KraidAiFunction.DeathFadeInBackground:
+            case KraidAiFunction.DeathFinishedWasAlive:
+            case KraidAiFunction.DeathFinishedWasDead:
             default:
                 throw new InvalidDataException(
                     $"Kraid body function {state.Parts[body.SlotIndex].Function} is not translated.");
@@ -2521,7 +2823,7 @@ internal sealed class KraidBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         uint position = body.Position.Y.RawValue;
         position = unchecked(position + (uint)displacement);
-        body.Position = body.Position.WithY(SnesFixedPosition.FromRaw(unchecked((uint)position)));
+        body.Position = body.Position.WithY(SnesFixedPosition.FromRaw(unchecked(position)));
     }
 
     /// <summary>Derives a nonzero multiple-of-64 thinking delay from the room RNG.</summary>

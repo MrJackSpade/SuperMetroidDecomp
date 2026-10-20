@@ -18,7 +18,7 @@ namespace SuperMetroid.Core.Enemies.KiHunters;
 internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <inheritdoc/>
-    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.KihunterGreen, EnemyDefinitionId.KihunterGreenWings, EnemyDefinitionId.KihunterRed, EnemyDefinitionId.KihunterRedWings, EnemyDefinitionId.KihunterYellow, EnemyDefinitionId.KihunterYellowWings];
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [.. KiHunterPartDefinitions.Parts.Keys];
 
     /// <inheritdoc/>
     public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new KiHunterEntity(this, slot, common);
@@ -766,11 +766,12 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         if (body.EnemyDefinitionPointer == 0 && initializedBody)
             return wings;
 
-        EnemyDefinitionId expected = body.EnemyDefinitionPointer switch
+        EnemyDefinitionId expected = KiHunterPartDefinitions.Parts[body.EnemyDefinitionPointer] switch
         {
-            EnemyDefinitionId.KihunterGreen => EnemyDefinitionId.KihunterGreenWings,
-            EnemyDefinitionId.KihunterYellow => EnemyDefinitionId.KihunterYellowWings,
-            EnemyDefinitionId.KihunterRed => EnemyDefinitionId.KihunterRedWings,
+            KiHunterPart.KihunterGreen => EnemyDefinitionId.KihunterGreenWings,
+            KiHunterPart.KihunterYellow => EnemyDefinitionId.KihunterYellowWings,
+            KiHunterPart.KihunterRed => EnemyDefinitionId.KihunterRedWings,
+            KiHunterPart.KihunterGreenWings or KiHunterPart.KihunterRedWings or KiHunterPart.KihunterYellowWings => throw new InvalidDataException("Unknown Ki-Hunter body variant."),
             _ => throw new InvalidDataException("Unknown Ki-Hunter body variant."),
         };
         // During wing initialization its typed state does not exist yet, so insist on the

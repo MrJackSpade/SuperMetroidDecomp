@@ -36,7 +36,7 @@ internal static class NativeSnapshotImportPauseVerification
         palette.frame = memory[PauseMemory.PaletteAnimationFrame];
         // $0776 is a byte offset into $82:BA25's word tables; the port keeps the phase index.
         menu.mapIndicatorAnimationFrame = W(PauseMemory.IndicatorAnimationFrame) / 2;
-        menu.mapIndicatorAnimationTimer = (int)W(PauseMemory.IndicatorAnimationTimer);
+        menu.mapIndicatorAnimationTimer = W(PauseMemory.IndicatorAnimationTimer);
         game.Session.pauseMenu = menu;
         game.Session.screenFade.Delay = W(PauseMemory.ScreenFadeDelay);
         game.Session.screenFade.Counter = W(PauseMemory.ScreenFadeCounter);

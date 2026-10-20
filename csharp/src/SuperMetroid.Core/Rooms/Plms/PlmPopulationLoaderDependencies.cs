@@ -8,9 +8,6 @@ namespace SuperMetroid.Core.Rooms.Plms;
 [RoomLifetime]
 internal sealed record PlmPopulationLoaderDependencies
 {
-    /// <summary>Bindings.</summary>
-    public required PlmRoomBindings Bindings { get; init; }
-
     /// <summary>Bomb torizo hand.</summary>
     public required BombTorizoHandPlms BombTorizoHand { get; init; }
 

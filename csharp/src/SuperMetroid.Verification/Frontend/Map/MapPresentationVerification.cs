@@ -547,7 +547,7 @@ internal static class MapPresentationVerification
         {
             int cursor = frame * MotherBrainBeamRomData.ColorStride;
             int address = MotherBrainBeamRomData.ColorTable + cursor;
-            ushort nativeBeamColor = (ushort)(SnesLittleEndian.Word(CpuBusRegionRead.Read(bus, address), CpuBusRegionRead.Read(bus, address + 1)));
+            ushort nativeBeamColor = SnesLittleEndian.Word(CpuBusRegionRead.Read(bus, address), CpuBusRegionRead.Read(bus, address + 1));
             AssertTrue(original.MotherBrainRainbowPalette.TryReadBeamColor(cursor, out Bgr555 beamColor) &&
                 beamColor == Bgr555.FromWord(nativeBeamColor), $"installed beam HDMA color {frame} matches bank-$88");
         }
@@ -760,9 +760,9 @@ internal static class MapPresentationVerification
                 original.MotherBrainHealthPalette);
             AssertTrue(new CgramPalettes(native).ImageEquals(new CgramPalettes(installed)),
                 $"Mother Brain health {health} stock colors exactly match the native three-copy output");
-            AssertEqual((ushort)0, installed.Colors[MotherBrainRainbowPaletteRomData.BrainColor - 1],
+            AssertEqual(0, installed.Colors[MotherBrainRainbowPaletteRomData.BrainColor - 1],
                 "Mother Brain health palette leaves transparent color untouched");
-            AssertEqual((ushort)0, installed.Colors[MotherBrainRainbowPaletteRomData.SecondaryColor +
+            AssertEqual(0, installed.Colors[MotherBrainRainbowPaletteRomData.SecondaryColor +
                 MotherBrainRainbowPaletteRomData.ColorCount],
                 "Mother Brain health palette leaves adjacent colors untouched");
             AssertEqual(state, health >= MotherBrainHealthPaletteRomData.FirstThreshold ? 0 :

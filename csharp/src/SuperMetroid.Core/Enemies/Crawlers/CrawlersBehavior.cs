@@ -17,10 +17,7 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } =
-    [
-        EnemyDefinitionId.Sciser, EnemyDefinitionId.Zero, EnemyDefinitionId.Viola, EnemyDefinitionId.Zeela,
-        EnemyDefinitionId.Sova, EnemyDefinitionId.Zoomer, EnemyDefinitionId.MZoomer, EnemyDefinitionId.HZoomer,
-    ];
+    [.. CrawlersPartDefinitions.Parts.Keys];
 
     /// <inheritdoc/>
     public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new CrawlerEntity(this, slot, common);
@@ -103,16 +100,12 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // The low two population-property bits encode which side of the starting block the
         // crawler occupies. They are not independent EnemyProperties flags.
-        switch (slot.Properties.FamilyData & 3)
+        return (slot.Properties.FamilyData & 3) switch
         {
-            case 0:
-                velocity = velocity.ReversedX();
-                break;
-            case 2:
-                velocity = velocity.ReversedY();
-                break;
-        }
-        return velocity;
+            0 => velocity.ReversedX(),
+            2 => velocity.ReversedY(),
+            _ => velocity,
+        };
     }
 
     /// <summary>Ports the separate orange-Zoomer initializer at $A3:E043.</summary>
@@ -139,15 +132,12 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.InstructionTimer = NativeCountdown.Start(1);
         ushort velocity = CrawlerSpeedDefinitions.ForParameter(checked((ushort)speedParameter));
         state.Velocity = new(new SnesSignedEightEight(velocity), new SnesSignedEightEight(velocity));
-        switch (slot.Properties.FamilyData & 3)
+        state.Velocity = (slot.Properties.FamilyData & 3) switch
         {
-            case 0:
-                state.Velocity = state.Velocity.ReversedX();
-                break;
-            case 2:
-                state.Velocity = state.Velocity.ReversedY();
-                break;
-        }
+            0 => state.Velocity.ReversedX(),
+            2 => state.Velocity.ReversedY(),
+            _ => state.Velocity,
+        };
     }
 
     /// <summary>
@@ -177,6 +167,9 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
             case CrawlerEnemyFunction.Falling:
                 RunCrawlerFalling(slot, state, level);
                 return;
+            case CrawlerEnemyFunction.InstructionPending:
+            case CrawlerEnemyFunction.CrawlingVertically:
+            case CrawlerEnemyFunction.CrawlingHorizontally:
             default:
                 throw new InvalidDataException(
                     $"HZoomer function {state.Function?.ToString() ?? "none"} is not translated.");
@@ -323,6 +316,9 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
             case CrawlerEnemyFunction.CrawlingHorizontally:
                 RunCrawlerHorizontal(slot, state, level);
                 return;
+            case CrawlerEnemyFunction.HZoomerInstructionPending:
+            case CrawlerEnemyFunction.HZoomerCrawlingVertically:
+            case CrawlerEnemyFunction.HZoomerCrawlingHorizontally:
             default:
                 throw new InvalidDataException(
                     $"Crawler function {state.Function?.ToString() ?? "none"} is not translated.");
@@ -499,8 +495,8 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
             : unchecked((ushort)(slot.Position.Y.Whole + slot.Radius.Y - 1));
         int blockX = slot.Position.X.Whole >> 4;
         int blockY = surfaceY >> 4;
-        if ((uint)blockX < (uint)level.Size.X &&
-            (uint)blockY < (uint)level.Size.Y)
+        if ((uint)blockX < level.Size.X &&
+            (uint)blockY < level.Size.Y)
         {
             RoomCollisionBlock block = level.GetCollisionBlock(new(unchecked((ushort)blockX), unchecked((ushort)blockY)));
             int slopeShape = block.Bts.SlopeShape;

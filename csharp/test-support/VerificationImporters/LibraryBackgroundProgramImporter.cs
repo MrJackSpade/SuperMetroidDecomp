@@ -64,6 +64,7 @@ internal static class LibraryBackgroundProgramImporter
                 case LibraryBackgroundCommand.ClearBg2ForKraid:
                     instructions.Add(new(command, 0, 0, 0, null));
                     break;
+                case LibraryBackgroundCommand.End:
                 default:
                     throw new InvalidDataException($"Unknown import background command ${(ushort)command:X4} at $8F:{commandPointer:X4}.");
             }
@@ -71,7 +72,7 @@ internal static class LibraryBackgroundProgramImporter
         throw new InvalidDataException($"Import background list $8F:{pointer:X4} did not terminate.");
 
         byte Byte(ushort offset) => ReadImportByte(source, RoomAssetRomData.LibraryBackground.CommandBank | offset);
-        ushort Word(ushort offset) => (ushort)(SnesLittleEndian.Word(Byte(offset), Byte((ushort)(offset + 1))));
+        ushort Word(ushort offset) => SnesLittleEndian.Word(Byte(offset), Byte((ushort)(offset + 1)));
         int Long(ushort offset) => (int)new SnesAddress(Byte((ushort)(offset + 2)), SnesLittleEndian.Word(Byte(offset), Byte((ushort)(offset + 1))));
     }
 
@@ -117,6 +118,7 @@ internal static class LibraryBackgroundProgramImporter
                     ClearAndTransfer(RoomAssetRomData.LibraryBackground.ClearBg2,
                         instruction.Command == LibraryBackgroundCommand.ClearBg2ForKraid);
                     break;
+                case LibraryBackgroundCommand.End:
                 default:
                     throw new InvalidDataException($"Unsupported imported background command {instruction.Command}.");
             }
@@ -144,6 +146,7 @@ internal static class LibraryBackgroundProgramImporter
         {
             SnesDmaSourceKind.Cartridge => CartridgeImportSource.Require(source).ReadCartridgeByte(address),
             SnesDmaSourceKind.WorkRam => (source as ISnesMutableMemory ?? throw new InvalidOperationException("Import list requires WRAM.")).ReadWorkRamByte(address),
+            SnesDmaSourceKind.Unmapped => throw new InvalidDataException($"Import background byte ${address:X6} is unmapped."),
             _ => throw new InvalidDataException($"Import background byte ${address:X6} is unmapped."),
         };
 }

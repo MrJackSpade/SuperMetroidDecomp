@@ -47,7 +47,7 @@ internal static class AttractCaptureTestsVerification
                     }
                     bounded = true;
                 }
-                SnesButton input = cancel && legacy.AttractDemoHoldFramesRemaining == 80 ? SnesButton.Start : (ushort)0;
+                SnesButton input = cancel && legacy.AttractDemoHoldFramesRemaining == 80 ? SnesButton.Start : 0;
                 FrontendFrame expected = legacy.Step(input);
                 CapturedFrontendFrame actual = captured.StepCaptured(input, tick + 1, 1);
                 states.Add(expected.GameState);

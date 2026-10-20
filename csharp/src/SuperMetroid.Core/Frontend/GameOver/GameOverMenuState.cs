@@ -121,6 +121,11 @@ public sealed class GameOverMenuState
             {
                 GameOverMenuPhase.ConfigureGraphics => GameOverMenuPhase.Initialize,
                 GameOverMenuPhase.Initialize => GameOverMenuPhase.WaitForInitialMusic,
+                GameOverMenuPhase.WaitForInitialMusic or
+                    GameOverMenuPhase.FadeIn or
+                    GameOverMenuPhase.Main or
+                    GameOverMenuPhase.FadeOutToContinue or
+                    GameOverMenuPhase.FadeOutToTitle => throw new InvalidOperationException($"Game-over phase {Phase} has no NMI wait."),
                 _ => throw new InvalidOperationException($"Game-over phase {Phase} has no NMI wait."),
             };
             return;
@@ -281,6 +286,7 @@ public sealed class GameOverMenuState
             GameOverBabySound.Cry23 => GameOverRomData.BabyAnimation.Cry23,
             GameOverBabySound.Cry26 => GameOverRomData.BabyAnimation.Cry26,
             GameOverBabySound.Cry27 => GameOverRomData.BabyAnimation.Cry27,
+            GameOverBabySound.None => throw new InvalidDataException($"Unknown compiled game-over Baby sound {sound}."),
             _ => throw new InvalidDataException($"Unknown compiled game-over Baby sound {sound}."),
         };
         audio.QueueSound(effect, maximumQueued: GameOverRomData.MaximumQueuedSounds);

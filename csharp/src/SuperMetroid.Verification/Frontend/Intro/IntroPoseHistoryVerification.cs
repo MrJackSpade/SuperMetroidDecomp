@@ -74,7 +74,7 @@ internal static class IntroPoseHistoryVerification
             bool demoEnabled = intro.flashbackDemoInput?.Enabled == true;
             bool hurtExpiry = before is { KnockbackTimer.IsZero: true, KnockbackDirection: not 0 };
             intro.Render();
-            intro.Step(tick % 47 == 0 ? SnesButton.A : (ushort)0);
+            intro.Step(tick % 47 == 0 ? SnesButton.A : 0);
             SamusState? after = intro.flashbackSamus;
             IntroBabyDiscoveryState? discovery = intro.babyDiscovery;
             bool ended = demoEnabled && intro.flashbackDemoInput?.Enabled == false;
@@ -115,7 +115,7 @@ internal static class IntroPoseHistoryVerification
                 continue;
             }
             var history = after.PoseHistory;
-            ushort metadata = (ushort)(SnesLittleEndian.Word(after.PoseMetadata.ReadPoseXDirection(), (byte)after.PoseMetadata.ReadMovementType()));
+            ushort metadata = SnesLittleEndian.Word(after.PoseMetadata.ReadPoseXDirection(), (byte)after.PoseMetadata.ReadMovementType());
             if (history.LastDifferentPose != priorPose || history.LastDifferentDirectionAndMovement != priorMetadata ||
                 history.PreviousPose != after.Pose || history.PreviousDirectionAndMovement != metadata)
                 failures.Add($"tick {tick}: {context} did not perform the native four-word history shift");

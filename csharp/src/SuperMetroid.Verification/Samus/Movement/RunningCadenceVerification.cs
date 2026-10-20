@@ -45,7 +45,7 @@ internal static class RunningCadenceVerification
 
         for (byte stage = 0; stage <= SamusRunningCadenceDefinitions.MaximumSoundQueueSelection; stage++)
         {
-            speed.SpeedBoostCounter = new SamusSpeedBoostCounter(SnesLittleEndian.Word(0, unchecked((byte)stage)));
+            speed.SpeedBoostCounter = new SamusSpeedBoostCounter(SnesLittleEndian.Word(0, unchecked(stage)));
             ushort pointer = CartridgeImportSource.Require(rom).ReadCartridgeWord((0x91b5de + stage * 2));
             for (ushort index = 0; index <= 10; index++)
             {
@@ -89,7 +89,7 @@ internal static class RunningCadenceVerification
             ushort frame = 7;
             bool actual = speed.TryAdvanceSpeedBoosterAnimationStage(residue,
                 running ? SamusMovementType.Running : SamusMovementType.Standing,
-                dash ? SnesButton.B : (ushort)0, (ushort)raw, ref frame, out ushort timer,
+                dash ? SnesButton.B : 0, (ushort)raw, ref frame, out ushort timer,
                 () => { calls++; return 0x0500; });
             AssertEqual(intercept, actual, "Native boost interception gates and low-byte countdown");
             AssertEqual(next, speed.SpeedBoostCounter.RawValue, "Native counter decrement, stage bit and reset-word OR");
@@ -240,6 +240,8 @@ internal static class RunningCadenceVerification
         {
             SnesDmaSourceKind.WorkRam => SourceMemory.ReadWorkRamByte(address),
             SnesDmaSourceKind.Cartridge => source.ReadCartridgeByte(address),
+            SnesDmaSourceKind.Unmapped => throw new InvalidOperationException(
+                $"CPU read ${SnesAddressMath.BankNumber(address):X2}:{SnesAddressMath.OffsetInBank(address):X4} is outside the runtime address map."),
             _ => throw new InvalidOperationException(
                 $"CPU read ${SnesAddressMath.BankNumber(address):X2}:{SnesAddressMath.OffsetInBank(address):X4} is outside the runtime address map."),
         };

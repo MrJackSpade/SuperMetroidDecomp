@@ -12,10 +12,4 @@ public sealed class EscapeDachoraEnemyState
 {
     /// <summary>The actor's typed program cursor, in place of its native instruction-list pointer.</summary>
     internal AnimationProgramCursor<EscapeDachoraProgram> Program { get; set; }
-
-    /// <summary>Native Dachora enemy slot; movement remains in its bank-$B3 instruction lists.</summary>
-    private readonly RoomEnemySlot _slot;
-
-    /// <summary>Retains the underlying slot for debugger inspection of script-driven Dachora state.</summary>
-    internal EscapeDachoraEnemyState(RoomEnemySlot slot) => _slot = slot;
 }

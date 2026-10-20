@@ -19,7 +19,7 @@ internal static class WaveDoorBandsVerification
             var behaviors = new byte[words.Length];
             bool inside = y < 512;
             int target = inside ? (y >> 4) * 16 + 4 : 4;
-            words[target] = (ushort)((int)RoomCollisionType.ShootableBlock << 12);
+            words[target] = (int)RoomCollisionType.ShootableBlock << 12;
             behaviors[target] = (left ? RoomBlockBehaviorValues.BlueDoorFacingRight : RoomBlockBehaviorValues.BlueDoorFacingLeft).ToBtsByte();
             var level = CreateRoom(new(16, 32), words, behaviors);
             var plms = PlmFixtures.Unbound();

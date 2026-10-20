@@ -114,7 +114,7 @@ internal static class ProjectileInstructionsVerification
                 trailSlot.AnimationFrame = 0xbeef;
                 AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0x930000 | (entry - 2)), trailFrame(trailSlot), "Trail owner consumes the previous list word regardless of timer or cached frame");
                 AssertEqual(timer, trailSlot.InstructionTimer.RawValue, "Trail frame lookup leaves timer unchanged");
-                AssertEqual((ushort)0xbeef, trailSlot.AnimationFrame, "Trail lookup must not substitute or alter the cached frame");
+                AssertEqual(0xbeef, trailSlot.AnimationFrame, "Trail lookup must not substitute or alter the cached frame");
             }
         }
 
@@ -149,8 +149,8 @@ internal static class ProjectileInstructionsVerification
                 frames++;
                 if (deleted)
                 {
-                    AssertEqual((ushort)0, slot.Damage, "Delete clears projectile occupancy");
-                    AssertEqual((ushort)0, bomb.Type, "Delete clears bomb occupancy");
+                    AssertEqual(0, slot.Damage, "Delete clears projectile occupancy");
+                    AssertEqual(0, bomb.Type, "Delete clears bomb occupancy");
                     break;
                 }
                 AssertEqual((timer, pointer, sprite, x, y, trail), (slot.InstructionTimer.RawValue, slot.InstructionPointer, slot.SpritemapPointer, slot.Radius.X, slot.Radius.Y, slot.AnimationFrame), "Exact projectile frame matches ROM interpreter");
@@ -160,8 +160,4 @@ internal static class ProjectileInstructionsVerification
         Console.WriteLine($"Projectile instructions: 1816 native words, loud non-catalog rejection, {entries.Length} frame/control entries and {frames} frames per owner match independent ROM execution with mechanics reads forbidden.");
     }
 
-    /// <summary>Rejects live reads of either byte of each compiled projectile mechanics word.</summary>
-    private static CartridgeReadGuard NewProjectileInstructionReadGuard(ISnesAddressSpace source, HashSet<int> words) =>
-        new CartridgeReadGuard(source).Forbid(address => words.Contains(address) || words.Contains(address - 1),
-            address => new InvalidDataException($"Projectile instruction still reads mechanics ROM ${address:X6}."));
 }

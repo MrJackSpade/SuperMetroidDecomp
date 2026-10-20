@@ -247,7 +247,7 @@ internal static class FrontendRomFreeVerification
             // Advance the narrator at a repeatable cadence; the original short
             // fixture ended before its first bank-$93 projectile animation frame.
             SnesButton input = !startSent ? SnesButton.Start :
-                frame % 47 == 0 ? SnesButton.A : (ushort)0;
+                frame % 47 == 0 ? SnesButton.A : 0;
             startSent = true;
             FrontendFrame expected = native.Step(input);
             FrontendFrame actual = installed.Step(input);
@@ -473,7 +473,7 @@ internal static class FrontendRomFreeVerification
             SnesButton input = frame < 24 ? SnesButton.Right :
                 frame == 25 ? SnesButton.X :
                 frame is >= 40 and < 60 ? (SnesButton.A | SnesButton.Left) :
-                frame >= 60 ? (SnesButton.Right | SnesButton.X) : (ushort)0;
+                frame >= 60 ? (SnesButton.Right | SnesButton.X) : 0;
             FrontendFrame expected = native.Step(input);
             FrontendFrame actual = installed.Step(input);
             Rgba32[] expectedPixels = native.PublishedPixels(), actualPixels = installed.PublishedPixels();

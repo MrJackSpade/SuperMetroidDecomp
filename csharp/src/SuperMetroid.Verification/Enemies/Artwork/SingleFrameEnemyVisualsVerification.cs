@@ -64,7 +64,7 @@ internal static class SingleFrameEnemyVisualsVerification
                 definition.Name + " inherits installed stock");
             AssertEqual(count, parts.Length, definition.Name + " native sprite count");
             var actual = new OamBuffer();
-            enemies.DrawEnemySpritemap(actual, new NativeEnemySpritemapDraw { Bank = definition.Bank, Pointer = definition.Pointer, Origin = new Position16<OamPixels>((ushort)128, (ushort)112), PaletteBits = 0x0c00, BaseTileIndex = 0x20, ClipVerticalWrap = false, OriginYIsOnScreen = true });
+            enemies.DrawEnemySpritemap(actual, new NativeEnemySpritemapDraw { Bank = definition.Bank, Pointer = definition.Pointer, Origin = new Position16<OamPixels>(128, 112), PaletteBits = 0x0c00, BaseTileIndex = 0x20, ClipVerticalWrap = false, OriginYIsOnScreen = true });
             var expected = new OamBuffer();
             ImportedSpritemapOracle.DrawEnemy(rom, expected, new NativeEnemySpritemapDraw { Bank = definition.Bank, Pointer = definition.Pointer, Origin = new(128, 112), PaletteBits = 0x0c00, BaseTileIndex = 0x20 });
             CompareOam(expected, actual, definition.Name);

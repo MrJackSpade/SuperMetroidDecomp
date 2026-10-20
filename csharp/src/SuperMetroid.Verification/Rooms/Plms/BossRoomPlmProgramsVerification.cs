@@ -95,6 +95,57 @@ internal static class BossRoomPlmProgramsVerification
             RoomPlmInstruction.InstallPreInstruction => (DraygonCannonCue.ArmMissileWake, 4),
             RoomPlmInstruction.IncrementArgumentAndGotoIfGreaterOrEqual => (DraygonCannonCue.CountHit, 5),
             RoomPlmInstruction.DamageDraygonCannonFacingRight or RoomPlmInstruction.DamageDraygonCannonFacingLeft => (DraygonCannonCue.Damage, 2),
+            RoomPlmInstruction.SetGreyDoorPreInstruction or
+                RoomPlmInstruction.Sleep or
+                RoomPlmInstruction.Delete or
+                RoomPlmInstruction.ClearPreInstruction or
+                RoomPlmInstruction.GotoIfDoorBitSet or
+                RoomPlmInstruction.IncrementDoorHitCounterAndGoto or
+                RoomPlmInstruction.GotoIfSamusNear or
+                RoomPlmInstruction.Goto or
+                RoomPlmInstruction.DecrementTimerAndGoto or
+                RoomPlmInstruction.SetEightBitTimer or
+                RoomPlmInstruction.CopyFromRamToVram or
+                RoomPlmInstruction.GotoIfAreaBossBitSet or
+                RoomPlmInstruction.GotoIfEventSet or
+                RoomPlmInstruction.SetEvent or
+                RoomPlmInstruction.SetPlmBtsFromByte or
+                RoomPlmInstruction.DrawPlmBlock or
+                RoomPlmInstruction.DrawPlmBlockClone or
+                RoomPlmInstruction.QueueSoundLibrary2Maximum6 or
+                RoomPlmInstruction.QueueSoundLibrary3Maximum6 or
+                RoomPlmInstruction.ClearDownwardGateTrigger or
+                RoomPlmInstruction.SpawnDownwardGateProjectile or
+                RoomPlmInstruction.WakeDownwardGateProjectile or
+                RoomPlmInstruction.ShootEyeDoorProjectile or
+                RoomPlmInstruction.SpawnEyeDoorSweat or
+                RoomPlmInstruction.SpawnTwoEyeDoorSmoke or
+                RoomPlmInstruction.SpawnEyeDoorSmoke or
+                RoomPlmInstruction.MoveUpAndMakeBlueDoorFacingRight or
+                RoomPlmInstruction.MoveUpAndMakeBlueDoorFacingLeft or
+                RoomPlmInstruction.QueueSoundLibrary2Maximum3 or
+                RoomPlmInstruction.QueueSoundLibrary2Maximum1 or
+                RoomPlmInstruction.QueueSoundLibrary2Maximum1Direct or
+                RoomPlmInstruction.GotoIfSamusHasNoBombs or
+                RoomPlmInstruction.SetPlmBtsToOne or
+                RoomPlmInstruction.GotoIfRoomArgumentLess or
+                RoomPlmInstruction.SpawnFourMotherBrainGlassShards or
+                RoomPlmInstruction.SpawnTorizoStatueBreaking or
+                RoomPlmInstruction.QueueSongOneMusicTrack or
+                RoomPlmInstruction.EnableNoobTubeWaterPhysics or
+                RoomPlmInstruction.SpawnNoobTubeCrack or
+                RoomPlmInstruction.TriggerNoobTubeEarthquake or
+                RoomPlmInstruction.SpawnNoobTubeShardsAndBubbles or
+                RoomPlmInstruction.LockSamus or
+                RoomPlmInstruction.UnlockSamus or
+                RoomPlmInstruction.MoveRightFourBlocks or
+                RoomPlmInstruction.SetAnimalsEscapedEvent or
+                RoomPlmInstruction.SamusEaterDamage or
+                RoomPlmInstruction.SamusEaterReleaseImmunity or
+                RoomPlmInstruction.MoveTourianAccessDown or
+                RoomPlmInstruction.TransformSpikesToSlopes or
+                RoomPlmInstruction.RevertSlopesToSpikes or
+                RoomPlmInstruction.SetLoweredAcidHeight => null,
             _ => null,
         };
         (cue, length) = decoded ?? default;
@@ -118,6 +169,8 @@ internal static class BossRoomPlmProgramsVerification
                 AssertEqual(right ? RoomPlmInstruction.DamageDraygonCannonFacingRight : RoomPlmInstruction.DamageDraygonCannonFacingLeft,
                     instruction, "cannon damage faces its own side");
                 break;
+            default:
+                throw new InvalidOperationException($"Undefined {nameof(DraygonCannonCue)} {cue}.");
         }
         return true;
     }
@@ -165,6 +218,56 @@ internal static class BossRoomPlmProgramsVerification
                 AssertEqual((ushort)EventNumber.MotherBrainGlassDestroyed, Word(2), "glass sets its destroyed event");
                 (cue, length) = (MotherBrainGlassPlmCue.Of(MotherBrainGlassPlmCueKind.SetGlassDestroyed), 4);
                 return true;
+            case RoomPlmInstruction.SetGreyDoorPreInstruction:
+            case RoomPlmInstruction.Sleep:
+            case RoomPlmInstruction.Delete:
+            case RoomPlmInstruction.ClearPreInstruction:
+            case RoomPlmInstruction.LinkInstruction:
+            case RoomPlmInstruction.GotoIfDoorBitSet:
+            case RoomPlmInstruction.IncrementDoorHitCounterAndGoto:
+            case RoomPlmInstruction.IncrementArgumentAndGotoIfGreaterOrEqual:
+            case RoomPlmInstruction.GotoIfSamusNear:
+            case RoomPlmInstruction.Goto:
+            case RoomPlmInstruction.DecrementTimerAndGoto:
+            case RoomPlmInstruction.SetEightBitTimer:
+            case RoomPlmInstruction.CopyFromRamToVram:
+            case RoomPlmInstruction.SetPlmBtsFromByte:
+            case RoomPlmInstruction.DrawPlmBlock:
+            case RoomPlmInstruction.DrawPlmBlockClone:
+            case RoomPlmInstruction.QueueSoundLibrary2Maximum6:
+            case RoomPlmInstruction.QueueSoundLibrary3Maximum6:
+            case RoomPlmInstruction.ClearDownwardGateTrigger:
+            case RoomPlmInstruction.SpawnDownwardGateProjectile:
+            case RoomPlmInstruction.WakeDownwardGateProjectile:
+            case RoomPlmInstruction.ShootEyeDoorProjectile:
+            case RoomPlmInstruction.SpawnEyeDoorSweat:
+            case RoomPlmInstruction.SpawnTwoEyeDoorSmoke:
+            case RoomPlmInstruction.SpawnEyeDoorSmoke:
+            case RoomPlmInstruction.MoveUpAndMakeBlueDoorFacingRight:
+            case RoomPlmInstruction.MoveUpAndMakeBlueDoorFacingLeft:
+            case RoomPlmInstruction.DamageDraygonCannonFacingRight:
+            case RoomPlmInstruction.DamageDraygonCannonFacingLeft:
+            case RoomPlmInstruction.QueueSoundLibrary2Maximum3:
+            case RoomPlmInstruction.QueueSoundLibrary2Maximum1:
+            case RoomPlmInstruction.QueueSoundLibrary2Maximum1Direct:
+            case RoomPlmInstruction.GotoIfSamusHasNoBombs:
+            case RoomPlmInstruction.SetPlmBtsToOne:
+            case RoomPlmInstruction.SpawnTorizoStatueBreaking:
+            case RoomPlmInstruction.QueueSongOneMusicTrack:
+            case RoomPlmInstruction.EnableNoobTubeWaterPhysics:
+            case RoomPlmInstruction.SpawnNoobTubeCrack:
+            case RoomPlmInstruction.TriggerNoobTubeEarthquake:
+            case RoomPlmInstruction.SpawnNoobTubeShardsAndBubbles:
+            case RoomPlmInstruction.LockSamus:
+            case RoomPlmInstruction.UnlockSamus:
+            case RoomPlmInstruction.MoveRightFourBlocks:
+            case RoomPlmInstruction.SetAnimalsEscapedEvent:
+            case RoomPlmInstruction.SamusEaterDamage:
+            case RoomPlmInstruction.SamusEaterReleaseImmunity:
+            case RoomPlmInstruction.MoveTourianAccessDown:
+            case RoomPlmInstruction.TransformSpikesToSlopes:
+            case RoomPlmInstruction.RevertSlopesToSpikes:
+            case RoomPlmInstruction.SetLoweredAcidHeight:
             default:
                 (cue, length) = (default, 0);
                 return false;
@@ -207,6 +310,58 @@ internal static class BossRoomPlmProgramsVerification
             case RoomPlmInstruction.QueueSongOneMusicTrack:
                 (cue, length) = (new BombTorizoHandCue(BombTorizoHandCueKind.QueueMusic), 2);
                 return true;
+            case RoomPlmInstruction.SetGreyDoorPreInstruction:
+            case RoomPlmInstruction.Sleep:
+            case RoomPlmInstruction.Delete:
+            case RoomPlmInstruction.ClearPreInstruction:
+            case RoomPlmInstruction.LinkInstruction:
+            case RoomPlmInstruction.GotoIfDoorBitSet:
+            case RoomPlmInstruction.IncrementDoorHitCounterAndGoto:
+            case RoomPlmInstruction.IncrementArgumentAndGotoIfGreaterOrEqual:
+            case RoomPlmInstruction.GotoIfSamusNear:
+            case RoomPlmInstruction.Goto:
+            case RoomPlmInstruction.DecrementTimerAndGoto:
+            case RoomPlmInstruction.SetEightBitTimer:
+            case RoomPlmInstruction.GotoIfAreaBossBitSet:
+            case RoomPlmInstruction.GotoIfEventSet:
+            case RoomPlmInstruction.SetEvent:
+            case RoomPlmInstruction.SetPlmBtsFromByte:
+            case RoomPlmInstruction.DrawPlmBlock:
+            case RoomPlmInstruction.DrawPlmBlockClone:
+            case RoomPlmInstruction.QueueSoundLibrary2Maximum6:
+            case RoomPlmInstruction.QueueSoundLibrary3Maximum6:
+            case RoomPlmInstruction.ClearDownwardGateTrigger:
+            case RoomPlmInstruction.SpawnDownwardGateProjectile:
+            case RoomPlmInstruction.WakeDownwardGateProjectile:
+            case RoomPlmInstruction.ShootEyeDoorProjectile:
+            case RoomPlmInstruction.SpawnEyeDoorSweat:
+            case RoomPlmInstruction.SpawnTwoEyeDoorSmoke:
+            case RoomPlmInstruction.SpawnEyeDoorSmoke:
+            case RoomPlmInstruction.MoveUpAndMakeBlueDoorFacingRight:
+            case RoomPlmInstruction.MoveUpAndMakeBlueDoorFacingLeft:
+            case RoomPlmInstruction.DamageDraygonCannonFacingRight:
+            case RoomPlmInstruction.DamageDraygonCannonFacingLeft:
+            case RoomPlmInstruction.QueueSoundLibrary2Maximum3:
+            case RoomPlmInstruction.QueueSoundLibrary2Maximum1:
+            case RoomPlmInstruction.QueueSoundLibrary2Maximum1Direct:
+            case RoomPlmInstruction.GotoIfSamusHasNoBombs:
+            case RoomPlmInstruction.SetPlmBtsToOne:
+            case RoomPlmInstruction.GotoIfRoomArgumentLess:
+            case RoomPlmInstruction.SpawnFourMotherBrainGlassShards:
+            case RoomPlmInstruction.EnableNoobTubeWaterPhysics:
+            case RoomPlmInstruction.SpawnNoobTubeCrack:
+            case RoomPlmInstruction.TriggerNoobTubeEarthquake:
+            case RoomPlmInstruction.SpawnNoobTubeShardsAndBubbles:
+            case RoomPlmInstruction.LockSamus:
+            case RoomPlmInstruction.UnlockSamus:
+            case RoomPlmInstruction.MoveRightFourBlocks:
+            case RoomPlmInstruction.SetAnimalsEscapedEvent:
+            case RoomPlmInstruction.SamusEaterDamage:
+            case RoomPlmInstruction.SamusEaterReleaseImmunity:
+            case RoomPlmInstruction.MoveTourianAccessDown:
+            case RoomPlmInstruction.TransformSpikesToSlopes:
+            case RoomPlmInstruction.RevertSlopesToSpikes:
+            case RoomPlmInstruction.SetLoweredAcidHeight:
             default:
                 (cue, length) = (default, 0);
                 return false;

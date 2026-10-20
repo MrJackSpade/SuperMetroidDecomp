@@ -92,7 +92,7 @@ internal sealed class BombTorizoHandPlms
     /// <summary><c>$84:87E5</c>: copies the Chozo debris tiles to VRAM before the hand crumbles.</summary>
     internal void CopyDebrisTiles() =>
         _vramWriteRequests.Add(new PlmVramWriteRequest(
-            checked((ushort)TorizoInstructionTileRomData.ChozoDebrisByteCount),
+            checked(TorizoInstructionTileRomData.ChozoDebrisByteCount),
             TorizoInstructionTileRomData.ChozoDebrisSource,
             GameplayVram.ObjectCharactersDma(BombTorizoHandPlmProgramDefinitions.DebrisObjectCharacterWordOffset)));
 

@@ -121,9 +121,9 @@ internal static class SamusContentIdentityVerification
             DrawingData = new int[SamusArmCannonArtworkFormat.DrawingDataByteCount],
             SpriteAttributes = new int[SamusRenderingRomData.ArmCannon.DirectionCount],
             TileSources = Enumerable.Range(0, SamusRenderingRomData.ArmCannon.DirectionCount)
-                .Select(_ => new[] { 0, (int)SamusArmCannonArtworkFormat.TileSourcePointers[0],
-                    (int)SamusArmCannonArtworkFormat.TileSourcePointers[0],
-                    (int)SamusArmCannonArtworkFormat.TileSourcePointers[0] }).ToArray(),
+                .Select(_ => new[] { 0, SamusArmCannonArtworkFormat.TileSourcePointers[0],
+                    SamusArmCannonArtworkFormat.TileSourcePointers[0],
+                    SamusArmCannonArtworkFormat.TileSourcePointers[0] }).ToArray(),
         };
         if (edit == "cannon-pose") cannonDocument.PosePointers[0]++;
         if (edit == "cannon-drawing") cannonDocument.DrawingData[0] = 1;

@@ -96,8 +96,8 @@ internal static class RoomPlmHeaderCatalogVerification
     /// <summary>Reads a native population word while scanning retail PLM records.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for room PLM words")]
     private static ushort ReadRoomPlmWord(SuperMetroidAddressSpace bus, ushort pointer) =>
-        unchecked((ushort)(
+        unchecked(
             SnesLittleEndian.Word(bus.ReadCartridgeByte((int)new SnesAddress(0x8f, pointer)), bus.ReadCartridgeByte((int)new SnesAddress(
                 0x8f,
-                unchecked((ushort)(pointer + 1)))))));
+                unchecked((ushort)(pointer + 1))))));
 }

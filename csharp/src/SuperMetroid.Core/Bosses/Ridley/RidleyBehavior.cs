@@ -529,6 +529,29 @@ internal sealed class RidleyBehavior : IEnemySpecies
             case RidleyAiFunction.NorfairDeathComplete:
                 return;
 
+            case RidleyAiFunction.CeresLiftoffAccelerating:
+            case RidleyAiFunction.CeresLiftoffDecelerating:
+            case RidleyAiFunction.CeresHovering:
+            case RidleyAiFunction.CeresFireballMoveToPosition:
+            case RidleyAiFunction.CeresFireballShooting:
+            case RidleyAiFunction.CeresLungeSetup:
+            case RidleyAiFunction.CeresLungeMain:
+            case RidleyAiFunction.CeresSwoopSetup:
+            case RidleyAiFunction.CeresSwoopMoveToPosition:
+            case RidleyAiFunction.CeresSwoopDescendingAimingDown:
+            case RidleyAiFunction.CeresSwoopDescendingAimingLeft:
+            case RidleyAiFunction.CeresSwoopAscendingAimingUp:
+            case RidleyAiFunction.CeresSwoopAscendingAimingUpFaster:
+            case RidleyAiFunction.CeresRealRetreatRising:
+            case RidleyAiFunction.CeresRetreatDelay:
+            case RidleyAiFunction.CeresPublishEscapeHandoff:
+            case RidleyAiFunction.CeresInactive:
+            case RidleyAiFunction.CeresActivateSelfDestruct:
+            case RidleyAiFunction.CeresSelfDestructPaletteOnly:
+            case RidleyAiFunction.CeresFakeRetreatMoveToPosition:
+            case RidleyAiFunction.CeresFakeRetreatRising:
+            case RidleyAiFunction.CeresWaitBeforeRetrievingBaby:
+            case RidleyAiFunction.CeresRetrieveBaby:
             default:
                 throw new InvalidDataException(
                     $"Lower Norfair Ridley function $A6:{(ushort)state.Function:X4} is not translated.");

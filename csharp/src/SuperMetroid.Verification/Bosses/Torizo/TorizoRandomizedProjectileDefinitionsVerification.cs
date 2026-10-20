@@ -45,7 +45,7 @@ internal static class TorizoRandomizedProjectileDefinitionsVerification
 
             var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
             int randomCall = 0;
-            enemies.VerificationServices().NextRandom = (Func<ushort>)(() => randomCall++ == 0 ? (ushort)0 : (ushort)0x00ff);
+            enemies.VerificationServices().NextRandom = () => randomCall++ == 0 ? (ushort)0 : (ushort)0x00ff;
             RoomEnemySlot torizo = enemies.SlotTable.Slots[0];
             torizo.Position = torizo.Position.WithWhole(new(1000, 500));
             RoomEnemyProjectileSlot projectile = enemies.Projectiles.EnemyProjectiles[^1];
@@ -105,7 +105,7 @@ internal static class TorizoRandomizedProjectileDefinitionsVerification
         bool velocityIsReplaced)
     {
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
-        enemies.VerificationServices().NextRandom = (Func<ushort>)(() => 0);
+        enemies.VerificationServices().NextRandom = () => 0;
         RoomEnemySlot torizo = enemies.SlotTable.Slots[0];
         torizo.Position = torizo.Position.WithWhole(new(1000, 500));
         enemies.BombTorizoBehavior.BindFixtureState(torizo, facingRight ? 0x8000 : 0);

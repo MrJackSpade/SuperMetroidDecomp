@@ -228,7 +228,7 @@ internal sealed class GameplayActorDrawing
             // echoes, and grapple graphics. Projectile drawing remains in the shared
             // tail below, exactly as `DrawSamusAndProjectiles` does after this handler.
             bool elevatorOwnsSamusDrawing =
-                ((ushort)room.Enemies.Elevator.ElevatorStatus) != 0 && SamusPoseMetadata.IsForwardFacingPose(_player.Samus.Pose);
+                room.Enemies.Elevator.ElevatorStatus != 0 && SamusPoseMetadata.IsForwardFacingPose(_player.Samus.Pose);
             if (elevatorOwnsSamusDrawing)
             {
                 if (RoomMainRoutines.ShouldDrawSamusOnElevator(_clock.Counter))

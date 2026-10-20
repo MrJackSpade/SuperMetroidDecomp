@@ -676,7 +676,7 @@ internal static void VerifySamusVisorPalette()
         AssertTrue(cgram.Colors[196] == colorBeforeCountdown &&
                 state.PaletteByteOffset == offsetBeforeCountdown,
             $"visor countdown timer {expectedTimer} writes no color and keeps its offset");
-        AssertEqual((int)expectedTimer, state.Timer,
+        AssertEqual(expectedTimer, state.Timer,
             $"visor countdown reaches {expectedTimer}");
         if (expectedTimer == 1)
             break;

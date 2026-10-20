@@ -72,8 +72,8 @@ internal static class GroundedSpreadTransitionVerification
             AssertEqual(samus.ProjectileFlareCounter, runtime.Projectiles.Charge.FlareCounter, "runtime charge mirror stays synchronized");
             if (frame == 99)
             {
-                AssertEqual((ushort)77, samus.ProjectileFlareCounter, "beam charge earned before morph stays intact while holding Down");
-                AssertEqual((ushort)17, samus.BombSpreadChargeTimeoutCounter, "hold counter advances only after morph animation");
+                AssertEqual(77, samus.ProjectileFlareCounter, "beam charge earned before morph stays intact while holding Down");
+                AssertEqual(17, samus.BombSpreadChargeTimeoutCounter, "hold counter advances only after morph animation");
             }
             if (frame is >= 100 and <= 105 && scenario != 3)
                 AssertEqual(left ? SamusPoseId.UnmorphingTransitionLeftPose : SamusPoseId.UnmorphingTransitionRightPose,

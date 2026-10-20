@@ -47,8 +47,8 @@ internal static class ProjectileDamageVerification
             int data = 0x930000 | Word(table + index * 2);
             AssertEqual(Word(data), slot.Damage, "Production initializer uses compiled damage");
             AssertEqual(Word(data + 2 + direction * 2), slot.InstructionPointer, "Animation list selection unchanged");
-            AssertEqual((ushort)rom.ReadCartridgeByte(0x930000 | (slot.InstructionPointer + 4)), slot.Radius.X, "Physical X radius unchanged");
-            AssertEqual((ushort)rom.ReadCartridgeByte(0x930000 | (slot.InstructionPointer + 5)), slot.Radius.Y, "Physical Y radius unchanged");
+            AssertEqual(rom.ReadCartridgeByte(0x930000 | (slot.InstructionPointer + 4)), slot.Radius.X, "Physical X radius unchanged");
+            AssertEqual(rom.ReadCartridgeByte(0x930000 | (slot.InstructionPointer + 5)), slot.Radius.Y, "Physical Y radius unchanged");
             AssertEqual((ushort)1, slot.InstructionTimer.RawValue, "Initializer timer unchanged");
         }
         for (ushort beam = 0; beam < 12; beam++)
@@ -67,20 +67,20 @@ internal static class ProjectileDamageVerification
         {
             var system = new SamusProjectileSystem(new BeamChargeState(), SamusProjectileResidue.None); var samus = Samus(); samus.SelectedHudItem = HudItems.Decode(item);
             var result = system.Firing.TryFireMissile(samus, SnesButton.X, 0, new SamusBombProjectileSystem());
-            AssertEqual((int?)0, result.Slot, "Missile allocation succeeds");
+            AssertEqual(0, result.Slot, "Missile allocation succeeds");
             Check(system.Slots[0], SamusProjectileRomData.NonBeam.DataPointers, item, system.Slots[0].Direction & 15);
             system.EnemyImpacts.ReflectFromEnemy(samus, 0);
             Check(system.Slots[0], SamusProjectileRomData.NonBeam.DataPointers, item, system.Slots[0].Direction & 15);
             if (item == 2)
             {
                 system.Motion.SpawnSuperMissileLink(samus, system.Slots[0]);
-                AssertEqual((ushort)300, system.Slots[1].Damage, "Invisible link remains occupied/nonzero damage");
-                AssertEqual((ushort)300, system.Slots[0].Damage, "Link allocation does not replace its owner");
+                AssertEqual(300, system.Slots[1].Damage, "Invisible link remains occupied/nonzero damage");
+                AssertEqual(300, system.Slots[0].Damage, "Link allocation does not replace its owner");
             }
         }
         var hyper = new SamusProjectileSystem(new BeamChargeState(), SamusProjectileResidue.None);
         hyper.Firing.TryFireHyperBeam(room, Samus(), new SamusBombProjectileSystem(), null);
-        AssertEqual((ushort)1000, hyper.Slots[0].Damage, "Hyper retains its post-initialization damage override");
+        AssertEqual(1000, hyper.Slots[0].Damage, "Hyper retains its post-initialization damage override");
         foreach (ushort beam in new ushort[] { 1, 2, 4, 8 })
         {
             var system = new SamusProjectileSystem(new BeamChargeState(), SamusProjectileResidue.None); var samus = Samus();
@@ -197,7 +197,7 @@ internal static class ProjectileDamageVerification
             AssertTrue(projectiles.Combos.TryActivateCombo(
                     samus, shared, out _),
                 $"beam {beam:X} activates with cost/angle ROM reads forbidden");
-            AssertEqual((ushort)9, samus.PowerBombs,
+            AssertEqual(9, samus.PowerBombs,
                 $"beam {beam:X} consumes its compiled one-Power-Bomb cost");
             for (int slot = 0; slot < 4; slot++)
                 AssertEqual(beam is 2 or 8

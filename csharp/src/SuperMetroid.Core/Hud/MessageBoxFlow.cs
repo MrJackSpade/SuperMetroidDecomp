@@ -18,8 +18,6 @@ namespace SuperMetroid.Core.Hud;
 /// </summary>
 internal sealed class MessageBoxFlow
 {
-    /// <summary>Supplies BG1 offset when resumed PLMs publish tilemap updates.</summary>
-    private readonly BackgroundScrollState _backgroundScroll;
     /// <summary>Provides gameplay freeze state for HUD counter refresh after a box closes.</summary>
     private readonly GameplayTimeFreeze _freeze;
     /// <summary>Refreshes counters and queues uploads when message completion lacks a suspended frame tail.</summary>
@@ -34,15 +32,12 @@ internal sealed class MessageBoxFlow
     private readonly SamusSuitPickupState _suitPickup;
     /// <summary>Marks accepted gunship and room station saves in area progression bits.</summary>
     private readonly Bank80SystemState _system;
-    /// <summary>Receives tilemap updates emitted by resumed message-box PLMs.</summary>
-    private readonly SnesVram _vram;
     /// <summary>Queues HUD graphics when message completion runs outside a suspended frame.</summary>
     private readonly VramWriteQueue _vramWrites;
 
     /// <summary>Retains the runtime owners needed to resolve message outcomes after NMI-only execution.</summary>
     internal MessageBoxFlow(MessageBoxFlowDependencies dependencies)
     {
-        _backgroundScroll = dependencies.BackgroundScroll;
         _freeze = dependencies.Freeze;
         _hud = dependencies.Hud;
         _messageBox = dependencies.MessageBox;
@@ -50,7 +45,6 @@ internal sealed class MessageBoxFlow
         _room = dependencies.Room;
         _suitPickup = dependencies.SuitPickup;
         _system = dependencies.System;
-        _vram = dependencies.Vram;
         _vramWrites = dependencies.VramWrites;
     }
     /// <summary>Suit transformation to start when its item message returns to the PLM.</summary>
@@ -110,7 +104,6 @@ internal sealed class MessageBoxFlow
     /// <summary>Applies the effects that follow a message box closing.</summary>
     internal void ResolveClosedMessageBox(bool frameSuspended, RoomPlmSystem plms, SamusBombProjectileSystem bombProjectiles, RoomScope room)
     {
-
         if (room.Enemies.Gunship.SavePromptPending)
         {
             bool accepted = _messageBox.ConsumeConfirmationResult()

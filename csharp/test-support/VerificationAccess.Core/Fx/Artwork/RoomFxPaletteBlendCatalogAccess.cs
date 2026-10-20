@@ -9,6 +9,6 @@ internal static class RoomFxPaletteBlendCatalogAccess
     extension(RoomFxPaletteBlendCatalog self)
     {
         /// <summary>Resolves the selected blend and materializes its three RGB5 colors.</summary>
-        internal ReadOnlySpan<Bgr555> Resolve(RoomFxPaletteBlend selection) => ((RoomFxBlendColors)(self.SelectColors(selection))).CreateColors();
+        internal ReadOnlySpan<Bgr555> Resolve(RoomFxPaletteBlend selection) => self.SelectColors(selection).CreateColors();
     }
 }

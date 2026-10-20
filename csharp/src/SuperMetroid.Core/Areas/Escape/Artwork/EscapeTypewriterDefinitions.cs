@@ -53,6 +53,7 @@ public static class EscapeTypewriterDefinitions
     {
         EscapeTypewriterProgramId.Ceres => CeresLineCount,
         EscapeTypewriterProgramId.Zebes => ZebesLineCount,
+        EscapeTypewriterProgramId.None => throw new ArgumentOutOfRangeException(nameof(id)),
         _ => throw new ArgumentOutOfRangeException(nameof(id)),
     };
 
@@ -80,6 +81,7 @@ public static class EscapeTypewriterDefinitions
     {
         EscapeTypewriterProgramId.Ceres => CeresSourceAddress,
         EscapeTypewriterProgramId.Zebes => ZebesSourceAddress,
+        EscapeTypewriterProgramId.None => throw new ArgumentOutOfRangeException(nameof(id), id, "No native escape text source exists."),
         _ => throw new ArgumentOutOfRangeException(nameof(id), id, "No native escape text source exists."),
     };
 }

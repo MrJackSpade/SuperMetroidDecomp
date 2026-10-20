@@ -48,7 +48,7 @@ internal static class KraidMovementChoicesVerification
     /// <summary>Compares native records and optionally follows the production thinking transition without advancing RNG.</summary>
     internal static void VerifyKraidMovementChoices(SuperMetroidAddressSpace rom, bool definitionsOnly = false)
     {
-        ushort Word(int a) => (ushort)(SnesLittleEndian.Word(KraidMovementChoicesRomByte(rom, a), KraidMovementChoicesRomByte(rom, a + 1)));
+        ushort Word(int a) => SnesLittleEndian.Word(KraidMovementChoicesRomByte(rom, a), KraidMovementChoicesRomByte(rom, a + 1));
         var positions = new ushort[6];
         var targets = new ushort[6, 5];
         var timers = new ushort[6, 5];
@@ -86,8 +86,8 @@ internal static class KraidMovementChoicesVerification
         enemies.KraidBehavior.Kraid = state;
         ushort rng = 0;
         int reads = 0;
-        enemies.VerificationServices().ReadRandom = (Func<ushort>)(() => { reads++; return rng; });
-        enemies.VerificationServices().NextRandom = (Func<ushort>)(() => throw new InvalidOperationException("Movement choice must not advance RNG."));
+        enemies.VerificationServices().ReadRandom = () => { reads++; return rng; };
+        enemies.VerificationServices().NextRandom = () => throw new InvalidOperationException("Movement choice must not advance RNG.");
         Action<RoomEnemySlot, RoomEnemySlot, KraidPartState> think = enemies.KraidBehavior.RunKraidSecondPhaseThinking;
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
         {

@@ -26,7 +26,7 @@ internal static class RetailElevatorCaptureTests
             // Navigate only startup menus. Once the room owns the frontend, no
             // controller actions participate in elevator motion or completion.
             SnesButton input = legacy.RuntimeForVerification is null && tick % 47 == 0
-                ? SnesButton.Start : (ushort)0;
+                ? SnesButton.Start : 0;
             var expected = legacy.Step(input);
             var actual = captured.StepCaptured(input, tick + 1, 1);
             if (expected.GameState != actual.Frame.GameState ||

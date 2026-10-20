@@ -618,7 +618,7 @@ empty, spring, controllerInput: 0, nmiFrameCounter: 0);
     AssertProjectileEntry(
         DrawnEntries(frame => bombs.Draw(frame, layer1: new(0, 0), bombArtwork)),
         new SpriteSource(SpriteSourceKind.SamusBomb, 0), bombArtwork.Sprites.Frame(checked((ushort)bombs.Slots[0].SpritemapPointer)), bombArtwork,
-        new Position16<ScreenPixels>((ushort)bombs.Slots[0].Position.X.Whole, (ushort)bombs.Slots[0].Position.Y.Whole), "Bomb");
+        new Position16<ScreenPixels>(bombs.Slots[0].Position.X.Whole, bombs.Slots[0].Position.Y.Whole), "Bomb");
     AssertEqual(4, bombs.Slots[0].Radius.X, "first instruction publishes ROM X radius");
     AssertEqual(4, bombs.Slots[0].Radius.Y, "first instruction publishes ROM Y radius");
 

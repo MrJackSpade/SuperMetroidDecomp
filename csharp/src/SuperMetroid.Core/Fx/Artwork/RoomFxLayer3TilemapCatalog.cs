@@ -95,6 +95,13 @@ public sealed class RoomFxLayer3TilemapCatalog
         RoomFxType.Spores => spores.CreateTransfer(),
         RoomFxType.Rain => rain.CreateTransfer(),
         RoomFxType.Fog => fog.CreateTransfer(),
+        RoomFxType.None or
+            RoomFxType.ScrollingSky or
+            RoomFxType.UnusedScrollingSky or
+            RoomFxType.Fireflea or
+            RoomFxType.CeresRidley or
+            RoomFxType.CeresElevator or
+            RoomFxType.CeresHaze => throw new InvalidDataException($"Room-FX BG3 tilemap {type} is not an authored page."),
         _ => throw new InvalidDataException($"Room-FX BG3 tilemap {type} is not an authored page."),
     };
 

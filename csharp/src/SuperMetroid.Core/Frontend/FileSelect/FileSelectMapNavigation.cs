@@ -83,6 +83,7 @@ public sealed class FileSelectMapNavigation
             case FileSelectMapNavigationPhase.OptionsRequested:
             case FileSelectMapNavigationPhase.LoadRequested:
                 break;
+            case FileSelectMapNavigationPhase.EnteringArea:
             default:
                 throw new InvalidOperationException($"Unknown map navigation phase {Phase}.");
         }

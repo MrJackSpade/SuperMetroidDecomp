@@ -69,9 +69,9 @@ internal static class RoomFxPaletteBlendsVerification
         (RoomLayer3FxState emptyState, CartridgeReadGuard emptyBus, SnesCgram emptyCgram) =
             ConstructBlendLoad(catalog, tilemaps, 0);
         _ = emptyState;
-        AssertEqual((ushort)0x1234, emptyCgram.Colors[25], "zero blend preserves color 25");
-        AssertEqual((ushort)0x2345, emptyCgram.Colors[26], "zero blend preserves color 26");
-        AssertEqual((ushort)0, emptyCgram.Colors[27], "zero blend clears only color 27");
+        AssertEqual(0x1234, emptyCgram.Colors[25], "zero blend preserves color 25");
+        AssertEqual(0x2345, emptyCgram.Colors[26], "zero blend preserves color 26");
+        AssertEqual(0, emptyCgram.Colors[27], "zero blend clears only color 27");
         AssertEqual(0, emptyBus.ForbiddenReadAttempts, "zero blend does not read bank-$89");
         AssertThrows<InvalidDataException>(() => RoomFxPaletteBlendCatalog.Load(
             new MemoryStream([1, 2, 3])), "corrupt room-FX blend resource fails loudly");
@@ -110,12 +110,12 @@ internal static class RoomFxPaletteBlendsVerification
             false, colors: edited).Windows[120];
         AssertEqual(stockLine.Blue, editedLine.Green,
             "edited Ceres tint replaces blue with equal-amplitude green on the same scanline");
-        AssertEqual((byte)0, editedLine.Blue, "edited Ceres tint removes blue addition");
+        AssertEqual(0, editedLine.Blue, "edited Ceres tint removes blue addition");
         ColorAddWindow editedEscapeLine = SnesGameplayFrameRenderer.CaptureCeresHaze(
             true, colors: edited).Windows[120];
         AssertEqual(stockLine.Blue, editedEscapeLine.Blue,
             "edited escape tint reaches the post-Ridley channel without changing the gradient");
-        AssertEqual((byte)0, editedEscapeLine.Red,
+        AssertEqual(0, editedEscapeLine.Red,
             "edited escape tint removes the stock red channel");
         AssertEqual(stockLine, SnesGameplayFrameRenderer.CaptureCeresHaze(false).Windows[120],
             "cosmetic override does not mutate stock presentation");
@@ -126,7 +126,7 @@ internal static class RoomFxPaletteBlendsVerification
             "software renderer consumes the same edited Ceres tint as captured PPU rendering");
         AssertEqual((byte)0, pixels[120 * SnesGameplayFrameRenderer.Width].B,
             "software renderer does not retain the stock blue channel");
-        AssertEqual((byte)0, SnesGameplayFrameRenderer.CaptureCeresHaze(
+        AssertEqual(0, SnesGameplayFrameRenderer.CaptureCeresHaze(
             false, intensity: 0, colors: edited).Windows[120].Green,
             "cosmetic color cannot change the native fade-out duration");
         AssertThrows<InvalidDataException>(() => RoomFxPaletteBlendCatalog.Write(

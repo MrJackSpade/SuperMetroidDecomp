@@ -57,7 +57,7 @@ internal static class DemoInputProgramsVerification
                 if (word < DemoInputListWords.RoutineWord)
                 {
                     AssertEqual(AnimationProgramStepKind.Show, step.Kind, $"{at}: input record");
-                    AssertEqual((int)word, step.Duration, $"{at}: duration");
+                    AssertEqual(word, step.Duration, $"{at}: duration");
                     AssertEqual(Word(cursor + 2), (ushort)step.Frame.Held, $"{at}: held");
                     AssertEqual(Word(cursor + 4), (ushort)step.Frame.NewlyPressed, $"{at}: newly pressed");
                     cursor = unchecked((ushort)(cursor + DemoInputListWords.InputRecordBytes));
@@ -82,6 +82,10 @@ internal static class DemoInputProgramsVerification
                         AssertEqual(AnimationProgramStepKind.Stop, step.Kind, $"{at}: delete");
                         AssertEqual(steps.Count, index + 1, $"{at}: the delete ends the program");
                         break;
+                    case DemoInputInstruction.SetPreInstruction:
+                    case DemoInputInstruction.ClearPreInstruction:
+                    case DemoInputInstruction.DecrementTimerAndGoto:
+                    case DemoInputInstruction.SetTimer:
                     default:
                         throw new InvalidDataException($"{at}: native word ${word:X4} has no typed form.");
                 }

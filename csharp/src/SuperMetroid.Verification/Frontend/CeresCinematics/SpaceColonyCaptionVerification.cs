@@ -17,11 +17,11 @@ internal static class SpaceColonyCaptionVerification
             int instruction = 0x8cd629 + 6 * index;
             var actual = SpaceColonyCaptionDefinitions.Letter(index);
             AssertEqual(16, CartridgeImportSource.Require(rom).ReadCartridgeWord(instruction), "native letter duration unchanged");
-            AssertEqual((int)rom.ReadCartridgeByte(instruction + 2), actual.Column, "native caption column");
+            AssertEqual(rom.ReadCartridgeByte(instruction + 2), actual.Column, "native caption column");
             AssertEqual((byte)24, rom.ReadCartridgeByte(instruction + 3), "native caption row unchanged");
             int drawing = 0x8c0000 | CartridgeImportSource.Require(rom).ReadCartridgeWord((instruction + 4));
             AssertEqual(0x0101, CartridgeImportSource.Require(rom).ReadCartridgeWord((drawing + 2)), "one-cell character drawing");
-            AssertEqual((ushort)CartridgeImportSource.Require(rom).ReadCartridgeWord((drawing + 4)), actual.Tile, "native caption tile and attributes");
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((drawing + 4)), actual.Tile, "native caption tile and attributes");
         }
         foreach (int invalid in new[] { -1, 11, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => SpaceColonyCaptionDefinitions.Letter(invalid), "caption domain");

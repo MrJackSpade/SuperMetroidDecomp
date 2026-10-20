@@ -31,7 +31,7 @@ internal static class MetareeDiveSpeedVerification
             AssertEqual(expected, state.YVelocity, $"Samus {samusOffset} pixels below gives a dive of {expected}");
             AssertEqual(MetareeEnemyFunction.PreparingAttack, state.Function, "the Metaree prepares its attack");
             slot.Clear();
-            AssertEqual((0, (MetareeEnemyFunction?)null), (state.YVelocity, state.Function), "a kill empties the dive speed and function");
+            AssertEqual((0, null), (state.YVelocity, state.Function), "a kill empties the dive speed and function");
         }
         Console.WriteLine("Metaree dive speed: the ordinary and wrapped dives and the cleared record match.");
     }

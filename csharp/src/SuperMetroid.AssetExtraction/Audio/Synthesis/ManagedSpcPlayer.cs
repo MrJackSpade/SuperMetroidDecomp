@@ -243,8 +243,8 @@ public sealed class ManagedSpcPlayer
                     channel.VolumeFadeTarget - SpcFixedPoint.Whole(channel.ChannelVolume), argument);
                 break;
             case SpcMusicEffect.CallPattern:
-                channel.PatternStartPointer = unchecked((ushort)(
-                    SnesLittleEndian.Word(argument, NextSequenceByte(ref channel.PatternOrderPointer))));
+                channel.PatternStartPointer = unchecked(
+                    SnesLittleEndian.Word(argument, NextSequenceByte(ref channel.PatternOrderPointer)));
                 channel.SubroutineLoops = NextSequenceByte(ref channel.PatternOrderPointer);
                 channel.SavedPatternPointer = channel.PatternOrderPointer;
                 channel.PatternOrderPointer = channel.PatternStartPointer;
@@ -805,7 +805,7 @@ public sealed class ManagedSpcPlayer
     [SpcMemoryBoundary("driver-memory view: instrument records")]
     internal SpcInstrumentRecord ReadInstrument(int address) => new(
         ram[address], ram[address + 1], ram[address + 2], ram[address + 3],
-        unchecked((ushort)(SnesLittleEndian.Word(ram[address + 5], ram[address + 4]))));
+        unchecked(SnesLittleEndian.Word(ram[address + 5], ram[address + 4])));
 
     /// <summary>Stores an instrument record at <paramref name="address"/> in the native byte order.</summary>
     [SpcMemoryBoundary("driver-memory view: instrument records")]
@@ -1453,13 +1453,13 @@ public sealed class ManagedSpcPlayer
         {
             if (offset > stream.Length - 2)
                 throw new InvalidDataException("SPC upload stream ended before its record length.");
-            ushort length = unchecked((ushort)(SnesLittleEndian.Word(stream[offset], stream[offset + 1])));
+            ushort length = unchecked(SnesLittleEndian.Word(stream[offset], stream[offset + 1]));
             offset += 2;
             if (length == 0)
                 break;
             if (offset > stream.Length - 2)
                 throw new InvalidDataException("SPC upload stream ended before its destination word.");
-            ushort target = unchecked((ushort)(SnesLittleEndian.Word(stream[offset], stream[offset + 1])));
+            ushort target = unchecked(SnesLittleEndian.Word(stream[offset], stream[offset + 1]));
             offset += 2;
             if (length > stream.Length - offset)
                 throw new InvalidDataException(
@@ -1561,7 +1561,7 @@ public sealed class ManagedSpcPlayer
     internal int ReadMusicTopLevelPointer() => musicTopLevelPointer;
 
     /// <summary>The tempo's whole byte, added to the accumulator per driver tick, for clip export (#1305).</summary>
-    internal byte ReadTempo() => unchecked((byte)SpcFixedPoint.Whole(tempo));
+    internal byte ReadTempo() => unchecked(SpcFixedPoint.Whole(tempo));
 
     /// <summary>Resets DSP/work RAM and publishes the driver's initial echo and master-register state.</summary>
     private void InitializeDriver()

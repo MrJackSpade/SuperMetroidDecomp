@@ -209,9 +209,9 @@ public sealed class RoomLevelData
     /// </summary>
     public int GetBlockIndex(Position16<RoomBlocks> block)
     {
-        if ((uint)block.X >= (uint)Size.X)
+        if (block.X >= (uint)Size.X)
             throw new ArgumentOutOfRangeException(nameof(block), $"Block X {block.X} lies outside the {Size.X}-block room width.");
-        if ((uint)block.Y >= (uint)Size.Y)
+        if (block.Y >= (uint)Size.Y)
             throw new ArgumentOutOfRangeException(nameof(block), $"Block Y {block.Y} lies outside the {Size.Y}-block room height.");
         return Size.RowMajorIndex(block);
     }

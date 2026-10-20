@@ -64,7 +64,7 @@ internal static class BotwoonAttackCooldownVerification
     private static (RoomEnemySystem Enemies, RoomEnemySlot Head, BotwoonEnemyState State) NewBotwoon()
     {
         var enemies = new RoomEnemySystem(new EnemySession(), services: new VerificationRoomEnemyServices(null));
-        enemies.VerificationServices().NextRandom = (Func<ushort>)(() => 0);
+        enemies.VerificationServices().NextRandom = () => 0;
         RoomEnemySlot head = enemies.SlotTable.Slots[0];
         head.Bind(EnemyDefinitionId.Botwoon, head.Definition);
         head.Position = head.Position.WithWhole(new(1000, 1000));

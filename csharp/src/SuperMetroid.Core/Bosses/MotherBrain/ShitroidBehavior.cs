@@ -37,18 +37,14 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Receives the membrane cycle and the encounter's target palettes.</summary>
     private readonly EnemyPresentation _presentation;
 
-    /// <summary>Activates the Sidehopper corpse after Shitroid finishes feeding.</summary>
-    private readonly DeadSidehopperBehavior _deadSidehopperBehavior;
-
     /// <summary>Controls whether the normal membrane palette can advance during the Zebetite sequence.</summary>
     private readonly ZebetiteBehavior _zebetiteBehavior;
 
     /// <summary>Connects the Tourian Baby Metroid to room, victim, palette, and Zebetite owners.</summary>
-    internal ShitroidBehavior(EnemyRoomBinding room, EnemySlotTable slotTable, EnemyPresentation presentation, DeadSidehopperBehavior deadSidehopperBehavior, ZebetiteBehavior zebetiteBehavior, EnemyFrameResultBuilder frameResults)
+    internal ShitroidBehavior(EnemyRoomBinding room, EnemySlotTable slotTable, EnemyPresentation presentation, ZebetiteBehavior zebetiteBehavior, EnemyFrameResultBuilder frameResults)
     {
         _frameResults = frameResults;
         _zebetiteBehavior = zebetiteBehavior;
-        _deadSidehopperBehavior = deadSidehopperBehavior;
         _room = room;
         _slotTable = slotTable;
         _presentation = presentation;

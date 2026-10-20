@@ -117,15 +117,15 @@ internal static class SamusFullBodyCycleColorsVerification
                 {
                     int shade = ((pointer - 0x9ba0) % 0x200) / 32;
                     ushort basis = ReadVerificationWord(rom, 0x9b0000 | (pointer - 32 * shade + 2 * color));
-                    AssertEqual(expected, SamusFullBodyCycleColorFormat.StoredShineColor(Bgr555.FromWord(checked((ushort)(basis))), shade), "Every native stored-shine interpolation word");
+                    AssertEqual(expected, SamusFullBodyCycleColorFormat.StoredShineColor(Bgr555.FromWord(checked(basis)), shade), "Every native stored-shine interpolation word");
                 }
                 bool speedTint = speedTintWords.Contains(pointer + 2 * color);
                 ushort speedBasis = ReadVerificationWord(rom, 0x9b0000 | (0x9b20 + paletteIndex / 16 * 512 + 2 * color));
-                AssertEqual(speedTint, SamusFullBodyCycleColorFormat.TrySpeedBoosterTint(paletteIndex, color, Bgr555.FromWord(checked((ushort)(speedBasis))), out Bgr555 tint), "Every Speed Booster tint domain member");
+                AssertEqual(speedTint, SamusFullBodyCycleColorFormat.TrySpeedBoosterTint(paletteIndex, color, Bgr555.FromWord(checked(speedBasis)), out Bgr555 tint), "Every Speed Booster tint domain member");
                 if (speedTint) AssertEqual(expected, tint, "Every original Speed Booster base tint word");
                 bool speedBright = speedBrightWords.Contains(pointer + 2 * color);
                 ushort dim = ReadVerificationWord(rom, 0x9b0000 | (0x9b40 + paletteIndex / 16 * 512 + 2 * color));
-                AssertEqual(speedBright, SamusFullBodyCycleColorFormat.TrySpeedBoosterBrightening(paletteIndex, color, Bgr555.FromWord(checked((ushort)(dim))), out Bgr555 brightened), "Every Speed Booster brightening domain member");
+                AssertEqual(speedBright, SamusFullBodyCycleColorFormat.TrySpeedBoosterBrightening(paletteIndex, color, Bgr555.FromWord(checked(dim)), out Bgr555 brightened), "Every Speed Booster brightening domain member");
                 if (speedBright) AssertEqual(expected, brightened, "Every original Speed Booster endpoint brightening word");
                 int sharedAddress = (pointer + 2 * color) switch
                 {
@@ -138,20 +138,20 @@ internal static class SamusFullBodyCycleColorsVerification
                 int sharedIndex = SamusFullBodyCycleColorFormat.SpeedSharedChannelSource(paletteIndex, color);
                 AssertEqual(sharedAddress < 0 ? -1 : (sharedAddress - 0x9b20) / 2, sharedIndex, "Every original shared-channel source identity");
                 if (sharedAddress >= 0)
-                    AssertEqual(expected, SamusFullBodyCycleColorFormat.SpeedSharedChannelColor(paletteIndex, color, Bgr555.FromWord(checked((ushort)(speedBasis))),
-                        Bgr555.FromWord(checked((ushort)(ReadVerificationWord(rom, 0x9b0000 | sharedAddress))))), "Every native shared-channel color");
+                    AssertEqual(expected, SamusFullBodyCycleColorFormat.SpeedSharedChannelColor(paletteIndex, color, Bgr555.FromWord(checked(speedBasis)),
+                        Bgr555.FromWord(checked(ReadVerificationWord(rom, 0x9b0000 | sharedAddress)))), "Every native shared-channel color");
                 bool activeTint = activeTintWords.Contains(pointer + 2 * color);
                 AssertEqual(activeTint, SamusFullBodyCycleColorFormat.IsActiveShineTint(paletteIndex, color), "Every active-shinespark tint domain member");
                 if (activeTint)
                     AssertEqual(expected, SamusFullBodyCycleColorFormat.ActiveShineTint(
-                        Bgr555.FromWord(checked((ushort)(ReadVerificationWord(rom, 0x9b0000 | (0x9c20 + paletteIndex / 16 * 512 + 2 * color))))), paletteIndex % 4), "Every original active-shinespark tint word");
+                        Bgr555.FromWord(checked(ReadVerificationWord(rom, 0x9b0000 | (0x9c20 + paletteIndex / 16 * 512 + 2 * color)))), paletteIndex % 4), "Every original active-shinespark tint word");
                 bool activeGold = activeGoldWords.Contains(pointer + 2 * color);
                 ushort goldBase = ReadVerificationWord(rom, 0x9b0000 | (0x9c20 + paletteIndex / 16 * 512 + 2 * color));
-                AssertEqual(activeGold, SamusFullBodyCycleColorFormat.TryActiveGoldRamp(paletteIndex, color, Bgr555.FromWord(checked((ushort)(goldBase))), out Bgr555 gold), "Every active gold-ramp domain member");
+                AssertEqual(activeGold, SamusFullBodyCycleColorFormat.TryActiveGoldRamp(paletteIndex, color, Bgr555.FromWord(checked(goldBase)), out Bgr555 gold), "Every active gold-ramp domain member");
                 if (activeGold) AssertEqual(color == 2 ? (ushort)(expected & 1023) : expected, color == 2 ? (ushort)(gold.ToWord() & 1023) : gold.ToWord(), "Every original active gold-ramp channel");
                 bool screwTint = screwTintWords.Contains(pointer + 2 * color);
                 ushort screwBase = ReadVerificationWord(rom, 0x9b0000 | (0x9ca0 + paletteIndex / 16 * 512 + 2 * color));
-                AssertEqual(screwTint, SamusFullBodyCycleColorFormat.TryScrewAttackTint(paletteIndex, color, Bgr555.FromWord(checked((ushort)(screwBase))), out Bgr555 screw), "Every Screw Attack tint domain member");
+                AssertEqual(screwTint, SamusFullBodyCycleColorFormat.TryScrewAttackTint(paletteIndex, color, Bgr555.FromWord(checked(screwBase)), out Bgr555 screw), "Every Screw Attack tint domain member");
                                 if (screwTint)
                 {
                     int mask = (pointer + 2 * color) switch { 0x9d14 => 0x7fe0, 0x9d1e => 0x7c1f, _ => 0x7fff };
@@ -159,17 +159,17 @@ internal static class SamusFullBodyCycleColorsVerification
                 }
                 bool variaScrew = pointer + 2 * color is 0x9ec4 or 0x9ee4 or 0x9f04;
                 AssertEqual(variaScrew, SamusFullBodyCycleColorFormat.TryVariaScrewInk(paletteIndex, color,
-                    Bgr555.FromWord(checked((ushort)(ReadVerificationWord(rom, 0x9b9ea4)))), Bgr555.FromWord(checked((ushort)(ReadVerificationWord(rom, 0x9b9f04)))), out Bgr555 variaInk), "Every Varia Screw slot2 member");
+                    Bgr555.FromWord(checked(ReadVerificationWord(rom, 0x9b9ea4))), Bgr555.FromWord(checked(ReadVerificationWord(rom, 0x9b9f04))), out Bgr555 variaInk), "Every Varia Screw slot2 member");
                 if (variaScrew) AssertEqual(expected, variaInk, "Original Varia Screw endpoint/midpoint colors");
                 bool powerInk = pointer + 2 * color is 0x9cc4 or 0x9ce4 or 0x9d04 or 0x9cd8 or 0x9cf8 or 0x9d18;
                 AssertEqual(powerInk, SamusFullBodyCycleColorFormat.TryScrewPowerInk(paletteIndex, color,
-                    Bgr555.FromWord(checked((ushort)(ReadVerificationWord(rom, 0x9b9ca0 + 2 * color)))), Bgr555.FromWord(checked((ushort)(ReadVerificationWord(rom, 0x9b9b58)))), out Bgr555 ink), "Every Power Screw ink domain member");
+                    Bgr555.FromWord(checked(ReadVerificationWord(rom, 0x9b9ca0 + 2 * color))), Bgr555.FromWord(checked(ReadVerificationWord(rom, 0x9b9b58))), out Bgr555 ink), "Every Power Screw ink domain member");
                 if (powerInk) AssertEqual(expected, ink, "Every original Power Screw ink word");
                 bool endpoint = pointer + 2 * color is 0x9b42 or 0x9b44 or 0x9b92 or 0x9b58 or 0x9d94 or 0x9d58 or 0x9f44 or 0x9c64 or 0x9c84 or 0x9c50 or 0x9d14 or 0x9d1e or 0x9f04;
                 bool gravityShared = pointer + 2 * color is 0x9f22 or 0x9f38;
                 if (gravityShared)
                     AssertEqual(expected, SamusFullBodyCycleColorFormat.GravitySharedBase(
-                        Bgr555.FromWord(checked((ushort)(ReadVerificationWord(rom, 0x9b9b20 + 2 * color)))), Bgr555.FromWord(checked((ushort)(ReadVerificationWord(rom, 0x9b9b40 + 2 * color))))), "Original Gravity base shared-channel pairs");
+                        Bgr555.FromWord(checked(ReadVerificationWord(rom, 0x9b9b20 + 2 * color))), Bgr555.FromWord(checked(ReadVerificationWord(rom, 0x9b9b40 + 2 * color)))), "Original Gravity base shared-channel pairs");
                 AssertEqual(pointer == sourcePointer && !storedShine && !speedTint && !speedBright && sharedAddress < 0 && !activeTint && !activeGold && !screwTint && !powerInk && !endpoint && !gravityShared && !variaScrew,
                     stored.ContainsKey(paletteIndex * 16 + color), "Only source inputs remain in stock storage");
                 AssertEqual((ushort)(expected & 0x7fff), cgram.Colors[SamusPaletteRomData.Common.SamusObjPaletteStart + color], "Every full-body palette row reaches CGRAM");
@@ -218,28 +218,28 @@ internal static class SamusFullBodyCycleColorsVerification
                 int blended = (int)Math.Floor(component + (31 - component) * (shade / 4.0));
                 expected |= blended << shift;
             }
-            AssertEqual((ushort)expected, SamusFullBodyCycleColorFormat.StoredShineColor(Bgr555.FromWord(checked((ushort)((ushort)basis))), shade), "Complete RGB5 quarter-white blend domain");
+            AssertEqual((ushort)expected, SamusFullBodyCycleColorFormat.StoredShineColor(Bgr555.FromWord(checked((ushort)basis)), shade), "Complete RGB5 quarter-white blend domain");
             int warm = new[] { 0, 10, 16, 26 }[shade], blue = new[] { 0, 5, 0, 10 }[shade];
             int activeExpected = Math.Clamp((basis & 31) + warm, 0, 31) +
                 32 * Math.Clamp((basis >> 5 & 31) + warm, 0, 31) +
                 1024 * Math.Clamp((basis >> 10) + blue, 0, 31);
-            AssertEqual((ushort)activeExpected, SamusFullBodyCycleColorFormat.ActiveShineTint(Bgr555.FromWord(checked((ushort)((ushort)basis))), shade), "Complete RGB5 active warm tint domain");
+            AssertEqual((ushort)activeExpected, SamusFullBodyCycleColorFormat.ActiveShineTint(Bgr555.FromWord(checked((ushort)basis)), shade), "Complete RGB5 active warm tint domain");
             if (shade > 0)
             {
                 for (int brightRed = 0; brightRed < 32; brightRed++)
                 {
-                    AssertTrue(SamusFullBodyCycleColorFormat.TryVariaScrewInk(28 + shade, 2, Bgr555.FromWord(checked((ushort)((ushort)basis))), Bgr555.FromWord(checked((ushort)((ushort)brightRed))), out Bgr555 varia), "Varia Screw interpolation selected");
+                    AssertTrue(SamusFullBodyCycleColorFormat.TryVariaScrewInk(28 + shade, 2, Bgr555.FromWord(checked((ushort)basis)), Bgr555.FromWord(checked((ushort)brightRed)), out Bgr555 varia), "Varia Screw interpolation selected");
                     int red = shade == 1 ? basis & 31 : shade == 3 ? brightRed : (int)Math.Ceiling(((basis & 31) + brightRed) / 2.0);
                     int expectedVaria = red + 32 * Math.Clamp((basis >> 5 & 31) + 5, 0, 31) + (basis & 31744);
                     AssertEqual((ushort)expectedVaria, varia, "Complete Varia Screw basis/red endpoint domain");
                 }
-                AssertTrue(SamusFullBodyCycleColorFormat.TryScrewPowerInk(12 + shade, 2, Bgr555.FromWord(checked((ushort)((ushort)basis))), new Bgr555(0, 0, 0), out Bgr555 descending), "Descending-red ink selected");
+                AssertTrue(SamusFullBodyCycleColorFormat.TryScrewPowerInk(12 + shade, 2, Bgr555.FromWord(checked((ushort)basis)), new Bgr555(0, 0, 0), out Bgr555 descending), "Descending-red ink selected");
                 int descendExpected = Math.Clamp((basis & 31) - 5 * shade, 0, 31) +
                     32 * Math.Clamp((basis >> 5 & 31) + 5 * shade, 0, 31) + (basis & 31744);
                 AssertEqual((ushort)descendExpected, descending, "Full RGB5 descending red/ascending green domain");
                 for (int baseBlue = 0; baseBlue < 32; baseBlue++)
                 {
-                    AssertTrue(SamusFullBodyCycleColorFormat.TryScrewPowerInk(12 + shade, 12, Bgr555.FromWord((ushort)(baseBlue << 10)), Bgr555.FromWord(checked((ushort)((ushort)basis))), out Bgr555 sharedInk), "Shared gold ink selected");
+                    AssertTrue(SamusFullBodyCycleColorFormat.TryScrewPowerInk(12 + shade, 12, Bgr555.FromWord((ushort)(baseBlue << 10)), Bgr555.FromWord(checked((ushort)basis)), out Bgr555 sharedInk), "Shared gold ink selected");
                     int sharedExpected = (basis & 31) + 32 * Math.Clamp((basis >> 5 & 31) + 10 * shade, 0, 31) +
                         1024 * Math.Clamp(baseBlue + (shade == 3 ? 10 : 0), 0, 31);
                     AssertEqual((ushort)sharedExpected, sharedInk, "Shared source RGB5 and blue saturation boundaries");
@@ -248,16 +248,16 @@ internal static class SamusFullBodyCycleColorsVerification
                 {
                     int green = Math.Clamp((basis >> 5 & 31) + (slot != 1 ? 10 : 5) * shade, 0, 31);
                     int blueChannel = Math.Clamp((basis >> 10) + (slot == 4 ? (int)Math.Floor(10 * Math.Pow(2, shade - 3)) : slot == 3 && shade == 3 ? 10 : 0), 0, 31);
-                    AssertTrue(SamusFullBodyCycleColorFormat.TryScrewAttackTint(12 + shade, slot, Bgr555.FromWord(checked((ushort)((ushort)basis))), out Bgr555 screw), "Screw tint operation selected");
+                    AssertTrue(SamusFullBodyCycleColorFormat.TryScrewAttackTint(12 + shade, slot, Bgr555.FromWord(checked((ushort)basis)), out Bgr555 screw), "Screw tint operation selected");
                     AssertEqual((ushort)((basis & 31) + 32 * green + 1024 * blueChannel), screw, "Complete RGB5 Screw tint/saturation domain");
                 }
-                AssertTrue(SamusFullBodyCycleColorFormat.TryActiveGoldRamp(8 + shade, 1, Bgr555.FromWord(checked((ushort)((ushort)basis))), out Bgr555 quarter), "Quarter gold-ramp selected");
+                AssertTrue(SamusFullBodyCycleColorFormat.TryActiveGoldRamp(8 + shade, 1, Bgr555.FromWord(checked((ushort)basis)), out Bgr555 quarter), "Quarter gold-ramp selected");
                 AssertEqual((ushort)((expected & 1023) | (basis & 31744)), quarter, "Gold quarter ramp preserves blue over RGB5 domain");
                 foreach (var (palette, slot, step) in new[] { (8 + shade, 10, 3), (24 + shade, 1, 5), (24 + shade, 10, 5), (8 + shade, 2, 5), (24 + shade, 2, 5) })
                 {
                     int linear = Math.Clamp((basis & 31) + (palette >= 24 && slot == 10 ? 0 : step * shade), 0, 31) +
                         32 * Math.Clamp((basis >> 5 & 31) + step * shade, 0, 31) + (basis & 31744);
-                    AssertTrue(SamusFullBodyCycleColorFormat.TryActiveGoldRamp(palette, slot, Bgr555.FromWord(checked((ushort)((ushort)basis))), out Bgr555 result), "Linear gold-ramp selected");
+                    AssertTrue(SamusFullBodyCycleColorFormat.TryActiveGoldRamp(palette, slot, Bgr555.FromWord(checked((ushort)basis)), out Bgr555 result), "Linear gold-ramp selected");
                     AssertEqual((ushort)linear, result, "Gold linear ramp saturates and preserves blue over RGB5 domain");
                 }
             }
@@ -270,7 +270,7 @@ internal static class SamusFullBodyCycleColorsVerification
         for (int invalid = 32768; invalid <= ushort.MaxValue; invalid++)
         {
             ushort value = (ushort)invalid;
-            AssertThrows<ArgumentOutOfRangeException>(() => SamusFullBodyCycleColorFormat.StoredShineColor(Bgr555.FromWord(checked((ushort)(value))), 0), "Stored-shine RGB5 bounds");
+            AssertThrows<ArgumentOutOfRangeException>(() => SamusFullBodyCycleColorFormat.StoredShineColor(Bgr555.FromWord(checked(value)), 0), "Stored-shine RGB5 bounds");
         }
         var document = RequiredJson.Deserialize<SamusFullBodyCycleColorDocument>(extracted, ArtworkJson.Options);
         ordinal = 0;

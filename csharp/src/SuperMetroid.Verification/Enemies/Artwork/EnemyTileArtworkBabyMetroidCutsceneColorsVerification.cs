@@ -88,7 +88,7 @@ internal static class EnemyTileArtworkBabyMetroidCutsceneColorsVerification
         int destination = BabyMetroidCutsceneColorRomData.DestinationByteIndex / 2;
         cgram.SetColor(destination - 1, Bgr555.FromWord(0x1234));
         enemies.BabyMetroidCutsceneBehavior.LoadBabyMetroidCutsceneInitialPalette();
-        AssertEqual((ushort)0x1234, cgram.Colors[destination - 1],
+        AssertEqual(0x1234, cgram.Colors[destination - 1],
             "cutscene Baby initial load preserves palette color zero");
         for (int color = 0; color < BabyMetroidCutsceneColorRomData.InitialColorCount; color++)
             AssertEqual(colors.InitialColor(color), cgram.Colors[destination + color],

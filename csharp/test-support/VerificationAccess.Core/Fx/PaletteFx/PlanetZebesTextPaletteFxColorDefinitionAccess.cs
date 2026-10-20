@@ -13,8 +13,8 @@ internal static class PlanetZebesTextPaletteFxColorDefinitionAccess
         public ushort ColorByteIndex => self.Owner switch
         {
             PlanetZebesTextPaletteFxProgramOwner.FadeIn or PlanetZebesTextPaletteFxProgramOwner.FadeOut =>
-                (ushort)(sizeof(ushort) * (16 * PlanetZebesTextPaletteFxColorDefinitionsConstants.TextPalette
-                    + PlanetZebesTextPaletteFxColorDefinitionsConstants.FirstTextColor)),
+                sizeof(ushort) * (16 * PlanetZebesTextPaletteFxColorDefinitionsConstants.TextPalette
+                    + PlanetZebesTextPaletteFxColorDefinitionsConstants.FirstTextColor),
             _ => throw new InvalidOperationException("Unsupported PLANET ZEBES fade owner."),
         };
     }

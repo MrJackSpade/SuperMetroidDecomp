@@ -56,6 +56,12 @@ public sealed class MapSpriteCatalog
         MapSpriteId.ElevatorWreckedShip => frames.ElevatorWreckedShip,
         MapSpriteId.ElevatorMaridia => frames.ElevatorMaridia,
         MapSpriteId.WorldTitle => frames.WorldTitle,
+        MapSpriteId.WorldCrateria or
+            MapSpriteId.WorldBrinstar or
+            MapSpriteId.WorldNorfair or
+            MapSpriteId.WorldWreckedShip or
+            MapSpriteId.WorldMaridia or
+            MapSpriteId.WorldTourian => throw new KeyNotFoundException($"The given key '{id}' was not present in the dictionary."),
         _ => throw new KeyNotFoundException($"The given key '{id}' was not present in the dictionary."),
     };
 

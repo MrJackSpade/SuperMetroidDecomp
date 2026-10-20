@@ -80,7 +80,7 @@ internal static class DraygonTilemapProductionVerification
                         int words = bus.ReadCartridgeWordFixedBank(bank | (SnesAddressMath.OffsetInBank(cursor + 2))), first = (destination - 0x2000) / 2;
                         if (command >= 128 || (destination & 1) != 0 || words <= 0 || first < 0 || first + words > staging.Length)
                             throw new InvalidDataException("Invalid native Draygon command in independent producer audit.");
-                        for (int i = 0; i < words; i++) { staging[first + i] = (ushort)bus.ReadCartridgeWordFixedBank(bank | (SnesAddressMath.OffsetInBank(cursor + 4 + i * 2))); destinations.Add(first + i); }
+                        for (int i = 0; i < words; i++) { staging[first + i] = bus.ReadCartridgeWordFixedBank(bank | (SnesAddressMath.OffsetInBank(cursor + 4 + i * 2))); destinations.Add(first + i); }
                         commands++; cursor += 4 + words * 2;
                     }
                 }

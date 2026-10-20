@@ -11,7 +11,7 @@ internal static class RoomPlmBombBlockProgramDefinitionsAccess
         {
             for (int index = 0; index < RoomPlmBombBlockProgramDefinitions.ProgramCount; index++)
             {
-                var program = RoomPlmBombBlockProgramDefinitions.ProgramAt((int)(index));
+                var program = RoomPlmBombBlockProgramDefinitions.ProgramAt(index);
                 yield return program.CollisionHead;
                 yield return checked((ushort)(program.CollisionHead + 3));
                 yield return checked((ushort)(program.CollisionHead + 5));
@@ -30,7 +30,7 @@ internal static class RoomPlmBombBlockProgramDefinitionsAccess
         {
             for (int index = 0; index < RoomPlmBombBlockProgramDefinitions.ProgramCount; index++)
             {
-                var program = RoomPlmBombBlockProgramDefinitions.ProgramAt((int)(index));
+                var program = RoomPlmBombBlockProgramDefinitions.ProgramAt(index);
                 yield return checked((ushort)(program.CollisionHead + 2));
                 yield return checked((ushort)(program.ReactionHead + 2));
             }

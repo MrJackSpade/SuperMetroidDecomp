@@ -22,7 +22,7 @@ internal static class CloseDuringLoadTests
         _ = control.Handle;
         control.SetPlaying(false);
         await control.InitializeRendererAsync();
-        control.StepFrame((ushort)0);
+        control.StepFrame(0);
         control.SaveDebuggerState(0);
         var oldGame = control.game ?? throw new InvalidOperationException("Host has no game.");
         var worker = control.gpuWorker ?? throw new InvalidOperationException("Host has no GPU worker.");

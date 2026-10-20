@@ -95,7 +95,7 @@ internal static class EnemyDropsVerification
             smallEnergySamus,
             expectedSound: 1,
             assertEffect: samus =>
-                AssertEqual((ushort)55, samus.Health, "small-energy pickup restores five"));
+                AssertEqual(55, samus.Health, "small-energy pickup restores five"));
 
         SamusState bigEnergySamus = CreateDropTestSamus();
         bigEnergySamus.Health = 95;
@@ -107,9 +107,9 @@ internal static class EnemyDropsVerification
             expectedSound: 2,
             assertEffect: samus =>
             {
-                AssertEqual((ushort)99, samus.Health,
+                AssertEqual(99, samus.Health,
                     "big-energy pickup caps ordinary energy");
-                AssertEqual((ushort)100, samus.ReserveEnergy,
+                AssertEqual(100, samus.ReserveEnergy,
                     "big-energy overflow fills and caps reserve energy");
                 AssertEqual(ReserveTankMode.Auto, samus.ReserveTankMode,
                     "first reserve overflow enables automatic reserve mode");
@@ -123,7 +123,7 @@ internal static class EnemyDropsVerification
             powerBombSamus,
             expectedSound: 5,
             assertEffect: samus =>
-                AssertEqual((ushort)5, samus.PowerBombs,
+                AssertEqual(5, samus.PowerBombs,
                     "power-bomb pickup restores one"));
 
         SamusState missileSamus = CreateDropTestSamus();
@@ -135,9 +135,9 @@ internal static class EnemyDropsVerification
             expectedSound: 3,
             assertEffect: samus =>
             {
-                AssertEqual((ushort)5, samus.Missiles,
+                AssertEqual(5, samus.Missiles,
                     "missile pickup caps the visible missile count");
-                AssertEqual((ushort)1, samus.ReserveMissiles,
+                AssertEqual(1, samus.ReserveMissiles,
                     "missile overflow enters native unused reserve-missile WRAM");
             });
 
@@ -149,7 +149,7 @@ internal static class EnemyDropsVerification
             superSamus,
             expectedSound: 4,
             assertEffect: samus =>
-                AssertEqual((ushort)5, samus.SuperMissiles,
+                AssertEqual(5, samus.SuperMissiles,
                     "super-missile pickup restores one"));
     }
 
@@ -167,6 +167,8 @@ internal static class EnemyDropsVerification
             EnemyPickupKind.Missile => 1,
             EnemyPickupKind.SuperMissile => 196,
             EnemyPickupKind.PowerBomb => 246,
+            EnemyPickupKind.None or
+                EnemyPickupKind.NoDrop => throw new ArgumentOutOfRangeException(nameof(kind)),
             _ => throw new ArgumentOutOfRangeException(nameof(kind)),
         };
         EnemyDropFixture fixture = CreateEnemyDropFixture(samus, randomValues: [random]);
@@ -177,7 +179,7 @@ internal static class EnemyDropsVerification
 
         AssertEqual(unchecked((ushort)((ushort)kind * 2)), pickup.Variable0,
             $"{kind} uses native eproj_E identity");
-        AssertEqual((ushort)400, pickup.Variable1,
+        AssertEqual(400, pickup.Variable1,
             $"{kind} starts with native 400-frame lifetime");
         fixture.System.StepEnemyProjectiles(fixture.Level, samus);
 
@@ -198,7 +200,7 @@ internal static class EnemyDropsVerification
         EnemyDropFixture reroll = CreateEnemyDropFixture(rerollSamus, randomValues: [0, 1]);
         RoomEnemyProjectileSlot rerolled = (reroll.System.DeathsAndDrops.SpawnEnemyDropFromChanceTable(
             new(50, 50), NativeDropChancePointer) ?? throw new InvalidOperationException("Verification requires reroll.System.DeathsAndDrops.SpawnEnemyDropFromChanceTable( new(50, 50), NativeDropChan...."));
-        AssertEqual((ushort)2, (rerolled ?? throw new InvalidOperationException("Verification requires rerolled.")).Variable0,
+        AssertEqual(2, (rerolled ?? throw new InvalidOperationException("Verification requires rerolled.")).Variable0,
             "zero RNG sample rerolls before selecting small energy");
 
         // `$7E:0E1E` is a stateful critical-energy flag. Energy below 30 enables it,
@@ -213,13 +215,13 @@ internal static class EnemyDropsVerification
 
         RoomEnemyProjectileSlot belowThirty =
             (bias.System.DeathsAndDrops.SpawnEnemyDropFromChanceTable(new(10, 10), biasDropChancePointer) ?? throw new InvalidOperationException("Verification requires bias.System.DeathsAndDrops.SpawnEnemyDropFromChanceTable(new(10, 10), biasDropChancePoi...."));
-        AssertEqual((ushort)4, (belowThirty ?? throw new InvalidOperationException("Verification requires belowThirty.")).Variable0,
+        AssertEqual(4, (belowThirty ?? throw new InvalidOperationException("Verification requires belowThirty.")).Variable0,
             "critical energy suppresses no-drop and renormalizes energy weights");
 
         biasSamus.Health = 40;
         RoomEnemyProjectileSlot graceBand =
             (bias.System.DeathsAndDrops.SpawnEnemyDropFromChanceTable(new(20, 20), biasDropChancePointer) ?? throw new InvalidOperationException("Verification requires bias.System.DeathsAndDrops.SpawnEnemyDropFromChanceTable(new(20, 20), biasDropChancePoi...."));
-        AssertEqual((ushort)4, (graceBand ?? throw new InvalidOperationException("Verification requires graceBand.")).Variable0,
+        AssertEqual(4, (graceBand ?? throw new InvalidOperationException("Verification requires graceBand.")).Variable0,
             "30..49 energy retains the previous critical-drop bias");
 
         biasSamus.Health = 50;
@@ -251,11 +253,11 @@ internal static class EnemyDropsVerification
             (fixture.System.DeathsAndDrops.SpawnEnemyDropFromChanceTable(new(300, 300), NativeDropChancePointer) ?? throw new InvalidOperationException("Verification requires fixture.System.DeathsAndDrops.SpawnEnemyDropFromChanceTable(new(300, 300), NativeDropCh...."));
         (expiring ?? throw new InvalidOperationException("Verification requires expiring.")).Variable1 = 1;
         fixture.System.StepEnemyProjectiles(fixture.Level, samus);
-        AssertEqual((ushort)0, expiring.Variable1,
+        AssertEqual(0, expiring.Variable1,
             "pickup lifetime decrements before its expiry comparison");
         AssertEqual((ushort)0xefdf, expiring.PreInstructionWord,
             "expired pickup enters native blank tail");
-        AssertEqual(50, (int)samus.Health,
+        AssertEqual(50, samus.Health,
             "expiry does not apply a pickup effect");
 
         RoomEnemyProjectileSlot boundary =
@@ -263,7 +265,7 @@ internal static class EnemyDropsVerification
         samus.Position = samus.Position.WithWhole(new(unchecked((ushort)(
             (boundary ?? throw new InvalidOperationException("Verification requires boundary.")).Position.X.Whole + boundary.Radius.X + samus.Kinematics.Radius.X)), boundary.Position.Y.Whole));
         fixture.System.StepEnemyProjectiles(fixture.Level, samus);
-        AssertEqual(50, (int)samus.Health,
+        AssertEqual(50, samus.Health,
             "radius equality is not Samus/pickup contact");
 
         samus.Position -= new Offset16<RoomPixels>(1, 0);
@@ -288,10 +290,10 @@ internal static class EnemyDropsVerification
         for (int frame = 0; frame < 16; frame++)
         {
             fixture.System.StepEnemyProjectiles(fixture.Level, samus);
-            AssertEqual(50, (int)samus.Health,
+            AssertEqual(50, samus.Health,
                 $"grapple cannot collect pickup during protected frame {frame + 1}");
         }
-        AssertEqual((ushort)384, (pickup ?? throw new InvalidOperationException("Verification requires pickup.")).Variable1,
+        AssertEqual(384, (pickup ?? throw new InvalidOperationException("Verification requires pickup.")).Variable1,
             "sixteen protected frames still decrement pickup lifetime");
 
         fixture.System.StepEnemyProjectiles(fixture.Level, samus);
@@ -367,19 +369,19 @@ internal static class EnemyDropsVerification
             "death actor retains killed enemy X position");
         AssertEqual((ushort)123, explosion.Position.Y.Whole,
             "death actor retains killed enemy Y position");
-        AssertEqual((ushort)0x8000, explosion.KilledEnemyNativeIndex,
+        AssertEqual(0x8000, explosion.KilledEnemyNativeIndex,
             "respawning slot zero is retained as high-bit native enemy index");
         AssertEqual(
             EnemyDeathExplosionDefinitions.Program(0),
             ProgramOf(explosion),
             "out-of-range death variant clamps to native table entry zero");
-        AssertEqual((ushort)0, explosion.GraphicsIndex,
+        AssertEqual(0, explosion.GraphicsIndex,
             "enemy-death initializer replaces the dying actor's room graphics with zero");
 
         EnemyDeathProjectileProgram converted = fixture.System.DeathsAndDrops.ConvertEnemyDeathExplosionToPickup(explosion);
         AssertEqual(RoomEnemyProjectileKind.EnemyDeathExplosion, explosion.Kind,
             "EEAF converts death actor in place without rewriting its definition identity");
-        AssertEqual((ushort)2, explosion.Variable0,
+        AssertEqual(2, explosion.Variable0,
             "converted death actor stores selected small-energy identity");
         AssertEqual((ushort)0xefe0, explosion.PreInstructionWord,
             "converted death actor enters shared pickup pre-instruction");

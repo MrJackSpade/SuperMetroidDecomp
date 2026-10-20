@@ -77,7 +77,7 @@ internal static class GrappleFiringDefinitionsVerification
                 short x = Word((running ? 0x9bc172 : 0x9bc122) + offset);
                 short y = Word((running ? 0x9bc186 : 0x9bc136) + offset);
                 int correctedY = y - GrappleFiringDefinitionsRomByte(rom, 0x91b629 + (int)samus.Pose * 8 + 4);
-                samus.Position = samus.Position.WithWhole(new((ushort)raw, unchecked((ushort)~raw)));
+                samus.Position = samus.Position.WithWhole(new(raw, unchecked((ushort)~raw)));
                 grapple.Phase = GrapplePhase.Inactive;
                 samus.LiquidPhysics.BeginFrameSoundRequests();
                 SamusGrappleMovement.BeginFiring(samus);
@@ -261,7 +261,7 @@ internal static class GrappleFiringDefinitionsVerification
         for (byte direction = 0; direction < 10; direction++)
         {
             int address = source + 2 * direction;
-            ushort original = (ushort)(SnesLittleEndian.Word(GrappleLaunchFieldRomByte(rom, address), GrappleLaunchFieldRomByte(rom, address + 1)));
+            ushort original = SnesLittleEndian.Word(GrappleLaunchFieldRomByte(rom, address), GrappleLaunchFieldRomByte(rom, address + 1));
             AssertEqual(original, select(direction), $"Original grapple {label}, direction {direction}");
         }
         AssertThrows<IndexOutOfRangeException>(() => select(10), $"Grapple {label} upper bound");

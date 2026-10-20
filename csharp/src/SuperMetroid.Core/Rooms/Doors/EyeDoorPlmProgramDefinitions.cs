@@ -72,6 +72,21 @@ internal static class EyeDoorPlmProgramDefinitions
         EyeDoorPlmCue.WatchIfSamusNear => new(new(EyeWakeColumns, EyeWakeRows), EyeDoorPlmProgram.EyeWatch),
         EyeDoorPlmCue.PulseIfSamusNear => new(new(ComponentWakeColumns, ComponentWakeRows), EyeDoorPlmProgram.ComponentActivate),
         EyeDoorPlmCue.KeepPulsingIfSamusNear => new(new(ComponentWakeColumns, ComponentWakeRows), EyeDoorPlmProgram.ComponentCycle),
+        EyeDoorPlmCue.ConvertIfOpened or
+            EyeDoorPlmCue.DeleteIfOpened or
+            EyeDoorPlmCue.LinkHit or
+            EyeDoorPlmCue.LinkDelete or
+            EyeDoorPlmCue.ArmMissileWake or
+            EyeDoorPlmCue.ArmDoorBitWake or
+            EyeDoorPlmCue.Shoot or
+            EyeDoorPlmCue.QueueHitSound or
+            EyeDoorPlmCue.SpawnTwoSmoke or
+            EyeDoorPlmCue.CountHit or
+            EyeDoorPlmCue.SpawnSweat or
+            EyeDoorPlmCue.ClearPreInstruction or
+            EyeDoorPlmCue.SpawnSmoke or
+            EyeDoorPlmCue.MakeBlue or
+            EyeDoorPlmCue.BecomeBlueDoor => throw new InvalidOperationException($"{nameof(EyeDoorPlmCue)} {cue} is not a proximity branch."),
         _ => throw new InvalidOperationException($"{nameof(EyeDoorPlmCue)} {cue} is not a proximity branch."),
     };
 

@@ -326,6 +326,8 @@ EnemyProjectilePreInstruction.MotherBrainDeathDoorFragmentPreInstruction,
         RoomEnemyProjectileKind.MotherBrainEscapeSubtitle => new(
 EnemyProjectilePreInstruction.MotherBrainDeathSubtitlePreInstruction,
             0x0000, 0x1000, 0x0000),
+        RoomEnemyProjectileKind.None => throw new InvalidDataException(
+            $"Enemy projectile definition $86:{(ushort)kind:X4} is not compiled."),
         _ => throw new InvalidDataException(
             $"Enemy projectile definition $86:{(ushort)kind:X4} is not compiled."),
     };

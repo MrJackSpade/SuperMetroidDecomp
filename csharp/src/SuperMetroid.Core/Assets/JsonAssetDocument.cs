@@ -144,6 +144,16 @@ internal static class JsonAssetDocument
                         throw error(Text(json, name));
                     objects[depth].Add(json, name, ignoreCase);
                     break;
+                case JsonTokenType.None:
+                case JsonTokenType.Comment:
+                case JsonTokenType.String:
+                case JsonTokenType.Number:
+                case JsonTokenType.True:
+                case JsonTokenType.False:
+                case JsonTokenType.Null:
+                    break;
+                default:
+                    throw new InvalidOperationException($"Undefined {nameof(JsonTokenType)} {reader.TokenType}.");
             }
         }
     }

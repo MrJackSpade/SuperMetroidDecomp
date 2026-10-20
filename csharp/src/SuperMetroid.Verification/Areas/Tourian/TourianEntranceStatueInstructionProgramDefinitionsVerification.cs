@@ -47,7 +47,7 @@ internal static class TourianEntranceStatueInstructionProgramDefinitionsVerifica
                 enemies.TourianEntranceStatueBehavior.Extensions[slot.SlotIndex].Program,
                 $"Tourian entrance-statue initializer parameter {parameter}");
 
-            EnemyInstructionInterpreter.ProcessInstructions(slot, null, null, Position16<RoomPixels>.Zero, (ushort)0);
+            EnemyInstructionInterpreter.ProcessInstructions(slot, null, null, Position16<RoomPixels>.Zero, 0);
             AssertTrue(slot.Properties.HasAny(EnemyProperties.Deleted),
                 $"Tourian entrance-statue parameter {parameter} executes native delete");
         }

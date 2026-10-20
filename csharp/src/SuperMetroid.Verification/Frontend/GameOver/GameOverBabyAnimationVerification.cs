@@ -48,7 +48,7 @@ internal static class GameOverBabyAnimationVerification
             // The native stream's record order is the step identity: record N of the walk is step N.
             GameOverBabyInstruction actual = GameOverBabyAnimation.Get(index);
             AssertEqual(index, actual.Step, "Baby step identity follows native record order");
-            AssertEqual((int)expected.Duration, actual.Duration, "Baby duration field");
+            AssertEqual(expected.Duration, actual.Duration, "Baby duration field");
             AssertEqual(expected.Sprite, GameOverBabyAnimationDefinitions.NativeSpritemap(actual.Frame), "Baby frame field");
             AssertEqual(expected.Palette, GameOverBabyAnimationDefinitions.NativePalettePointer(actual.Palette), "Baby palette field");
             AssertEqual(original.FindIndex(row => row.Pointer == expected.Next), actual.NextStep, "Baby successor step");

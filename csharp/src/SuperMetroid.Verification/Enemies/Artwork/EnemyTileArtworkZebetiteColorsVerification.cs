@@ -43,7 +43,7 @@ internal static class EnemyTileArtworkZebetiteColorsVerification
             AssertEqual((call + 1) & ZebetiteDefinitions.PaletteCycleMask,
                 Counter(installed),
                 "Installed Zebetite pulse retains physical-slot-zero counter and wrap");
-            AssertEqual((int)nativeCounter, Counter(installed),
+            AssertEqual(nativeCounter, Counter(installed),
                 "Installed Zebetite pulse keeps native frame selection");
             AssertTrue(new CgramPalettes(nativeCgram).ImageEquals(new CgramPalettes(installedCgram)),
                 "Installed Zebetite pulse preserves full native CGRAM and neighbors");
@@ -79,7 +79,7 @@ internal static class EnemyTileArtworkZebetiteColorsVerification
                 (color == ZebetiteDefinitions.PaletteDestinationColor + 1 ? 1 : 0)),
                 selectedCgram.Colors[color],
                 "Zebetite visual edit changes only one color channel at the selected frame");
-        AssertEqual((int)controlCounter, Counter(selected),
+        AssertEqual(controlCounter, Counter(selected),
             "Zebetite color edit does not change animation counter");
         selected.ZebetiteBehavior.PaletteChangeNumber = 1;
         int counterBeforeGate = Counter(selected);

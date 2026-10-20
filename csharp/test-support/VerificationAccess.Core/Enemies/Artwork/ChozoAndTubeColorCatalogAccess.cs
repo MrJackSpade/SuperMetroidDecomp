@@ -9,9 +9,9 @@ internal static class ChozoAndTubeColorCatalogAccess
     extension(ChozoAndTubeColorCatalog self)
     {
         /// <summary>Selects Wrecked Ship statue colors through the production palette branch.</summary>
-        internal Bgr555 ResolveWreckedShip(int color) => ((Bgr555)(self.ResolveStatue((ChozoStatuePalette)(ChozoStatuePalette.WreckedShip), (int)(color))));
+        internal Bgr555 ResolveWreckedShip(int color) => self.ResolveStatue(ChozoStatuePalette.WreckedShip, color);
 
         /// <summary>Selects Lower Norfair statue colors through the production palette branch.</summary>
-        internal Bgr555 ResolveLowerNorfair(int color) => ((Bgr555)(self.ResolveStatue((ChozoStatuePalette)(ChozoStatuePalette.LowerNorfair), (int)(color))));
+        internal Bgr555 ResolveLowerNorfair(int color) => self.ResolveStatue(ChozoStatuePalette.LowerNorfair, color);
     }
 }

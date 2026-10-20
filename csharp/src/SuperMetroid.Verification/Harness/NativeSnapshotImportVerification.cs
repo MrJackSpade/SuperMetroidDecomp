@@ -268,8 +268,8 @@ internal static class NativeSnapshotImportVerification
             slot.Bind((EnemyDefinitionId)W(address), slot.Definition);
             slot.Position = FixedPosition<RoomPixels>.FromWords(W(address + 2), W(address + 4), W(address + 6), W(address + 8));
             slot.Radius = new(W(address + 10), W(address + 12));
-            slot.Properties = EnemyPropertyWord.FromNativeWord((ushort)(W(address + 14)));
-            slot.ExtraProperties = EnemyExtraPropertyWord.FromNativeWord((ushort)(W(address + 16)));
+            slot.Properties = EnemyPropertyWord.FromNativeWord(W(address + 14));
+            slot.ExtraProperties = EnemyExtraPropertyWord.FromNativeWord(W(address + 16));
             slot.AiStates = (EnemyAiStates)W(address + 18);
             slot.Health = W(address + 20);
             // A free native slot keeps its last occupant's word in that occupant's bank; a free port slot shows no frame.

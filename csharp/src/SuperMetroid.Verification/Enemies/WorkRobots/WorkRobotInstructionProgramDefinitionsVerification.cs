@@ -40,7 +40,7 @@ internal static class WorkRobotInstructionProgramDefinitionsVerification
                 robot.InstructionTimer = NativeCountdown.Start(1);
                 robot.Position = robot.Position.WithWhole(new(512, unchecked((ushort)(320 - robot.Radius.Y))));
                 state.LaserCooldown = NativeCountdown.Start(ushort.MaxValue);
-                EnemyInstructionInterpreter.ProcessInstructions(robot, null, level, new Position16<RoomPixels>((ushort)384, (ushort)192), (ushort)0);
+                EnemyInstructionInterpreter.ProcessInstructions(robot, null, level, new Position16<RoomPixels>(384, 192), 0);
             }
         }
 
@@ -53,7 +53,7 @@ internal static class WorkRobotInstructionProgramDefinitionsVerification
         out RoomEnemySlot robot)
     {
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
-        enemies.VerificationServices().ReadRandom = (Func<ushort>)(() => 0);
+        enemies.VerificationServices().ReadRandom = () => 0;
 
         robot = enemies.SlotTable.Slots[0];
         robot.Bind(EnemyDefinitionId.Robot, robot.Definition);

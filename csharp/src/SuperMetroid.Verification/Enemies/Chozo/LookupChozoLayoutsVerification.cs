@@ -86,13 +86,13 @@ internal static class LookupChozoLayoutsVerification
                 {
                     AssertEqual((ushort)count, header, "Chozo layout native direction");
                     AssertEqual(count, shape.WordCount(run), "Chozo layout native calculated count");
-                    AssertEqual((ushort)(SnesLittleEndian.Word((byte)shape.NextX(run), (byte)shape.NextY(run))), offset, "Chozo layout native calculated continuation");
+                    AssertEqual(SnesLittleEndian.Word((byte)shape.NextX(run), (byte)shape.NextY(run)), offset, "Chozo layout native calculated continuation");
                     foreach (var frame in new[] {dto,exported[index],byId})
                     {
                         var part = frame.Runs.Span[run];
                         AssertEqual(header, part.DirectionAndCount, "Chozo layout native DTO geometry");
                         AssertEqual(count, part.LevelWords.Length, "Chozo layout native DTO count");
-                        AssertEqual(offset, (ushort)(SnesLittleEndian.Word((byte)part.Next.X, (byte)part.Next.Y)), "Chozo layout native DTO offset");
+                        AssertEqual(offset, SnesLittleEndian.Word((byte)part.Next.X, (byte)part.Next.Y), "Chozo layout native DTO offset");
                     }
                     for (int cell = 0; cell < count; cell++)
                         AssertEqual(ReadSamusEaterPlmWord(rom, cursor + 2 + cell * 2),

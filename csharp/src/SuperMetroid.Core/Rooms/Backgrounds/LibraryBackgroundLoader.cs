@@ -50,6 +50,7 @@ public static class LibraryBackgroundLoader
                     if (instruction.Door == activeDoor)
                         TransferToVram(staging, vram, instruction, artwork);
                     break;
+                case LibraryBackgroundCommand.End:
                 default:
                     throw new InvalidDataException(
                         $"Unknown compiled library-background command {instruction.Command} " +

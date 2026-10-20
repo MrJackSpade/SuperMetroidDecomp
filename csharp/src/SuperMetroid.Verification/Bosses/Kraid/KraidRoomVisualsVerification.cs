@@ -170,7 +170,7 @@ internal static class KraidRoomVisualsVerification
         AssertEqual(visualWord,
             level.DisplayedBlockTiles(blockIndex).TopLeft.Raw,
             $"Kraid draw ${drawPointer:X4} edit survives streaming");
-        AssertEqual((ushort)visualWord, level.DisplayedBlockTiles(blockIndex).TopLeft.Raw,
+        AssertEqual(visualWord, level.DisplayedBlockTiles(blockIndex).TopLeft.Raw,
             $"Kraid draw ${drawPointer:X4} uses owner-specific visible block {blockOffset}");
         AssertEqual(0, guard.ForbiddenReadAttempts,
             $"Kraid draw ${drawPointer:X4} reads no migrated source bytes");

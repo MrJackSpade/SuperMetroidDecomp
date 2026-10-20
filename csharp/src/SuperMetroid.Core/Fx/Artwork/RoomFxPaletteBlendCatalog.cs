@@ -131,6 +131,7 @@ public sealed class RoomFxPaletteBlendCatalog
         RoomFxPaletteBlend.MaridiaWaterB => maridiaWaterB,
         RoomFxPaletteBlend.MaridiaWaterC => maridiaWaterC,
         RoomFxPaletteBlend.MaridiaWaterD => maridiaWaterD,
+        RoomFxPaletteBlend.None => throw new InvalidDataException($"Room-FX palette blend ${(int)selection:X2} is not an authored retail selection."),
         _ => throw new InvalidDataException($"Room-FX palette blend ${(int)selection:X2} is not an authored retail selection."),
     };
     /// <summary>Rejects a Ceres fixed-color tint with a component outside RGB5 range.</summary>

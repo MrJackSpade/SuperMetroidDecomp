@@ -12,19 +12,19 @@ internal sealed class DraygonEntity(DraygonBehavior species, RoomEnemySlot slot,
     : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation, IEnemyExtendedHitboxes, IEnemyBg2Frames, IEnemyPrivateShotCallback
 {
     /// <inheritdoc/>
-    public EnemyInitializationAiHandler? FindInitialization() => Slot.EnemyDefinitionPointer switch
+    public EnemyInitializationAiHandler? FindInitialization() => DraygonPartDefinitions.Parts[Slot.EnemyDefinitionPointer] switch
     {
-        EnemyDefinitionId.DraygonBody => species.RunDraygonBodyInitializationAi,
-        EnemyDefinitionId.DraygonEye or EnemyDefinitionId.DraygonTail or EnemyDefinitionId.DraygonArms => species.RunDraygonEyeInitializationAi,
+        DraygonPart.Body => species.RunDraygonBodyInitializationAi,
+        DraygonPart.Eye or DraygonPart.Tail or DraygonPart.Arms => species.RunDraygonEyeInitializationAi,
         _ => throw new InvalidOperationException($"Draygon entity bound to {Slot.EnemyDefinitionPointer}."),
     };
 
     /// <inheritdoc/>
-    public EnemyMainAiHandler? FindMain() => Slot.EnemyDefinitionPointer switch
+    public EnemyMainAiHandler? FindMain() => DraygonPartDefinitions.Parts[Slot.EnemyDefinitionPointer] switch
     {
-        EnemyDefinitionId.DraygonBody => species.RunDraygonBodyMainAi,
-        EnemyDefinitionId.DraygonEye => species.RunDraygonEyeMainAi,
-        EnemyDefinitionId.DraygonTail or EnemyDefinitionId.DraygonArms => species.RunDraygonTailMainAi,
+        DraygonPart.Body => species.RunDraygonBodyMainAi,
+        DraygonPart.Eye => species.RunDraygonEyeMainAi,
+        DraygonPart.Tail or DraygonPart.Arms => species.RunDraygonTailMainAi,
         _ => throw new InvalidOperationException($"Draygon entity bound to {Slot.EnemyDefinitionPointer}."),
     };
 

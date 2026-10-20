@@ -21,7 +21,7 @@ namespace SuperMetroid.Core.Bosses.Phantoon;
 internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <inheritdoc/>
-    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.PhantoonBody, EnemyDefinitionId.PhantoonEye, EnemyDefinitionId.PhantoonMouth, EnemyDefinitionId.PhantoonTentacles];
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [.. PhantoonPartDefinitions.Parts.Keys];
 
     /// <inheritdoc/>
     public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new PhantoonEntity(this, slot, common);
@@ -121,6 +121,8 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
             case 3:
                 state.Mouth = part;
                 break;
+            default:
+                throw new InvalidOperationException($"Phantoon part slot {part.SlotIndex} has invalid part index ${part.Spawn.Population.Parameter2:X4}.");
         }
     }
 
@@ -427,12 +429,12 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
             var (dx, dy) = PhantoonPathDefinitions.Step(bodyWords.PathCursor);
             if (eyeWords.FigureEightReversed)
             {
-                body.Position -= new Offset16<RoomPixels>(unchecked((short)(dx)), unchecked((short)(dy)));
+                body.Position -= new Offset16<RoomPixels>(unchecked(dx), unchecked(dy));
                 bodyWords.PathCursor = bodyWords.PathCursor == 0 ? (ushort)(PhantoonPathDefinitions.Length - 1) : unchecked((ushort)(bodyWords.PathCursor - 1));
             }
             else
             {
-                body.Position += new Offset16<RoomPixels>(unchecked((short)(dx)), unchecked((short)(dy)));
+                body.Position += new Offset16<RoomPixels>(unchecked(dx), unchecked(dy));
                 bodyWords.PathCursor = bodyWords.PathCursor >= PhantoonPathDefinitions.Length - 1 ? (ushort)0 : unchecked((ushort)(bodyWords.PathCursor + 1));
             }
         }
@@ -449,7 +451,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
                 high: PhantoonMotionDefinitions.SlowWhole);
             if (unchecked((short)(body.SpeedWhole - PhantoonMotionDefinitions.ForwardSlowCap)) >= 0)
             {
-                body.SpeedWhole = unchecked((ushort)(PhantoonMotionDefinitions.ForwardSlowCap - 1));
+                body.SpeedWhole = unchecked(PhantoonMotionDefinitions.ForwardSlowCap - 1);
                 body.SpeedFraction = 0;
                 body.SpeedPhase = 1;
             }

@@ -793,7 +793,7 @@ internal static class ProjectileTrailCoordinateDefinitions
     {
         int next = SnesAddressMath.AddWithinBank(address, 1);
         if (TryReadByte(address, overreads, out byte low) && TryReadByte(next, overreads, out byte high))
-            return (ushort)(SnesLittleEndian.Word(low, high));
+            return SnesLittleEndian.Word(low, high);
 
         throw new InvalidDataException(
             $"Projectile trail pointer word ${address:X6} is outside the compiled coordinate catalog.");
@@ -807,7 +807,7 @@ internal static class ProjectileTrailCoordinateDefinitions
     {
         int next = SnesAddressMath.AddWithinBank(address, 1);
         bool compiled = TryReadByte(address, overreads, out byte low) & TryReadByte(next, overreads, out byte high);
-        pointer = compiled ? (ushort)SnesLittleEndian.Word(low, high) : (ushort)0;
+        pointer = compiled ? SnesLittleEndian.Word(low, high) : (ushort)0;
         return compiled;
     }
 
@@ -820,7 +820,7 @@ internal static class ProjectileTrailCoordinateDefinitions
         int address = (SamusProjectileRomData.Banks.PaletteAndTrailData + operand + index) & SnesCpuAddressLayout.AddressMask;
         int next = (address + 1) & SnesCpuAddressLayout.AddressMask;
         bool compiled = TryReadByte(address, overreads, out byte low) & TryReadByte(next, overreads, out byte high);
-        word = compiled ? (ushort)SnesLittleEndian.Word(low, high) : (ushort)0;
+        word = compiled ? SnesLittleEndian.Word(low, high) : (ushort)0;
         return compiled;
     }
 }

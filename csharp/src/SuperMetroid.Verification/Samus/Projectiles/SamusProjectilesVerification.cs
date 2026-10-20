@@ -157,7 +157,7 @@ internal static void VerifySamusPowerBeamProjectiles()
         SamusProjectileSlotObservation beforeShot = projectiles.ObserveSlots();
         SamusProjectileFrameResult result = projectiles.StepFrame(new SamusTerrain { Level = air }, samus, new ProjectileButtonInput { ControllerInput = SnesButton.X, ControllerNewInput = SnesButton.X }, new(0, 0), bombs);
 
-        AssertEqual((int?)0, beforeShot.FiredSlot(projectiles), $"power beam direction {direction} allocates slot zero");
+        AssertEqual(0, beforeShot.FiredSlot(projectiles), $"power beam direction {direction} allocates slot zero");
         AssertEqual(
             (SoundEffectId?)SoundEffectId.FromCartridge(SoundEffectLibrary.Library1, 0x000b),
             result.QueuedSoundEffect,
@@ -172,9 +172,9 @@ internal static void VerifySamusPowerBeamProjectiles()
             $"power beam direction {direction} loads damage");
         AssertEqual(0xa24d, projectiles.Slots[0].SpritemapPointer,
             $"power beam direction {direction} selects first art record");
-        AssertEqual((ushort)ReadRetailPowerBeamRadiusByte(nativeProjectileRom, direction, 4), projectiles.Slots[0].Radius.X,
+        AssertEqual(ReadRetailPowerBeamRadiusByte(nativeProjectileRom, direction, 4), projectiles.Slots[0].Radius.X,
             $"power beam direction {direction} loads X radius");
-        AssertEqual((ushort)ReadRetailPowerBeamRadiusByte(nativeProjectileRom, direction, 5), projectiles.Slots[0].Radius.Y,
+        AssertEqual(ReadRetailPowerBeamRadiusByte(nativeProjectileRom, direction, 5), projectiles.Slots[0].Radius.Y,
             $"power beam direction {direction} loads Y radius");
     }
 
@@ -206,7 +206,7 @@ internal static void VerifySamusPowerBeamProjectiles()
         SamusProjectileFrameResult combinedResult = combinedProjectiles.StepFrame(new SamusTerrain { Level = air }, combinedSamus, new ProjectileButtonInput { ControllerInput = SnesButton.X, ControllerNewInput = SnesButton.X }, new(0, 0), combinedBombs);
 
         SamusProjectileSlot combinedSlot = combinedProjectiles.Slots[0];
-        AssertEqual((int?)0, beforeCombined.FiredSlot(combinedProjectiles),
+        AssertEqual(0, beforeCombined.FiredSlot(combinedProjectiles),
             $"beam combination {beamType} allocates one ordinary slot");
         AssertEqual(NativeDamage(0x9383c1, beamType), combinedSlot.Damage,
             $"beam combination {beamType} indexes uncharged data pointer");
@@ -251,7 +251,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     AssertProjectileEntry(
         DrawnEntries(frame => spazerFlickerProjectiles.DrawLiveProjectiles(frame, Position16<RoomPixels>.Zero, nmiFrameCounter: 0, spazerArtwork)),
         new SpriteSource(SpriteSourceKind.SamusProjectile, 0), spazerArtwork.Sprites.Frame(checked((ushort)spazerShot.SpritemapPointer)), spazerArtwork,
-        new Position16<ScreenPixels>((ushort)spazerShot.Position.X.Whole, (ushort)spazerShot.Position.Y.Whole), "Spazer shot");
+        new Position16<ScreenPixels>(spazerShot.Position.X.Whole, spazerShot.Position.Y.Whole), "Spazer shot");
     spazerFlickerOam = SpriteFrameBuffer.DrawnOam(frame => spazerFlickerProjectiles.DrawLiveProjectiles(frame, Position16<RoomPixels>.Zero, nmiFrameCounter: 2, InstalledFixtures.ProjectileArtwork(fixtureSprites)));
     AssertEqual(0, spazerFlickerOam.LastFinalizedSpriteCount,
         "even-slot Spazer suppresses while NMI bit one is set");
@@ -302,21 +302,21 @@ internal static void VerifySamusPowerBeamProjectiles()
     {
         chargeBombs.StepFrame(new SamusTerrain { Level = air }, chargeSamus, 0, 0);
         SamusProjectileSlotObservation beforeChargeFrame = chargeProjectiles.ObserveSlots();
-        SamusProjectileFrameResult chargeFrame = chargeProjectiles.StepFrame(new SamusTerrain { Level = air }, chargeSamus, new ProjectileButtonInput { ControllerInput = SnesButton.X, ControllerNewInput = frame == 0 ? SnesButton.X : (ushort)0 }, new(0, 0), chargeBombs);
+        SamusProjectileFrameResult chargeFrame = chargeProjectiles.StepFrame(new SamusTerrain { Level = air }, chargeSamus, new ProjectileButtonInput { ControllerInput = SnesButton.X, ControllerNewInput = frame == 0 ? SnesButton.X : 0 }, new(0, 0), chargeBombs);
         if (frame == 0)
-            AssertEqual((int?)0, beforeChargeFrame.FiredSlot(chargeProjectiles), "charge press fires initial ordinary shot");
+            AssertEqual(0, beforeChargeFrame.FiredSlot(chargeProjectiles), "charge press fires initial ordinary shot");
         else if (frame == 15)
         {
             AssertEqual(
                 (SoundEffectId?)SoundEffectLibrary1Sounds.ChargeBeamStart,
                 chargeFrame.QueuedSoundEffect,
                 "charge counter sixteen queues the cartridge startup sound");
-            AssertEqual((byte)9, chargeFrame.QueuedSoundMaximum,
+            AssertEqual(9, chargeFrame.QueuedSoundMaximum,
                 "charge startup uses QueueSfx1_Max9");
         }
         else
         {
-            AssertEqual((SoundEffectId?)null, chargeFrame.QueuedSoundEffect,
+            AssertEqual(null, chargeFrame.QueuedSoundEffect,
                 $"charge held frame {frame + 1} does not restart its sustained sound");
         }
 
@@ -353,17 +353,17 @@ internal static void VerifySamusPowerBeamProjectiles()
         frame++)
     {
         rejectedReleaseBombs.StepFrame(new SamusTerrain { Level = air }, rejectedReleaseSamus, 0, 0);
-        rejectedReleaseProjectiles.StepFrame(new SamusTerrain { Level = air }, rejectedReleaseSamus, new ProjectileButtonInput { ControllerInput = SnesButton.X, ControllerNewInput = frame == 0 ? SnesButton.X : (ushort)0 }, new(0, 0), rejectedReleaseBombs);
+        rejectedReleaseProjectiles.StepFrame(new SamusTerrain { Level = air }, rejectedReleaseSamus, new ProjectileButtonInput { ControllerInput = SnesButton.X, ControllerNewInput = frame == 0 ? SnesButton.X : 0 }, new(0, 0), rejectedReleaseBombs);
     }
     rejectedReleaseBombs.SetSharedCooldown(1);
     SamusProjectileSlotObservation beforeRejectedRelease = rejectedReleaseProjectiles.ObserveSlots();
     SamusProjectileFrameResult rejectedRelease = rejectedReleaseProjectiles.StepFrame(new SamusTerrain { Level = air }, rejectedReleaseSamus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0 }, new(0, 0), rejectedReleaseBombs);
-    AssertEqual((int?)null, beforeRejectedRelease.FiredSlot(rejectedReleaseProjectiles),
+    AssertEqual(null, beforeRejectedRelease.FiredSlot(rejectedReleaseProjectiles),
         "cooldown gate rejects charged-audio release fixture");
     AssertEqual((SoundEffectId?)SoundEffectLibrary1Sounds.CancelAll,
         rejectedRelease.QueuedSoundEffect,
         "rejected post-sound charge release queues cartridge cancellation");
-    AssertEqual((byte)15, rejectedRelease.QueuedSoundMaximum,
+    AssertEqual(15, rejectedRelease.QueuedSoundMaximum,
         "rejected charge release uses QueueSfx1_Max15 cancellation");
 
     // Build two identical fifteen-call charge states so their central flare frame and
@@ -392,7 +392,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     {
         baselineMode7Bombs.StepFrame(new SamusTerrain { Level = air }, baselineMode7Samus, 0, 0);
         rotatedMode7Bombs.StepFrame(new SamusTerrain { Level = air }, rotatedMode7Samus, 0, 0);
-        SnesButton newInput = frame == 0 ? SnesButton.X : (ushort)0;
+        SnesButton newInput = frame == 0 ? SnesButton.X : 0;
         baselineMode7Projectiles.StepFrame(new SamusTerrain { Level = air }, baselineMode7Samus, new ProjectileButtonInput { ControllerInput = SnesButton.X, ControllerNewInput = newInput }, new(0, 0), baselineMode7Bombs);
         rotatedMode7Projectiles.StepFrame(new SamusTerrain { Level = air }, rotatedMode7Samus, new ProjectileButtonInput { ControllerInput = SnesButton.X, ControllerNewInput = newInput }, new(0, 0), rotatedMode7Bombs);
     }
@@ -558,7 +558,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     for (int frame = 0; frame < 60; frame++)
     {
         bridgeBombs.StepFrame(new SamusTerrain { Level = air }, bridgeSamus, 0, 0);
-        bridgeProjectiles.StepFrame(new SamusTerrain { Level = air }, bridgeSamus, new ProjectileButtonInput { ControllerInput = SnesButton.X, ControllerNewInput = frame == 0 ? SnesButton.X : (ushort)0 }, new(0, 0), bridgeBombs);
+        bridgeProjectiles.StepFrame(new SamusTerrain { Level = air }, bridgeSamus, new ProjectileButtonInput { ControllerInput = SnesButton.X, ControllerNewInput = frame == 0 ? SnesButton.X : 0 }, new(0, 0), bridgeBombs);
     }
     bridgeSamus.PoseTransitions.ApplyOrdinaryJumpTransition(
         SamusPoseId.NeutralJumpTransitionRightPose,
@@ -596,7 +596,7 @@ internal static void VerifySamusPowerBeamProjectiles()
         for (int frame = 0; frame < 60; frame++)
         {
             combinedChargeBombs.StepFrame(new SamusTerrain { Level = air }, combinedChargeSamus, 0, 0);
-            combinedChargeProjectiles.StepFrame(new SamusTerrain { Level = air }, combinedChargeSamus, new ProjectileButtonInput { ControllerInput = SnesButton.X, ControllerNewInput = frame == 0 ? SnesButton.X : (ushort)0 }, new(0, 0), combinedChargeBombs);
+            combinedChargeProjectiles.StepFrame(new SamusTerrain { Level = air }, combinedChargeSamus, new ProjectileButtonInput { ControllerInput = SnesButton.X, ControllerNewInput = frame == 0 ? SnesButton.X : 0 }, new(0, 0), combinedChargeBombs);
         }
 
         combinedChargeBombs.StepFrame(new SamusTerrain { Level = air }, combinedChargeSamus, 0, 0);
@@ -646,7 +646,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     SamusProjectileSlotObservation beforeHyper = hyperProjectiles.ObserveSlots();
     SamusProjectileFrameResult hyperResult = hyperProjectiles.StepFrame(new SamusTerrain { Level = air }, hyperSamus, new ProjectileButtonInput { ControllerInput = SnesButton.X, ControllerNewInput = SnesButton.X }, new(0, 0), hyperBombs);
     SamusProjectileSlot hyperSlot = hyperProjectiles.Slots[0];
-    AssertEqual((int?)0, beforeHyper.FiredSlot(hyperProjectiles), "Hyper Beam allocates ordinary slot zero");
+    AssertEqual(0, beforeHyper.FiredSlot(hyperProjectiles), "Hyper Beam allocates ordinary slot zero");
     AssertEqual(0x9018, hyperSlot.Type, "Hyper Beam forces literal type `$9018`");
     AssertEqual(1000, hyperSlot.Damage, "Hyper Beam overwrites ROM-table damage with 1000");
     AssertEqual(SamusProjectilePreInstruction.HyperBeam, hyperSlot.PreInstruction,
@@ -863,7 +863,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     {
         waveWallBombs.StepFrame(new SamusTerrain { Level = wall }, waveWallSamus, 0, 0);
         SamusProjectileSlotObservation beforeWaveFrame = waveWallProjectiles.ObserveSlots();
-        waveWallProjectiles.StepFrame(new SamusTerrain { Level = wall }, waveWallSamus, new ProjectileButtonInput { ControllerInput = frame == 0 ? SnesButton.X : (ushort)0, ControllerNewInput = frame == 0 ? SnesButton.X : (ushort)0 }, new(0, 0), waveWallBombs);
+        waveWallProjectiles.StepFrame(new SamusTerrain { Level = wall }, waveWallSamus, new ProjectileButtonInput { ControllerInput = frame == 0 ? SnesButton.X : 0, ControllerNewInput = frame == 0 ? SnesButton.X : 0 }, new(0, 0), waveWallBombs);
         waveReportedExplosion |= beforeWaveFrame.CollisionStartedExplosion(waveWallProjectiles);
     }
     AssertTrue(!waveReportedExplosion, "wave beam never converts on a type-eight wall");
@@ -942,7 +942,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     {
         solidShotBombs.StepFrame(new SamusTerrain { Level = solidShotWall }, solidShotSamus, 0, 0);
         SamusProjectileSlotObservation beforeSolidShotFrame = solidShotProjectiles.ObserveSlots();
-        solidShotProjectiles.StepFrame(new SamusTerrain { Level = solidShotWall, Plms = solidShotPlms }, solidShotSamus, new ProjectileButtonInput { ControllerInput = frame == 0 ? SnesButton.X : (ushort)0, ControllerNewInput = frame == 0 ? SnesButton.X : (ushort)0 }, new(0, 0), solidShotBombs);
+        solidShotProjectiles.StepFrame(new SamusTerrain { Level = solidShotWall, Plms = solidShotPlms }, solidShotSamus, new ProjectileButtonInput { ControllerInput = frame == 0 ? SnesButton.X : 0, ControllerNewInput = frame == 0 ? SnesButton.X : 0 }, new(0, 0), solidShotBombs);
         solidShotExploded = beforeSolidShotFrame.CollisionStartedExplosion(solidShotProjectiles);
     }
     AssertTrue(solidShotExploded,
@@ -981,7 +981,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     {
         waveShotBombs.StepFrame(new SamusTerrain { Level = waveShotWall }, waveShotSamus, 0, 0);
         SamusProjectileSlotObservation beforeWaveShotFrame = waveShotProjectiles.ObserveSlots();
-        waveShotProjectiles.StepFrame(new SamusTerrain { Level = waveShotWall, Plms = waveShotPlms }, waveShotSamus, new ProjectileButtonInput { ControllerInput = frame == 0 ? SnesButton.X : (ushort)0, ControllerNewInput = frame == 0 ? SnesButton.X : (ushort)0 }, new(0, 0), waveShotBombs);
+        waveShotProjectiles.StepFrame(new SamusTerrain { Level = waveShotWall, Plms = waveShotPlms }, waveShotSamus, new ProjectileButtonInput { ControllerInput = frame == 0 ? SnesButton.X : 0, ControllerNewInput = frame == 0 ? SnesButton.X : 0 }, new(0, 0), waveShotBombs);
         waveShotReportedExplosion |= beforeWaveShotFrame.CollisionStartedExplosion(waveShotProjectiles);
     }
     AssertTrue(!waveShotReportedExplosion,
@@ -1016,7 +1016,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     SamusProjectileSlotObservation beforeMissile = missileProjectiles.ObserveSlots();
     SamusProjectileFrameResult missileFired = missileProjectiles.StepFrame(new SamusTerrain { Level = wall }, missileSamus, new ProjectileButtonInput { ControllerInput = SnesButton.X, ControllerNewInput = SnesButton.X }, new(0, 0), missileBombs);
     SamusProjectileSlot missile = missileProjectiles.Slots[0];
-    AssertEqual((int?)0, beforeMissile.FiredSlot(missileProjectiles), "missile fresh press allocates slot zero");
+    AssertEqual(0, beforeMissile.FiredSlot(missileProjectiles), "missile fresh press allocates slot zero");
     AssertEqual(
         (SoundEffectId?)SoundEffectId.FromCartridge(SoundEffectLibrary.Library1, 3),
         missileFired.QueuedSoundEffect,
@@ -1050,7 +1050,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     AssertProjectileEntry(
         DrawnEntries(frame => missileProjectiles.DrawLiveProjectiles(frame, Position16<RoomPixels>.Zero, nmiFrameCounter: 0, missileArtwork)),
         new SpriteSource(SpriteSourceKind.SamusProjectile, 0), missileArtwork.Sprites.Frame(checked((ushort)missile.SpritemapPointer)), missileArtwork,
-        new Position16<ScreenPixels>((ushort)missile.Position.X.Whole, (ushort)missile.Position.Y.Whole), "Missile");
+        new Position16<ScreenPixels>(missile.Position.X.Whole, missile.Position.Y.Whole), "Missile");
     AssertEqual(0x044, missileOam.GetEntry(0).TileNumber,
         "missile draw consumes its `$2A44` fixture OBJ");
 
@@ -1269,7 +1269,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     const ushort residentDoorArgument = 37;
     const int residentDoorBlock = 3 * 16 + 5;
     InstallResidentDoorPlmGraphFixture(bus);
-    WriteRoomPlmPopulationFixture(bus, residentDoorPopulation, ((ushort)0xc88a, (byte)5, (byte)3, residentDoorArgument));
+    WriteRoomPlmPopulationFixture(bus, residentDoorPopulation, [(0xc88a, 5, 3, residentDoorArgument)]);
 
     var residentWords = new ushort[16 * 16];
     residentWords[residentDoorBlock] = 0x8120;
@@ -1333,7 +1333,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     const int greyDoorBlock = 6 * 16 + 2;
 
     InstallGreyDoorPlmGraphFixture(bus);
-    WriteRoomPlmPopulationFixture(bus, greyDoorPopulation, ((ushort)0xc842, (byte)2, (byte)6, greyDoorRawArgument));
+    WriteRoomPlmPopulationFixture(bus, greyDoorPopulation, [(0xc842, 2, 6, greyDoorRawArgument)]);
 
     var greyDoorWords = new ushort[16 * 16];
     greyDoorWords[greyDoorBlock] = 0x8220;
@@ -1450,7 +1450,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     {
         blueDoorBombs.StepFrame(new SamusTerrain { Level = blueDoor }, blueDoorSamus, 0, 0);
         SamusProjectileSlotObservation beforeBlueDoorFrame = blueDoorProjectiles.ObserveSlots();
-        blueDoorProjectiles.StepFrame(new SamusTerrain { Level = blueDoor, Plms = blueDoorPlms }, blueDoorSamus, new ProjectileButtonInput { ControllerInput = frame == 0 ? SnesButton.X : (ushort)0, ControllerNewInput = frame == 0 ? SnesButton.X : (ushort)0 }, new(0, 0), blueDoorBombs);
+        blueDoorProjectiles.StepFrame(new SamusTerrain { Level = blueDoor, Plms = blueDoorPlms }, blueDoorSamus, new ProjectileButtonInput { ControllerInput = frame == 0 ? SnesButton.X : 0, ControllerNewInput = frame == 0 ? SnesButton.X : 0 }, new(0, 0), blueDoorBombs);
         blueDoorExploded = beforeBlueDoorFrame.CollisionStartedExplosion(blueDoorProjectiles);
     }
     AssertTrue(blueDoorExploded,
@@ -1494,7 +1494,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     SamusProjectileFrameResult superFired = superProjectiles.StepFrame(new SamusTerrain { Level = wall }, superSamus, new ProjectileButtonInput { ControllerInput = SnesButton.X, ControllerNewInput = SnesButton.X }, new(0, 0), superBombs);
     SamusProjectileSlot super = superProjectiles.Slots[0];
     SamusProjectileSlot superLink = superProjectiles.Slots[1];
-    AssertEqual((int?)0, beforeSuper.FiredSlot(superProjectiles), "super fresh press allocates owner slot zero");
+    AssertEqual(0, beforeSuper.FiredSlot(superProjectiles), "super fresh press allocates owner slot zero");
     AssertEqual(
         (SoundEffectId?)SoundEffectId.FromCartridge(SoundEffectLibrary.Library1, 4),
         superFired.QueuedSoundEffect,
@@ -1628,7 +1628,7 @@ internal static void VerifySamusPowerBeamProjectiles()
         integratedSuperBombs.StepFrame(new SamusTerrain { Level = integratedSuperWall }, integratedSuperSamus, 0, 0);
         SamusProjectileSlotObservation beforeIntegratedSuperFrame =
             integratedSuperProjectiles.ObserveSlots();
-        integratedSuperProjectiles.StepFrame(new SamusTerrain { Level = integratedSuperWall, Plms = integratedSuperPlms }, integratedSuperSamus, new ProjectileButtonInput { ControllerInput = frame == 0 ? SnesButton.X : (ushort)0, ControllerNewInput = frame == 0 ? SnesButton.X : (ushort)0 }, new(0, 0), integratedSuperBombs);
+        integratedSuperProjectiles.StepFrame(new SamusTerrain { Level = integratedSuperWall, Plms = integratedSuperPlms }, integratedSuperSamus, new ProjectileButtonInput { ControllerInput = frame == 0 ? SnesButton.X : 0, ControllerNewInput = frame == 0 ? SnesButton.X : 0 }, new(0, 0), integratedSuperBombs);
         integratedSuperExploded =
             beforeIntegratedSuperFrame.CollisionStartedExplosion(integratedSuperProjectiles);
     }
@@ -1666,7 +1666,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     for (int frame = 0; frame < 3; frame++)
     {
         skippedBombs.StepFrame(new SamusTerrain { Level = skippedWall }, skippedSamus, 0, 0);
-        skippedProjectiles.StepFrame(new SamusTerrain { Level = skippedWall, Plms = skippedPlms }, skippedSamus, new ProjectileButtonInput { ControllerInput = frame == 0 ? SnesButton.X : (ushort)0, ControllerNewInput = frame == 0 ? SnesButton.X : (ushort)0 }, new(0, 0), skippedBombs);
+        skippedProjectiles.StepFrame(new SamusTerrain { Level = skippedWall, Plms = skippedPlms }, skippedSamus, new ProjectileButtonInput { ControllerInput = frame == 0 ? SnesButton.X : 0, ControllerNewInput = frame == 0 ? SnesButton.X : 0 }, new(0, 0), skippedBombs);
     }
     SamusProjectileSlot skippedOwner = skippedProjectiles.Slots[0];
     SamusProjectileSlot skippedLink = skippedProjectiles.Slots[1];

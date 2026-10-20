@@ -41,7 +41,7 @@ internal static class LookupFxBlendBlackColorsVerification
         for (int value = 0; value <= byte.MaxValue; value++)
         {
             byte id = (byte)value;
-            if (OriginalBlackBlendIds().Contains(id)) AssertEqual((ushort)0,
+            if (OriginalBlackBlendIds().Contains(id)) AssertEqual(0,
                 (RoomFxPaletteBlendDefinitions.CalculatedThirdColor((RoomFxPaletteBlend)id) ?? throw new InvalidOperationException("Verification requires RoomFxPaletteBlendDefinitions.CalculatedThirdColor((RoomFxPaletteBlend)id).")), "Six liquid selections calculate black");
             else if (id is 0x22 or 0x62) AssertTrue(RoomFxPaletteBlendDefinitions.CalculatedThirdColor((RoomFxPaletteBlend)id) is null, "Weather third color stays independent");
             else AssertThrows<InvalidDataException>(() => RoomFxPaletteBlendDefinitions.CalculatedThirdColor((RoomFxPaletteBlend)id), "Unknown calculated-color selector rejects");
@@ -58,7 +58,7 @@ internal static class LookupFxBlendBlackColorsVerification
         foreach (byte id in OriginalBlackBlendIds())
         foreach (ushort third in new ushort[] { 0, 1, 31, 32, 1023, 1024, 32767 })
         {
-            var owner = new RoomFxBlendColors((RoomFxPaletteBlend)id, Bgr555.FromWord(0x1234), Bgr555.FromWord(0x2345), Bgr555.FromWord(checked((ushort)(third))));
+            var owner = new RoomFxBlendColors((RoomFxPaletteBlend)id, Bgr555.FromWord(0x1234), Bgr555.FromWord(0x2345), Bgr555.FromWord(checked(third)));
             var colors = owner.CreateColors();
             AssertEqual(third, colors[2], "Custom third-color components survive");
             colors[2] = Bgr555.FromWord((ushort)(colors[2].ToWord() ^ (1)));

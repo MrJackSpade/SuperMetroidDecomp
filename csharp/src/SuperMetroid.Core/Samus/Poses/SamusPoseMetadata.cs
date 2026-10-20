@@ -652,9 +652,9 @@ internal sealed class SamusPoseMetadata
     public void PublishBombJumpDirection(SuperMetroid.Core.Samus.Projectiles.SamusBombJumpDirection direction) =>
         PublishBombJumpDirection(direction switch
         {
-            SuperMetroid.Core.Samus.Projectiles.SamusBombJumpDirection.Left => (byte)1,
-            SuperMetroid.Core.Samus.Projectiles.SamusBombJumpDirection.Straight => (byte)2,
-            SuperMetroid.Core.Samus.Projectiles.SamusBombJumpDirection.Right => (byte)3,
+            SuperMetroid.Core.Samus.Projectiles.SamusBombJumpDirection.Left => 1,
+            SuperMetroid.Core.Samus.Projectiles.SamusBombJumpDirection.Straight => 2,
+            SuperMetroid.Core.Samus.Projectiles.SamusBombJumpDirection.Right => 3,
             SuperMetroid.Core.Samus.Projectiles.SamusBombJumpDirection.None =>
                 throw new ArgumentOutOfRangeException(nameof(direction), direction, "A published bomb jump has a direction."),
             _ => throw new ArgumentOutOfRangeException(nameof(direction), direction, "Undefined bomb-jump direction."),

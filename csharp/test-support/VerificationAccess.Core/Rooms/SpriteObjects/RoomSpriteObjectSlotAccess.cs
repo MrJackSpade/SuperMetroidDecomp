@@ -17,6 +17,10 @@ internal static class RoomSpriteObjectSlotAccess
         AnimationProgramStepKind.Hold or AnimationProgramStepKind.Stop => 2,
         AnimationProgramStepKind.GoTo => 4,
         AnimationProgramStepKind.FallInto => 0,
+        AnimationProgramStepKind.Cue or
+            AnimationProgramStepKind.Wait or
+            AnimationProgramStepKind.SetCounter or
+            AnimationProgramStepKind.RepeatWhileCounting => throw new InvalidOperationException($"Room sprite-object programs have no {step.Kind} step."),
         _ => throw new InvalidOperationException($"Room sprite-object programs have no {step.Kind} step."),
     };
 

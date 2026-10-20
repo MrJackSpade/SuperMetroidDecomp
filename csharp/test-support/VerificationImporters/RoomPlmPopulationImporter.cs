@@ -56,7 +56,7 @@ internal static class RoomPlmPopulationImporter
 
         byte Byte(byte bank, ushort offset) => cartridge.ReadCartridgeByte(((int)new SnesAddress(bank, offset)));
         ushort Word(byte bank, ushort offset) =>
-            (ushort)(SnesLittleEndian.Word(Byte(bank, offset), Byte(bank, unchecked((ushort)(offset + 1)))));
+            SnesLittleEndian.Word(Byte(bank, offset), Byte(bank, unchecked((ushort)(offset + 1))));
         byte[] Scroll(ushort argument)
         {
             var pairs = new List<byte>();

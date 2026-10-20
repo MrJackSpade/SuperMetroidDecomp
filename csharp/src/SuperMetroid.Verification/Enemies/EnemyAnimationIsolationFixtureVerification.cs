@@ -63,11 +63,11 @@ internal static class EnemyAnimationIsolationFixtureVerification
             Enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null)) { TileArtwork = artwork };
             Enemies.Presentation.BindVram(BgArtworkFixtures.For(Vram));
             Enemies.Presentation.BindCgram(Colors);
-            Enemies.VerificationServices().NextRandom = (Func<ushort>)NextRandom;
-            Enemies.VerificationServices().ReadRandom = (Func<ushort>)(() => RandomWord);
-            Enemies.VerificationServices().SeedRandom = (Action<ushort>)(value => RandomWord = value);
-            Enemies.VerificationServices().IsAreaTorizoDefeated = (Func<bool>)(() => BossBitCalls != 0);
-            Enemies.VerificationServices().SetAreaTorizoDefeated = (Action)(() => BossBitCalls++);
+            Enemies.VerificationServices().NextRandom = NextRandom;
+            Enemies.VerificationServices().ReadRandom = () => RandomWord;
+            Enemies.VerificationServices().SeedRandom = value => RandomWord = value;
+            Enemies.VerificationServices().IsAreaTorizoDefeated = () => BossBitCalls != 0;
+            Enemies.VerificationServices().SetAreaTorizoDefeated = () => BossBitCalls++;
 
             Actor.Bind(golden ? EnemyDefinitionId.GoldenTorizo : EnemyDefinitionId.Boyon, Actor.Definition);
             Actor.Bind(Actor.EnemyDefinitionPointer, RoomEnemyDefinitionCatalog.Get(Actor.EnemyDefinitionPointer));
@@ -79,7 +79,7 @@ internal static class EnemyAnimationIsolationFixtureVerification
             Actor.InstructionTimer = NativeCountdown.Start(1);
             if (golden)
             {
-                Actor.ExtraProperties = EnemyExtraPropertyWord.FromNativeWord((ushort)((ushort)EnemyExtraProperties.UsesExtendedSpritemap));
+                Actor.ExtraProperties = EnemyExtraPropertyWord.FromNativeWord((ushort)EnemyExtraProperties.UsesExtendedSpritemap);
                 Actor.SpritemapPointer = GoldenTorizoRightOrbFrames()[0];
                 Enemies.BombTorizoBehavior.TorizoState = new TorizoEnemyState(Actor, isGolden: true)
                 {

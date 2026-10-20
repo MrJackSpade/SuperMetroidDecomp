@@ -37,7 +37,7 @@ internal static class HeroShotsVerification
             int deletedFrame = -1, impactFrame = -1;
             for (int frame = 0; frame < 120; frame++)
             {
-                SnesButton input = frame == 0 ? SnesButton.X : (ushort)0;
+                SnesButton input = frame == 0 ? SnesButton.X : 0;
                 var shot = projectiles.Slots[0];
                 ushort cameraX = !vertical && followShot && shot.IsActive
                     ? (ushort)Math.Max(0, shot.Position.X.Whole - 128) : (ushort)0;
@@ -72,7 +72,7 @@ internal static class HeroShotsVerification
                         $"Native Hero trace vertical={vertical}, camera={cameraMode}, frame={frame}: actual {string.Join(',', actual.Select(x => x.ToString("X4")))}");
                     comparedFrames++;
                 }
-                if (frame == 0) AssertEqual((int?)0, beforeStep.FiredSlot(projectiles), "Hero fixture fires through normal input dispatch");
+                if (frame == 0) AssertEqual(0, beforeStep.FiredSlot(projectiles), "Hero fixture fires through normal input dispatch");
                 if (shot.PackedType.Family == SamusProjectileFamily.BeamExplosion)
                 {
                     impactFrame = frame;

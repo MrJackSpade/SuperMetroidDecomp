@@ -216,12 +216,12 @@ internal static class SamusEaterVisualsVerification
                         AssertEqual(native, dtoRun.LevelWords.Span[block], "direct plant DTO word");
                         AssertEqual(native, exportedRun.LevelWords.Span[block], "exported plant word");
                     }
-                    foreach (int invalid in new[] { int.MinValue, -1, (int)count, 256, int.MaxValue })
+                    foreach (int invalid in new[] { int.MinValue, -1, count, 256, int.MaxValue })
                         AssertThrows<IndexOutOfRangeException>(() => draw.WordAt(run, invalid), "plant block bounds");
                 }
                 else
                 {
-                    AssertEqual((int)count, SamusEaterPlmDrawDefinitions.Draw.Count(run), "plant native horizontal count");
+                    AssertEqual(count, SamusEaterPlmDrawDefinitions.Draw.Count(run), "plant native horizontal count");
                     AssertEqual(count, dtoRun.DirectionAndCount, "plant DTO count");
                     AssertEqual(count, exportedRun.DirectionAndCount, "plant export count");
                     ushort offset = ReadSamusEaterPlmWord(rom, cursor + 2 + count * 2);
@@ -261,7 +261,7 @@ internal static class SamusEaterVisualsVerification
         AssertEqual(physicalWord,
             level.GetCollisionBlockByIndex(origin).PackedWord.Raw,
             "Samus Eater edited draw retains native collision word");
-        AssertEqual((ushort)visualWord, level.DisplayedBlockTiles(origin).TopLeft.Raw,
+        AssertEqual(visualWord, level.DisplayedBlockTiles(origin).TopLeft.Raw,
             "Samus Eater edited block reaches the real redraw path");
         int nativeCursor = 0x840000 | pointer;
         int expectedX = 8, expectedY = 8;

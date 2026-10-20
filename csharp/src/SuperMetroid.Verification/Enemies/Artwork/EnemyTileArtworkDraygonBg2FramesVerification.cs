@@ -151,7 +151,7 @@ internal static class EnemyTileArtworkDraygonBg2FramesVerification
             int root = ((int)new SnesAddress(DraygonBg2FrameDefinitions.Bank, frame.Pointer));
             DraygonCollisionComponent[] components =
                 [.. DraygonCollisionDefinitions.ComponentsAt(frame.Pointer)];
-            AssertEqual((int)rom.ReadCartridgeByte(root), components.Length,
+            AssertEqual(rom.ReadCartridgeByte(root), components.Length,
                 $"Draygon {frame.Name} compiled collision component count");
             for (int index = 0; index < components.Length; index++)
             {
@@ -174,7 +174,7 @@ internal static class EnemyTileArtworkDraygonBg2FramesVerification
         foreach ((ushort pointer, IReadOnlyList<DraygonCollisionHitbox> hitboxes) in nativeLists)
         {
             int list = ((int)new SnesAddress(DraygonBg2FrameDefinitions.Bank, pointer));
-            AssertEqual((int)CartridgeImportSource.Require(rom).ReadCartridgeWord(list), hitboxes.Count,
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(list), hitboxes.Count,
                 $"Draygon hitbox list {pointer:X4} rectangle count");
             for (int index = 0; index < hitboxes.Count; index++)
             {
@@ -209,7 +209,7 @@ internal static class EnemyTileArtworkDraygonBg2FramesVerification
         {
             slot.SpritemapPointer = pointer;
             object?[] arguments =
-                [slot, new Position16<RoomPixels>((ushort)0x100, (ushort)0x100), new Extent16<RoomPixels>((ushort)0, (ushort)0), true, (ushort)0];
+                [slot, new Position16<RoomPixels>(0x100, 0x100), new Extent16<RoomPixels>(0, 0), true, (ushort)0];
             bool found = ExtendedHitboxWalker.Find(enemies, arguments);
             AssertEqual(pointer != 0xa36b, found,
                 $"Draygon frame {pointer:X4} shot overlap without ROM reads");

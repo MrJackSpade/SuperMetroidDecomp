@@ -107,7 +107,7 @@ internal static class SbugMovementDefinitionsVerification
     internal static void VerifySbugCustomHeadingCarriesAndFolds()
     {
         var enemies = new RoomEnemySystem(new EnemySession(), services: new VerificationRoomEnemyServices(null));
-        enemies.VerificationServices().NextRandom = (Func<ushort>)(() => 96);
+        enemies.VerificationServices().NextRandom = () => 96;
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.Sbug, slot.Definition);
         slot.SetSpawnParameter1(1);

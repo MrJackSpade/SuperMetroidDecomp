@@ -124,6 +124,20 @@ internal static class RidleySamusDrawReferenceVerification
                 poseId is not (SamusPoseId.ShinesparkVerticalRightPose or SamusPoseId.ShinesparkVerticalLeftPose) &&
                 (frame >= 2 || poseId is not (SamusPoseId.DrainedCrouchingRightPose or SamusPoseId.DrainedCrouchingLeftPose)),
             _ when (ushort)movement < 28 => true,
+            SamusMovementType.Standing or
+                SamusMovementType.Running or
+                SamusMovementType.NormalJumping or
+                SamusMovementType.Crouching or
+                SamusMovementType.Falling or
+                SamusMovementType.Unused0B or
+                SamusMovementType.Unused0C or
+                SamusMovementType.TurningOnGround or
+                SamusMovementType.Moonwalking or
+                SamusMovementType.RanIntoWall or
+                SamusMovementType.Grappling or
+                SamusMovementType.TurningWhileJumping or
+                SamusMovementType.TurningWhileFalling or
+                SamusMovementType.DraygonHeld => throw new InvalidDataException($"Unknown native body movement type {movement}"),
             _ => throw new InvalidDataException($"Unknown native body movement type {movement}"),
         };
         return (unchecked((ushort)(CartridgeImportSource.Require(rom).ReadCartridgeWord((NativeSnapshotMemory.TopSpritemapBases + pose * 2)) + frame)),

@@ -34,19 +34,19 @@ internal static class ProjectileHostBindingVerification
         {
             var content = session.Game.Artwork.ProjectileCompositions;
             if (content is not ProjectileSpriteCatalog) throw new InvalidDataException("Installed Android session did not bind projectile content.");
-            CheckCatalog((ProjectileSpriteCatalog)content, installation.LoadProjectiles().Catalog);
+            CheckCatalog(content, installation.LoadProjectiles().Catalog);
             CheckFrameBindings(session.Game.Artwork.ProjectileFrameBindings, installation.LoadProjectiles().FrameBindings);
             session.SaveSlot(0);
-            CheckGrapple((GrappleTileAtlas)(session.Game.Artwork.GrappleArtwork ?? throw new InvalidOperationException("Verification requires session.Game.Artwork.GrappleArtwork.")), installation.LoadProjectiles().GrappleTiles);
-            CheckFlareCompositions((ChargeFlareSpriteCatalog)(session.Game.Artwork.ChargeFlareCompositions ?? throw new InvalidOperationException("Verification requires session.Game.Artwork.ChargeFlareCompositions.")), installation.LoadProjectiles().FlareCompositions);
+            CheckGrapple(session.Game.Artwork.GrappleArtwork ?? throw new InvalidOperationException("Verification requires session.Game.Artwork.GrappleArtwork."), installation.LoadProjectiles().GrappleTiles);
+            CheckFlareCompositions(session.Game.Artwork.ChargeFlareCompositions ?? throw new InvalidOperationException("Verification requires session.Game.Artwork.ChargeFlareCompositions."), installation.LoadProjectiles().FlareCompositions);
             session.LoadSlot(0);
             CheckFrameBindings(session.Game.Artwork.ProjectileFrameBindings, installation.LoadProjectiles().FrameBindings);
-            CheckGrapple((GrappleTileAtlas)(session.Game.Artwork.GrappleArtwork ?? throw new InvalidOperationException("Verification requires session.Game.Artwork.GrappleArtwork.")), installation.LoadProjectiles().GrappleTiles);
-            CheckFlareCompositions((ChargeFlareSpriteCatalog)(session.Game.Artwork.ChargeFlareCompositions ?? throw new InvalidOperationException("Verification requires session.Game.Artwork.ChargeFlareCompositions.")), installation.LoadProjectiles().FlareCompositions);
+            CheckGrapple(session.Game.Artwork.GrappleArtwork ?? throw new InvalidOperationException("Verification requires session.Game.Artwork.GrappleArtwork."), installation.LoadProjectiles().GrappleTiles);
+            CheckFlareCompositions(session.Game.Artwork.ChargeFlareCompositions ?? throw new InvalidOperationException("Verification requires session.Game.Artwork.ChargeFlareCompositions."), installation.LoadProjectiles().FlareCompositions);
             if (!ReferenceEquals(content, session.Game.Artwork.ProjectileCompositions)) throw new InvalidDataException("State load lost current host projectile content.");
-            CheckBeams((BeamTileCatalog)(session.Game.Artwork.BeamArtwork ?? throw new InvalidOperationException("Verification requires session.Game.Artwork.BeamArtwork.")), installation.LoadProjectiles().BeamTiles);
-            CheckTrails((ProjectileTrailCatalog)(session.Game.Artwork.TrailArtwork ?? throw new InvalidOperationException("Verification requires session.Game.Artwork.TrailArtwork.")), installation.LoadProjectiles().Trails);
-            CheckFlare((ChargeFlarePlacementCatalog)(session.Game.Artwork.ChargeFlarePlacement ?? throw new InvalidOperationException("Verification requires session.Game.Artwork.ChargeFlarePlacement.")), installation.LoadProjectiles().FlarePlacement);
+            CheckBeams(session.Game.Artwork.BeamArtwork ?? throw new InvalidOperationException("Verification requires session.Game.Artwork.BeamArtwork."), installation.LoadProjectiles().BeamTiles);
+            CheckTrails(session.Game.Artwork.TrailArtwork ?? throw new InvalidOperationException("Verification requires session.Game.Artwork.TrailArtwork."), installation.LoadProjectiles().Trails);
+            CheckFlare(session.Game.Artwork.ChargeFlarePlacement ?? throw new InvalidOperationException("Verification requires session.Game.Artwork.ChargeFlarePlacement."), installation.LoadProjectiles().FlarePlacement);
         }
         Directory.CreateDirectory(installation.ProjectileOverrideDirectory);
         string path = Path.Combine(installation.ProjectileOverrideDirectory, ProjectileSpriteDefinitions.FileName);
@@ -97,17 +97,17 @@ internal static class ProjectileHostBindingVerification
         using (var session = new AndroidSessionData(root))
         {
             var content = session.Game.Artwork.ProjectileCompositions;
-            CheckGrapple((GrappleTileAtlas)(session.Game.Artwork.GrappleArtwork ?? throw new InvalidOperationException("Verification requires session.Game.Artwork.GrappleArtwork.")), installation.LoadProjectiles().GrappleTiles);
-            CheckFlareCompositions((ChargeFlareSpriteCatalog)(session.Game.Artwork.ChargeFlareCompositions ?? throw new InvalidOperationException("Verification requires session.Game.Artwork.ChargeFlareCompositions.")), installation.LoadProjectiles().FlareCompositions);
+            CheckGrapple(session.Game.Artwork.GrappleArtwork ?? throw new InvalidOperationException("Verification requires session.Game.Artwork.GrappleArtwork."), installation.LoadProjectiles().GrappleTiles);
+            CheckFlareCompositions(session.Game.Artwork.ChargeFlareCompositions ?? throw new InvalidOperationException("Verification requires session.Game.Artwork.ChargeFlareCompositions."), installation.LoadProjectiles().FlareCompositions);
             session.LoadSlot(0);
-            CheckGrapple((GrappleTileAtlas)(session.Game.Artwork.GrappleArtwork ?? throw new InvalidOperationException("Verification requires session.Game.Artwork.GrappleArtwork.")), installation.LoadProjectiles().GrappleTiles);
-            CheckFlareCompositions((ChargeFlareSpriteCatalog)(session.Game.Artwork.ChargeFlareCompositions ?? throw new InvalidOperationException("Verification requires session.Game.Artwork.ChargeFlareCompositions.")), installation.LoadProjectiles().FlareCompositions);
+            CheckGrapple(session.Game.Artwork.GrappleArtwork ?? throw new InvalidOperationException("Verification requires session.Game.Artwork.GrappleArtwork."), installation.LoadProjectiles().GrappleTiles);
+            CheckFlareCompositions(session.Game.Artwork.ChargeFlareCompositions ?? throw new InvalidOperationException("Verification requires session.Game.Artwork.ChargeFlareCompositions."), installation.LoadProjectiles().FlareCompositions);
             if (content is null || !ReferenceEquals(content, session.Game.Artwork.ProjectileCompositions))
                 throw new InvalidDataException("Restarted host did not retain newly selected content across an old state load.");
-            CheckCatalog((ProjectileSpriteCatalog)content, installation.LoadProjectiles().Catalog);
-            CheckBeams((BeamTileCatalog)(session.Game.Artwork.BeamArtwork ?? throw new InvalidOperationException("Verification requires session.Game.Artwork.BeamArtwork.")), installation.LoadProjectiles().BeamTiles);
-            CheckTrails((ProjectileTrailCatalog)(session.Game.Artwork.TrailArtwork ?? throw new InvalidOperationException("Verification requires session.Game.Artwork.TrailArtwork.")), installation.LoadProjectiles().Trails);
-            CheckFlare((ChargeFlarePlacementCatalog)(session.Game.Artwork.ChargeFlarePlacement ?? throw new InvalidOperationException("Verification requires session.Game.Artwork.ChargeFlarePlacement.")), installation.LoadProjectiles().FlarePlacement);
+            CheckCatalog(content, installation.LoadProjectiles().Catalog);
+            CheckBeams(session.Game.Artwork.BeamArtwork ?? throw new InvalidOperationException("Verification requires session.Game.Artwork.BeamArtwork."), installation.LoadProjectiles().BeamTiles);
+            CheckTrails(session.Game.Artwork.TrailArtwork ?? throw new InvalidOperationException("Verification requires session.Game.Artwork.TrailArtwork."), installation.LoadProjectiles().Trails);
+            CheckFlare(session.Game.Artwork.ChargeFlarePlacement ?? throw new InvalidOperationException("Verification requires session.Game.Artwork.ChargeFlarePlacement."), installation.LoadProjectiles().FlarePlacement);
         }
         File.WriteAllText(path, "invalid override");
         try

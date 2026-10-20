@@ -85,6 +85,17 @@ internal static class LookupLiquidTilemapsVerification
                 RoomFxType.Lava => stock.lava,
                 RoomFxType.Acid => stock.acid,
                 RoomFxType.Water => stock.water,
+                RoomFxType.None or
+                    RoomFxType.Spores or
+                    RoomFxType.Rain or
+                    RoomFxType.Fog or
+                    RoomFxType.ScrollingSky or
+                    RoomFxType.UnusedScrollingSky or
+                    RoomFxType.Fireflea or
+                    RoomFxType.TourianEntranceStatue or
+                    RoomFxType.CeresRidley or
+                    RoomFxType.CeresElevator or
+                    RoomFxType.CeresHaze => throw new ArgumentOutOfRangeException(nameof(type), type, "Only three liquid identities have stock pages."),
                 _ => throw new ArgumentOutOfRangeException(nameof(type), type, "Only three liquid identities have stock pages."),
             };
             AssertTrue(StoredPage() is null, "Stock catalog retains no liquid page bytes");

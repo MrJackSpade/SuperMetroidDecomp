@@ -67,7 +67,7 @@ internal static class InvalidBeamSelectionVerification
                 int offset = 0x6000 + 0x4c8 + word * 2;
                 // $82:C092 selects Spazer artwork; disabling rewrites glyphs, not just palette bits.
                 int source = 0x820000 | (SnesLittleEndian.Word(InvalidBeamSelectionRomByte(bus, 0x82c092), InvalidBeamSelectionRomByte(bus, 0x82c093)));
-                ushort oldWord = (ushort)(SnesLittleEndian.Word(InvalidBeamSelectionRomByte(bus, source + word * 2), InvalidBeamSelectionRomByte(bus, source + word * 2 + 1)));
+                ushort oldWord = SnesLittleEndian.Word(InvalidBeamSelectionRomByte(bus, source + word * 2), InvalidBeamSelectionRomByte(bus, source + word * 2 + 1));
                 BinaryPrimitives.WriteUInt16LittleEndian(expectedVram.AsSpan(offset), (ushort)((oldWord & 0xe3ff) | 0x0c00));
             }
         // The native shared tail refreshes the wireframe independently of label edits.

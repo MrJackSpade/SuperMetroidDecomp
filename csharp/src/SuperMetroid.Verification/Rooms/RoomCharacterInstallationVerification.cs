@@ -92,7 +92,7 @@ internal static class RoomCharacterInstallationVerification
                 "installed statue-ghost PNG preserves every native character byte");
             LibraryBackgroundSource ghostTransfer = LibraryBackgroundSourceInventory.Scan(bus)
                 .Single(entry => entry.SourceAddress == ghostSource);
-            AssertEqual((ushort)RoomAssetRomData.LibraryBackground.TourianStatueGhost.TransferByteCount,
+            AssertEqual(RoomAssetRomData.LibraryBackground.TourianStatueGhost.TransferByteCount,
                 (ghostTransfer.TransferByteCount ?? throw new InvalidOperationException("Verification requires ghostTransfer.TransferByteCount.")), "statue-ghost library upload length");
             AssertEqual(RoomAssetRomData.LibraryBackground.TourianStatueGhost.VramDestinationWord,
                 (ghostTransfer.VramDestination ?? throw new InvalidOperationException("Verification requires ghostTransfer.VramDestination.")), "statue-ghost library VRAM destination");

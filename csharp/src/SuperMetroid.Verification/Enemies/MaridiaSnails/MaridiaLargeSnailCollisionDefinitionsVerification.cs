@@ -102,7 +102,7 @@ internal static class MaridiaLargeSnailCollisionDefinitionsVerification
                         object?[] nativeArguments =
                             [nativeSlot, new Position16<RoomPixels>(x, y), Extent16<RoomPixels>.Zero, shot != 0, (ushort)0];
                         object?[] compiledArguments =
-                            [compiledSlot, new Position16<RoomPixels>(x, y), new Extent16<RoomPixels>((ushort)0, (ushort)0), shot != 0, (ushort)0];
+                            [compiledSlot, new Position16<RoomPixels>(x, y), new Extent16<RoomPixels>(0, 0), shot != 0, (ushort)0];
                         bool nativeHit = ReferenceExtendedCollision(rom, nativeArguments);
                         bool compiledHit = ExtendedHitboxWalker.Find(compiled, compiledArguments);
                         AssertEqual(nativeHit, compiledHit,

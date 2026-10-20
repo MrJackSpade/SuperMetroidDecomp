@@ -90,7 +90,7 @@ internal static class IntroCinematicArtworkVerification
             for (int index = 0; index < IntroFinalLineTilemapFormat.CellCount; index++)
             {
                 int source = IntroCinematicRomData.Assets.FinalTextLine + index * sizeof(ushort);
-                ushort nativeWord = (ushort)(SnesLittleEndian.Word(CpuBusRegionRead.Read(bus, source), CpuBusRegionRead.Read(bus, source + 1)));
+                ushort nativeWord = SnesLittleEndian.Word(CpuBusRegionRead.Read(bus, source), CpuBusRegionRead.Read(bus, source + 1));
                 AssertEqual(nativeWord, stock.FinalLine.Words.Span[index],
                     $"opening divider tile {index} matches cartridge source");
             }
@@ -103,7 +103,7 @@ internal static class IntroCinematicArtworkVerification
                 for (int cell = 0; cell < IntroEyeTilemapFormat.CellsPerFrame; cell++)
                 {
                     int wordSource = source + 4 + cell * sizeof(ushort);
-                    ushort nativeWord = (ushort)(SnesLittleEndian.Word(CpuBusRegionRead.Read(bus, wordSource), CpuBusRegionRead.Read(bus, wordSource + 1)));
+                    ushort nativeWord = SnesLittleEndian.Word(CpuBusRegionRead.Read(bus, wordSource), CpuBusRegionRead.Read(bus, wordSource + 1));
                     AssertEqual(nativeWord, stock.EyeFrames.FrameWords(frame)[cell],
                         $"opening eye frame {frame} cell {cell} matches cartridge");
                 }
@@ -788,7 +788,7 @@ internal static class IntroCinematicArtworkVerification
         for (int index = 0; index < (level ?? throw new InvalidOperationException("Verification requires level.")).ForegroundEntries.Length; index++)
         {
             ushort expected = index * sizeof(ushort) < native.Length
-                ? (ushort)(SnesLittleEndian.Word(native[index * 2], native[index * 2 + 1]))
+                ? SnesLittleEndian.Word(native[index * 2], native[index * 2 + 1])
                 : (ushort)0;
             AssertEqual(expected, level.ForegroundEntries.Span[index],
                 $"Mother Brain flashback collision block {index} preserves native level word");

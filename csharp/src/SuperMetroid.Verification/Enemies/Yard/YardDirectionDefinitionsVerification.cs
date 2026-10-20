@@ -73,7 +73,7 @@ internal static class YardDirectionDefinitionsVerification
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.CurrentInstruction = direction;
             slot.SetSpawnParameter1(0);
-            slot.Properties = EnemyPropertyWord.FromNativeWord((ushort)(0x4000));
+            slot.Properties = EnemyPropertyWord.FromNativeWord(0x4000);
             slot.Bind(EnemyDefinitionId.Yard, slot.Definition);
             YardEnemyBehavior.InitializeYard(slot);
 

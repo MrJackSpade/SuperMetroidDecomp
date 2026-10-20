@@ -400,7 +400,7 @@ internal static class MotherBrainNativeListAddresses
                 {
                     case NativeEnemyListDefinitions.WordKind.Frame:
                         AssertEqual(AnimationProgramStepKind.Show, steps[index].Kind, $"{at}: frame");
-                        AssertEqual((int)word, steps[index].Duration, $"{at}: duration");
+                        AssertEqual(word, steps[index].Duration, $"{at}: duration");
                         AssertEqual(cartridge.ReadCartridgeWord(bank | (cursor + 2)), spritemap(steps[index].Frame), $"{at}: spritemap");
                         cursor = unchecked((ushort)(cursor + 4));
                         index++;

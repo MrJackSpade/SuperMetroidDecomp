@@ -78,7 +78,7 @@ internal static class SpeedBoostPalettePointersVerification
         };
         AssertTrue(!SamusSpecialSuperPalette.Update(new SnesCgram(), highestPhase),
             "the highest stored phase is the drained branch too");
-        AssertEqual((int)ushort.MaxValue, highestPhase.SpecialSuperPaletteFlags,
+        AssertEqual(ushort.MaxValue, highestPhase.SpecialSuperPaletteFlags,
             "the highest stored phase does not wrap to zero");
         AssertThrows<InvalidOperationException>(() => SamusSpecialSuperPalette.Update(
             new SnesCgram(), new SamusState { SpecialSuperPaletteFlags = 1 }),

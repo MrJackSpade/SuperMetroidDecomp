@@ -35,8 +35,8 @@ internal static class RidleyPogoDefinitionsVerification
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
         int reads = 0, advances = 0;
         ushort seed = 0;
-        enemies.VerificationServices().ReadRandom = (Func<ushort>)(() => { reads++; return seed; });
-        enemies.VerificationServices().NextRandom = (Func<ushort>)(() => { advances++; return (ushort)(seed ^ 1); });
+        enemies.VerificationServices().ReadRandom = () => { reads++; return seed; };
+        enemies.VerificationServices().NextRandom = () => { advances++; return (ushort)(seed ^ 1); };
         Action<RidleyEnemyState> initialize = enemies.RidleyBehavior.InitializeNorfairRidleyPogoVelocity;
         var state = new RidleyEnemyState();
         ushort[] healthStages = [0, 1, 2, 3, 4, 0xffff];
@@ -73,8 +73,8 @@ internal static class RidleyPogoDefinitionsVerification
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
         int reads = 0, advances = 0;
         ushort seed = 0;
-        enemies.VerificationServices().ReadRandom = (Func<ushort>)(() => { reads++; return seed; });
-        enemies.VerificationServices().NextRandom = (Func<ushort>)(() => { advances++; return (ushort)(seed ^ 1); });
+        enemies.VerificationServices().ReadRandom = () => { reads++; return seed; };
+        enemies.VerificationServices().NextRandom = () => { advances++; return (ushort)(seed ^ 1); };
         Action<RoomEnemySlot, RidleyEnemyState, SamusState?, SnesButton, RoomLevelData?> run = enemies.RidleyBehavior.RunNorfairRidleyFunction;
         Action<RoomEnemySlot, RidleyEnemyState, SamusState?> attack = enemies.RidleyBehavior.TickNorfairRidleyGroundAttackMoveToHeight;
         var slot = enemies.SlotTable.Slots[0];

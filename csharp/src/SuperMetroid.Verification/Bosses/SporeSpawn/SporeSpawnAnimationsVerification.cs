@@ -71,7 +71,7 @@ internal static class SporeSpawnAnimationsVerification
             {
                 case NativeEnemyListDefinitions.WordKind.Frame:
                     AssertEqual(AnimationProgramStepKind.Show, step.Kind, $"{at}: frame");
-                    AssertEqual((int)word, step.Duration, $"{at}: duration");
+                    AssertEqual(word, step.Duration, $"{at}: duration");
                     AssertEqual(operand, SporeSpawnFrameDefinitionsConstants.Spritemap(step.Frame), $"{at}: spritemap");
                     cursor = unchecked((ushort)(cursor + 4));
                     continue;
@@ -86,7 +86,7 @@ internal static class SporeSpawnAnimationsVerification
                     return addresses;
                 case NativeEnemyListDefinitions.WordKind.SetCounter:
                     AssertEqual(AnimationProgramStepKind.SetCounter, step.Kind, $"{at}: counter load");
-                    AssertEqual((int)operand, step.Duration, $"{at}: counter");
+                    AssertEqual(operand, step.Duration, $"{at}: counter");
                     cursor = unchecked((ushort)(cursor + 4));
                     continue;
                 case NativeEnemyListDefinitions.WordKind.RepeatWhileCounting:
@@ -96,7 +96,7 @@ internal static class SporeSpawnAnimationsVerification
                     continue;
                 case NativeEnemyListDefinitions.WordKind.Wait:
                     AssertEqual(AnimationProgramStepKind.Wait, step.Kind, $"{at}: wait");
-                    AssertEqual((int)operand, step.Duration, $"{at}: wait length");
+                    AssertEqual(operand, step.Duration, $"{at}: wait length");
                     cursor = unchecked((ushort)(cursor + 4));
                     continue;
                 case NativeEnemyListDefinitions.WordKind.Callback:
@@ -111,8 +111,8 @@ internal static class SporeSpawnAnimationsVerification
                             AssertEqual(operand, (ushort)cue.Function, $"{at}: function");
                             break;
                         case SporeSpawnCueKind.SetMaxXRadiusAndAngleDelta:
-                            AssertEqual((int)operand, cue.MaximumXRadius, $"{at}: maximum X radius in pixels");
-                            AssertEqual((int)unchecked((short)cartridge.ReadCartridgeWord(address + 4)), cue.AngleDelta, $"{at}: signed angle delta");
+                            AssertEqual(operand, cue.MaximumXRadius, $"{at}: maximum X radius in pixels");
+                            AssertEqual(unchecked((short)cartridge.ReadCartridgeWord(address + 4)), cue.AngleDelta, $"{at}: signed angle delta");
                             break;
                         case SporeSpawnCueKind.SetSporeGeneration:
                             AssertEqual(operand != 0, cue.SporeGenerationSuppressed, $"{at}: spore generation stopped");
@@ -124,6 +124,15 @@ internal static class SporeSpawnAnimationsVerification
                         case SporeSpawnCueKind.LoadDeathTargetPalette:
                             AssertEqual(operand, checked((ushort)(cue.DeathPaletteStep * SporeSpawnColorRomData.FrameByteCount)), $"{at}: palette row");
                             break;
+                        case SporeSpawnCueKind.IncreaseMaxXRadius:
+                        case SporeSpawnCueKind.ClearDamagedFlag:
+                        case SporeSpawnCueKind.Harden:
+                        case SporeSpawnCueKind.SpawnDyingExplosion:
+                        case SporeSpawnCueKind.SpawnHardeningDust:
+                        case SporeSpawnCueKind.RequestDeathDrops:
+                            break;
+                        default:
+                            throw new InvalidOperationException($"Undefined {nameof(SporeSpawnCueKind)} {instruction.Kind}.");
                     }
                     cursor = unchecked((ushort)(cursor + 2 + 2 * instruction.Operands));
                     continue;
@@ -195,7 +204,7 @@ internal static class SporeSpawnAnimationsVerification
     private static RoomEnemySystem NewProjectileSystem()
     {
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
-        enemies.VerificationServices().NextRandom = (Func<ushort>)(() => 1);
+        enemies.VerificationServices().NextRandom = () => 1;
         enemies.DeathsAndDrops.BindSamus(new SamusState());
         return enemies;
     }
@@ -225,7 +234,7 @@ internal static class SporeSpawnAnimationsVerification
             BodyProgram = AnimationProgramCursor<SporeSpawnBodyProgram>.Start(program),
         };
         enemies.Presentation.BindCgram(new SnesCgram());
-        enemies.VerificationServices().NextRandom = (Func<ushort>)(() => 4660);
+        enemies.VerificationServices().NextRandom = () => 4660;
         enemies.DeathsAndDrops.BindSamus(new SamusState { Health = 99, MaxHealth = 99 });
         enemies.SporeSpawnBehavior.SporeSpawn = state;
 

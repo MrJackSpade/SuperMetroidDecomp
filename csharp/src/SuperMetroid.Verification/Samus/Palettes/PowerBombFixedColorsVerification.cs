@@ -128,7 +128,7 @@ internal static class PowerBombFixedColorsVerification
         var forbidden = NewForbiddenPowerBombColorBus(new TestAddressSpace());
         _ = state.StepFrame(); // Native setup precedes the first colored frame.
         _ = state.StepFrame();
-        AssertEqual((int)document.PreExplosion[0].Red, state.FixedColorRed,
+        AssertEqual(document.PreExplosion[0].Red, state.FixedColorRed,
             "Power Bomb color override reaches the live explosion frame");
         AssertEqual(0, forbidden.ForbiddenReadAttempts,
             "edited Power Bomb color does not read the native table");

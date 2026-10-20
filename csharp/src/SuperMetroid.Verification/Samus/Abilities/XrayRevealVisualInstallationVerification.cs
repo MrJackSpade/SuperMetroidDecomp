@@ -103,7 +103,7 @@ internal static class XrayRevealVisualInstallationVerification
             definitions[i * 2 + 1] = SnesLittleEndian.HighByte(unchecked((ushort)i));
         }
         var level = new RoomLevelData(new Extent16<RoomBlocks>(32, 32), new RoomLevelPlanes(Enumerable.Repeat((ushort)0x8000, 1024).ToArray(), new byte[1024], new ushort[1024]), definitions);
-        level.SetPlmForegroundEntry(33, (ushort)((int)RoomCollisionType.ShootableBlock << 12));
+        level.SetPlmForegroundEntry(33, (int)RoomCollisionType.ShootableBlock << 12);
         level.SetPlmBehavior(33, 2);
         RoomCollisionBlock before = level.GetPlmCollisionBlockByIndex(33);
         ushort[] originalMap = XrayRevealTilemap.Build(level, XrayBg1Fixtures.Tilemap(vram), new(0, 0), new(16, 16),

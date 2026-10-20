@@ -4,7 +4,7 @@ namespace SuperMetroid.Core.Hardware;
 internal static class SnesWindowSelectionPairBits
 {
     /// <summary>Neither layer selects a window.</summary>
-    internal const SnesWindowSelectionPair None = (SnesWindowSelectionPair)0;
+    internal const SnesWindowSelectionPair None = 0;
     /// <summary>The lower layer inverts the first window's interval.</summary>
     internal const SnesWindowSelectionPair LowerInvertFirst = (SnesWindowSelectionPair)0x01;
     /// <summary>The lower layer enables the first window.</summary>

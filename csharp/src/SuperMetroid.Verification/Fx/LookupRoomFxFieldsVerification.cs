@@ -133,7 +133,7 @@ internal static class LookupRoomFxFieldsVerification
             {
                 AssertEqual(OriginalByte(index), actual.ReadByte(index), "FX byte view");
                 if (index < 15)
-                    AssertEqual((ushort)(SnesLittleEndian.Word(OriginalByte(index), OriginalByte(index + 1))),
+                    AssertEqual(SnesLittleEndian.Word(OriginalByte(index), OriginalByte(index + 1)),
                         actual.ReadWord(index), "FX overlapping word view");
             }
         }

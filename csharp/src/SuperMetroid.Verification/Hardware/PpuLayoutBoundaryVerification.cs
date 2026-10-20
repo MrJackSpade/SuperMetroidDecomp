@@ -76,6 +76,8 @@ internal static class PpuLayoutBoundaryVerification
                 case PpuLayoutRegion.Register:
                     RegisterRoundTrip(entry.Cell, target, entry.Reference);
                     break;
+                case PpuLayoutRegion.OamLow:
+                case PpuLayoutRegion.OamHigh:
                 default:
                     throw new InvalidDataException($"{entry.Reference} aliases a {entry.Cell.Region} cell, which has no coherence check.");
             }
@@ -170,7 +172,7 @@ internal static class PpuLayoutBoundaryVerification
         SnesBgTilemapWord tile = SnesBgTilemapWord.Create(0x2a5, paletteIndex: 5, priority: true, SnesTileFlipFlags.Vertical);
         bg1.Write([tile.Raw], 0x41);
         AssertEqual(tile, (SnesBgTilemapWord)bg1.ReadWord(0x41), "a tilemap word round-trips through the BG1 view");
-        AssertEqual((byte)(SnesLittleEndian.LowByte(tile.Raw)), vram.ReadByte((GameplayVramLayout.Bg1TilemapWord + 0x41) * 2), "the view stores the low byte at the VMADD byte");
+        AssertEqual(SnesLittleEndian.LowByte(tile.Raw), vram.ReadByte((GameplayVramLayout.Bg1TilemapWord + 0x41) * 2), "the view stores the low byte at the VMADD byte");
         AssertEqual(SnesLittleEndian.HighByte(tile.Raw), vram.ReadByte((GameplayVramLayout.Bg1TilemapWord + 0x41) * 2 + 1), "and the high byte after it");
 
         var cgram = new SnesCgram();
@@ -288,7 +290,7 @@ internal static class PpuLayoutBoundaryVerification
         ReadOnlySpan<byte> low = oam.LowTable;
         AssertEqual((byte)0x10, low[0], "OBJ 0 X low byte");
         AssertEqual((byte)0x20, low[1], "OBJ 0 Y");
-        AssertEqual((byte)(SnesLittleEndian.LowByte(attributes.Raw)), low[2], "OBJ 0 attribute low byte");
+        AssertEqual(SnesLittleEndian.LowByte(attributes.Raw), low[2], "OBJ 0 attribute low byte");
         AssertEqual(SnesLittleEndian.HighByte(attributes.Raw), low[3], "OBJ 0 attribute high byte");
         AssertEqual((byte)0x80, low[4], "OBJ 1 keeps only X's low byte in the low table");
 

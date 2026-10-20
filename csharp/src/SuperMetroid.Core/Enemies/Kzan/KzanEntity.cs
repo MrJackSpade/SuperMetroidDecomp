@@ -8,26 +8,26 @@ internal sealed class KzanEntity(KzanBehavior species, RoomEnemySlot slot, Enemy
     : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation
 {
     /// <inheritdoc/>
-    public EnemyInitializationAiHandler? FindInitialization() => Slot.EnemyDefinitionPointer switch
+    public EnemyInitializationAiHandler? FindInitialization() => KzanPartDefinitions.Parts[Slot.EnemyDefinitionPointer] switch
     {
-        EnemyDefinitionId.KzanTop => species.RunKzanTopInitializationAi,
-        EnemyDefinitionId.KzanBottom => species.RunKzanBottomInitializationAi,
+        KzanPart.Top => species.RunKzanTopInitializationAi,
+        KzanPart.Bottom => species.RunKzanBottomInitializationAi,
         _ => throw new InvalidOperationException($"Kzan entity bound to {Slot.EnemyDefinitionPointer}."),
     };
 
     /// <inheritdoc/>
-    public EnemyMainAiHandler? FindMain() => Slot.EnemyDefinitionPointer switch
+    public EnemyMainAiHandler? FindMain() => KzanPartDefinitions.Parts[Slot.EnemyDefinitionPointer] switch
     {
-        EnemyDefinitionId.KzanTop => species.RunKzanTopMainAi,
-        EnemyDefinitionId.KzanBottom => species.RunKzanBottomMainAi,
+        KzanPart.Top => species.RunKzanTopMainAi,
+        KzanPart.Bottom => species.RunKzanBottomMainAi,
         _ => throw new InvalidOperationException($"Kzan entity bound to {Slot.EnemyDefinitionPointer}."),
     };
 
     /// <inheritdoc/>
-    public Action<RoomEnemySlot, EnemyInstructionContext>? FindTypedAnimation() => Slot.EnemyDefinitionPointer switch
+    public Action<RoomEnemySlot, EnemyInstructionContext>? FindTypedAnimation() => KzanPartDefinitions.Parts[Slot.EnemyDefinitionPointer] switch
     {
-        EnemyDefinitionId.KzanTop => KzanBehavior.AdvanceKzanTypedAnimation,
-        EnemyDefinitionId.KzanBottom => null,
+        KzanPart.Top => KzanBehavior.AdvanceKzanTypedAnimation,
+        KzanPart.Bottom => null,
         _ => throw new InvalidOperationException($"Kzan entity bound to {Slot.EnemyDefinitionPointer}."),
     };
 }

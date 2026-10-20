@@ -196,7 +196,7 @@ internal static class MapLoadAnchorsVerification
             // native phase and stop on its actual endpoint, with a bounded guard.
             for (int tick = 0; tick < 256 && compiled.Phase != FileSelectMapNavigationPhase.Room; tick++)
             {
-                SnesButton input = tick == 48 ? SnesButton.Start : (ushort)0;
+                SnesButton input = tick == 48 ? SnesButton.Start : 0;
                 native.Step(input); compiled.Step(input);
                 AssertEqual(native.Phase, compiled.Phase, "each saved station retains entry timing");
                 AssertEqual(ScrollState(Scroll(native)), ScrollState(Scroll(compiled)), "each saved station retains menu-owned scroll state");

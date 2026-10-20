@@ -37,7 +37,7 @@ internal static class GameplayMessageTitlesVerification
                 (SnesLittleEndian.Word(GameplayMessageTitlesRomByte(bus, definition + 4), GameplayMessageTitlesRomByte(bus, definition + 5)));
             ReadOnlySpan<ushort> row = installed.Tilemap.Slice(width, width);
             for (int column = 0; column < width; column++)
-                AssertEqual((ushort)(SnesLittleEndian.Word(GameplayMessageTitlesRomByte(bus, content + column * 2), GameplayMessageTitlesRomByte(bus, content + column * 2 + 1))),
+                AssertEqual(SnesLittleEndian.Word(GameplayMessageTitlesRomByte(bus, content + column * 2), GameplayMessageTitlesRomByte(bus, content + column * 2 + 1)),
                     row[column], $"installed UTF-8 gameplay title {id} column {column} matches the cartridge tilemap");
             comparedWords += width;
         }

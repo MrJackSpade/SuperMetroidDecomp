@@ -114,6 +114,8 @@ public sealed class BeamTileCatalog : IVramAssetProvider, IInstalledArtworkTrans
             VramAssetId.GunshipLiftoffFirstTiles or VramAssetId.GunshipLiftoffSecondTiles or
             VramAssetId.GunshipLiftoffThirdTiles or VramAssetId.GunshipLiftoffFourthTiles or
             VramAssetId.GunshipLiftoffFifthTiles => throw new InvalidDataException($"Beam catalog cannot resolve {asset}."),
+        VramAssetId.StandardObjectTiles or
+            VramAssetId.HudTopRowTilemap => throw new ArgumentOutOfRangeException(nameof(asset), asset, "Undefined VRAM asset."),
         _ => throw new ArgumentOutOfRangeException(nameof(asset), asset, "Undefined VRAM asset."),
     };
 }

@@ -147,8 +147,8 @@ public sealed class OamBuffer
         int highShift = (spriteIndex & 3) * 2;
         var highPair = new SnesOamHighTablePair(unchecked((byte)(
             (HighTableBytes[spriteIndex >> 2] >> highShift) & 3)));
-        SnesObjAttributeWord attributes = (ushort)(
-            SnesLittleEndian.Word(LowTableBytes[lowOffset + 2], LowTableBytes[lowOffset + 3]));
+        SnesObjAttributeWord attributes =
+            SnesLittleEndian.Word(LowTableBytes[lowOffset + 2], LowTableBytes[lowOffset + 3]);
 
         return new OamEntry(
             Position: new Position16<OamPixels>(

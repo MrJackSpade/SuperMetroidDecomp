@@ -8,23 +8,23 @@ internal sealed class CrawlerEntity(CrawlersBehavior species, RoomEnemySlot slot
     : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation
 {
     /// <inheritdoc/>
-    public EnemyInitializationAiHandler? FindInitialization() => Slot.EnemyDefinitionPointer switch
+    public EnemyInitializationAiHandler? FindInitialization() => CrawlersPartDefinitions.Parts[Slot.EnemyDefinitionPointer] switch
     {
-        EnemyDefinitionId.Sciser => CrawlersBehavior.InitializeSciserAi,
-        EnemyDefinitionId.Zero => CrawlersBehavior.InitializeZeroAi,
-        EnemyDefinitionId.Viola => CrawlersBehavior.InitializeViolaAi,
-        EnemyDefinitionId.Zeela or EnemyDefinitionId.Sova or EnemyDefinitionId.Zoomer or EnemyDefinitionId.MZoomer =>
+        CrawlersPart.Sciser => CrawlersBehavior.InitializeSciserAi,
+        CrawlersPart.Zero => CrawlersBehavior.InitializeZeroAi,
+        CrawlersPart.Viola => CrawlersBehavior.InitializeViolaAi,
+        CrawlersPart.Zeela or CrawlersPart.Sova or CrawlersPart.Zoomer or CrawlersPart.MZoomer =>
             CrawlersBehavior.InitializeSharedCrawlerAi,
-        EnemyDefinitionId.HZoomer => CrawlersBehavior.InitializeHZoomerAi,
+        CrawlersPart.HZoomer => CrawlersBehavior.InitializeHZoomerAi,
         _ => throw new InvalidOperationException($"Crawler entity bound to {Slot.EnemyDefinitionPointer}."),
     };
 
     /// <inheritdoc/>
-    public EnemyMainAiHandler? FindMain() => Slot.EnemyDefinitionPointer switch
+    public EnemyMainAiHandler? FindMain() => CrawlersPartDefinitions.Parts[Slot.EnemyDefinitionPointer] switch
     {
-        EnemyDefinitionId.Sciser or EnemyDefinitionId.Zero or EnemyDefinitionId.Viola or EnemyDefinitionId.Zeela or
-            EnemyDefinitionId.Sova or EnemyDefinitionId.Zoomer or EnemyDefinitionId.MZoomer => species.RunCrawlerMainAi,
-        EnemyDefinitionId.HZoomer => species.RunHZoomerMainAi,
+        CrawlersPart.Sciser or CrawlersPart.Zero or CrawlersPart.Viola or CrawlersPart.Zeela or
+            CrawlersPart.Sova or CrawlersPart.Zoomer or CrawlersPart.MZoomer => species.RunCrawlerMainAi,
+        CrawlersPart.HZoomer => species.RunHZoomerMainAi,
         _ => throw new InvalidOperationException($"Crawler entity bound to {Slot.EnemyDefinitionPointer}."),
     };
 

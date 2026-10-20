@@ -25,6 +25,8 @@ internal static class SamusProjectilePrograms
             case AnimationProgramAdvanceKind.Stop:
                 duration = 0;
                 return null;
+            case AnimationProgramAdvanceKind.Wait:
+            case AnimationProgramAdvanceKind.Hold:
             default:
                 throw new InvalidOperationException($"Samus projectile program {cursor.Program} ended an advance with {advance.Kind}.");
         }

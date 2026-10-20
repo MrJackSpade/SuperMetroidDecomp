@@ -296,6 +296,8 @@ internal sealed class DoorTransitionState
                 }
                 break;
 
+            case DoorTransitionPhase.Inactive:
+            case DoorTransitionPhase.Complete:
             default:
                 throw new InvalidOperationException($"Unknown door transition phase {Phase}.");
         }

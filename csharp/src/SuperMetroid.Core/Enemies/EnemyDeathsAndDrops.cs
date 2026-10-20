@@ -511,6 +511,8 @@ internal sealed class EnemyDeathsAndDrops
                 RestoreEnemyDropSuperMissiles(samus, 1);
                 LastEnemyPickupSoundEffect = SoundEffectLibrary2Sounds.SuperMissilePickup;
                 break;
+            case EnemyPickupKind.None:
+            case EnemyPickupKind.NoDrop:
             default:
                 throw new InvalidDataException(
                     $"Enemy pickup slot {projectile.SlotIndex} contains invalid type ${projectile.Variable0:X4}.");

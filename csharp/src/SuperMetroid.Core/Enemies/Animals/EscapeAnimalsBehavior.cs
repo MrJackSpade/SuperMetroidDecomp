@@ -16,13 +16,13 @@ namespace SuperMetroid.Core.Enemies.Animals;
 internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <inheritdoc/>
-    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.EtecoonEscape, EnemyDefinitionId.DachoraEscape];
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [.. EscapeAnimalsPartDefinitions.Parts.Keys];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => slot.EnemyDefinitionPointer switch
+    public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => EscapeAnimalsPartDefinitions.Parts[slot.EnemyDefinitionPointer] switch
     {
-        EnemyDefinitionId.EtecoonEscape => new EscapeEtecoonEntity(this, slot, common),
-        EnemyDefinitionId.DachoraEscape => new EscapeDachoraEntity(this, slot, common),
+        EscapeAnimalsPart.EtecoonEscape => new EscapeEtecoonEntity(this, slot, common),
+        EscapeAnimalsPart.DachoraEscape => new EscapeDachoraEntity(this, slot, common),
         _ => throw new InvalidOperationException($"Escape animals do not own {slot.EnemyDefinitionPointer}."),
     };
 
@@ -84,7 +84,7 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Ports <c>EscapeDachora_Init</c> at <c>$B3:EAE5</c>.</summary>
     internal void InitializeEscapeDachora(RoomEnemySlot slot)
     {
-        slot.SetSpeciesState(new EscapeDachoraEnemyState(slot));
+        slot.SetSpeciesState(new EscapeDachoraEnemyState());
         if (HasCrittersEscaped())
         {
             slot.Properties = slot.Properties.With(EnemyProperties.Deleted);
@@ -239,7 +239,7 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         uint fixedPosition = slot.Position.X.RawValue;
         fixedPosition = unchecked(fixedPosition + (uint)displacement);
-        slot.Position = slot.Position.WithX(SnesFixedPosition.FromRaw(unchecked((uint)fixedPosition)));
+        slot.Position = slot.Position.WithX(SnesFixedPosition.FromRaw(unchecked(fixedPosition)));
     }
 
     /// <summary>Fetches the typed Dachora state after initialization, failing for an uninitialized slot.</summary>

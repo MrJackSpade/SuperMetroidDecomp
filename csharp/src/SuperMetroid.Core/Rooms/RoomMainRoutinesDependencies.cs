@@ -14,24 +14,15 @@ internal sealed record RoomMainRoutinesDependencies
     /// <summary>Background scroll.</summary>
     public required BackgroundScrollState BackgroundScroll { get; init; }
 
-
     /// <summary>Player.</summary>
     public required SamusFrameState Player { get; init; }
 
     /// <summary>Room.</summary>
     public required ActiveRoomState Room { get; init; }
 
-
-
-
     /// <summary>System.</summary>
     public required Bank80SystemState System { get; init; }
 
-
-    /// <summary>Vram.</summary>
-    public required SnesVram Vram { get; init; }
-
     /// <summary>Vram writes.</summary>
     public required VramWriteQueue VramWrites { get; init; }
-
 }

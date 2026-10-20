@@ -60,21 +60,21 @@ internal static class MurderBeamVerification
         shared.StepFrame(new SamusTerrain { Level = level }, samus, 0, 0);
         SamusProjectileSlotObservation slotsBeforeFire = projectiles.ObserveSlots();
         SamusProjectileFrameResult fired = projectiles.StepFrame(new SamusTerrain { Level = level }, samus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0 }, new(0, 0), shared);
-        AssertEqual((int?)0, slotsBeforeFire.FiredSlot(projectiles),
+        AssertEqual(0, slotsBeforeFire.FiredSlot(projectiles),
             "charged-left Murder Beam allocates slot zero");
         AssertTrue(fired.QueuedSoundEffect is null,
             "Murder Beam's adjacent sound-table entry is zero");
 
         SamusProjectileSlot shot = projectiles.Slots[0];
-        AssertEqual((ushort)0x901f, shot.Type, "Murder Beam retains charged all-beams type");
-        AssertEqual((ushort)200, shot.Damage, "Murder Beam uses the native 200-damage record");
+        AssertEqual(0x901f, shot.Type, "Murder Beam retains charged all-beams type");
+        AssertEqual(200, shot.Damage, "Murder Beam uses the native 200-damage record");
         AssertEqual((ushort)SamusProjectileDirection.Left, shot.Direction,
             "safe Murder Beam faces left");
         AssertEqual((ushort)116, shot.Position.X.Whole, "Murder Beam native muzzle X");
         AssertEqual((ushort)123, shot.Position.Y.Whole, "Murder Beam native muzzle Y");
         AssertEqual(SamusProjectilePreInstruction.MurderBeamMisalignedExecution,
             shot.PreInstruction, "Murder Beam retains its overread callback identity");
-        AssertEqual((ushort)0, shot.InstructionPointer,
+        AssertEqual(0, shot.InstructionPointer,
             "safe left-facing data record selects no animation list");
         AssertEqual((ushort)0, shot.Radius.X, "safe Murder Beam X radius");
         AssertEqual((ushort)0, shot.Radius.Y, "safe Murder Beam Y radius");
@@ -83,7 +83,7 @@ internal static class MurderBeamVerification
         AssertTrue(!shot.IsActive, "zero-list Murder Beam is not animated or drawn");
         AssertTrue(shot.HasEnemyCollisionPayload,
             "zero-list Murder Beam remains visible to bank-$A0 enemy collision");
-        AssertEqual((ushort)1, projectiles.SlotTable.ProjectileCounter,
+        AssertEqual(1, projectiles.SlotTable.ProjectileCounter,
             "Murder Beam retains its ordinary projectile allocation");
 
         for (int frame = 0; frame < 16; frame++)
@@ -91,8 +91,8 @@ internal static class MurderBeamVerification
             shared.StepFrame(new SamusTerrain { Level = level }, samus, 0, 0);
             projectiles.StepFrame(new SamusTerrain { Level = level }, samus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0 }, new(0, 0), shared);
         }
-        AssertEqual((ushort)0x901f, shot.Type, "Murder Beam persists without an instruction list");
-        AssertEqual((ushort)200, shot.Damage, "persistent Murder Beam retains damage");
+        AssertEqual(0x901f, shot.Type, "Murder Beam persists without an instruction list");
+        AssertEqual(200, shot.Damage, "persistent Murder Beam retains damage");
         AssertEqual((ushort)116, shot.Position.X.Whole, "persistent Murder Beam remains fixed in world X");
         AssertEqual((ushort)123, shot.Position.Y.Whole, "persistent Murder Beam remains fixed in world Y");
 
@@ -114,18 +114,18 @@ internal static class MurderBeamVerification
         AssertEqual(1, combat.System.Collision.ResolveOrdinaryProjectileHits(
             projectiles, shared, samus),
             "invisible Murder Beam point overlaps an ordinary enemy");
-        AssertEqual((ushort)800, target.Health,
+        AssertEqual(800, target.Health,
             "charged vulnerability applies one 200-point Murder Beam hit");
-        AssertEqual((ushort)0x901f, shot.Type,
+        AssertEqual(0x901f, shot.Type,
             "Plasma-bearing Murder Beam survives enemy impact");
-        AssertEqual((ushort)0, shot.InstructionPointer,
+        AssertEqual(0, shot.InstructionPointer,
             "Murder Beam remains zero-list after enemy impact");
 
         target.InvincibilityTimer = NativeCountdown.Start(0);
         AssertEqual(1, combat.System.Collision.ResolveOrdinaryProjectileHits(
             projectiles, shared, samus),
             "persistent Murder Beam can damage again after invincibility");
-        AssertEqual((ushort)600, target.Health,
+        AssertEqual(600, target.Health,
             "second Murder Beam contact repeats the native damage");
 
         target.InvincibilityTimer = NativeCountdown.Start(0);
@@ -134,7 +134,7 @@ internal static class MurderBeamVerification
         AssertEqual(1, combat.System.Collision.ResolveOrdinaryProjectileHits(
             projectiles, shared, samus),
             "lethal Murder Beam contact reaches Ice substitution");
-        AssertEqual((ushort)100, target.Health,
+        AssertEqual(100, target.Health,
             "lethal Ice-bearing Murder Beam preserves health while freezing");
         AssertEqual((ushort)400, target.FrozenTimer.RawValue,
             "Murder Beam freezes a vulnerable non-Norfair enemy");
@@ -149,9 +149,9 @@ internal static class MurderBeamVerification
             shared.StepFrame(new SamusTerrain { Level = level }, samus, 0, 0);
             projectiles.StepFrame(new SamusTerrain { Level = level }, samus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0 }, new(0, 0), shared);
         }
-        AssertEqual((ushort)0x901f, shot.Type,
+        AssertEqual(0x901f, shot.Type,
             "Murder Beam survives the phase-two to phase-three cutscene boundary");
-        AssertEqual((ushort)200, shot.Damage,
+        AssertEqual(200, shot.Damage,
             "phase-three Murder Beam retains its damage payload");
 
         Suite(nameof(VerifyMissileAutoCancelMurderBeam), () => VerifyMissileAutoCancelMurderBeam(level));
@@ -175,7 +175,7 @@ internal static class MurderBeamVerification
         {
             SnesButton newlyPressed = frame == 0 && !shootAlreadyHeld
                 ? SnesButton.X
-                : (ushort)0;
+                : 0;
             shared.StepFrame(new SamusTerrain { Level = level }, samus, SnesButton.X, newlyPressed);
             projectiles.StepFrame(new SamusTerrain { Level = level }, samus, new ProjectileButtonInput { ControllerInput = SnesButton.X, ControllerNewInput = newlyPressed }, new(0, 0), shared);
         }
@@ -243,7 +243,7 @@ internal static class MurderBeamVerification
         int? murderSlot = slotsBeforeMurder.FiredSlot(projectiles);
         AssertTrue(murderSlot is not null,
             "missile cooldown suppresses the unsafe uncharged shot and permits charged release");
-        AssertEqual((ushort)0x901f, projectiles.Slots[(murderSlot ?? throw new InvalidOperationException("Verification requires murderSlot."))].Type,
+        AssertEqual(0x901f, projectiles.Slots[(murderSlot ?? throw new InvalidOperationException("Verification requires murderSlot."))].Type,
             "missile auto-cancel alternative produces Murder Beam");
     }
 

@@ -164,6 +164,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
             case DachoraAiFunction.Falling:
                 RunDachoraFalling(slot, state, activeSamus, activeLevel);
                 break;
+            case DachoraAiFunction.Echo:
             default:
                 throw new InvalidDataException(
                     $"Dachora function {state.Function?.ToString() ?? "none"} is not translated.");
@@ -539,6 +540,17 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
         DachoraProgram.RunningLeftFast => DachoraProgram.RunningLeftVeryFast,
         DachoraProgram.RunningRight => DachoraProgram.RunningRightFast,
         DachoraProgram.RunningRightFast => DachoraProgram.RunningRightVeryFast,
+        DachoraProgram.RunningLeftVeryFast or
+            DachoraProgram.IdleLeft or
+            DachoraProgram.BlinkLeft or
+            DachoraProgram.EchoLeft or
+            DachoraProgram.FallingLeft or
+            DachoraProgram.RunningRightVeryFast or
+            DachoraProgram.IdleRight or
+            DachoraProgram.BlinkRight or
+            DachoraProgram.ChargeRight or
+            DachoraProgram.EchoRight or
+            DachoraProgram.FallingRight => throw new InvalidOperationException($"Dachora speed-up from {program}, which has no faster run."),
         _ => throw new InvalidOperationException($"Dachora speed-up from {program}, which has no faster run."),
     };
 

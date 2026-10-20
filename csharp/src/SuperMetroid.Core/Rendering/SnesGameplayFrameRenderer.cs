@@ -561,6 +561,13 @@ public static class SnesGameplayFrameRenderer
             RoomFxType.Rain => LayerBlendingConfiguration.Rain,
             RoomFxType.Fog => LayerBlendingConfiguration.FogAdditive,
             RoomFxType.Spores => LayerBlendingConfiguration.Spores,
+            RoomFxType.None or
+                RoomFxType.ScrollingSky or
+                RoomFxType.UnusedScrollingSky or
+                RoomFxType.Fireflea or
+                RoomFxType.CeresRidley or
+                RoomFxType.CeresElevator or
+                RoomFxType.CeresHaze => throw new NotSupportedException($"Room FX type {fx.Type} has no captured BG3 compositor."),
             _ => throw new NotSupportedException($"Room FX type {fx.Type} has no captured BG3 compositor."),
         };
         if (RoomFxTypes.UsesWater(fx.Type) && fx.LayerBlendConfiguration is not
@@ -684,7 +691,7 @@ public static class SnesGameplayFrameRenderer
             else
             {
                 long dy = y - originY;
-                if (!IntegerWindowIntersection.IntersectGreaterEqual(-a.Y, (long)a.X * dy + (long)a.Y * originX,
+                if (!IntegerWindowIntersection.IntersectGreaterEqual(-a.Y, a.X * dy + (long)a.Y * originX,
                         -XrayWindowRenderDefinitions.SubpixelTolerance, ref left, ref right)) continue;
                 if (!IntegerWindowIntersection.IntersectGreaterEqual(b.Y, -(long)b.X * dy - (long)b.Y * originX,
                         -XrayWindowRenderDefinitions.SubpixelTolerance, ref left, ref right)) continue;

@@ -29,6 +29,7 @@ internal sealed class FixtureAreaBossFlags : IAreaBossFlags
         BossBits.AreaBoss => IsBossDefeated,
         BossBits.AreaMiniBoss => IsMiniBossDefeated,
         BossBits.AreaTorizo => IsTorizoDefeated,
+        BossBits.None => throw new ArgumentOutOfRangeException(nameof(bits), bits, "Enemy AI queries one boss kind at a time."),
         _ => throw new ArgumentOutOfRangeException(nameof(bits), bits, "Enemy AI queries one boss kind at a time."),
     } ?? throw new InvalidOperationException($"The enemy fixture did not install a {bits} query."))();
 
@@ -38,6 +39,7 @@ internal sealed class FixtureAreaBossFlags : IAreaBossFlags
         BossBits.AreaBoss => SetBossDefeated,
         BossBits.AreaMiniBoss => SetMiniBossDefeated,
         BossBits.AreaTorizo => SetTorizoDefeated,
+        BossBits.None => throw new ArgumentOutOfRangeException(nameof(bits), bits, "Enemy AI sets one boss kind at a time."),
         _ => throw new ArgumentOutOfRangeException(nameof(bits), bits, "Enemy AI sets one boss kind at a time."),
     } ?? throw new InvalidOperationException($"The enemy fixture did not install a {bits} set."))();
 }

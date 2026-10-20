@@ -62,7 +62,7 @@ internal static class CrawlerAnimationDefinitionsVerification
             {
                 // InitAI_Viola ($A3:B678) selects with the property bits, not the parameter.
                 slot.CurrentInstruction = (ushort)(orientation ^ 1);
-                slot.Properties = EnemyPropertyWord.FromNativeWord((ushort)(orientation));
+                slot.Properties = EnemyPropertyWord.FromNativeWord(orientation);
             }
             slot.SetSpawnParameter1(0);
             if (family == CrawlerAnimationFamily.HZoomer)

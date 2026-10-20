@@ -1087,7 +1087,7 @@ internal static class LookupStream2Verification
             yard.CrawlingSpeedIndex = parameter;
             for (ushort property = 0; property < 4; property++)
             {
-                slot.Properties = EnemyPropertyWord.FromNativeWord((ushort)((ushort)(0xa000 | property)));
+                slot.Properties = EnemyPropertyWord.FromNativeWord((ushort)(0xa000 | property));
                 EightEightVector<RoomPixels> velocity = reset(slot, speedParameter, default);
                 AssertEqual(property == 0 ? unchecked((ushort)-expected) : expected, velocity.X.RawValue,
                     "Actual crawler reset X magnitude");
@@ -1147,7 +1147,7 @@ internal static class LookupStream2Verification
         var invalidCamera = new ScrollBoundaryCamera(grid);
         AssertThrows<ArgumentOutOfRangeException>(() => invalidCamera.TrackMovedSamusHorizontally(
             FixedPosition<RoomPixels>.FromWords(200, 0, 100, 0), FixedPosition<RoomPixels>.FromWords(204, 0, 100, 0),
-            new(false, 0, (ushort)0, 8, (CameraDistanceMode)1)), "Native mode domain remains validated before tracking");
+            new(false, 0, 0, 8, (CameraDistanceMode)1)), "Native mode domain remains validated before tracking");
         Console.WriteLine("Horizontal camera targets:eight native offsets and32 actual mode/facing/reversal targets preserve geometry, speed and domain validation.");
     }
 
@@ -1225,7 +1225,7 @@ internal static class LookupStream2Verification
         var state = new KraidEnemyState();
         // The parts read Kraid's room state, which the body's initializer installs; this fixture installs it directly.
         enemies.KraidBehavior.Kraid = state;
-        enemies.VerificationServices().ReadRandom = (Func<ushort>)(() => 1);
+        enemies.VerificationServices().ReadRandom = () => 1;
         Action<RoomEnemySlot, KraidEnemyState> finish = enemies.KraidBehavior.FinishKraidGrowth;
         Action<RoomEnemySlot, KraidPartState> align = enemies.KraidBehavior.AlignKraidPart;
         var body = enemies.SlotTable.Slots[0];
@@ -1238,7 +1238,7 @@ internal static class LookupStream2Verification
             ushort expected = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa7a916 + (slot - 2) * 2));
             AssertEqual(expected, KraidLintInitializationDefinitions.InitialDelay((KraidLintPart)slot), "Native per-part initial delay");
             AssertEqual(expected, state.Parts[lint.SlotIndex].FunctionTimer, "Actual post-growth timer write");
-            AssertEqual((ushort)0, state.Parts[lint.SlotIndex].LintTravel, "Actual lint growth resets extension");
+            AssertEqual(0, state.Parts[lint.SlotIndex].LintTravel, "Actual lint growth resets extension");
             AssertEqual(KraidAiFunction.LintProduce, state.Parts[slot].NextFunction, "Actual lint continuation");
             for (int remaining = expected - 1; remaining >= 0; remaining--)
             {
@@ -1919,7 +1919,7 @@ internal static class LookupStream2Verification
         }
         var residuals = stock.bubble;
         AssertEqual(1, residuals.Count, "One stock bubble residual remains pending");
-        AssertEqual((ushort)0x7fff, residuals[30], "Final-frame leading white remains supplied data");
+        AssertEqual(0x7fff, residuals[30], "Final-frame leading white remains supplied data");
         for (int frame = 0; frame < CrystalFlashColorFormat.BubbleFrameCount; frame++)
         for (int color = 0; color < CrystalFlashColorFormat.BubbleColorCount; color++)
         {
@@ -2014,6 +2014,7 @@ internal static class LookupStream2Verification
                 KraidPaletteSource.InitialTarget => document with { InitialTarget = editedColors },
                 KraidPaletteSource.Health => document with { Health = editedColors },
                 KraidPaletteSource.Secondary => document with { Secondary = editedColors },
+                KraidPaletteSource.DeathArm => document with { DeathArm = editedColors },
                 _ => document with { DeathArm = editedColors },
             };
             var edited = KraidColorCatalog.Load(new MemoryStream(KraidColorCatalog.Write(editedDocument)));

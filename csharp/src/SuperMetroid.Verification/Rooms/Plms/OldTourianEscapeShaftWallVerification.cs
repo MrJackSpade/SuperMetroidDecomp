@@ -44,8 +44,8 @@ internal static class OldTourianEscapeShaftWallVerification
         AssertEqual(1, Explosions(), "Samus below and right of ($F0,$820) blows the wall");
         RoomEnemyProjectileSlot explosion = runtime.Enemies.Projectiles.EnemyProjectiles.First(projectile =>
             projectile.IsActive && projectile.Kind == RoomEnemyProjectileKind.OldTourianEscapeShaftFakeWallExplosion);
-        AssertEqual((ushort)0x0110, explosion.Variable0, "the explosion is centred on the wall's X");
-        AssertEqual((ushort)0x0888, explosion.Variable1, "the explosion is centred on the wall's Y");
+        AssertEqual(0x0110, explosion.Variable0, "the explosion is centred on the wall's X");
+        AssertEqual(0x0888, explosion.Variable1, "the explosion is centred on the wall's Y");
         AssertTrue(explosion.Animation is OldTourianWallExplosionAnimation, "the explosion plays its typed program");
         AssertTrue(explosion.Animation is not null, "the explosion runs no native list");
         RoomLevelData level = runtime.Room.LoadedLevelData;
@@ -77,7 +77,7 @@ internal static class OldTourianEscapeShaftWallVerification
         AssertEqual(OldTourianWallExplosionCue.ClearPreInstruction, start[0].PublishedCue, "the setup clears the movement");
         AssertEqual((ushort)NativeEnemyProjectileInstruction.TimerInY, Word(0xb445), "the list then loads the timer");
         AssertEqual(AnimationProgramStepKind.SetCounter, start[1].Kind, "the setup loads the counter");
-        AssertEqual((int)Word(0xb447), start[1].Duration, "the burst count");
+        AssertEqual(Word(0xb447), start[1].Duration, "the burst count");
         AssertEqual(AnimationProgramStepKind.FallInto, start[2].Kind, "the setup runs on into the burst");
         AssertEqual(OldTourianWallExplosionProgram.Burst, start[2].Target, "the setup's next program");
 
@@ -97,7 +97,7 @@ internal static class OldTourianEscapeShaftWallVerification
             var step = burst[2 + frame];
             AssertEqual(AnimationProgramStepKind.Show, step.Kind, $"pose {frame} is shown");
             AssertEqual(frame, step.Frame, $"pose {frame} order");
-            AssertEqual((int)Word(cursor), step.Duration, $"pose {frame} duration");
+            AssertEqual(Word(cursor), step.Duration, $"pose {frame} duration");
             AssertEqual((ushort)(cursor + 2), OldTourianEscapeShaftWallExplosionInstructionProgramDefinitionsTooling.PresentationWordAddress(frame),
                 $"pose {frame} operand follows its duration");
         }

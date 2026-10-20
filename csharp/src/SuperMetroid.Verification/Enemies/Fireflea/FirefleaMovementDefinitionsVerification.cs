@@ -24,7 +24,7 @@ internal static class FirefleaMovementDefinitionsVerification
         for (byte radiusIndex = 0; radiusIndex < 8; radiusIndex++)
         {
             ushort address = checked((ushort)(radiusTable + radiusIndex * 2));
-            ushort native = (ushort)(SnesLittleEndian.Word(FirefleaMovementDefinitionsRomByte(rom, 0xa30000 | address), FirefleaMovementDefinitionsRomByte(rom, 0xa30000 | (address + 1))));
+            ushort native = SnesLittleEndian.Word(FirefleaMovementDefinitionsRomByte(rom, 0xa30000 | address), FirefleaMovementDefinitionsRomByte(rom, 0xa30000 | (address + 1)));
             AssertEqual(native, FirefleaMovementDefinitions.Radius(radiusIndex),
                 $"compiled Fireflea radius {radiusIndex}");
 

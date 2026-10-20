@@ -28,13 +28,13 @@ internal static class CrocomireCutsceneVerification
         slot.Bind(EnemyDefinitionId.Crocomire, slot.Definition);
         slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = 0xa4 });
         slot.SpritemapPointer = 0xe6bc;
-        object?[] arguments = [slot, Position16<RoomPixels>.Zero, new Extent16<RoomPixels>((ushort)8, (ushort)8), false, (ushort)0];
+        object?[] arguments = [slot, Position16<RoomPixels>.Zero, new Extent16<RoomPixels>(8, 8), false, (ushort)0];
         AssertTrue(!ExtendedHitboxWalker.Find(enemies, arguments), "river corpse has native empty collision");
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         foreach (var frame in CrocomireSkeletonVisualDefinitions.Frames)
         {
             var components = CrocomireBodyCollisionDefinitions.ComponentsAt(frame.Pointer);
-            AssertEqual((int)rom.ReadCartridgeWordFixedBank(0xa40000 | frame.Pointer), components.Length, "corpse native component count");
+            AssertEqual(rom.ReadCartridgeWordFixedBank(0xa40000 | frame.Pointer), components.Length, "corpse native component count");
             slot.SpritemapPointer = frame.Pointer;
             slot.Position = slot.Position.WithWhole(new(4096, 4096));
             bool anyHitbox = false;
@@ -47,7 +47,7 @@ internal static class CrocomireCutsceneVerification
                 // The ROM names the component's hitbox list by address; the compiled component holds that list.
                 ushort list = rom.ReadCartridgeWordFixedBank(0xa40000 | (address + 6));
                 IReadOnlyList<CrocomireBodyCollisionHitbox> boxes = component.Hitboxes;
-                AssertEqual((int)rom.ReadCartridgeWordFixedBank(0xa40000 | list), boxes.Count, "corpse native hitbox count");
+                AssertEqual(rom.ReadCartridgeWordFixedBank(0xa40000 | list), boxes.Count, "corpse native hitbox count");
                 for (int boxIndex = 0; boxIndex < boxes.Count; boxIndex++)
                 {
                     var box = boxes[boxIndex];
@@ -63,7 +63,7 @@ internal static class CrocomireCutsceneVerification
                     ushort y = (ushort)(4096 + component.Offset.Y + (box.Top + box.Bottom) / 2);
                     foreach (bool shot in new[] { false, true })
                     {
-                        object?[] hit = [slot, new Position16<RoomPixels>(x, y), new Extent16<RoomPixels>((ushort)0, (ushort)0), shot, (ushort)0];
+                        object?[] hit = [slot, new Position16<RoomPixels>(x, y), new Extent16<RoomPixels>(0, 0), shot, (ushort)0];
                         AssertTrue(ExtendedHitboxWalker.Find(enemies, hit), "corpse physical component is visited");
                         AssertEqual(shot ? CrocomireHitboxCallbackCodec.ToCallbackWord(box.Shot) : CrocomireHitboxCallbackCodec.ToCallbackWord(box.Touch), (ushort)(hit[^1] ?? throw new InvalidOperationException("Verification requires hit[^1].")), "corpse selects native callback");
                     }
@@ -72,7 +72,7 @@ internal static class CrocomireCutsceneVerification
             }
             if (!anyHitbox)
             {
-                object?[] empty = [slot, slot.Position.Whole, new Extent16<RoomPixels>((ushort)100, (ushort)100), true, (ushort)0];
+                object?[] empty = [slot, slot.Position.Whole, new Extent16<RoomPixels>(100, 100), true, (ushort)0];
                 AssertTrue(!ExtendedHitboxWalker.Find(enemies, empty), "native empty corpse geometry remains non-colliding");
             }
         }
@@ -101,9 +101,9 @@ internal static class CrocomireCutsceneVerification
         var state = new CrocomireEnemyState(body);
         enemies.CrocomireBehavior.Crocomire = state;
         enemies.CrocomireBehavior.CrocomireDeath = new CrocomireDeathState();
-        enemies.VerificationServices().SetRoomScrollState = (Action<int, RoomScrollState>)scrolls.SetStorage;
+        enemies.VerificationServices().SetRoomScrollState = scrolls.SetStorage;
         enemies.Presentation.BindCgram(new SnesCgram());
-        enemies.VerificationServices().NextRandom = (Func<ushort>)(() => 1);
+        enemies.VerificationServices().NextRandom = () => 1;
         Action<RoomEnemySlot, SamusState?, Position16<RoomPixels>> run = enemies.CrocomireBehavior.RunCrocomireMain;
         var samus = new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(new(1312, 128)) };
         run(body, samus, new Position16<RoomPixels>(1280, 0));
@@ -130,7 +130,7 @@ internal static class CrocomireCutsceneVerification
         // native wait-for-Samus handoff using the retail room's original scrolls.
         scrolls = RoomScrollGrid.LoadCompiled(new RoomScrollStorage(), storage, new Extent16<RoomScreens>(8, 1));
         camera = new ScrollBoundaryCamera(scrolls);
-        enemies.VerificationServices().SetRoomScrollState = (Action<int, RoomScrollState>)scrolls.SetStorage;
+        enemies.VerificationServices().SetRoomScrollState = scrolls.SetStorage;
         state.DeathSequenceIndex = CrocomireDeathPhase.WaitForSamusAtWall;
         body.Position = body.Position.WithWholeX(480);
         samus.Position = samus.Position.WithWholeX(639);

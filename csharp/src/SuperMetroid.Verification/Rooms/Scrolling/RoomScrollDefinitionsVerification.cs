@@ -121,16 +121,6 @@ internal static class RoomScrollDefinitionsVerification
             "allocations and Ceres match without native scroll reads.");
     }
 
-    /// <summary>Rejects runtime access to the selected cartridge scroll allocation during Ceres entry.</summary>
-    private static MutableCartridgeReadGuard NewRoomScrollSourceReadGuard(ISnesAddressSpace source, ushort scrollPointer)
-    {
-        int start = RoomAssetRomData.Tilesets.DefinitionBank | scrollPointer;
-        var guard = new MutableCartridgeReadGuard(source);
-        guard.Forbid(address => address >= start && address < start + RoomScrollGrid.StorageByteCount,
-            address => $"Production runtime read native room-scroll data at ${address:X6}.");
-        return guard;
-    }
-
     /// <summary>Runs the complete retail room scroll audit from the command dispatcher.</summary>
     [VerificationCommand("--room-scroll-definitions")]
     internal static int RoomScrollDefinitionsCommand()

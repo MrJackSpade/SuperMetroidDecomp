@@ -115,11 +115,11 @@ internal static class CeresDestructionArtworkVerification
             var source = CeresDestructionActorDefinitions.ZebesPlacementSource(index);
             AssertEqual(source.Id, actorsDocument.Actors[index].Id,
                 $"Zebes reveal actor {index} retains its native identity");
-            AssertEqual((int)RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
+            AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
                     CeresDestructionActorDefinitions.NativeBank | source.XAddress),
                 actorsDocument.Actors[index].X,
                 $"Zebes reveal actor {index} X matches the cartridge operand");
-            AssertEqual((int)RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
+            AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
                     CeresDestructionActorDefinitions.NativeBank | source.YAddress),
                 actorsDocument.Actors[index].Y,
                 $"Zebes reveal actor {index} Y matches the cartridge operand");
@@ -186,9 +186,9 @@ internal static class CeresDestructionArtworkVerification
             AssertEqual(CeresDestructionActorDefinitions.InitialPlacementId(index),
                 destructionActorsDocument.Actors[index].Id,
                 $"Ceres destruction actor {index} retains its native role");
-            AssertEqual((int)definition.Position.X, destructionActorsDocument.Actors[index].X,
+            AssertEqual(definition.Position.X, destructionActorsDocument.Actors[index].X,
                 $"Ceres destruction actor {index} X matches its verified initializer");
-            AssertEqual((int)definition.Position.Y, destructionActorsDocument.Actors[index].Y,
+            AssertEqual(definition.Position.Y, destructionActorsDocument.Actors[index].Y,
                 $"Ceres destruction actor {index} Y matches its verified initializer");
         }
         int stockAsteroidX = destructionActorsDocument.Actors[0].X;

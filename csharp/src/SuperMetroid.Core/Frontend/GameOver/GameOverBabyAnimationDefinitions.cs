@@ -61,6 +61,7 @@ public static class GameOverBabyAnimationDefinitions
         GameOverBabySound.Cry23 => (ushort)GameOverBabyCryInstruction.Cry23,
         GameOverBabySound.Cry26 => (ushort)GameOverBabyCryInstruction.Cry26,
         GameOverBabySound.Cry27 => (ushort)GameOverBabyCryInstruction.Cry27,
+        GameOverBabySound.None => throw new ArgumentOutOfRangeException(nameof(sound)),
         _ => throw new ArgumentOutOfRangeException(nameof(sound)),
     };
 

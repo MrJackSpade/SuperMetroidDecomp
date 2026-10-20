@@ -29,10 +29,10 @@ internal static class MapIndicatorAnimationVerification
     internal static void VerifyMapIndicatorDelays(ISnesAddressSpace rom)
     {
         AssertEqual((byte)0xe0, rom.ReadCartridgeByte(0x82ba06), "native marker frame CPX");
-        AssertEqual((int)ReadVerificationWord(rom, 0x82ba07), PauseMapIndicatorAnimation.FrameCount * 2,
+        AssertEqual(ReadVerificationWord(rom, 0x82ba07), PauseMapIndicatorAnimation.FrameCount * 2,
             "native marker word-offset wrap boundary");
         for (int frame = 0; frame < 4; frame++)
-            AssertEqual((int)ReadVerificationWord(rom, 0x82ba25 + frame * 2),
+            AssertEqual(ReadVerificationWord(rom, 0x82ba25 + frame * 2),
                 PauseMapIndicatorAnimation.FrameDelay(frame), "original marker phase delay");
         foreach (int invalid in new[] { int.MinValue, -1, 4, 256, int.MaxValue })
             AssertThrows<IndexOutOfRangeException>(() => PauseMapIndicatorAnimation.FrameDelay(invalid),

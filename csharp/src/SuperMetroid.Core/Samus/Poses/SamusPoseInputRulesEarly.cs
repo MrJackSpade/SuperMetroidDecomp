@@ -54,6 +54,49 @@ internal static class SamusPoseInputRulesEarly
         KnockbackLeftPoseList => MatchKnockbackLeftPoseList(held),
         UnusedPose5BList => MatchUnusedPose5BList(held),
         UnusedPose5CList => MatchUnusedPose5CList(held),
+        SamusPoseInputList.SpringBallGroundRightPoseList or
+            SamusPoseInputList.SpringBallGroundLeftPoseList or
+            SamusPoseInputList.SpringBallFallingRightPoseList or
+            SamusPoseInputList.SpringBallFallingLeftPoseList or
+            SamusPoseInputList.SpringBallJumpRightPoseList or
+            SamusPoseInputList.SpringBallJumpLeftPoseList or
+            SamusPoseInputList.UnusedPose63List or
+            SamusPoseInputList.UnusedPose64List or
+            SamusPoseInputList.UnusedPose65List or
+            SamusPoseInputList.UnusedPose66List or
+            SamusPoseInputList.WallJumpRightPoseList or
+            SamusPoseInputList.WallJumpLeftPoseList or
+            SamusPoseInputList.RanIntoWallRightPoseList or
+            SamusPoseInputList.RanIntoWallLeftPoseList or
+            SamusPoseInputList.NormalJumpGunExtendedRightPoseList or
+            SamusPoseInputList.NormalJumpGunExtendedLeftPoseList or
+            SamusPoseInputList.NormalJumpAimDownRightPoseList or
+            SamusPoseInputList.NormalJumpAimDownLeftPoseList or
+            SamusPoseInputList.UnmorphingTransitionRightPoseList or
+            SamusPoseInputList.UnmorphingTransitionLeftPoseList or
+            SamusPoseInputList.TurningRightToLeftPoseList or
+            SamusPoseInputList.TurningLeftToRightPoseList or
+            SamusPoseInputList.TurningRightToLeftAimUpPoseList or
+            SamusPoseInputList.TurningLeftToRightAimUpPoseList or
+            SamusPoseInputList.TurningRightToLeftAimDiagonalDownPoseList or
+            SamusPoseInputList.TurningLeftToRightAimDiagonalDownPoseList or
+            SamusPoseInputList.ShinesparkWindupRightPoseList or
+            SamusPoseInputList.ShinesparkWindupLeftPoseList or
+            SamusPoseInputList.FallingAimDownRightPoseList or
+            SamusPoseInputList.FallingAimDownLeftPoseList or
+            SamusPoseInputList.UnusedPoseDfList or
+            SamusPoseInputList.DraygonGrabbedNeutralLeftPoseList or
+            SamusPoseInputList.DraygonGrabbedNeutralRightPoseList or
+            SamusPoseInputList.MovingRightGunExtendedPoseList or
+            SamusPoseInputList.MovingLeftGunExtendedPoseList or
+            SamusPoseInputList.FallingGunExtendedRightPoseList or
+            SamusPoseInputList.FallingGunExtendedLeftPoseList or
+            SamusPoseInputList.MoonwalkTurnJumpLeftPoseList or
+            SamusPoseInputList.MoonwalkTurnJumpRightPoseList or
+            SamusPoseInputList.MoonwalkTurnJumpAimUpLeftPoseList or
+            SamusPoseInputList.MoonwalkTurnJumpAimUpRightPoseList or
+            SamusPoseInputList.MoonwalkTurnJumpAimDownLeftPoseList or
+            SamusPoseInputList.MoonwalkTurnJumpAimDownRightPoseList => throw new InvalidOperationException($"Pose-input list {pointer} belongs to the other rule section."),
         _ => throw new InvalidOperationException($"Pose-input list {pointer} belongs to the other rule section."),
     };
 

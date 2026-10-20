@@ -97,6 +97,19 @@ internal static class SpriteFrameBufferAccess
         SpriteArtworkKind.EscapeTimerTiles => SuperMetroid.Core.Areas.Escape.Artwork.EscapeTimerPresentationDefinitions.FirstCharacter,
         SpriteArtworkKind.SamusArmCannonCover => ArmCannonCoverCharacter,
         SpriteArtworkKind.GrappleTiles => SuperMetroid.Core.Samus.Artwork.GrappleTileDefinitions.FirstCharacter,
+        SpriteArtworkKind.StandardObjects or
+            SpriteArtworkKind.SamusBody or
+            SpriteArtworkKind.SamusBodyOnStandardObjects or
+            SpriteArtworkKind.SamusDeathExplosion or
+            SpriteArtworkKind.GrappleTilesOnStandardObjects or
+            SpriteArtworkKind.ProjectileObjects or
+            SpriteArtworkKind.IntroObjects or
+            SpriteArtworkKind.GameplayObjects or
+            SpriteArtworkKind.FrontendObjects or
+            SpriteArtworkKind.MenuObjects or
+            SpriteArtworkKind.TitleObjects or
+            SpriteArtworkKind.CeresFlightObjects or
+            SpriteArtworkKind.CeresDestructionObjects => 0,
         _ => 0,
     };
 }

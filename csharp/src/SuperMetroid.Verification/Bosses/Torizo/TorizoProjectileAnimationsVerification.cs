@@ -152,7 +152,7 @@ internal static class TorizoProjectileAnimationsVerification
             {
                 var show = Next("frame");
                 AssertEqual(AnimationProgramStepKind.Show, show.Kind, $"{at}: frame");
-                AssertEqual((int)word, show.Duration, $"{at}: duration");
+                AssertEqual(word, show.Duration, $"{at}: duration");
                 AssertEqual(unchecked((ushort)(cursor + 2)), EnemyProjectileFrames.ProgramFrameKey(TorizoProjectileVisualDefinitions.ShownProjectileFrames[show.Frame]), $"{at}: installed frame");
                 cursor = unchecked((ushort)(cursor + 4));
                 continue;
@@ -184,7 +184,7 @@ internal static class TorizoProjectileAnimationsVerification
                 {
                     var load = Next("timer load");
                     AssertEqual(AnimationProgramStepKind.SetCounter, load.Kind, $"{at}: timer load");
-                    AssertEqual((int)operand, load.Duration, $"{at}: timer");
+                    AssertEqual(operand, load.Duration, $"{at}: timer");
                     cursor = unchecked((ushort)(cursor + 4));
                     continue;
                 }

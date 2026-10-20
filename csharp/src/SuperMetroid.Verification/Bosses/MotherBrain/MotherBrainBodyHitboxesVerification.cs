@@ -34,7 +34,7 @@ internal static class MotherBrainBodyHitboxesVerification
         // The movie's frame: walking body at ($3E,$90) on root $A174 with phase-three
         // properties $3800 (tangible); the head well clear.
         state.Form = MotherBrainForm.ThirdPhase;
-        body.Properties = EnemyPropertyWord.FromNativeWord((ushort)(0x3800));
+        body.Properties = EnemyPropertyWord.FromNativeWord(0x3800);
         body.Position = body.Position.WithWhole(new(0x003e, 0x0090));
         body.SpritemapPointer = 0xa174;
         head.Position = head.Position.WithWhole(new(0x0058, 0x0021));
@@ -46,7 +46,7 @@ internal static class MotherBrainBodyHitboxesVerification
         shot.Cursor = ProjectileFixtureCursors.Active; shot.InstructionTimer = NativeCountdown.Start(1);
         runtime.Enemies.Collision.ResolveOrdinaryProjectileHits(runtime.Projectiles, runtime.BombProjectiles, runtime.Player.Samus);
         AssertTrue((shot.Direction & 0x0010) != 0, "the beam stops on the body's arm rectangle");
-        AssertEqual((ushort)0x8020, head.Health, "a body hit is a dud and never damages the head");
+        AssertEqual(0x8020, head.Health, "a body hit is a dud and never damages the head");
 
         // Lowered clear of that rectangle (and above the torso's), the same beam passes.
         shot.Direction = 7;

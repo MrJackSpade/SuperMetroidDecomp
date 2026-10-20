@@ -56,7 +56,7 @@ internal static class DraygonGoopTouchOrderVerification
             enemies.StepEnemyProjectiles(runtime.Room.LoadedLevelData, samus);
 
             string context = powerBombed ? "power-bombed goop at Samus" : "goop at Samus beyond the room edge";
-            AssertEqual((ushort)1, samus.XSpeedDivisor, $"{context} attaches through its touch list");
+            AssertEqual(1, samus.XSpeedDivisor, $"{context} attaches through its touch list");
             AssertTrue(samus.InvincibilityTimer.IsZero && samus.KnockbackTimer.IsZero,
                 $"{context} clears Samus's invincibility and knockback");
             AssertEqual(!powerBombed, goop.IsActive, $"{context} {(powerBombed ? "stays released" : "stays attached")}");

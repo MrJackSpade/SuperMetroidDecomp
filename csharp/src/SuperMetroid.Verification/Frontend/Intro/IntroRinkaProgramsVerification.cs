@@ -17,7 +17,7 @@ internal static class IntroRinkaProgramsVerification
         for (int index = 0; index < 3; index++)
         {
             int operand = 0x8bcded + 4 * index;
-            ushort pointer = (ushort)(SnesLittleEndian.Word(IntroRinkaFrameCatalogRomByte(rom, operand), IntroRinkaFrameCatalogRomByte(rom, operand + 1)));
+            ushort pointer = SnesLittleEndian.Word(IntroRinkaFrameCatalogRomByte(rom, operand), IntroRinkaFrameCatalogRomByte(rom, operand + 1));
             AssertEqual(pointer, frames[index].Pointer, "native Rinka frame operand");
             AssertEqual(names[index], frames[index].Name, "published Rinka asset key");
             AssertEqual(IntroRinkaSpriteDefinitions.StockPartCount,

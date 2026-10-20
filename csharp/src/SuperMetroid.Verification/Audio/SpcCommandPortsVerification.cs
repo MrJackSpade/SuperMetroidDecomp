@@ -190,6 +190,8 @@ internal static class SpcCommandPortsVerification
                 // Queued during the track select's downtime; sent once it ends.
                 audio.QueueSound(SoundEffectLibrary3Sounds.HardLanding, maximumQueued: 6);
                 break;
+            default:
+                break;
         }
     }
 }

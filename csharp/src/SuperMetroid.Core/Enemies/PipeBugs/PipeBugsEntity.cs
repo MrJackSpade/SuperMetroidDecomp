@@ -8,11 +8,11 @@ internal sealed class PipeBugsEntity(PipeBugsBehavior species, RoomEnemySlot slo
     : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation
 {
     /// <inheritdoc/>
-    public EnemyInitializationAiHandler? FindInitialization() => Slot.EnemyDefinitionPointer switch
+    public EnemyInitializationAiHandler? FindInitialization() => PipeBugsPartDefinitions.Parts[Slot.EnemyDefinitionPointer] switch
     {
-        EnemyDefinitionId.Zeb or EnemyDefinitionId.Zebbo => PipeBugsBehavior.RunZebInitializationAi,
-        EnemyDefinitionId.Gamet => PipeBugsBehavior.RunGametInitializationAi,
-        EnemyDefinitionId.Geega => PipeBugsBehavior.RunGeegaInitializationAi,
+        PipeBugsPart.Zeb or PipeBugsPart.Zebbo => PipeBugsBehavior.RunZebInitializationAi,
+        PipeBugsPart.Gamet => PipeBugsBehavior.RunGametInitializationAi,
+        PipeBugsPart.Geega => PipeBugsBehavior.RunGeegaInitializationAi,
         _ => throw new InvalidOperationException($"PipeBugs entity bound to {Slot.EnemyDefinitionPointer}."),
     };
 

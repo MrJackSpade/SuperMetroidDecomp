@@ -45,7 +45,7 @@ internal static class SpcFirAddressingVerification
             for (int tap = 0; tap < 8; tap++, x++)
                 AssertEqual(ram[nativeBase + x], player.ReadDspRegisterForVerification((byte)(0x0f + 16 * tap)),
                     $"native FIR addressing preset{commandPreset} tap{tap}");
-            AssertEqual((ushort)0x6003, channel.PatternOrderPointer, "F7 consumes exactly three operands");
+            AssertEqual(0x6003, channel.PatternOrderPointer, "F7 consumes exactly three operands");
         }
         Console.WriteLine("SPC FIR: all256 byte presets preserve native low-byte indexing and mutable RAM reads.");
     }

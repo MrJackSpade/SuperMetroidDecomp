@@ -140,7 +140,7 @@ internal static class AttractDemoSceneVerification
         // Run well beyond each displayed scene: this also checks script tails that ordinary
         // frontend timing does not reach. Separate schedules exercise both native $1A
         // pre-instruction branches and cancellation before/during/after timed records.
-        foreach (int leaveFrame in new[] { -1, 0, 19, (int)scene.Duration })
+        foreach (int leaveFrame in new[] { -1, 0, 19, scene.Duration })
         {
             var reference = new ReferenceAttractInput(bus, scene);
             var compiled = new AttractDemoInput(scene);

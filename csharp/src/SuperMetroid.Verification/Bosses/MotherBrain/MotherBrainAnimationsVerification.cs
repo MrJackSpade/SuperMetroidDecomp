@@ -88,7 +88,7 @@ internal static class MotherBrainAnimationsVerification
                     $"{program} shows its first frame on draw {draw}");
             AssertEqual((ushort)(duration + 1), state.BrainFrameTimer, $"{program}'s timer counts up past the duration");
             enemies.MotherBrainBehavior.AdvanceMotherBrainBrain(state, samus: null);
-            AssertEqual((ushort)1, state.BrainFrameTimer, $"{program} installs its next frame once the timer exceeds the duration");
+            AssertEqual(1, state.BrainFrameTimer, $"{program} installs its next frame once the timer exceeds the duration");
             AssertEqual(AnimationProgramStepKind.Show, MotherBrainAnimations.Head.Steps((state.BrainCursor ?? throw new InvalidOperationException("Verification requires state.BrainCursor.")).Program)[state.BrainCursor.Value.Position].Kind,
                 $"{program}'s cursor rests on the frame it shows");
         }
@@ -103,7 +103,7 @@ internal static class MotherBrainAnimationsVerification
         foreach ((ushort random, bool holds) in new[] { ((ushort)61439, true), ((ushort)61440, false) })
         {
             (RoomEnemySystem enemies, MotherBrainEnemyState state) = NewMotherBrain();
-            enemies.VerificationServices().ReadRandom = (Func<ushort>)(() => random);
+            enemies.VerificationServices().ReadRandom = () => random;
             MotherBrainBehavior.SetMotherBrainBrainProgram(state, MotherBrainHeadProgram.NeutralPhase2Hold);
             for (int draw = 0; draw <= 8; draw++)
                 enemies.MotherBrainBehavior.AdvanceMotherBrainBrain(state, samus: null);
@@ -114,7 +114,7 @@ internal static class MotherBrainAnimationsVerification
         foreach ((ushort random, bool bursts) in new[] { ((ushort)4063, false), ((ushort)4064, true) })
         {
             (RoomEnemySystem enemies, MotherBrainEnemyState state) = NewMotherBrain();
-            enemies.VerificationServices().ReadRandom = (Func<ushort>)(() => random);
+            enemies.VerificationServices().ReadRandom = () => random;
             MotherBrainBehavior.SetMotherBrainBrainProgram(state, MotherBrainHeadProgram.DyingDroolLoop);
             for (int draw = 0; draw <= 2; draw++)
                 enemies.MotherBrainBehavior.AdvanceMotherBrainBrain(state, samus: null);
@@ -206,7 +206,7 @@ internal static class MotherBrainAnimationsVerification
             AssertEqual(native.Timer, projectile.InstructionTimer.RawValue, $"{at}: timer");
             AssertEqual(native.Operand, projectile.PresentationOperandAddress, $"{at}: frame");
             if (native.PaletteCleared)
-                AssertEqual((ushort)0, projectile.GraphicsIndex, $"{at}: palette zero");
+                AssertEqual(0, projectile.GraphicsIndex, $"{at}: palette zero");
             if (native.PreInstructionCleared)
                 AssertEqual(EnemyProjectilePreInstruction.RTS_868170, projectile.PreInstruction, $"{at}: pre-instruction cleared");
         }
@@ -221,8 +221,8 @@ internal static class MotherBrainAnimationsVerification
     {
         (RoomEnemySystem enemies, MotherBrainEnemyState state) = NewMotherBrain();
         // The fired beams jitter their spawn with the random number generator.
-        enemies.VerificationServices().NextRandom = (Func<ushort>)(() => 0);
-        enemies.VerificationServices().ReadRandom = (Func<ushort>)(() => 0);
+        enemies.VerificationServices().NextRandom = () => 0;
+        enemies.VerificationServices().ReadRandom = () => 0;
         state.HandBeamNextPosition = FixedPosition<RoomPixels>.FromWhole(new(128, 112));
         state.HandBeamNextVelocity = new(new SnesSignedEightEight(256), new SnesSignedEightEight(0));
         RoomEnemyProjectileSlot beam = enemies.Projectiles.EnemyProjectiles[^1];

@@ -8,20 +8,20 @@ internal sealed class RipperEntity(RipperBehavior species, RoomEnemySlot slot, E
     : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation, IEnemyPrivateShotCallback
 {
     /// <inheritdoc/>
-    public EnemyInitializationAiHandler? FindInitialization() => Slot.EnemyDefinitionPointer switch
+    public EnemyInitializationAiHandler? FindInitialization() => RipperPartDefinitions.Parts[Slot.EnemyDefinitionPointer] switch
     {
-        EnemyDefinitionId.GRipper => species.RunGRipperInitializationAi,
-        EnemyDefinitionId.Ripper2 => species.RunRipper2InitializationAi,
-        EnemyDefinitionId.Ripper => species.RunRipperInitializationAi,
+        RipperPart.GRipper => species.RunGRipperInitializationAi,
+        RipperPart.Ripper2 => species.RunRipper2InitializationAi,
+        RipperPart.Ripper => species.RunRipperInitializationAi,
         _ => throw new InvalidOperationException($"Ripper entity bound to {Slot.EnemyDefinitionPointer}."),
     };
 
     /// <inheritdoc/>
-    public EnemyMainAiHandler? FindMain() => Slot.EnemyDefinitionPointer switch
+    public EnemyMainAiHandler? FindMain() => RipperPartDefinitions.Parts[Slot.EnemyDefinitionPointer] switch
     {
-        EnemyDefinitionId.GRipper => species.RunGRipperMainAi,
-        EnemyDefinitionId.Ripper2 => species.RunRipper2MainAi,
-        EnemyDefinitionId.Ripper => species.RunRipperMainAi,
+        RipperPart.GRipper => species.RunGRipperMainAi,
+        RipperPart.Ripper2 => species.RunRipper2MainAi,
+        RipperPart.Ripper => species.RunRipperMainAi,
         _ => throw new InvalidOperationException($"Ripper entity bound to {Slot.EnemyDefinitionPointer}."),
     };
 

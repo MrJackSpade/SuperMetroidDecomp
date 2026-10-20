@@ -24,7 +24,7 @@ internal static class Layer3PlaneFixtures
     {
         Layer3Plane plane = Layer3Plane.Compose(new ushort[Layer3Plane.HudRows * Layer3Plane.Columns], fx.EffectPageWords());
         vram.ExecuteWordTransfer(plane.Words[(Layer3Plane.HudRows * Layer3Plane.Columns)..].ToArray(),
-            checked((ushort)(GameplayVramLayout.HudTilemapWord + Layer3Plane.HudRows * Layer3Plane.Columns)), 1);
+            checked(GameplayVramLayout.HudTilemapWord + Layer3Plane.HudRows * Layer3Plane.Columns), 1);
     }
 
     /// <summary>The plane in a captured VRAM image's BG3 tilemap words.</summary>

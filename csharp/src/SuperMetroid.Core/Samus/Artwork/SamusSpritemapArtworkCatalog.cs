@@ -115,7 +115,7 @@ public sealed class SamusSpritemapArtworkCatalog
     public ushort TopBase(SamusPoseId pose)
     {
         if ((int)pose >= SamusBodyArtworkCatalog.PoseCount) throw new IndexOutOfRangeException();
-        return topBases.TryGetValue((int)pose, out ushort value) ? value : SamusSpritemapPoseDefinitions.TopBase((SamusPoseId)pose);
+        return topBases.TryGetValue((int)pose, out ushort value) ? value : SamusSpritemapPoseDefinitions.TopBase(pose);
     }
     /// <summary>Resolves the installed lower-half base corresponding to native $92:945D, independently of whether the current draw policy displays that half.</summary>
     /// <param name="pose">Native Samus pose identity, $00..$FC.</param>
@@ -124,7 +124,7 @@ public sealed class SamusSpritemapArtworkCatalog
     public ushort BottomBase(SamusPoseId pose)
     {
         if ((int)pose >= SamusBodyArtworkCatalog.PoseCount) throw new IndexOutOfRangeException();
-        return bottomBases.TryGetValue((int)pose, out ushort value) ? value : SamusSpritemapPoseDefinitions.BottomBase((SamusPoseId)pose);
+        return bottomBases.TryGetValue((int)pose, out ushort value) ? value : SamusSpritemapPoseDefinitions.BottomBase(pose);
     }
 
     /// <summary>Whole frames already built, by native spritemap record.</summary>

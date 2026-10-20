@@ -23,7 +23,7 @@ internal static class QuicksandVerification
         for (int suit = 0; suit < 2; suit++)
         foreach (SamusVerticalDirection direction in Enum.GetValues<SamusVerticalDirection>())
         {
-            var samus = new SamusState { EquippedItems = suit == 0 ? (ushort)0 : SamusEquipmentFlags.GravitySuit };
+            var samus = new SamusState { EquippedItems = suit == 0 ? 0 : SamusEquipmentFlags.GravitySuit };
             var body = samus.Kinematics;
             body.Position = body.Position.WithWhole(new(24, 24));
             body.Radius = body.Radius.WithY(8);
@@ -36,8 +36,8 @@ internal static class QuicksandVerification
                 body.ExtraDisplacement.Y.RawValue, "quicksand per-direction/suit displacement");
             AssertEqual(direction == SamusVerticalDirection.None ? 0u : direction == SamusVerticalDirection.Up ? (suit == 0 ? 0x28000u : 0x38000u) : 0x50000u,
                 body.VerticalSpeedFixed, "quicksand speed cancellation and jump cap");
-            AssertEqual((ushort)0x7fff, samus.HorizontalSpeed.BaseSpeed.Fraction, "quicksand retains low fractional X");
-            AssertEqual((ushort)0, samus.HorizontalSpeed.BaseSpeed.Whole, "quicksand clears whole base X");
+            AssertEqual(0x7fff, samus.HorizontalSpeed.BaseSpeed.Fraction, "quicksand retains low fractional X");
+            AssertEqual(0, samus.HorizontalSpeed.BaseSpeed.Whole, "quicksand clears whole base X");
             AssertEqual(false, samus.HorizontalSpeed.HasRunningMomentum, "quicksand cancels running momentum");
             var move = SamusBlockCollision.MoveVertical(new SamusTerrain { Level = level }, body, new VerticalBlockMove { Displacement = 0x28000, ScanLeftToRight = true });
             AssertEqual(direction == SamusVerticalDirection.None ? 0x3000 : 0x28000, move.AcceptedDisplacement, "surface probe accepts native sinking distance");
@@ -86,7 +86,7 @@ internal static class QuicksandVerification
             var samus = new SamusState
             {
                 EquippedItems = suit == 0
-                    ? (ushort)0
+                    ? 0
                     : SamusEquipmentFlags.GravitySuit,
             };
             SamusKinematicsState body = samus.Kinematics;
@@ -200,7 +200,7 @@ internal static class QuicksandVerification
         Func<QuicksandSurfacePhysics, SnesSignedSixteenSixteen> field)
     {
         for (int suit = 0; suit < 2; suit++)
-            AssertEqual(SnesSignedSixteenSixteen.FromRaw(SnesSixteenSixteen.FromEightEight((int)ReadRomWord(rom, address + suit * 2))),
+            AssertEqual(SnesSignedSixteenSixteen.FromRaw(SnesSixteenSixteen.FromEightEight(ReadRomWord(rom, address + suit * 2))),
                 field(QuicksandDefinitions.SurfacePhysics(suit != 0)),
                 $"quicksand physics {address:X6} suit {suit}");
     }

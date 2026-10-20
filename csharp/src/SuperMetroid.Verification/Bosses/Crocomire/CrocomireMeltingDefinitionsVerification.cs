@@ -89,7 +89,7 @@ internal static class CrocomireMeltingDefinitionsVerification
 
             AssertEqual(pass, CrocomireMeltingTransferDefinitions.Transfers(pass.TransferStartOffset), "melt transfer selector");
         }
-        AssertEqual((ushort)0xb4, CrocomireMeltingTransferDefinitions.Passes[1].NextHeaderOffset, "native melt record extent");
+        AssertEqual(0xb4, CrocomireMeltingTransferDefinitions.Passes[1].NextHeaderOffset, "native melt record extent");
         AssertThrows<IndexOutOfRangeException>(() => _ = CrocomireMeltingTransferDefinitions.Passes[-1], "negative melt pass");
         AssertThrows<IndexOutOfRangeException>(() => _ = CrocomireMeltingTransferDefinitions.Passes[2], "melt pass past end");
         AssertThrows<InvalidDataException>(() => CrocomireMeltingTransferDefinitions.Header(1), "invalid melt header");
@@ -235,7 +235,7 @@ internal static class CrocomireMeltingDefinitionsVerification
             upload(state);
             AssertEqual(phaseBeforeTerminator.Next(), state.DeathSequenceIndex,
                 $"Crocomire melt pass ${pass.HeaderOffset:X4} terminal phase");
-            AssertEqual((ushort)0, death.MeltingTransferOffset,
+            AssertEqual(0, death.MeltingTransferOffset,
                 $"Crocomire melt pass ${pass.HeaderOffset:X4} terminal reset");
             complete(state);
             AssertEqual(pass.NextHeaderOffset, death.MeltingTableOffset,
@@ -290,7 +290,7 @@ internal static class CrocomireMeltingDefinitionsVerification
         AssertTrue(death.MeltingColumnHeights.SequenceEqual(expectedHeights),
             "Crocomire melt production column heights");
         AssertTrue(erase(), "Crocomire melt post-table guard retains distortion phase");
-        AssertEqual((ushort)CrocomireMeltingDefinitions.ColumnCount,
+        AssertEqual(CrocomireMeltingDefinitions.ColumnCount,
             death.MeltingColumnCursor,
             "Crocomire melt post-table cursor");
     }
@@ -359,7 +359,7 @@ internal static class CrocomireMeltingDefinitionsVerification
             $"installed Crocomire melt tilemap ${sourceAddress:X6} body program");
         AssertEqual(CrocomireDeathPhase.CrumbleBridgeAndSink, state.DeathSequenceIndex,
             $"installed Crocomire melt tilemap ${sourceAddress:X6} phase timing");
-        AssertEqual((ushort)48, death.PixelsToErasePerColumn,
+        AssertEqual(48, death.PixelsToErasePerColumn,
             $"installed Crocomire melt tilemap ${sourceAddress:X6} erase count");
         AssertEqual(48, death.MeltTargetHeight,
             $"installed Crocomire melt tilemap ${sourceAddress:X6} target height");

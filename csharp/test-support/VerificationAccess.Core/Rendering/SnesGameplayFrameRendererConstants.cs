@@ -251,6 +251,15 @@ internal static class SnesGameplayFrameRendererConstants
             RoomFxType.Water or RoomFxType.TourianEntranceStatue => fx.LayerBlendConfiguration,
             RoomFxType.Rain => LayerBlendingConfiguration.Rain,
             RoomFxType.Fog => LayerBlendingConfiguration.FogAdditive,
+            RoomFxType.None or
+                RoomFxType.Spores or
+                RoomFxType.ScrollingSky or
+                RoomFxType.UnusedScrollingSky or
+                RoomFxType.Fireflea or
+                RoomFxType.CeresRidley or
+                RoomFxType.CeresElevator or
+                RoomFxType.CeresHaze => throw new NotSupportedException(
+                $"Room FX type {(ushort)fx.Type:X2} has no BG3 compositor."),
             _ => throw new NotSupportedException(
                 $"Room FX type {(ushort)fx.Type:X2} has no BG3 compositor."),
         };

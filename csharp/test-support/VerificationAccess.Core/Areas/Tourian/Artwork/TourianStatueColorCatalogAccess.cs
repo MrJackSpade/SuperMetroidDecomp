@@ -9,6 +9,6 @@ internal static class TourianStatueColorCatalogAccess
     extension(TourianStatueColorCatalog self)
     {
         /// <summary>Reads one statue color through its private paint definition.</summary>
-        internal Bgr555 ResolveStatue(int color) => ((Bgr555)(self.statueColors.Read((int)(color))));
+        internal Bgr555 ResolveStatue(int color) => self.statueColors.Read(color);
     }
 }

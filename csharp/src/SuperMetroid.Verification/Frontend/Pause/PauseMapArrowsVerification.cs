@@ -30,7 +30,7 @@ internal static class PauseMapArrowsVerification
         pause.mapArrows = null;
         pause.BindMapPresentation(RetailPresentationFixture());
         var nativeColors = new SnesCgram();
-        for (int color = 0; color < SnesCgram.ColorCount; color++) nativeColors.SetColor(color, Bgr555.FromWord(checked((ushort)(Read(0xb6f000 + color * 2)))));
+        for (int color = 0; color < SnesCgram.ColorCount; color++) nativeColors.SetColor(color, Bgr555.FromWord(checked(Read(0xb6f000 + color * 2))));
         int nativePaletteTimer = 1, nativePaletteFrame = 0;
         int allArrowParts = 0;
         var arrowAttributes = new HashSet<ushort>();
@@ -45,7 +45,7 @@ internal static class PauseMapArrowsVerification
                 if (bus.ReadCartridgeByte(0x82c10c + nativePaletteFrame * 3) == 255) nativePaletteFrame = 0;
                 nativePaletteTimer = bus.ReadCartridgeByte(0x82c10c + nativePaletteFrame * 3);
                 for (int color = 0; color < 16; color++)
-                    nativeColors.SetColor(176 + color, Bgr555.FromWord(checked((ushort)(Read(0x82a987 + nativePaletteFrame * 32 + color * 2)))));
+                    nativeColors.SetColor(176 + color, Bgr555.FromWord(checked(Read(0x82a987 + nativePaletteFrame * 32 + color * 2))));
             }
             var expected = new OamBuffer();
             expected.BeginFrame();
@@ -68,7 +68,7 @@ internal static class PauseMapArrowsVerification
             {
                 allArrowParts = expectedBytes / 4;
                 for (int offset = 2; offset < expectedBytes; offset += 4)
-                    arrowAttributes.Add((ushort)(SnesLittleEndian.Word(expected.LowTable[offset], expected.LowTable[offset + 1])));
+                    arrowAttributes.Add(SnesLittleEndian.Word(expected.LowTable[offset], expected.LowTable[offset + 1]));
             }
             var pixels = pause.Render();
             var actual = pause.screen.Objects;
@@ -76,7 +76,7 @@ internal static class PauseMapArrowsVerification
                 $"pause arrows match raw cartridge OAM coordinates/shape/palette at scroll {x},{y}");
             int drawnArrowParts = 0;
             for (int offset = 2; offset < actual.LastFinalizedSpriteCount * 4; offset += 4)
-                if (arrowAttributes.Contains((ushort)(SnesLittleEndian.Word(actual.LowTable[offset], actual.LowTable[offset + 1])))) drawnArrowParts++;
+                if (arrowAttributes.Contains(SnesLittleEndian.Word(actual.LowTable[offset], actual.LowTable[offset + 1]))) drawnArrowParts++;
             AssertEqual(expectedBytes / 4, drawnArrowParts, "unavailable arrows emit no leftover OAM parts");
             // The raw cartridge OBJ tiles form an independent pixel oracle. Require
             // every opaque arrow pixel to survive the complete pause compositor.

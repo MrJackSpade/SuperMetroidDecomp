@@ -1402,7 +1402,7 @@ public static class SamusGrappleMovement
     private static void DrawBeamEndpoint(SamusGrappleState grapple, SpriteFrameBuffer sprites, SpriteArtwork tiles,
         Position16<RoomPixels> layer1, SamusPoseId samusPose, ushort attributes)
     {
-        bool swinging = (SamusPoseId)samusPose is SamusPoseId.GrappleSwingRightPose or SamusPoseId.GrappleSwingLeftPose;
+        bool swinging = samusPose is SamusPoseId.GrappleSwingRightPose or SamusPoseId.GrappleSwingLeftPose;
         ushort relativeY = unchecked((ushort)(grapple.Anchor.Y - layer1.Y));
         // The ordinary endpoint tests its center before subtracting the sprite
         // half-width. Swinging deliberately bypasses this vertical rejection.
@@ -1811,7 +1811,7 @@ public static class SamusGrappleMovement
         int angle = grapple.Angle.RawValue;
         if ((angle & 3 << 14) == 3 << 14)
         {
-            grapple.VelocityCorrection = (short)-(
+            grapple.VelocityCorrection = -(
                 SamusGrappleRomData.Physics.VelocityCorrectionMagnitude >> 2);
             grapple.GravityAcceleration = grapple.Submerged
                 ? (short)-(SamusGrappleRomData.Physics.GravityMagnitude >> 3)
@@ -1846,8 +1846,8 @@ public static class SamusGrappleMovement
         }
         else
         {
-            grapple.VelocityCorrection = (short)(
-                SamusGrappleRomData.Physics.VelocityCorrectionMagnitude >> 2);
+            grapple.VelocityCorrection =
+                SamusGrappleRomData.Physics.VelocityCorrectionMagnitude >> 2;
             grapple.GravityAcceleration = grapple.Submerged
                 ? (short)(SamusGrappleRomData.Physics.GravityMagnitude >> 3)
                 : (short)(SamusGrappleRomData.Physics.GravityMagnitude >> 2);
@@ -1938,7 +1938,7 @@ public static class SamusGrappleMovement
                 // fractional half-byte `$80`. The body therefore stops just before the
                 // colliding sample rather than snapping back to the frame's original angle.
                 grapple.Angle = SnesAngle.FromRaw(
-                    SnesAngle.FromTableIndex(unchecked((byte)lastSafeAngleByte)).AddRaw(128).RawValue);
+                    SnesAngle.FromTableIndex(unchecked(lastSafeAngleByte)).AddRaw(128).RawValue);
                 grapple.MirroredAngle = grapple.Angle;
 
                 bool closeCollision = grapple.RopeLength == 8 &&

@@ -14,11 +14,11 @@ internal static class FallingSparkLaunchDefinitionsVerification
     /// <summary>Compares every RNG selection, including table overread, while guarding migrated reads.</summary>
     internal static void VerifyFallingSparkLaunchDefinitions(SuperMetroidAddressSpace rom)
     {
-        ushort Word(int address) => (ushort)(SnesLittleEndian.Word(FallingSparkLaunchDefinitionsRomByte(rom, address), FallingSparkLaunchDefinitionsRomByte(rom, address + 1)));
+        ushort Word(int address) => SnesLittleEndian.Word(FallingSparkLaunchDefinitionsRomByte(rom, address), FallingSparkLaunchDefinitionsRomByte(rom, address + 1));
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
         ushort random = 0;
         int advances = 0;
-        enemies.VerificationServices().NextRandom = (Func<ushort>)(() => { advances++; return random; });
+        enemies.VerificationServices().NextRandom = () => { advances++; return random; };
         Action<RoomEnemySlot> spawn = enemies.FallingSparksBehavior.SpawnFallingSpark;
         Action<RoomEnemyProjectileSlot> move = FallingSparksBehavior.AddFallingSparkHorizontalVelocity;
         var source = enemies.SlotTable.Slots[0];

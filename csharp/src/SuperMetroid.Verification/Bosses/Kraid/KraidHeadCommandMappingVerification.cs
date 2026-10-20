@@ -41,7 +41,7 @@ internal static class KraidHeadCommandMappingVerification
                 if (record.IsPose)
                 {
                     AssertEqual(AnimationProgramStepKind.Show, step.Kind, $"{at} shows a pose");
-                    AssertEqual((int)record.Opcode, step.Duration, $"{at} pose duration");
+                    AssertEqual(record.Opcode, step.Duration, $"{at} pose duration");
                     AssertEqual(stageTilemaps.IndexOf(record.Tilemap), step.Frame.MouthStage, $"{at} mouth stage");
                     AssertEqual(record.Tilemap, KraidHeadFrameDefinitions.PresentationKey(step.Frame), $"{at} head image");
                     AssertEqual(record.OuterShape, (ushort)step.Frame.VulnerableShape, $"{at} vulnerable shape");
@@ -69,7 +69,7 @@ internal static class KraidHeadCommandMappingVerification
                 (ushort resumePointer, ushort resumeTimer) = NativeKraidGrowthResume(rom, Word(record.Pointer + 2));
                 AssertEqual(native.CursorAt(resumePointer), KraidHeadAnimations.GrowthResumeCursor(reads.Growth),
                     $"{at} growth resume cursor");
-                AssertEqual((int)resumeTimer, KraidHeadAnimations.GrowthResumeDelay(reads.Growth), $"{at} growth resume delay");
+                AssertEqual(resumeTimer, KraidHeadAnimations.GrowthResumeDelay(reads.Growth), $"{at} growth resume delay");
             }
         }
 
@@ -77,9 +77,9 @@ internal static class KraidHeadCommandMappingVerification
         AssertEqual((ushort)0x96da, native.PointerAt(KraidHeadAnimations.RoarAfterEntryFrame), "roar entry cursor");
         AssertEqual((ushort)0x9752, native.PointerAt(KraidHeadAnimations.EyeGlowAfterEntryFrame), "eye-glow entry cursor");
         AssertEqual((ushort)0x976c, native.PointerAt(KraidHeadAnimations.DeathAfterEntryFrame), "death entry cursor");
-        AssertEqual((int)Word(0x96d2), KraidHeadAnimations.RoarEntryDuration, "roar entry duration");
-        AssertEqual((int)Word(0x974a), KraidHeadAnimations.EyeGlowEntryDuration, "eye-glow entry duration");
-        AssertEqual((int)Word(0x9764), KraidHeadAnimations.DeathEntryDuration, "death entry duration");
+        AssertEqual(Word(0x96d2), KraidHeadAnimations.RoarEntryDuration, "roar entry duration");
+        AssertEqual(Word(0x974a), KraidHeadAnimations.EyeGlowEntryDuration, "eye-glow entry duration");
+        AssertEqual(Word(0x9764), KraidHeadAnimations.DeathEntryDuration, "death entry duration");
         AssertThrows<InvalidDataException>(() => KraidHeadAnimations.ReadsAt(null), "an unstarted head has no reads");
     }
 

@@ -8,26 +8,26 @@ internal sealed class MamaTurtleEntity(MamaTurtleBehavior species, RoomEnemySlot
     : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation, IEnemyPrivateShotCallback
 {
     /// <inheritdoc/>
-    public EnemyInitializationAiHandler? FindInitialization() => Slot.EnemyDefinitionPointer switch
+    public EnemyInitializationAiHandler? FindInitialization() => MamaTurtlePartDefinitions.Parts[Slot.EnemyDefinitionPointer] switch
     {
-        EnemyDefinitionId.MamaTurtle => MamaTurtleBehavior.RunMamaTurtleInitializationAi,
-        EnemyDefinitionId.BabyTurtle => MamaTurtleBehavior.RunBabyTurtleInitializationAi,
+        MamaTurtlePart.MamaTurtle => MamaTurtleBehavior.RunMamaTurtleInitializationAi,
+        MamaTurtlePart.BabyTurtle => MamaTurtleBehavior.RunBabyTurtleInitializationAi,
         _ => throw new InvalidOperationException($"MamaTurtle entity bound to {Slot.EnemyDefinitionPointer}."),
     };
 
     /// <inheritdoc/>
-    public EnemyMainAiHandler? FindMain() => Slot.EnemyDefinitionPointer switch
+    public EnemyMainAiHandler? FindMain() => MamaTurtlePartDefinitions.Parts[Slot.EnemyDefinitionPointer] switch
     {
-        EnemyDefinitionId.MamaTurtle => species.RunMamaTurtleMainAi,
-        EnemyDefinitionId.BabyTurtle => species.RunBabyTurtleMainAi,
+        MamaTurtlePart.MamaTurtle => species.RunMamaTurtleMainAi,
+        MamaTurtlePart.BabyTurtle => species.RunBabyTurtleMainAi,
         _ => throw new InvalidOperationException($"MamaTurtle entity bound to {Slot.EnemyDefinitionPointer}."),
     };
 
     /// <inheritdoc/>
-    public Action<RoomEnemySlot, EnemyInstructionContext>? FindTypedAnimation() => Slot.EnemyDefinitionPointer switch
+    public Action<RoomEnemySlot, EnemyInstructionContext>? FindTypedAnimation() => MamaTurtlePartDefinitions.Parts[Slot.EnemyDefinitionPointer] switch
     {
-        EnemyDefinitionId.MamaTurtle => species.AdvanceMamaTurtleTypedAnimation,
-        EnemyDefinitionId.BabyTurtle => species.AdvanceBabyTurtleTypedAnimation,
+        MamaTurtlePart.MamaTurtle => species.AdvanceMamaTurtleTypedAnimation,
+        MamaTurtlePart.BabyTurtle => species.AdvanceBabyTurtleTypedAnimation,
         _ => throw new InvalidOperationException($"MamaTurtle entity bound to {Slot.EnemyDefinitionPointer}."),
     };
 

@@ -49,7 +49,7 @@ public static class CrystalFlashColorExtractor
             var result = new PaletteRgb5[count];
             for (int index = 0; index < count; index++)
             {
-                ushort word = (ushort)(SnesLittleEndian.Word(source[index * 2], source[index * 2 + 1]));
+                ushort word = SnesLittleEndian.Word(source[index * 2], source[index * 2 + 1]);
                 result[index] = new PaletteRgb5
                 {
                     Red = word & 31,

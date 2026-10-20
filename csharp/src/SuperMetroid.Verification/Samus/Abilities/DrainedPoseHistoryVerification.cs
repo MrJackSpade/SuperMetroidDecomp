@@ -16,7 +16,7 @@ internal static class DrainedPoseHistoryVerification
             samus.PoseMetadata.RefreshCollisionRadii();
             var history = samus.PoseHistory;
             history.PreviousPose = source;
-            history.PreviousDirectionAndMovement = (ushort)(SnesLittleEndian.Word(samus.PoseMetadata.ReadPoseXDirection(), (byte)samus.PoseMetadata.ReadMovementType()));
+            history.PreviousDirectionAndMovement = SnesLittleEndian.Word(samus.PoseMetadata.ReadPoseXDirection(), (byte)samus.PoseMetadata.ReadMovementType());
             history.LastDifferentPose = SamusPoseId.SpinJumpRightPose;
             history.LastDifferentDirectionAndMovement = 0x0308;
             (string Name, Action Apply)[] commands =

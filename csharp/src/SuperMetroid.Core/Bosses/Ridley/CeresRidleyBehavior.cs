@@ -449,6 +449,39 @@ internal sealed class CeresRidleyBehavior
                 UpdateCeresSelfDestructPalette(state, slot.FrameCounter);
                 return;
 
+            case RidleyAiFunction.NorfairEnterArena:
+            case RidleyAiFunction.NorfairSelectAttack:
+            case RidleyAiFunction.NorfairHoverSetup:
+            case RidleyAiFunction.NorfairHover:
+            case RidleyAiFunction.NorfairSwoopSetup:
+            case RidleyAiFunction.NorfairSwoopMoveToStart:
+            case RidleyAiFunction.NorfairSwoopAimDown:
+            case RidleyAiFunction.NorfairSwoopAimSideways:
+            case RidleyAiFunction.NorfairSwoopAimUp:
+            case RidleyAiFunction.NorfairSwoopClimb:
+            case RidleyAiFunction.NorfairSwoopRecover:
+            case RidleyAiFunction.NorfairPogoSetup:
+            case RidleyAiFunction.NorfairPogoDescending:
+            case RidleyAiFunction.NorfairPogoAscending:
+            case RidleyAiFunction.NorfairFireballSetup:
+            case RidleyAiFunction.NorfairFireballMoveToSide:
+            case RidleyAiFunction.NorfairFireballMoveToHeight:
+            case RidleyAiFunction.NorfairFireballAttack:
+            case RidleyAiFunction.NorfairFireballRecover:
+            case RidleyAiFunction.NorfairGrabApproach:
+            case RidleyAiFunction.NorfairCarrySetup:
+            case RidleyAiFunction.NorfairCarryMoveToAnchor:
+            case RidleyAiFunction.NorfairCarryRise:
+            case RidleyAiFunction.NorfairCarryRelease:
+            case RidleyAiFunction.NorfairReturnToArena:
+            case RidleyAiFunction.NorfairReleaseSamus:
+            case RidleyAiFunction.NorfairDeathStart:
+            case RidleyAiFunction.NorfairDeathExplosions:
+            case RidleyAiFunction.NorfairDeathFall:
+            case RidleyAiFunction.NorfairDeathImpact:
+            case RidleyAiFunction.NorfairDeathWait:
+            case RidleyAiFunction.NorfairDeathFinish:
+            case RidleyAiFunction.NorfairDeathComplete:
             default:
                 throw new InvalidDataException(
                     $"Ceres Ridley function $A6:{(ushort)state.Function:X4} is not translated.");
@@ -613,8 +646,8 @@ internal sealed class CeresRidleyBehavior
         // Both targets use ADC without CLC. Carry is clear on entry (the enemy AI dispatcher's
         // CLC/ADC at $A0:9083 and $A6:A7BA's in-range compare), so the X sum carries into Y.
         bool carry = false;
-        ushort x = SnesCarry.AddWithCarry(checked((ushort)state.FireballBasePosition.X), jitter, ref carry);
-        ushort y = SnesCarry.AddWithCarry(checked((ushort)state.FireballBasePosition.Y), jitter, ref carry);
+        ushort x = SnesCarry.AddWithCarry(checked(state.FireballBasePosition.X), jitter, ref carry);
+        ushort y = SnesCarry.AddWithCarry(checked(state.FireballBasePosition.Y), jitter, ref carry);
         AccelerateRidleyToward(slot, state, new(x, y), 0);
         state.FunctionTimer = state.FunctionTimer.Decrement().Remaining;
         if (state.FunctionTimer.IsNegative)

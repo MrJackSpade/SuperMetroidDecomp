@@ -13,7 +13,7 @@ namespace SuperMetroid.Core.Samus.Poses;
 internal static class SamusPoseDispatchDefinitions
 {
     /// <summary>Native PoseDefinitions Facing selection, $91:B629 record stride eight; FD..FF are bounded adjacent code observations.</summary>
-    internal static byte ReadFacing(SamusPoseId pose) => (SamusPoseId)pose switch
+    internal static byte ReadFacing(SamusPoseId pose) => pose switch
     {
         SamusPoseId.ForwardFacingPowerSuitPose or
         SamusPoseId.ForwardFacingSuitedPose => (byte)SamusFacingDirection.ForwardOrSpecial,
@@ -270,13 +270,14 @@ internal static class SamusPoseDispatchDefinitions
         SamusPoseId.StandingTransitionAimDiagonalUpRightPose or
         SamusPoseId.StandingTransitionAimDiagonalDownRightPose => (byte)SamusFacingDirection.Right,
         // Bounded indices beyond FC observe Calc_Xray_HDMADataTable_OffScreen opcodes.
-        (SamusPoseId)0xfd => 8,
-        (SamusPoseId)0xfe => 41,
-        (SamusPoseId)0xff => 18,
+        SamusPoseId.AdjacentCodePoseFD => 8,
+        SamusPoseId.AdjacentCodePoseFE => 41,
+        SamusPoseId.AdjacentCodePoseFF => 18,
+        var undefined => throw new InvalidOperationException($"Undefined {nameof(SamusPoseId)} {undefined}."),
     };
 
     /// <summary>Native PoseDefinitions Movement selection, $91:B62A record stride eight; FD..FF are bounded adjacent code observations.</summary>
-    internal static byte ReadMovement(SamusPoseId pose) => (SamusPoseId)pose switch
+    internal static byte ReadMovement(SamusPoseId pose) => pose switch
     {
         SamusPoseId.ForwardFacingPowerSuitPose or
         SamusPoseId.FacingRightNormalPose or
@@ -532,13 +533,14 @@ internal static class SamusPoseDispatchDefinitions
         SamusPoseId.DrainedStandingRightPose or
         SamusPoseId.DrainedStandingLeftPose => (byte)SamusMovementType.Special,
         // Bounded indices beyond FC observe Calc_Xray_HDMADataTable_OffScreen opcodes.
-        (SamusPoseId)0xfd => 139,
-        (SamusPoseId)0xfe => 0,
-        (SamusPoseId)0xff => 56,
+        SamusPoseId.AdjacentCodePoseFD => 139,
+        SamusPoseId.AdjacentCodePoseFE => 0,
+        SamusPoseId.AdjacentCodePoseFF => 56,
+        var undefined => throw new InvalidOperationException($"Undefined {nameof(SamusPoseId)} {undefined}."),
     };
 
     /// <summary>Native PoseDefinitions NoInputPose selection, $91:B62B record stride eight; FD..FF are bounded adjacent code observations.</summary>
-    internal static SamusPoseId ReadNoInputPose(SamusPoseId pose) => (SamusPoseId)pose switch
+    internal static SamusPoseId ReadNoInputPose(SamusPoseId pose) => pose switch
     {
         SamusPoseId.StandingAimUpRightPose or
         SamusPoseId.StandingAimDiagonalUpRightPose or
@@ -794,9 +796,10 @@ internal static class SamusPoseDispatchDefinitions
         SamusPoseId.StandingTransitionAimDiagonalDownRightPose or
         SamusPoseId.StandingTransitionAimDiagonalDownLeftPose => SamusMovementRomData.Poses.RetainCurrentPoseFallback,
         // Bounded indices beyond FC observe Calc_Xray_HDMADataTable_OffScreen opcodes.
-        (SamusPoseId)0xfd => (SamusPoseId)75,
-        (SamusPoseId)0xfe => (SamusPoseId)255,
-        (SamusPoseId)0xff => (SamusPoseId)229,
+        SamusPoseId.AdjacentCodePoseFD => (SamusPoseId)75,
+        SamusPoseId.AdjacentCodePoseFE => (SamusPoseId)255,
+        SamusPoseId.AdjacentCodePoseFF => (SamusPoseId)229,
+        var undefined => throw new InvalidOperationException($"Undefined {nameof(SamusPoseId)} {undefined}."),
     };
 
 }

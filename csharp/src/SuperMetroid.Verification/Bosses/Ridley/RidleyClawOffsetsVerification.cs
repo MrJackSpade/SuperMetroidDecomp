@@ -51,8 +51,8 @@ internal static class RidleyClawOffsetsVerification
             state.FacingDirection = facing;
             state.FeetDistanceIndex = feet;
             state.GrabOffset = new Offset16<RoomPixels>(unchecked((short)raw), unchecked((short)(ushort.MaxValue - raw)));
-            int dx = Decay(unchecked((short)state.GrabOffset.X));
-            int dy = Decay(unchecked((short)state.GrabOffset.Y));
+            int dx = Decay(unchecked(state.GrabOffset.X));
+            int dy = Decay(unchecked(state.GrabOffset.Y));
             carry(slot, state, samus);
             AssertEqual(unchecked((ushort)(raw + x[(int)facing] + dx)), samus.Position.X.Whole, "Actual carry X includes claw, signed decay and word wrap");
             AssertEqual(unchecked((ushort)(ushort.MaxValue - raw + y[feet] + dy)), samus.Position.Y.Whole, "Actual carry Y includes animated claw, signed decay and word wrap");

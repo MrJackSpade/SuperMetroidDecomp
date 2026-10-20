@@ -166,8 +166,8 @@ public static class IndexedPng
             if (index >= palette.Count) throw new ArgumentException("Indexed PNG pixel exceeds palette.");
         output.Write(IndexedPngFormat.Signature);
         byte[] header = new byte[IndexedPngFormat.HeaderLength];
-        BinaryPrimitives.WriteUInt32BigEndian(header, (uint)size.X);
-        BinaryPrimitives.WriteUInt32BigEndian(header.AsSpan(4), (uint)size.Y);
+        BinaryPrimitives.WriteUInt32BigEndian(header, size.X);
+        BinaryPrimitives.WriteUInt32BigEndian(header.AsSpan(4), size.Y);
         header[8] = 8;
         header[9] = IndexedPngFormat.IndexedColorType;
         PngWriter.WriteChunk(output, "IHDR", header);

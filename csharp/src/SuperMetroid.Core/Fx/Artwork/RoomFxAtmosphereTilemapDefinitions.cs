@@ -14,6 +14,18 @@ public static class RoomFxAtmosphereTilemapDefinitions
     {
         RoomFxType.Rain => RainCalculatedMask,
         RoomFxType.Fog => FogCalculatedMask,
+        RoomFxType.None or
+            RoomFxType.Lava or
+            RoomFxType.Acid or
+            RoomFxType.Water or
+            RoomFxType.Spores or
+            RoomFxType.ScrollingSky or
+            RoomFxType.UnusedScrollingSky or
+            RoomFxType.Fireflea or
+            RoomFxType.TourianEntranceStatue or
+            RoomFxType.CeresRidley or
+            RoomFxType.CeresElevator or
+            RoomFxType.CeresHaze => throw new ArgumentOutOfRangeException(nameof(type)),
         _ => throw new ArgumentOutOfRangeException(nameof(type)),
     };
 

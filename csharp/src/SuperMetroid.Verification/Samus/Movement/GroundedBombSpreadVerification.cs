@@ -39,9 +39,9 @@ internal static class GroundedBombSpreadVerification
             }
             var released = bombs.StepFrame(new SamusTerrain { Level = level }, samus, keepDown ? shootDown : SnesButton.X, 0);
             AssertTrue(bombs.Slots.All(slot => slot.IsActive && slot.IsBombSpread) && released.BeamChargeConsumed, "release or timeout creates spread and consumes charge");
-            AssertEqual((ushort)5, bombs.BombCounter, "spread fills all five bomb slots");
-            AssertEqual((ushort)0, samus.ProjectileFlareCounter, "spawn clears actual flare counter");
-            AssertEqual((ushort)0, samus.BombSpreadChargeTimeoutCounter, "spawn clears hold counter");
+            AssertEqual(5, bombs.BombCounter, "spread fills all five bomb slots");
+            AssertEqual(0, samus.ProjectileFlareCounter, "spawn clears actual flare counter");
+            AssertEqual(0, samus.BombSpreadChargeTimeoutCounter, "spawn clears hold counter");
             // Independent closed-form free-flight expectations from native D849/D8F7:
             // acceleration precedes integration, including the spawning alpha call.
             for (int tick = 1; tick <= 60; tick++)

@@ -192,6 +192,8 @@ public sealed class FileSelectMenuState
                 if (ScreenFade.IsForcedBlank(brightness))
                     TitleRequested = true;
                 break;
+            default:
+                throw new InvalidOperationException($"Undefined {nameof(FileSelectPhase)} {Phase}.");
         }
     }
 
@@ -311,8 +313,8 @@ public sealed class FileSelectMenuState
         WriteMenuDigit(energyOrigin + 66, healthRemainder / 10);
         WriteMenuDigit(energyOrigin + 68, healthRemainder % 10);
 
-        int hours = Math.Min(slot.GameTimeHours, (ushort)99);
-        int minutes = Math.Min(slot.GameTimeMinutes, (ushort)99);
+        int hours = Math.Min(slot.GameTimeHours, 99);
+        int minutes = Math.Min(slot.GameTimeMinutes, 99);
         WriteMenuDigit(timeOrigin, hours / 10);
         WriteMenuDigit(timeOrigin + 2, hours % 10);
         LoadMenuTilemap(timeOrigin + 4, FileSelectTilemapDefinitions.TimeColon);
@@ -538,6 +540,19 @@ public sealed class FileSelectMenuState
                     Phase = FileSelectPhase.FadeOutToMain;
                 }
                 break;
+            case FileSelectPhase.FadeIn:
+            case FileSelectPhase.Main:
+            case FileSelectPhase.FadeOutToDataManagement:
+            case FileSelectPhase.FadeInFromDataManagement:
+            case FileSelectPhase.FadeOutToMain:
+            case FileSelectPhase.TurnSelectedHelmet:
+            case FileSelectPhase.FadeOutToOptions:
+            case FileSelectPhase.FadeOutToTitle:
+            case FileSelectPhase.EnterBlankScreen:
+            case FileSelectPhase.EnterBlankScreenAfterNmi:
+            case FileSelectPhase.LoadBackground:
+            case FileSelectPhase.InitializeMain:
+            case FileSelectPhase.InitializeMainAfterNmi:
             default:
                 throw new InvalidDataException($"Invalid data-management phase {Phase}.");
         }
@@ -940,6 +955,8 @@ public sealed class FileSelectMenuState
                         FileSelectPresentationDefinitions.ClearConfirmSourceAnchor),
                     operationSourceSlot);
                 break;
+            default:
+                break;
         }
     }
 
@@ -980,8 +997,8 @@ public sealed class FileSelectMenuState
                 rowRemaining = FileSelectEnergyTankDefinitions.WrappedRowCount;
             }
         }
-        int hours = Math.Min(slot.GameTimeHours, (ushort)99);
-        int minutes = Math.Min(slot.GameTimeMinutes, (ushort)99);
+        int hours = Math.Min(slot.GameTimeHours, 99);
+        int minutes = Math.Min(slot.GameTimeMinutes, 99);
         presentation.WriteDigit(bg1Tilemap, layout.TimeValueAnchor, 0, hours / 10);
         presentation.WriteDigit(bg1Tilemap, layout.TimeValueAnchor, 1, hours % 10);
         presentation.ApplyPatch(bg1Tilemap,

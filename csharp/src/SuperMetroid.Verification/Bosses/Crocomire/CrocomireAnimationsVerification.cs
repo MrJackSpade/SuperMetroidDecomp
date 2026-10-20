@@ -73,7 +73,7 @@ internal static class CrocomireAnimationsVerification
                 case NativeEnemyListDefinitions.WordKind.Frame:
                 {
                     AssertEqual(AnimationProgramStepKind.Show, step.Kind, $"{at}: frame");
-                    AssertEqual((int)word, step.Duration, $"{at}: duration");
+                    AssertEqual(word, step.Duration, $"{at}: duration");
                     ushort spritemap = cartridge.ReadCartridgeWord(BodyBank | (cursor + 2));
                     AssertEqual(spritemap, CrocomireBodyFrameSpritemapsTooling.Spritemap(step.Frame), $"{at}: spritemap");
                     drawn.Add(spritemap);
@@ -117,8 +117,8 @@ internal static class CrocomireAnimationsVerification
         var state = new CrocomireEnemyState(body);
         enemies.CrocomireBehavior.Crocomire = state;
         enemies.CrocomireBehavior.CrocomireDeath = new CrocomireDeathState();
-        enemies.VerificationServices().ReadRandom = (Func<ushort>)(() => ushort.MaxValue);
-        enemies.VerificationServices().NextRandom = (Func<ushort>)(() => ushort.MaxValue);
+        enemies.VerificationServices().ReadRandom = () => ushort.MaxValue;
+        enemies.VerificationServices().NextRandom = () => ushort.MaxValue;
         return (enemies, state);
     }
 

@@ -58,7 +58,7 @@ internal static class TreadmillVisualVerification
                 // not merely a changing DMA pointer or unrelated enemy animation.
                 var tileView = new SnesVram();
                 tileView.LoadBytes(0, runtime.Vram.Bytes);
-                tileView.ExecuteWordTransfer([(ushort)(WreckedShipTreadmillRomData.EncodedVramDestination / 16)], 0x7000, 1);
+                tileView.ExecuteWordTransfer([(WreckedShipTreadmillRomData.EncodedVramDestination / 16)], 0x7000, 1);
                 var pixels = SnesBgTilemapRenderer.Render4BppViewport(tileView, palette, new BgVramAddresses { TilemapBaseWord = 0x7000, CharacterBaseWord = 0 }, new BgViewport { Scroll = new Position16<BgPlanePixels>(0, 0), Size = new Extent16<ScreenPixels>(8, 8) });
                 renderedFrames.Add(string.Join(',', pixels.Select(pixel => pixel.R)));
                 if (frame > 0)
@@ -67,7 +67,7 @@ internal static class TreadmillVisualVerification
                     ImportedVramOracle.ExecuteHardware(expected, bus, sources[(frame - 1) & 3],
                         WreckedShipTreadmillRomData.TransferByteCount,
                         WreckedShipTreadmillRomData.EncodedVramDestination);
-                    expected.ExecuteWordTransfer([(ushort)(WreckedShipTreadmillRomData.EncodedVramDestination / 16)], 0x7000, 1);
+                    expected.ExecuteWordTransfer([(WreckedShipTreadmillRomData.EncodedVramDestination / 16)], 0x7000, 1);
                     AssertTrue(pixels.SequenceEqual(SnesBgTilemapRenderer.Render4BppViewport(expected, palette, new BgVramAddresses { TilemapBaseWord = 0x7000, CharacterBaseWord = 0 }, new BgViewport { Scroll = new Position16<BgPlanePixels>(0, 0), Size = new Extent16<ScreenPixels>(8, 8) })), $"{room.Identity} native direction/cadence pixels frame {frame}");
                 }
             }

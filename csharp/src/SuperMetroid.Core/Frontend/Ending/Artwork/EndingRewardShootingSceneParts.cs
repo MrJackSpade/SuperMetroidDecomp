@@ -23,6 +23,39 @@ internal sealed class EndingRewardShootingSceneParts(Pose pose) : IReadOnlyList<
         Pose.SamusFalling or Pose.SamusShooting => 15,
         Pose.SamusLanding => 13,
         Pose.SamusLanded => 21,
+        Pose.LargeSamusFromEndingStanding or
+            Pose.LargeSamusFromEndingPreparingToJump or
+            Pose.LargeSamusFromEndingJumping or
+            Pose.LargeSamusHelmetFromEndingFrame1 or
+            Pose.LargeSamusHelmetFromEndingFrame2 or
+            Pose.JumpingSamusHeadFromEnding or
+            Pose.SamusArmFromEndingFrame1 or
+            Pose.SamusArmFromEndingFrame2 or
+            Pose.SamusArmFromEndingFrame3 or
+            Pose.SamusArmFromEndingFrame4 or
+            Pose.SamusArmFromEndingFrame5 or
+            Pose.SamusArmFromEndingFrame6 or
+            Pose.SamusArmFromEndingFrame7 or
+            Pose.SamusArmFromEndingFrame8 or
+            Pose.SamusHeadFromEndingFrame1 or
+            Pose.SamusHeadFromEndingFrame2 or
+            Pose.SamusHeadFromEndingFrame3 or
+            Pose.SamusHeadFromEndingFrame4 or
+            Pose.SamusHeadWithHelmetFromEnding or
+            Pose.HeadlessArmlessSuitedSamus or
+            Pose.SuitlessSamusStanding or
+            Pose.SuitlessSamusPreparingToJump or
+            Pose.SuitlessSamusJumping or
+            Pose.SuitlessSamusStandingArmsStraight or
+            Pose.SuitlessSamusOpeningHairFrame1 or
+            Pose.SuitlessSamusOpeningHairFrame2 or
+            Pose.SuitlessSamusOpeningHairFrame3 or
+            Pose.SuitlessSamusOpeningHairFrame4 or
+            Pose.SuitlessSamusOpeningHairFrame5 or
+            Pose.SuitlessSamusOpeningHairFrame6 or
+            Pose.SuitlessSamusOpeningHairFrame7 or
+            Pose.SuitlessSamusOpeningHairFrame8 or
+            Pose.SuitlessSamusLowerBody => throw new ArgumentOutOfRangeException(nameof(pose)),
         _ => throw new ArgumentOutOfRangeException(nameof(pose)),
     };
     /// <summary>Calculates a pose's OAM tile, size, and origin while retaining its authored part order.</summary>
@@ -88,6 +121,39 @@ internal sealed class EndingRewardShootingSceneParts(Pose pose) : IReadOnlyList<
                     }
                     large = index is not (0 or 2 or 4 or 10); originX = -76; originY = -112;
                     break;
+                case Pose.LargeSamusFromEndingStanding:
+                case Pose.LargeSamusFromEndingPreparingToJump:
+                case Pose.LargeSamusFromEndingJumping:
+                case Pose.LargeSamusHelmetFromEndingFrame1:
+                case Pose.LargeSamusHelmetFromEndingFrame2:
+                case Pose.JumpingSamusHeadFromEnding:
+                case Pose.SamusArmFromEndingFrame1:
+                case Pose.SamusArmFromEndingFrame2:
+                case Pose.SamusArmFromEndingFrame3:
+                case Pose.SamusArmFromEndingFrame4:
+                case Pose.SamusArmFromEndingFrame5:
+                case Pose.SamusArmFromEndingFrame6:
+                case Pose.SamusArmFromEndingFrame7:
+                case Pose.SamusArmFromEndingFrame8:
+                case Pose.SamusHeadFromEndingFrame1:
+                case Pose.SamusHeadFromEndingFrame2:
+                case Pose.SamusHeadFromEndingFrame3:
+                case Pose.SamusHeadFromEndingFrame4:
+                case Pose.SamusHeadWithHelmetFromEnding:
+                case Pose.HeadlessArmlessSuitedSamus:
+                case Pose.SuitlessSamusStanding:
+                case Pose.SuitlessSamusPreparingToJump:
+                case Pose.SuitlessSamusJumping:
+                case Pose.SuitlessSamusStandingArmsStraight:
+                case Pose.SuitlessSamusOpeningHairFrame1:
+                case Pose.SuitlessSamusOpeningHairFrame2:
+                case Pose.SuitlessSamusOpeningHairFrame3:
+                case Pose.SuitlessSamusOpeningHairFrame4:
+                case Pose.SuitlessSamusOpeningHairFrame5:
+                case Pose.SuitlessSamusOpeningHairFrame6:
+                case Pose.SuitlessSamusOpeningHairFrame7:
+                case Pose.SuitlessSamusOpeningHairFrame8:
+                case Pose.SuitlessSamusLowerBody:
                 default:
                     throw new InvalidOperationException($"{pose} is not a falling, landing or shooting figure.");
             }

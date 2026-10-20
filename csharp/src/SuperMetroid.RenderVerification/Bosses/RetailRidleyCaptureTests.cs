@@ -37,7 +37,7 @@ internal static class RetailRidleyCaptureTests
             ridley.Mode7MatrixB = SnesSignedEightEight.FromSignedRaw(tilt);
             ridley.Mode7MatrixC = SnesSignedEightEight.FromSignedRaw(unchecked((short)-tilt));
             ridley.Mode7Center = new Position16<Mode7Pixels>(128, 120);
-            ridley.Mode7Offset = new Offset16<Mode7Pixels>(7, unchecked((short)scroll));
+            ridley.Mode7Offset = new Offset16<Mode7Pixels>(7, unchecked(scroll));
             // Room main's M7A..M7Y shadows reach the PPU at the accepted NMI (#1307).
             runtime.FrameBoundary.BeginAcceptedFrame(0);
             var expected = FrontendScenePixelsAccess.Pixels(runtime.PublishDisplayFrame()).ToArray();

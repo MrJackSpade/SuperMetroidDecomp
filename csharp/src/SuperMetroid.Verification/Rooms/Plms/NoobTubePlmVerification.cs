@@ -74,7 +74,7 @@ internal static class NoobTubePlmVerification
         AssertEqual(NoobTubePlmRomData.SolidProjectileTriggerLevelWord,
             level.GetCollisionBlock(new(blockX, blockY)).PackedWord.Raw,
             "n00b-tube setup installs the complete type-$8 collision word");
-        AssertEqual((int)RoomBlockBehaviorValues.ResidentPlmProjectileTrigger.Value,
+        AssertEqual(RoomBlockBehaviorValues.ResidentPlmProjectileTrigger.Value,
             level.GetCollisionBlock(new(blockX, blockY)).Bts.Value,
             "n00b-tube setup installs BTS $44");
 
@@ -183,11 +183,11 @@ internal static class NoobTubePlmVerification
             "break burst contains one crack, ten shards, and six bubbles");
         AssertEqual(NoobTubeProjectileDefinition.Shard,
             projectiles[1].DefinitionPointer, "burst begins with shard parameter zero");
-        AssertEqual((ushort)0x12, projectiles[10].Parameter,
+        AssertEqual(0x12, projectiles[10].Parameter,
             "tenth shard retains the final even ROM parameter");
         AssertEqual(NoobTubeProjectileDefinition.ReleasedAirBubble,
             projectiles[11].DefinitionPointer, "six bubbles follow all shards");
-        AssertEqual((ushort)0x0a, projectiles[^1].Parameter,
+        AssertEqual(0x0a, projectiles[^1].Parameter,
             "sixth bubble retains the final even ROM parameter");
         AssertEqual(2, earthquakes.Count,
             "break burst writes both earthquake type and timer");
@@ -380,7 +380,7 @@ internal static class NoobTubePlmVerification
         SeedPlmProgramWords(bus, 0xd70e, RoomPlmNativeListAddresses.NoobTubeEntries[0].Entry);
 
         WriteOneBlockDraw(bus, 0x98d1,
-            unchecked((ushort)(((ushort)RoomCollisionType.ShootableBlock << 12) | 0x0001)));
+            unchecked(((ushort)RoomCollisionType.ShootableBlock << 12) | 0x0001));
         WriteOneBlockDraw(bus, 0x98d7, 0x8002);
         WriteOneBlockDraw(bus, 0x9991, 0x8003);
         WriteOneBlockDraw(bus, 0x99e5, 0x8004);

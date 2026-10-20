@@ -11,7 +11,7 @@ internal static class IntroEggMotionDefinitionsVerification
     /// <summary>Compares position and velocity words, then checks fixed-point motion through each actor's landing and deletion.</summary>
     internal static void VerifyCompiledIntroEggMotion(SuperMetroidAddressSpace rom)
     {
-        ushort Word(int address) => (ushort)(SnesLittleEndian.Word(CompiledIntroEggMotionRomByte(rom, address), CompiledIntroEggMotionRomByte(rom, address + 1)));
+        ushort Word(int address) => SnesLittleEndian.Word(CompiledIntroEggMotionRomByte(rom, address), CompiledIntroEggMotionRomByte(rom, address + 1));
         void Compare(int address, int count, Func<int, SnesSignedSixteenSixteen> sample)
         {
             for (int index = 0; index < count; index++)

@@ -87,6 +87,42 @@ public sealed class EscapeTimerTileAtlas : IInstalledArtworkTransferSource
         {
             VramAssetId.EscapeTimerFirstTiles => transfer.AsMemory(0, EscapeTimerTileAtlasFormat.FirstByteCount),
             VramAssetId.EscapeTimerSecondTiles => transfer.AsMemory(EscapeTimerTileAtlasFormat.FirstByteCount, EscapeTimerTileAtlasFormat.SecondByteCount),
+            VramAssetId.None or
+                VramAssetId.StandardHudTiles or
+                VramAssetId.BeamPowerTiles or
+                VramAssetId.BeamWaveTiles or
+                VramAssetId.BeamIceTiles or
+                VramAssetId.BeamIceWaveTiles or
+                VramAssetId.BeamSpazerTiles or
+                VramAssetId.BeamSpazerWaveTiles or
+                VramAssetId.BeamSpazerIceTiles or
+                VramAssetId.BeamSpazerIceWaveTiles or
+                VramAssetId.BeamPlasmaTiles or
+                VramAssetId.BeamPlasmaWaveTiles or
+                VramAssetId.BeamPlasmaIceTiles or
+                VramAssetId.BeamPlasmaIceWaveTiles or
+                VramAssetId.ProjectileIceWaveTrailTiles or
+                VramAssetId.ProjectileMissileTrailTiles or
+                VramAssetId.GrapplePointFirstTiles or
+                VramAssetId.GrapplePointSecondTiles or
+                VramAssetId.GrapplePointThirdTiles or
+                VramAssetId.GrapplePointFourthTiles or
+                VramAssetId.GrappleHorizontalSegmentTiles or
+                VramAssetId.GrappleDiagonalSegmentTiles or
+                VramAssetId.GrappleVerticalSegmentTiles or
+                VramAssetId.KraidBg3RestoreQuarter0 or
+                VramAssetId.KraidBg3RestoreQuarter1 or
+                VramAssetId.KraidBg3RestoreQuarter2 or
+                VramAssetId.KraidBg3RestoreQuarter3 or
+                VramAssetId.GunshipLiftoffFirstTiles or
+                VramAssetId.GunshipLiftoffSecondTiles or
+                VramAssetId.GunshipLiftoffThirdTiles or
+                VramAssetId.GunshipLiftoffFourthTiles or
+                VramAssetId.GunshipLiftoffFifthTiles or
+                VramAssetId.BeamChainsawTiles or
+                VramAssetId.BeamSpacetimeTiles or
+                VramAssetId.StandardObjectTiles or
+                VramAssetId.HudTopRowTilemap => throw new InvalidDataException($"Escape timer artwork cannot resolve VRAM asset {asset}."),
             _ => throw new InvalidDataException($"Escape timer artwork cannot resolve VRAM asset {asset}."),
         };
     }

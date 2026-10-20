@@ -38,14 +38,14 @@ internal static class LookupScrollProgramsVerification
                 }
             }
             var compiled = RoomPlmPopulationDefinitions.Get(0x8230);
-            AssertEqual((ushort?)0x94fa,compiled.Placements.Span[0].CompiledScrollSource,"Retail scroll binds identity");
+            AssertEqual(0x94fa, compiled.Placements.Span[0].CompiledScrollSource,"Retail scroll binds identity");
             AssertTrue(compiled.Placements.Span[0].ScrollProgram.IsEmpty,"Retail scroll carries no regenerated pair table");
             var rebound = new RoomPlmPopulationDefinition($"$8F:{0x8230:X4}",
                 [compiled.Placements.Span[0] with { RoomArgument = 0xffff }]);
-            AssertEqual((ushort?)0x94fa,rebound.Placements.Span[0].CompiledScrollSource,"Copied placement preserves its bound program independently of argument");
+            AssertEqual(0x94fa, rebound.Placements.Span[0].CompiledScrollSource,"Copied placement preserves its bound program independently of argument");
             var customized = new RoomPlmPopulationDefinition($"$8F:{0x8230:X4}",
                 [compiled.Placements.Span[0] with { ScrollProgram = new byte[] {1,2,0x80} }]);
-            AssertEqual((ushort?)null,customized.Placements.Span[0].CompiledScrollSource,"Explicit custom pairs replace compiled source");
+            AssertEqual(null, customized.Placements.Span[0].CompiledScrollSource,"Explicit custom pairs replace compiled source");
             AssertTrue(customized.Placements.Span[0].ScrollProgram.Span.SequenceEqual(new byte[] {1,2,0x80}),"Explicit custom pairs survive placement copy");
             AssertThrows<InvalidDataException>(() => new RoomPlmPopulationDefinition($"$8F:{0x9000:X4}",
                 [new RoomPlmPlacement(RoomPlmHeaderDefinitions.Get(PlmHeaderId.ScrollTrigger),new(0, 0),0x94fa)]),
@@ -74,7 +74,7 @@ internal static class LookupScrollProgramsVerification
                 byte state = ScrollProgramFieldRomByte(rom, 0x8f0000 | (pointer + cursor++));
                 if (field == 1)
                 {
-                    AssertEqual((int)index,actual[pair].Index,"Scroll original ordered storage index");
+                    AssertEqual(index, actual[pair].Index,"Scroll original ordered storage index");
                     AssertEqual(index,dto.Span[cursor - 2],"Scroll encoded original index");
                 }
                 if (field == 2)

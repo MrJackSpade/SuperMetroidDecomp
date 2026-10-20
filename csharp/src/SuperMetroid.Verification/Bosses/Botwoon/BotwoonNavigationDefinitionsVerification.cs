@@ -90,7 +90,7 @@ internal static class BotwoonNavigationDefinitionsVerification
             // The cartridge rewinds a reverse stream's pointer by four bytes: two samples.
             AssertEqual(SampleIndexOf(direction < 0 ? pointer - 4 : pointer), state.PathSampleIndex, "Botwoon production path sample and reverse rewind");
             AssertEqual(direction, state.PathDirection, "Botwoon production path direction");
-            AssertEqual((int)ReadRomWord(rom, 0xb3e154 + offset), RecordBytes * state.TargetHoleIndex, "Botwoon production destination");
+            AssertEqual(ReadRomWord(rom, 0xb3e154 + offset), RecordBytes * state.TargetHoleIndex, "Botwoon production destination");
             AssertEqual(BotwoonMovementFunction.FollowAuthoredPath, state.MovementFunction, "Botwoon path handoff");
         }
         AssertEqual(32, BotwoonNavigationDefinitions.PathChoiceCount, "Botwoon has 32 path choices");
@@ -128,7 +128,7 @@ internal static class BotwoonNavigationDefinitionsVerification
     private static void VerifyBotwoonPathDestinationMapping(SuperMetroidAddressSpace rom)
     {
         for (int offset = 0; offset < 256; offset += 8)
-            AssertEqual((int)ReadRomWord(rom, 0xb3e154 + offset),
+            AssertEqual(ReadRomWord(rom, 0xb3e154 + offset),
                 RecordBytes * BotwoonNavigationDefinitions.PathForChoice(offset / RecordBytes).TargetHoleIndex, "Botwoon native destination including repeated hidden choice");
     }
 
@@ -159,7 +159,7 @@ internal static class BotwoonNavigationDefinitionsVerification
                 $"Botwoon path {choice} first sample");
             AssertEqual(unchecked((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 2))), descriptor.Direction,
                 $"Botwoon path {choice} direction");
-            AssertEqual((int)CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 4)), RecordBytes * descriptor.TargetHoleIndex,
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 4)), RecordBytes * descriptor.TargetHoleIndex,
                 $"Botwoon path {choice} target hole");
             AssertEqual((ushort)0, CartridgeImportSource.Require(rom).ReadCartridgeWord((address + 6)),
                 $"Botwoon path {choice} alignment word");
@@ -254,7 +254,7 @@ internal static class BotwoonNavigationDefinitionsVerification
             detectHole(head, state);
             AssertTrue(state.InsideHole, $"Botwoon hole {holeIndex} includes left/top");
             AssertTrue(state.HoleLatch, $"Botwoon hole {holeIndex} latches");
-            AssertEqual((int?)141, state.SavedHoleRingIndex,
+            AssertEqual(141, state.SavedHoleRingIndex,
                 $"Botwoon hole {holeIndex} saves ring index");
 
             state.HoleLatch = false;

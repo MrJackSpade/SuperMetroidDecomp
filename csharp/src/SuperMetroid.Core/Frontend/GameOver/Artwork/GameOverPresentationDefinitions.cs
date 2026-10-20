@@ -80,6 +80,8 @@ public static class GameOverPresentationDefinitions
                     if (row == 1 && column - answer.Length < explanation.Length)
                         return SmallLetter(explanation[column - answer.Length]);
                     break;
+                default:
+                    throw new InvalidOperationException($"Undefined {nameof(GameOverTextElement)} {element}.");
             }
         }
         return GameOverRomData.BlankTile.Raw;

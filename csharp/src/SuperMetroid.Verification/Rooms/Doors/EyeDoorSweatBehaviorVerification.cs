@@ -27,7 +27,7 @@ internal static class EyeDoorSweatBehaviorVerification
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
         const int roomWidth = 16;
         var foreground = new ushort[roomWidth * 16];
-        foreground[5 * roomWidth + 6] = (ushort)((int)RoomCollisionType.SolidBlock << 12);
+        foreground[5 * roomWidth + 6] = (int)RoomCollisionType.SolidBlock << 12;
         RoomLevelData level = CreateRoom(new(roomWidth, 16), foreground, new byte[foreground.Length], blockDefinitions: new byte[1024 * 8]);
         var request = new EyeDoorProjectileRequest(EyeDoorProjectileDefinition.Sweat, Parameter: 4, PlmBlockIndex: 4 * roomWidth + 7, DoorBit: 0);
         enemies.EyeDoorBehavior.SpawnEyeDoorProjectile(request, roomWidth, new Bank80SystemState());

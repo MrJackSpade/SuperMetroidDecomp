@@ -70,7 +70,7 @@ internal static class SuitPickupBeamWindowBuilder
             byte curvedLeft = unchecked((sbyte)candidateLeft) < 0 ? (byte)0 : unchecked((byte)candidateLeft);
             int candidateRight = right + curve;
             byte curvedRight = candidateRight > byte.MaxValue ? byte.MaxValue : unchecked((byte)candidateRight);
-            windows[scanline] = unchecked((ushort)SnesLittleEndian.Word(curvedLeft, curvedRight));
+            windows[scanline] = unchecked(SnesLittleEndian.Word(curvedLeft, curvedRight));
         }
     }
 }

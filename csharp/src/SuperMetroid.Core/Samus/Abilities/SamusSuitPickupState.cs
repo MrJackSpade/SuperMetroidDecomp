@@ -232,13 +232,13 @@ public sealed class SamusSuitPickupState
     /// <summary>The number, 0 through 6 in stage order, the shared scratch word holds for <paramref name="stage"/>.</summary>
     private static ushort SharedScratchStageNumber(SamusSuitPickupStage stage) => stage switch
     {
-        SamusSuitPickupStage.LightBeamAppears => (ushort)0,
-        SamusSuitPickupStage.UniformWidening => (ushort)1,
-        SamusSuitPickupStage.CurvedWidening => (ushort)2,
-        SamusSuitPickupStage.RevealSuit => (ushort)3,
-        SamusSuitPickupStage.LightBeamShrinks => (ushort)4,
-        SamusSuitPickupStage.LightBeamDissipates => (ushort)5,
-        SamusSuitPickupStage.Finish => (ushort)6,
+        SamusSuitPickupStage.LightBeamAppears => 0,
+        SamusSuitPickupStage.UniformWidening => 1,
+        SamusSuitPickupStage.CurvedWidening => 2,
+        SamusSuitPickupStage.RevealSuit => 3,
+        SamusSuitPickupStage.LightBeamShrinks => 4,
+        SamusSuitPickupStage.LightBeamDissipates => 5,
+        SamusSuitPickupStage.Finish => 6,
         _ => throw new InvalidDataException($"Unknown suit-pickup stage {stage}."),
     };
 

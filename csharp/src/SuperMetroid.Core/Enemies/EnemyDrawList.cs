@@ -15,8 +15,6 @@ namespace SuperMetroid.Core.Enemies;
 [RoomLifetime]
 internal sealed class EnemyDrawList
 {
-    /// <summary>Draws Ceres Ridley's tail and wings before its common body spritemap.</summary>
-    private readonly CeresRidleyBehavior _ceresRidleyBehavior;
     /// <summary>Runs the Dead Torizo draw hook after the layer-five ordinary queue.</summary>
     private readonly DeadTorizoBehavior _deadTorizoBehavior;
     /// <summary>Supplies the shared enemy frame counter used for hit-flash palette phases.</summary>
@@ -27,8 +25,6 @@ internal sealed class EnemyDrawList
     private readonly MotherBrainBehavior _motherBrainBehavior;
     /// <summary>Emits ordinary enemy spritemaps to OAM.</summary>
     private readonly EnemyPresentation _presentation;
-    /// <summary>Supplies Ridley's latched body, wing, and tail palette index.</summary>
-    private readonly RidleyEncounter _ridleyEncounter;
     /// <summary>Supplies installed extended frames and validates active room ownership.</summary>
     private readonly EnemyRoomBinding _room;
     /// <summary>Resolves native queue indices to current enemy slots at draw time.</summary>
@@ -37,13 +33,11 @@ internal sealed class EnemyDrawList
     /// <summary>Retains the behavior and presentation owners used by EnemyMain's draw pass.</summary>
     internal EnemyDrawList(EnemyDrawListDependencies dependencies)
     {
-        _ceresRidleyBehavior = dependencies.CeresRidleyBehavior;
         _deadTorizoBehavior = dependencies.DeadTorizoBehavior;
         _frameContext = dependencies.FrameContext;
         _instructions = dependencies.Instructions;
         _motherBrainBehavior = dependencies.MotherBrainBehavior;
         _presentation = dependencies.Presentation;
-        _ridleyEncounter = dependencies.RidleyEncounter;
         _room = dependencies.Room;
         _slotTable = dependencies.SlotTable;
     }

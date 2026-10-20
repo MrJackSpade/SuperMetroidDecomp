@@ -85,7 +85,7 @@ internal static class CrocomireBodyCollisionDefinitionsVerification
                 object?[] nativeArguments =
                     [nativeSlot, new Position16<RoomPixels>(x, y), new Extent16<RoomPixels>(8, 8), shot, (ushort)0];
                 object?[] compiledArguments =
-                    [compiledSlot, new Position16<RoomPixels>(x, y), new Extent16<RoomPixels>((ushort)8, (ushort)8), shot, (ushort)0];
+                    [compiledSlot, new Position16<RoomPixels>(x, y), new Extent16<RoomPixels>(8, 8), shot, (ushort)0];
                 bool nativeHit = ReferenceExtendedCollision(rom, nativeArguments);
                 bool compiledHit = ExtendedHitboxWalker.Find(compiled, compiledArguments);
                 AssertEqual(nativeHit, compiledHit,

@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Enemies.PipeBugs;
 internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <inheritdoc/>
-    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Gamet, EnemyDefinitionId.Geega, EnemyDefinitionId.Zeb, EnemyDefinitionId.Zebbo];
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [.. PipeBugsPartDefinitions.Parts.Keys];
 
     /// <inheritdoc/>
     public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new PipeBugsEntity(this, slot, common);
@@ -638,11 +638,11 @@ internal sealed class PipeBugsBehavior : IEnemySpecies, IEnemyEntityFactory
         position = unchecked(position + (uint)displacement);
         if (horizontal)
         {
-            slot.Position = slot.Position.WithX(SnesFixedPosition.FromRaw(unchecked((uint)position)));
+            slot.Position = slot.Position.WithX(SnesFixedPosition.FromRaw(unchecked(position)));
         }
         else
         {
-            slot.Position = slot.Position.WithY(SnesFixedPosition.FromRaw(unchecked((uint)position)));
+            slot.Position = slot.Position.WithY(SnesFixedPosition.FromRaw(unchecked(position)));
         }
     }
 

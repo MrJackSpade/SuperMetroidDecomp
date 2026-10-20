@@ -964,7 +964,7 @@ level, probe, amount, scanLeftToRight, plms);
     /// </summary>
     internal void CommitPoseHistory()
     {
-        ushort metadata = (ushort)(SnesLittleEndian.Word(PoseMetadata.ReadPoseXDirection(), (byte)PoseMetadata.ReadMovementType()));
+        ushort metadata = SnesLittleEndian.Word(PoseMetadata.ReadPoseXDirection(), (byte)PoseMetadata.ReadMovementType());
         PoseHistory.CommitTransition(Pose, metadata);
     }
 }

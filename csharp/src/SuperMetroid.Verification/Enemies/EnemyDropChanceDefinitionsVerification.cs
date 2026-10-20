@@ -33,11 +33,11 @@ internal static class EnemyDropChanceDefinitionsVerification
 
         AssertThrows<InvalidDataException>(
             () => EnemyDropChanceDefinitions.Copy(
-                unchecked((ushort)(EnemyDropChanceDefinitions.FirstPointer - 1)), new byte[6]),
+                unchecked(EnemyDropChanceDefinitions.FirstPointer - 1), new byte[6]),
             "enemy drop pointer below table is rejected");
         AssertThrows<InvalidDataException>(
             () => EnemyDropChanceDefinitions.Copy(
-                unchecked((ushort)(EnemyDropChanceDefinitions.FirstPointer + 1)), new byte[6]),
+                unchecked(EnemyDropChanceDefinitions.FirstPointer + 1), new byte[6]),
             "unaligned enemy drop pointer is rejected");
         AssertThrows<InvalidDataException>(
             () => EnemyDropChanceDefinitions.Copy(
@@ -70,7 +70,7 @@ internal static class EnemyDropChanceDefinitionsVerification
         }
 
         AssertThrows<InvalidDataException>(
-            () => EnemyDropChanceDefinitions.At(unchecked((ushort)(EnemyDropChanceDefinitions.FirstPointer + 1))),
+            () => EnemyDropChanceDefinitions.At(unchecked(EnemyDropChanceDefinitions.FirstPointer + 1)),
             "production enemy drop rejects an unaligned probability pointer");
         AssertThrows<InvalidDataException>(
             () => EnemyDropChanceDefinitions.At(0x8000),

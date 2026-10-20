@@ -39,7 +39,7 @@ internal static class ScrollingSkyLayerVerification
             ScrollingSkyLayer layer = sky.Publish(rows, cameraY)
                 ?? throw new InvalidOperationException("The configured sky publishes its layer.");
             AssertTrue(ReferenceEquals(rows, layer.Tilemap), $"frame {frame} publishes the ocean rows");
-            AssertEqual((int)cameraY, layer.VerticalScroll, $"frame {frame} positions the bands from the camera");
+            AssertEqual(cameraY, layer.VerticalScroll, $"frame {frame} positions the bands from the camera");
             AssertEqual(!frozen, layer.BandsShown, $"frame {frame} shows its bands only when time runs");
             AssertEqual(expected.Length, layer.BandOffsets.Length, $"frame {frame} publishes all 23 band offsets");
             for (int slot = 0; slot < expected.Length; slot++)

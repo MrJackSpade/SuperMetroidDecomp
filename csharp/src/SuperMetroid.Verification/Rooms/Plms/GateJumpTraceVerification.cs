@@ -44,7 +44,7 @@ internal static class GateJumpTraceVerification
             bool activated = false;
             for (int frame = -60; frame < 80; frame++)
             {
-                SnesButton input = frame < 0 ? (ushort)0 : (SnesButton.A | SnesButton.Left);
+                SnesButton input = frame < 0 ? 0 : (SnesButton.A | SnesButton.Left);
                 if (aimFrame > 0 && frame == -1) input = SnesButton.Left;
                 if (frame >= aimFrame) input |= SnesButton.R;
                 if (releaseLeft && frame >= aimFrame) input &= ~SnesButton.Left;

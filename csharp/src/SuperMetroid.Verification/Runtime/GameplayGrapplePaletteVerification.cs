@@ -83,7 +83,7 @@ internal static class GameplayGrapplePaletteVerification
         {
             AssertTrue(runtime.Cgram.Colors.Slice(224, 16).SequenceEqual(expected.Colors.Slice(224, 16)),
                 phase + " loads native palette two");
-            AssertEqual((ushort)0x7f91, runtime.Cgram.Colors[223], phase + " sets native flare color");
+            AssertEqual(0x7f91, runtime.Cgram.Colors[223], phase + " sets native flare color");
         }
     }
 

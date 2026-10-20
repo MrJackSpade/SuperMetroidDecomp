@@ -23,8 +23,6 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <inheritdoc/>
     public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new RinkaEntity(this, slot, common);
 
-    /// <summary>Retained enemy dispatcher supplied by the species composition root.</summary>
-    private readonly IEnemyDispatch _dispatch;
     /// <summary>Locates special Rinkas whose spawn choice was deferred during door loading.</summary>
     private readonly EnemySlotTable _slotTable;
     /// <summary>Applies normal Samus contact damage before the Rinka-specific death tail.</summary>
@@ -33,20 +31,16 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
     private readonly EnemyFrameContext _frameContext;
     /// <summary>Allocates Rinka dust and death explosion projectiles.</summary>
     private readonly EnemyProjectileEngine _projectiles;
-    /// <summary>Retained room binding supplied by the species composition root.</summary>
-    private readonly EnemyRoomBinding _room;
     /// <summary>Installs the ordinary Rinka's respawn placeholder after death.</summary>
     private readonly EnemyDeathsAndDrops _deathsAndDrops;
 
     /// <summary>Connects Rinka AI to enemy slots, collision, frame context, and death effects.</summary>
-    internal RinkaBehavior(IEnemyDispatch dispatch, EnemySlotTable slotTable, EnemyCollision collision, EnemyFrameContext frameContext, EnemyProjectileEngine projectiles, EnemyRoomBinding room, EnemyDeathsAndDrops deathsAndDrops)
+    internal RinkaBehavior(EnemySlotTable slotTable, EnemyCollision collision, EnemyFrameContext frameContext, EnemyProjectileEngine projectiles, EnemyDeathsAndDrops deathsAndDrops)
     {
-        _dispatch = dispatch;
         _slotTable = slotTable;
         _collision = collision;
         _frameContext = frameContext;
         _projectiles = projectiles;
-        _room = room;
         _deathsAndDrops = deathsAndDrops;
     }
 

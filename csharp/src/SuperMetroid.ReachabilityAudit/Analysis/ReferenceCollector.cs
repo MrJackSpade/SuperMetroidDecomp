@@ -118,6 +118,8 @@ internal sealed class ReferenceCollector(SymbolIdentity identity, ReachabilityGr
                 return;
             case not ExpressionSyntax:
                 return;
+            default:
+                break;
         }
 
         var expression = (ExpressionSyntax)node;
@@ -151,6 +153,8 @@ internal sealed class ReferenceCollector(SymbolIdentity identity, ReachabilityGr
                 json.ObserveInvocation(model, invocation, method);
                 reflection.ObserveInvocation(model, invocation, method, owner);
                 reflection.ObserveCall(model, invocation, method);
+                break;
+            default:
                 break;
         }
     }
@@ -380,6 +384,8 @@ internal sealed class ReferenceCollector(SymbolIdentity identity, ReachabilityGr
                     or EventDeclarationSyntax or EnumMemberDeclarationSyntax or BaseTypeDeclarationSyntax
                     or DelegateDeclarationSyntax:
                     return identity.Key(model.GetDeclaredSymbol(ancestor));
+                default:
+                    break;
             }
         }
         return null;

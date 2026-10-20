@@ -24,7 +24,7 @@ internal static class InterfacePresentationContractChecks
             Frames = IntroDiscoveryActorSpriteDefinitions.Frames.ToDictionary(frame => frame.Name, _ => Array.Empty<SpriteVisualPart>()) };
         Stream Json() => new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options));
         IntroDiscoveryActorSpritePresentation actor = IntroDiscoveryActorSpritePresentation.Load(Json());
-        ((IIntroCinematicSpritePresentation)actor).Draw(IntroDiscoveryActorSpriteDefinitions.Frames[0].Pointer,
+        actor.Draw(IntroDiscoveryActorSpriteDefinitions.Frames[0].Pointer,
             new ScreenSprites(new SpriteArtwork(new SpriteArtworkId(SpriteArtworkKind.IntroObjects), new byte[SpriteArtwork.CharacterByteCount]),
                 ObjectSelectionCodec.Sizes(MenuRenderDefinitions.ObjectSelection)), new(0, 0), 0, true);
         document.Frames.Remove(IntroDiscoveryActorSpriteDefinitions.Frames[0].Name);

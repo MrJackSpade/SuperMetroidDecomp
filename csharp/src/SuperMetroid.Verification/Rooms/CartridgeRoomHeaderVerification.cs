@@ -21,8 +21,8 @@ internal static class CartridgeRoomHeaderVerification
             bool expected = (definition.CreBitset & 1) != 0;
             AssertEqual(expected, room.UsesIsolatedDoorTransition,
                 $"room ${definition.Pointer:X4} settings ${definition.CreBitset:X2} isolated door transition");
-            AssertEqual((int)definition.UpScroller, room.UpScroller, $"room ${definition.Pointer:X4} up scroller");
-            AssertEqual((int)definition.DownScroller, room.DownScroller, $"room ${definition.Pointer:X4} down scroller");
+            AssertEqual(definition.UpScroller, room.UpScroller, $"room ${definition.Pointer:X4} up scroller");
+            AssertEqual(definition.DownScroller, room.DownScroller, $"room ${definition.Pointer:X4} down scroller");
             if (expected) isolated++;
             if (!expected && definition.CreBitset != 0) sawOtherBitsOnly = true;
         }

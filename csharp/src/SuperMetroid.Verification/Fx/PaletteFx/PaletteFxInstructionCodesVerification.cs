@@ -666,13 +666,13 @@ internal static class PaletteFxInstructionCodesVerification
                 BeaconPaletteFxColorDefinitions.ColorsPerFrame * 2,
             guardedPresentationReads.Value,
             "beacon retains every live color read through its complete cycle");
-        AssertEqual((ushort)0x02bf, cgram.Colors[0x71],
+        AssertEqual(0x02bf, cgram.Colors[0x71],
             "beacon writes its first live color");
-        AssertEqual((ushort)0, cgram.Colors[0x74],
+        AssertEqual(0, cgram.Colors[0x74],
             "beacon preserves the first skipped CGRAM color");
-        AssertEqual((ushort)0, cgram.Colors[0x7c],
+        AssertEqual(0, cgram.Colors[0x7c],
             "beacon preserves the ninth skipped CGRAM color");
-        AssertEqual((ushort)0x7fff, cgram.Colors[0x7d],
+        AssertEqual(0x7fff, cgram.Colors[0x7d],
             "beacon resumes after the native eighteen-byte skip");
     }
 
@@ -710,15 +710,15 @@ internal static class PaletteFxInstructionCodesVerification
                     TourianGlowPaletteFxColorDefinitions.ColorsPerFrame * 2,
                 guardedPresentationReads.Value,
                 $"Tourian glow definition $8D:{definition:X4} retains all live colors");
-            AssertEqual((ushort)0x5294, cgram.Colors[0x74],
+            AssertEqual(0x5294, cgram.Colors[0x74],
                 "Tourian glow writes its isolated first color");
-            AssertEqual((ushort)0, cgram.Colors[0x75],
+            AssertEqual(0, cgram.Colors[0x75],
                 "Tourian glow preserves first skipped CGRAM color");
-            AssertEqual((ushort)0, cgram.Colors[0x76],
+            AssertEqual(0, cgram.Colors[0x76],
                 "Tourian glow preserves second skipped CGRAM color");
-            AssertEqual((ushort)0, cgram.Colors[0x77],
+            AssertEqual(0, cgram.Colors[0x77],
                 "Tourian glow preserves third skipped CGRAM color");
-            AssertEqual((ushort)0x0019, cgram.Colors[0x78],
+            AssertEqual(0x0019, cgram.Colors[0x78],
                 "Tourian glow resumes after the native six-byte skip");
         }
 
@@ -920,9 +920,9 @@ internal static class PaletteFxInstructionCodesVerification
             }
         }
 
-        AssertEqual((ushort)0x0004, samus.LiquidPhysics.PeriodicDamage,
+        AssertEqual(0x0004, samus.LiquidPhysics.PeriodicDamage,
             "retail Norfair heat owner carries quarter-units into whole damage");
-        AssertEqual((ushort)0x4000, samus.LiquidPhysics.PeriodicSubDamage,
+        AssertEqual(0x4000, samus.LiquidPhysics.PeriodicSubDamage,
             "retail Norfair heat owner retains exact 16.16 fractional carry");
         AssertEqual(1, paletteFxSession.PreviousSamusInHeatPaletteIndex,
             "shared heat owner consumes $F785 phase on following frame");
@@ -1585,7 +1585,7 @@ internal static class PaletteFxInstructionCodesVerification
         AssertTrue(soundFrame >= 0, "$F781 beacon reaches its sound opcode");
         AssertEqual(SoundEffectLibrary.Library2, soundRequest.SoundEffect.Library,
             "$F781 beacon sound uses library two");
-        AssertEqual((byte)0x18, soundRequest.SoundEffect.Value,
+        AssertEqual(0x18, soundRequest.SoundEffect.Value,
             "$F781 beacon sound preserves byte operand $18");
         AssertEqual(PaletteFxAudioQueueLimits.SoundEffects, soundRequest.MaximumQueued,
             "$F781 beacon sound uses QueueSfx2_Max6");

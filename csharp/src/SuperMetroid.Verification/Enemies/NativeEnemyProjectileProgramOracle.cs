@@ -131,7 +131,7 @@ internal static class NativeEnemyProjectileProgramOracle
             {
                 var show = Next("frame");
                 AssertEqual(AnimationProgramStepKind.Show, show.Kind, $"{at}: frame");
-                AssertEqual((int)word, show.Duration, $"{at}: duration");
+                AssertEqual(word, show.Duration, $"{at}: duration");
                 AssertEqual(unchecked((ushort)(cursor + 2)), presentationKey(show.Frame), $"{at}: presentation key");
                 cursor = unchecked((ushort)(cursor + 4));
                 continue;
@@ -148,13 +148,18 @@ internal static class NativeEnemyProjectileProgramOracle
                         AssertEqual(operand, EntryOf(entries, step.Target), $"{at}: goto target");
                         break;
                     case AnimationProgramStepKind.SetCounter:
-                        AssertEqual((int)operand, step.Duration, $"{at}: counter");
+                        AssertEqual(operand, step.Duration, $"{at}: counter");
                         cursor = unchecked((ushort)(cursor + 4));
                         continue;
                     case AnimationProgramStepKind.RepeatWhileCounting:
                         AssertEqual(operand, EntryOf(entries, step.Target), $"{at}: repeat target");
                         cursor = unchecked((ushort)(cursor + 4));
                         continue;
+                    case AnimationProgramStepKind.Show:
+                    case AnimationProgramStepKind.Cue:
+                    case AnimationProgramStepKind.FallInto:
+                    case AnimationProgramStepKind.Wait:
+                    case AnimationProgramStepKind.Stop:
                     default:
                         throw new InvalidOperationException($"Undefined projectile control step {control}.");
                 }
@@ -175,7 +180,7 @@ internal static class NativeEnemyProjectileProgramOracle
                 AssertEqual(unchecked((ushort)(cursor + 2)), presentationKey(show.Frame), $"{at}: flicker presentation key");
                 Func<TFrame, ushort?> reflected = reflectedPresentationKey ??
                     throw new InvalidOperationException($"{at}: a flicker family supplies its reflected presentation keys.");
-                AssertEqual(count == 4 ? (ushort?)unchecked((ushort)(cursor + 4)) : null, reflected(show.Frame), $"{at}: flicker reflected presentation key");
+                AssertEqual(count == 4 ? unchecked((ushort)(cursor + 4)) : null, reflected(show.Frame), $"{at}: flicker reflected presentation key");
             }
             cursor = unchecked((ushort)(cursor + 2 + count));
             if (rules.EndsList?.Invoke(cue.PublishedCue) != true)

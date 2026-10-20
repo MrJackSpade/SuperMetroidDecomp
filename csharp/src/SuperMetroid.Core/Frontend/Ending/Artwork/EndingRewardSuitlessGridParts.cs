@@ -26,6 +26,40 @@ internal sealed class EndingRewardSuitlessGridParts(Pose pose) : IReadOnlyList<C
         Pose.SuitlessSamusLowerBody => 14,
         Pose.SuitlessSamusPreparingToJump => 20,
         Pose.SuitlessSamusJumping => 19,
+        Pose.LargeSamusFromEndingStanding or
+            Pose.LargeSamusFromEndingPreparingToJump or
+            Pose.LargeSamusFromEndingJumping or
+            Pose.LargeSamusHelmetFromEndingFrame1 or
+            Pose.LargeSamusHelmetFromEndingFrame2 or
+            Pose.JumpingSamusHeadFromEnding or
+            Pose.SamusArmFromEndingFrame1 or
+            Pose.SamusArmFromEndingFrame2 or
+            Pose.SamusArmFromEndingFrame3 or
+            Pose.SamusArmFromEndingFrame4 or
+            Pose.SamusArmFromEndingFrame5 or
+            Pose.SamusArmFromEndingFrame6 or
+            Pose.SamusArmFromEndingFrame7 or
+            Pose.SamusArmFromEndingFrame8 or
+            Pose.SamusHeadFromEndingFrame1 or
+            Pose.SamusHeadFromEndingFrame2 or
+            Pose.SamusHeadFromEndingFrame3 or
+            Pose.SamusHeadFromEndingFrame4 or
+            Pose.SamusHeadWithHelmetFromEnding or
+            Pose.HeadlessArmlessSuitedSamus or
+            Pose.SamusFalling or
+            Pose.SamusLanding or
+            Pose.SamusLanded or
+            Pose.SamusShooting or
+            Pose.SuitlessSamusStanding or
+            Pose.SuitlessSamusStandingArmsStraight or
+            Pose.SuitlessSamusOpeningHairFrame1 or
+            Pose.SuitlessSamusOpeningHairFrame2 or
+            Pose.SuitlessSamusOpeningHairFrame3 or
+            Pose.SuitlessSamusOpeningHairFrame4 or
+            Pose.SuitlessSamusOpeningHairFrame5 or
+            Pose.SuitlessSamusOpeningHairFrame6 or
+            Pose.SuitlessSamusOpeningHairFrame7 or
+            Pose.SuitlessSamusOpeningHairFrame8 => throw new ArgumentOutOfRangeException(nameof(pose)),
         _ => throw new ArgumentOutOfRangeException(nameof(pose)),
     };
 

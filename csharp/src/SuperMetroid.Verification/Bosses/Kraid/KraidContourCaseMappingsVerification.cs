@@ -87,7 +87,7 @@ internal static class KraidContourCaseMappingsVerification
             (ushort pointer, ushort timer) = NativeKraidGrowthResume(rom, (ushort)raw);
             AssertEqual(native.CursorAt(pointer), KraidHeadAnimations.GrowthResumeCursor(resume),
                 "Kraid native word-dependent resume cursor");
-            AssertEqual((int)timer, KraidHeadAnimations.GrowthResumeDelay(resume), "Kraid native word-dependent resume delay");
+            AssertEqual(timer, KraidHeadAnimations.GrowthResumeDelay(resume), "Kraid native word-dependent resume delay");
         }
     }
 }

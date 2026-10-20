@@ -216,7 +216,7 @@ internal static class LookupStream1Verification
     /// <summary>Checks every escape Dachora duration, pose, displacement, and uninterrupted update against bank $B3.</summary>
     internal static void VerifyLookupStream1EscapeDachoraCadence(ISnesAddressSpace rom)
     {
-        ushort Word(int address) => (ushort)(SnesLittleEndian.Word(LookupStream1EscapeDachoraCadenceRomByte(rom, address), LookupStream1EscapeDachoraCadenceRomByte(rom, address + 1)));
+        ushort Word(int address) => SnesLittleEndian.Word(LookupStream1EscapeDachoraCadenceRomByte(rom, address), LookupStream1EscapeDachoraCadenceRomByte(rom, address + 1));
         foreach (int program in new[] { 0, 1, 2 })
         {
             var guard = new CartridgeReadGuard(rom).Forbid(address => address is >= 0xb3e964 and < 0xb3eaa8,
@@ -269,7 +269,7 @@ internal static class LookupStream1Verification
     private static RoomEnemySystem CreateEscapeDachoraProgramSystem()
     {
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
-        enemies.VerificationServices().HasEvent = (Func<EventNumber, bool>)(_ => false);
+        enemies.VerificationServices().HasEvent = _ => false;
         RoomEnemySlot dachora = enemies.SlotTable.Slots[0];
         dachora.Bind(EnemyDefinitionId.DachoraEscape, dachora.Definition);
         dachora.Bind(dachora.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = 0xb3 });
@@ -284,7 +284,7 @@ internal static class LookupStream1Verification
     /// <summary>Checks Powamp body and balloon holds, loops, sleep, and native Y offsets through the live instruction runner.</summary>
     internal static void VerifyLookupStream1PowampCadence(ISnesAddressSpace rom)
     {
-        ushort Word(int address) => (ushort)(SnesLittleEndian.Word(LookupStream1PowampCadenceRomByte(rom, address), LookupStream1PowampCadenceRomByte(rom, address + 1)));
+        ushort Word(int address) => SnesLittleEndian.Word(LookupStream1PowampCadenceRomByte(rom, address), LookupStream1PowampCadenceRomByte(rom, address + 1));
         foreach (ushort root in new ushort[] { 0xc163, 0xc173, 0xc183, 0xc191 })
         {
             bool isBody = root < 0xc183;
@@ -356,7 +356,7 @@ internal static class LookupStream1Verification
     /// <summary>Checks Metroid chase/idle pulse holds, loop callbacks, sound, and RNG ownership.</summary>
     internal static void VerifyLookupStream1MetroidPulse(ISnesAddressSpace rom)
     {
-        ushort Word(int address) => (ushort)(SnesLittleEndian.Word(LookupStream1MetroidPulseRomByte(rom, address), LookupStream1MetroidPulseRomByte(rom, address + 1)));
+        ushort Word(int address) => SnesLittleEndian.Word(LookupStream1MetroidPulseRomByte(rom, address), LookupStream1MetroidPulseRomByte(rom, address + 1));
         foreach (bool chasing in new[] { true, false })
         {
             ushort root = chasing ? (ushort)0xe9cf : (ushort)0xea25;
@@ -392,7 +392,7 @@ internal static class LookupStream1Verification
             EnemyInstructionRunner.Process(arguments);
             AssertEqual(chasing ? 1 : 0, randomCalls, "Exact Metroid callback RNG ownership");
             ushort expectedSound = chasing ? Word(0xa3ead6 + 5 * 2) : Word(0xa3eaa8);
-            AssertEqual((int?)expectedSound, enemies.MetroidBehavior.LastMetroidSoundEffectLibrary2?.Value, "Native loop callback sound");
+            AssertEqual(expectedSound, enemies.MetroidBehavior.LastMetroidSoundEffectLibrary2?.Value, "Native loop callback sound");
             AssertEqual(Word(0xa30000 | (root + 2)), slot.SpritemapPointer, "Callback loops to first timed record");
             AssertEqual(Word(0xa30000 | root), slot.InstructionTimer.RawValue, "Loop reload preserves first native hold");
         }
@@ -405,7 +405,7 @@ internal static class LookupStream1Verification
     /// <summary>Checks all atmospheric animation durations and rejected type/frame boundaries.</summary>
     internal static void VerifyLookupStream1AtmosphericCadence(ISnesAddressSpace rom)
     {
-        ushort Word(int address) => (ushort)(SnesLittleEndian.Word(LookupStream1AtmosphericCadenceRomByte(rom, address), LookupStream1AtmosphericCadenceRomByte(rom, address + 1)));
+        ushort Word(int address) => SnesLittleEndian.Word(LookupStream1AtmosphericCadenceRomByte(rom, address), LookupStream1AtmosphericCadenceRomByte(rom, address + 1));
         for (byte type = 1; type <= 7; type++)
         {
             int pointer = 0x900000 | Word(0x908b93 + type * 2);
@@ -592,10 +592,10 @@ internal static class LookupStream1Verification
         }
         var queue = new VramWriteQueue(); stock.QueueTo(queue);
         AssertEqual(2, queue.Entries.Count, "Original two-page queue count");
-        AssertEqual((ushort)512, queue.Entries[0].SizeInBytes, "First page size");
+        AssertEqual(512, queue.Entries[0].SizeInBytes, "First page size");
         AssertEqual((ushort)0x7e00, queue.Entries[0].Destination.Encoded, "First page destination");
         AssertEqual(VramAssetId.EscapeTimerFirstTiles, queue.Entries[0].AssetId, "First typed page identity");
-        AssertEqual((ushort)288, queue.Entries[1].SizeInBytes, "Second page size");
+        AssertEqual(288, queue.Entries[1].SizeInBytes, "Second page size");
         AssertEqual((ushort)0x7f00, queue.Entries[1].Destination.Encoded, "Second page destination");
         AssertEqual(VramAssetId.EscapeTimerSecondTiles, queue.Entries[1].AssetId, "Second typed page identity");
         var nativeQueue = new VramWriteQueue();
@@ -623,7 +623,7 @@ internal static class LookupStream1Verification
         int count = SamusBodyArtworkCatalog.FrameCount * 4;
         byte[] native = Enumerable.Range(0, count).Select(index => LookupStream1XrayBodyFramesRomByte(rom, 0x92db48 + index)).ToArray();
         ushort[] Words(int address, int length) => Enumerable.Range(0, length).Select(index =>
-            (ushort)(SnesLittleEndian.Word(LookupStream1XrayBodyFramesRomByte(rom, address + index * 2), LookupStream1XrayBodyFramesRomByte(rom, address + index * 2 + 1)))).ToArray();
+            SnesLittleEndian.Word(LookupStream1XrayBodyFramesRomByte(rom, address + index * 2), LookupStream1XrayBodyFramesRomByte(rom, address + index * 2 + 1))).ToArray();
         ushort[] top = Words(0x92d91e, 13), bottom = Words(0x92d938, 11), poses = Words(0x92d94e, 253);
         ushort[] starts = top.Concat(bottom).Order().ToArray();
         SamusBodyTileDefinition[][] Groups(ushort[] pointers) => pointers.Select(pointer =>
@@ -881,7 +881,7 @@ internal static class LookupStream1Verification
     /// <summary>Checks each body pose's upper/lower frame pointers and canonical edit identity.</summary>
     internal static void VerifyLookupStream1BodyPosePointers(ISnesAddressSpace rom)
     {
-        ushort[] native = Enumerable.Range(0, 253).Select(pose => (ushort)(SnesLittleEndian.Word(LookupStream1BodyPosePointersRomByte(rom, 0x92d94e + pose * 2), LookupStream1BodyPosePointersRomByte(rom, 0x92d94f + pose * 2)))).ToArray();
+        ushort[] native = Enumerable.Range(0, 253).Select(pose => SnesLittleEndian.Word(LookupStream1BodyPosePointersRomByte(rom, 0x92d94e + pose * 2), LookupStream1BodyPosePointersRomByte(rom, 0x92d94f + pose * 2))).ToArray();
         SamusBodyArtworkCatalog template = CreateSamusIdentityFixture();
         ushort[] top = template.TopSetPointers.ToArray(), bottom = template.BottomSetPointers.ToArray();
         var topGroups = Enumerable.Range(0, 13).Select(set => template.TopSet(set).ToArray()).ToArray();
@@ -957,7 +957,7 @@ internal static class LookupStream1Verification
     /// <summary>Checks body tile-set allocation roots and independently edited pointer identities.</summary>
     internal static void VerifyLookupStream1BodySetPointers(ISnesAddressSpace rom)
     {
-        ushort Word(int address) => (ushort)(SnesLittleEndian.Word(LookupStream1BodySetPointersRomByte(rom, address), LookupStream1BodySetPointersRomByte(rom, address + 1)));
+        ushort Word(int address) => SnesLittleEndian.Word(LookupStream1BodySetPointersRomByte(rom, address), LookupStream1BodySetPointersRomByte(rom, address + 1));
         ushort[] top = Enumerable.Range(0, 13).Select(set => Word(0x92d91e + set * 2)).ToArray();
         ushort[] bottom = Enumerable.Range(0, 11).Select(set => Word(0x92d938 + set * 2)).ToArray();
         var physical = top.Select((pointer, set) => (Upper: true, Set: set, Pointer: pointer))
@@ -1265,7 +1265,7 @@ internal static class LookupStream1Verification
     internal static void VerifyLookupStream1BodyOamBases(ISnesAddressSpace rom)
     {
         ushort[] ReadWords(int address, int count) => Enumerable.Range(0, count)
-            .Select(index => (ushort)(SnesLittleEndian.Word(LookupStream1BodyOamBasesRomByte(rom, address + index * 2), LookupStream1BodyOamBasesRomByte(rom, address + index * 2 + 1)))).ToArray();
+            .Select(index => SnesLittleEndian.Word(LookupStream1BodyOamBasesRomByte(rom, address + index * 2), LookupStream1BodyOamBasesRomByte(rom, address + index * 2 + 1))).ToArray();
         ushort[] top = ReadWords(0x929263, 253), bottom = ReadWords(0x92945d, 253), pointers = ReadWords(0x92808d, 2096);
         // Marker parts confirm selected supplied payload identity, not native artwork.
         SamusSpritemapDefinition[] definitions = pointers.Where(pointer => pointer != 0).Distinct()
@@ -1344,7 +1344,7 @@ internal static class LookupStream1Verification
     internal static void VerifyLookupStream1HurtBlend(ISnesAddressSpace rom)
     {
         ushort[] native = Enumerable.Range(0, 32).Select(index =>
-            (ushort)(SnesLittleEndian.Word(LookupStream1HurtBlendRomByte(rom, 0x9ba380 + index * 2), LookupStream1HurtBlendRomByte(rom, 0x9ba381 + index * 2)))).ToArray();
+            SnesLittleEndian.Word(LookupStream1HurtBlendRomByte(rom, 0x9ba380 + index * 2), LookupStream1HurtBlendRomByte(rom, 0x9ba381 + index * 2))).ToArray();
         PaletteRgb5 Color(ushort word) => new() { Red = word & 31, Green = (word >> 5) & 31, Blue = (word >> 10) & 31 };
         SamusHurtColorCatalog Create(ushort[] supplied) => SamusHurtColorCatalog.Load(new MemoryStream(SamusHurtColorCatalog.Write(
             new SamusHurtColorDocument { Version = 1, Hurt = supplied.Take(16).Select(Color).ToArray(), Intro = supplied.Skip(16).Select(Color).ToArray() })));
@@ -1360,7 +1360,7 @@ internal static class LookupStream1Verification
         {
             AssertEqual((byte)(native[index + 16] & 31), SamusHurtColorDefinitions.DefaultIntroLevel(index), "Direct calculated shade level equals native");
             AssertEqual(native[index + 16], SamusHurtColorDefinitions.IntroFromLevel((byte)(native[index + 16] & 31)), "Direct native intro channel relation");
-            AssertEqual(native[index], SamusHurtColorDefinitions.HurtFromIntro(Bgr555.FromWord(checked((ushort)(native[index + 16])))), "Direct native hurt white blend");
+            AssertEqual(native[index], SamusHurtColorDefinitions.HurtFromIntro(Bgr555.FromWord(checked(native[index + 16]))), "Direct native hurt white blend");
         }
         for (int selected = 0; selected < 32; selected++)
         for (int channel = 0; channel < 3; channel++)
@@ -1416,7 +1416,7 @@ internal static class LookupStream1Verification
             SamusArmCannonArtworkCatalog.LoadPlacement(new MemoryStream(SamusArmCannonArtworkCatalog.Write(value))), tiles);
         var stock = Load(document);
         Dictionary<int, ushort> Stored(SamusArmCannonArtworkCatalog value) => value.posePointers;
-        ushort Native(int pose) => (ushort)(SnesLittleEndian.Word(LookupStream1CannonPosesRomByte(rom, 0x90C7DF + pose * 2), LookupStream1CannonPosesRomByte(rom, 0x90C7E0 + pose * 2)));
+        ushort Native(int pose) => SnesLittleEndian.Word(LookupStream1CannonPosesRomByte(rom, 0x90C7DF + pose * 2), LookupStream1CannonPosesRomByte(rom, 0x90C7E0 + pose * 2));
         string Identity(SamusArmCannonArtworkDocument value) => SelectedPresentationHash.Create(nameof(SamusArmCannonArtworkCatalog), hash =>
         {
             hash.AppendWords("pose pointers", value.PosePointers.Select(pointer => (ushort)pointer).ToArray());
@@ -1508,7 +1508,7 @@ internal static class LookupStream1Verification
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     internal static void VerifyLookupStream1TimerLayout(ISnesAddressSpace rom)
     {
-        ushort Word(int address) => (ushort)(SnesLittleEndian.Word(LookupStream1TimerLayoutRomByte(rom, address), LookupStream1TimerLayoutRomByte(rom, address + 1)));
+        ushort Word(int address) => SnesLittleEndian.Word(LookupStream1TimerLayoutRomByte(rom, address), LookupStream1TimerLayoutRomByte(rom, address + 1));
         byte[] json = EscapeTimerPresentationExtractor.Extract(rom);
         var stock = EscapeTimerPresentation.Load(new MemoryStream(json));
         var document = RequiredJson.Deserialize<EscapeTimerPresentationDocument>(json, ArtworkJson.Options);
@@ -1519,7 +1519,7 @@ internal static class LookupStream1Verification
         {
             int address = name == "Label" ? 0x80a060 : 0x800000 | Word(0x809fd4 + int.Parse(name.AsSpan(6)) * 2);
             var calculated = EscapeTimerPresentationDefinitions.DefaultParts(name);
-            AssertEqual((int)Word(address), calculated.Count, "Timer part count matches native sprite record");
+            AssertEqual(Word(address), calculated.Count, "Timer part count matches native sprite record");
             for (int index = 0; index < calculated.Count; index++)
             {
                 int native = address + 2 + index * 5;
@@ -1735,7 +1735,7 @@ internal static class LookupStream1Verification
         Suite(nameof(VerifyLookupStream1CommonFrames), () => VerifyLookupStream1CommonFrames(rom));
         Suite(nameof(VerifyLookupStream1EnemyMovement), () => VerifyLookupStream1EnemyMovement(rom));
         Suite(nameof(VerifyLookupStream1CadencePrograms), () => VerifyLookupStream1CadencePrograms(rom));
-        ushort Word(int address) => (ushort)(SnesLittleEndian.Word(LookupStream1RomByte(rom, address), LookupStream1RomByte(rom, address + 1)));
+        ushort Word(int address) => SnesLittleEndian.Word(LookupStream1RomByte(rom, address), LookupStream1RomByte(rom, address + 1));
         foreach (SamusLiquidMedium medium in Enum.GetValues<SamusLiquidMedium>())
         {
             for (int variant = 0; variant < 4; variant++)
@@ -1807,7 +1807,7 @@ internal static class LookupStream1Verification
     /// <summary>Checks compiled Bull movement intervals and other enemy motion values.</summary>
     private static void VerifyLookupStream1EnemyMovement(ISnesAddressSpace rom)
     {
-        ushort Word(int address) => (ushort)(SnesLittleEndian.Word(LookupStream1EnemyMovementRomByte(rom, address), LookupStream1EnemyMovementRomByte(rom, address + 1)));
+        ushort Word(int address) => SnesLittleEndian.Word(LookupStream1EnemyMovementRomByte(rom, address), LookupStream1EnemyMovementRomByte(rom, address + 1));
         for (ushort index = 0; index < 13; index++)
         {
             var intervals = BullMovementDefinitions.Intervals(index);
@@ -1835,7 +1835,7 @@ internal static class LookupStream1Verification
     /// <summary>Checks charge-flare instruction bytes and related compiled cadence programs.</summary>
     private static void VerifyLookupStream1CadencePrograms(ISnesAddressSpace rom)
     {
-        ushort Word(int address) => (ushort)(SnesLittleEndian.Word(LookupStream1CadenceProgramsRomByte(rom, address), LookupStream1CadenceProgramsRomByte(rom, address + 1)));
+        ushort Word(int address) => SnesLittleEndian.Word(LookupStream1CadenceProgramsRomByte(rom, address), LookupStream1CadenceProgramsRomByte(rom, address + 1));
         for (int address = 0x90c481; address < 0x90c4b5; address++)
         {
             AssertEqual(LookupStream1CadenceProgramsRomByte(rom, address), ChargeFlareAnimationDefinitions.ReadByte(address), "stream1 original flare pointer/cadence byte");
@@ -1852,7 +1852,7 @@ internal static class LookupStream1Verification
     /// <summary>Checks bank-$90 projectile motion words and rejects odd or adjacent addresses.</summary>
     internal static void VerifyLookupStream1ProjectileMotion(ISnesAddressSpace rom)
     {
-        ushort Word(int address) => (ushort)(SnesLittleEndian.Word(LookupStream1ProjectileMotionRomByte(rom, address), LookupStream1ProjectileMotionRomByte(rom, address + 1)));
+        ushort Word(int address) => SnesLittleEndian.Word(LookupStream1ProjectileMotionRomByte(rom, address), LookupStream1ProjectileMotionRomByte(rom, address + 1));
         for (int address = 0x90c2d1; address < 0x90c37b; address += 2)
             AssertEqual(Word(address), SamusProjectileMotionDefinitions.ReadWord(address), "stream1 all native projectile motion words");
         foreach (int invalid in new[] { int.MinValue, 0x90c2d0, 0x90c2d2, 0x90c37b, int.MaxValue })
@@ -1878,7 +1878,7 @@ internal static class LookupStream1Verification
     {
         for (int address = 0x9383c1; address < 0x9386db; address += 2)
         {
-            ushort expected = (ushort)(SnesLittleEndian.Word(LookupStream1SelectionRomByte(rom, address), LookupStream1SelectionRomByte(rom, address + 1)));
+            ushort expected = SnesLittleEndian.Word(LookupStream1SelectionRomByte(rom, address), LookupStream1SelectionRomByte(rom, address + 1));
             AssertEqual(expected, SamusProjectileProgramsVerification.SelectionWord(address),
                 $"stream1 original projectile selector/header {address:X6}");
             AssertThrows<InvalidDataException>(() => SamusProjectileSelectionDefinitions.ReadWord(address + 1),
@@ -1895,7 +1895,7 @@ internal static class LookupStream1Verification
     /// <summary>Checks bomb-spread launch roles and their native slot-specific values.</summary>
     internal static void VerifyLookupStream1LaunchRoles(ISnesAddressSpace rom)
     {
-        ushort Word(int address) => (ushort)(SnesLittleEndian.Word(LookupStream1LaunchRolesRomByte(rom, address), LookupStream1LaunchRolesRomByte(rom, address + 1)));
+        ushort Word(int address) => SnesLittleEndian.Word(LookupStream1LaunchRolesRomByte(rom, address), LookupStream1LaunchRolesRomByte(rom, address + 1));
         for (int index = 0; index < 5; index++)
         {
             var launch = SamusBombSpreadLaunchDefinitions.ForSlot(index);
@@ -1949,11 +1949,11 @@ internal static class LookupStream1Verification
             AssertTrue(!CommonEnemyEmptyExtendedFrameDefinitions.HasFrame((byte)bank, 0x8050), "common empty frame excludes neighboring pointer");
             if (expected)
             {
-                AssertEqual((byte)0, LookupStream1CommonFramesRomByte(rom, ((int)new SnesAddress(checked((byte)bank), checked((ushort)(0x804d))))), "native common OAM has zero components");
-                AssertEqual((byte)1, LookupStream1CommonFramesRomByte(rom, ((int)new SnesAddress(checked((byte)bank), checked((ushort)(0x804f))))), "native common extended frame has one component");
+                AssertEqual((byte)0, LookupStream1CommonFramesRomByte(rom, ((int)new SnesAddress(checked((byte)bank), checked(0x804d)))), "native common OAM has zero components");
+                AssertEqual((byte)1, LookupStream1CommonFramesRomByte(rom, ((int)new SnesAddress(checked((byte)bank), checked(0x804f)))), "native common extended frame has one component");
             }
         }
-        AssertEqual((ushort)NativeEnemyProjectileInstruction.Delete, (ushort)(SnesLittleEndian.Word(LookupStream1CommonFramesRomByte(rom, 0x8684fc), LookupStream1CommonFramesRomByte(rom, 0x8684fd))), "shared projectile delete native instruction");
+        AssertEqual((ushort)NativeEnemyProjectileInstruction.Delete, SnesLittleEndian.Word(LookupStream1CommonFramesRomByte(rom, 0x8684fc), LookupStream1CommonFramesRomByte(rom, 0x8684fd)), "shared projectile delete native instruction");
     }
 
     /// <summary>Reads empty extended enemy frame headers across supported banks.</summary>
@@ -1963,7 +1963,7 @@ internal static class LookupStream1Verification
     /// <summary>Checks Sciser directional visual frames against native pointer and spritemap data.</summary>
     private static void VerifyLookupStream1Sciser(ISnesAddressSpace rom)
     {
-        ushort Word(int address) => (ushort)(SnesLittleEndian.Word(LookupStream1SciserRomByte(rom, address), LookupStream1SciserRomByte(rom, address + 1)));
+        ushort Word(int address) => SnesLittleEndian.Word(LookupStream1SciserRomByte(rom, address), LookupStream1SciserRomByte(rom, address + 1));
         var frames = SuperMetroid.Core.Enemies.Artwork.SciserVisualDefinitions.Frames();
         AssertEqual(12, frames.Length, "Sciser visual catalog size");
         string[] names = ["right", "left", "down", "up"];
@@ -1985,7 +1985,7 @@ internal static class LookupStream1Verification
     /// <summary>Checks death-sequence initial frames and movement-type data against native tables.</summary>
     private static void VerifyLookupStream1DeathDefinitions(ISnesAddressSpace rom)
     {
-        ushort Word(int address) => (ushort)(SnesLittleEndian.Word(LookupStream1DeathDefinitionsRomByte(rom, address), LookupStream1DeathDefinitionsRomByte(rom, address + 1)));
+        ushort Word(int address) => SnesLittleEndian.Word(LookupStream1DeathDefinitionsRomByte(rom, address), LookupStream1DeathDefinitionsRomByte(rom, address + 1));
         var initialFrames = SamusSpecialSequenceRomData.Death.InitialFramesByMovementType;
         AssertEqual(28, initialFrames.Length, "death retail movement domain");
         for (int movement = 0; movement < initialFrames.Length; movement++)
@@ -2018,7 +2018,7 @@ internal static class LookupStream1Verification
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     private static void VerifyLookupStream1VisualCatalogs(ISnesAddressSpace rom)
     {
-        ushort Word(int address) => (ushort)(SnesLittleEndian.Word(LookupStream1VisualCatalogsRomByte(rom, address), LookupStream1VisualCatalogsRomByte(rom, address + 1)));
+        ushort Word(int address) => SnesLittleEndian.Word(LookupStream1VisualCatalogsRomByte(rom, address), LookupStream1VisualCatalogsRomByte(rom, address + 1));
         var selectors = ChargeFlareSpriteDefinitions.Selectors;
         var nativePointers = new List<ushort>();
         byte[] json = ChargeFlareSpriteExtractor.Extract(rom);
@@ -2072,7 +2072,7 @@ internal static class LookupStream1Verification
     /// <summary>Checks Puyo program data and the native projectile quota selector table.</summary>
     private static void VerifyLookupStream1PuyoAndQuota(ISnesAddressSpace rom)
     {
-        ushort Word(int address) => (ushort)(SnesLittleEndian.Word(LookupStream1PuyoAndQuotaRomByte(rom, address), LookupStream1PuyoAndQuotaRomByte(rom, address + 1)));
+        ushort Word(int address) => SnesLittleEndian.Word(LookupStream1PuyoAndQuotaRomByte(rom, address), LookupStream1PuyoAndQuotaRomByte(rom, address + 1));
         for (ushort argument = 0; argument <= 24; argument += 2)
         {
             ushort pointer = Word(0x84db28 + argument);
@@ -2098,7 +2098,7 @@ internal static class LookupStream1Verification
     /// <summary>Checks Metroid body frames and instruction presentation layout.</summary>
     private static void VerifyLookupStream1MetroidLayout(ISnesAddressSpace rom)
     {
-        ushort Word(int address) => (ushort)(SnesLittleEndian.Word(LookupStream1MetroidLayoutRomByte(rom, address), LookupStream1MetroidLayoutRomByte(rom, address + 1)));
+        ushort Word(int address) => SnesLittleEndian.Word(LookupStream1MetroidLayoutRomByte(rom, address), LookupStream1MetroidLayoutRomByte(rom, address + 1));
         var frames = MetroidVisualDefinitions.Frames();
         AssertEqual(4, frames.Length, "Metroid body identities");
         for (int frame = 0; frame < 4; frame++)
@@ -2146,7 +2146,7 @@ internal static class LookupStream1Verification
     /// <summary>Checks arm-cannon tile source words and independent source selection across directions.</summary>
     internal static void VerifyLookupStream1ArmCannonTileSources(ISnesAddressSpace rom)
     {
-        ushort Word(int address) => (ushort)(SnesLittleEndian.Word(LookupStream1ArmCannonTileSourcesRomByte(rom, address), LookupStream1ArmCannonTileSourcesRomByte(rom, address + 1)));
+        ushort Word(int address) => SnesLittleEndian.Word(LookupStream1ArmCannonTileSourcesRomByte(rom, address), LookupStream1ArmCannonTileSourcesRomByte(rom, address + 1));
         var nativeSources = new SortedSet<ushort>();
         for (int direction = 0; direction < 10; direction++)
         {
@@ -2283,7 +2283,7 @@ internal static class LookupStream1Verification
             SamusArmCannonArtworkCatalog.LoadPlacement(new MemoryStream(SamusArmCannonArtworkCatalog.Write(value))), tiles);
         var stock = Load(document);
         Dictionary<int, byte> Stored(SamusArmCannonArtworkCatalog value) => value.drawingData;
-        ushort Word(int address) => (ushort)(SnesLittleEndian.Word(LookupStream1CannonDrawingControlsRomByte(rom, address), LookupStream1CannonDrawingControlsRomByte(rom, address + 1)));
+        ushort Word(int address) => SnesLittleEndian.Word(LookupStream1CannonDrawingControlsRomByte(rom, address), LookupStream1CannonDrawingControlsRomByte(rom, address + 1));
         var headers = new HashSet<int>();
         var descriptors = new SortedSet<int>();
         for (int pose = 0; pose < 253; pose++)
@@ -2440,7 +2440,7 @@ internal static class LookupStream1Verification
     internal static void VerifyLookupStream1AtmosphericAttributes(ISnesAddressSpace rom)
     {
         ushort[] Native(int address) => Enumerable.Range(0, 4).Select(frame =>
-            (ushort)(SnesLittleEndian.Word(LookupStream1AtmosphericAttributesRomByte(rom, address + frame * 2), LookupStream1AtmosphericAttributesRomByte(rom, address + frame * 2 + 1)))).ToArray();
+            SnesLittleEndian.Word(LookupStream1AtmosphericAttributesRomByte(rom, address + frame * 2), LookupStream1AtmosphericAttributesRomByte(rom, address + frame * 2 + 1))).ToArray();
         ushort[] one = Native(0x908C0F), shared = Native(0x908C17);
         var stock = new SamusAtmosphericArtworkCatalog(one, shared);
         string Identity(ushort[] first, ushort[] second) => SelectedPresentationHash.Create(nameof(SamusAtmosphericArtworkCatalog), hash =>
@@ -2500,7 +2500,7 @@ internal static class LookupStream1Verification
         }
         var stock = Load(document);
         int Stored(EscapeTypewriterProgram program) => ((EscapeTypewriterPresentation.LineSequence)program.Lines).overrides.Count;
-        ushort Word(int address) => (ushort)(SnesLittleEndian.Word(LookupStream1EscapeTextRomByte(rom, address), LookupStream1EscapeTextRomByte(rom, address + 1)));
+        ushort Word(int address) => SnesLittleEndian.Word(LookupStream1EscapeTextRomByte(rom, address), LookupStream1EscapeTextRomByte(rom, address + 1));
         int totalFrames = 0;
         foreach (EscapeTypewriterProgramId id in new[] { EscapeTypewriterProgramId.Ceres, EscapeTypewriterProgramId.Zebes })
         {
@@ -2597,7 +2597,7 @@ internal static class LookupStream1Verification
         ushort Native(int index)
         {
             int address = SamusVisorColorFormat.SourceAddress + index * 2;
-            return (ushort)(SnesLittleEndian.Word(LookupStream1VisorColorsRomByte(rom, address), LookupStream1VisorColorsRomByte(rom, address + 1)));
+            return SnesLittleEndian.Word(LookupStream1VisorColorsRomByte(rom, address), LookupStream1VisorColorsRomByte(rom, address + 1));
         }
         AssertEqual(0, Stored(stock).Count, "visor stock stores no sampled fallback colors");
         AssertEqual(Native(0), SamusVisorColorDefinitions.WideningStart, "visor required widening basis");
@@ -2702,7 +2702,7 @@ internal static class LookupStream1Verification
     /// <summary>Checks projectile collision-radius words across the timed instruction layouts.</summary>
     internal static void VerifyLookupStream1ProjectileRadiusLayout(ISnesAddressSpace rom)
     {
-        ushort Word(int address) => (ushort)(SnesLittleEndian.Word(LookupStream1ProjectileRadiusLayoutRomByte(rom, address), LookupStream1ProjectileRadiusLayoutRomByte(rom, address + 1)));
+        ushort Word(int address) => SnesLittleEndian.Word(LookupStream1ProjectileRadiusLayoutRomByte(rom, address), LookupStream1ProjectileRadiusLayoutRomByte(rom, address + 1));
         var expected = new List<ushort>();
         for (int address = 0x9386db; address < 0x93a1a1;)
         {
@@ -2757,8 +2757,8 @@ internal static class LookupStream1Verification
                 AssertTrue(!shots.Animation.RunProjectileInstructionHandler(slot), "Actual native timed frame survives");
                 AssertEqual(duration, slot.InstructionTimer.RawValue, "Actual timer unchanged");
                 AssertEqual(sprite, slot.SpritemapPointer, "Independent installed artwork selection");
-                AssertEqual((ushort)LookupStream1ProjectileRadiusLayoutRomByte(rom, 0x930000 | (pointer + 4)), slot.Radius.X, "Actual X radius independent of art edit");
-                AssertEqual((ushort)LookupStream1ProjectileRadiusLayoutRomByte(rom, 0x930000 | (pointer + 5)), slot.Radius.Y, "Actual Y radius independent of art edit");
+                AssertEqual(LookupStream1ProjectileRadiusLayoutRomByte(rom, 0x930000 | (pointer + 4)), slot.Radius.X, "Actual X radius independent of art edit");
+                AssertEqual(LookupStream1ProjectileRadiusLayoutRomByte(rom, 0x930000 | (pointer + 5)), slot.Radius.Y, "Actual Y radius independent of art edit");
                 AssertEqual(Word(0x930000 | (pointer + 6)), slot.AnimationFrame, "Actual trail phase unchanged");
                 AssertEqual(unchecked((ushort)(pointer + 8)), slot.InstructionPointer, "Actual record progression unchanged");
                 interpreted++;
@@ -2767,8 +2767,8 @@ internal static class LookupStream1Verification
                 AssertTrue(!bombs.RunProjectileInstructionHandler(bomb), "Actual bomb timed frame survives");
                 AssertEqual(duration, bomb.InstructionTimer.RawValue, "Actual bomb timer unchanged");
                 AssertEqual(sprite, bomb.SpritemapPointer, "Independent bomb artwork selection");
-                AssertEqual((ushort)LookupStream1ProjectileRadiusLayoutRomByte(rom, 0x930000 | (pointer + 4)), bomb.Radius.X, "Actual bomb X radius");
-                AssertEqual((ushort)LookupStream1ProjectileRadiusLayoutRomByte(rom, 0x930000 | (pointer + 5)), bomb.Radius.Y, "Actual bomb Y radius");
+                AssertEqual(LookupStream1ProjectileRadiusLayoutRomByte(rom, 0x930000 | (pointer + 4)), bomb.Radius.X, "Actual bomb X radius");
+                AssertEqual(LookupStream1ProjectileRadiusLayoutRomByte(rom, 0x930000 | (pointer + 5)), bomb.Radius.Y, "Actual bomb Y radius");
                 AssertEqual(unchecked((ushort)(pointer + 8)), bomb.InstructionPointer, "Actual bomb record progression");
                 bombInterpreted++;
             }
@@ -2789,7 +2789,7 @@ internal static class LookupStream1Verification
     /// <summary>Traverses projectile programs, comparing timed records and mechanics ownership with bank $93.</summary>
     internal static void VerifyLookupStream1ProjectilePrograms(ISnesAddressSpace rom)
     {
-        ushort Word(int address) => (ushort)(SnesLittleEndian.Word(LookupStream1ProjectileProgramsRomByte(rom, address), LookupStream1ProjectileProgramsRomByte(rom, address + 1)));
+        ushort Word(int address) => SnesLittleEndian.Word(LookupStream1ProjectileProgramsRomByte(rom, address), LookupStream1ProjectileProgramsRomByte(rom, address + 1));
         var programs = new List<(ushort Start, int Ticks)>();
         var records = new List<ushort>();
         var mechanics = new HashSet<int>();
@@ -2863,8 +2863,8 @@ internal static class LookupStream1Verification
                 actualTicks++;
                 if (deleted)
                 {
-                    AssertEqual((ushort)0, slot.Damage, "Projectile deletion clears occupancy");
-                    AssertEqual((ushort)0, bomb.Type, "Bomb deletion clears occupancy");
+                    AssertEqual(0, slot.Damage, "Projectile deletion clears occupancy");
+                    AssertEqual(0, bomb.Type, "Bomb deletion clears occupancy");
                     deletions++; finished = true; break;
                 }
                 AssertEqual((timer, pointer, sprite, x, y, trail),
@@ -2996,7 +2996,7 @@ internal static class LookupStream1Verification
         var body = SamusBodyArtworkFiles.Load(directory.Root, null);
         var stock = body.Spritemaps;
         ushort[] native = Enumerable.Range(0, 2096).Select(index =>
-            (ushort)(SnesLittleEndian.Word(LookupStream1OamPointersRomByte(rom, 0x92808d + index * 2), LookupStream1OamPointersRomByte(rom, 0x92808e + index * 2)))).ToArray();
+            SnesLittleEndian.Word(LookupStream1OamPointersRomByte(rom, 0x92808d + index * 2), LookupStream1OamPointersRomByte(rom, 0x92808e + index * 2))).ToArray();
         int aliases = 0, directPointers = 0;
         var nativeDefinitions = stock.Definitions.ToDictionary(map => map.Pointer);
         for (int index = 0; index < native.Length; index++)
@@ -3098,7 +3098,7 @@ internal static class LookupStream1Verification
                     AssertEqual(native, image[index], "Every native body pixel byte");
                     byte mask = SamusBodyPixelDefinitions.ContourMask(upper, set, position, index);
                     AssertEqual((byte)0, (byte)(native & ~mask), "Exact native circular silhouette");
-                    circleBits += System.Numerics.BitOperations.PopCount((uint)(byte)~mask);
+                    circleBits += System.Numerics.BitOperations.PopCount((byte)~mask);
                     int tile = index / 32;
                     bool blank = SamusBodyPixelDefinitions.IsBlank(upper, set, position, tile);
                     bool relation = SamusBodyPixelDefinitions.TrySourceByte(upper, set, position, index, out int sourcePosition, out int sourceIndex);
@@ -3163,7 +3163,7 @@ internal static class LookupStream1Verification
         using var directory = new TestScratchDirectory("map-catalog");
         SamusBodyArtworkFiles.Extract(rom, directory.Root, SupportedCartridge.Sha256);
         var body = SamusBodyArtworkFiles.Load(directory.Root, null);
-        ushort Word(int address) => (ushort)(SnesLittleEndian.Word(LookupStream1BodyTransfersRomByte(rom, address), LookupStream1BodyTransfersRomByte(rom, address + 1)));
+        ushort Word(int address) => SnesLittleEndian.Word(LookupStream1BodyTransfersRomByte(rom, address), LookupStream1BodyTransfersRomByte(rom, address + 1));
         var top = Enumerable.Range(0, 13).Select(set => body.TopSet(set).ToArray()).ToArray();
         var bottom = Enumerable.Range(0, 11).Select(set => body.BottomSet(set).ToArray()).ToArray();
         var changedTop = top.Select(group => group.ToArray()).ToArray();
@@ -3178,7 +3178,7 @@ internal static class LookupStream1Verification
             {
                 var value = groups[set][position];
                 int address = 0x920000 | (Word((upper ? 0x92d91e : 0x92d938) + set * 2) + position * 7);
-                int source = (int)new SnesAddress(LookupStream1BodyTransfersRomByte(rom, address + 2), (ushort)Word(address));
+                int source = (int)new SnesAddress(LookupStream1BodyTransfersRomByte(rom, address + 2), Word(address));
                 ushort first = Word(address + 3), second = Word(address + 5);
                 AssertEqual(source, SamusBodyTransferDefinitions.SourceAddress(body, upper, set, position), "Direct native packed allocation source");
                 AssertTrue(SamusBodyTransferDefinitions.TryFirstSize(body, upper, set, position, value.Planar.Length, out ushort calculated), "Every native record has a direct row calculation");
@@ -3251,7 +3251,7 @@ internal static class LookupStream1Verification
             var actual = new SnesVram(); var expected = new SnesVram();
             void Copy(int address, int destination)
             {
-                int source = (int)new SnesAddress(LookupStream1BodyTransfersRomByte(rom, address + 2), (ushort)Word(address));
+                int source = (int)new SnesAddress(LookupStream1BodyTransfersRomByte(rom, address + 2), Word(address));
                 int first = Word(address + 3), second = Word(address + 5);
                 expected.LoadBytes(destination * 2, Enumerable.Range(0, first).Select(index => LookupStream1BodyTransfersRomByte(rom, source + index)).ToArray());
                 expected.LoadBytes((destination + 0x100) * 2, Enumerable.Range(0, second).Select(index => LookupStream1BodyTransfersRomByte(rom, source + first + index)).ToArray());

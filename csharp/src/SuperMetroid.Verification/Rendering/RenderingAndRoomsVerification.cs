@@ -257,7 +257,7 @@ internal static void VerifyHudStateAndBg3Rendering()
     var queue = new VramWriteQueue();
     var vram = new SnesVram();
     hud.QueueUpload(queue);
-    AssertEqual(HudState.MutableByteCount, (int)queue.Entries[0].SizeInBytes, "HUD queue transfer size");
+    AssertEqual(HudState.MutableByteCount, queue.Entries[0].SizeInBytes, "HUD queue transfer size");
     AssertEqual(HudState.WorkRamAddress, queue.Entries[0].SourceAddress, "HUD queue keeps the native $7E:C608 source on its record");
     AssertEqual(HudState.VramDestination, queue.Entries[0].Destination.Encoded, "HUD queue VRAM destination");
     queue.DrainTo(vram, null, null, BgArtworkFixtures.For(vram));
@@ -774,19 +774,19 @@ internal static void VerifyLevelBlockTilemapExpansion()
         RoomCollisionType.HorizontalExtension);
 
     AssertEqual(
-        new ExpandedBlockTiles((ushort)0x0123, (ushort)0x4567, (ushort)0x89ab, (ushort)0xcdef),
+        new ExpandedBlockTiles(0x0123, 0x4567, 0x89ab, 0xcdef),
         LevelBlockTilemapExpander.Expand(unflipped, definitions),
         "unflipped block expansion");
     AssertEqual(
-        new ExpandedBlockTiles((ushort)0x0567, (ushort)0x4123, (ushort)0x8def, (ushort)0xc9ab),
+        new ExpandedBlockTiles(0x0567, 0x4123, 0x8def, 0xc9ab),
         LevelBlockTilemapExpander.Expand(horizontalSlope, definitions),
         "horizontally flipped slope expansion ignores collision nibble");
     AssertEqual(
-        new ExpandedBlockTiles((ushort)0x09ab, (ushort)0x4def, (ushort)0x8123, (ushort)0xc567),
+        new ExpandedBlockTiles(0x09ab, 0x4def, 0x8123, 0xc567),
         LevelBlockTilemapExpander.Expand(verticalExtension, definitions),
         "vertically flipped extension expansion ignores collision nibble");
     AssertEqual(
-        new ExpandedBlockTiles((ushort)0x0def, (ushort)0x49ab, (ushort)0x8567, (ushort)0xc123),
+        new ExpandedBlockTiles(0x0def, 0x49ab, 0x8567, 0xc123),
         LevelBlockTilemapExpander.Expand(doubleFlipHorizontalExtension, definitions),
         "doubly flipped horizontal extension expansion ignores collision nibble");
 

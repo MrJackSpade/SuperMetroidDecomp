@@ -189,7 +189,7 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
         // negative than a conventional two's-complement negation.
         ushort magnitude = unchecked((ushort)Math.Abs((int)sine));
         byte sineHighByte = SnesLittleEndian.HighByte(magnitude);
-        uint product = (uint)sineHighByte * (uint)speed;
+        uint product = sineHighByte * (uint)speed;
         ushort fraction = unchecked((ushort)product);
         ushort whole = SnesFixedPosition.WholeOf(unchecked((int)product));
         if (sine < 0 && (whole != 0 || fraction != 0))

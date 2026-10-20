@@ -210,6 +210,281 @@ internal sealed class StationPlms : IPlmFamilySource
             case PlmHeaderId.SaveStation:
                 SetupStation(level, system, area, slot, StationKind.Save);
                 return true;
+            case PlmHeaderId.None:
+            case PlmHeaderId.Nothing:
+            case PlmHeaderId.CollisionReactionClearCarry:
+            case PlmHeaderId.RightwardsScrollExtension:
+            case PlmHeaderId.LeftwardsScrollExtension:
+            case PlmHeaderId.DownwardsScrollExtension:
+            case PlmHeaderId.UpwardsScrollExtension:
+            case PlmHeaderId.WreckedShipEntranceTreadmillFromWest:
+            case PlmHeaderId.WreckedShipEntranceTreadmillFromEast:
+            case PlmHeaderId.InsideReactionNothingB653:
+            case PlmHeaderId.InsideReactionNothingB657:
+            case PlmHeaderId.InsideReactionNothingB65B:
+            case PlmHeaderId.FillMotherBrainsWall:
+            case PlmHeaderId.MotherBrainsRoomEscapeDoor:
+            case PlmHeaderId.MotherBrainsBackgroundRow2:
+            case PlmHeaderId.MotherBrainsBackgroundRow3:
+            case PlmHeaderId.MotherBrainsBackgroundRow4:
+            case PlmHeaderId.MotherBrainsBackgroundRow5:
+            case PlmHeaderId.MotherBrainsBackgroundRow6:
+            case PlmHeaderId.MotherBrainsBackgroundRow7:
+            case PlmHeaderId.MotherBrainsBackgroundRow8:
+            case PlmHeaderId.MotherBrainsBackgroundRow9:
+            case PlmHeaderId.MotherBrainsBackgroundRowA:
+            case PlmHeaderId.MotherBrainsBackgroundRowB:
+            case PlmHeaderId.MotherBrainsBackgroundRowC:
+            case PlmHeaderId.MotherBrainsBackgroundRowD:
+            case PlmHeaderId.ClearMotherBrainCeilingBlock:
+            case PlmHeaderId.ClearMotherBrainCeilingTube:
+            case PlmHeaderId.ClearMotherBrainBottomMiddleSideTube:
+            case PlmHeaderId.ClearMotherBrainBottomMiddleTubes:
+            case PlmHeaderId.ClearMotherBrainBottomLeftTube:
+            case PlmHeaderId.ClearMotherBrainBottomRightTube:
+            case PlmHeaderId.InsideReactionBrinstarFloorPlant:
+            case PlmHeaderId.InsideReactionBrinstarCeilingPlant:
+            case PlmHeaderId.MapStationRightAccess:
+            case PlmHeaderId.MapStationLeftAccess:
+            case PlmHeaderId.EnergyStationRightAccess:
+            case PlmHeaderId.EnergyStationLeftAccess:
+            case PlmHeaderId.MissileStationRightAccess:
+            case PlmHeaderId.MissileStationLeftAccess:
+            case PlmHeaderId.Nothing84B6F7:
+            case PlmHeaderId.Nothing84B6FB:
+            case PlmHeaderId.ScrollTriggerCollision:
+            case PlmHeaderId.ScrollTrigger:
+            case PlmHeaderId.UnusedSolidScrollPLM:
+            case PlmHeaderId.InsideReactionCrateria80:
+            case PlmHeaderId.InsideReactionQuicksandSurface:
+            case PlmHeaderId.InsideReactionSubmergingQuicksand:
+            case PlmHeaderId.InsideReactionSandFallsSlow:
+            case PlmHeaderId.InsideReactionSandFallsFast:
+            case PlmHeaderId.CollisionReactionQuicksandSurface:
+            case PlmHeaderId.CollisionReactionSubmergingQuicksand:
+            case PlmHeaderId.CollisionReactionSandFallsSlow:
+            case PlmHeaderId.CollisionReactionSandFallsFast:
+            case PlmHeaderId.ClearCrocomireBridge:
+            case PlmHeaderId.CrumbleCrocomireBridgeBlock:
+            case PlmHeaderId.ClearCrocomireBridgeBlock:
+            case PlmHeaderId.ClearCrocomireInvisibleWall:
+            case PlmHeaderId.CreateCrocomireInvisibleWall:
+            case PlmHeaderId.UnusedDraw13BlankAirTiles:
+            case PlmHeaderId.UnusedDraw13BlankSolidTiles:
+            case PlmHeaderId.ClearBabyMetroidInvisibleWall:
+            case PlmHeaderId.CreateBabyMetroidInvisibleWall:
+            case PlmHeaderId.SaveStationTrigger:
+            case PlmHeaderId.CrumbleAccessToTourianElevator:
+            case PlmHeaderId.ClearAccessToTourianElevator:
+            case PlmHeaderId.DrawPhantoonDoorDuringBossFight:
+            case PlmHeaderId.RestorePhantoonDoorAfterBossFight:
+            case PlmHeaderId.CrumbleSporeSpawnCeiling:
+            case PlmHeaderId.ClearSporeSpawnCeiling:
+            case PlmHeaderId.ClearBotwoonWall:
+            case PlmHeaderId.CrumbleBotwoonWall:
+            case PlmHeaderId.UnusedSetKraidCeilingBlockToBackground1:
+            case PlmHeaderId.CrumbleKraidCeilingIntoBackground1:
+            case PlmHeaderId.CrumbleKraidPlatformVariant1:
+            case PlmHeaderId.CrumbleKraidCeilingIntoBackground2:
+            case PlmHeaderId.CrumbleKraidPlatformVariant2:
+            case PlmHeaderId.CrumbleKraidCeilingIntoBackground3:
+            case PlmHeaderId.ClearKraidCeiling:
+            case PlmHeaderId.ClearKraidSpikes:
+            case PlmHeaderId.CrumbleKraidSpikes:
+            case PlmHeaderId.EnableSoundsIn20FramesF0FramesIfCeres:
+            case PlmHeaderId.SpeedBoosterEscape:
+            case PlmHeaderId.ShaktoolsRoom:
+            case PlmHeaderId.MaridiaElevatube:
+            case PlmHeaderId.OldTourianEscapeShaftFakeWall:
+            case PlmHeaderId.RaiseAcidInEscapeRoomBeforeOldTourianEscapeShaft:
+            case PlmHeaderId.GateBlock:
+            case PlmHeaderId.ReactionCrittersEscapeBlock:
+            case PlmHeaderId.CrittersEscapeBlock:
+            case PlmHeaderId.TurnCeresElevatorDoorToSolidBlocksDuringEscape:
+            case PlmHeaderId.BombTorizoGreyDoor:
+            case PlmHeaderId.WreckedShipAttic:
+            case PlmHeaderId.CrateriaMainstreetEscapePassage:
+            case PlmHeaderId.LeftGreenGateTrigger:
+            case PlmHeaderId.RightGreenGateTrigger:
+            case PlmHeaderId.LeftRedGateTrigger:
+            case PlmHeaderId.RightRedGateTrigger:
+            case PlmHeaderId.LeftBlueGateTrigger:
+            case PlmHeaderId.RightBlueGateTrigger:
+            case PlmHeaderId.LeftYellowGateTrigger:
+            case PlmHeaderId.RightYellowGateTrigger:
+            case PlmHeaderId.DownwardsOpenGate:
+            case PlmHeaderId.DownwardGate:
+            case PlmHeaderId.UpwardsOpenGate:
+            case PlmHeaderId.UpwardsClosedGate:
+            case PlmHeaderId.DownwardGateShotBlock:
+            case PlmHeaderId.UpwardsGateShotblock:
+            case PlmHeaderId.GenericShotTriggerForAPLM:
+            case PlmHeaderId.GreyDoorFacingLeft:
+            case PlmHeaderId.GreyDoorFacingRight:
+            case PlmHeaderId.GreyDoorFacingUp:
+            case PlmHeaderId.GreyDoorFacingDown:
+            case PlmHeaderId.YellowDoorFacingLeft:
+            case PlmHeaderId.YellowDoorFacingRight:
+            case PlmHeaderId.YellowDoorFacingUp:
+            case PlmHeaderId.YellowDoorFacingDown:
+            case PlmHeaderId.GreenDoorFacingLeft:
+            case PlmHeaderId.GreenDoorFacingRight:
+            case PlmHeaderId.GreenDoorFacingUp:
+            case PlmHeaderId.GreenDoorFacingDown:
+            case PlmHeaderId.RedDoorFacingLeft:
+            case PlmHeaderId.RedDoorFacingRight:
+            case PlmHeaderId.RedDoorFacingUp:
+            case PlmHeaderId.RedDoorFacingDown:
+            case PlmHeaderId.BlueDoorFacingLeft:
+            case PlmHeaderId.BlueDoorFacingRight:
+            case PlmHeaderId.BlueDoorFacingUp:
+            case PlmHeaderId.BlueDoorFacingDown:
+            case PlmHeaderId.BlueDoorClosingFacingLeft:
+            case PlmHeaderId.BlueDoorClosingFacingRight:
+            case PlmHeaderId.BlueDoorClosingFacingUp:
+            case PlmHeaderId.BlueDoorClosingFacingDown:
+            case PlmHeaderId.MotherBrainEscapeRoomGate:
+            case PlmHeaderId.MotherBrainEscapeRoomGateClosing:
+            case PlmHeaderId.Plm1x1RespawningCrumbleBlock:
+            case PlmHeaderId.Plm2x1RespawningCrumbleBlock:
+            case PlmHeaderId.Plm1x2RespawningCrumbleBlock:
+            case PlmHeaderId.Plm2x2RespawningCrumbleBlock:
+            case PlmHeaderId.BombReactionSpeedBoostBlock:
+            case PlmHeaderId.SpeedBlockBrinstarSlowRespawning:
+            case PlmHeaderId.SpeedBlockBrinstarSlowPermanent:
+            case PlmHeaderId.SpeedBlockRespawning:
+            case PlmHeaderId.SpeedBlockDachoraRespawning:
+            case PlmHeaderId.SpeedBlockPermanent:
+            case PlmHeaderId.ContactCrumble1x1Respawning:
+            case PlmHeaderId.ContactCrumble2x1Respawning:
+            case PlmHeaderId.ContactCrumble1x2Respawning:
+            case PlmHeaderId.ContactCrumble2x2Respawning:
+            case PlmHeaderId.ContactCrumble1x1Permanent:
+            case PlmHeaderId.ContactCrumble2x1Permanent:
+            case PlmHeaderId.ContactCrumble1x2Permanent:
+            case PlmHeaderId.ContactCrumble2x2Permanent:
+            case PlmHeaderId.Reaction1x1RespawningShotBlock:
+            case PlmHeaderId.Reaction2x1RespawningShotBlock:
+            case PlmHeaderId.Reaction1x2RespawningShotBlock:
+            case PlmHeaderId.Reaction2x2RespawningShotBlock:
+            case PlmHeaderId.Reaction1x1ShotBlock:
+            case PlmHeaderId.Reaction2x1ShotBlock:
+            case PlmHeaderId.Reaction1x2ShotBlock:
+            case PlmHeaderId.Reaction2x2ShotBlock:
+            case PlmHeaderId.ReactionRespawningPowerBombBlock:
+            case PlmHeaderId.ReactionPowerBombBlock:
+            case PlmHeaderId.ReactionRespawningSuperMissileBlock:
+            case PlmHeaderId.ReactionSuperMissileBlock:
+            case PlmHeaderId.EnemyBreakableBlock:
+            case PlmHeaderId.Collision1x1RespawningBombBlock:
+            case PlmHeaderId.Collision2x1RespawningBombBlock:
+            case PlmHeaderId.Collision1x2RespawningBombBlock:
+            case PlmHeaderId.Collision2x2RespawningBombBlock:
+            case PlmHeaderId.Collision1x1BombBlock:
+            case PlmHeaderId.Collision2x1BombBlock:
+            case PlmHeaderId.Collision1x2BombBlock:
+            case PlmHeaderId.Collision2x2BombBlock:
+            case PlmHeaderId.Reaction1x1RespawningBombBlock:
+            case PlmHeaderId.Reaction2x1RespawningBombBlock:
+            case PlmHeaderId.Reaction1x2RespawningBombBlock:
+            case PlmHeaderId.Reaction2x2RespawningBombBlock:
+            case PlmHeaderId.Reaction1x1BombBlock:
+            case PlmHeaderId.Reaction2x1BombBlock:
+            case PlmHeaderId.Reaction1x2BombBlock:
+            case PlmHeaderId.Reaction2x2BombBlock:
+            case PlmHeaderId.GrappledGrappleBlock:
+            case PlmHeaderId.GrappledRespawningBreakableGrappleBlock:
+            case PlmHeaderId.GrappledBreakableGrappleBlock:
+            case PlmHeaderId.GrappledGenericSpikeBlock:
+            case PlmHeaderId.GrappledDraygonsBrokenTurret:
+            case PlmHeaderId.UnusedBlueBrinstarFaceBlock:
+            case PlmHeaderId.CrumbleLowerNorfairChozoRoomPlug:
+            case PlmHeaderId.UnusedShotBlock:
+            case PlmHeaderId.UnusedGrappleBlock:
+            case PlmHeaderId.LowerNorfairChozoHand:
+            case PlmHeaderId.CollisionLowerNorfairChozoHandCheck:
+            case PlmHeaderId.MotherBrainGlass:
+            case PlmHeaderId.BombTorizoHand:
+            case PlmHeaderId.WreckedShipChozoHand:
+            case PlmHeaderId.CollisionWreckedShipChozoHandCheck:
+            case PlmHeaderId.ClearSlopeAccessForWreckedShipChozo:
+            case PlmHeaderId.BlockSlopeAccessForWreckedShipChozo:
+            case PlmHeaderId.NoobTube:
+            case PlmHeaderId.SetMetroidsClearedStatesWhenRequired:
+            case PlmHeaderId.EyeDoorEyeFacingRight:
+            case PlmHeaderId.EyeDoorFacingRight:
+            case PlmHeaderId.EyeDoorBottomFacingRight:
+            case PlmHeaderId.EyeDoorEyeFacingLeft:
+            case PlmHeaderId.EyeDoorFacingLeft:
+            case PlmHeaderId.EyeDoorBottomFacingLeft:
+            case PlmHeaderId.DraygonCannonFacingRight:
+            case PlmHeaderId.DraygonCannonFacingRightDestroyed:
+            case PlmHeaderId.DraygonCannonFacingLeft:
+            case PlmHeaderId.DraygonCannonFacingLeftUnshielded:
+            case PlmHeaderId.ItemCollisionDetection:
+            case PlmHeaderId.ExposedEnergyTank:
+            case PlmHeaderId.ExposedMissileTank:
+            case PlmHeaderId.ExposedSuperMissileTank:
+            case PlmHeaderId.ExposedPowerBombTank:
+            case PlmHeaderId.ExposedBombs:
+            case PlmHeaderId.ExposedChargeBeam:
+            case PlmHeaderId.ExposedIceBeam:
+            case PlmHeaderId.ExposedHiJumpBoots:
+            case PlmHeaderId.ExposedSpeedBooster:
+            case PlmHeaderId.ExposedWaveBeam:
+            case PlmHeaderId.ExposedSpazerBeam:
+            case PlmHeaderId.ExposedSpringBall:
+            case PlmHeaderId.ExposedVariaSuit:
+            case PlmHeaderId.ExposedGravitySuit:
+            case PlmHeaderId.ExposedXrayScope:
+            case PlmHeaderId.ExposedPlasmaBeam:
+            case PlmHeaderId.ExposedGrappleBeam:
+            case PlmHeaderId.ExposedSpaceJump:
+            case PlmHeaderId.ExposedScrewAttack:
+            case PlmHeaderId.ExposedMorphBall:
+            case PlmHeaderId.ExposedReserveTank:
+            case PlmHeaderId.ChozoEnergyTank:
+            case PlmHeaderId.ChozoMissileTank:
+            case PlmHeaderId.ChozoSuperMissileTank:
+            case PlmHeaderId.ChozoPowerBombTank:
+            case PlmHeaderId.ChozoBombs:
+            case PlmHeaderId.ChozoChargeBeam:
+            case PlmHeaderId.ChozoIceBeam:
+            case PlmHeaderId.ChozoHiJumpBoots:
+            case PlmHeaderId.ChozoSpeedBooster:
+            case PlmHeaderId.ChozoWaveBeam:
+            case PlmHeaderId.ChozoSpazerBeam:
+            case PlmHeaderId.ChozoSpringBall:
+            case PlmHeaderId.ChozoVariaSuit:
+            case PlmHeaderId.ChozoGravitySuit:
+            case PlmHeaderId.ChozoXrayScope:
+            case PlmHeaderId.ChozoPlasmaBeam:
+            case PlmHeaderId.ChozoGrappleBeam:
+            case PlmHeaderId.ChozoSpaceJump:
+            case PlmHeaderId.ChozoScrewAttack:
+            case PlmHeaderId.ChozoMorphBall:
+            case PlmHeaderId.ChozoReserveTank:
+            case PlmHeaderId.ShotBlockEnergyTank:
+            case PlmHeaderId.ShotBlockMissileTank:
+            case PlmHeaderId.ShotBlockSuperMissileTank:
+            case PlmHeaderId.ShotBlockPowerBombTank:
+            case PlmHeaderId.ShotBlockBombs:
+            case PlmHeaderId.ShotBlockChargeBeam:
+            case PlmHeaderId.ShotBlockIceBeam:
+            case PlmHeaderId.ShotBlockHiJumpBoots:
+            case PlmHeaderId.ShotBlockSpeedBooster:
+            case PlmHeaderId.ShotBlockWaveBeam:
+            case PlmHeaderId.ShotBlockSpazerBeam:
+            case PlmHeaderId.ShotBlockSpringBall:
+            case PlmHeaderId.ShotBlockVariaSuit:
+            case PlmHeaderId.ShotBlockGravitySuit:
+            case PlmHeaderId.ShotBlockXrayScope:
+            case PlmHeaderId.ShotBlockPlasmaBeam:
+            case PlmHeaderId.ShotBlockGrappleBeam:
+            case PlmHeaderId.ShotBlockSpaceJump:
+            case PlmHeaderId.ShotBlockScrewAttack:
+            case PlmHeaderId.ShotBlockMorphBall:
+            case PlmHeaderId.ShotBlockReserveTank:
             default:
                 throw new InvalidOperationException($"Undefined station header {slot.HeaderPointer}.");
         }
@@ -253,6 +528,7 @@ internal sealed class StationPlms : IPlmFamilySource
                 StationAccessBehavior.EnergyLeft),
             StationKind.Missile => (1, -1, StationAccessBehavior.MissileRight,
                 StationAccessBehavior.MissileLeft),
+            StationKind.Save => throw new InvalidOperationException("Save stations use their trigger setup."),
             _ => throw new InvalidOperationException("Save stations use their trigger setup."),
         };
         WriteAccessBlock(level, slot.BlockIndex + rightOffset, rightBts);
@@ -267,6 +543,7 @@ internal sealed class StationPlms : IPlmFamilySource
                 unchecked((ushort)(RoomPlmHeaderDefinitions.Get(slot.HeaderPointer).InitialInstruction + MapStationAcquiredAnimationOffset)),
                 "map-station acquired animation list"),
             StationKind.Energy or StationKind.Missile => normalAnimationList,
+            StationKind.Save => throw new InvalidOperationException(),
             _ => throw new InvalidOperationException(),
         };
         StationAnimationList initialAnimationList = kind == StationKind.Map && system.HasAreaMap(area)
@@ -535,6 +812,8 @@ internal sealed class StationPlms : IPlmFamilySource
                         // Every access list only deletes itself here. Recharges released
                         // input at activation; map pause teardown's command $0C owns its release.
                         break;
+                    case StationOperationPhase.Idle:
+                    case StationOperationPhase.AwaitingMapUnpause:
                     default:
                         throw new InvalidDataException(
                             $"Unknown station operation phase {station.OperationPhase}.");
@@ -660,6 +939,8 @@ internal sealed class StationPlms : IPlmFamilySource
                 break;
             case StationKind.Save:
                 break;
+            default:
+                throw new InvalidOperationException($"Undefined {nameof(StationKind)} {station.Kind}.");
         }
 
         station.AnimationFrame = 0;

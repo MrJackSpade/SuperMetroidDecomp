@@ -17,7 +17,7 @@ internal static class Bank80SystemStateAccess
 
     /// <summary>Resolves a Chozo-room bit into the native 64-byte persistent table.</summary>
     private static (int ByteIndex, byte BitMask) RoomChozoBit(int bitIndex) =>
-        ((int, byte))Bank80SystemState.ResolvePersistentRoomBit(bitIndex, Bank80SystemState.RoomChozoBitByteCount, "Chozo-room bit index must fit the native 64-byte table.");
+        Bank80SystemState.ResolvePersistentRoomBit(bitIndex, Bank80SystemState.RoomChozoBitByteCount, "Chozo-room bit index must fit the native 64-byte table.");
 
     /// <summary>Reads and sets the room Chozo bit table and addresses explored-map bytes by retail area.</summary>
     extension(Bank80SystemState self)

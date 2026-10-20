@@ -24,7 +24,7 @@ internal static class MotherBrainDeathHandoffVerification
         AssertEqual(EscapeTypewriterRomData.ZebesTileBase, vram.ReadWord(0x4800), "text glyph reaches actual VRAM");
         AssertTrue(!text.ClickRequested, "first glyph does not click");
         text.StepInto(vram);
-        AssertEqual((ushort)0x4802, text.Destination, "space advances cursor without a tile");
+        AssertEqual(0x4802, text.Destination, "space advances cursor without a tile");
         text.StepInto(vram);
         text.StepInto(vram);
         AssertEqual(1, text.GlyphsWritten, "delay applies before next visible glyph");
@@ -39,7 +39,7 @@ internal static class MotherBrainDeathHandoffVerification
         var plms = PlmFixtures.Unbound();
         AssertTrue(plms.BossRoomMutations.TrySpawnMotherBrainMutation(level, new(0, 6), PlmHeaderId.MotherBrainsRoomEscapeDoor), "escape PLM allocates");
         AssertEqual((ushort)0x9123, level.GetCollisionBlock(new(0, 6)).PackedWord.Raw, "door setup preserves visual bits");
-        AssertEqual((byte)1, level.GetCollisionBlock(new(0, 6)).Bts.Value, "door setup selects second door header");
+        AssertEqual(1, level.GetCollisionBlock(new(0, 6)).Bts.Value, "door setup selects second door header");
         for (int row = 7; row < 10; row++)
         {
             AssertEqual((ushort)0xd123, level.GetCollisionBlock(new(0, checked((ushort)row))).PackedWord.Raw, "extension preserves visual bits");

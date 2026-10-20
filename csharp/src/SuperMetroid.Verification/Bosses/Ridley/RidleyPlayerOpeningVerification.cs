@@ -63,8 +63,8 @@ internal static class RidleyPlayerOpeningVerification
         body.SpritemapPointer = W(seed, 0xf8e);
         body.Position = body.Position.WithFractionX(W(seed, 0xf7c)); body.Position = body.Position.WithFractionY(W(seed, 0xf80));
         ushort random = 0;
-        enemies.VerificationServices().ReadRandom = (Func<ushort>)(() => random);
-        enemies.VerificationServices().NextRandom = (Func<ushort>)(() => random);
+        enemies.VerificationServices().ReadRandom = () => random;
+        enemies.VerificationServices().NextRandom = () => random;
         for (int frame = 376; frame <= 744; frame++)
         {
             var expected = Read(frame);

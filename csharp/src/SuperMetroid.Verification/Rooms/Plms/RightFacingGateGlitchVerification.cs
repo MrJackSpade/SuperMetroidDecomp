@@ -103,7 +103,7 @@ internal static class RightFacingGateGlitchVerification
             var bombs = CreateBombFixture();
             for (int frame = 0; frame < 30; frame++)
             {
-                SnesButton input = frame == 0 ? SnesButton.X : (ushort)0;
+                SnesButton input = frame == 0 ? SnesButton.X : 0;
                 bombs.StepFrame(new SamusTerrain { Level = level }, samus, input, input);
                 shots.StepFrame(new SamusTerrain { Level = level, Plms = plms }, samus, new ProjectileButtonInput { ControllerInput = input, ControllerNewInput = input }, new((ushort)cameraX, (ushort)cameraY), bombs);
                 var gate = plms.SinglePopulationSlot(PlmHeaderId.DownwardGate);

@@ -23,7 +23,7 @@ internal static class RidleyNeutralTailVerification
             };
             prepare(state, armed);
             AssertEqual(RidleyTailFunction.Neutral, state.TailFunctionIndex, "Power Bomb sets neutral tail function");
-            AssertEqual((ushort)1, state.TailAngleDelta, "Power Bomb resets native tail angle delta");
+            AssertEqual(1, state.TailAngleDelta, "Power Bomb resets native tail angle delta");
             AssertEqual(raw % 3, state.FeetDistanceIndex, "Power Bomb preserves animated foot displacement");
             AssertEqual(RidleyAiFunction.NorfairGrabApproach, state.Function, "Power Bomb lunge handoff");
         }
@@ -40,7 +40,7 @@ internal static class RidleyNeutralTailVerification
             };
             prepare(state, flag ? armed : unarmed);
             AssertEqual(RidleyTailFunction.Pogo, state.TailFunctionIndex, "Inactive reaction preserves tail function");
-            AssertEqual((ushort)8, state.TailAngleDelta, "Inactive reaction preserves angle delta");
+            AssertEqual(8, state.TailAngleDelta, "Inactive reaction preserves angle delta");
             AssertEqual(2, state.FeetDistanceIndex, "Inactive reaction preserves feet");
             AssertEqual(RidleyAiFunction.NorfairHover, state.Function, "Inactive reaction preserves phase");
         }

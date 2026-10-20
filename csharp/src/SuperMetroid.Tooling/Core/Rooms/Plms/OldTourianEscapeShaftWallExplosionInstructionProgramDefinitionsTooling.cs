@@ -28,7 +28,7 @@ internal abstract class OldTourianEscapeShaftWallExplosionInstructionProgramDefi
     [
         new(0xb443, (ushort)EnemyProjectileInstruction.ClearPreInstruction),
         new(0xb445, (ushort)EnemyProjectileInstruction.TimerInY),
-        new(0xb447, checked((ushort)OldTourianEscapeShaftWallExplosionInstructionProgramDefinitions.BurstCount)),
+        new(0xb447, checked(OldTourianEscapeShaftWallExplosionInstructionProgramDefinitions.BurstCount)),
         new(OldTourianEscapeShaftWallExplosionInstructionProgramToolingDefinitions.Loop, (ushort)EnemyProjectileInstruction.MoveRandomlyWithinXRadius_YRadius),
         new(0xb44b, ScatterWord(OldTourianEscapeShaftWallExplosionInstructionProgramDefinitions.Scatter.Range.X, OldTourianEscapeShaftWallExplosionInstructionProgramDefinitions.Scatter.Center.X)),
         new(0xb44d, ScatterWord(OldTourianEscapeShaftWallExplosionInstructionProgramDefinitions.Scatter.Range.Y, OldTourianEscapeShaftWallExplosionInstructionProgramDefinitions.Scatter.Center.Y)),

@@ -168,6 +168,20 @@ internal static class DachoraAnimations
     internal static DachoraProgram AfterSleep(DachoraProgram program) => program switch
     {
         P.ChargeRight => P.EchoRight,
+        P.RunningLeft or
+            P.RunningLeftFast or
+            P.RunningLeftVeryFast or
+            P.IdleLeft or
+            P.BlinkLeft or
+            P.EchoLeft or
+            P.FallingLeft or
+            P.RunningRight or
+            P.RunningRightFast or
+            P.RunningRightVeryFast or
+            P.IdleRight or
+            P.BlinkRight or
+            P.EchoRight or
+            P.FallingRight => throw new ArgumentOutOfRangeException(nameof(program), program, "The program does not sleep before authored code."),
         _ => throw new ArgumentOutOfRangeException(nameof(program), program, "The program does not sleep before authored code."),
     };
 

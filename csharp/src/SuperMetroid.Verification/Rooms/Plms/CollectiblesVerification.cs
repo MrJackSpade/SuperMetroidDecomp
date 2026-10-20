@@ -126,7 +126,7 @@ internal static class CollectiblesVerification
                 $"{kind} reused slot cannot republish its pickup message");
             if (kind is InWorldCollectibleKind.VariaSuit or InWorldCollectibleKind.GravitySuit)
             {
-                AssertEqual((ushort)0, fixture.Samus.ProjectileFlareCounter,
+                AssertEqual(0, fixture.Samus.ProjectileFlareCounter,
                     $"{kind} PLM clears charge counter before its message");
             }
         }
@@ -144,7 +144,7 @@ internal static class CollectiblesVerification
         // A Chozo orb accepts projectile contact, performs its authored burst, then becomes
         // the same visible/touchable item. Acquisition must retain the triggering physical
         // location rather than confusing the projectile type with an item bit.
-        CollectibleFixture orb = LoadCollectible(bus, header: unchecked((ushort)(0xef2b + (int)InWorldCollectibleKind.MorphBall * 4)), roomArgument: 91, precollected: false);
+        CollectibleFixture orb = LoadCollectible(bus, header: unchecked(0xef2b + (int)InWorldCollectibleKind.MorphBall * 4), roomArgument: 91, precollected: false);
         orb.Plms.Step(orb.Level);
         var grappleSamus = new SamusState();
         grappleSamus.Position = grappleSamus.Position.WithWhole(new((ushort)((orb.BlockIndex % orb.Level.Size.X) * 16 + 8), (ushort)((orb.BlockIndex / orb.Level.Size.X) * 16 + 8)));
@@ -176,7 +176,7 @@ internal static class CollectiblesVerification
         orb.Plms.Step(orb.Level);
         AssertEqual(0, orb.Plms.CollectiblePlms.Collectibles.Count, "Chozo pickup deletes after message");
 
-        CollectibleFixture reopenedOrb = LoadCollectible(bus, header: unchecked((ushort)(0xef2b + (int)InWorldCollectibleKind.MorphBall * 4)), roomArgument: 91, precollected: false, preopenedChozo: true);
+        CollectibleFixture reopenedOrb = LoadCollectible(bus, header: unchecked(0xef2b + (int)InWorldCollectibleKind.MorphBall * 4), roomArgument: 91, precollected: false, preopenedChozo: true);
         AssertEqual(CollectiblePhase.ChozoOrb, reopenedOrb.Plms.CollectiblePhases[0],
             "an uncollected Chozo item rebuilds its orb on reload, whatever the chozo bit holds");
         AssertTrue(!reopenedOrb.System.HasCollectedItemBit(91),
@@ -185,7 +185,7 @@ internal static class CollectiblesVerification
         // Concealed shot items reveal through the same generic projectile callback, remain
         // visible for their native timed window, and after pickup restore as an empty
         // shootable block rather than deleting the location owner.
-        CollectibleFixture shot = LoadCollectible(bus, header: unchecked((ushort)(0xef7f + (int)InWorldCollectibleKind.MissileTank * 4)), roomArgument: 123, precollected: false);
+        CollectibleFixture shot = LoadCollectible(bus, header: unchecked(0xef7f + (int)InWorldCollectibleKind.MissileTank * 4), roomArgument: 123, precollected: false);
         AssertEqual(0xc123, shot.Level.GetCollisionBlockByIndex(shot.BlockIndex).PackedWord.Raw,
             "shot-item setup installs type-C concealed block");
         AssertTrue(shot.Plms.CollectiblePlms.TryNotifyCollectibleProjectileHit(shot.BlockIndex),
@@ -309,9 +309,9 @@ internal static class CollectiblesVerification
         {
             ushort firstHeader = presentation switch
             {
-                0 => (ushort)0xeed7,
-                1 => (ushort)0xef2b,
-                _ => (ushort)0xef7f,
+                0 => 0xeed7,
+                1 => 0xef2b,
+                _ => 0xef7f,
             };
             for (int kind = 0; kind < 21; kind++)
             {
@@ -376,6 +376,25 @@ internal static class CollectiblesVerification
                 AssertEqual(100, samus.MaxReserveEnergy, "reserve tank capacity");
                 AssertEqual(ReserveTankMode.Auto, samus.ReserveTankMode, "first reserve tank enables auto mode");
                 return;
+            case InWorldCollectibleKind.Bombs:
+            case InWorldCollectibleKind.ChargeBeam:
+            case InWorldCollectibleKind.IceBeam:
+            case InWorldCollectibleKind.HiJumpBoots:
+            case InWorldCollectibleKind.SpeedBooster:
+            case InWorldCollectibleKind.WaveBeam:
+            case InWorldCollectibleKind.SpazerBeam:
+            case InWorldCollectibleKind.SpringBall:
+            case InWorldCollectibleKind.VariaSuit:
+            case InWorldCollectibleKind.GravitySuit:
+            case InWorldCollectibleKind.XrayScope:
+            case InWorldCollectibleKind.PlasmaBeam:
+            case InWorldCollectibleKind.GrappleBeam:
+            case InWorldCollectibleKind.SpaceJump:
+            case InWorldCollectibleKind.ScrewAttack:
+            case InWorldCollectibleKind.MorphBall:
+                break;
+            default:
+                throw new InvalidOperationException($"Undefined {nameof(InWorldCollectibleKind)} {kind}.");
         }
 
         SamusEquipmentFlags equipment = kind switch
@@ -391,6 +410,16 @@ internal static class CollectiblesVerification
             InWorldCollectibleKind.SpaceJump => SamusEquipmentFlags.SpaceJump,
             InWorldCollectibleKind.ScrewAttack => SamusEquipmentFlags.ScrewAttack,
             InWorldCollectibleKind.MorphBall => SamusEquipmentFlags.MorphBall,
+            InWorldCollectibleKind.EnergyTank or
+                InWorldCollectibleKind.MissileTank or
+                InWorldCollectibleKind.SuperMissileTank or
+                InWorldCollectibleKind.PowerBombTank or
+                InWorldCollectibleKind.ChargeBeam or
+                InWorldCollectibleKind.IceBeam or
+                InWorldCollectibleKind.WaveBeam or
+                InWorldCollectibleKind.SpazerBeam or
+                InWorldCollectibleKind.PlasmaBeam or
+                InWorldCollectibleKind.ReserveTank => SamusEquipmentFlags.None,
             _ => SamusEquipmentFlags.None,
         };
         if (equipment != SamusEquipmentFlags.None)
@@ -409,6 +438,22 @@ internal static class CollectiblesVerification
             InWorldCollectibleKind.WaveBeam => SamusBeamFlags.Wave,
             InWorldCollectibleKind.SpazerBeam => SamusBeamFlags.Spazer,
             InWorldCollectibleKind.PlasmaBeam => SamusBeamFlags.Plasma,
+            InWorldCollectibleKind.EnergyTank or
+                InWorldCollectibleKind.MissileTank or
+                InWorldCollectibleKind.SuperMissileTank or
+                InWorldCollectibleKind.PowerBombTank or
+                InWorldCollectibleKind.Bombs or
+                InWorldCollectibleKind.HiJumpBoots or
+                InWorldCollectibleKind.SpeedBooster or
+                InWorldCollectibleKind.SpringBall or
+                InWorldCollectibleKind.VariaSuit or
+                InWorldCollectibleKind.GravitySuit or
+                InWorldCollectibleKind.XrayScope or
+                InWorldCollectibleKind.GrappleBeam or
+                InWorldCollectibleKind.SpaceJump or
+                InWorldCollectibleKind.ScrewAttack or
+                InWorldCollectibleKind.MorphBall or
+                InWorldCollectibleKind.ReserveTank => throw new InvalidOperationException($"Missing effect assertion for {kind}."),
             _ => throw new InvalidOperationException($"Missing effect assertion for {kind}."),
         };
         AssertTrue((samus.CollectedBeams & beam) != 0,
@@ -683,7 +728,7 @@ internal static class CollectiblesVerification
             "suit transformation centers Samus horizontally");
         AssertEqual((ushort)(0x0200 + 136), samus.Position.Y.Whole,
             "suit transformation centers Samus vertically");
-        AssertEqual((ushort)0x001f, cgram.Colors[192],
+        AssertEqual(0x001f, cgram.Colors[192],
             "suit palette is not revealed at transformation setup");
 
         // Begin publishes an empty beam. The first stage call lights exactly eight
@@ -740,7 +785,7 @@ internal static class CollectiblesVerification
                 observedReveal = true;
                 AssertEqual(SamusPoseId.ForwardFacingSuitedPose, samus.Pose,
                     "stage three installs suited front-facing pose");
-                AssertEqual((ushort)0x03e0, cgram.Colors[192],
+                AssertEqual(0x03e0, cgram.Colors[192],
                     "stage three loads Varia palette from ROM");
             }
         }
@@ -757,7 +802,7 @@ internal static class CollectiblesVerification
         // Gravity has priority when both suit bits are equipped, matching `$91:DEBA`.
         samus.EquippedItems |= SamusEquipmentFlags.GravitySuit;
         samus.Presentation.LoadSuitPalette(cgram);
-        AssertEqual((ushort)0x7c00, cgram.Colors[192],
+        AssertEqual(0x7c00, cgram.Colors[192],
             "normal suit palette loader gives Gravity priority over Varia");
     }
 
@@ -862,7 +907,7 @@ internal static class CollectiblesVerification
             var pickup = new SamusSuitPickupState();
             pickup.Begin(samus, new(0, 0), kind);
             SamusPoseId initialPose = samus.Pose;
-            ushort initialMetadata = (ushort)(SnesLittleEndian.Word(samus.PoseMetadata.ReadPoseXDirection(), (byte)samus.PoseMetadata.ReadMovementType()));
+            ushort initialMetadata = SnesLittleEndian.Word(samus.PoseMetadata.ReadPoseXDirection(), (byte)samus.PoseMetadata.ReadMovementType());
             AssertEqual(SamusPoseId.SpinJumpRightPose, history.LastDifferentPose, "suit entry shifts prior pose");
             AssertEqual(0x0308, history.LastDifferentDirectionAndMovement, "suit entry shifts prior metadata");
             AssertEqual(initialPose, history.PreviousPose, "suit entry commits front pose");

@@ -15,7 +15,7 @@ internal static class KraidCeilingRockPositionsVerification
     /// <summary>Compares every overlapping byte-addressed coordinate window with the compiled table and rejects incomplete windows.</summary>
     internal static void VerifyKraidCeilingRockCoordinates(SuperMetroidAddressSpace rom)
     {
-        ushort Word(int a) => (ushort)(SnesLittleEndian.Word(KraidCeilingRockCoordinatesRomByte(rom, a), KraidCeilingRockCoordinatesRomByte(rom, a + 1)));
+        ushort Word(int a) => SnesLittleEndian.Word(KraidCeilingRockCoordinatesRomByte(rom, a), KraidCeilingRockCoordinatesRomByte(rom, a + 1));
         for (int offset = 0; offset <= 18; offset++)
             AssertEqual(Word(EnemyRomTablePointers.Kraid.CeilingRockXWords + offset),
                 KraidCeilingRockPositionDefinitions.AtByteOffset(offset), "Native byte-addressed ceiling rock lookup");
@@ -32,11 +32,11 @@ internal static class KraidCeilingRockPositionsVerification
     internal static void VerifyKraidCeilingRockPositions(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyKraidCeilingRockCoordinates), () => VerifyKraidCeilingRockCoordinates(rom));
-        ushort Word(int a) => (ushort)(SnesLittleEndian.Word(KraidCeilingRockPositionsRomByte(rom, a), KraidCeilingRockPositionsRomByte(rom, a + 1)));
+        ushort Word(int a) => SnesLittleEndian.Word(KraidCeilingRockPositionsRomByte(rom, a), KraidCeilingRockPositionsRomByte(rom, a + 1));
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
         var state = new KraidEnemyState();
         enemies.KraidBehavior.Kraid = state;
-        enemies.VerificationServices().ReadRandom = (Func<ushort>)(() => 63);
+        enemies.VerificationServices().ReadRandom = () => 63;
         Action<RoomEnemySlot, KraidEnemyState> step = enemies.KraidBehavior.RunKraidGrowthFunction;
         var requests = enemies.FrameResults.KraidPlms;
         var body = enemies.SlotTable.Slots[0];

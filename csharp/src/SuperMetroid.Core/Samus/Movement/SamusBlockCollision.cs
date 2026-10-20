@@ -334,6 +334,8 @@ public static class SamusBlockCollision
                             brokenBombBlock ??= block;
                         break;
 
+                    case RoomCollisionType.HorizontalExtension:
+                    case RoomCollisionType.VerticalExtension:
                     default:
                         throw new InvalidDataException(
                             $"Block {block.Index} type ${(int)block.CollisionType:X1} escaped the " +
@@ -714,6 +716,8 @@ public static class SamusBlockCollision
                         terrain.Plms.BlockReactions.TrySpawnCollisionBombBlock(terrain.Level, block.Index, block.Bts);
                     break;
 
+                case RoomCollisionType.HorizontalExtension:
+                case RoomCollisionType.VerticalExtension:
                 default:
                     throw new InvalidDataException(
                         $"Block {block.Index} type ${(int)block.CollisionType:X1} escaped the " +

@@ -154,7 +154,7 @@ internal static class NativeEnemyProgramOracle
             {
                 var show = Next("frame");
                 AssertEqual(AnimationProgramStepKind.Show, show.Kind, $"{at}: frame");
-                AssertEqual((int)word, show.Duration, $"{at}: duration");
+                AssertEqual(word, show.Duration, $"{at}: duration");
                 AssertEqual(operand, spritemap(show.Frame), $"{at}: spritemap");
                 cursor = unchecked((ushort)(cursor + 4));
                 continue;
@@ -178,7 +178,7 @@ internal static class NativeEnemyProgramOracle
                 {
                     var load = Next("counter load");
                     AssertEqual(AnimationProgramStepKind.SetCounter, load.Kind, $"{at}: counter load");
-                    AssertEqual((int)operand, load.Duration, $"{at}: counter");
+                    AssertEqual(operand, load.Duration, $"{at}: counter");
                     cursor = unchecked((ushort)(cursor + 4));
                     continue;
                 }
@@ -194,7 +194,7 @@ internal static class NativeEnemyProgramOracle
                 {
                     var wait = Next("wait");
                     AssertEqual(AnimationProgramStepKind.Wait, wait.Kind, $"{at}: wait");
-                    AssertEqual((int)operand, wait.Duration, $"{at}: wait length");
+                    AssertEqual(operand, wait.Duration, $"{at}: wait length");
                     cursor = unchecked((ushort)(cursor + 4));
                     continue;
                 }

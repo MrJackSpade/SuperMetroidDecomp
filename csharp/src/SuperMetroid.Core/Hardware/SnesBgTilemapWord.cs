@@ -83,7 +83,7 @@ public readonly record struct SnesBgTilemapWord(ushort Raw)
             throw new ArgumentOutOfRangeException(nameof(paletteIndex));
 
         ushort paletteBits = unchecked((ushort)(paletteIndex << PaletteShift));
-        ushort fieldMask = unchecked((ushort)(PaletteMask << PaletteShift));
+        ushort fieldMask = unchecked(PaletteMask << PaletteShift);
         return new SnesBgTilemapWord(unchecked((ushort)((Raw & ~fieldMask) | paletteBits)));
     }
 

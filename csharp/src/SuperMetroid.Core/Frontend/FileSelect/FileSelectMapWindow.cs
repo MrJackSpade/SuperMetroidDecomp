@@ -29,8 +29,8 @@ public sealed class FileSelectMapWindow
             throw new ArgumentOutOfRangeException(nameof(area));
         var installedLabels = labels ?? throw new InvalidOperationException(
             "Map-window positions require installed world-map labels.");
-        ushort x = (ushort)installedLabels.Get(area).X;
-        ushort y = (ushort)installedLabels.Get(area).Y;
+        ushort x = installedLabels.Get(area).X;
+        ushort y = installedLabels.Get(area).Y;
         edges[0] = edges[1] = SnesSixteenSixteen.FromWhole((uint)x);
         edges[2] = edges[3] = SnesSixteenSixteen.FromWhole((uint)y);
         timer = NativeCountdown.Start(motion.Timer);

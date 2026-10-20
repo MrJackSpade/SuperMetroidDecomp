@@ -11,10 +11,10 @@ internal sealed class WorkRobotEntity(WorkRobotBehavior species, RoomEnemySlot s
     public EnemyInitializationAiHandler? FindInitialization() => species.RunWorkRobotInitializationAi;
 
     /// <inheritdoc/>
-    public EnemyMainAiHandler? FindMain() => Slot.EnemyDefinitionPointer switch
+    public EnemyMainAiHandler? FindMain() => WorkRobotPartDefinitions.Parts[Slot.EnemyDefinitionPointer] switch
     {
-        EnemyDefinitionId.Robot => species.RunWorkRobotMainAi,
-        EnemyDefinitionId.RobotNoPower => WorkRobotBehavior.RunUnpoweredWorkRobotMainAi,
+        WorkRobotPart.Robot => species.RunWorkRobotMainAi,
+        WorkRobotPart.RobotNoPower => WorkRobotBehavior.RunUnpoweredWorkRobotMainAi,
         _ => throw new InvalidOperationException($"WorkRobot entity bound to {Slot.EnemyDefinitionPointer}."),
     };
 

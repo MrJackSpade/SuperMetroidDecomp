@@ -253,6 +253,10 @@ public sealed class EscapeTimer
         EscapeTimerState.InitialDelay => EscapeTimerState.RunningMovementDelayed,
         EscapeTimerState.RunningMovementDelayed => EscapeTimerState.RunningMovingIntoPlace,
         EscapeTimerState.RunningMovingIntoPlace => EscapeTimerState.RunningInPlace,
+        EscapeTimerState.Inactive or
+            EscapeTimerState.CeresStart or
+            EscapeTimerState.MotherBrainStart or
+            EscapeTimerState.RunningInPlace => throw new InvalidOperationException($"The escape timer cannot advance from {State}."),
         _ => throw new InvalidOperationException($"The escape timer cannot advance from {State}."),
     };
 

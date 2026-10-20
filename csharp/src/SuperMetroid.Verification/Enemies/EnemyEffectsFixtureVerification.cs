@@ -51,7 +51,7 @@ internal static class EnemyEffectsFixtureVerification
             Enemies.Presentation.BindVram(BgArtworkFixtures.For(Vram));
             Enemies.CrocomireBehavior.Crocomire = Actor;
             Enemies.CrocomireBehavior.CrocomireDeath = Effect;
-            Enemies.VerificationServices().ReadRandom = (Func<ushort>)(() => 0x1234);
+            Enemies.VerificationServices().ReadRandom = () => 0x1234;
         }
 
         /// <summary>

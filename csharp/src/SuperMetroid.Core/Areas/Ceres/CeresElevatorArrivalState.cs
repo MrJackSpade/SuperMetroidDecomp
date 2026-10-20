@@ -159,6 +159,8 @@ public sealed class CeresElevatorArrivalState
             case AnimationProgramAdvanceKind.Stop:
                 projectile.Active = false;
                 return;
+            case AnimationProgramAdvanceKind.Wait:
+            case AnimationProgramAdvanceKind.Hold:
             default:
                 throw new InvalidOperationException($"A Ceres elevator arrival program ended an update with {advance.Kind}.");
         }

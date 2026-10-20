@@ -47,7 +47,7 @@ internal static class MotherBrainSmallPurpleBreathVerification
             projectile.IsActive && projectile.Kind == RoomEnemyProjectileKind.MotherBrainPurpleBreathSmall);
         AssertEqual((ushort)0x0082, breath.Position.X.Whole, "the breath starts six pixels right of the head");
         AssertEqual((ushort)0x0068, breath.Position.Y.Whole, "the breath starts sixteen pixels below the head");
-        AssertEqual((ushort)0x7fff, runtime.System.RandomNumber, "the spawn only samples the RNG");
+        AssertEqual(0x7fff, runtime.System.RandomNumber, "the spawn only samples the RNG");
 
         Draw();
         AssertEqual(1, Breaths(), "an active small breath blocks another");

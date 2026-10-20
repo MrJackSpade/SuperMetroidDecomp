@@ -30,7 +30,7 @@ internal static class SpcMemoryBoundaryVerification
         int cursor = 0xffff;
         AssertEqual((byte)0x11, player.NextSequenceByte(ref cursor), "sequence byte at $FFFF");
         AssertEqual(0x0000, cursor, "sequence cursor wraps after $FFFF");
-        AssertEqual((byte)0x22, player.PeekSequenceByte((ushort)0x0000), "peek does not advance");
+        AssertEqual((byte)0x22, player.PeekSequenceByte(0x0000), "peek does not advance");
 
         // Instrument records: six bytes with a big-endian pitch base.
         var record = new SpcInstrumentRecord(0x87, 0xff, 0xe0, 0x7f, 0x1234);

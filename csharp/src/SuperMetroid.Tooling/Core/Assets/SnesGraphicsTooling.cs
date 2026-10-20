@@ -14,7 +14,7 @@ internal static class SnesGraphicsTooling
         for (int i = 0; i < colors.Length; i++)
         {
             // Palette bytes as uploaded to CGRAM: bit 15 is not stored.
-            colors[i] = Bgr555.FromCgramPortWord((ushort)(SnesLittleEndian.Word(bytes[i * 2], bytes[i * 2 + 1]))).ToRgba32();
+            colors[i] = Bgr555.FromCgramPortWord(SnesLittleEndian.Word(bytes[i * 2], bytes[i * 2 + 1])).ToRgba32();
         }
         return colors;
     }

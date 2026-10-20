@@ -21,6 +21,7 @@ internal static class PauseEquipmentRulesVerification
         PauseEquipmentCategory.Beams => 0x82c04c,
         PauseEquipmentCategory.Suits => 0x82c056,
         PauseEquipmentCategory.Boots => 0x82c062,
+        PauseEquipmentCategory.Reserves => throw new ArgumentOutOfRangeException(nameof(category)),
         _ => throw new ArgumentOutOfRangeException(nameof(category)),
     };
 
@@ -152,8 +153,8 @@ internal static class PauseEquipmentRulesVerification
                 health += nativeAmount;
                 if (health >= 99) { health = 99; reserve = 0; }
                 else reserve -= nativeAmount;
-                pause.Step(0, tick == 0 ? SnesButton.A : (ushort)0);
-                AssertEqual((health, reserve), ((int)samus.Health, (int)samus.ReserveEnergy), "real manual-transfer frames retain native rate and full-health reserve discard");
+                pause.Step(0, tick == 0 ? SnesButton.A : 0);
+                AssertEqual((health, reserve), (samus.Health, samus.ReserveEnergy), "real manual-transfer frames retain native rate and full-health reserve discard");
             }
         }
         Console.WriteLine("Compiled pause rules: 14 native masks, 104 subsets, actual toggles, 65,536 wireframe selectors/rendered patches and manual transfer frames pass with rule ROM reads blocked.");

@@ -36,7 +36,7 @@ internal static class BabyMetroidDeathExplosionSoundVerification
 
         runtime.Enemies.BabyMetroidCutsceneBehavior.ApplyBabyMetroidFrameEffects((state ?? throw new InvalidOperationException("Verification requires state.")), step);
         AssertEqual((SoundEffectId?)MotherBrainSoundDefinitions.Explosion, state.LastSoundEffectLibrary3, "the explosion queues library-three $13");
-        AssertEqual((SoundEffectId?)null, state.LastSoundEffect, "and nothing in library two");
+        AssertEqual(null, state.LastSoundEffect, "and nothing in library two");
 
         // Mother Brain's corpse-rot dust ($A9:B252) and escape-door explosion ($A9:B346) both
         // queue through QueueSound_Lib2_Max3.
@@ -49,7 +49,7 @@ internal static class BabyMetroidDeathExplosionSoundVerification
         };
         state.LastSoundEffectLibrary3 = null;
         runtime.Enemies.MotherBrainBehavior.ApplyLiveMotherBrainDeath(state, new MotherBrainRainbowBeamAttackSequence(), death);
-        AssertEqual((SoundEffectId?)null, state.LastSoundEffectLibrary3, "neither sound goes to library three");
+        AssertEqual(null, state.LastSoundEffectLibrary3, "neither sound goes to library three");
         AssertSequenceEqual(
             new[]
             {

@@ -85,6 +85,8 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
             case MagdollitePart.TrackingOverlay:
                 InitializeMagdolliteOverlay(slot, state);
                 break;
+            default:
+                throw new InvalidOperationException($"Undefined {nameof(MagdollitePart)} {state.Part}.");
         }
 
         // Parameter two's high byte is a native byte offset selector multiplied by eight.
@@ -510,7 +512,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
     private (RoomEnemySlot Head, RoomEnemySlot Body, RoomEnemySlot Overlay)
         RequireMagdolliteComposite(RoomEnemySlot member)
     {
-        int headIndex = member.SlotIndex - checked((int)member.Spawn.Population.Parameter1);
+        int headIndex = member.SlotIndex - checked(member.Spawn.Population.Parameter1);
         if (headIndex < 0 || headIndex + 2 >= RoomEnemySystem.MaximumEnemyCount)
             throw new InvalidDataException($"Magdollite slot {member.SlotIndex} has no complete composite.");
 

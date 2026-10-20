@@ -48,7 +48,30 @@ public static class AudioAssetCatalogDefinitions
     public static AudioUploadAssetDefinition Get(AudioBank bank) => bank switch
     {
         AudioBank.SpcEngine => Common,
-        > AudioBank.SpcEngine and <= AudioBank.SamusThemeUpperCrateria => Music[(int)bank - 1],
+        AudioBank.TitleSequence or
+            AudioBank.EmptyCrateria or
+            AudioBank.LowerCrateria or
+            AudioBank.UpperCrateria or
+            AudioBank.GreenBrinstar or
+            AudioBank.RedBrinstar or
+            AudioBank.UpperNorfair or
+            AudioBank.LowerNorfair or
+            AudioBank.Maridia or
+            AudioBank.Tourian or
+            AudioBank.MotherBrain or
+            AudioBank.BossFight1 or
+            AudioBank.BossFight2 or
+            AudioBank.MiniBossFight or
+            AudioBank.Ceres or
+            AudioBank.WreckedShip or
+            AudioBank.ZebesExplosion or
+            AudioBank.Intro or
+            AudioBank.Death or
+            AudioBank.Credits or
+            AudioBank.LastMetroidInCaptivity or
+            AudioBank.GalaxyAtPeace or
+            AudioBank.BabyMetroidBossFight2 or
+            AudioBank.SamusThemeUpperCrateria => Music[(int)bank - 1],
         _ => throw new ArgumentOutOfRangeException(nameof(bank), bank, "Undefined audio bank."),
     };
 

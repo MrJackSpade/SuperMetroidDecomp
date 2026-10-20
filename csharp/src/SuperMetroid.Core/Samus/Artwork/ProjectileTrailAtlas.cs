@@ -22,6 +22,42 @@ public sealed class ProjectileTrailAtlas : IVramAssetProvider
     {
         VramAssetId.ProjectileIceWaveTrailTiles => IceAndWave,
         VramAssetId.ProjectileMissileTrailTiles => Missile,
+        VramAssetId.None or
+            VramAssetId.StandardHudTiles or
+            VramAssetId.EscapeTimerFirstTiles or
+            VramAssetId.EscapeTimerSecondTiles or
+            VramAssetId.BeamPowerTiles or
+            VramAssetId.BeamWaveTiles or
+            VramAssetId.BeamIceTiles or
+            VramAssetId.BeamIceWaveTiles or
+            VramAssetId.BeamSpazerTiles or
+            VramAssetId.BeamSpazerWaveTiles or
+            VramAssetId.BeamSpazerIceTiles or
+            VramAssetId.BeamSpazerIceWaveTiles or
+            VramAssetId.BeamPlasmaTiles or
+            VramAssetId.BeamPlasmaWaveTiles or
+            VramAssetId.BeamPlasmaIceTiles or
+            VramAssetId.BeamPlasmaIceWaveTiles or
+            VramAssetId.GrapplePointFirstTiles or
+            VramAssetId.GrapplePointSecondTiles or
+            VramAssetId.GrapplePointThirdTiles or
+            VramAssetId.GrapplePointFourthTiles or
+            VramAssetId.GrappleHorizontalSegmentTiles or
+            VramAssetId.GrappleDiagonalSegmentTiles or
+            VramAssetId.GrappleVerticalSegmentTiles or
+            VramAssetId.KraidBg3RestoreQuarter0 or
+            VramAssetId.KraidBg3RestoreQuarter1 or
+            VramAssetId.KraidBg3RestoreQuarter2 or
+            VramAssetId.KraidBg3RestoreQuarter3 or
+            VramAssetId.GunshipLiftoffFirstTiles or
+            VramAssetId.GunshipLiftoffSecondTiles or
+            VramAssetId.GunshipLiftoffThirdTiles or
+            VramAssetId.GunshipLiftoffFourthTiles or
+            VramAssetId.GunshipLiftoffFifthTiles or
+            VramAssetId.BeamChainsawTiles or
+            VramAssetId.BeamSpacetimeTiles or
+            VramAssetId.StandardObjectTiles or
+            VramAssetId.HudTopRowTilemap => throw new InvalidDataException($"Trail atlas cannot resolve {asset}."),
         _ => throw new InvalidDataException($"Trail atlas cannot resolve {asset}."),
     };
     /// <summary>Loads the 96-by-8 indexed PNG as twelve left-to-right 8-pixel tiles and encodes their palette indices into four-bit SNES planar character bytes.</summary>

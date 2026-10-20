@@ -67,6 +67,8 @@ internal static class CeresFlightActorMetadataVerification
                         unchecked((ushort)-actor.HorizontalDelta), "rear stars speed magnitude");
                     AssertTrue(!actor.WrapX, "rear stars use signed non-wrapping motion");
                     break;
+                default:
+                    break;
             }
         }
 

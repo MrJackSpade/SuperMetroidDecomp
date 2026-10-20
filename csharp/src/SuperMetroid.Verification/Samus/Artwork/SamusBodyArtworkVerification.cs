@@ -139,7 +139,7 @@ internal static class SamusBodyArtworkVerification
             new Position16<ScreenPixels>(127, 131), SpriteFrameTestArtwork.Spritemaps(sprites), new SpriteSource(SpriteSourceKind.Samus)));
         AssertEqual(0, zeroOam.LastFinalizedSpriteCount, "zero Samus pointer draws nothing");
         for (int i = 0; i < stock.LandingYOffsets.Length; i++)
-            AssertEqual((ushort)bus.ReadCartridgeByte(SamusRenderingRomData.Body.LandingVerticalOffsets + i),
+            AssertEqual(bus.ReadCartridgeByte(SamusRenderingRomData.Body.LandingVerticalOffsets + i),
                 stock.LandingYOffsets[i], $"Samus landing visual byte {i}");
         for (int i = 0; i < stock.PostureYOffsets.Length; i++)
             AssertEqual(unchecked((sbyte)bus.ReadCartridgeByte(
@@ -480,7 +480,7 @@ internal static class SamusBodyArtworkVerification
         AssertEqual(originalArmOam.GetEntry(0).Position.X + editedSignedX - originalSignedX,
             editedArmOam.GetEntry(0).Position.X,
             "edited arm-cannon pose offset moves the production OAM entry on screen");
-        AssertEqual(SamusArmCannonArtworkFormat.TileSourcePointers.IndexOf(unchecked((ushort)selectedArmTileSource)),
+        AssertEqual(SamusArmCannonArtworkFormat.TileSourcePointers.IndexOf(unchecked(selectedArmTileSource)),
             editedArmFrame.Draws[0].Artwork.Id.Variant,
             "edited cannon PNG belongs to the displayed cover frame");
         AssertEqual(originalArmFrame.Draws[0].Artwork.Id, editedArmFrame.Draws[0].Artwork.Id,

@@ -12,6 +12,7 @@ internal static class DragonAnimationDefinitions
         DragonAnimationSelector.WingsFacingRight => DragonProgram.WingsFacingRight,
         DragonAnimationSelector.AttackingFacingLeft => DragonProgram.AttackingFacingLeft,
         DragonAnimationSelector.AttackingFacingRight => DragonProgram.AttackingFacingRight,
+        DragonAnimationSelector.ForceReinstall => throw new InvalidDataException($"Dragon animation selector ${(int)selector:X4} exceeds its six-entry domain."),
         _ => throw new InvalidDataException($"Dragon animation selector ${(int)selector:X4} exceeds its six-entry domain."),
     };
     /// <summary>Preserves the phase pair while selecting its left or right member.</summary>

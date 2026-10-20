@@ -186,24 +186,4 @@ internal static class FileSelectPresentationVerification
     }
 
 
-    /// <summary>Recognizes file-select tilemap, palette, atlas, sprite, and spritemap-pointer source ranges.</summary>
-    [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
-    private static bool IsFileSelectPresentationAddress(int address) =>
-        InFileSelectRange(address, FileSelectMapRomData.InitialMenuBackground,
-            FileSelectMapRomData.TilemapBytes) ||
-        InFileSelectRange(address, FileSelectMapRomData.EntryPalette, CgramPalettes.ByteCount) ||
-        InFileSelectRange(address, MapTileAtlasFormat.SourceAddress, MapTileAtlasFormat.ByteCount) ||
-        InFileSelectRange(address, WorldMapArtworkFormat.ForegroundSource,
-            WorldMapArtworkFormat.ForegroundBytes) ||
-        InFileSelectRange(address, WorldMapArtworkFormat.BackgroundSource,
-            WorldMapArtworkFormat.BackgroundBytes) ||
-        InFileSelectRange(address, MapSpriteFormat.SourceAddress, MapSpriteFormat.ByteCount) ||
-        address is >= 0x81b40a and < 0x81b800 ||
-        InFileSelectRange(address,
-            FileSelectMapRomData.SpritemapPointerTableAddress + 0x2c * sizeof(ushort),
-            (0x4d - 0x2c + 1) * sizeof(ushort));
-
-    /// <summary>Tests membership in a half-open cartridge byte range.</summary>
-    private static bool InFileSelectRange(int address, int start, int count) =>
-        address >= start && address < start + count;
 }

@@ -14,7 +14,7 @@ namespace SuperMetroid.Core.Enemies.Shutters;
 internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <inheritdoc/>
-    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Kamer, EnemyDefinitionId.ShutterDestroyable, EnemyDefinitionId.ShutterGrowing, EnemyDefinitionId.ShutterHorizShootable, EnemyDefinitionId.ShutterShootable];
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [.. ShuttersPartDefinitions.Parts.Keys];
 
     /// <inheritdoc/>
     public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new ShuttersEntity(this, slot, common);
@@ -392,7 +392,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
             samus.Kinematics.ExtraDisplacement = samus.Kinematics.ExtraDisplacement.WithX(state.LeftVelocity);
             if ((controllerInput & SnesButton.Right) != 0)
             {
-                samus.Kinematics.ExtraDisplacement -= new Offset16<RoomPixels>(unchecked((short)(HorizontalShutterManualPushPixels)), 0);
+                samus.Kinematics.ExtraDisplacement -= new Offset16<RoomPixels>(unchecked(HorizontalShutterManualPushPixels), 0);
                 samus.Kinematics.ExtraDisplacement = samus.Kinematics.ExtraDisplacement.WithFractionY(0);
             }
         }
@@ -423,7 +423,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
             samus.Kinematics.ExtraDisplacement = samus.Kinematics.ExtraDisplacement.WithX(state.RightVelocity);
             if ((controllerInput & SnesButton.Left) != 0)
             {
-                samus.Kinematics.ExtraDisplacement += new Offset16<RoomPixels>(unchecked((short)(HorizontalShutterManualPushPixels)), 0);
+                samus.Kinematics.ExtraDisplacement += new Offset16<RoomPixels>(unchecked(HorizontalShutterManualPushPixels), 0);
                 samus.Kinematics.ExtraDisplacement = samus.Kinematics.ExtraDisplacement.WithFractionY(0);
             }
         }
@@ -907,6 +907,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
                 RunVerticalShutterStoppedAfterDown(slot, state, camera);
                 break;
 
+            case VerticalShutterFunction.Initial:
             default:
                 throw new InvalidDataException(
                     $"Vertical shutter function {state.Function?.ToString() ?? "none"} is not translated.");

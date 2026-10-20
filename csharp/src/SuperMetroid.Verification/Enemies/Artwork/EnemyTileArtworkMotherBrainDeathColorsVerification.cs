@@ -156,7 +156,7 @@ internal static class EnemyTileArtworkMotherBrainDeathColorsVerification
         foreach (int destination in new[] { MotherBrainDeathRomData.BodyColors,
             MotherBrainDeathRomData.BrainColors, MotherBrainDeathRomData.LegColors,
             MotherBrainDeathRomData.CorpseColors })
-            AssertEqual((ushort)0x1234, cgram.Colors[destination - 1],
+            AssertEqual(0x1234, cgram.Colors[destination - 1],
                 $"Mother Brain death palette preserves adjacent color {destination - 1}");
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "live Mother Brain death palettes avoid migrated RGB5/selector ROM reads");

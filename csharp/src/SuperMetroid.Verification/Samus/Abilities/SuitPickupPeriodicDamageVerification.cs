@@ -84,8 +84,8 @@ internal static class SuitPickupPeriodicDamageVerification
             "the first ordinary beta applies all pickup-time damage, halved by Varia");
         AssertEqual(reference.SubunitHealth, samus.SubunitHealth,
             "the first ordinary beta applies the halved fractional damage");
-        AssertEqual((ushort)0, samus.LiquidPhysics.PeriodicSubDamage, "$90:E9CE clears the fractional word");
-        AssertEqual((ushort)0, samus.LiquidPhysics.PeriodicDamage, "$90:E9CE clears the whole word");
+        AssertEqual(0, samus.LiquidPhysics.PeriodicSubDamage, "$90:E9CE clears the fractional word");
+        AssertEqual(0, samus.LiquidPhysics.PeriodicDamage, "$90:E9CE clears the whole word");
         Console.WriteLine($"  Suit pickup periodic damage: {pickupFrames} pickup frames keep energy; the deferred damage lands afterwards.");
     }
 

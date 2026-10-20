@@ -50,7 +50,7 @@ internal static class GameOptionsHeadingsVerification
             AssertEqual(pointer, ReadVerificationWord(rom, list + 2), "initial native heading record");
             AssertEqual(pointer, ReadVerificationWord(rom, list + 10), "repeated native heading record");
             string name = GameOptionsPresentationDefinitions.HeadingFrameName(OriginalHeadingName(page));
-            AssertEqual((int)ReadVerificationWord(rom, 0x820000 | pointer), document.Sprites[name].Length,
+            AssertEqual(ReadVerificationWord(rom, 0x820000 | pointer), document.Sprites[name].Length,
                 "imported original heading part count");
         }
         foreach (int invalid in new[] { int.MinValue, -1, 3, 65536, int.MaxValue })

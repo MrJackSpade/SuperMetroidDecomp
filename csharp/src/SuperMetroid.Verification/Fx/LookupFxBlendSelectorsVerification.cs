@@ -87,9 +87,9 @@ internal static class LookupFxBlendSelectorsVerification
                     if (id == 0)
                     {
                         catalog.Apply(cgram, (RoomFxPaletteBlend)id);
-                        AssertEqual((ushort)0x1234, cgram.Colors[25], "Zero preserves color25");
-                        AssertEqual((ushort)0x2345, cgram.Colors[26], "Zero preserves color26");
-                        AssertEqual((ushort)0, cgram.Colors[27], "Zero clears color27 only");
+                        AssertEqual(0x1234, cgram.Colors[25], "Zero preserves color25");
+                        AssertEqual(0x2345, cgram.Colors[26], "Zero preserves color26");
+                        AssertEqual(0, cgram.Colors[27], "Zero clears color27 only");
                     }
                     else AssertThrows<InvalidDataException>(() => catalog.Apply(cgram, (RoomFxPaletteBlend)id), "Unknown apply selector rejects");
                 }

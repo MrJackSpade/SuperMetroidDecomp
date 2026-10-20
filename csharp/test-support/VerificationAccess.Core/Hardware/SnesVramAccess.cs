@@ -74,6 +74,8 @@ internal static class SnesVramAccess
                     SnesDmaSourceKind.WorkRam => memory.ReadWorkRamByte((int)currentSource),
                     SnesDmaSourceKind.Cartridge => throw new InvalidOperationException(
                         $"VRAM DMA source {currentSource} requires installed artwork bytes."),
+                    SnesDmaSourceKind.Unmapped => throw new InvalidOperationException(
+                        $"VRAM DMA source ${currentSource.Bank:X2}:{currentSource.Offset:X4} is unmapped."),
                     _ => throw new InvalidOperationException(
                         $"VRAM DMA source ${currentSource.Bank:X2}:{currentSource.Offset:X4} is unmapped."),
                 };

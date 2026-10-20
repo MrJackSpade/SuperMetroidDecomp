@@ -39,7 +39,7 @@ internal static class MotherBrainPlasmaImpactVerification
         var shot = shots.Slots[0];
         SeedChargedPlasma();
         AssertEqual(1, Hit(), "Charged Plasma produces one accepted head impact");
-        AssertEqual((ushort)17550, head.Health, "Native charged vulnerability applies exactly one 450-damage hit");
+        AssertEqual(17550, head.Health, "Native charged vulnerability applies exactly one 450-damage hit");
         // The bank-$A0 walker only marks the shot; the next projectile pass removes it (#1269).
         AssertTrue(shot.PackedDirection.HasLowByteLifecycleState,
             "Mother Brain plasma-blocking property marks the shot for removal");
@@ -52,7 +52,7 @@ internal static class MotherBrainPlasmaImpactVerification
         {
             shots.StepFrame(new SamusTerrain { Level = level }, samus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0 }, Position16<RoomPixels>.Zero, bombs, projectileProducerEnabled: false);
             AssertEqual(0, Hit(), "The same shot cannot damage the head on a subsequent frame");
-            AssertEqual((ushort)17550, head.Health, "Later overlap preserves health after the one impact");
+            AssertEqual(17550, head.Health, "Later overlap preserves health after the one impact");
             AssertEqual(MotherBrainWalkCredit.Of(4096 - MotherBrainWalkCredit.StepCredit), state.WalkCounter,
                 "Later overlap does not spend walk credit again");
         }
@@ -61,7 +61,7 @@ internal static class MotherBrainPlasmaImpactVerification
         state.Form = MotherBrainForm.Glass;
         SeedChargedPlasma();
         Hit();
-        AssertEqual((ushort)17550, head.Health, "First form retains its missile-only damage restriction");
+        AssertEqual(17550, head.Health, "First form retains its missile-only damage restriction");
         head.InvincibilityTimer = NativeCountdown.Start(0);
         state.Form = MotherBrainForm.ThirdPhase;
         state.RainbowBeamSequence = new MotherBrainRainbowBeamAttackSequence();
@@ -74,7 +74,7 @@ internal static class MotherBrainPlasmaImpactVerification
         // timer expires, so this case starts once that immunity has run out.
         head.InvincibilityTimer = NativeCountdown.Start(0);
         AssertEqual(1, Hit(), "Hyper Beam still accepts its later-form damage callback");
-        AssertEqual((ushort)16550, head.Health, "Hyper Beam retains its native charged damage selection");
+        AssertEqual(16550, head.Health, "Hyper Beam retains its native charged damage selection");
         AssertEqual(MotherBrainPhase3NeckPhase.SetupHyperBeamRecoil, state.RainbowBeamSequence.Phase3NeckPhase,
             "Hyper Beam retains its phase-three recoil transition");
         AssertTrue(shot.PackedDirection.HasLowByteLifecycleState, "Hyper Beam also obeys the head collision property");

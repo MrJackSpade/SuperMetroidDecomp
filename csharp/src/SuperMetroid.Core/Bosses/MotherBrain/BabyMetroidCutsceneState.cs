@@ -740,6 +740,7 @@ public sealed class BabyMetroidCutsceneState
                 break;
             }
 
+            case BabyMetroidCutscenePhase.Inactive:
             default:
                 throw new InvalidOperationException($"Unsupported Baby Metroid phase {Phase}.");
         }

@@ -36,7 +36,7 @@ internal static class ShaktoolSamusContactVerification
         int healthBefore = samus.Health;
 
         runtime.Enemies.ProcessingWindow.DetermineWhichEnemiesToProcess(
-            new Position16<RoomPixels>((ushort)0, (ushort)0));
+            new Position16<RoomPixels>(0, 0));
         bool touched = runtime.Enemies.Collision.ResolveOrdinarySamusContact(
             samus, 0, runtime.Room.LevelData, onlyNativeEnemyIndex: 0);
 

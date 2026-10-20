@@ -80,8 +80,8 @@ internal static class MiscDustProjectileBehaviorVerification
     internal static RoomEnemySystem CreateRoomEnemySystem()
     {
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
-        enemies.VerificationServices().ReadRandom = (Func<ushort>)(() => 0);
-        enemies.VerificationServices().NextRandom = (Func<ushort>)(() => 0);
+        enemies.VerificationServices().ReadRandom = () => 0;
+        enemies.VerificationServices().NextRandom = () => 0;
         return enemies;
     }
 

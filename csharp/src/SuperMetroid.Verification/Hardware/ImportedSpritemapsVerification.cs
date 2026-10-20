@@ -37,28 +37,6 @@ internal static class ImportedSpritemapsVerification
         ImportedSpritemapOracle.DrawEnemyProjectile(CartridgeImportSource.Require(bus), oam,
             bank8dSpritemapPointer, origin, graphicsIndex, originYIsOnScreen);
 
-    /// <summary>Imports only the sprite records authored in a sparse projectile fixture.</summary>
-    [CpuBusBoundary("exact bus test: imports the bank-$86 projectile frame operands a sparse fixture seeds")]
-    private static EnemyProjectileSpritemapCatalog ImportFixtureProjectileSprites(TestAddressSpace bus)
-    {
-        var frames = EnemyProjectileSpritemapDefinitions.Frames.ToDictionary(
-            frame => frame.Name, frame => EnemySpritemapFiles.ExtractParts(bus, 0x8d, frame.Pointer));
-        var programs = new Dictionary<string, SpriteVisualPart[]>();
-        foreach (EnemyProjectilePresentationFrameDefinition frame in EnemyProjectilePresentationFrameSets.All)
-        {
-            ushort pointer = bus.ReadCartridgeWordFixedBank(0x860000 | frame.OperandAddress);
-            // An unwritten fixture operand has no art. Do not turn a zero selector into
-            // an import from WRAM, or silently substitute stock sprites into a fixture.
-            programs.Add(frame.Name, pointer == 0 ? [] : EnemySpritemapFiles.ExtractParts(bus, 0x8d, pointer));
-        }
-        return EnemyProjectileSpritemapCatalog.Load(new MemoryStream(EnemyProjectileSpritemapCatalog.Write(
-            new EnemyProjectileSpritemapDocument
-            {
-                Version = (int)EnemyProjectileSpritemapVersion.Current,
-                Frames = frames,
-                ProgramFrames = programs,
-            })));
-    }
     /// <summary>Checks a timed enemy instruction's executed sprite operand against its retail word.</summary>
     internal static void VerifyExecutedEnemySelector(ISnesAddressSpace rom,
         RoomEnemySlot slot, HashSet<ushort> executedOperands)
@@ -66,7 +44,7 @@ internal static class ImportedSpritemapsVerification
         if (slot.InstructionTimer.IsZero) return;
         ushort operand = unchecked((ushort)(slot.CurrentInstruction - 2));
         int bank = (int)new SnesAddress(slot.Definition.Bank, 0);
-        ushort native = (ushort)(SnesLittleEndian.Word(ExecutedEnemySelectorRomByte(rom, bank | operand), ExecutedEnemySelectorRomByte(rom, bank | unchecked((ushort)(operand + 1)))));
+        ushort native = SnesLittleEndian.Word(ExecutedEnemySelectorRomByte(rom, bank | operand), ExecutedEnemySelectorRomByte(rom, bank | unchecked((ushort)(operand + 1))));
         AssertEqual(native, slot.SpritemapPointer,
             $"executed enemy visual ${bank | operand:X6} matches cartridge selector");
         executedOperands.Add(operand);
@@ -83,7 +61,7 @@ internal static class ImportedSpritemapsVerification
     {
         if (!projectile.IsActive || projectile.InstructionTimer.IsZero) return;
         ushort operand = expectedOperand ?? throw new InvalidOperationException("An executed typed frame names its native operand.");
-        ushort nativePointer = (ushort)(SnesLittleEndian.Word(ExecutedProjectileFrameRomByte(rom, 0x860000 | operand), ExecutedProjectileFrameRomByte(rom, 0x860000 | unchecked((ushort)(operand + 1)))));
+        ushort nativePointer = SnesLittleEndian.Word(ExecutedProjectileFrameRomByte(rom, 0x860000 | operand), ExecutedProjectileFrameRomByte(rom, 0x860000 | unchecked((ushort)(operand + 1))));
         executedOperands.Add(operand);
         ReadOnlyMemory<EnemySpritemapPart> parts;
         if (projectile.PresentationOperandAddress != 0)

@@ -18,7 +18,7 @@ internal static class KraidMouthHitboxesVerification
     internal static void VerifyKraidMouthHitboxes(SuperMetroidAddressSpace rom)
     {
         Suite(nameof(VerifyKraidMouthShapeCases), () => VerifyKraidMouthShapeCases(rom));
-        ushort Word(int a) => (ushort)(SnesLittleEndian.Word(KraidMouthHitboxesBusByte(rom, a), KraidMouthHitboxesBusByte(rom, a + 1)));
+        ushort Word(int a) => SnesLittleEndian.Word(KraidMouthHitboxesBusByte(rom, a), KraidMouthHitboxesBusByte(rom, a + 1));
         for (int cursor = 0x96d2; cursor < 0x9788;)
         {
             ushort command = Word(0xa70000 | cursor);
@@ -82,6 +82,8 @@ internal static class KraidMouthHitboxesVerification
         {
             SnesDmaSourceKind.WorkRam => rom.ReadWorkRamByte(address),
             SnesDmaSourceKind.Cartridge => rom.ReadCartridgeByte(address),
+            SnesDmaSourceKind.Unmapped => throw new InvalidOperationException(
+                $"CPU read ${SnesAddressMath.BankNumber(address):X2}:{SnesAddressMath.OffsetInBank(address):X4} is outside the runtime address map."),
             _ => throw new InvalidOperationException(
                 $"CPU read ${SnesAddressMath.BankNumber(address):X2}:{SnesAddressMath.OffsetInBank(address):X4} is outside the runtime address map."),
         };

@@ -198,11 +198,11 @@ internal static class EnemyTileArtworkTourianStatueColorsVerification
         void CopyReferenceColors(SnesCgram cgram, int source, int destination, int count)
         {
             for (int color = 0; color < count; color++)
-                cgram.SetColor(destination + color, Bgr555.FromWord(checked((ushort)(ReadReferenceWord(source + color * 2)))));
+                cgram.SetColor(destination + color, Bgr555.FromWord(checked(ReadReferenceWord(source + color * 2))));
         }
 
         ushort ReadReferenceWord(int address) =>
-            (ushort)(SnesLittleEndian.Word(CpuBusRegionRead.Read(bus, address), CpuBusRegionRead.Read(bus, address + 1)));
+            SnesLittleEndian.Word(CpuBusRegionRead.Read(bus, address), CpuBusRegionRead.Read(bus, address + 1));
 
         static SnesCgram SeedColors()
         {

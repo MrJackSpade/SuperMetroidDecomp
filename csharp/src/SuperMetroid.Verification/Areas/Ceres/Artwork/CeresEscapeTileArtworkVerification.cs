@@ -62,7 +62,7 @@ internal static class CeresEscapeTileArtworkVerification
             bool finished;
             do
             {
-                finished = (bool)installed.CeresRidleyBehavior.QueueNextCeresEscapeTransfer(state, installedQueue);
+                finished = installed.CeresRidleyBehavior.QueueNextCeresEscapeTransfer(state, installedQueue);
             } while (!finished);
         }
         AssertEqual(15, installedQueue.Entries.Count,

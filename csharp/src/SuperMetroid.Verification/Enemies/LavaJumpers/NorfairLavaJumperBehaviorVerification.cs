@@ -21,7 +21,7 @@ internal static class NorfairLavaJumperBehaviorVerification
     internal static void VerifyNorfairLavaJumperBehavior()
     {
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
-        enemies.VerificationServices().NextRandom = (Func<ushort>)(() => 0);
+        enemies.VerificationServices().NextRandom = () => 0;
         RoomEnemySlot parent = enemies.SlotTable.Slots[0];
         parent.Bind(EnemyDefinitionId.Squeept, parent.Definition);
         parent.Bind(parent.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = NorfairLavaJumperFrameToolingDefinitions.Bank });

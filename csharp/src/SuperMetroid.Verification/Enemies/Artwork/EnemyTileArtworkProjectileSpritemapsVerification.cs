@@ -107,7 +107,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
         foreach ((ushort originX, ushort originY, ushort graphicsIndex) in new[]
                  {
                      ((ushort)0x0080, (ushort)0x0004, (ushort)0x0000),
-                     ((ushort)0x01ff, (ushort)0x00fc, (ushort)FixtureGraphicsIndex),
+                     ((ushort)0x01ff, (ushort)0x00fc, FixtureGraphicsIndex),
                  })
         {
             var nativeOam = new OamBuffer();

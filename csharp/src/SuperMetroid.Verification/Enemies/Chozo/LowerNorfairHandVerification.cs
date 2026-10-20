@@ -47,11 +47,11 @@ internal static class LowerNorfairHandVerification
         for (int frame = 0; frame < 30; frame++) runtime.StepFrame(0);
         hand = level.GetCollisionBlock(new(4, 8));
         AssertEqual(RoomCollisionType.SpecialBlock, hand.CollisionType, "destroyed cover becomes solid hand");
-        AssertEqual((byte)0x83, hand.Bts.Value, "Norfair hand activation BTS");
+        AssertEqual(0x83, hand.Bts.Value, "Norfair hand activation BTS");
         var samus = runtime.Player.IntroducedSamus;
         foreach (bool hasSpaceJump in new[] { false, true })
         {
-            samus.CollectedItems = hasSpaceJump ? SamusEquipmentFlags.SpaceJump : (ushort)0;
+            samus.CollectedItems = hasSpaceJump ? SamusEquipmentFlags.SpaceJump : 0;
             samus.PoseId = hasSpaceJump ? SamusPoseId.FacingRightNormalPose : SamusPoseId.MorphBallGroundRightPose;
             samus.Presentation.InitializeAnimation();
             samus.Position = samus.Position.WithWhole(new(4 * 16 + 8, (ushort)(8 * 16 - samus.Kinematics.Radius.Y - 1)));

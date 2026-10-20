@@ -38,7 +38,7 @@ internal static class PoseDispatchDefinitionsVerification
                 AssertEqual(movement, (byte)samus.PoseMetadata.ReadMovementType(), "Live movement discriminator matches native");
                 AssertEqual(movement, (byte)SamusPoseMetadata.ReadMovementType((SamusPoseId)pose), "Prospective movement discriminator matches native");
                 commit(samus, source);
-                AssertEqual((ushort)(SnesLittleEndian.Word(facing, movement)), samus.PoseHistory.PreviousDirectionAndMovement,
+                AssertEqual(SnesLittleEndian.Word(facing, movement), samus.PoseHistory.PreviousDirectionAndMovement,
                     "Actual history publisher retains native facing/movement word");
             }
             else

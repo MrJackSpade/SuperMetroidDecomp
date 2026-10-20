@@ -28,9 +28,9 @@ internal static class SporeSpawnProjectileDefinitionsVerification
         {
             Offset16<RoomPixels> delta =
                 SporeSpawnProjectileDefinitions.MovementAt(unchecked((byte)offset));
-            AssertEqual((short)unchecked((sbyte)rom.ReadCartridgeByte(0x86dd6c + offset)), delta.X,
+            AssertEqual(unchecked((sbyte)rom.ReadCartridgeByte(0x86dd6c + offset)), delta.X,
                 $"Spore Spawn movement X {offset:X2}");
-            AssertEqual((short)unchecked((sbyte)rom.ReadCartridgeByte(0x86dd6c + ((offset + 1) & 0xff))),
+            AssertEqual(unchecked((sbyte)rom.ReadCartridgeByte(0x86dd6c + ((offset + 1) & 0xff))),
                 delta.Y, $"Spore Spawn movement Y {offset:X2}");
         }
 
@@ -75,7 +75,7 @@ internal static class SporeSpawnProjectileDefinitionsVerification
                 spore.Position.X.Whole, $"Spore Spawn production X {offset:X2}/{mirrored}");
             AssertEqual(unchecked((ushort)(0x0200 + y + y)), spore.Position.Y.Whole,
                 $"Spore Spawn production Y {offset:X2}/{mirrored}");
-            AssertEqual(unchecked((ushort)(byte)(offset + 2)), spore.Variable0,
+            AssertEqual(unchecked((byte)(offset + 2)), spore.Variable0,
                 $"Spore Spawn production cursor {offset:X2}/{mirrored}");
         }
 

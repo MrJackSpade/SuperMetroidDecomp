@@ -19,6 +19,7 @@ public sealed class MapArrowPresentation
         MapScrollDirection.Right => right,
         MapScrollDirection.Up => up,
         MapScrollDirection.Down => down,
+        MapScrollDirection.None => throw new ArgumentOutOfRangeException(nameof(direction)),
         _ => throw new ArgumentOutOfRangeException(nameof(direction)),
     };
     /// <summary>Loads and validates the four directional map-arrow visuals.</summary>

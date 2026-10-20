@@ -772,6 +772,10 @@ internal sealed class EnemyCollision
                 SamusProjectileFamily.SuperMissile => EnemyVulnerabilityDefinitions.SuperMissileOffset,
                 SamusProjectileFamily.Bomb => EnemyVulnerabilityDefinitions.BombOffset,
                 SamusProjectileFamily.PowerBomb => EnemyVulnerabilityDefinitions.PowerBombOffset,
+                SamusProjectileFamily.Beam or
+                    SamusProjectileFamily.BeamExplosion or
+                    SamusProjectileFamily.MissileExplosion => throw new InvalidDataException(
+                    $"Projectile family ${(ushort)family:X3} has no translated vulnerability field."),
                 _ => throw new InvalidDataException(
                     $"Projectile family ${(ushort)family:X3} has no translated vulnerability field."),
             };
@@ -844,6 +848,9 @@ internal sealed class EnemyCollision
             SamusProjectileFamily.SuperMissile => EnemyVulnerabilityDefinitions.SuperMissileOffset,
             SamusProjectileFamily.Bomb => EnemyVulnerabilityDefinitions.BombOffset,
             SamusProjectileFamily.PowerBomb => EnemyVulnerabilityDefinitions.PowerBombOffset,
+            SamusProjectileFamily.BeamExplosion or
+                SamusProjectileFamily.MissileExplosion => throw new InvalidDataException(
+                $"Projectile family ${(ushort)family:X3} has no translated vulnerability field."),
             _ => throw new InvalidDataException(
                 $"Projectile family ${(ushort)family:X3} has no translated vulnerability field."),
         };
@@ -974,6 +981,8 @@ internal sealed class EnemyCollision
             SamusContactDamageIndex.Shinespark => 300,
             SamusContactDamageIndex.ScrewAttack => 2000,
             SamusContactDamageIndex.PseudoScrew => 200,
+            SamusContactDamageIndex.None => throw new InvalidOperationException(
+                $"Undefined {nameof(SamusContactDamageIndex)} {(int)contactDamageIndex}."),
             _ => throw new InvalidOperationException(
                 $"Undefined {nameof(SamusContactDamageIndex)} {(int)contactDamageIndex}."),
         };
@@ -983,6 +992,8 @@ internal sealed class EnemyCollision
             SamusContactDamageIndex.Shinespark => EnemyVulnerabilityDefinitions.ShinesparkOffset,
             SamusContactDamageIndex.ScrewAttack => EnemyVulnerabilityDefinitions.ScrewAttackOffset,
             SamusContactDamageIndex.PseudoScrew => EnemyVulnerabilityDefinitions.PseudoScrewOffset,
+            SamusContactDamageIndex.None => throw new InvalidOperationException(
+                $"Undefined {nameof(SamusContactDamageIndex)} {(int)contactDamageIndex}."),
             _ => throw new InvalidOperationException(
                 $"Undefined {nameof(SamusContactDamageIndex)} {(int)contactDamageIndex}."),
         };

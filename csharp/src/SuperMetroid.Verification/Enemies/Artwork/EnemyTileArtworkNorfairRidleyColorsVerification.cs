@@ -100,7 +100,7 @@ internal static class EnemyTileArtworkNorfairRidleyColorsVerification
             AssertEqual(controlState.FunctionTimer.RawValue, editedState.FunctionTimer.RawValue,
                 $"Norfair Ridley edited reveal call {call} preserves cadence");
         }
-        AssertEqual((ushort)8, editedState.FadePaletteOffset,
+        AssertEqual(8, editedState.FadePaletteOffset,
             "Norfair Ridley edited reveal row seven is selected");
         CheckEditedCgram("Norfair Ridley edited reveal row seven", revealRowVisible: true);
         Tick(editedEnemy, editedSlot, editedState);
@@ -109,7 +109,7 @@ internal static class EnemyTileArtworkNorfairRidleyColorsVerification
         TickReference(controlCgram, controlState);
         Tick(editedEnemy, editedSlot, editedState);
         TickReference(controlCgram, controlState);
-        AssertEqual((ushort)9, editedState.FadePaletteOffset,
+        AssertEqual(9, editedState.FadePaletteOffset,
             "Norfair Ridley reveal advances after three calls");
         CheckEditedCgram("Norfair Ridley next row replaces edit", revealRowVisible: false);
 
@@ -169,7 +169,7 @@ internal static class EnemyTileArtworkNorfairRidleyColorsVerification
             for (int color = 0; color < SnesCgram.ColorCount; color++)
                 cgram.SetColor(color, Bgr555.FromWord((ushort)(color * 31)));
             for (int color = 0; color < 32; color++)
-                cgram.SetColor(160 + color, Bgr555.FromWord(checked((ushort)(ReadReferenceWord(0xa6e1cf + color * 2)))));
+                cgram.SetColor(160 + color, Bgr555.FromWord(checked(ReadReferenceWord(0xa6e1cf + color * 2))));
             for (int color = 0; color < 15; color++)
             {
                 cgram.SetColor(113 + color, new Bgr555(0, 0, 0));
@@ -190,7 +190,7 @@ internal static class EnemyTileArtworkNorfairRidleyColorsVerification
             if (pointer != 0)
             {
                 for (int color = 0; color < 14; color++)
-                    cgram.SetColor(113 + color, Bgr555.FromWord(checked((ushort)(ReadReferenceWord(0xa60000 + pointer + color * 2)))));
+                    cgram.SetColor(113 + color, Bgr555.FromWord(checked(ReadReferenceWord(0xa60000 + pointer + color * 2))));
                 return;
             }
             state.FadePaletteOffset = 0;
@@ -199,7 +199,7 @@ internal static class EnemyTileArtworkNorfairRidleyColorsVerification
 
         // Reads a raw cartridge word for the independent palette oracle.
         ushort ReadReferenceWord(int address) =>
-            (ushort)(SnesLittleEndian.Word(CpuBusRegionRead.Read(bus, address), CpuBusRegionRead.Read(bus, address + 1)));
+            SnesLittleEndian.Word(CpuBusRegionRead.Read(bus, address), CpuBusRegionRead.Read(bus, address + 1));
 
         // Initializes the production Norfair Ridley actor with selected artwork and seeded CGRAM.
         static (RoomEnemySystem, SnesCgram, RoomEnemySlot, RidleyEnemyState) Create(
@@ -210,7 +210,7 @@ internal static class EnemyTileArtworkNorfairRidleyColorsVerification
             for (int color = 0; color < SnesCgram.ColorCount; color++)
                 cgram.SetColor(color, Bgr555.FromWord((ushort)(color * 31)));
             enemy.Presentation.BindCgram(cgram);
-            enemy.VerificationServices().IsAreaBossDefeated = (Func<bool>)(() => false);
+            enemy.VerificationServices().IsAreaBossDefeated = () => false;
             RoomEnemySlot slot = enemy.SlotTable.Slots[0];
             slot.Bind(EnemyDefinitionId.Ridley, slot.Definition);
             enemy.RidleyBehavior.InitializeNorfairRidley(slot);

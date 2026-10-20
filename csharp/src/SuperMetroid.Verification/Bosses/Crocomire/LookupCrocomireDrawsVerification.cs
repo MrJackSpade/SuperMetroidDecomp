@@ -82,7 +82,7 @@ internal static class LookupCrocomireDrawsVerification
         }
         AssertEqual(60, cells, "Crocomire sixty original physical cells");
 
-        ushort ReadWord(int address) => (ushort)(SnesLittleEndian.Word(CrocomirePhysicalDrawMappingRomByte(rom, 0x840000 | address), CrocomirePhysicalDrawMappingRomByte(rom, 0x840000 | (address + 1))));
+        ushort ReadWord(int address) => SnesLittleEndian.Word(CrocomirePhysicalDrawMappingRomByte(rom, 0x840000 | address), CrocomirePhysicalDrawMappingRomByte(rom, 0x840000 | (address + 1)));
     }
 
     /// <summary>Reads native draw-list bytes solely as the physical-layout oracle.</summary>

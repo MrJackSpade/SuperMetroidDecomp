@@ -34,14 +34,14 @@ internal static class PowerBombDeathRadiusVerification
             var fixture = CreateEnemyDropFixture(CreateDropTestSamus(), [1]);
             var enemies = fixture.System;
             var higher = Place(enemies.SlotTable.Slots[1], explosionX, killerLethal ? (ushort)1 : (ushort)1000);
-            higher.Properties = EnemyPropertyWord.FromNativeWord((ushort)(killerRespawns ? (ushort)EnemyProperties.RespawnIfKilled : (ushort)0));
+            higher.Properties = EnemyPropertyWord.FromNativeWord(killerRespawns ? (ushort)EnemyProperties.RespawnIfKilled : (ushort)0);
             var lower = Place(enemies.SlotTable.Slots[0], unchecked((ushort)(explosionX + lowerXOffset)), 1000);
 
             enemies.Collision.ResolveOrdinaryPowerBombHits(new(explosionX, explosionY), radius);
 
             if (killerLethal)
             {
-                AssertEqual(killerRespawns ? EnemyDefinitionId.Respawn : (ushort)0,
+                AssertEqual(killerRespawns ? EnemyDefinitionId.Respawn : 0,
                     higher.EnemyDefinitionPointer, label + ": higher slot dies first");
             }
             AssertEqual(expectLowerHit ? (ushort)48 : (ushort)0, lower.InvincibilityTimer.RawValue,
@@ -56,7 +56,7 @@ internal static class PowerBombDeathRadiusVerification
             actor.Health = health;
             actor.Position = actor.Position.WithWhole(new(x, explosionY));
             actor.Radius = new(actor.Definition.Radius.X, actor.Definition.Radius.Y);
-            actor.Properties = EnemyPropertyWord.FromNativeWord((ushort)(0));
+            actor.Properties = EnemyPropertyWord.FromNativeWord(0);
             return actor;
         }
     }

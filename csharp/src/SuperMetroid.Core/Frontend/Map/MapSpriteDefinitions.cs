@@ -51,6 +51,7 @@ public static class MapSpriteDefinitions
         AreaId.WreckedShip => MapSpriteId.WorldWreckedShip,
         AreaId.Maridia => MapSpriteId.WorldMaridia,
         AreaId.Tourian => MapSpriteId.WorldTourian,
+        AreaId.Ceres => throw new ArgumentOutOfRangeException(nameof(area), $"Area {area} has no world-map label."),
         _ => throw new ArgumentOutOfRangeException(nameof(area), $"Area {area} has no world-map label."),
     };
 

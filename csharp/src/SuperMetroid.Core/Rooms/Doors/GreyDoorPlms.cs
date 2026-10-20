@@ -19,19 +19,16 @@ internal sealed class GreyDoorPlms : IPlmFamilySource
 
     /// <summary>Room progression and statue state used to evaluate resident-door unlock conditions.</summary>
     private readonly PlmRoomBindings _bindings;
-    /// <summary>Draws closed-grey and converted-blue tiles into the room level and background streamer.</summary>
-    private readonly PlmBlockDrawing _drawing;
     /// <summary>Queues the cartridge's dud sound for shots rejected while the door is locked.</summary>
     private readonly PlmSoundQueue _sounds;
     /// <summary>The coloured-door owner whose door-bit bookkeeping grey caps share.</summary>
     private readonly DoorPlms _doors;
 
     /// <summary>Binds progression checks, block drawing, and PLM sound requests.</summary>
-    internal GreyDoorPlms(PlmRoomBindings bindings, PlmBlockDrawing drawing, PlmSoundQueue sounds, DoorPlms doors)
+    internal GreyDoorPlms(PlmRoomBindings bindings, PlmSoundQueue sounds, DoorPlms doors)
     {
         _doors = doors;
         _bindings = bindings;
-        _drawing = drawing;
         _sounds = sounds;
     }
 
@@ -69,6 +66,7 @@ internal sealed class GreyDoorPlms : IPlmFamilySource
                 slot.LoopTimer = 0;
                 slot.WakeAtLink();
                 return;
+            case GreyDoorPreInstruction.None:
             default:
                 throw new InvalidOperationException($"Undefined {nameof(GreyDoorPreInstruction)} {preInstruction}.");
         }
@@ -113,6 +111,9 @@ internal sealed class GreyDoorPlms : IPlmFamilySource
             GreyDoorPreInstruction.WakeIfEnemiesDead => enemyDeaths >= enemyDeathQuota,
             GreyDoorPreInstruction.WakeIfTourianStatueFinished => _bindings.TourianStatue?.IsFinished == true,
             GreyDoorPreInstruction.WakeIfCrittersEscaped => system.HasEvent(EventNumber.CrittersEscaped),
+            GreyDoorPreInstruction.None or
+                GreyDoorPreInstruction.WakeWhenShot or
+                GreyDoorPreInstruction.PlayDudSound => throw new InvalidOperationException($"{preInstruction} is not an unlock check."),
             _ => throw new InvalidOperationException($"{preInstruction} is not an unlock check."),
         };
     }

@@ -127,7 +127,7 @@ internal static class ShotCallbackDefinitionsVerification
 
             AssertTrue(enemies.Collision.ResolveOrdinarySamusContact(samus, 0),
                 $"literal touch no-op ${callback:X6} is admitted by production collision");
-            AssertEqual((ushort)99, samus.Health,
+            AssertEqual(99, samus.Health,
                 $"literal touch no-op ${callback:X6} does not damage Samus");
             AssertEqual(0, guard.ForbiddenReadAttempts,
                 $"literal touch no-op ${callback:X6} requires no executable read");

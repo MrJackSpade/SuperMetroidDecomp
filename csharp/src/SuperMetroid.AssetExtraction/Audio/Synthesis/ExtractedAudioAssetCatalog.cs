@@ -385,8 +385,8 @@ public sealed class ExtractedAudioAssetCatalog
             {
                 if (instruction.Opcode != (byte)SpcMusicEffect.CallPattern)
                     continue;
-                ushort target = unchecked((ushort)(
-                    SnesLittleEndian.Word(instruction.Arguments[0], instruction.Arguments[1])));
+                ushort target = unchecked(
+                    SnesLittleEndian.Word(instruction.Arguments[0], instruction.Arguments[1]));
                 if (!programs.ContainsKey(target))
                 {
                     throw new InvalidDataException(

@@ -41,7 +41,7 @@ internal static class RendererStartupTests
             if (selection == RendererSelection.Auto)
             {
                 Check(failure is null && diagnostic.ToString().Contains("Auto selected software rendering"), "Auto fallback was not explicit and logged");
-                control.StepFrame((ushort)0);
+                control.StepFrame(0);
                 Check(game.FrameNumber == unchecked((ushort)(frame + 1)), "software fallback could not continue stepping");
             }
             else Check(failure is ArgumentException, "explicit Direct3D11 swallowed startup failure");

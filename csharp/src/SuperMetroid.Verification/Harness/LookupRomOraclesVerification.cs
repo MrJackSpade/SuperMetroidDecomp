@@ -39,14 +39,14 @@ internal static class LookupRomOraclesVerification
             int offset = timer & 6;
             short x = unchecked((short)rom.ReadCartridgeWord(0xa3a76d + offset));
             short y = unchecked((short)rom.ReadCartridgeWord(0xa3a775 + offset));
-            AssertEqual(((int)x, (int)y), MochtroidShakeDefinitions.Offset(timer), "Native cardinal shake and timer-bit mask");
+            AssertEqual((x, y), MochtroidShakeDefinitions.Offset(timer), "Native cardinal shake and timer-bit mask");
         }
     }
 
     /// <summary>Compares the registered intro caret's part count with its native $8C:8D68 spritemap.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for the intro caret spritemap part count")]
     internal static void VerifyIntroCaretNativePartCount(CartridgeImportAddressSpace rom) =>
-        AssertEqual((int)rom.ReadCartridgeWord(0x8c8d68), IntroCaretSpriteDefinitions.Visible.StockPartCount, "Native caret part count");
+        AssertEqual(rom.ReadCartridgeWord(0x8c8d68), IntroCaretSpriteDefinitions.Visible.StockPartCount, "Native caret part count");
 
     /// <summary>Reads one little-endian retail word for the phase-algorithm lookups.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle words for the combo power-bomb cost and origin-angle algorithms")]
@@ -59,7 +59,7 @@ internal static class LookupRomOraclesVerification
     {
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
             VerifyIntroNarrationNativePages(rom);
-            AssertThrows<ArgumentOutOfRangeException>(() => IntroNarrationScriptSources.Page((IntroNarrationPageId)0), "narration registry lower bound");
+            AssertThrows<ArgumentOutOfRangeException>(() => IntroNarrationScriptSources.Page(0), "narration registry lower bound");
             AssertThrows<ArgumentOutOfRangeException>(() => IntroNarrationScriptSources.Page((IntroNarrationPageId)7), "narration registry upper bound");
         Console.WriteLine("Narration registry: six native page boundaries, extraction, compilation, order and bounds pass.");
         return 0;

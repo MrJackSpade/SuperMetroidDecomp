@@ -80,7 +80,7 @@ internal static class VramDmaAudit
                     continue;
                 }
                 var methodSyntax = syntax.Ancestors().OfType<BaseMethodDeclarationSyntax>().FirstOrDefault();
-                var method = methodSyntax is null ? null : semantic.GetDeclaredSymbol(methodSyntax) as IMethodSymbol;
+                var method = methodSyntax is null ? null : semantic.GetDeclaredSymbol(methodSyntax);
                 string owner = method is null ? "<non-method queue producer>" : method.ContainingType.ToDisplayString() + "." + method.Name;
                 report.Sites.Add(new());
                 bool typed = call.TargetMethod.Name == nameof(VramWriteQueue.EnqueueAsset);

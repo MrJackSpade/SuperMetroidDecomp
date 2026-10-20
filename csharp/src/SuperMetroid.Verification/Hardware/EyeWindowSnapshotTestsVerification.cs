@@ -21,8 +21,8 @@ internal static class EyeWindowSnapshotTestsVerification
             AssertEqual(expected.Length != 0, any, "integer window nonempty decision");
             if (any)
             {
-                AssertEqual((long)expected[0], left, "integer window ceiling endpoint");
-                AssertEqual((long)expected[^1], right, "integer window floor endpoint");
+                AssertEqual(expected[0], left, "integer window ceiling endpoint");
+                AssertEqual(expected[^1], right, "integer window floor endpoint");
             }
         }
         VerifyReportedEyeNativeEndpoints();

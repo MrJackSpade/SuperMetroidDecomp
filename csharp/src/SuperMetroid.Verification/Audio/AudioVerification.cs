@@ -38,22 +38,22 @@ internal static class AudioVerification
             "queued non-identity music-data offset fails at dispatch");
 
         MusicCommand dataLoad = MusicCommand.LoadData(0x21);
-        AssertEqual((ushort)0xff21, dataLoad.RawValue, "music data-load word");
+        AssertEqual(0xff21, dataLoad.RawValue, "music data-load word");
         AssertEqual(MusicCommandKind.LoadData, dataLoad.Kind, "music data-load classification");
         AssertTrue(dataLoad.UsesDataUploadPath, "music data-load takes native upload branch");
-        AssertEqual((byte)0x21, dataLoad.DataIndex, "music data-load table index");
+        AssertEqual(0x21, dataLoad.DataIndex, "music data-load table index");
 
         MusicCommand trackSelection = MusicCommand.SelectTrack(5);
-        AssertEqual((ushort)5, trackSelection.RawValue, "music track-selection word");
+        AssertEqual(5, trackSelection.RawValue, "music track-selection word");
         AssertEqual(MusicCommandKind.SelectTrack, trackSelection.Kind, "music track classification");
         AssertEqual(MusicCommandKind.Stop, MusicCommand.Stop.Kind, "music stop classification");
 
         MusicCommand unknownCommand = MusicCommand.FromCartridge(0x1234);
         AssertEqual(MusicCommandKind.Unknown, unknownCommand.Kind, "unknown music command classification");
-        AssertEqual((ushort)0x1234, unknownCommand.RawValue, "unknown music command round trip");
-        AssertEqual((ushort)8, MusicCommandDelay.FromDelayedYArgument(0).Frames,
+        AssertEqual(0x1234, unknownCommand.RawValue, "unknown music command round trip");
+        AssertEqual(8, MusicCommandDelay.FromDelayedYArgument(0).Frames,
             "music delay applies native minimum");
-        AssertEqual((ushort)0x0168, MusicCommandDelay.FromDelayedYArgument(0x0168).Frames,
+        AssertEqual(0x0168, MusicCommandDelay.FromDelayedYArgument(0x0168).Frames,
             "music delay preserves longer countdown");
         AssertThrows<ArgumentOutOfRangeException>(
             () => MusicCommand.SelectTrack(0),
@@ -151,12 +151,12 @@ internal static class AudioVerification
         // the following eight calls count down the native delay and emit the port write.
         for (int frame = 0; frame < 9; frame++)
             inheritedRoomMusic.AdvanceFrame(default);
-        AssertEqual((byte)7, inheritedRoomMusic.MusicTrackIndex,
+        AssertEqual(7, inheritedRoomMusic.MusicTrackIndex,
             "escape track is live before zero-music room transition");
         inheritedRoomMusic.QueueRoomMusic(dataIndex: 0, trackIndex: 0);
         AssertTrue(!inheritedRoomMusic.HasQueuedMusic,
             "zero room-music fields preserve the inherited Ceres escape track");
-        AssertEqual((byte)7, inheritedRoomMusic.MusicTrackIndex,
+        AssertEqual(7, inheritedRoomMusic.MusicTrackIndex,
             "zero room track does not silence escape music");
 
         // RoomState_CeresRidley_0 ($8F:E0C7) contains music ($24,$80).

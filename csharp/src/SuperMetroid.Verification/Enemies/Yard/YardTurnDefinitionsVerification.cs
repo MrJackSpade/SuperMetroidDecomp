@@ -124,7 +124,7 @@ internal static class YardTurnDefinitionsVerification
                 $"{context} production instruction");
             AssertTrue(state.TurnTransitionDisabled,
                 $"{context} disables the next turn transition");
-            AssertEqual((ushort)0, state.TurnTransitionDisableCounter,
+            AssertEqual(0, state.TurnTransitionDisableCounter,
                 $"{context} clears transition-disable counter");
         }
     }

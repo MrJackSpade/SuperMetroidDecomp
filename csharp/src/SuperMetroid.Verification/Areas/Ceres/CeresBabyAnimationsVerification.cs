@@ -51,7 +51,7 @@ internal static class CeresBabyAnimationsVerification
             if ((word & NativeEnemyListDefinitions.InstructionBit) == 0)
             {
                 AssertEqual(AnimationProgramStepKind.Show, step.Kind, $"{at}: pose");
-                AssertEqual((int)word, step.Duration, $"{at}: duration");
+                AssertEqual(word, step.Duration, $"{at}: duration");
                 AssertEqual(operand, CeresBabyFrameDefinitionsConstants.Spritemap(step.Frame), $"{at}: spritemap");
                 continue;
             }

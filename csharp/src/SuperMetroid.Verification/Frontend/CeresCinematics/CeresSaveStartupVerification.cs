@@ -71,10 +71,10 @@ internal static class CeresSaveStartupVerification
         AssertTrue(runtime.Room.ActiveRoom is null, "#1153 destruction load creates no Ceres room");
         AssertTrue(runtime.System.HasAnyBossBits(AreaId.Ceres, BossBits.AreaBoss),
             "#1153 destruction load retains the defeated-Ridley flag");
-        AssertEqual((ushort)77, runtime.Player.IntroducedSamus.Health, "#1153 destruction load retains energy");
-        AssertEqual((ushort)2, runtime.GameTime.Minutes, "#1153 destruction load retains minutes");
-        AssertEqual((ushort)11, runtime.GameTime.Seconds, "#1153 destruction load retains seconds");
-        AssertEqual((ushort)44, runtime.GameTime.Frames, "#1153 destruction load retains frames");
+        AssertEqual(77, runtime.Player.IntroducedSamus.Health, "#1153 destruction load retains energy");
+        AssertEqual(2, runtime.GameTime.Minutes, "#1153 destruction load retains minutes");
+        AssertEqual(11, runtime.GameTime.Seconds, "#1153 destruction load retains seconds");
+        AssertEqual(44, runtime.GameTime.Frames, "#1153 destruction load retains frames");
         AssertTrue(savedBefore.SequenceEqual(SaveRamCodec.Encode(saves, RetailPresentationFixture())),
             "#1153 normal load does not rewrite the checkpoint");
 

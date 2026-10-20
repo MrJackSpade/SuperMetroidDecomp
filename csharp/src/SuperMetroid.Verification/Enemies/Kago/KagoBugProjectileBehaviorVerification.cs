@@ -19,7 +19,7 @@ internal static class KagoBugProjectileBehaviorVerification
         foreach (KagoBugProjectileProgram program in new[] { KagoBugProjectileProgram.Landed, KagoBugProjectileProgram.Falling, KagoBugProjectileProgram.JumpStart })
         {
             var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
-            enemies.VerificationServices().ReadRandom = (Func<ushort>)(() => 1);
+            enemies.VerificationServices().ReadRandom = () => 1;
             RoomEnemyProjectileSlot bug = enemies.Projectiles.EnemyProjectiles[0];
             bug.Kind = RoomEnemyProjectileKind.KagoBug;
             bug.StartAnimation(new KagoBugProjectileAnimation(program));

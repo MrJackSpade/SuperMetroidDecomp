@@ -232,6 +232,7 @@ public sealed class SamusCrystalFlashState
                 StepFinish(samus);
                 break;
 
+            case CrystalFlashPhase.Inactive:
             default:
                 throw new InvalidOperationException($"Unknown Crystal Flash phase {Phase}.");
         }

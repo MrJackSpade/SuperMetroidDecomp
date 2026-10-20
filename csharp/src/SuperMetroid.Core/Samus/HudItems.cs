@@ -7,7 +7,11 @@ public static class HudItems
     public static HudItem Next(HudItem item) => item switch
     {
         HudItem.XRay => HudItem.Beam,
-        >= HudItem.Beam and < HudItem.XRay => item + 1,
+        HudItem.Beam or
+            HudItem.Missile or
+            HudItem.SuperMissile or
+            HudItem.PowerBomb or
+            HudItem.Grapple => item + 1,
         _ => throw new InvalidDataException($"HUD item {(ushort)item} is outside the six-entry dispatcher."),
     };
 

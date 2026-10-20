@@ -161,6 +161,18 @@ internal static class EtecoonAnimations
         P.HoppingFacingRight => P.ContinueHoppingFacingRight,
         P.ContinueHoppingFacingRight => P.WallJumpRightEligible,
         P.WallJumpRightEligible => P.Initial,
+        P.BeginRunningLeft or
+            P.RunningLeft or
+            P.WallJumpLeft or
+            P.WallJumpLeftLoop or
+            P.ContinueHoppingFacingLeft or
+            P.BeginRunningRight or
+            P.RunningRight or
+            P.WallJumpRight or
+            P.JumpingRight or
+            P.Initial or
+            P.Flexing or
+            P.FlexingLoop => throw new ArgumentOutOfRangeException(nameof(program), program, "The program does not sleep before authored code."),
         _ => throw new ArgumentOutOfRangeException(nameof(program), program, "The program does not sleep before authored code."),
     };
 

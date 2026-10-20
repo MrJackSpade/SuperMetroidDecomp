@@ -66,6 +66,7 @@ internal sealed class NoobTubePlms
                 }
                 return;
 
+            case NoobTubePlmPreInstruction.Inactive:
             default:
                 throw new InvalidOperationException($"Undefined n00b-tube pre-instruction {preInstruction}.");
         }

@@ -37,7 +37,7 @@ internal static class ShutterRidingVerification
             // A real Shoot edge plants the bomb. Its explosion activates the shutter
             // and launches Samus; no diagnostic phase write substitutes for that path.
             for (int frame = 0; frame < 220; frame++)
-                runtime.StepFrame(frame == 0 ? runtime.Options.ControllerBindings.Shoot : (ushort)0);
+                runtime.StepFrame(frame == 0 ? runtime.Options.ControllerBindings.Shoot : 0);
             AssertEqual(VerticalShutterFunction.PermanentNoOp, (state ?? throw new InvalidOperationException("Verification requires state.")).Function,
                 "bomb-raised shutter remains at native permanent upper stop without a second hit");
             AssertEqual(state.UpperEndpoint.Y, platform.Position.Y.Whole, "shutter reaches the authored upper Y");

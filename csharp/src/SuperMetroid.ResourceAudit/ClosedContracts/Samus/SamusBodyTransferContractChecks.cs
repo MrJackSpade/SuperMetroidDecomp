@@ -73,8 +73,8 @@ internal static class SamusBodyTransferContractChecks
             DrawingData = new int[SamusArmCannonArtworkFormat.DrawingDataByteCount],
             SpriteAttributes = new int[SamusRenderingRomData.ArmCannon.DirectionCount],
             TileSources = Enumerable.Range(0, SamusRenderingRomData.ArmCannon.DirectionCount).Select(_ =>
-                new[] { 0, (int)SamusArmCannonArtworkFormat.TileSourcePointers[0],
-                    (int)SamusArmCannonArtworkFormat.TileSourcePointers[0], (int)SamusArmCannonArtworkFormat.TileSourcePointers[0] }).ToArray() };
+                new[] { 0, SamusArmCannonArtworkFormat.TileSourcePointers[0],
+                    SamusArmCannonArtworkFormat.TileSourcePointers[0], SamusArmCannonArtworkFormat.TileSourcePointers[0] }).ToArray() };
         using var cannonJson = new MemoryStream(SamusArmCannonArtworkCatalog.Write(cannonDocument));
         using var cannonPng = Png(new(checked((ushort)(SamusArmCannonArtworkFormat.TileSourcePointers.Length * 8)), 8));
         SamusArmCannonArtworkCatalog cannon = SamusArmCannonArtworkCatalogTooling.Load(cannonJson, cannonPng);

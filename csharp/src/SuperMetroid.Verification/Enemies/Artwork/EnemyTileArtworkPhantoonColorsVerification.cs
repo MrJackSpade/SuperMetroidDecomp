@@ -109,13 +109,13 @@ internal static class EnemyTileArtworkPhantoonColorsVerification
                 cgram.SetColor(PhantoonColorRomData.BodyDestination + color, new Bgr555(0, 0, 0));
             state.Parts[eye.SlotIndex].FadeNumerator = 1;
             state.Parts[eye.SlotIndex].FadeComplete = false;
-            enemies.PhantoonBehavior.AdvancePhantoonFadeIn(body, state, (ushort)0);
+            enemies.PhantoonBehavior.AdvancePhantoonFadeIn(body, state, 0);
             AssertBodyBand(band, $"Phantoon live materialization band {band}");
-            AssertEqual((ushort)2, state.Parts[eye.SlotIndex].FadeNumerator,
+            AssertEqual(2, state.Parts[eye.SlotIndex].FadeNumerator,
                 $"Phantoon fade-in band {band} retains native numerator advance");
         }
 
-        body.Health = unchecked((ushort)(2 * 312 + 1));
+        body.Health = unchecked(2 * 312 + 1);
         body.FlashTimer = NativeCountdown.Start(8);
         state.Parts[tentacles.SlotIndex].HitReaction = 1; state.Parts[tentacles.SlotIndex].HurtFlashShown = true;
         enemies.PhantoonBehavior.ApplyPhantoonHurt(body, state);
@@ -125,23 +125,23 @@ internal static class EnemyTileArtworkPhantoonColorsVerification
 
         state.Parts[eye.SlotIndex].FadeNumerator = 1;
         state.Parts[eye.SlotIndex].FadeComplete = false;
-        enemies.PhantoonBehavior.AdvancePhantoonFadeOut(state, (ushort)0);
+        enemies.PhantoonBehavior.AdvancePhantoonFadeOut(state, 0);
         for (int color = 0; color < PhantoonColorRomData.FadeOutCount; color++)
             AssertEqual(colors.ResolveFadeOut(color),
                 cgram.Colors[PhantoonColorRomData.BodyDestination + color],
                 $"Phantoon live fade-out target {color}");
-        AssertEqual((ushort)2, state.Parts[eye.SlotIndex].FadeNumerator,
+        AssertEqual(2, state.Parts[eye.SlotIndex].FadeNumerator,
             "Phantoon fade-out retains native numerator advance");
 
         state.Parts[eye.SlotIndex].FadeDenominator = 0;
         state.Parts[eye.SlotIndex].FadeNumerator = 1;
-        bool complete = (bool)enemies.PhantoonBehavior.AdvanceWreckedShipPowerPalette(state.Parts[eye.SlotIndex]);
+        bool complete = enemies.PhantoonBehavior.AdvanceWreckedShipPowerPalette(state.Parts[eye.SlotIndex]);
         AssertTrue(!complete, "Phantoon ship power-on remains active on target frame");
         for (int color = 0; color < PhantoonColorRomData.PowerOnCount; color++)
             AssertEqual(colors.ResolvePowerOn(color),
                 cgram.Colors[PhantoonColorRomData.PowerOnDestination + color],
                 $"Phantoon live ship power-on target {color}");
-        AssertEqual((ushort)2, state.Parts[eye.SlotIndex].FadeNumerator,
+        AssertEqual(2, state.Parts[eye.SlotIndex].FadeNumerator,
             "Phantoon ship power-on retains native numerator advance");
 
         File.WriteAllBytes(overrideFile, [0]);

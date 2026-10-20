@@ -54,7 +54,7 @@ internal static class WrapShotsVerification
             int firstRemoteHit = -1;
             for (int frame = 0; frame < 40; frame++)
             {
-                SnesButton input = frame == 0 ? SnesButton.X : (ushort)0;
+                SnesButton input = frame == 0 ? SnesButton.X : 0;
                 shared.StepFrame(new SamusTerrain { Level = level }, samus, input, input);
                 projectiles.StepFrame(new SamusTerrain { Level = level, Plms = plms }, samus, new ProjectileButtonInput { ControllerInput = input, ControllerNewInput = input }, new((ushort)(left != 0 ? 0 : 768), 0), shared);
                 var shot = projectiles.Slots[0];

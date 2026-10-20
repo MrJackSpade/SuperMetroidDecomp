@@ -23,8 +23,8 @@ internal static class RidleyInertiaVerification
         {
             byte divisor = rom.ReadCartridgeByte(0xa6d61f + index);
             byte ceresDivisor = rom.ReadCartridgeByte(0xa6d712 + index);
-            AssertEqual((ushort)rom.ReadCartridgeByte(0xa6d712 + index), RidleyInertiaDefinitions.Divisor(index), "Ceres native inertia byte");
-            AssertEqual((ushort)divisor, RidleyInertiaDefinitions.Divisor(index), "Norfair native inertia byte");
+            AssertEqual(rom.ReadCartridgeByte(0xa6d712 + index), RidleyInertiaDefinitions.Divisor(index), "Ceres native inertia byte");
+            AssertEqual(divisor, RidleyInertiaDefinitions.Divisor(index), "Norfair native inertia byte");
             // Every signed distance, with both reversal directions and zero/saturation boundaries.
             // Call the production two-axis entry points without an address space attached.
             for (int raw = 0; raw <= ushort.MaxValue; raw++)

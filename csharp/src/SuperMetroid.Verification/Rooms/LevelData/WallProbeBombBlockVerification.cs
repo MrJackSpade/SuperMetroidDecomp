@@ -22,7 +22,7 @@ internal static class WallProbeBombBlockVerification
         {
             var foreground = new ushort[width * height];
             for (int y = 1; y < 6; y++)
-                foreground[y * width + 4] = (ushort)((int)RoomCollisionType.BombableBlock << 12);
+                foreground[y * width + 4] = (int)RoomCollisionType.BombableBlock << 12;
             RoomLevelData level = CreateRoom(new(width, height), foreground, new byte[foreground.Length]);
             var samus = new SamusState { Pose = pose };
             SamusKinematicsState state = samus.Kinematics;

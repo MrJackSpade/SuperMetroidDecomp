@@ -22,8 +22,8 @@ internal static class ShaktoolOrbitAlgorithmVerification
             AssertEqual(original, ShaktoolOrbitTables.Sample(index), $"Original Shaktool word {index}");
             decimal value = ShaktoolOrbitTables.UnquantizedSample(index);
             const decimal error = 3072 * 0.0000000000000000001m;
-            AssertEqual((decimal)original, decimal.Truncate(value - error), $"Orbit lower bound {index}");
-            AssertEqual((decimal)original, decimal.Truncate(value + error), $"Orbit upper bound {index}");
+            AssertEqual(original, decimal.Truncate(value - error), $"Orbit lower bound {index}");
+            AssertEqual(original, decimal.Truncate(value + error), $"Orbit upper bound {index}");
         }
         for (int angle = 0; angle < 256; angle++)
             AssertEqual((SnesEightEight.FromWhole(Original(angle + 64)), SnesEightEight.FromWhole(Original(angle))),

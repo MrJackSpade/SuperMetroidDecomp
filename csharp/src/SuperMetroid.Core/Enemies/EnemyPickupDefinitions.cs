@@ -21,6 +21,7 @@ internal static class EnemyPickupDefinitions
             EnemyPickupKind.PowerBomb => EnemyDeathProjectileProgram.PowerBombs,
             EnemyPickupKind.Missile => EnemyDeathProjectileProgram.Missiles,
             EnemyPickupKind.SuperMissile => EnemyDeathProjectileProgram.SuperMissiles,
+            EnemyPickupKind.NoDrop => throw new InvalidDataException($"Enemy pickup kind ${index:X4} has no animation-table entry."),
             _ => throw new InvalidDataException($"Enemy pickup kind ${index:X4} has no animation-table entry."),
         };
         return new EnemyPickupAnimationDefinition(checked((ushort)(index * 2)), program);

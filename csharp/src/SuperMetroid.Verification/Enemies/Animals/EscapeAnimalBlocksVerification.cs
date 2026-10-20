@@ -30,7 +30,7 @@ internal static class EscapeAnimalBlocksVerification
         PlmFixtures.LoadPopulation(ref plms, new PlmRoom(level, BgArtworkFixtures.For(new SnesVram()), system, AreaId.Crateria), RoomPlmPopulationImporter.Read(bus, 0x8412), new RoomPlmServices { Samus = new FixtureRoomSamus(() => null), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => true }, Events = new FixtureEventFlags { HasEvent = system.HasEvent, SetEvent = system.SetEvent } });
         int origin = level.GetBlockIndex(new(15, 10));
         plms.EscapeAnimals.SetupCrittersEscapeBlock(level, origin);
-        AssertEqual((byte)0x4f, level.GetCollisionBlock(new(15, 10)).Bts.Value, "rescue origin is shootable BTS 4F");
+        AssertEqual(0x4f, level.GetCollisionBlock(new(15, 10)).Bts.Value, "rescue origin is shootable BTS 4F");
         for (int y = 11; y <= 12; y++)
             AssertEqual((ushort)0xd123, level.GetCollisionBlock(new(15, checked((ushort)y))).PackedWord.Raw, "rescue extensions preserve visual tile");
         for (int y = 10; y <= 12; y++)
@@ -43,11 +43,11 @@ internal static class EscapeAnimalBlocksVerification
             AssertEqual(GrapplePhase.CancelPending, samus.Grapple.Phase,
                 "grapple stops on rescue origin or extension");
             AssertEqual(before, plms.SlotTable.ActiveCount, "zero grapple word cannot allocate the rescue animation");
-            AssertEqual((byte)0x4f, level.GetCollisionBlock(new(15, 10)).Bts.Value, "grapple leaves rescue wall intact");
+            AssertEqual(0x4f, level.GetCollisionBlock(new(15, 10)).Bts.Value, "grapple leaves rescue wall intact");
             AssertTrue(!system.HasEvent(EventNumber.CrittersEscaped), "grapple alone cannot rescue animals");
         }
-        AssertTrue(!plms.TrySpawnProjectileShotBlock(level, origin, (byte)0x4f, 0, true), "native zero grapple word rejected");
-        AssertTrue(plms.TrySpawnProjectileShotBlock(level, origin, (byte)0x4f, 1, true), "nonzero beam opens rescue wall");
+        AssertTrue(!plms.TrySpawnProjectileShotBlock(level, origin, 0x4f, 0, true), "native zero grapple word rejected");
+        AssertTrue(plms.TrySpawnProjectileShotBlock(level, origin, 0x4f, 1, true), "nonzero beam opens rescue wall");
         AssertTrue(!system.HasEvent(EventNumber.CrittersEscaped), "rescue event waits for animation");
         for (int frame = 0; frame < 16; frame++)
             plms.Step(level);

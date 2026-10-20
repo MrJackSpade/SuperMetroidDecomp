@@ -45,7 +45,7 @@ internal static class GrappleHurtFeedbackVerification
             SnesAngle.QuarterTurn, 0, faceRight: true);
         samus.CommitPoseHistory();
         runtime.StepFrame(SnesButton.X);
-        AssertEqual((ushort)0, samus.HurtFlashCounter, "undamaged hanging Samus has no hurt flash");
+        AssertEqual(0, samus.HurtFlashCounter, "undamaged hanging Samus has no hurt flash");
         AssertEqual(GrapplePhase.ConnectedSwinging, samus.Grapple.Phase, "fixture is hanging from an attached grapple");
         var target = runtime.Enemies.SlotTable.Slots[0];
         target.Bind(EnemyDefinitionId.Ripper, target.Definition);
@@ -63,12 +63,12 @@ internal static class GrappleHurtFeedbackVerification
         runtime.StepFrame(SnesButton.X);
         AssertEqual(GrapplePhase.ConnectedSwinging, samus.Grapple.Phase, "damage preserves the attached grapple");
         AssertTrue(!samus.KnockbackActive, "grapple suppresses the knockback mover");
-        AssertEqual((ushort)1, samus.HurtFlashCounter, "post-draw health loss starts hurt feedback independently of knockback");
+        AssertEqual(1, samus.HurtFlashCounter, "post-draw health loss starts hurt feedback independently of knockback");
         runtime.StepFrame(SnesButton.X);
-        AssertEqual((ushort)2, samus.HurtFlashCounter, "first hurt palette call advances the counter");
+        AssertEqual(2, samus.HurtFlashCounter, "first hurt palette call advances the counter");
         samus.Health--; // Existing feedback must not restart on further health loss.
         runtime.StepFrame(SnesButton.X);
-        AssertEqual((ushort)3, samus.HurtFlashCounter, "active hurt feedback does not restart");
+        AssertEqual(3, samus.HurtFlashCounter, "active hurt feedback does not restart");
         AssertEqual(1, samus.LiquidPhysics.SoundRequests.Count(request =>
             request.SoundEffect.Library == SoundEffectLibrary.Library1 && request.SoundEffect.Value == 0x35 && request.MaximumQueued == 6),
             "counter two queues exactly one native gasp with Max6");
@@ -88,9 +88,9 @@ internal static class GrappleHurtFeedbackVerification
         DebuggerObjectGraphSerializer.Serialize(current, state);
         current.Position = 0;
         var restored = DebuggerObjectGraphSerializer.Deserialize<SamusState>(current);
-        AssertEqual((ushort)99, restored.PreviousHealthForHurtCheck, "current captures preserve pending health-loss history");
+        AssertEqual(99, restored.PreviousHealthForHurtCheck, "current captures preserve pending health-loss history");
         restored.InputSnapshot.UpdateHurtFlashFromHealthLoss();
-        AssertEqual((ushort)1, restored.HurtFlashCounter, "restored pending health loss starts feedback");
+        AssertEqual(1, restored.HurtFlashCounter, "restored pending health loss starts feedback");
 
         // Construct the immediately preceding graph layout by removing only this
         // primitive field. Reference IDs remain unchanged by primitive values.

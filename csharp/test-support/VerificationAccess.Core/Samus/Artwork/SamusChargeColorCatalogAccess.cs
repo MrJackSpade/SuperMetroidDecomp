@@ -10,6 +10,6 @@ internal static class SamusChargeColorCatalogAccess
     {
         /// <summary>Selects the appropriate charge branch, suit, phase, and color.</summary>
         internal Bgr555 ResolveCharge(bool pseudo, int suit, int phase, int color) =>
-            ((Bgr555)((pseudo ? self.pseudoScrew : self.chargedBeam).Resolve((int)(suit), (int)(phase), (int)(color))));
+            (pseudo ? self.pseudoScrew : self.chargedBeam).Resolve(suit, phase, color);
     }
 }

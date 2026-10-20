@@ -11,7 +11,7 @@ internal static class RoomPlmBombBlockRestoreDrawDefinitionsAccess
         {
             if (RoomPlmBombBlockRestoreDrawDefinitions.TryDescribe(pointer, out RoomPlmBombBlockRestoreDrawDefinitions.Draw draw))
             {
-                list = ((RoomPlmShotBlockDrawDefinitions.DrawList)(RoomPlmBombBlockRestoreDrawDefinitions.Export((RoomPlmBombBlockRestoreDrawDefinitions.Draw)(draw))));
+                list = RoomPlmBombBlockRestoreDrawDefinitions.Export(draw);
                 return true;
             }
             list = default;

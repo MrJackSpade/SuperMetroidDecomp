@@ -98,6 +98,10 @@ internal static partial class RoomPlmDynamicCollectibleGraphicsDefinitions
         InWorldCollectibleKind.PlasmaBeam => ItemGraphic.PlasmaBeam,
         InWorldCollectibleKind.SpazerBeam => ItemGraphic.Spazer,
         InWorldCollectibleKind.ReserveTank => ItemGraphic.ReserveTank,
+        InWorldCollectibleKind.EnergyTank or
+            InWorldCollectibleKind.MissileTank or
+            InWorldCollectibleKind.SuperMissileTank or
+            InWorldCollectibleKind.PowerBombTank => throw new InvalidDataException($"Permanent-item kind {kind} has no dynamic graphics upload."),
         _ => throw new InvalidDataException($"Permanent-item kind {kind} has no dynamic graphics upload."),
     };
 

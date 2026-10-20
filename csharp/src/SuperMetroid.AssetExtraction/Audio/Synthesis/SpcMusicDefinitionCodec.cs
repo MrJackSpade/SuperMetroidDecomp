@@ -333,7 +333,7 @@ internal static class SpcMusicDefinitionCodec
                     arguments));
                 if (effect == SpcMusicEffect.CallPattern)
                 {
-                    ushort target = unchecked((ushort)(SnesLittleEndian.Word(arguments[0], arguments[1])));
+                    ushort target = unchecked(SnesLittleEndian.Word(arguments[0], arguments[1]));
                     callTargets.Add(target);
                 }
             }
@@ -417,7 +417,7 @@ internal static class SpcMusicDefinitionCodec
     {
         byte low = ReadByte(ram, written, ref cursor, id);
         byte high = ReadByte(ram, written, ref cursor, id);
-        return unchecked((ushort)(SnesLittleEndian.Word(low, high)));
+        return unchecked(SnesLittleEndian.Word(low, high));
     }
 
     /// <summary>Appends a native little-endian word to an encoded music stream.</summary>

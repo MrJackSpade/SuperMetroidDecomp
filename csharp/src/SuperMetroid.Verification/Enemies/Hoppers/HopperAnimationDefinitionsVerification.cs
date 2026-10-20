@@ -47,8 +47,8 @@ internal static class HopperAnimationDefinitionsVerification
             bool upsideDown = orientation != 0;
             string context = $"{variant}/{orientation}";
             var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null)) { TileArtwork = artwork };
-            enemies.VerificationServices().SeedRandom = (Action<ushort>)(_ => { });
-            enemies.VerificationServices().NextRandom = (Func<ushort>)(() => 0);
+            enemies.VerificationServices().SeedRandom = _ => { };
+            enemies.VerificationServices().NextRandom = () => 0;
 
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.Bind(definitions[variant], slot.Definition);
@@ -68,7 +68,7 @@ internal static class HopperAnimationDefinitionsVerification
                 EnemyInstructionRunner.ShownFrames(slot, 2), $"hopper airborne pose {context}");
             AssertTrue(slot.Properties.HasAny(EnemyProperties.ProcessOffScreen),
                 $"hopper jumping program {context} enables off-screen processing");
-            AssertEqual(variant is 0 or 1 ? (SoundEffectId?)SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, 0x005d) : null, enemies.HoppersBehavior.LastHopperSoundEffect,
+            AssertEqual(variant is 0 or 1 ? SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, 0x005d) : null, enemies.HoppersBehavior.LastHopperSoundEffect,
                 $"hopper jumping sound {context}");
 
             HoppersBehavior.LandHopper(slot, state);
@@ -81,7 +81,7 @@ internal static class HopperAnimationDefinitionsVerification
             AssertTrue(!slot.Properties.HasAny(EnemyProperties.ProcessOffScreen),
                 $"hopper landed program {context} disables off-screen processing");
             AssertTrue(state.ReadyToHop, $"hopper landed program {context} publishes ready-to-hop");
-            AssertEqual(variant is 0 or 1 ? (SoundEffectId?)SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, 0x005e) : null, enemies.HoppersBehavior.LastHopperSoundEffect,
+            AssertEqual(variant is 0 or 1 ? SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, 0x005e) : null, enemies.HoppersBehavior.LastHopperSoundEffect,
                 $"hopper landed sound {context}");
         }
 
@@ -105,8 +105,8 @@ internal static class HopperAnimationDefinitionsVerification
         EnemyTileArtworkCatalog? artwork)
     {
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null)) { TileArtwork = artwork };
-        enemies.VerificationServices().SeedRandom = (Action<ushort>)(_ => { });
-        enemies.VerificationServices().NextRandom = (Func<ushort>)(() => 0);
+        enemies.VerificationServices().SeedRandom = _ => { };
+        enemies.VerificationServices().NextRandom = () => 0;
 
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.SidehopperTourian, slot.Definition);

@@ -60,8 +60,8 @@ internal static class MessageSnapshotTestsVerification
                     }
                 }
                 SnesButton input = state.Phase == GameplayMessageBoxPhase.AwaitingInput
-                    ? tick % 3 == 0 ? SnesButton.Right : tick % 3 == 2 ? SnesButton.A : (ushort)0
-                    : (ushort)0;
+                    ? tick % 3 == 0 ? SnesButton.Right : tick % 3 == 2 ? SnesButton.A : 0
+                    : 0;
                 if (id == GameplayMessageIds.SaveConfirmation && state.Phase == GameplayMessageBoxPhase.AwaitingInput)
                 {
                     if (!toggledSave) { input = SnesButton.Right; toggledSave = true; }

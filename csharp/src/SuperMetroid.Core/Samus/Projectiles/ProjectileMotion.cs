@@ -356,7 +356,7 @@ internal sealed class ProjectileMotion
             return;
 
         link.ClearFields();
-        link.Type = (ushort)(SamusProjectileTypeWord.LiveMarker | (ushort)SamusProjectileFamily.SuperMissile);
+        link.Type = SamusProjectileTypeWord.LiveMarker | (ushort)SamusProjectileFamily.SuperMissile;
         link.Direction = owner.Direction;
         link.Position = link.Position.WithWhole(owner.Position.Whole);
 
@@ -497,8 +497,8 @@ internal sealed class ProjectileMotion
     {
         int blockX = slot.Position.X.Whole >> 4;
         int blockY = slot.Position.Y.Whole >> 4;
-        if ((uint)blockX >= (uint)level.Size.X ||
-            (uint)blockY >= (uint)level.Size.Y)
+        if ((uint)blockX >= level.Size.X ||
+            (uint)blockY >= level.Size.Y)
         {
             return false;
         }
@@ -559,6 +559,13 @@ internal sealed class ProjectileMotion
             // CollisionType is the high nibble of a room word, so the cases above are
             // exhaustive after extension redispatch. Preserve an explicit corruption guard
             // in case that representation ever changes without silently inventing carry.
+            RoomCollisionType.ShootableAir or
+                RoomCollisionType.HorizontalExtension or
+                RoomCollisionType.BombableAir or
+                RoomCollisionType.ShootableBlock or
+                RoomCollisionType.VerticalExtension or
+                RoomCollisionType.BombableBlock => throw new InvalidDataException(
+                $"Invalid missile collision type ${(int)block.CollisionType:X2} at block {block.Index}."),
             _ => throw new InvalidDataException(
                 $"Invalid missile collision type ${(int)block.CollisionType:X2} at block {block.Index}."),
         };

@@ -12,26 +12,26 @@ internal sealed class CrocomireEntity(CrocomireBehavior species, RoomEnemySlot s
     : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation, IEnemyExtendedHitboxes, IEnemyNormalBombAdmission, IEnemyBg2Frames, IEnemyPrivateShotCallback
 {
     /// <inheritdoc/>
-    public EnemyInitializationAiHandler? FindInitialization() => Slot.EnemyDefinitionPointer switch
+    public EnemyInitializationAiHandler? FindInitialization() => CrocomirePartDefinitions.Parts[Slot.EnemyDefinitionPointer] switch
     {
-        EnemyDefinitionId.Crocomire => species.RunCrocomireInitializationAi,
-        EnemyDefinitionId.CrocomireTongue => species.RunCrocomireTongueInitializationAi,
+        CrocomirePart.Crocomire => species.RunCrocomireInitializationAi,
+        CrocomirePart.Tongue => species.RunCrocomireTongueInitializationAi,
         _ => throw new InvalidOperationException($"Crocomire entity bound to {Slot.EnemyDefinitionPointer}."),
     };
 
     /// <inheritdoc/>
-    public EnemyMainAiHandler? FindMain() => Slot.EnemyDefinitionPointer switch
+    public EnemyMainAiHandler? FindMain() => CrocomirePartDefinitions.Parts[Slot.EnemyDefinitionPointer] switch
     {
-        EnemyDefinitionId.Crocomire => species.RunCrocomireMainAi,
-        EnemyDefinitionId.CrocomireTongue => CrocomireBehavior.RunCrocomireTongueMainAi,
+        CrocomirePart.Crocomire => species.RunCrocomireMainAi,
+        CrocomirePart.Tongue => CrocomireBehavior.RunCrocomireTongueMainAi,
         _ => throw new InvalidOperationException($"Crocomire entity bound to {Slot.EnemyDefinitionPointer}."),
     };
 
     /// <inheritdoc/>
-    public Action<RoomEnemySlot, EnemyInstructionContext>? FindTypedAnimation() => Slot.EnemyDefinitionPointer switch
+    public Action<RoomEnemySlot, EnemyInstructionContext>? FindTypedAnimation() => CrocomirePartDefinitions.Parts[Slot.EnemyDefinitionPointer] switch
     {
-        EnemyDefinitionId.Crocomire => species.AdvanceCrocomireTypedAnimation,
-        EnemyDefinitionId.CrocomireTongue => species.AdvanceCrocomireTongueTypedAnimation,
+        CrocomirePart.Crocomire => species.AdvanceCrocomireTypedAnimation,
+        CrocomirePart.Tongue => species.AdvanceCrocomireTongueTypedAnimation,
         _ => throw new InvalidOperationException($"Crocomire entity bound to {Slot.EnemyDefinitionPointer}."),
     };
 

@@ -57,7 +57,7 @@ internal static class OwtchPatrolStateVerification
         (enemies, slot, state) = NewOwtch(OwtchBehaviorState.Rising);
         AssertEqual(0, state.BurialDepth, "Owtch spawned rising starts unburied");
         enemies.OwtchBehavior.RunOwtchMainAi(slot, frame);
-        AssertEqual((int)ushort.MaxValue, state.BurialDepth, "Owtch rising from depth zero wraps its depth");
+        AssertEqual(ushort.MaxValue, state.BurialDepth, "Owtch rising from depth zero wraps its depth");
         AssertEqual(OwtchBehaviorState.Rising, state.Behavior, "Owtch keeps rising after the wrap");
         AssertEqual((ushort)63, slot.Position.Y.Whole, "Owtch rose one pixel");
 

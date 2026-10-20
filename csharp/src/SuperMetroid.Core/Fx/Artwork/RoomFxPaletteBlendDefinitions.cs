@@ -72,6 +72,7 @@ public static class RoomFxPaletteBlendDefinitions
     {
         RoomFxPaletteBlend.Lava or RoomFxPaletteBlend.MaridiaWaterA or RoomFxPaletteBlend.WaterAndAcid or RoomFxPaletteBlend.MaridiaWaterB or RoomFxPaletteBlend.MaridiaWaterC or RoomFxPaletteBlend.MaridiaWaterD => Bgr555.Black,
         RoomFxPaletteBlend.LandingSiteRain or RoomFxPaletteBlend.Fog => null,
+        RoomFxPaletteBlend.None => throw new InvalidDataException($"Room-FX palette blend ${(byte)id:X2} is not catalogued."),
         _ => throw new InvalidDataException($"Room-FX palette blend ${(byte)id:X2} is not catalogued."),
     };
     /// <summary>RoomFxPaletteBlend.Lava shares full red; Maridia A/B/D share a zero-red dark-blue primary.</summary>
@@ -112,6 +113,7 @@ public static class RoomFxPaletteBlendDefinitions
             RoomFxPaletteBlend.LandingSiteRain => Math.Min(31, red + 2),
             RoomFxPaletteBlend.Fog => Math.Min(31, red + 3),
             RoomFxPaletteBlend.MaridiaWaterA or RoomFxPaletteBlend.WaterAndAcid or RoomFxPaletteBlend.MaridiaWaterB or RoomFxPaletteBlend.MaridiaWaterD => null,
+            RoomFxPaletteBlend.None => throw new InvalidOperationException($"Undefined RoomFxPaletteBlend {id}."),
             _ => throw new InvalidOperationException($"Undefined RoomFxPaletteBlend {id}."),
         };
     }
@@ -131,6 +133,7 @@ public static class RoomFxPaletteBlendDefinitions
             RoomFxPaletteBlend.LandingSiteRain => Math.Min(31, red + 2),
             RoomFxPaletteBlend.Fog => red,
             RoomFxPaletteBlend.Lava or RoomFxPaletteBlend.MaridiaWaterA or RoomFxPaletteBlend.WaterAndAcid or RoomFxPaletteBlend.MaridiaWaterB or RoomFxPaletteBlend.MaridiaWaterC or RoomFxPaletteBlend.MaridiaWaterD => null,
+            RoomFxPaletteBlend.None => throw new InvalidOperationException($"Undefined RoomFxPaletteBlend {id}."),
             _ => throw new InvalidOperationException($"Undefined RoomFxPaletteBlend {id}."),
         };
     }

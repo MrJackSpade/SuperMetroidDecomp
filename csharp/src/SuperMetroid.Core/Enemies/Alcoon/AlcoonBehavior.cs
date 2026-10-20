@@ -489,8 +489,8 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
         if (velocity < 0)
         {
             velocity = unchecked((short)(velocity + AlcoonFireballHorizontalDeceleration));
-            if (velocity >= unchecked((short)-AlcoonFireballTerminalHorizontalSpeed))
-                velocity = unchecked((short)-AlcoonFireballTerminalHorizontalSpeed);
+            if (velocity >= unchecked(-AlcoonFireballTerminalHorizontalSpeed))
+                velocity = unchecked(-AlcoonFireballTerminalHorizontalSpeed);
         }
         else
         {

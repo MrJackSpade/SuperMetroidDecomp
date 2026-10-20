@@ -63,13 +63,13 @@ internal static class LookupBombTorizoHandDrawVerification
                 AssertTrue(count is > 0 and < 0x8000, "Torizo hand original horizontal run");
                 if (field == 0)
                 {
-                    AssertEqual((int)count, shape.WordCount(run), "Torizo hand native run width");
+                    AssertEqual(count, shape.WordCount(run), "Torizo hand native run width");
                     AssertEqual(x, shape.OriginX(run), "Torizo hand original origin-relative X");
                     AssertEqual(y, shape.OriginY(run), "Torizo hand original origin-relative Y");
                     foreach (var frame in new[] {dto,exported[index],byId})
                     {
                         AssertEqual(count, frame.Runs.Span[run].DirectionAndCount, "Torizo hand DTO count");
-                        AssertEqual((int)count, frame.Runs.Span[run].LevelWords.Length, "Torizo hand DTO width");
+                        AssertEqual(count, frame.Runs.Span[run].LevelWords.Length, "Torizo hand DTO width");
                     }
                     foreach (int bad in new[] {int.MinValue,-1,count,int.MaxValue})
                         AssertThrows<IndexOutOfRangeException>(() => shape.WordAt(run,bad), "Torizo hand cell bounds");

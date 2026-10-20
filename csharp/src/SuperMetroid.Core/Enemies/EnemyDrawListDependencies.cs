@@ -9,9 +9,6 @@ namespace SuperMetroid.Core.Enemies;
 [RoomLifetime]
 internal sealed record EnemyDrawListDependencies
 {
-    /// <summary>Ceres ridley behavior.</summary>
-    public required CeresRidleyBehavior CeresRidleyBehavior { get; init; }
-
     /// <summary>Dead torizo behavior.</summary>
     public required DeadTorizoBehavior DeadTorizoBehavior { get; init; }
 
@@ -26,9 +23,6 @@ internal sealed record EnemyDrawListDependencies
 
     /// <summary>Presentation.</summary>
     public required EnemyPresentation Presentation { get; init; }
-
-    /// <summary>Ridley encounter.</summary>
-    public required RidleyEncounter RidleyEncounter { get; init; }
 
     /// <summary>Room.</summary>
     public required EnemyRoomBinding Room { get; init; }

@@ -13,19 +13,19 @@ internal sealed class PhantoonEntity(PhantoonBehavior species, RoomEnemySlot slo
     : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation, IEnemyExtendedHitboxes, IEnemyBg2Frames, IEnemyContactHooks, IEnemyPrivateShotCallback
 {
     /// <inheritdoc/>
-    public EnemyInitializationAiHandler? FindInitialization() => Slot.EnemyDefinitionPointer switch
+    public EnemyInitializationAiHandler? FindInitialization() => PhantoonPartDefinitions.Parts[Slot.EnemyDefinitionPointer] switch
     {
-        EnemyDefinitionId.PhantoonBody => species.RunPhantoonBodyInitializationAi,
-        EnemyDefinitionId.PhantoonEye or EnemyDefinitionId.PhantoonTentacles or EnemyDefinitionId.PhantoonMouth => species.RunPhantoonEyeInitializationAi,
+        PhantoonPart.Body => species.RunPhantoonBodyInitializationAi,
+        PhantoonPart.Eye or PhantoonPart.Tentacles or PhantoonPart.Mouth => species.RunPhantoonEyeInitializationAi,
         _ => throw new InvalidOperationException($"Phantoon entity bound to {Slot.EnemyDefinitionPointer}."),
     };
 
     /// <inheritdoc/>
-    public EnemyMainAiHandler? FindMain() => Slot.EnemyDefinitionPointer switch
+    public EnemyMainAiHandler? FindMain() => PhantoonPartDefinitions.Parts[Slot.EnemyDefinitionPointer] switch
     {
-        EnemyDefinitionId.PhantoonBody => species.RunPhantoonBodyMainAi,
-        EnemyDefinitionId.PhantoonEye => PhantoonBehavior.RunPhantoonEyeMainAi,
-        EnemyDefinitionId.PhantoonTentacles or EnemyDefinitionId.PhantoonMouth => PhantoonBehavior.RunPhantoonTentaclesMainAi,
+        PhantoonPart.Body => species.RunPhantoonBodyMainAi,
+        PhantoonPart.Eye => PhantoonBehavior.RunPhantoonEyeMainAi,
+        PhantoonPart.Tentacles or PhantoonPart.Mouth => PhantoonBehavior.RunPhantoonTentaclesMainAi,
         _ => throw new InvalidOperationException($"Phantoon entity bound to {Slot.EnemyDefinitionPointer}."),
     };
 

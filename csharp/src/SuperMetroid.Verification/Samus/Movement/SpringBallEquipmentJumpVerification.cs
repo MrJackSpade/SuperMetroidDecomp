@@ -52,14 +52,14 @@ internal static class SpringBallEquipmentJumpVerification
                 Resume(true);
                 SamusPoseId springGround = left ? SamusPoseId.SpringBallGroundLeftPose : SamusPoseId.SpringBallGroundRightPose;
                 AssertEqual(springGround, samus.Pose, "unpause equips jump-enabled Spring Ball even while rising");
-                AssertEqual((ushort)0, samus.AnimationFrame, "cross-family equipment conversion restarts ball animation");
+                AssertEqual(0, samus.AnimationFrame, "cross-family equipment conversion restarts ball animation");
                 ushort beforeY = samus.Position.Y.Whole;
                 runtime.Controller1.Latch(0);
                 runtime.StepFrame(SnesButton.A);
                 AssertEqual(left ? SamusPoseId.SpringBallJumpLeftPose : SamusPoseId.SpringBallJumpRightPose,
                     samus.Pose, "new jump input enters powered Spring Ball jump");
-                AssertEqual((ushort)2, samus.Kinematics.YSpeed.Whole, "native Hi-Jump water launch whole speed");
-                AssertEqual((ushort)0x8000, samus.Kinematics.YSpeed.Fraction, "native Hi-Jump water launch fractional speed");
+                AssertEqual(2, samus.Kinematics.YSpeed.Whole, "native Hi-Jump water launch whole speed");
+                AssertEqual(0x8000, samus.Kinematics.YSpeed.Fraction, "native Hi-Jump water launch fractional speed");
                 runtime.StepFrame(SnesButton.A);
                 AssertTrue(samus.Position.Y.Whole < beforeY, "mid-air equipment jump gains height");
                 if (jump == 0)

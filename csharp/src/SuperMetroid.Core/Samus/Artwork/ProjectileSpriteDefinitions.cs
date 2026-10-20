@@ -471,6 +471,14 @@ public static class ProjectileSpriteDefinitions
                 ChargedSpazerShape.VerticalAlternate => SpazerStartupShape.VerticalAlternate,
                 ChargedSpazerShape.RisingAlternate => SpazerStartupShape.RisingAlternate,
                 ChargedSpazerShape.FallingAlternate => SpazerStartupShape.FallingAlternate,
+                ChargedSpazerShape.UpRight or
+                    ChargedSpazerShape.DownRight or
+                    ChargedSpazerShape.DownLeft or
+                    ChargedSpazerShape.UpLeft or
+                    ChargedSpazerShape.Down or
+                    ChargedSpazerShape.Left or
+                    ChargedSpazerShape.Up or
+                    ChargedSpazerShape.Right => throw new InvalidOperationException("Unknown Spazer alternate startup."),
                 _ => throw new InvalidOperationException("Unknown Spazer alternate startup."),
             };
         else

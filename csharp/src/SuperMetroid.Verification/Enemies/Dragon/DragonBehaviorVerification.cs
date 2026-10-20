@@ -35,6 +35,9 @@ internal static class DragonBehaviorVerification
                     AssertEqual(EnemyInstructionRunner.ExpectedLoop(DragonAnimations.Programs, program, DragonFrameToolingDefinitions.Spritemap),
                         EnemyInstructionRunner.ShownFrames(slot, EnemyInstructionRunner.LoopUpdates(DragonAnimations.Programs, program)), $"Dragon {program} loop");
                     break;
+                case DragonAnimationSelector.AttackingFacingLeft:
+                case DragonAnimationSelector.AttackingFacingRight:
+                case DragonAnimationSelector.ForceReinstall:
                 default:
                     int[] holds = [32, 3, 7, 3, 1];
                     AssertEqual(EnemyInstructionRunner.ExpectedFrames([.. poses, poses[^1]], [.. holds, 1]),

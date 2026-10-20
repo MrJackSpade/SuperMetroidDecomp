@@ -214,6 +214,37 @@ public sealed class AreaMapPresentationCatalog : IVramAssetProvider, IGameplayPr
         VramAssetId.KraidBg3RestoreQuarter2 => HudTiles.KraidRestoreQuarter(2),
         VramAssetId.KraidBg3RestoreQuarter3 => HudTiles.KraidRestoreQuarter(3),
         VramAssetId.EscapeTimerFirstTiles or VramAssetId.EscapeTimerSecondTiles => EscapeTimerTiles.Resolve(asset),
+        VramAssetId.None or
+            VramAssetId.BeamPowerTiles or
+            VramAssetId.BeamWaveTiles or
+            VramAssetId.BeamIceTiles or
+            VramAssetId.BeamIceWaveTiles or
+            VramAssetId.BeamSpazerTiles or
+            VramAssetId.BeamSpazerWaveTiles or
+            VramAssetId.BeamSpazerIceTiles or
+            VramAssetId.BeamSpazerIceWaveTiles or
+            VramAssetId.BeamPlasmaTiles or
+            VramAssetId.BeamPlasmaWaveTiles or
+            VramAssetId.BeamPlasmaIceTiles or
+            VramAssetId.BeamPlasmaIceWaveTiles or
+            VramAssetId.ProjectileIceWaveTrailTiles or
+            VramAssetId.ProjectileMissileTrailTiles or
+            VramAssetId.GrapplePointFirstTiles or
+            VramAssetId.GrapplePointSecondTiles or
+            VramAssetId.GrapplePointThirdTiles or
+            VramAssetId.GrapplePointFourthTiles or
+            VramAssetId.GrappleHorizontalSegmentTiles or
+            VramAssetId.GrappleDiagonalSegmentTiles or
+            VramAssetId.GrappleVerticalSegmentTiles or
+            VramAssetId.GunshipLiftoffFirstTiles or
+            VramAssetId.GunshipLiftoffSecondTiles or
+            VramAssetId.GunshipLiftoffThirdTiles or
+            VramAssetId.GunshipLiftoffFourthTiles or
+            VramAssetId.GunshipLiftoffFifthTiles or
+            VramAssetId.BeamChainsawTiles or
+            VramAssetId.BeamSpacetimeTiles or
+            VramAssetId.StandardObjectTiles or
+            VramAssetId.HudTopRowTilemap => throw new InvalidDataException($"Map catalog cannot resolve VRAM asset {asset}."),
         _ => throw new InvalidDataException($"Map catalog cannot resolve VRAM asset {asset}."),
     };
     /// <summary>Returns an area's selected map presentation with verified stock exploration and station-reveal rules.</summary>

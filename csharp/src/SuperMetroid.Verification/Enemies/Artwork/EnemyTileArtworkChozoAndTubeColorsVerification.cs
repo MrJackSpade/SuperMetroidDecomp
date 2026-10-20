@@ -66,12 +66,12 @@ internal static class EnemyTileArtworkChozoAndTubeColorsVerification
         // instruction identity and native PLM requests remain engine-owned.
         Type type = typeof(RoomEnemySystem);
         var guarded = NewChozoAndTubePaletteReadGuard(rom);
-        Suite(nameof(VerifyLive), () => VerifyLive((ushort)0, colors.ResolveTubeCracks,
+        Suite(nameof(VerifyLive), () => VerifyLive(0, colors.ResolveTubeCracks,
             "n00b-tube cracks", (enemies, _) => enemies.ChozoStatueBehavior.InitializeN00bTubeCracks(), null));
-        Suite(nameof(VerifyLive), () => VerifyLive((ushort)0, colors.ResolveWreckedShip,
+        Suite(nameof(VerifyLive), () => VerifyLive(0, colors.ResolveWreckedShip,
             "Wrecked Ship Chozo", (enemies, statue) => enemies.ChozoStatueBehavior.InitializeChozoStatue(statue),
             ChozoStatueProgram.WreckedShipInitial));
-        Suite(nameof(VerifyLive), () => VerifyLive((ushort)2, colors.ResolveLowerNorfair,
+        Suite(nameof(VerifyLive), () => VerifyLive(2, colors.ResolveLowerNorfair,
             "Lower Norfair Chozo", (enemies, statue) => enemies.ChozoStatueBehavior.InitializeChozoStatue(statue),
             ChozoStatueProgram.LowerNorfairInitial));
 

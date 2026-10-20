@@ -18,7 +18,7 @@ internal static class GoldenTorizoCodeVerification
     internal static void VerifyGoldenTorizoCode()
     {
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        ushort Word(int address) => (ushort)(SnesLittleEndian.Word(GoldenTorizoCodeRomByte(rom, address), GoldenTorizoCodeRomByte(rom, address + 1)));
+        ushort Word(int address) => SnesLittleEndian.Word(GoldenTorizoCodeRomByte(rom, address), GoldenTorizoCodeRomByte(rom, address + 1));
         SnesButton input = (SnesButton)Word(0xaac91a);
         ushort[] native = [Word(0xaac91f), Word(0xaac928), Word(0xaac931),
             Word(0xaac93a), Word(0xaac943), Word(0xaac94c), Word(0xaac955)];
@@ -33,7 +33,7 @@ internal static class GoldenTorizoCodeVerification
         {
             var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
             enemies.Presentation.BindCgram(new SnesCgram());
-            enemies.VerificationServices().IsAreaTorizoDefeated = (Func<bool>)(() => defeated);
+            enemies.VerificationServices().IsAreaTorizoDefeated = () => defeated;
             var initialize = new Action<RoomEnemySlot, RoomLevelData?, SamusState?, SnesButton, ushort>(RoomEnemySystem.RunInitializationAi);
             var actor = enemies.SlotTable.Slots[0];
             actor.Bind(header, actor.Definition);
@@ -54,7 +54,7 @@ internal static class GoldenTorizoCodeVerification
             AssertTrue(expected.SequenceEqual(Snapshot(samus)),
                 $"GT code inventory: header ${(int)header:X4}, held ${held:X}, defeated {defeated}");
             AssertEqual(ReserveTankMode.Manual, samus.ReserveTankMode, "GT code does not set reserve mode");
-            AssertEqual((ushort)7, samus.ReserveMissiles, "GT code does not alter reserve missiles");
+            AssertEqual(7, samus.ReserveMissiles, "GT code does not alter reserve missiles");
         }
 
         static ushort[] Snapshot(SamusState samus) =>

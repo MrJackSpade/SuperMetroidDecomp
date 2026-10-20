@@ -300,6 +300,8 @@ public sealed class TitleSequenceState
                     }
                 }
                 break;
+            default:
+                throw new InvalidOperationException($"Undefined {nameof(TitleSequencePhase)} {Phase}.");
         }
 
         StepBabyMetroidAnimation();

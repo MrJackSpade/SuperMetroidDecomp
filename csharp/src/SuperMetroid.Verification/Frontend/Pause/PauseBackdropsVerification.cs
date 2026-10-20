@@ -67,7 +67,7 @@ internal static class PauseBackdropsVerification
             for (int tick = 0; tick < unpause + 2; tick++)
             {
                 SnesButton input = tick == 2 ? SnesButton.R : tick == toMap ? SnesButton.L :
-                    tick == unpause ? SnesButton.Start : (ushort)0;
+                    tick == unpause ? SnesButton.Start : 0;
                 AssertEqual(native.Step(input, input), pause.Step(input, input), "backdrop migration preserves Start acceptance and page controls");
                 persistentEdit.Step(input, input);
                 // Each area's complete backdrop is compared word-for-word above, and the fade and

@@ -33,7 +33,7 @@ internal static class ImportedVramOracle
             // reference transfer is even-sized and can use the word-port API.
             var words = new ushort[bytes.Length / 2];
             for (int i = 0; i < words.Length; i++)
-                words[i] = (ushort)(SnesLittleEndian.Word(bytes[i * 2], bytes[i * 2 + 1]));
+                words[i] = SnesLittleEndian.Word(bytes[i * 2], bytes[i * 2 + 1]);
             vram.ExecuteWordTransfer(words, (ushort)(encodedDestination & 0x7fff),
                 (encodedDestination & 0x8000) == 0 ? 1 : 32);
         }
@@ -58,6 +58,7 @@ internal static class ImportedVramOracle
                 SnesDmaSourceKind.Cartridge => CartridgeImportSource.Require(source)
                     .ReadCartridgeByte((int)address),
                 SnesDmaSourceKind.WorkRam => memory.ReadWorkRamByte((int)address),
+                SnesDmaSourceKind.Unmapped => throw new InvalidOperationException($"Reference DMA source {address} is unmapped."),
                 _ => throw new InvalidOperationException($"Reference DMA source {address} is unmapped."),
             };
         }

@@ -58,7 +58,7 @@ internal static class LookupFxPairColorsVerification
         {
             for (int color = 0; color < 2; color++)
             {
-                var owner = new RoomFxPairColor((RoomFxPaletteBlend)id, Bgr555.FromWord(checked((ushort)(ReadVerificationWord(rom, 0x89aa02 + id + color * 2)))), color == 0);
+                var owner = new RoomFxPairColor((RoomFxPaletteBlend)id, Bgr555.FromWord(checked(ReadVerificationWord(rom, 0x89aa02 + id + color * 2))), color == 0);
                 foreach (var field in new (Func<RoomFxPairColor, int?> Read, int Shift)[]
                          { (pair => pair.redOverride, 0), (pair => pair.greenOverride, 5), (pair => pair.blueOverride, 10) })
                 {
@@ -72,7 +72,7 @@ internal static class LookupFxPairColorsVerification
             // including intensities above the stock tint's range and saturated values.
             foreach (bool isPrimary in new[] { false, true })
             for (int word = 0; word < 0x8000; word++)
-                AssertEqual((ushort)word, new RoomFxPairColor((RoomFxPaletteBlend)id, Bgr555.FromWord(checked((ushort)((ushort)word))), isPrimary).CreateColor(), "All RGB5 edits round-trip");
+                AssertEqual((ushort)word, new RoomFxPairColor((RoomFxPaletteBlend)id, Bgr555.FromWord(checked((ushort)word)), isPrimary).CreateColor(), "All RGB5 edits round-trip");
             foreach (bool isPrimary in new[] { false, true })
             foreach (int invalid in new[] { int.MinValue, -1, 32, int.MaxValue })
             {

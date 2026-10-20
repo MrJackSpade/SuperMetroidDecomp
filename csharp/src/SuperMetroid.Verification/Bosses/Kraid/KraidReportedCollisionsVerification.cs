@@ -46,7 +46,7 @@ internal static class KraidReportedCollisionsVerification
             bool spawned = false;
             for (int frame = 0; frame < 24; frame++)
             {
-                game.Step(frame == 0 ? SnesButton.X : (ushort)0);
+                game.Step(frame == 0 ? SnesButton.X : 0);
                 foreach (var shot in runtime.Projectiles.Slots.Where(p => p.IsActive))
                 {
                     spawned = true;
@@ -57,7 +57,7 @@ internal static class KraidReportedCollisionsVerification
             AssertEqual(true, spawned, "Production firing spawned Spazer");
             AssertEqual(true, marked, "Head collision marks Spazer for removal");
             AssertEqual(false, runtime.Projectiles.Slots.Any(p => p.IsActive), "Impacted Spazer is removed");
-            AssertEqual((ushort)1000, body.Health, "Uncharged Spazer does not damage Kraid");
+            AssertEqual(1000, body.Health, "Uncharged Spazer does not damage Kraid");
         });
         runtime.Projectiles.Reset();
         void ResetSamus(ushort x, ushort y)
@@ -111,7 +111,7 @@ internal static class KraidReportedCollisionsVerification
             shot.Type = 0x8004; shot.Damage = 40;
             shot.Position = shot.Position.WithWhole(new(200, (ushort)(body.Position.Y.Whole - 106)));
             shot.Radius = new(8, 8);
-            runtime.Projectiles.SlotTable.ProjectileCounter = (ushort)1;
+            runtime.Projectiles.SlotTable.ProjectileCounter = 1;
             runtime.Enemies.ResolveKraidProjectileHits(bus, runtime.Projectiles, runtime.BombProjectiles);
             AssertEqual(true, shot.PackedDirection.HasLowByteLifecycleState,
                 "Initial closed head blocks shots before the first head animation executes");
@@ -122,7 +122,7 @@ internal static class KraidReportedCollisionsVerification
             state.Parts[0].Function = KraidAiFunction.MainloopThinking;
             state.ThinkingTimer = NativeCountdown.Start(100);
             ResetSamus(180, 500);
-            runtime.Enemies.KraidBehavior.RunKraidBodyMain(body, samus, new Position16<RoomPixels>((ushort)0, (ushort)384), null, null, null);
+            runtime.Enemies.KraidBehavior.RunKraidBodyMain(body, samus, new Position16<RoomPixels>(0, 384), null, null, null);
             AssertEqual((ushort)172, samus.Position.X.Whole, "Kraid ejects Samus eight pixels left");
             AssertEqual((ushort)492, samus.Position.Y.Whole, "Kraid ejects Samus eight pixels up");
             AssertEqual((ushort)(999 - body.Definition.Damage), samus.Health, "Kraid body touch damage");
@@ -136,7 +136,7 @@ internal static class KraidReportedCollisionsVerification
             state.Parts[0].Function = KraidAiFunction.MainloopThinking;
             state.ThinkingTimer = NativeCountdown.Start(100);
             ResetSamus(180, 500);
-            runtime.Enemies.KraidBehavior.RunKraidBodyMain(body, samus, new Position16<RoomPixels>((ushort)0, (ushort)384), null, null, null);
+            runtime.Enemies.KraidBehavior.RunKraidBodyMain(body, samus, new Position16<RoomPixels>(0, 384), null, null, null);
             state.EjectionLimit = smallFormLimit;
             AssertEqual((ushort)172, samus.Position.X.Whole, "Kraid still ejects Samus eight pixels left");
             AssertEqual((ushort)496, samus.Position.Y.Whole, "Kraid's upward push stops at the ejection limit's Y");

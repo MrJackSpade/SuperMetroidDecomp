@@ -64,7 +64,7 @@ internal static void VerifySamusAerialTurnsAndWallJump()
         for (int tick = 0; tick < 6; tick++)
             endpoint.Presentation.AnimateNoFx(new SamusAnimationStep { Random = new CartridgeRandom(), ProspectiveInputPose = selected });
         bool jumpWins = !locked && selected.HasValue && selected != SamusPoseId.MovingRightNormalPose;
-        AssertEqual(jumpWins ? (SamusPoseId?)null : SamusPoseId.FacingRightNormalPose,
+        AssertEqual(jumpWins ? null : SamusPoseId.FacingRightNormalPose,
             endpoint.PendingTransitionalPose, "F8 respects selected jump and disabled-input exception");
     }
 
@@ -339,7 +339,7 @@ level, heldOnly, (SnesButton.Left | SnesButton.A), 0, 0);
             Position: new(69, 48),
             Radius: new(5, 5),
             Frozen: false,
-            Properties: EnemyPropertyWord.FromNativeWord((ushort)(0x8000))),
+            Properties: EnemyPropertyWord.FromNativeWord(0x8000)),
     ];
     AerialMovementResult enemyTrigger = SamusAerialMovement.StepSpinJump(
 

@@ -194,7 +194,7 @@ internal static class KiHunterInstructionProgramDefinitionsVerification
                 string side = swoopLeft ? "left" : "right";
                 AssertEqual(SnesSignedSixteenSixteen.FromParts(unchecked((short)velocityWhole), velocityFraction), state.AngularVelocity,
                     $"KiHunter {side} swoop update {update} angular velocity carries and caps only its whole part");
-                AssertEqual((int)angle, state.SwoopAngle, $"KiHunter {side} swoop update {update} steps the angle by the whole velocity");
+                AssertEqual(angle, state.SwoopAngle, $"KiHunter {side} swoop update {update} steps the angle by the whole velocity");
                 AssertEqual(ended ? KiHunterEnemyFunction.FlyingPatrol : KiHunterEnemyFunction.Swooping, state.Function,
                     $"KiHunter {side} swoop update {update} ends only when the native angle test ends it");
             }

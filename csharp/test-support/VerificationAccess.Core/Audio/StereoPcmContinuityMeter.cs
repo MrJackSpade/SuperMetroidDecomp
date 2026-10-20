@@ -30,12 +30,12 @@ internal sealed class StereoPcmContinuityMeter
         if (hasPreviousFrame)
         {
             MaximumBoundaryDelta = Math.Max(MaximumBoundaryDelta,
-                Math.Max(Math.Abs((int)samples[0] - previousLeft),
-                    Math.Abs((int)samples[1] - previousRight)));
+                Math.Max(Math.Abs(samples[0] - previousLeft),
+                    Math.Abs(samples[1] - previousRight)));
         }
         for (int index = 2; index < samples.Length; index++)
             MaximumWithinBufferDelta = Math.Max(MaximumWithinBufferDelta,
-                Math.Abs((int)samples[index] - samples[index - 2]));
+                Math.Abs(samples[index] - samples[index - 2]));
         previousLeft = samples[^2];
         previousRight = samples[^1];
         hasPreviousFrame = true;

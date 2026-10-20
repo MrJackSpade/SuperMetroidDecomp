@@ -147,8 +147,8 @@ public static class GameOptionsPresentationExtractor
         var cells = new MapPresentationCell[bytes.Length / sizeof(ushort)];
         for (int index = 0; index < cells.Length; index++)
         {
-            var word = new SnesBgTilemapWord(unchecked((ushort)(
-                SnesLittleEndian.Word(bytes[index * 2], bytes[index * 2 + 1]))));
+            var word = new SnesBgTilemapWord(unchecked(
+                SnesLittleEndian.Word(bytes[index * 2], bytes[index * 2 + 1])));
             cells[index] = new()
             {
                 TileColumn = word.CharacterIndex % MapTileAtlasFormat.TileColumns,

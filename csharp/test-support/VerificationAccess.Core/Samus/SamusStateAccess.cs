@@ -14,7 +14,7 @@ internal static class SamusStateAccess
         /// <summary>Typed view of <see cref="SamusState.Pose"/>; casting preserves undefined cartridge bytes.</summary>
         internal SamusPoseId PoseId
         {
-            get => (SamusPoseId)self.Pose;
+            get => self.Pose;
             set => self.Pose = value;
         }
 

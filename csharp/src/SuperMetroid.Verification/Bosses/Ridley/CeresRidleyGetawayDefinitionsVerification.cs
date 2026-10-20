@@ -62,7 +62,7 @@ internal static class CeresRidleyGetawayDefinitionsVerification
                     "Ceres Mode 7 native VRAM increment mode");
                 AssertEqual(size, transfer.TileNumbers.Length,
                     "Ceres Mode 7 compiled byte count");
-                AssertEqual((int)destination, transfer.DestinationWord,
+                AssertEqual(destination, transfer.DestinationWord,
                     "Ceres Mode 7 compiled VRAM destination");
                 for (int index = 0; index < size; index++)
                 {

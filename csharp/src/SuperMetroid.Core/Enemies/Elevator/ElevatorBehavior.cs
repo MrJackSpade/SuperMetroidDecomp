@@ -290,7 +290,7 @@ internal sealed class ElevatorBehavior : IEnemySpecies, IEnemyEntityFactory, IEl
     {
         uint fixedPosition = slot.Position.Y.RawValue;
         fixedPosition = unchecked(fixedPosition + (uint)signedVelocity);
-        slot.Position = slot.Position.WithY(SnesFixedPosition.FromRaw(unchecked((uint)fixedPosition)));
+        slot.Position = slot.Position.WithY(SnesFixedPosition.FromRaw(unchecked(fixedPosition)));
     }
 
     /// <summary>Ports <c>Elevator_Func_4</c> at $A3:9612.</summary>

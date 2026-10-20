@@ -27,6 +27,7 @@ internal static class RoomSpriteObjectDefinitions
         RoomSpriteObjectKind.DraygonIntroEvir => RoomSpriteObjectProgram.EvirFacingLeft,
         RoomSpriteObjectKind.DraygonDeathEvirFacingRight => RoomSpriteObjectProgram.EvirFacingRight,
         RoomSpriteObjectKind.DraygonSpiralFoam => RoomSpriteObjectProgram.DraygonFoamingAtTheMouth,
+        RoomSpriteObjectKind.None => throw new ArgumentOutOfRangeException(nameof(kind), kind, "Not a room sprite-object kind any owner spawns."),
         _ => throw new ArgumentOutOfRangeException(nameof(kind), kind, "Not a room sprite-object kind any owner spawns."),
     };
 }

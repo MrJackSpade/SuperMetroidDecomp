@@ -61,6 +61,39 @@ internal sealed class EndingRewardGesture
             case CinematicSpriteCueKind.SpawnSuitedJump:
                 JumpRequested = true;
                 return;
+            case CinematicSpriteCueKind.SetPreInstruction:
+            case CinematicSpriteCueKind.EndZebesExplosion:
+            case CinematicSpriteCueKind.ExplosionFinale:
+            case CinematicSpriteCueKind.FadeExplosionPalette:
+            case CinematicSpriteCueKind.FadeInZebesText:
+            case CinematicSpriteCueKind.FadeOutZebesText:
+            case CinematicSpriteCueKind.GreyOut:
+            case CinematicSpriteCueKind.Launch:
+            case CinematicSpriteCueKind.LaunchHead:
+            case CinematicSpriteCueKind.PrepareHead:
+            case CinematicSpriteCueKind.Shoot:
+            case CinematicSpriteCueKind.SpawnClearTime:
+            case CinematicSpriteCueKind.SpawnColon:
+            case CinematicSpriteCueKind.SpawnCompletedText:
+            case CinematicSpriteCueKind.SpawnExplosionSilhouette:
+            case CinematicSpriteCueKind.SpawnFinalExplosionWave:
+            case CinematicSpriteCueKind.SpawnHoursTens:
+            case CinematicSpriteCueKind.SpawnHoursUnits:
+            case CinematicSpriteCueKind.SpawnInitialExplosionWave:
+            case CinematicSpriteCueKind.SpawnJapaneseZebesTextIfNeeded:
+            case CinematicSpriteCueKind.SpawnMinutesTens:
+            case CinematicSpriteCueKind.SpawnMinutesUnits:
+            case CinematicSpriteCueKind.SpawnParticles:
+            case CinematicSpriteCueKind.SpawnRinkas0And1:
+            case CinematicSpriteCueKind.SpawnRinkas2And3:
+            case CinematicSpriteCueKind.StartFlyingToZebes:
+            case CinematicSpriteCueKind.StartIntroPage2:
+            case CinematicSpriteCueKind.StartIntroPage3:
+            case CinematicSpriteCueKind.StartIntroPage4:
+            case CinematicSpriteCueKind.StartIntroPage5:
+            case CinematicSpriteCueKind.StartRinkaMoving:
+            case CinematicSpriteCueKind.StartZebesExplosion:
+            case CinematicSpriteCueKind.TransitionToCredits:
             default:
                 throw new InvalidOperationException($"The reward gesture programs publish no {cue} cue.");
         }

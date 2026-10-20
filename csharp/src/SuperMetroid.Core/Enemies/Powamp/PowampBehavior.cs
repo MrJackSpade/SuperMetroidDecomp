@@ -131,6 +131,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
             case PowampEnemyFunction.DeathSequence:
                 RunPowampDeathSequence(slot, state, balloon);
                 return;
+            case PowampEnemyFunction.BalloonNoOp:
             default:
                 throw new InvalidDataException(
                     $"Powamp body function {state.Function?.ToString() ?? "none"} is not translated.");
@@ -452,6 +453,8 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
         PowampProgram.BalloonInflate1 => (false, 1 + cursor.Position),
         PowampProgram.BalloonStartSinking => (true, cursor.Position),
         PowampProgram.BalloonDeflated => (true, 2 + cursor.Position),
+        PowampProgram.BodyFast or
+            PowampProgram.BodySlow => throw new InvalidOperationException($"Powamp balloon runs body animation {cursor.Program}."),
         _ => throw new InvalidOperationException($"Powamp balloon runs body animation {cursor.Program}."),
     };
 

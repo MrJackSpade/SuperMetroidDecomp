@@ -46,6 +46,20 @@ public static class RoomFxAnimatedTileArtworkDefinitions
             AnimatedTileObject.Acid => AcidFirstSource,
             AnimatedTileObject.Rain => RainFirstSource,
             AnimatedTileObject.Spores => SporesFirstSource,
+            AnimatedTileObject.None or
+                AnimatedTileObject.TourianStatuePhantoon or
+                AnimatedTileObject.TourianStatueRidley or
+                AnimatedTileObject.TourianStatueKraid or
+                AnimatedTileObject.TourianStatueDraygon or
+                AnimatedTileObject.Empty or
+                AnimatedTileObject.VerticalSpikes or
+                AnimatedTileObject.CrateriaLake or
+                AnimatedTileObject.UnusedCrateriaLava or
+                AnimatedTileObject.BrinstarPlant or
+                AnimatedTileObject.WreckedShipScreen or
+                AnimatedTileObject.WreckedShipTreadmillRightwards or
+                AnimatedTileObject.WreckedShipTreadmillLeftwards => throw new InvalidDataException(
+                $"No compiled artwork source for room-FX object $87:{(int)definition.ObjectPointer:X4}."),
             _ => throw new InvalidDataException(
                 $"No compiled artwork source for room-FX object $87:{(int)definition.ObjectPointer:X4}."),
         };

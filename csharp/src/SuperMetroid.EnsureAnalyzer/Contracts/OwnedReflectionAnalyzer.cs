@@ -219,6 +219,8 @@ public sealed class OwnedReflectionAnalyzer : DiagnosticAnalyzer
                 case IPointerTypeSymbol pointer:
                     type = pointer.PointedAtType;
                     continue;
+                default:
+                    break;
             }
             break;
         }

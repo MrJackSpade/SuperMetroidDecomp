@@ -33,6 +33,8 @@ public static class GameplayMessagePanelExtractor
             {
                 GameplayMessagePanelButtonBinding.Shoot => GameplayMessageRoutine.PatchShootButton,
                 GameplayMessagePanelButtonBinding.Run => GameplayMessageRoutine.PatchRunButton,
+                GameplayMessagePanelButtonBinding.None => throw new InvalidDataException(
+                    $"Gameplay-message panel {id} lacks a compiled button binding."),
                 _ => throw new InvalidDataException(
                     $"Gameplay-message panel {id} lacks a compiled button binding."),
             };

@@ -56,8 +56,8 @@ internal static class CollectibleMessageTimingVerification
         AssertTrue(runtime.Plms.CollectiblePlms.TryNotifyCollectibleTouch(item.BlockIndex), "reported pickup accepts contact");
         runtime.StepFrame(0);
         AssertTrue(runtime.MessageBox.IsActive, "pickup begins synchronous message");
-        AssertEqual((ushort)199, samus.MaxHealth, "native grant precedes message return");
-        AssertEqual((ushort)199, samus.Health, "native energy refill precedes message return");
+        AssertEqual(199, samus.MaxHealth, "native grant precedes message return");
+        AssertEqual(199, samus.Health, "native energy refill precedes message return");
         Console.WriteLine($"Pickup frame: tile retained={beforeTile.SequenceEqual(TileWords())}, HUD retained={beforeHud.SequenceEqual(HudWords())}");
         void AssertHeld()
         {
@@ -65,7 +65,7 @@ internal static class CollectibleMessageTimingVerification
             AssertTrue(beforeTile.SequenceEqual(TileWords()), "displayed pickup tile remains during message");
             AssertTrue(beforeHud.SequenceEqual(HudWords()), "HUD counters remain during message");
             AssertTrue(beforeVisibleHud.SequenceEqual(VisibleHudWords()), "displayed HUD VRAM remains during message");
-            AssertEqual((ushort)199, samus.MaxHealth, "message cannot repeat acquisition");
+            AssertEqual(199, samus.MaxHealth, "message cannot repeat acquisition");
         }
         AssertHeld();
         int frames = 0;
@@ -84,7 +84,7 @@ internal static class CollectibleMessageTimingVerification
         AssertTrue(!runtime.MessageBox.IsActive, "message returns");
         AssertTrue(runtime.Room.LoadedLevelData.ForegroundEntries.Span[item.BlockIndex] != visible, "return executes pickup empty draw");
         AssertTrue(!beforeHud.SequenceEqual(HudWords()), "return rebuilds HUD for acquired energy");
-        AssertEqual((ushort)199, samus.MaxHealth, "return grants no duplicate energy");
+        AssertEqual(199, samus.MaxHealth, "return grants no duplicate energy");
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         AssertTrue(!beforeTile.SequenceEqual(TileWords()), "post-message NMI displays empty pickup tile");
         for (int i = 0; i < runtime.Hud.Tiles.Length; i++)

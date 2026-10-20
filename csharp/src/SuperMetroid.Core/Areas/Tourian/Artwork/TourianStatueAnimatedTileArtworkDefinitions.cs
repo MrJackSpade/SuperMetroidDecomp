@@ -30,6 +30,22 @@ public static class TourianStatueAnimatedTileArtworkDefinitions
             AnimatedTileObject.TourianStatueRidley => (0x94e4, 0x40, 0x9864),
             AnimatedTileObject.TourianStatueKraid => (0x9724, 0x40, 0x98a4),
             AnimatedTileObject.TourianStatueDraygon => (0x95a4, 0x80, 0x98e4),
+            AnimatedTileObject.None or
+                AnimatedTileObject.Empty or
+                AnimatedTileObject.HorizontalSpikes or
+                AnimatedTileObject.VerticalSpikes or
+                AnimatedTileObject.CrateriaLake or
+                AnimatedTileObject.UnusedCrateriaLava or
+                AnimatedTileObject.BrinstarPlant or
+                AnimatedTileObject.WreckedShipScreen or
+                AnimatedTileObject.MaridiaSandCeiling or
+                AnimatedTileObject.MaridiaSandFalling or
+                AnimatedTileObject.WreckedShipTreadmillRightwards or
+                AnimatedTileObject.WreckedShipTreadmillLeftwards or
+                AnimatedTileObject.Lava or
+                AnimatedTileObject.Acid or
+                AnimatedTileObject.Rain or
+                AnimatedTileObject.Spores => throw new InvalidDataException($"Unknown Tourian statue {definition.ObjectPointer}."),
             _ => throw new InvalidDataException($"Unknown Tourian statue {definition.ObjectPointer}."),
         };
         int source = picture switch

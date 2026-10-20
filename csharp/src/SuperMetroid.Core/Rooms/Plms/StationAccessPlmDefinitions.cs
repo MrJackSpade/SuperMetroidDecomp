@@ -41,6 +41,7 @@ internal static class StationAccessPlmDefinitions
         StationAccessBehavior.EnergyLeft => EnergyLeft,
         StationAccessBehavior.MissileRight => MissileRight,
         StationAccessBehavior.MissileLeft => MissileLeft,
+        StationAccessBehavior.SaveFloor => throw new InvalidDataException($"Station access has invalid BTS ${(byte)behavior:X2}."),
         _ => throw new InvalidDataException($"Station access has invalid BTS ${(byte)behavior:X2}.")
     };
 }

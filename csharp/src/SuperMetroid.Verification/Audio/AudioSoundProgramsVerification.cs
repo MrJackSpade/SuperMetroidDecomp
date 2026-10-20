@@ -43,8 +43,8 @@ internal static class AudioSoundProgramsVerification
                 {
                     AudioSoundProgramMetadata program = programs[effect.ChannelPrograms[channel]];
                     int pointer = effect.StreamPointer + channel * 2;
-                    ushort address = unchecked((ushort)(
-                        SnesLittleEndian.Word(rawPlayer.ReadApuByteForVerification(pointer), rawPlayer.ReadApuByteForVerification(pointer + 1))));
+                    ushort address = unchecked(
+                        SnesLittleEndian.Word(rawPlayer.ReadApuByteForVerification(pointer), rawPlayer.ReadApuByteForVerification(pointer + 1)));
                     AssertEqual(program.Address, address, $"{effect.Id} channel {channel} routing");
                 }
             }

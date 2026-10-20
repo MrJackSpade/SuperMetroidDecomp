@@ -48,9 +48,9 @@ internal static class MotherBrainBeamWindowVerification
         AssertTrue(windows.Take(32).All(word => word == MotherBrainBeamRomData.EmptyWindow),
             "rainbow window excludes HUD");
         Step();
-        AssertEqual((ushort)31, beam.Color, "first cycling frame reads entry zero");
+        AssertEqual(31, beam.Color, "first cycling frame reads entry zero");
         Step();
-        AssertEqual((ushort)992, beam.Color, "color cursor advances to the second installed sample");
+        AssertEqual(992, beam.Color, "color cursor advances to the second installed sample");
         for (int frame = 2; frame < MotherBrainRainbowPaletteFormat.BeamCycleColorCount; frame++)
         {
             Step();
@@ -60,10 +60,10 @@ internal static class MotherBrainBeamWindowVerification
                 "beam retains native byte-cursor stride");
         }
         Step();
-        AssertEqual((ushort)31, beam.Color, "negative terminator selects entry zero");
+        AssertEqual(31, beam.Color, "negative terminator selects entry zero");
         AssertEqual(0, beam.ColorCursor, "reset frame does not increment color cursor");
         Step();
-        AssertEqual((ushort)31, beam.Color, "entry zero repeats after wrap as in E7F5");
+        AssertEqual(31, beam.Color, "entry zero repeats after wrap as in E7F5");
         MotherBrainRainbowBeamRenderSnapshot snapshot = beam.RenderSnapshot;
         AssertEqual(new MotherBrainRainbowBeamRenderSnapshot(true, beam.Color, beam.Geometry), snapshot,
             "render snapshot carries the active flag, color and geometry by value");
@@ -98,7 +98,7 @@ internal static class MotherBrainBeamWindowVerification
         beam.Step(true, new(100, 95), SnesAngle.ThreeQuarterTurn, 512);
         AssertEqual(retained, beam.Geometry, "native left-axis RTS preserves prior geometry");
         beam.Step(true, new(356, 95), SnesAngle.QuarterTurn, Width(64));
-        AssertEqual((byte)114, (beam.Geometry ?? throw new InvalidOperationException("Verification requires beam.Geometry.")).MouthScreenX, "DE20 uses low X byte, not wrapped enemy-header data");
+        AssertEqual(114, (beam.Geometry ?? throw new InvalidOperationException("Verification requires beam.Geometry.")).MouthScreenX, "DE20 uses low X byte, not wrapped enemy-header data");
         AssertEqual((ushort)0xff73, RainbowBeamWindowBuilder.Build(beam.Geometry)[100],
             "low-byte mouth X rasterizes like the unwrapped head");
         AssertThrows<InvalidDataException>(() => beam.Step(true, new(100, 27), SnesAngle.QuarterTurn, Width(64)),

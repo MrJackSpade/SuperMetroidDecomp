@@ -13,10 +13,10 @@ internal sealed class BombTorizoEntity(BombTorizoBehavior species, RoomEnemySlot
     public EnemyInitializationAiHandler? FindInitialization() => species.RunBombTorizoInitializationAi;
 
     /// <inheritdoc/>
-    public EnemyMainAiHandler? FindMain() => Slot.EnemyDefinitionPointer switch
+    public EnemyMainAiHandler? FindMain() => BombTorizoPartDefinitions.Parts[Slot.EnemyDefinitionPointer] switch
     {
-        EnemyDefinitionId.BombTorizo => species.RunBombTorizoMainAi,
-        EnemyDefinitionId.GoldenTorizo => species.RunGoldenTorizoMainAi,
+        BombTorizoPart.BombTorizo => species.RunBombTorizoMainAi,
+        BombTorizoPart.GoldenTorizo => species.RunGoldenTorizoMainAi,
         _ => throw new InvalidOperationException($"BombTorizo entity bound to {Slot.EnemyDefinitionPointer}."),
     };
 

@@ -31,6 +31,17 @@ internal static class BeamPaintDefinitions
             SamusBeamCombination.Wave => Wave(color),
             SamusBeamCombination.Plasma => Plasma(color),
             SamusBeamCombination.Spazer => Spazer(color),
+            SamusBeamCombination.IceWave or
+                SamusBeamCombination.SpazerWave or
+                SamusBeamCombination.SpazerIce or
+                SamusBeamCombination.SpazerIceWave or
+                SamusBeamCombination.PlasmaWave or
+                SamusBeamCombination.PlasmaIce or
+                SamusBeamCombination.PlasmaIceWave or
+                SamusBeamCombination.SpazerPlasma or
+                SamusBeamCombination.SpazerPlasmaWave or
+                SamusBeamCombination.SpazerPlasmaIce or
+                SamusBeamCombination.SpazerPlasmaIceWave => throw new InvalidOperationException($"{source} is not a beam palette row."),
             _ => throw new InvalidOperationException($"{source} is not a beam palette row."),
         };
         return new Bgr555(red, green, blue);

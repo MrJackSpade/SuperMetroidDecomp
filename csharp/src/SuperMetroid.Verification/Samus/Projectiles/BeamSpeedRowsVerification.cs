@@ -84,7 +84,7 @@ internal static class BeamSpeedRowsVerification
             uint x = 0, y = 0;
             for (int frame = 0; frame < 6; frame++)
             {
-                SnesButton input = frame == 0 ? SnesButton.X : (ushort)0;
+                SnesButton input = frame == 0 ? SnesButton.X : 0;
                 projectiles.StepFrame(new SamusTerrain { Level = room }, samus, new ProjectileButtonInput { ControllerInput = input, ControllerNewInput = input }, new(0, 0), bombs);
                 if (frame == 0)
                 {

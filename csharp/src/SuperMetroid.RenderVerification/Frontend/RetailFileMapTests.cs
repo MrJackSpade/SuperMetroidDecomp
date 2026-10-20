@@ -55,7 +55,7 @@ internal static class RetailFileMapTests
                 SnesButton input = tick == 48 ? SnesButton.Start
                     : tick == 130 ? (cancel ? SnesButton.B : SnesButton.Start)
                     : cancel && tick == 240 ? SnesButton.B
-                    : tick is >= 110 and <= 119 ? SnesButton.Right : (ushort)0;
+                    : tick is >= 110 and <= 119 ? SnesButton.Right : 0;
                 legacy.Step(input); captured.Step(input);
                 phases.Add(legacy.Phase);
                 Compare(legacy.Render(), captured.CaptureRenderSnapshot(), $"phase={legacy.Phase}, tick={tick}, cancel={cancel}");

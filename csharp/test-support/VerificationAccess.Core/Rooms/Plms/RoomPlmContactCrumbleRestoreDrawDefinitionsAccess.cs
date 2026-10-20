@@ -11,7 +11,7 @@ internal static class RoomPlmContactCrumbleRestoreDrawDefinitionsAccess
         {
             if (RoomPlmContactCrumbleRestoreDrawDefinitions.TryDescribe(pointer, out RoomPlmContactCrumbleRestoreDrawDefinitions.Draw draw))
             {
-                list = ((RoomPlmShotBlockDrawDefinitions.DrawList)(RoomPlmContactCrumbleRestoreDrawDefinitions.Export((RoomPlmContactCrumbleRestoreDrawDefinitions.Draw)(draw))));
+                list = RoomPlmContactCrumbleRestoreDrawDefinitions.Export(draw);
                 return true;
             }
             list = default;

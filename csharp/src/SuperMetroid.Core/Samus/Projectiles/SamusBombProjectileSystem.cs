@@ -721,8 +721,8 @@ public sealed class SamusBombProjectileSystem
     {
         int blockX = slot.Position.X.Whole >> 4;
         int blockY = slot.Position.Y.Whole >> 4;
-        if ((uint)blockX >= (uint)level.Size.X ||
-            (uint)blockY >= (uint)level.Size.Y)
+        if ((uint)blockX >= level.Size.X ||
+            (uint)blockY >= level.Size.Y)
         {
             return true;
         }
@@ -815,7 +815,7 @@ public sealed class SamusBombProjectileSystem
 
         foreach ((int x, int y) in cross)
         {
-            if ((uint)x >= (uint)level.Size.X || (uint)y >= (uint)level.Size.Y)
+            if ((uint)x >= level.Size.X || (uint)y >= level.Size.Y)
             {
                 // $94:9CAC first admits the bomb centre through the room's scroll bounds,
                 // and valid rooms surround reachable bomb centres with an edge wall. An

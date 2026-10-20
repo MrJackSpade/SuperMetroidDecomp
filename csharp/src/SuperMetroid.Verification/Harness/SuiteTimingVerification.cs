@@ -73,22 +73,4 @@ internal static class SuiteTimingVerification
         long peak = Process.GetCurrentProcess().PeakWorkingSet64;
         return $"peak {peak / (1024.0 * 1024.0):0} MB" + (peak > MemoryBudgetBytes ? "  [over 1 GB: reduce]" : "");
     }
-
-    /// <summary>Measures elapsed time since the last diagnostic checkpoint.</summary>
-    private static readonly Stopwatch checkpointWatch = Stopwatch.StartNew();
-    /// <summary>Allocation counter saved at the previous diagnostic checkpoint.</summary>
-    private static long checkpointAllocated;
-
-    /// <summary>
-    /// Logs the time and allocations since the previous checkpoint, to locate the slow block
-    /// inside a suite that is being broken down.
-    /// </summary>
-    private static void Checkpoint(string label)
-    {
-        long allocated = GC.GetTotalAllocatedBytes();
-        Console.WriteLine($"TIME {new string(' ', 2 * suiteDepth)}. {label}: {checkpointWatch.Elapsed.TotalSeconds:0.00} s, " +
-            $"{(allocated - checkpointAllocated) / (1024.0 * 1024.0):0.0} MB allocated");
-        checkpointWatch.Restart();
-        checkpointAllocated = allocated;
-    }
 }

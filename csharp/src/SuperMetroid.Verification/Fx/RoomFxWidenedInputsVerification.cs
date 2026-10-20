@@ -42,8 +42,8 @@ internal static class RoomFxWidenedInputsVerification
         AssertThrows<ArgumentOutOfRangeException>(() => _ = Conditions(0) with { NmiFrameCounter = -1 }, "negative palette-FX frame counter");
 
         var request = new RoomFxEarthquakeRequest(RoomFxRomData.Earthquake.RisingLiquidType, RoomFxRomData.Earthquake.RisingLiquidTimerBits);
-        AssertEqual((int)RoomFxRomData.Earthquake.RisingLiquidType, request.Type, "earthquake request keeps its type");
-        AssertEqual((int)RoomFxRomData.Earthquake.RisingLiquidTimerBits, request.TimerBits, "earthquake request keeps its timer bits");
+        AssertEqual(RoomFxRomData.Earthquake.RisingLiquidType, request.Type, "earthquake request keeps its type");
+        AssertEqual(RoomFxRomData.Earthquake.RisingLiquidTimerBits, request.TimerBits, "earthquake request keeps its timer bits");
         AssertThrows<ArgumentOutOfRangeException>(() => new RoomFxEarthquakeRequest(ushort.MaxValue + 1, 0), "earthquake request type above the word");
         AssertThrows<ArgumentOutOfRangeException>(() => new RoomFxEarthquakeRequest(0, -1), "negative earthquake request timer bits");
 

@@ -136,6 +136,7 @@ public static class PauseEquipmentLabelDefinitions
                 PauseEquipmentCategory.Beams => (4, 16),
                 PauseEquipmentCategory.Suits => (21, 9 + (label.Item >= 2 ? 2 : 0)),
                 PauseEquipmentCategory.Boots => (21, 19),
+                PauseEquipmentCategory.Reserves => throw new InvalidDataException("Unknown equipment label category."),
                 _ => throw new InvalidDataException("Unknown equipment label category."),
             };
             return ((firstRow + label.Item) * TilemapColumns + column) * sizeof(ushort);
@@ -146,7 +147,7 @@ public static class PauseEquipmentLabelDefinitions
     internal static ushort StockWord(string key, int index)
     {
         if ((uint)index >= StockWordCount(key)) throw new IndexOutOfRangeException();
-        if (index == 0) return (ushort)(LabelPalette << 10 | Marker);
+        if (index == 0) return LabelPalette << 10 | Marker;
         int text = index - 1;
         int glyph = key switch
         {

@@ -11,6 +11,16 @@ internal static class TitleCards
         TitleSequencePhase.NintendoText => TitleCardDefinitions.Nintendo,
         TitleSequencePhase.PresentsText => TitleCardDefinitions.Presents,
         TitleSequencePhase.MetroidThreeText => TitleCardDefinitions.MetroidThree,
+        TitleSequencePhase.SceneZeroPan or
+            TitleSequencePhase.SceneOnePan or
+            TitleSequencePhase.SceneTwoPan or
+            TitleSequencePhase.SceneThreeZoom or
+            TitleSequencePhase.TitleLogoFade or
+            TitleSequencePhase.CopyrightFade or
+            TitleSequencePhase.SkipFadeOut or
+            TitleSequencePhase.TitleScreenFadeIn or
+            TitleSequencePhase.TitleScreen or
+            TitleSequencePhase.TitleScreenFadeOut => throw new ArgumentOutOfRangeException(nameof(phase), phase, "Phase shows no title card."),
         _ => throw new ArgumentOutOfRangeException(nameof(phase), phase, "Phase shows no title card."),
     };
 }

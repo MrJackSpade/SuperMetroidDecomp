@@ -116,16 +116,16 @@ internal static class KraidHeadInstructionsVerification
 
         glow(body, state);
         AssertEqual(
-            unchecked((ushort)(KraidHeadAnimations.EyeGlowEntryDuration - 1)),
+            unchecked(KraidHeadAnimations.EyeGlowEntryDuration - 1),
             state.Parts[0].HeadTimer, "Eye glow consumes one timer tick on initialization");
         state.HurtFrame = 1;
         state.Parts[0].HeadTimer = 999;
         death(body, state);
-        AssertEqual((ushort)999, state.Parts[0].HeadTimer,
+        AssertEqual(999, state.Parts[0].HeadTimer,
             "Active hurt frame delays death timer setup");
         state.HurtFrame = 0;
         death(body, state);
-        AssertEqual((ushort)KraidHeadAnimations.DeathEntryDuration, state.Parts[0].HeadTimer,
+        AssertEqual(KraidHeadAnimations.DeathEntryDuration, state.Parts[0].HeadTimer,
             "Death initialization installs native timer without ticking");
         AssertEqual(0, guard.ForbiddenReadAttempts,
             "Kraid timer/growth consumers avoid compiled head programs");

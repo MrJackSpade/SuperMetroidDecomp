@@ -25,8 +25,6 @@ internal sealed class RoomMainRoutines
     private readonly ActiveRoomState _room;
     /// <summary>Boss bits and RNG word sampled by room-main callbacks.</summary>
     private readonly Bank80SystemState _system;
-    /// <summary>VRAM target for animated sand and spike tiles.</summary>
-    private readonly SnesVram _vram;
     /// <summary>Queued tile transfers consumed at the next accepted NMI.</summary>
     private readonly VramWriteQueue _vramWrites;
 
@@ -37,7 +35,6 @@ internal sealed class RoomMainRoutines
         _player = dependencies.Player;
         _room = dependencies.Room;
         _system = dependencies.System;
-        _vram = dependencies.Vram;
         _vramWrites = dependencies.VramWrites;
     }
     /// <summary>The hidden-wall branch of MainASM_CrocomiresRoomShaking at $8F:E8CD/$E942.</summary>

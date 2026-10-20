@@ -574,19 +574,19 @@ internal static void VerifySamusGunExtendedMovement()
     // `$91:A2F6`, and `$91:A70C`. They prove that Shot+forward, Shot in neutral jump,
     // and Shot while falling select the three distinct extended-gun movement families.
     SyntheticSamusCartridge.WritePoseTransitionPointer(bus, SamusPoseId.MovingRightNormalPose, 0xd100);
-    SyntheticSamusCartridge.WritePoseTransitionList(bus, 0xd100, ((ushort)0x0000, (ushort)0x0140, (ushort)0x000b));
+    SyntheticSamusCartridge.WritePoseTransitionList(bus, 0xd100, [(0x0000, 0x0140, 0x000b)]);
     SyntheticSamusCartridge.WritePoseTransitionPointer(bus, SamusPoseId.NeutralJumpRightPose, 0xd110);
-    SyntheticSamusCartridge.WritePoseTransitionList(bus, 0xd110, ((ushort)0x0000, (ushort)0x0040, (ushort)0x0013));
+    SyntheticSamusCartridge.WritePoseTransitionList(bus, 0xd110, [(0x0000, 0x0040, 0x0013)]);
     SyntheticSamusCartridge.WritePoseTransitionPointer(bus, SamusPoseId.FallingRightPose, 0xd120);
-    SyntheticSamusCartridge.WritePoseTransitionList(bus, 0xd120, ((ushort)0x0000, (ushort)0x0040, (ushort)0x0067));
+    SyntheticSamusCartridge.WritePoseTransitionList(bus, 0xd120, [(0x0000, 0x0040, 0x0067)]);
 
     // `$51/$52` share the complete `$91:A2F6/$A376` tables with their neutral-jump
     // mirrors. These minimal copies retain the exact held-Jump record that caused the
     // playable runtime failure: required-new is zero, held `$0080`, targets `$4D/$4E`.
     SyntheticSamusCartridge.WritePoseTransitionPointer(bus, SamusPoseId.NormalJumpForwardRightPose, 0xd130);
-    SyntheticSamusCartridge.WritePoseTransitionList(bus, 0xd130, ((ushort)0x0000, (ushort)0x0080, (ushort)0x004d));
+    SyntheticSamusCartridge.WritePoseTransitionList(bus, 0xd130, [(0x0000, 0x0080, 0x004d)]);
     SyntheticSamusCartridge.WritePoseTransitionPointer(bus, SamusPoseId.NormalJumpForwardLeftPose, 0xd140);
-    SyntheticSamusCartridge.WritePoseTransitionList(bus, 0xd140, ((ushort)0x0000, (ushort)0x0080, (ushort)0x004e));
+    SyntheticSamusCartridge.WritePoseTransitionList(bus, 0xd140, [(0x0000, 0x0080, 0x004e)]);
 
     // Preserve the decisive tail of retail pose `$0B`'s table at `$91:AE94`. Right+Shot
     // and Right both select `$0B` itself and therefore return directly; Shot without Right
@@ -594,9 +594,10 @@ internal static void VerifySamusGunExtendedMovement()
     // Collapsing those two null-transition paths is what made one tapped Right input remain
     // latched for as long as Shoot stayed down in the playable frontend.
     SyntheticSamusCartridge.WritePoseTransitionPointer(bus, SamusPoseId.MovingRightGunExtendedPose, 0xd150);
-    SyntheticSamusCartridge.WritePoseTransitionList(bus, 0xd150,
-        ((ushort)0x0000, (ushort)0x0140, (ushort)0x000b),
-        ((ushort)0x0000, (ushort)0x0100, (ushort)0x000b));
+    SyntheticSamusCartridge.WritePoseTransitionList(bus, 0xd150, [
+        (0x0000, 0x0140, 0x000b),
+        (0x0000, 0x0100, 0x000b),
+    ]);
 
     AssertEqual(0x0b,
         (byte)(SamusPoseTransitionTable.Find(SamusPoseId.MovingRightNormalPose, SnesButton.Right | SnesButton.X, 0) ?? throw new InvalidOperationException("Verification requires SamusPoseTransitionTable.Find(bus, SamusPoseId.MovingRightNormalPose, SnesButton.Right | SnesButton.X, 0).")).ProspectivePose,

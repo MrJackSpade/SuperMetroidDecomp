@@ -85,7 +85,7 @@ internal static class KraidInstalledPresentationHeadClockVerification
                     {
                         AssertEqual(ushort.MaxValue, stockResult, "terminator on the exact sum-of-durations tick");
                         AssertEqual(admission.Cursor, baseline.State.HeadProgram, "termination retains native cursor");
-                        AssertEqual((ushort)0, baseline.State.Parts[0].HeadTimer, "termination consumes the last timer tick");
+                        AssertEqual(0, baseline.State.Parts[0].HeadTimer, "termination consumes the last timer tick");
                         AssertTrue(expectedStock.SequenceEqual(baseline.Shown()) &&
                             expectedEdited.SequenceEqual(changed.Shown()), "termination emits no tilemap upload");
                         break;

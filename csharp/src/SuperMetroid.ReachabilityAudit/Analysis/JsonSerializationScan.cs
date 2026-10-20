@@ -83,7 +83,9 @@ internal sealed class JsonSerializationScan(SymbolIdentity identity)
                 foreach (var argument in named.TypeArguments)
                     AddPayload(argument);
                 if (identity.Key(named) is { } key)
-                    payloadTypes.TryAdd(key, (INamedTypeSymbol)named.OriginalDefinition);
+                    payloadTypes.TryAdd(key, named.OriginalDefinition);
+                break;
+            default:
                 break;
         }
     }

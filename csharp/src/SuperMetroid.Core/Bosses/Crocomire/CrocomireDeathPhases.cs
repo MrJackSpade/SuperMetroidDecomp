@@ -54,6 +54,7 @@ public static class CrocomireDeathPhases
         CrocomireDeathPhase.InertCorpse => CrocomireDeathPhase.DefeatedRoomAdvance,
         CrocomireDeathPhase.DefeatedRoomAdvance => CrocomireDeathPhase.PinDefeatedRoomBg2Scroll,
         CrocomireDeathPhase.PinDefeatedRoomBg2Scroll => CrocomireDeathPhase.RiverSkeletonDetour,
+        CrocomireDeathPhase.RiverSkeletonDetour => throw new InvalidOperationException($"{nameof(CrocomireDeathPhase)} {(int)phase} has no successor."),
         _ => throw new InvalidOperationException($"{nameof(CrocomireDeathPhase)} {(int)phase} has no successor."),
     };
 }

@@ -77,7 +77,7 @@ internal static class DraygonIntroDanceDefinitionsVerification
             "Draygon intro rejects a non-native unaligned restored stream index");
         AssertThrows<InvalidDataException>(
             () => DraygonIntroDanceDefinitions.ResolveMovement(
-                unchecked((ushort)(DraygonIntroDanceDefinitions.LastMovementStreamOffset + 4))),
+                unchecked(DraygonIntroDanceDefinitions.LastMovementStreamOffset + 4)),
             "Draygon intro rejects a restored stream index beyond the compiled route");
     }
 
@@ -105,7 +105,7 @@ internal static class DraygonIntroDanceDefinitionsVerification
     private static void VerifyCompleteDraygonIntroTrajectory(SuperMetroidAddressSpace rom)
     {
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
-        enemies.VerificationServices().NextRandom = (Func<ushort>)(() => 0);
+        enemies.VerificationServices().NextRandom = () => 0;
         Action<DraygonEnemyState, SamusState?, byte> run = enemies.DraygonBehavior.RunDraygonIntroDance;
         var state = new DraygonEnemyState(enemies.SlotTable.Slots[0]);
 
@@ -158,7 +158,7 @@ internal static class DraygonIntroDanceDefinitionsVerification
             expectedStreamIndex = unchecked((ushort)(
                 expectedStreamIndex + DraygonIntroDanceDefinitions.StreamIndexAdvance));
 
-            AssertEqual((int)expectedStreamIndex, state.FightIntroDanceIndex,
+            AssertEqual(expectedStreamIndex, state.FightIntroDanceIndex,
                 $"Draygon intro frame {frame} stream index");
             for (int slotIndex = 28; slotIndex <= 31; slotIndex++)
             {

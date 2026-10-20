@@ -26,6 +26,12 @@ public sealed class SpeciesIdentityAnalyzer : DiagnosticAnalyzer
     /// <summary>The factory interface whose Definitions name a species' owned definitions.</summary>
     private const string FactoryInterfaceName = "IEnemyEntityFactory";
 
+    /// <summary>
+    /// The suffix of a species' part catalog, whose <c>Parts</c> map names the definitions the species owns when its
+    /// factory's Definitions list is built from that catalog.
+    /// </summary>
+    private const string PartCatalogSuffix = "PartDefinitions";
+
     /// <summary>Definition members that denote occupancy rather than a species.</summary>
     private static readonly ImmutableHashSet<string> OccupancyMembers = ImmutableHashSet.Create(StringComparer.Ordinal, "Respawn", "None");
 
@@ -57,7 +63,7 @@ public sealed class SpeciesIdentityAnalyzer : DiagnosticAnalyzer
         });
     }
 
-    /// <summary>Each owned definition member's owner directories, read from the factories' Definitions lists.</summary>
+    /// <summary>Each owned definition member's owner directories, read from the factories' Definitions lists and part catalogs.</summary>
     private static Dictionary<string, List<string>> OwnerDirectories(Compilation compilation, CancellationToken cancellationToken)
     {
         var owners = new Dictionary<string, List<string>>(StringComparer.Ordinal);
@@ -68,10 +74,13 @@ public sealed class SpeciesIdentityAnalyzer : DiagnosticAnalyzer
                 continue;
             foreach (TypeDeclarationSyntax type in tree.GetRoot(cancellationToken).DescendantNodes().OfType<TypeDeclarationSyntax>())
             {
-                if (type.BaseList?.Types.Any(baseType => baseType.Type.ToString() == FactoryInterfaceName) != true)
+                string? ownedProperty = type.BaseList?.Types.Any(baseType => baseType.Type.ToString() == FactoryInterfaceName) == true
+                    ? "Definitions"
+                    : type.Identifier.Text.EndsWith(PartCatalogSuffix, StringComparison.Ordinal) ? "Parts" : null;
+                if (ownedProperty is null)
                     continue;
                 foreach (PropertyDeclarationSyntax property in type.Members.OfType<PropertyDeclarationSyntax>()
-                             .Where(property => property.Identifier.Text == "Definitions"))
+                             .Where(property => property.Identifier.Text == ownedProperty))
                 {
                     if (property.Initializer is not { } initializer)
                         continue;
@@ -113,6 +122,8 @@ public sealed class SpeciesIdentityAnalyzer : DiagnosticAnalyzer
                 case InvocationExpressionSyntax invocation when IsForeignDefinitionPredicate(invocation, context.SemanticModel,
                     directory, context.CancellationToken):
                     found.Add((invocation.GetLocation(), $"'{invocation.Expression}' is another species' definition predicate"));
+                    break;
+                default:
                     break;
             }
         }

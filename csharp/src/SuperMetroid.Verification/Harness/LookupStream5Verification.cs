@@ -105,7 +105,7 @@ internal static class LookupStream5Verification
                 content.AppendWords("first-map", native[0]); content.AppendWords("second-map", native[1]);
             });
             AssertEqual(expectedIdentity, art.ContentIdentity, "Original canonical melt identity");
-            AssertThrows<InvalidDataException>(() => { _ = art.Tilemap((CrocomireMeltingTilemapAddress)0); }, "Unknown map identity rejects");
+            AssertThrows<InvalidDataException>(() => { _ = art.Tilemap(0); }, "Unknown map identity rejects");
             Console.WriteLine("Crocomire melt layouts: 512 native words, 512 isolated full-word edits, input ownership, both actual guarded BG2 uploads and canonical identity pass.");
         }
         finally { if (Directory.Exists(directory)) Directory.Delete(directory, recursive: true); }
@@ -157,7 +157,7 @@ internal static class LookupStream5Verification
             slot.SetSpeciesState(doorState, doorState.ClearWithRecord);
             system.RidleyEncounter.CeresStatus = CeresEscapeStatus.SelfDestructStarted;
             int randomCalls = 0;
-            system.VerificationServices().NextRandom = (Func<ushort>)(() => (ushort)(++randomCalls % 2 == 0 ? 0x4000 : 0));
+            system.VerificationServices().NextRandom = () => (ushort)(++randomCalls % 2 == 0 ? 0x4000 : 0);
             Action<RoomEnemySlot> tick = system.CeresDoorBehavior.RunCeresDoorRumbleAndExplosions;
             for (int call = 1; call <= 49; call++)
             {
@@ -198,7 +198,7 @@ internal static class LookupStream5Verification
             var state = new PhantoonEnemyState(body) { Eye = eye, Tentacles = system.SlotTable.Slots[2], Mouth = system.SlotTable.Slots[3] };
             system.PhantoonBehavior.Phantoon = state;
             int randomCalls = 0;
-            system.VerificationServices().NextRandom = (Func<ushort>)(() => (ushort)(++randomCalls == 1 ? bucket : nextPattern));
+            system.VerificationServices().NextRandom = () => (ushort)(++randomCalls == 1 ? bucket : nextPattern);
             // The fade writes Phantoon's palette rows toward its installed fade colors.
             system.Presentation.BindCgram(new SnesCgram());
             system.TileArtwork = InstalledFixtures.EnemyTiles;
@@ -208,7 +208,7 @@ internal static class LookupStream5Verification
             state.Parts[body.SlotIndex].Function = PhantoonAiFunction.FadeOutDuringFlameRain;
             fade(body, state); // The eye's independent fade has not completed yet.
             AssertEqual(0, randomCalls, "Incomplete fade does not choose hidden delay");
-            AssertEqual((ushort)17, state.Parts[body.SlotIndex].FunctionTimer, "Incomplete fade preserves prior countdown");
+            AssertEqual(17, state.Parts[body.SlotIndex].FunctionTimer, "Incomplete fade preserves prior countdown");
             state.Parts[eye.SlotIndex].FadeComplete = true;
             fade(body, state);
             ushort duration = ReadVerificationWord(rom, 0xa7cd63 + bucket * 2);
@@ -223,7 +223,7 @@ internal static class LookupStream5Verification
                     AssertEqual(1, randomCalls, "Next location is not chosen before delay expires");
                     AssertEqual((ushort)111, body.Position.X.Whole, "Hidden wait does not interpolate X");
                     AssertEqual((ushort)99, body.Position.Y.Whole, "Hidden wait does not interpolate Y");
-                    AssertEqual((ushort)42, state.Parts[body.SlotIndex].PathCursor, "Hidden wait does not advance path cursor");
+                    AssertEqual(42, state.Parts[body.SlotIndex].PathCursor, "Hidden wait does not advance path cursor");
                     AssertEqual(0, system.Projectiles.EnemyProjectiles.Count(projectile => projectile.IsActive), "No rain launches before expiry");
                 }
             }
@@ -258,7 +258,7 @@ internal static class LookupStream5Verification
             var state = new PhantoonEnemyState(body) { Eye = eye, Tentacles = system.SlotTable.Slots[2], Mouth = mouth };
             system.PhantoonBehavior.Phantoon = state;
             int randomCalls = 0;
-            system.VerificationServices().NextRandom = (Func<ushort>)(() => { randomCalls++; return (ushort)(reversed ? 1 : 0); });
+            system.VerificationServices().NextRandom = () => { randomCalls++; return (ushort)(reversed ? 1 : 0); };
             Action<RoomEnemySlot, PhantoonEnemyState> begin = system.PhantoonBehavior.RunPhantoonPickFirstRoundPattern;
             Action<RoomEnemySlot, PhantoonEnemyState> tick = system.PhantoonBehavior.RunPhantoonFirstRoundFigureEight;
             // The duration bucket is the enemy frame's NMI counter bits 1-2, not a random draw.
@@ -285,7 +285,7 @@ internal static class LookupStream5Verification
             AssertEqual(PhantoonPartProgram.EyeOpen, state.PartProgram(eye).Program, "Expiration starts exact eye-opening program");
             AssertEqual((ushort)1, eye.InstructionTimer.RawValue, "Eye-opening program executes on next instruction step");
             AssertEqual(false, state.Parts[body.SlotIndex].FlameRainRequested, "Opening clears flame-rain trigger");
-            AssertEqual((ushort)1, state.Parts[mouth.SlotIndex].CasualFlameHold, "Casual hold still advances on every movement call");
+            AssertEqual(1, state.Parts[mouth.SlotIndex].CasualFlameHold, "Casual hold still advances on every movement call");
             AssertEqual(1, randomCalls, "Only independent initial direction consumes RNG in this fixture");
             var flames = system.Projectiles.EnemyProjectiles.Where(projectile => projectile.IsActive).ToArray();
             AssertEqual(8, flames.Length, "Exact expiry spawns eight real spiral projectiles");
@@ -402,7 +402,7 @@ internal static class LookupStream5Verification
             var tentacles = system.SlotTable.Slots[2];
             var state = new PhantoonEnemyState(body) { Eye = eye, Tentacles = tentacles, Mouth = system.SlotTable.Slots[3] };
             system.PhantoonBehavior.Phantoon = state;
-            system.VerificationServices().NextRandom = (Func<ushort>)(() => (ushort)bucket);
+            system.VerificationServices().NextRandom = () => (ushort)bucket;
             Action<PhantoonEnemyState> open = system.PhantoonBehavior.BeginPhantoonEyeTracking;
             Action<RoomEnemySlot, PhantoonEnemyState, SamusState> tick = PhantoonBehavior.RunPhantoonEyeTracking;
             body.Position = body.Position.WithWhole(new(128, 96));
@@ -423,10 +423,10 @@ internal static class LookupStream5Verification
                     AssertEqual((ushort)(duration - elapsed), state.Parts[body.SlotIndex].FunctionTimer, "One exact countdown decrement per actor call");
                     AssertEqual(PhantoonAiFunction.EyeTracksSamus, state.Parts[body.SlotIndex].Function, "No early exposure transition");
                     AssertTrue(!body.Properties.HasAny(EnemyProperties.IgnoreSamusCollision), "Exposure remains collidable before expiry");
-                    AssertEqual((ushort)37, state.Parts[tentacles.SlotIndex].RoundDamage, "Round damage remains until expiration");
+                    AssertEqual(37, state.Parts[tentacles.SlotIndex].RoundDamage, "Round damage remains until expiration");
                 }
             }
-            AssertEqual((ushort)0, state.Parts[tentacles.SlotIndex].RoundDamage, "Expiration resets accumulated round damage");
+            AssertEqual(0, state.Parts[tentacles.SlotIndex].RoundDamage, "Expiration resets accumulated round damage");
             if (shot)
             {
                 AssertEqual(PhantoonAiFunction.BecomeSolidAndSwoop, state.Parts[body.SlotIndex].Function, "Shot-triggered expiration selects swoop");
@@ -719,7 +719,7 @@ internal static class LookupStream5Verification
         {
             int root = 0xa70000 | frame.Pointer;
             var components = PhantoonCollisionDefinitions.ComponentsAt(frame.Pointer);
-            AssertEqual((int)ReadVerificationWord(rom, root), components.Count, "Native component extent");
+            AssertEqual(ReadVerificationWord(rom, root), components.Count, "Native component extent");
             for (int index = 0; index < components.Count; index++)
             {
                 int record = root + 2 + index * 8;
@@ -734,7 +734,7 @@ internal static class LookupStream5Verification
                 lists.Add(listPointer);
                 int address = 0xa70000 | listPointer;
                 IReadOnlyList<PhantoonCollisionHitbox> hitboxes = component.Hitboxes;
-                AssertEqual((int)ReadVerificationWord(rom, address), hitboxes.Count, "Native hitbox extent");
+                AssertEqual(ReadVerificationWord(rom, address), hitboxes.Count, "Native hitbox extent");
                 for (int hitbox = 0; hitbox < hitboxes.Count; hitbox++)
                 {
                     int native = address + 2 + hitbox * 12;
@@ -1079,7 +1079,7 @@ internal static class LookupStream5Verification
         Action<RoomEnemySlot, PhantoonEnemyState, ushort, int> shot = enemies.PhantoonBehavior.ResolvePhantoonShotReaction;
         ushort random = 0;
         int calls = 0;
-        enemies.VerificationServices().NextRandom = (Func<ushort>)(() => { calls++; return random; });
+        enemies.VerificationServices().NextRandom = () => { calls++; return random; };
         for (int bucket = 0; bucket < 8; bucket++)
         {
             random = (ushort)(0xfff8 | bucket);
@@ -1092,9 +1092,9 @@ internal static class LookupStream5Verification
             byte expected = rom.ReadCartridgeByte(0xa7cda5 + bucket);
             AssertEqual(expected, PhantoonPatternDefinitions.ShotEyeMarkers[bucket], "Exact retained native RNG bucket");
             shot(body, state, 0x100, 1);
-            AssertEqual((ushort)expected, state.Parts[state.Eye.SlotIndex].ShotMarker, "Actual exposed eye marker");
+            AssertEqual(expected, state.Parts[state.Eye.SlotIndex].ShotMarker, "Actual exposed eye marker");
             AssertEqual((ushort)bucket, state.Parts[state.Mouth.SlotIndex].ShotPattern, "Actual selected RNG pattern");
-            AssertEqual((ushort)16, state.Parts[body.SlotIndex].FunctionTimer, "Actual shot window");
+            AssertEqual(16, state.Parts[body.SlotIndex].FunctionTimer, "Actual shot window");
             AssertEqual(bucket + 1, calls, "One preserved RNG call per shot");
         }
         Console.WriteLine("Phantoon retained random markers: eight SHA-verified native bytes and eight actual bus-free shot writes preserve RNG, pattern and timing.");
@@ -1386,7 +1386,7 @@ internal static class LookupStream5Verification
             {
                 AssertEqual((Word(sourceOperands[column]) - 0x2000) / 2,
                     DeadMonsterRottingDefinitions.SidehopperColumnWordOffset(variant, column), "Native tile column word offset");
-                AssertEqual(minimumOperands[column] == 0 ? 0 : (int)Word(minimumOperands[column]),
+                AssertEqual(minimumOperands[column] == 0 ? 0 : Word(minimumOperands[column]),
                     DeadMonsterRottingDefinitions.SidehopperColumnMinimumY(variant, column), "Native missing top-row clipping");
             }
             var state = new DeadSidehopperEnemyState(enemies.SlotTable.Slots[0], variant, new CorpseRottingProgram { YLimit = 0, LateMoveEntryIndex = 0, WrapOffset = 148 });
@@ -1476,7 +1476,7 @@ internal static class LookupStream5Verification
             var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
             ushort random = SnesLittleEndian.Word(unchecked((byte)(0xf8 | pattern)), unchecked((byte)high));
             int calls = 0;
-            enemies.VerificationServices().NextRandom = ((Func<ushort>)(() => { calls++; return random; }));
+            enemies.VerificationServices().NextRandom = () => { calls++; return random; };
             var body = enemies.SlotTable.Slots[0];
             var eye = enemies.SlotTable.Slots[1];
             var state = new PhantoonEnemyState(body) { Eye = eye };
@@ -1496,7 +1496,7 @@ internal static class LookupStream5Verification
             for (int i = 0; i < 8; i++)
             {
                 int column = (rom.ReadCartridgeByte(0xa7cfc2 + pattern) + i) % 9;
-                AssertEqual((ushort)rom.ReadCartridgeByte(0x8698f7 + column), flames[i].Position.X.Whole, "Actual rain column order with wrap");
+                AssertEqual(rom.ReadCartridgeByte(0x8698f7 + column), flames[i].Position.X.Whole, "Actual rain column order with wrap");
                 AssertEqual((ushort)40, flames[i].Position.Y.Whole, "Actual rain ceiling Y");
                 AssertEqual((ushort)((i + 1) * 8), flames[i].Velocity.X.RawValue, "Actual staggered rain delay");
             }
@@ -2129,8 +2129,8 @@ internal static class LookupStream5Verification
                 system.SlotTable.Slots[0].FrameCounter = (ushort)counter; tick();
                 int row = (counter & 0x38) >> 3;
                 for (int color = 0; color < 6; color++) AssertEqual(Pack(document.Animation[row][color]), cgram.Colors[41 + color], "Actual native eight-tick row selection and six CGRAM writes");
-                AssertEqual((ushort)0, cgram.Colors[40], "Beacon lower neighbor unchanged");
-                AssertEqual((ushort)0, cgram.Colors[47], "Beacon upper neighbor unchanged");
+                AssertEqual(0, cgram.Colors[40], "Beacon lower neighbor unchanged");
+                AssertEqual(0, cgram.Colors[47], "Beacon upper neighbor unchanged");
             }
             string identity = SelectedPresentationHash.Create("enemy-ceres-door-v1", content =>
             {

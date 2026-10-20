@@ -803,7 +803,7 @@ public sealed class RoomLayer3FxState
         if (relative <= 0)
             return unchecked((ushort)(((relative ^ 31) & 31) | 256));
         return relative < 256
-            ? unchecked((ushort)(byte)~relative)
+            ? unchecked((byte)~relative)
             : (ushort)0;
     }
 
@@ -852,7 +852,7 @@ public sealed class RoomLayer3FxState
 
     /// <summary>Rain's texture fall each frame, in 8.8 pixels.</summary>
     private static readonly Offset16<Bg3Subpixels> RainFallVelocity =
-        new(0, unchecked((short)-RoomFxRomData.Rain.VerticalVelocity));
+        new(0, unchecked(-RoomFxRomData.Rain.VerticalVelocity));
 
     /// <summary>Water's surface drift each frame its <see cref="RoomLiquidOptions.SurfaceDrift"/> option is set.</summary>
     private static readonly Offset16<Bg3Subpixels> WaterDriftVelocity =

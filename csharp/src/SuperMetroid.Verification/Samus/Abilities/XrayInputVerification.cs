@@ -97,7 +97,7 @@ internal static class XrayInputVerification
         for (int i = 0; i < frozenMap.Length; i++)
         {
             int offset = (GameplayVramLayout.Bg2TilemapWord + i) * 2;
-            AssertEqual(frozenMap[i], (ushort)(SnesLittleEndian.Word(captured.Memory.Vram[offset], captured.Memory.Vram[offset + 1])), "captured BG2 is the setup-owned reveal map");
+            AssertEqual(frozenMap[i], SnesLittleEndian.Word(captured.Memory.Vram[offset], captured.Memory.Vram[offset + 1]), "captured BG2 is the setup-owned reveal map");
         }
 
         byte[] beforeRelease = captured.Memory.Vram.ToArray();
@@ -114,14 +114,14 @@ internal static class XrayInputVerification
             AssertTrue(restoring.Layers[0] is GameplayColorMathRenderLayer, "BG2 restore retains X-ray layer ownership");
             AssertTrue(((GameplayColorMathRenderLayer)restoring.Layers[0]).Lines.All(line => line.Left > line.Right),
                 "deactivation closes the beam while BG2 restore completes");
-            AssertEqual((ushort)0, restoring.Memory.Cgram[0], "deactivation resets the backdrop before unfreezing");
+            AssertEqual(0, restoring.Memory.Cgram[0], "deactivation resets the backdrop before unfreezing");
         }
         runtime.StepFrame(0);
         AssertTrue(!runtime.Freeze.TimeIsFrozen, "phase five releases gameplay time");
         var finishFrame = GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame());
         AssertTrue(finishFrame.Layers[0] is GameplayColorMathRenderLayer,
             "phase five still publishes X-ray blending before the next HDMA pass resets configuration");
-        AssertEqual((byte)0, ((GameplayColorMathRenderLayer)finishFrame.Layers[0]).FixedRed,
+        AssertEqual(0, ((GameplayColorMathRenderLayer)finishFrame.Layers[0]).FixedRed,
             "phase five clears the non-Fireflea fixed color");
         for (int frame = 0; frame < 26; frame++) runtime.StepFrame(0);
         AssertTrue(!samus.Xray.IsActive && !runtime.Freeze.TimeIsFrozen, "releasing Run restores ordinary gameplay");

@@ -44,7 +44,7 @@ internal static class PauseSelectorCompositionsVerification
                     AssertTrue(edited.StoresCompositionParts, "independent selector part edit retained");
                     var expected = new OamBuffer(); var actual = ScreenSpritesFixtures.Blank(); expected.BeginFrame(); actual.BeginFrame();
                     var anchor = edited.Anchor(category, 0);
-                    MenuSpriteCompiler.Compile(parts, name).DrawOnScreen(expected, new((ushort)anchor.X, (ushort)anchor.Y), edited.ObjectPalette.PaletteBits);
+                    MenuSpriteCompiler.Compile(parts, name).DrawOnScreen(expected, new(anchor.X, anchor.Y), edited.ObjectPalette.PaletteBits);
                     edited.Draw(actual, category, 0, 0);
                     expected.FinalizeFrame(); actual.FinalizeFrame();
                     AssertTrue(expected.ImageEquals(actual),
@@ -70,11 +70,17 @@ internal static class PauseSelectorCompositionsVerification
             foreach (int phase in Enumerable.Range(0, phases.Length).Append(phases.Length).Append(int.MaxValue))
             {
                 var source = phases[phase % phases.Length];
-                string name = category switch { PauseEquipmentCategory.Reserves => source.Reserve, PauseEquipmentCategory.Beams => source.Beam, _ => source.Equipment };
+                string name = category switch
+                {
+                    PauseEquipmentCategory.Reserves => source.Reserve,
+                    PauseEquipmentCategory.Beams => source.Beam,
+                    PauseEquipmentCategory.Suits or PauseEquipmentCategory.Boots => source.Equipment,
+                    _ => source.Equipment,
+                };
                 var composition = MenuSpriteCompiler.Compile(document.Frames[name], name);
                 var anchor = edited.Anchor(category, 0);
                 var expected = new OamBuffer(); var actual = ScreenSpritesFixtures.Blank(); expected.BeginFrame(); actual.BeginFrame();
-                composition.DrawOnScreen(expected, new((ushort)anchor.X, (ushort)anchor.Y), edited.ObjectPalette.PaletteBits);
+                composition.DrawOnScreen(expected, new(anchor.X, anchor.Y), edited.ObjectPalette.PaletteBits);
                 edited.Draw(actual, category, 0, phase);
                 expected.FinalizeFrame(); actual.FinalizeFrame();
                 AssertTrue(expected.ImageEquals(actual),

@@ -380,12 +380,9 @@ public sealed class PrimitiveDomainAnalyzer : DiagnosticAnalyzer
                     _ => stripped,
                 };
             }
-            string? extraction = stripped.Kind() switch
-            {
-                SyntaxKind.BitwiseAndExpression => "mask",
-                SyntaxKind.RightShiftExpression or SyntaxKind.UnsignedRightShiftExpression => "shift",
-                _ => null,
-            };
+            string? extraction = stripped.IsKind(SyntaxKind.BitwiseAndExpression) ? "mask"
+                : stripped.IsKind(SyntaxKind.RightShiftExpression) || stripped.IsKind(SyntaxKind.UnsignedRightShiftExpression) ? "shift"
+                : null;
             if (extraction is not null)
                 return extraction;
         }
@@ -780,12 +777,9 @@ public sealed class PrimitiveDomainAnalyzer : DiagnosticAnalyzer
                     _ => stripped,
                 };
             }
-            string? extraction = stripped.Kind() switch
-            {
-                SyntaxKind.BitwiseAndExpression => "mask",
-                SyntaxKind.RightShiftExpression or SyntaxKind.UnsignedRightShiftExpression => "shift",
-                _ => null,
-            };
+            string? extraction = stripped.IsKind(SyntaxKind.BitwiseAndExpression) ? "mask"
+                : stripped.IsKind(SyntaxKind.RightShiftExpression) || stripped.IsKind(SyntaxKind.UnsignedRightShiftExpression) ? "shift"
+                : null;
             if (extraction is not null)
                 Report(context, MaskedSelectorRule, reference.GetSyntax().GetLocation(), local.Name, extraction);
         }

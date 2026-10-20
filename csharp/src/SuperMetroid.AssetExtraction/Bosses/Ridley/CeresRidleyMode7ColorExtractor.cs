@@ -27,7 +27,7 @@ public static class CeresRidleyMode7ColorExtractor
             rows[row] = new PaletteRgb5[CeresRidleyPaletteRomData.Mode7ZoomColorCount];
             for (int color = 0; color < rows[row].Length; color++)
             {
-                ushort word = (ushort)(SnesLittleEndian.Word(bytes[color * 2], bytes[color * 2 + 1]));
+                ushort word = SnesLittleEndian.Word(bytes[color * 2], bytes[color * 2 + 1]);
                 rows[row][color] = new PaletteRgb5
                 {
                     Red = word & 31,

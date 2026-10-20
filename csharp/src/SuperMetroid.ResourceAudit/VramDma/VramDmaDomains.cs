@@ -61,7 +61,7 @@ internal static class VramDmaDomains
                 return Native(RoomEnemyGraphicsSetDefinitions.All.SelectMany(set =>
                     set.Records.ToArray()).Select(entry =>
                     (RoomEnemyDefinitionCatalog.Get(entry.DefinitionPointer).TileDataAddress,
-                     (int)RoomEnemyDefinitionCatalog.Get(entry.DefinitionPointer).TileDataSize & VramDmaDomainGeometry.EnemyTileByteCountMask)).Distinct());
+                     RoomEnemyDefinitionCatalog.Get(entry.DefinitionPointer).TileDataSize & VramDmaDomainGeometry.EnemyTileByteCountMask)).Distinct());
             case "fx":
                 return Native(RoomFxAnimatedTileMechanicsDefinitions.All.SelectMany(definition => definition.Frames.Select(frame =>
                     (RoomFxAnimatedTileArtworkDefinitions.SourceAddress(definition, frame.InstructionPointer), (int)definition.TransferByteCount))));

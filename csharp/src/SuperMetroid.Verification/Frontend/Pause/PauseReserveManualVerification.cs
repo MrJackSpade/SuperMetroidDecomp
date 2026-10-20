@@ -75,7 +75,7 @@ internal static class PauseReserveManualVerification
             int count = startingHealth == 98 ? 1 : 10;
             for (int frame = 0; frame < count; frame++)
             {
-                pause.Step(0, frame == 0 ? SnesButton.A : (ushort)0);
+                pause.Step(0, frame == 0 ? SnesButton.A : 0);
                 // The shared pause palette loop also uses library three. Count
                 // refill identities, not unrelated requests in the same ring.
                 int refills = Enumerable.Range(0, positions[2]).Count(i => queues[2, i] == 0x2d);

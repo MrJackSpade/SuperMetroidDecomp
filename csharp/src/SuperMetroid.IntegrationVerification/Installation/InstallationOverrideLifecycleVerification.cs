@@ -214,12 +214,12 @@ internal static class InstallationOverrideLifecycleVerification
     private static OverrideExpectations EditPresentation(GameInstallation installation)
     {
         byte[] standard = EditPng(Path.Combine(installation.StandardObjectOverrideDirectory,
-            StandardObjectArtworkFormat.FileName), new(checked((ushort)(RoomCharacterAtlasFormat.TileColumns * 8)),
+            StandardObjectArtworkFormat.FileName), new(checked(RoomCharacterAtlasFormat.TileColumns * 8),
             checked((ushort)((RoomCharacterAtlasFormat.ValidateTileCount(StandardObjectArtworkFormat.TransferByteCount) +
                 RoomCharacterAtlasFormat.TileColumns - 1) / RoomCharacterAtlasFormat.TileColumns * 8))), 4)
             .AsSpan(0, StandardObjectArtworkFormat.TransferByteCount).ToArray();
         byte[] font = EditPng(Path.Combine(installation.MapOverrideDirectory, IntroFontAtlasFormat.FileName),
-            new(checked((ushort)IntroFontAtlasFormat.Width), checked((ushort)IntroFontAtlasFormat.Height)),
+            new(checked(IntroFontAtlasFormat.Width), checked(IntroFontAtlasFormat.Height)),
             IntroFontAtlasFormat.BitsPerPixel);
         string palettePath = Path.Combine(installation.GameplayBasePaletteOverrideDirectory, GameplayBasePaletteFormat.ArtworkFileName);
         GameplayBasePaletteDocument palette = RequiredJson.Deserialize<GameplayBasePaletteDocument>(

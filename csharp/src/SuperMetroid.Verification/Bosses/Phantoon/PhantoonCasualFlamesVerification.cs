@@ -33,7 +33,7 @@ internal static class PhantoonCasualFlamesVerification
         void step(RoomEnemySlot _) => enemies.PhantoonBehavior.StepPhantoonCasualFlameSchedule(state);
         ushort random = 0;
         int calls = 0;
-        enemies.VerificationServices().NextRandom = (Func<ushort>)(() => { calls++; return random; });
+        enemies.VerificationServices().NextRandom = () => { calls++; return random; };
         // All RNG words enter the actual new-pattern branch with no address space attached.
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
         {

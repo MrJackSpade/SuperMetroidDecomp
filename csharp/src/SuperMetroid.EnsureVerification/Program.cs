@@ -67,6 +67,7 @@ internal static class Program
                 (nameof(VerifyOneTypePerFileAnalyzer), VerifyOneTypePerFileAnalyzer),
                 (nameof(ModuleMapAnalyzerTests.VerifyModuleMapAnalyzers), ModuleMapAnalyzerTests.VerifyModuleMapAnalyzers),
                 (nameof(SpeciesReachAnalyzerTests.VerifySpeciesReachAnalyzer), SpeciesReachAnalyzerTests.VerifySpeciesReachAnalyzer),
+                (nameof(SpeciesIdentityAnalyzerTests.VerifySpeciesIdentityAnalyzer), SpeciesIdentityAnalyzerTests.VerifySpeciesIdentityAnalyzer),
                 (nameof(EnemySlotWordAnalyzerTests.VerifyEnemySlotWordAnalyzer), EnemySlotWordAnalyzerTests.VerifyEnemySlotWordAnalyzer),
                 (nameof(FixedPointVocabularyAnalyzerTests.VerifyFixedPointVocabularyAnalyzer), FixedPointVocabularyAnalyzerTests.VerifyFixedPointVocabularyAnalyzer),
                 (nameof(UnderscoreMemberAnalyzerTests.VerifyUnderscoreMemberAnalyzer), UnderscoreMemberAnalyzerTests.VerifyUnderscoreMemberAnalyzer),

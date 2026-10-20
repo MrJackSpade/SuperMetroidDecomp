@@ -28,7 +28,7 @@ internal static class CrocomireSkeletonFrameGeometryVerification
             AssertEqual(index < 13 ? 5 : index < 21 ? collapseCounts[index - 13] : 1,
                 count, "native skeleton component count");
             if (index + 1 < expected.Length)
-                AssertEqual((int)expected[index + 1].Pointer, expected[index].Pointer + 2 + 8 * count,
+                AssertEqual(expected[index + 1].Pointer, expected[index].Pointer + 2 + 8 * count,
                     "native skeleton record stride");
         }
         int ordinal = 0;

@@ -21,17 +21,17 @@ internal static class XrayRoomDisplayVerification
         {
             bool excluded = RoomHeaderDefinitions.PointerOf(room) is 0xA66A or 0xCEFB;
             AssertEqual(excluded ? XrayRoomBlendMode.PreserveBackgrounds : XrayRoomBlendMode.RevealBlocks,
-                XrayRoomDisplayRules.Select(room, (RoomFxType)0, 0), "native room reveal admission");
+                XrayRoomDisplayRules.Select(room, 0, 0), "native room reveal admission");
         }
         for (int boss = 0; boss <= ushort.MaxValue; boss++)
         {
             bool excluded = boss is 3 or 6 or 7 or 8 or 10;
             AssertEqual(excluded ? XrayRoomBlendMode.PreserveBackgrounds : XrayRoomBlendMode.RevealBlocks,
-                XrayRoomDisplayRules.Select(RoomHeaderDefinitions.LandingSite, (RoomFxType)0, (ushort)boss), "native boss reveal admission");
+                XrayRoomDisplayRules.Select(RoomHeaderDefinitions.LandingSite, 0, (ushort)boss), "native boss reveal admission");
             AssertEqual(XrayRoomBlendMode.Fireflea,
                 XrayRoomDisplayRules.Select(RoomHeaderDefinitions.GlassTunnel, (RoomFxType)0x24, (ushort)boss), "Fireflea mode takes precedence over exclusions");
         }
-        AssertEqual((ushort)3171, XrayRoomDisplayRules.ActiveBackdrop, "native stage-eight backdrop");
+        AssertEqual(3171, XrayRoomDisplayRules.ActiveBackdrop, "native stage-eight backdrop");
         AssertEqual((byte)0x73, (byte)XrayRoomDisplayRules.ColorMath(XrayRoomBlendMode.RevealBlocks, false), "reveal CGADSUB");
         AssertEqual((byte)0xF3, (byte)XrayRoomDisplayRules.ColorMath(XrayRoomBlendMode.RevealBlocks, true), "subtractive reveal CGADSUB");
         AssertEqual((byte)0x61, (byte)XrayRoomDisplayRules.ColorMath(XrayRoomBlendMode.PreserveBackgrounds, false), "excluded CGADSUB");

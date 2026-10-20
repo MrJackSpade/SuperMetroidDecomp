@@ -134,7 +134,7 @@ internal static class EnemyAnimationIsolationVerification
         for (int y = -64; y <= 32; y += 8)
         for (int x = -48; x <= 48; x += 8)
         {
-            object?[] before = [stock.Actor, new Position16<RoomPixels>(unchecked((ushort)(stock.Actor.Position.X.Whole + x)), unchecked((ushort)(stock.Actor.Position.Y.Whole + y))), new Extent16<RoomPixels>((ushort)2, (ushort)2), shot, (ushort)0];
+            object?[] before = [stock.Actor, new Position16<RoomPixels>(unchecked((ushort)(stock.Actor.Position.X.Whole + x)), unchecked((ushort)(stock.Actor.Position.Y.Whole + y))), new Extent16<RoomPixels>(2, 2), shot, (ushort)0];
             object?[] after = (object?[])before.Clone();
             after[0] = edited.Actor;
             bool hit = ExtendedHitboxWalker.Find(stock.Enemies, before);

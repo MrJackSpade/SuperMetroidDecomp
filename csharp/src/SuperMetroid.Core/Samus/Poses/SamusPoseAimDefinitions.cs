@@ -21,7 +21,7 @@ internal static class SamusPoseAimDefinitions
     /// <summary>$91:B62C shot-direction column: $FF disallows shooting and cancels Grapple.</summary>
     private const byte ShootingDisabled = 0xff;
     /// <summary>Native PoseDefinitions column at $91:B62C with eight-byte stride; FD..FF preserve bounded adjacent instruction bytes.</summary>
-    internal static byte Read(SamusPoseId pose) => (SamusPoseId)pose switch
+    internal static byte Read(SamusPoseId pose) => pose switch
     {
         SamusPoseId.StandingAimUpRightPose or
         SamusPoseId.RunningAimUpRightPose or
@@ -277,8 +277,9 @@ internal static class SamusPoseAimDefinitions
         SamusPoseId.DrainedStandingLeftPose or
         SamusPoseId.DraygonGrabbedMovingRightPose => ShootingDisabled,
         // These byte indices observe Calc_Xray_HDMADataTable_OffScreen, not additional poses.
-        (SamusPoseId)0xfd => 171,
-        (SamusPoseId)0xfe => 133,
-        (SamusPoseId)0xff => 20,
+        SamusPoseId.AdjacentCodePoseFD => 171,
+        SamusPoseId.AdjacentCodePoseFE => 133,
+        SamusPoseId.AdjacentCodePoseFF => 20,
+        var undefined => throw new InvalidOperationException($"Undefined {nameof(SamusPoseId)} {undefined}."),
     };
 }

@@ -23,7 +23,7 @@ internal static class GunshipRecordStateVerification
         part.BobTimer = 70;
         AssertEqual(70, part.EngineSoundTimer, "the bob timer and the engine-sound timer are one record word");
         part.Function = GunshipFunction.NoOperation;
-        AssertEqual((int)(ushort)GunshipFunction.NoOperation, part.EscapeVelocity, "the function and the escape velocity are one record word");
+        AssertEqual((ushort)GunshipFunction.NoOperation, part.EscapeVelocity, "the function and the escape velocity are one record word");
 
         part.FunctionTimer = 144;
         part.LiftoffTransferIndex = 3;

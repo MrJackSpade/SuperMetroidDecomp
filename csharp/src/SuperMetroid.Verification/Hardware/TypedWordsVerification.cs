@@ -397,17 +397,17 @@ internal static void VerifyTypedNativeWords()
     var reflectedSlopeOrAreaReaction = new RoomBlockBehavior(0xff);
     AssertEqual((sbyte)-1, reflectedSlopeOrAreaReaction.ExtensionOffset,
         "BTS signed extension offset");
-    AssertEqual((byte)0x1f, reflectedSlopeOrAreaReaction.SlopeShape,
+    AssertEqual(0x1f, reflectedSlopeOrAreaReaction.SlopeShape,
         "BTS slope shape field");
     AssertTrue(reflectedSlopeOrAreaReaction.IsNonSquareSlope &&
         reflectedSlopeOrAreaReaction.SlopeFlipsHorizontally &&
         reflectedSlopeOrAreaReaction.SlopeFlipsVertically,
         "BTS slope contextual fields");
-    AssertEqual((byte)3, reflectedSlopeOrAreaReaction.SlopeOrientation,
+    AssertEqual(3, reflectedSlopeOrAreaReaction.SlopeOrientation,
         "BTS slope orientation field");
     AssertTrue(reflectedSlopeOrAreaReaction.UsesAreaReactionTable,
         "BTS area-reaction selector");
-    AssertEqual((byte)0x7f, reflectedSlopeOrAreaReaction.AreaReactionIndex,
+    AssertEqual(0x7f, reflectedSlopeOrAreaReaction.AreaReactionIndex,
         "BTS area-reaction index");
     AssertTrue(!reflectedSlopeOrAreaReaction.IsAreaReactionIndex(8) &&
         !reflectedSlopeOrAreaReaction.IsNormalReactionIndex(16),
@@ -568,7 +568,7 @@ internal static void VerifyTypedNativeWords()
     {
         AssertEqual(retailAreas[rawArea], AreaIds.FromCartridge(rawArea, "typed-area test"),
             $"retail area byte {rawArea} validates");
-        AssertEqual((int)rawArea, AreaIds.ToIndex(retailAreas[rawArea]),
+        AssertEqual(rawArea, AreaIds.ToIndex(retailAreas[rawArea]),
             $"retail area {retailAreas[rawArea]} indexes cartridge tables");
     }
     AssertThrows<InvalidDataException>(

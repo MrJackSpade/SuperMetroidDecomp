@@ -20,7 +20,7 @@ internal static class KagoBehaviorVerification
     internal static void VerifyKagoBehavior()
     {
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
-        enemies.VerificationServices().ReadRandom = (Func<ushort>)(() => 0);
+        enemies.VerificationServices().ReadRandom = () => 0;
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.Kago, slot.Definition);
         slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = KagoFrameToolingDefinitions.Bank });

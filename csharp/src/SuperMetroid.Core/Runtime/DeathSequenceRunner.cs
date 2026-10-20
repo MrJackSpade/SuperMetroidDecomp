@@ -12,8 +12,6 @@ namespace SuperMetroid.Core.Runtime;
 /// </summary>
 internal sealed class DeathSequenceRunner
 {
-    /// <summary>Draws Samus through the ordinary gameplay presentation path for fatal and death poses.</summary>
-    private readonly GameplayActorDrawing _actorDrawing;
     /// <summary>Provides installed death palettes and explosion sprite compositions.</summary>
     private readonly RuntimeArtwork _artwork;
     /// <summary>Receives the death sequence's palette transitions.</summary>
@@ -28,13 +26,10 @@ internal sealed class DeathSequenceRunner
     private readonly SamusFrameState _player;
     /// <summary>Supplies the active layer-1 camera for death drawing.</summary>
     private readonly ActiveRoomState _room;
-    /// <summary>Queues death-pose graphics transfers consumed by the ordinary NMI pipeline.</summary>
-    private readonly VramWriteQueue _vramWrites;
 
     /// <summary>Binds the death-state renderer and runtime services supplied by the gameplay host.</summary>
     internal DeathSequenceRunner(DeathSequenceRunnerDependencies dependencies)
     {
-        _actorDrawing = dependencies.ActorDrawing;
         _artwork = dependencies.Artwork;
         _cgram = dependencies.Cgram;
         _display = dependencies.Display;
@@ -42,7 +37,6 @@ internal sealed class DeathSequenceRunner
         _sprites = dependencies.Sprites;
         _player = dependencies.Player;
         _room = dependencies.Room;
-        _vramWrites = dependencies.VramWrites;
     }
 
     /// <summary>

@@ -90,12 +90,12 @@ internal static class EnemyTileArtworkCrocomireColorsVerification
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null)) { TileArtwork = edited };
         Type type = typeof(RoomEnemySystem);
         enemies.Presentation.BindCgram(cgram);
-        enemies.VerificationServices().IsAreaMiniBossDefeated = (Func<bool>)(() => false);
-        enemies.VerificationServices().SetRoomScrollState = (Action<int, RoomScrollState>)((_, _) => { });
+        enemies.VerificationServices().IsAreaMiniBossDefeated = () => false;
+        enemies.VerificationServices().SetRoomScrollState = (_, _) => { };
         RoomEnemySlot body = enemies.SlotTable.Slots[0];
         body.Bind(EnemyDefinitionId.Crocomire, body.Definition);
         enemies.CrocomireBehavior.InitializeCrocomire(body);
-        CrocomireEnemyState state = (CrocomireEnemyState)(enemies.CrocomireBehavior.Crocomire ?? throw new InvalidOperationException("Verification requires enemies.CrocomireBehavior.Crocomire."));
+        CrocomireEnemyState state = enemies.CrocomireBehavior.Crocomire ?? throw new InvalidOperationException("Verification requires enemies.CrocomireBehavior.Crocomire.");
         AssertEqual(CrocomireDeathPhase.Fighting, (state ?? throw new InvalidOperationException("Verification requires state.")).DeathSequenceIndex,
             "installed Crocomire colors leave living fight phase unchanged");
         AssertEqual(AnimationProgramCursor<CrocomireBodyProgram>.Start(CrocomireBodyProgram.Initial),
@@ -115,7 +115,7 @@ internal static class EnemyTileArtworkCrocomireColorsVerification
         enemies.FrameContext.SeedRandomEnemyCounter(2);
         enemies.CrocomireBehavior.ApplyCrocomireHurtPalette(body);
         for (int color = 0; color < CrocomirePaletteRomData.FightBodyCount; color++)
-            AssertEqual((ushort)0x7fff,
+            AssertEqual(0x7fff,
                 cgram.Colors[CrocomirePaletteRomData.FightBodyDestination + color],
                 $"Crocomire native white hurt flash {color}");
         AssertEqual(CrocomireDeathPhase.Fighting, state.DeathSequenceIndex,

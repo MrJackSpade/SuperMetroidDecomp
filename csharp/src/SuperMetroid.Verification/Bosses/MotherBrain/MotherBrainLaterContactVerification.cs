@@ -44,7 +44,7 @@ internal static class MotherBrainLaterContactVerification
             AssertEqual((ushort)(contact == "no-damage side" ? 500 : 500 - body.Definition.Damage),
                 samus.Health, $"Later-phase {contact} applies native contact damage");
             AssertEqual(expectedX, samus.Kinematics.ExtraDisplacement.X.WholePixels, $"{contact} horizontal displacement");
-            AssertEqual((ushort)4, samus.Kinematics.ExtraDisplacement.Y.WholePixels, $"{contact} vertical displacement");
+            AssertEqual(4, samus.Kinematics.ExtraDisplacement.Y.WholePixels, $"{contact} vertical displacement");
             AssertEqual((ushort)96, samus.InvincibilityTimer.RawValue, "Native contact invincibility timer");
             AssertEqual((ushort)5, samus.KnockbackTimer.RawValue, "Native contact knockback timer");
         }
@@ -66,7 +66,7 @@ internal static class MotherBrainLaterContactVerification
             shot.PreInstruction = type == 0x8100 ? SamusProjectilePreInstruction.Missile : SamusProjectilePreInstruction.NoWaveBeam;
             AssertEqual(1, enemies.Collision.ResolveOrdinaryProjectileHits(shots, new SamusBombProjectileSystem(), new SamusState()),
                 "Mother Brain body accepts the projectile collision callback");
-            AssertEqual((ushort)1000, body.Health, "Body projectile callback retains body health");
+            AssertEqual(1000, body.Health, "Body projectile callback retains body health");
             AssertTrue(shot.PackedDirection.HasLowByteLifecycleState, "Body blocks the beam or missile");
             AssertEqual((SoundEffectId?)SoundEffectLibrary1Sounds.DudShot, enemies.Projectiles.LastEnemyProjectileDudSoundEffect, "Body emits native dud sound");
         }

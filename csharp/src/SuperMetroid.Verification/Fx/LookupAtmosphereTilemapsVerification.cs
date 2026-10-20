@@ -57,7 +57,7 @@ internal static class LookupAtmosphereTilemapsVerification
             AssertTrue(page.customFields is null && retained.All(word => (word & mask) == 0),
                 "Calculated stock fields absent from both stores");
             _ = stock.Resolve(type);
-            AssertTrue(((RoomFxAtmosphereTilemap)page).customFields is null && retained.All(word => (word & mask) == 0),
+            AssertTrue(page.customFields is null && retained.All(word => (word & mask) == 0),
                 "Transfer never caches stock fields");
             int source = 0x8a0000 | ReadVerificationWord(rom, 0x83abf0 + (ushort)type);
             var original = new byte[0x840];

@@ -600,6 +600,66 @@ internal static class TorizoProjectileAnimations
     {
         P.EggBouncingLeft => P.EggBouncingLeftHatching,
         P.EggBouncingRight => P.EggBouncingRightHatching,
+        P.ExplosionLowHealthInitial or
+            P.ExplosionLowHealthInitialLoop or
+            P.ExplosionDeathInitial or
+            P.ExplosionDeathInitialLoop or
+            P.ExplosionDeathSmokeSetup or
+            P.ExplosionDeathSmokeSetupLoop or
+            P.DroolFourFrameDelay or
+            P.DroolTwoFrameDelay or
+            P.DroolNoDelay or
+            P.DroolFallingLoop or
+            P.DroolWallImpact or
+            P.DroolFloorImpact or
+            P.SwipeInitial or
+            P.StatueFragment0 or
+            P.StatueFragment1 or
+            P.StatueFragment2 or
+            P.StatueFragment3 or
+            P.StatueFragment4 or
+            P.StatueFragment5 or
+            P.StatueFragment6 or
+            P.StatueFragment7 or
+            P.StatueFragment8 or
+            P.StatueFragment9 or
+            P.StatueFragment10 or
+            P.StatueFragment11 or
+            P.StatueFragment12 or
+            P.StatueFragment13 or
+            P.StatueFragment14 or
+            P.StatueFragment15 or
+            P.ChozoOrbMovingLeft or
+            P.ChozoOrbMovingRight or
+            P.ChozoOrbWallImpact or
+            P.ChozoOrbFloorImpact or
+            P.ChozoOrbShot or
+            P.SonicBoomFiredLeft or
+            P.SonicBoomMovingLeft or
+            P.SonicBoomFiredRight or
+            P.SonicBoomMovingRight or
+            P.SonicBoomWallImpact or
+            P.SonicBoomWallImpactLoop or
+            P.LandingDustRightFoot or
+            P.LandingDustLeftFoot or
+            P.EggBouncingLeftHatching or
+            P.EggBouncingRightHatching or
+            P.EggHatch or
+            P.EggHatchedLeft or
+            P.EggHatchedLeftLoop or
+            P.EggHatchedRight or
+            P.EggHatchedRightLoop or
+            P.EggBreakLeft or
+            P.EggBreakRight or
+            P.SuperMissileRightInitial or
+            P.SuperMissileRightLoop or
+            P.SuperMissileLeftInitial or
+            P.SuperMissileLeftLoop or
+            P.SuperMissileImpact or
+            P.EyeBeamWallImpact or
+            P.EyeBeamFloorImpact or
+            P.EyeBeamFloorImpactLoop or
+            P.EyeBeamNormal => throw new ArgumentOutOfRangeException(nameof(program), program, "The program does not sleep before authored code."),
         _ => throw new ArgumentOutOfRangeException(nameof(program), program, "The program does not sleep before authored code."),
     };
 

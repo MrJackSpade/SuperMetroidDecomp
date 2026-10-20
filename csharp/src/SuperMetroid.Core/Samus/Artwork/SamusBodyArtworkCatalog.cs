@@ -249,7 +249,7 @@ public sealed class SamusBodyArtworkCatalog
     }
     /// <summary>Signed pose art origin; changing it never changes a physical projectile origin.</summary>
     public sbyte GraphicsYOffset(SamusPoseId pose) =>
-        (int)pose < PoseCount ? graphicsYOffsets.TryGetValue((int)pose, out sbyte value) ? value : SamusBodyPlacementDefinitions.DefaultGraphicsYOffset((SamusPoseId)pose) :
+        (int)pose < PoseCount ? graphicsYOffsets.TryGetValue((int)pose, out sbyte value) ? value : SamusBodyPlacementDefinitions.DefaultGraphicsYOffset(pose) :
             throw new InvalidDataException($"Pose ${(int)pose:X2} has no authored graphics Y offset.");
     /// <summary>Gets the resolved contiguous bank-$92 frame-selector interval.</summary>
     public ReadOnlySpan<SamusBodyFrameSelection> Frames => Enumerable.Range(0, FrameCount).Select(FrameAt).ToArray();

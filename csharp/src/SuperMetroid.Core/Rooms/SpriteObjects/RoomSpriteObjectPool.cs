@@ -99,6 +99,7 @@ internal sealed class RoomSpriteObjectPool
             case AnimationProgramAdvanceKind.Stop:
                 slot.Clear();
                 return;
+            case AnimationProgramAdvanceKind.Wait:
             default:
                 throw new InvalidOperationException($"Sprite object program {cursor.Program} advanced with {advance.Kind}.");
         }

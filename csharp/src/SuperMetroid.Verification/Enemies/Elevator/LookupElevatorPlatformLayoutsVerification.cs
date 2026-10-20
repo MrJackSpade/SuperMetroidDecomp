@@ -88,13 +88,13 @@ internal static class LookupElevatorPlatformLayoutsVerification
                 {
                     AssertEqual((ushort)count, header, "ElevatorPlatform layout native direction");
                     AssertEqual(count, shape.WordCount(run), "ElevatorPlatform layout native calculated count");
-                    AssertEqual((ushort)(SnesLittleEndian.Word((byte)shape.NextX(run), (byte)shape.NextY(run))), offset, "ElevatorPlatform layout native calculated continuation");
+                    AssertEqual(SnesLittleEndian.Word((byte)shape.NextX(run), (byte)shape.NextY(run)), offset, "ElevatorPlatform layout native calculated continuation");
                     foreach (var frame in new[] {dto,exported[index],byId})
                     {
                         var part = frame.Runs.Span[run];
                         AssertEqual(header, part.DirectionAndCount, "ElevatorPlatform layout native DTO geometry");
                         AssertEqual(count, part.LevelWords.Length, "ElevatorPlatform layout native DTO count");
-                        AssertEqual(offset, (ushort)(SnesLittleEndian.Word((byte)part.Next.X, (byte)part.Next.Y)), "ElevatorPlatform layout native DTO offset");
+                        AssertEqual(offset, SnesLittleEndian.Word((byte)part.Next.X, (byte)part.Next.Y), "ElevatorPlatform layout native DTO offset");
                     }
                     for (int cell = 0; cell < count; cell++)
                         AssertEqual(ReadSamusEaterPlmWord(rom, cursor + 2 + cell * 2),

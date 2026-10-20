@@ -128,7 +128,7 @@ internal static class IntroEyeInstructionsVerification
                     pointer += 6;
                     return;
                 }
-                AssertEqual((int)CinematicCodePointersConstants.CinematicBackgroundObject_Instruction_Goto, word,
+                AssertEqual(CinematicCodePointersConstants.CinematicBackgroundObject_Instruction_Goto, word,
                     "the native eye lists' only command is a goto");
                 pointer = Word(pointer + 2);
             }

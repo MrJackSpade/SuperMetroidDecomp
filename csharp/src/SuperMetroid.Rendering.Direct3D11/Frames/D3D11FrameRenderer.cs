@@ -235,7 +235,7 @@ public sealed class D3D11FrameRenderer : IDisposable
         {
             ColorAddWindow line = layer.Windows[y];
             int offset = D3D11ShaderLayout.ScanlineParametersWordOffset + y * 4;
-            data[offset] = (uint)(SnesLittleEndian.Word(checked((byte)line.Left), checked((byte)line.Right)));
+            data[offset] = SnesLittleEndian.Word(checked((byte)line.Left), checked((byte)line.Right));
             data[offset + 1] = (uint)line.Red;
             data[offset + 2] = (uint)line.Green;
             data[offset + 3] = (uint)line.Blue;
@@ -285,7 +285,7 @@ public sealed class D3D11FrameRenderer : IDisposable
         data[1] = (uint)r.Bg1CharacterWord; data[2] = (uint)r.Bg2CharacterWord;
         data[3] = r.Bg1Scroll.X;
         data[4] = unchecked((ushort)(r.Bg1Scroll.Y + SnesPpuLayout.FirstVisibleBackgroundScanline));
-        data[5] = (uint)r.Bg2MapSize.X; data[6] = (uint)r.Bg2MapSize.Y;
+        data[5] = r.Bg2MapSize.X; data[6] = r.Bg2MapSize.Y;
         data[7] = (uint)r.MainScreenLayers; data[8] = layer.RevealBlocks ? 1u : 0u;
         data[9] = (uint)layer.ColorMath;
         data[10] = (uint)layer.FixedRed; data[11] = (uint)layer.FixedGreen; data[12] = (uint)layer.FixedBlue;
@@ -413,7 +413,7 @@ public sealed class D3D11FrameRenderer : IDisposable
         var data = ClearUploadConstants();
         data[0] = (uint)D3D11TileOperation.Bg4;
         data[1] = (uint)r.Bg2TilemapWord; data[2] = (uint)r.Bg2CharacterWord;
-        data[5] = (uint)r.Bg2MapSize.X; data[6] = (uint)r.Bg2MapSize.Y;
+        data[5] = r.Bg2MapSize.X; data[6] = r.Bg2MapSize.Y;
         data[7] = Priority(high); data[8] = 1; data[15] = 1;
         data[14] = D3D11RoomSources.Bg2Of(layer.Rooms);
         data[25] = (uint)Math.Max(r.Bg2FirstScanline, first); data[26] = (uint)Math.Min(r.Bg2EndScanline, end);
@@ -574,6 +574,8 @@ public sealed class D3D11FrameRenderer : IDisposable
                 case FixedColorAddRenderLayer add:
                     DispatchTile(D3D11TileOperation.FixedAdd, new D3D11TileDispatch { Red = (uint)add.Red, Green = (uint)add.Green, Blue = (uint)add.Blue });
                     break;
+                default:
+                    throw new InvalidOperationException($"Undefined {nameof(RenderLayer)} {layer}.");
             }
         }
         if (!gradient.IsEmpty) DispatchTitleGradient(gradient);
@@ -708,7 +710,8 @@ public sealed class D3D11FrameRenderer : IDisposable
         {
             SnesWindowTarget.Bg1 or SnesWindowTarget.Bg2 => windows.Window12Selection,
             SnesWindowTarget.Bg3 or SnesWindowTarget.Bg4 => windows.Window34Selection,
-            _ => windows.ObjectColorSelection,
+            SnesWindowTarget.Obj or SnesWindowTarget.ColorMath => windows.ObjectColorSelection,
+            var undefined => throw new InvalidOperationException($"Undefined {nameof(SnesWindowTarget)} {undefined}."),
         };
         data[D3D11ShaderLayout.WindowSelectionWord] = (uint)selection.Layer((index & 1) != 0);
         data[D3D11ShaderLayout.WindowLogicWord] = (uint)(target == SnesWindowTarget.Obj

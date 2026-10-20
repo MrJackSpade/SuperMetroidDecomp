@@ -191,8 +191,8 @@ internal sealed class EnemyTerrain
         int lastColumn = unchecked((ushort)(slot.Position.X.Whole + slot.Radius.X - 1)) >> 4;
         for (int column = firstColumn; column <= lastColumn; column++)
         {
-            if ((uint)column >= (uint)level.Size.X ||
-                (uint)row >= (uint)level.Size.Y ||
+            if ((uint)column >= level.Size.X ||
+                (uint)row >= level.Size.Y ||
                 level.GetCollisionBlock(new(unchecked((ushort)column), unchecked((ushort)row))).PackedWord.HasSolidProbeBit)
             {
                 return true;
@@ -225,8 +225,8 @@ internal sealed class EnemyTerrain
         int column = targetEdge >> 4;
         for (int row = firstRow; row <= lastRow; row++)
         {
-            if ((uint)column >= (uint)level.Size.X ||
-                (uint)row >= (uint)level.Size.Y ||
+            if ((uint)column >= level.Size.X ||
+                (uint)row >= level.Size.Y ||
                 level.GetCollisionBlock(new(unchecked((ushort)column), unchecked((ushort)row))).PackedWord.HasSolidProbeBit)
             {
                 return true;
@@ -250,10 +250,10 @@ internal sealed class EnemyTerrain
         int blockY = edge >> 4;
         int firstBlockX = unchecked((ushort)(slot.Position.X.Whole - slot.Radius.X)) >> 4;
         int lastBlockX = unchecked((ushort)(slot.Position.X.Whole + slot.Radius.X - 1)) >> 4;
-        if ((uint)blockY >= (uint)level.Size.Y) return true;
+        if ((uint)blockY >= level.Size.Y) return true;
         for (int blockX = firstBlockX; blockX <= lastBlockX; blockX++)
         {
-            if ((uint)blockX >= (uint)level.Size.X ||
+            if ((uint)blockX >= level.Size.X ||
                 level.GetCollisionBlock(new(unchecked((ushort)blockX), unchecked((ushort)blockY))).PackedWord.HasSolidProbeBit)
                 return true;
         }
@@ -577,8 +577,8 @@ internal sealed class EnemyTerrain
     {
         int blockX = pixel.X >> 4;
         int blockY = pixel.Y >> 4;
-        if ((uint)blockX >= (uint)level.Size.X ||
-            (uint)blockY >= (uint)level.Size.Y)
+        if ((uint)blockX >= level.Size.X ||
+            (uint)blockY >= level.Size.Y)
         {
             return false;
         }

@@ -364,7 +364,7 @@ static (ushort X, ushort Y) ObserveSolidEnemyProbeTarget(
             };
             var enemy = new SolidEnemyCollisionBody(
                 Index: 0x0040, Position: new(unchecked((ushort)enemyX), unchecked((ushort)enemyY)),
-                Radius: new(1, 1), Frozen: false, Properties: EnemyPropertyWord.FromNativeWord((ushort)(0x8000)));
+                Radius: new(1, 1), Frozen: false, Properties: EnemyPropertyWord.FromNativeWord(0x8000));
             if (!SamusSolidEnemyCollision.Probe(
                     probeState, [enemy], direction, distance, distanceSubposition).Collided)
                 continue;
@@ -384,12 +384,18 @@ static (ushort X, ushort Y) ObserveSolidEnemyProbeTarget(
     {
         SamusCollisionDirection.Right => maxX - samus.Radius.X,
         SamusCollisionDirection.Left => minX + samus.Radius.X,
+        SamusCollisionDirection.Up or
+            SamusCollisionDirection.Down or
+            SamusCollisionDirection.NonDirectionalProbe => (minX + maxX) / 2,
         _ => (minX + maxX) / 2,
     };
     int targetY = direction switch
     {
         SamusCollisionDirection.Down => maxY - samus.Radius.Y,
         SamusCollisionDirection.Up => minY + samus.Radius.Y,
+        SamusCollisionDirection.Left or
+            SamusCollisionDirection.Right or
+            SamusCollisionDirection.NonDirectionalProbe => (minY + maxY) / 2,
         _ => (minY + maxY) / 2,
     };
     return (unchecked((ushort)targetX), unchecked((ushort)targetY));
@@ -455,7 +461,7 @@ internal static void VerifySamusSolidEnemyCollision()
     };
     var frozenRinka = new SolidEnemyCollisionBody(
         Index: 0x00c0, Position: new(0x00c8, 0x00a3), Radius: new(8, 8),
-        Frozen: true, Properties: EnemyPropertyWord.FromNativeWord((ushort)(0x2800)));
+        Frozen: true, Properties: EnemyPropertyWord.FromNativeWord(0x2800));
     SolidEnemyCollisionResult landing = SamusSolidEnemyCollision.Probe(
         falling, [frozenRinka], SamusCollisionDirection.Down, distance: 2, distanceSubposition: 0x6800);
     AssertTrue(landing.Collided, "a falling Samus lands on the frozen Rinka");
@@ -464,7 +470,7 @@ internal static void VerifySamusSolidEnemyCollision()
     samus.Position = samus.Position.WithFractionX(0).WithFractionY(0x7777);
     var decorative = new SolidEnemyCollisionBody(
         Index: 0x0040, Position: new(110, 100), Radius: new(5, 5),
-        Frozen: false, Properties: EnemyPropertyWord.FromNativeWord((ushort)(0)));
+        Frozen: false, Properties: EnemyPropertyWord.FromNativeWord(0));
     SolidEnemyCollisionResult ignored = SamusSolidEnemyCollision.Probe(
         samus, [decorative], SamusCollisionDirection.Right, distance: 2, distanceSubposition: 0);
     AssertTrue(!ignored.Collided, "non-solid unfrozen enemy is ignored");
@@ -490,7 +496,7 @@ internal static void VerifySamusSolidEnemyCollision()
     SolidEnemyCollisionBody solidTouch = decorative with
     {
         Index = 0x00c0,
-        Properties = EnemyPropertyWord.FromNativeWord((ushort)(0x8000)),
+        Properties = EnemyPropertyWord.FromNativeWord(0x8000),
     };
     SolidEnemyCollisionResult touching = SamusSolidEnemyCollision.Probe(
         samus, [solidTouch], SamusCollisionDirection.Right, distance: 1, distanceSubposition: 0);
@@ -563,7 +569,7 @@ internal static void VerifySamusSolidEnemyCollision()
     AssertTrue(integratedHorizontal.EnemyCollision is not null,
         "enemy collision, not an invented terrain block, stops the ordinary mover");
     AssertEqual(
-        (ushort?)0x0080,
+        0x0080,
         integratedHorizontal.EnemyCollision?.EnemyIndex,
         "ordinary mover retains colliding enemy identity");
 

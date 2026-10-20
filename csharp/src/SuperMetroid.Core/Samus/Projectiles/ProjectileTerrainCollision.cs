@@ -139,9 +139,9 @@ internal sealed class ProjectileTerrainCollision
             : unchecked((ushort)(slot.Position.X.Whole + slot.Radius.X - 1));
         int blockX = targetX >> 4;
 
-        if ((uint)blockX >= (uint)level.Size.X ||
-            (uint)topBlock >= (uint)level.Size.Y ||
-            (uint)bottomBlock >= (uint)level.Size.Y)
+        if ((uint)blockX >= level.Size.X ||
+            (uint)topBlock >= level.Size.Y ||
+            (uint)bottomBlock >= level.Size.Y)
         {
             return false;
         }
@@ -175,9 +175,9 @@ internal sealed class ProjectileTerrainCollision
             : unchecked((ushort)(slot.Position.Y.Whole + slot.Radius.Y - 1));
         int blockY = targetY >> 4;
 
-        if ((uint)blockY >= (uint)level.Size.Y ||
-            (uint)leftBlock >= (uint)level.Size.X ||
-            (uint)rightBlock >= (uint)level.Size.X)
+        if ((uint)blockY >= level.Size.Y ||
+            (uint)leftBlock >= level.Size.X ||
+            (uint)rightBlock >= level.Size.X)
         {
             return false;
         }

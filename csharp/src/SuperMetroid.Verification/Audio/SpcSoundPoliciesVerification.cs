@@ -67,7 +67,7 @@ internal static class SpcSoundPoliciesVerification
                 AssertEqual(expectedPriority, state.Priority, "production policy priority and preservation");
                 AssertEqual(expectedMode, state.Mode, "production policy mode and preservation");
                 if (checkedVoicePolicies.Add(originalPolicy))
-                    AssertEqual((int)expectedVoices, SpcSoundEffectTables.GetVoiceCount(library, originalPolicy), "native policy channel-program count");
+                    AssertEqual(expectedVoices, SpcSoundEffectTables.GetVoiceCount(library, originalPolicy), "native policy channel-program count");
             }
         }
         int nativePolicyCount = library == 1 ? 4 : 6;
@@ -78,9 +78,9 @@ internal static class SpcSoundPoliciesVerification
             AssertThrows<InvalidDataException>(() => SpcSoundEffectTables.GetVoiceCount(library, (byte)invalid), "unknown manifest policy byte");
             var untouched = new ManagedSpcSoundLibrary { VoicesToSetup = 0xa5, Priority = 0x5a, Mode = 0x3c };
             AssertThrows<InvalidDataException>(() => applyPolicy(library, untouched, (byte)invalid), "unknown runtime policy byte");
-            AssertEqual((byte)0xa5, untouched.VoicesToSetup, "rejected policy preserves voices");
-            AssertEqual((byte)0x5a, untouched.Priority, "rejected policy preserves priority");
-            AssertEqual((byte)0x3c, untouched.Mode, "rejected policy preserves mode");
+            AssertEqual(0xa5, untouched.VoicesToSetup, "rejected policy preserves voices");
+            AssertEqual(0x5a, untouched.Priority, "rejected policy preserves priority");
+            AssertEqual(0x3c, untouched.Mode, "rejected policy preserves mode");
         }
         foreach (int invalid in new[] { int.MinValue, -1, 0, count + 1, 256, int.MaxValue })
             AssertThrows<IndexOutOfRangeException>(() => SpcSoundEffectTables.Configuration(library, invalid), "unsupported sound command");

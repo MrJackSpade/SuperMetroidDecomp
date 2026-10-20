@@ -67,7 +67,7 @@ internal static class KraidArmPhysicalFrameMappingsVerification
             AssertEqual(expectedMember, KraidArmCollisionDefinitions.TryGetComponents(pointer, out var compiled),
                 "Arm physical layout exact-pointer domain");
             if (!expectedMember) { AssertEqual(0, compiled.Length, "Rejected arm frame has no components"); continue; }
-            AssertEqual((int)ReadKraidArmInstructionWord(rom, pointer), compiled.Length, "Native arm component count");
+            AssertEqual(ReadKraidArmInstructionWord(rom, pointer), compiled.Length, "Native arm component count");
             for (int index = 0; index < compiled.Length; index++)
             {
                 ushort record = (ushort)(pointer + 2 + 8 * index);

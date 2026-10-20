@@ -8,18 +8,18 @@ internal sealed class EvirEntity(EvirBehavior species, RoomEnemySlot slot, Enemy
     : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation, IEnemyPrivateShotCallback
 {
     /// <inheritdoc/>
-    public EnemyInitializationAiHandler? FindInitialization() => Slot.EnemyDefinitionPointer switch
+    public EnemyInitializationAiHandler? FindInitialization() => EvirPartDefinitions.Parts[Slot.EnemyDefinitionPointer] switch
     {
-        EnemyDefinitionId.Evir => species.RunEvirInitializationAi,
-        EnemyDefinitionId.EvirProjectile => species.RunEvirProjectileInitializationAi,
+        EvirPart.Evir => species.RunEvirInitializationAi,
+        EvirPart.Projectile => species.RunEvirProjectileInitializationAi,
         _ => throw new InvalidOperationException($"Evir entity bound to {Slot.EnemyDefinitionPointer}."),
     };
 
     /// <inheritdoc/>
-    public EnemyMainAiHandler? FindMain() => Slot.EnemyDefinitionPointer switch
+    public EnemyMainAiHandler? FindMain() => EvirPartDefinitions.Parts[Slot.EnemyDefinitionPointer] switch
     {
-        EnemyDefinitionId.Evir => species.RunEvirMainAi,
-        EnemyDefinitionId.EvirProjectile => species.RunEvirProjectileMainAi,
+        EvirPart.Evir => species.RunEvirMainAi,
+        EvirPart.Projectile => species.RunEvirProjectileMainAi,
         _ => throw new InvalidOperationException($"Evir entity bound to {Slot.EnemyDefinitionPointer}."),
     };
 

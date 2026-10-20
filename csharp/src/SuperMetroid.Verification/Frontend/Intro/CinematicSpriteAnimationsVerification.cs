@@ -99,7 +99,7 @@ internal static class CinematicSpriteAnimationsVerification
             {
                 var show = Next("frame");
                 AssertEqual(AnimationProgramStepKind.Show, show.Kind, $"{at}: frame");
-                AssertEqual((int)word, show.Duration, $"{at}: duration");
+                AssertEqual(word, show.Duration, $"{at}: duration");
                 AssertEqual(operand, CinematicSpritePoseDefinitions.Spritemap(show.Frame), $"{at}: spritemap");
                 cursor = unchecked((ushort)(cursor + 4));
                 continue;
@@ -134,7 +134,7 @@ internal static class CinematicSpriteAnimationsVerification
                     continue;
                 case SharedWord.SetCounter:
                     AssertEqual(AnimationProgramStepKind.SetCounter, step.Kind, $"{at}: timer load");
-                    AssertEqual((int)operand, step.Duration, $"{at}: timer");
+                    AssertEqual(operand, step.Duration, $"{at}: timer");
                     cursor = unchecked((ushort)(cursor + 4));
                     continue;
                 case SharedWord.RepeatWhileCounting:

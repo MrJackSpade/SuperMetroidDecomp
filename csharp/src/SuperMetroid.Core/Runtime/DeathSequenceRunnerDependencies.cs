@@ -8,9 +8,6 @@ namespace SuperMetroid.Core.Runtime;
 /// <summary>The collaborators a <see cref="DeathSequenceRunner"/> is constructed with, built once by the owner that creates it (#621).</summary>
 internal sealed record DeathSequenceRunnerDependencies
 {
-    /// <summary>Actor drawing.</summary>
-    public required GameplayActorDrawing ActorDrawing { get; init; }
-
     /// <summary>Artwork.</summary>
     public required RuntimeArtwork Artwork { get; init; }
 
@@ -31,7 +28,4 @@ internal sealed record DeathSequenceRunnerDependencies
 
     /// <summary>Room.</summary>
     public required ActiveRoomState Room { get; init; }
-
-    /// <summary>Vram writes.</summary>
-    public required VramWriteQueue VramWrites { get; init; }
 }

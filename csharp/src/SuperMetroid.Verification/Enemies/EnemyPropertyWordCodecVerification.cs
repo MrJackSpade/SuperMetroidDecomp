@@ -38,7 +38,7 @@ internal static class EnemyPropertyWordCodecVerification
             EnemyExtraPropertyWord extra = EnemyExtraPropertyWord.FromNativeWord(word);
             AssertEqual(word, extra.ToNativeWord(), $"extra-property bit {bit} round trips");
             bool translated = extra.HasAny(EnemyExtraProperties.UsesExtendedSpritemap | EnemyExtraProperties.NewInstructionFrame);
-            AssertEqual(translated ? 0 : (int)word, extra.UntranslatedBits, $"extra-property bit {bit} lands in the right part");
+            AssertEqual(translated ? 0 : word, extra.UntranslatedBits, $"extra-property bit {bit} lands in the right part");
         }
         EnemyExtraPropertyWord combined = EnemyExtraPropertyWord.FromNativeWord(ushort.MaxValue);
         AssertEqual(ushort.MaxValue, combined.With(EnemyExtraProperties.NewInstructionFrame).ToNativeWord(),

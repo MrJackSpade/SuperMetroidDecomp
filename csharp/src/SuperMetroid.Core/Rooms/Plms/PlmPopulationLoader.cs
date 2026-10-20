@@ -16,8 +16,6 @@ namespace SuperMetroid.Core.Rooms.Plms;
 [RoomLifetime]
 internal sealed class PlmPopulationLoader
 {
-    /// <summary>Installs room services once so every resident pre-instruction sees the same owners.</summary>
-    private readonly PlmRoomBindings _bindings;
     /// <summary>Handles the Bomb Torizo hand's boss-state setup.</summary>
     private readonly BombTorizoHandPlms _bombTorizoHand;
     /// <summary>Sets up permanent item slots and their dynamic graphics.</summary>
@@ -36,7 +34,6 @@ internal sealed class PlmPopulationLoader
     /// <summary>Connects setup-family services and the shared slot table for one PLM system.</summary>
     internal PlmPopulationLoader(PlmPopulationLoaderDependencies dependencies)
     {
-        _bindings = dependencies.Bindings;
         _bombTorizoHand = dependencies.BombTorizoHand;
         _collectiblePlms = dependencies.CollectiblePlms;
         _eyeDoors = dependencies.EyeDoors;

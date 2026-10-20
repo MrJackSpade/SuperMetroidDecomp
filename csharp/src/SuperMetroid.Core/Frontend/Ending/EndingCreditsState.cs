@@ -462,6 +462,8 @@ internal sealed class EndingCreditsState
                 StepSprites();
                 postCreditsText?.Step(screen);
                 break;
+            default:
+                throw new InvalidOperationException($"Undefined {nameof(EndingCreditsPhase)} {Phase}.");
         }
 
         // The native cinematic invokes the shared bank-$8D interpreter after actors.
@@ -878,6 +880,28 @@ internal sealed class EndingCreditsState
                 Phase = EndingCreditsPhase.FadeOutToCredits;
                 return;
 
+            case CinematicSpriteCueKind.SetPreInstruction:
+            case CinematicSpriteCueKind.FadeInZebesText:
+            case CinematicSpriteCueKind.FadeOutZebesText:
+            case CinematicSpriteCueKind.GreyOut:
+            case CinematicSpriteCueKind.Launch:
+            case CinematicSpriteCueKind.LaunchHead:
+            case CinematicSpriteCueKind.PrepareHead:
+            case CinematicSpriteCueKind.Shoot:
+            case CinematicSpriteCueKind.SpawnFinalExplosionWave:
+            case CinematicSpriteCueKind.SpawnInitialExplosionWave:
+            case CinematicSpriteCueKind.SpawnJapaneseZebesTextIfNeeded:
+            case CinematicSpriteCueKind.SpawnParticles:
+            case CinematicSpriteCueKind.SpawnRinkas0And1:
+            case CinematicSpriteCueKind.SpawnRinkas2And3:
+            case CinematicSpriteCueKind.SpawnSuitedJump:
+            case CinematicSpriteCueKind.SpawnSuitlessJump:
+            case CinematicSpriteCueKind.StartFlyingToZebes:
+            case CinematicSpriteCueKind.StartIntroPage2:
+            case CinematicSpriteCueKind.StartIntroPage3:
+            case CinematicSpriteCueKind.StartIntroPage4:
+            case CinematicSpriteCueKind.StartIntroPage5:
+            case CinematicSpriteCueKind.StartRinkaMoving:
             default:
                 throw new InvalidOperationException($"The ending sprite programs publish no {cue} cue.");
         }
@@ -1405,6 +1429,40 @@ internal sealed class EndingCreditsState
                     IntroCinematicMotion.Unpacked(position),
                     sprite.Position.Y.WithFraction(unchecked((ushort)velocity)));
                 break;
+            case CinematicSpritePreInstruction.NoOp:
+            case CinematicSpritePreInstruction.MetroidEgg:
+            case CinematicSpritePreInstruction.MetroidEggDeleteAfterCrossFade:
+            case CinematicSpritePreInstruction.MetroidEggParticle:
+            case CinematicSpritePreInstruction.MetroidEggSlimeDrops:
+            case CinematicSpritePreInstruction.BabyMetroidBeingDelivered:
+            case CinematicSpritePreInstruction.BabyMetroidBeingExamined:
+            case CinematicSpritePreInstruction.IntroMotherBrainCrossFading:
+            case CinematicSpritePreInstruction.IntroRinkaMovingHitsSamus:
+            case CinematicSpritePreInstruction.IntroRinkaMovingMissesSamus:
+            case CinematicSpritePreInstruction.ConfusedBabyWaitingForHatch:
+            case CinematicSpritePreInstruction.ConfusedBabyHatched:
+            case CinematicSpritePreInstruction.ConfusedBabyIdling:
+            case CinematicSpritePreInstruction.ConfusedBabyDancing:
+            case CinematicSpritePreInstruction.CeresStars:
+            case CinematicSpritePreInstruction.CeresLargeAsteroids:
+            case CinematicSpritePreInstruction.CeresUnderAttack:
+            case CinematicSpritePreInstruction.CeresSmallAsteroid:
+            case CinematicSpritePreInstruction.CeresPurpleSpaceVortex:
+            case CinematicSpritePreInstruction.CeresStationaryVortexNoOp:
+            case CinematicSpritePreInstruction.CeresExplosionSpawnerRepeating:
+            case CinematicSpritePreInstruction.CeresExplosion:
+            case CinematicSpritePreInstruction.Zebes:
+            case CinematicSpritePreInstruction.ZebesSlideSceneAway:
+            case CinematicSpritePreInstruction.ZebesStarsCompletionWait:
+            case CinematicSpritePreInstruction.ZebesStarsCompletionSlideSceneAway:
+            case CinematicSpritePreInstruction.ZebesStarsWait:
+            case CinematicSpritePreInstruction.ZebesStarsSlideSceneAway:
+            case CinematicSpritePreInstruction.SuperMetroidIconTopHalf:
+            case CinematicSpritePreInstruction.SuperMetroidIconBottomHalf:
+            case CinematicSpritePreInstruction.RewardSuitlessUpperNoOp:
+            case CinematicSpritePreInstruction.RewardBodyFlight:
+            case CinematicSpritePreInstruction.RewardHeadFlight:
+            case CinematicSpritePreInstruction.RewardLanding:
             default:
                 throw new InvalidOperationException(
                     $"Flyaway stars do not run {preInstruction}.");

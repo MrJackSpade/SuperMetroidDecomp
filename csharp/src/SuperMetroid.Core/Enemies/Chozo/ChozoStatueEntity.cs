@@ -8,26 +8,26 @@ internal sealed class ChozoStatueEntity(ChozoStatueBehavior species, RoomEnemySl
     : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation
 {
     /// <inheritdoc/>
-    public EnemyInitializationAiHandler? FindInitialization() => Slot.EnemyDefinitionPointer switch
+    public EnemyInitializationAiHandler? FindInitialization() => ChozoStatuePartDefinitions.Parts[Slot.EnemyDefinitionPointer] switch
     {
-        EnemyDefinitionId.NoobTubeCrack => species.RunNoobTubeCrackInitializationAi,
-        EnemyDefinitionId.Chozo => species.RunChozoInitializationAi,
+        ChozoStatuePart.NoobTubeCrack => species.RunNoobTubeCrackInitializationAi,
+        ChozoStatuePart.Chozo => species.RunChozoInitializationAi,
         _ => throw new InvalidOperationException($"ChozoStatue entity bound to {Slot.EnemyDefinitionPointer}."),
     };
 
     /// <inheritdoc/>
-    public EnemyMainAiHandler? FindMain() => Slot.EnemyDefinitionPointer switch
+    public EnemyMainAiHandler? FindMain() => ChozoStatuePartDefinitions.Parts[Slot.EnemyDefinitionPointer] switch
     {
-        EnemyDefinitionId.Chozo => species.RunChozoStatueMainAi,
-        EnemyDefinitionId.NoobTubeCrack => EnemyCommonParticipation.FindMain(Slot),
+        ChozoStatuePart.Chozo => species.RunChozoStatueMainAi,
+        ChozoStatuePart.NoobTubeCrack => EnemyCommonParticipation.FindMain(Slot),
         _ => throw new InvalidOperationException($"ChozoStatue entity bound to {Slot.EnemyDefinitionPointer}."),
     };
 
     /// <inheritdoc/>
-    public Action<RoomEnemySlot, EnemyInstructionContext>? FindTypedAnimation() => Slot.EnemyDefinitionPointer switch
+    public Action<RoomEnemySlot, EnemyInstructionContext>? FindTypedAnimation() => ChozoStatuePartDefinitions.Parts[Slot.EnemyDefinitionPointer] switch
     {
-        EnemyDefinitionId.Chozo => species.AdvanceChozoStatueTypedAnimation,
-        EnemyDefinitionId.NoobTubeCrack => null,
+        ChozoStatuePart.Chozo => species.AdvanceChozoStatueTypedAnimation,
+        ChozoStatuePart.NoobTubeCrack => null,
         _ => throw new InvalidOperationException($"ChozoStatue entity bound to {Slot.EnemyDefinitionPointer}."),
     };
 }

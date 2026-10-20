@@ -230,6 +230,7 @@ public sealed class SamusPowerBombExplosionState
             case PowerBombExplosionPhase.CrystalFlashAfterglow:
                 return StepCrystalFlashAfterglow();
 
+            case PowerBombExplosionPhase.Inactive:
             default:
                 throw new InvalidOperationException($"Active power-bomb status has invalid phase {Phase}.");
         }

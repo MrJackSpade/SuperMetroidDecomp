@@ -153,8 +153,8 @@ public static class SamusSlopePhysics
     {
         int blockX = pixel.X >> 4;
         int blockY = pixel.Y >> 4;
-        if ((uint)blockX >= (uint)level.Size.X ||
-            (uint)blockY >= (uint)level.Size.Y)
+        if ((uint)blockX >= level.Size.X ||
+            (uint)blockY >= level.Size.Y)
         {
             block = default;
             return false;

@@ -67,7 +67,7 @@ internal static class GunshipMotionDefinitionsVerification
 
             stepBob(top);
 
-            AssertEqual((int)expectedTimer, part.BobTimer,
+            AssertEqual(expectedTimer, part.BobTimer,
                 $"gunship production bob timer {phase}");
             AssertEqual((phase + 1) & 3, part.BobPhase,
                 $"gunship production bob phase {phase}");

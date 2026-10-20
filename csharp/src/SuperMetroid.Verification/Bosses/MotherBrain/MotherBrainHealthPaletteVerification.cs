@@ -24,8 +24,8 @@ internal static class MotherBrainHealthPaletteVerification
             VerifyCopy(0xade6a2, 145);
             VerifyCopy(0xade742, 177);
             colors.Add(string.Join(',', cgram.Colors.Slice(145, 15).ToArray()));
-            AssertEqual((ushort)0, cgram.Colors[144], "health palette leaves transparent color untouched");
-            AssertEqual((ushort)0, cgram.Colors[192], "health palette cannot overwrite Samus palette");
+            AssertEqual(0, cgram.Colors[144], "health palette leaves transparent color untouched");
+            AssertEqual(0, cgram.Colors[192], "health palette cannot overwrite Samus palette");
 
             void VerifyCopy(int table, int destination)
             {

@@ -27,7 +27,7 @@ internal static class ImportedSpritemapOracle
         // deliberately accepts only import data; live-memory OAM has separate APIs.
         int BankOffset(int offset) => SnesAddressMath.AddWithinBank(address, offset);
         byte Byte(int offset) => source.ReadCartridgeByte(BankOffset(offset));
-        ushort Word(int offset) => (ushort)(SnesLittleEndian.Word(Byte(offset), Byte(offset + 1)));
+        ushort Word(int offset) => SnesLittleEndian.Word(Byte(offset), Byte(offset + 1));
         ushort count = Word(0);
         for (int part = 0; part < count && oam.NextByteOffset < OamBuffer.LowTableByteCount; part++)
         {
@@ -61,7 +61,7 @@ internal static class ImportedSpritemapOracle
         Ensure.NotNull(source);
         byte Byte(int offset) => source.ReadCartridgeByte(
             ((int)new SnesAddress(bank, checked((ushort)(SnesAddressMath.OffsetInBank(pointer + offset))))));
-        ushort Word(int offset) => (ushort)(SnesLittleEndian.Word(Byte(offset), Byte(offset + 1)));
+        ushort Word(int offset) => SnesLittleEndian.Word(Byte(offset), Byte(offset + 1));
         var parts = new EnemySpritemapPart[Word(0)];
         for (int part = 0; part < parts.Length; part++)
         {

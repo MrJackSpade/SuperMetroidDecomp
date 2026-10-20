@@ -28,7 +28,7 @@ internal static class CeresSteamCollisionDefinitionsVerification
         {
             var denied = NewCeresSteamCollisionNoReadBus();
             var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null)) { TileArtwork = stock };
-            enemies.VerificationServices().NextRandom = (Func<ushort>)(() => 0);
+            enemies.VerificationServices().NextRandom = () => 0;
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.Bind(EnemyDefinitionId.Steam, slot.Definition);
             slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with
@@ -117,7 +117,7 @@ internal static class CeresSteamCollisionDefinitionsVerification
                 for (int shot = 0; shot <= 1; shot++)
                 {
                     object?[] compiledArguments =
-                        [compiledSlot, new Position16<RoomPixels>(x, y), new Extent16<RoomPixels>((ushort)0, (ushort)0), shot != 0, (ushort)0];
+                        [compiledSlot, new Position16<RoomPixels>(x, y), new Extent16<RoomPixels>(0, 0), shot != 0, (ushort)0];
                     bool nativeHit = NativeHit(frame, originX, originY, x, y, shot != 0, out ushort nativeCallback);
                     bool compiledHit = ExtendedHitboxWalker.Find(compiled, compiledArguments);
                     AssertEqual(nativeHit, compiledHit,

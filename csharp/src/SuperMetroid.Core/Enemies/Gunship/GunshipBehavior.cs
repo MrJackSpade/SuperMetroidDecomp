@@ -22,7 +22,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
     private readonly EnemyFrameResultBuilder _frameResults;
 
     /// <inheritdoc/>
-    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.ShipBottomEntrance, EnemyDefinitionId.ShipTop];
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [.. GunshipPartDefinitions.Parts.Keys];
 
     /// <inheritdoc/>
     public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new GunshipEntity(this, slot, common);
@@ -336,7 +336,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
             throw new InvalidOperationException("Post-Ceres gunship bounce lost Samus.");
 
         short yDelta = GunshipMotionDefinitions.LandingBrakeYDelta(checked((ushort)Part(top).LandingBrakeStep));
-        samus.Position += new Offset16<RoomPixels>(0, unchecked((short)yDelta));
+        samus.Position += new Offset16<RoomPixels>(0, unchecked(yDelta));
         for (int component = 0; component < 3; component++)
         {
             RoomEnemySlot slot = _slotTable.Slots[top.SlotIndex + component];
@@ -391,7 +391,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
             RoomEnemySlot slot = _slotTable.Slots[top.SlotIndex + component];
             uint fixedPosition = slot.Position.Y.RawValue;
             fixedPosition = unchecked(fixedPosition + delta);
-            slot.Position = slot.Position.WithY(SnesFixedPosition.FromRaw(unchecked((uint)fixedPosition)));
+            slot.Position = slot.Position.WithY(SnesFixedPosition.FromRaw(unchecked(fixedPosition)));
         }
     }
 

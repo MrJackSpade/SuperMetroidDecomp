@@ -98,7 +98,7 @@ internal static class SaveLoadRandomAudit
             {
                 // The map's final dispatch resumes after its forced-blank NMI wait without a main-loop call.
                 bool resumesNmiWait = game.NextUpdateResumesNmiWait;
-                game.StepCaptured(tick % 47 == 0 ? SnesButton.Start : (ushort)0, ++sequence, 1);
+                game.StepCaptured(tick % 47 == 0 ? SnesButton.Start : 0, ++sequence, 1);
                 if (!resumesNmiWait)
                     expected.NextRandom();
                 if (game.DispatcherRandomNumber != expected.RandomNumber)

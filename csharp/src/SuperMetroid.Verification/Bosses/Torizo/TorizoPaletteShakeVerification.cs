@@ -54,7 +54,7 @@ internal static class TorizoPaletteShakeVerification
             }
         }
         Execute(TorizoCueKind.FadeToBlack);
-        AssertEqual((ushort)0x7fff, cgram.Colors[144], "Black target setup does not black out current palette");
+        AssertEqual(0x7fff, cgram.Colors[144], "Black target setup does not black out current palette");
         for (int call = 0; call < 14; call++)
             Execute(TorizoCueKind.AdvancePaletteFade);
         for (int i = 0; i < 256; i++)
@@ -63,11 +63,11 @@ internal static class TorizoPaletteShakeVerification
         state.PaletteTransition = null;
         for (int i = 0; i < 256; i++) cgram.SetColor(i, Bgr555.FromWord(0x7fff));
         Execute(TorizoCueKind.FadeToNormalColors);
-        AssertEqual((ushort)0x7fff, cgram.Colors[145], "Normal target setup preserves current colors");
+        AssertEqual(0x7fff, cgram.Colors[145], "Normal target setup preserves current colors");
         Execute(TorizoCueKind.AdvancePaletteFade);
-        AssertEqual((ushort)0x7fff, cgram.Colors[145], "Native transition number zero is a no-op");
+        AssertEqual(0x7fff, cgram.Colors[145], "Native transition number zero is a no-op");
         Execute(TorizoCueKind.AdvancePaletteFade);
-        AssertEqual((ushort)0x7bde, cgram.Colors[145], "First denominator-12 step toward native normal color 56BA");
+        AssertEqual(0x7bde, cgram.Colors[145], "First denominator-12 step toward native normal color 56BA");
         // Save mid-fade: target and numerator must survive, not restart from white.
         using var saved = new MemoryStream();
         SuperMetroid.Diagnostics.SaveStates.DebuggerObjectGraphSerializer.Serialize(saved, state);

@@ -39,10 +39,10 @@ internal static class DraygonStateQuantitiesVerification
         RoomEnemyProjectileSlot goop = AttachedGoop(enemies, lifetime: 2);
         enemies.DraygonBehavior.RunAttachedDraygonGoop(goop, samus);
         AssertTrue(goop.IsActive, "an attached goop with lifetime two holds for its first update");
-        AssertEqual((ushort)1, goop.Variable0, "the first update leaves one update of lifetime");
+        AssertEqual(1, goop.Variable0, "the first update leaves one update of lifetime");
         enemies.DraygonBehavior.RunAttachedDraygonGoop(goop, samus);
         AssertTrue(!goop.IsActive, "the goop falls off on the update its lifetime reaches zero");
-        AssertEqual((ushort)0, samus.XSpeedDivisor, "the goop that falls off restores one X-speed divisor step");
+        AssertEqual(0, samus.XSpeedDivisor, "the goop that falls off restores one X-speed divisor step");
 
         samus.XSpeedDivisor = 1;
         RoomEnemyProjectileSlot cleared = AttachedGoop(enemies, lifetime: 0);
@@ -103,12 +103,12 @@ internal static class DraygonStateQuantitiesVerification
 
         Position16<RoomPixels> expectedBody = center + new Offset16<RoomPixels>(
             unchecked((short)EnemyMath.ReadEightBitCosineProduct(new SnesByteAngle(angle), radiusWhole)),
-            unchecked((short)EnemyMath.ReadEightBitNegativeSineProduct(new SnesByteAngle(angle), (ushort)(radiusWhole >> 2))));
+            unchecked((short)EnemyMath.ReadEightBitNegativeSineProduct(new SnesByteAngle(angle), radiusWhole >> 2)));
         AssertEqual(expectedBody, state.Body.Position.Whole, "the body is placed from the angle and radius before they advance");
         uint nativeRadius = unchecked(SnesSixteenSixteen.Compose(radiusWhole, radiusFraction) + 8192u);
         AssertEqual(unchecked((int)nativeRadius), state.SpiralXRadius.RawValue, "the radius grows by one eighth of a pixel, carrying into its whole pixels");
         AssertEqual((ushort)6, state.SpiralXRadius.WholeWord, "the carried radius reaches the next whole pixel");
-        ushort nativeDelta = unchecked((ushort)(angleDeltaRaw - 1));
+        ushort nativeDelta = unchecked(angleDeltaRaw - 1);
         AssertEqual(nativeDelta, state.SpiralAngleDelta.RawValue, "the angular step slows by 1/256 unit");
         AssertEqual(unchecked((byte)(angle + SnesUnsignedEightEight.Whole(nativeDelta))), state.SpiralAngle.TableIndex,
             "the angle advances by the step's whole units and wraps around the turn");
@@ -166,7 +166,7 @@ internal static class DraygonStateQuantitiesVerification
         for (int index = 0; index < expected.Count; index++)
             AssertEqual(expected[index], state.SwoopYPositions[index], $"swoop path sample {index}");
         AssertEqual(state.Body.Position.Y.Whole, state.SwoopYPositions[expected.Count], "the path ends at the body's height");
-        uint velocity = SnesSixteenSixteen.FromWhole((uint)EnemyMath.WrappedMagnitude(unchecked((ushort)(resetX - 200)))) / (uint)expected.Count;
+        uint velocity = SnesSixteenSixteen.FromWhole((uint)EnemyMath.WrappedMagnitude(unchecked(resetX - 200))) / (uint)expected.Count;
         AssertEqual(velocity, state.SwoopVelocity, "swoop horizontal speed");
     }
 
@@ -192,8 +192,8 @@ internal static class DraygonStateQuantitiesVerification
             state.SetCursor(part, AnimationProgramCursor<DraygonProgram>.Start(DraygonProgram.Sleep));
         enemies.DraygonBehavior.Draygon = state;
         // A nonzero low byte keeps the spiral from inserting a tail whip.
-        enemies.VerificationServices().NextRandom = (Func<ushort>)(() => 4660);
-        enemies.VerificationServices().ReadRandom = (Func<ushort>)(() => 4660);
+        enemies.VerificationServices().NextRandom = () => 4660;
+        enemies.VerificationServices().ReadRandom = () => 4660;
         return (enemies, state);
     }
 

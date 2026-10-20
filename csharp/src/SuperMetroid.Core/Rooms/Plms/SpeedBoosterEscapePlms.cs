@@ -63,6 +63,7 @@ internal sealed class SpeedBoosterEscapePlms
                 RunAdvanceLava(slot, samus, fx);
                 return;
 
+            case SpeedBoosterEscapePreInstruction.None:
             default:
                 throw new InvalidOperationException(
                     $"Undefined Speed Booster escape pre-instruction {preInstruction}.");

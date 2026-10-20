@@ -214,13 +214,14 @@ internal static class ProjectileTrailCoordinatesVerification
                 SnesDmaSourceKind.Cartridge => ReadRetailTrailOperandByte(bus, source),
                 SnesDmaSourceKind.WorkRam =>
                     ((ISnesMutableMemory)bus).ReadWorkRamByte(source),
+                SnesDmaSourceKind.Unmapped => ReadNativeTrailOperandDeviceByte(bus, source),
                 _ => ReadNativeTrailOperandDeviceByte(bus, source),
             };
         }
 
         byte low = ReadData(address, SnesLittleEndian.HighByte(operand));
         byte high = ReadData((address + 1) & SnesCpuAddressLayout.AddressMask, low);
-        return (ushort)(SnesLittleEndian.Word(low, high));
+        return SnesLittleEndian.Word(low, high);
     }
 
     /// <summary>Runs the trail-coordinate CPU operand comparison against the local retail cartridge.</summary>

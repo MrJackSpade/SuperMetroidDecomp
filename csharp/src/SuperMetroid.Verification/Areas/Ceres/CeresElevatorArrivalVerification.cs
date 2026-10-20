@@ -126,7 +126,7 @@ internal static class CeresElevatorArrivalVerification
                     break;
                 }
                 VerificationAssert.AssertEqual(AnimationProgramStepKind.Show, step.Kind, $"{at}: frame");
-                VerificationAssert.AssertEqual((int)word, step.Duration, $"{at}: duration");
+                VerificationAssert.AssertEqual(word, step.Duration, $"{at}: duration");
                 VerificationAssert.AssertEqual(operand, CeresElevatorArrivalDefinitions.Spritemap(step.Frame), $"{at}: spritemap");
                 cursor = unchecked((ushort)(cursor + 4));
             }

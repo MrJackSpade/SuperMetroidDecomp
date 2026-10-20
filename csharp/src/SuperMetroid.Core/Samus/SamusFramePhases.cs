@@ -216,6 +216,31 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter,
                 _player.LastAerialSamusMovement = SamusAerialMovement.StepNormalJump(
 level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, plms);
                 break;
+            case SamusMovementType.Standing:
+            case SamusMovementType.Running:
+            case SamusMovementType.MorphBallGround:
+            case SamusMovementType.Crouching:
+            case SamusMovementType.Falling:
+            case SamusMovementType.UnusedGlitchBall:
+            case SamusMovementType.MorphBallFalling:
+            case SamusMovementType.UnusedGlitchBallAlternate:
+            case SamusMovementType.Knockback:
+            case SamusMovementType.Unused0B:
+            case SamusMovementType.Unused0C:
+            case SamusMovementType.Unused0D:
+            case SamusMovementType.TurningOnGround:
+            case SamusMovementType.PostureTransition:
+            case SamusMovementType.Moonwalking:
+            case SamusMovementType.SpringBallGround:
+            case SamusMovementType.SpringBallInAir:
+            case SamusMovementType.SpringBallFalling:
+            case SamusMovementType.WallJumping:
+            case SamusMovementType.RanIntoWall:
+            case SamusMovementType.Grappling:
+            case SamusMovementType.TurningWhileJumping:
+            case SamusMovementType.TurningWhileFalling:
+            case SamusMovementType.DamageBoost:
+            case SamusMovementType.DraygonHeld:
             default:
                 throw new NotSupportedException(
                     $"Cached movement type ${(byte)_player.IntroducedSamus.PoseMetadata.ReadMovementType():X2} under " +
@@ -960,6 +985,82 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, plms);
                 _player.LastDraygonGrabbedMovement =
                     SamusDraygonGrabbedState.StepMovement(samus);
                 break;
+            case SamusPoseId.AdjacentCodePoseFD:
+            case SamusPoseId.AdjacentCodePoseFE:
+            case SamusPoseId.AdjacentCodePoseFF:
+            case SamusPoseId.UnusedPose65:
+            case SamusPoseId.UnusedPose66:
+            case SamusPoseId.ShinesparkWindupRightPose:
+            case SamusPoseId.ShinesparkWindupLeftPose:
+            case SamusPoseId.ShinesparkHorizontalRightPose:
+            case SamusPoseId.ShinesparkHorizontalLeftPose:
+            case SamusPoseId.ShinesparkVerticalRightPose:
+            case SamusPoseId.ShinesparkVerticalLeftPose:
+            case SamusPoseId.ShinesparkDiagonalRightPose:
+            case SamusPoseId.ShinesparkDiagonalLeftPose:
+            case SamusPoseId.CrystalFlashRightPose:
+            case SamusPoseId.CrystalFlashLeftPose:
+            case SamusPoseId.XrayingStandingRightPose:
+            case SamusPoseId.XrayingStandingLeftPose:
+            case SamusPoseId.DeathSequenceRightPose:
+            case SamusPoseId.DeathSequenceLeftPose:
+            case SamusPoseId.XrayingCrouchingRightPose:
+            case SamusPoseId.XrayingCrouchingLeftPose:
+            case SamusPoseId.UnusedPoseDb:
+            case SamusPoseId.UnusedPoseDc:
+            case SamusPoseId.UnusedPoseDd:
+            case SamusPoseId.UnusedPoseDe:
+            case SamusPoseId.UnusedPoseDf:
+            case SamusPoseId.DrainedCrouchingRightPose:
+            case SamusPoseId.DrainedCrouchingLeftPose:
+            case SamusPoseId.DrainedStandingRightPose:
+            case SamusPoseId.DrainedStandingLeftPose:
+            case SamusPoseId.GrappleSwingRightPose:
+            case SamusPoseId.GrappleSwingLeftPose:
+            case SamusPoseId.GrappleStandingRightPose:
+            case SamusPoseId.GrappleStandingLeftPose:
+            case SamusPoseId.GrappleStandingDownRightPose:
+            case SamusPoseId.GrappleStandingDownLeftPose:
+            case SamusPoseId.GrappleCrouchingRightPose:
+            case SamusPoseId.GrappleCrouchingLeftPose:
+            case SamusPoseId.GrappleCrouchingDownRightPose:
+            case SamusPoseId.GrappleCrouchingDownLeftPose:
+            case SamusPoseId.GrappleWallContactLeftPose:
+            case SamusPoseId.GrappleWallContactRightPose:
+            case SamusPoseId.UnusedKnockbackRightPose:
+            case SamusPoseId.UnusedKnockbackLeftPose:
+            case SamusPoseId.UnusedPose20:
+            case SamusPoseId.UnusedPose21:
+            case SamusPoseId.UnusedPose22:
+            case SamusPoseId.UnusedPose23:
+            case SamusPoseId.UnusedPose24:
+            case SamusPoseId.UnusedPose39:
+            case SamusPoseId.UnusedPose3A:
+            case SamusPoseId.UnusedPose3F:
+            case SamusPoseId.UnusedPose40:
+            case SamusPoseId.UnusedPose42:
+            case SamusPoseId.UnusedPose45:
+            case SamusPoseId.UnusedPose46:
+            case SamusPoseId.UnusedPose47:
+            case SamusPoseId.UnusedPose48:
+            case SamusPoseId.UnusedPose5B:
+            case SamusPoseId.UnusedPose5C:
+            case SamusPoseId.UnusedPose5D:
+            case SamusPoseId.UnusedPose5E:
+            case SamusPoseId.UnusedPose5F:
+            case SamusPoseId.UnusedPose60:
+            case SamusPoseId.UnusedPose61:
+            case SamusPoseId.UnusedPose62:
+            case SamusPoseId.UnusedPose63:
+            case SamusPoseId.UnusedPose64:
+            case SamusPoseId.UnusedPoseAC:
+            case SamusPoseId.UnusedPoseAD:
+            case SamusPoseId.UnusedPoseAE:
+            case SamusPoseId.UnusedPoseAF:
+            case SamusPoseId.UnusedPoseB0:
+            case SamusPoseId.UnusedPoseB1:
+            case SamusPoseId.UnusedPoseC5:
+            case SamusPoseId.UnusedPoseC6:
             default:
                 // Every pose reachable from the translated retail input, animation,
                 // enemy-grab, death, drained, grapple, Morph Ball, and shinespark

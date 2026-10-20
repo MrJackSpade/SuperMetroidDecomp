@@ -34,8 +34,8 @@ internal static class ExploredMapPackingDefinitionsVerification
     {
         var retail = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
-        ushort Word(int address) => unchecked((ushort)(
-            SnesLittleEndian.Word(ExploredMapPackingDefinitionsRomByte(retail, address), ExploredMapPackingDefinitionsRomByte(retail, address + 1))));
+        ushort Word(int address) => unchecked(
+            SnesLittleEndian.Word(ExploredMapPackingDefinitionsRomByte(retail, address), ExploredMapPackingDefinitionsRomByte(retail, address + 1)));
 
         int exportedByteCount = 0;
         for (int area = 0; area < SaveRamLayout.PackedMapAreaCount; area++)

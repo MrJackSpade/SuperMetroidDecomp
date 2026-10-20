@@ -85,7 +85,7 @@ internal static class CrocomirePresentation1193Verification
                 if (uploads.Length != 0)
                 {
                     AssertEqual(sources[sourceIndex++], uploads[0].SourceAddress, "Spikes follow 0/1/2/1/0 ping-pong sequence");
-                    AssertEqual((ushort)0x80, uploads[0].SizeInBytes, "Spikes transfer four 4bpp characters");
+                    AssertEqual(0x80, uploads[0].SizeInBytes, "Spikes transfer four 4bpp characters");
                 }
                 if (frame != 0)
                 {

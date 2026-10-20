@@ -74,7 +74,7 @@ internal static class CrocomireSkeletonResourceChecks
         var source = new SyntheticCartridge(
             address => new InvalidDataException($"Unexpected synthetic composition read {address:X6}."));
         int address = ((int)new SnesAddress(frame.Bank, frame.Pointer));
-        int sprite = ((int)new SnesAddress(frame.Bank, checked((ushort)(0x8000))));
+        int sprite = ((int)new SnesAddress(frame.Bank, checked(0x8000)));
         source.SetWord(address, count);
         for (int index = 0; index < count; index++)
         {

@@ -63,7 +63,7 @@ internal static void VerifyMode7Rendering()
     for (int pixel = 0; pixel < 64; pixel++)
     {
         ushort word = (ushort)(64 + pixel);
-        vram.ExecuteWordTransfer([(ushort)(5 << 8)], word, 1);
+        vram.ExecuteWordTransfer([(5 << 8)], word, 1);
     }
 
     Rgba32[] identity = SnesMode7Renderer.RenderViewport(vram, cgram, new Mode7RenderRegisters { MatrixA = 0x0100, MatrixB = 0, MatrixC = 0, MatrixD = 0x0100, Center = new Offset16<Mode7Pixels>(0, 0), Scroll = new Offset16<Mode7Pixels>(0, 0) }, size: new Extent16<ScreenPixels>(8, 8));
@@ -87,7 +87,7 @@ internal static void VerifyMode7Rendering()
     for (int pixel = 0; pixel < 64; pixel++)
     {
         ushort word = (ushort)(2 * 64 + pixel);
-        vram.ExecuteWordTransfer([(ushort)(6 << 8)], word, 1);
+        vram.ExecuteWordTransfer([(6 << 8)], word, 1);
     }
     // Populate map low bytes after the diagnostic character upload because Mode 7 shares
     // every physical word between those two planes; a full-word test transfer would

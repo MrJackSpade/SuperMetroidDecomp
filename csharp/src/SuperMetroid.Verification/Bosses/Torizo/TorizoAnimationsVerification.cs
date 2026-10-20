@@ -89,7 +89,7 @@ internal static class TorizoAnimationsVerification
                 {
                     var show = Next("frame");
                     AssertEqual(AnimationProgramStepKind.Show, show.Kind, $"{at}: frame");
-                    AssertEqual((int)word, show.Duration, $"{at}: duration");
+                    AssertEqual(word, show.Duration, $"{at}: duration");
                     AssertEqual(operand, TorizoFrameDefinitions.Spritemap(show.Frame), $"{at}: spritemap");
                     cursor = unchecked((ushort)(cursor + 4));
                     continue;
@@ -111,7 +111,7 @@ internal static class TorizoAnimationsVerification
                 {
                     var load = Next("counter load");
                     AssertEqual(AnimationProgramStepKind.SetCounter, load.Kind, $"{at}: counter load");
-                    AssertEqual((int)operand, load.Duration, $"{at}: counter");
+                    AssertEqual(operand, load.Duration, $"{at}: counter");
                     cursor = unchecked((ushort)(cursor + 4));
                     continue;
                 }
@@ -127,7 +127,7 @@ internal static class TorizoAnimationsVerification
                 {
                     var wait = Next("wait");
                     AssertEqual(AnimationProgramStepKind.Wait, wait.Kind, $"{at}: wait");
-                    AssertEqual((int)operand, wait.Duration, $"{at}: wait length");
+                    AssertEqual(operand, wait.Duration, $"{at}: wait length");
                     cursor = unchecked((ushort)(cursor + 4));
                     continue;
                 }
@@ -158,6 +158,70 @@ internal static class TorizoAnimationsVerification
                     {
                         TorizoCueKind.SpawnLowHealthExplosions => LowHealthExplosionSleep,
                         TorizoCueKind.SpawnDeathExplosion => DeathExplosionSleep,
+                        TorizoCueKind.SetPreInstruction or
+                            TorizoCueKind.ClearPreInstruction or
+                            TorizoCueKind.SetFunction or
+                            TorizoCueKind.BlowUpGut or
+                            TorizoCueKind.MarkFaceBlownUp or
+                            TorizoCueKind.MakeVisible or
+                            TorizoCueKind.MakeInvisible or
+                            TorizoCueKind.FadeToBlack or
+                            TorizoCueKind.FinishDeath or
+                            TorizoCueKind.AdvancePaletteFade or
+                            TorizoCueKind.FadeToNormalColors or
+                            TorizoCueKind.StartBombTorizoFight or
+                            TorizoCueKind.NoOperation or
+                            TorizoCueKind.LockAnimation or
+                            TorizoCueKind.UnlockAnimation or
+                            TorizoCueKind.GoToIfFaceBlownUpElseIfGolden or
+                            TorizoCueKind.Link or
+                            TorizoCueKind.Return or
+                            TorizoCueKind.ResumeInterrupted or
+                            TorizoCueKind.SpawnLandingDust or
+                            TorizoCueKind.SpawnLowHealthDrool or
+                            TorizoCueKind.SetTurningAround or
+                            TorizoCueKind.SteppedLeftWithLeftFoot or
+                            TorizoCueKind.SteppedRightWithRightFoot or
+                            TorizoCueKind.SteppedLeftWithRightFoot or
+                            TorizoCueKind.SteppedRightWithLeftFoot or
+                            TorizoCueKind.StandUp or
+                            TorizoCueKind.SitDown or
+                            TorizoCueKind.WalkBombTorizo or
+                            TorizoCueKind.WalkFacelessBombTorizo or
+                            TorizoCueKind.GoToIfRising or
+                            TorizoCueKind.CallIfSamusCloseBehind or
+                            TorizoCueKind.JumpBackIfSamusCloseInFront or
+                            TorizoCueKind.CallBombTorizoAttack or
+                            TorizoCueKind.SpawnBombTorizoChozoOrbs or
+                            TorizoCueKind.SpawnBombTorizoSonicBoom or
+                            TorizoCueKind.SpawnGoldenTorizoSonicBoom or
+                            TorizoCueKind.SpawnExplosiveSwipe or
+                            TorizoCueKind.PlayShotSound or
+                            TorizoCueKind.PlayFootstepSound or
+                            TorizoCueKind.GoToIfAirborne or
+                            TorizoCueKind.LoadGoldenTorizoPalettes or
+                            TorizoCueKind.StartGoldenTorizoFight or
+                            TorizoCueKind.ClearCaughtSuperMissile or
+                            TorizoCueKind.SpawnEgg or
+                            TorizoCueKind.GoToIfEyeBeamActive or
+                            TorizoCueKind.DisableEyeBeamExplosions or
+                            TorizoCueKind.EnableEyeBeamExplosions or
+                            TorizoCueKind.UnmarkStunned or
+                            TorizoCueKind.PlayEggReleasedSound or
+                            TorizoCueKind.PlayLaserSound or
+                            TorizoCueKind.PlaySonicBoomSound or
+                            TorizoCueKind.SpawnSuperMissile or
+                            TorizoCueKind.GoToIfSamusMorphedBehind or
+                            TorizoCueKind.SpawnEyeBeam or
+                            TorizoCueKind.CallSometimesIfSamusMorphedInFront or
+                            TorizoCueKind.CallSometimesIfHealthLow or
+                            TorizoCueKind.CallIfStunHealthHigh or
+                            TorizoCueKind.JumpForwardIfSamusFar or
+                            TorizoCueKind.SpawnGoldenTorizoChozoOrbs or
+                            TorizoCueKind.JumpBackIfSamusCloseInFrontGolden or
+                            TorizoCueKind.CallGoldenTorizoAttack or
+                            TorizoCueKind.WalkGoldenTorizo or
+                            TorizoCueKind.CopyTiles => null,
                         _ => null,
                     };
                     if (sleep is { } updates)

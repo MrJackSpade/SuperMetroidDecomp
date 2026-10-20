@@ -151,7 +151,7 @@ internal static class RetailKraidCaptureTests
         shot.Cursor = AnimationProgramCursor<SamusProjectileProgram>.Start(SamusProjectileProgram.MissileRight);
         shot.InstructionTimer = NativeCountdown.Start(1);
         // Kraid's collision walk starts at the native projectile count; one staged shot is count one.
-        shots.SlotTable.ProjectileCounter = (ushort)1;
+        shots.SlotTable.ProjectileCounter = 1;
         // The native walk counts one missile in both its mouth and body passes (#1192, #1247).
         if (runtime.Enemies.ResolveKraidProjectileHits(bus, shots, InstalledFixtures.CreateBombSystem()) == 0)
             throw new InvalidOperationException("Kraid growth fixture failed to land its staged missile.");

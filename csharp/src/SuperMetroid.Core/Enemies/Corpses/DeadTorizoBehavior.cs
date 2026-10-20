@@ -223,7 +223,7 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
             if (overlap < 4)
                 overlap = 4;
 
-            kinematics.ExtraDisplacement = FixedVector<RoomPixels>.FromWholePixels(new(unchecked((short)overlap), 4));
+            kinematics.ExtraDisplacement = FixedVector<RoomPixels>.FromWholePixels(new(unchecked(overlap), 4));
             return true;
         }
 

@@ -175,7 +175,7 @@ internal static class RidleyExplosionDefinitionsVerification
         SuperMetroidAddressSpace rom)
     {
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
-        enemies.VerificationServices().NextRandom = (Func<ushort>)(() => 0x8130);
+        enemies.VerificationServices().NextRandom = () => 0x8130;
         Action<RoomEnemySlot, RoomEnemySlot, RidleyEnemyState> initialize = enemies.RidleyBehavior.InitializeNorfairRidleyExplosion;
 
         RoomEnemySlot fragment = enemies.SlotTable.Slots[1];

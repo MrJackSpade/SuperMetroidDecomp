@@ -32,7 +32,7 @@ internal static class NormalSuitPalettePointersVerification
         {
             ushort offset = equipment[selection].GetSuitPaletteTableOffset();
             int source = SamusPaletteRomData.Common.NormalSuitPointers + offset;
-            ushort nativePointer = (ushort)(SnesLittleEndian.Word(CpuBusRegionRead.Read(rom, source), CpuBusRegionRead.Read(rom, source + 1)));
+            ushort nativePointer = SnesLittleEndian.Word(CpuBusRegionRead.Read(rom, source), CpuBusRegionRead.Read(rom, source + 1));
             AssertEqual(expectedPointers[selection], nativePointer,
                 $"normal suit pointer selection {selection} matches retail ROM");
             AssertEqual(nativePointer, SamusPaletteRomData.Common.NormalSuitPalettePointer(offset),

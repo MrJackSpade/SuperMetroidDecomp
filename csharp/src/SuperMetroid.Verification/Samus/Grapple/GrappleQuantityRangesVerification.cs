@@ -32,7 +32,7 @@ internal static class GrappleQuantityRangesVerification
             ushort word = (ushort)start;
             if (unchecked((short)(word - 120)) < 0)
                 word = unchecked((ushort)(word + 1));
-            AssertEqual((int)word, grapple.FlareCounter, $"grapple flare counter from {start} saturates as the native word does");
+            AssertEqual(word, grapple.FlareCounter, $"grapple flare counter from {start} saturates as the native word does");
         }
         Console.WriteLine("Grapple flare counter: production saturation at 120 matches the native signed word test.");
     }
@@ -41,9 +41,9 @@ internal static class GrappleQuantityRangesVerification
     internal static void VerifyGrappleQuantityRanges()
     {
         var grapple = new SamusGrappleState { RopeLength = short.MaxValue, FlareCounter = short.MaxValue, PointAnimationFrame = byte.MaxValue };
-        AssertEqual((int)short.MaxValue, grapple.RopeLength, "rope length accepts its largest stated value");
-        AssertEqual((int)short.MaxValue, grapple.FlareCounter, "flare counter accepts its largest stated value");
-        AssertEqual((int)byte.MaxValue, grapple.PointAnimationFrame, "endpoint frame accepts its largest restored value");
+        AssertEqual(short.MaxValue, grapple.RopeLength, "rope length accepts its largest stated value");
+        AssertEqual(short.MaxValue, grapple.FlareCounter, "flare counter accepts its largest stated value");
+        AssertEqual(byte.MaxValue, grapple.PointAnimationFrame, "endpoint frame accepts its largest restored value");
         AssertThrows<ArgumentOutOfRangeException>(() => { grapple.RopeLength = -1; }, "rope length rejects a negative length");
         AssertThrows<ArgumentOutOfRangeException>(() => { grapple.RopeLength = short.MaxValue + 1; },
             "rope length rejects a length whose signed test would differ");

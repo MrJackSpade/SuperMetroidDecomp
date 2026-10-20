@@ -31,7 +31,7 @@ internal static class EnemyExtendedFrameArtworkCommonEmptyVerification
             // initialization. A full-ROM read guard proves this is compiled.
             var ordinaryEnemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = stock };
             var emptyDraw = new OamBuffer();
-            ordinaryEnemies.DrawEnemySpritemap(emptyDraw, new NativeEnemySpritemapDraw { Bank = (byte)bank, Pointer = CommonEnemyEmptyExtendedFrameDefinitions.EmptySpritemap, Origin = new Position16<OamPixels>((ushort)0x0080, (ushort)0x0080), PaletteBits = 0, BaseTileIndex = 0, ClipVerticalWrap = false, OriginYIsOnScreen = true });
+            ordinaryEnemies.DrawEnemySpritemap(emptyDraw, new NativeEnemySpritemapDraw { Bank = bank, Pointer = CommonEnemyEmptyExtendedFrameDefinitions.EmptySpritemap, Origin = new Position16<OamPixels>(0x0080, 0x0080), PaletteBits = 0, BaseTileIndex = 0, ClipVerticalWrap = false, OriginYIsOnScreen = true });
             AssertEqual(0, emptyDraw.NextByteOffset,
                 $"bank ${bank:X2} ordinary empty frame emits no OAM entries");
             int root = ((int)new SnesAddress(bank, CommonEnemyEmptyExtendedFrameDefinitions.Frame));
@@ -94,7 +94,7 @@ internal static class EnemyExtendedFrameArtworkCommonEmptyVerification
         slot.SpritemapPointer = CommonEnemyEmptyExtendedFrameDefinitions.Frame;
         slot.Position = slot.Position.WithWhole(new(0x0080, 0x0080));
         object?[] arguments =
-            [slot, new Position16<RoomPixels>((ushort)0x0080, (ushort)0x0080), new Extent16<RoomPixels>((ushort)2, (ushort)2), selectShot, null];
+            [slot, new Position16<RoomPixels>(0x0080, 0x0080), new Extent16<RoomPixels>(2, 2), selectShot, null];
         bool found = ExtendedHitboxWalker.Find(enemies, arguments);
         AssertTrue(found, "shared empty extended point overlaps its origin");
         return (ushort)(arguments[4] ?? throw new InvalidOperationException("Verification requires arguments[4]."));

@@ -59,7 +59,7 @@ internal static class PauseSnapshotTestsVerification
             pages.Add(pause.ScreenMode);
             levels.Add(packet.Brightness);
             SnesButton input = frame == 8 ? SnesButton.R
-                : frame == 80 ? SnesButton.L : (ushort)0;
+                : frame == 80 ? SnesButton.L : 0;
             pause.Step(input, input);
             Match(expected, SoftwareLayeredSnapshotRenderer.Render(packet), frame);
         }

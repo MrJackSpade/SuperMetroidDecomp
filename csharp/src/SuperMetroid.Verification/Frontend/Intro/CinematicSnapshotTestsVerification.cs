@@ -148,7 +148,7 @@ internal static class CinematicSnapshotTestsVerification
                     $"intro captured pixels: {legacy.Phase}, tick {tick}");
                 samples++;
             }
-            SnesButton input = tick % 47 == 0 ? SnesButton.A : (ushort)0;
+            SnesButton input = tick % 47 == 0 ? SnesButton.A : 0;
             legacy.Step(input);
             legacyAudio.AdvanceFrame(default);
             captured.Step(input);

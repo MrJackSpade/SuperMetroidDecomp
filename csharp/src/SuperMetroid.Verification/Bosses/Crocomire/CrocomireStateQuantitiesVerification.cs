@@ -70,7 +70,7 @@ internal static class CrocomireStateQuantitiesVerification
                 if (nativeEnds)
                     nativeSteps = 0;
                 Pass(enemies, state);
-                AssertEqual((int)nativeSteps, state.StepCounter, $"charge from {start} steps, cue {cue}: steps left");
+                AssertEqual(nativeSteps, state.StepCounter, $"charge from {start} steps, cue {cue}: steps left");
                 AssertEqual(nativeEnds ? CrocomireFightFunction.SteppingForward : CrocomireFightFunction.PowerBombCharge,
                     state.FightFunction, $"charge from {start} steps, cue {cue}: fight function");
                 if (nativeEnds)
@@ -157,9 +157,9 @@ internal static class CrocomireStateQuantitiesVerification
     private static void AssertMotionWords(CrocomireEnemyState state, ushort acceleration, ushort speed,
         ushort subposition, ushort y, string at)
     {
-        AssertEqual((int)acceleration, state.VerticalAcceleration, $"{at}: acceleration word");
-        AssertEqual((int)speed, state.VerticalSpeed, $"{at}: speed word");
-        AssertEqual((int)subposition, state.ProjectileCounter, $"{at}: subposition word");
+        AssertEqual(acceleration, state.VerticalAcceleration, $"{at}: acceleration word");
+        AssertEqual(speed, state.VerticalSpeed, $"{at}: speed word");
+        AssertEqual(subposition, state.ProjectileCounter, $"{at}: subposition word");
         AssertEqual(y, state.Body.Position.Y.Whole, $"{at}: Y");
     }
 
@@ -337,8 +337,8 @@ internal static class CrocomireStateQuantitiesVerification
         var state = new CrocomireEnemyState(body);
         enemies.CrocomireBehavior.Crocomire = state;
         enemies.CrocomireBehavior.CrocomireDeath = new CrocomireDeathState();
-        enemies.VerificationServices().ReadRandom = (Func<ushort>)(() => ushort.MaxValue);
-        enemies.VerificationServices().NextRandom = (Func<ushort>)(() => ushort.MaxValue);
+        enemies.VerificationServices().ReadRandom = () => ushort.MaxValue;
+        enemies.VerificationServices().NextRandom = () => ushort.MaxValue;
         return (enemies, state);
     }
 

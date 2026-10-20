@@ -27,7 +27,7 @@ internal static class GrappleConnectionDefinitionsVerification
     internal static void VerifyGrappleConnectionDefinitions(SuperMetroidAddressSpace rom)
     {
         // Combine two adjacent retail bytes into a bank-$9B reference word.
-        ushort Word(int address) => (ushort)(SnesLittleEndian.Word(GrappleConnectionDefinitionsRomByte(rom, address), GrappleConnectionDefinitionsRomByte(rom, address + 1)));
+        ushort Word(int address) => SnesLittleEndian.Word(GrappleConnectionDefinitionsRomByte(rom, address), GrappleConnectionDefinitionsRomByte(rom, address + 1));
         var guard = NewGrappleConnectionReadGuard(rom);
         // All three table bases and every serialized direction byte, including native
         // reads into the next authored table. Other addresses fail explicitly.
@@ -67,7 +67,7 @@ internal static class GrappleConnectionDefinitionsVerification
     private static void VerifyGrappleConnectionDispatch(SuperMetroidAddressSpace rom)
     {
         // Read the native function, handler, or pose word used as a dispatch oracle.
-        ushort Word(int address) => (ushort)(SnesLittleEndian.Word(GrappleConnectionDispatchRomByte(rom, address), GrappleConnectionDispatchRomByte(rom, address + 1)));
+        ushort Word(int address) => SnesLittleEndian.Word(GrappleConnectionDispatchRomByte(rom, address), GrappleConnectionDispatchRomByte(rom, address + 1));
         Func<SamusState, SamusGrappleState, Position16<RoomPixels>, bool, bool, GrappleMovementResult> connect =
             SamusGrappleMovement.ConnectAcceptedFiring;
         SamusPoseId metadataPose = SamusPoseId.FacingRightNormalPose;
@@ -124,13 +124,13 @@ internal static class GrappleConnectionDefinitionsVerification
     private static void VerifyGrappleSpecialConnections(SuperMetroidAddressSpace rom)
     {
         // Read one native special-angle record word from two cartridge bytes.
-        ushort Word(int address) => (ushort)(SnesLittleEndian.Word(GrappleSpecialConnectionsRomByte(rom, address), GrappleSpecialConnectionsRomByte(rom, address + 1)));
+        ushort Word(int address) => SnesLittleEndian.Word(GrappleSpecialConnectionsRomByte(rom, address), GrappleSpecialConnectionsRomByte(rom, address + 1));
         var special = new SpecialGrappleHandler(SamusGrappleMovement.TryHandleSpecialAngle);
         var native = Enumerable.Range(0, 8).Select(i =>
         {
             int address = 0x9bc43e + i * 10;
             AssertEqual(0, Word(address + 2) >> 8, "Native special pose word has no discarded high byte");
-            return new GrappleConnectionDefinitions.SpecialConnection(SnesAngle.FromRaw(checked((ushort)Word(address))), (SamusPoseId)Word(address + 2),
+            return new GrappleConnectionDefinitions.SpecialConnection(SnesAngle.FromRaw(checked(Word(address))), (SamusPoseId)Word(address + 2),
                 new Offset16<RoomPixels>(unchecked((short)Word(address + 4)), unchecked((short)Word(address + 6))),
                 (GrappleConnectionFunction)Word(address + 8));
         }).ToArray();

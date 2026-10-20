@@ -16,7 +16,7 @@ namespace SuperMetroid.Core.Enemies.Corpses;
 internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <inheritdoc/>
-    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.CorpseRipper, EnemyDefinitionId.CorpseSkree, EnemyDefinitionId.CorpseZoomer];
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [.. DeadTourianPartDefinitions.Parts.Keys];
 
     /// <inheritdoc/>
     public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new DeadTourianEntity(this, slot, common);
@@ -53,11 +53,11 @@ internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Selects the species-specific native callbacks and art layout for a corpse header.</summary>
     private static DeadTourianCorpseProfile ProfileForDeadTourianCorpse(EnemyDefinitionId definitionPointer) =>
-        definitionPointer switch
+        DeadTourianPartDefinitions.Parts[definitionPointer] switch
         {
-            EnemyDefinitionId.CorpseZoomer => DeadTourianCorpseProfileDefinitions.DeadZoomerProfile,
-            EnemyDefinitionId.CorpseRipper => DeadTourianCorpseProfileDefinitions.DeadRipperProfile,
-            EnemyDefinitionId.CorpseSkree => DeadTourianCorpseProfileDefinitions.DeadSkreeProfile,
+            DeadTourianPart.CorpseZoomer => DeadTourianCorpseProfileDefinitions.DeadZoomerProfile,
+            DeadTourianPart.CorpseRipper => DeadTourianCorpseProfileDefinitions.DeadRipperProfile,
+            DeadTourianPart.CorpseSkree => DeadTourianCorpseProfileDefinitions.DeadSkreeProfile,
             _ => throw new ArgumentOutOfRangeException(nameof(definitionPointer)),
         };
 

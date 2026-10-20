@@ -421,12 +421,12 @@ internal static class RoomPaletteFxPresentationVerification
             int blueAdd = new[] { 20, 20, 10 }[shade];
             int expected = (rgb & 31) + Math.Clamp((rgb >> 5 & 31) + greenAdd, 0, 31) * 32 +
                 Math.Clamp((rgb >> 10 & 31) + blueAdd, 0, 31) * 1024;
-            AssertEqual((ushort)expected, LoadingPaletteColorDefinitions.TintColor(Bgr555.FromWord(checked((ushort)((ushort)rgb))), shade), "Every RGB5 tint input and saturation boundary");
+            AssertEqual((ushort)expected, LoadingPaletteColorDefinitions.TintColor(Bgr555.FromWord(checked((ushort)rgb)), shade), "Every RGB5 tint input and saturation boundary");
             int variaGreen = new[] { 5, 0, 0 }[shade];
             int variaBlue = new[] { 30, 20, 10 }[shade];
             int variaExpected = (rgb & 31) + Math.Clamp((rgb >> 5 & 31) + variaGreen, 0, 31) * 32 +
                 Math.Clamp((rgb >> 10 & 31) + variaBlue, 0, 31) * 1024;
-            AssertEqual((ushort)variaExpected, LoadingPaletteColorDefinitions.VariaTintColor(Bgr555.FromWord(checked((ushort)((ushort)rgb))), shade), "Every RGB5 Varia tint input and saturation boundary");
+            AssertEqual((ushort)variaExpected, LoadingPaletteColorDefinitions.VariaTintColor(Bgr555.FromWord(checked((ushort)rgb)), shade), "Every RGB5 Varia tint input and saturation boundary");
         }
         foreach (int invalid in new[] { -1, 3, int.MinValue, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => LoadingPaletteColorDefinitions.TintColor(new Bgr555(0, 0, 0), invalid), "Tint shade rejects outside domain");
@@ -439,7 +439,7 @@ internal static class RoomPaletteFxPresentationVerification
         {
             int expected = (rgb & 31) + Math.Clamp((rgb >> 5 & 31) + (shade == 0 ? brightGreen : middleGreen), 0, 31) * 32 +
                 Math.Clamp((rgb >> 10 & 31) + (shade == 0 ? brightBlue : middleBlue), 0, 31) * 1024;
-            AssertEqual((ushort)expected, LoadingPaletteColorDefinitions.BrightenDimColor(Bgr555.FromWord(checked((ushort)((ushort)rgb))), shade, peak, plateau),
+            AssertEqual((ushort)expected, LoadingPaletteColorDefinitions.BrightenDimColor(Bgr555.FromWord(checked((ushort)rgb)), shade, peak, plateau),
                 "Every RGB5 dim endpoint across each original brightening rule");
         }
         foreach (int invalid in new[] { -1, 2, int.MinValue, int.MaxValue })

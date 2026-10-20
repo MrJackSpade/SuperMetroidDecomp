@@ -75,6 +75,127 @@ internal sealed class EyeDoorBehavior
                 InitializeEyeDoorSmoke(projectile, request.Parameter, block);
                 return;
 
+            case RoomEnemyProjectileKind.None:
+            case RoomEnemyProjectileKind.PrePhantoonRoom:
+            case RoomEnemyProjectileKind.YappingMawBody:
+            case RoomEnemyProjectileKind.SkreeParticleDownRight:
+            case RoomEnemyProjectileKind.SkreeParticleUpRight:
+            case RoomEnemyProjectileKind.SkreeParticleDownLeft:
+            case RoomEnemyProjectileKind.SkreeParticleUpLeft:
+            case RoomEnemyProjectileKind.MetareeParticleDownRight:
+            case RoomEnemyProjectileKind.MetareeParticleUpRight:
+            case RoomEnemyProjectileKind.MetareeParticleDownLeft:
+            case RoomEnemyProjectileKind.MetareeParticleUpLeft:
+            case RoomEnemyProjectileKind.CrocomireProjectile:
+            case RoomEnemyProjectileKind.CrocomireBridgeCrumbling:
+            case RoomEnemyProjectileKind.CrocomireSpikeWallPieces:
+            case RoomEnemyProjectileKind.KraidSpitRock:
+            case RoomEnemyProjectileKind.KraidCeilingRock:
+            case RoomEnemyProjectileKind.KraidRisingRockLeft:
+            case RoomEnemyProjectileKind.KraidRisingRockRight:
+            case RoomEnemyProjectileKind.PhantoonDestroyableFlame:
+            case RoomEnemyProjectileKind.PhantoonStartingFlame:
+            case RoomEnemyProjectileKind.DraygonGoop:
+            case RoomEnemyProjectileKind.DraygonWallTurret:
+            case RoomEnemyProjectileKind.MotherBrainRoomTurret:
+            case RoomEnemyProjectileKind.MotherBrainRoomTurretBullet:
+            case RoomEnemyProjectileKind.MotherBrainGlassShard:
+            case RoomEnemyProjectileKind.MotherBrainGlassSparkle:
+            case RoomEnemyProjectileKind.MotherBrainOnionRing:
+            case RoomEnemyProjectileKind.OldTourianEscapeShaftFakeWallExplosion:
+            case RoomEnemyProjectileKind.MotherBrainBomb:
+            case RoomEnemyProjectileKind.MotherBrainHandBeamCharging:
+            case RoomEnemyProjectileKind.MotherBrainHandBeamFired:
+            case RoomEnemyProjectileKind.MotherBrainRainbowBeamCharging:
+            case RoomEnemyProjectileKind.MotherBrainPurpleBreathBig:
+            case RoomEnemyProjectileKind.MotherBrainPurpleBreathSmall:
+            case RoomEnemyProjectileKind.MotherBrainDrool:
+            case RoomEnemyProjectileKind.MotherBrainDyingDrool:
+            case RoomEnemyProjectileKind.MotherBrainRainbowBeamExplosion:
+            case RoomEnemyProjectileKind.MotherBrainDeathExplosion:
+            case RoomEnemyProjectileKind.MotherBrainEscapeDoorFragment:
+            case RoomEnemyProjectileKind.MotherBrainEscapeSubtitle:
+            case RoomEnemyProjectileKind.MotherBrainTopRightTube:
+            case RoomEnemyProjectileKind.MotherBrainTopLeftTube:
+            case RoomEnemyProjectileKind.MotherBrainTopMiddleLeftTube:
+            case RoomEnemyProjectileKind.MotherBrainTopMiddleRightTube:
+            case RoomEnemyProjectileKind.CeresRidleyFireball:
+            case RoomEnemyProjectileKind.CeresRidleyHorizontalAfterburnCenter:
+            case RoomEnemyProjectileKind.CeresRidleyVerticalAfterburnCenter:
+            case RoomEnemyProjectileKind.CeresRidleyHorizontalAfterburnRight:
+            case RoomEnemyProjectileKind.CeresRidleyHorizontalAfterburnLeft:
+            case RoomEnemyProjectileKind.CeresRidleyVerticalAfterburnUp:
+            case RoomEnemyProjectileKind.CeresRidleyVerticalAfterburnDown:
+            case RoomEnemyProjectileKind.CeresFallingDebrisLight:
+            case RoomEnemyProjectileKind.CeresFallingDebrisDark:
+            case RoomEnemyProjectileKind.GunshipLiftoffDustCloud:
+            case RoomEnemyProjectileKind.AlcoonFireball:
+            case RoomEnemyProjectileKind.PowampSpike:
+            case RoomEnemyProjectileKind.WorkRobotLaserUpLeft:
+            case RoomEnemyProjectileKind.WorkRobotLaserHorizontal:
+            case RoomEnemyProjectileKind.WorkRobotLaserDownLeft:
+            case RoomEnemyProjectileKind.WorkRobotLaserUpRight:
+            case RoomEnemyProjectileKind.WorkRobotLaserDownRight:
+            case RoomEnemyProjectileKind.FallingSpark:
+            case RoomEnemyProjectileKind.NuclearWaffleBody:
+            case RoomEnemyProjectileKind.FakeKraidSpit:
+            case RoomEnemyProjectileKind.FakeKraidSpikeLeft:
+            case RoomEnemyProjectileKind.FakeKraidSpikeRight:
+            case RoomEnemyProjectileKind.KiHunterAcidSpitLeft:
+            case RoomEnemyProjectileKind.KiHunterAcidSpitRight:
+            case RoomEnemyProjectileKind.PirateMotherBrainLaser:
+            case RoomEnemyProjectileKind.PirateClaw:
+            case RoomEnemyProjectileKind.PolypRock:
+            case RoomEnemyProjectileKind.CacatacSpike:
+            case RoomEnemyProjectileKind.StokeProjectile:
+            case RoomEnemyProjectileKind.NamiheFireball:
+            case RoomEnemyProjectileKind.FuneFireball:
+            case RoomEnemyProjectileKind.LavaThrownByMagdollite:
+            case RoomEnemyProjectileKind.DragonFireball:
+            case RoomEnemyProjectileKind.MiscDustExplosion:
+            case RoomEnemyProjectileKind.EnemyDeathPickup:
+            case RoomEnemyProjectileKind.EnemyDeathExplosion:
+            case RoomEnemyProjectileKind.KagoBug:
+            case RoomEnemyProjectileKind.BotwoonBody:
+            case RoomEnemyProjectileKind.BotwoonSpit:
+            case RoomEnemyProjectileKind.BombTorizoLowHealthDrool:
+            case RoomEnemyProjectileKind.BombTorizoInitialDrool:
+            case RoomEnemyProjectileKind.BombTorizoExplosiveSwipe:
+            case RoomEnemyProjectileKind.BombTorizoLowHealthExplosion:
+            case RoomEnemyProjectileKind.BombTorizoDeathExplosion:
+            case RoomEnemyProjectileKind.BombTorizoStatueBreaking:
+            case RoomEnemyProjectileKind.BombTorizoChozoOrb:
+            case RoomEnemyProjectileKind.BombTorizoSonicBoom:
+            case RoomEnemyProjectileKind.GoldenTorizoChozoOrb:
+            case RoomEnemyProjectileKind.GoldenTorizoSonicBoom:
+            case RoomEnemyProjectileKind.BombTorizoRightFootDust:
+            case RoomEnemyProjectileKind.BombTorizoLeftFootDust:
+            case RoomEnemyProjectileKind.GoldenTorizoEgg:
+            case RoomEnemyProjectileKind.GoldenTorizoSuperMissile:
+            case RoomEnemyProjectileKind.GoldenTorizoEyeBeam:
+            case RoomEnemyProjectileKind.TourianStatueSplash:
+            case RoomEnemyProjectileKind.TourianStatueEyeGlow:
+            case RoomEnemyProjectileKind.TourianStatueParticle:
+            case RoomEnemyProjectileKind.TourianStatueTail:
+            case RoomEnemyProjectileKind.TourianStatueSoul:
+            case RoomEnemyProjectileKind.TourianStatueRidley:
+            case RoomEnemyProjectileKind.TourianStatuePhantoon:
+            case RoomEnemyProjectileKind.TourianStatueBaseDecoration:
+            case RoomEnemyProjectileKind.WreckedShipChozoSpikeFootstep:
+            case RoomEnemyProjectileKind.WreckedShipChozoSpikeFootstepAlternate:
+            case RoomEnemyProjectileKind.TourianStatueDescentDust:
+            case RoomEnemyProjectileKind.ShaktoolAttackFrontCircle:
+            case RoomEnemyProjectileKind.ShaktoolAttackMiddleCircle:
+            case RoomEnemyProjectileKind.ShaktoolAttackBackCircle:
+            case RoomEnemyProjectileKind.SporeSpawnStalk:
+            case RoomEnemyProjectileKind.SporeSpawnSpore:
+            case RoomEnemyProjectileKind.SporeSpawnSpawner:
+            case RoomEnemyProjectileKind.SaveStationElectricity:
+            case RoomEnemyProjectileKind.DownwardGateMoving:
+            case RoomEnemyProjectileKind.DownwardGateClosed:
+            case RoomEnemyProjectileKind.NoobTubeCrack:
+            case RoomEnemyProjectileKind.NoobTubeShard:
+            case RoomEnemyProjectileKind.NoobTubeReleasedAirBubble:
             default:
                 throw new InvalidOperationException(
                     $"Eye-door projectile kind {kind} escaped its initializer dispatcher.");
@@ -132,7 +253,7 @@ internal sealed class EyeDoorBehavior
         byte listOffset = unchecked((byte)parameter);
         MiscDustProjectileProgram program = MiscDustProjectileDefinitions.Program((MiscDustAnimation)listOffset);
         MiscDustPlacementDefinition placement =
-            MiscDustProjectileDefinitions.SmokePlacement((ushort)(SnesLittleEndian.HighByte(checked((ushort)parameter))));
+            MiscDustProjectileDefinitions.SmokePlacement(SnesLittleEndian.HighByte(checked((ushort)parameter)));
 
         int random = _room.Random.Read();
         // Native stores only the list pointer, keeping the definition's one-update timer.

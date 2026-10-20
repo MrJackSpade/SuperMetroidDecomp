@@ -48,7 +48,7 @@ internal static class NativeCaptureSeeds
         Directory.CreateDirectory(output);
         using (var writer = new BinaryWriter(File.Create(Path.Combine(output, "room.bin"))))
         {
-            writer.Write((ushort)level.Size.X); writer.Write((ushort)level.Size.Y);
+            writer.Write(level.Size.X); writer.Write(level.Size.Y);
             foreach (ushort tile in level.ForegroundEntries.Span) writer.Write(tile);
             writer.Write(level.BehaviorBytes);
         }

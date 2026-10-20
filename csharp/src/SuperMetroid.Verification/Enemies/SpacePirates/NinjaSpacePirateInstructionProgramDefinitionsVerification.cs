@@ -220,7 +220,7 @@ internal static class NinjaSpacePirateInstructionProgramDefinitionsVerification
             RunFrames(enemies, slot, samus, 3);
             AssertEqual(function, (enemies.NinjaSpacePirateStates[0] ?? throw new InvalidOperationException("Verification requires enemies.NinjaSpacePirateStates[0].")).Function,
                 $"ninja Pirate dive program {program} function");
-            AssertEqual((ushort)0x0e00, slot.PaletteIndex,
+            AssertEqual(0x0e00, slot.PaletteIndex,
                 $"ninja Pirate dive program {program} palette");
             AssertEqual(NinjaSpacePirateSoundDefinitions.Attack, (enemies.WalkingSpacePirateBehavior.LastSpacePirateSoundEffect ?? throw new InvalidOperationException("Verification requires enemies.WalkingSpacePirateBehavior.LastSpacePirateSoundEffect.")),
                 $"ninja Pirate dive program {program} sound");
@@ -231,7 +231,7 @@ internal static class NinjaSpacePirateInstructionProgramDefinitionsVerification
         {
             var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null)) { TileArtwork = artwork };
             enemies.Presentation.BindCgram(new SnesCgram());
-            enemies.VerificationServices().NextRandom = (Func<ushort>)(() => 1);
+            enemies.VerificationServices().NextRandom = () => 1;
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.Bind(EnemyDefinitionId.PirateGreyNinja, slot.Definition);
             slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = 0xb2 });

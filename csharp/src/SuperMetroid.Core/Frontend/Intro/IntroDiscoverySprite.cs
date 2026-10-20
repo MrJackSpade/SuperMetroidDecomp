@@ -158,6 +158,7 @@ internal sealed class IntroDiscoverySprite
             case AnimationProgramAdvanceKind.Stop:
                 Delete();
                 return;
+            case AnimationProgramAdvanceKind.Wait:
             default:
                 throw new InvalidOperationException($"A cinematic sprite program ended an update with {advance.Kind}.");
         }

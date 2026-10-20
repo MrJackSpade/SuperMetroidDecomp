@@ -34,12 +34,12 @@ internal static class RidleyShotHealthStageVerification
         samus.Control.LockHandlers();
         RoomEnemySlot ridley = runtime.Enemies.SlotTable.Slots[0];
         AssertEqual(EnemyDefinitionId.Ridley, ridley.EnemyDefinitionPointer, "slot zero is Norfair Ridley");
-        var state = (RidleyEnemyState)runtime.Enemies.RidleyEncounter.RequireNorfairRidley(ridley);
+        var state = runtime.Enemies.RidleyEncounter.RequireNorfairRidley(ridley);
 
         // Native update 56046: Ridley on frame $E983, both Super Missile slots on his body.
         ridley.Position = ridley.Position.WithWhole(new(0x00a4, 0x0148));
         ridley.SpritemapPointer = 0xe983;
-        ridley.Properties = EnemyPropertyWord.FromNativeWord((ushort)(0x3800));
+        ridley.Properties = EnemyPropertyWord.FromNativeWord(0x3800);
         ridley.InvincibilityTimer = NativeCountdown.Start(0);
         ridley.InstructionTimer = NativeCountdown.Start(0x7fff);
         ridley.Health = 9340;
@@ -58,7 +58,7 @@ internal static class RidleyShotHealthStageVerification
             onlyNativeEnemyIndex: ridley.NativeIndex);
 
         AssertTrue(ridley.Health < 9000, "the hits cross 9000");
-        AssertEqual((ushort)0, state.HealthStage, "the shot leaves the health stage for his AI to update");
+        AssertEqual(0, state.HealthStage, "the shot leaves the health stage for his AI to update");
         Console.WriteLine("  Ridley shot health stage: a hit crossing 9000 leaves the stage to the AI's palette handler.");
     }
 

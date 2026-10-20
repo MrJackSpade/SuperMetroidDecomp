@@ -33,7 +33,7 @@ internal static class ElevatorInputDefinitionsVerification
             SnesButton native = (SnesButton)CartridgeImportSource.Require(rom).ReadCartridgeWord(inputTable + tableByteOffset);
 
             var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
-            enemies.VerificationServices().IsAreaBossDefeated = (Func<bool>)(() => true);
+            enemies.VerificationServices().IsAreaBossDefeated = () => true;
             Action<RoomEnemySlot, SamusState> initialize = enemies.ElevatorBehavior.InitializeElevator;
             Action<RoomEnemySlot, ElevatorEnemyState, SamusState, SnesButton,
                     SamusProjectileSystem?> wait = enemies.ElevatorBehavior.WaitForElevatorDirectionInput;
@@ -45,7 +45,7 @@ internal static class ElevatorInputDefinitionsVerification
             var samus = new SamusState();
             samus.Presentation.TileTransfers.BindArtwork(bodyArtwork);
             initialize(slot, samus);
-            AssertEqual((int)tableByteOffset, (enemies.ElevatorStates[0] ?? throw new InvalidOperationException("Verification requires enemies.ElevatorStates[0].")).DirectionTableByteOffset,
+            AssertEqual(tableByteOffset, (enemies.ElevatorStates[0] ?? throw new InvalidOperationException("Verification requires enemies.ElevatorStates[0].")).DirectionTableByteOffset,
                 $"elevator doubled direction offset {direction}");
 
             SnesButton opposite = (SnesButton)(SnesLittleEndian.Word(rom.ReadCartridgeByte(inputTable + (direction == 0 ? 2 : 0)), rom.ReadCartridgeByte(inputTable + (direction == 0 ? 3 : 1))));

@@ -170,7 +170,7 @@ internal static class WallSpacePirateInstructionProgramDefinitionsVerification
             WallSpacePirateEnemyState State, SamusState Samus) CreateSystem()
         {
             var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
-            enemies.VerificationServices().NextRandom = (Func<ushort>)(() => 0);
+            enemies.VerificationServices().NextRandom = () => 0;
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.Bind(EnemyDefinitionId.PirateGreyWall, slot.Definition);
             slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with

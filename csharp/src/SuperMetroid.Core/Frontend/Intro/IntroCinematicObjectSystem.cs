@@ -329,6 +329,7 @@ internal sealed class IntroCinematicObjectSystem
             case IntroNarrationPageId.Page3: PageThreeAwaitingInput = true; break;
             case IntroNarrationPageId.Page4: PageFourAwaitingInput = true; break;
             case IntroNarrationPageId.Page5: PageFiveAwaitingInput = true; break;
+            case IntroNarrationPageId.Page6:
             default: throw new ArgumentOutOfRangeException(nameof(page), page, null);
         }
     }

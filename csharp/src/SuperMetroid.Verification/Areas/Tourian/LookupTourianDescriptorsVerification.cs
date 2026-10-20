@@ -50,7 +50,7 @@ internal static class LookupTourianDescriptorsVerification
     private static void VerifyTourianStatueTransferSizes(ISnesAddressSpace rom)
     {
         foreach (ushort header in OriginalTourianObjects)
-            AssertEqual((int)HeaderWord(rom, header, 1), Resolve(header).TransferByteCount, "Original statue transfer size");
+            AssertEqual(HeaderWord(rom, header, 1), Resolve(header).TransferByteCount, "Original statue transfer size");
     }
 
     /// <summary>Compares each statue's encoded VRAM destination with the third word of its native header.</summary>

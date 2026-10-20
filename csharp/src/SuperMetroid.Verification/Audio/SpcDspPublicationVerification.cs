@@ -52,8 +52,8 @@ internal static class SpcDspPublicationVerification
             player.LoopPartOne();
             for (int address = 0; address < 128; address++)
                 AssertEqual(expected[address], dsp.ReadRegister((byte)address), "native DSP publication map and echo gating");
-            AssertEqual((byte)0, player.keyOff, "pending key-off clears after publication");
-            AssertEqual((byte)0, player.keyOn, "pending key-on clears after publication");
+            AssertEqual(0, player.keyOff, "pending key-off clears after publication");
+            AssertEqual(0, player.keyOn, "pending key-on clears after publication");
 
         }
     }

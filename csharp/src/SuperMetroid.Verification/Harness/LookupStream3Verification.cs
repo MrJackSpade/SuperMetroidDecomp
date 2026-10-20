@@ -270,7 +270,7 @@ internal static class LookupStream3Verification
             presentation.DrawHeading(actualOam, page, 3);
             var point = original.HeadingAnchors[page];
             MenuSpriteCompiler.Compile(original.Sprites[name], name).DrawOnScreen(expectedOam,
-                new((ushort)point.X, unchecked((ushort)(point.Y - 3))), (ushort)(original.CursorPalette << 9));
+                new(point.X, unchecked((ushort)(point.Y - 3))), (ushort)(original.CursorPalette << 9));
             actualOam.FinishFrame(); expectedOam.FinalizeFrame();
             AssertTrue(actualOam.ImageEquals(expectedOam),
                 "actual heading draw preserves exact native ordered OAM");
@@ -341,7 +341,7 @@ internal static class LookupStream3Verification
             presentation.DrawBorder(actualOam, page);
             var anchor = original.BorderAnchors[page];
             MenuSpriteCompiler.Compile(original.Sprites[name], name).DrawOnScreen(expectedOam,
-                new((ushort)anchor.X, (ushort)anchor.Y), (ushort)(original.ObjectPalette << 9));
+                new(anchor.X, anchor.Y), (ushort)(original.ObjectPalette << 9));
             actualOam.FinishFrame(); expectedOam.FinalizeFrame();
             AssertTrue(actualOam.ImageEquals(expectedOam),
                 "actual file-select border draw preserves native OAM");
@@ -853,7 +853,7 @@ internal static class LookupStream3Verification
                 var expected = new OamBuffer();
                 presentation.DrawHeading(actual, pair.Key, 3);
                 MenuSpriteCompiler.Compile(document.Sprites[GameOptionsPresentationDefinitions.HeadingFrameName(pair.Key)], "heading oracle")
-                    .DrawOnScreen(expected, new(checked((ushort)pair.Value.X), unchecked((ushort)(pair.Value.Y - 3))),
+                    .DrawOnScreen(expected, new(checked(pair.Value.X), unchecked((ushort)(pair.Value.Y - 3))),
                         SnesObjAttributeWord.Create(0, document.CursorPalette, 0).PaletteBits);
                 actual.FinishFrame(); expected.FinalizeFrame();
                 AssertTrue(actual.ImageEquals(expected),
@@ -1089,6 +1089,8 @@ internal static class LookupStream3Verification
                 case 0: DoorTransitionPaletteDefinitions.PreserveHud(ToColors(sourceColors), actual); break;
                 case 1: DoorTransitionPaletteDefinitions.PreserveCommonCre(ToColors(sourceColors), actual); break;
                 case 2: DoorTransitionPaletteDefinitions.PreserveEscapeTimer(ToColors(sourceColors), actual); break;
+                default:
+                    break;
             }
             AssertTrue(ToColors(expected).SequenceEqual(actual), "stream 3 exact native door fade preserved and black slots");
         }
@@ -1415,7 +1417,7 @@ internal static class LookupStream3Verification
     private static void VerifyStream3CorpseGeometry(ISnesAddressSpace rom)
     {
         for (int row = 0; row < 8; row++)
-            AssertEqual((int)CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa9e262 + row * 2), MotherBrainCorpseArtworkDefinitions.TileRowOffset(row),
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa9e262 + row * 2), MotherBrainCorpseArtworkDefinitions.TileRowOffset(row),
                 "stream 3 corpse native tile row offset");
         var transfers = MotherBrainCorpseArtworkDefinitions.RotTransfers;
         AssertEqual(6, transfers.Count, "stream 3 corpse transfer count");
@@ -1684,7 +1686,7 @@ internal static class LookupStream3Verification
                 AssertTrue(palette.TryReadBeamColor(index * 4, out Bgr555 beam) && beam == Bgr555.FromWord(Word(document.BeamCycle[index])),
                     "stream 3 beam wheel matches every native sampled color");
             AssertTrue(!palette.TryReadBeamColor(152, out _), "stream 3 beam signed loop terminator");
-            AssertEqual((ushort)0x3ce0, palette.BeamInitialColor, "stream 3 beam initial fixed color unchanged");
+            AssertEqual(0x3ce0, palette.BeamInitialColor, "stream 3 beam initial fixed color unchanged");
         }
         CheckBeam(stock);
         var beamColors = stock.beamCycle;
@@ -1731,8 +1733,8 @@ internal static class LookupStream3Verification
                     AssertEqual(Word(revival[frame].Body[color]), cgram.Colors[0x41 + color], "stream 3 revival body");
                     AssertEqual(Word(revival[frame].Body[color]), cgram.Colors[0x91 + color], "stream 3 revival brain");
                 }
-                AssertEqual((ushort)123, cgram.Colors[0x4e], "stream 3 revival preserves body tail");
-                AssertEqual((ushort)123, cgram.Colors[0x9e], "stream 3 revival preserves brain tail");
+                AssertEqual(123, cgram.Colors[0x4e], "stream 3 revival preserves body tail");
+                AssertEqual(123, cgram.Colors[0x9e], "stream 3 revival preserves brain tail");
                 for (int color = 0; color < 5; color++)
                     AssertEqual(Word(revival[frame].BackLegs[color]), cgram.Colors[180 + color], "stream 3 revival legs");
                 palette.ApplyFakeDeathFromGrey(cgram, frame);
@@ -3046,7 +3048,7 @@ internal static class LookupStream3Verification
                 IntroFinalLineTilemapFormat.CellCount * 2);
             for (int index = 0; index < IntroFinalLineTilemapFormat.CellCount; index++)
                 AssertEqual(ReadVerificationWord(rom, IntroCinematicRomData.Assets.FinalTextLine + index * 2),
-                    (ushort)(SnesLittleEndian.Word(subtitleUpload[index * 2], subtitleUpload[index * 2 + 1])), "actual Japanese subtitle staging upload");
+                    SnesLittleEndian.Word(subtitleUpload[index * 2], subtitleUpload[index * 2 + 1]), "actual Japanese subtitle staging upload");
             string hash = stock.ContentIdentity;
             for (int word = 0; word < 1024; word++)
             {
@@ -3091,7 +3093,7 @@ internal static class LookupStream3Verification
             Confirm(stock, original, frame);
             int pointer = ReadVerificationWord(rom, 0x82c569 + FileSelectHelmetAnimation.SpritemapId(frame) * 2);
             int address = 0x820000 | pointer;
-            AssertEqual((int)ReadVerificationWord(rom, address), composition.PartCount, "exact native helmet part count");
+            AssertEqual(ReadVerificationWord(rom, address), composition.PartCount, "exact native helmet part count");
             for (int part = 0; part < composition.PartCount; part++)
             {
                 int entry = address + 2 + part * 5;
@@ -3145,7 +3147,7 @@ internal static class LookupStream3Verification
             var expectedOam = new OamBuffer();
             actual.DrawHelmet(actualOam, frame, 0);
             var anchor = expected.HelmetAnchors[0];
-            expectedParts.DrawOnScreen(expectedOam, new((ushort)anchor.X, (ushort)anchor.Y), (ushort)(expected.ObjectPalette << 9));
+            expectedParts.DrawOnScreen(expectedOam, new(anchor.X, anchor.Y), (ushort)(expected.ObjectPalette << 9));
             actualOam.FinishFrame(); expectedOam.FinalizeFrame();
             AssertTrue(actualOam.ImageEquals(expectedOam),
                 "actual helmet draw preserves native and independent edited ordered OAM");

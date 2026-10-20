@@ -341,6 +341,8 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
             case AnimationProgramAdvanceKind.Hold:
                 // The native sleep: the timer wraps from zero and the last frame stays.
                 return;
+            case AnimationProgramAdvanceKind.Wait:
+            case AnimationProgramAdvanceKind.Stop:
             default:
                 throw new InvalidOperationException($"The cutscene Baby's programs have no {advance.Kind} step.");
         }

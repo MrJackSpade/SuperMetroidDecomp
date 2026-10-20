@@ -47,7 +47,7 @@ internal static class ControllerInputRecordingVerification
         AssertTrue(actual.GameOptions.Invincibility, "input recording invincibility option");
         AssertTrue(actual.GameOptions.InfiniteAmmo, "input recording infinite-ammo option");
         AssertTrue(actual.GameOptions.PreventEscapeTimeout, "input recording escape floor option");
-        AssertEqual((ushort?)0, actual.GameOptions.EndingTimeOverrideMinutes, "recording preserves zero-minute ending override");
+        AssertEqual(0, actual.GameOptions.EndingTimeOverrideMinutes, "recording preserves zero-minute ending override");
         AssertEqual(MapRevealMode.Secret, actual.GameOptions.MapReveal,
             "input recording map-reveal mode");
         AssertTrue(digest.SequenceEqual(actual.RomSha256), "input recording ROM digest");

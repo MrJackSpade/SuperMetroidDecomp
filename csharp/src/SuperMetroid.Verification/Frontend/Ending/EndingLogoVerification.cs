@@ -84,7 +84,7 @@ internal static class EndingLogoVerification
         for (int i = 0; i < operands.Length; i++)
         {
             int operand = 0x8b0000 | operands[i];
-            ushort pointer = (ushort)(SnesLittleEndian.Word(CpuBusRegionRead.Read(bus, operand), CpuBusRegionRead.Read(bus, operand + 1)));
+            ushort pointer = SnesLittleEndian.Word(CpuBusRegionRead.Read(bus, operand), CpuBusRegionRead.Read(bus, operand + 1));
             int header = 0x8c0000 | pointer;
             int count = SnesLittleEndian.Word(CpuBusRegionRead.Read(bus, header), CpuBusRegionRead.Read(bus, header + 1));
             AssertEqual(pointer, catalog[i].Pointer, "logo frame address from original instruction operand");

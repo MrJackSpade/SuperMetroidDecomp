@@ -23,8 +23,6 @@ internal sealed class GameplayHudSetup
     private readonly HudState _hud;
     /// <summary>Supplies Samus state for HUD item and resource display.</summary>
     private readonly SamusFrameState _player;
-    /// <summary>Holds room-FX BG3 padding immediately before queued HUD uploads.</summary>
-    private readonly SnesVram _vram;
     /// <summary>Preserves native DMA ordering for HUD, OBJ, trail, and enemy graphics.</summary>
     private readonly VramWriteQueue _vramWrites;
 
@@ -36,7 +34,6 @@ internal sealed class GameplayHudSetup
         _room = dependencies.Room;
         _hud = dependencies.Hud;
         _player = dependencies.Player;
-        _vram = dependencies.Vram;
         _vramWrites = dependencies.VramWrites;
     }
 

@@ -28,7 +28,7 @@ internal static class MenuMissileLookupsVerification
     internal static void VerifyMenuMissileDurations(ISnesAddressSpace rom)
     {
         for (int frame = 0; frame < 4; frame++)
-            AssertEqual((int)ReadVerificationWord(rom, 0x82baaa + frame * 2),
+            AssertEqual(ReadVerificationWord(rom, 0x82baaa + frame * 2),
                 MenuMissileAnimationDefinitions.FrameDuration, $"menu missile duration {frame}");
     }
 }

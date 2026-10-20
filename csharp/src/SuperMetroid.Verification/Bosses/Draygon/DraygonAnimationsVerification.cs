@@ -71,7 +71,7 @@ internal static class DraygonAnimationsVerification
             {
                 case NativeEnemyListDefinitions.WordKind.Frame:
                     AssertEqual(AnimationProgramStepKind.Show, step.Kind, $"{at}: frame");
-                    AssertEqual((int)word, step.Duration, $"{at}: duration");
+                    AssertEqual(word, step.Duration, $"{at}: duration");
                     AssertEqual(operand, DraygonFrameToolingDefinitions.Spritemap(step.Frame), $"{at}: spritemap");
                     drawn.Add(operand);
                     cursor = unchecked((ushort)(cursor + 4));
@@ -91,7 +91,7 @@ internal static class DraygonAnimationsVerification
                     return steps.Count;
                 case NativeEnemyListDefinitions.WordKind.SetCounter:
                     AssertEqual(AnimationProgramStepKind.SetCounter, step.Kind, $"{at}: counter load");
-                    AssertEqual((int)operand, step.Duration, $"{at}: repeat count");
+                    AssertEqual(operand, step.Duration, $"{at}: repeat count");
                     cursor = unchecked((ushort)(cursor + 4));
                     continue;
                 case NativeEnemyListDefinitions.WordKind.RepeatWhileCounting:
@@ -101,7 +101,7 @@ internal static class DraygonAnimationsVerification
                     continue;
                 case NativeEnemyListDefinitions.WordKind.Wait:
                     AssertEqual(AnimationProgramStepKind.Wait, step.Kind, $"{at}: wait");
-                    AssertEqual((int)operand, step.Duration, $"{at}: wait length");
+                    AssertEqual(operand, step.Duration, $"{at}: wait length");
                     cursor = unchecked((ushort)(cursor + 4));
                     continue;
                 case NativeEnemyListDefinitions.WordKind.Callback:
@@ -143,8 +143,8 @@ internal static class DraygonAnimationsVerification
         foreach (RoomEnemySlot part in new[] { body, state.Eye, state.Tail, state.Arms })
             state.SetCursor(part, AnimationProgramCursor<DraygonProgram>.Start(DraygonProgram.Sleep));
         enemies.DraygonBehavior.Draygon = state;
-        enemies.VerificationServices().NextRandom = (Func<ushort>)(() => 4660);
-        enemies.VerificationServices().ReadRandom = (Func<ushort>)(() => 4660);
+        enemies.VerificationServices().NextRandom = () => 4660;
+        enemies.VerificationServices().ReadRandom = () => 4660;
         return (enemies, state);
     }
 
@@ -261,7 +261,7 @@ internal static class DraygonAnimationsVerification
             if ((word & NativeEnemyListDefinitions.InstructionBit) == 0)
             {
                 AssertEqual(AnimationProgramStepKind.Show, step.Kind, $"{at}: frame");
-                AssertEqual((int)word, step.Duration, $"{at}: duration");
+                AssertEqual(word, step.Duration, $"{at}: duration");
                 AssertEqual(unchecked((ushort)(cursor + 2)), EnemyProjectileFrames.ProgramFrameKey(DraygonProjectileVisualDefinitions.ShownProjectileFrames[step.Frame]), $"{at}: frame operand");
                 cursor = unchecked((ushort)(cursor + 4));
                 continue;

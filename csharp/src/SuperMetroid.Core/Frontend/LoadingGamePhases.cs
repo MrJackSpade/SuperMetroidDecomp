@@ -74,6 +74,8 @@ internal sealed class LoadingGamePhases(FrontendSession session)
                 BeginGameLoadingWaits(GameLoadingDefinitions.ZebesLandingLoadWaits,
                     GameLoadingCompletion.GameplayFadeIn);
                 break;
+            case SaveLoadingGameState.OpeningCinematic:
+            case SaveLoadingGameState.CeresElevatorArrival:
             default:
                 throw new InvalidOperationException($"State six has no loading branch for {session.stateSixLoadingRoute}.");
         }

@@ -54,7 +54,7 @@ internal static class DraygonTurretCadenceVerification
             return velocity;
         }
         var beforeTurret = SpawnGoop();
-        runtime.Enemies.DraygonBehavior.SpawnDraygonWallTurret(boss, runtime.Player.IntroducedSamus, (ushort)0);
+        runtime.Enemies.DraygonBehavior.SpawnDraygonWallTurret(boss, runtime.Player.IntroducedSamus, 0);
         var afterTurret = SpawnGoop();
         AssertEqual(beforeTurret, afterTurret, "goop speed does not inherit a turret's parameter");
         int expectedX = EnemyMath.ReadUnsignedSineMagnitudeProduct(new SnesByteAngle(unchecked((byte)afterTurret.Angle)), DraygonProjectileSpeeds.Goop, 0x40);
@@ -75,7 +75,7 @@ internal static class DraygonTurretCadenceVerification
         runtime.Enemies.StepEnemyProjectileInstructions(runtime.Room.LoadedLevelData, runtime.Player.Samus,
             new(runtime.Room.LoadedCamera.PixelPosition.X, runtime.Room.LoadedCamera.PixelPosition.Y));
         AssertTrue(!bombed.IsActive, "a power-bombed goop loses its projectile ID");
-        AssertEqual((ushort)0, runtime.Player.IntroducedSamus.XSpeedDivisor, "$86:8D93 clears Samus's X speed divisor");
+        AssertEqual(0, runtime.Player.IntroducedSamus.XSpeedDivisor, "$86:8D93 clears Samus's X speed divisor");
         AssertTrue(bombed.Position.X.Whole != bombedX, "the goop routine still moves the released slot");
 
         // #1269: DraygonReaction_Common's dead branch ($A5:9618) has no "already dying"

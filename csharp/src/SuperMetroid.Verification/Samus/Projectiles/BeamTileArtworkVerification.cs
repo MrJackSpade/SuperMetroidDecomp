@@ -107,18 +107,8 @@ internal static class BeamTileArtworkVerification
         int colors = SamusProjectileRomData.Banks.Movement |
             CartridgeImportSource.Require(bus).ReadCartridgeWord((SamusProjectileRomData.Beams.PalettePointers + selection * 2));
         for (int i = 0; i < BeamPaletteDefinitions.ColorCount; i++)
-            cgram.SetColor(SamusProjectileRomData.Palettes.BeamDestinationIndex + i, Bgr555.FromWord(checked((ushort)(CartridgeImportSource.Require(bus).ReadCartridgeWord((colors + i * 2))))));
+            cgram.SetColor(SamusProjectileRomData.Palettes.BeamDestinationIndex + i, Bgr555.FromWord(checked(CartridgeImportSource.Require(bus).ReadCartridgeWord((colors + i * 2)))));
     }
-    /// <summary>Rejects beam graphics and selection-pointer cartridge reads and any artwork-queue bus writes.</summary>
-    private static MutableCartridgeReadGuard NewBeamArtworkReadGuard(ISnesAddressSpace source)
-    {
-        var guard = new MutableCartridgeReadGuard(source);
-        guard.Forbid(address => (SnesAddressMath.BankNumber(address)) == 0x9a || address is >= 0x90c3b1 and < 0x90c3c9,
-                _ => new InvalidDataException("Authored beam queue still reads ROM graphics or selection pointers."))
-            .RejectWrites(_ => "Artwork queue wrote the bus.");
-        return guard;
-    }
-
     /// <summary>Checks accepted NMI publication of edited PNG bytes and host artwork rebinding after a runtime restore.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     private static void VerifyRuntimeBeamArtwork(Dictionary<string, byte[]> files, BeamTileCatalog stock)

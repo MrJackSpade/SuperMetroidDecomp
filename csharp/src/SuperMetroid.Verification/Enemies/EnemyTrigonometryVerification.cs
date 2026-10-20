@@ -712,7 +712,7 @@ internal static class EnemyTrigonometryVerification
                 var fixedActual = phase == 64 ? fixedCosine(a, r) : fixedNegative(a, r);
                 var signedActual = sbugSigned((byte)angle, (byte)radius, phase);
                 var unsignedActual = sbugUnsigned((byte)angle, (byte)radius, phase);
-                uint magnitude = (uint)words[shiftedAngle & 127] * (uint)radius;
+                uint magnitude = words[shiftedAngle & 127] * (uint)radius;
                 if (fixedActual != SnesSignedSixteenSixteen.FromParts(whole, fraction) || signedActual != SnesSignedSixteenSixteen.FromParts(whole, fraction) ||
                     unsignedActual.RawValue != magnitude)
                     throw new InvalidDataException($"Compiled vector differs at angle={angle}, radius={radius}, phase={phase}.");

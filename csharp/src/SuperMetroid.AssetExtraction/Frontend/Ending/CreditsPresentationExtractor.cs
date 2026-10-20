@@ -71,7 +71,7 @@ public static class CreditsPresentationExtractor
                 for (int column = 0; column < row.Length; column++)
                 {
                     int byteIndex = offset + column * 2;
-                    row[column] = unchecked((ushort)(SnesLittleEndian.Word(source[byteIndex], source[byteIndex + 1])));
+                    row[column] = unchecked(SnesLittleEndian.Word(source[byteIndex], source[byteIndex + 1]));
                 }
                 rows.Add(row);
                 pointer = Add(pointer, 4);

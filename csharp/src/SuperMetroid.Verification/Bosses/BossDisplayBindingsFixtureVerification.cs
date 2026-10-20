@@ -53,8 +53,8 @@ internal static class BossDisplayBindingsFixtureVerification
         internal void SetFrame(ushort frame, bool fresh)
         {
             Actor.SpritemapPointer = frame;
-            Actor.ExtraProperties = EnemyExtraPropertyWord.FromNativeWord((ushort)((ushort)(EnemyExtraProperties.UsesExtendedSpritemap |
-                (fresh ? EnemyExtraProperties.NewInstructionFrame : 0))));
+            Actor.ExtraProperties = EnemyExtraPropertyWord.FromNativeWord((ushort)(EnemyExtraProperties.UsesExtendedSpritemap |
+                (fresh ? EnemyExtraProperties.NewInstructionFrame : 0)));
         }
 
         /// <summary>Runs queued enemy drawing into a fresh OAM frame.</summary>

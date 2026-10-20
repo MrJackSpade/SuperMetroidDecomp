@@ -17,7 +17,7 @@ internal static class NativeByteCounterVerification
         AssertEqual(0, NativeWordCounter.DecrementByte(1), "a byte DEC reaches zero from one");
         for (int value = 0; value <= byte.MaxValue; value++)
         {
-            AssertEqual((int)NativeWordCounter.DecrementByte((byte)value), NativeWordCounter.DecrementByte(value),
+            AssertEqual(NativeWordCounter.DecrementByte((byte)value), NativeWordCounter.DecrementByte(value),
                 $"the int byte DEC matches the byte DEC at {value}");
         }
         AssertThrows<ArgumentOutOfRangeException>(() => NativeWordCounter.DecrementByte(256),
@@ -33,7 +33,7 @@ internal static class NativeByteCounterVerification
         AssertEqual(1, NativeWordCounter.IncrementWord(0), "a word INC steps zero to one");
         for (int value = 0; value <= ushort.MaxValue; value++)
         {
-            AssertEqual((int)unchecked((ushort)(value + 1)), NativeWordCounter.IncrementWord(value),
+            AssertEqual(unchecked((ushort)(value + 1)), NativeWordCounter.IncrementWord(value),
                 $"the int word INC matches the 16-bit INC at {value}");
         }
         AssertThrows<ArgumentOutOfRangeException>(() => NativeWordCounter.IncrementWord(ushort.MaxValue + 1),

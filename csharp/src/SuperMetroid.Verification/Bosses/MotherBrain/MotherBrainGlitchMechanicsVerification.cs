@@ -32,7 +32,7 @@ internal static class MotherBrainGlitchMechanicsVerification
 
         // $90:9DB2 tests only the Screw Attack poses; any other pose rewinds to frame $0A.
         spinning.PoseTransitions.ApplyWallContactAnimationRewind();
-        AssertEqual((ushort)0x0a, spinning.AnimationFrame, "wall-contact rewind runs for the drained pose");
+        AssertEqual(0x0a, spinning.AnimationFrame, "wall-contact rewind runs for the drained pose");
         // $91:EABE is gated by the spin mover, i.e. the cached type, not the live pose.
         spinning.PoseTransitions.ApplyWallJumpTrigger();
         AssertEqual(SamusPoseId.WallJumpRightPose, spinning.Pose, "a drained spinning Samus wall-jumps out");

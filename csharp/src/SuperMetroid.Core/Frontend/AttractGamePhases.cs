@@ -143,6 +143,46 @@ internal sealed class AttractGamePhases(FrontendSession session)
                     session.display.PublishMenu(session.title);
                 }
                 break;
+            case SuperMetroidGameState.Reset:
+            case SuperMetroidGameState.OpeningCinematic:
+            case SuperMetroidGameState.GameOptionsMenu:
+            case SuperMetroidGameState.Unused03:
+            case SuperMetroidGameState.FileSelectMenus:
+            case SuperMetroidGameState.FileSelectMap:
+            case SuperMetroidGameState.LoadingGameData:
+            case SuperMetroidGameState.MainGameplayFadeIn:
+            case SuperMetroidGameState.MainGameplay:
+            case SuperMetroidGameState.HitDoorBlock:
+            case SuperMetroidGameState.LoadingNextRoomA:
+            case SuperMetroidGameState.LoadingNextRoomB:
+            case SuperMetroidGameState.PausingDarkening:
+            case SuperMetroidGameState.Pausing:
+            case SuperMetroidGameState.PausedA:
+            case SuperMetroidGameState.PausedB:
+            case SuperMetroidGameState.UnpausingA:
+            case SuperMetroidGameState.UnpausingB:
+            case SuperMetroidGameState.Unpausing:
+            case SuperMetroidGameState.DeathSequenceStart:
+            case SuperMetroidGameState.DeathBlackOutSurroundings:
+            case SuperMetroidGameState.DeathWaitForMusic:
+            case SuperMetroidGameState.DeathPreFlashing:
+            case SuperMetroidGameState.DeathFlashing:
+            case SuperMetroidGameState.DeathExplosionWhiteOut:
+            case SuperMetroidGameState.DeathFinalBlackOut:
+            case SuperMetroidGameState.GameOverMenu:
+            case SuperMetroidGameState.ReserveTanksAuto:
+            case SuperMetroidGameState.Unused1c:
+            case SuperMetroidGameState.DebugGameOverMenu:
+            case SuperMetroidGameState.IntroCinematic:
+            case SuperMetroidGameState.SetUpNewGame:
+            case SuperMetroidGameState.MadeItToCeresElevator:
+            case SuperMetroidGameState.BlackoutFromCeres:
+            case SuperMetroidGameState.CeresGoesBoom:
+            case SuperMetroidGameState.TimeUp:
+            case SuperMetroidGameState.WhitingOutFromTimeUp:
+            case SuperMetroidGameState.CeresGoesBoomWithSamus:
+            case SuperMetroidGameState.SamusEscapesFromZebes:
+            case SuperMetroidGameState.EndingAndCredits:
             default:
                 throw new InvalidOperationException($"{session.GameState} is not an attract-demo state.");
         }

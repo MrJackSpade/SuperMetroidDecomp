@@ -23,7 +23,7 @@ internal static class SparkMovementDefinitionsVerification
     internal static void VerifySparkMovementDefinitions(SuperMetroidAddressSpace rom)
     {
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: new TestAddressSpace(), services: new VerificationRoomEnemyServices(null));
-        enemies.VerificationServices().IsAreaBossDefeated = (Func<bool>)(() => true);
+        enemies.VerificationServices().IsAreaBossDefeated = () => true;
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.Spark, slot.Definition);
         for (ushort selector = 0; selector < 4; selector++)
@@ -41,7 +41,7 @@ internal static class SparkMovementDefinitionsVerification
             slot.SetSpawnParameter2(5);
             enemies.SparkBehavior.InitializeSpark(slot);
             SparkEnemyState state = enemies.SparkStates[0] ?? throw new InvalidOperationException("Spark has no state.");
-            AssertEqual(definition.Program is { } started ? AnimationProgramCursor<SparkProgram>.Start(started) : (AnimationProgramCursor<SparkProgram>?)null,
+            AssertEqual(definition.Program is { } started ? AnimationProgramCursor<SparkProgram>.Start(started) : null,
                 state.Program, $"Spark production animation selector {selector}");
             AssertEqual(nativeFunction, state.Function, $"Spark production function selector {selector}");
         }
@@ -71,7 +71,7 @@ internal static class SparkMovementDefinitionsVerification
     private static (RoomEnemySystem, RoomEnemySlot, SparkEnemyState) Start(SparkProgram program, bool intangible)
     {
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
-        enemies.VerificationServices().IsAreaBossDefeated = (Func<bool>)(() => true);
+        enemies.VerificationServices().IsAreaBossDefeated = () => true;
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.Spark, slot.Definition);
         slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = SparkFrameToolingDefinitions.Bank });
@@ -79,7 +79,7 @@ internal static class SparkMovementDefinitionsVerification
         SparkEnemyState state = enemies.SparkStates[0] ?? throw new InvalidOperationException("Spark has no state.");
         state.Program = AnimationProgramCursor<SparkProgram>.Start(program);
         slot.InstructionTimer = NativeCountdown.Start(1);
-        slot.Properties = EnemyPropertyWord.FromNativeWord((ushort)(intangible ? (ushort)EnemyProperties.IgnoreSamusCollision : (ushort)0));
+        slot.Properties = EnemyPropertyWord.FromNativeWord(intangible ? (ushort)EnemyProperties.IgnoreSamusCollision : (ushort)0);
         return (enemies, slot, state);
     }
 

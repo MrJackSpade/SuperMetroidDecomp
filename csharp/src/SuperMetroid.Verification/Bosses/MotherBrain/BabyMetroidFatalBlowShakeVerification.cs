@@ -20,7 +20,7 @@ internal static class BabyMetroidFatalBlowShakeVerification
         baby.Initialize(previousOccupant: FixedPosition<RoomPixels>.Zero);
         baby.Phase = BabyMetroidCutscenePhase.FinalCharge;
         baby.Position = FixedPosition<RoomPixels>.FromWhole(new(0x00c8, 0x0057)).WithFractionsOf(baby.Position);
-        baby.Health = (ushort)0;
+        baby.Health = 0;
         var head = new Position16<RoomPixels>(0x00c8, 0x0077);
 
         // Frame-counter index 0: zero offsets around the origin; velocity zeroed then decremented.

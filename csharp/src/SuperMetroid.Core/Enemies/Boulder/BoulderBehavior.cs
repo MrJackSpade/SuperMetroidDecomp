@@ -288,7 +288,7 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
         int displacement = ReadBoulderHorizontalDisplacement(state);
         uint position = slot.Position.X.RawValue;
         position = unchecked(position + (uint)displacement);
-        slot.Position = slot.Position.WithX(SnesFixedPosition.FromRaw(unchecked((uint)position)));
+        slot.Position = slot.Position.WithX(SnesFixedPosition.FromRaw(unchecked(position)));
     }
 
     /// <summary>Reads the quadratic speed sample and signs it according to the spawn direction selector.</summary>
@@ -305,7 +305,7 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
             negative);
         uint position = slot.Position.Y.RawValue;
         position = unchecked(position + (uint)displacement);
-        slot.Position = slot.Position.WithY(SnesFixedPosition.FromRaw(unchecked((uint)position)));
+        slot.Position = slot.Position.WithY(SnesFixedPosition.FromRaw(unchecked(position)));
     }
 
     /// <summary>

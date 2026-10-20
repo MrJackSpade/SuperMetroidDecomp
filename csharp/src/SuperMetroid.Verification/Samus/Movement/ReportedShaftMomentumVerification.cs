@@ -34,8 +34,8 @@ internal static class ReportedShaftMomentumVerification
             int xAfter = SnesSixteenSixteen.FromWhole(samus.Position.X.Whole) | samus.Kinematics.Position.X.Fraction;
             AssertEqual(-0x00016000, xAfter - xBefore,
                 $"recorded neutral spin carry at frame {frame} matches cartridge carry-set branch");
-            AssertEqual((ushort)1, samus.HorizontalSpeed.BaseSpeed.Whole, "retained spin whole speed");
-            AssertEqual((ushort)0x6000, samus.HorizontalSpeed.BaseSpeed.Fraction, "retained spin fractional speed");
+            AssertEqual(1, samus.HorizontalSpeed.BaseSpeed.Whole, "retained spin whole speed");
+            AssertEqual(0x6000, samus.HorizontalSpeed.BaseSpeed.Fraction, "retained spin fractional speed");
         }
         AssertEqual((ushort)117, samus.Position.X.Whole, "eight recorded neutral frames carry eleven pixels left");
         Console.WriteLine("#1158: recorded no-Left drift matches native spin momentum; no movement alteration required.");

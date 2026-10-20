@@ -47,10 +47,10 @@ internal static class KraidGrowthCommandCursorVerification
         state.Parts[5].Function = KraidAiFunction.FootPrepareFirstPhaseLunge;
         footMain(foot, 0);
         AssertEqual(native.CursorAt(0x96f4), state.HeadProgram, "native command-cursor growth resumes at the closing-mouth frame");
-        AssertEqual((ushort)64, state.Parts[0].HeadTimer, "native quick-kill growth delay is preserved");
+        AssertEqual(64, state.Parts[0].HeadTimer, "native quick-kill growth delay is preserved");
         AssertEqual(displayed, state.DisplayedHeadFrame, "growth selection does not advance the displayed head");
         AssertEqual(KraidAiFunction.GrowReleaseCamera, state.Parts[0].NextFunction, "growth schedules camera release");
-        AssertEqual((ushort)180, state.Parts[0].FunctionTimer, "growth function timer");
+        AssertEqual(180, state.Parts[0].FunctionTimer, "growth function timer");
         AssertEqual(KraidAiFunction.NoOperation, state.Parts[5].Function, "growth stops the foot lunge");
         AssertEqual(0, guard.ForbiddenReadAttempts, "growth selection does not read compiled cartridge programs");
 
@@ -59,12 +59,12 @@ internal static class KraidGrowthCommandCursorVerification
         foreach (KraidHeadNativeRecord record in native.Records)
         {
             int address = 0xa70000 | (record.Pointer + 2);
-            ushort word = (ushort)(SnesLittleEndian.Word(KraidGrowthCommandCursorRomByte(rom, address), KraidGrowthCommandCursorRomByte(rom, address + 1)));
+            ushort word = SnesLittleEndian.Word(KraidGrowthCommandCursorRomByte(rom, address), KraidGrowthCommandCursorRomByte(rom, address + 1));
             (ushort pointer, ushort timer) = KraidContourCaseMappingsVerification.NativeKraidGrowthResume(rom, word);
             KraidHeadGrowthResume resume = KraidHeadAnimations.ReadsAt(record.Cursor).Growth;
             AssertEqual(native.CursorAt(pointer), KraidHeadAnimations.GrowthResumeCursor(resume),
                 $"native growth resume cursor from ${record.Pointer:X4}");
-            AssertEqual((int)timer, KraidHeadAnimations.GrowthResumeDelay(resume), $"native growth resume delay from ${record.Pointer:X4}");
+            AssertEqual(timer, KraidHeadAnimations.GrowthResumeDelay(resume), $"native growth resume delay from ${record.Pointer:X4}");
         }
         Console.WriteLine("Kraid growth command cursor: reported foot-lunge transition, native 64-frame delay, retained display, and the growth resume of every native cursor pass.");
     }

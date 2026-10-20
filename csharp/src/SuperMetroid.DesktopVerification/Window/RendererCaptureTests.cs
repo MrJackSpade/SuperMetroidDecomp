@@ -30,13 +30,13 @@ internal static class RendererCaptureTests
         try
         {
             await control.InitializeRendererAsync();
-            for (int i = 0; i < 30; i++) control.StepFrame((ushort)0);
+            for (int i = 0; i < 30; i++) control.StepFrame(0);
             var before = control.pendingDisplay ?? throw new InvalidOperationException("Host has no pending display.");
             var game = control.game ?? throw new InvalidOperationException("Host has no game.");
             int frameNumber = game.FrameNumber;
             var expected = SoftwareFrameSnapshotRenderer.Render(before);
             control.SaveDebuggerState(0);
-            for (int i = 0; i < 10; i++) control.StepFrame((ushort)0);
+            for (int i = 0; i < 10; i++) control.StepFrame(0);
             if (renderer != RendererSelection.Software)
                 await VerifyAsyncLoadBoundary(control);
             else await control.LoadDebuggerState(0);

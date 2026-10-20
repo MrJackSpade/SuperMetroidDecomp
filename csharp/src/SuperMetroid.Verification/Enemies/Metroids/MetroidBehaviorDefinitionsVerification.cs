@@ -90,7 +90,7 @@ internal static class MetroidBehaviorDefinitionsVerification
         {
             var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
             ushort selectedRandom = random;
-            enemies.VerificationServices().NextRandom = ((Func<ushort>)(() => selectedRandom));
+            enemies.VerificationServices().NextRandom = () => selectedRandom;
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.Bind(EnemyDefinitionId.Metroid, slot.Definition);
             slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = 0xa3 });
@@ -102,7 +102,7 @@ internal static class MetroidBehaviorDefinitionsVerification
                     MetroidAnimations.Programs.Steps(MetroidProgram.ChasingSamus).ToList().FindIndex(step => step.Kind == AnimationProgramStepKind.Cue)),
             });
 
-            EnemyInstructionInterpreter.ProcessInstructions(slot, null, null, Position16<RoomPixels>.Zero, (ushort)0);
+            EnemyInstructionInterpreter.ProcessInstructions(slot, null, null, Position16<RoomPixels>.Zero, 0);
 
             AssertEqual((SoundEffectId?)MetroidBehaviorDefinitions.RandomCrySoundEffect(random),
                 enemies.MetroidBehavior.LastMetroidSoundEffectLibrary2,

@@ -36,7 +36,7 @@ internal static class BombChargeRejectionVerification
             // Down postpones a valid full-charge spread. The no-edge rejection below
             // therefore belongs only to the ordinary-bomb/Power-Bomb helper, not to
             // releasing a spread. Equipment guards that skip that helper preserve charge.
-            var result = bombs.StepFrame(new SamusTerrain { Level = level }, samus, (SnesButton.X | SnesButton.Down), freshShoot ? SnesButton.X : (ushort)0);
+            var result = bombs.StepFrame(new SamusTerrain { Level = level }, samus, (SnesButton.X | SnesButton.Down), freshShoot ? SnesButton.X : 0);
             bool helperRuns = powerBombSelected || bombsEquipped && charge < 60;
             bool cancelled = helperRuns && !freshShoot && charge != 0;
             string context = $"charge={charge}, Bombs={bombsEquipped}, PB={powerBombSelected}, edge={freshShoot}";
@@ -67,8 +67,8 @@ internal static class BombChargeRejectionVerification
             AssertEqual(charge != 0, result.BeamChargeConsumed, $"outer native cancellation command: {context}");
             AssertEqual(charge != 0 ? 1 : 0, (result.SoundRequests ?? throw new InvalidOperationException("Verification requires result.SoundRequests.")).Count(sound => sound ==
                 new SamusSoundRequest(SoundEffectLibrary1Sounds.CancelAll, 9)), $"charge cancellation sound: {context}");
-            AssertEqual((ushort)0, bombs.BombCounter, $"release never places a bomb: {context}");
-            AssertEqual((ushort)2, samus.PowerBombs, $"release never spends ammunition: {context}");
+            AssertEqual(0, bombs.BombCounter, $"release never places a bomb: {context}");
+            AssertEqual(2, samus.PowerBombs, $"release never spends ammunition: {context}");
         }
     }
 }

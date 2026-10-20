@@ -20,28 +20,28 @@ internal sealed class RidleyEntity(
     private bool IsBody => Slot.EnemyDefinitionPointer is EnemyDefinitionId.Ridley or EnemyDefinitionId.RidleyCeres;
 
     /// <inheritdoc/>
-    public EnemyInitializationAiHandler? FindInitialization() => Slot.EnemyDefinitionPointer switch
+    public EnemyInitializationAiHandler? FindInitialization() => RidleyPartDefinitions.Parts[Slot.EnemyDefinitionPointer] switch
     {
-        EnemyDefinitionId.Ridley => ridley.RunRidleyInitializationAi,
-        EnemyDefinitionId.RidleyCeres => ceres.RunCeresRidleyInitializationAi,
-        EnemyDefinitionId.RidleyExplosion => ridley.RunRidleyExplosionInitializationAi,
+        RidleyPart.Ridley => ridley.RunRidleyInitializationAi,
+        RidleyPart.Ceres => ceres.RunCeresRidleyInitializationAi,
+        RidleyPart.Explosion => ridley.RunRidleyExplosionInitializationAi,
         _ => throw new InvalidOperationException($"Ridley entity bound to {Slot.EnemyDefinitionPointer}."),
     };
 
     /// <inheritdoc/>
-    public EnemyMainAiHandler? FindMain() => Slot.EnemyDefinitionPointer switch
+    public EnemyMainAiHandler? FindMain() => RidleyPartDefinitions.Parts[Slot.EnemyDefinitionPointer] switch
     {
-        EnemyDefinitionId.Ridley => ridley.RunRidleyMainAi,
-        EnemyDefinitionId.RidleyCeres => ceres.RunCeresRidleyMainAi,
-        EnemyDefinitionId.RidleyExplosion => ridley.RunRidleyExplosionMainAi,
+        RidleyPart.Ridley => ridley.RunRidleyMainAi,
+        RidleyPart.Ceres => ceres.RunCeresRidleyMainAi,
+        RidleyPart.Explosion => ridley.RunRidleyExplosionMainAi,
         _ => throw new InvalidOperationException($"Ridley entity bound to {Slot.EnemyDefinitionPointer}."),
     };
 
     /// <inheritdoc/>
-    public Action<RoomEnemySlot, EnemyInstructionContext>? FindTypedAnimation() => Slot.EnemyDefinitionPointer switch
+    public Action<RoomEnemySlot, EnemyInstructionContext>? FindTypedAnimation() => RidleyPartDefinitions.Parts[Slot.EnemyDefinitionPointer] switch
     {
-        EnemyDefinitionId.Ridley or EnemyDefinitionId.RidleyCeres => ridley.AdvanceRidleyBodyTypedAnimation,
-        EnemyDefinitionId.RidleyExplosion => ridley.AdvanceRidleyBreakupTypedAnimation,
+        RidleyPart.Ridley or RidleyPart.Ceres => ridley.AdvanceRidleyBodyTypedAnimation,
+        RidleyPart.Explosion => ridley.AdvanceRidleyBreakupTypedAnimation,
         _ => throw new InvalidOperationException($"Ridley entity bound to {Slot.EnemyDefinitionPointer}."),
     };
 

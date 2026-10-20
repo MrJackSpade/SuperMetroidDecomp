@@ -22,8 +22,6 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <inheritdoc/>
     public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new YappingMawEntity(this, slot, common);
 
-    /// <summary>Supplies the room context needed when the Maw changes Samus' pose.</summary>
-    private readonly EnemyRoomBinding _room;
     /// <summary>Creates the four auxiliary body-link projectiles.</summary>
     private readonly EnemyProjectileEngine _projectiles;
     /// <summary>Owns the root sprite object accompanying the body links.</summary>
@@ -32,9 +30,8 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
     private readonly SamusScrollCap _scrollCap;
 
     /// <summary>Connects Maw AI to room, body-link, sprite-object, and Samus camera services.</summary>
-    internal YappingMawBehavior(EnemyRoomBinding room, EnemyProjectileEngine projectiles, RoomSpriteObjectPool spriteObjects, SamusScrollCap scrollCap)
+    internal YappingMawBehavior(EnemyProjectileEngine projectiles, RoomSpriteObjectPool spriteObjects, SamusScrollCap scrollCap)
     {
-        _room = room;
         _projectiles = projectiles;
         _spriteObjects = spriteObjects;
         _scrollCap = scrollCap;
@@ -300,7 +297,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
             // ordinary comparison.
             if (state.Extension.WholePixels >= YappingMawMaximumCurl)
             {
-                state.Extension = SnesSignedSixteenSixteen.FromParts(checked((short)YappingMawMaximumCurl), 0);
+                state.Extension = SnesSignedSixteenSixteen.FromParts(checked(YappingMawMaximumCurl), 0);
                 // $A8:A4F2 adds four bytes after the ordinary eight-byte record advance: the same record's
                 // negative half, or the next record's positive half from a negative one.
                 if (state.QuadraticSpeedNegative)

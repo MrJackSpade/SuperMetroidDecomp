@@ -19,8 +19,22 @@ internal static class SamusLiquidPhysicsStateAccess
             self.LiquidPhysicsType = self.FxType switch
             {
                 RoomFxType.Lava or RoomFxType.Acid
-                    when ((bool)(SamusLiquidPhysicsState.IsBelowSurface((ushort)(self.LavaAcidYPosition), (ushort)(bottom)))) => SamusLiquidMedium.LavaOrAcid,
-                RoomFxType.Water or RoomFxType.TourianEntranceStatue when ((bool)(self.WaterAffectsBoundary((ushort)(bottom)))) => SamusLiquidMedium.Water,
+                    when SamusLiquidPhysicsState.IsBelowSurface((ushort)(self.LavaAcidYPosition), (ushort)(bottom)) => SamusLiquidMedium.LavaOrAcid,
+                RoomFxType.Water or RoomFxType.TourianEntranceStatue when self.WaterAffectsBoundary((ushort)(bottom)) => SamusLiquidMedium.Water,
+                RoomFxType.None or
+                    RoomFxType.Lava or
+                    RoomFxType.Acid or
+                    RoomFxType.Water or
+                    RoomFxType.Spores or
+                    RoomFxType.Rain or
+                    RoomFxType.Fog or
+                    RoomFxType.ScrollingSky or
+                    RoomFxType.UnusedScrollingSky or
+                    RoomFxType.Fireflea or
+                    RoomFxType.TourianEntranceStatue or
+                    RoomFxType.CeresRidley or
+                    RoomFxType.CeresElevator or
+                    RoomFxType.CeresHaze => SamusLiquidMedium.Air,
                 _ => SamusLiquidMedium.Air,
             };
         }

@@ -50,7 +50,7 @@ internal static class GameOverRomDataVerification
         ushort pointer = GameOverRomData.BabyAnimation.FirstInstruction;
         // Record order in the native stream is the program's step identity.
         int step = 0;
-        int timer = rom.ReadCartridgeWordFixedBank(0x820000 | (ushort)pointer), cries = 0, records = 0, ticks = 0;
+        int timer = rom.ReadCartridgeWordFixedBank(0x820000 | pointer), cries = 0, records = 0, ticks = 0;
         bool looped = false;
         while (!looped && ticks < 1000)
         {
@@ -81,7 +81,7 @@ internal static class GameOverRomDataVerification
                 if (looped) StepBaby();
                 pointer = (ushort)next;
                 step++;
-                timer = rom.ReadCartridgeWordFixedBank(0x820000 | (ushort)pointer);
+                timer = rom.ReadCartridgeWordFixedBank(0x820000 | pointer);
             }
             else StepBaby();
             ticks++;

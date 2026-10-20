@@ -70,7 +70,7 @@ internal static class KraidFootCollisionDefinitionsVerification
                 for (int shot = 0; shot <= 1; shot++)
                 {
                     object?[] installedArguments =
-                        [installedFoot, new Position16<RoomPixels>(x, y), new Extent16<RoomPixels>((ushort)0, (ushort)0), shot != 0, (ushort)0];
+                        [installedFoot, new Position16<RoomPixels>(x, y), new Extent16<RoomPixels>(0, 0), shot != 0, (ushort)0];
                     bool nativeHit = NativeHit(frame, originX, originY, x, y, shot != 0, out ushort nativeCallback);
                     bool installedHit = ExtendedHitboxWalker.Find(installed, installedArguments);
                     AssertEqual(nativeHit, installedHit,
@@ -94,8 +94,8 @@ internal static class KraidFootCollisionDefinitionsVerification
             $"one hitbox list and {probes} native-equivalent touch/shot probes; " +
             "installed path forbids ROM reads.");
 
-        ushort ReadWord(ushort address) => unchecked((ushort)(
-            SnesLittleEndian.Word(KraidFootCollisionDefinitionsRomByte(rom, 0xa70000 | address), KraidFootCollisionDefinitionsRomByte(rom, 0xa70000 | unchecked((ushort)(address + 1))))));
+        ushort ReadWord(ushort address) => unchecked(
+            SnesLittleEndian.Word(KraidFootCollisionDefinitionsRomByte(rom, 0xa70000 | address), KraidFootCollisionDefinitionsRomByte(rom, 0xa70000 | unchecked((ushort)(address + 1)))));
 
         bool NativeHit(ushort frame, ushort originX, ushort originY,
             ushort x, ushort y, bool shot, out ushort callback)

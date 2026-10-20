@@ -442,11 +442,11 @@ internal static class RoomPlmPopulationVerification
             initialList);
         SeedPlmProgramWords(bus, unchecked((ushort)(PlmHeaderId.GreyDoorFacingLeft + 4)),
             closingList);
-        SeedPlmProgramWords(bus, unchecked((ushort)(initialList + 2)), closedBlueList);
-        SeedPlmProgramWords(bus, unchecked((ushort)(initialList + 6)), activationList);
-        SeedPlmProgramWords(bus, unchecked((ushort)(initialList + 12)), lockedDraw);
-        SeedPlmProgramWords(bus, unchecked((ushort)(activationList + 2)), openTriggerList);
-        SeedPlmProgramBytes(bus, unchecked((ushort)(openTriggerList + 2)),
+        SeedPlmProgramWords(bus, unchecked(initialList + 2), closedBlueList);
+        SeedPlmProgramWords(bus, unchecked(initialList + 6), activationList);
+        SeedPlmProgramWords(bus, unchecked(initialList + 12), lockedDraw);
+        SeedPlmProgramWords(bus, unchecked(activationList + 2), openTriggerList);
+        SeedPlmProgramBytes(bus, unchecked(openTriggerList + 2),
         [
             0x01,
             unchecked((byte)openingList),
@@ -457,18 +457,18 @@ internal static class RoomPlmPopulationVerification
         // queue-sound instruction between the second and third pair. The final pair ends
         // at BE70, the start of the resident door's ordinary first list.
         SeedPlmProgramWords(bus, closingList, 2);
-        SeedPlmProgramWords(bus, unchecked((ushort)(closingList + 2)), closingDraw);
-        SeedPlmProgramWords(bus, unchecked((ushort)(closingList + 4)), 2);
-        SeedPlmProgramWords(bus, unchecked((ushort)(closingList + 6)), closingDraw);
-        SeedPlmProgramWords(bus, unchecked((ushort)(closingList + 8)),
+        SeedPlmProgramWords(bus, unchecked(closingList + 2), closingDraw);
+        SeedPlmProgramWords(bus, unchecked(closingList + 4), 2);
+        SeedPlmProgramWords(bus, unchecked(closingList + 6), closingDraw);
+        SeedPlmProgramWords(bus, unchecked(closingList + 8),
             (ushort)RoomPlmInstruction.QueueSoundLibrary3Maximum6);
-        SeedPlmProgramBytes(bus, unchecked((ushort)(closingList + 10)), [0x08]);
-        SeedPlmProgramWords(bus, unchecked((ushort)(closingList + 11)), 2);
-        SeedPlmProgramWords(bus, unchecked((ushort)(closingList + 13)), closingDraw);
-        SeedPlmProgramWords(bus, unchecked((ushort)(closingList + 15)), 2);
-        SeedPlmProgramWords(bus, unchecked((ushort)(closingList + 17)), closingDraw);
-        SeedPlmProgramWords(bus, unchecked((ushort)(closingList + 19)), 1);
-        SeedPlmProgramWords(bus, unchecked((ushort)(closingList + 21)), closingDraw);
+        SeedPlmProgramBytes(bus, unchecked(closingList + 10), [0x08]);
+        SeedPlmProgramWords(bus, unchecked(closingList + 11), 2);
+        SeedPlmProgramWords(bus, unchecked(closingList + 13), closingDraw);
+        SeedPlmProgramWords(bus, unchecked(closingList + 15), 2);
+        SeedPlmProgramWords(bus, unchecked(closingList + 17), closingDraw);
+        SeedPlmProgramWords(bus, unchecked(closingList + 19), 1);
+        SeedPlmProgramWords(bus, unchecked(closingList + 21), closingDraw);
         WriteOneBlockDraw(bus, closingDraw, 0xc123);
         WriteOneBlockDraw(bus, lockedDraw, 0xc123);
 
@@ -1044,7 +1044,7 @@ internal static class RoomPlmPopulationVerification
             SeedPlmProgramWords(bus, address, 0xdead);
         }
         AssertTrue(!ShaktoolRoomPlmRomDataConstants.TryReadInstructionWord(
-                checked((ushort)(ShaktoolRoomPlmRomDataConstants.InstructionList + 6)), out _),
+                checked(ShaktoolRoomPlmRomDataConstants.InstructionList + 6), out _),
             "Shaktool room list owner excludes adjacent setup code");
 
         const ushort emptyPopulation = 0x9780;
@@ -1079,7 +1079,7 @@ internal static class RoomPlmPopulationVerification
         AssertEqual(1, plms.SlotTable.ActiveCount,
             "Shaktool controller remains resident until Samus passes the threshold");
 
-        samus.Position = samus.Position.WithWholeX(checked((ushort)(ShaktoolRoomPlmRomData.ClearedPathXBoundary + 1)));
+        samus.Position = samus.Position.WithWholeX(checked(ShaktoolRoomPlmRomData.ClearedPathXBoundary + 1));
         plms.Step(level, new PlmFrameInputs { Scrolls = scrolls, EnemyDeaths = 0, EnemyDeathQuota = 0, ControllerNewInput = 0 });
         AssertTrue(system.HasEvent(EventNumber.ShaktoolClearedPath),
             "Shaktool path event follows the native X threshold");
@@ -1287,7 +1287,7 @@ internal static class RoomPlmPopulationVerification
         const ushort population = 0x9400;
         const ushort unsupportedHeader = 0xb123;
         SeedPlmProgramWords(bus, unsupportedHeader, 0x9876);
-        SeedPlmProgramWords(bus, unchecked((ushort)(unsupportedHeader + 2)), 0x9abc);
+        SeedPlmProgramWords(bus, unchecked(unsupportedHeader + 2), 0x9abc);
         SeedRoomPlmPopulation(bus, population, [
             0x23, 0xb1, 0x03, 0x04, 0x55, 0xaa, 0x00, 0x00,
         ]);

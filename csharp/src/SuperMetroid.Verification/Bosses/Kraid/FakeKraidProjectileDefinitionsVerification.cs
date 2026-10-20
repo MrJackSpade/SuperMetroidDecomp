@@ -80,7 +80,7 @@ internal static class FakeKraidProjectileDefinitionsVerification
                 PaletteIndex = 0x0c00,
             };
             var state = new FakeKraidEnemyState() { FacingDelta = facingDelta };
-            bool spawned = (bool)enemies.FakeKraidBehavior.SpawnFakeKraidSpike(source, state, row);
+            bool spawned = enemies.FakeKraidBehavior.SpawnFakeKraidSpike(source, state, row);
             AssertTrue(spawned, $"Fake Kraid spike row {row} allocated");
             RoomEnemyProjectileSlot spike = enemies.Projectiles.EnemyProjectiles.Single(
                 projectile => projectile.IsActive);

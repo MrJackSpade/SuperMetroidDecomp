@@ -555,6 +555,8 @@ public sealed class IntroCinematicState
             case IntroCinematicPhase.CeresFlight:
                 CeresFlight.Step();
                 break;
+            default:
+                throw new InvalidOperationException($"Undefined {nameof(IntroCinematicPhase)} {Phase}.");
         }
 
         if (objects is not null)
@@ -1150,8 +1152,8 @@ level, samus, NmiFrameWord(elapsedUpdates));
         var foreground = new ushort[width * height];
         for (int byteOffset = 0; byteOffset < source.Length; byteOffset += 2)
         {
-            foreground[byteOffset / 2] = unchecked((ushort)(
-                SnesLittleEndian.Word(source[byteOffset], source[byteOffset + 1])));
+            foreground[byteOffset / 2] = unchecked(
+                SnesLittleEndian.Word(source[byteOffset], source[byteOffset + 1]));
         }
 
         // $8B:AF30 clears the complete 512-byte word-addressable BTS allocation. BG2 and

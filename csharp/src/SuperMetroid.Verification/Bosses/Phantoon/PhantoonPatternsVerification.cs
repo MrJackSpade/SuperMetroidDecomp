@@ -32,7 +32,7 @@ internal static class PhantoonPatternsVerification
             var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
             ushort random = SnesLittleEndian.Word(unchecked((byte)(0xf8 | pattern)), unchecked((byte)high));
             int calls = 0;
-            enemies.VerificationServices().NextRandom = ((Func<ushort>)(() => { calls++; return random; }));
+            enemies.VerificationServices().NextRandom = () => { calls++; return random; };
             var body = enemies.SlotTable.Slots[0];
             var eye = enemies.SlotTable.Slots[1];
             var state = new PhantoonEnemyState(body) { Eye = eye };
@@ -51,7 +51,7 @@ internal static class PhantoonPatternsVerification
             for (int i = 0; i < 8; i++)
             {
                 int column = (rom.ReadCartridgeByte(0xa7cfc2 + pattern) + i) % 9;
-                AssertEqual((ushort)rom.ReadCartridgeByte(0x8698f7 + column), flames[i].Position.X.Whole, "Actual rain column order with wrap");
+                AssertEqual(rom.ReadCartridgeByte(0x8698f7 + column), flames[i].Position.X.Whole, "Actual rain column order with wrap");
                 AssertEqual((ushort)40, flames[i].Position.Y.Whole, "Actual rain ceiling Y");
                 AssertEqual((ushort)((i + 1) * 8), flames[i].Velocity.X.RawValue, "Actual staggered rain delay");
             }
@@ -93,7 +93,7 @@ internal static class PhantoonPatternsVerification
         Action<RoomEnemySlot, PhantoonEnemyState, ushort, int> shot = shotEnemies.PhantoonBehavior.ResolvePhantoonShotReaction;
         ushort shotRandom = 0;
         int shotCalls = 0;
-        shotEnemies.VerificationServices().NextRandom = ((Func<ushort>)(() => { shotCalls++; return shotRandom; }));
+        shotEnemies.VerificationServices().NextRandom = () => { shotCalls++; return shotRandom; };
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
         {
             shotRandom = (ushort)raw;
@@ -104,9 +104,9 @@ internal static class PhantoonPatternsVerification
             shotState.Parts[shotState.Tentacles.SlotIndex].SwoopRequested = false;
             shotState.Parts[shotState.Tentacles.SlotIndex].RoundDamage = 0;
             shot(shotBody, shotState, 0x100, 1);
-            AssertEqual((ushort)rom.ReadCartridgeByte(0xa7cda5 + (raw & 7)), shotState.Parts[shotState.Eye.SlotIndex].ShotMarker, "Real shot exact eye marker without bus");
+            AssertEqual(rom.ReadCartridgeByte(0xa7cda5 + (raw & 7)), shotState.Parts[shotState.Eye.SlotIndex].ShotMarker, "Real shot exact eye marker without bus");
             AssertEqual((ushort)(raw & 7), shotState.Parts[shotState.Mouth.SlotIndex].ShotPattern, "Real shot retains selected pattern");
-            AssertEqual((ushort)16, shotState.Parts[shotBody.SlotIndex].FunctionTimer, "Real shot window shortening preserved");
+            AssertEqual(16, shotState.Parts[shotBody.SlotIndex].FunctionTimer, "Real shot window shortening preserved");
             AssertEqual(raw + 1, shotCalls, "Shot consumes exactly one RNG call");
         }
         Console.WriteLine("Phantoon patterns: 41 native record/eye words, 16 bytes, all eight real eye octants, 2048 rain handoffs and 65536 bus-free shot reactions match.");

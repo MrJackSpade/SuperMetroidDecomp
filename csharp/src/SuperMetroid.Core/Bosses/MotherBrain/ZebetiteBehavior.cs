@@ -371,6 +371,8 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
             case AnimationProgramAdvanceKind.Hold:
                 // The native sleep: the timer wraps from zero and the pose stays.
                 return;
+            case AnimationProgramAdvanceKind.Wait:
+            case AnimationProgramAdvanceKind.Stop:
             default:
                 throw new InvalidOperationException($"Zebetite programs have no {advance.Kind} step.");
         }

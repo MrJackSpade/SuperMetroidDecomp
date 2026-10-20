@@ -23,9 +23,6 @@ internal sealed record GameplayHudSetupDependencies
     /// <summary>Player.</summary>
     public required SamusFrameState Player { get; init; }
 
-    /// <summary>Vram.</summary>
-    public required SnesVram Vram { get; init; }
-
     /// <summary>Vram writes.</summary>
     public required VramWriteQueue VramWrites { get; init; }
 }

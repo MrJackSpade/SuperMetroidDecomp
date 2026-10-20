@@ -44,8 +44,6 @@ internal sealed class CollectiblePlms : IPlmFamilySource
     private readonly List<CollectiblePickupEvent> _collectiblePickupEvents = new();
     /// <summary>Next of four $100-byte dynamic collectible character allocations.</summary>
     private int _nextCollectibleGraphicsSlot;
-    /// <summary>Most recent pickup retained across the synchronous message wait.</summary>
-    private CollectiblePickupEvent? _lastCollectiblePickup;
     /// <summary>One-shot fanfare edge independent of the retained pickup event list.</summary>
     private bool _collectibleFanfareRequested;
     /// <summary>Delays the Speed Booster Chozo lava motion write until message return.</summary>
@@ -515,7 +513,6 @@ internal sealed class CollectiblePlms : IPlmFamilySource
             item.Kind,
             GetMessageBoxIndex(item.Kind));
         _collectiblePickupEvents.Add(pickup);
-        _lastCollectiblePickup = pickup;
         _collectibleFanfareRequested = true;
         _pendingSpeedBoosterPickupContinuation =
             item.Kind == InWorldCollectibleKind.SpeedBooster &&
@@ -637,6 +634,16 @@ internal sealed class CollectiblePlms : IPlmFamilySource
         InWorldCollectibleKind.SpaceJump => SamusEquipmentFlags.SpaceJump,
         InWorldCollectibleKind.ScrewAttack => SamusEquipmentFlags.ScrewAttack,
         InWorldCollectibleKind.MorphBall => SamusEquipmentFlags.MorphBall,
+        InWorldCollectibleKind.EnergyTank or
+            InWorldCollectibleKind.MissileTank or
+            InWorldCollectibleKind.SuperMissileTank or
+            InWorldCollectibleKind.PowerBombTank or
+            InWorldCollectibleKind.ChargeBeam or
+            InWorldCollectibleKind.IceBeam or
+            InWorldCollectibleKind.WaveBeam or
+            InWorldCollectibleKind.SpazerBeam or
+            InWorldCollectibleKind.PlasmaBeam or
+            InWorldCollectibleKind.ReserveTank => throw new ArgumentOutOfRangeException(nameof(kind), kind, "Not an equipment collectible."),
         _ => throw new ArgumentOutOfRangeException(nameof(kind), kind, "Not an equipment collectible."),
     };
 
@@ -648,6 +655,22 @@ internal sealed class CollectiblePlms : IPlmFamilySource
         InWorldCollectibleKind.WaveBeam => SamusBeamFlags.Wave,
         InWorldCollectibleKind.SpazerBeam => SamusBeamFlags.Spazer,
         InWorldCollectibleKind.PlasmaBeam => SamusBeamFlags.Plasma,
+        InWorldCollectibleKind.EnergyTank or
+            InWorldCollectibleKind.MissileTank or
+            InWorldCollectibleKind.SuperMissileTank or
+            InWorldCollectibleKind.PowerBombTank or
+            InWorldCollectibleKind.Bombs or
+            InWorldCollectibleKind.HiJumpBoots or
+            InWorldCollectibleKind.SpeedBooster or
+            InWorldCollectibleKind.SpringBall or
+            InWorldCollectibleKind.VariaSuit or
+            InWorldCollectibleKind.GravitySuit or
+            InWorldCollectibleKind.XrayScope or
+            InWorldCollectibleKind.GrappleBeam or
+            InWorldCollectibleKind.SpaceJump or
+            InWorldCollectibleKind.ScrewAttack or
+            InWorldCollectibleKind.MorphBall or
+            InWorldCollectibleKind.ReserveTank => throw new ArgumentOutOfRangeException(nameof(kind), kind, null),
         _ => throw new ArgumentOutOfRangeException(nameof(kind), kind, null),
     };
 

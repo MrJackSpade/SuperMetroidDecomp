@@ -30,11 +30,11 @@ internal static class ZeroDistanceJumpContactVerification
             [
                 new SolidEnemyCollisionBody(Index: 0, Position: new((ushort)(100 + (left ? -1 : 1) * (10 + gap)), 100),
                     Radius: new(5, 8), Frozen: frozen,
-                    Properties: EnemyPropertyWord.FromNativeWord((ushort)((ushort)(frozen ? default(EnemyProperties) : EnemyProperties.SolidToSamus)))),
+                    Properties: EnemyPropertyWord.FromNativeWord((ushort)(frozen ? default(EnemyProperties) : EnemyProperties.SolidToSamus))),
             ];
-            uint initialX = unchecked((uint)samus.Kinematics.Position.X.RawValue);
+            uint initialX = unchecked(samus.Kinematics.Position.X.RawValue);
             SamusAerialMovement.StepNormalJump(level, samus, SnesButton.A, 0);
-            AssertEqual(initialX, unchecked((uint)samus.Kinematics.Position.X.RawValue), "zero-distance jump leaves both X words unchanged");
+            AssertEqual(initialX, unchecked(samus.Kinematics.Position.X.RawValue), "zero-distance jump leaves both X words unchanged");
             AssertEqual(100, samus.Position.Y.Whole, "zero-distance contact leaves whole Y unchanged");
             AssertEqual(gap == 0 ? 0 : 0xffff, samus.Kinematics.Position.Y.Fraction,
                 "zero-distance jump preserves native enemy tangency fraction write and one-pixel miss");

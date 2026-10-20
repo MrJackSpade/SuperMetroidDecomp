@@ -132,8 +132,8 @@ internal sealed class InstalledSamusIsolationTests
             var blocks = new ushort[RoomWidth * RoomHeight];
             for (int x = 0; x < RoomWidth; x++)
             {
-                blocks[FloorRow * RoomWidth + x] = (ushort)((int)RoomCollisionType.SolidBlock << 12);
-                if (lowCeiling) blocks[(FloorRow - 3) * RoomWidth + x] = (ushort)((int)RoomCollisionType.SolidBlock << 12);
+                blocks[FloorRow * RoomWidth + x] = (int)RoomCollisionType.SolidBlock << 12;
+                if (lowCeiling) blocks[(FloorRow - 3) * RoomWidth + x] = (int)RoomCollisionType.SolidBlock << 12;
             }
             Level = new(new(RoomWidth, RoomHeight),
                 new RoomLevelPlanes(blocks, new byte[blocks.Length], new ushort[blocks.Length]), new byte[8]);

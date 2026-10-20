@@ -76,7 +76,7 @@ internal static class PaletteFxProgramsVerification
             if (word < PaletteFxListWords.CommandWord)
             {
                 AssertEqual(AnimationProgramStepKind.Show, step.Kind, $"{at}: timed record");
-                AssertEqual((int)word, step.Duration, $"{at}: duration");
+                AssertEqual(word, step.Duration, $"{at}: duration");
                 AssertEqual(cursor, PaletteFxColorLayoutAccess.RecordAddress(step.Frame), $"{at}: record address");
                 cursor = CompareLayout(cursor, PaletteFxRecordDefinitions.Layout(step.Frame), at);
                 continue;
@@ -104,7 +104,7 @@ internal static class PaletteFxProgramsVerification
                     // The native command writes only the timer's low byte; its high byte is zero from spawn and every
                     // counted loop runs it down to zero, so the typed counter set is the same.
                     AssertEqual(AnimationProgramStepKind.SetCounter, step.Kind, $"{at}: timer");
-                    AssertEqual((int)operandByte, step.Duration, $"{at}: timer count");
+                    AssertEqual(operandByte, step.Duration, $"{at}: timer count");
                     cursor = unchecked((ushort)(cursor + 3));
                     continue;
                 case PaletteFxInstruction.SetColorIndex:
@@ -130,6 +130,16 @@ internal static class PaletteFxProgramsVerification
                         Sound: SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, operandByte)), at);
                     cursor = unchecked((ushort)(cursor + 3));
                     continue;
+                case PaletteFxInstruction.Wait:
+                case PaletteFxInstruction.ColorPlus2:
+                case PaletteFxInstruction.ColorPlus3:
+                case PaletteFxInstruction.ColorPlus4:
+                case PaletteFxInstruction.ColorPlus8:
+                case PaletteFxInstruction.ColorPlus9:
+                case PaletteFxInstruction.ColorPlus15:
+                case PaletteFxInstruction.QueueMusic:
+                case PaletteFxInstruction.QueueSfx1:
+                case PaletteFxInstruction.QueueSfx3:
                 default:
                     throw new InvalidDataException($"{at}: native command {instruction} has no typed form.");
             }
@@ -155,6 +165,19 @@ internal static class PaletteFxProgramsVerification
                         PaletteFxInstruction.ColorPlus8 => 8,
                         PaletteFxInstruction.ColorPlus9 => 9,
                         PaletteFxInstruction.ColorPlus15 => 15,
+                        PaletteFxInstruction.Wait or
+                            PaletteFxInstruction.Delete or
+                            PaletteFxInstruction.SetPreInstruction or
+                            PaletteFxInstruction.ClearPreInstruction or
+                            PaletteFxInstruction.Goto or
+                            PaletteFxInstruction.DecrementTimerAndGoto or
+                            PaletteFxInstruction.SetTimer or
+                            PaletteFxInstruction.SetColorIndex or
+                            PaletteFxInstruction.QueueMusic or
+                            PaletteFxInstruction.QueueSfx1 or
+                            PaletteFxInstruction.QueueSfx2 or
+                            PaletteFxInstruction.QueueSfx3 or
+                            PaletteFxInstruction.SetPaletteFxIndex => throw new InvalidDataException($"{at}: $8D:{word:X4} ${skip:X4} is not a colour skip."),
                         _ => throw new InvalidDataException($"{at}: $8D:{word:X4} ${skip:X4} is not a colour skip."),
                     };
                     AssertEqual(skipped, part.Count, $"{at}: skip at $8D:{word:X4}");

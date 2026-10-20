@@ -65,6 +65,28 @@ internal static class MapMarkerGeometry
                     MapSpriteId.ElevatorBrinstar => "BRINSTAR",
                     MapSpriteId.ElevatorNorfair => "NORFAIR",
                     MapSpriteId.ElevatorMaridia => "MARIDIA",
+                    MapSpriteId.ArrowRight or
+                        MapSpriteId.ArrowLeft or
+                        MapSpriteId.ArrowUp or
+                        MapSpriteId.ArrowDown or
+                        MapSpriteId.MarkerBoss or
+                        MapSpriteId.StationEnergy or
+                        MapSpriteId.StationMissile or
+                        MapSpriteId.StationMap or
+                        MapSpriteId.MarkerDefeatedBoss or
+                        MapSpriteId.MarkerGunship or
+                        MapSpriteId.IndicatorBacking or
+                        MapSpriteId.IndicatorFrame0 or
+                        MapSpriteId.IndicatorFrame1 or
+                        MapSpriteId.IndicatorFrame2 or
+                        MapSpriteId.ElevatorWreckedShip or
+                        MapSpriteId.WorldTitle or
+                        MapSpriteId.WorldCrateria or
+                        MapSpriteId.WorldBrinstar or
+                        MapSpriteId.WorldNorfair or
+                        MapSpriteId.WorldWreckedShip or
+                        MapSpriteId.WorldMaridia or
+                        MapSpriteId.WorldTourian => throw new ArgumentOutOfRangeException(nameof(id)),
                     _ => throw new ArgumentOutOfRangeException(nameof(id)),
                 }).OrderedCells[column];
                 break;
@@ -117,6 +139,27 @@ internal static class MapMarkerGeometry
                     MapSpriteId.StationMissile => (int)MapMarkerCell.MissileStation,
                     MapSpriteId.StationMap => (int)MapMarkerCell.MapStation,
                     MapSpriteId.IndicatorBacking => (int)MapMarkerCell.IndicatorBacking,
+                    MapSpriteId.ArrowRight or
+                        MapSpriteId.ArrowLeft or
+                        MapSpriteId.ArrowUp or
+                        MapSpriteId.ArrowDown or
+                        MapSpriteId.MarkerDefeatedBoss or
+                        MapSpriteId.MarkerGunship or
+                        MapSpriteId.IndicatorFrame0 or
+                        MapSpriteId.IndicatorFrame1 or
+                        MapSpriteId.IndicatorFrame2 or
+                        MapSpriteId.ElevatorCrateria or
+                        MapSpriteId.ElevatorBrinstar or
+                        MapSpriteId.ElevatorNorfair or
+                        MapSpriteId.ElevatorWreckedShip or
+                        MapSpriteId.ElevatorMaridia or
+                        MapSpriteId.WorldTitle or
+                        MapSpriteId.WorldCrateria or
+                        MapSpriteId.WorldBrinstar or
+                        MapSpriteId.WorldNorfair or
+                        MapSpriteId.WorldWreckedShip or
+                        MapSpriteId.WorldMaridia or
+                        MapSpriteId.WorldTourian => throw new ArgumentOutOfRangeException(nameof(id)),
                     _ => throw new ArgumentOutOfRangeException(nameof(id)),
                 };
                 break;

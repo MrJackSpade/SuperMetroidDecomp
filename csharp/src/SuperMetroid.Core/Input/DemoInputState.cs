@@ -143,6 +143,8 @@ public sealed class DemoInputState
                     Held = 0;
                     NewlyPressed = 0;
                     break;
+                case AnimationProgramAdvanceKind.Wait:
+                case AnimationProgramAdvanceKind.Hold:
                 default:
                     throw new InvalidOperationException($"Demo-input program {cursor.Program} ended its advance with {advance.Kind}.");
             }

@@ -46,7 +46,7 @@ internal static class RidleyCollisionDefinitionsVerification
                 $"Ridley collision frame $A6:{frame:X4} is selected artwork identity");
             var components =
                 RidleyCollisionDefinitions.ComponentsAt(frame);
-            AssertEqual((int)rom.ReadCartridgeByte(0xa60000 | frame), components.Length,
+            AssertEqual(rom.ReadCartridgeByte(0xa60000 | frame), components.Length,
                 $"Ridley frame $A6:{frame:X4} native component count");
             for (int componentIndex = 0; componentIndex < components.Length;
                  componentIndex++)

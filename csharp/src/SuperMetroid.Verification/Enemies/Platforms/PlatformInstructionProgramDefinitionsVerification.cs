@@ -158,7 +158,7 @@ internal static class PlatformInstructionProgramDefinitionsVerification
             AssertEqual(expected[i].Name, actual[i].Name, "platform export stable asset identity");
             int nativeSize = 2 + 5 * CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa30000 | expected[i].Pointer);
             ushort next = i + 1 < expected.Length ? expected[i + 1].Pointer : (ushort)0xa051;
-            AssertEqual((int)next, actual[i].Pointer + nativeSize, "platform export consecutive native record boundary");
+            AssertEqual(next, actual[i].Pointer + nativeSize, "platform export consecutive native record boundary");
         }
     }
     /// <summary>Checks the native initial list for every full-word horizontal direction value.</summary>

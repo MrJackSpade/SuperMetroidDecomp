@@ -67,7 +67,7 @@ internal static class KraidAnimationsVerification
             {
                 case NativeEnemyListDefinitions.WordKind.Frame:
                     AssertEqual(AnimationProgramStepKind.Show, steps[index].Kind, $"{at}: frame");
-                    AssertEqual((int)word, steps[index].Duration, $"{at}: duration");
+                    AssertEqual(word, steps[index].Duration, $"{at}: duration");
                     AssertEqual(operand, KraidPartFrameDefinitions.Spritemap(steps[index].Frame), $"{at}: spritemap");
                     cursor = unchecked((ushort)(cursor + 4));
                     index++;
@@ -165,7 +165,7 @@ internal static class KraidAnimationsVerification
         foreach ((KraidRockProgram program, ushort entry) in RockEntries)
         {
             (RoomEnemySystem enemies, _, _, _) = NewKraid();
-            enemies.VerificationServices().ReadRandom = (Func<ushort>)(() => 32);
+            enemies.VerificationServices().ReadRandom = () => 32;
             AssertTrue(enemies.KraidBehavior.SpawnKraidSpitRock(NewRockSource()), "the real spit producer allocates a rock");
             RoomEnemyProjectileSlot rock = enemies.Projectiles.EnemyProjectiles.Single(item => item.Kind == RoomEnemyProjectileKind.KraidSpitRock);
             rock.StartAnimation(new KraidRockAnimation(program));
@@ -203,12 +203,12 @@ internal static class KraidAnimationsVerification
     {
         (RoomEnemySystem enemies, _, _, _) = NewKraid();
         ushort random = 0;
-        enemies.VerificationServices().ReadRandom = (Func<ushort>)(() => random);
+        enemies.VerificationServices().ReadRandom = () => random;
         RoomEnemySlot source = NewRockSource();
         random = 32;
         AssertTrue(enemies.KraidBehavior.SpawnKraidSpitRock(source), "the real spit producer allocates its rock");
         random = 32;
-        AssertTrue(enemies.KraidBehavior.SpawnKraidCeilingRock((ushort)96), "the real ceiling producer allocates its rock");
+        AssertTrue(enemies.KraidBehavior.SpawnKraidCeilingRock(96), "the real ceiling producer allocates its rock");
         var state = new KraidEnemyState();
         random = 0;
         enemies.KraidBehavior.RequestKraidRisingRock(source, state);

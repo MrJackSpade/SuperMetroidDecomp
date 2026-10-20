@@ -91,7 +91,7 @@ internal static class RidleyFullMovieVerification
         runtime.Room.LoadedCamera.SetPosition(new Position16<RoomPixels>(0, 158));
         var body = runtime.Enemies.SlotTable.Slots[0]; var state = runtime.Enemies.RidleyEncounter.Ridley; var samus = runtime.Player.IntroducedSamus;
         body.Position = body.Position.WithWhole(new(139, 282));
-        body.SpritemapPointer = 0xe9e9; body.Properties = EnemyPropertyWord.FromNativeWord((ushort)(0x3800));
+        body.SpritemapPointer = 0xe9e9; body.Properties = EnemyPropertyWord.FromNativeWord(0x3800);
         (state ?? throw new InvalidOperationException("Verification requires state.")).FightMode = RidleyFightMode.Fighting; state.MovementAnimationEnabled = true; state.FacingDirection = RidleyFacing.Left;
         state.Function = RidleyAiFunction.NorfairCarryRelease; state.FunctionTimer = NativeCountdown.Start(10);
         state.Velocity = state.Velocity.WithX(new SnesSignedEightEight(0xfc00)); state.Velocity = state.Velocity.WithY(new SnesSignedEightEight(0x0300));
@@ -101,11 +101,11 @@ internal static class RidleyFullMovieVerification
         samus.InvincibilityTimer = NativeCountdown.Start(0); samus.PoseMetadata.RefreshCollisionRadii();
         // One EnemyMain pass outside the frame loop, as the door-transition wait runs it: no prepared processing list.
         runtime.EnemyPhase.RunEnemyMainPhase(processingListPrepared: false, runtime.Room.Camera?.PreviousSamusPoint, runtime.Room.LoadedScope);
-        AssertEqual((ushort)399, samus.Health, "source4234 body entering overlap cannot damage before next contact pass");
+        AssertEqual(399, samus.Health, "source4234 body entering overlap cannot damage before next contact pass");
         AssertTrue(body.Position.X.Whole < 139, "fixture advances body into collision boundary");
         body.SpritemapPointer = 0xe9e9;
         runtime.Enemies.ResolveRidleySamusContact(samus);
-        AssertEqual((ushort)359, samus.Health, "next pre-AI body overlap remains damaging");
+        AssertEqual(359, samus.Health, "next pre-AI body overlap remains damaging");
         Console.WriteLine("Ridley body contact: pre-movement boundary and subsequent damaging overlap pass.");
     }
 
@@ -119,14 +119,14 @@ internal static class RidleyFullMovieVerification
         var body = runtime.Enemies.SlotTable.Slots[0]; var state = runtime.Enemies.RidleyEncounter.Ridley;
         (state ?? throw new InvalidOperationException("Verification requires state.")).Function = RidleyAiFunction.NorfairSwoopSetup; state.FunctionTimer = NativeCountdown.Start(112);
         body.Position = body.Position.WithWhole(new(212, 200)); state.FacingDirection = RidleyFacing.Right;
-        runtime.Enemies.RidleyBehavior.RunNorfairRidleyFunction(body, state, runtime.Player.Samus, (ushort)0, runtime.Room.LevelData);
+        runtime.Enemies.RidleyBehavior.RunNorfairRidleyFunction(body, state, runtime.Player.Samus, 0, runtime.Room.LevelData);
         AssertEqual((ushort)112, state.FunctionTimer.RawValue, "native swoop setup retains general AI timer");
         AssertEqual((ushort)10, state.SwoopPhaseTimer.RawValue, "native swoop setup initializes independent countdown");
         state.Function = RidleyAiFunction.NorfairSwoopAimDown; state.SwoopPhaseTimer = NativeCountdown.Start(1);
-        runtime.Enemies.RidleyBehavior.RunNorfairRidleyFunction(body, state, runtime.Player.Samus, (ushort)0, runtime.Room.LevelData);
+        runtime.Enemies.RidleyBehavior.RunNorfairRidleyFunction(body, state, runtime.Player.Samus, 0, runtime.Room.LevelData);
         AssertEqual((ushort)0, state.SwoopPhaseTimer.RawValue, "native swoop decrements its own timer");
         AssertEqual((ushort)112, state.FunctionTimer.RawValue, "native swoop countdown retains general timer");
-        runtime.Enemies.RidleyBehavior.RunNorfairRidleyFunction(body, state, runtime.Player.Samus, (ushort)0, runtime.Room.LevelData);
+        runtime.Enemies.RidleyBehavior.RunNorfairRidleyFunction(body, state, runtime.Player.Samus, 0, runtime.Room.LevelData);
         AssertEqual((ushort)20, state.SwoopPhaseTimer.RawValue, "native next swoop phase installs its own duration");
         AssertEqual((ushort)112, state.FunctionTimer.RawValue, "native phase transition retains general timer");
         Console.WriteLine("Ridley swoop: independent countdown and retained general AI timer pass.");
@@ -142,12 +142,12 @@ internal static class RidleyFullMovieVerification
         var body = runtime.Enemies.SlotTable.Slots[0]; var state = runtime.Enemies.RidleyEncounter.Ridley;
         runtime.Enemies.DeathsAndDrops.BindSamus(runtime.Player.Samus);
         (state ?? throw new InvalidOperationException("Verification requires state.")).Function = RidleyAiFunction.NorfairDeathFinish; state.FunctionTimer = NativeCountdown.Start(0);
-        runtime.Enemies.RidleyBehavior.RunNorfairRidleyFunction(body, state, runtime.Player.Samus, (ushort)0, runtime.Room.LevelData);
+        runtime.Enemies.RidleyBehavior.RunNorfairRidleyFunction(body, state, runtime.Player.Samus, 0, runtime.Room.LevelData);
         AssertEqual(RidleyAiFunction.NorfairDeathComplete, state.Function, "death finish selects native C600 return");
         AssertTrue(body.Properties.HasAny(EnemyProperties.Deleted), "death finish publishes deletion");
         AssertTrue(state.BossDefeatPublished && runtime.Enemies.RidleyBehavior.RidleyDeathDropRequested, "death finish publishes boss defeat and drops");
         int random = runtime.System.RandomNumber;
-        runtime.Enemies.RidleyBehavior.RunNorfairRidleyFunction(body, state, runtime.Player.Samus, (ushort)0, runtime.Room.LevelData);
+        runtime.Enemies.RidleyBehavior.RunNorfairRidleyFunction(body, state, runtime.Player.Samus, 0, runtime.Room.LevelData);
         AssertEqual(random, runtime.System.RandomNumber, "terminal return does not spawn another drop scatter");
         AssertEqual(ushort.MaxValue, state.FunctionTimer.RawValue, "terminal return retains expired countdown");
         Console.WriteLine("Ridley death finish: native terminal return, deletion, defeat/drop publication and inert subsequent dispatch pass.");
@@ -174,7 +174,7 @@ internal static class RidleyFullMovieVerification
         AssertEqual((ushort)0xfbfc, state.Velocity.Y.RawValue, "native same-update grab Y acceleration");
         AssertTrue(samus.Control.Mode.Beta == SamusBetaHandler.ScriptLocked, "native grab installs command-zero alpha/beta pair");
         var bombs = CreateBombFixture();
-        bombs.SetSharedCooldown((ushort)10);
+        bombs.SetSharedCooldown(10);
         bombs.StepFrame(new SamusTerrain { Level = runtime.Room.LoadedLevelData }, samus, 0, 0, advancePowerBombHdma: false);
         AssertEqual((ushort)10, bombs.CooldownTimer.RawValue, "native locked alpha preserves cooldown");
         RidleyBehavior.ReleaseNorfairRidleyGrab(state, samus);
@@ -210,12 +210,12 @@ internal static class RidleyFullMovieVerification
             state.Function = function; state.FunctionTimer = NativeCountdown.Start(0);
             state.Velocity = state.Velocity.WithX(new SnesSignedEightEight(0xffca)); state.Velocity = state.Velocity.WithY(new SnesSignedEightEight(0xfecb));
             state.Target = state.Target.WithX(208); body.Position = body.Position.WithWhole(new(212, 142));
-            runtime.Enemies.RidleyBehavior.RunNorfairRidleyFunction(body, state, samus, (ushort)0, runtime.Room.LevelData);
+            runtime.Enemies.RidleyBehavior.RunNorfairRidleyFunction(body, state, samus, 0, runtime.Room.LevelData);
             AssertEqual((ushort)0xffca, state.Velocity.X.RawValue, "native expiry skips X acceleration");
             AssertEqual((ushort)0xfecb, state.Velocity.Y.RawValue, "native expiry skips Y acceleration");
             AssertEqual(function == RidleyAiFunction.NorfairCarryRise ? RidleyAiFunction.NorfairCarryRelease : RidleyAiFunction.NorfairSelectAttack, state.Function, "native expiry selects next carry phase");
             AssertEqual((ushort)(function == RidleyAiFunction.NorfairCarryRise ? 8 : 16), state.IdealInterSegmentTailAngle, "native expiry changes ideal tail angle");
-            AssertEqual((ushort)240, state.TailExtensionSpeed, "native expiry restores tail extension speed");
+            AssertEqual(240, state.TailExtensionSpeed, "native expiry restores tail extension speed");
         }
         Console.WriteLine("Ridley grab entry: native immediate carry, velocity, countdown and paired control lock/release pass.");
     }
@@ -279,11 +279,11 @@ internal static class RidleyFullMovieVerification
                 samus.Grapple.ReleasedMovementActive = true;
                 SamusAerialMovement.StepReleasedFromGrapple(room, samus, 0, 0);
             }
-            AssertEqual((ushort)0, samus.HorizontalSpeed.BaseSpeed.Whole, $"branch {branch} clears base speed");
-            AssertEqual((ushort)0, samus.HorizontalSpeed.BaseSpeed.Fraction, $"branch {branch} clears base fraction");
+            AssertEqual(0, samus.HorizontalSpeed.BaseSpeed.Whole, $"branch {branch} clears base speed");
+            AssertEqual(0, samus.HorizontalSpeed.BaseSpeed.Fraction, $"branch {branch} clears base fraction");
             AssertEqual((ushort)128, samus.Position.X.Whole, $"branch {branch} does not move horizontally");
-            AssertEqual((ushort)5, samus.HorizontalSpeed.TotalSpeed.Whole, $"branch {branch} retains total speed");
-            AssertEqual((ushort)0x4321, samus.HorizontalSpeed.TotalSpeed.Fraction, $"branch {branch} retains total fraction");
+            AssertEqual(5, samus.HorizontalSpeed.TotalSpeed.Whole, $"branch {branch} retains total speed");
+            AssertEqual(0x4321, samus.HorizontalSpeed.TotalSpeed.Fraction, $"branch {branch} retains total fraction");
         }
         Console.WriteLine("No-direction normal jump, fall, Spring Ball jump and grapple release retain total speed while clearing base motion.");
     }
@@ -391,17 +391,17 @@ internal static class RidleyFullMovieVerification
             var samus = new SamusState { Pose = pose, Position = FixedPosition<RoomPixels>.FromWhole(new(128, 200)) };
             samus.PoseMetadata.RefreshCollisionRadii();
             AssertTrue(samus.PoseTransitions.TryApplyAerialLanding(level, false, 0, 0), "aim-up landing fits");
-            AssertEqual((ushort)1, samus.AnimationFrame, "native standing initializer skips raised-gun frame");
+            AssertEqual(1, samus.AnimationFrame, "native standing initializer skips raised-gun frame");
             AssertEqual((ushort)2, samus.AnimationFrameTimer.RawValue, "native source3604 landing delay");
             samus.Pose = pose;
             samus.PoseMetadata.RefreshCollisionRadii();
             samus.PoseTransitions.ApplyAerialLanding(false);
-            AssertEqual((ushort)1, samus.AnimationFrame, "roomless landing shares native frame skip");
+            AssertEqual(1, samus.AnimationFrame, "roomless landing shares native frame skip");
             SamusPoseId standing = pose == SamusPoseId.FallingAimUpRightPose
                 ? SamusPoseId.StandingAimUpRightPose : SamusPoseId.StandingAimUpLeftPose;
             samus.PendingTransitionalPose = standing;
             AssertTrue(samus.PoseTransitions.ApplyPendingVerifiedAnimationTransition(), "landing completes through animation command");
-            AssertEqual((ushort)1, samus.AnimationFrame, "native landing completion retains raised-gun frame");
+            AssertEqual(1, samus.AnimationFrame, "native landing completion retains raised-gun frame");
             AssertEqual((ushort)16, samus.AnimationFrameTimer.RawValue, "native source3606 standing delay");
         }
         Console.WriteLine("Aim-up landing: both facing directions preserve raised-gun animation frame and native delay.");
@@ -487,13 +487,13 @@ internal static class RidleyFullMovieVerification
         var body = new RoomEnemySlot(0, EnemySlotFixtures.Registry) { Position = FixedPosition<RoomPixels>.FromWhole(new(64, 253))};
         var state = new RidleyEnemyState { FightMode = RidleyFightMode.Fighting, IntangibilityTimer = NativeCountdown.Start(3) };
         // Original source 3062/3063: pre-movement Y253 is outside camera Y287.
-        RidleyBehavior.UpdateNorfairRidleyIntangibility(body, state, new Position16<RoomPixels>((ushort)0, (ushort)287));
+        RidleyBehavior.UpdateNorfairRidleyIntangibility(body, state, new Position16<RoomPixels>(0, 287));
         AssertTrue(body.Properties.HasAny(EnemyProperties.IgnoreSamusCollision), "native above-camera Ridley disables collision");
         AssertEqual((ushort)3, state.IntangibilityTimer.RawValue, "offscreen return preserves release timer");
         // At the next AI call Y257 is inside. EnemyMain already tested the old
         // collision bit; the cleared gate is consumed by the following update.
         body.Position = body.Position.WithWholeY(257);
-        RidleyBehavior.UpdateNorfairRidleyIntangibility(body, state, new Position16<RoomPixels>((ushort)0, (ushort)287));
+        RidleyBehavior.UpdateNorfairRidleyIntangibility(body, state, new Position16<RoomPixels>(0, 287));
         AssertTrue(!body.Properties.HasAny(EnemyProperties.IgnoreSamusCollision), "native reentry clears collision gate");
         AssertEqual((ushort)2, state.IntangibilityTimer.RawValue, "onscreen AI resumes release timer");
         AssertTrue(RidleyCollisionDefinitions.IsOutsideInteractionWindow(new(64, 254), new(0, 287)), "one pixel above native window");
@@ -526,7 +526,7 @@ internal static class RidleyFullMovieVerification
         AssertEqual(0x004c4000u, samus.Kinematics.Position.X.RawValue, "spring release retains native final displacement");
         AssertEqual(SamusPoseId.SpringBallGroundLeftPose, samus.Pose, "spring release selects stationary pose immediately");
         AssertEqual(0u, samus.HorizontalSpeed.BaseFixed, "spring release clears base momentum after movement");
-        AssertEqual((ushort)0, samus.HorizontalSpeed.AccelerationMode, "spring release clears acceleration mode");
+        AssertEqual(0, samus.HorizontalSpeed.AccelerationMode, "spring release clears acceleration mode");
         runtime.StepFrame(0);
         AssertEqual(0x004c4000u, samus.Kinematics.Position.X.RawValue, "released spring ball stays stopped next update");
         // Original source 1983: stationary Spring Ball keeps command six even
@@ -560,13 +560,13 @@ internal static class RidleyFullMovieVerification
         segment.Active = true; segment.StaggerAngle = 2;
         segment.Offset = new Offset16<RoomPixels>(7, 11);
         RidleyTail.TickRidleyTailSegment(state, 0);
-        AssertEqual((ushort)4, segment.StaggerAngle, "native stagger advances before returning");
+        AssertEqual(4, segment.StaggerAngle, "native stagger advances before returning");
         AssertEqual((short)7, segment.Offset.X, "stagger retains X offset");
         AssertEqual((short)11, segment.Offset.Y, "stagger retains Y offset");
         segment.StaggerAngle = ushort.MaxValue; segment.Angle = 0x4000;
         segment.Clockwise = true; segment.Distance = 0x0200;
         RidleyTail.TickRidleyTailSegment(state, 0);
-        AssertEqual((ushort)0x3ffe, segment.Angle, "native clockwise comparison decrements then restores one before storing");
+        AssertEqual(0x3ffe, segment.Angle, "native clockwise comparison decrements then restores one before storing");
         AssertEqual((short)-1, segment.Offset.X, "signed Mode 7 multiplication floors negative fraction");
         AssertEqual((short)1, segment.Offset.Y, "signed Mode 7 cosine product");
         state.ClockwiseWhipTarget = 0x4000;
@@ -581,7 +581,7 @@ internal static class RidleyFullMovieVerification
         child.Angle = 0x4000; child.Clockwise = true; child.Distance = 0x0800;
         RidleyTail.TickRidleyTailSegment(state, 1);
         AssertTrue(child.Active, "moving predecessor prevents child deactivation");
-        AssertEqual((ushort)0x3fc0, child.Angle, "blocked child clamps to native clockwise limit");
+        AssertEqual(0x3fc0, child.Angle, "blocked child clamps to native clockwise limit");
         foreach (var part in state.TailSegments)
         {
             part.Distance = 0x1200; part.TargetDistance = 0x0c00;
@@ -593,8 +593,8 @@ internal static class RidleyFullMovieVerification
         {
             var part = state.TailSegments[i];
             AssertEqual(nativeRest[i], part.Distance, "native flip restores each authored rest distance");
-            AssertEqual((ushort)0x4008, part.Angle, "native flip reflects angle");
-            AssertEqual((ushort)0x0c00, part.TargetDistance, "native flip preserves extension target");
+            AssertEqual(0x4008, part.Angle, "native flip reflects angle");
+            AssertEqual(0x0c00, part.TargetDistance, "native flip preserves extension target");
             AssertEqual((short)-3, part.Offset.X, "native flip preserves current X offset");
             AssertEqual((short)13, part.Offset.Y, "native flip preserves current Y offset");
         }
@@ -695,7 +695,7 @@ internal static class RidleyFullMovieVerification
         game.GameState = SuperMetroidGameState.Pausing;
         game.Step(0);
         var menu = game.Session.pauseMenu;
-        var menuPalette = ((PauseMenuState)(menu ?? throw new InvalidOperationException("Verification requires menu."))).screen.Palette;
+        var menuPalette = (menu ?? throw new InvalidOperationException("Verification requires menu.")).screen.Palette;
         Bgr555[] initial = menuPalette.Colors.ToArray();
         int fadeFrames = 0;
         while (game.GameState == SuperMetroidGameState.PausedA && fadeFrames++ < 32)
@@ -708,7 +708,7 @@ internal static class RidleyFullMovieVerification
         AssertTrue(!menuPalette.Colors.SequenceEqual(initial), "stable pause starts palette animation");
         Bgr555[] animated = menuPalette.Colors.ToArray();
         game.GameState = SuperMetroidGameState.UnpausingA;
-        game.Session.BeginPauseFade((byte)15);
+        game.Session.BeginPauseFade(15);
         fadeFrames = 0;
         while (game.GameState == SuperMetroidGameState.UnpausingA && fadeFrames++ < 32)
         {
@@ -756,13 +756,13 @@ internal static class RidleyFullMovieVerification
         game.Session.lastAudioRoomState = runtime.Room.LoadedRoom.State;
         game.GameState = SuperMetroidGameState.HitDoorBlock;
         game.Step(0);
-        AssertEqual((ushort)0xef3a, runtime.System.RandomNumber, "native entry HDMA swap then RNG");
-        AssertEqual((ushort)0xa4e0, runtime.Clock.Counter, "entry accepts exactly one NMI");
+        AssertEqual(0xef3a, runtime.System.RandomNumber, "native entry HDMA swap then RNG");
+        AssertEqual(0xa4e0, runtime.Clock.Counter, "entry accepts exactly one NMI");
         AssertEqual(xFixed, samus.Kinematics.Position.X.RawValue, "entry keeps Samus X fixed");
         AssertEqual(yFixed, samus.Kinematics.Position.Y.RawValue, "entry keeps Samus Y fixed");
         game.Step(0);
-        AssertEqual((ushort)0x27bc, runtime.System.RandomNumber, "native sound-wait HDMA swap then RNG");
-        AssertEqual((ushort)0xa4e1, runtime.Clock.Counter, "sound wait accepts exactly one NMI");
+        AssertEqual(0x27bc, runtime.System.RandomNumber, "native sound-wait HDMA swap then RNG");
+        AssertEqual(0xa4e1, runtime.Clock.Counter, "sound wait accepts exactly one NMI");
         AssertEqual(DoorTransitionPhase.FadeOutSourcePalette, game.DoorTransitionPhaseForVerification, "source fade begins after sound drain");
         var actor = runtime.Enemies.SlotTable.Slots[6];
         AssertEqual(EnemyDefinitionId.Zebbo, actor.EnemyDefinitionPointer, "native source-room pipe bug");
@@ -772,8 +772,8 @@ internal static class RidleyFullMovieVerification
         actor.InstructionTimer = NativeCountdown.Start(1);
         actor.SpritemapPointer = NativeSnapshotMemory.PipeBugBeforeFadeSpritemap;
         game.Step(0);
-        AssertEqual((ushort)0xadd4, runtime.System.RandomNumber, "first source fade advances native HDMA/RNG");
-        AssertEqual((ushort)0xa4e2, runtime.Clock.Counter, "fade accepts exactly one NMI per update");
+        AssertEqual(0xadd4, runtime.System.RandomNumber, "first source fade advances native HDMA/RNG");
+        AssertEqual(0xa4e2, runtime.Clock.Counter, "fade accepts exactly one NMI per update");
         AssertEqual(NativeSnapshotMemory.PipeBugAfterFadeInstruction, pipeBugPointers.Pointer(pipeBug.Program), "fade advances the native enemy instruction");
         AssertEqual(NativeSnapshotMemory.PipeBugAfterFadeSpritemap, actor.SpritemapPointer, "fade changes to the native enemy sprite");
         AssertEqual((ushort)2, actor.InstructionTimer.RawValue, "fade installs the native visual duration");
@@ -781,7 +781,7 @@ internal static class RidleyFullMovieVerification
         while (game.DoorTransitionPhaseForVerification == DoorTransitionPhase.FadeOutSourcePalette && fadeSteps++ < 32)
             game.Step(0);
         AssertEqual(DoorTransitionPhase.LoadDoorHeader, game.DoorTransitionPhaseForVerification, "source palette fade finishes");
-        AssertEqual((ushort)0xe19e, runtime.System.RandomNumber, "native update 172 fade endpoint RNG");
+        AssertEqual(0xe19e, runtime.System.RandomNumber, "native update 172 fade endpoint RNG");
         // Original native input-boundary records 173..178. The first dispatch
         // still runs source HDMA; LoadDoorHeader disables it for the following ones.
         ushort[] nativeLoadingRandom = [0x1b76, 0x8a5f, 0xb4ec, 0x89ad, 0xb172, 0x784b];
@@ -805,31 +805,31 @@ internal static class RidleyFullMovieVerification
         game.Step(0); // The atomic destination loader must use the pre-setup source.
         AssertEqual(DoorTransitionPhase.WaitForDoorOpeningScroll, game.DoorTransitionPhaseForVerification, "loaded destination owns the opening trajectory");
         AssertEqual(0x010dc800u, samus.Kinematics.Position.X.RawValue, "destination load carries both loading IRQ steps without restarting the scroll");
-        AssertEqual((byte)0, runtime.Clock.Counter8, "door end-drawing IRQ clears the adjacent byte counter");
+        AssertEqual(0, runtime.Clock.Counter8, "door end-drawing IRQ clears the adjacent byte counter");
         ushort[] beamPalette = ReadRetailBeamPalette(bus, samus.EquippedBeams.ToNativeWord());
         for (int color = 0; color < 16; color++)
             AssertEqual(beamPalette[color], runtime.Cgram.Colors[224 + color], "beam palette is live during door scrolling");
-        AssertEqual((ushort)0, runtime.Cgram.Colors[196], "visor remains faded before scroll completes");
+        AssertEqual(0, runtime.Cgram.Colors[196], "visor remains faded before scroll completes");
         int scrollCalls = 0;
         while (game.DoorTransitionPhaseForVerification == DoorTransitionPhase.WaitForDoorOpeningScroll && scrollCalls < 64)
         {
             game.Step(0);
-            AssertEqual((byte)0, runtime.Clock.Counter8, "every moving door IRQ renews the byte-counter reset");
+            AssertEqual(0, runtime.Clock.Counter8, "every moving door IRQ renews the byte-counter reset");
             scrollCalls++;
         }
         AssertEqual(61, scrollCalls, "left trajectory completes on its 61st remaining IRQ call");
         AssertEqual(DoorTransitionPhase.FinishDoorLoading, game.DoorTransitionPhaseForVerification, "post-scroll NMI remains inside the loading coroutine");
-        AssertEqual((ushort)0x3be0, runtime.Cgram.Colors[196], "final scrolling update publishes native visor green before PLMs");
+        AssertEqual(0x3be0, runtime.Cgram.Colors[196], "final scrolling update publishes native visor green before PLMs");
         AssertEqual(0x00de2000u, samus.Kinematics.Position.X.RawValue, "native source frame 276 scrolling endpoint");
         game.Step(0);
         AssertEqual(DoorTransitionPhase.HandleAnimatedTiles, game.DoorTransitionPhaseForVerification, "loading alignment precedes music wait");
-        AssertEqual((ushort)0x5a88, runtime.System.RandomNumber, "loading continuation does not advance outer RNG");
+        AssertEqual(0x5a88, runtime.System.RandomNumber, "loading continuation does not advance outer RNG");
         AssertEqual(0x00d82000u, samus.Kinematics.Position.X.RawValue, "native final doorway alignment preserves original subposition");
         AssertEqual(yFixed, samus.Kinematics.Position.Y.RawValue, "left door endpoint preserves perpendicular coordinate");
         game.Step(0);
-        AssertEqual((ushort)0xc5b9, runtime.System.RandomNumber, "native animated-tile outer dispatch RNG");
+        AssertEqual(0xc5b9, runtime.System.RandomNumber, "native animated-tile outer dispatch RNG");
         game.Step(0);
-        AssertEqual((ushort)0xa1ea, runtime.System.RandomNumber, "native music-wait outer dispatch RNG");
+        AssertEqual(0xa1ea, runtime.System.RandomNumber, "native music-wait outer dispatch RNG");
         int musicWaits = 0;
         while (game.DoorTransitionPhaseForVerification == DoorTransitionPhase.WaitForMusicQueue && musicWaits++ < 32)
             game.Step(0);
@@ -844,11 +844,11 @@ internal static class RidleyFullMovieVerification
         AssertEqual(unchecked((ushort)(nmiBeforeNudge + 1)), runtime.Clock.Counter, "final transition accepts exactly one NMI");
         AssertEqual(samusAnimation, samus.AnimationFrame, "final transition does not animate Samus");
         AssertEqual(bodyInstruction, pointers.Enemy(runtime.Enemies, ridley), "final transition does not advance destination enemy instructions");
-        AssertEqual((byte)0, runtime.Clock.Counter8, "final door scanout resets the byte before IRQ ownership changes");
+        AssertEqual(0, runtime.Clock.Counter8, "final door scanout resets the byte before IRQ ownership changes");
         game.Step(0);
         AssertEqual(unchecked((ushort)(nmiBeforeNudge + 2)), runtime.Clock.Counter, "first fade accepts exactly one additional NMI");
         AssertEqual(samusAnimation, samus.AnimationFrame, "destination fade does not animate Samus");
-        AssertEqual((byte)1, runtime.Clock.Counter8, "first destination drawing frame resumes the byte counter");
+        AssertEqual(1, runtime.Clock.Counter8, "first destination drawing frame resumes the byte counter");
         AssertEqual(NativeSnapshotMemory.RidleyFirstFadeInstruction, pointers.Enemy(runtime.Enemies, ridley), "first fade runs native Ridley instruction list");
         AssertEqual(NativeSnapshotMemory.RidleyFirstFadeSpritemap, ridley.SpritemapPointer, "first fade publishes native Ridley sprite");
         AssertEqual((ushort)12, ridley.InstructionTimer.RawValue, "first native fade visual duration");
@@ -1374,7 +1374,7 @@ internal static class RidleyFullMovieVerification
                     Check($"PLM {slotIndex} grey-door condition", (ushort)((int)greyDoor.Condition * 2), NativeSnapshotMemory.PlmFamilyVariable + offset);
                     // Grey doors require one hit. Opening owns the incremented counter;
                     // before that transition setup's zero is the live counter value.
-                    Check($"PLM {slotIndex} grey-door hit count", checked((ushort)greyDoor.HitCounter), NativeSnapshotMemory.PlmExtraVariable + offset);
+                    Check($"PLM {slotIndex} grey-door hit count", checked(greyDoor.HitCounter), NativeSnapshotMemory.PlmExtraVariable + offset);
                     // The typed cap names its native instruction and link through the oracle's step addresses; a closing
                     // cap's link is the one its previous program left, which the closing never reads.
                     GreyDoorPlmAnimation typedDoor = slot.Animation as GreyDoorPlmAnimation
@@ -1467,8 +1467,8 @@ internal static class RidleyFullMovieVerification
                 Check(owner + " X radius", projectile.Radius.X, NativeSnapshotMemory.ProjectileXRadius + index);
                 Check(owner + " Y radius", projectile.Radius.Y, NativeSnapshotMemory.ProjectileYRadius + index);
                 Check(owner + " damage", projectile.Damage, NativeSnapshotMemory.ProjectileDamage + index);
-                Check(owner + " XFraction", unchecked((ushort)projectile.Position.X.Fraction), NativeSnapshotMemory.ProjectileXFraction + index);
-                Check(owner + " YFraction", unchecked((ushort)projectile.Position.Y.Fraction), NativeSnapshotMemory.ProjectileYFraction + index);
+                Check(owner + " XFraction", unchecked(projectile.Position.X.Fraction), NativeSnapshotMemory.ProjectileXFraction + index);
+                Check(owner + " YFraction", unchecked(projectile.Position.Y.Fraction), NativeSnapshotMemory.ProjectileYFraction + index);
                 Check(owner + " XVelocity", unchecked((ushort)projectile.Velocity.X.SignedRawValue), NativeSnapshotMemory.ProjectileXVelocity + index);
                 Check(owner + " YVelocity", unchecked((ushort)projectile.Velocity.Y.SignedRawValue), NativeSnapshotMemory.ProjectileYVelocity + index);
                 Check(owner + " Direction", unchecked((ushort)projectile.Direction), NativeSnapshotMemory.ProjectileDirection + index);
@@ -1482,12 +1482,24 @@ internal static class RidleyFullMovieVerification
                     SamusProjectilePreInstruction.Missile => NativeSnapshotMemory.ProjectileMissileCallback,
                     SamusProjectilePreInstruction.SuperMissile => NativeSnapshotMemory.ProjectileSuperMissileCallback,
                     SamusProjectilePreInstruction.SuperMissileLink => NativeSnapshotMemory.ProjectileSuperMissileLinkCallback,
+                    SamusProjectilePreInstruction.HyperBeam or
+                        SamusProjectilePreInstruction.IceCombo or
+                        SamusProjectilePreInstruction.IceComboOutward or
+                        SamusProjectilePreInstruction.WaveCombo or
+                        SamusProjectilePreInstruction.SpazerCombo or
+                        SamusProjectilePreInstruction.PlasmaCombo or
+                        SamusProjectilePreInstruction.SpazerComboFalling or
+                        SamusProjectilePreInstruction.ShinesparkEcho or
+                        SamusProjectilePreInstruction.SpacetimePaletteCopyTail or
+                        SamusProjectilePreInstruction.ChainsawWindowStoreThenPowerBomb or
+                        SamusProjectilePreInstruction.ChargedChainsawLowWramExecution or
+                        SamusProjectilePreInstruction.MurderBeamMisalignedExecution => throw new InvalidDataException($"Movie projectile callback {projectile.PreInstruction} needs a native identity mapping"),
                     _ => throw new InvalidDataException($"Movie projectile callback {projectile.PreInstruction} needs a native identity mapping"),
                 };
                 Check(owner + " PreInstruction", callback, NativeSnapshotMemory.ProjectilePreInstruction + index);
-                Check(owner + " InstructionTimer", unchecked((ushort)projectile.InstructionTimer.RawValue), NativeSnapshotMemory.ProjectileInstructionTimer + index);
+                Check(owner + " InstructionTimer", unchecked(projectile.InstructionTimer.RawValue), NativeSnapshotMemory.ProjectileInstructionTimer + index);
                 Check(owner + " Variable", unchecked((ushort)projectile.Variable), NativeSnapshotMemory.ProjectileVariable + index);
-                Check(owner + " TrailTimer", unchecked((ushort)projectile.TrailTimer.RawValue), NativeSnapshotMemory.ProjectileTrailTimer + index);
+                Check(owner + " TrailTimer", unchecked(projectile.TrailTimer.RawValue), NativeSnapshotMemory.ProjectileTrailTimer + index);
                 Check(owner + " AuxiliaryPhase", unchecked((ushort)projectile.AuxiliaryPhase), NativeSnapshotMemory.ProjectileAuxiliaryPhase + index);
                 Check(owner + " Spritemap", unchecked((ushort)projectile.SpritemapPointer), NativeSnapshotMemory.ProjectileSpritemap + index);
             }
@@ -1558,6 +1570,120 @@ internal static class RidleyFullMovieVerification
                     case RoomEnemyProjectileKind.EnemyDeathExplosion:
                     case RoomEnemyProjectileKind.EnemyDeathPickup:
                         break;
+                    case RoomEnemyProjectileKind.None:
+                    case RoomEnemyProjectileKind.PrePhantoonRoom:
+                    case RoomEnemyProjectileKind.YappingMawBody:
+                    case RoomEnemyProjectileKind.SkreeParticleDownRight:
+                    case RoomEnemyProjectileKind.SkreeParticleUpRight:
+                    case RoomEnemyProjectileKind.SkreeParticleDownLeft:
+                    case RoomEnemyProjectileKind.SkreeParticleUpLeft:
+                    case RoomEnemyProjectileKind.MetareeParticleDownRight:
+                    case RoomEnemyProjectileKind.MetareeParticleUpRight:
+                    case RoomEnemyProjectileKind.MetareeParticleDownLeft:
+                    case RoomEnemyProjectileKind.MetareeParticleUpLeft:
+                    case RoomEnemyProjectileKind.CrocomireProjectile:
+                    case RoomEnemyProjectileKind.CrocomireBridgeCrumbling:
+                    case RoomEnemyProjectileKind.CrocomireSpikeWallPieces:
+                    case RoomEnemyProjectileKind.KraidSpitRock:
+                    case RoomEnemyProjectileKind.KraidCeilingRock:
+                    case RoomEnemyProjectileKind.KraidRisingRockLeft:
+                    case RoomEnemyProjectileKind.KraidRisingRockRight:
+                    case RoomEnemyProjectileKind.PhantoonDestroyableFlame:
+                    case RoomEnemyProjectileKind.PhantoonStartingFlame:
+                    case RoomEnemyProjectileKind.DraygonGoop:
+                    case RoomEnemyProjectileKind.DraygonWallTurret:
+                    case RoomEnemyProjectileKind.MotherBrainRoomTurret:
+                    case RoomEnemyProjectileKind.MotherBrainRoomTurretBullet:
+                    case RoomEnemyProjectileKind.MotherBrainGlassShard:
+                    case RoomEnemyProjectileKind.MotherBrainGlassSparkle:
+                    case RoomEnemyProjectileKind.MotherBrainOnionRing:
+                    case RoomEnemyProjectileKind.OldTourianEscapeShaftFakeWallExplosion:
+                    case RoomEnemyProjectileKind.MotherBrainBomb:
+                    case RoomEnemyProjectileKind.MotherBrainHandBeamCharging:
+                    case RoomEnemyProjectileKind.MotherBrainHandBeamFired:
+                    case RoomEnemyProjectileKind.MotherBrainRainbowBeamCharging:
+                    case RoomEnemyProjectileKind.MotherBrainPurpleBreathBig:
+                    case RoomEnemyProjectileKind.MotherBrainPurpleBreathSmall:
+                    case RoomEnemyProjectileKind.MotherBrainDrool:
+                    case RoomEnemyProjectileKind.MotherBrainDyingDrool:
+                    case RoomEnemyProjectileKind.MotherBrainRainbowBeamExplosion:
+                    case RoomEnemyProjectileKind.MotherBrainDeathExplosion:
+                    case RoomEnemyProjectileKind.MotherBrainEscapeDoorFragment:
+                    case RoomEnemyProjectileKind.MotherBrainEscapeSubtitle:
+                    case RoomEnemyProjectileKind.MotherBrainTopRightTube:
+                    case RoomEnemyProjectileKind.MotherBrainTopLeftTube:
+                    case RoomEnemyProjectileKind.MotherBrainTopMiddleLeftTube:
+                    case RoomEnemyProjectileKind.MotherBrainTopMiddleRightTube:
+                    case RoomEnemyProjectileKind.CeresFallingDebrisLight:
+                    case RoomEnemyProjectileKind.CeresFallingDebrisDark:
+                    case RoomEnemyProjectileKind.GunshipLiftoffDustCloud:
+                    case RoomEnemyProjectileKind.AlcoonFireball:
+                    case RoomEnemyProjectileKind.PowampSpike:
+                    case RoomEnemyProjectileKind.WorkRobotLaserUpLeft:
+                    case RoomEnemyProjectileKind.WorkRobotLaserHorizontal:
+                    case RoomEnemyProjectileKind.WorkRobotLaserDownLeft:
+                    case RoomEnemyProjectileKind.WorkRobotLaserUpRight:
+                    case RoomEnemyProjectileKind.WorkRobotLaserDownRight:
+                    case RoomEnemyProjectileKind.FallingSpark:
+                    case RoomEnemyProjectileKind.NuclearWaffleBody:
+                    case RoomEnemyProjectileKind.FakeKraidSpit:
+                    case RoomEnemyProjectileKind.FakeKraidSpikeLeft:
+                    case RoomEnemyProjectileKind.FakeKraidSpikeRight:
+                    case RoomEnemyProjectileKind.KiHunterAcidSpitLeft:
+                    case RoomEnemyProjectileKind.KiHunterAcidSpitRight:
+                    case RoomEnemyProjectileKind.PirateMotherBrainLaser:
+                    case RoomEnemyProjectileKind.PirateClaw:
+                    case RoomEnemyProjectileKind.PolypRock:
+                    case RoomEnemyProjectileKind.CacatacSpike:
+                    case RoomEnemyProjectileKind.StokeProjectile:
+                    case RoomEnemyProjectileKind.NamiheFireball:
+                    case RoomEnemyProjectileKind.FuneFireball:
+                    case RoomEnemyProjectileKind.LavaThrownByMagdollite:
+                    case RoomEnemyProjectileKind.DragonFireball:
+                    case RoomEnemyProjectileKind.EyeDoorProjectile:
+                    case RoomEnemyProjectileKind.EyeDoorSweat:
+                    case RoomEnemyProjectileKind.EyeDoorSmoke:
+                    case RoomEnemyProjectileKind.KagoBug:
+                    case RoomEnemyProjectileKind.BotwoonBody:
+                    case RoomEnemyProjectileKind.BotwoonSpit:
+                    case RoomEnemyProjectileKind.BombTorizoLowHealthDrool:
+                    case RoomEnemyProjectileKind.BombTorizoInitialDrool:
+                    case RoomEnemyProjectileKind.BombTorizoExplosiveSwipe:
+                    case RoomEnemyProjectileKind.BombTorizoLowHealthExplosion:
+                    case RoomEnemyProjectileKind.BombTorizoDeathExplosion:
+                    case RoomEnemyProjectileKind.BombTorizoStatueBreaking:
+                    case RoomEnemyProjectileKind.BombTorizoChozoOrb:
+                    case RoomEnemyProjectileKind.BombTorizoSonicBoom:
+                    case RoomEnemyProjectileKind.GoldenTorizoChozoOrb:
+                    case RoomEnemyProjectileKind.GoldenTorizoSonicBoom:
+                    case RoomEnemyProjectileKind.BombTorizoRightFootDust:
+                    case RoomEnemyProjectileKind.BombTorizoLeftFootDust:
+                    case RoomEnemyProjectileKind.GoldenTorizoEgg:
+                    case RoomEnemyProjectileKind.GoldenTorizoSuperMissile:
+                    case RoomEnemyProjectileKind.GoldenTorizoEyeBeam:
+                    case RoomEnemyProjectileKind.TourianStatueSplash:
+                    case RoomEnemyProjectileKind.TourianStatueEyeGlow:
+                    case RoomEnemyProjectileKind.TourianStatueParticle:
+                    case RoomEnemyProjectileKind.TourianStatueTail:
+                    case RoomEnemyProjectileKind.TourianStatueSoul:
+                    case RoomEnemyProjectileKind.TourianStatueRidley:
+                    case RoomEnemyProjectileKind.TourianStatuePhantoon:
+                    case RoomEnemyProjectileKind.TourianStatueBaseDecoration:
+                    case RoomEnemyProjectileKind.WreckedShipChozoSpikeFootstep:
+                    case RoomEnemyProjectileKind.WreckedShipChozoSpikeFootstepAlternate:
+                    case RoomEnemyProjectileKind.TourianStatueDescentDust:
+                    case RoomEnemyProjectileKind.ShaktoolAttackFrontCircle:
+                    case RoomEnemyProjectileKind.ShaktoolAttackMiddleCircle:
+                    case RoomEnemyProjectileKind.ShaktoolAttackBackCircle:
+                    case RoomEnemyProjectileKind.SporeSpawnStalk:
+                    case RoomEnemyProjectileKind.SporeSpawnSpore:
+                    case RoomEnemyProjectileKind.SporeSpawnSpawner:
+                    case RoomEnemyProjectileKind.SaveStationElectricity:
+                    case RoomEnemyProjectileKind.DownwardGateMoving:
+                    case RoomEnemyProjectileKind.DownwardGateClosed:
+                    case RoomEnemyProjectileKind.NoobTubeCrack:
+                    case RoomEnemyProjectileKind.NoobTubeShard:
+                    case RoomEnemyProjectileKind.NoobTubeReleasedAirBubble:
                     default:
                         throw new InvalidDataException($"Movie projectile {projectile.Kind} needs an E/F mapping");
                 }

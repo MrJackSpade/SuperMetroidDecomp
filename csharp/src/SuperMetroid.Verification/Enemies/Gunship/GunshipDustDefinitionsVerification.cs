@@ -18,7 +18,7 @@ internal static class GunshipDustDefinitionsVerification
     /// <summary>Compares all six dust definitions and wrapped spawn positions, then checks full-pool and invalid-parameter behavior.</summary>
     internal static void VerifyCompiledGunshipDust(SuperMetroidAddressSpace rom)
     {
-        ushort Word(int address) => (ushort)(SnesLittleEndian.Word(CompiledGunshipDustRomByte(rom, address), CompiledGunshipDustRomByte(rom, address + 1)));
+        ushort Word(int address) => SnesLittleEndian.Word(CompiledGunshipDustRomByte(rom, address), CompiledGunshipDustRomByte(rom, address + 1));
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
         var spawn = new Action<ushort, SamusState>(enemies.Projectiles.SpawnGunshipLiftoffDustCloud);
         var samus = new SamusState();

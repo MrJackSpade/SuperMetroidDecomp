@@ -20,18 +20,15 @@ internal sealed class DoorPlms : IPlmFamilySource
 
     /// <summary>Supplies the room's door-bit persistence owner.</summary>
     private readonly PlmRoomBindings _bindings;
-    /// <summary>Draws closed and flashing door caps into level data and the background streamer.</summary>
-    private readonly PlmBlockDrawing _drawing;
     /// <summary>Allocates fallback closing and blue-door actors from the native PLM pool.</summary>
     private readonly PlmSlotTable _slotTable;
     /// <summary>Queues the library-two response to rejected colored-door hits.</summary>
     private readonly PlmSoundQueue _sounds;
 
     /// <summary>Binds door PLM logic to room persistence, drawing, allocation, and sound owners.</summary>
-    internal DoorPlms(PlmRoomBindings bindings, PlmBlockDrawing drawing, PlmSlotTable slotTable, PlmSoundQueue sounds)
+    internal DoorPlms(PlmRoomBindings bindings, PlmSlotTable slotTable, PlmSoundQueue sounds)
     {
         _bindings = bindings;
-        _drawing = drawing;
         _slotTable = slotTable;
         _sounds = sounds;
     }
@@ -99,7 +96,6 @@ internal sealed class DoorPlms : IPlmFamilySource
         SetupDoorTransitionDeactivatedSlot(level, slot);
         return true;
     }
-
 
     /// <summary>
     /// Translates <c>$84:B3C1 Setup_DeactivatePLM</c>: clear collision bits 12-14 while

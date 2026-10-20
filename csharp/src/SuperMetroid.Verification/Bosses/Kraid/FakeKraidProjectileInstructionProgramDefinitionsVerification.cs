@@ -48,7 +48,7 @@ internal static class FakeKraidProjectileInstructionProgramDefinitionsVerificati
         };
         var state = new FakeKraidEnemyState();
 
-        AssertTrue(enemies.FakeKraidBehavior.SpawnFakeKraidSpit(source, (short)12, new EightEightVector<RoomPixels>(0x0180, -0x0200)),
+        AssertTrue(enemies.FakeKraidBehavior.SpawnFakeKraidSpit(source, 12, new EightEightVector<RoomPixels>(0x0180, -0x0200)),
             "real Fake Kraid spit producer allocates its projectile");
         state.FacingDelta = -4;
         AssertTrue(enemies.FakeKraidBehavior.SpawnFakeKraidSpike(source, state, 0),

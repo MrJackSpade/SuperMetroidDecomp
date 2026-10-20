@@ -50,7 +50,7 @@ internal static class BabyMetroidRouteDefinitionsVerification
             () => BabyMetroidRouteDefinitions.GetRecord(BabyMetroidRouteDefinitions.RecordCount),
             "Baby route rejects a leg past the final one");
         AssertThrows<InvalidDataException>(
-            () => BabyMetroidRouteDefinitions.GetWrongWayOffScreenXSpeed((BabyMetroidRouteMovementFunction)0),
+            () => BabyMetroidRouteDefinitions.GetWrongWayOffScreenXSpeed(0),
             "Baby route rejects an unknown movement callback");
 
         Console.WriteLine(
@@ -62,9 +62,4 @@ internal static class BabyMetroidRouteDefinitionsVerification
     internal static ushort ReadRomWord(SuperMetroidAddressSpace bus, int address) =>
         CartridgeImportSource.Require(bus).ReadCartridgeWord(address);
 
-    /// <summary>Forbids production reads of the migrated Baby Metroid route source range.</summary>
-    private static CartridgeReadGuard NewBabyRouteReadGuard(ISnesAddressSpace source) =>
-        new CartridgeReadGuard(source).ForbidRange(BabyMetroidRouteDefinitionsConstants.SourceAddress,
-            BabyMetroidRouteDefinitionsConstants.SourceByteLength,
-            address => $"Baby route still reads compiled ROM byte ${address:X6}.");
 }

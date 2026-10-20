@@ -37,7 +37,7 @@ internal static class RioInstructionProgramDefinitionsVerification
         RioBehavior.InitializeRio(rio);
         RioEnemyState state = enemies.RioStates[0] ?? throw new InvalidOperationException("The Rio has no state.");
         AssertEqual(AnimationProgramCursor<RioProgram>.Start(RioProgram.Idle), state.Program, "real Rio initializer starts idling");
-        AssertEqual((RioProgram?)null, state.InstalledProgram, "real Rio initializer leaves nothing installed");
+        AssertEqual(null, state.InstalledProgram, "real Rio initializer leaves nothing installed");
 
         // Idle shows its two poses, then runs into the ten-pose post-swoop idle, which returns to idle.
         IEnumerable<ushort> idlePass = RioAnimationsConstants.Spritemaps(RioProgram.Idle, RioProgram.PostSwoopIdle);

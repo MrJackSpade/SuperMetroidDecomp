@@ -95,7 +95,7 @@ internal static class MorphBallEyeBehaviorVerification
             AssertEqual(Math.Max(MorphBallEyeBeamDefinitions.InitialRed - update, MorphBallEyeBeamDefinitions.FadedRed), beam.Red,
                 $"eye beam red after fading update {update}");
             AssertEqual(MorphBallEyeBeamDefinitions.InitialGreen - update, beam.Green, $"eye beam green after fading update {update}");
-            AssertEqual((int)MorphBallEyeBeamDefinitions.Blue, beam.Blue, $"eye beam blue after fading update {update}");
+            AssertEqual(MorphBallEyeBeamDefinitions.Blue, beam.Blue, $"eye beam blue after fading update {update}");
             AssertEqual(MorphBallEyeBeamPhase.Deactivating, beam.Phase, $"eye beam still fading after update {update}");
         }
         enemies.MorphBallEyeBehavior.StepMorphBallEyeBeam();

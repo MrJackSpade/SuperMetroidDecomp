@@ -50,11 +50,11 @@ internal static class SpringBallFallingFallbackVerification
         runtime.StepFrame(SnesButton.A);
         AssertEqual(SamusPoseId.SpringBallFallingRightPose, samus.Pose, "Jump alone keeps the falling Spring Ball pose");
         AssertEqual((ushort)(x0 + 2), samus.Position.X.Whole, "the frame's movement still uses the carried speed");
-        AssertEqual((ushort)0, samus.HorizontalSpeed.BaseSpeed.Whole, "command six clears base speed");
-        AssertEqual((ushort)0, samus.HorizontalSpeed.BaseSpeed.Fraction, "command six clears base subspeed");
-        AssertEqual((ushort)0, samus.HorizontalSpeed.ExtraRunSpeed.Whole, "command eight clears extra run speed");
-        AssertEqual((ushort)0, samus.HorizontalSpeed.ExtraRunSpeed.Fraction, "command eight clears extra run subspeed");
-        AssertEqual((ushort)0, samus.HorizontalSpeed.AccelerationMode, "command six clears the acceleration mode");
+        AssertEqual(0, samus.HorizontalSpeed.BaseSpeed.Whole, "command six clears base speed");
+        AssertEqual(0, samus.HorizontalSpeed.BaseSpeed.Fraction, "command six clears base subspeed");
+        AssertEqual(0, samus.HorizontalSpeed.ExtraRunSpeed.Whole, "command eight clears extra run speed");
+        AssertEqual(0, samus.HorizontalSpeed.ExtraRunSpeed.Fraction, "command eight clears extra run subspeed");
+        AssertEqual(0, samus.HorizontalSpeed.AccelerationMode, "command six clears the acceleration mode");
         Console.WriteLine("Spring Ball falling fallback: command six clears horizontal speed after movement.");
     }
 

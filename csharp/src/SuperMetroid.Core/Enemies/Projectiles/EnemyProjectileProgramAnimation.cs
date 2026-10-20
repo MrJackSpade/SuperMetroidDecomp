@@ -55,6 +55,8 @@ internal abstract class EnemyProjectileProgramAnimation<TProgram, TFrame, TCue> 
             case AnimationProgramAdvanceKind.Hold:
                 frame = default;
                 return false;
+            case AnimationProgramAdvanceKind.Wait:
+            case AnimationProgramAdvanceKind.Stop:
             default:
                 throw new InvalidOperationException($"A projectile program ended an update with {advance.Kind}.");
         }

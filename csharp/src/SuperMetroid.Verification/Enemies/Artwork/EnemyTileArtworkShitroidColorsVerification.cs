@@ -89,7 +89,7 @@ internal static class EnemyTileArtworkShitroidColorsVerification
         Type type = typeof(RoomEnemySystem);
         enemies.Presentation.BindCgram(cgram);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
-        enemies.ShitroidBehavior.InitializeShitroid(slot, (ushort)0);
+        enemies.ShitroidBehavior.InitializeShitroid(slot, 0);
         ShitroidEnemyState state = enemies.Shitroid ??
             throw new InvalidDataException("Shitroid initialization produced no state.");
         CheckLiveTarget(ShitroidColorTarget.Sidehopper, 0x90);

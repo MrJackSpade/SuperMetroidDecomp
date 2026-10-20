@@ -41,8 +41,8 @@ internal static class AudioMusicProgramsVerification
             for (int track = 0; track < bank.MusicTracks.Count; track++)
             {
                 int pointer = SpcDriverDefinitions.Ram.DefaultMusicPointer + track * 2;
-                ushort actual = unchecked((ushort)(
-                    SnesLittleEndian.Word(raw.ReadApuByteForVerification(pointer), raw.ReadApuByteForVerification(pointer + 1))));
+                ushort actual = unchecked(
+                    SnesLittleEndian.Word(raw.ReadApuByteForVerification(pointer), raw.ReadApuByteForVerification(pointer + 1)));
                 AssertEqual(bank.MusicTracks[track].Address, actual, $"{bank.Name} track {track} route");
             }
         }

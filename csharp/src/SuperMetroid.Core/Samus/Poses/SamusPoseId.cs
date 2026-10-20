@@ -3,7 +3,7 @@ namespace SuperMetroid.Core.Samus.Poses;
 /// <summary>
 /// Exclusive cartridge pose identifiers. Undefined byte values remain representable through an explicit cast for corrupt-state diagnostics.
 /// </summary>
-public enum SamusPoseId : byte
+public enum SamusPoseId : ushort
 {
     /// <summary>
     /// Pose `$00`: the power-suit body viewed from the front during the intro, elevators,
@@ -797,4 +797,12 @@ public enum SamusPoseId : byte
     /// <summary>Native unused pose $C6, symbol UNUSED_PoseDefinitions_C6_91BC59 at $91:BC59; preserves its distinct dispatch record.</summary>
     UnusedPoseC6 = 0xc6,
 
+    /// <summary>Pose byte $FD, past the native definition table: its records read the adjacent code bytes.</summary>
+    AdjacentCodePoseFD = 0xfd,
+
+    /// <summary>Pose byte $FE, past the native definition table: its records read the adjacent code bytes.</summary>
+    AdjacentCodePoseFE = 0xfe,
+
+    /// <summary>Pose byte $FF, past the native definition table: its records read the adjacent code bytes.</summary>
+    AdjacentCodePoseFF = 0xff,
 }

@@ -135,7 +135,7 @@ internal static class MapSaveMarkersVerification
         var menu = new FileSelectMapMenuState(new CartridgeAudioState(), slot, 0, edited);
         for (int frame = 0; frame < 104; frame++)
         {
-            SnesButton input = frame == 48 ? SnesButton.Start : (ushort)0;
+            SnesButton input = frame == 48 ? SnesButton.Start : 0;
             control.Step(input); menu.Step(input);
             AssertEqual(control.Phase, menu.Phase, "cosmetic marker edit preserves entry/navigation timing");
         }
@@ -147,7 +147,7 @@ internal static class MapSaveMarkersVerification
         AssertTrue(control.Render().SequenceEqual(menu.Render()), "restored marker rebind preserves scroll/animation and restores current stock position");
         for (int frame = 0; frame < 80; frame++)
         {
-            SnesButton input = frame == 0 ? SnesButton.Start : (ushort)0;
+            SnesButton input = frame == 0 ? SnesButton.Start : 0;
             control.Step(input); menu.Step(input);
             AssertEqual(control.Phase, menu.Phase, "marker rebind preserves load phase");
             AssertEqual(control.LoadRequested, menu.LoadRequested, "marker rebind preserves load handoff timing");
@@ -155,7 +155,7 @@ internal static class MapSaveMarkersVerification
         }
         AssertTrue(menu.LoadRequested, "fixture actually requests loading");
         AssertEqual((ushort)AreaId.Maridia, slot.Area, "layout does not alter selected save area");
-        AssertEqual((ushort)0, slot.SaveStation, "layout does not alter selected load station");
+        AssertEqual(0, slot.SaveStation, "layout does not alter selected load station");
         string rebuilt = Path.Combine(overrides, "rebuilt");
         SuperMetroid.AssetExtraction.Frontend.Map.MapPresentationExtractor.Extract(bus, rebuilt, "test-provenance");
         AssertEqual(edited.ContentIdentity, AreaMapPresentationCatalog.Load(rebuilt, overrides).ContentIdentity, "save marker override survives stock replacement");

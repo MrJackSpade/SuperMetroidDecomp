@@ -120,10 +120,10 @@ public static class GameSaveJsonCodec
             slot.MaxReserveEnergy,
             slot.ReserveMissiles),
         Inventory = new SaveInventoryJsonDocument(
-            (SamusEquipmentFlags)slot.CollectedItems,
-            (SamusEquipmentFlags)slot.EquippedItems,
-            (SamusBeamFlags)slot.CollectedBeams,
-            (SamusBeamFlags)slot.EquippedBeams),
+            slot.CollectedItems,
+            slot.EquippedItems,
+            slot.CollectedBeams,
+            slot.EquippedBeams),
         GameTime = new SaveGameTimeJsonDocument(
             slot.GameTimeHours,
             slot.GameTimeMinutes,

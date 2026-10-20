@@ -27,7 +27,7 @@ internal static class PlasmaPenetrationVerification
             {
                 AssertTrue(shots.EnemyImpacts.TryStartEnemyImpact(bombs, 0), "penetrating enemy hit accepted");
                 AssertEqual(type, slot.Type, "Plasma preserves live beam type instead of explosion");
-                AssertEqual((ushort)100, slot.Damage, "Plasma preserves original damage");
+                AssertEqual(100, slot.Damage, "Plasma preserves original damage");
                 AssertEqual((ushort)SamusProjectileDirection.Right, slot.Direction, "Plasma does not acquire deletion marker");
                 AssertEqual(ProjectileFixtureCursors.Active, slot.Cursor, "Plasma retains its animation");
                 AssertEqual((ushort)7, slot.InstructionTimer.RawValue, "Plasma retains animation timing");

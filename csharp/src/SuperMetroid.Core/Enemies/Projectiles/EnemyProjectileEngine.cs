@@ -597,8 +597,8 @@ internal sealed class EnemyProjectileEngine
         out ushort? slopeAlignedPosition)
     {
         slopeAlignedPosition = null;
-        if ((uint)block.X >= (uint)level.Size.X ||
-            (uint)block.Y >= (uint)level.Size.Y)
+        if (block.X >= (uint)level.Size.X ||
+            block.Y >= (uint)level.Size.Y)
         {
             return true;
         }

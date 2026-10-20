@@ -24,6 +24,7 @@ public static class MapLandmarkDefinitions
         AreaId.Norfair or AreaId.Tourian => 1,
         AreaId.WreckedShip => 2,
         AreaId.Maridia => 3,
+        AreaId.Ceres => throw new ArgumentOutOfRangeException(nameof(area), "Only the six Zebes areas have elevator map labels."),
         _ => throw new ArgumentOutOfRangeException(nameof(area), "Only the six Zebes areas have elevator map labels."),
     });
 
@@ -57,6 +58,7 @@ public static class MapLandmarkDefinitions
                     AreaId.WreckedShip => "Boss.Phantoon",
                     AreaId.Maridia => "Boss.Draygon",
                     AreaId.Ceres => "Boss.CeresRidley",
+                    AreaId.Tourian => throw new ArgumentOutOfRangeException(nameof(area)),
                     _ => throw new ArgumentOutOfRangeException(nameof(area)),
                 };
             }
@@ -122,6 +124,8 @@ public static class MapLandmarkDefinitions
         AreaId.Crateria => MapSpriteId.ElevatorCrateria, AreaId.Brinstar => MapSpriteId.ElevatorBrinstar,
         AreaId.Norfair => MapSpriteId.ElevatorNorfair, AreaId.WreckedShip => MapSpriteId.ElevatorWreckedShip,
         AreaId.Maridia => MapSpriteId.ElevatorMaridia,
+        AreaId.Tourian or
+            AreaId.Ceres => throw new ArgumentOutOfRangeException(nameof(destination)),
         _ => throw new ArgumentOutOfRangeException(nameof(destination))
     };
 

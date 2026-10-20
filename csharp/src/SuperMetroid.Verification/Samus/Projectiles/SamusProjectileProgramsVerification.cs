@@ -45,7 +45,7 @@ internal static class SamusProjectileProgramsVerification
                 if (unchecked((short)word) >= 0)
                 {
                     AssertEqual(AnimationProgramStepKind.Show, step.Kind, $"{at}: timed record");
-                    AssertEqual((int)word, step.Duration, $"{at}: duration");
+                    AssertEqual(word, step.Duration, $"{at}: duration");
                     SamusProjectileRecord record = SamusProjectileRecordDefinitions.Get(step.Frame);
                     AssertEqual(cursor, record.Address, $"{at}: record address");
                     AssertEqual(Word(cursor + 2), record.Spritemap, $"{at}: spritemap");

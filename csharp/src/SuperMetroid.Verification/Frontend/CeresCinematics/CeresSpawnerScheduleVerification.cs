@@ -50,6 +50,39 @@ internal static class CeresSpawnerScheduleVerification
                     {
                         CinematicSpriteCueKind.SpawnInitialExplosionWave => expected with { Initial = true },
                         CinematicSpriteCueKind.SpawnFinalExplosionWave => expected with { Final = true },
+                        CinematicSpriteCueKind.SetPreInstruction or
+                            CinematicSpriteCueKind.EndZebesExplosion or
+                            CinematicSpriteCueKind.ExplosionFinale or
+                            CinematicSpriteCueKind.FadeExplosionPalette or
+                            CinematicSpriteCueKind.FadeInZebesText or
+                            CinematicSpriteCueKind.FadeOutZebesText or
+                            CinematicSpriteCueKind.GreyOut or
+                            CinematicSpriteCueKind.Launch or
+                            CinematicSpriteCueKind.LaunchHead or
+                            CinematicSpriteCueKind.PrepareHead or
+                            CinematicSpriteCueKind.Shoot or
+                            CinematicSpriteCueKind.SpawnClearTime or
+                            CinematicSpriteCueKind.SpawnColon or
+                            CinematicSpriteCueKind.SpawnCompletedText or
+                            CinematicSpriteCueKind.SpawnExplosionSilhouette or
+                            CinematicSpriteCueKind.SpawnHoursTens or
+                            CinematicSpriteCueKind.SpawnHoursUnits or
+                            CinematicSpriteCueKind.SpawnJapaneseZebesTextIfNeeded or
+                            CinematicSpriteCueKind.SpawnMinutesTens or
+                            CinematicSpriteCueKind.SpawnMinutesUnits or
+                            CinematicSpriteCueKind.SpawnParticles or
+                            CinematicSpriteCueKind.SpawnRinkas0And1 or
+                            CinematicSpriteCueKind.SpawnRinkas2And3 or
+                            CinematicSpriteCueKind.SpawnSuitedJump or
+                            CinematicSpriteCueKind.SpawnSuitlessJump or
+                            CinematicSpriteCueKind.StartFlyingToZebes or
+                            CinematicSpriteCueKind.StartIntroPage2 or
+                            CinematicSpriteCueKind.StartIntroPage3 or
+                            CinematicSpriteCueKind.StartIntroPage4 or
+                            CinematicSpriteCueKind.StartIntroPage5 or
+                            CinematicSpriteCueKind.StartRinkaMoving or
+                            CinematicSpriteCueKind.StartZebesExplosion or
+                            CinematicSpriteCueKind.TransitionToCredits => throw new InvalidOperationException($"The Ceres explosion spawner program publishes no {cue} cue."),
                         _ => throw new InvalidOperationException($"The Ceres explosion spawner program publishes no {cue} cue."),
                     };
                 });

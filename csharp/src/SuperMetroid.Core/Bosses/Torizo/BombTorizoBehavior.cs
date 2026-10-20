@@ -21,7 +21,7 @@ namespace SuperMetroid.Core.Bosses.Torizo;
 internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <inheritdoc/>
-    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.BombTorizo, EnemyDefinitionId.GoldenTorizo];
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [.. BombTorizoPartDefinitions.Parts.Keys];
 
     /// <inheritdoc/>
     public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new BombTorizoEntity(this, slot, common);

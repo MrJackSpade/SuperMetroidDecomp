@@ -33,6 +33,8 @@ public sealed class EscapeTypewriterPresentation
     {
         EscapeTypewriterProgramId.Ceres => ceres,
         EscapeTypewriterProgramId.Zebes => zebes,
+        EscapeTypewriterProgramId.None => throw new ArgumentOutOfRangeException(nameof(id), id,
+            "Escape typewriter program is not present in the installed catalog."),
         _ => throw new ArgumentOutOfRangeException(nameof(id), id,
             "Escape typewriter program is not present in the installed catalog."),
     };

@@ -28,7 +28,7 @@ internal static class BotwoonWallPlmDrawDefinitions
             for (int index = 0; index < words.Length; index++) words[index] = LevelWordAt(index);
             yield return new(ClearPointer, new RoomPlmShotBlockDrawDefinitions.Run[]
             {
-                new((ushort)(0x8000 | BlockCount), words, new(0, 0)),
+                new(0x8000 | BlockCount, words, new(0, 0)),
             });
         }
     }

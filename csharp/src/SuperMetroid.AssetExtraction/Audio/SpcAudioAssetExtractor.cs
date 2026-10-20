@@ -155,7 +155,7 @@ public static class SpcAudioAssetExtractor
                 ram[address + 1],
                 ram[address + 2],
                 ram[address + 3],
-                unchecked((ushort)(SnesLittleEndian.Word(ram[address + 5], ram[address + 4])))));
+                unchecked(SnesLittleEndian.Word(ram[address + 5], ram[address + 4]))));
         }
 
         List<AudioSampleMetadata> samples = [];
@@ -376,7 +376,7 @@ public static class SpcAudioAssetExtractor
         {
             if (offset > stream.Length - 2)
                 throw new InvalidDataException("SPC upload ended before its terminating length word.");
-            ushort length = unchecked((ushort)(SnesLittleEndian.Word(stream[offset], stream[offset + 1])));
+            ushort length = unchecked(SnesLittleEndian.Word(stream[offset], stream[offset + 1]));
             offset += 2;
             if (length == 0)
             {
@@ -389,7 +389,7 @@ public static class SpcAudioAssetExtractor
             }
             if (offset > stream.Length - 2)
                 throw new InvalidDataException("SPC upload ended before a destination word.");
-            ushort destination = unchecked((ushort)(SnesLittleEndian.Word(stream[offset], stream[offset + 1])));
+            ushort destination = unchecked(SnesLittleEndian.Word(stream[offset], stream[offset + 1]));
             offset += 2;
             if (length > stream.Length - offset)
                 throw new InvalidDataException($"SPC upload record ${destination:X4} overruns its source stream.");
@@ -403,7 +403,7 @@ public static class SpcAudioAssetExtractor
 
     /// <summary>Reads an SPC pointer from two little-endian RAM bytes.</summary>
     private static ushort ReadWord(byte[] bytes, int address) =>
-        unchecked((ushort)(SnesLittleEndian.Word(bytes[address], bytes[address + 1])));
+        unchecked(SnesLittleEndian.Word(bytes[address], bytes[address + 1]));
 
     /// <summary>
     /// Assigns the first cartridge occurrence of a unique waveform/loop pair a readable,

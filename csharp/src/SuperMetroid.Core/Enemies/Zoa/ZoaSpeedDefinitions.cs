@@ -21,7 +21,7 @@ public static class ZoaSpeedDefinitions
     {
         if (byteOffset is < 0 or > 16)
             throw new ArgumentOutOfRangeException(nameof(byteOffset));
-        ushort Word(int offset) => (ushort)(SnesLittleEndian.Word(Byte(offset), Byte(offset + 1)));
+        ushort Word(int offset) => SnesLittleEndian.Word(Byte(offset), Byte(offset + 1));
         return unchecked(unchecked((int)SnesSixteenSixteen.Compose(Word(byteOffset), Word(byteOffset + 2))));
     }
 

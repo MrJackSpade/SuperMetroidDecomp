@@ -45,7 +45,7 @@ internal static class MetroidBombPlacementVerification
         int firstExplosion = -1, detached = -1;
         for (int frame = 0; frame < 120; frame++)
         {
-            SnesButton input = frame == 0 ? SnesButton.X : (ushort)0;
+            SnesButton input = frame == 0 ? SnesButton.X : 0;
             bombs.StepFrame(new SamusTerrain { Level = assets.LevelData }, samus, input, input);
             if (firstExplosion < 0 && bombs.Slots.Any(b => b.Type != 0 && b.BombTimer.IsZero)) firstExplosion = frame;
             enemies.StepFrame(new RoomEnemyFrame { Camera = new(0, 0), TimeIsFrozen = false, Samus = samus, Level = assets.LevelData });
@@ -107,7 +107,7 @@ internal static class MetroidBombPlacementVerification
         samus.Presentation.SetAnimationFrameFromSpecialHandler(0, 1);
         samus.PoseHistory.PreviousPose = samus.Pose;
         samus.PoseHistory.PreviousDirectionAndMovement =
-            (ushort)(SnesLittleEndian.Word((byte)SamusFacingDirection.Right, (byte)SamusMovementType.MorphBallGround));
+            SnesLittleEndian.Word((byte)SamusFacingDirection.Right, (byte)SamusMovementType.MorphBallGround);
         samus.PoseHistory.LastDifferentDirectionAndMovement = 0;
         samus.PoseHistory.LastDifferentPose = 0;
         var target = runtime.Enemies.SlotTable.Slots[0];
@@ -129,7 +129,7 @@ internal static class MetroidBombPlacementVerification
         ];
         for (int frame = 0; frame <= 66; frame++)
         {
-            SnesButton input = frame == 1 ? SnesButton.X : (ushort)0;
+            SnesButton input = frame == 1 ? SnesButton.X : 0;
             if (frame is >= 46 and < 54) input |= SnesButton.Right;
             runtime.StepFrame(input);
             if (frame < 61) continue;

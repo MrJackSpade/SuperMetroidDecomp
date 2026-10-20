@@ -362,6 +362,7 @@ internal sealed class PauseMenuState
                 }
                 return;
 
+            case PauseMenuTransition.None:
             default:
                 throw new InvalidDataException($"Invalid pause-page transition {transition}.");
         }
@@ -661,8 +662,8 @@ internal sealed class PauseMenuState
             for (int word = 0; word < wordCount; word++)
             {
                 int byteOffset = (localWordIndex + word) * 2;
-                ushort tile = unchecked((ushort)(
-                    SnesLittleEndian.Word(pauseButtonTilemap[byteOffset], pauseButtonTilemap[byteOffset + 1])));
+                ushort tile = unchecked(
+                    SnesLittleEndian.Word(pauseButtonTilemap[byteOffset], pauseButtonTilemap[byteOffset + 1]));
                 tile = new SnesBgTilemapWord(tile).WithPaletteIndex(palette);
                 pauseButtonTilemap[byteOffset] = unchecked((byte)tile);
                 pauseButtonTilemap[byteOffset + 1] = SnesLittleEndian.HighByte(tile);
@@ -893,6 +894,8 @@ internal sealed class PauseMenuState
                     }
                 }
                 break;
+            default:
+                throw new InvalidOperationException($"Undefined {nameof(PauseEquipmentCategory)} {selectedCategory}.");
         }
     }
 

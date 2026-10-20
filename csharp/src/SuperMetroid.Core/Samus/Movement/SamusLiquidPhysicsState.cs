@@ -586,11 +586,11 @@ public sealed class SamusLiquidPhysicsState
             // Native reads the overlapping word `$0A4D`: fractional high byte followed by
             // whole-damage low byte. Shifting that 8.8 quantity and splitting it back is not
             // equivalent to independently shifting both 16-bit words when a carry crosses.
-            ushort overlappingDamage = unchecked((ushort)(
-                SnesLittleEndian.Word(SnesLittleEndian.HighByte(appliedSubDamage), SnesLittleEndian.LowByte(appliedDamage))));
+            ushort overlappingDamage = unchecked(
+                SnesLittleEndian.Word(SnesLittleEndian.HighByte(appliedSubDamage), SnesLittleEndian.LowByte(appliedDamage)));
             overlappingDamage = unchecked((ushort)(overlappingDamage >> divisorShift));
             appliedSubDamage = SnesLittleEndian.Word(0, SnesLittleEndian.LowByte(overlappingDamage));
-            appliedDamage = unchecked((ushort)(SnesLittleEndian.HighByte(overlappingDamage)));
+            appliedDamage = unchecked(SnesLittleEndian.HighByte(overlappingDamage));
         }
 
         // `$90:EA11` deliberately jumps to the native crash handler if the signed whole

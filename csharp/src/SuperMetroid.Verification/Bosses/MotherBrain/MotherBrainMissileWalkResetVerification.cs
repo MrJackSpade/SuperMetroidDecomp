@@ -40,7 +40,7 @@ internal static class MotherBrainMissileWalkResetVerification
         shot.Type = 0x8100; shot.Damage = 100; shot.Direction = 8;
         shot.Position = shot.Position.WithWhole(head.Position.Whole);
         shot.Radius = new(8, 8);
-        runtime.Enemies.MotherBrainBehavior.ResolveMotherBrainLaterFormHeadShot(state, head, shot, runtime.Projectiles, new SamusProjectileTypeWord(0x8100), (ushort)100);
+        runtime.Enemies.MotherBrainBehavior.ResolveMotherBrainLaterFormHeadShot(state, head, shot, runtime.Projectiles, new SamusProjectileTypeWord(0x8100), 100);
         AssertEqual(MotherBrainWalkCredit.Empty, sequence.Phase3WalkCounter, "a missile empties the sequence-owned walk credit");
         AssertEqual(MotherBrainWalkCredit.Empty, state.WalkCounter, "the encounter projection publishes the reset");
         Console.WriteLine("Mother Brain missile walk reset: the reaction reaches the counter's owner.");

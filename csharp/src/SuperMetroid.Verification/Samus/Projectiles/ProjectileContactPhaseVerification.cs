@@ -81,7 +81,7 @@ internal static class ProjectileContactPhaseVerification
             samus.Pose = SamusPoseId.FacingRightNormalPose;
             samus.Position = samus.Position.WithWhole(new(120, 120));
             samus.Health = 99;
-            samus.EquippedItems = (SamusEquipmentFlags)suit;
+            samus.EquippedItems = suit;
             samus.PoseMetadata.RefreshCollisionRadii();
             var projectile = runtime.Enemies.Projectiles.EnemyProjectiles[^1];
             projectile.Kind = RoomEnemyProjectileKind.CeresRidleyFireball;

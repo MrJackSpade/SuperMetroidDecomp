@@ -25,7 +25,7 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
     private readonly EnemyFrameResultBuilder _frameResults;
 
     /// <inheritdoc/>
-    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.DraygonArms, EnemyDefinitionId.DraygonBody, EnemyDefinitionId.DraygonEye, EnemyDefinitionId.DraygonTail];
+    public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [.. DraygonPartDefinitions.Parts.Keys];
 
     /// <inheritdoc/>
     public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new DraygonEntity(this, slot, common);
@@ -48,8 +48,6 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
     private readonly EnemyCollision _collision;
     /// <summary>Applies common death and drop behavior after Draygon's special sequence.</summary>
     private readonly EnemyDeathsAndDrops _deathsAndDrops;
-    /// <summary>Tracks room kill state and Samus release during the encounter.</summary>
-    private readonly EnemyRoomStatus _roomStatus;
     /// <summary>Restricts camera scrolling while Draygon controls the arena.</summary>
     private readonly SamusScrollCap _scrollCap;
 
@@ -66,7 +64,6 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
         _frameContext = dependencies.FrameContext;
         _collision = dependencies.Collision;
         _deathsAndDrops = dependencies.DeathsAndDrops;
-        _roomStatus = dependencies.RoomStatus;
         _scrollCap = dependencies.ScrollCap;
     }
 
@@ -117,9 +114,9 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
             throw new InvalidDataException("Draygon part appeared before the body record.");
 
         part.InstructionTimer = NativeCountdown.Start(1);
-        switch (part.EnemyDefinitionPointer)
+        switch (DraygonPartDefinitions.Parts[part.EnemyDefinitionPointer])
         {
-            case EnemyDefinitionId.DraygonEye:
+            case DraygonPart.Eye:
                 if (part.SlotIndex != 1)
                     throw new InvalidDataException("Draygon's eye must own native slot $0040.");
                 // Inert until the body publishes facing AI.
@@ -129,7 +126,7 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
                 state.SetCursor(part, AnimationProgramCursor<DraygonProgram>.Start(DraygonProgram.EyeFacingLeftIdle));
                 return;
 
-            case EnemyDefinitionId.DraygonTail:
+            case DraygonPart.Tail:
                 if (part.SlotIndex != 2)
                     throw new InvalidDataException("Draygon's tail must own native slot $0080.");
                 part.PaletteIndex = EnemyPaletteBits.Palette7;
@@ -137,7 +134,7 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
                 state.SetCursor(part, AnimationProgramCursor<DraygonProgram>.Start(DraygonProgram.TailFacingLeftInitialFakeWhip));
                 return;
 
-            case EnemyDefinitionId.DraygonArms:
+            case DraygonPart.Arms:
                 if (part.SlotIndex != 3)
                     throw new InvalidDataException("Draygon's arms must own native slot $00C0.");
                 // Body init briefly writes $9813 before this record exists. Retail part init
@@ -148,6 +145,7 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
                 state.SetCursor(part, AnimationProgramCursor<DraygonProgram>.Start(DraygonProgram.ArmsFacingLeftIdle));
                 return;
 
+            case DraygonPart.Body:
             default:
                 throw new InvalidDataException(
                     $"Enemy ${(int)part.EnemyDefinitionPointer:X4} is not a Draygon part.");
@@ -623,7 +621,7 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
         uint position = body.Position.X.RawValue;
         uint velocity = state.SwoopVelocity;
         position = unchecked(position + velocity);
-        body.Position = body.Position.WithX(SnesFixedPosition.FromRaw(unchecked((uint)position)));
+        body.Position = body.Position.WithX(SnesFixedPosition.FromRaw(unchecked(position)));
     }
 
     /// <summary>Moves Draygon left by the current 16.16 velocity without losing its fraction.</summary>
@@ -633,7 +631,7 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
         uint position = body.Position.X.RawValue;
         uint velocity = state.SwoopVelocity;
         position = unchecked(position - velocity);
-        body.Position = body.Position.WithX(SnesFixedPosition.FromRaw(unchecked((uint)position)));
+        body.Position = body.Position.WithX(SnesFixedPosition.FromRaw(unchecked(position)));
     }
 
     /// <summary>Ports the two mirrored goop setup functions at $A5:8B0A/$8C8E.</summary>
@@ -2186,6 +2184,5 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
             }
         }
         return false;
-    
     }
 }

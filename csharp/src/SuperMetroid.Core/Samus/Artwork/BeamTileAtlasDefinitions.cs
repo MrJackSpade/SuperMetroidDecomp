@@ -152,6 +152,17 @@ public static class BeamTileAtlasDefinitions
         SamusBeamCombination.Wave => WaveSheetRoles[tile],
         SamusBeamCombination.Spazer => SpazerSheetRoles[tile],
         SamusBeamCombination.Plasma => PlasmaSheetRoles[tile],
+        SamusBeamCombination.IceWave or
+            SamusBeamCombination.SpazerWave or
+            SamusBeamCombination.SpazerIce or
+            SamusBeamCombination.SpazerIceWave or
+            SamusBeamCombination.PlasmaWave or
+            SamusBeamCombination.PlasmaIce or
+            SamusBeamCombination.PlasmaIceWave or
+            SamusBeamCombination.SpazerPlasma or
+            SamusBeamCombination.SpazerPlasmaWave or
+            SamusBeamCombination.SpazerPlasmaIce or
+            SamusBeamCombination.SpazerPlasmaIceWave => throw new InvalidOperationException($"{CanonicalSelection(selection)} is not a canonical beam sheet."),
         var canonical => throw new InvalidOperationException($"{canonical} is not a canonical beam sheet."),
     };
 
@@ -391,6 +402,17 @@ public static class BeamTileAtlasDefinitions
         SamusBeamCombination.Wave => SamusBeamCombination.Power,
         SamusBeamCombination.Spazer => SamusBeamCombination.Plasma,
         SamusBeamCombination.Power or SamusBeamCombination.Ice or SamusBeamCombination.Plasma => null,
+        SamusBeamCombination.IceWave or
+            SamusBeamCombination.SpazerWave or
+            SamusBeamCombination.SpazerIce or
+            SamusBeamCombination.SpazerIceWave or
+            SamusBeamCombination.PlasmaWave or
+            SamusBeamCombination.PlasmaIce or
+            SamusBeamCombination.PlasmaIceWave or
+            SamusBeamCombination.SpazerPlasma or
+            SamusBeamCombination.SpazerPlasmaWave or
+            SamusBeamCombination.SpazerPlasmaIce or
+            SamusBeamCombination.SpazerPlasmaIceWave => throw new InvalidOperationException($"{CanonicalSelection(selection)} is not a canonical beam sheet."),
         var canonical => throw new InvalidOperationException($"{canonical} is not a canonical beam sheet."),
     };
 
@@ -404,6 +426,17 @@ public static class BeamTileAtlasDefinitions
             SamusBeamCombination.Wave => tile is 3 or 4,
             SamusBeamCombination.Spazer => tile >= 4,
             SamusBeamCombination.Power or SamusBeamCombination.Ice or SamusBeamCombination.Plasma => false,
+            SamusBeamCombination.IceWave or
+                SamusBeamCombination.SpazerWave or
+                SamusBeamCombination.SpazerIce or
+                SamusBeamCombination.SpazerIceWave or
+                SamusBeamCombination.PlasmaWave or
+                SamusBeamCombination.PlasmaIce or
+                SamusBeamCombination.PlasmaIceWave or
+                SamusBeamCombination.SpazerPlasma or
+                SamusBeamCombination.SpazerPlasmaWave or
+                SamusBeamCombination.SpazerPlasmaIce or
+                SamusBeamCombination.SpazerPlasmaIceWave => throw new InvalidOperationException($"{CanonicalSelection(selection)} is not a canonical beam sheet."),
             var canonical => throw new InvalidOperationException($"{canonical} is not a canonical beam sheet."),
         };
     }

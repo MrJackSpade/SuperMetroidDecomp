@@ -68,7 +68,7 @@ internal static class ChainsawFiringVerification
         // through to the bank-$94 boundary dispatcher. A bombable origin with no PLM owner
         // makes that otherwise invisible call fail loudly through the production path.
         ushort[] reactiveWords = new ushort[256];
-        reactiveWords[0] = (ushort)((int)RoomCollisionType.BombableBlock << 12);
+        reactiveWords[0] = (int)RoomCollisionType.BombableBlock << 12;
         var reactiveLevel = new RoomLevelData(new Extent16<RoomBlocks>(16, 16), new RoomLevelPlanes(reactiveWords, new byte[256], new ushort[256]), new byte[8]);
         var reactiveSamus = new SamusState
         {
@@ -85,12 +85,12 @@ internal static class ChainsawFiringVerification
         ushort[] doorWords = new ushort[256];
         byte[] doorBts = new byte[256];
         int doorOrigin = 6 * 16 + 9;
-        doorWords[doorOrigin] = (ushort)((int)RoomCollisionType.ShootableBlock << 12);
+        doorWords[doorOrigin] = (int)RoomCollisionType.ShootableBlock << 12;
         doorBts[doorOrigin] = 0x41;
         for (int row = 1; row < 4; row++)
         {
             doorWords[doorOrigin + row * 16] =
-                (ushort)((int)RoomCollisionType.VerticalExtension << 12);
+                (int)RoomCollisionType.VerticalExtension << 12;
             doorBts[doorOrigin + row * 16] = unchecked((byte)-row);
         }
         var doorLevel = new RoomLevelData(new Extent16<RoomBlocks>(16, 16), new RoomLevelPlanes(doorWords, doorBts, new ushort[256]), new byte[8]);
@@ -123,7 +123,7 @@ internal static class ChainsawFiringVerification
         ushort[] inheritedY = [0x0034, 0x9027, 0x902f, 0x9037, 0x903f, 0x9047, 0x904f, 0x9057];
         for (int update = 0; update < nextLists.Length; update++)
         {
-            activeProjectiles.StepFrame(new SamusTerrain { Level = level }, samus, new ProjectileButtonInput { ControllerInput = update == 0 ? SnesButton.X : (ushort)0, ControllerNewInput = update == 0 ? SnesButton.X : (ushort)0 }, new(0, 0), activeShared);
+            activeProjectiles.StepFrame(new SamusTerrain { Level = level }, samus, new ProjectileButtonInput { ControllerInput = update == 0 ? SnesButton.X : 0, ControllerNewInput = update == 0 ? SnesButton.X : 0 }, new(0, 0), activeShared);
             SamusProjectileSlot slot = activeProjectiles.Slots[0];
             if (update == 0)
                 AssertTrue(slot.IsActive,
@@ -164,9 +164,9 @@ internal static class ChainsawFiringVerification
         AssertEqual(1, combat.System.Collision.ResolveOrdinaryProjectileHits(
             combatProjectiles, combatShared, samus),
             "active Chainsaw overlaps one ordinary enemy");
-        AssertEqual((ushort)850, target.Health,
+        AssertEqual(850, target.Health,
             "Chainsaw uses Super-Missile vulnerability byte for a 150-point hit");
-        AssertEqual((ushort)0x800d, combatProjectiles.Slots[0].Type,
+        AssertEqual(0x800d, combatProjectiles.Slots[0].Type,
             "Plasma bit keeps Chainsaw alive after enemy damage");
 
         // The documented Orange Door interference is an ordering effect, not a special
@@ -216,7 +216,7 @@ internal static class ChainsawFiringVerification
 
         ushort[] breakingWords = new ushort[25];
         breakingWords[bombableBlock] =
-            (ushort)((int)RoomCollisionType.BombableBlock << 12);
+            (int)RoomCollisionType.BombableBlock << 12;
         var breakingLevel = new RoomLevelData(new Extent16<RoomBlocks>(5, 5), new RoomLevelPlanes(breakingWords, new byte[25], new ushort[25]), new byte[0x2000]);
         var breakingPlms = PlmFixtures.Unbound();
         var breakingReactions = new List<BombBlockReaction>();
@@ -263,7 +263,7 @@ internal static class ChainsawFiringVerification
         for (int frame = 0; frame < 60; frame++)
         {
             chargedShared.StepFrame(new SamusTerrain { Level = level }, chargedSamus, 0, 0);
-            chargedProjectiles.StepFrame(new SamusTerrain { Level = level }, chargedSamus, new ProjectileButtonInput { ControllerInput = SnesButton.X, ControllerNewInput = frame == 0 ? SnesButton.X : (ushort)0 }, new(0, 0), chargedShared);
+            chargedProjectiles.StepFrame(new SamusTerrain { Level = level }, chargedSamus, new ProjectileButtonInput { ControllerInput = SnesButton.X, ControllerNewInput = frame == 0 ? SnesButton.X : 0 }, new(0, 0), chargedShared);
         }
         chargedShared.StepFrame(new SamusTerrain { Level = level }, chargedSamus, 0, 0);
         NotSupportedException chargedFault = AssertThrows<NotSupportedException>(
@@ -275,7 +275,7 @@ internal static class ChainsawFiringVerification
         AssertEqual(SamusProjectilePreInstruction.ChargedChainsawLowWramExecution,
             chargedProjectiles.Slots[0].PreInstruction,
             "charged Chainsaw retains its native unstable callback identity");
-        AssertEqual((ushort)0x901d, chargedProjectiles.Slots[0].Type,
+        AssertEqual(0x901d, chargedProjectiles.Slots[0].Type,
             "charged Chainsaw is fully allocated before unstable callback execution");
 
         Console.WriteLine("Chainsaw firing: native admission, door/enemy reactions, Orange-Door interference, callback stores, Power-Bomb-gated lifetime and charged WRAM execution agree.");

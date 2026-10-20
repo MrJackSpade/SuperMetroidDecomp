@@ -21,7 +21,7 @@ internal static class OverlappingEnemyShotsVerification
     {
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
-        enemies.VerificationServices().SeedRandom = (Action<ushort>)(_ => { });
+        enemies.VerificationServices().SeedRandom = _ => { };
         var interactive = (List<int>)enemies.ProcessingWindow.InteractiveEnemyIndexes;
         Action<RoomEnemySlot, SamusState, SnesButton> initialize = enemies.BeetomBehavior.InitializeBeetom;
         var samus = new SamusState { Pose = SamusPoseId.FacingRightNormalPose, Position = FixedPosition<RoomPixels>.FromWhole(new(64, 128)) };
@@ -56,10 +56,10 @@ internal static class OverlappingEnemyShotsVerification
         foreach (var enemy in enemies.SlotTable.Slots.Take(3))
             AssertEqual(80, enemy.Health, "each overlapping Beetom takes native missile damage");
         AssertTrue(shot.PackedDirection.HasLowByteLifecycleState, "non-piercing shot is marked for deferred removal");
-        AssertEqual((ushort)0x8100, shot.Type, "collision preserves payload until projectile processing");
+        AssertEqual(0x8100, shot.Type, "collision preserves payload until projectile processing");
         var level = CreateRoom(new(16, 16), new ushort[256], new byte[256]);
         shots.StepFrame(new SamusTerrain { Level = level }, samus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0 }, Position16<RoomPixels>.Zero, bombs, projectileProducerEnabled: false);
-        AssertEqual((ushort)0, shot.Type, "next projectile pass consumes the removal marker");
+        AssertEqual(0, shot.Type, "next projectile pass consumes the removal marker");
         foreach (var enemy in enemies.SlotTable.Slots.Take(3))
         {
             enemy.AiStates = EnemyAiStates.None;

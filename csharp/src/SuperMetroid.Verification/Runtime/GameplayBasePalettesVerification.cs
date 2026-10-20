@@ -92,7 +92,7 @@ internal static class GameplayBasePalettesVerification
         }
 
         static ushort ReadWord(ISnesAddressSpace addressSpace, int address) =>
-            (ushort)(SnesLittleEndian.Word(GameplayBasePalettesRomByte(addressSpace, address), GameplayBasePalettesRomByte(addressSpace, address + 1)));
+            SnesLittleEndian.Word(GameplayBasePalettesRomByte(addressSpace, address), GameplayBasePalettesRomByte(addressSpace, address + 1));
     }
 
     /// <summary>Reads native palette bytes for the installed-color comparison.</summary>

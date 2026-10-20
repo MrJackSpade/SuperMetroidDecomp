@@ -25,7 +25,7 @@ internal static class SpeedBoosterWordRangeVerification
         foreach ((int before, int expected) in new[]
         {
             (Counter(2, 0), Counter(1, 255)),
-            (0, (int)ushort.MaxValue),
+            (0, ushort.MaxValue),
             (Counter(4, 0), Counter(3, 255)),
         })
         {
@@ -72,7 +72,7 @@ internal static class SpeedBoosterWordRangeVerification
 
         // Cancellation publishes the departure index, which stops capture.
         boosted.CancelRunningMomentum(SamusFacingDirection.Right);
-        AssertEqual((int)ushort.MaxValue, boosted.SpeedEchoIndex, "cancellation publishes the largest index");
+        AssertEqual(ushort.MaxValue, boosted.SpeedEchoIndex, "cancellation publishes the largest index");
         AssertTrue(boosted.SpeedEchoesDeparting, "the largest index is the departure state");
         AssertTrue(!boosted.CaptureSpeedEchoPosition(4, new(60, 70)), "departing echoes are not recaptured");
     }

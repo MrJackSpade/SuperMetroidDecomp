@@ -53,6 +53,7 @@ public static class SuperMetroidGameStates
         SuperMetroidGameState.TransitionToDemoB => SuperMetroidGameState.PlayingDemo,
         SuperMetroidGameState.PlayingDemo => SuperMetroidGameState.TransitionFromDemoA,
         SuperMetroidGameState.TransitionFromDemoA => SuperMetroidGameState.TransitionFromDemoB,
+        SuperMetroidGameState.TransitionFromDemoB => throw new InvalidOperationException($"{nameof(SuperMetroidGameState)} {(int)state} has no successor."),
         _ => throw new InvalidOperationException($"{nameof(SuperMetroidGameState)} {(int)state} has no successor."),
     };
 }

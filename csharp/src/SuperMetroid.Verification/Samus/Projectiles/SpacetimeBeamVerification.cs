@@ -108,20 +108,20 @@ internal static class SpacetimeBeamVerification
         projectiles.Overreads = InstalledFixtures.SamusOverreads;
         SamusProjectileSlotObservation slotsBeforeHeld = projectiles.ObserveSlots();
         SamusProjectileFrameResult held = projectiles.StepFrame(new SamusTerrain { Level = level, Progression = system }, samus, new ProjectileButtonInput { ControllerInput = SnesButton.X, ControllerNewInput = SnesButton.X }, new(0, 0), shared);
-        AssertEqual((int?)0, slotsBeforeHeld.FiredSlot(projectiles),
+        AssertEqual(0, slotsBeforeHeld.FiredSlot(projectiles),
             "SpaceTime initial shot allocation");
-        AssertEqual((ushort)0x9137, projectiles.Slots[0].InstructionPointer,
+        AssertEqual(0x9137, projectiles.Slots[0].InstructionPointer,
             "native frame-zero next animation record");
         AssertEqual(0xa11546b9u, HashProgression(system),
             "native frame-zero progression hash");
 
         SamusProjectileSlotObservation slotsBeforeRelease = projectiles.ObserveSlots();
         SamusProjectileFrameResult released = projectiles.StepFrame(new SamusTerrain { Level = level, Progression = system }, samus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0 }, new(0, 0), shared);
-        AssertEqual((int?)1, slotsBeforeRelease.FiredSlot(projectiles),
+        AssertEqual(1, slotsBeforeRelease.FiredSlot(projectiles),
             "Charge release allocates the second uncharged SpaceTime shot");
         AssertEqual(0x601b9b2cu, HashProgression(system),
             "retail frame-one progression hash");
-        AssertEqual((ushort)0x0880, system.SavedLoadingGameState,
+        AssertEqual(0x0880, system.SavedLoadingGameState,
             "retail frame-one loading_game_state corruption");
         AssertEqual((ushort)0x100e, samus.EquippedBeams.ToNativeWord(),
             "SpaceTime corruption does not rewrite live equipment");
@@ -132,7 +132,7 @@ internal static class SpacetimeBeamVerification
             ?? throw new InvalidOperationException("SpaceTime save did not survive checksum validation.");
         AssertEqual((ushort)0x100e, saved.EquippedBeams.ToNativeWord(),
             "save retains invalid SpaceTime equipment");
-        AssertEqual((ushort)0x0880, saved.LoadingGameState,
+        AssertEqual(0x0880, saved.LoadingGameState,
             "save retains corrupted startup dispatcher word");
         AssertTrue(saved.EventBytes.SequenceEqual(OwnedBytes(Bank80SystemState.EventByteCount, system.GetEventByteRaw)),
             "save retains corrupted event bytes");
@@ -147,9 +147,9 @@ internal static class SpacetimeBeamVerification
         FrontendSession.RestoreSpacetimeRestartInventory(restarted, saved);
         AssertEqual((ushort)0x100e, restarted.EquippedBeams.ToNativeWord(),
             "Ceres restart retains the SpaceTime equipment word");
-        AssertEqual((ushort)0, restarted.Missiles,
+        AssertEqual(0, restarted.Missiles,
             "intro flashback removes current missiles");
-        AssertEqual((ushort)0, restarted.MaxMissiles,
+        AssertEqual(0, restarted.MaxMissiles,
             "intro flashback removes missile capacity");
         AssertEqual(saved.SuperMissiles, restarted.SuperMissiles,
             "intro flashback preserves Super Missiles");
@@ -280,11 +280,11 @@ internal static class SpacetimeBeamVerification
             "SpaceTime save restarts at Ceres");
         AssertEqual((ushort)0x100e, runtime.Player.IntroducedSamus.EquippedBeams.ToNativeWord(),
             "SpaceTime Ceres restart retains equipped beams");
-        AssertEqual((ushort)0, runtime.Player.IntroducedSamus.MaxMissiles,
+        AssertEqual(0, runtime.Player.IntroducedSamus.MaxMissiles,
             "SpaceTime Ceres restart loses Missiles after the intro flashback");
-        AssertEqual((ushort)7, runtime.Player.IntroducedSamus.SuperMissiles,
+        AssertEqual(7, runtime.Player.IntroducedSamus.SuperMissiles,
             "SpaceTime Ceres restart retains Super Missiles");
-        AssertEqual((ushort)3, runtime.Player.IntroducedSamus.PowerBombs,
+        AssertEqual(3, runtime.Player.IntroducedSamus.PowerBombs,
             "SpaceTime Ceres restart retains Power Bombs");
         AssertTrue(Enumerable.Range(0, Bank80SystemState.EventByteCount).All(
                 index => runtime.System.GetEventByteRaw(index) == 0),

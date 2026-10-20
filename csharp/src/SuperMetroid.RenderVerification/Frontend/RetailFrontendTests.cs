@@ -37,7 +37,7 @@ internal static class RetailFrontendTests
                 PixelComparison.Verify(packet, expected, renderer.RenderForReadback(packet),
                     $"{device.Kind}: retail title {title.Phase}, tick {tick}");
                 titleCount++;
-                title.Step(title.Phase == TitleSequencePhase.TitleScreen ? SnesButton.Start : (ushort)0);
+                title.Step(title.Phase == TitleSequencePhase.TitleScreen ? SnesButton.Start : 0);
             }
             else title.Step(0);
         }

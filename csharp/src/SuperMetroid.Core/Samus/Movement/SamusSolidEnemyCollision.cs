@@ -85,6 +85,7 @@ public static class SamusSolidEnemyCollision
                     enemy.Position.Y - enemy.Radius.Y - state.Position.Y.Whole - state.Radius.Y)),
                 // Probe rejected values outside zero through three above. Keep a throwing
                 // arm anyway so this switch stays honest if the public enum later grows.
+                SamusCollisionDirection.NonDirectionalProbe => throw new InvalidOperationException("Unreachable collision direction."),
                 _ => throw new InvalidOperationException("Unreachable collision direction."),
             };
 

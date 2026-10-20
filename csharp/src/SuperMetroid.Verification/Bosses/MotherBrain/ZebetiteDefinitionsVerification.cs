@@ -127,7 +127,7 @@ internal static class ZebetiteDefinitionsVerification
         foreach (bool linkedHalf in new[] { false, true })
         {
             var enemies = NewZebetiteDefinitionSystem(0);
-            RoomEnemySlot slot = (RoomEnemySlot)enemies.ZebetiteBehavior.SpawnZebetite(linkedHalf);
+            RoomEnemySlot slot = enemies.ZebetiteBehavior.SpawnZebetite(linkedHalf);
             AssertEqual(ZebetiteDefinitions.SpawnPopulation(linkedHalf), slot.Spawn.Population,
                 $"production Zebetite {(linkedHalf ? "linked" : "primary")} population");
             AssertEqual(linkedHalf, slot.Spawn.Population.Parameter1 != 0,
@@ -143,13 +143,32 @@ internal static class ZebetiteDefinitionsVerification
         ushort generation)
     {
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
-        enemies.VerificationServices().HasEvent = (Func<EventNumber, bool>)(eventNumber => eventNumber switch
+        enemies.VerificationServices().HasEvent = eventNumber => eventNumber switch
             {
                 EventNumber.ZebetiteDestroyedBit2 => (generation & 4) != 0,
                 EventNumber.ZebetiteDestroyedBit1 => (generation & 2) != 0,
                 EventNumber.ZebetiteDestroyedBit0 => (generation & 1) != 0,
+                EventNumber.ZebesAwake or
+                    EventNumber.ShitroidAteSidehopper or
+                    EventNumber.MotherBrainGlassDestroyed or
+                    EventNumber.PhantoonStatueGrey or
+                    EventNumber.RidleyStatueGrey or
+                    EventNumber.DraygonStatueGrey or
+                    EventNumber.KraidStatueGrey or
+                    EventNumber.TourianUnlocked or
+                    EventNumber.MaridiaNoobTubeBroken or
+                    EventNumber.LowerNorfairChozoLoweredAcid or
+                    EventNumber.ShaktoolClearedPath or
+                    EventNumber.ZebesTimebombSet or
+                    EventNumber.CrittersEscaped or
+                    EventNumber.FirstMetroidHallCleared or
+                    EventNumber.FirstMetroidShaftCleared or
+                    EventNumber.SecondMetroidHallCleared or
+                    EventNumber.SecondMetroidShaftCleared or
+                    EventNumber.Unused14 or
+                    EventNumber.OutranSpeedBoosterLavaquake => false,
                 _ => false,
-            });
+            };
         return enemies;
     }
 

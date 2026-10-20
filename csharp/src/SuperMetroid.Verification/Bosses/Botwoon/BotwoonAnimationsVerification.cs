@@ -20,9 +20,6 @@ using SuperMetroid.Verification.Harness;
 /// </summary>
 internal static class BotwoonAnimationsVerification
 {
-    /// <summary>Selects nonpublic Botwoon behavior members exposed to this focused verification.</summary>
-    private const BindingFlags BotwoonFlags = BindingFlags.Instance | BindingFlags.Static | BindingFlags.NonPublic;
-
     /// <summary><c>InstListPointers_Botwoon</c> at $B3:946B: moving lists, then eight hidden duplicates.</summary>
     private const int BotwoonMovingListTable = 0xb3946b;
     /// <summary>The eight hidden-head duplicates of the moving table at $B3:947B.</summary>
@@ -245,7 +242,7 @@ internal static class BotwoonAnimationsVerification
             AssertEqual(native.Radius, head.Radius, $"{at}: radius");
             AssertEqual(native.NewFrame, head.ExtraProperties.HasAny(EnemyExtraProperties.NewInstructionFrame), $"{at}: new-frame flag");
             AssertEqual(native.SpitFrame, state.SpitFrameReached, $"{at}: spit frame");
-            AssertEqual(nativeSound ? BotwoonSoundDefinitions.Spit : (SoundEffectId?)null, enemies.BotwoonBehavior.LastBotwoonSoundEffect, $"{at}: spit sound");
+            AssertEqual(nativeSound ? BotwoonSoundDefinitions.Spit : null, enemies.BotwoonBehavior.LastBotwoonSoundEffect, $"{at}: spit sound");
         }
     }
 

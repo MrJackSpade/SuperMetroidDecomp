@@ -84,7 +84,7 @@ internal static class CeresEscapeVramTransferDefinitionsVerification
             AssertTrue(list.Length is 7 or 8, "Ceres installed transfer list length");
             for (int index = 0; index < list.Length; index++)
             {
-                bool finished = (bool)system.CeresRidleyBehavior.QueueNextCeresEscapeTransfer(state, queue);
+                bool finished = system.CeresRidleyBehavior.QueueNextCeresEscapeTransfer(state, queue);
                 CeresEscapeVramTransferDefinition expected = list[index];
                 AssertEqual(index == list.Length - 1, finished,
                     $"Ceres transfer ${expected.Pointer:X4} list completion");

@@ -150,7 +150,7 @@ internal static class ProjectileCompositionsVerification
                 AssertTrue(native.FinalizeAsOam().ImageEquals(extracted.FinalizeAsOam()),
                     "Production projectile composition preserves admission, flicker and OAM");
                 AssertEqual(native.Draws.Length, extracted.Draws.Length, "Composition owner publishes the same draws");
-                AssertEqual((ushort)123, shot.Damage, "Composition does not mutate damage");
+                AssertEqual(123, shot.Damage, "Composition does not mutate damage");
                 AssertEqual((ushort)7, shot.Radius.X, "Composition does not mutate X radius");
                 AssertEqual((ushort)9, shot.Radius.Y, "Composition does not mutate Y radius");
                 comparisons++;

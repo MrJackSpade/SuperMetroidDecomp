@@ -257,11 +257,6 @@ internal static class IntroNarrationPresentationVerification
                 (SnesAddressMath.OffsetInBank(address)) is >= 0xc383 and <= 0xd5dd or >= 0xd67d and <= 0xd780,
             address => $"Installed opening narration read cartridge text address ${address:X6}.");
 
-    /// <summary>Rejects reads from the extracted opening-font compressed ROM stream.</summary>
-    private static CartridgeReadGuard NewIntroFontGuard(ISnesAddressSpace source) =>
-        new CartridgeReadGuard(source).ForbidRange(0x95d089, 0x95d713 - 0x95d089,
-            address => $"Installed opening font read cartridge address ${address:X6}.");
-
     /// <summary>Runs opening narration and font presentation checks against the repository cartridge.</summary>
     [VerificationCommand("--intro-narration-presentation")]
     internal static int IntroNarrationPresentationCommand()

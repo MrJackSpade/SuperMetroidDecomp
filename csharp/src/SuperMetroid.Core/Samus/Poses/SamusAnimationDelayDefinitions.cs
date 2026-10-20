@@ -418,7 +418,7 @@ internal static class SamusAnimationDelayDefinitions
             int offset = DelayStreamsAddress + ((int)pose - RealPoseCount) * sizeof(ushort);
             return SnesLittleEndian.Word(ReadCompiledByte(offset), ReadCompiledByte(offset + 1));
         }
-        return (SamusPoseId)pose switch
+        return pose switch
         {
             SamusPoseId.ForwardFacingPowerSuitPose or
             SamusPoseId.ForwardFacingSuitedPose => ForwardFacingPowerSuitAnimation,
@@ -673,7 +673,10 @@ internal static class SamusAnimationDelayDefinitions
             SamusPoseId.StandingTransitionAimDiagonalUpLeftPose => StandingTransitionAimDiagonalUpLeftAnimation,
             SamusPoseId.StandingTransitionAimDiagonalDownRightPose => StandingTransitionAimDiagonalDownRightAnimation,
             SamusPoseId.StandingTransitionAimDiagonalDownLeftPose => StandingTransitionAimDiagonalDownLeftAnimation,
-            _ => throw new ArgumentOutOfRangeException(nameof(pose)),
+            SamusPoseId.AdjacentCodePoseFD or
+                SamusPoseId.AdjacentCodePoseFE or
+                SamusPoseId.AdjacentCodePoseFF => throw new ArgumentOutOfRangeException(nameof(pose)),
+            var undefined => throw new InvalidOperationException($"Undefined {nameof(SamusPoseId)} {undefined}."),
         };
     }
 
@@ -699,7 +702,7 @@ internal static class SamusAnimationDelayDefinitions
         {
             int byteIndex = address - PointerTableAddress;
             ushort pointer = PointerForPose(
-                ClosedNativeWords.Decode<SamusPoseId>((byte)(byteIndex / 2), "animation-delay pointer-table pose"));
+                ClosedNativeWords.Decode<SamusPoseId>((ushort)(byteIndex / 2), "animation-delay pointer-table pose"));
             return unchecked((byte)(pointer >> ((byteIndex & 1) * 8)));
         }
         if (address is >= DelayStreamsAddress and < DelayStreamsEndExclusive)

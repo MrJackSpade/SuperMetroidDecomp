@@ -38,6 +38,20 @@ internal static class DebuggerEnumValues
     {
         TypeCode.SByte or TypeCode.Int16 or TypeCode.Int32 or TypeCode.Int64 =>
             unchecked((ulong)Convert.ToInt64(enumValue, System.Globalization.CultureInfo.InvariantCulture)),
+        TypeCode.Empty or
+            TypeCode.Object or
+            TypeCode.DBNull or
+            TypeCode.Boolean or
+            TypeCode.Char or
+            TypeCode.Byte or
+            TypeCode.UInt16 or
+            TypeCode.UInt32 or
+            TypeCode.UInt64 or
+            TypeCode.Single or
+            TypeCode.Double or
+            TypeCode.Decimal or
+            TypeCode.DateTime or
+            TypeCode.String => Convert.ToUInt64(enumValue, System.Globalization.CultureInfo.InvariantCulture),
         _ => Convert.ToUInt64(enumValue, System.Globalization.CultureInfo.InvariantCulture),
     };
 }

@@ -123,7 +123,7 @@ internal static class FirefleaFxVerification
         fireflea.Step(fixedColor, frozen: true, darkness: 2);
         AssertEqual(timer, fireflea.Timer, "frozen Fireflea holds its flash timer");
         AssertEqual(index, fireflea.Index, "frozen Fireflea holds its flash index");
-        AssertEqual((ushort)2, fireflea.Darkness, "frozen Fireflea still publishes the enemy-owned darkness counter");
+        AssertEqual(2, fireflea.Darkness, "frozen Fireflea still publishes the enemy-owned darkness counter");
     }
 
     /// <summary>
@@ -140,7 +140,7 @@ internal static class FirefleaFxVerification
         for (int step = 0; step < FirefleaFxDefinitions.FlashDuration; step++)
             fireflea.Step(new FixedColorState(), frozen: false, darkness: 0);
         AssertEqual(1, fireflea.Index, "the timer reaching zero advances the index");
-        AssertEqual((ushort)FirefleaFxDefinitions.FlashDuration, fireflea.Timer.RawValue, "the timer reaching zero restarts it");
+        AssertEqual(FirefleaFxDefinitions.FlashDuration, fireflea.Timer.RawValue, "the timer reaching zero restarts it");
     }
 
     /// <summary>Checks the retail Fireflea room's fixed-color subtraction before, during, and after X-Ray.</summary>

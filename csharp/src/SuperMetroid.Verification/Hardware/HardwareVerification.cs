@@ -487,25 +487,25 @@ internal static void VerifyFrameRuntime()
     };
     HostInfiniteAmmoFrameGuard ammoGuard =
         HostInfiniteAmmoFrameGuard.Begin(enabled: true, infiniteAmmoSamus);
-    AssertEqual((ushort)2, infiniteAmmoSamus.Missiles,
+    AssertEqual(2, infiniteAmmoSamus.Missiles,
         "infinite ammo lends a frame-local final missile");
-    AssertEqual((ushort)1, infiniteAmmoSamus.SuperMissiles,
+    AssertEqual(1, infiniteAmmoSamus.SuperMissiles,
         "infinite ammo repairs an exhausted unlocked type before selection");
-    AssertEqual((ushort)0, infiniteAmmoSamus.PowerBombs,
+    AssertEqual(0, infiniteAmmoSamus.PowerBombs,
         "infinite ammo does not unlock a missing upgrade");
 
     // Consume the lent missile exactly as the cartridge firing routine does. Completion
     // must keep it at one instead of allowing the native zero-ammo auto-cancel branch.
     infiniteAmmoSamus.Missiles--;
     ammoGuard.Complete(infiniteAmmoSamus);
-    AssertEqual((ushort)1, infiniteAmmoSamus.Missiles,
+    AssertEqual(1, infiniteAmmoSamus.Missiles,
         "infinite ammo preserves selection after the final missile");
-    AssertEqual((ushort)1, infiniteAmmoSamus.SuperMissiles,
+    AssertEqual(1, infiniteAmmoSamus.SuperMissiles,
         "infinite ammo retains the unlocked one-unit floor");
-    AssertEqual((ushort)0, infiniteAmmoSamus.PowerBombs,
+    AssertEqual(0, infiniteAmmoSamus.PowerBombs,
         "infinite ammo leaves locked ammunition at zero");
     ammoGuard.Complete(infiniteAmmoSamus);
-    AssertEqual((ushort)1, infiniteAmmoSamus.Missiles,
+    AssertEqual(1, infiniteAmmoSamus.Missiles,
         "repeated frame-exit reconciliation cannot remove the one-unit floor");
 
     var pickupDuringLoan = new SamusState { Missiles = 1, MaxMissiles = 5 };
@@ -514,7 +514,7 @@ internal static void VerifyFrameRuntime()
     pickupDuringLoan.Missiles += 2;
     pickupGuard.Complete(pickupDuringLoan);
     pickupGuard.Complete(pickupDuringLoan);
-    AssertEqual((ushort)3, pickupDuringLoan.Missiles,
+    AssertEqual(3, pickupDuringLoan.Missiles,
         "idempotent loan reconciliation preserves ammunition collected during the frame");
 
     var runtime = CreateRetailRuntimeFixture();

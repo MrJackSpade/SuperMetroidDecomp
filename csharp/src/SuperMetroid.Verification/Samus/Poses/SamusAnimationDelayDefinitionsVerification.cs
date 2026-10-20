@@ -61,8 +61,8 @@ internal static class SamusAnimationDelayDefinitionsVerification
             Pose = SamusPoseId.FacingLeftNormalPose,
         };
         flashbackSamus.Presentation.InitializeAnimation();
-        AssertEqual((int)(0x910000 |
-            SamusAnimationDelayDefinitions.PointerForPose(SamusPoseId.FacingLeftNormalPose)),
+        AssertEqual(0x910000 |
+            SamusAnimationDelayDefinitions.PointerForPose(SamusPoseId.FacingLeftNormalPose),
             flashbackSamus.AnimationDelayListAddress,
             "Mother Brain flashback pose initializes through compiled animation timing");
         AssertThrows<InvalidDataException>(

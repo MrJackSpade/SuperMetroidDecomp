@@ -102,7 +102,7 @@ internal static class BlueDoorPlmDrawDefinitionsVerification
                     plms.Step(level);
                 AssertEqual(0, plms.SlotTable.ActiveCount,
                     $"{orientation} {program} reaches its deletion");
-                AssertEqual((int)behavior.Value,
+                AssertEqual(behavior.Value,
                     level.GetCollisionBlockByIndex(origin).Bts.Value,
                     $"{orientation} {program} restores the blue-door BTS");
             }

@@ -42,8 +42,8 @@ internal static class SamusImpulseDefinitionsVerification
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x909ef5 + medium * 2)), bomb.Kinematics.YSpeed.Whole, "Bomb native whole launch");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x909efb + medium * 2)), bomb.Kinematics.YSpeed.Fraction, "Bomb native fractional launch");
             AssertEqual(SamusVerticalDirection.Up, bomb.Kinematics.YDirection, "Bomb upward launch");
-            AssertEqual((ushort)7, bomb.Kinematics.YAcceleration.Whole, "Bomb launch retains live whole gravity");
-            AssertEqual((ushort)123, bomb.Kinematics.YAcceleration.Fraction, "Bomb launch retains live fractional gravity");
+            AssertEqual(7, bomb.Kinematics.YAcceleration.Whole, "Bomb launch retains live whole gravity");
+            AssertEqual(123, bomb.Kinematics.YAcceleration.Fraction, "Bomb launch retains live fractional gravity");
             AssertEqual((ushort)128, bomb.Position.Y.Whole, "Bomb setup does not move Samus");
             AssertTrue(bomb.BombJumpActive && !bomb.BombJumpStarting, "Bomb mover handoff");
             bombCases++;
@@ -78,8 +78,8 @@ internal static class SamusImpulseDefinitionsVerification
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x909ea1 + medium * 2)), hurt.Kinematics.YAcceleration.Fraction, "Hurt refreshes native gravity");
             AssertEqual((ushort)11, hurt.KnockbackTimer.RawValue, "Hurt retains producer timer");
             AssertTrue(hurt.KnockbackActive && !hurt.BombJumpActive && !hurt.BombJumpStarting, "Hurt replaces bomb mover");
-            AssertEqual((ushort)0, hurt.BombJumpDirection, "Hurt clears bomb direction");
-            AssertEqual((ushort)1, hurt.HurtFlashCounter, "Hurt starts flash");
+            AssertEqual(0, hurt.BombJumpDirection, "Hurt clears bomb direction");
+            AssertEqual(1, hurt.HurtFlashCounter, "Hurt starts flash");
             AssertEqual(SamusContactDamageIndex.None, hurt.HorizontalSpeed.ContactDamageIndex, "Hurt cancels contact attack");
             hurtCases++;
         }

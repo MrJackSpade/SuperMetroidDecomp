@@ -96,6 +96,7 @@ public sealed class ProjectileInheritanceRecords
         SamusCollisionDirection.Right => FirstRecordOffset + RecordByteCount,
         SamusCollisionDirection.Up => FirstRecordOffset + RecordByteCount * 2,
         SamusCollisionDirection.Down => FirstRecordOffset + RecordByteCount * 3,
+        SamusCollisionDirection.NonDirectionalProbe => throw new ArgumentOutOfRangeException(nameof(direction)),
         _ => throw new ArgumentOutOfRangeException(nameof(direction)),
     };
 }

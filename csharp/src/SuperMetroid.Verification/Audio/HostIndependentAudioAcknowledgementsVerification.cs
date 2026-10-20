@@ -99,7 +99,7 @@ internal static class HostIndependentAudioAcknowledgementsVerification
         runtime.Player.IntroducedSamus.Control.LockHandlers();
         var game = CreateRetailGameFixture(new SuperMetroid.Core.Saves.SaveSlotStore(), renderGameplayFrames: false, random: random);
         game.AdoptRuntime(runtime);
-        game.Session.lastAudioRoomState = runtime.Room.LoadedRoom.State;
+        game.Session.LastAudioRoomState = runtime.Room.LoadedRoom.State;
         game.GameState = SuperMetroidGameState.MainGameplay;
         game.AudioForVerification.Reset();
         return game;

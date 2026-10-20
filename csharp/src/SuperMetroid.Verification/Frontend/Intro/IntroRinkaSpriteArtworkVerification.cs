@@ -108,7 +108,7 @@ internal static class IntroRinkaSpriteArtworkVerification
         {
             state.SetupFirstIllustratedPage();
             state.SetupMotherBrainFlashback();
-            state.flashbackRinkas = rinkas;
+            state.FlashbackRinkas = rinkas;
         }
         Rgba32[] stockPixels = stockState.RenderMotherBrainFlashback();
         Rgba32[] editedPixels = editedState.RenderMotherBrainFlashback();

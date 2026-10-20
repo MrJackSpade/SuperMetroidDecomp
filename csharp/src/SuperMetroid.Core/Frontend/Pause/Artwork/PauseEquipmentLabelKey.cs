@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Frontend.Pause.Artwork;
 
-/// <summary>Which equipment-screen label artwork names an item: the category and item and its label artwork key.</summary>
+/// <summary>Which equipment-screen label names an item: the category and item and its label.</summary>
 /// <param name="Category">The equipment category.</param>
 /// <param name="Item">The item within the category.</param>
-/// <param name="Key">The label's artwork key.</param>
-public readonly record struct PauseEquipmentLabelKey(PauseEquipmentCategory Category, int Item, string Key);
+/// <param name="Label">The item's label.</param>
+public readonly record struct PauseEquipmentLabelKey(PauseEquipmentCategory Category, int Item, PauseEquipmentLabelId Label);

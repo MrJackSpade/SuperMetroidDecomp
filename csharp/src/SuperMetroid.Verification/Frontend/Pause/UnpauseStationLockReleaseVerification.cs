@@ -37,7 +37,7 @@ internal static class UnpauseStationLockReleaseVerification
         EnterPauseEquipment(pause);
         var game = new SuperMetroid.Core.Frontend.SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore(), null, SuperMetroid.Core.Frontend.SuperMetroidGameHostServices.Default, random);
         game.AdoptRuntime(runtime);
-        game.Session.pauseMenu = pause;
+        game.Session.Show(pause);
         game.GameState = SuperMetroidGameState.PausedB;
         long sequence = 0;
 

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend.Options;
 using SuperMetroid.Verification.Enemies.Projectiles;
 using SuperMetroid.Verification.Enemies.Deaths;
 using SuperMetroid.Verification.Enemies.Shaktool;
@@ -60,6 +61,9 @@ using SuperMetroid.Core.Enemies.Corpses;
 /// <summary>Checks stream-three compiled enemy, projectile, and room lookup contracts against native sources.</summary>
 internal static class LookupStream3Verification
 {
+    /// <summary>One game-over sprite's draw call with its expected screen anchor and palette.</summary>
+    private sealed record GameOverSpriteDraw(string Name, Action<ScreenSprites> Draw, int X, int Y, int Palette);
+
     /// <summary>$94:B18D-$B199: the four grapple-rope segment attribute words.</summary>
     private static readonly int[] GrappleSegmentAttributeAddresses =
         [0x94b18d, 0x94b191, 0x94b195, 0x94b199];
@@ -234,10 +238,10 @@ internal static class LookupStream3Verification
     internal static void VerifyStream3OptionsBorders(ISnesAddressSpace rom, byte[] imported)
     {
         GameOptionsPresentationDocument Read() => RequiredJson.Deserialize<GameOptionsPresentationDocument>(imported, ArtworkJson.Options);
-        Dictionary<string, SpriteComposition> Load(GameOptionsPresentationDocument document)
+        Dictionary<GameOptionsPage, SpriteComposition> Load(GameOptionsPresentationDocument document)
         {
             var value = GameOptionsPresentation.Load(new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options)));
-            return value.sprites;
+            return value.headingSprites;
         }
         void Confirm(SpriteComposition actual, SpriteVisualPart[] parts)
         {
@@ -246,23 +250,24 @@ internal static class LookupStream3Verification
             for (int index = 0; index < expected.PartCount; index++)
                 AssertEqual(expected.Part(index), actual.Part(index), "border exact coordinates, appearance and order");
         }
-        foreach ((string name, int address, int count) in new[]
+        foreach ((GameOptionsPage page, int address, int count) in new[]
         {
-            ("Heading.Primary", 0x82d24b, 34), ("Heading.Controller", 0x82d2f7, 58), ("Heading.Special", 0x82d41b, 52),
+            (GameOptionsPage.Primary, 0x82d24b, 34), (GameOptionsPage.Controller, 0x82d2f7, 58), (GameOptionsPage.Special, 0x82d41b, 52),
         })
         {
+            string name = GameOptionsPresentationDefinitions.HeadingSpriteName(page);
             var original = Read();
-            var stock = Load(original)[name];
+            var stock = Load(original)[page];
             AssertTrue(stock.parts is MenuHeadingBorderDefinitions,
                 "native heading stores only semantic title identity instead of supplied bounds/order/style");
             AssertEqual(count, stock.PartCount, "native perimeter count");
             Confirm(stock, original.Sprites[name]);
             var presentation = GameOptionsPresentation.Load(new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(original, ArtworkJson.Options)));
-            string page = original.HeadingAnchors.Keys.Single(key => GameOptionsPresentationDefinitions.HeadingFrameName(key) == name);
+            string anchorKey = GameOptionsPresentationDefinitions.MenuName(page);
             var actualOam = ScreenSpritesFixtures.Blank();
             var expectedOam = new OamBuffer();
             presentation.DrawHeading(actualOam, page, 3);
-            var point = original.HeadingAnchors[page];
+            var point = original.HeadingAnchors[anchorKey];
             MenuSpriteCompiler.Compile(original.Sprites[name], name).DrawOnScreen(expectedOam,
                 new(point.X, unchecked((ushort)(point.Y - 3))), (ushort)(original.CursorPalette << 9));
             actualOam.FinishFrame(); expectedOam.FinalizeFrame();
@@ -288,15 +293,15 @@ internal static class LookupStream3Verification
                         2 => source with { TileColumn = source.TileColumn ^ 1 },
                         _ => source with { Palette = 2, FlipX = !source.FlipX },
                     };
-                    Confirm(Load(edited)[name], edited.Sprites[name]);
+                    Confirm(Load(edited)[page], edited.Sprites[name]);
                 }
             }
             var reversed = Read();
             Array.Reverse(reversed.Sprites[name]);
-            Confirm(Load(reversed)[name], reversed.Sprites[name]);
+            Confirm(Load(reversed)[page], reversed.Sprites[name]);
             var expanded = Read();
             expanded.Sprites[name] = [.. expanded.Sprites[name], expanded.Sprites[name][0]];
-            Confirm(Load(expanded)[name], expanded.Sprites[name]);
+            Confirm(Load(expanded)[page], expanded.Sprites[name]);
         }
     }
 
@@ -305,10 +310,10 @@ internal static class LookupStream3Verification
     internal static void VerifyStream3FileSelectBorders(ISnesAddressSpace rom, byte[] imported)
     {
         FileSelectPresentationDocument Read() => RequiredJson.Deserialize<FileSelectPresentationDocument>(imported, ArtworkJson.Options);
-        Dictionary<string, SpriteComposition> Load(FileSelectPresentationDocument document)
+        Dictionary<FileSelectBorder, SpriteComposition> Load(FileSelectPresentationDocument document)
         {
             var value = FileSelectPresentation.Load(new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options)));
-            return value.sprites;
+            return value.borderSprites;
         }
         void Confirm(SpriteComposition actual, SpriteVisualPart[] parts)
         {
@@ -317,23 +322,24 @@ internal static class LookupStream3Verification
             for (int index = 0; index < expected.PartCount; index++)
                 AssertEqual(expected.Part(index), actual.Part(index), "border exact coordinates, appearance and order");
         }
-        foreach ((string name, int address, int count) in new[]
+        foreach ((FileSelectBorder border, int address, int count) in new[]
         {
-            ("Border.Main", 0x82d00b, 32), ("Border.Copy", 0x82d0ad, 40), ("Border.Clear", 0x82d177, 42),
+            (FileSelectBorder.Main, 0x82d00b, 32), (FileSelectBorder.Copy, 0x82d0ad, 40), (FileSelectBorder.Clear, 0x82d177, 42),
         })
         {
+            string name = FileSelectPresentationDefinitions.BorderSpriteName(border);
             var original = Read();
-            var stock = Load(original)[name];
+            var stock = Load(original)[border];
             AssertTrue(stock.parts is MenuHeadingBorderDefinitions,
                 "native file border uses semantic title and calculated perimeter");
             AssertEqual(count, stock.PartCount, "native perimeter count");
             Confirm(stock, original.Sprites[name]);
             var presentation = FileSelectPresentation.Load(new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(original, ArtworkJson.Options)));
-            string page = original.BorderAnchors.Keys.Single(key => FileSelectPresentationDefinitions.BorderFrameName(key) == name);
+            string anchorKey = FileSelectPresentationDefinitions.BorderName(border);
             var actualOam = ScreenSpritesFixtures.Blank();
             var expectedOam = new OamBuffer();
-            presentation.DrawBorder(actualOam, page);
-            var anchor = original.BorderAnchors[page];
+            presentation.DrawBorder(actualOam, border);
+            var anchor = original.BorderAnchors[anchorKey];
             MenuSpriteCompiler.Compile(original.Sprites[name], name).DrawOnScreen(expectedOam,
                 new(anchor.X, anchor.Y), (ushort)(original.ObjectPalette << 9));
             actualOam.FinishFrame(); expectedOam.FinalizeFrame();
@@ -359,15 +365,15 @@ internal static class LookupStream3Verification
                         2 => source with { TileColumn = source.TileColumn ^ 1 },
                         _ => source with { Palette = 2, FlipX = !source.FlipX },
                     };
-                    Confirm(Load(edited)[name], edited.Sprites[name]);
+                    Confirm(Load(edited)[border], edited.Sprites[name]);
                 }
             }
             var reversed = Read();
             Array.Reverse(reversed.Sprites[name]);
-            Confirm(Load(reversed)[name], reversed.Sprites[name]);
+            Confirm(Load(reversed)[border], reversed.Sprites[name]);
             var expanded = Read();
             expanded.Sprites[name] = [.. expanded.Sprites[name], expanded.Sprites[name][0]];
-            Confirm(Load(expanded)[name], expanded.Sprites[name]);
+            Confirm(Load(expanded)[border], expanded.Sprites[name]);
         }
     }
 
@@ -501,7 +507,12 @@ internal static class LookupStream3Verification
     /// <summary>Checks menu compositions against native OAM parts and preserves edited geometry and order.</summary>
     internal static void VerifyStream3MenuSpriteGeometry(ISnesAddressSpace rom)
     {
-        static Dictionary<string, SpriteComposition> Sprites(GameOverPresentation presentation) => presentation.sprites;
+        static Dictionary<string, SpriteComposition> Sprites(GameOverPresentation presentation) => new(
+            [.. Enum.GetValues<GameOverBabyFrame>().Select(frame =>
+                KeyValuePair.Create(GameOverPresentationDefinitions.BabyFrameName(frame), presentation.babySprites[frame])),
+            KeyValuePair.Create(GameOverPresentationDefinitions.EggFrame, presentation.eggSprite),
+            .. Enumerable.Range(0, GameOverPresentationDefinitions.CursorFrameCount).Select(frame =>
+                KeyValuePair.Create(GameOverPresentationDefinitions.CursorFrameName(frame), presentation.cursorSprites[frame]))]);
         static void Confirm(SpriteComposition actual, SpriteVisualPart[] expectedParts)
         {
             var expected = MenuSpriteCompiler.Compile(expectedParts, "native or independently edited menu composition");
@@ -519,33 +530,29 @@ internal static class LookupStream3Verification
         var original = Read();
         var stock = Sprites(Load(original));
         var presentation = Load(original);
-        foreach (string name in GameOverPresentationDefinitions.SpriteNames)
+        List<GameOverSpriteDraw> draws =
+        [
+            .. Enum.GetValues<GameOverBabyFrame>().Select(frame => new GameOverSpriteDraw(GameOverPresentationDefinitions.BabyFrameName(frame),
+                oam => presentation.DrawBaby(oam, frame), original.BabyAnchor.X, original.BabyAnchor.Y, presentation.BabyPaletteIndex)),
+            new(GameOverPresentationDefinitions.EggFrame, presentation.DrawEgg, original.BabyAnchor.X, original.BabyAnchor.Y, presentation.EggPaletteIndex),
+            .. Enumerable.Range(0, GameOverPresentationDefinitions.CursorFrameCount).Select(frame => new GameOverSpriteDraw(
+                GameOverPresentationDefinitions.CursorFrameName(frame), oam => presentation.DrawCursor(oam, frame, false),
+                original.CursorX, original.YesCursorY, presentation.CursorPaletteIndex)),
+        ];
+        foreach (GameOverSpriteDraw draw in draws)
         {
             var actualOam = ScreenSpritesFixtures.Blank();
             var expectedOam = new OamBuffer();
-            int x, y, palette;
-            if (name.StartsWith("Cursor.", StringComparison.Ordinal))
-            {
-                int frame = name[^1] - '0';
-                presentation.DrawCursor(actualOam, frame, false);
-                x = original.CursorX; y = original.YesCursorY; palette = presentation.CursorPaletteIndex;
-            }
-            else
-            {
-                if (name == GameOverPresentationDefinitions.EggFrame) presentation.DrawEgg(actualOam);
-                else presentation.DrawBaby(actualOam, name switch { "Baby.Closed" => GameOverBabyFrame.Closed, "Baby.Middle" => GameOverBabyFrame.Middle, _ => GameOverBabyFrame.Open });
-                x = original.BabyAnchor.X; y = original.BabyAnchor.Y;
-                palette = name == GameOverPresentationDefinitions.EggFrame ? presentation.EggPaletteIndex : presentation.BabyPaletteIndex;
-            }
-            MenuSpriteCompiler.Compile(original.Sprites[name], name).DrawOnScreen(expectedOam,
-                new((ushort)x, (ushort)y), (ushort)(palette << 9));
+            draw.Draw(actualOam);
+            MenuSpriteCompiler.Compile(original.Sprites[draw.Name], draw.Name).DrawOnScreen(expectedOam,
+                new((ushort)draw.X, (ushort)draw.Y), (ushort)(draw.Palette << 9));
             actualOam.FinishFrame(); expectedOam.FinalizeFrame();
             AssertTrue(actualOam.ImageEquals(expectedOam),
-                "actual game-over draw emits exact native ordered OAM " + name);
+                "actual game-over draw emits exact native ordered OAM " + draw.Name);
         }
         foreach (string name in GameOverPresentationDefinitions.SpriteNames)
         {
-            if (name == "Cursor.0") for (int part = 0; part < 2; part++) AssertEqual(stock[name].Part(part), new MenuCursorParts(MenuMissileAnimationDefinitions.SpritemapId(0) - 0x34)[part], "exact first cursor candidate part");
+            if (name == GameOverPresentationDefinitions.CursorFrameName(0)) for (int part = 0; part < 2; part++) AssertEqual(stock[name].Part(part), new MenuCursorParts(MenuMissileAnimationDefinitions.SpritemapId(0) - 0x34)[part], "exact first cursor candidate part");
             AssertTrue(Calculated(stock[name]), "stock game-over geometry retains no full part array " + name);
             Confirm(stock[name], original.Sprites[name]);
             for (int part = 0; part < original.Sprites[name].Length; part++)
@@ -579,10 +586,10 @@ internal static class LookupStream3Verification
             expanded.Sprites[name] = [.. expanded.Sprites[name], expanded.Sprites[name][0] with { OffsetX = 17 }];
             Confirm(Sprites(Load(expanded))[name], expanded.Sprites[name]);
         }
-        ConfirmCursorCaller(SuperMetroid.AssetExtraction.Frontend.FileSelectPresentationExtractor.Extract(rom), source => FileSelectPresentation.Load(source).sprites);
-        ConfirmCursorCaller(SuperMetroid.AssetExtraction.Frontend.GameOptionsPresentationExtractor.Extract(rom), source => GameOptionsPresentation.Load(source).sprites);
+        ConfirmCursorCaller(SuperMetroid.AssetExtraction.Frontend.FileSelectPresentationExtractor.Extract(rom), source => FileSelectPresentation.Load(source).cursorSprites);
+        ConfirmCursorCaller(SuperMetroid.AssetExtraction.Frontend.GameOptionsPresentationExtractor.Extract(rom), source => GameOptionsPresentation.Load(source).cursorSprites);
 
-        void ConfirmCursorCaller(byte[] json, Func<Stream, Dictionary<string, SpriteComposition>> load)
+        void ConfirmCursorCaller(byte[] json, Func<Stream, SpriteComposition[]> load)
         {
             var presentation = load(new MemoryStream(json));
             for (int frame = 0; frame < 4; frame++)
@@ -590,12 +597,12 @@ internal static class LookupStream3Verification
                 string name = GameOverPresentationDefinitions.CursorFrameName(frame);
                 var node = RequiredJson.Parse(json);
                 var parts = RequiredJson.Deserialize<SpriteVisualPart[]>(node.Required("sprites").Required(name).ToJsonString(), ArtworkJson.Options);
-                AssertTrue(Calculated(presentation[name]), "shared menu cursor caller uses calculated geometry");
-                Confirm(presentation[name], parts);
+                AssertTrue(Calculated(presentation[frame]), "shared menu cursor caller uses calculated geometry");
+                Confirm(presentation[frame], parts);
                 parts[0] = parts[0] with { OffsetX = parts[0].OffsetX + 1, TileColumn = parts[0].TileColumn ^ 1 };
                 node.Required("sprites")[name] = System.Text.Json.JsonSerializer.SerializeToNode(parts, ArtworkJson.Options);
                 var edited = load(new MemoryStream(System.Text.Encoding.UTF8.GetBytes(node.ToJsonString())));
-                Confirm(edited[name], parts);
+                Confirm(edited[frame], parts);
             }
         }
     }
@@ -636,20 +643,21 @@ internal static class LookupStream3Verification
         FileSelectPresentationDocument Read() => RequiredJson.Deserialize<FileSelectPresentationDocument>(imported, ArtworkJson.Options);
         FileSelectPresentation Load(FileSelectPresentationDocument document) => FileSelectPresentation.Load(new MemoryStream(
             System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options)));
-        foreach ((string name, Func<FileSelectPresentation, FileSelectCompiledPatch> Compiled, int address, int count) in
-            new (string, Func<FileSelectPresentation, FileSelectCompiledPatch>, int, int)[]
+        foreach ((FileSelectPatch patch, int address, int count) in new[]
         {
-            (FileSelectPresentationDefinitions.EnergyPatch, value => value.energyPatch, 0x81b496, 4),
-            (FileSelectPresentationDefinitions.TimeColonPatch, value => value.timeColonPatch, 0x81b4a8, 1),
-            (FileSelectPresentationDefinitions.NoDataPatch, value => value.noDataPatch, 0x81b4ac, 11),
+            (FileSelectPatch.Energy, 0x81b496, 4),
+            (FileSelectPatch.TimeColon, 0x81b4a8, 1),
+            (FileSelectPatch.NoData, 0x81b4ac, 11),
         })
         {
+            string name = FileSelectPresentationDefinitions.PatchName(patch);
+            FileSelectCompiledPatch Compiled(FileSelectPresentation value) => value.patches[patch];
             AssertTrue(Compiled(stock).suppliedCells is null,
                 "file-select stock patch retains no cells " + name);
             for (int index = 0; index < count; index++)
             {
                 ushort word = CartridgeImportSource.Require(rom).ReadCartridgeWord(address + index * 2);
-                AssertEqual(new FileSelectCompiledPatchCell(new(checked((short)index), 0), word), FileSelectPresentationDefinitions.PatchCell(name, index),
+                AssertEqual(new FileSelectCompiledPatchCell(new(checked((short)index), 0), word), FileSelectPresentationDefinitions.PatchCell(patch, index),
                     "file-select calculated patch exact native cell");
                 foreach (int bit in new[] { 1, 32, 0x400, 0x2000, 0x4000, 0x8000 })
                 {
@@ -696,7 +704,7 @@ internal static class LookupStream3Verification
                         "file-select independent supplied order and coordinates");
                     expected[(3 + source.Y) * 32 + 4 + source.X] = word;
                 }
-                presentation.ApplyPatch(actual, name, new Position16<TilemapCells>(4, 3));
+                presentation.ApplyPatch(actual, patch, new Position16<TilemapCells>(4, 3));
                 AssertTrue(actual.SequenceEqual(expected), "file-select exact stock or independently edited patch placement");
             }
         }
@@ -760,11 +768,11 @@ internal static class LookupStream3Verification
             AssertEqual(new Position16<TilemapCells>(checked((ushort)(offset / 2 % 32)), checked((ushort)(offset / 2 / 32))),
                 GameOptionsPresentationDefinitions.ControllerAnchor(action), "native options label anchor");
         }
-        foreach ((string page, int address, int count) in new[]
+        foreach ((GameOptionsPage page, int address, int count) in new[]
         {
-            (GameOptionsPresentationDefinitions.PrimaryMenu, 0x82f307, 5),
-            (GameOptionsPresentationDefinitions.ControllerMenu, 0x82f31b, 9),
-            (GameOptionsPresentationDefinitions.SpecialMenu, 0x82f33f, 3),
+            (GameOptionsPage.Primary, 0x82f307, 5),
+            (GameOptionsPage.Controller, 0x82f31b, 9),
+            (GameOptionsPage.Special, 0x82f33f, 3),
         })
             for (int row = 0; row < count; row++)
                 AssertEqual(new Position16<OamPixels>(CartridgeImportSource.Require(rom).ReadCartridgeWord((address + row * 4)), CartridgeImportSource.Require(rom).ReadCartridgeWord((address + row * 4 + 2))),
@@ -774,7 +782,7 @@ internal static class LookupStream3Verification
         for (int button = 0; button < 7; button++)
         for (int cell = 0; cell < 6; cell++)
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x82f659 + button * 12 + cell * 2)),
-                GameOptionsPresentationDefinitions.ControllerLabelWord(GameOptionsPresentationDefinitions.ControllerLabelName(button), cell),
+                GameOptionsPresentationDefinitions.ControllerLabelWord(GameOptionsPresentationDefinitions.ControllerLabelButton(button), cell),
                 "native options glyph composition preserves each tile and flip");
         Confirm(stock, loaded);
         var edited = ReadDocument();
@@ -787,7 +795,7 @@ internal static class LookupStream3Verification
             for (int cell = 0; cell < label.Length; cell++)
                 label[cell] = label[cell] with { FlipX = !label[cell].FlipX, Palette = 1 };
         edited.LanguageRegions[0].Cells[0] = 0;
-        edited.SpecialToggles[GameOptionsPresentationDefinitions.IconCancelToggle].EnabledCells[0] = 0;
+        edited.SpecialToggles[GameOptionsPresentationDefinitions.ToggleName(GameOptionsToggle.IconCancel)].EnabledCells[0] = 0;
         foreach (string page in edited.HeadingAnchors.Keys.ToArray())
         {
             Position16<OamPixels> old = edited.HeadingAnchors[page];
@@ -804,32 +812,33 @@ internal static class LookupStream3Verification
         {
             foreach (bool japanese in new[] { false, true })
             {
-                byte[] actual = presentation.CreatePage(GameOptionsPresentationDefinitions.PrimaryPage);
+                byte[] actual = presentation.CreatePage(GameOptionsTilemap.Primary);
                 byte[] expected = (byte[])actual.Clone();
                 foreach (var region in document.LanguageRegions)
                     Paint(expected, region.Cells, japanese == region.HighlightWhenJapanese ? document.SelectedPalette : document.UnselectedPalette);
                 presentation.ApplyLanguage(actual, japanese);
                 AssertTrue(actual.SequenceEqual(expected), "options language boxes preserve exact stock/edited cells");
             }
-            foreach (var pair in document.SpecialToggles)
+            foreach (GameOptionsToggle toggle in GameOptionsPresentationDefinitions.Toggles)
             foreach (bool enabled in new[] { false, true })
             {
-                byte[] actual = presentation.CreatePage(GameOptionsPresentationDefinitions.SpecialEnglishPage);
+                GameOptionsToggleVisualDocument visual = document.SpecialToggles[GameOptionsPresentationDefinitions.ToggleName(toggle)];
+                byte[] actual = presentation.CreatePage(GameOptionsTilemap.SpecialEnglish);
                 byte[] expected = (byte[])actual.Clone();
-                Paint(expected, pair.Value.EnabledCells, enabled ? document.SelectedPalette : document.UnselectedPalette);
-                Paint(expected, pair.Value.DisabledCells, enabled ? document.UnselectedPalette : document.SelectedPalette);
-                presentation.ApplySpecialToggle(actual, pair.Key, enabled);
+                Paint(expected, visual.EnabledCells, enabled ? document.SelectedPalette : document.UnselectedPalette);
+                Paint(expected, visual.DisabledCells, enabled ? document.UnselectedPalette : document.SelectedPalette);
+                presentation.ApplySpecialToggle(actual, toggle, enabled);
                 AssertTrue(actual.SequenceEqual(expected), "options toggle boxes preserve exact stock/edited cells");
             }
             for (int action = 0; action < 7; action++)
             for (int button = 0; button < 7; button++)
             {
-                byte[] actual = presentation.CreatePage(GameOptionsPresentationDefinitions.ControllerEnglishPage);
+                byte[] actual = presentation.CreatePage(GameOptionsTilemap.ControllerEnglish);
                 byte[] expected = (byte[])actual.Clone();
                 Position16<TilemapCells> point = document.ControllerLabelAnchors[action];
                 for (int cell = 0; cell < 6; cell++)
                 {
-                    MapPresentationCell source = document.ControllerLabels[GameOptionsPresentationDefinitions.ControllerLabelName(button)][cell];
+                    MapPresentationCell source = document.ControllerLabels[GameOptionsPresentationDefinitions.ControllerLabelName(GameOptionsPresentationDefinitions.ControllerLabelButton(button))][cell];
                     ushort word = SnesBgTilemapWord.Create(source.TileRow * MapTileAtlasFormat.TileColumns + source.TileColumn, source.Palette, source.Priority,
                         (source.FlipX ? SnesTileFlipFlags.Horizontal : SnesTileFlipFlags.None) |
                         (source.FlipY ? SnesTileFlipFlags.Vertical : SnesTileFlipFlags.None)).Raw;
@@ -838,23 +847,27 @@ internal static class LookupStream3Verification
                 presentation.ApplyControllerLabel(actual, action, button);
                 AssertTrue(actual.SequenceEqual(expected), "options controller boxes preserve exact stock/edited placement");
             }
-            foreach (var pair in document.CursorAnchors)
-                for (int row = 0; row < pair.Value.Length; row++)
-                    AssertEqual(pair.Value[row], presentation.CursorPosition(pair.Key, row), "options stock/edited cursor");
-            foreach (var pair in document.HeadingAnchors)
+            foreach (GameOptionsPage page in GameOptionsPresentationDefinitions.MenuPages)
             {
+                Position16<OamPixels>[] cursors = document.CursorAnchors[GameOptionsPresentationDefinitions.MenuName(page)];
+                for (int row = 0; row < cursors.Length; row++)
+                    AssertEqual(cursors[row], presentation.CursorPosition(page, row), "options stock/edited cursor");
+            }
+            foreach (GameOptionsPage page in GameOptionsPresentationDefinitions.MenuPages)
+            {
+                Position16<OamPixels> heading = document.HeadingAnchors[GameOptionsPresentationDefinitions.MenuName(page)];
                 var actual = ScreenSpritesFixtures.Blank();
                 var expected = new OamBuffer();
-                presentation.DrawHeading(actual, pair.Key, 3);
-                MenuSpriteCompiler.Compile(document.Sprites[GameOptionsPresentationDefinitions.HeadingFrameName(pair.Key)], "heading oracle")
-                    .DrawOnScreen(expected, new(checked(pair.Value.X), unchecked((ushort)(pair.Value.Y - 3))),
+                presentation.DrawHeading(actual, page, 3);
+                MenuSpriteCompiler.Compile(document.Sprites[GameOptionsPresentationDefinitions.HeadingSpriteName(page)], "heading oracle")
+                    .DrawOnScreen(expected, new(checked(heading.X), unchecked((ushort)(heading.Y - 3))),
                         SnesObjAttributeWord.Create(0, document.CursorPalette, 0).PaletteBits);
                 actual.FinishFrame(); expected.FinalizeFrame();
                 AssertTrue(actual.ImageEquals(expected),
                     "options stock/edited heading origin and scroll");
             }
             AssertThrows<ArgumentOutOfRangeException>(() => presentation.ApplyControllerLabel(new byte[2048], -1, 0), "options invalid action");
-            AssertThrows<InvalidDataException>(() => presentation.CursorPosition("invalid", 0), "options invalid page");
+            AssertThrows<InvalidDataException>(() => presentation.CursorPosition((GameOptionsPage)byte.MaxValue, 0), "options invalid page");
         }
         static void Paint(byte[] page, int[] cells, int palette)
         {
@@ -3074,14 +3087,13 @@ internal static class LookupStream3Verification
         FileSelectPresentationDocument Read() => RequiredJson.Deserialize<FileSelectPresentationDocument>(imported, ArtworkJson.Options);
         FileSelectPresentation Load(FileSelectPresentationDocument document) => FileSelectPresentation.Load(new MemoryStream(
             System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options)));
-        SpriteComposition Composition(FileSelectPresentation owner, string name) =>
-            (owner.sprites)[name];
+        SpriteComposition Composition(FileSelectPresentation owner, int frame) => owner.helmetSprites[frame];
         var original = Read();
         var stock = Load(original);
         for (int frame = 0; frame < 8; frame++)
         {
-            string name = FileSelectPresentationDefinitions.HelmetFrameName(frame);
-            var composition = Composition(stock, name);
+            string name = FileSelectPresentationDefinitions.HelmetSpriteName(frame);
+            var composition = Composition(stock, frame);
             AssertTrue(composition.parts is FileSelectHelmetParts,
                 "stock helmet retains semantic frame only");
             Confirm(stock, original, frame);
@@ -3131,9 +3143,9 @@ internal static class LookupStream3Verification
         Console.WriteLine("File-select sprites: 114 border parts/456 edits, 42 helmet parts/378 field cases, ordering/count edits and actual helmet OAM pass; cursor dependency previously confirmed.");
         void Confirm(FileSelectPresentation actual, FileSelectPresentationDocument expected, int frame)
         {
-            string name = FileSelectPresentationDefinitions.HelmetFrameName(frame);
+            string name = FileSelectPresentationDefinitions.HelmetSpriteName(frame);
             var expectedParts = MenuSpriteCompiler.Compile(expected.Sprites[name], name);
-            var selected = Composition(actual, name);
+            var selected = Composition(actual, frame);
             AssertEqual(expectedParts.PartCount, selected.PartCount, "helmet part count");
             for (int part = 0; part < expectedParts.PartCount; part++)
                 AssertEqual(expectedParts.Part(part), selected.Part(part), "exact selected helmet part");

@@ -27,11 +27,11 @@ internal static class GameOptionsHeadingsVerification
     }
 
     /// <summary>Maps the three native options pages to their editable heading identities.</summary>
-    private static string OriginalHeadingName(int index) => index switch
+    private static GameOptionsPage OriginalHeadingPage(int index) => index switch
     {
-        0 => GameOptionsPresentationDefinitions.PrimaryMenu,
-        1 => GameOptionsPresentationDefinitions.ControllerMenu,
-        2 => GameOptionsPresentationDefinitions.SpecialMenu,
+        0 => GameOptionsPage.Primary,
+        1 => GameOptionsPage.Controller,
+        2 => GameOptionsPage.Special,
         _ => throw new ArgumentOutOfRangeException(nameof(index)),
     };
 
@@ -49,7 +49,7 @@ internal static class GameOptionsHeadingsVerification
             int list = 0x82f47e + 16 * page;
             AssertEqual(pointer, ReadVerificationWord(rom, list + 2), "initial native heading record");
             AssertEqual(pointer, ReadVerificationWord(rom, list + 10), "repeated native heading record");
-            string name = GameOptionsPresentationDefinitions.HeadingFrameName(OriginalHeadingName(page));
+            string name = GameOptionsPresentationDefinitions.HeadingSpriteName(OriginalHeadingPage(page));
             AssertEqual(ReadVerificationWord(rom, 0x820000 | pointer), document.Sprites[name].Length,
                 "imported original heading part count");
         }
@@ -70,7 +70,7 @@ internal static class GameOptionsHeadingsVerification
             AssertEqual((byte)0xa9, GameOptionsHeadingAnchorsRomByte(rom, setup), "native heading X LDA");
             ushort x = ReadVerificationWord(rom, setup + 1);
             AssertEqual(x, GameOptionsRomData.Spritemaps.HeadingX((GameOptionsPage)page), "native heading X case");
-            Position16<OamPixels> actual = document.HeadingAnchors[OriginalHeadingName(page)];
+            Position16<OamPixels> actual = document.HeadingAnchors[GameOptionsPresentationDefinitions.MenuName(OriginalHeadingPage(page))];
             AssertEqual((int)x, actual.X, "imported heading X");
             AssertEqual((int)y, actual.Y, "imported heading Y");
         }

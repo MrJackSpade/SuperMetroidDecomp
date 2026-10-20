@@ -48,7 +48,7 @@ internal static class InstalledFileSelectMapVerification
         StepBoth(SnesButton.Start);
         for (int i = 0; i < 54; i++) StepBoth(0);
         AssertEqual(FileSelectMapNavigationPhase.Room, installed.Phase, "installed menu reaches room and recreates catalog scroll");
-        ushort ScrollX(FileSelectMapMenuState menu) => (menu.scroll).Scroll.X;
+        ushort ScrollX(FileSelectMapMenuState menu) => (menu.Scroll).Scroll.X;
         ushort initialScrollX = ScrollX(installed);
         for (int i = 0; i < 16; i++) StepBoth(SnesButton.Left);
         AssertTrue(initialScrollX != ScrollX(installed), "installed menu test actually scrolls before saving");

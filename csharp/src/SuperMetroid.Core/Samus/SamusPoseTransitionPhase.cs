@@ -259,8 +259,7 @@ internal sealed class SamusPoseTransitionPhase
                 SamusGrappleMovement.ApplyPendingConnectionPose(
                     samus,
                     pendingConnection);
-            frame.PreviousCameraPoint = frame.PreviousCameraPoint.WithWhole(
-                grapplePrevious);
+            frame.SnapCameraPoint(grapplePrevious);
             _player.ProspectiveSamusPose = null;
             _player.ProspectiveSamusFallbackPose = null;
             _player.ProspectiveSamusWallCollisionPose = null;

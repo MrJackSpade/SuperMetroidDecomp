@@ -20,11 +20,11 @@ internal static class PauseSelectorPresentationAccess
 
         /// <summary>Checks authored parts in any selector basis or override frame.</summary>
         internal bool StoresCompositionParts => Categories(self).Any(category =>
-            StoresParts(category.basis) || (category.overrides?.Values.Any(StoresParts) ?? false));
+            StoresParts(category.basis) || (category.Overrides?.Values.Any(StoresParts) ?? false));
 
         /// <summary>Counts replaced selector compositions across all three categories.</summary>
         internal int StoredCompositionOverrideCount => Categories(self).Sum(category =>
-            category.overrides?.Count ?? 0);
+            category.Overrides?.Count ?? 0);
 
         /// <summary>Counts explicitly supplied X and Y anchor components.</summary>
         internal int StoredAnchorComponentCount => self.anchorOverrides.Values.Sum(value => (value.X.HasValue ? 1 : 0) + (value.Y.HasValue ? 1 : 0));

@@ -9,12 +9,12 @@ namespace SuperMetroid.Core.Frontend.Pause.Artwork;
 public sealed class PauseEquipmentLabelPresentation
 {
     /// <summary>Each selector anchor retains only cells and placement that differ from stock pause artwork.</summary>
-    private readonly Dictionary<string, CompiledLabel> labels;
+    private readonly Dictionary<PauseEquipmentLabelId, CompiledLabel> labels;
     /// <summary>Nonzero edits to the nine-cell native blank strip used when inventory text is absent.</summary>
     internal readonly Dictionary<int, ushort> blankEdits;
 
     /// <summary>Captures compiled label differences, the disabled palette, and the hash of the source JSON bytes.</summary>
-    private PauseEquipmentLabelPresentation(Dictionary<string, CompiledLabel> labels, Dictionary<int, ushort> blankEdits,
+    private PauseEquipmentLabelPresentation(Dictionary<PauseEquipmentLabelId, CompiledLabel> labels, Dictionary<int, ushort> blankEdits,
         int disabledPalette, string contentIdentity)
     {
         this.labels = labels;
@@ -31,11 +31,11 @@ public sealed class PauseEquipmentLabelPresentation
     /// <summary>Includes Hyper's five-word display and Plasma's nine-word overrun when deciding whether rebinding may replace a live tilemap cell.</summary>
     internal bool OwnsLiveCell(int cell)
     {
-        foreach ((string key, CompiledLabel label) in labels)
+        foreach ((PauseEquipmentLabelId id, CompiledLabel label) in labels)
         {
-            int words = key == PauseEquipmentLabelDefinitions.PlasmaKey
+            int words = id == PauseEquipmentLabelId.Plasma
                 ? PauseEquipmentLabelDefinitions.EquipmentWords
-                : key == PauseEquipmentLabelDefinitions.HyperKey
+                : id == PauseEquipmentLabelId.Hyper
                     ? PauseEquipmentLabelDefinitions.BeamWords
                     : label.WordCount;
             int first = label.DestinationByte / sizeof(ushort);
@@ -53,11 +53,11 @@ public sealed class PauseEquipmentLabelPresentation
         {
             for (int item = 0; item < PauseEquipmentLabelDefinitions.ItemCount(PauseEquipmentCategory.Beams); item++)
             {
-                CompiledLabel destination = labels[PauseEquipmentLabelDefinitions.Key(PauseEquipmentCategory.Beams, item)];
+                CompiledLabel destination = labels[PauseEquipmentLabelDefinitions.Label(PauseEquipmentCategory.Beams, item)];
                 WriteBlank(tilemap.Slice(destination.DestinationByte,
                     PauseEquipmentLabelDefinitions.BeamWords * sizeof(ushort)));
             }
-            CompiledLabel hyper = labels[PauseEquipmentLabelDefinitions.HyperKey];
+            CompiledLabel hyper = labels[PauseEquipmentLabelId.Hyper];
             hyper.CopyTo(tilemap.Slice(hyper.DestinationByte,
                     PauseEquipmentLabelDefinitions.BeamWords * sizeof(ushort)));
         }
@@ -67,8 +67,7 @@ public sealed class PauseEquipmentLabelPresentation
             if (category == PauseEquipmentCategory.Beams && hyperBeam) continue;
 
             SuperMetroid.Core.Frontend.Pause.PauseEquipmentBit mask = SuperMetroid.Core.Frontend.Pause.PauseEquipmentRules.Mask(category, item);
-            string key = PauseEquipmentLabelDefinitions.Key(category, item);
-            CompiledLabel label = labels[key];
+            CompiledLabel label = labels[PauseEquipmentLabelDefinitions.Label(category, item)];
             Span<byte> destination = tilemap.Slice(label.DestinationByte, label.WordCount * sizeof(ushort));
             if (!mask.IsSetIn(collectedBeams, collectedItems))
                 WriteBlank(destination);
@@ -87,8 +86,8 @@ public sealed class PauseEquipmentLabelPresentation
     public void ApplyLabel(Span<byte> tilemap, PauseEquipmentCategory category, int item, int wordCount, bool disabled)
     {
         ValidateTilemap(tilemap);
-        string key = PauseEquipmentLabelDefinitions.Key(category, item);
-        CompiledLabel label = labels[key];
+        PauseEquipmentLabelId id = PauseEquipmentLabelDefinitions.Label(category, item);
+        CompiledLabel label = labels[id];
         if (wordCount is < 0 or > PauseEquipmentLabelDefinitions.EquipmentWords)
             throw new ArgumentOutOfRangeException(nameof(wordCount));
         Span<byte> destination = tilemap.Slice(label.DestinationByte, wordCount * sizeof(ushort));
@@ -96,9 +95,9 @@ public sealed class PauseEquipmentLabelPresentation
         label.CopyTo(destination[..ordinaryBytes]);
         if (ordinaryBytes < destination.Length)
         {
-            if (key != PauseEquipmentLabelDefinitions.PlasmaKey)
-                throw new InvalidDataException($"Pause label {key} cannot supply a {wordCount}-word native overrun.");
-            labels[PauseEquipmentLabelDefinitions.VariaKey].CopyTo(destination[ordinaryBytes..]);
+            if (id != PauseEquipmentLabelId.Plasma)
+                throw new InvalidDataException($"Pause label {id} cannot supply a {wordCount}-word native overrun.");
+            labels[PauseEquipmentLabelId.Varia].CopyTo(destination[ordinaryBytes..]);
         }
         if (disabled) Recolor(destination, DisabledPalette);
     }
@@ -124,33 +123,33 @@ public sealed class PauseEquipmentLabelPresentation
             (uint)document.DisabledPalette >= 8)
             throw new InvalidDataException("Pause equipment labels require version 1, nine blank cells and a valid disabled palette.");
 
-        IEnumerable<string> expected = PauseEquipmentLabelDefinitions.Labels().Select(label => label.Key)
-            .Append(PauseEquipmentLabelDefinitions.HyperKey);
-        if (document.Labels.Count != expected.Count() || expected.Any(key => !document.Labels.ContainsKey(key)))
+        PauseEquipmentLabelId[] expected = Enum.GetValues<PauseEquipmentLabelId>();
+        if (document.Labels.Count != expected.Length ||
+            expected.Any(id => !document.Labels.ContainsKey(PauseEquipmentLabelDefinitions.Name(id))))
             throw new InvalidDataException("Pause equipment labels require the fourteen ordinary labels and Beam.Hyper exactly once.");
 
-        var compiled = new Dictionary<string, CompiledLabel>(StringComparer.Ordinal);
+        var compiled = new Dictionary<PauseEquipmentLabelId, CompiledLabel>();
         var occupied = new HashSet<int>();
-        foreach (string key in expected)
+        foreach (PauseEquipmentLabelId id in expected)
         {
+            string key = PauseEquipmentLabelDefinitions.Name(id);
             PauseEquipmentLabel label = document.Labels[key] ??
                 throw new InvalidDataException($"Pause equipment label {key} is null.");
-            int words = key.StartsWith("Beam.", StringComparison.Ordinal) && key != PauseEquipmentLabelDefinitions.HyperKey
+            int words = PauseEquipmentLabelDefinitions.IsOrdinaryBeam(id)
                 ? PauseEquipmentLabelDefinitions.BeamWords : PauseEquipmentLabelDefinitions.EquipmentWords;
-            if (key == PauseEquipmentLabelDefinitions.HyperKey) words = PauseEquipmentLabelDefinitions.EquipmentWords;
             if (label.Cells is null || label.Cells.Length != words ||
                 (uint)label.Column >= PauseEquipmentLabelDefinitions.TilemapColumns ||
                 (uint)label.Row >= PauseEquipmentLabelDefinitions.TilemapRows ||
-                label.Column + (key == PauseEquipmentLabelDefinitions.HyperKey ? PauseEquipmentLabelDefinitions.BeamWords : words) > PauseEquipmentLabelDefinitions.TilemapColumns)
+                label.Column + (id == PauseEquipmentLabelId.Hyper ? PauseEquipmentLabelDefinitions.BeamWords : words) > PauseEquipmentLabelDefinitions.TilemapColumns)
                 throw new InvalidDataException($"Pause equipment label {key} has invalid cells or placement.");
             int destinationCell = label.Row * PauseEquipmentLabelDefinitions.TilemapColumns + label.Column;
-            if (key != PauseEquipmentLabelDefinitions.HyperKey)
+            if (id != PauseEquipmentLabelId.Hyper)
             {
-                int footprint = key == PauseEquipmentLabelDefinitions.PlasmaKey
+                int footprint = id == PauseEquipmentLabelId.Plasma
                     ? PauseEquipmentLabelDefinitions.EquipmentWords : words;
                 for (int cell = destinationCell; cell < destinationCell + footprint; cell++)
                 {
-                    bool nativePlasmaWireframeOverlap = key == PauseEquipmentLabelDefinitions.PlasmaKey &&
+                    bool nativePlasmaWireframeOverlap = id == PauseEquipmentLabelId.Plasma &&
                         destinationCell == PauseEquipmentLabelDefinitions.NativePlasmaDestinationCell &&
                         cell == PauseEquipmentLabelDefinitions.NativePlasmaWireframeOverlapCell;
                     if (PauseEquipmentBaseDefinitions.IsNonInventoryLiveOwnedCell(cell) &&
@@ -159,7 +158,7 @@ public sealed class PauseEquipmentLabelPresentation
                     if (!occupied.Add(cell)) throw new InvalidDataException($"Pause equipment label {key} overlaps another label.");
                 }
             }
-            compiled.Add(key, CompiledLabel.Load(key, destinationCell * sizeof(ushort),
+            compiled.Add(id, CompiledLabel.Load(id, destinationCell * sizeof(ushort),
                 PauseTileGrid.Compile(label.Cells, key)));
         }
 
@@ -217,25 +216,25 @@ public sealed class PauseEquipmentLabelPresentation
     }
 
     /// <summary>Stores placement and tile-word differences while resolving unchanged cells from stock label definitions.</summary>
-    private sealed class CompiledLabel(string key, int? destinationEdit, Dictionary<int, ushort> edits)
+    private sealed class CompiledLabel(PauseEquipmentLabelId id, int? destinationEdit, Dictionary<int, ushort> edits)
     {
         /// <summary>Returns the edited byte offset or the stock selector's tilemap destination.</summary>
-        internal int DestinationByte => destinationEdit ?? PauseEquipmentLabelDefinitions.StockDestinationByte(key);
+        internal int DestinationByte => destinationEdit ?? PauseEquipmentLabelDefinitions.StockDestinationByte(id);
         /// <summary>Uses the native selector's width even when its authored strip has edited cells.</summary>
-        internal int WordCount => PauseEquipmentLabelDefinitions.StockWordCount(key);
+        internal int WordCount => PauseEquipmentLabelDefinitions.StockWordCount(id);
 
         /// <summary>Retains only tile words and destination coordinates that differ from the native selector.</summary>
-        internal static CompiledLabel Load(string key, int destination, ReadOnlySpan<byte> bytes)
+        internal static CompiledLabel Load(PauseEquipmentLabelId id, int destination, ReadOnlySpan<byte> bytes)
         {
             var edits = new Dictionary<int, ushort>();
             for (int cell = 0; cell < bytes.Length / sizeof(ushort); cell++)
             {
                 ushort value = BinaryPrimitives.ReadUInt16LittleEndian(bytes[(cell * sizeof(ushort))..]);
-                if (value != PauseEquipmentLabelDefinitions.StockWord(key, cell)) edits.Add(cell, value);
+                if (value != PauseEquipmentLabelDefinitions.StockWord(id, cell)) edits.Add(cell, value);
             }
-            int? changedDestination = destination == PauseEquipmentLabelDefinitions.StockDestinationByte(key)
+            int? changedDestination = destination == PauseEquipmentLabelDefinitions.StockDestinationByte(id)
                 ? null : destination;
-            return new(key, changedDestination, edits);
+            return new(id, changedDestination, edits);
         }
 
         /// <summary>Materializes edited cells over stock artwork for the requested prefix, including Plasma's extended write.</summary>
@@ -244,7 +243,7 @@ public sealed class PauseEquipmentLabelPresentation
             for (int cell = 0; cell < destination.Length / sizeof(ushort); cell++)
                 BinaryPrimitives.WriteUInt16LittleEndian(destination[(cell * sizeof(ushort))..],
                     edits.TryGetValue(cell, out ushort selected) ? selected
-                        : PauseEquipmentLabelDefinitions.StockWord(key, cell));
+                        : PauseEquipmentLabelDefinitions.StockWord(id, cell));
         }
     }
 }

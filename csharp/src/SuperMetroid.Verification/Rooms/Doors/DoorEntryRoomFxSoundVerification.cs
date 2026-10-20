@@ -43,7 +43,7 @@ internal static class DoorEntryRoomFxSoundVerification
         var samus = runtime.Player.IntroducedSamus;
         var game = CreateRetailGameFixture(new SuperMetroid.Core.Saves.SaveSlotStore(), renderGameplayFrames: false, random: random);
         game.AdoptRuntime(runtime);
-        game.Session.lastAudioRoomState = runtime.Room.LoadedRoom.State;
+        game.Session.LastAudioRoomState = runtime.Room.LoadedRoom.State;
         game.GameState = SuperMetroidGameState.MainGameplay;
 
         SuperMetroid.Core.Runtime.SuperMetroidRuntime LoadRisingTide(CartridgeDoorHeader door, CartridgeRandom random)
@@ -59,7 +59,7 @@ internal static class DoorEntryRoomFxSoundVerification
 
         // Run real frames until the rising lava's rumble timer will fire on the next HDMA pass.
         StepUntil(() => runtime.RoomLayer3Fx.EarthquakeRequest.HasValue &&
-                runtime.RoomLayer3Fx.earthquakeSoundTimer.IsZero,
+                runtime.RoomLayer3Fx.EarthquakeSoundTimer.IsZero,
             _ => game.Step(0), maximumFrames: 600, context: "Rising Tide rumble timer reaches zero");
 
         var level = runtime.Room.LoadedLevelData;

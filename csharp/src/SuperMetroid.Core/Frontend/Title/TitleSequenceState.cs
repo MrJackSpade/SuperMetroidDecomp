@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
@@ -18,8 +19,21 @@ namespace SuperMetroid.Core.Frontend.Title;
 /// image is mapped during the title sequence.
 /// </remarks>
 [RoomScopeBoundary("A cinematic scene that owns its own palette FX for the scene's lifetime; no gameplay room is loaded.")]
-public sealed class TitleSequenceState
+public sealed class TitleSequenceState : IFrontendScreen
 {
+    /// <inheritdoc/>
+    void IFrontendScreen.BindArtwork(GameArtwork previous, GameArtwork artwork, SuperMetroidGameState state)
+    {
+        Ensure.NotNull(previous);
+        Ensure.NotNull(artwork);
+        if (!ReferenceEquals(previous.MapPresentation, artwork.MapPresentation))
+        {
+            BindTitleGradient(artwork.MapPresentation?.TitleGradient);
+            BindTitleGraphics(artwork.MapPresentation?.TitleGraphics);
+            BindTitlePalette(artwork.MapPresentation?.TitlePalette);
+        }
+    }
+
     /// <summary>Queues the opening music and title transitions when audio is available.</summary>
     private readonly CartridgeAudioState? audio;
     /// <summary>The title's colors: the installed palette and live console palette-FX changes (#1358).</summary>
@@ -39,7 +53,7 @@ public sealed class TitleSequenceState
     /// <summary>Host-selected title graphics rebound after debugger-state restoration.</summary>
     [NonSerialized] private TitleGraphicsPresentation? titleGraphicsPresentation;
     /// <summary>Countdown for the active title phase, including fade and idle stages.</summary>
-    internal int phaseTimer;
+    internal int PhaseTimer { get; private set; }
     /// <summary>The title card whose steps are running.</summary>
     private TitleSequencePhase textCard = TitleSequencePhase.YearText;
     /// <summary>The next step of the running title card.</summary>
@@ -47,17 +61,17 @@ public sealed class TitleSequenceState
     /// <summary>Frames left before the next title text list entry is interpreted.</summary>
     private int sequenceEntryTimer;
     /// <summary>Composition selected by the active title text or logo entry, or null while nothing is shown.</summary>
-    internal TitleSprite? activeSprite;
+    internal TitleSprite? ActiveSprite { get; set; }
     /// <summary>Screen origin used when drawing the active title spritemap.</summary>
-    internal Position16<ScreenPixels> activeOrigin;
+    internal Position16<ScreenPixels> ActiveOrigin { get; set; }
     /// <summary>Object attributes (the OBJ palette) applied to every part of the active composition.</summary>
-    internal SnesObjAttributeWord activeObjectPalette;
+    internal SnesObjAttributeWord ActiveObjectPalette { get; set; }
     /// <summary>Mode 7 background position whose whole words are interpreted as signed pixels.</summary>
     private FixedPosition<Mode7Pixels> mode7;
     /// <summary>Native 8.8 Mode 7 matrix scale animated from the close-up scene to identity.</summary>
-    internal int zoom;
+    internal int Zoom { get; private set; }
     /// <summary>Current SNES screen brightness applied after composing title layers.</summary>
-    internal int brightness;
+    internal int Brightness { get; private set; }
     /// <summary>Index into the Baby Metroid character page cycle.</summary>
     private int babyFrame;
     /// <summary>Frames left before the next Baby Metroid character page transfer.</summary>
@@ -111,7 +125,7 @@ public sealed class TitleSequenceState
 
         // The Year object's pre-instruction forces full brightness on the first
         // processing frame; its position and palette come from the native definition.
-        brightness = TitleSequenceRomData.Timing.MaximumBrightness;
+        Brightness = TitleSequenceRomData.Timing.MaximumBrightness;
         BeginTextSequence(TitleSequenceRomData.TextSequences.Year);
     }
 
@@ -137,7 +151,7 @@ public sealed class TitleSequenceState
             titlePalettePresentation,
             titleGraphicsPresentation);
         title.EnterImmediateTitleObjects();
-        title.brightness = 0;
+        title.Brightness = 0;
         title.Phase = TitleSequencePhase.TitleScreenFadeIn;
         return title;
     }
@@ -186,7 +200,7 @@ public sealed class TitleSequenceState
         if (confirmPressed && Phase < TitleSequencePhase.TitleScreenFadeIn)
         {
             Phase = TitleSequencePhase.SkipFadeOut;
-            phaseTimer = 0;
+            PhaseTimer = 0;
         }
 
         switch (Phase)
@@ -221,39 +235,39 @@ public sealed class TitleSequenceState
 
             case TitleSequencePhase.SceneThreeZoom:
                 // `$8B:9E8B` increments only on even NMI frame counters.
-                if ((phaseTimer++ & 1) == 0 && zoom < TitleSequenceRomData.Scenes.IdentityScale)
-                    zoom++;
-                if (zoom >= TitleSequenceRomData.Scenes.IdentityScale)
+                if ((PhaseTimer++ & 1) == 0 && Zoom < TitleSequenceRomData.Scenes.IdentityScale)
+                    Zoom++;
+                if (Zoom >= TitleSequenceRomData.Scenes.IdentityScale)
                 {
-                    activeSprite = TitleSprite.SuperMetroidLogo;
-                    activeOrigin = TitleSequenceRomData.Sprites.LogoOrigin;
-                    activeObjectPalette = TitleSequenceRomData.Sprites.TitleCharacterOffset;
+                    ActiveSprite = TitleSprite.SuperMetroidLogo;
+                    ActiveOrigin = TitleSequenceRomData.Sprites.LogoOrigin;
+                    ActiveObjectPalette = TitleSequenceRomData.Sprites.TitleCharacterOffset;
                     Phase = TitleSequencePhase.TitleLogoFade;
-                    phaseTimer = TitleSequenceRomData.Timing.LogoHoldFrames;
+                    PhaseTimer = TitleSequenceRomData.Timing.LogoHoldFrames;
                 }
                 break;
 
             case TitleSequencePhase.TitleLogoFade:
-                if (--phaseTimer <= 0)
+                if (--PhaseTimer <= 0)
                 {
                     // `$8B:A0E1` holds the copyright for 32 frames before arming the
                     // 900-frame demo countdown. The palette FX itself remains future work;
                     // its final cartridge palette is already the visible CGRAM source.
                     Phase = TitleSequencePhase.CopyrightFade;
-                    phaseTimer = TitleSequenceRomData.Timing.CopyrightHoldFrames;
+                    PhaseTimer = TitleSequenceRomData.Timing.CopyrightHoldFrames;
                 }
                 break;
 
             case TitleSequencePhase.CopyrightFade:
-                if (--phaseTimer <= 0)
+                if (--PhaseTimer <= 0)
                     EnterTitleScreen();
                 break;
 
             case TitleSequencePhase.SkipFadeOut:
-                brightness = Math.Max(
+                Brightness = Math.Max(
                     0,
-                    brightness - TitleSequenceRomData.Timing.SkipFadeBrightnessStep);
-                if (brightness == 0)
+                    Brightness - TitleSequenceRomData.Timing.SkipFadeBrightnessStep);
+                if (Brightness == 0)
                 {
                     // HandleCinematicsTransitions_1 at $8B:9A83 queues track six before
                     // rebuilding the immediate title objects.
@@ -266,34 +280,34 @@ public sealed class TitleSequenceState
                 break;
 
             case TitleSequencePhase.TitleScreenFadeIn:
-                brightness = Math.Min(
+                Brightness = Math.Min(
                     TitleSequenceRomData.Timing.MaximumBrightness,
-                    brightness + TitleSequenceRomData.Timing.SkipFadeBrightnessStep);
-                if (brightness == TitleSequenceRomData.Timing.MaximumBrightness)
+                    Brightness + TitleSequenceRomData.Timing.SkipFadeBrightnessStep);
+                if (Brightness == TitleSequenceRomData.Timing.MaximumBrightness)
                     EnterTitleScreen();
                 break;
 
             case TitleSequencePhase.TitleScreen:
                 // The native timeout check wins over confirmation on its final frame.
-                if (--phaseTimer <= 0)
+                if (--PhaseTimer <= 0)
                 {
                     fadingToDemo = true;
                     Phase = TitleSequencePhase.TitleScreenFadeOut;
-                    phaseTimer = TitleSequenceRomData.Timing.TitleFadeCadenceFrames;
+                    PhaseTimer = TitleSequenceRomData.Timing.TitleFadeCadenceFrames;
                 }
                 else if (confirmPressed)
                 {
                     Phase = TitleSequencePhase.TitleScreenFadeOut;
-                    phaseTimer = TitleSequenceRomData.Timing.TitleFadeCadenceFrames;
+                    PhaseTimer = TitleSequenceRomData.Timing.TitleFadeCadenceFrames;
                 }
                 break;
 
             case TitleSequencePhase.TitleScreenFadeOut:
-                if (--phaseTimer <= 0)
+                if (--PhaseTimer <= 0)
                 {
-                    phaseTimer = TitleSequenceRomData.Timing.TitleFadeCadenceFrames;
-                    brightness = Math.Max(0, brightness - 1);
-                    if (brightness == 0)
+                    PhaseTimer = TitleSequenceRomData.Timing.TitleFadeCadenceFrames;
+                    Brightness = Math.Max(0, Brightness - 1);
+                    if (Brightness == 0)
                     {
                         DemoRequested = fadingToDemo;
                         FileSelectRequested = !fadingToDemo;
@@ -331,7 +345,7 @@ public sealed class TitleSequenceState
     public Mode7ObjRenderSnapshot CaptureRenderSnapshot()
     {
         PrepareRenderSprites();
-        short scale = unchecked((short)zoom);
+        short scale = unchecked((short)Zoom);
         TitleGraphicsPresentation artwork = titleGraphicsPresentation
             ?? throw new InvalidOperationException("Title rendering requires installed title artwork.");
         image ??= TitleScreenImage.Compose(artwork, TitleSequenceRomData.Vram.BabyAnimationSourcePages[babyFrame]);
@@ -341,7 +355,7 @@ public sealed class TitleSequenceState
                     0, scale, new Offset16<Mode7Pixels>(128, 128), mode7.Whole.AsSignedRegister())
                 : null,
             TitleSequenceRomData.Sprites.ObjectSizeAndBaseSelector,
-            checked((byte)brightness), gradientEnabled ? ResolveTitleGradient() : default);
+            checked((byte)Brightness), gradientEnabled ? ResolveTitleGradient() : default);
     }
 
     /// <summary>Resolves the installed title gradient at the current Mode 7 scale.</summary>
@@ -350,7 +364,7 @@ public sealed class TitleSequenceState
         if (titleGradientPresentation is null)
             throw new InvalidOperationException(
                 "Title rendering requires the installed title-gradient asset.");
-        return titleGradientPresentation.Resolve((ushort)zoom);
+        return titleGradientPresentation.Resolve((ushort)Zoom);
     }
 
     /// <summary>Places the active title spritemap and stage-dependent copyright as the frame's sprite entries.</summary>
@@ -359,13 +373,13 @@ public sealed class TitleSequenceState
         TitleGraphicsPresentation artwork = titleGraphicsPresentation
             ?? throw new InvalidOperationException("Title sprites require installed title artwork.");
         objects.BeginFrame();
-        if (activeSprite is { } sprite)
+        if (ActiveSprite is { } sprite)
         {
             // Cinematic drawing calls `$81:879F`, whose `chr_r22` replaces palette bits
             // after masking the ROM attributes with `$F1FF`. It does not add a base tile;
             // confusing it with the enemy loader makes the title art uniformly blue.
             artwork.DrawSprite(sprite, objects,
-                activeOrigin.ToOam(), activeObjectPalette.Raw);
+                ActiveOrigin.ToOam(), ActiveObjectPalette.Raw);
         }
 
         if (Phase is >= TitleSequencePhase.CopyrightFade and <= TitleSequencePhase.TitleScreenFadeOut)
@@ -390,7 +404,7 @@ public sealed class TitleSequenceState
             if (step.Command is not { } command)
             {
                 sequenceEntryTimer = step.Duration;
-                activeSprite = step.Sprite;
+                ActiveSprite = step.Sprite;
                 return;
             }
 
@@ -418,12 +432,12 @@ public sealed class TitleSequenceState
                     Phase = TitleSequencePhase.SceneThreeZoom;
                     gradientEnabled = true;
                     mode7BackgroundEnabled = true; // TM=$11 at `$8B:9E58-$9E5C`.
-                    phaseTimer = 0;
+                    PhaseTimer = 0;
                     ApplyScene(TitleSequenceRomData.Scenes.SceneThree);
                     return;
 
                 case TitleSequenceInstruction.Delete:
-                    activeSprite = null;
+                    ActiveSprite = null;
                     return;
 
                 default:
@@ -439,9 +453,9 @@ public sealed class TitleSequenceState
         textCard = definition.Phase;
         textCardStep = 0;
         sequenceEntryTimer = 1;
-        activeSprite = null;
-        activeOrigin = definition.Origin;
-        activeObjectPalette = definition.CharacterOffset;
+        ActiveSprite = null;
+        ActiveOrigin = definition.Origin;
+        ActiveObjectPalette = definition.CharacterOffset;
         mode7 = new(mode7.X.WithFraction(0), mode7.Y.WithFraction(0));
 
         // Initial PPU setup and each of the first three completed pan functions select
@@ -460,12 +474,12 @@ public sealed class TitleSequenceState
         new FrontendPalettes(palette).WriteTitleCopyright(
             titlePalettePresentation?.SkipCopyrightWhite ?? TitleSequenceRomData.Palette.CopyrightWhite,
             titlePalettePresentation?.SkipCopyrightRed ?? TitleSequenceRomData.Palette.CopyrightRed);
-        activeSprite = TitleSprite.SuperMetroidLogo;
-        activeOrigin = TitleSequenceRomData.Sprites.LogoOrigin;
-        activeObjectPalette = TitleSequenceRomData.Sprites.TitleCharacterOffset;
+        ActiveSprite = TitleSprite.SuperMetroidLogo;
+        ActiveOrigin = TitleSequenceRomData.Sprites.LogoOrigin;
+        ActiveObjectPalette = TitleSequenceRomData.Sprites.TitleCharacterOffset;
         mode7BackgroundEnabled = true;
         mode7 = new(mode7.X.WithWhole(0), mode7.Y.WithWhole(0));
-        zoom = TitleSequenceRomData.Scenes.IdentityScale;
+        Zoom = TitleSequenceRomData.Scenes.IdentityScale;
     }
 
     /// <summary>Opens the idle title screen at full brightness with its native demo countdown.</summary>
@@ -473,8 +487,8 @@ public sealed class TitleSequenceState
     {
         EnterImmediateTitleObjects();
         Phase = TitleSequencePhase.TitleScreen;
-        phaseTimer = TitleSequenceRomData.Timing.TitleScreenNtscFrames;
-        brightness = TitleSequenceRomData.Timing.MaximumBrightness;
+        PhaseTimer = TitleSequenceRomData.Timing.TitleScreenNtscFrames;
+        Brightness = TitleSequenceRomData.Timing.MaximumBrightness;
     }
 
     /// <summary>Advances the Baby Metroid page cycle when its authored frame duration expires.</summary>
@@ -494,8 +508,8 @@ public sealed class TitleSequenceState
     {
         Phase = definition.Phase;
         mode7BackgroundEnabled = true;
-        zoom = definition.Scale;
+        Zoom = definition.Scale;
         mode7 = new(mode7.X.WithWhole(definition.Position.X), mode7.Y.WithWhole(definition.Position.Y));
-        activeSprite = null;
+        ActiveSprite = null;
     }
 }

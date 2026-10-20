@@ -25,11 +25,11 @@ internal sealed class PauseGamePhases(FrontendSession session)
         CartridgeRoomHeader pauseRoom = session.GameplayRuntime.Room.ActiveRoom ??
             throw new InvalidOperationException(
                 "Pause setup requires an active cartridge room header.");
-        session.pauseMenu = new PauseMenuState(new PauseMenuEntry { Samus = session.GameplayRuntime.Player.Samus ?? throw new InvalidOperationException(
-                "Pause setup requires a live Samus state."), System = session.GameplayRuntime.System, AreaIndex = pauseRoom.AreaIndex, RoomMapPosition = pauseRoom.MapPosition, Audio = session.audio, GameplayLayer3 = session.GameplayRuntime.AcceptedLayer3Plane, MapRevealMode = session.ConfiguredOptions.MapReveal, MapPresentation = session.Artwork.MapPresentation });
+        session.Show(new PauseMenuState(new PauseMenuEntry { Samus = session.GameplayRuntime.Player.Samus ?? throw new InvalidOperationException(
+                "Pause setup requires a live Samus state."), System = session.GameplayRuntime.System, AreaIndex = pauseRoom.AreaIndex, RoomMapPosition = pauseRoom.MapPosition, Audio = session.audio, GameplayLayer3 = session.GameplayRuntime.AcceptedLayer3Plane, MapRevealMode = session.ConfiguredOptions.MapReveal, MapPresentation = session.Artwork.MapPresentation }));
         session.BeginPauseFade(0);
-        session.display.PublishMenu(session.pauseMenu);
-        session.ApplyDisplayBrightness(session.pauseBrightness);
+        session.display.PublishMenu(session.ActivePauseMenu);
+        session.ApplyDisplayBrightness(session.PauseBrightness);
         session.GameState = SuperMetroidGameState.PausedA;
     }
 
@@ -37,11 +37,11 @@ internal sealed class PauseGamePhases(FrontendSession session)
     internal void DispatchPausedA(SnesButton controllerInput)
     {
         session.GameplayRuntime.FrameBoundary.BeginAcceptedFrame(controllerInput);
-        session.pauseBrightness = session.screenFade.Brighten(session.pauseBrightness);
+        session.AdvanceScreenFadeIn();
         session.ActivePauseMenu.AdvanceAnimations(session.GameplayRuntime.Clock.Counter8, PauseAnimationPhase.FadingIn);
         session.display.PublishMenu(session.ActivePauseMenu);
-        session.ApplyDisplayBrightness(session.pauseBrightness);
-        if (session.pauseBrightness == PauseFadeTiming.FullyLit)
+        session.ApplyDisplayBrightness(session.PauseBrightness);
+        if (session.PauseBrightness == PauseFadeTiming.FullyLit)
             session.GameState = SuperMetroidGameState.PausedB;
     }
 
@@ -79,9 +79,7 @@ internal sealed class PauseGamePhases(FrontendSession session)
         session.ActivePauseMenu.SynchronizeAcceptedHud(session.GameplayRuntime.AcceptedLayer3Plane);
         session.ActivePauseMenu.AdvanceAnimations(session.GameplayRuntime.Clock.Counter8, PauseAnimationPhase.FadingOut);
         session.display.PublishMenu(session.ActivePauseMenu);
-        session.pauseBrightness = session.screenFade.Darken(session.pauseBrightness);
-        session.ApplyDisplayBrightness(session.pauseBrightness);
-        if (session.pauseBrightness == 0)
+        if (session.StepScreenFadeOut() == 0)
             session.GameState = SuperMetroidGameState.UnpausingB;
     }
 
@@ -113,7 +111,7 @@ internal sealed class PauseGamePhases(FrontendSession session)
         resumedSamus.Control.ReleaseRefillStationOnUnpause();
         session.GameplayRuntime.Room.LoadedScope.Enemies.Elevator.ClearElevatorFlagsOnGameplayResume();
         session.GameplayRuntime.FrameBoundary.BeginAcceptedFrame(controllerInput);
-        session.pauseMenu = null;
+        session.Close<PauseMenuState>();
         session.BeginPauseFade(0);
         session.display.PublishBlack();
         session.GameState = SuperMetroidGameState.Unpausing;

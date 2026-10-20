@@ -9,10 +9,6 @@ public static class PauseBackdropDefinitions
     public const int Version = 1;
     /// <summary>Installed JSON resource containing all seven area backdrops and the separate mutable-button foreground image.</summary>
     public const string FileName = "pause-backdrops.json";
-    /// <summary>Case-sensitive artwork key for the first 256-character pause graphics page, mapped to native tile numbers $000-$0FF.</summary>
-    public const string MapAtlas = "Map";
-    /// <summary>Case-sensitive artwork key for the second 256-character pause graphics page, mapped to native tile numbers $100-$1FF.</summary>
-    public const string InterfaceAtlas = "Interface";
     /// <summary>Full backdrop dimensions: 32 tile columns and 32 tile rows, with cells serialized in row-major order.</summary>
     public const int Columns = 32, Rows = 32;
     /// <summary>Full backdrop size: 1024 tile-reference cells and 2048 transfer bytes, with each cell encoded as a little-endian sixteen-bit BG word.</summary>

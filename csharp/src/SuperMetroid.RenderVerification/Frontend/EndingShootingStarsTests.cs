@@ -98,7 +98,7 @@ internal static class EndingShootingStarsTests
         // the icon's actor program completes and the final text remains on screen.
         var cgram = scene.screen.Palette;
         var logo = new EndingLogo(cgram, () => { }, installed.LoadEndingPalettes());
-        scene.endingLogo = logo;
+        scene.CurrentEndingLogo = logo;
         scene.Phase = EndingCreditsPhase.PostCreditsLogo;
         logo.PaletteStep = 16;
         logo.CrossfadeStarted = true;

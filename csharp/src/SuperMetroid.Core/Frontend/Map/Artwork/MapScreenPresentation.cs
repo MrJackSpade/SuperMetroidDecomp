@@ -9,12 +9,12 @@ namespace SuperMetroid.Core.Frontend.Map.Artwork;
 public sealed class MapScreenPresentation
 {
     /// <summary>Validated named map pages stored as little-endian SNES tilemap words.</summary>
-    private readonly Dictionary<string, byte[]> pages;
+    private readonly Dictionary<MapScreenPageId, byte[]> pages;
     /// <summary>Takes ownership of the compiled page buffers after load-time validation.</summary>
-    private MapScreenPresentation(Dictionary<string, byte[]> pages) => this.pages = pages;
+    private MapScreenPresentation(Dictionary<MapScreenPageId, byte[]> pages) => this.pages = pages;
 
     /// <summary>Copies the named page into a screen's own tilemap words (#1358).</summary>
-    internal void LoadTo(Span<ushort> destination, string page) => SuperMetroid.Core.Frontend.Menus.MenuTilemaps.Load(destination, pages[page]);
+    internal void LoadTo(Span<ushort> destination, MapScreenPageId page) => SuperMetroid.Core.Frontend.Menus.MenuTilemaps.Load(destination, pages[page]);
     /// <summary>Loads and validates the complete set of named map-screen pages from JSON.</summary>
     public static MapScreenPresentation Load(Stream json)
     {
@@ -24,18 +24,18 @@ public sealed class MapScreenPresentation
         catch (JsonException error) { throw new InvalidDataException("Invalid map-screen JSON.", error); }
         if (document.Version != MapScreenDefinitions.Version || document.Pages is null || document.Pages.Count != MapScreenDefinitions.PageCount)
             throw new InvalidDataException("Map screens require version 1 and all thirteen named pages.");
-        var pages = new Dictionary<string, byte[]>();
+        var pages = new Dictionary<MapScreenPageId, byte[]>();
         foreach (var definition in MapScreenDefinitions.Pages())
         {
-            if (!document.Pages.TryGetValue(definition.Id, out var cells) || cells is null || cells.Length != MapScreenDefinitions.PageCells)
-                throw new InvalidDataException($"Map-screen {definition.Id} requires 1024 cells in 32-column row order.");
+            if (!document.Pages.TryGetValue(definition.Id.Name, out var cells) || cells is null || cells.Length != MapScreenDefinitions.PageCells)
+                throw new InvalidDataException($"Map-screen {definition.Id.Name} requires 1024 cells in 32-column row order.");
             var bytes = new byte[MapScreenDefinitions.PageBytes];
             for (int index = 0; index < cells.Length; index++)
             {
                 var cell = cells[index];
                 if (cell is null || (uint)cell.TileColumn >= definition.TileColumns ||
                     (uint)cell.TileRow >= definition.TileCount / definition.TileColumns || (uint)cell.Palette >= MapPresentationFormat.PaletteCount)
-                    throw new InvalidDataException($"Map-screen {definition.Id} cell {index} has an invalid atlas coordinate or palette.");
+                    throw new InvalidDataException($"Map-screen {definition.Id.Name} cell {index} has an invalid atlas coordinate or palette.");
                 ushort word = (ushort)(cell.TileRow * definition.TileColumns + cell.TileColumn |
                     cell.Palette << MapPresentationFormat.PaletteShift |
                     (cell.Priority ? MapPresentationFormat.PriorityBit : 0) |

@@ -28,27 +28,27 @@ internal static class EndingPostCreditsScrollVerification
 
         // A leftover scroll from an earlier scroll-down must not survive the white flash.
         var leftover = new Position16<BgPlanePixels>(0, ScrollWordRange - ScrollDownCalls * PixelsPerCall);
-        ending.postCreditsScroll = leftover;
-        ending.postShot = new EndingPostShot(ending.screen.Palette);
-        ending.rewardJump = new EndingRewardJump(ending.EndingReward, _ => { });
+        ending.PostCreditsScroll = leftover;
+        ending.CurrentPostShot = new EndingPostShot(ending.screen.Palette);
+        ending.CurrentRewardJump = new EndingRewardJump(ending.EndingReward, _ => { });
         ending.Phase = EndingCreditsPhase.PostCreditsShot;
         for (int call = 0; ending.Phase == EndingCreditsPhase.PostCreditsShot; call++)
         {
             if (call == MaximumShotCalls)
                 throw new InvalidOperationException("The post-shot owner never handed off to the white flash.");
-            AssertEqual(leftover, ending.postCreditsScroll, "the scroll is untouched until the white flash begins");
+            AssertEqual(leftover, ending.PostCreditsScroll, "the scroll is untouched until the white flash begins");
             ending.Step();
         }
         AssertEqual(EndingCreditsPhase.PostCreditsWhiteFlash, ending.Phase, "the post-shot owner hands off to the white flash");
-        AssertEqual(Position16<BgPlanePixels>.Zero, ending.postCreditsScroll, "the white flash resets the text map scroll to zero");
+        AssertEqual(Position16<BgPlanePixels>.Zero, ending.PostCreditsScroll, "the white flash resets the text map scroll to zero");
 
         ending.Phase = EndingCreditsPhase.ItemPercentageScrollDown;
-        ending.phaseTimer = ScrollDownCalls;
+        ending.PhaseTimer = ScrollDownCalls;
         for (int call = 1; call <= ScrollDownCalls; call++)
         {
             ending.Step();
             var expected = new Position16<BgPlanePixels>(0, checked((ushort)(ScrollWordRange - call * PixelsPerCall)));
-            AssertEqual(expected, ending.postCreditsScroll,
+            AssertEqual(expected, ending.PostCreditsScroll,
                 $"scroll-down call {call} wraps the vertical scroll below zero to {expected.Y}, as the native word did");
         }
         AssertEqual(EndingCreditsPhase.SeeYouNextMission, ending.Phase, "the last scroll-down call starts the closing message");

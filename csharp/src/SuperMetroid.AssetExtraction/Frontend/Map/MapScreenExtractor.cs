@@ -50,7 +50,7 @@ public static class MapScreenExtractor
             [WorldMapArtworkFormat.BackgroundFile] = Atlas(WorldMapArtworkFormat.BackgroundSource, WorldMapArtworkFormat.BackgroundBytes, 2)
         };
 
-        void Add(string name, byte[] bytes, int columns)
+        void Add(MapScreenPageId page, byte[] bytes, int columns)
         {
             var cells = new MapPresentationCell[MapScreenDefinitions.PageCells];
             for (int index = 0; index < cells.Length; index++)
@@ -60,7 +60,7 @@ public static class MapScreenExtractor
                     Palette = word.PaletteIndex, Priority = word.HasPriority,
                     FlipX = (word.Raw & MapPresentationFormat.FlipXBit) != 0, FlipY = (word.Raw & MapPresentationFormat.FlipYBit) != 0 };
             }
-            pages.Add(name, cells);
+            pages.Add(page.Name, cells);
         }
         byte[] Atlas(int address, int count, int bpp)
         {

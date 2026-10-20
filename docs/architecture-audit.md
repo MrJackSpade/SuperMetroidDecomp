@@ -222,6 +222,22 @@ passes two or more placeholders beside the kind: `default`, a literal `0`, `fals
 left to its default. **SME6432** reports a switch on such a kind-tagged type's kind whose arms read different subsets
 of its other members.
 
+## Identities are typed, and state has one writer
+
+An identity is a type, not a string (#1377). A menu page, a sprite, a label, an anchor, a map-screen page or a room is
+named by an enum member, a closed record or the definition object itself; the JSON name is a codec at the document
+boundary (`PageName`, `FrameName`, `MapScreenPageId.Name`), and the loader keys its compiled dictionaries by the type.
+The compiler then proves a selection exists, so the resource audit no longer resolves finite string flows. Text that
+is a file format, such as PNG chunk names or player-authored INI values, stays text at its decoder, with a
+justification on the decoder. A field another type writes is a field nobody owns: each mutable field is private or a
+property whose setter is private, and other types change the state through named operations of its owner
+(`ClipLibraryState.Play`, `SamusHandlerFrame.SampleFrameStartPose`, `FrontendSession.ChooseOptions`). Shared frontend
+state lives in owners with real lifetimes: one screen at a time behind `IFrontendScreen`, fades in `BrightnessFade`,
+the attract schedule in `AttractDemoSchedule`. **SME6433** reports a switch on string constants or a string member
+compared with a string constant. **SME6434** reports a string field or property every assignment of which is a
+constant of one type. **SME6435** reports an interpolated string of only integral or enum holes used as a dictionary
+key. **SME6436** reports a non-private, non-readonly instance field of a class outside a privately nested type.
+
 ## Diagnostics are resolved, not disabled
 
 **SME6414** reports every `#pragma warning disable`, whatever diagnostic it names and whatever reason follows it

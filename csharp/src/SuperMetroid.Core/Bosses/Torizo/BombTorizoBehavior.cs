@@ -123,7 +123,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     private const ushort BombTorizoCoreExplosionHealth = 100;
 
     /// <summary>Current statue state, cleared when the room reloads.</summary>
-    internal TorizoEnemyState? TorizoState;
+    internal TorizoEnemyState? TorizoState { get; set; }
     /// <summary>Drop requests published by the Chozo-orb projectile instruction.</summary>
     internal readonly List<TorizoOrbDropRequest> TorizoOrbDropRequests = new();
 

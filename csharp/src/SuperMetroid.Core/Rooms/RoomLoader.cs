@@ -313,8 +313,7 @@ internal sealed class RoomLoader
         var samus = new SamusState { Mode7QueueResidue = _enemySession.Mode7QueueResidue, Pose = 0, AnimationFrame = 0 };
         samus.CopyInventoryFrom(carried);
         _player.Samus = samus;
-        if (ReferenceEquals(_tester.testerInventoryRecipient, carried))
-            _tester.testerInventoryRecipient = samus;
+        _tester.CarryInventoryGrant(carried, samus);
         _artwork.BindSamusPalettePresentation();
 
         // `$82:8038-$8048` assigns these indexes immediately before LoadFromLoadStation.

@@ -31,9 +31,9 @@ internal sealed class MenuBorderParts : IReadOnlyList<CompiledSpritePart>
     }
 
     /// <summary>Calculates a rectangular border only when supplied parts form an exact eight-pixel perimeter.</summary>
-    internal static SpriteComposition CalculateIfMatching(string name, SpriteComposition supplied)
+    internal static SpriteComposition CalculateIfMatching(SpriteComposition supplied)
     {
-        if (name is not ("Border.Main" or "Border.Copy" or "Border.Clear" or "Heading.Primary" or "Heading.Controller" or "Heading.Special") || supplied.PartCount < 8)
+        if (supplied.PartCount < 8)
             return supplied;
         int left = int.MaxValue, right = int.MinValue, top = int.MaxValue, bottom = int.MinValue;
         for (int index = 0; index < supplied.PartCount; index++)

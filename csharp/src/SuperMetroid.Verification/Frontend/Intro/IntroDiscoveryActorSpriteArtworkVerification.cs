@@ -76,7 +76,7 @@ internal static class IntroDiscoveryActorSpriteArtworkVerification
                 state.StepBabyDiscoveryCrossfade();
             AssertEqual(IntroCinematicPhase.BabyDiscovery, state.Phase,
                 "discovery actor visual probe reached the lit gameplay palette");
-            var discovery = state.babyDiscovery;
+            var discovery = state.CurrentBabyDiscovery;
             (discovery ?? throw new InvalidOperationException("Verification requires discovery.")).Step(0, 1);
         }
         Rgba32[] stockPixels = stockState.RenderBabyDiscovery();

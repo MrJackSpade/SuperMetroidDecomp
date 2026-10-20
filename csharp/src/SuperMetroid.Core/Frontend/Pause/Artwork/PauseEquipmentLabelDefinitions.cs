@@ -24,12 +24,8 @@ public static class PauseEquipmentLabelDefinitions
     /// <summary><c>kHyperBeamWeaponsTilemaps</c> at $82:C0A8.</summary>
     public const int HyperPointerTable = 0x82c0a8;
 
-    /// <summary>Case-sensitive installed label identity for Hyper Beam; separate from ordinary beam controls and placed at the Wave slot by the native Hyper pointer table.</summary>
+    /// <summary>The JSON key of the Hyper Beam label; separate from ordinary beam controls and placed at the Wave slot by the native Hyper pointer table.</summary>
     public const string HyperKey = "Beam.Hyper";
-    /// <summary>Case-sensitive Plasma label identity; its ordinary five-word strip may extend into the following native Varia source words during a nine-word button patch.</summary>
-    public const string PlasmaKey = "Beam.Plasma";
-    /// <summary>Case-sensitive Varia Suit label identity; its first four words also supply the deliberate continuation after Plasma's ordinary five-word source.</summary>
-    public const string VariaKey = "Equipment.Varia";
     /// <summary>Hyper mode's pointer table places its only nonblank patch in the Wave slot.</summary>
     public const int HyperBeamItem = 2;
     /// <summary>Native Plasma label destination at equipment-page cell $284.</summary>
@@ -40,12 +36,57 @@ public static class PauseEquipmentLabelDefinitions
     /// <summary>Equipment label identities alias the corresponding selector controls. Native
     /// 82:C08C..C0A6 selects Charge/Ice/Wave/Spazer/Plasma, suit/misc and boot labels in
     /// the same category/item order. Reserve controls have no ordinary inventory label.</summary>
-    public static string Key(PauseEquipmentCategory category, int item)
+    public static PauseEquipmentLabelId Label(PauseEquipmentCategory category, int item)
     {
         if (!Enum.IsDefined(category) || (uint)item >= ItemCount(category))
             throw new ArgumentOutOfRangeException(nameof(item), $"No pause equipment label exists for category {category}, item {item}.");
-        return PauseSelectorDefinitions.Anchor(category, item);
+        return category switch
+        {
+            PauseEquipmentCategory.Beams => item switch
+            {
+                0 => PauseEquipmentLabelId.Charge,
+                1 => PauseEquipmentLabelId.Ice,
+                2 => PauseEquipmentLabelId.Wave,
+                3 => PauseEquipmentLabelId.Spazer,
+                4 => PauseEquipmentLabelId.Plasma,
+                _ => throw new ArgumentOutOfRangeException(nameof(item)),
+            },
+            PauseEquipmentCategory.Suits => item switch
+            {
+                0 => PauseEquipmentLabelId.Varia,
+                1 => PauseEquipmentLabelId.Gravity,
+                2 => PauseEquipmentLabelId.MorphBall,
+                3 => PauseEquipmentLabelId.Bombs,
+                4 => PauseEquipmentLabelId.SpringBall,
+                5 => PauseEquipmentLabelId.ScrewAttack,
+                _ => throw new ArgumentOutOfRangeException(nameof(item)),
+            },
+            PauseEquipmentCategory.Boots => item switch
+            {
+                0 => PauseEquipmentLabelId.HiJump,
+                1 => PauseEquipmentLabelId.SpaceJump,
+                2 => PauseEquipmentLabelId.SpeedBooster,
+                _ => throw new ArgumentOutOfRangeException(nameof(item)),
+            },
+            PauseEquipmentCategory.Reserves => throw new ArgumentOutOfRangeException(nameof(category)),
+            _ => throw new ArgumentOutOfRangeException(nameof(category)),
+        };
     }
+
+    /// <summary>The JSON key of an ordinary label, which is its selector control's anchor name.</summary>
+    public static string Key(PauseEquipmentCategory category, int item) => Name(Label(category, item));
+
+    /// <summary>The JSON key of a label: its selector control's anchor name, or <see cref="HyperKey"/>.</summary>
+    public static string Name(PauseEquipmentLabelId label)
+    {
+        if (label == PauseEquipmentLabelId.Hyper) return HyperKey;
+        PauseEquipmentLabelKey entry = Labels().Single(candidate => candidate.Label == label);
+        return PauseSelectorDefinitions.Anchor(entry.Category, entry.Item);
+    }
+
+    /// <summary>Whether a label is one of the five ordinary beam labels.</summary>
+    internal static bool IsOrdinaryBeam(PauseEquipmentLabelId label) => label is PauseEquipmentLabelId.Charge or
+        PauseEquipmentLabelId.Ice or PauseEquipmentLabelId.Wave or PauseEquipmentLabelId.Spazer or PauseEquipmentLabelId.Plasma;
 
     /// <summary>Uses the reviewed category contract, including zero labels for reserves.</summary>
     public static int ItemCount(PauseEquipmentCategory category) => PauseEquipmentCategories.Get(category).ItemCount;
@@ -57,7 +98,7 @@ public static class PauseEquipmentLabelDefinitions
     private static readonly Lazy<PauseEquipmentLabelKey[]> labels = new(() =>
         PauseSelectorDefinitions.Anchors()
             .Where(anchor => anchor.Category != PauseEquipmentCategory.Reserves)
-            .Select(anchor => new PauseEquipmentLabelKey(anchor.Category, anchor.Item, anchor.Name)).ToArray());
+            .Select(anchor => new PauseEquipmentLabelKey(anchor.Category, anchor.Item, Label(anchor.Category, anchor.Item))).ToArray());
 
     /// <summary>Returns the ordinary category strip width in sixteen-bit tile words, not bytes; Hyper's stored width and Plasma's button-patch overrun are separate contracts.</summary>
     /// <param name="category">Native equipment category: one denotes beams; every other integer returns the equipment width without category validation.</param>
@@ -113,23 +154,23 @@ public static class PauseEquipmentLabelDefinitions
     private const int HyperEndcap = 0x12f;
 
     /// <summary>Uses five source words for ordinary beams and nine for other labels, including stored Hyper.</summary>
-    internal static int StockWordCount(string key)
+    internal static int StockWordCount(PauseEquipmentLabelId label)
     {
-        _ = StockDestinationByte(key);
-        return key.StartsWith("Beam.", StringComparison.Ordinal) && key != HyperKey ? BeamWords : EquipmentWords;
+        _ = StockDestinationByte(label);
+        return IsOrdinaryBeam(label) ? BeamWords : EquipmentWords;
     }
 
     /// <summary>$82:C06C-C086: label columns4/21 and category rows16/9/19, with the suit-to-misc gap.</summary>
-    internal static int StockDestinationByte(string key)
+    internal static int StockDestinationByte(PauseEquipmentLabelId label)
     {
-        if (key == HyperKey) key = Key(PauseEquipmentCategory.Beams, HyperBeamItem);
-        return destinations.Value.TryGetValue(key, out int destination) ? destination
-            : throw new ArgumentOutOfRangeException(nameof(key));
+        if (label == PauseEquipmentLabelId.Hyper) label = Label(PauseEquipmentCategory.Beams, HyperBeamItem);
+        return destinations.Value.TryGetValue(label, out int destination) ? destination
+            : throw new ArgumentOutOfRangeException(nameof(label));
     }
 
     /// <summary>Native label destinations derived once from category columns and rows for per-cell lookup.</summary>
-    private static readonly Lazy<Dictionary<string, int>> destinations = new(() =>
-        Labels().ToDictionary(label => label.Key, label =>
+    private static readonly Lazy<Dictionary<PauseEquipmentLabelId, int>> destinations = new(() =>
+        Labels().ToDictionary(label => label.Label, label =>
         {
             (int column, int firstRow) = label.Category switch
             {
@@ -140,34 +181,34 @@ public static class PauseEquipmentLabelDefinitions
                 _ => throw new InvalidDataException("Unknown equipment label category."),
             };
             return ((firstRow + label.Item) * TilemapColumns + column) * sizeof(ushort);
-        }, StringComparer.Ordinal));
+        }));
 
     /// <summary>Assembles named equipment text from its packed atlas runs, shared suffixes and padding.</summary>
     /// <remarks>The referenced glyph pixels remain independently authored interface artwork.</remarks>
-    internal static ushort StockWord(string key, int index)
+    internal static ushort StockWord(PauseEquipmentLabelId label, int index)
     {
-        if ((uint)index >= StockWordCount(key)) throw new ArgumentOutOfRangeException(nameof(index));
+        if ((uint)index >= StockWordCount(label)) throw new ArgumentOutOfRangeException(nameof(index));
         if (index == 0) return LabelPalette << 10 | Marker;
         int text = index - 1;
-        int glyph = key switch
+        int glyph = label switch
         {
-            "Beam.Charge" => text < 3 ? ChargePrefix + text : ChargeEnding,
-            "Beam.Ice" => Run(IceText, 2, text),
-            "Beam.Wave" => Run(WaveText, 3, text),
-            "Beam.Spazer" => SpazerText + text,
-            PlasmaKey => PlasmaText + text,
-            VariaKey => text < 3 ? VariaText + text : Run(SuitText, 3, text - 3),
-            "Equipment.Gravity" => text < 4 ? GravityText + text : Run(SuitText, 3, text - 4),
-            "Equipment.MorphBall" => text < 4 ? MorphingPrefix + text
+            PauseEquipmentLabelId.Charge => text < 3 ? ChargePrefix + text : ChargeEnding,
+            PauseEquipmentLabelId.Ice => Run(IceText, 2, text),
+            PauseEquipmentLabelId.Wave => Run(WaveText, 3, text),
+            PauseEquipmentLabelId.Spazer => SpazerText + text,
+            PauseEquipmentLabelId.Plasma => PlasmaText + text,
+            PauseEquipmentLabelId.Varia => text < 3 ? VariaText + text : Run(SuitText, 3, text - 3),
+            PauseEquipmentLabelId.Gravity => text < 4 ? GravityText + text : Run(SuitText, 3, text - 4),
+            PauseEquipmentLabelId.MorphBall => text < 4 ? MorphingPrefix + text
                 : text < 6 ? MorphingBallMiddle + text - 4 : text == 6 ? BallMiddle : BallEnding,
-            "Equipment.Bombs" => Run(BombsText, 3, text),
-            "Equipment.SpringBall" => Run(SpringBallText, 7, text),
-            "Equipment.ScrewAttack" => Run(ScrewAttackText, 7, text),
-            "Boots.HiJump" => Run(HiJumpText, 7, text),
-            "Boots.SpaceJump" => Run(SpaceJumpText, 6, text),
-            "Boots.SpeedBooster" => SpeedBoosterText + text,
-            HyperKey => text < 3 ? HyperText + text : text == 3 ? HyperEndcap : Padding,
-            _ => throw new ArgumentOutOfRangeException(nameof(key)),
+            PauseEquipmentLabelId.Bombs => Run(BombsText, 3, text),
+            PauseEquipmentLabelId.SpringBall => Run(SpringBallText, 7, text),
+            PauseEquipmentLabelId.ScrewAttack => Run(ScrewAttackText, 7, text),
+            PauseEquipmentLabelId.HiJump => Run(HiJumpText, 7, text),
+            PauseEquipmentLabelId.SpaceJump => Run(SpaceJumpText, 6, text),
+            PauseEquipmentLabelId.SpeedBooster => SpeedBoosterText + text,
+            PauseEquipmentLabelId.Hyper => text < 3 ? HyperText + text : text == 3 ? HyperEndcap : Padding,
+            _ => throw new ArgumentOutOfRangeException(nameof(label)),
         };
         return (ushort)(LabelPalette << 10 | glyph);
     }

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.Core.Fx;
@@ -20,8 +21,30 @@ namespace SuperMetroid.Core.Frontend.Ending;
 /// <c>cinematic_function</c> address, making the same coroutine boundaries debuggable in C#.
 /// </remarks>
 [RoomScopeBoundary("A cinematic scene that owns its own palette FX for the scene's lifetime; no gameplay room is loaded.")]
-internal sealed class EndingCreditsState
+internal sealed class EndingCreditsState : IFrontendScreen
 {
+    /// <inheritdoc/>
+    void IFrontendScreen.BindArtwork(GameArtwork previous, GameArtwork artwork, SuperMetroidGameState state)
+    {
+        Ensure.NotNull(previous);
+        Ensure.NotNull(artwork);
+        if (!ReferenceEquals(previous.MapPresentation, artwork.MapPresentation))
+        {
+            BindEndingText(artwork.MapPresentation?.EndingText);
+            BindPaletteFxColors(artwork.MapPresentation?.RoomPaletteFx);
+            BindEndingFont(artwork.MapPresentation?.EndingFont);
+            BindStaffCredits(artwork.MapPresentation?.StaffCredits);
+        }
+        if (!ReferenceEquals(previous.IntroCinematicArt, artwork.IntroCinematicArt))
+            BindFlightArtwork(artwork.IntroCinematicArt?.CeresFlight);
+        if (!ReferenceEquals(previous.EndingMode7Art, artwork.EndingMode7Art))
+            BindMode7Artwork(artwork.EndingMode7Art);
+        if (!ReferenceEquals(previous.EndingObjectArt, artwork.EndingObjectArt))
+            BindObjectArtwork(artwork.EndingObjectArt);
+        if (!ReferenceEquals(previous.EndingPaletteArt, artwork.EndingPaletteArt))
+            BindPaletteArtwork(artwork.EndingPaletteArt);
+    }
+
     /// <summary>The <see cref="EndingCreditsPresentation"/> owner of this EndingCreditsState.</summary>
     internal EndingCreditsPresentation Presentation { get; }
     /// <summary>Queues the authored ending music transitions.</summary>
@@ -45,12 +68,12 @@ internal sealed class EndingCreditsState
         new ushort[EndingCreditsRomData.Rendering.TilemapWords];
 
     /// <summary>Scrolling staff-list owner active during the credits phase.</summary>
-    internal CreditsObjectState? credits;
+    internal CreditsObjectState? CurrentCredits { get; private set; }
     /// <summary>The state of the credits scroll, which exists while that phase runs.</summary>
-    internal CreditsObjectState Credits => credits ??
+    internal CreditsObjectState Credits => CurrentCredits ??
         throw new InvalidOperationException("The credits scroll is not running.");
     /// <summary>Background star animation retained into the post-credits scene.</summary>
-    internal EndingShootingStars? shootingStars;
+    internal EndingShootingStars? ShootingStars { get; private set; }
     /// <summary>Current result-panel text writer over the staging tilemap.</summary>
     private EndingBackgroundTextState? postCreditsText;
     /// <summary>The state of the post-credits text, which exists while that phase runs.</summary>
@@ -61,51 +84,51 @@ internal sealed class EndingCreditsState
     /// atmospheric rotation and the planet turn cadence), so a growing count reproduces the
     /// cartridge's wrapping word exactly.
     /// </summary>
-    internal int cinematicFrame;
+    internal int CinematicFrame { get; private set; }
     /// <summary>NMI waits <c>CinematicFunction_Ending_Setup</c> has made so far.</summary>
     private int setupNmiWaits;
     /// <summary>Countdown interpreted by the currently installed cinematic function.</summary>
-    internal int phaseTimer;
+    internal int PhaseTimer { get; set; }
     /// <summary>Shared fade progression through scene and palette handoffs.</summary>
     private int fadeCounter;
     /// <summary>Master brightness during cinematic fades, from 0 (black) through 15 (full); every fade step clamps to that range.</summary>
     [IntegerQuantity("screen brightness level, zero through fifteen")]
-    internal int brightness;
+    internal int Brightness { get; set; }
     /// <summary>Mode-7 translation; only X uses a subpixel because native Y has no fractional word.</summary>
-    internal FixedPosition<Mode7Pixels> mode7;
+    internal FixedPosition<Mode7Pixels> Mode7 { get; set; }
     /// <summary>
     /// Mode-7 scale in 8.8 units (256 is unity), initially the identity. Every scene starts it at an authored
     /// scale and moves it by a few units per call toward a bound it stops at, so it stays positive and small.
     /// </summary>
-    internal int mode7Zoom = EndingCreditsRomData.Motion.IdentityScale;
+    internal int Mode7Zoom { get; set; } = EndingCreditsRomData.Motion.IdentityScale;
     /// <summary>Mode-7 byte-angle shared by the escape and planet scenes.</summary>
-    internal SnesAngle mode7Angle;
+    internal SnesAngle Mode7Angle { get; private set; }
     /// <summary>Position in the current planet-escape shake pattern, cycling through its entries.</summary>
-    internal int planetMotionIndex;
+    internal int PlanetMotionIndex { get; set; }
     /// <summary>Scroll of the post-credits text map; only the vertical axis moves, during the item-percentage scroll-down.</summary>
-    internal Position16<BgPlanePixels> postCreditsScroll;
+    internal Position16<BgPlanePixels> PostCreditsScroll { get; set; }
     /// <summary>Planet-escape velocity: a signed 16.16 displacement that grows more negative every accelerating update.</summary>
-    internal SnesSignedSixteenSixteen planetVelocity;
+    internal SnesSignedSixteenSixteen PlanetVelocity { get; private set; }
     /// <summary>Whether the credits and reward art have been transferred to VRAM.</summary>
     private bool creditsAssetsLoaded;
     /// <summary>Prevents repeating the native copyright-panel handoff.</summary>
     private bool rewardCopyrightShown;
     /// <summary>Post-credits suitless or helmet-removal gesture actor.</summary>
-    internal EndingRewardGesture? rewardGesture;
+    internal EndingRewardGesture? CurrentRewardGesture { get; private set; }
     /// <summary>The state of the reward gesture, which exists while that phase runs.</summary>
-    internal EndingRewardGesture RewardGesture => rewardGesture ??
+    internal EndingRewardGesture RewardGesture => CurrentRewardGesture ??
         throw new InvalidOperationException("The reward gesture is not running.");
     /// <summary>Post-credits reward jump and landing actor.</summary>
-    internal EndingRewardJump? rewardJump;
+    internal EndingRewardJump? CurrentRewardJump { get; set; }
     /// <summary>The state of the reward jump, which exists while that phase runs.</summary>
-    internal EndingRewardJump RewardJump => rewardJump ??
+    internal EndingRewardJump RewardJump => CurrentRewardJump ??
         throw new InvalidOperationException("The reward jump is not running.");
     /// <summary>Whether the reward landing has started queuing its icon chunks on the actor's native instruction boundary.</summary>
     private bool rewardIconUploading;
     /// <summary>Final shot-into-camera actor and its drawing state.</summary>
-    internal EndingPostShot? postShot;
+    internal EndingPostShot? CurrentPostShot { get; set; }
     /// <summary>The state of the reward shot, which exists while that phase runs.</summary>
-    internal EndingPostShot PostShot => postShot ??
+    internal EndingPostShot PostShot => CurrentPostShot ??
         throw new InvalidOperationException("The reward shot is not running.");
     /// <summary>Palette-object interpreter used by clouds and planet afterglow.</summary>
     private RoomPaletteFxSystem paletteFx = new(new PaletteFxSessionState());
@@ -120,7 +143,7 @@ internal sealed class EndingCreditsState
     /// <summary>Reloadable Mode-7 maps and characters for each ending scene.</summary>
     [NonSerialized] private EndingMode7ArtworkCatalog? mode7Artwork;
     /// <summary>Reloadable object character art for clouds, explosion and reward actors.</summary>
-    [NonSerialized] internal EndingObjectArtworkCatalog? objectArtwork;
+    [field: NonSerialized] internal EndingObjectArtworkCatalog? ObjectArtwork { get; private set; }
 
     /// <summary>Initializes state-$27 from the saved clear-time and ending setup snapshot.</summary>
     public EndingCreditsState(CartridgeAudioState audio, EndingCreditsSetup setup)
@@ -173,7 +196,7 @@ internal sealed class EndingCreditsState
                 {
                     paletteFx.SpawnDefinition(EndingPaletteFxDefinitions.Lava, 0);
                     paletteFx.SpawnDefinition(EndingPaletteFxDefinitions.Crust, 0);
-                    brightness = 0;
+                    Brightness = 0;
                     fadeCounter = 1;
                     Phase = EndingCreditsPhase.FadeInEscapeSceneA;
                 }
@@ -189,7 +212,7 @@ internal sealed class EndingCreditsState
             case EndingCreditsPhase.EscapeSceneA:
                 StepAtmosphericTransform(2);
                 StepEscapeClouds();
-                if (mode7Zoom >= EndingCreditsRomData.Motion.EscapeEndScale)
+                if (Mode7Zoom >= EndingCreditsRomData.Motion.EscapeEndScale)
                 {
                     fadeCounter = 1;
                     Phase = EndingCreditsPhase.FadeOutEscapeSceneA;
@@ -213,7 +236,7 @@ internal sealed class EndingCreditsState
             case EndingCreditsPhase.EscapeSceneB:
                 StepAtmosphericTransform(3);
                 StepEscapeClouds();
-                if (mode7Zoom >= EndingCreditsRomData.Motion.EscapeEndScale)
+                if (Mode7Zoom >= EndingCreditsRomData.Motion.EscapeEndScale)
                 {
                     fadeCounter = 1;
                     Phase = EndingCreditsPhase.FadeOutEscapeSceneB;
@@ -240,9 +263,9 @@ internal sealed class EndingCreditsState
                 break;
 
             case EndingCreditsPhase.ZebesExplosionTileUpload:
-                UploadFlyawayChunk(16 - phaseTimer);
+                UploadFlyawayChunk(16 - PhaseTimer);
                 StepSprites();
-                if (--phaseTimer <= 0)
+                if (--PhaseTimer <= 0)
                     Phase = EndingCreditsPhase.ZebesExplosionAnimation;
                 break;
 
@@ -254,7 +277,7 @@ internal sealed class EndingCreditsState
 
             case EndingCreditsPhase.WaitForPlanetEscapeMusic:
                 StepSprites();
-                if (--phaseTimer <= 0)
+                if (--PhaseTimer <= 0)
                 {
                     audio.QueueMusicDelayed8(MusicCommand.Stop);
                     audio.QueueMusicDelayed8(MusicCommand.LoadData(
@@ -307,7 +330,7 @@ internal sealed class EndingCreditsState
                 break;
 
             case EndingCreditsPhase.PostCreditsBlank:
-                if (--phaseTimer <= 0)
+                if (--PhaseTimer <= 0)
                 {
                     fadeCounter = 1;
                     Phase = EndingCreditsPhase.PostCreditsFadeIn;
@@ -317,25 +340,25 @@ internal sealed class EndingCreditsState
             case EndingCreditsPhase.PostCreditsFadeIn:
                 if (StepSlowFadeIn())
                 {
-                    phaseTimer = EndingCreditsRomData.Timing.WaitingPaletteFadeFrames;
+                    PhaseTimer = EndingCreditsRomData.Timing.WaitingPaletteFadeFrames;
                     ApplyWaitingBackdropPalette(0);
                     Phase = EndingCreditsPhase.PostCreditsShootingStars;
                 }
                 break;
 
             case EndingCreditsPhase.PostCreditsShootingStars:
-                ApplyWaitingBackdropPalette(EndingCreditsRomData.Timing.WaitingPaletteFadeFrames - phaseTimer + 1);
-                if (--phaseTimer <= 0)
+                ApplyWaitingBackdropPalette(EndingCreditsRomData.Timing.WaitingPaletteFadeFrames - PhaseTimer + 1);
+                if (--PhaseTimer <= 0)
                 {
                     // Func131 finishes its palette fade, then Func132 holds the waiting
                     // backdrop for three seconds before displaying the producer panel.
-                    phaseTimer = EndingCreditsRomData.Timing.WaitingBackdropFrames;
+                    PhaseTimer = EndingCreditsRomData.Timing.WaitingBackdropFrames;
                     Phase = EndingCreditsPhase.PostCreditsWaitingBackdrop;
                 }
                 break;
 
             case EndingCreditsPhase.PostCreditsWaitingBackdrop:
-                if (--phaseTimer <= 0)
+                if (--PhaseTimer <= 0)
                 {
                     // Function 132 installs the complete $8C:DC9B result panel into rows
                     // nine through seventeen before the following 180-frame hold.
@@ -343,18 +366,18 @@ internal sealed class EndingCreditsState
                         "Post-credits text requires installed ending text.")).BuildResultPanel().CopyTo(
                         postCreditsTilemap, EndingCreditsRomData.Text.ResultPanelDestination);
                     UploadPostCreditsTilemap();
-                    phaseTimer = 180;
+                    PhaseTimer = 180;
                     Phase = EndingCreditsPhase.PostCreditsWaitingSamus;
                 }
                 break;
 
             case EndingCreditsPhase.PostCreditsWaitingSamus:
-                if (--phaseTimer <= 0)
+                if (--PhaseTimer <= 0)
                 {
                     SpawnEndingRewardActors();
                     rewardPaletteStep = 0;
                     ApplyRewardPalette();
-                    phaseTimer = EndingCreditsRomData.Timing.RewardRevealHalfFrames;
+                    PhaseTimer = EndingCreditsRomData.Timing.RewardRevealHalfFrames;
                     Phase = EndingCreditsPhase.PostCreditsReward;
                 }
                 break;
@@ -362,13 +385,13 @@ internal sealed class EndingCreditsState
             case EndingCreditsPhase.PostCreditsReward:
                 // E265/E314 test var4 before decrement. Both 64-frame halves advance
                 // their shared palette accumulator on the fourth, eighth, ... calls.
-                if ((phaseTimer & 3) == 1)
+                if ((PhaseTimer & 3) == 1)
                 {
                     rewardPaletteStep++;
                     ApplyRewardPalette();
                 }
                 StepSprites();
-                if (--phaseTimer <= 0)
+                if (--PhaseTimer <= 0)
                 {
                     if (!rewardCopyrightShown)
                     {
@@ -378,7 +401,7 @@ internal sealed class EndingCreditsState
                     // E342 replaces the idle actors with the cartridge gesture lists.
                     // BG1/BG2 are disabled during this OBJ-only animation.
                     sprites.Clear();
-                    rewardGesture = new EndingRewardGesture(EndingReward);
+                    CurrentRewardGesture = new EndingRewardGesture(EndingReward);
                     Phase = EndingCreditsPhase.PostCreditsGesture;
                 }
                 break;
@@ -387,10 +410,10 @@ internal sealed class EndingCreditsState
                 RewardGesture.Step();
                 if (RewardGesture.JumpRequested)
                 {
-                    rewardGesture = null;
+                    CurrentRewardGesture = null;
                     RequireRewardIcon(mode7Artwork?.RewardIcon);
                     rewardIconUploading = true;
-                    rewardJump = new EndingRewardJump(EndingReward, UploadRewardGraphic);
+                    CurrentRewardJump = new EndingRewardJump(EndingReward, UploadRewardGraphic);
                     Phase = EndingCreditsPhase.PostCreditsJump;
                 }
                 break;
@@ -399,7 +422,7 @@ internal sealed class EndingCreditsState
                 RewardJump.Step();
                 if (RewardJump.ShotRequested)
                 {
-                    postShot = new EndingPostShot(screen.Palette);
+                    CurrentPostShot = new EndingPostShot(screen.Palette);
                     audio.QueueSound(EndingPostShotDefinitions.ShotSound, EndingPostShotDefinitions.SoundQueueLimit);
                     Phase = EndingCreditsPhase.PostCreditsShot;
                 }
@@ -415,9 +438,9 @@ internal sealed class EndingCreditsState
                 break;
 
             case EndingCreditsPhase.PostCreditsWhiteFlash:
-                if (whiteFlashColor > 0) whiteFlashColor--;
+                if (WhiteFlashColor > 0) WhiteFlashColor--;
                 RewardJump.Step();
-                if (--phaseTimer <= 0) FinishPostCreditsWhiteFlash();
+                if (--PhaseTimer <= 0) FinishPostCreditsWhiteFlash();
                 break;
 
             case EndingCreditsPhase.PostCreditsLogo:
@@ -428,9 +451,9 @@ internal sealed class EndingCreditsState
                 // The sprite interpreter continues behind TM=$01; hiding the actors
                 // must not reset their instruction lists or their reveal palette state.
                 StepSprites();
-                if (--phaseTimer <= 0)
+                if (--PhaseTimer <= 0)
                 {
-                    phaseTimer = EndingCreditsRomData.Timing.RewardRevealHalfFrames;
+                    PhaseTimer = EndingCreditsRomData.Timing.RewardRevealHalfFrames;
                     Phase = EndingCreditsPhase.PostCreditsReward;
                 }
                 break;
@@ -439,7 +462,7 @@ internal sealed class EndingCreditsState
                 PostCreditsText.Step(screen);
                 if (PostCreditsText.RequestedItemPercentageScroll && PostCreditsText.Completed)
                 {
-                    phaseTimer = 40;
+                    PhaseTimer = 40;
                     Phase = EndingCreditsPhase.ItemPercentageScrollDown;
                 }
                 break;
@@ -448,10 +471,10 @@ internal sealed class EndingCreditsState
                 // Function 148 moves BG1 down two pixels per call from zero through -80.
                 // The software renderer applies the equivalent scroll while preserving the
                 // already-built tilemap until the final object is spawned.
-                postCreditsScroll -= new Offset16<BgPlanePixels>(0, 2);
-                if (--phaseTimer <= 0)
+                PostCreditsScroll -= new Offset16<BgPlanePixels>(0, 2);
+                if (--PhaseTimer <= 0)
                 {
-                    postCreditsText = new EndingBackgroundTextState(new EndingBackgroundTextSetup { Tilemap = postCreditsTilemap, Inventory = inventory, JapaneseText = japaneseText, DestinationTilemap = postCreditsTextTilemap, Presentation = endingText, InstalledSequence = endingText is null ? null : EndingTextSequence.FinalMessage });
+                    postCreditsText = new EndingBackgroundTextState(new EndingBackgroundTextSetup { Tilemap = postCreditsTilemap, Inventory = inventory, JapaneseText = japaneseText, DestinationTilemap = PostCreditsTextTilemap, Presentation = endingText, InstalledSequence = endingText is null ? null : EndingTextSequence.FinalMessage });
                     Phase = EndingCreditsPhase.SeeYouNextMission;
                 }
                 break;
@@ -474,8 +497,8 @@ internal sealed class EndingCreditsState
         // $8B:D46B follows cinematic actors even while a text-only TM masks OBJ.
         // F734 enables the already-initialized records when the credits finish.
         if (Phase >= EndingCreditsPhase.PostCreditsBlank)
-            (shootingStars ??= new EndingShootingStars()).Step();
-        cinematicFrame++;
+            (ShootingStars ??= new EndingShootingStars()).Step();
+        CinematicFrame++;
     }
 
     /// <summary>Loads the first cloud scene, resets its Mode-7 transform and queues escape music.</summary>
@@ -489,11 +512,11 @@ internal sealed class EndingCreditsState
         SpawnSprite(EndingCreditsRomData.Sprites.EscapeACloudLeftTop, EndingSpriteRole.CloudLeftA);
         SpawnSprite(EndingCreditsRomData.Sprites.EscapeACloudRightBottom, EndingSpriteRole.CloudRightB);
         SpawnSprite(EndingCreditsRomData.Sprites.EscapeACloudLeftBottom, EndingSpriteRole.CloudLeftB);
-        mode7 = new(mode7.X.WithWhole(0), default);
-        mode7Zoom = EndingCreditsRomData.Motion.EscapeInitialScale;
-        mode7Angle = EndingCreditsRomData.Motion.EscapeInitialAngle.ToAngle();
-        brightness = 0;
-        postCreditsScroll = Position16<BgPlanePixels>.Zero;
+        Mode7 = new(Mode7.X.WithWhole(0), default);
+        Mode7Zoom = EndingCreditsRomData.Motion.EscapeInitialScale;
+        Mode7Angle = EndingCreditsRomData.Motion.EscapeInitialAngle.ToAngle();
+        Brightness = 0;
+        PostCreditsScroll = Position16<BgPlanePixels>.Zero;
         audio.QueueMusicDelayed8(MusicCommand.Stop);
         audio.QueueMusicDelayed8(MusicCommand.LoadData(
             EndingCreditsRomData.Music.EscapeDataIndex));
@@ -515,10 +538,10 @@ internal sealed class EndingCreditsState
         SpawnSprite(EndingCreditsRomData.Sprites.EscapeBCloudTopB, EndingSpriteRole.CloudTopB);
         SpawnSprite(EndingCreditsRomData.Sprites.EscapeBCloudBottomA, EndingSpriteRole.CloudBottomA);
         SpawnSprite(EndingCreditsRomData.Sprites.EscapeBCloudBottomB, EndingSpriteRole.CloudBottomB);
-        mode7 = new(mode7.X.WithWhole(0), default);
-        mode7Zoom = EndingCreditsRomData.Motion.EscapeInitialScale;
-        mode7Angle = EndingCreditsRomData.Motion.EscapeInitialAngle.ToAngle();
-        brightness = 0;
+        Mode7 = new(Mode7.X.WithWhole(0), default);
+        Mode7Zoom = EndingCreditsRomData.Motion.EscapeInitialScale;
+        Mode7Angle = EndingCreditsRomData.Motion.EscapeInitialAngle.ToAngle();
+        Brightness = 0;
         fadeCounter = 1;
         Phase = EndingCreditsPhase.FadeInEscapeSceneB;
     }
@@ -537,10 +560,10 @@ internal sealed class EndingCreditsState
         SpawnSprite(EndingCreditsRomData.Sprites.ExplosionLava, EndingSpriteRole.ExplosionLava);
         SpawnSprite(EndingCreditsRomData.Sprites.ExplosionGlow, EndingSpriteRole.ExplosionGlow);
         SpawnSprite(EndingCreditsRomData.Sprites.ExplosionStars, EndingSpriteRole.ExplosionStars);
-        mode7 = new(mode7.X.WithWhole(0), default);
-        mode7Zoom = EndingCreditsRomData.Motion.EscapeInitialScale;
-        mode7Angle = SnesAngle.Zero;
-        brightness = 0;
+        Mode7 = new(Mode7.X.WithWhole(0), default);
+        Mode7Zoom = EndingCreditsRomData.Motion.EscapeInitialScale;
+        Mode7Angle = SnesAngle.Zero;
+        Brightness = 0;
         fadeCounter = 1;
         BeginExplosionCrossfade();
         Phase = EndingCreditsPhase.FadeInZebesExplosion;
@@ -556,29 +579,29 @@ internal sealed class EndingCreditsState
         palettes.EndingObjectTransparent.Write(0, Bgr555.Black);
         paletteFx.SpawnDefinition(EndingPaletteFxDefinitions.PlanetAfterglow, 0);
         paletteFx.SpawnDefinition(EndingPaletteFxDefinitions.GunshipEmergence, 0);
-        mode7 = new(mode7.X.WithWhole(unchecked((ushort)-72)), new(unchecked((ushort)-104), 0));
-        mode7Zoom = EndingCreditsRomData.Motion.PlanetEscapeInitialScale;
-        mode7Angle = SnesAngle.NormalizeTableIndex(-112);
-        phaseTimer = 192;
+        Mode7 = new(Mode7.X.WithWhole(unchecked((ushort)-72)), new(unchecked((ushort)-104), 0));
+        Mode7Zoom = EndingCreditsRomData.Motion.PlanetEscapeInitialScale;
+        Mode7Angle = SnesAngle.NormalizeTableIndex(-112);
+        PhaseTimer = 192;
         flyawayWhite = EndingFlyawayFadeDefinitions.InitialWhite;
         flyawayFadeCountdown = EndingFlyawayFadeDefinitions.InitialCountdown;
-        planetMotionIndex = 0;
+        PlanetMotionIndex = 0;
         Phase = EndingCreditsPhase.PlanetEscapeFast;
     }
 
     /// <summary>Replaces planet actors with the staff scroll, shooting stars and blank reward staging map.</summary>
     private void SetupCredits()
     {
-        shootingStars = new EndingShootingStars();
+        ShootingStars = new EndingShootingStars();
         // Func126 clears palette objects before installing credits/reward palettes.
         ResetPaletteFx();
         LoadCreditsAndPostCreditsAssets();
-        credits = new CreditsObjectState(staffCredits ?? throw new InvalidOperationException(
+        CurrentCredits = new CreditsObjectState(staffCredits ?? throw new InvalidOperationException(
             "Ending credits require installed ending-credits.json content."));
-        credits.UploadTilemap(screen);
+        CurrentCredits.UploadTilemap(screen);
         Array.Fill(postCreditsTilemap, EndingCreditsRomData.Rendering.BlankTile);
         sprites.Clear();
-        brightness = 15;
+        Brightness = 15;
         Phase = EndingCreditsPhase.Credits;
     }
 
@@ -600,7 +623,7 @@ internal sealed class EndingCreditsState
     public void BindStaffCredits(CreditsPresentation? value)
     {
         staffCredits = value;
-        credits?.BindPresentation(value);
+        CurrentCredits?.BindPresentation(value);
     }
 
     /// <summary>Requires installed ending font art before a native VRAM transfer.</summary>
@@ -619,9 +642,9 @@ internal sealed class EndingCreditsState
             EndingCreditsRomData.Rendering.PostCreditsPaletteDestination,
             EndingCreditsRomData.Rendering.PostCreditsPaletteBytes,
             EndingCreditsRomData.Rendering.PostCreditsPaletteDestination);
-        brightness = 0;
+        Brightness = 0;
         UploadPostCreditsTilemap();
-        phaseTimer = 60;
+        PhaseTimer = 60;
         Phase = EndingCreditsPhase.PostCreditsBlank;
     }
 
@@ -639,7 +662,7 @@ internal sealed class EndingCreditsState
     /// <summary>Reapplies the current ending OBJ uploads after a state restore.</summary>
     internal void BindObjectArtwork(EndingObjectArtworkCatalog? value)
     {
-        objectArtwork = value;
+        ObjectArtwork = value;
         screen.Invalidate();
     }
 
@@ -655,7 +678,7 @@ internal sealed class EndingCreditsState
     /// <summary>Transfers the cloud object's character sheet into the ending OBJ lane.</summary>
     private void LoadEscapeCloudCharacters()
     {
-        byte[] clouds = (objectArtwork ?? throw new InvalidOperationException(
+        byte[] clouds = (ObjectArtwork ?? throw new InvalidOperationException(
             "Escape clouds require installed object artwork.")).Clouds.Transfer.ToArray();
         RequireMinimum(clouds, EndingCreditsRomData.Rendering.Mode7Bytes, "escape cloud characters");
         screen.Record(EndingUploadKind.EscapeClouds, 0);
@@ -664,7 +687,7 @@ internal sealed class EndingCreditsState
     /// <summary>Uploads explosion OBJ art, four fragments and the ending font at their native VRAM destinations.</summary>
     private void LoadEndingObjectCharacters()
     {
-        byte[] main = (objectArtwork ?? throw new InvalidOperationException(
+        byte[] main = (ObjectArtwork ?? throw new InvalidOperationException(
             "Ending objects require installed artwork.")).Explosion.Transfer.ToArray();
         // $8B:D8C1 uploads the complete explosion object sheet from $7F:8000.
         RequireMinimum(main, EndingCreditsRomData.Rendering.ExplosionObjectBytes,
@@ -683,7 +706,7 @@ internal sealed class EndingCreditsState
     /// <summary>Copies one authored ending OBJ fragment into its named VRAM lane.</summary>
     private void LoadObjectFragment(EndingObjectFragmentId fragmentId)
     {
-        byte[] fragment = (objectArtwork ?? throw new InvalidOperationException(
+        byte[] fragment = (ObjectArtwork ?? throw new InvalidOperationException(
             "Ending object fragments require installed artwork.")).Fragment(fragmentId).Transfer.ToArray();
         RequireMinimum(fragment, EndingCreditsRomData.Rendering.ObjectFragmentBytes,
             "ending OBJ fragment");
@@ -730,7 +753,7 @@ internal sealed class EndingCreditsState
     /// <summary>Transfers waiting, shooting and selected reward art plus their post-credits map fragments.</summary>
     private void LoadCreditsCharacterArt()
     {
-        EndingObjectArtworkCatalog artwork = objectArtwork ?? throw new InvalidOperationException(
+        EndingObjectArtworkCatalog artwork = ObjectArtwork ?? throw new InvalidOperationException(
             "Post-credits scenes require installed object artwork.");
         byte[] waiting = artwork.WaitingSamus.Transfer.ToArray();
         byte[] shooting = artwork.ShootingScreen.Transfer.ToArray();
@@ -763,7 +786,7 @@ internal sealed class EndingCreditsState
         foreach (EndingSprite wrapper in sprites)
         {
             IntroDiscoverySprite sprite = wrapper.Sprite;
-            EndingCloudMotion.Step(wrapper, mode7Zoom);
+            EndingCloudMotion.Step(wrapper, Mode7Zoom);
             sprite.Step();
         }
     }
@@ -772,9 +795,9 @@ internal sealed class EndingCreditsState
     private void StepAtmosphericTransform(int scaleDelta)
     {
         // Func111/114 run during both fades as well as the fully visible interval.
-        if ((cinematicFrame & 1) == 0)
-            mode7Angle = mode7Angle.AddTableUnits(-1);
-        mode7Zoom += scaleDelta;
+        if ((CinematicFrame & 1) == 0)
+            Mode7Angle = Mode7Angle.AddTableUnits(-1);
+        Mode7Zoom += scaleDelta;
     }
 
     /// <summary>Visits live cinematic slots from high to low, allowing callback replacements in lower slots to run this frame.</summary>
@@ -837,7 +860,7 @@ internal sealed class EndingCreditsState
                 flash.EndingBackdrop.Write(0, EndingCreditsRomData.Rendering.WhiteColor);
                 flash.EndingObjectTransparent.Write(0, EndingCreditsRomData.Rendering.WhiteColor);
                 flash.EndingLogoBackground.Fill(EndingCreditsRomData.Rendering.WhiteColor);
-                phaseTimer = 120;
+                PhaseTimer = 120;
                 Phase = EndingCreditsPhase.WaitForPlanetEscapeMusic;
                 return;
 
@@ -957,7 +980,7 @@ internal sealed class EndingCreditsState
 
     /// <summary>Copies the current result-panel staging words to the phase-selected VRAM tilemap destination.</summary>
     private void UploadPostCreditsTilemap() =>
-        screen.Record(EndingUploadKind.TextTilemap, (int)postCreditsTextTilemap, postCreditsTilemap);
+        screen.Record(EndingUploadKind.TextTilemap, (int)PostCreditsTextTilemap, postCreditsTilemap);
 
     /// <summary>Allocates or replaces a native cinematic actor slot, reserving fixed slots for stars, afterglow and animals.</summary>
     private void SpawnSprite(
@@ -1002,16 +1025,16 @@ internal sealed class EndingCreditsState
     /// <summary>Runs the first rotating planet-escape motion pattern until the fast zoom threshold.</summary>
     internal void StepPlanetEscapeFast()
     {
-        if (phaseTimer > 0)
-            phaseTimer--;
+        if (PhaseTimer > 0)
+            PhaseTimer--;
         else StepFlyawayFade();
-        mode7Angle = mode7Angle.AddTableUnits(-4);
-        mode7 = mode7.WithX(AddSignedFixed(mode7.X, EndingCreditsRomData.Motion.PlanetFastDelta(planetMotionIndex)));
-        planetMotionIndex = (planetMotionIndex + 1) % EndingCreditsRomData.Motion.PlanetFastPatternLength;
-        mode7Zoom -= 8;
-        if (mode7Zoom < EndingCreditsRomData.Motion.PlanetFastEndScale)
+        Mode7Angle = Mode7Angle.AddTableUnits(-4);
+        Mode7 = Mode7.WithX(AddSignedFixed(Mode7.X, EndingCreditsRomData.Motion.PlanetFastDelta(PlanetMotionIndex)));
+        PlanetMotionIndex = (PlanetMotionIndex + 1) % EndingCreditsRomData.Motion.PlanetFastPatternLength;
+        Mode7Zoom -= 8;
+        if (Mode7Zoom < EndingCreditsRomData.Motion.PlanetFastEndScale)
         {
-            planetMotionIndex = 0;
+            PlanetMotionIndex = 0;
             Phase = EndingCreditsPhase.PlanetEscapeSlow;
         }
     }
@@ -1020,14 +1043,14 @@ internal sealed class EndingCreditsState
     internal void StepPlanetEscapeSlow()
     {
         StepFlyawayFade();
-        if (mode7Angle != EndingCreditsRomData.Motion.PlanetSlowTargetAngle)
-            mode7Angle = mode7Angle.AddTableUnits(-1);
-        mode7 = mode7.WithX(AddSignedFixed(mode7.X, EndingCreditsRomData.Motion.PlanetSlowDelta(planetMotionIndex)));
-        planetMotionIndex = (planetMotionIndex + 1) % EndingCreditsRomData.Motion.PlanetSlowPatternLength;
-        mode7Zoom -= 2;
-        if (mode7Zoom < EndingCreditsRomData.Motion.PlanetSlowEndScale)
+        if (Mode7Angle != EndingCreditsRomData.Motion.PlanetSlowTargetAngle)
+            Mode7Angle = Mode7Angle.AddTableUnits(-1);
+        Mode7 = Mode7.WithX(AddSignedFixed(Mode7.X, EndingCreditsRomData.Motion.PlanetSlowDelta(PlanetMotionIndex)));
+        PlanetMotionIndex = (PlanetMotionIndex + 1) % EndingCreditsRomData.Motion.PlanetSlowPatternLength;
+        Mode7Zoom -= 2;
+        if (Mode7Zoom < EndingCreditsRomData.Motion.PlanetSlowEndScale)
         {
-            planetVelocity = SnesSignedSixteenSixteen.FromParts(0, EndingCreditsRomData.Motion.InitialAccelerationFraction);
+            PlanetVelocity = SnesSignedSixteenSixteen.FromParts(0, EndingCreditsRomData.Motion.InitialAccelerationFraction);
             Phase = EndingCreditsPhase.PlanetEscapeAccelerating;
             if (crittersEscaped)
             {
@@ -1048,15 +1071,15 @@ internal sealed class EndingCreditsState
     private void StepPlanetEscapeAccelerating()
     {
         StepFlyawayFade();
-        planetVelocity -= SnesSignedSixteenSixteen.FromRaw(EndingCreditsRomData.Motion.AccelerationDelta16Point16);
-        mode7 = mode7.WithX(AddSignedFixed(mode7.X, planetVelocity.RawValue));
-        if (mode7Zoom < EndingCreditsRomData.Motion.PlanetTurnStartScale &&
-            (cinematicFrame & 3) == 0 &&
-            mode7Angle != EndingCreditsRomData.Motion.PlanetExitTargetAngle)
+        PlanetVelocity -= SnesSignedSixteenSixteen.FromRaw(EndingCreditsRomData.Motion.AccelerationDelta16Point16);
+        Mode7 = Mode7.WithX(AddSignedFixed(Mode7.X, PlanetVelocity.RawValue));
+        if (Mode7Zoom < EndingCreditsRomData.Motion.PlanetTurnStartScale &&
+            (CinematicFrame & 3) == 0 &&
+            Mode7Angle != EndingCreditsRomData.Motion.PlanetExitTargetAngle)
         {
-            mode7Angle = mode7Angle.AddTableUnits(2);
+            Mode7Angle = Mode7Angle.AddTableUnits(2);
         }
-        if (mode7Zoom < EndingCreditsRomData.Motion.PlanetExitScale)
+        if (Mode7Zoom < EndingCreditsRomData.Motion.PlanetExitScale)
         {
             LoadStaticPalette(EndingPaletteId.FinalGunship, 0, 16, 80);
             SpawnSprite(
@@ -1066,7 +1089,7 @@ internal sealed class EndingCreditsState
         }
         else
         {
-            mode7Zoom -= 4;
+            Mode7Zoom -= 4;
         }
     }
 
@@ -1076,9 +1099,9 @@ internal sealed class EndingCreditsState
         if (fadeCounter-- <= 0)
         {
             fadeCounter = 1;
-            brightness = Math.Min(15, brightness + 1);
+            Brightness = Math.Min(15, Brightness + 1);
         }
-        return brightness == 15;
+        return Brightness == 15;
     }
 
     /// <summary>Lowers native brightness one step every two calls until blank.</summary>
@@ -1087,9 +1110,9 @@ internal sealed class EndingCreditsState
         if (fadeCounter-- <= 0)
         {
             fadeCounter = 1;
-            brightness = Math.Max(0, brightness - 1);
+            Brightness = Math.Max(0, Brightness - 1);
         }
-        return brightness == 0;
+        return Brightness == 0;
     }
 
     /// <summary>Raises native brightness one step every four calls for the post-credits reveal.</summary>
@@ -1098,9 +1121,9 @@ internal sealed class EndingCreditsState
         if (fadeCounter-- <= 0)
         {
             fadeCounter = 3;
-            brightness = Math.Min(15, brightness + 1);
+            Brightness = Math.Min(15, Brightness + 1);
         }
-        return brightness == 15;
+        return Brightness == 15;
     }
 
     /// <summary>Adds a signed 16.16 motion delta to a Mode-7 coordinate with native word wrapping.</summary>
@@ -1128,7 +1151,7 @@ internal sealed class EndingCreditsState
             postCreditsTilemap, EndingCreditsRomData.Text.CopyrightPanelDestination);
         UploadPostCreditsTilemap();
         rewardCopyrightShown = true;
-        phaseTimer = EndingCreditsRomData.Timing.CopyrightHoldFrames;
+        PhaseTimer = EndingCreditsRomData.Timing.CopyrightHoldFrames;
         Phase = EndingCreditsPhase.PostCreditsCopyright;
     }
 
@@ -1158,7 +1181,7 @@ internal sealed class EndingCreditsState
                 VerticalScroll: EndingExplosionDisplayDefinitions.FirstVisibleBackgroundRow),
         ];
         return new(Presentation.CaptureMemory(EndingCreditsPresentation.ObjectSelection(Presentation.CurrentEscapeObjectSheet)), layers,
-            EndingCreditsPresentation.ObjectSelection(Presentation.CurrentEscapeObjectSheet), checked((byte)brightness));
+            EndingCreditsPresentation.ObjectSelection(Presentation.CurrentEscapeObjectSheet), checked((byte)Brightness));
 
         static Bg4BppRenderLayer Plane(ushort map, BgTilePriority priority) => new(map,
             EndingExplosionDisplayDefinitions.Characters,
@@ -1183,7 +1206,7 @@ internal sealed class EndingCreditsState
                 VerticalScroll: EndingExplosionDisplayDefinitions.FirstVisibleBackgroundRow),
         ];
         return new(Presentation.CaptureMemory(EndingCreditsPresentation.ObjectSelection(Presentation.CurrentEscapeObjectSheet)), layers,
-            EndingCreditsPresentation.ObjectSelection(Presentation.CurrentEscapeObjectSheet), checked((byte)brightness));
+            EndingCreditsPresentation.ObjectSelection(Presentation.CurrentEscapeObjectSheet), checked((byte)Brightness));
     }
 
     /// <summary>CGRAM snapshot taken before the planet explosion's object/background crossfade.</summary>
@@ -1204,14 +1227,14 @@ internal sealed class EndingCreditsState
         explosionFadeStep = 0;
         ApplyExplosionFade(EndingExplosionFadeDefinitions.FirstObjectStart, 0);
         ApplyExplosionFade(EndingExplosionFadeDefinitions.SecondObjectStart, 0);
-        phaseTimer = EndingExplosionFadeDefinitions.InitialCountdown;
+        PhaseTimer = EndingExplosionFadeDefinitions.InitialCountdown;
     }
 
     /// <summary>Interpolates explosion palettes on alternating calls and enters the sixteen-chunk flyaway transfer.</summary>
     private void StepExplosionCrossfade()
     {
-        mode7Zoom += EndingExplosionFadeDefinitions.ZoomStep;
-        if ((phaseTimer & 1) == 0)
+        Mode7Zoom += EndingExplosionFadeDefinitions.ZoomStep;
+        if ((PhaseTimer & 1) == 0)
         {
             explosionFadeStep++;
             ApplyExplosionFade(EndingExplosionFadeDefinitions.BackgroundStart,
@@ -1219,9 +1242,9 @@ internal sealed class EndingCreditsState
             ApplyExplosionFade(EndingExplosionFadeDefinitions.FirstObjectStart, explosionFadeStep);
             ApplyExplosionFade(EndingExplosionFadeDefinitions.SecondObjectStart, explosionFadeStep);
         }
-        if (--phaseTimer < 0)
+        if (--PhaseTimer < 0)
         {
-            phaseTimer = 16;
+            PhaseTimer = 16;
             PrepareFlyawayUploads();
             Phase = EndingCreditsPhase.ZebesExplosionTileUpload;
         }
@@ -1296,7 +1319,7 @@ internal sealed class EndingCreditsState
     private void UploadFlyawayChunk(int index) => screen.Record(EndingUploadKind.FlyawayChunk, index);
 
     /// <summary>The memory image the ending's transfers leave over the bound artwork.</summary>
-    internal byte[] Image() => screen.Image(new EndingScreenArtwork(mode7Artwork, flightArtwork, objectArtwork, endingFont, EndingReward));
+    internal byte[] Image() => screen.Image(new EndingScreenArtwork(mode7Artwork, flightArtwork, ObjectArtwork, endingFont, EndingReward));
 
     /// <summary>Whether the current cinematic phase leaves its escape or planet backdrop visible.</summary>
     internal bool EscapeBackgroundEnabled => Phase is < EndingCreditsPhase.ZebesExplosionTileUpload
@@ -1316,7 +1339,7 @@ internal sealed class EndingCreditsState
     internal void BindPaletteArtwork(EndingPaletteCatalog? value)
     {
         paletteArtwork = value;
-        endingLogo?.BindPaletteArtwork(value);
+        CurrentEndingLogo?.BindPaletteArtwork(value);
     }
 
     /// <summary>
@@ -1502,35 +1525,35 @@ internal sealed class EndingCreditsState
     }
 
     /// <summary>Background map the post-credits staging tilemap is uploaded into, switched by the white flash.</summary>
-    internal EndingTextTilemap postCreditsTextTilemap = EndingTextTilemap.ResultPanel;
+    internal EndingTextTilemap PostCreditsTextTilemap { get; private set; } = EndingTextTilemap.ResultPanel;
     /// <summary>Visible result-panel map height, enlarged for the final shot scene.</summary>
-    internal int postCreditsMapHeight = 32;
+    internal int PostCreditsMapHeight { get; private set; } = 32;
     /// <summary>Fixed-color white component of the brief transition into the final logo, fading from 31 to zero, where it stays.</summary>
-    internal int whiteFlashColor;
+    internal int WhiteFlashColor { get; private set; }
     /// <summary>Final logo actor created after the white flash.</summary>
-    internal EndingLogo? endingLogo;
+    internal EndingLogo? CurrentEndingLogo { get; set; }
     /// <summary>The state of the ending logo, which exists while that phase runs.</summary>
-    internal EndingLogo EndingLogo => endingLogo ??
+    internal EndingLogo EndingLogo => CurrentEndingLogo ??
         throw new InvalidOperationException("The ending logo is not running.");
 
     /// <summary>Restores the shooting palette, switches to the tall text map and begins the white transition.</summary>
     private void BeginPostCreditsWhiteFlash()
     {
-        postShot = null;
+        CurrentPostShot = null;
         // E48A restores the shooting palette and selects BG1SC=$4E: the final
         // text map is two screens tall, not the credits' single-screen map.
         LoadStaticPalette(EndingPaletteId.PostCredits,
             EndingPostShotDefinitions.ShootingPaletteStart,
             EndingPostShotDefinitions.PaletteColors,
             EndingPostShotDefinitions.ShootingPaletteStart);
-        postCreditsTextTilemap = EndingTextTilemap.FinalText;
-        postCreditsMapHeight = EndingPostShotDefinitions.FinalTextMapHeight;
-        postCreditsScroll = Position16<BgPlanePixels>.Zero;
+        PostCreditsTextTilemap = EndingTextTilemap.FinalText;
+        PostCreditsMapHeight = EndingPostShotDefinitions.FinalTextMapHeight;
+        PostCreditsScroll = Position16<BgPlanePixels>.Zero;
         Array.Fill(postCreditsTilemap, EndingCreditsRomData.Rendering.BlankTile,
             EndingPostShotDefinitions.ClearedCopyrightStart, EndingPostShotDefinitions.ClearedCopyrightWords);
         UploadPostCreditsTilemap();
-        whiteFlashColor = EndingPostShotDefinitions.WhiteComponent;
-        phaseTimer = EndingPostShotDefinitions.FadeFrames;
+        WhiteFlashColor = EndingPostShotDefinitions.WhiteComponent;
+        PhaseTimer = EndingPostShotDefinitions.FadeFrames;
         Phase = EndingCreditsPhase.PostCreditsWhiteFlash;
     }
 
@@ -1540,9 +1563,9 @@ internal sealed class EndingCreditsState
         // E504 copies the same staging map into the lower screen before the logo
         // actors enter. Subsequent percentage writes target the upper screen again.
         screen.Record(EndingUploadKind.PostShotLowerTilemap, 0, postCreditsTilemap);
-        rewardJump = null;
+        CurrentRewardJump = null;
         sprites.Clear();
-        endingLogo = new EndingLogo(screen.Palette,
+        CurrentEndingLogo = new EndingLogo(screen.Palette,
             () => paletteFx.SpawnDefinition(EndingLogoDefinitions.LandingPaletteFx, 0),
             paletteArtwork);
         Phase = EndingCreditsPhase.PostCreditsLogo;

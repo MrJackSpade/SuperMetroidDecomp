@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Input;
 using System.Buffers.Binary;
 using System.Security.Cryptography;
 using System.Text.Json;
@@ -16,49 +17,62 @@ namespace SuperMetroid.Core.Frontend.Options.Artwork;
 public sealed class GameOptionsPresentation
 {
     /// <summary>Compiled BG tilemap bytes for each named options page.</summary>
-    private readonly Dictionary<string, byte[]> pages;
-    /// <summary>Controller glyph cells retained only when they differ from stock definitions.</summary>
-    internal readonly Dictionary<string, ushort[]> controllerLabels;
-    /// <summary>Edited controller glyph origins, or null when all stock anchors apply.</summary>
+    private readonly Dictionary<GameOptionsTilemap, byte[]> pages;
+    /// <summary>The common BG2 background page.</summary>
+    private readonly byte[] background;
+    /// <summary>Edited controller-button glyphs, keyed by button; a button absent here draws its native glyph.</summary>
+    internal readonly Dictionary<SnesButton, ushort[]> controllerLabels;
+    /// <summary>Edited controller-label anchors by action, or null for the native destinations.</summary>
     internal readonly Position16<TilemapCells>[]? controllerLabelAnchors;
-    /// <summary>Edited language highlight regions, or null for the stock layout.</summary>
+    /// <summary>Edited primary-language highlight regions, or null for the native regions.</summary>
     internal readonly GameOptionsLanguageRegionDocument[]? languageRegions;
-    /// <summary>Edited toggle highlight cells, or null for stock cell regions.</summary>
-    internal readonly Dictionary<string, GameOptionsToggleVisualDocument>? specialToggles;
-    /// <summary>Compiled heading and cursor sprite compositions by authored identity.</summary>
-    internal readonly Dictionary<string, SpriteComposition> sprites;
-    /// <summary>Edited heading origins, or null for native positions.</summary>
-    internal readonly Dictionary<string, Position16<OamPixels>>? headingAnchors;
-    /// <summary>Edited cursor origins, or null for native positions.</summary>
-    internal readonly Dictionary<string, Position16<OamPixels>[]>? cursorAnchors;
+    /// <summary>Edited special-setting visuals, or null for the native cells.</summary>
+    internal readonly Dictionary<GameOptionsToggle, GameOptionsToggleVisualDocument>? specialToggles;
+    /// <summary>Each menu layout's heading sprite.</summary>
+    internal readonly Dictionary<GameOptionsPage, SpriteComposition> headingSprites;
+    /// <summary>The missile cursor's sprite by animation frame.</summary>
+    internal readonly SpriteComposition[] cursorSprites;
+    /// <summary>Edited heading anchors by menu layout, or null for the native anchors.</summary>
+    internal readonly Dictionary<GameOptionsPage, Position16<OamPixels>>? headingAnchors;
+    /// <summary>Edited cursor anchors by menu layout, or null for the native anchors.</summary>
+    internal readonly Dictionary<GameOptionsPage, Position16<OamPixels>[]>? cursorAnchors;
 
     /// <summary>Retains compiled pages and only visual edits that depart from stock geometry.</summary>
     private GameOptionsPresentation(
-        Dictionary<string, byte[]> pages,
-        Dictionary<string, ushort[]> controllerLabels,
-        Dictionary<string, SpriteComposition> sprites,
+        Dictionary<GameOptionsTilemap, byte[]> pages,
+        byte[] background,
+        Dictionary<SnesButton, ushort[]> controllerLabels,
+        Dictionary<GameOptionsPage, SpriteComposition> headingSprites,
+        SpriteComposition[] cursorSprites,
         GameOptionsPresentationDocument document,
         string contentIdentity)
     {
         this.pages = pages;
+        this.background = background;
         this.controllerLabels = controllerLabels.Where(pair => pair.Value.Where((word, cell) =>
             word != GameOptionsPresentationDefinitions.ControllerLabelWord(pair.Key, cell)).Any())
-            .ToDictionary(pair => pair.Key, pair => pair.Value, StringComparer.Ordinal);
-        this.sprites = sprites;
+            .ToDictionary(pair => pair.Key, pair => pair.Value);
+        this.headingSprites = headingSprites;
+        this.cursorSprites = cursorSprites;
         controllerLabelAnchors = document.ControllerLabelAnchors.Where((point, index) =>
             point != GameOptionsPresentationDefinitions.ControllerAnchor(index)).Any() ? document.ControllerLabelAnchors : null;
         languageRegions = document.LanguageRegions.Where((region, index) =>
             region.HighlightWhenJapanese != GameOptionsRomData.LanguagePaletteRegion(index).HighlightWhenJapanese ||
             !region.Cells.SequenceEqual(GameOptionsPresentationDefinitions.LanguageCells(index))).Any()
             ? document.LanguageRegions : null;
-        specialToggles = document.SpecialToggles.Any(pair =>
+        Dictionary<GameOptionsToggle, GameOptionsToggleVisualDocument> toggles = GameOptionsPresentationDefinitions.Toggles.ToDictionary(
+            toggle => toggle, toggle => document.SpecialToggles[GameOptionsPresentationDefinitions.ToggleName(toggle)]);
+        specialToggles = toggles.Any(pair =>
             !pair.Value.EnabledCells.SequenceEqual(GameOptionsPresentationDefinitions.ToggleCells(pair.Key, GameOptionsToggleState.Enabled)) ||
             !pair.Value.DisabledCells.SequenceEqual(GameOptionsPresentationDefinitions.ToggleCells(pair.Key, GameOptionsToggleState.Disabled)))
-            ? document.SpecialToggles : null;
-        headingAnchors = document.HeadingAnchors.Any(pair => pair.Value != GameOptionsPresentationDefinitions.HeadingAnchor(pair.Key))
-            ? document.HeadingAnchors : null;
-        cursorAnchors = document.CursorAnchors.Any(pair => pair.Value.Where((point, index) =>
-            point != GameOptionsPresentationDefinitions.CursorAnchor(pair.Key, index)).Any()) ? document.CursorAnchors : null;
+            ? toggles : null;
+        Dictionary<GameOptionsPage, Position16<OamPixels>> headings = GameOptionsPresentationDefinitions.MenuPages.ToDictionary(
+            page => page, page => document.HeadingAnchors[GameOptionsPresentationDefinitions.MenuName(page)]);
+        headingAnchors = headings.Any(pair => pair.Value != GameOptionsPresentationDefinitions.HeadingAnchor(pair.Key)) ? headings : null;
+        Dictionary<GameOptionsPage, Position16<OamPixels>[]> cursors = GameOptionsPresentationDefinitions.MenuPages.ToDictionary(
+            page => page, page => document.CursorAnchors[GameOptionsPresentationDefinitions.MenuName(page)]);
+        cursorAnchors = cursors.Any(pair => pair.Value.Where((point, index) =>
+            point != GameOptionsPresentationDefinitions.CursorAnchor(pair.Key, index)).Any()) ? cursors : null;
         HiddenCursor = document.HiddenCursor;
         SelectedPalette = document.SelectedPalette;
         UnselectedPalette = document.UnselectedPalette;
@@ -81,14 +95,11 @@ public sealed class GameOptionsPresentation
     public int CursorFrameDuration { get; }
 
     /// <summary>Returns an independent mutable copy of one compiled foreground or background page.</summary>
-    internal byte[] CreatePage(string name) =>
-        pages.TryGetValue(name, out byte[]? page)
-            ? (byte[])page.Clone()
-            : throw new InvalidDataException($"Unknown options page {name}.");
+    internal byte[] CreatePage(GameOptionsTilemap tilemap) => (byte[])pages[tilemap].Clone();
 
     /// <summary>Copies the common BG2 background page into the menu's BG2 tilemap.</summary>
     internal void LoadBackground(MenuTilemaps tilemaps) =>
-        MenuTilemaps.Load(tilemaps.Bg2, pages[GameOptionsPresentationDefinitions.BackgroundPage]);
+        MenuTilemaps.Load(tilemaps.Bg2, background);
 
     /// <summary>Recolors English and Japanese text regions according to the selected language.</summary>
     internal void ApplyLanguage(Span<byte> primaryPage, bool japanese)
@@ -116,7 +127,7 @@ public sealed class GameOptionsPresentation
     {
         if ((uint)action >= GameOptionsRomData.Rows.ControllerActionCount)
             throw new ArgumentOutOfRangeException(nameof(action));
-        string label = GameOptionsPresentationDefinitions.ControllerLabelName(button);
+        SnesButton label = GameOptionsPresentationDefinitions.ControllerLabelButton(button);
         controllerLabels.TryGetValue(label, out ushort[]? cells);
         Position16<TilemapCells> anchor = controllerLabelAnchors?[action] ?? GameOptionsPresentationDefinitions.ControllerAnchor(action);
         for (int row = 0; row < GameOptionsPresentationDefinitions.ControllerLabelHeight; row++)
@@ -132,7 +143,7 @@ public sealed class GameOptionsPresentation
     }
 
     /// <summary>Recolors the enabled and disabled labels for one special setting.</summary>
-    internal void ApplySpecialToggle(Span<byte> page, string name, bool enabled)
+    internal void ApplySpecialToggle(Span<byte> page, GameOptionsToggle name, bool enabled)
     {
         if (specialToggles is null)
         {
@@ -142,8 +153,7 @@ public sealed class GameOptionsPresentation
                 enabled ? UnselectedPalette : SelectedPalette);
             return;
         }
-        if (!specialToggles.TryGetValue(name, out GameOptionsToggleVisualDocument? toggle))
-            throw new InvalidDataException($"Unknown options toggle {name}.");
+        GameOptionsToggleVisualDocument toggle = specialToggles[name];
         ApplyPalette(page, toggle.EnabledCells,
             enabled ? SelectedPalette : UnselectedPalette);
         ApplyPalette(page, toggle.DisabledCells,
@@ -151,25 +161,24 @@ public sealed class GameOptionsPresentation
     }
 
     /// <summary>Gets the cursor origin for an authored page and selection row.</summary>
-    internal Position16<OamPixels> CursorPosition(string page, int selectedItem)
+    internal Position16<OamPixels> CursorPosition(GameOptionsPage page, int selectedItem)
     {
         if (cursorAnchors is null)
             return GameOptionsPresentationDefinitions.CursorAnchor(page, selectedItem);
-        return cursorAnchors.TryGetValue(page, out Position16<OamPixels>[]? points) &&
-            (uint)selectedItem < points.Length
+        Position16<OamPixels>[] points = cursorAnchors[page];
+        return (uint)selectedItem < points.Length
             ? points[selectedItem]
             : throw new InvalidDataException($"Options cursor {page}[{selectedItem}] is not authored.");
     }
     /// <summary>Draws a page heading at its authored origin after applying menu scroll.</summary>
-    internal void DrawHeading(ScreenSprites sprites, string page, int verticalScroll)
+    internal void DrawHeading(ScreenSprites sprites, GameOptionsPage page, int verticalScroll)
     {
         Position16<OamPixels> point = headingAnchors is null
             ? GameOptionsPresentationDefinitions.HeadingAnchor(page)
-            : headingAnchors.TryGetValue(page, out Position16<OamPixels> edited) ? edited
-                : throw new InvalidDataException($"Options heading {page} is not authored.");
+            : headingAnchors[page];
         // The authored X is validated on screen; scrolling the heading wraps its Y word.
         Position16<OamPixels> origin = new(checked(point.X), unchecked((ushort)(point.Y - verticalScroll)));
-        this.sprites[GameOptionsPresentationDefinitions.HeadingFrameName(page)].Draw(
+        headingSprites[page].Draw(
             sprites, origin,
             PaletteBits(CursorPalette));
     }
@@ -177,7 +186,7 @@ public sealed class GameOptionsPresentation
     /// <summary>Draws one frame of the missile cursor at the selected position.</summary>
     internal void DrawCursor(ScreenSprites sprites, int frame, Position16<OamPixels> point)
     {
-        this.sprites[GameOptionsPresentationDefinitions.CursorFrameName(frame)].Draw(
+        cursorSprites[frame].Draw(
             sprites, point, PaletteBits(CursorPalette));
     }
 
@@ -209,22 +218,22 @@ public sealed class GameOptionsPresentation
         if (document.Version != GameOptionsPresentationDefinitions.Version)
             throw new InvalidDataException(
                 $"Options presentation version must be {GameOptionsPresentationDefinitions.Version}.");
-        ValidateExactKeys(document.Pages, GameOptionsPresentationDefinitions.PageNames,
+        ValidateExactKeys(document.Pages, [GameOptionsPresentationDefinitions.BackgroundPageName,
+                .. GameOptionsPresentationDefinitions.Tilemaps.Select(GameOptionsPresentationDefinitions.TilemapName)],
             "options pages");
         ValidateExactKeys(document.ControllerLabels,
-            GameOptionsPresentationDefinitions.ControllerLabelNames,
+            [.. GameOptionsPresentationDefinitions.ControllerLabelButtons.Select(GameOptionsPresentationDefinitions.ControllerLabelName)],
             "options controller labels");
         ValidateExactKeys(document.SpecialToggles,
-            GameOptionsPresentationDefinitions.SpecialToggleNames,
+            [.. GameOptionsPresentationDefinitions.Toggles.Select(GameOptionsPresentationDefinitions.ToggleName)],
             "options special toggles");
-        ValidateExactKeys(document.Sprites, GameOptionsPresentationDefinitions.SpriteNames,
+        ValidateExactKeys(document.Sprites,
+            [.. GameOptionsPresentationDefinitions.MenuPages.Select(GameOptionsPresentationDefinitions.HeadingSpriteName),
+                .. Enumerable.Range(0, GameOptionsPresentationDefinitions.CursorFrameCount).Select(GameOptionsPresentationDefinitions.CursorSpriteName)],
             "options sprites");
-        ValidateExactKeys(document.HeadingAnchors,
-            GameOptionsPresentationDefinitions.MenuPageNames,
-            "options heading anchors");
-        ValidateExactKeys(document.CursorAnchors,
-            GameOptionsPresentationDefinitions.MenuPageNames,
-            "options cursor anchors");
+        string[] menuNames = [.. GameOptionsPresentationDefinitions.MenuPages.Select(GameOptionsPresentationDefinitions.MenuName)];
+        ValidateExactKeys(document.HeadingAnchors, menuNames, "options heading anchors");
+        ValidateExactKeys(document.CursorAnchors, menuNames, "options cursor anchors");
         if (document.ControllerLabelAnchors is null ||
             document.ControllerLabelAnchors.Length != GameOptionsRomData.Rows.ControllerActionCount)
             throw new InvalidDataException("Options require seven controller-label anchors.");
@@ -239,18 +248,14 @@ public sealed class GameOptionsPresentation
             throw new InvalidDataException("Options cursor frame duration must be 1..65535.");
         ValidatePoint(document.HiddenCursor, "hidden cursor", offscreenX: OffscreenX.Allowed);
 
-        var pages = new Dictionary<string, byte[]>(StringComparer.Ordinal);
-        foreach (string name in GameOptionsPresentationDefinitions.PageNames)
-        {
-            MapPresentationCell[] cells = document.Pages[name];
-            if (cells is null || cells.Length != GameOptionsPresentationDefinitions.PageCellCount)
-                throw new InvalidDataException($"Options page {name} requires 1024 cells.");
-            pages.Add(name, CompileCells(cells, $"options page {name}"));
-        }
+        var pages = GameOptionsPresentationDefinitions.Tilemaps.ToDictionary(tilemap => tilemap,
+            tilemap => CompilePage(document, GameOptionsPresentationDefinitions.TilemapName(tilemap)));
+        byte[] background = CompilePage(document, GameOptionsPresentationDefinitions.BackgroundPageName);
 
-        var labels = new Dictionary<string, ushort[]>(StringComparer.Ordinal);
-        foreach (string name in GameOptionsPresentationDefinitions.ControllerLabelNames)
+        var labels = new Dictionary<SnesButton, ushort[]>();
+        foreach (SnesButton button in GameOptionsPresentationDefinitions.ControllerLabelButtons)
         {
+            string name = GameOptionsPresentationDefinitions.ControllerLabelName(button);
             MapPresentationCell[] cells = document.ControllerLabels[name];
             if (cells is null || cells.Length != GameOptionsPresentationDefinitions.ControllerLabelCellCount)
                 throw new InvalidDataException($"Options controller label {name} requires six cells.");
@@ -259,7 +264,7 @@ public sealed class GameOptionsPresentation
             for (int index = 0; index < words.Length; index++)
                 words[index] = BinaryPrimitives.ReadUInt16LittleEndian(
                     compiled.AsSpan(index * sizeof(ushort)));
-            labels.Add(name, words);
+            labels.Add(button, words);
         }
 
         foreach (Position16<TilemapCells> anchor in document.ControllerLabelAnchors)
@@ -271,8 +276,9 @@ public sealed class GameOptionsPresentation
                 throw new InvalidDataException("Each options language region requires cells.");
             ValidateCellSet(region.Cells, claimedLanguageCells, "language region");
         }
-        foreach (string name in GameOptionsPresentationDefinitions.SpecialToggleNames)
+        foreach (GameOptionsToggle option in GameOptionsPresentationDefinitions.Toggles)
         {
+            string name = GameOptionsPresentationDefinitions.ToggleName(option);
             GameOptionsToggleVisualDocument? toggle = document.SpecialToggles[name];
             if (toggle is null || toggle.EnabledCells is null || toggle.DisabledCells is null ||
                 toggle.EnabledCells.Length == 0 || toggle.DisabledCells.Length == 0)
@@ -282,22 +288,25 @@ public sealed class GameOptionsPresentation
             ValidateCellSet(toggle.DisabledCells, claimed, $"{name} disabled");
         }
 
-        var sprites = new Dictionary<string, SpriteComposition>(StringComparer.Ordinal);
-        foreach (string name in GameOptionsPresentationDefinitions.SpriteNames)
-            sprites.Add(name, MenuHeadingBorderDefinitions.CalculateIfMatching(name, MenuBorderParts.CalculateIfMatching(name, MenuCursorParts.CalculateIfMatching(name,
-                MenuSpriteCompiler.Compile(document.Sprites[name], $"options {name}")))));
-        foreach (string page in GameOptionsPresentationDefinitions.MenuPageNames)
+        var headingSprites = GameOptionsPresentationDefinitions.MenuPages.ToDictionary(page => page,
+            page => MenuHeadingBorderDefinitions.CalculateIfMatching(GameOptionsPresentationDefinitions.Heading(page),
+                MenuBorderParts.CalculateIfMatching(CompileSprite(document, GameOptionsPresentationDefinitions.HeadingSpriteName(page)))));
+        SpriteComposition[] cursorSprites = [.. Enumerable.Range(0, GameOptionsPresentationDefinitions.CursorFrameCount)
+            .Select(frame => MenuCursorParts.CalculateIfMatching(frame,
+                CompileSprite(document, GameOptionsPresentationDefinitions.CursorSpriteName(frame))))];
+        foreach (GameOptionsPage page in GameOptionsPresentationDefinitions.MenuPages)
         {
-            ValidatePoint(document.HeadingAnchors[page], $"{page} heading", offscreenX: OffscreenX.Rejected);
+            string name = GameOptionsPresentationDefinitions.MenuName(page);
+            ValidatePoint(document.HeadingAnchors[name], $"{name} heading", offscreenX: OffscreenX.Rejected);
             int expected = GameOptionsPresentationDefinitions.CursorCount(page);
-            Position16<OamPixels>[]? points = document.CursorAnchors[page];
+            Position16<OamPixels>[]? points = document.CursorAnchors[name];
             if (points is null || points.Length != expected)
-                throw new InvalidDataException($"Options {page} requires {expected} cursor anchors.");
+                throw new InvalidDataException($"Options {name} requires {expected} cursor anchors.");
             foreach (Position16<OamPixels> point in points)
-                ValidatePoint(point, $"{page} cursor", offscreenX: OffscreenX.Rejected);
+                ValidatePoint(point, $"{name} cursor", offscreenX: OffscreenX.Rejected);
         }
 
-        return new(pages, labels, sprites, document,
+        return new(pages, background, labels, headingSprites, cursorSprites, document,
             Convert.ToHexString(SHA256.HashData(bytes)));
     }
 
@@ -313,6 +322,20 @@ public sealed class GameOptionsPresentation
     }
 
     /// <summary>Validates authored atlas cells and packs them into little-endian BG tilemap words.</summary>
+    /// <summary>Compiles the 1024-cell page the document names <paramref name="name"/>.</summary>
+    private static byte[] CompilePage(GameOptionsPresentationDocument document, string name)
+    {
+        MapPresentationCell[] cells = document.Pages[name];
+        if (cells is null || cells.Length != GameOptionsPresentationDefinitions.PageCellCount)
+            throw new InvalidDataException($"Options page {name} requires 1024 cells.");
+        return CompileCells(cells, $"options page {name}");
+    }
+
+    /// <summary>Compiles the sprite the document names <paramref name="name"/>.</summary>
+    private static SpriteComposition CompileSprite(GameOptionsPresentationDocument document, string name) =>
+        MenuSpriteCompiler.Compile(document.Sprites[name], $"options {name}");
+
+    /// <summary>Compiles each authored cell of <paramref name="owner"/> to its little-endian tilemap word.</summary>
     private static byte[] CompileCells(MapPresentationCell[] cells, string owner)
     {
         var bytes = new byte[cells.Length * sizeof(ushort)];
@@ -351,7 +374,7 @@ public sealed class GameOptionsPresentation
 
     /// <summary>Requires exactly the names prescribed for one options document collection.</summary>
     private static void ValidateExactKeys<T>(Dictionary<string, T>? values,
-        ReadOnlySpan<string> expected, string owner)
+        string[] expected, string owner)
     {
         if (values is null || values.Count != expected.Length)
             throw new InvalidDataException($"{owner} requires exactly {expected.Length} named entries.");

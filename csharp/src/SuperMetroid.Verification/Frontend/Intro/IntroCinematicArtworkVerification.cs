@@ -304,7 +304,7 @@ internal static class IntroCinematicArtworkVerification
             foreach (IntroCinematicState scene in new[] { stockDividerVisual, editedDividerVisual })
             {
                 scene.SetupFirstIllustratedPage();
-                scene.inidisp = ScreenFade.FullyLit;
+                scene.Inidisp = ScreenFade.FullyLit;
             }
             AssertEqual(stockDividerVisual.Phase, editedDividerVisual.Phase,
                 "visual divider override leaves page phase unchanged");
@@ -441,8 +441,8 @@ internal static class IntroCinematicArtworkVerification
                     }
                     // The full game owns INIDISP during this synthetic setup; force
                     // the already-composed layer to visible brightness for this probe.
-                    stockScene.inidisp = ScreenFade.FullyLit;
-                    editedScene.inidisp = ScreenFade.FullyLit;
+                    stockScene.Inidisp = ScreenFade.FullyLit;
+                    editedScene.Inidisp = ScreenFade.FullyLit;
                     AssertTrue(!SoftwareLayeredSnapshotRenderer.Render(stockScene.CaptureTranslatedRenderSnapshot())
                             .SequenceEqual(RenderForComparison(
                                 editedScene.CaptureTranslatedRenderSnapshot())),
@@ -618,12 +618,12 @@ internal static class IntroCinematicArtworkVerification
         IntroEyeTilemapPresentation.Write(editedJson, document);
         editedJson.Position = 0;
         IntroEyeTilemapPresentation edited = IntroEyeTilemapPresentation.Load(editedJson);
-        NativeCountdown timer = installed.eyeInstructionTimer;
-        var program = installed.eyeProgram;
+        NativeCountdown timer = installed.EyeInstructionTimer;
+        var program = installed.EyeProgram;
         installed.BindEyeArtwork(edited);
-        AssertEqual(timer, installed.eyeInstructionTimer,
+        AssertEqual(timer, installed.EyeInstructionTimer,
             "eye art rebind preserves blink timer");
-        AssertEqual(program, installed.eyeProgram,
+        AssertEqual(program, installed.EyeProgram,
             "eye art rebind preserves blink program position");
         var eyeCell = IntroEyeAnimationDefinitions.PortraitCell;
         int destination = IntroCinematicRomData.Layers.PortraitTilemapWord +
@@ -741,8 +741,8 @@ internal static class IntroCinematicArtworkVerification
         var installedState = CreateRetailIntroFixture(characterArtwork: stock);
         nativeState.SetupFirstIllustratedPage();
         installedState.SetupFirstIllustratedPage();
-        ((nativeState.objects ?? throw new InvalidOperationException("Verification requires nativeState.objects."))).Step(0);
-        ((installedState.objects ?? throw new InvalidOperationException("Verification requires installedState.objects."))).Step(0);
+        ((nativeState.CurrentObjects ?? throw new InvalidOperationException("Verification requires nativeState.objects."))).Step(0);
+        ((installedState.CurrentObjects ?? throw new InvalidOperationException("Verification requires installedState.objects."))).Step(0);
         var nativeOam = nativeState.PrepareIllustratedPageSprites().FinalizedAsOam();
         var installedOam = installedState.PrepareIllustratedPageSprites().FinalizedAsOam();
         AssertTrue(installedOam.ImageEquals(nativeOam),
@@ -781,7 +781,7 @@ internal static class IntroCinematicArtworkVerification
         AssertTrue(state.MotherBrainLevelData is not null &&
                 state.MotherBrainLevelData.SequenceEqual(native),
             "flashback setup retains the exact native physical level without ROM reads");
-        var level = state.flashbackLevel;
+        var level = state.CurrentFlashbackLevel;
         for (int index = 0; index < (level ?? throw new InvalidOperationException("Verification requires level.")).ForegroundEntries.Length; index++)
         {
             ushort expected = index * sizeof(ushort) < native.Length
@@ -858,7 +858,7 @@ internal static class IntroCinematicArtworkVerification
         {
             state.SetupFirstIllustratedPage();
             state.SetupMotherBrainFlashback();
-            (state.flashbackMotherBrain ?? throw new InvalidOperationException("Verification requires state.flashbackMotherBrain.")).Step();
+            (state.CurrentFlashbackMotherBrain ?? throw new InvalidOperationException("Verification requires state.flashbackMotherBrain.")).Step();
         }
         Rgba32[] stockPixels = stockState.RenderMotherBrainFlashback();
         Rgba32[] editedPixels = editedState.RenderMotherBrainFlashback();
@@ -940,7 +940,7 @@ internal static class IntroCinematicArtworkVerification
         {
             state.SetupFirstIllustratedPage();
             state.SetupMotherBrainFlashback();
-            state.flashbackMotherBrainExplosions = explosions;
+            state.FlashbackMotherBrainExplosions = explosions;
         }
         Rgba32[] stockPixels = stockState.RenderMotherBrainFlashback();
         Rgba32[] editedPixels = editedState.RenderMotherBrainFlashback();

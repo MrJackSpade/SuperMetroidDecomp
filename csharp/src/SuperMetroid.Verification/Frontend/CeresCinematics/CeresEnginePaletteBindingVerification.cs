@@ -96,7 +96,7 @@ internal static class CeresEnginePaletteBindingVerification
 
             // Earlier debugger graphs can lack the lazily created palette owner.
             // Its reconstruction must receive the rebound provider too.
-            restoredScene.paletteFx = null;
+            restoredScene.PaletteFx = null;
             restored.Step(0);
             AssertEqual(replacementColors[0], Colors(restoredScene)[destination],
                 "#1150 reconstructed palette owner receives installed colors");
@@ -108,7 +108,7 @@ internal static class CeresEnginePaletteBindingVerification
         Console.WriteLine("#1150: stock engine flicker, edited-color state rebind, unchanged scene clock/camera and legacy-owner reconstruction pass (RAM-only).");
 
         static CeresDestructionCinematicState Scene(SuperMetroidGame owner) =>
-            (owner.Session.ceresDestruction ?? throw new InvalidOperationException("Verification requires owner.ceresDestruction."));
+            (owner.Session.ScreenAs<CeresDestructionCinematicState>() ?? throw new InvalidOperationException("Verification requires owner.ceresDestruction."));
 
         static Bgr555[] Colors(CeresDestructionCinematicState owner) =>
             owner.palette.Colors.ToArray();

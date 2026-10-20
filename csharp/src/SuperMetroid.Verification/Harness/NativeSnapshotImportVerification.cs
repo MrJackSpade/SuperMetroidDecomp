@@ -248,10 +248,10 @@ internal static class NativeSnapshotImportVerification
             W(NativeSnapshotMemory.HdmaObjectPreInstructions + slot * 2) == NativeSnapshotMemory.AcidHdmaCallback);
         AssertTrue(runtime.RoomLayer3Fx.Type is RoomFxType.Lava or RoomFxType.Acid,
             "snapshot import models the lava/acid HDMA objects of its room");
-        runtime.RoomLayer3Fx.lavaAcidBg3PreInstructionInstalled = true;
-        runtime.RoomLayer3Fx.liquidHdmaObjectsDeleted = !lavaAcidObjectLive;
-        runtime.RoomLayer3Fx.tidePhase = W(NativeSnapshotMemory.TidePhase);
-        runtime.RoomLayer3Fx.tideFixedOffset = unchecked((int)(SnesSixteenSixteen.Compose(W(NativeSnapshotMemory.TideOffset), W(NativeSnapshotMemory.TideOffsetFraction))));
+        runtime.RoomLayer3Fx.LavaAcidBg3PreInstructionInstalled = true;
+        runtime.RoomLayer3Fx.LiquidHdmaObjectsDeleted = !lavaAcidObjectLive;
+        runtime.RoomLayer3Fx.TidePhase = W(NativeSnapshotMemory.TidePhase);
+        runtime.RoomLayer3Fx.TideFixedOffset = unchecked((int)(SnesSixteenSixteen.Compose(W(NativeSnapshotMemory.TideOffset), W(NativeSnapshotMemory.TideOffsetFraction))));
         runtime.RoomLayer3Fx.BaseY = runtime.RoomLayer3Fx.BaseY.WithFraction(W(NativeSnapshotMemory.LiquidBaseFraction));
         runtime.RoomLayer3Fx.Surface = new(0, W(NativeSnapshotMemory.AcidSurface));
         runtime.RoomLayer3Fx.ApplyToSamusLiquidPhysics(samus.LiquidPhysics);
@@ -315,7 +315,7 @@ internal static class NativeSnapshotImportVerification
         runtime.Controller1.Latch((SnesButton)W(NativeSnapshotMemory.HeldInput));
         var game = CreateRetailGameFixture(saves, renderGameplayFrames: false, hostServices: hostServices, random: random);
         game.AdoptRuntime(runtime);
-        game.Session.lastAudioRoomState = runtime.Room.LoadedRoom.State;
+        game.Session.LastAudioRoomState = runtime.Room.LoadedRoom.State;
         game.GameState = (SuperMetroidGameState)W(NativeSnapshotMemory.GameState);
         if (game.GameState == SuperMetroidGameState.PausedB)
             ImportNativePauseMenu(game, runtime, W, memory);

@@ -65,19 +65,19 @@ internal static class IntroPoseHistoryVerification
         bool jumpRadiusRetained = false, jumpRadiusPublished = false;
         for (int tick = 0; tick < 20000 && !handoff; tick++)
         {
-            SamusState? before = intro.flashbackSamus;
+            SamusState? before = intro.CurrentFlashbackSamus;
             SamusPoseId? oldPose = before?.Pose;
             SamusPoseId priorPose = before?.PoseHistory.PreviousPose ?? 0;
             int priorMetadata = before?.PoseHistory.PreviousDirectionAndMovement ?? 0;
             SamusPoseId olderPose = before?.PoseHistory.LastDifferentPose ?? 0;
             int olderMetadata = before?.PoseHistory.LastDifferentDirectionAndMovement ?? 0;
-            bool demoEnabled = intro.flashbackDemoInput?.Enabled == true;
+            bool demoEnabled = intro.CurrentFlashbackDemoInput?.Enabled == true;
             bool hurtExpiry = before is { KnockbackTimer.IsZero: true, KnockbackDirection: not 0 };
             intro.Render();
             intro.Step(tick % 47 == 0 ? SnesButton.A : 0);
-            SamusState? after = intro.flashbackSamus;
-            IntroBabyDiscoveryState? discovery = intro.babyDiscovery;
-            bool ended = demoEnabled && intro.flashbackDemoInput?.Enabled == false;
+            SamusState? after = intro.CurrentFlashbackSamus;
+            IntroBabyDiscoveryState? discovery = intro.CurrentBabyDiscovery;
+            bool ended = demoEnabled && intro.CurrentFlashbackDemoInput?.Enabled == false;
             string? context = null;
             if (before is null && after is not null) { setup = true; context = "flashback setup"; }
             else if (before is not null && discovery is not null)

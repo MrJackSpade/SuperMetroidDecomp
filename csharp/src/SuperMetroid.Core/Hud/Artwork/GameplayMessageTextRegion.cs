@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 namespace SuperMetroid.Core.Hud.Artwork;
 
 /// <summary>Defines one bounded text field in a gameplay-message notice.</summary>
@@ -9,8 +11,9 @@ public sealed record GameplayMessageTextRegion
     public required int Column { get; init; }
     /// <summary>Gets the field width in tilemap cells.</summary>
     public required int Width { get; init; }
-    /// <summary>Gets the supported left or center alignment name.</summary>
-    public required string Alignment { get; init; }
+    /// <summary>Gets where the text sits within the field.</summary>
+    [JsonConverter(typeof(JsonStringEnumConverter<GameplayMessageTextAlignment>))]
+    public required GameplayMessageTextAlignment Alignment { get; init; }
     /// <summary>Gets the text rendered in this field.</summary>
     public required string Text { get; init; }
     /// <summary>Gets the three-bit tilemap palette index.</summary>

@@ -4,12 +4,12 @@ namespace SuperMetroid.Core.Frontend.FileSelect.Artwork;
 internal sealed class FileSelectCompiledPatch
 {
     /// <summary>Schema identity used to reconstruct a stock patch.</summary>
-    private readonly string name;
+    private readonly FileSelectPatch name;
     /// <summary>Edited cells, or null when every cell equals the compiled stock patch.</summary>
     internal readonly FileSelectCompiledPatchCell[]? suppliedCells;
 
     /// <summary>Compares authored cells with stock definitions to avoid storing unchanged artwork.</summary>
-    internal FileSelectCompiledPatch(string name, FileSelectCompiledPatchCell[] cells)
+    internal FileSelectCompiledPatch(FileSelectPatch name, FileSelectCompiledPatchCell[] cells)
     {
         this.name = name;
         if (cells.Length != FileSelectPresentationDefinitions.PatchCellCount(name))

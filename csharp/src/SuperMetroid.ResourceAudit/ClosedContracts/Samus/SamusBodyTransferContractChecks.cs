@@ -93,14 +93,14 @@ internal static class SamusBodyTransferContractChecks
         SyntaxTree calls = CSharpSyntaxTree.ParseText("""
             using SuperMetroid.Core.Samus.Artwork;
             class SamusTransferConsumer {
-                void Inspect(SamusBodyArtworkCatalog body, SuperMetroid.Core.Samus.Poses.SamusPoseId pose, ushort frame, bool upper, byte set,
+                void Inspect(SamusBodyArtworkCatalog body, SuperMetroid.Core.Samus.Poses.SamusPoseId pose, ushort frame, SamusBodyHalf half, byte set,
                     byte position, int address) {
                     body.Frame(pose, frame);
                     body.Frame((SuperMetroid.Core.Samus.Poses.SamusPoseId)253, 0);
-                    body.DefinitionAddress(true, 0, 2);
-                    body.DefinitionAddress(true, 13, 0);
-                    body.DefinitionAddress(false, 11, 0);
-                    body.DefinitionAddress(upper, set, position);
+                    body.DefinitionAddress(SamusBodyHalf.Top, 0, 2);
+                    body.DefinitionAddress(SamusBodyHalf.Top, 13, 0);
+                    body.DefinitionAddress(SamusBodyHalf.Bottom, 11, 0);
+                    body.DefinitionAddress(half, set, position);
                     body.DefinitionAt(address);
                     body.DefinitionAt(0);
                 }

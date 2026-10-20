@@ -206,7 +206,7 @@ internal static class MapLoadAnchorsVerification
             AssertTrue(before.SequenceEqual(ReadSram()), "map entry leaves entire SRAM and progression unchanged");
         }
         byte[] ReadSram() => SuperMetroid.Core.Saves.SaveRamCodec.Encode(stationSaves, RetailPresentationFixture());
-        static FileSelectMapScroll Scroll(FileSelectMapMenuState menu) => menu.scroll;
+        static FileSelectMapScroll Scroll(FileSelectMapMenuState menu) => menu.Scroll;
         static (Position16<MapPixels>, Position16<MapPixels>, Position16<MapPixels>, MapScrollDirection) ScrollState(FileSelectMapScroll value) =>
             (value.Scroll, value.Minimum, value.Maximum, value.Direction);
     }

@@ -48,7 +48,7 @@ internal static class PauseReserveHudVerification
         // Construct just the paused dispatcher boundary. Input, HUD updates, queued
         // DMA and presentation below are real production calls, not a fake refill.
         game.AdoptRuntime(runtime);
-        game.Session.pauseMenu = pause;
+        game.Session.Show(pause);
         game.GameState = SuperMetroidGameState.PausedB;
         SnesVram Displayed() => PauseScreenFixtures.Vram(pause.screen);
         ushort originalAuto = Displayed().ReadWord(HudState.VramDestination + 8);

@@ -74,8 +74,7 @@ internal sealed class DeathGamePhases(FrontendSession session)
             session.GameState = SuperMetroidGameState.DeathExplosionWhiteOut;
         else if (deathStep.Completed)
         {
-            session.deathFadeBrightness = 15;
-            session.deathFadeCounter = 1;
+            session.DeathFade.Start(15, 1);
             session.GameState = SuperMetroidGameState.DeathFinalBlackOut;
         }
     }
@@ -85,20 +84,8 @@ internal sealed class DeathGamePhases(FrontendSession session)
     {
         session.GameplayRuntime.RunBlankGameplayFrame(controllerInput);
         session.display.PublishGameplay(session.GameplayRuntime);
-        if (session.deathFadeCounter == 0)
-        {
-            session.deathFadeCounter = 1;
-            if (session.deathFadeBrightness == 1)
-                session.deathFadeBrightness = 0;
-            else if (session.deathFadeBrightness != 0)
-                session.deathFadeBrightness--;
-        }
-        else
-        {
-            session.deathFadeCounter--;
-        }
-        session.ApplyDisplayBrightness(session.deathFadeBrightness);
-        if (session.deathFadeBrightness == 0)
+        session.ApplyDisplayBrightness(session.DeathFade.Darken());
+        if (session.DeathFade.Brightness == 0)
         {
             session.GameplayRuntime.Freeze.GameplayTimeFrozen = false;
             // The game-over menu runs no gameplay owner: every exit reloads SRAM or
@@ -112,15 +99,15 @@ internal sealed class DeathGamePhases(FrontendSession session)
     /// <summary>Builds state $13's target-palettes image and resets <c>$7E:C400</c>.</summary>
     private void PrepareDeathPaletteFade()
     {
-        if (session.runtime is null)
+        if (session.Runtime is null)
             throw new InvalidOperationException("Death palette setup requires a runtime.");
 
         var target = new Bgr555[CgramPalettes.ColorCount];
-        ReadOnlySpan<Bgr555> current = new CgramPalettes(session.runtime.Cgram).Image;
+        ReadOnlySpan<Bgr555> current = new CgramPalettes(session.Runtime.Cgram).Image;
         // `$82:DCA3-$DCB3` restores only palette-buffer colors $C0-$CF into the otherwise
         // black target. Suitless row $F0 and all room/OBJ rows therefore fade away.
         current.Slice(192, 16).CopyTo(target.AsSpan(192, 16));
-        session.deathPaletteFade = new CartridgePaletteTransition(target, denominator: 6, session.runtime.EnemySession.GradualColorChange);
+        session.BeginDeathPaletteFade(new CartridgePaletteTransition(target, denominator: 6, session.Runtime.EnemySession.GradualColorChange));
     }
 
     /// <summary>
@@ -130,9 +117,9 @@ internal sealed class DeathGamePhases(FrontendSession session)
     /// </summary>
     private bool StepDeathPaletteFade()
     {
-        if (session.runtime is null)
+        if (session.Runtime is null)
             throw new InvalidOperationException("Death palette fade requires a runtime.");
-        return (session.deathPaletteFade ?? throw new InvalidOperationException(
-            "Death palette target was not prepared.")).Step(session.runtime.Cgram);
+        return (session.DeathPaletteFade ?? throw new InvalidOperationException(
+            "Death palette target was not prepared.")).Step(session.Runtime.Cgram);
     }
 }

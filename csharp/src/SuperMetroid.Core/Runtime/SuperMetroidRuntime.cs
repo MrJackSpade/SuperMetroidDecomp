@@ -655,7 +655,7 @@ internal sealed class SuperMetroidRuntime
         // Host-disabled Samus movement has no alpha phase to wait for. Otherwise
         // defer actors until projectile production/update, immediately before beta.
         SamusHandlerFrame frame = context.Samus;
-        frame.EnemyMainAlreadyRan = Player.Samus is null || Room.Camera is null || !Player.GroundedSamusMovementEnabled;
+        frame.RecordHoistedEnemyMain(Player.Samus is null || Room.Camera is null || !Player.GroundedSamusMovementEnabled);
         // Native EnemyMain follows SamusCurrentStateHandler. An actor that restores the
         // normal handler pair there (gunship $A2:A987) affects this frame's beta only:
         // the locked alpha has already run, so it still sees the lock below.
@@ -664,7 +664,7 @@ internal sealed class SuperMetroidRuntime
             bool lockedBeforeEnemyMain = Player.Samus?.Control.AlphaLocked == true;
             EnemyPhase.RunEnemyMainPhase(processingList: EnemyProcessingList.Prepared,
                 Room.Camera?.PreviousSamusPoint ?? context.SamusCameraPointAtFrameStart, Room.LoadedScope);
-            frame.EnemyMainReleasedAlphaLock = lockedBeforeEnemyMain && Player.Samus?.Control.AlphaLocked == false;
+            frame.RecordEnemyMainReleasedAlphaLock(lockedBeforeEnemyMain && Player.Samus?.Control.AlphaLocked == false);
         }
     }
 
@@ -1070,7 +1070,7 @@ internal sealed class SuperMetroidRuntime
             throw new ArgumentOutOfRangeException(nameof(options), "Unknown map reveal mode.");
         Options.PlayerInvincibilityEnabled = options.PlayerInvincibilityEnabled;
         Options.InfiniteAmmoEnabled = options.InfiniteAmmoEnabled;
-        if (!Tester.GrantAllEquipmentEnabled && options.GrantAllEquipment) Tester.testerInventoryRecipient = null;
+        if (!Tester.GrantAllEquipmentEnabled && options.GrantAllEquipment) Tester.ForgetInventoryGrant();
         Tester.GrantAllEquipmentEnabled = options.GrantAllEquipment;
         bool openingTourian = !Tester.UnlockTourianEnabled && options.UnlockTourian;
         Tester.UnlockTourianEnabled = options.UnlockTourian;

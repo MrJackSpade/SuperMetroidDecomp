@@ -34,31 +34,28 @@ internal sealed class CinematicGamePhases(FrontendSession session)
     {
         // `$82:8431` runs no gameplay: it fades the whitened frame to forced blank.
         session.GameplayRuntime.FrameBoundary.BeginAcceptedFrame(controllerInput);
-        session.pauseBrightness = session.screenFade.Darken(session.pauseBrightness);
-        session.ApplyDisplayBrightness(session.pauseBrightness);
-        if (session.pauseBrightness == 0)
+        if (session.StepScreenFadeOut() == 0)
             FinishTimeUpBlackOut();
     }
 
     /// <summary>Runs one dispatch of <see cref="SuperMetroidGameState.CeresGoesBoomWithSamus"/>.</summary>
     internal void DispatchCeresGoesBoomWithSamus(SnesButton controllerInput)
     {
-        session.runtime?.FrameBoundary.BeginAcceptedFrame(controllerInput);
-        CeresDestructionCinematicState fatalDestruction = session.ceresDestruction ??
-            throw new InvalidOperationException("Ceres destruction with Samus has no cinematic.");
+        session.Runtime?.FrameBoundary.BeginAcceptedFrame(controllerInput);
+        CeresDestructionCinematicState fatalDestruction = session.ActiveCeresDestruction;
         fatalDestruction.Step();
         session.display.PublishCeresDestruction(fatalDestruction);
         if (fatalDestruction.Finished)
         {
             // `$8B:C64E`: the fatal cinematic's fade-out ends at state $19, already
             // in forced blank, after clearing Samus's HUD selection and hurt timers.
-            SamusState lostSamus = session.runtime?.Player.Samus ?? throw new InvalidOperationException(
+            SamusState lostSamus = session.Runtime?.Player.Samus ?? throw new InvalidOperationException(
                 "Ceres destruction with Samus requires her gameplay state.");
             lostSamus.SelectedHudItem = HudItem.Beam;
             lostSamus.AutoCancelHudItemIndex = HudItem.Beam;
             lostSamus.InvincibilityTimer = NativeCountdown.Start(0);
             lostSamus.KnockbackTimer = NativeCountdown.Start(0);
-            session.ceresDestruction = null;
+            session.Close<CeresDestructionCinematicState>();
             BeginForcedBlankDeathBlackOut();
         }
     }
@@ -68,17 +65,18 @@ internal sealed class CinematicGamePhases(FrontendSession session)
     {
         // Each update begins with an accepted NMI. A gameplay owner kept from Ceres
         // counts $05B5/$05B6 and latches input; without one the frontend counted it.
-        session.runtime?.FrameBoundary.BeginAcceptedFrame(controllerInput);
-        session.ceresDestruction ??= new CeresDestructionCinematicState(
-            session.audio, session.Artwork.MapPresentation?.PowerBombFixedColors,
-            session.Artwork.IntroCinematicArt, session.Artwork.MapPresentation?.RoomPaletteFx);
-        session.ceresDestruction.Step();
-        session.display.PublishCeresDestruction(session.ceresDestruction);
-        if (session.ceresDestruction.Finished)
+        session.Runtime?.FrameBoundary.BeginAcceptedFrame(controllerInput);
+        CeresDestructionCinematicState destruction = session.ScreenAs<CeresDestructionCinematicState>() ??
+            session.Show(new CeresDestructionCinematicState(
+                session.audio, session.Artwork.MapPresentation?.PowerBombFixedColors,
+                session.Artwork.IntroCinematicArt, session.Artwork.MapPresentation?.RoomPaletteFx));
+        destruction.Step();
+        session.display.PublishCeresDestruction(destruction);
+        if (destruction.Finished)
         {
             // CADF forces blank and publishes state six. The loader's special
             // `$22` branch—not cinematic code—selects area zero/station eighteen.
-            session.stateSixLoadingRoute = SaveLoadingGameState.CeresDestruction;
+            session.RouteLoading(SaveLoadingGameState.CeresDestruction);
             session.GameState = SuperMetroidGameState.LoadingGameData;
             session.display.PublishBlack();
         }
@@ -105,24 +103,24 @@ internal sealed class CinematicGamePhases(FrontendSession session)
     /// </summary>
     private void FinishTimeUpBlackOut()
     {
-        if (session.runtime is null)
+        if (session.Runtime is null)
             throw new InvalidOperationException("Time-up black-out requires a gameplay runtime.");
         session.screenFade.Clear();
-        session.timeUpPaletteFade = null;
-        session.runtime.EnemySession.CeresStatus = CeresEscapeStatus.RidleyNotEscaped;
-        session.runtime.EscapeTimer.ClearStatus();
+        session.EndTimeUpPaletteFade();
+        session.Runtime.EnemySession.CeresStatus = CeresEscapeStatus.RidleyNotEscaped;
+        session.Runtime.EscapeTimer.ClearStatus();
         session.audio.QueueSound(SoundEffectLibrary1Sounds.CancelAll, maximumQueued: 15);
         session.audio.QueueSound(SoundEffectLibrary2Sounds.CancelAll, maximumQueued: 15);
         session.audio.QueueSound(SoundEffectLibrary3Sounds.CancelAll, maximumQueued: 15);
         session.display.PublishBlack();
-        if (session.runtime.System.HasEvent(EventNumber.ZebesTimebombSet))
+        if (session.Runtime.System.HasEvent(EventNumber.ZebesTimebombSet))
         {
             BeginForcedBlankDeathBlackOut();
             return;
         }
-        session.ceresDestruction = new CeresDestructionCinematicState(
+        session.Show(new CeresDestructionCinematicState(
             session.audio, session.Artwork.MapPresentation?.PowerBombFixedColors,
-            session.Artwork.IntroCinematicArt, session.Artwork.MapPresentation?.RoomPaletteFx, outcome: CeresDestructionOutcome.SamusAboard);
+            session.Artwork.IntroCinematicArt, session.Artwork.MapPresentation?.RoomPaletteFx, outcome: CeresDestructionOutcome.SamusAboard));
         session.GameState = SuperMetroidGameState.CeresGoesBoomWithSamus;
     }
 
@@ -132,8 +130,7 @@ internal sealed class CinematicGamePhases(FrontendSession session)
     /// </summary>
     private void BeginForcedBlankDeathBlackOut()
     {
-        session.deathFadeBrightness = 0;
-        session.deathFadeCounter = 0;
+        session.DeathFade.Start(0, 0);
         session.GameState = SuperMetroidGameState.DeathFinalBlackOut;
         session.display.PublishBlack();
     }

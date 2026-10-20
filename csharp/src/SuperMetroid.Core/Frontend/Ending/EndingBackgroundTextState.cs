@@ -22,7 +22,7 @@ internal sealed class EndingBackgroundTextState
     /// <summary>Selects the Japanese subtitle row during the percentage hold.</summary>
     private readonly bool japaneseText;
     /// <summary>Remaining calls until the next installed character or hold transition.</summary>
-    internal NativeCountdown instructionTimer = NativeCountdown.Start(1);
+    internal NativeCountdown InstructionTimer { get; set; } = NativeCountdown.Start(1);
     /// <summary>Scene-selected background map the staging tilemap is uploaded into.</summary>
     private readonly EndingTextTilemap destinationTilemap;
     /// <summary>The installed ending text presentation; it is rebound after state restoration.</summary>
@@ -37,9 +37,9 @@ internal sealed class EndingBackgroundTextState
     /// <summary>Selected completion or item-percentage program that controls terminal behavior.</summary>
     private readonly EndingTextSequence? installedSequence;
     /// <summary>Next installed character to reveal in the staging tilemap.</summary>
-    internal int installedCharacterIndex;
+    internal int InstalledCharacterIndex { get; set; }
     /// <summary>Preserves the native initial pause before the first glyph.</summary>
-    internal bool installedInitialMarkerPending = true;
+    internal bool InstalledInitialMarkerPending { get; set; } = true;
     /// <summary>Tracks whether the item-percentage display hold has begun.</summary>
     private bool installedHoldStarted;
 
@@ -82,29 +82,29 @@ internal sealed class EndingBackgroundTextState
         installedProgram = installedSequence is { } sequence && value is not null
             ? value.Compile(sequence).ToArray()
             : null;
-        if (installedProgram is not null && installedCharacterIndex > installedProgram.Length)
+        if (installedProgram is not null && InstalledCharacterIndex > installedProgram.Length)
             throw new InvalidDataException(
-                $"Saved ending-text cursor {installedCharacterIndex} exceeds the rebound program.");
+                $"Saved ending-text cursor {InstalledCharacterIndex} exceeds the rebound program.");
     }
 
     /// <summary>Runs the initial delay, four-frame character cadence, optional percentage hold, and completion handoff.</summary>
     private void StepInstalled(EndingScreen screen)
     {
-        if (Completed || !(instructionTimer = instructionTimer.Decrement().Remaining).IsZero) return;
-        if (installedInitialMarkerPending)
+        if (Completed || !(InstructionTimer = InstructionTimer.Decrement().Remaining).IsZero) return;
+        if (InstalledInitialMarkerPending)
         {
-            installedInitialMarkerPending = false;
-            instructionTimer = NativeCountdown.Start(EndingTextDefinitions.InitialDelayFrames);
+            InstalledInitialMarkerPending = false;
+            InstructionTimer = NativeCountdown.Start(EndingTextDefinitions.InitialDelayFrames);
             return;
         }
-        if (installedCharacterIndex < InstalledProgram.Length)
+        if (InstalledCharacterIndex < InstalledProgram.Length)
         {
-            EndingTextCharacter character = InstalledProgram[installedCharacterIndex++];
+            EndingTextCharacter character = InstalledProgram[InstalledCharacterIndex++];
             int target = character.Row * EndingTextDefinitions.TilemapWidth + character.Column;
             tilemap[target] = character.TopWord.Raw;
             if (character.BottomWord is { } bottom)
                 tilemap[target + EndingTextDefinitions.TilemapWidth] = bottom.Raw;
-            instructionTimer = NativeCountdown.Start(EndingTextDefinitions.CharacterDelayFrames);
+            InstructionTimer = NativeCountdown.Start(EndingTextDefinitions.CharacterDelayFrames);
             Upload(screen);
             return;
         }
@@ -116,7 +116,7 @@ internal sealed class EndingBackgroundTextState
                     EndingCreditsRomData.Text.JapaneseSubtitleDestination,
                     EndingCreditsRomData.Text.JapaneseSubtitleWords));
             installedHoldStarted = true;
-            instructionTimer = NativeCountdown.Start(EndingTextDefinitions.PercentageHoldFrames);
+            InstructionTimer = NativeCountdown.Start(EndingTextDefinitions.PercentageHoldFrames);
             Upload(screen);
             return;
         }

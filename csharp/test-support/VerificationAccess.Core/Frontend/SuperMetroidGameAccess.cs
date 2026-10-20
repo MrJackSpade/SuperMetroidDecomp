@@ -26,7 +26,7 @@ internal static class SuperMetroidGameAccess
         /// </summary>
         internal void InitializeDirectRoomVerification()
         {
-            if (self.Session.runtime is not null || self.GameState != SuperMetroidGameState.Reset)
+            if (self.Session.Runtime is not null || self.GameState != SuperMetroidGameState.Reset)
                 throw new InvalidOperationException(
                     "Direct-room verification requires a fresh frontend.");
             if (!self.Session.SetupSelectedGame())
@@ -47,7 +47,7 @@ internal static class SuperMetroidGameAccess
             if (!ReferenceEquals(runtime.System.Random, self.Session.Random))
                 throw new InvalidOperationException(
                     "A prepared runtime must be built over its game's random-number word; pass the game's word to the runtime fixture.");
-            self.Session.runtime = runtime;
+            self.Session.Runtime = runtime;
         }
 
         /// <summary>
@@ -59,11 +59,11 @@ internal static class SuperMetroidGameAccess
         internal void EnterMainGameplay(SuperMetroidRuntime runtime)
         {
             Ensure.NotNull(runtime);
-            if (self.Session.runtime is not null || self.GameState != SuperMetroidGameState.Reset)
+            if (self.Session.Runtime is not null || self.GameState != SuperMetroidGameState.Reset)
                 throw new InvalidOperationException($"Main gameplay can be entered only from a fresh dispatcher; this one is in {self.GameState}.");
             CartridgeRoomState roomState = runtime.Room.LoadedRoom.State;
             self.AdoptRuntime(runtime);
-            self.Session.lastAudioRoomState = roomState;
+            self.Session.LastAudioRoomState = roomState;
             self.GameState = SuperMetroidGameState.MainGameplay;
         }
 

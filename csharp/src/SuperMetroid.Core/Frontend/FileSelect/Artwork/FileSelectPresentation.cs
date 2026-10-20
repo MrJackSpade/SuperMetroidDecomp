@@ -15,39 +15,50 @@ namespace SuperMetroid.Core.Frontend.FileSelect.Artwork;
 public sealed class FileSelectPresentation
 {
     /// <summary>Named, compiled 32-by-32 BG2 tilemaps for the menu pages.</summary>
-    private readonly Dictionary<string, ushort[]> pages;
-    /// <summary>ENERGY label cells placed beside populated save slots.</summary>
-    internal readonly FileSelectCompiledPatch energyPatch;
-    /// <summary>Empty-slot label cells placed where no valid save exists.</summary>
-    internal readonly FileSelectCompiledPatch noDataPatch;
-    /// <summary>Colon cell inserted between the hour and minute digits.</summary>
-    internal readonly FileSelectCompiledPatch timeColonPatch;
-    /// <summary>Edited digit tile words, or null when the stock consecutive tiles suffice.</summary>
+    private readonly Dictionary<FileSelectPage, ushort[]> pages;
+    /// <summary>The common BG2 background tilemap.</summary>
+    private readonly ushort[] background;
+    /// <summary>Each slot-field patch.</summary>
+    internal readonly Dictionary<FileSelectPatch, FileSelectCompiledPatch> patches;
+    /// <summary>Edited digit glyphs, or null when every digit is the native consecutive glyph.</summary>
     internal readonly ushort[]? digits;
-    /// <summary>Edited slot-letter tile words, or null for the stock consecutive tiles.</summary>
+    /// <summary>Edited slot-letter glyphs, or null when every letter is the native consecutive glyph.</summary>
     internal readonly ushort[]? slotLetters;
-    /// <summary>Named border, cursor, and helmet compositions used by the menu renderer.</summary>
-    internal readonly Dictionary<string, SpriteComposition> sprites;
+    /// <summary>Each bordered heading's sprite.</summary>
+    internal readonly Dictionary<FileSelectBorder, SpriteComposition> borderSprites;
+    /// <summary>The missile cursor's sprite by animation frame.</summary>
+    internal readonly SpriteComposition[] cursorSprites;
+    /// <summary>The selected slot's helmet sprite by animation frame.</summary>
+    internal readonly SpriteComposition[] helmetSprites;
+    /// <summary>Each bordered heading's anchor.</summary>
+    private readonly Dictionary<FileSelectBorder, Position16<OamPixels>> borderAnchors;
+    /// <summary>Each copy or clear page's slot-letter anchor.</summary>
+    private readonly Dictionary<FileSelectAnchor, Position16<TilemapCells>> dynamicAnchors;
     /// <summary>Validated anchors and frame durations from the selected JSON presentation.</summary>
     private readonly FileSelectPresentationDocument document;
 
     /// <summary>Stores compiled artwork and collapses unedited glyph sequences to stock tile bases.</summary>
     private FileSelectPresentation(
-        Dictionary<string, ushort[]> pages,
-        Dictionary<string, FileSelectCompiledPatch> patches,
+        FileSelectPages pages,
+        Dictionary<FileSelectPatch, FileSelectCompiledPatch> patches,
         ushort[] digits,
         ushort[] slotLetters,
-        Dictionary<string, SpriteComposition> sprites,
+        FileSelectSprites sprites,
         FileSelectPresentationDocument document,
         string contentIdentity)
     {
-        this.pages = pages;
-        energyPatch = patches[FileSelectPresentationDefinitions.EnergyPatch];
-        noDataPatch = patches[FileSelectPresentationDefinitions.NoDataPatch];
-        timeColonPatch = patches[FileSelectPresentationDefinitions.TimeColonPatch];
+        this.pages = pages.Foreground;
+        background = pages.Background;
+        this.patches = patches;
         this.digits = PreserveEditedGlyphs(digits, FileSelectLayout.DigitTileBase);
         this.slotLetters = PreserveEditedGlyphs(slotLetters, FileSelectLayout.SamusLetterTileBase);
-        this.sprites = sprites;
+        borderSprites = sprites.Borders;
+        cursorSprites = sprites.Cursors;
+        helmetSprites = sprites.Helmets;
+        borderAnchors = FileSelectPresentationDefinitions.Borders.ToDictionary(border => border,
+            border => document.BorderAnchors[FileSelectPresentationDefinitions.BorderName(border)]);
+        dynamicAnchors = FileSelectPresentationDefinitions.Anchors.ToDictionary(anchor => anchor,
+            anchor => document.DynamicAnchors[FileSelectPresentationDefinitions.AnchorName(anchor)]);
         this.document = document;
         ContentIdentity = contentIdentity;
     }
@@ -69,15 +80,13 @@ public sealed class FileSelectPresentation
 
     /// <summary>Copies the background page into the menu's BG2 VRAM tilemap.</summary>
     internal void LoadBackground(MenuTilemaps tilemaps) =>
-        pages[FileSelectPresentationDefinitions.BackgroundPage].CopyTo(tilemaps.Bg2);
+        background.CopyTo(tilemaps.Bg2);
 
     /// <summary>Copies one named full page into a 1024-cell destination tilemap.</summary>
-    internal void CopyPage(string name, Span<ushort> destination)
+    internal void CopyPage(FileSelectPage page, Span<ushort> destination)
     {
-        if (!pages.TryGetValue(name, out ushort[]? source))
-            throw new InvalidDataException($"Unknown file-select page {name}.");
         Ensure.LengthEqual(destination, FileSelectPresentationDefinitions.CellCount);
-        source.CopyTo(destination);
+        pages[page].CopyTo(destination);
     }
 
     /// <summary>Selects the main or data-management field anchors for one save slot.</summary>
@@ -92,15 +101,9 @@ public sealed class FileSelectPresentation
     }
 
     /// <summary>Places an ENERGY, NO DATA, or time-colon patch relative to its tile anchor.</summary>
-    internal void ApplyPatch(Span<ushort> tilemap, string name, Position16<TilemapCells> anchor)
+    internal void ApplyPatch(Span<ushort> tilemap, FileSelectPatch name, Position16<TilemapCells> anchor)
     {
-        FileSelectCompiledPatch patch = name switch
-        {
-            FileSelectPresentationDefinitions.EnergyPatch => energyPatch,
-            FileSelectPresentationDefinitions.NoDataPatch => noDataPatch,
-            FileSelectPresentationDefinitions.TimeColonPatch => timeColonPatch,
-            _ => throw new InvalidDataException($"Unknown file-select patch {name}."),
-        };
+        FileSelectCompiledPatch patch = patches[name];
         for (int index = 0; index < patch.Count; index++)
         {
             FileSelectCompiledPatchCell cell = patch.Cell(index);
@@ -127,10 +130,7 @@ public sealed class FileSelectPresentation
     }
 
     /// <summary>Resolves a named dynamic field location in the menu tilemap.</summary>
-    internal Position16<TilemapCells> DynamicAnchor(string name) =>
-        document.DynamicAnchors.TryGetValue(name, out Position16<TilemapCells> anchor)
-            ? anchor
-            : throw new InvalidDataException($"Unknown file-select dynamic anchor {name}.");
+    internal Position16<TilemapCells> DynamicAnchor(FileSelectAnchor anchor) => dynamicAnchors[anchor];
 
     /// <summary>Selects the cursor anchor from main, confirmation, or data-management layouts.</summary>
     internal Position16<OamPixels> CursorPosition(FileSelectCursorPage page, int selected) =>
@@ -143,17 +143,17 @@ public sealed class FileSelectPresentation
         }, selected, "cursor");
 
     /// <summary>Draws the page's border composition at its authored OAM anchor.</summary>
-    internal void DrawBorder(ScreenSprites screenSprites, string page)
+    internal void DrawBorder(ScreenSprites screenSprites, FileSelectBorder border)
     {
-        Position16<OamPixels> anchor = document.BorderAnchors[page];
-        sprites[FileSelectPresentationDefinitions.BorderFrameName(page)].Draw(
+        Position16<OamPixels> anchor = borderAnchors[border];
+        borderSprites[border].Draw(
             screenSprites, anchor,
             PaletteBits(document.ObjectPalette));
     }
 
     /// <summary>Draws one missile-cursor frame with the menu object palette.</summary>
     internal void DrawCursor(ScreenSprites screenSprites, int frame, Position16<OamPixels> anchor) =>
-        sprites[FileSelectPresentationDefinitions.CursorFrameName(frame)].Draw(
+        cursorSprites[frame].Draw(
             screenSprites, anchor,
             PaletteBits(document.ObjectPalette));
 
@@ -161,7 +161,7 @@ public sealed class FileSelectPresentation
     internal void DrawHelmet(ScreenSprites screenSprites, int frame, int slot)
     {
         Position16<OamPixels> anchor = Point(document.HelmetAnchors, slot, "helmet");
-        sprites[FileSelectPresentationDefinitions.HelmetFrameName(frame)].Draw(
+        helmetSprites[frame].Draw(
             screenSprites, anchor,
             PaletteBits(document.ObjectPalette));
     }
@@ -193,16 +193,17 @@ public sealed class FileSelectPresentation
         if (document.Version != FileSelectPresentationDefinitions.Version)
             throw new InvalidDataException(
                 $"File-select presentation version must be {FileSelectPresentationDefinitions.Version}.");
-        ValidateExactKeys(document.Pages, FileSelectPresentationDefinitions.PageNames,
+        ValidateExactKeys(document.Pages,
+            [FileSelectPresentationDefinitions.BackgroundPageName, .. FileSelectPresentationDefinitions.Pages.Select(FileSelectPresentationDefinitions.PageName)],
             "file-select pages");
-        ValidateExactKeys(document.Patches, FileSelectPresentationDefinitions.PatchNames,
+        ValidateExactKeys(document.Patches, FileSelectPresentationDefinitions.Patches.Select(FileSelectPresentationDefinitions.PatchName),
             "file-select patches");
         ValidateExactKeys(document.Sprites, FileSelectPresentationDefinitions.SpriteNames,
             "file-select sprites");
         ValidateExactKeys(document.BorderAnchors,
-            FileSelectPresentationDefinitions.BorderNames, "file-select borders");
+            FileSelectPresentationDefinitions.Borders.Select(FileSelectPresentationDefinitions.BorderName), "file-select borders");
         ValidateExactKeys(document.DynamicAnchors,
-            FileSelectPresentationDefinitions.DynamicAnchorNames,
+            FileSelectPresentationDefinitions.Anchors.Select(FileSelectPresentationDefinitions.AnchorName),
             "file-select dynamic anchors");
         if (document.Digits is null || document.Digits.Length != 10)
             throw new InvalidDataException("File select requires ten digit cells.");
@@ -215,9 +216,9 @@ public sealed class FileSelectPresentation
         ValidatePoints(document.DataCursorAnchors, 4, "data cursor");
         ValidatePoints(document.ConfirmationCursorAnchors, 2, "confirmation cursor");
         ValidatePoints(document.HelmetAnchors, 3, "helmet");
-        foreach (string name in FileSelectPresentationDefinitions.BorderNames)
+        foreach (string name in FileSelectPresentationDefinitions.Borders.Select(FileSelectPresentationDefinitions.BorderName))
             ValidatePoint(document.BorderAnchors[name], $"{name} border");
-        foreach (string name in FileSelectPresentationDefinitions.DynamicAnchorNames)
+        foreach (string name in FileSelectPresentationDefinitions.Anchors.Select(FileSelectPresentationDefinitions.AnchorName))
             ValidateTilePoint(document.DynamicAnchors[name], $"{name} dynamic anchor");
         if ((uint)document.ObjectPalette >= MapPresentationFormat.PaletteCount)
             throw new InvalidDataException("File-select object palette must be 0..7.");
@@ -225,17 +226,13 @@ public sealed class FileSelectPresentation
             document.HelmetFrameDuration is < 1 or > ushort.MaxValue)
             throw new InvalidDataException("File-select actor durations must be 1..65535.");
 
-        var pages = new Dictionary<string, ushort[]>(StringComparer.Ordinal);
-        foreach (string name in FileSelectPresentationDefinitions.PageNames)
+        var pages = FileSelectPresentationDefinitions.Pages.ToDictionary(page => page,
+            page => CompilePage(document, FileSelectPresentationDefinitions.PageName(page)));
+        ushort[] background = CompilePage(document, FileSelectPresentationDefinitions.BackgroundPageName);
+        var patches = new Dictionary<FileSelectPatch, FileSelectCompiledPatch>();
+        foreach (FileSelectPatch kind in FileSelectPresentationDefinitions.Patches)
         {
-            MapPresentationCell[] cells = document.Pages[name];
-            if (cells is null || cells.Length != FileSelectPresentationDefinitions.CellCount)
-                throw new InvalidDataException($"File-select page {name} requires 1024 cells.");
-            pages.Add(name, CompileCells(cells, $"file-select page {name}"));
-        }
-        var patches = new Dictionary<string, FileSelectCompiledPatch>(StringComparer.Ordinal);
-        foreach (string name in FileSelectPresentationDefinitions.PatchNames)
-        {
+            string name = FileSelectPresentationDefinitions.PatchName(kind);
             FileSelectPatchDocument patch = document.Patches[name] ??
                 throw new InvalidDataException($"File-select patch {name} is null.");
             if (patch.Cells is null || patch.Cells.Length == 0)
@@ -253,22 +250,25 @@ public sealed class FileSelectPresentation
                 compiled[index] = new(cell.Offset - Position16<TilemapCells>.Zero,
                     CompileCell(cell.Cell, $"file-select patch {name} cell {index}"));
             }
-            patches.Add(name, new(name, compiled));
+            patches.Add(kind, new(kind, compiled));
         }
 
         ushort[] digits = document.Digits.Select((cell, index) =>
             CompileCell(cell, $"file-select digit {index}")).ToArray();
         ushort[] letters = document.SlotLetters.Select((cell, index) =>
             CompileCell(cell, $"file-select slot letter {index}")).ToArray();
-        var sprites = new Dictionary<string, SpriteComposition>(StringComparer.Ordinal);
-        foreach (string name in FileSelectPresentationDefinitions.SpriteNames)
-            sprites.Add(name, MenuHeadingBorderDefinitions.CalculateIfMatching(name, FileSelectHelmetParts.CalculateIfMatching(name, MenuBorderParts.CalculateIfMatching(name, MenuCursorParts.CalculateIfMatching(name, MenuSpriteCompiler.Compile(document.Sprites[name],
-                $"file-select {name}"))))));
+        var borderSprites = FileSelectPresentationDefinitions.Borders.ToDictionary(border => border,
+            border => MenuHeadingBorderDefinitions.CalculateIfMatching(FileSelectPresentationDefinitions.Heading(border),
+                MenuBorderParts.CalculateIfMatching(CompileSprite(document, FileSelectPresentationDefinitions.BorderSpriteName(border)))));
+        SpriteComposition[] cursorSprites = [.. Enumerable.Range(0, FileSelectPresentationDefinitions.CursorFrameCount).Select(frame =>
+            MenuCursorParts.CalculateIfMatching(frame, CompileSprite(document, FileSelectPresentationDefinitions.CursorSpriteName(frame))))];
+        SpriteComposition[] helmetSprites = [.. Enumerable.Range(0, FileSelectPresentationDefinitions.HelmetFrameCount).Select(frame =>
+            FileSelectHelmetParts.CalculateIfMatching(frame, CompileSprite(document, FileSelectPresentationDefinitions.HelmetSpriteName(frame))))];
 
         foreach (FileSelectSlotFieldDocument slot in document.MainSlots.Concat(document.DataSlots))
             ValidateSlot(slot);
         ValidatePatchPlacements(document, patches);
-        return new(pages, patches, digits, letters, sprites, document,
+        return new(new(pages, background), patches, digits, letters, new(borderSprites, cursorSprites, helmetSprites), document,
             Convert.ToHexString(SHA256.HashData(bytes)));
     }
 
@@ -287,14 +287,14 @@ public sealed class FileSelectPresentation
     /// <summary>Rejects authored field patches or time digits that would escape the 32-by-32 page.</summary>
     private static void ValidatePatchPlacements(
         FileSelectPresentationDocument document,
-        Dictionary<string, FileSelectCompiledPatch> patches)
+        Dictionary<FileSelectPatch, FileSelectCompiledPatch> patches)
     {
         foreach (FileSelectSlotFieldDocument slot in document.MainSlots.Concat(document.DataSlots))
         {
-            ValidatePatch(slot.EnergyAnchor, patches[FileSelectPresentationDefinitions.EnergyPatch]);
-            ValidatePatch(slot.NoDataAnchor, patches[FileSelectPresentationDefinitions.NoDataPatch]);
+            ValidatePatch(slot.EnergyAnchor, patches[FileSelectPatch.Energy]);
+            ValidatePatch(slot.NoDataAnchor, patches[FileSelectPatch.NoData]);
             ValidatePatch(slot.TimeValueAnchor + new Offset16<TilemapCells>(2, 0),
-                patches[FileSelectPresentationDefinitions.TimeColonPatch]);
+                patches[FileSelectPatch.TimeColon]);
             if (slot.TimeValueAnchor.X + 5 > FileSelectPresentationDefinitions.Width)
                 throw new InvalidDataException("File-select time field escapes its page.");
         }
@@ -312,6 +312,20 @@ public sealed class FileSelectPresentation
     }
 
     /// <summary>Converts authored page cells into native BG tilemap words.</summary>
+    /// <summary>Compiles the 1024-cell page the document names <paramref name="name"/>.</summary>
+    private static ushort[] CompilePage(FileSelectPresentationDocument document, string name)
+    {
+        MapPresentationCell[] cells = document.Pages[name];
+        if (cells is null || cells.Length != FileSelectPresentationDefinitions.CellCount)
+            throw new InvalidDataException($"File-select page {name} requires 1024 cells.");
+        return CompileCells(cells, $"file-select page {name}");
+    }
+
+    /// <summary>Compiles the sprite the document names <paramref name="name"/>.</summary>
+    private static SpriteComposition CompileSprite(FileSelectPresentationDocument document, string name) =>
+        MenuSpriteCompiler.Compile(document.Sprites[name], $"file-select {name}");
+
+    /// <summary>Compiles each authored cell of <paramref name="owner"/> to its tilemap word.</summary>
     private static ushort[] CompileCells(MapPresentationCell[] cells, string owner)
     {
         var words = new ushort[cells.Length];
@@ -393,4 +407,18 @@ public sealed class FileSelectPresentation
     /// <summary>Encodes the chosen OBJ palette into a sprite attribute word.</summary>
     private static ushort PaletteBits(int index) =>
         SnesObjAttributeWord.Create(0, index, 0).PaletteBits;
+
+    /// <summary>The compiled foreground menu pages and the common background page.</summary>
+    /// <param name="Foreground">Each foreground page's tilemap words.</param>
+    /// <param name="Background">The common BG2 background's tilemap words.</param>
+    private sealed record FileSelectPages(Dictionary<FileSelectPage, ushort[]> Foreground, ushort[] Background);
+
+    /// <summary>The compiled bordered headings, cursor frames and helmet frames.</summary>
+    /// <param name="Borders">Each bordered heading's composition.</param>
+    /// <param name="Cursors">The missile cursor's composition by animation frame.</param>
+    /// <param name="Helmets">The selected slot's helmet composition by animation frame.</param>
+    private sealed record FileSelectSprites(
+        Dictionary<FileSelectBorder, SpriteComposition> Borders,
+        SpriteComposition[] Cursors,
+        SpriteComposition[] Helmets);
 }

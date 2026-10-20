@@ -267,7 +267,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, plms);
         ScrollBoundaryCamera camera, FixedPosition<RoomPixels>? cameraPointAtFrameStart, RoomScope room)
     {
         RunAlphaHead(frame, samus, camera, cameraPointAtFrameStart, room.Plms, room);
-        frame.MovementEnabled = _player.GroundedSamusMovementEnabled;
+        frame.SampleMovementEnabled(_player.GroundedSamusMovementEnabled);
         if (frame.MovementEnabled)
             RunAlphaTail(frame, gameState, samus, camera, room);
     }
@@ -330,7 +330,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, plms);
         // still runs cooldown, HUD switching and the HUD handler; only its
         // Handle_Projectiles tail stops (`$90:DCFB`), which both projectile owners
         // apply themselves. A selection cancel during X-ray therefore takes effect.
-        frame.AlphaRuns = !_freeze.GameplayTimeFrozen && !frame.DeathOwnsSamus && !room.Enemies.Elevator.ElevatorDoorTransitionActive;
+        frame.SampleAlphaRuns(!_freeze.GameplayTimeFrozen && !frame.DeathOwnsSamus && !room.Enemies.Elevator.ElevatorDoorTransitionActive);
         if (frame.AlphaRuns)
         {
             // `$90:C4E7` runs before the movement-type HUD projectile producer.
@@ -359,7 +359,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, plms);
                 (_controller1.Current & SnesButton.B) != 0 &&
                 TryBeginXrayFromSelectedHudItem(gameState, room.BombProjectiles))
             {
-                frame.XrayActivatedThisFrame = true;
+                frame.MarkXrayActivated();
                 _player.ProspectiveSamusPose = null;
                 _player.ProspectiveSamusFallbackPose = null;
             }
@@ -378,7 +378,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, plms);
 
         }
 
-        frame.GrappleOwnsMovement = RunGrappleBeamHandler(frame.Mode.Beta, room.Plms, room.Projectiles, room);
+        frame.SampleGrappleOwnership(RunGrappleBeamHandler(frame.Mode.Beta, room.Plms, room.Projectiles, room));
 
         if (frame.AlphaRuns)
         {
@@ -431,7 +431,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, plms);
             _player.ProspectiveSamusFallbackPose = null;
         }
         // Actor commands replace beta before its dispatch in this same update.
-        frame.Mode = frame.Mode with { Beta = DispatchedBetaHandler(frame, samus) };
+        frame.RedispatchBeta(DispatchedBetaHandler(frame, samus));
         if (!_freeze.TimeIsFrozen && !frame.DeathOwnsSamus)
             // Ceres Ridley's dedicated updated-beam adapter; ordinary projectiles collide before each enemy's AI.
             room.Enemies.Ceres.ResolveCeresRidleyProjectileHits(projectiles, bombProjectiles);
@@ -468,16 +468,16 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, plms);
         _player.LastDraygonGrabbedMovement = null;
         _player.LastDraygonEscape = null;
 
-        frame.GrappleReleaseAcceptsPoseInput = false;
+        frame.SampleGrappleReleasePoseInput(false);
         if (samus.Grapple.ReleasedMovementActive)
         {
             // The replacement beta mover does not replace normal airborne alpha
             // input. Preserve its pending aim/turn transition after release cleanup;
             // the connection/release frames that themselves replace the pose still
             // invalidate a lookup sampled from their previous grapple body.
-            frame.GrappleReleaseAcceptsPoseInput =
+            frame.SampleGrappleReleasePoseInput(
                 frame.MovementTypeAtFrameStart != SamusMovementType.Grappling &&
-                samus.Pose == frame.PoseAtFrameStart;
+                samus.Pose == frame.PoseAtFrameStart);
             // `$9B:C7C1` replaces the normal beta movement-handler pointer on the
             // release-input frame. It remains independent of the beam function, so
             // it must also run after `$9B:CB8B` has made that function inactive.
@@ -489,7 +489,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, plms);
                 _controller1.Current,
                 _clock.Counter,
                 room.Plms);
-            frame.GrappleOwnsMovement = true;
+            frame.SampleGrappleOwnership(true);
         }
 
         if (_player.LastGrappleMovement is { CameraPrevious: { } grapplePrevious })
@@ -497,11 +497,10 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, plms);
             // `$9B:BAD5-$BB5F` clamps native previous-position words to twelve
             // pixels after a close-collision snap. Feed those corrected whole words
             // to bank-$90 tracking while preserving the pre-frame subpositions.
-            frame.PreviousCameraPoint = frame.PreviousCameraPoint.WithWhole(
-                grapplePrevious);
+            frame.SnapCameraPoint(grapplePrevious);
         }
 
-        frame.PoseAtBetaMovement = samus.Pose;
+        frame.SampleBetaMovementPose(samus.Pose);
 
         RunBetaMovementOwner(frame, samus, camera, room);
     }
@@ -1185,19 +1184,18 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, plms);
 
         // Preserve movement on either side of the frame boundary. A new camera uses
         // the fallback sampled before enemy-owned motion and the bank-$90 handler.
-        frame.PreviousCameraPoint = camera.PreviousSamusPoint ?? cameraPointAtFrameStart ??
-            throw new InvalidOperationException("A gameplay frame with Samus samples her camera point at its start.");
+        frame.SampleCameraPoint(camera.PreviousSamusPoint ?? cameraPointAtFrameStart ??
+            throw new InvalidOperationException("A gameplay frame with Samus samples her camera point at its start."));
 
         // Retain the dispatch pose because command $F8 can replace Samus.Pose during
         // animation later in this same frame. Native alpha/beta/transition phases all
         // agree on that order; using the mutable value afterward would apply an input
         // match selected for the old pose to the newly installed one.
         _attractDemo.BeginAttractSamusInput();
-        frame.PoseAtFrameStart = samus.Pose;
+        frame.SampleFrameStartPose(samus.Pose);
         // Beta dispatches on the pose installed when it runs, which EnemyMain can have
         // replaced since alpha: Draygon's death releases a sparking Samus to pose $01,
         // and standing movement runs. `$91:E8B6` then reads that pose's type.
-        frame.PoseAtBetaMovement = frame.PoseAtFrameStart;
         // Ordinary alpha publishes the current pose's live radius before input
         // and collision. Prospective transitions later in beta can retain the
         // previous radius until this point in the following frame. The locked
@@ -1212,7 +1210,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, plms);
         // the suspended movement pointer and all of its timers survive, so command
         // $0B can resume it after the HDMA transformation (including Blue Suit).
         // The empty beta also skips periodic damage and the energy checks.
-        frame.MovementTypeAtFrameStart = samus.PoseMetadata.ReadMovementType();
+        frame.SampleMovementType(samus.PoseMetadata.ReadMovementType());
 
         // Direction bits already use the transition table's canonical layout. Input
         // matching belongs to frame-handler alpha, before beta moves the CURRENT pose;
@@ -1222,14 +1220,12 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, plms);
         // pointer is even read. Pose zero's pointer bytes otherwise overlap legitimate
         // data and can appear to select nonsense transitions after several frames, so
         // suppressing only their application would be too late and observably wrong.
-        frame.DeathOwnsSamus = samus.DeathSequence.IsActive;
-        frame.Mode = new SamusControlMode(samus.Control.Mode.Alpha, DispatchedBetaHandler(frame, samus));
+        frame.SampleDeathOwnership(samus.DeathSequence.IsActive);
+        SamusControlMode mode = new(samus.Control.Mode.Alpha, DispatchedBetaHandler(frame, samus));
         // Sound queues are global persistent engines on hardware, but this typed host
         // publication is scoped to one frame's Samus handler. It opened before the HDMA
         // pass, ahead of `$91:F046`'s landing sounds during collision.
-        frame.XrayOwnsPoseInput = samus.Xray.OwnsSamusControl && !frame.DeathOwnsSamus;
-        frame.XrayActivatedThisFrame = false;
-        frame.MovementBeforeXrayAdmission = samus.PoseMetadata.ReadMovementType();
+        frame.BeginControl(mode, samus.Xray.OwnsSamusControl && !frame.DeathOwnsSamus, samus.PoseMetadata.ReadMovementType());
         if (frame.XrayOwnsPoseInput)
         {
             samus.Xray.HandlePoseInput(
@@ -1237,14 +1233,12 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, plms);
                 _controller1.Current);
         }
 
-        frame.BombJumpLocksPoseInput = samus.BombJumpPoseInputLocked;
-        frame.ActorLocksPoseInput = frame.AlphaInputLocked(samus) || frame.BombJumpLocksPoseInput ||
-            ((samus.InputSnapshot.ShinesparkPoseInputLocked || samus.InputSnapshot.CrystalFlashPoseInputLocked) && !samus.InputSnapshot.AutoJumpInputPending) ||
-            (SamusPoseMetadata.IsForwardFacingPose(samus.Pose) && room.Enemies.Elevator.ElevatorStatus != ElevatorActorStatus.Inactive);
         // The native type-$0F input dispatcher is an RTS ($91:8146). Transition
         // poses can still have table entries, but reading them here prematurely
         // interrupts crouch/morph animations before their animation command wins.
-        frame.PostureTransitionSkipsPoseInput = frame.MovementTypeAtFrameStart == SamusMovementType.PostureTransition;
+        frame.SamplePoseInputLocks(samus,
+            ((samus.InputSnapshot.ShinesparkPoseInputLocked || samus.InputSnapshot.CrystalFlashPoseInputLocked) && !samus.InputSnapshot.AutoJumpInputPending) ||
+            (SamusPoseMetadata.IsForwardFacingPose(samus.Pose) && room.Enemies.Elevator.ElevatorStatus != ElevatorActorStatus.Inactive));
         SamusPoseTransitionLookup poseLookup =
             frame.DeathOwnsSamus || frame.XrayOwnsPoseInput || frame.ActorLocksPoseInput || frame.PostureTransitionSkipsPoseInput
             ? default
@@ -1258,8 +1252,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, plms);
         if (_player.ProspectiveSamusPose is { } matchedBombCancel &&
             matchedBombCancel.ProspectivePose != samus.Pose)
             samus.BombJumpDirection = 0;
-        frame.UsePoseDefinitionFallback = poseLookup.UsesPoseDefinitionFallback;
-        frame.DeceleratingFallbackHasMomentum = samus.HorizontalSpeed.BaseFixed != 0;
+        frame.SamplePoseLookup(poseLookup, samus);
         _player.ProspectiveSamusFallbackPose = null;
         _player.ProspectiveSamusWallCollisionPose = null;
 

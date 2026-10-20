@@ -30,14 +30,14 @@ internal static class NativeSnapshotImportPauseVerification
 
         CartridgeRoomHeader room = runtime.Room.ActiveRoom ?? throw new InvalidDataException("Paused snapshot has no room.");
         var menu = new PauseMenuState(new PauseMenuEntry { Samus = runtime.Player.Samus ?? throw new InvalidDataException("Paused snapshot has no Samus."), System = runtime.System, AreaIndex = room.AreaIndex, RoomMapPosition = room.MapPosition, Audio = game.Session.audio, GameplayLayer3 = runtime.FrameBoundary.CaptureLayer3Plane(), MapRevealMode = game.ConfiguredOptions.MapReveal, MapPresentation = game.Artwork.MapPresentation ?? throw new InvalidDataException("Paused snapshot has no map presentation.") });
-        menu.mapScrollPosition = new Position16<MapPixels>(W(PauseMemory.MapHorizontalScroll), W(PauseMemory.MapVerticalScroll));
+        menu.MapScrollPosition = new Position16<MapPixels>(W(PauseMemory.MapHorizontalScroll), W(PauseMemory.MapVerticalScroll));
         var palette = menu.paletteAnimation;
-        palette.timer = memory[PauseMemory.PaletteAnimationTimer];
-        palette.frame = memory[PauseMemory.PaletteAnimationFrame];
+        palette.Timer = memory[PauseMemory.PaletteAnimationTimer];
+        palette.Frame = memory[PauseMemory.PaletteAnimationFrame];
         // $0776 is a byte offset into $82:BA25's word tables; the port keeps the phase index.
-        menu.mapIndicatorAnimationFrame = W(PauseMemory.IndicatorAnimationFrame) / 2;
-        menu.mapIndicatorAnimationTimer = W(PauseMemory.IndicatorAnimationTimer);
-        game.Session.pauseMenu = menu;
+        menu.MapIndicatorAnimationFrame = W(PauseMemory.IndicatorAnimationFrame) / 2;
+        menu.MapIndicatorAnimationTimer = W(PauseMemory.IndicatorAnimationTimer);
+        game.Session.Show(menu);
         game.Session.screenFade.Delay = W(PauseMemory.ScreenFadeDelay);
         game.Session.screenFade.Counter = W(PauseMemory.ScreenFadeCounter);
 

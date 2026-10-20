@@ -28,6 +28,10 @@ SME6429 | Design | Error | DuplicateConceptAnalyzer
 SME6430 | Design | Error | DuplicateConceptAnalyzer
 SME6431 | Design | Error | KindTaggedRecordAnalyzer
 SME6432 | Design | Error | KindTaggedRecordAnalyzer
+SME6433 | Design | Error | StringIdentityAnalyzer
+SME6434 | Design | Error | StringIdentityAnalyzer
+SME6435 | Design | Error | StringIdentityAnalyzer
+SME6436 | Design | Error | StringIdentityAnalyzer
 SME6340 | Design | Warning | CartridgeEncodingAnalyzer
 SME6341 | Design | Warning | CartridgeEncodingAnalyzer
 SME6342 | Design | Warning | CartridgeEncodingAnalyzer

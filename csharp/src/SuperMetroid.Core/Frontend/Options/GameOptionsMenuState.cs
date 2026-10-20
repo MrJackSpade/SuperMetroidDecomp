@@ -1,16 +1,25 @@
+using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.Saves;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Frontend.Menus;
 using SuperMetroid.Core.Frontend.Map.Artwork;
-using SuperMetroid.Core.Frontend.Options.Artwork;
 
 namespace SuperMetroid.Core.Frontend.Options;
 
 /// <summary>Complete game-state-$02 options owner, including both secondary pages.</summary>
-public sealed class GameOptionsMenuState
+public sealed class GameOptionsMenuState : IFrontendScreen
 {
+    /// <inheritdoc/>
+    void IFrontendScreen.BindArtwork(GameArtwork previous, GameArtwork artwork, SuperMetroidGameState state)
+    {
+        Ensure.NotNull(previous);
+        Ensure.NotNull(artwork);
+        if (!ReferenceEquals(previous.MapPresentation, artwork.MapPresentation))
+            BindMapPresentation(artwork.MapPresentation);
+    }
+
     /// <summary>Receives cursor and confirmation sounds when available.</summary>
     private readonly CartridgeAudioState? audio;
     /// <summary>The menu screen the options menu draws: its artwork, tilemaps, palette and sprite entries.</summary>
@@ -68,11 +77,11 @@ public sealed class GameOptionsMenuState
 
         // Separate installed page copies prevent a language toggle from mutating
         // the other language's source page.
-        primaryTilemap = mapPresentation.GameOptions.CreatePage(GameOptionsPresentationDefinitions.PrimaryPage);
-        controllerEnglishTilemap = mapPresentation.GameOptions.CreatePage(GameOptionsPresentationDefinitions.ControllerEnglishPage);
-        controllerJapaneseTilemap = mapPresentation.GameOptions.CreatePage(GameOptionsPresentationDefinitions.ControllerJapanesePage);
-        specialEnglishTilemap = mapPresentation.GameOptions.CreatePage(GameOptionsPresentationDefinitions.SpecialEnglishPage);
-        specialJapaneseTilemap = mapPresentation.GameOptions.CreatePage(GameOptionsPresentationDefinitions.SpecialJapanesePage);
+        primaryTilemap = mapPresentation.GameOptions.CreatePage(GameOptionsTilemap.Primary);
+        controllerEnglishTilemap = mapPresentation.GameOptions.CreatePage(GameOptionsTilemap.ControllerEnglish);
+        controllerJapaneseTilemap = mapPresentation.GameOptions.CreatePage(GameOptionsTilemap.ControllerJapanese);
+        specialEnglishTilemap = mapPresentation.GameOptions.CreatePage(GameOptionsTilemap.SpecialEnglish);
+        specialJapaneseTilemap = mapPresentation.GameOptions.CreatePage(GameOptionsTilemap.SpecialJapanese);
 
         ControllerBindings = (controllerBindings ?? Input.ControllerBindings.Default)
             .RequireRetailPermutation();
@@ -95,11 +104,11 @@ public sealed class GameOptionsMenuState
         screen.BindMapSprites(catalog.Sprites);
         screen.BindMapPalettes(catalog.Palettes);
         catalog.GameOptions.LoadBackground(screen.Tilemaps);
-        Copy(catalog.GameOptions.CreatePage(GameOptionsPresentationDefinitions.PrimaryPage), primaryTilemap);
-        Copy(catalog.GameOptions.CreatePage(GameOptionsPresentationDefinitions.ControllerEnglishPage), controllerEnglishTilemap);
-        Copy(catalog.GameOptions.CreatePage(GameOptionsPresentationDefinitions.ControllerJapanesePage), controllerJapaneseTilemap);
-        Copy(catalog.GameOptions.CreatePage(GameOptionsPresentationDefinitions.SpecialEnglishPage), specialEnglishTilemap);
-        Copy(catalog.GameOptions.CreatePage(GameOptionsPresentationDefinitions.SpecialJapanesePage), specialJapaneseTilemap);
+        Copy(catalog.GameOptions.CreatePage(GameOptionsTilemap.Primary), primaryTilemap);
+        Copy(catalog.GameOptions.CreatePage(GameOptionsTilemap.ControllerEnglish), controllerEnglishTilemap);
+        Copy(catalog.GameOptions.CreatePage(GameOptionsTilemap.ControllerJapanese), controllerJapaneseTilemap);
+        Copy(catalog.GameOptions.CreatePage(GameOptionsTilemap.SpecialEnglish), specialEnglishTilemap);
+        Copy(catalog.GameOptions.CreatePage(GameOptionsTilemap.SpecialJapanese), specialJapaneseTilemap);
         ApplyLanguagePaletteBits();
         LoadVisiblePage();
 
@@ -260,8 +269,7 @@ public sealed class GameOptionsMenuState
         sprites.BeginFrame();
         var content = mapPresentation ?? throw new InvalidOperationException(
             "Options cursor requires installed presentation assets.");
-        string pageName = PresentationPageName(page);
-        content.GameOptions.DrawHeading(sprites, pageName, bg1VerticalScroll);
+        content.GameOptions.DrawHeading(sprites, page, bg1VerticalScroll);
         (ushort authoredCursorX, ushort authoredCursorY) = CursorPosition();
         content.GameOptions.DrawCursor(sprites, missile.Frame,
             new(authoredCursorX, authoredCursorY));
@@ -491,9 +499,9 @@ public sealed class GameOptionsMenuState
         var content = mapPresentation ?? throw new InvalidOperationException(
             "Options toggles require installed presentation assets.");
         content.GameOptions.ApplySpecialToggle(visibleTilemap,
-            GameOptionsPresentationDefinitions.IconCancelToggle, IconCancelEnabled);
+            GameOptionsToggle.IconCancel, IconCancelEnabled);
         content.GameOptions.ApplySpecialToggle(visibleTilemap,
-            GameOptionsPresentationDefinitions.MoonwalkToggle, MoonwalkEnabled);
+            GameOptionsToggle.Moonwalk, MoonwalkEnabled);
     }
 
     /// <summary>Writes current physical-button labels to every controller action row.</summary>
@@ -522,18 +530,9 @@ public sealed class GameOptionsMenuState
         }
         Position16<OamPixels> point = (mapPresentation ?? throw new InvalidOperationException(
             "Options cursor requires installed presentation assets."))
-            .GameOptions.CursorPosition(PresentationPageName(cursorPage.Value), SelectedItem);
+            .GameOptions.CursorPosition(cursorPage.Value, SelectedItem);
         return (checked(point.X), checked(point.Y));
     }
-
-    /// <summary>Maps the active menu page to its installed presentation key.</summary>
-    private static string PresentationPageName(GameOptionsPage value) => value switch
-    {
-        GameOptionsPage.Primary => GameOptionsPresentationDefinitions.PrimaryMenu,
-        GameOptionsPage.Controller => GameOptionsPresentationDefinitions.ControllerMenu,
-        GameOptionsPage.Special => GameOptionsPresentationDefinitions.SpecialMenu,
-        _ => throw new InvalidOperationException($"Unknown options page {value}."),
-    };
 
     /// <summary>Queues the native cursor sound within the menu sound limit.</summary>
     private void QueueMoveSound() =>

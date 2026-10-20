@@ -5,17 +5,17 @@ namespace SuperMetroid.Core.Frontend.Menus.Artwork;
 
 /// <summary>$82:D00B/D0AD/D177 and D24B/D2F7/D41B: file-select/options heading outlines. Stock bounds follow immutable heading typography;
 /// independently edited title pages or sprite parts do not change these stock layout definitions. Exact title/padding, glyph roles and traversal are selected display content. Native82:8CA1 feeds ordered OAM; order may affect hardware limits and is preserved. Pixels, colors and timing are excluded.</summary>
-internal sealed class MenuHeadingBorderDefinitions(string heading) : IReadOnlyList<CompiledSpritePart>
+internal sealed class MenuHeadingBorderDefinitions(MenuHeading heading) : IReadOnlyList<CompiledSpritePart>
 {
     /// <summary>Native heading words on the options BG pages; each uses eight-pixel character cells.</summary>
     private string Text => heading switch
     {
-        "Border.Main" => "SAMUS DATA",
-        "Border.Copy" => "DATA COPY MODE",
-        "Border.Clear" => "DATA CLEAR MODE",
-        "Heading.Primary" => "OPTION MODE",
-        "Heading.Controller" => "CONTROLLER SETTING MODE",
-        "Heading.Special" => "SPECIAL SETTING MODE",
+        MenuHeading.FileSelectMain => "SAMUS DATA",
+        MenuHeading.FileSelectCopy => "DATA COPY MODE",
+        MenuHeading.FileSelectClear => "DATA CLEAR MODE",
+        MenuHeading.OptionsPrimary => "OPTION MODE",
+        MenuHeading.OptionsController => "CONTROLLER SETTING MODE",
+        MenuHeading.OptionsSpecial => "SPECIAL SETTING MODE",
         _ => throw new ArgumentOutOfRangeException(nameof(heading)),
     };
     /// <summary>$82:D24B/D2F7/D41B: one blank cell and one corner cell pad each side of the heading.</summary>
@@ -34,26 +34,25 @@ internal sealed class MenuHeadingBorderDefinitions(string heading) : IReadOnlyLi
     private static ReadOnlySpan<byte> SpecialCenter => [0, 1, 4, 3, 2];
 
     /// <summary>Uses calculated border geometry only for the six authored file and options headings.</summary>
-    internal static SpriteComposition CalculateIfMatching(string name, SpriteComposition supplied) =>
-        name is "Heading.Primary" or "Heading.Controller" or "Heading.Special" or "Border.Main" or "Border.Copy" or "Border.Clear"
-            ? supplied.CalculateIfMatching(new MenuHeadingBorderDefinitions(name)) : supplied;
+    internal static SpriteComposition CalculateIfMatching(MenuHeading heading, SpriteComposition supplied) =>
+        supplied.CalculateIfMatching(new MenuHeadingBorderDefinitions(heading));
 
     /// <summary>Perimeter OAM parts for both horizontal edges and the two vertical sides.</summary>
     public int Count => 2 * (Columns + Rows - 2);
     /// <summary>Calculates an indexed glyph or border cell in native heading traversal order.</summary>
     private MenuHeadingCell Position(int index)
     {
-        bool primary = heading == "Heading.Primary";
-        bool fileSelect = heading.StartsWith("Border.", StringComparison.Ordinal);
+        bool primary = heading == MenuHeading.OptionsPrimary;
+        bool fileSelect = heading is MenuHeading.FileSelectMain or MenuHeading.FileSelectCopy or MenuHeading.FileSelectClear;
         if (fileSelect)
         {
-            bool clear = heading == "Border.Clear";
+            bool clear = heading == MenuHeading.FileSelectClear;
             if (clear)
             {
                 if (index < 2) return new(OuterRunLength + 1, index == 0 ? 0 : Rows - 1);
                 index -= 2;
             }
-            if (heading != "Border.Main")
+            if (heading != MenuHeading.FileSelectMain)
             {
                 if (index < 8)
                     return new(OuterRunLength + 1 + (clear ? 1 : 0) + (index % 4 + 2) % 4,
@@ -68,7 +67,7 @@ internal sealed class MenuHeadingBorderDefinitions(string heading) : IReadOnlyLi
         }
         else
         {
-            ReadOnlySpan<byte> center = heading == "Heading.Controller" ? ControllerCenter : SpecialCenter;
+            ReadOnlySpan<byte> center = heading == MenuHeading.OptionsController ? ControllerCenter : SpecialCenter;
             if (index < center.Length * 2)
                 return new(OuterRunLength + 3 + center[index % center.Length], index < center.Length ? Rows - 1 : 0);
             index -= center.Length * 2;

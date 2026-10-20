@@ -9,9 +9,9 @@ public sealed class MapPaletteAnimation
     /// Updates remaining before the next palette frame is applied; starts with one update. Zero holds the animation:
     /// a step decrements only a positive count, so the value stays within zero through the longest authored hold.
     /// </summary>
-    internal int timer = 1;
+    internal int Timer { get; set; } = 1;
     /// <summary>Index of the most recently applied map palette frame, below the installed cycle's frame count once stepped.</summary>
-    internal int frame;
+    internal int Frame { get; set; }
     /// <summary>Installed host color cycle, excluded from serialized gameplay state.</summary>
     [NonSerialized] private MapPaletteCycle? content;
 
@@ -19,23 +19,23 @@ public sealed class MapPaletteAnimation
     public void Bind(MapPaletteCycle? cycle) => content = cycle;
 
     /// <summary>Restores ResetPauseMenuAnimations' initial frame and one-tick delay.</summary>
-    public void Reset() { timer = 1; frame = 0; }
+    public void Reset() { Timer = 1; Frame = 0; }
 
     /// <summary>Copies the native palette frame; true requests library-three MapPaletteLoop.</summary>
     public bool Step(IPaletteColors cgram)
     {
-        if (timer == 0) return false;
-        timer--;
-        if (timer != 0) return false;
+        if (Timer == 0) return false;
+        Timer--;
+        if (Timer != 0) return false;
         MapPaletteCycle cycle = content ?? throw new InvalidOperationException(
             "Map palette animation requires installed palette-cycle assets.");
         // Preserve native increment-before-read and loop sound ownership. A
         // shorter replacement cycle wraps at the next frame boundary, not bind.
-        int next = frame + 1;
+        int next = Frame + 1;
         bool wrapped = next >= cycle.FrameCount;
-        frame = wrapped ? 0 : next;
-        timer = cycle.Duration(frame);
-        cycle.Apply(cgram, frame, MapAnimationRomData.PaletteDestination);
+        Frame = wrapped ? 0 : next;
+        Timer = cycle.Duration(Frame);
+        cycle.Apply(cgram, Frame, MapAnimationRomData.PaletteDestination);
         return wrapped;
     }
 }

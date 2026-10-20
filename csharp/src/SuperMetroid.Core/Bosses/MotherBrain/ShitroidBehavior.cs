@@ -52,7 +52,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
         [new(0, 0), new(-1, 1), new(0, -1), new(1, 1)];
 
     /// <summary>Single slot-zero actor's private velocity, palette, and cutscene state.</summary>
-    internal ShitroidEnemyState? Shitroid;
+    internal ShitroidEnemyState? Shitroid { get; private set; }
     /// <summary>Layer-one camera used by the offscreen acceleration and wall sequence.</summary>
     private Position16<RoomPixels> _shitroidCamera;
 

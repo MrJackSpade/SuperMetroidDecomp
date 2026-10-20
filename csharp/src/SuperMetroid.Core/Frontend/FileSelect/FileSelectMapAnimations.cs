@@ -39,13 +39,7 @@ public sealed class FileSelectMapAnimations
             replacement = new Arrow(visual.Position, MapArrowDefinitions.SpriteBase(direction));
             phaseCount = visual.PhaseCount;
             if (previous is not null)
-            {
-                // A shortened replacement cycle retains the remaining accepted delay,
-                // then continues from the corresponding phase in the new presentation.
-                replacement.Frame = previous.Frame % phaseCount;
-                replacement.Timer = previous.Timer;
-                replacement.Visible = previous.Visible;
-            }
+                replacement.ContinueFrom(previous, phaseCount);
             arrows[index] = replacement;
         }
         presentation = content;
@@ -69,22 +63,9 @@ public sealed class FileSelectMapAnimations
         for (int index = 0; index < arrows.Length; index++)
         {
             Arrow arrow = arrows[index];
-            arrow.Visible = available(MapScrollControls.ArrowAt(index));
-            if (!arrow.Visible) continue;
-            MapArrowVisual visual = (presentation ?? throw new InvalidOperationException(
-                "Map arrows require installed animation definitions.")).Get(MapScrollControls.ArrowAt(index));
-            if (--arrow.Timer <= 0)
-            {
-                arrow.Frame++;
-                byte delay = arrow.Frame == visual.PhaseCount ? byte.MaxValue : visual.Duration(arrow.Frame);
-                if (delay == byte.MaxValue)
-                {
-                    arrow.Frame = 0;
-                    delay = visual.Duration(0);
-                    if (delay == byte.MaxValue) throw new InvalidDataException("Map arrow animation has no frames.");
-                }
-                arrow.Timer = delay;
-            }
+            if (!arrow.Admit(available(MapScrollControls.ArrowAt(index)))) continue;
+            arrow.Step((presentation ?? throw new InvalidOperationException(
+                "Map arrows require installed animation definitions.")).Get(MapScrollControls.ArrowAt(index)));
         }
     }
 
@@ -113,10 +94,40 @@ public sealed class FileSelectMapAnimations
         /// <summary>Sprite composition selected for this scroll direction.</summary>
         public readonly MapSpriteId Base = spriteBase;
         /// <summary>Remaining menu ticks before the next phase transition.</summary>
-        public int Timer;
+        public int Timer { get; private set; }
         /// <summary>Current presentation phase, preserved modulo replacement phase count on rebinding.</summary>
-        public int Frame;
+        public int Frame { get; private set; }
         /// <summary>Current scroll-boundary admission result; hidden arrows retain their counters.</summary>
-        public bool Visible;
+        public bool Visible { get; private set; }
+
+        /// <summary>
+        /// Takes over <paramref name="previous"/>'s counters on rebinding: a shortened replacement cycle retains the
+        /// remaining accepted delay, then continues from the corresponding phase of its <paramref name="phaseCount"/>.
+        /// </summary>
+        internal void ContinueFrom(Arrow previous, int phaseCount)
+        {
+            Frame = previous.Frame % phaseCount;
+            Timer = previous.Timer;
+            Visible = previous.Visible;
+        }
+
+        /// <summary>Records this tick's scroll-boundary admission and returns it.</summary>
+        internal bool Admit(bool visible) => Visible = visible;
+
+        /// <summary>Consumes one menu tick of <paramref name="visual"/>'s cycle, wrapping at its $FF terminator.</summary>
+        internal void Step(MapArrowVisual visual)
+        {
+            if (--Timer > 0)
+                return;
+            Frame++;
+            byte delay = Frame == visual.PhaseCount ? byte.MaxValue : visual.Duration(Frame);
+            if (delay == byte.MaxValue)
+            {
+                Frame = 0;
+                delay = visual.Duration(0);
+                if (delay == byte.MaxValue) throw new InvalidDataException("Map arrow animation has no frames.");
+            }
+            Timer = delay;
+        }
     }
 }

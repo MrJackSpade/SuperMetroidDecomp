@@ -41,7 +41,7 @@ internal static class PauseWireframesVerification
             // One replacement at a time proves semantic variants do not alias.
             var frames = document.Frames.ToDictionary(pair => pair.Key, pair => pair.Value.ToArray());
             frames[kind.ToString()] = frames[kind.ToString()].Select(cell => cell with
-                { Atlas = "Map", TileColumn = 4, TileRow = 0, Palette = 3, Priority = true, FlipX = true, FlipY = true }).ToArray();
+                { Atlas = PauseAtlas.Map, TileColumn = 4, TileRow = 0, Palette = 3, Priority = true, FlipX = true, FlipY = true }).ToArray();
             using (var output = File.Create(path)) PauseWireframePresentation.Write(output, document with { Frames = frames });
             var edited = AreaMapPresentationCatalog.Load(stock, overrides);
             AssertTrue(original.ContentIdentity != edited.ContentIdentity, "independent wireframe edit changes selected identity");
@@ -117,7 +117,7 @@ internal static class PauseWireframesVerification
         var invalidFrames = document.Frames.ToDictionary(pair => pair.Key, pair => pair.Value.ToArray());
         invalidFrames[nameof(PauseWireframeKind.PowerSuit)] = []; Reject(document with { Frames = invalidFrames });
         invalidFrames[nameof(PauseWireframeKind.PowerSuit)] = document.Frames[nameof(PauseWireframeKind.PowerSuit)].ToArray();
-        foreach (var invalid in new[] { document.Frames[nameof(PauseWireframeKind.PowerSuit)][0] with { Atlas = "Other" },
+        foreach (var invalid in new[] { document.Frames[nameof(PauseWireframeKind.PowerSuit)][0] with { Atlas = (PauseAtlas)byte.MaxValue },
             document.Frames[nameof(PauseWireframeKind.PowerSuit)][0] with { TileRow = 8 },
             document.Frames[nameof(PauseWireframeKind.PowerSuit)][0] with { Palette = 8 } })
         { invalidFrames[nameof(PauseWireframeKind.PowerSuit)][0] = invalid; Reject(document with { Frames = invalidFrames }); }

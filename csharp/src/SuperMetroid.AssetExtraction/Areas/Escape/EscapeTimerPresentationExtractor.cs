@@ -38,10 +38,10 @@ public static class EscapeTimerPresentationExtractor
             DigitSpacing = 8,
             Anchors = new(StringComparer.Ordinal)
             {
-                ["Label"] = new(0, 0),
-                ["Minutes"] = new(-28, 0),
-                ["Seconds"] = new(-4, 0),
-                ["Centiseconds"] = new(20, 0),
+                [EscapeTimerPresentationDefinitions.AnchorName(EscapeTimerAnchor.Label)] = new(0, 0),
+                [EscapeTimerPresentationDefinitions.AnchorName(EscapeTimerAnchor.Minutes)] = new(-28, 0),
+                [EscapeTimerPresentationDefinitions.AnchorName(EscapeTimerAnchor.Seconds)] = new(-4, 0),
+                [EscapeTimerPresentationDefinitions.AnchorName(EscapeTimerAnchor.Centiseconds)] = new(20, 0),
             },
             Frames = frames,
         });

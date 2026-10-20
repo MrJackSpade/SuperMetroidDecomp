@@ -55,38 +55,49 @@ public static class PauseReserveUiDefinitions
     /// <summary>$82:BF14-BF20 selects RESERVE TANK at tiles $80-86, palette seven and priority.</summary>
     private const int ReserveTankGlyph = 0x80;
 
-    /// <summary>MODE and RESERVE TANK occupy seven cells; MANUAL and AUTO occupy four replacement cells.</summary>
-    internal static int StockLabelWords(string name) => name switch
+    /// <summary>Every reserve label, in document order.</summary>
+    public static IReadOnlyList<PauseReserveLabel> Labels { get; } = Enum.GetValues<PauseReserveLabel>();
+
+    /// <summary>The JSON key of a reserve label.</summary>
+    public static string Name(PauseReserveLabel label) => label switch
     {
-        "Mode" or "ReserveTank" => LabelWords,
-        "Manual" or "Auto" => ModeWords,
-        _ => throw new ArgumentOutOfRangeException(nameof(name)),
+        PauseReserveLabel.Mode => "Mode",
+        PauseReserveLabel.ReserveTank => "ReserveTank",
+        PauseReserveLabel.Manual => "Manual",
+        PauseReserveLabel.Auto => "Auto",
+        _ => throw new ArgumentOutOfRangeException(nameof(label)),
+    };
+
+    /// <summary>MODE and RESERVE TANK occupy seven cells; MANUAL and AUTO occupy four replacement cells.</summary>
+    internal static int StockLabelWords(PauseReserveLabel label) => label switch
+    {
+        PauseReserveLabel.Mode or PauseReserveLabel.ReserveTank => LabelWords,
+        PauseReserveLabel.Manual or PauseReserveLabel.Auto => ModeWords,
+        _ => throw new ArgumentOutOfRangeException(nameof(label)),
     };
 
     /// <summary>$82:C068/C06A places the seven-word labels on consecutive rows; replacement modes follow MODE.</summary>
-    internal static int StockLabelOffset(string name) => sizeof(ushort) * (name switch
+    internal static int StockLabelOffset(PauseReserveLabel label) => sizeof(ushort) * (label switch
     {
-        "Mode" => ModeCell - ModePrefixWords,
-        "ReserveTank" => ModeCell - ModePrefixWords + TilemapColumns,
-        "Manual" or "Auto" => ModeCell,
-        _ => throw new ArgumentOutOfRangeException(nameof(name)),
+        PauseReserveLabel.Mode => ModeCell - ModePrefixWords,
+        PauseReserveLabel.ReserveTank => ModeCell - ModePrefixWords + TilemapColumns,
+        PauseReserveLabel.Manual or PauseReserveLabel.Auto => ModeCell,
+        _ => throw new ArgumentOutOfRangeException(nameof(label)),
     });
 
     /// <summary>Compose reserve text from named consecutive glyph runs. Independent glyph pixels remain artwork.</summary>
-    internal static ushort StockLabelWord(string name, int index)
+    internal static ushort StockLabelWord(PauseReserveLabel label, int index)
     {
-        if ((uint)index >= StockLabelWords(name)) throw new ArgumentOutOfRangeException(nameof(index));
-        if (name == "Mode")
-            return index < ModePrefixWords ? Word(ModeGlyph + index, 1)
-                : Word(ManualGlyph + index - ModePrefixWords, 7);
-        int first = name switch
+        if ((uint)index >= StockLabelWords(label)) throw new ArgumentOutOfRangeException(nameof(index));
+        return label switch
         {
-            "ReserveTank" => ReserveTankGlyph,
-            "Manual" => ManualGlyph,
-            "Auto" => AutoGlyph,
-            _ => throw new ArgumentOutOfRangeException(nameof(name)),
+            PauseReserveLabel.Mode => index < ModePrefixWords ? Word(ModeGlyph + index, 1)
+                : Word(ManualGlyph + index - ModePrefixWords, 7),
+            PauseReserveLabel.ReserveTank => Word(ReserveTankGlyph + index, 7),
+            PauseReserveLabel.Manual => Word(ManualGlyph + index, 7),
+            PauseReserveLabel.Auto => Word(AutoGlyph + index, 7),
+            _ => throw new ArgumentOutOfRangeException(nameof(label)),
         };
-        return Word(first + index, 7);
     }
 
     /// <summary>Combines a reserve UI character index with native priority and BG palette bits.</summary>

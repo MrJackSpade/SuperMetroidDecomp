@@ -70,10 +70,10 @@ internal sealed class LowPercentIntroReplayChecks
     /// <summary>Checks the port intro phase and Samus milestone after an intro update.</summary>
     internal IEnumerable<string> Compare(SuperMetroidGame game, int update)
     {
-        if (game.GameState != SuperMetroidGameState.IntroCinematic || game.Session.intro is not { } intro)
+        if (game.GameState != SuperMetroidGameState.IntroCinematic || game.Session.ScreenAs<IntroCinematicState>() is not { } intro)
             return [];
         string phase = intro.Phase.ToString();
-        if (intro.ceresFlight is { } flight)
+        if (intro.CurrentCeresFlight is { } flight)
             phase += "/" + flight.Phase;
         var mismatches = new List<string>();
         if (phases.TryGetValue(update, out var expected))
@@ -91,8 +91,8 @@ internal sealed class LowPercentIntroReplayChecks
     /// <summary>Native Samus values the 13% capture records at intro updates owned by one fix each.</summary>
     private static void CheckSamusMilestone(IntroCinematicState intro, int update)
     {
-        SamusState? flashback = intro.flashbackSamus;
-        SamusState? discovery = intro.babyDiscovery is { } scene
+        SamusState? flashback = intro.CurrentFlashbackSamus;
+        SamusState? discovery = intro.CurrentBabyDiscovery is { } scene
             ? scene.Samus : null;
         switch (update)
         {

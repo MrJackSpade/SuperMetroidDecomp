@@ -16,7 +16,7 @@ namespace SuperMetroid.Core.Samus.Drawing;
 public sealed class SamusArmCannonState
 {
     /// <summary>Previous HUD selection used to delay cover transitions until the choice stabilizes.</summary>
-    internal HudItem PreviousSelectedHudItem;
+    internal HudItem PreviousSelectedHudItem { get; set; }
 
     /// <summary>Host-owned visual data; rebound after a restored debugger state.</summary>
     [field: NonSerialized]

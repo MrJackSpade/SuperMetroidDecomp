@@ -9,11 +9,10 @@ namespace SuperMetroid.Core.Frontend.Menus.Artwork;
 internal sealed class MenuCursorParts(int frame) : IReadOnlyList<CompiledSpritePart>
 {
     /// <summary>Uses the native two-part missile geometry only for the four stock cursor identities; other or edited compositions retain their supplied layout.</summary>
-    internal static SpriteComposition CalculateIfMatching(string name, SpriteComposition supplied)
+    internal static SpriteComposition CalculateIfMatching(int frame, SpriteComposition supplied)
     {
-        if (name is not ("Cursor.0" or "Cursor.1" or "Cursor.2" or "Cursor.3") || supplied.PartCount != 2)
+        if (supplied.PartCount != 2)
             return supplied;
-        int frame = name[^1] - '0';
         return supplied.CalculateIfMatching(new MenuCursorParts(MenuMissileAnimationDefinitions.SpritemapId(frame) - FirstNativeSpritemap));
     }
 

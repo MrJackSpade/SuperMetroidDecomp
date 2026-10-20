@@ -139,9 +139,9 @@ internal static class CeresDestructionArtworkVerification
             "Zebes placement fixture reaches the planet reveal");
         AssertEqual(stockReveal.Phase, movedReveal.Phase,
             "visual placement edit preserves cinematic handoff timing");
-        var stockPlanet = stockReveal.zebesPlanetActor ??
+        var stockPlanet = stockReveal.ZebesPlanetActor ??
             throw new InvalidOperationException("Stock Zebes planet actor did not spawn.");
-        var editedPlanet = movedReveal.zebesPlanetActor ??
+        var editedPlanet = movedReveal.ZebesPlanetActor ??
             throw new InvalidOperationException("Edited Zebes planet actor did not spawn.");
         AssertEqual(unchecked((ushort)(stockPlanet.WholePosition.X + 16)), editedPlanet.WholePosition.X,
             "edited scene position moves the actual planet actor by one tile");

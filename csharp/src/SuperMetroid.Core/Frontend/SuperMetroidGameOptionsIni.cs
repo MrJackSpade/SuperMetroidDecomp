@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Map;
 
@@ -26,6 +27,8 @@ public static class SuperMetroidGameOptionsIni
     }
 
     /// <summary>Parses the supported INI surface and rejects misspelled or ambiguous keys.</summary>
+    [SuppressMessage("Design", "SME6433", Justification =
+        "The renderer value is player-authored INI text; this switch is the codec that turns it into RendererSelection, so the strings are the file format, not an internal identity.")]
     public static SuperMetroidGameOptions Parse(
         string contents,
         string sourceName = "SuperMetroid.ini")

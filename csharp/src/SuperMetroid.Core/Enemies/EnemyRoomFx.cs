@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Enemies;
 internal sealed class EnemyRoomFx
 {
     /// <summary>Current room's layer-3 FX owner; excluded from serialized enemy state and rebound after restoration.</summary>
-    [NonSerialized] internal RoomLayer3FxState? Layer3Fx;
+    [field: NonSerialized] internal RoomLayer3FxState? Layer3Fx { get; private set; }
 
     /// <summary>
     /// Binds shared FX words before gameplay and after debugger restoration. Isolated

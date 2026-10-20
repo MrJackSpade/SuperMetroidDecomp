@@ -145,7 +145,7 @@ internal static class CeresFlightArtworkVerification
             // this nested flight directly. Exercise that real handoff here.
             var parent = CreateRetailIntroFixture(characterArtwork: IntroCinematicArtworkFiles.Load(
                     installation.IntroCinematicDirectory, null));
-            parent.ceresFlight = restored;
+            parent.CurrentCeresFlight = restored;
             parent.BindCharacterArtwork(installation.LoadIntroCinematicArt());
             AssertTrue(restored.CaptureRenderSnapshot().Memory.Vram.SequenceEqual(
                     ExpectedCeresFlightVram(edited, rear: true)),
@@ -234,9 +234,9 @@ internal static class CeresFlightArtworkVerification
             "Ceres actor-layout fixture reaches the rear-view handoff");
         AssertEqual(original.Phase, changed.Phase,
             "edited rear-view position preserves cinematic phase timing");
-        var nativeActors = original.rearViewActors ??
+        var nativeActors = original.RearViewActors ??
             throw new InvalidOperationException("Stock Ceres rear-view actors did not spawn.");
-        var editedActors = changed.rearViewActors ??
+        var editedActors = changed.RearViewActors ??
             throw new InvalidOperationException("Edited Ceres rear-view actors did not spawn.");
         AssertEqual(unchecked((ushort)(nativeActors[0].WholePosition.X + 16)),
             editedActors[0].WholePosition.X,

@@ -84,9 +84,7 @@ internal sealed class GameplayGamePhases(FrontendSession session)
             session.GameState = SuperMetroidGameState.HitDoorBlock;
         if (session.GameplayRuntime.ConsumeTimeUpRequest())
             BeginTimeUp();
-        session.pauseBrightness = session.screenFade.Darken(session.pauseBrightness);
-        session.ApplyDisplayBrightness(session.pauseBrightness);
-        if (session.pauseBrightness == 0)
+        if (session.StepScreenFadeOut() == 0)
         {
             // $82:8CEA increments the state written by gameplay, including a
             // door hit on this final fade frame ($09 becomes $0A).
@@ -101,9 +99,7 @@ internal sealed class GameplayGamePhases(FrontendSession session)
         // `$82:93A4` runs the whole state-eight routine behind the INIDISP fade, so
         // its out-of-health, pause, door and other publications all apply here.
         RunMainGameplayState(controllerInput, gameplayAudio);
-        session.pauseBrightness = session.screenFade.Brighten(session.pauseBrightness);
-        session.ApplyDisplayBrightness(session.pauseBrightness);
-        if (session.pauseBrightness == PauseFadeTiming.FullyLit)
+        if (session.StepScreenFadeIn() == PauseFadeTiming.FullyLit)
         {
             // $82:93BB explicitly restores state eight on the terminal frame.
             session.screenFade.Clear();
@@ -123,7 +119,7 @@ internal sealed class GameplayGamePhases(FrontendSession session)
             // GameState_33 saves the live area-six/station-zero slot only after
             // INIDISP reaches forced blank. This is the durable post-Ridley Ceres
             // checkpoint the retail loader later replaces with Zebes arrival.
-            AutomaticCheckpointSaver.SaveCeresDeparture(session.saves, session.GameplayRuntime, session.selectedSaveSlot);
+            AutomaticCheckpointSaver.SaveCeresDeparture(session.saves, session.GameplayRuntime, session.SelectedSaveSlot);
             session.RaiseSaveRamChanged();
             session.GameplayRuntime.EnemySession.CeresStatus = CeresEscapeStatus.RidleyNotEscaped;
             session.GameplayRuntime.EscapeTimer.Clear();
@@ -132,9 +128,9 @@ internal sealed class GameplayGamePhases(FrontendSession session)
             session.audio.QueueSound(SoundEffectLibrary1Sounds.CancelAll, maximumQueued: 15);
             session.audio.QueueSound(SoundEffectLibrary2Sounds.CancelAll, maximumQueued: 15);
             session.audio.QueueSound(SoundEffectLibrary3Sounds.CancelAll, maximumQueued: 15);
-            session.ceresDestruction = new CeresDestructionCinematicState(
+            session.Show(new CeresDestructionCinematicState(
                 session.audio, session.Artwork.MapPresentation?.PowerBombFixedColors,
-                session.Artwork.IntroCinematicArt, session.Artwork.MapPresentation?.RoomPaletteFx);
+                session.Artwork.IntroCinematicArt, session.Artwork.MapPresentation?.RoomPaletteFx));
             session.GameState = SuperMetroidGameState.CeresGoesBoom;
             session.display.PublishBlack();
         }
@@ -146,7 +142,7 @@ internal sealed class GameplayGamePhases(FrontendSession session)
         // `$82:8411` runs the whole state-eight routine, then advances every palette
         // toward the white target with denominator eight.
         RunMainGameplayState(controllerInput, gameplayAudio);
-        if ((session.timeUpPaletteFade ?? throw new InvalidOperationException(
+        if ((session.TimeUpPaletteFade ?? throw new InvalidOperationException(
                 "Time-up white-out started without its target palette.")).Step(session.GameplayRuntime.Cgram))
         {
             session.GameState = SuperMetroidGameState.WhitingOutFromTimeUp;
@@ -165,13 +161,8 @@ internal sealed class GameplayGamePhases(FrontendSession session)
         session.display.PublishGameplay(session.GameplayRuntime);
         // HandleFadingOut ($80:8924) reloads the counter from ScreenFadeDelay, which
         // $A2:AD26 zeroed, so the brightness falls one step on every call.
-        if (session.endingFadeCounter-- <= 0)
-        {
-            session.endingFadeCounter = 0;
-            session.endingFadeBrightness = Math.Max(0, session.endingFadeBrightness - 1);
-        }
-        session.ApplyDisplayBrightness(session.endingFadeBrightness);
-        if (session.endingFadeBrightness == 0)
+        session.ApplyDisplayBrightness(session.EscapeFade.Darken());
+        if (session.EscapeFade.Brightness == 0)
         {
             // $82:84D3-$8527 resets PPU ownership, stops the escape timer/music,
             // cancels all three SFX libraries, and publishes state $27. The new
@@ -183,22 +174,22 @@ internal sealed class GameplayGamePhases(FrontendSession session)
             SamusState endingSamus = session.GameplayRuntime.Player.Samus ??
                 throw new InvalidOperationException(
                     "Ending inventory calculation requires the live Samus state.");
-            session.endingCredits = new EndingCreditsState(session.audio, new EndingCreditsSetup { GameTimeHours = session.ConfiguredOptions.EndingTimeOverrideMinutes is { } endingMinutes ? (ushort)(endingMinutes / 60) : session.GameplayRuntime.GameTime.Hours, GameTimeMinutes = session.ConfiguredOptions.EndingTimeOverrideMinutes is { } totalMinutes ? (ushort)(totalMinutes % 60) : session.GameplayRuntime.GameTime.Minutes, Inventory = new EndingInventorySnapshot(
+            session.Show(new EndingCreditsState(session.audio, new EndingCreditsSetup { GameTimeHours = session.ConfiguredOptions.EndingTimeOverrideMinutes is { } endingMinutes ? (ushort)(endingMinutes / 60) : session.GameplayRuntime.GameTime.Hours, GameTimeMinutes = session.ConfiguredOptions.EndingTimeOverrideMinutes is { } totalMinutes ? (ushort)(totalMinutes % 60) : session.GameplayRuntime.GameTime.Minutes, Inventory = new EndingInventorySnapshot(
                     endingSamus.MaxHealth,
                     endingSamus.MaxReserveEnergy,
                     endingSamus.MaxMissiles,
                     endingSamus.MaxSuperMissiles,
                     endingSamus.MaxPowerBombs,
                     endingSamus.CollectedItems,
-                    endingSamus.CollectedBeams), JapaneseText = session.GameplayRuntime.JapaneseText, CrittersEscaped = session.GameplayRuntime.System.HasEvent(EventNumber.CrittersEscaped) });
-            session.endingCredits.BindEndingText(session.Artwork.MapPresentation?.EndingText);
-            session.endingCredits.BindFlightArtwork(session.Artwork.IntroCinematicArt?.CeresFlight);
-            session.endingCredits.BindMode7Artwork(session.Artwork.EndingMode7Art);
-            session.endingCredits.BindObjectArtwork(session.Artwork.EndingObjectArt);
-            session.endingCredits.BindPaletteArtwork(session.Artwork.EndingPaletteArt);
-            session.endingCredits.BindPaletteFxColors(session.Artwork.MapPresentation?.RoomPaletteFx);
-            session.endingCredits.BindEndingFont(session.Artwork.MapPresentation?.EndingFont);
-            session.endingCredits.BindStaffCredits(session.Artwork.MapPresentation?.StaffCredits);
+                    endingSamus.CollectedBeams), JapaneseText = session.GameplayRuntime.JapaneseText, CrittersEscaped = session.GameplayRuntime.System.HasEvent(EventNumber.CrittersEscaped) }));
+            session.ActiveEndingCredits.BindEndingText(session.Artwork.MapPresentation?.EndingText);
+            session.ActiveEndingCredits.BindFlightArtwork(session.Artwork.IntroCinematicArt?.CeresFlight);
+            session.ActiveEndingCredits.BindMode7Artwork(session.Artwork.EndingMode7Art);
+            session.ActiveEndingCredits.BindObjectArtwork(session.Artwork.EndingObjectArt);
+            session.ActiveEndingCredits.BindPaletteArtwork(session.Artwork.EndingPaletteArt);
+            session.ActiveEndingCredits.BindPaletteFxColors(session.Artwork.MapPresentation?.RoomPaletteFx);
+            session.ActiveEndingCredits.BindEndingFont(session.Artwork.MapPresentation?.EndingFont);
+            session.ActiveEndingCredits.BindStaffCredits(session.Artwork.MapPresentation?.StaffCredits);
             session.GameState = SuperMetroidGameState.EndingAndCredits;
             session.display.PublishBlack();
         }
@@ -210,7 +201,7 @@ internal sealed class GameplayGamePhases(FrontendSession session)
         bool messageBoxOwnedFrame,
         bool samusInputLockedAtFrameStart)
     {
-        if (session.runtime?.Player.Samus is not SamusState samus || session.runtime.Room.ActiveRoom is null)
+        if (session.Runtime?.Player.Samus is not SamusState samus || session.Runtime.Room.ActiveRoom is null)
             return false;
 
         // `$90:EA45` only runs from SamusNewStateHandler_Normal. Station command six
@@ -220,14 +211,14 @@ internal sealed class GameplayGamePhases(FrontendSession session)
         // replacement; the remaining clauses are the predicate inside EA45 itself.
         return session.GameState == SuperMetroidGameState.MainGameplay &&
                !messageBoxOwnedFrame &&
-               !session.runtime.MessageBox.IsActive &&
+               !session.Runtime.MessageBox.IsActive &&
                !samusInputLockedAtFrameStart &&
                !samus.Control.AlphaLocked &&
-               session.runtime.PowerBombExplosionStatus == 0 &&
+               session.Runtime.PowerBombExplosionStatus == 0 &&
                !samus.Xray.TimeIsFrozen &&
-               !session.runtime.RoomLoader.HasPendingDoorTransition &&
-               session.runtime.Room.ActiveRoom.AreaIndex != AreaId.Ceres &&
-               (session.runtime.Controller1.NewlyPressed & SnesButton.Start) != 0;
+               !session.Runtime.RoomLoader.HasPendingDoorTransition &&
+               session.Runtime.Room.ActiveRoom.AreaIndex != AreaId.Ceres &&
+               (session.Runtime.Controller1.NewlyPressed & SnesButton.Start) != 0;
     }
 
     /// <summary>
@@ -275,7 +266,7 @@ internal sealed class GameplayGamePhases(FrontendSession session)
             // Bank $85's message-close return explicitly selects state $0C
             // for map acquisition, independently of Start or station input lock.
             // Keep this separate from admission of a manual pause request.
-            session.pauseMenu = null;
+            session.Close<PauseMenuState>();
             session.GameState = SuperMetroidGameState.PausingDarkening;
         }
         else if (CanEnterPause(messageBoxOwnedFrame, samusInputLockedAtFrameStart))
@@ -284,7 +275,7 @@ internal sealed class GameplayGamePhases(FrontendSession session)
             // state-eight frame. It initializes both fade counters and publishes
             // state $0C; the following dispatcher call consumes the first delay.
             session.screenFade.Reload();
-            session.pauseMenu = null;
+            session.Close<PauseMenuState>();
             session.GameState = SuperMetroidGameState.PausingDarkening;
         }
         else if (session.GameplayRuntime.RoomMains.LastCeresElevatorShaftRoomMain.DepartureRequestedThisFrame)
@@ -310,10 +301,10 @@ internal sealed class GameplayGamePhases(FrontendSession session)
     /// <summary>Freezes gameplay and enters reserve recovery or death after Samus reaches zero health.</summary>
     private bool RouteOutOfHealth()
     {
-        if (session.runtime?.Player.Samus is not SamusState samus || samus.Health > 0)
+        if (session.Runtime?.Player.Samus is not SamusState samus || samus.Health > 0)
             return false;
 
-        session.runtime.Freeze.GameplayTimeFrozen = true;
+        session.Runtime.Freeze.GameplayTimeFrozen = true;
         if (samus.ReserveTankMode == ReserveTankMode.Auto && samus.ReserveEnergy != 0)
         {
             session.reserveRecovery.Begin(samus);
@@ -336,26 +327,26 @@ internal sealed class GameplayGamePhases(FrontendSession session)
     /// </summary>
     private void BeginTimeUp()
     {
-        if (session.runtime is null)
+        if (session.Runtime is null)
             throw new InvalidOperationException("Time-up requires a gameplay runtime.");
         var white = new Bgr555[CgramPalettes.ColorCount];
         Array.Fill(white, TimeUpRomData.WhiteColor);
-        session.timeUpPaletteFade = new CartridgePaletteTransition(white, TimeUpRomData.WhiteOutDenominator,
-            session.runtime.EnemySession.GradualColorChange);
+        session.BeginTimeUpPaletteFade(new CartridgePaletteTransition(white, TimeUpRomData.WhiteOutDenominator,
+            session.Runtime.EnemySession.GradualColorChange));
         session.GameState = SuperMetroidGameState.TimeUp;
     }
 
     /// <summary>Consumes a confirmed station save and writes the selected SRAM slot.</summary>
     private void HandleSaveStationPersistence()
     {
-        if (session.runtime?.MessageBoxes.ConsumeSaveStationPersistenceRequest() is not { } request)
+        if (session.Runtime?.MessageBoxes.ConsumeSaveStationPersistenceRequest() is not { } request)
             return;
-        SamusState samus = session.runtime.Player.Samus
+        SamusState samus = session.Runtime.Player.Samus
             ?? throw new InvalidOperationException(
                 "A confirmed save station has no live Samus state.");
         session.saves.SaveSlot(
-            session.selectedSaveSlot,
-            SuperMetroidSaveSnapshot.Capture(samus, session.runtime.System, new SaveSnapshotContext { Area = request.AreaIndex, SaveStation = request.StationIndex, GameTime = session.runtime.GameTime, ControllerBindings = session.runtime.Options.ControllerBindings, MoonwalkEnabled = session.runtime.Options.MoonwalkEnabled, IconCancelEnabled = session.runtime.Options.IconCancelEnabled, JapaneseText = session.runtime.JapaneseText }));
+            session.SelectedSaveSlot,
+            SuperMetroidSaveSnapshot.Capture(samus, session.Runtime.System, new SaveSnapshotContext { Area = request.AreaIndex, SaveStation = request.StationIndex, GameTime = session.Runtime.GameTime, ControllerBindings = session.Runtime.Options.ControllerBindings, MoonwalkEnabled = session.Runtime.Options.MoonwalkEnabled, IconCancelEnabled = session.Runtime.Options.IconCancelEnabled, JapaneseText = session.Runtime.JapaneseText }));
         session.RaiseSaveRamChanged();
     }
 }

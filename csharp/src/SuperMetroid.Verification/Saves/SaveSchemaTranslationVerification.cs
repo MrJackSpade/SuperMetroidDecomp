@@ -127,8 +127,8 @@ internal static class SaveSchemaTranslationVerification
         ending.BindPaletteFxColors(SuperMetroid.Core.Fx.Artwork.RoomPaletteFxPresentation.Load(new MemoryStream(
             SuperMetroid.AssetExtraction.Fx.RoomPaletteFxPresentationExtractor.Extract(native), writable: false)));
         ending.Phase = EndingCreditsPhase.ItemPercentageScrollDown;
-        ending.phaseTimer = 1;
-        frontend.Session.endingCredits = ending;
+        ending.PhaseTimer = 1;
+        frontend.Session.Show(ending);
         frontend.GameState = SuperMetroidGameState.EndingAndCredits;
         int writes = 0;
         frontend.SaveRamChanged += () => writes++;

@@ -53,9 +53,9 @@ internal static class GenericSpriteArtworkVerification
         foreach (ushort y in new ushort[] { 0, 1, 223, 255, ushort.MaxValue })
         foreach (ushort palette in new ushort[] { 0, 0x0e00 })
         {
-            title.activeSprite = frame.Sprite;
-            title.activeOrigin = new(x, y);
-            title.activeObjectPalette = palette;
+            title.ActiveSprite = frame.Sprite;
+            title.ActiveOrigin = new(x, y);
+            title.ActiveObjectPalette = palette;
             title.PrepareRenderSprites();
             expected = new OamBuffer(); expected.BeginFrame();
             DrawImportedSpritemap(reference, expected,
@@ -64,7 +64,7 @@ internal static class GenericSpriteArtworkVerification
             EqualSprites(expected, title.objects, "title composition/coordinate/palette parity");
             titleCases++;
         }
-        title.activeSprite = null;
+        title.ActiveSprite = null;
         title.Phase = TitleSequencePhase.TitleScreen;
         title.PrepareRenderSprites();
         expected = new OamBuffer(); expected.BeginFrame();
@@ -87,7 +87,7 @@ internal static class GenericSpriteArtworkVerification
             ProjectileFrameBindings = projectiles.FrameBindings,
         };
         intro.SetupFirstIllustratedPage();
-        var caret = intro.objects;
+        var caret = intro.CurrentObjects;
         (caret ?? throw new InvalidOperationException("Verification requires caret.")).Step(0);
         PlacedSpritePart[] actualParts = PlacedSpritePart.Of(intro.PrepareIllustratedPageSprites().Draws);
         expected = new OamBuffer();
@@ -99,12 +99,12 @@ internal static class GenericSpriteArtworkVerification
         EqualParts(PlacedSpritePart.OfOamObjects(expected, MenuRenderDefinitions.ObjectSelection, new SpriteArtworkId(SpriteArtworkKind.IntroObjects)), actualParts, "illustrated-page caret owner parity");
 
         intro.SetupMotherBrainFlashback();
-        var motherBrain = intro.flashbackMotherBrain;
+        var motherBrain = intro.CurrentFlashbackMotherBrain;
         (motherBrain ?? throw new InvalidOperationException("Verification requires motherBrain.")).Step();
         actualParts = PlacedSpritePart.Of(intro.PrepareMotherBrainSprites().Draws);
         var expectedFrame = new SpriteFrameBuffer();
         expectedFrame.BeginFrame();
-        (intro.flashbackSamus ?? throw new InvalidOperationException("Verification requires intro.flashbackSamus.")).Presentation.Draw(expectedFrame, new(0, 0), 0);
+        (intro.CurrentFlashbackSamus ?? throw new InvalidOperationException("Verification requires intro.flashbackSamus.")).Presentation.Draw(expectedFrame, new(0, 0), 0);
         var motherBrainOam = new OamBuffer();
         motherBrainOam.BeginFrame();
         DrawImportedSpritemap(reference, motherBrainOam,

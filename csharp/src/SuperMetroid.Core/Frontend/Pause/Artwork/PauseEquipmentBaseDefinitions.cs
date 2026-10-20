@@ -119,8 +119,8 @@ public static class PauseEquipmentBaseDefinitions
     /// <summary>Frames the reserve-mode and tank labels with two-cell left padding and centered title.</summary>
     private static PanelShape SupplyPanel()
     {
-        int label = PauseReserveUiDefinitions.StockLabelOffset("Mode") / sizeof(ushort);
-        int last = PauseReserveUiDefinitions.StockLabelOffset("ReserveTank") / sizeof(ushort);
+        int label = PauseReserveUiDefinitions.StockLabelOffset(PauseReserveLabel.Mode) / sizeof(ushort);
+        int last = PauseReserveUiDefinitions.StockLabelOffset(PauseReserveLabel.ReserveTank) / sizeof(ushort);
         int left = label % Columns - 2, right = label % Columns + PauseReserveUiDefinitions.LabelWords;
         const int titleWidth = 4;
         return new(left, label / Columns - 1, right, last / Columns + 2,
@@ -130,8 +130,8 @@ public static class PauseEquipmentBaseDefinitions
     private static PanelShape InventoryPanel(PauseEquipmentCategory category, int firstItem, int lastItem,
         int titleWidth, int titleGlyph, int titlePalette)
     {
-        int first = PauseEquipmentLabelDefinitions.StockDestinationByte(PauseEquipmentLabelDefinitions.Key(category, firstItem)) / sizeof(ushort);
-        int last = PauseEquipmentLabelDefinitions.StockDestinationByte(PauseEquipmentLabelDefinitions.Key(category, lastItem)) / sizeof(ushort);
+        int first = PauseEquipmentLabelDefinitions.StockDestinationByte(PauseEquipmentLabelDefinitions.Label(category, firstItem)) / sizeof(ushort);
+        int last = PauseEquipmentLabelDefinitions.StockDestinationByte(PauseEquipmentLabelDefinitions.Label(category, lastItem)) / sizeof(ushort);
         int left = first % Columns - 1, right = first % Columns + PauseEquipmentLabelDefinitions.WordCount(category);
         return new(left, first / Columns - 1, right, last / Columns + 1,
             (left + right - titleWidth + 1) / 2, titleWidth, titleGlyph, titlePalette, true);
@@ -145,10 +145,10 @@ public static class PauseEquipmentBaseDefinitions
         int row = cell / Columns, column = cell % Columns;
         foreach (var label in PauseEquipmentLabelDefinitions.Labels())
         {
-            int first = PauseEquipmentLabelDefinitions.StockDestinationByte(label.Key) / sizeof(ushort);
+            int first = PauseEquipmentLabelDefinitions.StockDestinationByte(label.Label) / sizeof(ushort);
             int index = cell - first;
-            if ((uint)index >= PauseEquipmentLabelDefinitions.StockWordCount(label.Key)) continue;
-            ushort word = PauseEquipmentLabelDefinitions.StockWord(label.Key, index);
+            if ((uint)index >= PauseEquipmentLabelDefinitions.StockWordCount(label.Label)) continue;
+            ushort word = PauseEquipmentLabelDefinitions.StockWord(label.Label, index);
             bool grayTemplate = label.Category == PauseEquipmentCategory.Boots ||
                 (label.Category == PauseEquipmentCategory.Suits && label.Item < 2);
             return grayTemplate ? (ushort)((word & ~0x1c00) | PauseEquipmentLabelDefinitions.DisabledPalette << 10) : word;

@@ -815,7 +815,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         SporeSpawnDropRequests.Clear();
     }
     /// <summary>Single active boss state, absent outside a room containing Spore Spawn.</summary>
-    internal SporeSpawnEnemyState? SporeSpawn;
+    internal SporeSpawnEnemyState? SporeSpawn { get; set; }
 
     /// <summary>Publishes Spore Spawn's pending target palette writes, if the boss is present.</summary>
     internal void ConsumeTargetColors(Action<int, Bgr555> write) => SporeSpawn?.ConsumeTargetColors(write);

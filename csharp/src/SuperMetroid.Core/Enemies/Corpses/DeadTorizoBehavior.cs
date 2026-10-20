@@ -43,9 +43,9 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Native corpse and sand DMA records produced during the current enemy update.</summary>
     internal readonly List<VramWriteEntry> DeadTorizoFrameVramTransfers = [];
     /// <summary>Single corpse state owned by enemy slot zero in the loaded room.</summary>
-    internal DeadTorizoEnemyState? DeadTorizo;
+    internal DeadTorizoEnemyState? DeadTorizo { get; private set; }
     /// <summary>Slot zero's typed corpse pose (#641), started before the corpse state exists.</summary>
-    internal AnimationProgramCursor<DeadTorizoProgram> DeadTorizoProgram;
+    private AnimationProgramCursor<DeadTorizoProgram> program;
 
     /// <summary>The dust sound requested by a completed corpse row this frame, or null.</summary>
     public SoundEffectId? LastDeadTorizoSoundEffect { get; private set; }
@@ -63,7 +63,7 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
 
         slot.Properties = slot.Properties.With(
             EnemyProperties.SolidToSamus | EnemyProperties.ProcessInstructions);
-        DeadTorizoProgram = AnimationProgramCursor<DeadTorizoProgram>.Start(Corpses.DeadTorizoProgram.Stationary);
+        program = AnimationProgramCursor<DeadTorizoProgram>.Start(Corpses.DeadTorizoProgram.Stationary);
         slot.InstructionTimer = NativeCountdown.Start(1);
         slot.Timer = NativeCountdown.Start(0);
         slot.PaletteIndex = EnemyPaletteBits.Palette1;
@@ -418,7 +418,7 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         if (!EnemyProgramAnimation.Expire(slot))
             return;
-        EnemyProgramAnimation.Run(slot, DeadTorizoAnimations.Programs, ref DeadTorizoProgram, DeadTorizoFrameDefinitions.ShownFrames.Of);
+        EnemyProgramAnimation.Run(slot, DeadTorizoAnimations.Programs, ref program, DeadTorizoFrameDefinitions.ShownFrames.Of);
     }
 
     /// <summary>Ports DeadTorizo's main AI.</summary>

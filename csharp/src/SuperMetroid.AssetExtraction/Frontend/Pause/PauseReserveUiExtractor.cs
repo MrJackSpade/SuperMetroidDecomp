@@ -17,10 +17,10 @@ public static class PauseReserveUiExtractor
     {
         var labels = new Dictionary<string, PauseReserveLabelVisual>
         {
-            ["Mode"] = Label(0, PauseReserveUiDefinitions.LabelWords),
-            ["ReserveTank"] = Label(1, PauseReserveUiDefinitions.LabelWords),
-            ["Manual"] = DirectLabel(PauseReserveUiDefinitions.ManualSource, PauseReserveUiDefinitions.ModeCell, PauseReserveUiDefinitions.ModeWords),
-            ["Auto"] = DirectLabel(PauseReserveUiDefinitions.AutoSource, PauseReserveUiDefinitions.ModeCell, PauseReserveUiDefinitions.ModeWords),
+            [PauseReserveUiDefinitions.Name(PauseReserveLabel.Mode)] = Label(0, PauseReserveUiDefinitions.LabelWords),
+            [PauseReserveUiDefinitions.Name(PauseReserveLabel.ReserveTank)] = Label(1, PauseReserveUiDefinitions.LabelWords),
+            [PauseReserveUiDefinitions.Name(PauseReserveLabel.Manual)] = DirectLabel(PauseReserveUiDefinitions.ManualSource, PauseReserveUiDefinitions.ModeCell, PauseReserveUiDefinitions.ModeWords),
+            [PauseReserveUiDefinitions.Name(PauseReserveLabel.Auto)] = DirectLabel(PauseReserveUiDefinitions.AutoSource, PauseReserveUiDefinitions.ModeCell, PauseReserveUiDefinitions.ModeWords),
         };
         var digits = new PauseReserveDigitVisual
         {

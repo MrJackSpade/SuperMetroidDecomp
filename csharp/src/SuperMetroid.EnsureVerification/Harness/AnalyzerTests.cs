@@ -445,6 +445,46 @@ internal static class AnalyzerTests
         VerifySnippet("static class P { static (byte R, byte G, byte B) Mix() => default; }", null, null, analyzer, assemblyName: "Other");
     }
 
+    /// <summary>Checks string dispatch, string identities, composed keys and exposed fields, with their near misses passing (#1377).</summary>
+    internal static void VerifyStringIdentityAnalyzer()
+    {
+        var analyzer = new StringIdentityAnalyzer();
+        void Expect(string source, string? id = null, string? message = null) =>
+            VerifySnippet(source, id, message, analyzer, assemblyName: StringIdentityAnalyzer.CheckedAssembly);
+
+        // SME6433: a switch on string constants, and a string member compared with a string constant.
+        Expect("static class F { static int Row(string page) => page switch { \"Main\" => 1, _ => 2 }; }",
+            StringIdentityAnalyzer.StringDispatchId, "This switch");
+        Expect("static class F { static int Row(string page) { switch (page) { case \"Main\": return 1; default: return 2; } } }",
+            StringIdentityAnalyzer.StringDispatchId);
+        Expect("sealed class Menu { internal string Page { get; } = \"\"; bool Main => Page == \"Main\"; }",
+            StringIdentityAnalyzer.StringDispatchId, "This comparison");
+        // An enum switch, and a local compared with a constant, pass.
+        Expect("enum Page { Main, Copy } static class F { static int Row(Page page) => page switch { Page.Main => 1, _ => 2 }; }");
+        Expect("static class F { static bool Empty(string text) => text == \"\" ; }");
+        // SME6434: a string member that only ever holds one type's string constants.
+        Expect("static class Pages { public const string Main = \"Main\"; public const string Copy = \"Copy\"; } " +
+            "sealed class Menu { private string page = Pages.Main; internal void Copy(bool any) => page = any ? Pages.Copy : Pages.Main; internal int Length => page.Length; }",
+            StringIdentityAnalyzer.StringIdentityFieldId, "'page' only ever holds string constants of 'Pages'");
+        // A member that also holds other text passes.
+        Expect("static class Pages { public const string Main = \"Main\"; } " +
+            "sealed class Menu { private string page = Pages.Main; internal void Name(string name) => page = name; internal int Length => page.Length; }");
+        // SME6435: a dictionary key formatted from integral or enum values.
+        Expect("using System.Collections.Generic; sealed class Art { private readonly Dictionary<string, int> parts = new(); internal int Cursor(int frame) => parts[$\"Cursor.{frame}\"]; }",
+            StringIdentityAnalyzer.ComposedKeyId);
+        // A key with a text hole, and a formatted message, pass.
+        Expect("using System.Collections.Generic; sealed class Art { private readonly Dictionary<string, int> parts = new(); internal int Border(string name) => parts[$\"Border.{name}\"]; }");
+        Expect("static class F { static string Describe(int frame) => $\"frame {frame}\"; }");
+        // SME6436: a non-private mutable instance field of a class.
+        Expect("sealed class Fade { internal int Brightness; }", StringIdentityAnalyzer.ExposedFieldId, "'Brightness' of 'Fade' is a mutable internal field");
+        // Private, readonly and static fields, struct fields and the fields of a privately nested class pass.
+        Expect("sealed class Fade { private int brightness; internal readonly int Step = 1; internal static int Count; internal int Level => brightness + Step + Count; }");
+        Expect("struct Fade { internal int Brightness; }");
+        Expect("sealed class Owner { private sealed class Scratch { internal int Word; } private readonly Scratch scratch = new(); internal int Word => scratch.Word; }");
+        // Other assemblies are not checked.
+        VerifySnippet("sealed class Fade { internal int Brightness; }", null, null, analyzer, assemblyName: "Other");
+    }
+
     /// <summary>Checks kind-tagged constructions and kind switches, with closed hierarchies passing (#1376).</summary>
     internal static void VerifyKindTaggedRecordAnalyzer()
     {

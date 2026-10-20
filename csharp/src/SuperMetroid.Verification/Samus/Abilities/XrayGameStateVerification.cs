@@ -43,7 +43,7 @@ internal static class XrayGameStateVerification
             samus.Missiles = samus.SuperMissiles = samus.PowerBombs = 0;
             var game = CreateRetailGameFixture(new SuperMetroid.Core.Saves.SaveSlotStore(), renderGameplayFrames: false, random: random);
             game.AdoptRuntime(runtime);
-            game.Session.lastAudioRoomState = runtime.Room.LoadedRoom.State;
+            game.Session.LastAudioRoomState = runtime.Room.LoadedRoom.State;
             game.GameState = SuperMetroidGameState.MainGameplay;
             game.Step(0);
             game.Step(SnesButton.Select);
@@ -67,7 +67,7 @@ internal static class XrayGameStateVerification
 
         // State $12: the unpause fade also runs the state-eight routine.
         {
-            game.Session.pauseBrightness = 0;
+            game.Session.PauseBrightness = 0;
             game.GameState = SuperMetroidGameState.Unpausing;
             game.Step(runtime.Options.ControllerBindings.Dash);
             AssertEqual(SuperMetroidGameState.Unpausing, game.GameState, "the held-Run frame is an unpausing gameplay frame");

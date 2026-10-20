@@ -975,7 +975,7 @@ public static class SamusGrappleMovement
                                 projectileType: 0,
                                 solidBlock: block.CollisionType == RoomCollisionType.ShootableBlock);
                         }
-                        catch (ArgumentOutOfRangeException error) when (error.ParamName == "bts")
+                        catch (UnsupportedShotBlockReactionException error)
                         {
                             throw new CartridgeDispatchException(
                                 $"grapple-shootable/type-{(int)block.CollisionType:X}/bts-{block.Bts.Value:X2}",

@@ -51,7 +51,7 @@ internal static class PauseHudLocationVerification
                 0x5800, 0x4000, 4, true, true);
             var game = new SuperMetroid.Core.Frontend.SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore(), null, SuperMetroid.Core.Frontend.SuperMetroidGameHostServices.Default, random);
             game.AdoptRuntime(runtime);
-            game.Session.pauseMenu = pause;
+            game.Session.Show(pause);
             game.GameState = SuperMetroidGameState.PausedB;
             for (int frame = 0; frame < 24; frame++)
             {

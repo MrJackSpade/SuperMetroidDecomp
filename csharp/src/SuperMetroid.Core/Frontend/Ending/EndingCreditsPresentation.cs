@@ -23,16 +23,16 @@ internal sealed class EndingCreditsPresentation
         var layers = new List<RenderLayer>();
         byte objectSelection = ObjectSelection(CurrentEscapeObjectSheet);
         PpuMemorySnapshot memory;
-        if (_ending.endingLogo is not null)
+        if (_ending.CurrentEndingLogo is not null)
         {
-            if (_ending.endingLogo.CrossfadeStarted)
+            if (_ending.CurrentEndingLogo.CrossfadeStarted)
                 layers.Add(new Bg4BppRenderLayer(EndingLogoDefinitions.Tilemap, EndingLogoDefinitions.Characters,
                     new Position16<BgPlanePixels>(0, 0), new Extent16<TilemapCells>(32, 32), null));
-            layers.Add(new ObjRenderLayer(_ending.endingLogo.CrossfadeStarted));
+            layers.Add(new ObjRenderLayer(_ending.CurrentEndingLogo.CrossfadeStarted));
             layers.Add(PostCreditsLayer());
-            return new(CaptureMemory(3), layers.ToArray(), 3, checked((byte)_ending.brightness));
+            return new(CaptureMemory(3), layers.ToArray(), 3, checked((byte)_ending.Brightness));
         }
-        if (_ending.postShot is not null)
+        if (_ending.CurrentPostShot is not null)
         {
             // Mode 7 places OBJ priority zero below BG1; the other three priorities
             // are above it. BG1 subtracts the winning OBJ subscreen, without halving.
@@ -42,7 +42,7 @@ internal sealed class EndingCreditsPresentation
             layers.Add(new ObjPriorityRenderLayer(2));
             layers.Add(new ObjPriorityRenderLayer(3));
             return new(CaptureMemory(ObjectSelection(CurrentRewardObjectSheet)), layers.ToArray(),
-                ObjectSelection(CurrentRewardObjectSheet), checked((byte)_ending.brightness));
+                ObjectSelection(CurrentRewardObjectSheet), checked((byte)_ending.Brightness));
         }
         if (_ending.Phase == EndingCreditsPhase.Credits)
         {
@@ -65,18 +65,18 @@ internal sealed class EndingCreditsPresentation
                         EndingWavySamusDefinitions.CharacterWord,
                         PostCreditsLayer())
                         .WithScrolls(EndingWavySamusDefinitions.ScrollsAtAge(
-                            EndingCreditsRomData.Timing.WaitingBackdropFrames - _ending.phaseTimer)));
+                            EndingCreditsRomData.Timing.WaitingBackdropFrames - _ending.PhaseTimer)));
             }
             else if (_ending.EscapeBackgroundEnabled)
             {
                 // Fixed addition belongs to backdrop and eligible OBJ, not BG1.
                 if (_ending.FlyawayFixedColor is { } backdropWhite) layers.Add(backdropWhite);
                 if (UsesFlyawayMode7Priority) layers.Add(new ObjPriorityRenderLayer(0, _ending.FlyawayFixedColor));
-                short a = Scale(ReadSine(_ending.mode7Angle.AddRaw(SnesAngle.QuarterTurn.RawValue).TableIndex), _ending.mode7Zoom);
-                short b = Scale(ReadSine(_ending.mode7Angle.TableIndex), _ending.mode7Zoom);
+                short a = Scale(ReadSine(_ending.Mode7Angle.AddRaw(SnesAngle.QuarterTurn.RawValue).TableIndex), _ending.Mode7Zoom);
+                short b = Scale(ReadSine(_ending.Mode7Angle.TableIndex), _ending.Mode7Zoom);
                 layers.Add(new Mode7RenderLayer(new(a, b, unchecked((short)-b), a,
                     CurrentMode7Center,
-                    _ending.mode7.Whole.AsSignedRegister(), WrapOutsideMap: AtmosphericMapWraps),
+                    _ending.Mode7.Whole.AsSignedRegister(), WrapOutsideMap: AtmosphericMapWraps),
                     AddBg1Subscreen: AtmosphericMapWraps));
             }
             memory = CaptureMemory(objectSelection);
@@ -99,9 +99,9 @@ internal sealed class EndingCreditsPresentation
                 else layers.Add(new ObjRenderLayer(RewardSubscreenAddition, _ending.FlyawayFixedColor));
             }
             if (_ending.Phase == EndingCreditsPhase.PostCreditsWhiteFlash)
-                layers.Add(EndingCreditsState.WhiteAddition(_ending.whiteFlashColor));
+                layers.Add(EndingCreditsState.WhiteAddition(_ending.WhiteFlashColor));
         }
-        return new(memory, layers.ToArray(), objectSelection, checked((byte)_ending.brightness));
+        return new(memory, layers.ToArray(), objectSelection, checked((byte)_ending.Brightness));
     }
 
     /// <summary>Mode 7 matrix and center for the post-shot reward scene.</summary>
@@ -165,12 +165,12 @@ internal sealed class EndingCreditsPresentation
     /// <summary>The post-credits background plane: the waiting backdrop, or the uploaded text map at its current scroll and height.</summary>
     private Bg4BppRenderLayer PostCreditsLayer()
     {
-        var size = new Extent16<TilemapCells>(32, checked((ushort)_ending.postCreditsMapHeight));
+        var size = new Extent16<TilemapCells>(32, checked((ushort)_ending.PostCreditsMapHeight));
         return UsesWaitingBackground
             ? new(EndingCreditsRomData.Rendering.WaitingTilemapWord, EndingCreditsRomData.Rendering.WaitingCharacterWord,
-                _ending.postCreditsScroll, size, null)
-            : new(EndingVram.TextTilemapWord(_ending.postCreditsTextTilemap), EndingCreditsRomData.Rendering.PostCreditsCharacterWord,
-                _ending.postCreditsScroll, size, null);
+                _ending.PostCreditsScroll, size, null)
+            : new(EndingVram.TextTilemapWord(_ending.PostCreditsTextTilemap), EndingCreditsRomData.Rendering.PostCreditsCharacterWord,
+                _ending.PostCreditsScroll, size, null);
     }
 
     /// <summary>The scene's memories with this frame's sprite entries over the OBJ page <paramref name="objectSelection"/> selects.</summary>
@@ -182,26 +182,26 @@ internal sealed class EndingCreditsPresentation
     {
         var objects = new ScreenSprites(ObjCharacterImage.Page(_ending.Image(), objectSelection), ObjectSelectionCodec.Sizes(objectSelection));
         objects.BeginFrame();
-        if (_ending.endingLogo is not null) _ending.endingLogo.Draw(objects, _ending.objectArtwork?.LogoSprites);
-        else if (_ending.rewardGesture is not null) _ending.rewardGesture.Draw(objects, _ending.objectArtwork?.RewardSprites);
-        else if (_ending.rewardJump is not null) _ending.rewardJump.Draw(objects, _ending.objectArtwork?.RewardSprites);
+        if (_ending.CurrentEndingLogo is not null) _ending.CurrentEndingLogo.Draw(objects, _ending.ObjectArtwork?.LogoSprites);
+        else if (_ending.CurrentRewardGesture is not null) _ending.CurrentRewardGesture.Draw(objects, _ending.ObjectArtwork?.RewardSprites);
+        else if (_ending.CurrentRewardJump is not null) _ending.CurrentRewardJump.Draw(objects, _ending.ObjectArtwork?.RewardSprites);
         else
         {
             foreach (EndingSprite wrapper in _ending.sprites.OrderByDescending(actor => actor.NativeSlot))
             {
                 IIntroCinematicSpritePresentation? spriteArt = wrapper.Role.Family() switch
                 {
-                    EndingSpriteFamily.Cloud => _ending.objectArtwork?.CloudSprites,
-                    EndingSpriteFamily.Explosion => _ending.objectArtwork?.ExplosionSprites,
-                    EndingSpriteFamily.CompletionText => _ending.objectArtwork?.CompletionTextSprites,
-                    EndingSpriteFamily.Reward => _ending.objectArtwork?.RewardSprites,
+                    EndingSpriteFamily.Cloud => _ending.ObjectArtwork?.CloudSprites,
+                    EndingSpriteFamily.Explosion => _ending.ObjectArtwork?.ExplosionSprites,
+                    EndingSpriteFamily.CompletionText => _ending.ObjectArtwork?.CompletionTextSprites,
+                    EndingSpriteFamily.Reward => _ending.ObjectArtwork?.RewardSprites,
                     EndingSpriteFamily.AnimalEscape => EndingAnimalEscapeDefinitions.Presentation,
                     var family => throw new InvalidOperationException($"Undefined ending sprite family {family}."),
                 };
                 wrapper.Sprite.Draw(objects, installedArt: spriteArt);
             }
         }
-        if (_ending.Phase >= EndingCreditsPhase.PostCreditsBlank) _ending.shootingStars?.Draw(objects);
+        if (_ending.Phase >= EndingCreditsPhase.PostCreditsBlank) _ending.ShootingStars?.Draw(objects);
         objects.FinishFrame();
         return objects;
     }
@@ -210,7 +210,7 @@ internal sealed class EndingCreditsPresentation
     internal static short ReadSine(byte index) => EnemyTrigonometryTables.SignedSine(new SnesByteAngle(index));
 
     /// <summary>The falling reward sheet once the jumping Samus has switched to it, otherwise the reward sheet.</summary>
-    private EndingObjectSheet CurrentRewardObjectSheet => _ending.rewardJump?.FallingSheetSelected == true
+    private EndingObjectSheet CurrentRewardObjectSheet => _ending.CurrentRewardJump?.FallingSheetSelected == true
         ? EndingObjectSheet.RewardFalling : EndingObjectSheet.Reward;
 
     /// <summary>Multiplies a signed Mode 7 component by the scene's positive 8.8 zoom scalar.</summary>

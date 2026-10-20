@@ -76,7 +76,7 @@ internal static class IntroScientistSpriteArtworkVerification
                 state.StepBabyMetroidDeliveryCrossfade();
             AssertEqual(IntroCinematicPhase.BabyMetroidDelivery, state.Phase,
                 "scientist sprite probe reached the lit delivery scene");
-            var scientist = state.scientistCutscene;
+            var scientist = state.CurrentScientistCutscene;
             (scientist ?? throw new InvalidOperationException("Verification requires scientist.")).Step(0, introCrossfadeTimer: 0x007f);
         }
         Rgba32[] stockPixels = stockState.RenderScientistCutscene();

@@ -88,22 +88,9 @@ internal static class ElevatorPlatformPlmDefinitions
 
     /// <summary>Resolves a stable frame identifier to its temporary draw DTO.</summary>
     internal static bool TryGetByVisualId(string? id,
-        out RoomPlmShotBlockDrawDefinitions.DrawList list)
-    {
-        ElevatorPlatformDraw? pointer = id switch
-        {
-            "first-frame" => ElevatorPlatformDraw.First,
-            "second-frame" => ElevatorPlatformDraw.Second,
-            "third-frame" => ElevatorPlatformDraw.Third,
-            _ => null,
-        };
-        if (pointer is not { } draw)
-        {
-            list = default;
-            return false;
-        }
-        return TryGetDraw((ushort)draw, out list);
-    }
+        out RoomPlmShotBlockDrawDefinitions.DrawList list) =>
+        RoomPlmShotBlockDrawDefinitions.FindByVisualId(Enum.GetValues<ElevatorPlatformDraw>().Select(draw => (ushort)draw),
+            VisualId, TryGetDraw, id, out list);
 
     /// <summary>Materializes an artwork DTO; gameplay calculates platform cells directly.</summary>
     internal static bool TryGetDraw(ushort pointer, out RoomPlmShotBlockDrawDefinitions.DrawList list) =>

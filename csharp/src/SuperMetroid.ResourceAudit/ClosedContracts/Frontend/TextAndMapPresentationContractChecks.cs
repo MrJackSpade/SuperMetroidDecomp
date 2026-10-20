@@ -30,11 +30,10 @@ internal static class TextAndMapPresentationContractChecks
             using SuperMetroid.Core.Hardware;
             using SuperMetroid.Core.Rooms;
             class TextMapConsumer {
-                string UnknownFactory(AreaId area) => "World." + area;
                 void Inspect(EscapeTypewriterPresentation escape, IntroNarrationPresentation intro,
                     EndingTextPresentation ending, CreditsPresentation credits, MapSpriteCatalog sprites,
                     MapArrowPresentation arrows, MapScreenPresentation screen, SnesVram vram,
-                    ScreenSprites objects, System.Span<ushort> tilemap, AreaId area, string unknown) {
+                    ScreenSprites objects, System.Span<ushort> tilemap, AreaId area) {
                     escape.Get(EscapeTypewriterProgramId.Ceres);
                     escape.Get(EscapeTypewriterProgramId.Zebes);
                     escape.Get(EscapeTypewriterProgramId.None);
@@ -59,10 +58,6 @@ internal static class TextAndMapPresentationContractChecks
                     screen.LoadTo(tilemap, MapScreenDefinitions.WorldForeground);
                     screen.LoadTo(tilemap, MapScreenDefinitions.WorldBackground(AreaId.Maridia));
                     screen.LoadTo(tilemap, MapScreenDefinitions.RoomFrame(area));
-                    screen.LoadTo(tilemap, MapScreenDefinitions.WorldBackground(AreaId.Ceres));
-                    screen.LoadTo(tilemap, unknown);
-                    screen.LoadTo(tilemap, UnknownFactory(area));
-                    screen.LoadTo(tilemap, "World.Missing");
                 }
             }
             """;
@@ -84,13 +79,11 @@ internal static class TextAndMapPresentationContractChecks
         }
         CSharpCompilation compilation = Compile(trees);
         AuditReport before = Inspect(compilation, false), after = Inspect(compilation, true);
-        Require(before.UnresolvedCount == 28, "all twenty-eight calls must first reproduce absent provider adapters" + " (" + before.Describe() + ")");
-        Require(after.Classifications.Count == 15 && after.UnresolvedCount == 12 && after.MissingCount == 1 &&
-            after.Consumers.Count == 28, "supported domains qualify; invalid enums, sparse IDs, rows and unknown names must remain failing " +
-            "(expected 15/12/1/28; " + after.Describe() + ")");
-        Require(after.Findings.Single(item => item.Code == AuditReport.Missing).Resource == "World.Missing",
-            "an absent named page must be reported as a concrete identity, not waived by complete page coverage");
-        Require(after.ReferenceCount == 24, "the dynamic bounded RoomFrame factory must require all six possible installed names");
+        Require(before.UnresolvedCount == 24, "all twenty-four calls must first reproduce absent provider adapters" + " (" + before.Describe() + ")");
+        Require(after.Classifications.Count == 15 && after.UnresolvedCount == 9 && after.MissingCount == 0 &&
+            after.Consumers.Count == 24, "supported domains qualify; invalid enums, sparse IDs and rows must remain failing " +
+            "(expected 15/9/0/24; " + after.Describe() + ")");
+        Require(after.ReferenceCount == 15, "each classified call requires its reviewed provider contract" + " (" + after.Describe() + ")");
     }
 
     /// <summary>Reports a specific text or map provider contract failure.</summary>

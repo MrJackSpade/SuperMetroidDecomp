@@ -88,18 +88,6 @@ internal static class CinematicPresentationContractChecks
             "unsupported overlay source/length queries validly return false, not demand nonexistent artwork");
         Require(after.Findings.Count(item => item.Owner == "TitleGraphicsPresentation.DrawSprite") == 2,
             "undefined title compositions must not be accepted as loaded title compositions");
-
-        SyntaxTree externalUse = CSharpSyntaxTree.ParseText("""
-            using SuperMetroid.Core.Areas.Escape.Artwork;
-            class ExternalTimerAnchors {
-                void Change() { EscapeTimerPresentationDefinitions.AnchorNames[0] = "Absent.Anchor"; }
-            }
-            """, path: "fixture-external-timer-anchors.cs");
-        AuditReport revoked = Inspect(Compile(trees.Append(externalUse)), true);
-        Require(revoked.Classifications.Count == 15 && revoked.UnresolvedCount == 9 &&
-            revoked.Findings.Any(item => item.Owner == "EscapeTimerPresentation.Draw" &&
-                item.Message.Contains("stale", StringComparison.Ordinal)),
-            "external access to mutable AnchorNames must revoke the fixed timer-anchor proof" + " (" + revoked.Describe() + ")");
     }
 
     /// <summary>Raises a contract failure with the specific source-only fixture expectation.</summary>

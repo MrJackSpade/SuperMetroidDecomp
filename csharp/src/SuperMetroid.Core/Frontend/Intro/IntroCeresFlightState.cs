@@ -46,7 +46,7 @@ internal sealed class IntroCeresFlightState
     /// </summary>
     private int brightness;
     /// <summary>Five station and asteroid sprites created when the camera switches to rear view.</summary>
-    internal IntroDiscoverySprite[] rearViewActors = [];
+    internal IntroDiscoverySprite[] RearViewActors { get; private set; } = [];
     /// <summary>
     /// The intensity of the rear-view flash's fixed color, from zero to 31: set to 31 when the rear view starts and
     /// lowered by one per update, stopping at zero. The native COLDATA writes select red, green and blue separately
@@ -224,7 +224,7 @@ internal sealed class IntroCeresFlightState
     {
         objects.BeginFrame();
         if (Phase is IntroCeresFlightPhase.FlyingTowardCeres or IntroCeresFlightPhase.SpaceColonyTitle or IntroCeresFlightPhase.FadeOut)
-            foreach (IntroDiscoverySprite actor in rearViewActors)
+            foreach (IntroDiscoverySprite actor in RearViewActors)
                 actor.Draw(objects, installedArt: spriteArtwork);
         else stars.Draw(objects, installedArt: spriteArtwork);
         objects.FinishFrame();
@@ -259,7 +259,7 @@ internal sealed class IntroCeresFlightState
         // These five slots are the exact $BE3B-$BE5C spawn order. Their visual lists
         // remain cartridge streams; the compiled definitions supply callback identity,
         // initializer results and the physical motion applied by StepRearViewActors.
-        rearViewActors = Enumerable.Range(0, CeresFlightActorDefinitions.RearViewActorCount)
+        RearViewActors = Enumerable.Range(0, CeresFlightActorDefinitions.RearViewActorCount)
             .Select(index =>
             {
                 CeresFlightActorDefinition definition =
@@ -395,9 +395,9 @@ internal sealed class IntroCeresFlightState
     /// <summary>Moves each rear-view actor according to its compiled motion before stepping its sprite list.</summary>
     private void StepRearViewActors()
     {
-        for (int index = 0; index < rearViewActors.Length; index++)
+        for (int index = 0; index < RearViewActors.Length; index++)
         {
-            IntroDiscoverySprite actor = rearViewActors[index];
+            IntroDiscoverySprite actor = RearViewActors[index];
             CeresFlightActorDefinition definition =
                 CeresFlightActorDefinitions.RearViewActor(index);
             if (actor.PreInstruction != definition.ActivePreInstruction)

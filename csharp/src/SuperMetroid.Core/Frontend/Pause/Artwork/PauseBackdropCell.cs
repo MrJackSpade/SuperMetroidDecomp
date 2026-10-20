@@ -1,10 +1,13 @@
+using System.Text.Json.Serialization;
+
 namespace SuperMetroid.Core.Frontend.Pause.Artwork;
 
 /// <summary>Native-size artwork references, not tile numbers, addresses or gameplay commands.</summary>
 public sealed record PauseBackdropCell
 {
-    /// <summary>Case-sensitive artwork sheet key, Map or Interface, selecting the first or second 256-character page of the loaded pause graphics.</summary>
-    public required string Atlas { get; init; }
+    /// <summary>The 256-character page of the loaded pause graphics the cell reads.</summary>
+    [JsonConverter(typeof(JsonStringEnumConverter<PauseAtlas>))]
+    public required PauseAtlas Atlas { get; init; }
     /// <summary>Zero-based column 0..31 of an eight-pixel tile within the selected atlas, not its destination tilemap column.</summary>
     public required int TileColumn { get; init; }
     /// <summary>Zero-based row 0..7 of an eight-pixel tile within the selected atlas, not its destination tilemap row.</summary>

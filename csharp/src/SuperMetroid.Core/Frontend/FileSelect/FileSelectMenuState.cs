@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Gameplay;
 using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Input;
@@ -20,8 +21,17 @@ namespace SuperMetroid.Core.Frontend.FileSelect;
 /// validity and displayed energy/time are decoded from the cartridge's redundant SRAM
 /// checksum layout rather than from host-authored metadata.
 /// </remarks>
-public sealed class FileSelectMenuState
+public sealed class FileSelectMenuState : IFrontendScreen
 {
+    /// <inheritdoc/>
+    void IFrontendScreen.BindArtwork(GameArtwork previous, GameArtwork artwork, SuperMetroidGameState state)
+    {
+        Ensure.NotNull(previous);
+        Ensure.NotNull(artwork);
+        if (!ReferenceEquals(previous.MapPresentation, artwork.MapPresentation))
+            BindMapPresentation(artwork.MapPresentation);
+    }
+
     /// <summary>Receives menu sound requests when audio is available.</summary>
     private readonly CartridgeAudioState? audio;
     /// <summary>Reads and mutates the cartridge's checksummed three-slot SRAM layout.</summary>
@@ -41,13 +51,13 @@ public sealed class FileSelectMenuState
     /// <summary>Updates remaining in the selected helmet's current turn frame.</summary>
     private int helmetAnimationTimer;
     /// <summary>Selected helmet turn frame retained through the options fade.</summary>
-    internal int helmetAnimationFrame;
+    internal int HelmetAnimationFrame { get; private set; }
     /// <summary>$51 INIDISP byte: forced-blank bit plus brightness nibble.</summary>
     private int brightness;
     /// <summary>Advances the native brightness timing for entry and submenu transitions.</summary>
     private readonly ScreenFade screenFade = new();
     /// <summary>Installed page identifier rebuilt after save data or debugger bindings change.</summary>
-    private string currentPresentationPage = FileSelectPresentationDefinitions.MainEmptyPage;
+    private FileSelectPage currentPresentationPage = FileSelectPage.MainEmpty;
 
     /// <summary>Performs menu indices zero through two, including every native ROM transfer.</summary>
     public FileSelectMenuState(SaveSlotStore saves, CartridgeAudioState? audio = null,
@@ -176,7 +186,7 @@ public sealed class FileSelectMenuState
                 // $81:9D91: Start/A ends the turn early; otherwise it ends once the
                 // final frame has also used up its own timer, which then reads zero.
                 if ((pressed & (SnesButton.Start | SnesButton.A)) != 0 ||
-                    (helmetAnimationFrame == FileSelectHelmetAnimation.FrameCount - 1 && helmetAnimationTimer == 0))
+                    (HelmetAnimationFrame == FileSelectHelmetAnimation.FrameCount - 1 && helmetAnimationTimer == 0))
                     Phase = FileSelectPhase.FadeOutToOptions;
                 break;
 
@@ -211,11 +221,11 @@ public sealed class FileSelectMenuState
         bool mainScreen = IsMainScreenPhase;
         FileSelectPresentation presentation = (mapPresentation ?? throw new InvalidOperationException(
             "File-select sprites require installed menu presentation assets.")).FileSelect;
-        string borderName = IsCopyPhase
-            ? FileSelectPresentationDefinitions.CopyBorder
+        FileSelectBorder borderName = IsCopyPhase
+            ? FileSelectBorder.Copy
             : IsClearPhase
-                ? FileSelectPresentationDefinitions.ClearBorder
-                : FileSelectPresentationDefinitions.MainBorder;
+                ? FileSelectBorder.Clear
+                : FileSelectBorder.Main;
         presentation.DrawBorder(sprites, borderName);
         if (ShouldDrawSelectionMissile)
             presentation.DrawCursor(sprites, missile.Frame, GetSelectionMissilePosition(presentation));
@@ -226,7 +236,7 @@ public sealed class FileSelectMenuState
             // a one-frame-visible head snap immediately before loading.
             int frame = FileSelectItemRows.ForSaveSlot(slot) == SelectedItem && Phase is
                     FileSelectPhase.TurnSelectedHelmet or FileSelectPhase.FadeOutToOptions
-                ? helmetAnimationFrame
+                ? HelmetAnimationFrame
                 : 0;
             presentation.DrawHelmet(sprites, Math.Min(frame, FileSelectHelmetAnimation.FrameCount - 1), slot);
         }
@@ -243,8 +253,8 @@ public sealed class FileSelectMenuState
     private void BuildSaveTilemap()
     {
         currentPresentationPage = HasAnySave
-            ? FileSelectPresentationDefinitions.MainWithDataPage
-            : FileSelectPresentationDefinitions.MainEmptyPage;
+            ? FileSelectPage.MainWithData
+            : FileSelectPage.MainEmpty;
         RebuildInstalledPresentationPage();
     }
 
@@ -257,13 +267,13 @@ public sealed class FileSelectMenuState
         if (helmetAnimationTimer == 0 || --helmetAnimationTimer != 0)
             return;
         helmetAnimationTimer = mapPresentation?.FileSelect.HelmetFrameDuration ?? FileSelectHelmetAnimation.FrameDuration;
-        int next = helmetAnimationFrame + 1;
+        int next = HelmetAnimationFrame + 1;
         if (next >= FileSelectHelmetAnimation.FrameCount)
         {
             helmetAnimationTimer = 0;
             next = FileSelectHelmetAnimation.FrameCount - 1;
         }
-        helmetAnimationFrame = next;
+        HelmetAnimationFrame = next;
     }
 
     /// <summary>Copy or Clear mode selected on the main page before its fade finishes.</summary>
@@ -334,7 +344,7 @@ public sealed class FileSelectMenuState
         {
             audio?.QueueSound(SoundEffectLibrary1Sounds.FileSelectSwoosh, maximumQueued: 6);
             // `menu_index += 27` enters index 31 and enables only the selected helmet.
-            helmetAnimationFrame = 0;
+            HelmetAnimationFrame = 0;
             helmetAnimationTimer = 1;
             Phase = FileSelectPhase.TurnSelectedHelmet;
             return;
@@ -614,49 +624,49 @@ public sealed class FileSelectMenuState
     /// <summary>Builds the Copy page that asks which occupied save to use as source.</summary>
     private void BuildCopySourceTilemap()
     {
-        currentPresentationPage = FileSelectPresentationDefinitions.CopySourcePage;
+        currentPresentationPage = FileSelectPage.CopySource;
         RebuildInstalledPresentationPage();
     }
 
     /// <summary>Builds the destination prompt and inserts the chosen source slot letter.</summary>
     private void BuildCopyDestinationTilemap()
     {
-        currentPresentationPage = FileSelectPresentationDefinitions.CopyDestinationPage;
+        currentPresentationPage = FileSelectPage.CopyDestination;
         RebuildInstalledPresentationPage();
     }
 
     /// <summary>Builds the Yes/No prompt with both source and destination slot letters.</summary>
     private void BuildCopyConfirmationTilemap()
     {
-        currentPresentationPage = FileSelectPresentationDefinitions.CopyConfirmPage;
+        currentPresentationPage = FileSelectPage.CopyConfirm;
         RebuildInstalledPresentationPage();
     }
 
     /// <summary>Displays the completed copy page after SRAM and decoded slots have been updated.</summary>
     private void BuildCopyCompletedTilemap()
     {
-        currentPresentationPage = FileSelectPresentationDefinitions.CopyCompletedPage;
+        currentPresentationPage = FileSelectPage.CopyCompleted;
         RebuildInstalledPresentationPage();
     }
 
     /// <summary>Builds the Clear page that asks which occupied slot to erase.</summary>
     private void BuildClearSelectionTilemap()
     {
-        currentPresentationPage = FileSelectPresentationDefinitions.ClearSelectionPage;
+        currentPresentationPage = FileSelectPage.ClearSelection;
         RebuildInstalledPresentationPage();
     }
 
     /// <summary>Builds the erase Yes/No prompt with the selected source slot letter.</summary>
     private void BuildClearConfirmationTilemap()
     {
-        currentPresentationPage = FileSelectPresentationDefinitions.ClearConfirmPage;
+        currentPresentationPage = FileSelectPage.ClearConfirm;
         RebuildInstalledPresentationPage();
     }
 
     /// <summary>Displays the cleared page with refreshed slot data after SRAM is erased.</summary>
     private void BuildClearCompletedTilemap()
     {
-        currentPresentationPage = FileSelectPresentationDefinitions.ClearCompletedPage;
+        currentPresentationPage = FileSelectPage.ClearCompleted;
         RebuildInstalledPresentationPage();
     }
 
@@ -714,39 +724,44 @@ public sealed class FileSelectMenuState
             throw new InvalidOperationException("File-select presentation is not bound.");
         presentation.CopyPage(currentPresentationPage, bg1Tilemap);
         bool main = currentPresentationPage is
-            FileSelectPresentationDefinitions.MainWithDataPage or
-            FileSelectPresentationDefinitions.MainEmptyPage;
+            FileSelectPage.MainWithData or
+            FileSelectPage.MainEmpty;
         for (int slot = 0; slot < saveSlots.Length; slot++)
             DrawInstalledSlot(saveSlots[slot], presentation.Slot(!main, slot));
 
         switch (currentPresentationPage)
         {
-            case FileSelectPresentationDefinitions.CopyDestinationPage:
+            case FileSelectPage.CopyDestination:
                 presentation.WriteSlotLetter(bg1Tilemap,
                     presentation.DynamicAnchor(
-                        FileSelectPresentationDefinitions.CopyDestinationSourceAnchor),
+                        FileSelectAnchor.CopyDestinationSource),
                     operationSourceSlot);
                 break;
-            case FileSelectPresentationDefinitions.CopyConfirmPage:
-            case FileSelectPresentationDefinitions.CopyCompletedPage:
+            case FileSelectPage.CopyConfirm:
+            case FileSelectPage.CopyCompleted:
                 presentation.WriteSlotLetter(bg1Tilemap,
                     presentation.DynamicAnchor(
-                        FileSelectPresentationDefinitions.CopyConfirmSourceAnchor),
+                        FileSelectAnchor.CopyConfirmSource),
                     operationSourceSlot);
                 presentation.WriteSlotLetter(bg1Tilemap,
                     presentation.DynamicAnchor(
-                        FileSelectPresentationDefinitions.CopyConfirmDestinationAnchor),
+                        FileSelectAnchor.CopyConfirmDestination),
                     operationDestinationSlot);
                 break;
-            case FileSelectPresentationDefinitions.ClearConfirmPage:
-            case FileSelectPresentationDefinitions.ClearCompletedPage:
+            case FileSelectPage.ClearConfirm:
+            case FileSelectPage.ClearCompleted:
                 presentation.WriteSlotLetter(bg1Tilemap,
                     presentation.DynamicAnchor(
-                        FileSelectPresentationDefinitions.ClearConfirmSourceAnchor),
+                        FileSelectAnchor.ClearConfirmSource),
                     operationSourceSlot);
                 break;
-            default:
+            case FileSelectPage.MainWithData:
+            case FileSelectPage.MainEmpty:
+            case FileSelectPage.CopySource:
+            case FileSelectPage.ClearSelection:
                 break;
+            default:
+                throw new InvalidOperationException($"Undefined file-select page {currentPresentationPage}.");
         }
     }
 
@@ -760,12 +775,12 @@ public sealed class FileSelectMenuState
         if (slot is null)
         {
             presentation.ApplyPatch(bg1Tilemap,
-                FileSelectPresentationDefinitions.NoDataPatch, layout.NoDataAnchor);
+                FileSelectPatch.NoData, layout.NoDataAnchor);
             return;
         }
 
         presentation.ApplyPatch(bg1Tilemap,
-            FileSelectPresentationDefinitions.EnergyPatch, layout.EnergyAnchor);
+            FileSelectPatch.Energy, layout.EnergyAnchor);
         int health = slot.Health % 100;
         presentation.WriteDigit(bg1Tilemap, layout.HealthAnchor, 0, health / 10);
         presentation.WriteDigit(bg1Tilemap, layout.HealthAnchor, 1, health % 10);
@@ -792,7 +807,7 @@ public sealed class FileSelectMenuState
         presentation.WriteDigit(bg1Tilemap, layout.TimeValueAnchor, 0, hours / 10);
         presentation.WriteDigit(bg1Tilemap, layout.TimeValueAnchor, 1, hours % 10);
         presentation.ApplyPatch(bg1Tilemap,
-            FileSelectPresentationDefinitions.TimeColonPatch,
+            FileSelectPatch.TimeColon,
             new(checked((ushort)(layout.TimeValueAnchor.X + 2)), layout.TimeValueAnchor.Y));
         presentation.WriteDigit(bg1Tilemap, layout.TimeValueAnchor, 3, minutes / 10);
         presentation.WriteDigit(bg1Tilemap, layout.TimeValueAnchor, 4, minutes % 10);

@@ -5,16 +5,22 @@ namespace SuperMetroid.Core.Frontend.GameOver.Artwork;
 
 /// <summary>$82:CFE0-D00A: a centered sixteen-pixel Baby and four reflected specimen-container caps.
 /// Selected glyph identities and cap arrangement specify the exact pictured Baby/container. Only that display design is retained; geometry derives, while pixels, palettes and timing remain separate.</summary>
-internal sealed class GameOverSpriteParts(string name) : IReadOnlyList<CompiledSpritePart>
+internal sealed class GameOverSpriteParts : IReadOnlyList<CompiledSpritePart>
 {
-    /// <summary>Replaces matching supplied Baby or container-cap geometry with the reviewed composition.</summary>
-    internal static SpriteComposition CalculateIfMatching(string name, SpriteComposition supplied)
-    {
-        bool shell = name == GameOverPresentationDefinitions.EggFrame;
-        if (!shell && name is not ("Baby.Closed" or "Baby.Middle" or "Baby.Open")) return supplied;
-        if (supplied.PartCount != (shell ? 4 : 1)) return supplied;
-        return supplied.CalculateIfMatching(new GameOverSpriteParts(name));
-    }
+    /// <summary>The Baby frame drawn, or null for the egg shell.</summary>
+    private readonly GameOverBabyFrame? baby;
+
+    /// <summary>The native parts of <paramref name="baby"/>'s frame, or of the egg shell when null.</summary>
+    private GameOverSpriteParts(GameOverBabyFrame? baby) => this.baby = baby;
+
+    /// <summary>Recognises the native Baby frame <paramref name="frame"/> in <paramref name="supplied"/>.</summary>
+    internal static SpriteComposition CalculateBabyIfMatching(GameOverBabyFrame frame, SpriteComposition supplied) =>
+        supplied.PartCount == 1 ? supplied.CalculateIfMatching(new GameOverSpriteParts(frame)) : supplied;
+
+    /// <summary>Recognises the native egg shell in <paramref name="supplied"/>.</summary>
+    internal static SpriteComposition CalculateEggIfMatching(SpriteComposition supplied) =>
+        supplied.PartCount == 4 ? supplied.CalculateIfMatching(new GameOverSpriteParts(null)) : supplied;
+
 
     /// <summary>$82:CFF6: selected closed Baby sixteen-pixel tile90; the middle pose occupies the immediately adjacent two-tile-wide atlas region.</summary>
     private const int ClosedBabyTile = GameOverPresentationDefinitions.ClosedBabyCell;
@@ -23,14 +29,15 @@ internal sealed class GameOverSpriteParts(string name) : IReadOnlyList<CompiledS
     /// <summary>$82:CFE0: selected eight-pixel container-cap tile9A, reflected to form all four caps.</summary>
     private const int ContainerCapTile = GameOverPresentationDefinitions.ContainerCapCell;
     /// <summary>Selects the four-cap container arrangement instead of a single Baby pose.</summary>
-    private bool Shell => name == GameOverPresentationDefinitions.EggFrame;
+    private bool Shell => baby is null;
     /// <summary>Selects the authored tile identity for the requested Baby pose or shared cap.</summary>
-    private int Tile => name switch
+    private int Tile => baby switch
     {
-        "Baby.Closed" => ClosedBabyTile,
-        "Baby.Middle" => ClosedBabyTile + 16 / 8,
-        "Baby.Open" => OpenBabyTile,
-        _ => ContainerCapTile,
+        GameOverBabyFrame.Closed => ClosedBabyTile,
+        GameOverBabyFrame.Middle => ClosedBabyTile + 16 / 8,
+        GameOverBabyFrame.Open => OpenBabyTile,
+        null => ContainerCapTile,
+        _ => throw new InvalidOperationException($"Undefined Baby frame {baby}."),
     };
     /// <summary>The container has four reflected caps; each Baby pose has one large part.</summary>
     public int Count => Shell ? 4 : 1;

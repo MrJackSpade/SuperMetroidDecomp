@@ -33,9 +33,8 @@ internal sealed class FileSelectHelmetParts(int frame) : IReadOnlyList<CompiledS
         BottomRight
     }
     /// <summary>Replaces matching Helmet.0 through Helmet.7 compositions with reviewed part geometry.</summary>
-    internal static SpriteComposition CalculateIfMatching(string name, SpriteComposition supplied) =>
-        name.Length == 8 && name.StartsWith("Helmet.", StringComparison.Ordinal) && name[7] is >= '0' and <= '7'
-            ? supplied.CalculateIfMatching(new FileSelectHelmetParts(name[7] - '0')) : supplied;
+    internal static SpriteComposition CalculateIfMatching(int frame, SpriteComposition supplied) =>
+        supplied.CalculateIfMatching(new FileSelectHelmetParts(frame));
     /// <summary>Turning poses use four body parts; visor poses add two small glint parts.</summary>
     public int Count => frame < 3 ? 4 : 6;
     /// <summary>Reorders overlapping body corners for each of the three turning poses.</summary>

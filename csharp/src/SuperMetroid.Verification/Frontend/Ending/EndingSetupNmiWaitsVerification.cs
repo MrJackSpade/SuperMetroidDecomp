@@ -19,7 +19,7 @@ internal static class EndingSetupNmiWaitsVerification
     {
         var game = CreateRetailGameFixture(new SuperMetroid.Core.Saves.SaveSlotStore(), renderGameplayFrames: false);
         game.Session.CreateGameplayRuntime(GameplayRuntimePurpose.SelectedGame);
-        var runtime = game.Session.runtime;
+        var runtime = game.Session.GameplayRuntime;
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();
@@ -28,7 +28,7 @@ internal static class EndingSetupNmiWaitsVerification
             game.Step(0);
         AssertEqual(SuperMetroidGameState.EndingAndCredits, game.GameState, "the fade hands off to state $27");
 
-        var ending = game.Session.endingCredits;
+        var ending = game.Session.ScreenAs<EndingCreditsState>();
         var expected = new Bank80SystemState();
         expected.SetRandomNumber(game.DispatcherRandomNumber);
         for (int call = 1; call <= 11; call++)

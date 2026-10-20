@@ -78,7 +78,7 @@ internal static class CinematicScreenPublicationVerification
 
         IntroCinematicState intro = InstalledFixtures.CreateIntro();
         intro.SetupFirstIllustratedPage();
-        (intro.objects ?? throw new InvalidOperationException("The first illustrated page creates the cinematic objects.")).Step(0);
+        (intro.CurrentObjects ?? throw new InvalidOperationException("The first illustrated page creates the cinematic objects.")).Step(0);
         byte[] image = intro.Image();
         var restoredIntro = RoundTrip(intro);
         restoredIntro.BindIntroFont(InstalledFixtures.Maps.IntroFont);

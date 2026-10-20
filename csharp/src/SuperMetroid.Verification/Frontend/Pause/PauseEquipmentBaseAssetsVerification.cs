@@ -55,7 +55,7 @@ internal static class PauseEquipmentBaseAssetsVerification
         PauseBackdropCell[] cells = document.Cells.ToArray();
         cells[editedCell] = cells[editedCell] with
         {
-            Atlas = PauseBackdropDefinitions.MapAtlas, TileColumn = 4, TileRow = 0,
+            Atlas = PauseAtlas.Map, TileColumn = 4, TileRow = 0,
             Palette = 3, Priority = true, FlipX = false, FlipY = false,
         };
         using (var output = File.Create(path)) PauseEquipmentBasePresentation.Write(output, document with { Cells = cells });

@@ -8,10 +8,6 @@ public static class GameplayMessageNoticeDefinitions
     public const int Version = 1;
     /// <summary>Asset filename for the five editable gameplay notice templates and bounded text regions.</summary>
     public const string FileName = "gameplay-message-notices.json";
-    /// <summary>Case-sensitive alignment token placing text at the first tile cell of its allocated region.</summary>
-    public const string LeftAlignment = "Left";
-    /// <summary>Case-sensitive alignment token centering text within its allocated tile-cell width using integer division of the remaining space.</summary>
-    public const string CenterAlignment = "Center";
 
     /// <summary>The five notices whose text regions may be edited in the asset schema.</summary>
     private static readonly GameplayMessageId[] SupportedMessageIds =
@@ -84,7 +80,7 @@ public static class GameplayMessageNoticeDefinitions
                         }
                         break;
                     }
-                    yield return new(row, start, column - start, LeftAlignment);
+                    yield return new(row, start, column - start, GameplayMessageTextAlignment.Left);
                 }
             }
         }

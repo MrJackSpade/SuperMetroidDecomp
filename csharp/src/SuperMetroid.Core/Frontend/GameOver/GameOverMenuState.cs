@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
@@ -8,8 +9,17 @@ using SuperMetroid.Core.Frontend.Map.Artwork;
 namespace SuperMetroid.Core.Frontend.GameOver;
 
 /// <summary>Retail game-over prompt at <c>$81:90AE-$81:93F7</c>.</summary>
-public sealed class GameOverMenuState
+public sealed class GameOverMenuState : IFrontendScreen
 {
+    /// <inheritdoc/>
+    void IFrontendScreen.BindArtwork(GameArtwork previous, GameArtwork artwork, SuperMetroidGameState state)
+    {
+        Ensure.NotNull(previous);
+        Ensure.NotNull(artwork);
+        if (!ReferenceEquals(previous.MapPresentation, artwork.MapPresentation))
+            BindMapPresentation(artwork.MapPresentation);
+    }
+
     /// <summary>Shared music and sound queue advanced by the menu scene.</summary>
     private readonly CartridgeAudioState audio;
     /// <summary>The menu screen game over draws: its artwork, tilemaps, palette and sprite entries.</summary>
@@ -22,9 +32,9 @@ public sealed class GameOverMenuState
     /// <summary>The selection missile's frame cycle, shared by the Yes and No positions.</summary>
     internal readonly MenuMissileAnimation missile = new();
     /// <summary>Current step of the Baby pose program, or null before the first animation update of this visit.</summary>
-    internal int? babyStep;
+    internal int? BabyStep { get; private set; }
     /// <summary>Remaining duration of the current Baby pose or accepted-answer hold.</summary>
-    internal NativeCountdown babyInstructionTimer;
+    internal NativeCountdown BabyInstructionTimer { get; private set; }
     /// <summary>Routes Yes directly to the Ceres loader for the saved arrival state.</summary>
     private readonly bool continueLoadsCeresArrival;
     /// <summary>Installed artwork rebound after debugger restoration without changing menu timing.</summary>
@@ -97,7 +107,7 @@ public sealed class GameOverMenuState
         screen.BindMapSprites(catalog.Sprites);
         screen.BindMapPalettes(catalog.Palettes);
         LoadGameOverTilemap(catalog.GameOver);
-        if (babyStep is int step)
+        if (BabyStep is int step)
         {
             GameOverBabyInstruction instruction = GameOverBabyAnimation.Get(step);
             catalog.GameOver.ApplyBabyPalette(screen.Palette, instruction.Palette);
@@ -149,8 +159,8 @@ public sealed class GameOverMenuState
             case GameOverMenuPhase.Initialize:
                 audio.QueueMusicDelayed8(MusicCommand.Stop);
                 audio.QueueMusicDelayed8(MusicCommand.LoadData(GameOverRomData.Music.DataIndex));
-                babyStep = null;
-                babyInstructionTimer = NativeCountdown.Start(0);
+                BabyStep = null;
+                BabyInstructionTimer = NativeCountdown.Start(0);
                 StepBabyMetroid();
                 SelectedItem = YesNoChoice.Yes;
                 brightness = 0;
@@ -188,7 +198,7 @@ public sealed class GameOverMenuState
                 {
                     // `$81:914B` holds the current Baby frame for 180 ticks once either
                     // answer is accepted, while the selected fade owner continues drawing.
-                    babyInstructionTimer =
+                    BabyInstructionTimer =
                         NativeCountdown.Start(GameOverRomData.BabyAnimation.AcceptedAnswerHoldDuration);
                     if (SelectedItem == YesNoChoice.Yes && continueLoadsCeresArrival)
                         CeresArrivalRequested = true;
@@ -239,7 +249,7 @@ public sealed class GameOverMenuState
         sprites.BeginFrame();
         var content = mapPresentation ?? throw new InvalidOperationException(
             "Game-over screen requires installed presentation assets.");
-        GameOverBabyInstruction instruction = GameOverBabyAnimation.Get(babyStep ?? 0);
+        GameOverBabyInstruction instruction = GameOverBabyAnimation.Get(BabyStep ?? 0);
         content.GameOver.DrawBaby(sprites, instruction.Frame);
         content.GameOver.DrawEgg(sprites);
         content.GameOver.DrawCursor(sprites, missile.Frame, SelectedItem != YesNoChoice.Yes);
@@ -255,22 +265,22 @@ public sealed class GameOverMenuState
     /// <summary>Advances the compiled Baby pose stream and applies its palette and sound effects.</summary>
     private void StepCompiledBabyMetroid()
     {
-        if (babyInstructionTimer.IsZero)
+        if (BabyInstructionTimer.IsZero)
         {
-            babyStep = 0;
-            babyInstructionTimer = NativeCountdown.Start(GameOverBabyAnimation.Get(0).Duration);
+            BabyStep = 0;
+            BabyInstructionTimer = NativeCountdown.Start(GameOverBabyAnimation.Get(0).Duration);
         }
 
-        babyInstructionTimer = babyInstructionTimer.Decrement().Remaining;
-        GameOverBabyInstruction current = GameOverBabyAnimation.Get(babyStep ??
+        BabyInstructionTimer = BabyInstructionTimer.Decrement().Remaining;
+        GameOverBabyInstruction current = GameOverBabyAnimation.Get(BabyStep ??
             throw new InvalidOperationException("The game-over Baby program is held before its first step."));
-        if (babyInstructionTimer.IsZero)
+        if (BabyInstructionTimer.IsZero)
         {
             if (current.SoundAfter != GameOverBabySound.None)
                 QueueCompiledBabySound(current.SoundAfter);
             current = GameOverBabyAnimation.Get(current.NextStep);
-            babyStep = current.Step;
-            babyInstructionTimer = NativeCountdown.Start(current.Duration);
+            BabyStep = current.Step;
+            BabyInstructionTimer = NativeCountdown.Start(current.Duration);
         }
 
         MapPresentation.GameOver.ApplyBabyPalette(screen.Palette, current.Palette);

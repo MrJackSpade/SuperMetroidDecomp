@@ -16,7 +16,7 @@ internal static class SamusBodyTransferDomainAudit
             return "Known Samus pose has no admitted body frame list.";
         if (operation.TargetMethod.Name == "DefinitionAddress" && Constant("set") is int set)
         {
-            int count = Constant("upperHalf") == 0 ? SamusBodyArtworkCatalog.BottomSetCount : SamusBodyArtworkCatalog.TopSetCount;
+            int count = Constant("half") == (int)SamusBodyHalf.Bottom ? SamusBodyArtworkCatalog.BottomSetCount : SamusBodyArtworkCatalog.TopSetCount;
             if (set >= count) return "Known Samus definition set is outside the selected half's domain.";
         }
         if (operation.TargetMethod.Name == "DefinitionAt" && Constant("nativeAddress") is int address &&

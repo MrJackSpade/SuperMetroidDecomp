@@ -9,25 +9,25 @@ internal static class PauseMenuStateAccess
     extension(PauseMenuState self)
     {
         /// <summary>True while a map/equipment page change is fading or loading; page input waits for it.</summary>
-        internal bool IsPageTransitionActive => self.transition != default;
+        internal bool IsPageTransitionActive => self.Transition != default;
 
         /// <summary>Low byte of the native category/item selector word.</summary>
-        internal PauseEquipmentCategory SelectedCategory => self.selectedCategory;
+        internal PauseEquipmentCategory SelectedCategory => self.SelectedCategory;
 
         /// <summary>High byte of the native category/item selector word.</summary>
-        internal int SelectedItem => self.selectedItem;
+        internal int SelectedItem => self.SelectedItem;
 
         /// <summary>Read-only diagnostic timing for the native equipment-selector animation.</summary>
-        internal (int Frame, int Timer) ItemSelectorAnimationState => (self.itemSelectorAnimationFrame, self.itemSelectorAnimationTimer);
+        internal (int Frame, int Timer) ItemSelectorAnimationState => (self.ItemSelectorAnimationFrame, self.ItemSelectorAnimationTimer);
 
         /// <summary>Number of cartridge OBJ records emitted by the most recent render.</summary>
         internal int LastRenderedSpriteCount => self.screen.Objects.Draws.Length;
 
         /// <summary>Pose of the Samus map marker when it was the last indicator a pause render drew.</summary>
-        internal SuperMetroid.Core.Frontend.Map.MapSpriteId? LastMapIndicatorSprite => self.lastMapIndicatorSprite;
+        internal SuperMetroid.Core.Frontend.Map.MapSpriteId? LastMapIndicatorSprite => self.LastMapIndicatorSprite;
 
         /// <summary>Category of the equipment selector when it was the last indicator a pause render drew.</summary>
-        internal PauseEquipmentCategory? LastSelectorCategory => self.lastSelectorCategory;
+        internal PauseEquipmentCategory? LastSelectorCategory => self.LastSelectorCategory;
 
         /// <summary>
         /// Reads one native $7E:3000-relative button-label word after its queued-equivalent

@@ -28,7 +28,7 @@ internal static class PauseDoorShinesparkVerification
             var game=new SuperMetroidGame(new SuperMetroid.Core.Saves.SaveSlotStore());
             InstalledFixtures.BindGame(game);
             game.Session.CreateGameplayRuntime(GameplayRuntimePurpose.SelectedGame);
-            var runtime=game.Session.runtime;
+            var runtime = game.Session.GameplayRuntime;
             runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
             runtime.RoomLoader.InitializeStartingCeresRoom();runtime.RoomLoader.InitializeCeresStartSamus();
             runtime.System.SetEvent(EventNumber.ZebesAwake);
@@ -61,7 +61,7 @@ internal static class PauseDoorShinesparkVerification
             AssertTrue(!runtime.RoomLoader.HasPendingDoorTransition, "initial Start frame is short of the door");
             if (scenario.Brightening)
                 game.GameState = SuperMetroidGameState.Unpausing;
-            game.Session.pauseBrightness = (byte)(scenario.Brightening ? (scenario.Terminal ? 14 : 5) : (scenario.Terminal ? 1 : 15));
+            game.Session.PauseBrightness = (byte)(scenario.Brightening ? (scenario.Terminal ? 14 : 5) : (scenario.Terminal ? 1 : 15));
             game.Session.screenFade.Counter = 0;
             // Put the leading edge immediately before the door for the next real mover call.
             samus.Position = samus.Position.WithWholeX((ushort)(160 - samus.Kinematics.Radius.X - 1));

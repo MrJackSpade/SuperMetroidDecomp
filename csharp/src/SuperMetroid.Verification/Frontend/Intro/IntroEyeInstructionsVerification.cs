@@ -50,7 +50,7 @@ internal static class IntroEyeInstructionsVerification
             objects.Step(0);
             native.Step();
             string at = $"intro eye {phase} update {update}";
-            AssertEqual(native.Timer, objects.eyeInstructionTimer.RawValue, $"{at}: countdown");
+            AssertEqual(native.Timer, objects.EyeInstructionTimer.RawValue, $"{at}: countdown");
             ReadOnlySpan<ushort> expected = artwork.FrameWords(native.Frame);
             for (int row = 0; row < size.Y; row++)
             for (int column = 0; column < size.X; column++)

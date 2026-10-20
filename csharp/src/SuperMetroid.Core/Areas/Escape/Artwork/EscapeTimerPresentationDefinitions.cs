@@ -26,19 +26,71 @@ public static class EscapeTimerPresentationDefinitions
 
     /// <summary>Canonical composition key for the TIME label and both separators, corresponding to the five-part Spritemap_Timer_TIME at $80:A060.</summary>
     public const string LabelFrame = "Label";
-    /// <summary>Returns the canonical composition key for one decimal glyph shared by the minutes, seconds, and centiseconds pairs.</summary>
-    /// <param name="digit">Decoded decimal value 0 through 9, not a packed-BCD byte.</param>
-    /// <returns>The exact JSON frame key Digit.0 through Digit.9.</returns>
-    /// <exception cref="ArgumentOutOfRangeException"><paramref name="digit"/> is outside 0..9.</exception>
-    public static string DigitFrame(int digit) => (uint)digit < 10
-        ? $"Digit.{digit}"
-        : throw new ArgumentOutOfRangeException(nameof(digit));
+    /// <summary>Every composition: the TIME label, then the digits 0 through 9.</summary>
+    public static IReadOnlyList<EscapeTimerGlyph> Glyphs { get; } = Enum.GetValues<EscapeTimerGlyph>();
+    /// <summary>Every anchor: the label origin, then the tens-digit origins of the three time pairs.</summary>
+    public static IReadOnlyList<EscapeTimerAnchor> Anchors { get; } = Enum.GetValues<EscapeTimerAnchor>();
 
-    /// <summary>Required JSON anchor keys: the label origin and the tens-digit origins of the three time pairs; their coordinates are pixel offsets from the live timer origin.</summary>
-    /// <remarks>The readonly field fixes the shared array reference, not its elements; callers must not modify this schema-name array.</remarks>
-    public static readonly string[] AnchorNames = ["Label", "Minutes", "Seconds", "Centiseconds"];
-    /// <summary>Every composition name: the TIME label, then Digit.0 through Digit.9.</summary>
-    internal static IEnumerable<string> FrameNames => [LabelFrame, .. Enumerable.Range(0, DecimalDigitCount).Select(DigitFrame)];
+    /// <summary>The glyph that draws the decimal value <paramref name="digit"/>.</summary>
+    /// <param name="digit">Decoded decimal value 0 through 9, not a packed-BCD byte.</param>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="digit"/> is outside 0..9.</exception>
+    public static EscapeTimerGlyph DigitGlyph(int digit) =>
+        (uint)digit < DigitGlyphs.Length ? DigitGlyphs[digit] : throw new ArgumentOutOfRangeException(nameof(digit));
+
+    /// <summary>The digit glyphs, indexed by the decimal value each draws.</summary>
+    private static readonly EscapeTimerGlyph[] DigitGlyphs =
+    [
+        EscapeTimerGlyph.Digit0, EscapeTimerGlyph.Digit1, EscapeTimerGlyph.Digit2, EscapeTimerGlyph.Digit3, EscapeTimerGlyph.Digit4,
+        EscapeTimerGlyph.Digit5, EscapeTimerGlyph.Digit6, EscapeTimerGlyph.Digit7, EscapeTimerGlyph.Digit8, EscapeTimerGlyph.Digit9,
+    ];
+
+    /// <summary>The decimal value a digit glyph draws.</summary>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="glyph"/> is the label.</exception>
+    public static int DigitValue(EscapeTimerGlyph glyph) => glyph switch
+    {
+        EscapeTimerGlyph.Digit0 => 0,
+        EscapeTimerGlyph.Digit1 => 1,
+        EscapeTimerGlyph.Digit2 => 2,
+        EscapeTimerGlyph.Digit3 => 3,
+        EscapeTimerGlyph.Digit4 => 4,
+        EscapeTimerGlyph.Digit5 => 5,
+        EscapeTimerGlyph.Digit6 => 6,
+        EscapeTimerGlyph.Digit7 => 7,
+        EscapeTimerGlyph.Digit8 => 8,
+        EscapeTimerGlyph.Digit9 => 9,
+        EscapeTimerGlyph.Label => throw new ArgumentOutOfRangeException(nameof(glyph)),
+        _ => throw new ArgumentOutOfRangeException(nameof(glyph)),
+    };
+
+    /// <summary>The JSON frame key of a glyph: Label, or Digit.0 through Digit.9.</summary>
+    public static string FrameName(EscapeTimerGlyph glyph) => glyph switch
+    {
+        EscapeTimerGlyph.Label => LabelFrame,
+        EscapeTimerGlyph.Digit0 => "Digit.0",
+        EscapeTimerGlyph.Digit1 => "Digit.1",
+        EscapeTimerGlyph.Digit2 => "Digit.2",
+        EscapeTimerGlyph.Digit3 => "Digit.3",
+        EscapeTimerGlyph.Digit4 => "Digit.4",
+        EscapeTimerGlyph.Digit5 => "Digit.5",
+        EscapeTimerGlyph.Digit6 => "Digit.6",
+        EscapeTimerGlyph.Digit7 => "Digit.7",
+        EscapeTimerGlyph.Digit8 => "Digit.8",
+        EscapeTimerGlyph.Digit9 => "Digit.9",
+        _ => throw new ArgumentOutOfRangeException(nameof(glyph)),
+    };
+
+    /// <summary>The JSON frame key of the glyph drawing the decimal value <paramref name="digit"/>.</summary>
+    public static string DigitFrame(int digit) => FrameName(DigitGlyph(digit));
+
+    /// <summary>The JSON key of an anchor, whose coordinates are pixel offsets from the live timer origin.</summary>
+    public static string AnchorName(EscapeTimerAnchor anchor) => anchor switch
+    {
+        EscapeTimerAnchor.Label => "Label",
+        EscapeTimerAnchor.Minutes => "Minutes",
+        EscapeTimerAnchor.Seconds => "Seconds",
+        EscapeTimerAnchor.Centiseconds => "Centiseconds",
+        _ => throw new ArgumentOutOfRangeException(nameof(anchor)),
+    };
     /// <summary>The last OBJ character a square part of <paramref name="size"/> pixels reads from <paramref name="tileNumber"/>.</summary>
     internal static int LastCharacterRead(int tileNumber, int size) =>
         tileNumber + (size / 8 - 1) * (SpriteArtwork.CharactersPerRow + 1);
@@ -56,24 +108,23 @@ public static class EscapeTimerPresentationDefinitions
     internal const int TimerPriority = 3;
 
     /// <summary>$80:9F7B/9F84/9F8D: three two-digit groups separated by one cell, centered across eight cells.</summary>
-    internal static Offset16<OamPixels> DefaultAnchor(string name)
+    internal static Offset16<OamPixels> DefaultAnchor(EscapeTimerAnchor anchor) => anchor switch
     {
-        if (name == "Label") return new(0, 0);
-        int group = name switch { "Minutes" => 0, "Seconds" => 1, "Centiseconds" => 2,
-            _ => throw new ArgumentOutOfRangeException(nameof(name)) };
-        return new(checked((short)((3 * group * 2 - 7) * GlyphWidth / 2)), 0);
-    }
+        EscapeTimerAnchor.Label => new(0, 0),
+        EscapeTimerAnchor.Minutes => GroupAnchor(0),
+        EscapeTimerAnchor.Seconds => GroupAnchor(1),
+        EscapeTimerAnchor.Centiseconds => GroupAnchor(2),
+        _ => throw new ArgumentOutOfRangeException(nameof(anchor)),
+    };
+
+    /// <summary>The tens-digit origin of the <paramref name="group"/>th two-digit group.</summary>
+    private static Offset16<OamPixels> GroupAnchor(int group) => new(checked((short)((3 * group * 2 - 7) * GlyphWidth / 2)), 0);
 
     /// <summary>Exact ordered native digit/label geometry. Font ink pixels remain owned by EscapeTimerTileAtlas.</summary>
-    internal static SpriteComposition DefaultFrame(string name) => SpriteComposition.FromCalculated(DefaultParts(name));
-    /// <summary>Selects the calculated TIME label or decimal glyph parts from a canonical frame key.</summary>
-    internal static PartSequence DefaultParts(string name)
-    {
-        if (name == LabelFrame) return new(-1);
-        if (name.StartsWith("Digit.", StringComparison.Ordinal) && int.TryParse(name.AsSpan(6), out int digit)
-            && (uint)digit < DecimalDigitCount) return new(digit);
-        throw new ArgumentOutOfRangeException(nameof(name));
-    }
+    internal static SpriteComposition DefaultFrame(EscapeTimerGlyph glyph) => SpriteComposition.FromCalculated(DefaultParts(glyph));
+    /// <summary>Selects the calculated TIME label or decimal glyph parts.</summary>
+    internal static PartSequence DefaultParts(EscapeTimerGlyph glyph) =>
+        new(glyph == EscapeTimerGlyph.Label ? -1 : DigitValue(glyph));
     /// <summary>Yields the native small-OBJ tile order for one digit or the TIME label and separators.</summary>
     internal readonly struct PartSequence(int digit) : IReadOnlyList<CompiledSpritePart>
     {

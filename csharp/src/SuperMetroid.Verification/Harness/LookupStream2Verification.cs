@@ -716,15 +716,17 @@ internal static class LookupStream2Verification
         var document = RequiredJson.Deserialize<PauseReserveUiDocument>(json,
             ArtworkJson.Options);
         int words = 0;
-        foreach ((string name, PauseReserveLabelVisual label) in document.Labels)
+        foreach (PauseReserveLabel id in PauseReserveUiDefinitions.Labels)
         {
+            string name = PauseReserveUiDefinitions.Name(id);
+            PauseReserveLabelVisual label = document.Labels[name];
             byte[] native = PauseTileGrid.Compile(label.Cells, name);
             int nativeOffset = (label.Anchor.Row * 32 + label.Anchor.Column) * 2;
-            AssertEqual(nativeOffset, PauseReserveUiDefinitions.StockLabelOffset(name), "Native reserve text destination");
+            AssertEqual(nativeOffset, PauseReserveUiDefinitions.StockLabelOffset(id), "Native reserve text destination");
             for (int cell = 0; cell < label.Cells.Length; cell++)
             {
                 AssertEqual(System.Buffers.Binary.BinaryPrimitives.ReadUInt16LittleEndian(native.AsSpan(cell * 2)),
-                    PauseReserveUiDefinitions.StockLabelWord(name, cell), "Native reserve glyph/palette/priority");
+                    PauseReserveUiDefinitions.StockLabelWord(id, cell), "Native reserve glyph/palette/priority");
                 words++;
             }
             for (int edit = -1; edit < label.Cells.Length; edit++)
@@ -747,7 +749,7 @@ internal static class LookupStream2Verification
                         if (preserve) value = (ushort)(0x5555 & 0xfc00 | value & 0x03ff);
                         System.Buffers.Binary.BinaryPrimitives.WriteUInt16LittleEndian(expected.AsSpan(nativeOffset + cell * 2), value);
                     }
-                    selected.ApplyLabel(actual, name, preserve ? LabelAttributes.Preserve : LabelAttributes.Replace);
+                    selected.ApplyLabel(actual, id, preserve ? LabelAttributes.Preserve : LabelAttributes.Replace);
                     AssertTrue(expected.SequenceEqual(actual), "Actual reserve label patch preserves edits, attribute policy and surrounding bytes");
                 }
             }
@@ -759,14 +761,14 @@ internal static class LookupStream2Verification
             byte[] movedActual = new byte[32 * 32 * 2];
             byte[] movedExpected = movedActual.ToArray();
             native.CopyTo(movedExpected, nativeOffset + 2);
-            moved.ApplyLabel(movedActual, name);
+            moved.ApplyLabel(movedActual, id);
             AssertTrue(movedExpected.SequenceEqual(movedActual), "Independent reserve label placement edit");
         }
         AssertEqual(22, words, "All native reserve label words");
         var stock = PauseReserveUiPresentation.Load(new MemoryStream(json));
-        AssertThrows<InvalidDataException>(() => stock.ApplyLabel(new byte[2048], "unknown"), "Unknown reserve label rejected");
-        AssertThrows<ArgumentException>(() => stock.ApplyLabel(new byte[1], "Manual"), "Short reserve destination rejected");
-        AssertThrows<ArgumentOutOfRangeException>(() => PauseReserveUiDefinitions.StockLabelWord("Auto", 4), "Reserve glyph upper bound rejected");
+        AssertThrows<InvalidDataException>(() => stock.ApplyLabel(new byte[2048], (PauseReserveLabel)byte.MaxValue), "Unknown reserve label rejected");
+        AssertThrows<ArgumentException>(() => stock.ApplyLabel(new byte[1], PauseReserveLabel.Manual), "Short reserve destination rejected");
+        AssertThrows<ArgumentOutOfRangeException>(() => PauseReserveUiDefinitions.StockLabelWord(PauseReserveLabel.Auto, 4), "Reserve glyph upper bound rejected");
         Console.WriteLine("Reserve labels:22 native words/four destinations,22 independent cell edits,56 actual attribute-preserving/ordinary/moved patches and bounds pass; independent glyph/arrow inputs remain required.");
     }
 
@@ -778,22 +780,24 @@ internal static class LookupStream2Verification
             ArtworkJson.Options);
         var stock = PauseEquipmentLabelPresentation.Load(new MemoryStream(json));
         int words = 0;
-        foreach ((string key, PauseEquipmentLabel label) in document.Labels)
+        foreach (PauseEquipmentLabelId id in Enum.GetValues<PauseEquipmentLabelId>())
         {
+            string key = PauseEquipmentLabelDefinitions.Name(id);
+            PauseEquipmentLabel label = document.Labels[key];
             byte[] native = PauseTileGrid.Compile(label.Cells, key);
             AssertEqual((label.Row * 32 + label.Column) * 2,
-                PauseEquipmentLabelDefinitions.StockDestinationByte(key), "Native semantic label placement");
+                PauseEquipmentLabelDefinitions.StockDestinationByte(id), "Native semantic label placement");
             for (int cell = 0; cell < label.Cells.Length; cell++)
             {
                 AssertEqual(System.Buffers.Binary.BinaryPrimitives.ReadUInt16LittleEndian(native.AsSpan(cell * 2)),
-                    PauseEquipmentLabelDefinitions.StockWord(key, cell), "Native packed glyph fragment");
+                    PauseEquipmentLabelDefinitions.StockWord(id, cell), "Native packed glyph fragment");
                 words++;
             }
         }
         int changedCells = 0;
         foreach (var identity in PauseEquipmentLabelDefinitions.Labels())
         {
-            string key = identity.Key;
+            string key = PauseEquipmentLabelDefinitions.Name(identity.Label);
             PauseEquipmentLabel label = document.Labels[key];
             for (int edit = -1; edit < label.Cells.Length; edit++)
             {
@@ -828,8 +832,8 @@ internal static class LookupStream2Verification
         }
         byte[] overrun = new byte[32 * 32 * 2];
         stock.ApplyLabel(overrun, PauseEquipmentCategory.Beams, 4, 9, false);
-        PauseEquipmentLabel plasma = document.Labels[PauseEquipmentLabelDefinitions.PlasmaKey];
-        PauseEquipmentLabel varia = document.Labels[PauseEquipmentLabelDefinitions.VariaKey];
+        PauseEquipmentLabel plasma = document.Labels[PauseEquipmentLabelDefinitions.Name(PauseEquipmentLabelId.Plasma)];
+        PauseEquipmentLabel varia = document.Labels[PauseEquipmentLabelDefinitions.Name(PauseEquipmentLabelId.Varia)];
         byte[] tail = PauseTileGrid.Compile(varia.Cells, "Native contiguous Varia tail");
         AssertTrue(tail.AsSpan(0, 8).SequenceEqual(overrun.AsSpan((plasma.Row * 32 + plasma.Column + 5) * 2, 8)),
             "Nine-word Plasma patch retains four exact contiguous Varia words");
@@ -866,9 +870,9 @@ internal static class LookupStream2Verification
             "Independent moved label retains its edited destination and untouched original cell");
         AssertEqual(115, words, "All native equipment glyph words");
         AssertEqual(106, changedCells, "All ordinary label glyph cells edited independently");
-        AssertThrows<ArgumentOutOfRangeException>(() => PauseEquipmentLabelDefinitions.StockWord("unknown", 0), "Unknown label rejected");
-        AssertThrows<ArgumentOutOfRangeException>(() => PauseEquipmentLabelDefinitions.StockWord("Beam.Ice", -1), "Negative label cell rejected");
-        AssertThrows<ArgumentOutOfRangeException>(() => PauseEquipmentLabelDefinitions.StockWord("Beam.Ice", 5), "Label cell upper bound rejected");
+        AssertThrows<ArgumentOutOfRangeException>(() => PauseEquipmentLabelDefinitions.StockWord((PauseEquipmentLabelId)byte.MaxValue, 0), "Unknown label rejected");
+        AssertThrows<ArgumentOutOfRangeException>(() => PauseEquipmentLabelDefinitions.StockWord(PauseEquipmentLabelId.Ice, -1), "Negative label cell rejected");
+        AssertThrows<ArgumentOutOfRangeException>(() => PauseEquipmentLabelDefinitions.StockWord(PauseEquipmentLabelId.Ice, 5), "Label cell upper bound rejected");
         Console.WriteLine("Pause equipment labels:115 native words/15placements,106 ordinary and five Hyper cell edits, disabled recoloring, exact Plasma/Varia overrun, source hashes and bounds pass; glyph artwork remains independent.");
     }
 
@@ -906,7 +910,7 @@ internal static class LookupStream2Verification
                 byte[] blankBytes = PauseTileGrid.Compile(blank, "Reference blank");
                 foreach (var identity in PauseEquipmentLabelDefinitions.Labels())
                 {
-                    PauseEquipmentLabel label = selected.Labels[identity.Key];
+                    PauseEquipmentLabel label = selected.Labels[PauseEquipmentLabelDefinitions.Name(identity.Label)];
                     int destination = (label.Row * 32 + label.Column) * 2;
                     int length = PauseEquipmentLabelDefinitions.WordCount(identity.Category) * 2;
                     blankBytes.AsSpan(0, length).CopyTo(expected.AsSpan(destination, length));

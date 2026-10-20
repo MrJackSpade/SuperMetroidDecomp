@@ -41,7 +41,17 @@ internal sealed class TesterTools
         _system.LoadOpenedDoorBytes(doors);
     }
     /// <summary>Tracks the Samus instance already granted full inventory to avoid reapplying it after ammo use.</summary>
-    internal SamusState? testerInventoryRecipient;
+    private SamusState? testerInventoryRecipient;
+
+    /// <summary>Carries the grant over to <paramref name="replacement"/> when it replaces the Samus already granted, so the grant is not repeated.</summary>
+    internal void CarryInventoryGrant(SamusState carried, SamusState replacement)
+    {
+        if (ReferenceEquals(testerInventoryRecipient, carried))
+            testerInventoryRecipient = replacement;
+    }
+
+    /// <summary>Forgets which Samus was granted, so the next initialization grants again; turning the option on does this.</summary>
+    internal void ForgetInventoryGrant() => testerInventoryRecipient = null;
     /// <summary>Whether the host's tester option grants the configured full inventory once to each initialized or restored Samus actor.</summary>
     public bool GrantAllEquipmentEnabled { get; internal set; }
     /// <summary>Whether the host's tester option bypasses the Tourian statue unlock event while preserving the room sequence's authored setup and scrolling effects.</summary>

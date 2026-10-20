@@ -26,7 +26,7 @@ internal static class TourianStatueWaterVerification
         var projectiles=InstalledFixtures.Projectiles;
         InstalledFixtures.BindGame(game);
         game.Session.CreateGameplayRuntime(GameplayRuntimePurpose.SelectedGame);
-        var runtime=game.Session.runtime;
+        var runtime = game.Session.GameplayRuntime;
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.System.SetEvent(EventNumber.ZebesAwake);
@@ -68,7 +68,7 @@ internal static class TourianStatueWaterVerification
         AssertTrue(direct.SequenceEqual(wetPixels), "Immediate and captured composition agree for the actual water room");
         AssertEqual<ushort[]?>(null, SnesGameplayFrameRenderer.BuildWaterBg2HorizontalScrolls(displayed, new Position16<Bg2Pixels>(0, 0)),
             "Special statue FX does not install ordinary-water BG2 X-wave HDMA");
-        runtime.TourianStatues.descent = 64 << 16;
+        runtime.TourianStatues.Descent = 64 << 16;
         runtime.TourianStatues.LatchDisplay();
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         var descending = (OrdinaryGameplayRenderLayer)GameplayDisplayCapture.CaptureOrdinaryBase(runtime.PublishDisplayFrame()).Layers[0];

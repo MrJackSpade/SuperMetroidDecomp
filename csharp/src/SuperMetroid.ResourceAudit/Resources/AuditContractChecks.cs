@@ -88,7 +88,6 @@ internal static class AuditContractChecks
         ProjectilePresentationContractChecks.Run();
         SamusArtworkPresentationContractChecks.Run();
         BackgroundTransferPresentationContractChecks.Run();
-        FinitePresentationNameFlowChecks.Run();
         RoomArtworkPresentationContractChecks.Run();
         AreaMapPresentationContractChecks.Run();
         RoomRevealPresentationContractChecks.Run();

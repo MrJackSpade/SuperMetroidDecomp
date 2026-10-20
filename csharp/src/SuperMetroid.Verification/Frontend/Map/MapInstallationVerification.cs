@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend.Options;
 using SuperMetroid.Tooling;
 using static SuperMetroid.Verification.Harness.RepositoryInputsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -181,7 +182,7 @@ internal static class MapInstallationVerification
         File.WriteAllText(arrowOverride, arrows.ToJsonString());
         string screenOverride = Path.Combine(installation.MapOverrideDirectory, MapScreenDefinitions.FileName);
         var screens = RequiredJson.Parse(File.ReadAllText(Path.Combine(installation.MapDirectory, MapScreenDefinitions.FileName)));
-        screens.Required("pages").Required(MapScreenDefinitions.WorldForeground).Required(0)["flipX"] = true;
+        screens.Required("pages").Required(MapScreenDefinitions.WorldForeground.Name).Required(0)["flipX"] = true;
         File.WriteAllText(screenOverride, screens.ToJsonString());
         string backdropOverride = Path.Combine(installation.MapOverrideDirectory, PauseBackdropDefinitions.FileName);
         var backdrops = RequiredJson.Parse(File.ReadAllText(Path.Combine(installation.MapDirectory, PauseBackdropDefinitions.FileName)));
@@ -238,7 +239,7 @@ internal static class MapInstallationVerification
         File.WriteAllText(gameOverOverride, gameOver.ToJsonString());
         string gameOptionsOverride = Path.Combine(installation.MapOverrideDirectory, GameOptionsPresentationDefinitions.FileName);
         var gameOptions = RequiredJson.Parse(File.ReadAllText(Path.Combine(installation.MapDirectory, GameOptionsPresentationDefinitions.FileName)));
-        gameOptions.Required("cursorAnchors").Required(GameOptionsPresentationDefinitions.PrimaryMenu).Required(0)["x"] = 32;
+        gameOptions.Required("cursorAnchors").Required(GameOptionsPresentationDefinitions.MenuName(GameOptionsPage.Primary)).Required(0)["x"] = 32;
         File.WriteAllText(gameOptionsOverride, gameOptions.ToJsonString());
         string fileSelectOverride = Path.Combine(installation.MapOverrideDirectory, FileSelectPresentationDefinitions.FileName);
         var fileSelect = RequiredJson.Parse(File.ReadAllText(Path.Combine(installation.MapDirectory, FileSelectPresentationDefinitions.FileName)));

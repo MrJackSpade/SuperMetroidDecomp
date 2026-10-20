@@ -262,7 +262,7 @@ internal sealed class BlockReactionPlms
         bool areaDependent = bts.UsesAreaReactionTable;
         if (areaDependent && !bts.IsAreaReactionIndex(8))
         {
-            throw new ArgumentOutOfRangeException(
+            throw new UnsupportedShotBlockReactionException(
                 nameof(bts),
                 "Area-dependent shootable BTS must address one of its eight native entries.");
         }
@@ -270,7 +270,7 @@ internal sealed class BlockReactionPlms
             !bts.IsNormalReactionIndex(16) &&
             !bts.IsShootableCollisionProbe && !bts.IsUnusedShootableReaction)
         {
-            throw new ArgumentOutOfRangeException(
+            throw new UnsupportedShotBlockReactionException(
                 nameof(bts),
                 $"Shootable BTS ${bts.Value:X2} requires a specialized reaction outside the breakable/nothing PLM dispatcher.");
         }

@@ -51,7 +51,7 @@ internal static class PauseMapAreaLabelsVerification
             var pause = CreateRetailPauseFixture(new PauseMenuEntry { Samus = new SamusState(), System = system, AreaIndex = area, RoomMapPosition = new(0, 0) });
             int list = 0x820000 | Read(0x82c74d + (int)area * 2);
             ushort x = unchecked((ushort)(Read(list) - 128)), y = unchecked((ushort)(Read(list + 2) - 100));
-            pause.mapScrollPosition = new Position16<MapPixels>(x, y);
+            pause.MapScrollPosition = new Position16<MapPixels>(x, y);
             var native = new OamBuffer(); native.BeginFrame();
             for (int entry = list; Read(entry) != 0xffff; entry += 6)
             {

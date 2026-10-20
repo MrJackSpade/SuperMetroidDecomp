@@ -29,8 +29,8 @@ internal static class EndingWavySamusTests
         scene.LoadCreditsAndPostCreditsAssets();
         scene.SetupPostCreditsBlank();
         scene.Phase = EndingCreditsPhase.PostCreditsShootingStars;
-        scene.phaseTimer = 1;
-        scene.brightness = 15;
+        scene.PhaseTimer = 1;
+        scene.Brightness = 15;
         Require(!scene.Presentation.CaptureRenderSnapshot().LayersOf<BgSubscreenAddRenderLayer>().Any(), "Wave must not start during the palette fade");
         scene.Step();
         Rgba32[]? previous = null;

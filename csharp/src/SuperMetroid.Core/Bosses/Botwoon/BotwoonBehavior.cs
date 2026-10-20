@@ -57,7 +57,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
     private const int BotwoonSpecialDropCount = 16;
 
     /// <summary>Per-room movement, head-animation, body, and wall-collapse state.</summary>
-    internal BotwoonEnemyState? BotwoonState;
+    internal BotwoonEnemyState? BotwoonState { get; set; }
     /// <summary>Last sound selected by Botwoon in the current enemy frame.</summary>
     public SoundEffectId? LastBotwoonSoundEffect { get; internal set; }
 

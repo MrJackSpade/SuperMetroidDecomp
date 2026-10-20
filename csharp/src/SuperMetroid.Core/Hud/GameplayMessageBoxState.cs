@@ -23,7 +23,7 @@ namespace SuperMetroid.Core.Hud;
 public sealed class GameplayMessageBoxState
 {
     /// <summary>BG3 words for the active message, including its current confirmation cursor.</summary>
-    internal ushort[] TilemapWords = [];
+    internal ushort[] TilemapWords { get; set; } = [];
     /// <summary>Editable item-title artwork rebound after asset reload or state restoration.</summary>
     [NonSerialized] private GameplayMessageTitlePresentation? titlePresentation;
     /// <summary>Editable item-panel artwork, including remappable button glyphs.</summary>

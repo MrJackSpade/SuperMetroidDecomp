@@ -7,9 +7,9 @@ internal static class GameOverMenuStateAccess
     extension(GameOverMenuState self)
     {
         /// <summary>Currently displayed Baby Metroid pose; the first step's pose before the program starts.</summary>
-        internal GameOverBabyFrame BabyFrame => GameOverBabyAnimation.Get(self.babyStep ?? 0).Frame;
+        internal GameOverBabyFrame BabyFrame => GameOverBabyAnimation.Get(self.BabyStep ?? 0).Frame;
 
         /// <summary>Current step of the Baby pose program, or null before its first animation update.</summary>
-        internal int? BabyStep => self.babyStep;
+        internal int? BabyStep => self.BabyStep;
     }
 }

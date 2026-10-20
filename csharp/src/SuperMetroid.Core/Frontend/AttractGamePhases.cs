@@ -22,26 +22,21 @@ internal sealed class AttractGamePhases(FrontendSession session)
         switch (session.GameState)
         {
             case SuperMetroidGameState.TransitionToDemoA:
-                if (session.demoLoadFramesRemaining < 0)
+                if (session.Demo.AwaitsScene)
                 {
-                    AttractDemoScene scene = StockAttractDemoScenes.Get(session.demoSet, session.demoScene)
+                    AttractDemoScene scene = session.Demo.NextScene
                         ?? throw new InvalidDataException("Demo loader reached an end-of-set marker instead of a scene.");
                     // A separate runtime owns all demo progression and inventory. Never
                     // restore demo state into a selected save or publish checkpoints.
                     session.CreateGameplayRuntime(GameplayRuntimePurpose.AttractDemo);
-                    session.runtime.AttractDemo.InitializeAttractDemo(scene);
-                    session.demoFramesRemaining = scene.Duration;
-                    session.demoScene++;
-                    session.demoHoldFramesRemaining = 0;
-                    session.demoCancelled = false;
-                    session.demoLoadFramesRemaining = AttractDemoRomData.EnemyTransferFrames;
-                    session.lastAudioRoomState = null;
-                    session.lastAudioRuntimeGameplayPublication = null;
+                    session.GameplayRuntime.AttractDemo.InitializeAttractDemo(scene);
+                    session.Demo.Begin(scene);
+                    session.ForgetQueuedAudio();
                 }
                 else
                 {
                     session.GameplayRuntime.RunBlankGameplayFrame(controllerInput);
-                    if (--session.demoLoadFramesRemaining == 0)
+                    if (session.Demo.CountLoadFrame())
                         session.GameState = SuperMetroidGameState.TransitionToDemoB;
                 }
                 session.display.PublishBlack();
@@ -56,14 +51,14 @@ internal sealed class AttractGamePhases(FrontendSession session)
                 break;
 
             case SuperMetroidGameState.PlayingDemo:
-                if (session.demoHoldFramesRemaining != 0)
+                if (session.Demo.Holding)
                 {
                     // Native is suspended in WaitForNMI here: no actor, animation, or
                     // script advances during the ninety-frame final-image hold.
                     session.GameplayRuntime.FrameBoundary.BeginAcceptedFrame(controllerInput);
                     if (session.GameplayRuntime.Controller1.NewlyPressed != 0)
                         FinishAttractPlayback(end: AttractPlaybackEnd.Cancelled);
-                    else if (--session.demoHoldFramesRemaining == 0)
+                    else if (session.Demo.CountHoldFrame())
                         FinishAttractPlayback(end: AttractPlaybackEnd.Completed);
                 }
                 else
@@ -73,52 +68,43 @@ internal sealed class AttractGamePhases(FrontendSession session)
                     // Demo beta has restored the physical controller pair at this point.
                     if (session.GameplayRuntime.Controller1.NewlyPressed != 0)
                         FinishAttractPlayback(end: AttractPlaybackEnd.Cancelled);
-                    else if (--session.demoFramesRemaining <= 0)
-                        session.demoHoldFramesRemaining = AttractDemoRomData.FinalImageHoldFrames;
+                    else
+                        session.Demo.CountPlaybackFrame();
                 }
                 break;
 
             case SuperMetroidGameState.TransitionFromDemoA:
-                session.demoHasNextScene = false;
-                if (!session.demoCancelled)
-                {
-                    session.demoHasNextScene = StockAttractDemoScenes.Get(session.demoSet, session.demoScene) is not null;
-                    if (!session.demoHasNextScene)
-                    {
-                        session.demoSet = (session.demoSet + 1) % session.AvailableDemoSetCount();
-                        session.demoScene = 0;
-                    }
-                }
+                session.Demo.AdvanceAfterScene(session.AvailableDemoSetCount());
                 session.ReleaseRuntime();
                 session.display.PublishBlack();
                 session.GameState = SuperMetroidGameState.TransitionFromDemoB;
                 break;
 
             case SuperMetroidGameState.TransitionFromDemoB:
-                if (session.demoHasNextScene)
+                if (session.Demo.HasNextScene)
                 {
-                    session.demoLoadFramesRemaining = -1;
+                    session.Demo.LoadNextScene();
                     session.GameState = SuperMetroidGameState.TransitionToDemoA;
                 }
                 else
                 {
-                    if (session.demoCancelled)
-                        session.title = TitleSequenceState.ReturnFromDemo(
+                    if (session.Demo.Cancelled)
+                        session.Show(TitleSequenceState.ReturnFromDemo(
                             session.audio,
                             session.Artwork.MapPresentation?.TitleGradient,
                             session.Artwork.MapPresentation?.TitlePalette,
-                            session.Artwork.MapPresentation?.TitleGraphics);
+                            session.Artwork.MapPresentation?.TitleGraphics));
                     else
                     {
                         session.audio.QueueMusicDelayed8(MusicCommand.Stop);
-                        session.title = new TitleSequenceState(
+                        session.Show(new TitleSequenceState(
                             session.audio,
                             session.Artwork.MapPresentation?.TitleGradient,
                             session.Artwork.MapPresentation?.TitlePalette,
-                            session.Artwork.MapPresentation?.TitleGraphics);
+                            session.Artwork.MapPresentation?.TitleGraphics));
                     }
                     session.GameState = SuperMetroidGameState.OpeningCinematic;
-                    session.display.PublishMenu(session.title);
+                    session.display.PublishMenu(session.ActiveTitle);
                 }
                 break;
             case SuperMetroidGameState.Reset:
@@ -169,7 +155,7 @@ internal sealed class AttractGamePhases(FrontendSession session)
     /// <summary>Starts the native transition out of a completed or canceled demo scene.</summary>
     private void FinishAttractPlayback(AttractPlaybackEnd end)
     {
-        session.demoCancelled = end == AttractPlaybackEnd.Cancelled;
+        session.Demo.Finish(cancelled: end == AttractPlaybackEnd.Cancelled);
         session.GameState = SuperMetroidGameState.TransitionFromDemoA;
         session.display.PublishBlack();
     }

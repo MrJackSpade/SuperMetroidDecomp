@@ -15,8 +15,7 @@ internal static class PauseTileGrid
             throw new InvalidDataException($"Pause artwork {name} references unloaded character {character}.");
         return new()
         {
-            Atlas = character < PauseBackdropDefinitions.AtlasTileCount
-                ? PauseBackdropDefinitions.MapAtlas : PauseBackdropDefinitions.InterfaceAtlas,
+            Atlas = character < PauseBackdropDefinitions.AtlasTileCount ? PauseAtlas.Map : PauseAtlas.Interface,
             TileColumn = character % PauseBackdropDefinitions.AtlasColumns,
             TileRow = character % PauseBackdropDefinitions.AtlasTileCount / PauseBackdropDefinitions.AtlasColumns,
             Palette = word.PaletteIndex,
@@ -35,10 +34,10 @@ internal static class PauseTileGrid
             var cell = cells[index];
             if (cell is null || (uint)cell.TileColumn >= PauseBackdropDefinitions.AtlasColumns ||
                 (uint)cell.TileRow >= PauseBackdropDefinitions.AtlasRows || (uint)cell.Palette >= MapPresentationFormat.PaletteCount ||
-                cell.Atlas is not (PauseBackdropDefinitions.MapAtlas or PauseBackdropDefinitions.InterfaceAtlas))
+                !Enum.IsDefined(cell.Atlas))
                 throw new InvalidDataException($"Pause artwork {name} cell {index} has an invalid atlas, coordinate or palette.");
             int character = cell.TileRow * PauseBackdropDefinitions.AtlasColumns + cell.TileColumn;
-            if (cell.Atlas == PauseBackdropDefinitions.InterfaceAtlas) character += PauseBackdropDefinitions.AtlasTileCount;
+            if (cell.Atlas == PauseAtlas.Interface) character += PauseBackdropDefinitions.AtlasTileCount;
             ushort word = (ushort)(character | cell.Palette << MapPresentationFormat.PaletteShift |
                 (cell.Priority ? MapPresentationFormat.PriorityBit : 0) |
                 (cell.FlipX ? MapPresentationFormat.FlipXBit : 0) | (cell.FlipY ? MapPresentationFormat.FlipYBit : 0));

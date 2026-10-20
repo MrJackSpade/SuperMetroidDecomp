@@ -14,13 +14,13 @@ internal static class GameOverBabyColorsVerification
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     internal static void VerifyGameOverBabyColors(ISnesAddressSpace rom)
     {
-        var palettes = new Dictionary<string, ushort[]>();
+        var palettes = new Dictionary<GameOverBabyPalette, ushort[]>();
         for (int phase = 0; phase < 4; phase++)
         {
             var colors = new ushort[16];
             for (int ink = 0; ink < 16; ink++)
                 colors[ink] = ReadVerificationWord(rom, 0x82bd97 + phase * 32 + ink * 2);
-            palettes.Add(GameOverPresentationDefinitions.BabyPaletteName((GameOverBabyPalette)phase), colors);
+            palettes.Add((GameOverBabyPalette)phase, colors);
         }
         var catalog = new GameOverBabyColorCatalog(palettes.ToDictionary(entry => entry.Key, entry => ToColors(entry.Value)));
         byte[] json = GameOverPresentationExtractor.Extract(rom);
@@ -51,7 +51,7 @@ internal static class GameOverBabyColorsVerification
                 var changed = new GameOverBabyColorCatalog(palettes.ToDictionary(entry => entry.Key, entry => ToColors(entry.Value)));
                 for (int phase = 0; phase < 4; phase++)
                 for (int target = 0; target < 16; target++)
-                    AssertEqual(palettes[GameOverPresentationDefinitions.BabyPaletteName((GameOverBabyPalette)phase)][target],
+                    AssertEqual(palettes[(GameOverBabyPalette)phase][target],
                         changed.Read((GameOverBabyPalette)phase, target), "independent Baby color edit");
             }
             edited[ink] = original;

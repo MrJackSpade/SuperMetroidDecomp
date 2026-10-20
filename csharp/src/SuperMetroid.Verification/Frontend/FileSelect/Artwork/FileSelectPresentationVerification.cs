@@ -82,12 +82,12 @@ internal static class FileSelectPresentationVerification
         document.HelmetAnchors[0] = document.HelmetAnchors[0] with
             { X = (ushort)(document.HelmetAnchors[0].X + 8) };
         MapPresentationCell pageCell = document.Pages[
-            FileSelectPresentationDefinitions.MainWithDataPage][0x2b];
-        document.Pages[FileSelectPresentationDefinitions.MainWithDataPage][0x2b] =
+            FileSelectPresentationDefinitions.PageName(FileSelectPage.MainWithData)][0x2b];
+        document.Pages[FileSelectPresentationDefinitions.PageName(FileSelectPage.MainWithData)][0x2b] =
             pageCell with { FlipX = !pageCell.FlipX };
         FileSelectPatchCellDocument energyCell = document.Patches[
-            FileSelectPresentationDefinitions.EnergyPatch].Cells[0];
-        document.Patches[FileSelectPresentationDefinitions.EnergyPatch].Cells[0] =
+            FileSelectPresentationDefinitions.PatchName(FileSelectPatch.Energy)].Cells[0];
+        document.Patches[FileSelectPresentationDefinitions.PatchName(FileSelectPatch.Energy)].Cells[0] =
             energyCell with { Cell = energyCell.Cell with { FlipY = !energyCell.Cell.FlipY } };
         Directory.CreateDirectory(overrides);
         string replacement = Path.Combine(overrides,
@@ -128,14 +128,14 @@ internal static class FileSelectPresentationVerification
             "file-select rejects invalid object palette");
         var missingPage = RequiredJson.Deserialize<FileSelectPresentationDocument>(
             extracted, ArtworkJson.Options);
-        missingPage.Pages.Remove(FileSelectPresentationDefinitions.CopyCompletedPage);
+        missingPage.Pages.Remove(FileSelectPresentationDefinitions.PageName(FileSelectPage.CopyCompleted));
         AssertThrows<InvalidDataException>(() => FileSelectPresentation.Write(Stream.Null, missingPage),
             "file-select rejects a missing named page");
         var duplicatePatch = RequiredJson.Deserialize<FileSelectPresentationDocument>(
             extracted, ArtworkJson.Options);
         FileSelectPatchCellDocument duplicate = duplicatePatch.Patches[
-            FileSelectPresentationDefinitions.NoDataPatch].Cells[0];
-        duplicatePatch.Patches[FileSelectPresentationDefinitions.NoDataPatch] = new()
+            FileSelectPresentationDefinitions.PatchName(FileSelectPatch.NoData)].Cells[0];
+        duplicatePatch.Patches[FileSelectPresentationDefinitions.PatchName(FileSelectPatch.NoData)] = new()
         {
             Cells = [duplicate, duplicate],
         };

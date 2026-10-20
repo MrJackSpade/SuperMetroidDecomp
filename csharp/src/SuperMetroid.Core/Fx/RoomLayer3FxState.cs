@@ -63,23 +63,23 @@ public sealed class RoomLayer3FxState
     /// Rain, fog, and spores texture drift: one 8.8 accumulator per axis. Its signed high
     /// byte offsets BG3 scroll before the next velocity step.
     /// </summary>
-    internal Offset16<Bg3Subpixels> drift;
+    private Offset16<Bg3Subpixels> drift;
     /// <summary>
     /// Rain's horizontal texture drift per frame in 8.8 pixels, chosen from the random number when the room loads;
     /// only X is set. The fall is <see cref="RainFallVelocity"/>.
     /// </summary>
     private Offset16<Bg3Subpixels> rainWindVelocity;
     /// <summary>Previous layer-one camera point, used to make rain follow camera movement.</summary>
-    internal Position16<RoomPixels> previousCamera;
+    private Position16<RoomPixels> previousCamera;
     /// <summary>How many tide-phase units make one full turn of the negative-cosine lookup.</summary>
     private const int TidePhasePeriod = 65536;
     /// <summary>
     /// Negative-cosine lookup phase for the liquid tide, 0 through 65535: its whole 1/256 turns select the sample, and
     /// it returns to zero after a full turn through <see cref="AdvanceTidePhase"/>.
     /// </summary>
-    internal int tidePhase;
+    internal int TidePhase { get; set; }
     /// <summary>Signed fixed-point tide displacement added to the base surface.</summary>
-    internal int tideFixedOffset;
+    internal int TideFixedOffset { get; set; }
     /// <summary>
     /// Water's BG3 surface drift: an 8.8 horizontal accumulator whose signed whole pixels offset the surface
     /// texture. Only X moves.
@@ -103,12 +103,12 @@ public sealed class RoomLayer3FxState
     /// Set after the first liquid BG3 HDMA pass installs its pre-instruction. Later passes
     /// run it before main-loop RNG; water uses this latch despite its older lava/acid name.
     /// </summary>
-    internal bool lavaAcidBg3PreInstructionInstalled;
+    internal bool LavaAcidBg3PreInstructionInstalled { get; set; }
     /// <summary>
     /// Records direct deletion of liquid scroll HDMA objects at $A9:8C0C, which stops
     /// their per-frame updates until the next room load.
     /// </summary>
-    internal bool liquidHdmaObjectsDeleted;
+    internal bool LiquidHdmaObjectsDeleted { get; set; }
 
     /// <summary>HDMA-object variable two of the lava/acid BG3 object: the ambient sound timer.</summary>
     private NativeCountdown lavaSoundTimer;
@@ -119,9 +119,9 @@ public sealed class RoomLayer3FxState
     /// <summary>Rebound sound recipient for effect requests after a debugger restore.</summary>
     [NonSerialized] private SamusPowerBombExplosionState? audioPowerBomb;
     /// <summary>Countdown between quake sound requests in earthquake FX rooms.</summary>
-    internal NativeCountdown earthquakeSoundTimer;
+    internal NativeCountdown EarthquakeSoundTimer { get; set; }
     /// <summary>Position in the room earthquake sound sequence.</summary>
-    internal int earthquakeSoundSequenceIndex;
+    internal int EarthquakeSoundSequenceIndex { get; set; }
 
     /// <summary>The literal FX type byte selected from the active room/door record.</summary>
     public RoomFxType Type { get; internal set; }
@@ -215,7 +215,7 @@ public sealed class RoomLayer3FxState
         Ensure.NotNull(cgram);
 
         if (source.Room is { } room && RoomFxRomData.Earthquake.SoundSuppressedRooms.Contains(room))
-            earthquakeSoundTimer = NativeCountdown.Start(ushort.MaxValue);
+            EarthquakeSoundTimer = NativeCountdown.Start(ushort.MaxValue);
         if ((source.SuppliedDefinition ?? source.Fx?.Select(source.Door)) is not { } definition)
             return;
 
@@ -288,14 +288,14 @@ public sealed class RoomLayer3FxState
     public void AdvanceHdmaSharedState(Bank80SystemState system, bool timeIsFrozen)
     {
         Ensure.NotNull(system);
-        if (!MovesLiquidInHdmaPass || liquidHdmaObjectsDeleted)
+        if (!MovesLiquidInHdmaPass || LiquidHdmaObjectsDeleted)
             return;
         bool lavaOrAcid = Type is RoomFxType.Lava or RoomFxType.Acid;
         EarthquakeRequest = null;
         soundRequests.Clear();
-        if (!lavaAcidBg3PreInstructionInstalled)
+        if (!LavaAcidBg3PreInstructionInstalled)
         {
-            lavaAcidBg3PreInstructionInstalled = true;
+            LavaAcidBg3PreInstructionInstalled = true;
             // $88:C3E7 sets the sound timer in the same pass that installs the pre-instruction.
             if (lavaOrAcid)
                 lavaSoundTimer = NativeCountdown.Start(RoomFxRomData.LavaAcid.AmbientSoundPeriod);
@@ -358,7 +358,7 @@ public sealed class RoomLayer3FxState
         // tilemap can name anything other than stale standard-HUD characters.
         animatedTiles.Step(backgrounds, artwork: AnimatedTileArtwork);
 
-        if (liquidHdmaObjectsDeleted && MovesLiquidInHdmaPass)
+        if (LiquidHdmaObjectsDeleted && MovesLiquidInHdmaPass)
             return;
 
         if (Type is RoomFxType.Lava or RoomFxType.Acid)
@@ -685,25 +685,25 @@ public sealed class RoomLayer3FxState
     /// </param>
     private void HandleEarthquakeSoundEffect(int randomNumber, bool mainGameLoopCarry)
     {
-        if (earthquakeSoundTimer.IsNegative)
+        if (EarthquakeSoundTimer.IsNegative)
             return;
 
-        earthquakeSoundTimer = earthquakeSoundTimer.Decrement().Remaining;
-        if (!earthquakeSoundTimer.IsNegative)
+        EarthquakeSoundTimer = EarthquakeSoundTimer.Decrement().Remaining;
+        if (!EarthquakeSoundTimer.IsNegative)
             return;
 
         ReadOnlySpan<ushort> baseTimers =
             RoomFxRomData.Earthquake.RisingLiquidSoundBaseTimers;
-        if ((uint)earthquakeSoundSequenceIndex >= (uint)baseTimers.Length)
-            earthquakeSoundSequenceIndex = 0;
+        if ((uint)EarthquakeSoundSequenceIndex >= (uint)baseTimers.Length)
+            EarthquakeSoundSequenceIndex = 0;
 
         soundRequests.Add(new SoundRequest(
             SoundEffectLibrary2Sounds.Earthquake,
             MaximumQueued: 6,
             SoundSuppressed: audioPowerBomb?.IsActive == true));
-        earthquakeSoundTimer = NativeCountdown.FromRaw(unchecked((ushort)(
-            baseTimers[earthquakeSoundSequenceIndex] + (randomNumber & 3) + (mainGameLoopCarry ? 1 : 0))));
-        earthquakeSoundSequenceIndex++;
+        EarthquakeSoundTimer = NativeCountdown.FromRaw(unchecked((ushort)(
+            baseTimers[EarthquakeSoundSequenceIndex] + (randomNumber & 3) + (mainGameLoopCarry ? 1 : 0))));
+        EarthquakeSoundSequenceIndex++;
     }
 
     /// <summary>The statue HDMA pre-instructions call the same $88:B21D earthquake sound owner.</summary>
@@ -767,24 +767,24 @@ public sealed class RoomLayer3FxState
         }
         else
         {
-            tideFixedOffset = 0;
+            TideFixedOffset = 0;
             return;
         }
 
         // $88:B2DF/$B316 index the negative-cosine prefix, not the sine origin.
-        short sample = EnemyTrigonometryTables.SignedNegativeCosineWord(checked((byte)SnesEightEight.WholeOf(tidePhase)));
-        tideFixedOffset = SnesSixteenSixteen.FromEightEight(sample * scale);
+        short sample = EnemyTrigonometryTables.SignedNegativeCosineWord(checked((byte)SnesEightEight.WholeOf(TidePhase)));
+        TideFixedOffset = SnesSixteenSixteen.FromEightEight(sample * scale);
         AdvanceTidePhase(sample >= 0 ? positiveDelta : negativeDelta);
     }
 
     /// <summary>Moves the tide phase on by <paramref name="delta"/> units, returning to zero after a full turn.</summary>
-    private void AdvanceTidePhase(int delta) => tidePhase = (tidePhase + delta) % TidePhasePeriod;
+    private void AdvanceTidePhase(int delta) => TidePhase = (TidePhase + delta) % TidePhasePeriod;
 
     /// <summary>Adds signed fixed-point tide displacement to the base liquid surface.</summary>
     private ushort ComputeTidalYPosition()
     {
         uint baseFixed = BaseY.RawValue;
-        return SnesFixedPosition.WholeOf(unchecked((int)(baseFixed + (uint)tideFixedOffset)));
+        return SnesFixedPosition.WholeOf(unchecked((int)(baseFixed + (uint)TideFixedOffset)));
     }
 
     /// <summary>Whether the FX options select vertical BG2 displacement for lava or acid.</summary>
@@ -824,8 +824,8 @@ public sealed class RoomLayer3FxState
         previousCamera = Position16<RoomPixels>.Zero;
         // Half a pixel: the liquid starts centred on its whole position.
         BaseY = new SnesFixedPosition(0, 1 << 15);
-        tidePhase = 0;
-        tideFixedOffset = 0;
+        TidePhase = 0;
+        TideFixedOffset = 0;
         Surface = NoSurface;
         LiquidOptions = RoomLiquidOptions.None;
         waterDrift = Offset16<Bg3Subpixels>.Zero;
@@ -836,12 +836,12 @@ public sealed class RoomLayer3FxState
         lavaAcidBg2WaveTimer = NativeCountdown.Start(0);
         lavaAcidBg2WavePhase = 0;
         liquidRisePhase = LiquidRisePhase.Dormant;
-        lavaAcidBg3PreInstructionInstalled = false;
-        liquidHdmaObjectsDeleted = false;
+        LavaAcidBg3PreInstructionInstalled = false;
+        LiquidHdmaObjectsDeleted = false;
         lavaSoundTimer = NativeCountdown.Start(0);
         EarthquakeRequest = null;
-        earthquakeSoundTimer = NativeCountdown.Start(0);
-        earthquakeSoundSequenceIndex = 0;
+        EarthquakeSoundTimer = NativeCountdown.Start(0);
+        EarthquakeSoundSequenceIndex = 0;
     }
 
     /// <summary>
@@ -849,7 +849,7 @@ public sealed class RoomLayer3FxState
     /// later pass moves the liquid, queues its ambient sound or (for lava/acid) swaps the
     /// RNG bytes. Effects without HDMA-owned liquid motion are unaffected.
     /// </summary>
-    public void DeleteLiquidHdmaObjects() => liquidHdmaObjectsDeleted = true;
+    public void DeleteLiquidHdmaObjects() => LiquidHdmaObjectsDeleted = true;
 
     /// <summary>Rain's texture fall each frame, in 8.8 pixels.</summary>
     private static readonly Offset16<Bg3Subpixels> RainFallVelocity =

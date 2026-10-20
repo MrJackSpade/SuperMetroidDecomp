@@ -1,7 +1,6 @@
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Enemies.Elevator;
-using SuperMetroid.Core.Frontend.Pause;
 using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Movement;
@@ -72,7 +71,7 @@ internal sealed class DoorGamePhases(FrontendSession session)
         {
             // $82:E72F ORs $1F into $51 before the destination fade-in, so a door
             // taken mid-pause-fade still leaves the screen fully lit.
-            session.pauseBrightness = PauseFadeTiming.FullyLit;
+            session.RecordFullBrightness();
             session.audio.DoorTransitionSoundsDisabled = false;
             // The cartridge resumes spin audio only after sound admission is
             // restored at the final fade boundary, not on each fade frame.
@@ -115,7 +114,7 @@ internal sealed class DoorGamePhases(FrontendSession session)
     /// </summary>
     private bool StepHitDoorBlockFunction(SnesButton controllerInput)
     {
-        if (!session.waitingForDownwardsElevator)
+        if (!session.DownwardsElevator.Waiting)
         {
             // $82:E17D: an ordinary door finishes at once.
             if (session.GameplayRuntime.Room.LoadedScope.Enemies.Elevator.ElevatorFlags == ElevatorJourneyFlag.None)
@@ -124,16 +123,12 @@ internal sealed class DoorGamePhases(FrontendSession session)
             session.GameplayRuntime.Player.IntroducedSamus.Control.LockHandlers();
             if (session.GameplayRuntime.Room.LoadedScope.Enemies.Elevator.ElevatorTravelsUpward)
                 return true;
-            session.downwardsElevatorDelayTimer = ElevatorDoorDefinitions.DownwardsElevatorDelayFrames;
-            session.waitingForDownwardsElevator = true;
+            session.DownwardsElevator.Begin();
         }
 
         // $82:E19F. The elevator gate is still clear, so the ride continues behind it.
-        if (--session.downwardsElevatorDelayTimer < 0)
-        {
-            session.waitingForDownwardsElevator = false;
+        if (session.DownwardsElevator.CountFrame())
             return true;
-        }
         session.GameplayRuntime.DoorTransition.RunDoorSoundWaitFrame(controllerInput, session.GameplayRuntime.Room.LoadedScope);
         session.display.PublishGameplay(session.GameplayRuntime);
         return false;

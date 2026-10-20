@@ -648,18 +648,18 @@ internal static class RidleyFullMovieVerification
             {
                 menu.Step(0, 0);
                 AssertEqual(source, menu.ScreenMode, "source page remains through fade-out");
-                AssertEqual(15 - update, menu.transitionBrightness, "native zero-delay fade-out brightness");
+                AssertEqual(15 - update, menu.TransitionBrightness, "native zero-delay fade-out brightness");
             }
             AssertEqual(source == PauseScreenMode.Map ? PauseMenuTransition.MapToEquipmentLoad : PauseMenuTransition.EquipmentToMapLoad,
-                menu.transition, "black frame returns into separate load dispatcher");
+                menu.Transition, "black frame returns into separate load dispatcher");
             menu.Step(0, 0);
             AssertEqual(destination, menu.ScreenMode, "separate load dispatch installs destination");
-            AssertEqual(0, menu.transitionBrightness, "load dispatch remains black");
+            AssertEqual(0, menu.TransitionBrightness, "load dispatch remains black");
             for (int update = 1; update <= 30; update++)
             {
                 menu.Step(0, 0);
-                AssertEqual(update / 2, menu.transitionBrightness, "native delay-one fade-in brightness");
-                AssertEqual(update == 30, menu.transition == PauseMenuTransition.None,
+                AssertEqual(update / 2, menu.TransitionBrightness, "native delay-one fade-in brightness");
+                AssertEqual(update == 30, menu.Transition == PauseMenuTransition.None,
                     "input returns only after the thirtieth fade-in update");
             }
         }
@@ -695,7 +695,7 @@ internal static class RidleyFullMovieVerification
         game.AdoptRuntime(runtime);
         game.GameState = SuperMetroidGameState.Pausing;
         game.Step(0);
-        var menu = game.Session.pauseMenu;
+        var menu = game.Session.ScreenAs<PauseMenuState>();
         var menuPalette = (menu ?? throw new InvalidOperationException("Verification requires menu.")).screen.Palette;
         Bgr555[] initial = menuPalette.Colors.ToArray();
         int fadeFrames = 0;
@@ -754,7 +754,7 @@ internal static class RidleyFullMovieVerification
         uint xFixed = samus.Kinematics.Position.X.RawValue, yFixed = samus.Kinematics.Position.Y.RawValue;
         var game = CreateRetailGameFixture(new SuperMetroid.Core.Saves.SaveSlotStore(), renderGameplayFrames: false, random: random);
         game.AdoptRuntime(runtime);
-        game.Session.lastAudioRoomState = runtime.Room.LoadedRoom.State;
+        game.Session.LastAudioRoomState = runtime.Room.LoadedRoom.State;
         game.GameState = SuperMetroidGameState.HitDoorBlock;
         game.Step(0);
         AssertEqual(0xef3a, runtime.System.RandomNumber, "native entry HDMA swap then RNG");
@@ -1128,7 +1128,7 @@ internal static class RidleyFullMovieVerification
                 Check("PeriodicSubDamage", checked((ushort)samus.LiquidPhysics.PeriodicSubDamage), NativeSnapshotMemory.PeriodicSubDamage);
                 Check("PeriodicDamage", checked((ushort)samus.LiquidPhysics.PeriodicDamage), NativeSnapshotMemory.PeriodicDamage);
                 Check("Acid damage surface", checked((ushort)samus.LiquidPhysics.LavaAcidYPosition), NativeSnapshotMemory.AcidSurface);
-                Check("Liquid tide phase", checked((ushort)runtime.RoomLayer3Fx.tidePhase), NativeSnapshotMemory.TidePhase);
+                Check("Liquid tide phase", checked((ushort)runtime.RoomLayer3Fx.TidePhase), NativeSnapshotMemory.TidePhase);
             }
             Check("Samus X", samus.Position.X.Whole, NativeSnapshotMemory.X);
             Check("Samus X fraction", samus.Kinematics.Position.X.Fraction, NativeSnapshotMemory.XFraction);
@@ -1243,7 +1243,7 @@ internal static class RidleyFullMovieVerification
             if (game.GameState is SuperMetroidGameState.PausedA or SuperMetroidGameState.PausedB or
                 SuperMetroidGameState.UnpausingA or SuperMetroidGameState.UnpausingB)
             {
-                object menu = game.Session.pauseMenu ?? throw new InvalidDataException("Native pause palette requires the active pause menu.");
+                object menu = game.Session.ScreenAs<PauseMenuState>() ?? throw new InvalidDataException("Native pause palette requires the active pause menu.");
                 comparedPalette = ((PauseMenuState)menu).screen.Palette;
             }
             if (!deferLoadingOwners)

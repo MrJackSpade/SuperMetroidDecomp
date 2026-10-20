@@ -53,7 +53,7 @@ internal static class IntroMotherBrainInputDefinitionsVerification
         intro.SetupFirstIllustratedPage();
         intro.SetupMotherBrainFlashback();
         intro.StepMotherBrainDemo();
-        var live = intro.flashbackDemoInput ?? throw new InvalidOperationException("Verification requires the live flashback demo.");
+        var live = intro.CurrentFlashbackDemoInput ?? throw new InvalidOperationException("Verification requires the live flashback demo.");
         var nativeFirst = new NativeDemoInputReference(ReferenceWord);
         nativeFirst.Enable();
         nativeFirst.Load(DemoInputListWords.IntroMotherBrainFlashbackObject, initializationParameter: 0);

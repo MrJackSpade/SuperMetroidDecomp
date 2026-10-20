@@ -783,8 +783,8 @@ internal static class LookupStream4Verification
         {
             int count = fast ? 16 : 8, address = fast ? 0x8BDD02 : 0x8BDDAD;
             var state = new EndingCreditsState(new SuperMetroid.Core.Audio.CartridgeAudioState(), new EndingCreditsSetup { GameTimeHours = 0, GameTimeMinutes = 0 });
-            state.mode7 = state.mode7.WithWholeX(100).WithFractionX(0xC000);
-            state.mode7Zoom = 0xC00; state.phaseTimer = 100;
+            state.Mode7 = state.Mode7.WithWholeX(100).WithFractionX(0xC000);
+            state.Mode7Zoom = 0xC00; state.PhaseTimer = 100;
             state.Phase = fast ? EndingCreditsPhase.PlanetEscapeFast : EndingCreditsPhase.PlanetEscapeSlow;
             Action step = fast ? state.StepPlanetEscapeFast : state.StepPlanetEscapeSlow;
             uint expected = 100u << 16 | 0xC000;
@@ -795,25 +795,25 @@ internal static class LookupStream4Verification
                 if (fast || expectedAngle != 0xe0) expectedAngle = unchecked((byte)(expectedAngle - (fast ? 4 : 1)));
                 expectedZoom -= fast ? 8 : 2;
                 step();
-                AssertEqual(SnesAngle.FromTableIndex((byte)expectedAngle), state.mode7Angle, "rotation context advances independently of selected signs");
-                AssertEqual((ushort)expectedZoom, state.mode7Zoom, "zoom context advances independently of selected signs");
-                AssertEqual(SnesFixedPosition.WholeOf(unchecked((int)expected)), state.mode7.X.Whole, "production shake whole position follows native indexed values");
-                AssertEqual((ushort)expected, state.mode7.X.Fraction, "production shake fraction preserves carry/borrow");
-                AssertEqual((ushort)((frame + 1) % count), state.planetMotionIndex, "production shake advances after selection and wraps native mask");
+                AssertEqual(SnesAngle.FromTableIndex((byte)expectedAngle), state.Mode7Angle, "rotation context advances independently of selected signs");
+                AssertEqual((ushort)expectedZoom, state.Mode7Zoom, "zoom context advances independently of selected signs");
+                AssertEqual(SnesFixedPosition.WholeOf(unchecked((int)expected)), state.Mode7.X.Whole, "production shake whole position follows native indexed values");
+                AssertEqual((ushort)expected, state.Mode7.X.Fraction, "production shake fraction preserves carry/borrow");
+                AssertEqual((ushort)((frame + 1) % count), state.PlanetMotionIndex, "production shake advances after selection and wraps native mask");
             }
-            state.mode7Zoom = fast ? EndingCreditsRomData.Motion.PlanetFastEndScale : EndingCreditsRomData.Motion.PlanetSlowEndScale;
-            state.planetMotionIndex = (ushort)(count - 1);
-            state.mode7 = state.mode7.WithWholeX(0).WithFractionX(0x4000);
+            state.Mode7Zoom = fast ? EndingCreditsRomData.Motion.PlanetFastEndScale : EndingCreditsRomData.Motion.PlanetSlowEndScale;
+            state.PlanetMotionIndex = (ushort)(count - 1);
+            state.Mode7 = state.Mode7.WithWholeX(0).WithFractionX(0x4000);
             step();
             uint finalPosition = unchecked(0x4000u + (uint)Native(address + (count - 1) * 4));
-            AssertEqual(SnesFixedPosition.WholeOf(unchecked((int)finalPosition)), state.mode7.X.Whole, "terminal negative sample wraps whole position before handoff");
-            AssertEqual((ushort)finalPosition, state.mode7.X.Fraction, "terminal fraction is preserved before handoff");
+            AssertEqual(SnesFixedPosition.WholeOf(unchecked((int)finalPosition)), state.Mode7.X.Whole, "terminal negative sample wraps whole position before handoff");
+            AssertEqual((ushort)finalPosition, state.Mode7.X.Fraction, "terminal fraction is preserved before handoff");
             AssertEqual(fast ? EndingCreditsPhase.PlanetEscapeSlow : EndingCreditsPhase.PlanetEscapeAccelerating, state.Phase, "native zoom boundary chooses next phase after selected motion");
-            AssertEqual(0, state.planetMotionIndex, "handoff preserves wrapped/reset index");
+            AssertEqual(0, state.PlanetMotionIndex, "handoff preserves wrapped/reset index");
             if (!fast)
             {
-                AssertEqual((short)0, state.planetVelocity.WholePixels, "slow handoff initializes independent acceleration whole");
-                AssertEqual((ushort)0x8000, state.planetVelocity.Fraction, "slow handoff initializes independent acceleration fraction");
+                AssertEqual((short)0, state.PlanetVelocity.WholePixels, "slow handoff initializes independent acceleration whole");
+                AssertEqual((ushort)0x8000, state.PlanetVelocity.Fraction, "slow handoff initializes independent acceleration fraction");
             }
         }
         foreach (int index in new[] { -1, 16, int.MinValue, int.MaxValue })
@@ -1234,8 +1234,8 @@ internal static class LookupStream4Verification
             AssertEqual((ushort)0x5678, copied[^1], "Subtitle copy leaves the destination suffix untouched");
             ushort[] tilemap = Enumerable.Repeat((ushort)0x2222, EndingCreditsRomData.Rendering.TilemapWords).ToArray();
             var state = new EndingBackgroundTextState(new EndingBackgroundTextSetup { Tilemap = tilemap, Inventory = default, JapaneseText = true, Presentation = presentation, InstalledSequence = EndingTextSequence.ItemPercentage });
-            state.installedInitialMarkerPending = false;
-            state.installedCharacterIndex = presentation.Compile(EndingTextSequence.ItemPercentage).Length;
+            state.InstalledInitialMarkerPending = false;
+            state.InstalledCharacterIndex = presentation.Compile(EndingTextSequence.ItemPercentage).Length;
             var screen = new EndingScreen();
             state.Step(screen);
             SnesVram vram = EndingScreenFixtures.Vram(screen);
@@ -1246,7 +1246,7 @@ internal static class LookupStream4Verification
                 int address = (EndingCreditsRomData.Rendering.PostCreditsTilemapWord + destination + cell) * 2;
                 AssertEqual(expected[cell], SnesLittleEndian.Word(vram.Bytes[address], vram.Bytes[address + 1]), "Actual subtitle reaches VRAM unchanged");
             }
-            state.instructionTimer = NativeCountdown.Start(1);
+            state.InstructionTimer = NativeCountdown.Start(1);
             state.Step(screen);
             AssertTrue(tilemap.AsSpan(destination, expected.Length).All(word => word == EndingCreditsRomData.Rendering.BlankTile), "Actual ending state clears the subtitle at its hold boundary");
             AssertTrue(state.Completed && state.RequestedItemPercentageScroll, "Subtitle clear preserves completion and scroll handoff");
@@ -1914,7 +1914,7 @@ internal static class LookupStream4Verification
                 : [(0, 8, id == GameplayMessageId.MissileRechargeCompleted ? 14 : 15), (2, 10, 10)];
             AssertTrue(expectedRegions.SequenceEqual(notice.Text.Select(region => (region.Row, region.Column, region.Width))),
                 "Calculated notice rectangles preserve every original row/column/width");
-            AssertTrue(notice.Text.All(region => region.Alignment == GameplayMessageNoticeDefinitions.LeftAlignment),
+            AssertTrue(notice.Text.All(region => region.Alignment == GameplayMessageTextAlignment.Left),
                 "Calculated notice regions retain left alignment");
             int source = 0x850000 | CartridgeImportSource.Require(rom).ReadCartridgeWord((0x85869f + ((byte)id - 1) * 6));
             var expected = new ushort[(notice.RowCount + 2) * 32];

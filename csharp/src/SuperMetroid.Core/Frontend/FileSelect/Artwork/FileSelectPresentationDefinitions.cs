@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Frontend.Menus.Artwork;
+
 namespace SuperMetroid.Core.Frontend.FileSelect.Artwork;
 
 /// <summary>Schema names and fixed dimensions for <c>file-select.json</c>.</summary>
@@ -17,26 +19,26 @@ public static class FileSelectPresentationDefinitions
     private const ushort TimeColonGlyph = 0x208c;
 
     /// <summary>Native one-row patch extents at $81:B496, B4A8 and B4AC, excluding terminators.</summary>
-    internal static int PatchCellCount(string name) => name switch
+    internal static int PatchCellCount(FileSelectPatch patch) => patch switch
     {
-        EnergyPatch => 4,
-        TimeColonPatch => 1,
-        NoDataPatch => NoDataLabel.Length,
-        _ => throw new InvalidDataException($"Unknown file-select patch {name}."),
+        FileSelectPatch.Energy => 4,
+        FileSelectPatch.TimeColon => 1,
+        FileSelectPatch.NoData => NoDataLabel.Length,
+        _ => throw new ArgumentOutOfRangeException(nameof(patch)),
     };
 
     /// <summary>Calculates text glyph selection and left-to-right cell placement for one native patch.</summary>
-    internal static FileSelectCompiledPatchCell PatchCell(string name, int index)
+    internal static FileSelectCompiledPatchCell PatchCell(FileSelectPatch patch, int index)
     {
-        if ((uint)index >= PatchCellCount(name)) throw new ArgumentOutOfRangeException(nameof(index));
-        ushort word = name switch
+        if ((uint)index >= PatchCellCount(patch)) throw new ArgumentOutOfRangeException(nameof(index));
+        ushort word = patch switch
         {
-            EnergyPatch => index < 3 ? (ushort)(EnergyLabelFirst + index) : EnergyLabelFinal,
-            TimeColonPatch => TimeColonGlyph,
-            NoDataPatch => index == 0 ? FileSelectLayout.BlankTile
+            FileSelectPatch.Energy => index < 3 ? (ushort)(EnergyLabelFirst + index) : EnergyLabelFinal,
+            FileSelectPatch.TimeColon => TimeColonGlyph,
+            FileSelectPatch.NoData => index == 0 ? FileSelectLayout.BlankTile
                 : NoDataLabel[index] == ' ' ? SmallSpace
                 : (ushort)(SmallLetterA + NoDataLabel[index] - 'A'),
-            _ => throw new InvalidDataException($"Unknown file-select patch {name}."),
+            _ => throw new ArgumentOutOfRangeException(nameof(patch)),
         };
         return new(new Offset16<TilemapCells>(checked((short)index), 0), word);
     }
@@ -61,146 +63,99 @@ public static class FileSelectPresentationDefinitions
     public const int DigitCount = 10;
     /// <summary>Three consecutive save-slot letters beginning at FileSelectLayout.SamusLetterTileBase.</summary>
     public const int SlotLetterCount = 3;
+    /// <summary>The missile cursor's looping animation frames.</summary>
+    public const int CursorFrameCount = 4;
+    /// <summary>The selected slot's helmet animation frames.</summary>
+    public const int HelmetFrameCount = 8;
 
-    /// <summary>Schema identity of the common BG2 background tilemap, separate from foreground menu pages.</summary>
-    public const string BackgroundPage = "Background";
-    /// <summary>Schema identity of the main foreground page used when at least one save slot contains data.</summary>
-    public const string MainWithDataPage = "Main.WithData";
-    /// <summary>Schema identity of the main foreground page used when every save slot is empty.</summary>
-    public const string MainEmptyPage = "Main.Empty";
-    /// <summary>Schema identity of the copy page for choosing the source save slot.</summary>
-    public const string CopySourcePage = "Copy.Source";
-    /// <summary>Schema identity of the copy page for choosing a destination, with a dynamic source-slot letter.</summary>
-    public const string CopyDestinationPage = "Copy.Destination";
-    /// <summary>Schema identity of the copy confirmation page, displaying both selected slot letters.</summary>
-    public const string CopyConfirmPage = "Copy.Confirm";
-    /// <summary>Schema identity of the completed-copy page, retaining source and destination slot-letter fields.</summary>
-    public const string CopyCompletedPage = "Copy.Completed";
-    /// <summary>Schema identity of the clear page for choosing the save slot to erase.</summary>
-    public const string ClearSelectionPage = "Clear.Selection";
-    /// <summary>Schema identity of the clear confirmation page with its selected slot-letter field.</summary>
-    public const string ClearConfirmPage = "Clear.Confirm";
-    /// <summary>Schema identity of the completed-clear page with its selected slot-letter field.</summary>
-    public const string ClearCompletedPage = "Clear.Completed";
+    /// <summary>The JSON name of the common BG2 background tilemap, separate from the foreground menu pages.</summary>
+    public const string BackgroundPageName = "Background";
+    /// <summary>The foreground pages, in document order.</summary>
+    public static IReadOnlyList<FileSelectPage> Pages { get; } = Enum.GetValues<FileSelectPage>();
+    /// <summary>The slot-field patches, in document order.</summary>
+    public static IReadOnlyList<FileSelectPatch> Patches { get; } = Enum.GetValues<FileSelectPatch>();
+    /// <summary>The bordered headings, in document order.</summary>
+    public static IReadOnlyList<FileSelectBorder> Borders { get; } = Enum.GetValues<FileSelectBorder>();
+    /// <summary>The copy and clear pages' slot-letter anchors, in document order.</summary>
+    public static IReadOnlyList<FileSelectAnchor> Anchors { get; } = Enum.GetValues<FileSelectAnchor>();
+    /// <summary>The JSON names of the cursor frame sprites, by frame.</summary>
+    private static readonly string[] cursorSpriteNames = ["Cursor.0", "Cursor.1", "Cursor.2", "Cursor.3"];
+    /// <summary>The JSON names of the helmet frame sprites, by frame.</summary>
+    private static readonly string[] helmetSpriteNames =
+        ["Helmet.0", "Helmet.1", "Helmet.2", "Helmet.3", "Helmet.4", "Helmet.5", "Helmet.6", "Helmet.7"];
 
-    /// <summary>Schema identity of the ENERGY label patch; stock glyphs are calculated from the native label at $81:B496.</summary>
-    public const string EnergyPatch = "Energy";
-    /// <summary>Schema identity of the padded empty-slot NO DATA patch corresponding to $81:B4AC-B4C0.</summary>
-    public const string NoDataPatch = "NoData";
-    /// <summary>Schema identity of the time-field colon patch corresponding to the native glyph at $81:B4A8.</summary>
-    public const string TimeColonPatch = "TimeColon";
-    /// <summary>Layout identity of the main-menu border anchor and corresponding border sprite composition.</summary>
-    public const string MainBorder = "Main";
-    /// <summary>Layout identity of the copy-menu border anchor and corresponding border sprite composition.</summary>
-    public const string CopyBorder = "Copy";
-    /// <summary>Layout identity of the clear-menu border anchor and corresponding border sprite composition.</summary>
-    public const string ClearBorder = "Clear";
-    /// <summary>Tile-anchor identity for the source-slot letter on the copy destination-selection page.</summary>
-    public const string CopyDestinationSourceAnchor = "Copy.Destination.Source";
-    /// <summary>Tile-anchor identity for the source-slot letter on copy confirmation and completed-copy pages.</summary>
-    public const string CopyConfirmSourceAnchor = "Copy.Confirm.Source";
-    /// <summary>Tile-anchor identity for the destination-slot letter on copy confirmation and completed-copy pages.</summary>
-    public const string CopyConfirmDestinationAnchor = "Copy.Confirm.Destination";
-    /// <summary>Tile-anchor identity for the erased-slot letter on clear confirmation and completed-clear pages.</summary>
-    public const string ClearConfirmSourceAnchor = "Clear.Confirm.Source";
+    /// <summary>The JSON name of a foreground page.</summary>
+    public static string PageName(FileSelectPage page) => page switch
+    {
+        FileSelectPage.MainWithData => "Main.WithData",
+        FileSelectPage.MainEmpty => "Main.Empty",
+        FileSelectPage.CopySource => "Copy.Source",
+        FileSelectPage.CopyDestination => "Copy.Destination",
+        FileSelectPage.CopyConfirm => "Copy.Confirm",
+        FileSelectPage.CopyCompleted => "Copy.Completed",
+        FileSelectPage.ClearSelection => "Clear.Selection",
+        FileSelectPage.ClearConfirm => "Clear.Confirm",
+        FileSelectPage.ClearCompleted => "Clear.Completed",
+        _ => throw new ArgumentOutOfRangeException(nameof(page)),
+    };
 
-    /// <summary>Exact required schema identities, enumerated in the original definition order.
-    /// Each case names a distinct menu page or asset role; these are not numerical samples.
-    /// The enumerators evaluate cases directly and retain no generated name arrays.</summary>
-    public static IEnumerable<string> PageNames => Names(10, PageName);
-    /// <summary>Enumerates the three exact required patch identities in energy, empty-slot, and time-colon order.</summary>
-    public static IEnumerable<string> PatchNames => Names(3, PatchName);
-    /// <summary>Enumerates the three exact required border layout identities in main, copy, and clear order.</summary>
-    public static IEnumerable<string> BorderNames => Names(3, BorderName);
-    /// <summary>Enumerates the four exact required tile-anchor identities for dynamic copy and clear slot letters.</summary>
-    public static IEnumerable<string> DynamicAnchorNames => Names(4, DynamicAnchorName);
-    /// <summary>Enumerates fifteen required sprite identities: three borders, four cursor frames, then eight helmet frames.</summary>
-    public static IEnumerable<string> SpriteNames => Names(15, SpriteName);
+    /// <summary>The JSON name of a slot-field patch.</summary>
+    public static string PatchName(FileSelectPatch patch) => patch switch
+    {
+        FileSelectPatch.Energy => "Energy",
+        FileSelectPatch.NoData => "NoData",
+        FileSelectPatch.TimeColon => "TimeColon",
+        _ => throw new ArgumentOutOfRangeException(nameof(patch)),
+    };
 
-    /// <summary>Returns a required page identity in the fixed schema enumeration order.</summary>
-    /// <param name="index">Zero-based page index 0-9.</param>
-    /// <returns>The corresponding background, main, copy, or clear page key.</returns>
-    /// <exception cref="ArgumentOutOfRangeException">The index is outside 0-9.</exception>
-    public static string PageName(int index) => index switch
+    /// <summary>The JSON name of a bordered heading, which keys its anchor.</summary>
+    public static string BorderName(FileSelectBorder border) => border switch
     {
-        0 => BackgroundPage,
-        1 => MainWithDataPage,
-        2 => MainEmptyPage,
-        3 => CopySourcePage,
-        4 => CopyDestinationPage,
-        5 => CopyConfirmPage,
-        6 => CopyCompletedPage,
-        7 => ClearSelectionPage,
-        8 => ClearConfirmPage,
-        9 => ClearCompletedPage,
-        _ => throw new ArgumentOutOfRangeException(nameof(index)),
+        FileSelectBorder.Main => "Main",
+        FileSelectBorder.Copy => "Copy",
+        FileSelectBorder.Clear => "Clear",
+        _ => throw new ArgumentOutOfRangeException(nameof(border)),
     };
-    /// <summary>Returns the patch identity at a fixed schema index.</summary>
-    /// <param name="index">Zero-based index 0-2, selecting energy, empty-slot, or time-colon artwork.</param>
-    /// <returns>The required patch dictionary key.</returns>
-    /// <exception cref="ArgumentOutOfRangeException">The index is outside 0-2.</exception>
-    public static string PatchName(int index) => index switch
+
+    /// <summary>The JSON name of a bordered heading's sprite.</summary>
+    public static string BorderSpriteName(FileSelectBorder border) => border switch
     {
-        0 => EnergyPatch,
-        1 => NoDataPatch,
-        2 => TimeColonPatch,
-        _ => throw new ArgumentOutOfRangeException(nameof(index)),
+        FileSelectBorder.Main => "Border.Main",
+        FileSelectBorder.Copy => "Border.Copy",
+        FileSelectBorder.Clear => "Border.Clear",
+        _ => throw new ArgumentOutOfRangeException(nameof(border)),
     };
-    /// <summary>Returns the border layout identity at a fixed schema index.</summary>
-    /// <param name="index">Zero-based index 0-2, selecting main, copy, or clear.</param>
-    /// <returns>The required border-anchor key, without the sprite's <c>Border.</c> prefix.</returns>
-    /// <exception cref="ArgumentOutOfRangeException">The index is outside 0-2.</exception>
-    public static string BorderName(int index) => index switch
+
+    /// <summary>The JSON name of a copy or clear page's slot-letter anchor.</summary>
+    public static string AnchorName(FileSelectAnchor anchor) => anchor switch
     {
-        0 => MainBorder,
-        1 => CopyBorder,
-        2 => ClearBorder,
-        _ => throw new ArgumentOutOfRangeException(nameof(index)),
+        FileSelectAnchor.CopyDestinationSource => "Copy.Destination.Source",
+        FileSelectAnchor.CopyConfirmSource => "Copy.Confirm.Source",
+        FileSelectAnchor.CopyConfirmDestination => "Copy.Confirm.Destination",
+        FileSelectAnchor.ClearConfirmSource => "Clear.Confirm.Source",
+        _ => throw new ArgumentOutOfRangeException(nameof(anchor)),
     };
-    /// <summary>Returns a required copy or clear slot-letter tile-anchor identity in fixed schema order.</summary>
-    /// <param name="index">Zero-based dynamic-anchor index 0-3.</param>
-    /// <returns>The required dynamic-anchor dictionary key.</returns>
-    /// <exception cref="ArgumentOutOfRangeException">The index is outside 0-3.</exception>
-    public static string DynamicAnchorName(int index) => index switch
+
+    /// <summary>The JSON name of a looping missile-cursor frame's sprite, for frames 0-3.</summary>
+    public static string CursorSpriteName(int frame) =>
+        (uint)frame < cursorSpriteNames.Length ? cursorSpriteNames[frame] : throw new ArgumentOutOfRangeException(nameof(frame));
+
+    /// <summary>The JSON name of a selected-slot helmet frame's sprite, for frames 0-7.</summary>
+    public static string HelmetSpriteName(int frame) =>
+        (uint)frame < helmetSpriteNames.Length ? helmetSpriteNames[frame] : throw new ArgumentOutOfRangeException(nameof(frame));
+
+    /// <summary>Every sprite the document names: the three borders, the four cursor frames and the eight helmet frames.</summary>
+    public static IEnumerable<string> SpriteNames =>
+        [.. Borders.Select(BorderSpriteName), .. cursorSpriteNames, .. helmetSpriteNames];
+
+    /// <summary>The menu heading a bordered heading draws.</summary>
+    internal static MenuHeading Heading(FileSelectBorder border) => border switch
     {
-        0 => CopyDestinationSourceAnchor,
-        1 => CopyConfirmSourceAnchor,
-        2 => CopyConfirmDestinationAnchor,
-        3 => ClearConfirmSourceAnchor,
-        _ => throw new ArgumentOutOfRangeException(nameof(index)),
+        FileSelectBorder.Main => MenuHeading.FileSelectMain,
+        FileSelectBorder.Copy => MenuHeading.FileSelectCopy,
+        FileSelectBorder.Clear => MenuHeading.FileSelectClear,
+        _ => throw new ArgumentOutOfRangeException(nameof(border)),
     };
-    /// <summary>Returns a required sprite composition identity in border, cursor, then helmet order.</summary>
-    /// <param name="index">Zero-based index: 0-2 for borders, 3-6 for cursor frames, or 7-14 for helmet frames.</param>
-    /// <returns>The prefixed sprite dictionary key.</returns>
-    /// <exception cref="ArgumentOutOfRangeException">The index is outside 0-14.</exception>
-    public static string SpriteName(int index) => index switch
-    {
-        >= 0 and < 3 => BorderFrameName(BorderName(index)),
-        >= 3 and < 7 => CursorFrameName(index - 3),
-        >= 7 and < 15 => HelmetFrameName(index - 7),
-        _ => throw new ArgumentOutOfRangeException(nameof(index)),
-    };
-    /// <summary>Enumerates the expected schema keys in numeric index order.</summary>
-    private static IEnumerable<string> Names(int count, Func<int, string> name)
-    {
-        for (int index = 0; index < count; index++) yield return name(index);
-    }
-    /// <summary>Prefixes a border layout name to form its sprite composition key, without validating the name.</summary>
-    /// <param name="name">Border layout name, normally main, copy, or clear as defined by the schema.</param>
-    /// <returns>The supplied name prefixed with <c>Border.</c>.</returns>
-    public static string BorderFrameName(string name) => $"Border.{name}";
-    /// <summary>Forms the sprite composition key for one of the four looping missile-cursor frames.</summary>
-    /// <param name="frame">Zero-based animation frame 0-3.</param>
-    /// <returns><c>Cursor.</c> followed by the frame number.</returns>
-    /// <exception cref="ArgumentOutOfRangeException">The frame is outside 0-3.</exception>
-    public static string CursorFrameName(int frame) => (uint)frame < 4
-        ? $"Cursor.{frame}" : throw new ArgumentOutOfRangeException(nameof(frame));
-    /// <summary>Forms the sprite composition key for one of the eight selected-slot helmet frames.</summary>
-    /// <param name="frame">Zero-based animation frame 0-7.</param>
-    /// <returns><c>Helmet.</c> followed by the frame number.</returns>
-    /// <exception cref="ArgumentOutOfRangeException">The frame is outside 0-7.</exception>
-    public static string HelmetFrameName(int frame) => (uint)frame < 8
-        ? $"Helmet.{frame}" : throw new ArgumentOutOfRangeException(nameof(frame));
 
     /// <summary>$82:CAE9: the helmet's first 24x24 body block begins at menu atlas cell $D0.</summary>
     internal const int HelmetFirstBodyCell = 0xd0;

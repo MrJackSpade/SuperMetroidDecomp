@@ -38,7 +38,7 @@ internal static class PauseBackdropsVerification
             // Change the lettering region itself, not a hidden edge of the page.
             // This proves return-to-map cannot secretly reinstall ROM lettering.
             for (int i = 0; i < 12; i++) cells[170 + i] = cells[170 + i] with
-                { Atlas = "Map", TileColumn = 4, TileRow = 0, Palette = 3, Priority = true, FlipX = true, FlipY = true };
+                { Atlas = PauseAtlas.Map, TileColumn = 4, TileRow = 0, Palette = 3, Priority = true, FlipX = true, FlipY = true };
         }
         var buttons = document.Buttons.ToArray();
         for (int i = 0; i < buttons.Length; i++) buttons[i] = buttons[i] with
@@ -132,14 +132,14 @@ internal static class PauseBackdropsVerification
         invalidAreas["Crateria"] = [];
         Reject(document with { Areas = invalidAreas }, "wrong backdrop dimensions rejected");
         invalidAreas["Crateria"] = document.Areas["Crateria"].ToArray();
-        invalidAreas["Crateria"][0] = new() { Atlas = "Interface", TileColumn = 31, TileRow = 7, Palette = 7, Priority = true, FlipX = true, FlipY = true };
+        invalidAreas["Crateria"][0] = new() { Atlas = PauseAtlas.Interface, TileColumn = 31, TileRow = 7, Palette = 7, Priority = true, FlipX = true, FlipY = true };
         using (var authored = new MemoryStream())
         {
             PauseBackdropPresentation.Write(authored, document with { Areas = invalidAreas }); authored.Position = 0;
             var compiled = PauseBackdropPresentation.Load(authored); var words = new ushort[PauseBackdropDefinitions.Cells]; compiled.LoadTo(words, AreaId.Crateria);
             AssertEqual((ushort)0xfdff, words[0], "named Interface atlas resolves its own tile coordinates and every visual attribute");
         }
-        foreach (var invalid in new[] { document.Buttons[0] with { Atlas = "Other" }, document.Buttons[0] with { TileColumn = 32 },
+        foreach (var invalid in new[] { document.Buttons[0] with { Atlas = (PauseAtlas)byte.MaxValue }, document.Buttons[0] with { TileColumn = 32 },
             document.Buttons[0] with { TileRow = 8 }, document.Buttons[0] with { Palette = -1 }, document.Buttons[0] with { Palette = 8 } })
         {
             invalidAreas["Crateria"][0] = invalid;

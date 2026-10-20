@@ -26,8 +26,8 @@ internal static class PauseMapArrowsVerification
         var bus = CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
         var cart = CartridgeImportSource.Require(bus);
         var pause = CreateRetailPauseFixture(new PauseMenuEntry { Samus = new SamusState(), System = new Bank80SystemState(), AreaIndex = AreaId.Crateria, RoomMapPosition = new(10, 10) });
-        pause.mapScroll = new PauseMapScroll(new(0, 0), new(512, 256));
-        pause.mapArrows = null;
+        pause.CurrentMapScrollBounds = new PauseMapScroll(new(0, 0), new(512, 256));
+        pause.CurrentMapArrows = null;
         pause.BindMapPresentation(RetailPresentationFixture());
         var nativeColors = new SnesCgram();
         for (int color = 0; color < SnesCgram.ColorCount; color++) nativeColors.SetColor(color, Bgr555.FromWord(checked(Read(0xb6f000 + color * 2))));
@@ -36,7 +36,7 @@ internal static class PauseMapArrowsVerification
         var arrowAttributes = new HashSet<ushort>();
         foreach (var (x, y) in new (int, int)[] { (100, 70), (-24, 70), (-23, 70), (280, 70), (281, 70), (100, -56), (100, -55), (100, 79), (100, 80) })
         {
-            pause.mapScrollPosition = new Position16<MapPixels>(unchecked((ushort)x), unchecked((ushort)y));
+            pause.MapScrollPosition = new Position16<MapPixels>(unchecked((ushort)x), unchecked((ushort)y));
             pause.Step(0, 0);
             // Literal $82:A92B increment-before-read palette timing and raw colors.
             if (nativePaletteTimer != 0 && --nativePaletteTimer == 0)
@@ -100,7 +100,7 @@ internal static class PauseMapArrowsVerification
             pause.BindMapPresentation(RetailPresentationFixture());
         }
         AssertTrue(beforeRestore.SequenceEqual(pause.Render()), "debugger restore/rebind retains the current arrow display");
-        pause.mapScrollPosition = new Position16<MapPixels>(100, 70);
+        pause.MapScrollPosition = new Position16<MapPixels>(100, 70);
         pause.Step(0, 0); _ = pause.Render(); int stable = pause.LastRenderedSpriteCount;
         pause.Step(SnesButton.R, 0); _ = pause.Render();
         AssertEqual(stable, pause.LastRenderedSpriteCount, "R press retains arrows on its native stable-page dispatch");

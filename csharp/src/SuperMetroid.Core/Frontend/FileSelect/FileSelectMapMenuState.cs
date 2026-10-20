@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.Input;
 using System.Buffers.Binary;
 using SuperMetroid.Core.Rendering;
@@ -13,8 +14,17 @@ namespace SuperMetroid.Core.Frontend.FileSelect;
 /// Entry, area/room confirmation, scrolling, return and load handoff each retain their
 /// own timer and input boundary; rendering never advances those owners.
 /// </remarks>
-public sealed class FileSelectMapMenuState
+public sealed class FileSelectMapMenuState : IFrontendScreen
 {
+    /// <inheritdoc/>
+    void IFrontendScreen.BindArtwork(GameArtwork previous, GameArtwork artwork, SuperMetroidGameState state)
+    {
+        Ensure.NotNull(previous);
+        Ensure.NotNull(artwork);
+        if (!ReferenceEquals(previous.MapPresentation, artwork.MapPresentation))
+            BindMapPresentation(artwork.MapPresentation);
+    }
+
     /// <summary>Receives confirmation, scrolling and transition sound requests during updates.</summary>
     private readonly CartridgeAudioState audio;
     /// <summary>Saved Zebes area; Ceres bypasses this menu.</summary>
@@ -26,7 +36,7 @@ public sealed class FileSelectMapMenuState
     /// <summary>Renders the selected area's room map, including exploration and markers.</summary>
     internal readonly FileSelectRoomMapGraphics roomGraphics;
     /// <summary>Owns room-map scroll position anchored to the selected save station.</summary>
-    internal FileSelectMapScroll scroll;
+    internal FileSelectMapScroll Scroll { get; private set; }
     /// <summary>Save-station marker positioned from the installed presentation catalog.</summary>
     private FileSelectStationMarker marker;
     /// <summary>Saved station index used to restore the marker and scroll anchor.</summary>
@@ -78,7 +88,7 @@ public sealed class FileSelectMapMenuState
         areaGraphics = FileSelectAreaMapGraphics.FromPresentation(area, mapPresentation);
         roomGraphics = new FileSelectRoomMapGraphics(system, typedArea, mapPresentation: mapPresentation);
         this.mapPresentation = mapPresentation;
-        scroll = CreateScrollForCurrentContent();
+        Scroll = CreateScrollForCurrentContent();
         marker = new FileSelectStationMarker(typedArea, slot.SaveStation, mapPresentation.SaveMarkers);
         navigation = new FileSelectMapNavigation(area, initialHeldInput);
         navigation.BindLabels(mapPresentation.Labels);
@@ -130,7 +140,7 @@ public sealed class FileSelectMapMenuState
         }
         FileSelectMapNavigationPhase before = Phase;
         drawArrows = before == FileSelectMapNavigationPhase.Room;
-        if (drawArrows) animations.StepArrows(scroll.CanScroll);
+        if (drawArrows) animations.StepArrows(Scroll.CanScroll);
         // Native draws/advances map icons before testing input, including the frame
         // that requests load/cancel and the following load fade.
         if (before is FileSelectMapNavigationPhase.Room or FileSelectMapNavigationPhase.LoadRequested)
@@ -139,7 +149,7 @@ public sealed class FileSelectMapMenuState
             marker.Step();
             markerDrawn = true;
         }
-        if (before == FileSelectMapNavigationPhase.Room && scroll.Step(input))
+        if (before == FileSelectMapNavigationPhase.Room && Scroll.Step(input))
             Queue(SoundEffectLibrary1Sounds.MapScroll);
         navigation.Step(input);
         if (Phase != before)
@@ -151,7 +161,7 @@ public sealed class FileSelectMapMenuState
             if (Phase == FileSelectMapNavigationPhase.AreaReturnRequested) Queue(SoundEffectLibrary1Sounds.MapReturn);
             if (Phase == FileSelectMapNavigationPhase.Room)
             {
-                scroll = CreateScrollForCurrentContent();
+                Scroll = CreateScrollForCurrentContent();
                 marker = new FileSelectStationMarker((AreaId)area, stationIndex, mapPresentation?.SaveMarkers);
                 markerDrawn = false;
                 animations.ResetPalette();
@@ -204,7 +214,7 @@ public sealed class FileSelectMapMenuState
     {
         LayeredRenderSnapshot Area(AreaMapColorMath colorMath = AreaMapColorMath.WithBackdrop) => areaGraphics.CaptureRenderSnapshot(usedStations, colorMath);
         LayeredRenderSnapshot Frame() => roomGraphics.CaptureRenderSnapshot(content: RoomMapContent.FrameOnly);
-        LayeredRenderSnapshot Room(FileSelectStationMarker? shownMarker) => roomGraphics.CaptureRenderSnapshot(scroll.Scroll,
+        LayeredRenderSnapshot Room(FileSelectStationMarker? shownMarker) => roomGraphics.CaptureRenderSnapshot(Scroll.Scroll,
             shownMarker, drawArrows ? animations : null);
         if (!entry.IsComplete)
         {

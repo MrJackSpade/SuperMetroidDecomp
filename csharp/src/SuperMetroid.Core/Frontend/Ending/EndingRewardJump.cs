@@ -16,7 +16,7 @@ internal sealed class EndingRewardJump
     /// <summary>Separate head actor present for the two suited ending rewards.</summary>
     private readonly IntroDiscoverySprite? head;
     /// <summary>Shared packed vertical velocity; each active actor movement applies gravity to it.</summary>
-    internal int velocity;
+    internal int Velocity { get; private set; }
     /// <summary>Number of landing graphics sheets already queued for upload.</summary>
     private int uploads;
     /// <summary>Whether the shooting instruction has requested the ending screen capture.</summary>
@@ -87,8 +87,8 @@ internal sealed class EndingRewardJump
     /// <summary>Applies gravity to shared velocity and moves an actor using packed fixed-point height.</summary>
     private void Move(IntroDiscoverySprite actor)
     {
-        velocity = unchecked(velocity + EndingRewardJumpDefinitions.Gravity);
-        uint position = unchecked(IntroCinematicMotion.Packed(actor.Position.Y) + (uint)velocity);
+        Velocity = unchecked(Velocity + EndingRewardJumpDefinitions.Gravity);
+        uint position = unchecked(IntroCinematicMotion.Packed(actor.Position.Y) + (uint)Velocity);
         actor.Position = actor.Position.WithY(IntroCinematicMotion.Unpacked(position));
     }
 
@@ -98,7 +98,7 @@ internal sealed class EndingRewardJump
         switch (cue)
         {
             case CinematicSpriteCueKind.Launch:
-                velocity = EndingRewardJumpDefinitions.LaunchVelocity;
+                Velocity = EndingRewardJumpDefinitions.LaunchVelocity;
                 return;
             case CinematicSpriteCueKind.PrepareHead:
                 RequireHead().WholePosition = new((ushort)(helmeted ? 118 : 120), 120);

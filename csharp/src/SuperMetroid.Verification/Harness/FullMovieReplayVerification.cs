@@ -1,4 +1,6 @@
-﻿using SuperMetroid.Core.Frontend.Pause;
+﻿using SuperMetroid.Core.Frontend.Intro;
+using SuperMetroid.Core.Frontend.Options;
+using SuperMetroid.Core.Frontend.Pause;
 using SuperMetroid.Core.Input;
 using System.Globalization;
 using SuperMetroid.Core.Frontend;
@@ -294,9 +296,9 @@ internal static class FullMovieReplayVerification
         string Native(int address) => Word(memory, address).ToString("X4");
         Console.WriteLine($"trace {update}@{step.SourceFrame} in={step.Input:X4} state={(ushort)game.GameState:X2}/{Native(MovieDesyncMemory.GameState)} " +
             $"door={game.DoorTransitionPhaseForVerification}/{Native(0x099c)} rng={game.DispatcherRandomNumber:X4}/{Native(MovieDesyncMemory.Random)}");
-        if (game.Session.intro is { } intro)
+        if (game.Session.ScreenAs<IntroCinematicState>() is { } intro)
             Console.WriteLine($"  intro port={intro.Phase} native cinematic={Native(0x1f51)}");
-        if (game.Session.options is { } options)
+        if (game.Session.ScreenAs<GameOptionsMenuState>() is { } options)
             Console.WriteLine($"  options port phase={options.Phase} item={options.SelectedItem}");
         if (samus is null) return;
         Console.WriteLine($"  port   pose={(int)samus.Pose:X2} X={samus.Position.X.Whole:X4}.{samus.Kinematics.Position.X.Fraction:X4} Y={samus.Position.Y.Whole:X4}.{samus.Kinematics.Position.Y.Fraction:X4} " +
@@ -306,7 +308,7 @@ internal static class FullMovieReplayVerification
         Console.WriteLine($"  hurt port inv={samus.InvincibilityTimer.RawValue:X4} kb={samus.KnockbackTimer.RawValue:X4} div={samus.XSpeedDivisor:X4} hp={samus.Health:X4}");
         if (game.CeresDestructionForVerification is { } boom)
             Console.WriteLine($"  cinematic port={boom.Phase} native={Native(0x1f51)}");
-        if (game.Session.pauseMenu is { } pause)
+        if (game.Session.ScreenAs<PauseMenuState>() is { } pause)
             Console.WriteLine($"  pause port mode={pause.ScreenMode} cat={(int)pause.SelectedCategory} item={pause.SelectedItem} transition={pause.IsPageTransitionActive} " +
                 $"held cur={(ushort)game.Session.GameplayRuntime.Controller1.Current:X4} new={(ushort)game.Session.GameplayRuntime.Controller1.NewlyPressed:X4} hp={(ushort)game.Session.GameplayRuntime.System.HeldInputPrevious:X4} tt={game.Session.GameplayRuntime.System.TimedHeldInputTimer.RawValue:X4} th={(ushort)game.Session.GameplayRuntime.System.TimedHeldInput:X4} tn={(ushort)game.Session.GameplayRuntime.System.NewlyTimedHeldInput:X4} tp={(ushort)game.Session.GameplayRuntime.System.TimedHeldInputPrevious:X4}");
         Console.WriteLine($"  nmi port={(game.RuntimeForVerification?.Clock.Counter ?? game.MenuNmiFrameCounterForVerification):X4} native={Native(0x05b6)}");

@@ -34,7 +34,7 @@ internal sealed class LoadingGamePhases(FrontendSession session)
             return;
         }
         // $82:801D branches on the save's loading state.
-        switch (session.stateSixLoadingRoute)
+        switch (session.StateSixLoadingRoute)
         {
             case SaveLoadingGameState.MainGame:
                 // A save continued from the file-select map: the ordinary branch loads the
@@ -55,7 +55,7 @@ internal sealed class LoadingGamePhases(FrontendSession session)
             case SaveLoadingGameState.OpeningCinematic:
             case SaveLoadingGameState.CeresElevatorArrival:
             default:
-                throw new InvalidOperationException($"State six has no loading branch for {session.stateSixLoadingRoute}.");
+                throw new InvalidOperationException($"State six has no loading branch for {session.StateSixLoadingRoute}.");
         }
     }
 
@@ -64,26 +64,10 @@ internal sealed class LoadingGamePhases(FrontendSession session)
     {
         session.GameplayRuntime.StepFrame(controllerInput, new RuntimeFrameRequest { Audio = gameplayAudio.GameplayFrameAudio(session.GameplayRuntime) });
         session.display.PublishGameplay(session.GameplayRuntime);
-        session.ApplyDisplayBrightness(session.postCeresFadeBrightness);
+        session.ApplyDisplayBrightness(session.GameplayFadeIn.Brightness);
         session.HandleGunshipLandingSave();
-        if (session.postCeresFadeCounter-- <= 0)
-        {
-            session.postCeresFadeCounter = 1;
-            session.postCeresFadeBrightness = Math.Min(
-                15,
-                session.postCeresFadeBrightness + 1);
-            if (session.postCeresFadeBrightness == 15)
-            {
-                // $82:8106 always selects state seven, which then enters state
-                // eight; the Ceres arrival is ordinary gameplay with Samus locked.
-                session.GameState = SuperMetroidGameState.MainGameplay;
-                session.gameplayFadeLeadsToCeresArrival = false;
-                session.screenFade.Clear();
-                // HandleFadingIn wrote $51 = $0F this frame; the level is published
-                // before it rises, so record the register directly.
-                session.pauseBrightness = PauseFadeTiming.FullyLit;
-            }
-        }
+        if (session.GameplayFadeIn.Brighten() == PauseFadeTiming.FullyLit)
+            session.FinishGameplayFadeIn();
     }
 
     /// <summary>
@@ -92,9 +76,7 @@ internal sealed class LoadingGamePhases(FrontendSession session)
     /// </summary>
     private void BeginGameLoadingWaits(int waits, GameLoadingCompletion completion)
     {
-        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(waits);
-        session.gameLoadingWaitsRemaining = waits;
-        session.gameLoadingCompletion = completion;
+        session.GameLoading.Begin(waits, completion);
         session.display.PublishBlack();
     }
 
@@ -105,12 +87,12 @@ internal sealed class LoadingGamePhases(FrontendSession session)
     private void StepGameLoadingWait(SnesButton controllerInput)
     {
         session.GameplayRuntime.FrameBoundary.BeginAcceptedFrame(controllerInput);
-        if (--session.gameLoadingWaitsRemaining != 0)
+        if (!session.GameLoading.CountWait())
         {
             session.display.PublishBlack();
             return;
         }
-        switch (session.gameLoadingCompletion)
+        switch (session.GameLoading.Completion)
         {
             case GameLoadingCompletion.CeresArrivalFadeIn:
                 session.BeginGameplayFadeIn(target: GameplayFadeTarget.CeresArrival);
@@ -125,7 +107,7 @@ internal sealed class LoadingGamePhases(FrontendSession session)
                 session.display.PublishGameplay(session.GameplayRuntime);
                 break;
             default:
-                throw new InvalidDataException($"Invalid game-loading completion {session.gameLoadingCompletion}.");
+                throw new InvalidDataException($"Invalid game-loading completion {session.GameLoading.Completion}.");
         }
     }
 }

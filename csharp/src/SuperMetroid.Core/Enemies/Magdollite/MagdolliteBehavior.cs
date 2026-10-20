@@ -41,13 +41,13 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Eight-frame countdown for the singleton graphics-drawn palette hook.</summary>
-    internal NativeCountdown MagdollitePaletteAnimationTimer;
+    internal NativeCountdown MagdollitePaletteAnimationTimer { get; set; }
     /// <summary>The palette cycle's current row, 0 through <see cref="MagdollitePaletteRomData.FrameCount"/> minus one; each step advances it around the cycle.</summary>
-    internal int MagdollitePaletteFrame;
+    internal int MagdollitePaletteFrame { get; set; }
     /// <summary>OBJ palette byte offset selected by the final initialized Magdollite record.</summary>
-    internal int MagdollitePaletteBaseColor;
+    internal int MagdollitePaletteBaseColor { get; set; }
     /// <summary>Whether any Magdollite initializer installed the room's palette hook.</summary>
-    internal bool MagdollitePaletteAnimationInstalled;
+    internal bool MagdollitePaletteAnimationInstalled { get; set; }
 
     /// <summary>Last library-two sound emitted by throw opcode $A8:AE12 this frame.</summary>
     public SoundEffectId? LastMagdolliteSoundEffect { get; private set; }

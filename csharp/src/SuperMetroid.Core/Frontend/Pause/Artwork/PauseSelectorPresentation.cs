@@ -111,14 +111,14 @@ public sealed class PauseSelectorPresentation
         /// <summary>Native base composition shared by phases without an authored override.</summary>
         internal readonly PauseSelectorVisual basis = basis;
         /// <summary>Only animation phases selecting a different composition.</summary>
-        internal Dictionary<int, PauseSelectorVisual>? overrides;
+        internal Dictionary<int, PauseSelectorVisual>? Overrides { get; private set; }
         /// <summary>Retains a phase image only when it differs from the base image object.</summary>
         public void Capture(int phase, PauseSelectorVisual value)
         {
-            if (!ReferenceEquals(basis, value)) (overrides ??= new()).Add(phase, value);
+            if (!ReferenceEquals(basis, value)) (Overrides ??= new()).Add(phase, value);
         }
         /// <summary>Resolves an authored phase image or falls back to the native base composition.</summary>
-        public PauseSelectorVisual Get(int phase) => overrides is not null && overrides.TryGetValue(phase, out var value)
+        public PauseSelectorVisual Get(int phase) => Overrides is not null && Overrides.TryGetValue(phase, out var value)
             ? value : basis;
     }
     /// <summary>Validates and writes a pause-selector document as JSON.</summary>

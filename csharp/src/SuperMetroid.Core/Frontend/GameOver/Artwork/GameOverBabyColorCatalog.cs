@@ -46,15 +46,15 @@ internal sealed class GameOverBabyColorCatalog
     private readonly int glassCryRed;
 
     /// <summary>Captures values from the four named palettes already validated by the presentation loader.</summary>
-    internal GameOverBabyColorCatalog(IReadOnlyDictionary<string, Bgr555[]> palettes)
+    internal GameOverBabyColorCatalog(IReadOnlyDictionary<GameOverBabyPalette, Bgr555[]> palettes)
     {
-        Bgr555[] closed = palettes[GameOverPresentationDefinitions.BabyPaletteName(GameOverBabyPalette.ClosedCry)];
+        Bgr555[] closed = palettes[GameOverBabyPalette.ClosedCry];
         greenCryRed = closed[4].Red;
         glassCryRed = closed[13].Red;
         foreach (GameOverBabyPalette palette in Enum.GetValues<GameOverBabyPalette>())
         for (int color = 0; color < 16; color++)
         {
-            Bgr555 supplied = palettes[GameOverPresentationDefinitions.BabyPaletteName(palette)][color];
+            Bgr555 supplied = palettes[palette][color];
             int key = (int)palette * 16 + color;
             bool idle = palette == GameOverBabyPalette.Idle;
             bool closedCry = palette == GameOverBabyPalette.ClosedCry;
@@ -72,22 +72,22 @@ internal sealed class GameOverBabyColorCatalog
                 continue;
             }
             Bgr555 expected = glassCry
-                ? GlassCry(palettes[GameOverPresentationDefinitions.BabyPaletteName(GameOverBabyPalette.Idle)][color])
+                ? GlassCry(palettes[GameOverBabyPalette.Idle][color])
                 : glassHighlight
-                ? Brighten(palettes[GameOverPresentationDefinitions.BabyPaletteName(GameOverBabyPalette.Idle)][color], 5)
+                ? Brighten(palettes[GameOverBabyPalette.Idle][color], 5)
                 : coolCry
-                ? CoolCry(palettes[GameOverPresentationDefinitions.BabyPaletteName(GameOverBabyPalette.Idle)][color], color)
-                : greenCry ? GreenCry(palettes[GameOverPresentationDefinitions.BabyPaletteName(GameOverBabyPalette.Idle)][color])
+                ? CoolCry(palettes[GameOverBabyPalette.Idle][color], color)
+                : greenCry ? GreenCry(palettes[GameOverBabyPalette.Idle][color])
                 : middleShade
-                ? MiddleShade(palettes[GameOverPresentationDefinitions.BabyPaletteName(GameOverBabyPalette.Idle)][color - 1],
-                    palettes[GameOverPresentationDefinitions.BabyPaletteName(GameOverBabyPalette.Idle)][color + 1])
+                ? MiddleShade(palettes[GameOverBabyPalette.Idle][color - 1],
+                    palettes[GameOverBabyPalette.Idle][color + 1])
                 : greenShade
-                ? GreenShade(palettes[GameOverPresentationDefinitions.BabyPaletteName(palette)][4], color)
-                : warmCry ? WarmCry(palettes[GameOverPresentationDefinitions.BabyPaletteName(GameOverBabyPalette.Idle)][color])
+                ? GreenShade(palettes[palette][4], color)
+                : warmCry ? WarmCry(palettes[GameOverBabyPalette.Idle][color])
                 : color == 0
-                ? palettes[GameOverPresentationDefinitions.BabyPaletteName(GameOverBabyPalette.Idle)][0]
-                : CryShade(palettes[GameOverPresentationDefinitions.BabyPaletteName(GameOverBabyPalettes.PreviousCry(palette))][color],
-                    palette, color, color == 13 ? palettes[GameOverPresentationDefinitions.BabyPaletteName(palette)][14] : Bgr555.Black);
+                ? palettes[GameOverBabyPalette.Idle][0]
+                : CryShade(palettes[GameOverBabyPalettes.PreviousCry(palette)][color],
+                    palette, color, color == 13 ? palettes[palette][14] : Bgr555.Black);
             if (supplied != expected)
                 differences.Add(key, new(supplied, expected));
         }
@@ -96,7 +96,7 @@ internal sealed class GameOverBabyColorCatalog
     /// <summary>Reconstructs an ink from endpoints and phase relationships, then applies independent channel edits.</summary>
     internal Bgr555 Read(GameOverBabyPalette palette, int color)
     {
-        _ = GameOverPresentationDefinitions.BabyPaletteName(palette);
+        if (!Enum.IsDefined(palette)) throw new ArgumentOutOfRangeException(nameof(palette));
         if ((uint)color >= 16) throw new ArgumentOutOfRangeException(nameof(color));
         int key = (int)palette * 16 + color;
         if (inputs.TryGetValue(key, out Bgr555 value)) return value;

@@ -64,21 +64,41 @@ public sealed class TourianStatueSequence
     }
 
     /// <summary>One spawned statue animation's definition, program position, and frame timer.</summary>
-    internal sealed class TileObject
+    internal sealed class TileObject(TourianStatueAnimatedTileProgramDefinition definition)
     {
         /// <summary>Program identity and installed transfer dimensions for this statue.</summary>
-        public required TourianStatueAnimatedTileProgramDefinition Definition;
+        public TourianStatueAnimatedTileProgramDefinition Definition { get; } = definition;
         /// <summary>Where the statue's typed program resumes; null once the program has stopped and the object is deleted.</summary>
-        public AnimationProgramCursor<TourianStatueTileProgram>? Cursor;
+        public AnimationProgramCursor<TourianStatueTileProgram>? Cursor { get; private set; } =
+            AnimationProgramCursor<TourianStatueTileProgram>.Start(TourianStatueTileProgram.Entry);
         /// <summary>Remaining duration of the current tile frame.</summary>
-        public NativeCountdown Timer = NativeCountdown.Start(1);
+        public NativeCountdown Timer { get; private set; } = NativeCountdown.Start(1);
+
+        /// <summary>Counts a live statue's frame down one tick and reports whether the frame has expired; a stopped statue never counts.</summary>
+        internal bool CountDown()
+        {
+            if (Cursor is null)
+                return false;
+            Timer = Timer.Decrement().Remaining;
+            return Timer.IsZero;
+        }
+
+        /// <summary>Resumes the program at <paramref name="cursor"/> after showing a picture for <paramref name="duration"/> ticks.</summary>
+        internal void Show(AnimationProgramCursor<TourianStatueTileProgram> cursor, int duration)
+        {
+            Cursor = cursor;
+            Timer = NativeCountdown.Start(duration);
+        }
+
+        /// <summary>Ends the program, deleting the object.</summary>
+        internal void Stop() => Cursor = null;
     }
     /// <summary>Kraid, Phantoon, Draygon, then Ridley order matches native slot traversal and busy-bit ownership.</summary>
     internal readonly List<TileObject> objects = [];
     /// <summary>Minus two waits for all grey events; nonnegative values count down the authored pre-descent hold.</summary>
     private int delay = -2;
     /// <summary>Accumulated positive 16.16 travel, exposed as a negative BG2 vertical offset.</summary>
-    internal int descent;
+    internal int Descent { get; set; }
     /// <summary>Whether the last loaded room uses <c>RunStatueUnlockingAnimations</c>; remains true after the descent finishes; the next room builds its own sequence.</summary>
     public bool Enabled { get; private set; }
     /// <summary>
@@ -86,7 +106,7 @@ public sealed class TourianStatueSequence
     /// frame. As a signed 16.16 value its whole word floors toward negative infinity, so
     /// the first quarter-pixel step already reads -1.
     /// </summary>
-    public short VerticalOffset => unchecked((short)SnesSixteenSixteen.WholeOf(-descent));
+    public short VerticalOffset => unchecked((short)SnesSixteenSixteen.WholeOf(-Descent));
     /// <summary>BG2 offset accepted with the same NMI as the displayed OBJ buffer.</summary>
     public short DisplayedVerticalOffset { get; private set; }
     /// <summary>Captures the current BG2 position for presentation with the corresponding NMI OBJ buffer.</summary>
@@ -101,7 +121,7 @@ public sealed class TourianStatueSequence
     {
         objects.Clear();
         delay = -2;
-        descent = 0;
+        Descent = 0;
         DisplayedVerticalOffset = 0;
         Begin(plms);
     }
@@ -118,7 +138,7 @@ public sealed class TourianStatueSequence
         SpawnAnimatedObjects();
         if (_tester.UnlockTourianEnabled || _system.HasEvent(EventNumber.TourianUnlocked))
         {
-            descent = SnesSixteenSixteen.FromWhole(TourianStatueRomData.DescentDistance);
+            Descent = SnesSixteenSixteen.FromWhole(TourianStatueRomData.DescentDistance);
             _enemies.TourianStatue.VerticalOffset = VerticalOffset;
             plms.Tourian.TrySpawnTourianAccess(_room.LoadedLevelData, TourianAccessFloor.Clear);
             EnableScrolling();
@@ -150,11 +170,7 @@ public sealed class TourianStatueSequence
                 throw new InvalidDataException(
                     $"Tourian statue animated-tile object {objectPointer} is not cataloged.");
 
-            objects.Add(new()
-            {
-                Definition = definition,
-                Cursor = AnimationProgramCursor<TourianStatueTileProgram>.Start(TourianStatueTileProgram.Entry),
-            });
+            objects.Add(new(definition));
         }
     }
 
@@ -169,7 +185,7 @@ public sealed class TourianStatueSequence
         if (_tester.UnlockTourianEnabled) return;
         foreach (TileObject tile in objects)
         {
-            if (tile.Cursor is not { } cursor || !(tile.Timer = tile.Timer.Decrement().Remaining).IsZero) continue;
+            if (!tile.CountDown() || tile.Cursor is not { } cursor) continue;
             // The statue programs load no loop counter; the program set still takes one.
             NativeCountdown loopCounter = NativeCountdown.Start(0);
             TourianStatueAnimatedTileProgramDefinition definition = tile.Definition;
@@ -178,15 +194,14 @@ public sealed class TourianStatueSequence
             switch (advance)
             {
                 case AnimationProgramAdvance<TourianStatueTilePicture>.Show shown:
-                    tile.Cursor = cursor;
-                    tile.Timer = NativeCountdown.Start(shown.Duration);
+                    tile.Show(cursor, shown.Duration);
                     _vramWrites.EnqueueBackgroundSource(
                         new TourianStatuePictureCharacters(definition.ObjectPointer, shown.Frame),
                         checked((ushort)definition.TransferByteCount),
                         definition.Destination);
                     break;
                 case AnimationProgramAdvance<TourianStatueTilePicture>.Stop:
-                    tile.Cursor = null;
+                    tile.Stop();
                     break;
                 default:
                     throw new InvalidOperationException(
@@ -272,7 +287,7 @@ public sealed class TourianStatueSequence
             return;
         }
         if (_freeze.TimeIsFrozen) return;
-        descent += TourianStatueRomData.DescentStep;
+        Descent += TourianStatueRomData.DescentStep;
         _enemies.TourianStatue.VerticalOffset = VerticalOffset;
         // $88:DC90 compares the whole word against $FF10, which it first reaches
         // three quarter-steps before a full 240 pixels.

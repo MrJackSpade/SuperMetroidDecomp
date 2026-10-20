@@ -1506,10 +1506,10 @@ internal static class LookupStream1Verification
         AssertEqual(0, stock.frames.Count, "Timer stock stores no calculated frame fallbacks");
         AssertEqual(0, stock.anchors.Count, "Timer stock stores no calculated anchor fallbacks");
         int parts = 0;
-        foreach (string name in document.Frames.Keys)
+        foreach (EscapeTimerGlyph glyph in EscapeTimerPresentationDefinitions.Glyphs)
         {
-            int address = name == "Label" ? 0x80a060 : 0x800000 | Word(0x809fd4 + int.Parse(name.AsSpan(6)) * 2);
-            var calculated = EscapeTimerPresentationDefinitions.DefaultParts(name);
+            int address = glyph == EscapeTimerGlyph.Label ? 0x80a060 : 0x800000 | Word(0x809fd4 + EscapeTimerPresentationDefinitions.DigitValue(glyph) * 2);
+            var calculated = EscapeTimerPresentationDefinitions.DefaultParts(glyph);
             AssertEqual(Word(address), calculated.Count, "Timer part count matches native sprite record");
             for (int index = 0; index < calculated.Count; index++)
             {
@@ -1525,8 +1525,9 @@ internal static class LookupStream1Verification
             AssertThrows<ArgumentOutOfRangeException>(() => _ = calculated[calculated.Count], "Timer part upper index rejects");
         }
         AssertEqual(25, parts, "All twenty-five native timer parts are calculated");
-        foreach ((string name, int address) in new[] { ("Label", 0x809f73), ("Minutes", 0x809f7c), ("Seconds", 0x809f85), ("Centiseconds", 0x809f8e) })
-            AssertEqual(new Offset16<OamPixels>(unchecked((short)Word(address)), 0), EscapeTimerPresentationDefinitions.DefaultAnchor(name), "Timer centered anchor matches native renderer immediate");
+        int[] anchorImmediates = [0x809f73, 0x809f7c, 0x809f85, 0x809f8e];
+        foreach (EscapeTimerAnchor anchor in EscapeTimerPresentationDefinitions.Anchors)
+            AssertEqual(new Offset16<OamPixels>(unchecked((short)Word(anchorImmediates[(int)anchor])), 0), EscapeTimerPresentationDefinitions.DefaultAnchor(anchor), "Timer centered anchor matches native renderer immediate");
         var timer = new EscapeTimer(); timer.Clear();
         for (int digit = 0; digit < 10; digit++)
         {
@@ -1536,8 +1537,9 @@ internal static class LookupStream1Verification
             EscapeTimerDrawChecks.AssertSameSprites(native, EscapeTimerDrawChecks.Draw(timer, stock),
                 "Every calculated decimal glyph draws the native OAM sprites");
         }
-        foreach (string name in document.Frames.Keys)
+        foreach (EscapeTimerGlyph glyph in EscapeTimerPresentationDefinitions.Glyphs)
         {
+            string name = EscapeTimerPresentationDefinitions.FrameName(glyph);
             var edited = Read();
             // A 16-pixel part reads four characters; $1E1 keeps all of them inside the timer's own artwork.
             edited.Frames[name][0] = edited.Frames[name][0] with { OffsetX = edited.Frames[name][0].OffsetX + 3,
@@ -1546,7 +1548,7 @@ internal static class LookupStream1Verification
             var compiled = Load(edited);
             AssertEqual(1, compiled.frames.Count, "One timer frame edit stores exactly one independent frame");
             AssertEqual(0, compiled.anchors.Count, "Frame edits do not store unchanged timer anchors");
-            int digit = name == "Label" ? 0 : int.Parse(name.AsSpan(6));
+            int digit = glyph == EscapeTimerGlyph.Label ? 0 : EscapeTimerPresentationDefinitions.DigitValue(glyph);
             timer.SetTime(PackedBcd.FromDecimal(digit * 11), PackedBcd.Zero, PackedBcd.FromDecimal(digit * 11));
             EscapeTimerDrawChecks.AssertSameSprites(DrawDocument(edited), EscapeTimerDrawChecks.Draw(timer, compiled),
                 "Edited timer geometry, size, tile, priority, palette and flips remain exact");
@@ -1565,7 +1567,7 @@ internal static class LookupStream1Verification
         foreach (int tile in new[] { EscapeTimerPresentationDefinitions.FirstCharacter - 1, EscapeTimerPresentationDefinitions.FirstCharacter + EscapeTimerTileAtlasFormat.TileCount })
         {
             var outside = Read();
-            outside.Frames["Label"][0] = outside.Frames["Label"][0] with { TileNumber = tile };
+            outside.Frames[EscapeTimerPresentationDefinitions.LabelFrame][0] = outside.Frames[EscapeTimerPresentationDefinitions.LabelFrame][0] with { TileNumber = tile };
             AssertThrows<InvalidDataException>(() => Load(outside), $"Timer part reading OBJ character ${tile:X3} outside the timer artwork is rejected");
         }
         Console.WriteLine("Escape timer layout:25 native parts,4 native anchors, zero stock dictionaries,10 decimal draw fixtures, independent frame/anchor/spacing/palette edits and out-of-artwork rejection pass.");

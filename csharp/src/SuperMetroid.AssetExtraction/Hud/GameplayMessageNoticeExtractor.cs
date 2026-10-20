@@ -67,7 +67,7 @@ public static class GameplayMessageNoticeExtractor
                     Column = region.Column,
                     Width = region.Width,
                     Alignment = region.Alignment,
-                    Text = region.Alignment == GameplayMessageNoticeDefinitions.CenterAlignment
+                    Text = region.Alignment == GameplayMessageTextAlignment.Center
                         ? padded.Trim()
                         : padded.TrimEnd(),
                     Palette = palette,

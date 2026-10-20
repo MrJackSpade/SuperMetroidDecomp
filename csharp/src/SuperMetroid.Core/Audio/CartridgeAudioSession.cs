@@ -29,7 +29,7 @@ public sealed class CartridgeAudioSession
     /// <summary>Whether any update has advanced the session, so PCM exists to copy.</summary>
     private bool hasAdvanced;
     /// <summary>The clip backend's playback state, kept with the session so a restored session continues its PCM.</summary>
-    internal ClipPlaybackState? clipState;
+    private ClipPlaybackState? clipState;
     /// <summary>Host-bound backend that renders each update's events.</summary>
     [NonSerialized]
     private ClipAudioBackend? backend;

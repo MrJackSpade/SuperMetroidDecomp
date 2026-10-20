@@ -35,10 +35,10 @@ internal static class GameOptionsLanguagePalettesVerification
                 int[] countOperands = enabled == 0
                     ? [0x82f0d3, 0x82f0e2, 0x82f0f1, 0x82f0ff]
                     : [0x82f114, 0x82f123, 0x82f132, 0x82f140];
-                byte[] page = presentation.CreatePage(GameOptionsPresentationDefinitions.SpecialEnglishPage);
+                byte[] page = presentation.CreatePage(GameOptionsTilemap.SpecialEnglish);
                 presentation.ApplySpecialToggle(page, setting == 0
-                    ? GameOptionsPresentationDefinitions.IconCancelToggle
-                    : GameOptionsPresentationDefinitions.MoonwalkToggle, enabled != 0);
+                    ? GameOptionsToggle.IconCancel
+                    : GameOptionsToggle.Moonwalk, enabled != 0);
                 for (int box = 0; box < 4; box++)
                 {
                     int address = 0x82f149 + setting * 4 + box / 2 * 8 + box % 2 * 2;
@@ -92,7 +92,7 @@ internal static class GameOptionsLanguagePalettesVerification
             bool japanese = language != 0;
             var menu = new GameOptionsMenuState(japaneseText: japanese, mapPresentation: installed);
             ReadOnlySpan<byte> vram = menu.CaptureRenderSnapshot().Memory.Vram;
-            byte[] editablePage = presentation.CreatePage(GameOptionsPresentationDefinitions.PrimaryPage);
+            byte[] editablePage = presentation.CreatePage(GameOptionsTilemap.Primary);
             presentation.ApplyLanguage(editablePage, japanese);
 
             for (int regionIndex = 0; regionIndex < 4; regionIndex++)

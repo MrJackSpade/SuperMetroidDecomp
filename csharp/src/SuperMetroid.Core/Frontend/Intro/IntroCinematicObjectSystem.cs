@@ -17,10 +17,12 @@ internal sealed class IntroCinematicObjectSystem
     /// <summary>Receives narration glyph words at their authored row and column.</summary>
     private readonly ushort[] textTilemap;
     /// <summary>Where the persistent portrait eye's program resumes when its frame expires.</summary>
-    internal AnimationProgramCursor<IntroEyeProgram> eyeProgram =
+    private AnimationProgramCursor<IntroEyeProgram> eyeProgram =
         AnimationProgramCursor<IntroEyeProgram>.Start(IntroEyeProgram.Blinking);
+    /// <summary>Where the portrait eye's blink program resumes.</summary>
+    internal AnimationProgramCursor<IntroEyeProgram> EyeProgram { get => eyeProgram; private set => eyeProgram = value; }
     /// <summary>Countdown before the eye shows its program's next frame.</summary>
-    internal NativeCountdown eyeInstructionTimer = NativeCountdown.Start(1);
+    internal NativeCountdown EyeInstructionTimer { get; private set; } = NativeCountdown.Start(1);
     /// <summary>Countdown for initial marker, glyph, or final page hold.</summary>
     private NativeCountdown textInstructionTimer;
     /// <summary>Caller-installed narration artwork, rebound after debugger restoration.</summary>
@@ -180,8 +182,8 @@ internal sealed class IntroCinematicObjectSystem
 
         // B4BC observes the page-six cinematic function and permanently changes the eye
         // object to its closed/half-open/deadpan program.
-        eyeProgram = AnimationProgramCursor<IntroEyeProgram>.Start(IntroEyeProgram.FinalPageClosing);
-        eyeInstructionTimer = NativeCountdown.Start(1);
+        EyeProgram = AnimationProgramCursor<IntroEyeProgram>.Start(IntroEyeProgram.FinalPageClosing);
+        EyeInstructionTimer = NativeCountdown.Start(1);
     }
 
     /// <summary>Runs the same post-state-function object order as game state $25.</summary>
@@ -340,8 +342,8 @@ internal sealed class IntroCinematicObjectSystem
     /// </summary>
     private void StepEye()
     {
-        eyeInstructionTimer = eyeInstructionTimer.Decrement().Remaining;
-        if (!eyeInstructionTimer.IsZero)
+        EyeInstructionTimer = EyeInstructionTimer.Decrement().Remaining;
+        if (!EyeInstructionTimer.IsZero)
             return;
 
         // The eye programs load no loop counter; the program set still takes one.
@@ -349,8 +351,8 @@ internal sealed class IntroCinematicObjectSystem
         AnimationProgramAdvance<IntroEyeFrame> advance = IntroEyeAnimations.Programs.Advance(
             ref eyeProgram, ref loopCounter, static (_, _) => null);
         if (advance is not AnimationProgramAdvance<IntroEyeFrame>.Show shown)
-            throw new InvalidOperationException($"The intro eye program {eyeProgram.Program} ended an update with {advance}.");
-        eyeInstructionTimer = NativeCountdown.Start(shown.Duration);
+            throw new InvalidOperationException($"The intro eye program {EyeProgram.Program} ended an update with {advance}.");
+        EyeInstructionTimer = NativeCountdown.Start(shown.Duration);
         ShowEyeFrame(shown.Frame);
     }
 

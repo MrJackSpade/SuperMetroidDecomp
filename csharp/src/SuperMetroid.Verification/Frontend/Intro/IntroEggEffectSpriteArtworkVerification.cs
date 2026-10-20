@@ -103,7 +103,7 @@ internal static class IntroEggEffectSpriteArtworkVerification
             state.SetupFirstIllustratedPage();
             state.SetupMotherBrainFlashback();
             state.SetupBabyDiscoveryCrossfade();
-            var discovery = state.babyDiscovery;
+            var discovery = state.CurrentBabyDiscovery;
             var particles = (discovery ?? throw new InvalidOperationException("Verification requires discovery.")).eggParticles;
             particles.Add(fragment);
         }

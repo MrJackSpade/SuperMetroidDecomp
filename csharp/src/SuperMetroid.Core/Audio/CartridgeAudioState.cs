@@ -44,14 +44,14 @@ public sealed class CartridgeAudioState
     private readonly List<CartridgeAudioCommand> _pendingImmediateCommands = [];
 
     /// <summary>Slot of the music entry being retired or fetched by bank-80 dispatch, 0 through <see cref="AudioRomData.Queues.MusicIndexMask"/>.</summary>
-    internal int MusicReadPosition;
+    internal int MusicReadPosition { get; private set; }
     /// <summary>Insertion slot of the circular delayed-music command queue, 0 through <see cref="AudioRomData.Queues.MusicIndexMask"/>.</summary>
-    internal int MusicWritePosition;
+    internal int MusicWritePosition { get; private set; }
     /// <summary>
     /// The music delay countdown. It expires on reaching zero, and a cleared timer wraps negative on the
     /// next call, which is what fetches the next queued entry.
     /// </summary>
-    internal NativeCountdown MusicTimer;
+    internal NativeCountdown MusicTimer { get; private set; }
     /// <summary>Music command currently awaiting delay expiry and APU dispatch.</summary>
     private MusicCommand _musicEntry = MusicCommand.Stop;
     /// <summary>Sound-handler calls, 0 through <see cref="AudioRomData.Queues.MusicAndSfxDowntimeFrames"/>, for which a music change forces all SFX ports to zero.</summary>

@@ -58,15 +58,15 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
     private const int WorkRobotStepPixels = 4;
 
     /// <summary>Shared countdown to the next robot palette animation record.</summary>
-    internal NativeCountdown WorkRobotPaletteAnimationTimer;
+    internal NativeCountdown WorkRobotPaletteAnimationTimer { get; set; }
     /// <summary>
     /// The next palette record the robot palette hook loads, 0 through
     /// <see cref="WorkRobotPaletteTimingDefinitions.RecordCount"/>; the count itself is the table's terminator, which the
     /// hook resolves back to record zero before loading.
     /// </summary>
-    internal int WorkRobotPaletteAnimationRecord;
+    internal int WorkRobotPaletteAnimationRecord { get; set; }
     /// <summary>The OBJ palette row, 0 through 7, the robot graphics-drawn hook animates.</summary>
-    internal int WorkRobotPaletteAnimationPaletteRow;
+    internal int WorkRobotPaletteAnimationPaletteRow { get; set; }
 
     /// <summary>
     /// Most recent library-two sound requested by robot feet ($68) or a robot laser ($67).

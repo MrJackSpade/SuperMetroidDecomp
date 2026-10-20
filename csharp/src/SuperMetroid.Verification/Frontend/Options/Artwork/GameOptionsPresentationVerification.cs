@@ -71,19 +71,19 @@ internal static class GameOptionsPresentationVerification
 
         var document = RequiredJson.Deserialize<GameOptionsPresentationDocument>(
             extracted, ArtworkJson.Options);
-        document.HeadingAnchors[GameOptionsPresentationDefinitions.PrimaryMenu] =
-            document.HeadingAnchors[GameOptionsPresentationDefinitions.PrimaryMenu] with
-            { X = (ushort)(document.HeadingAnchors[GameOptionsPresentationDefinitions.PrimaryMenu].X + 8) };
-        document.CursorAnchors[GameOptionsPresentationDefinitions.PrimaryMenu][0] =
-            document.CursorAnchors[GameOptionsPresentationDefinitions.PrimaryMenu][0] with
-            { X = (ushort)(document.CursorAnchors[GameOptionsPresentationDefinitions.PrimaryMenu][0].X + 8) };
+        document.HeadingAnchors[GameOptionsPresentationDefinitions.MenuName(GameOptionsPage.Primary)] =
+            document.HeadingAnchors[GameOptionsPresentationDefinitions.MenuName(GameOptionsPage.Primary)] with
+            { X = (ushort)(document.HeadingAnchors[GameOptionsPresentationDefinitions.MenuName(GameOptionsPage.Primary)].X + 8) };
+        document.CursorAnchors[GameOptionsPresentationDefinitions.MenuName(GameOptionsPage.Primary)][0] =
+            document.CursorAnchors[GameOptionsPresentationDefinitions.MenuName(GameOptionsPage.Primary)][0] with
+            { X = (ushort)(document.CursorAnchors[GameOptionsPresentationDefinitions.MenuName(GameOptionsPage.Primary)][0].X + 8) };
         MapPresentationCell pageCell = document.Pages[
-            GameOptionsPresentationDefinitions.PrimaryPage][0x144];
-        document.Pages[GameOptionsPresentationDefinitions.PrimaryPage][0x144] =
+            GameOptionsPresentationDefinitions.TilemapName(GameOptionsTilemap.Primary)][0x144];
+        document.Pages[GameOptionsPresentationDefinitions.TilemapName(GameOptionsTilemap.Primary)][0x144] =
             pageCell with { FlipX = !pageCell.FlipX };
         SpriteVisualPart cursorPart = document.Sprites[
-            GameOptionsPresentationDefinitions.CursorFrameName(0)][0];
-        document.Sprites[GameOptionsPresentationDefinitions.CursorFrameName(0)][0] =
+            GameOptionsPresentationDefinitions.CursorSpriteName(0)][0];
+        document.Sprites[GameOptionsPresentationDefinitions.CursorSpriteName(0)][0] =
             cursorPart with { FlipY = !cursorPart.FlipY };
         Directory.CreateDirectory(overrides);
         string replacement = Path.Combine(overrides,
@@ -138,14 +138,14 @@ internal static class GameOptionsPresentationVerification
             }), "options reject incomplete controller-label anchors");
         var missingPage = RequiredJson.Deserialize<GameOptionsPresentationDocument>(
             extracted, ArtworkJson.Options);
-        missingPage.Pages.Remove(GameOptionsPresentationDefinitions.SpecialJapanesePage);
+        missingPage.Pages.Remove(GameOptionsPresentationDefinitions.TilemapName(GameOptionsTilemap.SpecialJapanese));
         AssertThrows<InvalidDataException>(() => GameOptionsPresentation.Write(Stream.Null, missingPage),
             "options reject a missing named page");
         var overlappingToggle = RequiredJson.Deserialize<GameOptionsPresentationDocument>(
             extracted, ArtworkJson.Options);
         GameOptionsToggleVisualDocument toggle = overlappingToggle.SpecialToggles[
-            GameOptionsPresentationDefinitions.IconCancelToggle];
-        overlappingToggle.SpecialToggles[GameOptionsPresentationDefinitions.IconCancelToggle] =
+            GameOptionsPresentationDefinitions.ToggleName(GameOptionsToggle.IconCancel)];
+        overlappingToggle.SpecialToggles[GameOptionsPresentationDefinitions.ToggleName(GameOptionsToggle.IconCancel)] =
             toggle with { DisabledCells = [toggle.EnabledCells[0], .. toggle.DisabledCells] };
         AssertThrows<InvalidDataException>(() =>
                 GameOptionsPresentation.Write(Stream.Null, overlappingToggle),

@@ -56,19 +56,26 @@ internal static class MapScreensVerification
         string jsonPath = Path.Combine(overrides, MapScreenDefinitions.FileName);
         var options = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
         var document = RequiredJson.Deserialize<MapScreenDocument>(File.ReadAllBytes(Path.Combine(stock, MapScreenDefinitions.FileName)), options);
-        foreach (var page in document.Pages)
+        foreach (MapScreenPage definition in MapScreenDefinitions.Pages())
         {
+            string name = definition.Id.Name;
             var isolated = new Dictionary<string, MapPresentationCell[]>(document.Pages);
-            isolated[page.Key] = page.Value.Select(cell => cell with { Palette = (cell.Palette + 1) % MapPresentationFormat.PaletteCount, FlipX = !cell.FlipX }).ToArray();
+            isolated[name] = document.Pages[name].Select(cell => cell with { Palette = (cell.Palette + 1) % MapPresentationFormat.PaletteCount, FlipX = !cell.FlipX }).ToArray();
             using (var output = File.Create(jsonPath)) MapScreenPresentation.Write(output, document with { Pages = isolated });
             var oneEdit = AreaMapPresentationCatalog.Load(stock, overrides);
-            bool room = page.Key.StartsWith("Room.", StringComparison.Ordinal);
-            var area = page.Key == MapScreenDefinitions.WorldForeground ? AreaId.Crateria : Enum.Parse<AreaId>(page.Key.Split('.')[1]);
+            bool room = definition.Id is MapScreenPageId.RoomFrame;
+            AreaId area = definition.Id switch
+            {
+                MapScreenPageId.WorldForeground => AreaId.Crateria,
+                MapScreenPageId.WorldBackground background => background.Area,
+                MapScreenPageId.RoomFrame frame => frame.Area,
+                _ => throw new InvalidOperationException($"Undefined map-screen page {name}."),
+            };
             Rgba32[] before = room ? new FileSelectRoomMapGraphics(system, area, mapPresentation: original).RenderFrameOnly()
                 : World(guard, original, (int)area).RenderBackgrounds();
             Rgba32[] after = room ? new FileSelectRoomMapGraphics(system, area, mapPresentation: oneEdit).RenderFrameOnly()
                 : World(guard, oneEdit, (int)area).RenderBackgrounds();
-            AssertTrue(!before.SequenceEqual(after), $"independent {page.Key} JSON edit reaches its composed pixels");
+            AssertTrue(!before.SequenceEqual(after), $"independent {name} JSON edit reaches its composed pixels");
         }
         var pages = document.Pages.ToDictionary(pair => pair.Key, pair => pair.Value.Select(cell => cell with
         { Palette = (cell.Palette + 1) % MapPresentationFormat.PaletteCount, FlipX = !cell.FlipX }).ToArray());
@@ -130,13 +137,13 @@ internal static class MapScreensVerification
             finally { File.WriteAllBytes(path, bytes); }
         }
         var invalidPages = new Dictionary<string, MapPresentationCell[]>(document.Pages);
-        invalidPages.Remove(MapScreenDefinitions.WorldForeground);
+        invalidPages.Remove(MapScreenDefinitions.WorldForeground.Name);
         AssertThrows<InvalidDataException>(() => MapScreenPresentation.Write(new MemoryStream(), document with { Pages = invalidPages }), "missing named screen page rejected");
         invalidPages = new(document.Pages);
-        invalidPages[MapScreenDefinitions.WorldForeground] = [];
+        invalidPages[MapScreenDefinitions.WorldForeground.Name] = [];
         AssertThrows<InvalidDataException>(() => MapScreenPresentation.Write(new MemoryStream(), document with { Pages = invalidPages }), "wrong page dimensions rejected");
-        invalidPages[MapScreenDefinitions.WorldForeground] = document.Pages[MapScreenDefinitions.WorldForeground].ToArray();
-        invalidPages[MapScreenDefinitions.WorldForeground][0] = invalidPages[MapScreenDefinitions.WorldForeground][0] with { TileRow = 999 };
+        invalidPages[MapScreenDefinitions.WorldForeground.Name] = document.Pages[MapScreenDefinitions.WorldForeground.Name].ToArray();
+        invalidPages[MapScreenDefinitions.WorldForeground.Name][0] = invalidPages[MapScreenDefinitions.WorldForeground.Name][0] with { TileRow = 999 };
         AssertThrows<InvalidDataException>(() => MapScreenPresentation.Write(new MemoryStream(), document with { Pages = invalidPages }), "out of atlas reference rejected");
         File.WriteAllText(jsonPath, "broken JSON");
         AssertThrows<InvalidDataException>(() => AreaMapPresentationCatalog.Load(stock, overrides), "corrupt screen override fails loudly");

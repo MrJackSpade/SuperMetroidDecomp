@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Frontend.Menus.Artwork;
 namespace SuperMetroid.Core.Frontend.Options.Artwork;
 
 /// <summary>Schema names and geometry for <c>options-menu.json</c>.</summary>
@@ -7,28 +9,8 @@ public static class GameOptionsPresentationDefinitions
     public const int Version = 1;
     /// <summary>Extracted JSON filename for options artwork, highlight regions, sprite compositions, and anchors.</summary>
     public const string FileName = "options-menu.json";
-    /// <summary>Common BG2 background page identity, separate from foreground option pages.</summary>
-    public const string BackgroundPage = "Background";
-    /// <summary>Primary foreground tilemap identity containing start, language, controller, and special-settings choices.</summary>
-    public const string PrimaryPage = "Primary";
-    /// <summary>English controller-settings foreground page identity.</summary>
-    public const string ControllerEnglishPage = "Controller.English";
-    /// <summary>Japanese controller-settings foreground page identity.</summary>
-    public const string ControllerJapanesePage = "Controller.Japanese";
-    /// <summary>English special-settings foreground page identity.</summary>
-    public const string SpecialEnglishPage = "Special.English";
-    /// <summary>Japanese special-settings foreground page identity.</summary>
-    public const string SpecialJapanesePage = "Special.Japanese";
-    /// <summary>Primary menu layout identity for heading and cursor anchors, shared across language choices.</summary>
-    public const string PrimaryMenu = "Primary";
-    /// <summary>Controller menu layout identity for heading and cursor anchors, independent of translated foreground pages.</summary>
-    public const string ControllerMenu = "Controller";
-    /// <summary>Special menu layout identity for heading and cursor anchors, independent of translated foreground pages.</summary>
-    public const string SpecialMenu = "Special";
-    /// <summary>Special-toggle visual identity for the icon-cancel enabled and disabled labels.</summary>
-    public const string IconCancelToggle = "IconCancel";
-    /// <summary>Special-toggle visual identity for the moonwalk enabled and disabled labels.</summary>
-    public const string MoonwalkToggle = "Moonwalk";
+    /// <summary>The JSON name of the common BG2 background page, separate from the foreground option pages.</summary>
+    public const string BackgroundPageName = "Background";
     /// <summary>Number of row-major tile cells in each 32-by-32 options page.</summary>
     public const int PageCellCount = GameOptionsRomData.MenuTilemapWidth * GameOptionsRomData.MenuTilemapHeight;
     /// <summary>Height in characters of the atlas addressed by authored background cells.</summary>
@@ -42,68 +24,90 @@ public static class GameOptionsPresentationDefinitions
     /// <summary>Size of one controller-label glyph patch in tile cells.</summary>
     public static Extent16<TilemapCells> ControllerLabelSize => new(ControllerLabelWidth, ControllerLabelHeight);
 
-    /// <summary>Required page identities in the options document.</summary>
-    private static readonly string[] pageNames =
-        [BackgroundPage, PrimaryPage, ControllerEnglishPage, ControllerJapanesePage,
-            SpecialEnglishPage, SpecialJapanesePage];
-    /// <summary>Language-independent menu identities used for headings and cursors.</summary>
-    private static readonly string[] menuPageNames =
-        [PrimaryMenu, ControllerMenu, SpecialMenu];
-    /// <summary>Assignable controller glyph identities in native selector order.</summary>
-    private static readonly string[] controllerLabelNames =
-        ["X", "A", "B", "Select", "Y", "L", "R"];
-    /// <summary>Required visual identities for the two special settings.</summary>
-    private static readonly string[] specialToggleNames =
-        [IconCancelToggle, MoonwalkToggle];
-    /// <summary>Required heading and animated cursor sprite identities.</summary>
-    private static readonly string[] spriteNames =
-        ["Heading.Primary", "Heading.Controller", "Heading.Special",
-            "Cursor.0", "Cursor.1", "Cursor.2", "Cursor.3"];
+    /// <summary>The foreground option pages in document order: primary, then English and Japanese controller and special pages.</summary>
+    public static IReadOnlyList<GameOptionsTilemap> Tilemaps { get; } = Enum.GetValues<GameOptionsTilemap>();
+    /// <summary>The three menu layouts headings and cursors are anchored by, in primary, controller and special order.</summary>
+    internal static IReadOnlyList<GameOptionsPage> MenuPages { get; } = Enum.GetValues<GameOptionsPage>();
+    /// <summary>The assignable buttons whose glyphs the controller page shows, in native selector order: X, A, B, Select, Y, L, R.</summary>
+    public static IReadOnlyList<SnesButton> ControllerLabelButtons { get; } =
+        [SnesButton.X, SnesButton.A, SnesButton.B, SnesButton.Select, SnesButton.Y, SnesButton.L, SnesButton.R];
+    /// <summary>The two special settings, icon cancel then moonwalk.</summary>
+    public static IReadOnlyList<GameOptionsToggle> Toggles { get; } = Enum.GetValues<GameOptionsToggle>();
+    /// <summary>The missile cursor's looping animation frames.</summary>
+    public const int CursorFrameCount = 4;
+    /// <summary>The JSON names of the cursor frame sprites, by frame.</summary>
+    private static readonly string[] cursorSpriteNames = ["Cursor.0", "Cursor.1", "Cursor.2", "Cursor.3"];
 
-    /// <summary>Read-only view of the six required page identities: background, primary, then English and Japanese controller and special pages.</summary>
-    public static ReadOnlySpan<string> PageNames => pageNames;
-    /// <summary>Read-only view of the three required heading/cursor layout identities in primary, controller, and special order.</summary>
-    public static ReadOnlySpan<string> MenuPageNames => menuPageNames;
-    /// <summary>Read-only view of assignable-button glyph identities in native selector order: X, A, B, Select, Y, L, R.</summary>
-    public static ReadOnlySpan<string> ControllerLabelNames => controllerLabelNames;
-    /// <summary>Read-only view of the required special-setting visual identities: icon cancel and moonwalk.</summary>
-    public static ReadOnlySpan<string> SpecialToggleNames => specialToggleNames;
-    /// <summary>Read-only view of seven required sprite identities: three menu headings followed by four cursor frames.</summary>
-    public static ReadOnlySpan<string> SpriteNames => spriteNames;
-
-    /// <summary>Returns the glyph identity for a native assignable-button selector.</summary>
-    /// <param name="index">Zero-based index 0-6 in X, A, B, Select, Y, L, R order.</param>
-    /// <returns>The controller-label dictionary key.</returns>
-    /// <exception cref="ArgumentOutOfRangeException">The index is outside 0-6.</exception>
-    public static string ControllerLabelName(int index) =>
-        (uint)index < controllerLabelNames.Length
-            ? controllerLabelNames[index]
-            : throw new ArgumentOutOfRangeException(nameof(index));
-
-    /// <summary>Returns the sprite composition identity for a looping missile-cursor frame.</summary>
-    /// <param name="index">Zero-based animation frame 0-3.</param>
-    /// <returns><c>Cursor.</c> followed by the frame number.</returns>
-    /// <exception cref="ArgumentOutOfRangeException">The frame is outside 0-3.</exception>
-    public static string CursorFrameName(int index) => index switch
+    /// <summary>The JSON name of a foreground page.</summary>
+    public static string TilemapName(GameOptionsTilemap tilemap) => tilemap switch
     {
-        0 => "Cursor.0",
-        1 => "Cursor.1",
-        2 => "Cursor.2",
-        3 => "Cursor.3",
-        _ => throw new ArgumentOutOfRangeException(nameof(index)),
+        GameOptionsTilemap.Primary => "Primary",
+        GameOptionsTilemap.ControllerEnglish => "Controller.English",
+        GameOptionsTilemap.ControllerJapanese => "Controller.Japanese",
+        GameOptionsTilemap.SpecialEnglish => "Special.English",
+        GameOptionsTilemap.SpecialJapanese => "Special.Japanese",
+        _ => throw new ArgumentOutOfRangeException(nameof(tilemap)),
     };
 
-    /// <summary>Maps a language-independent menu layout identity to its heading sprite composition.</summary>
-    /// <param name="page">The primary, controller, or special menu identity; translated page names are not accepted.</param>
-    /// <returns>The menu identity prefixed with <c>Heading.</c>.</returns>
-    /// <exception cref="ArgumentOutOfRangeException">The value is not one of the three menu identities.</exception>
-    public static string HeadingFrameName(string page) => page switch
+    /// <summary>The JSON name of a menu layout, which keys its heading and cursor anchors.</summary>
+    internal static string MenuName(GameOptionsPage page) => page switch
     {
-        PrimaryMenu => "Heading.Primary",
-        ControllerMenu => "Heading.Controller",
-        SpecialMenu => "Heading.Special",
+        GameOptionsPage.Primary => "Primary",
+        GameOptionsPage.Controller => "Controller",
+        GameOptionsPage.Special => "Special",
         _ => throw new ArgumentOutOfRangeException(nameof(page)),
     };
+
+    /// <summary>The JSON name of a menu layout's heading sprite.</summary>
+    internal static string HeadingSpriteName(GameOptionsPage page) => page switch
+    {
+        GameOptionsPage.Primary => "Heading.Primary",
+        GameOptionsPage.Controller => "Heading.Controller",
+        GameOptionsPage.Special => "Heading.Special",
+        _ => throw new ArgumentOutOfRangeException(nameof(page)),
+    };
+
+    /// <summary>The menu heading a menu layout draws.</summary>
+    internal static MenuHeading Heading(GameOptionsPage page) => page switch
+    {
+        GameOptionsPage.Primary => MenuHeading.OptionsPrimary,
+        GameOptionsPage.Controller => MenuHeading.OptionsController,
+        GameOptionsPage.Special => MenuHeading.OptionsSpecial,
+        _ => throw new ArgumentOutOfRangeException(nameof(page)),
+    };
+
+    /// <summary>The JSON name of a looping missile-cursor frame's sprite, for frames 0-3.</summary>
+    public static string CursorSpriteName(int frame) =>
+        (uint)frame < cursorSpriteNames.Length ? cursorSpriteNames[frame] : throw new ArgumentOutOfRangeException(nameof(frame));
+
+    /// <summary>The JSON name of an assignable button's glyph.</summary>
+    public static string ControllerLabelName(SnesButton button) => button switch
+    {
+        SnesButton.X => "X",
+        SnesButton.A => "A",
+        SnesButton.B => "B",
+        SnesButton.Select => "Select",
+        SnesButton.Y => "Y",
+        SnesButton.L => "L",
+        SnesButton.R => "R",
+        SnesButton.None or SnesButton.Right or SnesButton.Left or SnesButton.Down or SnesButton.Up or SnesButton.Start =>
+            throw new ArgumentOutOfRangeException(nameof(button), $"{button} is not an assignable button."),
+        _ => throw new ArgumentOutOfRangeException(nameof(button)),
+    };
+
+    /// <summary>The JSON name of a special setting's visual.</summary>
+    public static string ToggleName(GameOptionsToggle toggle) => toggle switch
+    {
+        GameOptionsToggle.IconCancel => "IconCancel",
+        GameOptionsToggle.Moonwalk => "Moonwalk",
+        _ => throw new ArgumentOutOfRangeException(nameof(toggle)),
+    };
+
+    /// <summary>The assignable button a native selector names.</summary>
+    /// <param name="index">Zero-based index 0-6 in X, A, B, Select, Y, L, R order.</param>
+    /// <exception cref="ArgumentOutOfRangeException">The index is outside 0-6.</exception>
+    public static SnesButton ControllerLabelButton(int index) =>
+        (uint)index < ControllerLabelButtons.Count ? ControllerLabelButtons[index] : throw new ArgumentOutOfRangeException(nameof(index));
 
     /// <summary>$82:F665 ButtonTilemaps_A: upper-left A glyph; right half mirrors it.</summary>
     private const int AButtonTile = 0x90;
@@ -127,7 +131,7 @@ public static class GameOptionsPresentationDefinitions
     private const int ButtonAtlasRowStride = 16;
 
     /// <summary>Builds the native button glyph from its letter, atlas rows and geometric reflections.</summary>
-    internal static ushort ControllerLabelWord(string label, int cell)
+    internal static ushort ControllerLabelWord(SnesButton label, int cell)
     {
         if ((uint)cell >= ControllerLabelCellCount) throw new ArgumentOutOfRangeException(nameof(cell));
         int row = cell / ControllerLabelWidth;
@@ -136,28 +140,34 @@ public static class GameOptionsPresentationDefinitions
         SnesTileFlipFlags flips = SnesTileFlipFlags.None;
         switch (label)
         {
-            case "A":
-            case "Y":
-                tile = column == 2 ? ButtonPaddingTile : (label == "A" ? AButtonTile : YButtonTile) + row * ButtonAtlasRowStride;
+            case SnesButton.A:
+            case SnesButton.Y:
+                tile = column == 2 ? ButtonPaddingTile : (label == SnesButton.A ? AButtonTile : YButtonTile) + row * ButtonAtlasRowStride;
                 if (column == 1) flips = SnesTileFlipFlags.Horizontal;
                 break;
-            case "X":
+            case SnesButton.X:
                 tile = column == 2 ? ButtonPaddingTile : XButtonTile + (row ^ column) * ButtonAtlasRowStride;
                 if (column == 1) flips = SnesTileFlipFlags.Horizontal | SnesTileFlipFlags.Vertical;
                 break;
-            case "B":
+            case SnesButton.B:
                 tile = column == 2 ? ButtonPaddingTile : BButtonTile + column + row * ButtonAtlasRowStride;
                 break;
-            case "Select":
+            case SnesButton.Select:
                 tile = SelectButtonTile + column + row * ButtonAtlasRowStride;
                 break;
-            case "L":
-            case "R":
-                tile = column == 1 ? (label == "L" ? LeftShoulderTile : RightShoulderTile) + row * ButtonAtlasRowStride : ShoulderCornerTile;
+            case SnesButton.L:
+            case SnesButton.R:
+                tile = column == 1 ? (label == SnesButton.L ? LeftShoulderTile : RightShoulderTile) + row * ButtonAtlasRowStride : ShoulderCornerTile;
                 if (column != 1)
                     flips = (row == 1 ? SnesTileFlipFlags.Vertical : SnesTileFlipFlags.None)
                         | (column == 2 ? SnesTileFlipFlags.Horizontal : SnesTileFlipFlags.None);
                 break;
+            case SnesButton.None:
+            case SnesButton.Right:
+            case SnesButton.Left:
+            case SnesButton.Down:
+            case SnesButton.Up:
+            case SnesButton.Start:
             default:
                 throw new ArgumentOutOfRangeException(nameof(label));
         }
@@ -171,30 +181,22 @@ public static class GameOptionsPresentationDefinitions
     }
 
     /// <summary>$82:F307/F31B/F33F selection missile rows, including controller scroll displacement.</summary>
-    internal static Position16<OamPixels> CursorAnchor(string page, int row)
+    internal static Position16<OamPixels> CursorAnchor(GameOptionsPage page, int row)
     {
-        if (page is not (PrimaryMenu or ControllerMenu or SpecialMenu) || (uint)row >= CursorCount(page))
+        if ((uint)row >= CursorCount(page))
             throw new InvalidDataException($"Options cursor {page}[{row}] is not authored.");
         return page switch
         {
-            PrimaryMenu => new(GameOptionsRomData.Cursors.PrimaryX, GameOptionsRomData.Cursors.PrimaryY(row)),
-            ControllerMenu => new(GameOptionsRomData.Cursors.ControllerX, GameOptionsRomData.Cursors.ControllerY(row)),
-            _ => new(GameOptionsRomData.Cursors.SpecialX, GameOptionsRomData.Cursors.SpecialY(row)),
+            GameOptionsPage.Primary => new(GameOptionsRomData.Cursors.PrimaryX, GameOptionsRomData.Cursors.PrimaryY(row)),
+            GameOptionsPage.Controller => new(GameOptionsRomData.Cursors.ControllerX, GameOptionsRomData.Cursors.ControllerY(row)),
+            GameOptionsPage.Special => new(GameOptionsRomData.Cursors.SpecialX, GameOptionsRomData.Cursors.SpecialY(row)),
+            _ => throw new ArgumentOutOfRangeException(nameof(page)),
         };
     }
 
     /// <summary>$82:F34B/F353/F35B and F369 named page heading setup anchors.</summary>
-    internal static Position16<OamPixels> HeadingAnchor(string page)
-    {
-        GameOptionsPage selected = page switch
-        {
-            PrimaryMenu => GameOptionsPage.Primary,
-            ControllerMenu => GameOptionsPage.Controller,
-            SpecialMenu => GameOptionsPage.Special,
-            _ => throw new InvalidDataException($"Options heading {page} is not authored."),
-        };
-        return new(GameOptionsRomData.Spritemaps.HeadingX(selected), GameOptionsRomData.Spritemaps.HeadingY);
-    }
+    internal static Position16<OamPixels> HeadingAnchor(GameOptionsPage page) =>
+        new(GameOptionsRomData.Spritemaps.HeadingX(page), GameOptionsRomData.Spritemaps.HeadingY);
 
     /// <summary>$82:EDF2..EE51 language highlight calls cover consecutive tile words in two text rows.</summary>
     internal static IEnumerable<int> LanguageCells(int index)
@@ -205,13 +207,13 @@ public static class GameOptionsPresentationDefinitions
     }
 
     /// <summary>$82:F149..F158 special-setting choice boxes: two rows of six words.</summary>
-    internal static IEnumerable<int> ToggleCells(string name, GameOptionsToggleState state)
+    internal static IEnumerable<int> ToggleCells(GameOptionsToggle toggle, GameOptionsToggleState state)
     {
-        var layout = name switch
+        var layout = toggle switch
         {
-            IconCancelToggle => GameOptionsRomData.SpecialToggles.IconCancel,
-            MoonwalkToggle => GameOptionsRomData.SpecialToggles.Moonwalk,
-            _ => throw new InvalidDataException($"Unknown options toggle {name}."),
+            GameOptionsToggle.IconCancel => GameOptionsRomData.SpecialToggles.IconCancel,
+            GameOptionsToggle.Moonwalk => GameOptionsRomData.SpecialToggles.Moonwalk,
+            _ => throw new ArgumentOutOfRangeException(nameof(toggle)),
         };
         int first = state == GameOptionsToggleState.Enabled ? layout.EnabledTop : layout.DisabledTop;
         int second = state == GameOptionsToggleState.Enabled ? layout.EnabledBottom : layout.DisabledBottom;
@@ -220,14 +222,12 @@ public static class GameOptionsPresentationDefinitions
             yield return (row == 0 ? first : second) / sizeof(ushort) + word;
     }
     /// <summary>Returns the number of selection-row anchors required by a menu layout.</summary>
-    /// <param name="page">The language-independent primary, controller, or special menu identity.</param>
     /// <returns>Five for primary, nine for controller including Exit and Reset, or three for special including Exit.</returns>
-    /// <exception cref="ArgumentOutOfRangeException">The value is not one of the three menu identities.</exception>
-    public static int CursorCount(string page) => page switch
+    internal static int CursorCount(GameOptionsPage page) => page switch
     {
-        PrimaryMenu => GameOptionsRomData.Rows.PrimaryCount,
-        ControllerMenu => GameOptionsRomData.Rows.ControllerCount,
-        SpecialMenu => GameOptionsRomData.Rows.SpecialCount,
+        GameOptionsPage.Primary => GameOptionsRomData.Rows.PrimaryCount,
+        GameOptionsPage.Controller => GameOptionsRomData.Rows.ControllerCount,
+        GameOptionsPage.Special => GameOptionsRomData.Rows.SpecialCount,
         _ => throw new ArgumentOutOfRangeException(nameof(page)),
     };
 }

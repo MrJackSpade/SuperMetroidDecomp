@@ -33,12 +33,12 @@ internal sealed class MotherBrainGlassPlms
     /// <summary>Physical slot of the live glass PLM, or minus one after deletion.</summary>
     private int _motherBrainGlassSlotIndex = -1;
     /// <summary>Whether the current room loaded the glass PLM before head damage can update it.</summary>
-    internal bool MotherBrainGlassWasLoaded;
+    internal bool MotherBrainGlassWasLoaded { get; private set; }
     /// <summary>
     /// Glass hit count retained after the glass PLM's physical slot has been deleted. Only glass-phase head hits
     /// add to it, so it stays far below the slot word's range; nothing in play reads it back.
     /// </summary>
-    internal int MotherBrainGlassLastRoomArgument;
+    internal int MotherBrainGlassLastRoomArgument { get; private set; }
 
     /// <summary>Shard actors requested by the most recent PLM handler pass.</summary>
     public IReadOnlyList<MotherBrainGlassProjectileRequest> MotherBrainGlassProjectileRequests =>

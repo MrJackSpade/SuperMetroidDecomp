@@ -47,11 +47,11 @@ internal static class CoreAccess
     extension(SuperMetroidGame game)
     {
         /// <summary>Reads the gameplay runtime currently owned by the frontend state machine.</summary>
-        internal SuperMetroidRuntime? RuntimeForVerification => game.Session.runtime;
+        internal SuperMetroidRuntime? RuntimeForVerification => game.Session.Runtime;
         /// <summary>The gameplay runtime a test requires: the frontend must be in a loaded game.</summary>
         internal SuperMetroidRuntime GameplayRuntimeForVerification => game.Session.GameplayRuntime;
         /// <summary>Remaining authored hold frames before the attract demo advances.</summary>
-        internal int AttractDemoHoldFramesRemaining => game.Session.demoHoldFramesRemaining;
+        internal int AttractDemoHoldFramesRemaining => game.Session.Demo.HoldFramesRemaining;
         /// <summary>Whether the current runtime permits ordinary grounded Samus movement.</summary>
         internal bool GameplayMovementEnabled => game.RuntimeForVerification?.Player.GroundedSamusMovementEnabled ?? false;
         /// <summary>Reads the frontend audio queue owner across gameplay and menus.</summary>
@@ -59,12 +59,12 @@ internal static class CoreAccess
         /// <summary>The acknowledgements the session's SPC port model published for the next update.</summary>
         internal CartridgeAudioAcknowledgements AudioAcknowledgementsForVerification => game.Session.audioSession.Acknowledgements;
         /// <summary>The most recent update's ordered semantic audio events.</summary>
-        internal IReadOnlyList<AudioEvent> AudioEventsForVerification => game.Session.lastAudioEvents;
+        internal IReadOnlyList<AudioEvent> AudioEventsForVerification => game.Session.LastAudioEvents;
         /// <summary>Reads the session frame clock's 16-bit counter, which the frontend advances while no runtime exists.</summary>
         internal int MenuNmiFrameCounterForVerification => game.Session.frameClock.Counter;
         /// <summary>Reads the active Ceres destruction cinematic, if that phase owns the frontend.</summary>
         internal CeresDestructionCinematicState? CeresDestructionForVerification =>
-            game.Session.ceresDestruction;
+            game.Session.ScreenAs<CeresDestructionCinematicState>();
 
         /// <summary>
         /// Applies the controller read of a native NMI accepted during the door music-wait APU
@@ -94,34 +94,34 @@ internal static class CoreAccess
         internal int ActiveFlashbackProjectileCount =>
             intro.flashbackProjectiles.SlotTable.ProjectileCounter;
         /// <summary>Flashback Samus's whole-pixel X coordinate when that actor exists.</summary>
-        internal ushort FlashbackSamusX => intro.flashbackSamus?.Position.X.Whole ?? 0;
+        internal ushort FlashbackSamusX => intro.CurrentFlashbackSamus?.Position.X.Whole ?? 0;
         /// <summary>Flashback Samus's whole-pixel Y coordinate when that actor exists.</summary>
-        internal ushort FlashbackSamusY => intro.flashbackSamus?.Position.Y.Whole ?? 0;
+        internal ushort FlashbackSamusY => intro.CurrentFlashbackSamus?.Position.Y.Whole ?? 0;
         /// <summary>Hits recorded by the intro's flashback Mother Brain sprite.</summary>
         internal int MotherBrainHitCount =>
-            intro.flashbackMotherBrain?.HitCount ?? 0;
+            intro.CurrentFlashbackMotherBrain?.HitCount ?? 0;
     }
 
     /// <summary>Observes credits brightness, cinematic frame, and vertical crawl position.</summary>
     extension(EndingCreditsState ending)
     {
         /// <summary>Current credits fade brightness, 0 (black) through 15 (full), from the private cinematic state.</summary>
-        internal int Brightness => ending.brightness;
+        internal int Brightness => ending.Brightness;
         /// <summary>Cinematic calls the ending has made so far.</summary>
-        internal int CinematicFrame => ending.cinematicFrame;
+        internal int CinematicFrame => ending.CinematicFrame;
         /// <summary>Whole-pixel vertical credits scroll position, or zero before credits exist.</summary>
-        internal int CreditsVerticalScroll => ending.credits?.ScrollPosition.Y ?? 0;
+        internal int CreditsVerticalScroll => ending.CurrentCredits?.ScrollPosition.Y ?? 0;
     }
 
     /// <summary>Exposes pause indicator placement, page transition, and displayed map tile state.</summary>
     extension(PauseMenuState pause)
     {
         /// <summary>Last OAM origin used for the pause menu's selection indicator.</summary>
-        internal Position16<OamPixels> LastIndicatorOrigin => pause.lastIndicatorOrigin;
+        internal Position16<OamPixels> LastIndicatorOrigin => pause.LastIndicatorOrigin;
         /// <summary>True while an L/R page switch is fading out, loading or fading in.</summary>
-        internal bool PageTransitionActive => pause.transition != PauseMenuTransition.None;
+        internal bool PageTransitionActive => pause.Transition != PauseMenuTransition.None;
         /// <summary>Map-space scroll point currently displayed by the pause menu.</summary>
-        internal Position16<MapPixels> MapScroll => pause.mapScrollPosition;
+        internal Position16<MapPixels> MapScroll => pause.MapScrollPosition;
 
         /// <summary>Reads the displayed BG1 map tile word of the pause screen.</summary>
         internal MapTileWord ReadDisplayedMapTile(Position16<MapTiles> cell) =>
@@ -459,12 +459,12 @@ internal static class CoreAccess
                 lock (self.sync)
                 {
                     return new RenderMailboxCounterView(
-                        self.generation,
-                        self.published,
-                        self.taken,
-                        self.replaced,
-                        self.invalidated,
-                        self.pending is not null);
+                        self.Generation,
+                        self.Published,
+                        self.Taken,
+                        self.Replaced,
+                        self.Invalidated,
+                        self.Pending is not null);
                 }
             }
         }
@@ -496,6 +496,6 @@ internal static class CoreAccess
         /// The mailbox's current load/reset generation: publications must carry it, and a
         /// consumer-held packet is current only while its identity matches it.
         /// </summary>
-        internal long Generation => mailbox.generation;
+        internal long Generation => mailbox.Generation;
     }
 }

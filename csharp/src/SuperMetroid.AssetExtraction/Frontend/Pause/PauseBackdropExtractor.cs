@@ -44,7 +44,7 @@ public static class PauseBackdropExtractor
                     throw new InvalidDataException($"Pause backdrop {name} cell {index} references an unloaded character {character}.");
                 cells[index] = new()
                 {
-                    Atlas = character < PauseBackdropDefinitions.AtlasTileCount ? PauseBackdropDefinitions.MapAtlas : PauseBackdropDefinitions.InterfaceAtlas,
+                    Atlas = character < PauseBackdropDefinitions.AtlasTileCount ? PauseAtlas.Map : PauseAtlas.Interface,
                     TileColumn = character % PauseBackdropDefinitions.AtlasColumns,
                     TileRow = character % PauseBackdropDefinitions.AtlasTileCount / PauseBackdropDefinitions.AtlasColumns,
                     Palette = word.PaletteIndex, Priority = word.HasPriority,

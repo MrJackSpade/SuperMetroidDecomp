@@ -182,7 +182,7 @@ internal static class DoorTransitionAutosaveVerification
                     samus.Position = samus.Position.WithWhole(new((ushort)(x * 16 + 8), (ushort)(y * 16 + 8)));
                     samus.PoseMetadata.RefreshCollisionRadii(); samus.Presentation.InitializeAnimation();
                     runtime.Room.LoadedLevelData.ResolveDoorCollision(block.Bts.Value, samus.Pose, true);
-                    game.Session.lastAudioRoomState = runtime.Room.LoadedRoom.State;
+                    game.Session.LastAudioRoomState = runtime.Room.LoadedRoom.State;
                     game.GameState = SuperMetroidGameState.HitDoorBlock;
                     return;
                 }

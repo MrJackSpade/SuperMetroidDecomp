@@ -19,7 +19,7 @@ internal static class LookupQuakeSoundSelectionVerification
         {
             var stateSession = new RoomFxSession();
             var state = new RoomLayer3FxState(stateSession);
-            state.earthquakeSoundSequenceIndex = index;
+            state.EarthquakeSoundSequenceIndex = index;
             state.PublishStatueEarthquakeSound(0, mainGameLoopCarry: true);
             AssertEqual(1, state.SoundRequests.Count, "Each original selection emits exactly one rumble");
             var sound = state.SoundRequests[0];
@@ -28,7 +28,7 @@ internal static class LookupQuakeSoundSelectionVerification
                 (ushort)sound.SoundEffect.Value, "Original sound identity including terminator restart");
             AssertEqual(SoundEffectLibrary.Library2, sound.SoundEffect.Library, "Native QueueSound_Lib2_Max6 library");
             AssertEqual(6, sound.MaximumQueued, "Native queue capacity");
-            AssertEqual(originalIndex + 1, state.earthquakeSoundSequenceIndex, "Next chronological index after selection");
+            AssertEqual(originalIndex + 1, state.EarthquakeSoundSequenceIndex, "Next chronological index after selection");
         }
     }
 }

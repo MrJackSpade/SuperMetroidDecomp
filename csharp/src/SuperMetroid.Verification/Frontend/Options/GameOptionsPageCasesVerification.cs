@@ -21,13 +21,13 @@ internal static class GameOptionsPageCasesVerification
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(rom.Rom)), "Options page oracle revision");
         GameOptionsPresentation presentation = GameOptionsPresentation.Load(
             new MemoryStream(GameOptionsPresentationExtractor.Extract(rom)));
-        (GameOptionsTilemap Page, string Asset, string Description)[] originalOrder =
+        (GameOptionsTilemap Page, string Description)[] originalOrder =
         [
-            (GameOptionsTilemap.Primary, GameOptionsPresentationDefinitions.PrimaryPage, "primary"),
-            (GameOptionsTilemap.ControllerEnglish, GameOptionsPresentationDefinitions.ControllerEnglishPage, "English controller"),
-            (GameOptionsTilemap.ControllerJapanese, GameOptionsPresentationDefinitions.ControllerJapanesePage, "Japanese controller"),
-            (GameOptionsTilemap.SpecialEnglish, GameOptionsPresentationDefinitions.SpecialEnglishPage, "English special-settings"),
-            (GameOptionsTilemap.SpecialJapanese, GameOptionsPresentationDefinitions.SpecialJapanesePage, "Japanese special-settings"),
+            (GameOptionsTilemap.Primary, "primary"),
+            (GameOptionsTilemap.ControllerEnglish, "English controller"),
+            (GameOptionsTilemap.ControllerJapanese, "Japanese controller"),
+            (GameOptionsTilemap.SpecialEnglish, "English special-settings"),
+            (GameOptionsTilemap.SpecialJapanese, "Japanese special-settings"),
         ];
         for (int index = 0; index < originalOrder.Length; index++)
         {
@@ -41,7 +41,7 @@ internal static class GameOptionsPageCasesVerification
             AssertEqual(expected.Description, actual.Description, "preserved resource diagnostic name");
             byte[] bytes = RomDataReader.Decompress(CartridgeImportSource.Require(rom), source, maximumOutputBytes: 0x800);
             AssertEqual(0x800, bytes.Length, "original options page size");
-            AssertTrue(bytes.SequenceEqual(presentation.CreatePage(expected.Asset)),
+            AssertTrue(bytes.SequenceEqual(presentation.CreatePage(expected.Page)),
                 "named installed page matches independently selected native resource");
         }
         foreach (int invalid in new[] { int.MinValue, -1, 5, 65536, int.MaxValue })

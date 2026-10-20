@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
 using System.Buffers.Binary;
@@ -25,8 +26,17 @@ namespace SuperMetroid.Core.Frontend.Pause;
 /// equipment-screen A press changes the same bits consumed by movement, rendering, and SRAM;
 /// there is no host-only copy that can diverge from gameplay.
 /// </remarks>
-internal sealed class PauseMenuState
+internal sealed class PauseMenuState : IFrontendScreen
 {
+    /// <inheritdoc/>
+    void IFrontendScreen.BindArtwork(GameArtwork previous, GameArtwork artwork, SuperMetroidGameState state)
+    {
+        Ensure.NotNull(previous);
+        Ensure.NotNull(artwork);
+        if (!ReferenceEquals(previous.MapPresentation, artwork.MapPresentation))
+            BindMapPresentation(artwork.MapPresentation);
+    }
+
 
     /// <summary>Queues menu navigation and animation sounds when a live frontend owns audio.</summary>
     private readonly CartridgeAudioState? audio;
@@ -51,45 +61,47 @@ internal sealed class PauseMenuState
     /// <summary>Mutable button-label source whose palette bits survive page transitions.</summary>
     private readonly byte[] pauseButtonTilemap;
     /// <summary>Current map/equipment fade or load phase.</summary>
-    internal PauseMenuTransition transition;
+    internal PauseMenuTransition Transition { get; private set; }
     /// <summary>Counter inserted between brightness changes during fade-in.</summary>
     private int transitionFadeCounter;
     /// <summary>Current page-transition brightness, from black to full intensity.</summary>
-    internal int transitionBrightness = 15;
+    internal int TransitionBrightness { get; private set; } = 15;
     /// <summary>Equipment or reserve category selected by the native cursor.</summary>
-    internal PauseEquipmentCategory selectedCategory;
+    internal PauseEquipmentCategory SelectedCategory { get; private set; }
     /// <summary>Selected item index within the current equipment category.</summary>
-    internal int selectedItem;
+    internal int SelectedItem { get; private set; }
     /// <summary>Current BG1 map scroll in map pixels.</summary>
-    internal Position16<MapPixels> mapScrollPosition;
+    private Position16<MapPixels> mapScrollPosition;
+    /// <summary>The map screen's scroll position.</summary>
+    internal Position16<MapPixels> MapScrollPosition { get => mapScrollPosition; set => mapScrollPosition = value; }
     /// <summary>Bounded map-scroll controller initialized from visible area cells.</summary>
-    internal PauseMapScroll? mapScroll;
+    internal PauseMapScroll? CurrentMapScrollBounds { get; set; }
     /// <summary>The map-scroll bounds, which exist once the map page is set up.</summary>
-    internal PauseMapScroll MapScrollBounds => mapScroll ??
+    internal PauseMapScroll MapScrollBounds => CurrentMapScrollBounds ??
         throw new InvalidOperationException("The pause map scroll has not been set up.");
     /// <summary>Animated map arrows and their current visibility state.</summary>
-    internal FileSelectMapAnimations? mapArrows;
+    internal FileSelectMapAnimations? CurrentMapArrows { get; set; }
     /// <summary>The map arrows, which exist once the map page is set up.</summary>
-    internal FileSelectMapAnimations MapArrows => mapArrows ??
+    internal FileSelectMapAnimations MapArrows => CurrentMapArrows ??
         throw new InvalidOperationException("The pause map arrows have not been set up.");
     /// <summary>Whether elevator labels draw before map icons during a fade-out.</summary>
     private bool mapLabelsBeforeIcons;
     /// <summary>Current bank-$82 map-position marker frame.</summary>
-    internal int mapIndicatorAnimationFrame;
+    internal int MapIndicatorAnimationFrame { get; set; }
     /// <summary>Remaining updates in the map-position marker frame.</summary>
-    internal int mapIndicatorAnimationTimer;
+    internal int MapIndicatorAnimationTimer { get; set; }
     /// <summary>Current equipment selector sprite frame.</summary>
-    internal int itemSelectorAnimationFrame;
+    internal int ItemSelectorAnimationFrame { get; set; }
     /// <summary>Remaining updates in the equipment selector frame.</summary>
-    internal int itemSelectorAnimationTimer;
+    internal int ItemSelectorAnimationTimer { get; set; }
     /// <summary>Tracks the retail Boots-to-Plasma label copy overrun across artwork rebinds.</summary>
     private bool plasmaLabelOverrunActive;
     /// <summary>Last selected map marker or equipment selector origin for diagnostics.</summary>
-    internal Position16<OamPixels> lastIndicatorOrigin;
+    internal Position16<OamPixels> LastIndicatorOrigin { get; private set; }
     /// <summary>Pose of the Samus map marker when it was the last indicator drawn, for diagnostics; null after a selector draw.</summary>
-    internal MapSpriteId? lastMapIndicatorSprite;
+    internal MapSpriteId? LastMapIndicatorSprite { get; private set; }
     /// <summary>Category of the equipment selector when it was the last indicator drawn, for diagnostics; null after a map-marker draw.</summary>
-    internal PauseEquipmentCategory? lastSelectorCategory;
+    internal PauseEquipmentCategory? LastSelectorCategory { get; private set; }
 
     /// <summary>Creates the isolated pause PPU image and initial map/equipment state from live gameplay.</summary>
     public PauseMenuState(PauseMenuEntry entry)
@@ -100,7 +112,7 @@ internal sealed class PauseMenuState
         this.samus = Ensure.NotNull(entry.Samus);
         this.system = Ensure.NotNull(entry.System);
         this.audio = entry.Audio;
-        mapArrows = new FileSelectMapAnimations(entry.MapPresentation.Arrows);
+        CurrentMapArrows = new FileSelectMapAnimations(entry.MapPresentation.Arrows);
         paletteAnimation = new MapPaletteAnimation();
         paletteAnimation.Bind(entry.MapPresentation.HighlightCycle);
         area = entry.AreaIndex;
@@ -168,11 +180,11 @@ internal sealed class PauseMenuState
         // Stable pause states draw and therefore advance one page-specific sprite animation
         // every frame. Fade states call AdvanceAnimations explicitly from the frontend.
         AdvanceAnimations(nmiFrameCounter8);
-        if (ScreenMode == PauseScreenMode.Map && transition == PauseMenuTransition.None)
-            MapArrows.StepArrows(direction => MapScrollBounds.CanScroll(direction, mapScrollPosition));
+        if (ScreenMode == PauseScreenMode.Map && Transition == PauseMenuTransition.None)
+            MapArrows.StepArrows(direction => MapScrollBounds.CanScroll(direction, MapScrollPosition));
         SnesButton delayedPressed = delayedHeldInput;
         SnesButton newlyPressed = newlyPressedInput;
-        if (transition != PauseMenuTransition.None)
+        if (Transition != PauseMenuTransition.None)
         {
             StepPageTransition();
             return false;
@@ -186,8 +198,8 @@ internal sealed class PauseMenuState
             {
                 audio?.QueueSound(SoundEffectLibrary1Sounds.MenuConfirm, maximumQueued: 6);
                 SetPauseButtonLabelMode(2);
-                transition = PauseMenuTransition.MapToEquipmentFadeOut;
-                transitionBrightness = 15;
+                Transition = PauseMenuTransition.MapToEquipmentFadeOut;
+                TransitionBrightness = 15;
             }
             bool mapStart = HandleStartButton(delayedPressed);
             // Map arrows read the ordinary held controller word, not the delayed chrome
@@ -211,8 +223,8 @@ internal sealed class PauseMenuState
         {
             audio?.QueueSound(SoundEffectLibrary1Sounds.MenuConfirm, maximumQueued: 6);
             SetPauseButtonLabelMode(0);
-            transition = PauseMenuTransition.EquipmentToMapFadeOut;
-            transitionBrightness = 15;
+            Transition = PauseMenuTransition.EquipmentToMapFadeOut;
+            TransitionBrightness = 15;
         }
         return HandleStartButton(delayedPressed);
     }
@@ -243,9 +255,9 @@ internal sealed class PauseMenuState
     public void AdvanceAnimations(int nmiFrameCounter8 = 0, PauseAnimationPhase phase = PauseAnimationPhase.Stable)
     {
         // $82:9156 and $82:9353 emit destination labels before map icons during fade-out.
-        mapLabelsBeforeIcons = phase == PauseAnimationPhase.FadingOut || transition == PauseMenuTransition.MapToEquipmentFadeOut;
+        mapLabelsBeforeIcons = phase == PauseAnimationPhase.FadingOut || Transition == PauseMenuTransition.MapToEquipmentFadeOut;
         // Only stable map dispatch calls $82:B934. Fade paths retain counters but hide arrows.
-        mapArrows?.StepArrows(_ => false);
+        CurrentMapArrows?.StepArrows(_ => false);
         pauseNmiFrameCounter8 = nmiFrameCounter8;
         // $82:90E8 calls the palette handler after stable pause dispatch. The
         // outer pause/unpause fades draw sprites without advancing this owner.
@@ -262,10 +274,10 @@ internal sealed class PauseMenuState
     public LayeredRenderSnapshot CaptureRenderSnapshot()
     {
         PrepareRenderSprites();
-        ushort mapX = ScreenMode == PauseScreenMode.Map ? mapScrollPosition.X : (ushort)0;
+        ushort mapX = ScreenMode == PauseScreenMode.Map ? MapScrollPosition.X : (ushort)0;
         // BG fetches start on physical scanline one; OBJ coordinates already use
         // output-space Y. Keep the cartridge scroll and sprite origins unchanged.
-        ushort mapY = unchecked((ushort)((ScreenMode == PauseScreenMode.Map ? mapScrollPosition.Y : 0) + SnesPpuLayout.FirstVisibleBackgroundScanline));
+        ushort mapY = unchecked((ushort)((ScreenMode == PauseScreenMode.Map ? MapScrollPosition.Y : 0) + SnesPpuLayout.FirstVisibleBackgroundScanline));
         var bg1 = new Bg4BppRenderLayer(PauseMenuLayout.Bg1TilemapWord, 0, new Position16<BgPlanePixels>(mapX, mapY), new Extent16<TilemapCells>(64, 32), false);
         var bg2 = new Bg4BppRenderLayer(PauseMenuLayout.Bg2TilemapWord, 0, new Position16<BgPlanePixels>(0, SnesPpuLayout.FirstVisibleBackgroundScanline), new Extent16<TilemapCells>(32, 32), false);
         var bg3 = new Bg2BppViewportRenderLayer(GameplayVramLayout.HudTilemapWord,
@@ -279,7 +291,7 @@ internal sealed class PauseMenuState
             new ObjPriorityRenderLayer(3), bg3 with { Priority = true },
         ];
         return new(PauseScreenImage.Capture(screen), layers,
-            PauseMenuLayout.ObjectSelection, checked((byte)(transition == PauseMenuTransition.None ? 15 : transitionBrightness)));
+            PauseMenuLayout.ObjectSelection, checked((byte)(Transition == PauseMenuTransition.None ? 15 : TransitionBrightness)));
     }
 
     /// <summary>Assembles map markers or equipment sprites in their native page-specific order.</summary>
@@ -291,13 +303,13 @@ internal sealed class PauseMenuState
             var icons = new FileSelectMapIcons(system, area);
             icons.BindLandmarks(mapPresentation?.Landmarks);
             icons.BindSprites(mapPresentation?.Sprites);
-            if (mapLabelsBeforeIcons) icons.DrawElevatorLabels(screen.Objects, mapScrollPosition);
-            mapArrows?.DrawArrows(screen.Objects, mapPresentation?.Sprites, PauseMapScrollLayout.ArrowVerticalOffset);
+            if (mapLabelsBeforeIcons) icons.DrawElevatorLabels(screen.Objects, MapScrollPosition);
+            CurrentMapArrows?.DrawArrows(screen.Objects, mapPresentation?.Sprites, PauseMapScrollLayout.ArrowVerticalOffset);
             DrawMapPositionIndicator();
             // Native pause shares the boss lists, defeated overlays and downloaded
             // destination lettering with file select. Preserve their per-phase OAM order.
-            icons.DrawBossMarkers(screen.Objects, mapScrollPosition);
-            if (!mapLabelsBeforeIcons) icons.DrawElevatorLabels(screen.Objects, mapScrollPosition);
+            icons.DrawBossMarkers(screen.Objects, MapScrollPosition);
+            if (!mapLabelsBeforeIcons) icons.DrawElevatorLabels(screen.Objects, MapScrollPosition);
         }
         else
         {
@@ -310,22 +322,22 @@ internal sealed class PauseMenuState
     /// <summary>Advances map/equipment fade, page load, and brightness phases.</summary>
     private void StepPageTransition()
     {
-        switch (transition)
+        switch (Transition)
         {
             case PauseMenuTransition.MapToEquipmentFadeOut:
             case PauseMenuTransition.EquipmentToMapFadeOut:
-                transitionBrightness--;
-                if (transitionBrightness > 0)
+                TransitionBrightness--;
+                if (TransitionBrightness > 0)
                     return;
 
                 // $82:9156/$9186 returns at black before the separate load dispatch.
-                transition = transition == PauseMenuTransition.MapToEquipmentFadeOut
+                Transition = Transition == PauseMenuTransition.MapToEquipmentFadeOut
                     ? PauseMenuTransition.MapToEquipmentLoad : PauseMenuTransition.EquipmentToMapLoad;
                 return;
 
             case PauseMenuTransition.MapToEquipmentLoad:
             case PauseMenuTransition.EquipmentToMapLoad:
-                if (transition == PauseMenuTransition.MapToEquipmentLoad)
+                if (Transition == PauseMenuTransition.MapToEquipmentLoad)
                 {
                     ScreenMode = PauseScreenMode.Equipment;
                     // $82:AB47 resets the selector on each equipment-page entry.
@@ -335,15 +347,15 @@ internal sealed class PauseMenuState
                     if (samus.ReserveEnergy != 0) SetReserveArrow(ReserveArrowState.Solid);
                     UploadEquipmentTilemap();
                     ResetItemSelectorAnimation();
-                    transition = PauseMenuTransition.MapToEquipmentFadeIn;
+                    Transition = PauseMenuTransition.MapToEquipmentFadeIn;
                 }
                 else
                 {
                     ScreenMode = PauseScreenMode.Map;
                     LoadPauseMapTilemap();
-                    transition = PauseMenuTransition.EquipmentToMapFadeIn;
+                    Transition = PauseMenuTransition.EquipmentToMapFadeIn;
                 }
-                transitionBrightness = 0;
+                TransitionBrightness = 0;
                 transitionFadeCounter = PauseFadeTiming.CounterReload;
                 return;
 
@@ -353,17 +365,17 @@ internal sealed class PauseMenuState
                 // counter-only update between brightness writes.
                 if (transitionFadeCounter-- > 0) return;
                 transitionFadeCounter = PauseFadeTiming.CounterReload;
-                transitionBrightness++;
-                if (transitionBrightness >= 15)
+                TransitionBrightness++;
+                if (TransitionBrightness >= 15)
                 {
-                    transitionBrightness = 15;
-                    transition = PauseMenuTransition.None;
+                    TransitionBrightness = 15;
+                    Transition = PauseMenuTransition.None;
                 }
                 return;
 
             case PauseMenuTransition.None:
             default:
-                throw new InvalidDataException($"Invalid pause-page transition {transition}.");
+                throw new InvalidDataException($"Invalid pause-page transition {Transition}.");
         }
     }
 
@@ -374,8 +386,8 @@ internal sealed class PauseMenuState
         // including empty tanks. The first beam is only the no-reserve fallback.
         if (samus.MaxReserveEnergy != 0)
         {
-            selectedCategory = PauseEquipmentCategory.Reserves;
-            selectedItem = PauseReserveTransferRomData.ModeItem;
+            SelectedCategory = PauseEquipmentCategory.Reserves;
+            SelectedItem = PauseReserveTransferRomData.ModeItem;
             return;
         }
         foreach (PauseEquipmentCategory categoryIndex in PauseEquipmentCategories.InventoryCategories)
@@ -385,14 +397,14 @@ internal sealed class PauseMenuState
             {
                 if (!ReadCategoryMask(category, item).IsSetIn(samus.CollectedBeams, samus.CollectedItems))
                     continue;
-                selectedCategory = categoryIndex;
-                selectedItem = item;
+                SelectedCategory = categoryIndex;
+                SelectedItem = item;
                 return;
             }
         }
 
-        selectedCategory = PauseEquipmentCategory.Reserves;
-        selectedItem = 0;
+        SelectedCategory = PauseEquipmentCategory.Reserves;
+        SelectedItem = 0;
     }
 
     /// <summary>Rebuilds the equipment page from its template and current inventory state.</summary>
@@ -526,7 +538,7 @@ internal sealed class PauseMenuState
         ushort maximumX = unchecked((ushort)(right * 8));
         ushort minimumY = unchecked((ushort)(top * 8));
         ushort maximumY = unchecked((ushort)(bottom * 8));
-        mapScroll = new PauseMapScroll(new(minimumX, minimumY), new(maximumX, maximumY));
+        CurrentMapScrollBounds = new PauseMapScroll(new(minimumX, minimumY), new(maximumX, maximumY));
 
         // SetupMapScrollingForPauseMenu($80) uses 16-bit ADC/SBC throughout. These local
         // helpers retain wrapping before every signed branch so an edge-of-map position
@@ -561,7 +573,7 @@ internal sealed class PauseMenuState
             if (unchecked((short)(vertical + 40)) < 0)
                 vertical = unchecked((ushort)-40);
         }
-        mapScrollPosition = new(horizontal, vertical);
+        MapScrollPosition = new(horizontal, vertical);
     }
 
     /// <summary>Maps Samus's current room screen to the area map with its one-row Y convention.</summary>
@@ -571,11 +583,11 @@ internal sealed class PauseMenuState
     /// <summary>Draws the animated Samus map marker at the scrolled screen position.</summary>
     private void DrawMapPositionIndicator()
     {
-        Position16<OamPixels> origin = SamusMapCell().ToMapPixels().ToScreen(mapScrollPosition).ToOam();
-        lastIndicatorOrigin = origin;
-        MapSpriteId indicator = PauseMapIndicatorAnimation.SpritemapId(mapIndicatorAnimationFrame);
-        lastMapIndicatorSprite = indicator;
-        lastSelectorCategory = null;
+        Position16<OamPixels> origin = SamusMapCell().ToMapPixels().ToScreen(MapScrollPosition).ToOam();
+        LastIndicatorOrigin = origin;
+        MapSpriteId indicator = PauseMapIndicatorAnimation.SpritemapId(MapIndicatorAnimationFrame);
+        LastMapIndicatorSprite = indicator;
+        LastSelectorCategory = null;
         DrawMenuSpritemap(
             indicator,
             origin,
@@ -588,19 +600,19 @@ internal sealed class PauseMenuState
         // The native timer starts at zero, advances to frame one on the first draw, then
         // decrements after reloading. This order is intentionally not a conventional
         // "draw frame zero for N ticks" animation helper.
-        if (mapIndicatorAnimationTimer == 0)
+        if (MapIndicatorAnimationTimer == 0)
         {
-            mapIndicatorAnimationFrame = (mapIndicatorAnimationFrame + 1) & (PauseMapIndicatorAnimation.FrameCount - 1);
-            mapIndicatorAnimationTimer = PauseMapIndicatorAnimation.FrameDelay(mapIndicatorAnimationFrame);
+            MapIndicatorAnimationFrame = (MapIndicatorAnimationFrame + 1) & (PauseMapIndicatorAnimation.FrameCount - 1);
+            MapIndicatorAnimationTimer = PauseMapIndicatorAnimation.FrameDelay(MapIndicatorAnimationFrame);
         }
-        mapIndicatorAnimationTimer--;
+        MapIndicatorAnimationTimer--;
     }
 
     /// <summary>Restarts the equipment selector at its first authored frame.</summary>
     private void ResetItemSelectorAnimation()
     {
-        itemSelectorAnimationFrame = 0;
-        itemSelectorAnimationTimer = (mapPresentation ?? throw new InvalidOperationException(
+        ItemSelectorAnimationFrame = 0;
+        ItemSelectorAnimationTimer = (mapPresentation ?? throw new InvalidOperationException(
             "Pause selector requires installed presentation assets."))
             .PauseSelectors.InitialDurationTicks;
     }
@@ -613,14 +625,14 @@ internal sealed class PauseMenuState
 
         // DrawPauseScreenSpriteAnim(3) selects the third timer/frame pair. Its animation
         // list is a cartridge pointer, with three-byte entries (delay, unused, ID offset).
-        itemSelectorAnimationTimer--;
-        if (itemSelectorAnimationTimer > 0)
+        ItemSelectorAnimationTimer--;
+        if (ItemSelectorAnimationTimer > 0)
             return;
 
         var selectors = (mapPresentation ?? throw new InvalidOperationException(
             "Pause selector requires installed presentation assets.")).PauseSelectors;
-        itemSelectorAnimationFrame = selectors.NormalizePhase(itemSelectorAnimationFrame + 1);
-        itemSelectorAnimationTimer = selectors.Duration(itemSelectorAnimationFrame);
+        ItemSelectorAnimationFrame = selectors.NormalizePhase(ItemSelectorAnimationFrame + 1);
+        ItemSelectorAnimationTimer = selectors.Duration(ItemSelectorAnimationFrame);
     }
 
     /// <summary>Draws the selected equipment item's authored sprite and records its origin.</summary>
@@ -631,13 +643,13 @@ internal sealed class PauseMenuState
 
         var selector = (mapPresentation ?? throw new InvalidOperationException(
             "Pause selector requires installed presentation assets.")).PauseSelectors;
-        var point = selector.Anchor(selectedCategory, selectedItem);
-        lastIndicatorOrigin = point;
+        var point = selector.Anchor(SelectedCategory, SelectedItem);
+        LastIndicatorOrigin = point;
         // The diagnostic records the category binding, not the authored artwork,
         // because custom phases may draw different compositions.
-        lastSelectorCategory = selectedCategory;
-        lastMapIndicatorSprite = null;
-        selector.Draw(screen.Objects, selectedCategory, selectedItem, itemSelectorAnimationFrame);
+        LastSelectorCategory = SelectedCategory;
+        LastMapIndicatorSprite = null;
+        selector.Draw(screen.Objects, SelectedCategory, SelectedItem, ItemSelectorAnimationFrame);
     }
 
     /// <summary>Gets the native OBJ palette bits shared by pause map markers.</summary>
@@ -730,7 +742,7 @@ internal sealed class PauseMenuState
     /// <summary>Dispatches reserve input or moves and toggles equipment in native update order.</summary>
     private void HandleEquipmentInput(SnesButton pressed, int nmiFrameCounter8)
     {
-        PauseEquipmentCategory dispatchedCategory = selectedCategory;
+        PauseEquipmentCategory dispatchedCategory = SelectedCategory;
         if (dispatchedCategory == PauseEquipmentCategory.Reserves)
         {
             HandleReserveInput(pressed);
@@ -743,22 +755,22 @@ internal sealed class PauseMenuState
             return;
         if (dispatchedCategory == PauseEquipmentCategory.Beams && samus.CollectedBeams == 0)
             return;
-        if (selectedCategory == PauseEquipmentCategory.Reserves)
+        if (SelectedCategory == PauseEquipmentCategory.Reserves)
             throw new NotSupportedException("Same-frame equipment toggle into reserve tables requires native out-of-table WRAM behavior.");
 
         // Dispatch precedes movement. Boots->Plasma therefore retains the Boots copy
         // length and bypasses the Weapons handler's Spazer/Plasma exclusion. Do not use
         // upstream C's 'Fixed var bug' category guard: it is absent from retail ROM.
         SamusBeamFlags previousBeams = samus.EquippedBeams;
-        var target = PauseEquipmentCategories.Get(selectedCategory);
-        PauseEquipmentBit mask = ReadCategoryMask(target, selectedItem);
+        var target = PauseEquipmentCategories.Get(SelectedCategory);
+        PauseEquipmentBit mask = ReadCategoryMask(target, SelectedItem);
         bool wasEquipped = mask.IsSetIn(samus.EquippedBeams, samus.EquippedItems);
         // The bit belongs to its own category's set, so toggling both sets toggles exactly that upgrade.
         samus.EquippedBeams ^= mask.Beam;
         samus.EquippedItems ^= mask.Item;
 
         audio?.QueueSound(SoundEffectLibrary1Sounds.MenuConfirm, maximumQueued: 6);
-        UpdateEquipmentLabel(selectedCategory, selectedItem,
+        UpdateEquipmentLabel(SelectedCategory, SelectedItem,
             PauseEquipmentCategories.Get(dispatchedCategory).LabelWordCount, wasEquipped);
         if (dispatchedCategory == PauseEquipmentCategory.Beams)
         {
@@ -815,8 +827,8 @@ internal sealed class PauseMenuState
                     return false;
                 continue;
             }
-            selectedCategory = categoryIndex;
-            selectedItem = item;
+            SelectedCategory = categoryIndex;
+            SelectedItem = item;
             audio?.QueueSound(SoundEffectLibrary1Sounds.MenuCursor, maximumQueued: 6);
             return true;
         }
@@ -827,8 +839,8 @@ internal sealed class PauseMenuState
     private bool TrySelectReserves()
     {
         if (samus.MaxReserveEnergy == 0) return false;
-        selectedCategory = PauseEquipmentCategory.Reserves;
-        selectedItem = 0;
+        SelectedCategory = PauseEquipmentCategory.Reserves;
+        SelectedItem = 0;
         audio?.QueueSound(SoundEffectLibrary1Sounds.MenuCursor, maximumQueued: 6);
         return true;
     }
@@ -839,7 +851,7 @@ internal sealed class PauseMenuState
         bool left = (pressed & SnesButton.Left) != 0, right = (pressed & SnesButton.Right) != 0;
         bool up = (pressed & SnesButton.Up) != 0, down = (pressed & SnesButton.Down) != 0;
         PauseEquipmentCategory beams = PauseEquipmentCategory.Beams, suits = PauseEquipmentCategory.Suits, boots = PauseEquipmentCategory.Boots;
-        switch (selectedCategory)
+        switch (SelectedCategory)
         {
             case PauseEquipmentCategory.Beams:
                 if (right)
@@ -847,24 +859,24 @@ internal sealed class PauseMenuState
                     if (!TrySelectEquipment(suits, up ? 0 : PauseEquipmentCategories.BeamRightSuitItem, 1) && !up)
                         TrySelectEquipment(boots, 0, 1);
                 }
-                else if (down) TrySelectEquipment(beams, selectedItem + 1, 1);
-                else if (up && !TrySelectEquipment(beams, selectedItem - 1, -1)) TrySelectReserves();
+                else if (down) TrySelectEquipment(beams, SelectedItem + 1, 1);
+                else if (up && !TrySelectEquipment(beams, SelectedItem - 1, -1)) TrySelectReserves();
                 break;
             case PauseEquipmentCategory.Suits:
                 if (left)
                 {
                     if (down || !TrySelectReserves()) TrySelectEquipment(beams, 0, 1);
                 }
-                else if (up) TrySelectEquipment(suits, selectedItem - 1, -1);
-                else if (down && !TrySelectEquipment(suits, selectedItem + 1, 1)) TrySelectEquipment(boots, 0, 1);
+                else if (up) TrySelectEquipment(suits, SelectedItem - 1, -1);
+                else if (down && !TrySelectEquipment(suits, SelectedItem + 1, 1)) TrySelectEquipment(boots, 0, 1);
                 break;
             case PauseEquipmentCategory.Boots:
                 if (left)
                 {
                     if (up || !TrySelectEquipment(beams, PauseEquipmentCategories.PlasmaItem, -1)) TrySelectReserves();
                 }
-                else if (down) TrySelectEquipment(boots, selectedItem + 1, 1);
-                else if (up && !TrySelectEquipment(boots, selectedItem - 1, -1))
+                else if (down) TrySelectEquipment(boots, SelectedItem + 1, 1);
+                else if (up && !TrySelectEquipment(boots, SelectedItem - 1, -1))
                     TrySelectEquipment(suits, PauseEquipmentCategories.Get(suits).ItemCount - 1, -1);
                 break;
             case PauseEquipmentCategory.Reserves:
@@ -876,7 +888,7 @@ internal sealed class PauseMenuState
                 {
                     if (SelectedReserveItem != PauseReserveItem.Mode)
                     {
-                        selectedItem--;
+                        SelectedItem--;
                         audio?.QueueSound(SoundEffectLibrary1Sounds.MenuCursor, maximumQueued: 6);
                     }
                 }
@@ -887,14 +899,14 @@ internal sealed class PauseMenuState
                         TrySelectEquipment(beams, 0, 1);
                     else
                     {
-                        selectedItem++;
+                        SelectedItem++;
                         if (samus.ReserveEnergy == 0) TrySelectEquipment(beams, 0, 1);
                         else audio?.QueueSound(SoundEffectLibrary1Sounds.MenuCursor, maximumQueued: 6);
                     }
                 }
                 break;
             default:
-                throw new InvalidOperationException($"Undefined {nameof(PauseEquipmentCategory)} {selectedCategory}.");
+                throw new InvalidOperationException($"Undefined {nameof(PauseEquipmentCategory)} {SelectedCategory}.");
         }
     }
 
@@ -913,8 +925,8 @@ internal sealed class PauseMenuState
         AreaMapPresentationCatalog? previousCatalog = mapPresentation;
         mapPresentation = catalog ?? throw new InvalidOperationException(
             "Pause menu requires installed map presentation assets.");
-        mapArrows ??= new FileSelectMapAnimations(catalog.Arrows);
-        mapArrows.BindPresentation(catalog.Arrows);
+        CurrentMapArrows ??= new FileSelectMapAnimations(catalog.Arrows);
+        CurrentMapArrows.BindPresentation(catalog.Arrows);
         paletteAnimation.Bind(catalog.HighlightCycle);
         screen.BindArtwork(catalog);
         // Live highlights and reserve-arrow colors belong to their animation
@@ -954,7 +966,7 @@ internal sealed class PauseMenuState
             // new palettes. Only a bind before anything has latched asks the owner.
             if (reserveArrowLatched)
                 ReapplyLatchedReserveArrow();
-            else if (selectedCategory == PauseEquipmentCategory.Reserves)
+            else if (SelectedCategory == PauseEquipmentCategory.Reserves)
                 UpdateReserveArrow(pauseNmiFrameCounter8);
         }
         if (ScreenMode != PauseScreenMode.Map) UploadEquipmentTilemap();
@@ -1006,7 +1018,7 @@ internal sealed class PauseMenuState
     /// <summary>Runs $82:AD0A after the tank input handler and D-pad response.</summary>
     private void UpdateReserveArrow(int nmiFrameCounter8)
     {
-        bool inTanks = selectedCategory == PauseEquipmentCategory.Reserves;
+        bool inTanks = SelectedCategory == PauseEquipmentCategory.Reserves;
         ReserveArrowState state =
             inTanks && SelectedReserveItem == PauseReserveItem.Mode && samus.ReserveTankMode == ReserveTankMode.Auto ? ReserveArrowState.Animated
             : inTanks && SelectedReserveItem == PauseReserveItem.Transfer ? ReserveArrowState.Solid
@@ -1039,13 +1051,13 @@ internal sealed class PauseMenuState
         if (samus.MaxReserveEnergy == 0) return;
         PauseReserveUiPresentation presentation = (mapPresentation ?? throw new InvalidOperationException(
             "Reserve labels require installed presentation assets.")).PauseReserveUi;
-        presentation.ApplyLabel(equipmentTilemap, "Mode");
-        presentation.ApplyLabel(equipmentTilemap, "ReserveTank");
+        presentation.ApplyLabel(equipmentTilemap, PauseReserveLabel.Mode);
+        presentation.ApplyLabel(equipmentTilemap, PauseReserveLabel.ReserveTank);
         // Native setup retains the initial MANUAL label for the zero/uninitialized
         // mode and patches its first four characters only after a nonzero mode exists.
         if (samus.ReserveTankMode != ReserveTankMode.None)
             presentation.ApplyLabel(equipmentTilemap,
-                samus.ReserveTankMode == ReserveTankMode.Auto ? "Auto" : "Manual",
+                samus.ReserveTankMode == ReserveTankMode.Auto ? PauseReserveLabel.Auto : PauseReserveLabel.Manual,
                 attributes: LabelAttributes.Preserve);
     }
 
@@ -1085,12 +1097,12 @@ internal sealed class PauseMenuState
     }
 
     /// <summary>Native $0757 sound cadence, advanced only by the selected reserve-transfer handler.</summary>
-    internal NativeCountdown reserveTransferSoundDelay;
+    internal NativeCountdown ReserveTransferSoundDelay { get; private set; }
 
     /// <summary>The selected item while the reserve-tank category is selected.</summary>
-    private PauseReserveItem SelectedReserveItem => Enum.IsDefined((PauseReserveItem)selectedItem)
-        ? (PauseReserveItem)selectedItem
-        : throw new InvalidDataException($"Unsupported native reserve subdispatcher {selectedItem}.");
+    private PauseReserveItem SelectedReserveItem => Enum.IsDefined((PauseReserveItem)SelectedItem)
+        ? (PauseReserveItem)SelectedItem
+        : throw new InvalidDataException($"Unsupported native reserve subdispatcher {SelectedItem}.");
 
     /// <summary>Runs the tank subdispatcher before its D-pad response, as at $82:AC70.</summary>
     private void HandleReserveInput(SnesButton pressed)
@@ -1107,17 +1119,17 @@ internal sealed class PauseMenuState
             case PauseReserveItem.Transfer:
                 break;
             default:
-                throw new InvalidOperationException($"Undefined {nameof(PauseReserveItem)} {selectedItem}.");
+                throw new InvalidOperationException($"Undefined {nameof(PauseReserveItem)} {SelectedItem}.");
         }
 
-        if (reserveTransferSoundDelay.IsZero)
+        if (ReserveTransferSoundDelay.IsZero)
         {
             if ((pressed & SnesButton.A) == 0) return;
-            reserveTransferSoundDelay = NativeCountdown.FromRaw(unchecked((ushort)((samus.ReserveEnergy +
+            ReserveTransferSoundDelay = NativeCountdown.FromRaw(unchecked((ushort)((samus.ReserveEnergy +
                 PauseReserveTransferRomData.SoundCadenceMask) & ~PauseReserveTransferRomData.SoundCadenceMask)));
         }
-        reserveTransferSoundDelay = reserveTransferSoundDelay.Decrement().Remaining;
-        if ((reserveTransferSoundDelay.RawValue & PauseReserveTransferRomData.SoundCadenceMask) ==
+        ReserveTransferSoundDelay = ReserveTransferSoundDelay.Decrement().Remaining;
+        if ((ReserveTransferSoundDelay.RawValue & PauseReserveTransferRomData.SoundCadenceMask) ==
             PauseReserveTransferRomData.SoundCadenceMask)
             audio?.QueueSound(PauseReserveTransferRomData.RefillSound, PauseReserveTransferRomData.MaximumQueuedSounds);
 
@@ -1137,8 +1149,8 @@ internal sealed class PauseMenuState
         // Retail exhausts ALL reserves even when only a small top-up was needed.
         // Preserve that behavior and clear both bytes of the packed selector.
         samus.ReserveEnergy = 0;
-        reserveTransferSoundDelay = NativeCountdown.Start(0);
-        selectedCategory = PauseEquipmentCategory.Reserves;
-        selectedItem = PauseReserveTransferRomData.ModeItem;
+        ReserveTransferSoundDelay = NativeCountdown.Start(0);
+        SelectedCategory = PauseEquipmentCategory.Reserves;
+        SelectedItem = PauseReserveTransferRomData.ModeItem;
     }
 }

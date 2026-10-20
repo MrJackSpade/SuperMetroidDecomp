@@ -68,7 +68,7 @@ public sealed class ClipAudioBackend
                     break;
                 case AudioEvent.WriteMusicPort writeMusicPort:
                     RequireBeforeTicks(ticked, audioEvent);
-                    State.MusicLatch = LatchedMusicCommand(writeMusicPort.Music);
+                    State.LatchMusic(LatchedMusicCommand(writeMusicPort.Music));
                     break;
                 case AudioEvent.DriverTick driverTick:
                     if (driverTick.DspCycleOffset < cursor || driverTick.DspCycleOffset >= FramesPerUpdate)
@@ -90,7 +90,7 @@ public sealed class ClipAudioBackend
             }
         }
         Mix(frameStart, cursor, FramesPerUpdate);
-        State.Sample = frameStart + FramesPerUpdate;
+        State.RenderedTo(frameStart + FramesPerUpdate);
         PcmFrameResampler.ResampleStereoLinear(native, stereo48k[..CartridgeAudioSession.PcmSamplesPerFrame]);
     }
 
@@ -98,10 +98,7 @@ public sealed class ClipAudioBackend
     private void Upload(AudioBank bank, long now)
     {
         ReleaseMusic(now);
-        State.Music = null;
-        State.MusicPort = 0;
-        State.MusicLatch = null;
-        State.Context = bank == AudioAssetCatalogDefinitions.Common.Bank ? null : bank;
+        State.Upload(bank == AudioAssetCatalogDefinitions.Common.Bank ? null : bank);
         for (int index = 0; index < State.Libraries.Length; index++)
         {
             ClipLibraryState library = State.Libraries[index];
@@ -110,13 +107,12 @@ public sealed class ClipAudioBackend
             ReleaseSound(library, now);
             if (!library.Active)
             {
-                library.Sound = null;
+                library.Clear();
                 continue;
             }
             SoundEffectClipEntry continued = catalog.GetSoundEffect(State.Context, sound.Library, sound.Command);
-            library.Sound = continued;
             long position = now - library.Start;
-            library.SilencedUntil = [.. continued.Layers.Select(layer => NextKeyOn(layer, position))];
+            library.Continue(continued, [.. continued.Layers.Select(layer => NextKeyOn(layer, position))]);
         }
     }
 
@@ -125,49 +121,36 @@ public sealed class ClipAudioBackend
     {
         if (polled)
         {
+            // A sound ends at the poll after its logical end; a request at the end poll itself still meets it.
             foreach (ClipLibraryState library in State.Libraries)
-            {
-                // A sound ends at the poll after its logical end; a request at the end poll itself still meets it.
-                if (library.Active && library.Sound?.ActiveFrames is long active && now - library.Start > active)
-                {
-                    library.Active = false;
-                    library.HighPriority = false;
-                }
-            }
+                library.EndIfFinished(now);
         }
 
         if (State.Music is MusicClipEntry music && music.LoopStart is null && now - State.MusicStart >= music.Clip.Frames)
         {
             // The track reached its $0000 terminator: the driver returned the port to zero.
-            State.Tempo = TempoAt(music, music.Clip.Frames);
-            State.Music = null;
-            State.MusicPort = 0;
+            State.EndTrack(TempoAt(music, music.Clip.Frames));
         }
 
-        (State.TempoAccumulator, bool musicTick) = State.TempoAccumulator.Advance(ticks * CurrentTempo(now));
-        if (musicTick)
+        if (State.AdvanceTempo(ticks * CurrentTempo(now)))
             MusicTick(now);
     }
 
     /// <summary>Consumes the latched music command at a music tick.</summary>
     private void MusicTick(long now)
     {
-        int? latched = State.MusicLatch;
-        State.MusicLatch = null;
-        if (latched is not int command || command == State.MusicPort)
+        if (State.TakeMusicLatch() is not int command || command == State.MusicPort)
             return;
         if (State.Music is MusicClipEntry playing)
-            State.Tempo = TempoAt(playing, now - State.MusicStart);
+            State.HoldTempo(TempoAt(playing, now - State.MusicStart));
         ReleaseMusic(now);
-        State.MusicPort = command;
         if (command == 0)
         {
-            State.Music = null;
+            State.SelectTrack(command, null, now);
             return;
         }
         AudioBank bank = State.Context ?? throw new InvalidDataException($"Track {command} was requested with no music bank loaded.");
-        State.Music = catalog.GetMusic(bank, command);
-        State.MusicStart = now;
+        State.SelectTrack(command, catalog.GetMusic(bank, command), now);
     }
 
     /// <summary>Applies a sound start at its poll: the library's policy decides acceptance; an accepted sound replaces the library's sound.</summary>
@@ -176,37 +159,12 @@ public sealed class ClipAudioBackend
         int index = SoundEffectLibraries.ToQueueIndex(soundEffect.Library);
         ClipLibraryState library = State.Libraries[index];
         SoundEffectClipPolicy policy = catalog.GetPolicy(soundEffect.Library, soundEffect.Value);
-        bool rejected =
-            (!policy.IgnoresLowHealthMode && library.InLowHealthMode) ||
-            (!policy.IgnoresPriority && library.HighPriority);
-        if (rejected)
+        if (library.Rejects(policy))
             return;
 
         SoundEffectClipEntry sound = catalog.GetSoundEffect(State.Context, soundEffect.Library, soundEffect.Value);
-        if (library.Sound is not null)
-        {
-            ReleaseSound(library, now);
-            if (library.Active)
-                library.HighPriority = false;
-        }
-        library.Sound = sound;
-        library.Start = now;
-        library.Active = true;
-        library.SilencedUntil = new long[sound.Layers.Count];
-        library.HighPriority = policy.Priority switch
-        {
-            SoundEffectPriorityEffect.Low => false,
-            SoundEffectPriorityEffect.High => true,
-            SoundEffectPriorityEffect.Unchanged => library.HighPriority,
-            _ => throw new InvalidDataException($"Unknown priority effect {policy.Priority}."),
-        };
-        library.InLowHealthMode = policy.LowHealthMode switch
-        {
-            LowHealthModeEffect.Unchanged => library.InLowHealthMode,
-            LowHealthModeEffect.Clear => false,
-            LowHealthModeEffect.Enter => true,
-            _ => throw new InvalidDataException($"Unknown low-health mode effect {policy.LowHealthMode}."),
-        };
+        ReleaseSound(library, now);
+        library.Play(sound, now, policy);
     }
 
     /// <summary>Fades the playing music clip over one release.</summary>

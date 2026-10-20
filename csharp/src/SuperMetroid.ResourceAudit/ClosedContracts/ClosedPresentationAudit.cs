@@ -3,7 +3,6 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Operations;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Samus.Artwork;
-using SuperMetroid.Core.Areas.Escape.Artwork;
 using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Core.Hud.Artwork;
 using SuperMetroid.ResourceAudit.ClosedContracts.Bosses;
@@ -94,12 +93,6 @@ internal sealed class ClosedPresentationAudit
                     dependency.DeclaringSyntaxReferences.All(declaration => contract.Sources.Any(source =>
                         source.Path == declaration.SyntaxTree.FilePath)));
             }
-            if (valid && contract.Type == typeof(EscapeTimerPresentation).FullName)
-                valid = !compilation.SyntaxTrees.Where(tree => !contract.Sources.Any(source => source.Path == tree.FilePath))
-                    .Any(tree => tree.GetRoot().DescendantNodes().OfType<IdentifierNameSyntax>()
-                        .Where(name => name.Identifier.ValueText == "AnchorNames")
-                        .Any(name => compilation.GetSemanticModel(tree).GetSymbolInfo(name).Symbol is IFieldSymbol field &&
-                            field.ContainingType.ToDisplayString() == typeof(EscapeTimerPresentationDefinitions).FullName));
             if (valid && contract.Type == typeof(ProjectileSpriteCatalog).FullName)
                 valid = !compilation.SyntaxTrees.Where(tree => !contract.Sources.Any(source => source.Path == tree.FilePath))
                     .Any(tree => tree.GetRoot().DescendantNodes().OfType<IdentifierNameSyntax>()
@@ -127,10 +120,9 @@ internal sealed class ClosedPresentationAudit
                 foreach (string method in contract.Methods)
                     exports.Add("closed-presentation-contract", contract.Type + "." + method);
         }
-        NamedPresentationAudit.Install(exports);
     }
 
-    /// <summary>Classifies a provider call only when its reviewed proof, index domain, and named selection remain valid.</summary>
+    /// <summary>Classifies a provider call only when its reviewed proof and index domain remain valid.</summary>
     internal bool TryInspect(InvocationExpressionSyntax call, SemanticModel semantic, IMethodSymbol method,
         ResourceIndex exports, AuditReport report, string location)
     {
@@ -172,17 +164,6 @@ internal sealed class ClosedPresentationAudit
         if (invalid is not null)
         {
             Gap(invalid);
-            return true;
-        }
-        NamedSelectionResult? named = NamedPresentationAudit.Inspect(operation, semantic, owner, location, exports, report);
-        if (named == NamedSelectionResult.Unresolved)
-        {
-            Gap("Named selection has no compiler-resolved finite constant set; complete array coverage does not prove arbitrary strings.");
-            return true;
-        }
-        if (named == NamedSelectionResult.Missing)
-        {
-            report.Consumers.Add(new(owner, location, "missing"));
             return true;
         }
         report.Require("closed-presentation-contract", owner, contract.Type + "." + method.Name, location, exports);

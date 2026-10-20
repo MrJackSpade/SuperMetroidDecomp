@@ -1,3 +1,6 @@
+using SuperMetroid.Core.Frontend.Ending;
+using SuperMetroid.Core.Frontend.GameOver;
+using SuperMetroid.Core.Frontend.FileSelect;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rooms;
@@ -66,71 +69,10 @@ public sealed class SuperMetroidGame
         Ensure.NotNull(artwork);
         GameArtwork previous = Session.Artwork;
         Session.Artwork = artwork;
-        Session.runtime?.BindArtwork(artwork, previous);
+        Session.Runtime?.BindArtwork(artwork, previous);
         if (!ReferenceEquals(previous.MapPresentation, artwork.MapPresentation))
-        {
             Session.saves.BindMapPresentation(artwork.MapPresentation);
-            Session.ceresDestruction?.BindFixedColors(artwork.MapPresentation?.PowerBombFixedColors);
-            Session.ceresDestruction?.BindPaletteFxColors(artwork.MapPresentation?.RoomPaletteFx);
-            Session.pauseMenu?.BindMapPresentation(artwork.MapPresentation);
-            Session.fileSelectMap?.BindMapPresentation(artwork.MapPresentation);
-            Session.gameOver?.BindMapPresentation(artwork.MapPresentation);
-            Session.options?.BindMapPresentation(artwork.MapPresentation);
-            Session.fileSelect?.BindMapPresentation(artwork.MapPresentation);
-            Session.title?.BindTitleGradient(artwork.MapPresentation?.TitleGradient);
-            Session.title?.BindTitleGraphics(artwork.MapPresentation?.TitleGraphics);
-            Session.title?.BindTitlePalette(artwork.MapPresentation?.TitlePalette);
-            if (Session.intro is not null) Session.intro.NarrationPresentation = artwork.MapPresentation?.IntroNarration;
-            Session.intro?.BindIntroFont(artwork.MapPresentation?.IntroFont);
-            Session.intro?.BindSamusHurtColors(artwork.MapPresentation?.SamusHurtColors);
-            Session.endingCredits?.BindEndingText(artwork.MapPresentation?.EndingText);
-            Session.endingCredits?.BindPaletteFxColors(artwork.MapPresentation?.RoomPaletteFx);
-            Session.endingCredits?.BindEndingFont(artwork.MapPresentation?.EndingFont);
-            Session.endingCredits?.BindStaffCredits(artwork.MapPresentation?.StaffCredits);
-        }
-        if (!ReferenceEquals(previous.IntroCinematicArt, artwork.IntroCinematicArt))
-        {
-            Session.intro?.BindCharacterArtwork(artwork.IntroCinematicArt);
-            Session.ceresDestruction?.BindArtwork(artwork.IntroCinematicArt);
-            Session.endingCredits?.BindFlightArtwork(artwork.IntroCinematicArt?.CeresFlight);
-        }
-        if (!ReferenceEquals(previous.SamusBodyArt, artwork.SamusBodyArt))
-        {
-            Session.intro?.BindSamusBodyArtwork(artwork.SamusBodyArt);
-        }
-        if (!ReferenceEquals(previous.EndingMode7Art, artwork.EndingMode7Art))
-        {
-            Session.endingCredits?.BindMode7Artwork(artwork.EndingMode7Art);
-        }
-        if (!ReferenceEquals(previous.EndingObjectArt, artwork.EndingObjectArt))
-        {
-            Session.endingCredits?.BindObjectArtwork(artwork.EndingObjectArt);
-        }
-        if (!ReferenceEquals(previous.EndingPaletteArt, artwork.EndingPaletteArt))
-        {
-            Session.endingCredits?.BindPaletteArtwork(artwork.EndingPaletteArt);
-        }
-        if (!ReferenceEquals(previous.ProjectileCompositions, artwork.ProjectileCompositions))
-        {
-            if (Session.intro is not null) Session.intro.ProjectileCompositions = artwork.ProjectileCompositions;
-        }
-        if (!ReferenceEquals(previous.ProjectileFrameBindings, artwork.ProjectileFrameBindings))
-        {
-            if (Session.intro is not null) Session.intro.ProjectileFrameBindings = artwork.ProjectileFrameBindings;
-        }
-        if (!ReferenceEquals(previous.BeamArtwork, artwork.BeamArtwork))
-        {
-            // A completed intro remains in a restored object graph, but its VRAM
-            // and beam DMA are no longer displayed or advanced during gameplay.
-            // Rebinding that dormant scene would replay an unrelated cartridge
-            // read while loading a gameplay debugger state.
-            if (Session.GameState == SuperMetroidGameState.IntroCinematic)
-                Session.intro?.BindBeamArtwork(artwork.BeamArtwork);
-        }
-        if (!ReferenceEquals(previous.TrailArtwork, artwork.TrailArtwork))
-        {
-            if (Session.intro is not null) Session.intro.TrailArtwork = artwork.TrailArtwork;
-        }
+        Session.Screen?.BindArtwork(previous, artwork, Session.GameState);
     }
 
     /// <summary>Current host options; interactive state restoration rebinds these to the active session.</summary>
@@ -176,8 +118,8 @@ public sealed class SuperMetroidGame
     /// </summary>
     public event Action? SaveRamChanged
     {
-        add => Session.saveRamChanged += value;
-        remove => Session.saveRamChanged -= value;
+        add => Session.SaveRamChanged += value;
+        remove => Session.SaveRamChanged -= value;
     }
 
     /// <summary>
@@ -210,16 +152,16 @@ public sealed class SuperMetroidGame
     }
 
     /// <summary>The active room, exposed for door-transition watches, or null before gameplay.</summary>
-    public RoomHeaderDefinition? GameplayActiveRoom => Session.runtime?.Room.ActiveRoom?.Definition;
+    public RoomHeaderDefinition? GameplayActiveRoom => Session.Runtime?.Room.ActiveRoom?.Definition;
 
     /// <summary>The active room's selected state, exposed beside the room identity, or null before gameplay.</summary>
-    public CartridgeRoomState? GameplayActiveRoomState => Session.runtime?.Room.ActiveRoom?.State;
+    public CartridgeRoomState? GameplayActiveRoomState => Session.Runtime?.Room.ActiveRoom?.State;
 
     /// <summary>Validated logical area/room pair, or null before cartridge gameplay.</summary>
-    public RoomIdentity? GameplayActiveRoomIdentity => Session.runtime?.Room.ActiveRoom?.Identity;
+    public RoomIdentity? GameplayActiveRoomIdentity => Session.Runtime?.Room.ActiveRoom?.Identity;
 
     /// <summary>The door the active room was entered through, exposed for door-transition watches.</summary>
-    public CartridgeDoorHeader? GameplayActiveDoor => Session.runtime?.Room.ActiveDoor;
+    public CartridgeDoorHeader? GameplayActiveDoor => Session.Runtime?.Room.ActiveDoor;
 
 
     /// <summary>Runs one dispatcher frame and returns the PPU-visible result.</summary>
@@ -231,7 +173,7 @@ public sealed class SuperMetroidGame
         GamePhaseAudio phaseAudio = Phases.Of(Session.GameState).Audio;
         Session.audio.DoorTransitionSoundsDisabled = phaseAudio == GamePhaseAudio.DoorTransitionSoundsDisabled;
         bool pauseInputEpilogue = phaseAudio == GamePhaseAudio.PauseInputEpilogue;
-        bool messageWasActive = Session.runtime?.MessageBox.IsActive == true;
+        bool messageWasActive = Session.Runtime?.MessageBox.IsActive == true;
         bool doorAudioDispatch = phaseAudio is GamePhaseAudio.DoorTransition or GamePhaseAudio.DoorTransitionSoundsDisabled;
         DoorTransitionPhase startingDoorPhase = Session.doorTransition.Phase;
         // An update that resumes a dispatch after its NMI wait never reaches the main loop's
@@ -252,11 +194,11 @@ public sealed class SuperMetroidGame
             Session.GameplayRuntime.Clock.AdvanceHardwareWaitFrames(Session.HostServices.DoorMusicUploadNmis.AcceptedNmisDuringUpload(Session.audio.MusicDataIndex));
         var gameplayAudio = new GameplayAudioFramePublication(Session.audio);
         FrameNumber = NativeWordCounter.IncrementWord(FrameNumber);
-        if (Session.runtime is null)
+        if (Session.Runtime is null)
             Session.frameClock.AdvanceAcceptedFrame();
         AdvanceMenuRandom();
-        if (Session.runtime is not null)
-            Session.runtime.DispatchGameState = Session.GameState;
+        if (Session.Runtime is not null)
+            Session.Runtime.DispatchGameState = Session.GameState;
         Phases.Of(Session.GameState).Step(controllerInput, gameplayAudio);
 
         Session.CollectTranslatedAudioRequests(gameplayAudio);
@@ -265,7 +207,7 @@ public sealed class SuperMetroidGame
         // this entry boundary; repeating it during the wait would cancel the
         // message's own cursor/saving sounds. A loaded active message is not an
         // entry and must not inject a new command merely because the host resumed.
-        if (!messageWasActive && Session.runtime?.MessageBox.IsActive == true)
+        if (!messageWasActive && Session.Runtime?.MessageBox.IsActive == true)
             Session.audio.QueueCancelSoundEffects();
         bool musicHandler = false;
         int soundHandlers = !resumesNmiWait && (!doorAudioDispatch ||
@@ -278,7 +220,7 @@ public sealed class SuperMetroidGame
             musicHandler = boxAudio.MusicHandlerCalls != 0;
             soundHandlers = boxAudio.SoundHandlerCalls;
         }
-        else if (Session.runtime?.MessageBox.IsActive == true)
+        else if (Session.Runtime?.MessageBox.IsActive == true)
         {
             // The opening dispatch's HandleSounds runs only once the routine returns.
             soundHandlers = 0;
@@ -290,7 +232,7 @@ public sealed class SuperMetroidGame
             : [.. prologueMusicCommands, .. trailingAudioCommands];
         // The SPC acts on this update's port writes and uploads during the update's own DSP
         // cycles; its echoes become visible to the next update's sound handlers.
-        Session.lastAudioEvents = Session.audioSession.Advance(audioCommands);
+        Session.AdvanceAudio(audioCommands);
         // $82:8AB0 runs after the pause dispatcher returns, even though Samus's
         // draw-time epilogue did not run. Preserve its held-only publication;
         // updating the press edge or auto-jump timer here would invent gameplay.
@@ -319,23 +261,23 @@ public sealed class SuperMetroidGame
                 MainLoopRandomCall.AdvanceUnlessResumingWait,
                 step: (controllerInput, _) => MenuPhases.DispatchFileSelectMenus(controllerInput),
                 name: () => Session.ActiveFileSelect.Phase.ToString(),
-                resumesNmiWait: () => Session.fileSelect?.ResumesAfterNmiWait == true),
+                resumesNmiWait: () => Session.ScreenAs<FileSelectMenuState>()?.ResumesAfterNmiWait == true),
             // The map's final dispatch resumes after its forced-blank NMI wait.
             // The final map dispatch latched its load request, then waited for this NMI ($81:AF8C).
             new GamePhase(SuperMetroidGameState.FileSelectMap,
                 MainLoopRandomCall.AdvanceUnlessResumingWait,
                 step: (controllerInput, _) => MenuPhases.DispatchFileSelectMap(controllerInput),
-                name: () => Session.fileSelectMap?.Phase.ToString() ?? "Preparing saved-game map",
-                resumesNmiWait: () => Session.fileSelectMap?.LoadRequested == true),
+                name: () => Session.ScreenAs<FileSelectMapMenuState>()?.Phase.ToString() ?? "Preparing saved-game map",
+                resumesNmiWait: () => Session.ScreenAs<FileSelectMapMenuState>()?.LoadRequested == true),
             new GamePhase(SuperMetroidGameState.LoadingGameData,
                 MainLoopRandomCall.AdvanceUnlessResumingWait,
                 step: (controllerInput, _) => LoadingPhases.DispatchLoadingGameData(controllerInput),
-                name: () => $"Loading Landing Site ({Session.gameLoadingWaitsRemaining} NMI waits)",
+                name: () => $"Loading Landing Site ({Session.GameLoading.WaitsRemaining} NMI waits)",
                 resumesNmiWait: () => Session.ResumesGameLoadingWait),
             new GamePhase(SuperMetroidGameState.MainGameplayFadeIn,
                 MainLoopRandomCall.RuntimeOwned,
                 step: (controllerInput, gameplayAudio) => LoadingPhases.DispatchMainGameplayFadeIn(controllerInput, gameplayAudio),
-                name: () => Session.gameplayFadeLeadsToCeresArrival ? $"Ceres elevator fade-in (brightness {Session.postCeresFadeBrightness})" : $"Landing Site fade-in (brightness {Session.postCeresFadeBrightness})"),
+                name: () => Session.GameplayFadeLeadsToCeresArrival ? $"Ceres elevator fade-in (brightness {Session.GameplayFadeIn.Brightness})" : $"Landing Site fade-in (brightness {Session.GameplayFadeIn.Brightness})"),
             new GamePhase(SuperMetroidGameState.MainGameplay,
                 MainLoopRandomCall.RuntimeOwned,
                 step: (controllerInput, gameplayAudio) => GameplayPhases.DispatchMainGameplay(controllerInput, gameplayAudio),
@@ -358,7 +300,7 @@ public sealed class SuperMetroidGame
             new GamePhase(SuperMetroidGameState.PausingDarkening,
                 MainLoopRandomCall.RuntimeOwned,
                 step: (controllerInput, gameplayAudio) => GameplayPhases.DispatchPausingDarkening(controllerInput, gameplayAudio),
-                name: () => $"Pausing: gameplay darken ({Session.pauseBrightness})"),
+                name: () => $"Pausing: gameplay darken ({Session.PauseBrightness})"),
             new GamePhase(SuperMetroidGameState.Pausing,
                 MainLoopRandomCall.NonGameplayHdmaThenAdvance,
                 step: (controllerInput, _) => PausePhases.DispatchPausing(controllerInput),
@@ -369,17 +311,17 @@ public sealed class SuperMetroidGame
             new GamePhase(SuperMetroidGameState.PausedA,
                 MainLoopRandomCall.Advance,
                 step: (controllerInput, _) => PausePhases.DispatchPausedA(controllerInput),
-                name: () => $"Paused: fade in ({Session.pauseBrightness})",
+                name: () => $"Paused: fade in ({Session.PauseBrightness})",
                 audio: GamePhaseAudio.PauseInputEpilogue),
             new GamePhase(SuperMetroidGameState.PausedB,
                 MainLoopRandomCall.Advance,
                 step: (controllerInput, _) => PausePhases.DispatchPausedB(controllerInput),
-                name: () => Session.pauseMenu?.ScreenMode == PauseScreenMode.Equipment ? "Paused: equipment" : "Paused: map",
+                name: () => Session.ScreenAs<PauseMenuState>()?.ScreenMode == PauseScreenMode.Equipment ? "Paused: equipment" : "Paused: map",
                 audio: GamePhaseAudio.PauseInputEpilogue),
             new GamePhase(SuperMetroidGameState.UnpausingA,
                 MainLoopRandomCall.Advance,
                 step: (controllerInput, _) => PausePhases.DispatchUnpausingA(controllerInput),
-                name: () => $"Unpausing: fade out ({Session.pauseBrightness})",
+                name: () => $"Unpausing: fade out ({Session.PauseBrightness})",
                 audio: GamePhaseAudio.PauseInputEpilogue),
             new GamePhase(SuperMetroidGameState.UnpausingB,
                 MainLoopRandomCall.Advance,
@@ -389,7 +331,7 @@ public sealed class SuperMetroidGame
             new GamePhase(SuperMetroidGameState.Unpausing,
                 MainLoopRandomCall.RuntimeOwned,
                 step: (controllerInput, gameplayAudio) => GameplayPhases.DispatchUnpausing(controllerInput, gameplayAudio),
-                name: () => $"Unpausing: gameplay brighten ({Session.pauseBrightness})"),
+                name: () => $"Unpausing: gameplay brighten ({Session.PauseBrightness})"),
             new GamePhase(SuperMetroidGameState.DeathSequenceStart,
                 MainLoopRandomCall.RuntimeOwned,
                 step: (controllerInput, gameplayAudio) => DeathPhases.DispatchDeathSequenceStart(controllerInput, gameplayAudio),
@@ -424,7 +366,7 @@ public sealed class SuperMetroidGame
                 MainLoopRandomCall.AdvanceUnlessResumingWait,
                 step: (controllerInput, _) => MenuPhases.DispatchGameOverMenu(controllerInput),
                 name: () => nameof(SuperMetroidGameState.GameOverMenu),
-                resumesNmiWait: () => Session.gameOver?.ResumesAfterNmiWait == true),
+                resumesNmiWait: () => Session.ScreenAs<GameOverMenuState>()?.ResumesAfterNmiWait == true),
             new GamePhase(SuperMetroidGameState.ReserveTanksAuto,
                 MainLoopRandomCall.RuntimeOwned,
                 step: (controllerInput, gameplayAudio) => GameplayPhases.DispatchReserveTanksAuto(controllerInput, gameplayAudio),
@@ -436,12 +378,12 @@ public sealed class SuperMetroidGame
             new GamePhase(SuperMetroidGameState.SetUpNewGame,
                 MainLoopRandomCall.AdvanceUnlessResumingWait,
                 step: (controllerInput, _) => LoadingPhases.DispatchSetUpNewGame(controllerInput),
-                name: () => Session.loadingExistingSave ? "Loading saved game" : "Loading fresh Ceres game",
+                name: () => Session.LoadingExistingSave ? "Loading saved game" : "Loading fresh Ceres game",
                 resumesNmiWait: () => Session.ResumesGameLoadingWait),
             new GamePhase(SuperMetroidGameState.MadeItToCeresElevator,
                 MainLoopRandomCall.RuntimeOwned,
                 step: (controllerInput, gameplayAudio) => GameplayPhases.DispatchMadeItToCeresElevator(controllerInput, gameplayAudio),
-                name: () => Session.ceresDeparture.Phase == CeresDeparturePhase.HoldingOnElevator ? $"Ceres elevator departure ({Session.ceresDeparture.HoldFramesRemaining.RawValue})" : Session.runtime?.Room.CeresElevatorArrival is { IsComplete: false } ? "Ceres elevator arrival" : "Ceres controls unlocked"),
+                name: () => Session.ceresDeparture.Phase == CeresDeparturePhase.HoldingOnElevator ? $"Ceres elevator departure ({Session.ceresDeparture.HoldFramesRemaining.RawValue})" : Session.Runtime?.Room.CeresElevatorArrival is { IsComplete: false } ? "Ceres elevator arrival" : "Ceres controls unlocked"),
             new GamePhase(SuperMetroidGameState.BlackoutFromCeres,
                 MainLoopRandomCall.RuntimeOwned,
                 step: (controllerInput, gameplayAudio) => GameplayPhases.DispatchBlackoutFromCeres(controllerInput, gameplayAudio),
@@ -450,8 +392,8 @@ public sealed class SuperMetroidGame
             new GamePhase(SuperMetroidGameState.CeresGoesBoom,
                 MainLoopRandomCall.AdvanceUnlessResumingWait,
                 step: (controllerInput, _) => CinematicPhases.DispatchCeresGoesBoom(controllerInput),
-                name: () => $"Ceres destruction: {Session.ceresDestruction?.Phase}",
-                resumesNmiWait: () => Session.ceresDestruction?.ResumesAfterNmiWait == true),
+                name: () => $"Ceres destruction: {Session.ScreenAs<CeresDestructionCinematicState>()?.Phase}",
+                resumesNmiWait: () => Session.ScreenAs<CeresDestructionCinematicState>()?.ResumesAfterNmiWait == true),
             new GamePhase(SuperMetroidGameState.TimeUp,
                 MainLoopRandomCall.RuntimeOwned,
                 step: (controllerInput, gameplayAudio) => GameplayPhases.DispatchTimeUp(controllerInput, gameplayAudio),
@@ -465,18 +407,18 @@ public sealed class SuperMetroidGame
                 MainLoopRandomCall.AdvanceUnlessResumingWait,
                 step: (controllerInput, _) => CinematicPhases.DispatchCeresGoesBoomWithSamus(controllerInput),
                 name: () => nameof(SuperMetroidGameState.CeresGoesBoomWithSamus),
-                resumesNmiWait: () => Session.ceresDestruction?.ResumesAfterNmiWait == true),
+                resumesNmiWait: () => Session.ScreenAs<CeresDestructionCinematicState>()?.ResumesAfterNmiWait == true),
             new GamePhase(SuperMetroidGameState.SamusEscapesFromZebes,
                 MainLoopRandomCall.RuntimeOwned,
                 step: (controllerInput, gameplayAudio) => GameplayPhases.DispatchSamusEscapesFromZebes(controllerInput, gameplayAudio),
-                name: () => $"Zebes escape fade-out ({Session.endingFadeBrightness})"),
+                name: () => $"Zebes escape fade-out ({Session.EscapeFade.Brightness})"),
             // State $27 is dispatched by MainGameLoop after its RNG call, except while the
             // ending setup resumes inside its own NMI waits.
             new GamePhase(SuperMetroidGameState.EndingAndCredits,
                 MainLoopRandomCall.AdvanceUnlessResumingWait,
                 step: (_, _) => CinematicPhases.DispatchEndingAndCredits(),
-                name: () => $"Ending: {Session.endingCredits?.Phase}",
-                resumesNmiWait: () => Session.endingCredits?.ResumesAfterNmiWait == true),
+                name: () => $"Ending: {Session.ScreenAs<EndingCreditsState>()?.Phase}",
+                resumesNmiWait: () => Session.ScreenAs<EndingCreditsState>()?.ResumesAfterNmiWait == true),
             new GamePhase(SuperMetroidGameState.TransitionToDemoA,
                 MainLoopRandomCall.RuntimeOwned,
                 step: (controllerInput, gameplayAudio) => AttractPhases.DispatchAttractDemo(controllerInput, gameplayAudio),
@@ -551,13 +493,13 @@ public sealed class SuperMetroidGame
     {
         string location = $"frame=${FrameNumber:X4}; state=${(ushort)Session.GameState:X2} {Session.GameState}; " +
             $"room={GameplayActiveRoom?.Name}; roomState={GameplayActiveRoomState?.Name}; door={GameplayActiveDoor?.Name}";
-        if (Session.runtime?.Player.Samus is not { } samus)
+        if (Session.Runtime?.Player.Samus is not { } samus)
             return location + "; Samus=not initialized";
         return location + $"; pose=${(int)samus.Pose:X2}; animationFrame={samus.AnimationFrame}; animationTimer={samus.AnimationFrameTimer.RawValue}; " +
             $"animationList=${samus.AnimationDelayListAddress:X6}; position={samus.Position.X.Whole},{samus.Position.Y.Whole}; " +
-            $"input=${Session.runtime.Controller1.Current:X}; newlyPressed=${Session.runtime.Controller1.NewlyPressed:X}; inputLocked={samus.Control.AlphaLocked}; " +
+            $"input=${Session.Runtime.Controller1.Current:X}; newlyPressed=${Session.Runtime.Controller1.NewlyPressed:X}; inputLocked={samus.Control.AlphaLocked}; " +
             $"drainedPhase={samus.Drained.Phase}; drainedHandler={samus.Drained.GetUpHandler}; " +
-            $"escapeTimer={Session.runtime.EscapeTimer.State}; fx={samus.LiquidPhysics.FxType}; medium={samus.LiquidPhysics.LiquidPhysicsType}; " +
+            $"escapeTimer={Session.Runtime.EscapeTimer.State}; fx={samus.LiquidPhysics.FxType}; medium={samus.LiquidPhysics.LiquidPhysicsType}; " +
             $"waterY=${samus.LiquidPhysics.FxYPosition:X4}; acidY=${samus.LiquidPhysics.LavaAcidYPosition:X4}";
     }
 
@@ -569,7 +511,7 @@ public sealed class SuperMetroidGame
     public void ApplyHostOptions(SuperMetroidGameOptions hostOptions)
     {
         Ensure.NotNull(hostOptions);
-        Session.runtime?.ApplyHostOptions(hostOptions.RuntimeOverrides(forAttractDemo: false));
+        Session.Runtime?.ApplyHostOptions(hostOptions.RuntimeOverrides(forAttractDemo: false));
         Session.ConfiguredOptions = hostOptions;
     }
 

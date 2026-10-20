@@ -33,7 +33,7 @@ internal static class PausePresentationDomainAudit
                 (!item.HasValue || item == label.Item) && (!words.HasValue ||
                     words >= 0 && words <= PauseEquipmentLabelDefinitions.EquipmentWords &&
                     (words <= PauseEquipmentLabelDefinitions.WordCount(label.Category) ||
-                        label.Key == PauseEquipmentLabelDefinitions.PlasmaKey))))
+                        label.Label == PauseEquipmentLabelId.Plasma))))
                 return "Constant category/item/wordCount has no reviewed pause label; only Plasma owns the five-to-nine-word native overrun.";
         }
         return null;

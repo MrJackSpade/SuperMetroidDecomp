@@ -32,7 +32,7 @@ public sealed class HudState
     /// <summary>The three mutable HUD rows the frame shows, row-major (#1348).</summary>
     public ReadOnlySpan<ushort> MutableRows => Tiles;
     /// <summary>Previous item selection used to update both icon palettes and sound edges.</summary>
-    internal HudItem PreviousSelectedItem;
+    internal HudItem PreviousSelectedItem { get; set; }
     /// <summary>Current artwork binding, omitted from serialized gameplay state.</summary>
     [NonSerialized] private GameplayHudPresentation? presentation;
 

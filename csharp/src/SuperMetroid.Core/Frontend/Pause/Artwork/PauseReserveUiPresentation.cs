@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Frontend.Pause.Artwork;
 public sealed class PauseReserveUiPresentation
 {
     /// <summary>Mode, Reserve Tank, Manual, and Auto strips retaining only departures from stock artwork.</summary>
-    private readonly Dictionary<string, ReserveLabel> labels;
+    private readonly Dictionary<PauseReserveLabel, ReserveLabel> labels;
     /// <summary>Byte position of the leftmost reserve-supply digit in the equipment tilemap.</summary>
     private readonly int digitOffset;
     /// <summary>Optional authored digit words; null reuses the consecutive stock glyph sequence.</summary>
@@ -66,11 +66,11 @@ public sealed class PauseReserveUiPresentation
         : PauseReserveUiDefinitions.HorizontalStartCell + cell - PauseReserveUiDefinitions.VerticalCount);
     /// <summary>Writes one selected label's native BG words into its authored equipment-page location.</summary>
     /// <param name="tilemap">Mutable little-endian equipment tilemap bytes, large enough for the entire authored label range.</param>
-    /// <param name="name">Case-sensitive label identity: Mode, ReserveTank, Manual, or Auto.</param>
+    /// <param name="name">The label to write.</param>
     /// <param name="attributes">When true, preserves each destination word's palette, priority, and flip bits while replacing only its ten-bit character selector; used for MANUAL/AUTO replacement.</param>
-    /// <exception cref="InvalidDataException"><paramref name="name"/> is not an installed label identity.</exception>
+    /// <exception cref="InvalidDataException"><paramref name="name"/> is not a reserve label.</exception>
     /// <exception cref="ArgumentException">The destination span does not contain the authored label range.</exception>
-    public void ApplyLabel(Span<byte> tilemap, string name, LabelAttributes attributes = LabelAttributes.Replace)
+    public void ApplyLabel(Span<byte> tilemap, PauseReserveLabel name, LabelAttributes attributes = LabelAttributes.Replace)
     {
         if (!labels.TryGetValue(name, out var label)) throw new InvalidDataException($"Unknown reserve label {name}.");
         if (label.Offset < 0 || label.Offset + label.WordCount * sizeof(ushort) > tilemap.Length)
@@ -187,14 +187,15 @@ public sealed class PauseReserveUiPresentation
             document.Arrow.Frames is null || document.Arrow.Frames.Length != PauseReserveUiDefinitions.ArrowFrames ||
             (uint)document.Arrow.EnabledPalette > 7 || (uint)document.Arrow.DisabledPalette > 7)
             throw new InvalidDataException("Pause reserve UI requires four labels, ten digits, ten arrow cells, and 32 arrow frames.");
-        var labels = new Dictionary<string, ReserveLabel>();
-        foreach (var expected in new[] { "Mode", "ReserveTank", "Manual", "Auto" })
+        var labels = new Dictionary<PauseReserveLabel, ReserveLabel>();
+        foreach (PauseReserveLabel expected in PauseReserveUiDefinitions.Labels)
         {
-            if (!document.Labels.TryGetValue(expected, out var label) || label is null || label.Cells is null ||
-                label.Cells.Length != (expected is "Manual" or "Auto" ? PauseReserveUiDefinitions.ModeWords : PauseReserveUiDefinitions.LabelWords))
-                throw new InvalidDataException($"Pause reserve UI label {expected} has the wrong shape.");
-            labels.Add(expected, ReserveLabel.Load(expected, Offset(label.Anchor, expected),
-                PauseTileGrid.Compile(label.Cells, $"Reserve.{expected}")));
+            string name = PauseReserveUiDefinitions.Name(expected);
+            if (!document.Labels.TryGetValue(name, out var label) || label is null || label.Cells is null ||
+                label.Cells.Length != PauseReserveUiDefinitions.StockLabelWords(expected))
+                throw new InvalidDataException($"Pause reserve UI label {name} has the wrong shape.");
+            labels.Add(expected, ReserveLabel.Load(expected, Offset(label.Anchor, name),
+                PauseTileGrid.Compile(label.Cells, $"Reserve.{name}")));
         }
         var digits = document.Digits.Cells.Select((cell, index) => PauseTileGrid.Compile([cell], $"Reserve.Digit{index}")).ToArray();
         int[] arrowOffsets = document.Arrow.Cells.Select((point, index) => Offset(point, $"Arrow.{index}")).ToArray();
@@ -221,7 +222,7 @@ public sealed class PauseReserveUiPresentation
     }
 
     /// <summary>Resolves unchanged reserve-label cells from stock and stores only edited placement or tile words.</summary>
-    private sealed class ReserveLabel(string name, int? offsetEdit, Dictionary<int, ushort> edits)
+    private sealed class ReserveLabel(PauseReserveLabel name, int? offsetEdit, Dictionary<int, ushort> edits)
     {
         /// <summary>Uses an authored placement when changed, otherwise the native label anchor.</summary>
         internal int Offset => offsetEdit ?? PauseReserveUiDefinitions.StockLabelOffset(name);
@@ -232,7 +233,7 @@ public sealed class PauseReserveUiPresentation
             ? selected : PauseReserveUiDefinitions.StockLabelWord(name, index);
 
         /// <summary>Compares every supplied little-endian word and destination with stock, retaining only differences.</summary>
-        internal static ReserveLabel Load(string name, int offset, ReadOnlySpan<byte> bytes)
+        internal static ReserveLabel Load(PauseReserveLabel name, int offset, ReadOnlySpan<byte> bytes)
         {
             var edits = new Dictionary<int, ushort>();
             for (int index = 0; index < bytes.Length / sizeof(ushort); index++)
@@ -259,7 +260,7 @@ public sealed class PauseReserveUiPresentation
     private sealed record PauseReserveUiParts
     {
         /// <summary>The four compiled strips with stock-equivalent cells omitted.</summary>
-        public required Dictionary<string, ReserveLabel> Labels { get; init; }
+        public required Dictionary<PauseReserveLabel, ReserveLabel> Labels { get; init; }
 
         /// <summary>Byte anchor of the three-place reserve supply in the equipment tilemap.</summary>
         public required int DigitOffset { get; init; }

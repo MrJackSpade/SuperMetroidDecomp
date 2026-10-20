@@ -7,6 +7,6 @@ internal static class EndingRewardJumpAccess
     extension(EndingRewardJump self)
     {
         /// <summary>Current signed vertical velocity in the ending reward jump.</summary>
-        internal int VerticalVelocity => self.velocity;
+        internal int VerticalVelocity => self.Velocity;
     }
 }

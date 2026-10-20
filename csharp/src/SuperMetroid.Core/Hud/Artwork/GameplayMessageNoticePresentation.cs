@@ -51,7 +51,7 @@ public sealed class GameplayMessageNoticePresentation
         {
             Span<ushort> cells = content.Slice(region.Row * width + region.Column, region.Width);
             cells.Fill(GameplayMessageTitlePresentation.CompileGlyph(' ', region.Palette));
-            int start = region.Alignment == GameplayMessageNoticeDefinitions.CenterAlignment
+            int start = region.Alignment == GameplayMessageTextAlignment.Center
                 ? (region.Width - region.Text.Length) / 2
                 : 0;
             for (int index = 0; index < region.Text.Length; index++)
@@ -158,8 +158,7 @@ public sealed class GameplayMessageNoticePresentation
                     region.Column + region.Width > GameplayMessageRomData.Layout.TilemapWidth ||
                     region.Text.Any(static character =>
                         !GameplayMessageTitleDefinitions.IsSupportedGlyph(character)) ||
-                    region.Alignment is not (GameplayMessageNoticeDefinitions.LeftAlignment or
-                        GameplayMessageNoticeDefinitions.CenterAlignment))
+                    !Enum.IsDefined(region.Alignment))
                 {
                     throw new InvalidDataException(
                         $"Gameplay-message notice {id} has an invalid text region.");
@@ -219,7 +218,7 @@ public sealed class GameplayMessageNoticePresentation
         int Row,
         int Column,
         int Width,
-        string Alignment,
+        GameplayMessageTextAlignment Alignment,
         string Text,
         int Palette);
 }

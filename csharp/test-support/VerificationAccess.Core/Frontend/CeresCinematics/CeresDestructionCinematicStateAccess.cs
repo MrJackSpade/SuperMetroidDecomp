@@ -9,10 +9,10 @@ internal static class CeresDestructionCinematicStateAccess
     extension(CeresDestructionCinematicState self)
     {
         /// <summary>Current Mode-7 scene scale retained by the cinematic, in 1/256 units.</summary>
-        internal int Zoom => self.zoom;
+        internal int Zoom => self.Zoom;
 
         /// <summary>Current fixed-point origin for the destruction background.</summary>
-        internal FixedPosition<Mode7Pixels> Background => self.background;
+        internal FixedPosition<Mode7Pixels> Background => self.Background;
 
         /// <summary>Number of cinematic actors still held in the actor list.</summary>
         internal int ActiveActorCount => self.actors.Count;

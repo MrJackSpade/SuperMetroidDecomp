@@ -71,8 +71,8 @@ internal static class PaletteJsonContractsVisibleVerification
         for (int tick = 0; tick < 90; tick++)
         {
             AssertEqual(stockMap.Step(stockCgram), editedMap.Step(editedCgram), "map cycle sound/wrap timing unchanged");
-            AssertEqual(stockMap.timer, editedMap.timer, "map cycle frame/timer unchanged");
-            AssertEqual(stockMap.frame, editedMap.frame, "map cycle frame/timer unchanged");
+            AssertEqual(stockMap.Timer, editedMap.Timer, "map cycle frame/timer unchanged");
+            AssertEqual(stockMap.Frame, editedMap.Frame, "map cycle frame/timer unchanged");
             int destination = MapAnimationRomData.PaletteDestination + 1;
             AssertEqual((ushort)(stockCgram.Colors[destination].ToWord() ^ 0x7fff), editedCgram.Colors[destination],
                 "map replacement changes exactly the selected color");

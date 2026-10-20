@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Programs;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Enemies;
@@ -23,8 +22,6 @@ internal static class DeadTorizoBehaviorVerification
         corpse.Bind(EnemyDefinitionId.CorpseTorizo, corpse.Definition);
         corpse.Bind(corpse.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = SuperMetroid.Core.Enemies.Corpses.Artwork.DeadTorizoFrameToolingDefinitions.Bank });
         enemies.DeadTorizoBehavior.InitializeDeadTorizo(corpse);
-        AssertEqual(AnimationProgramCursor<DeadTorizoProgram>.Start(DeadTorizoProgram.Stationary),
-            enemies.DeadTorizoBehavior.DeadTorizoProgram, "real Dead Torizo initializer starts the stationary pose");
         ushort frame = DeadTorizoAnimationsConstants.Spritemaps(DeadTorizoProgram.Stationary).Single();
         AssertEqual(EnemyInstructionRunner.ExpectedFrames([frame, frame], [1, 1]),
             EnemyInstructionRunner.ShownFrames(corpse, 3), "Dead Torizo stationary pose");

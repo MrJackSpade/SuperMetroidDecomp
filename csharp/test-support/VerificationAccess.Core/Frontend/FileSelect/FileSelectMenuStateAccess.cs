@@ -13,6 +13,6 @@ internal static class FileSelectMenuStateAccess
         internal ReadOnlySpan<ushort> BackgroundTilemap => self.bg1Tilemap;
 
         /// <summary>Selected helmet frame retained through the fade into loading/options.</summary>
-        internal int SelectedHelmetFrame => self.helmetAnimationFrame;
+        internal int SelectedHelmetFrame => self.HelmetAnimationFrame;
     }
 }

@@ -295,6 +295,9 @@ public sealed class PlayableGameControl : UserControl
             Console.WriteLine($"Installed content component: {domain}={digest}.");
         if (replay is not null)
             ReportReplayContentCompatibility();
+        // The previous session's queued door autosave finishes before a new store can write the same slot.
+        if (stateStore is not null)
+            stateStore.Dispose();
         stateStore = CreateStateStore();
         if (replay is null)
         {
@@ -834,7 +837,7 @@ public sealed class PlayableGameControl : UserControl
         BeginInvoke(canvas.Focus);
     }
 
-    /// <summary>Releases host subscriptions, playback timing, audio, and input recording before framework control disposal.</summary>
+    /// <summary>Releases host subscriptions, playback timing, audio, input recording and queued state writes before framework control disposal.</summary>
     /// <remarks>The GPU worker must already have completed through <see cref="StopRendererAsync"/>; disposal rejects an active worker rather than blocking the UI thread.</remarks>
     protected override void Dispose(bool disposing)
     {
@@ -853,6 +856,8 @@ public sealed class PlayableGameControl : UserControl
             audioDevice = null;
             inputRecorder?.Dispose();
             inputRecorder = null;
+            if (stateStore is not null)
+                stateStore.Dispose();
         }
         base.Dispose(disposing);
     }

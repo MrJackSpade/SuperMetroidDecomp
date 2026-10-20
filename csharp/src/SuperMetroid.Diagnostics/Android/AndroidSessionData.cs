@@ -172,6 +172,10 @@ internal sealed class AndroidSessionData : IDisposable
             Options,
             ContentIdentity);
 
-    /// <summary>Closes the active input recording when the worker session ends.</summary>
-    public void Dispose() => recorder.Dispose();
+    /// <summary>Closes the active input recording and finishes queued state writes when the worker session ends.</summary>
+    public void Dispose()
+    {
+        recorder.Dispose();
+        states.Dispose();
+    }
 }

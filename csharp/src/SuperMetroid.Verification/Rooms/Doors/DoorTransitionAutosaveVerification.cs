@@ -128,6 +128,16 @@ internal static class DoorTransitionAutosaveVerification
                     "failed atomic replacement is reported");
             AssertTrue(second.SequenceEqual(File.ReadAllBytes(autoPath)), "failed replacement preserves last valid auto");
             AssertEqual(0, Directory.GetFiles(storeDirectory, "*.tmp").Length, "failed replacement cleans temporary file");
+            // #1398: a door autosave returns once its state is captured; the compressed, flushed write that fails here
+            // runs in the background, where it is reported and leaves the previous recovery state in place.
+            using (var locked = new FileStream(autoPath, FileMode.Open, FileAccess.Read, FileShare.Read))
+            {
+                AssertTrue(DoorTransitionAutosave.TrySave(true, false, SuperMetroidGameState.LoadingNextRoomB, store, bus, game) is not null,
+                    "door autosave returns its capture without waiting for the disk write");
+                store.WaitForPendingWrites();
+            }
+            AssertTrue(second.SequenceEqual(File.ReadAllBytes(autoPath)), "failed background write preserves last valid auto");
+            AssertEqual(0, Directory.GetFiles(storeDirectory, "*.tmp").Length, "failed background write cleans temporary file");
             for (int slot = 0; slot < DebuggerStateFormat.SlotCount; slot++)
                 AssertEqual("manual slot " + slot, File.ReadAllText(store.GetSlotPath(slot)), "manual slots untouched");
             File.WriteAllText(autoPath, "invalid state");
@@ -144,6 +154,7 @@ internal static class DoorTransitionAutosaveVerification
                     var saved = DoorTransitionAutosave.TrySave(enabled, false, before, store, bus, game);
                     if (saved is not null)
                     {
+                        store.WaitForPendingWrites();
                         count++;
                         AssertEqual(SuperMetroidGameState.LoadingNextRoomB, before, "capture comes from door phase");
                         AssertEqual(DoorTransitionPhase.Complete, game.DoorTransitionPhaseForVerification, "capture waits for complete fade");

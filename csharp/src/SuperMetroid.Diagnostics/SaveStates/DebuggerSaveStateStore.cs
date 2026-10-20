@@ -10,8 +10,12 @@ using SuperMetroid.Core.Gameplay;
 namespace SuperMetroid.Diagnostics.SaveStates;
 
 /// <summary>Host-independent debugger states with ten manual slots and one automatic slot with warning-only build identity checks.</summary>
-internal sealed class DebuggerSaveStateStore
+internal sealed class DebuggerSaveStateStore : IDisposable
 {
+    /// <summary>Guards <see cref="pendingWrites"/>.</summary>
+    private readonly Lock writeGate = new();
+    /// <summary>The background writes queued so far, run in submission order.</summary>
+    private Task pendingWrites = Task.CompletedTask;
 
     /// <summary>Directory containing numbered and automatic debugger state files.</summary>
     private readonly string directory;
@@ -82,28 +86,100 @@ internal sealed class DebuggerSaveStateStore
         return Path.Combine(directory, $"SuperMetroid-debug-slot-{SlotName(slot)}.smstate");
     }
 
-    /// <summary>Captures address space, gameplay and optional SPC state into a temporary file before replacing the selected slot.</summary>
+    /// <summary>Captures address space, gameplay and optional SPC state and writes it durably before replacing the selected slot.</summary>
     public DebuggerSaveStateMetadata Save(
         int slot,
         SuperMetroidAddressSpace addressSpace,
         SuperMetroidGame game)
     {
+        DebuggerSaveStateCapture capture = Capture(slot, addressSpace, game);
+        WaitForPendingWrites();
+        Write(capture);
+        return capture.Metadata;
+    }
+
+    /// <summary>
+    /// Captures the state now, on the caller's thread, and writes it in the background after every earlier queued write
+    /// (#1398): compression, the durable flush and the replacement leave the game thread. The outcome reaches
+    /// <paramref name="written"/> or <paramref name="failed"/> on the writing thread.
+    /// </summary>
+    /// <param name="slot">The slot written.</param>
+    /// <param name="addressSpace">The address space captured.</param>
+    /// <param name="game">The game captured.</param>
+    /// <param name="written">Receives the metadata once the slot holds the capture.</param>
+    /// <param name="failed">Receives the failure when the write does not complete; the slot keeps its previous state.</param>
+    /// <returns>The captured state's metadata.</returns>
+    public DebuggerSaveStateMetadata SaveInBackground(
+        int slot,
+        SuperMetroidAddressSpace addressSpace,
+        SuperMetroidGame game,
+        Action<DebuggerSaveStateMetadata> written,
+        Action<Exception> failed)
+    {
+        Ensure.NotNull(written);
+        Ensure.NotNull(failed);
+        DebuggerSaveStateCapture capture = Capture(slot, addressSpace, game);
+        lock (writeGate)
+        {
+            pendingWrites = pendingWrites.ContinueWith(_ => WriteAndReport(capture, written, failed),
+                CancellationToken.None, TaskContinuationOptions.None, TaskScheduler.Default);
+        }
+        return capture.Metadata;
+    }
+
+    /// <summary>Blocks until every queued background write has finished, so the slots on disk hold every capture made so far.</summary>
+    public void WaitForPendingWrites()
+    {
+        Task writes;
+        lock (writeGate)
+            writes = pendingWrites;
+        writes.Wait();
+    }
+
+    /// <summary>Finishes the queued background writes, so no capture is lost when the host closes.</summary>
+    public void Dispose() => WaitForPendingWrites();
+
+    /// <summary>Serializes the slot's state at this moment, with the metadata naming it.</summary>
+    private DebuggerSaveStateCapture Capture(int slot, SuperMetroidAddressSpace addressSpace, SuperMetroidGame game)
+    {
         ValidateSlot(slot);
         Ensure.NotNull(addressSpace);
         Ensure.NotNull(game);
         EnsureRomMatches(addressSpace);
-
-        Directory.CreateDirectory(directory);
-        string destination = GetSlotPath(slot);
-        string temporary = Path.Combine(directory, $".{Path.GetFileName(destination)}.{Guid.NewGuid():N}.tmp");
         var metadata = new DebuggerSaveStateMetadata(
             DateTimeOffset.UtcNow,
             checked((ushort)game.FrameNumber),
             game.GameState,
             game.GameplayActiveRoom?.Name,
             game.GameplayActiveRoomState?.Name,
-            destination);
+            GetSlotPath(slot));
+        using var payload = new MemoryStream();
+        DebuggerObjectGraphSerializer.Serialize(payload, new DebuggerSaveStateRoot(addressSpace, game));
+        return new DebuggerSaveStateCapture(metadata, payload.ToArray());
+    }
 
+    /// <summary>Writes a capture, reporting its outcome instead of letting it escape the writing thread.</summary>
+    private void WriteAndReport(DebuggerSaveStateCapture capture, Action<DebuggerSaveStateMetadata> written, Action<Exception> failed)
+    {
+        try
+        {
+            Write(capture);
+        }
+        catch (Exception exception)
+        {
+            failed(exception);
+            return;
+        }
+        written(capture.Metadata);
+    }
+
+    /// <summary>Compresses a capture into a temporary file, flushes it to disk, then replaces the slot with it.</summary>
+    private void Write(DebuggerSaveStateCapture capture)
+    {
+        DebuggerSaveStateMetadata metadata = capture.Metadata;
+        Directory.CreateDirectory(directory);
+        string destination = metadata.Path;
+        string temporary = Path.Combine(directory, $".{Path.GetFileName(destination)}.{Guid.NewGuid():N}.tmp");
         try
         {
             using (var stream = new FileStream(
@@ -129,15 +205,13 @@ internal sealed class DebuggerSaveStateStore
                 writer.Flush();
 
                 using (var compressed = new GZipStream(stream, CompressionLevel.SmallestSize, leaveOpen: true))
-                    DebuggerObjectGraphSerializer.Serialize(
-                        compressed, new DebuggerSaveStateRoot(addressSpace, game));
+                    compressed.Write(capture.Payload);
                 stream.Flush(flushToDisk: true);
             }
             if (File.Exists(destination))
                 File.Replace(temporary, destination, destinationBackupFileName: null);
             else
                 File.Move(temporary, destination);
-            return metadata;
         }
         catch
         {
@@ -151,6 +225,7 @@ internal sealed class DebuggerSaveStateStore
     public DebuggerSaveStateLoadResult Load(int slot)
     {
         ValidateSlot(slot);
+        WaitForPendingWrites();
         string path = GetSlotPath(slot);
         if (!File.Exists(path))
             throw new FileNotFoundException($"Debugger save-state slot {SlotName(slot)} does not exist.", path);
@@ -234,6 +309,7 @@ internal sealed class DebuggerSaveStateStore
     public bool TryLoad(int slot, out DebuggerSaveStateLoadResult result)
     {
         ValidateSlot(slot);
+        WaitForPendingWrites();
         if (!File.Exists(GetSlotPath(slot)))
         {
             result = default;
@@ -337,6 +413,11 @@ internal sealed class DebuggerSaveStateStore
         if ((uint)slot > DebuggerStateFormat.AutomaticSlot)
             throw new ArgumentOutOfRangeException(nameof(slot), slot, "Debugger state slot must be 0-9 or auto.");
     }
+
+    /// <summary>A state serialized at one moment and the metadata naming it, ready to be written to its slot.</summary>
+    /// <param name="Metadata">The capture's frame, room and destination slot file.</param>
+    /// <param name="Payload">The serialized object graph, before compression.</param>
+    private sealed record DebuggerSaveStateCapture(DebuggerSaveStateMetadata Metadata, byte[] Payload);
 
     /// <summary>Groups the three runtime owners serialized together as one debugger capture.</summary>
     private sealed class DebuggerSaveStateRoot(

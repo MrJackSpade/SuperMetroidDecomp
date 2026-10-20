@@ -33,6 +33,9 @@ dotnet_diagnostic.IDE0010.severity = error
 dotnet_diagnostic.IDE0072.severity = error
 dotnet_diagnostic.IDE0004.severity = error
 dotnet_diagnostic.IDE0044.severity = error
+dotnet_diagnostic.IDE0079.severity = error
+dotnet_diagnostic.IDE0076.severity = error
+dotnet_diagnostic.IDE0077.severity = error
 dotnet_diagnostic.IDE0078.severity = error
 dotnet_diagnostic.SYSLIB1054.severity = error
 # #627: a primitive switched over named constants is a closed domain; model it as a type.

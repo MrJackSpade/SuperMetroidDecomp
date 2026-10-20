@@ -207,7 +207,9 @@ pinned local sources; reference annotations do not replace reproducing a reporte
   without a milestone is an error to correct.
 - Minor versions (`0.x.0`) are planned release bands; read each milestone's description
   for its scope. Patch versions (`0.x.y`) are reserved for bugfix releases.
-- `v1.0.0` is the full Godot port (umbrella #1393); `v1.1.0` adds widescreen support.
+- `v1.0.0` is the full Godot port (umbrella #1393). `v1.1.0` collects low-hanging
+  enhancements on top of the port, widescreen support (#1394) among them; more complex
+  enhancements go to later `1.x` versions.
 - Work is ordered by milestone: take tickets from the earliest open milestone, subject
   to "Single ticket development".
 

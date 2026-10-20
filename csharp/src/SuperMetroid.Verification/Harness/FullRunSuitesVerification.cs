@@ -819,6 +819,7 @@ internal static class FullRunSuitesVerification
         new(nameof(VerifyBgr555Domain), () => VerifyBgr555Domain()),
         new(nameof(VerifyBabyMetroidFatalBlowShake), () => VerifyBabyMetroidFatalBlowShake()),
         new(nameof(VerifyMotherBrainMissileWalkReset), () => VerifyMotherBrainMissileWalkReset()),
+        new(nameof(VerifyMotherBrainWalkCreditShared), () => VerifyMotherBrainWalkCreditShared()),
         new(nameof(VerifyMotherBrainBodyHitboxes), () => VerifyMotherBrainBodyHitboxes()),
         new(nameof(VerifyMotherBrainInheritedExplosionIndex), () => VerifyMotherBrainInheritedExplosionIndex()),
         new(nameof(VerifyOldTourianEscapeShaftWall), () => VerifyOldTourianEscapeShaftWall()),

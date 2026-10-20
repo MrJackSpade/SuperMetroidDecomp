@@ -68,6 +68,8 @@ internal static class MotherBrainPlasmaImpactVerification
         state.Form = MotherBrainForm.ThirdPhase;
         state.RainbowBeamSequence = new MotherBrainRainbowBeamAttackSequence();
         state.RainbowBeamSequence.Body.Form = MotherBrainForm.ThirdPhase;
+        // The sequence shares the encounter's walk credit (#1388); recoil needs less than the Hyper Beam's cost.
+        state.WalkCounter = MotherBrainWalkCredit.Empty;
         SeedChargedPlasma();
         shot.Type = 0x9018; shot.Damage = 1000; shot.PreInstruction = SamusProjectilePreInstruction.HyperBeam;
         // The first case's Plasma hit left the head invincible; $A0:A17C skips it until the

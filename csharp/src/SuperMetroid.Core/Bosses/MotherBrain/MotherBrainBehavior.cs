@@ -1484,14 +1484,11 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
         var reactionProjectile = (MotherBrainProjectileType)((SnesLittleEndian.HighByte(projectileType.Raw)) & 7);
         if (state.RainbowBeamSequence is { } sequence)
         {
-            // Once attached, the rainbow/Baby/phase-three state machine owns walk counter
-            // `$7E:780E` and republishes it every body turn, so every reaction must reach it;
-            // a write to the encounter projection alone is overwritten on the next turn.
-            // `$B5BA/$B5BD` clears the body function timer on recoil underflow and `$B5C0`
-            // publishes the counter immediately, before common projectile damage runs.
+            // The attached sequence shares walk counter `$7E:780E` with the encounter. `$B5BA/$B5BD`
+            // clears the body function timer on recoil underflow and `$B5C0` stores the counter
+            // immediately, before common projectile damage runs.
             sequence.ApplyPhase2Or3ShotReaction(reactionProjectile);
             state.FunctionTimer = sequence.FunctionTimer;
-            state.WalkCounter = sequence.Phase3WalkCounter;
         }
         else
         {
@@ -1564,7 +1561,9 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
         if (state.Form == MotherBrainForm.Glass)
             return;
 
-        state.WalkCounter = state.WalkCounter.SpendStepForBomb();
+        // `$A9:B57C`: a bomb is reaction type zero, which spends one step and empties the credit when the result is
+        // negative as a signed word.
+        state.WalkCounter = state.WalkCounter.SpendForShot(MotherBrainWalkCredit.StepCredit);
         if (state.Form == MotherBrainForm.FakeDeath)
             return;
 
@@ -4097,11 +4096,6 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
 
         state.Function = MapLiveMotherBrainRainbowFunction(sequence.Phase);
         state.FunctionTimer = sequence.FunctionTimer;
-        // `$7E:8026` remains one shared native word across phase two and phase three. The
-        // reusable sequence owns phase-three walking/recoil decisions, while the public
-        // encounter state is the debugger-facing WRAM projection used by shot callbacks.
-        // Republish it after every body call so either view observes the exact same counter.
-        state.WalkCounter = sequence.Phase3WalkCounter;
         state.NeckAngleDelta = sequence.NeckAngleDelta;
         state.NeckMovementEnabled = sequence.NeckMovementEnabled;
         state.LowerNeckMovementIndex = sequence.LowerNeckMovementIndex;

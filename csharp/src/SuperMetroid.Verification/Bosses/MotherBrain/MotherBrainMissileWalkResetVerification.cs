@@ -47,11 +47,31 @@ internal static class MotherBrainMissileWalkResetVerification
         Console.WriteLine("Mother Brain missile walk reset: the reaction reaches the counter's owner.");
     }
 
+    /// <summary>
+    /// #1388: the encounter and the sequence it attaches share one walk-credit word ($7E:780E), so a credit the
+    /// encounter holds (an imported snapshot's, or one a head bomb spent) is the credit phase three walks on, and the
+    /// sequence's writes are the encounter's.
+    /// </summary>
+    internal static void VerifyMotherBrainWalkCreditShared()
+    {
+        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
+        var state = new MotherBrainEnemyState(enemies.SlotTable.Slots[0]) { WalkCounter = MotherBrainWalkCredit.Of(0x0180) };
+        var sequence = new MotherBrainRainbowBeamAttackSequence();
+        state.RainbowBeamSequence = sequence;
+        AssertEqual(MotherBrainWalkCredit.Of(0x0180), sequence.Phase3WalkCounter, "an attached sequence reads the encounter's credit");
+        state.WalkCounter = state.WalkCounter.SpendForShot(MotherBrainWalkCredit.StepCredit);
+        AssertEqual(MotherBrainWalkCredit.Of(0x0080), sequence.Phase3WalkCounter, "a spend through the encounter reaches the sequence");
+        sequence.Phase3WalkCounter = MotherBrainWalkCredit.Of(0x0040);
+        AssertEqual(MotherBrainWalkCredit.Of(0x0040), state.WalkCounter, "the sequence's writes are the encounter's");
+        Console.WriteLine("Mother Brain walk credit: the encounter and its attached sequence share one word.");
+    }
+
     /// <summary>Runs the focused Mother Brain missile walk-reset check.</summary>
     [VerificationCommand("--mother-brain-missile-walk-reset")]
     internal static int MotherBrainMissileWalkResetCommand()
     {
         VerifyMotherBrainMissileWalkReset();
+        VerifyMotherBrainWalkCreditShared();
         return 0;
     }
 }

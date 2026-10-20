@@ -242,8 +242,15 @@ public sealed class MotherBrainEnemyState
     /// </summary>
     public int DroolProjectileParameter { get; internal set; }
 
+    /// <summary>The walk-credit word this encounter owns and an attached sequence shares.</summary>
+    internal MotherBrainWalkCounter Walk { get; } = new();
+
     /// <summary>Walk credit: standing turns earn it toward a forward step and the player's hits spend it.</summary>
-    public MotherBrainWalkCredit WalkCounter { get; internal set; }
+    public MotherBrainWalkCredit WalkCounter
+    {
+        get => Walk.Credit;
+        internal set => Walk.Credit = value;
+    }
 
     /// <summary>
     /// Native <c>attackPhase</c> dispatch index used by <c>$A9:B64B</c>. Head animation
@@ -303,7 +310,16 @@ public sealed class MotherBrainEnemyState
     /// coordinates and bytecode remain owned by this room system; this object owns the long
     /// bank-$A9 function chain and forced-Samus calculations.
     /// </summary>
-    public MotherBrainRainbowBeamAttackSequence? RainbowBeamSequence { get; internal set; }
+    public MotherBrainRainbowBeamAttackSequence? RainbowBeamSequence
+    {
+        get;
+        internal set
+        {
+            // An attached sequence reads and writes the encounter's own walk-credit word.
+            value?.ShareWalkCounter(Walk);
+            field = value;
+        }
+    }
 
     /// <summary>
     /// The dynamically allocated physical <c>$ECBF</c> enemy record created by

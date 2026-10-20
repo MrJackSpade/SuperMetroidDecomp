@@ -230,11 +230,24 @@ public sealed class MotherBrainRainbowBeamAttackSequence
         MotherBrainPhase3WalkingPhase.Inactive;
 
     /// <summary>
-    /// Native phase-three walk counter at <c>$7E:8026</c>. Ordinary projectiles subtract
+    /// The walk-credit word <c>$7E:780E</c>, which an encounter shares with the sequence it attaches; a standalone
+    /// sequence keeps its own.
+    /// </summary>
+    private MotherBrainWalkCounter _walk = new();
+
+    /// <summary>
+    /// Mother Brain's walk credit (<c>$7E:780E</c>) as the sequence uses it. Ordinary projectiles subtract
     /// <c>$0100</c>; Hyper Beam subtracts <c>$010A</c>; the walking function adds
     /// <c>$0020</c> whenever it gets a standing AI call.
     /// </summary>
-    public MotherBrainWalkCredit Phase3WalkCounter { get; internal set; }
+    public MotherBrainWalkCredit Phase3WalkCounter
+    {
+        get => _walk.Credit;
+        internal set => _walk.Credit = value;
+    }
+
+    /// <summary>Reads and writes <paramref name="walk"/> from now on, the word of the encounter attaching this sequence.</summary>
+    internal void ShareWalkCounter(MotherBrainWalkCounter walk) => _walk = Ensure.NotNull(walk);
 
     /// <summary>Current phase-three walking target X in room pixels (<c>$7E:803A</c>), within a pixel of the body's walking range.</summary>
     public int Phase3TargetXPosition { get; private set; }

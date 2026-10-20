@@ -45,13 +45,6 @@ public readonly record struct MotherBrainWalkCredit
     public MotherBrainWalkCredit SpendForShot(int cost) =>
         CoversShot(cost) ? new(unchecked((ushort)(Word - cost))) : Empty;
 
-    /// <summary>
-    /// Spends one step for a bomb hit: a credit below one step, compared unsigned, empties; any other credit loses
-    /// exactly one step.
-    /// </summary>
-    public MotherBrainWalkCredit SpendStepForBomb() =>
-        BelowStep ? Empty : new(unchecked((ushort)(Word - StepCredit)));
-
     /// <inheritdoc />
     public override string ToString() => Word.ToString(System.Globalization.CultureInfo.InvariantCulture);
 }

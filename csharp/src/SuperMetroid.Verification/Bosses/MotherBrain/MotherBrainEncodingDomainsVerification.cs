@@ -67,17 +67,12 @@ internal static class MotherBrainEncodingDomainsVerification
                 AssertEqual(remainder < SignedWordLimit, credit.CoversShot(cost),
                     $"walk credit {start} covers shot cost {cost} exactly when the signed remainder is non-negative");
             }
-
-            int bombExpected = start < MotherBrainWalkCredit.StepCredit ? 0 : start - MotherBrainWalkCredit.StepCredit;
-            AssertEqual(bombExpected, credit.SpendStepForBomb().Word, $"walk credit {start} less one bomb step");
         }
 
-        // 40,000 lies above the sign bit: a shot empties it while a bomb leaves 39,744.
+        // 40,000 lies above the sign bit: an ordinary shot or a bomb (both $A9:B57C) empties it (#1388).
         MotherBrainWalkCredit high = MotherBrainWalkCreditConstants.FromNativeWord(40000);
         AssertEqual(MotherBrainWalkCredit.Empty, high.SpendForShot(MotherBrainWalkCredit.StepCredit),
-            "a shot reads a credit above the sign bit as overdrawn");
-        AssertEqual(MotherBrainWalkCredit.Of(39744), high.SpendStepForBomb(),
-            "a bomb reads the same credit unsigned and spends one step");
+            "a shot or bomb reads a credit above the sign bit as overdrawn");
     }
 
     /// <summary>The production shot reaction spends credit and recoils exactly as the native table and branches do.</summary>

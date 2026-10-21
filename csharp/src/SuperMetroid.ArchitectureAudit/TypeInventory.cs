@@ -39,7 +39,7 @@ internal static class TypeInventory
     /// <summary>Collects source types across projects and describes each type's scope, disposition, and flags.</summary>
     public static IReadOnlyList<TypeEntry> Collect(LoadedSolution solution)
     {
-        var entries = new Dictionary<string, (INamedTypeSymbol Symbol, SortedSet<string> Assemblies, SortedSet<string> Files, Compilation Compilation)>(StringComparer.Ordinal);
+        var entries = new Dictionary<string, TypeInventoryEntry>(StringComparer.Ordinal);
         foreach (var (project, compilation) in solution.Projects)
         {
             foreach (INamedTypeSymbol type in AllTypes(compilation.Assembly.GlobalNamespace))
@@ -53,13 +53,13 @@ internal static class TypeInventory
                     continue;
                 string key = Key(type);
                 if (!entries.TryGetValue(key, out var entry))
-                    entries[key] = entry = (type, new SortedSet<string>(StringComparer.Ordinal), new SortedSet<string>(StringComparer.Ordinal), compilation);
+                    entries[key] = entry = new TypeInventoryEntry(type, new SortedSet<string>(StringComparer.Ordinal), new SortedSet<string>(StringComparer.Ordinal), compilation);
                 entry.Assemblies.Add(project.AssemblyName);
                 foreach (string file in files)
                     entry.Files.Add(file);
             }
         }
-        var backReferences = BackReferencedOwners(entries.Values.Select(entry => (entry.Symbol, entry.Compilation)));
+        var backReferences = BackReferencedOwners(entries.Values.Select(entry => new CompiledType(entry.Symbol, entry.Compilation)));
         var parameterObjects = ConstructorParameterObjects(entries.Values.Select(entry => entry.Symbol));
         return entries
             .OrderBy(pair => pair.Key, StringComparer.Ordinal)
@@ -171,7 +171,7 @@ internal static class TypeInventory
     }
 
     /// <summary>Owners whose constructor receives the instance that creates and stores them.</summary>
-    private static Dictionary<string, string> BackReferencedOwners(IEnumerable<(INamedTypeSymbol Symbol, Compilation Compilation)> types)
+    private static Dictionary<string, string> BackReferencedOwners(IEnumerable<CompiledType> types)
     {
         var result = new Dictionary<string, string>(StringComparer.Ordinal);
         foreach (var (creator, compilation) in types)

@@ -135,7 +135,7 @@ public static class RoomRenderer
                     {
                         // The shared bank-$80 expansion has already swapped children and
                         // toggled their own PPU flip flags, so DrawTile consumes final words.
-                        ushort tileEntry = (outputTileX, outputTileY) switch
+                        ushort tileEntry = new OutputTileCorner(outputTileX, outputTileY) switch
                         {
                             (0, 0) => expanded.TopLeft,
                             (1, 0) => expanded.TopRight,

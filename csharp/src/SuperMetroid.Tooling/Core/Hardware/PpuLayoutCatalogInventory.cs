@@ -66,10 +66,10 @@ internal static class PpuLayoutCatalogInventory
     internal static IReadOnlyList<string> Violations(IReadOnlyList<PpuLayoutCatalogEntry> entries)
     {
         var violations = new List<string>();
-        foreach (IGrouping<(string?, string), PpuLayoutCatalogEntry> group in
-                 entries.GroupBy(entry => (entry.Owner.FullName, entry.Cell.Name)))
+        foreach (IGrouping<OwnedCellName, PpuLayoutCatalogEntry> group in
+                 entries.GroupBy(entry => new OwnedCellName(entry.Owner.FullName, entry.Cell.Name)))
             if (group.Count() > 1)
-                violations.Add($"{group.Key.Item1}.{group.Key.Item2} is declared {group.Count()} times.");
+                violations.Add($"{group.Key.FullName}.{group.Key.Name} is declared {group.Count()} times.");
         foreach (PpuLayoutCatalogEntry entry in entries)
         {
             if (entry.Cell.Name != entry.Member)
@@ -107,8 +107,8 @@ internal static class PpuLayoutCatalogInventory
     /// </summary>
     internal static string RenderJson(IReadOnlyList<PpuLayoutCatalogEntry> entries, string repositoryRoot)
     {
-        (string Path, string Text)[] sources = SourceFiles(repositoryRoot)
-            .Select(path => (path, File.ReadAllText(System.IO.Path.Combine(repositoryRoot, path))))
+        SourceFileText[] sources = SourceFiles(repositoryRoot)
+            .Select(path => new SourceFileText(path, File.ReadAllText(System.IO.Path.Combine(repositoryRoot, path))))
             .ToArray();
         var records = new List<object>();
         foreach (PpuLayoutCatalogEntry entry in entries)

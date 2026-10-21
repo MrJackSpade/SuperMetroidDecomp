@@ -33,8 +33,8 @@ internal static class Program
         {
             (string solutionPath, bool write) = args switch
             {
-                ["--solution", var path] => (path, false),
-                ["--solution", var path, "--write"] => (path, true),
+                ["--solution", var path] => new AuditArguments(path, false),
+                ["--solution", var path, "--write"] => new AuditArguments(path, true),
                 _ => throw new ArgumentException(Usage),
             };
             var solution = await SolutionLoader.LoadAsync(Path.GetFullPath(solutionPath));
@@ -49,7 +49,7 @@ internal static class Program
             }, Json).ReplaceLineEndings("\n") + "\n";
             string modulePath = Path.Combine(solution.RepositoryRoot, "docs", "module-inventory.json");
             string modules = JsonSerializer.Serialize(ModuleInventory.Collect(solution, problems), Json).ReplaceLineEndings("\n") + "\n";
-            foreach ((string path, string content) in new[] { (inventoryPath, document), (modulePath, modules) })
+            foreach ((string path, string content) in new[] { new GeneratedInventory(inventoryPath, document), new GeneratedInventory(modulePath, modules) })
             {
                 if (write)
                 {

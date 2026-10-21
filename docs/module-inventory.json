@@ -34,7 +34,7 @@
     {
       "module": "csharp/src/SuperMetroid.ArchitectureAudit",
       "role": "tooling",
-      "files": 5,
+      "files": 9,
       "dependsOn": [
         "csharp/src/SuperMetroid.EnsureAnalyzer",
         "csharp/src/SuperMetroid.ReachabilityAudit",
@@ -605,7 +605,7 @@
     {
       "module": "csharp/src/SuperMetroid.ReachabilityAudit",
       "role": "tooling",
-      "files": 22,
+      "files": 35,
       "dependsOn": [
         "csharp/test-support/WindowsConsole"
       ]
@@ -701,7 +701,7 @@
     {
       "module": "csharp/src/SuperMetroid.Tooling",
       "role": "tooling",
-      "files": 201,
+      "files": 206,
       "dependsOn": [
         "csharp/src/SuperMetroid.AssetExtraction",
         "csharp/src/SuperMetroid.Core",
@@ -1194,6 +1194,33 @@
       ]
     },
     {
+      "path": "csharp/src/SuperMetroid.ArchitectureAudit/AuditArguments.cs",
+      "module": "csharp/src/SuperMetroid.ArchitectureAudit",
+      "role": "tooling",
+      "namespace": "SuperMetroid.ArchitectureAudit",
+      "assemblies": [
+        "SuperMetroid.ArchitectureAudit"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.ArchitectureAudit/CompiledType.cs",
+      "module": "csharp/src/SuperMetroid.ArchitectureAudit",
+      "role": "tooling",
+      "namespace": "SuperMetroid.ArchitectureAudit",
+      "assemblies": [
+        "SuperMetroid.ArchitectureAudit"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.ArchitectureAudit/GeneratedInventory.cs",
+      "module": "csharp/src/SuperMetroid.ArchitectureAudit",
+      "role": "tooling",
+      "namespace": "SuperMetroid.ArchitectureAudit",
+      "assemblies": [
+        "SuperMetroid.ArchitectureAudit"
+      ]
+    },
+    {
       "path": "csharp/src/SuperMetroid.ArchitectureAudit/ModuleInventory.cs",
       "module": "csharp/src/SuperMetroid.ArchitectureAudit",
       "role": "tooling",
@@ -1239,6 +1266,15 @@
       "dependsOn": [
         "csharp/src/SuperMetroid.EnsureAnalyzer",
         "csharp/src/SuperMetroid.ReachabilityAudit"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.ArchitectureAudit/TypeInventoryEntry.cs",
+      "module": "csharp/src/SuperMetroid.ArchitectureAudit",
+      "role": "tooling",
+      "namespace": "SuperMetroid.ArchitectureAudit",
+      "assemblies": [
+        "SuperMetroid.ArchitectureAudit"
       ]
     },
     {
@@ -67490,6 +67526,33 @@
       ]
     },
     {
+      "path": "csharp/src/SuperMetroid.ReachabilityAudit/Analysis/CallerConstant.cs",
+      "module": "csharp/src/SuperMetroid.ReachabilityAudit",
+      "role": "tooling",
+      "namespace": "SuperMetroid.ReachabilityAudit.Analysis",
+      "assemblies": [
+        "SuperMetroid.ReachabilityAudit"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.ReachabilityAudit/Analysis/GenericHelperArgument.cs",
+      "module": "csharp/src/SuperMetroid.ReachabilityAudit",
+      "role": "tooling",
+      "namespace": "SuperMetroid.ReachabilityAudit.Analysis",
+      "assemblies": [
+        "SuperMetroid.ReachabilityAudit"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.ReachabilityAudit/Analysis/HashedTypeArguments.cs",
+      "module": "csharp/src/SuperMetroid.ReachabilityAudit",
+      "role": "tooling",
+      "namespace": "SuperMetroid.ReachabilityAudit.Analysis",
+      "assemblies": [
+        "SuperMetroid.ReachabilityAudit"
+      ]
+    },
+    {
       "path": "csharp/src/SuperMetroid.ReachabilityAudit/Analysis/JsonSerializationScan.cs",
       "module": "csharp/src/SuperMetroid.ReachabilityAudit",
       "role": "tooling",
@@ -67518,6 +67581,15 @@
     },
     {
       "path": "csharp/src/SuperMetroid.ReachabilityAudit/Analysis/ReferenceCollector.cs",
+      "module": "csharp/src/SuperMetroid.ReachabilityAudit",
+      "role": "tooling",
+      "namespace": "SuperMetroid.ReachabilityAudit.Analysis",
+      "assemblies": [
+        "SuperMetroid.ReachabilityAudit"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.ReachabilityAudit/Analysis/ReflectedName.cs",
       "module": "csharp/src/SuperMetroid.ReachabilityAudit",
       "role": "tooling",
       "namespace": "SuperMetroid.ReachabilityAudit.Analysis",
@@ -67610,6 +67682,60 @@
       ]
     },
     {
+      "path": "csharp/src/SuperMetroid.ReachabilityAudit/Removal/ArgumentListTarget.cs",
+      "module": "csharp/src/SuperMetroid.ReachabilityAudit",
+      "role": "tooling",
+      "namespace": "SuperMetroid.ReachabilityAudit.Removal",
+      "assemblies": [
+        "SuperMetroid.ReachabilityAudit"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.ReachabilityAudit/Removal/CompiledTree.cs",
+      "module": "csharp/src/SuperMetroid.ReachabilityAudit",
+      "role": "tooling",
+      "namespace": "SuperMetroid.ReachabilityAudit.Removal",
+      "assemblies": [
+        "SuperMetroid.ReachabilityAudit"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.ReachabilityAudit/Removal/ProjectTree.cs",
+      "module": "csharp/src/SuperMetroid.ReachabilityAudit",
+      "role": "tooling",
+      "namespace": "SuperMetroid.ReachabilityAudit.Removal",
+      "assemblies": [
+        "SuperMetroid.ReachabilityAudit"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.ReachabilityAudit/Removal/QualifiedNameParts.cs",
+      "module": "csharp/src/SuperMetroid.ReachabilityAudit",
+      "role": "tooling",
+      "namespace": "SuperMetroid.ReachabilityAudit.Removal",
+      "assemblies": [
+        "SuperMetroid.ReachabilityAudit"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.ReachabilityAudit/Removal/RecordParameter.cs",
+      "module": "csharp/src/SuperMetroid.ReachabilityAudit",
+      "role": "tooling",
+      "namespace": "SuperMetroid.ReachabilityAudit.Removal",
+      "assemblies": [
+        "SuperMetroid.ReachabilityAudit"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.ReachabilityAudit/Removal/RelocatedExtension.cs",
+      "module": "csharp/src/SuperMetroid.ReachabilityAudit",
+      "role": "tooling",
+      "namespace": "SuperMetroid.ReachabilityAudit.Removal",
+      "assemblies": [
+        "SuperMetroid.ReachabilityAudit"
+      ]
+    },
+    {
       "path": "csharp/src/SuperMetroid.ReachabilityAudit/Removal/RelocationStyle.cs",
       "module": "csharp/src/SuperMetroid.ReachabilityAudit",
       "role": "tooling",
@@ -67629,6 +67755,24 @@
     },
     {
       "path": "csharp/src/SuperMetroid.ReachabilityAudit/Removal/SymbolRemover.cs",
+      "module": "csharp/src/SuperMetroid.ReachabilityAudit",
+      "role": "tooling",
+      "namespace": "SuperMetroid.ReachabilityAudit.Removal",
+      "assemblies": [
+        "SuperMetroid.ReachabilityAudit"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.ReachabilityAudit/Removal/TextEdit.cs",
+      "module": "csharp/src/SuperMetroid.ReachabilityAudit",
+      "role": "tooling",
+      "namespace": "SuperMetroid.ReachabilityAudit.Removal",
+      "assemblies": [
+        "SuperMetroid.ReachabilityAudit"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.ReachabilityAudit/Removal/TextInsertion.cs",
       "module": "csharp/src/SuperMetroid.ReachabilityAudit",
       "role": "tooling",
       "namespace": "SuperMetroid.ReachabilityAudit.Removal",
@@ -67677,6 +67821,16 @@
       "module": "csharp/src/SuperMetroid.ReachabilityAudit",
       "role": "tooling",
       "namespace": "SuperMetroid.ReachabilityAudit.SolutionLoading",
+      "assemblies": [
+        "SuperMetroid.ArchitectureAudit",
+        "SuperMetroid.ReachabilityAudit"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.ReachabilityAudit/SolutionLoading/ProjectCompilation.cs",
+      "module": "csharp/src/SuperMetroid.ReachabilityAudit",
+      "role": "tooling",
+      "namespace": "SuperMetroid.ReachabilityAudit",
       "assemblies": [
         "SuperMetroid.ArchitectureAudit",
         "SuperMetroid.ReachabilityAudit"
@@ -70958,6 +71112,15 @@
       ]
     },
     {
+      "path": "csharp/src/SuperMetroid.Tooling/AssetExtraction/ReferenceRendering/OutputTileCorner.cs",
+      "module": "csharp/src/SuperMetroid.Tooling",
+      "role": "tooling",
+      "namespace": "SuperMetroid.AssetExtraction.ReferenceRendering",
+      "assemblies": [
+        "SuperMetroid.Tooling"
+      ]
+    },
+    {
       "path": "csharp/src/SuperMetroid.Tooling/AssetExtraction/ReferenceRendering/RenderedRoom.cs",
       "module": "csharp/src/SuperMetroid.Tooling",
       "role": "tooling",
@@ -72796,6 +72959,16 @@
       ]
     },
     {
+      "path": "csharp/src/SuperMetroid.Tooling/Core/Hardware/OwnedCellName.cs",
+      "module": "csharp/src/SuperMetroid.Tooling",
+      "role": "tooling",
+      "namespace": "SuperMetroid.Core.Hardware",
+      "layer": "Hardware",
+      "assemblies": [
+        "SuperMetroid.Tooling"
+      ]
+    },
+    {
       "path": "csharp/src/SuperMetroid.Tooling/Core/Hardware/PpuLayoutCatalogEntry.cs",
       "module": "csharp/src/SuperMetroid.Tooling",
       "role": "tooling",
@@ -72821,6 +72994,36 @@
         "csharp/src/SuperMetroid.AssetExtraction",
         "csharp/src/SuperMetroid.Core",
         "csharp/src/SuperMetroid.Core/Hardware"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.Tooling/Core/Hardware/SourceFileText.cs",
+      "module": "csharp/src/SuperMetroid.Tooling",
+      "role": "tooling",
+      "namespace": "SuperMetroid.Core.Hardware",
+      "layer": "Hardware",
+      "assemblies": [
+        "SuperMetroid.Tooling"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.Tooling/Core/Programs/AddressedValue.cs",
+      "module": "csharp/src/SuperMetroid.Tooling",
+      "role": "tooling",
+      "namespace": "SuperMetroid.Core.Programs",
+      "layer": "Foundation",
+      "assemblies": [
+        "SuperMetroid.Tooling"
+      ]
+    },
+    {
+      "path": "csharp/src/SuperMetroid.Tooling/Core/Programs/AddressedWord.cs",
+      "module": "csharp/src/SuperMetroid.Tooling",
+      "role": "tooling",
+      "namespace": "SuperMetroid.Core.Programs",
+      "layer": "Foundation",
+      "assemblies": [
+        "SuperMetroid.Tooling"
       ]
     },
     {

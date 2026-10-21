@@ -7,11 +7,11 @@ internal static class InstructionProgramLayoutToolingExtensions
     extension(InstructionProgramLayout self)
     {
         /// <summary>The <paramref name="index"/>th mechanics word in address order.</summary>
-        internal (ushort Address, ushort Value) MechanicsWord(int index)
+        internal AddressedValue MechanicsWord(int index)
         {
             if ((uint)index >= self.MechanicsWordCount) throw new ArgumentOutOfRangeException(nameof(index));
             var (address, word) = self.index.Value.Words[self.index.Value.Mechanics[index]];
-            return (address, word.Value);
+            return new AddressedValue(address, word.Value);
         }
     }
 }

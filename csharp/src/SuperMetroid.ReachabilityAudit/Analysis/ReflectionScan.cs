@@ -26,7 +26,7 @@ internal sealed class ReflectionScan(SymbolIdentity identity, ReachabilityGraph 
     public HashSet<ReflectionSite> EnumerationSites { get; } = [];
 
     /// <summary>Identifier literals near lookups whose receiver type is unknown.</summary>
-    public HashSet<(string Name, ReflectionSite Site)> CandidateNames { get; } = [];
+    public HashSet<ReflectedName> CandidateNames { get; } = [];
 
     /// <summary>Adds reachability edges for statically resolved Type and Activator calls and records dynamic lookups for later resolution.</summary>
     public void ObserveInvocation(SemanticModel model, InvocationExpressionSyntax invocation, IMethodSymbol method, string owner)
@@ -103,7 +103,7 @@ internal sealed class ReflectionScan(SymbolIdentity identity, ReachabilityGraph 
                 : definition.Parameters.ElementAtOrDefault(invocation.ArgumentList.Arguments.IndexOf(argument)
                     + (method.ReducedFrom is null ? 0 : 1));
             if (parameter is not null)
-                callerConstants.Add((ParameterKey(parameter), value));
+                callerConstants.Add(new CallerConstant(ParameterKey(parameter), value));
         }
     }
 
@@ -118,7 +118,7 @@ internal sealed class ReflectionScan(SymbolIdentity identity, ReachabilityGraph 
             foreach (string name in names)
             {
                 if (lookup.Receiver is null)
-                    CandidateNames.Add((name, lookup.Site));
+                    CandidateNames.Add(new ReflectedName(name, lookup.Site));
                 else
                     foreach (var member in MembersNamed(lookup.Receiver, name))
                         graph.Edge(lookup.Owner, identity.Key(member));
@@ -133,7 +133,7 @@ internal sealed class ReflectionScan(SymbolIdentity identity, ReachabilityGraph 
     /// <summary>Dynamic lookups awaiting constants gathered from all repository call sites.</summary>
     private readonly List<ComputedLookup> computedLookups = [];
     /// <summary>Constant strings passed to repository helper parameters that may feed reflection names.</summary>
-    private readonly HashSet<(string Parameter, string Value)> callerConstants = [];
+    private readonly HashSet<CallerConstant> callerConstants = [];
 
     /// <summary>Identifies a helper parameter by original method signature and ordinal across call sites.</summary>
     private static string ParameterKey(IParameterSymbol parameter) =>

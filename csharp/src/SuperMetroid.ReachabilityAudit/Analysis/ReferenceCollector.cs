@@ -232,12 +232,12 @@ internal sealed class ReferenceCollector(SymbolIdentity identity, ReachabilityGr
                 (ImmutableArray<ITypeSymbol> arguments, IEnumerable<int> sensitive) = symbol switch
                 {
                     INamedTypeSymbol type when EqualitySensitiveTypes.Contains(type.Name) =>
-                        (type.TypeArguments, Enumerable.Range(0, type.TypeArguments.Length)),
+                        new HashedTypeArguments(type.TypeArguments, Enumerable.Range(0, type.TypeArguments.Length)),
                     IMethodSymbol method when EqualitySensitiveMethods.Contains(method.Name) =>
-                        (method.TypeArguments, Enumerable.Range(0, method.TypeArguments.Length)),
+                        new HashedTypeArguments(method.TypeArguments, Enumerable.Range(0, method.TypeArguments.Length)),
                     INamedTypeSymbol { IsGenericType: true } type when !SymbolEqualityComparer.Default.Equals(type.OriginalDefinition, definition) =>
-                        (type.TypeArguments, HashedTypeParameters(type.OriginalDefinition, depth + 1)),
-                    _ => (ImmutableArray<ITypeSymbol>.Empty, []),
+                        new HashedTypeArguments(type.TypeArguments, HashedTypeParameters(type.OriginalDefinition, depth + 1)),
+                    _ => new HashedTypeArguments(ImmutableArray<ITypeSymbol>.Empty, []),
                 };
                 foreach (int index in sensitive)
                     if (arguments[index] is ITypeParameterSymbol parameter &&

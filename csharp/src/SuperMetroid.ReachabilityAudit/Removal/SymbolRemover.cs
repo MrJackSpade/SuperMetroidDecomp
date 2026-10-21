@@ -33,7 +33,7 @@ internal static class SymbolRemover
         var processed = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         int removedNodes = 0, deletedFiles = 0;
         var trees = solution.Projects
-            .SelectMany(p => p.Compilation.SyntaxTrees.Where(identity.IsRepositorySource).Select(t => (Tree: t, p.Compilation)))
+            .SelectMany(p => p.Compilation.SyntaxTrees.Where(identity.IsRepositorySource).Select(t => new CompiledTree(Tree:t, p.Compilation)))
             .GroupBy(entry => Path.GetFullPath(entry.Tree.FilePath), StringComparer.OrdinalIgnoreCase)
             .Select(group => group.First()).ToArray();
         // Positional record properties are constructor parameters: removing one edits the record
@@ -114,14 +114,14 @@ internal static class SymbolRemover
     }
 
     /// <summary>The syntax a set of positional-parameter removals takes out of one file.</summary>
-    private sealed record PositionalEdits(List<SyntaxNode> Nodes, List<(string Record, string Parameter)> DocumentedParameters);
+    private sealed record PositionalEdits(List<SyntaxNode> Nodes, List<RecordParameter> DocumentedParameters);
 
     /// <summary>
     /// For every targeted positional record parameter: the parameter itself and the matching
     /// argument of each primary-constructor call, record base call and <c>with</c> initializer.
     /// </summary>
     private static Dictionary<SyntaxTree, PositionalEdits> PositionalParameterEdits(
-        (SyntaxTree Tree, Compilation Compilation)[] trees, SymbolIdentity identity, HashSet<string> targets,
+        CompiledTree[] trees, SymbolIdentity identity, HashSet<string> targets,
         SortedSet<string> retired)
     {
         var edits = new Dictionary<SyntaxTree, PositionalEdits>();
@@ -142,7 +142,7 @@ internal static class SymbolRemover
                 if (property is null || identity.Key(property) is not { } key || !targets.Contains(key))
                     continue;
                 For(tree).Nodes.Add(parameter);
-                For(tree).DocumentedParameters.Add((record.Identifier.Text, symbol.Name));
+                For(tree).DocumentedParameters.Add(new RecordParameter(record.Identifier.Text, symbol.Name));
                 string id = constructor.GetDocumentationCommentId()
                     ?? throw new InvalidOperationException($"{constructor.ToDisplayString()} has no documentation id.");
                 if (!removedByConstructor.TryGetValue(id, out var ordinals))
@@ -171,10 +171,10 @@ internal static class SymbolRemover
                 }
                 (ArgumentListSyntax? arguments, ISymbol? called) = node switch
                 {
-                    BaseObjectCreationExpressionSyntax creation => (creation.ArgumentList, model.GetSymbolInfo(creation).Symbol),
-                    PrimaryConstructorBaseTypeSyntax baseType => (baseType.ArgumentList, model.GetSymbolInfo(baseType).Symbol),
-                    ConstructorInitializerSyntax initializer => (initializer.ArgumentList, model.GetSymbolInfo(initializer).Symbol),
-                    _ => (null, null),
+                    BaseObjectCreationExpressionSyntax creation => new ArgumentListTarget(creation.ArgumentList, model.GetSymbolInfo(creation).Symbol),
+                    PrimaryConstructorBaseTypeSyntax baseType => new ArgumentListTarget(baseType.ArgumentList, model.GetSymbolInfo(baseType).Symbol),
+                    ConstructorInitializerSyntax initializer => new ArgumentListTarget(initializer.ArgumentList, model.GetSymbolInfo(initializer).Symbol),
+                    _ => new ArgumentListTarget(null, null),
                 };
                 if (arguments is null || called is not IMethodSymbol constructor ||
                     constructor.OriginalDefinition.GetDocumentationCommentId() is not { } id ||
@@ -208,7 +208,7 @@ internal static class SymbolRemover
                 or (int)Microsoft.CodeAnalysis.CSharp.SyntaxKind.PostDecrementExpression;
 
     /// <summary>Drops the <c>param</c> documentation of removed positional parameters from each record's comment.</summary>
-    private static string RemoveParameterDocumentation(string text, List<(string Record, string Parameter)> removed)
+    private static string RemoveParameterDocumentation(string text, List<RecordParameter> removed)
     {
         string newline = text.Contains("\r\n", StringComparison.Ordinal) ? "\r\n" : "\n";
         var lines = text.Replace("\r\n", "\n", StringComparison.Ordinal).Split('\n').ToList();

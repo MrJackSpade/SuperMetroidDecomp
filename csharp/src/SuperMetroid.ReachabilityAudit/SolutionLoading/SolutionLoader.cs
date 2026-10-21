@@ -35,7 +35,7 @@ internal static class SolutionLoader
         if (failures.Count > 0)
             throw new InvalidOperationException("Workspace load failed:\n" + string.Join('\n', failures));
 
-        var compiled = new List<(Project, Compilation)>();
+        var compiled = new List<ProjectCompilation>();
         var compileErrors = new List<string>();
         foreach (var project in workspace.CurrentSolution.Projects)
         {
@@ -49,7 +49,7 @@ internal static class SolutionLoader
                 compileErrors.AddRange(errors.Select(error => $"{project.Name}: {error}"));
                 continue;
             }
-            compiled.Add((project, compilation));
+            compiled.Add(new ProjectCompilation(project, compilation));
             Console.WriteLine($"Compiled {project.Name}");
         }
         if (compileErrors.Count > 0)

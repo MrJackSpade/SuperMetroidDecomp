@@ -79,7 +79,7 @@ internal sealed class InstructionProgramLayout
     internal sealed class WordIndex
     {
         /// <summary>All owned native words in address order.</summary>
-        internal readonly (ushort Address, InstructionWord Word)[] Words;
+        internal readonly AddressedWord[] Words;
         /// <summary>Positions of control and artwork words within the ordered word array.</summary>
         internal readonly int[] Mechanics, Presentation;
         /// <summary>Maps an exact native word address to its ordered position.</summary>
@@ -88,14 +88,14 @@ internal sealed class InstructionProgramLayout
         /// <summary>Indexes one walk of the immutable program layout by address and word kind.</summary>
         internal WordIndex(WordWalker walker)
         {
-            var words = new List<(ushort, InstructionWord)>();
+            var words = new List<AddressedWord>();
             var mechanics = new List<int>();
             var presentation = new List<int>();
             foreach ((ushort address, InstructionWord word) in walker)
             {
                 (word.IsPresentation ? presentation : mechanics).Add(words.Count);
                 byAddress.TryAdd(address, words.Count);
-                words.Add((address, word));
+                words.Add(new AddressedWord(address, word));
             }
             Words = [.. words];
             Mechanics = [.. mechanics];
@@ -117,8 +117,8 @@ internal sealed class InstructionProgramLayout
         public readonly WordWalker GetEnumerator() => this;
 
         /// <summary>Native address and value/kind of the current laid-out word.</summary>
-        public readonly (ushort Address, InstructionWord Word) Current =>
-            ((ushort)address, items[item].Words[word]);
+        public readonly AddressedWord Current =>
+            new AddressedWord((ushort)address, items[item].Words[word]);
 
         /// <summary>Advances to the next owned word, honoring origins and unowned gaps.</summary>
         public bool MoveNext()

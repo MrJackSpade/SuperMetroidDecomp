@@ -73,7 +73,7 @@ internal static class SymbolRelocator
         string AdapterName(INamedTypeSymbol owner) => style.AdapterName(owner);
         var trees = solution.Projects
             .SelectMany(p => p.Compilation.SyntaxTrees.Where(identity.IsRepositorySource)
-                .Select(t => (Tree: t, p.Compilation, Project: p.Project.AssemblyName)))
+                .Select(t => new ProjectTree(Tree:t, p.Compilation, Project:p.Project.AssemblyName)))
             .GroupBy(entry => Path.GetFullPath(entry.Tree.FilePath), StringComparer.OrdinalIgnoreCase)
             .Select(group => group.First()).ToArray();
 
@@ -119,11 +119,11 @@ internal static class SymbolRelocator
         var movedInterfaceKeys = movedInterfaces.Select(identity.Key).OfType<string>().ToHashSet();
 
         // 2. Edits: outside moved spans they apply in place; inside, to the moved text.
-        var edits = new Dictionary<SyntaxTree, List<(TextSpan Span, string Text)>>();
+        var edits = new Dictionary<SyntaxTree, List<TextEdit>>();
         void Edit(SyntaxTree tree, TextSpan span, string text)
         {
             if (!edits.TryGetValue(tree, out var list)) edits[tree] = list = [];
-            list.Add((span, text));
+            list.Add(new TextEdit(span, text));
         }
         var movedSpans = moves.GroupBy(m => m.Tree).ToDictionary(g => g.Key, g => g.Select(m => m.Node.FullSpan).ToList());
         bool InMovedSpan(SyntaxTree tree, TextSpan span) =>
@@ -199,8 +199,8 @@ internal static class SymbolRelocator
                 {
                     var (left, name) = node switch
                     {
-                        MemberAccessExpressionSyntax access => ((SyntaxNode)access.Expression, access.Name),
-                        QualifiedNameSyntax qualified => (qualified.Left, qualified.Right),
+                        MemberAccessExpressionSyntax access => new QualifiedNameParts(access.Expression, access.Name),
+                        QualifiedNameSyntax qualified => new QualifiedNameParts(qualified.Left, qualified.Right),
                         _ => throw new InvalidOperationException(),
                     };
                     var bound = SymbolIdentity.Normalize(model.GetSymbolInfo(name).Symbol);
@@ -328,7 +328,7 @@ internal static class SymbolRelocator
             var adapter = file.Adapter(move.AdapterOwner, movedInterfaces, implementation => MoveOf(implementation) is not null);
             text = AsAdapterMember(text);
             if (move.Placement == Placement.ExtensionMember)
-                adapter.Extensions.Add((move.ExtensionReceiver ?? adapter.SelfReceiver,
+                adapter.Extensions.Add(new RelocatedExtension(move.ExtensionReceiver ?? adapter.SelfReceiver,
                     move.ExtensionReceiver is null ? text : Outdent(text)));
             else
                 adapter.Members.Add(text);
@@ -516,7 +516,7 @@ internal static class SymbolRelocator
     }
 
     /// <summary>Applies reference edits inside a moved declaration from the end to preserve original spans.</summary>
-    private static string Rewritten(SyntaxTree tree, TextSpan span, Dictionary<SyntaxTree, List<(TextSpan Span, string Text)>> edits)
+    private static string Rewritten(SyntaxTree tree, TextSpan span, Dictionary<SyntaxTree, List<TextEdit>> edits)
     {
         var text = new StringBuilder(tree.GetText().ToString(span));
         if (edits.TryGetValue(tree, out var list))
@@ -609,16 +609,16 @@ internal static class SymbolRelocator
         public string MergeInto(string existing)
         {
             var root = CSharpSyntaxTree.ParseText(existing).GetCompilationUnitRoot();
-            var inserts = new List<(int Position, string Text)>();
+            var inserts = new List<TextInsertion>();
             var appended = new StringBuilder();
             var presentUsings = root.Usings.Select(u => u.ToString()).ToHashSet(StringComparer.Ordinal);
             string newUsings = string.Concat(usings.Where(u => !presentUsings.Contains(u)).Select(u => u + "\r\n"));
             if (newUsings.Length > 0)
-                inserts.Add((root.Usings.Count > 0 ? root.Usings[^1].FullSpan.End : 0, newUsings));
+                inserts.Add(new TextInsertion(root.Usings.Count > 0 ? root.Usings[^1].FullSpan.End : 0, newUsings));
             var classes = root.DescendantNodes().OfType<ClassDeclarationSyntax>().ToDictionary(c => c.Identifier.Text, c => c);
             // Text goes in before a closing brace, at the start of its line, each line indented by the given prefix.
             void InsertBefore(SyntaxToken closeBrace, IEnumerable<string> members, string indent) =>
-                inserts.Add((existing.LastIndexOf('\n', closeBrace.SpanStart - 1) + 1, string.Concat(members.Select(member =>
+                inserts.Add(new TextInsertion(existing.LastIndexOf('\n', closeBrace.SpanStart - 1) + 1, string.Concat(members.Select(member =>
                     string.Join("\r\n", member.Trim('\r', '\n').Replace("\r\n", "\n").Split('\n')
                         .Select(line => line.Length == 0 ? line : indent + line)) + "\r\n"))));
             foreach (var adapter in adapters.Values)
@@ -690,7 +690,7 @@ internal static class SymbolRelocator
         /// <summary>Static members, nested types, and retained-contract forwarders in the adapter.</summary>
         public List<string> Members { get; } = [];
         /// <summary>Instance methods and properties rendered into extension blocks, each with its receiver parameter.</summary>
-        public List<(string Receiver, string Text)> Extensions { get; } = [];
+        public List<RelocatedExtension> Extensions { get; } = [];
 
         /// <summary>The receiver of a moved instance member of the owner itself.</summary>
         public string SelfReceiver => TypeName(Owner) + " self";

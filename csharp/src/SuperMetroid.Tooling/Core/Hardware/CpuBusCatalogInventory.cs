@@ -58,10 +58,10 @@ internal static class CpuBusCatalogInventory
     internal static IReadOnlyList<string> Violations(IReadOnlyList<CpuBusCatalogEntry> entries)
     {
         var violations = new List<string>();
-        foreach (IGrouping<(string?, string), CpuBusCatalogEntry> group in
-                 entries.GroupBy(entry => (entry.Owner.FullName, entry.Cell.Name)))
+        foreach (IGrouping<OwnedCellName, CpuBusCatalogEntry> group in
+                 entries.GroupBy(entry => new OwnedCellName(entry.Owner.FullName, entry.Cell.Name)))
             if (group.Count() > 1)
-                violations.Add($"{group.Key.Item1}.{group.Key.Item2} is declared {group.Count()} times.");
+                violations.Add($"{group.Key.FullName}.{group.Key.Name} is declared {group.Count()} times.");
         foreach (CpuBusCatalogEntry entry in entries)
         {
             if (entry.Cell.Name != entry.Member)

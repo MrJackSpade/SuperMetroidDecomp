@@ -7,7 +7,7 @@ internal static class SamusBodyTransferClosedContractDefinitions
     internal static readonly ClosedPresentationContract[] All =
     [
         new("SuperMetroid.Core.Samus.Artwork.SamusBodyArtworkCatalog", "samus-complete-physical-transfer-records",
-            ["Frame", "DefinitionAddress", "DefinitionAt", "BodyArtwork"],
+            ["Frame", "DefinitionRecord", "DefinitionAt", "BodyArtwork"],
             [new("csharp/src/SuperMetroid.Core/Samus/Artwork/SamusBodyArtworkCatalog.cs"),
              new("csharp/src/SuperMetroid.Core/Samus/Artwork/SamusBodyPixelDefinitions.cs"),
              new("csharp/src/SuperMetroid.Core/Samus/Artwork/SamusBodyFrameDefinitions.cs"),

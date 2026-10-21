@@ -62,7 +62,7 @@ public sealed class SamusBodyTileDefinition
     /// deriving stock transfer geometry from the catalog's pose/frame selectors.
     /// </summary>
     private SamusBodyTileDefinition(SamusBodyTileDefinition supplied, SamusBodyArtworkCatalog body,
-        bool upper, int set, int position, ReadOnlySpan<ushort> pointers, ReadOnlySpan<SamusBodyFrameSelection> frames)
+        bool upper, int set, int position, ReadOnlySpan<int> poseFirstFrames, ReadOnlySpan<SamusBodyFrameSelection> frames)
     {
         this.body = body;
         this.upper = upper;
@@ -108,15 +108,15 @@ public sealed class SamusBodyTileDefinition
         int source = supplied.SourceAddress;
         ushort first = supplied.FirstSize;
         sourceAddressOverride = source == SamusBodyTransferDefinitions.SourceAddress(body, upper, set, position) ? null : source;
-        if (SamusBodyTransferDefinitions.TryFirstSize(body, new SamusBodyTileSlot(upper, set, position), PayloadLength, pointers, frames, out ushort calculated))
+        if (SamusBodyTransferDefinitions.TryFirstSize(body, new SamusBodyTileSlot(upper, set, position), PayloadLength, poseFirstFrames, frames, out ushort calculated))
             calculatedFirstSize = calculated;
         firstSizeOverride = calculatedFirstSize == first ? null : first;
     }
 
     /// <summary>Creates a catalog-bound definition with native transfer size and source address.</summary>
     internal SamusBodyTileDefinition WithTransferGeometry(SamusBodyArtworkCatalog body, bool upper, int set, int position,
-        ReadOnlySpan<ushort> pointers, ReadOnlySpan<SamusBodyFrameSelection> frames) =>
-        new(this, body, upper, set, position, pointers, frames);
+        ReadOnlySpan<int> poseFirstFrames, ReadOnlySpan<SamusBodyFrameSelection> frames) =>
+        new(this, body, upper, set, position, poseFirstFrames, frames);
 
     /// <summary>Gets the SNES source address of the definition's first payload.</summary>
     public int SourceAddress => sourceAddressOverride ?? SamusBodyTransferDefinitions.SourceAddress(BoundCatalog, upper, set, position);

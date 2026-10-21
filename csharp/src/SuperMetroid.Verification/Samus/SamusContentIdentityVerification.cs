@@ -50,16 +50,13 @@ internal static class SamusContentIdentityVerification
     /// <summary>Builds a minimal Samus art catalog, optionally changing one visual family or spritemap order.</summary>
     internal static SamusBodyArtworkCatalog CreateSamusIdentityFixture(string? edit = null)
     {
-        int firstPointer = SamusBodyDefinitionLayout.EndOffset -
-            (SamusBodyArtworkCatalog.TopSetCount + SamusBodyArtworkCatalog.BottomSetCount) *
-                SamusRenderingRomData.TileTransfers.DefinitionByteCount;
-        ushort[] topPointers = Enumerable.Range(0, SamusBodyArtworkCatalog.TopSetCount)
-            .Select(index => (ushort)(firstPointer + index * SamusRenderingRomData.TileTransfers.DefinitionByteCount)).ToArray();
-        ushort[] bottomPointers = Enumerable.Range(SamusBodyArtworkCatalog.TopSetCount, SamusBodyArtworkCatalog.BottomSetCount)
-            .Select(index => (ushort)(firstPointer + index * SamusRenderingRomData.TileTransfers.DefinitionByteCount)).ToArray();
-        ushort[] poses = Enumerable.Repeat((ushort)SamusBodyArtworkCatalog.FirstFrameOffset,
-            SamusBodyArtworkCatalog.PoseCount).ToArray();
-        if (edit == "pose-pointer") poses[0] += 4;
+        int firstRecord = SamusBodyDefinitionLayout.RecordCount -
+            (SamusBodyArtworkCatalog.TopSetCount + SamusBodyArtworkCatalog.BottomSetCount);
+        int[] topStarts = [.. Enumerable.Range(0, SamusBodyArtworkCatalog.TopSetCount).Select(index => firstRecord + index)];
+        int[] bottomStarts = [.. Enumerable.Range(SamusBodyArtworkCatalog.TopSetCount, SamusBodyArtworkCatalog.BottomSetCount)
+            .Select(index => firstRecord + index)];
+        var poses = new int[SamusBodyArtworkCatalog.PoseCount];
+        if (edit == "pose-pointer") poses[0] += 1;
         var graphics = new sbyte[SamusBodyArtworkCatalog.PoseCount];
         if (edit == "graphics-offset") graphics[0] = -1;
         var landing = new ushort[SamusRenderingRomData.Body.LandingVerticalOffsetByteCount];
@@ -130,7 +127,7 @@ internal static class SamusContentIdentityVerification
         SamusArmCannonArtworkCatalog cannon = SamusArmCannonArtworkCatalogTooling.Load(
             new MemoryStream(SamusArmCannonArtworkCatalog.Write(cannonDocument)),
             Png(cannonWidth, 8, edit == "cannon-tiles"));
-        return new SamusBodyArtworkCatalog(new SamusBodyArtworkParts { TopPointers = topPointers, BottomPointers = bottomPointers, PosePointers = poses, GraphicsYOffsets = graphics, Frames = frames, Top = Half(topPointers.Length, "top-characters"), Bottom = Half(bottomPointers.Length, "bottom-characters"), Spritemaps = spritemaps, Atmosphere = atmosphere, DeathPalettes = deathPalettes, DeathTiles = deathTiles, ArmCannon = cannon, LandingYOffsets = landing, PostureYOffsets = posture, DrainedYOffsets = drained });
+        return new SamusBodyArtworkCatalog(new SamusBodyArtworkParts { TopSetStarts = topStarts, BottomSetStarts = bottomStarts, PoseFirstFrames = poses, GraphicsYOffsets = graphics, Frames = frames, Top = Half(topStarts.Length, "top-characters"), Bottom = Half(bottomStarts.Length, "bottom-characters"), Spritemaps = spritemaps, Atmosphere = atmosphere, DeathPalettes = deathPalettes, DeathTiles = deathTiles, ArmCannon = cannon, LandingYOffsets = landing, PostureYOffsets = posture, DrainedYOffsets = drained });
 
         static MemoryStream Png(int width, int height, bool changed)
         {

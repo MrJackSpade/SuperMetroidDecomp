@@ -105,16 +105,16 @@ internal static class InstalledSamusArtworkTests
                     Require(a.SourceAddress == b.SourceAddress && a.FirstSize == b.FirstSize && a.SecondSize == b.SecondSize,
                         "PNG changed transfer identity or split size");
                     var va = new SnesVram(); var vb = new SnesVram();
-                    // A pending NMI retains the selected definition pointer. Rebind only
+                    // A pending NMI retains the selected definition record. Rebind only
                     // the installed catalog, exactly as a restored debugger state does.
                     var transfer = new SamusTileTransferState();
-                    int pointer = fixture.Stock.DefinitionAddress(upper ? SamusBodyHalf.Top : SamusBodyHalf.Bottom, (byte)set, (byte)position);
-                    SetPendingDefinition(transfer, upper, pointer);
+                    int record = fixture.Stock.DefinitionRecord(upper ? SamusBodyHalf.Top : SamusBodyHalf.Bottom, (byte)set, (byte)position);
+                    SetPendingDefinition(transfer, upper, record);
                     transfer.BindArtwork(fixture.Stock); transfer.TransferToVram(va);
                     transfer.BindArtwork(fixture.Edited); transfer.TransferToVram(vb);
-                    Require(transfer.TopDefinitionAddress == (upper ? pointer : 0) &&
-                        transfer.BottomDefinitionAddress == (upper ? 0 : pointer),
-                        "Artwork rebind changed a pending DMA pointer");
+                    Require(transfer.TopDefinitionRecord == (upper ? record : 0) &&
+                        transfer.BottomDefinitionRecord == (upper ? 0 : record),
+                        "Artwork rebind changed a pending DMA record");
                     var expected = new SnesVram();
                     expected.LoadBytes(destinations.First * 2, b.Planar.Span[..b.FirstSize]);
                     if (b.SecondSize != 0)
@@ -129,18 +129,18 @@ internal static class InstalledSamusArtworkTests
         return count;
     }
 
-    /// <summary>Restores a pending top or bottom transfer pointer as a saved runtime state would.</summary>
-    private static void SetPendingDefinition(SamusTileTransferState transfer, bool upper, int pointer)
+    /// <summary>Restores a pending top or bottom transfer record as a saved runtime state would.</summary>
+    private static void SetPendingDefinition(SamusTileTransferState transfer, bool upper, int record)
     {
         // Construct a faithful saved pending-transfer state without inventing a gameplay pose.
         if (upper)
         {
-            transfer.TopDefinitionAddress = pointer;
+            transfer.TopDefinitionRecord = record;
             transfer.TopTransferEnabled = true;
         }
         else
         {
-            transfer.BottomDefinitionAddress = pointer;
+            transfer.BottomDefinitionRecord = record;
             transfer.BottomTransferEnabled = true;
         }
     }

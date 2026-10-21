@@ -88,9 +88,6 @@ public static class SamusRenderingRomData
         /// <summary><c>$92:D938</c>, bottom-definition-list pointer for each graphics set.</summary>
         public const int BottomDefinitionListPointers = 0x92d938;
 
-        /// <summary>Bytes in one source-address/two-size DMA definition.</summary>
-        public const int DefinitionByteCount = 7;
-
         /// <summary>Bottom-set sentinel meaning that a frame does not upload lower-body art.</summary>
         public const byte NoBottomTransferSet = 0xff;
 

@@ -33,7 +33,7 @@ public sealed class SamusTileTransferState
     /// <summary>The body characters the selected transfers make visible; a half never selected is blank.</summary>
     public SpriteArtwork BodyArtwork => (Artwork ?? throw new InvalidOperationException(
             "Samus body artwork requires installed body artwork."))
-        .BodyArtwork(TopTransferEnabled ? TopDefinitionAddress : null, BottomTransferEnabled ? BottomDefinitionAddress : null);
+        .BodyArtwork(TopTransferEnabled ? TopDefinitionRecord : null, BottomTransferEnabled ? BottomDefinitionRecord : null);
 
     /// <summary>
     /// The standard OBJ page with the body characters over its first 32, for spritemaps whose parts may name any
@@ -50,11 +50,11 @@ public sealed class SamusTileTransferState
         }
     }
 
-    /// <summary>Bank-$92 address of the selected seven-byte top-half DMA definition.</summary>
-    public int TopDefinitionAddress { get; internal set; }
+    /// <summary>Record of the selected seven-byte top-half DMA definition.</summary>
+    public int TopDefinitionRecord { get; internal set; }
 
-    /// <summary>Bank-$92 address of the selected seven-byte bottom-half DMA definition.</summary>
-    public int BottomDefinitionAddress { get; internal set; }
+    /// <summary>Record of the selected seven-byte bottom-half DMA definition.</summary>
+    public int BottomDefinitionRecord { get; internal set; }
 
     /// <summary>Low byte of WRAM <c>$071D</c>; nonzero enables top-half NMI DMA.</summary>
     public bool TopTransferEnabled { get; internal set; }
@@ -71,11 +71,11 @@ public sealed class SamusTileTransferState
         SamusBodyArtworkCatalog installed = Artwork ?? throw new InvalidOperationException(
             "Samus tile transfer requires installed body artwork.");
         SamusBodyFrameSelection frame = installed.Frame(pose, animationFrame);
-        TopDefinitionAddress = installed.DefinitionAddress(SamusBodyHalf.Top, frame.TopSet, frame.TopPosition);
+        TopDefinitionRecord = installed.DefinitionRecord(SamusBodyHalf.Top, frame.TopSet, frame.TopPosition);
         TopTransferEnabled = true;
         if (frame.BottomSet != SamusRenderingRomData.TileTransfers.NoBottomTransferSet)
         {
-            BottomDefinitionAddress = installed.DefinitionAddress(SamusBodyHalf.Bottom, frame.BottomSet,
+            BottomDefinitionRecord = installed.DefinitionRecord(SamusBodyHalf.Bottom, frame.BottomSet,
                 frame.BottomPosition);
             BottomTransferEnabled = true;
         }

@@ -3,14 +3,14 @@ namespace SuperMetroid.Core.Samus.Artwork;
 /// <summary>Samus's body pointer tables, frame tiles, offsets and dependent artwork catalogs (#633).</summary>
 public sealed record SamusBodyArtworkParts
 {
-    /// <summary>Bank-$92 pointers to upper-body definition groups.</summary>
-    public required ushort[] TopPointers { get; init; }
+    /// <summary>Each upper-body definition group's first record.</summary>
+    public required int[] TopSetStarts { get; init; }
 
-    /// <summary>Bank-$92 pointers to lower-body definition groups.</summary>
-    public required ushort[] BottomPointers { get; init; }
+    /// <summary>Each lower-body definition group's first record.</summary>
+    public required int[] BottomSetStarts { get; init; }
 
-    /// <summary>Per-pose pointers to four-byte frame-selector lists.</summary>
-    public required ushort[] PosePointers { get; init; }
+    /// <summary>Each pose's first four-byte frame selector.</summary>
+    public required int[] PoseFirstFrames { get; init; }
 
     /// <summary>Per-pose signed vertical art origins.</summary>
     public required sbyte[] GraphicsYOffsets { get; init; }

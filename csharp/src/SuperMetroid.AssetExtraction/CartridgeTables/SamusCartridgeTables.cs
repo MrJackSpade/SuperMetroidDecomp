@@ -31,4 +31,16 @@ internal static class SamusCartridgeTables
 
     /// <summary>$92:945D: each pose's first lower-half table entry.</summary>
     internal const int SpritemapBottomBases = 0x92945d;
+
+    /// <summary>$92:CBEE: the first seven-byte body DMA definition record; the rest follow it.</summary>
+    internal const int FirstBodyDefinition = 0xcbee;
+
+    /// <summary>Bytes in one body DMA definition record.</summary>
+    internal const int BodyDefinitionBytes = 7;
+
+    /// <summary>$92:DB48: the first four-byte body frame selector; the rest follow it.</summary>
+    internal const int BodyFrames = 0x92db48;
+
+    /// <summary>The bank-$92 address of the first body frame selector.</summary>
+    internal const int FirstBodyFrame = 0xdb48;
 }

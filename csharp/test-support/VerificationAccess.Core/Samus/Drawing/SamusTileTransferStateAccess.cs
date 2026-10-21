@@ -29,10 +29,10 @@ internal static class SamusTileTransferStateAccess
                 "Samus tile transfer requires installed body artwork.");
             var samusVram = new SamusVram(vram);
             if (self.TopTransferEnabled)
-                SamusTileTransferStateConstants.ExecuteInstalledDefinition(installed.DefinitionAt(self.TopDefinitionAddress),
+                SamusTileTransferStateConstants.ExecuteInstalledDefinition(installed.DefinitionAt(self.TopDefinitionRecord),
                     samusVram.BodyTopFirst, samusVram.BodyTopSecond);
             if (self.BottomTransferEnabled)
-                SamusTileTransferStateConstants.ExecuteInstalledDefinition(installed.DefinitionAt(self.BottomDefinitionAddress),
+                SamusTileTransferStateConstants.ExecuteInstalledDefinition(installed.DefinitionAt(self.BottomDefinitionRecord),
                     samusVram.BodyBottomFirst, samusVram.BodyBottomSecond);
 
             // These flags are intentionally not cleared. The original NMI routine leaves them

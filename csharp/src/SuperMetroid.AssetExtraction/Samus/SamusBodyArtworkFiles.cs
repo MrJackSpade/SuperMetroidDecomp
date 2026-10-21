@@ -25,7 +25,7 @@ public static class SamusBodyArtworkFiles
     /// <summary>Body-art JSON filename containing split-DMA definitions, pose/frame selectors, spritemaps, vertical offsets, and stock PNG provenance hashes.</summary>
     public const string ManifestFileName = "samus-body.json";
     /// <summary>Manifest revision containing source hashes, selectors, spritemaps, and vertical offsets.</summary>
-    private const int FormatVersion = 5;
+    private const int FormatVersion = 6;
     /// <summary>Each split-DMA definition occupies eight 8x8 tiles across its PNG row.</summary>
     private const int TileWidth = 64;
     /// <summary>Two tile rows reserve sixteen graphics tiles for one DMA definition.</summary>
@@ -61,6 +61,9 @@ public static class SamusBodyArtworkFiles
         ushort[] posePointers = ReadPointers(bus,
             SamusRenderingRomData.TileTransfers.AnimationDefinitionListPointers,
             SamusBodyArtworkCatalog.PoseCount);
+        int[] topSetStarts = [.. topPointers.Select(BodyRecord)];
+        int[] bottomSetStarts = [.. bottomPointers.Select(BodyRecord)];
+        int[] poseFirstFrames = [.. posePointers.Select(BodyFrame)];
         sbyte[] graphicsYOffsets = Enumerable.Range(0, SamusBodyArtworkCatalog.PoseCount)
             .Select(pose => unchecked((sbyte)bus.ReadCartridgeByte(
                 SamusMovementRomData.Poses.Definitions +
@@ -69,7 +72,7 @@ public static class SamusBodyArtworkFiles
         var frames = new SamusBodyFrameSelection[SamusBodyArtworkCatalog.FrameCount];
         for (int index = 0; index < frames.Length; index++)
         {
-            int address = SamusBodyArtworkCatalog.FirstFrameAddress + index * 4;
+            int address = SamusCartridgeTables.BodyFrames + index * 4;
             frames[index] = new SamusBodyFrameSelection(bus.ReadCartridgeByte(address),
                 bus.ReadCartridgeByte(address + 1), bus.ReadCartridgeByte(address + 2), bus.ReadCartridgeByte(address + 3));
         }
@@ -102,7 +105,7 @@ public static class SamusBodyArtworkFiles
             .Select(index => unchecked((sbyte)bus.ReadCartridgeByte(
                 SamusRenderingRomData.Body.DrainedVerticalOffsets + index))).ToArray();
         var manifest = new Manifest(FormatVersion, sourceCartridgeSha256,
-            topPointers, bottomPointers, posePointers, graphicsYOffsets,
+            topSetStarts, bottomSetStarts, poseFirstFrames, graphicsYOffsets,
             frames, top, bottom, spritemapTopBases, spritemapBottomBases,
             spritemapEntries, spritemaps, landingYOffsets, postureYOffsets,
             drainedYOffsets, hashes);
@@ -143,8 +146,8 @@ public static class SamusBodyArtworkFiles
                     !string.Equals(hash, entry.Value, StringComparison.OrdinalIgnoreCase)))
                 throw new InvalidDataException("Samus body override must retain stock PNG provenance hashes.");
             if (selected.Top.Length != stock.Top.Length || selected.Bottom.Length != stock.Bottom.Length ||
-                !selected.TopPointers.SequenceEqual(stock.TopPointers) ||
-                !selected.BottomPointers.SequenceEqual(stock.BottomPointers) ||
+                !selected.TopSetStarts.SequenceEqual(stock.TopSetStarts) ||
+                !selected.BottomSetStarts.SequenceEqual(stock.BottomSetStarts) ||
                 selected.Top.Where((set, i) => set.Length != stock.Top[i].Length).Any() ||
                 selected.Bottom.Where((set, i) => set.Length != stock.Bottom[i].Length).Any())
                 throw new InvalidDataException("Samus body override changes native definition identities.");
@@ -179,7 +182,7 @@ public static class SamusBodyArtworkFiles
         {
             int start = pointers[set];
             int order = Array.IndexOf(sortedPointers, pointers[set]);
-            int end = order + 1 == sortedPointers.Length ? SamusBodyDefinitionLayout.EndOffset : sortedPointers[order + 1];
+            int end = order + 1 == sortedPointers.Length ? SamusCartridgeTables.FirstBodyDefinition + SamusBodyDefinitionLayout.RecordCount * SamusCartridgeTables.BodyDefinitionBytes : sortedPointers[order + 1];
             if (start < SnesBusLayout.RomWindowStart || end <= start || (end - start) % 7 != 0)
                 throw new InvalidDataException($"Samus body set {set:X2} has invalid native bounds.");
             int count = (end - start) / 7;
@@ -235,7 +238,7 @@ public static class SamusBodyArtworkFiles
             stockDirectory, overrideDirectory);
         SamusArmCannonArtworkCatalog armCannon = SamusArmCannonArtworkFiles.Load(
             stockDirectory, overrideDirectory);
-        return new SamusBodyArtworkCatalog(new SamusBodyArtworkParts { TopPointers = manifest.TopPointers, BottomPointers = manifest.BottomPointers, PosePointers = manifest.PosePointers, GraphicsYOffsets = manifest.GraphicsYOffsets, Frames = manifest.Frames, Top = top, Bottom = bottom, Spritemaps = spritemaps, Atmosphere = atmosphere, DeathPalettes = deathPalettes, DeathTiles = deathTiles, ArmCannon = armCannon, LandingYOffsets = manifest.LandingYOffsets, PostureYOffsets = manifest.PostureYOffsets, DrainedYOffsets = manifest.DrainedYOffsets });
+        return new SamusBodyArtworkCatalog(new SamusBodyArtworkParts { TopSetStarts = manifest.TopSetStarts, BottomSetStarts = manifest.BottomSetStarts, PoseFirstFrames = manifest.PoseFirstFrames, GraphicsYOffsets = manifest.GraphicsYOffsets, Frames = manifest.Frames, Top = top, Bottom = bottom, Spritemaps = spritemaps, Atmosphere = atmosphere, DeathPalettes = deathPalettes, DeathTiles = deathTiles, ArmCannon = armCannon, LandingYOffsets = manifest.LandingYOffsets, PostureYOffsets = manifest.PostureYOffsets, DrainedYOffsets = manifest.DrainedYOffsets });
     }
 
     /// <summary>Re-encodes selected PNG sets into native planar bytes and rejects painted padding tiles.</summary>
@@ -290,8 +293,8 @@ public static class SamusBodyArtworkFiles
     {
         if (manifest.Version != FormatVersion ||
             !string.Equals(manifest.SourceCartridgeSha256, SupportedCartridge.Sha256,
-                StringComparison.OrdinalIgnoreCase) || manifest.TopPointers is null ||
-            manifest.BottomPointers is null || manifest.PosePointers is null ||
+                StringComparison.OrdinalIgnoreCase) || manifest.TopSetStarts is null ||
+            manifest.BottomSetStarts is null || manifest.PoseFirstFrames is null ||
             manifest.GraphicsYOffsets is null ||
             manifest.Frames is null || manifest.Top is null || manifest.Bottom is null ||
             manifest.SpritemapTopBases is null || manifest.SpritemapBottomBases is null ||
@@ -310,6 +313,18 @@ public static class SamusBodyArtworkFiles
     /// <summary>Reads a contiguous little-endian pointer table from the cartridge.</summary>
     private static ushort[] ReadPointers(ISnesAddressSpace bus, int start, int count) =>
         Enumerable.Range(0, count).Select(i => CartridgeImportSource.Require(bus).ReadCartridgeWord((start + i * 2))).ToArray();
+
+    /// <summary>The record of the body DMA definition at bank-$92 <paramref name="pointer"/>.</summary>
+    private static int BodyRecord(ushort pointer) =>
+        pointer >= SamusCartridgeTables.FirstBodyDefinition && (pointer - SamusCartridgeTables.FirstBodyDefinition) % SamusCartridgeTables.BodyDefinitionBytes == 0
+            ? (pointer - SamusCartridgeTables.FirstBodyDefinition) / SamusCartridgeTables.BodyDefinitionBytes
+            : throw new InvalidDataException($"Samus body definition group ${pointer:X4} is not a record.");
+
+    /// <summary>The frame selector at bank-$92 <paramref name="pointer"/>.</summary>
+    private static int BodyFrame(ushort pointer) =>
+        pointer >= SamusCartridgeTables.FirstBodyFrame && (pointer - SamusCartridgeTables.FirstBodyFrame) % 4 == 0
+            ? (pointer - SamusCartridgeTables.FirstBodyFrame) / 4
+            : throw new InvalidDataException($"Samus pose frame list ${pointer:X4} is not a frame selector.");
 
     /// <summary>Imports a bounded bank-$92 Samus map as five-byte sprite parts.</summary>
     private static SamusSpritemapDefinition ReadSpritemap(ISnesAddressSpace bus, ushort pointer)
@@ -334,7 +349,7 @@ public static class SamusBodyArtworkFiles
 
     /// <summary>Persists split-DMA identities, pose selectors, spritemaps, offsets, and stock PNG hashes.</summary>
     private sealed record Manifest(int Version, string SourceCartridgeSha256,
-        ushort[] TopPointers, ushort[] BottomPointers, ushort[] PosePointers,
+        int[] TopSetStarts, int[] BottomSetStarts, int[] PoseFirstFrames,
         sbyte[] GraphicsYOffsets,
         SamusBodyFrameSelection[] Frames, DefinitionEntry[][] Top,
         DefinitionEntry[][] Bottom, ushort[] SpritemapTopBases,

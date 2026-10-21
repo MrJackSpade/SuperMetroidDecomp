@@ -6,7 +6,7 @@ namespace SuperMetroid.ResourceAudit.ClosedContracts.Samus;
 /// <summary>Rejects provably invalid constants without inventing per-set bounds for native cross-group selection.</summary>
 internal static class SamusBodyTransferDomainAudit
 {
-    /// <summary>Returns a finding only when a constant pose, half-specific set, or bank-$92 definition address is provably outside its admitted domain.</summary>
+    /// <summary>Returns a finding only when a constant pose, half-specific set, or definition record is provably outside its admitted domain.</summary>
     internal static string? InvalidConstants(IInvocationOperation operation)
     {
         if (operation.TargetMethod.ContainingType.ToDisplayString() != typeof(SamusBodyArtworkCatalog).FullName) return null;
@@ -14,15 +14,14 @@ internal static class SamusBodyTransferDomainAudit
             .Value.ConstantValue is { HasValue: true, Value: not null } value ? Convert.ToInt32(value.Value) : null;
         if (operation.TargetMethod.Name == "Frame" && Constant("pose") is int pose && pose >= SamusBodyArtworkCatalog.PoseCount)
             return "Known Samus pose has no admitted body frame list.";
-        if (operation.TargetMethod.Name == "DefinitionAddress" && Constant("set") is int set)
+        if (operation.TargetMethod.Name == "DefinitionRecord" && Constant("set") is int set)
         {
             int count = Constant("half") == (int)SamusBodyHalf.Bottom ? SamusBodyArtworkCatalog.BottomSetCount : SamusBodyArtworkCatalog.TopSetCount;
             if (set >= count) return "Known Samus definition set is outside the selected half's domain.";
         }
-        if (operation.TargetMethod.Name == "DefinitionAt" && Constant("nativeAddress") is int address &&
-            (address < (SamusBodyDefinitionLayout.BankBase | SamusBodyDefinitionLayout.MinimumSetOffset) ||
-             address >= (SamusBodyDefinitionLayout.BankBase | SamusBodyDefinitionLayout.EndOffset)))
-            return "Known Samus definition address is outside admitted bank-$92 record storage.";
+        if (operation.TargetMethod.Name == "DefinitionAt" && Constant("record") is int record &&
+            (record < 0 || record >= SamusBodyDefinitionLayout.RecordCount))
+            return "Known Samus definition record is outside admitted record storage.";
         return null;
     }
 }

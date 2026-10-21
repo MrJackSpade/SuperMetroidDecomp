@@ -40,20 +40,20 @@ internal static class SamusBodyTransferDefinitions
 
     /// <summary>Import binding reuses its transient calculated snapshot across records; no snapshot is retained by the installed catalog.</summary>
     internal static bool TryFirstSize(SamusBodyArtworkCatalog body, SamusBodyTileSlot slot,
-        int payloadBytes, ReadOnlySpan<ushort> pointers, ReadOnlySpan<SamusBodyFrameSelection> frames, out ushort firstSize)
+        int payloadBytes, ReadOnlySpan<int> poseFirstFrames, ReadOnlySpan<SamusBodyFrameSelection> frames, out ushort firstSize)
     {
         bool upper = slot.Upper;
         int set = slot.Set, position = slot.Position;
         if (TrySelectedPacking(upper, set, position, payloadBytes, out firstSize)) return true;
         int firstTiles = 0;
-        for (int pose = 0; pose < pointers.Length; pose++)
+        for (int pose = 0; pose < poseFirstFrames.Length; pose++)
         {
-            int start = pointers[pose], end = SamusBodyArtworkCatalog.FrameEndOffset;
-            foreach (ushort next in pointers) if (next > start && next < end) end = next;
+            int start = poseFirstFrames[pose], end = SamusBodyArtworkCatalog.FrameCount;
+            foreach (int next in poseFirstFrames) if (next > start && next < end) end = next;
             int baseIndex = upper ? body.Spritemaps.TopBase((SamusPoseId)pose) : body.Spritemaps.BottomBase((SamusPoseId)pose);
-            for (int phase = 0; phase < (end - start) / 4; phase++)
+            for (int phase = 0; phase < end - start; phase++)
             {
-                int frameIndex = (start - SamusBodyArtworkCatalog.FirstFrameOffset) / 4 + phase;
+                int frameIndex = start + phase;
                 if ((uint)frameIndex >= frames.Length) continue;
                 SamusBodyFrameSelection frame = frames[frameIndex];
                 if ((upper ? frame.TopSet : frame.BottomSet) != set ||

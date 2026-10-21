@@ -5,476 +5,476 @@ namespace SuperMetroid.Core.Samus.Artwork;
 /// <summary>Semantic real-pose selection of native body frame-list identities; selected frame payloads remain separately required.</summary>
 internal static class SamusBodyPoseDefinitions
 {
-    /// <summary>$92:EA24, SamusTilesAnimation_AnimationDefinitions_EA24; selected by ForwardFacingPowerSuitPose and the semantic aliases below.</summary>
-    private const ushort ForwardFacingPowerSuitFrames = 0xea24;
+    /// <summary>The first frame of SamusTilesAnimation_AnimationDefinitions_EA24; selected by ForwardFacingPowerSuitPose and the semantic aliases below.</summary>
+    private const int ForwardFacingPowerSuitFrames = 951;
 
-    /// <summary>$92:DB48, SamusTilesAnimation_AnimationDefinitions_DB48; selected by FacingRightNormalPose and the semantic aliases below.</summary>
-    private const ushort FacingRightNormalFrames = 0xdb48;
+    /// <summary>The first frame of SamusTilesAnimation_AnimationDefinitions_DB48; selected by FacingRightNormalPose and the semantic aliases below.</summary>
+    private const int FacingRightNormalFrames = 0;
 
-    /// <summary>$92:DB6C, SamusTilesAnimation_AnimationDefinitions_DB6C; selected by FacingLeftNormalPose and the semantic aliases below.</summary>
-    private const ushort FacingLeftNormalFrames = 0xdb6c;
+    /// <summary>The first frame of SamusTilesAnimation_AnimationDefinitions_DB6C; selected by FacingLeftNormalPose and the semantic aliases below.</summary>
+    private const int FacingLeftNormalFrames = 9;
 
-    /// <summary>$92:E018, SamusTilesAnimation_AnimationDefinitions_E018; selected by StandingAimUpRightPose and the semantic aliases below.</summary>
-    private const ushort StandingAimUpRightFrames = 0xe018;
+    /// <summary>The first frame of SamusTilesAnimation_AnimationDefinitions_E018; selected by StandingAimUpRightPose and the semantic aliases below.</summary>
+    private const int StandingAimUpRightFrames = 308;
 
-    /// <summary>$92:E020, SamusTilesAnimation_AnimationDefinitions_E020; selected by StandingAimUpLeftPose and the semantic aliases below.</summary>
-    private const ushort StandingAimUpLeftFrames = 0xe020;
+    /// <summary>The first frame of SamusTilesAnimation_AnimationDefinitions_E020; selected by StandingAimUpLeftPose and the semantic aliases below.</summary>
+    private const int StandingAimUpLeftFrames = 310;
 
-    /// <summary>$92:E028, SamusTilesAnimation_AnimationDefinitions_E028; selected by StandingAimDiagonalUpRightPose and the semantic aliases below.</summary>
-    private const ushort StandingAimDiagonalUpRightFrames = 0xe028;
+    /// <summary>The first frame of SamusTilesAnimation_AnimationDefinitions_E028; selected by StandingAimDiagonalUpRightPose and the semantic aliases below.</summary>
+    private const int StandingAimDiagonalUpRightFrames = 312;
 
-    /// <summary>$92:E02C, SamusTilesAnimation_AnimationDefinitions_E02C; selected by StandingAimDiagonalUpLeftPose and the semantic aliases below.</summary>
-    private const ushort StandingAimDiagonalUpLeftFrames = 0xe02c;
+    /// <summary>The first frame of SamusTilesAnimation_AnimationDefinitions_E02C; selected by StandingAimDiagonalUpLeftPose and the semantic aliases below.</summary>
+    private const int StandingAimDiagonalUpLeftFrames = 313;
 
-    /// <summary>$92:E030, SamusTilesAnimation_AnimationDefinitions_E030; selected by StandingAimDiagonalDownRightPose and the semantic aliases below.</summary>
-    private const ushort StandingAimDiagonalDownRightFrames = 0xe030;
+    /// <summary>The first frame of SamusTilesAnimation_AnimationDefinitions_E030; selected by StandingAimDiagonalDownRightPose and the semantic aliases below.</summary>
+    private const int StandingAimDiagonalDownRightFrames = 314;
 
-    /// <summary>$92:E034, SamusTilesAnimation_AnimationDefinitions_E034; selected by StandingAimDiagonalDownLeftPose and the semantic aliases below.</summary>
-    private const ushort StandingAimDiagonalDownLeftFrames = 0xe034;
+    /// <summary>The first frame of SamusTilesAnimation_AnimationDefinitions_E034; selected by StandingAimDiagonalDownLeftPose and the semantic aliases below.</summary>
+    private const int StandingAimDiagonalDownLeftFrames = 315;
 
-    /// <summary>$92:DC48, SamusTilesAnimation_AnimationDefinitions_DC48; selected by MovingRightNormalPose and the semantic aliases below.</summary>
-    private const ushort MovingRightNormalFrames = 0xdc48;
+    /// <summary>The first frame of SamusTilesAnimation_AnimationDefinitions_DC48; selected by MovingRightNormalPose and the semantic aliases below.</summary>
+    private const int MovingRightNormalFrames = 64;
 
-    /// <summary>$92:DC70, SamusTilesAnimation_AnimationDefinitions_DC70; selected by MovingLeftNormalPose and the semantic aliases below.</summary>
-    private const ushort MovingLeftNormalFrames = 0xdc70;
+    /// <summary>The first frame of SamusTilesAnimation_AnimationDefinitions_DC70; selected by MovingLeftNormalPose and the semantic aliases below.</summary>
+    private const int MovingLeftNormalFrames = 74;
 
-    /// <summary>$92:DC98, SamusTilesAnimation_AnimationDefinitions_DC98; selected by MovingRightGunExtendedPose and the semantic aliases below.</summary>
-    private const ushort MovingRightGunExtendedFrames = 0xdc98;
+    /// <summary>The first frame of SamusTilesAnimation_AnimationDefinitions_DC98; selected by MovingRightGunExtendedPose and the semantic aliases below.</summary>
+    private const int MovingRightGunExtendedFrames = 84;
 
-    /// <summary>$92:DCC0, SamusTilesAnimation_AnimationDefinitions_DCC0; selected by MovingLeftGunExtendedPose and the semantic aliases below.</summary>
-    private const ushort MovingLeftGunExtendedFrames = 0xdcc0;
+    /// <summary>The first frame of SamusTilesAnimation_AnimationDefinitions_DCC0; selected by MovingLeftGunExtendedPose and the semantic aliases below.</summary>
+    private const int MovingLeftGunExtendedFrames = 94;
 
-    /// <summary>$92:DF28, SamusTilesAnimation_AnimationDefinitions_DF28; selected by RunningAimUpRightPose and the semantic aliases below.</summary>
-    private const ushort RunningAimUpRightFrames = 0xdf28;
+    /// <summary>The first frame of SamusTilesAnimation_AnimationDefinitions_DF28; selected by RunningAimUpRightPose and the semantic aliases below.</summary>
+    private const int RunningAimUpRightFrames = 248;
 
-    /// <summary>$92:DF50, SamusTilesAnimation_AnimationDefinitions_DF50; selected by RunningAimUpLeftPose and the semantic aliases below.</summary>
-    private const ushort RunningAimUpLeftFrames = 0xdf50;
+    /// <summary>The first frame of SamusTilesAnimation_AnimationDefinitions_DF50; selected by RunningAimUpLeftPose and the semantic aliases below.</summary>
+    private const int RunningAimUpLeftFrames = 258;
 
-    /// <summary>$92:DF78, SamusTilesAnimation_AnimationDefinitions_DF78; selected by RunningAimDiagonalUpRightPose and the semantic aliases below.</summary>
-    private const ushort RunningAimDiagonalUpRightFrames = 0xdf78;
+    /// <summary>The first frame of SamusTilesAnimation_AnimationDefinitions_DF78; selected by RunningAimDiagonalUpRightPose and the semantic aliases below.</summary>
+    private const int RunningAimDiagonalUpRightFrames = 268;
 
-    /// <summary>$92:DFA0, SamusTilesAnimation_AnimationDefinitions_DFA0; selected by RunningAimDiagonalUpLeftPose and the semantic aliases below.</summary>
-    private const ushort RunningAimDiagonalUpLeftFrames = 0xdfa0;
+    /// <summary>The first frame of SamusTilesAnimation_AnimationDefinitions_DFA0; selected by RunningAimDiagonalUpLeftPose and the semantic aliases below.</summary>
+    private const int RunningAimDiagonalUpLeftFrames = 278;
 
-    /// <summary>$92:DFC8, SamusTilesAnimation_AnimationDefinitions_DFC8; selected by RunningAimDiagonalDownRightPose and the semantic aliases below.</summary>
-    private const ushort RunningAimDiagonalDownRightFrames = 0xdfc8;
+    /// <summary>The first frame of SamusTilesAnimation_AnimationDefinitions_DFC8; selected by RunningAimDiagonalDownRightPose and the semantic aliases below.</summary>
+    private const int RunningAimDiagonalDownRightFrames = 288;
 
-    /// <summary>$92:DFF0, SamusTilesAnimation_AnimationDefinitions_DFF0; selected by RunningAimDiagonalDownLeftPose and the semantic aliases below.</summary>
-    private const ushort RunningAimDiagonalDownLeftFrames = 0xdff0;
+    /// <summary>The first frame of SamusTilesAnimation_AnimationDefinitions_DFF0; selected by RunningAimDiagonalDownLeftPose and the semantic aliases below.</summary>
+    private const int RunningAimDiagonalDownLeftFrames = 298;
 
-    /// <summary>$92:DD28, SamusTilesAnimation_AnimationDefinitions_DD28; selected by NormalJumpGunExtendedRightPose and the semantic aliases below.</summary>
-    private const ushort NormalJumpGunExtendedRightFrames = 0xdd28;
+    /// <summary>The first frame of SamusTilesAnimation_AnimationDefinitions_DD28; selected by NormalJumpGunExtendedRightPose and the semantic aliases below.</summary>
+    private const int NormalJumpGunExtendedRightFrames = 120;
 
-    /// <summary>$92:DD30, SamusTilesAnimation_AnimationDefinitions_DD30; selected by NormalJumpGunExtendedLeftPose and the semantic aliases below.</summary>
-    private const ushort NormalJumpGunExtendedLeftFrames = 0xdd30;
+    /// <summary>The first frame of SamusTilesAnimation_AnimationDefinitions_DD30; selected by NormalJumpGunExtendedLeftPose and the semantic aliases below.</summary>
+    private const int NormalJumpGunExtendedLeftFrames = 122;
 
-    /// <summary>$92:DD38, SamusTilesAnimation_AnimationDefinitions_DD38; selected by NormalJumpAimUpRightPose and the semantic aliases below.</summary>
-    private const ushort NormalJumpAimUpRightFrames = 0xdd38;
+    /// <summary>The first frame of SamusTilesAnimation_AnimationDefinitions_DD38; selected by NormalJumpAimUpRightPose and the semantic aliases below.</summary>
+    private const int NormalJumpAimUpRightFrames = 124;
 
-    /// <summary>$92:DD40, SamusTilesAnimation_AnimationDefinitions_DD40; selected by NormalJumpAimUpLeftPose and the semantic aliases below.</summary>
-    private const ushort NormalJumpAimUpLeftFrames = 0xdd40;
+    /// <summary>The first frame of SamusTilesAnimation_AnimationDefinitions_DD40; selected by NormalJumpAimUpLeftPose and the semantic aliases below.</summary>
+    private const int NormalJumpAimUpLeftFrames = 126;
 
-    /// <summary>$92:DD18, SamusTilesAnimation_AnimationDefinitions_DD18; selected by NormalJumpAimDownRightPose and the semantic aliases below.</summary>
-    private const ushort NormalJumpAimDownRightFrames = 0xdd18;
+    /// <summary>The first frame of SamusTilesAnimation_AnimationDefinitions_DD18; selected by NormalJumpAimDownRightPose and the semantic aliases below.</summary>
+    private const int NormalJumpAimDownRightFrames = 116;
 
-    /// <summary>$92:DD20, SamusTilesAnimation_AnimationDefinitions_DD20; selected by NormalJumpAimDownLeftPose and the semantic aliases below.</summary>
-    private const ushort NormalJumpAimDownLeftFrames = 0xdd20;
+    /// <summary>The first frame of SamusTilesAnimation_AnimationDefinitions_DD20; selected by NormalJumpAimDownLeftPose and the semantic aliases below.</summary>
+    private const int NormalJumpAimDownLeftFrames = 118;
 
-    /// <summary>$92:E5F8, SamusTilesAnimation_AnimationDefinitions_E5F8; selected by SpinJumpRightPose and the semantic aliases below.</summary>
-    private const ushort SpinJumpRightFrames = 0xe5f8;
+    /// <summary>The first frame of SamusTilesAnimation_AnimationDefinitions_E5F8; selected by SpinJumpRightPose and the semantic aliases below.</summary>
+    private const int SpinJumpRightFrames = 684;
 
-    /// <summary>$92:E628, SamusTilesAnimation_AnimationDefinitions_E628; selected by SpinJumpLeftPose and the semantic aliases below.</summary>
-    private const ushort SpinJumpLeftFrames = 0xe628;
+    /// <summary>The first frame of SamusTilesAnimation_AnimationDefinitions_E628; selected by SpinJumpLeftPose and the semantic aliases below.</summary>
+    private const int SpinJumpLeftFrames = 696;
 
-    /// <summary>$92:E658, SamusTilesAnimation_AnimationDefinitions_E658; selected by SpaceJumpRightPose and the semantic aliases below.</summary>
-    private const ushort SpaceJumpRightFrames = 0xe658;
+    /// <summary>The first frame of SamusTilesAnimation_AnimationDefinitions_E658; selected by SpaceJumpRightPose and the semantic aliases below.</summary>
+    private const int SpaceJumpRightFrames = 708;
 
-    /// <summary>$92:E688, SamusTilesAnimation_AnimationDefinitions_E688; selected by SpaceJumpLeftPose and the semantic aliases below.</summary>
-    private const ushort SpaceJumpLeftFrames = 0xe688;
+    /// <summary>The first frame of SamusTilesAnimation_AnimationDefinitions_E688; selected by SpaceJumpLeftPose and the semantic aliases below.</summary>
+    private const int SpaceJumpLeftFrames = 720;
 
-    /// <summary>$92:E508, SamusTilesAnimation_AnimationDefinitions_E508; selected by MorphBallGroundRightPose and the semantic aliases below.</summary>
-    private const ushort MorphBallGroundRightFrames = 0xe508;
+    /// <summary>The first frame of SamusTilesAnimation_AnimationDefinitions_E508; selected by MorphBallGroundRightPose and the semantic aliases below.</summary>
+    private const int MorphBallGroundRightFrames = 624;
 
-    /// <summary>$92:E558, SamusTilesAnimation_AnimationDefinitions_E558; selected by MorphBallMovingRightPose and the semantic aliases below.</summary>
-    private const ushort MorphBallMovingRightFrames = 0xe558;
+    /// <summary>The first frame of SamusTilesAnimation_AnimationDefinitions_E558; selected by MorphBallMovingRightPose and the semantic aliases below.</summary>
+    private const int MorphBallMovingRightFrames = 644;
 
-    /// <summary>$92:E580, SamusTilesAnimation_AnimationDefinitions_E580; selected by MorphBallMovingLeftPose and the semantic aliases below.</summary>
-    private const ushort MorphBallMovingLeftFrames = 0xe580;
+    /// <summary>The first frame of SamusTilesAnimation_AnimationDefinitions_E580; selected by MorphBallMovingLeftPose and the semantic aliases below.</summary>
+    private const int MorphBallMovingLeftFrames = 654;
 
-    /// <summary>$92:E798, SamusTilesAnimation_AnimationDefinitions_E798; selected by TurningRightToLeftPose and the semantic aliases below.</summary>
-    private const ushort TurningRightToLeftFrames = 0xe798;
+    /// <summary>The first frame of SamusTilesAnimation_AnimationDefinitions_E798; selected by TurningRightToLeftPose and the semantic aliases below.</summary>
+    private const int TurningRightToLeftFrames = 788;
 
-    /// <summary>$92:E7A4, SamusTilesAnimation_AnimationDefinitions_E7A4; selected by TurningLeftToRightPose and the semantic aliases below.</summary>
-    private const ushort TurningLeftToRightFrames = 0xe7a4;
+    /// <summary>The first frame of SamusTilesAnimation_AnimationDefinitions_E7A4; selected by TurningLeftToRightPose and the semantic aliases below.</summary>
+    private const int TurningLeftToRightFrames = 791;
 
-    /// <summary>$92:DE18, SamusTilesAnimation_AnimationDefinitions_DE18; selected by CrouchingRightPose and the semantic aliases below.</summary>
-    private const ushort CrouchingRightFrames = 0xde18;
+    /// <summary>The first frame of SamusTilesAnimation_AnimationDefinitions_DE18; selected by CrouchingRightPose and the semantic aliases below.</summary>
+    private const int CrouchingRightFrames = 180;
 
-    /// <summary>$92:DE3C, SamusTilesAnimation_AnimationDefinitions_DE3C; selected by CrouchingLeftPose and the semantic aliases below.</summary>
-    private const ushort CrouchingLeftFrames = 0xde3c;
+    /// <summary>The first frame of SamusTilesAnimation_AnimationDefinitions_DE3C; selected by CrouchingLeftPose and the semantic aliases below.</summary>
+    private const int CrouchingLeftFrames = 189;
 
-    /// <summary>$92:DE60, SamusTilesAnimation_AnimationDefinitions_DE60; selected by FallingRightPose and the semantic aliases below.</summary>
-    private const ushort FallingRightFrames = 0xde60;
+    /// <summary>The first frame of SamusTilesAnimation_AnimationDefinitions_DE60; selected by FallingRightPose and the semantic aliases below.</summary>
+    private const int FallingRightFrames = 198;
 
-    /// <summary>$92:DE7C, SamusTilesAnimation_AnimationDefinitions_DE7C; selected by FallingLeftPose and the semantic aliases below.</summary>
-    private const ushort FallingLeftFrames = 0xde7c;
+    /// <summary>The first frame of SamusTilesAnimation_AnimationDefinitions_DE7C; selected by FallingLeftPose and the semantic aliases below.</summary>
+    private const int FallingLeftFrames = 205;
 
-    /// <summary>$92:DE98, SamusTilesAnimation_AnimationDefinitions_DE98; selected by FallingAimUpRightPose and the semantic aliases below.</summary>
-    private const ushort FallingAimUpRightFrames = 0xde98;
+    /// <summary>The first frame of SamusTilesAnimation_AnimationDefinitions_DE98; selected by FallingAimUpRightPose and the semantic aliases below.</summary>
+    private const int FallingAimUpRightFrames = 212;
 
-    /// <summary>$92:DEA4, SamusTilesAnimation_AnimationDefinitions_DEA4; selected by FallingAimUpLeftPose and the semantic aliases below.</summary>
-    private const ushort FallingAimUpLeftFrames = 0xdea4;
+    /// <summary>The first frame of SamusTilesAnimation_AnimationDefinitions_DEA4; selected by FallingAimUpLeftPose and the semantic aliases below.</summary>
+    private const int FallingAimUpLeftFrames = 215;
 
-    /// <summary>$92:DEB0, SamusTilesAnimation_AnimationDefinitions_DEB0; selected by FallingAimDownRightPose and the semantic aliases below.</summary>
-    private const ushort FallingAimDownRightFrames = 0xdeb0;
+    /// <summary>The first frame of SamusTilesAnimation_AnimationDefinitions_DEB0; selected by FallingAimDownRightPose and the semantic aliases below.</summary>
+    private const int FallingAimDownRightFrames = 218;
 
-    /// <summary>$92:DEB8, SamusTilesAnimation_AnimationDefinitions_DEB8; selected by FallingAimDownLeftPose and the semantic aliases below.</summary>
-    private const ushort FallingAimDownLeftFrames = 0xdeb8;
+    /// <summary>The first frame of SamusTilesAnimation_AnimationDefinitions_DEB8; selected by FallingAimDownLeftPose and the semantic aliases below.</summary>
+    private const int FallingAimDownLeftFrames = 220;
 
-    /// <summary>$92:E7E0, SamusTilesAnimation_AnimationDefinitions_E7E0; selected by TurningRightToLeftJumpPose and the semantic aliases below.</summary>
-    private const ushort TurningRightToLeftJumpFrames = 0xe7e0;
+    /// <summary>The first frame of SamusTilesAnimation_AnimationDefinitions_E7E0; selected by TurningRightToLeftJumpPose and the semantic aliases below.</summary>
+    private const int TurningRightToLeftJumpFrames = 806;
 
-    /// <summary>$92:E7EC, SamusTilesAnimation_AnimationDefinitions_E7EC; selected by TurningLeftToRightJumpPose and the semantic aliases below.</summary>
-    private const ushort TurningLeftToRightJumpFrames = 0xe7ec;
+    /// <summary>The first frame of SamusTilesAnimation_AnimationDefinitions_E7EC; selected by TurningLeftToRightJumpPose and the semantic aliases below.</summary>
+    private const int TurningLeftToRightJumpFrames = 809;
 
-    /// <summary>$92:E4B0, SamusTilesAnimation_AnimationDefinitions_E4B0; selected by CrouchingTransitionRightPose and the semantic aliases below.</summary>
-    private const ushort CrouchingTransitionRightFrames = 0xe4b0;
+    /// <summary>The first frame of SamusTilesAnimation_AnimationDefinitions_E4B0; selected by CrouchingTransitionRightPose and the semantic aliases below.</summary>
+    private const int CrouchingTransitionRightFrames = 602;
 
-    /// <summary>$92:E4B4, SamusTilesAnimation_AnimationDefinitions_E4B4; selected by CrouchingTransitionLeftPose and the semantic aliases below.</summary>
-    private const ushort CrouchingTransitionLeftFrames = 0xe4b4;
+    /// <summary>The first frame of SamusTilesAnimation_AnimationDefinitions_E4B4; selected by CrouchingTransitionLeftPose and the semantic aliases below.</summary>
+    private const int CrouchingTransitionLeftFrames = 603;
 
-    /// <summary>$92:E4B8, SamusTilesAnimation_AnimationDefinitions_E4B8; selected by MorphingTransitionRightPose and the semantic aliases below.</summary>
-    private const ushort MorphingTransitionRightFrames = 0xe4b8;
+    /// <summary>The first frame of SamusTilesAnimation_AnimationDefinitions_E4B8; selected by MorphingTransitionRightPose and the semantic aliases below.</summary>
+    private const int MorphingTransitionRightFrames = 604;
 
-    /// <summary>$92:E4C0, SamusTilesAnimation_AnimationDefinitions_E4C0; selected by MorphingTransitionLeftPose and the semantic aliases below.</summary>
-    private const ushort MorphingTransitionLeftFrames = 0xe4c0;
+    /// <summary>The first frame of SamusTilesAnimation_AnimationDefinitions_E4C0; selected by MorphingTransitionLeftPose and the semantic aliases below.</summary>
+    private const int MorphingTransitionLeftFrames = 606;
 
-    /// <summary>$92:E4C8, SamusTilesAnimation_AnimationDefinitions_E4C8; selected by UnmorphingTransitionRightPose and the semantic aliases below.</summary>
-    private const ushort UnmorphingTransitionRightFrames = 0xe4c8;
+    /// <summary>The first frame of SamusTilesAnimation_AnimationDefinitions_E4C8; selected by UnmorphingTransitionRightPose and the semantic aliases below.</summary>
+    private const int UnmorphingTransitionRightFrames = 608;
 
-    /// <summary>$92:E4D0, SamusTilesAnimation_AnimationDefinitions_E4D0; selected by UnmorphingTransitionLeftPose and the semantic aliases below.</summary>
-    private const ushort UnmorphingTransitionLeftFrames = 0xe4d0;
+    /// <summary>The first frame of SamusTilesAnimation_AnimationDefinitions_E4D0; selected by UnmorphingTransitionLeftPose and the semantic aliases below.</summary>
+    private const int UnmorphingTransitionLeftFrames = 610;
 
-    /// <summary>$92:E530, SamusTilesAnimation_AnimationDefinitions_E530; selected by MorphBallGroundLeftPose and the semantic aliases below.</summary>
-    private const ushort MorphBallGroundLeftFrames = 0xe530;
+    /// <summary>The first frame of SamusTilesAnimation_AnimationDefinitions_E530; selected by MorphBallGroundLeftPose and the semantic aliases below.</summary>
+    private const int MorphBallGroundLeftFrames = 634;
 
-    /// <summary>$92:E048, SamusTilesAnimation_AnimationDefinitions_E048; selected by UnusedPose45 and the semantic aliases below.</summary>
-    private const ushort UnusedPose45Frames = 0xe048;
+    /// <summary>The first frame of SamusTilesAnimation_AnimationDefinitions_E048; selected by UnusedPose45 and the semantic aliases below.</summary>
+    private const int UnusedPose45Frames = 320;
 
-    /// <summary>$92:DCE8, SamusTilesAnimation_AnimationDefinitions_DCE8; selected by MoonwalkFacingLeftPose and the semantic aliases below.</summary>
-    private const ushort MoonwalkFacingLeftFrames = 0xdce8;
+    /// <summary>The first frame of SamusTilesAnimation_AnimationDefinitions_DCE8; selected by MoonwalkFacingLeftPose and the semantic aliases below.</summary>
+    private const int MoonwalkFacingLeftFrames = 104;
 
-    /// <summary>$92:DD00, SamusTilesAnimation_AnimationDefinitions_DD00; selected by MoonwalkFacingRightPose and the semantic aliases below.</summary>
-    private const ushort MoonwalkFacingRightFrames = 0xdd00;
+    /// <summary>The first frame of SamusTilesAnimation_AnimationDefinitions_DD00; selected by MoonwalkFacingRightPose and the semantic aliases below.</summary>
+    private const int MoonwalkFacingRightFrames = 110;
 
-    /// <summary>$92:DD78, SamusTilesAnimation_AnimationDefinitions_DD78; selected by NeutralJumpTransitionRightPose and the semantic aliases below.</summary>
-    private const ushort NeutralJumpTransitionRightFrames = 0xdd78;
+    /// <summary>The first frame of SamusTilesAnimation_AnimationDefinitions_DD78; selected by NeutralJumpTransitionRightPose and the semantic aliases below.</summary>
+    private const int NeutralJumpTransitionRightFrames = 140;
 
-    /// <summary>$92:DD7C, SamusTilesAnimation_AnimationDefinitions_DD7C; selected by NeutralJumpTransitionLeftPose and the semantic aliases below.</summary>
-    private const ushort NeutralJumpTransitionLeftFrames = 0xdd7c;
+    /// <summary>The first frame of SamusTilesAnimation_AnimationDefinitions_DD7C; selected by NeutralJumpTransitionLeftPose and the semantic aliases below.</summary>
+    private const int NeutralJumpTransitionLeftFrames = 141;
 
-    /// <summary>$92:DD98, SamusTilesAnimation_AnimationDefinitions_DD98; selected by NeutralJumpRightPose and the semantic aliases below.</summary>
-    private const ushort NeutralJumpRightFrames = 0xdd98;
+    /// <summary>The first frame of SamusTilesAnimation_AnimationDefinitions_DD98; selected by NeutralJumpRightPose and the semantic aliases below.</summary>
+    private const int NeutralJumpRightFrames = 148;
 
-    /// <summary>$92:DDB0, SamusTilesAnimation_AnimationDefinitions_DDB0; selected by NeutralJumpLeftPose and the semantic aliases below.</summary>
-    private const ushort NeutralJumpLeftFrames = 0xddb0;
+    /// <summary>The first frame of SamusTilesAnimation_AnimationDefinitions_DDB0; selected by NeutralJumpLeftPose and the semantic aliases below.</summary>
+    private const int NeutralJumpLeftFrames = 154;
 
-    /// <summary>$92:DDC8, SamusTilesAnimation_AnimationDefinitions_DDC8; selected by DamageBoostLeftPose and the semantic aliases below.</summary>
-    private const ushort DamageBoostLeftFrames = 0xddc8;
+    /// <summary>The first frame of SamusTilesAnimation_AnimationDefinitions_DDC8; selected by DamageBoostLeftPose and the semantic aliases below.</summary>
+    private const int DamageBoostLeftFrames = 160;
 
-    /// <summary>$92:DDF0, SamusTilesAnimation_AnimationDefinitions_DDF0; selected by DamageBoostRightPose and the semantic aliases below.</summary>
-    private const ushort DamageBoostRightFrames = 0xddf0;
+    /// <summary>The first frame of SamusTilesAnimation_AnimationDefinitions_DDF0; selected by DamageBoostRightPose and the semantic aliases below.</summary>
+    private const int DamageBoostRightFrames = 170;
 
-    /// <summary>$92:DD48, SamusTilesAnimation_AnimationDefinitions_DD48; selected by NormalJumpForwardRightPose and the semantic aliases below.</summary>
-    private const ushort NormalJumpForwardRightFrames = 0xdd48;
+    /// <summary>The first frame of SamusTilesAnimation_AnimationDefinitions_DD48; selected by NormalJumpForwardRightPose and the semantic aliases below.</summary>
+    private const int NormalJumpForwardRightFrames = 128;
 
-    /// <summary>$92:DD50, SamusTilesAnimation_AnimationDefinitions_DD50; selected by NormalJumpForwardLeftPose and the semantic aliases below.</summary>
-    private const ushort NormalJumpForwardLeftFrames = 0xdd50;
+    /// <summary>The first frame of SamusTilesAnimation_AnimationDefinitions_DD50; selected by NormalJumpForwardLeftPose and the semantic aliases below.</summary>
+    private const int NormalJumpForwardLeftFrames = 130;
 
-    /// <summary>$92:E038, SamusTilesAnimation_AnimationDefinitions_E038; selected by KnockbackRightPose and the semantic aliases below.</summary>
-    private const ushort KnockbackRightFrames = 0xe038;
+    /// <summary>The first frame of SamusTilesAnimation_AnimationDefinitions_E038; selected by KnockbackRightPose and the semantic aliases below.</summary>
+    private const int KnockbackRightFrames = 316;
 
-    /// <summary>$92:E040, SamusTilesAnimation_AnimationDefinitions_E040; selected by KnockbackLeftPose and the semantic aliases below.</summary>
-    private const ushort KnockbackLeftFrames = 0xe040;
+    /// <summary>The first frame of SamusTilesAnimation_AnimationDefinitions_E040; selected by KnockbackLeftPose and the semantic aliases below.</summary>
+    private const int KnockbackLeftFrames = 318;
 
-    /// <summary>$92:DD80, SamusTilesAnimation_AnimationDefinitions_DD80; selected by NormalJumpTransitionAimUpRightPose and the semantic aliases below.</summary>
-    private const ushort NormalJumpTransitionAimUpRightFrames = 0xdd80;
+    /// <summary>The first frame of SamusTilesAnimation_AnimationDefinitions_DD80; selected by NormalJumpTransitionAimUpRightPose and the semantic aliases below.</summary>
+    private const int NormalJumpTransitionAimUpRightFrames = 142;
 
-    /// <summary>$92:DD84, SamusTilesAnimation_AnimationDefinitions_DD84; selected by NormalJumpTransitionAimUpLeftPose and the semantic aliases below.</summary>
-    private const ushort NormalJumpTransitionAimUpLeftFrames = 0xdd84;
+    /// <summary>The first frame of SamusTilesAnimation_AnimationDefinitions_DD84; selected by NormalJumpTransitionAimUpLeftPose and the semantic aliases below.</summary>
+    private const int NormalJumpTransitionAimUpLeftFrames = 143;
 
-    /// <summary>$92:DD88, SamusTilesAnimation_AnimationDefinitions_DD88; selected by NormalJumpTransitionAimDiagonalUpRightPose and the semantic aliases below.</summary>
-    private const ushort NormalJumpTransitionAimDiagonalUpRightFrames = 0xdd88;
+    /// <summary>The first frame of SamusTilesAnimation_AnimationDefinitions_DD88; selected by NormalJumpTransitionAimDiagonalUpRightPose and the semantic aliases below.</summary>
+    private const int NormalJumpTransitionAimDiagonalUpRightFrames = 144;
 
-    /// <summary>$92:DD8C, SamusTilesAnimation_AnimationDefinitions_DD8C; selected by NormalJumpTransitionAimDiagonalUpLeftPose and the semantic aliases below.</summary>
-    private const ushort NormalJumpTransitionAimDiagonalUpLeftFrames = 0xdd8c;
+    /// <summary>The first frame of SamusTilesAnimation_AnimationDefinitions_DD8C; selected by NormalJumpTransitionAimDiagonalUpLeftPose and the semantic aliases below.</summary>
+    private const int NormalJumpTransitionAimDiagonalUpLeftFrames = 145;
 
-    /// <summary>$92:DD90, SamusTilesAnimation_AnimationDefinitions_DD90; selected by NormalJumpTransitionAimDiagonalDownRightPose and the semantic aliases below.</summary>
-    private const ushort NormalJumpTransitionAimDiagonalDownRightFrames = 0xdd90;
+    /// <summary>The first frame of SamusTilesAnimation_AnimationDefinitions_DD90; selected by NormalJumpTransitionAimDiagonalDownRightPose and the semantic aliases below.</summary>
+    private const int NormalJumpTransitionAimDiagonalDownRightFrames = 146;
 
-    /// <summary>$92:DD94, SamusTilesAnimation_AnimationDefinitions_DD94; selected by NormalJumpTransitionAimDiagonalDownLeftPose and the semantic aliases below.</summary>
-    private const ushort NormalJumpTransitionAimDiagonalDownLeftFrames = 0xdd94;
+    /// <summary>The first frame of SamusTilesAnimation_AnimationDefinitions_DD94; selected by NormalJumpTransitionAimDiagonalDownLeftPose and the semantic aliases below.</summary>
+    private const int NormalJumpTransitionAimDiagonalDownLeftFrames = 147;
 
-    /// <summary>$92:E04C, SamusTilesAnimation_AnimationDefinitions_E04C; selected by UnusedPose5C and the semantic aliases below.</summary>
-    private const ushort UnusedPose5CFrames = 0xe04c;
+    /// <summary>The first frame of SamusTilesAnimation_AnimationDefinitions_E04C; selected by UnusedPose5C and the semantic aliases below.</summary>
+    private const int UnusedPose5CFrames = 321;
 
-    /// <summary>$92:E050, SamusTilesAnimation_AnimationDefinitions_E050; selected by UnusedPose5D and the semantic aliases below.</summary>
-    private const ushort UnusedPose5DFrames = 0xe050;
+    /// <summary>The first frame of SamusTilesAnimation_AnimationDefinitions_E050; selected by UnusedPose5D and the semantic aliases below.</summary>
+    private const int UnusedPose5DFrames = 322;
 
-    /// <summary>$92:E158, SamusTilesAnimation_AnimationDefinitions_E158; selected by UnusedPose62 and the semantic aliases below.</summary>
-    private const ushort UnusedPose62Frames = 0xe158;
+    /// <summary>The first frame of SamusTilesAnimation_AnimationDefinitions_E158; selected by UnusedPose62 and the semantic aliases below.</summary>
+    private const int UnusedPose62Frames = 388;
 
-    /// <summary>$92:E260, UNUSED_SamusTilesAnimation_AnimationDefinitions_92E260; selected by UnusedPose63 and the semantic aliases below.</summary>
-    private const ushort UnusedPose63Frames = 0xe260;
+    /// <summary>The first frame of UNUSED_SamusTilesAnimation_AnimationDefinitions_92E260; selected by UnusedPose63 and the semantic aliases below.</summary>
+    private const int UnusedPose63Frames = 454;
 
-    /// <summary>$92:E268, UNUSED_SamusTilesAnimation_AnimationDefinitions_92E268; selected by UnusedPose64 and the semantic aliases below.</summary>
-    private const ushort UnusedPose64Frames = 0xe268;
+    /// <summary>The first frame of UNUSED_SamusTilesAnimation_AnimationDefinitions_92E268; selected by UnusedPose64 and the semantic aliases below.</summary>
+    private const int UnusedPose64Frames = 456;
 
-    /// <summary>$92:E270, UNUSED_SamusTilesAnimation_AnimationDefinitions_92E270; selected by UnusedPose65 and the semantic aliases below.</summary>
-    private const ushort UnusedPose65Frames = 0xe270;
+    /// <summary>The first frame of UNUSED_SamusTilesAnimation_AnimationDefinitions_92E270; selected by UnusedPose65 and the semantic aliases below.</summary>
+    private const int UnusedPose65Frames = 458;
 
-    /// <summary>$92:E294, UNUSED_SamusTilesAnimation_AnimationDefinitions_92E294; selected by UnusedPose66 and the semantic aliases below.</summary>
-    private const ushort UnusedPose66Frames = 0xe294;
+    /// <summary>The first frame of UNUSED_SamusTilesAnimation_AnimationDefinitions_92E294; selected by UnusedPose66 and the semantic aliases below.</summary>
+    private const int UnusedPose66Frames = 467;
 
-    /// <summary>$92:DEC0, SamusTilesAnimation_AnimationDefinitions_DEC0; selected by FallingGunExtendedRightPose and the semantic aliases below.</summary>
-    private const ushort FallingGunExtendedRightFrames = 0xdec0;
+    /// <summary>The first frame of SamusTilesAnimation_AnimationDefinitions_DEC0; selected by FallingGunExtendedRightPose and the semantic aliases below.</summary>
+    private const int FallingGunExtendedRightFrames = 222;
 
-    /// <summary>$92:DEDC, SamusTilesAnimation_AnimationDefinitions_DEDC; selected by FallingGunExtendedLeftPose and the semantic aliases below.</summary>
-    private const ushort FallingGunExtendedLeftFrames = 0xdedc;
+    /// <summary>The first frame of SamusTilesAnimation_AnimationDefinitions_DEDC; selected by FallingGunExtendedLeftPose and the semantic aliases below.</summary>
+    private const int FallingGunExtendedLeftFrames = 229;
 
-    /// <summary>$92:DD58, SamusTilesAnimation_AnimationDefinitions_DD58; selected by NormalJumpAimDiagonalUpRightPose and the semantic aliases below.</summary>
-    private const ushort NormalJumpAimDiagonalUpRightFrames = 0xdd58;
+    /// <summary>The first frame of SamusTilesAnimation_AnimationDefinitions_DD58; selected by NormalJumpAimDiagonalUpRightPose and the semantic aliases below.</summary>
+    private const int NormalJumpAimDiagonalUpRightFrames = 132;
 
-    /// <summary>$92:DD60, SamusTilesAnimation_AnimationDefinitions_DD60; selected by NormalJumpAimDiagonalUpLeftPose and the semantic aliases below.</summary>
-    private const ushort NormalJumpAimDiagonalUpLeftFrames = 0xdd60;
+    /// <summary>The first frame of SamusTilesAnimation_AnimationDefinitions_DD60; selected by NormalJumpAimDiagonalUpLeftPose and the semantic aliases below.</summary>
+    private const int NormalJumpAimDiagonalUpLeftFrames = 134;
 
-    /// <summary>$92:DD68, SamusTilesAnimation_AnimationDefinitions_DD68; selected by NormalJumpAimDiagonalDownRightPose and the semantic aliases below.</summary>
-    private const ushort NormalJumpAimDiagonalDownRightFrames = 0xdd68;
+    /// <summary>The first frame of SamusTilesAnimation_AnimationDefinitions_DD68; selected by NormalJumpAimDiagonalDownRightPose and the semantic aliases below.</summary>
+    private const int NormalJumpAimDiagonalDownRightFrames = 136;
 
-    /// <summary>$92:DD70, SamusTilesAnimation_AnimationDefinitions_DD70; selected by NormalJumpAimDiagonalDownLeftPose and the semantic aliases below.</summary>
-    private const ushort NormalJumpAimDiagonalDownLeftFrames = 0xdd70;
+    /// <summary>The first frame of SamusTilesAnimation_AnimationDefinitions_DD70; selected by NormalJumpAimDiagonalDownLeftPose and the semantic aliases below.</summary>
+    private const int NormalJumpAimDiagonalDownLeftFrames = 138;
 
-    /// <summary>$92:DEF8, SamusTilesAnimation_AnimationDefinitions_DEF8; selected by FallingAimDiagonalUpRightPose and the semantic aliases below.</summary>
-    private const ushort FallingAimDiagonalUpRightFrames = 0xdef8;
+    /// <summary>The first frame of SamusTilesAnimation_AnimationDefinitions_DEF8; selected by FallingAimDiagonalUpRightPose and the semantic aliases below.</summary>
+    private const int FallingAimDiagonalUpRightFrames = 236;
 
-    /// <summary>$92:DF04, SamusTilesAnimation_AnimationDefinitions_DF04; selected by FallingAimDiagonalUpLeftPose and the semantic aliases below.</summary>
-    private const ushort FallingAimDiagonalUpLeftFrames = 0xdf04;
+    /// <summary>The first frame of SamusTilesAnimation_AnimationDefinitions_DF04; selected by FallingAimDiagonalUpLeftPose and the semantic aliases below.</summary>
+    private const int FallingAimDiagonalUpLeftFrames = 239;
 
-    /// <summary>$92:DF10, SamusTilesAnimation_AnimationDefinitions_DF10; selected by FallingAimDiagonalDownRightPose and the semantic aliases below.</summary>
-    private const ushort FallingAimDiagonalDownRightFrames = 0xdf10;
+    /// <summary>The first frame of SamusTilesAnimation_AnimationDefinitions_DF10; selected by FallingAimDiagonalDownRightPose and the semantic aliases below.</summary>
+    private const int FallingAimDiagonalDownRightFrames = 242;
 
-    /// <summary>$92:DF1C, SamusTilesAnimation_AnimationDefinitions_DF1C; selected by FallingAimDiagonalDownLeftPose and the semantic aliases below.</summary>
-    private const ushort FallingAimDiagonalDownLeftFrames = 0xdf1c;
+    /// <summary>The first frame of SamusTilesAnimation_AnimationDefinitions_DF1C; selected by FallingAimDiagonalDownLeftPose and the semantic aliases below.</summary>
+    private const int FallingAimDiagonalDownLeftFrames = 245;
 
-    /// <summary>$92:E430, SamusTilesAnimation_AnimationDefinitions_E430; selected by CrouchingAimDiagonalUpRightPose and the semantic aliases below.</summary>
-    private const ushort CrouchingAimDiagonalUpRightFrames = 0xe430;
+    /// <summary>The first frame of SamusTilesAnimation_AnimationDefinitions_E430; selected by CrouchingAimDiagonalUpRightPose and the semantic aliases below.</summary>
+    private const int CrouchingAimDiagonalUpRightFrames = 570;
 
-    /// <summary>$92:E434, SamusTilesAnimation_AnimationDefinitions_E434; selected by CrouchingAimDiagonalUpLeftPose and the semantic aliases below.</summary>
-    private const ushort CrouchingAimDiagonalUpLeftFrames = 0xe434;
+    /// <summary>The first frame of SamusTilesAnimation_AnimationDefinitions_E434; selected by CrouchingAimDiagonalUpLeftPose and the semantic aliases below.</summary>
+    private const int CrouchingAimDiagonalUpLeftFrames = 571;
 
-    /// <summary>$92:E438, SamusTilesAnimation_AnimationDefinitions_E438; selected by CrouchingAimDiagonalDownRightPose and the semantic aliases below.</summary>
-    private const ushort CrouchingAimDiagonalDownRightFrames = 0xe438;
+    /// <summary>The first frame of SamusTilesAnimation_AnimationDefinitions_E438; selected by CrouchingAimDiagonalDownRightPose and the semantic aliases below.</summary>
+    private const int CrouchingAimDiagonalDownRightFrames = 572;
 
-    /// <summary>$92:E43C, SamusTilesAnimation_AnimationDefinitions_E43C; selected by CrouchingAimDiagonalDownLeftPose and the semantic aliases below.</summary>
-    private const ushort CrouchingAimDiagonalDownLeftFrames = 0xe43c;
+    /// <summary>The first frame of SamusTilesAnimation_AnimationDefinitions_E43C; selected by CrouchingAimDiagonalDownLeftPose and the semantic aliases below.</summary>
+    private const int CrouchingAimDiagonalDownLeftFrames = 573;
 
-    /// <summary>$92:E450, SamusTilesAnimation_AnimationDefinitions_E450; selected by MoonwalkAimUpLeftPose and the semantic aliases below.</summary>
-    private const ushort MoonwalkAimUpLeftFrames = 0xe450;
+    /// <summary>The first frame of SamusTilesAnimation_AnimationDefinitions_E450; selected by MoonwalkAimUpLeftPose and the semantic aliases below.</summary>
+    private const int MoonwalkAimUpLeftFrames = 578;
 
-    /// <summary>$92:E468, SamusTilesAnimation_AnimationDefinitions_E468; selected by MoonwalkAimUpRightPose and the semantic aliases below.</summary>
-    private const ushort MoonwalkAimUpRightFrames = 0xe468;
+    /// <summary>The first frame of SamusTilesAnimation_AnimationDefinitions_E468; selected by MoonwalkAimUpRightPose and the semantic aliases below.</summary>
+    private const int MoonwalkAimUpRightFrames = 584;
 
-    /// <summary>$92:E480, SamusTilesAnimation_AnimationDefinitions_E480; selected by MoonwalkAimDownLeftPose and the semantic aliases below.</summary>
-    private const ushort MoonwalkAimDownLeftFrames = 0xe480;
+    /// <summary>The first frame of SamusTilesAnimation_AnimationDefinitions_E480; selected by MoonwalkAimDownLeftPose and the semantic aliases below.</summary>
+    private const int MoonwalkAimDownLeftFrames = 590;
 
-    /// <summary>$92:E498, SamusTilesAnimation_AnimationDefinitions_E498; selected by MoonwalkAimDownRightPose and the semantic aliases below.</summary>
-    private const ushort MoonwalkAimDownRightFrames = 0xe498;
+    /// <summary>The first frame of SamusTilesAnimation_AnimationDefinitions_E498; selected by MoonwalkAimDownRightPose and the semantic aliases below.</summary>
+    private const int MoonwalkAimDownRightFrames = 596;
 
-    /// <summary>$92:E5A8, SamusTilesAnimation_AnimationDefinitions_E5A8; selected by SpringBallGroundRightPose and the semantic aliases below.</summary>
-    private const ushort SpringBallGroundRightFrames = 0xe5a8;
+    /// <summary>The first frame of SamusTilesAnimation_AnimationDefinitions_E5A8; selected by SpringBallGroundRightPose and the semantic aliases below.</summary>
+    private const int SpringBallGroundRightFrames = 664;
 
-    /// <summary>$92:E5D0, SamusTilesAnimation_AnimationDefinitions_E5D0; selected by SpringBallGroundLeftPose and the semantic aliases below.</summary>
-    private const ushort SpringBallGroundLeftFrames = 0xe5d0;
+    /// <summary>The first frame of SamusTilesAnimation_AnimationDefinitions_E5D0; selected by SpringBallGroundLeftPose and the semantic aliases below.</summary>
+    private const int SpringBallGroundLeftFrames = 674;
 
-    /// <summary>$92:E6B8, SamusTilesAnimation_AnimationDefinitions_E6B8; selected by ScrewAttackRightPose and the semantic aliases below.</summary>
-    private const ushort ScrewAttackRightFrames = 0xe6b8;
+    /// <summary>The first frame of SamusTilesAnimation_AnimationDefinitions_E6B8; selected by ScrewAttackRightPose and the semantic aliases below.</summary>
+    private const int ScrewAttackRightFrames = 732;
 
-    /// <summary>$92:E728, SamusTilesAnimation_AnimationDefinitions_E728; selected by ScrewAttackLeftPose and the semantic aliases below.</summary>
-    private const ushort ScrewAttackLeftFrames = 0xe728;
+    /// <summary>The first frame of SamusTilesAnimation_AnimationDefinitions_E728; selected by ScrewAttackLeftPose and the semantic aliases below.</summary>
+    private const int ScrewAttackLeftFrames = 760;
 
-    /// <summary>$92:E2B8, SamusTilesAnimation_AnimationDefinitions_E2B8; selected by WallJumpRightPose and the semantic aliases below.</summary>
-    private const ushort WallJumpRightFrames = 0xe2b8;
+    /// <summary>The first frame of SamusTilesAnimation_AnimationDefinitions_E2B8; selected by WallJumpRightPose and the semantic aliases below.</summary>
+    private const int WallJumpRightFrames = 476;
 
-    /// <summary>$92:E374, SamusTilesAnimation_AnimationDefinitions_E374; selected by WallJumpLeftPose and the semantic aliases below.</summary>
-    private const ushort WallJumpLeftFrames = 0xe374;
+    /// <summary>The first frame of SamusTilesAnimation_AnimationDefinitions_E374; selected by WallJumpLeftPose and the semantic aliases below.</summary>
+    private const int WallJumpLeftFrames = 523;
 
-    /// <summary>$92:E440, SamusTilesAnimation_AnimationDefinitions_E440; selected by CrouchingAimUpRightPose and the semantic aliases below.</summary>
-    private const ushort CrouchingAimUpRightFrames = 0xe440;
+    /// <summary>The first frame of SamusTilesAnimation_AnimationDefinitions_E440; selected by CrouchingAimUpRightPose and the semantic aliases below.</summary>
+    private const int CrouchingAimUpRightFrames = 574;
 
-    /// <summary>$92:E448, SamusTilesAnimation_AnimationDefinitions_E448; selected by CrouchingAimUpLeftPose and the semantic aliases below.</summary>
-    private const ushort CrouchingAimUpLeftFrames = 0xe448;
+    /// <summary>The first frame of SamusTilesAnimation_AnimationDefinitions_E448; selected by CrouchingAimUpLeftPose and the semantic aliases below.</summary>
+    private const int CrouchingAimUpLeftFrames = 576;
 
-    /// <summary>$92:E7B0, SamusTilesAnimation_AnimationDefinitions_E7B0; selected by TurningRightToLeftAimUpPose and the semantic aliases below.</summary>
-    private const ushort TurningRightToLeftAimUpFrames = 0xe7b0;
+    /// <summary>The first frame of SamusTilesAnimation_AnimationDefinitions_E7B0; selected by TurningRightToLeftAimUpPose and the semantic aliases below.</summary>
+    private const int TurningRightToLeftAimUpFrames = 794;
 
-    /// <summary>$92:E7BC, SamusTilesAnimation_AnimationDefinitions_E7BC; selected by TurningLeftToRightAimUpPose and the semantic aliases below.</summary>
-    private const ushort TurningLeftToRightAimUpFrames = 0xe7bc;
+    /// <summary>The first frame of SamusTilesAnimation_AnimationDefinitions_E7BC; selected by TurningLeftToRightAimUpPose and the semantic aliases below.</summary>
+    private const int TurningLeftToRightAimUpFrames = 797;
 
-    /// <summary>$92:E7C8, SamusTilesAnimation_AnimationDefinitions_E7C8; selected by TurningRightToLeftAimDiagonalDownPose and the semantic aliases below.</summary>
-    private const ushort TurningRightToLeftAimDiagonalDownFrames = 0xe7c8;
+    /// <summary>The first frame of SamusTilesAnimation_AnimationDefinitions_E7C8; selected by TurningRightToLeftAimDiagonalDownPose and the semantic aliases below.</summary>
+    private const int TurningRightToLeftAimDiagonalDownFrames = 800;
 
-    /// <summary>$92:E7D4, SamusTilesAnimation_AnimationDefinitions_E7D4; selected by TurningLeftToRightAimDiagonalDownPose and the semantic aliases below.</summary>
-    private const ushort TurningLeftToRightAimDiagonalDownFrames = 0xe7d4;
+    /// <summary>The first frame of SamusTilesAnimation_AnimationDefinitions_E7D4; selected by TurningLeftToRightAimDiagonalDownPose and the semantic aliases below.</summary>
+    private const int TurningLeftToRightAimDiagonalDownFrames = 803;
 
-    /// <summary>$92:E7F8, SamusTilesAnimation_AnimationDefinitions_E7F8; selected by TurningRightToLeftJumpAimUpPose and the semantic aliases below.</summary>
-    private const ushort TurningRightToLeftJumpAimUpFrames = 0xe7f8;
+    /// <summary>The first frame of SamusTilesAnimation_AnimationDefinitions_E7F8; selected by TurningRightToLeftJumpAimUpPose and the semantic aliases below.</summary>
+    private const int TurningRightToLeftJumpAimUpFrames = 812;
 
-    /// <summary>$92:E804, SamusTilesAnimation_AnimationDefinitions_E804; selected by TurningLeftToRightJumpAimUpPose and the semantic aliases below.</summary>
-    private const ushort TurningLeftToRightJumpAimUpFrames = 0xe804;
+    /// <summary>The first frame of SamusTilesAnimation_AnimationDefinitions_E804; selected by TurningLeftToRightJumpAimUpPose and the semantic aliases below.</summary>
+    private const int TurningLeftToRightJumpAimUpFrames = 815;
 
-    /// <summary>$92:E810, SamusTilesAnimation_AnimationDefinitions_E810; selected by TurningRightToLeftJumpAimDownPose and the semantic aliases below.</summary>
-    private const ushort TurningRightToLeftJumpAimDownFrames = 0xe810;
+    /// <summary>The first frame of SamusTilesAnimation_AnimationDefinitions_E810; selected by TurningRightToLeftJumpAimDownPose and the semantic aliases below.</summary>
+    private const int TurningRightToLeftJumpAimDownFrames = 818;
 
-    /// <summary>$92:E81C, SamusTilesAnimation_AnimationDefinitions_E81C; selected by TurningLeftToRightJumpAimDownPose and the semantic aliases below.</summary>
-    private const ushort TurningLeftToRightJumpAimDownFrames = 0xe81c;
+    /// <summary>The first frame of SamusTilesAnimation_AnimationDefinitions_E81C; selected by TurningLeftToRightJumpAimDownPose and the semantic aliases below.</summary>
+    private const int TurningLeftToRightJumpAimDownFrames = 821;
 
-    /// <summary>$92:EBA4, SamusTilesAnimation_AnimationDefinitions_EBA4; selected by ForwardFacingSuitedPose and the semantic aliases below.</summary>
-    private const ushort ForwardFacingSuitedFrames = 0xeba4;
+    /// <summary>The first frame of SamusTilesAnimation_AnimationDefinitions_EBA4; selected by ForwardFacingSuitedPose and the semantic aliases below.</summary>
+    private const int ForwardFacingSuitedFrames = 1047;
 
-    /// <summary>$92:DB90, SamusTilesAnimation_AnimationDefinitions_DB90; selected by NormalLandingRightPose and the semantic aliases below.</summary>
-    private const ushort NormalLandingRightFrames = 0xdb90;
+    /// <summary>The first frame of SamusTilesAnimation_AnimationDefinitions_DB90; selected by NormalLandingRightPose and the semantic aliases below.</summary>
+    private const int NormalLandingRightFrames = 18;
 
-    /// <summary>$92:DB98, SamusTilesAnimation_AnimationDefinitions_DB98; selected by NormalLandingLeftPose and the semantic aliases below.</summary>
-    private const ushort NormalLandingLeftFrames = 0xdb98;
+    /// <summary>The first frame of SamusTilesAnimation_AnimationDefinitions_DB98; selected by NormalLandingLeftPose and the semantic aliases below.</summary>
+    private const int NormalLandingLeftFrames = 20;
 
-    /// <summary>$92:DBA0, SamusTilesAnimation_AnimationDefinitions_DBA0; selected by SpinLandingRightPose and the semantic aliases below.</summary>
-    private const ushort SpinLandingRightFrames = 0xdba0;
+    /// <summary>The first frame of SamusTilesAnimation_AnimationDefinitions_DBA0; selected by SpinLandingRightPose and the semantic aliases below.</summary>
+    private const int SpinLandingRightFrames = 22;
 
-    /// <summary>$92:DBAC, SamusTilesAnimation_AnimationDefinitions_DBAC; selected by SpinLandingLeftPose and the semantic aliases below.</summary>
-    private const ushort SpinLandingLeftFrames = 0xdbac;
+    /// <summary>The first frame of SamusTilesAnimation_AnimationDefinitions_DBAC; selected by SpinLandingLeftPose and the semantic aliases below.</summary>
+    private const int SpinLandingLeftFrames = 25;
 
-    /// <summary>$92:E838, SamusTilesAnimation_AnimationDefinitions_E838; selected by DraygonGrabbedNeutralLeftPose and the semantic aliases below.</summary>
-    private const ushort DraygonGrabbedNeutralLeftFrames = 0xe838;
+    /// <summary>The first frame of SamusTilesAnimation_AnimationDefinitions_E838; selected by DraygonGrabbedNeutralLeftPose and the semantic aliases below.</summary>
+    private const int DraygonGrabbedNeutralLeftFrames = 828;
 
-    /// <summary>$92:E83C, SamusTilesAnimation_AnimationDefinitions_E83C; selected by DraygonGrabbedAimUpLeftPose and the semantic aliases below.</summary>
-    private const ushort DraygonGrabbedAimUpLeftFrames = 0xe83c;
+    /// <summary>The first frame of SamusTilesAnimation_AnimationDefinitions_E83C; selected by DraygonGrabbedAimUpLeftPose and the semantic aliases below.</summary>
+    private const int DraygonGrabbedAimUpLeftFrames = 829;
 
-    /// <summary>$92:E840, SamusTilesAnimation_AnimationDefinitions_E840; selected by DraygonGrabbedFiringLeftPose and the semantic aliases below.</summary>
-    private const ushort DraygonGrabbedFiringLeftFrames = 0xe840;
+    /// <summary>The first frame of SamusTilesAnimation_AnimationDefinitions_E840; selected by DraygonGrabbedFiringLeftPose and the semantic aliases below.</summary>
+    private const int DraygonGrabbedFiringLeftFrames = 830;
 
-    /// <summary>$92:E844, SamusTilesAnimation_AnimationDefinitions_E844; selected by DraygonGrabbedAimDownLeftPose and the semantic aliases below.</summary>
-    private const ushort DraygonGrabbedAimDownLeftFrames = 0xe844;
+    /// <summary>The first frame of SamusTilesAnimation_AnimationDefinitions_E844; selected by DraygonGrabbedAimDownLeftPose and the semantic aliases below.</summary>
+    private const int DraygonGrabbedAimDownLeftFrames = 831;
 
-    /// <summary>$92:E860, SamusTilesAnimation_AnimationDefinitions_E860; selected by DraygonGrabbedMovingLeftPose and the semantic aliases below.</summary>
-    private const ushort DraygonGrabbedMovingLeftFrames = 0xe860;
+    /// <summary>The first frame of SamusTilesAnimation_AnimationDefinitions_E860; selected by DraygonGrabbedMovingLeftPose and the semantic aliases below.</summary>
+    private const int DraygonGrabbedMovingLeftFrames = 838;
 
-    /// <summary>$92:E880, SamusTilesAnimation_AnimationDefinitions_E880; selected by ShinesparkHorizontalRightPose and the semantic aliases below.</summary>
-    private const ushort ShinesparkHorizontalRightFrames = 0xe880;
+    /// <summary>The first frame of SamusTilesAnimation_AnimationDefinitions_E880; selected by ShinesparkHorizontalRightPose and the semantic aliases below.</summary>
+    private const int ShinesparkHorizontalRightFrames = 846;
 
-    /// <summary>$92:E884, SamusTilesAnimation_AnimationDefinitions_E884; selected by ShinesparkHorizontalLeftPose and the semantic aliases below.</summary>
-    private const ushort ShinesparkHorizontalLeftFrames = 0xe884;
+    /// <summary>The first frame of SamusTilesAnimation_AnimationDefinitions_E884; selected by ShinesparkHorizontalLeftPose and the semantic aliases below.</summary>
+    private const int ShinesparkHorizontalLeftFrames = 847;
 
-    /// <summary>$92:E878, SamusTilesAnimation_AnimationDefinitions_E878; selected by ShinesparkVerticalRightPose and the semantic aliases below.</summary>
-    private const ushort ShinesparkVerticalRightFrames = 0xe878;
+    /// <summary>The first frame of SamusTilesAnimation_AnimationDefinitions_E878; selected by ShinesparkVerticalRightPose and the semantic aliases below.</summary>
+    private const int ShinesparkVerticalRightFrames = 844;
 
-    /// <summary>$92:E87C, SamusTilesAnimation_AnimationDefinitions_E87C; selected by ShinesparkVerticalLeftPose and the semantic aliases below.</summary>
-    private const ushort ShinesparkVerticalLeftFrames = 0xe87c;
+    /// <summary>The first frame of SamusTilesAnimation_AnimationDefinitions_E87C; selected by ShinesparkVerticalLeftPose and the semantic aliases below.</summary>
+    private const int ShinesparkVerticalLeftFrames = 845;
 
-    /// <summary>$92:E888, SamusTilesAnimation_AnimationDefinitions_E888; selected by ShinesparkDiagonalRightPose and the semantic aliases below.</summary>
-    private const ushort ShinesparkDiagonalRightFrames = 0xe888;
+    /// <summary>The first frame of SamusTilesAnimation_AnimationDefinitions_E888; selected by ShinesparkDiagonalRightPose and the semantic aliases below.</summary>
+    private const int ShinesparkDiagonalRightFrames = 848;
 
-    /// <summary>$92:E88C, SamusTilesAnimation_AnimationDefinitions_E88C; selected by ShinesparkDiagonalLeftPose and the semantic aliases below.</summary>
-    private const ushort ShinesparkDiagonalLeftFrames = 0xe88c;
+    /// <summary>The first frame of SamusTilesAnimation_AnimationDefinitions_E88C; selected by ShinesparkDiagonalLeftPose and the semantic aliases below.</summary>
+    private const int ShinesparkDiagonalLeftFrames = 849;
 
-    /// <summary>$92:E890, SamusTilesAnimation_AnimationDefinitions_E890; selected by CrystalFlashRightPose and the semantic aliases below.</summary>
-    private const ushort CrystalFlashRightFrames = 0xe890;
+    /// <summary>The first frame of SamusTilesAnimation_AnimationDefinitions_E890; selected by CrystalFlashRightPose and the semantic aliases below.</summary>
+    private const int CrystalFlashRightFrames = 850;
 
-    /// <summary>$92:E8CC, SamusTilesAnimation_AnimationDefinitions_E8CC; selected by CrystalFlashLeftPose and the semantic aliases below.</summary>
-    private const ushort CrystalFlashLeftFrames = 0xe8cc;
+    /// <summary>The first frame of SamusTilesAnimation_AnimationDefinitions_E8CC; selected by CrystalFlashLeftPose and the semantic aliases below.</summary>
+    private const int CrystalFlashLeftFrames = 865;
 
-    /// <summary>$92:DBF8, SamusTilesAnimation_AnimationDefinitions_DBF8; selected by XrayingStandingRightPose and the semantic aliases below.</summary>
-    private const ushort XrayingStandingRightFrames = 0xdbf8;
+    /// <summary>The first frame of SamusTilesAnimation_AnimationDefinitions_DBF8; selected by XrayingStandingRightPose and the semantic aliases below.</summary>
+    private const int XrayingStandingRightFrames = 44;
 
-    /// <summary>$92:DC0C, SamusTilesAnimation_AnimationDefinitions_DC0C; selected by XrayingStandingLeftPose and the semantic aliases below.</summary>
-    private const ushort XrayingStandingLeftFrames = 0xdc0c;
+    /// <summary>The first frame of SamusTilesAnimation_AnimationDefinitions_DC0C; selected by XrayingStandingLeftPose and the semantic aliases below.</summary>
+    private const int XrayingStandingLeftFrames = 49;
 
-    /// <summary>$92:E908, SamusTilesAnimation_AnimationDefinitions_E908; selected by DeathSequenceRightPose and the semantic aliases below.</summary>
-    private const ushort DeathSequenceRightFrames = 0xe908;
+    /// <summary>The first frame of SamusTilesAnimation_AnimationDefinitions_E908; selected by DeathSequenceRightPose and the semantic aliases below.</summary>
+    private const int DeathSequenceRightFrames = 880;
 
-    /// <summary>$92:E920, SamusTilesAnimation_AnimationDefinitions_E920; selected by DeathSequenceLeftPose and the semantic aliases below.</summary>
-    private const ushort DeathSequenceLeftFrames = 0xe920;
+    /// <summary>The first frame of SamusTilesAnimation_AnimationDefinitions_E920; selected by DeathSequenceLeftPose and the semantic aliases below.</summary>
+    private const int DeathSequenceLeftFrames = 886;
 
-    /// <summary>$92:DC20, SamusTilesAnimation_AnimationDefinitions_DC20; selected by XrayingCrouchingRightPose and the semantic aliases below.</summary>
-    private const ushort XrayingCrouchingRightFrames = 0xdc20;
+    /// <summary>The first frame of SamusTilesAnimation_AnimationDefinitions_DC20; selected by XrayingCrouchingRightPose and the semantic aliases below.</summary>
+    private const int XrayingCrouchingRightFrames = 54;
 
-    /// <summary>$92:DC34, SamusTilesAnimation_AnimationDefinitions_DC34; selected by XrayingCrouchingLeftPose and the semantic aliases below.</summary>
-    private const ushort XrayingCrouchingLeftFrames = 0xdc34;
+    /// <summary>The first frame of SamusTilesAnimation_AnimationDefinitions_DC34; selected by XrayingCrouchingLeftPose and the semantic aliases below.</summary>
+    private const int XrayingCrouchingLeftFrames = 59;
 
-    /// <summary>$92:E4D8, UNUSED_SamusTilesAnimation_AnimationDefinitions_92E4D8; selected by UnusedPoseDb and the semantic aliases below.</summary>
-    private const ushort UnusedPoseDbFrames = 0xe4d8;
+    /// <summary>The first frame of UNUSED_SamusTilesAnimation_AnimationDefinitions_92E4D8; selected by UnusedPoseDb and the semantic aliases below.</summary>
+    private const int UnusedPoseDbFrames = 612;
 
-    /// <summary>$92:E4E4, UNUSED_SamusTilesAnimation_AnimationDefinitions_92E4E4; selected by UnusedPoseDc and the semantic aliases below.</summary>
-    private const ushort UnusedPoseDcFrames = 0xe4e4;
+    /// <summary>The first frame of UNUSED_SamusTilesAnimation_AnimationDefinitions_92E4E4; selected by UnusedPoseDc and the semantic aliases below.</summary>
+    private const int UnusedPoseDcFrames = 615;
 
-    /// <summary>$92:E4F0, UNUSED_SamusTilesAnimation_AnimationDefinitions_92E4F0; selected by UnusedPoseDd and the semantic aliases below.</summary>
-    private const ushort UnusedPoseDdFrames = 0xe4f0;
+    /// <summary>The first frame of UNUSED_SamusTilesAnimation_AnimationDefinitions_92E4F0; selected by UnusedPoseDd and the semantic aliases below.</summary>
+    private const int UnusedPoseDdFrames = 618;
 
-    /// <summary>$92:E4FC, UNUSED_SamusTilesAnimation_AnimationDefinitions_92E4FC; selected by UnusedPoseDe and the semantic aliases below.</summary>
-    private const ushort UnusedPoseDeFrames = 0xe4fc;
+    /// <summary>The first frame of UNUSED_SamusTilesAnimation_AnimationDefinitions_92E4FC; selected by UnusedPoseDe and the semantic aliases below.</summary>
+    private const int UnusedPoseDeFrames = 621;
 
-    /// <summary>$92:DBB8, SamusTilesAnimation_AnimationDefinitions_DBB8; selected by LandingAimUpRightPose and the semantic aliases below.</summary>
-    private const ushort LandingAimUpRightFrames = 0xdbb8;
+    /// <summary>The first frame of SamusTilesAnimation_AnimationDefinitions_DBB8; selected by LandingAimUpRightPose and the semantic aliases below.</summary>
+    private const int LandingAimUpRightFrames = 28;
 
-    /// <summary>$92:DBC0, SamusTilesAnimation_AnimationDefinitions_DBC0; selected by LandingAimUpLeftPose and the semantic aliases below.</summary>
-    private const ushort LandingAimUpLeftFrames = 0xdbc0;
+    /// <summary>The first frame of SamusTilesAnimation_AnimationDefinitions_DBC0; selected by LandingAimUpLeftPose and the semantic aliases below.</summary>
+    private const int LandingAimUpLeftFrames = 30;
 
-    /// <summary>$92:DBC8, SamusTilesAnimation_AnimationDefinitions_DBC8; selected by LandingAimDiagonalUpRightPose and the semantic aliases below.</summary>
-    private const ushort LandingAimDiagonalUpRightFrames = 0xdbc8;
+    /// <summary>The first frame of SamusTilesAnimation_AnimationDefinitions_DBC8; selected by LandingAimDiagonalUpRightPose and the semantic aliases below.</summary>
+    private const int LandingAimDiagonalUpRightFrames = 32;
 
-    /// <summary>$92:DBD0, SamusTilesAnimation_AnimationDefinitions_DBD0; selected by LandingAimDiagonalUpLeftPose and the semantic aliases below.</summary>
-    private const ushort LandingAimDiagonalUpLeftFrames = 0xdbd0;
+    /// <summary>The first frame of SamusTilesAnimation_AnimationDefinitions_DBD0; selected by LandingAimDiagonalUpLeftPose and the semantic aliases below.</summary>
+    private const int LandingAimDiagonalUpLeftFrames = 34;
 
-    /// <summary>$92:DBD8, SamusTilesAnimation_AnimationDefinitions_DBD8; selected by LandingAimDiagonalDownRightPose and the semantic aliases below.</summary>
-    private const ushort LandingAimDiagonalDownRightFrames = 0xdbd8;
+    /// <summary>The first frame of SamusTilesAnimation_AnimationDefinitions_DBD8; selected by LandingAimDiagonalDownRightPose and the semantic aliases below.</summary>
+    private const int LandingAimDiagonalDownRightFrames = 36;
 
-    /// <summary>$92:DBE0, SamusTilesAnimation_AnimationDefinitions_DBE0; selected by LandingAimDiagonalDownLeftPose and the semantic aliases below.</summary>
-    private const ushort LandingAimDiagonalDownLeftFrames = 0xdbe0;
+    /// <summary>The first frame of SamusTilesAnimation_AnimationDefinitions_DBE0; selected by LandingAimDiagonalDownLeftPose and the semantic aliases below.</summary>
+    private const int LandingAimDiagonalDownLeftFrames = 38;
 
-    /// <summary>$92:DBE8, SamusTilesAnimation_AnimationDefinitions_DBE8; selected by FiringLandingRightPose and the semantic aliases below.</summary>
-    private const ushort FiringLandingRightFrames = 0xdbe8;
+    /// <summary>The first frame of SamusTilesAnimation_AnimationDefinitions_DBE8; selected by FiringLandingRightPose and the semantic aliases below.</summary>
+    private const int FiringLandingRightFrames = 40;
 
-    /// <summary>$92:DBF0, SamusTilesAnimation_AnimationDefinitions_DBF0; selected by FiringLandingLeftPose and the semantic aliases below.</summary>
-    private const ushort FiringLandingLeftFrames = 0xdbf0;
+    /// <summary>The first frame of SamusTilesAnimation_AnimationDefinitions_DBF0; selected by FiringLandingLeftPose and the semantic aliases below.</summary>
+    private const int FiringLandingLeftFrames = 42;
 
-    /// <summary>$92:E938, SamusTilesAnimation_AnimationDefinitions_E938; selected by DrainedCrouchingRightPose and the semantic aliases below.</summary>
-    private const ushort DrainedCrouchingRightFrames = 0xe938;
+    /// <summary>The first frame of SamusTilesAnimation_AnimationDefinitions_E938; selected by DrainedCrouchingRightPose and the semantic aliases below.</summary>
+    private const int DrainedCrouchingRightFrames = 892;
 
-    /// <summary>$92:E974, SamusTilesAnimation_AnimationDefinitions_E974; selected by DrainedCrouchingLeftPose and the semantic aliases below.</summary>
-    private const ushort DrainedCrouchingLeftFrames = 0xe974;
+    /// <summary>The first frame of SamusTilesAnimation_AnimationDefinitions_E974; selected by DrainedCrouchingLeftPose and the semantic aliases below.</summary>
+    private const int DrainedCrouchingLeftFrames = 907;
 
-    /// <summary>$92:E9F4, SamusTilesAnimation_AnimationDefinitions_E9F4; selected by DrainedStandingRightPose and the semantic aliases below.</summary>
-    private const ushort DrainedStandingRightFrames = 0xe9f4;
+    /// <summary>The first frame of SamusTilesAnimation_AnimationDefinitions_E9F4; selected by DrainedStandingRightPose and the semantic aliases below.</summary>
+    private const int DrainedStandingRightFrames = 939;
 
-    /// <summary>$92:EA0C, SamusTilesAnimation_AnimationDefinitions_EA0C; selected by DrainedStandingLeftPose and the semantic aliases below.</summary>
-    private const ushort DrainedStandingLeftFrames = 0xea0c;
+    /// <summary>The first frame of SamusTilesAnimation_AnimationDefinitions_EA0C; selected by DrainedStandingLeftPose and the semantic aliases below.</summary>
+    private const int DrainedStandingLeftFrames = 945;
 
-    /// <summary>$92:E828, SamusTilesAnimation_AnimationDefinitions_E828; selected by DraygonGrabbedNeutralRightPose and the semantic aliases below.</summary>
-    private const ushort DraygonGrabbedNeutralRightFrames = 0xe828;
+    /// <summary>The first frame of SamusTilesAnimation_AnimationDefinitions_E828; selected by DraygonGrabbedNeutralRightPose and the semantic aliases below.</summary>
+    private const int DraygonGrabbedNeutralRightFrames = 824;
 
-    /// <summary>$92:E82C, SamusTilesAnimation_AnimationDefinitions_E82C; selected by DraygonGrabbedAimUpRightPose and the semantic aliases below.</summary>
-    private const ushort DraygonGrabbedAimUpRightFrames = 0xe82c;
+    /// <summary>The first frame of SamusTilesAnimation_AnimationDefinitions_E82C; selected by DraygonGrabbedAimUpRightPose and the semantic aliases below.</summary>
+    private const int DraygonGrabbedAimUpRightFrames = 825;
 
-    /// <summary>$92:E830, SamusTilesAnimation_AnimationDefinitions_E830; selected by DraygonGrabbedFiringRightPose and the semantic aliases below.</summary>
-    private const ushort DraygonGrabbedFiringRightFrames = 0xe830;
+    /// <summary>The first frame of SamusTilesAnimation_AnimationDefinitions_E830; selected by DraygonGrabbedFiringRightPose and the semantic aliases below.</summary>
+    private const int DraygonGrabbedFiringRightFrames = 826;
 
-    /// <summary>$92:E834, SamusTilesAnimation_AnimationDefinitions_E834; selected by DraygonGrabbedAimDownRightPose and the semantic aliases below.</summary>
-    private const ushort DraygonGrabbedAimDownRightFrames = 0xe834;
+    /// <summary>The first frame of SamusTilesAnimation_AnimationDefinitions_E834; selected by DraygonGrabbedAimDownRightPose and the semantic aliases below.</summary>
+    private const int DraygonGrabbedAimDownRightFrames = 827;
 
-    /// <summary>$92:E848, SamusTilesAnimation_AnimationDefinitions_E848; selected by DraygonGrabbedMovingRightPose and the semantic aliases below.</summary>
-    private const ushort DraygonGrabbedMovingRightFrames = 0xe848;
+    /// <summary>The first frame of SamusTilesAnimation_AnimationDefinitions_E848; selected by DraygonGrabbedMovingRightPose and the semantic aliases below.</summary>
+    private const int DraygonGrabbedMovingRightFrames = 832;
 
-    /// <summary>$92:D94E..DB47: exactly253 real-pose selectors; FD..FF are outside the installed body domain.</summary>
-    internal static ushort DefaultFrameList(SamusPoseId pose) => pose switch
+    /// <summary>The first frame of each of the 253 real poses' lists; FD..FF are outside the installed body domain.</summary>
+    internal static int DefaultFirstFrame(SamusPoseId pose) => pose switch
     {
         SamusPoseId.ForwardFacingPowerSuitPose => ForwardFacingPowerSuitFrames,
         SamusPoseId.FacingRightNormalPose or

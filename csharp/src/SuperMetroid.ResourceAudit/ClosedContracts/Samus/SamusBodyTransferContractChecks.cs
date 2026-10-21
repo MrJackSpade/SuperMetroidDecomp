@@ -27,8 +27,8 @@ internal static class SamusBodyTransferContractChecks
         Require(rejected, "construction must reject a nonempty group missing one required physical definition");
         SamusBodyArtworkCatalog body = Body(shortFirstGroup: false);
         SamusBodyFrameSelection frame = body.Frame(0, 0);
-        int address = body.DefinitionAddress(SamusBodyHalf.Top, frame.TopSet, frame.TopPosition);
-        Require(ReferenceEquals(body.DefinitionAt(address), body.GetDefinition(true, 0, 0)),
+        int record = body.DefinitionRecord(SamusBodyHalf.Top, frame.TopSet, frame.TopPosition);
+        Require(ReferenceEquals(body.DefinitionAt(record), body.GetDefinition(true, 0, 0)),
             "a published frame resolves an admitted physical definition");
         Require(ReferenceEquals(body.GetDefinition(true, 0, 2), body.GetDefinition(true, 1, 0)) &&
             ReferenceEquals(body.GetDefinition(true, SamusBodyArtworkCatalog.TopSetCount - 1, 1), body.GetDefinition(false, 0, 0)),
@@ -46,12 +46,10 @@ internal static class SamusBodyTransferContractChecks
     private static SamusBodyArtworkCatalog Body(bool shortFirstGroup, bool invalidAdjacentFrame = false)
     {
         // Twenty-four groups, with two records in the first and one in each other
-        // group. The final native definition ends at $92:D7D3, just like import.
-        const int end = SamusBodyDefinitionLayout.EndOffset;
+        // group. The final group ends at the last record, just like import.
         int count = SamusBodyArtworkCatalog.TopSetCount + SamusBodyArtworkCatalog.BottomSetCount;
-        int start = end - (count + 1) * SamusRenderingRomData.TileTransfers.DefinitionByteCount;
-        ushort[] pointers = Enumerable.Range(0, count).Select(index =>
-            (ushort)(start + (index == 0 ? 0 : index + 1) * SamusRenderingRomData.TileTransfers.DefinitionByteCount)).ToArray();
+        int start = SamusBodyDefinitionLayout.RecordCount - (count + 1);
+        int[] starts = [.. Enumerable.Range(0, count).Select(index => start + (index == 0 ? 0 : index + 1))];
         SamusBodyTileDefinition[][] groups = Enumerable.Range(0, count).Select(index =>
             Enumerable.Range(0, index == 0 && !shortFirstGroup ? 2 : 1).Select(_ =>
                 new SamusBodyTileDefinition(0x9a8000, 32, 0, new byte[32])).ToArray()).ToArray();
@@ -80,7 +78,7 @@ internal static class SamusBodyTransferContractChecks
         SamusArmCannonArtworkCatalog cannon = SamusArmCannonArtworkCatalogTooling.Load(cannonJson, cannonPng);
         var frames = new SamusBodyFrameSelection[SamusBodyArtworkCatalog.FrameCount];
         if (invalidAdjacentFrame) frames[1] = new(byte.MaxValue, 0, byte.MaxValue, 0);
-        return new SamusBodyArtworkCatalog(new SamusBodyArtworkParts { TopPointers = pointers[..SamusBodyArtworkCatalog.TopSetCount], BottomPointers = pointers[SamusBodyArtworkCatalog.TopSetCount..], PosePointers = Enumerable.Repeat((ushort)SamusBodyArtworkCatalog.FirstFrameOffset, SamusBodyArtworkCatalog.PoseCount).ToArray(), GraphicsYOffsets = new sbyte[SamusBodyArtworkCatalog.PoseCount], Frames = frames, Top = groups[..SamusBodyArtworkCatalog.TopSetCount], Bottom = groups[SamusBodyArtworkCatalog.TopSetCount..], Spritemaps = sprites, Atmosphere = atmosphere, DeathPalettes = deathColors, DeathTiles = deathTiles, ArmCannon = cannon, LandingYOffsets = new ushort[SamusRenderingRomData.Body.LandingVerticalOffsetByteCount], PostureYOffsets = new sbyte[SamusRenderingRomData.Body.PostureTransitionVerticalOffsetByteCount], DrainedYOffsets = new sbyte[SamusRenderingRomData.Body.DrainedVerticalOffsetByteCount] });
+        return new SamusBodyArtworkCatalog(new SamusBodyArtworkParts { TopSetStarts = starts[..SamusBodyArtworkCatalog.TopSetCount], BottomSetStarts = starts[SamusBodyArtworkCatalog.TopSetCount..], PoseFirstFrames = new int[SamusBodyArtworkCatalog.PoseCount], GraphicsYOffsets = new sbyte[SamusBodyArtworkCatalog.PoseCount], Frames = frames, Top = groups[..SamusBodyArtworkCatalog.TopSetCount], Bottom = groups[SamusBodyArtworkCatalog.TopSetCount..], Spritemaps = sprites, Atmosphere = atmosphere, DeathPalettes = deathColors, DeathTiles = deathTiles, ArmCannon = cannon, LandingYOffsets = new ushort[SamusRenderingRomData.Body.LandingVerticalOffsetByteCount], PostureYOffsets = new sbyte[SamusRenderingRomData.Body.PostureTransitionVerticalOffsetByteCount], DrainedYOffsets = new sbyte[SamusRenderingRomData.Body.DrainedVerticalOffsetByteCount] });
     }
 
     /// <summary>Compiles representative transfer calls and checks audit behavior under valid and stale source contracts.</summary>
@@ -94,15 +92,15 @@ internal static class SamusBodyTransferContractChecks
             using SuperMetroid.Core.Samus.Artwork;
             class SamusTransferConsumer {
                 void Inspect(SamusBodyArtworkCatalog body, SuperMetroid.Core.Samus.Poses.SamusPoseId pose, ushort frame, SamusBodyHalf half, byte set,
-                    byte position, int address) {
+                    byte position, int record) {
                     body.Frame(pose, frame);
                     body.Frame((SuperMetroid.Core.Samus.Poses.SamusPoseId)253, 0);
-                    body.DefinitionAddress(SamusBodyHalf.Top, 0, 2);
-                    body.DefinitionAddress(SamusBodyHalf.Top, 13, 0);
-                    body.DefinitionAddress(SamusBodyHalf.Bottom, 11, 0);
-                    body.DefinitionAddress(half, set, position);
-                    body.DefinitionAt(address);
-                    body.DefinitionAt(0);
+                    body.DefinitionRecord(SamusBodyHalf.Top, 0, 2);
+                    body.DefinitionRecord(SamusBodyHalf.Top, 13, 0);
+                    body.DefinitionRecord(SamusBodyHalf.Bottom, 11, 0);
+                    body.DefinitionRecord(half, set, position);
+                    body.DefinitionAt(record);
+                    body.DefinitionAt(-1);
                 }
             }
             """, path: "fixture-samus-transfer-consumer.cs");
@@ -124,7 +122,7 @@ internal static class SamusBodyTransferContractChecks
         AuditReport before = Inspect(compilation, false), after = Inspect(compilation, true);
         Require(before.UnresolvedCount == 8 && before.Consumers.Count == 8, "original unaccounted transfer boundaries" + " (" + before.Describe() + ")");
         Require(after.Classifications.Count == 4 && after.UnresolvedCount == 4 && after.Consumers.Count == 8,
-            "valid-domain transfer availability does not suppress known invalid pose, set or address constants" + " (" + after.Describe() + ")");
+            "valid-domain transfer availability does not suppress known invalid pose, set or record constants" + " (" + after.Describe() + ")");
         var extra = CSharpSyntaxTree.ParseText("namespace SuperMetroid.Core.Samus.Artwork; public sealed partial class SamusBodyArtworkCatalog { }",
             path: "fixture-unreviewed-body-partial.cs");
         Require(Inspect(Compile(trees.Append(extra)), true).UnresolvedCount == 8, "unreviewed private-state access revokes transfer closure");

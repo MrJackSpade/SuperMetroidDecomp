@@ -600,11 +600,11 @@ internal static class SamusBodyArtworkVerification
         editedTransfer.TransferToVram(editedPixels);
         AssertTrue(!stockPixels.ImageEquals(editedPixels),
             "edited Samus body PNG changes the production VRAM transfer for pose $09");
-        document.Required("topPointers")[0] = 0x8000;
+        document.Required("topSetStarts")[0] = 1;
         File.WriteAllText(selectedManifest, document.ToJsonString());
         AssertThrows<InvalidDataException>(() => installation.LoadSamusBodyArt(),
             "Samus body override cannot change native set-pointer identity");
-        document.Required("topPointers")[0] = stock.TopSetPointers[0];
+        document.Required("topSetStarts")[0] = stock.TopSetStarts[0];
         File.WriteAllText(selectedManifest, document.ToJsonString());
         // Installation repair must replace only the damaged stock copy. Player artwork
         // lives outside the atomically replaced content directory and must remain selected.

@@ -8,12 +8,12 @@ internal static class MochtroidShakeDefinitions
     private const int Amplitude = 2;
 
     /// <summary>Timer bits 1..2 select right, up, left or down in that order.</summary>
-    internal static (int X, int Y) Offset(ushort timer) => ((timer & 6) >> 1) switch
+    internal static Offset16<RoomPixels> Offset(ushort timer) => ((timer & 6) >> 1) switch
     {
-        0 => (Amplitude, 0),
-        1 => (0, -Amplitude),
-        2 => (-Amplitude, 0),
-        3 => (0, Amplitude),
+        0 => new Offset16<RoomPixels>(Amplitude, 0),
+        1 => new Offset16<RoomPixels>(0, -Amplitude),
+        2 => new Offset16<RoomPixels>(-Amplitude, 0),
+        3 => new Offset16<RoomPixels>(0, Amplitude),
         _ => throw new InvalidOperationException($"Mochtroid shake timer ${timer:X4} selected no direction."),
     };
 }

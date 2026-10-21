@@ -31,12 +31,12 @@ public static class PauseReserveTankDefinitions
     public const ushort PaletteBits = PauseReserveTankRomData.PaletteBits;
     /// <summary>$82:B305 full tank; $82:B396 trailing cap; $82:B37D empty tank and $82:B3D9 seven fill levels.</summary>
     /// <returns>Ten stable frame-name/native-spritemap pairs in full, end-cap, empty, then Fill1..Fill7 order; caller-owned reserve quantities select the frame.</returns>
-    public static IEnumerable<(string Name, PauseReserveTankVisual Id)> Frames()
+    public static IEnumerable<PauseReserveTankFrame> Frames()
     {
-        yield return ("Full", PauseReserveTankVisual.Full);
-        yield return ("EndCap", PauseReserveTankVisual.EndCap);
-        yield return ("Empty", PauseReserveTankVisual.Empty);
-        for (int fill = 1; fill <= 7; fill++) yield return ($"Fill{fill}", FillLevel(fill));
+        yield return new PauseReserveTankFrame("Full", PauseReserveTankVisual.Full);
+        yield return new PauseReserveTankFrame("EndCap", PauseReserveTankVisual.EndCap);
+        yield return new PauseReserveTankFrame("Empty", PauseReserveTankVisual.Empty);
+        for (int fill = 1; fill <= 7; fill++) yield return new PauseReserveTankFrame($"Fill{fill}", FillLevel(fill));
     }
 
     /// <summary>The partial-tank spritemap identity for a fill-step count.</summary>

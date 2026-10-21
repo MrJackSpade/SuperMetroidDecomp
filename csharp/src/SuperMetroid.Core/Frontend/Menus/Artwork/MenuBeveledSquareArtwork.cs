@@ -39,8 +39,8 @@ internal sealed class MenuBeveledSquareArtwork
     private static byte Basis(MenuBeveledSquareCell cell, Position16<CharacterPixels> point)
     {
         if (point.X is 0 or 7 || point.Y is 0 or 7) return 0;
-        (byte face, byte highlight, byte shadow) = cell == MenuBeveledSquareCell.Light ? ((byte)11, (byte)14, (byte)12) : ((byte)10, (byte)9, (byte)7);
-        if (point.X == 6 || point.Y == 6) return shadow;
-        return point.X == 1 || point.Y == 1 ? highlight : face;
+        (int face, int highlight, int shadow) = cell == MenuBeveledSquareCell.Light ? new MenuBevelColors(11, 14, 12) : new MenuBevelColors(10, 9, 7);
+        if (point.X == 6 || point.Y == 6) return checked((byte)shadow);
+        return checked((byte)(point.X == 1 || point.Y == 1 ? highlight : face));
     }
 }

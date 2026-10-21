@@ -10,7 +10,7 @@ internal readonly record struct MotherBrainContactHitboxes(MotherBrainContactPar
     public int Count => Part == MotherBrainContactPart.Neck ? 1 : 2;
 
     /// <summary>Returns a component's signed local rectangle, preserving the native first-hit test order.</summary>
-    public EnemyHitboxRectangle this[int region] => (Part, region) switch
+    public EnemyHitboxRectangle this[int region] => new MotherBrainContactRegion(Part, region) switch
     {
         // Lower body first, then the narrower upper body. Native collision stops on its first hit.
         (MotherBrainContactPart.Body, 0) => new(-32, -24, 42, 56),

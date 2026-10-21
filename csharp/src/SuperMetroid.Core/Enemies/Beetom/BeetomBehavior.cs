@@ -265,7 +265,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
         BeetomHopLength length)
     {
         state.YSpeedTableIndex = initialYSpeedIndex;
-        state.Function = (direction, length) switch
+        state.Function = new BeetomHop(direction, length) switch
         {
             (HorizontalDirection.Left, BeetomHopLength.Short) => BeetomEnemyFunction.ShortHopLeft,
             (HorizontalDirection.Right, BeetomHopLength.Short) => BeetomEnemyFunction.ShortHopRight,

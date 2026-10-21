@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Samus.Artwork;
 public static class SamusArmCannonArtworkFormat
 {
     /// <summary>Bank-$90 arm-cannon drawing descriptors selected by Samus pose.</summary>
-    private enum ArmCannonDrawing : ushort
+    internal enum ArmCannonDrawing : ushort
     {
         /// <summary>$90:C9DB, ArmCannonDrawingData_FacingForward: native descriptor identity for the explicit pose cases below; drawing bytes remain independent.</summary>
         FacingForward = 0xc9db,
@@ -453,7 +453,7 @@ public static class SamusArmCannonArtworkFormat
             return false;
         }
         // Control bytes by descriptor and byte position; coordinate bytes are resolved separately.
-        byte? control = (drawing, byteOffset) switch
+        byte? control = new ArmCannonControlByte(drawing, byteOffset) switch
         {
             (ArmCannonDrawing.FacingForward, 0) or
             (ArmCannonDrawing.Default, 0) => 0,

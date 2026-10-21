@@ -222,7 +222,7 @@ internal static class GrappleFiringDefinitionsVerification
 
     /// <summary>Compares one origin component with native words and rejects unsupported directions.</summary>
     private static void VerifyGrappleOriginField(SuperMetroidAddressSpace rom, int address,
-        bool running, Func<(short X, short Y), short> select, string label)
+        bool running, Func<Offset16<RoomPixels>, short> select, string label)
     {
         for (byte direction = 0; direction < 10; direction++)
         {

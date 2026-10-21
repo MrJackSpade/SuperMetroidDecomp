@@ -42,11 +42,11 @@ public static class EndingCreditsRomData
         /// EscapeB: $8B:D775/D604; explosion: $8B:D87B/D615. Each pair is the
         /// high-byte character lane followed by the packed low-byte map source.
         /// The legacy Map/Characters constant names are inverted relative to these lanes.</summary>
-        public static (int Characters, int PackedMap) Mode7Sources(EndingMode7SceneId id) => id switch
+        public static EndingMode7Sources Mode7Sources(EndingMode7SceneId id) => id switch
         {
-            EndingMode7SceneId.EscapeA => (EscapeMapA, EscapeCharactersA),
-            EndingMode7SceneId.EscapeB => (EscapeMapB, EscapeCharactersB),
-            EndingMode7SceneId.PlanetExplosion => (ExplosionMap, ExplosionCharacters),
+            EndingMode7SceneId.EscapeA => new EndingMode7Sources(EscapeMapA, EscapeCharactersA),
+            EndingMode7SceneId.EscapeB => new EndingMode7Sources(EscapeMapB, EscapeCharactersB),
+            EndingMode7SceneId.PlanetExplosion => new EndingMode7Sources(ExplosionMap, ExplosionCharacters),
             _ => throw new ArgumentOutOfRangeException(nameof(id)),
         };
         /// <summary>$8B:D56C decompresses the explosion OBJ sheet into $7F:8000.</summary>

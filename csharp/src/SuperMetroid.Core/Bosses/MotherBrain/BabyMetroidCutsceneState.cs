@@ -149,12 +149,12 @@ public sealed class BabyMetroidCutsceneState
     /// cartridge's carry out of its 16-bit accumulator: the slowing rainbow advances one palette
     /// frame on every carry and keeps the remainder.
     /// </summary>
-    internal static (int Fraction, bool FrameCompleted) AdvanceSamusRainbowFraction(int fraction)
+    internal static SamusRainbowFractionStep AdvanceSamusRainbowFraction(int fraction)
     {
         int sum = Ensure.BetweenInclusive(0, SamusRainbowPaletteFractionsPerFrame - 1, fraction) + 768;
         return sum >= SamusRainbowPaletteFractionsPerFrame
-            ? (sum - SamusRainbowPaletteFractionsPerFrame, true)
-            : (sum, false);
+            ? new SamusRainbowFractionStep(sum - SamusRainbowPaletteFractionsPerFrame, true)
+            : new SamusRainbowFractionStep(sum, false);
     }
 
     /// <summary>Which of the two native rainbow-palette handlers is currently installed.</summary>

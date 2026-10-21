@@ -23,10 +23,10 @@ public static class XrayRevealExtensions
         // Both entry points sign-extend the initial BTS. Later reads are asymmetric:
         // only the horizontal-extension branch repeats that sign extension.
         int step = unchecked((sbyte)block.Bts.Value);
-        var visited = new HashSet<(ushort X, ushort Y, bool Vertical, int Step)>();
+        var visited = new HashSet<XrayRevealVisit>();
         while (true)
         {
-            if (!visited.Add((x, y, vertical, step)))
+            if (!visited.Add(new(new Position16<RoomBlocks>(x, y), vertical, step)))
                 throw new InvalidDataException($"Cyclic X-ray extension chain from block {blockIndex}.");
             ushort coordinate = unchecked((ushort)((vertical ? y : x) + step));
             if (unchecked((short)coordinate) < 0) return XrayRevealTableWords.BlankMetatile;

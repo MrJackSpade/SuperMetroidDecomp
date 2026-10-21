@@ -46,10 +46,10 @@ public readonly record struct SamusSpeedBoostCounter
     /// One animation command's full-word decrement, which borrows from the stage when the cadence is zero.
     /// </summary>
     /// <returns>The decremented counter and whether its cadence is now zero.</returns>
-    public (SamusSpeedBoostCounter Counter, bool CadenceExpired) DecrementForAnimationCommand()
+    public SpeedBoostCountdown DecrementForAnimationCommand()
     {
         var next = new SamusSpeedBoostCounter(unchecked((ushort)(RawValue - 1)));
-        return (next, next.RawValue % StageSpan == 0);
+        return new SpeedBoostCountdown(next, next.RawValue % StageSpan == 0);
     }
 
     /// <summary>The counter one stage higher; the caller checks that the stage-four bit is clear first.</summary>

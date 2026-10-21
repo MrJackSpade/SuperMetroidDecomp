@@ -172,11 +172,11 @@ public static class PauseEquipmentLabelDefinitions
     private static readonly Lazy<Dictionary<PauseEquipmentLabelId, int>> destinations = new(() =>
         Labels().ToDictionary(label => label.Label, label =>
         {
-            (int column, int firstRow) = label.Category switch
+            var (column, firstRow) = label.Category switch
             {
-                PauseEquipmentCategory.Beams => (4, 16),
-                PauseEquipmentCategory.Suits => (21, 9 + (label.Item >= 2 ? 2 : 0)),
-                PauseEquipmentCategory.Boots => (21, 19),
+                PauseEquipmentCategory.Beams => new Position16<TilemapCells>(4, 16),
+                PauseEquipmentCategory.Suits => new Position16<TilemapCells>(21, checked((ushort)(9 + (label.Item >= 2 ? 2 : 0)))),
+                PauseEquipmentCategory.Boots => new Position16<TilemapCells>(21, 19),
                 PauseEquipmentCategory.Reserves => throw new InvalidDataException("Unknown equipment label category."),
                 _ => throw new InvalidDataException("Unknown equipment label category."),
             };

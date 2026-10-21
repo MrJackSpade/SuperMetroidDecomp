@@ -126,10 +126,10 @@ internal sealed class ScrollPlms : IPlmFamilySource
         {
             (RoomCollisionType collisionType, sbyte offset) = header switch
             {
-                PlmHeaderId.RightwardsScrollExtension => (RoomCollisionType.HorizontalExtension, (sbyte)-1),
-                PlmHeaderId.LeftwardsScrollExtension => (RoomCollisionType.HorizontalExtension, (sbyte)1),
-                PlmHeaderId.DownwardsScrollExtension => (RoomCollisionType.VerticalExtension, (sbyte)-1),
-                PlmHeaderId.UpwardsScrollExtension => (RoomCollisionType.VerticalExtension, (sbyte)1),
+                PlmHeaderId.RightwardsScrollExtension => new ScrollExtension(RoomCollisionType.HorizontalExtension, -1),
+                PlmHeaderId.LeftwardsScrollExtension => new ScrollExtension(RoomCollisionType.HorizontalExtension, 1),
+                PlmHeaderId.DownwardsScrollExtension => new ScrollExtension(RoomCollisionType.VerticalExtension, -1),
+                PlmHeaderId.UpwardsScrollExtension => new ScrollExtension(RoomCollisionType.VerticalExtension, 1),
                 PlmHeaderId.None or
                     PlmHeaderId.Nothing or
                     PlmHeaderId.CollisionReactionClearCarry or

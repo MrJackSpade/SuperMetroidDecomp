@@ -31,7 +31,7 @@ public static class KraidMovementChoices
     /// third branch at the leftmost, middle and right positions. Independently checked
     /// against all native pairs and both complete selector domains for #1165.
     /// </remarks>
-    public static (ushort TargetX, ushort ThinkTimer) Select(ushort position, int random)
+    public static KraidMovementChoice Select(ushort position, int random)
     {
         // The $A7:BA7D record search ends on the $0160 row for every unlisted position.
         Destination row = Enum.IsDefined((Destination)position) ? (Destination)position : Destination.Starting;
@@ -54,6 +54,6 @@ public static class KraidMovementChoices
             2 when row is Destination.Leftmost or Destination.Middle or Destination.Right => 344,
             _ => 44,
         };
-        return ((ushort)target, timer);
+        return new KraidMovementChoice((ushort)target, timer);
     }
 }

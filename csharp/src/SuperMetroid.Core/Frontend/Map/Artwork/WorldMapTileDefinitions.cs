@@ -166,14 +166,14 @@ internal static class WorldMapTileDefinitions
     {
         (bool top, bool bottom, bool left, bool right) = tile switch
         {
-            0x20 => (true, true, true, true),
-            0x21 => (true, true, true, false),
-            0x22 => (true, true, false, false),
-            0x23 => (false, false, true, true),
-            0x24 => (true, false, true, true),
-            0x25 => (true, false, true, false),
-            0x26 => (true, false, false, false),
-            0x27 => (false, false, false, true),
+            0x20 => new WorldMapRoomBorder(true, true, true, true),
+            0x21 => new WorldMapRoomBorder(true, true, true, false),
+            0x22 => new WorldMapRoomBorder(true, true, false, false),
+            0x23 => new WorldMapRoomBorder(false, false, true, true),
+            0x24 => new WorldMapRoomBorder(true, false, true, true),
+            0x25 => new WorldMapRoomBorder(true, false, true, false),
+            0x26 => new WorldMapRoomBorder(true, false, false, false),
+            0x27 => new WorldMapRoomBorder(false, false, false, true),
             _ => throw new ArgumentOutOfRangeException(nameof(tile)),
         };
         return top && point.Y == 0 || bottom && point.Y == Side - 1 || left && point.X == 0 || right && point.X == Side - 1 ? Edge : Fill;
@@ -184,22 +184,22 @@ internal static class WorldMapTileDefinitions
     {
         (bool mirror, int offset, bool below, bool left, bool right, bool dashLeft, bool dashBottom) = tile switch
         {
-            0x13 => (false, 0, true, false, false, false, false),
-            0x14 => (false, Side / 2, true, false, false, true, false),
-            0x15 => (false, 0, false, false, false, true, true),
-            0x16 => (false, Side / 2, false, false, false, true, false),
-            0x17 => (false, Side / 2, true, true, false, true, false),
-            0x18 => (false, Side / 2, false, true, false, false, true),
-            0x19 => (false, 0, true, false, true, false, false),
-            0x1a => (true, 0, false, true, false, true, true),
-            0x28 => (true, Side / 2, false, false, false, false, true),
-            0x29 => (true, Side / 2, true, false, false, true, false),
-            0x2a => (true, 0, false, false, false, true, true),
-            0x2b => (true, 0, true, false, false, false, false),
-            0x2c => (true, Side / 2, true, false, true, true, false),
-            0x2d => (true, Side / 2, false, false, true, false, true),
-            0x2e => (true, 0, true, true, false, true, false),
-            0x2f => (true, 0, false, true, false, true, true),
+            0x13 => new WorldMapDiagonalRoom(false, 0, true, false, false, false, false),
+            0x14 => new WorldMapDiagonalRoom(false, Side / 2, true, false, false, true, false),
+            0x15 => new WorldMapDiagonalRoom(false, 0, false, false, false, true, true),
+            0x16 => new WorldMapDiagonalRoom(false, Side / 2, false, false, false, true, false),
+            0x17 => new WorldMapDiagonalRoom(false, Side / 2, true, true, false, true, false),
+            0x18 => new WorldMapDiagonalRoom(false, Side / 2, false, true, false, false, true),
+            0x19 => new WorldMapDiagonalRoom(false, 0, true, false, true, false, false),
+            0x1a => new WorldMapDiagonalRoom(true, 0, false, true, false, true, true),
+            0x28 => new WorldMapDiagonalRoom(true, Side / 2, false, false, false, false, true),
+            0x29 => new WorldMapDiagonalRoom(true, Side / 2, true, false, false, true, false),
+            0x2a => new WorldMapDiagonalRoom(true, 0, false, false, false, true, true),
+            0x2b => new WorldMapDiagonalRoom(true, 0, true, false, false, false, false),
+            0x2c => new WorldMapDiagonalRoom(true, Side / 2, true, false, true, true, false),
+            0x2d => new WorldMapDiagonalRoom(true, Side / 2, false, false, true, false, true),
+            0x2e => new WorldMapDiagonalRoom(true, 0, true, true, false, true, false),
+            0x2f => new WorldMapDiagonalRoom(true, 0, false, true, false, true, true),
             _ => throw new ArgumentOutOfRangeException(nameof(tile)),
         };
         int boundary = (mirror ? Side - 1 - point.X : point.X) / 2 + offset;
@@ -390,9 +390,9 @@ internal static class WorldMapTileDefinitions
             0x1c5 or 0x1c6 or 0x1c8 or 0x1dc or 0x1dd or 0x283 or 0x293 or 0x294)
             return At(tile, 0, 0);
         int sum = x + y;
-        (int sx, int sy) AntiDiagonal() => sum < Side - 1 ? (0, 0) : sum == Side - 1 ? (Side - 1, 0) : (Side - 1, Side - 1);
-        (int sx, int sy) Diagonal() => x < y ? (0, Side - 1) : x == y ? (0, 0) : (Side - 1, 0);
-        (int sx, int sy) selected = tile switch
+        Position16<CharacterPixels> AntiDiagonal() => sum < Side - 1 ? new Position16<CharacterPixels>(0, 0) : sum == Side - 1 ? new Position16<CharacterPixels>(Side - 1, 0) : new Position16<CharacterPixels>(Side - 1, Side - 1);
+        Position16<CharacterPixels> Diagonal() => x < y ? new Position16<CharacterPixels>(0, Side - 1) : x == y ? new Position16<CharacterPixels>(0, 0) : new Position16<CharacterPixels>(Side - 1, 0);
+        Position16<CharacterPixels> selected = tile switch
         {
             // Single diagonal edges separating the selected fill regions.
             0x1a0 or 0x1a1 or 0x1a3 or 0x1a4 or 0x1a7 or 0x1a9 or 0x1ad or
@@ -402,23 +402,23 @@ internal static class WorldMapTileDefinitions
             0x1b1 or 0x1b8 or 0x1b9 or 0x1bd or 0x1c2 or 0x1c7 or 0x1ce or
             0x1d0 or 0x1d2 or 0x1d6 or 0x1de or 0x1e0 or 0x1e2 or 0x1e4 or 0x1e6 => Diagonal(),
             // Highlighted diagonal with the extra one-pixel upper edge.
-            0x1a5 or 0x1ab => x < y ? (0, Side - 1) : x == y ? (0, 0) : x == y + 1 ? (1, 0) : (Side - 1, 0),
-            0x1a6 or 0x1ac or 0x1cc => sum == Side - 1 ? (Side - 1, 0) : (0, 0),
-            0x1af or 0x1b5 or 0x1bb => x <= y ? (0, 0) : (Side - 1, 0),
-            0x1b0 or 0x1b6 or 0x1bc => y == Side - 1 ? (0, Side - 1) : (0, 0),
+            0x1a5 or 0x1ab => x < y ? new Position16<CharacterPixels>(0, Side - 1) : x == y ? new Position16<CharacterPixels>(0, 0) : x == y + 1 ? new Position16<CharacterPixels>(1, 0) : new Position16<CharacterPixels>(Side - 1, 0),
+            0x1a6 or 0x1ac or 0x1cc => sum == Side - 1 ? new Position16<CharacterPixels>(Side - 1, 0) : new Position16<CharacterPixels>(0, 0),
+            0x1af or 0x1b5 or 0x1bb => x <= y ? new Position16<CharacterPixels>(0, 0) : new Position16<CharacterPixels>(Side - 1, 0),
+            0x1b0 or 0x1b6 or 0x1bc => y == Side - 1 ? new Position16<CharacterPixels>(0, Side - 1) : new Position16<CharacterPixels>(0, 0),
             // Selected crossings: primary edge takes precedence at its join.
-            0x1aa => sum < Side - 2 && y > x ? (0, 1) : AntiDiagonal(),
-            0x1b2 => x <= y ? Diagonal() : sum > Side - 1 ? (Side - 1, 1) : (1, 0),
-            0x1ca => sum >= Side - 1 ? AntiDiagonal() : y >= x && sum < Side - 2 ? (0, 0) : (1, 0),
-            0x1cb => x < y ? (0, Side - 1) : x == y ? (0, 0) : x == y + 1 || sum == Side - 2
-                ? (1, 0) : sum > Side - 2 ? (Side - 1, 0) : (2, 0),
-            0x1d3 => sum >= Side - 1 ? AntiDiagonal() : x == y ? (0, 0) : (1, 0),
-            0x1d7 => x <= y ? Diagonal() : sum >= Side - 1 ? (Side - 1, 0) : (1, 0),
-            0x1d8 => sum >= Side - 1 ? AntiDiagonal() : x <= y ? (0, 0) : (1, 0),
-            0x1da => x <= y ? Diagonal() : sum < Side - 1 ? (1, 0) : sum == Side - 1 ? (Side - 1, 0) : (Side - 1, 1),
-            _ => (x, y),
+            0x1aa => sum < Side - 2 && y > x ? new Position16<CharacterPixels>(0, 1) : AntiDiagonal(),
+            0x1b2 => x <= y ? Diagonal() : sum > Side - 1 ? new Position16<CharacterPixels>(Side - 1, 1) : new Position16<CharacterPixels>(1, 0),
+            0x1ca => sum >= Side - 1 ? AntiDiagonal() : y >= x && sum < Side - 2 ? new Position16<CharacterPixels>(0, 0) : new Position16<CharacterPixels>(1, 0),
+            0x1cb => x < y ? new Position16<CharacterPixels>(0, Side - 1) : x == y ? new Position16<CharacterPixels>(0, 0) : x == y + 1 || sum == Side - 2
+                ? new Position16<CharacterPixels>(1, 0) : sum > Side - 2 ? new Position16<CharacterPixels>(Side - 1, 0) : new Position16<CharacterPixels>(2, 0),
+            0x1d3 => sum >= Side - 1 ? AntiDiagonal() : x == y ? new Position16<CharacterPixels>(0, 0) : new Position16<CharacterPixels>(1, 0),
+            0x1d7 => x <= y ? Diagonal() : sum >= Side - 1 ? new Position16<CharacterPixels>(Side - 1, 0) : new Position16<CharacterPixels>(1, 0),
+            0x1d8 => sum >= Side - 1 ? AntiDiagonal() : x <= y ? new Position16<CharacterPixels>(0, 0) : new Position16<CharacterPixels>(1, 0),
+            0x1da => x <= y ? Diagonal() : sum < Side - 1 ? new Position16<CharacterPixels>(1, 0) : sum == Side - 1 ? new Position16<CharacterPixels>(Side - 1, 0) : new Position16<CharacterPixels>(Side - 1, 1),
+            _ => new Position16<CharacterPixels>(checked((ushort)x), checked((ushort)y)),
         };
-        return At(tile, selected.sx, selected.sy);
+        return At(tile, selected.X, selected.Y);
     }
 
     /// <summary>$6A: the world-map label font's A cell; the letters follow alphabetically.</summary>

@@ -134,10 +134,10 @@ public static class SamusFullBodyCycleColorFormat
     {
         var (warm, blue) = shade switch
         {
-            0 => (0, 0),
-            1 => (10, 5),
-            2 => (16, 0),
-            3 => (26, 10),
+            0 => new ShineTint(0, 0),
+            1 => new ShineTint(10, 5),
+            2 => new ShineTint(16, 0),
+            3 => new ShineTint(26, 10),
             _ => throw new ArgumentOutOfRangeException(nameof(shade)),
         };
         return new(Math.Min(31, basis.Red + warm),
@@ -151,7 +151,7 @@ public static class SamusFullBodyCycleColorFormat
     /// tint's red/green with bright9's blue. Varia bright11 retains base red,
     /// adds five green and shares bright10's blue. Native words9B52/54/56,
     /// 9B72 and9D96 establish these relationships; source payloads remain editable.</remarks>
-    internal static int SpeedSharedChannelSource(int palette, int color) => (palette, color) switch
+    internal static int SpeedSharedChannelSource(int palette, int color) => new SpeedPaletteColor(palette, color) switch
     {
         (1, 9) => 9,
         (1, 10 or 11) => 16 + 2,
@@ -266,7 +266,7 @@ public static class SamusFullBodyCycleColorFormat
         int suit = source / 16;
         int familyRow = source % 16;
         // Suit recoloring changes only these ink slots; all other inks use Power's row.
-        bool suitInk = (suit, familyRow) switch
+        bool suitInk = new SuitInkKey(suit, familyRow) switch
         {
             (0, _) => true,
             (1, >= 1 and <= 3) => color is 1 or 2 or 10 or 11 or 12,

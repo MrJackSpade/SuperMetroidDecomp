@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend.Map.Artwork;
 using System.Collections.Immutable;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
@@ -9,13 +10,13 @@ namespace SuperMetroid.Core.Frontend.Pause.Artwork;
 public sealed class PauseReserveTankPresentation
 {
     /// <summary>Per-coordinate deviations from the six stock reserve-strip anchors.</summary>
-    internal readonly Dictionary<int, (int? X, int? Y)> anchorOverrides;
+    internal readonly Dictionary<int, AnchorOverride> anchorOverrides;
     /// <summary>Edited sprite compositions for the ten native reserve visual roles.</summary>
     internal readonly FrameSet frames;
     /// <summary>Object attributes selecting the OBJ palette applied to every reserve-strip part, with no tile, priority or flip.</summary>
     private readonly SnesObjAttributeWord objectPalette;
     /// <summary>Stores independent anchor edits, frame art, and selected reserve palette.</summary>
-    private PauseReserveTankPresentation(Dictionary<int, (int? X, int? Y)> anchorOverrides, FrameSet frames, int palette)
+    private PauseReserveTankPresentation(Dictionary<int, AnchorOverride> anchorOverrides, FrameSet frames, int palette)
     { this.anchorOverrides = anchorOverrides; this.frames = frames; objectPalette = SnesObjAttributeWord.Create(0, palette, 0); }
 
     /// <summary>Gets one reserve-strip screen anchor, falling back independently to each stock coordinate.</summary>
@@ -80,13 +81,13 @@ public sealed class PauseReserveTankPresentation
             return parts.Length == 1 && parts[0] == PauseReserveTankDefinitions.StockPart(identity)
                 ? null : MenuSpriteCompiler.Compile(parts, name);
         }
-        var anchorOverrides = new Dictionary<int, (int? X, int? Y)>();
+        var anchorOverrides = new Dictionary<int, AnchorOverride>();
         for (int index = 0; index < document.Anchors.Length; index++)
         {
             var point = document.Anchors[index];
             var basis = PauseReserveTankDefinitions.StockAnchor(index);
             if (point.X != basis.X || point.Y != basis.Y)
-                anchorOverrides.Add(index, (point.X == basis.X ? null : point.X, point.Y == basis.Y ? null : point.Y));
+                anchorOverrides.Add(index, new AnchorOverride(point.X == basis.X ? null : point.X, point.Y == basis.Y ? null : point.Y));
         }
         return new(anchorOverrides, frames, document.Palette);
     }

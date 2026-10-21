@@ -29,7 +29,7 @@ internal static class MotherBrainHandBeamAnimations
     {
         yield return Step.Show(new(stage, 0), 3);
         yield return Step.Publish(MotherBrainHandBeamCue.SpawnNextBeam);
-        foreach ((int phase, int duration) in new[] { (1, 3), (2, 2), (3, 2), (4, 1), (5, 1), (6, 1) })
+        foreach ((int phase, int duration) in new[] { new MotherBrainHandBeamFrameHold(1, 3), new MotherBrainHandBeamFrameHold(2, 2), new MotherBrainHandBeamFrameHold(3, 2), new MotherBrainHandBeamFrameHold(4, 1), new MotherBrainHandBeamFrameHold(5, 1), new MotherBrainHandBeamFrameHold(6, 1) })
             yield return Step.Show(new(stage, phase), duration);
     }
 }

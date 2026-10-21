@@ -59,9 +59,9 @@ internal sealed class CeresRidleyAlarmColorDefinitions
         int blue = phase * 6 / 5;
         (int red, int green) = color switch
         {
-            0 => (31 - halfStep, BrightGreen - phase),
-            1 => (MiddleRed, MiddleGreen - halfStep),
-            2 => (DarkRed + phase * 4 / 5, DarkGreen + phase / 8),
+            0 => new RedGreenLevels(31 - halfStep, BrightGreen - phase),
+            1 => new RedGreenLevels(MiddleRed, MiddleGreen - halfStep),
+            2 => new RedGreenLevels(DarkRed + phase * 4 / 5, DarkGreen + phase / 8),
             _ => throw new ArgumentOutOfRangeException(nameof(color)),
         };
         return new(red, green, blue);

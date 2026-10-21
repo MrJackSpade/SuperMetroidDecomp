@@ -18,12 +18,12 @@ internal static class CeresDoorRumbleGeometryDefinitions
     private static readonly short[] VerticalPlacements = [-8, 4, 22, 12];
 
     /// <summary>Converts emission order into the paired horizontal and native vertical destruction offsets.</summary>
-    internal static (short X, short Y) Offset(int index)
+    internal static Offset16<RoomPixels> Offset(int index)
     {
         if ((uint)index >= Count)
             throw new ArgumentOutOfRangeException(nameof(index));
         int pair = index / 2;
         int side = index % 2;
-        return ((short)(ColumnSpacing * (2 * side + pair - 2)), VerticalPlacements[index]);
+        return new Offset16<RoomPixels>((short)(ColumnSpacing * (2 * side + pair - 2)), VerticalPlacements[index]);
     }
 }

@@ -66,10 +66,10 @@ internal static class DeadMonsterRottingDefinitions
     {
         (int count, int tiles) = table switch
         {
-            CorpseRotationTable.Torizo => (13, 10),
-            CorpseRotationTable.Sidehopper => (6, 5),
-            CorpseRotationTable.Zoomer or CorpseRotationTable.Ripper => (3, 3),
-            CorpseRotationTable.Skree => (5, 2),
+            CorpseRotationTable.Torizo => new CorpseRotationExtent(13, 10),
+            CorpseRotationTable.Sidehopper => new CorpseRotationExtent(6, 5),
+            CorpseRotationTable.Zoomer or CorpseRotationTable.Ripper => new CorpseRotationExtent(3, 3),
+            CorpseRotationTable.Skree => new CorpseRotationExtent(5, 2),
             _ => throw new InvalidOperationException($"Undefined CorpseRotationTable {table}."),
         };
         int row = yOffset >> 3;

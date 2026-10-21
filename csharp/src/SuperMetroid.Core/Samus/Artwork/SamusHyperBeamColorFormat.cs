@@ -22,7 +22,7 @@ public static class SamusHyperBeamColorFormat
     /// share middle ink13 red21/green3. Frame8 ink11 blue at9BA276 shares
     /// middle blue3. Other channels keep their temporal blend. Return the
     /// RGB5 bit shift or-1 when no within-frame sharing applies.</remarks>
-    internal static ColorChannel? SharedIntermediateShadowChannel(int frame, int ink) => (frame, ink) switch
+    internal static ColorChannel? SharedIntermediateShadowChannel(int frame, int ink) => new HyperBeamInk(frame, ink) switch
     {
         (0, 3) => ColorChannel.Red,
         (0, 11) => ColorChannel.Green,
@@ -74,7 +74,7 @@ public static class SamusHyperBeamColorFormat
     /// red/green channel. Null components remain independently supplied.
     /// Domain:frames1/5/9,shadow inks3/11/13,RGB5 inputs. The reused midpoint
     /// is bounded,no clamping or generated color storage is needed.</remarks>
-    internal static (int? Red, int? Green) EndpointSourceChannels(int frame, int color,
+    internal static HyperBeamEndpointChannels EndpointSourceChannels(int frame, int color,
         Bgr555 greenHue, Bgr555 lowShadow, Bgr555 highShadow)
     {
         if (frame is not (1 or 5 or 9)) throw new ArgumentOutOfRangeException(nameof(frame));
@@ -88,7 +88,7 @@ public static class SamusHyperBeamColorFormat
             if (frame == 5) red = lowShadow.Red;
             if (frame is 5 or 9) green = middle.Green;
         }
-        return (red, green);
+        return new HyperBeamEndpointChannels(red, green);
     }
 
     /// <summary>Selects the shared shadow ink and constant RGB brightening for an opaque sprite ink.</summary>
@@ -99,12 +99,12 @@ public static class SamusHyperBeamColorFormat
     /// components in frames1/4/8 kept as independently selected highlight
     /// accents under the catalog's class-level artwork disposition.
     /// Other inks keep their own input.</remarks>
-    internal static (int Ink, int Brightness) ShadeSource(int ink) => ink switch
+    internal static HyperBeamShadeSource ShadeSource(int ink) => ink switch
     {
-        1 => (11, 2), 8 => (11, 4),
-        2 => (3, 8), 7 => (3, 7), 10 => (3, 4), 14 => (3, 2),
-        4 => (13, 8), 5 => (13, 2), 9 => (13, 4),
-        _ => (ink, 0),
+        1 => new HyperBeamShadeSource(11, 2), 8 => new HyperBeamShadeSource(11, 4),
+        2 => new HyperBeamShadeSource(3, 8), 7 => new HyperBeamShadeSource(3, 7), 10 => new HyperBeamShadeSource(3, 4), 14 => new HyperBeamShadeSource(3, 2),
+        4 => new HyperBeamShadeSource(13, 8), 5 => new HyperBeamShadeSource(13, 2), 9 => new HyperBeamShadeSource(13, 4),
+        _ => new HyperBeamShadeSource(ink, 0),
     };
 
     /// <summary>Adds a supported shade increment independently to all three RGB5 channels.</summary>

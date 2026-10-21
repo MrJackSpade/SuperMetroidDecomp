@@ -44,7 +44,7 @@ public sealed class EnemyTileArtworkCatalog
     /// <summary>Palette paired with each installed ordinary enemy tile sheet.</summary>
     private readonly Dictionary<EnemyDefinitionId, EnemyPaletteSheet> palettes;
     /// <summary>Tile sheets addressable by the native source and byte count of a DMA request.</summary>
-    private readonly Dictionary<(int Source, int ByteCount), RoomCharacterAtlas> byDmaSource;
+    private readonly Dictionary<EnemyDmaSourceKey, RoomCharacterAtlas> byDmaSource;
 
     /// <summary>Editable face-block, corpse-sidehopper, and Golden Torizo health colors.</summary>
     public EnemyAuxiliaryColorCatalog? AuxiliaryColors { get; }
@@ -76,7 +76,7 @@ public sealed class EnemyTileArtworkCatalog
     /// <summary>Resolves the native room-entry enemy VRAM queue against the same indexed PNGs.</summary>
     public bool TryResolve(int sourceAddress, int byteCount, out ReadOnlyMemory<byte> data)
     {
-        if (byDmaSource.TryGetValue((sourceAddress, byteCount), out RoomCharacterAtlas? atlas))
+        if (byDmaSource.TryGetValue(new EnemyDmaSourceKey(sourceAddress, byteCount), out RoomCharacterAtlas? atlas))
         {
             data = atlas.Transfer;
             return true;
@@ -120,7 +120,7 @@ public sealed class EnemyTileArtworkCatalog
             throw new InvalidDataException("Enemy artwork requires one color sheet per tile sheet.");
         this.sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(parts.Sheets);
         this.palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(parts.Palettes);
-        byDmaSource = new Dictionary<(int, int), RoomCharacterAtlas>();
+        byDmaSource = new Dictionary<EnemyDmaSourceKey, RoomCharacterAtlas>();
         if (parts.DmaSources is not null)
         {
             foreach ((EnemyDefinitionId pointer, int sourceAddress) in parts.DmaSources)
@@ -128,7 +128,7 @@ public sealed class EnemyTileArtworkCatalog
                 if (!this.sheets.TryGetValue(pointer, out RoomCharacterAtlas? atlas))
                     throw new InvalidDataException(
                         $"Enemy ${(int)pointer:X4} DMA source has no installed sheet.");
-                var key = (sourceAddress, atlas.Transfer.Length);
+                var key = new EnemyDmaSourceKey(sourceAddress, atlas.Transfer.Length);
                 if (byDmaSource.TryGetValue(key, out RoomCharacterAtlas? existing))
                 {
                     if (!existing.Transfer.Span.SequenceEqual(atlas.Transfer.Span))

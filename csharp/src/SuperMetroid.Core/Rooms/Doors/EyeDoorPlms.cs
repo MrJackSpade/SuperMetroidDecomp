@@ -50,17 +50,17 @@ internal sealed class EyeDoorPlms : IPlmFamilySource
         (EyeDoorComponent component, EyeDoorOrientation orientation) = slot.HeaderPointer switch
         {
             PlmHeaderId.EyeDoorEyeFacingRight =>
-                (EyeDoorComponent.Eye, EyeDoorOrientation.Right),
+                new EyeDoorPart(EyeDoorComponent.Eye, EyeDoorOrientation.Right),
             PlmHeaderId.EyeDoorFacingRight =>
-                (EyeDoorComponent.Door, EyeDoorOrientation.Right),
+                new EyeDoorPart(EyeDoorComponent.Door, EyeDoorOrientation.Right),
             PlmHeaderId.EyeDoorBottomFacingRight =>
-                (EyeDoorComponent.Bottom, EyeDoorOrientation.Right),
+                new EyeDoorPart(EyeDoorComponent.Bottom, EyeDoorOrientation.Right),
             PlmHeaderId.EyeDoorEyeFacingLeft =>
-                (EyeDoorComponent.Eye, EyeDoorOrientation.Left),
+                new EyeDoorPart(EyeDoorComponent.Eye, EyeDoorOrientation.Left),
             PlmHeaderId.EyeDoorFacingLeft =>
-                (EyeDoorComponent.Door, EyeDoorOrientation.Left),
+                new EyeDoorPart(EyeDoorComponent.Door, EyeDoorOrientation.Left),
             PlmHeaderId.EyeDoorBottomFacingLeft =>
-                (EyeDoorComponent.Bottom, EyeDoorOrientation.Left),
+                new EyeDoorPart(EyeDoorComponent.Bottom, EyeDoorOrientation.Left),
             PlmHeaderId.None or
                 PlmHeaderId.Nothing or
                 PlmHeaderId.CollisionReactionClearCarry or

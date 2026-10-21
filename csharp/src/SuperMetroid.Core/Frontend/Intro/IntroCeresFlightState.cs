@@ -365,9 +365,9 @@ internal sealed class IntroCeresFlightState
     /// <summary>Writes one authored title glyph to the caption tilemap.</summary>
     private void WriteNextSpaceColonyLetter()
     {
-        (int column, ushort tile) = SpaceColonyCaptionDefinitions.Letter(spaceColonyLetterIndex++);
+        (int column, int tile) = SpaceColonyCaptionDefinitions.Letter(spaceColonyLetterIndex++);
         const int CaptionRow = 24;
-        spaceColonyTilemap[CaptionRow * 32 + column] = tile;
+        spaceColonyTilemap[CaptionRow * 32 + column] = checked((ushort)tile);
     }
 
     /// <summary>Writes the alternate Japanese caption below the English title.</summary>

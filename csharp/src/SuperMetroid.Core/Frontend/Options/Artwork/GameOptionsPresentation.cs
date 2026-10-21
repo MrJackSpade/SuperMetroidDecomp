@@ -163,6 +163,8 @@ public sealed class GameOptionsPresentation
     /// <summary>Gets the cursor origin for an authored page and selection row.</summary>
     internal Position16<OamPixels> CursorPosition(GameOptionsPage page, int selectedItem)
     {
+        if (!Enum.IsDefined(page))
+            throw new ArgumentOutOfRangeException(nameof(page), page, "Options cursors exist only for the three menu pages.");
         if (cursorAnchors is null)
             return GameOptionsPresentationDefinitions.CursorAnchor(page, selectedItem);
         Position16<OamPixels>[] points = cursorAnchors[page];

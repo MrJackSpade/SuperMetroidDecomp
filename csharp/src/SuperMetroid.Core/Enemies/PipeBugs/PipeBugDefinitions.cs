@@ -34,7 +34,7 @@ internal static class PipeBugDefinitions
     /// facing and shooting flags. Every value names its actual behavior and species.
     /// </summary>
     internal static PipeBugProgram BrinstarProgram(bool strong, PipeBugAnimationSelector selector) =>
-        (strong, selector) switch
+        new PipeBugProgramKey(strong, selector) switch
         {
             (false, PipeBugAnimationSelector.None) => PipeBugProgram.ZebRisingLeft,
             (false, PipeBugAnimationSelector.Shooting) => PipeBugProgram.ZebShootingLeft,

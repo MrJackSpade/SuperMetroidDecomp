@@ -25,9 +25,9 @@ internal static class SamusArmCannonPlacementDefinitions
     private const int MoonwalkInwardJoin = 3;
 
     /// <summary>$90:CAD5/CAD6: first unused retracted descriptor tail, repeated at CBFF/CC00 and CC0D/CC0E.</summary>
-    private static (int X, int Y) UnusedFirstTail => (6, 2);
+    private static Offset16<RoomPixels> UnusedFirstTail => new Offset16<RoomPixels>(6, 2);
     /// <summary>$90:CAD7/CAD8: later unused retracted descriptor tail, repeated at CC01..CC04 and CC0F..CC14.</summary>
-    private static (int X, int Y) UnusedLaterTail => (-19, -2);
+    private static Offset16<RoomPixels> UnusedLaterTail => new Offset16<RoomPixels>(-19, -2);
 
     /// <summary>Finds a pose's extreme body-sprite tip and applies its authored cannon join for a drawing-coordinate byte.</summary>
     /// <remarks>Returns false for unowned coordinates or missing editable body artwork, leaving the installed value intact.</remarks>

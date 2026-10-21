@@ -20,14 +20,14 @@ public static class PhantoonPathDefinitions
         "8686886868986868986868";
 
     /// <summary>Reads the authored signed displacement at the native movement cursor.</summary>
-    public static (sbyte X, sbyte Y) Step(int index)
+    public static Offset16<RoomPixels> Step(int index)
     {
         if ((uint)index >= Length) throw new ArgumentOutOfRangeException(nameof(index));
         return Directions[index] switch
         {
-            '1' => (-1, 1), '2' => (0, 1), '3' => (1, 1),
-            '4' => (-1, 0), '6' => (1, 0),
-            '7' => (-1, -1), '8' => (0, -1), '9' => (1, -1),
+            '1' => new Offset16<RoomPixels>(-1, 1), '2' => new Offset16<RoomPixels>(0, 1), '3' => new Offset16<RoomPixels>(1, 1),
+            '4' => new Offset16<RoomPixels>(-1, 0), '6' => new Offset16<RoomPixels>(1, 0),
+            '7' => new Offset16<RoomPixels>(-1, -1), '8' => new Offset16<RoomPixels>(0, -1), '9' => new Offset16<RoomPixels>(1, -1),
             _ => throw new InvalidOperationException("Invalid compiled Phantoon path direction."),
         };
     }

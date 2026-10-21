@@ -142,8 +142,8 @@ internal static class WreckedShipPowerPaintDefinitions
     {
         (int red, int green) = shade switch
         {
-            0 => (MetalLightRed, MetalLightGreen), 1 => (MetalMiddleRed, MetalMiddleGreen),
-            2 => (MetalDeepRed, MetalDeepGreen), _ => (MetalDarkRed, MetalDarkGreen),
+            0 => new RedGreenLevels(MetalLightRed, MetalLightGreen), 1 => new RedGreenLevels(MetalMiddleRed, MetalMiddleGreen),
+            2 => new RedGreenLevels(MetalDeepRed, MetalDeepGreen), _ => new RedGreenLevels(MetalDarkRed, MetalDarkGreen),
         };
         return Rgb(red, green, green + (shade < 2 ? MetalLightBlueTint : MetalDarkBlueTint));
     }

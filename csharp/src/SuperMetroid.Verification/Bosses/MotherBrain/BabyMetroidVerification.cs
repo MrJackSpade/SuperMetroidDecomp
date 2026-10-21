@@ -207,7 +207,7 @@ internal static void VerifyBabyMetroidCutsceneEntrance()
     /// </summary>
     internal static void VerifySamusRainbowFractionCarry()
     {
-        AssertEqual((768, false), BabyMetroidCutsceneState.AdvanceSamusRainbowFraction(0),
+        AssertEqual(new SamusRainbowFractionStep(768, false), BabyMetroidCutsceneState.AdvanceSamusRainbowFraction(0),
             "one call from a cleared accumulator adds 768 without completing a frame");
         int fraction = 0;
         for (int call = 1; call <= 85; call++)
@@ -217,9 +217,9 @@ internal static void VerifyBabyMetroidCutsceneEntrance()
             fraction = next;
         }
         AssertEqual(65280, fraction, "85 calls accumulate 65280 of the 65536 a frame needs");
-        AssertEqual((512, true), BabyMetroidCutsceneState.AdvanceSamusRainbowFraction(fraction),
+        AssertEqual(new SamusRainbowFractionStep(512, true), BabyMetroidCutsceneState.AdvanceSamusRainbowFraction(fraction),
             "the 86th call carries into a new frame and keeps the 512 remainder");
-        AssertEqual((767, true), BabyMetroidCutsceneState.AdvanceSamusRainbowFraction(65535),
+        AssertEqual(new SamusRainbowFractionStep(767, true), BabyMetroidCutsceneState.AdvanceSamusRainbowFraction(65535),
             "the largest fraction carries and keeps the wrapped remainder");
         AssertThrows<ArgumentOutOfRangeException>(
             () => BabyMetroidCutsceneState.AdvanceSamusRainbowFraction(65536),

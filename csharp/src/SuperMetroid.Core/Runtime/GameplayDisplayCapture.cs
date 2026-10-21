@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Bosses.Draygon;
 using SuperMetroid.Core.Bosses.Ridley;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Rooms;
@@ -115,7 +116,7 @@ public static class GameplayDisplayCapture
             ? SnesGameplayFrameRenderer.BuildLavaAcidBg2VerticalScrolls(vertical, bg2Scroll.Y) : null;
         BossBg2Layer? kraidBody = bosses.KraidBody;
         // Draygon's body shows only on the scanlines around it ($88:DF94), placed against the frame's camera (#1354).
-        (int First, int End) bg2Lines = bosses.DraygonBody?.VisibleLines(ppu.Layer1Position) ?? (32, 224);
+        DraygonBodyScanlines bg2Lines = bosses.DraygonBody?.VisibleLines(ppu.Layer1Position) ?? new DraygonBodyScanlines(32, 224);
         Position16<Bg2Pixels>? crocomireBg2Scroll = bosses.CrocomireBg2Scroll;
         bool verticalStatueMap = scene.FxType == RoomFxType.TourianEntranceStatue;
         ushort character = latched.Rooms?.Characters == RoomBackgroundCharacters.ObjectCharacterPage

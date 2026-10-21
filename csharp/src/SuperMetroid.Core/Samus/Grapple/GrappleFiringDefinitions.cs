@@ -44,7 +44,7 @@ internal static class GrappleFiringDefinitions
     /// Up/down facings remain distinct; down-left X is -4 versus down-right +3.
     /// Running raises only horizontal anchors by four pixels. All native words
     /// independently match; subsequent graphics/pose corrections stay with callers.</summary>
-    internal static (short X, short Y) Origin(byte direction, bool running)
+    internal static Offset16<RoomPixels> Origin(byte direction, bool running)
     {
         if (direction >= 10)
         {
@@ -71,6 +71,6 @@ internal static class GrappleFiringDefinitions
             GrappleOriginDirection.DownFacingRight or GrappleOriginDirection.DownFacingLeft => 6,
             _ => throw new InvalidOperationException($"Undefined GrappleOriginDirection {aim}."),
         };
-        return (x, y);
+        return new Offset16<RoomPixels>(x, y);
     }
 }

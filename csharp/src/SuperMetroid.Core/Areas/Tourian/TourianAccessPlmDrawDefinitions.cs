@@ -24,15 +24,17 @@ internal static class TourianAccessPlmDrawDefinitions
             return false;
         }
         var list = (TourianAccessDraw)pointer;
-        (rows, word) = list switch
+        TourianAccessDrawFill fill = list switch
         {
-            TourianAccessDraw.Clear => (6, (ushort)0x00ff),
-            TourianAccessDraw.EmptyRow => (1, (ushort)0x00ff),
-            TourianAccessDraw.CrumbleFirst => (1, (ushort)0x53),
-            TourianAccessDraw.CrumbleSecond => (1, (ushort)0x54),
-            TourianAccessDraw.CrumbleThird => (1, (ushort)0x55),
+            TourianAccessDraw.Clear => new TourianAccessDrawFill(6, 0x00ff),
+            TourianAccessDraw.EmptyRow => new TourianAccessDrawFill(1, 0x00ff),
+            TourianAccessDraw.CrumbleFirst => new TourianAccessDrawFill(1, 0x53),
+            TourianAccessDraw.CrumbleSecond => new TourianAccessDrawFill(1, 0x54),
+            TourianAccessDraw.CrumbleThird => new TourianAccessDrawFill(1, 0x55),
             _ => throw new InvalidOperationException($"Undefined TourianAccessDraw {list}."),
         };
+        rows = fill.Rows;
+        word = checked((ushort)fill.Word);
         return true;
     }
 

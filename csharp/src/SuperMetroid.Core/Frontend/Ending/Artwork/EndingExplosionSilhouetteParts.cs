@@ -10,7 +10,7 @@ internal sealed class EndingExplosionSilhouetteParts : IReadOnlyList<CompiledSpr
 {
     /// <summary>Right-hand tile and top Y of the four streaked rows, top to bottom in draw
     /// order: body, inner rays, middle rays, outer rays.</summary>
-    private static readonly (int RightTile, int Top)[] Rows = [(SnesCharacterGrid.Cell(11, 14), 0), (SnesCharacterGrid.Cell(14, 6), -16), (SnesCharacterGrid.Cell(13, 6), -24), (SnesCharacterGrid.Cell(11, 6), -40)];
+    private static readonly EndingSilhouetteRow[] Rows = [new EndingSilhouetteRow(SnesCharacterGrid.Cell(11, 14), 0), new EndingSilhouetteRow(SnesCharacterGrid.Cell(14, 6), -16), new EndingSilhouetteRow(SnesCharacterGrid.Cell(13, 6), -24), new EndingSilhouetteRow(SnesCharacterGrid.Cell(11, 6), -40)];
 
     /// <summary>Uses the calculated silhouette only when the selected pose and all supplied OAM parts match it exactly.</summary>
     internal static SpriteComposition CalculateIfMatching(ushort pointer, SpriteComposition supplied) =>

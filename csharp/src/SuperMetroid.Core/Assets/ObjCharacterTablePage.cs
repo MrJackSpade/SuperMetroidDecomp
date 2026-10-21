@@ -13,7 +13,7 @@ public sealed class ObjCharacterTablePage
     private SpriteArtwork? page;
 
     /// <summary>The upload record and the resolved source of each upload the cached page was composed from.</summary>
-    private (ObjCharacterUpload[] Uploads, ReadOnlyMemory<byte>[] Sources)? composedFrom;
+    private ObjCharacterComposition? composedFrom;
 
     /// <summary>The page <paramref name="uploads"/> show with their artwork as <paramref name="resolver"/> resolves it now.</summary>
     /// <param name="uploads">The OBJ character table's uploads.</param>
@@ -42,7 +42,7 @@ public sealed class ObjCharacterTablePage
             bytes.Span.Slice(upload.SourceOffset, upload.ByteCount).CopyTo(table.AsSpan(upload.FirstByte));
         }
         page = ObjCharacterPage.Create(new SpriteArtworkId(SpriteArtworkKind.GameplayObjects), table);
-        composedFrom = (current, resolved);
+        composedFrom = new ObjCharacterComposition(current, resolved);
         return page;
     }
 

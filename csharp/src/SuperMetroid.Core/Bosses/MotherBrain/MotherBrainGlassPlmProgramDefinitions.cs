@@ -84,16 +84,16 @@ internal static class MotherBrainGlassPlmProgramDefinitions
     }
 
     /// <summary>A burst stage's two groups of four shards, or null for a stage that does not burst.</summary>
-    private static (MotherBrainGlassPlmCue First, MotherBrainGlassPlmCue Second)? BurstOf(int stage)
+    private static MotherBrainGlassBurst? BurstOf(int stage)
     {
         const MotherBrainGlassShard R = MotherBrainGlassShard.Right, L = MotherBrainGlassShard.Left, C = MotherBrainGlassShard.Centre;
         return stage switch
         {
             0 or 1 or 3 or 4 => null,
-            2 => (MotherBrainGlassPlmCue.Burst(R, R, R, R), MotherBrainGlassPlmCue.Burst(R, R, R, R)),
-            5 => (MotherBrainGlassPlmCue.Burst(L, L, L, L), MotherBrainGlassPlmCue.Burst(L, L, L, L)),
-            6 => (MotherBrainGlassPlmCue.Burst(R, R, L, L), MotherBrainGlassPlmCue.Burst(C, C, C, C)),
-            7 or 8 => (MotherBrainGlassPlmCue.Burst(L, L, C, C), MotherBrainGlassPlmCue.Burst(L, L, C, C)),
+            2 => new MotherBrainGlassBurst(MotherBrainGlassPlmCue.Burst(R, R, R, R), MotherBrainGlassPlmCue.Burst(R, R, R, R)),
+            5 => new MotherBrainGlassBurst(MotherBrainGlassPlmCue.Burst(L, L, L, L), MotherBrainGlassPlmCue.Burst(L, L, L, L)),
+            6 => new MotherBrainGlassBurst(MotherBrainGlassPlmCue.Burst(R, R, L, L), MotherBrainGlassPlmCue.Burst(C, C, C, C)),
+            7 or 8 => new MotherBrainGlassBurst(MotherBrainGlassPlmCue.Burst(L, L, C, C), MotherBrainGlassPlmCue.Burst(L, L, C, C)),
             _ => throw new ArgumentOutOfRangeException(nameof(stage)),
         };
     }

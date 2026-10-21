@@ -36,7 +36,7 @@ public static class PauseSelectorDefinitions
         }
     }
     /// <summary>Names the selected native equipment control rather than indexing a name table.</summary>
-    public static string Anchor(PauseEquipmentCategory category, int item) => (category, item) switch
+    public static string Anchor(PauseEquipmentCategory category, int item) => new PauseEquipmentSlot(category, item) switch
     {
         (PauseEquipmentCategory.Reserves, 0) => "Reserve.Mode",
         (PauseEquipmentCategory.Reserves, 1) => "Reserve.Transfer",
@@ -63,12 +63,12 @@ public static class PauseSelectorDefinitions
     public static Position16<OamPixels> StockAnchor(PauseEquipmentCategory category, int item)
     {
         _ = Anchor(category, item);
-        (int x, int y) = category switch
+        var (x, y) = category switch
         {
-            PauseEquipmentCategory.Reserves => (0x1b, 0x54),
-            PauseEquipmentCategory.Beams => (0x30, 0x84),
-            PauseEquipmentCategory.Suits => (0xcc, 0x4c + (item >= 2 ? 16 : 0)),
-            PauseEquipmentCategory.Boots => (0xcc, 0x9c),
+            PauseEquipmentCategory.Reserves => new Position16<ScreenPixels>(0x1b, 0x54),
+            PauseEquipmentCategory.Beams => new Position16<ScreenPixels>(0x30, 0x84),
+            PauseEquipmentCategory.Suits => new Position16<ScreenPixels>(0xcc, checked((ushort)(0x4c + (item >= 2 ? 16 : 0)))),
+            PauseEquipmentCategory.Boots => new Position16<ScreenPixels>(0xcc, 0x9c),
             _ => throw new ArgumentOutOfRangeException(nameof(category)),
         };
         return new(checked((ushort)(x - 1)), checked((ushort)(y + item * 8 - 1)));

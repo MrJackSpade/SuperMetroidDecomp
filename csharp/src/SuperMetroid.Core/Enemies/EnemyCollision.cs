@@ -954,13 +954,16 @@ internal sealed class EnemyCollision
                     enemy.Position.X.Whole);
                 return;
             case SamusContactDamageIndex.SpeedBooster:
-                (baseDamage, vulnerabilityOffset) = (500, EnemyVulnerabilityDefinitions.SpeedBoosterOffset);
+                baseDamage = 500;
+                vulnerabilityOffset = EnemyVulnerabilityDefinitions.SpeedBoosterOffset;
                 break;
             case SamusContactDamageIndex.Shinespark:
-                (baseDamage, vulnerabilityOffset) = (300, EnemyVulnerabilityDefinitions.ShinesparkOffset);
+                baseDamage = 300;
+                vulnerabilityOffset = EnemyVulnerabilityDefinitions.ShinesparkOffset;
                 break;
             case SamusContactDamageIndex.ScrewAttack:
-                (baseDamage, vulnerabilityOffset) = (2000, EnemyVulnerabilityDefinitions.ScrewAttackOffset);
+                baseDamage = 2000;
+                vulnerabilityOffset = EnemyVulnerabilityDefinitions.ScrewAttackOffset;
                 break;
             case SamusContactDamageIndex.PseudoScrew:
                 // The cartridge consumes charge before checking vulnerability. Even immune
@@ -968,7 +971,8 @@ internal sealed class EnemyCollision
                 SamusProjectileSystem projectiles = _frameContext.SamusProjectiles
                     ?? throw new InvalidOperationException("Pseudo Screw enemy contact requires the live projectile owner.");
                 projectiles.Firing.ConsumePseudoScrewCharge(_presentation.Cgram, samus);
-                (baseDamage, vulnerabilityOffset) = (200, EnemyVulnerabilityDefinitions.PseudoScrewOffset);
+                baseDamage = 200;
+                vulnerabilityOffset = EnemyVulnerabilityDefinitions.PseudoScrewOffset;
                 break;
             default:
                 throw new InvalidOperationException($"Undefined {nameof(SamusContactDamageIndex)} {(int)contactDamageIndex}.");

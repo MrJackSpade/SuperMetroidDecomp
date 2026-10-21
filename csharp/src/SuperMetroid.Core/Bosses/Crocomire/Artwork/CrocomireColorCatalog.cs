@@ -34,7 +34,7 @@ public sealed class CrocomireColorCatalog
         WallSpikes,
     }
     /// <summary>Independently supplied differences; every unedited stock ink is calculated.</summary>
-    internal readonly Dictionary<(Band Band, int Color), Bgr555> edits = [];
+    internal readonly Dictionary<CrocomireColorKey, Bgr555> edits = [];
 
     /// <summary>Retains only colors that differ from their calculated native material paint.</summary>
     private CrocomireColorCatalog(Bgr555[] fightBody, Bgr555[] initialWall,
@@ -44,7 +44,7 @@ public sealed class CrocomireColorCatalog
         for (int band = 0; band < supplied.Length; band++)
             for (int color = 0; color < supplied[band].Length; color++)
                 if (supplied[band][color] != Stock((Band)band, color))
-                    edits.Add(((Band)band, color), supplied[band][color]);
+                    edits.Add(new CrocomireColorKey((Band)band, color), supplied[band][color]);
     }
 
     /// <summary>Each named material calculates its native paint and transfer overlaps; supplied edits never alias across fields.</summary>
@@ -124,7 +124,7 @@ public sealed class CrocomireColorCatalog
     internal Bgr555 Get(Band band, int index)
     {
         if ((uint)index >= Count(band)) throw new ArgumentOutOfRangeException(nameof(index));
-        return edits.TryGetValue((band, index), out Bgr555 edited) ? edited : Stock(band, index);
+        return edits.TryGetValue(new CrocomireColorKey(band, index), out Bgr555 edited) ? edited : Stock(band, index);
     }
 
     /// <summary>Writes one complete material band to its selected CGRAM destination.</summary>

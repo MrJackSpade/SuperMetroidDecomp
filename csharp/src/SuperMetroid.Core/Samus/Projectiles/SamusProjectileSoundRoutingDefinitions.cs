@@ -46,13 +46,9 @@ public static class SamusProjectileSoundRoutingDefinitions
     private static ushort Authored(bool charged, SamusBeamCombination combination)
     {
         int family = combination.HasPlasma ? 8 : combination.HasSpazer ? 4 : 0;
-        int variant = (combination.HasIce, combination.HasWave) switch
-        {
-            (false, false) => 0,
-            (true, false) => 1,
-            (false, true) => family == 0 ? 2 : 3,
-            (true, true) => family == 0 ? 3 : 2,
-        };
+        int variant = !combination.HasWave
+            ? combination.HasIce ? 1 : 0
+            : combination.HasIce == (family == 0) ? 3 : 2;
         return (ushort)(UnchargedPowerRequest + family + variant + (charged ? 12 : 0));
     }
 }

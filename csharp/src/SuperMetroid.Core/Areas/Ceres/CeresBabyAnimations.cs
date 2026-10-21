@@ -42,8 +42,8 @@ internal static class CeresBabyAnimations
         [Show(F.Horizontal, 10), Show(F.Round, 10), Show(F.Vertical, 10), Show(F.Round, 10)];
 
     /// <summary>The expressive loop's twelve poses: the squish cycle three times, held two updates plus the distance from the fifth.</summary>
-    private static IEnumerable<(F Pose, int Duration)> ExpressivePoses =>
-        Enumerable.Range(0, 12).Select(index => (SquishPose(index), 2 + Math.Abs(index - 4)));
+    private static IEnumerable<CeresBabyPoseHold> ExpressivePoses =>
+        Enumerable.Range(0, 12).Select(index => new CeresBabyPoseHold(SquishPose(index), 2 + Math.Abs(index - 4)));
 
     /// <summary>The squish cycle's pose at <paramref name="index"/>.</summary>
     private static F SquishPose(int index) => (index % 4) switch

@@ -14,7 +14,7 @@ internal static class Bank80SystemStateAccess
     }
 
     /// <summary>Resolves a Chozo-room bit into the native 64-byte persistent table.</summary>
-    private static (int ByteIndex, byte BitMask) RoomChozoBit(int bitIndex) =>
+    private static ProgressionBit RoomChozoBit(int bitIndex) =>
         Bank80SystemState.ResolvePersistentRoomBit(bitIndex, Bank80SystemState.RoomChozoBitByteCount, "Chozo-room bit index must fit the native 64-byte table.");
 
     /// <summary>Reads and sets the room Chozo bit table and addresses explored-map bytes by retail area.</summary>
@@ -23,15 +23,15 @@ internal static class Bank80SystemStateAccess
         /// <summary>Whether the room's Chozo-statue bit is set in the native 64-byte table.</summary>
         internal bool HasRoomChozoBit(int bitIndex)
         {
-            (int byteIndex, byte bitMask) = RoomChozoBit(bitIndex);
+            (int byteIndex, int bitMask) = RoomChozoBit(bitIndex);
             return (self.RoomChozoBits[byteIndex] & bitMask) != 0;
         }
 
         /// <summary>Sets the room's Chozo-statue bit in the native 64-byte table.</summary>
         internal void SetRoomChozoBit(int bitIndex)
         {
-            (int byteIndex, byte bitMask) = RoomChozoBit(bitIndex);
-            self.RoomChozoBits[byteIndex] |= bitMask;
+            (int byteIndex, int bitMask) = RoomChozoBit(bitIndex);
+            self.RoomChozoBits[byteIndex] |= checked((byte)bitMask);
         }
 
         /// <summary>Typed retail-area overload for live room and gameplay callers.</summary>

@@ -103,14 +103,13 @@ internal sealed class EnemyGraphicsSet
     }
 
     /// <summary>Finds the room-set tile and OBJ palette indexes, falling back to standard sprite tile zero and palette five.</summary>
-    internal (ushort TileIndex, ushort PaletteIndex) FindGraphicsIndexes(EnemyDefinitionId definitionPointer)
+    internal EnemyGraphicsIndexes FindGraphicsIndexes(EnemyDefinitionId definitionPointer)
     {
         foreach (RoomEnemyGraphicsSetEntry entry in Entries)
         {
             if (entry.DefinitionPointer == definitionPointer)
             {
-                return (
-                    checked((ushort)entry.VramTilesIndex),
+                return new EnemyGraphicsIndexes(                    checked((ushort)entry.VramTilesIndex),
                     unchecked((ushort)((entry.PaletteRow & EnemyTileDataMasks.PaletteNibbleBits) << 9)));
             }
         }
@@ -118,6 +117,6 @@ internal sealed class EnemyGraphicsSet
         // LoadEnemyGfxIndexes uses standard sprite tile zero and OBJ palette five when an
         // actor has no room graphics-set record. That fallback supports invisible/control
         // enemies without synthesizing an asset association.
-        return (0, 2560);
+        return new EnemyGraphicsIndexes(0, 2560);
     }
 }

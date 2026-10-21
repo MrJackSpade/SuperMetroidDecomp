@@ -145,7 +145,7 @@ internal static class LookupStream5Verification
         AssertEqual("12B77C4BC9C1832CEE8881244659065EE1D84C70C3D29E6EAF92E6798CC2CA72",
             Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(File.ReadAllBytes("Super Metroid.smc"))), "Rumble native revision");
         for (int index = 0; index < 4; index++)
-            AssertEqual((unchecked((short)ReadVerificationWord(rom, 0xa6f840 + 4 * index)),
+            AssertEqual(new Offset16<RoomPixels>(unchecked((short)ReadVerificationWord(rom, 0xa6f840 + 4 * index)),
                 unchecked((short)ReadVerificationWord(rom, 0xa6f842 + 4 * index))),
                 CeresDoorRumbleGeometryDefinitions.Offset(index), "All eight native anchor words");
         AssertThrows<ArgumentOutOfRangeException>(() => CeresDoorRumbleGeometryDefinitions.Offset(-1), "Rumble lower bound");
@@ -1281,11 +1281,11 @@ internal static class LookupStream5Verification
         Action step = owner.MorphBallEyeBehavior.StepFullMorphBallEyeBeam;
         for (int phase = 0; phase < 16; phase++)
         {
-            var expected = (rom.ReadCartridgeByte(0x88ea8b + phase * 4), rom.ReadCartridgeByte(0x88ea8c + phase * 4));
+            var expected = new RedGreenLevels(rom.ReadCartridgeByte(0x88ea8b + phase * 4), rom.ReadCartridgeByte(0x88ea8c + phase * 4));
             AssertEqual(expected, MorphBallEyeGeometryDefinitions.BeamColor(phase), "Native two-channel triangle");
             step();
-            AssertEqual(expected.Item1, owner.MorphBallEyeBehavior.MorphBallEyeBeam.Red, "Actual raw red COLDATA");
-            AssertEqual(expected.Item2, owner.MorphBallEyeBehavior.MorphBallEyeBeam.Green, "Actual raw green COLDATA");
+            AssertEqual(expected.Red, owner.MorphBallEyeBehavior.MorphBallEyeBeam.Red, "Actual raw red COLDATA");
+            AssertEqual(expected.Green, owner.MorphBallEyeBehavior.MorphBallEyeBeam.Green, "Actual raw green COLDATA");
             AssertEqual(rom.ReadCartridgeByte(0x88ea8d + phase * 4), owner.MorphBallEyeBehavior.MorphBallEyeBeam.Blue, "Actual zero blue intensity");
             AssertEqual((ushort)((phase + 1) & 15), owner.MorphBallEyeBehavior.MorphBallEyeBeam.ColorIndex, "Actual masked cycling and wrap");
         }

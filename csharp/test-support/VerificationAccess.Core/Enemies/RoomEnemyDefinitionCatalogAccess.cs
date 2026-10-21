@@ -8,6 +8,6 @@ internal static class RoomEnemyDefinitionCatalogAccess
     extension(RoomEnemyDefinitionCatalog)
     {
         /// <summary>Enumerates every compiled native definition pointer for ROM-oracle tests.</summary>
-        internal static IEnumerable<EnemyDefinitionId> Pointers => RoomEnemyDefinitionCatalog.Definitions.Select(entry => entry.Pointer);
+        internal static IEnumerable<EnemyDefinitionId> Pointers => RoomEnemyDefinitionCatalog.Definitions.Select(entry => entry.Id);
     }
 }

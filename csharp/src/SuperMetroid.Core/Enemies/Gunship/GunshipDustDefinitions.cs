@@ -11,14 +11,14 @@ public static class GunshipDustDefinitions
     /// InitAI_EnemyProjectile_GunshipLiftoffDustClouds. Even parameters 0/2/4 select
     /// right-side clouds; 6/8/A select left-side clouds, each starting its typed program (#641).
     /// </summary>
-    internal static (short XOffset, GunshipDustProgram Program) ForParameter(ushort parameter) => parameter switch
+    internal static GunshipDustPlacement ForParameter(ushort parameter) => parameter switch
     {
-        0 => (64, GunshipDustProgram.RightInner),
-        2 => (72, GunshipDustProgram.RightMiddle),
-        4 => (80, GunshipDustProgram.RightOuter),
-        6 => (-64, GunshipDustProgram.LeftInner),
-        8 => (-72, GunshipDustProgram.LeftMiddle),
-        10 => (-80, GunshipDustProgram.LeftOuter),
+        0 => new GunshipDustPlacement(64, GunshipDustProgram.RightInner),
+        2 => new GunshipDustPlacement(72, GunshipDustProgram.RightMiddle),
+        4 => new GunshipDustPlacement(80, GunshipDustProgram.RightOuter),
+        6 => new GunshipDustPlacement(-64, GunshipDustProgram.LeftInner),
+        8 => new GunshipDustPlacement(-72, GunshipDustProgram.LeftMiddle),
+        10 => new GunshipDustPlacement(-80, GunshipDustProgram.LeftOuter),
         _ => throw new ArgumentOutOfRangeException(nameof(parameter), parameter, "Gunship dust parameter must be 0,2,4,6,8,A."),
     };
 }

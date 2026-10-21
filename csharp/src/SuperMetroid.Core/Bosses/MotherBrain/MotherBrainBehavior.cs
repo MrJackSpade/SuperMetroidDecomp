@@ -256,16 +256,16 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
         Head.RunMotherBrainHeadMain(slot, frame.Samus);
     }
     /// <summary>Native sequence of explosion positions used by the fake-death collapse.</summary>
-    internal static readonly (ushort X, ushort Y)[] MotherBrainFakeDeathExplosionPositions =
+    internal static readonly Position16<RoomPixels>[] MotherBrainFakeDeathExplosionPositions =
     [
-        (136, 116),
-        (120, 132),
-        (124, 90),
-        (138, 146),
-        (120, 52),
-        (124, 170),
-        (138, 72),
-        (120, 206),
+        new Position16<RoomPixels>(136, 116),
+        new Position16<RoomPixels>(120, 132),
+        new Position16<RoomPixels>(124, 90),
+        new Position16<RoomPixels>(138, 146),
+        new Position16<RoomPixels>(120, 52),
+        new Position16<RoomPixels>(124, 170),
+        new Position16<RoomPixels>(138, 72),
+        new Position16<RoomPixels>(120, 206),
     ];
     /// <summary>$A9:8C61: authored smoke puff X offsets cycled while a tube lands.</summary>
     internal static readonly int[] MotherBrainFallingTubeSmokeXOffsets = [-8, 2, -4, 6];

@@ -24,7 +24,7 @@ internal static class XrayRoomOverlayPresentationContractChecks
         XrayRoomOverlayDefinition first = XrayRoomOverlayDefinitions.All[0];
         XrayRoomOverlayVisual[] tiles = [new(new(1, 2), new RoomLevelWord(3))];
         var rooms = XrayRoomOverlayDefinitions.All.Select(overlay =>
-            (overlay, (IReadOnlyList<XrayRoomOverlayVisual>)tiles)).ToArray();
+            new XrayRoomOverlayTiles(overlay, tiles)).ToArray();
         var catalog = new XrayOverlayVisualCatalog(new ushort[8], rooms);
         tiles[0] = new(new(0, 0), new RoomLevelWord(0));
         Require(catalog.RoomTiles(first).Single() == new XrayRoomOverlayVisual(new(1, 2), new RoomLevelWord(3)),

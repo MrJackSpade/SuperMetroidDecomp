@@ -33,18 +33,18 @@ internal sealed class KraidBodyLayer
         if (bodyTilemap is not { } cached || cached.Frame != state.DisplayedBody)
         {
             KraidBackgroundArtwork art = RequireBackgroundArtwork();
-            bodyTilemap = cached = (state.DisplayedBody, KraidBodyTilemap.Resolve(state.DisplayedBody, WorkingMap(), art));
+            bodyTilemap = cached = new KraidBodyTilemapCache(state.DisplayedBody, KraidBodyTilemap.Resolve(state.DisplayedBody, WorkingMap(), art));
         }
         return new BossBg2Layer(cached.Tilemap, state.Bg2Scroll);
     }
 
     /// <summary>The last body frame resolved, and its tilemap.</summary>
     [NonSerialized]
-    private (KraidBodyFrame Frame, BossBg2Tilemap Tilemap)? bodyTilemap;
+    private KraidBodyTilemapCache? bodyTilemap;
 
     /// <summary>Kraid's working map composed from his installed artwork, and that artwork.</summary>
     [NonSerialized]
-    private (KraidBackgroundArtwork Art, ushort[] Words)? workingMap;
+    private KraidWorkingMap? workingMap;
 
     /// <summary>The body the installed artwork composes; a rebound installation recomposes it.</summary>
     internal ushort[] WorkingMap()
@@ -53,7 +53,7 @@ internal sealed class KraidBodyLayer
         if (workingMap is { } composed && ReferenceEquals(composed.Art, art))
             return composed.Words;
         ushort[] words = KraidBodyTilemap.ComposeWorkingMap(art);
-        workingMap = (art, words);
+        workingMap = new KraidWorkingMap(art, words);
         bodyTilemap = null;
         return words;
     }

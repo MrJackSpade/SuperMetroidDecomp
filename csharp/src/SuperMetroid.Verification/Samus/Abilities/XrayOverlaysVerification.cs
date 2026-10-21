@@ -20,9 +20,9 @@ internal static class XrayOverlaysVerification
         var bus = new TestAddressSpace();
         var overlays = XrayOverlayVisualCatalog.FromOverlaysForVerification(
             Enumerable.Range(1, 8).Select(value => (ushort)value),
-            new (XrayRoomOverlayDefinition Overlay, IReadOnlyList<XrayRoomOverlayVisual> Tiles)[]
+            new XrayRoomOverlayTiles[]
             {
-                (SpecialRoom, new XrayRoomOverlayVisual[] { new(new(1, 1), new RoomLevelWord(0x0809)), new(new(17, 1), new RoomLevelWord(10)) }),
+                new(SpecialRoom, new XrayRoomOverlayVisual[] { new(new(1, 1), new RoomLevelWord(0x0809)), new(new(17, 1), new RoomLevelWord(10)) }),
             });
         var entries = new List<XrayRevealVisualDefinition>();
         foreach (RoomCollisionType type in Enum.GetValues<RoomCollisionType>())

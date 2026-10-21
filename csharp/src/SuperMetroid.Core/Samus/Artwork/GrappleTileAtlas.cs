@@ -132,7 +132,7 @@ public sealed class GrappleTileAtlas : IVramAssetProvider, IInstalledArtworkTran
     {
         VramAssetId point = GrappleTileDefinitions.PointAssetFor(pointFrame);
         VramAssetId segments = GrappleTileDefinitions.SegmentAssetFor(angle);
-        return tileSets.GetOrAdd((point, segments), key => new SpriteArtwork(
+        return tileSets.GetOrAdd(new GrappleTileSetKey(point, segments), key => new SpriteArtwork(
             new SpriteArtworkId(SpriteArtworkKind.GrappleTiles, SnesLittleEndian.Word(checked((byte)key.Segments), checked((byte)key.Point))),
             [.. Resolve(key.Point).Span, .. Resolve(key.Segments).Span]));
     }
@@ -162,7 +162,7 @@ public sealed class GrappleTileAtlas : IVramAssetProvider, IInstalledArtworkTran
     private SpriteArtwork? pagesComposedOn;
 
     /// <summary>Endpoint-plus-rope sheets already built.</summary>
-    private readonly System.Collections.Concurrent.ConcurrentDictionary<(VramAssetId Point, VramAssetId Segments), SpriteArtwork> tileSets = new();
+    private readonly System.Collections.Concurrent.ConcurrentDictionary<GrappleTileSetKey, SpriteArtwork> tileSets = new();
     /// <summary>Restored legacy transfers keep their order and destination but resolve current artwork at NMI.</summary>
     [PpuLayoutBoundary("codec: rebinds restored native queued-DMA records to installed Grapple artwork")]
     public void RebindPendingWrites(VramWriteQueue queue)

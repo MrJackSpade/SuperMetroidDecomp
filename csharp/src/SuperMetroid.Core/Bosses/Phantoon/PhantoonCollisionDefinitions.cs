@@ -27,8 +27,8 @@ internal static class PhantoonCollisionDefinitions
     /// Native vertical extents of the body, eye, and three tentacle hitboxes. Declared before the lists below, which
     /// read it during static initialization.
     /// </summary>
-    private static readonly (short Top, short Bottom)[] RequiredVerticalBounds =
-        [(-40, 56), (22, 39), (52, 71), (53, 70), (53, 69)];
+    private static readonly PhantoonVerticalExtent[] RequiredVerticalBounds =
+        [new PhantoonVerticalExtent(-40, 56), new PhantoonVerticalExtent(22, 39), new PhantoonVerticalExtent(52, 71), new PhantoonVerticalExtent(53, 70), new PhantoonVerticalExtent(53, 69)];
 
     /// <summary>The single no-reaction point carried by hidden parts and by both tentacle components.</summary>
     private static readonly PhantoonCollisionHitbox[] PointList =
@@ -60,14 +60,14 @@ internal static class PhantoonCollisionDefinitions
         {
             0 => Centered(BodyHalfWidth),
             EyeRectangle => Centered(EyeHalfWidth),
-            2 => ((short)-SideTentacleOuterExtent, (short)-SideTentacleInnerExtent),
-            3 => ((short)(SideTentacleInnerExtent - 1), (short)(SideTentacleOuterExtent - 1)),
+            2 => new PhantoonHorizontalExtent(-SideTentacleOuterExtent, -SideTentacleInnerExtent),
+            3 => new PhantoonHorizontalExtent(SideTentacleInnerExtent - 1, SideTentacleOuterExtent - 1),
             4 => Centered(CenterTentacleHalfWidth),
             _ => throw new ArgumentOutOfRangeException(nameof(index)),
         };
         return new(left, vertical.Top, right, vertical.Bottom, PhantoonHitboxTouch.Contact, PhantoonHitboxShot.Vulnerable);
 
-        static (short Left, short Right) Centered(short halfWidth) => ((short)-halfWidth, (short)(halfWidth - 1));
+        static PhantoonHorizontalExtent Centered(short halfWidth) => new PhantoonHorizontalExtent((short)-halfWidth, (short)(halfWidth - 1));
     }
     /// <summary>Maps a BG2 frame to its active body/eye hitbox or inert point components.</summary>
     internal static ImmutableArray<PhantoonCollisionComponent> ComponentsAt(ushort pointer)

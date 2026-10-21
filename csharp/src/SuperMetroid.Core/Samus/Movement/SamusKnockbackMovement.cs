@@ -282,7 +282,7 @@ level, targetPose, nmiFrameCounter, plms))
         Ensure.NotNull(samus);
         // Alpha selects a prospective pose; it does not mutate the live movement type.
         // The owning transition dispatcher must resolve higher-priority expiry first.
-        bool valid = (sourcePose, targetPose) is
+        bool valid = new SamusPoseChange(sourcePose, targetPose) is
             (SamusPoseId.KnockbackRightPose, SamusPoseId.DamageBoostRightPose) or
             (SamusPoseId.KnockbackLeftPose, SamusPoseId.DamageBoostLeftPose);
         if (!valid)
@@ -310,7 +310,7 @@ level, targetPose, nmiFrameCounter, plms))
         SnesButton controllerNewInput)
     {
         Ensure.NotNull(samus);
-        bool valid = (samus.Pose, targetPose) is
+        bool valid = new SamusPoseChange(samus.Pose, targetPose) is
             (SamusPoseId.DamageBoostLeftPose,
                 SamusPoseId.NeutralJumpLeftPose or SamusPoseId.NormalJumpForwardLeftPose) or
             (SamusPoseId.DamageBoostRightPose,

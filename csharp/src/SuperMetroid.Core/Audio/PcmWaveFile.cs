@@ -16,7 +16,7 @@ public static class PcmWaveFile
     /// <returns>The sampling frequency in hertz and a newly allocated array of signed 16-bit sample amplitudes; loop metadata is not imported.</returns>
     /// <exception cref="InvalidDataException">The container, chunk layout, PCM encoding, or declared size/rate fields are inconsistent.</exception>
     /// <exception cref="OverflowException">A declared length or rate cannot be represented by the checked integer arithmetic.</exception>
-    public static (int SampleRate, short[] Samples) ReadMonoPcm16(
+    public static PcmSamples ReadMonoPcm16(
         ReadOnlySpan<byte> bytes,
         string sourceName) =>
         ReadPcm16(bytes, sourceName, PcmSampleFormat.ChannelCount);
@@ -24,11 +24,11 @@ public static class PcmWaveFile
     /// <summary>Decodes uncompressed interleaved stereo PCM16 with the same validation as <see cref="ReadMonoPcm16"/>.</summary>
     /// <returns>The sampling frequency and the interleaved left/right samples.</returns>
     /// <exception cref="InvalidDataException">The container, chunk layout, PCM encoding, or declared size/rate fields are inconsistent.</exception>
-    public static (int SampleRate, short[] Samples) ReadStereoPcm16(ReadOnlySpan<byte> bytes, string sourceName) =>
+    public static PcmSamples ReadStereoPcm16(ReadOnlySpan<byte> bytes, string sourceName) =>
         ReadPcm16(bytes, sourceName, PcmSampleFormat.StereoChannelCount);
 
     /// <summary>Decodes uncompressed PCM16 with exactly <paramref name="channelCount"/> interleaved channels.</summary>
-    private static (int SampleRate, short[] Samples) ReadPcm16(ReadOnlySpan<byte> bytes, string sourceName, ushort channelCount)
+    private static PcmSamples ReadPcm16(ReadOnlySpan<byte> bytes, string sourceName, ushort channelCount)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(sourceName);
         if (bytes.Length < 12 || !bytes[..4].SequenceEqual("RIFF"u8) ||
@@ -87,7 +87,7 @@ public static class PcmWaveFile
         short[] samples = new short[sampleBytes.Length / sizeof(short)];
         for (int index = 0; index < samples.Length; index++)
             samples[index] = unchecked((short)ReadWord(sampleBytes, index * sizeof(short)));
-        return (sampleRate, samples);
+        return new PcmSamples(sampleRate, samples);
     }
 
     /// <summary>Creates or truncates a WAV file and writes a minimal little-endian mono PCM16 RIFF header followed by the supplied samples; no loop chunk is emitted.</summary>

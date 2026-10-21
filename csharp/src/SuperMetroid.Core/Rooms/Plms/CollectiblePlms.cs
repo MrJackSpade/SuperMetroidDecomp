@@ -182,8 +182,9 @@ internal sealed class CollectiblePlms : IPlmFamilySource
         CollectiblePresentation presentation,
         RoomPlmDynamicCollectibleGraphic? suppliedGraphic)
     {
-        (RoomLevelData level, BgArtworkBindings backgrounds, Bank80SystemState system) =
-            (room.Level, room.Backgrounds, room.System);
+        RoomLevelData level = room.Level;
+        BgArtworkBindings backgrounds = room.Backgrounds;
+        Bank80SystemState system = room.System;
         RoomCollisionBlock original = level.GetCollisionBlockByIndex(slot.BlockIndex);
         bool collected = unchecked((short)slot.RoomArgument) >= 0 &&
             system.HasCollectedItemBit(slot.RoomArgument);

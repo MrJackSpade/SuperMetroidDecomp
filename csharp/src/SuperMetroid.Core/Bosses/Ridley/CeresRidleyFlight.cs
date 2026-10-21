@@ -490,24 +490,24 @@ internal sealed class CeresRidleyFlight
             _earthquake.EarthquakeType = RidleyWallImpactDefinitions.EarthquakeType;
             _earthquake.EarthquakeTimer = NativeCountdown.Start(RidleyWallImpactDefinitions.Duration);
         }
-        (SnesFixedPosition x, ushort xVelocity) = IntegrateAxis(
+        (SnesFixedPosition x, int xVelocity) = IntegrateAxis(
             slot.Position.X,
             state.Velocity.X.RawValue,
             state.MovementMinimum.X,
             state.MovementMaximum.X);
-        state.Velocity = state.Velocity.WithX(new SnesSignedEightEight(xVelocity));
+        state.Velocity = state.Velocity.WithX(new SnesSignedEightEight(checked((ushort)xVelocity)));
         slot.Position = slot.Position.WithX(x);
-        (SnesFixedPosition y, ushort yVelocity) = IntegrateAxis(
+        (SnesFixedPosition y, int yVelocity) = IntegrateAxis(
             slot.Position.Y,
             state.Velocity.Y.RawValue,
             state.MovementMinimum.Y,
             state.MovementMaximum.Y);
-        state.Velocity = state.Velocity.WithY(new SnesSignedEightEight(yVelocity));
+        state.Velocity = state.Velocity.WithY(new SnesSignedEightEight(checked((ushort)yVelocity)));
         slot.Position = slot.Position.WithY(y);
     }
 
     /// <summary>Integrates one 8.8 velocity into the high byte of a 16-bit subposition and clips to an arena bound.</summary>
-    private static (SnesFixedPosition Position, ushort Velocity) IntegrateAxis(
+    private static CeresRidleyAxisMotion IntegrateAxis(
         SnesFixedPosition position,
         ushort velocityWord,
         ushort minimum,
@@ -520,10 +520,10 @@ internal sealed class CeresRidleyFlight
         ushort next = moved.Whole;
 
         if (unchecked((short)(next - minimum)) < 0)
-            return (new(minimum, subposition), 0);
+            return new CeresRidleyAxisMotion(new(minimum, subposition), 0);
         if (unchecked((short)(next - maximum)) >= 0)
-            return (new(maximum, subposition), 0);
-        return (new(next, subposition), velocityWord);
+            return new CeresRidleyAxisMotion(new(maximum, subposition), 0);
+        return new CeresRidleyAxisMotion(new(next, subposition), velocityWord);
     }
 
     /// <summary>Adds an 8.8 velocity to a native position before boundary checks.</summary>

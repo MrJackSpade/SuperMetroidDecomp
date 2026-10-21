@@ -83,7 +83,7 @@ internal static class SamusBodyTransferDefinitions
     /// </summary>
     internal static bool TrySelectedPacking(bool upper, int set, int position, int payloadBytes, out ushort firstSize)
     {
-        int largeBlocks = (upper, set, position) switch
+        int largeBlocks = new SamusBodyTileSlot(upper, set, position) switch
         {
             (true, 0, 30 or 31) or (true, 2, >= 18 and <= 21) => 1,
             (true, 1, 0 or 1) or (true, 2, 2) or (true, 3 or 5, 16) => 2,
@@ -95,7 +95,7 @@ internal static class SamusBodyTransferDefinitions
             firstSize = (ushort)Math.Max(0, first);
             return first > 0;
         }
-        bool balanced = (upper, set, position) switch
+        bool balanced = new SamusBodyTileSlot(upper, set, position) switch
         {
             (true, 1, 4 or 22 or 23) or (true, 8, 1) or (true, 11, 0 or 2) or
                 (true, 4 or 6, 16) => true,

@@ -156,9 +156,9 @@ internal sealed class CrocomireBridgeCollapse
     /// $A4:8F35-8FC1 (seven unrolled spawns): puffs sixteen pixels apart along the bridge from
     /// X $600; the first and third rise sixteen pixels above the others' Y $C0.
     /// </summary>
-    internal static (ushort X, ushort Y) CrocomireBridgeDustPosition(int puff) =>
+    internal static Position16<RoomPixels> CrocomireBridgeDustPosition(int puff) =>
         (uint)puff < CrocomireBehavior.CrocomireBridgeDustCount
-            ? ((ushort)(1536 + 16 * puff), (ushort)(puff is 0 or 2 ? 176 : 192))
+            ? new Position16<RoomPixels>((ushort)(1536 + 16 * puff), (ushort)(puff is 0 or 2 ? 176 : 192))
             : throw new ArgumentOutOfRangeException(nameof(puff));
 
     /// <summary>

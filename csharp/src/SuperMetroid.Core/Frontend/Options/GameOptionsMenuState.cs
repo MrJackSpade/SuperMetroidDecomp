@@ -516,7 +516,7 @@ public sealed class GameOptionsMenuState : IFrontendScreen
     }
 
     /// <summary>Uses the page cursor layout or the hidden anchor during transitions.</summary>
-    private (ushort X, ushort Y) CursorPosition()
+    private Position16<OamPixels> CursorPosition()
     {
         GameOptionsPage? cursorPage = GameOptionsCursorPolicy.Select(Phase);
         // Keep the cursor actor in OAM at the installed hidden anchor during transitions.
@@ -525,12 +525,12 @@ public sealed class GameOptionsMenuState : IFrontendScreen
             Position16<OamPixels> hidden = (mapPresentation ?? throw new InvalidOperationException(
                 "Options cursor requires installed presentation assets."))
                 .GameOptions.HiddenCursor;
-            return (checked(hidden.X), checked(hidden.Y));
+            return new Position16<OamPixels>(checked(hidden.X), checked(hidden.Y));
         }
         Position16<OamPixels> point = (mapPresentation ?? throw new InvalidOperationException(
             "Options cursor requires installed presentation assets."))
             .GameOptions.CursorPosition(cursorPage.Value, SelectedItem);
-        return (checked(point.X), checked(point.Y));
+        return new Position16<OamPixels>(checked(point.X), checked(point.Y));
     }
 
     /// <summary>Queues the native cursor sound within the menu sound limit.</summary>

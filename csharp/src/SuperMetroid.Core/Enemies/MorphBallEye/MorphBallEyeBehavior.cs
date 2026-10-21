@@ -286,7 +286,7 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         int colorIndex = MorphBallEyeBeam.ColorIndex & MorphBallEyeBeamDefinitions.ColorIndexBits;
-        (byte red, byte green) = MorphBallEyeGeometryDefinitions.BeamColor(colorIndex);
+        (int red, int green) = MorphBallEyeGeometryDefinitions.BeamColor(colorIndex);
         MorphBallEyeBeam.Red = red;
         MorphBallEyeBeam.Green = green;
         MorphBallEyeBeam.Blue = MorphBallEyeBeamDefinitions.Blue;

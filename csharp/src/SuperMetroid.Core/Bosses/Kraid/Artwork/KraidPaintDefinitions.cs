@@ -58,7 +58,7 @@ internal static class KraidPaintDefinitions
         if (band == 0) return Pack(Rgb5Maximum, Rgb5Maximum, Rgb5Maximum);
         if (band == 1) return FirstBand(color);
         if (band == Bands - 1) return FinalBand(color);
-        return (band, color) switch
+        return new KraidPaintCell(band, color) switch
         {
             (5, 6) => Pack(17, 20, 10),
             (6, 6) => Pack(16, 21, 12),

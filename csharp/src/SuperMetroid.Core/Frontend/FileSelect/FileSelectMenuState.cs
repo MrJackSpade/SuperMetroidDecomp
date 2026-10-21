@@ -242,9 +242,9 @@ public sealed class FileSelectMenuState : IFrontendScreen
         }
         if (Phase == FileSelectPhase.CopyConfirm)
         {
-            (int shape, ushort y) = FileCopyArrowDefinitions.Select(operationSourceSlot, operationDestinationSlot);
+            (int shape, int y) = FileCopyArrowDefinitions.Select(operationSourceSlot, operationDestinationSlot);
             foreach (CompiledSpritePart part in FileCopyArrowDefinitions.Parts(shape))
-                sprites.AddPart(part.X, part.Y, part.Attributes, new Position16<OamPixels>(FileCopyArrowDefinitions.OriginX, y));
+                sprites.AddPart(part.X, part.Y, part.Attributes, new Position16<OamPixels>(FileCopyArrowDefinitions.OriginX, checked((ushort)y)));
         }
         sprites.FinishFrame();
     }

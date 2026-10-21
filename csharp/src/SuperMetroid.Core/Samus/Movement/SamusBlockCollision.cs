@@ -805,7 +805,7 @@ public static class SamusBlockCollision
     /// Resolves a non-square slope against Samus's leading vertical boundary and retains
     /// the clipped 16.16 distance when the slope intercepts the requested travel.
     /// </summary>
-    private static (int Displacement, bool Collided) ClipVerticalToNonSquareSlope(
+    private static SlopeClip ClipVerticalToNonSquareSlope(
         SamusKinematicsState state,
         RoomCollisionBlock block,
         int blockX,
@@ -818,39 +818,39 @@ public static class SamusBlockCollision
         // Non-square slopes react vertically only under Samus's center column. The broader
         // X-radius scan still visits neighboring blocks, but $94:86FE rejects them here.
         if ((state.Position.X.Whole >> 4) != blockX)
-            return (displacement, false);
+            return new SlopeClip(displacement, false);
 
         if (movingDown)
         {
             if (block.Bts.SlopeFlipsVertically)
-                return (displacement, false);
+                return new SlopeClip(displacement, false);
 
             int height = SamusSlopePhysics.ReadAlignmentHeight(block.Bts, state.Position.X.Whole);
             int bottomNibble = unchecked((ushort)(state.Radius.Y + targetCenter - 1)) & 15;
             short correction = unchecked((short)(height - bottomNibble - 1));
             if (correction > 0)
-                return (displacement, false);
+                return new SlopeClip(displacement, false);
 
             int whole = unchecked((short)(SnesSixteenSixteen.WholeOf(displacement))) + correction;
             if (whole < 0)
                 whole = 0;
-            return (SnesSixteenSixteen.FromWhole(whole), true);
+            return new SlopeClip(SnesSixteenSixteen.FromWhole(whole), true);
         }
         else
         {
             if (!block.Bts.SlopeFlipsVertically)
-                return (displacement, false);
+                return new SlopeClip(displacement, false);
 
             int height = SamusSlopePhysics.ReadAlignmentHeight(block.Bts, state.Position.X.Whole);
             int invertedTopNibble = ((targetCenter - state.Radius.Y) & 15) ^ 15;
             short correction = unchecked((short)(height - invertedTopNibble - 1));
             if (correction > 0)
-                return (displacement, false);
+                return new SlopeClip(displacement, false);
 
             int whole = unchecked((short)(SnesSixteenSixteen.WholeOf(displacement))) + correction;
             if (whole < 0)
                 whole = 0;
-            return (SnesSixteenSixteen.FromWhole(whole), true);
+            return new SlopeClip(SnesSixteenSixteen.FromWhole(whole), true);
         }
     }
 

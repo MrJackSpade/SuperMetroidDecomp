@@ -98,7 +98,7 @@ public static class SpecialAirReactionDefinitions
     public static SpecialAirReactionDefinition ResolveInside(AreaId area, int areaReactionIndex)
     {
         Validate(area, areaReactionIndex, "inside-body");
-        return (area, areaReactionIndex) switch
+        return new AreaTableEntry(area, areaReactionIndex) switch
         {
             (AreaId.Crateria, 0) => CrateriaIcePhysics,
             (AreaId.Brinstar, 0) => BrinstarFloorPlant,
@@ -120,7 +120,7 @@ public static class SpecialAirReactionDefinitions
     public static SpecialAirReactionDefinition ResolveCollision(AreaId area, int areaReactionIndex)
     {
         Validate(area, areaReactionIndex, "movement-collision");
-        return (area, areaReactionIndex) switch
+        return new AreaTableEntry(area, areaReactionIndex) switch
         {
             (AreaId.Brinstar, 0) => ClearCarry,
             (AreaId.Brinstar, 1) => ClearCarry,

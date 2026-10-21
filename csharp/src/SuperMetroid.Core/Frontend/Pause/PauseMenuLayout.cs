@@ -16,7 +16,7 @@ internal static class PauseMenuLayout
     /// <summary>$7E:3400 button source expressed relative to the $7E:3000 native word indexes.</summary>
     public const int ButtonSourceWordOrigin = 0x0200;
     /// <summary>MAP, EXIT and SAMUS labels recolored by $82:A628-$A84C.</summary>
-    public static IEnumerable<(int Word, int Count)> ButtonLabelSpans
+    public static IEnumerable<PauseButtonLabelSpan> ButtonLabelSpans
     {
         get
         {
@@ -30,7 +30,7 @@ internal static class PauseMenuLayout
     /// <remarks>$82:A633/A66F/A6AB select MAP/EXIT/SAMUS at columns5/12/22.
     /// Their lower halves are one32-word row below, as at A651/A68D/A6C9.
     /// The center EXIT label occupies four columns; the outside labels occupy five.</remarks>
-    public static (int Word, int Count) ButtonLabelSpan(PauseButtonLabel label, int row)
+    public static PauseButtonLabelSpan ButtonLabelSpan(PauseButtonLabel label, int row)
     {
         int column = label switch
         {
@@ -40,7 +40,7 @@ internal static class PauseMenuLayout
             _ => throw new ArgumentOutOfRangeException(nameof(label)),
         };
         if ((uint)row >= 2) throw new ArgumentOutOfRangeException(nameof(row));
-        return ((25 + row) * 32 + column, label == PauseButtonLabel.Exit ? 4 : 5);
+        return new PauseButtonLabelSpan((25 + row) * 32 + column, label == PauseButtonLabel.Exit ? 4 : 5);
     }
     /// <summary>OBSEL value installed by the pause-screen PPU setup.</summary>
     public const byte ObjectSelection = 0x01;

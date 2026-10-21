@@ -56,7 +56,7 @@ internal static class ChozoStatuePaintDefinitions
     private static Bgr555 LowerNorfair(int local, bool second)
     {
         if (second && local is >= 4 and <= 6) return LowerNorfair(local + 1, false);
-        return (local, second) switch
+        return new ChozoStatueShade(local, second) switch
         {
             (4, false) => Pack(28, 27, 11),
             (5, false) => Pack(21, 20, 8),

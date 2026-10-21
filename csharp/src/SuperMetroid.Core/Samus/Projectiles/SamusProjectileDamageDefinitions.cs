@@ -46,7 +46,7 @@ internal static class SamusProjectileDamageDefinitions
     /// weapon headers per charge state, each followed by ten direction pointers.
     /// The charged half swaps Wave/Plasma and Plasma-Wave/Plasma-Ice order.
     /// </summary>
-    internal static (bool Charged, SamusBeamCombination Beam) BeamIdentity(int header)
+    internal static SamusBeamIdentity BeamIdentity(int header)
     {
         if ((uint)header >= 24)
             throw new ArgumentOutOfRangeException(nameof(header), header, "There are twenty-four beam headers.");
@@ -67,7 +67,7 @@ internal static class SamusProjectileDamageDefinitions
             11 => charged ? SamusBeamCombination.PlasmaWave : SamusBeamCombination.PlasmaIce,
             var row => throw new InvalidOperationException($"Beam header row {row} is outside twelve."),
         };
-        return (charged, beam);
+        return new SamusBeamIdentity(charged, beam);
     }
 
     /// <summary>Maps a beam header to its native base damage and triples charged shots.</summary>

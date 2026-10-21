@@ -22,10 +22,10 @@ internal static class MorphBallEyeGeometryDefinitions
     /// Both active channels trace intensity16 down to8 and back to15 in sixteen steps.
     /// Channel selector bits must remain present because the native fade decrements raw bytes.
     /// </summary>
-    internal static (byte Red, byte Green) BeamColor(int phase)
+    internal static RedGreenLevels BeamColor(int phase)
     {
         if ((uint)phase >= 16) throw new ArgumentOutOfRangeException(nameof(phase));
         int intensity = 8 + Math.Abs(phase - 8);
-        return ((byte)(0x20 | intensity), (byte)(0x40 | intensity));
+        return new RedGreenLevels((byte)(0x20 | intensity), (byte)(0x40 | intensity));
     }
 }

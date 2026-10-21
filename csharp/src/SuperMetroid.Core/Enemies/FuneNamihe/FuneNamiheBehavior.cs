@@ -158,17 +158,13 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>The animation for <paramref name="state"/>'s species, activity and facing.</summary>
     internal static FuneNamiheProgram SelectFuneNamiheProgram(FuneNamiheEnemyState state) =>
-        (state.IsNamihe, state.ShowsActiveAnimation, state.FacingRight) switch
-        {
-            (false, true, false) => FuneNamiheProgram.FuneActiveLeft,
-            (false, true, true) => FuneNamiheProgram.FuneActiveRight,
-            (false, false, false) => FuneNamiheProgram.FuneIdleLeft,
-            (false, false, true) => FuneNamiheProgram.FuneIdleRight,
-            (true, true, false) => FuneNamiheProgram.NamiheActiveLeft,
-            (true, true, true) => FuneNamiheProgram.NamiheActiveRight,
-            (true, false, false) => FuneNamiheProgram.NamiheIdleLeft,
-            (true, false, true) => FuneNamiheProgram.NamiheIdleRight,
-        };
+        state.IsNamihe
+            ? state.ShowsActiveAnimation
+                ? state.FacingRight ? FuneNamiheProgram.NamiheActiveRight : FuneNamiheProgram.NamiheActiveLeft
+                : state.FacingRight ? FuneNamiheProgram.NamiheIdleRight : FuneNamiheProgram.NamiheIdleLeft
+            : state.ShowsActiveAnimation
+                ? state.FacingRight ? FuneNamiheProgram.FuneActiveRight : FuneNamiheProgram.FuneActiveLeft
+                : state.FacingRight ? FuneNamiheProgram.FuneIdleRight : FuneNamiheProgram.FuneIdleLeft;
 
     /// <summary>Publishes the shared library-two spit cue for the outer enemy audio queue.</summary>
     private void QueueFuneNamiheSpitSound() =>
@@ -243,7 +239,7 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
             projectile.Position = projectile.Position.WithWholeY(unchecked((ushort)(projectile.Position.Y.Whole + 4)));
 
         var velocities = EnemyFireballLaunchDefinitions.NamiFuneVelocities(checked((ushort)source.Spawn.Population.Parameter2));
-        projectile.Velocity = new(new SnesSignedEightEight(velocities.Right), new SnesSignedEightEight(velocities.Left));
+        projectile.Velocity = new(new SnesSignedEightEight(checked((ushort)velocities.Right)), new SnesSignedEightEight(checked((ushort)velocities.Left)));
     }
 
     /// <summary>Ports pre-instruction $86:DF39 and both directional movers.</summary>

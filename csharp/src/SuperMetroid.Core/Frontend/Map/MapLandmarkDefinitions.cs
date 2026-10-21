@@ -61,7 +61,7 @@ public static class MapLandmarkDefinitions
             get
             {
                 if ((uint)index >= Count) throw new ArgumentOutOfRangeException(nameof(index));
-                AreaId destination = (area, index) switch
+                AreaId destination = new AreaTableEntry(area, index) switch
                 {
                     (AreaId.Crateria, <= 2) or (AreaId.Norfair, 0) or (AreaId.Maridia, 1 or 2) => AreaId.Brinstar,
                     (AreaId.Crateria, 3) => AreaId.WreckedShip,

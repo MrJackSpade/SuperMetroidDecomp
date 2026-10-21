@@ -10,5 +10,5 @@ namespace SuperMetroid.Core.Bosses.Draygon;
 public sealed record DraygonBodyPlacement(Position16<RoomPixels> BodyPosition, Position16<Bg2Pixels> Scroll, bool Deleted)
 {
     /// <summary>The physical scanlines [first, end) that show the body against <paramref name="camera"/>.</summary>
-    public (int First, int End) VisibleLines(Position16<RoomPixels> camera) => DraygonMainScreenWindow.Select(BodyPosition, camera, Deleted);
+    public DraygonBodyScanlines VisibleLines(Position16<RoomPixels> camera) => DraygonMainScreenWindow.Select(BodyPosition, camera, Deleted);
 }

@@ -504,7 +504,7 @@ internal sealed class SamusPoseTransitionPhase
     /// </summary>
     private bool TryApplySpecialBodyTransition(SamusHandlerFrame frame, SamusState samus, SamusPoseId targetPose, ISamusRoomPlms plms)
     {
-        switch ((frame.PoseAtFrameStart, targetPose))
+        switch (new SamusPoseChange(frame.PoseAtFrameStart, targetPose))
         {
             case var (source, target)
                 when SamusPoseMetadata.IsDraygonGrabbedPose(source) &&
@@ -660,7 +660,7 @@ internal sealed class SamusPoseTransitionPhase
     /// </summary>
     private bool TryApplyAimRunOrTurnTransition(SamusHandlerFrame frame, SamusState samus, SamusPoseId targetPose)
     {
-        switch ((frame.PoseAtFrameStart, targetPose))
+        switch (new SamusPoseChange(frame.PoseAtFrameStart, targetPose))
         {
             case var (source, target)
                 when (SamusPoseMetadata.IsGroundedAimPose(source) ||
@@ -749,7 +749,7 @@ internal sealed class SamusPoseTransitionPhase
     /// </summary>
     private void ApplyJumpCrouchOrPostureTransition(SamusHandlerFrame frame, SamusState samus, SamusPoseId targetPose, ISamusRoomPlms plms)
     {
-        switch ((frame.PoseAtFrameStart, targetPose))
+        switch (new SamusPoseChange(frame.PoseAtFrameStart, targetPose))
         {
             case var (source, target)
                 when ((SamusPoseMetadata.IsRightFacingStandingPose(source) ||

@@ -72,19 +72,19 @@ internal sealed class EndingExplosionQuadrantParts : IReadOnlyList<CompiledSprit
             _ => throw new ArgumentOutOfRangeException(nameof(pose)),
         };
         if ((uint)index >= (pose == Pose.Glow ? 3 : 5)) throw new ArgumentOutOfRangeException(nameof(index));
-        (int column, int row) = pose == Pose.Glow ? (GlowPiece)index switch
+        var (column, row) = pose == Pose.Glow ? (GlowPiece)index switch
         {
-            GlowPiece.TopCap => (1, 0),
-            GlowPiece.OuterBody => (0, 1),
-            GlowPiece.InnerBody => (1, 1),
+            GlowPiece.TopCap => new Position16<TilemapCells>(1, 0),
+            GlowPiece.OuterBody => new Position16<TilemapCells>(0, 1),
+            GlowPiece.InnerBody => new Position16<TilemapCells>(1, 1),
             _ => throw new ArgumentOutOfRangeException(nameof(index)),
         } : (SupernovaPiece)index switch
         {
-            SupernovaPiece.LowerOuterEdge => (0, 2),
-            SupernovaPiece.UpperOuterEdge => (0, 1),
-            SupernovaPiece.InnerTopEdge => (2, 0),
-            SupernovaPiece.OuterTopEdge => (1, 0),
-            SupernovaPiece.Interior => (1, 1),
+            SupernovaPiece.LowerOuterEdge => new Position16<TilemapCells>(0, 2),
+            SupernovaPiece.UpperOuterEdge => new Position16<TilemapCells>(0, 1),
+            SupernovaPiece.InnerTopEdge => new Position16<TilemapCells>(2, 0),
+            SupernovaPiece.OuterTopEdge => new Position16<TilemapCells>(1, 0),
+            SupernovaPiece.Interior => new Position16<TilemapCells>(1, 1),
             _ => throw new ArgumentOutOfRangeException(nameof(index)),
         };
         bool large = pose == Pose.Glow || (SupernovaPiece)index == SupernovaPiece.Interior;

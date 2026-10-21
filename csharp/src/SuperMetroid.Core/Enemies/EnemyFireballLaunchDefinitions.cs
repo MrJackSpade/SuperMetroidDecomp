@@ -16,12 +16,12 @@ public static class EnemyFireballLaunchDefinitions
     /// <summary>Parameter two's low byte selects quarter-pixel/frame increments1..8,
     /// mirrored by direction. The native caller stores the left speed in YVelocity
     /// and the right speed in XVelocity; both are horizontal signed8.8 velocities.</summary>
-    public static (ushort Left, ushort Right) NamiFuneVelocities(ushort parameter)
+    public static NamiFuneLaunchVelocities NamiFuneVelocities(ushort parameter)
     {
         int index = (byte)parameter;
         if (index >= 8)
             throw new InvalidDataException($"Fune/Namihe launch index {index} exceeds eight authored records.");
         ushort magnitude = (ushort)((index + 1) * 0x40);
-        return (unchecked((ushort)-magnitude), magnitude);
+        return new NamiFuneLaunchVelocities(unchecked((ushort)-magnitude), magnitude);
     }
 }

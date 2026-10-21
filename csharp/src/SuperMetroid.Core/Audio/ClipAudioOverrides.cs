@@ -77,7 +77,7 @@ internal static class ClipAudioOverrides
         $"{SoundEffectPrefix}{SoundEffectLibraries.ToQueueIndex(library) + 1}-{command:x2}";
 
     /// <summary>Reads and checks one replacement WAV beneath the override directory.</summary>
-    private static (AudioClipFile Clip, string Path) ReadReplacement(string root, AudioClipOverride replacement, int sampleRate)
+    private static ClipReplacement ReadReplacement(string root, AudioClipOverride replacement, int sampleRate)
     {
         if (string.IsNullOrWhiteSpace(replacement.File) || Path.IsPathRooted(replacement.File))
             throw new InvalidDataException($"Audio override '{replacement.Id}' file '{replacement.File}' must be relative.");
@@ -96,7 +96,7 @@ internal static class ClipAudioOverrides
             throw new InvalidDataException($"Audio override '{replacement.Id}' is empty.");
         if (replacement.LoopStart is long loop && (loop < 0 || loop >= frames))
             throw new InvalidDataException($"Audio override '{replacement.Id}' loops at {loop} of {frames} frames.");
-        return (new AudioClipFile(replacement.File, Convert.ToHexString(SHA256.HashData(bytes)), frames), path);
+        return new ClipReplacement(new AudioClipFile(replacement.File, Convert.ToHexString(SHA256.HashData(bytes)), frames), path);
     }
 
     /// <summary>Replaces one song's clip and loop, keeping its tempo timeline.</summary>

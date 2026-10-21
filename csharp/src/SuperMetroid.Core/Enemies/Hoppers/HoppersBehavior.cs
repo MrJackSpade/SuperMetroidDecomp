@@ -192,7 +192,7 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
         HopperHopDirection direction = unchecked((short)(samus.Position.X.Whole - slot.Position.X.Whole)) < 0
             ? HopperHopDirection.Backward
             : HopperHopDirection.Forward;
-        state.Function = (surface, direction) switch
+        state.Function = new HopperHop(surface, direction) switch
         {
             (HopperSurface.Floor, HopperHopDirection.Backward) => HopperEnemyFunction.StartBackwardHopUpsideUp,
             (HopperSurface.Floor, HopperHopDirection.Forward) => HopperEnemyFunction.StartForwardHopUpsideUp,
@@ -215,7 +215,7 @@ internal sealed class HoppersBehavior : IEnemySpecies, IEnemyEntityFactory
             state.XVelocity = unchecked((short)-state.XVelocity);
 
         SetHopperProgram(slot, state, ReadHopperProgram(state, surface, HopperPhase.Jumping));
-        state.Function = (surface, direction) switch
+        state.Function = new HopperHop(surface, direction) switch
         {
             (HopperSurface.Floor, HopperHopDirection.Backward) => HopperEnemyFunction.JumpingUpsideUpBackward,
             (HopperSurface.Floor, HopperHopDirection.Forward) => HopperEnemyFunction.JumpingUpsideUpForward,

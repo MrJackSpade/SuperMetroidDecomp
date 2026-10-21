@@ -12,11 +12,11 @@ internal static class SpaceColonyCaptionDefinitions
     internal static int LetterCount => Text.Length - 1;
 
     /// <summary>Places a visible glyph from column ten, skipping the undrawn space cell.</summary>
-    internal static (int Column, ushort Tile) Letter(int index)
+    internal static SpaceColonyCaptionLetter Letter(int index)
     {
         if ((uint)index >= LetterCount) throw new ArgumentOutOfRangeException(nameof(index));
         int column = index + (index >= Text.IndexOf(' ') ? 1 : 0);
-        return (10 + column, Glyph(Text[column]));
+        return new SpaceColonyCaptionLetter(10 + column, Glyph(Text[column]));
     }
 
     /// <summary>

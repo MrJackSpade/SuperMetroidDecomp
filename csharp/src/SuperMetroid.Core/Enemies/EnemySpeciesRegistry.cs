@@ -47,7 +47,7 @@ internal sealed class EnemySpeciesRegistry
     internal static EnemySpeciesRegistry ForRetailRooms(EnemyCommonParticipation common, IEnumerable<IEnemyEntityFactory> factories)
     {
         var registry = new EnemySpeciesRegistry(common, factories);
-        var unowned = RoomEnemyDefinitionCatalog.Definitions.Select(entry => entry.Pointer).Append(EnemyDefinitionId.Respawn)
+        var unowned = RoomEnemyDefinitionCatalog.Definitions.Select(entry => entry.Id).Append(EnemyDefinitionId.Respawn)
             .Where(definition => !registry._factories.ContainsKey(definition) && !UnportedDefinitions.Contains(definition))
             .ToList();
         if (unowned.Count != 0)

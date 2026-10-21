@@ -36,7 +36,7 @@ internal static class DraygonScrollingSpeedCapVerification
     }
 
     /// <summary>Runs the real Draygon carry path and reads Samus's resulting previous-position words.</summary>
-    private static (ushort X, ushort Y) PreviousAfterDraygonMove(
+    private static Position16<RoomPixels> PreviousAfterDraygonMove(
         FixedPosition<RoomPixels> checkpoint, Position16<RoomPixels> body)
     {
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);

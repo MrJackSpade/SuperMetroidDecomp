@@ -119,7 +119,7 @@ public static class SamusSolidEnemyCollision
     }
 
     /// <summary>Applies the directional 16.16 movement to the relevant axis and rounds its fractional target outward for the native broad-phase test.</summary>
-    private static (ushort X, ushort Y) BuildRoundedTarget(
+    private static Position16<RoomPixels> BuildRoundedTarget(
         SamusKinematicsState state,
         SamusCollisionDirection direction,
         ushort distance,
@@ -152,7 +152,7 @@ public static class SamusSolidEnemyCollision
                 throw new InvalidOperationException($"Undefined SamusCollisionDirection {direction}.");
         }
 
-        return (targetX, targetY);
+        return new Position16<RoomPixels>(targetX, targetY);
     }
 
     /// <summary>Models native subtraction, including fractional borrow and the extra outward decrement selected by the assembly's zero flag.</summary>

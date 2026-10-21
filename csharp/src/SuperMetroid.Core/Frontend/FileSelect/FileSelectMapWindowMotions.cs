@@ -23,7 +23,7 @@ internal static class FileSelectMapWindowMotions
     /// </remarks>
     public static FileSelectMapWindowMotion Get(int area)
     {
-        (int x, int y) = StockOrigin(area);
+        var (x, y) = StockOrigin(area);
         int farthest = Math.Max(Math.Max(x, 256 - x), Math.Max(y, 256 - y));
         uint Velocity(int distance, int sign) => unchecked((uint)(sign * ((256 * distance / farthest) << 10)));
         return new(farthest / 4, Velocity(x, -1), Velocity(256 - x, 1),
@@ -43,14 +43,14 @@ internal static class FileSelectMapWindowMotions
     /// These stock inputs determine compiled motion; independently editable installed
     /// label anchors determine the actual starting rectangle.
     /// </remarks>
-    internal static (int X, int Y) StockOrigin(int area) => area switch
+    internal static Position16<ScreenPixels> StockOrigin(int area) => area switch
     {
-        (int)AreaId.Crateria => (91, 50),
-        (int)AreaId.Brinstar => (42, 127),
-        (int)AreaId.Norfair => (94, 181),
-        (int)AreaId.WreckedShip => (206, 80),
-        (int)AreaId.Maridia => (206, 159),
-        (int)AreaId.Tourian => (135, 139),
+        (int)AreaId.Crateria => new Position16<ScreenPixels>(91, 50),
+        (int)AreaId.Brinstar => new Position16<ScreenPixels>(42, 127),
+        (int)AreaId.Norfair => new Position16<ScreenPixels>(94, 181),
+        (int)AreaId.WreckedShip => new Position16<ScreenPixels>(206, 80),
+        (int)AreaId.Maridia => new Position16<ScreenPixels>(206, 159),
+        (int)AreaId.Tourian => new Position16<ScreenPixels>(135, 139),
         _ => throw new ArgumentOutOfRangeException(nameof(area), "Only the six Zebes areas have world-map transitions.")
     };
 }

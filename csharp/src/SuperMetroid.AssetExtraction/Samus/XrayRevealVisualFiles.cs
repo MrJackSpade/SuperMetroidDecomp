@@ -166,8 +166,8 @@ public static class XrayRevealVisualFiles
                     $"X-ray visuals {selectedPath} changed room-overlay structure at entry {index}.");
         }
         var overlays = new XrayOverlayVisualCatalog(selected.ItemMetatiles,
-            selected.Rooms.Select(room => (XrayRoomOverlaySources.Overlay(checked((ushort)room.Pointer)),
-                (IReadOnlyList<XrayRoomOverlayVisual>)room.Tiles.Select(tile =>
+            selected.Rooms.Select(room => new XrayRoomOverlayTiles(XrayRoomOverlaySources.Overlay(checked((ushort)room.Pointer)),
+                room.Tiles.Select(tile =>
                     new XrayRoomOverlayVisual(tile.Block, new RoomLevelWord(checked((ushort)tile.Word)))).ToArray())));
         return new XrayRevealVisualCatalog(mappings, overlays);
     }

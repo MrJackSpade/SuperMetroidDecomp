@@ -80,9 +80,10 @@ public static class EndingFontAtlasFormat
         if ((uint)pixel >= Width * Height) throw new ArgumentOutOfRangeException(nameof(pixel));
         int tile = pixel / Width / TileSize * TilesPerRow + pixel % Width / TileSize;
         int x = pixel % TileSize, y = pixel / Width % TileSize;
-        return tile == EndingTextDefinitions.ResultLetterBase + 'K' - 'A' && ((x, y) is (3, 0) or (7, 4))
-            || tile == EndingTextDefinitions.ResultLetterBase + 'M' - 'A' && (x, y) is (4, 1)
-            || tile == EndingTextDefinitions.ResultLetterBase + 'Z' - 'A' && (x, y) is (7, 3);
+        Position16<CharacterPixels> at = new(checked((ushort)x), checked((ushort)y));
+        return tile == EndingTextDefinitions.ResultLetterBase + 'K' - 'A' && at is (3, 0) or (7, 4)
+            || tile == EndingTextDefinitions.ResultLetterBase + 'M' - 'A' && at is (4, 1)
+            || tile == EndingTextDefinitions.ResultLetterBase + 'Z' - 'A' && at is (7, 3);
     }
 
     /// <summary>Native small A–Z plus large A–Z and copyright0–9 glyph cells; other symbols/subtitle pixels remain independently required.</summary>
@@ -114,16 +115,20 @@ public static class EndingFontAtlasFormat
         if (!TryLargeGlyphOrigin(pixel, out int origin)) return false;
         int tile = origin / Width / TileSize * TilesPerRow + origin % Width / TileSize;
         int x = (pixel - origin) % Width, y = (pixel - origin) / Width;
-        return (LargeLetter(tile), x, y) is
-            ('B', 5, 2) or ('B', 6, 3) or ('B', 7, 4) or ('B', 7, 7)
-            or ('B', 7, 8) or ('B', 7, 13) or ('B', 6, 14)
-            or ('D', 6, 3) or ('D', 7, 5) or ('D', 7, 11) or ('D', 6, 13) or ('D', 5, 14)
-            or ('G', 4, 6) or ('G', 4, 10)
-            or ('J', 0, 13) or ('J', 7, 13) or ('J', 1, 14) or ('J', 6, 14)
-            or ('K', 5, 2) or ('K', 4, 3) or ('K', 5, 8) or ('K', 6, 9) or ('K', 7, 10)
-            or ('Q', 7, 3) or ('R', 7, 10) or ('R', 7, 11)
-            or ('S', 7, 13) or ('S', 1, 14) or ('S', 6, 14)
-            or ('V', 6, 11) or ('V', 2, 14);
+        Position16<CharacterPixels> at = new(checked((ushort)x), checked((ushort)y));
+        return LargeLetter(tile) switch
+        {
+            'B' => at is (5, 2) or (6, 3) or (7, 4) or (7, 7) or (7, 8) or (7, 13) or (6, 14),
+            'D' => at is (6, 3) or (7, 5) or (7, 11) or (6, 13) or (5, 14),
+            'G' => at is (4, 6) or (4, 10),
+            'J' => at is (0, 13) or (7, 13) or (1, 14) or (6, 14),
+            'K' => at is (5, 2) or (4, 3) or (5, 8) or (6, 9) or (7, 10),
+            'Q' => at is (7, 3),
+            'R' => at is (7, 10) or (7, 11),
+            'S' => at is (7, 13) or (1, 14) or (6, 14),
+            'V' => at is (6, 11) or (2, 14),
+            _ => false,
+        };
     }
     /// <summary>The large letter whose glyph's top cell is <paramref name="topTile"/>, or none for a copyright digit.</summary>
     private static char LargeLetter(int topTile) =>

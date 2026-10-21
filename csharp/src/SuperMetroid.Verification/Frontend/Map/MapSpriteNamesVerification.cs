@@ -43,7 +43,7 @@ internal static class MapSpriteNamesVerification
         // Independent original table from9b54e512, retained only for verification.
         var original = MapSpriteRoleOracle();
         AssertEqual(original.Length, MapSpriteDefinitions.Count, "map sprite complete role count");
-        AssertTrue(original.SequenceEqual(MapSpriteDefinitions.Frames.Select(frame => ((ushort)frame.NativeId, frame.Name))), "original map sprite document order");
+        AssertTrue(original.SequenceEqual(MapSpriteDefinitions.Frames.Select(frame => ((ushort)frame.Id, frame.Name))), "original map sprite document order");
         foreach (var entry in original)
             AssertEqual(entry.Name, MapSpriteDefinitions.Name((MapSpriteId)entry.NativeId), "original native identity name");
         var supported = original.Select(entry => entry.NativeId).ToHashSet();

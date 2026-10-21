@@ -188,7 +188,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
         YappingMawEnemyState state,
         SamusState samus)
     {
-        (ushort distance, SnesBearing bearing) = CalculateYappingMawTarget(
+        (int distance, SnesBearing bearing) = CalculateYappingMawTarget(
             state.Origin,
             samus.Position.Whole);
         state.DistanceToSamus = distance;
@@ -532,19 +532,19 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
         unchecked((short)(camera.Y + 256 - slot.Position.Y.Whole)) < 0;
 
     /// <summary>Ports EnemyFunc_ACA8 at $A0:ACA8 for the one family that consumes it.</summary>
-    private static (ushort Distance, SnesBearing Bearing) CalculateYappingMawTarget(
+    private static YappingMawTarget CalculateYappingMawTarget(
         Position16<RoomPixels> origin,
         Position16<RoomPixels> samus)
     {
         ushort deltaX = unchecked((ushort)(samus.X - origin.X));
         ushort absoluteX = EnemyMath.WrappedMagnitude(deltaX);
         if (unchecked((short)(absoluteX - 255)) >= 0)
-            return (absoluteX, default);
+            return new YappingMawTarget(absoluteX, default);
 
         ushort deltaY = unchecked((ushort)(samus.Y - origin.Y));
         ushort absoluteY = EnemyMath.WrappedMagnitude(deltaY);
         if (unchecked((short)(absoluteY - 255)) >= 0)
-            return (absoluteY, default);
+            return new YappingMawTarget(absoluteY, default);
 
         SnesByteAngle positiveQuadrantAngle = EnemyMath.CalculateCartridgeAngle(
             new(unchecked((short)absoluteX), unchecked((short)absoluteY))).ReinterpretAsTableAngle();
@@ -555,7 +555,7 @@ internal sealed class YappingMawBehavior : IEnemySpecies, IEnemyEntityFactory
             EnemyMath.WrappedMagnitude(unchecked((ushort)EnemyMath.ReadEightBitCosineProduct(
                 positiveQuadrantAngle,
                 absoluteY)))));
-        return (distance, EnemyMath.CalculateCartridgeAngle(new(unchecked((short)deltaX), unchecked((short)deltaY))));
+        return new YappingMawTarget(distance, EnemyMath.CalculateCartridgeAngle(new(unchecked((short)deltaX), unchecked((short)deltaY))));
     }
 
     /// <summary>$A8:A73E: X is the Y helper with a minus-64 angle adjustment.</summary>

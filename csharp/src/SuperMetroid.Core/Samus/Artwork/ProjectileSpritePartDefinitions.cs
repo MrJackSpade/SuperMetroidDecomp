@@ -129,16 +129,16 @@ public static class ProjectileSpritePartDefinitions
                 7 => WaveDirection.DownRight,
                 _ => throw new ArgumentOutOfRangeException(nameof(phase)),
             };
-            (int dx, int dy) = direction switch
+            var (dx, dy) = direction switch
             {
-                WaveDirection.Up => (0, -1),
-                WaveDirection.Down => (0, 1),
-                WaveDirection.UpRight => (1, -1),
-                WaveDirection.DownLeft => (-1, 1),
-                WaveDirection.Right => (1, 0),
-                WaveDirection.Left => (-1, 0),
-                WaveDirection.UpLeft => (-1, -1),
-                WaveDirection.DownRight => (1, 1),
+                WaveDirection.Up => new Offset16<RoomPixels>(0, -1),
+                WaveDirection.Down => new Offset16<RoomPixels>(0, 1),
+                WaveDirection.UpRight => new Offset16<RoomPixels>(1, -1),
+                WaveDirection.DownLeft => new Offset16<RoomPixels>(-1, 1),
+                WaveDirection.Right => new Offset16<RoomPixels>(1, 0),
+                WaveDirection.Left => new Offset16<RoomPixels>(-1, 0),
+                WaveDirection.UpLeft => new Offset16<RoomPixels>(-1, -1),
+                WaveDirection.DownRight => new Offset16<RoomPixels>(1, 1),
                 _ => throw new ArgumentOutOfRangeException(nameof(phase)),
             };
             int distance = SuperMetroid.Core.Samus.Projectiles.ProjectileWaveEnvelopeDefinitions.AxialLobeDistance(step);

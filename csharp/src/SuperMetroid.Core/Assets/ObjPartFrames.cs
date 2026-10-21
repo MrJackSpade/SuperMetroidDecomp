@@ -15,7 +15,7 @@ public static class ObjPartFrames
     private const byte LargeObjectPixels = 16;
 
     /// <summary>Single small-OBJ frames, shared because their content is only the attribute word and base.</summary>
-    private static readonly ConcurrentDictionary<(ushort Attributes, int FirstCharacter), SpriteFrame> SmallObjects = new();
+    private static readonly ConcurrentDictionary<SmallObjectKey, SpriteFrame> SmallObjects = new();
 
     /// <summary>One authored part as a whole-frame part.</summary>
     /// <param name="x">Spritemap X word: signed nine-bit offset and the large-size bit.</param>
@@ -36,6 +36,6 @@ public static class ObjPartFrames
     /// <param name="attributes">Tile, palette, priority and flips.</param>
     /// <param name="firstCharacter">OBJ tile number of the bound artwork's character 0.</param>
     public static SpriteFrame SmallObject(SnesObjAttributeWord attributes, int firstCharacter) =>
-        SmallObjects.GetOrAdd((attributes.Raw, firstCharacter), key => new SpriteFrame($"Obj.{key.Attributes:X4}",
-            [Part(new SnesSpritemapXWord(0), new SnesSpritemapYByte(0), new SnesObjAttributeWord(key.Attributes), key.FirstCharacter)]));
+        SmallObjects.GetOrAdd(new SmallObjectKey(attributes.Raw, firstCharacter), key => new SpriteFrame($"Obj.{key.Attributes:X4}",
+            [Part(new SnesSpritemapXWord(0), new SnesSpritemapYByte(0), new SnesObjAttributeWord(checked((ushort)key.Attributes)), key.FirstCharacter)]));
 }

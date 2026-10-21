@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend.Map.Artwork;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend.Menus;
@@ -8,7 +9,7 @@ namespace SuperMetroid.Core.Frontend.Pause.Artwork;
 public sealed class PauseSelectorPresentation
 {
     /// <summary>Only anchors differing from compiled stock coordinates.</summary>
-    internal readonly Dictionary<string, (int? X, int? Y)> anchorOverrides;
+    internal readonly Dictionary<string, AnchorOverride> anchorOverrides;
     /// <summary>Category compositions sharing their native base frame unless a phase overrides it.</summary>
     internal readonly PhaseComposition reserve, beam, equipment;
     /// <summary>Authored durations differing from the native phase timing rule.</summary>
@@ -64,14 +65,14 @@ public sealed class PauseSelectorPresentation
             document.Frames is null || document.Frames.Count is < 1 or > PauseSelectorDefinitions.MaximumFrames ||
             document.Animation is null || document.Animation.Length is < 1 or > PauseSelectorDefinitions.MaximumPhases)
             throw new InvalidDataException("Pause selectors require version 1, sixteen anchors, palette 0..7, valid named frames and positive bounded timing.");
-        var anchorOverrides = new Dictionary<string, (int? X, int? Y)>();
+        var anchorOverrides = new Dictionary<string, AnchorOverride>();
         foreach (var definition in PauseSelectorDefinitions.Anchors())
         {
             if (!document.Anchors.TryGetValue(definition.Name, out var point) || point.X is < 0 or > 255 || point.Y is < 0 or > 223)
                 throw new InvalidDataException($"Pause selector {definition.Name} requires screen coordinates X=0..255/Y=0..223.");
             var basis = PauseSelectorDefinitions.StockAnchor(definition.Category, definition.Item);
             if (point.X != basis.X || point.Y != basis.Y)
-                anchorOverrides.Add(definition.Name, (point.X == basis.X ? null : point.X, point.Y == basis.Y ? null : point.Y));
+                anchorOverrides.Add(definition.Name, new AnchorOverride(point.X == basis.X ? null : point.X, point.Y == basis.Y ? null : point.Y));
         }
         var frames = new Dictionary<string, PauseSelectorVisual>();
         foreach (var frame in document.Frames)
@@ -132,7 +133,7 @@ public sealed class PauseSelectorPresentation
     private sealed record PauseSelectorParts
     {
         /// <summary>Named X and Y differences from compiled stock selector anchors.</summary>
-        public required Dictionary<string, (int? X, int? Y)> AnchorOverrides { get; init; }
+        public required Dictionary<string, AnchorOverride> AnchorOverrides { get; init; }
 
         /// <summary>Reserve category frame sequence.</summary>
         public required PhaseComposition Reserve { get; init; }

@@ -147,7 +147,7 @@ internal static class EnemySpeciesCapabilitiesVerification
     {
         Dictionary<EnemyDefinitionId, EnemyCapabilities> capabilities = ExpectedCapabilities();
         Dictionary<EnemyDefinitionId, EnemyInteractionCallback[]> namedCallbacks = ExpectedNamedShotCallbacks();
-        IEnumerable<EnemyDefinitionId> definitions = RoomEnemyDefinitionCatalog.Definitions.Select(entry => entry.Pointer)
+        IEnumerable<EnemyDefinitionId> definitions = RoomEnemyDefinitionCatalog.Definitions.Select(entry => entry.Id)
             .Concat(RoomEnemyAuxiliaryDefinitionCatalog.Definitions.Keys)
             .Concat(capabilities.Keys)
             .Concat(namedCallbacks.Keys)

@@ -268,14 +268,14 @@ public static class GameSaveJsonCodec
         RequireRange(slot.NewFileMarker, SaveFieldValue.MaximumValue, expectedSlot, "newFileMarker");
         RequireRange(slot.LoadingGameState, SaveFieldValue.MaximumValue, expectedSlot, "loadingGameState");
         SaveResourcesJsonDocument resources = slot.Resources;
-        foreach ((int value, string property) in new (int, string)[]
+        foreach ((int value, string property) in new SaveFieldCheck[]
                  {
-                     (resources.Health, "health"), (resources.MaxHealth, "maxHealth"),
-                     (resources.Missiles, "missiles"), (resources.MaxMissiles, "maxMissiles"),
-                     (resources.SuperMissiles, "superMissiles"), (resources.MaxSuperMissiles, "maxSuperMissiles"),
-                     (resources.PowerBombs, "powerBombs"), (resources.MaxPowerBombs, "maxPowerBombs"),
-                     (resources.ReserveEnergy, "reserveEnergy"), (resources.MaxReserveEnergy, "maxReserveEnergy"),
-                     (resources.ReserveMissiles, "reserveMissiles"),
+                     new SaveFieldCheck(resources.Health, "health"), new SaveFieldCheck(resources.MaxHealth, "maxHealth"),
+                     new SaveFieldCheck(resources.Missiles, "missiles"), new SaveFieldCheck(resources.MaxMissiles, "maxMissiles"),
+                     new SaveFieldCheck(resources.SuperMissiles, "superMissiles"), new SaveFieldCheck(resources.MaxSuperMissiles, "maxSuperMissiles"),
+                     new SaveFieldCheck(resources.PowerBombs, "powerBombs"), new SaveFieldCheck(resources.MaxPowerBombs, "maxPowerBombs"),
+                     new SaveFieldCheck(resources.ReserveEnergy, "reserveEnergy"), new SaveFieldCheck(resources.MaxReserveEnergy, "maxReserveEnergy"),
+                     new SaveFieldCheck(resources.ReserveMissiles, "reserveMissiles"),
                  })
             RequireRange(value, SamusQuantity.MinimumValue, SamusQuantity.MaximumValue, expectedSlot, $"resources.{property}");
         if (slot.Resources.Health > slot.Resources.MaxHealth)

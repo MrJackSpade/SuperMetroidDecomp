@@ -125,7 +125,7 @@ public static class SamusBombJumpMovement
     }
 
     /// <summary>Applies bomb-jump gravity and vertical block collision, reporting the apex's downward branch.</summary>
-    private static (BlockMoveResult Result, bool MovedDown) MoveUpWithGravity(
+    private static BombJumpRise MoveUpWithGravity(
 
         RoomLevelData level,
         SamusState samus,
@@ -147,7 +147,7 @@ public static class SamusBombJumpMovement
             state.YDirection = SamusVerticalDirection.Down;
         }
         // $90:915C: a non-negative displacement, including the apex's zero, takes MoveSamus_Down.
-        return (result, displacement >= 0);
+        return new BombJumpRise(result, displacement >= 0);
     }
 
     /// <summary>Clears bomb-jump direction, handler, and pose-input latches before normal movement resumes.</summary>

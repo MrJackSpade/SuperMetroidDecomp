@@ -98,7 +98,7 @@ internal static class RoomPaletteFxDefinitions
             throw new ArgumentOutOfRangeException(nameof(areaIndex));
         if ((uint)bitIndex >= DefinitionsPerArea)
             throw new ArgumentOutOfRangeException(nameof(bitIndex));
-        return ((AreaId)areaIndex, bitIndex) switch
+        return new AreaFxBit((AreaId)areaIndex, bitIndex) switch
         {
             (AreaId.Crateria, 0) => PaletteFxObject.CrateriaLightning,
             (AreaId.Crateria, 1) => PaletteFxObject.UpperCrateriaRedFlashing,

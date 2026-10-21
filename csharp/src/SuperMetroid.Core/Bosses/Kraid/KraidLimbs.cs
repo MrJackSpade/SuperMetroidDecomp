@@ -402,8 +402,8 @@ internal sealed class KraidLimbs
         if (!part.ThinkTimer.IsZero)
             return;
 
-        (ushort targetX, ushort thinkTimer) = KraidMovementChoices.Select(body.Position.X.Whole, _access.ReadKraidRandomNumber());
-        SetKraidWalking(foot, part, targetX, thinkTimer, rightward: unchecked((short)(targetX - body.Position.X.Whole)) >= 0);
+        (int targetX, int thinkTimer) = KraidMovementChoices.Select(body.Position.X.Whole, _access.ReadKraidRandomNumber());
+        SetKraidWalking(foot, part, checked((ushort)targetX), checked((ushort)thinkTimer), rightward: unchecked((short)(targetX - body.Position.X.Whole)) >= 0);
     }
 
     /// <summary>

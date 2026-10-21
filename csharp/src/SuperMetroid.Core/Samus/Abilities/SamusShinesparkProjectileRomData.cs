@@ -17,18 +17,18 @@ public static class SamusShinesparkProjectileRomData
     /// movement handler, and those indices read on into the code of $90:D4D2: the bytes at
     /// $90:D504/$D505 and $90:D506/$D507.
     /// </remarks>
-    internal static (SnesAngle First, SnesAngle Second) DepartureAngles(SamusPoseId pose)
+    internal static ShinesparkDepartureAngles DepartureAngles(SamusPoseId pose)
     {
-        (byte first, byte second) = pose switch
+        return pose switch
         {
-            SamusPoseId.ShinesparkHorizontalRightPose => ((byte)0x00, (byte)0x80),
-            SamusPoseId.ShinesparkHorizontalLeftPose => ((byte)0x00, (byte)0x80),
-            SamusPoseId.ShinesparkVerticalRightPose => ((byte)0x40, (byte)0xc0),
-            SamusPoseId.ShinesparkVerticalLeftPose => ((byte)0x40, (byte)0xc0),
-            SamusPoseId.ShinesparkDiagonalRightPose => ((byte)0xe0, (byte)0x60),
-            SamusPoseId.ShinesparkDiagonalLeftPose => ((byte)0x20, (byte)0xa0),
-            SamusPoseId.DrainedCrouchingRightPose => ((byte)0x16, (byte)0x9d),
-            SamusPoseId.DrainedCrouchingLeftPose => ((byte)0xb6, (byte)0x0a),
+            SamusPoseId.ShinesparkHorizontalRightPose => Departure(0x00, 0x80),
+            SamusPoseId.ShinesparkHorizontalLeftPose => Departure(0x00, 0x80),
+            SamusPoseId.ShinesparkVerticalRightPose => Departure(0x40, 0xc0),
+            SamusPoseId.ShinesparkVerticalLeftPose => Departure(0x40, 0xc0),
+            SamusPoseId.ShinesparkDiagonalRightPose => Departure(0xe0, 0x60),
+            SamusPoseId.ShinesparkDiagonalLeftPose => Departure(0x20, 0xa0),
+            SamusPoseId.DrainedCrouchingRightPose => Departure(0x16, 0x9d),
+            SamusPoseId.DrainedCrouchingLeftPose => Departure(0xb6, 0x0a),
             SamusPoseId.ForwardFacingPowerSuitPose or
                 SamusPoseId.ForwardFacingSuitedPose or
                 SamusPoseId.FacingRightNormalPose or
@@ -281,6 +281,9 @@ public static class SamusShinesparkProjectileRomData
                 $"Shinespark crash finish has no modeled echo angles for pose ${(int)pose:X2}."),
             var undefined => throw new InvalidOperationException($"Undefined {nameof(SamusPoseId)} {undefined}."),
         };
-        return (SnesAngle.FromTableIndex(first), SnesAngle.FromTableIndex(second));
     }
+
+    /// <summary>The departure angles at two table indexes.</summary>
+    private static ShinesparkDepartureAngles Departure(byte first, byte second) =>
+        new ShinesparkDepartureAngles(SnesAngle.FromTableIndex(first), SnesAngle.FromTableIndex(second));
 }

@@ -849,8 +849,7 @@ level, probe, this, amount, scanLeftToRight, plms);
     /// The live SamusPreviousXPosition/SamusPreviousYPosition words ($0B10/$0B14): the
     /// frame-start checkpoint with this frame's writes so far, without consuming them.
     /// </summary>
-    internal (ushort X, ushort Y) PeekPreviousPositionWords(FixedPosition<RoomPixels> previous) => (
-        checked((ushort)(_previousXPositionWrite ?? previous.X.Whole)),
+    internal Position16<RoomPixels> PeekPreviousPositionWords(FixedPosition<RoomPixels> previous) => new Position16<RoomPixels>(        checked((ushort)(_previousXPositionWrite ?? previous.X.Whole)),
         unchecked((ushort)((_poseCollisionPreviousYPosition ?? previous.Y.Whole) + _poseAlignmentPreviousYDelta)));
 
     /// <summary>

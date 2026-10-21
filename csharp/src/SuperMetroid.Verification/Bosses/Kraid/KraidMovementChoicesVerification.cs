@@ -13,18 +13,18 @@ internal static class KraidMovementChoicesVerification
 {
     /// <summary>Compares the selected destination X for every RNG word and position row.</summary>
     private static void VerifyKraidMovementTargets(ushort[] positions,
-        Func<ushort, ushort, (ushort TargetX, ushort ThinkTimer)> expected) =>
+        Func<ushort, ushort, KraidMovementChoice> expected) =>
         Suite(nameof(VerifyKraidMovementField), () => VerifyKraidMovementField(positions, expected, value => value.TargetX));
 
     /// <summary>Compares the selected think delay for every RNG word and position row.</summary>
     private static void VerifyKraidMovementTimers(ushort[] positions,
-        Func<ushort, ushort, (ushort TargetX, ushort ThinkTimer)> expected) =>
+        Func<ushort, ushort, KraidMovementChoice> expected) =>
         Suite(nameof(VerifyKraidMovementField), () => VerifyKraidMovementField(positions, expected, value => value.ThinkTimer));
 
     /// <summary>Exercises all weighted choices, including the fallback position row.</summary>
     private static void VerifyKraidMovementField(ushort[] positions,
-        Func<ushort, ushort, (ushort TargetX, ushort ThinkTimer)> expected,
-        Func<(ushort TargetX, ushort ThinkTimer), ushort> field)
+        Func<ushort, ushort, KraidMovementChoice> expected,
+        Func<KraidMovementChoice, int> field)
     {
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
         {
@@ -60,12 +60,12 @@ internal static class KraidMovementChoicesVerification
                 timers[row, choice] = Word(pointer + choice * 4 + 2);
             }
         }
-        (ushort TargetX, ushort ThinkTimer) Expected(ushort x, ushort random)
+        KraidMovementChoice Expected(ushort x, ushort random)
         {
             int row = Array.IndexOf(positions, x);
             if (row < 0) row = 1;
             int choice = Math.Min((random & 28) / 4, 4);
-            return (targets[row, choice], timers[row, choice]);
+            return new(targets[row, choice], timers[row, choice]);
         }
         Suite(nameof(VerifyKraidMovementTargets), () => VerifyKraidMovementTargets(positions, Expected));
         Suite(nameof(VerifyKraidMovementTimers), () => VerifyKraidMovementTimers(positions, Expected));

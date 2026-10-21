@@ -85,9 +85,9 @@ public sealed class EnemyStagingSurfaces : IWorkRamStagingSource
     }
 
     /// <summary>Maps a native bank-$7E source span to the surface and offset that hold it.</summary>
-    private (VramStagingBuffer Buffer, int Offset) Resolve(int sourceAddress, int byteCount) =>
+    private StagingLocation Resolve(int sourceAddress, int byteCount) =>
         TryResolve(sourceAddress, byteCount, out VramStagingBuffer buffer, out int offset)
-            ? (buffer, offset)
+            ? new StagingLocation(buffer, offset)
             : throw new InvalidDataException(
                 $"Enemy VRAM transfer ${sourceAddress:X6}+{byteCount} lies outside the enemy staging surfaces.");
 }

@@ -718,7 +718,7 @@ public sealed class MotherBrainRainbowPalettePresentation
         /// <summary>Normal ending colors for interpolation.</summary>
         internal readonly PaletteFrame last;
         /// <summary>Authored inks that differ from the native revival interpolation.</summary>
-        internal readonly Dictionary<(int Frame, int Color), Bgr555> suppliedOverrides = new();
+        internal readonly Dictionary<RainbowPaletteColorKey, Bgr555> suppliedOverrides = new();
 
         /// <summary>Captures only phase/color differences from the native endpoint interpolation.</summary>
         public RevivalPaletteFade(PaletteFrame[] frames)
@@ -731,7 +731,7 @@ public sealed class MotherBrainRainbowPalettePresentation
                 {
                     Bgr555 supplied = ReadColor(frames[frame], color);
                     if (Interpolate(frame, color) != supplied)
-                        suppliedOverrides.Add((frame, color), supplied);
+                        suppliedOverrides.Add(new RainbowPaletteColorKey(frame, color), supplied);
                 }
         }
 
@@ -747,7 +747,7 @@ public sealed class MotherBrainRainbowPalettePresentation
         public Bgr555 Leg(int frame, int color) => Color(frame, BodyCount + color);
 
         /// <summary>Prefers an authored exception to the calculated revival shade.</summary>
-        private Bgr555 Color(int frame, int color) => suppliedOverrides.TryGetValue((frame, color), out Bgr555 supplied)
+        private Bgr555 Color(int frame, int color) => suppliedOverrides.TryGetValue(new RainbowPaletteColorKey(frame, color), out Bgr555 supplied)
             ? supplied : Interpolate(frame, color);
 
         /// <summary>Maps a flattened body, rear, or trailing index into one supplied frame.</summary>

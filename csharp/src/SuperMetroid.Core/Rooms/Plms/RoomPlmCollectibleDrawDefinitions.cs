@@ -87,14 +87,14 @@ internal static class RoomPlmCollectibleDrawDefinitions
     private static readonly DrawGroup[] DrawGroups = Enum.GetValues<DrawGroup>();
 
     /// <summary>Gets a group's first native draw pointer and number of six-byte records.</summary>
-    private static (ushort First, int Count) SpanOf(DrawGroup group) => group switch
+    private static CollectibleDrawSpan SpanOf(DrawGroup group) => group switch
     {
-        DrawGroup.Empty => (Empty, 1),
-        DrawGroup.Orb => (OrbFirst, 3),
-        DrawGroup.OrbBurst => (OrbBurst, 1),
-        DrawGroup.Tank => (TankFirst, 8),
-        DrawGroup.Dynamic => (DynamicFirst, 8),
-        DrawGroup.ShotReveal => (ShotRevealFirst, 3),
+        DrawGroup.Empty => new CollectibleDrawSpan(Empty, 1),
+        DrawGroup.Orb => new CollectibleDrawSpan(OrbFirst, 3),
+        DrawGroup.OrbBurst => new CollectibleDrawSpan(OrbBurst, 1),
+        DrawGroup.Tank => new CollectibleDrawSpan(TankFirst, 8),
+        DrawGroup.Dynamic => new CollectibleDrawSpan(DynamicFirst, 8),
+        DrawGroup.ShotReveal => new CollectibleDrawSpan(ShotRevealFirst, 3),
         _ => throw new InvalidOperationException($"Undefined {nameof(DrawGroup)} {(int)group}."),
     };
 
@@ -103,8 +103,8 @@ internal static class RoomPlmCollectibleDrawDefinitions
     {
         foreach (DrawGroup candidate in DrawGroups)
         {
-            (ushort first, int count) = SpanOf(candidate);
-            if (!TryIndex(pointer, first, count, out index)) continue;
+            (int first, int count) = SpanOf(candidate);
+            if (!TryIndex(pointer, checked((ushort)first), count, out index)) continue;
             group = candidate;
             return true;
         }

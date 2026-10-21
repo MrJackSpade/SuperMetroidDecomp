@@ -69,11 +69,11 @@ public sealed class CinematicPaletteFader
     }
 
     /// <summary>Converts a nonempty span to a bounded palette color interval.</summary>
-    private static (int FirstColor, int ExclusiveEnd) ValidateRange(IntroPaletteSpan span)
+    private static PaletteColorRange ValidateRange(IntroPaletteSpan span)
     {
         // The native do/while routine handles at least one color, and the run stays inside the 256-color buffer.
         int firstColor = Ensure.BetweenInclusive(0, CgramPalettes.ColorCount - 1, span.FirstColor);
         int colorCount = Ensure.BetweenInclusive(1, CgramPalettes.ColorCount - firstColor, span.ColorCount);
-        return (firstColor, firstColor + colorCount);
+        return new PaletteColorRange(firstColor, firstColor + colorCount);
     }
 }

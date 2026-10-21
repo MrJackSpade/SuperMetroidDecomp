@@ -133,14 +133,8 @@ public static class SamusInsideBlockReactions
             // The normal special-air table shares its BTS space; only conveyor entries react here.
             if (!Enum.IsDefined((ConveyorBlockBts)bts)) return;
             var conveyor = (ConveyorBlockBts)bts;
-            (bool groundedOnly, bool rightward) = conveyor switch
-            {
-                ConveyorBlockBts.GroundedRight => (true, true),
-                ConveyorBlockBts.GroundedLeft => (true, false),
-                ConveyorBlockBts.UnconditionalRight => (false, true),
-                ConveyorBlockBts.UnconditionalLeft => (false, false),
-                _ => throw new InvalidOperationException($"Undefined {nameof(ConveyorBlockBts)} {(int)conveyor}."),
-            };
+            bool groundedOnly = conveyor is ConveyorBlockBts.GroundedRight or ConveyorBlockBts.GroundedLeft;
+            bool rightward = conveyor is ConveyorBlockBts.GroundedRight or ConveyorBlockBts.UnconditionalRight;
             samus.HorizontalSpeed.SelectNormalAirSpeedTable();
             if (groundedOnly && ((area == AreaId.WreckedShip && !areaBossDefeated) || body.YSpeed.Whole != 0))
                 return;

@@ -133,11 +133,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
         // deleted, but EnemyMain still visits later entries in this frame's
         // prebuilt active list. Their final orbit uses the cleared coordinates.
 
-        (int xDisplacement, int yDisplacement) = ShaktoolOrbitTables.Displacement(
-            state.OrbitAngle.ToByteAngle());
-        slot.Position = previous.Position.Advance(new(
-            SnesSignedSixteenSixteen.FromRaw(xDisplacement),
-            SnesSignedSixteenSixteen.FromRaw(yDisplacement)));
+        slot.Position = previous.Position.Advance(ShaktoolOrbitTables.Displacement(state.OrbitAngle.ToByteAngle()));
     }
 
     /// <summary>Ports the common orbit step at <c>$AA:DCAC</c>.</summary>
@@ -306,7 +302,12 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
 
         RoomEnemySlot head = group[0];
         RoomEnemySlot tail = group[6];
-        (tail.Position, head.Position) = (head.Position, tail.Position);
+        {
+            var held0 = head.Position;
+            var held1 = tail.Position;
+            tail.Position = held0;
+            head.Position = held1;
+        }
 
         for (int index = 1; index < ShaktoolSegmentCount - 1; index++)
         {

@@ -31,11 +31,11 @@ public sealed class ClipAudioCatalog
     /// <summary>The audio root the manifest's paths are relative to.</summary>
     private readonly string root;
     /// <summary>Music clips by (bank, track).</summary>
-    private readonly Dictionary<(AudioBank Bank, int Track), MusicClipEntry> music;
+    private readonly Dictionary<MusicTrackKey, MusicClipEntry> music;
     /// <summary>Sound-effect entries by (bank context, library, command).</summary>
     private readonly Dictionary<SoundEffectClipKey, SoundEffectClipEntry> soundEffects;
     /// <summary>Each request's acceptance policy, the same in every bank context.</summary>
-    private readonly Dictionary<(SoundEffectLibrary Library, int Command), SoundEffectClipPolicy> policies = [];
+    private readonly Dictionary<SoundEffectPolicyKey, SoundEffectClipPolicy> policies = [];
     /// <summary>Effects with no clip in a context, by (bank context, library, command).</summary>
     private readonly Dictionary<SoundEffectClipKey, UnrenderableSoundEffect> unrenderable;
     /// <summary>Each override replacement clip's absolute path; every other clip lives beneath <see cref="root"/>.</summary>
@@ -51,7 +51,7 @@ public sealed class ClipAudioCatalog
         music = [];
         foreach (MusicClipEntry entry in manifest.Music)
         {
-            if (!music.TryAdd((entry.Bank, entry.Track), entry))
+            if (!music.TryAdd(new MusicTrackKey(entry.Bank, entry.Track), entry))
                 throw new InvalidDataException($"Clip manifest repeats {entry.Bank} track {entry.Track}.");
         }
         soundEffects = [];
@@ -59,7 +59,7 @@ public sealed class ClipAudioCatalog
         {
             if (!soundEffects.TryAdd(new SoundEffectClipKey(entry.Context, entry.Library, entry.Command), entry))
                 throw new InvalidDataException($"Clip manifest repeats {entry.Library} ${entry.Command:X2} in {ContextName(entry.Context)}.");
-            if (!policies.TryAdd((entry.Library, entry.Command), entry.Policy) && policies[(entry.Library, entry.Command)] != entry.Policy)
+            if (!policies.TryAdd(new SoundEffectPolicyKey(entry.Library, entry.Command), entry.Policy) && policies[new SoundEffectPolicyKey(entry.Library, entry.Command)] != entry.Policy)
                 throw new InvalidDataException($"Clip manifest gives {entry.Library} ${entry.Command:X2} different policies by context.");
         }
         unrenderable = [];
@@ -162,7 +162,7 @@ public sealed class ClipAudioCatalog
     /// <summary>The music clip for <paramref name="track"/> in <paramref name="bank"/>.</summary>
     /// <exception cref="KeyNotFoundException">The bank has no such track.</exception>
     public MusicClipEntry GetMusic(AudioBank bank, int track) =>
-        music.TryGetValue((bank, track), out MusicClipEntry? entry)
+        music.TryGetValue(new MusicTrackKey(bank, track), out MusicClipEntry? entry)
             ? entry
             : throw new KeyNotFoundException($"No music clip for {bank} track {track}.");
 
@@ -185,7 +185,7 @@ public sealed class ClipAudioCatalog
     /// <summary>The request's acceptance policy, which does not depend on the bank context.</summary>
     /// <exception cref="KeyNotFoundException">No context renders the effect.</exception>
     public SoundEffectClipPolicy GetPolicy(SoundEffectLibrary library, int command) =>
-        policies.TryGetValue((library, command), out SoundEffectClipPolicy? policy)
+        policies.TryGetValue(new SoundEffectPolicyKey(library, command), out SoundEffectClipPolicy? policy)
             ? policy
             : throw new KeyNotFoundException($"No sound effect {library} ${command:X2} in any bank context.");
 

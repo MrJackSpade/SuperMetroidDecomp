@@ -840,7 +840,7 @@ level, targetPose, nmiFrameCounter, plms, out int centerAdjustment);
     {
         bool verified =
             SamusPoseMetadata.IsStandingGroundTurnToJumpTransition(samus.Pose, targetPose) ||
-            (samus.Pose, targetPose) is
+            new SamusPoseChange(samus.Pose, targetPose) is
             (SamusPoseId.FacingRightNormalPose or SamusPoseId.StandingAimUpRightPose or
                 SamusPoseId.StandingAimDiagonalUpRightPose or SamusPoseId.StandingAimDiagonalDownRightPose,
              SamusPoseId.NeutralJumpTransitionRightPose) or

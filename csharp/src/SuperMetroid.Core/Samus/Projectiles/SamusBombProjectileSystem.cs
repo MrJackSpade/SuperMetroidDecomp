@@ -805,17 +805,13 @@ public sealed class SamusBombProjectileSystem
     {
         int centerX = slot.Position.X.Whole >> 4;
         int centerY = slot.Position.Y.Whole >> 4;
-        (int X, int Y)[] cross =
-        [
-            (centerX, centerY),
-            (centerX, centerY - 1),
-            (centerX + 1, centerY),
-            (centerX - 1, centerY),
-            (centerX, centerY + 1),
-        ];
+        // The centre, then above, right, left and below, in the native reaction order.
+        Offset16<RoomBlocks>[] cross = [new(0, 0), new(0, -1), new(1, 0), new(-1, 0), new(0, 1)];
 
-        foreach ((int x, int y) in cross)
+        foreach (Offset16<RoomBlocks> member in cross)
         {
+            int x = centerX + member.X;
+            int y = centerY + member.Y;
             if ((uint)x >= level.Size.X || (uint)y >= level.Size.Y)
             {
                 // $94:9CAC first admits the bomb centre through the room's scroll bounds,

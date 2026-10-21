@@ -246,7 +246,7 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
     /// Ports clamp/finished helper <c>$A6:98AD</c>. Every angle the sweep produces stays far inside a signed word, so
     /// the native signed differences are ordinary comparisons.
     /// </summary>
-    private static (int Angle, bool Finished) ClampNuclearWaffleAngle(
+    private static NuclearWaffleAngleClamp ClampNuclearWaffleAngle(
         NuclearWaffleEnemyState state,
         int angle)
     {
@@ -255,17 +255,17 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
             if (angle >= state.SweepEndAngle)
             {
                 return angle < state.SweepStartAngle
-                    ? (angle, false)
-                    : (state.SweepStartAngle, false);
+                    ? new NuclearWaffleAngleClamp(angle, false)
+                    : new NuclearWaffleAngleClamp(state.SweepStartAngle, false);
             }
-            return (state.SweepEndAngle, true);
+            return new NuclearWaffleAngleClamp(state.SweepEndAngle, true);
         }
 
         if (angle >= state.SweepEndAngle)
-            return (state.SweepEndAngle, true);
+            return new NuclearWaffleAngleClamp(state.SweepEndAngle, true);
         return angle < state.SweepStartAngle
-            ? (state.SweepStartAngle, false)
-            : (angle, false);
+            ? new NuclearWaffleAngleClamp(state.SweepStartAngle, false)
+            : new NuclearWaffleAngleClamp(angle, false);
     }
 
     /// <summary>Ports orientation helper <c>$A6:98E7</c>.</summary>

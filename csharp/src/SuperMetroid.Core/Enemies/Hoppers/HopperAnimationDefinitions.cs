@@ -5,7 +5,7 @@ internal static class HopperAnimationDefinitions
 {
     /// <summary>$A3:AAC2-AAE1: selects the species/size program for its orientation and movement phase.</summary>
     internal static HopperProgram Program(int variantIndex, HopperSurface surface, HopperPhase phase) =>
-        (variantIndex, surface, phase) switch
+        new HopperProgramKey(variantIndex, surface, phase) switch
         {
             (0, HopperSurface.Floor, HopperPhase.Jumping) => HopperProgram.SidehopperFloorJumping,
             (0, HopperSurface.Floor, HopperPhase.Landed) => HopperProgram.SidehopperFloorLanded,

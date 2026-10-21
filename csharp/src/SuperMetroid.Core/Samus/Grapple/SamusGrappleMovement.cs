@@ -945,25 +945,25 @@ public static class SamusGrappleMovement
         (SamusPoseId pose, bool swinging) = handler switch
         {
             GrappleConnectionHandler.SwingClockwise =>
-                (SamusPoseId.GrappleSwingRightPose, true),
+                new GrappleConnectedPose(SamusPoseId.GrappleSwingRightPose, true),
             GrappleConnectionHandler.SwingAnticlockwise =>
-                (SamusPoseId.GrappleSwingLeftPose, true),
+                new GrappleConnectedPose(SamusPoseId.GrappleSwingLeftPose, true),
             GrappleConnectionHandler.StandingUpRight =>
-                (SamusPoseId.GrappleStandingRightPose, false),
+                new GrappleConnectedPose(SamusPoseId.GrappleStandingRightPose, false),
             GrappleConnectionHandler.StandingRight =>
-                (SamusPoseId.GrappleStandingDownRightPose, false),
+                new GrappleConnectedPose(SamusPoseId.GrappleStandingDownRightPose, false),
             GrappleConnectionHandler.StandingDown =>
-                (SamusPoseId.GrappleStandingDownLeftPose, false),
+                new GrappleConnectedPose(SamusPoseId.GrappleStandingDownLeftPose, false),
             GrappleConnectionHandler.StandingUpLeft =>
-                (SamusPoseId.GrappleStandingLeftPose, false),
+                new GrappleConnectedPose(SamusPoseId.GrappleStandingLeftPose, false),
             GrappleConnectionHandler.CrouchingUpRight =>
-                (SamusPoseId.GrappleCrouchingRightPose, false),
+                new GrappleConnectedPose(SamusPoseId.GrappleCrouchingRightPose, false),
             GrappleConnectionHandler.CrouchingRight =>
-                (SamusPoseId.GrappleCrouchingDownRightPose, false),
+                new GrappleConnectedPose(SamusPoseId.GrappleCrouchingDownRightPose, false),
             GrappleConnectionHandler.CrouchingDownLeft =>
-                (SamusPoseId.GrappleCrouchingDownLeftPose, false),
+                new GrappleConnectedPose(SamusPoseId.GrappleCrouchingDownLeftPose, false),
             GrappleConnectionHandler.CrouchingUpLeft =>
-                (SamusPoseId.GrappleCrouchingLeftPose, false),
+                new GrappleConnectedPose(SamusPoseId.GrappleCrouchingLeftPose, false),
             _ => throw new InvalidOperationException($"Undefined GrappleConnectionHandler {handler}."),
         };
         GrappleConnectionFunction expectedFunction = swinging
@@ -1127,12 +1127,12 @@ public static class SamusGrappleMovement
     }
 
     /// <summary>Reads the installed presentation offset for the current shot direction and running state.</summary>
-    internal static (short X, short Y) ReadFlareOrigin(SamusGrappleState grapple, byte direction, bool running)
+    internal static Offset16<RoomPixels> ReadFlareOrigin(SamusGrappleState grapple, byte direction, bool running)
     {
         var offset = (grapple.FlarePlacement ?? throw new InvalidOperationException(
             "Grapple flare requires installed placement definitions."))
             .Resolve(running, direction);
-        return (offset.X, offset.Y);
+        return new Offset16<RoomPixels>(offset.X, offset.Y);
     }
 
     /// <summary>

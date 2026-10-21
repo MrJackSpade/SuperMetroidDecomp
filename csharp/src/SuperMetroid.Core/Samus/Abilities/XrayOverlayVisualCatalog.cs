@@ -40,14 +40,14 @@ public sealed class XrayOverlayVisualCatalog
     /// <exception cref="ArgumentNullException">An input sequence or overlay is null.</exception>
     /// <exception cref="InvalidDataException">Item values/count, room lists, duplicate overlays, or required-overlay coverage are invalid.</exception>
     public XrayOverlayVisualCatalog(IEnumerable<ushort> itemMetatiles,
-        IEnumerable<(XrayRoomOverlayDefinition Overlay, IReadOnlyList<XrayRoomOverlayVisual> Tiles)> rooms)
+        IEnumerable<XrayRoomOverlayTiles> rooms)
         : this(itemMetatiles, rooms, requiredOverlays: XrayRoomOverlayDefinitions.All)
     {
     }
 
     /// <summary>Copies validated item and room overlays and requires each of <paramref name="requiredOverlays"/>.</summary>
     internal XrayOverlayVisualCatalog(IEnumerable<ushort> itemMetatiles,
-        IEnumerable<(XrayRoomOverlayDefinition Overlay, IReadOnlyList<XrayRoomOverlayVisual> Tiles)> rooms,
+        IEnumerable<XrayRoomOverlayTiles> rooms,
         IEnumerable<XrayRoomOverlayDefinition> requiredOverlays)
     {
         Ensure.NotNull(itemMetatiles);

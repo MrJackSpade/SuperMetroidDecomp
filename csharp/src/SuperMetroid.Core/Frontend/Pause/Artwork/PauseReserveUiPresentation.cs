@@ -20,9 +20,9 @@ public sealed class PauseReserveUiPresentation
     /// <summary>Two bevel colors shown when AUTO pulse animation is inactive.</summary>
     private readonly Bgr555 solidColor6, solidColor11;
     /// <summary>Only pulse starting colors that differ from the reversed solid bevel colors.</summary>
-    private readonly (Bgr555? Color6, Bgr555? Color11) arrowStartEdits;
+    private readonly ReserveArrowColorEdits arrowStartEdits;
     /// <summary>Grey midpoint levels from which each mirrored pulse ramp is calculated.</summary>
-    private readonly (int Color6, int Color11) arrowGreyLevels;
+    private readonly ReserveArrowGreyLevels arrowGreyLevels;
     /// <summary>Independently edited pulse colors that depart from the mirrored ramp.</summary>
     internal readonly Dictionary<int, Bgr555> arrowColorEdits = [];
 
@@ -41,16 +41,16 @@ public sealed class PauseReserveUiPresentation
         this.enabledPalette = parts.EnabledPalette;
         this.disabledPalette = parts.DisabledPalette; this.solidColor6 = parts.SolidColor6;
         this.solidColor11 = parts.SolidColor11;
-        arrowStartEdits = (parts.ArrowFrames[0].Item1 == parts.SolidColor11 ? null : parts.ArrowFrames[0].Item1,
-            parts.ArrowFrames[0].Item2 == parts.SolidColor6 ? null : parts.ArrowFrames[0].Item2);
+        arrowStartEdits = new ReserveArrowColorEdits(parts.ArrowFrames[0].Color6 == parts.SolidColor11 ? null : parts.ArrowFrames[0].Color6,
+            parts.ArrowFrames[0].Color11 == parts.SolidColor6 ? null : parts.ArrowFrames[0].Color11);
         var middle = parts.ArrowFrames[PauseReserveUiDefinitions.ArrowFrames / 2 - 1];
-        arrowGreyLevels = (middle.Item1.Red, middle.Item2.Red);
+        arrowGreyLevels = new ReserveArrowGreyLevels(middle.Color6.Red, middle.Color11.Red);
         for (int frame = 0; frame < parts.ArrowFrames.Length; frame++)
         {
-            if (parts.ArrowFrames[frame].Item1 != CalculateArrowColor(frame, ReserveArrowColorSlot.Color6))
-                arrowColorEdits.Add(frame * 2, parts.ArrowFrames[frame].Item1);
-            if (parts.ArrowFrames[frame].Item2 != CalculateArrowColor(frame, ReserveArrowColorSlot.Color11))
-                arrowColorEdits.Add(frame * 2 + 1, parts.ArrowFrames[frame].Item2);
+            if (parts.ArrowFrames[frame].Color6 != CalculateArrowColor(frame, ReserveArrowColorSlot.Color6))
+                arrowColorEdits.Add(frame * 2, parts.ArrowFrames[frame].Color6);
+            if (parts.ArrowFrames[frame].Color11 != CalculateArrowColor(frame, ReserveArrowColorSlot.Color11))
+                arrowColorEdits.Add(frame * 2 + 1, parts.ArrowFrames[frame].Color11);
         }
     }
 
@@ -124,8 +124,8 @@ public sealed class PauseReserveUiPresentation
     [PpuLayoutBoundary("codec: reserve-arrow colours at their native CGRAM index operands")]
     public void ApplyArrowColors(IPaletteColors cgram, bool animated, int frame, int color6Index, int color11Index)
     {
-        var colors = animated ? (ArrowColor(frame, ReserveArrowColorSlot.Color6), ArrowColor(frame, ReserveArrowColorSlot.Color11)) : (solidColor6, solidColor11);
-        new CgramPalettes(cgram).All.Write(color6Index, colors.Item1); new CgramPalettes(cgram).All.Write(color11Index, colors.Item2);
+        var colors = animated ? new ReserveArrowColors(ArrowColor(frame, ReserveArrowColorSlot.Color6), ArrowColor(frame, ReserveArrowColorSlot.Color11)) : new ReserveArrowColors(solidColor6, solidColor11);
+        new CgramPalettes(cgram).All.Write(color6Index, colors.Color6); new CgramPalettes(cgram).All.Write(color11Index, colors.Color11);
     }
 
     /// <summary>
@@ -201,7 +201,7 @@ public sealed class PauseReserveUiPresentation
         int[] arrowOffsets = document.Arrow.Cells.Select((point, index) => Offset(point, $"Arrow.{index}")).ToArray();
         if (arrowOffsets.Distinct().Count() != arrowOffsets.Length) throw new InvalidDataException("Reserve arrow cells must be unique.");
         var frames = document.Arrow.Frames.Select((frame, index) =>
-            (Color(frame?.Color6, $"arrow frame {index} color 6"), Color(frame?.Color11, $"arrow frame {index} color 11"))).ToArray();
+            new ReserveArrowColors(Color(frame?.Color6, $"arrow frame {index} color 6"), Color(frame?.Color11, $"arrow frame {index} color 11"))).ToArray();
         return new(new PauseReserveUiParts { Labels = labels, DigitOffset = Offset(document.Digits.Anchor, "Digits"), Digits = digits, ArrowOffsets = arrowOffsets, EnabledPalette = document.Arrow.EnabledPalette, DisabledPalette = document.Arrow.DisabledPalette, SolidColor6 = Color(document.Arrow.SolidColor6, "solid color 6"), SolidColor11 = Color(document.Arrow.SolidColor11, "solid color 11"), ArrowFrames = frames });
 
         // Converts a bounded equipment-page cell coordinate to its little-endian byte offset.
@@ -284,6 +284,6 @@ public sealed class PauseReserveUiPresentation
         public required Bgr555 SolidColor11 { get; init; }
 
         /// <summary>Two RGB5 bevel colors for each of the 32 mirrored pulse phases.</summary>
-        public required (Bgr555, Bgr555)[] ArrowFrames { get; init; }
+        public required ReserveArrowColors[] ArrowFrames { get; init; }
     }
 }

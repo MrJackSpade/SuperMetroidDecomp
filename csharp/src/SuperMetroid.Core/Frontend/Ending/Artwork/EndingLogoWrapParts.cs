@@ -8,9 +8,9 @@ namespace SuperMetroid.Core.Frontend.Ending.Artwork;
 internal sealed class EndingLogoWrapParts : IReadOnlyList<CompiledSpritePart>
 {
     /// <summary>Supplied tile choices that differ from the calculated 25-part stock wrap.</summary>
-    private readonly (int Tile, bool Cropped)[]? selection;
+    private readonly EndingLogoWrapSelection[]? selection;
     /// <summary>Retains edited tile choices while representing an exact stock selection with no array.</summary>
-    private EndingLogoWrapParts((int Tile, bool Cropped)[] supplied)
+    private EndingLogoWrapParts(EndingLogoWrapSelection[] supplied)
     {
         bool stock = supplied.Length == 25;
         for (int index = 0; stock && index < supplied.Length; index++)
@@ -21,41 +21,41 @@ internal sealed class EndingLogoWrapParts : IReadOnlyList<CompiledSpritePart>
     /// <summary>The stock wrap's 25 pieces in native OAM order: the half-turned closing arc (tips before spans), the caps
     /// right to left with the cropped left cap, the upper span, the left corner, the inner edge right to left, the patch
     /// bottom-right to top-left, the side junctions and endpoints, and the inner side bottom to top.</summary>
-    private static readonly (int Tile, bool Cropped)[] Stock =
+    private static readonly EndingLogoWrapSelection[] Stock =
     [
-        (Tile(EndingLogoWrapTile.ClosingInnerRightTip), false), (Tile(EndingLogoWrapTile.ClosingOuterLeftTip), false),
-        (Tile(EndingLogoWrapTile.ClosingRightSpan), false), (Tile(EndingLogoWrapTile.ClosingLeftSpan), false),
-        (Tile(EndingLogoWrapTile.ClosingMiddleSpan), false), (Tile(EndingLogoWrapTile.ClosingInnerLeftTip), false),
-        (Tile(EndingLogoWrapTile.ClosingRightCorner), false),
-        (Tile(EndingLogoWrapTile.RightCap), false), (Tile(EndingLogoWrapTile.LeftCap), false), (Tile(EndingLogoWrapTile.LeftCap), true),
-        (Tile(EndingLogoWrapTile.UpperSpanLeft), false), (Tile(EndingLogoWrapTile.UpperSpanRight), false),
-        ((int)EndingLogoWrapCorner.LeftCorner, false),
-        (Tile(EndingLogoWrapTile.InnerEdgeRight), false), (Tile(EndingLogoWrapTile.InnerEdgeLeft), false),
-        (Tile(EndingLogoWrapTile.PatchBottomRight), false), (Tile(EndingLogoWrapTile.PatchBottomLeft), false),
-        (Tile(EndingLogoWrapTile.PatchTopRight), false), (Tile(EndingLogoWrapTile.PatchTopLeft), false),
-        ((int)EndingLogoWrapCorner.LowerSideEndpoint, false), ((int)EndingLogoWrapCorner.InnerSideJunction, false),
-        (Tile(EndingLogoWrapTile.InnerSideBottom), false), (Tile(EndingLogoWrapTile.InnerSideTop), false),
-        ((int)EndingLogoWrapCorner.OuterSideJunction, false), ((int)EndingLogoWrapCorner.UpperSideEndpoint, false),
+        new EndingLogoWrapSelection(Tile(EndingLogoWrapTile.ClosingInnerRightTip), false), new EndingLogoWrapSelection(Tile(EndingLogoWrapTile.ClosingOuterLeftTip), false),
+        new EndingLogoWrapSelection(Tile(EndingLogoWrapTile.ClosingRightSpan), false), new EndingLogoWrapSelection(Tile(EndingLogoWrapTile.ClosingLeftSpan), false),
+        new EndingLogoWrapSelection(Tile(EndingLogoWrapTile.ClosingMiddleSpan), false), new EndingLogoWrapSelection(Tile(EndingLogoWrapTile.ClosingInnerLeftTip), false),
+        new EndingLogoWrapSelection(Tile(EndingLogoWrapTile.ClosingRightCorner), false),
+        new EndingLogoWrapSelection(Tile(EndingLogoWrapTile.RightCap), false), new EndingLogoWrapSelection(Tile(EndingLogoWrapTile.LeftCap), false), new EndingLogoWrapSelection(Tile(EndingLogoWrapTile.LeftCap), true),
+        new EndingLogoWrapSelection(Tile(EndingLogoWrapTile.UpperSpanLeft), false), new EndingLogoWrapSelection(Tile(EndingLogoWrapTile.UpperSpanRight), false),
+        new EndingLogoWrapSelection((int)EndingLogoWrapCorner.LeftCorner, false),
+        new EndingLogoWrapSelection(Tile(EndingLogoWrapTile.InnerEdgeRight), false), new EndingLogoWrapSelection(Tile(EndingLogoWrapTile.InnerEdgeLeft), false),
+        new EndingLogoWrapSelection(Tile(EndingLogoWrapTile.PatchBottomRight), false), new EndingLogoWrapSelection(Tile(EndingLogoWrapTile.PatchBottomLeft), false),
+        new EndingLogoWrapSelection(Tile(EndingLogoWrapTile.PatchTopRight), false), new EndingLogoWrapSelection(Tile(EndingLogoWrapTile.PatchTopLeft), false),
+        new EndingLogoWrapSelection((int)EndingLogoWrapCorner.LowerSideEndpoint, false), new EndingLogoWrapSelection((int)EndingLogoWrapCorner.InnerSideJunction, false),
+        new EndingLogoWrapSelection(Tile(EndingLogoWrapTile.InnerSideBottom), false), new EndingLogoWrapSelection(Tile(EndingLogoWrapTile.InnerSideTop), false),
+        new EndingLogoWrapSelection((int)EndingLogoWrapCorner.OuterSideJunction, false), new EndingLogoWrapSelection((int)EndingLogoWrapCorner.UpperSideEndpoint, false),
     ];
 
     /// <summary>The atlas tile number of <paramref name="tile"/>.</summary>
     private static int Tile(EndingLogoWrapTile tile) => (int)tile;
 
     /// <summary>Selects a native tile and crop flag in the wrap's 25-part OAM order.</summary>
-    internal static (int Tile, bool Cropped) StockSelection(int index) =>
+    internal static EndingLogoWrapSelection StockSelection(int index) =>
         (uint)index < Stock.Length ? Stock[index] : throw new ArgumentOutOfRangeException(nameof(index));
 
     /// <summary>Calculates stock placement only when every supplied tile can be placed by the wrap geometry.</summary>
     internal static SpriteComposition CalculateIfMatching(SpriteComposition supplied)
     {
-        var selection = new (int Tile, bool Cropped)[supplied.PartCount];
+        var selection = new EndingLogoWrapSelection[supplied.PartCount];
         for (int index = 0; index < selection.Length; index++)
         {
             CompiledSpritePart part = supplied.Part(index);
             int tile = part.Attributes.TileNumber;
             bool cropped = tile == Tile(EndingLogoWrapTile.LeftCap) && !part.X.IsLarge;
             if (!TryPlace(tile, cropped, out _)) return supplied;
-            selection[index] = (tile, cropped);
+            selection[index] = new EndingLogoWrapSelection(tile, cropped);
         }
         return supplied.CalculateIfMatching(new EndingLogoWrapParts(selection));
     }

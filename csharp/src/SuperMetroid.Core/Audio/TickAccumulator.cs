@@ -24,9 +24,9 @@ public readonly record struct TickAccumulator
     /// period, which is when the paced service runs; <c>Next</c> keeps the remainder.
     /// </summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="step"/> is negative.</exception>
-    public (TickAccumulator Next, bool Overflowed) Advance(int step)
+    public TickAdvance Advance(int step)
     {
         int sum = Phase + Ensure.AtLeastZero(step);
-        return (new TickAccumulator(sum % Period), sum >= Period);
+        return new TickAdvance(new TickAccumulator(sum % Period), sum >= Period);
     }
 }

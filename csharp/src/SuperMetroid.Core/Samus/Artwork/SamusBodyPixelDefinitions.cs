@@ -13,7 +13,7 @@ internal static class SamusBodyPixelDefinitions
     /// <summary>Exact transparent cells in the named $9B..9F body allocations;
     /// the switches identify canvas padding, not a runtime content search.</summary>
     internal static bool IsBlank(bool upper, int set, int position, int tile) =>
-        (upper, set, position, tile) switch
+        new SamusBodyTileKey(upper, set, position, tile) switch
         {
             (true, 0x0, 0x2, 0x4) => true, // $9E8200 transparent allocation cells.
             (true, 0x0, 0x8, 0x4) => true, // $9E88C0 transparent allocation cells.

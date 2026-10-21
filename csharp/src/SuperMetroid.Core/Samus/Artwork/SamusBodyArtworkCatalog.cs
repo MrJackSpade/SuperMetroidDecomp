@@ -62,7 +62,7 @@ public sealed class SamusBodyArtworkCatalog
     /// <summary>Owned ordinal of each definition in authored order (top sets, then bottom sets); the body artwork identity uses it.</summary>
     private readonly Dictionary<int, int> definitionOrdinals = [];
     /// <summary>Composed body characters per selected pair, built once.</summary>
-    private readonly System.Collections.Concurrent.ConcurrentDictionary<(int Top, int Bottom), SpriteArtwork> bodyArtwork = new();
+    private readonly System.Collections.Concurrent.ConcurrentDictionary<SamusBodyArtworkKey, SpriteArtwork> bodyArtwork = new();
 
     /// <summary>Editable bank-$92 OAM composition for these body frames.</summary>
     public SamusSpritemapArtworkCatalog Spritemaps { get; }
@@ -330,7 +330,7 @@ public sealed class SamusBodyArtworkCatalog
     {
         int top = topAddress is { } upper ? definitionOrdinals[upper] : -1;
         int bottom = bottomAddress is { } lower ? definitionOrdinals[lower] : -1;
-        return bodyArtwork.GetOrAdd((top, bottom), key =>
+        return bodyArtwork.GetOrAdd(new SamusBodyArtworkKey(top, bottom), key =>
         {
             var characters = new byte[BodyCharacterCount * SpriteArtwork.CharacterByteCount];
             if (topAddress is { } topRecord)

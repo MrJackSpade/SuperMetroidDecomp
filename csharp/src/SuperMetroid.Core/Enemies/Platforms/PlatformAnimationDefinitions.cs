@@ -7,16 +7,18 @@ internal static class PlatformAnimationDefinitions
     /// Program choice at $A3:9E47-9EBA, called by the zero/nonzero direction branches at $A3:9ECB and $A3:9EF1.
     /// Initialization uses the still cases. Every nonzero direction word selects the right-moving program.
     /// </summary>
-    internal static PlatformProgram SelectProgram(bool isKamer, Axis axis, PlatformHorizontalMovement direction) =>
-        (isKamer, axis == Axis.Vertical, direction == PlatformHorizontalMovement.Left) switch
+    internal static PlatformProgram SelectProgram(bool isKamer, Axis axis, PlatformHorizontalMovement direction)
+    {
+        bool moving = axis == Axis.Vertical;
+        bool left = direction == PlatformHorizontalMovement.Left;
+        if (isKamer)
         {
-            (true, true, true) => PlatformProgram.KamerMovingLeft,
-            (true, true, false) => PlatformProgram.KamerMovingRight,
-            (true, false, true) => PlatformProgram.KamerStillLeft,
-            (true, false, false) => PlatformProgram.KamerStillRight,
-            (false, true, true) => PlatformProgram.TripperMovingLeft,
-            (false, true, false) => PlatformProgram.TripperMovingRight,
-            (false, false, true) => PlatformProgram.TripperStillMovingLeft,
-            (false, false, false) => PlatformProgram.TripperStillMovingRight,
-        };
+            return moving
+                ? left ? PlatformProgram.KamerMovingLeft : PlatformProgram.KamerMovingRight
+                : left ? PlatformProgram.KamerStillLeft : PlatformProgram.KamerStillRight;
+        }
+        return moving
+            ? left ? PlatformProgram.TripperMovingLeft : PlatformProgram.TripperMovingRight
+            : left ? PlatformProgram.TripperStillMovingLeft : PlatformProgram.TripperStillMovingRight;
+    }
 }

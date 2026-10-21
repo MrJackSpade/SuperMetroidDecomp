@@ -8,15 +8,15 @@ namespace SuperMetroid.Core.Enemies;
 internal sealed class EnemySharedReactions
 {
     /// <summary>Species-specific hurt handlers, with first matching entry taking precedence.</summary>
-    private readonly List<(Func<RoomEnemySlot, bool> Matches, EnemyHurtAiHandler Handler)> _hurt = [];
+    private readonly List<EnemyHurtRule> _hurt = [];
     /// <summary>Frozen private tails that may consume an enemy's frame before common thaw.</summary>
-    private readonly List<(Func<RoomEnemySlot, bool> Matches, EnemyFrozenPreemption Preemption)> _frozenPreemptions = [];
+    private readonly List<EnemyFrozenPreemptionRule> _frozenPreemptions = [];
     /// <summary>Frozen AI callbacks run after the common thaw step.</summary>
-    private readonly List<(Func<RoomEnemySlot, bool> Matches, Action<RoomEnemySlot> Handler)> _frozen = [];
+    private readonly List<EnemyFrozenRule> _frozen = [];
 
     /// <summary>Adds a hurt AI; the first registered hurt AI whose match accepts the enemy runs.</summary>
     internal void AddHurt(Func<RoomEnemySlot, bool> matches, EnemyHurtAiHandler handler) =>
-        _hurt.Add((Ensure.NotNull(matches), Ensure.NotNull(handler)));
+        _hurt.Add(new EnemyHurtRule(Ensure.NotNull(matches), Ensure.NotNull(handler)));
 
     /// <summary>The hurt AI of <paramref name="slot"/>, or null when it has none.</summary>
     internal EnemyHurtAiHandler? FindHurt(RoomEnemySlot slot)
@@ -31,7 +31,7 @@ internal sealed class EnemySharedReactions
 
     /// <summary>Adds a frozen enemy's private tail; the first registered tail whose match accepts the enemy decides.</summary>
     internal void AddFrozenPreemption(Func<RoomEnemySlot, bool> matches, EnemyFrozenPreemption preemption) =>
-        _frozenPreemptions.Add((Ensure.NotNull(matches), Ensure.NotNull(preemption)));
+        _frozenPreemptions.Add(new EnemyFrozenPreemptionRule(Ensure.NotNull(matches), Ensure.NotNull(preemption)));
 
     /// <summary>The frozen enemy's private tail, if it has one; when it returns true it consumed the slot's frame.</summary>
     internal EnemyFrozenPreemption? FindFrozenPreemption(RoomEnemySlot slot)
@@ -46,18 +46,18 @@ internal sealed class EnemySharedReactions
 
     /// <summary>Adds an AI that runs for a frozen enemy after the common thaw step.</summary>
     internal void AddFrozen(Func<RoomEnemySlot, bool> matches, Action<RoomEnemySlot> handler) =>
-        _frozen.Add((Ensure.NotNull(matches), Ensure.NotNull(handler)));
+        _frozen.Add(new EnemyFrozenRule(Ensure.NotNull(matches), Ensure.NotNull(handler)));
 
     /// <summary>Every frozen AI whose match accepts the enemy, in registration order.</summary>
     internal IReadOnlyList<Action<RoomEnemySlot>> FrozenHandlers(RoomEnemySlot slot) =>
         [.. _frozen.Where(entry => entry.Matches(slot)).Select(entry => entry.Handler)];
 
     /// <summary>Touch reactions selected by the first matching enemy predicate.</summary>
-    private readonly List<(Func<RoomEnemySlot, bool> Matches, EnemyTouchHandler Handler)> _touch = [];
+    private readonly List<EnemyTouchRule> _touch = [];
 
     /// <summary>Adds a touch reaction; the first registered reaction whose match accepts the enemy runs.</summary>
     internal void AddTouch(Func<RoomEnemySlot, bool> matches, EnemyTouchHandler handler) =>
-        _touch.Add((Ensure.NotNull(matches), Ensure.NotNull(handler)));
+        _touch.Add(new EnemyTouchRule(Ensure.NotNull(matches), Ensure.NotNull(handler)));
 
     /// <summary>The translated touch reaction of <paramref name="slot"/>, or null when it has none.</summary>
     internal EnemyTouchHandler? FindTouch(RoomEnemySlot slot)
@@ -88,19 +88,19 @@ internal sealed class EnemySharedReactions
     }
 
     /// <summary>Private bomb callbacks checked before the selected literal no-op gate.</summary>
-    private readonly List<(Func<EnemyBombContext, bool> Matches, Action<EnemyBombContext> Handler)> _bombSpecials = [];
+    private readonly List<EnemyBombSpecial> _bombSpecials = [];
     /// <summary>Private bomb callbacks checked after the selected literal no-op gate.</summary>
-    private readonly List<(Func<EnemyBombContext, bool> Matches, Action<EnemyBombContext> Handler)> _bombSpecialsAfterNoOp = [];
+    private readonly List<EnemyBombSpecial> _bombSpecialsAfterNoOp = [];
     /// <summary>Species reactions that surround common bomb damage.</summary>
     private readonly List<EnemyBombReaction> _bombCommon = [];
 
     /// <summary>Adds a private bomb callback consulted before the selected literal no-op gate.</summary>
     internal void AddBombSpecial(Func<EnemyBombContext, bool> matches, Action<EnemyBombContext> handler) =>
-        _bombSpecials.Add((Ensure.NotNull(matches), Ensure.NotNull(handler)));
+        _bombSpecials.Add(new EnemyBombSpecial(Ensure.NotNull(matches), Ensure.NotNull(handler)));
 
     /// <summary>Adds a private bomb callback consulted after the selected literal no-op gate.</summary>
     internal void AddBombSpecialAfterNoOp(Func<EnemyBombContext, bool> matches, Action<EnemyBombContext> handler) =>
-        _bombSpecialsAfterNoOp.Add((Ensure.NotNull(matches), Ensure.NotNull(handler)));
+        _bombSpecialsAfterNoOp.Add(new EnemyBombSpecial(Ensure.NotNull(matches), Ensure.NotNull(handler)));
 
     /// <summary>Adds a species reaction around common bomb damage.</summary>
     internal void AddBombCommon(EnemyBombReaction reaction) => _bombCommon.Add(Ensure.NotNull(reaction));
@@ -124,7 +124,7 @@ internal sealed class EnemySharedReactions
 
     /// <summary>Returns the first bomb callback whose predicate accepts the current collision context.</summary>
     private static Action<EnemyBombContext>? Find(
-        List<(Func<EnemyBombContext, bool> Matches, Action<EnemyBombContext> Handler)> entries, EnemyBombContext context)
+        List<EnemyBombSpecial> entries, EnemyBombContext context)
     {
         foreach (var (matches, handler) in entries)
         {

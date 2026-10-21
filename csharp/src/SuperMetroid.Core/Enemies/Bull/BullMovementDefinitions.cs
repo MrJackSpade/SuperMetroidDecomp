@@ -41,12 +41,12 @@ public static class BullMovementDefinitions
     /// VerifyCompiledBullMovement covers all 13 values through 104 real
     /// initializer combinations without a ROM bus.
     /// </remarks>
-    public static (ushort Acceleration, ushort Deceleration) Intervals(ushort selector)
+    public static BullSpeedIntervals Intervals(ushort selector)
     {
         if (selector >= IntervalCount)
             throw new InvalidDataException($"Bull interval selector {selector} has no compiled authored entry.");
         int deceleration = selector < 4 ? (selector + 2) / 2 : (selector + 1) / 2;
-        return ((ushort)(selector + 3), (ushort)deceleration);
+        return new BullSpeedIntervals((ushort)(selector + 3), (ushort)deceleration);
     }
     /// <summary>
     /// $A8:D871 BullConstants_AngleToMove: convert the ten facing-dependent

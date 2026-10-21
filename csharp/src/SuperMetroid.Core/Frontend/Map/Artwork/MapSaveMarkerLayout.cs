@@ -16,9 +16,9 @@ namespace SuperMetroid.Core.Frontend.Map.Artwork;
 public sealed class MapSaveMarkerLayout
 {
     /// <summary>Only X or Y fields that differ from the compiled station projection, keyed by stable marker identity.</summary>
-    internal readonly Dictionary<string, (int? X, int? Y)> coordinateOverrides;
+    internal readonly Dictionary<string, AnchorOverride> coordinateOverrides;
     /// <summary>Retains validated drawing overrides independently of native load targets.</summary>
-    private MapSaveMarkerLayout(Dictionary<string, (int? X, int? Y)> coordinateOverrides) =>
+    private MapSaveMarkerLayout(Dictionary<string, AnchorOverride> coordinateOverrides) =>
         this.coordinateOverrides = coordinateOverrides;
 
     /// <summary>Gets the selected station's drawing anchor in area-map pixels before scroll subtraction, using each edited coordinate independently and otherwise projecting its compiled load placement.</summary>
@@ -47,7 +47,7 @@ public sealed class MapSaveMarkerLayout
         if (document.Version != MapSaveMarkerFormat.Version || document.Markers is null ||
             document.Markers.Count != MapSaveMarkerDefinitions.AllIds().Count())
             throw new InvalidDataException("Save marker layout requires version 1 and every known marker.");
-        var overrides = new Dictionary<string, (int? X, int? Y)>(StringComparer.Ordinal);
+        var overrides = new Dictionary<string, AnchorOverride>(StringComparer.Ordinal);
         for (int area = 0; area < FileSelectMapRomData.AreaCount; area++)
         foreach (int index in MapSaveMarkerDefinitions.Indices((AreaId)area))
         {
@@ -57,7 +57,7 @@ public sealed class MapSaveMarkerLayout
             Position16<MapPixels> basis = FileSelectMapLoadAnchors.Get((AreaId)area, index);
             int? x = point.X == basis.X ? null : point.X;
             int? y = point.Y == basis.Y ? null : point.Y;
-            if (x.HasValue || y.HasValue) overrides.Add(id, (x, y));
+            if (x.HasValue || y.HasValue) overrides.Add(id, new AnchorOverride(x, y));
         }
         return new(overrides);
     }

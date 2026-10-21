@@ -41,7 +41,7 @@ public static class LoadStationDefinitions
     }
 
     /// <summary>Selects a validated non-Ceres station; unused slots receive the native inert record.</summary>
-    private static LoadStationDefinition Placement(AreaId area, byte station) => (area, station) switch
+    private static LoadStationDefinition Placement(AreaId area, byte station) => new LoadStationKey(area, station) switch
     {
         (AreaId.Crateria, 0) => new(RoomHeaderDefinitions.LandingSite, CrateriaDoorDefinitions.Parlor1, new(0x0400, 0x0400), new(0x0000, 0x0040)),
         (AreaId.Crateria, 1) => new(RoomHeaderDefinitions.CrateriaSave, CrateriaDoorDefinitions.Parlor5, new(0x0000, 0x0000), new(-0x0020, 0x0098)),

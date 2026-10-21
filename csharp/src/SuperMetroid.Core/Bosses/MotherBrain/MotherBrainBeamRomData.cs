@@ -25,7 +25,7 @@ public static class MotherBrainBeamRomData
     public static Direction DirectionForQuadrants(int pair)
     {
         if ((uint)pair >= 16) throw new ArgumentOutOfRangeException(nameof(pair));
-        return (pair / 4, pair % 4) switch
+        return new MotherBrainBeamQuadrants(pair / 4, pair % 4) switch
         {
             (0, 0) or (3, 0) or (3, 3) => Direction.Down,
             (0, 1) => Direction.Right,

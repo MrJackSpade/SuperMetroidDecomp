@@ -94,7 +94,7 @@ internal static class GrappleConnectionDefinitions
     };
 
     /// <summary>$9B:C3C6/$C3EE/$C416 default, vertical and crouching directional connection policies.</summary>
-    internal static (GrappleConnectionFunction Function, GrappleConnectionHandler Handler) ResolveConnection(int address)
+    internal static GrappleConnection ResolveConnection(int address)
     {
         int offset = address - DefaultTable;
         if (offset < 0 || offset >= 30 * 4 || (offset & 3) != 0)
@@ -118,6 +118,6 @@ internal static class GrappleConnectionDefinitions
         GrappleConnectionFunction function = handler is SwingClockwise or SwingAnticlockwise
             ? GrappleConnectionFunction.Swinging
             : GrappleConnectionFunction.LockedInPlace;
-        return (function, handler);
+        return new GrappleConnection(function, handler);
     }
 }

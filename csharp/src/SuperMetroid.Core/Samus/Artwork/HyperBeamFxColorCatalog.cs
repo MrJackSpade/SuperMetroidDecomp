@@ -126,10 +126,10 @@ public sealed class HyperBeamFxColorCatalog
     /// it as red, while shadow inks3/7 use the red endpoint's green minimum.
     /// All relationships are between supplied RGB5 inputs; differing edits
     /// stay explicit. Independent shade intensities have the class-level art disposition.</remarks>
-    private static (int? Red, int? Green) SharedEndpointChannels(int frame, int color, Bgr555 white, Bgr555 red) =>
-        frame == 0 ? (white.Red, null) :
-        frame == 4 ? (null, red.Red) :
-        color is 3 or 7 ? (null, red.Green) : (red.Red, null);
+    private static HyperBeamEndpointChannels SharedEndpointChannels(int frame, int color, Bgr555 white, Bgr555 red) =>
+        frame == 0 ? new HyperBeamEndpointChannels(white.Red, null) :
+        frame == 4 ? new HyperBeamEndpointChannels(null, red.Red) :
+        color is 3 or 7 ? new HyperBeamEndpointChannels(null, red.Green) : new HyperBeamEndpointChannels(red.Red, null);
     /// <summary>Stores independent endpoint channels while deriving the paired blue hue channel.</summary>
     internal readonly struct PairedChannels
     {

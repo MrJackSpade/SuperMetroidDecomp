@@ -118,7 +118,7 @@ public static class CreditsPresentationDefinitions
     /// <returns>The character's tile index, or <see cref="BlankWord"/> for a space; no palette, priority, or flip attributes are added.</returns>
     /// <exception cref="ArgumentOutOfRangeException">The nonblank character, style, or requested glyph half has no supported credits encoding.</exception>
     public static ushort CompileGlyph(char character, CreditsLineStyle style,
-        bool bottom = false) => (style, character, bottom) switch
+        bool bottom = false) => new CreditsGlyphKey(style, character, bottom) switch
     {
         (_, ' ', _) => BlankWord,
         (CreditsLineStyle.Small, >= 'A' and <= 'Z', false) =>

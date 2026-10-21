@@ -15,7 +15,7 @@ namespace SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
 /// This disposition does not extend to source pixels or other scene placements.
 /// </remarks>
 internal sealed class CeresLargeAsteroidParts(
-    (int X, int Y) left, (int X, int Y) right, (int X, int Y) lower, int priority)
+    Offset16<OamPixels> left, Offset16<OamPixels> right, Offset16<OamPixels> lower, int priority)
     : IReadOnlyList<CompiledSpritePart>
 {
     /// <summary>Reconstructs native asteroid atlas parts only when a supplied composition matches the nineteen-part layout.</summary>
@@ -24,7 +24,7 @@ internal sealed class CeresLargeAsteroidParts(
         // Shared OAM-record pointer space: other compositions belong to other owners.
         if (!Enum.IsDefined((CeresLargeAsteroidComposition)pointer) || supplied.PartCount != 19) return supplied;
         var composition = (CeresLargeAsteroidComposition)pointer;
-        static (int X, int Y) Anchor(CompiledSpritePart part) => (part.X.SignedOffset, part.Y.SignedOffset);
+        static Offset16<OamPixels> Anchor(CompiledSpritePart part) => new Offset16<OamPixels>(checked((short)part.X.SignedOffset), checked((short)part.Y.SignedOffset));
         var left = Anchor(supplied.Part(5));
         var right = Anchor(supplied.Part(12));
         var lower = Anchor(supplied.Part(18));
@@ -49,7 +49,7 @@ internal sealed class CeresLargeAsteroidParts(
             if ((uint)index >= Count) throw new ArgumentOutOfRangeException(nameof(index));
             int column, row, tile;
             bool large = index != 6;
-            (int X, int Y) anchor;
+            Offset16<OamPixels> anchor;
             if (index < 6)
             {
                 anchor = left;

@@ -14,15 +14,15 @@ public static class HyperBeamFxColorFormat
     internal static bool TrySharedEndpoint(int frame, int ink, Bgr555 white, Bgr555 red, out Bgr555 basis, out int independentMask)
     {
         int minimum = red.Green, maximum = red.Red;
-        (Bgr555 Value, int Mask) selected = (frame, ink) switch
+        HyperBeamMaskedColor selected = new HyperBeamInk(frame, ink) switch
         {
-            (0, 1) => (new Bgr555(white.Red, 0, 0), 6),
-            (2, 1 or 3) => (new Bgr555(0, 0, minimum), 3),
-            (4, 1) => (new Bgr555(minimum, maximum, 0), 4),
-            (4, 3) or (6, 3) => (new Bgr555(minimum, 0, 0), 6),
-            (6, 1) => (new Bgr555(minimum, 0, white.Blue), 2),
-            (6, 4) => (new Bgr555(0, 0, white.Blue), 3),
-            _ => (Bgr555.Black, 7),
+            (0, 1) => new HyperBeamMaskedColor(new Bgr555(white.Red, 0, 0), 6),
+            (2, 1 or 3) => new HyperBeamMaskedColor(new Bgr555(0, 0, minimum), 3),
+            (4, 1) => new HyperBeamMaskedColor(new Bgr555(minimum, maximum, 0), 4),
+            (4, 3) or (6, 3) => new HyperBeamMaskedColor(new Bgr555(minimum, 0, 0), 6),
+            (6, 1) => new HyperBeamMaskedColor(new Bgr555(minimum, 0, white.Blue), 2),
+            (6, 4) => new HyperBeamMaskedColor(new Bgr555(0, 0, white.Blue), 3),
+            _ => new HyperBeamMaskedColor(Bgr555.Black, 7),
         };
         basis = selected.Value;
         independentMask = selected.Mask;

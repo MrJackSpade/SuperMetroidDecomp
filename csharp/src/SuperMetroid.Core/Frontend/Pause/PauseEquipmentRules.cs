@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend.Pause.Artwork;
 using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Frontend.Pause;
@@ -17,7 +18,7 @@ internal static class PauseEquipmentRules
     {
         if (category is not (PauseEquipmentCategory.Beams or PauseEquipmentCategory.Suits or PauseEquipmentCategory.Boots))
             throw new ArgumentOutOfRangeException(nameof(category), "Reserves have their own controls, not equipment masks.");
-        return (category, item) switch
+        return new PauseEquipmentSlot(category, item) switch
         {
             (PauseEquipmentCategory.Beams, 0) => PauseEquipmentBit.Of(SamusBeamFlags.Charge),
             (PauseEquipmentCategory.Beams, 1) => PauseEquipmentBit.Of(SamusBeamFlags.Ice),

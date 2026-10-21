@@ -88,7 +88,7 @@ internal static class RidleyExplosionDefinitions
     /// </summary>
     public static RidleyExplosionBodyPartDefinition SelectBodyPart(
         RidleyExplosionPart parameter,
-        bool facingRight) => (parameter, facingRight) switch
+        bool facingRight) => new RidleyExplosionPartFacing(parameter, facingRight) switch
     {
         (RidleyExplosionPart.Wings, false) => new(new(0, 0), RidleyBreakupFrame.WingsFacingLeft),
         (RidleyExplosionPart.Wings, true) => new(new(0, 0), RidleyBreakupFrame.WingsFacingRight),

@@ -61,31 +61,31 @@ public static class ChargeFlarePlacementDefinitions
                     _ => throw new InvalidOperationException($"Undefined {nameof(StandingTurnDirection)} {direction}."),
                 },
             };
-        (int x, int y) = (running, (SamusProjectileDirection)direction) switch
+        var (x, y) = new SamusFiringStance(running, (SamusProjectileDirection)direction) switch
         {
-            (false, SamusProjectileDirection.UpFacingRight) => (2, -28),
-            (false, SamusProjectileDirection.UpRight) => (18, -19),
-            (false, SamusProjectileDirection.Right) => (15, 1),
-            (false, SamusProjectileDirection.DownRight) => (17, 6),
-            (false, SamusProjectileDirection.DownFacingRight) => (3, 17),
-            (false, SamusProjectileDirection.DownFacingLeft) => (-4, 17),
-            (false, SamusProjectileDirection.DownLeft) => (-17, 6),
-            (false, SamusProjectileDirection.Left) => (-15, 1),
-            (false, SamusProjectileDirection.UpLeft) => (-18, -20),
-            (false, SamusProjectileDirection.UpFacingLeft) => (-2, -28),
-            (true, SamusProjectileDirection.UpFacingRight) => (2, -32),
-            (true, SamusProjectileDirection.UpRight) => (19, -22),
-            (true, SamusProjectileDirection.Right) => (20, -3),
-            (true, SamusProjectileDirection.DownRight) => (18, 6),
-            (true, SamusProjectileDirection.DownFacingRight) => (3, 25),
-            (true, SamusProjectileDirection.DownFacingLeft) => (-4, 25),
-            (true, SamusProjectileDirection.DownLeft) => (-18, 6),
-            (true, SamusProjectileDirection.Left) => (-20, -3),
-            (true, SamusProjectileDirection.UpLeft) => (-19, -20),
-            (true, SamusProjectileDirection.UpFacingLeft) => (-2, -32),
+            (false, SamusProjectileDirection.UpFacingRight) => new Offset16<RoomPixels>(2, -28),
+            (false, SamusProjectileDirection.UpRight) => new Offset16<RoomPixels>(18, -19),
+            (false, SamusProjectileDirection.Right) => new Offset16<RoomPixels>(15, 1),
+            (false, SamusProjectileDirection.DownRight) => new Offset16<RoomPixels>(17, 6),
+            (false, SamusProjectileDirection.DownFacingRight) => new Offset16<RoomPixels>(3, 17),
+            (false, SamusProjectileDirection.DownFacingLeft) => new Offset16<RoomPixels>(-4, 17),
+            (false, SamusProjectileDirection.DownLeft) => new Offset16<RoomPixels>(-17, 6),
+            (false, SamusProjectileDirection.Left) => new Offset16<RoomPixels>(-15, 1),
+            (false, SamusProjectileDirection.UpLeft) => new Offset16<RoomPixels>(-18, -20),
+            (false, SamusProjectileDirection.UpFacingLeft) => new Offset16<RoomPixels>(-2, -28),
+            (true, SamusProjectileDirection.UpFacingRight) => new Offset16<RoomPixels>(2, -32),
+            (true, SamusProjectileDirection.UpRight) => new Offset16<RoomPixels>(19, -22),
+            (true, SamusProjectileDirection.Right) => new Offset16<RoomPixels>(20, -3),
+            (true, SamusProjectileDirection.DownRight) => new Offset16<RoomPixels>(18, 6),
+            (true, SamusProjectileDirection.DownFacingRight) => new Offset16<RoomPixels>(3, 25),
+            (true, SamusProjectileDirection.DownFacingLeft) => new Offset16<RoomPixels>(-4, 25),
+            (true, SamusProjectileDirection.DownLeft) => new Offset16<RoomPixels>(-18, 6),
+            (true, SamusProjectileDirection.Left) => new Offset16<RoomPixels>(-20, -3),
+            (true, SamusProjectileDirection.UpLeft) => new Offset16<RoomPixels>(-19, -20),
+            (true, SamusProjectileDirection.UpFacingLeft) => new Offset16<RoomPixels>(-2, -32),
             _ => throw new InvalidOperationException("Beam visual origin requires a named native direction."),
         };
-        return new() { X = (short)x, Y = (short)y };
+        return new() { X = x, Y = y };
     }
     /// <summary>
     /// $9B:C14A/C15E and C19A/C1AE: Grapple's ten visual origins equal the beam origins.

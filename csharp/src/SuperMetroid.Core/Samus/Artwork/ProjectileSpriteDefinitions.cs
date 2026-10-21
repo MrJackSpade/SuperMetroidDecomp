@@ -329,7 +329,7 @@ public static class ProjectileSpriteDefinitions
                 // Alternating native long/alternate artwork and selected growth extents
                 // remain required art/policy inputs; the outward/return phase calculates.
                 bool alternate = (phase & 1) != 0;
-                PlasmaWaveShape shape = (axis, alternate) switch
+                PlasmaWaveShape shape = new WaveShapeKey(axis, alternate) switch
                 {
                     (WaveTravelAxis.Vertical, false) => PlasmaWaveShape.VerticalLong,
                     (WaveTravelAxis.Vertical, true) => PlasmaWaveShape.VerticalAlternate,
@@ -793,20 +793,20 @@ public static class ProjectileSpriteDefinitions
     {
         // Core part counts describe the native chosen footprints. Their full
         // independent OAM design remains required under ProjectileSpriteCatalog.frames.
-        (ushort start, int coreParts) = shape switch
+        (int start, int coreParts) = shape switch
         {
-            PlasmaWaveShape.HorizontalShort => (PlasmaWaveHorizontalShort, 4),
-            PlasmaWaveShape.HorizontalLong => (PlasmaWaveHorizontalLong, 7),
-            PlasmaWaveShape.DownRightShort => (PlasmaWaveDownRightShort, 6),
-            PlasmaWaveShape.DownRightLong => (PlasmaWaveDownRightLong, 10),
-            PlasmaWaveShape.VerticalShort => (PlasmaWaveVerticalShort, 4),
-            PlasmaWaveShape.VerticalLong => (PlasmaWaveVerticalLong, 7),
-            PlasmaWaveShape.HorizontalAlternate => (PlasmaWaveHorizontalAlternate, 7),
-            PlasmaWaveShape.DownRightAlternate => (PlasmaWaveDownRightAlternate, 12),
-            PlasmaWaveShape.VerticalAlternate => (PlasmaWaveVerticalAlternate, 7),
-            PlasmaWaveShape.DownLeftAlternate => (PlasmaWaveDownLeftAlternate, 12),
-            PlasmaWaveShape.DownLeftShort => (PlasmaWaveDownLeftShort, 6),
-            PlasmaWaveShape.DownLeftLong => (PlasmaWaveDownLeftLong, 10),
+            PlasmaWaveShape.HorizontalShort => new PlasmaWaveParts(PlasmaWaveHorizontalShort, 4),
+            PlasmaWaveShape.HorizontalLong => new PlasmaWaveParts(PlasmaWaveHorizontalLong, 7),
+            PlasmaWaveShape.DownRightShort => new PlasmaWaveParts(PlasmaWaveDownRightShort, 6),
+            PlasmaWaveShape.DownRightLong => new PlasmaWaveParts(PlasmaWaveDownRightLong, 10),
+            PlasmaWaveShape.VerticalShort => new PlasmaWaveParts(PlasmaWaveVerticalShort, 4),
+            PlasmaWaveShape.VerticalLong => new PlasmaWaveParts(PlasmaWaveVerticalLong, 7),
+            PlasmaWaveShape.HorizontalAlternate => new PlasmaWaveParts(PlasmaWaveHorizontalAlternate, 7),
+            PlasmaWaveShape.DownRightAlternate => new PlasmaWaveParts(PlasmaWaveDownRightAlternate, 12),
+            PlasmaWaveShape.VerticalAlternate => new PlasmaWaveParts(PlasmaWaveVerticalAlternate, 7),
+            PlasmaWaveShape.DownLeftAlternate => new PlasmaWaveParts(PlasmaWaveDownLeftAlternate, 12),
+            PlasmaWaveShape.DownLeftShort => new PlasmaWaveParts(PlasmaWaveDownLeftShort, 6),
+            PlasmaWaveShape.DownLeftLong => new PlasmaWaveParts(PlasmaWaveDownLeftLong, 10),
             _ => throw new ArgumentOutOfRangeException(nameof(shape)),
         };
         return (ushort)(start + (phase == 0 ? 0 : RecordBytes(coreParts) + (phase - 1) * RecordBytes(2 * coreParts)));
@@ -833,7 +833,7 @@ public static class ProjectileSpriteDefinitions
             3 => PlasmaGrowthStage.Full,
             _ => throw new ArgumentOutOfRangeException(nameof(index)),
         };
-        int selectedLength = (stage, diagonal) switch
+        int selectedLength = new PlasmaGrowthShape(stage, diagonal) switch
         {
             (PlasmaGrowthStage.Core, false) => 1,
             (PlasmaGrowthStage.Short, false) => 3,

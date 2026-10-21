@@ -400,8 +400,8 @@ public sealed class Bank80SystemState
     /// </summary>
     public void SetEventRaw(int eventNumber)
     {
-        (int byteIndex, byte bitMask) = ResolveEventBit(eventNumber);
-        _events[byteIndex] |= bitMask;
+        (int byteIndex, int bitMask) = ResolveEventBit(eventNumber);
+        _events[byteIndex] |= checked((byte)bitMask);
     }
 
     /// <summary>
@@ -415,7 +415,7 @@ public sealed class Bank80SystemState
     /// <summary>Clears an allocated but intentionally unnamed cartridge event bit.</summary>
     public void ClearEventRaw(int eventNumber)
     {
-        (int byteIndex, byte bitMask) = ResolveEventBit(eventNumber);
+        (int byteIndex, int bitMask) = ResolveEventBit(eventNumber);
         _events[byteIndex] &= unchecked((byte)~bitMask);
     }
 
@@ -430,7 +430,7 @@ public sealed class Bank80SystemState
     /// <summary>Tests an allocated but intentionally unnamed cartridge event bit.</summary>
     public bool HasEventRaw(int eventNumber)
     {
-        (int byteIndex, byte bitMask) = ResolveEventBit(eventNumber);
+        (int byteIndex, int bitMask) = ResolveEventBit(eventNumber);
         return (_events[byteIndex] & bitMask) != 0;
     }
 
@@ -459,7 +459,7 @@ public sealed class Bank80SystemState
     /// </summary>
     public bool HasCollectedItemBit(int bitIndex)
     {
-        (int byteIndex, byte bitMask) = ResolveCollectedItemBit(bitIndex);
+        (int byteIndex, int bitMask) = ResolveCollectedItemBit(bitIndex);
         return (_collectedItemBits[byteIndex] & bitMask) != 0;
     }
 
@@ -492,8 +492,8 @@ public sealed class Bank80SystemState
     /// </summary>
     public void SetCollectedItemBit(int bitIndex)
     {
-        (int byteIndex, byte bitMask) = ResolveCollectedItemBit(bitIndex);
-        _collectedItemBits[byteIndex] |= bitMask;
+        (int byteIndex, int bitMask) = ResolveCollectedItemBit(bitIndex);
+        _collectedItemBits[byteIndex] |= checked((byte)bitMask);
     }
 
     /// <summary>Returns one raw byte for cartridge-compatible SRAM encoding.</summary>
@@ -528,7 +528,7 @@ public sealed class Bank80SystemState
     /// </summary>
     public bool HasOpenedDoorBit(int bitIndex)
     {
-        (int byteIndex, byte bitMask) = ResolvePersistentRoomBit(
+        (int byteIndex, int bitMask) = ResolvePersistentRoomBit(
             bitIndex,
             DoorBitByteCount,
             "Opened-door bit index must fit the native 64-byte table.");
@@ -542,11 +542,11 @@ public sealed class Bank80SystemState
     /// </summary>
     public void SetOpenedDoorBit(int bitIndex)
     {
-        (int byteIndex, byte bitMask) = ResolvePersistentRoomBit(
+        (int byteIndex, int bitMask) = ResolvePersistentRoomBit(
             bitIndex,
             DoorBitByteCount,
             "Opened-door bit index must fit the native 64-byte table.");
-        _openedDoorBits[byteIndex] |= bitMask;
+        _openedDoorBits[byteIndex] |= checked((byte)bitMask);
     }
 
     /// <summary>Returns one raw opened-door byte for cartridge-compatible SRAM encoding.</summary>
@@ -699,7 +699,7 @@ public sealed class Bank80SystemState
     /// <summary>
     /// C# equivalent of <c>$80:818E</c>: split a bit number into a byte index and mask.
     /// </summary>
-    private static (int ByteIndex, byte BitMask) ResolveEventBit(int eventNumber)
+    private static ProgressionBit ResolveEventBit(int eventNumber)
     {
         // The assembly BRKs when bit 15 is set. The actual event allocation is even
         // tighter, so model the eight-byte SRAM object rather than allowing adjacent save
@@ -709,7 +709,7 @@ public sealed class Bank80SystemState
 
         int byteIndex = eventNumber >> 3;
         byte bitMask = (byte)(1 << (eventNumber & 7));
-        return (byteIndex, bitMask);
+        return new ProgressionBit(byteIndex, bitMask);
     }
 
     /// <summary>
@@ -730,7 +730,7 @@ public sealed class Bank80SystemState
     }
 
     /// <summary>Maps a PLM item argument to a checked collected-item byte and bit mask.</summary>
-    private static (int ByteIndex, byte BitMask) ResolveCollectedItemBit(int bitIndex)
+    private static ProgressionBit ResolveCollectedItemBit(int bitIndex)
     {
         return ResolvePersistentRoomBit(
             bitIndex,
@@ -739,7 +739,7 @@ public sealed class Bank80SystemState
     }
 
     /// <summary>Bounds a Chozo-orb or opened-door bit against its 64-byte persistent table.</summary>
-    internal static (int ByteIndex, byte BitMask) ResolvePersistentRoomBit(
+    internal static ProgressionBit ResolvePersistentRoomBit(
         int bitIndex,
         int byteCount,
         string errorMessage)
@@ -747,7 +747,7 @@ public sealed class Bank80SystemState
         if ((uint)bitIndex >= byteCount * 8)
             throw new ArgumentOutOfRangeException(nameof(bitIndex), bitIndex, errorMessage);
 
-        return (bitIndex >> 3, unchecked((byte)(1 << (bitIndex & 7))));
+        return new ProgressionBit(bitIndex >> 3, unchecked((byte)(1 << (bitIndex & 7))));
     }
 
     /// <summary>Rejects area indices outside the cartridge's eight persistent boss bytes.</summary>

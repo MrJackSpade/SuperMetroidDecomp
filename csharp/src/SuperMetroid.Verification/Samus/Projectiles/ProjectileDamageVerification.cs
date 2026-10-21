@@ -155,19 +155,19 @@ internal static class ProjectileDamageVerification
     [CpuBusBoundary("exact bus test: retail ROM oracle for combo sine offset alias")]
     internal static void VerifyComboSineOffsetAlias(SuperMetroidAddressSpace rom)
     {
-        (ushort X, ushort Y) NativeOffset(int angle, int amplitude)
+        Offset16<RoomPixels> NativeOffset(int angle, int amplitude)
         {
-            ushort Component(int phase)
+            short Component(int phase)
             {
                 bool negative = phase >= 128;
                 int index = negative ? unchecked((byte)(phase + 128)) : phase;
                 int address = SamusComboRomData.PositiveSine + index * 2;
                 int magnitude = (SnesEightEight.Multiply(rom.ReadCartridgeByte(address), (byte)amplitude)) +
                     rom.ReadCartridgeByte(address + 1) * (byte)amplitude;
-                return unchecked((ushort)(negative ? -magnitude : magnitude));
+                return unchecked((short)(negative ? -magnitude : magnitude));
             }
 
-            return (Component(angle), Component(unchecked((byte)(angle - 64))));
+            return new(Component(angle), Component(unchecked((byte)(angle - 64))));
         }
         for (int angle = 0; angle < 256; angle++)
         for (int amplitude = 0; amplitude < 256; amplitude++)
@@ -212,7 +212,7 @@ internal static class ProjectileDamageVerification
             SamusProjectileSlot first = projectiles.Slots[0];
             ushort angle = checked((ushort)first.Variable);
             ushort amplitude = beam == 2 ? (ushort)32 : unchecked((ushort)first.Velocity.X.SignedRawValue);
-            (ushort X, ushort Y) offset = SamusComboMechanicsDefinitions.GetSineOffset(
+            Offset16<RoomPixels> offset = SamusComboMechanicsDefinitions.GetSineOffset(
                 new SnesByteAngle(unchecked((byte)angle)), amplitude);
             if (beam == 2)
                 projectiles.Combos.StepIceCombo(samus, first, shared, Position16<RoomPixels>.Zero);

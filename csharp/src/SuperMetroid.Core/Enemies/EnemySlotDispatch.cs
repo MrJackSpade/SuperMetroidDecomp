@@ -38,7 +38,7 @@ internal sealed class EnemySlotDispatch : IEnemyDispatch
         RoomEnemyPopulationRecord population,
         RoomEnemyDefinition definition)
     {
-        (ushort tileIndex, ushort paletteIndex) = _graphics.FindGraphicsIndexes(population.DefinitionPointer);
+        (int tileIndex, int paletteIndex) = _graphics.FindGraphicsIndexes(population.DefinitionPointer);
 
         slot.Bind(population.DefinitionPointer, definition);
         slot.Radius = new(definition.Radius.X, definition.Radius.Y);

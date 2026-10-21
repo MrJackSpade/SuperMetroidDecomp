@@ -76,19 +76,20 @@ public static class GenericGamepadInput
         // adapter reports the printed labels X/A/B/Y. Keeping the two translations here
         // ensures the core receives the same authentic SNES word from either device; the
         // cartridge's separate options bindings still decide what those SNES buttons do.
-        (SnesButton button0, SnesButton button1, SnesButton button2, SnesButton button3) =
+        // The SNES buttons host face buttons 0 to 3 report.
+        SnesButton[] faceButtons =
             faceButtonLayout switch
             {
                 GenericGamepadFaceButtonLayout.Positional =>
-                    (SnesButton.B, SnesButton.A, SnesButton.Y, SnesButton.X),
+                    [SnesButton.B, SnesButton.A, SnesButton.Y, SnesButton.X],
                 GenericGamepadFaceButtonLayout.SnesUsbAdapter0079_0011 =>
-                    (SnesButton.X, SnesButton.A, SnesButton.B, SnesButton.Y),
+                    [SnesButton.X, SnesButton.A, SnesButton.B, SnesButton.Y],
                 _ => throw new ArgumentOutOfRangeException(nameof(faceButtonLayout)),
             };
-        if (IsPressed(snapshot.Buttons, 0)) result |= button0;
-        if (IsPressed(snapshot.Buttons, 1)) result |= button1;
-        if (IsPressed(snapshot.Buttons, 2)) result |= button2;
-        if (IsPressed(snapshot.Buttons, 3)) result |= button3;
+        for (int faceButton = 0; faceButton < faceButtons.Length; faceButton++)
+        {
+            if (IsPressed(snapshot.Buttons, faceButton)) result |= faceButtons[faceButton];
+        }
         if (IsPressed(snapshot.Buttons, 4)) result |= SnesButton.L;
         if (IsPressed(snapshot.Buttons, 5)) result |= SnesButton.R;
 

@@ -443,12 +443,12 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
     /// instruction pointer the AI reads is the sequence's first list plus four bytes per shown pose; the deflated and
     /// second inflate lists continue those sequences.
     /// </summary>
-    internal static (bool Sinking, int ShownPoses) PowampBalloonPhase(AnimationProgramCursor<PowampProgram> cursor) => cursor.Program switch
+    internal static PowampBalloonState PowampBalloonPhase(AnimationProgramCursor<PowampProgram> cursor) => cursor.Program switch
     {
-        PowampProgram.BalloonInflate0 => (false, cursor.Position),
-        PowampProgram.BalloonInflate1 => (false, 1 + cursor.Position),
-        PowampProgram.BalloonStartSinking => (true, cursor.Position),
-        PowampProgram.BalloonDeflated => (true, 2 + cursor.Position),
+        PowampProgram.BalloonInflate0 => new PowampBalloonState(false, cursor.Position),
+        PowampProgram.BalloonInflate1 => new PowampBalloonState(false, 1 + cursor.Position),
+        PowampProgram.BalloonStartSinking => new PowampBalloonState(true, cursor.Position),
+        PowampProgram.BalloonDeflated => new PowampBalloonState(true, 2 + cursor.Position),
         PowampProgram.BodyFast or
             PowampProgram.BodySlow => throw new InvalidOperationException($"Powamp balloon runs body animation {cursor.Program}."),
         _ => throw new InvalidOperationException($"Powamp balloon runs body animation {cursor.Program}."),

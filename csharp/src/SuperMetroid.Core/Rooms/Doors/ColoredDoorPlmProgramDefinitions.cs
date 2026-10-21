@@ -27,15 +27,15 @@ internal static class ColoredDoorPlmProgramDefinitions
     private const int FlashPairs = 3;
 
     /// <summary>Each colour and facing's program set.</summary>
-    private static readonly Dictionary<(ColoredDoorColor, ColoredDoorOrientation), AnimationProgramSet<ColoredDoorProgram, DoorCapFrame, ColoredDoorCue>> Sets =
+    private static readonly Dictionary<ColoredDoorVariant, AnimationProgramSet<ColoredDoorProgram, DoorCapFrame, ColoredDoorCue>> Sets =
         Enum.GetValues<ColoredDoorColor>()
-            .SelectMany(color => Enum.GetValues<ColoredDoorOrientation>().Select(orientation => (color, orientation)))
+            .SelectMany(color => Enum.GetValues<ColoredDoorOrientation>().Select(orientation => new ColoredDoorVariant(color, orientation)))
             .ToDictionary(variant => variant, variant => new AnimationProgramSet<ColoredDoorProgram, DoorCapFrame, ColoredDoorCue>(
-                Build(variant.color, variant.orientation)));
+                Build(variant.Color, variant.Orientation)));
 
     /// <summary>The programs of the <paramref name="color"/> cap facing <paramref name="orientation"/>.</summary>
     internal static AnimationProgramSet<ColoredDoorProgram, DoorCapFrame, ColoredDoorCue> ProgramsFor(
-        ColoredDoorColor color, ColoredDoorOrientation orientation) => Sets[(color, orientation)];
+        ColoredDoorColor color, ColoredDoorOrientation orientation) => Sets[new ColoredDoorVariant(color, orientation)];
 
     /// <summary>The hits the <paramref name="color"/> cap takes before it opens.</summary>
     internal static byte HitThresholdOf(ColoredDoorColor color) => color switch

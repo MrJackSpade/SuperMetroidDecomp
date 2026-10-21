@@ -53,14 +53,14 @@ public static class WreckedShipGhostAppearanceDefinitions
     /// The upper-right approach spawns level with Samus: its native Y word at $A8:9AB2
     /// is zero, consumed directly by the position addition at $A8:9DD1.
     /// </summary>
-    public static (short X, short Y) SpawnOffset(int index)
+    public static Offset16<RoomPixels> SpawnOffset(int index)
     {
         Ensure.AtLeastZero(index);
         ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual(index, SpawnCount);
         int horizontalDirection = index % 3 - 1;
         int verticalDirection = index / 3 - 1;
         bool approachingUpperRight = horizontalDirection > 0 && verticalDirection < 0;
-        return ((short)(64 * horizontalDirection),
+        return new Offset16<RoomPixels>((short)(64 * horizontalDirection),
             (short)(approachingUpperRight ? 0 : 64 * verticalDirection));
     }
 

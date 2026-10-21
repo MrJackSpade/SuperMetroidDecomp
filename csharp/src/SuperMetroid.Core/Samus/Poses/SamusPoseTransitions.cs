@@ -307,7 +307,7 @@ level, targetPose, nmiFrameCounter, plms, out int centerAdjustment);
         // buffer once more after installing the new animation.
         int commandAnimationBuffer = samus.AnimationFrameBuffer;
 
-        bool verified = (samus.Pose, targetPose) is
+        bool verified = new SamusPoseChange(samus.Pose, targetPose) is
             (SamusPoseId.TurningRightToLeftPose, SamusPoseId.FacingLeftNormalPose) or
             (SamusPoseId.TurningLeftToRightPose, SamusPoseId.FacingRightNormalPose) or
             (SamusPoseId.TurningRightToLeftAimUpPose, SamusPoseId.StandingAimUpLeftPose) or

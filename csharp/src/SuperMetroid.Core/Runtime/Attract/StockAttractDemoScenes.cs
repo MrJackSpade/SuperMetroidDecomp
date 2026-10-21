@@ -75,7 +75,7 @@ public static class StockAttractDemoScenes
         int sceneCount = set == 3 ? 5 : 6;
         if ((uint)scene > sceneCount) throw new ArgumentOutOfRangeException(nameof(scene));
         if (scene == sceneCount) return null;
-        Demonstration demonstration = (set, scene) switch
+        Demonstration demonstration = new AttractDemoSceneKey(set, scene) switch
         {
             (0, 0) => Demonstration.LandingSite,
             (0, 1) => Demonstration.MissileDoor,

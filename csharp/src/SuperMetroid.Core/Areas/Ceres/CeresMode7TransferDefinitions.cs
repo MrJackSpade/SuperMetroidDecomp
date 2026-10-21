@@ -141,7 +141,7 @@ public static class CeresMode7TransferDefinitions
             return PlatformTile(pointer == CeresMode7TransferList.ElevatorDark ? 1 : 0, column);
         if (pointer is CeresMode7TransferList.BabyFrame0 or CeresMode7TransferList.BabyFrame1 or CeresMode7TransferList.BabyFrame2)
         {
-            int origin = (pointer, row) switch
+            int origin = new CeresMode7TransferRow(pointer, row) switch
             {
                 (CeresMode7TransferList.BabyFrame0, 0) => 0x59, (CeresMode7TransferList.BabyFrame0, 1) => 0x69,
                 (CeresMode7TransferList.BabyFrame1, 0) => 0x8a, (CeresMode7TransferList.BabyFrame1, 1) => 0x8c,

@@ -144,7 +144,12 @@ public static class IndexedPng
                 if (index >= palette.Length) throw new InvalidDataException("PNG pixel references a missing palette entry.");
                 pixels[size.RowMajorIndex(new(checked((ushort)x), checked((ushort)y)))] = index;
             }
-            (previous, current) = (current, previous);
+            {
+                var held0 = current;
+                var held1 = previous;
+                previous = held0;
+                current = held1;
+            }
         }
         if (zlib.ReadByte() != -1) throw new InvalidDataException("PNG contains excess decompressed image data.");
         return new(size, pixels, palette);

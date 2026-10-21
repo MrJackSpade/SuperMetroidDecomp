@@ -61,7 +61,7 @@ public static class EscapeTypewriterDefinitions
     internal static EscapeTypewriterLine Line(EscapeTypewriterProgramId id, int index)
     {
         if ((uint)index >= LineCount(id)) throw new ArgumentOutOfRangeException(nameof(index));
-        string text = (id, index) switch
+        string text = new EscapeTypewriterLineKey(id, index) switch
         {
             (EscapeTypewriterProgramId.Ceres, 0) => CeresSequenceWarning,
             (EscapeTypewriterProgramId.Ceres, 1) => CeresEvacuationWarning,

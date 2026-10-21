@@ -124,8 +124,8 @@ internal static class GameplayContentIdentityVerification
                 new RoomLevelWord((ushort)(edit == "overlay-word" ? 7 : 6))),
         ];
         if (edit == "overlay-order") Array.Reverse(tiles);
-        (XrayRoomOverlayDefinition Overlay, IReadOnlyList<XrayRoomOverlayVisual> Tiles)[] rooms =
-            [(FirstFixtureOverlay, tiles), (SecondFixtureOverlay, new XrayRoomOverlayVisual[] { new(new(8, 9), new RoomLevelWord(10)) })];
+        XrayRoomOverlayTiles[] rooms =
+            [new(FirstFixtureOverlay, tiles), new(SecondFixtureOverlay, new XrayRoomOverlayVisual[] { new(new(8, 9), new RoomLevelWord(10)) })];
         var overlays = XrayOverlayVisualCatalog.FromOverlaysForVerification(items, reverse ? rooms.Reverse() : rooms);
         var xray = new XrayRevealVisualCatalog(reverse ? entries.AsEnumerable().Reverse() : entries, overlays);
         return GameplayPresentationIdentity.Create(palettes, sprites, xray);

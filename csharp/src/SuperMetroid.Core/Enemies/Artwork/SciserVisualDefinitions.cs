@@ -19,7 +19,7 @@ internal static class SciserVisualDefinitions
         {
             (int group, string name) = surface switch
             {
-                0 => (1, "right"), 1 => (3, "left"), 2 => (2, "down"), _ => (0, "up"),
+                0 => new SciserSurfaceFrames(1, "right"), 1 => new SciserSurfaceFrames(3, "left"), 2 => new SciserSurfaceFrames(2, "down"), _ => new SciserSurfaceFrames(0, "up"),
             };
             for (int frame = 0; frame < 3; frame++)
                 result[surface * 3 + frame] = new(Bank, (ushort)(FirstFrame + (group * 3 + frame) * 22),

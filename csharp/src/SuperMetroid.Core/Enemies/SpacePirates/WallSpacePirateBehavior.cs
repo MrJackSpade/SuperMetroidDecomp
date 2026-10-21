@@ -241,7 +241,7 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
     /// <summary>Selects the climb animation for a wall side and vertical climb direction.</summary>
     private static WallSpacePirateProgram SelectWallSpacePirateClimbList(
         bool onRightWall,
-        WallSpacePirateClimbDirection direction) => (onRightWall, direction) switch
+        WallSpacePirateClimbDirection direction) => new WallSpacePirateClimb(onRightWall, direction) switch
     {
         (false, WallSpacePirateClimbDirection.Down) =>
             WallSpacePirateProgram.MovingDownLeftWall,

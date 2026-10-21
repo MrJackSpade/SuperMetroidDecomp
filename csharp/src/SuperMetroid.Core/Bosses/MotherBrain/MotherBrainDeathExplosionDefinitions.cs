@@ -18,19 +18,19 @@ internal static class MotherBrainDeathExplosionDefinitions
     /// damage Samus. Only these coordinates are chosen visual scatter, not the group
     /// indexing, cadence, types, or other offsets.
     /// </summary>
-    private static readonly (short X, short Y)[] DecorativeAnchors =
+    private static readonly Offset16<RoomPixels>[] DecorativeAnchors =
     [
-        (0x0024, -0x0025), (-0x0013, -0x000f), (-0x0004, 0x000d), (0x001d, 0x0019),
-        (0x0011, -0x0037), (0x001e, -0x0016), (-0x0003, -0x0005), (0x0000, 0x0028),
-        (0x0034, -0x0022), (-0x0003, -0x000f), (0x000c, 0x0013), (0x0019, 0x002c),
-        (0x0004, -0x002b), (-0x000c, -0x0016), (0x000d, -0x0002), (-0x0008, 0x0034),
-        (-0x0002, -0x0021), (0x000a, -0x000a), (-0x000e, 0x0010), (0x0006, 0x003b),
-        (0x0014, -0x0029), (0x0004, -0x0016), (-0x0014, 0x0003), (-0x001b, 0x0039),
-        (0x000a, -0x001f), (-0x0014, -0x0008), (0x0000, 0x0017), (0x001e, 0x003d),
+        new Offset16<RoomPixels>(0x0024, -0x0025), new Offset16<RoomPixels>(-0x0013, -0x000f), new Offset16<RoomPixels>(-0x0004, 0x000d), new Offset16<RoomPixels>(0x001d, 0x0019),
+        new Offset16<RoomPixels>(0x0011, -0x0037), new Offset16<RoomPixels>(0x001e, -0x0016), new Offset16<RoomPixels>(-0x0003, -0x0005), new Offset16<RoomPixels>(0x0000, 0x0028),
+        new Offset16<RoomPixels>(0x0034, -0x0022), new Offset16<RoomPixels>(-0x0003, -0x000f), new Offset16<RoomPixels>(0x000c, 0x0013), new Offset16<RoomPixels>(0x0019, 0x002c),
+        new Offset16<RoomPixels>(0x0004, -0x002b), new Offset16<RoomPixels>(-0x000c, -0x0016), new Offset16<RoomPixels>(0x000d, -0x0002), new Offset16<RoomPixels>(-0x0008, 0x0034),
+        new Offset16<RoomPixels>(-0x0002, -0x0021), new Offset16<RoomPixels>(0x000a, -0x000a), new Offset16<RoomPixels>(-0x000e, 0x0010), new Offset16<RoomPixels>(0x0006, 0x003b),
+        new Offset16<RoomPixels>(0x0014, -0x0029), new Offset16<RoomPixels>(0x0004, -0x0016), new Offset16<RoomPixels>(-0x0014, 0x0003), new Offset16<RoomPixels>(-0x001b, 0x0039),
+        new Offset16<RoomPixels>(0x000a, -0x001f), new Offset16<RoomPixels>(-0x0014, -0x0008), new Offset16<RoomPixels>(0x0000, 0x0017), new Offset16<RoomPixels>(0x001e, 0x003d),
     ];
 
     /// <summary>Reads one of the 28 body-relative decorative offsets in native group order.</summary>
-    internal static (short X, short Y) Anchor(int index) => DecorativeAnchors[index];
+    internal static Offset16<RoomPixels> Anchor(int index) => DecorativeAnchors[index];
 
     /// <summary>
     /// The three programs the native table at <c>$86:C929-$86:C92E</c> selects by projectile parameter zero through two:

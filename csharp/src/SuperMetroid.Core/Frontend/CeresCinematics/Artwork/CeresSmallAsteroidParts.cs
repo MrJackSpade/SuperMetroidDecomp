@@ -15,18 +15,18 @@ namespace SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
 /// Retain only those anchors and copy orientations under the nonsense exception;
 /// local shape geometry is calculated, and source pixels remain a separate review.
 /// </remarks>
-internal sealed class CeresSmallAsteroidParts((int X, int Y)[] anchors) : IReadOnlyList<CompiledSpritePart>
+internal sealed class CeresSmallAsteroidParts(Offset16<OamPixels>[] anchors) : IReadOnlyList<CompiledSpritePart>
 {
     /// <summary>Calculates repeated rock shapes only for the matching sixteen-part Ceres asteroid composition.</summary>
     internal static SpriteComposition CalculateIfMatching(ushort pointer, SpriteComposition supplied)
     {
         if (pointer != CeresFlightSpriteDefinitions.SmallAsteroids || supplied.PartCount != 16) return supplied;
-        (int X, int Y) Anchor(int index)
+        Offset16<OamPixels> Anchor(int index)
         {
             var part = supplied.Part(index);
-            return (part.X.SignedOffset, part.Y.SignedOffset);
+            return new Offset16<OamPixels>(checked((short)part.X.SignedOffset), checked((short)part.Y.SignedOffset));
         }
-        (int X, int Y)[] anchors = [Anchor(1), Anchor(3), Anchor(5), Anchor(6), Anchor(10), Anchor(12), Anchor(13)];
+        Offset16<OamPixels>[] anchors = [Anchor(1), Anchor(3), Anchor(5), Anchor(6), Anchor(10), Anchor(12), Anchor(13)];
         // Horizontal and corner shapes extend eight pixels beyond their anchor.
         if (anchors[2].X > 247 || anchors[3].X > 247 || anchors[5].X > 247 || anchors[6].X > 247) return supplied;
         return supplied.CalculateIfMatching(new CeresSmallAsteroidParts(anchors));

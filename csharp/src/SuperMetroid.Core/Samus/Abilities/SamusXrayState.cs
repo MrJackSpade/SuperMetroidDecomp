@@ -361,13 +361,9 @@ public sealed class SamusXrayState
             // left-space counterpart and vice versa. This happens before selecting turn art.
             Angle = SnesAngle.NormalizeRaw(-Angle.RawValue);
             bool crouching = movementType == SamusMovementType.Crouching;
-            SamusPoseId targetPose = (facingLeft, crouching) switch
-            {
-                (false, false) => SamusPoseId.TurningRightToLeftPose,
-                (false, true) => SamusPoseId.TurningRightToLeftCrouchingPose,
-                (true, false) => SamusPoseId.TurningLeftToRightPose,
-                (true, true) => SamusPoseId.TurningLeftToRightCrouchingPose,
-            };
+            SamusPoseId targetPose = facingLeft
+                ? crouching ? SamusPoseId.TurningLeftToRightCrouchingPose : SamusPoseId.TurningLeftToRightPose
+                : crouching ? SamusPoseId.TurningRightToLeftCrouchingPose : SamusPoseId.TurningRightToLeftPose;
             ApplyXrayPoseChange(samus, targetPose);
             return new XrayPoseInputResult();
         }

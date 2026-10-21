@@ -609,23 +609,23 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
         ushort acceleration,
         Position16<RoomPixels> target)
     {
-        (bool xArrived, ushort xVelocity) = AccelerateShitroidAxis(
+        (bool xArrived, int xVelocity) = AccelerateShitroidAxis(
             state.Slot.Position.X.Whole,
             target.X,
             state.Velocity.X.RawValue,
             acceleration);
-        state.Velocity = state.Velocity.WithX(new SnesSignedEightEight(xVelocity));
-        (bool yArrived, ushort yVelocity) = AccelerateShitroidAxis(
+        state.Velocity = state.Velocity.WithX(new SnesSignedEightEight(checked((ushort)xVelocity)));
+        (bool yArrived, int yVelocity) = AccelerateShitroidAxis(
             state.Slot.Position.Y.Whole,
             target.Y,
             state.Velocity.Y.RawValue,
             acceleration);
-        state.Velocity = state.Velocity.WithY(new SnesSignedEightEight(yVelocity));
+        state.Velocity = state.Velocity.WithY(new SnesSignedEightEight(checked((ushort)yVelocity)));
         return xArrived && yArrived;
     }
 
     /// <summary>Clamps signed 8.8 speed to 1280 and zeroes it on predicted target crossing.</summary>
-    private static (bool Arrived, ushort Velocity) AccelerateShitroidAxis(
+    private static ShitroidAxisStep AccelerateShitroidAxis(
         ushort current,
         ushort target,
         ushort velocityWord,
@@ -633,7 +633,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         int delta = unchecked((short)(current - target));
         if (delta == 0)
-            return (true, velocityWord);
+            return new ShitroidAxisStep(true, velocityWord);
 
         int velocity = unchecked((short)velocityWord);
         velocity = delta >= 0
@@ -646,7 +646,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
         bool crossed = delta >= 0 ? predicted <= 0 : predicted >= 0;
         if (crossed)
             velocityWord = 0;
-        return (crossed, velocityWord);
+        return new ShitroidAxisStep(crossed, velocityWord);
     }
 
     /// <summary>Tests inclusive-radius overlap between two enemy rectangles using signed native coordinate deltas.</summary>

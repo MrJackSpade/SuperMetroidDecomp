@@ -162,9 +162,9 @@ public sealed class GameplayHudPresentation
         ValidateTilemap(tiles);
         (Position16<TilemapCells> anchor, int digits) = itemIndex switch
         {
-            0 => (MissileAmmoAnchor, 3),
-            1 => (SuperMissileAmmoAnchor, 2),
-            2 => (PowerBombAmmoAnchor, 2),
+            0 => new HudAmmoField(MissileAmmoAnchor, 3),
+            1 => new HudAmmoField(SuperMissileAmmoAnchor, 2),
+            2 => new HudAmmoField(PowerBombAmmoAnchor, 2),
             _ => throw new ArgumentOutOfRangeException(nameof(itemIndex)),
         };
         // The digits divide the stored word, so a count the cartridge has drained below zero draws as its word.

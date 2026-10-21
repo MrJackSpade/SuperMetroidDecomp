@@ -871,7 +871,7 @@ internal static class LookupStream3Verification
                     "options stock/edited heading origin and scroll");
             }
             AssertThrows<ArgumentOutOfRangeException>(() => presentation.ApplyControllerLabel(new byte[2048], -1, 0), "options invalid action");
-            AssertThrows<InvalidDataException>(() => presentation.CursorPosition((GameOptionsPage)byte.MaxValue, 0), "options invalid page");
+            AssertThrows<ArgumentOutOfRangeException>(() => presentation.CursorPosition((GameOptionsPage)byte.MaxValue, 0), "options invalid page");
         }
         static void Paint(byte[] page, int[] cells, int palette)
         {
@@ -1303,7 +1303,7 @@ internal static class LookupStream3Verification
                 "stream 3 death explosion selector bounds");
         // Confirm the retained visual payload's catalog move and the independent group arithmetic.
         for (int index = 0; index < 28; index++)
-            AssertEqual(((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa9b099 + 4 * index)), (short)CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa9b09b + 4 * index))),
+            AssertEqual(new Offset16<RoomPixels>((short)CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa9b099 + 4 * index)), (short)CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa9b09b + 4 * index))),
                 MotherBrainDeathExplosionDefinitions.Anchor(index), "stream 3 native decorative death anchor");
         foreach (bool mixed in new[] { false, true })
         {

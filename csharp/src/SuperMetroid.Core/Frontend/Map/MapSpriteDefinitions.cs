@@ -9,36 +9,36 @@ public static class MapSpriteDefinitions
     public const int Count = 26;
 
     /// <summary>Enumerates named roles in the established presentation-document order.</summary>
-    public static IEnumerable<(MapSpriteId NativeId, string Name)> Frames
+    public static IEnumerable<MapSpriteFrameName> Frames
     {
         get
         {
-            yield return (MapSpriteId.ArrowRight, Name(MapSpriteId.ArrowRight));
-            yield return (MapSpriteId.ArrowLeft, Name(MapSpriteId.ArrowLeft));
-            yield return (MapSpriteId.ArrowUp, Name(MapSpriteId.ArrowUp));
-            yield return (MapSpriteId.ArrowDown, Name(MapSpriteId.ArrowDown));
-            yield return (MapSpriteId.MarkerBoss, Name(MapSpriteId.MarkerBoss));
-            yield return (MapSpriteId.StationEnergy, Name(MapSpriteId.StationEnergy));
-            yield return (MapSpriteId.StationMissile, Name(MapSpriteId.StationMissile));
-            yield return (MapSpriteId.StationMap, Name(MapSpriteId.StationMap));
-            yield return (MapSpriteId.MarkerDefeatedBoss, Name(MapSpriteId.MarkerDefeatedBoss));
-            yield return (MapSpriteId.MarkerGunship, Name(MapSpriteId.MarkerGunship));
-            yield return (MapSpriteId.IndicatorBacking, Name(MapSpriteId.IndicatorBacking));
-            yield return (MapSpriteId.IndicatorFrame0, Name(MapSpriteId.IndicatorFrame0));
-            yield return (MapSpriteId.IndicatorFrame1, Name(MapSpriteId.IndicatorFrame1));
-            yield return (MapSpriteId.IndicatorFrame2, Name(MapSpriteId.IndicatorFrame2));
-            yield return (MapSpriteId.ElevatorCrateria, Name(MapSpriteId.ElevatorCrateria));
-            yield return (MapSpriteId.ElevatorBrinstar, Name(MapSpriteId.ElevatorBrinstar));
-            yield return (MapSpriteId.ElevatorNorfair, Name(MapSpriteId.ElevatorNorfair));
-            yield return (MapSpriteId.ElevatorWreckedShip, Name(MapSpriteId.ElevatorWreckedShip));
-            yield return (MapSpriteId.ElevatorMaridia, Name(MapSpriteId.ElevatorMaridia));
-            yield return (MapSpriteId.WorldTitle, Name(MapSpriteId.WorldTitle));
-            yield return (MapSpriteId.WorldCrateria, Name(MapSpriteId.WorldCrateria));
-            yield return (MapSpriteId.WorldBrinstar, Name(MapSpriteId.WorldBrinstar));
-            yield return (MapSpriteId.WorldNorfair, Name(MapSpriteId.WorldNorfair));
-            yield return (MapSpriteId.WorldWreckedShip, Name(MapSpriteId.WorldWreckedShip));
-            yield return (MapSpriteId.WorldMaridia, Name(MapSpriteId.WorldMaridia));
-            yield return (MapSpriteId.WorldTourian, Name(MapSpriteId.WorldTourian));
+            yield return new MapSpriteFrameName(MapSpriteId.ArrowRight, Name(MapSpriteId.ArrowRight));
+            yield return new MapSpriteFrameName(MapSpriteId.ArrowLeft, Name(MapSpriteId.ArrowLeft));
+            yield return new MapSpriteFrameName(MapSpriteId.ArrowUp, Name(MapSpriteId.ArrowUp));
+            yield return new MapSpriteFrameName(MapSpriteId.ArrowDown, Name(MapSpriteId.ArrowDown));
+            yield return new MapSpriteFrameName(MapSpriteId.MarkerBoss, Name(MapSpriteId.MarkerBoss));
+            yield return new MapSpriteFrameName(MapSpriteId.StationEnergy, Name(MapSpriteId.StationEnergy));
+            yield return new MapSpriteFrameName(MapSpriteId.StationMissile, Name(MapSpriteId.StationMissile));
+            yield return new MapSpriteFrameName(MapSpriteId.StationMap, Name(MapSpriteId.StationMap));
+            yield return new MapSpriteFrameName(MapSpriteId.MarkerDefeatedBoss, Name(MapSpriteId.MarkerDefeatedBoss));
+            yield return new MapSpriteFrameName(MapSpriteId.MarkerGunship, Name(MapSpriteId.MarkerGunship));
+            yield return new MapSpriteFrameName(MapSpriteId.IndicatorBacking, Name(MapSpriteId.IndicatorBacking));
+            yield return new MapSpriteFrameName(MapSpriteId.IndicatorFrame0, Name(MapSpriteId.IndicatorFrame0));
+            yield return new MapSpriteFrameName(MapSpriteId.IndicatorFrame1, Name(MapSpriteId.IndicatorFrame1));
+            yield return new MapSpriteFrameName(MapSpriteId.IndicatorFrame2, Name(MapSpriteId.IndicatorFrame2));
+            yield return new MapSpriteFrameName(MapSpriteId.ElevatorCrateria, Name(MapSpriteId.ElevatorCrateria));
+            yield return new MapSpriteFrameName(MapSpriteId.ElevatorBrinstar, Name(MapSpriteId.ElevatorBrinstar));
+            yield return new MapSpriteFrameName(MapSpriteId.ElevatorNorfair, Name(MapSpriteId.ElevatorNorfair));
+            yield return new MapSpriteFrameName(MapSpriteId.ElevatorWreckedShip, Name(MapSpriteId.ElevatorWreckedShip));
+            yield return new MapSpriteFrameName(MapSpriteId.ElevatorMaridia, Name(MapSpriteId.ElevatorMaridia));
+            yield return new MapSpriteFrameName(MapSpriteId.WorldTitle, Name(MapSpriteId.WorldTitle));
+            yield return new MapSpriteFrameName(MapSpriteId.WorldCrateria, Name(MapSpriteId.WorldCrateria));
+            yield return new MapSpriteFrameName(MapSpriteId.WorldBrinstar, Name(MapSpriteId.WorldBrinstar));
+            yield return new MapSpriteFrameName(MapSpriteId.WorldNorfair, Name(MapSpriteId.WorldNorfair));
+            yield return new MapSpriteFrameName(MapSpriteId.WorldWreckedShip, Name(MapSpriteId.WorldWreckedShip));
+            yield return new MapSpriteFrameName(MapSpriteId.WorldMaridia, Name(MapSpriteId.WorldMaridia));
+            yield return new MapSpriteFrameName(MapSpriteId.WorldTourian, Name(MapSpriteId.WorldTourian));
         }
     }
     /// <summary>Selects the world-map label naming <paramref name="area"/>; the labels follow

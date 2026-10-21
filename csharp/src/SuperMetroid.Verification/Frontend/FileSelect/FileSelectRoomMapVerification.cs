@@ -180,7 +180,7 @@ internal static class FileSelectRoomMapVerification
         foreach (MapScrollDirection direction in new[] { MapScrollDirection.Left, MapScrollDirection.Right, MapScrollDirection.Up, MapScrollDirection.Down })
         {
             MapSpriteId id = MapArrowDefinitions.SpriteBase(direction);
-            string name = MapSpriteDefinitions.Frames.Single(frame => frame.NativeId == id).Name;
+            string name = MapSpriteDefinitions.Frames.Single(frame => frame.Id == id).Name;
             spriteDocument.Frames[name] = [new SpriteVisualPart { OffsetX = 0, OffsetY = 0,
                 TileColumn = 0, TileRow = 1, Size = 8, Priority = 3, Palette = null, FlipX = false, FlipY = false }];
         }
@@ -251,7 +251,7 @@ internal static class FileSelectRoomMapVerification
         var document = RequiredJson.Deserialize<MapSpriteDocument>(artwork[MapSpriteFormat.JsonFile], options);
         foreach (ushort id in new ushort[] { 9, 0x62, 0x0b, 0x59, 0x5b, 0x5d })
         {
-            string name = MapSpriteDefinitions.Frames.Single(frame => frame.NativeId == (MapSpriteId)id).Name;
+            string name = MapSpriteDefinitions.Frames.Single(frame => frame.Id == (MapSpriteId)id).Name;
             document.Frames[name] = [new SpriteVisualPart { OffsetX = 0, OffsetY = 0,
                 TileColumn = (id == 0x59 ? 0x50 : id) % 16, TileRow = (id == 0x59 ? 0x50 : id) / 16, Size = 8, Priority = 3,
                 Palette = null, FlipX = false, FlipY = false }];
@@ -494,7 +494,7 @@ internal static class FileSelectRoomMapVerification
         // Preserve the original fixture's one-part (-2,-3) sprite and priority three.
         foreach (ushort id in new ushort[] { 0x12, 0x5f, 0x60, 0x61 })
         {
-            string name = MapSpriteDefinitions.Frames.Single(frame => frame.NativeId == (MapSpriteId)id).Name;
+            string name = MapSpriteDefinitions.Frames.Single(frame => frame.Id == (MapSpriteId)id).Name;
             document.Frames[name] = [new SpriteVisualPart { OffsetX = -2, OffsetY = -3,
                 TileColumn = 1, TileRow = 0, Size = 8, Priority = 3, Palette = null,
                 FlipX = false, FlipY = false }];

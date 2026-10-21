@@ -54,7 +54,7 @@ internal static class SamusEaterPlmDrawDefinitions
                 // Right mouth half precedes the left half in native draw order.
                 tile = 0x1a0 + Phase * 2 + (run == 0 ? 1 - block : block);
                 horizontalFlip = run == 0 ? 0x400 : 0;
-                collision = (run, block) switch
+                collision = new SamusEaterBlock(run, block) switch
                 {
                     (0, 1) or (1, 0) => 0x8000,
                     (0, 0) when Phase == 0 => 0x3000,

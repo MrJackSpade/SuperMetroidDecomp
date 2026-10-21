@@ -73,8 +73,9 @@ public static class LibraryBackgroundLoader
     [PpuLayoutBoundary("codec: library-background command 2 VRAM DMA (native source and VMADD)")]
     private static void TransferToVram(LibraryBackgroundStaging staging, SnesVram vram, LibraryBackgroundInstruction transfer, LibraryBackgroundArtwork artwork)
     {
-        (RoomSkyTilemapCatalog? skyArt, HudTileAtlas? hudArt, RoomCharacterAtlasCatalog? characterArt) =
-            (artwork.SkyArt, artwork.HudArt, artwork.CharacterArt);
+        RoomSkyTilemapCatalog? skyArt = artwork.SkyArt;
+        HudTileAtlas? hudArt = artwork.HudArt;
+        RoomCharacterAtlasCatalog? characterArt = artwork.CharacterArt;
         if (transfer.ByteCount == 0)
         {
             throw new InvalidDataException(

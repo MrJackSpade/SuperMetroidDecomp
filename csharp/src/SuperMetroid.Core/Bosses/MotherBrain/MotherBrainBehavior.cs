@@ -61,10 +61,10 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Binds the encounter's room services while keeping one state owner for body and head.</summary>
     internal MotherBrainBehavior(MotherBrainBehaviorDependencies dependencies)
     {
-        _bossArtwork = dependencies.BossArtwork;
+        _bossArtwork = dependencies.Presentation.Artwork;
         _frameResults = dependencies.FrameResults;
         _room = dependencies.Room;
-        _presentation = dependencies.Presentation;
+        _presentation = dependencies.Presentation.Surfaces;
         _motherBrainEncounter = dependencies.MotherBrainEncounter;
         Projectiles = new MotherBrainProjectiles(_room, dependencies.Projectiles, dependencies.Earthquake, dependencies.DeathsAndDrops, _motherBrainEncounter, dependencies.RoomActors);
         Access = new MotherBrainEncounterAccess(_frameResults, _motherBrainEncounter);

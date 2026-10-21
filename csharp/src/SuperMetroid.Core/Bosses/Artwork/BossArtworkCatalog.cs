@@ -16,7 +16,6 @@ namespace SuperMetroid.Core.Bosses.Artwork;
 /// The bosses' installed artwork beside the shared enemy sheets (#1395): melts, skeletons, BG2 frames, Mother Brain's
 /// special pages and each boss's colors. Each boss reads only its own entries.
 /// </summary>
-[ArchitectureReview("context-bag", "A record of installed boss artwork catalogs; its members are data, not services.")]
 public sealed record BossArtworkCatalog
 {
     /// <summary>Both of Crocomire's melts; optional only for constructed fixtures.</summary>

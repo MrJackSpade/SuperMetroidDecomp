@@ -10,6 +10,7 @@ namespace SuperMetroid.Core.Bosses.Artwork;
 /// The boss artwork the host has installed, rebound when it reloads artwork (#1395). The runtime owns one for the
 /// session; each room's bosses read through it, so a rebinding reaches bosses already in the room.
 /// </summary>
+[ArchitectureReview("context-bag", "The session\'s installed boss artwork and presentation catalogs; its members are data the host binds, not services.")]
 public sealed class BossArtworkBinding
 {
     /// <summary>The installed boss artwork, or null before any is installed.</summary>

@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
@@ -36,8 +35,8 @@ internal sealed record KraidBehaviorDependencies
     /// <summary>Slot table.</summary>
     public required EnemySlotTable SlotTable { get; init; }
 
-    /// <summary>Presentation.</summary>
-    public required EnemyPresentation Presentation { get; init; }
+    /// <summary>What the boss draws with: the room\'s presentation surfaces and the installed boss artwork.</summary>
+    public required BossPresentation Presentation { get; init; }
 
     /// <summary>Collision.</summary>
     public required EnemyCollision Collision { get; init; }
@@ -48,6 +47,4 @@ internal sealed record KraidBehaviorDependencies
     /// <summary>Zebetite behavior.</summary>
     public required ZebetiteBehavior ZebetiteBehavior { get; init; }
 
-    /// <summary>The session's installed boss artwork.</summary>
-    public required BossArtworkBinding BossArtwork { get; init; }
 }

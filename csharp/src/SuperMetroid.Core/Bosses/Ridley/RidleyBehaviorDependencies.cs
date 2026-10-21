@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Rooms;
@@ -23,8 +22,8 @@ internal sealed record RidleyBehaviorDependencies
     public required EnemyAudioQueue Audio { get; init; }
 
 
-    /// <summary>Presentation.</summary>
-    public required EnemyPresentation Presentation { get; init; }
+    /// <summary>What the boss draws with: the room\'s presentation surfaces and the installed boss artwork.</summary>
+    public required BossPresentation Presentation { get; init; }
 
     /// <summary>Deaths and drops.</summary>
     public required EnemyDeathsAndDrops DeathsAndDrops { get; init; }
@@ -47,6 +46,4 @@ internal sealed record RidleyBehaviorDependencies
     /// <summary>Room fx.</summary>
     public required EnemyRoomFx RoomFx { get; init; }
 
-    /// <summary>The session's installed boss artwork.</summary>
-    public required BossArtworkBinding BossArtwork { get; init; }
 }

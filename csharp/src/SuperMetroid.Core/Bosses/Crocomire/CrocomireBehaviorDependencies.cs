@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
@@ -30,8 +29,8 @@ internal sealed record CrocomireBehaviorDependencies
     /// <summary>Sprite objects.</summary>
     public required RoomSpriteObjectPool SpriteObjects { get; init; }
 
-    /// <summary>Presentation.</summary>
-    public required EnemyPresentation Presentation { get; init; }
+    /// <summary>What the boss draws with: the room\'s presentation surfaces and the installed boss artwork.</summary>
+    public required BossPresentation Presentation { get; init; }
 
     /// <summary>Frame context.</summary>
     public required EnemyFrameContext FrameContext { get; init; }
@@ -48,6 +47,4 @@ internal sealed record CrocomireBehaviorDependencies
     /// <summary>Room status.</summary>
     public required EnemyRoomStatus RoomStatus { get; init; }
 
-    /// <summary>The session's installed boss artwork.</summary>
-    public required BossArtworkBinding BossArtwork { get; init; }
 }

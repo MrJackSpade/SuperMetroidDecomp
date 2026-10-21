@@ -14,10 +14,8 @@ internal sealed class EnemyRoomBinding
     /// <param name="session">The enemy words and installed artwork that outlive each room.</param>
     /// <param name="definitions">The room's enemy definition source, or null for an enemy system with no population.</param>
     /// <param name="services">The cartridge-state services the room's AI calls, or null when none is supplied.</param>
-    /// <param name="frames">The installed word each enemy frame identity shows.</param>
-    internal EnemyRoomBinding(EnemySession session, IRoomEnemyDefinitionSource? definitions, IRoomEnemyServices? services, IEnemyFrameWords frames)
+    internal EnemyRoomBinding(EnemySession session, IRoomEnemyDefinitionSource? definitions, IRoomEnemyServices? services)
     {
-        Frames = Ensure.NotNull(frames);
         Session = Ensure.NotNull(session);
         Definitions = definitions;
         InstalledServices = services;
@@ -25,9 +23,6 @@ internal sealed class EnemyRoomBinding
 
     /// <summary>The enemy words and installed artwork that outlive each room.</summary>
     internal EnemySession Session { get; }
-
-    /// <summary>The installed word each enemy frame identity shows.</summary>
-    internal IEnemyFrameWords Frames { get; }
 
     /// <summary>The room's enemy definition source; null for an enemy system built without one.</summary>
     internal IRoomEnemyDefinitionSource? Definitions { get; }

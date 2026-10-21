@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.Core.Enemies.Artwork;
@@ -11,7 +12,8 @@ internal static class EnemySpritemapCatalogAccess
         /// <summary>Returns a known installed frame; callers must reject missing artwork.</summary>
         internal bool TryGet(byte bank, ushort pointer, out EnemySpritemapParts parts)
         {
-            if (self.frames.TryGetValue(((int)new SnesAddress(bank, pointer)), out EnemySpritemapParts? found))
+            if (EnemyFrameCartridgeLookupTooling.TryFrameAt(bank, pointer) is { } frame &&
+                self.frames.TryGetValue(frame, out EnemySpritemapParts? found))
             {
                 parts = found;
                 return true;

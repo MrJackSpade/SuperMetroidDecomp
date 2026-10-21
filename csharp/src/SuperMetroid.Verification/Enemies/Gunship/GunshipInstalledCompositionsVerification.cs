@@ -37,10 +37,10 @@ internal static class GunshipInstalledCompositionsVerification
         EnemyTileArtworkFiles.ValidateStock(directory);
         InstalledEnemyArtwork stock = EnemyTileArtworkFiles.Load(directory, overrideDirectory: null);
         EnemySpritemapCatalog compositions = (stock.Enemies.Spritemaps ?? throw new InvalidOperationException("Verification requires stock.Spritemaps."));
-        EnemySpritemapDefinition[] shipFrames = GunshipVisualDefinitions.Frames();
+        NativeEnemySpritemapDefinition[] shipFrames = GunshipVisualDefinitions.Frames();
         AssertEqual(GunshipVisualDefinitions.FrameCount, shipFrames.Length,
             "#1154 gunship exports its two hull and eleven pad compositions");
-        foreach (EnemySpritemapDefinition frame in shipFrames)
+        foreach (NativeEnemySpritemapDefinition frame in shipFrames)
         {
             SpritemapPart[] native = EnemySpritemapCatalog.CompileParts(
                 EnemySpritemapFiles.ExtractParts(imported, frame.Bank, frame.Pointer), frame.Name);
@@ -70,7 +70,7 @@ internal static class GunshipInstalledCompositionsVerification
             "#1154 schema-60 edited frame remains resolvable");
         AssertTrue(edited.SequenceEqual(EnemySpritemapCatalog.CompileParts(legacy.Frames[editedName], editedName)),
             "#1154 schema-60 override edit survives the upgrade");
-        foreach (EnemySpritemapDefinition frame in shipFrames)
+        foreach (NativeEnemySpritemapDefinition frame in shipFrames)
         {
             AssertTrue(merged.TryGetDisplay(frame.Bank, frame.Pointer, out var inherited) &&
                 (compositions ?? throw new InvalidOperationException("Verification requires compositions.")).TryGetDisplay(frame.Bank, frame.Pointer, out var expected) &&

@@ -69,7 +69,7 @@ internal static class EnemyFormatDrawEntriesVerification
         enemies.Drawing.Enqueue(0, 0);
 
         // Extended enemy on layer one, showing a frame with several components.
-        EnemySpritemapDefinition extendedFrame = EnemyExtendedFrameDefinitions.EnumerateFrames().First(frame =>
+        EnemySpritemapDefinition extendedFrame = EnemyExtendedFrameDefinitions.Frames.First(frame =>
             frame.Bank != EnemyExtendedFrameDefinitions.Bank &&
             extendedFrames.TryGetDisplay(frame.Bank, frame.Pointer, out ReadOnlyMemory<EnemyExtendedDrawComponent> components) &&
             components.Length > 1);

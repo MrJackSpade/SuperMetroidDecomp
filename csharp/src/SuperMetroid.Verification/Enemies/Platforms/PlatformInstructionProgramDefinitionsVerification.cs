@@ -146,7 +146,7 @@ internal static class PlatformInstructionProgramDefinitionsVerification
             new PlatformInstructionProgramDefinitionsExpected(0xa021, "tripper_kamer_platform_0"), new PlatformInstructionProgramDefinitionsExpected(0xa02d, "tripper_kamer_platform_1"),
             new PlatformInstructionProgramDefinitionsExpected(0xa039, "tripper_kamer_platform_2"), new PlatformInstructionProgramDefinitionsExpected(0xa045, "tripper_kamer_platform_3"),
         ];
-        EnemySpritemapDefinition[] actual = TripperKamerVisualDefinitions.Frames();
+        NativeEnemySpritemapDefinition[] actual = TripperKamerVisualDefinitions.Frames();
         AssertEqual(expected.Length, actual.Length, "platform export frame count");
         for (int i = 0; i < expected.Length; i++)
         {

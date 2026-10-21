@@ -16,8 +16,8 @@ internal static class CompiledEnemyDisplayAudit
         SyntaxTreeGuard(root, path);
         foreach (byte bank in CommonEnemyEmptyExtendedFrameDefinitionsTooling.SupportedBanks)
         {
-            ushort pointer = CommonEnemyEmptyExtendedFrameDefinitions.EmptySpritemap;
-            if (!CommonEnemyEmptyExtendedFrameDefinitions.HasEmptySpritemap(bank, pointer))
+            ushort pointer = CommonEnemyEmptyExtendedFrameToolingDefinitions.EmptySpritemap;
+            if (!CommonEnemyEmptyExtendedFrameToolingDefinitions.HasEmptySpritemap(bank, pointer))
                 throw new InvalidDataException("The compiled empty-frame bank list disagrees with its production predicate.");
             string key = ResourceIndex.Address(bank, pointer);
             exports.Add(ResourceDomains.EnemyDisplay, key);

@@ -292,7 +292,7 @@ internal static class GunshipLandingVerification
     private static void AssertPadShowsFirstFrame(RoomEnemySlot pad, GunshipProgram program, string message)
     {
         var first = AssertIs<AnimationProgramStep<GunshipProgram, GunshipFrame, NoAnimationCue>.ShowStep>(GunshipAnimations.Programs.Steps(program)[0], message + " (first step)");
-        AssertEqual(GunshipFrameDefinitions.Spritemap(first.Frame), pad.SpritemapPointer, message + " (pose)");
+        AssertEqual(GunshipFrameDefinitionsConstants.Spritemap(first.Frame), pad.SpritemapPointer, message + " (pose)");
         AssertEqual(WrappingCountdown.FromRaw((ushort)first.Duration), pad.InstructionTimer, message + " (duration)");
     }
 }

@@ -110,15 +110,15 @@ internal static class DeadTorizoArtworkVerification
         var rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
         // The typed oracle ties the pose to its native list; the export must publish the pose the program shows.
         ushort nativePointer = DeadTorizoAnimationsConstants.Spritemaps(DeadTorizoProgram.Stationary).Single();
-        AssertEqual(DeadTorizoArtworkDefinitions.StationarySpritemap, nativePointer,
+        AssertEqual(DeadTorizoArtworkDefinitionsConstants.StationarySpritemap, nativePointer,
             "Dead Torizo stationary export is the pose its program shows");
         AssertTrue((stock.Spritemaps ?? throw new InvalidOperationException("Verification requires stock.Spritemaps.")).TryGetDisplay(
-                DeadTorizoArtworkDefinitions.SpritemapBank, nativePointer,
+                DeadTorizoArtworkDefinitionsConstants.SpritemapBank, nativePointer,
                 out EnemySpritemapParts installedParts),
             "Dead Torizo stationary OAM has editable installed parts");
         var nativeOam = new OamBuffer();
         var installedOam = new OamBuffer();
-        DrawImportedEnemySpritemap(rom, nativeOam, new NativeEnemySpritemapDraw { Bank = DeadTorizoArtworkDefinitions.SpritemapBank, Pointer = nativePointer, Origin = new(128, 128), PaletteBits = 0, BaseTileIndex = 0 });
+        DrawImportedEnemySpritemap(rom, nativeOam, new NativeEnemySpritemapDraw { Bank = DeadTorizoArtworkDefinitionsConstants.SpritemapBank, Pointer = nativePointer, Origin = new(128, 128), PaletteBits = 0, BaseTileIndex = 0 });
         installedOam.AddEnemySpritemap(installedParts, new Position16<OamPixels>(128, 128), 0, 0);
         AssertTrue(nativeOam.ImageEquals(installedOam) &&
                    nativeOam.NextByteOffset == installedOam.NextByteOffset,

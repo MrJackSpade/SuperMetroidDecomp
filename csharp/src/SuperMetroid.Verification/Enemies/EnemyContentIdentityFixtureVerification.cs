@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using SuperMetroid.Core.World.Artwork;
 using SuperMetroid.Core.Areas;
 using SuperMetroid.Core.Bosses.Artwork;
@@ -364,7 +365,7 @@ internal static class EnemyContentIdentityFixtureVerification
         public EnemyProjectileSpritemapCatalog Projectiles() => EnemyProjectileSpritemapCatalog.Load(Json(ProjectileDocument()));
 
         /// <summary>Builds BG2 frame writes whose tiles, placement, order, count, or run boundaries can vary.</summary>
-        private MemoryStream Bg2(string family, EnemyBg2FrameDefinitionSequence definitions)
+        private MemoryStream Bg2(string family, ImmutableArray<EnemySpritemapDefinition> definitions)
         {
             foreach (string component in new[] { "tiles", "x", "y", "order", "count", "run-boundary" }) Register(family + "-" + component);
             var frames = definitions.SelectToArray((frame, index) =>

@@ -13,7 +13,7 @@ internal static class WalkingSpacePirateAnimationsVerification
     internal static void VerifyWalkingSpacePirateAnimations(SuperMetroidAddressSpace rom)
     {
         int steps = NativeEnemyProgramOracle.CompareAll(CartridgeImportSource.Require(rom), Bank, Entries, WalkingSpacePirateAnimations.Programs,
-            WalkingSpacePirateFrameDefinitions.Spritemap,
+            WalkingSpacePirateFrameToolingDefinitions.Spritemap,
             word => Instructions.TryGetValue(word, out var instruction) ? instruction.Operands.Length : null,
             (word, operands, cue, at) =>
             {

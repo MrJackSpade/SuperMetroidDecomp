@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -34,7 +35,7 @@ internal static class EtecoonInstructionProgramDefinitionsVerification
                 continue;
             state.Program = AnimationProgramCursor<EtecoonProgram>.Start(program);
             slot.InstructionTimer = WrappingCountdown.Start(1);
-            AssertEqual(EnemyInstructionRunner.ExpectedLoop(EtecoonAnimations.Programs, program, EtecoonFrameDefinitions.Spritemap),
+            AssertEqual(EnemyInstructionRunner.ExpectedLoop(EtecoonAnimations.Programs, program, EtecoonFrameToolingDefinitions.Spritemap),
                 EnemyInstructionRunner.ShownFrames(slot, EnemyInstructionRunner.LoopUpdates(EtecoonAnimations.Programs, program)),
                 $"Etecoon {program} loop");
         }
@@ -48,11 +49,11 @@ internal static class EtecoonInstructionProgramDefinitionsVerification
             AnimationProgramCursor<EtecoonProgram> held = state.Program;
             _ = EnemyInstructionRunner.ShownFrames(slot, 8);
             AssertEqual(held, state.Program, "Etecoon flex ends asleep");
-            AssertEqual(EtecoonAnimations.Spritemaps(EtecoonProgram.FlexingLoop).Last(), slot.SpritemapPointer, "Etecoon flex ends on its last pose");
+            AssertEqual(EtecoonAnimationsTooling.Spritemaps(EtecoonProgram.FlexingLoop).Last(), slot.SpritemapPointer, "Etecoon flex ends on its last pose");
             AssertEqual((ushort)0, slot.Timer.RawValue, "Etecoon flex loop count expires");
         }
 
-        AssertTrue(EtecoonAnimations.Spritemaps(Enum.GetValues<EtecoonProgram>()).Where(pointer => pointer != 0x804d).ToHashSet().SetEquals(
+        AssertTrue(EtecoonAnimationsTooling.Spritemaps(Enum.GetValues<EtecoonProgram>()).Where(pointer => pointer != 0x804d).ToHashSet().SetEquals(
                 EnemySpritemapDefinitions.Frames.Where(frame => frame.Name.StartsWith("etecoon_", StringComparison.Ordinal)).Select(frame => frame.Pointer)),
             "the Etecoon's programs show exactly its installed frames");
         Suite(nameof(EtecoonAnimationsVerification.VerifyEtecoonAnimations), () => EtecoonAnimationsVerification.VerifyEtecoonAnimations(rom));

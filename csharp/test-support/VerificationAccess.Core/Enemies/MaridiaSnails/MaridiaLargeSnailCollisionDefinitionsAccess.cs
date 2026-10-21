@@ -20,7 +20,7 @@ internal static class MaridiaLargeSnailCollisionDefinitionsAccess
         internal static IEnumerable<ushort> HitboxPointers => NativeLists.Pointers;
 
         /// <summary>Whether <paramref name="frame"/> is one of Oum's frame addresses.</summary>
-        internal static bool HasFrame(ushort frame) => MaridiaLargeSnailCollisionDefinitions.FramePointers.Contains(frame);
+        internal static bool HasFrame(ushort frame) => MaridiaLargeSnailCollisionDefinitionsConstants.FramePointers.Contains(frame);
 
         /// <summary>The native address of the hitbox list the frame at <paramref name="frame"/> selects.</summary>
         internal static ushort HitboxListAt(ushort frame) => HasFrame(frame)

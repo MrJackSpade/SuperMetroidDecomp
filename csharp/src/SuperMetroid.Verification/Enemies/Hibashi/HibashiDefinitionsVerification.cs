@@ -112,7 +112,7 @@ internal static class HibashiDefinitionsVerification
             EnemyInstructionRunner.Process(twinHitboxArguments);
         }
         AssertTrue(shownSpritemaps.SetEquals(HibashiVisualDefinitionsTooling.Spritemaps()), "the Hibashi shows every authored pose");
-        AssertEqual(HibashiAnimations.Spritemaps(HibashiProgram.Graphics).Last(), programGraphics.SpritemapPointer,
+        AssertEqual(HibashiAnimationsTooling.Spritemaps(HibashiProgram.Graphics).Last(), programGraphics.SpritemapPointer,
             "Hibashi finish retains the last graphics sprite");
         // $A6:8DAF queues per geyser: the contributed lowc movie's two geysers queue two (update 118,130).
         SoundEffectId eruption = SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, HibashiDefinitions.EruptionSoundEffect);

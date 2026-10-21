@@ -33,7 +33,7 @@ internal sealed class EnemyInstructionInterpreter
     /// Native new-frame gating and physical collision selectors remain compiled.
     /// Selecting an OAM-only pose performs no BG2 write; it does not invent a clear.
     /// </summary>
-    internal void ApplyInstalledEnemyBg2Frame(RoomEnemySlot slot, ushort selected)
+    internal void ApplyInstalledEnemyBg2Frame(RoomEnemySlot slot, EnemyFrameId selected)
     {
         ReadOnlyMemory<EnemyBg2TilemapWrite> writes = default;
         string? family = null;
@@ -47,7 +47,7 @@ internal sealed class EnemyInstructionInterpreter
             return;
         if (!found)
             throw new InvalidDataException(
-                $"Installed {family} frame ${slot.Definition.Bank:X2}:{selected:X4} has no BG2 presentation.");
+                $"Installed {family} frame {selected} has no BG2 presentation.");
         if (slot.ExtraProperties.HasAny(EnemyExtraProperties.NewInstructionFrame))
             foreach (EnemyBg2TilemapWrite write in writes.Span)
                 ApplyExtendedEnemyBg2Words(write.DestinationWord, write.Tiles.Span);

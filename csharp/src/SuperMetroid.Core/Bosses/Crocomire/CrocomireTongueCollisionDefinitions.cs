@@ -11,21 +11,6 @@ namespace SuperMetroid.Core.Bosses.Crocomire;
 /// </summary>
 internal static class CrocomireTongueCollisionDefinitions
 {
-    /// <summary>Native bank containing the selected Crocomire extended frames.</summary>
-    internal const byte Bank = 0xa4;
-
-    /// <summary>Four fight frames and five melting frames are selected by the tongue actor.</summary>
-    internal static int FrameCount => 9;
-
-    /// <summary>Four fight frames followed by five melting frames. The native
-    /// count word and one eight-byte component give a ten-byte frame stride.</summary>
-    internal static ushort FramePointer(int index)
-    {
-        if ((uint)index >= FrameCount) throw new ArgumentOutOfRangeException(nameof(index));
-        return (ushort)(index < 4
-            ? (int)CrocomireTongueFrame.Fight0 + 10 * index
-            : (int)CrocomireTongueFrame.MeltingPose0 + 10 * (index - 4));
-    }
 
     /// <summary>Whether <paramref name="frame"/> shows one of the tongue actor's nine frames.</summary>
     internal static bool HasFrame(EnemyFrameId? frame) =>

@@ -1,0 +1,25 @@
+﻿
+namespace SuperMetroid.Core.Enemies.Gunship.Artwork;
+
+/// <summary>Cartridge values and helpers of <see cref="GunshipFrameDefinitions"/> that only verification reads.</summary>
+internal static class GunshipFrameDefinitionsConstants
+{
+    /// <summary>The spritemap <paramref name="frame"/> shows.</summary>
+    internal static ushort Spritemap(GunshipFrame frame) => frame.Pose switch
+    {
+        0 => 0xad81,
+        1 => 0xaddd,
+        2 => 0xae89,
+        3 => 0xae9f,
+        4 => 0xaeb5,
+        5 => 0xaecb,
+        6 => 0xaef5,
+        7 => 0xaf1f,
+        8 => 0xaf49,
+        9 => 0xaf73,
+        10 => 0xaf9d,
+        11 => 0xafc7,
+        12 => 0xafdd,
+        _ => throw new ArgumentOutOfRangeException(nameof(frame), frame, "Undefined gunship pose."),
+    };
+}

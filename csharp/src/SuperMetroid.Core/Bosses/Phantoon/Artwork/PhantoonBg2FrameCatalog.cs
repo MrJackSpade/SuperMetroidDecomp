@@ -18,8 +18,8 @@ public sealed class PhantoonBg2FrameCatalog
     private PhantoonBg2FrameCatalog(EnemyBg2FrameCatalog frames) => this.frames = frames;
 
     /// <summary>Finds the installed tilemap writes for a native frame root, if that root is defined.</summary>
-    internal bool TryGet(ushort pointer, out ReadOnlyMemory<EnemyBg2TilemapWrite> writes) =>
-        frames.TryGet(pointer, out writes);
+    internal bool TryGet(EnemyFrameId frame, out ReadOnlyMemory<EnemyBg2TilemapWrite> writes) =>
+        frames.TryGet(frame, out writes);
 
     /// <summary>Compiles version-one BG2 artwork for all twenty-two bank-$A7 body/eye, tentacle, and mouth roots selected by Phantoon's compiled instruction programs.</summary>
     /// <param name="json">Caller-owned JSON stream, left open, with every named frame containing ordered horizontal runs of unsigned 16-bit tile words in 32-by-64 tilemap-cell coordinates.</param>

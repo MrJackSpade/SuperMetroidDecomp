@@ -35,7 +35,7 @@ internal static class PowampBehaviorVerification
             "the body starts on its slow pulse");
 
         Dictionary<PowampProgram, ushort[]> steps = NativeEnemyProgramOracle.StepAddresses(CartridgeImportSource.Require(rom), PowampNativeListAddresses.Bank,
-            PowampNativeListAddresses.Entries, PowampAnimations.Programs, PowampFrameDefinitions.Spritemap, _ => null,
+            PowampNativeListAddresses.Entries, PowampAnimations.Programs, PowampFrameToolingDefinitions.Spritemap, _ => null,
             (word, _, _, at) => throw new InvalidDataException($"{at}: the Powamp lists use no owner instruction ${word:X4}."));
         foreach (PowampProgram program in new[] { PowampProgram.BalloonInflate0, PowampProgram.BalloonInflate1, PowampProgram.BalloonStartSinking, PowampProgram.BalloonDeflated })
         for (int position = 0; position < steps[program].Length; position++)

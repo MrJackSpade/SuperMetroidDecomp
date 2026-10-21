@@ -20,11 +20,11 @@ internal static class NativeDisplaySelectorContractChecks
         SyntaxTree calls = CSharpSyntaxTree.ParseText("""
             using SuperMetroid.Core.Enemies.Artwork;
             class SelectorConsumer {
-                void Inspect(EnemyExtendedFrameCatalog frames, byte bank, ushort pointer) {
-                    frames.GetDisplayPointer(bank, pointer);
-                    frames.GetDisplayPointer(0, 0);
-                    frames.GetDisplayPointer(255, 65535);
-                    frames.TryGetDisplay(bank, pointer, out _);
+                void Inspect(EnemyExtendedFrameCatalog frames, EnemyFrameId frame) {
+                    frames.GetDisplayFrame(frame);
+                    frames.GetDisplayFrame(EnemyFrameId.Empty);
+                    frames.GetDisplayFrame(EnemyFrameId.EmptyExtended);
+                    frames.TryGetDisplay(frame, out _);
                 }
             }
             """, path: "fixture-display-selector-consumer.cs");

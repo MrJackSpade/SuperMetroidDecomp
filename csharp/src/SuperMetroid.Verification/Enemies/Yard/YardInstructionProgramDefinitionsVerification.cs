@@ -32,7 +32,7 @@ internal static class YardInstructionProgramDefinitionsVerification
         }
 
         // Hiding: the repeat cue resumes at the pose before it however often it runs.
-        ushort repeatedPose = YardAnimations.Spritemaps(YardProgram.HidingUpsideUpMovingLeft).Last();
+        ushort repeatedPose = YardAnimationsConstants.Spritemaps(YardProgram.HidingUpsideUpMovingLeft).Last();
         state.Behavior = YardBehavior.Hiding;
         state.Program = AnimationProgramCursor<YardProgram>.Start(YardProgram.HidingUpsideUpMovingLeft);
         RunYard(yard, 20);

@@ -127,7 +127,7 @@ internal static class EscapeEtecoonDefinitionsVerification
             "escape Etecoon gratitude program hands off to rightward escape");
 
         var poses = Enumerable.Range(0, EscapeEtecoonFrameDefinitionsConstants.PoseCount)
-            .Select(pose => EscapeEtecoonFrameDefinitions.Spritemap(new(pose))).ToHashSet();
+            .Select(pose => EscapeEtecoonFrameToolingDefinitions.Spritemap(new(pose))).ToHashSet();
         AssertTrue(shown.SetEquals(poses), "the escape Etecoon programs show every pose");
         AssertEqual(0, guard.ForbiddenReadAttempts, "production avoids every native escape-Etecoon list byte");
         Console.WriteLine($"Escape Etecoon programs: all seven run through production, showing {shown.Count} poses, with native lists forbidden.");

@@ -1,9 +1,9 @@
 using SuperMetroid.Core;
+using System.Collections.Immutable;
 using System.Text.Json;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
-using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.AssetExtraction.Enemies;
 
@@ -19,22 +19,24 @@ internal static class EnemyBg2FrameFiles
     private static readonly JsonSerializerOptions CamelCaseIndentedJson = new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase, WriteIndented = true };
 
     /// <summary>Extracts ordered BG2 tile writes from each extended frame, skipping mixed OAM components when allowed.</summary>
-    internal static byte[] Extract(ISnesAddressSpace bus, byte bank,
-        EnemyBg2FrameDefinitionSequence definitions, int version,
+    internal static byte[] Extract(ISnesAddressSpace bus,
+        ImmutableArray<EnemySpritemapDefinition> definitions, int version,
         int maximumComponents, string family, bool allowMixedOam = false)
     {
         Ensure.NotNull(bus);
         var frames = new Dictionary<string, EnemyBg2WriteDocument[]>(StringComparer.Ordinal);
-        foreach (SpritemapFrameDefinition frame in definitions)
+        foreach (EnemySpritemapDefinition frame in definitions)
         {
-            int root = ((int)new SnesAddress(bank, frame.Pointer));
+            SnesAddress location = EnemyFrameCartridgeLookup.Of(frame.Frame);
+            byte bank = location.Bank;
+            int root = (int)location;
             int componentCount = bus.ReadCartridgeByte(root);
             if (componentCount < 1 ||
                 componentCount > maximumComponents ||
                 componentCount > EnemyBg2FrameLayout.MaximumComponents ||
                 bus.ReadCartridgeByte(root + 1) != 0)
                 throw new InvalidDataException(
-                    $"{family} frame ${bank:X2}:{frame.Pointer:X4} has an invalid extended header.");
+                    $"{family} frame {frame.Frame} at {location} has an invalid extended header.");
             var writes = new List<EnemyBg2WriteDocument>();
             for (int component = 0; component < componentCount; component++)
             {
@@ -46,14 +48,14 @@ internal static class EnemyBg2FrameFiles
                     if (allowMixedOam)
                         continue;
                     throw new InvalidDataException(
-                        $"{family} frame ${bank:X2}:{frame.Pointer:X4} component {component} is not a BG2 stream.");
+                        $"{family} frame {frame.Frame} at {location} component {component} is not a BG2 stream.");
                 }
                 // Mixed body roots store OAM-style offsets even on BG2
                 // components. ProcessExtendedTilemap ignores both fields.
                 if (!allowMixedOam &&
                     (CartridgeImportSource.Require(bus).ReadCartridgeWord(record) != 0 || CartridgeImportSource.Require(bus).ReadCartridgeWord((record + 2)) != 0))
                     throw new InvalidDataException(
-                        $"{family} frame ${bank:X2}:{frame.Pointer:X4} uses an unexpected BG2 component offset.");
+                        $"{family} frame {frame.Frame} at {location} uses an unexpected BG2 component offset.");
                 ushort cursor = unchecked((ushort)(stream + 2));
                 bool terminated = false;
                 for (int command = 0;

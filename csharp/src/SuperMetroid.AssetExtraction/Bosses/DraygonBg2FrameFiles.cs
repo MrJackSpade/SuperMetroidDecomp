@@ -9,7 +9,7 @@ internal static class DraygonBg2FrameFiles
 {
     /// <summary>Decodes Draygon's defined BG2 tilemap streams into the installed frame JSON bytes.</summary>
     internal static byte[] Extract(ISnesAddressSpace bus) =>
-        EnemyBg2FrameFiles.Extract(bus, DraygonBg2FrameDefinitions.Bank,
+        EnemyBg2FrameFiles.Extract(bus,
             DraygonBg2FrameDefinitions.Frames,
             DraygonBg2FrameDefinitions.Version,
             DraygonBg2FrameDefinitions.MaximumComponents, "Draygon");

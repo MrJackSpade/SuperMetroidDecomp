@@ -13,7 +13,7 @@ internal static class BlueBrinstarFaceBlockAnimationsVerification
     internal static void VerifyBlueBrinstarFaceBlockAnimations(SuperMetroidAddressSpace rom)
     {
         int steps = NativeEnemyProgramOracle.CompareAll(CartridgeImportSource.Require(rom), Bank, Entries, BlueBrinstarFaceBlockAnimations.Programs,
-            BlueBrinstarFaceBlockFrameDefinitions.Spritemap,
+            BlueBrinstarFaceBlockFrameToolingDefinitions.Spritemap,
             word => null,
             (word, operands, cue, at) => throw new InvalidDataException($"{at}: the lists use no owner instructions."));
         Console.WriteLine($"  Blue Brinstar face block programs: {Entries.Length} programs ({steps} steps) match bank $A8.");

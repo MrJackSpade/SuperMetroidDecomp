@@ -13,7 +13,7 @@ internal static class SparkAnimationsVerification
     internal static void VerifySparkAnimations(SuperMetroidAddressSpace rom)
     {
         int steps = NativeEnemyProgramOracle.CompareAll(CartridgeImportSource.Require(rom), Bank, Entries, SparkAnimations.Programs,
-            SparkFrameDefinitions.Spritemap,
+            SparkFrameToolingDefinitions.Spritemap,
             word => Instructions.TryGetValue(word, out var instruction) ? instruction.Operands.Length : null,
             (word, operands, cue, at) =>
             {

@@ -61,12 +61,6 @@ internal static class SparkAnimations
         ],
     });
 
-    /// <summary>The spritemaps <paramref name="programs"/> show, in authored order with repeats.</summary>
-    internal static IEnumerable<ushort> Spritemaps(params SparkProgram[] programs) =>
-        programs.SelectMany(program => Programs.Steps(program))
-            .OfType<AnimationProgramStep<P, SparkFrame, SparkCue>.ShowStep>()
-            .Select(step => SparkFrameDefinitions.Spritemap(step.Frame));
-
     /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationProgramStep<SparkProgram, SparkFrame, SparkCue> Show(int pose, int duration) => AnimationProgramStep<SparkProgram, SparkFrame, SparkCue>.Show(new(pose), duration);
 

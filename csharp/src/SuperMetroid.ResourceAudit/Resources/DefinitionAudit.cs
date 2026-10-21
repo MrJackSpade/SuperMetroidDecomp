@@ -31,15 +31,13 @@ internal static class DefinitionAudit
         var exports = new ResourceIndex();
         foreach (EnemySpritemapDefinition frame in EnemySpritemapDefinitions.Frames)
         {
-            string key = ResourceIndex.Address(frame.Bank, frame.Pointer);
-            exports.Add(ResourceDomains.EnemySimple, key);
-            exports.Add(ResourceDomains.EnemyDisplay, key);
+            exports.Add(ResourceDomains.EnemySimple, frame.Frame.ToString());
+            exports.Add(ResourceDomains.EnemyDisplay, ResourceIndex.Address(frame.Bank, frame.Pointer));
         }
         foreach (EnemySpritemapDefinition frame in EnemyExtendedFrameDefinitions.Frames)
         {
-            string key = ResourceIndex.Address(frame.Bank, frame.Pointer);
-            exports.Add(ResourceDomains.EnemyExtended, key);
-            exports.Add(ResourceDomains.EnemyDisplay, key);
+            exports.Add(ResourceDomains.EnemyExtended, frame.Frame.ToString());
+            exports.Add(ResourceDomains.EnemyDisplay, ResourceIndex.Address(frame.Bank, frame.Pointer));
         }
         CompiledEnemyDisplayAudit.Install(root, exports, report);
         foreach (EnemyProjectilePresentationFrameDefinition frame in EnemyProjectilePresentationFrameSets.All)

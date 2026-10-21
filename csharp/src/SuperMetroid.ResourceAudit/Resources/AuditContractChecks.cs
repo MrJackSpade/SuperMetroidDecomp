@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Tooling;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -87,24 +88,25 @@ internal static class AuditContractChecks
     {
         const string text = """
             namespace SuperMetroid.Core.Enemies.Artwork {
+                public enum EnemyFrameId { Ship, ShipExtended }
                 public class EnemySpritemapCatalog {
-                    public bool TryGetDisplay(byte bank, ushort pointer, out object parts) { parts = null!; return false; }
+                    public bool TryGetDisplay(EnemyFrameId frame, out object parts) { parts = null!; return false; }
                 }
                 public class EnemyExtendedFrameCatalog {
-                    internal bool TryGetDisplay(byte bank, ushort pointer, out object parts) { parts = null!; return false; }
+                    internal bool TryGetDisplay(EnemyFrameId frame, out object parts) { parts = null!; return false; }
                 }
             }
             namespace SuperMetroid.Core.Assets {
                 public class FutureArtworkCatalog { public object Get(int id) => null!; }
             }
             public class Consumer {
-                const byte ShipBank = 0xA2;
-                public void Draw(SuperMetroid.Core.Enemies.Artwork.EnemySpritemapCatalog art, ushort dynamicId,
+                const SuperMetroid.Core.Enemies.Artwork.EnemyFrameId ShipFrame = SuperMetroid.Core.Enemies.Artwork.EnemyFrameId.Ship;
+                public void Draw(SuperMetroid.Core.Enemies.Artwork.EnemySpritemapCatalog art, SuperMetroid.Core.Enemies.Artwork.EnemyFrameId dynamicFrame,
                     SuperMetroid.Core.Assets.FutureArtworkCatalog future,
                     SuperMetroid.Core.Enemies.Artwork.EnemyExtendedFrameCatalog extended) {
-                    art.TryGetDisplay(pointer: (ushort)0xAD81, bank: ShipBank, parts: out _);
-                    extended.TryGetDisplay(ShipBank, 0xAD82, out _);
-                    art.TryGetDisplay(ShipBank, dynamicId, out _);
+                    art.TryGetDisplay(parts: out _, frame: SuperMetroid.Core.Enemies.Artwork.EnemyFrameId.Ship);
+                    extended.TryGetDisplay(SuperMetroid.Core.Enemies.Artwork.EnemyFrameId.ShipExtended, out _);
+                    art.TryGetDisplay(dynamicFrame, out _);
                     future.Get(5);
                 }
             }
@@ -120,10 +122,10 @@ internal static class AuditContractChecks
             ConsumerAudit.Inspect(call, semantic, exports, report);
         Require(report.MissingCount == 2 && report.UnresolvedCount == 2,
             "public/internal constant lookups must be missing; dynamic ID and new catalog must be unresolved" + " (" + report.Describe() + ")");
-        Require(report.Findings.Single(item => item.Domain == ResourceDomains.EnemySimple && item.Code == AuditReport.Missing).Resource == "A2:AD81",
-            "compiler-resolved named arguments must retain the actual bank/pointer identity");
-        exports.Add(ResourceDomains.EnemySimple, "A2:AD81");
-        exports.Add(ResourceDomains.EnemyExtended, "A2:AD82");
+        Require(report.Findings.Single(item => item.Domain == ResourceDomains.EnemySimple && item.Code == AuditReport.Missing).Resource == "Ship",
+            "compiler-resolved named arguments must retain the actual frame identity");
+        exports.Add(ResourceDomains.EnemySimple, "Ship");
+        exports.Add(ResourceDomains.EnemyExtended, "ShipExtended");
         var fixedReport = new AuditReport();
         foreach (var call in tree.GetRoot().DescendantNodes().OfType<InvocationExpressionSyntax>())
             ConsumerAudit.Inspect(call, semantic, exports, fixedReport);
@@ -183,12 +185,12 @@ internal static class AuditContractChecks
     private static void ConfirmEmptyFrameBoundary()
     {
         // Confirmation of the identified A8/B3 blank-frame false positives.
-        ushort empty = CommonEnemyEmptyExtendedFrameDefinitions.EmptySpritemap;
-        Require(CommonEnemyEmptyExtendedFrameDefinitions.HasEmptySpritemap(0xa8, empty) &&
-            CommonEnemyEmptyExtendedFrameDefinitions.HasEmptySpritemap(0xb3, empty),
+        ushort empty = CommonEnemyEmptyExtendedFrameToolingDefinitions.EmptySpritemap;
+        Require(CommonEnemyEmptyExtendedFrameToolingDefinitions.HasEmptySpritemap(0xa8, empty) &&
+            CommonEnemyEmptyExtendedFrameToolingDefinitions.HasEmptySpritemap(0xb3, empty),
             "the two reported identities must be compiled no-op frames");
-        Require(!CommonEnemyEmptyExtendedFrameDefinitions.HasEmptySpritemap(0xb5, empty) &&
-            !CommonEnemyEmptyExtendedFrameDefinitions.HasEmptySpritemap(0xa8, unchecked((ushort)(empty + 1))),
+        Require(!CommonEnemyEmptyExtendedFrameToolingDefinitions.HasEmptySpritemap(0xb5, empty) &&
+            !CommonEnemyEmptyExtendedFrameToolingDefinitions.HasEmptySpritemap(0xa8, unchecked((ushort)(empty + 1))),
             "unsupported banks and neighboring pointers must not be classified as empty artwork");
         var exports = new ResourceIndex();
         exports.Add(ResourceDomains.EnemyDisplay, ResourceIndex.Address(0xa8, empty));
@@ -213,9 +215,9 @@ internal static class AuditContractChecks
         // The typed Baby programs (#641) name their three pulse poses directly; each must be installed artwork.
         for (int pose = 0; pose < 3; pose++)
         {
-            ushort spritemap = SuperMetroid.Core.Bosses.MotherBrain.Artwork.BabyMetroidVisualDefinitions.Spritemap(pose);
+            ushort spritemap = SuperMetroid.Core.Bosses.MotherBrain.Artwork.BabyMetroidVisualToolingDefinitions.Spritemap(pose);
             Require(SuperMetroid.Core.World.Artwork.EnemySpritemapDefinitions.Frames.Any(frame =>
-                frame.Bank == SuperMetroid.Core.Bosses.MotherBrain.Artwork.MotherBrainVisualDefinitions.Bank && frame.Pointer == spritemap),
+                frame.Bank == SuperMetroid.Core.Bosses.MotherBrain.Artwork.MotherBrainVisualToolingDefinitions.Bank && frame.Pointer == spritemap),
                 "each Baby Metroid pulse pose must be installed, not just named");
         }
 

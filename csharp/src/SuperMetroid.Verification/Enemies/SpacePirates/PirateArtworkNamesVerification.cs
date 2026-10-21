@@ -31,7 +31,7 @@ internal static class PirateArtworkNamesVerification
         "walking_pirate_look_right_0", "walking_pirate_look_right_1",
         "walking_pirate_look_right_2",
     ];
-        Suite(nameof(VerifyPirateArtworkNames), () => VerifyPirateArtworkNames(expected, PirateArtworkNameDefinitions.Walking));
+        Suite(nameof(VerifyPirateArtworkNames), () => VerifyPirateArtworkNames(expected, PirateArtworkNameDefinitionsConstants.Walking));
     }
 
     /// <summary>Checks 18 wall-climb and firing-jump frame names.</summary>
@@ -48,7 +48,7 @@ internal static class PirateArtworkNamesVerification
         "wall_pirate_climb_right_1", "wall_pirate_climb_right_2",
         "wall_pirate_climb_right_3", "wall_pirate_climb_right_4",
     ];
-        Suite(nameof(VerifyPirateArtworkNames), () => VerifyPirateArtworkNames(expected, PirateArtworkNameDefinitions.Wall));
+        Suite(nameof(VerifyPirateArtworkNames), () => VerifyPirateArtworkNames(expected, PirateArtworkNameDefinitionsConstants.Wall));
     }
 
     /// <summary>Compares preserved published keys and rejects out-of-range frame indices.</summary>

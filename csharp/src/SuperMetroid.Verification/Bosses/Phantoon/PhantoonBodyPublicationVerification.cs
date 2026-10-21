@@ -33,7 +33,7 @@ internal static class PhantoonBodyPublicationVerification
         RoomEnemySlot body = runtime.Enemies.SlotTable.Slots[0];
 
         // The body frame draws into the enemy BG2 image through the installed frame's writes.
-        ushort frame = PhantoonBg2FrameDefinitions.Frame(1).Pointer;
+        EnemyFrameId frame = PhantoonBg2FrameDefinitions.Frames[1].Frame;
         body.ExtraProperties = body.ExtraProperties.With(EnemyExtraProperties.NewInstructionFrame);
         runtime.Enemies.Instructions.ApplyInstalledEnemyBg2Frame(body, frame);
         var expected = new ushort[EnemyBg2FrameLayout.TilemapWidth * EnemyBg2FrameLayout.TilemapHeight];

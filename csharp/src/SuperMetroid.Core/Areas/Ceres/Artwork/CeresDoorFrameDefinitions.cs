@@ -8,14 +8,6 @@ namespace SuperMetroid.Core.Areas.Ceres.Artwork;
 /// </summary>
 internal static class CeresDoorFrameDefinitions
 {
-    /// <summary>The bank holding the spritemaps.</summary>
-    internal const byte Bank = 0xa6;
-
-    /// <summary>The spritemap $A6:FAC7 every door starts on, before its program shows a pose.</summary>
-    internal const ushort InitialSpritemap = 0xfac7;
-
-    /// <summary>The Ridley-room door overlay $A6:A329 that Ridley's scene draws while it holds the door.</summary>
-    internal const ushort RidleyPrivateOverlaySpritemap = 0xa329;
 
     /// <summary>The Ridley scene's private door overlay frame.</summary>
     internal const EnemyFrameId RidleyPrivateOverlayFrame = EnemyFrameId.CeresDoorRidleyPrivateOverlay;

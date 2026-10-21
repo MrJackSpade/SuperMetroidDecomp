@@ -721,7 +721,7 @@ internal static class LookupStream5Verification
     {
         int componentCount = 0;
         var lists = new HashSet<ushort>();
-        foreach (SpritemapFrameDefinition frame in PhantoonBg2FrameDefinitions.Frames)
+        foreach (EnemySpritemapDefinition frame in PhantoonBg2FrameDefinitions.Frames)
         {
             int root = 0xa70000 | frame.Pointer;
             var components = PhantoonCollisionDefinitions.ComponentsAt(frame.Pointer);
@@ -1865,7 +1865,7 @@ internal static class LookupStream5Verification
             AssertEqual(native & 0x1ff, CeresDoorQuakeDefinitions.XOffset(phase) & 0x1ff,
                 "Native overlapping high byte retains the same ninth coordinate bit");
             var expected = new OamBuffer(); expected.BeginFrame();
-            DrawImportedEnemySpritemap(rom, expected, new NativeEnemySpritemapDraw { Bank = CeresDoorFrameDefinitions.Bank, Pointer = CeresDoorFrameDefinitions.RidleyPrivateOverlaySpritemap, Origin = new(unchecked((ushort)(x - camera + native)), 80), PaletteBits = EnemyPaletteBits.Palette2, BaseTileIndex = 0 });
+            DrawImportedEnemySpritemap(rom, expected, new NativeEnemySpritemapDraw { Bank = CeresDoorFrameDefinitionsConstants.Bank, Pointer = CeresDoorFrameDefinitionsConstants.RidleyPrivateOverlaySpritemap, Origin = new(unchecked((ushort)(x - camera + native)), 80), PaletteBits = EnemyPaletteBits.Palette2, BaseTileIndex = 0 });
             expected.FinalizeFrame();
             AssertTrue(expected.ImageEquals(actual),
                 "Byte-decoded quake preserves actual low/high OAM through coordinate wrap");

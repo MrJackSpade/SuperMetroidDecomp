@@ -13,7 +13,7 @@ internal static class KiHunterAnimationsVerification
     internal static void VerifyKiHunterAnimations(SuperMetroidAddressSpace rom)
     {
         int steps = NativeEnemyProgramOracle.CompareAll(CartridgeImportSource.Require(rom), Bank, Entries, KiHunterAnimations.Programs,
-            KiHunterFrameDefinitions.Spritemap,
+            KiHunterFrameToolingDefinitions.Spritemap,
             word => Instructions.TryGetValue(word, out var instruction) ? instruction.Operands.Length : null,
             (word, operands, cue, at) =>
             {

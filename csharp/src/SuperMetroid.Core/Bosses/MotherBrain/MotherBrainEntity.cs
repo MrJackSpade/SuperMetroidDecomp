@@ -45,10 +45,9 @@ internal sealed class MotherBrainEntity(MotherBrainBehavior species, RoomEnemySl
     public bool? FindHitboxCallback(EnemyHitboxProbe probe, out EnemyInteractionCallback? callback) => MotherBrainCombat.FindMotherBrainHitboxCallback(Slot, probe, out callback);
 
     /// <inheritdoc/>
-    public EnemyBg2FrameLookup? FindBg2Frame(ushort selected, EnemyRoomBinding room)
+    public EnemyBg2FrameLookup? FindBg2Frame(EnemyFrameId selected, EnemyRoomBinding room)
     {
-        if (Slot.EnemyDefinitionPointer != EnemyDefinitionId.MotherBrainBody ||
-            Slot.Definition.Bank != MotherBrainBodyVisualDefinitions.Bank || !MotherBrainBodyVisualDefinitions.HasBg2(selected))
+        if (Slot.EnemyDefinitionPointer != EnemyDefinitionId.MotherBrainBody || !MotherBrainBodyVisualDefinitions.HasBg2(selected))
             return null;
         ReadOnlyMemory<EnemyBg2TilemapWrite> writes = default;
         bool found = _bossArtwork.Installed.MotherBrainBodyBg2Frames?.TryGet(selected, out writes) == true;

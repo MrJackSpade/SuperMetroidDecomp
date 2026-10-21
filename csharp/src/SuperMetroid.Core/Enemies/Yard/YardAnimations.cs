@@ -363,12 +363,6 @@ internal static class YardAnimations
         ],
     });
 
-    /// <summary>The spritemaps <paramref name="programs"/> show, in authored order with repeats.</summary>
-    internal static IEnumerable<ushort> Spritemaps(params YardProgram[] programs) =>
-        programs.SelectMany(program => Programs.Steps(program))
-            .OfType<AnimationProgramStep<P, YardFrame, YardCue>.ShowStep>()
-            .Select(step => YardFrameDefinitions.Spritemap(step.Frame));
-
     /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationProgramStep<YardProgram, YardFrame, YardCue> Show(int pose, int duration) => AnimationProgramStep<YardProgram, YardFrame, YardCue>.Show(new(pose), duration);
 

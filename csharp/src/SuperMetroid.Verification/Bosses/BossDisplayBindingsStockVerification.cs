@@ -90,9 +90,9 @@ internal static class BossDisplayBindingsStockVerification
         ReadOnlyMemory<EnemyBg2TilemapWrite> writes;
         bool exists = frame.Bank switch
         {
-            CrocomireBg2FrameDefinitions.Bank => (catalog.Bosses.CrocomireBg2Frames ?? throw new InvalidOperationException("Verification requires catalog.CrocomireBg2Frames.")).TryGet(frame.Pointer, out writes),
-            PhantoonBg2FrameDefinitions.Bank => (catalog.Bosses.PhantoonBg2Frames ?? throw new InvalidOperationException("Verification requires catalog.PhantoonBg2Frames.")).TryGet(frame.Pointer, out writes),
-            DraygonBg2FrameDefinitions.Bank => (catalog.Bosses.DraygonBg2Frames ?? throw new InvalidOperationException("Verification requires catalog.DraygonBg2Frames.")).TryGet(frame.Pointer, out writes),
+            CrocomireBg2FrameDefinitionsConstants.Bank => (catalog.Bosses.CrocomireBg2Frames ?? throw new InvalidOperationException("Verification requires catalog.CrocomireBg2Frames.")).TryGet(frame.Pointer, out writes),
+            PhantoonBg2FrameDefinitionsConstants.Bank => (catalog.Bosses.PhantoonBg2Frames ?? throw new InvalidOperationException("Verification requires catalog.PhantoonBg2Frames.")).TryGet(frame.Pointer, out writes),
+            DraygonBg2FrameToolingDefinitions.Bank => (catalog.Bosses.DraygonBg2Frames ?? throw new InvalidOperationException("Verification requires catalog.DraygonBg2Frames.")).TryGet(frame.Pointer, out writes),
             _ => throw new InvalidDataException("Unknown stock fixture family."),
         };
         return exists ? writes : ReadOnlyMemory<EnemyBg2TilemapWrite>.Empty;

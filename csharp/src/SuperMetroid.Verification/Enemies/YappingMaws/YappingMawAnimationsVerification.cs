@@ -13,7 +13,7 @@ internal static class YappingMawAnimationsVerification
     internal static void VerifyYappingMawAnimations(SuperMetroidAddressSpace rom)
     {
         int steps = NativeEnemyProgramOracle.CompareAll(CartridgeImportSource.Require(rom), Bank, Entries, YappingMawAnimations.Programs,
-            YappingMawFrameDefinitions.Spritemap,
+            YappingMawFrameToolingDefinitions.Spritemap,
             word => Instructions.TryGetValue(word, out var instruction) ? instruction.Operands.Length : null,
             (word, operands, cue, at) =>
             {

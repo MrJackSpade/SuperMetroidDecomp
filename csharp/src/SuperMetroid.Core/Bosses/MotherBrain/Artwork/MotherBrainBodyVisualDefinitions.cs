@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Assets;
 
@@ -10,76 +11,37 @@ namespace SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 /// </summary>
 internal static class MotherBrainBodyVisualDefinitions
 {
-    /// <summary>Mother Brain extended-frame bank $A9.</summary>
-    internal const byte Bank = 0xa9;
     /// <summary>Largest native root: ten components, including two BG2 streams.</summary>
     internal const int MaximumNativeComponents = EnemyBg2FrameLayout.MaximumComponents;
     /// <summary>Standing, walking, crouch, dummy, and death-beam body roots selected by compiled programs.</summary>
     internal const int FrameCount = 17;
-    /// <summary>Every selected body root except the OAM-only initial dummy.</summary>
-    internal const int Bg2FrameCount = FrameCount - 1;
     /// <summary>Schema revision of the selected BG2 body-frame document.</summary>
     internal const int Bg2Version = 1;
     /// <summary>Installed JSON filename for Mother Brain's selected BG2 body frames.</summary>
     internal const string Bg2FileName = "mother-brain-body-bg2-frames.json";
+    /// <summary>Every body frame with a BG2 stream, omitting the OAM-only initial dummy.</summary>
+    internal static ImmutableArray<EnemySpritemapDefinition> Bg2Frames { get; } =
+    [
+        new(EnemyFrameId.MotherBrainBodyOamStanding, "mother_brain_body_bg2_standing"),
+        new(EnemyFrameId.MotherBrainBodyOamWalking0, "mother_brain_body_bg2_walking_0"),
+        new(EnemyFrameId.MotherBrainBodyOamWalking1, "mother_brain_body_bg2_walking_1"),
+        new(EnemyFrameId.MotherBrainBodyOamWalking2, "mother_brain_body_bg2_walking_2"),
+        new(EnemyFrameId.MotherBrainBodyOamWalking3, "mother_brain_body_bg2_walking_3"),
+        new(EnemyFrameId.MotherBrainBodyOamWalking4, "mother_brain_body_bg2_walking_4"),
+        new(EnemyFrameId.MotherBrainBodyOamWalking5, "mother_brain_body_bg2_walking_5"),
+        new(EnemyFrameId.MotherBrainBodyOamWalking6, "mother_brain_body_bg2_walking_6"),
+        new(EnemyFrameId.MotherBrainBodyOamWalking7, "mother_brain_body_bg2_walking_7"),
+        new(EnemyFrameId.MotherBrainBodyOamCrouched, "mother_brain_body_bg2_crouched"),
+        new(EnemyFrameId.MotherBrainBodyOamUncrouching, "mother_brain_body_bg2_uncrouching"),
+        new(EnemyFrameId.MotherBrainBodyOamLeaningDown, "mother_brain_body_bg2_leaning_down"),
+        new(EnemyFrameId.MotherBrainBodyOamDeathBeam0, "mother_brain_body_bg2_death_beam_0"),
+        new(EnemyFrameId.MotherBrainBodyOamDeathBeam1, "mother_brain_body_bg2_death_beam_1"),
+        new(EnemyFrameId.MotherBrainBodyOamDeathBeam2, "mother_brain_body_bg2_death_beam_2"),
+        new(EnemyFrameId.MotherBrainBodyOamDeathBeam3, "mother_brain_body_bg2_death_beam_3"),
+    ];
 
-    /// <summary>$A9:9FA0, standing frame with nine components.</summary>
-    private const ushort Standing = 0x9fa0;
-    /// <summary>$A9:9FEA, first of three ten-component walking frames.</summary>
-    private const ushort WalkingStart = 0x9fea;
-    /// <summary>$A9:A0E0, five nine-component walking frames followed by crouched.</summary>
-    private const ushort LaterWalkingStart = 0xa0e0;
-    /// <summary>$A9:A28C, uncrouching and leaning-down nine-component frames.</summary>
-    private const ushort Uncrouching = 0xa28c;
-    /// <summary>$A9:A384, first of four nine-component death-beam frames.</summary>
-    private const ushort DeathBeamStart = 0xa384;
-    /// <summary>Ordered BG2 frames projected from the selected body-root catalog.</summary>
-    internal static EnemyBg2FrameDefinitionSequence Bg2Frames => new(Bg2FrameCount, Bg2Frame);
-
-    /// <summary>Calculates the published OAM identity. Native record strides are
-    /// two header bytes plus eight bytes per component; explicit run boundaries
-    /// preserve the shorter crouched/dummy frames and skipped unselected roots.</summary>
-    internal static EnemySpritemapDefinition Frame(int index)
-    {
-        if ((uint)index >= FrameCount) throw new ArgumentOutOfRangeException(nameof(index));
-        ushort pointer = (ushort)(index == 0 ? Standing
-            : index < 4 ? WalkingStart + 0x52 * (index - 1)
-            : index < 10 ? LaterWalkingStart + 0x4a * (index - 4)
-            : index < 13 ? Uncrouching + 0x4a * (index - 10)
-            : DeathBeamStart + 0x4a * (index - 13));
-        string pose = index switch
-        {
-            0 => "standing",
-            >= 1 and <= 8 => FormattableString.Invariant($"walking_{index - 1}"),
-            9 => "crouched",
-            10 => "uncrouching",
-            11 => "leaning_down",
-            12 => "initial_dummy",
-            _ => FormattableString.Invariant($"death_beam_{index - 13}"),
-        };
-        return new(Bank, pointer, $"mother_brain_body_oam_{pose}");
-    }
-
-    /// <summary>BG2 uses the same pose identity with its published BG2 prefix,
-    /// omitting the OAM-only dummy at OAM index twelve.</summary>
-    internal static SpritemapFrameDefinition Bg2Frame(int index)
-    {
-        if ((uint)index >= Bg2FrameCount) throw new ArgumentOutOfRangeException(nameof(index));
-        var frame = Frame(index < 12 ? index : index + 1);
-        return new(frame.Pointer, frame.Name.Replace("_oam_", "_bg2_", StringComparison.Ordinal));
-    }
-
-    /// <summary>Recognizes a selected body root with a BG2 stream, excluding the OAM-only dummy.</summary>
-    internal static bool HasBg2(ushort pointer) => pointer == Standing ||
-        InRun(pointer, WalkingStart, 3, 0x52) || InRun(pointer, LaterWalkingStart, 6, 0x4a) ||
-        InRun(pointer, Uncrouching, 2, 0x4a) || InRun(pointer, DeathBeamStart, 4, 0x4a);
-
-    /// <summary>Recognizes a native record origin within a fixed-stride body-frame run.</summary>
-    private static bool InRun(ushort pointer, ushort start, int count, int stride)
-    {
-        int offset = pointer - start;
-        return offset >= 0 && offset < count * stride && offset % stride == 0;
-    }
+    /// <summary>Whether <paramref name="frame"/> is a body frame with a BG2 stream.</summary>
+    internal static bool HasBg2(EnemyFrameId frame) => Bg2Frames.Any(definition => definition.Frame == frame);
 
     /// <summary>The installed frame each <see cref="MotherBrainBodyFrame"/> shows.</summary>
     internal static EnemyFrameTable<MotherBrainBodyFrame> ShownFrames { get; } = new()

@@ -4,7 +4,6 @@ using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Runtime;
 using static SuperMetroid.Verification.Enemies.EnemyContentIdentityFixtureVerification;
-using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Gameplay;
 namespace SuperMetroid.Verification.Runtime.Attract;

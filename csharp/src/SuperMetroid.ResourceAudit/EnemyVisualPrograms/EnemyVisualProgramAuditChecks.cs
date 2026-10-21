@@ -52,7 +52,7 @@ internal static class EnemyVisualProgramAuditChecks
                 .SequenceEqual([FixtureOperand]),
             "terminal frame operands cannot escape the independent inventory");
 
-        var frame = SingleFrameEnemyVisualDefinitions.Kzan;
+        EnemySpritemapDefinition frame = EnemyCompositionSchemaTooling.Family("kzan_").Single();
         ushort operand = FixtureOperand;
         var exports = new ResourceIndex();
         exports.Add(ResourceDomains.EnemyDisplay, ResourceIndex.Address(frame.Bank, frame.Pointer));
@@ -68,7 +68,7 @@ internal static class EnemyVisualProgramAuditChecks
         EnemyVisualProgramAudit.RequireResolvedOperand(frame.Bank, operand, frame.Pointer, "Kzan", "fixture", exports, complete);
         Require(complete.Findings.Count == 0, "complete selector/artwork resolves");
         var wrongBank = new ResourceIndex();
-        wrongBank.Add(ResourceDomains.EnemyDisplay, ResourceIndex.Address(SingleFrameEnemyVisualDefinitions.Polyp.Bank, frame.Pointer));
+        wrongBank.Add(ResourceDomains.EnemyDisplay, ResourceIndex.Address(EnemyCompositionSchemaTooling.Family("polyp_").Single().Bank, frame.Pointer));
         var wrongBankReport = new AuditReport();
         EnemyVisualProgramAudit.RequireResolvedOperand(frame.Bank, operand, frame.Pointer, "Kzan", "fixture", wrongBank, wrongBankReport);
         Require(wrongBankReport.Findings.Count == 1, "matching pointer in another bank cannot satisfy artwork");

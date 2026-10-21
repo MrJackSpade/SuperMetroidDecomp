@@ -6,5 +6,5 @@ namespace SuperMetroid.Core.Enemies.Artwork;
 internal static class KiHunterVisualDefinitionsConstants
 {
     /// <summary>The pose the left-facing flight opens on, the idle Ki-Hunter's first frame.</summary>
-    internal static ushort IdleFrame => KiHunterAnimations.Spritemaps(KiHunterProgram.FlyingLeft).First();
+    internal static ushort IdleFrame => KiHunterAnimationsConstants.Spritemaps(KiHunterProgram.FlyingLeft).First();
 }

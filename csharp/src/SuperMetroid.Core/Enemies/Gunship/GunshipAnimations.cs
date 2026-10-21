@@ -62,12 +62,6 @@ internal static class GunshipAnimations
         ],
     });
 
-    /// <summary>The spritemaps <paramref name="programs"/> show, in authored order with repeats.</summary>
-    internal static IEnumerable<ushort> Spritemaps(params GunshipProgram[] programs) =>
-        programs.SelectMany(program => Programs.Steps(program))
-            .OfType<AnimationProgramStep<P, GunshipFrame, NoAnimationCue>.ShowStep>()
-            .Select(step => GunshipFrameDefinitions.Spritemap(step.Frame));
-
     /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationProgramStep<GunshipProgram, GunshipFrame, NoAnimationCue> Show(int pose, int duration) => AnimationProgramStep<GunshipProgram, GunshipFrame, NoAnimationCue>.Show(new(pose), duration);
 

@@ -14,7 +14,6 @@ using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core;
 namespace SuperMetroid.Verification.Enemies.Artwork;
 using SuperMetroid.Verification.Harness;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.World;
 
 /// <summary>Retail write and collision comparisons for Phantoon's installed BG2 frame artwork.</summary>
@@ -32,20 +31,20 @@ internal static class EnemyTileArtworkPhantoonBg2FramesVerification
         AssertTrue(stock.Bosses.PhantoonBg2Frames is not null,
             "installed enemy art includes Phantoon BG2 frames");
         var identities = new HashSet<ushort>();
-        foreach (SpritemapFrameDefinition frame in PhantoonBg2FrameDefinitions.Frames)
+        foreach (EnemySpritemapDefinition frame in PhantoonBg2FrameDefinitions.Frames)
         {
             AssertTrue(identities.Add(frame.Pointer),
                 $"Phantoon frame {frame.Name} has a distinct physical selector");
-            AssertTrue((stock.Bosses.PhantoonBg2Frames ?? throw new InvalidOperationException("Verification requires stock.PhantoonBg2Frames.")).TryGet(frame.Pointer,
+            AssertTrue((stock.Bosses.PhantoonBg2Frames ?? throw new InvalidOperationException("Verification requires stock.PhantoonBg2Frames.")).TryGet(frame.Frame,
                     out ReadOnlyMemory<EnemyBg2TilemapWrite> installed),
                 $"installed Phantoon BG2 frame {frame.Name} exists");
             var native = new List<EnemyTileArtworkDraygonBg2FramesNative>();
-            int root = ((int)new SnesAddress(PhantoonBg2FrameDefinitions.Bank, frame.Pointer));
+            int root = ((int)new SnesAddress(PhantoonBg2FrameDefinitionsConstants.Bank, frame.Pointer));
             int componentCount = rom.ReadCartridgeByte(root);
             for (int component = 0; component < componentCount; component++)
             {
                 ushort stream = CartridgeImportSource.Require(rom).ReadCartridgeWord((root + 2 + component * 8 + 4));
-                int cursor = ((int)new SnesAddress(PhantoonBg2FrameDefinitions.Bank, unchecked((ushort)(stream + 2))));
+                int cursor = ((int)new SnesAddress(PhantoonBg2FrameDefinitionsConstants.Bank, unchecked((ushort)(stream + 2))));
                 for (int command = 0; command < 128; command++)
                 {
                     ushort destination = CartridgeImportSource.Require(rom).ReadCartridgeWord(cursor);
@@ -100,19 +99,19 @@ internal static class EnemyTileArtworkPhantoonBg2FramesVerification
         InstalledEnemyArtwork edited = EnemyTileArtworkFiles.Load(
             stockDirectory, overrideDirectory);
         AssertTrue((edited.Bosses.PhantoonBg2Frames ?? throw new InvalidOperationException("Verification requires edited.PhantoonBg2Frames.")).TryGet(
-            PhantoonBg2FrameDefinitions.Frames[0].Pointer,
+            PhantoonBg2FrameDefinitions.Frames[0].Frame,
             out ReadOnlyMemory<EnemyBg2TilemapWrite> editedFrame),
             "Phantoon BG2 edited frame is installed");
         AssertEqual((ushort)(originalTile ^ 1), editedFrame.Span[0].Tiles.Span[0],
             "Phantoon BG2 override changes the selected tile reference");
         AssertEqual((ushort)originalTile,
             (stock.Bosses.PhantoonBg2Frames ?? throw new InvalidOperationException("Verification requires stock.PhantoonBg2Frames.")).TryGet(
-                PhantoonBg2FrameDefinitions.Frames[0].Pointer,
+                PhantoonBg2FrameDefinitions.Frames[0].Frame,
                 out ReadOnlyMemory<EnemyBg2TilemapWrite> stockFrame)
                 ? stockFrame.Span[0].Tiles.Span[0] : (ushort)0,
             "Phantoon BG2 override leaves stock frame intact");
         ushort firstPointer = PhantoonBg2FrameDefinitions.Frames[0].Pointer;
-        byte[] nativeVram = ReadReferenceExtendedBg2Vram(rom, PhantoonBg2FrameDefinitions.Bank, firstPointer,
+        byte[] nativeVram = ReadReferenceExtendedBg2Vram(rom, PhantoonBg2FrameDefinitionsConstants.Bank, firstPointer,
             newInstructionFrame: true);
         var noCartridge = NewFrontendCartridgeReadGuard(rom);
         byte[] stockVram = DrawPhantoonBg2(stock, firstPointer, newInstructionFrame: true);
@@ -130,7 +129,7 @@ internal static class EnemyTileArtworkPhantoonBg2FramesVerification
         InstalledEnemyArtwork reloaded = EnemyTileArtworkFiles.Load(
             stockDirectory, overrideDirectory);
         AssertTrue((reloaded.Bosses.PhantoonBg2Frames ?? throw new InvalidOperationException("Verification requires reloaded.PhantoonBg2Frames.")).TryGet(
-                PhantoonBg2FrameDefinitions.Frames[0].Pointer,
+                PhantoonBg2FrameDefinitions.Frames[0].Frame,
                 out ReadOnlyMemory<EnemyBg2TilemapWrite> reloadedFrame) &&
             reloadedFrame.Span[0].Tiles.Span[0] == (ushort)(originalTile ^ 1),
             "Phantoon BG2 override survives catalog reload");
@@ -151,9 +150,9 @@ internal static class EnemyTileArtworkPhantoonBg2FramesVerification
         SuperMetroidAddressSpace rom, InstalledEnemyArtwork stock, InstalledEnemyArtwork edited)
     {
         var checkedLists = new HashSet<ushort>();
-        foreach (SpritemapFrameDefinition frame in PhantoonBg2FrameDefinitions.Frames)
+        foreach (EnemySpritemapDefinition frame in PhantoonBg2FrameDefinitions.Frames)
         {
-            int root = ((int)new SnesAddress(PhantoonBg2FrameDefinitions.Bank, frame.Pointer));
+            int root = ((int)new SnesAddress(PhantoonBg2FrameDefinitionsConstants.Bank, frame.Pointer));
             System.Collections.Immutable.ImmutableArray<PhantoonCollisionComponent> components =
                 PhantoonCollisionDefinitions.ComponentsAt(frame.Pointer);
             AssertEqual(rom.ReadCartridgeByte(root), (byte)components.Length,
@@ -170,7 +169,7 @@ internal static class EnemyTileArtworkPhantoonBg2FramesVerification
                 // the rectangles and reactions of the list the ROM names.
                 ushort listPointer = CartridgeImportSource.Require(rom).ReadCartridgeWord((record + 6));
                 checkedLists.Add(listPointer);
-                int listAddress = ((int)new SnesAddress(PhantoonBg2FrameDefinitions.Bank, listPointer));
+                int listAddress = ((int)new SnesAddress(PhantoonBg2FrameDefinitionsConstants.Bank, listPointer));
                 IReadOnlyList<PhantoonCollisionHitbox> hitboxes = component.Hitboxes;
                 AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(listAddress), checked((ushort)hitboxes.Count),
                     $"Phantoon {frame.Name} component {index} rectangle count");
@@ -220,7 +219,7 @@ internal static class EnemyTileArtworkPhantoonBg2FramesVerification
         slot.Bind(EnemyDefinitionId.PhantoonBody, slot.Definition);
         slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with
         {
-            Bank = PhantoonBg2FrameDefinitions.Bank,
+            Bank = PhantoonBg2FrameDefinitionsConstants.Bank,
         });
         slot.SpritemapPointer = pointer;
         slot.Position = slot.Position.WithWhole(new(0x0080, 0x0080));
@@ -243,7 +242,7 @@ internal static class EnemyTileArtworkPhantoonBg2FramesVerification
         slot.Bind(EnemyDefinitionId.PhantoonBody, slot.Definition);
         slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with
         {
-            Bank = PhantoonBg2FrameDefinitions.Bank,
+            Bank = PhantoonBg2FrameDefinitionsConstants.Bank,
         });
         slot.ExtraProperties = slot.ExtraProperties.With(
             EnemyExtraProperties.UsesExtendedSpritemap);

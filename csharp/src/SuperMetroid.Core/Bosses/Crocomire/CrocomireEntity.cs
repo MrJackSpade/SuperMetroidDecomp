@@ -53,10 +53,9 @@ internal sealed class CrocomireEntity(CrocomireBehavior species, RoomEnemySlot s
         Slot.EnemyDefinitionPointer == EnemyDefinitionId.Crocomire && Slot.Definition.ShotAiPointer == 0 && usesExtendedHitboxes;
 
     /// <inheritdoc/>
-    public EnemyBg2FrameLookup? FindBg2Frame(ushort selected, EnemyRoomBinding room)
+    public EnemyBg2FrameLookup? FindBg2Frame(EnemyFrameId selected, EnemyRoomBinding room)
     {
-        if (Slot.EnemyDefinitionPointer != EnemyDefinitionId.Crocomire ||
-            Slot.Definition.Bank != CrocomireBodyVisualDefinitions.Bank || !CrocomireBodyVisualDefinitions.HasBg2(selected))
+        if (Slot.EnemyDefinitionPointer != EnemyDefinitionId.Crocomire || !CrocomireBg2FrameDefinitions.IsFrame(selected))
             return null;
         ReadOnlyMemory<EnemyBg2TilemapWrite> writes = default;
         bool found = _bossArtwork.Installed.CrocomireBg2Frames?.TryGet(selected, out writes) == true;

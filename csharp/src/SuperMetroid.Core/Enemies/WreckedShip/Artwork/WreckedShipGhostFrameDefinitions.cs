@@ -9,15 +9,6 @@ namespace SuperMetroid.Core.Enemies.WreckedShip.Artwork;
 internal static class WreckedShipGhostFrameDefinitions
 {
 
-    /// <summary>The spritemap <paramref name="frame"/> shows.</summary>
-    internal static ushort Spritemap(WreckedShipGhostFrame frame) => frame.Pose switch
-    {
-        0 => 0x9e46,
-        1 => 0x9e5c,
-        2 => 0x9e72,
-        _ => throw new ArgumentOutOfRangeException(nameof(frame), frame, "Undefined Wrecked Ship ghost pose."),
-    };
-
     /// <summary>The installed frame each <see cref="WreckedShipGhostFrame"/> shows.</summary>
     internal static EnemyFrameTable<WreckedShipGhostFrame> ShownFrames { get; } = new()
     {

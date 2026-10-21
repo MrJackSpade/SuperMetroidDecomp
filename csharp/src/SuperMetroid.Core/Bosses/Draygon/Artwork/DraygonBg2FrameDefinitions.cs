@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.World.Artwork;
@@ -16,38 +17,48 @@ internal static class DraygonBg2FrameDefinitions
     internal const int Version = 1;
     /// <summary>Asset document containing the 34 body frames with BG2 tilemap streams.</summary>
     internal const string FileName = "draygon-bg2-frames.json";
-    /// <summary>Native bank $A5 containing both facing runs of Draygon extended frames.</summary>
-    internal const byte Bank = 0xa5;
     /// <summary>Each selected Draygon BG2 frame has one zero-offset stream.</summary>
     internal const int MaximumComponents = 1;
 
-    /// <summary>$A5:A31B, first left-facing one-component BG2 body frame.</summary>
-    private const ushort FacingLeftStart = 0xa31b;
-    /// <summary>$A5:A643, first right-facing one-component BG2 body frame.</summary>
-    private const ushort FacingRightStart = 0xa643;
-    /// <summary>Seventeen ten-byte roots per facing, excluding the 48 OAM-only frames.</summary>
-    internal const int FrameCount = 34;
+    /// <summary>The 34 BG2 frames, left-facing then right-facing.</summary>
+    internal static ImmutableArray<EnemySpritemapDefinition> Frames { get; } =
+    [
+        new(EnemyFrameId.DraygonBg2A31B, "draygon_bg2_A31B"),
+        new(EnemyFrameId.DraygonBg2A325, "draygon_bg2_A325"),
+        new(EnemyFrameId.DraygonBg2A32F, "draygon_bg2_A32F"),
+        new(EnemyFrameId.DraygonBg2A339, "draygon_bg2_A339"),
+        new(EnemyFrameId.DraygonBg2A343, "draygon_bg2_A343"),
+        new(EnemyFrameId.DraygonBg2A34D, "draygon_bg2_A34D"),
+        new(EnemyFrameId.DraygonBg2A357, "draygon_bg2_A357"),
+        new(EnemyFrameId.DraygonBg2A361, "draygon_bg2_A361"),
+        new(EnemyFrameId.DraygonBg2A36B, "draygon_bg2_A36B"),
+        new(EnemyFrameId.DraygonBg2A375, "draygon_bg2_A375"),
+        new(EnemyFrameId.DraygonBg2A37F, "draygon_bg2_A37F"),
+        new(EnemyFrameId.DraygonBg2A389, "draygon_bg2_A389"),
+        new(EnemyFrameId.DraygonBg2A393, "draygon_bg2_A393"),
+        new(EnemyFrameId.DraygonBg2A39D, "draygon_bg2_A39D"),
+        new(EnemyFrameId.DraygonBg2A3A7, "draygon_bg2_A3A7"),
+        new(EnemyFrameId.DraygonBg2A3B1, "draygon_bg2_A3B1"),
+        new(EnemyFrameId.DraygonBg2A3BB, "draygon_bg2_A3BB"),
+        new(EnemyFrameId.DraygonBg2A643, "draygon_bg2_A643"),
+        new(EnemyFrameId.DraygonBg2A64D, "draygon_bg2_A64D"),
+        new(EnemyFrameId.DraygonBg2A657, "draygon_bg2_A657"),
+        new(EnemyFrameId.DraygonBg2A661, "draygon_bg2_A661"),
+        new(EnemyFrameId.DraygonBg2A66B, "draygon_bg2_A66B"),
+        new(EnemyFrameId.DraygonBg2A675, "draygon_bg2_A675"),
+        new(EnemyFrameId.DraygonBg2A67F, "draygon_bg2_A67F"),
+        new(EnemyFrameId.DraygonBg2A689, "draygon_bg2_A689"),
+        new(EnemyFrameId.DraygonBg2A693, "draygon_bg2_A693"),
+        new(EnemyFrameId.DraygonBg2A69D, "draygon_bg2_A69D"),
+        new(EnemyFrameId.DraygonBg2A6A7, "draygon_bg2_A6A7"),
+        new(EnemyFrameId.DraygonBg2A6B1, "draygon_bg2_A6B1"),
+        new(EnemyFrameId.DraygonBg2A6BB, "draygon_bg2_A6BB"),
+        new(EnemyFrameId.DraygonBg2A6C5, "draygon_bg2_A6C5"),
+        new(EnemyFrameId.DraygonBg2A6CF, "draygon_bg2_A6CF"),
+        new(EnemyFrameId.DraygonBg2A6D9, "draygon_bg2_A6D9"),
+        new(EnemyFrameId.DraygonBg2A6E3, "draygon_bg2_A6E3"),
+    ];
 
-    /// <summary>Enumerates the 34 BG2 roots in left-facing then right-facing native order.</summary>
-    internal static EnemyBg2FrameDefinitionSequence Frames => new(FrameCount, Frame);
-
-    /// <summary>Each facing has seventeen ten-byte extended frames: a two-byte
-    /// count and one eight-byte component. Preserve the published pointer-based key.</summary>
-    internal static SpritemapFrameDefinition Frame(int index)
-    {
-        if ((uint)index >= FrameCount) throw new ArgumentOutOfRangeException(nameof(index));
-        ushort pointer = (ushort)(index < 17 ? FacingLeftStart + 10 * index
-            : FacingRightStart + 10 * (index - 17));
-        return new(pointer, $"draygon_bg2_{pointer:X4}");
-    }
-
-    /// <summary>Recognizes only ten-byte-spaced roots in either seventeen-frame facing run.</summary>
-    internal static bool IsFrame(ushort pointer) => InFacing(pointer, FacingLeftStart) || InFacing(pointer, FacingRightStart);
-
-    /// <summary>Checks a pointer's alignment and extent within one native facing run.</summary>
-    private static bool InFacing(ushort pointer, ushort start)
-    {
-        int offset = pointer - start;
-        return offset >= 0 && offset < 170 && offset % 10 == 0;
-    }
+    /// <summary>Whether <paramref name="frame"/> is one of Draygon's BG2 frames.</summary>
+    internal static bool IsFrame(EnemyFrameId frame) => Frames.Any(definition => definition.Frame == frame);
 }

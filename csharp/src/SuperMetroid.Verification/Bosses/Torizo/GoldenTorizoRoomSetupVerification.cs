@@ -37,7 +37,7 @@ internal static class GoldenTorizoRoomSetupVerification
 
     /// <summary>The facing-screen pose both Golden Torizo left turns show.</summary>
     internal static ushort GoldenTorizoFacingScreenFrame =>
-        TorizoAnimations.Spritemaps(TorizoBodyProgram.GoldenTurningLeft).Single();
+        TorizoAnimationsConstants.Spritemaps(TorizoBodyProgram.GoldenTurningLeft).Single();
 
     /// <summary>
     /// Start both real-room instances from the same awakened boss state before

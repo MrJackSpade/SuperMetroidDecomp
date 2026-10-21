@@ -43,26 +43,32 @@ internal static class MotherBrainTankBackgroundVerification
         var state = runtime.Enemies.MotherBrainEncounter.MotherBrain;
         AssertEqual(0x800, (state ?? throw new InvalidOperationException("Verification requires state.")).EnemyBg2TilemapSize, "Native default transfer size is bytes, not words");
         runtime.Enemies.MotherBrainBehavior.Ascent.SetupMotherBrainPhaseTwoGraphics(state);
-        var blank = Enumerable.Repeat((ushort)0x0338, 0x400).ToArray();
-        expectedVram.ExecuteWordTransfer(blank, 0x4800, 1);
+        // Since #1356 she owns the enemy BG2 image from the transition: it carries the staged page, and the room's pipe
+        // background stays in VRAM untouched.
+        EnemyBg2Image image = runtime.Enemies.Presentation.RequireBg2Image();
+        AssertTrue(image.Publish().Words[..0x400].All(word => word == 0x0338),
+            "Phase-two setup attaches the staged first page as Mother Brain's BG2 image");
         AssertTrue(runtime.Vram.Bytes.Slice(bg2ByteAddress, 0x1000).SequenceEqual(
             expectedVram.Bytes.Slice(bg2ByteAddress, 0x1000)),
-            "Phase-two setup publishes the staged first page at the native transition, retaining page two");
+            "Phase-two setup leaves the room's BG2 VRAM as loaded");
         var artwork = runtime.Enemies.BossArtwork;
         AssertTrue(((artwork ?? throw new InvalidOperationException("Verification requires boss artwork.")).MotherBrainBodyBg2Frames ?? throw new InvalidOperationException("Verification requires Mother Brain's body BG2 frames.")).TryGet(0xa252, out var writes),
             "Crouched body BG2 artwork is installed");
         state.Body.ExtraProperties = state.Body.ExtraProperties.With(EnemyExtraProperties.NewInstructionFrame);
-        runtime.Enemies.Instructions.ApplyInstalledEnemyBg2Frame(state.Body, 0xa252);
+        runtime.Enemies.Instructions.ApplyInstalledEnemyBg2Frame(state.Body, EnemyFrameId.MotherBrainBodyOamCrouched);
+        var expectedImage = Enumerable.Repeat((ushort)0x0338, EnemyBg2FrameLayout.TilemapWordCount).ToArray();
         foreach (var write in writes.Span)
         {
-            expectedVram.ExecuteWordTransfer(write.Tiles.Span, (ushort)(0x4800 + write.DestinationWord), 1);
+            write.Tiles.Span.CopyTo(expectedImage.AsSpan(write.DestinationWord));
             for (int index = 0; index < write.Tiles.Length; index++)
                 AssertEqual(write.Tiles.Span[index], ReadStaged(write.DestinationWord + index),
-                    "Body frame updates the native staging image as well as visible BG2");
+                    "Body frame updates the native staging image as well as the shown BG2 image");
         }
+        AssertTrue(image.Publish().Words.SequenceEqual(expectedImage),
+            "The crouched body frame draws exactly its authored BG2 words into the image");
         AssertTrue(runtime.Vram.Bytes.Slice(bg2ByteAddress, 0x1000).SequenceEqual(
             expectedVram.Bytes.Slice(bg2ByteAddress, 0x1000)),
-            "The later crouched body upload contains exactly its authored BG2 words");
+            "The body frame leaves the room's BG2 VRAM as loaded");
         Console.WriteLine("Mother Brain tank background: real room pipes retained, native staging clear and later body upload passed.");
         return 0;
         ushort ReadStaged(int index) => runtime.Enemies.Room.Staging.EnemyBg2Tilemap[index];

@@ -9,7 +9,7 @@ internal static class PhantoonBg2FrameFiles
 {
     /// <summary>Reads the selected Phantoon BG2 streams from their native bank and validates the expected component and version limits.</summary>
     internal static byte[] Extract(ISnesAddressSpace bus) =>
-        EnemyBg2FrameFiles.Extract(bus, PhantoonBg2FrameDefinitions.Bank,
+        EnemyBg2FrameFiles.Extract(bus,
             PhantoonBg2FrameDefinitions.Frames,
             PhantoonBg2FrameDefinitions.Version,
             PhantoonBg2FrameDefinitions.MaximumComponents, "Phantoon");

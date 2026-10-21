@@ -7,7 +7,6 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Enemies.Artwork;
-using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.ResourceAudit.Reports;
 using SuperMetroid.ResourceAudit.Resources;
 
@@ -27,7 +26,7 @@ internal static class EnemyDisplayArtworkContractChecks
             new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
         EnemySpritemapCatalog simple = EnemySpritemapDocuments.Load(Json(simpleDocument));
         EnemySpritemapDefinition simpleId = EnemySpritemapDefinitions.Frames[0];
-        Require(simple.TryGetDisplay(simpleId.Bank, simpleId.Pointer, out var parts) && parts.IsEmpty,
+        Require(simple.TryGetDisplay(simpleId.Frame, out var parts) && parts.IsEmpty,
             "installed simple binding resolves authored parts");
         simpleBindings[simpleId.Name] = "unowned-target";
         Reject(() => EnemySpritemapDocuments.Load(Json(simpleDocument)), "unowned simple display target");
@@ -40,8 +39,8 @@ internal static class EnemyDisplayArtworkContractChecks
             Version = (int)EnemyExtendedFrameSchema.Current, Frames = extendedFrames, DisplayFrames = extendedBindings };
         EnemyExtendedFrameCatalog extended = EnemyExtendedFrameDocuments.Load(Json(extendedDocument));
         EnemySpritemapDefinition extendedId = EnemyExtendedFrameDefinitions.Frames.First();
-        Require(extended.TryGetDisplay(extendedId.Bank, extendedId.Pointer, out var components) && components.Length == 1 &&
-            extended.TryGetDisplay(0xa5, CommonEnemyEmptyExtendedFrameDefinitions.Frame, out components) && components.IsEmpty,
+        Require(extended.TryGetDisplay(extendedId.Frame, out var components) && components.Length == 1 &&
+            extended.TryGetDisplay(EnemyFrameId.EmptyExtended, out components) && components.IsEmpty,
             "installed extended binding and compiled empty fallback");
         extendedBindings[extendedId.Name] = "unowned-target";
         Reject(() => EnemyExtendedFrameDocuments.Load(Json(extendedDocument)), "unowned extended display target");
@@ -58,14 +57,14 @@ internal static class EnemyDisplayArtworkContractChecks
             using SuperMetroid.Core.Enemies.Artwork;
             using SuperMetroid.Core.Enemies.Drawing;
             class EnemyDisplayConsumer {
-                void Inspect(EnemySpritemapCatalog simple, EnemyExtendedFrameCatalog extended, byte bank, ushort pointer) {
-                    simple.TryGetDisplay({{simple.Bank}}, {{simple.Pointer}}, out _);
-                    simple.TryGetDisplay(0, 0, out _);
-                    simple.TryGetDisplay(bank, pointer, out _);
-                    extended.TryGetDisplay({{extended.Bank}}, {{extended.Pointer}}, out _);
-                    extended.TryGetDisplay(0, 0, out _);
-                    extended.TryGetDisplay(bank, pointer, out _);
-                    extended.TryGetDisplay(165, {{CommonEnemyEmptyExtendedFrameDefinitions.Frame}}, out _);
+                void Inspect(EnemySpritemapCatalog simple, EnemyExtendedFrameCatalog extended, EnemyFrameId frame) {
+                    simple.TryGetDisplay(EnemyFrameId.{{simple.Frame}}, out _);
+                    simple.TryGetDisplay(EnemyFrameId.Empty, out _);
+                    simple.TryGetDisplay(frame, out _);
+                    extended.TryGetDisplay(EnemyFrameId.{{extended.Frame}}, out _);
+                    extended.TryGetDisplay(EnemyFrameId.{{simple.Frame}}, out _);
+                    extended.TryGetDisplay(frame, out _);
+                    extended.TryGetDisplay(EnemyFrameId.EmptyExtended, out _);
                 }
             }
             """, path: "fixture-enemy-display-consumer.cs");
@@ -95,11 +94,11 @@ internal static class EnemyDisplayArtworkContractChecks
         Require(revoked.Classifications.Count == 3 && revoked.UnresolvedCount == 4 && revoked.Consumers.Count == 7,
             "additional simple metadata declaration revokes only its rule, not the independent extended rule" + " (" + revoked.Describe() + ")");
         SyntaxTree extraGenerator = CSharpSyntaxTree.ParseText(
-            $"namespace {typeof(PirateArtworkNameDefinitions).Namespace}; internal static partial class {nameof(PirateArtworkNameDefinitions)} {{ }}",
-            path: "fixture-unreviewed-pirate-name-generator.cs");
+            $"namespace {typeof(EnemyExtendedFrameCompositions).Namespace}; internal static partial class {nameof(EnemyExtendedFrameCompositions)} {{ }}",
+            path: "fixture-unreviewed-extended-compositions.cs");
         revoked = Inspect(Compile(trees.Append(extraGenerator)), true);
         Require(revoked.Classifications.Count == 2 && revoked.UnresolvedCount == 5,
-            "additional generator declaration must revoke extended availability" + " (" + revoked.Describe() + ")");
+            "additional extended-composition declaration must revoke extended availability" + " (" + revoked.Describe() + ")");
     }
 
     /// <summary>Requires malformed display artwork to fail with an asset-validation error.</summary>

@@ -316,7 +316,7 @@ internal static class EnemySpritemapArtworkVerification
             EnemySpritemapDefinitions.PreBotwoonFrameCount,
             "Yard adds 104 crawling, turn, hiding, and airborne compositions");
         AssertEqual(EnemySpritemapDefinitions.PreBotwoonFrameCount +
-                BotwoonVisualDefinitions.Frames().Length,
+                BotwoonVisualDefinitionsConstants.Frames().Length,
             EnemySpritemapDefinitions.PreGunshipFrameCount,
             "Botwoon adds sixteen distinct visible head compositions");
         AssertEqual(EnemySpritemapDefinitions.PreGunshipFrameCount +
@@ -329,7 +329,7 @@ internal static class EnemySpritemapArtworkVerification
                 FriendlyAnimalVisualDefinitions.DachoraFrameCount +
                 FriendlyAnimalVisualDefinitions.EscapeEtecoonFrameCount +
                 FriendlyAnimalVisualDefinitions.EscapeDachoraFrameCount +
-                HibashiVisualDefinitions.FrameCount + ZebetiteVisualDefinitions.FrameCount +
+                HibashiVisualDefinitions.FrameCount + ZebetiteVisualToolingDefinitions.FrameCount +
                 WreckedShipGhostVisualDefinitions.FrameCount + PowampVisualDefinitions.FrameCount +
                 SparkVisualDefinitions.FrameCount + ShitroidVisualDefinitions.FrameCount +
                 KraidLintVisualDefinitions.FrameCount + NuclearWaffleVisualDefinitions.FrameCount +
@@ -343,7 +343,7 @@ internal static class EnemySpritemapArtworkVerification
             .Where(frame => frame.Name.StartsWith("ki_hunter_a8_", StringComparison.Ordinal))
             .Select(frame => frame.Pointer)
             .ToHashSet();
-        AssertTrue(KiHunterAnimations.Spritemaps(Enum.GetValues<KiHunterProgram>()).ToHashSet().SetEquals(
+        AssertTrue(KiHunterAnimationsConstants.Spritemaps(Enum.GetValues<KiHunterProgram>()).ToHashSet().SetEquals(
                 installedHunterPointers),
             "the Ki-Hunter's programs show exactly its installed frames");
         AssertEqual(41, installedHunterPointers.Count, "KiHunter's programs show 41 distinct OAM frames");
@@ -352,7 +352,7 @@ internal static class EnemySpritemapArtworkVerification
             .Where(frame => frame.Name.StartsWith("yapping_maw_a8_", StringComparison.Ordinal))
             .Select(frame => frame.Pointer)
             .ToHashSet();
-        AssertTrue(YappingMawAnimations.Spritemaps(Enum.GetValues<YappingMawProgram>()).ToHashSet().SetEquals(installedMawPointers),
+        AssertTrue(YappingMawAnimationsConstants.Spritemaps(Enum.GetValues<YappingMawProgram>()).ToHashSet().SetEquals(installedMawPointers),
             "every installed Yapping Maw frame is shown by a program, and every shown pose is installed");
         AssertEqual(24, installedMawPointers.Count, "Yapping Maw's programs show 24 distinct frames");
         AssertEqual(276, EnemySpritemapDefinitions.Frames.Count(
@@ -363,11 +363,11 @@ internal static class EnemySpritemapArtworkVerification
             .Where(frame => frame.Bank == EnemySpritemapDefinitions.RoomSpriteObjectBank)
             .Select(frame => frame.Pointer)
             .ToHashSet();
-        AssertTrue(Enum.GetValues<RoomSpriteObjectFrame>().Select(RoomSpriteObjectVisualDefinitions.Spritemap).ToHashSet()
+        AssertTrue(Enum.GetValues<RoomSpriteObjectFrame>().Select(RoomSpriteObjectVisualDefinitionsConstants.Spritemap).ToHashSet()
                 .SetEquals(SuperMetroid.Verification.Rooms.SpriteObjects.RoomSpriteObjectNativeLists.SpritemapPointers(rom)),
             "the room sprite-object frames are exactly the spritemaps the native lists show");
         foreach (RoomSpriteObjectFrame frame in Enum.GetValues<RoomSpriteObjectFrame>())
-            AssertTrue(installedSpritePointers.Contains(RoomSpriteObjectVisualDefinitions.Spritemap(frame)),
+            AssertTrue(installedSpritePointers.Contains(RoomSpriteObjectVisualDefinitionsConstants.Spritemap(frame)),
                 $"room sprite-object frame {frame} has installed art");
         AssertTrue(FuneNamiheAnimationsConstants.Spritemaps(Enum.GetValues<FuneNamiheProgram>()).ToHashSet().SetEquals(
                 EnemySpritemapDefinitions.Frames.Where(frame => frame.Name.StartsWith("fune_", StringComparison.Ordinal) ||
@@ -427,34 +427,34 @@ internal static class EnemySpritemapArtworkVerification
             .Select(frame => frame.Pointer).ToHashSet();
         AssertEqual(MultiviolaVisualDefinitions.FrameCount, multiviolaFrames.Count,
             "Multiviola's fourteen-frame loop selects eight distinct OAM frames");
-        AssertTrue(MultiviolaAnimations.Spritemaps(MultiviolaProgram.Flying).ToHashSet().SetEquals(multiviolaFrames),
+        AssertTrue(MultiviolaAnimationsConstants.Spritemaps(MultiviolaProgram.Flying).ToHashSet().SetEquals(multiviolaFrames),
             "every installed Multiviola composition is shown by its loop");
         HashSet<ushort> lavaJumperFrames = NorfairLavaJumperVisualDefinitions.Frames()
             .Select(frame => frame.Pointer).ToHashSet();
         AssertEqual(NorfairLavaJumperVisualDefinitions.FrameCount,
             lavaJumperFrames.Count,
             "Norfair lava jumper has eleven distinct installed identities");
-        AssertTrue(lavaJumperFrames.Contains(CommonEnemyEmptyExtendedFrameDefinitions.EmptySpritemap),
+        AssertTrue(lavaJumperFrames.Contains(CommonEnemyEmptyExtendedFrameToolingDefinitions.EmptySpritemap),
             "Norfair lava jumper retains its native bank-local empty frame");
-        AssertTrue(NorfairLavaJumperAnimations.Spritemaps(Enum.GetValues<NorfairLavaJumperProgram>()).ToHashSet().SetEquals(lavaJumperFrames),
+        AssertTrue(NorfairLavaJumperAnimationsConstants.Spritemaps(Enum.GetValues<NorfairLavaJumperProgram>()).ToHashSet().SetEquals(lavaJumperFrames),
             "every installed lava-jumper frame is shown by a typed program");
         HashSet<ushort> chozoFrames = ChozoStatueVisualDefinitions.Frames()
             .Select(frame => frame.Pointer).ToHashSet();
         AssertEqual(ChozoStatueVisualDefinitions.FrameCount, chozoFrames.Count,
             "the two Chozo sequences select twenty-six distinct installed frames");
-        AssertTrue(ChozoStatueAnimations.Spritemaps(Enum.GetValues<ChozoStatueProgram>()).ToHashSet().SetEquals(chozoFrames),
+        AssertTrue(ChozoStatueAnimationsConstants.Spritemaps(Enum.GetValues<ChozoStatueProgram>()).ToHashSet().SetEquals(chozoFrames),
             "every installed Chozo composition is shown by a typed program");
         HashSet<ushort> violaFrames = ViolaVisualDefinitions.Frames()
             .Select(frame => frame.Pointer).ToHashSet();
         AssertEqual(ViolaVisualDefinitions.FrameCount, violaFrames.Count,
             "Viola's fourteen-frame loop selects eight distinct OAM frames");
-        AssertTrue(CrawlerAnimations.Spritemaps(CrawlerProgram.ViolaNormal).ToHashSet().SetEquals(violaFrames),
+        AssertTrue(CrawlerAnimationsConstants.Spritemaps(CrawlerProgram.ViolaNormal).ToHashSet().SetEquals(violaFrames),
             "every installed Viola composition is shown by its normal loop");
         HashSet<ushort> rinkaFrames = RinkaVisualDefinitions.Frames()
             .Select(frame => frame.Pointer).ToHashSet();
         AssertEqual(RinkaVisualDefinitions.FrameCount, rinkaFrames.Count,
             "both Rinka loops select five distinct OAM frames");
-        AssertTrue(RinkaAnimations.Spritemaps(Enum.GetValues<RinkaProgram>()).ToHashSet().SetEquals(rinkaFrames),
+        AssertTrue(RinkaAnimationsConstants.Spritemaps(Enum.GetValues<RinkaProgram>()).ToHashSet().SetEquals(rinkaFrames),
             "every installed Rinka composition is shown by a Rinka program");
         foreach (EnemySpritemapDefinition frame in EnemySpritemapDefinitions.Frames)
         {
@@ -484,7 +484,7 @@ internal static class EnemySpritemapArtworkVerification
                 continue;
             // The head/neck use a private world-space hook, and the falling tubes
             // use Mother Brain's encounter route. Test that route separately below.
-            if (frame.Bank == MotherBrainVisualDefinitions.Bank)
+            if (frame.Bank == MotherBrainVisualToolingDefinitions.Bank)
                 continue;
             if (frame.Name.StartsWith("ridley_supplement_", StringComparison.Ordinal))
                 continue;
@@ -662,7 +662,7 @@ internal static class EnemySpritemapArtworkVerification
         {
             EnemySpritemapCatalog yardUpgraded = EnemySpritemapDocuments.Load(
                 preYardJson, stock.Enemies.Spritemaps);
-            foreach (EnemySpritemapDefinition frame in YardVisualDefinitions.Frames())
+            foreach (NativeEnemySpritemapDefinition frame in YardVisualDefinitions.Frames())
                 AssertTrue(yardUpgraded.TryGetDisplay(frame.Bank, frame.Pointer, out _),
                     $"version-fifty-eight override inherits {frame.Name}");
         }
@@ -686,7 +686,7 @@ internal static class EnemySpritemapArtworkVerification
         {
             EnemySpritemapCatalog robotUpgraded = EnemySpritemapDocuments.Load(
                 preRobotJson, stock.Enemies.Spritemaps);
-            foreach (EnemySpritemapDefinition frame in WorkRobotVisualDefinitions.Frames())
+            foreach (NativeEnemySpritemapDefinition frame in WorkRobotVisualDefinitions.Frames())
                 AssertTrue(robotUpgraded.TryGetDisplay(frame.Bank, frame.Pointer, out _),
                     $"version-fifty-seven override inherits {frame.Name}");
         }
@@ -710,7 +710,7 @@ internal static class EnemySpritemapArtworkVerification
         {
             EnemySpritemapCatalog evirUpgraded = EnemySpritemapDocuments.Load(
                 preEvirJson, stock.Enemies.Spritemaps);
-            foreach (EnemySpritemapDefinition frame in EvirVisualDefinitions.Frames())
+            foreach (NativeEnemySpritemapDefinition frame in EvirVisualDefinitions.Frames())
                 AssertTrue(evirUpgraded.TryGetDisplay(frame.Bank, frame.Pointer, out _),
                     $"version-fifty-six override inherits {frame.Name}");
         }
@@ -734,7 +734,7 @@ internal static class EnemySpritemapArtworkVerification
         {
             EnemySpritemapCatalog mochtroidUpgraded = EnemySpritemapDocuments.Load(
                 preMochtroidJson, stock.Enemies.Spritemaps);
-            foreach (EnemySpritemapDefinition frame in MochtroidVisualDefinitions.Frames())
+            foreach (NativeEnemySpritemapDefinition frame in MochtroidVisualDefinitions.Frames())
                 AssertTrue(mochtroidUpgraded.TryGetDisplay(frame.Bank, frame.Pointer, out _),
                     $"version-fifty-five override inherits {frame.Name}");
         }
@@ -758,7 +758,7 @@ internal static class EnemySpritemapArtworkVerification
         {
             EnemySpritemapCatalog corpsesUpgraded = EnemySpritemapDocuments.Load(
                 preCorpsesJson, stock.Enemies.Spritemaps);
-            foreach (EnemySpritemapDefinition frame in
+            foreach (NativeEnemySpritemapDefinition frame in
                      DeadTourianCorpseVisualDefinitions.Frames())
                 AssertTrue(corpsesUpgraded.TryGetDisplay(frame.Bank, frame.Pointer, out _),
                     $"version-fifty-four override inherits {frame.Name}");
@@ -782,8 +782,8 @@ internal static class EnemySpritemapArtworkVerification
             EnemySpritemapCatalog stationaryUpgraded = EnemySpritemapDocuments.Load(
                 preDeadTorizoJson, stock.Enemies.Spritemaps);
             AssertTrue(stationaryUpgraded.TryGetDisplay(
-                    DeadTorizoArtworkDefinitions.SpritemapBank,
-                    DeadTorizoArtworkDefinitions.StationarySpritemap, out _),
+                    DeadTorizoArtworkDefinitionsConstants.SpritemapBank,
+                    DeadTorizoArtworkDefinitionsConstants.StationarySpritemap, out _),
                 "version-fifty-three override inherits Dead Torizo stationary OAM");
         }
         var preRinkaFrames = preStationaryFrames
@@ -804,7 +804,7 @@ internal static class EnemySpritemapArtworkVerification
         {
             EnemySpritemapCatalog rinkaUpgraded = EnemySpritemapDocuments.Load(
                 preRinkaJson, stock.Enemies.Spritemaps);
-            foreach (EnemySpritemapDefinition frame in RinkaVisualDefinitions.Frames())
+            foreach (NativeEnemySpritemapDefinition frame in RinkaVisualDefinitions.Frames())
                 AssertTrue(rinkaUpgraded.TryGetDisplay(frame.Bank, frame.Pointer, out _),
                     $"version-fifty-two override inherits Rinka frame {frame.Name}");
         }
@@ -826,7 +826,7 @@ internal static class EnemySpritemapArtworkVerification
         {
             EnemySpritemapCatalog violaUpgraded = EnemySpritemapDocuments.Load(
                 preViolaJson, stock.Enemies.Spritemaps);
-            foreach (EnemySpritemapDefinition frame in ViolaVisualDefinitions.Frames())
+            foreach (NativeEnemySpritemapDefinition frame in ViolaVisualDefinitions.Frames())
                 AssertTrue(violaUpgraded.TryGetDisplay(frame.Bank, frame.Pointer, out _),
                     $"version-fifty-one override inherits Viola frame {frame.Name}");
         }
@@ -849,7 +849,7 @@ internal static class EnemySpritemapArtworkVerification
         {
             EnemySpritemapCatalog chozoUpgraded = EnemySpritemapDocuments.Load(
                 preChozoStatueJson, stock.Enemies.Spritemaps);
-            foreach (EnemySpritemapDefinition frame in ChozoStatueVisualDefinitions.Frames())
+            foreach (NativeEnemySpritemapDefinition frame in ChozoStatueVisualDefinitions.Frames())
                 AssertTrue(chozoUpgraded.TryGetDisplay(frame.Bank, frame.Pointer, out _),
                     $"version-fifty override inherits Chozo frame {frame.Name}");
         }
@@ -872,7 +872,7 @@ internal static class EnemySpritemapArtworkVerification
         {
             EnemySpritemapCatalog lavaJumperUpgraded = EnemySpritemapDocuments.Load(
                 preNorfairLavaJumperJson, stock.Enemies.Spritemaps);
-            foreach (EnemySpritemapDefinition frame in NorfairLavaJumperVisualDefinitions.Frames())
+            foreach (NativeEnemySpritemapDefinition frame in NorfairLavaJumperVisualDefinitions.Frames())
                 AssertTrue(lavaJumperUpgraded.TryGetDisplay(frame.Bank, frame.Pointer, out _),
                     $"version-forty-nine override inherits lava-jumper frame {frame.Name}");
         }
@@ -894,7 +894,7 @@ internal static class EnemySpritemapArtworkVerification
         {
             EnemySpritemapCatalog multiviolaUpgraded = EnemySpritemapDocuments.Load(
                 preMultiviolaJson, stock.Enemies.Spritemaps);
-            foreach (EnemySpritemapDefinition frame in MultiviolaVisualDefinitions.Frames())
+            foreach (NativeEnemySpritemapDefinition frame in MultiviolaVisualDefinitions.Frames())
                 AssertTrue(multiviolaUpgraded.TryGetDisplay(frame.Bank, frame.Pointer, out _),
                     $"version-forty-eight override inherits Multiviola frame {frame.Name}");
         }
@@ -916,7 +916,7 @@ internal static class EnemySpritemapArtworkVerification
         {
             EnemySpritemapCatalog dragonUpgraded = EnemySpritemapDocuments.Load(
                 preDragonJson, stock.Enemies.Spritemaps);
-            foreach (EnemySpritemapDefinition frame in DragonVisualDefinitions.Frames())
+            foreach (NativeEnemySpritemapDefinition frame in DragonVisualDefinitions.Frames())
                 AssertTrue(dragonUpgraded.TryGetDisplay(frame.Bank, frame.Pointer, out _),
                     $"version-forty-seven override inherits Dragon frame {frame.Name}");
         }
@@ -938,7 +938,7 @@ internal static class EnemySpritemapArtworkVerification
         {
             EnemySpritemapCatalog platformUpgraded = EnemySpritemapDocuments.Load(
                 preTripperKamerJson, stock.Enemies.Spritemaps);
-            foreach (EnemySpritemapDefinition frame in TripperKamerVisualDefinitions.Frames())
+            foreach (NativeEnemySpritemapDefinition frame in TripperKamerVisualDefinitions.Frames())
                 AssertTrue(platformUpgraded.TryGetDisplay(frame.Bank, frame.Pointer, out _),
                     $"version-forty-six override inherits platform frame {frame.Name}");
         }
@@ -961,7 +961,7 @@ internal static class EnemySpritemapArtworkVerification
         {
             EnemySpritemapCatalog shaktoolUpgraded = EnemySpritemapDocuments.Load(
                 preShaktoolJson, stock.Enemies.Spritemaps);
-            foreach (EnemySpritemapDefinition frame in ShaktoolVisualDefinitions.Frames())
+            foreach (NativeEnemySpritemapDefinition frame in ShaktoolVisualDefinitions.Frames())
                 AssertTrue(shaktoolUpgraded.TryGetDisplay(frame.Bank, frame.Pointer, out _),
                     $"version-forty-five override inherits Shaktool frame {frame.Name}");
         }
@@ -1268,46 +1268,46 @@ internal static class EnemySpritemapArtworkVerification
             editedMultiviola.LowTable[0],
             "Multiviola authored body offset changes installed room OAM");
         OamBuffer stockLavaJumper = DrawEnemy(stock, NewFrameReadGuard(rom),
-            NorfairLavaJumperAnimations.Spritemaps(NorfairLavaJumperProgram.Hidden).First(),
+            NorfairLavaJumperAnimationsConstants.Spritemaps(NorfairLavaJumperProgram.Hidden).First(),
             EnemyDefinitionId.Squeept);
         OamBuffer editedLavaJumper = DrawEnemy(edited, NewFrameReadGuard(rom),
-            NorfairLavaJumperAnimations.Spritemaps(NorfairLavaJumperProgram.Hidden).First(),
+            NorfairLavaJumperAnimationsConstants.Spritemaps(NorfairLavaJumperProgram.Hidden).First(),
             EnemyDefinitionId.Squeept);
         AssertEqual(unchecked((byte)(stockLavaJumper.LowTable[0] + 1)),
             editedLavaJumper.LowTable[0],
             "lava-jumper authored OAM offset changes installed room presentation");
         OamBuffer stockChozo = DrawEnemy(stock, NewFrameReadGuard(rom),
-            ChozoStatueAnimations.Spritemaps(ChozoStatueProgram.LowerNorfairInitial).First(),
+            ChozoStatueAnimationsConstants.Spritemaps(ChozoStatueProgram.LowerNorfairInitial).First(),
             EnemyDefinitionId.Chozo);
         OamBuffer editedChozo = DrawEnemy(edited, NewFrameReadGuard(rom),
-            ChozoStatueAnimations.Spritemaps(ChozoStatueProgram.LowerNorfairInitial).First(),
+            ChozoStatueAnimationsConstants.Spritemaps(ChozoStatueProgram.LowerNorfairInitial).First(),
             EnemyDefinitionId.Chozo);
         AssertEqual(unchecked((byte)(stockChozo.LowTable[0] + 1)),
             editedChozo.LowTable[0],
             "Chozo authored body offset changes installed room OAM");
         OamBuffer stockViola = DrawEnemy(stock, NewFrameReadGuard(rom),
-            CrawlerAnimations.Spritemaps(CrawlerProgram.ViolaNormal).First(),
+            CrawlerAnimationsConstants.Spritemaps(CrawlerProgram.ViolaNormal).First(),
             EnemyDefinitionId.Viola);
         OamBuffer editedViola = DrawEnemy(edited, NewFrameReadGuard(rom),
-            CrawlerAnimations.Spritemaps(CrawlerProgram.ViolaNormal).First(),
+            CrawlerAnimationsConstants.Spritemaps(CrawlerProgram.ViolaNormal).First(),
             EnemyDefinitionId.Viola);
         AssertEqual(unchecked((byte)(stockViola.LowTable[0] + 1)),
             editedViola.LowTable[0],
             "Viola authored body offset changes installed room OAM");
         OamBuffer stockRinka = DrawEnemy(stock, NewFrameReadGuard(rom),
-            RinkaAnimations.Spritemaps(RinkaProgram.Ordinary).First(),
+            RinkaAnimationsConstants.Spritemaps(RinkaProgram.Ordinary).First(),
             EnemyDefinitionId.Rinka);
         OamBuffer editedRinka = DrawEnemy(edited, NewFrameReadGuard(rom),
-            RinkaAnimations.Spritemaps(RinkaProgram.Ordinary).First(),
+            RinkaAnimationsConstants.Spritemaps(RinkaProgram.Ordinary).First(),
             EnemyDefinitionId.Rinka);
         AssertEqual(unchecked((byte)(stockRinka.LowTable[0] + 1)),
             editedRinka.LowTable[0],
             "Rinka authored body offset changes installed room OAM");
         OamBuffer stockSciser = DrawEnemy(stock, NewFrameReadGuard(rom),
-            CrawlerAnimations.Spritemaps(CrawlerProgram.SciserUpsideUpLoop).First(),
+            CrawlerAnimationsConstants.Spritemaps(CrawlerProgram.SciserUpsideUpLoop).First(),
             EnemyDefinitionId.Sciser);
         OamBuffer editedSciser = DrawEnemy(edited, NewFrameReadGuard(rom),
-            CrawlerAnimations.Spritemaps(CrawlerProgram.SciserUpsideUpLoop).First(),
+            CrawlerAnimationsConstants.Spritemaps(CrawlerProgram.SciserUpsideUpLoop).First(),
             EnemyDefinitionId.Sciser);
         AssertEqual(unchecked((byte)(stockSciser.LowTable[0] + 1)),
             editedSciser.LowTable[0],
@@ -1333,7 +1333,7 @@ internal static class EnemySpritemapArtworkVerification
         AssertEqual(unchecked((byte)(stockKago.LowTable[0] + 1)),
             editedKago.LowTable[0],
             "Kago authored offset changes installed presentation");
-        ushort faceBlockPointer = BlueBrinstarFaceBlockAnimations.Spritemaps(BlueBrinstarFaceBlockProgram.Initial).Single();
+        ushort faceBlockPointer = BlueBrinstarFaceBlockAnimationsConstants.Spritemaps(BlueBrinstarFaceBlockProgram.Initial).Single();
         OamBuffer stockFaceBlock = DrawEnemy(stock, NewFrameReadGuard(rom),
             faceBlockPointer, EnemyDefinitionId.FaceBlock);
         OamBuffer editedFaceBlock = DrawEnemy(edited, NewFrameReadGuard(rom),
@@ -1487,10 +1487,10 @@ internal static class EnemySpritemapArtworkVerification
         AssertEqual(stockCeresDoor.LowTable[0], editedCeresDoor.LowTable[0],
             "Ceres door visual edit leaves physical X unchanged");
         OamBuffer stockCeresBaby = DrawEnemy(stock, NewFrameReadGuard(rom),
-            CeresBabyFrameDefinitions.RoundFrame,
+            CeresBabyFrameDefinitionsConstants.RoundFrame,
             EnemyDefinitionId.CeresDoor);
         OamBuffer editedCeresBaby = DrawEnemy(edited, NewFrameReadGuard(rom),
-            CeresBabyFrameDefinitions.RoundFrame,
+            CeresBabyFrameDefinitionsConstants.RoundFrame,
             EnemyDefinitionId.CeresDoor);
         AssertEqual(unchecked((byte)(stockCeresBaby.LowTable[1] + 1)),
             editedCeresBaby.LowTable[1],
@@ -1588,7 +1588,7 @@ internal static class EnemySpritemapArtworkVerification
         foreach ((EnemyDefinitionId definition, ushort pointer, string name) in new[]
                  {
                      new EnemySpritemapArtworkVerifyInstalledEnemySpritemapsCase2(EnemyDefinitionId.MiniKraid, FakeKraidAnimationsConstants.Spritemaps(FakeKraidProgram.StepForwardsFacingLeft).First(), "Fake Kraid"),
-                     new EnemySpritemapArtworkVerifyInstalledEnemySpritemapsCase2(EnemyDefinitionId.KraidNail, KraidPartFrameDefinitions.Spritemap(new KraidPartFrame(KraidPartFrameKind.Nail, 0)),
+                     new EnemySpritemapArtworkVerifyInstalledEnemySpritemapsCase2(EnemyDefinitionId.KraidNail, KraidPartFrameToolingDefinitions.Spritemap(new KraidPartFrame(KraidPartFrameKind.Nail, 0)),
                          "Kraid fingernail"),
                  })
         {
@@ -1754,7 +1754,7 @@ internal static class EnemySpritemapArtworkVerification
             "authored Choot Y offset changes installed room OAM");
         AssertEqual(stockChoot.LowTable[0], editedChoot.LowTable[0],
             "Choot visual edit leaves physical X unchanged");
-        ushort hzoomerPointer = CrawlerAnimations.Spritemaps(CrawlerProgram.HZoomerUpsideRightLoop).First();
+        ushort hzoomerPointer = CrawlerAnimationsConstants.Spritemaps(CrawlerProgram.HZoomerUpsideRightLoop).First();
         OamBuffer stockHZoomer = DrawEnemy(stock, NewFrameReadGuard(rom),
             hzoomerPointer, EnemyDefinitionId.HZoomer);
         OamBuffer editedHZoomer = DrawEnemy(edited, NewFrameReadGuard(rom),
@@ -1824,7 +1824,7 @@ internal static class EnemySpritemapArtworkVerification
                 DisplayFrames = preMetroidBindings,
             }, CamelCaseJson));
         EnemySpritemapCatalog preMetroidUpgraded = LoadSpritemapOverride();
-        foreach (EnemySpritemapDefinition frame in MetroidVisualDefinitions.Frames())
+        foreach (NativeEnemySpritemapDefinition frame in MetroidVisualDefinitions.Frames())
             AssertTrue(preMetroidUpgraded.TryGetDisplay(
                     frame.Bank, frame.Pointer, out _),
                 $"version-forty-four override inherits Metroid frame {frame.Name}");
@@ -1850,7 +1850,7 @@ internal static class EnemySpritemapArtworkVerification
                 DisplayFrames = preShutterBindings,
             }, CamelCaseJson));
         EnemySpritemapCatalog preShutterUpgraded = LoadSpritemapOverride();
-        foreach (EnemySpritemapDefinition frame in ShutterVisualDefinitions.Frames())
+        foreach (NativeEnemySpritemapDefinition frame in ShutterVisualDefinitions.Frames())
             AssertTrue(preShutterUpgraded.TryGetDisplay(
                     frame.Bank, frame.Pointer, out _),
                 $"version-forty-three override inherits shutter frame {frame.Name}");
@@ -1876,7 +1876,7 @@ internal static class EnemySpritemapArtworkVerification
                 DisplayFrames = preMorphBallEyeBindings,
             }, CamelCaseJson));
         EnemySpritemapCatalog preMorphBallEyeUpgraded = LoadSpritemapOverride();
-        foreach (EnemySpritemapDefinition frame in MorphBallEyeVisualDefinitions.Frames())
+        foreach (NativeEnemySpritemapDefinition frame in MorphBallEyeVisualDefinitions.Frames())
             AssertTrue(preMorphBallEyeUpgraded.TryGetDisplay(
                     frame.Bank, frame.Pointer, out _),
                 $"version-forty-two override inherits eye frame {frame.Name}");
@@ -1902,7 +1902,7 @@ internal static class EnemySpritemapArtworkVerification
                 DisplayFrames = preFaceBlockBindings,
             }, CamelCaseJson));
         EnemySpritemapCatalog preFaceBlockUpgraded = LoadSpritemapOverride();
-        foreach (EnemySpritemapDefinition frame in BlueBrinstarFaceBlockVisualDefinitions.Frames())
+        foreach (NativeEnemySpritemapDefinition frame in BlueBrinstarFaceBlockVisualDefinitions.Frames())
             AssertTrue(preFaceBlockUpgraded.TryGetDisplay(
                     frame.Bank, frame.Pointer, out _),
                 $"version-forty-one override inherits face-block frame {frame.Name}");
@@ -1928,7 +1928,7 @@ internal static class EnemySpritemapArtworkVerification
                 DisplayFrames = preKagoBindings,
             }, CamelCaseJson));
         EnemySpritemapCatalog preKagoUpgraded = LoadSpritemapOverride();
-        foreach (EnemySpritemapDefinition frame in KagoVisualDefinitions.Frames())
+        foreach (NativeEnemySpritemapDefinition frame in KagoVisualDefinitions.Frames())
             AssertTrue(preKagoUpgraded.TryGetDisplay(
                     frame.Bank, frame.Pointer, out _),
                 $"version-forty override inherits Kago frame {frame.Name}");
@@ -1954,7 +1954,7 @@ internal static class EnemySpritemapArtworkVerification
                 DisplayFrames = preFlyBindings,
             }, CamelCaseJson));
         EnemySpritemapCatalog preFlyUpgraded = LoadSpritemapOverride();
-        foreach (EnemySpritemapDefinition frame in FlyVisualDefinitions.Frames())
+        foreach (NativeEnemySpritemapDefinition frame in FlyVisualDefinitions.Frames())
             AssertTrue(preFlyUpgraded.TryGetDisplay(
                     frame.Bank, frame.Pointer, out _),
                 $"version-thirty-nine override inherits fly frame {frame.Name}");
@@ -1980,7 +1980,7 @@ internal static class EnemySpritemapArtworkVerification
                 DisplayFrames = preSciserBindings,
             }, CamelCaseJson));
         EnemySpritemapCatalog preSciserUpgraded = LoadSpritemapOverride();
-        foreach (EnemySpritemapDefinition frame in SciserVisualDefinitions.Frames())
+        foreach (NativeEnemySpritemapDefinition frame in SciserVisualDefinitions.Frames())
             AssertTrue(preSciserUpgraded.TryGetDisplay(
                     frame.Bank, frame.Pointer, out _),
                 $"version-thirty-eight override inherits Sciser {frame.Name}");
@@ -2006,7 +2006,7 @@ internal static class EnemySpritemapArtworkVerification
                 DisplayFrames = preRidleyBindings,
             }, CamelCaseJson));
         EnemySpritemapCatalog preRidleyUpgraded = LoadSpritemapOverride();
-        foreach (EnemySpritemapDefinition frame in RidleySupplementalVisualDefinitions.Frames())
+        foreach (NativeEnemySpritemapDefinition frame in RidleySupplementalVisualDefinitionsConstants.Frames())
             AssertTrue(preRidleyUpgraded.TryGetDisplay(
                     frame.Bank, frame.Pointer, out _),
                 $"version-thirty-seven override inherits Ridley supplement {frame.Name}");
@@ -2033,8 +2033,8 @@ internal static class EnemySpritemapArtworkVerification
             }, CamelCaseJson));
         EnemySpritemapCatalog preDeadTorizoUpgraded = LoadSpritemapOverride();
         AssertTrue(preDeadTorizoUpgraded.TryGetDisplay(
-                DeadTorizoArtworkDefinitions.SpritemapBank,
-                DeadTorizoArtworkDefinitions.HookSpritemap, out _),
+                DeadTorizoArtworkDefinitionsConstants.SpritemapBank,
+                DeadTorizoArtworkDefinitionsConstants.HookSpritemap, out _),
             "version-thirty-six override inherits Dead Torizo corpse frame");
         document = new EnemySpritemapDocument
         {
@@ -2058,7 +2058,7 @@ internal static class EnemySpritemapArtworkVerification
                 DisplayFrames = preMotherBrainBindings,
             }, CamelCaseJson));
         EnemySpritemapCatalog preMotherBrainUpgraded = LoadSpritemapOverride();
-        foreach (EnemySpritemapDefinition frame in MotherBrainVisualDefinitions.Frames())
+        foreach (NativeEnemySpritemapDefinition frame in MotherBrainVisualDefinitionsConstants.Frames())
             AssertTrue(preMotherBrainUpgraded.TryGetDisplay(
                     frame.Bank, frame.Pointer, out _),
                 $"version-thirty-five override inherits Mother Brain frame {frame.Name}");
@@ -2597,8 +2597,8 @@ internal static class EnemySpritemapArtworkVerification
         AssertTrue(priorCeresSelected.LowTable.SequenceEqual(priorCeresRemap.LowTable),
             "version-fifteen override retains its Ceres door display binding");
         AssertTrue((preCeresBabyUpgraded.Enemies.Spritemaps ?? throw new InvalidOperationException("Verification requires preCeresBabyUpgraded.Spritemaps.")).TryGet(
-                CeresBabyFrameDefinitions.Bank,
-                CeresBabyFrameDefinitions.RoundFrame, out _),
+                CeresBabyFrameDefinitionsConstants.Bank,
+                CeresBabyFrameDefinitionsConstants.RoundFrame, out _),
             "version-fifteen override gains stock Ceres Baby artwork");
 
         var preCeresDoorFrames = preCeresBabyFrames
@@ -2629,7 +2629,7 @@ internal static class EnemySpritemapArtworkVerification
         AssertTrue(editedCacatac.LowTable.SequenceEqual(priorEditedCacatac.LowTable),
             "version-fourteen override also retains its edited frame parts");
         AssertTrue((preCeresDoorUpgraded.Enemies.Spritemaps ?? throw new InvalidOperationException("Verification requires preCeresDoorUpgraded.Spritemaps.")).TryGet(
-                CeresDoorFrameDefinitions.Bank, 0xfa13, out _),
+                CeresDoorFrameDefinitionsConstants.Bank, 0xfa13, out _),
             "version-fourteen override gains stock Ceres door artwork");
         preCeresDoorBindings.Remove("boyon_idle_0");
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
@@ -2946,7 +2946,7 @@ internal static class EnemySpritemapArtworkVerification
                     EnemyDefinitionId.Geega
                     ? EnemySpritemapDefinitions.PipeBugBank
                     : definition == EnemyDefinitionId.CeresDoor
-                        ? CeresDoorFrameDefinitions.Bank
+                        ? CeresDoorFrameDefinitionsConstants.Bank
                     : definition == EnemyDefinitionId.Boulder
                     ? EnemySpritemapDefinitions.BoulderBank
                     : definition == EnemyDefinitionId.Atomic
@@ -2992,7 +2992,7 @@ internal static class EnemySpritemapArtworkVerification
                     : definition == EnemyDefinitionId.Yard
                         ? YardVisualDefinitions.Bank
                     : definition == EnemyDefinitionId.Botwoon
-                        ? BotwoonVisualDefinitions.Bank
+                        ? BotwoonVisualDefinitionsConstants.Bank
                     : definition == EnemyDefinitionId.Shaktool
                         ? ShaktoolVisualDefinitions.Bank
                     : definition == EnemyDefinitionId.Chozo
@@ -3048,7 +3048,7 @@ internal static class EnemySpritemapArtworkVerification
     private static void VerifyInstalledMotherBrainDrawHook(
         SuperMetroidAddressSpace rom, InstalledEnemyArtwork stock)
     {
-        foreach (EnemySpritemapDefinition frame in MotherBrainVisualDefinitions.Frames())
+        foreach (NativeEnemySpritemapDefinition frame in MotherBrainVisualDefinitionsConstants.Frames())
         {
             OamBuffer actual = DrawInstalledMotherBrainFrame(
                 stock, frame.Pointer, new(0x0140, 0x00a0));
@@ -3072,7 +3072,7 @@ internal static class EnemySpritemapArtworkVerification
     {
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = art.Enemies, BossArtwork = art.Bosses, AreaArtwork = art.Areas };
         var oam = new OamBuffer();
-        EnemyFrameId frame = RoomEnemySlotFrameAccess.FrameAt(MotherBrainVisualDefinitions.Bank, pointer)
+        EnemyFrameId frame = RoomEnemySlotFrameAccess.FrameAt(MotherBrainVisualToolingDefinitions.Bank, pointer)
             ?? throw new InvalidOperationException("A Mother Brain draw shows a frame.");
         oam.AppendDrawn(sprites => enemies.MotherBrainBehavior.Head.DrawMotherBrainWorldSpritemap(sprites, EnemyFormatDrawAccess.BlankObjectPage,
             new SpriteSource(SpriteSourceKind.MotherBrainBrain), new MotherBrainWorldFrame(frame, world, 0x0400, 0x0010),

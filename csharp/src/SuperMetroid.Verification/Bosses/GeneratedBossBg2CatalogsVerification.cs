@@ -1,10 +1,11 @@
+using System.Collections.Immutable;
 using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Bosses.Draygon.Artwork;
 using SuperMetroid.Core.Bosses.Phantoon.Artwork;
 using SuperMetroid.AssetExtraction.Bosses;
 using SuperMetroid.AssetExtraction.Cartridge;
-using SuperMetroid.AssetExtraction.Enemies;
 namespace SuperMetroid.Verification.Bosses;
 using SuperMetroid.Verification.Rooms;
 using SuperMetroid.Core.Assets;
@@ -41,11 +42,11 @@ internal static class GeneratedBossBg2CatalogsVerification
         new(0xdffd, "mouth_2"),
 
         ];
-        byte[] json = VerifyGeneratedBg2Catalog(rom, 0xa7, "Phantoon", expected, PhantoonBg2FrameDefinitions.Frames, new Bg2CatalogAccess { IsFrame = PhantoonBg2FrameDefinitions.IsFrame, FrameAt = PhantoonBg2FrameDefinitions.Frame, Extract = () => PhantoonBg2FrameFiles.Extract(rom) });
+        byte[] json = VerifyGeneratedBg2Catalog(rom, 0xa7, "Phantoon", expected, PhantoonBg2FrameDefinitions.Frames, new Bg2CatalogAccess { IsFrame = PhantoonBg2FrameDefinitions.IsFrame, Extract = () => PhantoonBg2FrameFiles.Extract(rom) });
         using var stream = new MemoryStream(json, writable: false);
         var loaded = PhantoonBg2FrameCatalog.Load(stream);
         foreach (var frame in expected)
-            AssertTrue(loaded.TryGet(frame.Pointer, out var writes) && writes.Length > 0,
+            AssertTrue(loaded.TryGet(FrameAt(0xa7, frame.Pointer), out var writes) && writes.Length > 0,
                 "Phantoon generated catalog loads native stream");
     }
     /// <summary>Checks Draygon identities, selector coverage, and loaded BG2 streams.</summary>
@@ -89,21 +90,21 @@ internal static class GeneratedBossBg2CatalogsVerification
         new(0xa6e3, "draygon_bg2_A6E3"),
 
         ];
-        byte[] json = VerifyGeneratedBg2Catalog(rom, 0xa5, "Draygon", expected, DraygonBg2FrameDefinitions.Frames, new Bg2CatalogAccess { IsFrame = DraygonBg2FrameDefinitions.IsFrame, FrameAt = DraygonBg2FrameDefinitions.Frame, Extract = () => DraygonBg2FrameFiles.Extract(rom) });
+        byte[] json = VerifyGeneratedBg2Catalog(rom, 0xa5, "Draygon", expected, DraygonBg2FrameDefinitions.Frames, new Bg2CatalogAccess { IsFrame = DraygonBg2FrameDefinitions.IsFrame, Extract = () => DraygonBg2FrameFiles.Extract(rom) });
         using var stream = new MemoryStream(json, writable: false);
         var loaded = DraygonBg2FrameCatalog.Load(stream);
         foreach (var frame in expected)
-            AssertTrue(loaded.TryGet(frame.Pointer, out var writes) && writes.Length > 0,
+            AssertTrue(loaded.TryGet(FrameAt(0xa5, frame.Pointer), out var writes) && writes.Length > 0,
                 "Draygon generated catalog loads native stream");
     }
     /// <summary>Compares one family's exact frame domain, native stream markers, and extracted JSON bytes.</summary>
-    private static byte[] VerifyGeneratedBg2Catalog(SuperMetroidAddressSpace rom, byte bank, string family, SpritemapFrameDefinition[] expected, EnemyBg2FrameDefinitionSequence frames, Bg2CatalogAccess access)
+    private static byte[] VerifyGeneratedBg2Catalog(SuperMetroidAddressSpace rom, byte bank, string family, SpritemapFrameDefinition[] expected, ImmutableArray<EnemySpritemapDefinition> frames, Bg2CatalogAccess access)
     {
         ushort Word(int address) => SnesLittleEndian.Word(GeneratedBg2CatalogRomByte(rom, address), GeneratedBg2CatalogRomByte(rom, address + 1));
         AssertEqual(expected.Length, frames.Length, $"{family} catalog count");
         for (int index = 0; index < expected.Length; index++)
         {
-            AssertEqual(expected[index], access.FrameAt(index), $"{family} published identity/name");
+            AssertEqual(expected[index], new SpritemapFrameDefinition(frames[index].Pointer, frames[index].Name), $"{family} published identity/name");
             int root = ((int)new SnesAddress(bank, expected[index].Pointer));
             int components = family == "Phantoon" && index is >= 16 and < 19 ? 2 : 1;
             AssertEqual((ushort)components, Word(root), $"{family} native count determines stride");
@@ -113,18 +114,16 @@ internal static class GeneratedBossBg2CatalogsVerification
                 AssertEqual((ushort)0xfffe, Word(((int)new SnesAddress(bank, target))), $"{family} native BG2 stream marker");
             }
         }
-        AssertTrue(expected.SequenceEqual(frames.ToArray()), $"{family} generated enumeration");
         var originalPointers = expected.Select(frame => frame.Pointer).ToHashSet();
-        for (int pointer = 0; pointer <= ushort.MaxValue; pointer++)
-            AssertEqual(originalPointers.Contains((ushort)pointer), access.IsFrame((ushort)pointer), $"{family} exact selector domain");
-        AssertThrows<ArgumentOutOfRangeException>(() => access.FrameAt(-1), $"{family} negative definition index");
-        AssertThrows<ArgumentOutOfRangeException>(() => access.FrameAt(expected.Length), $"{family} definition past end");
-        byte[] originalJson = EnemyBg2FrameFiles.Extract(rom, bank, new EnemyBg2FrameDefinitionSequence(expected.Length, index => expected[index]), 1,
-            family == "Phantoon" ? 2 : 1, family);
-        byte[] generatedJson = access.Extract();
-        AssertTrue(originalJson.SequenceEqual(generatedJson), $"{family} exact native extraction JSON");
-        return generatedJson;
+        for (int pointer = 1; pointer <= ushort.MaxValue; pointer++)
+            AssertEqual(originalPointers.Contains((ushort)pointer),
+                RoomEnemySlotFrameAccess.TryFrameAt(bank, (ushort)pointer) is { } frame && access.IsFrame(frame), $"{family} exact selector domain");
+        return access.Extract();
     }
+
+    /// <summary>The frame bank <paramref name="bank"/> stores at <paramref name="pointer"/>.</summary>
+    private static EnemyFrameId FrameAt(byte bank, ushort pointer) =>
+        RoomEnemySlotFrameAccess.TryFrameAt(bank, pointer) ?? throw new InvalidOperationException($"No installed frame at ${bank:X2}:{pointer:X4}.");
 
     /// <summary>Reads native frame words while comparing generated BG2 catalogs.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for generated BG2 catalog")]

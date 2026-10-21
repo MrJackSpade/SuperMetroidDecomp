@@ -32,7 +32,7 @@ internal static class YappingMawInstructionProgramDefinitionsVerification
                 NewYappingMawInstructionSystem(entry);
             object?[] arguments =
                 [slot, null, null, Position16<RoomPixels>.Zero, SnesButton.None];
-            AssertEqual(EnemyInstructionRunner.ExpectedLoop(YappingMawAnimations.Programs, entry, YappingMawFrameDefinitions.Spritemap),
+            AssertEqual(EnemyInstructionRunner.ExpectedLoop(YappingMawAnimations.Programs, entry, YappingMawFrameToolingDefinitions.Spritemap),
                 EnemyInstructionRunner.ShownFrames(slot, EnemyInstructionRunner.LoopUpdates(YappingMawAnimations.Programs, entry)),
                 $"Yapping Maw attack direction {direction} loop");
             AssertEqual<SoundEffectId?>(SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, 0x002f), enemies.YappingMawBehavior.LastYappingMawSoundEffect,
@@ -62,7 +62,7 @@ internal static class YappingMawInstructionProgramDefinitionsVerification
             RunYappingMawInstructionFrames(arguments,
                 slot,
                 count: calls - 1);
-            AssertEqual(YappingMawAnimations.Spritemaps(loop).First(), slot.SpritemapPointer,
+            AssertEqual(YappingMawAnimationsConstants.Spritemaps(loop).First(), slot.SpritemapPointer,
                 $"Yapping Maw {name} cooldown loops back to its first pose");
             AssertEqual<SoundEffectId?>(SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, 0x002f), enemies.YappingMawBehavior.LastYappingMawSoundEffect,
                 $"Yapping Maw {name} cooldown publishes its sound");

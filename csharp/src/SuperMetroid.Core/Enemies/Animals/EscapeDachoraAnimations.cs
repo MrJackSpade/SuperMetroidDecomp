@@ -160,12 +160,6 @@ internal static class EscapeDachoraAnimations
         ],
     });
 
-    /// <summary>The spritemaps <paramref name="programs"/> show, in authored order with repeats.</summary>
-    internal static IEnumerable<ushort> Spritemaps(params EscapeDachoraProgram[] programs) =>
-        programs.SelectMany(program => Programs.Steps(program))
-            .OfType<AnimationProgramStep<P, EscapeDachoraFrame, EscapeDachoraCue>.ShowStep>()
-            .Select(step => EscapeDachoraFrameDefinitions.Spritemap(step.Frame));
-
     /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationProgramStep<EscapeDachoraProgram, EscapeDachoraFrame, EscapeDachoraCue> Show(int pose, int duration) => AnimationProgramStep<EscapeDachoraProgram, EscapeDachoraFrame, EscapeDachoraCue>.Show(new(pose), duration);
 

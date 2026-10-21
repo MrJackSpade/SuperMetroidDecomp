@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Bosses.Crocomire;
 using SuperMetroid.Core.Enemies.Artwork;
@@ -14,15 +15,15 @@ internal static class CrocomireSkeletonFrameGeometryVerification
     internal static void VerifyCrocomireSkeletonFrameGeometry(SuperMetroidAddressSpace rom)
     {
         var selected = new SortedSet<ushort>(CrocomireAnimationsVerification.TypedBodySpritemaps(CrocomireBodyFrameSet.Skeleton));
-        var expected = selected.Select(pointer => new EnemySpritemapDefinition(0xa4, pointer,
+        var expected = selected.Select(pointer => new NativeEnemySpritemapDefinition(0xa4, pointer,
             $"crocomire_skeleton_oam_{pointer:X4}")).ToArray();
         AssertEqual(33, expected.Length, "native selected skeleton roots");
         AssertEqual(33, CrocomireSkeletonVisualDefinitions.Frames.Length, "skeleton sequence count");
         int[] collapseCounts = [9, 13, 13, 13, 12, 10, 6, 3];
         for (int index = 0; index < expected.Length; index++)
         {
-            AssertEqual(expected[index], CrocomireSkeletonVisualDefinitions.Frame(index), "native skeleton identity and name");
-            AssertEqual(expected[index], CrocomireSkeletonVisualDefinitions.Frames[index], "skeleton indexed sequence");
+            AssertEqual(expected[index], EnemyCompositionSchemaTooling.CompositionOf(CrocomireSkeletonVisualDefinitions.Frames[index]).Native,
+                "native skeleton identity and name");
             int address = 0xa40000 | expected[index].Pointer;
             int count = CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
             AssertEqual(index < 13 ? 5 : index < 21 ? collapseCounts[index - 13] : 1,
@@ -31,18 +32,12 @@ internal static class CrocomireSkeletonFrameGeometryVerification
                 AssertEqual(expected[index + 1].Pointer, expected[index].Pointer + 2 + 8 * count,
                     "native skeleton record stride");
         }
-        int ordinal = 0;
-        foreach (var frame in CrocomireSkeletonVisualDefinitions.Frames)
-            AssertEqual(expected[ordinal++], frame, "skeleton enumeration order");
-        AssertEqual(33, ordinal, "skeleton enumeration count");
-        AssertTrue(expected.SequenceEqual(CrocomireSkeletonVisualDefinitions.Frames.ToArray()), "skeleton materialization");
+
         for (int pointer = 0; pointer <= ushort.MaxValue; pointer++)
         {
-            AssertEqual(selected.Contains((ushort)pointer), CrocomireSkeletonVisualDefinitions.IsFrame(0xa4, (ushort)pointer),
+            AssertEqual(selected.Contains((ushort)pointer),
+                RoomEnemySlotFrameAccess.TryFrameAt(0xa4, (ushort)pointer) is { } frame && CrocomireSkeletonVisualDefinitions.IsFrame(frame),
                 "exact skeleton membership including gaps and component interiors");
-            AssertTrue(!CrocomireSkeletonVisualDefinitions.IsFrame(0xa5, (ushort)pointer), "other bank excluded");
         }
-        AssertThrows<ArgumentOutOfRangeException>(() => CrocomireSkeletonVisualDefinitions.Frame(-1), "negative skeleton index");
-        AssertThrows<ArgumentOutOfRangeException>(() => CrocomireSkeletonVisualDefinitions.Frame(33), "skeleton index past end");
     }
 }

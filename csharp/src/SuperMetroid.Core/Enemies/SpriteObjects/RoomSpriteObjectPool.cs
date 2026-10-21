@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Core.Enemies.Drawing;
+﻿using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Rooms.SpriteObjects;
@@ -147,14 +148,11 @@ internal sealed class RoomSpriteObjectPool
             ushort baseTileIndex = checked((ushort)slot.Attributes.TileNumber);
             var spritemaps = _room.Artwork?.Spritemaps ?? throw new InvalidOperationException(
                 "Room sprite objects require installed sprite artwork.");
-            ushort spritemap = RoomSpriteObjectVisualDefinitions.Spritemap(slot.Frame);
-            if (!spritemaps.TryGetDisplay(
-                    RoomSpriteObjectVisualDefinitions.Bank, spritemap,
-                    out EnemySpritemapParts installed))
+            EnemyFrameId shown = RoomSpriteObjectVisualDefinitions.ShownFrames.Of(slot.Frame);
+            if (!spritemaps.TryGetDisplay(shown, out EnemySpritemapParts installed))
             {
                 throw new InvalidDataException(
-                    $"Installed room sprite-object artwork lacks frame {slot.Frame} " +
-                    $"($B4:{spritemap:X4}) for {slot.Kind}.");
+                    $"Installed room sprite-object artwork lacks frame {slot.Frame} ({shown}) for {slot.Kind}.");
             }
             EnemyPresentation.PublishParts(sprites, objects, new SpriteSource(SpriteSourceKind.RoomSpriteObject, index),
                 EnemySpriteFrames.Frame(installed, baseTileIndex, paletteBits), screen, paletteBits);

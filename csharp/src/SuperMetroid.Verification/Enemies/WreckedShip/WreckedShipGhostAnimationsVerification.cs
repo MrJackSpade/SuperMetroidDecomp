@@ -13,7 +13,7 @@ internal static class WreckedShipGhostAnimationsVerification
     internal static void VerifyWreckedShipGhostAnimations(SuperMetroidAddressSpace rom)
     {
         int steps = NativeEnemyProgramOracle.CompareAll(CartridgeImportSource.Require(rom), Bank, Entries, WreckedShipGhostAnimations.Programs,
-            WreckedShipGhostFrameDefinitions.Spritemap,
+            WreckedShipGhostFrameToolingDefinitions.Spritemap,
             word => null,
             (word, operands, cue, at) => throw new InvalidDataException($"{at}: the lists use no owner instructions."));
         Console.WriteLine($"  Wrecked Ship ghost programs: {Entries.Length} programs ({steps} steps) match bank $A8.");

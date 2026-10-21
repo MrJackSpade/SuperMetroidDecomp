@@ -25,7 +25,7 @@ internal static class BossDisplayBindingsOracleVerification
         var oam = new List<EnemyExtendedDrawComponent>();
         var bg2 = new List<EnemyBg2TilemapWrite>();
         var physical = BossPhysicalComponents(frame);
-        bool emptyPhysics = frame.Bank == DraygonBg2FrameDefinitions.Bank && DraygonCollisionDefinitions.IsEmptyOamFrame(frame.Pointer);
+        bool emptyPhysics = frame.Bank == DraygonBg2FrameToolingDefinitions.Bank && DraygonCollisionDefinitions.IsEmptyOamFrame(frame.Pointer);
         // Compiled Draygon OAM collision deliberately omits components whose
         // native lists are empty. Confirm each omitted native list below.
         if (!emptyPhysics) AssertEqual(physical.Length, count, frame.Name + " native physical component count");
@@ -86,14 +86,14 @@ internal static class BossDisplayBindingsOracleVerification
     /// <summary>Selects compiled component offsets and each component's hitbox records for the frame's boss family.</summary>
     private static BossPhysicalComponentsResult[] BossPhysicalComponents(EnemySpritemapDefinition frame) => frame.Bank switch
     {
-        CrocomireBg2FrameDefinitions.Bank => CrocomireBodyCollisionDefinitions.ComponentsAt(frame.Pointer)
+        CrocomireBg2FrameDefinitionsConstants.Bank => CrocomireBodyCollisionDefinitions.ComponentsAt(frame.Pointer)
             .SelectToArray(part => new BossPhysicalComponentsResult(part.Offset.X, part.Offset.Y,
                 part.Hitboxes.Select(box => Words(box.Left, box.Top, box.Right, box.Bottom, CrocomireHitboxCallbackCodec.ToCallbackWord(box.Touch), CrocomireHitboxCallbackCodec.ToCallbackWord(box.Shot))).ToArray())),
-        PhantoonBg2FrameDefinitions.Bank => PhantoonCollisionDefinitions.ComponentsAt(frame.Pointer)
+        PhantoonBg2FrameDefinitionsConstants.Bank => PhantoonCollisionDefinitions.ComponentsAt(frame.Pointer)
             .Select(part => new BossPhysicalComponentsResult(part.Offset.X, part.Offset.Y,
                 part.Hitboxes.Select(box => Words(box.Left, box.Top, box.Right, box.Bottom,
                     PhantoonHitboxCallbackCodec.ToCallbackWord(box.Touch), PhantoonHitboxCallbackCodec.ToCallbackWord(box.Shot))).ToArray())).ToArray(),
-        DraygonBg2FrameDefinitions.Bank => DraygonCollisionDefinitions.ComponentsAt(frame.Pointer)
+        DraygonBg2FrameToolingDefinitions.Bank => DraygonCollisionDefinitions.ComponentsAt(frame.Pointer)
             .Select(part => new BossPhysicalComponentsResult(part.Offset.X, part.Offset.Y,
                 part.Hitboxes.Select(box => Words(box.Left, box.Top, box.Right, box.Bottom,
                     DraygonHitboxCallbackCodec.ToCallbackWord(box.Touch), DraygonHitboxCallbackCodec.ToCallbackWord(box.Shot))).ToArray())).ToArray(),

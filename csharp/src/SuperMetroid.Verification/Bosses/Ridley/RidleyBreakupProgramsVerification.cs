@@ -51,7 +51,7 @@ internal static class RidleyBreakupProgramsVerification
             "reported tail orientation selects the second tip pose ($A6:CA9B)");
         foreach (var fragment in fragments)
         {
-            AssertEqual(CommonEnemyEmptyExtendedFrameDefinitions.EmptySpritemap, fragment.SpritemapPointer,
+            AssertEqual(CommonEnemyEmptyExtendedFrameToolingDefinitions.EmptySpritemap, fragment.SpritemapPointer,
                 "native breakup spawn installs empty frame before instruction processing");
             process(fragment, null, null, Position16<RoomPixels>.Zero, 0);
             AssertTrue(!CommonEnemyEmptyExtendedFrameDefinitions.DrawsNothing(fragment.Frame), "first breakup instruction replaces empty frame");

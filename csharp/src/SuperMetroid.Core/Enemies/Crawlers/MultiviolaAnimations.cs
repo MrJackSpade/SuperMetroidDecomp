@@ -34,12 +34,6 @@ internal static class MultiviolaAnimations
         ],
     });
 
-    /// <summary>The spritemaps <paramref name="programs"/> show, in authored order with repeats.</summary>
-    internal static IEnumerable<ushort> Spritemaps(params MultiviolaProgram[] programs) =>
-        programs.SelectMany(program => Programs.Steps(program))
-            .OfType<AnimationProgramStep<P, MultiviolaFrame, NoAnimationCue>.ShowStep>()
-            .Select(step => MultiviolaFrameDefinitions.Spritemap(step.Frame));
-
     /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationProgramStep<MultiviolaProgram, MultiviolaFrame, NoAnimationCue> Show(int pose, int duration) => AnimationProgramStep<MultiviolaProgram, MultiviolaFrame, NoAnimationCue>.Show(new(pose), duration);
 

@@ -16,10 +16,10 @@ internal static class OrdinaryEnemyResourceChecks
         OrdinaryEnemyResourceFamily[] families =
         [
             new OrdinaryEnemyResourceFamily("Hibashi", HibashiVisualDefinitions.Bank, null, [.. HibashiVisualDefinitionsTooling.Spritemaps()], HibashiVisualDefinitions.FrameCount),
-            new OrdinaryEnemyResourceFamily("Zebetite", ZebetiteVisualDefinitions.Bank, null, ZebetiteVisualDefinitions.Spritemaps(), ZebetiteVisualDefinitions.FrameCount),
+            new OrdinaryEnemyResourceFamily("Zebetite", ZebetiteVisualToolingDefinitions.Bank, null, ZebetiteVisualToolingDefinitions.Spritemaps(), ZebetiteVisualToolingDefinitions.FrameCount),
             new OrdinaryEnemyResourceFamily("WreckedShipGhost", WreckedShipGhostVisualDefinitions.Bank, null, WreckedShipGhostVisualDefinitions.Spritemaps(), WreckedShipGhostVisualDefinitions.FrameCount),
-            new OrdinaryEnemyResourceFamily("Powamp", PowampVisualDefinitions.Bank, null, [.. PowampVisualDefinitions.Frames().Select(frame => frame.Pointer)], PowampVisualDefinitions.FrameCount),
-            new OrdinaryEnemyResourceFamily("Spark", SparkVisualDefinitions.Bank, null, [.. SparkVisualDefinitions.Frames().Select(frame => frame.Pointer)], SparkVisualDefinitions.FrameCount),
+            new OrdinaryEnemyResourceFamily("Powamp", PowampVisualDefinitions.Bank, null, [.. EnemyCompositionSchemaTooling.Family("powamp_").Select(frame => frame.Pointer)], PowampVisualDefinitions.FrameCount),
+            new OrdinaryEnemyResourceFamily("Spark", SparkVisualDefinitions.Bank, null, [.. EnemyCompositionSchemaTooling.Family("spark_").Select(frame => frame.Pointer)], SparkVisualDefinitions.FrameCount),
             new OrdinaryEnemyResourceFamily("Shitroid", ShitroidVisualDefinitions.Bank, null, ShitroidVisualDefinitions.Spritemaps(), ShitroidVisualDefinitions.FrameCount),
         ];
         int offset = 0;

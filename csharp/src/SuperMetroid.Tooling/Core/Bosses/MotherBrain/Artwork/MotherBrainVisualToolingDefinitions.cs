@@ -1,14 +1,9 @@
-﻿using SuperMetroid.Core.Enemies.Artwork;
-
+﻿
 namespace SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 
 /// <summary>Development-tool members of <see cref="MotherBrainVisualDefinitions"/>; never linked by player hosts.</summary>
 internal static class MotherBrainVisualToolingDefinitions
 {
-    /// <summary>$A9:ADA1-AE5D: the final five catalog frames are the falling-tube compositions.</summary>
-    internal static EnemySpritemapDefinition TubeFrame(int index)
-    {
-        if ((uint)index >= 5) throw new ArgumentOutOfRangeException(nameof(index));
-        return MotherBrainVisualDefinitions.Frame(MotherBrainVisualDefinitions.FrameCount - 5 + index);
-    }
+    /// <summary>$A9, the native bank containing Mother Brain's OAM maps.</summary>
+    internal const byte Bank = 0xa9;
 }

@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Enemies;
 using System.Buffers.Binary;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Enemies;
@@ -6,7 +7,6 @@ namespace SuperMetroid.DebugRunner.Tools;
 
 using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.TestSupport.ScenarioFixtures;
-using SuperMetroid.Core.World.Artwork;
 
 /// <summary>Development commands for exporting and tracing the reproduced
 /// shutter bomb arc against native WRAM and trajectory evidence.</summary>
@@ -132,7 +132,7 @@ internal static class ShutterNativeArc
             int offset = i * 64;
             var slot = runtime.Room.LoadedScope.Enemies.SlotTable.Slots[i];
             Word(0xF78 + offset, (ushort)slot.EnemyDefinitionPointer);
-            Word(0xF8E + offset, EnemyFrames.Installed.Spritemap(slot.Frame));
+            Word(0xF8E + offset, EnemyFrameCartridgeLookupTooling.Word(slot.Frame));
             ram[0xFA6 + offset] = slot.Definition.Bank;
             Word(0xF7A + offset, slot.Position.X.Whole); Word(0xF7E + offset, slot.Position.Y.Whole);
             Word(0xF80 + offset, slot.Position.Y.Fraction); Word(0xF82 + offset, slot.Radius.X);

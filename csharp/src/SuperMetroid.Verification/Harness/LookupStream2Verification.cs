@@ -997,12 +997,12 @@ internal static class LookupStream2Verification
         png.Position = 0;
         // An independently edited display composition is deliberately unrelated to
         // stock tile coverage. Native staging must still copy the same artwork rows.
-        var displayParts = new Dictionary<int, EnemySpritemapParts>
+        var displayParts = new Dictionary<EnemyFrameId, EnemySpritemapParts>
         {
-            [0xa9d6e2] = EnemySpritemapParts.FromOwnedArray([new(SnesSpritemapXWord.Create(70, false), new SnesSpritemapYByte(33),
+            [EnemyFrameId.DeadTorizoStationaryA9D6e2] = EnemySpritemapParts.FromOwnedArray([new(SnesSpritemapXWord.Create(70, false), new SnesSpritemapYByte(33),
                 SnesObjAttributeWord.Create(0, 7, 3, SnesTileFlipFlags.Horizontal))]),
         };
-        var displayBindings = new Dictionary<int, int> { [0xa9d6e2] = 0xa9d6e2 };
+        var displayBindings = new Dictionary<EnemyFrameId, EnemyFrameId> { [EnemyFrameId.DeadTorizoStationaryA9D6e2] = EnemyFrameId.DeadTorizoStationaryA9D6e2 };
         var display = new EnemySpritemapCatalog(displayParts, displayBindings);
         AssertTrue(display.TryGetDisplay(0xa9, 0xd6e2, out EnemySpritemapParts selectedDisplay),
             "Edited Dead Torizo display is selected");
@@ -1211,7 +1211,7 @@ internal static class LookupStream2Verification
             AssertEqual(native, frame.Pointer, "Kago native animation selects generated identity");
             AssertEqual((ushort)4, ReadVerificationWord(rom, 0xa80000 | native), "Kago native four-part record width");
             AssertEqual($"kago_cycle_{count}", frame.Name, "Kago installed resource name");
-            AssertTrue(EnemySpritemapDefinitions.Frames.Contains(frame), "Generated Kago identity reaches installed catalog");
+            AssertTrue(EnemySpritemapDefinitions.Frames.Select(installed => installed.Native).Contains(frame), "Generated Kago identity reaches installed catalog");
             count++;
         }
         AssertEqual(3, count, "Kago frame enumeration count");

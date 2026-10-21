@@ -41,7 +41,7 @@ internal static class CrocomireBodyCollisionDefinitionsVerification
         compiledSlot.Position = compiledSlot.Position.WithWholeY(0x1000);
         nativeSlot.Position = nativeSlot.Position.WithWholeY(0x1000);
 
-        var frames = CrocomireBodyVisualDefinitions.Frames;
+        var frames = CrocomireBodyVisualDefinitionsConstants.Frames;
         AssertEqual(50, frames.Count,
             "all fifty selected Crocomire fight-body roots have collision");
         // The cartridge names each component's hitbox list by address; only this oracle knows those addresses.

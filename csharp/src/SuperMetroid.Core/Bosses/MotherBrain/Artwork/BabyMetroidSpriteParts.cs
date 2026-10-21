@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Enemies.Artwork;
+
 namespace SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 
 /// <summary>Exact bilateral composition of the three native Baby poses; independent half-artwork and drawing order remain required.</summary>
@@ -35,10 +37,9 @@ internal sealed class BabyMetroidSpriteParts : EnemySpritemapParts
     }
 
     /// <summary>Pairs reflected parts for the three native poses and shares identical negative-Y dome parts with the first pose; otherwise retains the supplied composition.</summary>
-    internal static EnemySpritemapParts Compile(int identity, SpritemapPart[] supplied, ref BabyMetroidSpriteParts? bodyTemplate)
+    internal static EnemySpritemapParts Compile(EnemyFrameId frame, SpritemapPart[] supplied, ref BabyMetroidSpriteParts? bodyTemplate)
     {
-        int offset = identity - BabyMetroidCompositionDefinitions.FirstPose;
-        if (offset < 0 || offset % BabyMetroidCompositionDefinitions.PoseStride != 0 || offset / BabyMetroidCompositionDefinitions.PoseStride >= 3 || supplied.Length != BabyMetroidCompositionDefinitions.NativePartCount)
+        if (!BabyMetroidCompositionDefinitions.Poses.Contains(frame) || supplied.Length != BabyMetroidCompositionDefinitions.NativePartCount)
             return FromOwnedArray(supplied);
         var halves = new List<SpritemapPart>(BabyMetroidCompositionDefinitions.NativePartCount / 2);
         var order = new sbyte[supplied.Length];

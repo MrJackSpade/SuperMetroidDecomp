@@ -13,7 +13,7 @@ internal static class EtecoonAnimationsVerification
     internal static void VerifyEtecoonAnimations(SuperMetroidAddressSpace rom)
     {
         int steps = NativeEnemyProgramOracle.CompareAll(CartridgeImportSource.Require(rom), Bank, Entries, EtecoonAnimations.Programs,
-            EtecoonFrameDefinitions.Spritemap,
+            EtecoonFrameToolingDefinitions.Spritemap,
             word => null,
             (word, operands, cue, at) => throw new InvalidDataException($"{at}: the lists use no owner instructions."));
         Console.WriteLine($"  Etecoon programs: {Entries.Length} programs ({steps} steps) match bank $A7.");

@@ -12,7 +12,7 @@ internal static class BotwoonVisualDefinitionsFramesTooling
         /// </summary>
         internal static IReadOnlyList<BotwoonProjectileFrame> ProjectileFrames =>
         [
-            .. BotwoonVisualDefinitions.PhysicalOrder.SelectMany(facing => Enumerable.Range(0, BotwoonAnimations.BodyPhaseCount)
+            .. BotwoonVisualToolingDefinitions.PhysicalOrder.SelectMany(facing => Enumerable.Range(0, BotwoonAnimations.BodyPhaseCount)
                 .Select(phase => new BotwoonProjectileFrame(BotwoonProjectileFrameKind.Body, facing, phase))),
             .. BotwoonVisualDefinitions.TailOrder.Select(facing => new BotwoonProjectileFrame(BotwoonProjectileFrameKind.Tail, facing, 0)),
             new BotwoonProjectileFrame(BotwoonProjectileFrameKind.Hidden, BotwoonFacing.Up, 0),

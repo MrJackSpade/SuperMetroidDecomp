@@ -7,17 +7,17 @@ namespace SuperMetroid.Core.Enemies.Artwork;
 public sealed class EnemySpritemapCatalog
 {
     /// <summary>Canonical selected presentation data; no derived field is added to debugger states.</summary>
-    public string ContentIdentity => SelectedPresentationHash.Create("enemy-oam-v1", content =>
+    public string ContentIdentity => SelectedPresentationHash.Create("enemy-oam-v2", content =>
         {
-            foreach ((int frame, EnemySpritemapParts parts) in frames.OrderBy(pair => pair.Key))
+            foreach ((EnemyFrameId frame, EnemySpritemapParts parts) in frames.OrderBy(pair => pair.Key.ToString(), StringComparer.Ordinal))
             {
-                content.Append("frame", frame);
+                content.AppendName("frame", frame.ToString());
                 content.AppendEnemyParts(parts);
             }
-            foreach ((int native, int selected) in displayFrames.OrderBy(pair => pair.Key))
+            foreach ((EnemyFrameId native, EnemyFrameId selected) in displayFrames.OrderBy(pair => pair.Key.ToString(), StringComparer.Ordinal))
             {
-                content.Append("native-binding", native);
-                content.Append("selected-binding", selected);
+                content.AppendName("native-binding", native.ToString());
+                content.AppendName("selected-binding", selected.ToString());
             }
         });
 
@@ -28,32 +28,29 @@ public sealed class EnemySpritemapCatalog
     /// <summary>Character-sheet height in eight-pixel tiles for composition tile references.</summary>
     internal const int TileRows = 32;
 
-    /// <summary>Compiled OAM parts keyed by the native bank-and-pointer identity of each authored frame.</summary>
-    internal readonly Dictionary<int, EnemySpritemapParts> frames;
-    /// <summary>Visual-only mapping from each native frame identity to its selected displayed frame.</summary>
-    internal readonly Dictionary<int, int> displayFrames;
+    /// <summary>Compiled OAM parts of each authored frame.</summary>
+    internal readonly Dictionary<EnemyFrameId, EnemySpritemapParts> frames;
+    /// <summary>Visual-only mapping from each frame an enemy shows to the frame displayed for it.</summary>
+    internal readonly Dictionary<EnemyFrameId, EnemyFrameId> displayFrames;
 
-    /// <summary>Retains validated frame compositions and same-bank display selections.</summary>
-    internal EnemySpritemapCatalog(Dictionary<int, EnemySpritemapParts> frames,
-        Dictionary<int, int> displayFrames)
+    /// <summary>Retains validated frame compositions and display selections.</summary>
+    internal EnemySpritemapCatalog(Dictionary<EnemyFrameId, EnemySpritemapParts> frames,
+        Dictionary<EnemyFrameId, EnemyFrameId> displayFrames)
     {
         this.frames = frames;
         this.displayFrames = displayFrames;
     }
 
     /// <summary>
-    /// Resolves an editable presentation binding without changing the native frame pointer
-    /// retained by enemy AI, hitbox selection, or instruction timing.
+    /// Resolves an editable presentation binding without changing the frame retained by enemy AI, hitbox selection, or
+    /// instruction timing.
     /// </summary>
-    /// <param name="bank">Native enemy spritemap bank, combined with the same-bank pointer to identify the authored binding.</param>
-    /// <param name="nativePointer">Unmodified native frame word retained by gameplay; the selected visual frame must belong to the same bank.</param>
+    /// <param name="frame">The frame gameplay shows.</param>
     /// <param name="parts">Installed OAM composition selected by the binding, or <see cref="EnemySpritemapParts.Empty"/> when no bound frame is installed.</param>
-    /// <returns>True when both a display binding and its selected composition exist; missing identities return false without reading cartridge data.</returns>
-    public bool TryGetDisplay(byte bank, ushort nativePointer,
-        out EnemySpritemapParts parts)
+    /// <returns>True when both a display binding and its selected composition exist.</returns>
+    public bool TryGetDisplay(EnemyFrameId frame, out EnemySpritemapParts parts)
     {
-        int identity = ((int)new SnesAddress(bank, nativePointer));
-        if (displayFrames.TryGetValue(identity, out int selected) &&
+        if (displayFrames.TryGetValue(frame, out EnemyFrameId selected) &&
             frames.TryGetValue(selected, out EnemySpritemapParts? found))
         {
             parts = found;

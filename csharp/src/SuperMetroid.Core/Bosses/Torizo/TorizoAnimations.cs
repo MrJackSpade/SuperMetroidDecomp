@@ -146,16 +146,4 @@ internal static class TorizoAnimations
             P.GoldenWalkingRightRightLegMoving => throw new ArgumentOutOfRangeException(nameof(program), program, "The program does not sleep before authored code."),
         _ => throw new ArgumentOutOfRangeException(nameof(program), program, "The program does not sleep before authored code."),
     };
-
-    /// <summary>
-    /// The extended spritemaps <paramref name="programs"/> show, in authored order with repeats: the artwork schema's
-    /// first-seen frame order.
-    /// </summary>
-    internal static IEnumerable<ushort> Spritemaps(params TorizoBodyProgram[] programs) =>
-        programs.SelectMany(program => Programs.Steps(program))
-            .OfType<AnimationProgramStep<P, TorizoFrame, TorizoCue>.ShowStep>()
-            .Select(step => TorizoFrameDefinitions.Spritemap(step.Frame));
-
-    /// <summary>Every body program, in authored address order.</summary>
-    internal static TorizoBodyProgram[] AllPrograms { get; } = Enum.GetValues<TorizoBodyProgram>();
 }

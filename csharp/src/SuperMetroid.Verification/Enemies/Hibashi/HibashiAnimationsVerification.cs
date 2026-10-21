@@ -13,7 +13,7 @@ internal static class HibashiAnimationsVerification
     internal static void VerifyHibashiAnimations(SuperMetroidAddressSpace rom)
     {
         int steps = NativeEnemyProgramOracle.CompareAll(CartridgeImportSource.Require(rom), Bank, Entries, HibashiAnimations.Programs,
-            HibashiFrameDefinitions.Spritemap,
+            HibashiFrameToolingDefinitions.Spritemap,
             word => Instructions.TryGetValue(word, out var instruction) ? instruction.Operands.Length : null,
             (word, operands, cue, at) =>
             {

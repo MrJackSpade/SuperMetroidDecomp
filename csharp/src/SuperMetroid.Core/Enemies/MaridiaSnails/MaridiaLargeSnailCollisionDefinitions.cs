@@ -12,12 +12,6 @@ internal static class MaridiaLargeSnailCollisionDefinitions
 {
     /// <summary>Native bank containing Oum's extended frames and hitbox lists.</summary>
     internal const byte Bank = 0xa2;
-    /// <summary>First Oum extended frame, <c>ExtendedSpritemap_Oum_FacingLeft_0</c> at $A2:CB87.</summary>
-    private const ushort FirstFrame = 0xcb87;
-    /// <summary>Last Oum extended frame, <c>ExtendedSpritemap_Oum_FacingRight_E</c> at $A2:CCA9.</summary>
-    private const ushort LastFrame = 0xcca9;
-    /// <summary>Each native one-component extended frame occupies ten bytes.</summary>
-    private const int FrameStride = 10;
     /// <summary>Bank-$A2 callback used by Oum's extended hitboxes that hurt Samus on contact.</summary>
     private const EnemyInteractionCallback DamageTouch = EnemyInteractionCallback.MaridiaLargeSnailDamagingTouch;
     /// <summary>Bank-$A2 callback for Oum surfaces that permit harmless contact.</summary>
@@ -96,27 +90,4 @@ internal static class MaridiaLargeSnailCollisionDefinitions
         { EnemyFrameId.OumOamCC9F, Lists[28] },
         { EnemyFrameId.OumOamCCA9, Lists[29] },
     };
-
-    /// <summary>Enumerates all thirty one-component Oum frames in native address order.</summary>
-    internal static FramePointerSequence FramePointers => default;
-
-    /// <summary>Consecutive ten-byte one-component frame identities at $A2:CB87-$CCA9.</summary>
-    internal readonly struct FramePointerSequence : IReadOnlyList<ushort>
-    {
-        /// <summary>Thirty native frames cover both facing directions.</summary>
-        public int Count => (LastFrame - FirstFrame) / FrameStride + 1;
-        /// <summary>Alias for the compiled frame count.</summary>
-        public int Length => Count;
-        /// <summary>Calculates an aligned frame pointer from its native ordinal.</summary>
-        public ushort this[int index] => (uint)index < Count
-            ? (ushort)(FirstFrame + index * FrameStride)
-            : throw new ArgumentOutOfRangeException(nameof(index));
-        /// <summary>Visits Oum frame pointers in ascending native address order.</summary>
-        public IEnumerator<ushort> GetEnumerator()
-        {
-            for (int index = 0; index < Count; index++) yield return this[index];
-        }
-        /// <summary>Exposes the same frame ordering through non-generic enumeration.</summary>
-        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
-    }
 }

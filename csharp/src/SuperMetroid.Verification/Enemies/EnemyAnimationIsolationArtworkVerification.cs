@@ -32,7 +32,7 @@ internal static class EnemyAnimationIsolationArtworkVerification
 
         EnemyExtendedFrameDocument extended = fixture.ExtendedDocument();
         var torizo = EnemyExtendedFrameDefinitions.Frames
-            .Where(frame => frame.Bank == TorizoFrameDefinitions.Bank).ToArray();
+            .Where(frame => frame.Bank == TorizoFrameDefinitionsConstants.Bank).ToArray();
         for (int index = 0; index < torizo.Length; index++)
             extended.Frames[torizo[index].Name] =
             [
@@ -94,7 +94,7 @@ internal static class EnemyAnimationIsolationArtworkVerification
         else
         {
             var definitions = EnemyExtendedFrameDefinitions.Frames
-                .Where(value => value.Bank == TorizoFrameDefinitions.Bank).ToArray();
+                .Where(value => value.Bank == TorizoFrameDefinitionsConstants.Bank).ToArray();
             var orb = definitions.Where(value => GoldenTorizoRightOrbFrames().Contains(value.Pointer)).ToArray();
             int orbIndex = Array.FindIndex(orb, value => value.Pointer == actor.SpritemapPointer);
             ushort selected = orbIndex >= 0 ? orb[(orbIndex + 1) % orb.Length].Pointer : actor.SpritemapPointer;

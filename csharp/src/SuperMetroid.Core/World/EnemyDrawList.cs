@@ -109,24 +109,17 @@ internal sealed class EnemyDrawList
                 {
                     EnemyFrameId frame = slot.Frame ?? throw new InvalidDataException(
                         $"Enemy ${(int)slot.EnemyDefinitionPointer:X4} draws before showing a frame.");
-                    // Only the enemy banks carrying the shared empty record can show the common empty frame.
-                    if (frame == EnemyFrameId.Empty &&
-                        !CommonEnemyEmptyExtendedFrameDefinitions.HasEmptySpritemap(slot.Definition.Bank, _room.Frames.Spritemap(frame)))
-                        throw new InvalidDataException(
-                            $"Enemy ${(int)slot.EnemyDefinitionPointer:X4} in bank ${slot.Definition.Bank:X2} has no common empty frame.");
                     prepared.Add(new PreparedEnemyDraw(layer, slot, nativeIndex, origin, drawPaletteIndex, frame, null));
                     continue;
                 }
 
-                if (_room.Artwork?.ExtendedFrames?.TryGetDisplay(slot.Definition.Bank,
-                        _room.Frames.Spritemap(slot.Frame),
-                        out ReadOnlyMemory<EnemyExtendedDrawComponent> installed) == true)
+                if (slot.Frame is { } shown &&
+                    _room.Artwork?.ExtendedFrames?.TryGetDisplay(shown, out ReadOnlyMemory<EnemyExtendedDrawComponent> installed) == true)
                 {
                     // Resolve both halves through one presentation binding. Validate
                     // the composition before any BG2 side effects; physical selectors
                     // continue to belong to compiled animation and collision programs.
-                    ushort selected = _room.Artwork.ExtendedFrames.GetDisplayPointer(
-                        slot.Definition.Bank, _room.Frames.Spritemap(slot.Frame));
+                    EnemyFrameId selected = _room.Artwork.ExtendedFrames.GetDisplayFrame(shown);
                     _instructions.ApplyInstalledEnemyBg2Frame(slot, selected);
                     prepared.Add(new PreparedEnemyDraw(layer, slot, nativeIndex, origin, drawPaletteIndex, null, installed));
                     continue;
@@ -134,7 +127,7 @@ internal sealed class EnemyDrawList
 
                 throw new InvalidDataException(
                     $"Enemy ${(int)slot.EnemyDefinitionPointer:X4} extended frame " +
-                    $"${slot.Definition.Bank:X2}:{slot.Frame} has no installed presentation.");
+                    $"{slot.Frame} has no installed presentation.");
             }
         }
         _prepared = prepared;

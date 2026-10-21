@@ -42,9 +42,9 @@ internal sealed class PhantoonEntity(PhantoonBehavior species, RoomEnemySlot slo
     public bool? FindHitboxCallback(EnemyHitboxProbe probe, out EnemyInteractionCallback? callback) => PhantoonCombat.FindPhantoonHitboxCallback(Slot, probe, out callback);
 
     /// <inheritdoc/>
-    public EnemyBg2FrameLookup? FindBg2Frame(ushort selected, EnemyRoomBinding room)
+    public EnemyBg2FrameLookup? FindBg2Frame(EnemyFrameId selected, EnemyRoomBinding room)
     {
-        if (Slot.Definition.Bank != PhantoonBg2FrameDefinitions.Bank || !PhantoonBg2FrameDefinitions.IsFrame(selected))
+        if (!PhantoonBg2FrameDefinitions.IsFrame(selected))
             return null;
         ReadOnlyMemory<EnemyBg2TilemapWrite> writes = default;
         bool found = _bossArtwork.Installed.PhantoonBg2Frames?.TryGet(selected, out writes) == true;

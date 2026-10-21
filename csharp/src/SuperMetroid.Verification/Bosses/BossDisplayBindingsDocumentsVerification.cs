@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using SuperMetroid.Core.World.Artwork;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Bosses.Artwork;
@@ -9,7 +10,6 @@ using SuperMetroid.Core.Bosses.Crocomire.Artwork;
 using SuperMetroid.Core.Bosses.Draygon.Artwork;
 using SuperMetroid.Core.Bosses.Phantoon.Artwork;
 using SuperMetroid.Core.Rooms.Artwork;
-using SuperMetroid.Core.Assets;
 namespace SuperMetroid.Verification.Bosses;
 
 /// <summary>Provides editable boss OAM and BG2 documents for display-binding checks.</summary>
@@ -52,7 +52,7 @@ internal static class BossDisplayBindingsDocumentsVerification
         /// <summary>Loads fixture documents into an artwork catalog, optionally omitting one BG2 family.</summary>
         internal InstalledEnemyArtwork Build(bool extended = true, byte? omitBg2Bank = null) => new(
             EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(), ExtendedFrames = extended ? EnemyExtendedFrameDocuments.Load(json.Json(Oam)) : null }),
-            new BossArtworkCatalog { CrocomireBg2Frames = omitBg2Bank == CrocomireBg2FrameDefinitions.Bank ? null : CrocomireBg2FrameCatalog.Load(json.Json(Crocomire)), PhantoonBg2Frames = omitBg2Bank == PhantoonBg2FrameDefinitions.Bank ? null : PhantoonBg2FrameCatalog.Load(json.Json(Phantoon)), DraygonBg2Frames = omitBg2Bank == DraygonBg2FrameDefinitions.Bank ? null : DraygonBg2FrameCatalog.Load(json.Json(Draygon)) },
+            new BossArtworkCatalog { CrocomireBg2Frames = omitBg2Bank == CrocomireBg2FrameDefinitionsConstants.Bank ? null : CrocomireBg2FrameCatalog.Load(json.Json(Crocomire)), PhantoonBg2Frames = omitBg2Bank == PhantoonBg2FrameDefinitionsConstants.Bank ? null : PhantoonBg2FrameCatalog.Load(json.Json(Phantoon)), DraygonBg2Frames = omitBg2Bank == DraygonBg2FrameToolingDefinitions.Bank ? null : DraygonBg2FrameCatalog.Load(json.Json(Draygon)) },
             new AreaArtworkCatalog());
 
         /// <summary>Resolves the redirected display pose for a native frame in the fixture.</summary>
@@ -64,12 +64,12 @@ internal static class BossDisplayBindingsDocumentsVerification
         {
             WritesCase family = bank switch
             {
-                CrocomireBg2FrameDefinitions.Bank => new WritesCase(Crocomire, CrocomireBg2FrameDefinitions.Frames.ToArray()),
-                PhantoonBg2FrameDefinitions.Bank => new WritesCase(Phantoon, PhantoonBg2FrameDefinitions.Frames.ToArray()),
-                DraygonBg2FrameDefinitions.Bank => new WritesCase(Draygon, DraygonBg2FrameDefinitions.Frames.ToArray()),
+                CrocomireBg2FrameDefinitionsConstants.Bank => new WritesCase(Crocomire, CrocomireBg2FrameDefinitions.Frames.ToArray()),
+                PhantoonBg2FrameDefinitionsConstants.Bank => new WritesCase(Phantoon, PhantoonBg2FrameDefinitions.Frames.ToArray()),
+                DraygonBg2FrameToolingDefinitions.Bank => new WritesCase(Draygon, DraygonBg2FrameDefinitions.Frames.ToArray()),
                 _ => throw new InvalidDataException("Unknown fixture family."),
             };
-            foreach (SpritemapFrameDefinition frame in family.Definitions)
+            foreach (EnemySpritemapDefinition frame in family.Definitions)
                 if (frame.Pointer == pointer) return family.Document.Frames[frame.Name];
             return [];
         }
@@ -79,15 +79,15 @@ internal static class BossDisplayBindingsDocumentsVerification
         {
             EnemySpritemapDefinition[] all = EnemyExtendedFrameDefinitions.Frames.ToArray();
             yield return new FamiliesResult(EnemyDefinitionId.Crocomire, all.Where(frame =>
-                frame.Bank == CrocomireBodyVisualDefinitions.Bank && frame.Name.StartsWith("crocomire_body_oam_", StringComparison.Ordinal)).ToArray());
+                frame.Bank == CrocomireBodyVisualToolingDefinitions.Bank && frame.Name.StartsWith("crocomire_body_oam_", StringComparison.Ordinal)).ToArray());
             yield return new FamiliesResult(EnemyDefinitionId.PhantoonBody, all.Where(frame =>
-                frame.Bank == PhantoonBg2FrameDefinitions.Bank && PhantoonBg2FrameDefinitions.IsFrame(frame.Pointer)).ToArray());
-            yield return new FamiliesResult(EnemyDefinitionId.DraygonBody, all.Where(frame => frame.Bank == DraygonBg2FrameDefinitions.Bank &&
+                frame.Bank == PhantoonBg2FrameDefinitionsConstants.Bank && PhantoonBg2FrameDefinitionsConstants.IsFrame(frame.Pointer)).ToArray());
+            yield return new FamiliesResult(EnemyDefinitionId.DraygonBody, all.Where(frame => frame.Bank == DraygonBg2FrameToolingDefinitions.Bank &&
                 (frame.Name.StartsWith("draygon_oam_", StringComparison.Ordinal) || frame.Name.StartsWith("draygon_bg2_", StringComparison.Ordinal))).ToArray());
         }
 
         /// <summary>Gives each BG2 frame distinctive tile values and relocates one write when edited.</summary>
-        private static EnemyBg2FrameDocument Bg2(EnemyBg2FrameDefinitionSequence definitions, bool edited) => new()
+        private static EnemyBg2FrameDocument Bg2(ImmutableArray<EnemySpritemapDefinition> definitions, bool edited) => new()
         {
             Version = 1,
             Frames = definitions.SelectToArray((frame, index) => KeyValuePair.Create(frame.Name,

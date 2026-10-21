@@ -1,3 +1,5 @@
+using System.Collections.Immutable;
+
 namespace SuperMetroid.Core.Enemies.Artwork;
 
 /// <summary>
@@ -6,12 +8,12 @@ namespace SuperMetroid.Core.Enemies.Artwork;
 /// </summary>
 internal static class ChozoStrideGeometryDefinitions
 {
-    /// <summary>$AA:E943, Spritemaps_Chozo_4: first of eight stride compositions.</summary>
-    private const int FirstPose = 0xaae943;
-    /// <summary>$AA:E943/EAFE: the first pose of each four-pose stride has 21 five-byte parts.</summary>
-    private const int FirstPartCount = 21;
-    /// <summary>$AA:E9AE/EA1E/EA8E and EB69/EBD9/EC49: other stride poses have 22 parts.</summary>
-    private const int OtherPartCount = 22;
+    /// <summary>The eight stride compositions, Spritemaps_Chozo_4 onwards: two strides of four phases.</summary>
+    internal static ImmutableArray<EnemyFrameId> Poses { get; } =
+    [
+        EnemyFrameId.ChozoStatueAaE943, EnemyFrameId.ChozoStatueAaE9ae, EnemyFrameId.ChozoStatueAaEa1e, EnemyFrameId.ChozoStatueAaEa8e,
+        EnemyFrameId.ChozoStatueAaEafe, EnemyFrameId.ChozoStatueAaEb69, EnemyFrameId.ChozoStatueAaEbd9, EnemyFrameId.ChozoStatueAaEc49,
+    ];
     /// <summary>Width of one OBJ glyph, the distance from the left foot to the adjacent right foot.</summary>
     private const int TilePixels = 8;
 
@@ -37,23 +39,11 @@ internal static class ChozoStrideGeometryDefinitions
         _ => throw new ArgumentOutOfRangeException(nameof(phase)),
     };
 
-    /// <summary>Calculates the bank $AA spritemap address for an eight-pose stride index.</summary>
-    internal static int NativePoseIdentity(int pose)
-    {
-        if ((uint)pose >= 8) throw new ArgumentOutOfRangeException(nameof(pose));
-        int firstBytes = 2 + FirstPartCount * 5;
-        int otherBytes = 2 + OtherPartCount * 5;
-        int phase = pose % 4;
-        return FirstPose + pose / 4 * (firstBytes + 3 * otherBytes) +
-            (phase == 0 ? 0 : firstBytes + (phase - 1) * otherBytes);
-    }
-
     /// <summary>Uses phase-derived foot positions only when the supplied pose has exactly one matching glyph pair.</summary>
-    internal static EnemySpritemapParts Compile(int identity, EnemySpritemapParts supplied)
+    internal static EnemySpritemapParts Compile(EnemyFrameId frame, EnemySpritemapParts supplied)
     {
-        int pose = 0;
-        while (pose < 8 && NativePoseIdentity(pose) != identity) pose++;
-        if (pose == 8) return supplied;
+        int pose = Poses.IndexOf(frame);
+        if (pose < 0) return supplied;
         int phase = pose % 4;
         int left = -1, right = -1;
         for (int index = 0; index < supplied.Count; index++)

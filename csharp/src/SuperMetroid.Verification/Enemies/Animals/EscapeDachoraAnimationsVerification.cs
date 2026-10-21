@@ -13,7 +13,7 @@ internal static class EscapeDachoraAnimationsVerification
     internal static void VerifyEscapeDachoraAnimations(SuperMetroidAddressSpace rom)
     {
         int steps = NativeEnemyProgramOracle.CompareAll(CartridgeImportSource.Require(rom), Bank, Entries, EscapeDachoraAnimations.Programs,
-            EscapeDachoraFrameDefinitions.Spritemap,
+            EscapeDachoraFrameToolingDefinitions.Spritemap,
             word => Instructions.TryGetValue(word, out var instruction) ? instruction.Operands.Length : null,
             (word, operands, cue, at) =>
             {

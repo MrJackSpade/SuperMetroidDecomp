@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using SuperMetroid.Core.Assets;
@@ -11,11 +12,11 @@ namespace SuperMetroid.Core.Enemies.Artwork;
 internal sealed class EnemyBg2FrameCatalog
 {
     /// <summary>Canonical frames retain command order, destinations and each tile-run boundary.</summary>
-    internal string ContentIdentity => SelectedPresentationHash.Create("enemy-bg2-frames-v1", content =>
+    internal string ContentIdentity => SelectedPresentationHash.Create("enemy-bg2-frames-v2", content =>
         {
-            foreach ((ushort frame, EnemyBg2TilemapWrite[] writes) in frames.OrderBy(pair => pair.Key))
+            foreach ((EnemyFrameId frame, EnemyBg2TilemapWrite[] writes) in frames.OrderBy(pair => pair.Key.ToString(), StringComparer.Ordinal))
             {
-                content.Append("frame", frame);
+                content.AppendName("frame", frame.ToString());
                 content.Append("writes", writes.Length);
                 foreach (EnemyBg2TilemapWrite write in writes)
                 {
@@ -25,17 +26,17 @@ internal sealed class EnemyBg2FrameCatalog
             }
         });
 
-    /// <summary>Validated ordered BG2 writes keyed by each native extended-frame pointer.</summary>
-    private readonly Dictionary<ushort, EnemyBg2TilemapWrite[]> frames;
+    /// <summary>Validated ordered BG2 writes keyed by the extended frame that selects them.</summary>
+    private readonly Dictionary<EnemyFrameId, EnemyBg2TilemapWrite[]> frames;
 
     /// <summary>Owns the validated writes for one enemy frame family.</summary>
-    private EnemyBg2FrameCatalog(Dictionary<ushort, EnemyBg2TilemapWrite[]> frames) =>
+    private EnemyBg2FrameCatalog(Dictionary<EnemyFrameId, EnemyBg2TilemapWrite[]> frames) =>
         this.frames = frames;
 
-    /// <summary>Retrieves the ordered tilemap writes selected by a native frame pointer, if present.</summary>
-    internal bool TryGet(ushort pointer, out ReadOnlyMemory<EnemyBg2TilemapWrite> writes)
+    /// <summary>Retrieves the ordered tilemap writes <paramref name="frame"/> selects, if present.</summary>
+    internal bool TryGet(EnemyFrameId frame, out ReadOnlyMemory<EnemyBg2TilemapWrite> writes)
     {
-        if (frames.TryGetValue(pointer, out EnemyBg2TilemapWrite[]? found))
+        if (frames.TryGetValue(frame, out EnemyBg2TilemapWrite[]? found))
         {
             writes = found;
             return true;
@@ -46,7 +47,7 @@ internal sealed class EnemyBg2FrameCatalog
 
     /// <summary>Validates a complete named frame document and compiles its horizontal tile runs to BG2 destinations.</summary>
     internal static EnemyBg2FrameCatalog Load(Stream json,
-        EnemyBg2FrameDefinitionSequence definitions, int version, string family)
+        ImmutableArray<EnemySpritemapDefinition> definitions, int version, string family)
     {
         Ensure.NotNull(json);
         EnemyBg2FrameDocument document;
@@ -56,8 +57,8 @@ internal sealed class EnemyBg2FrameCatalog
             throw new InvalidDataException(
                 $"{family} BG2 frames require the current version and every named frame.");
 
-        var frames = new Dictionary<ushort, EnemyBg2TilemapWrite[]>();
-        foreach (SpritemapFrameDefinition frame in definitions)
+        var frames = new Dictionary<EnemyFrameId, EnemyBg2TilemapWrite[]>();
+        foreach (EnemySpritemapDefinition frame in definitions)
         {
             if (!document.Frames.TryGetValue(frame.Name, out EnemyBg2WriteDocument[]? source) ||
                 source is null || source.Length is < 1 or >
@@ -81,7 +82,7 @@ internal sealed class EnemyBg2FrameCatalog
                     write.Y * EnemyBg2FrameLayout.TilemapWidth + write.X,
                     write.Tiles.Select(tile => checked((ushort)tile)).ToArray());
             }
-            if (!frames.TryAdd(frame.Pointer, writes))
+            if (!frames.TryAdd(frame.Frame, writes))
                 throw new InvalidDataException(
                     $"{family} BG2 frame {frame.Name} repeats a native identity.");
         }

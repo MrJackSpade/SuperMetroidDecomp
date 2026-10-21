@@ -1940,9 +1940,9 @@ internal static class LookupStream1Verification
         for (int bank = 0; bank <= byte.MaxValue; bank++)
         {
             bool expected = originalBanks.Contains((byte)bank);
-            AssertEqual(expected, CommonEnemyEmptyExtendedFrameDefinitions.HasFrame((byte)bank, 0x804f), "common empty extended-frame exact bank domain");
-            AssertEqual(expected, CommonEnemyEmptyExtendedFrameDefinitions.HasEmptySpritemap((byte)bank, 0x804d), "common empty OAM exact bank domain");
-            AssertTrue(!CommonEnemyEmptyExtendedFrameDefinitions.HasFrame((byte)bank, 0x8050), "common empty frame excludes neighboring pointer");
+            AssertEqual(expected, CommonEnemyEmptyExtendedFrameToolingDefinitionsConstants.HasFrame((byte)bank, 0x804f), "common empty extended-frame exact bank domain");
+            AssertEqual(expected, CommonEnemyEmptyExtendedFrameToolingDefinitions.HasEmptySpritemap((byte)bank, 0x804d), "common empty OAM exact bank domain");
+            AssertTrue(!CommonEnemyEmptyExtendedFrameToolingDefinitionsConstants.HasFrame((byte)bank, 0x8050), "common empty frame excludes neighboring pointer");
             if (expected)
             {
                 AssertEqual((byte)0, LookupStream1CommonFramesRomByte(rom, ((int)new SnesAddress(checked((byte)bank), checked(0x804d)))), "native common OAM has zero components");

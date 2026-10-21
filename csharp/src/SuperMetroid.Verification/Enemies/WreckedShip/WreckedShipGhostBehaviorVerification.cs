@@ -24,7 +24,7 @@ internal static class WreckedShipGhostBehaviorVerification
         AssertEqual(AnimationProgramCursor<WreckedShipGhostProgram>.Start(WreckedShipGhostProgram.Floating),
             (enemies.SlotTable.Slots[0].EntityState<WreckedShipGhostEntity, WreckedShipGhostEnemyState>() ?? throw new InvalidOperationException("The ghost has no state.")).Program,
             "real Wrecked Ship ghost initializer starts the floating loop");
-        ushort[] loop = WreckedShipGhostAnimations.Spritemaps(WreckedShipGhostProgram.Floating).ToArray();
+        ushort[] loop = WreckedShipGhostAnimationsTooling.Spritemaps(WreckedShipGhostProgram.Floating).ToArray();
         AssertEqual(EnemyInstructionRunner.ExpectedFrames([.. loop, loop[0]], [16, 16, 16, 16]),
             EnemyInstructionRunner.ShownFrames(ghost, 49), "Wrecked Ship ghost floating loop and its goto");
         Console.WriteLine("  Wrecked Ship ghost behavior: the initializer starts and runs the floating loop.");

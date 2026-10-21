@@ -124,7 +124,7 @@ internal static class ShutterBehaviorVerification
             ShutterProgram.GrowingTenPixels, ShutterProgram.GrowingTwentyPixels, ShutterProgram.GrowingThirtyPixels,
             ShutterProgram.FortyPixels, ShutterProgram.Horizontal,
         ];
-        EnemySpritemapDefinition[] frames = ShutterVisualDefinitions.Frames();
+        NativeEnemySpritemapDefinition[] frames = ShutterVisualDefinitions.Frames();
         AssertEqual(programs.Length, frames.Length, "one exported shutter composition per pose");
         for (int index = 0; index < programs.Length; index++)
             AssertEqual(ShutterAnimationsConstants.Spritemaps(programs[index]).Single(), frames[index].Pointer, "shutter export pointer is its program's pose");

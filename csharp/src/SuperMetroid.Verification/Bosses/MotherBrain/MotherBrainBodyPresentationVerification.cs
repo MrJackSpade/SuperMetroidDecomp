@@ -36,18 +36,18 @@ internal static class MotherBrainBodyPresentationVerification
         EnemyBg2FrameDocument stockBg2 = BodyBg2(edited: false), editedBg2 = BodyBg2(edited: true);
         var baseline = new MotherBrainPresentationFixture(Build(stockOam, stockBg2));
         var mixed = MotherBrainBodyVisualDefinitions.Frames
-            .Where(frame => MotherBrainBodyVisualDefinitions.HasBg2(frame.Pointer)).ToArray();
+            .Where(frame => MotherBrainBodyVisualDefinitionsConstants.HasBg2(frame.Pointer)).ToArray();
         var physicalFrames = Enum.GetValues<MotherBrainBodyProgram>()
             .SelectMany(program => MotherBrainAnimations.Body.Steps(program))
             .OfType<AnimationProgramStep<MotherBrainBodyProgram, MotherBrainBodyFrame, MotherBrainBodyCue>.ShowStep>()
-            .Select(step => MotherBrainBodyVisualDefinitions.Frame(step.Frame.Index).Pointer).ToHashSet();
+            .Select(step => MotherBrainBodyVisualDefinitionsConstants.Frame(step.Frame.Index).Pointer).ToHashSet();
         AssertTrue(physicalFrames.SetEquals(MotherBrainBodyVisualDefinitions.Frames
             .Select(frame => frame.Pointer)), "installed body inventory covers every compiled program selector, not only exercised paths");
         // Remap the whole mixed pose, not only its limbs. The native selector must not change.
         for (int index = 0; index < mixed.Length; index++)
             (editedOam.DisplayFrames ?? throw new InvalidOperationException("Verification requires editedOam.DisplayFrames."))[mixed[index].Name] = mixed[(index + 1) % mixed.Length].Name;
         var replacement = new MotherBrainPresentationFixture(Build(editedOam, editedBg2));
-        foreach (EnemySpritemapDefinition frame in MotherBrainBodyVisualDefinitions.Frames)
+        foreach (NativeEnemySpritemapDefinition frame in MotherBrainBodyVisualDefinitions.Frames)
         {
             baseline.SetFrame(frame.Pointer, fresh: true);
             replacement.SetFrame(frame.Pointer, fresh: true);
@@ -100,7 +100,7 @@ internal static class MotherBrainBodyPresentationVerification
         {
             EnemyExtendedFrameDocument document = author.ExtendedDocument();
             int index = 0;
-            foreach (EnemySpritemapDefinition frame in MotherBrainBodyVisualDefinitions.Frames)
+            foreach (NativeEnemySpritemapDefinition frame in MotherBrainBodyVisualDefinitions.Frames)
             {
                 SpriteVisualPart part = document.Frames[frame.Name][0].Parts[0] with
                 { OffsetX = 2, OffsetY = 3, Size = 16, TileColumn = index % 16, TileRow = index / 16,
@@ -169,12 +169,12 @@ internal static class MotherBrainBodyPresentationVerification
         EnemyExtendedFrameCatalog oam = EnemyExtendedFrameDocuments.Load(new MemoryStream(
             EnemyExtendedFrameFiles.Extract(source), writable: false));
         int limbs = 0, sprites = 0, runs = 0, tiles = 0;
-        foreach (EnemySpritemapDefinition frame in MotherBrainBodyVisualDefinitions.Frames)
+        foreach (NativeEnemySpritemapDefinition frame in MotherBrainBodyVisualDefinitions.Frames)
         {
             AssertTrue(oam.TryGet(frame.Bank, frame.Pointer, out var parts), frame.Name + " imports its OAM half");
             limbs += parts.Length;
             foreach (EnemyExtendedDrawComponent component in parts.Span) sprites += component.Parts.Length;
-            if (!MotherBrainBodyVisualDefinitions.HasBg2(frame.Pointer)) continue;
+            if (!MotherBrainBodyVisualDefinitionsConstants.HasBg2(frame.Pointer)) continue;
             AssertTrue(bg2.TryGet(frame.Pointer, out var writes), frame.Name + " imports its BG2 half");
             runs += writes.Length;
             foreach (EnemyBg2TilemapWrite write in writes.Span) tiles += write.Tiles.Length;

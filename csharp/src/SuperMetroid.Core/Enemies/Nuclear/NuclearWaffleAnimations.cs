@@ -32,12 +32,6 @@ internal static class NuclearWaffleAnimations
         ],
     });
 
-    /// <summary>The spritemaps <paramref name="programs"/> show, in authored order with repeats.</summary>
-    internal static IEnumerable<ushort> Spritemaps(params NuclearWaffleProgram[] programs) =>
-        programs.SelectMany(program => Programs.Steps(program))
-            .OfType<AnimationProgramStep<P, NuclearWaffleFrame, NoAnimationCue>.ShowStep>()
-            .Select(step => NuclearWaffleFrameDefinitions.Spritemap(step.Frame));
-
     /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationProgramStep<NuclearWaffleProgram, NuclearWaffleFrame, NoAnimationCue> Show(int pose, int duration) => AnimationProgramStep<NuclearWaffleProgram, NuclearWaffleFrame, NoAnimationCue>.Show(new(pose), duration);
 

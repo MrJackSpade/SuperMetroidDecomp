@@ -101,12 +101,6 @@ internal static class EscapeEtecoonAnimations
         ],
     });
 
-    /// <summary>The spritemaps <paramref name="programs"/> show, in authored order with repeats.</summary>
-    internal static IEnumerable<ushort> Spritemaps(params EscapeEtecoonProgram[] programs) =>
-        programs.SelectMany(program => Programs.Steps(program))
-            .OfType<AnimationProgramStep<P, EscapeEtecoonFrame, EscapeEtecoonCue>.ShowStep>()
-            .Select(step => EscapeEtecoonFrameDefinitions.Spritemap(step.Frame));
-
     /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationProgramStep<EscapeEtecoonProgram, EscapeEtecoonFrame, EscapeEtecoonCue> Show(int pose, int duration) => AnimationProgramStep<EscapeEtecoonProgram, EscapeEtecoonFrame, EscapeEtecoonCue>.Show(new(pose), duration);
 

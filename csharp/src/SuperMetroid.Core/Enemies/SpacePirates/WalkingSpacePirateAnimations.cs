@@ -123,12 +123,6 @@ internal static class WalkingSpacePirateAnimations
         ],
     });
 
-    /// <summary>The spritemaps <paramref name="programs"/> show, in authored order with repeats.</summary>
-    internal static IEnumerable<ushort> Spritemaps(params WalkingSpacePirateProgram[] programs) =>
-        programs.SelectMany(program => Programs.Steps(program))
-            .OfType<AnimationProgramStep<P, WalkingSpacePirateFrame, WalkingSpacePirateCue>.ShowStep>()
-            .Select(step => WalkingSpacePirateFrameDefinitions.Spritemap(step.Frame));
-
     /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationProgramStep<WalkingSpacePirateProgram, WalkingSpacePirateFrame, WalkingSpacePirateCue> Show(int pose, int duration) => AnimationProgramStep<WalkingSpacePirateProgram, WalkingSpacePirateFrame, WalkingSpacePirateCue>.Show(new(pose), duration);
 

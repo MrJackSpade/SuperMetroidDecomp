@@ -1,3 +1,6 @@
+using System.Collections.Immutable;
+using SuperMetroid.Core.Enemies.Artwork;
+
 namespace SuperMetroid.Core.Bosses.Torizo.Artwork;
 
 /// <summary>
@@ -7,8 +10,16 @@ namespace SuperMetroid.Core.Bosses.Torizo.Artwork;
 /// </summary>
 internal static class GoldenTorizoStrideGeometryDefinitions
 {
-    /// <summary>$AA:A4FA-A64D: ten four-component left-walking extended frames, each2+4*8bytes.</summary>
-    internal const int FirstFrame = 0xaaa4fa, FrameBytes = 2 + 4 * 8, BodyComponent = 2;
+    /// <summary>The ten four-component left-walking extended frames, one per walking phase.</summary>
+    internal static ImmutableArray<EnemyFrameId> WalkingFrames { get; } =
+    [
+        EnemyFrameId.GoldenTorizoWalkLeftA4FA, EnemyFrameId.GoldenTorizoWalkLeftA51C, EnemyFrameId.GoldenTorizoWalkLeftA53E,
+        EnemyFrameId.GoldenTorizoWalkLeftA560, EnemyFrameId.GoldenTorizoWalkLeftA582, EnemyFrameId.GoldenTorizoWalkLeftA5A4,
+        EnemyFrameId.GoldenTorizoWalkLeftA5C6, EnemyFrameId.GoldenTorizoWalkLeftA5E8, EnemyFrameId.GoldenTorizoWalkLeftA60A,
+        EnemyFrameId.GoldenTorizoWalkLeftA62C,
+    ];
+    /// <summary>The walking frames' body component, which carries the planted foot.</summary>
+    internal const int BodyComponent = 2;
     /// <summary>$AA:968D/8FE0/9720/91B4: the incoming support foot begins at X=-37.</summary>
     private const int ForwardPlantX = -37;
     /// <summary>$AA:905F/9233: early planted-foot origins for the two alternating legs.</summary>
@@ -44,12 +55,12 @@ internal static class GoldenTorizoStrideGeometryDefinitions
     }
 
     /// <summary>Replaces matching body-component foot strips with calculated planted geometry.</summary>
-    internal static EnemySpritemapParts Compile(int frameIdentity, int componentIndex, EnemySpritemapParts supplied)
+    internal static EnemySpritemapParts Compile(EnemyFrameId frame, int componentIndex, EnemySpritemapParts supplied)
     {
-        int offset = frameIdentity - FirstFrame;
-        if (componentIndex != BodyComponent || offset < 0 || offset % FrameBytes != 0 || offset / FrameBytes >= 10)
+        int phase = WalkingFrames.IndexOf(frame);
+        if (componentIndex != BodyComponent || phase < 0)
             return supplied;
-        int phase = offset / FrameBytes, supportPalette = phase < 5 ? 1 : 2;
+        int supportPalette = phase < 5 ? 1 : 2;
         bool doublePlant = phase % 5 == 0;
         int seen = 0;
         var footIndices = new List<int>();

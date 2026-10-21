@@ -17,23 +17,23 @@ internal static class FriendlyAnimalResourceChecks
         {
             case "Etecoon":
                 EnemyCompositionResourceChecks.RunSpritemaps(family, FriendlyAnimalVisualDefinitions.NormalBank,
-                    EtecoonAnimations.Spritemaps(Enum.GetValues<EtecoonProgram>()),
+                    EtecoonAnimationsTooling.Spritemaps(Enum.GetValues<EtecoonProgram>()),
                     FriendlyAnimalVisualDefinitions.EtecoonFrameCount, previousVersion, previousCount, previousCount);
                 return;
             case "Dachora":
                 EnemyCompositionResourceChecks.RunSpritemaps(family, FriendlyAnimalVisualDefinitions.NormalBank,
-                    DachoraAnimations.Spritemaps(Enum.GetValues<DachoraProgram>()),
+                    DachoraAnimationsTooling.Spritemaps(Enum.GetValues<DachoraProgram>()),
                     FriendlyAnimalVisualDefinitions.DachoraFrameCount, previousVersion, previousCount,
                     previousCount + FriendlyAnimalVisualDefinitions.EtecoonFrameCount);
                 return;
             case "EscapeEtecoon":
                 EnemyCompositionResourceChecks.RunSpritemaps(family, FriendlyAnimalVisualDefinitions.EscapeBank,
-                    EscapeEtecoonAnimations.Spritemaps(Enum.GetValues<EscapeEtecoonProgram>()),
+                    EscapeEtecoonAnimationsTooling.Spritemaps(Enum.GetValues<EscapeEtecoonProgram>()),
                     FriendlyAnimalVisualDefinitions.EscapeEtecoonFrameCount, previousVersion, previousCount, escapeStart);
                 return;
             case "EscapeDachora":
                 EnemyCompositionResourceChecks.RunSpritemaps(family, FriendlyAnimalVisualDefinitions.EscapeBank,
-                    EscapeDachoraAnimations.Spritemaps(Enum.GetValues<EscapeDachoraProgram>()),
+                    EscapeDachoraAnimationsTooling.Spritemaps(Enum.GetValues<EscapeDachoraProgram>()),
                     FriendlyAnimalVisualDefinitions.EscapeDachoraFrameCount, previousVersion, previousCount,
                     escapeStart + FriendlyAnimalVisualDefinitions.EscapeEtecoonFrameCount);
                 return;

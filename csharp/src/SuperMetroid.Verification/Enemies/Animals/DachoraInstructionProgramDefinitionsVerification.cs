@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -54,7 +55,7 @@ internal static class DachoraInstructionProgramDefinitionsVerification
             DachoraEnemyState state = enemies.SlotTable.Slots[0].EntityState<DachoraEntity, DachoraEnemyState>() ?? throw new InvalidOperationException("The Dachora has no state.");
             state.Program = AnimationProgramCursor<DachoraProgram>.Start(program);
             slot.InstructionTimer = WrappingCountdown.Start(1);
-            AssertEqual(EnemyInstructionRunner.ExpectedLoop(DachoraAnimations.Programs, program, DachoraFrameDefinitions.Spritemap),
+            AssertEqual(EnemyInstructionRunner.ExpectedLoop(DachoraAnimations.Programs, program, DachoraFrameToolingDefinitions.Spritemap),
                 EnemyInstructionRunner.ShownFrames(slot, EnemyInstructionRunner.LoopUpdates(DachoraAnimations.Programs, program)),
                 $"Dachora {program} loop");
         }
@@ -82,7 +83,7 @@ internal static class DachoraInstructionProgramDefinitionsVerification
 
         AssertEqual(DachoraProgram.EchoRight, DachoraAnimations.AfterSleep(DachoraProgram.ChargeRight),
             "the shinespark launch steps the charge into the right-facing echo");
-        AssertTrue(DachoraAnimations.Spritemaps(Enum.GetValues<DachoraProgram>()).Where(pointer => pointer != 0x804d).ToHashSet().SetEquals(
+        AssertTrue(DachoraAnimationsTooling.Spritemaps(Enum.GetValues<DachoraProgram>()).Where(pointer => pointer != 0x804d).ToHashSet().SetEquals(
                 EnemySpritemapDefinitions.Frames.Where(frame => frame.Name.StartsWith("dachora_", StringComparison.Ordinal)).Select(frame => frame.Pointer)),
             "the Dachora's programs show exactly its installed frames");
         Suite(nameof(DachoraAnimationsVerification.VerifyDachoraAnimations), () => DachoraAnimationsVerification.VerifyDachoraAnimations(rom));

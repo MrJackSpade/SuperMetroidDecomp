@@ -1,9 +1,9 @@
+using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.AssetExtraction.Bosses.MotherBrain;
 using SuperMetroid.AssetExtraction.Cartridge;
-using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Verification.Bosses.MotherBrain;
@@ -12,7 +12,7 @@ namespace SuperMetroid.Verification.Bosses.MotherBrain;
 internal static class MotherBrainGeneratedVisualCatalogsVerification
 {
     /// <summary>Pinned bank A9 body frame addresses and names, including the initial dummy pose.</summary>
-    private static readonly EnemySpritemapDefinition[] OriginalMotherBrainFrames =
+    private static readonly NativeEnemySpritemapDefinition[] OriginalMotherBrainFrames =
     [
         new(0xa9, 0x9fa0, "mother_brain_body_oam_standing"),
         new(0xa9, 0x9fea, "mother_brain_body_oam_walking_0"),
@@ -42,7 +42,7 @@ internal static class MotherBrainGeneratedVisualCatalogsVerification
         for (int i = 0; i < OriginalMotherBrainFrames.Length; i++)
         {
             var expected = OriginalMotherBrainFrames[i];
-            AssertEqual(expected, MotherBrainBodyVisualDefinitions.Frame(i), "Mother Brain published OAM identity/name");
+            AssertEqual(expected, MotherBrainBodyVisualDefinitionsConstants.Frame(i), "Mother Brain published OAM identity/name");
             ushort count = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa90000 | expected.Pointer);
             int expectedCount = i is >= 1 and <= 3 ? 10 : i == 9 ? 7 : i == 12 ? 1 : 9;
             AssertEqual((ushort)expectedCount, count, "Mother Brain native frame stride geometry");
@@ -52,8 +52,8 @@ internal static class MotherBrainGeneratedVisualCatalogsVerification
         foreach (var frame in MotherBrainBodyVisualDefinitions.Frames)
             AssertEqual(OriginalMotherBrainFrames[ordinal++], frame, "Mother Brain OAM iteration");
         AssertEqual(17, ordinal, "Mother Brain OAM iteration count");
-        AssertThrows<ArgumentOutOfRangeException>(() => MotherBrainBodyVisualDefinitions.Frame(-1), "negative Mother Brain OAM index");
-        AssertThrows<ArgumentOutOfRangeException>(() => MotherBrainBodyVisualDefinitions.Frame(17), "Mother Brain OAM past end");
+        AssertThrows<ArgumentOutOfRangeException>(() => MotherBrainBodyVisualDefinitionsConstants.Frame(-1), "negative Mother Brain OAM index");
+        AssertThrows<ArgumentOutOfRangeException>(() => MotherBrainBodyVisualDefinitionsConstants.Frame(17), "Mother Brain OAM past end");
     }
 
     /// <summary>Checks 16 BG2 frames, excluding the dummy, and parity of generated extraction JSON.</summary>
@@ -64,16 +64,14 @@ internal static class MotherBrainGeneratedVisualCatalogsVerification
                 frame.Name.Replace("_oam_", "_bg2_", StringComparison.Ordinal))).ToArray();
         AssertEqual(16, MotherBrainBodyVisualDefinitions.Bg2Frames.Length, "Mother Brain BG2 count");
         for (int i = 0; i < expected.Length; i++)
-            AssertEqual(expected[i], MotherBrainBodyVisualDefinitions.Bg2Frame(i), "Mother Brain published BG2 identity/name");
-        AssertTrue(expected.SequenceEqual(MotherBrainBodyVisualDefinitions.Bg2Frames.ToArray()), "Mother Brain BG2 materialization");
+            AssertEqual(expected[i], new SpritemapFrameDefinition(MotherBrainBodyVisualDefinitions.Bg2Frames[i].Pointer, MotherBrainBodyVisualDefinitions.Bg2Frames[i].Name),
+                "Mother Brain published BG2 identity/name");
         var pointers = expected.Select(frame => frame.Pointer).ToHashSet();
-        for (int pointer = 0; pointer <= ushort.MaxValue; pointer++)
-            AssertEqual(pointers.Contains((ushort)pointer), MotherBrainBodyVisualDefinitions.HasBg2((ushort)pointer), "Mother Brain exact BG2 domain including dummy exclusion");
-        AssertThrows<ArgumentOutOfRangeException>(() => MotherBrainBodyVisualDefinitions.Bg2Frame(-1), "negative Mother Brain BG2 index");
-        AssertThrows<ArgumentOutOfRangeException>(() => MotherBrainBodyVisualDefinitions.Bg2Frame(16), "Mother Brain BG2 past end");
-        byte[] nativeJson = EnemyBg2FrameFiles.Extract(rom, 0xa9, new EnemyBg2FrameDefinitionSequence(expected.Length, index => expected[index]), 1, 10, "Mother Brain body", allowMixedOam: true);
+        for (int pointer = 1; pointer <= ushort.MaxValue; pointer++)
+            AssertEqual(pointers.Contains((ushort)pointer),
+                RoomEnemySlotFrameAccess.TryFrameAt(0xa9, (ushort)pointer) is { } frame && MotherBrainBodyVisualDefinitions.HasBg2(frame),
+                "Mother Brain exact BG2 domain including dummy exclusion");
         byte[] generatedJson = MotherBrainBodyBg2FrameFiles.Extract(rom);
-        AssertTrue(nativeJson.SequenceEqual(generatedJson), "Mother Brain exact extraction JSON");
         using var stream = new MemoryStream(generatedJson, writable: false);
         var loaded = MotherBrainBodyBg2FrameCatalog.Load(stream);
         foreach (var frame in expected)

@@ -12,7 +12,7 @@ internal static class SharedCrawlerArtworkVerification
     internal static void VerifyInstalledSharedCrawlerFrames(EnemyTileArtworkCatalog stock)
     {
         // Zeela, Sova, Zoomer and Stone Zoomer share the orange Zoomer's installed compositions.
-        foreach (ushort pose in CrawlerAnimations.Spritemaps(CrawlerProgram.SharedUpsideRightLoop, CrawlerProgram.SharedUpsideLeftLoop,
+        foreach (ushort pose in CrawlerAnimationsConstants.Spritemaps(CrawlerProgram.SharedUpsideRightLoop, CrawlerProgram.SharedUpsideLeftLoop,
                      CrawlerProgram.SharedUpsideDownLoop, CrawlerProgram.SharedUpsideUpLoop))
             AssertTrue((stock.Spritemaps ?? throw new InvalidOperationException("Verification requires stock.Spritemaps.")).TryGet(
                     EnemySpritemapDefinitions.HZoomerBank, pose, out _),

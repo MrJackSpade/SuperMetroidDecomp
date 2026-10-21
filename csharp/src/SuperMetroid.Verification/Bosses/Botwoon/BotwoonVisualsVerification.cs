@@ -25,18 +25,18 @@ internal static class BotwoonVisualsVerification
         // The head animations' frames are checked against the cartridge lists by VerifyBotwoonHeadAnimations;
         // here every visible frame's installed artwork must draw the cartridge's OAM.
         var selected = new HashSet<ushort>();
-        foreach (EnemySpritemapDefinition frame in BotwoonVisualDefinitions.Frames())
+        foreach (NativeEnemySpritemapDefinition frame in BotwoonVisualDefinitionsConstants.Frames())
         {
             ushort installedPointer = frame.Pointer;
             ushort native = installedPointer;
             selected.Add(installedPointer);
             AssertTrue((stock.Spritemaps ?? throw new InvalidOperationException("Verification requires stock.Spritemaps.")).TryGetDisplay(
-                    BotwoonVisualDefinitions.Bank, installedPointer,
+                    BotwoonVisualDefinitionsConstants.Bank, installedPointer,
                     out EnemySpritemapParts installedParts),
                 $"Botwoon head frame $B3:{installedPointer:X4} is editable");
             var nativeOam = new OamBuffer();
             var installedOam = new OamBuffer();
-            DrawImportedEnemySpritemap(rom, nativeOam, new NativeEnemySpritemapDraw { Bank = BotwoonVisualDefinitions.Bank, Pointer = native, Origin = new(128, 128), PaletteBits = 0, BaseTileIndex = 0 });
+            DrawImportedEnemySpritemap(rom, nativeOam, new NativeEnemySpritemapDraw { Bank = BotwoonVisualDefinitionsConstants.Bank, Pointer = native, Origin = new(128, 128), PaletteBits = 0, BaseTileIndex = 0 });
             installedOam.AddEnemySpritemap(installedParts, new Position16<OamPixels>(128, 128), 0, 0);
             AssertTrue(nativeOam.ImageEquals(installedOam) &&
                        nativeOam.NextByteOffset == installedOam.NextByteOffset,
@@ -71,7 +71,7 @@ internal static class BotwoonVisualsVerification
             }, CamelCaseJson));
         EnemySpritemapCatalog upgraded = EnemySpritemapDocuments.Load(
             previousJson, stock.Spritemaps);
-        foreach (EnemySpritemapDefinition frame in BotwoonVisualDefinitions.Frames())
+        foreach (NativeEnemySpritemapDefinition frame in BotwoonVisualDefinitionsConstants.Frames())
             AssertTrue(upgraded.TryGetDisplay(frame.Bank, frame.Pointer, out _),
                 $"version-fifty-nine override inherits {frame.Name}");
         Console.WriteLine(

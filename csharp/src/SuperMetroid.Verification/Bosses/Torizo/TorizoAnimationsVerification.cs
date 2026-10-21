@@ -37,9 +37,9 @@ internal static class TorizoAnimationsVerification
             steps += CompareBodyProgram(cartridge, program, entry);
         VerifyResumedSleeps(cartridge);
         var poses = new HashSet<ushort>(Enumerable.Range(0, TorizoFrameDefinitionsConstants.PoseCount)
-            .Select(pose => TorizoFrameDefinitions.Spritemap(new TorizoFrame(pose))));
+            .Select(pose => TorizoFrameDefinitionsConstants.Spritemap(new TorizoFrame(pose))));
         AssertEqual(TorizoFrameDefinitionsConstants.PoseCount, poses.Count, "every Torizo pose shows a distinct spritemap");
-        AssertTrue(poses.SetEquals(TorizoAnimations.Spritemaps(TorizoAnimations.AllPrograms)), "the body programs show every Torizo pose");
+        AssertTrue(poses.SetEquals(TorizoAnimationsConstants.Spritemaps(TorizoAnimationsConstants.AllPrograms)), "the body programs show every Torizo pose");
         AssertTrue(poses.SetEquals(TorizoCollisionDefinitions.FramePointers), "every Torizo pose has its physical frame");
         Console.WriteLine($"  Torizo programs: {BodyEntries.Length} body programs ({steps} steps, {poses.Count} poses) match bank $AA.");
     }
@@ -85,7 +85,7 @@ internal static class TorizoAnimationsVerification
                 {
                     var show = AssertIs<AnimationProgramStep<TorizoBodyProgram, TorizoFrame, TorizoCue>.ShowStep>(Next("frame"), $"{at}: frame");
                     AssertEqual(word, show.Duration, $"{at}: duration");
-                    AssertEqual(operand, TorizoFrameDefinitions.Spritemap(show.Frame), $"{at}: spritemap");
+                    AssertEqual(operand, TorizoFrameDefinitionsConstants.Spritemap(show.Frame), $"{at}: spritemap");
                     cursor = unchecked((ushort)(cursor + 4));
                     continue;
                 }

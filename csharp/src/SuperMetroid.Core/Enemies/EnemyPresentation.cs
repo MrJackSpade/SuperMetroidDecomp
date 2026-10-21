@@ -91,8 +91,7 @@ internal sealed class EnemyPresentation
         // The common empty frame is compiled definition data, not missing artwork.
         if (draw.Frame == EnemyFrameId.Empty)
             return;
-        if (_room.Artwork?.Spritemaps?.TryGetDisplay(_room.Frames.Bank(draw.Frame), _room.Frames.Spritemap(draw.Frame),
-                out EnemySpritemapParts installed) == true)
+        if (_room.Artwork?.Spritemaps?.TryGetDisplay(draw.Frame, out EnemySpritemapParts installed) == true)
         {
             ushort paletteBits = checked((ushort)draw.PaletteBits);
             PublishParts(sprites, objects, source, EnemySpriteFrames.Frame(installed, checked((ushort)draw.BaseTileIndex), paletteBits),

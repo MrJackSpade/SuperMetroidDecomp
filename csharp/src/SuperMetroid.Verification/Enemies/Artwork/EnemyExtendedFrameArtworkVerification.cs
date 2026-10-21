@@ -34,7 +34,7 @@ internal static class EnemyExtendedFrameArtworkVerification
     private static readonly JsonSerializerOptions CamelCaseJson = new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
 
     /// <summary>The one pose Torizo's shared falling-left lists show.</summary>
-    private static ushort TorizoFallingLeftFrame => TorizoAnimations.Spritemaps(TorizoBodyProgram.FacingLeftFalling1).Single();
+    private static ushort TorizoFallingLeftFrame => TorizoAnimationsConstants.Spritemaps(TorizoBodyProgram.FacingLeftFalling1).Single();
 
     /// <summary>
     /// Collects the Draygon presentation selectors that do not name an installed OAM frame and

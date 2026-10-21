@@ -35,7 +35,7 @@ internal static class EmptyExtendedFrameShotsVerification
 
         // Native update 37306: the pirate at ($1F4,$A0) on $804F, the charged beam at ($1F2,$A3).
         pirate.Position = pirate.Position.WithWhole(new(0x01f4, 0x00a0));
-        pirate.SpritemapPointer = CommonEnemyEmptyExtendedFrameDefinitions.Frame;
+        pirate.SpritemapPointer = CommonEnemyEmptyExtendedFrameToolingDefinitionsConstants.Frame;
         pirate.InstructionTimer = WrappingCountdown.Start(0x7fff);
         int health = pirate.Health;
         runtime.Enemies.ProcessingWindow.PrepareEnemyProcessingList(pirate.Position.Whole);

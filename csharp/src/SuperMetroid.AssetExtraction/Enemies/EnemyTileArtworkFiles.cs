@@ -591,11 +591,11 @@ public static class EnemyTileArtworkFiles
             // compiled once; without an override that compiled stock is the selection.
             byte[] stockComposition = ReadVerifiedStock(
                 EnemySpritemapDefinitions.FileName, manifest.EnemyCompositionsSha256);
-            EnemySpritemapCatalog stockSpritemaps = EnemySpritemapDocuments.Load(
-                new MemoryStream(stockComposition, writable: false));
+            EnemySpritemapCatalog stockSpritemaps = EnemyFrameCartridgeLookup.RequireSameBankDisplayBindings(
+                EnemySpritemapDocuments.Load(new MemoryStream(stockComposition, writable: false)));
             spritemaps = OverridePath(EnemySpritemapDefinitions.FileName) is { } compositionOverride
-                ? EnemySpritemapDocuments.Load(
-                    new MemoryStream(File.ReadAllBytes(compositionOverride), writable: false), stockSpritemaps)
+                ? EnemyFrameCartridgeLookup.RequireSameBankDisplayBindings(EnemySpritemapDocuments.Load(
+                    new MemoryStream(File.ReadAllBytes(compositionOverride), writable: false), stockSpritemaps))
                 : stockSpritemaps;
         }
         catch (InvalidDataException error)

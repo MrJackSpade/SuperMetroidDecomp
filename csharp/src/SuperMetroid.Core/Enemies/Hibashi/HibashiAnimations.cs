@@ -73,12 +73,6 @@ internal static class HibashiAnimations
         ],
     });
 
-    /// <summary>The spritemaps <paramref name="programs"/> show, in authored order with repeats.</summary>
-    internal static IEnumerable<ushort> Spritemaps(params HibashiProgram[] programs) =>
-        programs.SelectMany(program => Programs.Steps(program))
-            .OfType<AnimationProgramStep<P, HibashiFrame, HibashiCue>.ShowStep>()
-            .Select(step => HibashiFrameDefinitions.Spritemap(step.Frame));
-
     /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationProgramStep<HibashiProgram, HibashiFrame, HibashiCue> Show(int pose, int duration) => AnimationProgramStep<HibashiProgram, HibashiFrame, HibashiCue>.Show(new(pose), duration);
 

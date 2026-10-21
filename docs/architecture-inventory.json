@@ -2701,6 +2701,49 @@
       "disposition": "static-functions"
     },
     {
+      "type": "SuperMetroid.AssetExtraction.Enemies.EnemyFrameCartridgeLocationDefinitions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Enemies/EnemyFrameCartridgeLocationDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog",
+      "flags": [
+        "large"
+      ],
+      "justified": true
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Enemies.EnemyFrameCartridgeLookup",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Enemies/EnemyFrameCartridgeLookup.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.AssetExtraction.Enemies.EnemyFrameCartridgeLookupTooling",
+      "kind": "static class",
+      "scope": "tool",
+      "assemblies": [
+        "SuperMetroid.Tooling"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Tooling/AssetExtraction/Enemies/EnemyFrameCartridgeLookupTooling.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.AssetExtraction.Enemies.EnemyProjectileSpritemapFiles",
       "kind": "static class",
       "scope": "product",
@@ -7434,19 +7477,6 @@
       "disposition": "definition-catalog"
     },
     {
-      "type": "SuperMetroid.Core.Areas.Ceres.CeresSteamCollisionDefinitions.FrameSequence",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Areas/Ceres/CeresSteamCollisionDefinitions.cs"
-      ],
-      "partial": "none",
-      "disposition": "stateless"
-    },
-    {
       "type": "SuperMetroid.Core.Areas.Ceres.CeresSteamCollisionDefinitionsAccess",
       "kind": "static class",
       "scope": "test",
@@ -7490,6 +7520,38 @@
       ],
       "files": [
         "csharp/test-support/VerificationAccess.Core/Areas/Ceres/CeresSteamCollisionDefinitionsAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
+    },
+    {
+      "type": "SuperMetroid.Core.Areas.Ceres.CeresSteamCollisionDefinitionsConstants",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Areas/Ceres/CeresSteamCollisionDefinitionsConstants.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
+      "type": "SuperMetroid.Core.Areas.Ceres.CeresSteamCollisionDefinitionsConstants.FrameSequence",
+      "kind": "class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Areas/Ceres/CeresSteamCollisionDefinitionsConstants.cs"
       ],
       "partial": "none",
       "disposition": "stateless"
@@ -11328,6 +11390,22 @@
         "csharp/src/SuperMetroid.Core/Bosses/Artwork/BossOamFrameDefinitions.cs"
       ],
       "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
+      "type": "SuperMetroid.Core.Bosses.Artwork.BossOamFrameDefinitionsConstants",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Bosses/Artwork/BossOamFrameDefinitionsConstants.cs"
+      ],
+      "partial": "none",
       "disposition": "static-functions"
     },
     {
@@ -11549,6 +11627,22 @@
         "csharp/src/SuperMetroid.Core/Bosses/Botwoon/Artwork/BotwoonVisualDefinitions.cs"
       ],
       "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
+      "type": "SuperMetroid.Core.Bosses.Botwoon.Artwork.BotwoonVisualDefinitionsConstants",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Bosses/Botwoon/Artwork/BotwoonVisualDefinitionsConstants.cs"
+      ],
+      "partial": "none",
       "disposition": "static-functions"
     },
     {
@@ -11576,6 +11670,19 @@
       ],
       "partial": "none",
       "disposition": "stateless"
+    },
+    {
+      "type": "SuperMetroid.Core.Bosses.Botwoon.Artwork.BotwoonVisualToolingDefinitions",
+      "kind": "static class",
+      "scope": "tool",
+      "assemblies": [
+        "SuperMetroid.Tooling"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Tooling/Core/Bosses/Botwoon/Artwork/BotwoonVisualToolingDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.Core.Bosses.Botwoon.BotwoonAnimations",
@@ -12119,6 +12226,22 @@
       "disposition": "static-functions"
     },
     {
+      "type": "SuperMetroid.Core.Bosses.Crocomire.Artwork.CrocomireBg2FrameDefinitionsConstants",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Bosses/Crocomire/Artwork/CrocomireBg2FrameDefinitionsConstants.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
       "type": "SuperMetroid.Core.Bosses.Crocomire.Artwork.CrocomireBodyFrameSpritemaps",
       "kind": "static class",
       "scope": "product",
@@ -12153,6 +12276,35 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Core/Bosses/Crocomire/Artwork/CrocomireBodyVisualDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
+      "type": "SuperMetroid.Core.Bosses.Crocomire.Artwork.CrocomireBodyVisualDefinitionsConstants",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Bosses/Crocomire/Artwork/CrocomireBodyVisualDefinitionsConstants.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Bosses.Crocomire.Artwork.CrocomireBodyVisualToolingDefinitions",
+      "kind": "static class",
+      "scope": "tool",
+      "assemblies": [
+        "SuperMetroid.Tooling"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Tooling/Core/Bosses/Crocomire/Artwork/CrocomireBodyVisualToolingDefinitions.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
@@ -12501,30 +12653,17 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Bosses.Crocomire.Artwork.CrocomireSkeletonVisualDefinitionsFramesTooling",
+      "type": "SuperMetroid.Core.Bosses.Crocomire.Artwork.CrocomireSkeletonVisualToolingDefinitions",
       "kind": "static class",
       "scope": "tool",
       "assemblies": [
         "SuperMetroid.Tooling"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Tooling/Core/Bosses/Crocomire/Artwork/CrocomireSkeletonVisualDefinitionsFramesTooling.cs"
+        "csharp/src/SuperMetroid.Tooling/Core/Bosses/Crocomire/Artwork/CrocomireSkeletonVisualToolingDefinitions.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Core.Bosses.Crocomire.Artwork.CrocomireSkeletonVisualDefinitionsFramesTooling.extension(SuperMetroid.Core.Bosses.Crocomire.Artwork.CrocomireSkeletonVisualDefinitions)",
-      "kind": "class",
-      "scope": "tool",
-      "assemblies": [
-        "SuperMetroid.Tooling"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Tooling/Core/Bosses/Crocomire/Artwork/CrocomireSkeletonVisualDefinitionsFramesTooling.cs"
-      ],
-      "partial": "none",
-      "disposition": "stateless"
     },
     {
       "type": "SuperMetroid.Core.Bosses.Crocomire.Artwork.CrocomireTongueFrameDefinitions",
@@ -13747,6 +13886,22 @@
       "disposition": "stateless"
     },
     {
+      "type": "SuperMetroid.Core.Bosses.Crocomire.CrocomireTongueCollisionDefinitionsConstants",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Bosses/Crocomire/CrocomireTongueCollisionDefinitionsConstants.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.Core.Bosses.Crocomire.CrocomireTongueFrame",
       "kind": "enum",
       "scope": "product",
@@ -13823,6 +13978,35 @@
       ],
       "partial": "none",
       "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Bosses.Draygon.Artwork.DraygonBg2FrameDefinitionsConstants",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Bosses/Draygon/Artwork/DraygonBg2FrameDefinitionsConstants.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Bosses.Draygon.Artwork.DraygonBg2FrameToolingDefinitions",
+      "kind": "static class",
+      "scope": "tool",
+      "assemblies": [
+        "SuperMetroid.Tooling"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Tooling/Core/Bosses/Draygon/Artwork/DraygonBg2FrameToolingDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.Core.Bosses.Draygon.Artwork.DraygonColorCatalog",
@@ -15359,33 +15543,68 @@
         "csharp/src/SuperMetroid.Core/Bosses/Kraid/Artwork/KraidFootVisualDefinitions.cs"
       ],
       "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
+      "type": "SuperMetroid.Core.Bosses.Kraid.Artwork.KraidFootVisualDefinitionsConstants",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Bosses/Kraid/Artwork/KraidFootVisualDefinitionsConstants.cs"
+      ],
+      "partial": "none",
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Bosses.Kraid.Artwork.KraidFootVisualDefinitionsFramesTooling",
+      "type": "SuperMetroid.Core.Bosses.Kraid.Artwork.KraidFootVisualDefinitionsFramesAccess",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Bosses/Kraid/Artwork/KraidFootVisualDefinitionsFramesAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Bosses.Kraid.Artwork.KraidFootVisualDefinitionsFramesAccess.extension(SuperMetroid.Core.Bosses.Kraid.Artwork.KraidFootVisualDefinitions)",
+      "kind": "class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Bosses/Kraid/Artwork/KraidFootVisualDefinitionsFramesAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
+    },
+    {
+      "type": "SuperMetroid.Core.Bosses.Kraid.Artwork.KraidFootVisualToolingDefinitions",
       "kind": "static class",
       "scope": "tool",
       "assemblies": [
         "SuperMetroid.Tooling"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Tooling/Core/Bosses/Kraid/Artwork/KraidFootVisualDefinitionsFramesTooling.cs"
+        "csharp/src/SuperMetroid.Tooling/Core/Bosses/Kraid/Artwork/KraidFootVisualToolingDefinitions.cs"
       ],
       "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Core.Bosses.Kraid.Artwork.KraidFootVisualDefinitionsFramesTooling.extension(SuperMetroid.Core.Bosses.Kraid.Artwork.KraidFootVisualDefinitions)",
-      "kind": "class",
-      "scope": "tool",
-      "assemblies": [
-        "SuperMetroid.Tooling"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Tooling/Core/Bosses/Kraid/Artwork/KraidFootVisualDefinitionsFramesTooling.cs"
-      ],
-      "partial": "none",
-      "disposition": "stateless"
+      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.Core.Bosses.Kraid.Artwork.KraidHeadFrameDefinitions",
@@ -15442,12 +15661,12 @@
     {
       "type": "SuperMetroid.Core.Bosses.Kraid.Artwork.KraidLintVisualDefinitions",
       "kind": "static class",
-      "scope": "product",
+      "scope": "tool",
       "assemblies": [
-        "SuperMetroid.Core"
+        "SuperMetroid.Tooling"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Bosses/Kraid/Artwork/KraidLintVisualDefinitions.cs"
+        "csharp/src/SuperMetroid.Tooling/Core/Bosses/Kraid/Artwork/KraidLintVisualDefinitions.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
@@ -15487,6 +15706,19 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Core/Bosses/Kraid/Artwork/KraidPartFrameDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
+      "type": "SuperMetroid.Core.Bosses.Kraid.Artwork.KraidPartFrameToolingDefinitions",
+      "kind": "static class",
+      "scope": "tool",
+      "assemblies": [
+        "SuperMetroid.Tooling"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Tooling/Core/Bosses/Kraid/Artwork/KraidPartFrameToolingDefinitions.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
@@ -15868,6 +16100,19 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Core/Bosses/Kraid/KraidAnimations.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Bosses.Kraid.KraidAnimationsTooling",
+      "kind": "static class",
+      "scope": "tool",
+      "assemblies": [
+        "SuperMetroid.Tooling"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Tooling/Core/Bosses/Kraid/KraidAnimationsTooling.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
@@ -17405,6 +17650,19 @@
         "csharp/src/SuperMetroid.Core/Bosses/MotherBrain/Artwork/BabyMetroidVisualDefinitions.cs"
       ],
       "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
+      "type": "SuperMetroid.Core.Bosses.MotherBrain.Artwork.BabyMetroidVisualToolingDefinitions",
+      "kind": "static class",
+      "scope": "tool",
+      "assemblies": [
+        "SuperMetroid.Tooling"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Tooling/Core/Bosses/MotherBrain/Artwork/BabyMetroidVisualToolingDefinitions.cs"
+      ],
+      "partial": "none",
       "disposition": "static-functions"
     },
     {
@@ -17477,6 +17735,35 @@
       ],
       "partial": "none",
       "disposition": "stateless"
+    },
+    {
+      "type": "SuperMetroid.Core.Bosses.MotherBrain.Artwork.MotherBrainBodyVisualDefinitionsConstants",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Bosses/MotherBrain/Artwork/MotherBrainBodyVisualDefinitionsConstants.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Bosses.MotherBrain.Artwork.MotherBrainBodyVisualToolingDefinitions",
+      "kind": "static class",
+      "scope": "tool",
+      "assemblies": [
+        "SuperMetroid.Tooling"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Tooling/Core/Bosses/MotherBrain/Artwork/MotherBrainBodyVisualToolingDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.Core.Bosses.MotherBrain.Artwork.MotherBrainCgramLayout",
@@ -18511,6 +18798,22 @@
         "csharp/src/SuperMetroid.Core/Bosses/MotherBrain/Artwork/MotherBrainVisualDefinitions.cs"
       ],
       "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
+      "type": "SuperMetroid.Core.Bosses.MotherBrain.Artwork.MotherBrainVisualDefinitionsConstants",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Bosses/MotherBrain/Artwork/MotherBrainVisualDefinitionsConstants.cs"
+      ],
+      "partial": "none",
       "disposition": "static-functions"
     },
     {
@@ -18524,7 +18827,7 @@
         "csharp/src/SuperMetroid.Tooling/Core/Bosses/MotherBrain/Artwork/MotherBrainVisualToolingDefinitions.cs"
       ],
       "partial": "none",
-      "disposition": "static-functions"
+      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.Core.Bosses.MotherBrain.Artwork.RainbowPaletteColorKey",
@@ -18563,7 +18866,7 @@
         "csharp/src/SuperMetroid.Core/Bosses/MotherBrain/Artwork/RinkaFrameDefinitions.cs"
       ],
       "partial": "none",
-      "disposition": "static-functions"
+      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.Core.Bosses.MotherBrain.Artwork.RinkaFrameToolingDefinitions",
@@ -18576,17 +18879,20 @@
         "csharp/src/SuperMetroid.Tooling/Core/Bosses/MotherBrain/Artwork/RinkaFrameToolingDefinitions.cs"
       ],
       "partial": "none",
-      "disposition": "definition-catalog"
+      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.Core.Bosses.MotherBrain.Artwork.RinkaVisualDefinitions",
       "kind": "static class",
-      "scope": "product",
+      "scope": "test",
       "assemblies": [
-        "SuperMetroid.Core"
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Bosses/MotherBrain/Artwork/RinkaVisualDefinitions.cs"
+        "csharp/test-support/VerificationAccess.Core/Bosses/MotherBrain/Artwork/RinkaVisualDefinitions.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
@@ -18698,12 +19004,12 @@
     {
       "type": "SuperMetroid.Core.Bosses.MotherBrain.Artwork.ShitroidVisualDefinitions",
       "kind": "static class",
-      "scope": "product",
+      "scope": "tool",
       "assemblies": [
-        "SuperMetroid.Core"
+        "SuperMetroid.Tooling"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Bosses/MotherBrain/Artwork/ShitroidVisualDefinitions.cs"
+        "csharp/src/SuperMetroid.Tooling/Core/Bosses/MotherBrain/Artwork/ShitroidVisualDefinitions.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
@@ -18769,6 +19075,19 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Core/Bosses/MotherBrain/Artwork/ZebetiteVisualDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
+      "type": "SuperMetroid.Core.Bosses.MotherBrain.Artwork.ZebetiteVisualToolingDefinitions",
+      "kind": "static class",
+      "scope": "tool",
+      "assemblies": [
+        "SuperMetroid.Tooling"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Tooling/Core/Bosses/MotherBrain/Artwork/ZebetiteVisualToolingDefinitions.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
@@ -22422,6 +22741,22 @@
       "disposition": "static-functions"
     },
     {
+      "type": "SuperMetroid.Core.Bosses.MotherBrain.RinkaAnimationsConstants",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Bosses/MotherBrain/RinkaAnimationsConstants.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.Core.Bosses.MotherBrain.RinkaBehavior",
       "kind": "class",
       "scope": "product",
@@ -23266,12 +23601,15 @@
     {
       "type": "SuperMetroid.Core.Bosses.Phantoon.PhantoonCollisionFrame",
       "kind": "enum",
-      "scope": "product",
+      "scope": "test",
       "assemblies": [
-        "SuperMetroid.Core"
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Bosses/Phantoon/PhantoonCollisionFrame.cs"
+        "csharp/test-support/VerificationAccess.Core/Bosses/Phantoon/PhantoonCollisionFrame.cs"
       ],
       "partial": "none",
       "disposition": "value"
@@ -24550,12 +24888,15 @@
     {
       "type": "SuperMetroid.Core.Bosses.Ridley.Artwork.RidleyBreakupVisualDefinitions",
       "kind": "static class",
-      "scope": "product",
+      "scope": "test",
       "assemblies": [
-        "SuperMetroid.Core"
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Bosses/Ridley/Artwork/RidleyBreakupVisualDefinitions.cs"
+        "csharp/test-support/VerificationAccess.Core/Bosses/Ridley/Artwork/RidleyBreakupVisualDefinitions.cs"
       ],
       "partial": "none",
       "disposition": "definition-catalog"
@@ -24642,20 +24983,7 @@
         "csharp/src/SuperMetroid.Core/Bosses/Ridley/Artwork/RidleySupplementalVisualDefinitions.cs"
       ],
       "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Core.Bosses.Ridley.Artwork.RidleySupplementalVisualDefinitions.WingPose",
-      "kind": "enum",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Bosses/Ridley/Artwork/RidleySupplementalVisualDefinitions.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
+      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.Core.Bosses.Ridley.Artwork.RidleySupplementalVisualDefinitionsConstants",
@@ -24672,6 +25000,22 @@
       ],
       "partial": "none",
       "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Bosses.Ridley.Artwork.RidleySupplementalVisualDefinitionsConstants.WingPose",
+      "kind": "enum",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Bosses/Ridley/Artwork/RidleySupplementalVisualDefinitionsConstants.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Core.Bosses.Ridley.CeresEncounter",
@@ -26863,7 +27207,7 @@
         "csharp/src/SuperMetroid.Core/Bosses/Torizo/Artwork/TorizoFrameDefinitions.cs"
       ],
       "partial": "none",
-      "disposition": "static-functions"
+      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.Core.Bosses.Torizo.Artwork.TorizoFrameDefinitionsConstants",
@@ -26879,7 +27223,7 @@
         "csharp/test-support/VerificationAccess.Core/Bosses/Torizo/Artwork/TorizoFrameDefinitionsConstants.cs"
       ],
       "partial": "none",
-      "disposition": "definition-catalog"
+      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.Core.Bosses.Torizo.Artwork.TorizoInstructionTileRomData",
@@ -27370,6 +27714,22 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Core/Bosses/Torizo/TorizoAnimations.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Bosses.Torizo.TorizoAnimationsConstants",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Bosses/Torizo/TorizoAnimationsConstants.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
@@ -29422,7 +29782,7 @@
         "csharp/src/SuperMetroid.Core/Enemies/Animals/Artwork/DachoraFrameDefinitions.cs"
       ],
       "partial": "none",
-      "disposition": "static-functions"
+      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.Core.Enemies.Animals.Artwork.DachoraFrameToolingDefinitions",
@@ -29435,7 +29795,7 @@
         "csharp/src/SuperMetroid.Tooling/Core/Enemies/Animals/Artwork/DachoraFrameToolingDefinitions.cs"
       ],
       "partial": "none",
-      "disposition": "definition-catalog"
+      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.Core.Enemies.Animals.Artwork.EscapeDachoraFrameDefinitions",
@@ -29446,6 +29806,19 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Core/Enemies/Animals/Artwork/EscapeDachoraFrameDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.Animals.Artwork.EscapeDachoraFrameToolingDefinitions",
+      "kind": "static class",
+      "scope": "tool",
+      "assemblies": [
+        "SuperMetroid.Tooling"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Tooling/Core/Enemies/Animals/Artwork/EscapeDachoraFrameToolingDefinitions.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
@@ -29461,7 +29834,7 @@
         "csharp/src/SuperMetroid.Core/Enemies/Animals/Artwork/EscapeEtecoonFrameDefinitions.cs"
       ],
       "partial": "none",
-      "disposition": "static-functions"
+      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.Core.Enemies.Animals.Artwork.EscapeEtecoonFrameDefinitionsConstants",
@@ -29480,6 +29853,19 @@
       "disposition": "definition-catalog"
     },
     {
+      "type": "SuperMetroid.Core.Enemies.Animals.Artwork.EscapeEtecoonFrameToolingDefinitions",
+      "kind": "static class",
+      "scope": "tool",
+      "assemblies": [
+        "SuperMetroid.Tooling"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Tooling/Core/Enemies/Animals/Artwork/EscapeEtecoonFrameToolingDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.Core.Enemies.Animals.Artwork.EtecoonFrameDefinitions",
       "kind": "static class",
       "scope": "product",
@@ -29490,7 +29876,7 @@
         "csharp/src/SuperMetroid.Core/Enemies/Animals/Artwork/EtecoonFrameDefinitions.cs"
       ],
       "partial": "none",
-      "disposition": "static-functions"
+      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.Core.Enemies.Animals.Artwork.EtecoonFrameToolingDefinitions",
@@ -29503,7 +29889,7 @@
         "csharp/src/SuperMetroid.Tooling/Core/Enemies/Animals/Artwork/EtecoonFrameToolingDefinitions.cs"
       ],
       "partial": "none",
-      "disposition": "definition-catalog"
+      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.Core.Enemies.Animals.DachoraAiFunction",
@@ -29527,6 +29913,19 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Core/Enemies/Animals/DachoraAnimations.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.Animals.DachoraAnimationsTooling",
+      "kind": "static class",
+      "scope": "tool",
+      "assemblies": [
+        "SuperMetroid.Tooling"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Tooling/Core/Enemies/Animals/DachoraAnimationsTooling.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
@@ -29794,6 +30193,19 @@
       "disposition": "static-functions"
     },
     {
+      "type": "SuperMetroid.Core.Enemies.Animals.EscapeDachoraAnimationsTooling",
+      "kind": "static class",
+      "scope": "tool",
+      "assemblies": [
+        "SuperMetroid.Tooling"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Tooling/Core/Enemies/Animals/EscapeDachoraAnimationsTooling.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.Core.Enemies.Animals.EscapeDachoraCue",
       "kind": "record struct",
       "scope": "product",
@@ -29880,6 +30292,19 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Core/Enemies/Animals/EscapeEtecoonAnimations.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.Animals.EscapeEtecoonAnimationsTooling",
+      "kind": "static class",
+      "scope": "tool",
+      "assemblies": [
+        "SuperMetroid.Tooling"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Tooling/Core/Enemies/Animals/EscapeEtecoonAnimationsTooling.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
@@ -30093,6 +30518,19 @@
       "disposition": "static-functions"
     },
     {
+      "type": "SuperMetroid.Core.Enemies.Animals.EtecoonAnimationsTooling",
+      "kind": "static class",
+      "scope": "tool",
+      "assemblies": [
+        "SuperMetroid.Tooling"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Tooling/Core/Enemies/Animals/EtecoonAnimationsTooling.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.Core.Enemies.Animals.EtecoonBehavior",
       "kind": "class",
       "scope": "product",
@@ -30186,12 +30624,15 @@
     {
       "type": "SuperMetroid.Core.Enemies.Artwork.BlueBrinstarFaceBlockVisualDefinitions",
       "kind": "static class",
-      "scope": "product",
+      "scope": "test",
       "assemblies": [
-        "SuperMetroid.Core"
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/Artwork/BlueBrinstarFaceBlockVisualDefinitions.cs"
+        "csharp/test-support/VerificationAccess.Core/Enemies/Artwork/BlueBrinstarFaceBlockVisualDefinitions.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
@@ -30309,12 +30750,15 @@
     {
       "type": "SuperMetroid.Core.Enemies.Artwork.ChozoStatueVisualDefinitions",
       "kind": "static class",
-      "scope": "product",
+      "scope": "test",
       "assemblies": [
-        "SuperMetroid.Core"
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/Artwork/ChozoStatueVisualDefinitions.cs"
+        "csharp/test-support/VerificationAccess.Core/Enemies/Artwork/ChozoStatueVisualDefinitions.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
@@ -30372,17 +30816,36 @@
       "disposition": "owner"
     },
     {
-      "type": "SuperMetroid.Core.Enemies.Artwork.CompiledEnemyCompositionDefinitions",
+      "type": "SuperMetroid.Core.Enemies.Artwork.ChozoStrideGeometryDefinitionsAccess",
       "kind": "static class",
-      "scope": "product",
+      "scope": "test",
       "assemblies": [
-        "SuperMetroid.Core"
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/Artwork/CompiledEnemyCompositionDefinitions.cs"
+        "csharp/test-support/VerificationAccess.Core/Enemies/Artwork/ChozoStrideGeometryDefinitionsAccess.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.Artwork.ChozoStrideGeometryDefinitionsAccess.extension(SuperMetroid.Core.Enemies.Artwork.ChozoStrideGeometryDefinitions)",
+      "kind": "class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Enemies/Artwork/ChozoStrideGeometryDefinitionsAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
     },
     {
       "type": "SuperMetroid.Core.Enemies.Artwork.CompiledEnemyVisualSelector",
@@ -30485,7 +30948,23 @@
         "csharp/src/SuperMetroid.Core/Enemies/Artwork/DeadTorizoArtworkDefinitions.cs"
       ],
       "partial": "none",
-      "disposition": "static-functions"
+      "disposition": "definition-catalog"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.Artwork.DeadTorizoArtworkDefinitionsConstants",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Enemies/Artwork/DeadTorizoArtworkDefinitionsConstants.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.Core.Enemies.Artwork.DeadTorizoStationaryCompositionDefinitions",
@@ -30529,12 +31008,15 @@
     {
       "type": "SuperMetroid.Core.Enemies.Artwork.DeadTourianCorpseFrameName",
       "kind": "record struct",
-      "scope": "product",
+      "scope": "test",
       "assemblies": [
-        "SuperMetroid.Core"
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/Artwork/DeadTourianCorpseFrameName.cs"
+        "csharp/test-support/VerificationAccess.Core/Enemies/Artwork/DeadTourianCorpseFrameName.cs"
       ],
       "partial": "none",
       "disposition": "value"
@@ -30542,12 +31024,15 @@
     {
       "type": "SuperMetroid.Core.Enemies.Artwork.DeadTourianCorpseVisualDefinitions",
       "kind": "static class",
-      "scope": "product",
+      "scope": "test",
       "assemblies": [
-        "SuperMetroid.Core"
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/Artwork/DeadTourianCorpseVisualDefinitions.cs"
+        "csharp/test-support/VerificationAccess.Core/Enemies/Artwork/DeadTourianCorpseVisualDefinitions.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
@@ -30587,12 +31072,102 @@
     {
       "type": "SuperMetroid.Core.Enemies.Artwork.DragonVisualDefinitions",
       "kind": "static class",
-      "scope": "product",
+      "scope": "test",
       "assemblies": [
-        "SuperMetroid.Core"
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/Artwork/DragonVisualDefinitions.cs"
+        "csharp/test-support/VerificationAccess.Core/Enemies/Artwork/DragonVisualDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.Artwork.EnemyArtworkCatalogsTooling",
+      "kind": "static class",
+      "scope": "tool",
+      "assemblies": [
+        "SuperMetroid.Tooling"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Tooling/Core/Enemies/Artwork/EnemyArtworkCatalogsTooling.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.Artwork.EnemyArtworkCatalogsTooling.extension(SuperMetroid.Core.Enemies.Artwork.EnemyExtendedFrameCatalog)",
+      "kind": "class",
+      "scope": "tool",
+      "assemblies": [
+        "SuperMetroid.Tooling"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Tooling/Core/Enemies/Artwork/EnemyArtworkCatalogsTooling.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.Artwork.EnemyArtworkCatalogsTooling.extension(SuperMetroid.Core.Enemies.Artwork.EnemySpritemapCatalog)",
+      "kind": "class",
+      "scope": "tool",
+      "assemblies": [
+        "SuperMetroid.Tooling"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Tooling/Core/Enemies/Artwork/EnemyArtworkCatalogsTooling.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.Artwork.EnemyArtworkCatalogsToolingAccess",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Core/Enemies/Artwork/EnemyArtworkCatalogsToolingAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.Artwork.EnemyArtworkCatalogsToolingAccess.extension(SuperMetroid.Core.Enemies.Artwork.EnemyExtendedFrameCatalog)",
+      "kind": "class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Core/Enemies/Artwork/EnemyArtworkCatalogsToolingAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.Artwork.EnemyArtworkCatalogsToolingConstants",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Core/Enemies/Artwork/EnemyArtworkCatalogsToolingConstants.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
@@ -30702,32 +31277,6 @@
       "disposition": "owner"
     },
     {
-      "type": "SuperMetroid.Core.Enemies.Artwork.EnemyBg2FrameDefinitionSequence",
-      "kind": "struct",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/Artwork/EnemyBg2FrameDefinitionSequence.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.Core.Enemies.Artwork.EnemyBg2FrameDefinitionSequence.Enumerator",
-      "kind": "struct",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/Artwork/EnemyBg2FrameDefinitionSequence.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
       "type": "SuperMetroid.Core.Enemies.Artwork.EnemyBg2FrameDefinitionSequenceAccess",
       "kind": "static class",
       "scope": "test",
@@ -30744,7 +31293,7 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Enemies.Artwork.EnemyBg2FrameDefinitionSequenceAccess.extension(SuperMetroid.Core.Enemies.Artwork.EnemyBg2FrameDefinitionSequence)",
+      "type": "SuperMetroid.Core.Enemies.Artwork.EnemyBg2FrameDefinitionSequenceAccess.extension(System.Collections.Immutable.ImmutableArray\u003CSuperMetroid.Core.Enemies.Artwork.EnemySpritemapDefinition\u003E)",
       "kind": "class",
       "scope": "test",
       "assemblies": [
@@ -30810,6 +31359,115 @@
       ],
       "partial": "none",
       "disposition": "record"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.Artwork.EnemyCompositionSchemaTooling",
+      "kind": "static class",
+      "scope": "tool",
+      "assemblies": [
+        "SuperMetroid.Tooling"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Tooling/Core/Enemies/Artwork/EnemyCompositionSchemaTooling.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.Artwork.EnemyCompositionSchemaToolingConstants",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Core/Enemies/Artwork/EnemyCompositionSchemaToolingConstants.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.Artwork.EnemyCompositionSchemaToolingConstants.FrameLookup",
+      "kind": "delegate",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Core/Enemies/Artwork/EnemyCompositionSchemaToolingConstants.cs"
+      ],
+      "partial": "none",
+      "disposition": "contract"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.Artwork.EnemyCompositionSchemaToolingConstants.extension(SuperMetroid.Core.Bosses.Crocomire.Artwork.CrocomireBg2FrameCatalog)",
+      "kind": "class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Core/Enemies/Artwork/EnemyCompositionSchemaToolingConstants.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.Artwork.EnemyCompositionSchemaToolingConstants.extension(SuperMetroid.Core.Bosses.Draygon.Artwork.DraygonBg2FrameCatalog)",
+      "kind": "class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Core/Enemies/Artwork/EnemyCompositionSchemaToolingConstants.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.Artwork.EnemyCompositionSchemaToolingConstants.extension(SuperMetroid.Core.Bosses.MotherBrain.Artwork.MotherBrainBodyBg2FrameCatalog)",
+      "kind": "class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Core/Enemies/Artwork/EnemyCompositionSchemaToolingConstants.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.Artwork.EnemyCompositionSchemaToolingConstants.extension(SuperMetroid.Core.Bosses.Phantoon.Artwork.PhantoonBg2FrameCatalog)",
+      "kind": "class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Core/Enemies/Artwork/EnemyCompositionSchemaToolingConstants.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
     },
     {
       "type": "SuperMetroid.Core.Enemies.Artwork.EnemyDmaSourceKey",
@@ -30916,6 +31574,45 @@
       "disposition": "value"
     },
     {
+      "type": "SuperMetroid.Core.Enemies.Artwork.EnemyFrameLocationTooling",
+      "kind": "static class",
+      "scope": "tool",
+      "assemblies": [
+        "SuperMetroid.Tooling"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Tooling/Core/Enemies/Artwork/EnemyFrameLocationTooling.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.Artwork.EnemyFrameLocationTooling.extension(SuperMetroid.Core.Enemies.Artwork.EnemyFrameId)",
+      "kind": "class",
+      "scope": "tool",
+      "assemblies": [
+        "SuperMetroid.Tooling"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Tooling/Core/Enemies/Artwork/EnemyFrameLocationTooling.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.Artwork.EnemyFrameLocationTooling.extension(SuperMetroid.Core.Enemies.Artwork.EnemySpritemapDefinition)",
+      "kind": "class",
+      "scope": "tool",
+      "assemblies": [
+        "SuperMetroid.Tooling"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Tooling/Core/Enemies/Artwork/EnemyFrameLocationTooling.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
+    },
+    {
       "type": "SuperMetroid.Core.Enemies.Artwork.EnemyFrameTable\u003CTFrame\u003E",
       "kind": "class",
       "scope": "product",
@@ -30937,19 +31634,6 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Tooling/Core/Enemies/Artwork/EnemyInstructionBank.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.Core.Enemies.Artwork.EnemyNamedSpritemapFrameId",
-      "kind": "enum",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/Artwork/EnemyNamedSpritemapFrameId.cs"
       ],
       "partial": "none",
       "disposition": "value"
@@ -31089,6 +31773,38 @@
       ],
       "partial": "none",
       "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.Artwork.EnemySpritemapDefinitionNativeAccess",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Enemies/Artwork/EnemySpritemapDefinitionNativeAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.Artwork.EnemySpritemapDefinitionNativeAccess.extension(SuperMetroid.Core.Enemies.Artwork.EnemySpritemapDefinition)",
+      "kind": "class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Enemies/Artwork/EnemySpritemapDefinitionNativeAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
     },
     {
       "type": "SuperMetroid.Core.Enemies.Artwork.EnemySpritemapDocument",
@@ -31259,12 +31975,15 @@
     {
       "type": "SuperMetroid.Core.Enemies.Artwork.EvirVisualDefinitions",
       "kind": "static class",
-      "scope": "product",
+      "scope": "test",
       "assemblies": [
-        "SuperMetroid.Core"
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/Artwork/EvirVisualDefinitions.cs"
+        "csharp/test-support/VerificationAccess.Core/Enemies/Artwork/EvirVisualDefinitions.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
@@ -31317,12 +32036,15 @@
     {
       "type": "SuperMetroid.Core.Enemies.Artwork.FlyVisualDefinitions",
       "kind": "static class",
-      "scope": "product",
+      "scope": "test",
       "assemblies": [
-        "SuperMetroid.Core"
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/Artwork/FlyVisualDefinitions.cs"
+        "csharp/test-support/VerificationAccess.Core/Enemies/Artwork/FlyVisualDefinitions.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
@@ -31330,15 +32052,15 @@
     {
       "type": "SuperMetroid.Core.Enemies.Artwork.FriendlyAnimalVisualDefinitions",
       "kind": "static class",
-      "scope": "product",
+      "scope": "tool",
       "assemblies": [
-        "SuperMetroid.Core"
+        "SuperMetroid.Tooling"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/Artwork/FriendlyAnimalVisualDefinitions.cs"
+        "csharp/src/SuperMetroid.Tooling/Core/Enemies/Artwork/FriendlyAnimalVisualDefinitions.cs"
       ],
       "partial": "none",
-      "disposition": "static-functions"
+      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.Core.Enemies.Artwork.GoldenTorizoHealthEndpoint",
@@ -31434,12 +32156,15 @@
     {
       "type": "SuperMetroid.Core.Enemies.Artwork.GunshipVisualDefinitions",
       "kind": "static class",
-      "scope": "product",
+      "scope": "test",
       "assemblies": [
-        "SuperMetroid.Core"
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/Artwork/GunshipVisualDefinitions.cs"
+        "csharp/test-support/VerificationAccess.Core/Enemies/Artwork/GunshipVisualDefinitions.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
@@ -31447,12 +32172,15 @@
     {
       "type": "SuperMetroid.Core.Enemies.Artwork.GunshipVisualDefinitions.HullFrame",
       "kind": "enum",
-      "scope": "product",
+      "scope": "test",
       "assemblies": [
-        "SuperMetroid.Core"
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/Artwork/GunshipVisualDefinitions.cs"
+        "csharp/test-support/VerificationAccess.Core/Enemies/Artwork/GunshipVisualDefinitions.cs"
       ],
       "partial": "none",
       "disposition": "value"
@@ -31460,15 +32188,15 @@
     {
       "type": "SuperMetroid.Core.Enemies.Artwork.HibashiVisualDefinitions",
       "kind": "static class",
-      "scope": "product",
+      "scope": "tool",
       "assemblies": [
-        "SuperMetroid.Core"
+        "SuperMetroid.Tooling"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/Artwork/HibashiVisualDefinitions.cs"
+        "csharp/src/SuperMetroid.Tooling/Core/Enemies/Artwork/HibashiVisualDefinitions.cs"
       ],
       "partial": "none",
-      "disposition": "static-functions"
+      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.Core.Enemies.Artwork.HibashiVisualDefinitionsTooling",
@@ -31482,19 +32210,6 @@
       ],
       "partial": "none",
       "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Core.Enemies.Artwork.IEnemyFrameWords",
-      "kind": "interface",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/Artwork/IEnemyFrameWords.cs"
-      ],
-      "partial": "none",
-      "disposition": "contract"
     },
     {
       "type": "SuperMetroid.Core.Enemies.Artwork.IInstalledObjCharacterArtwork",
@@ -31525,12 +32240,15 @@
     {
       "type": "SuperMetroid.Core.Enemies.Artwork.KagoVisualDefinitions",
       "kind": "static class",
-      "scope": "product",
+      "scope": "test",
       "assemblies": [
-        "SuperMetroid.Core"
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/Artwork/KagoVisualDefinitions.cs"
+        "csharp/test-support/VerificationAccess.Core/Enemies/Artwork/KagoVisualDefinitions.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
@@ -31538,12 +32256,15 @@
     {
       "type": "SuperMetroid.Core.Enemies.Artwork.KiHunterVisualDefinitions",
       "kind": "static class",
-      "scope": "product",
+      "scope": "test",
       "assemblies": [
-        "SuperMetroid.Core"
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/Artwork/KiHunterVisualDefinitions.cs"
+        "csharp/test-support/VerificationAccess.Core/Enemies/Artwork/KiHunterVisualDefinitions.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
@@ -31606,25 +32327,28 @@
     {
       "type": "SuperMetroid.Core.Enemies.Artwork.MamaTurtleVisualDefinitions",
       "kind": "static class",
-      "scope": "product",
+      "scope": "tool",
       "assemblies": [
-        "SuperMetroid.Core"
+        "SuperMetroid.Tooling"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/Artwork/MamaTurtleVisualDefinitions.cs"
+        "csharp/src/SuperMetroid.Tooling/Core/Enemies/Artwork/MamaTurtleVisualDefinitions.cs"
       ],
       "partial": "none",
-      "disposition": "static-functions"
+      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.Core.Enemies.Artwork.MetroidVisualDefinitions",
       "kind": "static class",
-      "scope": "product",
+      "scope": "test",
       "assemblies": [
-        "SuperMetroid.Core"
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/Artwork/MetroidVisualDefinitions.cs"
+        "csharp/test-support/VerificationAccess.Core/Enemies/Artwork/MetroidVisualDefinitions.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
@@ -31632,12 +32356,15 @@
     {
       "type": "SuperMetroid.Core.Enemies.Artwork.MochtroidVisualDefinitions",
       "kind": "static class",
-      "scope": "product",
+      "scope": "test",
       "assemblies": [
-        "SuperMetroid.Core"
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/Artwork/MochtroidVisualDefinitions.cs"
+        "csharp/test-support/VerificationAccess.Core/Enemies/Artwork/MochtroidVisualDefinitions.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
@@ -31677,12 +32404,15 @@
     {
       "type": "SuperMetroid.Core.Enemies.Artwork.MorphBallEyeVisualDefinitions",
       "kind": "static class",
-      "scope": "product",
+      "scope": "test",
       "assemblies": [
-        "SuperMetroid.Core"
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/Artwork/MorphBallEyeVisualDefinitions.cs"
+        "csharp/test-support/VerificationAccess.Core/Enemies/Artwork/MorphBallEyeVisualDefinitions.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
@@ -31690,25 +32420,47 @@
     {
       "type": "SuperMetroid.Core.Enemies.Artwork.MultiviolaVisualDefinitions",
       "kind": "static class",
-      "scope": "product",
+      "scope": "test",
       "assemblies": [
-        "SuperMetroid.Core"
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/Artwork/MultiviolaVisualDefinitions.cs"
+        "csharp/test-support/VerificationAccess.Core/Enemies/Artwork/MultiviolaVisualDefinitions.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Enemies.Artwork.NorfairLavaJumperVisualDefinitions",
-      "kind": "static class",
-      "scope": "product",
+      "type": "SuperMetroid.Core.Enemies.Artwork.NativeEnemySpritemapDefinition",
+      "kind": "record struct",
+      "scope": "test",
       "assemblies": [
-        "SuperMetroid.Core"
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/Artwork/NorfairLavaJumperVisualDefinitions.cs"
+        "csharp/test-support/VerificationAccess.Core/Enemies/Artwork/NativeEnemySpritemapDefinition.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.Artwork.NorfairLavaJumperVisualDefinitions",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Enemies/Artwork/NorfairLavaJumperVisualDefinitions.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
@@ -31716,12 +32468,12 @@
     {
       "type": "SuperMetroid.Core.Enemies.Artwork.NuclearWaffleVisualDefinitions",
       "kind": "static class",
-      "scope": "product",
+      "scope": "tool",
       "assemblies": [
-        "SuperMetroid.Core"
+        "SuperMetroid.Tooling"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/Artwork/NuclearWaffleVisualDefinitions.cs"
+        "csharp/src/SuperMetroid.Tooling/Core/Enemies/Artwork/NuclearWaffleVisualDefinitions.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
@@ -31729,25 +32481,28 @@
     {
       "type": "SuperMetroid.Core.Enemies.Artwork.PowampVisualDefinitions",
       "kind": "static class",
-      "scope": "product",
+      "scope": "tool",
       "assemblies": [
-        "SuperMetroid.Core"
+        "SuperMetroid.Tooling"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/Artwork/PowampVisualDefinitions.cs"
+        "csharp/src/SuperMetroid.Tooling/Core/Enemies/Artwork/PowampVisualDefinitions.cs"
       ],
       "partial": "none",
-      "disposition": "static-functions"
+      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.Core.Enemies.Artwork.SciserSurfaceFrames",
       "kind": "record struct",
-      "scope": "product",
+      "scope": "test",
       "assemblies": [
-        "SuperMetroid.Core"
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/Artwork/SciserSurfaceFrames.cs"
+        "csharp/test-support/VerificationAccess.Core/Enemies/Artwork/SciserSurfaceFrames.cs"
       ],
       "partial": "none",
       "disposition": "value"
@@ -31755,12 +32510,15 @@
     {
       "type": "SuperMetroid.Core.Enemies.Artwork.SciserVisualDefinitions",
       "kind": "static class",
-      "scope": "product",
+      "scope": "test",
       "assemblies": [
-        "SuperMetroid.Core"
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/Artwork/SciserVisualDefinitions.cs"
+        "csharp/test-support/VerificationAccess.Core/Enemies/Artwork/SciserVisualDefinitions.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
@@ -31768,12 +32526,15 @@
     {
       "type": "SuperMetroid.Core.Enemies.Artwork.ShaktoolVisualDefinitions",
       "kind": "static class",
-      "scope": "product",
+      "scope": "test",
       "assemblies": [
-        "SuperMetroid.Core"
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/Artwork/ShaktoolVisualDefinitions.cs"
+        "csharp/test-support/VerificationAccess.Core/Enemies/Artwork/ShaktoolVisualDefinitions.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
@@ -31781,12 +32542,15 @@
     {
       "type": "SuperMetroid.Core.Enemies.Artwork.ShutterVisualDefinitions",
       "kind": "static class",
-      "scope": "product",
+      "scope": "test",
       "assemblies": [
-        "SuperMetroid.Core"
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/Artwork/ShutterVisualDefinitions.cs"
+        "csharp/test-support/VerificationAccess.Core/Enemies/Artwork/ShutterVisualDefinitions.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
@@ -31872,12 +32636,15 @@
     {
       "type": "SuperMetroid.Core.Enemies.Artwork.SingleFrameEnemyVisualDefinitions",
       "kind": "static class",
-      "scope": "product",
+      "scope": "test",
       "assemblies": [
-        "SuperMetroid.Core"
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/Artwork/SingleFrameEnemyVisualDefinitions.cs"
+        "csharp/test-support/VerificationAccess.Core/Enemies/Artwork/SingleFrameEnemyVisualDefinitions.cs"
       ],
       "partial": "none",
       "disposition": "definition-catalog"
@@ -31969,25 +32736,28 @@
     {
       "type": "SuperMetroid.Core.Enemies.Artwork.SparkVisualDefinitions",
       "kind": "static class",
-      "scope": "product",
+      "scope": "tool",
       "assemblies": [
-        "SuperMetroid.Core"
+        "SuperMetroid.Tooling"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/Artwork/SparkVisualDefinitions.cs"
+        "csharp/src/SuperMetroid.Tooling/Core/Enemies/Artwork/SparkVisualDefinitions.cs"
       ],
       "partial": "none",
-      "disposition": "static-functions"
+      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.Core.Enemies.Artwork.TripperKamerVisualDefinitions",
       "kind": "static class",
-      "scope": "product",
+      "scope": "test",
       "assemblies": [
-        "SuperMetroid.Core"
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/Artwork/TripperKamerVisualDefinitions.cs"
+        "csharp/test-support/VerificationAccess.Core/Enemies/Artwork/TripperKamerVisualDefinitions.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
@@ -32011,12 +32781,15 @@
     {
       "type": "SuperMetroid.Core.Enemies.Artwork.ViolaVisualDefinitions",
       "kind": "static class",
-      "scope": "product",
+      "scope": "test",
       "assemblies": [
-        "SuperMetroid.Core"
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/Artwork/ViolaVisualDefinitions.cs"
+        "csharp/test-support/VerificationAccess.Core/Enemies/Artwork/ViolaVisualDefinitions.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
@@ -32063,12 +32836,15 @@
     {
       "type": "SuperMetroid.Core.Enemies.Artwork.WorkRobotVisualDefinitions",
       "kind": "static class",
-      "scope": "product",
+      "scope": "test",
       "assemblies": [
-        "SuperMetroid.Core"
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/Artwork/WorkRobotVisualDefinitions.cs"
+        "csharp/test-support/VerificationAccess.Core/Enemies/Artwork/WorkRobotVisualDefinitions.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
@@ -32108,12 +32884,12 @@
     {
       "type": "SuperMetroid.Core.Enemies.Artwork.WreckedShipGhostVisualDefinitions",
       "kind": "static class",
-      "scope": "product",
+      "scope": "tool",
       "assemblies": [
-        "SuperMetroid.Core"
+        "SuperMetroid.Tooling"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/Artwork/WreckedShipGhostVisualDefinitions.cs"
+        "csharp/src/SuperMetroid.Tooling/Core/Enemies/Artwork/WreckedShipGhostVisualDefinitions.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
@@ -32134,12 +32910,15 @@
     {
       "type": "SuperMetroid.Core.Enemies.Artwork.YappingMawVisualDefinitions",
       "kind": "static class",
-      "scope": "product",
+      "scope": "test",
       "assemblies": [
-        "SuperMetroid.Core"
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/Artwork/YappingMawVisualDefinitions.cs"
+        "csharp/test-support/VerificationAccess.Core/Enemies/Artwork/YappingMawVisualDefinitions.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
@@ -32163,12 +32942,15 @@
     {
       "type": "SuperMetroid.Core.Enemies.Artwork.YardVisualDefinitions",
       "kind": "static class",
-      "scope": "product",
+      "scope": "test",
       "assemblies": [
-        "SuperMetroid.Core"
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/Artwork/YardVisualDefinitions.cs"
+        "csharp/test-support/VerificationAccess.Core/Enemies/Artwork/YardVisualDefinitions.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
@@ -32176,15 +32958,15 @@
     {
       "type": "SuperMetroid.Core.Enemies.Artwork.ZeroVisualDefinitions",
       "kind": "static class",
-      "scope": "product",
+      "scope": "tool",
       "assemblies": [
-        "SuperMetroid.Core"
+        "SuperMetroid.Tooling"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/Artwork/ZeroVisualDefinitions.cs"
+        "csharp/src/SuperMetroid.Tooling/Core/Enemies/Artwork/ZeroVisualDefinitions.cs"
       ],
       "partial": "none",
-      "disposition": "static-functions"
+      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.Core.Enemies.Atomic.Artwork.AtomicFrameDefinitions",
@@ -33664,7 +34446,7 @@
         "csharp/src/SuperMetroid.Core/Enemies/Chozo/Artwork/ChozoStatueFrameDefinitions.cs"
       ],
       "partial": "none",
-      "disposition": "static-functions"
+      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.Core.Enemies.Chozo.Artwork.ChozoStatueFrameToolingDefinitions",
@@ -33677,7 +34459,7 @@
         "csharp/src/SuperMetroid.Tooling/Core/Enemies/Chozo/Artwork/ChozoStatueFrameToolingDefinitions.cs"
       ],
       "partial": "none",
-      "disposition": "definition-catalog"
+      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.Core.Enemies.Chozo.Artwork.ChozoTourianDustFrameDefinitions",
@@ -33785,6 +34567,22 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Core/Enemies/Chozo/ChozoStatueAnimations.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.Chozo.ChozoStatueAnimationsConstants",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Enemies/Chozo/ChozoStatueAnimationsConstants.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
@@ -35255,7 +36053,7 @@
         "csharp/src/SuperMetroid.Core/Enemies/Crawlers/Artwork/CrawlerFrameDefinitions.cs"
       ],
       "partial": "none",
-      "disposition": "static-functions"
+      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.Core.Enemies.Crawlers.Artwork.CrawlerFrameToolingDefinitions",
@@ -35268,7 +36066,7 @@
         "csharp/src/SuperMetroid.Tooling/Core/Enemies/Crawlers/Artwork/CrawlerFrameToolingDefinitions.cs"
       ],
       "partial": "none",
-      "disposition": "definition-catalog"
+      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.Core.Enemies.Crawlers.Artwork.MultiviolaFrameDefinitions",
@@ -35281,7 +36079,7 @@
         "csharp/src/SuperMetroid.Core/Enemies/Crawlers/Artwork/MultiviolaFrameDefinitions.cs"
       ],
       "partial": "none",
-      "disposition": "static-functions"
+      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.Core.Enemies.Crawlers.Artwork.MultiviolaFrameToolingDefinitions",
@@ -35294,7 +36092,7 @@
         "csharp/src/SuperMetroid.Tooling/Core/Enemies/Crawlers/Artwork/MultiviolaFrameToolingDefinitions.cs"
       ],
       "partial": "none",
-      "disposition": "definition-catalog"
+      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.Core.Enemies.Crawlers.CrawlerAnimationDefinition",
@@ -35344,6 +36142,22 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Core/Enemies/Crawlers/CrawlerAnimations.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.Crawlers.CrawlerAnimationsConstants",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Enemies/Crawlers/CrawlerAnimationsConstants.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
@@ -35526,6 +36340,22 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Core/Enemies/Crawlers/MultiviolaAnimations.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.Crawlers.MultiviolaAnimationsConstants",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Enemies/Crawlers/MultiviolaAnimationsConstants.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
@@ -36057,6 +36887,19 @@
       ],
       "partial": "none",
       "disposition": "definition-catalog"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.Drawing.CommonEnemyEmptyExtendedFrameToolingDefinitions",
+      "kind": "static class",
+      "scope": "tool",
+      "assemblies": [
+        "SuperMetroid.Tooling"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Tooling/Core/Enemies/Drawing/CommonEnemyEmptyExtendedFrameToolingDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.Core.Enemies.Drawing.EnemyBg2SurfaceDefinitions",
@@ -39093,7 +39936,7 @@
         "csharp/src/SuperMetroid.Core/Enemies/FaceBlocks/Artwork/BlueBrinstarFaceBlockFrameDefinitions.cs"
       ],
       "partial": "none",
-      "disposition": "static-functions"
+      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.Core.Enemies.FaceBlocks.Artwork.BlueBrinstarFaceBlockFrameToolingDefinitions",
@@ -39106,7 +39949,7 @@
         "csharp/src/SuperMetroid.Tooling/Core/Enemies/FaceBlocks/Artwork/BlueBrinstarFaceBlockFrameToolingDefinitions.cs"
       ],
       "partial": "none",
-      "disposition": "definition-catalog"
+      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.Core.Enemies.FaceBlocks.BlueBrinstarFaceBlockAnimations",
@@ -39117,6 +39960,22 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Core/Enemies/FaceBlocks/BlueBrinstarFaceBlockAnimations.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.FaceBlocks.BlueBrinstarFaceBlockAnimationsConstants",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Enemies/FaceBlocks/BlueBrinstarFaceBlockAnimationsConstants.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
@@ -40007,6 +40866,22 @@
         "csharp/src/SuperMetroid.Core/Enemies/Gunship/Artwork/GunshipFrameDefinitions.cs"
       ],
       "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.Gunship.Artwork.GunshipFrameDefinitionsConstants",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Enemies/Gunship/Artwork/GunshipFrameDefinitionsConstants.cs"
+      ],
+      "partial": "none",
       "disposition": "static-functions"
     },
     {
@@ -40018,6 +40893,22 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Core/Enemies/Gunship/GunshipAnimations.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.Gunship.GunshipAnimationsConstants",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Enemies/Gunship/GunshipAnimationsConstants.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
@@ -40325,7 +41216,7 @@
         "csharp/src/SuperMetroid.Core/Enemies/Hibashi/Artwork/HibashiFrameDefinitions.cs"
       ],
       "partial": "none",
-      "disposition": "static-functions"
+      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.Core.Enemies.Hibashi.Artwork.HibashiFrameToolingDefinitions",
@@ -40338,7 +41229,7 @@
         "csharp/src/SuperMetroid.Tooling/Core/Enemies/Hibashi/Artwork/HibashiFrameToolingDefinitions.cs"
       ],
       "partial": "none",
-      "disposition": "definition-catalog"
+      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.Core.Enemies.Hibashi.HibashiActivityDefinition",
@@ -40362,6 +41253,19 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Core/Enemies/Hibashi/HibashiAnimations.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.Hibashi.HibashiAnimationsTooling",
+      "kind": "static class",
+      "scope": "tool",
+      "assemblies": [
+        "SuperMetroid.Tooling"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Tooling/Core/Enemies/Hibashi/HibashiAnimationsTooling.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
@@ -41585,7 +42489,7 @@
         "csharp/src/SuperMetroid.Core/Enemies/KiHunters/Artwork/KiHunterFrameDefinitions.cs"
       ],
       "partial": "none",
-      "disposition": "static-functions"
+      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.Core.Enemies.KiHunters.Artwork.KiHunterFrameToolingDefinitions",
@@ -41598,7 +42502,7 @@
         "csharp/src/SuperMetroid.Tooling/Core/Enemies/KiHunters/Artwork/KiHunterFrameToolingDefinitions.cs"
       ],
       "partial": "none",
-      "disposition": "definition-catalog"
+      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.Core.Enemies.KiHunters.KiHunterAcidSpitAnimation",
@@ -41661,6 +42565,22 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Core/Enemies/KiHunters/KiHunterAnimations.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.KiHunters.KiHunterAnimationsConstants",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Enemies/KiHunters/KiHunterAnimationsConstants.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
@@ -42017,7 +42937,7 @@
         "csharp/src/SuperMetroid.Core/Enemies/LavaJumpers/Artwork/NorfairLavaJumperFrameDefinitions.cs"
       ],
       "partial": "none",
-      "disposition": "static-functions"
+      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.Core.Enemies.LavaJumpers.Artwork.NorfairLavaJumperFrameToolingDefinitions",
@@ -42030,7 +42950,7 @@
         "csharp/src/SuperMetroid.Tooling/Core/Enemies/LavaJumpers/Artwork/NorfairLavaJumperFrameToolingDefinitions.cs"
       ],
       "partial": "none",
-      "disposition": "definition-catalog"
+      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.Core.Enemies.LavaJumpers.NorfairLavaJumpDefinitions",
@@ -42054,6 +42974,22 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Core/Enemies/LavaJumpers/NorfairLavaJumperAnimations.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.LavaJumpers.NorfairLavaJumperAnimationsConstants",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Enemies/LavaJumpers/NorfairLavaJumperAnimationsConstants.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
@@ -42565,7 +43501,7 @@
         "csharp/src/SuperMetroid.Core/Enemies/MamaTurtles/Artwork/MamaTurtleFrameDefinitions.cs"
       ],
       "partial": "none",
-      "disposition": "static-functions"
+      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.Core.Enemies.MamaTurtles.Artwork.MamaTurtleFrameToolingDefinitions",
@@ -42578,7 +43514,7 @@
         "csharp/src/SuperMetroid.Tooling/Core/Enemies/MamaTurtles/Artwork/MamaTurtleFrameToolingDefinitions.cs"
       ],
       "partial": "none",
-      "disposition": "definition-catalog"
+      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.Core.Enemies.MamaTurtles.BabyTurtleAiFunction",
@@ -42628,6 +43564,19 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Core/Enemies/MamaTurtles/MamaTurtleAnimations.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.MamaTurtles.MamaTurtleAnimationsTooling",
+      "kind": "static class",
+      "scope": "tool",
+      "assemblies": [
+        "SuperMetroid.Tooling"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Tooling/Core/Enemies/MamaTurtles/MamaTurtleAnimationsTooling.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
@@ -42992,19 +43941,6 @@
       "disposition": "definition-catalog"
     },
     {
-      "type": "SuperMetroid.Core.Enemies.MaridiaSnails.MaridiaLargeSnailCollisionDefinitions.FramePointerSequence",
-      "kind": "struct",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/MaridiaSnails/MaridiaLargeSnailCollisionDefinitions.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
       "type": "SuperMetroid.Core.Enemies.MaridiaSnails.MaridiaLargeSnailCollisionDefinitionsAccess",
       "kind": "static class",
       "scope": "test",
@@ -43035,6 +43971,38 @@
       ],
       "partial": "none",
       "disposition": "stateless"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.MaridiaSnails.MaridiaLargeSnailCollisionDefinitionsConstants",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Enemies/MaridiaSnails/MaridiaLargeSnailCollisionDefinitionsConstants.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.MaridiaSnails.MaridiaLargeSnailCollisionDefinitionsConstants.FramePointerSequence",
+      "kind": "struct",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Enemies/MaridiaSnails/MaridiaLargeSnailCollisionDefinitionsConstants.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Core.Enemies.MaridiaSnails.MaridiaLargeSnailCollisionHitbox",
@@ -43959,7 +44927,7 @@
         "csharp/src/SuperMetroid.Core/Enemies/Nuclear/Artwork/NuclearWaffleFrameDefinitions.cs"
       ],
       "partial": "none",
-      "disposition": "static-functions"
+      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.Core.Enemies.Nuclear.Artwork.NuclearWaffleFrameToolingDefinitions",
@@ -43972,7 +44940,7 @@
         "csharp/src/SuperMetroid.Tooling/Core/Enemies/Nuclear/Artwork/NuclearWaffleFrameToolingDefinitions.cs"
       ],
       "partial": "none",
-      "disposition": "definition-catalog"
+      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.Core.Enemies.Nuclear.Artwork.NuclearWaffleProjectileFrameDefinitions",
@@ -44009,6 +44977,19 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Core/Enemies/Nuclear/NuclearWaffleAnimations.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.Nuclear.NuclearWaffleAnimationsTooling",
+      "kind": "static class",
+      "scope": "tool",
+      "assemblies": [
+        "SuperMetroid.Tooling"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Tooling/Core/Enemies/Nuclear/NuclearWaffleAnimationsTooling.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
@@ -45101,7 +46082,7 @@
         "csharp/src/SuperMetroid.Core/Enemies/Powamp/Artwork/PowampFrameDefinitions.cs"
       ],
       "partial": "none",
-      "disposition": "static-functions"
+      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.Core.Enemies.Powamp.Artwork.PowampFrameToolingDefinitions",
@@ -45114,7 +46095,7 @@
         "csharp/src/SuperMetroid.Tooling/Core/Enemies/Powamp/Artwork/PowampFrameToolingDefinitions.cs"
       ],
       "partial": "none",
-      "disposition": "definition-catalog"
+      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.Core.Enemies.Powamp.Artwork.PowampSpikeFrameDefinitions",
@@ -49128,7 +50109,7 @@
         "csharp/src/SuperMetroid.Core/Enemies/SpacePirates/Artwork/NinjaSpacePirateFrameDefinitions.cs"
       ],
       "partial": "none",
-      "disposition": "static-functions"
+      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.Core.Enemies.SpacePirates.Artwork.NinjaSpacePirateFrameToolingDefinitions",
@@ -49141,7 +50122,7 @@
         "csharp/src/SuperMetroid.Tooling/Core/Enemies/SpacePirates/Artwork/NinjaSpacePirateFrameToolingDefinitions.cs"
       ],
       "partial": "none",
-      "disposition": "definition-catalog"
+      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.Core.Enemies.SpacePirates.Artwork.SpacePirateProjectileFrameDefinitions",
@@ -49193,7 +50174,7 @@
         "csharp/src/SuperMetroid.Core/Enemies/SpacePirates/Artwork/WalkingSpacePirateFrameDefinitions.cs"
       ],
       "partial": "none",
-      "disposition": "static-functions"
+      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.Core.Enemies.SpacePirates.Artwork.WalkingSpacePirateFrameToolingDefinitions",
@@ -49206,7 +50187,7 @@
         "csharp/src/SuperMetroid.Tooling/Core/Enemies/SpacePirates/Artwork/WalkingSpacePirateFrameToolingDefinitions.cs"
       ],
       "partial": "none",
-      "disposition": "definition-catalog"
+      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.Core.Enemies.SpacePirates.Artwork.WallSpacePirateFrameDefinitions",
@@ -49219,7 +50200,7 @@
         "csharp/src/SuperMetroid.Core/Enemies/SpacePirates/Artwork/WallSpacePirateFrameDefinitions.cs"
       ],
       "partial": "none",
-      "disposition": "static-functions"
+      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.Core.Enemies.SpacePirates.Artwork.WallSpacePirateFrameToolingDefinitions",
@@ -49232,7 +50213,7 @@
         "csharp/src/SuperMetroid.Tooling/Core/Enemies/SpacePirates/Artwork/WallSpacePirateFrameToolingDefinitions.cs"
       ],
       "partial": "none",
-      "disposition": "definition-catalog"
+      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.Core.Enemies.SpacePirates.NinjaSpacePirateAnimations",
@@ -49243,6 +50224,22 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Core/Enemies/SpacePirates/NinjaSpacePirateAnimations.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.SpacePirates.NinjaSpacePirateAnimationsConstants",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Enemies/SpacePirates/NinjaSpacePirateAnimationsConstants.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
@@ -50029,6 +51026,22 @@
       "disposition": "static-functions"
     },
     {
+      "type": "SuperMetroid.Core.Enemies.SpacePirates.WallSpacePirateAnimationsConstants",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Enemies/SpacePirates/WallSpacePirateAnimationsConstants.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.Core.Enemies.SpacePirates.WallSpacePirateBehavior",
       "kind": "class",
       "scope": "product",
@@ -50234,7 +51247,7 @@
         "csharp/src/SuperMetroid.Core/Enemies/Sparks/Artwork/SparkFrameDefinitions.cs"
       ],
       "partial": "none",
-      "disposition": "static-functions"
+      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.Core.Enemies.Sparks.Artwork.SparkFrameToolingDefinitions",
@@ -50247,7 +51260,7 @@
         "csharp/src/SuperMetroid.Tooling/Core/Enemies/Sparks/Artwork/SparkFrameToolingDefinitions.cs"
       ],
       "partial": "none",
-      "disposition": "definition-catalog"
+      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.Core.Enemies.Sparks.SparkAnimations",
@@ -50414,6 +51427,22 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Core/Enemies/SpriteObjects/RoomSpriteObjectVisualDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.SpriteObjects.RoomSpriteObjectVisualDefinitionsConstants",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Enemies/SpriteObjects/RoomSpriteObjectVisualDefinitionsConstants.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
@@ -51263,7 +52292,7 @@
         "csharp/src/SuperMetroid.Core/Enemies/WreckedShip/Artwork/WreckedShipGhostFrameDefinitions.cs"
       ],
       "partial": "none",
-      "disposition": "static-functions"
+      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.Core.Enemies.WreckedShip.Artwork.WreckedShipGhostFrameToolingDefinitions",
@@ -51276,7 +52305,7 @@
         "csharp/src/SuperMetroid.Tooling/Core/Enemies/WreckedShip/Artwork/WreckedShipGhostFrameToolingDefinitions.cs"
       ],
       "partial": "none",
-      "disposition": "definition-catalog"
+      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.Core.Enemies.WreckedShip.WreckedShipAtticCue",
@@ -51381,6 +52410,19 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Core/Enemies/WreckedShip/WreckedShipGhostAnimations.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.WreckedShip.WreckedShipGhostAnimationsTooling",
+      "kind": "static class",
+      "scope": "tool",
+      "assemblies": [
+        "SuperMetroid.Tooling"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Tooling/Core/Enemies/WreckedShip/WreckedShipGhostAnimationsTooling.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
@@ -51635,7 +52677,7 @@
         "csharp/src/SuperMetroid.Core/Enemies/YappingMaws/Artwork/YappingMawFrameDefinitions.cs"
       ],
       "partial": "none",
-      "disposition": "static-functions"
+      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.Core.Enemies.YappingMaws.Artwork.YappingMawFrameToolingDefinitions",
@@ -51648,7 +52690,7 @@
         "csharp/src/SuperMetroid.Tooling/Core/Enemies/YappingMaws/Artwork/YappingMawFrameToolingDefinitions.cs"
       ],
       "partial": "none",
-      "disposition": "definition-catalog"
+      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.Core.Enemies.YappingMaws.YappingMawAiFunction",
@@ -51685,6 +52727,22 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Core/Enemies/YappingMaws/YappingMawAnimations.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.YappingMaws.YappingMawAnimationsConstants",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Enemies/YappingMaws/YappingMawAnimationsConstants.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
@@ -51869,7 +52927,7 @@
         "csharp/src/SuperMetroid.Core/Enemies/Yard/Artwork/YardFrameDefinitions.cs"
       ],
       "partial": "none",
-      "disposition": "static-functions"
+      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.Core.Enemies.Yard.Artwork.YardFrameToolingDefinitions",
@@ -51882,7 +52940,7 @@
         "csharp/src/SuperMetroid.Tooling/Core/Enemies/Yard/Artwork/YardFrameToolingDefinitions.cs"
       ],
       "partial": "none",
-      "disposition": "definition-catalog"
+      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.Core.Enemies.Yard.YardAirborneFacing",
@@ -51919,6 +52977,22 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Core/Enemies/Yard/YardAnimations.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Enemies.Yard.YardAnimationsConstants",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Enemies/Yard/YardAnimationsConstants.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
@@ -102912,6 +103986,67 @@
       "disposition": "owner"
     },
     {
+      "type": "SuperMetroid.Core.World.Artwork.EnemyCompositionBanksTooling",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Core/World/Artwork/EnemyCompositionBanksTooling.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.World.Artwork.EnemyCompositionBanksTooling.extension(SuperMetroid.Core.World.Artwork.EnemyExtendedFrameDefinitions)",
+      "kind": "class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Core/World/Artwork/EnemyCompositionBanksTooling.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
+    },
+    {
+      "type": "SuperMetroid.Core.World.Artwork.EnemyCompositionBanksTooling.extension(SuperMetroid.Core.World.Artwork.EnemySpritemapDefinitions)",
+      "kind": "class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Core/World/Artwork/EnemyCompositionBanksTooling.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
+    },
+    {
+      "type": "SuperMetroid.Core.World.Artwork.EnemyExtendedFrameCompositions",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/World/Artwork/EnemyExtendedFrameCompositions.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
       "type": "SuperMetroid.Core.World.Artwork.EnemyExtendedFrameDefinitions",
       "kind": "static class",
       "scope": "product",
@@ -102951,30 +104086,17 @@
       "disposition": "value"
     },
     {
-      "type": "SuperMetroid.Core.World.Artwork.EnemyFrames",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/World/Artwork/EnemyFrames.cs"
-      ],
-      "partial": "none",
-      "disposition": "stateless"
-    },
-    {
-      "type": "SuperMetroid.Core.World.Artwork.EnemyNamedSpritemapFrameDefinitions",
+      "type": "SuperMetroid.Core.World.Artwork.EnemySpritemapCompositions",
       "kind": "static class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/World/Artwork/EnemyNamedSpritemapFrameDefinitions.cs"
+        "csharp/src/SuperMetroid.Core/World/Artwork/EnemySpritemapCompositions.cs"
       ],
       "partial": "none",
-      "disposition": "static-functions"
+      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.Core.World.Artwork.EnemySpritemapDefinitions",
@@ -102987,7 +104109,7 @@
         "csharp/src/SuperMetroid.Core/World/Artwork/EnemySpritemapDefinitions.cs"
       ],
       "partial": "none",
-      "disposition": "static-functions"
+      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.Core.World.Artwork.EnemySpritemapDefinitions.FrameList",
@@ -103031,12 +104153,28 @@
     {
       "type": "SuperMetroid.Core.World.Artwork.PirateArtworkNameDefinitions",
       "kind": "static class",
-      "scope": "product",
+      "scope": "tool",
       "assemblies": [
-        "SuperMetroid.Core"
+        "SuperMetroid.Tooling"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/World/Artwork/PirateArtworkNameDefinitions.cs"
+        "csharp/src/SuperMetroid.Tooling/Core/World/Artwork/PirateArtworkNameDefinitions.cs"
+      ],
+      "partial": "none",
+      "disposition": "definition-catalog"
+    },
+    {
+      "type": "SuperMetroid.Core.World.Artwork.PirateArtworkNameDefinitionsConstants",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/World/Artwork/PirateArtworkNameDefinitionsConstants.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"

@@ -13,7 +13,7 @@ internal static class ChozoStatueAnimationsVerification
     internal static void VerifyChozoStatueAnimations(SuperMetroidAddressSpace rom)
     {
         int steps = NativeEnemyProgramOracle.CompareAll(CartridgeImportSource.Require(rom), Bank, Entries, ChozoStatueAnimations.Programs,
-            ChozoStatueFrameDefinitions.Spritemap,
+            ChozoStatueFrameToolingDefinitions.Spritemap,
             word => Instructions.TryGetValue(word, out var instruction) ? instruction.Operands.Length : null,
             (word, operands, cue, at) =>
             {

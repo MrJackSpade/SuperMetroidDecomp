@@ -4,7 +4,7 @@ using static SuperMetroid.Verification.Harness.FullRunSuitesVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.AssetExtraction.Installation;
 using SuperMetroid.AssetExtraction.Cartridge;
-using SuperMetroid.TestSupport.RepositoryInstallation;
+using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 
 namespace SuperMetroid.Verification.Harness;
 
@@ -46,11 +46,12 @@ internal static class SuiteRunnerVerification
         ParameterInfo[] parameters = method.GetParameters();
         var required = parameters.Where(parameter => !parameter.IsOptional).ToArray();
         object?[] arguments = parameters.Select(parameter => parameter.IsOptional ? parameter.DefaultValue : null).ToArray();
-        if (required.Length == 1 && required[0].ParameterType == typeof(GameInstallation))
-        {
-            arguments[Array.IndexOf(parameters, required[0])] = RepositoryInstallation.Installation;
-        }
-        else if (required.Length == 1)
+        // Installation verifiers edit, corrupt and repair what they are given, so a named run gets a private copy and the
+        // shared repository installation stays as extracted.
+        int installationArgument = required.Length == 1 && required[0].ParameterType == typeof(GameInstallation)
+            ? Array.IndexOf(parameters, required[0])
+            : -1;
+        if (installationArgument < 0 && required.Length == 1)
         {
             var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
             if (!required[0].ParameterType.IsInstanceOfType(rom))
@@ -63,6 +64,9 @@ internal static class SuiteRunnerVerification
         }
         return () =>
         {
+            using PrivateInstallationCopy? copy = installationArgument >= 0 ? InstalledFixtures.CreatePrivateCopy() : null;
+            if (copy is not null)
+                arguments[installationArgument] = copy.Installation;
             object? result = null;
             Suite(name, () => result = method.Invoke(null, BindingFlags.DoNotWrapExceptions, binder: null, arguments, culture: null));
             return result is int code ? code : 0;

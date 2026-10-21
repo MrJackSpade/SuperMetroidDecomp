@@ -58,7 +58,7 @@ internal static class CrawlerBehaviorVerification
                     _ => null,
                 })
                 .Single(target => target is not null) ?? throw new InvalidOperationException("A crawler loop names its target.");
-            AssertEqual(EnemyInstructionRunner.ExpectedLoop(CrawlerAnimations.Programs, loop, CrawlerFrameDefinitions.Spritemap),
+            AssertEqual(EnemyInstructionRunner.ExpectedLoop(CrawlerAnimations.Programs, loop, CrawlerFrameToolingDefinitions.Spritemap),
                 EnemyInstructionRunner.ShownFrames(slot, EnemyInstructionRunner.LoopUpdates(CrawlerAnimations.Programs, loop)), $"{context} loop");
             bool sideWall = orientation is CrawlerSurfaceOrientation.UpsideRight or CrawlerSurfaceOrientation.UpsideLeft;
             CrawlerEnemyFunction expected = family == CrawlerAnimationFamily.HZoomer
@@ -66,7 +66,7 @@ internal static class CrawlerBehaviorVerification
                 : sideWall ? CrawlerEnemyFunction.CrawlingVertically : CrawlerEnemyFunction.CrawlingHorizontally;
             AssertEqual(expected, state.Function, $"{context} installs its movement function");
             if (artwork is not null)
-                foreach (ushort pose in CrawlerAnimations.Spritemaps(loop))
+                foreach (ushort pose in CrawlerAnimationsConstants.Spritemaps(loop))
                     AssertTrue((artwork.Enemies.Spritemaps ?? throw new InvalidOperationException("Verification requires installed spritemaps.")).TryGet(CrawlerFrameToolingDefinitions.Bank, pose, out _),
                         $"{context} pose ${pose:X4} has installed artwork");
         }

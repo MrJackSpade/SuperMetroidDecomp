@@ -15,7 +15,7 @@ internal static class CrocomireSkeletonResourceChecks
     internal static void Run()
     {
         ExtendedEnemyCompositionResourceChecks.Run("Crocomire skeleton",
-            CrocomireSkeletonVisualDefinitions.Frames.ToArray(),
+            [.. CrocomireSkeletonVisualDefinitions.Frames.Select(EnemyCompositionSchemaTooling.CompositionOf)],
             (int)EnemyExtendedFrameSchema.PreCrocomireSkeleton,
             EnemyExtendedFrameDefinitions.PreCrocomireSkeletonFrameCount);
         ConfirmFragmentationCapacity();
@@ -24,8 +24,8 @@ internal static class CrocomireSkeletonResourceChecks
     /// <summary>Preserves thirteen ordered collapse components while rejecting a fourteenth and keeping ordinary bounds.</summary>
     private static void ConfirmFragmentationCapacity()
     {
-        EnemySpritemapDefinition frame = CrocomireSkeletonVisualDefinitions.Frames
-            .Single(item => item.Pointer == CrocomireSkeletonVisualDefinitions.FirstThirteenComponentFrame);
+        EnemySpritemapDefinition frame = EnemyCompositionSchemaTooling.CompositionOf(CrocomireSkeletonVisualDefinitions.Frames
+            .Single(item => item.Pointer == CrocomireSkeletonVisualToolingDefinitions.FirstThirteenComponentFrame));
         int count = CrocomireSkeletonVisualDefinitions.MaximumComponents;
         var source = ConstructedComponentSource(frame, count);
         EnemyExtendedVisualComponent[] extracted = EnemyExtendedFrameFiles.ExtractComponents(source, frame);

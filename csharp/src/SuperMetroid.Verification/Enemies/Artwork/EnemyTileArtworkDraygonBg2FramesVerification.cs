@@ -16,7 +16,6 @@ using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core;
 namespace SuperMetroid.Verification.Enemies.Artwork;
 using SuperMetroid.Verification.Harness;
-using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.World;
 
 /// <summary>Checks installed Draygon BG2 frames and collision components against native streams and live drawing.</summary>
@@ -35,12 +34,12 @@ internal static class EnemyTileArtworkDraygonBg2FramesVerification
             "installed enemy art includes Draygon BG2 frames");
         var noCartridge = NewFrontendCartridgeReadGuard(rom);
         int writeCount = 0;
-        foreach (SpritemapFrameDefinition frame in DraygonBg2FrameDefinitions.Frames)
+        foreach (EnemySpritemapDefinition frame in DraygonBg2FrameDefinitions.Frames)
         {
-            AssertTrue((stock.Bosses.DraygonBg2Frames ?? throw new InvalidOperationException("Verification requires stock.DraygonBg2Frames.")).TryGet(frame.Pointer,
+            AssertTrue((stock.Bosses.DraygonBg2Frames ?? throw new InvalidOperationException("Verification requires stock.DraygonBg2Frames.")).TryGet(frame.Frame,
                     out ReadOnlyMemory<EnemyBg2TilemapWrite> installed),
                 $"installed Draygon BG2 frame {frame.Name} exists");
-            int root = ((int)new SnesAddress(DraygonBg2FrameDefinitions.Bank, frame.Pointer));
+            int root = ((int)new SnesAddress(DraygonBg2FrameToolingDefinitions.Bank, frame.Pointer));
             AssertEqual((byte)1, rom.ReadCartridgeByte(root),
                 $"Draygon {frame.Name} has one BG2 component");
             AssertEqual((ushort)0, CartridgeImportSource.Require(rom).ReadCartridgeWord((root + 2)),
@@ -49,9 +48,9 @@ internal static class EnemyTileArtworkDraygonBg2FramesVerification
                 $"Draygon {frame.Name} BG2 component Y offset");
             ushort stream = CartridgeImportSource.Require(rom).ReadCartridgeWord((root + 6));
             AssertEqual(EnemyBg2FrameLayout.StreamMarker,
-                CartridgeImportSource.Require(rom).ReadCartridgeWord((((int)new SnesAddress(DraygonBg2FrameDefinitions.Bank, stream)))),
+                CartridgeImportSource.Require(rom).ReadCartridgeWord((((int)new SnesAddress(DraygonBg2FrameToolingDefinitions.Bank, stream)))),
                 $"Draygon {frame.Name} selects a BG2 command stream");
-            int cursor = ((int)new SnesAddress(DraygonBg2FrameDefinitions.Bank, unchecked((ushort)(stream + 2))));
+            int cursor = ((int)new SnesAddress(DraygonBg2FrameToolingDefinitions.Bank, unchecked((ushort)(stream + 2))));
             var native = new List<EnemyTileArtworkDraygonBg2FramesNative>();
             for (int command = 0;
                  command < EnemyBg2FrameLayout.MaximumCommandsPerStream; command++)
@@ -79,7 +78,7 @@ internal static class EnemyTileArtworkDraygonBg2FramesVerification
                     $"Draygon {frame.Name} write {index} preserves tile words");
             }
             writeCount += native.Count;
-            AssertTrue(ReadReferenceExtendedBg2Vram(rom, DraygonBg2FrameDefinitions.Bank, frame.Pointer, true)
+            AssertTrue(ReadReferenceExtendedBg2Vram(rom, DraygonBg2FrameToolingDefinitions.Bank, frame.Pointer, true)
                     .SequenceEqual(DrawDraygonBg2(stock, frame.Pointer, true)),
                 $"Draygon {frame.Name} stock VRAM matches native without cartridge reads");
         }
@@ -101,7 +100,7 @@ internal static class EnemyTileArtworkDraygonBg2FramesVerification
         EnemyBg2FrameDocument document =
             RequiredJson.Deserialize<EnemyBg2FrameDocument>(original,
                 new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-        SpritemapFrameDefinition editedIdentity = DraygonBg2FrameDefinitions.Frames[0];
+        EnemySpritemapDefinition editedIdentity = DraygonBg2FrameDefinitions.Frames[0];
         EnemyBg2WriteDocument first = document.Frames[editedIdentity.Name][0];
         int changedTile = first.Tiles[0] ^ 1;
         int[] editedTiles = (int[])first.Tiles.Clone();
@@ -115,7 +114,7 @@ internal static class EnemyTileArtworkDraygonBg2FramesVerification
             CamelCaseJson));
         InstalledEnemyArtwork edited = EnemyTileArtworkFiles.Load(
             stockDirectory, overrideDirectory);
-        AssertTrue((edited.Bosses.DraygonBg2Frames ?? throw new InvalidOperationException("Verification requires edited.DraygonBg2Frames.")).TryGet(editedIdentity.Pointer,
+        AssertTrue((edited.Bosses.DraygonBg2Frames ?? throw new InvalidOperationException("Verification requires edited.DraygonBg2Frames.")).TryGet(editedIdentity.Frame,
                 out ReadOnlyMemory<EnemyBg2TilemapWrite> editedFrame),
             "edited Draygon BG2 frame is installed");
         int vramByte = (EnemyBg2FrameLayout.VramBase +
@@ -127,7 +126,7 @@ internal static class EnemyTileArtworkDraygonBg2FramesVerification
             "Draygon override preserves the native new-frame producer gate");
         InstalledEnemyArtwork reloaded = EnemyTileArtworkFiles.Load(
             stockDirectory, overrideDirectory);
-        AssertTrue((reloaded.Bosses.DraygonBg2Frames ?? throw new InvalidOperationException("Verification requires reloaded.DraygonBg2Frames.")).TryGet(editedIdentity.Pointer,
+        AssertTrue((reloaded.Bosses.DraygonBg2Frames ?? throw new InvalidOperationException("Verification requires reloaded.DraygonBg2Frames.")).TryGet(editedIdentity.Frame,
                 out ReadOnlyMemory<EnemyBg2TilemapWrite> reloadedFrame) &&
             reloadedFrame.Span[0].Tiles.Span[0] == (ushort)changedTile,
             "Draygon BG2 override survives reload");
@@ -146,9 +145,9 @@ internal static class EnemyTileArtworkDraygonBg2FramesVerification
         SuperMetroidAddressSpace rom)
     {
         var nativeLists = new Dictionary<ushort, IReadOnlyList<DraygonCollisionHitbox>>();
-        foreach (SpritemapFrameDefinition frame in DraygonBg2FrameDefinitions.Frames)
+        foreach (EnemySpritemapDefinition frame in DraygonBg2FrameDefinitions.Frames)
         {
-            int root = ((int)new SnesAddress(DraygonBg2FrameDefinitions.Bank, frame.Pointer));
+            int root = ((int)new SnesAddress(DraygonBg2FrameToolingDefinitions.Bank, frame.Pointer));
             DraygonCollisionComponent[] components =
                 [.. DraygonCollisionDefinitions.ComponentsAt(frame.Pointer)];
             AssertEqual(rom.ReadCartridgeByte(root), components.Length,
@@ -173,7 +172,7 @@ internal static class EnemyTileArtworkDraygonBg2FramesVerification
             "Draygon BG2 frames have three distinct native hitbox lists");
         foreach ((ushort pointer, IReadOnlyList<DraygonCollisionHitbox> hitboxes) in nativeLists)
         {
-            int list = ((int)new SnesAddress(DraygonBg2FrameDefinitions.Bank, pointer));
+            int list = ((int)new SnesAddress(DraygonBg2FrameToolingDefinitions.Bank, pointer));
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(list), hitboxes.Count,
                 $"Draygon hitbox list {pointer:X4} rectangle count");
             for (int index = 0; index < hitboxes.Count; index++)
@@ -202,7 +201,7 @@ internal static class EnemyTileArtworkDraygonBg2FramesVerification
         slot.Bind(EnemyDefinitionId.DraygonBody, slot.Definition);
         slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with
         {
-            Bank = DraygonBg2FrameDefinitions.Bank,
+            Bank = DraygonBg2FrameToolingDefinitions.Bank,
         });
         slot.Position = slot.Position.WithWhole(new(0x100, 0x100));
         foreach (ushort pointer in new ushort[] { 0xa31b, 0xa643, 0xa36b })
@@ -238,7 +237,7 @@ internal static class EnemyTileArtworkDraygonBg2FramesVerification
         slot.Bind(EnemyDefinitionId.DraygonBody, slot.Definition);
         slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with
         {
-            Bank = DraygonBg2FrameDefinitions.Bank,
+            Bank = DraygonBg2FrameToolingDefinitions.Bank,
         });
         slot.ExtraProperties = slot.ExtraProperties.With(
             EnemyExtraProperties.UsesExtendedSpritemap);

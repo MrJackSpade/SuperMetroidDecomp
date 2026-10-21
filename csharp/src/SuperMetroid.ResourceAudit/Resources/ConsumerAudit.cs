@@ -158,7 +158,7 @@ internal static class ConsumerAudit
     private static string? Domain(string type, string method) => new PresentationMethod(type, method) switch
     {
         ("EnemySpritemapCatalog", "TryGetDisplay" or "TryGet") => ResourceDomains.EnemySimple,
-        ("EnemyExtendedFrameCatalog", "TryGetDisplay" or "GetDisplayPointer" or "TryGet") => ResourceDomains.EnemyExtended,
+        ("EnemyExtendedFrameCatalog", "TryGetDisplay" or "GetDisplayFrame" or "TryGet") => ResourceDomains.EnemyExtended,
         ("EnemyProjectileSpritemapCatalog", "GetProgramFrame") => ResourceDomains.EnemyProjectileProgram,
         ("EnemyProjectileSpritemapCatalog", "Get") => ResourceDomains.EnemyProjectileSprite,
         ("IPaletteFxColorSource" or "RoomPaletteFxPresentation", "TryReadColor") => ResourceDomains.PaletteFx,
@@ -167,11 +167,24 @@ internal static class ConsumerAudit
     };
 
     /// <summary>Builds a resource key from compiler-bound constant arguments, or leaves dynamic calls unresolved.</summary>
+    /// <summary>The name of the enemy frame a display lookup passes as a constant, or null when the frame is computed.</summary>
+    internal static string? EnemyFrameKey(Microsoft.CodeAnalysis.Operations.IInvocationOperation invocation)
+    {
+        IOperation? frame = invocation.Arguments.FirstOrDefault(argument => argument.Parameter?.Ordinal == 0)?.Value;
+        while (frame is Microsoft.CodeAnalysis.Operations.IConversionOperation conversion)
+            frame = conversion.Operand;
+        return frame is Microsoft.CodeAnalysis.Operations.IFieldReferenceOperation { Field: { IsConst: true, ContainingType.Name: "EnemyFrameId" } field }
+            ? field.Name
+            : null;
+    }
+
     private static string? ConstantKey(string domain, InvocationExpressionSyntax call, SemanticModel semantic)
     {
         // Match parameter identities, not textual argument order; named arguments
         // and constant casts remain compiler-resolved instead of regex guesses.
         if (semantic.GetOperation(call) is not Microsoft.CodeAnalysis.Operations.IInvocationOperation invocation) return null;
+        if (domain is ResourceDomains.EnemySimple or ResourceDomains.EnemyExtended)
+            return EnemyFrameKey(invocation);
         var numbers = new Dictionary<int, int>();
         foreach (var argument in invocation.Arguments)
         {
@@ -182,8 +195,6 @@ internal static class ConsumerAudit
             catch (Exception exception) when (exception is InvalidCastException or FormatException or OverflowException) { }
         }
         if (!numbers.TryGetValue(0, out int first)) return null;
-        if (domain is ResourceDomains.EnemySimple or ResourceDomains.EnemyExtended)
-            return numbers.TryGetValue(1, out int pointer) ? ResourceIndex.Address(first, pointer) : null;
         int bank = domain switch
         {
             ResourceDomains.PaletteFx or ResourceDomains.EnemyProjectileSprite => ResourceBanks.ProjectileOamAndPaletteFx,

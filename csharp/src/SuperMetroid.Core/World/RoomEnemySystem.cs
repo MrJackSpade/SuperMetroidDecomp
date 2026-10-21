@@ -585,7 +585,7 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
     {
         BossArtworkBinding = bossArtwork ?? new();
         AreaArtworkBinding = areaArtwork ?? new();
-        Room = new EnemyRoomBinding(session, definitions, services, EnemyFrames.Installed);
+        Room = new EnemyRoomBinding(session, definitions, services);
         // Shared collaborators first: every species owner receives the ones it uses.
         ScrollCap = new SamusScrollCap();
         RoomFx = new EnemyRoomFx();

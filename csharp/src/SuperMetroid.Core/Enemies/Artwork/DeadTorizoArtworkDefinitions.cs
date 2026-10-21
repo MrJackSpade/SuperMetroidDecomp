@@ -3,27 +3,9 @@ namespace SuperMetroid.Core.Enemies.Artwork;
 /// <summary>Dead Torizo's editable 4bpp source sheet and its cartridge identity.</summary>
 internal static class DeadTorizoArtworkDefinitions
 {
-    /// <summary>$A9, the bank containing Dead Torizo's private corpse OAM map.</summary>
-    internal const byte SpritemapBank = 0xa9;
-
-    /// <summary>$A9:D761, the fixed corpse map drawn by the $A9:D39A hook.</summary>
-    internal const ushort HookSpritemap = 0xd761;
 
     /// <summary>The corpse hook frame drawn after the enemy queue.</summary>
     internal const EnemyFrameId HookFrame = EnemyFrameId.DeadTorizoCorpseA9D761;
-
-    /// <summary>Publishes the fixed hook corpse composition independently of the stationary instruction list.</summary>
-    internal static EnemySpritemapDefinition[] Frames() =>
-        [new(SpritemapBank, HookSpritemap, "dead_torizo_corpse_a9_d761")];
-
-    /// <summary>$A9:D6E2, the selected 25-part stationary corpse OAM composition.</summary>
-    internal const ushort StationarySpritemap = 0xd6e2;
-
-    /// <summary>Appends the stationary corpse after the original frame prefix to preserve older visual overrides.</summary>
-    /// <remarks>Appended separately from Frames() so version-53 visual overrides retain the exact 1,008-frame prefix
-    /// they originally authored.</remarks>
-    internal static EnemySpritemapDefinition[] StationaryFrames() =>
-        [new(SpritemapBank, StationarySpritemap, "dead_torizo_stationary_a9_d6e2")];
 
     /// <summary>$B7:A800, the 192-tile source sheet used both for the initial corpse and falling sand.</summary>
     internal const int SourceAddress = 0xb7a800;

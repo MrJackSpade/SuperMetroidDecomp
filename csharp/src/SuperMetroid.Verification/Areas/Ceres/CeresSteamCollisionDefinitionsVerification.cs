@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Input;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -51,7 +52,7 @@ internal static class CeresSteamCollisionDefinitionsVerification
             AssertEqual(0, denied.ForbiddenReadAttempts,
                 $"installed Ceres steam {variant} instruction cycle reads no ROM bytes");
         }
-        AssertTrue(selected >= CeresSteamCollisionDefinitions.FramePointers.Length,
+        AssertTrue(selected >= CeresSteamCollisionDefinitionsConstants.FramePointers.Length,
             "installed Ceres steam cycles select every directional visual family");
         Console.WriteLine($"Installed Ceres steam: four 90-frame directional cycles, " +
             $"{selected} compiled visual selections, no ROM reads.");
@@ -70,14 +71,14 @@ internal static class CeresSteamCollisionDefinitionsVerification
         compiledSlot.Bind(compiledSlot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = CeresSteamCollisionDefinitions.Bank });
 
         compiledSlot.Bind(EnemyDefinitionId.Steam, compiledSlot.Definition);
-        AssertEqual(28, CeresSteamCollisionDefinitions.FramePointers.Length,
+        AssertEqual(28, CeresSteamCollisionDefinitionsConstants.FramePointers.Length,
             "all Ceres steam extended frames have compiled collision");
         AssertEqual(21, CeresSteamCollisionDefinitions.HitboxPointers.Count(),
             "all distinct Ceres steam hitbox lists have compiled collision");
 
         var seenLists = new HashSet<ushort>();
         int probes = 0;
-        foreach (ushort frame in CeresSteamCollisionDefinitions.FramePointers)
+        foreach (ushort frame in CeresSteamCollisionDefinitionsConstants.FramePointers)
         {
             CeresSteamCollisionComponent[] components =
                 CeresSteamCollisionDefinitions.ComponentsAt(frame);

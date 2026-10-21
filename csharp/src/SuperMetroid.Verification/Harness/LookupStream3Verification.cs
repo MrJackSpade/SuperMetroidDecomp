@@ -493,7 +493,7 @@ internal static class LookupStream3Verification
     [CpuBusBoundary("exact bus test: retail ROM oracle for Mochtroid visuals")]
     internal static void VerifyStream3MochtroidVisuals(ISnesAddressSpace rom)
     {
-        EnemySpritemapDefinition[] frames = MochtroidVisualDefinitions.Frames().ToArray();
+        NativeEnemySpritemapDefinition[] frames = MochtroidVisualDefinitions.Frames().ToArray();
         AssertEqual(6, frames.Length, "Mochtroid calculated registration count");
         for (int family = 0; family < 2; family++)
         {
@@ -634,8 +634,8 @@ internal static class LookupStream3Verification
             if (!namedSpritePointers.Contains(pointer)) additionalPointers.Add(pointer);
         }
         var expectedAdditional = additionalPointers.Select(pointer =>
-            new EnemySpritemapDefinition(0xb4, pointer, $"room_sprite_b4_{pointer:x4}")).ToArray();
-        AssertTrue(all.Skip(472).Take(expectedAdditional.Length).SequenceEqual(expectedAdditional),
+            new NativeEnemySpritemapDefinition(0xb4, pointer, $"room_sprite_b4_{pointer:x4}")).ToArray();
+        AssertTrue(all.Skip(472).Take(expectedAdditional.Length).Select(frame => frame.Native).SequenceEqual(expectedAdditional),
             "enemy additional room-sprite sort and duplicate exclusion preserve named prefix");
         AssertEqual(all.Length, all.Select(frame => new FrameAddressKey(frame.Bank, frame.Pointer)).Distinct().Count(), "enemy frame identities remain unique");
         Suite(nameof(VerifyEnemyLegacyOverrides), () => VerifyEnemyLegacyOverrides());
@@ -1043,11 +1043,11 @@ internal static class LookupStream3Verification
             0xa750, 0xa789, 0xad3e, 0xad6d, 0xada1, 0xadd5, 0xae09, 0xae33, 0xae5d,
         ];
         int[] nativeCharacterCounts = [11, 11, 10, 10, 10, 1, 12, 12, 11, 11, 11, 9, 10, 10, 10, 8, 8, 26];
-        AssertTrue(MotherBrainVisualDefinitions.Frames().Select(frame => frame.Pointer).SequenceEqual(motherBrainRoots),
+        AssertTrue(MotherBrainVisualDefinitionsConstants.Frames().Select(frame => frame.Pointer).SequenceEqual(motherBrainRoots),
             "stream 3 all original Mother Brain root identities and enumeration");
         for (int index = 0; index < motherBrainRoots.Length; index++)
         {
-            var actual = MotherBrainVisualDefinitions.Frame(index);
+            var actual = MotherBrainVisualDefinitionsConstants.Frame(index);
             AssertEqual((byte)0xa9, actual.Bank, "stream 3 Mother Brain visual bank");
             AssertEqual($"mother_brain_a9_{motherBrainRoots[index]:x4}", actual.Name, "stream 3 Mother Brain visual identity name");
             int address = 0xa90000 | actual.Pointer;
@@ -1055,7 +1055,7 @@ internal static class LookupStream3Verification
                 "stream 3 native OAM record widths used for root strides");
         }
         foreach (int invalid in new[] { -1, 18, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => _ = MotherBrainVisualDefinitions.Frame(invalid), "stream 3 visual root bounds");
+            AssertThrows<ArgumentOutOfRangeException>(() => _ = MotherBrainVisualDefinitionsConstants.Frame(invalid), "stream 3 visual root bounds");
         MotherBrainSpecialSpriteSheetDefinition[] expectedSheets =
         [
             new("mother-brain-leg-tiles.png", 0xb79000, 8, 0x7400),
@@ -3270,7 +3270,7 @@ internal static class LookupStream3Verification
     internal static void VerifyStream3WorkRobotRegistry()
     {
         var rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        EnemySpritemapDefinition[] frames = WorkRobotVisualDefinitions.Frames().ToArray();
+        NativeEnemySpritemapDefinition[] frames = WorkRobotVisualDefinitions.Frames().ToArray();
         AssertEqual(27, frames.Length, "all Work Robot registration identities");
         string identities = string.Concat(frames.Select(frame => $"{frame.Bank:x2}:{frame.Pointer:x4}:{frame.Name}\n"));
         string hash = Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(System.Text.Encoding.UTF8.GetBytes(identities)));
@@ -3299,7 +3299,7 @@ internal static class LookupStream3Verification
     internal static void VerifyStream3ShaktoolRegistry()
     {
         var rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        EnemySpritemapDefinition[] frames = ShaktoolVisualDefinitions.Frames().ToArray();
+        NativeEnemySpritemapDefinition[] frames = ShaktoolVisualDefinitions.Frames().ToArray();
         AssertEqual(15, frames.Length, "all Shaktool registration identities");
         string identities = string.Concat(frames.Select(frame => $"{frame.Bank:x2}:{frame.Pointer:x4}:{frame.Name}\n"));
         string hash = Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(System.Text.Encoding.UTF8.GetBytes(identities)));

@@ -14,7 +14,7 @@ internal static class RinkaAnimationsVerification
     internal static void VerifyRinkaAnimations(SuperMetroidAddressSpace rom)
     {
         int steps = NativeEnemyProgramOracle.CompareAll(CartridgeImportSource.Require(rom), Bank, Entries, RinkaAnimations.Programs,
-            RinkaFrameDefinitions.Spritemap,
+            RinkaFrameToolingDefinitions.Spritemap,
             word => Instructions.TryGetValue(word, out var instruction) ? instruction.Operands.Length : null,
             (word, operands, cue, at) =>
             {

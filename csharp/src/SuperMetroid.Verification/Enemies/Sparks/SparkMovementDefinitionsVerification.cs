@@ -50,7 +50,7 @@ internal static class SparkMovementDefinitionsVerification
         foreach (SparkProgram loop in new[] { SparkProgram.Active, SparkProgram.Emitter })
         {
             (RoomEnemySystem loopSystem, RoomEnemySlot loopSlot, _) = Start(loop, intangible: false);
-            AssertEqual(EnemyInstructionRunner.ExpectedLoop(SparkAnimations.Programs, loop, SparkFrameDefinitions.Spritemap),
+            AssertEqual(EnemyInstructionRunner.ExpectedLoop(SparkAnimations.Programs, loop, SparkFrameToolingDefinitions.Spritemap),
                 EnemyInstructionRunner.ShownFrames(loopSlot, EnemyInstructionRunner.LoopUpdates(SparkAnimations.Programs, loop)), $"Spark {loop} loop");
         }
         (RoomEnemySystem onSystem, RoomEnemySlot on, SparkEnemyState onState) = Start(SparkProgram.FlickerOn, intangible: true);

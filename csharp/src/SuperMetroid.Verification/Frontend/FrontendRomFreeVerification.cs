@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Programs;
 using static SuperMetroid.Verification.Harness.RepositoryInputsVerification;
@@ -310,7 +311,7 @@ internal static class FrontendRomFreeVerification
                 // The long neutral Draygon fight can fatally damage Samus;
                 // all shorter room checks must execute while gameplay is live.
                 BlockFrontendExtendedBg2Streams(blockedBg2Bytes, nativeBus,
-                    DraygonBg2FrameDefinitions.Bank,
+                    DraygonBg2FrameToolingDefinitions.Bank,
                     DraygonBg2FrameDefinitions.Frames);
                 VerifyFrontendRomFreeRoom(native, installed, new RomFreeRoom { Room = RoomHeaderDefinitions.Draygon, RoomName = "Draygon room entry, dance and fight handoff" }, frameCount: 2600, setup: (nativeRoom, installedRoom) =>
                     {
@@ -640,7 +641,7 @@ internal static class FrontendRomFreeVerification
             if (awakenedGoldenTorizo is not null &&
                 golden.ForcedGoldenLeftTurnStart == TorizoBodyProgram.GoldenDodgeTurningLeft &&
                 awakenedGoldenTorizo.SpritemapPointer ==
-                    TorizoAnimations.Spritemaps(TorizoBodyProgram.FacingLeftFalling1).Single())
+                    TorizoAnimationsConstants.Spritemaps(TorizoBodyProgram.FacingLeftFalling1).Single())
                 forcedGoldenFallingLeftObserved = true;
             if (GoldenRuns(TorizoBodyProgram.GoldenSpewChozoOrbFacingLeftLeftFootFwd0, TorizoBodyProgram.GoldenSpewChozoOrbFacingLeftLeftFootFwd1))
                 goldenLeftFootOrbProgramObserved = true;
@@ -777,9 +778,9 @@ internal static class FrontendRomFreeVerification
     /// <summary>Marks native extended-frame BG2 source bytes so installed play cannot reread them.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for block frontend extended BG2 streams")]
     private static void BlockFrontendExtendedBg2Streams(HashSet<int> blockedPresentationBytes,
-        ISnesAddressSpace catalogueSource, byte bank, EnemyBg2FrameDefinitionSequence frames)
+        ISnesAddressSpace catalogueSource, byte bank, ImmutableArray<EnemySpritemapDefinition> frames)
     {
-        foreach (SpritemapFrameDefinition frame in frames)
+        foreach (EnemySpritemapDefinition frame in frames)
         {
             int root = ((int)new SnesAddress(bank, frame.Pointer));
             int components = catalogueSource.ReadCartridgeByte(root);

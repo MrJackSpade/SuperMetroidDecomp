@@ -13,16 +13,16 @@ internal static class KraidFootFrameGeometryVerification
     internal static void VerifyKraidFootFrameGeometry(SuperMetroidAddressSpace rom)
     {
         // The typed foot programs match bank $A7 (--kraid-part-animations).
-        var selected = new SortedSet<ushort>(KraidAnimations.Spritemaps(KraidPartProgram.FootInitial, KraidPartProgram.FootNeutral, KraidPartProgram.FootWalkingForward,
+        var selected = new SortedSet<ushort>(KraidAnimationsTooling.Spritemaps(KraidPartProgram.FootInitial, KraidPartProgram.FootNeutral, KraidPartProgram.FootWalkingForward,
                      KraidPartProgram.FootWalkingForwardFinished, KraidPartProgram.FootLungeForward, KraidPartProgram.FootLungeForwardFinished,
                      KraidPartProgram.FootWalkingBackward, KraidPartProgram.FootWalkingBackwardLoop));
         AssertEqual(35, selected.Count, "original selected Kraid foot roots");
-        var expected = selected.Select(pointer => new EnemySpritemapDefinition(0xa7, pointer,
+        var expected = selected.Select(pointer => new NativeEnemySpritemapDefinition(0xa7, pointer,
             $"kraid_foot_oam_{pointer:X4}")).ToArray();
         AssertEqual(expected.Length, KraidFootVisualDefinitions.Frames.Length, "Kraid foot sequence length");
         for (int index = 0; index < expected.Length; index++)
         {
-            AssertEqual(expected[index], KraidFootVisualDefinitions.Frame(index), "native Kraid foot identity and key");
+            AssertEqual(expected[index], KraidFootVisualDefinitionsConstants.Frame(index), "native Kraid foot identity and key");
             AssertEqual(expected[index], KraidFootVisualDefinitions.Frames[index], "Kraid foot indexed sequence");
             int address = 0xa70000 | expected[index].Pointer;
             AssertEqual(2, SnesLittleEndian.Word(KraidFootFrameGeometryRomByte(rom, address), KraidFootFrameGeometryRomByte(rom, address + 1)), "native two-component frame size");
@@ -32,8 +32,8 @@ internal static class KraidFootFrameGeometryVerification
             AssertEqual(expected[ordinal++], frame, "Kraid foot enumeration order");
         AssertEqual(35, ordinal, "Kraid foot enumeration count");
         AssertTrue(expected.SequenceEqual(KraidFootVisualDefinitions.Frames.ToArray()), "Kraid foot materialization");
-        AssertThrows<ArgumentOutOfRangeException>(() => KraidFootVisualDefinitions.Frame(-1), "negative foot index");
-        AssertThrows<ArgumentOutOfRangeException>(() => KraidFootVisualDefinitions.Frame(35), "foot index past end");
+        AssertThrows<ArgumentOutOfRangeException>(() => KraidFootVisualDefinitionsConstants.Frame(-1), "negative foot index");
+        AssertThrows<ArgumentOutOfRangeException>(() => KraidFootVisualDefinitionsConstants.Frame(35), "foot index past end");
     }
 
     /// <summary>Reads a native foot presentation operand or spritemap count byte.</summary>

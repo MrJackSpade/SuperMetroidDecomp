@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Enemies.Artwork.ExtendedCollisionReferenceVerification;
@@ -22,17 +23,17 @@ internal static class CrocomireTongueCollisionDefinitionsVerification
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.CrocomireTongue, slot.Definition);
         slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with
-        { Bank = CrocomireTongueCollisionDefinitions.Bank });
+        { Bank = CrocomireTongueCollisionDefinitionsConstants.Bank });
         var seen = new HashSet<ushort>();
         foreach (CrocomireTongueFrame frame in Enum.GetValues<CrocomireTongueFrame>())
         {
             ushort selected = (ushort)frame;
             AssertTrue((stock.Enemies.ExtendedFrames ?? throw new InvalidOperationException("Verification requires stock.ExtendedFrames.")).TryGetDisplay(
-                    CrocomireTongueCollisionDefinitions.Bank, selected, out _),
+                    CrocomireTongueCollisionDefinitionsConstants.Bank, selected, out _),
                 $"Crocomire tongue frame {frame} has installed art");
             seen.Add(selected);
         }
-        AssertTrue(seen.SetEquals(Enumerable.Range(0, CrocomireTongueCollisionDefinitions.FrameCount).Select(CrocomireTongueCollisionDefinitions.FramePointer)),
+        AssertTrue(seen.SetEquals(Enumerable.Range(0, CrocomireTongueCollisionDefinitionsConstants.FrameCount).Select(CrocomireTongueCollisionDefinitionsConstants.FramePointer)),
             "Crocomire tongue's nine operands select the nine extracted frames");
         AssertEqual(0, denied.ForbiddenReadAttempts,
             "installed Crocomire tongue selectors never read ROM bytes");
@@ -45,14 +46,14 @@ internal static class CrocomireTongueCollisionDefinitionsVerification
     internal static void VerifyCrocomireTongueFramePositions(SuperMetroidAddressSpace rom)
     {
         ushort[] operands = [0xbe58, 0xbe5c, 0xbe60, 0xbe64, 0xbf9a, 0xbf9e, 0xbfa2, 0xbfa6, 0xbfaa];
-        AssertEqual(9, CrocomireTongueCollisionDefinitions.FrameCount, "tongue frame count");
+        AssertEqual(9, CrocomireTongueCollisionDefinitionsConstants.FrameCount, "tongue frame count");
         for (int i = 0; i < operands.Length; i++)
         {
             ushort expected = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0xa40000 | operands[i]);
-            AssertEqual(expected, CrocomireTongueCollisionDefinitions.FramePointer(i), "tongue native selected frame identity");
+            AssertEqual(expected, CrocomireTongueCollisionDefinitionsConstants.FramePointer(i), "tongue native selected frame identity");
         }
-        AssertThrows<ArgumentOutOfRangeException>(() => CrocomireTongueCollisionDefinitions.FramePointer(-1), "negative tongue frame index");
-        AssertThrows<ArgumentOutOfRangeException>(() => CrocomireTongueCollisionDefinitions.FramePointer(9), "tongue frame index past end");
+        AssertThrows<ArgumentOutOfRangeException>(() => CrocomireTongueCollisionDefinitionsConstants.FramePointer(-1), "negative tongue frame index");
+        AssertThrows<ArgumentOutOfRangeException>(() => CrocomireTongueCollisionDefinitionsConstants.FramePointer(9), "tongue frame index past end");
     }
 
     /// <summary>Checks each frame's single component and its empty native hitbox list.</summary>
@@ -90,19 +91,19 @@ internal static class CrocomireTongueCollisionDefinitionsVerification
         var nativeSlot = new RoomEnemySlot(0, EnemySlotFixtures.Registry);
         RoomEnemySlot compiledSlot = compiled.SlotTable.Slots[0];
         var boundDefinition = default(RoomEnemyDefinition) with
-            { Bank = CrocomireTongueCollisionDefinitions.Bank };
+            { Bank = CrocomireTongueCollisionDefinitionsConstants.Bank };
         nativeSlot.Bind(nativeSlot.EnemyDefinitionPointer, boundDefinition);
         compiledSlot.Bind(compiledSlot.EnemyDefinitionPointer, boundDefinition);
         nativeSlot.Bind((EnemyDefinitionId)0xffff, nativeSlot.Definition);
         compiledSlot.Bind(EnemyDefinitionId.CrocomireTongue, compiledSlot.Definition);
-        AssertEqual(9, CrocomireTongueCollisionDefinitions.FrameCount,
+        AssertEqual(9, CrocomireTongueCollisionDefinitionsConstants.FrameCount,
             "all selected Crocomire tongue frames have compiled collision");
 
         var seenLists = new HashSet<ushort>();
         int probes = 0;
-        for (int frameIndex = 0; frameIndex < CrocomireTongueCollisionDefinitions.FrameCount; frameIndex++)
+        for (int frameIndex = 0; frameIndex < CrocomireTongueCollisionDefinitionsConstants.FrameCount; frameIndex++)
         {
-            ushort frame = CrocomireTongueCollisionDefinitions.FramePointer(frameIndex);
+            ushort frame = CrocomireTongueCollisionDefinitionsConstants.FramePointer(frameIndex);
             CrocomireTongueCollisionComponent component =
                 CrocomireTongueCollisionDefinitions.ComponentAt(frame);
             seenLists.Add((ushort)component.HitboxPointer);

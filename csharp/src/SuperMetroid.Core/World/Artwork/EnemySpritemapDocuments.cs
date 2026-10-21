@@ -40,24 +40,24 @@ public static class EnemySpritemapDocuments
             throw new InvalidDataException(
                 "Enemy compositions require the current version and every named frame.");
 
-        var frames = new Dictionary<int, EnemySpritemapParts>();
+        var frames = new Dictionary<EnemyFrameId, EnemySpritemapParts>();
         BabyMetroidSpriteParts? sharedBabyBody = null;
-        var identities = new Dictionary<string, int>(StringComparer.Ordinal);
+        var identities = new Dictionary<string, EnemyFrameId>(StringComparer.Ordinal);
         foreach (EnemySpritemapDefinition frame in expected)
         {
             if (!document.Frames.TryGetValue(frame.Name, out SpriteVisualPart[]? visual) ||
                 visual is null || visual.Length > EnemySpritemapCatalog.MaximumParts)
                 throw new InvalidDataException(
                     $"Enemy composition {frame.Name} is missing or exceeds OAM capacity.");
-            EnemySpritemapParts parts = BabyMetroidSpriteParts.Compile(((int)new SnesAddress(frame.Bank, frame.Pointer)),
+            EnemySpritemapParts parts = BabyMetroidSpriteParts.Compile(frame.Frame,
                 EnemySpritemapCatalog.CompileParts(visual, frame.Name), ref sharedBabyBody);
-            parts = ChozoStrideGeometryDefinitions.Compile(((int)new SnesAddress(frame.Bank, frame.Pointer)), parts);
-            if (!frames.TryAdd(((int)new SnesAddress(frame.Bank, frame.Pointer)), parts))
+            parts = ChozoStrideGeometryDefinitions.Compile(frame.Frame, parts);
+            if (!frames.TryAdd(frame.Frame, parts))
                 throw new InvalidDataException(
                     $"Enemy composition {frame.Name} repeats a visual identity.");
-            identities.Add(frame.Name, ((int)new SnesAddress(frame.Bank, frame.Pointer)));
+            identities.Add(frame.Name, frame.Frame);
         }
-        var displayFrames = new Dictionary<int, int>();
+        var displayFrames = new Dictionary<EnemyFrameId, EnemyFrameId>();
         // Schema/count validation above has already rejected unknown versions.
         // Every accepted schema after the binding boundary owns its authored
         // selection; only earlier art-only schemas inherit stock bindings.
@@ -70,24 +70,23 @@ public static class EnemySpritemapDocuments
                 document.DisplayFrames.Count != identities.Count)
                 throw new InvalidDataException(
                     "Enemy display bindings require every named native frame.");
-            foreach ((string name, int identity) in identities)
+            foreach ((string name, EnemyFrameId identity) in identities)
             {
                 if (!document.DisplayFrames.TryGetValue(name, out string? selectedName) ||
                     selectedName is null ||
-                    !identities.TryGetValue(selectedName, out int selected) ||
-                    SnesAddress.FromBusAddress(identity).Bank != SnesAddress.FromBusAddress(selected).Bank)
+                    !identities.TryGetValue(selectedName, out EnemyFrameId selected))
                     throw new InvalidDataException(
-                        $"Enemy display binding {name} must select a named frame in the same bank.");
+                        $"Enemy display binding {name} must select a named frame.");
                 displayFrames.Add(identity, selected);
             }
         }
         if (!legacyOverride)
             return new EnemySpritemapCatalog(frames, displayFrames);
-        var merged = new Dictionary<int, EnemySpritemapParts>((stockForLegacyOverride ?? throw new InvalidDataException("A legacy enemy composition override requires the current stock catalog.")).frames);
-        foreach ((int identity, EnemySpritemapParts parts) in frames)
+        var merged = new Dictionary<EnemyFrameId, EnemySpritemapParts>((stockForLegacyOverride ?? throw new InvalidDataException("A legacy enemy composition override requires the current stock catalog.")).frames);
+        foreach ((EnemyFrameId identity, EnemySpritemapParts parts) in frames)
             merged[identity] = parts;
-        var mergedBindings = new Dictionary<int, int>(stockForLegacyOverride.displayFrames);
-        foreach ((int identity, int selected) in displayFrames)
+        var mergedBindings = new Dictionary<EnemyFrameId, EnemyFrameId>(stockForLegacyOverride.displayFrames);
+        foreach ((EnemyFrameId identity, EnemyFrameId selected) in displayFrames)
             mergedBindings[identity] = selected;
         return new EnemySpritemapCatalog(merged, mergedBindings);
     }

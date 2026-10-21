@@ -51,8 +51,9 @@ internal static class EnemyExtendedFrameFiles
         ISnesAddressSpace bus, EnemySpritemapDefinition definition)
     {
         Ensure.NotNull(bus);
-        byte bank = definition.Bank;
-        ushort pointer = definition.Pointer;
+        SnesAddress location = EnemyFrameCartridgeLookup.Of(definition.Frame);
+        byte bank = location.Bank;
+        ushort pointer = location.Offset;
         int baseAddress = ((int)new SnesAddress(bank, pointer));
         int count = bus.ReadCartridgeByte(baseAddress);
         byte padding = bus.ReadCartridgeByte(((int)new SnesAddress(bank, unchecked((ushort)(pointer + 1)))));
@@ -61,12 +62,11 @@ internal static class EnemyExtendedFrameFiles
         // high byte as native presentation metadata.
         byte expectedPadding = definition.Name.StartsWith("ceres_steam_oam_",
             StringComparison.Ordinal) ? CeresSteamDefinitions.OamPadding : (byte)0;
-        bool motherBrainMixed = bank == MotherBrainBodyVisualDefinitions.Bank &&
-            MotherBrainBodyVisualDefinitions.HasBg2(pointer);
+        bool motherBrainMixed = MotherBrainBodyVisualDefinitions.HasBg2(definition.Frame);
         bool bg2Only = EnemyExtendedFrameDefinitions.IsBg2Only(definition);
         int maximumNativeComponents = motherBrainMixed
             ? MotherBrainBodyVisualDefinitions.MaximumNativeComponents
-            : bg2Only ? bank == PhantoonBg2FrameDefinitions.Bank
+            : bg2Only ? PhantoonBg2FrameDefinitions.IsFrame(definition.Frame)
                 ? PhantoonBg2FrameDefinitions.MaximumComponents : DraygonBg2FrameDefinitions.MaximumComponents
                 : EnemyExtendedFrameDefinitions.MaximumOamComponents(definition);
         if (count < 1 || count > maximumNativeComponents ||

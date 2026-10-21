@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Verification.Fx.Artwork;
 using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
@@ -72,7 +73,6 @@ using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.World;
 using SuperMetroid.Core.Map;
 using SuperMetroid.Core.Progression;
-using SuperMetroid.Core.World.Artwork;
 using SuperMetroid.Core.Rooms;
 namespace SuperMetroid.Verification.Harness;
 
@@ -1351,7 +1351,7 @@ internal static class LookupStream4Verification
     [CpuBusBoundary("exact bus test: retail ROM oracle for Fly frame identities")]
     internal static void VerifyFlyFrameIdentities(SuperMetroidAddressSpace rom)
     {
-        EnemySpritemapDefinition[] flyFrames = FlyVisualDefinitions.Frames();
+        NativeEnemySpritemapDefinition[] flyFrames = FlyVisualDefinitions.Frames();
         AssertEqual(4, flyFrames.Length, "fly calculated frame catalog count");
         for (int frame = 0; frame < flyFrames.Length; frame++)
         {
@@ -1850,22 +1850,22 @@ internal static class LookupStream4Verification
         for (int direction = 0; direction < 16; direction++)
         {
             ushort expected = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6dcba + 2 * direction));
-            AssertEqual(expected, RidleySupplementalVisualDefinitions.TailTipFrameAt(direction), "Calculated reversed tail-tip sector preserves native identity");
+            AssertEqual(expected, RidleySupplementalVisualDefinitionsConstants.TailTipFrameAt(direction), "Calculated reversed tail-tip sector preserves native identity");
             AssertEqual((ushort)1, CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa60000 | expected)), "Each native tail-tip record contains exactly one OAM object");
             expectedFrames.Add(expected);
         }
         for (int frame = 0; frame < 20; frame++)
         {
             ushort expected = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa6db02 + frame * 2));
-            AssertEqual(expected, RidleySupplementalVisualDefinitions.WingFrameAt(frame), "Calculated downstroke/upstroke and facing preserve each native wing identity");
+            AssertEqual(expected, RidleySupplementalVisualDefinitionsConstants.WingFrameAt(frame), "Calculated downstroke/upstroke and facing preserve each native wing identity");
             expectedFrames.Add(expected);
         }
         foreach (int invalid in new[] { int.MinValue, -1, 20, int.MaxValue })
-            AssertThrows<InvalidDataException>(() => RidleySupplementalVisualDefinitions.WingFrameAt(invalid), "Wing phase/facing domain remains exact");
-        AssertTrue(expectedFrames.SequenceEqual(RidleySupplementalVisualDefinitions.Frames().Select(frame => frame.Pointer)),
+            AssertThrows<InvalidDataException>(() => RidleySupplementalVisualDefinitionsConstants.WingFrameAt(invalid), "Wing phase/facing domain remains exact");
+        AssertTrue(expectedFrames.SequenceEqual(RidleySupplementalVisualDefinitionsConstants.Frames().Select(frame => frame.Pointer)),
             "Calculated tail-tip source enumeration retains the complete ordered supplemental frame domain");
         foreach (int invalid in new[] { int.MinValue, -1, 16, int.MaxValue })
-            AssertThrows<InvalidDataException>(() => RidleySupplementalVisualDefinitions.TailTipFrameAt(invalid), "Tail-tip selector domain remains exact");
+            AssertThrows<InvalidDataException>(() => RidleySupplementalVisualDefinitionsConstants.TailTipFrameAt(invalid), "Tail-tip selector domain remains exact");
         foreach (int invalid in new[] { -1, 7 })
             AssertThrows<ArgumentOutOfRangeException>(() => RidleyTailDefinitions.InitialAngle(invalid), "Initial angular domain contains exactly seven links");
     }
@@ -3001,12 +3001,12 @@ internal static class LookupStream4Verification
         var nativeFrames = new Dictionary<ushort, ushort>();
         for (int frame = 0xcb87; frame <= 0xcca9; frame += 10)
             nativeFrames.Add((ushort)frame, CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa20000 | (frame + 8))));
-        AssertEqual(nativeFrames.Count, MaridiaLargeSnailCollisionDefinitions.FramePointers.Length, "Oum calculated frame count follows original extent");
+        AssertEqual(nativeFrames.Count, MaridiaLargeSnailCollisionDefinitionsConstants.FramePointers.Length, "Oum calculated frame count follows original extent");
         int ordinal = 0;
         foreach (ushort expectedFrame in nativeFrames.Keys)
-            AssertEqual(expectedFrame, MaridiaLargeSnailCollisionDefinitions.FramePointers[ordinal++], "Oum calculated frame indexing preserves native order");
+            AssertEqual(expectedFrame, MaridiaLargeSnailCollisionDefinitionsConstants.FramePointers[ordinal++], "Oum calculated frame indexing preserves native order");
         foreach (int invalid in new[] { int.MinValue, -1, nativeFrames.Count, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => _ = MaridiaLargeSnailCollisionDefinitions.FramePointers[invalid], "Oum calculated frame view preserves index bounds");
+            AssertThrows<ArgumentOutOfRangeException>(() => _ = MaridiaLargeSnailCollisionDefinitionsConstants.FramePointers[invalid], "Oum calculated frame view preserves index bounds");
         var selectedLists = new HashSet<ushort>();
         int rectangles = 0;
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
@@ -3037,7 +3037,7 @@ internal static class LookupStream4Verification
                 rectangles++;
             }
         }
-        AssertTrue(nativeFrames.Keys.SequenceEqual(MaridiaLargeSnailCollisionDefinitions.FramePointers.ToArray()), "Oum frame enumeration preserves native order");
+        AssertTrue(nativeFrames.Keys.SequenceEqual(MaridiaLargeSnailCollisionDefinitionsConstants.FramePointers.ToArray()), "Oum frame enumeration preserves native order");
         AssertTrue(selectedLists.SetEquals(MaridiaLargeSnailCollisionDefinitions.HitboxPointers), "Oum list calculation covers the original independent payload exactly");
         Console.WriteLine($"Oum calculated list identities: {nativeFrames.Count} frames, {rectangles} native rectangles and complete ushort rejection domain pass.");
     }
@@ -3338,7 +3338,7 @@ internal static class LookupStream4Verification
             var cgram = new SnesCgram();
             var enemies = new RoomEnemySystem(new EnemySession()) { BossArtworkBinding = { CeresRidleyColors = selected } };
             enemies.Presentation.BindCgram(cgram);
-            Func<RidleyEnemyState, ushort> advance = baby => EnemyFrames.Installed.Spritemap(enemies.CeresRidleyBehavior.BabyScene.AdvanceCeresBabyDrawInstruction(baby));
+            Func<RidleyEnemyState, ushort> advance = baby => EnemyFrameCartridgeLookupTooling.Word(enemies.CeresRidleyBehavior.BabyScene.AdvanceCeresBabyDrawInstruction(baby));
             for (int phase = 0; phase < 12; phase++)
             {
                 int cursor = 0xbf5d + phase * 8;

@@ -29,7 +29,7 @@ internal static class EnemyTileArtworkDraygonOamCollisionVerification
         slot.Bind(EnemyDefinitionId.DraygonBody, slot.Definition);
         slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with
         {
-            Bank = DraygonBg2FrameDefinitions.Bank,
+            Bank = DraygonBg2FrameToolingDefinitions.Bank,
         });
         slot.Position = slot.Position.WithWhole(new(0x100, 0x100));
 
@@ -40,9 +40,9 @@ internal static class EnemyTileArtworkDraygonOamCollisionVerification
                  EnemyExtendedFrameDefinitions.Frames.Take(
                      EnemyExtendedFrameDefinitions.PreCeresSteamFrameCount))
         {
-            if (frame.Bank != DraygonBg2FrameDefinitions.Bank)
+            if (frame.Bank != DraygonBg2FrameToolingDefinitions.Bank)
                 continue;
-            if (DraygonBg2FrameDefinitions.IsFrame(frame.Pointer))
+            if (DraygonBg2FrameDefinitionsConstants.IsFrame(frame.Pointer))
                 continue;
             if (sporePointers.Contains(frame.Pointer))
             {

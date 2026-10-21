@@ -23,8 +23,8 @@ internal static class EnemySpritemapFiles
         var frames = new Dictionary<string, SpriteVisualPart[]>(StringComparer.Ordinal);
         foreach (EnemySpritemapDefinition definition in EnemySpritemapDefinitions.Frames)
         {
-            SpriteVisualPart[] parts = ExtractParts(bus, definition.Bank,
-                definition.Pointer);
+            SnesAddress location = EnemyFrameCartridgeLookup.Of(definition.Frame);
+            SpriteVisualPart[] parts = ExtractParts(bus, location.Bank, location.Offset);
             if (!frames.TryAdd(definition.Name, parts))
                 throw new InvalidDataException(
                     $"Duplicate extracted enemy composition {definition.Name}.");

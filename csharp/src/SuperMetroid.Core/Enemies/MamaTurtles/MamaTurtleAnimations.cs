@@ -173,12 +173,6 @@ internal static class MamaTurtleAnimations
         ],
     });
 
-    /// <summary>The spritemaps <paramref name="programs"/> show, in authored order with repeats.</summary>
-    internal static IEnumerable<ushort> Spritemaps(params MamaTurtleProgram[] programs) =>
-        programs.SelectMany(program => Programs.Steps(program))
-            .OfType<AnimationProgramStep<P, MamaTurtleFrame, MamaTurtleCue>.ShowStep>()
-            .Select(step => MamaTurtleFrameDefinitions.Spritemap(step.Frame));
-
     /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationProgramStep<MamaTurtleProgram, MamaTurtleFrame, MamaTurtleCue> Show(int pose, int duration) => AnimationProgramStep<MamaTurtleProgram, MamaTurtleFrame, MamaTurtleCue>.Show(new(pose), duration);
 

@@ -11,30 +11,10 @@ namespace SuperMetroid.Core.Bosses.Botwoon.Artwork;
 /// </summary>
 internal static class BotwoonVisualDefinitions
 {
-    /// <summary>Botwoon's head OAM bank, $B3.</summary>
-    internal const byte Bank = 0xb3;
-
-    /// <summary>
-    /// The facings in the cartridge's physical program order, from up-left counterclockwise to up.
-    /// Installed artwork is named and numbered in this order.
-    /// </summary>
-    internal static readonly BotwoonFacing[] PhysicalOrder =
-    [
-        BotwoonFacing.UpLeft, BotwoonFacing.Left, BotwoonFacing.DownLeft, BotwoonFacing.Down,
-        BotwoonFacing.DownRight, BotwoonFacing.Right, BotwoonFacing.UpRight, BotwoonFacing.Up,
-    ];
-
-    /// <summary>The installed head spritemap for <paramref name="frame"/>; the hidden frame is the shared empty map.</summary>
-    internal static ushort HeadSpritemap(BotwoonHeadFrame frame)
-    {
-        if (!frame.Visible)
-            return CommonEnemyEmptyExtendedFrameDefinitions.EmptySpritemap;
-        return frame.MouthOpen ? OpenMouth(frame.Facing) : ClosedMouth(frame.Facing);
-    }
 
     /// <summary>
     /// The installed frame each head pose shows: the visible frames are named in the physical order of
-    /// <see cref="Frames"/>, closed then open; the hidden head shows the shared empty frame.
+    /// <c>Frames</c>, closed then open; the hidden head shows the shared empty frame.
     /// </summary>
     internal static EnemyFrameTable<BotwoonHeadFrame> HeadFrames { get; } = new()
     {
@@ -55,43 +35,6 @@ internal static class BotwoonVisualDefinitions
         { BotwoonHeadFrame.Open(BotwoonFacing.Right), EnemyFrameId.BotwoonHead13 },
         { BotwoonHeadFrame.Open(BotwoonFacing.UpRight), EnemyFrameId.BotwoonHead14 },
         { BotwoonHeadFrame.Open(BotwoonFacing.Up), EnemyFrameId.BotwoonHead15 },
-    };
-
-    /// <summary>The sixteen visible head frames as installed artwork, closed then open, in physical order.</summary>
-    internal static EnemySpritemapDefinition[] Frames() =>
-    [
-        .. PhysicalOrder.Select(BotwoonHeadFrame.Closed).Concat(PhysicalOrder.Select(BotwoonHeadFrame.Open))
-            .Select((frame, index) => new EnemySpritemapDefinition(Bank, HeadSpritemap(frame), $"botwoon_head_{index:D2}")),
-    ];
-
-    /// <summary>Selects the bank-$B3 closed-mouth spritemap, skipping the unused down-facing-left map.</summary>
-    private static ushort ClosedMouth(BotwoonFacing facing) => facing switch
-    {
-        // Spritemaps_Botwoon_MouthClosed_Priority2_Aiming* at $B3:E329-$E389; the unused down-facing-left map is skipped.
-        BotwoonFacing.UpLeft => 0xe329,
-        BotwoonFacing.Left => 0xe335,
-        BotwoonFacing.DownLeft => 0xe341,
-        BotwoonFacing.Down => 0xe359,
-        BotwoonFacing.DownRight => 0xe365,
-        BotwoonFacing.Right => 0xe371,
-        BotwoonFacing.UpRight => 0xe37d,
-        BotwoonFacing.Up => 0xe389,
-        _ => throw new ArgumentOutOfRangeException(nameof(facing), facing, "Undefined Botwoon facing."),
-    };
-
-    /// <summary>Selects the bank-$B3 open-mouth spritemap; diagonal facings carry a third OAM piece.</summary>
-    private static ushort OpenMouth(BotwoonFacing facing) => facing switch
-    {
-        // Spritemaps_Botwoon_MouthOpen_Priority2_Aiming* at $B3:E3A1-$E415; diagonal maps carry a third piece.
-        BotwoonFacing.UpLeft => 0xe3a1,
-        BotwoonFacing.Left => 0xe3b2,
-        BotwoonFacing.DownLeft => 0xe3be,
-        BotwoonFacing.Down => 0xe3db,
-        BotwoonFacing.DownRight => 0xe3e7,
-        BotwoonFacing.Right => 0xe3f8,
-        BotwoonFacing.UpRight => 0xe404,
-        BotwoonFacing.Up => 0xe415,
-        _ => throw new ArgumentOutOfRangeException(nameof(facing), facing, "Undefined Botwoon facing."),
     };
 
     /// <summary>The projectile frame each frame of the family shows.</summary>

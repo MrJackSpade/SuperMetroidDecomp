@@ -55,12 +55,6 @@ internal static class RinkaAnimations
         ],
     });
 
-    /// <summary>The spritemaps <paramref name="programs"/> show, in authored order with repeats.</summary>
-    internal static IEnumerable<ushort> Spritemaps(params RinkaProgram[] programs) =>
-        programs.SelectMany(program => Programs.Steps(program))
-            .OfType<AnimationProgramStep<P, RinkaFrame, RinkaCue>.ShowStep>()
-            .Select(step => RinkaFrameDefinitions.Spritemap(step.Frame));
-
     /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationProgramStep<RinkaProgram, RinkaFrame, RinkaCue> Show(int pose, int duration) => AnimationProgramStep<RinkaProgram, RinkaFrame, RinkaCue>.Show(new(pose), duration);
 

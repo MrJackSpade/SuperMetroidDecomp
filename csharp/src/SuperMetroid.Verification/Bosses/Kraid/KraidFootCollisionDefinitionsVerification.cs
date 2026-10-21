@@ -38,7 +38,7 @@ internal static class KraidFootCollisionDefinitionsVerification
         Suite(nameof(VerifyKraidFootSharedHitbox), () => VerifyKraidFootSharedHitbox(rom));
 
         // The typed foot programs match bank $A7 (--kraid-part-animations); every frame they show is a physical frame.
-        foreach (ushort selectedFrame in KraidAnimations.Spritemaps(KraidPartProgram.FootInitial, KraidPartProgram.FootNeutral, KraidPartProgram.FootWalkingForward,
+        foreach (ushort selectedFrame in KraidAnimationsTooling.Spritemaps(KraidPartProgram.FootInitial, KraidPartProgram.FootNeutral, KraidPartProgram.FootWalkingForward,
                      KraidPartProgram.FootWalkingForwardFinished, KraidPartProgram.FootLungeForward, KraidPartProgram.FootLungeForwardFinished,
                      KraidPartProgram.FootWalkingBackward, KraidPartProgram.FootWalkingBackwardLoop))
             AssertTrue(KraidFootCollisionDefinitions.TryGetComponents(selectedFrame, out _),

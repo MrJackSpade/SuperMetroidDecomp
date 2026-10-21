@@ -23,12 +23,8 @@ internal readonly record struct EnemyExtendedFrameSequence(int Start, int Length
     /// <summary>Streams only the selected ordinal span while owners enumerate their compiled frames.</summary>
     public IEnumerator<EnemySpritemapDefinition> GetEnumerator()
     {
-        int index = 0;
-        foreach (var frame in EnemyExtendedFrameDefinitions.EnumerateFrames())
-        {
-            if (index >= Start && index < Start + Length) yield return frame;
-            index++;
-        }
+        for (int index = Start; index < Start + Length; index++)
+            yield return EnemyExtendedFrameCompositions.All[index];
     }
 
     /// <summary>Uses the same ordered frame traversal for non-generic enumeration.</summary>

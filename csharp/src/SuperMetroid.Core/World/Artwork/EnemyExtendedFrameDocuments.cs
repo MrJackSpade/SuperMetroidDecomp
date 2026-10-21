@@ -98,13 +98,13 @@ public static class EnemyExtendedFrameDocuments
         EnemyExtendedFrameSequence expected =
             EnemyExtendedFrameDefinitions.Frames[..expectedCount];
 
-        var frames = new Dictionary<int, EnemyExtendedDrawComponent[]>();
-        var identities = new Dictionary<string, int>(StringComparer.Ordinal);
+        var frames = new Dictionary<EnemyFrameId, EnemyExtendedDrawComponent[]>();
+        var identities = new Dictionary<string, EnemyFrameId>(StringComparer.Ordinal);
         foreach (EnemySpritemapDefinition definition in expected)
         {
             string authoredName = schema == EnemyExtendedFrameSchema.PreSporeIdentity &&
                 definition.Name.StartsWith("spore_spawn_oam_", StringComparison.Ordinal)
-                    ? $"draygon_oam_{definition.Pointer:X4}"
+                    ? "draygon_oam_" + definition.Name["spore_spawn_oam_".Length..]
                     : definition.Name;
             if (!document.Frames.TryGetValue(authoredName,
                     out EnemyExtendedVisualComponent[]? visual) ||
@@ -130,28 +130,26 @@ public static class EnemyExtendedFrameDocuments
                         $"Extended enemy frame {definition.Name} exceeds OAM capacity.");
                 compiled[index] = new EnemyExtendedDrawComponent(
                     new((short)component.OffsetX, (short)component.OffsetY),
-                    GoldenTorizoStrideGeometryDefinitions.Compile(((int)new SnesAddress(definition.Bank, definition.Pointer)),
+                    GoldenTorizoStrideGeometryDefinitions.Compile(definition.Frame,
                         index, EnemySpritemapParts.FromOwnedArray(parts)));
             }
-            if (!frames.TryAdd(((int)new SnesAddress(definition.Bank, definition.Pointer)),
-                    compiled))
+            if (!frames.TryAdd(definition.Frame, compiled))
                 throw new InvalidDataException(
                     $"Extended enemy frame {definition.Name} repeats a visual identity.");
-            identities.Add(authoredName,
-                ((int)new SnesAddress(definition.Bank, definition.Pointer)));
+            identities.Add(authoredName, definition.Frame);
         }
-        var displayFrames = new Dictionary<int, int>();
+        var displayFrames = new Dictionary<EnemyFrameId, EnemyFrameId>();
         if (!legacyOverride)
         {
             if (document.DisplayFrames is null ||
                 document.DisplayFrames.Count != identities.Count)
                 throw new InvalidDataException(
                     "Extended enemy display bindings require every named frame.");
-            foreach ((string name, int identity) in identities)
+            foreach ((string name, EnemyFrameId identity) in identities)
             {
                 if (!document.DisplayFrames.TryGetValue(name, out string? selectedName) ||
                     selectedName is null ||
-                    !identities.TryGetValue(selectedName, out int selected) ||
+                    !identities.TryGetValue(selectedName, out EnemyFrameId selected) ||
                     !SameFrameFamily(name, selectedName))
                     throw new InvalidDataException(
                         $"Extended enemy display binding {name} must select a frame of the same enemy family.");
@@ -160,11 +158,11 @@ public static class EnemyExtendedFrameDocuments
         }
         if (!legacyOverride)
             return new EnemyExtendedFrameCatalog(frames, displayFrames);
-        var merged = new Dictionary<int, EnemyExtendedDrawComponent[]>(
+        var merged = new Dictionary<EnemyFrameId, EnemyExtendedDrawComponent[]>(
             (stockForLegacyOverride ?? throw new InvalidDataException("A legacy extended enemy composition override requires the current stock catalog.")).frames);
-        foreach ((int identity, EnemyExtendedDrawComponent[] components) in frames)
+        foreach ((EnemyFrameId identity, EnemyExtendedDrawComponent[] components) in frames)
             merged[identity] = components;
-        var mergedBindings = new Dictionary<int, int>(stockForLegacyOverride.displayFrames);
+        var mergedBindings = new Dictionary<EnemyFrameId, EnemyFrameId>(stockForLegacyOverride.displayFrames);
         if (schema is EnemyExtendedFrameSchema.PirateDisplayBindings
             or EnemyExtendedFrameSchema.PreDraygon
             or EnemyExtendedFrameSchema.PreSporeIdentity
@@ -195,11 +193,11 @@ public static class EnemyExtendedFrameDocuments
                 document.DisplayFrames.Count != identities.Count)
                 throw new InvalidDataException(
                     "Legacy extended enemy display bindings require every authored frame.");
-            foreach ((string name, int identity) in identities)
+            foreach ((string name, EnemyFrameId identity) in identities)
             {
                 if (!document.DisplayFrames.TryGetValue(name, out string? selectedName) ||
                     selectedName is null ||
-                    !identities.TryGetValue(selectedName, out int selected) ||
+                    !identities.TryGetValue(selectedName, out EnemyFrameId selected) ||
                     !SameFrameFamily(name, selectedName))
                     throw new InvalidDataException(
                         $"Legacy extended enemy display binding {name} is invalid.");

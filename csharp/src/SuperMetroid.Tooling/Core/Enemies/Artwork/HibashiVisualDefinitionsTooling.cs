@@ -6,5 +6,5 @@ namespace SuperMetroid.Core.Enemies.Artwork;
 internal static class HibashiVisualDefinitionsTooling
 {
     /// <summary>The spritemaps the Hibashi's programs show, in authored order with repeats.</summary>
-    internal static IEnumerable<ushort> Spritemaps() => HibashiAnimations.Spritemaps(Enum.GetValues<HibashiProgram>());
+    internal static IEnumerable<ushort> Spritemaps() => HibashiAnimationsTooling.Spritemaps(Enum.GetValues<HibashiProgram>());
 }

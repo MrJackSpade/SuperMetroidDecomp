@@ -1,55 +1,26 @@
+using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
-using SuperMetroid.Core.Enemies.Drawing;
-using SuperMetroid.Core.World.Artwork;
 
 namespace SuperMetroid.Core.Enemies;
 
 /// <summary>
-/// Verification's native view of the frame an enemy shows: the bank-local spritemap or extended-frame word, read through
-/// the presentation boundary and written back by finding the installed composition at that word in the enemy's bank.
+/// Verification's native view of the frame an enemy shows: the bank-local spritemap or extended-frame word the cartridge
+/// stores it at, and the frame stored at a word in the enemy's bank.
 /// </summary>
 internal static class RoomEnemySlotFrameAccess
 {
-    /// <summary>Each installed composition's identity, by bank and word.</summary>
-    private static readonly Lazy<Dictionary<FrameAddressKey, EnemyFrameId>> Identities = new(Bind);
-
-    /// <summary>Binds every installed composition's bank and word to the identity its name gives.</summary>
-    private static Dictionary<FrameAddressKey, EnemyFrameId> Bind()
-    {
-        var identities = new Dictionary<FrameAddressKey, EnemyFrameId>();
-        foreach (EnemySpritemapDefinition frame in EnemySpritemapDefinitions.Frames)
-            identities.TryAdd(new FrameAddressKey(frame.Bank, frame.Pointer), Identity(frame.Name));
-        foreach (EnemySpritemapDefinition frame in EnemyExtendedFrameDefinitions.Frames)
-            identities.TryAdd(new FrameAddressKey(frame.Bank, frame.Pointer), Identity(frame.Name));
-        return identities;
-    }
-
-    /// <summary>The identity named after installed composition <paramref name="name"/>.</summary>
-    private static EnemyFrameId Identity(string name) =>
-        Enum.Parse<EnemyFrameId>(string.Concat(name.Split('_').Select(part => part.Length == 0 ? part : char.ToUpperInvariant(part[0]) + part[1..])));
-
     /// <summary>Whether an installed composition shows native word <paramref name="word"/> in bank <paramref name="bank"/>.</summary>
-    internal static bool Shows(byte bank, ushort word) => Identities.Value.ContainsKey(new FrameAddressKey(bank, word));
+    internal static bool Shows(byte bank, ushort word) =>
+        word != 0 && EnemyFrameCartridgeLookupTooling.TryFrameAt(bank, word) is not (null or EnemyFrameId.Empty or EnemyFrameId.EmptyExtended);
 
     /// <summary>The frame shown by native word <paramref name="word"/> in bank <paramref name="bank"/>; zero shows none.</summary>
-    internal static EnemyFrameId? FrameAt(byte bank, ushort word) => word switch
-    {
-        0 => null,
-        CommonEnemyEmptyExtendedFrameDefinitions.EmptySpritemap => EnemyFrameId.Empty,
-        CommonEnemyEmptyExtendedFrameDefinitions.Frame => EnemyFrameId.EmptyExtended,
-        _ => Identities.Value.TryGetValue(new FrameAddressKey(bank, word), out EnemyFrameId frame)
-            ? frame
-            : throw new ArgumentOutOfRangeException(nameof(word), word, $"No installed enemy frame at ${bank:X2}:{word:X4}."),
-    };
+    internal static EnemyFrameId? FrameAt(byte bank, ushort word) => word == 0
+        ? null
+        : EnemyFrameCartridgeLookupTooling.TryFrameAt(bank, word)
+            ?? throw new ArgumentOutOfRangeException(nameof(word), word, $"No installed enemy frame at ${bank:X2}:{word:X4}.");
 
     /// <summary>The frame shown by native word <paramref name="word"/> in bank <paramref name="bank"/>, or null when none is.</summary>
-    internal static EnemyFrameId? TryFrameAt(byte bank, ushort word) => word switch
-    {
-        0 => null,
-        CommonEnemyEmptyExtendedFrameDefinitions.EmptySpritemap => EnemyFrameId.Empty,
-        CommonEnemyEmptyExtendedFrameDefinitions.Frame => EnemyFrameId.EmptyExtended,
-        _ => Identities.Value.TryGetValue(new FrameAddressKey(bank, word), out EnemyFrameId frame) ? frame : null,
-    };
+    internal static EnemyFrameId? TryFrameAt(byte bank, ushort word) => word == 0 ? null : EnemyFrameCartridgeLookupTooling.TryFrameAt(bank, word);
 
     /// <summary>Native views of a slot.</summary>
     extension(RoomEnemySlot self)
@@ -57,7 +28,7 @@ internal static class RoomEnemySlotFrameAccess
         /// <summary>The bank-local word of the frame the slot shows, zero before it shows any.</summary>
         internal ushort SpritemapPointer
         {
-            get => EnemyFrames.Installed.Spritemap(self.Frame);
+            get => EnemyFrameCartridgeLookupTooling.Word(self.Frame);
             set
             {
                 try

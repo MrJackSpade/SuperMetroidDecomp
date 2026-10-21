@@ -18,8 +18,8 @@ public sealed class MotherBrainBodyBg2FrameCatalog
     private MotherBrainBodyBg2FrameCatalog(EnemyBg2FrameCatalog frames) => this.frames = frames;
 
     /// <summary>Finds ordered BG2 tilemap writes for a compiled body pose without changing its OAM or gameplay state.</summary>
-    internal bool TryGet(ushort pointer, out ReadOnlyMemory<EnemyBg2TilemapWrite> writes) =>
-        frames.TryGet(pointer, out writes);
+    internal bool TryGet(EnemyFrameId frame, out ReadOnlyMemory<EnemyBg2TilemapWrite> writes) =>
+        frames.TryGet(frame, out writes);
 
     /// <summary>Loads version-one BG2 artwork for all sixteen named bank-$A9 body poses, excluding the OAM-only initial dummy; compiles ordered horizontal tile runs without importing body motion, hitboxes, or instruction timing.</summary>
     /// <param name="json">Caller-owned JSON stream, left open, containing every required pose with nonempty bounded writes in 32-by-64 tilemap-cell coordinates and unsigned 16-bit tile words.</param>

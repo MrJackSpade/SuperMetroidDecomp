@@ -19,7 +19,7 @@ internal static class YardVisualsVerification
     internal static void VerifyInstalledYardVisuals(
         SuperMetroidAddressSpace rom, EnemyTileArtworkCatalog stock)
     {
-        HashSet<ushort> shown = YardAnimations.Spritemaps(Enum.GetValues<YardProgram>()).ToHashSet();
+        HashSet<ushort> shown = YardAnimationsConstants.Spritemaps(Enum.GetValues<YardProgram>()).ToHashSet();
         foreach (ushort pointer in shown)
         {
             AssertTrue((stock.Spritemaps ?? throw new InvalidOperationException("Verification requires stock.Spritemaps.")).TryGetDisplay(

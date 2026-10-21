@@ -36,7 +36,7 @@ internal static class RoomSpriteObjectSlotAccess
         internal ushort InstructionTimer => self.Timer.RawValue;
 
         /// <summary>The bank-$B4 spritemap the slot shows, or zero for a free slot.</summary>
-        internal ushort SpritemapPointer => self.IsActive ? RoomSpriteObjectVisualDefinitions.Spritemap(self.Frame) : (ushort)0;
+        internal ushort SpritemapPointer => self.IsActive ? RoomSpriteObjectVisualDefinitionsConstants.Spritemap(self.Frame) : (ushort)0;
 
         /// <summary>The native OBJ attribute word.</summary>
         internal ushort GraphicsIndex => self.Attributes.Raw;
@@ -57,6 +57,6 @@ internal static class RoomSpriteObjectSlotAccess
     {
         /// <summary>The frame whose spritemap is <paramref name="spritemap"/>.</summary>
         internal static RoomSpriteObjectFrame FrameOf(ushort spritemap) =>
-            Enum.GetValues<RoomSpriteObjectFrame>().Single(frame => RoomSpriteObjectVisualDefinitions.Spritemap(frame) == spritemap);
+            Enum.GetValues<RoomSpriteObjectFrame>().Single(frame => RoomSpriteObjectVisualDefinitionsConstants.Spritemap(frame) == spritemap);
     }
 }

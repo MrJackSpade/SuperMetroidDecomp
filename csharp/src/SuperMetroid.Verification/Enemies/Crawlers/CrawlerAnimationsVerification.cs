@@ -13,7 +13,7 @@ internal static class CrawlerAnimationsVerification
     internal static void VerifyCrawlerAnimations(SuperMetroidAddressSpace rom)
     {
         int steps = NativeEnemyProgramOracle.CompareAll(CartridgeImportSource.Require(rom), Bank, Entries, CrawlerAnimations.Programs,
-            CrawlerFrameDefinitions.Spritemap,
+            CrawlerFrameToolingDefinitions.Spritemap,
             word => Instructions.TryGetValue(word, out var instruction) ? instruction.Operands.Length : null,
             (word, operands, cue, at) =>
             {

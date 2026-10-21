@@ -13,7 +13,7 @@ internal static class NorfairLavaJumperAnimationsVerification
     internal static void VerifyNorfairLavaJumperAnimations(SuperMetroidAddressSpace rom)
     {
         int steps = NativeEnemyProgramOracle.CompareAll(CartridgeImportSource.Require(rom), Bank, Entries, NorfairLavaJumperAnimations.Programs,
-            NorfairLavaJumperFrameDefinitions.Spritemap,
+            NorfairLavaJumperFrameToolingDefinitions.Spritemap,
             word => Instructions.TryGetValue(word, out var instruction) ? instruction.Operands.Length : null,
             (word, operands, cue, at) =>
             {

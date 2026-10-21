@@ -52,12 +52,6 @@ internal static class PowampAnimations
         ],
     });
 
-    /// <summary>The spritemaps <paramref name="programs"/> show, in authored order with repeats.</summary>
-    internal static IEnumerable<ushort> Spritemaps(params PowampProgram[] programs) =>
-        programs.SelectMany(program => Programs.Steps(program))
-            .OfType<AnimationProgramStep<P, PowampFrame, NoAnimationCue>.ShowStep>()
-            .Select(step => PowampFrameDefinitions.Spritemap(step.Frame));
-
     /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationProgramStep<PowampProgram, PowampFrame, NoAnimationCue> Show(int pose, int duration) => AnimationProgramStep<PowampProgram, PowampFrame, NoAnimationCue>.Show(new(pose), duration);
 

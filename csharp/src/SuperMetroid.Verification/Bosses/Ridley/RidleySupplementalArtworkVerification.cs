@@ -19,15 +19,15 @@ internal static class RidleySupplementalArtworkVerification
     internal static void VerifyInstalledRidleySupplementalArtwork(
         SuperMetroidAddressSpace rom, InstalledEnemyArtwork stock)
     {
-        AssertEqual(20, RidleySupplementalVisualDefinitions.WingPointerCount,
+        AssertEqual(20, RidleySupplementalVisualDefinitionsConstants.WingPointerCount,
             "Ridley wing table retains twenty animation selections");
-        AssertEqual(16, RidleySupplementalVisualDefinitions.TailTipPointerCount,
+        AssertEqual(16, RidleySupplementalVisualDefinitionsConstants.TailTipPointerCount,
             "Ridley tail tip retains sixteen direction selections");
-        for (int index = 0; index < RidleySupplementalVisualDefinitions.WingPointerCount;
+        for (int index = 0; index < RidleySupplementalVisualDefinitionsConstants.WingPointerCount;
              index++)
         {
             ushort native = CartridgeImportSource.Require(rom).ReadCartridgeWord((EnemyRomTablePointers.Ceres.WingSpritemapPointers + index * 2));
-            AssertEqual(native, RidleySupplementalVisualDefinitions.WingFrameAt(index),
+            AssertEqual(native, RidleySupplementalVisualDefinitionsConstants.WingFrameAt(index),
                 $"Ridley wing animation table entry {index} matches the pinned ROM");
 
             RidleyFacing facing = index < 10 ? RidleyFacing.Left : RidleyFacing.Right;
@@ -35,33 +35,33 @@ internal static class RidleySupplementalArtworkVerification
             OamBuffer actual = DrawInstalledRidleySupplement(
                 stock, facing, wingFrame, tailDirection: null);
             var expected = new OamBuffer();
-            DrawImportedEnemySpritemap(rom, expected, new NativeEnemySpritemapDraw { Bank = RidleySupplementalVisualDefinitions.Bank, Pointer = native, Origin = new(200, 100), PaletteBits = 0x0200, BaseTileIndex = 0, ClipVerticalWrap = true, OriginYIsOnScreen = true });
+            DrawImportedEnemySpritemap(rom, expected, new NativeEnemySpritemapDraw { Bank = RidleySupplementalVisualDefinitionsConstants.Bank, Pointer = native, Origin = new(200, 100), PaletteBits = 0x0200, BaseTileIndex = 0, ClipVerticalWrap = true, OriginYIsOnScreen = true });
             AssertRidleySupplementOam(expected, actual,
                 $"Ridley wing selection {index} uses installed OAM without table or frame reads");
         }
 
         for (int direction = 0;
-             direction < RidleySupplementalVisualDefinitions.TailTipPointerCount;
+             direction < RidleySupplementalVisualDefinitionsConstants.TailTipPointerCount;
              direction++)
         {
             ushort nativeTip = CartridgeImportSource.Require(rom).ReadCartridgeWord((EnemyRomTablePointers.Ceres.TailTipSpritemapPointers + direction * 2));
-            AssertEqual(nativeTip, RidleySupplementalVisualDefinitions.TailTipFrameAt(direction),
+            AssertEqual(nativeTip, RidleySupplementalVisualDefinitionsConstants.TailTipFrameAt(direction),
                 $"Ridley tail-tip direction {direction} matches the pinned ROM");
             OamBuffer actual = DrawInstalledRidleySupplement(
                 stock, facing: RidleyFacing.Turning, wingFrame: 0, tailDirection: direction);
             var expected = new OamBuffer();
-            DrawImportedEnemySpritemap(rom, expected, new NativeEnemySpritemapDraw { Bank = RidleySupplementalVisualDefinitions.Bank, Pointer = nativeTip, Origin = new(140, 138), PaletteBits = 0x0200, BaseTileIndex = 0, ClipVerticalWrap = true, OriginYIsOnScreen = true });
+            DrawImportedEnemySpritemap(rom, expected, new NativeEnemySpritemapDraw { Bank = RidleySupplementalVisualDefinitionsConstants.Bank, Pointer = nativeTip, Origin = new(140, 138), PaletteBits = 0x0200, BaseTileIndex = 0, ClipVerticalWrap = true, OriginYIsOnScreen = true });
             for (int segment = 5; segment >= 0; segment--)
-                DrawImportedEnemySpritemap(rom, expected, new NativeEnemySpritemapDraw { Bank = RidleySupplementalVisualDefinitions.Bank, Pointer = RidleySupplementalVisualDefinitionsConstants.SegmentFrameAt(segment), Origin = new(unchecked((ushort)(80 + segment * 10)), unchecked((ushort)(120 + segment * 3))), PaletteBits = 0x0200, BaseTileIndex = 0, ClipVerticalWrap = true, OriginYIsOnScreen = true });
+                DrawImportedEnemySpritemap(rom, expected, new NativeEnemySpritemapDraw { Bank = RidleySupplementalVisualDefinitionsConstants.Bank, Pointer = RidleySupplementalVisualDefinitionsConstants.SegmentFrameAt(segment), Origin = new(unchecked((ushort)(80 + segment * 10)), unchecked((ushort)(120 + segment * 3))), PaletteBits = 0x0200, BaseTileIndex = 0, ClipVerticalWrap = true, OriginYIsOnScreen = true });
             AssertRidleySupplementOam(expected, actual,
                 $"Ridley tail direction {direction} retains tip-first reverse-segment OAM");
         }
 
         AssertThrows<InvalidDataException>(
-            () => RidleySupplementalVisualDefinitions.WingFrameAt(20),
+            () => RidleySupplementalVisualDefinitionsConstants.WingFrameAt(20),
             "Ridley rejects adjacent wing-table code as a pose");
         AssertThrows<InvalidDataException>(
-            () => RidleySupplementalVisualDefinitions.TailTipFrameAt(16),
+            () => RidleySupplementalVisualDefinitionsConstants.TailTipFrameAt(16),
             "Ridley rejects adjacent tail-tip OAM as a pointer-table entry");
     }
 

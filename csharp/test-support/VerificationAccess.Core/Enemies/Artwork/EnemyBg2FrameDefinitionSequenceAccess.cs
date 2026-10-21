@@ -1,22 +1,15 @@
-using SuperMetroid.Core.Assets;
+using System.Collections.Immutable;
 
 namespace SuperMetroid.Core.Enemies.Artwork;
 
-/// <summary>Verification access to <see cref="EnemyBg2FrameDefinitionSequence"/> members production does not use.</summary>
+/// <summary>Verification access to BG2 frame definition lists.</summary>
 internal static class EnemyBg2FrameDefinitionSequenceAccess
 {
-    /// <summary>Materializes BG2 frame definitions through the compiled sequence indexer.</summary>
-    extension(EnemyBg2FrameDefinitionSequence self)
+    /// <summary>Projections of a BG2 frame definition list.</summary>
+    extension(ImmutableArray<EnemySpritemapDefinition> self)
     {
-        /// <summary>Copies all enemy BG2 frame definitions in authored order.</summary>
-        internal SpritemapFrameDefinition[] ToArray()
-        {
-            var result = new SpritemapFrameDefinition[self.Length];
-            for (int index = 0; index < result.Length; index++) result[index] = self[index];
-            return result;
-        }
         /// <summary>A new array of <paramref name="selector"/>'s results for each frame and its index, in frame order.</summary>
-        internal TResult[] SelectToArray<TResult>(Func<SpritemapFrameDefinition, int, TResult> selector)
+        internal TResult[] SelectToArray<TResult>(Func<EnemySpritemapDefinition, int, TResult> selector)
         {
             Ensure.NotNull(selector);
             var result = new TResult[self.Length];

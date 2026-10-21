@@ -26,7 +26,7 @@ internal static class BlueBrinstarFaceBlockBehaviorVerification
     {
         (RoomEnemySystem enemies, RoomEnemySlot slot, BlueBrinstarFaceBlockEnemyState state) = Create(parameter2: 0);
         AssertEqual(AnimationProgramCursor<BlueBrinstarFaceBlockProgram>.Start(BlueBrinstarFaceBlockProgram.Initial), state.Program, "face block starts neutral");
-        ushort neutral = BlueBrinstarFaceBlockAnimations.Spritemaps(BlueBrinstarFaceBlockProgram.Initial).Single();
+        ushort neutral = BlueBrinstarFaceBlockAnimationsConstants.Spritemaps(BlueBrinstarFaceBlockProgram.Initial).Single();
         AssertEqual(EnemyInstructionRunner.ExpectedFrames([neutral, neutral], [1, 1]), EnemyInstructionRunner.ShownFrames(slot, 3), "face block neutral pose");
 
         foreach ((ushort parameter2, int samusX, BlueBrinstarFaceBlockProgram program) in new[]
@@ -45,13 +45,13 @@ internal static class BlueBrinstarFaceBlockBehaviorVerification
             AssertTrue(state.Activated, $"face block {program} activates");
             AssertEqual(AnimationProgramCursor<BlueBrinstarFaceBlockProgram>.Start(program), state.Program, $"face block {program} selection");
             int[] holds = [48, 16, 16];
-            AssertEqual(EnemyInstructionRunner.ExpectedFrames(BlueBrinstarFaceBlockAnimations.Spritemaps(program), holds),
+            AssertEqual(EnemyInstructionRunner.ExpectedFrames(BlueBrinstarFaceBlockAnimationsConstants.Spritemaps(program), holds),
                 EnemyInstructionRunner.ShownFrames(slot, holds.Sum() + 1), $"face block {program} poses");
         }
 
         AssertEqual(5, BlueBrinstarFaceBlockVisualDefinitions.Frames().Select(frame => frame.Pointer).Distinct().Count(), "five distinct face-block poses");
         AssertTrue(BlueBrinstarFaceBlockVisualDefinitions.Frames().Select(frame => frame.Pointer).ToHashSet().SetEquals(
-                BlueBrinstarFaceBlockAnimations.Spritemaps(Enum.GetValues<BlueBrinstarFaceBlockProgram>())),
+                BlueBrinstarFaceBlockAnimationsConstants.Spritemaps(Enum.GetValues<BlueBrinstarFaceBlockProgram>())),
             "the exported face-block frames are exactly the poses the programs show");
         Console.WriteLine("  Face block behavior: neutral start, both activation sides and their 48/16/16 turning poses pass.");
     }

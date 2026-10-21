@@ -13,7 +13,7 @@ internal static class NinjaSpacePirateAnimationsVerification
     internal static void VerifyNinjaSpacePirateAnimations(SuperMetroidAddressSpace rom)
     {
         int steps = NativeEnemyProgramOracle.CompareAll(CartridgeImportSource.Require(rom), Bank, Entries, NinjaSpacePirateAnimations.Programs,
-            NinjaSpacePirateFrameDefinitions.Spritemap,
+            NinjaSpacePirateFrameToolingDefinitions.Spritemap,
             word => Instructions.TryGetValue(word, out var instruction) ? instruction.Operands.Length : null,
             (word, operands, cue, at) =>
             {

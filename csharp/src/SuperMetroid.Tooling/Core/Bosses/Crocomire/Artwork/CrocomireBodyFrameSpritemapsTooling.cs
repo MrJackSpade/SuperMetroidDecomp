@@ -6,8 +6,8 @@ internal static class CrocomireBodyFrameSpritemapsTooling
     /// <summary>The installed extended spritemap <paramref name="frame"/> shows.</summary>
     internal static ushort Spritemap(CrocomireBodyFrame frame) => frame.Set switch
     {
-        CrocomireBodyFrameSet.Body => CrocomireBodyVisualDefinitions.FramePointer(frame.Index),
-        CrocomireBodyFrameSet.Skeleton => CrocomireSkeletonVisualDefinitions.FramePointer(frame.Index),
+        CrocomireBodyFrameSet.Body => CrocomireBodyVisualToolingDefinitions.FramePointer(frame.Index),
+        CrocomireBodyFrameSet.Skeleton => CrocomireSkeletonVisualToolingDefinitions.FramePointer(frame.Index),
         _ => throw new InvalidOperationException($"Undefined {nameof(CrocomireBodyFrameSet)} {frame.Set}."),
     };
 }

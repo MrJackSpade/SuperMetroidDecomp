@@ -21,4 +21,8 @@ internal static class CeresDoorFrameDefinitionsConstants
         12 => 0xfb2f,
         _ => throw new ArgumentOutOfRangeException(nameof(frame), frame, "Undefined Ceres door pose."),
     };
+    /// <summary>The bank holding the spritemaps.</summary>
+    internal const byte Bank = 0xa6;
+    /// <summary>The Ridley-room door overlay $A6:A329 that Ridley's scene draws while it holds the door.</summary>
+    internal const ushort RidleyPrivateOverlaySpritemap = 0xa329;
 }

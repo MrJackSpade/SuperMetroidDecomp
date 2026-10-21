@@ -57,9 +57,9 @@ internal static class EnemyDefinitionBoundaryVerification
         foreach (ushort frame in TorizoCollisionDefinitions.FramePointers)
         foreach ((ushort x, ushort y) in new VerifyEnemyDefinitionBoundaryCase[] { new VerifyEnemyDefinitionBoundaryCase(128, 96), new VerifyEnemyDefinitionBoundaryCase(0, 0), new VerifyEnemyDefinitionBoundaryCase(511, 252) })
         {
-            AssertTrue((artwork.Enemies.ExtendedFrames ?? throw new InvalidOperationException("Verification requires artwork.ExtendedFrames.")).TryGet(TorizoFrameDefinitions.Bank, frame, out _),
+            AssertTrue((artwork.Enemies.ExtendedFrames ?? throw new InvalidOperationException("Verification requires artwork.ExtendedFrames.")).TryGet(TorizoFrameDefinitionsConstants.Bank, frame, out _),
                 $"installed Torizo extended frame {frame:X4}");
-            OamBuffer actual = DrawExtendedForBank(artwork, TorizoFrameDefinitions.Bank, frame, new(x, y));
+            OamBuffer actual = DrawExtendedForBank(artwork, TorizoFrameDefinitionsConstants.Bank, frame, new(x, y));
             var expected = new OamBuffer();
             int count = CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank((0xaa0000 | frame));
             for (int index = 0; index < count; index++)
@@ -71,14 +71,14 @@ internal static class EnemyDefinitionBoundaryVerification
                     continue;
                 // The cartridge's extended clip parks wrapped parts at Y=$F0; #1308 drops that presentation quirk, so the
                 // reference keeps the parts at their wrapped coordinates as the whole-frame draws do.
-                DrawImportedEnemySpritemap(source, expected, new NativeEnemySpritemapDraw { Bank = TorizoFrameDefinitions.Bank, Pointer = CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank((component + 4)), Origin = new(cx, cy), PaletteBits = 0, BaseTileIndex = 0 });
+                DrawImportedEnemySpritemap(source, expected, new NativeEnemySpritemapDraw { Bank = TorizoFrameDefinitionsConstants.Bank, Pointer = CartridgeImportSource.Require(source).ReadCartridgeWordFixedBank((component + 4)), Origin = new(cx, cy), PaletteBits = 0, BaseTileIndex = 0 });
             }
             AssertEqual(expected.NextByteOffset, actual.NextByteOffset, "Torizo composed OAM count");
             AssertTrue(expected.ImageEquals(actual),
                 $"Torizo composed OAM bytes and origin arithmetic, frame ${frame:X4} at ({x}, {y}): {OamDifference(expected, actual)}");
             drawCases++;
         }
-        AssertThrows<InvalidDataException>(() => DrawExtendedForBank(null, TorizoFrameDefinitions.Bank, 0x87d0, new(128, 96)),
+        AssertThrows<InvalidDataException>(() => DrawExtendedForBank(null, TorizoFrameDefinitionsConstants.Bank, 0x87d0, new(128, 96)),
             "missing enemy artwork cannot recover an address decoder");
         Console.WriteLine($"Enemy definitions: all 106 Torizo physical frames, corpse metadata, 50 Crocomire reactions, 393 editable palette colors and {drawCases} composed OAM cases pass.");
     }

@@ -13,7 +13,7 @@ internal static class NuclearWaffleAnimationsVerification
     internal static void VerifyNuclearWaffleAnimations(SuperMetroidAddressSpace rom)
     {
         int steps = NativeEnemyProgramOracle.CompareAll(CartridgeImportSource.Require(rom), Bank, Entries, NuclearWaffleAnimations.Programs,
-            NuclearWaffleFrameDefinitions.Spritemap,
+            NuclearWaffleFrameToolingDefinitions.Spritemap,
             word => null,
             (word, operands, cue, at) => throw new InvalidDataException($"{at}: the lists use no owner instructions."));
         Console.WriteLine($"  Nuclear Waffle programs: {Entries.Length} programs ({steps} steps) match bank $A6.");

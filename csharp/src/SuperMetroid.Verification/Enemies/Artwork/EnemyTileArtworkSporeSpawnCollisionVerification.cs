@@ -26,7 +26,7 @@ internal static class EnemyTileArtworkSporeSpawnCollisionVerification
         RoomEnemySlot installedSlot = installed.SlotTable.Slots[0];
         installedSlot.Bind(installedSlot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with
             {
-                Bank = DraygonBg2FrameDefinitions.Bank,
+                Bank = DraygonBg2FrameToolingDefinitions.Bank,
             });
         // The test-only cartridge walker supplies an independent reference.
         installedSlot.Bind(EnemyDefinitionId.SporeSpawn, installedSlot.Definition);
@@ -38,7 +38,7 @@ internal static class EnemyTileArtworkSporeSpawnCollisionVerification
         foreach (EnemySpritemapDefinition frame in
                  EnemyExtendedFrameDefinitions.Frames)
         {
-            if (frame.Bank != DraygonBg2FrameDefinitions.Bank ||
+            if (frame.Bank != DraygonBg2FrameToolingDefinitions.Bank ||
                 !SporeSpawnCollisionDefinitions.IsFrame(frame.Pointer))
                 continue;
             AssertTrue(selected.Contains(frame.Pointer),
@@ -104,7 +104,7 @@ internal static class EnemyTileArtworkSporeSpawnCollisionVerification
         // Compares one compiled hitbox list with the cartridge list its component names.
         void AssertHitboxListMatchesRom(ushort pointer, IReadOnlyList<SporeSpawnCollisionHitbox> hitboxes, string at)
         {
-            int list = ((int)new SnesAddress(DraygonBg2FrameDefinitions.Bank, pointer));
+            int list = ((int)new SnesAddress(DraygonBg2FrameToolingDefinitions.Bank, pointer));
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(list), hitboxes.Count,
                 $"{at} native hitbox count");
             for (int index = 0; index < hitboxes.Count; index++)

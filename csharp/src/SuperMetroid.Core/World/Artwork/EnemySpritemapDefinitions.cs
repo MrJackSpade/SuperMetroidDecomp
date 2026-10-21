@@ -1,9 +1,5 @@
-﻿using SuperMetroid.Core.Bosses.Botwoon.Artwork;
-using SuperMetroid.Core.Bosses.Kraid.Artwork;
-using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
-using SuperMetroid.Core.Bosses.Ridley.Artwork;
+﻿using System.Collections.Immutable;
 using SuperMetroid.Core.Enemies.Artwork;
-using SuperMetroid.Core.Enemies.SpriteObjects;
 
 namespace SuperMetroid.Core.World.Artwork;
 
@@ -146,184 +142,25 @@ internal static class EnemySpritemapDefinitions
     internal const int LegacyFrameCount = 47;
     /// <summary>Installed document containing editable enemy composition frames and bindings.</summary>
     internal const string FileName = "enemy-compositions.json";
-    /// <summary>Bank $A2 containing Boyon's native spritemap pointers.</summary>
-    internal const byte BoyonBank = 0xa2;
-    /// <summary>Bank $A2 used to resolve ordinary Rio visual frames.</summary>
-    internal const byte RioBank = 0xa2;
-    /// <summary>Bank $A2 used to resolve Lower Norfair Rio frames.</summary>
-    internal const byte LowerNorfairRioBank = 0xa2;
-    /// <summary>Bank $A2 used to resolve Norfair Rio frames.</summary>
-    internal const byte NorfairRioBank = 0xa2;
-    /// <summary>Bank $A2 containing Puyo composition pointers.</summary>
-    internal const byte PuyoBank = 0xa2;
-    /// <summary>Bank $A8 containing Bull composition pointers.</summary>
-    internal const byte BullBank = 0xa8;
-    /// <summary>Bank $A8 containing Alcoon composition pointers.</summary>
-    internal const byte AlcoonBank = 0xa8;
-    /// <summary>Bank $A8 containing Beetom composition pointers.</summary>
-    internal const byte BeetomBank = 0xa8;
-    /// <summary>Bank $A3 containing Hopper composition pointers.</summary>
-    internal const byte HopperBank = 0xa3;
-    /// <summary>Bank $A2 containing Choot composition pointers.</summary>
-    internal const byte ChootBank = 0xa2;
-    /// <summary>Bank $A3 containing horizontal Zoomer composition pointers.</summary>
-    internal const byte HZoomerBank = 0xa3;
-    /// <summary>Bank $A3 containing Sbug composition pointers.</summary>
-    internal const byte SbugBank = 0xa3;
-    /// <summary>Bank $A8 containing Fune and Namihe composition pointers.</summary>
-    internal const byte FuneNamiheBank = 0xa8;
-    /// <summary>Bank $A2 containing Kamer platform composition pointers.</summary>
-    internal const byte KamerPlatformBank = 0xa2;
-    /// <summary>Bank $A3 containing elevator composition pointers.</summary>
-    internal const byte ElevatorBank = 0xa3;
-    /// <summary>Bank $B4 containing room sprite-object composition pointers.</summary>
-    internal const byte RoomSpriteObjectBank = 0xb4;
-    /// <summary>Bank $A3 containing Skultera composition pointers.</summary>
-    internal const byte SkulteraBank = 0xa3;
-    /// <summary>Bank $A3 containing Waver composition pointers.</summary>
-    internal const byte WaverBank = 0xa3;
-    /// <summary>Bank $A3 containing Zoa composition pointers.</summary>
-    internal const byte ZoaBank = 0xa3;
-    /// <summary>Bank $A3 containing Skree and Metaree composition pointers.</summary>
-    internal const byte SkreeMetareeBank = 0xa3;
-    /// <summary>Bank $B3 containing pipe-bug composition pointers.</summary>
-    internal const byte PipeBugBank = 0xb3;
-    /// <summary>Bank $A6 containing Fake Kraid composition pointers.</summary>
-    internal const byte FakeKraidBank = 0xa6;
-    /// <summary>Bank $A7 containing Kraid nail composition pointers.</summary>
-    internal const byte KraidNailBank = 0xa7;
-    /// <summary>Bank $A2 containing Owtch and Stoke composition pointers.</summary>
-    internal const byte OwtchStokeBank = 0xa2;
-    /// <summary>Bank $A2 containing Ripper composition pointers.</summary>
-    internal const byte RipperBank = 0xa2;
-    /// <summary>Bank $A3 containing Fireflea composition pointers.</summary>
-    internal const byte FirefleaBank = 0xa3;
-    /// <summary>Bank $A8 containing Magdollite composition pointers.</summary>
-    internal const byte MagdolliteBank = 0xa8;
-    /// <summary>Bank $A6 containing boulder composition pointers.</summary>
-    internal const byte BoulderBank = 0xa6;
-    /// <summary>Bank $A8 containing Atomic composition pointers.</summary>
-    internal const byte AtomicBank = 0xa8;
-
-    /// <summary>Two-byte part count followed by five bytes per native OAM part.</summary>
-    internal static int NativeFrameBytes(int parts) => 2 + 5 * parts;
-
-    /// <summary>
-    /// Appends each later enemy family's frames after the historical prefix. Additional bank-$B4
-    /// sprite-object targets come from compiled selectors shared by 62 programs.
-    /// </summary>
-    private static IEnumerable<EnemySpritemapDefinition> EnumerateFrames()
-    {
-        foreach (var frame in EnemyNamedSpritemapFrameDefinitions.NamedFrames())
-            yield return frame;
-        foreach (var frame in RoomSpriteObjectVisualDefinitions.AdditionalFrames(EnemyNamedSpritemapFrameDefinitions.NamedFrames()))
-            yield return frame;
-        foreach (var frame in YappingMawVisualDefinitions.Frames())
-            yield return frame;
-        foreach (var frame in KiHunterVisualDefinitions.Frames())
-            yield return frame;
-        foreach (var frame in MotherBrainVisualDefinitions.Frames())
-            yield return frame;
-        foreach (var frame in DeadTorizoArtworkDefinitions.Frames())
-            yield return frame;
-        foreach (var frame in RidleySupplementalVisualDefinitions.Frames())
-            yield return frame;
-        foreach (var frame in SciserVisualDefinitions.Frames())
-            yield return frame;
-        foreach (var frame in FlyVisualDefinitions.Frames())
-            yield return frame;
-        foreach (var frame in KagoVisualDefinitions.Frames())
-            yield return frame;
-        foreach (var frame in BlueBrinstarFaceBlockVisualDefinitions.Frames())
-            yield return frame;
-        foreach (var frame in MorphBallEyeVisualDefinitions.Frames())
-            yield return frame;
-        foreach (var frame in ShutterVisualDefinitions.Frames())
-            yield return frame;
-        foreach (var frame in MetroidVisualDefinitions.Frames())
-            yield return frame;
-        foreach (var frame in ShaktoolVisualDefinitions.Frames())
-            yield return frame;
-        foreach (var frame in TripperKamerVisualDefinitions.Frames())
-            yield return frame;
-        foreach (var frame in DragonVisualDefinitions.Frames())
-            yield return frame;
-        foreach (var frame in MultiviolaVisualDefinitions.Frames())
-            yield return frame;
-        foreach (var frame in NorfairLavaJumperVisualDefinitions.Frames())
-            yield return frame;
-        foreach (var frame in ChozoStatueVisualDefinitions.Frames())
-            yield return frame;
-        foreach (var frame in ViolaVisualDefinitions.Frames())
-            yield return frame;
-        foreach (var frame in RinkaVisualDefinitions.Frames())
-            yield return frame;
-        foreach (var frame in DeadTorizoArtworkDefinitions.StationaryFrames())
-            yield return frame;
-        foreach (var frame in DeadTourianCorpseVisualDefinitions.Frames())
-            yield return frame;
-        foreach (var frame in MochtroidVisualDefinitions.Frames())
-            yield return frame;
-        foreach (var frame in EvirVisualDefinitions.Frames())
-            yield return frame;
-        foreach (var frame in WorkRobotVisualDefinitions.Frames())
-            yield return frame;
-        foreach (var frame in YardVisualDefinitions.Frames())
-            yield return frame;
-        foreach (var frame in BotwoonVisualDefinitions.Frames())
-            yield return frame;
-        foreach (var frame in GunshipVisualDefinitions.Frames())
-            yield return frame;
-        foreach (var frame in MamaTurtleVisualDefinitions.Frames())
-            yield return frame;
-        foreach (var frame in ZeroVisualDefinitions.Frames())
-            yield return frame;
-        foreach (var frame in FriendlyAnimalVisualDefinitions.Frames())
-            yield return frame;
-        foreach (var frame in HibashiVisualDefinitions.Frames())
-            yield return frame;
-        foreach (var frame in ZebetiteVisualDefinitions.Frames())
-            yield return frame;
-        foreach (var frame in WreckedShipGhostVisualDefinitions.Frames())
-            yield return frame;
-        foreach (var frame in PowampVisualDefinitions.Frames())
-            yield return frame;
-        foreach (var frame in SparkVisualDefinitions.Frames())
-            yield return frame;
-        foreach (var frame in ShitroidVisualDefinitions.Frames())
-            yield return frame;
-        foreach (var frame in KraidLintVisualDefinitions.Frames())
-            yield return frame;
-        foreach (var frame in NuclearWaffleVisualDefinitions.Frames())
-            yield return frame;
-        yield return SingleFrameEnemyVisualDefinitions.Kzan;
-        yield return SingleFrameEnemyVisualDefinitions.Polyp;
-        foreach (var frame in RidleyBreakupVisualDefinitions.Legs) yield return frame;
-        foreach (var frame in RidleyBreakupVisualDefinitions.Torso) yield return frame;
-        foreach (var frame in RidleyBreakupVisualDefinitions.Head) yield return frame;
-        foreach (var frame in RidleyBreakupVisualDefinitions.Claw) yield return frame;
-    }
-
-    /// <summary>Lazy, schema-ordered stock frame catalog used to validate and bind installed compositions.</summary>
+    /// <summary>The schema-ordered stock frame catalog used to validate and bind installed compositions.</summary>
     internal static FrameList Frames { get; } = new();
 
     /// <summary>Exposes the complete stock frame sequence with checked index and range access.</summary>
     internal sealed class FrameList : IReadOnlyList<EnemySpritemapDefinition>
     {
-        /// <summary>Materializes the ordered catalogs only when a consumer first needs them.</summary>
-        /// <remarks>The frame list is a fixed derivation of the definitions; derive it once, not per access.</remarks>
-        private readonly Lazy<EnemySpritemapDefinition[]> frames = new(() => EnumerateFrames().ToArray());
+        /// <summary>The installed compositions in schema order.</summary>
+        private readonly ImmutableArray<EnemySpritemapDefinition> frames = EnemySpritemapCompositions.All;
         /// <summary>Total named and appended frames in the current installed schema.</summary>
-        public int Count => frames.Value.Length;
+        public int Count => frames.Length;
         /// <summary>Array-compatible length for internal catalog consumers.</summary>
         internal int Length => Count;
         /// <summary>Reads one current-schema frame with an explicit bounds check.</summary>
         public EnemySpritemapDefinition this[int index] => (uint)index < Count
-            ? frames.Value[index] : throw new ArgumentOutOfRangeException(nameof(index));
+            ? frames[index] : throw new ArgumentOutOfRangeException(nameof(index));
         /// <summary>Copies a contiguous schema prefix or family range for compatibility checks.</summary>
-        internal EnemySpritemapDefinition[] this[Range range] => frames.Value[range];
+        internal EnemySpritemapDefinition[] this[Range range] => frames.AsSpan()[range].ToArray();
         /// <summary>Traverses the materialized frame sequence in installed-schema order.</summary>
-        public IEnumerator<EnemySpritemapDefinition> GetEnumerator() => ((IEnumerable<EnemySpritemapDefinition>)frames.Value).GetEnumerator();
+        public IEnumerator<EnemySpritemapDefinition> GetEnumerator() => ((IEnumerable<EnemySpritemapDefinition>)frames).GetEnumerator();
         /// <summary>Uses the same ordered traversal for non-generic collection consumers.</summary>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }

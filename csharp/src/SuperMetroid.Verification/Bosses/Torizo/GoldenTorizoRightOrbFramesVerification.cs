@@ -10,7 +10,7 @@ internal static class GoldenTorizoRightOrbFramesVerification
     /// the single TorizoCollisionDefinitions owner.
     /// </summary>
     internal static ushort[] GoldenTorizoRightOrbFrames() =>
-        [.. TorizoAnimations.Spritemaps(TorizoBodyProgram.GoldenSpewChozoOrbFacingLeftRightFootFwd0,
+        [.. TorizoAnimationsConstants.Spritemaps(TorizoBodyProgram.GoldenSpewChozoOrbFacingLeftRightFootFwd0,
                 TorizoBodyProgram.GoldenSpewChozoOrbFacingLeftRightFootFwd1)
             .Distinct().Order()];
 }

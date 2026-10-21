@@ -6,5 +6,5 @@ namespace SuperMetroid.Core.Enemies.Artwork;
 internal static class YappingMawVisualDefinitionsConstants
 {
     /// <summary>The pose the upward attack opens on, the idle Yapping Maw's first frame.</summary>
-    internal static ushort IdleFrame => YappingMawAnimations.Spritemaps(YappingMawProgram.AttackingUp).First();
+    internal static ushort IdleFrame => YappingMawAnimationsConstants.Spritemaps(YappingMawProgram.AttackingUp).First();
 }

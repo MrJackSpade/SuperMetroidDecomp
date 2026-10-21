@@ -35,12 +35,6 @@ internal static class BlueBrinstarFaceBlockAnimations
         ],
     });
 
-    /// <summary>The spritemaps <paramref name="programs"/> show, in authored order with repeats.</summary>
-    internal static IEnumerable<ushort> Spritemaps(params BlueBrinstarFaceBlockProgram[] programs) =>
-        programs.SelectMany(program => Programs.Steps(program))
-            .OfType<AnimationProgramStep<P, BlueBrinstarFaceBlockFrame, NoAnimationCue>.ShowStep>()
-            .Select(step => BlueBrinstarFaceBlockFrameDefinitions.Spritemap(step.Frame));
-
     /// <summary>Shows pose <paramref name="pose"/> for <paramref name="duration"/> updates.</summary>
     private static AnimationProgramStep<BlueBrinstarFaceBlockProgram, BlueBrinstarFaceBlockFrame, NoAnimationCue> Show(int pose, int duration) => AnimationProgramStep<BlueBrinstarFaceBlockProgram, BlueBrinstarFaceBlockFrame, NoAnimationCue>.Show(new(pose), duration);
 

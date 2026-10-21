@@ -22,7 +22,7 @@ internal static class MaridiaLargeSnailCollisionDefinitionsVerification
             AssertTrue((stock.ExtendedFrames ?? throw new InvalidOperationException("Verification requires stock.ExtendedFrames.")).TryGetDisplay(
                     MaridiaLargeSnailCollisionDefinitions.Bank, pose, out _),
                 $"Oum pose ${pose:X4} has installed art");
-        AssertTrue(seen.SetEquals(MaridiaLargeSnailCollisionDefinitions.FramePointers.ToArray()),
+        AssertTrue(seen.SetEquals(MaridiaLargeSnailCollisionDefinitionsConstants.FramePointers.ToArray()),
             "Oum's programs show exactly the 30 extracted physical frames");
         Console.WriteLine("Installed Oum: the 30 poses its programs show are the editable extracted frames.");
     }
@@ -43,7 +43,7 @@ internal static class MaridiaLargeSnailCollisionDefinitionsVerification
         compiledSlot.Bind(compiledSlot.EnemyDefinitionPointer, boundDefinition);
         nativeSlot.Bind((EnemyDefinitionId)0xffff, nativeSlot.Definition);
         compiledSlot.Bind(EnemyDefinitionId.Oum, compiledSlot.Definition);
-        AssertEqual(30, MaridiaLargeSnailCollisionDefinitions.FramePointers.Length,
+        AssertEqual(30, MaridiaLargeSnailCollisionDefinitionsConstants.FramePointers.Length,
             "all Oum extended frames have compiled collision");
         AssertEqual(30, MaridiaLargeSnailCollisionDefinitions.HitboxPointers.Count(),
             "all Oum hitbox lists have compiled collision");
@@ -51,7 +51,7 @@ internal static class MaridiaLargeSnailCollisionDefinitionsVerification
         var seenLists = new HashSet<ushort>();
         int boxesChecked = 0;
         int probes = 0;
-        foreach (ushort frame in MaridiaLargeSnailCollisionDefinitions.FramePointers)
+        foreach (ushort frame in MaridiaLargeSnailCollisionDefinitionsConstants.FramePointers)
         {
             AssertEqual((ushort)1, rom.ReadCartridgeWord((0xa20000 | frame)),
                 $"Oum $A2:{frame:X4} native one-component header");

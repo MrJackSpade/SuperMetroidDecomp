@@ -13,7 +13,7 @@ internal static class MamaTurtleAnimationsVerification
     internal static void VerifyMamaTurtleAnimations(SuperMetroidAddressSpace rom)
     {
         int steps = NativeEnemyProgramOracle.CompareAll(CartridgeImportSource.Require(rom), Bank, Entries, MamaTurtleAnimations.Programs,
-            MamaTurtleFrameDefinitions.Spritemap, new NativeEnemyCueRules<MamaTurtleCue>(
+            MamaTurtleFrameToolingDefinitions.Spritemap, new NativeEnemyCueRules<MamaTurtleCue>(
             word => Instructions.TryGetValue(word, out var instruction) ? instruction.Operands.Length : null,
             (word, operands, cue, at) =>
             {

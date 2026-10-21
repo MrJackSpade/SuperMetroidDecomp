@@ -63,8 +63,8 @@ internal static class BotwoonAnimationsVerification
             compared++;
         }
         // Every drawn frame is exported artwork or the shared empty map (the resource audit requires the exports).
-        AssertTrue(drawn.SetEquals(BotwoonVisualDefinitions.Frames().Select(frame => frame.Pointer)
-                .Append(CommonEnemyEmptyExtendedFrameDefinitions.EmptySpritemap)),
+        AssertTrue(drawn.SetEquals(BotwoonVisualDefinitionsConstants.Frames().Select(frame => frame.Pointer)
+                .Append(CommonEnemyEmptyExtendedFrameToolingDefinitions.EmptySpritemap)),
             "Botwoon's head animations draw exactly its sixteen exported frames and the empty map");
         Console.WriteLine($"  Botwoon head animations: {compared} cartridge selections match their native lists frame by frame.");
     }

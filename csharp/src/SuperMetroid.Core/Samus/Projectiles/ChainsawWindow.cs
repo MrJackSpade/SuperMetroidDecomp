@@ -61,7 +61,7 @@ internal sealed class ChainsawWindow
         ushort inheritedY = slot.Sprite is null
             ? unchecked((ushort)(slot.PackedType.BeamCombination.TableIndex *
                 SamusProjectileRomData.Beams.InitialSpeedRowBytes))
-            : unchecked((ushort)(slot.InstructionPointer -
+            : unchecked((ushort)(SamusProjectileProgramAddresses.Address(slot.Cursor) -
                 SamusProjectileRomData.Instructions.AnimationRecordByteCount));
         ChainsawWindowRegisters.StoreProjectileIndexedWord(slot.NativeByteIndex, inheritedY);
 

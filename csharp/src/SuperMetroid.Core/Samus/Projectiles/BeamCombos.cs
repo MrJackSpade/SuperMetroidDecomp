@@ -230,7 +230,7 @@ internal sealed class BeamCombos
         ushort inheritedY = slot.Sprite is null
             ? unchecked((ushort)(slot.PackedType.BeamCombination.TableIndex *
                 SamusProjectileRomData.Beams.InitialSpeedRowBytes))
-            : unchecked((ushort)(slot.InstructionPointer -
+            : unchecked((ushort)(SamusProjectileProgramAddresses.Address(slot.Cursor) -
                 SpacetimeBeamCorruptionLayout.AnimationRecordByteCount));
         ushort x = unchecked((ushort)(slot.NativeByteIndex + sizeof(ushort)));
         ushort y = unchecked((ushort)(inheritedY + sizeof(ushort)));

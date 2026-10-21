@@ -50,8 +50,6 @@ public sealed class SamusProjectileSlot
     public Extent16<RoomPixels> Radius { get; internal set; }
     /// <summary>Where the slot's projectile program resumes; null marks the slot inactive for animation.</summary>
     internal AnimationProgramCursor<SamusProjectileProgram>? Cursor { get; set; }
-    /// <summary>The bank-$93 instruction pointer the cursor stands for; zero marks the slot inactive.</summary>
-    public int InstructionPointer => SamusProjectileProgramAddresses.Address(Cursor);
     /// <summary>Updates remaining before the current projectile instruction advances.</summary>
     public WrappingCountdown InstructionTimer { get; internal set; }
     /// <summary>The composition the projectile shows (native <c>$0CC2 + 2*Index</c>), selected by the timed-frame interpreter or installed frame binding; none before its first frame.</summary>

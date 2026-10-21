@@ -66,7 +66,7 @@ internal static class KraidBodyTilemap
         words.AsSpan().Fill(KraidBackgroundRomData.BlankTile);
         Page(frame.Top, working[..KraidBackgroundRomData.VisiblePageWords], words.AsSpan(0, KraidBackgroundRomData.VisiblePageWords));
         if (frame.Head is { } head)
-            art.HeadWords(Artwork.KraidHeadFrameDefinitions.PresentationKey(head)).CopyTo(words);
+            art.HeadWords(head).CopyTo(words);
         Page(frame.Bottom, working.Slice(KraidBackgroundRomData.WorkingLowerHalfWord, KraidBackgroundRomData.VisiblePageWords),
             words.AsSpan(LowerScreenWord, KraidBackgroundRomData.VisiblePageWords));
         return new BossBg2Tilemap(ImmutableArray.Create(words), Size);

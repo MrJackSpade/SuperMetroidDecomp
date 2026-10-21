@@ -122,7 +122,7 @@ internal static class EnemyTileArtworkKraidVerification
         }
 
         ushort editedPointer = pointers[0];
-        string fileName = KraidBackgroundArtworkFormat.HeadFileName(editedPointer);
+        string fileName = KraidBackgroundArtworkFormat.HeadFileNameAt(editedPointer);
         string stockPath = Path.Combine(directory, fileName);
         byte[] original = File.ReadAllBytes(stockPath);
         string overrides = Path.Combine(directory, "kraid-head-override");

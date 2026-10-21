@@ -291,17 +291,16 @@ public static class EnemyTileArtworkFiles
             upperKraid);
         File.WriteAllBytes(Path.Combine(directory, KraidBackgroundArtworkFormat.LowerFileName),
             lowerKraid);
-        ushort[] headPointers = KraidHeadFrameDefinitions.PresentationKeys.Order().ToArray();
-        var kraidHeadHashes = new Dictionary<ushort, string>();
-        foreach (ushort pointer in headPointers)
+        var kraidHeadHashes = new Dictionary<int, string>();
+        foreach (KraidHeadFrame head in KraidHeadFrame.ByMouthStage)
         {
             byte[] native = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus),
-                KraidBackgroundRomData.NativeBank | pointer,
+                KraidBackgroundRomData.NativeBank | KraidHeadArtworkDefinitions.Address(head.MouthStage),
                 KraidBackgroundRomData.HeadTilemapWords * sizeof(ushort));
             byte[] json = KraidHeadTilemapAtlas.Encode(native);
             File.WriteAllBytes(Path.Combine(directory,
-                KraidBackgroundArtworkFormat.HeadFileName(pointer)), json);
-            kraidHeadHashes.Add(pointer, Convert.ToHexString(SHA256.HashData(json)));
+                KraidBackgroundArtworkFormat.HeadFileName(head.MouthStage)), json);
+            kraidHeadHashes.Add(head.MouthStage, Convert.ToHexString(SHA256.HashData(json)));
         }
         byte[] kraidRoomBackground = ExtractKraidRoomBackground(bus);
         File.WriteAllBytes(Path.Combine(directory,
@@ -477,8 +476,7 @@ public static class EnemyTileArtworkFiles
             string.IsNullOrWhiteSpace(manifest.TourianStatueColorsSha256))
             throw new InvalidDataException($"Enemy tile manifest {manifestPath} does not describe this installation.");
         ValidateDefinitionIds(manifest.Entries.Keys);
-        ushort[] expectedHeadPointers = KraidHeadFrameDefinitions.PresentationKeys.Order().ToArray();
-        if (!manifest.KraidHeadsSha256.Keys.Order().SequenceEqual(expectedHeadPointers))
+        if (!manifest.KraidHeadsSha256.Keys.Order().SequenceEqual(KraidHeadFrame.ByMouthStage.Select(head => head.MouthStage)))
             throw new InvalidDataException("Enemy tile manifest omits or substitutes a Kraid head frame.");
         if (!manifest.TorizoInstructionTilesSha256.Keys.Order(StringComparer.Ordinal)
                 .SequenceEqual(TorizoInstructionVramArtworkDefinitions.All
@@ -845,14 +843,14 @@ public static class EnemyTileArtworkFiles
             KraidBackgroundArtworkFormat.UpperFileName, manifest.KraidUpperSha256);
         RoomBackgroundTilemapAtlas lowerKraid = LoadKraidTilemap(
             KraidBackgroundArtworkFormat.LowerFileName, manifest.KraidLowerSha256);
-        var kraidHeads = new Dictionary<ushort, KraidHeadTilemapAtlas>();
-        foreach ((ushort pointer, string sha256) in manifest.KraidHeadsSha256)
+        var kraidHeads = new Dictionary<int, KraidHeadTilemapAtlas>();
+        foreach ((int mouthStage, string sha256) in manifest.KraidHeadsSha256)
         {
-            string fileName = KraidBackgroundArtworkFormat.HeadFileName(pointer);
+            string fileName = KraidBackgroundArtworkFormat.HeadFileName(mouthStage);
             byte[] selected = ReadStockOrOverride(fileName, sha256);
             try
             {
-                kraidHeads.Add(pointer, KraidHeadTilemapAtlas.Load(
+                kraidHeads.Add(mouthStage, KraidHeadTilemapAtlas.Load(
                     new MemoryStream(selected, writable: false)));
             }
             catch (InvalidDataException error)
@@ -1376,7 +1374,7 @@ public static class EnemyTileArtworkFiles
         string MotherBrainEscapeTextSha256,
         Dictionary<int, string> MotherBrainSpecialSpritesSha256,
         string KraidUpperSha256, string KraidLowerSha256,
-        Dictionary<ushort, string> KraidHeadsSha256,
+        Dictionary<int, string> KraidHeadsSha256,
         string KraidRoomBackgroundSha256,
         string KraidColorsSha256,
         string CeresDoorTilesSha256,

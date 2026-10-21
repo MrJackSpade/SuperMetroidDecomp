@@ -10,35 +10,35 @@ namespace SuperMetroid.Core.Bosses.Kraid.Artwork;
 public sealed class KraidBackgroundArtwork
 {
     /// <summary>Canonical selected presentation data; no derived field is added to debugger states.</summary>
-    public string ContentIdentity => SelectedPresentationHash.Create("enemy-kraid-background-v1", content =>
+    public string ContentIdentity => SelectedPresentationHash.Create("enemy-kraid-background-v2", content =>
         {
             content.Append("upper", Upper.Transfer.Span);
             content.Append("lower", Lower.Transfer.Span);
             content.Append("background-tiles", RoomBackgroundTiles.Transfer.Span);
-            foreach ((ushort pointer, KraidHeadTilemapAtlas head) in heads.OrderBy(pair => pair.Key))
+            foreach ((int mouthStage, KraidHeadTilemapAtlas head) in heads.OrderBy(pair => pair.Key))
             {
-                content.Append("head-frame", pointer);
+                content.Append("head-mouth-stage", mouthStage);
                 content.AppendWords("head-words", head.Words.Span);
             }
         });
 
-    /// <summary>Immutable head tilemaps keyed by the native bank-$A7 visual source pointer.</summary>
-    private readonly Dictionary<ushort, KraidHeadTilemapAtlas> heads;
+    /// <summary>Immutable head tilemaps keyed by how far the head's mouth is open.</summary>
+    private readonly Dictionary<int, KraidHeadTilemapAtlas> heads;
 
     /// <summary>Groups installed Kraid BG2 maps, head frames, and revealed room characters without composing or uploading the boss's mutable working tilemap.</summary>
     /// <param name="upper">Upper-body source atlas with the native $1000-byte decompressed layout.</param>
     /// <param name="lower">Lower-body source atlas with the native $1000-byte decompressed layout.</param>
-    /// <param name="heads">Head-frame atlases keyed by bank-$A7 source pointer. The dictionary is copied; immutable atlas objects are shared.</param>
+    /// <param name="heads">Head-frame atlases keyed by mouth stage, as <see cref="KraidHeadFrame.MouthStage"/> counts it. The dictionary is copied; immutable atlas objects are shared.</param>
     /// <param name="roomBackgroundTiles">The $0200-byte 4-bpp character stream revealed after growth or defeat, separate from the boss's BG2 tile references.</param>
     /// <remarks>The caller supplies already validated atlases. Construction retains the upper, lower, and character objects and does not validate their lengths or the completeness of the head-frame set.</remarks>
     public KraidBackgroundArtwork(RoomBackgroundTilemapAtlas upper,
         RoomBackgroundTilemapAtlas lower,
-        IReadOnlyDictionary<ushort, KraidHeadTilemapAtlas> heads,
+        IReadOnlyDictionary<int, KraidHeadTilemapAtlas> heads,
         RoomCharacterAtlas roomBackgroundTiles)
     {
         Upper = upper;
         Lower = lower;
-        this.heads = new Dictionary<ushort, KraidHeadTilemapAtlas>(heads);
+        this.heads = new Dictionary<int, KraidHeadTilemapAtlas>(heads);
         RoomBackgroundTiles = roomBackgroundTiles;
     }
 
@@ -50,10 +50,10 @@ public sealed class KraidBackgroundArtwork
     /// <summary>Characters revealed behind Kraid after growth or defeat.</summary>
     public RoomCharacterAtlas RoomBackgroundTiles { get; }
 
-    /// <summary>Resolves one cartridge-selected frame without changing its timing or hitboxes.</summary>
-    public ReadOnlySpan<ushort> HeadWords(ushort sourcePointer) =>
-        heads.TryGetValue(sourcePointer, out KraidHeadTilemapAtlas? frame)
-            ? frame.Words.Span
+    /// <summary>The installed head image <paramref name="frame"/> shows, without changing its timing or hitboxes.</summary>
+    internal ReadOnlySpan<ushort> HeadWords(KraidHeadFrame frame) =>
+        heads.TryGetValue(frame.MouthStage, out KraidHeadTilemapAtlas? image)
+            ? image.Words.Span
             : throw new InvalidDataException(
-                $"Kraid head frame $A7:{sourcePointer:X4} has no installed tilemap.");
+                $"Kraid head mouth stage {frame.MouthStage} has no installed tilemap.");
 }

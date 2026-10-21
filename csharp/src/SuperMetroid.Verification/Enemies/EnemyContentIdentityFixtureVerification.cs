@@ -170,12 +170,12 @@ internal static class EnemyContentIdentityFixtureVerification
             var dma = Ordered(new[] { KeyValuePair.Create(firstId, edit == "dma-source" ? 3 : 1), KeyValuePair.Create((EnemyDefinitionId)2, 2) });
             var heads = Ordered(new[]
             {
-                KeyValuePair.Create((ushort)1, KraidHeadTilemapAtlas.Load(Json(new KraidHeadTilemapDocument
+                KeyValuePair.Create(0, KraidHeadTilemapAtlas.Load(Json(new KraidHeadTilemapDocument
                 {
                     Version = KraidHeadTilemapFormat.Version, Width = KraidHeadTilemapFormat.Width,
                     Height = KraidHeadTilemapFormat.Height, Cells = Cells("kraid-head-first", KraidBackgroundRomData.HeadTilemapWords),
                 }))),
-                KeyValuePair.Create((ushort)2, KraidHeadTilemapAtlas.Load(Json(new KraidHeadTilemapDocument
+                KeyValuePair.Create(1, KraidHeadTilemapAtlas.Load(Json(new KraidHeadTilemapDocument
                 {
                     Version = KraidHeadTilemapFormat.Version, Width = KraidHeadTilemapFormat.Width,
                     Height = KraidHeadTilemapFormat.Height, Cells = Cells("kraid-head-second", KraidBackgroundRomData.HeadTilemapWords),

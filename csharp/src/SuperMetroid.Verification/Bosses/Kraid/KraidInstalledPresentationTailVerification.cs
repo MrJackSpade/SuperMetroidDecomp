@@ -27,7 +27,7 @@ internal static class KraidInstalledPresentationTailVerification
             return RoomBackgroundTilemapAtlas.Load(json, KraidBackgroundRomData.DecompressedTilemapBytes);
         }
         RoomBackgroundTilemapAtlas upper = Map(0), lower = Map(KraidBackgroundRomData.PriorityBit);
-        var art = new KraidBackgroundArtwork(upper, lower, new Dictionary<ushort, KraidHeadTilemapAtlas>(),
+        var art = new KraidBackgroundArtwork(upper, lower, new Dictionary<int, KraidHeadTilemapAtlas>(),
             (new EnemyIdentityFixture().Build().Bosses.KraidBackground ?? throw new InvalidOperationException("Verification requires new EnemyIdentityFixture().Build().KraidBackground.")).RoomBackgroundTiles);
         ushort[] working = KraidBodyFixtures.WorkingMap(new BossArtworkCatalog { KraidBackground = art });
         for (int word = 0; word < KraidBackgroundRomData.WorkingTilemapWords; word++)

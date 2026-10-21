@@ -30,7 +30,7 @@ internal static class KraidInstalledPresentationHeadClockVerification
             for (int word = 0; word < replacement.Length; word++)
                 BinaryPrimitives.WriteUInt16LittleEndian(words.AsSpan(word * 2),
                     (ushort)(replacement[word] ^ KraidBackgroundRomData.PriorityBit));
-            File.WriteAllBytes(Path.Combine(overrides, KraidBackgroundArtworkFormat.HeadFileName(pointers[index])),
+            File.WriteAllBytes(Path.Combine(overrides, KraidBackgroundArtworkFormat.HeadFileNameAt(pointers[index])),
                 KraidHeadTilemapAtlas.Encode(words));
         }
         InstalledEnemyArtwork edited = EnemyTileArtworkFiles.Load(directory, overrides);

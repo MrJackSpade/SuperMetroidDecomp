@@ -4,6 +4,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Samus.Projectiles;
 
 namespace SuperMetroid.AssetExtraction.Samus;
 
@@ -29,8 +30,7 @@ public static class SamusOverreadFiles
                 SamusOverreadDefinitions.SpeedBoosterGrappleCodeColorCount * sizeof(ushort)),
             Range(cartridge, SamusOverreadSourceDefinitions.HudPrecedingPostureBytes, SamusOverreadDefinitions.HudPrecedingPostureByteCount),
             Range(cartridge, SamusOverreadSourceDefinitions.HudFollowingPostureBytes, SamusOverreadDefinitions.HudFollowingPostureByteCount),
-            Range(cartridge, SamusOverreadSourceDefinitions.TrailCoordinateAdjacentCode,
-                SamusOverreadDefinitions.TrailCoordinateAdjacentByteCount));
+            TrailOverruns(cartridge));
         byte[] bytes = SamusOverreadCatalog.Write(document);
         File.WriteAllBytes(Path.Combine(directory, SamusOverreadFormat.FileName), bytes);
         File.WriteAllBytes(Path.Combine(directory, SamusOverreadFormat.ManifestFileName),
@@ -76,6 +76,40 @@ public static class SamusOverreadFiles
         for (int offset = 0; offset < length; offset++)
             bytes[offset] = cartridge.ReadCartridgeByte(address + offset);
         return Convert.ToBase64String(bytes);
+    }
+
+    /// <summary>
+    /// Reads what a trail finds past each placement list's records at every frame it can read there, as base-64 entries
+    /// in frame order. Native indexes the list four bytes per frame within bank $9B's sixteen-bit offsets and takes the
+    /// record's four bytes from there; a record below the cartridge half of the bank, or running into the next bank, lies
+    /// in direct-page scratch and draws no trail (#1318).
+    /// </summary>
+    private static Dictionary<string, string> TrailOverruns(IImportCartridgeSource cartridge)
+    {
+        var lists = new Dictionary<string, string>();
+        foreach (ProjectileTrailPlacementList list in Enum.GetValues<ProjectileTrailPlacementList>())
+        {
+            IReadOnlyList<int> frames = ProjectileTrailPlacements.OverrunFrames(list);
+            var bytes = new byte[frames.Count * SamusOverreadDefinitions.TrailOverrunEntryByteCount];
+            for (int index = 0; index < frames.Count; index++)
+            {
+                Span<byte> entry = bytes.AsSpan(index * SamusOverreadDefinitions.TrailOverrunEntryByteCount,
+                    SamusOverreadDefinitions.TrailOverrunEntryByteCount);
+                int record = (ProjectileTrailPlacementSources.Addresses[list] + frames[index] * ProjectileTrailPlacementSources.RecordByteCount) &
+                    ushort.MaxValue;
+                if (record < ProjectileTrailPlacementSources.CartridgeHalfStart ||
+                    record > ushort.MaxValue - (ProjectileTrailPlacementSources.RecordByteCount - 1))
+                {
+                    entry[0] = (byte)TrailOverrunEntryKind.Scratch;
+                    continue;
+                }
+                entry[0] = (byte)TrailOverrunEntryKind.Placement;
+                for (int offset = 0; offset < ProjectileTrailPlacementSources.RecordByteCount; offset++)
+                    entry[1 + offset] = cartridge.ReadCartridgeByte(ProjectileTrailPlacementSources.Bank | (record + offset));
+            }
+            lists.Add(list.ToString(), Convert.ToBase64String(bytes));
+        }
+        return lists;
     }
 
     /// <summary>Records the schema, cartridge identity and file digest checked on load.</summary>

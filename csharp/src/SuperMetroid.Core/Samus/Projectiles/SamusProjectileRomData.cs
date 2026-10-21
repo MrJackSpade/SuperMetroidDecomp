@@ -127,17 +127,6 @@ public static class SamusProjectileRomData
         public const ushort SuperMissileEnemyHitEarthquakeType = 18;
     }
 
-    /// <summary>Beam-trail instructions and direction/frame offset families.</summary>
-    public static class Trails
-    {
-        /// <summary>Uncharged beam-combination offset-family pointers.</summary>
-        public const int UnchargedOffsetFamilies = 0x9ba4b3;
-        /// <summary>Charged beam-combination offset-family pointers.</summary>
-        public const int ChargedOffsetFamilies = 0x9ba4cb;
-        /// <summary>Spazer special-beam-attack offset-family pointers.</summary>
-        public const int SpazerSbaOffsetFamilies = 0x9ba4e3;
-    }
-
     /// <summary>Shared bank-$93 projectile instruction opcodes.</summary>
     public static class Instructions
     {

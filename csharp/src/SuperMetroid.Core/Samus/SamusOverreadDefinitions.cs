@@ -24,6 +24,6 @@ internal static class SamusOverreadDefinitions
     /// <summary>Bytes the HUD's posture-transition admission reads after the twelve real flags, one per pose up to the non-firing transitions.</summary>
     internal const int HudFollowingPostureByteCount = 154;
 
-    /// <summary>Bytes past the trail coordinate data that a restored projectile type and animation frame can reach.</summary>
-    internal const int TrailCoordinateAdjacentByteCount = 28;
+    /// <summary>Bytes in one trail overrun entry: its kind, then the left and right sparkles' signed X and Y offsets.</summary>
+    internal const int TrailOverrunEntryByteCount = 5;
 }

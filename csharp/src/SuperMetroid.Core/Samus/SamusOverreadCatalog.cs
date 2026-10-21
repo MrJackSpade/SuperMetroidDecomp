@@ -1,4 +1,6 @@
+using System.Collections.Frozen;
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Samus.Projectiles;
 
 namespace SuperMetroid.Core.Samus;
 
@@ -17,8 +19,8 @@ public sealed class SamusOverreadCatalog
     private readonly byte[] _hudPrecedingPostureBytes;
     /// <summary>The bytes after the HUD's posture-transition flags.</summary>
     private readonly byte[] _hudFollowingPostureBytes;
-    /// <summary>The bytes past the trail coordinate data that a trail can reach.</summary>
-    private readonly byte[] _trailCoordinateAdjacentCode;
+    /// <summary>What a trail reads past each placement list's records, by list and frame; null where the read reaches direct-page scratch.</summary>
+    private readonly FrozenDictionary<ProjectileTrailRead, ProjectileTrailPlacement?> _trailOverruns;
 
     /// <summary>Keeps validated ranges decoded from an installed document.</summary>
     private SamusOverreadCatalog(SamusOverreadDocument document)
@@ -31,8 +33,7 @@ public sealed class SamusOverreadCatalog
             nameof(document.HudPrecedingPostureBytes));
         _hudFollowingPostureBytes = Decode(document.HudFollowingPostureBytes, SamusOverreadDefinitions.HudFollowingPostureByteCount,
             nameof(document.HudFollowingPostureBytes));
-        _trailCoordinateAdjacentCode = Decode(document.TrailCoordinateAdjacentCode,
-            SamusOverreadDefinitions.TrailCoordinateAdjacentByteCount, nameof(document.TrailCoordinateAdjacentCode));
+        _trailOverruns = DecodeTrailOverruns(document.TrailOverruns);
     }
 
     /// <summary>The SpaceTime palette-copy overrun's source byte <paramref name="offset"/> bytes past the first one it reads.</summary>
@@ -47,8 +48,15 @@ public sealed class SamusOverreadCatalog
     /// <summary>The byte the HUD's posture-transition admission reads for a pose <paramref name="index"/> poses after the real flags end.</summary>
     internal byte HudFollowingPostureByte(int index) => Read(_hudFollowingPostureBytes, index, "HUD following posture byte");
 
-    /// <summary>The byte <paramref name="offset"/> bytes past the trail coordinate data.</summary>
-    internal byte TrailCoordinateAdjacentByte(int offset) => Read(_trailCoordinateAdjacentCode, offset, "trail coordinate adjacent byte");
+    /// <summary>
+    /// The placement a trail reads past <paramref name="list"/>'s records at animation frame <paramref name="frame"/>; null
+    /// where the read reaches direct-page scratch.
+    /// </summary>
+    /// <exception cref="ArgumentOutOfRangeException">No trail reads <paramref name="list"/> at <paramref name="frame"/>.</exception>
+    internal ProjectileTrailPlacement? TrailOverrun(ProjectileTrailPlacementList list, int frame) =>
+        _trailOverruns.TryGetValue(new(list, frame), out ProjectileTrailPlacement? placement)
+            ? placement
+            : throw new ArgumentOutOfRangeException(nameof(frame), frame, $"No trail reads {list} past its placements at that frame.");
 
     /// <summary>Loads and validates an installed overread document.</summary>
     public static SamusOverreadCatalog Load(Stream json)
@@ -82,6 +90,38 @@ public sealed class SamusOverreadCatalog
             throw new InvalidDataException($"Samus overread {name} holds {bytes.Length} bytes, not {length}.");
         return bytes;
     }
+
+    /// <summary>Decodes every list's reads past its placements, requiring one entry for each frame a trail can read there.</summary>
+    private static FrozenDictionary<ProjectileTrailRead, ProjectileTrailPlacement?> DecodeTrailOverruns(
+        IReadOnlyDictionary<string, string>? lists)
+    {
+        if (lists is null)
+            throw new InvalidDataException("Samus overread file has no trail overruns.");
+        ProjectileTrailPlacementList[] known = Enum.GetValues<ProjectileTrailPlacementList>();
+        if (lists.Count != known.Length)
+            throw new InvalidDataException($"Samus overread file holds trail overruns for {lists.Count} lists, not {known.Length}.");
+        var result = new Dictionary<ProjectileTrailRead, ProjectileTrailPlacement?>();
+        foreach (ProjectileTrailPlacementList list in known)
+        {
+            if (!lists.TryGetValue(list.ToString(), out string? text))
+                throw new InvalidDataException($"Samus overread file has no trail overruns for {list}.");
+            IReadOnlyList<int> frames = ProjectileTrailPlacements.OverrunFrames(list);
+            byte[] bytes = Decode(text, frames.Count * SamusOverreadDefinitions.TrailOverrunEntryByteCount, $"{list} trail overruns");
+            for (int index = 0; index < frames.Count; index++)
+                result.Add(new(list, frames[index]), DecodeTrailOverrun(bytes.AsSpan(
+                    index * SamusOverreadDefinitions.TrailOverrunEntryByteCount, SamusOverreadDefinitions.TrailOverrunEntryByteCount), list));
+        }
+        return result.ToFrozenDictionary();
+    }
+
+    /// <summary>Decodes one entry: its kind, then for a placement the left and right sparkles' signed X and Y offsets.</summary>
+    private static ProjectileTrailPlacement? DecodeTrailOverrun(ReadOnlySpan<byte> entry, ProjectileTrailPlacementList list) => (TrailOverrunEntryKind)entry[0] switch
+    {
+        TrailOverrunEntryKind.Scratch => null,
+        TrailOverrunEntryKind.Placement => new(
+            new(unchecked((sbyte)entry[1]), unchecked((sbyte)entry[2])), new(unchecked((sbyte)entry[3]), unchecked((sbyte)entry[4]))),
+        var kind => throw new InvalidDataException($"Samus overread {list} trail overrun has unknown kind {kind}."),
+    };
 
     /// <summary>Reads one byte of a range, rejecting an offset outside it.</summary>
     private static byte Read(byte[] range, int offset, string name) =>

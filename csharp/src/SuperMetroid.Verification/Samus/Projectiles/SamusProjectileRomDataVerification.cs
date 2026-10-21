@@ -20,7 +20,7 @@ internal static class SamusProjectileRomDataVerification
     {
         AssertEqual(12, SamusProjectileRomData.Beams.CombinationCount,
             "retail beam-combination table count");
-        AssertEqual(39, SamusProjectileRomData.Trails.InstructionPointerCount,
+        AssertEqual(39, SamusProjectileRomDataTrailsConstants.InstructionPointerCount,
             "retail trail pointer count");
 
         string romPath = Path.GetFullPath("Super Metroid.smc");
@@ -125,17 +125,17 @@ internal static class SamusProjectileRomDataVerification
                 SamusProjectileRomData.NonBeam.AccelerationRecordByteCount,
             "Super Missile acceleration records");
 
-        TouchRange(bus, SamusProjectileRomData.Trails.LeftInstructionPointers,
-            SamusProjectileRomData.Trails.InstructionPointerCount * sizeof(ushort),
+        TouchRange(bus, SamusProjectileRomDataTrailsConstants.LeftInstructionPointers,
+            SamusProjectileRomDataTrailsConstants.InstructionPointerCount * sizeof(ushort),
             "left trail instruction pointers");
-        TouchRange(bus, SamusProjectileRomData.Trails.RightInstructionPointers,
-            SamusProjectileRomData.Trails.InstructionPointerCount * sizeof(ushort),
+        TouchRange(bus, SamusProjectileRomDataTrailsConstants.RightInstructionPointers,
+            SamusProjectileRomDataTrailsConstants.InstructionPointerCount * sizeof(ushort),
             "right trail instruction pointers");
         foreach (int offsets in new[]
         {
-            SamusProjectileRomData.Trails.UnchargedOffsetFamilies,
-            SamusProjectileRomData.Trails.ChargedOffsetFamilies,
-            SamusProjectileRomData.Trails.SpazerSbaOffsetFamilies,
+            SamusProjectileRomDataTrailsConstants.UnchargedOffsetFamilies,
+            SamusProjectileRomDataTrailsConstants.ChargedOffsetFamilies,
+            SamusProjectileRomDataTrailsConstants.SpazerSbaOffsetFamilies,
         })
         {
             TouchRange(bus, offsets,

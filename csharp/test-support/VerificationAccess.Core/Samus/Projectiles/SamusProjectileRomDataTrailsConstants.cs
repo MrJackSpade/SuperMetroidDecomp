@@ -1,7 +1,7 @@
 
 namespace SuperMetroid.Core.Samus.Projectiles;
 
-/// <summary>Cartridge values of <see cref="SamusProjectileRomData.Trails"/> that only verification reads.</summary>
+/// <summary>The cartridge's trail program and selector tables, which only verification reads.</summary>
 internal static class SamusProjectileRomDataTrailsConstants
 {
     /// <summary>$90:B5BB, the left trail program table.</summary>
@@ -13,14 +13,12 @@ internal static class SamusProjectileRomDataTrailsConstants
     /// <summary>Number of trail pointer entries before the paired right table.</summary>
     public const int InstructionPointerCount = (RightInstructionPointers - LeftInstructionPointers) / sizeof(ushort);
 
-    /// <summary>Provides the number of native trail instruction pointers for projectile trail decoding.</summary>
-    extension(SamusProjectileRomData.Trails)
-    {
-        /// <inheritdoc cref="SamusProjectileRomDataTrailsConstants.InstructionPointerCount"/>
-        internal static int InstructionPointerCount => SamusProjectileRomDataTrailsConstants.InstructionPointerCount;
-        /// <inheritdoc cref="SamusProjectileRomDataTrailsConstants.LeftInstructionPointers"/>
-        internal static int LeftInstructionPointers => SamusProjectileRomDataTrailsConstants.LeftInstructionPointers;
-        /// <inheritdoc cref="SamusProjectileRomDataTrailsConstants.RightInstructionPointers"/>
-        internal static int RightInstructionPointers => SamusProjectileRomDataTrailsConstants.RightInstructionPointers;
-    }
+    /// <summary>$9B:A4B3, the uncharged trail selector table.</summary>
+    public const int UnchargedOffsetFamilies = 0x9ba4b3;
+
+    /// <summary>$9B:A4CB, the charged trail selector table.</summary>
+    public const int ChargedOffsetFamilies = 0x9ba4cb;
+
+    /// <summary>$9B:A4E3, the special beam attack trail selector table.</summary>
+    public const int SpazerSbaOffsetFamilies = 0x9ba4e3;
 }

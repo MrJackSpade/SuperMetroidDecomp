@@ -1481,8 +1481,8 @@ internal static class LookupStream2Verification
     internal static void VerifyLookupStream2TrailSelectors(ISnesAddressSpace bus)
     {
 
-        int start = SamusProjectileRomData.Trails.LeftInstructionPointers;
-        int end = SamusProjectileRomData.Trails.RightInstructionPointers + 64 * sizeof(ushort);
+        int start = SamusProjectileRomDataTrailsConstants.LeftInstructionPointers;
+        int end = SamusProjectileRomDataTrailsConstants.RightInstructionPointers + 64 * sizeof(ushort);
         for (int address = start; address < end; address += sizeof(ushort))
         {
             ushort native = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address);
@@ -1510,7 +1510,7 @@ internal static class LookupStream2Verification
             if (trail.Left.InstructionTimer.IsZero)
                 continue;
             AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), start + selection * 2), trail.Left.InstructionPointer, "Real spawn selects left trail including adjacent right-table entries");
-            AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), SamusProjectileRomData.Trails.RightInstructionPointers + selection * 2), trail.Right.InstructionPointer, "Real spawn retains right-table overrun behavior");
+            AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), SamusProjectileRomDataTrailsConstants.RightInstructionPointers + selection * 2), trail.Right.InstructionPointer, "Real spawn retains right-table overrun behavior");
             AssertEqual(1, trail.Left.InstructionTimer.RawValue, "Selector extraction leaves allocation timer unchanged");
             AssertEqual(96, trail.Left.Position.X, "Selector extraction leaves origin offset unchanged");
         }

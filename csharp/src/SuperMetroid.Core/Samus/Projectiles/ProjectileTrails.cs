@@ -8,7 +8,7 @@ internal sealed class ProjectileTrails
     /// <summary>Projectile-owned left and right trail pairs shared with the slot allocator.</summary>
     private readonly ProjectileSlotTable _slotTable;
 
-    /// <summary>The installed cartridge bytes a trail reads past its selector and coordinate tables; null until bound.</summary>
+    /// <summary>The installed placements a trail reads past its placement list's records; null until bound.</summary>
     [field: NonSerialized]
     internal SamusOverreadCatalog? Overreads { get; set; }
 
@@ -44,34 +44,18 @@ internal sealed class ProjectileTrails
         // Retail reads the previously installed record, even when the animation timer
         // will expire later this frame. Reading ahead advances Spazer's trail spread early.
         ushort animationFrame = GetTrailAnimationFrame(projectile);
-        int direction = projectile.PackedDirection.DirectionIndex;
-        int familyTable = (projectile.Type & 1 << 5) != 0
-            ? SamusProjectileRomData.Trails.SpazerSbaOffsetFamilies
-            : projectile.PackedType.IsChargedBeam
-                ? SamusProjectileRomData.Trails.ChargedOffsetFamilies
-                : SamusProjectileRomData.Trails.UnchargedOffsetFamilies;
-        ushort directionTable = ProjectileTrailCoordinateDefinitions.ReadFamilyPointer(
-            familyTable + projectile.PackedType.BeamCombination.TableIndex * 2, Overreads);
+        ProjectileTrailFamilyGroup group = (projectile.Type & 1 << 5) != 0
+            ? ProjectileTrailFamilyGroup.SpecialBeamAttack
+            : projectile.PackedType.IsChargedBeam ? ProjectileTrailFamilyGroup.Charged : ProjectileTrailFamilyGroup.Uncharged;
+        ProjectileTrailPlacementList? list = ProjectileTrailPlacements.List(
+            group, projectile.PackedType.BeamCombination, projectile.PackedDirection.DirectionIndex);
 
-        // A selection that names no program draws no trail. An empty trail family (a glitch beam) points its direction
-        // list or coordinate operands into the low half of bank $9B, which holds direct-page scratch. Its exact appearance
-        // would need direct-page emulation the port does not model, so it is exempt (owner decision on #1318) and draws no
-        // trail. Native performs WORD reads and consumes their high bytes after XBA.
-        if (leftProgram is not { } left || rightProgram is not { } right ||
-            !ProjectileTrailCoordinateDefinitions.TryReadDirectionPointer(
-                SamusProjectileRomData.Banks.PaletteAndTrailData | unchecked((ushort)(directionTable + direction * 2)),
-                Overreads, out ushort offsetList))
+        // A selection that names no program or placement list draws no trail, and so does a read that reaches direct-page
+        // scratch: its exact appearance would need direct-page emulation the port does not model, so it is exempt (owner
+        // decision on #1318).
+        if (leftProgram is not { } left || rightProgram is not { } right || list is not { } placements ||
+            ProjectileTrailPlacements.Start(placements, animationFrame, Overreads) is not { } placement)
             return;
-        ushort y = (ushort)(SamusProjectileRomData.Banks.PaletteAndTrailData | unchecked((ushort)(offsetList + animationFrame * 4)));
-        if (!ProjectileTrailCoordinateDefinitions.TryReadCoordinateWord(0, y, Overreads, out ushort leftYWord) ||
-            !ProjectileTrailCoordinateDefinitions.TryReadCoordinateWord(0, unchecked((ushort)(y - 1)), Overreads, out ushort leftXWord) ||
-            !ProjectileTrailCoordinateDefinitions.TryReadCoordinateWord(2, y, Overreads, out ushort rightYWord) ||
-            !ProjectileTrailCoordinateDefinitions.TryReadCoordinateWord(1, y, Overreads, out ushort rightXWord))
-            return;
-        byte leftY = SnesLittleEndian.HighByte(leftYWord);
-        byte leftX = SnesLittleEndian.HighByte(leftXWord);
-        byte rightY = SnesLittleEndian.HighByte(rightYWord);
-        byte rightX = SnesLittleEndian.HighByte(rightXWord);
 
         SamusProjectileTrailSlot? trail = null;
         for (int slotIndex = SamusProjectileSystem.TrailSlotCount - 1; slotIndex >= 0; slotIndex--)
@@ -92,8 +76,10 @@ internal sealed class ProjectileTrails
         trail.Right.InstructionTimer = WrappingCountdown.Start(1);
         trail.Left.Cursor = new ProjectileTrailCursor(left, 0);
         trail.Right.Cursor = new ProjectileTrailCursor(right, 0);
-        trail.Left.Position = trail.Left.Position.WithX(AddSignedOffset(projectile.Position.X.Whole, leftX, -4)).WithY(AddSignedOffset(projectile.Position.Y.Whole, leftY, -4));
-        trail.Right.Position = trail.Right.Position.WithX(AddSignedOffset(projectile.Position.X.Whole, rightX, -4)).WithY(AddSignedOffset(projectile.Position.Y.Whole, rightY, -4));
+        trail.Left.Position = trail.Left.Position.WithX(AddOffset(projectile.Position.X.Whole, placement.Left.X))
+            .WithY(AddOffset(projectile.Position.Y.Whole, placement.Left.Y));
+        trail.Right.Position = trail.Right.Position.WithX(AddOffset(projectile.Position.X.Whole, placement.Right.X))
+            .WithY(AddOffset(projectile.Position.Y.Whole, placement.Right.Y));
     }
 
     /// <summary>Reads the native word immediately before the shot's next instruction pointer.</summary>
@@ -105,9 +91,8 @@ internal sealed class ProjectileTrails
             ?? throw new InvalidOperationException("A trail read the animation frame of an inactive projectile."));
     }
 
-    /// <summary>Applies a signed byte displacement and fixed bias with 16-bit position wrap.</summary>
-    private static ushort AddSignedOffset(ushort origin, byte encodedOffset, int constant) =>
-        unchecked((ushort)(origin + unchecked((sbyte)encodedOffset) + constant));
+    /// <summary>Places a sparkle <paramref name="offset"/> pixels from <paramref name="origin"/>, drawn four pixels up and left, with 16-bit position wrap.</summary>
+    private static ushort AddOffset(ushort origin, short offset) => unchecked((ushort)(origin + offset - 4));
 
     /// <summary>Advances one side's instruction stream unless time is frozen.</summary>
     internal static void AdvanceTrailSide(

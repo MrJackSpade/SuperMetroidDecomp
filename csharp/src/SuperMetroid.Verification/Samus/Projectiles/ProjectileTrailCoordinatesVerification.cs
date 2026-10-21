@@ -1,52 +1,101 @@
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Samus.Projectiles;
+using SuperMetroid.Core.Progression;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.AssetExtraction.Samus;
 namespace SuperMetroid.Verification.Samus.Projectiles;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 
-/// <summary>Checks compiled projectile-trail coordinates and CPU operand routing against native data and live-memory aliases.</summary>
+/// <summary>Checks projectile-trail placements against the cartridge's selector, direction and placement tables.</summary>
 internal static class ProjectileTrailCoordinatesVerification
 {
-    /// <summary>Compares the bounded bank-$9B coordinate catalog and every indexed operand with the native CPU read behavior.</summary>
+    /// <summary>$9B:A4B3, $9B:A4CB and $9B:A4E3: the uncharged, charged and special beam attack trail selector tables.</summary>
+    private static readonly (ProjectileTrailFamilyGroup Group, int Table)[] SelectorTables =
+    [
+        (ProjectileTrailFamilyGroup.Uncharged, 0x9ba4b3),
+        (ProjectileTrailFamilyGroup.Charged, 0x9ba4cb),
+        (ProjectileTrailFamilyGroup.SpecialBeamAttack, 0x9ba4e3),
+    ];
+
+    /// <summary>Bytes in one placement record: the left and right sparkles' signed X and Y offsets.</summary>
+    private const int RecordByteCount = 4;
+
+    /// <summary>The first bank-$9B offset the cartridge serves; below it lies direct-page scratch and hardware.</summary>
+    private const int CartridgeHalfStart = 0x8000;
+
+    /// <summary>
+    /// Compares every list's placements, every selector row and direction-table index, and every installed read past a
+    /// list's placements with the cartridge, then spawns real trails against the native CPU reads.
+    /// </summary>
     internal static void VerifyProjectileTrailCoordinates(ISnesAddressSpace bus)
     {
-        int bytes = 0;
-        for (int address = 0x9b8000; address <= 0x9bffff; address++)
+        int records = 0;
+        foreach ((ProjectileTrailPlacementList list, ProjectileTrailPlacement[] placements) in ProjectileTrailPlacementDefinitions.Records)
+            for (int frame = 0; frame < placements.Length; frame++, records++)
+                AssertEqual(NativePlacement(bus, ProjectileTrailPlacementSources.Addresses[list] + frame * RecordByteCount), placements[frame],
+                    $"{list} placement {frame} matches the cartridge");
+        AssertEqual(1660, records, "The eighty lists read 1660 placements up to the end of their runs of records");
+
+        Dictionary<ushort, ProjectileTrailPlacementList> lists = ProjectileTrailPlacementSources.Addresses.ToDictionary(pair => pair.Value, pair => pair.Key);
+        int selections = 0;
+        foreach ((ProjectileTrailFamilyGroup group, int table) in SelectorTables)
+        foreach (SamusBeamCombination beams in Enum.GetValues<SamusBeamCombination>())
+        for (int direction = 0; direction < 16; direction++)
         {
-            if (ProjectileTrailCoordinateDefinitions.TryReadByte(address, InstalledFixtures.SamusOverreads, out byte value))
-            { AssertEqual(ReadRetailTrailOperandByte(bus, address), value, "Compiled trail pointer/coordinate byte matches pinned ROM"); bytes++; }
-            int next = SnesAddressMath.AddWithinBank(address, 1);
-            if (ProjectileTrailCoordinateDefinitions.TryReadByte(address, InstalledFixtures.SamusOverreads, out _) &&
-                ProjectileTrailCoordinateDefinitions.TryReadByte(next, InstalledFixtures.SamusOverreads, out _))
-                AssertEqual(ReadRetailTrailWord(bus, address), ProjectileTrailCoordinateDefinitions.ReadCompiledWord(address, InstalledFixtures.SamusOverreads), "Compiled trail pointer word preserves authored odd and wrapped words");
-            else
-            {
-                int rejectedAddress = address;
-                AssertThrows<InvalidDataException>(() => ProjectileTrailCoordinateDefinitions.ReadCompiledWord(rejectedAddress, InstalledFixtures.SamusOverreads), "Trail pointer reader rejects gaps and unrelated upper-ROM words");
-            }
+            AssertEqual(NativeList(bus, lists, table, beams, direction), ProjectileTrailPlacements.List(group, beams, direction),
+                $"{group} {beams} direction {direction} selects the list the cartridge's pointers name");
+            selections++;
         }
-        AssertEqual(4342, bytes, "174 pointer words, 870 four-coordinate records, 28 adjacent observations, 485 further reflected-list-start bytes and the empty-family wrapped byte cover the reachable native region");
-        Suite(nameof(VerifyCoordinateSpawn), () => VerifyCoordinateSpawn(bus));
-        for (int index = 0; index <= ushort.MaxValue; index++)
-        foreach (ushort operand in new ushort[] { 0, 1, 2 })
+        AssertEqual(768, selections, "Three selector tables of sixteen rows by sixteen direction-table indexes");
+
+        int overruns = 0;
+        foreach (ProjectileTrailPlacementList list in Enum.GetValues<ProjectileTrailPlacementList>())
+        foreach (int frame in ProjectileTrailPlacements.OverrunFrames(list))
         {
-            int address = (SamusProjectileRomData.Banks.PaletteAndTrailData + operand + index) & SnesCpuAddressLayout.AddressMask;
-            int next = (address + 1) & SnesCpuAddressLayout.AddressMask;
-            bool compiled = ProjectileTrailCoordinateDefinitions.TryReadByte(address, InstalledFixtures.SamusOverreads, out _) &
-                ProjectileTrailCoordinateDefinitions.TryReadByte(next, InstalledFixtures.SamusOverreads, out _);
-            bool resolved = ProjectileTrailCoordinateDefinitions.TryReadCoordinateWord(operand, (ushort)index, InstalledFixtures.SamusOverreads, out ushort word);
-            AssertEqual(compiled, resolved, "A trail coordinate word resolves exactly when both bytes are compiled");
-            if (compiled)
-                AssertEqual(ReadNativeTrailOperandWord(bus, operand, (ushort)index), word, "A compiled coordinate operand reads the native word");
+            int record = (ProjectileTrailPlacementSources.Addresses[list] + frame * RecordByteCount) & ushort.MaxValue;
+            ProjectileTrailPlacement? expected = RecordIsCartridge(record) ? NativePlacement(bus, record) : null;
+            AssertEqual(expected, ProjectileTrailPlacements.Start(list, frame, InstalledFixtures.SamusOverreads),
+                $"{list} at frame {frame} reads what the cartridge holds past its placements");
+            overruns++;
         }
-        Console.WriteLine("Trail coordinates: 174 pointer words, 870 signed records, 29 bounded observations and 196608 CPU operands resolve only from compiled data.");
+        ProjectileTrailPlacementList shortest = ProjectileTrailPlacementList.UnchargedIcePlasmaUp;
+        int pastRecords = ProjectileTrailPlacementDefinitions.Records[shortest].Length;
+        AssertThrows<InvalidOperationException>(() => ProjectileTrailPlacements.Start(shortest, pastRecords, null),
+            "A read past a list's placements needs the installed overread catalog");
+        AssertThrows<ArgumentOutOfRangeException>(() => ProjectileTrailPlacements.Start(shortest, ushort.MaxValue + 1, InstalledFixtures.SamusOverreads),
+            "A frame no trail can read is rejected");
+        Suite(nameof(VerifyCoordinateSpawn), () => VerifyCoordinateSpawn(bus, lists));
+        Console.WriteLine($"Trail coordinates: {records} placements, {selections} selections and {overruns} reads past the placements match the cartridge.");
+    }
+
+    /// <summary>The list the cartridge's selector row and direction entry name, or null where either names none.</summary>
+    [CpuBusBoundary("exact bus test: retail ROM oracle for the trail selector and direction tables")]
+    private static ProjectileTrailPlacementList? NativeList(
+        ISnesAddressSpace bus, Dictionary<ushort, ProjectileTrailPlacementList> lists, int table, SamusBeamCombination beams, int direction)
+    {
+        ushort family = ReadRetailTrailWord(bus, table + beams.TableIndex * sizeof(ushort));
+        if (family < CartridgeHalfStart)
+            return null;
+        ushort list = ReadRetailTrailWord(bus, 0x9b0000 | unchecked((ushort)(family + direction * sizeof(ushort))));
+        return lists.TryGetValue(list, out ProjectileTrailPlacementList named) ? named : null;
+    }
+
+    /// <summary>Whether a bank-$9B offset and the three bytes after it lie in the cartridge half of the bank.</summary>
+    private static bool RecordIsCartridge(int offset) => offset is >= CartridgeHalfStart and <= ushort.MaxValue - (RecordByteCount - 1);
+
+    /// <summary>The placement the cartridge stores at bank-$9B offset <paramref name="offset"/>.</summary>
+    [CpuBusBoundary("exact bus test: retail ROM oracle for one trail placement record")]
+    private static ProjectileTrailPlacement NativePlacement(ISnesAddressSpace bus, int offset)
+    {
+        sbyte Byte(int index) => unchecked((sbyte)ReadRetailTrailOperandByte(bus, 0x9b0000 | (offset + index)));
+        return new(new(Byte(0), Byte(1)), new(Byte(2), Byte(3)));
     }
 
     /// <summary>Checks actual trail spawn positions for beam, missile, and reflected list-start cases at coordinate wraps.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for trail family, direction and reflected list-start pointer tables")]
-    private static void VerifyCoordinateSpawn(ISnesAddressSpace bus)
+    private static void VerifyCoordinateSpawn(ISnesAddressSpace bus, Dictionary<ushort, ProjectileTrailPlacementList> lists)
     {
         // For each animation frame, the list position just past the first record that installs it: a trail spawned there
         // reads that frame.
@@ -62,13 +111,8 @@ internal static class ProjectileTrailCoordinatesVerification
         for (ushort frame = 0; frame < 22; frame++)
         foreach (ushort origin in new ushort[] { 0, ushort.MaxValue })
         {
-            int family = (type & 0x20) != 0 ? 0x9ba4e3 : (type & 0x10) != 0 ? 0x9ba4cb : 0x9ba4b3;
-            ushort directions = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), family + (type & 15) * 2);
-            ushort offsets = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0x9b0000 | unchecked((ushort)(directions + direction * 2)));
+            ushort offsets = DirectionList(bus, type, direction);
             ushort y = unchecked((ushort)(offsets + frame * 4));
-            byte Read(ushort operand, ushort index) => SnesLittleEndian.HighByte(ReadNativeTrailOperandWord(bus, operand, index));
-            ushort Position(byte offset) => unchecked((ushort)(origin + (sbyte)offset - 4));
-            var expected = new ProjectileTrailCoordinatesExpected(Position(Read(0, unchecked((ushort)(y - 1)))), Position(Read(0, y)), Position(Read(1, y)), Position(Read(2, y)));
             system.Reset();
             var shot = new SamusProjectileSlot(0)
             {
@@ -79,14 +123,15 @@ internal static class ProjectileTrailCoordinatesVerification
             };
             spawn(shot);
             var actual = system.TrailSlots[SamusProjectileSystem.TrailSlotCount - 1];
-            if (!TrailSpawnResolves(type, y))
+            if (!TrailSpawnDraws(type, lists, offsets, y))
             {
-                AssertTrue(actual.Left.InstructionTimer.IsZero, $"type ${type:X4}'s empty trail family draws no trail");
+                AssertTrue(actual.Left.InstructionTimer.IsZero, $"type ${type:X4} direction {direction} frame {frame} draws no trail");
                 cases++;
                 continue;
             }
-            AssertEqual(expected, new ProjectileTrailCoordinatesExpected(actual.Left.Position.X, actual.Left.Position.Y, actual.Right.Position.X, actual.Right.Position.Y), "Real trail spawn matches four native signed positions at coordinate wrap boundaries");
-            AssertEqual(1, actual.Left.InstructionTimer.RawValue, "Compiled coordinates retain spawn timing");
+            AssertEqual(NativeSpawn(bus, origin, y), new ProjectileTrailCoordinatesExpected(actual.Left.Position.X, actual.Left.Position.Y, actual.Right.Position.X, actual.Right.Position.Y),
+                "Real trail spawn matches four native high-byte operand reads");
+            AssertEqual(1, actual.Left.InstructionTimer.RawValue, "Trail placements retain spawn timing");
             cases++;
         }
         // $90:BE17 reflects a projectile onto the start of its new direction's list. A trail
@@ -98,58 +143,63 @@ internal static class ProjectileTrailCoordinatesVerification
             ushort data = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), dataTable + index * 2);
             ushort listStart = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0x930000 | unchecked((ushort)(data + 2 + direction * 2)));
             ushort frame = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0x930000 | unchecked((ushort)(listStart - 2)));
-            int family = (type & 0x20) != 0 ? 0x9ba4e3 : (type & 0x10) != 0 ? 0x9ba4cb : 0x9ba4b3;
-            ushort directions = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), family + (type & 15) * 2);
-            // An empty SBA family indexes bank-$9B WRAM; that live read is covered above.
-            if (directions < 0x8000) continue;
-            ushort offsets = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0x9b0000 | unchecked((ushort)(directions + direction * 2)));
-            ushort y = unchecked((ushort)(offsets + frame * 4));
-            byte Read(ushort operand, ushort index) => SnesLittleEndian.HighByte(ReadNativeTrailOperandWord(bus, operand, index));
-            ushort Position(byte offset) => unchecked((ushort)(0x0100 + (sbyte)offset - 4));
+            // An empty special beam attack row's direction table lies in direct-page scratch: no list, no trail.
+            ushort? offsets = FamilyIsCartridge(bus, type) ? DirectionList(bus, type, direction) : null;
+            ushort y = unchecked((ushort)((offsets ?? 0) + frame * 4));
             system.Reset();
             var shot = new SamusProjectileSlot(0)
             {
                 Type = type, Direction = direction, Cursor = SamusProjectileProgramAddresses.CursorAt(listStart), Position = new(new(0x0100, 0), new(0x0100, 0)),
             };
-            ProjectileTrailCoordinatesExpected expected;
-            try { expected = new ProjectileTrailCoordinatesExpected(Position(Read(0, unchecked((ushort)(y - 1)))), Position(Read(0, y)), Position(Read(1, y)), Position(Read(2, y))); }
-            catch (InvalidOperationException)
-            {
-                // Hardware the native reference does not model must fail in production too.
-                spawn(shot);
-                AssertTrue(system.TrailSlots[SamusProjectileSystem.TrailSlotCount - 1].Left.InstructionTimer.IsZero,
-                    $"reflected type ${type:X4} direction {direction} reaches uncompiled coordinates and draws no trail");
-                cases++;
-                continue;
-            }
             spawn(shot);
             var actual = system.TrailSlots[SamusProjectileSystem.TrailSlotCount - 1];
-            if (!TrailSpawnResolves(type, y))
+            if (offsets is not { } list || !TrailSpawnDraws(type, lists, list, y))
             {
-                AssertTrue(actual.Left.InstructionTimer.IsZero, $"reflected type ${type:X4}'s empty trail family draws no trail");
+                AssertTrue(actual.Left.InstructionTimer.IsZero, $"reflected type ${type:X4} direction {direction} draws no trail");
                 cases++;
                 continue;
             }
-            AssertEqual(expected, new ProjectileTrailCoordinatesExpected(actual.Left.Position.X, actual.Left.Position.Y, actual.Right.Position.X, actual.Right.Position.Y),
+            AssertEqual(NativeSpawn(bus, 0x0100, y), new ProjectileTrailCoordinatesExpected(actual.Left.Position.X, actual.Left.Position.Y, actual.Right.Position.X, actual.Right.Position.Y),
                 $"reflected type ${type:X4} direction {direction} trail reads the word before its list start");
             cases++;
         }
-        Console.WriteLine($"Trail spawn: {cases} beam/charged/SBA/missile direction/frame/origin and reflected list-start cases preserve all four native positions without coordinate ROM reads.");
+        Console.WriteLine($"Trail spawn: {cases} beam/charged/SBA/missile direction/frame/origin and reflected list-start cases preserve all four native positions.");
+    }
+
+    /// <summary>The bank-$9B selector table <paramref name="type"/> reads its family from.</summary>
+    private static int SelectorTable(ushort type) => (type & 0x20) != 0 ? 0x9ba4e3 : (type & 0x10) != 0 ? 0x9ba4cb : 0x9ba4b3;
+
+    /// <summary>Whether <paramref name="type"/>'s selector row names a direction table in the cartridge half of bank $9B.</summary>
+    [CpuBusBoundary("exact bus test: retail ROM oracle for a trail selector row")]
+    private static bool FamilyIsCartridge(ISnesAddressSpace bus, ushort type) =>
+        RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), SelectorTable(type) + (type & 15) * 2) >= CartridgeHalfStart;
+
+    /// <summary>The bank-$9B list <paramref name="type"/>'s selector row and direction entry name.</summary>
+    [CpuBusBoundary("exact bus test: retail ROM oracle for trail family and direction pointer tables")]
+    private static ushort DirectionList(ISnesAddressSpace bus, ushort type, ushort direction)
+    {
+        ushort directions = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), SelectorTable(type) + (type & 15) * 2);
+        return RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), 0x9b0000 | unchecked((ushort)(directions + direction * 2)));
+    }
+
+    /// <summary>The four positions native draws a trail at from the record at bank-$9B offset <paramref name="y"/>.</summary>
+    private static ProjectileTrailCoordinatesExpected NativeSpawn(ISnesAddressSpace bus, ushort origin, ushort y)
+    {
+        byte Read(ushort operand, ushort index) => SnesLittleEndian.HighByte(ReadNativeTrailOperandWord(bus, operand, index));
+        ushort Position(byte offset) => unchecked((ushort)(origin + (sbyte)offset - 4));
+        return new ProjectileTrailCoordinatesExpected(Position(Read(0, unchecked((ushort)(y - 1)))), Position(Read(0, y)), Position(Read(1, y)), Position(Read(2, y)));
     }
 
     /// <summary>
-    /// Whether a trail for <paramref name="type"/> resolves from compiled data: both programs and the four coordinate
-    /// words at <paramref name="y"/>. An empty or glitch family draws no trail instead (#1318).
+    /// Whether a trail for <paramref name="type"/> draws from the record at <paramref name="y"/>: both programs are
+    /// selected, the direction entry names a placement list, and the record lies in the cartridge. A read into
+    /// direct-page scratch draws no trail instead (#1318).
     /// </summary>
-    private static bool TrailSpawnResolves(ushort type, ushort y) =>
-        TrailProgramsCompiled(type) &&
-        ProjectileTrailCoordinateDefinitions.TryReadCoordinateWord(0, unchecked((ushort)(y - 1)), InstalledFixtures.SamusOverreads, out _) &&
-        ProjectileTrailCoordinateDefinitions.TryReadCoordinateWord(0, y, InstalledFixtures.SamusOverreads, out _) &&
-        ProjectileTrailCoordinateDefinitions.TryReadCoordinateWord(1, y, InstalledFixtures.SamusOverreads, out _) &&
-        ProjectileTrailCoordinateDefinitions.TryReadCoordinateWord(2, y, InstalledFixtures.SamusOverreads, out _);
+    private static bool TrailSpawnDraws(ushort type, Dictionary<ushort, ProjectileTrailPlacementList> lists, ushort list, ushort y) =>
+        TrailProgramsSelected(type) && lists.ContainsKey(list) && RecordIsCartridge(y);
 
-    /// <summary>Whether both trail programs <paramref name="type"/> selects are compiled.</summary>
-    private static bool TrailProgramsCompiled(ushort type)
+    /// <summary>Whether <paramref name="type"/> selects both trail programs.</summary>
+    private static bool TrailProgramsSelected(ushort type)
     {
         int family = SnesLittleEndian.HighByte(type);
         int index = family == 0 ? type & 63 : family + 31;
@@ -170,8 +220,8 @@ internal static class ProjectileTrailCoordinatesVerification
         yield return new ReflectableTrailTypesResult(0x0200, 0x9383f1, 2);
     }
 
-    /// <summary>Reads a native trail pointer or coordinate word for the cartridge-side oracle.</summary>
-    [CpuBusBoundary("exact bus test: retail ROM oracle for compiled trail pointer and coordinate words")]
+    /// <summary>Reads a native trail table word for the cartridge-side oracle.</summary>
+    [CpuBusBoundary("exact bus test: retail ROM oracle for trail selector and direction words")]
     private static ushort ReadRetailTrailWord(ISnesAddressSpace bus, int address) =>
         RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address);
 
@@ -220,7 +270,7 @@ internal static class ProjectileTrailCoordinatesVerification
         return SnesLittleEndian.Word(low, high);
     }
 
-    /// <summary>Runs the trail-coordinate CPU operand comparison against the local retail cartridge.</summary>
+    /// <summary>Runs the trail-coordinate comparison against the local retail cartridge.</summary>
     [VerificationCommand("--projectile-trail-coordinates")]
     internal static int ProjectileTrailCoordinatesCommand()
     {

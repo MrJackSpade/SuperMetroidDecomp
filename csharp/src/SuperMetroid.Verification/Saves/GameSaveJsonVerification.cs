@@ -6,7 +6,6 @@ using static SuperMetroid.Verification.Harness.RetailPresentationFixtureVerifica
 using SuperMetroid.Core.Frontend.FileSelect;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Samus;
-using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Saves;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;

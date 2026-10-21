@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Poses;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Rooms;
@@ -27,7 +28,7 @@ internal static class DraygonDefeatedRoomVerification
         AssertTrue(runtime.Enemies.DraygonBehavior.Parts.Draygon is null, "cannon processing must not recreate defeated boss");
         Console.WriteLine("Defeated Draygon room: pre-destroyed cannon and 121 gameplay frames pass without boss actor.");
         runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.SpaceJump);
-        runtime.Room.LoadedLevelData.ResolveDoorCollision(0, runtime.Player.IntroducedSamus.Pose);
+        runtime.Room.LoadedLevelData.ResolveDoorCollision(0, runtime.Player.IntroducedSamus.Pose.ForRoomCollision());
         var transition = new DoorTransitionState();
         var audio = new CartridgeAudioState();
         transition.Begin(runtime);

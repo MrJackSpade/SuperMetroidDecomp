@@ -1,6 +1,5 @@
 ﻿using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Projectiles;
 
 namespace SuperMetroid.Core.Rooms.Plms;
@@ -202,7 +201,7 @@ internal sealed class GatePlms : IPlmFamilySource
     /// <summary>Tests Samus's block position against the resident gate's five-cell vertical column.</summary>
     private bool IsSamusInsideDownwardGateColumn(PlmSlot slot)
     {
-        SamusState? samus = _samus?.Current;
+        IRoomSamus? samus = _samus?.Current;
         if (samus is null)
             return false;
         if (_level is not { Size.X: > 0 } level)

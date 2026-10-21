@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Progression;
+
 namespace SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>Decoding and component predicates for <see cref="SamusBeamCombination"/>.</summary>

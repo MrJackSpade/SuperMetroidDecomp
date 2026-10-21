@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Progression;
+
 namespace SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>A lossless view over one native projectile type/family word.</summary>
@@ -66,7 +68,7 @@ public readonly record struct SamusProjectileTypeWord(ushort Raw)
     /// keeps only known beam equipment bits before installing the native charged/live
     /// markers; uncharged firing preserves the complete loadout word as the ROM does.
     /// </summary>
-    public static ushort CreateBeam(SuperMetroid.Core.Samus.Projectiles.SamusBeamFlags equippedBeams, bool charged) => charged
+    public static ushort CreateBeam(SuperMetroid.Core.Progression.SamusBeamFlags equippedBeams, bool charged) => charged
         ? (ushort)((equippedBeams & EquippedBeamBits).ToNativeWord() | LiveMarker | ChargedBeamMarker)
         : (ushort)(equippedBeams.ToNativeWord() | LiveMarker);
 

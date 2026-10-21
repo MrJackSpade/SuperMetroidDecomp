@@ -15,6 +15,7 @@ namespace SuperMetroid.Verification.Enemies.YappingMaws;
 
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Progression;
 
 /// <summary>Checks the reported Yapping Maw release timing through production grapple and enemy updates.</summary>
 internal static class YappingMawGrappleReleaseVerification

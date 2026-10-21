@@ -11,6 +11,7 @@ using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Poses;
+using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Verification.Enemies.Spike;
 
 /// <summary>Checks the spike-induced Shinespark suit timing window and Reserve freeze behavior.</summary>

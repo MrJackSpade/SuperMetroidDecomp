@@ -1,5 +1,6 @@
 ﻿using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Grapple;
+using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;
 

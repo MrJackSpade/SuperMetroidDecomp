@@ -6,6 +6,7 @@ using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Samus.Artwork;
+using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Samus.Abilities;
 
@@ -737,7 +738,7 @@ false);
     /// Runs palette handler one or six from <c>$91:D6F7</c>, including normal restoration
     /// when its signed countdown expires.
     /// </summary>
-    public bool UpdatePalette(IPaletteColors cgram, SuperMetroid.Core.Samus.SamusEquipmentFlags equippedItems,
+    public bool UpdatePalette(IPaletteColors cgram, SuperMetroid.Core.Progression.SamusEquipmentFlags equippedItems,
         SamusSuitColorCatalog? suitColors = null,
         SamusFullBodyCycleColorCatalog? cycleColors = null)
     {

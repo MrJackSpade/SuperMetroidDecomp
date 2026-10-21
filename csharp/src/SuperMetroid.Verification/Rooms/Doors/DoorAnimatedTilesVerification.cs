@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Runtime;
 using static SuperMetroid.Verification.Harness.RetailGameFixtureVerification;
@@ -41,9 +42,9 @@ internal static class DoorAnimatedTilesVerification
         {
             var block = level.GetCollisionBlock(new(checked((ushort)x), checked((ushort)y)));
             if (block.CollisionType != RoomCollisionType.DoorBlock) continue;
-            CartridgeDoorHeader? door = level.ResolveDoorCollision(block.Bts.Value, samus.Pose, false).Door;
+            CartridgeDoorHeader? door = level.ResolveDoorCollision(block.Bts.Value, samus.Pose.ForRoomCollision(), false).Door;
             if (door?.DestinationRoom == RoomHeaderDefinitions.Statues)
-                entry = level.ResolveDoorCollision(block.Bts.Value, samus.Pose, true).Door;
+                entry = level.ResolveDoorCollision(block.Bts.Value, samus.Pose.ForRoomCollision(), true).Door;
         }
         AssertTrue(entry is not null, "the Tourian entrance has a door into the statue room");
 

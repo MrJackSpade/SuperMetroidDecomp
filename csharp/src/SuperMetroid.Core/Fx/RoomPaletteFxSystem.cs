@@ -64,7 +64,7 @@ public sealed class RoomPaletteFxSystem
     /// </summary>
     public void SpawnDefinition(
         PaletteFxObject definition,
-        SuperMetroid.Core.Samus.SamusEquipmentFlags equippedItems,
+        SuperMetroid.Core.Progression.SamusEquipmentFlags equippedItems,
         bool areaMiniBossDefeated = false)
     {
         Spawn(definition, equippedItems, areaMiniBossDefeated);
@@ -90,7 +90,7 @@ public sealed class RoomPaletteFxSystem
         RoomFxDefinition? fx,
         CartridgeDoorHeader? door,
         AreaId area,
-        SuperMetroid.Core.Samus.SamusEquipmentFlags equippedItems,
+        SuperMetroid.Core.Progression.SamusEquipmentFlags equippedItems,
         bool areaMiniBossDefeated) =>
         ForRecord(session, fx, door, area, equippedItems, areaMiniBossDefeated, null);
 
@@ -103,7 +103,7 @@ public sealed class RoomPaletteFxSystem
     /// <param name="areaMiniBossDefeated">Whether the area's mini-boss is dead.</param>
     /// <param name="suppliedDefinition">A record to use instead of the door's selection.</param>
     internal static RoomPaletteFxSystem ForRecord(PaletteFxSessionState session, RoomFxDefinition? fx, CartridgeDoorHeader? door,
-        AreaId area, SuperMetroid.Core.Samus.SamusEquipmentFlags equippedItems, bool areaMiniBossDefeated,
+        AreaId area, SuperMetroid.Core.Progression.SamusEquipmentFlags equippedItems, bool areaMiniBossDefeated,
         RoomFxRecordDefinition? suppliedDefinition)
     {
         var system = new RoomPaletteFxSystem(session);
@@ -113,7 +113,7 @@ public sealed class RoomPaletteFxSystem
 
     /// <summary>Spawns the selected or supplied FX record's area-specific palette bits.</summary>
     private void SpawnRecordObjects(RoomFxDefinition? fx, CartridgeDoorHeader? door,
-        AreaId area, SuperMetroid.Core.Samus.SamusEquipmentFlags equippedItems, bool areaMiniBossDefeated,
+        AreaId area, SuperMetroid.Core.Progression.SamusEquipmentFlags equippedItems, bool areaMiniBossDefeated,
         RoomFxRecordDefinition? suppliedDefinition)
     {
         if (suppliedDefinition is null && fx is null)
@@ -180,7 +180,7 @@ public sealed class RoomPaletteFxSystem
     /// <summary>Allocates the highest free native slot and applies definition-specific setup for Intro, Norfair, or Brinstar.</summary>
     private void Spawn(
         PaletteFxObject definition,
-        SuperMetroid.Core.Samus.SamusEquipmentFlags equippedItems,
+        SuperMetroid.Core.Progression.SamusEquipmentFlags equippedItems,
         bool areaMiniBossDefeated)
     {
         // Spawn_PaletteFXObject searches byte offsets 14,12,...,0, which is slot order
@@ -310,7 +310,7 @@ public sealed class RoomPaletteFxSystem
     /// </summary>
     private void RunHeatPreInstruction(
         PaletteFxSlot slot,
-        SuperMetroid.Core.Samus.SamusEquipmentFlags equippedItems,
+        SuperMetroid.Core.Progression.SamusEquipmentFlags equippedItems,
         SamusState? samus,
         int nmiFrameCounter)
     {

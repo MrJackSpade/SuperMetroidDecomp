@@ -12,6 +12,7 @@ namespace SuperMetroid.Verification.Samus.Grapple;
 
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Progression;
 
 /// <summary>Checks Fire input consumed during the spin-to-grapple pose handoff.</summary>
 internal static class GrappleSpinVerification

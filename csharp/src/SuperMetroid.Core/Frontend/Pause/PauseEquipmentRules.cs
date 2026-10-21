@@ -1,5 +1,4 @@
-using SuperMetroid.Core.Samus;
-using SuperMetroid.Core.Samus.Projectiles;
+using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Frontend.Pause;
 
@@ -42,7 +41,7 @@ internal static class PauseEquipmentRules
     /// searches [neither, Hi-Jump, Varia, both]. Pack Hi-Jump into result bit0 and
     /// Varia into bit1. All65536 input words are supported; every other bit, including
     /// Gravity, is ignored. The resulting0..3 ordinal selects the matching wireframe kind.</summary>
-    public static int WireframeIndex(SuperMetroid.Core.Samus.SamusEquipmentFlags equippedItems) =>
+    public static int WireframeIndex(SuperMetroid.Core.Progression.SamusEquipmentFlags equippedItems) =>
         (equippedItems.HasAny(SamusEquipmentFlags.HiJumpBoots) ? 1 : 0) |
         (equippedItems.HasAny(SamusEquipmentFlags.VariaSuit) ? 2 : 0);
 }

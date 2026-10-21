@@ -6,6 +6,7 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Poses;
+using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.TestSupport.ScenarioFixtures;
 

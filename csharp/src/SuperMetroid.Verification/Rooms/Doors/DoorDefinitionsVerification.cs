@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using static SuperMetroid.Verification.Rooms.Doors.LookupRetailDoorHeadersVerification;
@@ -32,7 +33,7 @@ internal static class DoorDefinitionsVerification
         IReadOnlyList<DoorListEntry> landingDoors = RoomDoorListDefinitions.ByRoom[RoomHeaderDefinitions.LandingSite];
         var level = new RoomLevelData(new Extent16<RoomBlocks>(1, 1), new RoomLevelPlanes([0], [0], [0]), [], doors: landingDoors);
         CartridgeDoorHeader resolved = (level.ResolveDoorCollision(
-            behavior: 0, samusPose: 0).Door ?? throw new InvalidOperationException("Verification requires level.ResolveDoorCollision( NewDoorNoReadAddressSpace(), behavior: 0, samusPose: 0).Door."));
+            behavior: 0, samusPose: ((SamusPoseId)(0)).ForRoomCollision()).Door ?? throw new InvalidOperationException("Verification requires level.ResolveDoorCollision( NewDoorNoReadAddressSpace(), behavior: 0.ForRoomCollision(), samusPose: 0).Door."));
         AssertEqual(landingDoors[0].Door, resolved,
             "production collision resolves compiled BTS index without a bus read");
         AssertEqual(resolved, level.PendingDoorTransition,

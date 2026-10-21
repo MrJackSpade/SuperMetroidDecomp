@@ -1,6 +1,4 @@
-using SuperMetroid.Core.Samus.Projectiles;
-
-namespace SuperMetroid.Core.Samus;
+namespace SuperMetroid.Core.Progression;
 
 /// <summary>
 /// The codec between Samus's typed equipment and beam flags and the 16-bit item and beam words the save RAM layout,

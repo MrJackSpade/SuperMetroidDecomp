@@ -8,6 +8,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 namespace SuperMetroid.Verification.Samus.Palettes;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Progression;
 
 /// <summary>Checks normal suit pointer selection and live palette restoration against retail colors.</summary>
 internal static class NormalSuitPalettePointersVerification

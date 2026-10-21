@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Poses;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Rooms;
@@ -44,7 +45,7 @@ internal static class DoorSoundsDuringPowerBombVerification
         {
             var block = level.GetCollisionBlock(new(checked((ushort)x), checked((ushort)y)));
             if (block.CollisionType != RoomCollisionType.DoorBlock) continue;
-            level.ResolveDoorCollision(block.Bts.Value, runtime.Player.IntroducedSamus.Pose, true);
+            level.ResolveDoorCollision(block.Bts.Value, runtime.Player.IntroducedSamus.Pose.ForRoomCollision(), true);
             selected = true;
         }
         AssertTrue(selected, "Landing Site has an exit");

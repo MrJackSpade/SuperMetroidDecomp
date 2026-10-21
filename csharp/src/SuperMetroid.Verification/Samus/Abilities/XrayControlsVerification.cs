@@ -13,6 +13,7 @@ using SuperMetroid.Core.Samus.Projectiles;
 namespace SuperMetroid.Verification.Samus.Abilities;
 
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Progression;
 
 /// <summary>Checks selected X-ray scope input against beam firing and frozen projectile updates.</summary>
 internal static class XrayControlsVerification

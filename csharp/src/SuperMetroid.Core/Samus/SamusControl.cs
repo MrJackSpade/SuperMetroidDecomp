@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rooms;
 namespace SuperMetroid.Core.Samus;
 
 /// <summary>
@@ -5,7 +6,7 @@ namespace SuperMetroid.Core.Samus;
 /// ($90:F084) and the direct handler installs elsewhere. Every change to who controls Samus goes through one of these
 /// operations; gates read <see cref="Mode"/>.
 /// </summary>
-internal sealed class SamusControl
+internal sealed class SamusControl : IRoomSamusControl
 {
     /// <summary>The installed alpha and beta handlers.</summary>
     public SamusControlMode Mode { get; private set; } = SamusControlMode.Normal;

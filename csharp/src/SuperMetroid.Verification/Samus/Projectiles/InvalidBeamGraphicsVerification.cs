@@ -8,6 +8,7 @@ using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Samus.Projectiles;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Progression;
 
 /// <summary>Checks Chainsaw beam DMA and glitched palette reads against native cartridge behavior.</summary>
 internal static class InvalidBeamGraphicsVerification

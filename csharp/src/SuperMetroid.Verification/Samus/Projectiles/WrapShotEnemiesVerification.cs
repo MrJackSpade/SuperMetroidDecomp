@@ -15,6 +15,7 @@ using SuperMetroid.Core.Samus.Projectiles;
 namespace SuperMetroid.Verification.Samus.Projectiles;
 
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Progression;
 
 /// <summary>Checks that a wrapping tile shot does not redirect its enemy collision to a remote block alias.</summary>
 internal static class WrapShotEnemiesVerification

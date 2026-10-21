@@ -11,9 +11,8 @@ using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Saves;
 using SuperMetroid.Core.Runtime.Attract;
 namespace SuperMetroid.Verification.Runtime.Attract;
+
 using SuperMetroid.Verification.Harness;
-using SuperMetroid.Core.Samus;
-using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Progression;

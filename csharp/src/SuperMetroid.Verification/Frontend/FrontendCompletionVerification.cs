@@ -13,9 +13,10 @@ using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Saves;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
 namespace SuperMetroid.Verification.Frontend;
+
 using SuperMetroid.Verification.Harness;
-using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.World;
+using SuperMetroid.Core.Progression;
 
 /// <summary>Checks options, door opening, reserve recovery, and ending handoffs in the playable frontend.</summary>
 internal static class FrontendCompletionVerification

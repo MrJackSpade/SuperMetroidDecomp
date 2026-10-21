@@ -2,6 +2,7 @@ using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus.Poses;
+using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Samus.Movement;
 

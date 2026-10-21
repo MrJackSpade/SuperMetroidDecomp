@@ -1,6 +1,7 @@
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Verification.Samus.Hud;
 

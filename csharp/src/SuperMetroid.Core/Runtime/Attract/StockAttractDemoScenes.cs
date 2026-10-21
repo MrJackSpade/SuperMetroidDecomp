@@ -1,10 +1,9 @@
 using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Poses;
-using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Saves;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rooms.Doors;
+using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Runtime.Attract;
 
@@ -569,7 +568,7 @@ public static class StockAttractDemoScenes
     /// $91:8899-89F9 equipped-beam selections for each demonstration. These choose composable
     /// native beam abilities; the selected per-scene loadouts belong to this recorded demonstration.
     /// </summary>
-    private static SuperMetroid.Core.Samus.Projectiles.SamusBeamFlags EquippedBeamsFor(Demonstration demonstration) => demonstration switch
+    private static SuperMetroid.Core.Progression.SamusBeamFlags EquippedBeamsFor(Demonstration demonstration) => demonstration switch
     {
         Demonstration.PreSporeSpawnHall or Demonstration.PseudoScrewAttack or Demonstration.BrinstarDiagonalRoom or Demonstration.LowerNorfairEntrance or Demonstration.Dachora or Demonstration.PrePhantoonHall or Demonstration.DiagonalShinespark or Demonstration.GauntletEntrance or Demonstration.CrystalFlash => SamusBeamFlags.Charge,
         Demonstration.GrappleBeam or Demonstration.IceBeam => (SamusBeamFlags.Ice | SamusBeamFlags.Spazer | SamusBeamFlags.Charge),
@@ -583,7 +582,7 @@ public static class StockAttractDemoScenes
     /// $91:888D-89FC: collected beams equal equipped beams in22 scenes. The diagonal-shinespark
     /// scene at $91:895D collects all beam types but equips only Charge.
     /// </summary>
-    private static SuperMetroid.Core.Samus.Projectiles.SamusBeamFlags CollectedBeamsFor(Demonstration demonstration) =>
+    private static SuperMetroid.Core.Progression.SamusBeamFlags CollectedBeamsFor(Demonstration demonstration) =>
         demonstration == Demonstration.DiagonalShinespark
             ? (SamusBeamFlags.Charge | SamusBeamFlags.Wave | SamusBeamFlags.Ice | SamusBeamFlags.Spazer | SamusBeamFlags.Plasma)
             : EquippedBeamsFor(demonstration);

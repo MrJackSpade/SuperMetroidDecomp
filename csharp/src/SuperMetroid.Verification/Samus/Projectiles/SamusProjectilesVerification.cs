@@ -108,7 +108,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     SamusProjectileSystem.LoadBeamPalette(beamCgram, equippedBeams: 0, beamPalettes);
     ReadOnlySpan<byte> beamPage = new ProjectileObjectPages(SpriteFrameTestArtwork.StandardObjects, beamArtwork,
         InstalledFixtures.Projectiles.Trails.Tiles ?? throw new InvalidOperationException("The installation has no trail characters."))
-        .For(SuperMetroid.Core.Samus.Projectiles.SamusBeamFlags.None).Characters;
+        .For(SuperMetroid.Core.Progression.SamusBeamFlags.None).Characters;
     int beamFirstByte = ProjectileObjectPageDefinitions.BeamFirstCharacter * SpriteArtwork.CharacterByteCount;
     AssertEqual(0x5a, beamPage[beamFirstByte],
         "power beam characters begin at the page character of VRAM word $6300");

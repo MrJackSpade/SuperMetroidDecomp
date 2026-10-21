@@ -7,7 +7,7 @@ using SuperMetroid.Core.Bosses.Kraid;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Movement;
-using SuperMetroid.Core.Samus.Projectiles;
+using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Verification.Bosses.Kraid;
 

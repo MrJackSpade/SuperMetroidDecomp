@@ -254,7 +254,7 @@ internal static class NativeSnapshotImportVerification
         runtime.RoomLayer3Fx.TideFixedOffset = unchecked((int)(SnesSixteenSixteen.Compose(W(NativeSnapshotMemory.TideOffset), W(NativeSnapshotMemory.TideOffsetFraction))));
         runtime.RoomLayer3Fx.BaseY = runtime.RoomLayer3Fx.BaseY.WithFraction(W(NativeSnapshotMemory.LiquidBaseFraction));
         runtime.RoomLayer3Fx.Surface = new(0, W(NativeSnapshotMemory.AcidSurface));
-        runtime.RoomLayer3Fx.ApplyToSamusLiquidPhysics(samus.LiquidPhysics);
+        samus.LiquidPhysics.ConfigureFor(runtime.RoomLayer3Fx);
         var pipeBugPointers = new PipeBugNativeInstructionPointers(SuperMetroid.AssetExtraction.Cartridge.CartridgeImportSource.Require(bus));
         var kraidHeadCursors = new SuperMetroid.Verification.Bosses.Kraid.KraidHeadNativeCursors(SuperMetroid.AssetExtraction.Cartridge.CartridgeImportSource.Require(bus));
         // EnemyData +$0E onward; +$00 is the identity, +$02..+$08 the 16.16 position and

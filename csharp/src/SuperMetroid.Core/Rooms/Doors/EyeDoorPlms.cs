@@ -1,7 +1,6 @@
 ﻿using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.Plms;
-using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Projectiles;
 
 namespace SuperMetroid.Core.Rooms.Doors;
@@ -420,7 +419,7 @@ internal sealed class EyeDoorPlms : IPlmFamilySource
     /// <summary><c>$84:8D41</c>: whether Samus stands within <paramref name="reach"/> blocks across and up or down of the PLM.</summary>
     internal bool IsSamusNear(RoomLevelData level, PlmSlot slot, Extent16<RoomBlocks> reach)
     {
-        SamusState samus = _samus?.Current
+        IRoomSamus samus = _samus?.Current
             ?? throw new InvalidOperationException("Eye-door proximity requires Samus.");
         int plmX = slot.BlockIndex % level.Size.X;
         int plmY = slot.BlockIndex / level.Size.X;

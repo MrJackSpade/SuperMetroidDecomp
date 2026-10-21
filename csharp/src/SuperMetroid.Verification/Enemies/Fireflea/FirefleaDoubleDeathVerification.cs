@@ -4,12 +4,12 @@ using SuperMetroid.Core.Runtime;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Hud;
-using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Movement;
 namespace SuperMetroid.Verification.Enemies.Fireflea;
 
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Progression;
 
 /// <summary>Checks the second enemy death triggered by a killing Fireflea touch.</summary>
 internal static class FirefleaDoubleDeathVerification

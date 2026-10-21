@@ -190,7 +190,7 @@ public static class SamusBlockCollision
                         // clear and fall through to the ordinary solid clipping routine.
                         DoorListEntry horizontalDoor = terrain.Level.ResolveDoorCollision(
                             block.Bts.Value,
-                            state.CollisionPose,
+                            state.CollisionPose.ForRoomCollision(),
                             move.PublishDoorSideEffects);
                         if (horizontalDoor.IsElevatorPseudoDoor)
                         {
@@ -271,7 +271,7 @@ public static class SamusBlockCollision
                                 terrain.Level,
                                 block.Index,
                                 block.Bts,
-                                speedBoostingSamus))
+                                speedBoostingSamus.RoomView))
                         {
                             break;
                         }
@@ -284,7 +284,7 @@ public static class SamusBlockCollision
                              !terrain.Plms.Stations.TryNotifyStationCollision(
                                  block.Index,
                                  block.Bts,
-                                 state.CollisionPose,
+                                 state.CollisionPose.ForRoomCollision(),
                                  Axis.Horizontal,
                                  movingPositive: acceptedDisplacement > 0,
                                  roomWidthInBlocks: terrain.Level.Size.X)))
@@ -555,7 +555,7 @@ public static class SamusBlockCollision
                     // native door pointer for the frontend dispatcher to consume.
                     DoorListEntry verticalDoor = terrain.Level.ResolveDoorCollision(
                         block.Bts.Value,
-                        state.CollisionPose,
+                        state.CollisionPose.ForRoomCollision(),
                         move.PublishDoorSideEffects);
                     if (verticalDoor.IsElevatorPseudoDoor)
                     {
@@ -638,7 +638,7 @@ public static class SamusBlockCollision
                             terrain.Level,
                             block.Index,
                             block.Bts,
-                            speedBoostingSamus))
+                            speedBoostingSamus.RoomView))
                     {
                         break;
                     }
@@ -673,7 +673,7 @@ public static class SamusBlockCollision
                          !terrain.Plms.Stations.TryNotifyStationCollision(
                              block.Index,
                              block.Bts,
-                             state.CollisionPose,
+                             state.CollisionPose.ForRoomCollision(),
                              Axis.Vertical,
                              movingPositive: acceptedDisplacement > 0,
                              roomWidthInBlocks: terrain.Level.Size.X)))

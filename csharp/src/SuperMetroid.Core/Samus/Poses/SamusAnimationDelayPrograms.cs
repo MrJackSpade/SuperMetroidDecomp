@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Progression;
+
 namespace SuperMetroid.Core.Samus.Poses;
 
 /// <summary>The bank-$91 Samus animation programs at <c>$91:B20A-$B5D0</c>, in native address order.</summary>

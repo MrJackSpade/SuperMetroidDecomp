@@ -8,7 +8,6 @@ using static SuperMetroid.Verification.Harness.RetailPresentationFixtureVerifica
 using SuperMetroid.Core.Frontend.Pause;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Samus;
-using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Diagnostics.SaveStates;
 namespace SuperMetroid.Verification.Frontend.Pause;

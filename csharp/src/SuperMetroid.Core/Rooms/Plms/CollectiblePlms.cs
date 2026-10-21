@@ -2,9 +2,7 @@ using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Abilities;
-using SuperMetroid.Core.Samus.Projectiles;
 
 namespace SuperMetroid.Core.Rooms.Plms;
 
@@ -503,7 +501,7 @@ internal sealed class CollectiblePlms : IPlmFamilySource
     {
         CollectiblePlmState item = (slot.Family as CollectiblePlmState)
             ?? throw new InvalidOperationException("A non-item PLM attempted acquisition.");
-        SamusState samus = _samus?.Current
+        IRoomSamus samus = _samus?.Current
             ?? throw new InvalidOperationException(
                 "A live collectible was triggered before the room owned Samus state.");
         Bank80SystemState system = _system
@@ -557,7 +555,7 @@ internal sealed class CollectiblePlms : IPlmFamilySource
 
     /// <summary>Applies tank capacity, equipment, or beam ownership, including Spazer/Plasma exclusion.</summary>
     private static void ApplyCollectibleEffect(
-        SamusState samus,
+        IRoomSamus samus,
         InWorldCollectibleKind kind)
     {
         switch (kind)

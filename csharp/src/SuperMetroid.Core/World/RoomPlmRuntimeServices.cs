@@ -28,7 +28,7 @@ internal sealed class RoomPlmRuntimeServices(
         "A room PLM reached the room's enemies before the enemy step built them.");
 
     /// <summary>Reads the current player state each time a PLM asks, including after a room transition.</summary>
-    public SamusState? Current => player.Samus;
+    public IRoomSamus? Current => player.Samus?.RoomView;
 
     /// <summary>Reads the live Tourian entrance statue completion state.</summary>
     public bool IsFinished => Enemies.TourianStatue.Finished;

@@ -2,6 +2,7 @@
 using SuperMetroid.Core.Enemies.MorphBallEye.Artwork;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Enemies.MorphBallEye;
 

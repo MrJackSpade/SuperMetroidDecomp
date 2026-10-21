@@ -9,6 +9,7 @@ using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Samus.Hud;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Samus.Projectiles;
 
@@ -139,7 +140,7 @@ public sealed class SamusProjectileSystem
     /// </summary>
     public static void LoadBeamPalette(
         IPaletteColors cgram,
-        SuperMetroid.Core.Samus.Projectiles.SamusBeamFlags equippedBeams,
+        SuperMetroid.Core.Progression.SamusBeamFlags equippedBeams,
         SuperMetroid.Core.Samus.Artwork.BeamPaletteCatalog? palettes)
     {
         Ensure.NotNull(cgram);
@@ -150,7 +151,7 @@ public sealed class SamusProjectileSystem
     /// $90:AC8D/$90:ACCD index their tables by the equipped-beam word's low twelve bits; an
     /// index above $F (unknown bits 4-11 set) selects no beam combination.
     /// </summary>
-    private static SamusBeamCombination SelectedCombination(SuperMetroid.Core.Samus.Projectiles.SamusBeamFlags equippedBeams) =>
+    private static SamusBeamCombination SelectedCombination(SuperMetroid.Core.Progression.SamusBeamFlags equippedBeams) =>
         new SamusBeamLoadoutWord(equippedBeams).Combination ?? throw new ArgumentOutOfRangeException(
             nameof(equippedBeams), equippedBeams, "Equipped-beam index is outside the beam-combination tables.");
 

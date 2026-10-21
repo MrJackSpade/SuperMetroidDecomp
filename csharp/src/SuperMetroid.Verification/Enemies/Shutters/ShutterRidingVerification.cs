@@ -7,11 +7,11 @@ using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Shutters;
 using SuperMetroid.Core.Hud;
-using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Poses;
 namespace SuperMetroid.Verification.Enemies.Shutters;
 
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Progression;
 
 /// <summary>Checks that Morph Ball rides and rolls off both bomb-raised shutters in the retail room.</summary>
 internal static class ShutterRidingVerification

@@ -3,6 +3,7 @@ using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Samus.Projectiles;
 namespace SuperMetroid.Verification.Samus.Projectiles;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Progression;
 
 /// <summary>Checks that Plasma beams keep their type, damage, direction, and animation after enemy hits.</summary>
 internal static class PlasmaPenetrationVerification

@@ -9,6 +9,7 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rooms.SpriteObjects;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Enemies.Drawing;
+using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Bosses.Draygon;
 

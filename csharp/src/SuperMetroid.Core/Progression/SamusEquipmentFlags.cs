@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Samus;
+namespace SuperMetroid.Core.Progression;
 
 /// <summary>
 /// Independent item bits stored in Samus's native equipped-items word at WRAM

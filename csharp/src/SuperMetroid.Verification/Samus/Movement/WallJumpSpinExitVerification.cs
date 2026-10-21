@@ -4,12 +4,12 @@ using SuperMetroid.Core.Runtime;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Poses;
 namespace SuperMetroid.Verification.Samus.Movement;
 
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Progression;
 
 /// <summary>Checks how an input-free wall jump exits to spin art with and without Space Jump.</summary>
 internal static class WallJumpSpinExitVerification

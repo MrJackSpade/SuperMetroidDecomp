@@ -63,7 +63,7 @@ public static class SamusInsideBlockReactions
                 case SpecialAirReactionSetup.BrinstarFloorPlant:
                 case SpecialAirReactionSetup.BrinstarCeilingPlant:
                     (plms ?? throw new InvalidOperationException("Samus Eater reaction requires the room PLM owner."))
-                        .SamusEater.TrySpawnSamusEater(level, block, header, samus);
+                        .SamusEater.TrySpawnSamusEater(level, block, header, samus.RoomView);
                     break;
                 case SpecialAirReactionSetup.QuicksandSurface:
                     // Native setup cancels running momentum even for center/top samples,

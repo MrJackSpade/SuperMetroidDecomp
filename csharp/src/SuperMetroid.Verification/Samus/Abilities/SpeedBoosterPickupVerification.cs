@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Input;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Rooms.Plms.CollectiblesVerification;
@@ -6,12 +5,12 @@ using static SuperMetroid.Verification.Fx.RoomFxRetailInventoryVerification;
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Rooms.Plms;
-using SuperMetroid.Core.Samus;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core;
 namespace SuperMetroid.Verification.Samus.Abilities;
 
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Progression;
 
 /// <summary>Checks the Chozo Speed Booster message continuation that starts the room's lava rise.</summary>
 internal static class SpeedBoosterPickupVerification

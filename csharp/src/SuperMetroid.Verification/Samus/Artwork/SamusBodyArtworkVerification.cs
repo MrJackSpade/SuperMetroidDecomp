@@ -18,6 +18,7 @@ using SuperMetroid.AssetExtraction.Samus;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.TestSupport.VerificationImporters;
+using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Verification.Samus.Artwork;
 /// <summary>Checks installed Samus body, death, and arm-cannon artwork against retail selectors and rendering transfers.</summary>
 internal static class SamusBodyArtworkVerification

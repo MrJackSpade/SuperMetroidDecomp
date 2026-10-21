@@ -4,10 +4,9 @@ using SuperMetroid.Core.Programs;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Saves;
 using SuperMetroid.Core.Runtime.Attract;
-using SuperMetroid.Core.Samus;
-using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Core.Input;
+using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.TestSupport.VerificationImporters;
 

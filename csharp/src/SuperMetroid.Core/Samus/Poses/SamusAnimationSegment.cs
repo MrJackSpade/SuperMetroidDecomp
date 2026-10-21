@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Progression;
+
 namespace SuperMetroid.Core.Samus.Poses;
 
 /// <summary>One run of animation frame delays at its offset in the pose delay streams, ended by one control command.</summary>

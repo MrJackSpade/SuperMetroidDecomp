@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Progression;
+
 namespace SuperMetroid.Core.Samus.Poses;
 
 /// <summary>Where a Samus animation segment repeats or which poses it selects by equipment (#633).</summary>

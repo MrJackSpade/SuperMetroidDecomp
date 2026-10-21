@@ -7,5 +7,5 @@ namespace SuperMetroid.Verification.Harness;
 internal sealed class FixtureRoomSamus(Func<SamusState?> current) : IRoomSamusAccess
 {
     /// <summary>Reads the fixture's current Samus owner on demand.</summary>
-    public SamusState? Current => current();
+    public IRoomSamus? Current => current()?.RoomView;
 }

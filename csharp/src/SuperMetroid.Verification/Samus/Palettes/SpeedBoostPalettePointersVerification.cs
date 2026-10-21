@@ -7,6 +7,7 @@ using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Samus.Palettes;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Progression;
 
 /// <summary>Checks suit-dependent Speed Booster palette selection and its installed CGRAM colors.</summary>
 internal static class SpeedBoostPalettePointersVerification

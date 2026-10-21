@@ -13,6 +13,7 @@ namespace SuperMetroid.Verification.Rooms;
 
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Progression;
 
 /// <summary>Checks that both Nuclear Waffles visibly move after normal entry into Pillar Room.</summary>
 internal static class PillarFirstEntryVerification
@@ -36,7 +37,7 @@ internal static class PillarFirstEntryVerification
         {
             var block = level.GetCollisionBlock(new(checked((ushort)x), checked((ushort)y)));
             if (block.CollisionType != RoomCollisionType.DoorBlock) continue;
-            var door = level.ResolveDoorCollision(block.Bts.Value, SamusPoseId.FacingRightNormalPose, false);
+            var door = level.ResolveDoorCollision(block.Bts.Value, SamusPoseId.FacingRightNormalPose.ForRoomCollision(), false);
             if (door.Door?.DestinationRoom != destination) continue;
             doorX = x; doorY = y; behavior = block.Bts.Value;
             break;
@@ -54,7 +55,7 @@ internal static class PillarFirstEntryVerification
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         SamusPresentation.InitializeAnimation(samus);
         runtime.FrameBoundary.BeginAcceptedFrame(0);
-        runtime.Room.LoadedLevelData.ResolveDoorCollision(behavior, samus.Pose, true);
+        runtime.Room.LoadedLevelData.ResolveDoorCollision(behavior, samus.Pose.ForRoomCollision(), true);
         var transition = new DoorTransitionState();
         var audio = new CartridgeAudioState();
         transition.Begin(runtime);

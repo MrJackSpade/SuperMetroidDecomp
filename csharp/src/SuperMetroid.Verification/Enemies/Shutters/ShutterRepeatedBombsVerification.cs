@@ -4,11 +4,11 @@ using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Input;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
 using SuperMetroid.Core.Hud;
-using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Poses;
 namespace SuperMetroid.Verification.Enemies.Shutters;
 
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Progression;
 
 /// <summary>Reports observed Samus/platform overlap in the Brinstar shutter room under repeated bombs.</summary>
 internal static class ShutterRepeatedBombsVerification

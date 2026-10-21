@@ -8,6 +8,7 @@ using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Poses;
+using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Verification.Enemies.Spike;
 
 /// <summary>Checks Samus's spike knockback release, residual speed, and landing transitions.</summary>

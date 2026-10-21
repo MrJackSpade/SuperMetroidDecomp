@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Rooms.Plms;
-using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Rooms.Doors;
 

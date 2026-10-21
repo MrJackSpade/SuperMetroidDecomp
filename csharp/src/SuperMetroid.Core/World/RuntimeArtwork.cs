@@ -367,13 +367,13 @@ internal sealed class RuntimeArtwork : IVramAssetProvider, IInstalledArtworkTran
     /// projectile pages show this beam's characters until the next update, even when code changes the equipment in
     /// between: the Golden Torizo code grants beams during room initialization, after the entering beam was loaded.
     /// </summary>
-    public SuperMetroid.Core.Samus.Projectiles.SamusBeamFlags LoadedBeams { get; private set; }
+    public SuperMetroid.Core.Progression.SamusBeamFlags LoadedBeams { get; private set; }
 
     /// <summary>
     /// Ports <c>Update_Beam_Tiles_and_Palette</c> at $90:AC8D: latches the beam whose characters the projectile pages
     /// show and loads its palette.
     /// </summary>
-    internal void UpdateBeamTilesAndPalette(IPaletteColors cgram, SuperMetroid.Core.Samus.Projectiles.SamusBeamFlags equippedBeams)
+    internal void UpdateBeamTilesAndPalette(IPaletteColors cgram, SuperMetroid.Core.Progression.SamusBeamFlags equippedBeams)
     {
         LoadedBeams = equippedBeams;
         SuperMetroid.Core.Samus.Projectiles.SamusProjectileSystem.LoadBeamPalette(cgram, equippedBeams, BeamArtwork?.Palettes);

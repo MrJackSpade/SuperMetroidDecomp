@@ -73,6 +73,7 @@ using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.World;
 using SuperMetroid.Core.Escape.Artwork;
 using SuperMetroid.Core.Map;
+using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Verification.Harness;
 
 /// <summary>Compares stream-four imported definitions and runtime consumers with pinned cartridge data.</summary>

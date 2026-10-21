@@ -1,7 +1,6 @@
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Progression;
-using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Fx.Artwork;
 using SuperMetroid.Core.Rooms;
@@ -426,44 +425,6 @@ public sealed class RoomLayer3FxState
         }
         : null;
 
-    /// <summary>
-    /// Publishes the selected room FX into Samus's native liquid words. Room rendering and
-    /// movement therefore consume one cartridge-owned surface instead of independently
-    /// configured debug values.
-    /// </summary>
-    public void ApplyToSamusLiquidPhysics(SamusLiquidPhysicsState liquid)
-    {
-        Ensure.NotNull(liquid);
-        switch (Type)
-        {
-            case RoomFxType.Water:
-            case RoomFxType.TourianEntranceStatue:
-                liquid.ConfigureWater(Surface.Y, LiquidOptions, Type);
-                return;
-            case RoomFxType.Lava:
-                liquid.ConfigureLavaAcid(Surface.Y);
-                return;
-            case RoomFxType.Acid:
-                liquid.ConfigureLavaAcid(Surface.Y, RoomFxType.Acid);
-                return;
-            case RoomFxType.None:
-            case RoomFxType.Spores:
-            case RoomFxType.Rain:
-            case RoomFxType.Fog:
-            case RoomFxType.ScrollingSky:
-            case RoomFxType.UnusedScrollingSky:
-            case RoomFxType.Fireflea:
-            case RoomFxType.CeresRidley:
-            case RoomFxType.CeresElevator:
-            case RoomFxType.CeresHaze:
-                // Non-liquid FX still own $196E. Preserve that identity for atmospheric
-                // effects while restoring both liquid positions to their negative sentinel.
-                liquid.ConfigureNonLiquidRoomFx(Type);
-                return;
-            default:
-                throw new InvalidOperationException($"Undefined RoomFxType {Type}.");
-        }
-    }
 
     /// <summary>
     /// Applies shared liquid WRAM writes made by room PLMs and enemy instructions. These are

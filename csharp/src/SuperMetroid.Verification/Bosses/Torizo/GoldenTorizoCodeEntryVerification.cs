@@ -4,7 +4,6 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 using static SuperMetroid.Verification.Frontend.FrontendRomFreeVerification;
 using SuperMetroid.Core.Bosses.Torizo;
-using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core;
 using SuperMetroid.TestSupport.RepositoryInstallation;
 namespace SuperMetroid.Verification.Bosses.Torizo;

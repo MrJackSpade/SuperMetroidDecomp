@@ -591,7 +591,7 @@ internal sealed class SuperMetroidRuntime
             }
             if (Player.Samus is not null && Room.LoadedScope.Layer3Fx.Type is
                     RoomFxType.Water or RoomFxType.TourianEntranceStatue or RoomFxType.Lava or RoomFxType.Acid)
-                Room.LoadedScope.Layer3Fx.ApplyToSamusLiquidPhysics(Player.Samus.LiquidPhysics);
+                Player.Samus.LiquidPhysics.ConfigureFor(Room.LoadedScope.Layer3Fx);
         }
     }
 

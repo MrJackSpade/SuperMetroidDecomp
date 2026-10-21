@@ -1,7 +1,6 @@
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Enemies.MorphBallEye;
-using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Gameplay;
 namespace SuperMetroid.DebugRunner.Tools;
 using SuperMetroid.Diagnostics.Android;

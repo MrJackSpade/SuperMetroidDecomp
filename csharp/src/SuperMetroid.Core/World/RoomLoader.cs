@@ -910,7 +910,7 @@ internal sealed class RoomLoader
         scope.TreadmillTiles = new RoomTreadmillAnimatedTilesState(room.State.Fx, door,
             room.AreaIndex);
         if (_player.Samus is not null)
-            roomLayer3Fx.ApplyToSamusLiquidPhysics(_player.Samus.LiquidPhysics);
+            _player.Samus.LiquidPhysics.ConfigureFor(roomLayer3Fx);
 
         // `$82:E4A9` calls LoadFXHeader after room setup and before enemies. Its selected
         // sixteen-byte record owns two independent object bitsets. The bank-$8D half must

@@ -14,6 +14,7 @@ namespace SuperMetroid.Verification.Samus.Projectiles;
 
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.Progression;
 
 /// <summary>Checks remote blue-door caps hit by wrapped shots in three retail rooms.</summary>
 internal static class WrapShotRoomsVerification

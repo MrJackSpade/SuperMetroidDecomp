@@ -1,7 +1,5 @@
 ﻿using SuperMetroid.Core.Enemies.Animals;
 using SuperMetroid.Core.Rooms.Plms;
-using SuperMetroid.Core.Samus;
-using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Progression;
 
@@ -149,7 +147,7 @@ internal sealed class BlockReactionPlms
         RoomLevelData level,
         int blockIndex,
         RoomBlockBehavior bts,
-        SamusState samus)
+        IRoomSamus samus)
     {
         Ensure.NotNull(level);
         Ensure.NotNull(samus);
@@ -168,9 +166,8 @@ internal sealed class BlockReactionPlms
         if (_slotTable.IsFull)
             return true;
 
-        bool activeSpeedBooster = samus.HorizontalSpeed.IsActivelySpeedBoosting;
-        bool activeShinespark = samus.Pose is >= SamusPoseId.ShinesparkHorizontalRightPose
-            and <= SamusPoseId.ShinesparkDiagonalLeftPose;
+        bool activeSpeedBooster = samus.IsActivelySpeedBoosting;
+        bool activeShinespark = samus.IsShinesparking;
         if (!activeSpeedBooster && !activeShinespark)
             return false;
 

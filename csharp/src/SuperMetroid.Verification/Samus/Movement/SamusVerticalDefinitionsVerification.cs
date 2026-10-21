@@ -4,6 +4,7 @@ using static SuperMetroid.Verification.Rooms.LevelData.SharedSlopeHeightsVerific
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Verification.Samus.Movement;
 

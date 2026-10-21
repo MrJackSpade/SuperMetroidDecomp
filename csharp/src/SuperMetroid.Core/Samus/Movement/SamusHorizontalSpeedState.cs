@@ -2,6 +2,7 @@ using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.Core.Samus.Artwork;
+using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Samus.Movement;
 
@@ -457,7 +458,7 @@ public sealed class SamusHorizontalSpeedState
     /// replace their colors in the same frame; they must not erase a later charge flash.
     /// </summary>
     public bool ApplyPendingNormalSuitPaletteRestore(
-        IPaletteColors cgram, SuperMetroid.Core.Samus.SamusEquipmentFlags equippedItems,
+        IPaletteColors cgram, SuperMetroid.Core.Progression.SamusEquipmentFlags equippedItems,
         SamusSuitColorCatalog? suitColors = null)
     {
         Ensure.NotNull(cgram);
@@ -491,7 +492,7 @@ public sealed class SamusHorizontalSpeedState
     /// <summary>Loads the normal Power/Varia/Gravity palette selected by the native suit index.</summary>
     private static void LoadNormalSuitPalette(
         IPaletteColors cgram,
-        SuperMetroid.Core.Samus.SamusEquipmentFlags equippedItems,
+        SuperMetroid.Core.Progression.SamusEquipmentFlags equippedItems,
         SamusSuitColorCatalog? suitColors)
     {
         SamusNormalSuitPalette.Load(cgram, equippedItems, suitColors);

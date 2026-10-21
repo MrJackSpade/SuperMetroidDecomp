@@ -2,7 +2,6 @@
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.Plms;
-using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Bosses.Torizo;
@@ -78,7 +77,7 @@ internal sealed class BombTorizoHandPlms
     /// </summary>
     internal void RunBombTorizoHandPreInstruction(PlmSlot slot)
     {
-        SamusState samus = _samus?.Current
+        IRoomSamus samus = _samus?.Current
             ?? throw new InvalidOperationException(
                 "A live Bomb Torizo hand PLM has no active Samus inventory owner.");
         if (!samus.CollectedItems.HasAny(SamusEquipmentFlags.Bombs))

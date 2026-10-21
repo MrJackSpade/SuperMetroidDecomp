@@ -15,6 +15,7 @@ using SuperMetroid.Core.Runtime;
 namespace SuperMetroid.Verification.Samus.Projectiles;
 
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Progression;
 
 /// <summary>Checks beam palette extraction, live ownership, and editable color changes.</summary>
 internal static class BeamPaletteArtworkVerification

@@ -1,5 +1,4 @@
-using SuperMetroid.Core.Samus;
-using SuperMetroid.Core.Samus.Projectiles;
+using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Saves;
 

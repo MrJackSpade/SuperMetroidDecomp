@@ -6,13 +6,13 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Elevator;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Rooms.Doors;
-using SuperMetroid.Core.Samus;
 using SuperMetroid.Rendering.Direct3D11.Device;
 using SuperMetroid.Rendering.Direct3D11.Frames;
 namespace SuperMetroid.RenderVerification.Rooms;
 
 using SuperMetroid.TestSupport.FrameCapture;
 using SuperMetroid.TestSupport.RepositoryInstallation;
+using SuperMetroid.Core.Progression;
 
 /// <summary>Room-local upward elevator handoff using the existing Blue Brinstar regression route.</summary>
 internal static class RetailElevatorReturnTests

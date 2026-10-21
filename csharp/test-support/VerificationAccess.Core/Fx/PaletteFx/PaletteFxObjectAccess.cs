@@ -1,5 +1,5 @@
 using SuperMetroid.Core.Areas.Tourian;
-using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Fx.PaletteFx;
 

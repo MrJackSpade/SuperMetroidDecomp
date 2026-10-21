@@ -9,6 +9,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 namespace SuperMetroid.Verification.Samus.Projectiles;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Progression;
 
 /// <summary>Checks compiled projectile damage and special beam mechanics against native data and guarded production initialization.</summary>
 internal static class ProjectileDamageVerification

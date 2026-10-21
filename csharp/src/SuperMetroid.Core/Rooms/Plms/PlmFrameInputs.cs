@@ -19,7 +19,7 @@ public readonly record struct PlmFrameInputs
     public required SnesButton ControllerNewInput { get; init; }
 
     /// <summary>Collected items.</summary>
-    public SuperMetroid.Core.Samus.SamusEquipmentFlags CollectedItems { get; init; }
+    public SuperMetroid.Core.Progression.SamusEquipmentFlags CollectedItems { get; init; }
 
     /// <summary>Power bomb explosion status.</summary>
     [NativeWord("HDMA explosion status word: zero is no explosion and the top bit set is the active state")]

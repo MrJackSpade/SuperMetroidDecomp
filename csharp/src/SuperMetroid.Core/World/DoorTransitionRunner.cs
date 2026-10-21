@@ -312,7 +312,7 @@ internal sealed class DoorTransitionRunner
         {
             _hdmaPhase.AdvanceHdmaObjectPreInstructions(plms, room);
             if (_player.Samus is not null && room.Layer3Fx.MovesLiquidInHdmaPass)
-                room.Layer3Fx.ApplyToSamusLiquidPhysics(_player.Samus.LiquidPhysics);
+                _player.Samus.LiquidPhysics.ConfigureFor(room.Layer3Fx);
         }
         _system.NextRandom();
     }

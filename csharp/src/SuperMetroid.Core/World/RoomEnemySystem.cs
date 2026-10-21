@@ -86,6 +86,7 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Escape;
 using SuperMetroid.Core.Escape.Artwork;
+using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.World;
 

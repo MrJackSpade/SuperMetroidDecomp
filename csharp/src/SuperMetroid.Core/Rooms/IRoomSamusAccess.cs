@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Samus;
 
 namespace SuperMetroid.Core.Rooms;
 
@@ -6,5 +5,5 @@ namespace SuperMetroid.Core.Rooms;
 public interface IRoomSamusAccess
 {
     /// <summary>The current Samus, or none.</summary>
-    SamusState? Current { get; }
+    IRoomSamus? Current { get; }
 }

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Runtime;
 using static SuperMetroid.Verification.Harness.RetailGameFixtureVerification;
@@ -69,7 +70,7 @@ internal static class DoorEntryRoomFxSoundVerification
         {
             var block = level.GetCollisionBlock(new(checked((ushort)x), checked((ushort)y)));
             if (block.CollisionType != RoomCollisionType.DoorBlock) continue;
-            level.ResolveDoorCollision(block.Bts.Value, samus.Pose, true);
+            level.ResolveDoorCollision(block.Bts.Value, samus.Pose.ForRoomCollision(), true);
             selected = true;
         }
         AssertTrue(selected, "Rising Tide has an exit");

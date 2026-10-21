@@ -1,6 +1,5 @@
 ﻿using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Progression;
-using SuperMetroid.Core.Samus;
 
 namespace SuperMetroid.Core.Rooms.Plms;
 
@@ -50,7 +49,7 @@ internal sealed class SpeedBoosterEscapePlms
         RoomLayer3FxState fx = _roomFx
             ?? throw new InvalidOperationException(
                 "Resident Speed Booster escape PLM lost its room-FX owner.");
-        SamusState samus = _samus?.Current
+        IRoomSamus samus = _samus?.Current
             ?? throw new InvalidOperationException(
                 "Resident Speed Booster escape PLM has no live Samus owner.");
 
@@ -81,7 +80,7 @@ internal sealed class SpeedBoosterEscapePlms
     /// <summary>Starts the lavaquake when Speed Booster is owned, or removes a disabled escape PLM.</summary>
     private void RunWaitForSpeedBooster(
         PlmSlot slot,
-        SamusState samus,
+        IRoomSamus samus,
         RoomLayer3FxState fx)
     {
         if (!samus.CollectedItems.HasAny(SamusEquipmentFlags.SpeedBooster))
@@ -111,7 +110,7 @@ internal sealed class SpeedBoosterEscapePlms
     /// <summary>Advances one lavaquake stage when Samus reaches its X threshold and records escape on completion.</summary>
     private void RunAdvanceLava(
         PlmSlot slot,
-        SamusState samus,
+        IRoomSamus samus,
         RoomLayer3FxState fx)
     {
         SpeedBoosterEscapeStageDefinition? stage =

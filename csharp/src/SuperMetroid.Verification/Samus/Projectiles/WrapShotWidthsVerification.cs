@@ -9,6 +9,7 @@ using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Samus.Projectiles;
 namespace SuperMetroid.Verification.Samus.Projectiles;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Progression;
 
 /// <summary>Compares wrapped beam collision widths and trajectories against 1,080 native boundary records.</summary>
 internal static class WrapShotWidthsVerification

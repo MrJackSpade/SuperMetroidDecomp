@@ -34,7 +34,7 @@ internal static class RechargeStationAdmissionVerification
             int accessX = right ? 9 : 7;
             var behavior = new RoomBlockBehavior(level.GetCollisionBlock(new(checked((ushort)accessX), 8)).Bts.Value);
             bool Touch() => plms.Stations.TryNotifyStationCollision(level.GetBlockIndex(new(checked((ushort)accessX), 8)), behavior,
-                right ? SamusPoseId.RanIntoWallLeftPose : SamusPoseId.RanIntoWallRightPose,
+                (right ? SamusPoseId.RanIntoWallLeftPose : SamusPoseId.RanIntoWallRightPose).ForRoomCollision(),
                 Axis.Horizontal, movingPositive: !right, roomWidthInBlocks: 32);
             AssertTrue(Touch(), "full recharge station remains solid");
             AssertTrue(!samus.Control.AlphaLocked, "full resource must be rejected before station input lock");

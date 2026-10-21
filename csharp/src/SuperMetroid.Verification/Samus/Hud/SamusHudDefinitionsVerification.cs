@@ -11,6 +11,7 @@ using SuperMetroid.Core.Samus.Hud;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
+using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Verification.Samus.Hud;
 
 /// <summary>Checks compiled Samus HUD posture and movement policy against retail definitions and live consumers.</summary>

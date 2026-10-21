@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Rooms.Doors;
-using SuperMetroid.Core.Samus.Poses;
 using System.Collections.Immutable;
 
 namespace SuperMetroid.Core.Rooms.LevelData;
@@ -397,7 +396,7 @@ public sealed class RoomLevelData
     /// </summary>
     public DoorListEntry ResolveDoorCollision(
         int behavior,
-        SamusPoseId samusPose,
+        SamusCollisionPose samusPose,
         bool publishDoorSideEffects = true)
     {
         if (Doors is not { } doors)
@@ -428,7 +427,7 @@ public sealed class RoomLevelData
         // publish elevator_flags only while samus_pose is below $09. This prevents running,
         // aerial, morph, and damage poses that merely brush the block from arming the actor.
         else if (publishDoorSideEffects && entry.IsElevatorPseudoDoor &&
-                 samusPose < SamusPoseId.MovingRightNormalPose)
+                 samusPose is SamusCollisionPose.StandingNormal or SamusCollisionPose.StandingOther)
             ElevatorDoorContactPending = true;
         return entry;
     }

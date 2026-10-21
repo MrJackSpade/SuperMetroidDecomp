@@ -2,7 +2,6 @@
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Projectiles;
 
 namespace SuperMetroid.Core.Rooms.Plms;
@@ -124,7 +123,7 @@ internal sealed class NoobTubePlms
             ?? throw new InvalidOperationException(
                 "N00b tube has no room-FX owner for its water-physics write.");
         roomFx.EnableWaterPhysics();
-        roomFx.ApplyToSamusLiquidPhysics(RequireNoobTubeSamus().LiquidPhysics);
+        RequireNoobTubeSamus().ConfigureLiquidFor(roomFx);
     }
 
     /// <summary>Requires the room event owner before testing the broken-tube event.</summary>
@@ -132,7 +131,7 @@ internal sealed class NoobTubePlms
         _events ?? throw new InvalidOperationException("N00b tube has no event reader.");
 
     /// <summary>Requires a live Samus actor for tube script locks or water-physics publication.</summary>
-    private SamusState RequireNoobTubeSamus() =>
+    private IRoomSamus RequireNoobTubeSamus() =>
         _samus?.Current ?? throw new InvalidOperationException(
             "N00b tube has no active Samus actor.");
 

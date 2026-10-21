@@ -9,6 +9,7 @@ using SuperMetroid.Core.Samus.Abilities;
 namespace SuperMetroid.Verification.Samus.Abilities;
 
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Progression;
 
 /// <summary>Confirms periodic damage is deferred during the suit pickup transformation (#1337).</summary>
 internal static class SuitPickupPeriodicDamageVerification

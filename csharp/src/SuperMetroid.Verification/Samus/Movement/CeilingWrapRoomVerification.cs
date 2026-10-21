@@ -13,6 +13,7 @@ using SuperMetroid.Core.Samus.Projectiles;
 namespace SuperMetroid.Verification.Samus.Movement;
 
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Progression;
 
 /// <summary>Checks Frog Speedway ceiling-shot PLM saturation and native room traces.</summary>
 internal static class CeilingWrapRoomVerification

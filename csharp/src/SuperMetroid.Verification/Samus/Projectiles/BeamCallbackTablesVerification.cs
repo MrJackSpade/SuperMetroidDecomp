@@ -10,6 +10,7 @@ using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Samus.Projectiles;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Progression;
 
 /// <summary>Checks beam pre-instruction pointers and their installation by production firing paths.</summary>
 internal static class BeamCallbackTablesVerification

@@ -13,6 +13,7 @@ namespace SuperMetroid.Verification.Bosses.Draygon;
 
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Progression;
 
 /// <summary>Checks Draygon's pre-battle X-Ray masking and later combat visibility.</summary>
 internal static class DraygonPrebattleXrayVerification

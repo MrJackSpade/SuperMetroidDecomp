@@ -20,6 +20,45 @@ namespace SuperMetroid.Core.Samus.Movement;
 /// </remarks>
 public sealed class SamusLiquidPhysicsState
 {
+    /// <summary>
+    /// Takes the selected room FX into Samus's native liquid words. Room rendering and
+    /// movement therefore consume one cartridge-owned surface instead of independently
+    /// configured debug values.
+    /// </summary>
+    public void ConfigureFor(RoomLayer3FxState fx)
+    {
+        Ensure.NotNull(fx);
+        switch (fx.Type)
+        {
+            case RoomFxType.Water:
+            case RoomFxType.TourianEntranceStatue:
+                ConfigureWater(fx.Surface.Y, fx.LiquidOptions, fx.Type);
+                return;
+            case RoomFxType.Lava:
+                ConfigureLavaAcid(fx.Surface.Y);
+                return;
+            case RoomFxType.Acid:
+                ConfigureLavaAcid(fx.Surface.Y, RoomFxType.Acid);
+                return;
+            case RoomFxType.None:
+            case RoomFxType.Spores:
+            case RoomFxType.Rain:
+            case RoomFxType.Fog:
+            case RoomFxType.ScrollingSky:
+            case RoomFxType.UnusedScrollingSky:
+            case RoomFxType.Fireflea:
+            case RoomFxType.CeresRidley:
+            case RoomFxType.CeresElevator:
+            case RoomFxType.CeresHaze:
+                // Non-liquid FX still own $196E. Preserve that identity for atmospheric
+                // effects while restoring both liquid positions to their negative sentinel.
+                ConfigureNonLiquidRoomFx(fx.Type);
+                return;
+            default:
+                throw new InvalidOperationException($"Undefined RoomFxType {fx.Type}.");
+        }
+    }
+
     /// <summary>$8002: a negative atmospheric timer, so the slot neither moves nor draws while it holds.</summary>
     private const ushort BreathBubbleHeldTimer = SamusAtmosphericEffectsState.DelayedStartMarker | 2;
 

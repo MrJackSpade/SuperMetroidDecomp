@@ -5,6 +5,7 @@ using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core.Samus.Drawing;
+using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Samus.Death;
 

@@ -5,6 +5,7 @@ using SuperMetroid.Core.Samus;
 namespace SuperMetroid.Verification.Enemies.FaceBlocks;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
+using SuperMetroid.Core.Progression;
 
 /// <summary>Checks the face block state the species owns: its activation latch, its distance and the cleared record.</summary>
 internal static class BlueBrinstarFaceBlockOwnedStateVerification

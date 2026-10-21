@@ -4,6 +4,7 @@ using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Poses;
 namespace SuperMetroid.Verification.Bosses.MotherBrain;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Progression;
 
 /// <summary>Checks that automatic reserve recovery does not release Samus from Mother Brain's rainbow beam.</summary>
 internal static class ReserveRefillRainbowBeamVerification

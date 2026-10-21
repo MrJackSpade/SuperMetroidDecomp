@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Progression;
+
 namespace SuperMetroid.Core.Samus;
 
 /// <summary>The stored-word boundary of <see cref="ReserveTankMode"/>.</summary>

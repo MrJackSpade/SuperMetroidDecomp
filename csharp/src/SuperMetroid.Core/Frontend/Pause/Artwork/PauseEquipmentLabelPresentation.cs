@@ -45,8 +45,8 @@ public sealed class PauseEquipmentLabelPresentation
     }
 
     /// <summary>Clears uncollected strips, recolors collected but unequipped strips, and replaces ordinary beam labels with Hyper when active.</summary>
-    public void ApplyInventory(Span<byte> tilemap, SuperMetroid.Core.Samus.Projectiles.SamusBeamFlags collectedBeams, SuperMetroid.Core.Samus.Projectiles.SamusBeamFlags equippedBeams,
-        SuperMetroid.Core.Samus.SamusEquipmentFlags collectedItems, SuperMetroid.Core.Samus.SamusEquipmentFlags equippedItems, bool hyperBeam)
+    public void ApplyInventory(Span<byte> tilemap, SuperMetroid.Core.Progression.SamusBeamFlags collectedBeams, SuperMetroid.Core.Progression.SamusBeamFlags equippedBeams,
+        SuperMetroid.Core.Progression.SamusEquipmentFlags collectedItems, SuperMetroid.Core.Progression.SamusEquipmentFlags equippedItems, bool hyperBeam)
     {
         ValidateTilemap(tilemap);
         if (hyperBeam)

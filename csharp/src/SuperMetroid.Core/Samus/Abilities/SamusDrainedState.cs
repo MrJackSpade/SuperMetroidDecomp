@@ -6,6 +6,7 @@ using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Samus.Artwork;
+using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Samus.Abilities;
 
@@ -199,7 +200,7 @@ public sealed class SamusDrainedState
     /// value becomes the delay between advances of the ten-entry palette index.
     /// </remarks>
     /// <returns>True when this state owned the current frame's Samus palette dispatch.</returns>
-    public bool UpdatePalette(IPaletteColors cgram, SuperMetroid.Core.Samus.SamusEquipmentFlags equippedItems,
+    public bool UpdatePalette(IPaletteColors cgram, SuperMetroid.Core.Progression.SamusEquipmentFlags equippedItems,
         SamusSuitColorCatalog? suitColors = null)
     {
         Ensure.NotNull(cgram);

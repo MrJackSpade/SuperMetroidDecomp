@@ -1,5 +1,4 @@
 ﻿using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.Core.Samus;
 
 namespace SuperMetroid.Core.Rooms.Plms;
 
@@ -20,13 +19,13 @@ internal sealed class SamusEaterPlms
     }
     /// <summary>Runs the native feet/head alignment gate and allocates the ordinary ROM coroutine.</summary>
     internal void TrySpawnSamusEater(RoomLevelData level,
-        RoomCollisionBlock block, PlmHeaderId header, SamusState samus)
+        RoomCollisionBlock block, PlmHeaderId header, IRoomSamus samus)
     {
         SamusEaterPlmDefinition definition = SamusEaterPlmDefinitions.Resolve(header);
         // Rejected native setups clear their just-allocated slot without changing
         // the trigger. Alignment is tested against Samus, not the sampled block row.
-        int edge = definition.Ceiling ? samus.Position.Y.Whole - samus.Kinematics.Radius.Y
-            : samus.Position.Y.Whole + samus.Kinematics.Radius.Y - 1;
+        int edge = definition.Ceiling ? samus.Position.Y.Whole - samus.Radius.Y
+            : samus.Position.Y.Whole + samus.Radius.Y - 1;
         if ((edge & 15) != (definition.Ceiling ? 0 : 15)) return;
         // Native descending allocation simply returns when all slots are occupied.
         if (_slotTable.SpawnAtCurrentBlock() is not { } slot)
@@ -42,7 +41,7 @@ internal sealed class SamusEaterPlms
     }
 
     /// <summary>Requires the live Samus instance associated with the plant's room.</summary>
-    internal SamusState RequirePlantSamus() => _samus?.Current
+    internal IRoomSamus RequirePlantSamus() => _samus?.Current
         ?? throw new InvalidOperationException("Samus Eater PLM requires the live Samus owner.");
 
     /// <summary>Repositions held Samus after normal movement and ORs in the native invincibility bit.</summary>
@@ -56,7 +55,7 @@ internal sealed class SamusEaterPlms
     }
 
     /// <summary><c>$84:AC9D</c>: one chew's periodic damage to the held Samus.</summary>
-    internal void DamageSamus() => RequirePlantSamus().LiquidPhysics.AccumulatePeriodicDamage(0, SamusEaterPlmRomData.ChewDamage);
+    internal void DamageSamus() => RequirePlantSamus().TakePeriodicDamage(SamusEaterPlmRomData.ChewDamage);
 
     /// <summary><c>$84:ACB1</c>: gives the released Samus her release immunity.</summary>
     internal void ReleaseSamus() =>

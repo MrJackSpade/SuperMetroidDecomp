@@ -7,6 +7,7 @@ using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Samus.Projectiles;
 namespace SuperMetroid.Verification.Samus.Projectiles;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Progression;
 
 /// <summary>Checks charge retention across spin and wall-jump Shoot release, then normal-pose consumption.</summary>
 internal static class SpinChargeVerification

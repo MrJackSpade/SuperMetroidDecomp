@@ -58,7 +58,7 @@ internal static class NoobTubePlmVerification
         var samus = new SamusState();
         samus.Position = samus.Position.WithWholeY(0x0100);
         RoomLayer3FxState roomFx = CreateNoobTubeWaterFx();
-        roomFx.ApplyToSamusLiquidPhysics(samus.LiquidPhysics);
+        samus.LiquidPhysics.ConfigureFor(roomFx);
         var guarded = NewNoobTubeProgramReadGuard(bus);
         var projectiles = new List<NoobTubeProjectileRequest>();
         var earthquakes = new List<ushort>();
@@ -208,7 +208,7 @@ internal static class NoobTubePlmVerification
         AssertEqual(RoomLiquidOptions.SmallTide,
             roomFx.LiquidOptions,
             "n00b-tube completion clears the disable bit on shared room FX");
-        roomFx.ApplyToSamusLiquidPhysics(samus.LiquidPhysics);
+        samus.LiquidPhysics.ConfigureFor(roomFx);
         AssertEqual(RoomLiquidOptions.SmallTide,
             samus.LiquidPhysics.LiquidOptions,
             "next room-FX publication preserves enabled water physics");
@@ -314,7 +314,7 @@ internal static class NoobTubePlmVerification
         var projectiles = new List<NoobTubeProjectileRequest>();
         samus.Control.Unlock();
         RoomLayer3FxState roomFx = CreateNoobTubeWaterFx();
-        roomFx.ApplyToSamusLiquidPhysics(samus.LiquidPhysics);
+        samus.LiquidPhysics.ConfigureFor(roomFx);
         var guarded = NewNoobTubeProgramReadGuard(bus);
         var plms = PlmFixtures.Unbound();
         PlmFixtures.LoadPopulation(ref plms, new PlmRoom(level, BgArtworkFixtures.For(new SnesVram()), new Bank80SystemState(), AreaId.Maridia), RoomPlmPopulationImporter.Read(guarded, populationPointer), new RoomPlmServices { Samus = new FixtureRoomSamus(() => samus), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false }, Events = new FixtureEventFlags { HasEvent = eventNumber => eventNumber == NoobTubePlmRomData.BrokenEvent, SetEvent = _ => throw new InvalidOperationException(
@@ -328,7 +328,7 @@ internal static class NoobTubePlmVerification
         AssertEqual(RoomLiquidOptions.SmallTide,
             roomFx.LiquidOptions,
             "event-$0B room load clears the shared water-disable bit");
-        roomFx.ApplyToSamusLiquidPhysics(samus.LiquidPhysics);
+        samus.LiquidPhysics.ConfigureFor(roomFx);
         AssertEqual(SamusLiquidMedium.Water,
             samus.LiquidPhysics.DetermineMovementMedium(samus),
             "event-$0B reload keeps fully submerged movement underwater");

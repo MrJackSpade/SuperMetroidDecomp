@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Samus;
-using SuperMetroid.Core.Samus.Projectiles;
+using SuperMetroid.Core.Progression;
 namespace SuperMetroid.Core.Bosses.Torizo;
 
 /// <summary>Literal inventory writes in InitAI_Torizo.GTCode at $AA:C917-C95A.</summary>
@@ -19,7 +18,7 @@ internal static class GoldenTorizoCodeDefinitions
     /// <summary>$AA:C942 immediate: current and maximum Power Bombs.</summary>
     internal const ushort PowerBombs = 20;
     /// <summary>$AA:C94B immediate: replaces collected and equipped item words without merging prior upgrades.</summary>
-    internal const SuperMetroid.Core.Samus.SamusEquipmentFlags Items = (SamusEquipmentFlags)0xf337;
+    internal const SuperMetroid.Core.Progression.SamusEquipmentFlags Items = (SamusEquipmentFlags)0xf337;
     /// <summary>$AA:C954 immediate: native collected/equipped beams, including simultaneous Spazer and Plasma.</summary>
-    internal const SuperMetroid.Core.Samus.Projectiles.SamusBeamFlags Beams = (SamusBeamFlags)0x100f;
+    internal const SuperMetroid.Core.Progression.SamusBeamFlags Beams = (SamusBeamFlags)0x100f;
 }

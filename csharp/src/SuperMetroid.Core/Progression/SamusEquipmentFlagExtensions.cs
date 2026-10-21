@@ -1,6 +1,4 @@
-using SuperMetroid.Core.Samus.Projectiles;
-
-namespace SuperMetroid.Core.Samus;
+namespace SuperMetroid.Core.Progression;
 
 /// <summary>
 /// Queries over Samus's equipment and beam flags. Their conversion to the native word is

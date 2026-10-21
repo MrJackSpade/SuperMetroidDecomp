@@ -7,12 +7,10 @@ using static SuperMetroid.Verification.Harness.RetailPresentationFixtureVerifica
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
 using SuperMetroid.Core.Frontend.Pause;
 using SuperMetroid.Core.Hud;
-using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Frontend.Pause;
 
 using SuperMetroid.Verification.Harness;
-using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Progression;
 
 /// <summary>Checks pause-menu reserve input and HUD DMA timing through the real frontend dispatcher.</summary>

@@ -4,7 +4,6 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Enemies.MorphBallEye;
 using SuperMetroid.Core.Hud;
-using SuperMetroid.Core.Samus;
 using SuperMetroid.Rendering.Direct3D11.Device;
 using SuperMetroid.Rendering.Direct3D11.Frames;
 using SuperMetroid.Core.Gameplay;
@@ -12,6 +11,7 @@ namespace SuperMetroid.RenderVerification.Bosses;
 
 using SuperMetroid.TestSupport.FrameCapture;
 using SuperMetroid.TestSupport.RepositoryInstallation;
+using SuperMetroid.Core.Progression;
 
 /// <summary>Checks D3D11 output against production rendering during the retail Morph Ball eye-beam sequence.</summary>
 internal static class RetailEyeCaptureTests

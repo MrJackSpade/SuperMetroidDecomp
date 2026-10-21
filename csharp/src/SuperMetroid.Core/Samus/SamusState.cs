@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus.Abilities;
@@ -9,6 +10,7 @@ using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Samus.Death;
 using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Samus.Hud;
+using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Samus;
 
@@ -28,6 +30,9 @@ public sealed class SamusState
 
     /// <summary>The installed frame-handler pair and the Samus commands that replace it.</summary>
     internal SamusControl Control { get; } = new();
+
+    /// <summary>Samus as room objects read and change her.</summary>
+    internal IRoomSamus RoomView => field ??= new SamusRoomView(this);
 
     /// <summary>The <see cref="SamusInputSnapshot"/> owner of this SamusState.</summary>
     internal SamusInputSnapshot InputSnapshot { get; }

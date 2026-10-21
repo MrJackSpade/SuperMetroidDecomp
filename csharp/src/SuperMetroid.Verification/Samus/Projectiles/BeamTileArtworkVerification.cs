@@ -15,6 +15,7 @@ using SuperMetroid.Core.Rendering;
 namespace SuperMetroid.Verification.Samus.Projectiles;
 
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Progression;
 
 /// <summary>Checks extracted beam PNGs and palettes through the projectile queue and runtime NMI path.</summary>
 internal static class BeamTileArtworkVerification

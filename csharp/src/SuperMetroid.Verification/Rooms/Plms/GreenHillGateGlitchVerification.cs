@@ -16,6 +16,7 @@ using SuperMetroid.Core.Samus.Poses;
 namespace SuperMetroid.Verification.Rooms.Plms;
 
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Progression;
 
 /// <summary>Compares Green Hill Grapple and Speed Booster gate triggers with native success and control records.</summary>
 internal static class GreenHillGateGlitchVerification

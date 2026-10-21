@@ -21,7 +21,7 @@ internal static class ProjectileTrailAtlasVerification
         // The bound projectile page places the trail characters where the standard upload holds them.
         SpriteArtwork standard = ObjCharacterPage.Create(new SpriteArtworkId(SpriteArtworkKind.StandardObjects),
             InstalledFixtures.StandardObjects.Transfer.Span);
-        byte[] native = new ProjectileObjectPages(standard, InstalledFixtures.Projectiles.BeamTiles, atlas).For(SuperMetroid.Core.Samus.Projectiles.SamusBeamFlags.None).Characters.ToArray();
+        byte[] native = new ProjectileObjectPages(standard, InstalledFixtures.Projectiles.BeamTiles, atlas).For(SuperMetroid.Core.Progression.SamusBeamFlags.None).Characters.ToArray();
         int iceWaveByte = ProjectileObjectPageDefinitions.IceWaveTrailFirstCharacter * SpriteArtwork.CharacterByteCount;
         int missileByte = ProjectileObjectPageDefinitions.MissileTrailFirstCharacter * SpriteArtwork.CharacterByteCount;
         AssertTrue(standard.Characters.Slice(iceWaveByte, atlas.IceAndWave.Length).SequenceEqual(atlas.IceAndWave.Span) &&
@@ -35,7 +35,7 @@ internal static class ProjectileTrailAtlasVerification
             IndexedPng.Write(changed, new(image.Size.X, image.Size.Y), image.Pixels, image.Palette);
             changed.Position = 0;
             var edited = ProjectileTrailAtlas.Load(changed);
-            ReadOnlySpan<byte> actual = new ProjectileObjectPages(standard, InstalledFixtures.Projectiles.BeamTiles, edited).For(SuperMetroid.Core.Samus.Projectiles.SamusBeamFlags.None).Characters;
+            ReadOnlySpan<byte> actual = new ProjectileObjectPages(standard, InstalledFixtures.Projectiles.BeamTiles, edited).For(SuperMetroid.Core.Progression.SamusBeamFlags.None).Characters;
             int changedByte = tile < 8 ? iceWaveByte + tile * SpriteArtwork.CharacterByteCount
                 : missileByte + (tile - 8) * SpriteArtwork.CharacterByteCount;
             for (int i = 0; i < native.Length; i++)
@@ -94,7 +94,7 @@ internal static class ProjectileTrailAtlasVerification
         void Check(SuperMetroid.Core.Runtime.SuperMetroidRuntime target)
         {
             ReadOnlySpan<byte> page = (target.Artwork.ProjectileObjects
-                ?? throw new InvalidOperationException("The runtime has no projectile page.")).For(SuperMetroid.Core.Samus.Projectiles.SamusBeamFlags.None).Characters;
+                ?? throw new InvalidOperationException("The runtime has no projectile page.")).For(SuperMetroid.Core.Progression.SamusBeamFlags.None).Characters;
             AssertTrue(page.Slice(ProjectileObjectPageDefinitions.IceWaveTrailFirstCharacter * SpriteArtwork.CharacterByteCount, atlas.IceAndWave.Length).SequenceEqual(atlas.IceAndWave.Span), "The bound page shows the current ice/wave trail PNG");
             AssertTrue(page.Slice(ProjectileObjectPageDefinitions.MissileTrailFirstCharacter * SpriteArtwork.CharacterByteCount, atlas.Missile.Length).SequenceEqual(atlas.Missile.Span), "The bound page shows the current missile trail PNG");
         }

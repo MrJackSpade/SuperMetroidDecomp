@@ -1,5 +1,4 @@
 ﻿using SuperMetroid.Core.Enemies;
-using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.LevelData;
@@ -325,7 +324,7 @@ internal sealed class EyeDoorBehavior
     }
 
     /// <summary>Carries out one cue of the eye-door shot's programs.</summary>
-    private static void ApplyEyeDoorProjectileCue(RoomEnemyProjectileSlot projectile, SamusState? samus, EyeDoorProjectileCue cue)
+    private static void ApplyEyeDoorProjectileCue(RoomEnemyProjectileSlot projectile, IRoomSamus? samus, EyeDoorProjectileCue cue)
     {
         switch (cue.Kind)
         {
@@ -350,7 +349,7 @@ internal sealed class EyeDoorBehavior
     /// Ports <c>Instruction_EnemyProjectile_CalculateDirectionTowardsSamus</c> ($86:82A5): stores the doubled angle to
     /// Samus and launches the shot along it at unit speed.
     /// </summary>
-    private static void AimEyeDoorProjectileAtSamus(RoomEnemyProjectileSlot projectile, SamusState samus)
+    private static void AimEyeDoorProjectileAtSamus(RoomEnemyProjectileSlot projectile, IRoomSamus samus)
     {
         projectile.Variable0 = unchecked((ushort)(2 * EnemyMath.CalculateCartridgeAngle(
             new(unchecked((short)(samus.Position.X.Whole - projectile.Position.X.Whole)), unchecked((short)(samus.Position.Y.Whole - projectile.Position.Y.Whole)))).RawValue));
@@ -483,7 +482,7 @@ internal sealed class EyeDoorBehavior
     /// <summary>Routes live eye shots and sweat through their distinct movement routines.</summary>
     internal void RegisterEyeDoorProjectiles(EnemyProjectileHandlerTable table)
     {
-        table.RegisterCue<EyeDoorProjectileCue>((context, cue) => ApplyEyeDoorProjectileCue(context.Projectile, context.Samus, cue));
+        table.RegisterCue<EyeDoorProjectileCue>((context, cue) => ApplyEyeDoorProjectileCue(context.Projectile, context.Samus?.RoomView, cue));
         // A shot eye-door projectile runs its typed shot program, the list its definition names.
         table.RegisterShotAnimation(RoomEnemyProjectileKind.EyeDoorProjectile, () => new EyeDoorProjectileAnimation(EyeDoorProjectileProgram.Shot));
 

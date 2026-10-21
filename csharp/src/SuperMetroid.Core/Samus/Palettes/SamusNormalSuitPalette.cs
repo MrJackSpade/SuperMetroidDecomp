@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Samus.Artwork;
+using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Samus.Palettes;
 
@@ -12,7 +13,7 @@ public static class SamusNormalSuitPalette
     /// <returns>The stock bank-$9B palette pointer identity ($9400, $9520, or $9800) for diagnostics, not an address read to obtain the displayed colors.</returns>
     /// <exception cref="ArgumentNullException">CGRAM is null.</exception>
     /// <exception cref="InvalidOperationException">Installed suit colors are absent.</exception>
-    public static ushort Load(IPaletteColors cgram, SuperMetroid.Core.Samus.SamusEquipmentFlags equippedItems,
+    public static ushort Load(IPaletteColors cgram, SuperMetroid.Core.Progression.SamusEquipmentFlags equippedItems,
         SamusSuitColorCatalog? colors)
     {
         Ensure.NotNull(cgram);

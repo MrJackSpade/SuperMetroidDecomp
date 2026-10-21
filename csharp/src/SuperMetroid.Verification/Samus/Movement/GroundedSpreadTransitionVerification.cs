@@ -6,12 +6,11 @@ using SuperMetroid.Core.Runtime;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Poses;
-using SuperMetroid.Core.Samus.Projectiles;
 namespace SuperMetroid.Verification.Samus.Movement;
 
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Progression;
 
 /// <summary>Checks charged bomb-spread input through grounded morph and unmorph transitions.</summary>
 internal static class GroundedSpreadTransitionVerification

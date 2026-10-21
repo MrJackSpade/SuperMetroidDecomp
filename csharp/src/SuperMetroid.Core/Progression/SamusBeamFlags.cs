@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Samus.Projectiles;
+namespace SuperMetroid.Core.Progression;
 
 /// <summary>
 /// Independent beam-equipment bits stored at WRAM <c>$09A6</c>. Low-nibble beam bits may

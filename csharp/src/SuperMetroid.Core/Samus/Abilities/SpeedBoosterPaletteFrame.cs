@@ -15,7 +15,7 @@ public readonly record struct SpeedBoosterPaletteFrame
     public required int AnimationFrame { get; init; }
 
     /// <summary>Equipped items.</summary>
-    public required SuperMetroid.Core.Samus.SamusEquipmentFlags EquippedItems { get; init; }
+    public required SuperMetroid.Core.Progression.SamusEquipmentFlags EquippedItems { get; init; }
 
     /// <summary>Suppress active speed booster palette.</summary>
     public bool SuppressActiveSpeedBoosterPalette { get; init; }

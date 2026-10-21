@@ -37,7 +37,7 @@ internal static class SamusEaterPlmDefinitionsVerification
             samus.Kinematics.Radius = new(8, 16);
 
             RoomCollisionBlock block = level.GetCollisionBlock(new(1, 1));
-            plms.SamusEater.TrySpawnSamusEater(level, block, headerPointer, samus);
+            plms.SamusEater.TrySpawnSamusEater(level, block, headerPointer, samus.RoomView);
 
             RoomPlmSlotSnapshot slot = plms.PopulationSlots.Single();
             AssertEqual(39, slot.NativeSlotIndex, "Samus Eater uses highest free native slot");

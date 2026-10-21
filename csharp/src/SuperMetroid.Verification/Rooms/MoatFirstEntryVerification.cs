@@ -45,7 +45,7 @@ internal static class MoatFirstEntryVerification
             {
                 var block = level.GetCollisionBlock(new(checked((ushort)x), checked((ushort)y)));
                 if (block.CollisionType != RoomCollisionType.DoorBlock) continue;
-                var door = level.ResolveDoorCollision(block.Bts.Value, SamusPoseId.FacingRightNormalPose, false);
+                var door = level.ResolveDoorCollision(block.Bts.Value, SamusPoseId.FacingRightNormalPose.ForRoomCollision(), false);
                 if (door.Door?.DestinationRoom != RoomHeaderDefinitions.Moat) continue;
                 doorX = x; doorY = y; behavior = block.Bts.Value;
                 break;
@@ -78,7 +78,7 @@ internal static class MoatFirstEntryVerification
                 runtime.SamusPhases.UpdateGameplayBeamTilesAndPalette(samus.EquippedBeams);
                 runtime.FrameBoundary.BeginAcceptedFrame(0);
             }
-            runtime.Room.LoadedLevelData.ResolveDoorCollision(behavior, samus.Pose, true);
+            runtime.Room.LoadedLevelData.ResolveDoorCollision(behavior, samus.Pose.ForRoomCollision(), true);
             var transition = new DoorTransitionState();
             var audio = new CartridgeAudioState();
             transition.Begin(runtime);

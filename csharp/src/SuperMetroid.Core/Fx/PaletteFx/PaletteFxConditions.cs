@@ -14,7 +14,7 @@ public sealed record PaletteFxConditions
     public required int SamusY { get; init => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value); }
 
     /// <summary>Equipped items.</summary>
-    public required SuperMetroid.Core.Samus.SamusEquipmentFlags EquippedItems { get; init; }
+    public required SuperMetroid.Core.Progression.SamusEquipmentFlags EquippedItems { get; init; }
 
     /// <summary>Enemy zero is dead.</summary>
     public required bool EnemyZeroIsDead { get; init; }

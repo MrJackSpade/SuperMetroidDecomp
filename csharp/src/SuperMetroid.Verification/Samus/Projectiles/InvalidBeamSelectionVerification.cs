@@ -9,8 +9,8 @@ using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Samus.Projectiles;
+
 using SuperMetroid.Verification.Harness;
-using SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>Checks pause-menu beam selection and label rendering for simultaneous and adjacent inputs.</summary>
 internal static class InvalidBeamSelectionVerification

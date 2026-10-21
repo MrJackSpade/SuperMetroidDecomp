@@ -9,13 +9,13 @@ using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using static SuperMetroid.Verification.Frontend.Title.TitleGradientVerification;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Fx.PaletteFx;
-using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Fx.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.TestSupport.VerificationOracles;
 namespace SuperMetroid.Verification.Fx.Artwork;
 using SuperMetroid.Verification.Fx.PaletteFx;
+using SuperMetroid.Core.Progression;
 
 /// <summary>Compares extracted room palette-FX colors and installed playback against cartridge output.</summary>
 internal static class RoomPaletteFxPresentationVerification

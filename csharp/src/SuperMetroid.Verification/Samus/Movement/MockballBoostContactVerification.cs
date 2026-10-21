@@ -9,6 +9,7 @@ using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Poses;
 namespace SuperMetroid.Verification.Samus.Movement;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Progression;
 
 /// <summary>Checks Speed Booster contact damage while a mockball remains in motion.</summary>
 internal static class MockballBoostContactVerification

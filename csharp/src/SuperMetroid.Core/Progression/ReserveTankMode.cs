@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Samus;
+namespace SuperMetroid.Core.Progression;
 
 /// <summary>
 /// WRAM reserve-health mode (#1323): zero until the first reserve tank, then AUTO or MANUAL. Pickups and refills

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Rooms;
@@ -68,9 +69,9 @@ internal static class RetailDoorCaptureTests
         {
             var block = level.GetCollisionBlockByIndex(index);
             if (block.CollisionType != RoomCollisionType.DoorBlock) continue;
-            var door = level.ResolveDoorCollision(block.Bts.Value, runtime.Player.IntroducedSamus.Pose, publishDoorSideEffects: false);
+            var door = level.ResolveDoorCollision(block.Bts.Value, runtime.Player.IntroducedSamus.Pose.ForRoomCollision(), publishDoorSideEffects: false);
             if (door.Pointer != pointer) continue;
-            level.ResolveDoorCollision(block.Bts.Value, runtime.Player.IntroducedSamus.Pose, publishDoorSideEffects: true);
+            level.ResolveDoorCollision(block.Bts.Value, runtime.Player.IntroducedSamus.Pose.ForRoomCollision(), publishDoorSideEffects: true);
             return;
         }
         throw new InvalidOperationException($"No authored collision for door {pointer:X4}.");

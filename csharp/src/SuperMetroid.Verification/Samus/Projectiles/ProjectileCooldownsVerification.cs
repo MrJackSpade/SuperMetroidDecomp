@@ -11,6 +11,7 @@ using SuperMetroid.Core;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 namespace SuperMetroid.Verification.Samus.Projectiles;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Progression;
 
 /// <summary>Checks native projectile cooldown selection through beam, combo, and held-fire producers.</summary>
 internal static class ProjectileCooldownsVerification

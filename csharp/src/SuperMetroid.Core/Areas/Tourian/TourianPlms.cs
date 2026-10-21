@@ -2,7 +2,6 @@
 using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.Plms;
-using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Areas.Tourian;
@@ -84,7 +83,7 @@ internal sealed class TourianPlms
     /// </summary>
     internal void RunOldTourianEscapeShaftWallWait(PlmSlot slot)
     {
-        SamusState samus = _samus?.Current
+        IRoomSamus samus = _samus?.Current
             ?? throw new InvalidOperationException("Old Tourian escape-shaft wall has no live Samus owner.");
         if (OldTourianEscapeShaftWallPlmDefinitions.WakeTargetX >= samus.Position.X.Whole ||
             OldTourianEscapeShaftWallPlmDefinitions.WakeTargetY >= samus.Position.Y.Whole)

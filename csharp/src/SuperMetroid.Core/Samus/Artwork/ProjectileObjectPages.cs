@@ -33,7 +33,7 @@ public sealed class ProjectileObjectPages
 
     /// <summary>The page bound for an equipped-beam word.</summary>
     /// <exception cref="ArgumentOutOfRangeException">The word selects no beam combination (bits 4-11 set).</exception>
-    public SpriteArtwork For(SuperMetroid.Core.Samus.Projectiles.SamusBeamFlags equippedBeams) =>
+    public SpriteArtwork For(SuperMetroid.Core.Progression.SamusBeamFlags equippedBeams) =>
         For(new SamusBeamLoadoutWord(equippedBeams).Combination ?? throw new ArgumentOutOfRangeException(
             nameof(equippedBeams), equippedBeams, "Equipped-beam index is outside the beam-combination tables."));
 

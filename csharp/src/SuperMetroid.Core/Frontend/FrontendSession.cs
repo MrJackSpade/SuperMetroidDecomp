@@ -187,14 +187,18 @@ internal sealed class FrontendSession
     internal IReadOnlyList<AudioEvent> LastAudioEvents { get; private set; } = Array.Empty<AudioEvent>();
     /// <summary>Advances the audio session by this update's commands and keeps the events it publishes.</summary>
     internal void AdvanceAudio(IReadOnlyList<CartridgeAudioCommand> commands) => LastAudioEvents = audioSession.Advance(commands);
-    /// <summary>Runtime publication number last copied into the frontend audio queue.</summary>
-    private ulong? lastAudioRuntimeGameplayPublication;
+    /// <summary>
+    /// Runtime publication number last copied into the frontend audio queue. A runtime counts its completed gameplay
+    /// publications from one, so zero means none has been copied and a runtime that has not completed one has nothing
+    /// to copy.
+    /// </summary>
+    private ulong lastAudioRuntimeGameplayPublication;
     /// <summary>Room state associated with the last copied audio publication.</summary>
     internal CartridgeRoomState? LastAudioRoomState { get; set; }
     /// <summary>Forgets the publication and room whose audio was last queued, so the next runtime's queue from scratch.</summary>
     internal void ForgetQueuedAudio()
     {
-        lastAudioRuntimeGameplayPublication = null;
+        lastAudioRuntimeGameplayPublication = 0;
         LastAudioRoomState = null;
     }
     /// <summary>
@@ -237,9 +241,10 @@ internal sealed class FrontendSession
                 audio.QueueRoomMusic(roomState.MusicDataIndex, roomState.MusicTrackIndex);
             LastAudioRoomState = roomState;
         }
-        // Enemy initialization follows the room's music-data queueing in native loading.
-        if (runtime is not null)
-            foreach (MusicCommand command in runtime.Room.LoadedScope.Enemies.Audio.ConsumeInitializationMusicDelayed8())
+        // Enemy initialization follows the room's music-data queueing in native loading. Before the first room load,
+        // such as while a Ceres save starts its destruction cinematic, there are no enemies to initialize.
+        if (runtime?.Room.Scope is { } scope)
+            foreach (MusicCommand command in scope.Enemies.Audio.ConsumeInitializationMusicDelayed8())
                 audio.QueueMusicDelayed8(command);
 
         // The message-box selector is an NMI-only owner, not part of the gameplay

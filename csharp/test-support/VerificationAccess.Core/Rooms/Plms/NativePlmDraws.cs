@@ -1,14 +1,10 @@
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Core.Areas.Tourian;
-using SuperMetroid.Core.Bosses.Botwoon;
 using SuperMetroid.Core.Bosses.Crocomire;
 using SuperMetroid.Core.Bosses.Draygon;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Bosses.SporeSpawn;
 using SuperMetroid.Core.Bosses.Torizo;
-using SuperMetroid.Core.Enemies.Animals;
-using SuperMetroid.Core.Enemies.Chozo;
-using SuperMetroid.Core.Enemies.Elevator;
 using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Rooms.LevelData;
 
@@ -25,7 +21,8 @@ internal static class NativePlmDraws
 {
     /// <summary>Every compiled PLM draw of every family.</summary>
     internal static IEnumerable<PlmDraw> All =>
-        Enum.GetValues<BombBlockRestoreDraw>().Select(Of)
+        Enumerable.Empty<PlmDraw>()
+            .Concat(Enum.GetValues<BombBlockRestoreDraw>().Select(Of))
             .Concat(Enum.GetValues<BombTorizoHandDraw>().Select(Of))
             .Concat([BotwoonWallPlmDrawDefinitions.Clear])
             .Concat(Enum.GetValues<ChozoStatueDraw>().Select(Of))
@@ -83,5 +80,5 @@ internal static class NativePlmDraws
     internal readonly record struct UnownedFrame;
 
     /// <summary>The draw of a frame.</summary>
-    private static PlmDraw Of<TFrame>(TFrame frame) where TFrame : struct => PlmDraw.Of(frame);
+    private static PlmFrameDraw<TFrame> Of<TFrame>(TFrame frame) where TFrame : struct => PlmDraw.Of(frame);
 }

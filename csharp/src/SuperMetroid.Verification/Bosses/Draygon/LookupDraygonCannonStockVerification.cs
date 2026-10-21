@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Bosses.Draygon;
-using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Verification.Areas.Escape;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Rooms.Plms.SamusEaterPlmDefinitionsVerification;

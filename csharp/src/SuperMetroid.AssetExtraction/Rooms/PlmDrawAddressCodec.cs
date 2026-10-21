@@ -1,13 +1,9 @@
 using SuperMetroid.Core.Areas.Tourian;
-using SuperMetroid.Core.Bosses.Botwoon;
 using SuperMetroid.Core.Bosses.Crocomire;
 using SuperMetroid.Core.Bosses.Draygon;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Bosses.SporeSpawn;
 using SuperMetroid.Core.Bosses.Torizo;
-using SuperMetroid.Core.Enemies.Animals;
-using SuperMetroid.Core.Enemies.Chozo;
-using SuperMetroid.Core.Enemies.Elevator;
 using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.Plms;
@@ -108,6 +104,7 @@ internal static class PlmDrawAddressCodec
         RoomPlmShotBlockDrawDefinitions.Shape.Horizontal => PlmDrawAddresses.ShotBlockRestoreHorizontal,
         RoomPlmShotBlockDrawDefinitions.Shape.Vertical => PlmDrawAddresses.ShotBlockRestoreVertical,
         RoomPlmShotBlockDrawDefinitions.Shape.Square => PlmDrawAddresses.ShotBlockRestoreSquare,
+        RoomPlmShotBlockDrawDefinitions.Shape.Single => throw new InvalidDataException($"A single shot block has no restoration draw: {shot}."),
         _ => throw new InvalidDataException($"Shot-block draw {shot} has no cartridge address."),
     };
 

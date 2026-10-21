@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.Tooling;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;

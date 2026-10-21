@@ -20,6 +20,7 @@
   <Import Project="../../test-support/SaveMapFixtures.projitems" />
   <ItemGroup>
     <Using Include="SuperMetroid.Core.Audio" />
+    <Using Include="SuperMetroid.Core.Compatibility" />
     <Using Include="SuperMetroid.Core.Spatial" />
   </ItemGroup>
 </Project>

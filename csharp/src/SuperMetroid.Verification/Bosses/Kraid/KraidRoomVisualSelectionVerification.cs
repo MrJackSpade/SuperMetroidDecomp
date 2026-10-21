@@ -1,4 +1,3 @@
-using SuperMetroid.AssetExtraction.Rooms;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rooms.Plms;

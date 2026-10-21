@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Compatibility;
 using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.Core.Samus.Grapple;

@@ -96,7 +96,7 @@ internal static class GrappleBlockProgramsVerification
         RoomPlmGrappleBlockDrawDefinitions.VisualId(PlmDraw.FrameOf<GrappleBlockDraw>(GrappleAt(pointer), "Grapple-block"));
 
     /// <summary>The Grapple-block draw whose artwork identity is <paramref name="id"/>.</summary>
-    private static PlmDraw GrappleById(string id) =>
+    private static PlmFrameDraw<GrappleBlockDraw> GrappleById(string id) =>
         RoomPlmGrappleBlockDrawDefinitions.TryGetByVisualId(id, out var list) ? PlmDraw.Of(list.Frame)
             : throw new InvalidOperationException($"No Grapple-block draw has artwork identity {id}.");
 

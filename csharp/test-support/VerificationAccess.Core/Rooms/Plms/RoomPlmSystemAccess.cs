@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Compatibility;
 namespace SuperMetroid.Core.Rooms.Plms;
 
 using SuperMetroid.Core.Bosses.Draygon;

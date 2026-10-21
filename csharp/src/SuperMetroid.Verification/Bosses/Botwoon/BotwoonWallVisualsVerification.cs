@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Bosses.Botwoon;
 using SuperMetroid.Tooling;
 using System.Text.Json.Nodes;
 using SuperMetroid.Core.Hardware;

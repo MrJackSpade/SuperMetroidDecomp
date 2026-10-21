@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Samus.Abilities.Artwork;
-using SuperMetroid.Core.Samus.Abilities.Artwork;
 using SuperMetroid.Tooling;
 using System.Text.Json.Nodes;
 using SuperMetroid.Core.Hardware;

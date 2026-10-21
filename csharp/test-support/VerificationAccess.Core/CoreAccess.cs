@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Compatibility;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;

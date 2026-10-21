@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Enemies.Elevator.Artwork;
-using SuperMetroid.Core.Enemies.Chozo.Artwork;
 using SuperMetroid.ResourceAudit.Reports;
 
 namespace SuperMetroid.ResourceAudit.ClosedContracts.Rooms;

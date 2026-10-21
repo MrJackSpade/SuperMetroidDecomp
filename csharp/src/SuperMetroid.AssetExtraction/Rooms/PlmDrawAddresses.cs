@@ -1,13 +1,9 @@
 using SuperMetroid.Core.Areas.Tourian;
-using SuperMetroid.Core.Bosses.Botwoon;
 using SuperMetroid.Core.Bosses.Crocomire;
 using SuperMetroid.Core.Bosses.Draygon;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Bosses.SporeSpawn;
 using SuperMetroid.Core.Bosses.Torizo;
-using SuperMetroid.Core.Enemies.Animals;
-using SuperMetroid.Core.Enemies.Chozo;
-using SuperMetroid.Core.Enemies.Elevator;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.Plms;
 

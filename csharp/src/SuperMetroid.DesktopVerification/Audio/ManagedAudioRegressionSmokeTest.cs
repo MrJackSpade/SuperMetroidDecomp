@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Compatibility;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using SuperMetroid.Core;

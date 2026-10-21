@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Enemies.Elevator.Artwork;
 using SuperMetroid.TestSupport.RepositoryInstallation;
-using SuperMetroid.Core.Enemies.Elevator;
 
 namespace SuperMetroid.Core.Rooms.Plms;
 

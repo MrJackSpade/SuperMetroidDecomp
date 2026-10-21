@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Samus.Abilities.Artwork;
-using SuperMetroid.Core.Samus.Abilities.Artwork;
 using SuperMetroid.ResourceAudit.Reports;
 
 namespace SuperMetroid.ResourceAudit.ClosedContracts.Rooms;

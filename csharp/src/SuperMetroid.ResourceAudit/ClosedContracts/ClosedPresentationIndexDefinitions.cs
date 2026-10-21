@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Samus.Abilities.Artwork;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.Core.Areas.Tourian;

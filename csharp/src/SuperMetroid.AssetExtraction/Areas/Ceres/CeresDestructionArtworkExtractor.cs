@@ -1,5 +1,4 @@
 using SuperMetroid.AssetExtraction.Frontend.Cinematics;
-using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;

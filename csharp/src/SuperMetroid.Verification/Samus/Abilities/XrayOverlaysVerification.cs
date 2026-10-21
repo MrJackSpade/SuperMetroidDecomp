@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Samus.Abilities.Artwork;
-using SuperMetroid.Core.Samus.Abilities.Artwork;
 using static SuperMetroid.Verification.Samus.Abilities.XraySetupVerification;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Progression;

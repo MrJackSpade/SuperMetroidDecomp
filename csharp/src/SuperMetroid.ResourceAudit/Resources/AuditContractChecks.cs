@@ -21,8 +21,69 @@ namespace SuperMetroid.ResourceAudit.Resources;
 /// <summary>Small synthetic confirmations of the audit itself; never searches gameplay.</summary>
 internal static class AuditContractChecks
 {
-    /// <summary>Runs synthetic checks of resource identity resolution, provider routing, and deterministic audit output.</summary>
+    /// <summary>
+    /// Runs every synthetic check of resource identity resolution, provider routing and deterministic audit output, then
+    /// fails with all of their failures together, so one run reports every broken contract.
+    /// </summary>
+    /// <exception cref="AggregateException">One or more contract checks failed; each inner exception names its check.</exception>
     public static void Run()
+    {
+        var failures = new List<Exception>();
+        foreach (AuditContractCheck check in Checks)
+        {
+            try
+            {
+                check.Run();
+            }
+            catch (Exception failure)
+            {
+                failures.Add(new InvalidOperationException($"Audit contract check {check.Name} failed.", failure));
+            }
+        }
+        if (failures.Count > 0)
+            throw new AggregateException($"{failures.Count} of {Checks.Length} audit contract checks failed.", failures);
+        Console.WriteLine("Audit contracts: constants, named/cast arguments, dynamic/unknown domains, " +
+            "direct/bound projectile routing, palette aliases/title provider, empty-frame boundary, " +
+            "Mother Brain bank/color-row metadata, guarded closed providers and deterministic output confirmed.");
+    }
+
+    /// <summary>The contract checks, in the order they run.</summary>
+    private static readonly AuditContractCheck[] Checks =
+    [
+        new(nameof(ConfirmConsumerClassification), ConfirmConsumerClassification),
+        new(nameof(ConfirmProjectileRouting), ConfirmProjectileRouting),
+        new(nameof(ConfirmPaletteProviders), ConfirmPaletteProviders),
+        new(nameof(ConfirmEmptyFrameBoundary), ConfirmEmptyFrameBoundary),
+        new(nameof(ConfirmMotherBrainMetadata), ConfirmMotherBrainMetadata),
+        new(nameof(ClosedPresentationContractChecks), ClosedPresentationContractChecks.Run),
+        new(nameof(MessagePresentationContractChecks), MessagePresentationContractChecks.Run),
+        new(nameof(PlmPresentationContractChecks), PlmPresentationContractChecks.Run),
+        new(nameof(PlmDoorPresentationContractChecks), PlmDoorPresentationContractChecks.Run),
+        new(nameof(SamusColorPresentationContractChecks), SamusColorPresentationContractChecks.Run),
+        new(nameof(EnemyColorPresentationContractChecks), EnemyColorPresentationContractChecks.Run),
+        new(nameof(TextAndMapPresentationContractChecks), TextAndMapPresentationContractChecks.Run),
+        new(nameof(PausePresentationContractChecks), PausePresentationContractChecks.Run),
+        new(nameof(CinematicPresentationContractChecks), CinematicPresentationContractChecks.Run),
+        new(nameof(ProjectilePresentationContractChecks), ProjectilePresentationContractChecks.Run),
+        new(nameof(SamusArtworkPresentationContractChecks), SamusArtworkPresentationContractChecks.Run),
+        new(nameof(BackgroundTransferPresentationContractChecks), () => BackgroundTransferPresentationContractChecks.Run()),
+        new(nameof(RoomArtworkPresentationContractChecks), RoomArtworkPresentationContractChecks.Run),
+        new(nameof(AreaMapPresentationContractChecks), AreaMapPresentationContractChecks.Run),
+        new(nameof(RoomRevealPresentationContractChecks), RoomRevealPresentationContractChecks.Run),
+        new(nameof(LibraryBackgroundPresentationContractChecks), LibraryBackgroundPresentationContractChecks.Run),
+        new(nameof(RoomLayoutPresentationContractChecks), RoomLayoutPresentationContractChecks.Run),
+        new(nameof(MotherBrainSheetsPresentationContractChecks), MotherBrainSheetsPresentationContractChecks.Run),
+        new(nameof(XrayRoomOverlayPresentationContractChecks), XrayRoomOverlayPresentationContractChecks.Run),
+        new(nameof(NativeDisplaySelectorContractChecks), NativeDisplaySelectorContractChecks.Run),
+        new(nameof(EnemyTileArtworkPresentationContractChecks), EnemyTileArtworkPresentationContractChecks.Run),
+        new(nameof(EnemyProjectileArtworkContractChecks), EnemyProjectileArtworkContractChecks.Run),
+        new(nameof(EnemyDisplayArtworkContractChecks), EnemyDisplayArtworkContractChecks.Run),
+        new(nameof(SamusBodyTransferContractChecks), SamusBodyTransferContractChecks.Run),
+        new(nameof(InterfacePresentationContractChecks), InterfacePresentationContractChecks.Run),
+    ];
+
+    /// <summary>Classifies constant, named, dynamic and unknown-catalog lookups and keeps report output deterministic.</summary>
+    private static void ConfirmConsumerClassification()
     {
         const string text = """
             namespace SuperMetroid.Core.Enemies.Artwork {
@@ -72,38 +133,6 @@ internal static class AuditContractChecks
         string first = JsonSerializer.Serialize(fixedReport, AuditReport.JsonOptions);
         fixedReport.Sort();
         Require(first == JsonSerializer.Serialize(fixedReport, AuditReport.JsonOptions), "report ordering must be deterministic");
-        ConfirmProjectileRouting();
-        ConfirmPaletteProviders();
-        ConfirmEmptyFrameBoundary();
-        ConfirmMotherBrainMetadata();
-        ClosedPresentationContractChecks.Run();
-        MessagePresentationContractChecks.Run();
-        PlmPresentationContractChecks.Run();
-        PlmDoorPresentationContractChecks.Run();
-        SamusColorPresentationContractChecks.Run();
-        EnemyColorPresentationContractChecks.Run();
-        TextAndMapPresentationContractChecks.Run();
-        PausePresentationContractChecks.Run();
-        CinematicPresentationContractChecks.Run();
-        ProjectilePresentationContractChecks.Run();
-        SamusArtworkPresentationContractChecks.Run();
-        BackgroundTransferPresentationContractChecks.Run();
-        RoomArtworkPresentationContractChecks.Run();
-        AreaMapPresentationContractChecks.Run();
-        RoomRevealPresentationContractChecks.Run();
-        LibraryBackgroundPresentationContractChecks.Run();
-        RoomLayoutPresentationContractChecks.Run();
-        MotherBrainSheetsPresentationContractChecks.Run();
-        XrayRoomOverlayPresentationContractChecks.Run();
-        NativeDisplaySelectorContractChecks.Run();
-        EnemyTileArtworkPresentationContractChecks.Run();
-        EnemyProjectileArtworkContractChecks.Run();
-        EnemyDisplayArtworkContractChecks.Run();
-        SamusBodyTransferContractChecks.Run();
-        InterfacePresentationContractChecks.Run();
-        Console.WriteLine("Audit contracts: constants, named/cast arguments, dynamic/unknown domains, " +
-            "direct/bound projectile routing, palette aliases/title provider, empty-frame boundary, " +
-            "Mother Brain bank/color-row metadata, guarded closed providers and deterministic output confirmed.");
     }
 
     /// <summary>Separates direct projectile OAM resources from optional operand-bound frame resources.</summary>

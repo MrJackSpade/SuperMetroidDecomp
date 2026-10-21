@@ -756,9 +756,9 @@ internal static class LookupStream5Verification
         }
         AssertEqual(25, componentCount, "All native components");
         AssertEqual(3, lists.Count, "All native hitbox lists");
-        AssertEqual(PhantoonCollisionDefinitions.ShotAi, FindPhantoonHitboxCallback(null, (ushort)PhantoonCollisionFrame.BodyFullHitbox, new(128, 128), true), "Actual full-body shot callback");
-        AssertEqual(PhantoonCollisionDefinitions.TouchAi, FindPhantoonHitboxCallback(null, (ushort)PhantoonCollisionFrame.BodyFullHitbox, new(128, 128), false), "Actual full-body touch callback");
-        AssertEqual(PhantoonCollisionDefinitions.ShotAi, FindPhantoonHitboxCallback(null, (ushort)PhantoonCollisionFrame.BodyEyeHitboxOnly, new(128, 153), true), "Actual vulnerable eye callback");
+        AssertEqual(EnemyAiCodePointers.BankA7.PhantoonShot, FindPhantoonHitboxCallback(null, (ushort)PhantoonCollisionFrame.BodyFullHitbox, new(128, 128), true), "Actual full-body shot callback");
+        AssertEqual(EnemyAiCodePointers.BankA7.PhantoonTouch, FindPhantoonHitboxCallback(null, (ushort)PhantoonCollisionFrame.BodyFullHitbox, new(128, 128), false), "Actual full-body touch callback");
+        AssertEqual(EnemyAiCodePointers.BankA7.PhantoonShot, FindPhantoonHitboxCallback(null, (ushort)PhantoonCollisionFrame.BodyEyeHitboxOnly, new(128, 153), true), "Actual vulnerable eye callback");
         AssertEqual((ushort)0, FindPhantoonHitboxCallback(null, (ushort)PhantoonCollisionFrame.BodyEyeHitboxOnly, new(128, 128), true), "Eye-only frame excludes body collision");
         AssertThrows<InvalidDataException>(() => PhantoonCollisionDefinitions.ComponentsAt(0), "Frame domain");
         Console.WriteLine("Phantoon collision: 22 native frames, 25 components, all seven rectangles/callbacks, actual full-body/eye selection and bounds pass.");

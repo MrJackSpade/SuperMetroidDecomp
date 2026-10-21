@@ -10,13 +10,13 @@ using SuperMetroid.Core.Fx.PaletteFx;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
-using SuperMetroid.Core.Samus.Grapple;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.World;
+using SuperMetroid.Core.Enemies.Grapple;
 namespace SuperMetroid.Verification.Harness;
 
 /// <summary>Checks narrow gameplay operation interfaces, the grapple frame's

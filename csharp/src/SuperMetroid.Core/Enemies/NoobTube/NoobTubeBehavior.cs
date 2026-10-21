@@ -1,7 +1,7 @@
-﻿using SuperMetroid.Core.Enemies;
-using SuperMetroid.Core.Enemies.Projectiles;
+﻿using SuperMetroid.Core.Enemies.Projectiles;
+using SuperMetroid.Core.Rooms.Plms;
 
-namespace SuperMetroid.Core.Rooms.Plms;
+namespace SuperMetroid.Core.Enemies.NoobTube;
 
 /// <summary>The Noob tube species owner: its per-room state, AI routines and the interactions it registers.</summary>
 internal sealed class NoobTubeBehavior

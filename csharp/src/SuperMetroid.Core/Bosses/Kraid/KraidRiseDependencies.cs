@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 internal sealed record KraidRiseDependencies
 {
     /// <summary>The enemy pass's results, which this behavior writes.</summary>
-    public required EnemyFrameResultBuilder FrameResults { get; init; }
+    public required BossFrameResultBuilder FrameResults { get; init; }
 
     /// <summary>Room scratch memory, services, and tilemap state used throughout the Kraid fight.</summary>
     public required EnemyRoomBinding Room { get; init; }

@@ -21,7 +21,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 public sealed class MotherBrainCorpseRottingState
 {
     /// <summary>One rot entry per visible pixel row of the table at <see cref="EnemyStagingSurfaces.MotherBrainRotTable"/>.</summary>
-    public const int EntryCount = 48;
+    public const int EntryCount = EnemyStagingDefinitions.MotherBrainRotTableEntryCount;
 
     /// <summary>True after the head initialization equivalent at <c>$A9:8705</c>.</summary>
     public bool IsInitialized { get; private set; }

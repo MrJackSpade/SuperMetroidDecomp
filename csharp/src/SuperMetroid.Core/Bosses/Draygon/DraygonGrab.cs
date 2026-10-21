@@ -4,6 +4,7 @@ using SuperMetroid.Core.Rooms.SpriteObjects;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Grapple;
 using SuperMetroid.Core.Samus.Movement;
+using SuperMetroid.Core.Enemies.SpriteObjects;
 
 namespace SuperMetroid.Core.Bosses.Draygon;
 
@@ -12,7 +13,7 @@ namespace SuperMetroid.Core.Bosses.Draygon;
 internal sealed class DraygonGrab
 {
     /// <summary>The enemy pass's results, which this behavior writes.</summary>
-    private readonly EnemyFrameResultBuilder _frameResults;
+    private readonly BossFrameResultBuilder _frameResults;
     /// <summary>Provides the active room bus, random source, and persistent boss state.</summary>
     private readonly EnemyRoomBinding _room;
     /// <summary>Allocates breath bubbles, death smoke, and burial Evir sprites.</summary>
@@ -25,7 +26,7 @@ internal sealed class DraygonGrab
     private readonly DraygonTurrets _turrets;
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
-    internal DraygonGrab(EnemyFrameResultBuilder frameResults, EnemyRoomBinding room, RoomSpriteObjectPool spriteObjects, SamusScrollCap scrollCap, DraygonParts parts, DraygonTurrets turrets)
+    internal DraygonGrab(BossFrameResultBuilder frameResults, EnemyRoomBinding room, RoomSpriteObjectPool spriteObjects, SamusScrollCap scrollCap, DraygonParts parts, DraygonTurrets turrets)
     {
         _frameResults = frameResults;
         _room = room;

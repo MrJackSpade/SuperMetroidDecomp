@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies.Corpses.Artwork;
-using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
@@ -375,12 +374,8 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
     }
 
     /// <summary>Writes Shitroid state 11's victim-owned extended word 08.</summary>
-    internal static void ActivateDeadSidehopperVictim(RoomEnemySlot victim, ShitroidEnemyState state)
-    {
-        DeadSidehopperEnemyState victimState = RequireDeadSidehopperState(victim);
-        victimState.PaletteStage = 1;
-        state.VictimActivationFlag = true;
-    }
+    internal static void ActivateDeadSidehopperVictim(RoomEnemySlot victim) =>
+        RequireDeadSidehopperState(victim).PaletteStage = 1;
 
     /// <summary>Ports shot callback <c>$A9:DD1D</c>.</summary>
     private static void ResolveDeadSidehopperShot(RoomEnemySlot slot)

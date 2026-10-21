@@ -10,6 +10,7 @@ using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Bosses.Botwoon.Artwork;
 using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Enemies.SpriteObjects;
 
 namespace SuperMetroid.Core.Bosses.Botwoon;
 
@@ -18,7 +19,7 @@ namespace SuperMetroid.Core.Bosses.Botwoon;
 internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <summary>The enemy pass's results, which this behavior writes.</summary>
-    private readonly EnemyFrameResultBuilder _frameResults;
+    private readonly BossFrameResultBuilder _frameResults;
 
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.Botwoon];

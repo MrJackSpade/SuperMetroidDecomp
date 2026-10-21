@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Enemies.Projectiles;
+using SuperMetroid.Core.Enemies.OldTourianWall;
 
 namespace SuperMetroid.Core.Rooms.Plms;
 

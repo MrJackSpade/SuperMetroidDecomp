@@ -10,6 +10,7 @@ using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Samus.Grapple;
+
 using SuperMetroid.Verification.Harness;
 
 /// <summary>Checks grapple-killed enemy death, explosion, drops, sound, and grapple cleanup.</summary>

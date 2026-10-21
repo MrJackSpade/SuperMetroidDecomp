@@ -1,5 +1,4 @@
-﻿using SuperMetroid.Core.Bosses.Ridley;
-using SuperMetroid.Core.Fx;
+﻿using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Enemies;
@@ -17,13 +16,9 @@ internal sealed class EnemyRoomFx
     /// </summary>
     internal void BindRoomFx(RoomLayer3FxState roomFx) => Layer3Fx = roomFx;
 
-    /// <summary>Applies Ridley's liquid target, packed velocity, and delay at the AI command boundary so the FX timer is not reset each frame.</summary>
-    internal void PublishRidleyLiquidMotion(RidleyEnemyState state, ushort target, ushort velocity, ushort delay)
-    {
-        state.FxTargetYPosition = target;
-        state.FxTimer = delay;
+    /// <summary>Applies a liquid target, packed velocity, and delay at an AI command boundary so the FX timer is not reset each frame.</summary>
+    internal void PublishLiquidMotion(ushort target, ushort velocity, ushort delay) =>
         // Execute at the native AI command, not from retained state each frame:
         // repeated application would continually reset the liquid handler's delay.
         Layer3Fx?.ApplyCartridgeMotionWrites(targetYPosition: target, packedYVelocity: velocity, timer: delay);
-    }
 }

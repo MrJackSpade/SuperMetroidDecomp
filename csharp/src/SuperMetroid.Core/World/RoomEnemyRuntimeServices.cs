@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.Plms;

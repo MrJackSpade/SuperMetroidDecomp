@@ -1,7 +1,7 @@
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Rooms.Plms;
 
-namespace SuperMetroid.Core.Enemies;
+namespace SuperMetroid.Core.Bosses;
 
 /// <summary>
 /// The hardcoded PLMs and room writes enemy AI requested during one pass, in their producers' publication order. The

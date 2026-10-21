@@ -13,7 +13,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <summary>The enemy pass's results, which this behavior writes.</summary>
-    private readonly EnemyFrameResultBuilder _frameResults;
+    private readonly BossFrameResultBuilder _frameResults;
 
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [.. MotherBrainPartDefinitions.Parts.Keys];

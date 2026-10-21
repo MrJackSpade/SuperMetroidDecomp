@@ -5,8 +5,8 @@ using SuperMetroid.Core.Rooms.Scrolling;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.Fx.PaletteFx;
-using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Escape;
+using SuperMetroid.Core.Bosses;
 
 namespace SuperMetroid.Core.World;
 

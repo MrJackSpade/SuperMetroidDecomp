@@ -22,7 +22,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <summary>The enemy pass's results, which this behavior writes.</summary>
-    private readonly EnemyFrameResultBuilder _frameResults;
+    private readonly BossFrameResultBuilder _frameResults;
 
     /// <inheritdoc/>
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [EnemyDefinitionId.BabyMetroid];
@@ -44,7 +44,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
 
 
     /// <summary>Connects the Tourian Baby Metroid to room, victim, palette, and Zebetite owners.</summary>
-    internal ShitroidBehavior(EnemyRoomBinding room, EnemySlotTable slotTable, EnemyPresentation presentation, ZebetiteBehavior zebetiteBehavior, EnemyFrameResultBuilder frameResults, BossArtworkBinding bossArtwork)
+    internal ShitroidBehavior(EnemyRoomBinding room, EnemySlotTable slotTable, EnemyPresentation presentation, ZebetiteBehavior zebetiteBehavior, BossFrameResultBuilder frameResults, BossArtworkBinding bossArtwork)
     {
         _bossArtwork = bossArtwork;
         _frameResults = frameResults;
@@ -222,7 +222,8 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
 
             case ShitroidAiFunction.ActivateSidehopperCorpse:
-                DeadSidehopperBehavior.ActivateDeadSidehopperVictim(RequireShitroidVictim(slot), state);
+                DeadSidehopperBehavior.ActivateDeadSidehopperVictim(RequireShitroidVictim(slot));
+                state.VictimActivationFlag = true;
                 state.Function = ShitroidAiFunction.RiseAfterFeeding;
                 state.StateTimer = NativeCountdown.Start(192);
                 goto case ShitroidAiFunction.RiseAfterFeeding;

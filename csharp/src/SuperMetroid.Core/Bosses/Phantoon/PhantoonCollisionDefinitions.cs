@@ -10,10 +10,6 @@ namespace SuperMetroid.Core.Bosses.Phantoon;
 /// </summary>
 internal static class PhantoonCollisionDefinitions
 {
-    /// <summary>$A7:DD95, Phantoon's active touch callback.</summary>
-    internal const ushort TouchAi = 0xdd95;
-    /// <summary>$A7:DD9B, Phantoon's active shot callback.</summary>
-    internal const ushort ShotAi = 0xdd9b;
 
     /// <summary>Half width of the full body's central collision rectangle.</summary>
     private const short BodyHalfWidth = 33;

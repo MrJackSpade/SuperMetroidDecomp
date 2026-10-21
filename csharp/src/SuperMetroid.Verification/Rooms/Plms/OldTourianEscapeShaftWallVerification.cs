@@ -14,6 +14,7 @@ namespace SuperMetroid.Verification.Rooms.Plms;
 
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Enemies.OldTourianWall;
 
 /// <summary>Checks the old Tourian escape shaft wall PLM's trigger, explosion, and cleared blocks.</summary>
 internal static class OldTourianEscapeShaftWallVerification

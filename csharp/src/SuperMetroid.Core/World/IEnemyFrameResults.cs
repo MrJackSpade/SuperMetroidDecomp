@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Enemies;
+namespace SuperMetroid.Core.World;
 
 /// <summary>The last enemy pass's results, for readers after the frame.</summary>
 internal interface IEnemyFrameResults

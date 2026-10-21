@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Enemies.Corpses;
 
 namespace SuperMetroid.Core.Enemies;
@@ -38,7 +37,7 @@ public sealed class EnemyStagingSurfaces : IWorkRamStagingSource
     /// <summary>Mother Brain's 48-entry rot table.</summary>
     public CorpseRotTable MotherBrainRotTable =>
         new(RottingHeap.ByteView(0, RottingHeap.Length), EnemyStagingDefinitions.MotherBrainRotTableOffset,
-            MotherBrainCorpseRottingState.EntryCount);
+            EnemyStagingDefinitions.MotherBrainRotTableEntryCount);
 
     /// <summary>
     /// The dead-monster rot table of <paramref name="entryCount"/> entries at bank-$7E pointer

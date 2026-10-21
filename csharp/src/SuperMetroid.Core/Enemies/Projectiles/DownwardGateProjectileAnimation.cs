@@ -1,8 +1,8 @@
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Rooms.Plms.Artwork;
-using SuperMetroid.Core.Enemies.Projectiles;
+using SuperMetroid.Core.Rooms.Plms;
 
-namespace SuperMetroid.Core.Rooms.Plms;
+namespace SuperMetroid.Core.Enemies.Projectiles;
 
 /// <summary>Downward gate's typed animation.</summary>
 internal sealed class DownwardGateProjectileAnimation(DownwardGateProjectileProgram program)

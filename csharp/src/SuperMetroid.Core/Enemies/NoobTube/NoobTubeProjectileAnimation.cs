@@ -1,8 +1,9 @@
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Rooms.Plms.Artwork;
 using SuperMetroid.Core.Enemies.Projectiles;
+using SuperMetroid.Core.Rooms.Plms;
 
-namespace SuperMetroid.Core.Rooms.Plms;
+namespace SuperMetroid.Core.Enemies.NoobTube;
 
 /// <summary>N00b tube projectile's typed animation.</summary>
 internal sealed class NoobTubeProjectileAnimation(NoobTubeProjectileProgram program)

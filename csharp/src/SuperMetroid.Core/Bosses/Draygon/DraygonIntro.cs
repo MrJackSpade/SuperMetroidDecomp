@@ -1,9 +1,11 @@
-﻿using SuperMetroid.Core.Enemies;
+﻿using SuperMetroid.Core.Bosses.Artwork;
+using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rooms.SpriteObjects;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.Enemies.SpriteObjects;
 
 namespace SuperMetroid.Core.Bosses.Draygon;
 
@@ -49,7 +51,7 @@ internal sealed class DraygonIntro
                         DraygonIntroPresentationDefinitions.EvirTilesByteCount, out _) != true)
                     throw new InvalidDataException(
                         "Installed Evir graphics are missing for Draygon's opening transfer.");
-                _presentation.ObjCharacters.RecordUpload(EnemyVram.DraygonEvirTilesDma,
+                _presentation.ObjCharacters.RecordUpload(BossVram.DraygonEvirTilesDma,
                     DraygonIntroPresentationDefinitions.EvirTilesByteCount, new EnemyTileCharacters(EnemyDefinitionId.Evir));
                 state.IntroEvirGraphicsLoaded = true;
 

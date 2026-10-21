@@ -14,7 +14,7 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 internal sealed class KraidDeath
 {
     /// <summary>The enemy pass's results, which this behavior writes.</summary>
-    private readonly EnemyFrameResultBuilder _frameResults;
+    private readonly BossFrameResultBuilder _frameResults;
     /// <summary>Room scratch memory, services, and tilemap state used throughout the Kraid fight.</summary>
     private readonly EnemyRoomBinding _room;
     /// <summary>Publishes arena shake during growth, death, and heavy movement.</summary>
@@ -360,9 +360,9 @@ internal sealed class KraidDeath
         if (vramWriteQueue is not null)
             vramWriteQueue.EnqueueBackgroundAsset(
                 KraidBackgroundRomData.StandardBg3AssetForQuarter(transferIndex),
-                KraidBackgroundRomData.StandardBg3TransferBytes, EnemyVram.KraidBg3RestoreDma(destinationWord));
+                KraidBackgroundRomData.StandardBg3TransferBytes, BossVram.KraidBg3RestoreDma(destinationWord));
         else
-            EnemyVram.BindKraidBg3Restore(_presentation.Backgrounds, new BgArtworkIdentity($"standard BG3 characters quarter {transferIndex}"),
+            BossVram.BindKraidBg3Restore(_presentation.Backgrounds, new BgArtworkIdentity($"standard BG3 characters quarter {transferIndex}"),
                 destinationWord, hud.KraidRestoreQuarter(transferIndex).Span);
 
         state.DeathBg3TransferCount++;

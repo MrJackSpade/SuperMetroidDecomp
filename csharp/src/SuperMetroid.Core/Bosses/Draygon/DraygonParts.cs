@@ -11,6 +11,7 @@ using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.Enemies.SpriteObjects;
 
 namespace SuperMetroid.Core.Bosses.Draygon;
 

@@ -142,7 +142,7 @@ internal sealed class NorfairRidleyCombat
         if (hasPalette)
             return;
 
-        _roomFx.PublishRidleyLiquidMotion(state, RidleyLiquidRomData.BattleHeight,
+        RidleyLiquidMotion.Publish(_roomFx, state, RidleyLiquidRomData.BattleHeight,
             RidleyLiquidRomData.RiseVelocity, RidleyLiquidRomData.RiseDelay);
         state.FadePaletteOffset = 0;
         CeresRidleyFlight.StartRidleyProgram(state, slot, RidleyBodyProgram.TransitionToFlying);

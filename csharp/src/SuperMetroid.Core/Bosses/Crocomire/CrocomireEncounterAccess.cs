@@ -12,14 +12,14 @@ namespace SuperMetroid.Core.Bosses.Crocomire;
 internal sealed class CrocomireEncounterAccess
 {
     /// <summary>The enemy pass's results, which this behavior writes.</summary>
-    private readonly EnemyFrameResultBuilder _frameResults;
+    private readonly BossFrameResultBuilder _frameResults;
     /// <summary>Accesses the active room, enemy slots, and shared RNG.</summary>
     private readonly EnemyRoomBinding _room;
     /// <summary>Spawns Crocomire's attacks, dust, smoke, and post-death drops.</summary>
     private readonly EnemyProjectileEngine _projectiles;
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
-    internal CrocomireEncounterAccess(EnemyFrameResultBuilder frameResults, EnemyRoomBinding room, EnemyProjectileEngine projectiles)
+    internal CrocomireEncounterAccess(BossFrameResultBuilder frameResults, EnemyRoomBinding room, EnemyProjectileEngine projectiles)
     {
         _frameResults = frameResults;
         _room = room;

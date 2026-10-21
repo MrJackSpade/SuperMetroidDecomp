@@ -7,6 +7,7 @@ using SuperMetroid.Core;
 using SuperMetroid.Verification.Enemies;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
+using SuperMetroid.Core.Enemies.SaveStation;
 
 namespace SuperMetroid.Verification.Rooms.Plms;
 

@@ -1,8 +1,9 @@
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Rooms.Plms.Artwork;
 using SuperMetroid.Core.Enemies.Projectiles;
+using SuperMetroid.Core.Rooms.Plms;
 
-namespace SuperMetroid.Core.Rooms.Plms;
+namespace SuperMetroid.Core.Enemies.SaveStation;
 
 /// <summary>The save-station electricity's typed animation.</summary>
 internal sealed class SaveStationElectricityAnimation(SaveStationElectricityProgram program)

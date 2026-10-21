@@ -74,12 +74,8 @@ using SuperMetroid.Core.Enemies.Yard;
 using SuperMetroid.Core.Enemies.Zoa;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Rooms.Backgrounds;
-using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.Core.Rooms.Plms;
-using SuperMetroid.Core.Rooms.SpriteObjects;
 using SuperMetroid.Core.Samus;
-using SuperMetroid.Core.Samus.Grapple;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Rooms;
@@ -87,6 +83,11 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Escape;
 using SuperMetroid.Core.Escape.Artwork;
 using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Enemies.EyeDoor;
+using SuperMetroid.Core.Enemies.NoobTube;
+using SuperMetroid.Core.Enemies.OldTourianWall;
+using SuperMetroid.Core.Enemies.SpriteObjects;
+using SuperMetroid.Core.Enemies.Grapple;
 
 namespace SuperMetroid.Core.World;
 
@@ -556,8 +557,16 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
     /// <summary>The current pass's results, written by their producers and read back until the next pass.</summary>
     internal EnemyFrameResultBuilder FrameResults { get; } = new();
 
+    /// <summary>The bosses' results from the enemy pass.</summary>
+    internal BossFrameResultBuilder BossFrameResults { get; } = new();
+
     /// <inheritdoc/>
-    public EnemyFrameResult LastEnemyFrame => FrameResults.Build();
+    public EnemyFrameResult LastEnemyFrame => BuildFrameResult();
+
+    /// <summary>The enemy pass's results so far, the bosses' included.</summary>
+    private EnemyFrameResult BuildFrameResult() => new(FrameResults.Elevator, FrameResults.ElevatorClearedProjectileData,
+        BossFrameResults.DraygonDiscardedSamusPoseRequests, BossFrameResults.CeresEscapeStarted, BossFrameResults.LayerOneXOverride,
+        BossFrameResults.DeleteLiquidHdmaObjects, FrameResults.Gunship, BossFrameResults.RoomEffects());
 
     /// <summary>
     /// Creates a room's enemy system: all 32 stable physical slot objects, starting from the words the replaced room's
@@ -617,20 +626,20 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
         TourianUnlockBehavior = new TourianUnlockBehavior(Room, Projectiles, Earthquake, Audio, Presentation, AreaArtworkBinding);
         TourianEntranceStatueBehavior = new TourianEntranceStatueBehavior(Projectiles, Presentation, AreaArtworkBinding);
         StokeBehavior = new StokeBehavior(Room, Terrain, Projectiles);
-        SporeSpawnBehavior = new SporeSpawnBehavior(new SporeSpawnBehaviorDependencies { Room = Room, Projectiles = Projectiles, SpriteObjects = SpriteObjects, Presentation = Presentation, FrameContext = FrameContext, Collision = Collision, DeathsAndDrops = DeathsAndDrops, FrameResults = FrameResults , BossArtwork = BossArtworkBinding });
+        SporeSpawnBehavior = new SporeSpawnBehavior(new SporeSpawnBehaviorDependencies { Room = Room, Projectiles = Projectiles, SpriteObjects = SpriteObjects, Presentation = Presentation, FrameContext = FrameContext, Collision = Collision, DeathsAndDrops = DeathsAndDrops, FrameResults = BossFrameResults , BossArtwork = BossArtworkBinding });
         FallingSparksBehavior = new FallingSparksBehavior(Room, Projectiles, SpriteObjects);
         SparkBehavior = new SparkBehavior(Room, FallingSparksBehavior);
         SkulteraBehavior = new SkulteraBehavior(Terrain);
         SkreeBehavior = new SkreeBehavior(Audio, Projectiles, DeathsAndDrops);
         ShuttersBehavior = new ShuttersBehavior();
         DeadSidehopperBehavior = new DeadSidehopperBehavior(new DeadSidehopperBehaviorDependencies { Room = Room, Terrain = Terrain, SlotTable = SlotTable, Presentation = Presentation, FrameContext = FrameContext, Projectiles = Projectiles, Collision = Collision, DeadMonsters = DeadMonsters });
-        ShitroidBehavior = new ShitroidBehavior(Room, SlotTable, Presentation, ZebetiteBehavior, FrameResults, BossArtworkBinding);
+        ShitroidBehavior = new ShitroidBehavior(Room, SlotTable, Presentation, ZebetiteBehavior, BossFrameResults, BossArtworkBinding);
         ShaktoolBehavior = new ShaktoolBehavior(Terrain, Projectiles, SlotTable, Collision);
         SbugBehavior = new SbugBehavior(Room, Terrain);
         RipperBehavior = new RipperBehavior(Terrain);
         RioBehavior = new RioBehavior(Room, Terrain);
         RinkaBehavior = new RinkaBehavior(SlotTable, Collision, FrameContext, Projectiles, DeathsAndDrops);
-        CeresRidleyBehavior = new CeresRidleyBehavior(new CeresRidleyBehaviorDependencies { FrameResults = FrameResults, Dispatch = Dispatch, Room = Room, Earthquake = Earthquake, Audio = Audio, SlotTable = SlotTable, Presentation = BossPresentation, Collision = Collision, RidleyEncounter = RidleyEncounter, RidleyTail = RidleyTail, RoomStatus = RoomStatus , AreaArtwork = AreaArtworkBinding  });
+        CeresRidleyBehavior = new CeresRidleyBehavior(new CeresRidleyBehaviorDependencies { FrameResults = BossFrameResults, Dispatch = Dispatch, Room = Room, Earthquake = Earthquake, Audio = Audio, SlotTable = SlotTable, Presentation = BossPresentation, Collision = Collision, RidleyEncounter = RidleyEncounter, RidleyTail = RidleyTail, RoomStatus = RoomStatus , AreaArtwork = AreaArtworkBinding  });
         RidleyBehavior = new RidleyBehavior(new RidleyBehaviorDependencies { Dispatch = Dispatch, Room = Room, Earthquake = Earthquake, Audio = Audio, Presentation = BossPresentation, DeathsAndDrops = DeathsAndDrops, RidleyEncounter = RidleyEncounter, RidleyTail = RidleyTail, CeresRidleyBehavior = CeresRidleyBehavior, RidleyProjectiles = RidleyProjectiles, RoomStatus = RoomStatus, RoomFx = RoomFx  });
         PuyoBehavior = new PuyoBehavior(Room, Terrain);
         PrePhantoonRoomBehavior = new PrePhantoonRoomBehavior(Room, Projectiles);
@@ -648,7 +657,7 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
         NinjaSpacePirateBehavior = new NinjaSpacePirateBehavior(Room, Terrain, Projectiles, SpriteObjects, Presentation, WalkingSpacePirateBehavior);
         MultiviolaBehavior = new MultiviolaBehavior(Terrain);
         BabyMetroidCutsceneBehavior = new BabyMetroidCutsceneBehavior(new BabyMetroidCutsceneBehaviorDependencies { Dispatch = Dispatch, Room = Room, Audio = Audio, SlotTable = SlotTable, Presentation = Presentation, FrameContext = FrameContext, Projectiles = Projectiles, MotherBrainEncounter = MotherBrainEncounter , BossArtwork = BossArtworkBinding });
-        MotherBrainBehavior = new MotherBrainBehavior(new MotherBrainBehaviorDependencies { FrameResults = FrameResults, Dispatch = Dispatch, Room = Room, Projectiles = Projectiles, Earthquake = Earthquake, Audio = Audio, Presentation = BossPresentation, FrameContext = FrameContext, Collision = Collision, DeathsAndDrops = DeathsAndDrops, MotherBrainEncounter = MotherBrainEncounter, RoomActors = new MotherBrainRoomActors(BabyMetroidCutsceneBehavior, RinkaBehavior, WalkingSpacePirateBehavior, RidleyProjectiles)  });
+        MotherBrainBehavior = new MotherBrainBehavior(new MotherBrainBehaviorDependencies { FrameResults = BossFrameResults, Dispatch = Dispatch, Room = Room, Projectiles = Projectiles, Earthquake = Earthquake, Audio = Audio, Presentation = BossPresentation, FrameContext = FrameContext, Collision = Collision, DeathsAndDrops = DeathsAndDrops, MotherBrainEncounter = MotherBrainEncounter, RoomActors = new MotherBrainRoomActors(BabyMetroidCutsceneBehavior, RinkaBehavior, WalkingSpacePirateBehavior, RidleyProjectiles)  });
         MochtroidBehavior = new MochtroidBehavior(Terrain, Audio, FrameContext, Collision);
         MetroidBehavior = new MetroidBehavior(Room, Terrain, Audio, SpriteObjects, FrameContext, DeathsAndDrops);
         MetareeBehavior = new MetareeBehavior(Projectiles);
@@ -657,7 +666,7 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
         MagdolliteBehavior = new MagdolliteBehavior(Room, Projectiles, SlotTable, Presentation, Collision, DeathsAndDrops);
         LowerNorfairRioBehavior = new LowerNorfairRioBehavior(Room, Terrain, SlotTable);
         KzanBehavior = new KzanBehavior(SlotTable);
-        KraidBehavior = new KraidBehavior(new KraidBehaviorDependencies { FrameResults = FrameResults, Room = Room, Terrain = Terrain, Projectiles = Projectiles, Earthquake = Earthquake, Audio = Audio, SpriteObjects = SpriteObjects, SlotTable = SlotTable, Presentation = BossPresentation, Collision = Collision, DeathsAndDrops = DeathsAndDrops, ZebetiteBehavior = ZebetiteBehavior  });
+        KraidBehavior = new KraidBehavior(new KraidBehaviorDependencies { FrameResults = BossFrameResults, Room = Room, Terrain = Terrain, Projectiles = Projectiles, Earthquake = Earthquake, Audio = Audio, SpriteObjects = SpriteObjects, SlotTable = SlotTable, Presentation = BossPresentation, Collision = Collision, DeathsAndDrops = DeathsAndDrops, ZebetiteBehavior = ZebetiteBehavior  });
         KiHunterBehavior = new KiHunterBehavior(Room, Terrain, Projectiles, Audio, SlotTable);
         KagoBehavior = new KagoBehavior(Room, Projectiles, Earthquake, SlotTable, DeathsAndDrops, RoomStatus);
         HoppersBehavior = new HoppersBehavior(Room, Terrain);
@@ -672,13 +681,13 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
         EtecoonBehavior = new EtecoonBehavior(Terrain, Earthquake, ElevatorBehavior);
         EscapeExplosionsBehavior = new EscapeExplosionsBehavior(Audio, SpriteObjects);
         EscapeAnimalsBehavior = new EscapeAnimalsBehavior(Room, Terrain);
-        DraygonBehavior = new DraygonBehavior(new DraygonBehaviorDependencies { FrameResults = FrameResults, Room = Room, Projectiles = Projectiles, Earthquake = Earthquake, Audio = Audio, SpriteObjects = SpriteObjects, Presentation = Presentation, FrameContext = FrameContext, Collision = Collision, DeathsAndDrops = DeathsAndDrops, ScrollCap = ScrollCap , BossArtwork = BossArtworkBinding });
+        DraygonBehavior = new DraygonBehavior(new DraygonBehaviorDependencies { FrameResults = BossFrameResults, Room = Room, Projectiles = Projectiles, Earthquake = Earthquake, Audio = Audio, SpriteObjects = SpriteObjects, Presentation = Presentation, FrameContext = FrameContext, Collision = Collision, DeathsAndDrops = DeathsAndDrops, ScrollCap = ScrollCap , BossArtwork = BossArtworkBinding });
         DragonBehavior = new DragonBehavior(Projectiles, SlotTable, Collision, Audio);
         DownwardGateBehavior = new DownwardGateBehavior(Room, Projectiles);
         DeadTourianBehavior = new DeadTourianBehavior(Room, FrameContext, Projectiles, DeadMonsters);
         DeadTorizoBehavior = new DeadTorizoBehavior(Room, FrameContext, Projectiles, Presentation);
         DachoraBehavior = new DachoraBehavior(Room, Terrain, SlotTable, Presentation);
-        CrocomireBehavior = new CrocomireBehavior(new CrocomireBehaviorDependencies { FrameResults = FrameResults, Room = Room, Terrain = Terrain, Projectiles = Projectiles, Earthquake = Earthquake, SpriteObjects = SpriteObjects, Presentation = BossPresentation, FrameContext = FrameContext, Collision = Collision, DeathsAndDrops = DeathsAndDrops, ZebetiteBehavior = ZebetiteBehavior, RoomStatus = RoomStatus  });
+        CrocomireBehavior = new CrocomireBehavior(new CrocomireBehaviorDependencies { FrameResults = BossFrameResults, Room = Room, Terrain = Terrain, Projectiles = Projectiles, Earthquake = Earthquake, SpriteObjects = SpriteObjects, Presentation = BossPresentation, FrameContext = FrameContext, Collision = Collision, DeathsAndDrops = DeathsAndDrops, ZebetiteBehavior = ZebetiteBehavior, RoomStatus = RoomStatus  });
         CrawlersBehavior = new CrawlersBehavior(Terrain, Earthquake);
         ChozoStatueBehavior = new ChozoStatueBehavior(Room, Terrain, Projectiles, Audio, SlotTable, Presentation, RoomFx);
         ChootBehavior = new ChootBehavior();
@@ -688,7 +697,7 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
         BullBehavior = new BullBehavior();
         BoyonBehavior = new BoyonBehavior();
         BoulderBehavior = new BoulderBehavior(Terrain, Projectiles);
-        BotwoonBehavior = new BotwoonBehavior(new BotwoonBehaviorDependencies { Room = Room, Projectiles = Projectiles, SpriteObjects = SpriteObjects, SlotTable = SlotTable, Presentation = Presentation, Collision = Collision, DeathsAndDrops = DeathsAndDrops, FrameResults = FrameResults , BossArtwork = BossArtworkBinding });
+        BotwoonBehavior = new BotwoonBehavior(new BotwoonBehaviorDependencies { Room = Room, Projectiles = Projectiles, SpriteObjects = SpriteObjects, SlotTable = SlotTable, Presentation = Presentation, Collision = Collision, DeathsAndDrops = DeathsAndDrops, FrameResults = BossFrameResults , BossArtwork = BossArtworkBinding });
         Instructions = new EnemyInstructionInterpreter(new BossBg2Copies(CrocomireBehavior, MotherBrainEncounter, Room), Presentation, Room);
         Drawing = new EnemyDrawList(new EnemyDrawListDependencies { DeadTorizoBehavior = DeadTorizoBehavior, FrameContext = FrameContext, Instructions = Instructions, MotherBrainBehavior = MotherBrainBehavior, Presentation = Presentation, Room = Room, SlotTable = SlotTable });
         BombTorizoBehavior = new BombTorizoBehavior(new BombTorizoBehaviorDependencies { Room = Room, Terrain = Terrain, Projectiles = Projectiles, Earthquake = Earthquake, Audio = Audio, Presentation = Presentation, FrameContext = FrameContext, Collision = Collision, DeathsAndDrops = DeathsAndDrops , BossArtwork = BossArtworkBinding });
@@ -838,6 +847,7 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
         Presentation.BindVram(request.Backgrounds);
         Presentation.BindCgram(request.Cgram);
         FrameResults.Begin();
+        BossFrameResults.Begin();
         BeginEnemySoundRequestFrame();
         // Initialization AI reads the already-positioned destination camera before the first enemy frame captures its own.
         RinkaBehavior.SetRinkaCamera(request.Camera);
@@ -874,6 +884,7 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
         var aiFrame = new ClockedEnemyAiFrame(frame, new FrameCounters(
             frame.NmiFrameCounter8 ?? unchecked((byte)FrameContext.RandomEnemyCounter)));
         FrameResults.Begin();
+        BossFrameResults.Begin();
         BeginEnemySoundRequestFrame();
         foreach (IEnemySpecies species in _species)
             species.BeginEnemyFrame(frame);
@@ -1038,7 +1049,7 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
         if (!frame.TimeIsFrozen)
             SpriteObjects.StepRoomSpriteObjects();
         CollectLegacyEnemyAudioRequests();
-        return FrameResults.Build();
+        return BuildFrameResult();
     }
 
     /// <summary>Ports <c>Handle_Room_Shaking</c> at $A0:8687-$8711: the earthquake's frame step, then the actor shake it selects.</summary>

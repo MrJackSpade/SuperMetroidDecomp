@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 internal sealed record CeresRidleyGetawayDependencies
 {
     /// <summary>The enemy pass's results, which this behavior writes.</summary>
-    public required EnemyFrameResultBuilder FrameResults { get; init; }
+    public required BossFrameResultBuilder FrameResults { get; init; }
 
     /// <summary>Provides room randomness and Ceres artwork state.</summary>
     public required EnemyRoomBinding Room { get; init; }

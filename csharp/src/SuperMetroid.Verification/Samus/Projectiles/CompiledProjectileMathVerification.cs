@@ -7,12 +7,12 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Flies;
 using SuperMetroid.Core.Enemies.Rios;
 using SuperMetroid.Core.Enemies.Shaktool;
-using SuperMetroid.Core.Rooms.Doors;
-using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Samus.Projectiles;
 using SuperMetroid.Verification.Enemies;
+using SuperMetroid.Core.Enemies.EyeDoor;
+using SuperMetroid.Core.Enemies.NoobTube;
 
 /// <summary>Checks compiled projectile trigonometry across production consumers against cartridge samples.</summary>
 internal static class CompiledProjectileMathVerification

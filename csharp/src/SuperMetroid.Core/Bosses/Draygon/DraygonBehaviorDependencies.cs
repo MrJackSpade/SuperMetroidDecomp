@@ -2,9 +2,9 @@ using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Fx;
-using SuperMetroid.Core.Rooms.SpriteObjects;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Enemies.SpriteObjects;
 
 namespace SuperMetroid.Core.Bosses.Draygon;
 
@@ -13,7 +13,7 @@ namespace SuperMetroid.Core.Bosses.Draygon;
 internal sealed record DraygonBehaviorDependencies
 {
     /// <summary>The enemy pass's results, which this behavior writes.</summary>
-    public required EnemyFrameResultBuilder FrameResults { get; init; }
+    public required BossFrameResultBuilder FrameResults { get; init; }
 
     /// <summary>Room.</summary>
     public required EnemyRoomBinding Room { get; init; }

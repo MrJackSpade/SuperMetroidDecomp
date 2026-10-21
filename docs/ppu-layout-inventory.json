@@ -501,7 +501,7 @@
       "encoding": "4-bpp OBJ characters",
       "aliasOf": "GameplayVramLayout.ObjectCharacters",
       "consumers": [
-        "csharp/src/SuperMetroid.Core/Enemies/EnemyVram.cs"
+        "csharp/src/SuperMetroid.Core/Bosses/Artwork/BossVram.cs"
       ]
     },
     {
@@ -513,7 +513,7 @@
       "encoding": "4-bpp OBJ characters",
       "aliasOf": "EnemyVramLayout.EnemyTiles",
       "consumers": [
-        "csharp/src/SuperMetroid.Core/Enemies/EnemyVram.cs"
+        "csharp/src/SuperMetroid.Core/Bosses/Artwork/BossVram.cs"
       ]
     },
     {
@@ -525,7 +525,7 @@
       "encoding": "2-bpp BG3 characters",
       "aliasOf": "GameplayVramLayout.HudCharacters",
       "consumers": [
-        "csharp/src/SuperMetroid.Core/Enemies/EnemyVram.cs"
+        "csharp/src/SuperMetroid.Core/Bosses/Artwork/BossVram.cs"
       ]
     },
     {
@@ -537,7 +537,7 @@
       "encoding": "4-bpp BG characters",
       "aliasOf": "GameplayVramLayout.BackgroundCharacters",
       "consumers": [
-        "csharp/src/SuperMetroid.Core/Enemies/EnemyVram.cs"
+        "csharp/src/SuperMetroid.Core/Bosses/Artwork/BossVram.cs"
       ]
     },
     {

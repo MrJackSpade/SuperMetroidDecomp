@@ -10,12 +10,12 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 internal sealed class MotherBrainEncounterAccess
 {
     /// <summary>The enemy pass's results, which this behavior writes.</summary>
-    private readonly EnemyFrameResultBuilder _frameResults;
+    private readonly BossFrameResultBuilder _frameResults;
     /// <summary>Holds the shared body/head state for the current Mother Brain room.</summary>
     private readonly MotherBrainEncounter _motherBrainEncounter;
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
-    internal MotherBrainEncounterAccess(EnemyFrameResultBuilder frameResults, MotherBrainEncounter motherBrainEncounter)
+    internal MotherBrainEncounterAccess(BossFrameResultBuilder frameResults, MotherBrainEncounter motherBrainEncounter)
     {
         _frameResults = frameResults;
         _motherBrainEncounter = motherBrainEncounter;

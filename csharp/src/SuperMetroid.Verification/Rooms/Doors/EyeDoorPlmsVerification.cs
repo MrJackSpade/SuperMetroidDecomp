@@ -13,6 +13,7 @@ using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.TestSupport.VerificationImporters;
 namespace SuperMetroid.Verification.Rooms.Doors;
+
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Verification.Enemies;
 using SuperMetroid.Core.World;

@@ -15,7 +15,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 internal sealed class MotherBrainFakeDeath
 {
     /// <summary>The enemy pass's results, which this behavior writes.</summary>
-    private readonly EnemyFrameResultBuilder _frameResults;
+    private readonly BossFrameResultBuilder _frameResults;
     /// <summary>Routes Mother Brain's AI and projectile handlers through the room dispatch tables.</summary>
     private readonly IEnemyDispatch _dispatch;
     /// <summary>Provides room scratch memory, tiles, palette state, and effects used by the encounter.</summary>

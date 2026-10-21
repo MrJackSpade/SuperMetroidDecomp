@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 internal sealed record MotherBrainFakeDeathDependencies
 {
     /// <summary>The enemy pass's results, which this behavior writes.</summary>
-    public required EnemyFrameResultBuilder FrameResults { get; init; }
+    public required BossFrameResultBuilder FrameResults { get; init; }
 
     /// <summary>Routes Mother Brain's AI and projectile handlers through the room dispatch tables.</summary>
     public required IEnemyDispatch Dispatch { get; init; }

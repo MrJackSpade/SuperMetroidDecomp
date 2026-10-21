@@ -2,8 +2,8 @@ using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Fx;
-using SuperMetroid.Core.Rooms.SpriteObjects;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Enemies.SpriteObjects;
 
 namespace SuperMetroid.Core.Bosses.Crocomire;
 
@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Bosses.Crocomire;
 internal sealed record CrocomireBehaviorDependencies
 {
     /// <summary>The enemy pass's results, which this behavior writes.</summary>
-    public required EnemyFrameResultBuilder FrameResults { get; init; }
+    public required BossFrameResultBuilder FrameResults { get; init; }
 
     /// <summary>Room.</summary>
     public required EnemyRoomBinding Room { get; init; }

@@ -10,7 +10,7 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 internal sealed record CeresRidleyBehaviorDependencies
 {
     /// <summary>The enemy pass's results, which this behavior writes.</summary>
-    public required EnemyFrameResultBuilder FrameResults { get; init; }
+    public required BossFrameResultBuilder FrameResults { get; init; }
 
     /// <summary>Dispatch.</summary>
     public required IEnemyDispatch Dispatch { get; init; }

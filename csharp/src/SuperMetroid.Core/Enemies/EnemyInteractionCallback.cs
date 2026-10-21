@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Bosses.Phantoon;
-
 namespace SuperMetroid.Core.Enemies;
 
 /// <summary>
@@ -237,9 +235,9 @@ internal enum EnemyInteractionCallback
     /// <summary>Botwoon Power Bomb callback at $B3:A041.</summary>
     BotwoonPowerBomb = 0xb30000 | EnemyAiCodePointers.BankB3.BotwoonPowerBomb,
     /// <summary>Phantoon body touch callback at $A7:DD95.</summary>
-    PhantoonTouch = 0xa70000 | PhantoonCollisionDefinitions.TouchAi,
+    PhantoonTouch = 0xa70000 | EnemyAiCodePointers.BankA7.PhantoonTouch,
     /// <summary>Phantoon body shot callback at $A7:DD9B.</summary>
-    PhantoonShot = 0xa70000 | PhantoonCollisionDefinitions.ShotAi,
+    PhantoonShot = 0xa70000 | EnemyAiCodePointers.BankA7.PhantoonShot,
     /// <summary>Dead Zoomer's touch and shot rot trigger at $A9:DCF8.</summary>
     DeadZoomerTouchAndShot = 0xa90000 | EnemyAiCodePointers.BankA9.DeadZoomerTouchAndShot,
     /// <summary>Dead Zoomer's Power Bomb rot trigger at $A9:DCED.</summary>

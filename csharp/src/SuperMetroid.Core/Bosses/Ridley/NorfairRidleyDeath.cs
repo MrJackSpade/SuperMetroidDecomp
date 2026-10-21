@@ -78,7 +78,7 @@ internal sealed class NorfairRidleyDeath
             return;
 
         state.Velocity = new EightEightVector<RoomPixels>(0, 0);
-        _roomFx.PublishRidleyLiquidMotion(state, RidleyLiquidRomData.DrainedHeight,
+        RidleyLiquidMotion.Publish(_roomFx, state, RidleyLiquidRomData.DrainedHeight,
             RidleyLiquidRomData.DrainVelocity, RidleyLiquidRomData.DrainDelay);
         state.DeathExplosionTimer = NativeCountdown.Start(0);
         state.DeathExplosionCount = 0;

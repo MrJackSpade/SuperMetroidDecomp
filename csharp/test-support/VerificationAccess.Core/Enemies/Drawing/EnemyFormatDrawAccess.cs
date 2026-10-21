@@ -2,8 +2,8 @@ using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Rooms.SpriteObjects;
 using SuperMetroid.Core.World;
+using SuperMetroid.Core.Enemies.SpriteObjects;
 
 namespace SuperMetroid.Core.Enemies.Drawing;
 

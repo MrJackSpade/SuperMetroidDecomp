@@ -1,9 +1,9 @@
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Enemies;
-using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Rooms.LevelData;
 namespace SuperMetroid.Verification.Rooms.Doors;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Enemies.EyeDoor;
 
 /// <summary>Checks the radius-zero eye-door sweat scan at an aligned block boundary.</summary>
 internal static class EyeDoorSweatSpanUnderflowVerification

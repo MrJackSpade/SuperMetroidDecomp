@@ -72,7 +72,7 @@ internal static class KraidSinkScheduleVerification
         var state = new KraidEnemyState();
         enemies.VerificationServices().ReadRandom = () => 0;
         Action<RoomEnemySlot, KraidEnemyState> step = enemies.KraidBehavior.Death.ProcessKraidSinkTable;
-        var requests = enemies.FrameResults.KraidPlms;
+        var requests = enemies.BossFrameResults.KraidPlms;
         foreach (var entry in callbacks.DistinctBy(entry => entry.Value))
         {
             foreach (var occupied in enemies.Projectiles.EnemyProjectiles) occupied.Clear();
@@ -121,7 +121,7 @@ internal static class KraidSinkScheduleVerification
         var state = new KraidEnemyState();
         enemies.VerificationServices().ReadRandom = () => 0;
         Action<RoomEnemySlot, KraidEnemyState> step = enemies.KraidBehavior.Death.ProcessKraidSinkTable;
-        var requests = enemies.FrameResults.KraidPlms;
+        var requests = enemies.BossFrameResults.KraidPlms;
         var body = enemies.SlotTable.Slots[0];
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
         {

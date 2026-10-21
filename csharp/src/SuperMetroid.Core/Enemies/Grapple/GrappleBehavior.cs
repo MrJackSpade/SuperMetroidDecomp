@@ -1,10 +1,11 @@
 using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Samus.Drawing;
+using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Samus.Grapple;
 
-namespace SuperMetroid.Core.Samus.Grapple;
+namespace SuperMetroid.Core.Enemies.Grapple;
 
 /// <summary>The Grapple species owner: its per-room state, AI routines and the interactions it registers.</summary>
 internal sealed class GrappleBehavior : IGrappleTargets

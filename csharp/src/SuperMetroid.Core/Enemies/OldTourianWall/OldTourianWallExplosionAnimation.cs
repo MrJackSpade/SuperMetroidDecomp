@@ -2,8 +2,9 @@ using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Programs;
 using D = SuperMetroid.Core.Rooms.Plms.OldTourianEscapeShaftWallExplosionInstructionProgramDefinitions;
 using Step = SuperMetroid.Core.Programs.AnimationProgramStep<SuperMetroid.Core.Rooms.Plms.OldTourianWallExplosionProgram, int, SuperMetroid.Core.Rooms.Plms.OldTourianWallExplosionCue>;
+using SuperMetroid.Core.Rooms.Plms;
 
-namespace SuperMetroid.Core.Rooms.Plms;
+namespace SuperMetroid.Core.Enemies.OldTourianWall;
 
 /// <summary>The old Tourian escape-shaft fake-wall explosion's typed program, in place of its bank-$86 list.</summary>
 internal sealed class OldTourianWallExplosionAnimation(OldTourianWallExplosionProgram program)

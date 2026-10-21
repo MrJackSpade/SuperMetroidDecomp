@@ -1,10 +1,11 @@
-﻿using SuperMetroid.Core.Enemies;
-using SuperMetroid.Core.Enemies.Projectiles;
+﻿using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus.Projectiles;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Rooms.Doors;
 
-namespace SuperMetroid.Core.Rooms.Doors;
+namespace SuperMetroid.Core.Enemies.EyeDoor;
 
 /// <summary>The eye door species owner: its per-room state, AI routines and the interactions it registers.</summary>
 internal sealed class EyeDoorBehavior

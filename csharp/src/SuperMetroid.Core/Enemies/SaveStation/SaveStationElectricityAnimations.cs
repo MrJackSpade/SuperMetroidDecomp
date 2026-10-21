@@ -2,8 +2,9 @@ using SuperMetroid.Core.Programs;
 using CK = SuperMetroid.Core.Enemies.Projectiles.EnemyProjectileCommonCueKind;
 using P = SuperMetroid.Core.Rooms.Plms.SaveStationElectricityProgram;
 using SuperMetroid.Core.Enemies.Projectiles;
+using SuperMetroid.Core.Rooms.Plms;
 
-namespace SuperMetroid.Core.Rooms.Plms;
+namespace SuperMetroid.Core.Enemies.SaveStation;
 
 /// <summary>
 /// The save-station electricity's twenty eight-pose cycles (#1296), in place of their bank-$86 lists ($86:E683..E6AC). Each frame shows a <see cref="SaveStationElectricityFrame"/> pose and each

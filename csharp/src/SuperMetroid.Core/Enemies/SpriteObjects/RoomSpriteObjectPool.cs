@@ -1,10 +1,10 @@
 ﻿using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Rooms.Artwork;
+using SuperMetroid.Core.Rooms.SpriteObjects;
 
-namespace SuperMetroid.Core.Rooms.SpriteObjects;
+namespace SuperMetroid.Core.Enemies.SpriteObjects;
 
 /// <summary>
 /// The bank-$B4 room sprite-object pool: 32 instruction-driven decorative actors (dust, splashes, shells)

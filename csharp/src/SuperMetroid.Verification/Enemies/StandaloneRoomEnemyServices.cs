@@ -1,6 +1,5 @@
 using SuperMetroid.Core;
 using SuperMetroid.Core.Enemies;
-using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.Plms;

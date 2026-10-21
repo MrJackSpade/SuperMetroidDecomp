@@ -16,7 +16,7 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 internal sealed class MotherBrainRainbowAndDeath
 {
     /// <summary>The enemy pass's results, which this behavior writes.</summary>
-    private readonly EnemyFrameResultBuilder _frameResults;
+    private readonly BossFrameResultBuilder _frameResults;
     /// <summary>Provides room scratch memory, tiles, palette state, and effects used by the encounter.</summary>
     private readonly EnemyRoomBinding _room;
     /// <summary>Owns the bombs, glass, beams, turrets, and other encounter projectiles.</summary>

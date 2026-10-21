@@ -1,8 +1,8 @@
 using SuperMetroid.Core.Enemies.Elevator;
 using SuperMetroid.Core.Enemies.Gunship;
-using SuperMetroid.Core.World;
+using SuperMetroid.Core.Bosses;
 
-namespace SuperMetroid.Core.Enemies;
+namespace SuperMetroid.Core.World;
 
 /// <summary>
 /// What one enemy pass produced for the runtime to apply after EnemyMain. Each value is applied at the point the native

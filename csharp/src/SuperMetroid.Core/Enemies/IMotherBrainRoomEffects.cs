@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Fx;
 
-namespace SuperMetroid.Core.Bosses.MotherBrain;
+namespace SuperMetroid.Core.Enemies;
 
 /// <summary>The room-level effects Mother Brain's fight drives.</summary>
 public interface IMotherBrainRoomEffects

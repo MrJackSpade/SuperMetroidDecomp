@@ -6,6 +6,9 @@ using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies.EyeDoor;
+using SuperMetroid.Core.Enemies.NoobTube;
+using SuperMetroid.Core.Enemies.OldTourianWall;
 
 namespace SuperMetroid.Core.World;
 

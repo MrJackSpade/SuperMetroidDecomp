@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Enemies.SaveStation;
+
 namespace SuperMetroid.Core.Rooms.Plms;
 
 /// <summary>

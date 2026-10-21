@@ -17,6 +17,7 @@ namespace SuperMetroid.Verification.Rooms.Plms;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Verification.Enemies;
 using SuperMetroid.Core.World;
+using SuperMetroid.Core.Enemies.Projectiles;
 
 /// <summary>Focused room-PLM and bank-$86 actor checks for downward gates and their shot triggers.</summary>
 internal static class DownwardGatePlmsVerification

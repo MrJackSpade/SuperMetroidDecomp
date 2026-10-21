@@ -11,6 +11,7 @@ using SuperMetroid.Core;
 using SuperMetroid.Verification.Enemies;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
+using SuperMetroid.Core.Enemies.EyeDoor;
 
 namespace SuperMetroid.Verification.Rooms.Doors;
 

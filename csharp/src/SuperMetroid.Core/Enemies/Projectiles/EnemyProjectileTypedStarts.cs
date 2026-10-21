@@ -19,6 +19,9 @@ using SuperMetroid.Core.Enemies.FallingSparks;
 using SuperMetroid.Core.Enemies.WorkRobots;
 using SuperMetroid.Core.Enemies.Dragon;
 using SuperMetroid.Core.Areas.Tourian;
+using SuperMetroid.Core.Enemies.EyeDoor;
+using SuperMetroid.Core.Enemies.NoobTube;
+using SuperMetroid.Core.Enemies.SaveStation;
 
 namespace SuperMetroid.Core.Enemies.Projectiles;
 

@@ -263,7 +263,7 @@ internal sealed class CrocomireSkeleton
                 CrocomireSkeletonTransferDefinition frame))
             return;
         // Only character pixels are editable; the transfer order and OBJ position are not.
-        _presentation.ObjCharacters.RecordUpload(EnemyVram.CrocomireSkeletonTilesDma(frame.DestinationOffset),
+        _presentation.ObjCharacters.RecordUpload(BossVram.CrocomireSkeletonTilesDma(frame.DestinationOffset),
             artwork.Chunk(entry).Length, new CrocomireSkeletonChunkCharacters(entry));
         death.SkeletonTileChunk++;
     }

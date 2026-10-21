@@ -22,6 +22,9 @@ internal static class EnemyStagingDefinitions
     /// <summary>Mother Brain's rot table at <c>$7E:9700</c>, as a heap offset.</summary>
     internal const int MotherBrainRotTableOffset = 0x700;
 
+    /// <summary>Entries in Mother Brain's rot table.</summary>
+    internal const int MotherBrainRotTableEntryCount = 48;
+
     /// <summary>Dead Torizo's sand strips at <c>$7E:9500</c>, as a heap offset.</summary>
     internal const int DeadTorizoSandOffset = 0x500;
 

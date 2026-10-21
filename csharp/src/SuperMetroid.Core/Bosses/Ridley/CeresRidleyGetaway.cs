@@ -16,7 +16,7 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 internal sealed class CeresRidleyGetaway
 {
     /// <summary>The enemy pass's results, which this behavior writes.</summary>
-    private readonly EnemyFrameResultBuilder _frameResults;
+    private readonly BossFrameResultBuilder _frameResults;
     /// <summary>Provides room randomness and Ceres artwork state.</summary>
     private readonly EnemyRoomBinding _room;
     /// <summary>Queues Ceres battle and getaway sound effects.</summary>

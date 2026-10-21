@@ -1,10 +1,10 @@
 using static SuperMetroid.Verification.Rooms.Plms.SaveStationElectricityNativeListAddresses;
-using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.Core.Rooms.Plms.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Verification.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
+using SuperMetroid.Core.Enemies.SaveStation;
 
 namespace SuperMetroid.Verification.Rooms.Plms;
 

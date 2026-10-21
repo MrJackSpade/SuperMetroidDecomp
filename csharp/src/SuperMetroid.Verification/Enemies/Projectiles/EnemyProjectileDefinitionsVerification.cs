@@ -22,6 +22,7 @@ namespace SuperMetroid.Verification.Enemies.Projectiles;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Bosses.Phantoon;
 using SuperMetroid.Core.World;
+using SuperMetroid.Core.Enemies.EyeDoor;
 
 /// <summary>Checks all compiled enemy projectile definitions and their production collision consumers.</summary>
 internal static class EnemyProjectileDefinitionsVerification

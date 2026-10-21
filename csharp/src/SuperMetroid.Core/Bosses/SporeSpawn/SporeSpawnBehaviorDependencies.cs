@@ -1,8 +1,8 @@
 using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
-using SuperMetroid.Core.Rooms.SpriteObjects;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Enemies.SpriteObjects;
 
 namespace SuperMetroid.Core.Bosses.SporeSpawn;
 
@@ -32,7 +32,7 @@ internal sealed record SporeSpawnBehaviorDependencies
     public required EnemyDeathsAndDrops DeathsAndDrops { get; init; }
 
     /// <summary>Frame results.</summary>
-    public required EnemyFrameResultBuilder FrameResults { get; init; }
+    public required BossFrameResultBuilder FrameResults { get; init; }
 
     /// <summary>The session's installed boss artwork.</summary>
     public required BossArtworkBinding BossArtwork { get; init; }

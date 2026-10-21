@@ -17,7 +17,7 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 internal sealed class KraidRise
 {
     /// <summary>The enemy pass's results, which this behavior writes.</summary>
-    private readonly EnemyFrameResultBuilder _frameResults;
+    private readonly BossFrameResultBuilder _frameResults;
     /// <summary>Room scratch memory, services, and tilemap state used throughout the Kraid fight.</summary>
     private readonly EnemyRoomBinding _room;
     /// <summary>Owns rocks, lint, and other fight projectiles.</summary>
@@ -141,7 +141,7 @@ internal sealed class KraidRise
     {
         KraidBackgroundArtwork art = _bossArtwork.Artwork?.KraidBackground
             ?? throw new InvalidDataException("Installed enemy artwork has no Kraid background characters.");
-        EnemyVram.BindKraidRoomBackgroundTiles(_presentation.Backgrounds, KraidBehavior.KraidRoomBackgroundIdentity, art.RoomBackgroundTiles.Transfer.Span);
+        BossVram.BindKraidRoomBackgroundTiles(_presentation.Backgrounds, KraidBehavior.KraidRoomBackgroundIdentity, art.RoomBackgroundTiles.Transfer.Span);
     }
 
     /// <summary>

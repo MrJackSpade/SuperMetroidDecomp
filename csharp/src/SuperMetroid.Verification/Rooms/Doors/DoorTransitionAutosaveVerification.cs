@@ -52,6 +52,9 @@ internal static class DoorTransitionAutosaveVerification
             runtime.RoomLoader.InitializeCeresStartSamus();
             var game = CreateRetailGameFixture(new SuperMetroid.Core.Saves.SaveSlotStore(), renderGameplayFrames: false, random: random);
             game.AdoptRuntime(runtime);
+            // A host persists save RAM through an object that owns native handles, as the desktop window does (#1424).
+            using var saveRamHost = new NativeHandleSaveRamHost();
+            game.SaveRamChanged += saveRamHost.Persist;
             var assets = RepositoryInstallation.Installation.LoadAudioClips();
             game.BindAudio(assets);
             var identity = GameContentIdentity.Create(new string('A', 64), new string('B', 64), new string('C', 64),
@@ -196,6 +199,19 @@ internal static class DoorTransitionAutosaveVerification
                 throw new InvalidOperationException("Autosave cleanup escaped fixture parent.");
             Directory.Delete(directory, recursive: true);
         }
+    }
+
+    /// <summary>A save-RAM subscriber whose object graph reaches a native handle, which a debugger state cannot encode.</summary>
+    private sealed class NativeHandleSaveRamHost : IDisposable
+    {
+        /// <summary>Signalled when the game reports changed save RAM.</summary>
+        private readonly ManualResetEvent persisted = new(false);
+
+        /// <summary>Handles the game's save-RAM-changed event.</summary>
+        public void Persist() => persisted.Set();
+
+        /// <summary>Releases the native handle.</summary>
+        public void Dispose() => persisted.Dispose();
     }
 
     /// <summary>Runs the door-transition autosave verification command.</summary>

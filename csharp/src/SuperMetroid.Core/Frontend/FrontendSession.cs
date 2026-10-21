@@ -198,7 +198,11 @@ internal sealed class FrontendSession
         lastAudioRuntimeGameplayPublication = null;
         LastAudioRoomState = null;
     }
-    /// <summary>Raised after translated code changed save RAM.</summary>
+    /// <summary>
+    /// Raised after translated code changed save RAM. The handlers belong to the host, not the simulation: a debugger
+    /// state leaves them out, and the host subscribes again to a restored game.
+    /// </summary>
+    [field: NonSerialized]
     internal event Action? SaveRamChanged;
     /// <summary>Raises the game's save-RAM-changed event after translated code changed save RAM.</summary>
     internal void RaiseSaveRamChanged() => SaveRamChanged?.Invoke();

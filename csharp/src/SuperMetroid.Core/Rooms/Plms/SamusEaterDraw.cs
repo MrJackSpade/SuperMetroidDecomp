@@ -1,22 +1,22 @@
 namespace SuperMetroid.Core.Rooms.Plms;
 
-/// <summary>The eight bank-$84 Samus Eater plant draw lists, valued by native address.</summary>
-internal enum SamusEaterDraw : ushort
+/// <summary>The eight Samus Eater plant draw lists.</summary>
+internal enum SamusEaterDraw
 {
-    /// <summary>Native floor-idle draw list at $84:9E0D.</summary>
-    FloorIdle = 0x9e0d,
-    /// <summary>Native floor-chew-1 draw list at $84:9E45.</summary>
-    FloorChew1 = 0x9e45,
-    /// <summary>Native floor-chew-2 draw list at $84:9E61.</summary>
-    FloorChew2 = 0x9e61,
-    /// <summary>Native floor-chew-3 draw list at $84:9E7D.</summary>
-    FloorChew3 = 0x9e7d,
-    /// <summary>Native ceiling-idle draw list at $84:9E99.</summary>
-    CeilingIdle = 0x9e99,
-    /// <summary>Native ceiling-chew-1 draw list at $84:9ED1.</summary>
-    CeilingChew1 = 0x9ed1,
-    /// <summary>Native ceiling-chew-2 draw list at $84:9EED.</summary>
-    CeilingChew2 = 0x9eed,
-    /// <summary>Native ceiling-chew-3 draw list at $84:9F09.</summary>
-    CeilingChew3 = 0x9f09,
+    /// <summary>Native floor-idle draw list.</summary>
+    FloorIdle,
+    /// <summary>Native floor-chew-1 draw list.</summary>
+    FloorChew1,
+    /// <summary>Native floor-chew-2 draw list.</summary>
+    FloorChew2,
+    /// <summary>Native floor-chew-3 draw list.</summary>
+    FloorChew3,
+    /// <summary>Native ceiling-idle draw list.</summary>
+    CeilingIdle,
+    /// <summary>Native ceiling-chew-1 draw list.</summary>
+    CeilingChew1,
+    /// <summary>Native ceiling-chew-2 draw list.</summary>
+    CeilingChew2,
+    /// <summary>Native ceiling-chew-3 draw list.</summary>
+    CeilingChew3,
 }

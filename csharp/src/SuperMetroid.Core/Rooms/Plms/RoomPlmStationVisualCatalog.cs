@@ -13,22 +13,22 @@ public sealed class RoomPlmStationVisualCatalog
     public string ContentIdentity => SelectedPresentationHash.Create(nameof(RoomPlmStationVisualCatalog), content =>
     {
         Span<ushort> buffer = stackalloc ushort[2];
-        foreach (var frame in RoomPlmStationDrawDefinitions.All.OrderBy(frame => frame.Pointer))
+        foreach (var frame in RoomPlmStationDrawDefinitions.All.OrderBy(item => RoomPlmStationDrawDefinitions.VisualId(item.Draw), StringComparer.Ordinal))
         {
-            var shape = RoomPlmStationDrawDefinitions.Describe(frame.Pointer);
-            content.Append("frame", frame.Pointer);
+            var shape = RoomPlmStationDrawDefinitions.Describe(frame.Draw);
+            content.AppendName("frame", RoomPlmStationDrawDefinitions.VisualId(frame.Draw));
             content.Append("runs", shape.RunCount);
             for (int run = 0; run < shape.RunCount; run++)
             {
                 int count = shape.WordCount(run);
-                for (int cell = 0; cell < count; cell++) buffer[cell] = GetWord(frame.Pointer, run, cell);
+                for (int cell = 0; cell < count; cell++) buffer[cell] = GetWord(frame.Draw, run, cell);
                 content.AppendWords("words", buffer[..count]);
             }
         }
     });
 
-    /// <summary>Deep-copied visual overrides keyed by compiled draw pointer; absent frames use stock artwork.</summary>
-    private readonly Dictionary<ushort, ushort[][]>? customWords;
+    /// <summary>Deep-copied visual overrides keyed by draw; absent frames use stock artwork.</summary>
+    private readonly Dictionary<PlmDraw, ushort[][]>? customWords;
 
     /// <summary>Validates and captures the complete twenty-frame station artwork selection while retaining native run geometry, collision, activation, and reward behavior.</summary>
     /// <param name="entries">Every compiled map, energy, missile, save, and access frame exactly once, with its original run/cell counts and valid visual-only words.</param>
@@ -39,8 +39,8 @@ public sealed class RoomPlmStationVisualCatalog
         IEnumerable<RoomPlmVisualRunEntry> entries)
     {
         Ensure.NotNull(entries);
-        var selected = new Dictionary<ushort, ushort[][]>();
-        var seen = new HashSet<ushort>();
+        var selected = new Dictionary<PlmDraw, ushort[][]>();
+        var seen = new HashSet<PlmDraw>();
         foreach (RoomPlmVisualRunEntry entry in entries)
         {
             if (entry is null || entry.Runs is null ||
@@ -58,15 +58,15 @@ public sealed class RoomPlmStationVisualCatalog
                         $"Station visuals {entry.Id} contain an invalid visual word.");
             }
 
-            if (!seen.Add(definition.Pointer))
+            if (!seen.Add(definition.Draw))
                 throw new InvalidDataException(
                     $"Station visuals repeat frame {entry.Id}.");
-            var shape = RoomPlmStationDrawDefinitions.Describe(definition.Pointer);
+            var shape = RoomPlmStationDrawDefinitions.Describe(definition.Draw);
             bool changed = false;
             for (int run = 0; run < shape.RunCount; run++)
-            for (int cell = 0; cell < shape.WordCount(run); cell++)
-                changed |= entry.Runs[run][cell] != new RoomLevelWord(shape.WordAt(run, cell)).VisualWord;
-            if (changed) selected.Add(definition.Pointer, entry.Runs.Select(run => run.ToArray()).ToArray());
+                for (int cell = 0; cell < shape.WordCount(run); cell++)
+                    changed |= entry.Runs[run][cell] != new RoomLevelWord(shape.WordAt(run, cell)).VisualWord;
+            if (changed) selected.Add(definition.Draw, entry.Runs.Select(run => run.ToArray()).ToArray());
         }
 
         if (seen.Count != RoomPlmStationDrawDefinitions.All.Count())
@@ -76,21 +76,21 @@ public sealed class RoomPlmStationVisualCatalog
     }
 
     /// <summary>Resolves a station cell's selected appearance, using compiled visual bits for an unchanged frame.</summary>
-    /// <param name="drawPointer">Bank-$84 pointer to one of the twenty compiled station draw lists, not an animation instruction-list pointer.</param>
+    /// <param name="draw">The draw whose visual word is resolved.</param>
     /// <param name="runIndex">Zero-based native horizontal draw-run ordinal; geometry is frame-specific, with save-pod runs ordered from floor to cap rather than screen-top downward.</param>
     /// <param name="wordIndex">Zero-based left-to-right cell within the selected run's compiled length.</param>
     /// <returns>The twelve-bit metatile/parent-flip reference, without the separately applied physical collision nibble.</returns>
-    /// <exception cref="InvalidDataException"><paramref name="drawPointer"/> does not identify a compiled station frame.</exception>
+    /// <exception cref="InvalidDataException"><paramref name="draw"/> does not identify a compiled station frame.</exception>
     /// <exception cref="ArgumentOutOfRangeException">The run or cell ordinal is outside that frame's shape; the reported parameter is <paramref name="wordIndex"/>.</exception>
-    public ushort GetWord(ushort drawPointer, int runIndex, int wordIndex)
+    internal ushort GetWord(PlmDraw draw, int runIndex, int wordIndex)
     {
-        if (!RoomPlmStationDrawDefinitions.TryDescribe(drawPointer, out var shape))
+        if (!RoomPlmStationDrawDefinitions.TryDescribe(draw, out var shape))
             throw new InvalidDataException(
-                $"Station visuals lack frame ${drawPointer:X4}.");
+                $"Station visuals lack frame {draw}.");
         if ((uint)runIndex >= (uint)shape.RunCount ||
             (uint)wordIndex >= (uint)shape.WordCount(runIndex))
             throw new ArgumentOutOfRangeException(nameof(wordIndex));
-        return customWords is not null && customWords.TryGetValue(drawPointer, out var runs)
+        return customWords is not null && customWords.TryGetValue(draw, out var runs)
             ? runs[runIndex][wordIndex] : new RoomLevelWord(shape.WordAt(runIndex, wordIndex)).VisualWord;
     }
 }

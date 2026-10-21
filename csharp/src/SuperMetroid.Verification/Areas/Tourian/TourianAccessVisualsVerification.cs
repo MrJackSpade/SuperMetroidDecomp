@@ -61,11 +61,11 @@ internal static class TourianAccessVisualsVerification
             RoomPlmTourianAccessVisualCatalog edited =
                 installation.LoadRoomPlmTourianAccessVisuals();
             AssertEqual((ushort)0x0058,
-                edited.GetWord((ushort)TourianAccessDraw.CrumbleFirst,
+                edited.GetWord(PlmDraw.Of(TourianAccessDraw.CrumbleFirst),
                     0, 0),
                 "Tourian override edits the first crumble frame");
             AssertEqual((ushort)0x0058,
-                edited.GetWord((ushort)TourianAccessDraw.Clear, 5, 0),
+                edited.GetWord(PlmDraw.Of(TourianAccessDraw.Clear), 5, 0),
                 "Tourian override edits the last clear row independently");
 
             VerifyTourianAccessVisualSeparation(rom, edited, clear: false);
@@ -77,7 +77,7 @@ internal static class TourianAccessVisualsVerification
             AssertEqual((ushort)0x0058,
                 RoomPlmTourianAccessVisualFiles.Load(refreshed,
                     installation.RoomPlmTourianAccessVisualOverrideDirectory)
-                    .GetWord((ushort)TourianAccessDraw.Clear, 5, 0),
+                    .GetWord(PlmDraw.Of(TourianAccessDraw.Clear), 5, 0),
                 "Tourian override survives stock replacement");
 
             firstFrame.Required("blocks")[0] = 0xf058;
@@ -119,24 +119,24 @@ internal static class TourianAccessVisualsVerification
         var stock = RoomPlmTourianAccessVisualCatalog.Stock();
         var imported = new RoomPlmTourianAccessVisualCatalog(entries.Reverse());
         string Hash(Dictionary<ushort, ushort[]> words) => SuperMetroid.Core.Assets.SelectedPresentationHash.FromWordFrames(
-            nameof(RoomPlmTourianAccessVisualCatalog), words);
+            nameof(RoomPlmTourianAccessVisualCatalog), words.ToDictionary(pair => TourianAccessPlmDrawDefinitions.VisualId(NativePlmDraws.At<TourianAccessDraw>(pair.Key)), pair => pair.Value));
         foreach (var catalog in new[] {stock, imported, installed})
         {
             AssertEqual(Hash(native), catalog.ContentIdentity, "Tourian access original flattened hash");
             foreach (var frame in frames)
             {
                 for (int index = 0; index < native[frame.Pointer].Length; index++)
-                    AssertEqual(native[frame.Pointer][index], catalog.GetWord(frame.Pointer,index / 4,index % 4), "Tourian access native stock word");
+                    AssertEqual(native[frame.Pointer][index], catalog.GetWord(NativePlmDraws.At<TourianAccessDraw>(frame.Pointer),index / 4,index % 4), "Tourian access native stock word");
                 foreach (int bad in new[] {int.MinValue,-1,native[frame.Pointer].Length / 4,int.MaxValue})
-                    AssertThrows<ArgumentOutOfRangeException>(() => catalog.GetWord(frame.Pointer,bad,0), "Tourian access run bounds");
+                    AssertThrows<ArgumentOutOfRangeException>(() => catalog.GetWord(NativePlmDraws.At<TourianAccessDraw>(frame.Pointer),bad,0), "Tourian access run bounds");
                 foreach (int bad in new[] {int.MinValue,-1,4,int.MaxValue})
                 for (int run = 0; run < native[frame.Pointer].Length / 4; run++)
-                    AssertThrows<ArgumentOutOfRangeException>(() => catalog.GetWord(frame.Pointer,run,bad), "Tourian access block bounds");
+                    AssertThrows<ArgumentOutOfRangeException>(() => catalog.GetWord(NativePlmDraws.At<TourianAccessDraw>(frame.Pointer),run,bad), "Tourian access block bounds");
             }
         }
         for (int pointer = 0; pointer <= ushort.MaxValue; pointer++)
             if (!native.ContainsKey((ushort)pointer))
-                AssertThrows<InvalidDataException>(() => stock.GetWord((ushort)pointer,0,0), "Tourian access unknown pointer");
+                AssertThrows<InvalidDataException>(() => stock.GetWord(NativePlmDraws.At<TourianAccessDraw>((ushort)pointer),0,0), "Tourian access unknown pointer");
         entries[4].Blocks[23] = 0x0c58;
         entries[2].Blocks[0] = 0x0059;
         var mixed = new RoomPlmTourianAccessVisualCatalog(entries);
@@ -146,7 +146,7 @@ internal static class TourianAccessVisualsVerification
         entries[1].Blocks[0] = 0x005b;
         foreach (var frame in frames)
         for (int index = 0; index < native[frame.Pointer].Length; index++)
-            AssertEqual(expected[frame.Pointer][index], mixed.GetWord(frame.Pointer,index / 4,index % 4), "Tourian access clone isolation and stock fallback");
+            AssertEqual(expected[frame.Pointer][index], mixed.GetWord(NativePlmDraws.At<TourianAccessDraw>(frame.Pointer),index / 4,index % 4), "Tourian access clone isolation and stock fallback");
         AssertThrows<InvalidDataException>(() => new RoomPlmTourianAccessVisualCatalog(entries[..4]), "Tourian access missing frame");
         AssertThrows<InvalidDataException>(() => new RoomPlmTourianAccessVisualCatalog(entries.Append(entries[0])), "Tourian access duplicate frame");
         var invalid = entries.ToArray();

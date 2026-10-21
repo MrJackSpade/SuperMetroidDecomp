@@ -19,7 +19,7 @@ internal sealed class GreyDoorPlmAnimation(GreyDoorVariant variant, GreyDoorProg
     public void StartClosing() => Restart(GreyDoorProgram.Closing);
 
     /// <inheritdoc/>
-    private protected override ushort DrawList(DoorCapFrame frame) => frame switch
+    private protected override PlmDraw DrawList(DoorCapFrame frame) => frame switch
     {
         DoorCapFrame.Clear => DoorPlmDrawListDefinitions.Clear(Variant.Orientation),
         DoorCapFrame.Closed0 => DoorPlmDrawListDefinitions.Grey(Variant.Orientation, 0),

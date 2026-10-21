@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Verification.Areas.Escape;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Rooms.Plms.SamusEaterPlmDefinitionsVerification;
@@ -40,7 +41,7 @@ internal static class LookupElevatorPlatformStockVerification
         var stock = RoomPlmElevatorPlatformVisualCatalog.Stock();
         var imported = new RoomPlmElevatorPlatformVisualCatalog(entries.Reverse());
         string Hash(Dictionary<ushort, ushort[][]> words) => SuperMetroid.Core.Assets.SelectedPresentationHash.FromWordFrames(
-            nameof(RoomPlmElevatorPlatformVisualCatalog), words);
+            nameof(RoomPlmElevatorPlatformVisualCatalog), words.ToDictionary(pair => ElevatorPlatformPlmDefinitions.VisualId(NativePlmDraws.At<ElevatorPlatformDraw>(pair.Key)), pair => pair.Value));
         foreach (var catalog in new[] {stock,imported,installed})
         {
             AssertEqual(Hash(original), catalog.ContentIdentity, "Elevator platform original run-framed identity");
@@ -50,17 +51,17 @@ internal static class LookupElevatorPlatformStockVerification
                 for (int run = 0; run < runs.Length; run++)
                 {
                     for (int word = 0; word < runs[run].Length; word++)
-                        AssertEqual(runs[run][word], catalog.GetWord(frame.Pointer,run,word), "Elevator platform original stock word");
+                        AssertEqual(runs[run][word], catalog.GetWord(NativePlmDraws.At<ElevatorPlatformDraw>(frame.Pointer),run,word), "Elevator platform original stock word");
                     foreach (int bad in new[] {int.MinValue,-1,runs[run].Length,int.MaxValue})
-                        AssertThrows<ArgumentOutOfRangeException>(() => catalog.GetWord(frame.Pointer,run,bad), "Elevator platform stock word bounds");
+                        AssertThrows<ArgumentOutOfRangeException>(() => catalog.GetWord(NativePlmDraws.At<ElevatorPlatformDraw>(frame.Pointer),run,bad), "Elevator platform stock word bounds");
                 }
                 foreach (int bad in new[] {int.MinValue,-1,runs.Length,int.MaxValue})
-                    AssertThrows<ArgumentOutOfRangeException>(() => catalog.GetWord(frame.Pointer,bad,0), "Elevator platform stock run bounds");
+                    AssertThrows<ArgumentOutOfRangeException>(() => catalog.GetWord(NativePlmDraws.At<ElevatorPlatformDraw>(frame.Pointer),bad,0), "Elevator platform stock run bounds");
             }
         }
         for (int pointer = 0; pointer <= ushort.MaxValue; pointer++)
             if (!native.ContainsKey((ushort)pointer))
-                AssertThrows<InvalidDataException>(() => stock.GetWord((ushort)pointer,0,0), "Elevator platform stock unknown pointer");
+                AssertThrows<InvalidDataException>(() => stock.GetWord(NativePlmDraws.At<ElevatorPlatformDraw>((ushort)pointer),0,0), "Elevator platform stock unknown pointer");
         entries[1].Runs[2][2] = 0xc58;
         var mixed = new RoomPlmElevatorPlatformVisualCatalog(entries);
         var expected = frames.ToDictionary(frame => frame.Pointer, frame => entries.Single(entry => entry.Id == frame.Id).Runs.Select(run => run.ToArray()).ToArray());
@@ -71,7 +72,7 @@ internal static class LookupElevatorPlatformStockVerification
         {
             for (int run = 0; run < native[frame.Pointer].Length; run++)
             for (int word = 0; word < native[frame.Pointer][run].Length; word++)
-                AssertEqual(expected[frame.Pointer][run][word], mixed.GetWord(frame.Pointer,run,word), "Elevator platform cloned custom and unchanged stock isolation");
+                AssertEqual(expected[frame.Pointer][run][word], mixed.GetWord(NativePlmDraws.At<ElevatorPlatformDraw>(frame.Pointer),run,word), "Elevator platform cloned custom and unchanged stock isolation");
         }
         AssertThrows<InvalidDataException>(() => new RoomPlmElevatorPlatformVisualCatalog(entries[..1]), "Elevator platform missing frame");
         AssertThrows<InvalidDataException>(() => new RoomPlmElevatorPlatformVisualCatalog(entries.Append(entries[0])), "Elevator platform duplicate frame");

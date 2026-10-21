@@ -7,10 +7,10 @@ internal static class SpeedBoosterBlockPlmDrawDefinitionsAccess
     extension(SpeedBoosterBlockPlmDrawDefinitions)
     {
         /// <summary>Recognizes the speed-block bomb-reveal draw pointer.</summary>
-        internal static bool TryGet(ushort pointer,
+        internal static bool TryGet(PlmDraw request,
             out RoomPlmShotBlockDrawDefinitions.DrawList list)
         {
-            if (pointer == SpeedBoosterBlockPlmDrawDefinitions.BombRevealDraw)
+            if (request == SpeedBoosterBlockPlmDrawDefinitions.BombRevealDraw)
             {
                 list = SpeedBoosterBlockPlmDrawDefinitions.BombReveal;
                 return true;

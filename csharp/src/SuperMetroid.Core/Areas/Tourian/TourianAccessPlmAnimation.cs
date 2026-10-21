@@ -12,7 +12,7 @@ internal sealed class TourianAccessPlmAnimation(TourianAccessProgram program)
         TourianAccessPlmProgramDefinitions.Programs;
 
     /// <inheritdoc/>
-    private protected override ushort DrawList(TourianAccessDraw frame) => (ushort)frame;
+    private protected override PlmDraw DrawList(TourianAccessDraw frame) => PlmDraw.Of(frame);
 
     /// <inheritdoc/>
     private protected override TourianAccessProgram? Publish(TourianAccessCue cue, PlmSlot slot, PlmStepContext context)

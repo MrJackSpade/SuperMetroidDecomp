@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Bosses.MotherBrain;
+using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Verification.Areas.Escape;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Rooms.Plms.SamusEaterPlmDefinitionsVerification;
@@ -40,7 +42,7 @@ internal static class LookupMotherBrainGlassStockVerification
         var stock = RoomPlmMotherBrainGlassVisualCatalog.Stock();
         var imported = new RoomPlmMotherBrainGlassVisualCatalog(entries.Reverse());
         string Hash(Dictionary<ushort, ushort[]> words) => SuperMetroid.Core.Assets.SelectedPresentationHash.FromWordFrames(
-            nameof(RoomPlmMotherBrainGlassVisualCatalog), words);
+            nameof(RoomPlmMotherBrainGlassVisualCatalog), words.ToDictionary(pair => MotherBrainGlassPlmDrawDefinitions.VisualId(NativePlmDraws.At<MotherBrainGlassDraw>(pair.Key)), pair => pair.Value));
         foreach (var catalog in new[] {stock,imported,installed})
         {
             AssertEqual(Hash(flat), catalog.ContentIdentity, "Glass original flattened identity");
@@ -50,17 +52,17 @@ internal static class LookupMotherBrainGlassStockVerification
                 for (int run = 0; run < runs.Length; run++)
                 {
                     for (int word = 0; word < runs[run].Length; word++)
-                        AssertEqual(runs[run][word], catalog.GetWord(frame.Pointer,run,word), "Glass original stock word");
+                        AssertEqual(runs[run][word], catalog.GetWord(NativePlmDraws.At<MotherBrainGlassDraw>(frame.Pointer),run,word), "Glass original stock word");
                     foreach (int bad in new[] {int.MinValue,-1,runs[run].Length,int.MaxValue})
-                        AssertThrows<ArgumentOutOfRangeException>(() => catalog.GetWord(frame.Pointer,run,bad), "Glass stock word bounds");
+                        AssertThrows<ArgumentOutOfRangeException>(() => catalog.GetWord(NativePlmDraws.At<MotherBrainGlassDraw>(frame.Pointer),run,bad), "Glass stock word bounds");
                 }
                 foreach (int bad in new[] {int.MinValue,-1,runs.Length,int.MaxValue})
-                    AssertThrows<ArgumentOutOfRangeException>(() => catalog.GetWord(frame.Pointer,bad,0), "Glass stock run bounds");
+                    AssertThrows<ArgumentOutOfRangeException>(() => catalog.GetWord(NativePlmDraws.At<MotherBrainGlassDraw>(frame.Pointer),bad,0), "Glass stock run bounds");
             }
         }
         for (int pointer = 0; pointer <= ushort.MaxValue; pointer++)
             if (!native.ContainsKey((ushort)pointer))
-                AssertThrows<InvalidDataException>(() => stock.GetWord((ushort)pointer,0,0), "Glass stock unknown pointer");
+                AssertThrows<InvalidDataException>(() => stock.GetWord(NativePlmDraws.At<MotherBrainGlassDraw>((ushort)pointer),0,0), "Glass stock unknown pointer");
         entries[8].Blocks[12] = 0xc58;
         var mixed = new RoomPlmMotherBrainGlassVisualCatalog(entries);
         var expected = frames.ToDictionary(frame => frame.Pointer, frame => entries.Single(entry => entry.Id == frame.Id).Blocks.ToArray());
@@ -72,7 +74,7 @@ internal static class LookupMotherBrainGlassStockVerification
             int index = 0;
             for (int run = 0; run < native[frame.Pointer].Length; run++)
             for (int word = 0; word < native[frame.Pointer][run].Length; word++)
-                AssertEqual(expected[frame.Pointer][index++], mixed.GetWord(frame.Pointer,run,word), "Glass cloned custom and unchanged stock isolation");
+                AssertEqual(expected[frame.Pointer][index++], mixed.GetWord(NativePlmDraws.At<MotherBrainGlassDraw>(frame.Pointer),run,word), "Glass cloned custom and unchanged stock isolation");
         }
         AssertThrows<InvalidDataException>(() => new RoomPlmMotherBrainGlassVisualCatalog(entries[..1]), "Glass missing frame");
         AssertThrows<InvalidDataException>(() => new RoomPlmMotherBrainGlassVisualCatalog(entries.Append(entries[0])), "Glass duplicate frame");

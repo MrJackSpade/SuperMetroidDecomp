@@ -12,7 +12,7 @@ internal sealed class ScriptedRoomPlmAnimation(ScriptedRoomPlmProgram program)
         ScriptedRoomPlmProgramDefinitions.Programs;
 
     /// <inheritdoc/>
-    private protected override ushort DrawList(ScriptedRoomPlmFrame frame) => ScriptedRoomPlmDrawDefinitions.DrawLists[frame];
+    private protected override PlmDraw DrawList(ScriptedRoomPlmFrame frame) => ScriptedRoomPlmDrawDefinitions.DrawLists[frame];
 
     /// <inheritdoc/>
     private protected override ScriptedRoomPlmProgram? ProgramAfterSleep(ScriptedRoomPlmProgram program) =>

@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Verification.Rooms.Plms;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Bosses.Crocomire.LookupCrocomireDrawsVerification;
@@ -91,7 +92,7 @@ internal static class CrocomireArenaPlmsVerification
                 int pointer = SnesAddressMath.OffsetInBank(address);
                 return (SnesAddressMath.BankNumber(address)) == 0x84 &&
                     (BossRoomPlmNativeListAddresses.IsTypedProgramByte(pointer) ||
-                     (pointer >= (ushort)CrocomireArenaDraw.ClearBridge &&
+                     (pointer >= PlmDrawAddressCodec.Of(PlmDraw.Of(CrocomireArenaDraw.ClearBridge)) &&
                       pointer < CrocomireArenaPlmDrawDefinitions.EndExclusive));
             }, address => $"Crocomire PLM reread compiled source ${address:X6}.");
 

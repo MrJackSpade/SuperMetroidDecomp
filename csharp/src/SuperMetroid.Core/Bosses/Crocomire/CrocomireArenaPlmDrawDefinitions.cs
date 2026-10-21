@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Rooms.Plms;
 
 namespace SuperMetroid.Core.Bosses.Crocomire;
@@ -13,7 +12,7 @@ namespace SuperMetroid.Core.Bosses.Crocomire;
 internal static class CrocomireArenaPlmDrawDefinitions
 {
     /// <summary>Decoded bridge or three-column wall geometry with its independently selected solid collision bit.</summary>
-    internal readonly record struct Draw(CrocomireArenaDraw Pointer, CrocomireArenaShape Shape, int WordsPerRun)
+    internal readonly record struct Draw(CrocomireArenaDraw Frame, CrocomireArenaShape Shape, int WordsPerRun)
     {
         /// <summary>Whether the draw writes wall columns rather than a bridge run.</summary>
         internal bool Wall => Shape != CrocomireArenaShape.Bridge;
@@ -38,7 +37,7 @@ internal static class CrocomireArenaPlmDrawDefinitions
                 throw new ArgumentOutOfRangeException(nameof(run));
             if ((uint)block >= WordsPerRun)
                 throw new ArgumentOutOfRangeException(nameof(block));
-            if (!Wall) return Pointer == CrocomireArenaDraw.CrumbleBridgeBlock ? (ushort)0x810b : (ushort)0x0080;
+            if (!Wall) return Frame == CrocomireArenaDraw.CrumbleBridgeBlock ? (ushort)0x810b : (ushort)0x0080;
             int tile = block is 0 or >= 6 ? 0x80 :
                 0x107 + run + (block == 5 ? 2 : (block - 1) % 2) * 0x20;
             return (ushort)(tile | (Solid ? 0x8000 : 0));
@@ -46,28 +45,27 @@ internal static class CrocomireArenaPlmDrawDefinitions
     }
 
     /// <summary>
-    /// Describes a draw pointer handed over by the shared PLM draw interpreter; pointers
-    /// outside the five arena lists belong to other families.
+    /// Describes a draw handed over by the shared PLM drawing; draws of other families are not the arena's.
     /// </summary>
-    internal static bool TryDescribe(ushort pointer, out Draw draw)
+    internal static bool TryDescribe(PlmDraw draw, out Draw shape)
     {
-        if (!Enum.IsDefined((CrocomireArenaDraw)pointer))
+        if (draw is not PlmFrameDraw<CrocomireArenaDraw> { Frame: var frame })
         {
-            draw = default;
+            shape = default;
             return false;
         }
-        draw = Describe((CrocomireArenaDraw)pointer);
+        shape = Describe(frame);
         return true;
     }
 
-    /// <summary>Assigns native run geometry to each of the five bounded arena draw pointers.</summary>
-    private static Draw Describe(CrocomireArenaDraw pointer) => pointer switch
+    /// <summary>Assigns native run geometry to each of the five bounded arena draws.</summary>
+    private static Draw Describe(CrocomireArenaDraw frame) => frame switch
     {
-        CrocomireArenaDraw.ClearBridge => new(pointer, CrocomireArenaShape.Bridge, 10),
-        CrocomireArenaDraw.CrumbleBridgeBlock or CrocomireArenaDraw.ClearBridgeBlock => new(pointer, CrocomireArenaShape.Bridge, 1),
-        CrocomireArenaDraw.ClearInvisibleWall => new(pointer, CrocomireArenaShape.ClearWall, 8),
-        CrocomireArenaDraw.CreateInvisibleWall => new(pointer, CrocomireArenaShape.SolidWall, 8),
-        _ => throw new InvalidOperationException($"Undefined Crocomire arena draw {pointer}."),
+        CrocomireArenaDraw.ClearBridge => new(frame, CrocomireArenaShape.Bridge, 10),
+        CrocomireArenaDraw.CrumbleBridgeBlock or CrocomireArenaDraw.ClearBridgeBlock => new(frame, CrocomireArenaShape.Bridge, 1),
+        CrocomireArenaDraw.ClearInvisibleWall => new(frame, CrocomireArenaShape.ClearWall, 8),
+        CrocomireArenaDraw.CreateInvisibleWall => new(frame, CrocomireArenaShape.SolidWall, 8),
+        _ => throw new InvalidOperationException($"Undefined Crocomire arena draw {frame}."),
     };
 
     /// <summary>Projects calculated physical cells into temporary artwork records; gameplay evaluates cells directly.</summary>
@@ -75,19 +73,19 @@ internal static class CrocomireArenaPlmDrawDefinitions
     {
         get
         {
-            foreach (CrocomireArenaDraw pointer in Enum.GetValues<CrocomireArenaDraw>())
+            foreach (CrocomireArenaDraw frame in Enum.GetValues<CrocomireArenaDraw>())
             {
-                TryGet((ushort)pointer, out var draw);
-                yield return draw;
+                TryGet(PlmDraw.Of(frame), out var list);
+                yield return list;
             }
         }
     }
 
     /// <summary>Reconstructs one supported bridge or wall draw with its native run offsets.</summary>
-    internal static bool TryGet(ushort pointer, out RoomPlmShotBlockDrawDefinitions.DrawList draw)
+    internal static bool TryGet(PlmDraw draw, out RoomPlmShotBlockDrawDefinitions.DrawList list)
     {
-        draw = default;
-        if (!TryDescribe(pointer, out var shape)) return false;
+        list = default;
+        if (!TryDescribe(draw, out var shape)) return false;
         var runs = new RoomPlmShotBlockDrawDefinitions.Run[shape.RunCount];
         for (int run = 0; run < runs.Length; run++)
         {
@@ -95,20 +93,20 @@ internal static class CrocomireArenaPlmDrawDefinitions
             for (int block = 0; block < words.Length; block++) words[block] = shape.WordAt(run, block);
             runs[run] = new(shape.DirectionAndCount, words, new(shape.NextX(run), 0));
         }
-        draw = new(pointer, runs);
+        list = new(draw, runs);
         return true;
     }
 
-    /// <summary>Maps the bank-$84 arena draw identity to the published bridge or wall artwork key.</summary>
-    internal static string VisualId(ushort pointer) =>
-        ClosedNativeWords.Decode<CrocomireArenaDraw>(pointer, "Crocomire arena draw") switch
+    /// <summary>Maps an arena draw to the published bridge or wall artwork key.</summary>
+    internal static string VisualId(PlmDraw draw) =>
+        PlmDraw.FrameOf<CrocomireArenaDraw>(draw, "Crocomire arena") switch
         {
             CrocomireArenaDraw.ClearBridge => "clear-bridge",
             CrocomireArenaDraw.CrumbleBridgeBlock => "crumble-bridge-block",
             CrocomireArenaDraw.ClearBridgeBlock => "clear-bridge-block",
             CrocomireArenaDraw.ClearInvisibleWall => "clear-invisible-wall",
             CrocomireArenaDraw.CreateInvisibleWall => "create-invisible-wall",
-            _ => throw new InvalidOperationException($"Undefined Crocomire arena draw ${pointer:X4}."),
+            _ => throw new InvalidOperationException($"Undefined Crocomire arena draw {draw}."),
         };
 
     /// <summary>Finds the physical bridge or wall layout for one editable visual identity.</summary>

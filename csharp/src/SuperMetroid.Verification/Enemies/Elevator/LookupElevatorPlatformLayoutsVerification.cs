@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using static SuperMetroid.Verification.Rooms.Plms.SamusEaterPlmDefinitionsVerification;
@@ -33,13 +34,13 @@ internal static class LookupElevatorPlatformLayoutsVerification
             {
                 ushort pointer = (ushort)raw;
                 bool owned = pointers.Contains(pointer);
-                AssertEqual(owned, ElevatorPlatformPlmDefinitions.TryDescribe(pointer, out var shape), "ElevatorPlatform layout shape domain");
-                AssertEqual(owned, ElevatorPlatformPlmDefinitions.TryGetDraw(pointer, out var dto), "ElevatorPlatform layout DTO domain");
+                AssertEqual(owned, ElevatorPlatformPlmDefinitions.TryDescribe(NativePlmDraws.At<ElevatorPlatformDraw>(pointer), out var shape), "ElevatorPlatform layout shape domain");
+                AssertEqual(owned, ElevatorPlatformPlmDefinitions.TryGetDraw(NativePlmDraws.At<ElevatorPlatformDraw>(pointer), out var dto), "ElevatorPlatform layout DTO domain");
                 if (!owned)
                 {
                     AssertEqual(default(ElevatorPlatformPlmDefinitions.Draw), shape, "ElevatorPlatform layout missing shape");
                     AssertEqual(default(RoomPlmShotBlockDrawDefinitions.DrawList), dto, "ElevatorPlatform layout missing DTO");
-                    AssertThrows<InvalidDataException>(() => ElevatorPlatformPlmDefinitions.VisualId(pointer), "ElevatorPlatform layout missing ID");
+                    AssertThrows<InvalidDataException>(() => ElevatorPlatformPlmDefinitions.VisualId(NativePlmDraws.At<ElevatorPlatformDraw>(pointer)), "ElevatorPlatform layout missing ID");
                 }
             }
             foreach (string id in new[] { "FIRST-FRAME", "broken", "", "unknown" })
@@ -52,14 +53,14 @@ internal static class LookupElevatorPlatformLayoutsVerification
         for (int index = 0; index < pointers.Length; index++)
         {
             ushort pointer = pointers[index];
-            ElevatorPlatformPlmDefinitions.TryDescribe(pointer, out var shape);
-            ElevatorPlatformPlmDefinitions.TryGetDraw(pointer, out var dto);
+            ElevatorPlatformPlmDefinitions.TryDescribe(NativePlmDraws.At<ElevatorPlatformDraw>(pointer), out var shape);
+            ElevatorPlatformPlmDefinitions.TryGetDraw(NativePlmDraws.At<ElevatorPlatformDraw>(pointer), out var dto);
             ElevatorPlatformPlmDefinitions.TryGetByVisualId(ids[index], out var byId);
             if (field == 0)
             {
-                AssertEqual(pointer, exported[index].Pointer, "ElevatorPlatform layout original export order");
-                AssertEqual(ids[index], ElevatorPlatformPlmDefinitions.VisualId(pointer), "ElevatorPlatform layout published ID");
-                AssertEqual(pointer, byId.Pointer, "ElevatorPlatform layout reverse ID");
+                AssertEqual(pointer, PlmDrawAddressCodec.Of(exported[index].Draw), "ElevatorPlatform layout original export order");
+                AssertEqual(ids[index], ElevatorPlatformPlmDefinitions.VisualId(NativePlmDraws.At<ElevatorPlatformDraw>(pointer)), "ElevatorPlatform layout published ID");
+                AssertEqual(pointer, PlmDrawAddressCodec.Of(byId.Draw), "ElevatorPlatform layout reverse ID");
                 foreach (int invalid in new[] {int.MinValue,-1,shape.RunCount,int.MaxValue})
                 {
                     AssertThrows<ArgumentOutOfRangeException>(() => shape.WordCount(invalid), "ElevatorPlatform layout run bounds");
@@ -75,7 +76,7 @@ internal static class LookupElevatorPlatformLayoutsVerification
             {
                 SeedSoleElevatorPlatformPlm(bus, 0x9400, new(3, 4), 0xafb6);
                 AssertEqual(1, PlmFixtures.LoadPopulation(ref plms, new PlmRoom(level, BgArtworkFixtures.For(new SnesVram()), new Bank80SystemState(), AreaId.Crateria), SuperMetroid.TestSupport.VerificationImporters.RoomPlmPopulationImporter.Read(bus, 0x9400), new RoomPlmServices { Samus = new FixtureRoomSamus(() => null), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }), "Elevator platform fixture spawn");
-                plms.DrawSolePlmFrameForVerification(level, pointer);
+                plms.DrawSolePlmFrameForVerification(level, NativePlmDraws.At<ElevatorPlatformDraw>(pointer));
             }
             int drawX = 3, drawY = 4;
             int cursor = 0x840000 | pointer;

@@ -11,8 +11,8 @@ internal sealed class BlockReactionPlmAnimation(BlockReactionPlmProgram program)
         BlockReactionPlmProgramDefinitions.Programs;
 
     /// <inheritdoc/>
-    private protected override ushort DrawList(BlockReactionPlmFrame frame) =>
-        BlockReactionPlmDrawDefinitions.DrawLists.TryGetValue(frame, out ushort drawList)
+    private protected override PlmDraw DrawList(BlockReactionPlmFrame frame) =>
+        BlockReactionPlmDrawDefinitions.DrawLists.TryGetValue(frame, out PlmDraw? drawList)
             ? drawList
             : throw new InvalidOperationException($"Block-reaction frame {frame} draws the saved block, not a draw list.");
 

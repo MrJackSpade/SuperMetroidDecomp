@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Rooms.Plms;
@@ -23,11 +24,6 @@ internal static class KraidDrawMappingsVerification
         foreach (var owner in owners)
             AssertEqual(owner.Program, CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0x840000 | (owner.Header + 2)),
                 "Kraid draw owner native program identity");
-        var headers = owners.Select(owner => owner.Header).ToHashSet();
-        for (int header = 0; header <= ushort.MaxValue; header++)
-            AssertEqual(headers.Contains((ushort)header),
-                KraidRoomPlmDrawDefinitions.IsKraidOwner((PlmHeaderId)header),
-                "Kraid visual owner classification across full header domain");
     }
 
     /// <summary>Independent native record positions, run lengths, and visual names for Kraid's ten draw lists.</summary>
@@ -46,31 +42,33 @@ internal static class KraidDrawMappingsVerification
         var expected = KraidDrawOracle();
         AssertEqual(expected.Length, KraidRoomPlmDrawDefinitions.DrawCount, "Kraid draw count");
         AssertTrue(expected.Select(draw => draw.Pointer).SequenceEqual(
-            KraidRoomPlmDrawDefinitions.All.Select(draw => draw.Pointer)), "Kraid export draw order");
+            KraidRoomPlmDrawDefinitions.All.Select(draw => PlmDrawAddressCodec.Of(draw.Draw))), "Kraid export draw order");
         for (int index = 0; index < expected.Length; index++)
-            AssertEqual(expected[index].Pointer, KraidRoomPlmDrawDefinitions.PointerAt(index),
+            AssertEqual(expected[index].Pointer, PlmDrawAddressCodec.Of(KraidRoomPlmDrawDefinitions.All.ElementAt(index).Draw),
                 "Kraid original draw record position");
         var pointers = expected.Select(draw => draw.Pointer).ToHashSet();
         for (int pointer = 0; pointer <= ushort.MaxValue; pointer++)
         {
             bool exists = pointers.Contains((ushort)pointer);
-            AssertEqual(exists, KraidRoomPlmDrawDefinitions.TryGet((ushort)pointer, out var draw),
+            AssertEqual(exists, KraidRoomPlmDrawDefinitions.TryGet(NativePlmDraws.At<KraidRoomDraw>((ushort)pointer), out var draw),
                 "Kraid full draw-pointer domain");
-            AssertEqual(exists ? (ushort)pointer : (ushort)0, draw.Pointer,
-                "Kraid draw pointer or default on miss");
+            if (exists)
+                AssertEqual((ushort)pointer, PlmDrawAddressCodec.Of(PlmDraw.Of(draw.Frame)), "Kraid draw address");
+            else
+                AssertEqual(default(KraidRoomPlmDrawDefinitions.Draw), draw, "Kraid draw default on miss");
         }
         foreach (int index in new[] { int.MinValue, -1, 10, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => KraidRoomPlmDrawDefinitions.PointerAt(index),
+            AssertThrows<ArgumentOutOfRangeException>(() => KraidRoomPlmDrawDefinitions.All.ElementAt(index),
                 "Kraid draw ordinal bounds");
     }
 
     /// <summary>Checks each native horizontal run count, exported run extent, and zero-displacement terminator.</summary>
     internal static void VerifyKraidDrawShapes(SuperMetroidAddressSpace rom)
     {
-        var exported = KraidRoomPlmDrawDefinitions.All.ToDictionary(draw => draw.Pointer);
+        var exported = KraidRoomPlmDrawDefinitions.All.ToDictionary(draw => PlmDrawAddressCodec.Of(draw.Draw));
         foreach (var expected in KraidDrawOracle())
         {
-            AssertTrue(KraidRoomPlmDrawDefinitions.TryGet(expected.Pointer, out var draw), "Kraid draw exists");
+            AssertTrue(KraidRoomPlmDrawDefinitions.TryGet(NativePlmDraws.At<KraidRoomDraw>(expected.Pointer), out var draw), "Kraid draw exists");
             ushort directionCount = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0x840000 | expected.Pointer);
             AssertEqual((ushort)expected.Count, directionCount, "Kraid native horizontal run count");
             AssertEqual(expected.Count, draw.BlockCount, "Kraid calculated block count");
@@ -109,10 +107,10 @@ internal static class KraidDrawMappingsVerification
     private static void VerifyKraidDrawWordSet(SuperMetroidAddressSpace rom,
         IEnumerable<Definition> definitions)
     {
-        var exported = KraidRoomPlmDrawDefinitions.All.ToDictionary(draw => draw.Pointer);
+        var exported = KraidRoomPlmDrawDefinitions.All.ToDictionary(draw => PlmDrawAddressCodec.Of(draw.Draw));
         foreach (var expected in definitions)
         {
-            AssertTrue(KraidRoomPlmDrawDefinitions.TryGet(expected.Pointer, out var draw), "Kraid word owner exists");
+            AssertTrue(KraidRoomPlmDrawDefinitions.TryGet(NativePlmDraws.At<KraidRoomDraw>(expected.Pointer), out var draw), "Kraid word owner exists");
             for (int block = 0; block < expected.Count; block++)
             {
                 ushort word = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0x840000 | (expected.Pointer + 2 + block * 2));
@@ -131,14 +129,14 @@ internal static class KraidDrawMappingsVerification
         var expected = KraidDrawOracle();
         foreach (var entry in expected)
         {
-            AssertEqual(entry.Id, KraidRoomPlmDrawDefinitions.VisualId(entry.Pointer), "Kraid published visual ID");
+            AssertEqual(entry.Id, KraidRoomPlmDrawDefinitions.VisualId(NativePlmDraws.At<KraidRoomDraw>(entry.Pointer)), "Kraid published visual ID");
             AssertTrue(KraidRoomPlmDrawDefinitions.TryGetByVisualId(entry.Id, out var draw), "Kraid reverse visual ID");
-            AssertEqual(entry.Pointer, draw.Pointer, "Kraid reverse ID pointer");
+            AssertEqual(entry.Pointer, PlmDrawAddressCodec.Of(PlmDraw.Of(draw.Frame)), "Kraid reverse ID pointer");
             foreach (string invalid in new[] { entry.Id.ToUpperInvariant(), entry.Id + " ", " " + entry.Id })
             {
                 AssertTrue(!KraidRoomPlmDrawDefinitions.TryGetByVisualId(invalid, out var missing),
                     "Kraid IDs preserve ordinal exact matching");
-                AssertEqual((ushort)0, missing.Pointer, "Kraid missing ID clears result");
+                AssertEqual(default(KraidRoomPlmDrawDefinitions.Draw), missing, "Kraid missing ID clears result");
             }
         }
         foreach (string invalid in new[] { "", "unknown" })
@@ -146,7 +144,7 @@ internal static class KraidDrawMappingsVerification
         var pointers = expected.Select(draw => draw.Pointer).ToHashSet();
         for (int pointer = 0x9365; pointer <= 0x93ef; pointer++)
             if (!pointers.Contains((ushort)pointer))
-                AssertThrows<InvalidDataException>(() => KraidRoomPlmDrawDefinitions.VisualId((ushort)pointer),
+                AssertThrows<InvalidDataException>(() => KraidRoomPlmDrawDefinitions.VisualId(NativePlmDraws.At<KraidRoomDraw>((ushort)pointer)),
                     "Kraid unknown pointer has no visual ID");
     }
 }

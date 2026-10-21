@@ -14,18 +14,18 @@ public sealed class RoomPlmSporeSpawnCeilingVisualCatalog
     public string ContentIdentity => SelectedPresentationHash.Create(nameof(RoomPlmSporeSpawnCeilingVisualCatalog), content =>
     {
         Span<ushort> words = stackalloc ushort[4];
-        foreach (var draw in SporeSpawnCeilingPlmDrawDefinitions.All.OrderBy(draw => draw.Pointer))
+        foreach (var draw in SporeSpawnCeilingPlmDrawDefinitions.All.OrderBy(item => SporeSpawnCeilingPlmDrawDefinitions.VisualId(item.Draw), StringComparer.Ordinal))
         {
             for (int index = 0; index < words.Length; index++)
-                words[index] = GetWord(draw.Pointer, index / 2, index % 2);
-            content.Append("frame", draw.Pointer);
+                words[index] = GetWord(draw.Draw, index / 2, index % 2);
+            content.AppendName("frame", SporeSpawnCeilingPlmDrawDefinitions.VisualId(draw.Draw));
             // Preserve the original flattened frame identity.
             content.Append("runs", 1);
             content.AppendWords("words", words);
         }
     });
 
-    /// <summary>Owned visual-only edits keyed by native frame pointer; null uses all compiled stock words.</summary>
+    /// <summary>Owned visual-only edits keyed by draw; null uses all compiled stock words.</summary>
     private readonly PlmVisualOverrides customWords;
 
     /// <summary>Validates complete coverage of the clear and three crumble frames, capturing edited ceiling appearance without changing compiled geometry or collision.</summary>
@@ -41,21 +41,21 @@ public sealed class RoomPlmSporeSpawnCeilingVisualCatalog
     }
 
     /// <summary>Resolves one visual-only cell from an edited or compiled Spore Spawn ceiling frame.</summary>
-    /// <param name="drawPointer">Bank-$84 pointer $9413 for clear, or $9423/$9433/$9443 for successive crumble frames.</param>
+    /// <param name="draw">The draw whose visual word is resolved.</param>
     /// <param name="runIndex">Horizontal row index: zero for the top row, one for the bottom.</param>
     /// <param name="blockIndex">Zero-based left-to-right column within that two-cell row.</param>
     /// <returns>A twelve-bit metatile/parent-flip word without the separately compiled collision nibble.</returns>
-    /// <exception cref="InvalidDataException"><paramref name="drawPointer"/> is not one of the four compiled frames.</exception>
+    /// <exception cref="InvalidDataException"><paramref name="draw"/> is not one of the four compiled frames.</exception>
     /// <exception cref="ArgumentOutOfRangeException">Either cell selector is outside zero through one; the reported parameter is <paramref name="blockIndex"/>.</exception>
-    public ushort GetWord(ushort drawPointer, int runIndex, int blockIndex)
+    internal ushort GetWord(PlmDraw draw, int runIndex, int blockIndex)
     {
-        if (!SporeSpawnCeilingPlmDrawDefinitions.TryGetWord(drawPointer, out ushort stockWord))
+        if (!SporeSpawnCeilingPlmDrawDefinitions.TryGetWord(draw, out ushort stockWord))
             throw new InvalidDataException(
-                $"Spore Spawn ceiling visuals lack frame ${drawPointer:X4}.");
+                $"Spore Spawn ceiling visuals lack frame {draw}.");
         if ((uint)runIndex >= 2 ||
             (uint)blockIndex >= 2)
             throw new ArgumentOutOfRangeException(nameof(blockIndex));
-        return customWords.TryGet(drawPointer, out var words)
+        return customWords.TryGet(draw, out var words)
             ? words[runIndex * 2 + blockIndex] : new RoomLevelWord(stockWord).VisualWord;
     }
 }

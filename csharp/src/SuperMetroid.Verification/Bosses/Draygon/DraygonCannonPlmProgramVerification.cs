@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Verification.Rooms.Plms;
 using SuperMetroid.Core;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -59,7 +60,7 @@ internal static class DraygonCannonPlmProgramVerification
         var plms = PlmFixtures.Unbound();
         var entries = DraygonCannonPlmDrawDefinitions.All.Select(draw =>
             new RoomPlmVisualEntry(
-                DraygonCannonPlmDrawDefinitions.VisualId(draw.Pointer),
+                DraygonCannonPlmDrawDefinitions.VisualId(draw.Draw),
                 draw.VisualWords())).ToArray();
         entries.Single(entry => entry.Id == "right-shield-a").Blocks[0] = 0x0053;
         entries.Single(entry => entry.Id == "left-shield-a").Blocks[0] = 0x0054;
@@ -133,7 +134,7 @@ internal static class DraygonCannonPlmProgramVerification
                     (address >= 0x84ddb9 && address <= 0x84de01) ||
                     DraygonCannonPlmDrawDefinitions.All.Any(draw =>
                     {
-                        int start = 0x840000 | draw.Pointer;
+                        int start = 0x840000 | PlmDrawAddressCodec.Of(draw.Draw);
                         int size = draw.Runs.Span.Sum(run =>
                             4 + run.LevelWords.Length * 2);
                         return address >= start && address < start + size;

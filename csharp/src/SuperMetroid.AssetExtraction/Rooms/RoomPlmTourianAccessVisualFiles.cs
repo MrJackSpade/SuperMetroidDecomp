@@ -29,7 +29,7 @@ public static class RoomPlmTourianAccessVisualFiles
         string stockDirectory, string? overrideDirectory) =>
         RoomPlmDoorVisualFileCodec.Load(stockDirectory, overrideDirectory,
             new RoomPlmVisualFamily<RoomPlmTourianAccessVisualCatalog>(VisualFileName, "Tourian access", TourianAccessPlmDrawDefinitions.All, TourianAccessPlmDrawDefinitions.VisualId, entries => new RoomPlmTourianAccessVisualCatalog(entries.Select(entry =>
-                new RoomPlmVisualEntry(entry.Id, entry.Blocks))), (catalog, pointer, run, block) => catalog.GetWord(pointer, run, block)));
+                new RoomPlmVisualEntry(entry.Id, entry.Blocks))), (catalog, draw, run, block) => catalog.GetWord(draw, run, block)));
 
     /// <summary>Validates the installed stock manifest, digest, schema, coverage, and equality with compiled Tourian access visuals.</summary>
     /// <param name="directory">Stock Tourian access directory; overrides are ignored.</param>

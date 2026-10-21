@@ -30,7 +30,7 @@ public static class RoomPlmColoredDoorVisualFiles
         string stockDirectory, string? overrideDirectory) =>
         RoomPlmDoorVisualFileCodec.Load(stockDirectory, overrideDirectory,
             new RoomPlmVisualFamily<RoomPlmColoredDoorVisualCatalog>(VisualFileName, "Colored-door", ColoredDoorPlmDrawDefinitions.All, ColoredDoorPlmDrawDefinitions.VisualId, entries => new RoomPlmColoredDoorVisualCatalog(entries.Select(entry =>
-                new RoomPlmVisualEntry(entry.Id, entry.Blocks))), (catalog, pointer, _, block) => catalog.GetWord(pointer, block)));
+                new RoomPlmVisualEntry(entry.Id, entry.Blocks))), (catalog, draw, _, block) => catalog.GetWord(draw, block)));
 
     /// <summary>Checks stock colored-door provenance, digest, schema, forty-eight-frame coverage, and equality with compiled visual words; ignores overrides.</summary>
     /// <param name="directory">Installed stock colored-door directory.</param>

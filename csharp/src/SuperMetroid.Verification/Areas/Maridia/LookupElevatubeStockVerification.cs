@@ -19,22 +19,22 @@ internal static class LookupElevatubeStockVerification
             nameof(RoomPlmMaridiaElevatubeVisualCatalog), content => content.Append("visual word", word));
         foreach (var catalog in new[] {stock, imported, installed})
         {
-            AssertEqual(original, catalog.GetWord(0x9367,0,0), "Elevatube original stock appearance");
+            AssertEqual(original, catalog.GetWord(NativePlmDraws.At<MaridiaElevatubePlmDefinitions.Draw>(0x9367),0,0), "Elevatube original stock appearance");
             AssertEqual(Hash(original), catalog.ContentIdentity, "Elevatube original scalar identity");
             foreach (int invalid in new[] {int.MinValue,-1,1,int.MaxValue})
             {
-                AssertThrows<InvalidDataException>(() => catalog.GetWord(0x9367,invalid,0), "Elevatube run bounds");
-                AssertThrows<InvalidDataException>(() => catalog.GetWord(0x9367,0,invalid), "Elevatube cell bounds");
+                AssertThrows<InvalidDataException>(() => catalog.GetWord(NativePlmDraws.At<MaridiaElevatubePlmDefinitions.Draw>(0x9367),invalid,0), "Elevatube run bounds");
+                AssertThrows<InvalidDataException>(() => catalog.GetWord(NativePlmDraws.At<MaridiaElevatubePlmDefinitions.Draw>(0x9367),0,invalid), "Elevatube cell bounds");
             }
         }
         for (int pointer = 0; pointer <= ushort.MaxValue; pointer++)
             if (pointer != 0x9367)
-                AssertThrows<InvalidDataException>(() => stock.GetWord((ushort)pointer,0,0), "Elevatube full pointer domain");
+                AssertThrows<InvalidDataException>(() => stock.GetWord(NativePlmDraws.At<MaridiaElevatubePlmDefinitions.Draw>((ushort)pointer),0,0), "Elevatube full pointer domain");
         entry.Blocks[0] = 0x0c58;
         var custom = new RoomPlmMaridiaElevatubeVisualCatalog([entry]);
         entry.Blocks[0] = 0x59;
-        AssertEqual(original, imported.GetWord(0x9367,0,0), "Elevatube imported scalar detached from input");
-        AssertEqual((ushort)0x0c58, custom.GetWord(0x9367,0,0), "Elevatube custom scalar detached from input");
+        AssertEqual(original, imported.GetWord(NativePlmDraws.At<MaridiaElevatubePlmDefinitions.Draw>(0x9367),0,0), "Elevatube imported scalar detached from input");
+        AssertEqual((ushort)0x0c58, custom.GetWord(NativePlmDraws.At<MaridiaElevatubePlmDefinitions.Draw>(0x9367),0,0), "Elevatube custom scalar detached from input");
         AssertEqual(Hash(0x0c58), custom.ContentIdentity, "Elevatube custom scalar hash");
         AssertThrows<InvalidDataException>(() => new RoomPlmMaridiaElevatubeVisualCatalog([]), "Elevatube missing entry");
         AssertThrows<InvalidDataException>(() => new RoomPlmMaridiaElevatubeVisualCatalog([entry,entry]), "Elevatube duplicate entry");

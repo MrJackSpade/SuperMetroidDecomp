@@ -44,8 +44,8 @@ internal static class KraidRoomVisualsVerification
                      block++)
                     AssertEqual(new RoomLevelWord(
                             draw.Runs.Span[0].LevelWords.Span[block]).VisualWord,
-                        stock.GetWord(draw.Pointer, 0, block),
-                        $"Kraid stock draw ${draw.Pointer:X4}, block {block}");
+                        stock.GetWord(draw.Draw, 0, block),
+                        $"Kraid stock draw ${PlmDrawAddressCodec.Of(draw.Draw):X4}, block {block}");
             }
             AssertThrows<InvalidDataException>(
                 () => new RoomPlmKraidVisualCatalog([]),
@@ -71,13 +71,13 @@ internal static class KraidRoomVisualsVerification
             RoomPlmKraidVisualCatalog edited =
                 installation.LoadRoomPlmKraidVisuals();
             AssertEqual((ushort)0x0058,
-                edited.GetWord((ushort)KraidRoomDraw.CrumbleFirst, 0, 0),
+                edited.GetWord(PlmDraw.Of(KraidRoomDraw.CrumbleFirst), 0, 0),
                 "Kraid override edits first crumble frame");
             AssertEqual((ushort)0x0059,
-                edited.GetWord((ushort)KraidRoomDraw.ClearCeiling, 0, 14),
+                edited.GetWord(PlmDraw.Of(KraidRoomDraw.ClearCeiling), 0, 14),
                 "Kraid override edits far-right ceiling clear block");
             AssertEqual((ushort)0x005a,
-                edited.GetWord((ushort)KraidRoomDraw.ClearSpikes, 0, 21),
+                edited.GetWord(PlmDraw.Of(KraidRoomDraw.ClearSpikes), 0, 21),
                 "Kraid override edits far-right spike clear block");
             VerifyKraidVisualOwnerIsolation(edited);
 
@@ -87,7 +87,7 @@ internal static class KraidRoomVisualsVerification
             AssertEqual((ushort)0x005a,
                 RoomPlmKraidVisualFiles.Load(refreshed,
                     installation.RoomPlmKraidVisualOverrideDirectory)
-                    .GetWord((ushort)KraidRoomDraw.ClearSpikes, 0, 21),
+                    .GetWord(PlmDraw.Of(KraidRoomDraw.ClearSpikes), 0, 21),
                 "Kraid override survives stock replacement");
 
             first.Required("blocks")[0] = 0xf058;
@@ -120,10 +120,10 @@ internal static class KraidRoomVisualsVerification
         var tube = new RoomPlmMaridiaElevatubeVisualCatalog(
             [new RoomPlmVisualEntry(
                 MaridiaElevatubePlmDefinitions.VisualId, [0x005b])]);
-        Suite(nameof(VerifyKraidDraw), () => VerifyKraidDraw(PlmHeaderId.CrumbleKraidCeilingIntoBackground1, (ushort)KraidRoomDraw.CrumbleFirst, 0, 0x8180, 0x0058, new KraidRoomVisualCatalogs { Kraid = edited, Tube = tube }));
-        Suite(nameof(VerifyKraidDraw), () => VerifyKraidDraw(PlmHeaderId.ClearKraidCeiling, (ushort)KraidRoomDraw.ClearCeiling, 14, 0x0130, 0x0059, new KraidRoomVisualCatalogs { Kraid = edited, Tube = tube }));
-        Suite(nameof(VerifyKraidDraw), () => VerifyKraidDraw(PlmHeaderId.ClearKraidSpikes, (ushort)KraidRoomDraw.ClearSpikes, 21, 0x0110, 0x005a, new KraidRoomVisualCatalogs { Kraid = edited, Tube = tube }));
-        Suite(nameof(VerifyKraidDraw), () => VerifyKraidDraw(PlmHeaderId.CrumbleKraidCeilingIntoBackground1, (ushort)KraidRoomDraw.CrumbleFirst, 0, 0x8180, 0x0180, new KraidRoomVisualCatalogs { Kraid = null, Tube = tube }));
+        Suite(nameof(VerifyKraidDraw), () => VerifyKraidDraw(PlmHeaderId.CrumbleKraidCeilingIntoBackground1, PlmDrawAddressCodec.Of(PlmDraw.Of(KraidRoomDraw.CrumbleFirst)), 0, 0x8180, 0x0058, new KraidRoomVisualCatalogs { Kraid = edited, Tube = tube }));
+        Suite(nameof(VerifyKraidDraw), () => VerifyKraidDraw(PlmHeaderId.ClearKraidCeiling, PlmDrawAddressCodec.Of(PlmDraw.Of(KraidRoomDraw.ClearCeiling)), 14, 0x0130, 0x0059, new KraidRoomVisualCatalogs { Kraid = edited, Tube = tube }));
+        Suite(nameof(VerifyKraidDraw), () => VerifyKraidDraw(PlmHeaderId.ClearKraidSpikes, PlmDrawAddressCodec.Of(PlmDraw.Of(KraidRoomDraw.ClearSpikes)), 21, 0x0110, 0x005a, new KraidRoomVisualCatalogs { Kraid = edited, Tube = tube }));
+        Suite(nameof(VerifyKraidDraw), () => VerifyKraidDraw(PlmHeaderId.CrumbleKraidCeilingIntoBackground1, PlmDrawAddressCodec.Of(PlmDraw.Of(KraidRoomDraw.CrumbleFirst)), 0, 0x8180, 0x0180, new KraidRoomVisualCatalogs { Kraid = null, Tube = tube }));
 
         RoomLevelData tubeLevel = CreateRoom(new(4, 4), new ushort[16], new byte[16],
             blockDefinitions: new byte[0x400 * 8]);

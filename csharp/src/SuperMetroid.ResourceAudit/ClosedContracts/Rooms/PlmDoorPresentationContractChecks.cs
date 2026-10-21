@@ -26,50 +26,42 @@ internal static class PlmDoorPresentationContractChecks
                 File.ReadAllText(source.Path), path: source.Path)).ToList<SyntaxTree>();
         trees.Add(CoreGlobalUsings.Tree());
         // The consumer names escape-gate draws through this internal enum; compiled from source so its constants bind.
-        const string escapeGateDraws = "csharp/src/SuperMetroid.Core/Bosses/MotherBrain/MotherBrainEscapeGateDraw.cs";
-        if (trees.All(tree => tree.FilePath != escapeGateDraws))
-            trees.Add(CSharpSyntaxTree.ParseText(File.ReadAllText(escapeGateDraws), path: escapeGateDraws));
+        trees.AddRange(new[]
+        {
+            "csharp/src/SuperMetroid.Core/Bosses/MotherBrain/MotherBrainEscapeGateDraw.cs", "csharp/src/SuperMetroid.Core/Rooms/Plms/PlmDraw.cs",
+            "csharp/src/SuperMetroid.Core/Rooms/Plms/StationDraw.cs", "csharp/src/SuperMetroid.Core/Rooms/Plms/GrappleBlockDraw.cs",
+            "csharp/src/SuperMetroid.Core/Rooms/Doors/EyeDoorOrientation.cs", "csharp/src/SuperMetroid.Core/Rooms/Doors/EyeDoorComponent.cs", "csharp/src/SuperMetroid.Core/Rooms/Doors/EyeDoorPlmFrame.cs",
+        }.Where(path => trees.All(tree => tree.FilePath != path))
+            .Select(path => CSharpSyntaxTree.ParseText(File.ReadAllText(path), path: path)));
         const string consumer = """
             using SuperMetroid.Core.Bosses.MotherBrain;
             using SuperMetroid.Core.Rooms.Doors;
             using SuperMetroid.Core.Rooms.Plms;
-            static class FixtureDoorFrames {
-                internal const ushort ClosedBlue = @CLOSED_BLUE@;
-                internal const ushort TwoWordEye = @TWO_WORD_EYE@;
-            }
             class PlmDoorConsumer {
                 void Inspect(RoomPlmBlueDoorVisualCatalog blue, RoomPlmColoredDoorVisualCatalog color,
                     RoomPlmGreyDoorVisualCatalog grey, RoomPlmEyeDoorVisualCatalog eye,
                     RoomPlmEscapeGateVisualCatalog escape, RoomPlmCollectibleVisualCatalog item,
-                    RoomPlmGrappleBlockVisualCatalog grapple, ushort dynamicPointer) {
-                    blue.GetWord(FixtureDoorFrames.ClosedBlue, 3);
-                    blue.GetWord(FixtureDoorFrames.ClosedBlue, 4);
-                    color.GetWord(dynamicPointer, 3);
-                    color.GetWord(0, 0);
-                    grey.GetWord(dynamicPointer, 3);
-                    grey.GetWord(dynamicPointer, 4);
+                    RoomPlmGrappleBlockVisualCatalog grapple, PlmDraw dynamicDraw) {
+                    blue.GetWord(BlueDoorPlmDrawDefinitions.Alias(ColoredDoorOrientation.Left), 3);
+                    blue.GetWord(BlueDoorPlmDrawDefinitions.Alias(ColoredDoorOrientation.Left), 4);
+                    color.GetWord(dynamicDraw, 3);
+                    color.GetWord(PlmDraw.Of(StationDraw.MapFrame0), 0);
+                    grey.GetWord(dynamicDraw, 3);
+                    grey.GetWord(dynamicDraw, 4);
                     eye.GetWord(EyeDoorPlmDrawDefinitions.MirroredOpeningClear, 3);
                     eye.GetWord(EyeDoorPlmDrawDefinitions.MirroredOpeningClear, 4);
-                    eye.GetWord(FixtureDoorFrames.TwoWordEye, 1);
-                    eye.GetWord(FixtureDoorFrames.TwoWordEye, 2);
-                    escape.GetWord((ushort)MotherBrainEscapeGateDraw.Closed, 3);
-                    escape.GetWord((ushort)MotherBrainEscapeGateDraw.Closed, 4);
-                    item.GetWord(pointer: RoomPlmCollectibleDrawDefinitions.Empty);
-                    item.GetWord(pointer: 0);
-                    grapple.GetWord(RoomPlmGrappleBlockDrawDefinitions.Grapple);
-                    grapple.GetWord(0);
+                    eye.GetWord(EyeDoorPlmDrawDefinitions.DrawList(EyeDoorOrientation.Left, EyeDoorComponent.Eye, EyeDoorPlmFrame.Eye0), 1);
+                    eye.GetWord(EyeDoorPlmDrawDefinitions.DrawList(EyeDoorOrientation.Left, EyeDoorComponent.Eye, EyeDoorPlmFrame.Eye0), 2);
+                    escape.GetWord(PlmDraw.Of(MotherBrainEscapeGateDraw.Closed), 3);
+                    escape.GetWord(PlmDraw.Of(MotherBrainEscapeGateDraw.Closed), 4);
+                    item.GetWord(draw: RoomPlmCollectibleDrawDefinitions.Empty);
+                    item.GetWord(draw: PlmDraw.Of(StationDraw.MapFrame0));
+                    grapple.GetWord(PlmDraw.Of(GrappleBlockDraw.Intact));
+                    grapple.GetWord(PlmDraw.Of(StationDraw.MapFrame0));
                 }
             }
             """;
-        // Feed named constant declarations from the actual compiled identities,
-        // not address arithmetic borrowed from an unrelated family.
-        ushort closedBlue = BlueDoorPlmDrawDefinitionsTooling.All.First(frame =>
-            BlueDoorPlmDrawDefinitions.VisualSource(frame.Pointer) != frame.Pointer).Pointer;
-        ushort twoWordEye = EyeDoorPlmDrawDefinitions.Editable.Single(frame =>
-            EyeDoorPlmDrawDefinitions.VisualId(frame.Pointer) == "left-eye-frame-0").Pointer;
-        string selectedConsumer = consumer.Replace("@CLOSED_BLUE@", $"0x{closedBlue:X4}", StringComparison.Ordinal)
-            .Replace("@TWO_WORD_EYE@", $"0x{twoWordEye:X4}", StringComparison.Ordinal);
-        SyntaxTree calls = CSharpSyntaxTree.ParseText(selectedConsumer, path: "fixture-plm-door-consumer.cs");
+        SyntaxTree calls = CSharpSyntaxTree.ParseText(consumer, path: "fixture-plm-door-consumer.cs");
         trees.Add(calls);
         string[] platforms = RequiredReflection.TrustedPlatformAssemblies();
         var compilation = CSharpCompilation.Create("PlmDoorProviderFixture", trees,
@@ -87,52 +79,53 @@ internal static class PlmDoorPresentationContractChecks
         }
         Require(before.UnresolvedCount == 16, "sixteen calls must reproduce absent adapters first" + " (" + before.Describe() + ")");
         Require(report.Classifications.Count == 8 && report.UnresolvedCount == 8 && report.MissingCount == 0 &&
-            report.Consumers.Count == 16, "known aliases qualify but unsupported pointers and narrow widths still fail (expected 8/8/0/16; " +
+            report.Consumers.Count == 16, "known aliases qualify but foreign draws and narrow widths still fail (expected 8/8/0/16; " +
             report.Describe() + ")");
-        Require(report.Findings.Any(item => item.Message.Contains("drawPointer", StringComparison.Ordinal)) &&
+        Require(report.Findings.Any(item => item.Message.Contains("is not owned", StringComparison.Ordinal)) &&
             report.Findings.Any(item => item.Message.Contains("word/block", StringComparison.Ordinal)),
-            "invalid pointers and words retain exact shape findings");
+            "foreign draws and words retain exact shape findings");
     }
 
     /// <summary>Checks each PLM catalog constructor and authored alias against the production word lookup.</summary>
     private static void ConfirmConstructorCoverage()
     {
         ConfirmCoverage(BlueDoorPlmDrawDefinitions.Editable, frame =>
-            new RoomPlmVisualEntry(BlueDoorPlmDrawDefinitions.VisualId(frame.Pointer), VisualRuns(frame)[0]),
+            new RoomPlmVisualEntry(BlueDoorPlmDrawDefinitions.VisualId(frame.Draw), VisualRuns(frame)[0]),
             entries => _ = new RoomPlmBlueDoorVisualCatalog(entries));
         ConfirmCoverage(ColoredDoorPlmDrawDefinitions.All, frame =>
-            new RoomPlmVisualEntry(ColoredDoorPlmDrawDefinitions.VisualId(frame.Pointer), VisualRuns(frame)[0]),
+            new RoomPlmVisualEntry(ColoredDoorPlmDrawDefinitions.VisualId(frame.Draw), VisualRuns(frame)[0]),
             entries => _ = new RoomPlmColoredDoorVisualCatalog(entries));
         ConfirmCoverage(GreyDoorPlmDrawDefinitions.All, frame =>
-            new RoomPlmVisualEntry(GreyDoorPlmDrawDefinitions.VisualId(frame.Pointer), VisualRuns(frame)[0]),
+            new RoomPlmVisualEntry(GreyDoorPlmDrawDefinitions.VisualId(frame.Draw), VisualRuns(frame)[0]),
             entries => _ = new RoomPlmGreyDoorVisualCatalog(entries));
         ConfirmCoverage(EyeDoorPlmDrawDefinitions.Editable, frame =>
-            new RoomPlmVisualEntry(EyeDoorPlmDrawDefinitions.VisualId(frame.Pointer), VisualRuns(frame)[0]),
+            new RoomPlmVisualEntry(EyeDoorPlmDrawDefinitions.VisualId(frame.Draw), VisualRuns(frame)[0]),
             entries => _ = new RoomPlmEyeDoorVisualCatalog(entries));
         ConfirmCoverage(MotherBrainEscapeGatePlmDrawDefinitions.All, frame =>
-            new RoomPlmVisualEntry(MotherBrainEscapeGatePlmDrawDefinitions.VisualId(frame.Pointer), VisualRuns(frame)[0]),
+            new RoomPlmVisualEntry(MotherBrainEscapeGatePlmDrawDefinitions.VisualId(frame.Draw), VisualRuns(frame)[0]),
             entries => _ = new RoomPlmEscapeGateVisualCatalog(entries));
         RoomPlmShotBlockDrawDefinitions.DrawList[] itemShapes =
             (PlmVisualDomainDefinitions.Get((typeof(RoomPlmCollectibleVisualCatalog).FullName ?? throw new InvalidOperationException("Verification requires typeof(RoomPlmCollectibleVisualCatalog).FullName."))) ?? throw new InvalidOperationException("Verification requires PlmVisualDomainDefinitions.Get((typeof(RoomPlmCollectibleVisualCatalog).FullName ?? thr...."));
         ConfirmCoverage((itemShapes), frame => {
-            Require(RoomPlmCollectibleDrawDefinitions.TryGet(frame.Pointer, out var item), "compiled item shape owns its ID");
-            return new RoomPlmCollectibleVisualEntry(item.Id, VisualRuns(frame)[0][0]);
+            Require(RoomPlmCollectibleDrawDefinitionsTooling.TryGet(frame.Draw, out var item), "compiled item shape owns its ID");
+            return new RoomPlmVisualWordEntry(item.Id, VisualRuns(frame)[0][0]);
         }, entries => _ = new RoomPlmCollectibleVisualCatalog(entries));
         ConfirmCoverage((PlmVisualDomainDefinitions.Get((typeof(RoomPlmGrappleBlockVisualCatalog).FullName ?? throw new InvalidOperationException("Verification requires typeof(RoomPlmGrappleBlockVisualCatalog).FullName."))) ?? throw new InvalidOperationException("Verification requires PlmVisualDomainDefinitions.Get((typeof(RoomPlmGrappleBlockVisualCatalog).FullName ?? th....")), frame =>
-            new RoomPlmGrappleBlockVisualEntry(frame.Pointer, VisualRuns(frame)[0][0]),
+            new RoomPlmVisualWordEntry(RoomPlmGrappleBlockDrawDefinitions.VisualId(PlmDraw.FrameOf<GrappleBlockDraw>(frame.Draw, "Grapple-block")),
+                VisualRuns(frame)[0][0]),
             entries => _ = new RoomPlmGrappleBlockVisualCatalog(entries));
 
         // Confirm the reviewed reuse mappings against production GetWord, not
         // just the source adapter. The constructed catalog contains no ROM art.
         var blue = new RoomPlmBlueDoorVisualCatalog(BlueDoorPlmDrawDefinitions.Editable.Select(frame =>
-            new RoomPlmVisualEntry(BlueDoorPlmDrawDefinitions.VisualId(frame.Pointer), VisualRuns(frame)[0])));
-        foreach (var frame in BlueDoorPlmDrawDefinitionsTooling.All.Where(frame => BlueDoorPlmDrawDefinitions.VisualSource(frame.Pointer) != frame.Pointer))
+            new RoomPlmVisualEntry(BlueDoorPlmDrawDefinitions.VisualId(frame.Draw), VisualRuns(frame)[0])));
+        foreach (var frame in BlueDoorPlmDrawDefinitionsTooling.All.Where(frame => BlueDoorPlmDrawDefinitions.VisualSource(frame.Draw) != frame.Draw))
             Require(Enumerable.Range(0, frame.Runs.Span[0].LevelWords.Length).All(word =>
-                blue.GetWord(frame.Pointer, word) == blue.GetWord(BlueDoorPlmDrawDefinitions.VisualSource(frame.Pointer), word)),
+                blue.GetWord(frame.Draw, word) == blue.GetWord(BlueDoorPlmDrawDefinitions.VisualSource(frame.Draw), word)),
                 "each compiled closed cap resolves to its required opening artwork");
         var eye = new RoomPlmEyeDoorVisualCatalog(EyeDoorPlmDrawDefinitions.Editable.Select(frame =>
-            new RoomPlmVisualEntry(EyeDoorPlmDrawDefinitions.VisualId(frame.Pointer), VisualRuns(frame)[0])));
-        ushort mirrored = EyeDoorPlmDrawDefinitions.MirroredOpeningClear;
+            new RoomPlmVisualEntry(EyeDoorPlmDrawDefinitions.VisualId(frame.Draw), VisualRuns(frame)[0])));
+        PlmDraw mirrored = EyeDoorPlmDrawDefinitions.MirroredOpeningClear;
         Require(Enumerable.Range(0, 4).All(word => eye.GetWord(mirrored, word) ==
             (eye.GetWord(EyeDoorPlmDrawDefinitions.VisualSource(mirrored), word) ^ (ushort)LevelBlockFlipFlags.Horizontal)),
             "mirrored clear uses the required authored clear with horizontal flip");

@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Verification.Areas.Escape;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Rooms.Plms.SamusEaterPlmDefinitionsVerification;
@@ -40,7 +41,7 @@ internal static class LookupChozoStockVerification
         var stock = RoomPlmChozoStatueVisualCatalog.Stock();
         var imported = new RoomPlmChozoStatueVisualCatalog(entries.Reverse());
         string Hash(Dictionary<ushort, ushort[]> words) => SuperMetroid.Core.Assets.SelectedPresentationHash.FromWordFrames(
-            nameof(RoomPlmChozoStatueVisualCatalog), words);
+            nameof(RoomPlmChozoStatueVisualCatalog), words.ToDictionary(pair => ChozoStatuePlmDrawDefinitions.VisualId(NativePlmDraws.At<ChozoStatueDraw>(pair.Key)), pair => pair.Value));
         foreach (var catalog in new[] {stock,imported,installed})
         {
             AssertEqual(Hash(flat), catalog.ContentIdentity, "Chozo original flattened identity");
@@ -50,17 +51,17 @@ internal static class LookupChozoStockVerification
                 for (int run = 0; run < runs.Length; run++)
                 {
                     for (int word = 0; word < runs[run].Length; word++)
-                        AssertEqual(runs[run][word], catalog.GetWord(frame.Pointer,run,word), "Chozo original stock word");
+                        AssertEqual(runs[run][word], catalog.GetWord(NativePlmDraws.At<ChozoStatueDraw>(frame.Pointer),run,word), "Chozo original stock word");
                     foreach (int bad in new[] {int.MinValue,-1,runs[run].Length,int.MaxValue})
-                        AssertThrows<ArgumentOutOfRangeException>(() => catalog.GetWord(frame.Pointer,run,bad), "Chozo stock word bounds");
+                        AssertThrows<ArgumentOutOfRangeException>(() => catalog.GetWord(NativePlmDraws.At<ChozoStatueDraw>(frame.Pointer),run,bad), "Chozo stock word bounds");
                 }
                 foreach (int bad in new[] {int.MinValue,-1,runs.Length,int.MaxValue})
-                    AssertThrows<ArgumentOutOfRangeException>(() => catalog.GetWord(frame.Pointer,bad,0), "Chozo stock run bounds");
+                    AssertThrows<ArgumentOutOfRangeException>(() => catalog.GetWord(NativePlmDraws.At<ChozoStatueDraw>(frame.Pointer),bad,0), "Chozo stock run bounds");
             }
         }
         for (int pointer = 0; pointer <= ushort.MaxValue; pointer++)
             if (!native.ContainsKey((ushort)pointer))
-                AssertThrows<InvalidDataException>(() => stock.GetWord((ushort)pointer,0,0), "Chozo stock unknown pointer");
+                AssertThrows<InvalidDataException>(() => stock.GetWord(NativePlmDraws.At<ChozoStatueDraw>((ushort)pointer),0,0), "Chozo stock unknown pointer");
         entries[1].Blocks[20] = 0xc58;
         var mixed = new RoomPlmChozoStatueVisualCatalog(entries);
         var expected = frames.ToDictionary(frame => frame.Pointer, frame => entries.Single(entry => entry.Id == frame.Id).Blocks.ToArray());
@@ -72,7 +73,7 @@ internal static class LookupChozoStockVerification
             int index = 0;
             for (int run = 0; run < native[frame.Pointer].Length; run++)
             for (int word = 0; word < native[frame.Pointer][run].Length; word++)
-                AssertEqual(expected[frame.Pointer][index++], mixed.GetWord(frame.Pointer,run,word), "Chozo cloned custom and unchanged stock isolation");
+                AssertEqual(expected[frame.Pointer][index++], mixed.GetWord(NativePlmDraws.At<ChozoStatueDraw>(frame.Pointer),run,word), "Chozo cloned custom and unchanged stock isolation");
         }
         AssertThrows<InvalidDataException>(() => new RoomPlmChozoStatueVisualCatalog(entries[..1]), "Chozo missing frame");
         AssertThrows<InvalidDataException>(() => new RoomPlmChozoStatueVisualCatalog(entries.Append(entries[0])), "Chozo duplicate frame");

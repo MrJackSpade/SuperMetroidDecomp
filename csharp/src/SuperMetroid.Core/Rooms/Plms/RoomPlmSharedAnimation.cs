@@ -11,6 +11,6 @@ internal sealed class RoomPlmSharedAnimation(RoomPlmSharedProgram program)
         RoomPlmSharedProgramDefinitions.Programs;
 
     /// <inheritdoc/>
-    private protected override ushort DrawList(PlmNoDraw frame) =>
+    private protected override PlmDraw DrawList(PlmNoDraw frame) =>
         throw new InvalidOperationException($"The shared PLM programs never draw; got {frame}.");
 }

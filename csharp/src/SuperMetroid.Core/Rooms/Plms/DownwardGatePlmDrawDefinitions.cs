@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Rooms.Plms;
 
 /// <summary>
-/// Downward-gate physical draws at $84:A517..A56A and A5D7..A626. Six vertical
+/// Downward-gate physical draws. Six vertical
 /// five-cell frames fill one additional shootable row per step; the top tile is
 /// stationary at the endpoints and moving in between. Four trigger colors use
 /// consecutive descending tiles, mirrored on the right. Gameplay evaluates cells
@@ -9,10 +9,6 @@ namespace SuperMetroid.Core.Rooms.Plms;
 /// </summary>
 internal static class DownwardGatePlmDrawDefinitions
 {
-    /// <summary>$84:A517: first five-block open-gate column, fourteen bytes per frame.</summary>
-    private const ushort ResidentFirst = 0xa517;
-    /// <summary>$84:A5D7: blue-left trigger; color pairs occupy twenty bytes.</summary>
-    private const ushort TriggerLeftFirst = 0xa5d7;
 
     /// <summary>Decoded column step or colored trigger shape; physical block words are calculated from this native draw identity.</summary>
     internal readonly record struct Draw(DownwardGatePart Part, [property: IntegerQuantity("gate animation frame index")] int Frame)
@@ -52,34 +48,40 @@ internal static class DownwardGatePlmDrawDefinitions
         }
     }
 
-    /// <summary>Accepts only six column starts and eight trigger starts; gaps belong to upward gates.</summary>
-    internal static bool TryDescribe(ushort pointer, out Draw draw)
+    /// <summary>The shape of one of the six column stages or eight trigger draws; a trigger's frame is its color's tile step.</summary>
+    internal static bool TryDescribe(PlmDraw request, out Draw draw)
     {
-        draw = default;
-        int columnOffset = pointer - ResidentFirst;
-        if (columnOffset >= 0 && columnOffset <= 70 && columnOffset % 14 == 0)
+        if (request is not PlmFrameDraw<DownwardGateDraw> { Frame: var gate })
         {
-            draw = new(DownwardGatePart.Column, columnOffset / 14);
-            return true;
+            draw = default;
+            return false;
         }
-        int triggerOffset = pointer - TriggerLeftFirst;
-        if (triggerOffset >= 0 && triggerOffset <= 72 && triggerOffset % 20 is 0 or 12)
+        draw = gate switch
         {
-            draw = new(triggerOffset % 20 == 12 ? DownwardGatePart.RightTrigger : DownwardGatePart.LeftTrigger, triggerOffset / 20);
-            return true;
-        }
-        return false;
+            DownwardGateDraw.Open => new(DownwardGatePart.Column, 0),
+            DownwardGateDraw.Lowered1 => new(DownwardGatePart.Column, 1),
+            DownwardGateDraw.Lowered2 => new(DownwardGatePart.Column, 2),
+            DownwardGateDraw.Lowered3 => new(DownwardGatePart.Column, 3),
+            DownwardGateDraw.Lowered4 => new(DownwardGatePart.Column, 4),
+            DownwardGateDraw.Closed => new(DownwardGatePart.Column, 5),
+            DownwardGateDraw.TriggerBlueLeft => new(DownwardGatePart.LeftTrigger, 0),
+            DownwardGateDraw.TriggerBlueRight => new(DownwardGatePart.RightTrigger, 0),
+            DownwardGateDraw.TriggerRedLeft => new(DownwardGatePart.LeftTrigger, 1),
+            DownwardGateDraw.TriggerRedRight => new(DownwardGatePart.RightTrigger, 1),
+            DownwardGateDraw.TriggerGreenLeft => new(DownwardGatePart.LeftTrigger, 2),
+            DownwardGateDraw.TriggerGreenRight => new(DownwardGatePart.RightTrigger, 2),
+            DownwardGateDraw.TriggerYellowLeft => new(DownwardGatePart.LeftTrigger, 3),
+            DownwardGateDraw.TriggerYellowRight => new(DownwardGatePart.RightTrigger, 3),
+            _ => throw new InvalidOperationException($"Undefined {nameof(DownwardGateDraw)} {gate}."),
+        };
+        return true;
     }
 
     /// <summary>Enumerates six column stages followed by four left/right trigger color pairs.</summary>
-    private static IEnumerable<ushort> Pointers()
+    private static IEnumerable<PlmDraw> Draws()
     {
-        for (int frame = 0; frame < 6; frame++) yield return (ushort)(ResidentFirst + frame * 14);
-        for (int color = 0; color < 4; color++)
-        {
-            yield return (ushort)(TriggerLeftFirst + color * 20);
-            yield return (ushort)(TriggerLeftFirst + color * 20 + 12);
-        }
+        foreach (DownwardGateDraw gate in Enum.GetValues<DownwardGateDraw>())
+            yield return PlmDraw.Of(gate);
     }
 
     /// <summary>Projects calculated physical shapes into temporary draw records for the artwork interface.</summary>
@@ -87,19 +89,19 @@ internal static class DownwardGatePlmDrawDefinitions
     {
         get
         {
-            foreach (ushort pointer in Pointers())
+            foreach (PlmDraw draw in Draws())
             {
-                TryGet(pointer, out var draw);
-                yield return draw;
+                TryGet(draw, out var list);
+                yield return list;
             }
         }
     }
 
     /// <summary>Reconstructs one supported native draw list from its column or trigger geometry.</summary>
-    internal static bool TryGet(ushort pointer, out RoomPlmShotBlockDrawDefinitions.DrawList list)
+    internal static bool TryGet(PlmDraw request, out RoomPlmShotBlockDrawDefinitions.DrawList list)
     {
         list = default;
-        if (!TryDescribe(pointer, out var draw)) return false;
+        if (!TryDescribe(request, out var draw)) return false;
         var runs = new RoomPlmShotBlockDrawDefinitions.Run[draw.RunCount];
         for (int run = 0; run < runs.Length; run++)
         {
@@ -107,15 +109,15 @@ internal static class DownwardGatePlmDrawDefinitions
             for (int word = 0; word < words.Length; word++) words[word] = draw.WordAt(run, word);
             runs[run] = new(draw.DirectionAndCount(run), words, new(draw.NextX(run), 0));
         }
-        list = new(pointer, runs);
+        list = new(request, runs);
         return true;
     }
 
-    /// <summary>Maps a native pointer to the published artwork identity, preserving historic green/red labels.</summary>
-    internal static string VisualId(ushort pointer)
+    /// <summary>Maps a draw to its published artwork identity, preserving historic green/red labels.</summary>
+    internal static string VisualId(PlmDraw request)
     {
-        if (!TryDescribe(pointer, out var draw))
-            throw new InvalidDataException($"Downward gate draw list ${pointer:X4} has no visual ID.");
+        if (!TryDescribe(request, out var draw))
+            throw new InvalidDataException($"Downward gate draw list {request} has no visual ID.");
         if (draw.Column) return $"column-frame-{draw.Frame}";
         // Keep published artwork IDs: the historic green/red names differ from native order.
         string color = draw.Frame switch { 0 => "blue", 1 => "green", 2 => "red", _ => "yellow" };
@@ -124,5 +126,5 @@ internal static class DownwardGatePlmDrawDefinitions
 
     /// <summary>Looks up a published visual name against supported native column and trigger draws.</summary>
     internal static bool TryGetByVisualId(string id, out RoomPlmShotBlockDrawDefinitions.DrawList list) =>
-        RoomPlmShotBlockDrawDefinitions.FindByVisualId(Pointers(), VisualId, TryGet, id, out list);
+        RoomPlmShotBlockDrawDefinitions.FindByVisualId(Draws(), VisualId, TryGet, id, out list);
 }

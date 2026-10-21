@@ -11,7 +11,7 @@ internal sealed class DownwardGatePlmAnimation(DownwardGateProgram program)
         DownwardGatePlmProgramDefinitions.Programs;
 
     /// <inheritdoc/>
-    private protected override ushort DrawList(DownwardGateDraw frame) => (ushort)frame;
+    private protected override PlmDraw DrawList(DownwardGateDraw frame) => PlmDraw.Of(frame);
 
     /// <inheritdoc/>
     private protected override DownwardGateProgram? ProgramAfterSleep(DownwardGateProgram program) =>

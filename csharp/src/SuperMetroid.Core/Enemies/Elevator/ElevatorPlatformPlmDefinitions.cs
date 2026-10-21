@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Rooms.Plms;
 
 namespace SuperMetroid.Core.Enemies.Elevator;
@@ -10,8 +9,6 @@ namespace SuperMetroid.Core.Enemies.Elevator;
 /// </summary>
 internal static class ElevatorPlatformPlmDefinitions
 {
-    /// <summary>Byte stride between consecutive draw lists.</summary>
-    internal const int DrawStride = 24;
 
     /// <summary>
     /// Three frames at $84:AA97..AADE, each with two upper edge cells and a
@@ -19,10 +16,10 @@ internal static class ElevatorPlatformPlmDefinitions
     /// frame; lower art advances two, mirrored about the platform centre.
     /// Continuations are absolute offsets (3,0), (0,1), then the terminator.
     /// </summary>
-    internal readonly record struct Draw(ushort Pointer, int Frame) : IPlmRunDrawShape
+    internal readonly record struct Draw(int Frame) : IPlmRunDrawShape
     {
-        /// <summary>Gets the three native strips, or zero for an uninitialized descriptor.</summary>
-        public int RunCount => Pointer == 0 ? 0 : 3;
+        /// <summary>Gets the three native strips.</summary>
+        public int RunCount => 3;
         /// <summary>Rejects a strip index outside this platform draw.</summary>
         private void CheckRun(int run)
         {
@@ -55,44 +52,51 @@ internal static class ElevatorPlatformPlmDefinitions
             return (ushort)(0x8000 | (right ? 0x400 : 0) | tile);
         }
     }
-    /// <summary>Recognizes one of the three platform frame pointers and derives its frame index.</summary>
-    internal static bool TryDescribe(ushort pointer, out Draw draw)
+    /// <summary>Recognizes one of the three platform frames and derives its frame index.</summary>
+    internal static bool TryDescribe(PlmDraw request, out Draw draw)
     {
-        // Pointers outside the three lists belong to other draw families.
-        bool owned = Enum.IsDefined((ElevatorPlatformDraw)pointer);
-        draw = owned ? new(pointer, (pointer - (ushort)ElevatorPlatformDraw.First) / DrawStride) : default;
-        return owned;
+        // Draws of other families are not the platform's.
+        draw = request is PlmFrameDraw<ElevatorPlatformDraw> { Frame: var platform }
+            ? new(platform switch
+            {
+                ElevatorPlatformDraw.First => 0,
+                ElevatorPlatformDraw.Second => 1,
+                ElevatorPlatformDraw.Third => 2,
+                _ => throw new InvalidOperationException($"Undefined {nameof(ElevatorPlatformDraw)} {platform}."),
+            })
+            : default;
+        return request is PlmFrameDraw<ElevatorPlatformDraw>;
     }
     /// <summary>Exports temporary draw DTOs for the three platform frames in native order.</summary>
     internal static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> DrawLists
     {
         get
         {
-            for (int frame = 0; frame < 3; frame++)
+            foreach (ElevatorPlatformDraw platform in Enum.GetValues<ElevatorPlatformDraw>())
             {
-                TryGetDraw((ushort)((ushort)ElevatorPlatformDraw.First + frame * DrawStride), out var list);
+                TryGetDraw(PlmDraw.Of(platform), out var list);
                 yield return list;
             }
         }
     }
 
     /// <summary>Maps a native platform draw pointer to its stable artwork identifier.</summary>
-    internal static string VisualId(ushort pointer) =>
-        ClosedNativeWords.Decode<ElevatorPlatformDraw>(pointer, "elevator-platform draw list") switch
+    internal static string VisualId(PlmDraw request) =>
+        PlmDraw.FrameOf<ElevatorPlatformDraw>(request, "elevator-platform draw list") switch
         {
             ElevatorPlatformDraw.First => "first-frame",
             ElevatorPlatformDraw.Second => "second-frame",
             ElevatorPlatformDraw.Third => "third-frame",
-            _ => throw new InvalidOperationException($"Undefined elevator-platform draw list ${pointer:X4}."),
+            _ => throw new InvalidOperationException($"Undefined elevator-platform draw list {request}."),
         };
 
     /// <summary>Resolves a stable frame identifier to its temporary draw DTO.</summary>
     internal static bool TryGetByVisualId(string? id,
         out RoomPlmShotBlockDrawDefinitions.DrawList list) =>
-        RoomPlmShotBlockDrawDefinitions.FindByVisualId(Enum.GetValues<ElevatorPlatformDraw>().Select(draw => (ushort)draw),
+        RoomPlmShotBlockDrawDefinitions.FindByVisualId(Enum.GetValues<ElevatorPlatformDraw>().Select(draw => (PlmDraw)PlmDraw.Of(draw)),
             VisualId, TryGetDraw, id, out list);
 
     /// <summary>Materializes an artwork DTO; gameplay calculates platform cells directly.</summary>
-    internal static bool TryGetDraw(ushort pointer, out RoomPlmShotBlockDrawDefinitions.DrawList list) =>
-        RoomPlmShotBlockDrawDefinitions.TryCompile<Draw>(pointer, TryDescribe, out list);
+    internal static bool TryGetDraw(PlmDraw request, out RoomPlmShotBlockDrawDefinitions.DrawList list) =>
+        RoomPlmShotBlockDrawDefinitions.TryCompile<Draw>(request, TryDescribe, out list);
 }

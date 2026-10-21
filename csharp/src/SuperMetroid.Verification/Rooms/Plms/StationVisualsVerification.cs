@@ -27,7 +27,7 @@ internal static class StationVisualsVerification
         RoomPlmStationVisualCatalog stock = RoomPlmStationVisualCatalog.Stock();
         RoomPlmVisualRunEntry[] entries = RoomPlmStationDrawDefinitions.All
             .Select(list => new RoomPlmVisualRunEntry(
-                RoomPlmStationDrawDefinitions.VisualId(list.Pointer),
+                RoomPlmStationDrawDefinitions.VisualId(NativePlmDraws.At<StationDraw>(PlmDrawAddressCodec.Of(list.Draw))),
                 list.Runs.Span
                     .SelectToArray(run => run.LevelWords.Span
                         .SelectToArray(word => new RoomLevelWord(word).VisualWord))
@@ -37,9 +37,9 @@ internal static class StationVisualsVerification
         first.Runs[0][0] = 0x0053;
         var edited = new RoomPlmStationVisualCatalog(entries);
         first.Runs[0][0] = 0x0054;
-        ushort pointer = StationAnimationProgramDefinitions.Resolve(
-            StationAnimationList.MapIdle, 0).DrawPointer;
-        AssertEqual((ushort)0x0053, edited.GetWord(pointer, 0, 0),
+        ushort pointer = PlmDrawAddressCodec.Of(StationAnimationProgramDefinitions.Resolve(
+            StationAnimationList.MapIdle, 0).Draw);
+        AssertEqual((ushort)0x0053, edited.GetWord(NativePlmDraws.At<StationDraw>(pointer), 0, 0),
             "station visual catalog copies author data");
         StationVisualsRenderResult Render(
             RoomPlmStationVisualCatalog visuals)
@@ -97,8 +97,8 @@ internal static class StationVisualsVerification
                 installation.RoomPlmStationVisualDirectory, SupportedCartridge.Sha256);
             RoomPlmStationVisualFiles.ValidateStock(
                 installation.RoomPlmStationVisualDirectory);
-            ushort pointer = StationAnimationProgramDefinitions.Resolve(
-                StationAnimationList.MapIdle, 0).DrawPointer;
+            ushort pointer = PlmDrawAddressCodec.Of(StationAnimationProgramDefinitions.Resolve(
+                StationAnimationList.MapIdle, 0).Draw);
             VerifyStationStockMapping(rom, installation.LoadRoomPlmStationVisuals());
 
             string stockPath = Path.Combine(installation.RoomPlmStationVisualDirectory,
@@ -114,14 +114,14 @@ internal static class StationVisualsVerification
                 RoomPlmStationVisualFiles.VisualFileName);
             File.WriteAllText(overridePath, document.ToJsonString());
             AssertEqual((ushort)0x0053,
-                installation.LoadRoomPlmStationVisuals().GetWord(pointer, 0, 0),
+                installation.LoadRoomPlmStationVisuals().GetWord(NativePlmDraws.At<StationDraw>(pointer), 0, 0),
                 "station visual override selects edited map frame");
 
             string refreshed = Path.Combine(testRoot, "refreshed-stock");
             RoomPlmStationVisualFiles.Extract(rom, refreshed, SupportedCartridge.Sha256);
             AssertEqual((ushort)0x0053,
                 RoomPlmStationVisualFiles.Load(refreshed,
-                    installation.RoomPlmStationVisualOverrideDirectory).GetWord(pointer, 0, 0),
+                    installation.RoomPlmStationVisualOverrideDirectory).GetWord(NativePlmDraws.At<StationDraw>(pointer), 0, 0),
                 "station visual override survives stock replacement");
 
             frame.Required("runs").Required(0)[0] = 0xf053;

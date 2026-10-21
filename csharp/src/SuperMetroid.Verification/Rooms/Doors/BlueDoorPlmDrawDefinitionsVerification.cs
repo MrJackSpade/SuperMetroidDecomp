@@ -29,9 +29,9 @@ internal static class BlueDoorPlmDrawDefinitionsVerification
         Suite(nameof(VerifyBlueDoorProgramDefinitions), () => VerifyBlueDoorProgramDefinitions(rom));
 
         RoomPlmShotBlockDrawDefinitions.DrawList[] lists =
-            BlueDoorPlmDrawDefinitionsTooling.All.OrderBy(list => list.Pointer).ToArray();
+            BlueDoorPlmDrawDefinitionsTooling.All.OrderBy(list => PlmDrawAddressCodec.Of(list.Draw)).ToArray();
         RoomPlmVisualEntry[] entries = BlueDoorPlmDrawDefinitions.Editable.Select(draw =>
-            new RoomPlmVisualEntry(BlueDoorPlmDrawDefinitions.VisualId(draw.Pointer),
+            new RoomPlmVisualEntry(BlueDoorPlmDrawDefinitions.VisualId(draw.Draw),
                 draw.Runs.Span[0].LevelWords.Span
                     .SelectToArray(word => new RoomLevelWord(word).VisualWord))).ToArray();
         RoomPlmBlueDoorVisualCatalog stock = RoomPlmBlueDoorVisualCatalog.Stock();
@@ -42,9 +42,9 @@ internal static class BlueDoorPlmDrawDefinitionsVerification
         var edited = new RoomPlmBlueDoorVisualCatalog(entries);
         editedFrame.Blocks[0] = 0x0054;
         ushort leftFirstDraw = CartridgeImportSource.Require(rom).ReadCartridgeWord((0x840000 | (BlueEntry(BlueDoorPlmProgramDefinitions.Opening(ColoredDoorOrientation.Left)) + 5)));
-        AssertEqual((ushort)0x0053, edited.GetWord(leftFirstDraw, 0),
+        AssertEqual((ushort)0x0053, edited.GetWord(NativePlmDraws.At<BlueDoorPlmDrawDefinitions.Draw>(leftFirstDraw), 0),
             "blue-door visual catalog copies author data");
-        AssertEqual(originalVisual, stock.GetWord(leftFirstDraw, 0),
+        AssertEqual(originalVisual, stock.GetWord(NativePlmDraws.At<BlueDoorPlmDrawDefinitions.Draw>(leftFirstDraw), 0),
             "stock blue-door visual retains native tile choice");
         Suite(nameof(VerifyBlueCapGeometry), () => VerifyBlueCapGeometry(rom));
         Suite(nameof(VerifyBlueCapCollision), () => VerifyBlueCapCollision(rom));
@@ -54,7 +54,7 @@ internal static class BlueDoorPlmDrawDefinitionsVerification
         {
             ushort openingList = BlueEntry(BlueDoorPlmProgramDefinitions.Opening(orientation));
             ushort firstDraw = CartridgeImportSource.Require(rom).ReadCartridgeWord((0x840000 | (openingList + 5)));
-            AssertTrue(BlueDoorPlmDrawDefinitions.TryGet(firstDraw, out var selected),
+            AssertTrue(BlueDoorPlmDrawDefinitions.TryGet(NativePlmDraws.At<BlueDoorPlmDrawDefinitions.Draw>(firstDraw), out var selected),
                 $"{orientation} opening program selects a compiled draw");
 
             const int width = 16;
@@ -139,7 +139,7 @@ internal static class BlueDoorPlmDrawDefinitionsVerification
                 installation.RoomPlmBlueDoorVisualDirectory);
             var installed = installation.LoadRoomPlmBlueDoorVisuals();
             VerifyBlueDoorStockMapping(rom, installed);
-            ushort stock = installed.GetWord(firstDraw, 0);
+            ushort stock = installed.GetWord(NativePlmDraws.At<BlueDoorPlmDrawDefinitions.Draw>(firstDraw), 0);
 
             string stockPath = Path.Combine(installation.RoomPlmBlueDoorVisualDirectory,
                 RoomPlmBlueDoorVisualFiles.VisualFileName);
@@ -154,14 +154,14 @@ internal static class BlueDoorPlmDrawDefinitionsVerification
                 RoomPlmBlueDoorVisualFiles.VisualFileName);
             File.WriteAllText(overridePath, document.ToJsonString());
             AssertEqual((ushort)0x0053,
-                installation.LoadRoomPlmBlueDoorVisuals().GetWord(firstDraw, 0),
+                installation.LoadRoomPlmBlueDoorVisuals().GetWord(NativePlmDraws.At<BlueDoorPlmDrawDefinitions.Draw>(firstDraw), 0),
                 "installed blue-door override changes the selected frame");
 
             string refreshed = Path.Combine(testRoot, "refreshed-stock");
             RoomPlmBlueDoorVisualFiles.Extract(rom, refreshed, SupportedCartridge.Sha256);
             AssertEqual((ushort)0x0053,
                 RoomPlmBlueDoorVisualFiles.Load(refreshed,
-                    installation.RoomPlmBlueDoorVisualOverrideDirectory).GetWord(firstDraw, 0),
+                    installation.RoomPlmBlueDoorVisualOverrideDirectory).GetWord(NativePlmDraws.At<BlueDoorPlmDrawDefinitions.Draw>(firstDraw), 0),
                 "blue-door override survives stock replacement");
 
             frame.Required("blocks")[0] = 0xf053;
@@ -190,7 +190,7 @@ internal static class BlueDoorPlmDrawDefinitionsVerification
             .Forbid(address => address is >= 0x84c489 and <= 0x84c54c,
                 address => $"Production blue-door instruction reread bank-$84 byte ${address:X6}.")
             .Forbid(address => lists.Any(list =>
-                    address >= (0x840000 | list.Pointer) &&
-                    address < (0x840000 | list.Pointer) + BlueDoorPlmDrawDefinitions.DrawListBytes),
+                    address >= (0x840000 | PlmDrawAddressCodec.Of(list.Draw)) &&
+                    address < (0x840000 | PlmDrawAddressCodec.Of(list.Draw)) + 12),
                 address => $"Production blue-door draw reread bank-$84 payload ${address:X6}.");
 }

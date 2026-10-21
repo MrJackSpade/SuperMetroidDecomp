@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Verification.Rooms.Plms;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -24,12 +25,12 @@ internal static class BotwoonWallPlmsVerification
 
         RoomPlmShotBlockDrawDefinitions.DrawList draw =
             BotwoonWallPlmDrawDefinitions.All.Single();
-        AssertEqual(BotwoonWallPlmDrawDefinitions.ClearPointer, draw.Pointer,
+        AssertEqual((ushort)0x930f, PlmDrawAddressCodec.Of(draw.Draw),
             "Botwoon clear draw pointer");
         AssertEqual(1, draw.Runs.Length, "Botwoon clear has one vertical run");
         AssertEqual((ushort)0x8009, draw.Runs.Span[0].DirectionAndCount,
             "Botwoon clear is nine blocks tall");
-        int cursor = draw.Pointer;
+        int cursor = PlmDrawAddressCodec.Of(draw.Draw);
         AssertWord(draw.Runs.Span[0].DirectionAndCount);
         foreach (ushort word in draw.Runs.Span[0].LevelWords.Span)
             AssertWord(word);
@@ -55,7 +56,7 @@ internal static class BotwoonWallPlmsVerification
         void AssertWord(ushort expected)
         {
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0x840000 | cursor),
-                expected, $"Botwoon draw word +{cursor - draw.Pointer}");
+                expected, $"Botwoon draw word +{cursor - PlmDrawAddressCodec.Of(draw.Draw)}");
             cursor += 2;
         }
     }
@@ -134,10 +135,10 @@ internal static class BotwoonWallPlmsVerification
                 int pointer = SnesAddressMath.OffsetInBank(address);
                 return (SnesAddressMath.BankNumber(address)) == 0x84 &&
                     (BossRoomPlmNativeListAddresses.IsTypedProgramByte(pointer) ||
-                     (pointer >= BotwoonWallPlmDrawDefinitions.ClearPointer &&
+                     (pointer >= PlmDrawAddresses.BotwoonWall[BotwoonWallDraw.Clear] &&
                       pointer < BotwoonWallPlmDrawDefinitions.EndExclusive) ||
-                     (pointer >= RoomPlmShotBlockDrawDefinitions.SingleFrame0 &&
-                      pointer < RoomPlmShotBlockDrawDefinitions.HorizontalFrame0));
+                     (pointer >= PlmDrawAddresses.SingleBreakupFirst &&
+                      pointer < PlmDrawAddresses.HorizontalBreakupFirst));
             }, address => $"Botwoon wall reread migrated source ${address:X6}.");
 
     /// <summary>Runs Botwoon wall program, draw, and timed execution checks.</summary>

@@ -47,7 +47,7 @@ public static class RoomPlmGrappleBlockVisualFiles
         ArgumentException.ThrowIfNullOrWhiteSpace(directory);
         ArgumentException.ThrowIfNullOrWhiteSpace(sourceCartridgeSha256);
         Directory.CreateDirectory(directory);
-        RoomPlmGrappleBlockVisualEntry[] entries = ReadAndVerifyNative(bus);
+        RoomPlmVisualWordEntry[] entries = ReadAndVerifyNative(bus);
         byte[] json = JsonSerializer.SerializeToUtf8Bytes(
             new VisualDocument(FormatVersion, entries), JsonOptions);
         using (var output = new FileStream(Path.Combine(directory, VisualFileName),
@@ -91,9 +91,9 @@ public static class RoomPlmGrappleBlockVisualFiles
                  RoomPlmGrappleBlockDrawDefinitions.All)
         {
             ushort expected = new RoomLevelWord(draw.LevelWord).VisualWord;
-            if (stock.GetWord(draw.Pointer) != expected)
+            if (stock.GetWord(PlmDraw.Of(draw.Frame)) != expected)
                 throw new InvalidDataException(
-                    $"Stock Grapple-block visuals {stockPath} differ from ${draw.Pointer:X4}.");
+                    $"Stock Grapple-block visuals {stockPath} differ from {draw.Frame}.");
         }
 
         string? overridePath = overrideDirectory is null ? null :
@@ -109,13 +109,13 @@ public static class RoomPlmGrappleBlockVisualFiles
     public static void ValidateStock(string directory) => _ = Load(directory, null);
 
     /// <summary>Checks every native one-cell draw's direction, level word, and terminal offsets before exporting visuals.</summary>
-    private static RoomPlmGrappleBlockVisualEntry[] ReadAndVerifyNative(ISnesAddressSpace bus)
+    private static RoomPlmVisualWordEntry[] ReadAndVerifyNative(ISnesAddressSpace bus)
     {
-        var entries = new List<RoomPlmGrappleBlockVisualEntry>();
+        var entries = new List<RoomPlmVisualWordEntry>();
         foreach (RoomPlmGrappleBlockDrawDefinitions.DrawList draw in
-                 RoomPlmGrappleBlockDrawDefinitions.All.OrderBy(item => item.Pointer))
+                 RoomPlmGrappleBlockDrawDefinitions.All.OrderBy(item => PlmDrawAddressCodec.Of(PlmDraw.Of(item.Frame))))
         {
-            ushort pointer = draw.Pointer;
+            ushort pointer = PlmDrawAddressCodec.Of(PlmDraw.Of(draw.Frame));
             if (CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(CartridgeBankWindow.At(RoomPlmCartridgeTables.PlmBank, pointer)) !=
                     RoomPlmGrappleBlockDrawDefinitions.DrawList.DirectionAndCount ||
                 CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(CartridgeBankWindow.At(RoomPlmCartridgeTables.PlmBank, (unchecked((ushort)(pointer + 2))))) != draw.LevelWord ||
@@ -125,7 +125,7 @@ public static class RoomPlmGrappleBlockVisualFiles
                     RoomPlmGrappleBlockDrawDefinitions.DrawList.NextY)
                 throw new InvalidDataException(
                     $"Grapple-block draw list ${pointer:X4} differs from compiled cartridge data.");
-            entries.Add(new RoomPlmGrappleBlockVisualEntry(pointer,
+            entries.Add(new RoomPlmVisualWordEntry(RoomPlmGrappleBlockDrawDefinitions.VisualId(draw.Frame),
                 new RoomLevelWord(draw.LevelWord).VisualWord));
         }
 
@@ -168,5 +168,5 @@ public static class RoomPlmGrappleBlockVisualFiles
     private sealed record VisualManifest(int Version, string SourceCartridgeSha256,
         string VisualSha256);
     /// <summary>Versioned five-entry pointer-to-visual-word document.</summary>
-    private sealed record VisualDocument(int Version, RoomPlmGrappleBlockVisualEntry[] Entries);
+    private sealed record VisualDocument(int Version, RoomPlmVisualWordEntry[] Entries);
 }

@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Rooms;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rooms.Plms;
@@ -30,7 +31,7 @@ internal static class KraidRoomVisualSelectionVerification
             entries.Add(new(definition.Id, words.ToArray()));
         }
         var catalog = new RoomPlmKraidVisualCatalog(entries.AsEnumerable().Reverse());
-        string expectedHash = SelectedPresentationHash.FromWordFrames(nameof(RoomPlmKraidVisualCatalog), expected);
+        string expectedHash = SelectedPresentationHash.FromWordFrames(nameof(RoomPlmKraidVisualCatalog), expected.ToDictionary(pair => KraidRoomPlmDrawDefinitions.VisualId(NativePlmDraws.At<KraidRoomDraw>(pair.Key)), pair => pair.Value));
         AssertEqual(expectedHash, catalog.ContentIdentity, "Kraid visual selection preserves sorted legacy identity");
         AssertEqual(expectedHash, new RoomPlmKraidVisualCatalog(entries).ContentIdentity,
             "Kraid visual selection ignores input ordering");
@@ -39,22 +40,22 @@ internal static class KraidRoomVisualSelectionVerification
         foreach (var definition in definitions)
         {
             for (int block = 0; block < definition.Count; block++)
-                AssertEqual(expected[definition.Pointer][block], catalog.GetWord(definition.Pointer, 0, block),
+                AssertEqual(expected[definition.Pointer][block], catalog.GetWord(NativePlmDraws.At<KraidRoomDraw>(definition.Pointer), 0, block),
                     "Kraid named frame preserves every independently supplied block and defensive copy");
             foreach (int block in new[] { int.MinValue, -1, definition.Count, int.MaxValue })
-                AssertThrows<ArgumentOutOfRangeException>(() => catalog.GetWord(definition.Pointer, 0, block),
+                AssertThrows<ArgumentOutOfRangeException>(() => catalog.GetWord(NativePlmDraws.At<KraidRoomDraw>(definition.Pointer), 0, block),
                     "Kraid visual block bounds");
             foreach (int run in new[] { int.MinValue, -1, 1, int.MaxValue })
-                AssertThrows<ArgumentOutOfRangeException>(() => catalog.GetWord(definition.Pointer, run, 0),
+                AssertThrows<ArgumentOutOfRangeException>(() => catalog.GetWord(NativePlmDraws.At<KraidRoomDraw>(definition.Pointer), run, 0),
                     "Kraid visual run bounds");
         }
         AssertEqual(expectedHash, catalog.ContentIdentity, "Kraid copied frames preserve identity after input mutation");
         for (int pointer = 0x9365; pointer <= 0x93ef; pointer++)
             if (!expected.ContainsKey((ushort)pointer))
-                AssertThrows<InvalidDataException>(() => catalog.GetWord((ushort)pointer, 0, 0),
+                AssertThrows<InvalidDataException>(() => catalog.GetWord(NativePlmDraws.At<KraidRoomDraw>((ushort)pointer), 0, 0),
                     "Kraid visual selector rejects holes and neighboring draws");
         foreach (ushort pointer in new ushort[] { 0, ushort.MaxValue })
-            AssertThrows<InvalidDataException>(() => catalog.GetWord(pointer, 0, 0),
+            AssertThrows<InvalidDataException>(() => catalog.GetWord(NativePlmDraws.At<KraidRoomDraw>(pointer), 0, 0),
                 "Kraid visual selector rejects distant pointers");
         for (int index = 0; index < entries.Count; index++)
         {

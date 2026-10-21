@@ -25,7 +25,7 @@ internal static class RoomPlmProgramsVerification
     internal static void VerifyNoobTubePrograms(ISnesAddressSpace rom)
     {
         int steps = CompareProgramSet(CartridgeImportSource.Require(rom), NoobTubePlmProgramDefinitions.Programs, NoobTubeEntries,
-            draw => (ushort)draw, NoobTubeCueAt, "n00b tube");
+            draw => PlmDraw.Of(draw), NoobTubeCueAt, "n00b tube");
         Console.WriteLine($"  N00b tube programs: {steps} typed steps match bank $84.");
     }
 
@@ -296,7 +296,7 @@ internal static class RoomPlmProgramsVerification
     }
 
     /// <summary>The bank-$84 draw list a Speed Booster block frame draws.</summary>
-    private static ushort SpeedBoosterBlockDrawList(SpeedBoosterBlockFrame frame) => frame switch
+    private static PlmDraw SpeedBoosterBlockDrawList(SpeedBoosterBlockFrame frame) => frame switch
     {
         SpeedBoosterBlockFrame.Crumble0 => SpeedBoosterBlockPlmDrawDefinitions.CrumbleDrawList(0),
         SpeedBoosterBlockFrame.Crumble1 => SpeedBoosterBlockPlmDrawDefinitions.CrumbleDrawList(1),
@@ -311,7 +311,7 @@ internal static class RoomPlmProgramsVerification
     internal static void VerifyDownwardGatePrograms(ISnesAddressSpace rom)
     {
         int steps = CompareProgramSet(CartridgeImportSource.Require(rom), DownwardGatePlmProgramDefinitions.Programs, DownwardGateEntries,
-            draw => (ushort)draw, DownwardGateCueAt, "downward gate");
+            draw => PlmDraw.Of(draw), DownwardGateCueAt, "downward gate");
         foreach ((DownwardGateProgram program, ushort entry) in DownwardGateEntries)
         {
             if (DownwardGatePlmProgramDefinitions.ProgramAfterSleep(program) is not { } next)
@@ -333,7 +333,7 @@ internal static class RoomPlmProgramsVerification
     internal static ushort DownwardGateNativeInstruction(ISnesAddressSpace rom, DownwardGatePlmAnimation gate)
     {
         downwardGateAddresses ??= StepAddresses(CartridgeImportSource.Require(rom), DownwardGatePlmProgramDefinitions.Programs,
-            DownwardGateEntries, draw => (ushort)draw, DownwardGateCueAt, "downward gate");
+            DownwardGateEntries, draw => PlmDraw.Of(draw), DownwardGateCueAt, "downward gate");
         return downwardGateAddresses[new ProgramStep<DownwardGateProgram>(gate.Cursor.Program, gate.Cursor.Position)];
     }
 
@@ -423,7 +423,7 @@ internal static class RoomPlmProgramsVerification
     internal static void VerifyTourianAccessPrograms(ISnesAddressSpace rom)
     {
         int steps = CompareProgramSet(CartridgeImportSource.Require(rom), TourianAccessPlmProgramDefinitions.Programs, TourianAccessEntries,
-            draw => (ushort)draw,
+            draw => PlmDraw.Of(draw),
             (IImportCartridgeSource cartridge, ushort cursor, out TourianAccessCue cue, out int length) =>
             {
                 cue = TourianAccessCue.MoveDown;
@@ -459,7 +459,7 @@ internal static class RoomPlmProgramsVerification
     }
 
     /// <summary>The draw list a blue program's frame draws: the program names the facing.</summary>
-    private static ushort BlueDoorDrawList(BlueDoorProgram program, BlueDoorFrame frame)
+    private static PlmDraw BlueDoorDrawList(BlueDoorProgram program, BlueDoorFrame frame)
     {
         ColoredDoorOrientation orientation = BlueDoorPlmProgramDefinitions.Orientation(program);
         return frame switch
@@ -568,7 +568,7 @@ internal static class RoomPlmProgramsVerification
     }
 
     /// <summary>The draw list a coloured cap's frame draws.</summary>
-    private static ushort ColoredCapDraw(ColoredDoorColor color, ColoredDoorOrientation orientation, DoorCapFrame frame) => frame switch
+    private static PlmDraw ColoredCapDraw(ColoredDoorColor color, ColoredDoorOrientation orientation, DoorCapFrame frame) => frame switch
     {
         DoorCapFrame.Clear => DoorPlmDrawListDefinitions.Clear(orientation),
         DoorCapFrame.Closed0 => DoorPlmDrawListDefinitions.Colored(color, orientation, 0),
@@ -689,7 +689,7 @@ internal static class RoomPlmProgramsVerification
     }
 
     /// <summary>The draw list a grey cap's frame draws.</summary>
-    private static ushort GreyCapDraw(ColoredDoorOrientation orientation, DoorCapFrame frame) => frame switch
+    private static PlmDraw GreyCapDraw(ColoredDoorOrientation orientation, DoorCapFrame frame) => frame switch
     {
         DoorCapFrame.Clear => DoorPlmDrawListDefinitions.Clear(orientation),
         DoorCapFrame.Closed0 => DoorPlmDrawListDefinitions.Grey(orientation, 0),
@@ -1019,7 +1019,7 @@ internal static class RoomPlmProgramsVerification
     internal static void VerifySamusEaterPrograms(ISnesAddressSpace rom)
     {
         int steps = CompareProgramSet(CartridgeImportSource.Require(rom), SamusEaterPlmProgramDefinitions.Programs, SamusEaterEntries,
-            draw => (ushort)draw, SamusEaterCueAt, "Brinstar plant");
+            draw => PlmDraw.Of(draw), SamusEaterCueAt, "Brinstar plant");
         Console.WriteLine($"  Brinstar plant programs: {steps} typed steps match bank $84.");
     }
 

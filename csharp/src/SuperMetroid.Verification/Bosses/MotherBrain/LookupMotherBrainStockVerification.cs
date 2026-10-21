@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Bosses.MotherBrain;
+using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Verification.Areas.Escape;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Rooms.Plms.SamusEaterPlmDefinitionsVerification;
@@ -49,7 +51,7 @@ internal static class LookupMotherBrainStockVerification
         var stock = RoomPlmMotherBrainFakeDeathVisualCatalog.Stock();
         var imported = new RoomPlmMotherBrainFakeDeathVisualCatalog(entries.Reverse());
         string Hash(Dictionary<ushort, ushort[]> words) => SuperMetroid.Core.Assets.SelectedPresentationHash.FromWordFrames(
-            nameof(RoomPlmMotherBrainFakeDeathVisualCatalog), words);
+            nameof(RoomPlmMotherBrainFakeDeathVisualCatalog), words.ToDictionary(pair => MotherBrainFakeDeathPlmDrawDefinitions.VisualId(NativePlmDraws.At<MotherBrainFakeDeathDraw>(pair.Key)), pair => pair.Value));
         foreach (var catalog in new[] {stock, imported, installed})
         {
             AssertEqual(Hash(native), catalog.ContentIdentity, "Mother Brain original flattened hash");
@@ -59,17 +61,17 @@ internal static class LookupMotherBrainStockVerification
                 for (int run = 0; run < widths[frame.Pointer].Length; run++)
                 {
                     for (int block = 0; block < widths[frame.Pointer][run]; block++)
-                        AssertEqual(native[frame.Pointer][flat++], catalog.GetWord(frame.Pointer,run,block), "Mother Brain native stock word");
+                        AssertEqual(native[frame.Pointer][flat++], catalog.GetWord(NativePlmDraws.At<MotherBrainFakeDeathDraw>(frame.Pointer),run,block), "Mother Brain native stock word");
                     foreach (int bad in new[] {int.MinValue,-1,widths[frame.Pointer][run],int.MaxValue})
-                        AssertThrows<ArgumentOutOfRangeException>(() => catalog.GetWord(frame.Pointer,run,bad), "Mother Brain block bounds");
+                        AssertThrows<ArgumentOutOfRangeException>(() => catalog.GetWord(NativePlmDraws.At<MotherBrainFakeDeathDraw>(frame.Pointer),run,bad), "Mother Brain block bounds");
                 }
                 foreach (int bad in new[] {int.MinValue,-1,widths[frame.Pointer].Length,int.MaxValue})
-                    AssertThrows<ArgumentOutOfRangeException>(() => catalog.GetWord(frame.Pointer,bad,0), "Mother Brain run bounds");
+                    AssertThrows<ArgumentOutOfRangeException>(() => catalog.GetWord(NativePlmDraws.At<MotherBrainFakeDeathDraw>(frame.Pointer),bad,0), "Mother Brain run bounds");
             }
         }
         for (int pointer = 0; pointer <= ushort.MaxValue; pointer++)
             if (!native.ContainsKey((ushort)pointer))
-                AssertThrows<InvalidDataException>(() => stock.GetWord((ushort)pointer,0,0), "MotherBrainFakeDeath unknown pointer");
+                AssertThrows<InvalidDataException>(() => stock.GetWord(NativePlmDraws.At<MotherBrainFakeDeathDraw>((ushort)pointer),0,0), "MotherBrainFakeDeath unknown pointer");
         entries[21].Blocks[5] = 0x0c58;
         entries[2].Blocks[0] = 0x0059;
         var mixed = new RoomPlmMotherBrainFakeDeathVisualCatalog(entries);
@@ -82,7 +84,7 @@ internal static class LookupMotherBrainStockVerification
             int flat = 0;
             for (int run = 0; run < widths[frame.Pointer].Length; run++)
             for (int block = 0; block < widths[frame.Pointer][run]; block++)
-                AssertEqual(expected[frame.Pointer][flat++], mixed.GetWord(frame.Pointer,run,block), "Mother Brain cloned custom data and stock fallback");
+                AssertEqual(expected[frame.Pointer][flat++], mixed.GetWord(NativePlmDraws.At<MotherBrainFakeDeathDraw>(frame.Pointer),run,block), "Mother Brain cloned custom data and stock fallback");
         }
         AssertThrows<InvalidDataException>(() => new RoomPlmMotherBrainFakeDeathVisualCatalog(entries[..21]), "MotherBrainFakeDeath missing frame");
         AssertThrows<InvalidDataException>(() => new RoomPlmMotherBrainFakeDeathVisualCatalog(entries.Append(entries[0])), "MotherBrainFakeDeath duplicate frame");

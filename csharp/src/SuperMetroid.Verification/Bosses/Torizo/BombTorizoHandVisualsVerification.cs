@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.Tooling;
 using System.Text.Json.Nodes;
 using static SuperMetroid.Verification.Bosses.Torizo.LookupBombTorizoHandStockVerification;
@@ -51,7 +52,7 @@ internal static class BombTorizoHandVisualsVerification
             File.WriteAllText(overridePath, document.ToJsonString());
             AssertEqual((ushort)0x0053,
                 installation.LoadRoomPlmBombTorizoHandVisuals().GetWord(
-                    (ushort)BombTorizoHandDraw.Intact, 0, 0),
+                    PlmDraw.Of(BombTorizoHandDraw.Intact), 0, 0),
                 "installed hand override selects its changed block");
 
             string refreshed = Path.Combine(testRoot, "refreshed-stock");
@@ -60,7 +61,7 @@ internal static class BombTorizoHandVisualsVerification
             AssertEqual((ushort)0x0053,
                 RoomPlmBombTorizoHandVisualFiles.Load(refreshed,
                     installation.RoomPlmBombTorizoHandVisualOverrideDirectory)
-                    .GetWord((ushort)BombTorizoHandDraw.Intact, 0, 0),
+                    .GetWord(PlmDraw.Of(BombTorizoHandDraw.Intact), 0, 0),
                 "hand override survives stock replacement");
 
             intact.Required("blocks")[0] = 0xf053;

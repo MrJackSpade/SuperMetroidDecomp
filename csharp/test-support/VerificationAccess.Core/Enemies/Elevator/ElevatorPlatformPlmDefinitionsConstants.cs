@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Core.Rooms.Plms;
+﻿using SuperMetroid.AssetExtraction.Rooms;
+using SuperMetroid.Core.Rooms.Plms;
 
 namespace SuperMetroid.Core.Enemies.Elevator;
 
@@ -27,7 +28,7 @@ internal static class ElevatorPlatformPlmDefinitionsConstants
         {
             int phase = offset / 4;
             int frame = 2 - Math.Abs(phase - 2);
-            value = (ushort)((ushort)ElevatorPlatformDraw.First + frame * ElevatorPlatformPlmDefinitions.DrawStride);
+            value = PlmDrawAddressCodec.Of(PlmDraw.Of(Enum.GetValues<ElevatorPlatformDraw>()[frame]));
         }
         return true;
     }

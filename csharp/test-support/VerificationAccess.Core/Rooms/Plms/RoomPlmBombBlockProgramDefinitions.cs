@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Core.Rooms.LevelData;
+﻿using SuperMetroid.AssetExtraction.Rooms;
+using SuperMetroid.Core.Rooms.LevelData;
 
 namespace SuperMetroid.Core.Rooms.Plms;
 
@@ -56,9 +57,9 @@ internal static class RoomPlmBombBlockProgramDefinitions
             {
                 value = dimension switch
                 {
-                    1 => (ushort)BombBlockRestoreDraw.Horizontal,
-                    2 => (ushort)BombBlockRestoreDraw.Vertical,
-                    3 => (ushort)BombBlockRestoreDraw.Square,
+                    1 => PlmDrawAddressCodec.Of(PlmDraw.Of(BombBlockRestoreDraw.Horizontal)),
+                    2 => PlmDrawAddressCodec.Of(PlmDraw.Of(BombBlockRestoreDraw.Vertical)),
+                    3 => PlmDrawAddressCodec.Of(PlmDraw.Of(BombBlockRestoreDraw.Square)),
                     _ => throw new InvalidDataException("Linked bomb-block program has no restore shape."),
                 };
                 return true;

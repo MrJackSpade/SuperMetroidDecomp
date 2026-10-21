@@ -12,7 +12,7 @@ internal sealed class SporeSpawnCeilingPlmAnimation(SporeSpawnCeilingProgram pro
         SporeSpawnCeilingPlmProgramDefinitions.Programs;
 
     /// <inheritdoc/>
-    private protected override ushort DrawList(SporeSpawnCeilingDraw frame) => (ushort)frame;
+    private protected override PlmDraw DrawList(SporeSpawnCeilingDraw frame) => PlmDraw.Of(frame);
 
     /// <inheritdoc/>
     private protected override SporeSpawnCeilingProgram? Publish(SporeSpawnCeilingCue cue, PlmSlot slot, PlmStepContext context)

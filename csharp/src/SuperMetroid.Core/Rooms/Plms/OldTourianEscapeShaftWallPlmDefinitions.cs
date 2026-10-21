@@ -11,8 +11,15 @@ internal static class OldTourianEscapeShaftWallPlmDefinitions
     /// <summary>$8F:91AE: the hardcoded spawn's block Y.</summary>
     internal const int BlockY = 0x87;
 
-    /// <summary>$84:9283, <c>DrawInst_OldTourianEscapeShaftBlocks</c>: two blank columns.</summary>
-    internal const ushort OpenWallDraw = 0x9283;
+    /// <summary>The wall's one draw.</summary>
+    internal enum Draw
+    {
+        /// <summary>Opens the shaft wall's two columns.</summary>
+        OpenWall,
+    }
+
+    /// <summary>The draw that opens the shaft wall's two columns.</summary>
+    internal static PlmFrameDraw<Draw> OpenWallDraw { get; } = PlmDraw.Of(Draw.OpenWall);
 
     /// <summary>$84:B927-$B92F: Samus must be strictly right of X $F0 and below Y $820.</summary>
     internal const ushort WakeTargetX = 0x00f0;
@@ -23,15 +30,15 @@ internal static class OldTourianEscapeShaftWallPlmDefinitions
     /// $84:9283: a vertical run of three $00FF air words at the PLM, then another one block to
     /// its right.
     /// </summary>
-    internal static bool TryGetDraw(ushort pointer, out RoomPlmShotBlockDrawDefinitions.DrawList draw)
+    internal static bool TryGetDraw(PlmDraw request, out RoomPlmShotBlockDrawDefinitions.DrawList draw)
     {
-        if (pointer != OpenWallDraw)
+        if (request != OpenWallDraw)
         {
             draw = default;
             return false;
         }
         ushort[] column = [0x00ff, 0x00ff, 0x00ff];
-        draw = new(pointer, new RoomPlmShotBlockDrawDefinitions.Run[]
+        draw = new(request, new RoomPlmShotBlockDrawDefinitions.Run[]
         {
             new(0x8003, column, new(1, 0)),
             new(0x8003, column, new(0, 0)),

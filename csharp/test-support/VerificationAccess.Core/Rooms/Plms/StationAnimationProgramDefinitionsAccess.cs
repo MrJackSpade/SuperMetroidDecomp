@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Rooms;
 namespace SuperMetroid.Core.Rooms.Plms;
 
 /// <summary>Verification access to <see cref="StationAnimationProgramDefinitions"/> members production does not use.</summary>
@@ -17,7 +18,7 @@ internal static class StationAnimationProgramDefinitionsAccess
             {
                 StationAnimationProgramDefinitions.Frame frame = StationAnimationProgramDefinitions.Resolve(list, index);
                 yield return new NativeWord(checked((ushort)((ushort)list + 4 * index)), frame.Duration);
-                yield return new NativeWord(checked((ushort)((ushort)list + 4 * index + 2)), frame.DrawPointer);
+                yield return new NativeWord(checked((ushort)((ushort)list + 4 * index + 2)), PlmDrawAddressCodec.Of(frame.Draw));
             }
         }
     }

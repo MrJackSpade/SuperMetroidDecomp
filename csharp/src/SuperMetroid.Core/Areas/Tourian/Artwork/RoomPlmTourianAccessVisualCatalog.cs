@@ -14,12 +14,12 @@ public sealed class RoomPlmTourianAccessVisualCatalog
     public string ContentIdentity => SelectedPresentationHash.Create(nameof(RoomPlmTourianAccessVisualCatalog), content =>
     {
         Span<ushort> words = stackalloc ushort[24];
-        foreach (var draw in TourianAccessPlmDrawDefinitions.All.OrderBy(draw => draw.Pointer))
+        foreach (TourianAccessDraw draw in Enum.GetValues<TourianAccessDraw>().OrderBy(TourianAccessPlmDrawDefinitions.VisualId, StringComparer.Ordinal))
         {
-            TourianAccessPlmDrawDefinitions.TryDescribe(draw.Pointer, out int rows, out _);
+            TourianAccessPlmDrawDefinitions.Describe(draw, out int rows, out _);
             for (int index = 0; index < rows * 4; index++)
-                words[index] = GetWord(draw.Pointer, index / 4, index % 4);
-            content.Append("frame", draw.Pointer);
+                words[index] = GetWord(PlmDraw.Of(draw), index / 4, index % 4);
+            content.AppendName("frame", TourianAccessPlmDrawDefinitions.VisualId(draw));
             // Preserve the original flattened-frame hash, including the six-row clear.
             content.Append("runs", 1);
             content.AppendWords("words", words[..(rows * 4)]);
@@ -42,21 +42,19 @@ public sealed class RoomPlmTourianAccessVisualCatalog
     }
 
     /// <summary>Resolves one Tourian access-floor visual cell from edited artwork or its compiled stock layout.</summary>
-    /// <param name="drawPointer">Bank-$84 draw pointer: $9297 for an empty row, $92A3/$92AF/$92BB for visible crumble rows, or $92C7 for the six-row clear.</param>
+    /// <param name="draw">The empty row, a visible crumble row, or the six-row clear.</param>
     /// <param name="runIndex">Top-to-bottom row index, zero for single-row frames or zero through five for the six-row clear.</param>
     /// <param name="blockIndex">Zero-based left-to-right column within the four-cell row.</param>
     /// <returns>The twelve-bit metatile index/parent-flip word, with no collision nibble or physical level mutation.</returns>
-    /// <exception cref="InvalidDataException"><paramref name="drawPointer"/> is not a compiled Tourian access layout.</exception>
     /// <exception cref="ArgumentOutOfRangeException">The row or column is outside that layout's dimensions; the reported parameter is <paramref name="blockIndex"/>.</exception>
-    public ushort GetWord(ushort drawPointer, int runIndex, int blockIndex)
+    /// <exception cref="InvalidDataException"><paramref name="draw"/> is not a Tourian access draw.</exception>
+    internal ushort GetWord(PlmDraw draw, int runIndex, int blockIndex)
     {
-        if (!TourianAccessPlmDrawDefinitions.TryDescribe(drawPointer, out int rows, out ushort stockWord))
-            throw new InvalidDataException(
-                $"Tourian access visuals lack frame ${drawPointer:X4}.");
+        TourianAccessPlmDrawDefinitions.Describe(PlmDraw.FrameOf<TourianAccessDraw>(draw, "Tourian access"), out int rows, out ushort stockWord);
         if ((uint)runIndex >= (uint)rows ||
             (uint)blockIndex >= 4)
             throw new ArgumentOutOfRangeException(nameof(blockIndex));
-        return customWords.TryGet(drawPointer, out var words)
+        return customWords.TryGet(draw, out var words)
             ? words[runIndex * 4 + blockIndex] : new RoomLevelWord(stockWord).VisualWord;
     }
 }

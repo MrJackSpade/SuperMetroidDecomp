@@ -8,9 +8,6 @@ internal interface IPlmDrawing
     /// <summary>Nonserialized item tile and palette art; physical pickup rules stay compiled.</summary>
     RoomPlmDynamicCollectibleArtCatalog? DynamicCollectibleArt { get; }
 
-    /// <summary>Draws a PLM without header-specific visual ownership using its block origin and instruction pointer.</summary>
-    void DrawPlmInstruction(RoomLevelData level, int blockIndex, ushort drawPointer);
-
-    /// <summary>Resolves a compiled or cartridge draw list, selecting installed visuals by PLM owner while retaining physical collision words.</summary>
-    void DrawPlmInstruction(RoomLevelData level, PlmHeaderId headerPointer, int blockIndex, ushort drawPointer);
+    /// <summary>Draws <paramref name="draw"/> with its block origin at <paramref name="blockIndex"/>, with its family's installed visuals and its compiled collision words.</summary>
+    void Draw(RoomLevelData level, int blockIndex, PlmDraw draw);
 }

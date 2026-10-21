@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Core.Hardware;
+﻿using SuperMetroid.AssetExtraction.Rooms;
+using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.Plms;
 
@@ -117,7 +118,7 @@ internal static class ChozoStatuePlmProgramDefinitions
                 if (offset == 16) return (ushort)RoomPlmInstruction.Delete;
                 int frame = offset / 4;
                 return offset % 4 == 0 ? (ushort)(frame == 3 ? 1 : 4) :
-                    (ushort)(RoomPlmShotBlockDrawDefinitions.SingleFrame0 + frame * 6);
+                    (ushort)(PlmDrawAddresses.SingleBreakupFirst + frame * 6);
             }
             case ProgramList.LowerNorfairHand:
                 return offset switch
@@ -130,7 +131,7 @@ internal static class ChozoStatuePlmProgramDefinitions
                     10 => (ushort)RoomPlmInstruction.Sleep,
                     14 => (ushort)RoomPlmInstruction.SetLoweredAcidHeight,
                     16 => 1,
-                    18 => (ushort)ChozoStatueDraw.LowerNorfairClearedHand,
+                    18 => PlmDrawAddressCodec.Of(PlmDraw.Of(ChozoStatueDraw.LowerNorfairClearedHand)),
                     _ => (ushort)RoomPlmInstruction.Delete,
                 };
             case ProgramList.ClearSlope:
@@ -140,7 +141,7 @@ internal static class ChozoStatuePlmProgramDefinitions
                 return offset switch
                 {
                     0 => 1,
-                    2 => clear ? (ushort)ChozoStatueDraw.ClearSlopeAccess : (ushort)ChozoStatueDraw.BlockSlopeAccess,
+                    2 => clear ? PlmDrawAddressCodec.Of(PlmDraw.Of(ChozoStatueDraw.ClearSlopeAccess)) : PlmDrawAddressCodec.Of(PlmDraw.Of(ChozoStatueDraw.BlockSlopeAccess)),
                     4 => clear ? (ushort)RoomPlmInstruction.TransformSpikesToSlopes : (ushort)RoomPlmInstruction.RevertSlopesToSpikes,
                     _ => (ushort)RoomPlmInstruction.Delete,
                 };

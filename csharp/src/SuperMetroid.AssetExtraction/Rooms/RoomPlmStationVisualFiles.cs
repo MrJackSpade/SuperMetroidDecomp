@@ -104,15 +104,15 @@ public static class RoomPlmStationVisualFiles
     {
         var entries = new List<RoomPlmVisualRunEntry>();
         foreach (RoomPlmShotBlockDrawDefinitions.DrawList list in
-                 RoomPlmStationDrawDefinitions.All.OrderBy(item => item.Pointer))
+                 RoomPlmStationDrawDefinitions.All.OrderBy(item => PlmDrawAddressCodec.Of(item.Draw)))
         {
-            ushort cursor = list.Pointer;
+            ushort cursor = PlmDrawAddressCodec.Of(list.Draw);
             var visuals = new List<ushort[]>();
             foreach (RoomPlmShotBlockDrawDefinitions.Run run in list.Runs.Span)
             {
                 if (CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(CartridgeBankWindow.At(RoomPlmCartridgeTables.PlmBank, cursor)) != run.DirectionAndCount)
                     throw new InvalidDataException(
-                        $"Station draw list ${list.Pointer:X4} differs in source cartridge shape.");
+                        $"Station draw list {list.Draw} differs in source cartridge shape.");
                 cursor = unchecked((ushort)(cursor + 2));
                 var visualWords = new ushort[run.LevelWords.Length];
                 for (int index = 0; index < visualWords.Length; index++)
@@ -120,7 +120,7 @@ public static class RoomPlmStationVisualFiles
                     ushort source = CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(CartridgeBankWindow.At(RoomPlmCartridgeTables.PlmBank, cursor));
                     if (source != run.LevelWords.Span[index])
                         throw new InvalidDataException(
-                            $"Station draw list ${list.Pointer:X4} differs at ${cursor:X4}.");
+                            $"Station draw list {list.Draw} differs at ${cursor:X4}.");
                     visualWords[index] = new RoomLevelWord(source).VisualWord;
                     cursor = unchecked((ushort)(cursor + 2));
                 }
@@ -129,13 +129,13 @@ public static class RoomPlmStationVisualFiles
                     bus.ReadCartridgeByte(CartridgeBankWindow.At(RoomPlmCartridgeTables.PlmBank, unchecked((ushort)(cursor + 1)))) !=
                         unchecked((byte)run.Next.Y))
                     throw new InvalidDataException(
-                        $"Station draw list ${list.Pointer:X4} differs in next-record offset.");
+                        $"Station draw list {list.Draw} differs in next-record offset.");
                 cursor = unchecked((ushort)(cursor + 2));
                 visuals.Add(visualWords);
             }
 
             entries.Add(new RoomPlmVisualRunEntry(
-                RoomPlmStationDrawDefinitions.VisualId(list.Pointer), visuals.ToArray()));
+                RoomPlmStationDrawDefinitions.VisualId(list.Draw), visuals.ToArray()));
         }
 
         return entries.ToArray();
@@ -152,10 +152,10 @@ public static class RoomPlmStationVisualFiles
         {
             ushort expected = new RoomLevelWord(
                 list.Runs.Span[run].LevelWords.Span[word]).VisualWord;
-            if (catalog.GetWord(list.Pointer, run, word) != expected)
+            if (catalog.GetWord(list.Draw, run, word) != expected)
                 throw new InvalidDataException(
                     $"Stock station visuals {path} differ from compiled frame " +
-                    RoomPlmStationDrawDefinitions.VisualId(list.Pointer) + ".");
+                    RoomPlmStationDrawDefinitions.VisualId(list.Draw) + ".");
         }
     }
 

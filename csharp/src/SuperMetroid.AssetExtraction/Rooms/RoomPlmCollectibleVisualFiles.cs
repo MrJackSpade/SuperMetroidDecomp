@@ -44,7 +44,7 @@ public static class RoomPlmCollectibleVisualFiles
         ArgumentException.ThrowIfNullOrWhiteSpace(directory);
         ArgumentException.ThrowIfNullOrWhiteSpace(sourceCartridgeSha256);
         Directory.CreateDirectory(directory);
-        RoomPlmCollectibleVisualEntry[] entries = ReadAndVerifyNative(bus);
+        RoomPlmVisualWordEntry[] entries = ReadAndVerifyNative(bus);
         byte[] json = JsonSerializer.SerializeToUtf8Bytes(
             new VisualDocument(FormatVersion, entries), JsonOptions);
         using (var output = new FileStream(Path.Combine(directory, VisualFileName),
@@ -96,31 +96,32 @@ public static class RoomPlmCollectibleVisualFiles
     public static void ValidateStock(string directory) => _ = Load(directory, null);
 
     /// <summary>Checks eight dynamic selectors and all 24 one-cell native draws before extracting visual words.</summary>
-    private static RoomPlmCollectibleVisualEntry[] ReadAndVerifyNative(ISnesAddressSpace bus)
+    private static RoomPlmVisualWordEntry[] ReadAndVerifyNative(ISnesAddressSpace bus)
     {
         for (int slot = 0; slot < 4; slot++)
         for (int animation = 0; animation < 2; animation++)
         {
             ushort table = animation == 0
-                ? RoomPlmCollectibleDrawDefinitions.DynamicFrame0Table
-                : RoomPlmCollectibleDrawDefinitions.DynamicFrame1Table;
+                ? PlmDrawAddresses.CollectibleDynamicFrame0Table
+                : PlmDrawAddresses.CollectibleDynamicFrame1Table;
             ushort native = CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(CartridgeBankWindow.At(RoomPlmCartridgeTables.PlmBank, (checked((ushort)(table + slot * 2)))));
-            ushort compiled = RoomPlmCollectibleDrawDefinitions.VisibleFrame(
-                InWorldCollectibleKind.Bombs, animation, slot);
+            ushort compiled = PlmDrawAddressCodec.Of(RoomPlmCollectibleDrawDefinitions.VisibleFrame(
+                InWorldCollectibleKind.Bombs, animation, slot));
             if (native != compiled)
                 throw new InvalidDataException(
                     $"Dynamic collectible selector $84:{table + slot * 2:X4} differs from the cartridge.");
         }
 
-        var entries = new List<RoomPlmCollectibleVisualEntry>();
+        var entries = new List<RoomPlmVisualWordEntry>();
         foreach (RoomPlmCollectibleDrawFrame frame in RoomPlmCollectibleDrawDefinitions.All)
         {
-            if (CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(CartridgeBankWindow.At(RoomPlmCartridgeTables.PlmBank, frame.Pointer)) != 1 ||
-                CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(CartridgeBankWindow.At(RoomPlmCartridgeTables.PlmBank, (checked((ushort)(frame.Pointer + 2))))) != frame.LevelWord ||
-                CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(CartridgeBankWindow.At(RoomPlmCartridgeTables.PlmBank, (checked((ushort)(frame.Pointer + 4))))) != 0)
+            ushort address = PlmDrawAddressCodec.Of(PlmDraw.Of(frame.Draw));
+            if (CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(CartridgeBankWindow.At(RoomPlmCartridgeTables.PlmBank, address)) != 1 ||
+                CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(CartridgeBankWindow.At(RoomPlmCartridgeTables.PlmBank, (checked((ushort)(address + 2))))) != frame.LevelWord ||
+                CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(CartridgeBankWindow.At(RoomPlmCartridgeTables.PlmBank, (checked((ushort)(address + 4))))) != 0)
                 throw new InvalidDataException(
-                    $"Collectible draw list $84:{frame.Pointer:X4} differs from compiled geometry or level word.");
-            entries.Add(new RoomPlmCollectibleVisualEntry(frame.Id,
+                    $"Collectible draw {frame.Id} at $84:{address:X4} differs from compiled geometry or level word.");
+            entries.Add(new RoomPlmVisualWordEntry(frame.Id,
                 frame.LevelWord.VisualWord));
         }
         return entries.ToArray();
@@ -131,7 +132,7 @@ public static class RoomPlmCollectibleVisualFiles
         string path)
     {
         foreach (RoomPlmCollectibleDrawFrame frame in RoomPlmCollectibleDrawDefinitions.All)
-            if (catalog.GetWord(checked((ushort)frame.Pointer)) !=
+            if (catalog.GetWord(PlmDraw.Of(frame.Draw)) !=
                 frame.LevelWord.VisualWord)
                 throw new InvalidDataException(
                     $"Stock collectible visuals {path} differ from compiled frame {frame.Id}.");
@@ -174,5 +175,5 @@ public static class RoomPlmCollectibleVisualFiles
         string VisualSha256);
     /// <summary>Stores a versioned, complete set of named collectible visual references.</summary>
     private sealed record VisualDocument(int Version,
-        RoomPlmCollectibleVisualEntry[] Entries);
+        RoomPlmVisualWordEntry[] Entries);
 }

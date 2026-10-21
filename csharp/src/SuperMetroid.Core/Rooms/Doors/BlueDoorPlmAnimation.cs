@@ -16,7 +16,7 @@ internal sealed class BlueDoorPlmAnimation(BlueDoorProgram program)
     private ColoredDoorOrientation Orientation => BlueDoorPlmProgramDefinitions.Orientation(Cursor.Program);
 
     /// <inheritdoc/>
-    private protected override ushort DrawList(BlueDoorFrame frame) => frame switch
+    private protected override PlmDraw DrawList(BlueDoorFrame frame) => frame switch
     {
         BlueDoorFrame.Clear => DoorPlmDrawListDefinitions.Clear(Orientation),
         BlueDoorFrame.Blue0 => DoorPlmDrawListDefinitions.Blue(Orientation, 0),

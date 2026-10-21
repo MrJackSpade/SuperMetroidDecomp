@@ -105,15 +105,15 @@ public static class RoomPlmElevatorPlatformVisualFiles
     {
         var entries = new List<RoomPlmVisualRunEntry>();
         foreach (RoomPlmShotBlockDrawDefinitions.DrawList list in
-                 ElevatorPlatformPlmDefinitions.DrawLists.OrderBy(item => item.Pointer))
+                 ElevatorPlatformPlmDefinitions.DrawLists.OrderBy(item => PlmDrawAddressCodec.Of(item.Draw)))
         {
-            ushort cursor = list.Pointer;
+            ushort cursor = PlmDrawAddressCodec.Of(list.Draw);
             var visuals = new List<ushort[]>();
             foreach (RoomPlmShotBlockDrawDefinitions.Run run in list.Runs.Span)
             {
                 if (CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(CartridgeBankWindow.At(RoomPlmCartridgeTables.PlmBank, cursor)) != run.DirectionAndCount)
                     throw new InvalidDataException(
-                        $"Elevator-platform draw list ${list.Pointer:X4} differs in source cartridge shape.");
+                        $"Elevator-platform draw list {list.Draw} differs in source cartridge shape.");
                 cursor = unchecked((ushort)(cursor + 2));
                 var visualWords = new ushort[run.LevelWords.Length];
                 for (int index = 0; index < visualWords.Length; index++)
@@ -121,7 +121,7 @@ public static class RoomPlmElevatorPlatformVisualFiles
                     ushort source = CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(CartridgeBankWindow.At(RoomPlmCartridgeTables.PlmBank, cursor));
                     if (source != run.LevelWords.Span[index])
                         throw new InvalidDataException(
-                            $"Elevator-platform draw list ${list.Pointer:X4} differs at ${cursor:X4}.");
+                            $"Elevator-platform draw list {list.Draw} differs at ${cursor:X4}.");
                     visualWords[index] = new RoomLevelWord(source).VisualWord;
                     cursor = unchecked((ushort)(cursor + 2));
                 }
@@ -130,13 +130,13 @@ public static class RoomPlmElevatorPlatformVisualFiles
                     bus.ReadCartridgeByte(CartridgeBankWindow.At(RoomPlmCartridgeTables.PlmBank, unchecked((ushort)(cursor + 1)))) !=
                         unchecked((byte)run.Next.Y))
                     throw new InvalidDataException(
-                        $"Elevator-platform draw list ${list.Pointer:X4} differs in next-record offset.");
+                        $"Elevator-platform draw list {list.Draw} differs in next-record offset.");
                 cursor = unchecked((ushort)(cursor + 2));
                 visuals.Add(visualWords);
             }
 
             entries.Add(new RoomPlmVisualRunEntry(
-                ElevatorPlatformPlmDefinitions.VisualId(list.Pointer), visuals.ToArray()));
+                ElevatorPlatformPlmDefinitions.VisualId(list.Draw), visuals.ToArray()));
         }
 
         return entries.ToArray();
@@ -153,10 +153,10 @@ public static class RoomPlmElevatorPlatformVisualFiles
         {
             ushort expected = new RoomLevelWord(
                 list.Runs.Span[run].LevelWords.Span[word]).VisualWord;
-            if (catalog.GetWord(list.Pointer, run, word) != expected)
+            if (catalog.GetWord(list.Draw, run, word) != expected)
                 throw new InvalidDataException(
                     $"Stock elevator-platform visuals {path} differ from compiled frame " +
-                    ElevatorPlatformPlmDefinitions.VisualId(list.Pointer) + ".");
+                    ElevatorPlatformPlmDefinitions.VisualId(list.Draw) + ".");
         }
     }
 

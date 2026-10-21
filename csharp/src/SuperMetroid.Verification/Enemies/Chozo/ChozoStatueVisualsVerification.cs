@@ -58,7 +58,7 @@ internal static class ChozoStatueVisualsVerification
             File.WriteAllText(overridePath, document.ToJsonString());
             var selected = installation.LoadRoomPlmChozoStatueVisuals();
             AssertEqual((ushort)0x0053, selected.GetWord(
-                (ushort)ChozoStatueDraw.ClearSlopeAccess, 0, 0),
+                PlmDraw.Of(ChozoStatueDraw.ClearSlopeAccess), 0, 0),
                 "Chozo art override selects its edited first block");
 
             // Run both real Chozo PLM instruction lists. The bus refuses reads
@@ -134,7 +134,7 @@ internal static class ChozoStatueVisualsVerification
             AssertEqual((ushort)0x0053,
                 RoomPlmChozoStatueVisualFiles.Load(refreshed,
                     installation.RoomPlmChozoStatueVisualOverrideDirectory)
-                    .GetWord((ushort)ChozoStatueDraw.ClearSlopeAccess, 0, 0),
+                    .GetWord(PlmDraw.Of(ChozoStatueDraw.ClearSlopeAccess), 0, 0),
                 "Chozo override survives stock replacement");
 
             clearSlope.Required("blocks")[0] = 0xf053;
@@ -171,7 +171,7 @@ internal static class ChozoStatueVisualsVerification
                      address <= (0x840000 | (PlmProgramStartOracle.SharedDeleteEntry + 1))) ||
                     ChozoStatuePlmDrawDefinitions.All.Any(draw =>
                     {
-                        int first = 0x840000 | draw.Pointer;
+                        int first = 0x840000 | PlmDrawAddressCodec.Of(draw.Draw);
                         int length = draw.Runs.Span.Sum(run =>
                             4 + run.LevelWords.Length * 2);
                         return address >= first && address < first + length;

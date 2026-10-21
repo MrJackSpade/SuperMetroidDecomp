@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Rooms.Plms.LookupStationLayoutsVerification;
 using static SuperMetroid.Verification.Rooms.Plms.LookupStationVisualIdsVerification;
@@ -68,7 +69,7 @@ internal static class StationAnimationProgramDefinitionsVerification
                 ushort address = (ushort)(lists[listIndex] + frame * 4 + (draw ? 2 : 0));
                 ushort expected = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0x840000 | address);
                 var actual = StationAnimationProgramDefinitions.Resolve(list, frame);
-                AssertEqual(expected, draw ? actual.DrawPointer : actual.Duration, "Station original animation field");
+                AssertEqual(expected, draw ? PlmDrawAddressCodec.Of(actual.Draw) : actual.Duration, "Station original animation field");
                 var enumerated = words[ordinal + (draw ? 1 : 0)];
                 AssertEqual(address, enumerated.Address, "Station original field enumeration address/order");
                 AssertEqual(expected, enumerated.Value, "Station original enumerated field");

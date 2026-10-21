@@ -14,22 +14,22 @@ public sealed class RoomPlmElevatorPlatformVisualCatalog
     public string ContentIdentity => SelectedPresentationHash.Create(nameof(RoomPlmElevatorPlatformVisualCatalog), content =>
     {
         Span<ushort> buffer = stackalloc ushort[4];
-        foreach (var frame in ElevatorPlatformPlmDefinitions.DrawLists.OrderBy(frame => frame.Pointer))
+        foreach (var frame in ElevatorPlatformPlmDefinitions.DrawLists.OrderBy(item => ElevatorPlatformPlmDefinitions.VisualId(item.Draw), StringComparer.Ordinal))
         {
-            ElevatorPlatformPlmDefinitions.TryDescribe(frame.Pointer, out var shape);
-            content.Append("frame", frame.Pointer);
+            ElevatorPlatformPlmDefinitions.TryDescribe(frame.Draw, out var shape);
+            content.AppendName("frame", ElevatorPlatformPlmDefinitions.VisualId(frame.Draw));
             content.Append("runs", shape.RunCount);
             for (int run = 0; run < shape.RunCount; run++)
             {
                 int count = shape.WordCount(run);
-                for (int cell = 0; cell < count; cell++) buffer[cell] = GetWord(frame.Pointer, run, cell);
+                for (int cell = 0; cell < count; cell++) buffer[cell] = GetWord(frame.Draw, run, cell);
                 content.AppendWords("words", buffer[..count]);
             }
         }
     });
 
     /// <summary>Only frames whose visual words differ from the compiled source are stored here.</summary>
-    private readonly Dictionary<ushort, ushort[][]>? customWords;
+    private readonly Dictionary<PlmDraw, ushort[][]>? customWords;
 
     /// <summary>Validates all three elevator-platform draw layouts and copies visual differences while retaining native run geometry, collision words, and animation cadence.</summary>
     /// <remarks>The four-step instruction loop selects first, second, third, then second layout; the repeated second layout has only one entry.</remarks>
@@ -40,8 +40,8 @@ public sealed class RoomPlmElevatorPlatformVisualCatalog
         IEnumerable<RoomPlmVisualRunEntry> entries)
     {
         Ensure.NotNull(entries);
-        var selected = new Dictionary<ushort, ushort[][]>();
-        var seen = new HashSet<ushort>();
+        var selected = new Dictionary<PlmDraw, ushort[][]>();
+        var seen = new HashSet<PlmDraw>();
         foreach (RoomPlmVisualRunEntry entry in entries)
         {
             if (entry is null || entry.Runs is null ||
@@ -59,15 +59,15 @@ public sealed class RoomPlmElevatorPlatformVisualCatalog
                         $"Elevator-platform visuals {entry.Id} contain an invalid visual word.");
             }
 
-            if (!seen.Add(definition.Pointer))
+            if (!seen.Add(definition.Draw))
                 throw new InvalidDataException(
                     $"Elevator-platform visuals repeat frame {entry.Id}.");
-            ElevatorPlatformPlmDefinitions.TryDescribe(definition.Pointer, out var shape);
+            ElevatorPlatformPlmDefinitions.TryDescribe(definition.Draw, out var shape);
             bool changed = false;
             for (int run = 0; run < shape.RunCount; run++)
-            for (int cell = 0; cell < shape.WordCount(run); cell++)
-                changed |= entry.Runs[run][cell] != new RoomLevelWord(shape.WordAt(run, cell)).VisualWord;
-            if (changed) selected.Add(definition.Pointer, entry.Runs.Select(run => run.ToArray()).ToArray());
+                for (int cell = 0; cell < shape.WordCount(run); cell++)
+                    changed |= entry.Runs[run][cell] != new RoomLevelWord(shape.WordAt(run, cell)).VisualWord;
+            if (changed) selected.Add(definition.Draw, entry.Runs.Select(run => run.ToArray()).ToArray());
         }
 
         if (seen.Count != ElevatorPlatformPlmDefinitions.DrawLists.Count())
@@ -77,21 +77,21 @@ public sealed class RoomPlmElevatorPlatformVisualCatalog
     }
 
     /// <summary>Resolves one elevator-platform visual block without replacing its compiled physical word or draw offset.</summary>
-    /// <param name="drawPointer">Bank-$84 identity of a compiled elevator-platform draw frame.</param>
+    /// <param name="draw">The draw whose visual word is resolved.</param>
     /// <param name="runIndex">Zero-based ordinal of the native draw run.</param>
     /// <param name="wordIndex">Zero-based word ordinal within that run, not a room coordinate.</param>
     /// <returns>The selected metatile/flip word, derived from the compiled stock frame when unchanged.</returns>
-    /// <exception cref="InvalidDataException">The pointer does not identify a supported platform frame.</exception>
+    /// <exception cref="InvalidDataException">The draw is not a supported platform frame.</exception>
     /// <exception cref="ArgumentOutOfRangeException">The run or word ordinal is outside the compiled draw shape.</exception>
-    public ushort GetWord(ushort drawPointer, int runIndex, int wordIndex)
+    internal ushort GetWord(PlmDraw draw, int runIndex, int wordIndex)
     {
-        if (!ElevatorPlatformPlmDefinitions.TryDescribe(drawPointer, out var shape))
+        if (!ElevatorPlatformPlmDefinitions.TryDescribe(draw, out var shape))
             throw new InvalidDataException(
-                $"Elevator-platform visuals lack frame ${drawPointer:X4}.");
+                $"Elevator-platform visuals lack frame {draw}.");
         if ((uint)runIndex >= (uint)shape.RunCount ||
             (uint)wordIndex >= (uint)shape.WordCount(runIndex))
             throw new ArgumentOutOfRangeException(nameof(wordIndex));
-        return customWords is not null && customWords.TryGetValue(drawPointer, out var runs)
+        return customWords is not null && customWords.TryGetValue(draw, out var runs)
             ? runs[runIndex][wordIndex] : new RoomLevelWord(shape.WordAt(runIndex, wordIndex)).VisualWord;
     }
 }

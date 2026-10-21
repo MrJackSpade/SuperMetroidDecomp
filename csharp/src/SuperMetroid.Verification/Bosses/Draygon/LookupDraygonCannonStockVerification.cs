@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Bosses.Draygon;
+using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Verification.Areas.Escape;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Rooms.Plms.SamusEaterPlmDefinitionsVerification;
@@ -40,7 +42,7 @@ internal static class LookupDraygonCannonStockVerification
         var stock = RoomPlmDraygonCannonVisualCatalog.Stock();
         var imported = new RoomPlmDraygonCannonVisualCatalog(entries.Reverse());
         string Hash(Dictionary<ushort, ushort[]> words) => SuperMetroid.Core.Assets.SelectedPresentationHash.FromWordFrames(
-            nameof(RoomPlmDraygonCannonVisualCatalog), words);
+            nameof(RoomPlmDraygonCannonVisualCatalog), words.ToDictionary(pair => DraygonCannonPlmDrawDefinitions.VisualId(NativePlmDraws.At<DraygonCannonDraw>(pair.Key)), pair => pair.Value));
         foreach (var catalog in new[] {stock,imported,installed})
         {
             AssertEqual(Hash(flat), catalog.ContentIdentity, "Cannon original flattened identity");
@@ -50,17 +52,17 @@ internal static class LookupDraygonCannonStockVerification
                 for (int run = 0; run < runs.Length; run++)
                 {
                     for (int word = 0; word < runs[run].Length; word++)
-                        AssertEqual(runs[run][word], catalog.GetWord(frame.Pointer,run,word), "Cannon original stock word");
+                        AssertEqual(runs[run][word], catalog.GetWord(NativePlmDraws.At<DraygonCannonDraw>(frame.Pointer),run,word), "Cannon original stock word");
                     foreach (int bad in new[] {int.MinValue,-1,runs[run].Length,int.MaxValue})
-                        AssertThrows<ArgumentOutOfRangeException>(() => catalog.GetWord(frame.Pointer,run,bad), "Cannon stock word bounds");
+                        AssertThrows<ArgumentOutOfRangeException>(() => catalog.GetWord(NativePlmDraws.At<DraygonCannonDraw>(frame.Pointer),run,bad), "Cannon stock word bounds");
                 }
                 foreach (int bad in new[] {int.MinValue,-1,runs.Length,int.MaxValue})
-                    AssertThrows<ArgumentOutOfRangeException>(() => catalog.GetWord(frame.Pointer,bad,0), "Cannon stock run bounds");
+                    AssertThrows<ArgumentOutOfRangeException>(() => catalog.GetWord(NativePlmDraws.At<DraygonCannonDraw>(frame.Pointer),bad,0), "Cannon stock run bounds");
             }
         }
         for (int pointer = 0; pointer <= ushort.MaxValue; pointer++)
             if (!native.ContainsKey((ushort)pointer))
-                AssertThrows<InvalidDataException>(() => stock.GetWord((ushort)pointer,0,0), "Cannon stock unknown pointer");
+                AssertThrows<InvalidDataException>(() => stock.GetWord(NativePlmDraws.At<DraygonCannonDraw>((ushort)pointer),0,0), "Cannon stock unknown pointer");
         entries[8].Blocks[2] = 0xc58;
         var mixed = new RoomPlmDraygonCannonVisualCatalog(entries);
         var expected = frames.ToDictionary(frame => frame.Pointer, frame => entries.Single(entry => entry.Id == frame.Id).Blocks.ToArray());
@@ -72,7 +74,7 @@ internal static class LookupDraygonCannonStockVerification
             int index = 0;
             for (int run = 0; run < native[frame.Pointer].Length; run++)
             for (int word = 0; word < native[frame.Pointer][run].Length; word++)
-                AssertEqual(expected[frame.Pointer][index++], mixed.GetWord(frame.Pointer,run,word), "Cannon cloned custom and unchanged stock isolation");
+                AssertEqual(expected[frame.Pointer][index++], mixed.GetWord(NativePlmDraws.At<DraygonCannonDraw>(frame.Pointer),run,word), "Cannon cloned custom and unchanged stock isolation");
         }
         AssertThrows<InvalidDataException>(() => new RoomPlmDraygonCannonVisualCatalog(entries[..1]), "Cannon missing frame");
         AssertThrows<InvalidDataException>(() => new RoomPlmDraygonCannonVisualCatalog(entries.Append(entries[0])), "Cannon duplicate frame");

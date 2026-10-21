@@ -1,5 +1,6 @@
+using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.Core.Programs;
-using Step = SuperMetroid.Core.Programs.AnimationProgramStep<SuperMetroid.Core.Bosses.Botwoon.BotwoonWallProgram, SuperMetroid.Core.Bosses.Botwoon.BotwoonWallDraw, SuperMetroid.Core.Bosses.Botwoon.BotwoonWallCue>;
+using Step = SuperMetroid.Core.Programs.AnimationProgramStep<SuperMetroid.Core.Bosses.Botwoon.BotwoonWallProgram, SuperMetroid.Core.Rooms.Plms.BotwoonWallDraw, SuperMetroid.Core.Bosses.Botwoon.BotwoonWallCue>;
 
 namespace SuperMetroid.Core.Bosses.Botwoon;
 

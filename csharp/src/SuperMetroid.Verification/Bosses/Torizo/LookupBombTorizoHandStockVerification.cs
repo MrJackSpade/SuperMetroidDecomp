@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Bosses.Torizo;
+using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Verification.Areas.Escape;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Rooms.Plms.SamusEaterPlmDefinitionsVerification;
@@ -40,7 +42,7 @@ internal static class LookupBombTorizoHandStockVerification
         var stock = RoomPlmBombTorizoHandVisualCatalog.Stock();
         var imported = new RoomPlmBombTorizoHandVisualCatalog(entries.Reverse());
         string Hash(Dictionary<ushort, ushort[]> words) => SuperMetroid.Core.Assets.SelectedPresentationHash.FromWordFrames(
-            nameof(RoomPlmBombTorizoHandVisualCatalog), words);
+            nameof(RoomPlmBombTorizoHandVisualCatalog), words.ToDictionary(pair => BombTorizoHandPlmDrawDefinitions.VisualId(NativePlmDraws.At<BombTorizoHandDraw>(pair.Key)), pair => pair.Value));
         foreach (var catalog in new[] {stock,imported,installed})
         {
             AssertEqual(Hash(flat), catalog.ContentIdentity, "Hand original flattened identity");
@@ -50,17 +52,17 @@ internal static class LookupBombTorizoHandStockVerification
                 for (int run = 0; run < runs.Length; run++)
                 {
                     for (int word = 0; word < runs[run].Length; word++)
-                        AssertEqual(runs[run][word], catalog.GetWord(frame.Pointer,run,word), "Hand original stock word");
+                        AssertEqual(runs[run][word], catalog.GetWord(NativePlmDraws.At<BombTorizoHandDraw>(frame.Pointer),run,word), "Hand original stock word");
                     foreach (int bad in new[] {int.MinValue,-1,runs[run].Length,int.MaxValue})
-                        AssertThrows<ArgumentOutOfRangeException>(() => catalog.GetWord(frame.Pointer,run,bad), "Hand stock word bounds");
+                        AssertThrows<ArgumentOutOfRangeException>(() => catalog.GetWord(NativePlmDraws.At<BombTorizoHandDraw>(frame.Pointer),run,bad), "Hand stock word bounds");
                 }
                 foreach (int bad in new[] {int.MinValue,-1,runs.Length,int.MaxValue})
-                    AssertThrows<ArgumentOutOfRangeException>(() => catalog.GetWord(frame.Pointer,bad,0), "Hand stock run bounds");
+                    AssertThrows<ArgumentOutOfRangeException>(() => catalog.GetWord(NativePlmDraws.At<BombTorizoHandDraw>(frame.Pointer),bad,0), "Hand stock run bounds");
             }
         }
         for (int pointer = 0; pointer <= ushort.MaxValue; pointer++)
             if (!native.ContainsKey((ushort)pointer))
-                AssertThrows<InvalidDataException>(() => stock.GetWord((ushort)pointer,0,0), "Hand stock unknown pointer");
+                AssertThrows<InvalidDataException>(() => stock.GetWord(NativePlmDraws.At<BombTorizoHandDraw>((ushort)pointer),0,0), "Hand stock unknown pointer");
         entries[0].Blocks[7] = 0xc58;
         var mixed = new RoomPlmBombTorizoHandVisualCatalog(entries);
         var expected = frames.ToDictionary(frame => frame.Pointer, frame => entries.Single(entry => entry.Id == frame.Id).Blocks.ToArray());
@@ -72,7 +74,7 @@ internal static class LookupBombTorizoHandStockVerification
             int index = 0;
             for (int run = 0; run < native[frame.Pointer].Length; run++)
             for (int word = 0; word < native[frame.Pointer][run].Length; word++)
-                AssertEqual(expected[frame.Pointer][index++], mixed.GetWord(frame.Pointer,run,word), "Hand cloned custom and unchanged stock isolation");
+                AssertEqual(expected[frame.Pointer][index++], mixed.GetWord(NativePlmDraws.At<BombTorizoHandDraw>(frame.Pointer),run,word), "Hand cloned custom and unchanged stock isolation");
         }
         AssertThrows<InvalidDataException>(() => new RoomPlmBombTorizoHandVisualCatalog(entries[..1]), "Hand missing frame");
         AssertThrows<InvalidDataException>(() => new RoomPlmBombTorizoHandVisualCatalog(entries.Append(entries[0])), "Hand duplicate frame");

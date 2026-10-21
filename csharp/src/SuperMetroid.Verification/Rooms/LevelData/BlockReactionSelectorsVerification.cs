@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Verification.Rooms.Plms;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Bosses.MotherBrain.BabyMetroidRouteDefinitionsVerification;
@@ -39,14 +40,14 @@ internal static class BlockReactionSelectorsVerification
         ushort[] nativePointers = [0xa49b,0xa4e7,0xa4ed];
         for (int pointer = 0; pointer <= ushort.MaxValue; pointer++)
         {
-            bool found = RoomPlmBombedRevealDrawDefinitions.TryGet((ushort)pointer, out var draw);
+            bool found = RoomPlmBombedRevealDrawDefinitions.TryGet(NativePlmDraws.At<RoomPlmBombedRevealDraw>(pointer), out var draw);
             AssertEqual(nativePointers.Contains((ushort)pointer), found, "bombed reveal complete native draw pointer domain");
             if (!found)
             {
                 AssertEqual(default(RoomPlmShotBlockDrawDefinitions.DrawList), draw, "bombed reveal missing draw cleared");
                 continue;
             }
-            AssertEqual((ushort)pointer, draw.Pointer, "bombed reveal draw identity");
+            AssertEqual((ushort)pointer, PlmDrawAddressCodec.Of(draw.Draw), "bombed reveal draw identity");
             AssertEqual(1, draw.Runs.Length, "bombed reveal single native run");
             var run = draw.Runs.Span[0];
             ushort count = ReadRomWord(rom,0x840000 | pointer);

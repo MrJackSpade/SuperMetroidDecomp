@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Verification.Rooms.Plms;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Rooms.Plms.SamusEaterPlmDefinitionsVerification;
@@ -58,8 +59,8 @@ internal static class TourianAccessPlmProgramsVerification
         {
             ushort pointer = (ushort)raw;
             int index = Array.IndexOf(pointers, pointer);
-            AssertEqual(index >= 0, TourianAccessPlmDrawDefinitions.TryDescribe(pointer, out int rows, out ushort word), "Tourian draw descriptor ownership");
-            AssertEqual(index >= 0, TourianAccessPlmDrawDefinitions.TryGet(pointer, out var dto), "Tourian draw DTO ownership");
+            AssertEqual(index >= 0, TourianAccessPlmDrawDefinitionsConstants.TryDescribe(NativePlmDraws.At<TourianAccessDraw>(pointer), out int rows, out ushort word), "Tourian draw descriptor ownership");
+            AssertEqual(index >= 0, TourianAccessPlmDrawDefinitionsConstants.TryGet(NativePlmDraws.At<TourianAccessDraw>(pointer), out var dto), "Tourian draw DTO ownership");
             if (index < 0)
             {
                 AssertEqual(0, rows, "missing Tourian rows zero");
@@ -67,7 +68,7 @@ internal static class TourianAccessPlmProgramsVerification
                 AssertEqual(default(RoomPlmShotBlockDrawDefinitions.DrawList), dto, "missing Tourian DTO default");
                 continue;
             }
-            AssertEqual(pointer, draws[index].Pointer, "Tourian draw export order");
+            AssertEqual(pointer, PlmDrawAddressCodec.Of(draws[index].Draw), "Tourian draw export order");
             AssertEqual(pointer == 0x92c7 ? 6 : 1, rows, "Tourian native row count");
             AssertEqual(rows, dto.Runs.Length, "Tourian DTO row count");
             for (int row = 0; row < rows; row++)
@@ -80,7 +81,7 @@ internal static class TourianAccessPlmProgramsVerification
         }
         foreach (RoomPlmShotBlockDrawDefinitions.DrawList draw in draws)
         {
-            int cursor = draw.Pointer;
+            int cursor = PlmDrawAddressCodec.Of(draw.Draw);
             foreach (RoomPlmShotBlockDrawDefinitions.Run run in draw.Runs.Span)
             {
                 AssertTourianDrawWord(run.DirectionAndCount);
@@ -88,20 +89,20 @@ internal static class TourianAccessPlmProgramsVerification
                     AssertTourianDrawWord(word);
                 AssertEqual(rom.ReadCartridgeByte(0x840000 | cursor++),
                     unchecked((byte)run.Next.X),
-                    $"Tourian draw ${draw.Pointer:X4} run X offset matches ROM");
+                    $"Tourian draw ${PlmDrawAddressCodec.Of(draw.Draw):X4} run X offset matches ROM");
                 AssertEqual(rom.ReadCartridgeByte(0x840000 | cursor++),
                     unchecked((byte)run.Next.Y),
-                    $"Tourian draw ${draw.Pointer:X4} run Y offset matches ROM");
+                    $"Tourian draw ${PlmDrawAddressCodec.Of(draw.Draw):X4} run Y offset matches ROM");
             }
-            AssertEqual(checked((ushort)(cursor - draw.Pointer)),
-                checked((ushort)(draw.Pointer ==
-                    (ushort)TourianAccessDraw.Clear ? 72 : 12)),
-                $"Tourian draw ${draw.Pointer:X4} has the complete native span");
+            AssertEqual(checked((ushort)(cursor - PlmDrawAddressCodec.Of(draw.Draw))),
+                checked((ushort)(PlmDrawAddressCodec.Of(draw.Draw) ==
+                    PlmDrawAddressCodec.Of(PlmDraw.Of(TourianAccessDraw.Clear)) ? 72 : 12)),
+                $"Tourian draw ${PlmDrawAddressCodec.Of(draw.Draw):X4} has the complete native span");
 
             void AssertTourianDrawWord(ushort expected)
             {
                 AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0x840000 | cursor),
-                    expected, $"Tourian draw ${draw.Pointer:X4} word at +{cursor - draw.Pointer} matches ROM");
+                    expected, $"Tourian draw ${PlmDrawAddressCodec.Of(draw.Draw):X4} word at +{cursor - PlmDrawAddressCodec.Of(draw.Draw)} matches ROM");
                 cursor += 2;
             }
         }
@@ -153,7 +154,7 @@ internal static class TourianAccessPlmProgramsVerification
                 return (SnesAddressMath.BankNumber(address)) == 0x84 &&
                     ((pointer >= RoomPlmNativeListAddresses.TourianAccessEntries[0].Entry &&
                       pointer < RoomPlmNativeListAddresses.TourianAccessEntries[2].Entry + 6) ||
-                     (pointer >= (ushort)TourianAccessDraw.EmptyRow &&
+                     (pointer >= PlmDrawAddressCodec.Of(PlmDraw.Of(TourianAccessDraw.EmptyRow)) &&
                       pointer < 0x930f));
             },
             address => $"Tourian access PLM reread compiled source ${address:X6}.");

@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Core.Rooms.Plms;
+﻿using SuperMetroid.AssetExtraction.Rooms;
+using SuperMetroid.Core.Rooms.Plms;
 
 namespace SuperMetroid.Core.Areas.Maridia;
 
@@ -15,7 +16,7 @@ internal static class MaridiaElevatubePlmDefinitionsConstants
         value = address switch
         {
             InstructionList => 16,
-            InstructionList + 2 => MaridiaElevatubePlmDefinitions.DrawPointer,
+            InstructionList + 2 => PlmDrawAddresses.MaridiaElevatubeBlock,
             InstructionList + 4 => (ushort)RoomPlmInstruction.QueueSoundLibrary2Maximum6,
             InstructionList + 7 => (ushort)RoomPlmInstruction.Delete,
             _ => 0,

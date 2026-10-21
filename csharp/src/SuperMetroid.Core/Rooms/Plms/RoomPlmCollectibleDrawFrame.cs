@@ -2,6 +2,6 @@ using SuperMetroid.Core.Rooms.LevelData;
 
 namespace SuperMetroid.Core.Rooms.Plms;
 
-/// <summary>One native one-block collectible draw list and its physical level word.</summary>
+/// <summary>One one-block collectible draw, its physical level word and its artwork identity.</summary>
 internal readonly record struct RoomPlmCollectibleDrawFrame(
-    int Pointer, RoomLevelWord LevelWord, string Id);
+    RoomPlmCollectibleDrawDefinitions.Draw Draw, RoomLevelWord LevelWord, string Id);

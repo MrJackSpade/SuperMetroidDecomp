@@ -1,4 +1,5 @@
-﻿namespace SuperMetroid.Core.Rooms.Plms;
+﻿using SuperMetroid.AssetExtraction.Rooms;
+namespace SuperMetroid.Core.Rooms.Plms;
 
 /// <summary>
 /// Fixed bank-$84 control words for the eight Samus-contact crumble PLM lists.
@@ -42,9 +43,9 @@ internal static class RoomPlmContactCrumbleProgramDefinitions
             {
                 value = program.Dimension switch
                 {
-                    1 => (ushort)ContactCrumbleRestoreDraw.Horizontal,
-                    2 => (ushort)ContactCrumbleRestoreDraw.Vertical,
-                    3 => (ushort)ContactCrumbleRestoreDraw.Square,
+                    1 => PlmDrawAddressCodec.Of(PlmDraw.Of(ContactCrumbleRestoreDraw.Horizontal)),
+                    2 => PlmDrawAddressCodec.Of(PlmDraw.Of(ContactCrumbleRestoreDraw.Vertical)),
+                    3 => PlmDrawAddressCodec.Of(PlmDraw.Of(ContactCrumbleRestoreDraw.Square)),
                     _ => throw new InvalidDataException("Linked crumble program has no restore shape."),
                 };
                 return true;

@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Verification.Areas.Escape;
 using SuperMetroid.Core.Rooms.Plms;
 
@@ -26,10 +27,10 @@ internal static class LookupStationVisualIdsVerification
         for (int index = 0; index < expected.Length; index++)
         {
             var entry = expected[index];
-            AssertEqual(entry.Pointer, exported[index].Pointer, "Station original export order");
-            AssertEqual(entry.Id, RoomPlmStationDrawDefinitions.VisualId(entry.Pointer), "Station original published ID");
+            AssertEqual(entry.Pointer, PlmDrawAddressCodec.Of(exported[index].Draw), "Station original export order");
+            AssertEqual(entry.Id, RoomPlmStationDrawDefinitions.VisualId(NativePlmDraws.At<StationDraw>(entry.Pointer)), "Station original published ID");
             AssertTrue(RoomPlmStationDrawDefinitions.TryGetByVisualId(entry.Id, out var resolved), "Station original reverse identity");
-            AssertEqual(exported[index].Pointer, resolved.Pointer, "Station reverse identity selects the complete original draw");
+            AssertEqual(PlmDrawAddressCodec.Of(exported[index].Draw), PlmDrawAddressCodec.Of(resolved.Draw), "Station reverse identity selects the complete original draw");
             foreach (string invalid in new[] { entry.Id.ToUpperInvariant(), " " + entry.Id, entry.Id + " " })
             {
                 AssertTrue(!RoomPlmStationDrawDefinitions.TryGetByVisualId(invalid, out var missing), "Station IDs remain ordinal and exact");
@@ -40,6 +41,6 @@ internal static class LookupStationVisualIdsVerification
             AssertTrue(!RoomPlmStationDrawDefinitions.TryGetByVisualId(invalid, out _), "Station unsupported named frame");
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
             if (!expected.Any(entry => entry.Pointer == raw))
-                AssertThrows<InvalidDataException>(() => RoomPlmStationDrawDefinitions.VisualId((ushort)raw), "Station full unsupported pointer domain");
+                AssertThrows<InvalidDataException>(() => RoomPlmStationDrawDefinitions.VisualId(NativePlmDraws.At<StationDraw>((ushort)raw)), "Station full unsupported pointer domain");
     }
 }

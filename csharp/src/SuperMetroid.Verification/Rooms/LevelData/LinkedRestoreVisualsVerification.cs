@@ -19,6 +19,10 @@ namespace SuperMetroid.Verification.Rooms.LevelData;
 /// <summary>Checks bomb and crumble block restore artwork against native draw lists and production PLM behavior.</summary>
 internal static class LinkedRestoreVisualsVerification
 {
+    /// <summary>The bomb-block or contact-crumble restoration draw the cartridge stores at <paramref name="pointer"/>.</summary>
+    private static PlmDraw LinkedAt(int pointer) => NativePlmDraws.IsDrawAt<BombBlockRestoreDraw>(pointer)
+        ? NativePlmDraws.At<BombBlockRestoreDraw>(pointer) : NativePlmDraws.At<ContactCrumbleRestoreDraw>(pointer);
+
     /// <summary>Compares six flattened stock layouts with bank-$84 draw words and checks catalog bounds and edit isolation.</summary>
     private static void VerifyLinkedRestoreStockMapping(SuperMetroidAddressSpace rom)
     {
@@ -44,34 +48,34 @@ internal static class LinkedRestoreVisualsVerification
         var entries = frames.Select(frame => new RoomPlmVisualEntry(frame.Id, native[frame.Pointer].ToArray())).ToArray();
         var stock = RoomPlmLinkedRestoreVisualCatalog.Stock();
         var imported = new RoomPlmLinkedRestoreVisualCatalog(entries);
-        string expectedHash = SuperMetroid.Core.Assets.SelectedPresentationHash.FromWordFrames(nameof(RoomPlmLinkedRestoreVisualCatalog), native);
+        string expectedHash = SuperMetroid.Core.Assets.SelectedPresentationHash.FromWordFrames(nameof(RoomPlmLinkedRestoreVisualCatalog), native.ToDictionary(pair => RoomPlmLinkedRestoreDrawDefinitions.VisualId(LinkedAt(pair.Key)), pair => pair.Value));
         AssertEqual(expectedHash, stock.ContentIdentity, "linked restore calculated stock preserves original flattened hash");
         AssertEqual(expectedHash, imported.ContentIdentity, "linked restore imported stock hash");
         foreach (var frame in frames)
         {
             for (int word = 0; word < native[frame.Pointer].Length; word++)
             {
-                AssertEqual(native[frame.Pointer][word], stock.GetWord(frame.Pointer, word / 2, word % 2), "linked restore native stock word");
-                AssertEqual(native[frame.Pointer][word], imported.GetWord(frame.Pointer, word / 2, word % 2), "linked restore imported native word");
+                AssertEqual(native[frame.Pointer][word], stock.GetWord(LinkedAt(frame.Pointer), word / 2, word % 2), "linked restore native stock word");
+                AssertEqual(native[frame.Pointer][word], imported.GetWord(LinkedAt(frame.Pointer), word / 2, word % 2), "linked restore imported native word");
             }
             foreach (int bad in new[] {int.MinValue,-1,native[frame.Pointer].Length / 2,int.MaxValue})
-                AssertThrows<ArgumentOutOfRangeException>(() => stock.GetWord(frame.Pointer,bad,0), "linked restore stock run bounds");
+                AssertThrows<ArgumentOutOfRangeException>(() => stock.GetWord(LinkedAt(frame.Pointer),bad,0), "linked restore stock run bounds");
             foreach (int bad in new[] {int.MinValue,-1,2,int.MaxValue})
-                AssertThrows<ArgumentOutOfRangeException>(() => stock.GetWord(frame.Pointer,0,bad), "linked restore stock block bounds");
+                AssertThrows<ArgumentOutOfRangeException>(() => stock.GetWord(LinkedAt(frame.Pointer),0,bad), "linked restore stock block bounds");
         }
         for (int pointer = 0; pointer <= ushort.MaxValue; pointer++)
             if (!native.ContainsKey((ushort)pointer))
-                AssertThrows<InvalidDataException>(() => stock.GetWord((ushort)pointer,0,0), "linked restore rejects unknown frame");
+                AssertThrows<InvalidDataException>(() => stock.GetWord(LinkedAt(pointer),0,0), "linked restore rejects unknown frame");
         entries[2].Blocks[3] = 0x0053;
         entries[5].Blocks[0] = 0x0054;
         var mixed = new RoomPlmLinkedRestoreVisualCatalog(entries);
         var expected = frames.ToDictionary(frame => frame.Pointer, frame => entries.Single(entry => entry.Id == frame.Id).Blocks.ToArray());
-        AssertEqual(SuperMetroid.Core.Assets.SelectedPresentationHash.FromWordFrames(nameof(RoomPlmLinkedRestoreVisualCatalog), expected),
+        AssertEqual(SuperMetroid.Core.Assets.SelectedPresentationHash.FromWordFrames(nameof(RoomPlmLinkedRestoreVisualCatalog), expected.ToDictionary(pair => RoomPlmLinkedRestoreDrawDefinitions.VisualId(LinkedAt(pair.Key)), pair => pair.Value)),
             mixed.ContentIdentity, "linked restore mixed custom/stock hash");
         entries[2].Blocks[3] = 0x0055;
         foreach (var frame in frames)
         for (int word = 0; word < expected[frame.Pointer].Length; word++)
-            AssertEqual(expected[frame.Pointer][word], mixed.GetWord(frame.Pointer,word / 2,word % 2), "linked restore custom clone isolation and stock fallback");
+            AssertEqual(expected[frame.Pointer][word], mixed.GetWord(LinkedAt(frame.Pointer),word / 2,word % 2), "linked restore custom clone isolation and stock fallback");
         AssertThrows<InvalidDataException>(() => new RoomPlmLinkedRestoreVisualCatalog(entries[..5]), "linked restore rejects incomplete stock");
         AssertThrows<InvalidDataException>(() => new RoomPlmLinkedRestoreVisualCatalog(entries.Append(entries[0])), "linked restore rejects duplicate stock");
         entries[0].Blocks[0] = 0xf058;
@@ -97,11 +101,11 @@ internal static class LinkedRestoreVisualsVerification
                 installation.RoomPlmLinkedRestoreVisualDirectory);
             AssertEqual((ushort)0x0058,
                 installation.LoadRoomPlmLinkedRestoreVisuals().GetWord(
-                    (ushort)BombBlockRestoreDraw.Horizontal, 0, 0),
+                    PlmDraw.Of(BombBlockRestoreDraw.Horizontal), 0, 0),
                 "stock bomb restore selects cartridge block 058");
             AssertEqual((ushort)0x00bc,
                 installation.LoadRoomPlmLinkedRestoreVisuals().GetWord(
-                    (ushort)ContactCrumbleRestoreDraw.Horizontal, 0, 0),
+                    PlmDraw.Of(ContactCrumbleRestoreDraw.Horizontal), 0, 0),
                 "stock crumble restore selects cartridge block 0BC");
             AssertThrows<InvalidDataException>(
                 () => new RoomPlmLinkedRestoreVisualCatalog(
@@ -125,7 +129,7 @@ internal static class LinkedRestoreVisualsVerification
             File.WriteAllText(overridePath, document.ToJsonString());
             AssertEqual((ushort)0x0053,
                 installation.LoadRoomPlmLinkedRestoreVisuals().GetWord(
-                    (ushort)BombBlockRestoreDraw.Horizontal, 0, 0),
+                    PlmDraw.Of(BombBlockRestoreDraw.Horizontal), 0, 0),
                 "installed restore override selects edited block");
 
             string refreshed = Path.Combine(testRoot, "refreshed-stock");
@@ -134,7 +138,7 @@ internal static class LinkedRestoreVisualsVerification
             AssertEqual((ushort)0x0053,
                 RoomPlmLinkedRestoreVisualFiles.Load(refreshed,
                     installation.RoomPlmLinkedRestoreVisualOverrideDirectory)
-                    .GetWord((ushort)BombBlockRestoreDraw.Horizontal, 0, 0),
+                    .GetWord(PlmDraw.Of(BombBlockRestoreDraw.Horizontal), 0, 0),
                 "restore override survives stock replacement");
             bomb.Required("blocks")[0] = 0xf053;
             File.WriteAllText(overridePath, document.ToJsonString());
@@ -161,7 +165,7 @@ internal static class LinkedRestoreVisualsVerification
         RoomPlmVisualEntry[] entries =
             RoomPlmLinkedRestoreDrawDefinitions.All.Select(draw =>
                 new RoomPlmVisualEntry(
-                    RoomPlmLinkedRestoreDrawDefinitions.VisualId(draw.Pointer),
+                    RoomPlmLinkedRestoreDrawDefinitions.VisualId(draw.Draw),
                     draw.VisualWords()))
                 .ToArray();
         string editedId = bomb ? "bomb-horizontal" : "crumble-horizontal";

@@ -5,13 +5,9 @@ namespace SuperMetroid.Core.Rooms.Doors;
 /// <summary>Calculated yellow, green and red door-cap physical cells.</summary>
 internal static class ColoredDoorPlmDrawDefinitions
 {
-    /// <summary>Yellow left-facing closed cap at $84:A767.</summary>
-    private const ushort YellowLeft = 0xa767;
-    /// <summary>Native stride for a four-cell cap draw record and its final displacement bytes.</summary>
-    internal const int DrawListBytes = 12;
 
     /// <summary>Color, direction, and animation phase decoded from one native cap pointer.</summary>
-    internal readonly record struct Draw(int Color, ColoredDoorOrientation Orientation, [property: IntegerQuantity("cap animation frame index")] int Frame) : IPlmCapDrawShape
+    internal readonly record struct Draw(ColoredDoorColor Color, ColoredDoorOrientation Orientation, [property: IntegerQuantity("cap animation frame index")] int Frame) : IPlmCapDrawShape
     {
         /// <summary>Left and right caps draw a vertical four-cell run in native list orientation.</summary>
         internal bool Vertical => Orientation is ColoredDoorOrientation.Left or ColoredDoorOrientation.Right;
@@ -32,24 +28,35 @@ internal static class ColoredDoorPlmDrawDefinitions
         {
             if ((uint)cell >= 4) throw new ArgumentOutOfRangeException(nameof(cell));
             bool inner = cell is 1 or 2;
-            int tile = Color * 4 + (Vertical ? Frame + (inner ? 32 : 0) :
+            int tile = ColorTileOffset + (Vertical ? Frame + (inner ? 32 : 0) :
                 0x10 + Frame / 2 * 2 + Frame % 2 * 32 + (inner ? 0 : 1));
             int flips = Vertical ? (Orientation == ColoredDoorOrientation.Right ? 0x400 : 0) | (cell >= 2 ? 0x800 : 0) :
                 (cell < 2 ? 0x400 : 0) | (Orientation == ColoredDoorOrientation.Down ? 0x800 : 0);
             int collision = Frame == 0 ? (cell == 0 ? 12 : Vertical ? 13 : 5) :
-                Frame == 3 && inner && (Orientation == ColoredDoorOrientation.Left || (Orientation == ColoredDoorOrientation.Right && Color != 0) || (Orientation == ColoredDoorOrientation.Down && Color == 0)) ? 0 : 8;
+                Frame == 3 && inner && (Orientation == ColoredDoorOrientation.Left || (Orientation == ColoredDoorOrientation.Right && Color != ColoredDoorColor.Yellow) || (Orientation == ColoredDoorOrientation.Down && Color == ColoredDoorColor.Yellow)) ? 0 : 8;
             return (ushort)(collision << 12 | flips | tile);
         }
+
+        /// <summary>How far each colour's cap tiles sit from the yellow cap's: four tiles per colour.</summary>
+        private int ColorTileOffset => Color switch
+        {
+            ColoredDoorColor.Yellow => 0,
+            ColoredDoorColor.Green => 4,
+            ColoredDoorColor.Red => 8,
+            _ => throw new InvalidOperationException($"Undefined {nameof(ColoredDoorColor)} {Color}."),
+        };
     }
 
     /// <summary>Decodes only the forty-eight aligned twelve-byte cap pointers into color, orientation, and frame.</summary>
-    internal static bool TryDescribe(ushort pointer, out Draw draw)
+    internal static bool TryDescribe(PlmDraw request, out Draw draw)
     {
-        int offset = pointer - YellowLeft;
-        bool owned = offset >= 0 && offset < 48 * DrawListBytes && offset % DrawListBytes == 0;
-        int index = offset / DrawListBytes;
-        draw = owned ? new(index / 16, DoorCapOrientations.FromTableIndex(index / 4 % 4), index % 4) : default;
-        return owned;
+        if (request is PlmFrameDraw<Draw> { Frame: { Frame: >= 0 and < 4 } cap })
+        {
+            draw = cap;
+            return true;
+        }
+        draw = default;
+        return false;
     }
 
     /// <summary>Enumerates yellow, green, and red cap frames in their native pointer order.</summary>
@@ -57,37 +64,44 @@ internal static class ColoredDoorPlmDrawDefinitions
     {
         get
         {
-            for (int index = 0; index < 48; index++)
+            foreach (PlmDraw draw in Draws())
             {
-                TryGet((ushort)(YellowLeft + index * DrawListBytes), out var draw);
-                yield return draw;
+                TryGet(draw, out var list);
+                yield return list;
             }
         }
     }
 
     /// <summary>Builds an import/export draw-list DTO while runtime collision cells remain calculated.</summary>
-    internal static bool TryGet(ushort pointer, out RoomPlmShotBlockDrawDefinitions.DrawList list) =>
-        RoomPlmShotBlockDrawDefinitions.TryCompileCap<Draw>(pointer, TryDescribe, out list);
+    internal static bool TryGet(PlmDraw request, out RoomPlmShotBlockDrawDefinitions.DrawList list) =>
+        RoomPlmShotBlockDrawDefinitions.TryCompileCap<Draw>(request, TryDescribe, out list);
 
     /// <summary>Names a compiled cap frame by color, direction, and phase for editable artwork.</summary>
-    internal static string VisualId(ushort pointer)
+    internal static string VisualId(PlmDraw request)
     {
-        if (!TryDescribe(pointer, out var draw))
-            throw new InvalidDataException($"Colored-door draw ${pointer:X4} has no visual ID.");
+        if (!TryDescribe(request, out var draw))
+            throw new InvalidDataException($"Colored-door draw {request} has no visual ID.");
         string direction = DoorCapOrientations.VisualName(draw.Orientation);
-        string color = draw.Color switch { 0 => "yellow", 1 => "green", _ => "red" };
+        string color = draw.Color switch
+        {
+            ColoredDoorColor.Yellow => "yellow",
+            ColoredDoorColor.Green => "green",
+            ColoredDoorColor.Red => "red",
+            _ => throw new InvalidOperationException($"Undefined {nameof(ColoredDoorColor)} {draw.Color}."),
+        };
         return $"{color}-{direction}-frame-{draw.Frame}";
     }
 
     /// <summary>Resolves an exact ordinal visual identity back to its compiled draw record.</summary>
-    internal static bool TryGetByVisualId(string id, out RoomPlmShotBlockDrawDefinitions.DrawList list)
+    internal static bool TryGetByVisualId(string id, out RoomPlmShotBlockDrawDefinitions.DrawList list) =>
+        RoomPlmShotBlockDrawDefinitions.FindByVisualId(Draws(), VisualId, TryGet, id, out list);
+
+    /// <summary>Every colour's caps, each facing's four frames in turn.</summary>
+    private static IEnumerable<PlmDraw> Draws()
     {
-        for (int index = 0; index < 48; index++)
-        {
-            ushort pointer = (ushort)(YellowLeft + index * DrawListBytes);
-            if (string.Equals(id, VisualId(pointer), StringComparison.Ordinal)) return TryGet(pointer, out list);
-        }
-        list = default;
-        return false;
+        foreach (ColoredDoorColor color in Enum.GetValues<ColoredDoorColor>())
+            for (int orientation = 0; orientation < 4; orientation++)
+                for (int frame = 0; frame < 4; frame++)
+                    yield return PlmDraw.Of(new Draw(color, DoorCapOrientations.FromTableIndex(orientation), frame));
     }
 }

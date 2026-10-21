@@ -36,7 +36,7 @@ public static class RoomPlmKraidVisualFiles
         string stockDirectory, string? overrideDirectory) =>
         RoomPlmDoorVisualFileCodec.Load(stockDirectory, overrideDirectory,
             new RoomPlmVisualFamily<RoomPlmKraidVisualCatalog>(VisualFileName, "Kraid room", KraidRoomPlmDrawDefinitions.All, KraidRoomPlmDrawDefinitions.VisualId, entries => new RoomPlmKraidVisualCatalog(entries.Select(entry =>
-                new RoomPlmVisualEntry(entry.Id, entry.Blocks))), (catalog, pointer, run, block) => catalog.GetWord(pointer, run, block)));
+                new RoomPlmVisualEntry(entry.Id, entry.Blocks))), (catalog, draw, run, block) => catalog.GetWord(draw, run, block)));
 
     /// <summary>Validates the stock Kraid installation through <see cref="Load"/> with no override, cartridge reads, or file writes.</summary>
     /// <param name="directory">Family directory containing the Kraid visual JSON and manifest.</param>

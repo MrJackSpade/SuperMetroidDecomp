@@ -14,16 +14,16 @@ public sealed class RoomPlmColoredDoorVisualCatalog
     public string ContentIdentity => SelectedPresentationHash.Create(nameof(RoomPlmColoredDoorVisualCatalog), content =>
     {
         Span<ushort> words = stackalloc ushort[4];
-        foreach (var frame in ColoredDoorPlmDrawDefinitions.All.OrderBy(frame => frame.Pointer))
+        foreach (var frame in ColoredDoorPlmDrawDefinitions.All.OrderBy(item => ColoredDoorPlmDrawDefinitions.VisualId(item.Draw), StringComparer.Ordinal))
         {
-            for (int row = 0; row < words.Length; row++) words[row] = GetWord(frame.Pointer, row);
-            content.Append("frame", frame.Pointer);
+            for (int row = 0; row < words.Length; row++) words[row] = GetWord(frame.Draw, row);
+            content.AppendName("frame", ColoredDoorPlmDrawDefinitions.VisualId(frame.Draw));
             content.Append("runs", 1);
             content.AppendWords("words", words);
         }
     });
 
-    /// <summary>Copied artwork overrides keyed by compiled door-frame pointer; omitted frames use stock visual words.</summary>
+    /// <summary>Copied artwork overrides keyed by draw; omitted frames use stock visual words.</summary>
     private readonly PlmVisualOverrides customBlocks;
 
     /// <summary>Validates complete coverage of the forty-eight colored-door frames and copies visual differences while preserving compiled cap geometry and opening mechanics.</summary>
@@ -37,19 +37,19 @@ public sealed class RoomPlmColoredDoorVisualCatalog
     }
 
     /// <summary>Resolves one selected cap block without changing the physical collision word or door-opening rules.</summary>
-    /// <param name="drawPointer">Bank-$84 identity of the compiled colored-door draw frame.</param>
+    /// <param name="draw">The draw whose visual word is resolved.</param>
     /// <param name="blockIndex">Zero-based word ordinal, zero through three, along the frame's horizontal or vertical run.</param>
     /// <returns>The authored metatile/flip word, or the compiled stock word's visual bits when unchanged.</returns>
-    /// <exception cref="InvalidDataException">The pointer does not identify a supported colored-door frame.</exception>
+    /// <exception cref="InvalidDataException">The draw is not a supported colored-door frame.</exception>
     /// <exception cref="ArgumentOutOfRangeException">The block ordinal is outside the four-word run.</exception>
-    public ushort GetWord(ushort drawPointer, int blockIndex)
+    internal ushort GetWord(PlmDraw draw, int blockIndex)
     {
-        if (!ColoredDoorPlmDrawDefinitions.TryDescribe(drawPointer, out var draw))
+        if (!ColoredDoorPlmDrawDefinitions.TryDescribe(draw, out var shape))
             throw new InvalidDataException(
-                $"Colored-door visuals lack frame ${drawPointer:X4}.");
+                $"Colored-door visuals lack frame {draw}.");
         if ((uint)blockIndex >= 4)
             throw new ArgumentOutOfRangeException(nameof(blockIndex));
-        return customBlocks.TryGet(drawPointer, out var words)
-            ? words[blockIndex] : new RoomLevelWord(draw.WordAt(blockIndex)).VisualWord;
+        return customBlocks.TryGet(draw, out var words)
+            ? words[blockIndex] : new RoomLevelWord(shape.WordAt(blockIndex)).VisualWord;
     }
 }

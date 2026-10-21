@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Rooms;
 using static SuperMetroid.Verification.Areas.Maridia.MaridiaElevatubeVisualsVerification;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Areas.Maridia.LookupElevatubeVerification;
@@ -66,8 +67,8 @@ internal static class MaridiaElevatubePlmVerification
             return (SnesAddressMath.BankNumber(address)) == 0x84 &&
                 ((pointer >= MaridiaElevatubePlmDefinitionsConstants.InstructionList &&
                   pointer < MaridiaElevatubePlmDefinitionsConstants.InstructionList + 9) ||
-                 (pointer >= MaridiaElevatubePlmDefinitions.DrawPointer &&
-                  pointer < MaridiaElevatubePlmDefinitions.DrawPointer + 6));
+                 (pointer >= PlmDrawAddresses.MaridiaElevatubeBlock &&
+                  pointer < PlmDrawAddresses.MaridiaElevatubeBlock + 6));
         }, address => $"Elevatube PLM reread compiled source ${address:X6}.");
 
     /// <summary>Runs the focused elevatube PLM behavior check.</summary>

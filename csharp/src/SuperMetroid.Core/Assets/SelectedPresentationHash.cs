@@ -94,6 +94,9 @@ internal sealed class SelectedPresentationHash
             AppendColors("row", frame);
     }
 
+    /// <summary>A name, such as a published artwork identity, hashes as its UTF-8 text.</summary>
+    public void AppendName(string label, string name) => Append(label, Encoding.UTF8.GetBytes(name));
+
     /// <summary>Null fixture domains differ from installed content without storing a derived hash.</summary>
     public void AppendIdentity(string label, string? identity) =>
         Append(label, identity is null ? ReadOnlySpan<byte>.Empty : Convert.FromHexString(identity));

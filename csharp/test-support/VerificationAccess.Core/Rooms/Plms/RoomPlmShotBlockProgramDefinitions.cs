@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Core.Enemies;
+﻿using SuperMetroid.AssetExtraction.Rooms;
+using SuperMetroid.Core.Enemies;
 
 namespace SuperMetroid.Core.Rooms.Plms;
 
@@ -89,15 +90,15 @@ internal static class RoomPlmShotBlockProgramDefinitions
         (ushort first, int stride, ushort restore) = role switch
         {
             Role.RespawningShot2x1 or Role.PermanentShot2x1 =>
-                new ShotBlockDrawShape(RoomPlmShotBlockDrawDefinitions.HorizontalFrame0, 8, (ushort)ShotBlockRestoreDraw.Horizontal),
+                new ShotBlockDrawShape(PlmDrawAddresses.HorizontalBreakupFirst, 8, PlmDrawAddresses.ShotBlockRestoreHorizontal),
             Role.RespawningShot1x2 or Role.PermanentShot1x2 =>
-                new ShotBlockDrawShape(RoomPlmShotBlockDrawDefinitions.VerticalFrame0, 8, (ushort)ShotBlockRestoreDraw.Vertical),
+                new ShotBlockDrawShape(PlmDrawAddresses.VerticalBreakupFirst, 8, PlmDrawAddresses.ShotBlockRestoreVertical),
             Role.RespawningShot2x2 or Role.PermanentShot2x2 =>
-                new ShotBlockDrawShape(RoomPlmShotBlockDrawDefinitions.SquareFrame0, 16, (ushort)ShotBlockRestoreDraw.Square),
+                new ShotBlockDrawShape(PlmDrawAddresses.SquareBreakupFirst, 16, PlmDrawAddresses.ShotBlockRestoreSquare),
             Role.RespawningShot1x1 or Role.PermanentShot1x1 or Role.RespawningSuperMissile or
                 Role.RespawningPowerBomb or Role.PermanentSuperMissile or Role.PermanentPowerBomb or
                 Role.EnemyBreakableTerrain =>
-                new ShotBlockDrawShape(RoomPlmShotBlockDrawDefinitions.SingleFrame0, 6, 0),
+                new ShotBlockDrawShape(PlmDrawAddresses.SingleBreakupFirst, 6, 0),
             _ => throw new InvalidOperationException($"Undefined shot-block role {role}."),
         };
         RoomPlmInstruction sound = role switch

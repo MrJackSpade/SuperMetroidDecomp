@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using static SuperMetroid.Verification.Rooms.Plms.SamusEaterPlmDefinitionsVerification;
@@ -32,13 +33,13 @@ internal static class LookupStationLayoutsVerification
             {
                 ushort pointer = (ushort)raw;
                 bool owned = pointers.Contains(pointer);
-                AssertEqual(owned, RoomPlmStationDrawDefinitions.TryDescribe(pointer, out var shape), "Station layout shape domain");
-                AssertEqual(owned, RoomPlmStationDrawDefinitions.TryGet(pointer, out var dto), "Station layout DTO domain");
+                AssertEqual(owned, RoomPlmStationDrawDefinitions.TryDescribe(NativePlmDraws.At<StationDraw>(pointer), out var shape), "Station layout shape domain");
+                AssertEqual(owned, RoomPlmStationDrawDefinitions.TryGet(NativePlmDraws.At<StationDraw>(pointer), out var dto), "Station layout DTO domain");
                 if (!owned)
                 {
                     AssertEqual(null, shape, "Station layout missing shape");
                     AssertEqual(default(RoomPlmShotBlockDrawDefinitions.DrawList), dto, "Station layout missing DTO");
-                    AssertThrows<InvalidDataException>(() => RoomPlmStationDrawDefinitions.VisualId(pointer), "Station layout missing ID");
+                    AssertThrows<InvalidDataException>(() => RoomPlmStationDrawDefinitions.VisualId(NativePlmDraws.At<StationDraw>(pointer)), "Station layout missing ID");
                 }
             }
             foreach (string id in new[] { "MAP-FRAME-0", "broken", "", "unknown" })
@@ -51,14 +52,14 @@ internal static class LookupStationLayoutsVerification
         for (int index = 0; index < pointers.Length; index++)
         {
             ushort pointer = pointers[index];
-            var shape = RoomPlmStationDrawDefinitions.Describe(pointer);
-            RoomPlmStationDrawDefinitions.TryGet(pointer, out var dto);
+            var shape = RoomPlmStationDrawDefinitions.Describe(NativePlmDraws.At<StationDraw>(pointer));
+            RoomPlmStationDrawDefinitions.TryGet(NativePlmDraws.At<StationDraw>(pointer), out var dto);
             RoomPlmStationDrawDefinitions.TryGetByVisualId(ids[index], out var byId);
             if (field == 0)
             {
-                AssertEqual(pointer, exported[index].Pointer, "Station layout original export order");
-                AssertEqual(ids[index], RoomPlmStationDrawDefinitions.VisualId(pointer), "Station layout published ID");
-                AssertEqual(pointer, byId.Pointer, "Station layout reverse ID");
+                AssertEqual(pointer, PlmDrawAddressCodec.Of(exported[index].Draw), "Station layout original export order");
+                AssertEqual(ids[index], RoomPlmStationDrawDefinitions.VisualId(NativePlmDraws.At<StationDraw>(pointer)), "Station layout published ID");
+                AssertEqual(pointer, PlmDrawAddressCodec.Of(byId.Draw), "Station layout reverse ID");
                 foreach (int invalid in new[] {int.MinValue,-1,shape.RunCount,int.MaxValue})
                 {
                     AssertThrows<ArgumentOutOfRangeException>(() => shape.WordCount(invalid), "Station layout run bounds");
@@ -74,7 +75,7 @@ internal static class LookupStationLayoutsVerification
             {
                 SeedSoleElevatorPlatformPlm(bus, 0x9400, new(8, 8), 0xafb6);
                 AssertEqual(1, PlmFixtures.LoadPopulation(ref plms, new PlmRoom(level, BgArtworkFixtures.For(new SnesVram()), new Bank80SystemState(), AreaId.Crateria), SuperMetroid.TestSupport.VerificationImporters.RoomPlmPopulationImporter.Read(bus, 0x9400), new RoomPlmServices { Samus = new FixtureRoomSamus(() => null), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }), "Elevator platform fixture spawn");
-                plms.DrawSolePlmFrameForVerification(level, pointer);
+                plms.DrawSolePlmFrameForVerification(level, NativePlmDraws.At<StationDraw>(pointer));
             }
             int drawX = 8, drawY = 8;
             int cursor = 0x840000 | pointer;

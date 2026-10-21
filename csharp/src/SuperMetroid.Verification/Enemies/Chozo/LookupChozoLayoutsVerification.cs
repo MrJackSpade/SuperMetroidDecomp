@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Enemies.Chozo.ChozoStatueVisualsVerification;
 using static SuperMetroid.Verification.Rooms.Plms.SamusEaterPlmDefinitionsVerification;
@@ -29,13 +30,13 @@ internal static class LookupChozoLayoutsVerification
             {
                 ushort pointer = (ushort)raw;
                 bool owned = pointers.Contains(pointer);
-                AssertEqual(owned, ChozoStatuePlmDrawDefinitions.TryDescribe(pointer, out var shape), "Chozo layout shape domain");
-                AssertEqual(owned, ChozoStatuePlmDrawDefinitions.TryGet(pointer, out var dto), "Chozo layout DTO domain");
+                AssertEqual(owned, ChozoStatuePlmDrawDefinitions.TryDescribe(NativePlmDraws.At<ChozoStatueDraw>(pointer), out var shape), "Chozo layout shape domain");
+                AssertEqual(owned, ChozoStatuePlmDrawDefinitions.TryGet(NativePlmDraws.At<ChozoStatueDraw>(pointer), out var dto), "Chozo layout DTO domain");
                 if (!owned)
                 {
                     AssertEqual(default(ChozoStatuePlmDrawDefinitions.Draw), shape, "Chozo layout missing shape");
                     AssertEqual(default(RoomPlmShotBlockDrawDefinitions.DrawList), dto, "Chozo layout missing DTO");
-                    AssertThrows<InvalidDataException>(() => ChozoStatuePlmDrawDefinitions.VisualId(pointer), "Chozo layout missing ID");
+                    AssertThrows<InvalidDataException>(() => ChozoStatuePlmDrawDefinitions.VisualId(NativePlmDraws.At<ChozoStatueDraw>(pointer)), "Chozo layout missing ID");
                 }
             }
             foreach (string id in new[] { "LOWER-NORFAIR-CLEARED-HAND", "broken", "", "unknown" })
@@ -48,14 +49,14 @@ internal static class LookupChozoLayoutsVerification
         for (int index = 0; index < pointers.Length; index++)
         {
             ushort pointer = pointers[index];
-            ChozoStatuePlmDrawDefinitions.TryDescribe(pointer, out var shape);
-            ChozoStatuePlmDrawDefinitions.TryGet(pointer, out var dto);
+            ChozoStatuePlmDrawDefinitions.TryDescribe(NativePlmDraws.At<ChozoStatueDraw>(pointer), out var shape);
+            ChozoStatuePlmDrawDefinitions.TryGet(NativePlmDraws.At<ChozoStatueDraw>(pointer), out var dto);
             ChozoStatuePlmDrawDefinitions.TryGetByVisualId(ids[index], out var byId);
             if (field == 0)
             {
-                AssertEqual(pointer, exported[index].Pointer, "Chozo layout original export order");
-                AssertEqual(ids[index], ChozoStatuePlmDrawDefinitions.VisualId(pointer), "Chozo layout published ID");
-                AssertEqual(pointer, byId.Pointer, "Chozo layout reverse ID");
+                AssertEqual(pointer, PlmDrawAddressCodec.Of(exported[index].Draw), "Chozo layout original export order");
+                AssertEqual(ids[index], ChozoStatuePlmDrawDefinitions.VisualId(NativePlmDraws.At<ChozoStatueDraw>(pointer)), "Chozo layout published ID");
+                AssertEqual(pointer, PlmDrawAddressCodec.Of(byId.Draw), "Chozo layout reverse ID");
                 foreach (int invalid in new[] {int.MinValue,-1,shape.RunCount,int.MaxValue})
                 {
                     AssertThrows<ArgumentOutOfRangeException>(() => shape.WordCount(invalid), "Chozo layout run bounds");
@@ -71,7 +72,7 @@ internal static class LookupChozoLayoutsVerification
             {
                 AssertTrue(plms.ChozoStatue.TrySpawnChozoStatuePlm(level,
                     new ChozoStatuePlmRequest(PlmHeaderId.ClearSlopeAccessForWreckedShipChozo, new Position16<RoomBlocks>(3, 4), IsHardcoded: false)), "Chozo layout fixture spawn");
-                plms.DrawSolePlmFrameForVerification(level, pointer);
+                plms.DrawSolePlmFrameForVerification(level, NativePlmDraws.At<ChozoStatueDraw>(pointer));
                 AssertEqual(0, guarded.ForbiddenReadAttempts, "Chozo calculated draw avoids ROM reads");
             }
             int drawX = 3, drawY = 4;

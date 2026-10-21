@@ -3,8 +3,8 @@ namespace SuperMetroid.Core.Rooms.Plms;
 /// <summary>The bounded nine-block vertical wall-clear draw at $84:930F.</summary>
 internal static class BotwoonWallPlmDrawDefinitions
 {
-    /// <summary><c>$84:930F</c>: clear nine consecutive wall blocks.</summary>
-    internal const ushort ClearPointer = 0x930f;
+    /// <summary>The nine cleared wall blocks of an already-defeated room; the crumble frames are shot-block breakup draws.</summary>
+    internal static PlmFrameDraw<BotwoonWallDraw> Clear { get; } = PlmDraw.Of(BotwoonWallDraw.Clear);
 
     /// <summary>Number of air blocks written by the single vertical clear-wall run.</summary>
     internal const int BlockCount = 9;
@@ -24,7 +24,7 @@ internal static class BotwoonWallPlmDrawDefinitions
         {
             var words = new ushort[BlockCount];
             for (int index = 0; index < words.Length; index++) words[index] = LevelWordAt(index);
-            yield return new(ClearPointer, new RoomPlmShotBlockDrawDefinitions.Run[]
+            yield return new(Clear, new RoomPlmShotBlockDrawDefinitions.Run[]
             {
                 new(0x8000 | BlockCount, words, new(0, 0)),
             });
@@ -32,8 +32,7 @@ internal static class BotwoonWallPlmDrawDefinitions
     }
 
     /// <summary>Assigns the lone wall-clear pointer its stable artwork key and rejects other draw identities.</summary>
-    internal static string VisualId(ushort pointer) => pointer == ClearPointer
+    internal static string VisualId(PlmDraw draw) => draw == Clear
         ? "clear-wall"
-        : throw new InvalidDataException(
-            $"Botwoon wall draw ${pointer:X4} has no visual ID.");
+        : throw new InvalidDataException($"Botwoon wall draw {draw} has no visual ID.");
 }

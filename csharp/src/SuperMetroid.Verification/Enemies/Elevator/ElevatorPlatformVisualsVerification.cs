@@ -30,7 +30,7 @@ internal static class ElevatorPlatformVisualsVerification
         RoomPlmVisualRunEntry[] entries =
             ElevatorPlatformPlmDefinitions.DrawLists.Select(list =>
                 new RoomPlmVisualRunEntry(
-                    ElevatorPlatformPlmDefinitions.VisualId(list.Pointer),
+                    ElevatorPlatformPlmDefinitions.VisualId(list.Draw),
                     list.Runs.Span.SelectToArray(run =>
                         run.LevelWords.Span.SelectToArray(word =>
                             new RoomLevelWord(word).VisualWord))))
@@ -41,7 +41,7 @@ internal static class ElevatorPlatformVisualsVerification
         var edited = new RoomPlmElevatorPlatformVisualCatalog(entries);
         first.Runs[0][0] = 0x0054;
         AssertEqual((ushort)0x0053,
-            edited.GetWord((ushort)ElevatorPlatformDraw.First, 0, 0),
+            edited.GetWord(PlmDraw.Of(ElevatorPlatformDraw.First), 0, 0),
             "elevator visual catalog copies author data");
         RenderResult Render(RoomPlmElevatorPlatformVisualCatalog visuals)
         {
@@ -113,7 +113,7 @@ internal static class ElevatorPlatformVisualsVerification
             File.WriteAllText(overridePath, document.ToJsonString());
             AssertEqual((ushort)0x0053,
                 installation.LoadRoomPlmElevatorPlatformVisuals().GetWord(
-                    (ushort)ElevatorPlatformDraw.First, 0, 0),
+                    PlmDraw.Of(ElevatorPlatformDraw.First), 0, 0),
                 "elevator override selects edited frame art");
 
             string refreshed = Path.Combine(testRoot, "refreshed-stock");
@@ -122,7 +122,7 @@ internal static class ElevatorPlatformVisualsVerification
             AssertEqual((ushort)0x0053,
                 RoomPlmElevatorPlatformVisualFiles.Load(refreshed,
                     installation.RoomPlmElevatorPlatformVisualOverrideDirectory).GetWord(
-                        (ushort)ElevatorPlatformDraw.First, 0, 0),
+                        PlmDraw.Of(ElevatorPlatformDraw.First), 0, 0),
                 "elevator override survives stock replacement");
 
             first.Required("runs").Required(0)[0] = 0xf053;

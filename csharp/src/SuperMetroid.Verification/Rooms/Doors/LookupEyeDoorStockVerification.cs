@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Rooms.Doors;
+using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Verification.Areas.Escape;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Rooms.Plms.SamusEaterPlmDefinitionsVerification;
@@ -31,15 +33,15 @@ internal static class LookupEyeDoorStockVerification
                 (ushort)(ReadSamusEaterPlmWord(rom,0x840000 | (frame.Pointer + 2 + cell * 2)) & 0xfff)).ToArray());
         }
         string Hash(Dictionary<ushort,ushort[]> words) =>
-            SuperMetroid.Core.Assets.SelectedPresentationHash.FromWordFrames(nameof(RoomPlmEyeDoorVisualCatalog),words);
+            SuperMetroid.Core.Assets.SelectedPresentationHash.FromWordFrames(nameof(RoomPlmEyeDoorVisualCatalog),words.ToDictionary(pair => EyeDoorPlmDrawDefinitions.VisualId(NativePlmDraws.At<EyeDoorPlmDrawDefinitions.Draw>(pair.Key)), pair => pair.Value));
         void Compare(RoomPlmEyeDoorVisualCatalog catalog, Dictionary<ushort,ushort[]> words)
         {
             AssertEqual(Hash(words),catalog.ContentIdentity,"Eye door original stock identity framing");
             foreach (var frame in frames)
                 for (int cell = 0; cell < words[frame.Pointer].Length; cell++)
-                    AssertEqual(words[frame.Pointer][cell],catalog.GetWord(frame.Pointer,cell),"Eye door selected stock/custom word");
+                    AssertEqual(words[frame.Pointer][cell],catalog.GetWord(NativePlmDraws.At<EyeDoorPlmDrawDefinitions.Draw>(frame.Pointer),cell),"Eye door selected stock/custom word");
             for (int cell = 0; cell < 4; cell++)
-                AssertEqual((ushort)(words[0x9c4f][cell] ^ 0x400),catalog.GetWord(0x9bf7,cell),"Eye door shared custom clear mirror");
+                AssertEqual((ushort)(words[0x9c4f][cell] ^ 0x400),catalog.GetWord(NativePlmDraws.At<EyeDoorPlmDrawDefinitions.Draw>(0x9bf7),cell),"Eye door shared custom clear mirror");
         }
         var entries = frames.Select(frame => new RoomPlmVisualEntry(frame.Id,native[frame.Pointer].ToArray())).ToArray();
         var stock = RoomPlmEyeDoorVisualCatalog.Stock();
@@ -48,16 +50,16 @@ internal static class LookupEyeDoorStockVerification
             Compare(catalog,native);
             foreach (var frame in frames)
                 foreach (int bad in new[] {int.MinValue,-1,native[frame.Pointer].Length,int.MaxValue})
-                    AssertThrows<ArgumentOutOfRangeException>(() => catalog.GetWord(frame.Pointer,bad),"Eye door stock word bounds");
+                    AssertThrows<ArgumentOutOfRangeException>(() => catalog.GetWord(NativePlmDraws.At<EyeDoorPlmDrawDefinitions.Draw>(frame.Pointer),bad),"Eye door stock word bounds");
             foreach (int bad in new[] {int.MinValue,-1,4,int.MaxValue})
-                AssertThrows<ArgumentOutOfRangeException>(() => catalog.GetWord(0x9bf7,bad),"Eye door mirrored clear bounds");
+                AssertThrows<ArgumentOutOfRangeException>(() => catalog.GetWord(NativePlmDraws.At<EyeDoorPlmDrawDefinitions.Draw>(0x9bf7),bad),"Eye door mirrored clear bounds");
             for (int cell = 0; cell < 4; cell++)
                 AssertEqual((ushort)(ReadSamusEaterPlmWord(rom,0x849bf9 + cell * 2) & 0xfff),
-                    catalog.GetWord(0x9bf7,cell),"Eye door original mirrored native word");
+                    catalog.GetWord(NativePlmDraws.At<EyeDoorPlmDrawDefinitions.Draw>(0x9bf7),cell),"Eye door original mirrored native word");
         }
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
             if (raw != 0x9bf7 && !native.ContainsKey((ushort)raw))
-                AssertThrows<InvalidDataException>(() => stock.GetWord((ushort)raw,0),"Eye door stock full pointer rejection");
+                AssertThrows<InvalidDataException>(() => stock.GetWord(NativePlmDraws.At<EyeDoorPlmDrawDefinitions.Draw>((ushort)raw),0),"Eye door stock full pointer rejection");
         entries[11].Blocks[2] = 0xc58;
         var mixed = new RoomPlmEyeDoorVisualCatalog(entries);
         var expected = frames.Select((frame,index) => new LookupEyeDoorStockExpected(frame.Pointer,Words:entries[index].Blocks.ToArray()))

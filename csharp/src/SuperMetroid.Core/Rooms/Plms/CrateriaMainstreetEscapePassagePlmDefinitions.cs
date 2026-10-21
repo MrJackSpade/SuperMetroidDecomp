@@ -11,18 +11,25 @@ internal static class CrateriaMainstreetEscapePassagePlmDefinitions
     /// <summary>$8F:9199: the hardcoded spawn's block Y.</summary>
     internal const int BlockY = 0x0b;
 
-    /// <summary>$84:9253, <c>DrawInst_CrateriaMainStreetEscape</c>: two $00FF air blocks in a row.</summary>
-    internal const ushort ClearPairDraw = 0x9253;
+    /// <summary>The passage's one draw.</summary>
+    internal enum Draw
+    {
+        /// <summary>Clears the two passage blocks.</summary>
+        ClearPair,
+    }
+
+    /// <summary>The draw that clears the two passage blocks.</summary>
+    internal static PlmFrameDraw<Draw> ClearPairDraw { get; } = PlmDraw.Of(Draw.ClearPair);
 
     /// <summary>Recognizes the escape passage draw pointer and supplies its two adjacent air blocks.</summary>
-    internal static bool TryGetDraw(ushort pointer, out RoomPlmShotBlockDrawDefinitions.DrawList draw)
+    internal static bool TryGetDraw(PlmDraw request, out RoomPlmShotBlockDrawDefinitions.DrawList draw)
     {
-        if (pointer != ClearPairDraw)
+        if (request != ClearPairDraw)
         {
             draw = default;
             return false;
         }
-        draw = new(pointer, new RoomPlmShotBlockDrawDefinitions.Run[]
+        draw = new(request, new RoomPlmShotBlockDrawDefinitions.Run[]
         {
             new(0x0002, new ushort[] { 0x00ff, 0x00ff }, new(0, 0)),
         });

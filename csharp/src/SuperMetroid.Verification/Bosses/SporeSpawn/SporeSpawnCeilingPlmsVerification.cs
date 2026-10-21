@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Verification.Rooms.Plms;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Rooms.Plms.SamusEaterPlmDefinitionsVerification;
@@ -57,15 +58,15 @@ internal static class SporeSpawnCeilingPlmsVerification
         {
             ushort pointer = (ushort)raw;
             int index = Array.IndexOf(pointers, pointer);
-            AssertEqual(index >= 0, SporeSpawnCeilingPlmDrawDefinitions.TryGetWord(pointer, out ushort word), "Spore ceiling scalar ownership");
-            AssertEqual(index >= 0, SporeSpawnCeilingPlmDrawDefinitions.TryGet(pointer, out var dto), "Spore ceiling DTO ownership");
+            AssertEqual(index >= 0, SporeSpawnCeilingPlmDrawDefinitions.TryGetWord(NativePlmDraws.At<SporeSpawnCeilingDraw>(pointer), out ushort word), "Spore ceiling scalar ownership");
+            AssertEqual(index >= 0, SporeSpawnCeilingPlmDrawDefinitions.TryGet(NativePlmDraws.At<SporeSpawnCeilingDraw>(pointer), out var dto), "Spore ceiling DTO ownership");
             if (index < 0)
             {
                 AssertEqual((ushort)0, word, "missing Spore ceiling scalar zero");
                 AssertEqual(default(RoomPlmShotBlockDrawDefinitions.DrawList), dto, "missing Spore ceiling DTO default");
                 continue;
             }
-            AssertEqual(pointer, draws[index].Pointer, "Spore ceiling native export order");
+            AssertEqual(pointer, PlmDrawAddressCodec.Of(draws[index].Draw), "Spore ceiling native export order");
             for (int row = 0; row < 2; row++)
             for (int column = 0; column < 2; column++)
             {
@@ -76,7 +77,7 @@ internal static class SporeSpawnCeilingPlmsVerification
         }
         foreach (RoomPlmShotBlockDrawDefinitions.DrawList draw in draws)
         {
-            int cursor = draw.Pointer;
+            int cursor = PlmDrawAddressCodec.Of(draw.Draw);
             foreach (RoomPlmShotBlockDrawDefinitions.Run run in draw.Runs.Span)
             {
                 AssertDrawWord(run.DirectionAndCount);
@@ -84,20 +85,20 @@ internal static class SporeSpawnCeilingPlmsVerification
                     AssertDrawWord(word);
                 AssertEqual(rom.ReadCartridgeByte(0x840000 | cursor++),
                     unchecked((byte)run.Next.X),
-                    $"Spore Spawn draw ${draw.Pointer:X4} signed X offset");
+                    $"Spore Spawn draw ${PlmDrawAddressCodec.Of(draw.Draw):X4} signed X offset");
                 AssertEqual(rom.ReadCartridgeByte(0x840000 | cursor++),
                     unchecked((byte)run.Next.Y),
-                    $"Spore Spawn draw ${draw.Pointer:X4} signed Y offset");
+                    $"Spore Spawn draw ${PlmDrawAddressCodec.Of(draw.Draw):X4} signed Y offset");
             }
-            AssertEqual(16, cursor - draw.Pointer,
-                $"Spore Spawn draw ${draw.Pointer:X4} covers its native 2x2 span");
+            AssertEqual(16, cursor - PlmDrawAddressCodec.Of(draw.Draw),
+                $"Spore Spawn draw ${PlmDrawAddressCodec.Of(draw.Draw):X4} covers its native 2x2 span");
 
             // Checks one compiled draw word at the current native cursor and advances past it.
             void AssertDrawWord(ushort expected)
             {
                 AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0x840000 | cursor),
                     expected,
-                    $"Spore Spawn draw ${draw.Pointer:X4} word +{cursor - draw.Pointer}");
+                    $"Spore Spawn draw ${PlmDrawAddressCodec.Of(draw.Draw):X4} word +{cursor - PlmDrawAddressCodec.Of(draw.Draw)}");
                 cursor += 2;
             }
         }
@@ -165,8 +166,8 @@ internal static class SporeSpawnCeilingPlmsVerification
                 return (SnesAddressMath.BankNumber(address)) == 0x84 &&
                     ((pointer >= BossRoomPlmNativeListAddresses.SporeSpawnCeilingEntries[0].Entry &&
                       pointer < BossRoomPlmNativeListAddresses.SporeSpawnCeilingEntries[1].Entry + 6) ||
-                     (pointer >= (ushort)SporeSpawnCeilingDraw.Clear &&
-                      pointer < SporeSpawnCeilingPlmDrawDefinitions.EndExclusive));
+                     (pointer >= PlmDrawAddresses.SporeSpawnCeiling[SporeSpawnCeilingDraw.Clear] &&
+                      pointer < PlmDrawAddresses.SporeSpawnCeiling[SporeSpawnCeilingDraw.CrumbleThird] + 16));
             },
             address => $"Spore Spawn ceiling reread migrated source ${address:X6}.");
 

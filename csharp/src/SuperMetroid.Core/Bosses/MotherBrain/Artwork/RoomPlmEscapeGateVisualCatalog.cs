@@ -14,10 +14,10 @@ public sealed class RoomPlmEscapeGateVisualCatalog
     public string ContentIdentity => SelectedPresentationHash.Create(nameof(RoomPlmEscapeGateVisualCatalog), content =>
     {
         Span<ushort> words = stackalloc ushort[4];
-        foreach (var frame in MotherBrainEscapeGatePlmDrawDefinitions.All.OrderBy(frame => frame.Pointer))
+        foreach (var frame in MotherBrainEscapeGatePlmDrawDefinitions.All.OrderBy(item => MotherBrainEscapeGatePlmDrawDefinitions.VisualId(item.Draw), StringComparer.Ordinal))
         {
-            for (int row = 0; row < words.Length; row++) words[row] = GetWord(frame.Pointer, row);
-            content.Append("frame", frame.Pointer);
+            for (int row = 0; row < words.Length; row++) words[row] = GetWord(frame.Draw, row);
+            content.AppendName("frame", MotherBrainEscapeGatePlmDrawDefinitions.VisualId(frame.Draw));
             content.Append("runs", 1);
             content.AppendWords("words", words);
         }
@@ -38,19 +38,19 @@ public sealed class RoomPlmEscapeGateVisualCatalog
     }
 
     /// <summary>Resolves one escape-gate block's selected appearance independently of its compiled solid collision word.</summary>
-    /// <param name="drawPointer">Bank-$84 draw identity: $9473 open, $947F half-closed, or $948B closed.</param>
+    /// <param name="draw">The draw whose visual word is resolved.</param>
     /// <param name="blockIndex">Zero-based row ordinal, zero through three, down the vertical run.</param>
     /// <returns>The authored metatile/flip word, or the compiled frame's visual bits when unchanged.</returns>
-    /// <exception cref="InvalidDataException">The pointer does not identify a supported escape-gate frame.</exception>
+    /// <exception cref="InvalidDataException">The draw is not a supported escape-gate frame.</exception>
     /// <exception cref="ArgumentOutOfRangeException">The row ordinal is outside the four-block run.</exception>
-    public ushort GetWord(ushort drawPointer, int blockIndex)
+    internal ushort GetWord(PlmDraw draw, int blockIndex)
     {
-        if (!MotherBrainEscapeGatePlmDrawDefinitions.TryDescribe(drawPointer, out var draw))
+        if (!MotherBrainEscapeGatePlmDrawDefinitions.TryDescribe(draw, out var shape))
             throw new InvalidDataException(
-                $"Escape-gate visuals lack frame ${drawPointer:X4}.");
+                $"Escape-gate visuals lack frame {draw}.");
         if ((uint)blockIndex >= 4)
             throw new ArgumentOutOfRangeException(nameof(blockIndex));
-        return customBlocks.TryGet(drawPointer, out var words)
-            ? words[blockIndex] : new RoomLevelWord(draw.WordAt(blockIndex)).VisualWord;
+        return customBlocks.TryGet(draw, out var words)
+            ? words[blockIndex] : new RoomLevelWord(shape.WordAt(blockIndex)).VisualWord;
     }
 }

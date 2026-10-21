@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Rooms.Plms;
 
 namespace SuperMetroid.Core.Enemies.Chozo;
@@ -16,10 +15,10 @@ internal static class ChozoStatuePlmDrawDefinitions
     /// Clearing leaves slope endpoints; blocking makes the access solid, with
     /// spikes across the long row except its final cell. The hand is one air cell.
     /// </summary>
-    internal readonly record struct Draw(ushort Pointer) : IPlmRunDrawShape
+    internal readonly record struct Draw(ChozoStatueDraw Frame) : IPlmRunDrawShape
     {
         /// <summary>Lower Norfair hand clearing is one air cell; Wrecked Ship slope access has five runs.</summary>
-        private bool Hand => Pointer == (ushort)ChozoStatueDraw.LowerNorfairClearedHand;
+        private bool Hand => Frame == ChozoStatueDraw.LowerNorfairClearedHand;
         /// <summary>Distinguishes the single hand cell from the five-run Wrecked Ship slope layout.</summary>
         public int RunCount => Hand ? 1 : 5;
         /// <summary>Rejects run indexes outside the selected hand or slope geometry.</summary>
@@ -60,7 +59,7 @@ internal static class ChozoStatuePlmDrawDefinitions
                 _ => 0x1bb,
             };
             bool endpoint = cell == count - 1;
-            int collision = Pointer == (ushort)ChozoStatueDraw.BlockSlopeAccess
+            int collision = Frame == ChozoStatueDraw.BlockSlopeAccess
                 ? run == 0 && !endpoint ? 10 : 8
                 : (run is 0 or 1 or 4) && endpoint ? 1 : 0;
             return (ushort)(collision << 12 | tile);
@@ -68,46 +67,46 @@ internal static class ChozoStatuePlmDrawDefinitions
     }
 
     /// <summary>Accepts the two Wrecked Ship slope-access draws and Lower Norfair's cleared hand.</summary>
-    internal static bool TryDescribe(ushort pointer, out Draw draw)
+    internal static bool TryDescribe(PlmDraw request, out Draw draw)
     {
-        bool owned = Enum.IsDefined((ChozoStatueDraw)pointer);
-        draw = owned ? new(pointer) : default;
-        return owned;
+        bool found = PlmDraw.TryFrame(request, out ChozoStatueDraw frame);
+        draw = found ? new(frame) : default;
+        return found;
     }
     /// <summary>Enumerates the three supported physical draw identities for artwork export.</summary>
-    private static IEnumerable<ushort> Pointers()
+    private static IEnumerable<PlmDraw> Draws()
     {
-        yield return (ushort)ChozoStatueDraw.LowerNorfairClearedHand;
-        yield return (ushort)ChozoStatueDraw.ClearSlopeAccess;
-        yield return (ushort)ChozoStatueDraw.BlockSlopeAccess;
+        yield return PlmDraw.Of(ChozoStatueDraw.LowerNorfairClearedHand);
+        yield return PlmDraw.Of(ChozoStatueDraw.ClearSlopeAccess);
+        yield return PlmDraw.Of(ChozoStatueDraw.BlockSlopeAccess);
     }
     /// <summary>Projects calculated statue cells into temporary artwork-interface draw records.</summary>
     internal static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> All
     {
         get
         {
-            foreach (ushort pointer in Pointers())
+            foreach (PlmDraw draw in Draws())
             {
-                TryGet(pointer, out var list);
+                TryGet(draw, out var list);
                 yield return list;
             }
         }
     }
     /// <summary>Builds a temporary run record from calculated cells; runtime evaluates the physical cells directly.</summary>
-    internal static bool TryGet(ushort pointer, out RoomPlmShotBlockDrawDefinitions.DrawList list) =>
-        RoomPlmShotBlockDrawDefinitions.TryCompile<Draw>(pointer, TryDescribe, out list);
+    internal static bool TryGet(PlmDraw request, out RoomPlmShotBlockDrawDefinitions.DrawList list) =>
+        RoomPlmShotBlockDrawDefinitions.TryCompile<Draw>(request, TryDescribe, out list);
     /// <summary>Finds a compiled statue draw by its published visual resource identity.</summary>
     internal static bool TryGetByVisualId(string id, out RoomPlmShotBlockDrawDefinitions.DrawList list) =>
-        RoomPlmShotBlockDrawDefinitions.FindByVisualId(Pointers(), VisualId, TryGet, id, out list);
+        RoomPlmShotBlockDrawDefinitions.FindByVisualId(Draws(), VisualId, TryGet, id, out list);
 
     /// <summary>Names the cleared hand or blocked/clear slope layout without changing collision ownership.</summary>
-    internal static string VisualId(ushort pointer) =>
-        ClosedNativeWords.Decode<ChozoStatueDraw>(pointer, "Chozo statue draw with a visual ID") switch
+    internal static string VisualId(PlmDraw request) =>
+        PlmDraw.FrameOf<ChozoStatueDraw>(request, "Chozo statue draw with a visual ID") switch
         {
             ChozoStatueDraw.LowerNorfairClearedHand => "lower-norfair-cleared-hand",
             ChozoStatueDraw.ClearSlopeAccess => "wrecked-ship-clear-slope-access",
             ChozoStatueDraw.BlockSlopeAccess => "wrecked-ship-block-slope-access",
-            _ => throw new InvalidOperationException($"Undefined {nameof(ChozoStatueDraw)} {pointer:X4}."),
+            _ => throw new InvalidOperationException($"Undefined {nameof(ChozoStatueDraw)} {request}."),
         };
 
 }

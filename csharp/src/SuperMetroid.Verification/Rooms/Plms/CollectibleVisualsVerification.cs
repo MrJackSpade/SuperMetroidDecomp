@@ -35,9 +35,9 @@ internal static class CollectibleVisualsVerification
         Suite(nameof(VerifyCollectibleTankSelector), () => VerifyCollectibleTankSelector(rom));
         Suite(nameof(VerifyCollectibleDynamicSelector), () => VerifyCollectibleDynamicSelector(rom));
 
-        RoomPlmCollectibleVisualEntry[] entries =
+        RoomPlmVisualWordEntry[] entries =
             RoomPlmCollectibleDrawDefinitions.All
-                .Select(frame => new RoomPlmCollectibleVisualEntry(frame.Id,
+                .Select(frame => new RoomPlmVisualWordEntry(frame.Id,
                     frame.LevelWord.VisualWord))
                 .ToArray();
         int energyIndex = Array.FindIndex(entries, entry => entry.Id == "energy-tank-0");
@@ -45,7 +45,7 @@ internal static class CollectibleVisualsVerification
         var edited = new RoomPlmCollectibleVisualCatalog(entries);
         entries[energyIndex] = entries[energyIndex] with { VisualWord = 0x0054 };
         AssertEqual((ushort)0x0053,
-            edited.GetWord(RoomPlmCollectibleDrawDefinitions.TankFirst),
+            edited.GetWord(RoomPlmCollectibleDrawDefinitions.VisibleFrame(InWorldCollectibleKind.EnergyTank, 0, 0)),
             "collectible catalog copies the edited visual word");
 
         CollectibleVisualsRenderResult Render(
@@ -129,7 +129,7 @@ internal static class CollectibleVisualsVerification
                 SupportedCartridge.Sha256);
             RoomPlmCollectibleVisualFiles.ValidateStock(
                 installation.RoomPlmCollectibleVisualDirectory);
-            ushort pointer = RoomPlmCollectibleDrawDefinitions.TankFirst;
+            ushort pointer = PlmDrawAddresses.CollectibleTankFirst;
             VerifyCollectibleStockMapping(rom, installation.LoadRoomPlmCollectibleVisuals());
 
             string stockPath = Path.Combine(installation.RoomPlmCollectibleVisualDirectory,
@@ -145,14 +145,14 @@ internal static class CollectibleVisualsVerification
                 RoomPlmCollectibleVisualFiles.VisualFileName);
             File.WriteAllText(overridePath, document.ToJsonString());
             AssertEqual((ushort)0x0053,
-                installation.LoadRoomPlmCollectibleVisuals().GetWord(pointer),
+                installation.LoadRoomPlmCollectibleVisuals().GetWord(NativePlmDraws.At<RoomPlmCollectibleDrawDefinitions.Draw>(pointer)),
                 "collectible visual override selects edited tank frame");
 
             string refreshed = Path.Combine(testRoot, "refreshed-stock");
             RoomPlmCollectibleVisualFiles.Extract(rom, refreshed, SupportedCartridge.Sha256);
             AssertEqual((ushort)0x0053,
                 RoomPlmCollectibleVisualFiles.Load(refreshed,
-                    installation.RoomPlmCollectibleVisualOverrideDirectory).GetWord(pointer),
+                    installation.RoomPlmCollectibleVisualOverrideDirectory).GetWord(NativePlmDraws.At<RoomPlmCollectibleDrawDefinitions.Draw>(pointer)),
                 "collectible override survives stock replacement");
 
             frame["visualWord"] = 0xf053;

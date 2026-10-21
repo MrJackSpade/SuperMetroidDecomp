@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Rooms.Plms.SamusEaterPlmDefinitionsVerification;
 using SuperMetroid.Core.Bosses.MotherBrain;
@@ -69,13 +70,13 @@ internal static class LookupEscapeGateVerification
             {
                 ushort pointer = (ushort)raw;
                 bool owned = pointers.Contains(pointer);
-                AssertEqual(owned, MotherBrainEscapeGatePlmDrawDefinitions.TryDescribe(pointer, out var shape), "Escape gate descriptor domain");
-                AssertEqual(owned, MotherBrainEscapeGatePlmDrawDefinitions.TryGet(pointer, out var dto), "Escape gate DTO domain");
+                AssertEqual(owned, MotherBrainEscapeGatePlmDrawDefinitions.TryDescribe(NativePlmDraws.At<MotherBrainEscapeGateDraw>(pointer), out var shape), "Escape gate descriptor domain");
+                AssertEqual(owned, MotherBrainEscapeGatePlmDrawDefinitions.TryGet(NativePlmDraws.At<MotherBrainEscapeGateDraw>(pointer), out var dto), "Escape gate DTO domain");
                 if (!owned)
                 {
                     AssertEqual(default(MotherBrainEscapeGatePlmDrawDefinitions.Draw), shape, "Escape gate missing descriptor");
                     AssertEqual(default(RoomPlmShotBlockDrawDefinitions.DrawList), dto, "Escape gate missing DTO");
-                    AssertThrows<InvalidDataException>(() => MotherBrainEscapeGatePlmDrawDefinitions.VisualId(pointer), "Escape gate missing ID");
+                    AssertThrows<InvalidDataException>(() => MotherBrainEscapeGatePlmDrawDefinitions.VisualId(NativePlmDraws.At<MotherBrainEscapeGateDraw>(pointer)), "Escape gate missing ID");
                 }
             }
             foreach (string id in new[] { "OPEN", "half", "", "unknown" })
@@ -87,14 +88,14 @@ internal static class LookupEscapeGateVerification
         for (int index = 0; index < pointers.Length; index++)
         {
             ushort pointer = pointers[index];
-            MotherBrainEscapeGatePlmDrawDefinitions.TryDescribe(pointer, out var shape);
-            MotherBrainEscapeGatePlmDrawDefinitions.TryGet(pointer, out var dto);
+            MotherBrainEscapeGatePlmDrawDefinitions.TryDescribe(NativePlmDraws.At<MotherBrainEscapeGateDraw>(pointer), out var shape);
+            MotherBrainEscapeGatePlmDrawDefinitions.TryGet(NativePlmDraws.At<MotherBrainEscapeGateDraw>(pointer), out var dto);
             if (field == 0)
             {
-                AssertEqual(pointer, exported[index].Pointer, "Escape gate original order");
-                AssertEqual(ids[index], MotherBrainEscapeGatePlmDrawDefinitions.VisualId(pointer), "Escape gate published ID");
+                AssertEqual(pointer, PlmDrawAddressCodec.Of(exported[index].Draw), "Escape gate original order");
+                AssertEqual(ids[index], MotherBrainEscapeGatePlmDrawDefinitions.VisualId(NativePlmDraws.At<MotherBrainEscapeGateDraw>(pointer)), "Escape gate published ID");
                 AssertTrue(MotherBrainEscapeGatePlmDrawDefinitions.TryGetByVisualId(ids[index], out var byId), "Escape gate reverse ID");
-                AssertEqual(pointer, byId.Pointer, "Escape gate ID identity");
+                AssertEqual(pointer, PlmDrawAddressCodec.Of(byId.Draw), "Escape gate ID identity");
                 AssertEqual((ushort)0x8004, ReadSamusEaterPlmWord(rom, 0x840000 | pointer), "Escape gate native vertical geometry");
                 AssertEqual((ushort)0, ReadSamusEaterPlmWord(rom, 0x840000 | (pointer + 10)), "Escape gate native final offset");
                 foreach (var frame in new[] {dto,exported[index],byId})

@@ -61,11 +61,11 @@ internal static class SporeSpawnCeilingVisualsVerification
             RoomPlmSporeSpawnCeilingVisualCatalog edited =
                 installation.LoadRoomPlmSporeSpawnCeilingVisuals();
             AssertEqual((ushort)0x0058,
-                edited.GetWord((ushort)SporeSpawnCeilingDraw.CrumbleFirst,
+                edited.GetWord(PlmDraw.Of(SporeSpawnCeilingDraw.CrumbleFirst),
                     0, 0),
                 "Spore Spawn override edits the first crumble block");
             AssertEqual((ushort)0x0059,
-                edited.GetWord((ushort)SporeSpawnCeilingDraw.Clear,
+                edited.GetWord(PlmDraw.Of(SporeSpawnCeilingDraw.Clear),
                     1, 1),
                 "Spore Spawn override edits the bottom-right clear block");
 
@@ -78,7 +78,7 @@ internal static class SporeSpawnCeilingVisualsVerification
             AssertEqual((ushort)0x0059,
                 RoomPlmSporeSpawnCeilingVisualFiles.Load(refreshed,
                     installation.RoomPlmSporeSpawnCeilingVisualOverrideDirectory)
-                    .GetWord((ushort)SporeSpawnCeilingDraw.Clear, 1, 1),
+                    .GetWord(PlmDraw.Of(SporeSpawnCeilingDraw.Clear), 1, 1),
                 "Spore Spawn override survives stock replacement");
 
             first.Required("blocks")[0] = 0xf058;
@@ -121,25 +121,25 @@ internal static class SporeSpawnCeilingVisualsVerification
         var imported = new RoomPlmSporeSpawnCeilingVisualCatalog(entries.Reverse());
         // Hash flattened visual frames by native draw pointer for catalog identity comparison.
         string Hash(Dictionary<ushort, ushort[]> words) => SuperMetroid.Core.Assets.SelectedPresentationHash.FromWordFrames(
-            nameof(RoomPlmSporeSpawnCeilingVisualCatalog), words);
+            nameof(RoomPlmSporeSpawnCeilingVisualCatalog), words.ToDictionary(pair => SporeSpawnCeilingPlmDrawDefinitions.VisualId(NativePlmDraws.At<SporeSpawnCeilingDraw>(pair.Key)), pair => pair.Value));
         foreach (var catalog in new[] {stock, imported, installed})
         {
             AssertEqual(Hash(native), catalog.ContentIdentity, "Spore ceiling original flattened hash");
             foreach (var frame in frames)
             {
                 for (int index = 0; index < 4; index++)
-                    AssertEqual(native[frame.Pointer][index], catalog.GetWord(frame.Pointer,index / 2,index % 2), "Spore ceiling native stock word");
+                    AssertEqual(native[frame.Pointer][index], catalog.GetWord(NativePlmDraws.At<SporeSpawnCeilingDraw>(frame.Pointer),index / 2,index % 2), "Spore ceiling native stock word");
                 foreach (int bad in new[] {int.MinValue,-1,2,int.MaxValue})
                 {
-                    AssertThrows<ArgumentOutOfRangeException>(() => catalog.GetWord(frame.Pointer,bad,0), "Spore ceiling run bounds");
+                    AssertThrows<ArgumentOutOfRangeException>(() => catalog.GetWord(NativePlmDraws.At<SporeSpawnCeilingDraw>(frame.Pointer),bad,0), "Spore ceiling run bounds");
                     for (int run = 0; run < 2; run++)
-                        AssertThrows<ArgumentOutOfRangeException>(() => catalog.GetWord(frame.Pointer,run,bad), "Spore ceiling block bounds");
+                        AssertThrows<ArgumentOutOfRangeException>(() => catalog.GetWord(NativePlmDraws.At<SporeSpawnCeilingDraw>(frame.Pointer),run,bad), "Spore ceiling block bounds");
                 }
             }
         }
         for (int pointer = 0; pointer <= ushort.MaxValue; pointer++)
             if (!native.ContainsKey((ushort)pointer))
-                AssertThrows<InvalidDataException>(() => stock.GetWord((ushort)pointer,0,0), "Spore ceiling unknown pointer");
+                AssertThrows<InvalidDataException>(() => stock.GetWord(NativePlmDraws.At<SporeSpawnCeilingDraw>((ushort)pointer),0,0), "Spore ceiling unknown pointer");
         entries[0].Blocks[3] = 0x0c58;
         entries[2].Blocks[0] = 0x0059;
         var mixed = new RoomPlmSporeSpawnCeilingVisualCatalog(entries);
@@ -149,7 +149,7 @@ internal static class SporeSpawnCeilingVisualsVerification
         entries[1].Blocks[0] = 0x005b;
         foreach (var frame in frames)
         for (int index = 0; index < 4; index++)
-            AssertEqual(expected[frame.Pointer][index], mixed.GetWord(frame.Pointer,index / 2,index % 2), "Spore ceiling clone isolation and stock fallback");
+            AssertEqual(expected[frame.Pointer][index], mixed.GetWord(NativePlmDraws.At<SporeSpawnCeilingDraw>(frame.Pointer),index / 2,index % 2), "Spore ceiling clone isolation and stock fallback");
         AssertThrows<InvalidDataException>(() => new RoomPlmSporeSpawnCeilingVisualCatalog(entries[..3]), "Spore ceiling missing frame");
         AssertThrows<InvalidDataException>(() => new RoomPlmSporeSpawnCeilingVisualCatalog(entries.Append(entries[0])), "Spore ceiling duplicate frame");
         var invalid = entries.ToArray();

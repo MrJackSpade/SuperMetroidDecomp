@@ -27,15 +27,26 @@ internal static class BossRoomPlmProgramsVerification
     internal static void VerifyBotwoonWallPrograms(ISnesAddressSpace rom)
     {
         int steps = CompareProgramSet(CartridgeImportSource.Require(rom), BotwoonWallPlmProgramDefinitions.Programs, BotwoonWallEntries,
-            draw => (ushort)draw, BotwoonWallCueAt, "Botwoon wall");
+            BotwoonWallDrawList, BotwoonWallCueAt, "Botwoon wall");
         Console.WriteLine($"  Botwoon wall programs: {steps} typed steps match bank $84.");
     }
+
+    /// <summary>The draw a Botwoon wall frame shows: the crumble frames are the shared single shot-block breakup.</summary>
+    private static PlmDraw BotwoonWallDrawList(BotwoonWallDraw frame) => frame switch
+    {
+        BotwoonWallDraw.CrumbleFirst => RoomPlmShotBlockDrawDefinitions.Breakup(RoomPlmShotBlockDrawDefinitions.Shape.Single, 0),
+        BotwoonWallDraw.CrumbleSecond => RoomPlmShotBlockDrawDefinitions.Breakup(RoomPlmShotBlockDrawDefinitions.Shape.Single, 1),
+        BotwoonWallDraw.CrumbleThird => RoomPlmShotBlockDrawDefinitions.Breakup(RoomPlmShotBlockDrawDefinitions.Shape.Single, 2),
+        BotwoonWallDraw.CrumbleFourth => RoomPlmShotBlockDrawDefinitions.Breakup(RoomPlmShotBlockDrawDefinitions.Shape.Single, 3),
+        BotwoonWallDraw.Clear => BotwoonWallPlmDrawDefinitions.Clear,
+        _ => throw new InvalidOperationException($"Undefined {nameof(BotwoonWallDraw)} {frame}."),
+    };
 
     /// <summary>The Kraid room programs equal their native lists.</summary>
     internal static void VerifyKraidRoomPrograms(ISnesAddressSpace rom)
     {
         int steps = CompareProgramSet(CartridgeImportSource.Require(rom), KraidRoomPlmProgramDefinitions.Programs, KraidRoomEntries,
-            draw => (ushort)draw, KraidRoomCueAt, "Kraid room");
+            draw => PlmDraw.Of(draw), KraidRoomCueAt, "Kraid room");
         Console.WriteLine($"  Kraid room programs: {steps} typed steps match bank $84.");
     }
 
@@ -43,7 +54,7 @@ internal static class BossRoomPlmProgramsVerification
     internal static void VerifyCrocomireArenaPrograms(ISnesAddressSpace rom)
     {
         int steps = CompareProgramSet(CartridgeImportSource.Require(rom), CrocomireArenaPlmProgramDefinitions.Programs, CrocomireArenaEntries,
-            draw => (ushort)draw, NoCues<PlmNoCue>(), "Crocomire arena");
+            draw => PlmDraw.Of(draw), NoCues<PlmNoCue>(), "Crocomire arena");
         Console.WriteLine($"  Crocomire arena programs: {steps} typed steps match bank $84.");
     }
 
@@ -51,7 +62,7 @@ internal static class BossRoomPlmProgramsVerification
     internal static void VerifyMotherBrainFakeDeathPrograms(ISnesAddressSpace rom)
     {
         int steps = CompareProgramSet(CartridgeImportSource.Require(rom), MotherBrainFakeDeathPlmProgramDefinitions.Programs,
-            MotherBrainFakeDeathEntries, draw => (ushort)draw, NoCues<PlmNoCue>(), "Mother Brain fake death");
+            MotherBrainFakeDeathEntries, draw => PlmDraw.Of(draw), NoCues<PlmNoCue>(), "Mother Brain fake death");
         Console.WriteLine($"  Mother Brain fake-death programs: {steps} typed steps match bank $84.");
     }
 
@@ -59,7 +70,7 @@ internal static class BossRoomPlmProgramsVerification
     internal static void VerifySporeSpawnCeilingPrograms(ISnesAddressSpace rom)
     {
         int steps = CompareProgramSet(CartridgeImportSource.Require(rom), SporeSpawnCeilingPlmProgramDefinitions.Programs, SporeSpawnCeilingEntries,
-            draw => (ushort)draw,
+            draw => PlmDraw.Of(draw),
             (IImportCartridgeSource cartridge, ushort cursor, out SporeSpawnCeilingCue cue, out int length) =>
             {
                 cue = SporeSpawnCeilingCue.QueueCrumbleSound;
@@ -77,7 +88,7 @@ internal static class BossRoomPlmProgramsVerification
     internal static void VerifyDraygonCannonPrograms(ISnesAddressSpace rom)
     {
         int steps = CompareProgramSet(CartridgeImportSource.Require(rom), DraygonCannonPlmProgramDefinitions.Programs, DraygonCannonEntries,
-            draw => (ushort)draw, DraygonCannonCueAt, "Draygon cannon");
+            draw => PlmDraw.Of(draw), DraygonCannonCueAt, "Draygon cannon");
         Console.WriteLine($"  Draygon cannon programs: {steps} typed steps match bank $84.");
     }
 
@@ -177,7 +188,7 @@ internal static class BossRoomPlmProgramsVerification
     internal static void VerifyMotherBrainGlassPrograms(ISnesAddressSpace rom)
     {
         int steps = CompareProgramSet(CartridgeImportSource.Require(rom), MotherBrainGlassPlmProgramDefinitions.Programs, MotherBrainGlassEntries,
-            draw => (ushort)draw, MotherBrainGlassCueAt, "Mother Brain glass");
+            draw => PlmDraw.Of(draw), MotherBrainGlassCueAt, "Mother Brain glass");
         Console.WriteLine($"  Mother Brain glass programs: {steps} typed steps match bank $84.");
     }
 
@@ -283,7 +294,7 @@ internal static class BossRoomPlmProgramsVerification
     internal static void VerifyBombTorizoHandPrograms(ISnesAddressSpace rom)
     {
         int steps = CompareProgramSet(CartridgeImportSource.Require(rom), BombTorizoHandPlmProgramDefinitions.Programs, BombTorizoHandEntries,
-            draw => (ushort)draw, BombTorizoHandCueAt, "Bomb Torizo hand");
+            draw => PlmDraw.Of(draw), BombTorizoHandCueAt, "Bomb Torizo hand");
         AssertEqual(BombTorizoHandProgram.Crumble, BombTorizoHandPlmProgramDefinitions.ProgramAfterSleep(BombTorizoHandProgram.Sleeping),
             "the woken hand continues after its sleep");
         AssertEqual(unchecked((ushort)(BombTorizoHandEntries[0].Entry + 10)), BombTorizoHandEntries[1].Entry,

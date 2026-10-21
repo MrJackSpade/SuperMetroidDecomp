@@ -1,43 +1,45 @@
+using SuperMetroid.Core.Rooms.LevelData;
+
 namespace SuperMetroid.Core.Rooms.Plms;
 
-/// <summary>The bank-$84 draw list each block-reaction image draws.</summary>
+/// <summary>The draw each block-reaction image draws.</summary>
 internal static class BlockReactionPlmDrawDefinitions
 {
-    /// <summary>Each image's draw list.</summary>
-    internal static IReadOnlyDictionary<BlockReactionPlmFrame, ushort> DrawLists { get; } = new Dictionary<BlockReactionPlmFrame, ushort>
+    /// <summary>Each image's draw.</summary>
+    internal static IReadOnlyDictionary<BlockReactionPlmFrame, PlmDraw> DrawLists { get; } = new Dictionary<BlockReactionPlmFrame, PlmDraw>
     {
-        [BlockReactionPlmFrame.SingleBreakup0] = 0xa345,
-        [BlockReactionPlmFrame.SingleBreakup1] = 0xa34b,
-        [BlockReactionPlmFrame.SingleBreakup2] = 0xa351,
-        [BlockReactionPlmFrame.SingleBreakup3] = 0xa357,
-        [BlockReactionPlmFrame.HorizontalBreakup0] = 0xa35d,
-        [BlockReactionPlmFrame.HorizontalBreakup1] = 0xa365,
-        [BlockReactionPlmFrame.HorizontalBreakup2] = 0xa36d,
-        [BlockReactionPlmFrame.HorizontalBreakup3] = 0xa375,
-        [BlockReactionPlmFrame.VerticalBreakup0] = 0xa37d,
-        [BlockReactionPlmFrame.VerticalBreakup1] = 0xa385,
-        [BlockReactionPlmFrame.VerticalBreakup2] = 0xa38d,
-        [BlockReactionPlmFrame.VerticalBreakup3] = 0xa395,
-        [BlockReactionPlmFrame.SquareBreakup0] = 0xa39d,
-        [BlockReactionPlmFrame.SquareBreakup1] = 0xa3ad,
-        [BlockReactionPlmFrame.SquareBreakup2] = 0xa3bd,
-        [BlockReactionPlmFrame.SquareBreakup3] = 0xa3cd,
-        [BlockReactionPlmFrame.ShotRestoreHorizontal] = 0xa47b,
-        [BlockReactionPlmFrame.ShotRestoreVertical] = 0xa483,
-        [BlockReactionPlmFrame.ShotRestoreSquare] = 0xa48b,
-        [BlockReactionPlmFrame.BombRestoreHorizontal] = 0xa4c7,
-        [BlockReactionPlmFrame.BombRestoreVertical] = 0xa4cf,
-        [BlockReactionPlmFrame.BombRestoreSquare] = 0xa4d7,
-        [BlockReactionPlmFrame.CrumbleRevealSingle] = 0xa49b,
-        [BlockReactionPlmFrame.CrumbleRevealHorizontal] = 0xa4a1,
-        [BlockReactionPlmFrame.CrumbleRevealVertical] = 0xa4a9,
-        [BlockReactionPlmFrame.CrumbleRevealSquare] = 0xa4b1,
-        [BlockReactionPlmFrame.PowerBombReveal] = 0xa4e7,
-        [BlockReactionPlmFrame.SuperMissileReveal] = 0xa4ed,
-        [BlockReactionPlmFrame.GrappleBlock] = 0xa4f9,
-        [BlockReactionPlmFrame.GrappleBreak0] = 0xa4ff,
-        [BlockReactionPlmFrame.GrappleBreak1] = 0xa505,
-        [BlockReactionPlmFrame.GrappleBreak2] = 0xa50b,
-        [BlockReactionPlmFrame.GrappleBlank] = 0xa511,
+        [BlockReactionPlmFrame.SingleBreakup0] = RoomPlmShotBlockDrawDefinitions.Breakup(RoomPlmShotBlockDrawDefinitions.Shape.Single, 0),
+        [BlockReactionPlmFrame.SingleBreakup1] = RoomPlmShotBlockDrawDefinitions.Breakup(RoomPlmShotBlockDrawDefinitions.Shape.Single, 1),
+        [BlockReactionPlmFrame.SingleBreakup2] = RoomPlmShotBlockDrawDefinitions.Breakup(RoomPlmShotBlockDrawDefinitions.Shape.Single, 2),
+        [BlockReactionPlmFrame.SingleBreakup3] = RoomPlmShotBlockDrawDefinitions.Breakup(RoomPlmShotBlockDrawDefinitions.Shape.Single, 3),
+        [BlockReactionPlmFrame.HorizontalBreakup0] = RoomPlmShotBlockDrawDefinitions.Breakup(RoomPlmShotBlockDrawDefinitions.Shape.Horizontal, 0),
+        [BlockReactionPlmFrame.HorizontalBreakup1] = RoomPlmShotBlockDrawDefinitions.Breakup(RoomPlmShotBlockDrawDefinitions.Shape.Horizontal, 1),
+        [BlockReactionPlmFrame.HorizontalBreakup2] = RoomPlmShotBlockDrawDefinitions.Breakup(RoomPlmShotBlockDrawDefinitions.Shape.Horizontal, 2),
+        [BlockReactionPlmFrame.HorizontalBreakup3] = RoomPlmShotBlockDrawDefinitions.Breakup(RoomPlmShotBlockDrawDefinitions.Shape.Horizontal, 3),
+        [BlockReactionPlmFrame.VerticalBreakup0] = RoomPlmShotBlockDrawDefinitions.Breakup(RoomPlmShotBlockDrawDefinitions.Shape.Vertical, 0),
+        [BlockReactionPlmFrame.VerticalBreakup1] = RoomPlmShotBlockDrawDefinitions.Breakup(RoomPlmShotBlockDrawDefinitions.Shape.Vertical, 1),
+        [BlockReactionPlmFrame.VerticalBreakup2] = RoomPlmShotBlockDrawDefinitions.Breakup(RoomPlmShotBlockDrawDefinitions.Shape.Vertical, 2),
+        [BlockReactionPlmFrame.VerticalBreakup3] = RoomPlmShotBlockDrawDefinitions.Breakup(RoomPlmShotBlockDrawDefinitions.Shape.Vertical, 3),
+        [BlockReactionPlmFrame.SquareBreakup0] = RoomPlmShotBlockDrawDefinitions.Breakup(RoomPlmShotBlockDrawDefinitions.Shape.Square, 0),
+        [BlockReactionPlmFrame.SquareBreakup1] = RoomPlmShotBlockDrawDefinitions.Breakup(RoomPlmShotBlockDrawDefinitions.Shape.Square, 1),
+        [BlockReactionPlmFrame.SquareBreakup2] = RoomPlmShotBlockDrawDefinitions.Breakup(RoomPlmShotBlockDrawDefinitions.Shape.Square, 2),
+        [BlockReactionPlmFrame.SquareBreakup3] = RoomPlmShotBlockDrawDefinitions.Breakup(RoomPlmShotBlockDrawDefinitions.Shape.Square, 3),
+        [BlockReactionPlmFrame.ShotRestoreHorizontal] = RoomPlmShotBlockDrawDefinitions.Restoration(RoomPlmShotBlockDrawDefinitions.Shape.Horizontal),
+        [BlockReactionPlmFrame.ShotRestoreVertical] = RoomPlmShotBlockDrawDefinitions.Restoration(RoomPlmShotBlockDrawDefinitions.Shape.Vertical),
+        [BlockReactionPlmFrame.ShotRestoreSquare] = RoomPlmShotBlockDrawDefinitions.Restoration(RoomPlmShotBlockDrawDefinitions.Shape.Square),
+        [BlockReactionPlmFrame.BombRestoreHorizontal] = PlmDraw.Of(BombBlockRestoreDraw.Horizontal),
+        [BlockReactionPlmFrame.BombRestoreVertical] = PlmDraw.Of(BombBlockRestoreDraw.Vertical),
+        [BlockReactionPlmFrame.BombRestoreSquare] = PlmDraw.Of(BombBlockRestoreDraw.Square),
+        [BlockReactionPlmFrame.CrumbleRevealSingle] = PlmDraw.Of(RoomPlmBombedRevealDraw.CrumbleSingle),
+        [BlockReactionPlmFrame.CrumbleRevealHorizontal] = PlmDraw.Of(ContactCrumbleRestoreDraw.Horizontal),
+        [BlockReactionPlmFrame.CrumbleRevealVertical] = PlmDraw.Of(ContactCrumbleRestoreDraw.Vertical),
+        [BlockReactionPlmFrame.CrumbleRevealSquare] = PlmDraw.Of(ContactCrumbleRestoreDraw.Square),
+        [BlockReactionPlmFrame.PowerBombReveal] = PlmDraw.Of(RoomPlmBombedRevealDraw.PowerBomb),
+        [BlockReactionPlmFrame.SuperMissileReveal] = PlmDraw.Of(RoomPlmBombedRevealDraw.SuperMissile),
+        [BlockReactionPlmFrame.GrappleBlock] = PlmDraw.Of(GrappleBlockDraw.Intact),
+        [BlockReactionPlmFrame.GrappleBreak0] = PlmDraw.Of(GrappleBlockDraw.Break0),
+        [BlockReactionPlmFrame.GrappleBreak1] = PlmDraw.Of(GrappleBlockDraw.Break1),
+        [BlockReactionPlmFrame.GrappleBreak2] = PlmDraw.Of(GrappleBlockDraw.Break2),
+        [BlockReactionPlmFrame.GrappleBlank] = PlmDraw.Of(GrappleBlockDraw.Blank),
     };
 }

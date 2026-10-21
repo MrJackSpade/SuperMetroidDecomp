@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Verification.Areas.Escape;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Rooms.Plms.CollectibleVisualsVerification;
@@ -28,8 +29,8 @@ internal static class LookupCollectibleDrawsVerification
             for (int raw = 0; raw <= ushort.MaxValue; raw++)
             {
                 bool owned = expected.Any(entry => entry.Pointer == raw);
-                AssertEqual(owned, RoomPlmCollectibleDrawDefinitions.TryGet((ushort)raw, out var value), "Collectible complete pointer domain");
-                AssertEqual(owned, RoomPlmCollectibleDrawDefinitions.TryGetWord((ushort)raw, out ushort word), "Collectible runtime word domain");
+                AssertEqual(owned, RoomPlmCollectibleDrawDefinitionsTooling.TryGet(NativePlmDraws.At<RoomPlmCollectibleDrawDefinitions.Draw>((ushort)raw), out var value), "Collectible complete pointer domain");
+                AssertEqual(owned, RoomPlmCollectibleDrawDefinitions.TryGetWord(NativePlmDraws.At<RoomPlmCollectibleDrawDefinitions.Draw>((ushort)raw), out ushort word), "Collectible runtime word domain");
                 if (!owned)
                 {
                     AssertEqual(default(RoomPlmCollectibleDrawFrame), value, "Collectible rejected output");
@@ -39,11 +40,11 @@ internal static class LookupCollectibleDrawsVerification
         for (int index = 0; index < expected.Length; index++)
         {
             var entry = expected[index];
-            AssertTrue(RoomPlmCollectibleDrawDefinitions.TryGet(entry.Pointer, out var direct), "Collectible direct identity");
+            AssertTrue(RoomPlmCollectibleDrawDefinitionsTooling.TryGet(NativePlmDraws.At<RoomPlmCollectibleDrawDefinitions.Draw>(entry.Pointer), out var direct), "Collectible direct identity");
             AssertTrue(RoomPlmCollectibleDrawDefinitions.TryGetById(entry.Id, out var named), "Collectible reverse identity");
             foreach (var value in new[] {direct,named,exported[index]})
             {
-                AssertEqual(entry.Pointer, value.Pointer, "Collectible original pointer and export order");
+                AssertEqual(entry.Pointer, PlmDrawAddressCodec.Of(PlmDraw.Of(value.Draw)), "Collectible original pointer and export order");
                 if (field == 0)
                 {
                     AssertEqual((ushort)1, ReadCollectibleVisualWord(rom, entry.Pointer), "Collectible original horizontal one-cell geometry");
@@ -53,7 +54,7 @@ internal static class LookupCollectibleDrawsVerification
                 else
                 {
                     int mask = field == 1 ? 0xf000 : 0xfff;
-                    AssertTrue(RoomPlmCollectibleDrawDefinitions.TryGetWord(entry.Pointer, out ushort runtimeWord), "Collectible runtime word ownership");
+                    AssertTrue(RoomPlmCollectibleDrawDefinitions.TryGetWord(NativePlmDraws.At<RoomPlmCollectibleDrawDefinitions.Draw>(entry.Pointer), out ushort runtimeWord), "Collectible runtime word ownership");
                     AssertEqual(ReadCollectibleVisualWord(rom, (ushort)(entry.Pointer + 2)) & mask, runtimeWord & mask, "Collectible original runtime field");
                     AssertEqual(ReadCollectibleVisualWord(rom, (ushort)(entry.Pointer + 2)) & mask,
                         value.LevelWord.Raw & mask, "Collectible original physical field");

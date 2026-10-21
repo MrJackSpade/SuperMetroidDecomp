@@ -13,7 +13,15 @@ internal sealed class BotwoonWallPlmAnimation(BotwoonWallProgram program)
         BotwoonWallPlmProgramDefinitions.Programs;
 
     /// <inheritdoc/>
-    private protected override ushort DrawList(BotwoonWallDraw frame) => (ushort)frame;
+    private protected override PlmDraw DrawList(BotwoonWallDraw frame) => frame switch
+    {
+        BotwoonWallDraw.CrumbleFirst => RoomPlmShotBlockDrawDefinitions.Breakup(RoomPlmShotBlockDrawDefinitions.Shape.Single, 0),
+        BotwoonWallDraw.CrumbleSecond => RoomPlmShotBlockDrawDefinitions.Breakup(RoomPlmShotBlockDrawDefinitions.Shape.Single, 1),
+        BotwoonWallDraw.CrumbleThird => RoomPlmShotBlockDrawDefinitions.Breakup(RoomPlmShotBlockDrawDefinitions.Shape.Single, 2),
+        BotwoonWallDraw.CrumbleFourth => RoomPlmShotBlockDrawDefinitions.Breakup(RoomPlmShotBlockDrawDefinitions.Shape.Single, 3),
+        BotwoonWallDraw.Clear => BotwoonWallPlmDrawDefinitions.Clear,
+        _ => throw new InvalidOperationException($"Undefined {nameof(BotwoonWallDraw)} {frame}."),
+    };
 
     /// <inheritdoc/>
     private protected override BotwoonWallProgram? Publish(BotwoonWallCue cue, PlmSlot slot, PlmStepContext context)

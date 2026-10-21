@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Bosses.MotherBrain;
+using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Rooms.Plms.SamusEaterPlmDefinitionsVerification;
 using SuperMetroid.Core.Rooms.Plms;
@@ -26,21 +28,21 @@ internal static class LookupEscapeGateStockVerification
         var stock = RoomPlmEscapeGateVisualCatalog.Stock();
         var imported = new RoomPlmEscapeGateVisualCatalog(entries.Reverse());
         string Hash(Dictionary<ushort, ushort[]> words) => SuperMetroid.Core.Assets.SelectedPresentationHash.FromWordFrames(
-            nameof(RoomPlmEscapeGateVisualCatalog), words);
+            nameof(RoomPlmEscapeGateVisualCatalog), words.ToDictionary(pair => MotherBrainEscapeGatePlmDrawDefinitions.VisualId(NativePlmDraws.At<MotherBrainEscapeGateDraw>(pair.Key)), pair => pair.Value));
         foreach (var catalog in new[] {stock,imported,installed})
         {
             AssertEqual(Hash(native), catalog.ContentIdentity, "Escape gate original stock identity");
             foreach (var frame in frames)
             {
                 for (int row = 0; row < 4; row++)
-                    AssertEqual(native[frame.Pointer][row], catalog.GetWord(frame.Pointer,row), "Escape gate native stock visual");
+                    AssertEqual(native[frame.Pointer][row], catalog.GetWord(NativePlmDraws.At<MotherBrainEscapeGateDraw>(frame.Pointer),row), "Escape gate native stock visual");
                 foreach (int bad in new[] {int.MinValue,-1,4,int.MaxValue})
-                    AssertThrows<ArgumentOutOfRangeException>(() => catalog.GetWord(frame.Pointer,bad), "Escape gate stock row bounds");
+                    AssertThrows<ArgumentOutOfRangeException>(() => catalog.GetWord(NativePlmDraws.At<MotherBrainEscapeGateDraw>(frame.Pointer),bad), "Escape gate stock row bounds");
             }
         }
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
             if (!native.ContainsKey((ushort)raw))
-                AssertThrows<InvalidDataException>(() => stock.GetWord((ushort)raw,0), "Escape gate unknown stock pointer");
+                AssertThrows<InvalidDataException>(() => stock.GetWord(NativePlmDraws.At<MotherBrainEscapeGateDraw>((ushort)raw),0), "Escape gate unknown stock pointer");
         entries[2].Blocks[1] = 0xc58;
         entries[1].Blocks[3] = 0x59;
         var mixed = new RoomPlmEscapeGateVisualCatalog(entries);
@@ -51,7 +53,7 @@ internal static class LookupEscapeGateStockVerification
         entries[0].Blocks[0] = 0x5b;
         foreach (var frame in frames)
         for (int row = 0; row < 4; row++)
-            AssertEqual(expected[frame.Pointer][row], mixed.GetWord(frame.Pointer,row), "Escape gate custom clone and stock isolation");
+            AssertEqual(expected[frame.Pointer][row], mixed.GetWord(NativePlmDraws.At<MotherBrainEscapeGateDraw>(frame.Pointer),row), "Escape gate custom clone and stock isolation");
         AssertThrows<InvalidDataException>(() => new RoomPlmEscapeGateVisualCatalog(entries[..2]), "Escape gate missing frame");
         AssertThrows<InvalidDataException>(() => new RoomPlmEscapeGateVisualCatalog(entries.Append(entries[0])), "Escape gate duplicate frame");
         var invalid = entries.ToArray();

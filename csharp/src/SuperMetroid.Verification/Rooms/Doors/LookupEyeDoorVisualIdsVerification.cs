@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Verification.Areas.Escape;
 using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Rooms.Plms;
@@ -30,10 +31,10 @@ internal static class LookupEyeDoorVisualIdsVerification
         for (int index = 0; index < expected.Length; index++)
         {
             var entry = expected[index];
-            AssertEqual(entry.Pointer, exported[index].Pointer, "Eye door original editable order");
-            AssertEqual(entry.Id, EyeDoorPlmDrawDefinitions.VisualId(entry.Pointer), "Eye door original artwork ID");
+            AssertEqual(entry.Pointer, PlmDrawAddressCodec.Of(exported[index].Draw), "Eye door original editable order");
+            AssertEqual(entry.Id, EyeDoorPlmDrawDefinitions.VisualId(NativePlmDraws.At<EyeDoorPlmDrawDefinitions.Draw>(entry.Pointer)), "Eye door original artwork ID");
             AssertTrue(EyeDoorPlmDrawDefinitions.TryGetByVisualId(entry.Id,out var named), "Eye door reverse ID");
-            AssertEqual(entry.Pointer,named.Pointer,"Eye door reverse draw selection");
+            AssertEqual(entry.Pointer,PlmDrawAddressCodec.Of(named.Draw),"Eye door reverse draw selection");
             foreach (string bad in new[] {entry.Id.ToUpperInvariant()," " + entry.Id,entry.Id + " "})
             {
                 AssertTrue(!EyeDoorPlmDrawDefinitions.TryGetByVisualId(bad,out var missing), "Eye door ordinal identity");
@@ -45,9 +46,9 @@ internal static class LookupEyeDoorVisualIdsVerification
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
         {
             if (!expected.Any(entry => entry.Pointer == raw))
-                AssertThrows<InvalidDataException>(() => EyeDoorPlmDrawDefinitions.VisualId((ushort)raw),"Eye door full rejected pointer domain");
-            AssertEqual((ushort)(raw == 0x9bf7 ? 0x9c4f : raw),
-                EyeDoorPlmDrawDefinitions.VisualSource((ushort)raw),"Eye door original mirrored alias");
+                AssertThrows<InvalidDataException>(() => EyeDoorPlmDrawDefinitions.VisualId(NativePlmDraws.At<EyeDoorPlmDrawDefinitions.Draw>((ushort)raw)),"Eye door full rejected pointer domain");
+            AssertEqual(NativePlmDraws.At<EyeDoorPlmDrawDefinitions.Draw>(raw == 0x9bf7 ? 0x9c4f : raw),
+                EyeDoorPlmDrawDefinitions.VisualSource(NativePlmDraws.At<EyeDoorPlmDrawDefinitions.Draw>((ushort)raw)),"Eye door original mirrored alias");
         }
     }
 }

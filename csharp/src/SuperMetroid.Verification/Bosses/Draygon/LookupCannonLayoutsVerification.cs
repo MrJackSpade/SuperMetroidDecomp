@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Rooms.Plms.SamusEaterPlmDefinitionsVerification;
 using SuperMetroid.Core.Bosses.Draygon;
@@ -28,13 +29,13 @@ internal static class LookupCannonLayoutsVerification
             {
                 ushort pointer = (ushort)raw;
                 bool owned = pointers.Contains(pointer);
-                AssertEqual(owned, DraygonCannonPlmDrawDefinitions.TryDescribe(pointer, out var shape), "Cannon layout shape domain");
-                AssertEqual(owned, DraygonCannonPlmDrawDefinitions.TryGet(pointer, out var dto), "Cannon layout DTO domain");
+                AssertEqual(owned, DraygonCannonPlmDrawDefinitions.TryDescribe(NativePlmDraws.At<DraygonCannonDraw>(pointer), out var shape), "Cannon layout shape domain");
+                AssertEqual(owned, DraygonCannonPlmDrawDefinitions.TryGet(NativePlmDraws.At<DraygonCannonDraw>(pointer), out var dto), "Cannon layout DTO domain");
                 if (!owned)
                 {
                     AssertEqual(default(DraygonCannonPlmDrawDefinitions.Draw), shape, "Cannon layout missing shape");
                     AssertEqual(default(RoomPlmShotBlockDrawDefinitions.DrawList), dto, "Cannon layout missing DTO");
-                    AssertThrows<InvalidDataException>(() => DraygonCannonPlmDrawDefinitions.VisualId(pointer), "Cannon layout missing ID");
+                    AssertThrows<InvalidDataException>(() => DraygonCannonPlmDrawDefinitions.VisualId(NativePlmDraws.At<DraygonCannonDraw>(pointer)), "Cannon layout missing ID");
                 }
             }
             foreach (string id in new[] { "RIGHT-SHIELD-A", "broken", "", "unknown" })
@@ -47,14 +48,14 @@ internal static class LookupCannonLayoutsVerification
         for (int index = 0; index < pointers.Length; index++)
         {
             ushort pointer = pointers[index];
-            DraygonCannonPlmDrawDefinitions.TryDescribe(pointer, out var shape);
-            DraygonCannonPlmDrawDefinitions.TryGet(pointer, out var dto);
+            DraygonCannonPlmDrawDefinitions.TryDescribe(NativePlmDraws.At<DraygonCannonDraw>(pointer), out var shape);
+            DraygonCannonPlmDrawDefinitions.TryGet(NativePlmDraws.At<DraygonCannonDraw>(pointer), out var dto);
             DraygonCannonPlmDrawDefinitions.TryGetByVisualId(ids[index], out var byId);
             if (field == 0)
             {
-                AssertEqual(pointer, exported[index].Pointer, "Cannon layout original export order");
-                AssertEqual(ids[index], DraygonCannonPlmDrawDefinitions.VisualId(pointer), "Cannon layout published ID");
-                AssertEqual(pointer, byId.Pointer, "Cannon layout reverse ID");
+                AssertEqual(pointer, PlmDrawAddressCodec.Of(exported[index].Draw), "Cannon layout original export order");
+                AssertEqual(ids[index], DraygonCannonPlmDrawDefinitions.VisualId(NativePlmDraws.At<DraygonCannonDraw>(pointer)), "Cannon layout published ID");
+                AssertEqual(pointer, PlmDrawAddressCodec.Of(byId.Draw), "Cannon layout reverse ID");
                 foreach (int invalid in new[] {int.MinValue,-1,shape.RunCount,int.MaxValue})
                 {
                     AssertThrows<ArgumentOutOfRangeException>(() => shape.WordCount(invalid), "Cannon layout run bounds");

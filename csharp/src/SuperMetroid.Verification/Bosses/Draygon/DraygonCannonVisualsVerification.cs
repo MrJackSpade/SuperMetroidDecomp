@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.Tooling;
 using System.Text.Json.Nodes;
 using SuperMetroid.Core.Hardware;
@@ -47,7 +48,7 @@ internal static class DraygonCannonVisualsVerification
             File.WriteAllText(overridePath, document.ToJsonString());
             AssertEqual((ushort)0x0053,
                 installation.LoadRoomPlmDraygonCannonVisuals().GetWord(
-                    (ushort)DraygonCannonDraw.RightShieldA, 0, 0),
+                    PlmDraw.Of(DraygonCannonDraw.RightShieldA), 0, 0),
                 "installed cannon override selects its edited block");
 
             string refreshed = Path.Combine(testRoot, "refreshed-stock");
@@ -56,7 +57,7 @@ internal static class DraygonCannonVisualsVerification
             AssertEqual((ushort)0x0053,
                 RoomPlmDraygonCannonVisualFiles.Load(refreshed,
                     installation.RoomPlmDraygonCannonVisualOverrideDirectory)
-                    .GetWord((ushort)DraygonCannonDraw.RightShieldA, 0, 0),
+                    .GetWord(PlmDraw.Of(DraygonCannonDraw.RightShieldA), 0, 0),
                 "cannon override survives stock replacement");
 
             rightShield.Required("blocks")[0] = 0xf053;

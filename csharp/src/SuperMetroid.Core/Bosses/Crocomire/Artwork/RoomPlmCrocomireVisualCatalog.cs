@@ -14,13 +14,13 @@ public sealed class RoomPlmCrocomireVisualCatalog
     public string ContentIdentity => SelectedPresentationHash.Create(nameof(RoomPlmCrocomireVisualCatalog), content =>
     {
         Span<ushort> words = stackalloc ushort[24];
-        foreach (var draw in CrocomireArenaPlmDrawDefinitions.All.OrderBy(draw => draw.Pointer))
+        foreach (var draw in CrocomireArenaPlmDrawDefinitions.All.OrderBy(item => CrocomireArenaPlmDrawDefinitions.VisualId(item.Draw), StringComparer.Ordinal))
         {
-            CrocomireArenaPlmDrawDefinitions.TryDescribe(draw.Pointer, out var shape);
+            CrocomireArenaPlmDrawDefinitions.TryDescribe(draw.Draw, out var shape);
             int count = shape.RunCount * shape.WordsPerRun;
             for (int index = 0; index < count; index++)
-                words[index] = GetWord(draw.Pointer, index / shape.WordsPerRun, index % shape.WordsPerRun);
-            content.Append("frame", draw.Pointer);
+                words[index] = GetWord(draw.Draw, index / shape.WordsPerRun, index % shape.WordsPerRun);
+            content.AppendName("frame", CrocomireArenaPlmDrawDefinitions.VisualId(draw.Draw));
             // Preserve the flattened-frame identity used by existing visual installations.
             content.Append("runs", 1);
             content.AppendWords("words", words[..count]);
@@ -42,22 +42,22 @@ public sealed class RoomPlmCrocomireVisualCatalog
     }
 
     /// <summary>Resolves one arena-layout block, translating native run-local indices into the flattened visual override.</summary>
-    /// <param name="drawPointer">Bank-$84 identity of a supported Crocomire arena draw layout.</param>
+    /// <param name="draw">The draw whose visual word is resolved.</param>
     /// <param name="runIndex">Zero-based ordinal of the compiled draw run.</param>
     /// <param name="blockIndex">Zero-based word ordinal within that run, not a flattened entry index or room coordinate.</param>
     /// <returns>The selected metatile/flip word, derived from the compiled physical word when unchanged.</returns>
-    /// <exception cref="InvalidDataException">The pointer does not identify a supported arena layout.</exception>
+    /// <exception cref="InvalidDataException">The draw is not a supported arena layout.</exception>
     /// <exception cref="ArgumentOutOfRangeException">The run or word ordinal is outside the compiled draw shape.</exception>
-    public ushort GetWord(ushort drawPointer, int runIndex, int blockIndex)
+    internal ushort GetWord(PlmDraw draw, int runIndex, int blockIndex)
     {
-        if (!CrocomireArenaPlmDrawDefinitions.TryDescribe(drawPointer, out var draw))
+        if (!CrocomireArenaPlmDrawDefinitions.TryDescribe(draw, out var shape))
             throw new InvalidDataException(
-                $"Crocomire visuals lack draw ${drawPointer:X4}.");
-        if ((uint)runIndex >= (uint)draw.RunCount ||
-            (uint)blockIndex >= (uint)draw.WordsPerRun)
+                $"Crocomire visuals lack draw {draw}.");
+        if ((uint)runIndex >= (uint)shape.RunCount ||
+            (uint)blockIndex >= (uint)shape.WordsPerRun)
             throw new ArgumentOutOfRangeException(nameof(blockIndex));
-        int flatIndex = runIndex * draw.WordsPerRun + blockIndex;
-        return customWords.TryGet(drawPointer, out var words)
-            ? words[flatIndex] : new RoomLevelWord(draw.WordAt(runIndex, blockIndex)).VisualWord;
+        int flatIndex = runIndex * shape.WordsPerRun + blockIndex;
+        return customWords.TryGet(draw, out var words)
+            ? words[flatIndex] : new RoomLevelWord(shape.WordAt(runIndex, blockIndex)).VisualWord;
     }
 }

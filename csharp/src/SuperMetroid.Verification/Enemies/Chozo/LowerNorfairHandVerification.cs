@@ -30,7 +30,7 @@ internal static class LowerNorfairHandVerification
         var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
         var handEntries = ChozoStatuePlmDrawDefinitions.All.Select(draw =>
             new RoomPlmVisualEntry(
-                ChozoStatuePlmDrawDefinitions.VisualId(draw.Pointer),
+                ChozoStatuePlmDrawDefinitions.VisualId(draw.Draw),
                 draw.VisualWords())).ToArray();
         handEntries.Single(entry => entry.Id == "lower-norfair-cleared-hand")
             .Blocks[0] = 0x0053;

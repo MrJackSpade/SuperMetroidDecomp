@@ -47,7 +47,7 @@ public static class RoomPlmShotBlockVisualFiles
         ArgumentException.ThrowIfNullOrWhiteSpace(directory);
         ArgumentException.ThrowIfNullOrWhiteSpace(sourceCartridgeSha256);
         Directory.CreateDirectory(directory);
-        RoomPlmShotBlockVisualEntry[] entries = ReadAndVerifyNative(bus);
+        RoomPlmVisualRunEntry[] entries = ReadAndVerifyNative(bus);
         byte[] json = JsonSerializer.SerializeToUtf8Bytes(
             new VisualDocument(FormatVersion, entries), JsonOptions);
         using (var output = new FileStream(Path.Combine(directory, VisualFileName),
@@ -103,19 +103,19 @@ public static class RoomPlmShotBlockVisualFiles
     public static void ValidateStock(string directory) => _ = Load(directory, null);
 
     /// <summary>Checks all bank 84 run headers, physical words, and offsets before exporting editable visual bits.</summary>
-    private static RoomPlmShotBlockVisualEntry[] ReadAndVerifyNative(ISnesAddressSpace bus)
+    private static RoomPlmVisualRunEntry[] ReadAndVerifyNative(ISnesAddressSpace bus)
     {
-        var result = new List<RoomPlmShotBlockVisualEntry>();
+        var result = new List<RoomPlmVisualRunEntry>();
         foreach (RoomPlmShotBlockDrawDefinitions.DrawList list in
-                 RoomPlmShotBlockDrawDefinitions.All.OrderBy(item => item.Pointer))
+                 RoomPlmShotBlockDrawDefinitions.All.OrderBy(item => PlmDrawAddressCodec.Of(item.Draw)))
         {
-            ushort cursor = list.Pointer;
+            ushort cursor = PlmDrawAddressCodec.Of(list.Draw);
             var visuals = new List<ushort[]>();
             foreach (RoomPlmShotBlockDrawDefinitions.Run run in list.Runs.Span)
             {
                 if (CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(CartridgeBankWindow.At(RoomPlmCartridgeTables.PlmBank, cursor)) != run.DirectionAndCount)
                     throw new InvalidDataException(
-                        $"Shot-block draw list ${list.Pointer:X4} has a different shape in the source cartridge.");
+                        $"Shot-block draw list {list.Draw} has a different shape in the source cartridge.");
                 cursor = unchecked((ushort)(cursor + 2));
                 var visualWords = new ushort[run.LevelWords.Length];
                 for (int index = 0; index < visualWords.Length; index++)
@@ -123,7 +123,7 @@ public static class RoomPlmShotBlockVisualFiles
                     ushort source = CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(CartridgeBankWindow.At(RoomPlmCartridgeTables.PlmBank, cursor));
                     if (source != run.LevelWords.Span[index])
                         throw new InvalidDataException(
-                            $"Shot-block draw list ${list.Pointer:X4} differs at ${cursor:X4}.");
+                            $"Shot-block draw list {list.Draw} differs at ${cursor:X4}.");
                     visualWords[index] = new RoomLevelWord(source).VisualWord;
                     cursor = unchecked((ushort)(cursor + 2));
                 }
@@ -132,12 +132,12 @@ public static class RoomPlmShotBlockVisualFiles
                     bus.ReadCartridgeByte(CartridgeBankWindow.At(RoomPlmCartridgeTables.PlmBank, unchecked((ushort)(cursor + 1)))) !=
                         unchecked((byte)run.Next.Y))
                     throw new InvalidDataException(
-                        $"Shot-block draw list ${list.Pointer:X4} has a different next-record offset.");
+                        $"Shot-block draw list {list.Draw} has a different next-record offset.");
                 cursor = unchecked((ushort)(cursor + 2));
                 visuals.Add(visualWords);
             }
 
-            result.Add(new RoomPlmShotBlockVisualEntry(list.Pointer, visuals.ToArray()));
+            result.Add(new RoomPlmVisualRunEntry(RoomPlmShotBlockDrawDefinitions.VisualId(list.Draw), visuals.ToArray()));
         }
 
         return result.ToArray();
@@ -153,9 +153,9 @@ public static class RoomPlmShotBlockVisualFiles
         {
             ushort expected = new RoomLevelWord(
                 list.Runs.Span[run].LevelWords.Span[word]).VisualWord;
-            if (catalog.GetWord(list.Pointer, run, word) != expected)
+            if (catalog.GetWord(list.Draw, run, word) != expected)
                 throw new InvalidDataException(
-                    $"Stock shot-block visuals {path} differ from compiled list ${list.Pointer:X4}.");
+                    $"Stock shot-block visuals {path} differ from compiled list {list.Draw}.");
         }
     }
 
@@ -202,5 +202,5 @@ public static class RoomPlmShotBlockVisualFiles
     private sealed record VisualManifest(int Version, string SourceCartridgeSha256,
         string VisualSha256);
     /// <summary>Contains the nineteen ordered visual draw entries and schema version.</summary>
-    private sealed record VisualDocument(int Version, RoomPlmShotBlockVisualEntry[] Entries);
+    private sealed record VisualDocument(int Version, RoomPlmVisualRunEntry[] Entries);
 }

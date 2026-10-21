@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Rooms.Doors;
+using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Verification.Areas.Escape;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Rooms.Plms.SamusEaterPlmDefinitionsVerification;
@@ -30,21 +32,21 @@ internal static class LookupGreyDoorStockVerification
         var stock = RoomPlmGreyDoorVisualCatalog.Stock();
         var imported = new RoomPlmGreyDoorVisualCatalog(entries.Reverse());
         string Hash(Dictionary<ushort, ushort[]> words) => SuperMetroid.Core.Assets.SelectedPresentationHash.FromWordFrames(
-            nameof(RoomPlmGreyDoorVisualCatalog), words);
+            nameof(RoomPlmGreyDoorVisualCatalog), words.ToDictionary(pair => GreyDoorPlmDrawDefinitions.VisualId(NativePlmDraws.At<GreyDoorPlmDrawDefinitions.Draw>(pair.Key)), pair => pair.Value));
         foreach (var catalog in new[] {stock,imported,installed})
         {
             AssertEqual(Hash(native), catalog.ContentIdentity, "Grey door original stock identity");
             foreach (var frame in frames)
             {
                 for (int row = 0; row < 4; row++)
-                    AssertEqual(native[frame.Pointer][row], catalog.GetWord(frame.Pointer,row), "Grey door native stock visual");
+                    AssertEqual(native[frame.Pointer][row], catalog.GetWord(NativePlmDraws.At<GreyDoorPlmDrawDefinitions.Draw>(frame.Pointer),row), "Grey door native stock visual");
                 foreach (int bad in new[] {int.MinValue,-1,4,int.MaxValue})
-                    AssertThrows<ArgumentOutOfRangeException>(() => catalog.GetWord(frame.Pointer,bad), "Grey door stock row bounds");
+                    AssertThrows<ArgumentOutOfRangeException>(() => catalog.GetWord(NativePlmDraws.At<GreyDoorPlmDrawDefinitions.Draw>(frame.Pointer),bad), "Grey door stock row bounds");
             }
         }
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
             if (!native.ContainsKey((ushort)raw))
-                AssertThrows<InvalidDataException>(() => stock.GetWord((ushort)raw,0), "Grey door unknown stock pointer");
+                AssertThrows<InvalidDataException>(() => stock.GetWord(NativePlmDraws.At<GreyDoorPlmDrawDefinitions.Draw>((ushort)raw),0), "Grey door unknown stock pointer");
         entries[19].Blocks[1] = 0xc58;
         entries[8].Blocks[3] = 0x59;
         var mixed = new RoomPlmGreyDoorVisualCatalog(entries);
@@ -55,7 +57,7 @@ internal static class LookupGreyDoorStockVerification
         entries[0].Blocks[0] = 0x5b;
         foreach (var frame in frames)
         for (int row = 0; row < 4; row++)
-            AssertEqual(expected[frame.Pointer][row], mixed.GetWord(frame.Pointer,row), "Grey door custom clone and stock isolation");
+            AssertEqual(expected[frame.Pointer][row], mixed.GetWord(NativePlmDraws.At<GreyDoorPlmDrawDefinitions.Draw>(frame.Pointer),row), "Grey door custom clone and stock isolation");
         AssertThrows<InvalidDataException>(() => new RoomPlmGreyDoorVisualCatalog(entries[..19]), "Grey door missing frame");
         AssertThrows<InvalidDataException>(() => new RoomPlmGreyDoorVisualCatalog(entries.Append(entries[0])), "Grey door duplicate frame");
         var invalid = entries.ToArray();

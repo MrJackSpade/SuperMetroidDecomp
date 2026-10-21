@@ -15,7 +15,7 @@ internal sealed class SpeedBoosterEscapePlmAnimation()
         SpeedBoosterEscapePlmProgramDefinitions.PhaseAfter(program);
 
     /// <inheritdoc/>
-    private protected override ushort DrawList(PlmNoDraw frame) =>
+    private protected override PlmDraw DrawList(PlmNoDraw frame) =>
         throw new InvalidOperationException($"The lavaquake program never draws; got {frame}.");
 
     /// <inheritdoc/>

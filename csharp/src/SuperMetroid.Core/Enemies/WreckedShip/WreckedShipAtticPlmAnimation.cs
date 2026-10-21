@@ -12,7 +12,7 @@ internal sealed class WreckedShipAtticPlmAnimation()
         WreckedShipAtticPlmProgramDefinitions.Programs;
 
     /// <inheritdoc/>
-    private protected override ushort DrawList(PlmNoDraw frame) =>
+    private protected override PlmDraw DrawList(PlmNoDraw frame) =>
         throw new InvalidOperationException($"The attic program never draws; got {frame}.");
 
     /// <inheritdoc/>

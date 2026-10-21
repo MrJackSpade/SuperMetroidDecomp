@@ -12,20 +12,20 @@ internal sealed class RoomPlmLinkedRestoreDefinition
 {
     /// <summary>Linked bomb blocks: a type-F parent.</summary>
     internal static RoomPlmLinkedRestoreDefinition BombBlock { get; } = new(
-        0xf000, RoomPlmVisualBlockDefinitions.CollisionBombParent, new Dictionary<PlmRestoreShape, ushort>
+        0xf000, RoomPlmVisualBlockDefinitions.CollisionBombParent, new Dictionary<PlmRestoreShape, PlmDraw>
         {
-            [PlmRestoreShape.Horizontal] = (ushort)BombBlockRestoreDraw.Horizontal,
-            [PlmRestoreShape.Vertical] = (ushort)BombBlockRestoreDraw.Vertical,
-            [PlmRestoreShape.Square] = (ushort)BombBlockRestoreDraw.Square,
+            [PlmRestoreShape.Horizontal] = PlmDraw.Of(BombBlockRestoreDraw.Horizontal),
+            [PlmRestoreShape.Vertical] = PlmDraw.Of(BombBlockRestoreDraw.Vertical),
+            [PlmRestoreShape.Square] = PlmDraw.Of(BombBlockRestoreDraw.Square),
         });
 
     /// <summary>Linked Samus-contact crumble blocks: a type-B parent. Artwork replacement may only alter their visual composition.</summary>
     internal static RoomPlmLinkedRestoreDefinition ContactCrumble { get; } = new(
-        0xb000, RoomPlmVisualBlockDefinitions.ContactCrumbleParent, new Dictionary<PlmRestoreShape, ushort>
+        0xb000, RoomPlmVisualBlockDefinitions.ContactCrumbleParent, new Dictionary<PlmRestoreShape, PlmDraw>
         {
-            [PlmRestoreShape.Horizontal] = (ushort)ContactCrumbleRestoreDraw.Horizontal,
-            [PlmRestoreShape.Vertical] = (ushort)ContactCrumbleRestoreDraw.Vertical,
-            [PlmRestoreShape.Square] = (ushort)ContactCrumbleRestoreDraw.Square,
+            [PlmRestoreShape.Horizontal] = PlmDraw.Of(ContactCrumbleRestoreDraw.Horizontal),
+            [PlmRestoreShape.Vertical] = PlmDraw.Of(ContactCrumbleRestoreDraw.Vertical),
+            [PlmRestoreShape.Square] = PlmDraw.Of(ContactCrumbleRestoreDraw.Square),
         });
 
     /// <summary>Both families, bomb blocks first, in their export order.</summary>
@@ -37,22 +37,22 @@ internal sealed class RoomPlmLinkedRestoreDefinition
     /// <summary>The visual block every restored cell shows.</summary>
     private readonly ushort _visualBlock;
 
-    /// <summary>The restoration pointer of each shape.</summary>
-    private readonly IReadOnlyDictionary<PlmRestoreShape, ushort> _pointers;
+    /// <summary>The restoration draw of each shape.</summary>
+    private readonly IReadOnlyDictionary<PlmRestoreShape, PlmDraw> _draws;
 
-    /// <summary>Defines a family by its parent collision type, visual tile and the restoration pointer of each shape.</summary>
-    private RoomPlmLinkedRestoreDefinition(ushort parentCollision, ushort visualBlock, IReadOnlyDictionary<PlmRestoreShape, ushort> pointers)
+    /// <summary>Defines a family by its parent collision type, visual tile and the restoration draw of each shape.</summary>
+    private RoomPlmLinkedRestoreDefinition(ushort parentCollision, ushort visualBlock, IReadOnlyDictionary<PlmRestoreShape, PlmDraw> draws)
     {
         _parentCollision = parentCollision;
         _visualBlock = visualBlock;
-        _pointers = pointers;
+        _draws = draws;
     }
 
-    /// <summary>One native restoration pointer with the geometry needed to reconstruct its parent and linked children.</summary>
-    /// <param name="Pointer">The bank-$84 restoration list.</param>
+    /// <summary>One restoration draw with the geometry needed to reconstruct its parent and linked children.</summary>
+    /// <param name="Id">The restoration draw.</param>
     /// <param name="Shape">Whether the blocks lie in a row, a column or a two-by-two square.</param>
     /// <param name="Family">The family whose parent collision type and tile the words carry.</param>
-    internal readonly record struct Draw(ushort Pointer, PlmRestoreShape Shape, RoomPlmLinkedRestoreDefinition Family)
+    internal readonly record struct Draw(PlmDraw Id, PlmRestoreShape Shape, RoomPlmLinkedRestoreDefinition Family)
     {
         /// <summary>Whether the restored blocks stack in one column.</summary>
         internal bool Vertical => Shape == PlmRestoreShape.Vertical;
@@ -79,14 +79,14 @@ internal sealed class RoomPlmLinkedRestoreDefinition
         }
     }
 
-    /// <summary>Maps one of this family's three restoration pointers to its horizontal, vertical or square shape.</summary>
-    internal bool TryDescribe(ushort pointer, out Draw draw)
+    /// <summary>Maps one of this family's three restoration draws to its horizontal, vertical or square shape.</summary>
+    internal bool TryDescribe(PlmDraw request, out Draw draw)
     {
-        foreach (KeyValuePair<PlmRestoreShape, ushort> shape in _pointers)
+        foreach (KeyValuePair<PlmRestoreShape, PlmDraw> shape in _draws)
         {
-            if (shape.Value == pointer)
+            if (shape.Value == request)
             {
-                draw = new(pointer, shape.Key, this);
+                draw = new(request, shape.Key, this);
                 return true;
             }
         }
@@ -94,12 +94,12 @@ internal sealed class RoomPlmLinkedRestoreDefinition
         return false;
     }
 
-    /// <summary>Describes a restoration pointer of either family.</summary>
-    internal static bool TryDescribeAny(ushort pointer, out Draw draw)
+    /// <summary>Describes a restoration draw of either family.</summary>
+    internal static bool TryDescribeAny(PlmDraw request, out Draw draw)
     {
         foreach (RoomPlmLinkedRestoreDefinition family in Families)
         {
-            if (family.TryDescribe(pointer, out draw))
+            if (family.TryDescribe(request, out draw))
                 return true;
         }
         draw = default;
@@ -112,7 +112,7 @@ internal sealed class RoomPlmLinkedRestoreDefinition
         get
         {
             foreach (PlmRestoreShape shape in Enum.GetValues<PlmRestoreShape>())
-                yield return Export(new(_pointers[shape], shape, this));
+                yield return Export(new(_draws[shape], shape, this));
         }
     }
 
@@ -124,6 +124,6 @@ internal sealed class RoomPlmLinkedRestoreDefinition
             runs[run] = new(draw.Vertical ? (ushort)0x8002 : (ushort)2,
                 new ushort[] { draw.WordAt(run, 0), draw.WordAt(run, 1) },
                 new(0, run + 1 < runs.Length ? (sbyte)1 : (sbyte)0));
-        return new(draw.Pointer, runs);
+        return new(draw.Id, runs);
     }
 }

@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Bosses.Crocomire;
+using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Verification.Areas.Escape;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Rooms.Plms.SamusEaterPlmDefinitionsVerification;
@@ -39,24 +41,24 @@ internal static class LookupCrocomireStockVerification
         var stock = RoomPlmCrocomireVisualCatalog.Stock();
         var imported = new RoomPlmCrocomireVisualCatalog(entries.Reverse());
         string Hash(Dictionary<ushort, ushort[]> words) => SuperMetroid.Core.Assets.SelectedPresentationHash.FromWordFrames(
-            nameof(RoomPlmCrocomireVisualCatalog), words);
+            nameof(RoomPlmCrocomireVisualCatalog), words.ToDictionary(pair => CrocomireArenaPlmDrawDefinitions.VisualId(NativePlmDraws.At<CrocomireArenaDraw>(pair.Key)), pair => pair.Value));
         foreach (var catalog in new[] {stock, imported, installed})
         {
             AssertEqual(Hash(native), catalog.ContentIdentity, "Crocomire original flattened hash");
             foreach (var frame in frames)
             {
                 for (int index = 0; index < native[frame.Pointer].Length; index++)
-                    AssertEqual(native[frame.Pointer][index], catalog.GetWord(frame.Pointer,index / widths[frame.Pointer],index % widths[frame.Pointer]), "Crocomire native stock word");
+                    AssertEqual(native[frame.Pointer][index], catalog.GetWord(NativePlmDraws.At<CrocomireArenaDraw>(frame.Pointer),index / widths[frame.Pointer],index % widths[frame.Pointer]), "Crocomire native stock word");
                 foreach (int bad in new[] {int.MinValue,-1,native[frame.Pointer].Length / widths[frame.Pointer],int.MaxValue})
-                    AssertThrows<ArgumentOutOfRangeException>(() => catalog.GetWord(frame.Pointer,bad,0), "Crocomire run bounds");
+                    AssertThrows<ArgumentOutOfRangeException>(() => catalog.GetWord(NativePlmDraws.At<CrocomireArenaDraw>(frame.Pointer),bad,0), "Crocomire run bounds");
                 foreach (int bad in new[] {int.MinValue,-1,widths[frame.Pointer],int.MaxValue})
                 for (int run = 0; run < native[frame.Pointer].Length / widths[frame.Pointer]; run++)
-                    AssertThrows<ArgumentOutOfRangeException>(() => catalog.GetWord(frame.Pointer,run,bad), "Crocomire block bounds");
+                    AssertThrows<ArgumentOutOfRangeException>(() => catalog.GetWord(NativePlmDraws.At<CrocomireArenaDraw>(frame.Pointer),run,bad), "Crocomire block bounds");
             }
         }
         for (int pointer = 0; pointer <= ushort.MaxValue; pointer++)
             if (!native.ContainsKey((ushort)pointer))
-                AssertThrows<InvalidDataException>(() => stock.GetWord((ushort)pointer,0,0), "Crocomire unknown pointer");
+                AssertThrows<InvalidDataException>(() => stock.GetWord(NativePlmDraws.At<CrocomireArenaDraw>((ushort)pointer),0,0), "Crocomire unknown pointer");
         entries[4].Blocks[23] = 0x0c58;
         entries[2].Blocks[0] = 0x0059;
         var mixed = new RoomPlmCrocomireVisualCatalog(entries);
@@ -66,7 +68,7 @@ internal static class LookupCrocomireStockVerification
         entries[1].Blocks[0] = 0x005b;
         foreach (var frame in frames)
         for (int index = 0; index < native[frame.Pointer].Length; index++)
-            AssertEqual(expected[frame.Pointer][index], mixed.GetWord(frame.Pointer,index / widths[frame.Pointer],index % widths[frame.Pointer]), "Crocomire clone isolation and stock fallback");
+            AssertEqual(expected[frame.Pointer][index], mixed.GetWord(NativePlmDraws.At<CrocomireArenaDraw>(frame.Pointer),index / widths[frame.Pointer],index % widths[frame.Pointer]), "Crocomire clone isolation and stock fallback");
         AssertThrows<InvalidDataException>(() => new RoomPlmCrocomireVisualCatalog(entries[..4]), "Crocomire missing frame");
         AssertThrows<InvalidDataException>(() => new RoomPlmCrocomireVisualCatalog(entries.Append(entries[0])), "Crocomire duplicate frame");
         var invalid = entries.ToArray();

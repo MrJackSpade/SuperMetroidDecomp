@@ -1,4 +1,5 @@
-﻿namespace SuperMetroid.Core.Rooms.Plms;
+﻿using SuperMetroid.AssetExtraction.Rooms;
+namespace SuperMetroid.Core.Rooms.Plms;
 
 /// <summary>
 /// Cartridge control words for the two breakable-Grapple-block PLM instruction
@@ -38,7 +39,7 @@ internal static class RoomPlmGrappleBlockProgramDefinitions
             Program program = ProgramAt(index);
             if (address == program.Start + 2)
             {
-                value = RoomPlmGrappleBlockDrawDefinitions.Grapple;
+                value = PlmDrawAddresses.GrappleBlockFirst;
                 return true;
             }
             int drawOffset = address - program.Start - 9;
@@ -49,7 +50,7 @@ internal static class RoomPlmGrappleBlockProgramDefinitions
                 // follows the Grapple record in that order.
                 const int drawRecordBytes = 6;
                 int pose = frame < 4 ? frame : 6 - frame;
-                value = (ushort)(RoomPlmGrappleBlockDrawDefinitions.Grapple + drawRecordBytes * (pose + 1));
+                value = (ushort)(PlmDrawAddresses.GrappleBlockFirst + drawRecordBytes * (pose + 1));
                 return true;
             }
         }

@@ -36,7 +36,7 @@ internal static class PlmVisualDomainDefinitions
         "SuperMetroid.Core.Rooms.Plms.RoomPlmKraidVisualCatalog" => KraidRoomPlmDrawDefinitions.All.ToArray(),
         "SuperMetroid.Core.Bosses.Crocomire.Artwork.RoomPlmCrocomireVisualCatalog" => CrocomireArenaPlmDrawDefinitions.All.ToArray(),
         "SuperMetroid.Core.Bosses.MotherBrain.Artwork.RoomPlmMotherBrainFakeDeathVisualCatalog" => MotherBrainFakeDeathPlmDrawDefinitions.All.ToArray(),
-        // All includes the supported closed/mirrored pointers, not just the
+        // All includes the supported closed/mirrored aliases, not just the
         // authored keys required by construction. Aliases retain exact widths.
         "SuperMetroid.Core.Rooms.Plms.RoomPlmBlueDoorVisualCatalog" => BlueDoorPlmDrawDefinitionsTooling.All.ToArray(),
         "SuperMetroid.Core.Rooms.Plms.RoomPlmColoredDoorVisualCatalog" => ColoredDoorPlmDrawDefinitions.All.ToArray(),
@@ -44,13 +44,13 @@ internal static class PlmVisualDomainDefinitions
         "SuperMetroid.Core.Rooms.Plms.RoomPlmEyeDoorVisualCatalog" => EyeDoorPlmDrawDefinitions.All.ToArray(),
         "SuperMetroid.Core.Bosses.MotherBrain.Artwork.RoomPlmEscapeGateVisualCatalog" => MotherBrainEscapeGatePlmDrawDefinitions.All.ToArray(),
         "SuperMetroid.Core.Rooms.Plms.RoomPlmCollectibleVisualCatalog" => RoomPlmCollectibleDrawDefinitions.All
-            .Select(frame => SingleWord(checked((ushort)frame.Pointer), frame.LevelWord.Raw)).ToArray(),
+            .Select(frame => SingleWord(PlmDraw.Of(frame.Draw), frame.LevelWord.Raw)).ToArray(),
         "SuperMetroid.Core.Rooms.Plms.RoomPlmGrappleBlockVisualCatalog" => RoomPlmGrappleBlockDrawDefinitions.All
-            .Select(frame => SingleWord(frame.Pointer, frame.LevelWord)).ToArray(),
+            .Select(frame => SingleWord(PlmDraw.Of(frame.Frame), frame.LevelWord)).ToArray(),
         _ => null,
     };
 
     /// <summary>Wraps a collectible or grapple-block level word as a one-cell draw run for domain comparison.</summary>
-    private static RoomPlmShotBlockDrawDefinitions.DrawList SingleWord(ushort pointer, ushort levelWord) =>
-        new(pointer, new RoomPlmShotBlockDrawDefinitions.Run[] { new(1, new ushort[] { levelWord }, new(0, 0)) });
+    private static RoomPlmShotBlockDrawDefinitions.DrawList SingleWord(PlmDraw draw, ushort levelWord) =>
+        new(draw, new RoomPlmShotBlockDrawDefinitions.Run[] { new(1, new ushort[] { levelWord }, new(0, 0)) });
 }

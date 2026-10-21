@@ -21,20 +21,23 @@ internal static class SelectedPresentationHashAccess
     extension(SelectedPresentationHash)
     {
         /// <summary>Wraps each word-array frame as one run before the canonical keyed hash.</summary>
-        internal static string FromWordFrames(string domain, IReadOnlyDictionary<ushort, ushort[]> frames) =>
+        internal static string FromWordFrames(string domain, IReadOnlyDictionary<string, ushort[]> frames) =>
             SelectedPresentationHash.FromWordFrames(domain, frames.ToDictionary(pair => pair.Key, pair => new[] { pair.Value }));
 
         /// <summary>Wraps each scalar frame as a one-word run before the canonical keyed hash.</summary>
-        internal static string FromWordFrames(string domain, IReadOnlyDictionary<ushort, ushort> frames) =>
+        internal static string FromWordFrames(string domain, IReadOnlyDictionary<string, ushort> frames) =>
             SelectedPresentationHash.FromWordFrames(domain, frames.ToDictionary(pair => pair.Key, pair => new[] { pair.Value }));
 
-        /// <summary>Preserves draw-run and word order while canonicalizing frame-key insertion order.</summary>
-        internal static string FromWordFrames(string domain, IReadOnlyDictionary<ushort, ushort[][]> frames) =>
+        /// <summary>
+        /// Preserves draw-run and word order while canonicalizing frame order: frames are keyed by their artwork identity
+        /// and hashed in identity order, as the PLM visual catalogs frame them.
+        /// </summary>
+        internal static string FromWordFrames(string domain, IReadOnlyDictionary<string, ushort[][]> frames) =>
             SelectedPresentationHash.Create(domain, content =>
             {
-                foreach ((ushort pointer, ushort[][] runs) in frames.OrderBy(pair => pair.Key))
+                foreach ((string id, ushort[][] runs) in frames.OrderBy(pair => pair.Key, StringComparer.Ordinal))
                 {
-                    content.Append("frame", pointer);
+                    content.AppendName("frame", id);
                     content.Append("runs", runs.Length);
                     foreach (ushort[] run in runs)
                         content.AppendWords("words", run);

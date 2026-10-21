@@ -9,11 +9,9 @@ namespace SuperMetroid.Core.Rooms.Plms;
 /// </summary>
 internal static class RoomPlmGrappleBlockDrawDefinitions
 {
-    /// <summary>Initial Grapple collision/appearance, $84:A4F9.</summary>
-    internal const ushort Grapple = 0xa4f9;
 
-    /// <summary>A single Grapple-block PLM draw record carrying both its native pointer and installed level word.</summary>
-    internal readonly record struct DrawList(ushort Pointer, ushort LevelWord)
+    /// <summary>A single Grapple-block draw with the level word it installs.</summary>
+    internal readonly record struct DrawList(GrappleBlockDraw Frame, ushort LevelWord)
     {
         /// <summary>Native one-word row, followed by signed zero X/Y termination.</summary>
         internal const ushort DirectionAndCount = 1;
@@ -28,40 +26,48 @@ internal static class RoomPlmGrappleBlockDrawDefinitions
     {
         get
         {
-            // Five adjacent six-byte records in the original publication order.
-            for (int frame = 0; frame < LevelWords.Length; frame++)
-            {
-                TryGet((ushort)(Grapple + RecordBytes * frame), out DrawList draw);
-                yield return draw;
-            }
+            foreach (GrappleBlockDraw frame in Enum.GetValues<GrappleBlockDraw>())
+                yield return new(frame, LevelWord(frame).Raw);
         }
     }
 
-    /// <summary>Six-byte native length of each one-block draw record.</summary>
-    private const int RecordBytes = 6;
     /// <summary>
-    /// Installed level words of the five adjacent records in native order: the Grapple block, the three
-    /// consecutive breakup tiles as air, and blank air.
+    /// The level word a draw installs: the Grapple block, the three consecutive breakup tiles as air, and blank air.
     /// </summary>
-    private static readonly RoomLevelWord[] LevelWords =
-    [
-        RoomLevelWord.Create(0x0b7, LevelBlockFlipFlags.None, RoomCollisionType.GrappleBlock),
-        RoomLevelWord.Create(0x053, LevelBlockFlipFlags.None, RoomCollisionType.Air),
-        RoomLevelWord.Create(0x054, LevelBlockFlipFlags.None, RoomCollisionType.Air),
-        RoomLevelWord.Create(0x055, LevelBlockFlipFlags.None, RoomCollisionType.Air),
-        RoomLevelWord.Create(0x0ff, LevelBlockFlipFlags.None, RoomCollisionType.Air),
-    ];
-
-    /// <summary>Resolves only the five compiled draw-list pointers; unknown pointers produce a default record.</summary>
-    internal static bool TryGet(ushort pointer, out DrawList definition)
+    private static RoomLevelWord LevelWord(GrappleBlockDraw frame) => frame switch
     {
-        int relative = pointer - Grapple;
-        if (relative < 0 || relative % RecordBytes != 0 || relative / RecordBytes >= LevelWords.Length)
+        GrappleBlockDraw.Intact => RoomLevelWord.Create(0x0b7, LevelBlockFlipFlags.None, RoomCollisionType.GrappleBlock),
+        GrappleBlockDraw.Break0 => RoomLevelWord.Create(0x053, LevelBlockFlipFlags.None, RoomCollisionType.Air),
+        GrappleBlockDraw.Break1 => RoomLevelWord.Create(0x054, LevelBlockFlipFlags.None, RoomCollisionType.Air),
+        GrappleBlockDraw.Break2 => RoomLevelWord.Create(0x055, LevelBlockFlipFlags.None, RoomCollisionType.Air),
+        GrappleBlockDraw.Blank => RoomLevelWord.Create(0x0ff, LevelBlockFlipFlags.None, RoomCollisionType.Air),
+        _ => throw new InvalidOperationException($"Undefined {nameof(GrappleBlockDraw)} {frame}."),
+    };
+
+    /// <summary>The published artwork identity of a Grapple-block draw.</summary>
+    internal static string VisualId(GrappleBlockDraw frame) => frame switch
+    {
+        GrappleBlockDraw.Intact => "intact",
+        GrappleBlockDraw.Break0 => "break-0",
+        GrappleBlockDraw.Break1 => "break-1",
+        GrappleBlockDraw.Break2 => "break-2",
+        GrappleBlockDraw.Blank => "blank",
+        _ => throw new InvalidOperationException($"Undefined {nameof(GrappleBlockDraw)} {frame}."),
+    };
+
+    /// <summary>Finds the Grapple-block draw whose artwork identity is <paramref name="id"/>.</summary>
+    internal static bool TryGetByVisualId(string? id, out DrawList draw) =>
+        PlmDraw.TryFindByVisualId(All, candidate => VisualId(candidate.Frame), id, out draw);
+
+    /// <summary>Resolves one of the five Grapple-block draws; draws of other families produce a default record.</summary>
+    internal static bool TryGet(PlmDraw request, out DrawList definition)
+    {
+        if (request is not PlmFrameDraw<GrappleBlockDraw> { Frame: var frame })
         {
             definition = default;
             return false;
         }
-        definition = new(pointer, LevelWords[relative / RecordBytes].Raw);
+        definition = new(frame, LevelWord(frame).Raw);
         return true;
     }
 }

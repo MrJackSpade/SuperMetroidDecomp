@@ -11,7 +11,7 @@ internal sealed class SpeedBoosterBlockPlmAnimation(SpeedBoosterBlockProgram pro
         SpeedBoosterBlockPlmProgramDefinitions.Programs;
 
     /// <inheritdoc/>
-    private protected override ushort DrawList(SpeedBoosterBlockFrame frame) => frame switch
+    private protected override PlmDraw DrawList(SpeedBoosterBlockFrame frame) => frame switch
     {
         SpeedBoosterBlockFrame.Crumble0 => SpeedBoosterBlockPlmDrawDefinitions.CrumbleDrawList(0),
         SpeedBoosterBlockFrame.Crumble1 => SpeedBoosterBlockPlmDrawDefinitions.CrumbleDrawList(1),

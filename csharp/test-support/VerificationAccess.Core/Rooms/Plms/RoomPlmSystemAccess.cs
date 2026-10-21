@@ -142,12 +142,12 @@ internal static class RoomPlmSystemAccess
         /// interpreter dispatches a timer/draw pair, without injecting a synthetic program.
         /// </summary>
         internal void DrawSolePlmFrameForVerification(RoomLevelData level,
-            ushort drawPointer)
+            PlmDraw draw)
         {
             PlmSlot[] active = [.. ActiveSlots(self)];
             if (active.Length != 1)
                 throw new InvalidOperationException("Draw probe requires exactly one active PLM slot.");
-            self.Drawing.DrawPlmInstruction(level, active[0].HeaderPointer, active[0].BlockIndex, drawPointer);
+            self.Drawing.Draw(level, active[0].BlockIndex, draw);
         }
 
         /// <summary>

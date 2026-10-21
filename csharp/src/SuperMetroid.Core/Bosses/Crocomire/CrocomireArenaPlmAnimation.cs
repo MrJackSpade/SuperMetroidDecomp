@@ -12,5 +12,5 @@ internal sealed class CrocomireArenaPlmAnimation(CrocomireArenaProgram program)
         CrocomireArenaPlmProgramDefinitions.Programs;
 
     /// <inheritdoc/>
-    private protected override ushort DrawList(CrocomireArenaDraw frame) => (ushort)frame;
+    private protected override PlmDraw DrawList(CrocomireArenaDraw frame) => PlmDraw.Of(frame);
 }

@@ -39,17 +39,17 @@ public sealed class RoomPlmSpeedBoosterVisualCatalog
     }
 
     /// <summary>Resolves the installed visual-only word for the sole Speed Booster bomb-reveal cell.</summary>
-    /// <param name="drawPointer">Bank-$84 draw-list pointer; only $A4F3 is accepted.</param>
+    /// <param name="draw">The draw whose visual word is resolved.</param>
     /// <param name="runIndex">Zero, the reveal's only draw run.</param>
     /// <param name="blockIndex">Zero, the run's only 16-by-16 block.</param>
     /// <returns>The ten-bit metatile index and two parent flip bits; the compiled physical word supplies collision separately.</returns>
     /// <exception cref="InvalidDataException">Any selector does not name the sole compiled reveal cell.</exception>
-    public ushort GetWord(ushort drawPointer, int runIndex, int blockIndex)
+    internal ushort GetWord(PlmDraw draw, int runIndex, int blockIndex)
     {
-        if (drawPointer != SpeedBoosterBlockPlmDrawDefinitions.BombReveal.Pointer ||
+        if (draw != SpeedBoosterBlockPlmDrawDefinitions.BombRevealDraw ||
             runIndex != 0 || blockIndex != 0)
             throw new InvalidDataException(
-                $"Speed Booster visuals lack draw ${drawPointer:X4} run {runIndex} block {blockIndex}.");
+                $"Speed Booster visuals lack draw {draw} run {runIndex} block {blockIndex}.");
         return visualWord;
     }
 }

@@ -14,16 +14,16 @@ public sealed class RoomPlmBlueDoorVisualCatalog
     public string ContentIdentity => SelectedPresentationHash.Create(nameof(RoomPlmBlueDoorVisualCatalog), content =>
     {
         Span<ushort> words = stackalloc ushort[4];
-        foreach (var frame in BlueDoorPlmDrawDefinitions.Editable.OrderBy(frame => frame.Pointer))
+        foreach (var frame in BlueDoorPlmDrawDefinitions.Editable.OrderBy(item => BlueDoorPlmDrawDefinitions.VisualId(item.Draw), StringComparer.Ordinal))
         {
-            for (int row = 0; row < words.Length; row++) words[row] = GetWord(frame.Pointer, row);
-            content.Append("frame", frame.Pointer);
+            for (int row = 0; row < words.Length; row++) words[row] = GetWord(frame.Draw, row);
+            content.AppendName("frame", BlueDoorPlmDrawDefinitions.VisualId(frame.Draw));
             content.Append("runs", 1);
             content.AppendWords("words", words);
         }
     });
 
-    /// <summary>Owned visual-word overrides keyed by canonical frame pointer; null means every frame uses stock art.</summary>
+    /// <summary>Owned visual-word overrides keyed by draw; null means every frame uses stock art.</summary>
     private readonly PlmVisualOverrides customBlocks;
 
     /// <summary>Validates complete canonical blue-door frame coverage and retains owned copies only for visual words differing from the compiled draw shapes.</summary>
@@ -37,19 +37,19 @@ public sealed class RoomPlmBlueDoorVisualCatalog
     }
 
     /// <summary>Resolves a selected blue-door visual word, normalizing physical alias pointers to their shared editable frame without changing collision or door timing.</summary>
-    /// <param name="drawPointer">Compiled bank-$84 draw-instruction identity, including supported physical aliases.</param>
+    /// <param name="draw">The draw whose visual word is resolved.</param>
     /// <param name="blockIndex">Zero-based word index 0..3 within the native cap/clear run, not a room-block coordinate.</param>
     /// <returns>The visual metatile reference and flips, with physical collision bits excluded.</returns>
-    /// <exception cref="InvalidDataException">The draw pointer is not a supported blue-door frame.</exception>
+    /// <exception cref="InvalidDataException">The draw is not a supported blue-door frame.</exception>
     /// <exception cref="ArgumentOutOfRangeException">The block index is outside 0..3.</exception>
-    public ushort GetWord(ushort drawPointer, int blockIndex)
+    internal ushort GetWord(PlmDraw draw, int blockIndex)
     {
-        if (!BlueDoorPlmDrawDefinitions.TryDescribe(drawPointer, out var draw))
+        if (!BlueDoorPlmDrawDefinitions.TryDescribe(draw, out var shape))
             throw new InvalidDataException(
-                $"Blue-door visuals lack frame ${drawPointer:X4}.");
+                $"Blue-door visuals lack frame {draw}.");
         if ((uint)blockIndex >= 4)
             throw new ArgumentOutOfRangeException(nameof(blockIndex));
-        return customBlocks.TryGet(BlueDoorPlmDrawDefinitions.VisualSource(drawPointer), out var words)
-            ? words[blockIndex] : new RoomLevelWord(draw.WordAt(blockIndex)).VisualWord;
+        return customBlocks.TryGet(BlueDoorPlmDrawDefinitions.VisualSource(draw), out var words)
+            ? words[blockIndex] : new RoomLevelWord(shape.WordAt(blockIndex)).VisualWord;
     }
 }

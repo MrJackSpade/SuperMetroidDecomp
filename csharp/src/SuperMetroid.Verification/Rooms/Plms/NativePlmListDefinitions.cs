@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Verification.Bosses.MotherBrain;
 using SuperMetroid.Verification.Enemies;
 using System.Diagnostics.CodeAnalysis;
@@ -57,7 +58,7 @@ internal static class NativePlmListDefinitions
         IImportCartridgeSource cartridge,
         AnimationProgramSet<TProgram, TFrame, TCue> programs,
         IReadOnlyList<NativeProgramEntry<TProgram>> entries,
-        Func<TFrame, ushort> drawList,
+        Func<TFrame, PlmDraw> drawList,
         CueReader<TCue> cueAt,
         string family,
         ShowReader<TFrame>? showAt = null)
@@ -67,14 +68,14 @@ internal static class NativePlmListDefinitions
         CompareProgramSet(cartridge, programs, entries, (TProgram _, TFrame frame) => drawList(frame), cueAt, family, showAt);
 
     /// <summary>
-    /// <see cref="CompareProgramSet{TProgram, TFrame, TCue}(IImportCartridgeSource, AnimationProgramSet{TProgram, TFrame, TCue}, IReadOnlyList{NativeProgramEntry{TProgram}}, Func{TFrame, ushort}, CueReader{TCue}, string, ShowReader{TFrame})"/>
+    /// <see cref="CompareProgramSet{TProgram, TFrame, TCue}(IImportCartridgeSource, AnimationProgramSet{TProgram, TFrame, TCue}, IReadOnlyList{NativeProgramEntry{TProgram}}, Func{TFrame, PlmDraw}, CueReader{TCue}, string, ShowReader{TFrame})"/>
     /// for a family whose draw lists depend on the program a frame is shown in.
     /// </summary>
     internal static int CompareProgramSet<TProgram, TFrame, TCue>(
         IImportCartridgeSource cartridge,
         AnimationProgramSet<TProgram, TFrame, TCue> programs,
         IReadOnlyList<NativeProgramEntry<TProgram>> entries,
-        Func<TProgram, TFrame, ushort> drawList,
+        Func<TProgram, TFrame, PlmDraw> drawList,
         CueReader<TCue> cueAt,
         string family,
         ShowReader<TFrame>? showAt = null)
@@ -94,7 +95,7 @@ internal static class NativePlmListDefinitions
         IImportCartridgeSource cartridge,
         AnimationProgramSet<TProgram, TFrame, TCue> programs,
         IReadOnlyList<NativeProgramEntry<TProgram>> entries,
-        Func<TProgram, TFrame, ushort> drawList,
+        Func<TProgram, TFrame, PlmDraw> drawList,
         CueReader<TCue> cueAt,
         string family,
         ShowReader<TFrame>? showAt = null)
@@ -108,14 +109,14 @@ internal static class NativePlmListDefinitions
     }
 
     /// <summary>
-    /// The native instruction address of every typed step, from the same walk <see cref="CompareProgramSet{TProgram, TFrame, TCue}(IImportCartridgeSource, AnimationProgramSet{TProgram, TFrame, TCue}, IReadOnlyList{NativeProgramEntry{TProgram}}, Func{TFrame, ushort}, CueReader{TCue}, string, ShowReader{TFrame})"/> makes: a
+    /// The native instruction address of every typed step, from the same walk <see cref="CompareProgramSet{TProgram, TFrame, TCue}(IImportCartridgeSource, AnimationProgramSet{TProgram, TFrame, TCue}, IReadOnlyList{NativeProgramEntry{TProgram}}, Func{TFrame, PlmDraw}, CueReader{TCue}, string, ShowReader{TFrame})"/> makes: a
     /// typed cursor's step stands where the native instruction pointer would, for comparisons with native traces.
     /// </summary>
     internal static IReadOnlyDictionary<ProgramStep<TProgram>, ushort> StepAddresses<TProgram, TFrame, TCue>(
         IImportCartridgeSource cartridge,
         AnimationProgramSet<TProgram, TFrame, TCue> programs,
         IReadOnlyList<NativeProgramEntry<TProgram>> entries,
-        Func<TFrame, ushort> drawList,
+        Func<TFrame, PlmDraw> drawList,
         CueReader<TCue> cueAt,
         string family,
         ShowReader<TFrame>? showAt = null)
@@ -135,7 +136,7 @@ internal static class NativePlmListDefinitions
         IImportCartridgeSource cartridge,
         AnimationProgramSet<TProgram, TFrame, TCue> programs,
         Dictionary<ushort, TProgram> byEntry,
-        Func<TProgram, TFrame, ushort> drawList,
+        Func<TProgram, TFrame, PlmDraw> drawList,
         CueReader<TCue> cueAt,
         string family,
         ShowReader<TFrame>? showAt)
@@ -169,7 +170,7 @@ internal static class NativePlmListDefinitions
                 {
                     var show = AssertIs<AnimationProgramStep<TProgram, TFrame, TCue>.ShowStep>(step, $"{at}: timed draw");
                     AssertEqual(word, show.Duration, $"{at}: duration");
-                    AssertEqual(Word(cursor + 2), drawList(program, show.Frame), $"{at}: draw list");
+                    AssertEqual(Word(cursor + 2), PlmDrawAddressCodec.Of(drawList(program, show.Frame)), $"{at}: draw list");
                     cursor = unchecked((ushort)(cursor + 4));
                     index++;
                     continue;

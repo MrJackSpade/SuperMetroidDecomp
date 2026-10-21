@@ -31,10 +31,10 @@ internal static class ColoredDoorPlmDrawDefinitionsVerification
         Suite(nameof(VerifyColoredDoorProgramDefinitions), () => VerifyColoredDoorProgramDefinitions(rom));
 
         RoomPlmShotBlockDrawDefinitions.DrawList[] lists =
-            ColoredDoorPlmDrawDefinitions.All.OrderBy(list => list.Pointer).ToArray();
+            ColoredDoorPlmDrawDefinitions.All.OrderBy(list => PlmDrawAddressCodec.Of(list.Draw)).ToArray();
         RoomPlmVisualEntry[] entries = lists.Select(draw =>
             new RoomPlmVisualEntry(
-                ColoredDoorPlmDrawDefinitions.VisualId(draw.Pointer),
+                ColoredDoorPlmDrawDefinitions.VisualId(draw.Draw),
                 draw.Runs.Span[0].LevelWords.Span
                     .SelectToArray(word => new RoomLevelWord(word).VisualWord))).ToArray();
         RoomPlmColoredDoorVisualCatalog stock = RoomPlmColoredDoorVisualCatalog.Stock();
@@ -44,9 +44,9 @@ internal static class ColoredDoorPlmDrawDefinitionsVerification
         editedFrame.Blocks[0] = 0x0053;
         var edited = new RoomPlmColoredDoorVisualCatalog(entries);
         editedFrame.Blocks[0] = 0x0054;
-        AssertEqual((ushort)0x0053, edited.GetWord(0xa827, 0),
+        AssertEqual((ushort)0x0053, edited.GetWord(NativePlmDraws.At<ColoredDoorPlmDrawDefinitions.Draw>(0xa827), 0),
             "colored-door visual catalog copies author data");
-        AssertEqual(originalVisual, stock.GetWord(0xa827, 0),
+        AssertEqual(originalVisual, stock.GetWord(NativePlmDraws.At<ColoredDoorPlmDrawDefinitions.Draw>(0xa827), 0),
             "stock colored-door visual retains native tile choice");
         Suite(nameof(VerifyColoredCapGeometry), () => VerifyColoredCapGeometry(rom));
         Suite(nameof(VerifyColoredCapCollision), () => VerifyColoredCapCollision(rom));
@@ -99,7 +99,7 @@ internal static class ColoredDoorPlmDrawDefinitionsVerification
                 $"resident colored-door header ${(int)header:X4} loads");
             ushort initial = CartridgeImportSource.Require(rom).ReadCartridgeWord((0x840000 | ((ushort)header + 2)));
             ushort firstDraw = CartridgeImportSource.Require(rom).ReadCartridgeWord((0x840000 | (initial + 14)));
-            AssertTrue(ColoredDoorPlmDrawDefinitions.TryGet(firstDraw, out var selected),
+            AssertTrue(ColoredDoorPlmDrawDefinitions.TryGet(NativePlmDraws.At<ColoredDoorPlmDrawDefinitions.Draw>(firstDraw), out var selected),
                 $"resident colored-door header ${(int)header:X4} selects compiled art");
             plms.Step(level);
             bool vertical = (selected.Runs.Span[0].DirectionAndCount & 0x8000) != 0;
@@ -474,7 +474,7 @@ internal static class ColoredDoorPlmDrawDefinitionsVerification
                 installation.RoomPlmColoredDoorVisualDirectory);
             var installed = installation.LoadRoomPlmColoredDoorVisuals();
             VerifyColoredDoorStockMapping(rom, installed);
-            ushort stock = installed.GetWord(0xa827, 0);
+            ushort stock = installed.GetWord(NativePlmDraws.At<ColoredDoorPlmDrawDefinitions.Draw>(0xa827), 0);
             string stockPath = Path.Combine(installation.RoomPlmColoredDoorVisualDirectory,
                 RoomPlmColoredDoorVisualFiles.VisualFileName);
             JsonNode document = JsonNode.Parse(File.ReadAllText(stockPath))
@@ -489,7 +489,7 @@ internal static class ColoredDoorPlmDrawDefinitionsVerification
                 RoomPlmColoredDoorVisualFiles.VisualFileName);
             File.WriteAllText(overridePath, document.ToJsonString());
             AssertEqual((ushort)0x0053,
-                installation.LoadRoomPlmColoredDoorVisuals().GetWord(0xa827, 0),
+                installation.LoadRoomPlmColoredDoorVisuals().GetWord(NativePlmDraws.At<ColoredDoorPlmDrawDefinitions.Draw>(0xa827), 0),
                 "installed colored-door override changes selected frame");
 
             string refreshed = Path.Combine(testRoot, "refreshed-stock");
@@ -498,7 +498,7 @@ internal static class ColoredDoorPlmDrawDefinitionsVerification
             AssertEqual((ushort)0x0053,
                 RoomPlmColoredDoorVisualFiles.Load(refreshed,
                     installation.RoomPlmColoredDoorVisualOverrideDirectory)
-                    .GetWord(0xa827, 0),
+                    .GetWord(NativePlmDraws.At<ColoredDoorPlmDrawDefinitions.Draw>(0xa827), 0),
                 "colored-door override survives stock replacement");
 
             frame.Required("blocks")[0] = 0xf053;
@@ -527,7 +527,7 @@ internal static class ColoredDoorPlmDrawDefinitionsVerification
             .Forbid(address => address is >= 0x84bffd and <= 0x84c488,
                 address => $"Resident colored door reread compiled instruction ${address:X6}.")
             .Forbid(address => lists.Any(list =>
-                    address >= (0x840000 | list.Pointer) &&
-                    address < (0x840000 | list.Pointer) + ColoredDoorPlmDrawDefinitions.DrawListBytes),
+                    address >= (0x840000 | PlmDrawAddressCodec.Of(list.Draw)) &&
+                    address < (0x840000 | PlmDrawAddressCodec.Of(list.Draw)) + 12),
                 address => $"Resident colored door reread draw payload ${address:X6}.");
 }

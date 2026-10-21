@@ -8,18 +8,10 @@ namespace SuperMetroid.Core.Rooms.Doors;
 /// </summary>
 internal static class BlueDoorPlmDrawDefinitions
 {
-    /// <summary>Left-facing blue-cap frame zero at $84:A9B3.</summary>
-    internal const ushort LeftFrame0 = 0xa9b3;
-    /// <summary>Right-facing blue-cap frame zero at $84:A9EF.</summary>
-    private const ushort RightFrame0 = 0xa9ef;
-    /// <summary>Up-facing blue-cap frame zero at $84:AA2B.</summary>
-    private const ushort UpFrame0 = 0xaa2b;
-    /// <summary>Down-facing blue-cap frame zero at $84:AA67.</summary>
-    private const ushort DownFrame0 = 0xaa67;
-    /// <summary>Byte length of each native four-block draw list including its terminator.</summary>
-    internal const int DrawListBytes = 12;
+    /// <summary>The physical closed-cap alias frame, which shows frame zero's artwork with only its first cell solid.</summary>
+    internal const int AliasFrame = -1;
 
-    /// <summary>One of twenty twelve-byte records at $84:A9A7..AA96.</summary>
+    /// <summary>One of the twenty blue-cap draws: four facings, each with the alias and four opening frames.</summary>
     internal readonly record struct Draw(ColoredDoorOrientation Orientation, int Frame) : IPlmCapDrawShape
     {
         /// <summary>Whether this cap's four blocks are laid out as a vertical run.</summary>
@@ -52,15 +44,12 @@ internal static class BlueDoorPlmDrawDefinitions
         }
     }
 
-    /// <summary>Maps a twelve-byte draw-list pointer to its cap orientation and opening frame.</summary>
-    internal static bool TryDescribe(ushort pointer, out Draw draw)
-    {
-        int offset = pointer - (LeftFrame0 - DrawListBytes);
-        bool owned = offset >= 0 && offset < 20 * DrawListBytes && offset % DrawListBytes == 0;
-        int index = offset / DrawListBytes;
-        draw = owned ? new(DoorCapOrientations.FromTableIndex(index / 5), index % 5 - 1) : default;
-        return owned;
-    }
+    /// <summary>The closed cap facing <paramref name="orientation"/>, the alias that shows frame zero's artwork.</summary>
+    internal static PlmDraw Alias(ColoredDoorOrientation orientation) => PlmDraw.Of(new Draw(orientation, AliasFrame));
+
+    /// <summary>Accepts a blue-cap draw: the alias or one of the four opening frames.</summary>
+    internal static bool TryDescribe(PlmDraw request, out Draw draw) =>
+        PlmDraw.TryFrame(request, static (Draw cap) => cap.Frame is >= AliasFrame and < 4, out draw);
 
     /// <summary>Sixteen original artwork identities; the four physical aliases share frame zero.</summary>
     internal static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> Editable
@@ -68,33 +57,27 @@ internal static class BlueDoorPlmDrawDefinitions
         get
         {
             for (int orientation = 0; orientation < 4; orientation++)
-            for (int frame = 0; frame < 4; frame++)
-            {
-                TryGet((ushort)(LeftFrame0 + orientation * 60 + frame * DrawListBytes), out var draw);
-                yield return draw;
-            }
+                for (int frame = 0; frame < 4; frame++)
+                {
+                    TryGet(PlmDraw.Of(new Draw(DoorCapOrientations.FromTableIndex(orientation), frame)), out var draw);
+                    yield return draw;
+                }
         }
     }
     /// <summary>Maps a physical closed-cap alias to the matching editable frame-zero artwork.</summary>
-    internal static ushort VisualSource(ushort pointer) => pointer switch
-    {
-        LeftFrame0 - DrawListBytes => LeftFrame0,
-        RightFrame0 - DrawListBytes => RightFrame0,
-        UpFrame0 - DrawListBytes => UpFrame0,
-        DownFrame0 - DrawListBytes => DownFrame0,
-        _ => pointer,
-    };
+    internal static PlmDraw VisualSource(PlmDraw request) =>
+        request is PlmFrameDraw<Draw> { Frame: { Frame: AliasFrame } alias } ? PlmDraw.Of(alias with { Frame = 0 }) : request;
 
     /// <summary>Builds an import/export draw DTO from calculated cells for a recognized native pointer.</summary>
     /// <remarks>Runtime draws calculate cells directly rather than retaining these DTOs.</remarks>
-    internal static bool TryGet(ushort pointer, out RoomPlmShotBlockDrawDefinitions.DrawList list) =>
-        RoomPlmShotBlockDrawDefinitions.TryCompileCap<Draw>(pointer, TryDescribe, out list);
+    internal static bool TryGet(PlmDraw request, out RoomPlmShotBlockDrawDefinitions.DrawList list) =>
+        RoomPlmShotBlockDrawDefinitions.TryCompileCap<Draw>(request, TryDescribe, out list);
 
     /// <summary>Names an editable cap frame by direction and opening phase.</summary>
-    internal static string VisualId(ushort pointer)
+    internal static string VisualId(PlmDraw request)
     {
-        if (!TryDescribe(pointer, out var draw))
-            throw new InvalidDataException($"Blue-door draw ${pointer:X4} has no visual ID.");
+        if (!TryDescribe(request, out var draw))
+            throw new InvalidDataException($"Blue-door draw {request} has no visual ID.");
         string direction = DoorCapOrientations.VisualName(draw.Orientation);
         return $"{direction}-frame-{Math.Max(draw.Frame, 0)}";
     }
@@ -103,7 +86,7 @@ internal static class BlueDoorPlmDrawDefinitions
     internal static bool TryGetByVisualId(string id, out RoomPlmShotBlockDrawDefinitions.DrawList list)
     {
         foreach (var candidate in Editable)
-            if (string.Equals(id, VisualId(candidate.Pointer), StringComparison.Ordinal))
+            if (string.Equals(id, VisualId(candidate.Draw), StringComparison.Ordinal))
             {
                 list = candidate;
                 return true;

@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Rooms.Plms.RoomPlmPopulationVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -57,10 +58,10 @@ internal static class StationAccessPlmDefinitionsVerification
                 // lists first have a four-byte full-resource branch, then the sound.
                 int operand = program + (raw <= 0x48 ? 5 : 9) + (extended ? 4 : 0);
                 ushort expected = CartridgeImportSource.Require(rom).ReadCartridgeWord((0x840000 | operand));
-                AssertEqual(expected, extended ? selected.ExtendedDrawPointer : selected.RetractedDrawPointer,
+                AssertEqual(expected, PlmDrawAddressCodec.Of(PlmDraw.Of(extended ? selected.Extended : selected.Retracted)),
                     "Station native access draw operand");
-                AssertEqual(expected, selected.DrawPointer(extended), "Station public phase selection");
-                AssertTrue(RoomPlmStationDrawDefinitions.TryGet(expected, out _), "Station selected physical draw is owned");
+                AssertEqual(expected, PlmDrawAddressCodec.Of(selected.Draw(extended)), "Station public phase selection");
+                AssertTrue(RoomPlmStationDrawDefinitions.TryGet(NativePlmDraws.At<StationDraw>(expected), out _), "Station selected physical draw is owned");
             }
         }
     }

@@ -12,7 +12,7 @@ internal sealed class KraidRoomPlmAnimation(KraidRoomProgram program)
         KraidRoomPlmProgramDefinitions.Programs;
 
     /// <inheritdoc/>
-    private protected override ushort DrawList(KraidRoomDraw frame) => (ushort)frame;
+    private protected override PlmDraw DrawList(KraidRoomDraw frame) => PlmDraw.Of(frame);
 
     /// <inheritdoc/>
     private protected override KraidRoomProgram? Publish(KraidRoomCue cue, PlmSlot slot, PlmStepContext context)

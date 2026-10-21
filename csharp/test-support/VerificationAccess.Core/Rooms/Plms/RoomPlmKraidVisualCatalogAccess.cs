@@ -9,7 +9,7 @@ internal static class RoomPlmKraidVisualCatalogAccess
         internal static RoomPlmKraidVisualCatalog Stock() => new(
             KraidRoomPlmDrawDefinitions.All.Select(draw =>
                 new RoomPlmVisualEntry(
-                    KraidRoomPlmDrawDefinitions.VisualId(draw.Pointer),
+                    KraidRoomPlmDrawDefinitions.VisualId(draw.Draw),
                     draw.VisualWords())));
     }
 }

@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Rooms.Plms;
 
 namespace SuperMetroid.Core.Bosses.Draygon;
@@ -63,10 +62,10 @@ internal static class DraygonCannonPlmDrawDefinitions
     }
 
     /// <summary>Decodes one of the twelve reachable cannon draw pointers into facing, shield state, and frame.</summary>
-    internal static bool TryDescribe(ushort pointer, out Draw draw)
+    internal static bool TryDescribe(PlmDraw request, out Draw draw)
     {
-        if (!Enum.IsDefined((DraygonCannonDraw)pointer)) { draw = default; return false; }
-        draw = (DraygonCannonDraw)pointer switch
+        if (request is not PlmFrameDraw<DraygonCannonDraw>) { draw = default; return false; }
+        draw = PlmDraw.FrameOf<DraygonCannonDraw>(request, "DraygonCannonDraw") switch
         {
             DraygonCannonDraw.RightShieldA => new(HorizontalDirection.Right, DraygonCannonCondition.Shielded, 0),
             DraygonCannonDraw.RightShieldB => new(HorizontalDirection.Right, DraygonCannonCondition.Shielded, 1),
@@ -80,37 +79,37 @@ internal static class DraygonCannonPlmDrawDefinitions
             DraygonCannonDraw.LeftDamagedB => new(HorizontalDirection.Left, DraygonCannonCondition.Damaged, 1),
             DraygonCannonDraw.LeftDamagedC => new(HorizontalDirection.Left, DraygonCannonCondition.Damaged, 2),
             DraygonCannonDraw.LeftDamagedD => new(HorizontalDirection.Left, DraygonCannonCondition.Damaged, 3),
-            _ => throw new InvalidOperationException($"Undefined {nameof(DraygonCannonDraw)} {pointer:X4}."),
+            _ => throw new InvalidOperationException($"Undefined {nameof(DraygonCannonDraw)} {request}."),
         };
         return true;
     }
 
     /// <summary>Enumerates only the right and left cannon lists reached by the PLM programs.</summary>
-    private static IEnumerable<ushort> Pointers()
+    private static IEnumerable<PlmDraw> Draws()
     {
-        foreach (DraygonCannonDraw draw in Enum.GetValues<DraygonCannonDraw>()) yield return (ushort)draw;
+        foreach (DraygonCannonDraw draw in Enum.GetValues<DraygonCannonDraw>()) yield return PlmDraw.Of(draw);
     }
     /// <summary>Builds temporary draw-list views for all reachable cannon frames.</summary>
     internal static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> All
     {
         get
         {
-            foreach (ushort pointer in Pointers())
+            foreach (PlmDraw draw in Draws())
             {
-                TryGet(pointer, out var list);
+                TryGet(draw, out var list);
                 yield return list;
             }
         }
     }
     /// <summary>Builds a temporary artwork draw-list DTO; runtime drawing calculates cells directly.</summary>
-    internal static bool TryGet(ushort pointer, out RoomPlmShotBlockDrawDefinitions.DrawList list) =>
-        RoomPlmShotBlockDrawDefinitions.TryCompile<Draw>(pointer, TryDescribe, out list);
+    internal static bool TryGet(PlmDraw request, out RoomPlmShotBlockDrawDefinitions.DrawList list) =>
+        RoomPlmShotBlockDrawDefinitions.TryCompile<Draw>(request, TryDescribe, out list);
     /// <summary>Finds a reachable cannon draw list by its editable visual ID.</summary>
     internal static bool TryGetByVisualId(string id, out RoomPlmShotBlockDrawDefinitions.DrawList list) =>
-        RoomPlmShotBlockDrawDefinitions.FindByVisualId(Pointers(), VisualId, TryGet, id, out list);
+        RoomPlmShotBlockDrawDefinitions.FindByVisualId(Draws(), VisualId, TryGet, id, out list);
     /// <summary>Maps a native cannon draw pointer to its facing, condition, and pose ID.</summary>
-    internal static string VisualId(ushort pointer) =>
-        ClosedNativeWords.Decode<DraygonCannonDraw>(pointer, "Draygon cannon draw with a visual ID") switch
+    internal static string VisualId(PlmDraw request) =>
+        PlmDraw.FrameOf<DraygonCannonDraw>(request, "Draygon cannon draw with a visual ID") switch
         {
             DraygonCannonDraw.RightShieldA => "right-shield-a",
             DraygonCannonDraw.RightShieldB => "right-shield-b",
@@ -124,7 +123,7 @@ internal static class DraygonCannonPlmDrawDefinitions
             DraygonCannonDraw.LeftDamagedB => "left-damaged-b",
             DraygonCannonDraw.LeftDamagedC => "left-damaged-c",
             DraygonCannonDraw.LeftDamagedD => "left-damaged-d",
-            _ => throw new InvalidOperationException($"Undefined {nameof(DraygonCannonDraw)} {pointer:X4}."),
+            _ => throw new InvalidOperationException($"Undefined {nameof(DraygonCannonDraw)} {request}."),
         };
 
 }

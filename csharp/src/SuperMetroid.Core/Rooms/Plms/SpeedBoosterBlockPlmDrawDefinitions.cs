@@ -9,17 +9,20 @@ internal static class SpeedBoosterBlockPlmDrawDefinitions
     /// <summary><c>$84:A4F3</c>: bomb reveal of one Speed Booster block.</summary>
     internal const string BombRevealVisualId = "bomb-reveal";
 
-    /// <summary><c>DrawInst_BombReactionSpeedBlock</c>, $84:A4F3: the bomb reveal's one-block draw.</summary>
-    internal const ushort BombRevealDraw = 0xa4f3;
+    /// <summary>The Speed Booster block's own draw; its crumble frames are the single shot-block breakup draws.</summary>
+    internal enum Draw
+    {
+        /// <summary>Reveals the Speed Booster block when it is bombed.</summary>
+        BombReveal,
+    }
 
-    /// <summary>The bytes between successive one-block crumble draws.</summary>
-    private const int CrumbleDrawStride = 6;
+    /// <summary>The draw that reveals a bombed Speed Booster block.</summary>
+    internal static PlmFrameDraw<Draw> BombRevealDraw { get; } = PlmDraw.Of(Draw.BombReveal);
+
 
     /// <summary>The shared one-block crumble draw for crumble image <paramref name="frame"/> (0..3).</summary>
-    internal static ushort CrumbleDrawList(int frame) =>
-        (uint)frame < 4
-            ? checked((ushort)(RoomPlmShotBlockDrawDefinitions.SingleFrame0 + frame * CrumbleDrawStride))
-            : throw new ArgumentOutOfRangeException(nameof(frame));
+    internal static PlmDraw CrumbleDrawList(int frame) =>
+        RoomPlmShotBlockDrawDefinitions.Breakup(RoomPlmShotBlockDrawDefinitions.Shape.Single, frame);
 
     /// <summary>Physical type-B parent with the named Speed Booster visual block.</summary>
     internal static ushort BombRevealWord => 0xb000 | RoomPlmVisualBlockDefinitions.SpeedBoosterParent;
@@ -39,10 +42,9 @@ internal static class SpeedBoosterBlockPlmDrawDefinitions
     }
 
     /// <summary>Accepts only the bomb-reveal draw pointer and rejects unrelated PLM drawings.</summary>
-    internal static string VisualId(ushort pointer) => pointer == BombRevealDraw
+    internal static string VisualId(PlmDraw request) => request == BombRevealDraw
         ? BombRevealVisualId
-        : throw new InvalidDataException(
-            $"Speed Booster draw ${pointer:X4} has no visual ID.");
+        : throw new InvalidDataException($"Speed Booster draw {request} has no visual ID.");
 
     /// <summary>Resolves the one exported visual identity to its calculated draw record.</summary>
     internal static bool TryGetByVisualId(string id,

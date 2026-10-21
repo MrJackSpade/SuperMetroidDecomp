@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Rooms.Plms;
 
 namespace SuperMetroid.Core.Bosses.Torizo;
@@ -15,10 +14,10 @@ internal static class BombTorizoHandPlmDrawDefinitions
     /// lower, top and upper rows of a four-by-four area. Original run order and
     /// origin-relative continuations are preserved; all cleared words are air FF.
     /// </summary>
-    internal readonly record struct Draw(BombTorizoHandDraw Pointer)
+    internal readonly record struct Draw(BombTorizoHandDraw Frame)
     {
         /// <summary>Whether this list removes the hand's solid blocks instead of drawing intact stone.</summary>
-        internal bool IsCleared => Pointer == BombTorizoHandDraw.Cleared;
+        internal bool IsCleared => Frame == BombTorizoHandDraw.Cleared;
         /// <summary>Gets the number of horizontal strips in the selected native draw list.</summary>
         internal int RunCount => IsCleared ? 5 : 4;
         /// <summary>Gets the block count in a selected strip, rejecting an invalid run index.</summary>
@@ -72,10 +71,10 @@ internal static class BombTorizoHandPlmDrawDefinitions
     }
 
     /// <summary>Recognizes one of the two native hand draw pointers and returns its calculated descriptor.</summary>
-    internal static bool TryDescribe(ushort pointer, out Draw draw)
+    internal static bool TryDescribe(PlmDraw request, out Draw draw)
     {
-        bool owned = Enum.IsDefined((BombTorizoHandDraw)pointer);
-        draw = owned ? new((BombTorizoHandDraw)pointer) : default;
+        bool owned = request is PlmFrameDraw<BombTorizoHandDraw>;
+        draw = owned ? new(PlmDraw.FrameOf<BombTorizoHandDraw>(request, "BombTorizoHandDraw")) : default;
         return owned;
     }
 
@@ -84,18 +83,18 @@ internal static class BombTorizoHandPlmDrawDefinitions
     {
         get
         {
-            TryGet((ushort)BombTorizoHandDraw.Intact, out var intact);
+            TryGet(PlmDraw.Of(BombTorizoHandDraw.Intact), out var intact);
             yield return intact;
-            TryGet((ushort)BombTorizoHandDraw.Cleared, out var cleared);
+            TryGet(PlmDraw.Of(BombTorizoHandDraw.Cleared), out var cleared);
             yield return cleared;
         }
     }
 
     /// <summary>Expands a calculated hand draw into an import/export DTO; gameplay computes its strips directly.</summary>
-    internal static bool TryGet(ushort pointer, out RoomPlmShotBlockDrawDefinitions.DrawList list)
+    internal static bool TryGet(PlmDraw request, out RoomPlmShotBlockDrawDefinitions.DrawList list)
     {
         list = default;
-        if (!TryDescribe(pointer, out var draw)) return false;
+        if (!TryDescribe(request, out var draw)) return false;
         var runs = new RoomPlmShotBlockDrawDefinitions.Run[draw.RunCount];
         for (int run = 0; run < runs.Length; run++)
         {
@@ -103,20 +102,20 @@ internal static class BombTorizoHandPlmDrawDefinitions
             for (int word = 0; word < words.Length; word++) words[word] = draw.WordAt(run, word);
             runs[run] = new((ushort)words.Length, words, new(draw.NextX(run), draw.NextY(run)));
         }
-        list = new(pointer, runs);
+        list = new(request, runs);
         return true;
     }
 
     /// <summary>Gets the stable artwork ID for a supported native hand draw pointer.</summary>
-    internal static string VisualId(ushort pointer) =>
-        VisualId(ClosedNativeWords.Decode<BombTorizoHandDraw>(pointer, "Bomb Torizo hand draw with a visual ID"));
+    internal static string VisualId(PlmDraw request) =>
+        VisualId(PlmDraw.FrameOf<BombTorizoHandDraw>(request, "Bomb Torizo hand draw with a visual ID"));
 
     /// <summary>Maps an intact or cleared hand draw to its stable artwork ID.</summary>
-    internal static string VisualId(BombTorizoHandDraw pointer) => pointer switch
+    internal static string VisualId(BombTorizoHandDraw frame) => frame switch
     {
         BombTorizoHandDraw.Intact => "intact",
         BombTorizoHandDraw.Cleared => "cleared",
-        _ => throw new InvalidOperationException($"Undefined BombTorizoHandDraw {pointer}."),
+        _ => throw new InvalidOperationException($"Undefined BombTorizoHandDraw {frame}."),
     };
 
     /// <summary>Resolves an ordinal artwork ID to the corresponding temporary hand draw DTO.</summary>

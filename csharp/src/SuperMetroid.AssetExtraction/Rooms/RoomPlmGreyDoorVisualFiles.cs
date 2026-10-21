@@ -36,7 +36,7 @@ public static class RoomPlmGreyDoorVisualFiles
         string stockDirectory, string? overrideDirectory) =>
         RoomPlmDoorVisualFileCodec.Load(stockDirectory, overrideDirectory,
             new RoomPlmVisualFamily<RoomPlmGreyDoorVisualCatalog>(VisualFileName, "Grey-door", GreyDoorPlmDrawDefinitions.All, GreyDoorPlmDrawDefinitions.VisualId, entries => new RoomPlmGreyDoorVisualCatalog(entries.Select(entry =>
-                new RoomPlmVisualEntry(entry.Id, entry.Blocks))), (catalog, pointer, _, block) => catalog.GetWord(pointer, block)));
+                new RoomPlmVisualEntry(entry.Id, entry.Blocks))), (catalog, draw, _, block) => catalog.GetWord(draw, block)));
 
     /// <summary>Runs stock manifest, hash, schema, and compiled-appearance checks without selecting overrides, reading a cartridge, or writing files.</summary>
     /// <param name="directory">Grey-door family directory containing both required stock files.</param>

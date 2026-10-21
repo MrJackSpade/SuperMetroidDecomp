@@ -12,7 +12,7 @@ internal sealed class DraygonCannonPlmAnimation(DraygonCannonProgram program)
         DraygonCannonPlmProgramDefinitions.Programs;
 
     /// <inheritdoc/>
-    private protected override ushort DrawList(DraygonCannonDraw frame) => (ushort)frame;
+    private protected override PlmDraw DrawList(DraygonCannonDraw frame) => PlmDraw.Of(frame);
 
     /// <inheritdoc/>
     private protected override DraygonCannonProgram? Publish(DraygonCannonCue cue, PlmSlot slot, PlmStepContext context)

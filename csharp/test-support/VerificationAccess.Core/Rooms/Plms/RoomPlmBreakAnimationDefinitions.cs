@@ -1,4 +1,5 @@
-﻿namespace SuperMetroid.Core.Rooms.Plms;
+﻿using SuperMetroid.AssetExtraction.Rooms;
+namespace SuperMetroid.Core.Rooms.Plms;
 
 /// <summary>
 /// Shared $84:A345-A3DD breakup-draw identities for one-block, horizontal,
@@ -12,10 +13,10 @@ internal static class RoomPlmBreakAnimationDefinitions
     {
         (ushort first, int stride) = shape switch
         {
-            0 => new BreakAnimationShape(RoomPlmShotBlockDrawDefinitions.SingleFrame0, 6),
-            1 => new BreakAnimationShape(RoomPlmShotBlockDrawDefinitions.HorizontalFrame0, 8),
-            2 => new BreakAnimationShape(RoomPlmShotBlockDrawDefinitions.VerticalFrame0, 8),
-            3 => new BreakAnimationShape(RoomPlmShotBlockDrawDefinitions.SquareFrame0, 16),
+            0 => new BreakAnimationShape(PlmDrawAddresses.SingleBreakupFirst, 6),
+            1 => new BreakAnimationShape(PlmDrawAddresses.HorizontalBreakupFirst, 8),
+            2 => new BreakAnimationShape(PlmDrawAddresses.VerticalBreakupFirst, 8),
+            3 => new BreakAnimationShape(PlmDrawAddresses.SquareBreakupFirst, 16),
             _ => throw new ArgumentOutOfRangeException(nameof(shape)),
         };
         if ((uint)frame >= 7) throw new ArgumentOutOfRangeException(nameof(frame));

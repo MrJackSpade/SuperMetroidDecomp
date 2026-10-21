@@ -28,22 +28,22 @@ internal static class SpeedBoosterVisualsVerification
         var imported = new RoomPlmSpeedBoosterVisualCatalog([new("bomb-reveal",[native])]);
         string Hash(ushort word) => SuperMetroid.Core.Assets.SelectedPresentationHash.Create(
             nameof(RoomPlmSpeedBoosterVisualCatalog), content => content.Append("visual word",word));
-        AssertEqual(native,stock.GetWord(pointer,0,0),"speed stock visual matches original native draw");
-        AssertEqual(native,imported.GetWord(pointer,0,0),"speed imported visual matches original native draw");
+        AssertEqual(native,stock.GetWord(NativePlmDraws.At<SpeedBoosterBlockPlmDrawDefinitions.Draw>(pointer),0,0),"speed stock visual matches original native draw");
+        AssertEqual(native,imported.GetWord(NativePlmDraws.At<SpeedBoosterBlockPlmDrawDefinitions.Draw>(pointer),0,0),"speed imported visual matches original native draw");
         AssertEqual(Hash(native),stock.ContentIdentity,"speed stock scalar identity");
         AssertEqual(Hash(native),imported.ContentIdentity,"speed imported scalar identity");
         for (int address = 0; address <= ushort.MaxValue; address++)
             if (address != pointer)
-                AssertThrows<InvalidDataException>(() => stock.GetWord((ushort)address,0,0),"speed visual full pointer rejection");
+                AssertThrows<InvalidDataException>(() => stock.GetWord(NativePlmDraws.At<SpeedBoosterBlockPlmDrawDefinitions.Draw>((ushort)address),0,0),"speed visual full pointer rejection");
         foreach (int invalid in new[] {int.MinValue,-1,1,2,int.MaxValue})
         {
-            AssertThrows<InvalidDataException>(() => stock.GetWord(pointer,invalid,0),"speed visual run bounds");
-            AssertThrows<InvalidDataException>(() => stock.GetWord(pointer,0,invalid),"speed visual block bounds");
+            AssertThrows<InvalidDataException>(() => stock.GetWord(NativePlmDraws.At<SpeedBoosterBlockPlmDrawDefinitions.Draw>(pointer),invalid,0),"speed visual run bounds");
+            AssertThrows<InvalidDataException>(() => stock.GetWord(NativePlmDraws.At<SpeedBoosterBlockPlmDrawDefinitions.Draw>(pointer),0,invalid),"speed visual block bounds");
         }
         ushort[] custom = [0x0453];
         var edited = new RoomPlmSpeedBoosterVisualCatalog([new("bomb-reveal",custom)]);
         custom[0] = 0x0054;
-        AssertEqual((ushort)0x0453,edited.GetWord(pointer,0,0),"speed visual scalar isolates source-array edits");
+        AssertEqual((ushort)0x0453,edited.GetWord(NativePlmDraws.At<SpeedBoosterBlockPlmDrawDefinitions.Draw>(pointer),0,0),"speed visual scalar isolates source-array edits");
         AssertEqual(Hash(0x0453),edited.ContentIdentity,"speed custom scalar identity including flip bits");
         AssertThrows<InvalidDataException>(() => new RoomPlmSpeedBoosterVisualCatalog([]),"speed visual requires entry");
         AssertThrows<InvalidDataException>(() => new RoomPlmSpeedBoosterVisualCatalog([new("bomb-reveal",[native]),new("bomb-reveal",[native])]),"speed visual rejects duplicate entry");
@@ -68,7 +68,7 @@ internal static class SpeedBoosterVisualsVerification
                 SupportedCartridge.Sha256);
             RoomPlmSpeedBoosterVisualFiles.ValidateStock(
                 installation.RoomPlmSpeedBoosterVisualDirectory);
-            ushort drawPointer = SpeedBoosterBlockPlmDrawDefinitions.BombReveal.Pointer;
+            PlmDraw drawPointer = SpeedBoosterBlockPlmDrawDefinitions.BombRevealDraw;
             AssertEqual((ushort)0x00b6,
                 installation.LoadRoomPlmSpeedBoosterVisuals()
                     .GetWord(drawPointer, 0, 0),

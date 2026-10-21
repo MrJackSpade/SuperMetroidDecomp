@@ -1,5 +1,4 @@
 using System.Diagnostics.CodeAnalysis;
-using SuperMetroid.Core.Programs;
 
 namespace SuperMetroid.Core.Rooms.Plms;
 
@@ -9,9 +8,6 @@ namespace SuperMetroid.Core.Rooms.Plms;
 /// </summary>
 internal static class RoomPlmStationDrawDefinitions
 {
-    /// <summary>Byte stride between a station's consecutive frame draw lists.</summary>
-    internal const int FrameStride = 12;
-
     /// <summary>Published native enumeration order: frames by station, then save and access states.</summary>
     private static readonly StationDraw[] NativeOrder =
     [
@@ -30,8 +26,8 @@ internal static class RoomPlmStationDrawDefinitions
     /// origin-relative offset, not accumulated. Each layout is its own sealed record holding only what it needs; these
     /// rules cover only the twenty native owned draw pointers.
     /// </summary>
-    /// <param name="Pointer">The native draw list.</param>
-    internal abstract record Draw(StationDraw Pointer) : IPlmRunDrawShape
+    /// <param name="Id">The native draw list.</param>
+    internal abstract record Draw(StationDraw Id) : IPlmRunDrawShape
     {
         /// <inheritdoc/>
         public abstract int RunCount { get; }
@@ -87,9 +83,9 @@ internal static class RoomPlmStationDrawDefinitions
     }
 
     /// <summary>Two horizontal display cells written origin then left; the art advances 32 tiles per frame.</summary>
-    /// <param name="Pointer">The native draw list.</param>
+    /// <param name="Id">The native draw list.</param>
     /// <param name="Frame">The display frame, zero through two.</param>
-    internal sealed record MapDisplay(StationDraw Pointer, int Frame) : Draw(Pointer)
+    internal sealed record MapDisplay(StationDraw Id, int Frame) : Draw(Id)
     {
         /// <inheritdoc/>
         public override int RunCount => 2;
@@ -105,10 +101,10 @@ internal static class RoomPlmStationDrawDefinitions
     /// A vertical refill or ammunition display written origin then above; the art advances one tile per frame and its upper
     /// cell, a slope, is 32 tiles earlier.
     /// </summary>
-    /// <param name="Pointer">The native draw list.</param>
+    /// <param name="Id">The native draw list.</param>
     /// <param name="FirstTile">The display's tile at frame zero.</param>
     /// <param name="Frame">The display frame, zero through two.</param>
-    internal sealed record ResourceDisplay(StationDraw Pointer, int FirstTile, int Frame) : Draw(Pointer)
+    internal sealed record ResourceDisplay(StationDraw Id, int FirstTile, int Frame) : Draw(Id)
     {
         /// <summary>The energy display's tile at frame zero.</summary>
         internal const int EnergyFirstTile = 0xc4;
@@ -130,8 +126,8 @@ internal static class RoomPlmStationDrawDefinitions
     /// Six two-cell save-pod rows from floor to cap. The art mirrors horizontally, the floor also vertically, and the
     /// active pose advances one tile. Floor and cap are solid except the idle floor-left trigger; the shaft is air.
     /// </summary>
-    /// <param name="Pointer">The native draw list.</param>
-    internal sealed record SavePod(StationDraw Pointer) : Draw(Pointer)
+    /// <param name="Id">The native draw list.</param>
+    internal sealed record SavePod(StationDraw Id) : Draw(Id)
     {
         /// <inheritdoc/>
         public override int RunCount => 6;
@@ -146,18 +142,18 @@ internal static class RoomPlmStationDrawDefinitions
         private protected override ushort Word(int run, int cell)
         {
             bool shaft = run is > 0 and < 5;
-            int tile = (shaft ? 0x5b : 0x59) + (Pointer == StationDraw.SaveActive ? 1 : 0);
+            int tile = (shaft ? 0x5b : 0x59) + (Id == StationDraw.SaveActive ? 1 : 0);
             int flip = cell * 0x400 | (run == 0 ? 0x800 : 0);
-            int collision = shaft ? 0 : Pointer == StationDraw.SaveIdle && run == 0 && cell == 0 ? 11 : 8;
+            int collision = shaft ? 0 : Id == StationDraw.SaveIdle && run == 0 && cell == 0 ? 11 : 8;
             return LevelWord(collision, flip, tile);
         }
     }
 
     /// <summary>Map access cells, mirrored by side; the retracted pose writes a second cell beside the first.</summary>
-    /// <param name="Pointer">The native draw list.</param>
+    /// <param name="Id">The native draw list.</param>
     /// <param name="Side">The side of its station the arm sits on.</param>
     /// <param name="Pose">Whether the arm is extended.</param>
-    internal sealed record MapAccess(StationDraw Pointer, HorizontalDirection Side, StationAccessPose Pose) : Draw(Pointer)
+    internal sealed record MapAccess(StationDraw Id, HorizontalDirection Side, StationAccessPose Pose) : Draw(Id)
     {
         /// <inheritdoc/>
         public override int RunCount => Pose == StationAccessPose.Extended ? 1 : 2;
@@ -172,10 +168,10 @@ internal static class RoomPlmStationDrawDefinitions
     }
 
     /// <summary>A resource access cell, mirrored by side, whose extension turns its trigger solid.</summary>
-    /// <param name="Pointer">The native draw list.</param>
+    /// <param name="Id">The native draw list.</param>
     /// <param name="Side">The side of its station the arm sits on.</param>
     /// <param name="Pose">Whether the arm is extended.</param>
-    internal sealed record ResourceAccess(StationDraw Pointer, HorizontalDirection Side, StationAccessPose Pose) : Draw(Pointer)
+    internal sealed record ResourceAccess(StationDraw Id, HorizontalDirection Side, StationAccessPose Pose) : Draw(Id)
     {
         /// <inheritdoc/>
         public override int RunCount => 1;
@@ -190,23 +186,22 @@ internal static class RoomPlmStationDrawDefinitions
         }
     }
 
-    /// <summary>The layout of <paramref name="pointer"/>, which must be one of the twenty station draw lists.</summary>
-    /// <exception cref="InvalidOperationException"><paramref name="pointer"/> is not a station draw list.</exception>
-    internal static Draw Describe(ushort pointer) =>
-        TryDescribe(pointer, out Draw? draw) ? draw : throw new InvalidOperationException($"${pointer:X4} is not a station draw list.");
+    /// <summary>The layout of <paramref name="request"/>, which must be one of the twenty station draw lists.</summary>
+    /// <exception cref="InvalidOperationException"><paramref name="request"/> is not a station draw list.</exception>
+    internal static Draw Describe(PlmDraw request) =>
+        TryDescribe(request, out Draw? draw) ? draw : throw new InvalidOperationException($"{request} is not a station draw list.");
 
     /// <summary>
-    /// Describes a draw pointer handed over by the shared PLM draw interpreter; pointers
-    /// outside the twenty station lists belong to other families.
+    /// Describes a draw handed over by the shared PLM drawing; draws of other families are not the stations'.
     /// </summary>
-    internal static bool TryDescribe(ushort pointer, [MaybeNullWhen(false)] out Draw draw)
+    internal static bool TryDescribe(PlmDraw request, [MaybeNullWhen(false)] out Draw draw)
     {
-        if (!Enum.IsDefined((StationDraw)pointer))
+        if (request is not PlmFrameDraw<StationDraw>)
         {
             draw = null;
             return false;
         }
-        var station = (StationDraw)pointer;
+        var station = PlmDraw.FrameOf<StationDraw>(request, "StationDraw");
         draw = station switch
         {
             StationDraw.MapFrame0 => new MapDisplay(station, 0),
@@ -227,7 +222,7 @@ internal static class RoomPlmStationDrawDefinitions
             StationDraw.ResourceRightExtended => new ResourceAccess(station, HorizontalDirection.Right, StationAccessPose.Extended),
             StationDraw.ResourceLeftRetracted => new ResourceAccess(station, HorizontalDirection.Left, StationAccessPose.Retracted),
             StationDraw.ResourceLeftExtended => new ResourceAccess(station, HorizontalDirection.Left, StationAccessPose.Extended),
-            _ => throw new InvalidOperationException($"Undefined station draw ${pointer:X4}."),
+            _ => throw new InvalidOperationException($"Undefined station draw {request}."),
         };
         return true;
     }
@@ -236,24 +231,24 @@ internal static class RoomPlmStationDrawDefinitions
     {
         get
         {
-            foreach (StationDraw pointer in NativeOrder)
+            foreach (StationDraw frame in NativeOrder)
             {
-                TryGet((ushort)pointer, out var list);
+                TryGet(PlmDraw.Of(frame), out var list);
                 yield return list;
             }
         }
     }
     /// <summary>Constructs a temporary artwork draw-list DTO for a station pointer; runtime drawing calculates cells directly.</summary>
-    internal static bool TryGet(ushort pointer, out RoomPlmShotBlockDrawDefinitions.DrawList list) =>
-        RoomPlmShotBlockDrawDefinitions.TryCompile<Draw>(pointer, TryDescribe, out list);
+    internal static bool TryGet(PlmDraw request, out RoomPlmShotBlockDrawDefinitions.DrawList list) =>
+        RoomPlmShotBlockDrawDefinitions.TryCompile<Draw>(request, TryDescribe, out list);
 
     /// <summary>
     /// Published ordinal artwork IDs: three numbered frames per map/resource
     /// station, and named save/access states. These are identity selections,
     /// independent of the physical words. Only complete native lists have IDs.
     /// </summary>
-    internal static string VisualId(ushort pointer) =>
-        ClosedNativeWords.Decode<StationDraw>(pointer, "station draw list") switch
+    internal static string VisualId(PlmDraw request) =>
+        PlmDraw.FrameOf<StationDraw>(request, "station draw list") switch
         {
             StationDraw.MapFrame0 => "map-frame-0",
             StationDraw.MapFrame1 => "map-frame-1",
@@ -275,7 +270,7 @@ internal static class RoomPlmStationDrawDefinitions
             StationDraw.ResourceRightExtended => "resource-right-extended",
             StationDraw.ResourceLeftRetracted => "resource-left-retracted",
             StationDraw.ResourceLeftExtended => "resource-left-extended",
-            _ => throw new InvalidOperationException($"Undefined station draw list ${pointer:X4}."),
+            _ => throw new InvalidOperationException($"Undefined station draw list {request}."),
         };
 
     /// <summary>Finds a station draw list by its stable artwork identity rather than native pointer.</summary>
@@ -284,7 +279,7 @@ internal static class RoomPlmStationDrawDefinitions
     {
         foreach (var candidate in All)
         {
-            if (string.Equals(id, VisualId(candidate.Pointer), StringComparison.Ordinal))
+            if (string.Equals(id, VisualId(candidate.Draw), StringComparison.Ordinal))
             {
                 list = candidate;
                 return true;

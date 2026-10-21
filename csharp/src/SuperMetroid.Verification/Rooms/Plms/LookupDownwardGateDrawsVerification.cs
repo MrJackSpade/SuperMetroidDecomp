@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Rooms.Plms.SamusEaterPlmDefinitionsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -36,13 +37,13 @@ internal static class LookupDownwardGateDrawsVerification
             {
                 ushort pointer = (ushort)raw;
                 bool owned = pointers.Contains(pointer);
-                AssertEqual(owned, DownwardGatePlmDrawDefinitions.TryDescribe(pointer, out var shape), "Gate descriptor ownership");
-                AssertEqual(owned, DownwardGatePlmDrawDefinitions.TryGet(pointer, out var dto), "Gate DTO ownership");
+                AssertEqual(owned, DownwardGatePlmDrawDefinitions.TryDescribe(NativePlmDraws.At<DownwardGateDraw>(pointer), out var shape), "Gate descriptor ownership");
+                AssertEqual(owned, DownwardGatePlmDrawDefinitions.TryGet(NativePlmDraws.At<DownwardGateDraw>(pointer), out var dto), "Gate DTO ownership");
                 if (!owned)
                 {
                     AssertEqual(default(DownwardGatePlmDrawDefinitions.Draw), shape, "Gate missing descriptor");
                     AssertEqual(default(RoomPlmShotBlockDrawDefinitions.DrawList), dto, "Gate missing DTO");
-                    AssertThrows<InvalidDataException>(() => DownwardGatePlmDrawDefinitions.VisualId(pointer), "Gate missing ID");
+                    AssertThrows<InvalidDataException>(() => DownwardGatePlmDrawDefinitions.VisualId(NativePlmDraws.At<DownwardGateDraw>(pointer)), "Gate missing ID");
                 }
             }
             foreach (string invalid in new[] { "column-frame-6", "column-frame-00", "Blue-left-trigger", "", "unknown" })
@@ -55,12 +56,12 @@ internal static class LookupDownwardGateDrawsVerification
         for (int index = 0; index < pointers.Length; index++)
         {
             ushort pointer = pointers[index];
-            DownwardGatePlmDrawDefinitions.TryDescribe(pointer, out var shape);
-            DownwardGatePlmDrawDefinitions.TryGet(pointer, out var dto);
-            AssertEqual(pointer, exported[index].Pointer, "Gate export order");
-            AssertEqual(ids[index], DownwardGatePlmDrawDefinitions.VisualId(pointer), "Gate published ID mapping");
+            DownwardGatePlmDrawDefinitions.TryDescribe(NativePlmDraws.At<DownwardGateDraw>(pointer), out var shape);
+            DownwardGatePlmDrawDefinitions.TryGet(NativePlmDraws.At<DownwardGateDraw>(pointer), out var dto);
+            AssertEqual(pointer, PlmDrawAddressCodec.Of(exported[index].Draw), "Gate export order");
+            AssertEqual(ids[index], DownwardGatePlmDrawDefinitions.VisualId(NativePlmDraws.At<DownwardGateDraw>(pointer)), "Gate published ID mapping");
             AssertTrue(DownwardGatePlmDrawDefinitions.TryGetByVisualId(ids[index], out var byId), "Gate ID ownership");
-            AssertEqual(pointer, byId.Pointer, "Gate reverse ID mapping");
+            AssertEqual(pointer, PlmDrawAddressCodec.Of(byId.Draw), "Gate reverse ID mapping");
             int cursor = pointer, run = 0;
             while (true)
             {

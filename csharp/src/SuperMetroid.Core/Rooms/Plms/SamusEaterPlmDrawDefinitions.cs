@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Programs;
-
 namespace SuperMetroid.Core.Rooms.Plms;
 
 /// <summary>
@@ -67,14 +65,14 @@ internal static class SamusEaterPlmDrawDefinitions
     }
 
     /// <summary>Decodes one of eight bank-$84 plant draw pointers into its orientation and chew phase.</summary>
-    internal static bool TryDescribe(ushort pointer, out Draw draw)
+    internal static bool TryDescribe(PlmDraw request, out Draw draw)
     {
-        if (!Enum.IsDefined((SamusEaterDraw)pointer))
+        if (request is not PlmFrameDraw<SamusEaterDraw>)
         {
             draw = default;
             return false;
         }
-        SamusEaterDraw list = (SamusEaterDraw)pointer;
+        SamusEaterDraw list = PlmDraw.FrameOf<SamusEaterDraw>(request, "SamusEaterDraw");
         draw = list switch
         {
             SamusEaterDraw.FloorIdle => new(false, 0),
@@ -95,23 +93,20 @@ internal static class SamusEaterPlmDrawDefinitions
     {
         get
         {
-            for (int ceiling = 0; ceiling < 2; ceiling++)
-            for (int phase = 0; phase < 4; phase++)
+            foreach (SamusEaterDraw frame in Enum.GetValues<SamusEaterDraw>())
             {
-                ushort pointer = (ushort)((int)(ceiling == 0 ? SamusEaterDraw.FloorIdle : SamusEaterDraw.CeilingIdle) +
-                    (phase == 0 ? 0 : (phase + 1) * 28));
-                TryGet(pointer, out var list);
+                TryGet(PlmDraw.Of(frame), out var list);
                 yield return list;
             }
         }
     }
 
     /// <summary>Maps a validated native draw pointer to the artwork catalog's orientation and phase ID.</summary>
-    internal static string VisualId(ushort pointer) =>
-        VisualId(ClosedNativeWords.Decode<SamusEaterDraw>(pointer, "Samus Eater draw with a visual ID"));
+    internal static string VisualId(PlmDraw request) =>
+        VisualId(PlmDraw.FrameOf<SamusEaterDraw>(request, "Samus Eater draw with a visual ID"));
 
     /// <summary>Names a typed draw list by its floor or ceiling orientation and idle or chew phase.</summary>
-    internal static string VisualId(SamusEaterDraw pointer) => pointer switch
+    internal static string VisualId(SamusEaterDraw frame) => frame switch
     {
         SamusEaterDraw.FloorIdle => "floor-idle",
         SamusEaterDraw.FloorChew1 => "floor-chew-1",
@@ -121,7 +116,7 @@ internal static class SamusEaterPlmDrawDefinitions
         SamusEaterDraw.CeilingChew1 => "ceiling-chew-1",
         SamusEaterDraw.CeilingChew2 => "ceiling-chew-2",
         SamusEaterDraw.CeilingChew3 => "ceiling-chew-3",
-        _ => throw new InvalidOperationException($"Undefined SamusEaterDraw {pointer}."),
+        _ => throw new InvalidOperationException($"Undefined SamusEaterDraw {frame}."),
     };
 
     /// <summary>Finds the native layout matching an artwork catalog ID by searching the eight supported lists.</summary>
@@ -130,10 +125,10 @@ internal static class SamusEaterPlmDrawDefinitions
         RoomPlmShotBlockDrawDefinitions.FindByVisualId(All, VisualId, id, out list);
 
     /// <summary>Builds the three native signed runs for a supported plant draw pointer from its phase and orientation.</summary>
-    internal static bool TryGet(ushort pointer,
+    internal static bool TryGet(PlmDraw request,
         out RoomPlmShotBlockDrawDefinitions.DrawList list)
     {
-        if (!TryDescribe(pointer, out Draw draw))
+        if (!TryDescribe(request, out Draw draw))
         {
             list = default;
             return false;
@@ -145,7 +140,7 @@ internal static class SamusEaterPlmDrawDefinitions
             for (int block = 0; block < words.Length; block++) words[block] = draw.WordAt(run, block);
             runs[run] = new((ushort)words.Length, words, new(Draw.NextX(run), draw.NextY(run)));
         }
-        list = new(pointer, runs);
+        list = new(request, runs);
         return true;
     }
 }

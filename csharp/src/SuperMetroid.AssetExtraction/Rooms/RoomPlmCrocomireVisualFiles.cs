@@ -32,7 +32,7 @@ public static class RoomPlmCrocomireVisualFiles
         string stockDirectory, string? overrideDirectory) =>
         RoomPlmDoorVisualFileCodec.Load(stockDirectory, overrideDirectory,
             new RoomPlmVisualFamily<RoomPlmCrocomireVisualCatalog>(VisualFileName, "Crocomire arena", CrocomireArenaPlmDrawDefinitions.All, CrocomireArenaPlmDrawDefinitions.VisualId, entries => new RoomPlmCrocomireVisualCatalog(entries.Select(entry =>
-                new RoomPlmVisualEntry(entry.Id, entry.Blocks))), (catalog, pointer, run, block) => catalog.GetWord(pointer, run, block)));
+                new RoomPlmVisualEntry(entry.Id, entry.Blocks))), (catalog, draw, run, block) => catalog.GetWord(draw, run, block)));
 
     /// <summary>Checks stock arena provenance, digest, schema, five-layout coverage, and equality with compiled visual words; ignores overrides.</summary>
     /// <param name="directory">Installed stock Crocomire arena directory.</param>

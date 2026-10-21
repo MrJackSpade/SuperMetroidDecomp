@@ -23,7 +23,7 @@ internal static class DownwardGateVisualsVerification
         RoomPlmDownwardGateVisualCatalog stock = RoomPlmDownwardGateVisualCatalog.Stock();
         RoomPlmVisualRunEntry[] entries = DownwardGatePlmDrawDefinitions.All
             .Select(list => new RoomPlmVisualRunEntry(
-                DownwardGatePlmDrawDefinitions.VisualId(list.Pointer),
+                DownwardGatePlmDrawDefinitions.VisualId(list.Draw),
                 list.Runs.Span
                     .SelectToArray(run => run.LevelWords.Span
                         .SelectToArray(word => new RoomLevelWord(word).VisualWord))
@@ -39,9 +39,9 @@ internal static class DownwardGateVisualsVerification
         trigger.Runs[1][0] = 0x0053;
         var edited = new RoomPlmDownwardGateVisualCatalog(entries);
         column.Runs[0][1] = 0x0054;
-        AssertEqual((ushort)0x0053, edited.GetWord(0xa55d, 0, 1),
+        AssertEqual((ushort)0x0053, edited.GetWord(NativePlmDraws.At<DownwardGateDraw>(0xa55d), 0, 1),
             "gate visual catalog copies author data");
-        AssertEqual((ushort)0x00ff, stock.GetWord(0xa55d, 0, 1),
+        AssertEqual((ushort)0x00ff, stock.GetWord(NativePlmDraws.At<DownwardGateDraw>(0xa55d), 0, 1),
             "stock gate visual retains the physical column art");
 
         DownwardGateVisualsRenderResult
@@ -50,7 +50,7 @@ internal static class DownwardGateVisualsVerification
             (TestAddressSpace bus, RoomLevelData level, RoomPlmSystem plms, int gateBlockIndex) = CreateDownwardGateFixture(
                     DownwardGateTriggerBehavior.BlueLeft, visuals);
             StepDownwardGatePlm(plms, level);
-            AssertEqual(visuals.GetWord(0xa55d, 0, 1) == 0x0053
+            AssertEqual(visuals.GetWord(NativePlmDraws.At<DownwardGateDraw>(0xa55d), 0, 1) == 0x0053
                     ? (ushort)0x0053 : (ushort)0x000f,
                 level.DisplayedBlockTiles(gateBlockIndex + level.Size.X).TopLeft.Raw,
                 "first gate PLM step draws its selected second-column visual word");
@@ -127,14 +127,14 @@ internal static class DownwardGateVisualsVerification
                 RoomPlmDownwardGateVisualFiles.VisualFileName);
             File.WriteAllText(overridePath, document.ToJsonString());
             AssertEqual((ushort)0x0053,
-                installation.LoadRoomPlmDownwardGateVisuals().GetWord(0xa55d, 0, 1),
+                installation.LoadRoomPlmDownwardGateVisuals().GetWord(NativePlmDraws.At<DownwardGateDraw>(0xa55d), 0, 1),
                 "gate visual override selects edited column art");
 
             string refreshed = Path.Combine(testRoot, "refreshed-stock");
             RoomPlmDownwardGateVisualFiles.Extract(rom, refreshed, SupportedCartridge.Sha256);
             AssertEqual((ushort)0x0053,
                 RoomPlmDownwardGateVisualFiles.Load(refreshed,
-                    installation.RoomPlmDownwardGateVisualOverrideDirectory).GetWord(0xa55d, 0, 1),
+                    installation.RoomPlmDownwardGateVisualOverrideDirectory).GetWord(NativePlmDraws.At<DownwardGateDraw>(0xa55d), 0, 1),
                 "gate visual override survives stock replacement");
 
             column.Required("runs").Required(0)[1] = 0xf053;

@@ -8,10 +8,8 @@ namespace SuperMetroid.Core.Rooms.Doors;
 /// </summary>
 internal static class GreyDoorPlmDrawDefinitions
 {
-    /// <summary>Shared left-facing door-clear frame at $84:A677.</summary>
-    private const ushort ClearLeft = 0xa677;
-    /// <summary>Native byte stride between consecutive four-block clear or grey-cap records.</summary>
-    internal const int DrawListBytes = 12;
+    /// <summary>The cleared-opening frame, which draws no cap.</summary>
+    internal const int ClearFrame = -1;
 
     /// <summary>One of twenty twelve-byte records at $84:A677..A766.</summary>
     internal readonly record struct Draw(ColoredDoorOrientation Orientation, [property: IntegerQuantity("cap animation frame index")] int Frame) : IPlmCapDrawShape
@@ -51,50 +49,46 @@ internal static class GreyDoorPlmDrawDefinitions
     }
 
     /// <summary>Decodes a pointer on the twelve-byte grid into clear or animated cap orientation and frame.</summary>
-    internal static bool TryDescribe(ushort pointer, out Draw draw)
-    {
-        int offset = pointer - ClearLeft;
-        bool owned = offset >= 0 && offset < 20 * DrawListBytes && offset % DrawListBytes == 0;
-        int index = offset / DrawListBytes;
-        draw = owned ? new(DoorCapOrientations.FromTableIndex(index < 4 ? index : (index - 4) / 4), index < 4 ? -1 : (index - 4) % 4) : default;
-        return owned;
-    }
+    internal static bool TryDescribe(PlmDraw request, out Draw draw) =>
+        PlmDraw.TryFrame(request, static (Draw cap) => cap.Frame is >= ClearFrame and < 4, out draw);
 
     /// <summary>Enumerates all twenty native cap records for artwork import and export.</summary>
     internal static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> All
     {
         get
         {
-            for (int index = 0; index < 20; index++)
+            foreach (PlmDraw draw in Draws())
             {
-                TryGet((ushort)(ClearLeft + index * DrawListBytes), out var draw);
-                yield return draw;
+                TryGet(draw, out var list);
+                yield return list;
             }
         }
     }
 
     /// <summary>Builds a temporary import or export draw list; runtime calculates physical cells directly.</summary>
-    internal static bool TryGet(ushort pointer, out RoomPlmShotBlockDrawDefinitions.DrawList list) =>
-        RoomPlmShotBlockDrawDefinitions.TryCompileCap<Draw>(pointer, TryDescribe, out list);
+    internal static bool TryGet(PlmDraw request, out RoomPlmShotBlockDrawDefinitions.DrawList list) =>
+        RoomPlmShotBlockDrawDefinitions.TryCompileCap<Draw>(request, TryDescribe, out list);
 
     /// <summary>Names a supported clear or grey animation frame by direction and frame number.</summary>
-    internal static string VisualId(ushort pointer)
+    internal static string VisualId(PlmDraw request)
     {
-        if (!TryDescribe(pointer, out var draw))
-            throw new InvalidDataException($"Grey-door draw ${pointer:X4} has no visual ID.");
+        if (!TryDescribe(request, out var draw))
+            throw new InvalidDataException($"Grey-door draw {request} has no visual ID.");
         string direction = DoorCapOrientations.VisualName(draw.Orientation);
         return draw.Frame < 0 ? $"clear-{direction}" : $"grey-{direction}-frame-{draw.Frame}";
     }
 
     /// <summary>Resolves a stable artwork name to its compiled cap draw pointer and shape.</summary>
-    internal static bool TryGetByVisualId(string id, out RoomPlmShotBlockDrawDefinitions.DrawList list)
+    internal static bool TryGetByVisualId(string id, out RoomPlmShotBlockDrawDefinitions.DrawList list) =>
+        RoomPlmShotBlockDrawDefinitions.FindByVisualId(Draws(), VisualId, TryGet, id, out list);
+
+    /// <summary>The four cleared openings, then each facing's four grey frames.</summary>
+    private static IEnumerable<PlmDraw> Draws()
     {
-        for (int index = 0; index < 20; index++)
-        {
-            ushort pointer = (ushort)(ClearLeft + index * DrawListBytes);
-            if (string.Equals(id, VisualId(pointer), StringComparison.Ordinal)) return TryGet(pointer, out list);
-        }
-        list = default;
-        return false;
+        for (int orientation = 0; orientation < 4; orientation++)
+            yield return PlmDraw.Of(new Draw(DoorCapOrientations.FromTableIndex(orientation), ClearFrame));
+        for (int orientation = 0; orientation < 4; orientation++)
+            for (int frame = 0; frame < 4; frame++)
+                yield return PlmDraw.Of(new Draw(DoorCapOrientations.FromTableIndex(orientation), frame));
     }
 }

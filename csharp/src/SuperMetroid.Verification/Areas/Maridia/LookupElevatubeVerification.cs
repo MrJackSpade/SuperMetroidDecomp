@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Rooms.Plms.SamusEaterPlmDefinitionsVerification;
 using SuperMetroid.Core.Areas.Maridia;
@@ -16,9 +17,9 @@ internal static class LookupElevatubeVerification
         var all = MaridiaElevatubePlmDefinitions.AllDraws.ToArray();
         AssertEqual(1, all.Length, "Elevatube single export");
         AssertTrue(MaridiaElevatubePlmDefinitions.TryGetDrawByVisualId("elevatube-block", out var selected), "Elevatube ordinal ID");
-        foreach (var draw in new[] {MaridiaElevatubePlmDefinitions.Draw,all[0],selected})
+        foreach (var draw in new[] {MaridiaElevatubePlmDefinitions.BlockDrawList,all[0],selected})
         {
-            AssertEqual((ushort)0x9367, draw.Pointer, "Elevatube original shared pointer");
+            AssertEqual((ushort)0x9367, PlmDrawAddressCodec.Of(draw.Draw), "Elevatube original shared pointer");
             AssertEqual(1, draw.Runs.Length, "Elevatube one run");
             var run = draw.Runs.Span[0];
             AssertEqual(ReadSamusEaterPlmWord(rom, 0x849367), run.DirectionAndCount, "Elevatube native run header");

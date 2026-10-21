@@ -13,13 +13,13 @@ public sealed class RoomPlmLinkedRestoreVisualCatalog
     public string ContentIdentity => SelectedPresentationHash.Create(nameof(RoomPlmLinkedRestoreVisualCatalog), content =>
     {
         Span<ushort> words = stackalloc ushort[4];
-        foreach (var draw in RoomPlmLinkedRestoreDrawDefinitions.All.OrderBy(draw => draw.Pointer))
+        foreach (var draw in RoomPlmLinkedRestoreDrawDefinitions.All.OrderBy(item => RoomPlmLinkedRestoreDrawDefinitions.VisualId(item.Draw), StringComparer.Ordinal))
         {
-            Describe(draw.Pointer, out int runs, out _);
+            Describe(draw.Draw, out int runs, out _);
             for (int run = 0; run < runs; run++)
-            for (int block = 0; block < 2; block++)
-                words[run * 2 + block] = GetWord(draw.Pointer, run, block);
-            content.Append("frame", draw.Pointer);
+                for (int block = 0; block < 2; block++)
+                    words[run * 2 + block] = GetWord(draw.Draw, run, block);
+            content.AppendName("frame", RoomPlmLinkedRestoreDrawDefinitions.VisualId(draw.Draw));
             // The original catalog hashes each flattened frame as one run.
             content.Append("runs", 1);
             content.AppendWords("words", words[..(runs * 2)]);
@@ -40,19 +40,19 @@ public sealed class RoomPlmLinkedRestoreVisualCatalog
     }
 
     /// <summary>Resolves one linked restoration block by native run and word ordinals, leaving its physical collision link compiled.</summary>
-    /// <param name="drawPointer">Bank-$84 identity of a supported bomb or contact-crumble restoration draw.</param>
+    /// <param name="draw">The draw whose visual word is resolved.</param>
     /// <param name="runIndex">Zero-based native run ordinal; square layouts have two runs and the other layouts one.</param>
     /// <param name="blockIndex">Word ordinal within the run, zero or one, not a flattened entry index.</param>
     /// <returns>The authored metatile/flip word, or the layout's common compiled visual word when unchanged.</returns>
-    /// <exception cref="InvalidDataException">The pointer does not identify a supported linked restoration layout.</exception>
+    /// <exception cref="InvalidDataException">The draw is not a supported linked restoration layout.</exception>
     /// <exception cref="ArgumentOutOfRangeException">The run or word ordinal is outside the compiled draw shape.</exception>
-    public ushort GetWord(ushort drawPointer, int runIndex, int blockIndex)
+    internal ushort GetWord(PlmDraw draw, int runIndex, int blockIndex)
     {
-        if (!Describe(drawPointer, out int runs, out ushort stockWord))
-            throw new InvalidDataException($"Linked restoration visuals lack frame ${drawPointer:X4}.");
+        if (!Describe(draw, out int runs, out ushort stockWord))
+            throw new InvalidDataException($"Linked restoration visuals lack frame {draw}.");
         if ((uint)runIndex >= runs || (uint)blockIndex >= 2)
             throw new ArgumentOutOfRangeException(nameof(blockIndex));
-        return customWords.TryGet(drawPointer, out var words)
+        return customWords.TryGet(draw, out var words)
             ? words[runIndex * 2 + blockIndex] : stockWord;
     }
 
@@ -60,12 +60,12 @@ public sealed class RoomPlmLinkedRestoreVisualCatalog
     /// Resolves a bomb or contact-crumble draw's geometry and shared visual tile.
     /// Every cell uses that tile while collision links remain owned by the draw definitions.
     /// </summary>
-    private static bool Describe(ushort pointer, out int runs, out ushort stockWord)
+    private static bool Describe(PlmDraw draw, out int runs, out ushort stockWord)
     {
-        if (RoomPlmLinkedRestoreDefinition.TryDescribeAny(pointer, out var draw))
+        if (RoomPlmLinkedRestoreDefinition.TryDescribeAny(draw, out var shape))
         {
-            runs = draw.RunCount;
-            stockWord = new RoomLevelWord(draw.WordAt(0, 0)).VisualWord;
+            runs = shape.RunCount;
+            stockWord = new RoomLevelWord(shape.WordAt(0, 0)).VisualWord;
             return true;
         }
         runs = 0;

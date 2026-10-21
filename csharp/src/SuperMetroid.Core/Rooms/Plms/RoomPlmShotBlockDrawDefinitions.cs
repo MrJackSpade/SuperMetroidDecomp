@@ -8,14 +8,6 @@ namespace SuperMetroid.Core.Rooms.Plms;
 /// </summary>
 internal static class RoomPlmShotBlockDrawDefinitions
 {
-    /// <summary>First one-block breakup draw list, <c>$84:A345</c>.</summary>
-    internal const ushort SingleFrame0 = 0xa345;
-    /// <summary>First horizontal-pair breakup draw list, <c>$84:A35D</c>.</summary>
-    internal const ushort HorizontalFrame0 = 0xa35d;
-    /// <summary>First vertical-pair breakup draw list, <c>$84:A37D</c>.</summary>
-    internal const ushort VerticalFrame0 = 0xa37d;
-    /// <summary>First square breakup draw list, <c>$84:A39D</c>.</summary>
-    internal const ushort SquareFrame0 = 0xa39d;
 
     /// <summary>The direction/count word's vertical flag: a vertical run writes down a column.</summary>
     private const ushort VerticalRunBit = 0x8000;
@@ -34,8 +26,8 @@ internal static class RoomPlmShotBlockDrawDefinitions
         ReadOnlyMemory<ushort> LevelWords,
         Offset16<RoomBlocks> Next);
 
-    /// <summary>One native shot-block draw pointer with its ordered, immutable level-word runs.</summary>
-    internal readonly record struct DrawList(ushort Pointer, ReadOnlyMemory<Run> Runs)
+    /// <summary>One PLM draw with its ordered, immutable level-word runs.</summary>
+    internal readonly record struct DrawList(PlmDraw Draw, ReadOnlyMemory<Run> Runs)
     {
     }
 
@@ -59,7 +51,7 @@ internal static class RoomPlmShotBlockDrawDefinitions
     /// visual blocks $53-$55 then air; restoration uses the shape's base tile,
     /// consecutive columns and a 32-index row stride, with native collision links.</summary>
     [IndependentFlag("whether a shot-block draw is the restoring variant, a fact of the decoded draw list")]
-    internal readonly record struct Draw(ushort Pointer, Shape Layout, int Frame, bool Restore)
+    internal readonly record struct Draw(Shape Layout, int Frame, bool Restore)
     {
         /// <summary>Gets two runs for a square or one for the other block arrangements.</summary>
         internal int RunCount => Layout == Shape.Square ? 2 : 1;
@@ -94,59 +86,48 @@ internal static class RoomPlmShotBlockDrawDefinitions
     /// <summary>Resolves a published visual resource identity to its compiled draw list.</summary>
     internal delegate bool VisualLookup(string id, out DrawList list);
 
-    /// <summary>A lookup of a compiled draw list by its bank-$84 pointer.</summary>
-    internal delegate bool DrawListLookup(ushort pointer, out DrawList list);
+    /// <summary>A lookup of a compiled draw list by its draw.</summary>
+    internal delegate bool DrawListLookup(PlmDraw draw, out DrawList list);
 
     /// <summary>Finds the draw list among <paramref name="candidates"/> whose published visual resource identity is <paramref name="id"/>.</summary>
-    internal static bool FindByVisualId(IEnumerable<DrawList> candidates, Func<ushort, string> visualId, string? id, out DrawList found)
+    internal static bool FindByVisualId(IEnumerable<DrawList> candidates, Func<PlmDraw, string> visualId, string? id, out DrawList found) =>
+        PlmDraw.TryFindByVisualId(candidates, candidate => visualId(candidate.Draw), id, out found);
+
+    /// <summary>Compiles the draw list of the first of <paramref name="draws"/> whose visual resource identity is <paramref name="id"/>.</summary>
+    internal static bool FindByVisualId(IEnumerable<PlmDraw> draws, Func<PlmDraw, string> visualId, DrawListLookup lookup, string? id, out DrawList found)
     {
-        foreach (DrawList candidate in candidates)
+        foreach (PlmDraw draw in draws)
         {
-            if (string.Equals(visualId(candidate.Pointer), id, StringComparison.Ordinal))
-            {
-                found = candidate;
-                return true;
-            }
+            if (string.Equals(id, visualId(draw), StringComparison.Ordinal))
+                return lookup(draw, out found);
         }
         found = default;
         return false;
     }
 
-    /// <summary>Compiles the draw list of the first of <paramref name="pointers"/> whose visual resource identity is <paramref name="id"/>.</summary>
-    internal static bool FindByVisualId(IEnumerable<ushort> pointers, Func<ushort, string> visualId, DrawListLookup lookup, string? id, out DrawList found)
-    {
-        foreach (ushort pointer in pointers)
-        {
-            if (string.Equals(id, visualId(pointer), StringComparison.Ordinal))
-                return lookup(pointer, out found);
-        }
-        found = default;
-        return false;
-    }
+    /// <summary>Describes the compiled shape of a draw.</summary>
+    internal delegate bool ShapeLookup<TShape>(PlmDraw draw, [MaybeNullWhen(false)] out TShape shape);
 
-    /// <summary>Describes a compiled draw shape by its bank-$84 pointer.</summary>
-    internal delegate bool ShapeLookup<TShape>(ushort pointer, [MaybeNullWhen(false)] out TShape shape);
-
-    /// <summary>Builds the draw list of the run-shaped draw <paramref name="describe"/> finds for <paramref name="pointer"/>.</summary>
-    internal static bool TryCompile<TShape>(ushort pointer, ShapeLookup<TShape> describe, out DrawList list) where TShape : IPlmRunDrawShape
+    /// <summary>Builds the draw list of the run-shaped draw <paramref name="describe"/> finds for <paramref name="draw"/>.</summary>
+    internal static bool TryCompile<TShape>(PlmDraw draw, ShapeLookup<TShape> describe, out DrawList list) where TShape : IPlmRunDrawShape
     {
         list = default;
-        if (!describe(pointer, out TShape? shape)) return false;
-        list = Compile(pointer, shape);
+        if (!describe(draw, out TShape? shape)) return false;
+        list = Compile(draw, shape);
         return true;
     }
 
-    /// <summary>Builds the draw list of the door cap <paramref name="describe"/> finds for <paramref name="pointer"/>.</summary>
-    internal static bool TryCompileCap<TShape>(ushort pointer, ShapeLookup<TShape> describe, out DrawList list) where TShape : IPlmCapDrawShape
+    /// <summary>Builds the draw list of the door cap <paramref name="describe"/> finds for <paramref name="draw"/>.</summary>
+    internal static bool TryCompileCap<TShape>(PlmDraw draw, ShapeLookup<TShape> describe, out DrawList list) where TShape : IPlmCapDrawShape
     {
         list = default;
-        if (!describe(pointer, out TShape? shape)) return false;
-        list = CompileCap(pointer, shape);
+        if (!describe(draw, out TShape? shape)) return false;
+        list = CompileCap(draw, shape);
         return true;
     }
 
     /// <summary>Builds the run-by-run draw list a compiled draw shape describes.</summary>
-    private static DrawList Compile<TShape>(ushort pointer, TShape shape) where TShape : IPlmRunDrawShape
+    private static DrawList Compile<TShape>(PlmDraw draw, TShape shape) where TShape : IPlmRunDrawShape
     {
         var runs = new Run[shape.RunCount];
         for (int run = 0; run < runs.Length; run++)
@@ -155,81 +136,72 @@ internal static class RoomPlmShotBlockDrawDefinitions
             for (int cell = 0; cell < words.Length; cell++) words[cell] = shape.WordAt(run, cell);
             runs[run] = new((ushort)words.Length, words, new(shape.NextX(run), shape.NextY(run)));
         }
-        return new(pointer, runs);
+        return new(draw, runs);
     }
 
     /// <summary>Builds the one four-word run of a door cap draw.</summary>
-    private static DrawList CompileCap<TShape>(ushort pointer, TShape shape) where TShape : IPlmCapDrawShape
+    private static DrawList CompileCap<TShape>(PlmDraw draw, TShape shape) where TShape : IPlmCapDrawShape
     {
         var words = new ushort[4];
         for (int cell = 0; cell < 4; cell++) words[cell] = shape.WordAt(cell);
-        return new(pointer, new Run[] { new(shape.DirectionAndCountWord(), words, new(0, 0)) });
+        return new(draw, new Run[] { new(shape.DirectionAndCountWord(), words, new(0, 0)) });
     }
 
-    /// <summary>Recognizes a breakup frame or restoration pointer and returns its calculated draw.</summary>
-    internal static bool TryGet(ushort pointer, out Draw draw)
+    /// <summary>Breakup frame <paramref name="frame"/>, 0 through 3, of a shot block of <paramref name="shape"/>.</summary>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="frame"/> is outside 0 through 3.</exception>
+    internal static PlmFrameDraw<Draw> Breakup(Shape shape, int frame) =>
+        PlmDraw.Of(new Draw(shape, (uint)frame < BreakupFrameCount ? frame : throw new ArgumentOutOfRangeException(nameof(frame)), Restore: false));
+
+    /// <summary>The draw that restores a broken shot block of <paramref name="shape"/>.</summary>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="shape"/> is a single block, which has no restoration draw.</exception>
+    internal static PlmFrameDraw<Draw> Restoration(Shape shape) =>
+        PlmDraw.Of(new Draw(shape != Shape.Single ? shape : throw new ArgumentOutOfRangeException(nameof(shape)), 0, Restore: true));
+
+    /// <summary>Breakup frames per shape.</summary>
+    private const int BreakupFrameCount = 4;
+
+    /// <summary>The published artwork identity of a shot-block draw: its shape and breakup frame, or its restoration.</summary>
+    internal static string VisualId(Draw draw)
     {
-        if (TryFrames(pointer, SingleFrame0, 6, Shape.Single, out draw) ||
-            TryFrames(pointer, HorizontalFrame0, 8, Shape.Horizontal, out draw) ||
-            TryFrames(pointer, VerticalFrame0, 8, Shape.Vertical, out draw) ||
-            TryFrames(pointer, SquareFrame0, 16, Shape.Square, out draw)) return true;
-        var restore = (ShotBlockRestoreDraw)pointer;
-        if (!Enum.IsDefined(restore))
+        string shape = draw.Layout switch
         {
-            draw = default;
-            return false;
-        }
-        Shape layout = restore switch
-        {
-            ShotBlockRestoreDraw.Horizontal => Shape.Horizontal,
-            ShotBlockRestoreDraw.Vertical => Shape.Vertical,
-            ShotBlockRestoreDraw.Square => Shape.Square,
-            _ => throw new InvalidOperationException($"Undefined ShotBlockRestoreDraw {restore}."),
+            Shape.Single => "single",
+            Shape.Horizontal => "horizontal",
+            Shape.Vertical => "vertical",
+            Shape.Square => "square",
+            _ => throw new InvalidOperationException($"Undefined shot-block shape {draw.Layout}."),
         };
-        draw = new(pointer, layout, 0, true);
-        return true;
+        return draw.Restore ? $"{shape}-restore" : $"{shape}-breakup-{draw.Frame}";
     }
 
-    /// <summary>Checks whether a pointer is one of four fixed-stride breakup frames for a shape.</summary>
-    private static bool TryFrames(ushort pointer, ushort first, int stride, Shape shape, out Draw draw)
-    {
-        int relative = pointer - first;
-        if ((uint)relative < 4 * stride && relative % stride == 0)
-        {
-            draw = new(pointer, shape, relative / stride, false);
-            return true;
-        }
-        draw = default;
-        return false;
-    }
+    /// <summary>The published artwork identity of a shot-block <paramref name="draw"/>.</summary>
+    /// <exception cref="InvalidDataException"><paramref name="draw"/> is not a shot-block draw.</exception>
+    internal static string VisualId(PlmDraw draw) => VisualId(PlmDraw.FrameOf<Draw>(draw, "shot-block"));
+
+    /// <summary>Finds the shot-block draw whose artwork identity is <paramref name="id"/>.</summary>
+    internal static bool TryGetByVisualId(string? id, out Draw draw) =>
+        PlmDraw.TryFindByVisualId(Calculated, VisualId, id, out draw);
 
     /// <summary>Yields breakup frames interleaved by shape, followed by the three restoration draws.</summary>
     internal static IEnumerable<Draw> Calculated
     {
         get
         {
-            for (int frame = 0; frame < 4; frame++)
+            for (int frame = 0; frame < BreakupFrameCount; frame++)
             {
-                yield return Describe((ushort)(SingleFrame0 + frame * 6));
-                yield return Describe((ushort)(HorizontalFrame0 + frame * 8));
-                yield return Describe((ushort)(VerticalFrame0 + frame * 8));
-                yield return Describe((ushort)(SquareFrame0 + frame * 16));
+                yield return new Draw(Shape.Single, frame, Restore: false);
+                yield return new Draw(Shape.Horizontal, frame, Restore: false);
+                yield return new Draw(Shape.Vertical, frame, Restore: false);
+                yield return new Draw(Shape.Square, frame, Restore: false);
             }
-            yield return Describe((ushort)ShotBlockRestoreDraw.Horizontal);
-            yield return Describe((ushort)ShotBlockRestoreDraw.Vertical);
-            yield return Describe((ushort)ShotBlockRestoreDraw.Square);
+            yield return new Draw(Shape.Horizontal, 0, Restore: true);
+            yield return new Draw(Shape.Vertical, 0, Restore: true);
+            yield return new Draw(Shape.Square, 0, Restore: true);
         }
     }
 
     /// <summary>Materializes draw-list DTOs for asset tooling; runtime uses calculated draws directly.</summary>
     internal static IEnumerable<DrawList> All => Calculated.Select(Export);
-
-    /// <summary>Gets a calculated draw for an owned pointer and rejects unsupported native addresses.</summary>
-    private static Draw Describe(ushort pointer)
-    {
-        if (!TryGet(pointer, out Draw draw)) throw new InvalidDataException($"Unknown shot-block draw ${pointer:X4}.");
-        return draw;
-    }
 
     /// <summary>Expands a calculated shot-block draw into ordered level-word runs and offsets.</summary>
     private static DrawList Export(Draw draw)
@@ -242,6 +214,6 @@ internal static class RoomPlmShotBlockDrawDefinitions
             runs[run] = new((ushort)((draw.Vertical ? 0x8000 : 0) | words.Length), words,
                 new(0, (sbyte)(run + 1 < runs.Length ? 1 : 0)));
         }
-        return new(draw.Pointer, runs);
+        return new(PlmDraw.Of(draw), runs);
     }
 }

@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Bosses.MotherBrain.BabyMetroidRouteDefinitionsVerification;
 using static SuperMetroid.Verification.Samus.Abilities.SpeedBoosterCollisionBlocksVerification;
@@ -24,18 +25,18 @@ internal static class SpeedBoosterPlmProgramsVerification
         const ushort pointer = 0xa4f3;
         var exported = SpeedBoosterBlockPlmDrawDefinitions.All.ToArray();
         AssertEqual(1,exported.Length,"speed reveal export count");
-        AssertEqual(pointer,exported[0].Pointer,"speed reveal export identity");
+        AssertEqual(pointer,PlmDrawAddressCodec.Of(exported[0].Draw),"speed reveal export identity");
         for (int address = 0; address <= ushort.MaxValue; address++)
         {
-            bool found = SpeedBoosterBlockPlmDrawDefinitions.TryGet((ushort)address,out var draw);
+            bool found = SpeedBoosterBlockPlmDrawDefinitions.TryGet(NativePlmDraws.At<SpeedBoosterBlockPlmDrawDefinitions.Draw>(address),out var draw);
             AssertEqual(address == pointer,found,"speed reveal full pointer domain");
             if (!found)
             {
                 AssertEqual(default(RoomPlmShotBlockDrawDefinitions.DrawList),draw,"speed reveal missing draw cleared");
-                AssertThrows<InvalidDataException>(() => SpeedBoosterBlockPlmDrawDefinitions.VisualId((ushort)address),"speed reveal rejects unknown visual identity");
+                AssertThrows<InvalidDataException>(() => SpeedBoosterBlockPlmDrawDefinitions.VisualId(NativePlmDraws.At<SpeedBoosterBlockPlmDrawDefinitions.Draw>((ushort)address)),"speed reveal rejects unknown visual identity");
             }
         }
-        AssertEqual("bomb-reveal",SpeedBoosterBlockPlmDrawDefinitions.VisualId(pointer),"speed reveal stable semantic ID");
+        AssertEqual("bomb-reveal",SpeedBoosterBlockPlmDrawDefinitions.VisualId(NativePlmDraws.At<SpeedBoosterBlockPlmDrawDefinitions.Draw>(pointer)),"speed reveal stable semantic ID");
         AssertTrue(SpeedBoosterBlockPlmDrawDefinitions.TryGetByVisualId("bomb-reveal",out var byId),"speed reveal exact ID admitted");
         foreach (string id in new[] {"", "Bomb-reveal", "bomb-reveal ", "unknown"})
         {
@@ -46,7 +47,7 @@ internal static class SpeedBoosterPlmProgramsVerification
         AssertEqual(nativeWord,SpeedBoosterBlockPlmDrawDefinitions.BombRevealWord,"speed reveal calculated physical word");
         foreach (var draw in new[] {exported[0],byId,SpeedBoosterBlockPlmDrawDefinitions.BombReveal})
         {
-            AssertEqual(pointer,draw.Pointer,"speed reveal DTO identity");
+            AssertEqual(pointer,PlmDrawAddressCodec.Of(draw.Draw),"speed reveal DTO identity");
             AssertEqual(1,draw.Runs.Length,"speed reveal single run");
             var run = draw.Runs.Span[0];
             AssertEqual(ReadRomWord(rom,0x840000 | pointer),run.DirectionAndCount,"speed reveal native direction/count");

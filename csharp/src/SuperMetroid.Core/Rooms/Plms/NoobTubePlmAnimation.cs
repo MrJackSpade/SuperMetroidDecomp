@@ -11,7 +11,7 @@ internal sealed class NoobTubePlmAnimation(NoobTubeProgram program)
         NoobTubePlmProgramDefinitions.Programs;
 
     /// <inheritdoc/>
-    private protected override ushort DrawList(NoobTubeDraw frame) => (ushort)frame;
+    private protected override PlmDraw DrawList(NoobTubeDraw frame) => PlmDraw.Of(frame);
 
     /// <inheritdoc/>
     private protected override NoobTubeProgram? Publish(NoobTubeCue cue, PlmSlot slot, PlmStepContext context)

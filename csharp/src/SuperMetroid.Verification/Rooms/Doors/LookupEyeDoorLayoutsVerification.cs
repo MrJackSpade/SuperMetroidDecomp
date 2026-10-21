@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using static SuperMetroid.Verification.Rooms.Plms.SamusEaterPlmDefinitionsVerification;
@@ -31,8 +32,8 @@ internal static class LookupEyeDoorLayoutsVerification
             for (int raw = 0; raw <= ushort.MaxValue; raw++)
             {
                 bool owned = pointers.Contains((ushort)raw);
-                AssertEqual(owned,EyeDoorPlmDrawDefinitions.TryDescribe((ushort)raw,out var shape),"Eye door complete shape domain");
-                AssertEqual(owned,EyeDoorPlmDrawDefinitions.TryGet((ushort)raw,out var dto),"Eye door complete DTO domain");
+                AssertEqual(owned,EyeDoorPlmDrawDefinitions.TryDescribe(NativePlmDraws.At<EyeDoorPlmDrawDefinitions.Draw>((ushort)raw),out var shape),"Eye door complete shape domain");
+                AssertEqual(owned,EyeDoorPlmDrawDefinitions.TryGet(NativePlmDraws.At<EyeDoorPlmDrawDefinitions.Draw>((ushort)raw),out var dto),"Eye door complete DTO domain");
                 if (!owned)
                 {
                     AssertEqual(default(EyeDoorPlmDrawDefinitions.Draw),shape,"Eye door rejected shape");
@@ -43,12 +44,12 @@ internal static class LookupEyeDoorLayoutsVerification
         for (int index = 0; index < pointers.Length; index++)
         {
             ushort pointer = pointers[index];
-            EyeDoorPlmDrawDefinitions.TryDescribe(pointer,out var shape);
-            EyeDoorPlmDrawDefinitions.TryGet(pointer,out var direct);
+            EyeDoorPlmDrawDefinitions.TryDescribe(NativePlmDraws.At<EyeDoorPlmDrawDefinitions.Draw>(pointer),out var shape);
+            EyeDoorPlmDrawDefinitions.TryGet(NativePlmDraws.At<EyeDoorPlmDrawDefinitions.Draw>(pointer),out var direct);
             var views = new List<RoomPlmShotBlockDrawDefinitions.DrawList> {direct,exported[index]};
             if (pointer != 0x9bf7)
             {
-                AssertTrue(EyeDoorPlmDrawDefinitions.TryGetByVisualId(EyeDoorPlmDrawDefinitions.VisualId(pointer),out var named),"Eye door reverse layout");
+                AssertTrue(EyeDoorPlmDrawDefinitions.TryGetByVisualId(EyeDoorPlmDrawDefinitions.VisualId(NativePlmDraws.At<EyeDoorPlmDrawDefinitions.Draw>(pointer)),out var named),"Eye door reverse layout");
                 views.Add(named);
             }
             ushort header = ReadSamusEaterPlmWord(rom,0x840000 | pointer);
@@ -56,7 +57,7 @@ internal static class LookupEyeDoorLayoutsVerification
             bool vertical = (header & 0x8000) != 0;
             if (field == 0)
             {
-                AssertEqual(pointer,exported[index].Pointer,"Eye door original layout order");
+                AssertEqual(pointer,PlmDrawAddressCodec.Of(exported[index].Draw),"Eye door original layout order");
                 AssertEqual(count,shape.WordCount,"Eye door original cell count");
                 AssertEqual(vertical,shape.Vertical,"Eye door original direction");
                 AssertEqual((ushort)0,ReadSamusEaterPlmWord(rom,0x840000 | (pointer + 2 + count * 2)),"Eye door native terminator");
@@ -65,7 +66,7 @@ internal static class LookupEyeDoorLayoutsVerification
             }
             foreach (var view in views)
             {
-                AssertEqual(pointer,view.Pointer,"Eye door selected DTO pointer");
+                AssertEqual(pointer,PlmDrawAddressCodec.Of(view.Draw),"Eye door selected DTO pointer");
                 AssertEqual(1,view.Runs.Length,"Eye door single run");
                 var run = view.Runs.Span[0];
                 if (field == 0)
@@ -91,7 +92,7 @@ internal static class LookupEyeDoorLayoutsVerification
                 var bus = new TestAddressSpace();
                 SeedSoleElevatorPlatformPlm(bus, 0x9400, new(3, 4), 0xafb6);
                 AssertEqual(1,PlmFixtures.LoadPopulation(ref plms, new PlmRoom(level, BgArtworkFixtures.For(new SnesVram()), new Bank80SystemState(), AreaId.Crateria), SuperMetroid.TestSupport.VerificationImporters.RoomPlmPopulationImporter.Read(bus,0x9400), new RoomPlmServices { Samus = new FixtureRoomSamus(() => null), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false } }),"Eye door draw dispatcher fixture");
-                plms.DrawSolePlmFrameForVerification(level, pointer);
+                plms.DrawSolePlmFrameForVerification(level, NativePlmDraws.At<EyeDoorPlmDrawDefinitions.Draw>(pointer));
                 for (int cell = 0; cell < count; cell++)
                     AssertEqual(ReadSamusEaterPlmWord(rom,0x840000 | (pointer + 2 + cell * 2)),
                         level.GetCollisionBlock(new(checked((ushort)(3 + (vertical ? 0 : cell))), checked((ushort)(4 + (vertical ? cell : 0))))).PackedWord.Raw,

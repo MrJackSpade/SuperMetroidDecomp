@@ -52,7 +52,7 @@ internal static class MaridiaElevatubeVisualsVerification
             RoomPlmMaridiaElevatubeVisualCatalog edited =
                 installation.LoadRoomPlmMaridiaElevatubeVisuals();
             AssertEqual((ushort)0x0058,
-                edited.GetWord(MaridiaElevatubePlmDefinitions.DrawPointer, 0, 0),
+                edited.GetWord(MaridiaElevatubePlmDefinitions.BlockDraw, 0, 0),
                 "elevatube override replaces only the visible block");
 
             RoomLevelData level = CreateRoom(new(4, 4), new ushort[16], new byte[16],
@@ -97,7 +97,7 @@ internal static class MaridiaElevatubeVisualsVerification
             AssertEqual((ushort)0x0058,
                 RoomPlmMaridiaElevatubeVisualFiles.Load(refreshed,
                     installation.RoomPlmMaridiaElevatubeVisualOverrideDirectory)
-                    .GetWord(MaridiaElevatubePlmDefinitions.DrawPointer, 0, 0),
+                    .GetWord(MaridiaElevatubePlmDefinitions.BlockDraw, 0, 0),
                 "elevatube override survives stock replacement");
             document.Required("entries").Required(0).Required("blocks")[0] = 0xf058;
             File.WriteAllText(overridePath, document.ToJsonString());

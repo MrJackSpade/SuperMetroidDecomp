@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Verification.Rooms.Plms;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Hardware;
@@ -39,7 +40,7 @@ internal static class MotherBrainFakeDeathPlmsVerification
         AssertEqual(22, draws.Length,
             "Mother Brain fake death owns twenty-two physical draws");
         foreach (MotherBrainFakeDeathProgram program in Enum.GetValues<MotherBrainFakeDeathProgram>())
-            AssertTrue(MotherBrainFakeDeathPlmDrawDefinitions.TryGet((ushort)MotherBrainFakeDeathPlmProgramDefinitions.Layout(program), out _),
+            AssertTrue(MotherBrainFakeDeathPlmDrawDefinitions.TryGet(PlmDraw.Of(MotherBrainFakeDeathPlmProgramDefinitions.Layout(program)), out _),
                 $"Mother Brain program {program} selects a compiled draw");
         Reachable[] reachable =
         [
@@ -90,7 +91,7 @@ internal static class MotherBrainFakeDeathPlmsVerification
         AssertTrue(plms.PopulationSlots.Single().Animation is MotherBrainFakeDeathPlmAnimation { Program: var started } && started == program,
             $"Mother Brain mutation ${(int)header:X4} starts its typed program");
         AssertTrue(MotherBrainFakeDeathPlmDrawDefinitions.TryGet(
-                (ushort)MotherBrainFakeDeathPlmProgramDefinitions.Layout(program), out var draw),
+                PlmDraw.Of(MotherBrainFakeDeathPlmProgramDefinitions.Layout(program)), out var draw),
             $"Mother Brain mutation ${(int)header:X4} has a physical draw");
         for (int runIndex = 0; runIndex < draw.Runs.Length; runIndex++)
         {
@@ -127,7 +128,7 @@ internal static class MotherBrainFakeDeathPlmsVerification
             return (SnesAddressMath.BankNumber(address)) == 0x84 &&
                 (BossRoomPlmNativeListAddresses.IsTypedProgramByte(pointer) ||
                  MotherBrainFakeDeathPlmDrawDefinitions.All.Any(draw =>
-                     pointer >= draw.Pointer && pointer < draw.Pointer +
+                     pointer >= PlmDrawAddressCodec.Of(draw.Draw) && pointer < PlmDrawAddressCodec.Of(draw.Draw) +
                          draw.Runs.Span.Sum(run =>
                              4 + run.LevelWords.Length * 2)));
         }, address => $"Mother Brain mutation reread migrated source ${address:X6}.");

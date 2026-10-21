@@ -463,7 +463,7 @@ internal sealed class CollectiblePlms : IPlmFamilySource
             case CollectiblePhase.CollectedShotBlockEmpty:
                 item.Phase = CollectiblePhase.CollectedShotBlockRespawn;
                 item.AnimationIndex = 2;
-                DrawCollectible(level, slot, unchecked((ushort)(RoomPlmShotBlockDrawDefinitions.SingleFrame0 + item.AnimationIndex * 6)));
+                DrawCollectible(level, slot, RoomPlmShotBlockDrawDefinitions.Breakup(RoomPlmShotBlockDrawDefinitions.Shape.Single, item.AnimationIndex));
                 item.Timer = 4;
                 return true;
 
@@ -471,7 +471,7 @@ internal sealed class CollectiblePlms : IPlmFamilySource
                 item.AnimationIndex--;
                 if (item.AnimationIndex >= 0)
                 {
-                    DrawCollectible(level, slot, unchecked((ushort)(RoomPlmShotBlockDrawDefinitions.SingleFrame0 + item.AnimationIndex * 6)));
+                    DrawCollectible(level, slot, RoomPlmShotBlockDrawDefinitions.Breakup(RoomPlmShotBlockDrawDefinitions.Shape.Single, item.AnimationIndex));
                     item.Timer = 4;
                     return true;
                 }
@@ -486,13 +486,13 @@ internal sealed class CollectiblePlms : IPlmFamilySource
     }
 
     /// <summary>Selects the visible frame for an item's kind, animation index, and dynamic art slot.</summary>
-    private static ushort GetVisibleCollectibleDraw(CollectiblePlmState item) =>
+    private static PlmFrameDraw<RoomPlmCollectibleDrawDefinitions.Draw> GetVisibleCollectibleDraw(CollectiblePlmState item) =>
         RoomPlmCollectibleDrawDefinitions.VisibleFrame(
             item.Kind, item.AnimationIndex, item.GraphicsSlot);
 
     /// <summary>Executes a compiled item draw instruction against the level.</summary>
-    private void DrawCollectible(RoomLevelData level, PlmSlot slot, ushort drawPointer) =>
-        _drawing.DrawPlmInstruction(level, slot.BlockIndex, drawPointer);
+    private void DrawCollectible(RoomLevelData level, PlmSlot slot, PlmDraw draw) =>
+        _drawing.Draw(level, slot.BlockIndex, draw);
 
     /// <summary>Sets persistence and inventory before publishing the synchronous message and fanfare request.</summary>
     private void AcquireCollectible(PlmSlot slot)

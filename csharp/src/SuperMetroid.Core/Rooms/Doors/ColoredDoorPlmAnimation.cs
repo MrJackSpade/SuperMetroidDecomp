@@ -21,7 +21,7 @@ internal sealed class ColoredDoorPlmAnimation(ColoredDoorColor color, ColoredDoo
     public void StartClosing() => Restart(ColoredDoorProgram.Closing);
 
     /// <inheritdoc/>
-    private protected override ushort DrawList(DoorCapFrame frame) => frame switch
+    private protected override PlmDraw DrawList(DoorCapFrame frame) => frame switch
     {
         DoorCapFrame.Clear => DoorPlmDrawListDefinitions.Clear(Orientation),
         DoorCapFrame.Closed0 => DoorPlmDrawListDefinitions.Colored(Color, Orientation, 0),

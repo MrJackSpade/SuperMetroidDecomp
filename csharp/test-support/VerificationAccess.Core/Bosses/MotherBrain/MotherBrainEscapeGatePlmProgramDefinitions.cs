@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Core.Hardware;
+﻿using SuperMetroid.AssetExtraction.Rooms;
+using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms.Plms;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;
@@ -39,9 +40,9 @@ internal static class MotherBrainEscapeGatePlmProgramDefinitions
             0xbb3e => 94,
             0xbb44 or 0xbb48 or 0xbb4c => 2,
             0xbb38 or 0xbb42 or 0xbb50 => (ushort)RoomPlmInstruction.Delete,
-            0xbb36 or 0xbb4e => (ushort)MotherBrainEscapeGateDraw.Closed,
-            0xbb3c or 0xbb4a => (ushort)MotherBrainEscapeGateDraw.HalfClosed,
-            _ => (ushort)MotherBrainEscapeGateDraw.Open, // BB40 and BB46 only.
+            0xbb36 or 0xbb4e => PlmDrawAddressCodec.Of(PlmDraw.Of(MotherBrainEscapeGateDraw.Closed)),
+            0xbb3c or 0xbb4a => PlmDrawAddressCodec.Of(PlmDraw.Of(MotherBrainEscapeGateDraw.HalfClosed)),
+            _ => PlmDrawAddressCodec.Of(PlmDraw.Of(MotherBrainEscapeGateDraw.Open)), // BB40 and BB46 only.
         };
         value = (byte)(word >> ((address & 1) * 8));
         return true;

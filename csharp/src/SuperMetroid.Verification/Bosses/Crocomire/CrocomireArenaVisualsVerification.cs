@@ -56,10 +56,10 @@ internal static class CrocomireArenaVisualsVerification
             RoomPlmCrocomireVisualCatalog edited =
                 installation.LoadRoomPlmCrocomireVisuals();
             AssertEqual((ushort)0x0058,
-                edited.GetWord((ushort)CrocomireArenaDraw.ClearBridge, 0, 9),
+                edited.GetWord(PlmDraw.Of(CrocomireArenaDraw.ClearBridge), 0, 9),
                 "Crocomire override edits far bridge block");
             AssertEqual((ushort)0x0059,
-                edited.GetWord((ushort)CrocomireArenaDraw.CreateInvisibleWall, 2, 7),
+                edited.GetWord(PlmDraw.Of(CrocomireArenaDraw.CreateInvisibleWall), 2, 7),
                 "Crocomire override edits final wall column");
             VerifyCrocomireVisualDraw(PlmHeaderId.ClearCrocomireBridge,
                 new(9, 0), 0x0080, 0x0058, edited);
@@ -74,7 +74,7 @@ internal static class CrocomireArenaVisualsVerification
             AssertEqual((ushort)0x0059,
                 RoomPlmCrocomireVisualFiles.Load(refreshed,
                     installation.RoomPlmCrocomireVisualOverrideDirectory)
-                    .GetWord((ushort)CrocomireArenaDraw.CreateInvisibleWall,
+                    .GetWord(PlmDraw.Of(CrocomireArenaDraw.CreateInvisibleWall),
                         2, 7),
                 "Crocomire override survives stock replacement");
 

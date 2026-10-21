@@ -16,7 +16,7 @@ public sealed class RoomPlmBotwoonWallVisualCatalog
         {
             Span<ushort> selected = stackalloc ushort[BotwoonWallPlmDrawDefinitions.BlockCount];
             for (int index = 0; index < selected.Length; index++)
-                selected[index] = GetWord(BotwoonWallPlmDrawDefinitions.ClearPointer, 0, index);
+                selected[index] = GetWord(BotwoonWallPlmDrawDefinitions.Clear, 0, index);
             content.AppendWords("blocks", selected);
         });
 
@@ -33,8 +33,7 @@ public sealed class RoomPlmBotwoonWallVisualCatalog
         Ensure.NotNull(entries);
         RoomPlmVisualEntry[] selected = entries.ToArray();
         if (selected.Length != 1 || selected[0] is null ||
-            selected[0].Id != BotwoonWallPlmDrawDefinitions.VisualId(
-                BotwoonWallPlmDrawDefinitions.ClearPointer) ||
+            selected[0].Id != BotwoonWallPlmDrawDefinitions.VisualId(BotwoonWallPlmDrawDefinitions.Clear) ||
             selected[0].Blocks is null || selected[0].Blocks.Length != 9 ||
             selected[0].Blocks.Any(word => !RoomLevelWord.IsValidVisualWord(word)))
             throw new InvalidDataException(
@@ -50,18 +49,18 @@ public sealed class RoomPlmBotwoonWallVisualCatalog
         new RoomLevelWord(BotwoonWallPlmDrawDefinitions.LevelWordAt(index)).VisualWord;
 
     /// <summary>Resolves one selected wall-clear visual word without altering the compiled clear geometry, collision words, or crumble sequence.</summary>
-    /// <param name="drawPointer">The compiled bank-$84 Botwoon wall-clear draw identity.</param>
+    /// <param name="draw">The Botwoon wall-clear draw.</param>
     /// <param name="runIndex">The sole clear-run ordinal, zero.</param>
     /// <param name="blockIndex">Zero-based word ordinal 0..8 within the nine-block clear run.</param>
     /// <returns>The metatile reference and parent flips, excluding physical collision bits.</returns>
-    /// <exception cref="InvalidDataException">The pointer is not the clear draw or the run ordinal is not zero.</exception>
+    /// <exception cref="InvalidDataException">The draw is not the clear draw or the run ordinal is not zero.</exception>
     /// <exception cref="ArgumentOutOfRangeException">The block ordinal is outside 0..8.</exception>
-    public ushort GetWord(ushort drawPointer, int runIndex, int blockIndex)
+    internal ushort GetWord(PlmDraw draw, int runIndex, int blockIndex)
     {
-        if (drawPointer != BotwoonWallPlmDrawDefinitions.ClearPointer ||
+        if (draw != BotwoonWallPlmDrawDefinitions.Clear ||
             runIndex != 0)
             throw new InvalidDataException(
-                $"Botwoon wall visuals lack draw ${drawPointer:X4}, run {runIndex}.");
+                $"Botwoon wall visuals lack draw {draw}, run {runIndex}.");
         if ((uint)blockIndex >= BotwoonWallPlmDrawDefinitions.BlockCount)
             throw new ArgumentOutOfRangeException(nameof(blockIndex));
         return blocks is null ? StockWord(blockIndex) : blocks[blockIndex];

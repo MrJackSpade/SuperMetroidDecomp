@@ -14,16 +14,16 @@ public sealed class RoomPlmGreyDoorVisualCatalog
     public string ContentIdentity => SelectedPresentationHash.Create(nameof(RoomPlmGreyDoorVisualCatalog), content =>
     {
         Span<ushort> words = stackalloc ushort[4];
-        foreach (var frame in GreyDoorPlmDrawDefinitions.All.OrderBy(frame => frame.Pointer))
+        foreach (var frame in GreyDoorPlmDrawDefinitions.All.OrderBy(item => GreyDoorPlmDrawDefinitions.VisualId(item.Draw), StringComparer.Ordinal))
         {
-            for (int row = 0; row < words.Length; row++) words[row] = GetWord(frame.Pointer, row);
-            content.Append("frame", frame.Pointer);
+            for (int row = 0; row < words.Length; row++) words[row] = GetWord(frame.Draw, row);
+            content.AppendName("frame", GreyDoorPlmDrawDefinitions.VisualId(frame.Draw));
             content.Append("runs", 1);
             content.AppendWords("words", words);
         }
     });
 
-    /// <summary>Copied visual overrides keyed by compiled draw pointer; unchanged frames use calculated stock words.</summary>
+    /// <summary>Copied visual overrides keyed by draw; unchanged frames use calculated stock words.</summary>
     private readonly PlmVisualOverrides customBlocks;
 
     /// <summary>Validates all twenty clear/grey-door frames and copies visual differences while retaining compiled collision, run direction, animation timing, and handoff behavior.</summary>
@@ -37,19 +37,19 @@ public sealed class RoomPlmGreyDoorVisualCatalog
     }
 
     /// <summary>Resolves one selected cap block without changing its physical collision word or door mechanics.</summary>
-    /// <param name="drawPointer">Bank-$84 identity of a supported clear or grey-door draw frame.</param>
+    /// <param name="draw">The draw whose visual word is resolved.</param>
     /// <param name="blockIndex">Zero-based word ordinal 0..3 along the frame's native run.</param>
     /// <returns>The authored metatile/flip word, or the compiled stock word's visual bits when unchanged.</returns>
-    /// <exception cref="InvalidDataException">The pointer does not identify a supported frame.</exception>
+    /// <exception cref="InvalidDataException">The draw is not a supported frame.</exception>
     /// <exception cref="ArgumentOutOfRangeException">The block ordinal is outside 0..3.</exception>
-    public ushort GetWord(ushort drawPointer, int blockIndex)
+    internal ushort GetWord(PlmDraw draw, int blockIndex)
     {
-        if (!GreyDoorPlmDrawDefinitions.TryDescribe(drawPointer, out var draw))
+        if (!GreyDoorPlmDrawDefinitions.TryDescribe(draw, out var shape))
             throw new InvalidDataException(
-                $"Grey-door visuals lack frame ${drawPointer:X4}.");
+                $"Grey-door visuals lack frame {draw}.");
         if ((uint)blockIndex >= 4)
             throw new ArgumentOutOfRangeException(nameof(blockIndex));
-        return customBlocks.TryGet(drawPointer, out var words)
-            ? words[blockIndex] : new RoomLevelWord(draw.WordAt(blockIndex)).VisualWord;
+        return customBlocks.TryGet(draw, out var words)
+            ? words[blockIndex] : new RoomLevelWord(shape.WordAt(blockIndex)).VisualWord;
     }
 }

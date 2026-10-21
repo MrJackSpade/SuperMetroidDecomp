@@ -1,4 +1,5 @@
-﻿namespace SuperMetroid.Core.Rooms.Plms;
+﻿using SuperMetroid.AssetExtraction.Rooms;
+namespace SuperMetroid.Core.Rooms.Plms;
 
 /// <summary>
 /// Native one-frame reveal/delete lists $84:C8EC-C902 and $84:C91C-C926.
@@ -42,12 +43,12 @@ internal static class RoomPlmBombedRevealProgramDefinitions
     /// <summary>Selects the draw command for the reveal list's single display frame.</summary>
     private static ushort DrawOf(Reveal reveal) => reveal switch
     {
-        Reveal.Crumble1x1 => (ushort)RoomPlmBombedRevealDraw.CrumbleSingle,
-        Reveal.Crumble2x1 => (ushort)ContactCrumbleRestoreDraw.Horizontal,
-        Reveal.Crumble1x2 => (ushort)ContactCrumbleRestoreDraw.Vertical,
-        Reveal.Crumble2x2 => (ushort)ContactCrumbleRestoreDraw.Square,
-        Reveal.PowerBomb => (ushort)RoomPlmBombedRevealDraw.PowerBomb,
-        Reveal.SuperMissile => (ushort)RoomPlmBombedRevealDraw.SuperMissile,
+        Reveal.Crumble1x1 => PlmDrawAddressCodec.Of(PlmDraw.Of(RoomPlmBombedRevealDraw.CrumbleSingle)),
+        Reveal.Crumble2x1 => PlmDrawAddressCodec.Of(PlmDraw.Of(ContactCrumbleRestoreDraw.Horizontal)),
+        Reveal.Crumble1x2 => PlmDrawAddressCodec.Of(PlmDraw.Of(ContactCrumbleRestoreDraw.Vertical)),
+        Reveal.Crumble2x2 => PlmDrawAddressCodec.Of(PlmDraw.Of(ContactCrumbleRestoreDraw.Square)),
+        Reveal.PowerBomb => PlmDrawAddressCodec.Of(PlmDraw.Of(RoomPlmBombedRevealDraw.PowerBomb)),
+        Reveal.SuperMissile => PlmDrawAddressCodec.Of(PlmDraw.Of(RoomPlmBombedRevealDraw.SuperMissile)),
         _ => throw new InvalidOperationException($"Undefined bombed-reveal list {reveal}."),
     };
 

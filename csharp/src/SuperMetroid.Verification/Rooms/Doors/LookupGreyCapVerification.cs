@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Rooms.Plms.SamusEaterPlmDefinitionsVerification;
 using SuperMetroid.Core.Rooms.Doors;
@@ -28,13 +29,13 @@ internal static class LookupGreyCapVerification
             {
                 ushort pointer = (ushort)raw;
                 bool owned = pointers.Contains(pointer);
-                AssertEqual(owned, GreyDoorPlmDrawDefinitions.TryDescribe(pointer, out var shape), "Grey cap descriptor domain");
-                AssertEqual(owned, GreyDoorPlmDrawDefinitions.TryGet(pointer, out var dto), "Grey cap DTO domain");
+                AssertEqual(owned, GreyDoorPlmDrawDefinitions.TryDescribe(NativePlmDraws.At<GreyDoorPlmDrawDefinitions.Draw>(pointer), out var shape), "Grey cap descriptor domain");
+                AssertEqual(owned, GreyDoorPlmDrawDefinitions.TryGet(NativePlmDraws.At<GreyDoorPlmDrawDefinitions.Draw>(pointer), out var dto), "Grey cap DTO domain");
                 if (!owned)
                 {
                     AssertEqual(default(GreyDoorPlmDrawDefinitions.Draw), shape, "Grey cap missing descriptor");
                     AssertEqual(default(RoomPlmShotBlockDrawDefinitions.DrawList), dto, "Grey cap missing DTO");
-                    AssertThrows<InvalidDataException>(() => GreyDoorPlmDrawDefinitions.VisualId(pointer), "Grey cap missing ID");
+                    AssertThrows<InvalidDataException>(() => GreyDoorPlmDrawDefinitions.VisualId(NativePlmDraws.At<GreyDoorPlmDrawDefinitions.Draw>(pointer)), "Grey cap missing ID");
                 }
             }
             foreach (string id in new[] { "CLEAR-LEFT", "grey-left-frame-4", "", "unknown" })
@@ -46,14 +47,14 @@ internal static class LookupGreyCapVerification
         for (int index = 0; index < pointers.Length; index++)
         {
             ushort pointer = pointers[index];
-            GreyDoorPlmDrawDefinitions.TryDescribe(pointer, out var shape);
-            GreyDoorPlmDrawDefinitions.TryGet(pointer, out var dto);
+            GreyDoorPlmDrawDefinitions.TryDescribe(NativePlmDraws.At<GreyDoorPlmDrawDefinitions.Draw>(pointer), out var shape);
+            GreyDoorPlmDrawDefinitions.TryGet(NativePlmDraws.At<GreyDoorPlmDrawDefinitions.Draw>(pointer), out var dto);
             if (field == 0)
             {
-                AssertEqual(pointer, exported[index].Pointer, "Grey cap original order");
-                AssertEqual(ids[index], GreyDoorPlmDrawDefinitions.VisualId(pointer), "Grey cap published ID");
+                AssertEqual(pointer, PlmDrawAddressCodec.Of(exported[index].Draw), "Grey cap original order");
+                AssertEqual(ids[index], GreyDoorPlmDrawDefinitions.VisualId(NativePlmDraws.At<GreyDoorPlmDrawDefinitions.Draw>(pointer)), "Grey cap published ID");
                 AssertTrue(GreyDoorPlmDrawDefinitions.TryGetByVisualId(ids[index], out var byId), "Grey cap reverse ID");
-                AssertEqual(pointer, byId.Pointer, "Grey cap ID identity");
+                AssertEqual(pointer, PlmDrawAddressCodec.Of(byId.Draw), "Grey cap ID identity");
                 AssertEqual(ReadSamusEaterPlmWord(rom, 0x840000 | pointer), shape.DirectionAndCount, "Grey cap native geometry");
                 AssertEqual((ushort)0, ReadSamusEaterPlmWord(rom, 0x840000 | (pointer + 10)), "Grey cap native final offset");
                 foreach (var frame in new[] {dto,exported[index],byId})

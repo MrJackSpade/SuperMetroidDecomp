@@ -14,18 +14,18 @@ public sealed class RoomPlmEyeDoorVisualCatalog
     public string ContentIdentity => SelectedPresentationHash.Create(nameof(RoomPlmEyeDoorVisualCatalog), content =>
     {
         Span<ushort> buffer = stackalloc ushort[4];
-        foreach (var frame in EyeDoorPlmDrawDefinitions.Editable.OrderBy(frame => frame.Pointer))
+        foreach (var frame in EyeDoorPlmDrawDefinitions.Editable.OrderBy(item => EyeDoorPlmDrawDefinitions.VisualId(item.Draw), StringComparer.Ordinal))
         {
-            EyeDoorPlmDrawDefinitions.TryDescribe(frame.Pointer, out var shape);
-            content.Append("frame", frame.Pointer);
+            EyeDoorPlmDrawDefinitions.TryDescribe(frame.Draw, out var shape);
+            content.AppendName("frame", EyeDoorPlmDrawDefinitions.VisualId(frame.Draw));
             content.Append("runs", 1);
-            for (int cell = 0; cell < shape.WordCount; cell++) buffer[cell] = GetWord(frame.Pointer, cell);
+            for (int cell = 0; cell < shape.WordCount; cell++) buffer[cell] = GetWord(frame.Draw, cell);
             content.AppendWords("words", buffer[..shape.WordCount]);
         }
     });
 
     /// <summary>
-    /// Copied visual overrides keyed by the eye-door frame's shared source pointer;
+    /// Copied visual overrides keyed by the eye-door frame's shared source draw;
     /// null keeps the compiled appearance for every component and clearing frame.
     /// </summary>
     private readonly PlmVisualOverrides customBlocks;
@@ -42,20 +42,20 @@ public sealed class RoomPlmEyeDoorVisualCatalog
     }
 
     /// <summary>Resolves an eye-door visual block, sharing and horizontally mirroring the selected clearing artwork for the native opening-clear alias.</summary>
-    /// <param name="drawPointer">Bank-$84 eye-door draw identity, including mirrored opening clear $9BF7, which uses clearing frame $9C4F.</param>
+    /// <param name="draw">The draw whose visual word is resolved.</param>
     /// <param name="blockIndex">Zero-based word ordinal within the component's single native run: two eye blocks, one middle or bottom block, or four clearing blocks.</param>
     /// <returns>The selected metatile/flip word with the horizontal flip toggled for the opening-clear alias; unchanged art derives from compiled stock words.</returns>
-    /// <exception cref="InvalidDataException">The pointer does not identify a supported eye-door frame or clearing alias.</exception>
+    /// <exception cref="InvalidDataException">The draw is not a supported eye-door frame or clearing alias.</exception>
     /// <exception cref="ArgumentOutOfRangeException">The block ordinal is outside the selected component's draw shape.</exception>
-    public ushort GetWord(ushort drawPointer, int blockIndex)
+    internal ushort GetWord(PlmDraw draw, int blockIndex)
     {
-        ushort visualSource = EyeDoorPlmDrawDefinitions.VisualSource(drawPointer);
+        PlmDraw visualSource = EyeDoorPlmDrawDefinitions.VisualSource(draw);
         if (!EyeDoorPlmDrawDefinitions.TryDescribe(visualSource, out var shape))
-            throw new InvalidDataException($"Eye-door visuals lack frame ${drawPointer:X4}.");
+            throw new InvalidDataException($"Eye-door visuals lack frame {draw}.");
         if ((uint)blockIndex >= (uint)shape.WordCount)
             throw new ArgumentOutOfRangeException(nameof(blockIndex));
         ushort word = customBlocks.TryGet(visualSource, out var words)
             ? words[blockIndex] : new RoomLevelWord(shape.WordAt(blockIndex)).VisualWord;
-        return (ushort)(word ^ (drawPointer != visualSource ? (ushort)LevelBlockFlipFlags.Horizontal : 0));
+        return (ushort)(word ^ (draw != visualSource ? (ushort)LevelBlockFlipFlags.Horizontal : 0));
     }
 }

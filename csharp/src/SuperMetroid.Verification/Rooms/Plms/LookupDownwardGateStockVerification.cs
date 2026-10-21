@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Verification.Areas.Escape;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Rooms.Plms.SamusEaterPlmDefinitionsVerification;
@@ -42,7 +43,7 @@ internal static class LookupDownwardGateStockVerification
         var stock = RoomPlmDownwardGateVisualCatalog.Stock();
         var imported = new RoomPlmDownwardGateVisualCatalog(entries.Reverse());
         string Hash(Dictionary<ushort, ushort[][]> words) => SuperMetroid.Core.Assets.SelectedPresentationHash.FromWordFrames(
-            nameof(RoomPlmDownwardGateVisualCatalog), words);
+            nameof(RoomPlmDownwardGateVisualCatalog), words.ToDictionary(pair => DownwardGatePlmDrawDefinitions.VisualId(NativePlmDraws.At<DownwardGateDraw>(pair.Key)), pair => pair.Value));
         foreach (var catalog in new[] {stock, imported, installed})
         {
             AssertEqual(Hash(native), catalog.ContentIdentity, "Gate original run-framed hash");
@@ -52,17 +53,17 @@ internal static class LookupDownwardGateStockVerification
                 for (int run = 0; run < runs.Length; run++)
                 {
                     for (int word = 0; word < runs[run].Length; word++)
-                        AssertEqual(runs[run][word], catalog.GetWord(frame.Pointer,run,word), "Gate original stock word");
+                        AssertEqual(runs[run][word], catalog.GetWord(NativePlmDraws.At<DownwardGateDraw>(frame.Pointer),run,word), "Gate original stock word");
                     foreach (int bad in new[] {int.MinValue,-1,runs[run].Length,int.MaxValue})
-                        AssertThrows<ArgumentOutOfRangeException>(() => catalog.GetWord(frame.Pointer,run,bad), "Gate stock word bounds");
+                        AssertThrows<ArgumentOutOfRangeException>(() => catalog.GetWord(NativePlmDraws.At<DownwardGateDraw>(frame.Pointer),run,bad), "Gate stock word bounds");
                 }
                 foreach (int bad in new[] {int.MinValue,-1,runs.Length,int.MaxValue})
-                    AssertThrows<ArgumentOutOfRangeException>(() => catalog.GetWord(frame.Pointer,bad,0), "Gate stock run bounds");
+                    AssertThrows<ArgumentOutOfRangeException>(() => catalog.GetWord(NativePlmDraws.At<DownwardGateDraw>(frame.Pointer),bad,0), "Gate stock run bounds");
             }
         }
         for (int pointer = 0; pointer <= ushort.MaxValue; pointer++)
             if (!native.ContainsKey((ushort)pointer))
-                AssertThrows<InvalidDataException>(() => stock.GetWord((ushort)pointer,0,0), "Gate stock unknown pointer");
+                AssertThrows<InvalidDataException>(() => stock.GetWord(NativePlmDraws.At<DownwardGateDraw>((ushort)pointer),0,0), "Gate stock unknown pointer");
         entries[6].Runs[1][0] = 0xc58;
         entries[5].Runs[0][4] = 0x59;
         var mixed = new RoomPlmDownwardGateVisualCatalog(entries);
@@ -74,7 +75,7 @@ internal static class LookupDownwardGateStockVerification
         foreach (var frame in frames)
         for (int run = 0; run < expected[frame.Pointer].Length; run++)
         for (int word = 0; word < expected[frame.Pointer][run].Length; word++)
-            AssertEqual(expected[frame.Pointer][run][word], mixed.GetWord(frame.Pointer,run,word), "Gate clone isolation and stock fallback");
+            AssertEqual(expected[frame.Pointer][run][word], mixed.GetWord(NativePlmDraws.At<DownwardGateDraw>(frame.Pointer),run,word), "Gate clone isolation and stock fallback");
         AssertThrows<InvalidDataException>(() => new RoomPlmDownwardGateVisualCatalog(entries[..13]), "Gate missing frame");
         AssertThrows<InvalidDataException>(() => new RoomPlmDownwardGateVisualCatalog(entries.Append(entries[0])), "Gate duplicate frame");
         var invalid = entries.ToArray();

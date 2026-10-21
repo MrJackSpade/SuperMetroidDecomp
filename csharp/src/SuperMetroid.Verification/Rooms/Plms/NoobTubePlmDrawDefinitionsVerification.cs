@@ -32,10 +32,10 @@ internal static class NoobTubePlmDrawDefinitionsVerification
         Suite(nameof(VerifyTubeVisuals), () => VerifyTubeVisuals(rom));
 
         RoomPlmShotBlockDrawDefinitions.DrawList[] lists =
-            NoobTubePlmDrawDefinitions.All.OrderBy(list => list.Pointer).ToArray();
+            NoobTubePlmDrawDefinitions.All.OrderBy(list => PlmDrawAddressCodec.Of(list.Draw)).ToArray();
         RoomPlmVisualEntry[] entries = lists.Select(draw =>
             new RoomPlmVisualEntry(
-                NoobTubePlmDrawDefinitions.VisualId(draw.Pointer),
+                NoobTubePlmDrawDefinitions.VisualId(draw.Draw),
                 draw.VisualWords())).ToArray();
         RoomPlmVisualEntry cleared = entries.Single(entry =>
             entry.Id == "cleared");
@@ -43,10 +43,10 @@ internal static class NoobTubePlmDrawDefinitionsVerification
         cleared.Blocks[24] = 0x0059;
         var edited = new RoomPlmNoobTubeVisualCatalog(entries);
         cleared.Blocks[24] = 0x005a;
-        AssertEqual((ushort)0x0059, edited.GetWord(0x98e3, 2, 0),
+        AssertEqual((ushort)0x0059, edited.GetWord(NativePlmDraws.At<NoobTubeDraw>(0x98e3), 2, 0),
             "n00b-tube catalog copies author data");
         AssertEqual(originalWord,
-            RoomPlmNoobTubeVisualCatalog.Stock().GetWord(0x98e3, 2, 0),
+            RoomPlmNoobTubeVisualCatalog.Stock().GetWord(NativePlmDraws.At<NoobTubeDraw>(0x98e3), 2, 0),
             "stock n00b-tube catalog retains the native row tile");
         cleared.Blocks[24] = originalWord;
         AssertEqual(7, lists.Length,
@@ -56,7 +56,7 @@ internal static class NoobTubePlmDrawDefinitionsVerification
             bank84[index] = rom.ReadCartridgeByte(0x848000 + index);
         foreach (RoomPlmShotBlockDrawDefinitions.DrawList list in lists)
             VerifyNoobTubeNativeDrawPath(bank84, lists, list,
-                list.Pointer == 0x98e3 ? edited : null);
+                PlmDrawAddressCodec.Of(list.Draw) == 0x98e3 ? edited : null);
         Suite(nameof(VerifyNoobTubeVisualInstallation), () => VerifyNoobTubeVisualInstallation(rom));
         Console.WriteLine(
             "  N00b-tube PLM: seven guarded native layouts and editable stock/override appearance preserve physical blocks.");
@@ -88,8 +88,8 @@ internal static class NoobTubePlmDrawDefinitionsVerification
         var level = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(new ushort[width * height], new byte[width * height], new ushort[width * height]), blockDefinitions);
         var plms = PlmFixtures.Unbound(new PlmShotBlockVisuals { RoomPlmNoobTubeVisuals = visuals });
         AssertEqual(1, PlmFixtures.LoadPopulation(ref plms, new PlmRoom(level, BgArtworkFixtures.For(new SnesVram()), new Bank80SystemState(), AreaId.Maridia), RoomPlmPopulationImporter.Read(guarded, 0x9400), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false }, Events = new FixtureEventFlags { HasEvent = _ => false, SetEvent = _ => { } } }),
-            $"n00b tube loads for draw ${selected.Pointer:X4}");
-        plms.DrawSolePlmFrameForVerification(level, selected.Pointer);
+            $"n00b tube loads for draw ${PlmDrawAddressCodec.Of(selected.Draw):X4}");
+        plms.DrawSolePlmFrameForVerification(level, NativePlmDraws.At<NoobTubeDraw>(PlmDrawAddressCodec.Of(selected.Draw)));
 
         int entryX = originX;
         int entryY = originY;
@@ -108,9 +108,9 @@ internal static class NoobTubePlmDrawDefinitionsVerification
         }
         foreach ((int index, ushort word) in expected)
             AssertEqual(word, level.GetCollisionBlockByIndex(index).PackedWord.Raw,
-                $"n00b-tube draw ${selected.Pointer:X4} writes native physical block {index}");
+                $"n00b-tube draw ${PlmDrawAddressCodec.Of(selected.Draw):X4} writes native physical block {index}");
         AssertEqual(0, guarded.ForbiddenReadAttempts,
-            $"n00b-tube draw ${selected.Pointer:X4} avoids source payload reads");
+            $"n00b-tube draw ${PlmDrawAddressCodec.Of(selected.Draw):X4} avoids source payload reads");
         if (visuals is not null)
         {
             const int editedBlock = 4 * width + 2;
@@ -152,7 +152,7 @@ internal static class NoobTubePlmDrawDefinitionsVerification
                 RoomPlmNoobTubeVisualFiles.VisualFileName);
             File.WriteAllText(overridePath, document.ToJsonString());
             AssertEqual((ushort)0x0059,
-                installation.LoadRoomPlmNoobTubeVisuals().GetWord(0x98e3, 2, 0),
+                installation.LoadRoomPlmNoobTubeVisuals().GetWord(NativePlmDraws.At<NoobTubeDraw>(0x98e3), 2, 0),
                 "installed tube override changes an internal twelve-block row tile");
 
             string refreshed = Path.Combine(testRoot, "refreshed-stock");
@@ -161,7 +161,7 @@ internal static class NoobTubePlmDrawDefinitionsVerification
             AssertEqual((ushort)0x0059,
                 RoomPlmNoobTubeVisualFiles.Load(refreshed,
                     installation.RoomPlmNoobTubeVisualOverrideDirectory)
-                    .GetWord(0x98e3, 2, 0),
+                    .GetWord(NativePlmDraws.At<NoobTubeDraw>(0x98e3), 2, 0),
                 "tube override survives stock replacement");
 
             frame.Required("blocks")[24] = 0xf059;
@@ -186,7 +186,7 @@ internal static class NoobTubePlmDrawDefinitionsVerification
         ISnesAddressSpace source, RoomPlmShotBlockDrawDefinitions.DrawList[] lists) =>
         new CartridgeReadGuard(source).Forbid(address => lists.Any(list =>
             {
-                int first = 0x840000 | list.Pointer;
+                int first = 0x840000 | PlmDrawAddressCodec.Of(list.Draw);
                 int length = list.Runs.Span.Sum(run =>
                     4 + run.LevelWords.Length * 2);
                 return address >= first && address < first + length;

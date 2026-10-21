@@ -31,7 +31,7 @@ internal abstract class PlmProgramAnimation<TProgram, TFrame, TCue> : PlmAnimati
     private protected abstract AnimationProgramSet<TProgram, TFrame, TCue> Programs { get; }
 
     /// <summary>The bank-$84 draw list <paramref name="frame"/> draws.</summary>
-    private protected abstract ushort DrawList(TFrame frame);
+    private protected abstract PlmDraw DrawList(TFrame frame);
 
     /// <summary>Draws <paramref name="frame"/> at the slot's block: its bank-$84 draw list unless the family draws it otherwise.</summary>
     private protected virtual void Draw(TFrame frame, PlmSlot slot, PlmStepContext context) =>

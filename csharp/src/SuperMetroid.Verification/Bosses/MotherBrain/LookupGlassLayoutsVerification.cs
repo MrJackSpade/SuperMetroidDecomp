@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Rooms.Plms.SamusEaterPlmDefinitionsVerification;
 using SuperMetroid.Core.Bosses.MotherBrain;
@@ -28,13 +29,13 @@ internal static class LookupGlassLayoutsVerification
             {
                 ushort pointer = (ushort)raw;
                 bool owned = pointers.Contains(pointer);
-                AssertEqual(owned, MotherBrainGlassPlmDrawDefinitions.TryDescribe(pointer, out var shape), "Glass layout shape domain");
-                AssertEqual(owned, MotherBrainGlassPlmDrawDefinitions.TryGet(pointer, out var dto), "Glass layout DTO domain");
+                AssertEqual(owned, MotherBrainGlassPlmDrawDefinitions.TryDescribe(NativePlmDraws.At<MotherBrainGlassDraw>(pointer), out var shape), "Glass layout shape domain");
+                AssertEqual(owned, MotherBrainGlassPlmDrawDefinitions.TryGet(NativePlmDraws.At<MotherBrainGlassDraw>(pointer), out var dto), "Glass layout DTO domain");
                 if (!owned)
                 {
                     AssertEqual(default(MotherBrainGlassPlmDrawDefinitions.Draw), shape, "Glass layout missing shape");
                     AssertEqual(default(RoomPlmShotBlockDrawDefinitions.DrawList), dto, "Glass layout missing DTO");
-                    AssertThrows<InvalidDataException>(() => MotherBrainGlassPlmDrawDefinitions.VisualId(pointer), "Glass layout missing ID");
+                    AssertThrows<InvalidDataException>(() => MotherBrainGlassPlmDrawDefinitions.VisualId(NativePlmDraws.At<MotherBrainGlassDraw>(pointer)), "Glass layout missing ID");
                 }
             }
             foreach (string id in new[] { "INTACT", "broken", "", "unknown" })
@@ -47,14 +48,14 @@ internal static class LookupGlassLayoutsVerification
         for (int index = 0; index < pointers.Length; index++)
         {
             ushort pointer = pointers[index];
-            MotherBrainGlassPlmDrawDefinitions.TryDescribe(pointer, out var shape);
-            MotherBrainGlassPlmDrawDefinitions.TryGet(pointer, out var dto);
+            MotherBrainGlassPlmDrawDefinitions.TryDescribe(NativePlmDraws.At<MotherBrainGlassDraw>(pointer), out var shape);
+            MotherBrainGlassPlmDrawDefinitions.TryGet(NativePlmDraws.At<MotherBrainGlassDraw>(pointer), out var dto);
             MotherBrainGlassPlmDrawDefinitions.TryGetByVisualId(ids[index], out var byId);
             if (field == 0)
             {
-                AssertEqual(pointer, exported[index].Pointer, "Glass layout original export order");
-                AssertEqual(ids[index], MotherBrainGlassPlmDrawDefinitions.VisualId(pointer), "Glass layout published ID");
-                AssertEqual(pointer, byId.Pointer, "Glass layout reverse ID");
+                AssertEqual(pointer, PlmDrawAddressCodec.Of(exported[index].Draw), "Glass layout original export order");
+                AssertEqual(ids[index], MotherBrainGlassPlmDrawDefinitions.VisualId(NativePlmDraws.At<MotherBrainGlassDraw>(pointer)), "Glass layout published ID");
+                AssertEqual(pointer, PlmDrawAddressCodec.Of(byId.Draw), "Glass layout reverse ID");
                 foreach (int invalid in new[] {int.MinValue,-1,shape.RunCount,int.MaxValue})
                 {
                     AssertThrows<ArgumentOutOfRangeException>(() => shape.WordCount(invalid), "Glass layout run bounds");

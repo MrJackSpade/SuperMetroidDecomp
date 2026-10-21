@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Rooms.LevelData;
 
 namespace SuperMetroid.Core.Rooms.Plms;
@@ -14,27 +13,17 @@ internal static class RoomPlmLinkedRestoreDrawDefinitions
     internal static IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> All =>
         RoomPlmLinkedRestoreDefinition.Families.SelectMany(family => family.All);
 
-    /// <summary>Maps a compiled restore draw pointer to a bomb or crumble artwork key and rejects unknown identities.</summary>
-    internal static string VisualId(ushort pointer)
+    /// <summary>Maps a restoration draw to its bomb or crumble artwork key and rejects other draws.</summary>
+    internal static string VisualId(PlmDraw draw) => draw switch
     {
-        if (Enum.IsDefined((BombBlockRestoreDraw)pointer))
-        {
-            return (BombBlockRestoreDraw)pointer switch
-            {
-                BombBlockRestoreDraw.Horizontal => "bomb-horizontal",
-                BombBlockRestoreDraw.Vertical => "bomb-vertical",
-                BombBlockRestoreDraw.Square => "bomb-square",
-                _ => throw new InvalidOperationException($"Undefined {nameof(BombBlockRestoreDraw)} {pointer:X4}."),
-            };
-        }
-        return ClosedNativeWords.Decode<ContactCrumbleRestoreDraw>(pointer, "linked restore draw with a visual ID") switch
-        {
-            ContactCrumbleRestoreDraw.Horizontal => "crumble-horizontal",
-            ContactCrumbleRestoreDraw.Vertical => "crumble-vertical",
-            ContactCrumbleRestoreDraw.Square => "crumble-square",
-            _ => throw new InvalidOperationException($"Undefined {nameof(ContactCrumbleRestoreDraw)} {pointer:X4}."),
-        };
-    }
+        PlmFrameDraw<BombBlockRestoreDraw> { Frame: BombBlockRestoreDraw.Horizontal } => "bomb-horizontal",
+        PlmFrameDraw<BombBlockRestoreDraw> { Frame: BombBlockRestoreDraw.Vertical } => "bomb-vertical",
+        PlmFrameDraw<BombBlockRestoreDraw> { Frame: BombBlockRestoreDraw.Square } => "bomb-square",
+        PlmFrameDraw<ContactCrumbleRestoreDraw> { Frame: ContactCrumbleRestoreDraw.Horizontal } => "crumble-horizontal",
+        PlmFrameDraw<ContactCrumbleRestoreDraw> { Frame: ContactCrumbleRestoreDraw.Vertical } => "crumble-vertical",
+        PlmFrameDraw<ContactCrumbleRestoreDraw> { Frame: ContactCrumbleRestoreDraw.Square } => "crumble-square",
+        _ => throw new InvalidDataException($"{draw} is not a linked restoration draw."),
+    };
 
     /// <summary>Finds the compiled restoration draw whose stable visual key equals the supplied identifier.</summary>
     internal static bool TryGetByVisualId(string id,

@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Verification.Rooms.Plms;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Bosses.Kraid.KraidDrawMappingsVerification;
@@ -106,7 +107,7 @@ internal static class KraidRoomPlmsVerification
         new CartridgeReadGuard(source).Forbid(
             address => (SnesAddressMath.BankNumber(address)) == 0x84 &&
                 (BossRoomPlmNativeListAddresses.IsTypedProgramByte(SnesAddressMath.OffsetInBank(address)) ||
-                 ((SnesAddressMath.OffsetInBank(address)) >= (ushort)KraidRoomDraw.CrumbleFirst &&
+                 ((SnesAddressMath.OffsetInBank(address)) >= PlmDrawAddressCodec.Of(PlmDraw.Of(KraidRoomDraw.CrumbleFirst)) &&
                   (SnesAddressMath.OffsetInBank(address)) < KraidRoomPlmDrawDefinitions.EndExclusive)),
             address => $"Kraid mutation reread migrated source ${address:X6}.");
 

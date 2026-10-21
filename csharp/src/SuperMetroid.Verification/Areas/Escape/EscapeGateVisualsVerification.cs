@@ -31,9 +31,9 @@ internal static class EscapeGateVisualsVerification
     {
         RoomPlmVisualEntry[] entries =
             MotherBrainEscapeGatePlmDrawDefinitions.All
-                .OrderBy(draw => draw.Pointer)
+                .OrderBy(draw => PlmDrawAddressCodec.Of(draw.Draw))
                 .Select(draw => new RoomPlmVisualEntry(
-                    MotherBrainEscapeGatePlmDrawDefinitions.VisualId(draw.Pointer),
+                    MotherBrainEscapeGatePlmDrawDefinitions.VisualId(draw.Draw),
                     draw.Runs.Span[0].LevelWords.Span
                         .SelectToArray(word => new RoomLevelWord(word).VisualWord)))
                 .ToArray();
@@ -49,14 +49,14 @@ internal static class EscapeGateVisualsVerification
         closed.Blocks[0] = 0x0055;
         halfClosed.Blocks[0] = 0x0056;
         AssertEqual((ushort)0x0053,
-            edited.GetWord((ushort)MotherBrainEscapeGateDraw.Closed, 0),
+            edited.GetWord(PlmDraw.Of(MotherBrainEscapeGateDraw.Closed), 0),
             "escape-gate catalog copies closed-frame author data");
         AssertEqual((ushort)0x0054,
-            edited.GetWord((ushort)MotherBrainEscapeGateDraw.HalfClosed, 0),
+            edited.GetWord(PlmDraw.Of(MotherBrainEscapeGateDraw.HalfClosed), 0),
             "escape-gate catalog copies transition-frame author data");
         AssertEqual(stockClosed,
             RoomPlmEscapeGateVisualCatalog.Stock().GetWord(
-                (ushort)MotherBrainEscapeGateDraw.Closed, 0),
+                PlmDraw.Of(MotherBrainEscapeGateDraw.Closed), 0),
             "stock escape-gate catalog retains cartridge appearance");
         closed.Blocks[0] = stockClosed;
         halfClosed.Blocks[0] = stockHalfClosed;
@@ -170,7 +170,7 @@ internal static class EscapeGateVisualsVerification
             File.WriteAllText(overridePath, document.ToJsonString());
             AssertEqual((ushort)0x0053,
                 installation.LoadRoomPlmEscapeGateVisuals().GetWord(
-                    (ushort)MotherBrainEscapeGateDraw.Closed, 0),
+                    PlmDraw.Of(MotherBrainEscapeGateDraw.Closed), 0),
                 "installed escape-gate override changes selected frame");
 
             string refreshed = Path.Combine(testRoot, "refreshed-stock");
@@ -179,7 +179,7 @@ internal static class EscapeGateVisualsVerification
             AssertEqual((ushort)0x0053,
                 RoomPlmEscapeGateVisualFiles.Load(refreshed,
                     installation.RoomPlmEscapeGateVisualOverrideDirectory).GetWord(
-                    (ushort)MotherBrainEscapeGateDraw.Closed, 0),
+                    PlmDraw.Of(MotherBrainEscapeGateDraw.Closed), 0),
                 "escape-gate override survives stock replacement");
             closed.Required("blocks")[0] = 0xf053;
             File.WriteAllText(overridePath, document.ToJsonString());

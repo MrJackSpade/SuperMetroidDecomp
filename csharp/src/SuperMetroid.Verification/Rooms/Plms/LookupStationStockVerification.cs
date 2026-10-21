@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Verification.Areas.Escape;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Rooms.Plms.SamusEaterPlmDefinitionsVerification;
@@ -44,7 +45,7 @@ internal static class LookupStationStockVerification
         var stock = RoomPlmStationVisualCatalog.Stock();
         var imported = new RoomPlmStationVisualCatalog(entries.Reverse());
         string Hash(Dictionary<ushort, ushort[][]> words) => SuperMetroid.Core.Assets.SelectedPresentationHash.FromWordFrames(
-            nameof(RoomPlmStationVisualCatalog), words);
+            nameof(RoomPlmStationVisualCatalog), words.ToDictionary(pair => RoomPlmStationDrawDefinitions.VisualId(NativePlmDraws.At<StationDraw>(pair.Key)), pair => pair.Value));
         foreach (var catalog in new[] {stock,imported,installed})
         {
             AssertEqual(Hash(original), catalog.ContentIdentity, "Station original run-framed identity");
@@ -54,17 +55,17 @@ internal static class LookupStationStockVerification
                 for (int run = 0; run < runs.Length; run++)
                 {
                     for (int word = 0; word < runs[run].Length; word++)
-                        AssertEqual(runs[run][word], catalog.GetWord(frame.Pointer,run,word), "Station original stock word");
+                        AssertEqual(runs[run][word], catalog.GetWord(NativePlmDraws.At<StationDraw>(frame.Pointer),run,word), "Station original stock word");
                     foreach (int bad in new[] {int.MinValue,-1,runs[run].Length,int.MaxValue})
-                        AssertThrows<ArgumentOutOfRangeException>(() => catalog.GetWord(frame.Pointer,run,bad), "Station stock word bounds");
+                        AssertThrows<ArgumentOutOfRangeException>(() => catalog.GetWord(NativePlmDraws.At<StationDraw>(frame.Pointer),run,bad), "Station stock word bounds");
                 }
                 foreach (int bad in new[] {int.MinValue,-1,runs.Length,int.MaxValue})
-                    AssertThrows<ArgumentOutOfRangeException>(() => catalog.GetWord(frame.Pointer,bad,0), "Station stock run bounds");
+                    AssertThrows<ArgumentOutOfRangeException>(() => catalog.GetWord(NativePlmDraws.At<StationDraw>(frame.Pointer),bad,0), "Station stock run bounds");
             }
         }
         for (int pointer = 0; pointer <= ushort.MaxValue; pointer++)
             if (!native.ContainsKey((ushort)pointer))
-                AssertThrows<InvalidDataException>(() => stock.GetWord((ushort)pointer,0,0), "Station stock unknown pointer");
+                AssertThrows<InvalidDataException>(() => stock.GetWord(NativePlmDraws.At<StationDraw>((ushort)pointer),0,0), "Station stock unknown pointer");
         entries[10].Runs[3][1] = 0xc58;
         var mixed = new RoomPlmStationVisualCatalog(entries);
         var expected = frames.ToDictionary(frame => frame.Pointer, frame => entries.Single(entry => entry.Id == frame.Id).Runs.Select(run => run.ToArray()).ToArray());
@@ -75,7 +76,7 @@ internal static class LookupStationStockVerification
         {
             for (int run = 0; run < native[frame.Pointer].Length; run++)
             for (int word = 0; word < native[frame.Pointer][run].Length; word++)
-                AssertEqual(expected[frame.Pointer][run][word], mixed.GetWord(frame.Pointer,run,word), "Station cloned custom and unchanged stock isolation");
+                AssertEqual(expected[frame.Pointer][run][word], mixed.GetWord(NativePlmDraws.At<StationDraw>(frame.Pointer),run,word), "Station cloned custom and unchanged stock isolation");
         }
         AssertThrows<InvalidDataException>(() => new RoomPlmStationVisualCatalog(entries[..1]), "Station missing frame");
         AssertThrows<InvalidDataException>(() => new RoomPlmStationVisualCatalog(entries.Append(entries[0])), "Station duplicate frame");

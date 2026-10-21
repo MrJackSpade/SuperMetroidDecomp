@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Bosses.MotherBrain.BabyMetroidRouteDefinitionsVerification;
@@ -20,13 +21,13 @@ internal static class BombBlockProgramsVerification
     private static void VerifyBombBlockRestorationMapping(SuperMetroidAddressSpace rom)
     {
         ushort[] pointers = [0xa4c7, 0xa4cf, 0xa4d7];
-        AssertTrue(pointers.SequenceEqual(RoomPlmLinkedRestoreDefinition.BombBlock.All.Select(draw => draw.Pointer)),
+        AssertTrue(pointers.SequenceEqual(RoomPlmLinkedRestoreDefinition.BombBlock.All.Select(draw => PlmDrawAddressCodec.Of(draw.Draw))),
             "bomb restoration export order matches native layouts");
         for (int pointer = 0; pointer <= ushort.MaxValue; pointer++)
         {
             bool expected = pointers.Contains((ushort)pointer);
-            bool found = RoomPlmLinkedRestoreDefinition.BombBlock.TryDescribe((ushort)pointer, out var draw);
-            bool exported = RoomPlmLinkedRestoreDefinition.BombBlock.TryGet((ushort)pointer, out var list);
+            bool found = RoomPlmLinkedRestoreDefinition.BombBlock.TryDescribe(NativePlmDraws.At<BombBlockRestoreDraw>(pointer), out var draw);
+            bool exported = RoomPlmLinkedRestoreDefinition.BombBlock.TryGet(NativePlmDraws.At<BombBlockRestoreDraw>(pointer), out var list);
             AssertEqual(expected, found, "bomb restoration full native pointer domain");
             AssertEqual(expected, exported, "bomb restoration export pointer domain");
             if (!found)
@@ -167,7 +168,7 @@ internal static class BombBlockProgramsVerification
         foreach (RoomPlmShotBlockDrawDefinitions.DrawList list in
                  RoomPlmShotBlockDrawDefinitions.All)
         {
-            int cursor = list.Pointer;
+            int cursor = PlmDrawAddressCodec.Of(list.Draw);
             foreach (RoomPlmShotBlockDrawDefinitions.Run run in list.Runs.Span)
             {
                 int byteCountForRun = 2 + 2 * run.LevelWords.Length + 2;
@@ -219,14 +220,14 @@ internal static class BombBlockProgramsVerification
     private static void VerifyBombBlockVisualSeparation(
         SuperMetroidAddressSpace rom, HashSet<int> forbidden)
     {
-        RoomPlmShotBlockVisualEntry[] entries = RoomPlmShotBlockDrawDefinitions.All
-            .Select(list => new RoomPlmShotBlockVisualEntry(list.Pointer,
+        RoomPlmVisualRunEntry[] entries = RoomPlmShotBlockDrawDefinitions.All
+            .Select(list => new RoomPlmVisualRunEntry(RoomPlmShotBlockDrawDefinitions.VisualId(list.Draw),
                 list.Runs.Span.SelectToArray(run =>
                     run.LevelWords.Span.SelectToArray(word =>
                         new RoomLevelWord(word).VisualWord))))
             .ToArray();
-        RoomPlmShotBlockVisualEntry first = entries.Single(entry =>
-            entry.DrawPointer == RoomPlmShotBlockDrawDefinitions.SingleFrame0);
+        RoomPlmVisualRunEntry first = entries.Single(entry =>
+            entry.Id == "single-breakup-0");
         first.Runs[0][0] = 0x0054;
         var edited = new RoomPlmShotBlockVisualCatalog(entries);
 

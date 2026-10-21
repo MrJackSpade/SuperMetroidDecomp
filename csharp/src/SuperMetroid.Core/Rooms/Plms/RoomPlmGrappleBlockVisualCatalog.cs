@@ -13,39 +13,37 @@ public sealed class RoomPlmGrappleBlockVisualCatalog
     public string ContentIdentity => SelectedPresentationHash.Create(nameof(RoomPlmGrappleBlockVisualCatalog), content =>
     {
         Span<ushort> word = stackalloc ushort[1];
-        foreach (var draw in RoomPlmGrappleBlockDrawDefinitions.All.OrderBy(draw => draw.Pointer))
+        foreach (var draw in RoomPlmGrappleBlockDrawDefinitions.All.OrderBy(draw => RoomPlmGrappleBlockDrawDefinitions.VisualId(draw.Frame), StringComparer.Ordinal))
         {
-            content.Append("frame", draw.Pointer);
+            content.AppendName("frame", RoomPlmGrappleBlockDrawDefinitions.VisualId(draw.Frame));
             content.Append("runs", 1);
-            word[0] = GetWord(draw.Pointer);
+            word[0] = GetWord(PlmDraw.Of(draw.Frame));
             content.AppendWords("words", word);
         }
     });
 
     /// <summary>Only Grapple-block frame appearances that differ from compiled visual bits.</summary>
-    private readonly Dictionary<int, int>? customWords;
+    private readonly Dictionary<GrappleBlockDraw, int>? customWords;
 
     /// <summary>Validates all five compiled one-block frames and retains authored visual differences without changing Grapple collision, breakup timing, or draw shape.</summary>
     /// <param name="entries">Exactly one visual-only entry for each compiled initial, breakup, and blank draw identity.</param>
     /// <exception cref="ArgumentNullException">The entry sequence is null.</exception>
     /// <exception cref="InvalidDataException">An entry changes an identity/collision bits, repeats a frame, or leaves coverage incomplete.</exception>
-    public RoomPlmGrappleBlockVisualCatalog(IEnumerable<RoomPlmGrappleBlockVisualEntry> entries)
+    public RoomPlmGrappleBlockVisualCatalog(IEnumerable<RoomPlmVisualWordEntry> entries)
     {
         Ensure.NotNull(entries);
-        var selected = new Dictionary<int, int>();
-        var seen = new HashSet<int>();
-        foreach (RoomPlmGrappleBlockVisualEntry entry in entries)
+        var selected = new Dictionary<GrappleBlockDraw, int>();
+        var seen = new HashSet<GrappleBlockDraw>();
+        foreach (RoomPlmVisualWordEntry entry in entries)
         {
-            if (entry is null ||
-                !RoomPlmGrappleBlockDrawDefinitions.TryGet(checked((ushort)entry.DrawPointer), out var draw) ||
+            if (entry is null || !RoomPlmGrappleBlockDrawDefinitions.TryGetByVisualId(entry.Id, out var draw) ||
                 !RoomLevelWord.IsValidVisualWord(entry.VisualWord))
                 throw new InvalidDataException(
                     "Grapple-block visuals changed a compiled draw identity or collision bits.");
-            if (!seen.Add(entry.DrawPointer))
-                throw new InvalidDataException(
-                    $"Grapple-block visuals repeat draw list ${entry.DrawPointer:X4}.");
+            if (!seen.Add(draw.Frame))
+                throw new InvalidDataException($"Grapple-block visuals repeat draw {entry.Id}.");
             if (entry.VisualWord != new RoomLevelWord(draw.LevelWord).VisualWord)
-                selected.Add(entry.DrawPointer, entry.VisualWord);
+                selected.Add(draw.Frame, entry.VisualWord);
         }
 
         if (seen.Count != RoomPlmGrappleBlockDrawDefinitions.All.Count())
@@ -55,14 +53,14 @@ public sealed class RoomPlmGrappleBlockVisualCatalog
     }
 
     /// <summary>Resolves the selected appearance for one breakable-Grapple frame while preserving its compiled Grapple or air collision word.</summary>
-    /// <param name="drawPointer">Bank-$84 identity of a supported six-byte, one-cell draw list.</param>
+    /// <param name="draw">The draw whose visual word is resolved.</param>
     /// <returns>The authored metatile/flip word, or the compiled stock word's visual bits when unchanged.</returns>
-    /// <exception cref="InvalidDataException">The pointer does not identify a supported Grapple-block frame.</exception>
-    public ushort GetWord(ushort drawPointer)
+    /// <exception cref="InvalidDataException">The draw is not a supported Grapple-block frame.</exception>
+    internal ushort GetWord(PlmDraw draw)
     {
-        if (!RoomPlmGrappleBlockDrawDefinitions.TryGet(drawPointer, out var draw))
-            throw new InvalidDataException($"Grapple-block visuals lack draw list ${drawPointer:X4}.");
-        return customWords is not null && customWords.TryGetValue(drawPointer, out int word)
-            ? checked((ushort)word) : new RoomLevelWord(draw.LevelWord).VisualWord;
+        if (!RoomPlmGrappleBlockDrawDefinitions.TryGet(draw, out var definition))
+            throw new InvalidDataException($"Grapple-block visuals lack draw {draw}.");
+        return customWords is not null && customWords.TryGetValue(definition.Frame, out int word)
+            ? checked((ushort)word) : new RoomLevelWord(definition.LevelWord).VisualWord;
     }
 }

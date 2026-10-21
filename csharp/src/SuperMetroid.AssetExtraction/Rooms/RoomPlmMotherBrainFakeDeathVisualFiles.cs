@@ -40,7 +40,7 @@ public static class RoomPlmMotherBrainFakeDeathVisualFiles
             new RoomPlmVisualFamily<RoomPlmMotherBrainFakeDeathVisualCatalog>(VisualFileName, "Mother Brain fake-death room", MotherBrainFakeDeathPlmDrawDefinitions.All, MotherBrainFakeDeathPlmDrawDefinitions.VisualId, entries => new RoomPlmMotherBrainFakeDeathVisualCatalog(
                 entries.Select(entry =>
                     new RoomPlmVisualEntry(
-                        entry.Id, entry.Blocks))), (catalog, pointer, run, block) => catalog.GetWord(pointer, run, block)));
+                        entry.Id, entry.Blocks))), (catalog, draw, run, block) => catalog.GetWord(draw, run, block)));
 
     /// <summary>Checks stock fake-death room assets through <see cref="Load"/> without selecting overrides, reading a cartridge, or writing files.</summary>
     /// <param name="directory">Family directory containing fake-death room JSON and its manifest.</param>

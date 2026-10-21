@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Rooms.Doors;
+using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Verification.Areas.Escape;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Rooms.Plms.SamusEaterPlmDefinitionsVerification;
@@ -31,16 +33,16 @@ internal static class LookupBlueDoorStockVerification
         var stock = RoomPlmBlueDoorVisualCatalog.Stock();
         var imported = new RoomPlmBlueDoorVisualCatalog(entries.Reverse());
         string Hash(Dictionary<ushort, ushort[]> words) => SuperMetroid.Core.Assets.SelectedPresentationHash.FromWordFrames(
-            nameof(RoomPlmBlueDoorVisualCatalog), words);
+            nameof(RoomPlmBlueDoorVisualCatalog), words.ToDictionary(pair => BlueDoorPlmDrawDefinitions.VisualId(NativePlmDraws.At<BlueDoorPlmDrawDefinitions.Draw>(pair.Key)), pair => pair.Value));
         foreach (var catalog in new[] {stock,imported,installed})
         {
             AssertEqual(Hash(native), catalog.ContentIdentity, "Blue door original stock identity");
             foreach (var frame in frames)
             {
                 for (int row = 0; row < 4; row++)
-                    AssertEqual(native[frame.Pointer][row], catalog.GetWord(frame.Pointer,row), "Blue door native stock visual");
+                    AssertEqual(native[frame.Pointer][row], catalog.GetWord(NativePlmDraws.At<BlueDoorPlmDrawDefinitions.Draw>(frame.Pointer),row), "Blue door native stock visual");
                 foreach (int bad in new[] {int.MinValue,-1,4,int.MaxValue})
-                    AssertThrows<ArgumentOutOfRangeException>(() => catalog.GetWord(frame.Pointer,bad), "Blue door stock row bounds");
+                    AssertThrows<ArgumentOutOfRangeException>(() => catalog.GetWord(NativePlmDraws.At<BlueDoorPlmDrawDefinitions.Draw>(frame.Pointer),bad), "Blue door stock row bounds");
             }
         }
         foreach (var catalog in new[] {stock,imported,installed})
@@ -48,13 +50,13 @@ internal static class LookupBlueDoorStockVerification
         {
             for (int row = 0; row < 4; row++)
                 AssertEqual((ushort)(ReadSamusEaterPlmWord(rom, 0x840000 | (alias + 2 + row * 2)) & 0xfff),
-                    catalog.GetWord(alias,row), "Blue physical alias original stock visuals");
+                    catalog.GetWord(NativePlmDraws.At<BlueDoorPlmDrawDefinitions.Draw>(alias),row), "Blue physical alias original stock visuals");
             foreach (int bad in new[] {int.MinValue,-1,4,int.MaxValue})
-                AssertThrows<ArgumentOutOfRangeException>(() => catalog.GetWord(alias,bad), "Blue alias cell bounds");
+                AssertThrows<ArgumentOutOfRangeException>(() => catalog.GetWord(NativePlmDraws.At<BlueDoorPlmDrawDefinitions.Draw>(alias),bad), "Blue alias cell bounds");
         }
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
             if (!native.ContainsKey((ushort)raw) && !aliases.Contains((ushort)raw))
-                AssertThrows<InvalidDataException>(() => stock.GetWord((ushort)raw,0), "Blue door unknown stock pointer");
+                AssertThrows<InvalidDataException>(() => stock.GetWord(NativePlmDraws.At<BlueDoorPlmDrawDefinitions.Draw>((ushort)raw),0), "Blue door unknown stock pointer");
         entries[12].Blocks[1] = 0xc58;
         entries[8].Blocks[3] = 0x59;
         var mixed = new RoomPlmBlueDoorVisualCatalog(entries);
@@ -65,10 +67,10 @@ internal static class LookupBlueDoorStockVerification
         entries[0].Blocks[0] = 0x5b;
         foreach (var frame in frames)
         for (int row = 0; row < 4; row++)
-            AssertEqual(expected[frame.Pointer][row], mixed.GetWord(frame.Pointer,row), "Blue door custom clone and stock isolation");
+            AssertEqual(expected[frame.Pointer][row], mixed.GetWord(NativePlmDraws.At<BlueDoorPlmDrawDefinitions.Draw>(frame.Pointer),row), "Blue door custom clone and stock isolation");
         for (int orientation = 0; orientation < aliases.Length; orientation++)
         for (int row = 0; row < 4; row++)
-            AssertEqual(expected[frames[orientation * 4].Pointer][row], mixed.GetWord(aliases[orientation],row),
+            AssertEqual(expected[frames[orientation * 4].Pointer][row], mixed.GetWord(NativePlmDraws.At<BlueDoorPlmDrawDefinitions.Draw>(aliases[orientation]),row),
                 "Blue alias follows custom or stock canonical frame");
         AssertThrows<InvalidDataException>(() => new RoomPlmBlueDoorVisualCatalog(entries[..15]), "Blue door missing frame");
         AssertThrows<InvalidDataException>(() => new RoomPlmBlueDoorVisualCatalog(entries.Append(entries[0])), "Blue door duplicate frame");

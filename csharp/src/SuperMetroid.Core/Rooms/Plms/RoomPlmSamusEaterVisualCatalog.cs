@@ -14,13 +14,13 @@ public sealed class RoomPlmSamusEaterVisualCatalog
     public string ContentIdentity => SelectedPresentationHash.Create(nameof(RoomPlmSamusEaterVisualCatalog), content =>
     {
         Span<ushort> words = stackalloc ushort[8];
-        foreach (var draw in SamusEaterPlmDrawDefinitions.All.OrderBy(draw => draw.Pointer))
+        foreach (var draw in SamusEaterPlmDrawDefinitions.All.OrderBy(item => SamusEaterPlmDrawDefinitions.VisualId(item.Draw), StringComparer.Ordinal))
         {
             int index = 0;
             for (int run = 0; run < 3; run++)
-            for (int block = 0; block < SamusEaterPlmDrawDefinitions.Draw.Count(run); block++)
-                words[index++] = GetWord(draw.Pointer, run, block);
-            content.Append("frame", draw.Pointer);
+                for (int block = 0; block < SamusEaterPlmDrawDefinitions.Draw.Count(run); block++)
+                    words[index++] = GetWord(draw.Draw, run, block);
+            content.AppendName("frame", SamusEaterPlmDrawDefinitions.VisualId(draw.Draw));
             // Preserve the original flattened-frame hash, not the three physical runs.
             content.Append("runs", 1);
             content.AppendWords("words", words);
@@ -42,24 +42,24 @@ public sealed class RoomPlmSamusEaterVisualCatalog
     }
 
     /// <summary>Resolves one selected plant block, translating native run-local indices into the flattened authored payload.</summary>
-    /// <param name="drawPointer">Bank-$84 identity of a supported Samus Eater pose.</param>
+    /// <param name="draw">The draw whose visual word is resolved.</param>
     /// <param name="runIndex">Zero-based native draw-run ordinal 0..2.</param>
     /// <param name="blockIndex">Zero-based word ordinal within the selected run.</param>
     /// <returns>The authored metatile/flip word, or the compiled physical word's visual bits when unchanged.</returns>
-    /// <exception cref="InvalidDataException">The pointer does not identify a supported pose.</exception>
+    /// <exception cref="InvalidDataException">The draw is not a supported pose.</exception>
     /// <exception cref="ArgumentOutOfRangeException">The run or word ordinal is outside the compiled shape.</exception>
-    public ushort GetWord(ushort drawPointer, int runIndex, int blockIndex)
+    internal ushort GetWord(PlmDraw draw, int runIndex, int blockIndex)
     {
-        if (!SamusEaterPlmDrawDefinitions.TryDescribe(drawPointer, out var draw))
+        if (!SamusEaterPlmDrawDefinitions.TryDescribe(draw, out var shape))
             throw new InvalidDataException(
-                $"Samus Eater visuals lack frame ${drawPointer:X4}.");
+                $"Samus Eater visuals lack frame {draw}.");
         if ((uint)runIndex >= 3 ||
             (uint)blockIndex >= (uint)SamusEaterPlmDrawDefinitions.Draw.Count(runIndex))
             throw new ArgumentOutOfRangeException(nameof(blockIndex));
         int flatIndex = blockIndex;
         for (int run = 0; run < runIndex; run++)
             flatIndex += SamusEaterPlmDrawDefinitions.Draw.Count(run);
-        return customWords.TryGet(drawPointer, out var words)
-            ? words[flatIndex] : new RoomLevelWord(draw.WordAt(runIndex, blockIndex)).VisualWord;
+        return customWords.TryGet(draw, out var words)
+            ? words[flatIndex] : new RoomLevelWord(shape.WordAt(runIndex, blockIndex)).VisualWord;
     }
 }

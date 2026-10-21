@@ -12,5 +12,5 @@ internal sealed class MotherBrainFakeDeathPlmAnimation(MotherBrainFakeDeathProgr
         MotherBrainFakeDeathPlmProgramDefinitions.Programs;
 
     /// <inheritdoc/>
-    private protected override ushort DrawList(MotherBrainFakeDeathDraw frame) => (ushort)frame;
+    private protected override PlmDraw DrawList(MotherBrainFakeDeathDraw frame) => PlmDraw.Of(frame);
 }

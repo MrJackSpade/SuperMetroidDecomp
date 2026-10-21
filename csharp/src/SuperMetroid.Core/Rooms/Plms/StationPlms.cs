@@ -187,15 +187,15 @@ internal sealed class StationPlms : IPlmFamilySource
         switch (slot.HeaderPointer)
         {
             case PlmHeaderId.ElevatorPlatform:
-            {
-                // Setup_DeactivatePLM clears collision bits 12..14 but deliberately retains
-                // bit 15 and the visual payload; the platform then runs its idle loop.
-                slot.StartAnimation(new ScriptedRoomPlmAnimation(ScriptedRoomPlmProgram.ElevatorPlatform));
-                ushort word = level.GetCollisionBlockByIndex(slot.BlockIndex).PackedWord.Raw;
-                ushort deactivated = new RoomLevelWord(word).WithPlmDeactivation().Raw;
-                level.SetForegroundEntry(slot.BlockIndex, deactivated);
-                return true;
-            }
+                {
+                    // Setup_DeactivatePLM clears collision bits 12..14 but deliberately retains
+                    // bit 15 and the visual payload; the platform then runs its idle loop.
+                    slot.StartAnimation(new ScriptedRoomPlmAnimation(ScriptedRoomPlmProgram.ElevatorPlatform));
+                    ushort word = level.GetCollisionBlockByIndex(slot.BlockIndex).PackedWord.Raw;
+                    ushort deactivated = new RoomLevelWord(word).WithPlmDeactivation().Raw;
+                    level.SetForegroundEntry(slot.BlockIndex, deactivated);
+                    return true;
+                }
 
             case PlmHeaderId.MapStation:
                 SetupStation(level, system, area, slot, StationKind.Map);
@@ -847,14 +847,14 @@ internal sealed class StationPlms : IPlmFamilySource
             StationAnimationProgramDefinitions.Resolve(
                 station.AnimationList, station.AnimationFrame);
         WrappingCountdown timer = WrappingCountdown.FromRaw(frame.Duration);
-        ushort draw = frame.DrawPointer;
+        PlmDraw draw = frame.Draw;
         if (timer.IsNegative || timer.IsZero)
         {
             throw new InvalidDataException(
-                $"{station.Kind} station animation $84:{(int)station.AnimationList:X4} " +
+                $"{station.Kind} station animation {station.AnimationList} " +
                 $"frame {station.AnimationFrame} does not begin with a timed draw.");
         }
-        _drawing.DrawPlmInstruction(level, slot.BlockIndex, draw);
+        _drawing.Draw(level, slot.BlockIndex, draw);
         station.AnimationTimer = timer;
         station.InitialDrawCompleted = true;
         station.AnimationFrame = (station.AnimationFrame + 1) % station.AnimationFrameCount;
@@ -910,9 +910,9 @@ internal sealed class StationPlms : IPlmFamilySource
         if (frame.Duration != 4)
         {
             throw new InvalidDataException(
-                $"Save-station animation list $84:{(int)list:X4} has timer {frame.Duration}, expected 4.");
+                $"Save-station animation list {list} has timer {frame.Duration}, expected 4.");
         }
-        _drawing.DrawPlmInstruction(level, blockIndex, frame.DrawPointer);
+        _drawing.Draw(level, blockIndex, frame.Draw);
         station.AnimationTimer = WrappingCountdown.FromRaw(frame.Duration);
         station.AnimationFrame ^= 1;
         if (station.AnimationFrame == 0)
@@ -973,8 +973,7 @@ internal sealed class StationPlms : IPlmFamilySource
             ?? throw new InvalidDataException("Station access has no BTS owner.");
         StationAccessPlmDefinition definition =
             StationAccessPlmDefinitions.Resolve(accessBehavior);
-        ushort drawPointer = definition.DrawPointer(pose == StationAccessPose.Extended);
-        _drawing.DrawPlmInstruction(level, station.AccessBlockIndex, drawPointer);
+        _drawing.Draw(level, station.AccessBlockIndex, definition.Draw(pose == StationAccessPose.Extended));
     }
 
     /// <summary>Resident PLM state for station appearance, access-arm timing, and save confirmation.</summary>

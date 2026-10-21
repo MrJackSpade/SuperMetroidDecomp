@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Rooms.Plms;
 
 namespace SuperMetroid.Core.Areas.Tourian;
@@ -12,18 +11,11 @@ namespace SuperMetroid.Core.Areas.Tourian;
 internal static class TourianAccessPlmDrawDefinitions
 {
     /// <summary>
-    /// Clear selects six blank rows; empty selects one. The three crumble records
-    /// select successive tiles $53..55. Every row is four air cells.
+    /// The rows and air word of one Tourian access draw. Clear selects six blank rows; empty selects one. The three
+    /// crumble records select successive tiles $53..55. Every row is four air cells.
     /// </summary>
-    internal static bool TryDescribe(ushort pointer, out int rows, out ushort word)
+    internal static void Describe(TourianAccessDraw list, out int rows, out ushort word)
     {
-        if (!Enum.IsDefined((TourianAccessDraw)pointer))
-        {
-            rows = 0;
-            word = 0;
-            return false;
-        }
-        var list = (TourianAccessDraw)pointer;
         TourianAccessDrawFill fill = list switch
         {
             TourianAccessDraw.Clear => new TourianAccessDrawFill(6, 0x00ff),
@@ -35,7 +27,6 @@ internal static class TourianAccessPlmDrawDefinitions
         };
         rows = fill.Rows;
         word = checked((ushort)fill.Word);
-        return true;
     }
 
     /// <summary>Calculates temporary DTOs for artwork import/export without retaining a draw cache.</summary>
@@ -43,17 +34,13 @@ internal static class TourianAccessPlmDrawDefinitions
     {
         get
         {
-            for (int pointer = (int)TourianAccessDraw.EmptyRow; pointer <= (int)TourianAccessDraw.Clear; pointer += 12)
-            {
-                TryGet((ushort)pointer, out var draw);
-                yield return draw;
-            }
+            foreach (TourianAccessDraw draw in Enum.GetValues<TourianAccessDraw>())
+                yield return Compile(draw);
         }
     }
 
-    /// <summary>Gets a stable artwork identity after validating a native draw pointer.</summary>
-    internal static string VisualId(ushort pointer) =>
-        VisualId(ClosedNativeWords.Decode<TourianAccessDraw>(pointer, "Tourian access draw with a visual ID"));
+    /// <summary>Gets the stable artwork identity of a Tourian access draw.</summary>
+    internal static string VisualId(PlmDraw draw) => VisualId(PlmDraw.FrameOf<TourianAccessDraw>(draw, "Tourian access"));
 
     /// <summary>Names the empty, three crumble, or six-row clear frame for visual files.</summary>
     internal static string VisualId(TourianAccessDraw pointer) => pointer switch
@@ -71,20 +58,14 @@ internal static class TourianAccessPlmDrawDefinitions
         out RoomPlmShotBlockDrawDefinitions.DrawList list) =>
         RoomPlmShotBlockDrawDefinitions.FindByVisualId(All, VisualId, id, out list);
 
-    /// <summary>Builds four-air-cell runs for a supported draw, including all six rows of the final clear.</summary>
-    internal static bool TryGet(ushort pointer,
-        out RoomPlmShotBlockDrawDefinitions.DrawList list)
+    /// <summary>Builds the four-air-cell runs of a Tourian access draw.</summary>
+    internal static RoomPlmShotBlockDrawDefinitions.DrawList Compile(TourianAccessDraw draw)
     {
-        if (!TryDescribe(pointer, out int rows, out ushort word))
-        {
-            list = default;
-            return false;
-        }
+        Describe(draw, out int rows, out ushort word);
         var runs = new RoomPlmShotBlockDrawDefinitions.Run[rows];
         for (int row = 0; row < rows; row++)
-            runs[row] = new(4, new ushort[] {word, word, word, word},
+            runs[row] = new(4, new ushort[] { word, word, word, word },
                 new(0, (sbyte)(row + 1 < rows ? row + 1 : 0)));
-        list = new(pointer, runs);
-        return true;
+        return new(PlmDraw.Of(draw), runs);
     }
 }

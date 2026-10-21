@@ -37,10 +37,10 @@ internal static class MotherBrainGlassPlmDrawDefinitionsVerification
         Suite(nameof(VerifyGlassLayoutVisuals), () => VerifyGlassLayoutVisuals(rom));
 
         RoomPlmShotBlockDrawDefinitions.DrawList[] lists =
-            MotherBrainGlassPlmDrawDefinitions.All.OrderBy(list => list.Pointer).ToArray();
+            MotherBrainGlassPlmDrawDefinitions.All.OrderBy(list => PlmDrawAddressCodec.Of(list.Draw)).ToArray();
         RoomPlmVisualEntry[] entries = lists.Select(draw =>
             new RoomPlmVisualEntry(
-                MotherBrainGlassPlmDrawDefinitions.VisualId(draw.Pointer),
+                MotherBrainGlassPlmDrawDefinitions.VisualId(draw.Draw),
                 draw.VisualWords())).ToArray();
         RoomPlmVisualEntry shatter = entries.Single(entry =>
             entry.Id == "shatter-1");
@@ -48,10 +48,10 @@ internal static class MotherBrainGlassPlmDrawDefinitionsVerification
         shatter.Blocks[6] = 0x0057;
         var edited = new RoomPlmMotherBrainGlassVisualCatalog(entries);
         shatter.Blocks[6] = 0x0058;
-        AssertEqual((ushort)0x0057, edited.GetWord(0x978f, 1, 2),
+        AssertEqual((ushort)0x0057, edited.GetWord(NativePlmDraws.At<MotherBrainGlassDraw>(0x978f), 1, 2),
             "glass visual catalog copies author data");
         AssertEqual(originalWord,
-            RoomPlmMotherBrainGlassVisualCatalog.Stock().GetWord(0x978f, 1, 2),
+            RoomPlmMotherBrainGlassVisualCatalog.Stock().GetWord(NativePlmDraws.At<MotherBrainGlassDraw>(0x978f), 1, 2),
             "stock glass visual catalog retains the native shatter tile");
         shatter.Blocks[6] = originalWord;
         AssertEqual(11, lists.Length,
@@ -61,7 +61,7 @@ internal static class MotherBrainGlassPlmDrawDefinitionsVerification
             bank84[index] = rom.ReadCartridgeByte(0x848000 + index);
         foreach (RoomPlmShotBlockDrawDefinitions.DrawList list in lists)
             VerifyMotherBrainGlassNativeDrawPath(bank84, lists, list,
-                list.Pointer == 0x978f ? edited : null);
+                PlmDrawAddressCodec.Of(list.Draw) == 0x978f ? edited : null);
         Suite(nameof(VerifyMotherBrainGlassVisualInstallation), () => VerifyMotherBrainGlassVisualInstallation(rom));
         Console.WriteLine(
             "  Mother Brain glass PLM: 11 guarded native layouts and editable stock/override appearance preserve physical blocks.");
@@ -93,10 +93,10 @@ internal static class MotherBrainGlassPlmDrawDefinitionsVerification
         var level = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(new ushort[width * height], new byte[width * height], new ushort[width * height]), blockDefinitions);
         var plms = PlmFixtures.Unbound(new PlmShotBlockVisuals { RoomPlmMotherBrainGlassVisuals = visuals });
         AssertEqual(1, PlmFixtures.LoadPopulation(ref plms, new PlmRoom(level, BgArtworkFixtures.For(new SnesVram()), new Bank80SystemState(), AreaId.Tourian), RoomPlmPopulationImporter.Read(guarded, 0x9000), new RoomPlmServices { Samus = new FixtureRoomSamus(() => new SamusState()), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false, IsBossDefeated = () => false, IsMiniBossDefeated = () => false }, Events = new FixtureEventFlags { HasEvent = _ => false, SetEvent = _ => { } } }),
-            $"Mother Brain glass loads for draw ${selected.Pointer:X4}");
+            $"Mother Brain glass loads for draw ${PlmDrawAddressCodec.Of(selected.Draw):X4}");
         AssertTrue(plms.MotherBrainGlassWasLoaded,
-            $"glass header retains its PLM owner for draw ${selected.Pointer:X4}");
-        plms.DrawSolePlmFrameForVerification(level, selected.Pointer);
+            $"glass header retains its PLM owner for draw ${PlmDrawAddressCodec.Of(selected.Draw):X4}");
+        plms.DrawSolePlmFrameForVerification(level, NativePlmDraws.At<MotherBrainGlassDraw>(PlmDrawAddressCodec.Of(selected.Draw)));
 
         int entryX = originX;
         int entryY = originY;
@@ -115,9 +115,9 @@ internal static class MotherBrainGlassPlmDrawDefinitionsVerification
         }
         foreach ((int index, ushort word) in expected)
             AssertEqual(word, level.GetCollisionBlockByIndex(index).PackedWord.Raw,
-                $"glass draw ${selected.Pointer:X4} writes native physical block {index}");
+                $"glass draw ${PlmDrawAddressCodec.Of(selected.Draw):X4} writes native physical block {index}");
         AssertEqual(0, guarded.ForbiddenReadAttempts,
-            $"glass draw ${selected.Pointer:X4} avoids source payload reads");
+            $"glass draw ${PlmDrawAddressCodec.Of(selected.Draw):X4} avoids source payload reads");
         if (visuals is not null)
         {
             const int editedBlock = 7 * width + 6;
@@ -161,7 +161,7 @@ internal static class MotherBrainGlassPlmDrawDefinitionsVerification
             File.WriteAllText(overridePath, document.ToJsonString());
             AssertEqual((ushort)0x0057,
                 installation.LoadRoomPlmMotherBrainGlassVisuals()
-                    .GetWord(0x978f, 1, 2),
+                    .GetWord(NativePlmDraws.At<MotherBrainGlassDraw>(0x978f), 1, 2),
                 "installed glass override changes the multi-run shatter tile");
 
             string refreshed = Path.Combine(testRoot, "refreshed-stock");
@@ -170,7 +170,7 @@ internal static class MotherBrainGlassPlmDrawDefinitionsVerification
             AssertEqual((ushort)0x0057,
                 RoomPlmMotherBrainGlassVisualFiles.Load(refreshed,
                     installation.RoomPlmMotherBrainGlassVisualOverrideDirectory)
-                    .GetWord(0x978f, 1, 2),
+                    .GetWord(NativePlmDraws.At<MotherBrainGlassDraw>(0x978f), 1, 2),
                 "glass override survives stock replacement");
 
             frame.Required("blocks")[6] = 0xf057;
@@ -195,7 +195,7 @@ internal static class MotherBrainGlassPlmDrawDefinitionsVerification
         ISnesAddressSpace source, RoomPlmShotBlockDrawDefinitions.DrawList[] lists) =>
         new CartridgeReadGuard(source).Forbid(address => lists.Any(list =>
             {
-                int first = 0x840000 | list.Pointer;
+                int first = 0x840000 | PlmDrawAddressCodec.Of(list.Draw);
                 int length = list.Runs.Span.Sum(run =>
                     4 + run.LevelWords.Length * 2);
                 return address >= first && address < first + length;

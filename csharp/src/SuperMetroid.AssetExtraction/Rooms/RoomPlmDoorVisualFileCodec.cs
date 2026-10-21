@@ -37,7 +37,7 @@ internal static class RoomPlmDoorVisualFileCodec
     internal static void Extract(ISnesAddressSpace bus, string directory,
         string sourceCartridgeSha256, string visualFileName, string family,
         IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> definitions,
-        Func<ushort, string> visualId)
+        Func<PlmDraw, string> visualId)
     {
         Ensure.NotNull(bus);
         ArgumentException.ThrowIfNullOrWhiteSpace(directory);
@@ -64,9 +64,9 @@ internal static class RoomPlmDoorVisualFileCodec
         string visualFileName = visuals.FileName;
         string family = visuals.Name;
         IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> definitions = visuals.Definitions;
-        Func<ushort, string> visualId = visuals.VisualId;
+        Func<PlmDraw, string> visualId = visuals.VisualId;
         Func<Entry[], TCatalog> createCatalog = visuals.CreateCatalog;
-        Func<TCatalog, ushort, int, int, ushort> getWord = visuals.GetWord;
+        Func<TCatalog, PlmDraw, int, int, ushort> getWord = visuals.GetWord;
         ArgumentException.ThrowIfNullOrWhiteSpace(stockDirectory);
         string manifestPath = Path.Combine(stockDirectory, ManifestFileName);
         VisualManifest manifest = ReadJson<VisualManifest>(manifestPath, family);
@@ -99,13 +99,13 @@ internal static class RoomPlmDoorVisualFileCodec
     private static Entry[] ReadAndVerifyNative(ISnesAddressSpace bus,
         string family,
         IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> definitions,
-        Func<ushort, string> visualId)
+        Func<PlmDraw, string> visualId)
     {
         var entries = new List<Entry>();
         foreach (RoomPlmShotBlockDrawDefinitions.DrawList draw in
-                 definitions.OrderBy(item => item.Pointer))
+                 definitions.OrderBy(item => PlmDrawAddressCodec.Of(item.Draw)))
         {
-            ushort pointer = draw.Pointer;
+            ushort pointer = PlmDrawAddressCodec.Of(draw.Draw);
             // Multirow statue and hand layouts need up to five native runs.
             // Keep a bounded structural guard without rejecting those layouts.
             if (draw.Runs.Length is < 1 or > 8)
@@ -142,7 +142,7 @@ internal static class RoomPlmDoorVisualFileCodec
                         $"{family} draw ${pointer:X4} differs at run {runIndex} offset.");
                 cursor = checked((ushort)(cursor + 4 + run.LevelWords.Length * 2));
             }
-            entries.Add(new Entry(visualId(pointer), blocks.ToArray()));
+            entries.Add(new Entry(visualId(draw.Draw), blocks.ToArray()));
         }
         return entries.ToArray();
     }
@@ -151,8 +151,8 @@ internal static class RoomPlmDoorVisualFileCodec
     private static void VerifyStockMatchesCompiled<TCatalog>(TCatalog catalog,
         string path, string family,
         IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> definitions,
-        Func<ushort, string> visualId,
-        Func<TCatalog, ushort, int, int, ushort> getWord)
+        Func<PlmDraw, string> visualId,
+        Func<TCatalog, PlmDraw, int, int, ushort> getWord)
     {
         foreach (RoomPlmShotBlockDrawDefinitions.DrawList draw in definitions)
         {
@@ -163,10 +163,10 @@ internal static class RoomPlmDoorVisualFileCodec
                 {
                     ushort expected = new RoomLevelWord(
                         run.LevelWords.Span[block]).VisualWord;
-                    if (getWord(catalog, draw.Pointer, runIndex, block) != expected)
+                    if (getWord(catalog, draw.Draw, runIndex, block) != expected)
                         throw new InvalidDataException(
                             $"Stock {family} visuals {path} differ from compiled frame " +
-                            visualId(draw.Pointer) + $" run {runIndex}, block {block}.");
+                            visualId(draw.Draw) + $" run {runIndex}, block {block}.");
                 }
             }
         }

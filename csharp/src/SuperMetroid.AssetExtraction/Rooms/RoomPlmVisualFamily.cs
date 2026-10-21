@@ -11,6 +11,6 @@ internal sealed record RoomPlmVisualFamily<TCatalog>(
     string FileName,
     string Name,
     IEnumerable<RoomPlmShotBlockDrawDefinitions.DrawList> Definitions,
-    Func<ushort, string> VisualId,
+    Func<PlmDraw, string> VisualId,
     Func<RoomPlmDoorVisualFileCodec.Entry[], TCatalog> CreateCatalog,
-    Func<TCatalog, ushort, int, int, ushort> GetWord);
+    Func<TCatalog, PlmDraw, int, int, ushort> GetWord);

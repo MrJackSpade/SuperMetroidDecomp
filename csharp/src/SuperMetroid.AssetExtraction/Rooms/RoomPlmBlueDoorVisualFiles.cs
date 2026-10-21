@@ -28,7 +28,7 @@ public static class RoomPlmBlueDoorVisualFiles
         string stockDirectory, string? overrideDirectory) =>
         RoomPlmDoorVisualFileCodec.Load(stockDirectory, overrideDirectory,
             new RoomPlmVisualFamily<RoomPlmBlueDoorVisualCatalog>(VisualFileName, "Blue-door", BlueDoorPlmDrawDefinitions.Editable, BlueDoorPlmDrawDefinitions.VisualId, entries => new RoomPlmBlueDoorVisualCatalog(entries.Select(entry =>
-                new RoomPlmVisualEntry(entry.Id, entry.Blocks))), (catalog, pointer, _, block) => catalog.GetWord(pointer, block)));
+                new RoomPlmVisualEntry(entry.Id, entry.Blocks))), (catalog, draw, _, block) => catalog.GetWord(draw, block)));
 
     /// <summary>Validates the installed stock manifest, digest, schema, coverage, and equality with compiled blue-door visuals.</summary>
     /// <param name="directory">Stock blue-door directory; overrides are ignored.</param>

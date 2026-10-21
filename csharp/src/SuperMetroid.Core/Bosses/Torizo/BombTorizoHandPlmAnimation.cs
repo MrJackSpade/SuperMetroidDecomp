@@ -12,7 +12,7 @@ internal sealed class BombTorizoHandPlmAnimation()
         BombTorizoHandPlmProgramDefinitions.Programs;
 
     /// <inheritdoc/>
-    private protected override ushort DrawList(BombTorizoHandDraw frame) => (ushort)frame;
+    private protected override PlmDraw DrawList(BombTorizoHandDraw frame) => PlmDraw.Of(frame);
 
     /// <inheritdoc/>
     private protected override BombTorizoHandProgram? ProgramAfterSleep(BombTorizoHandProgram program) =>

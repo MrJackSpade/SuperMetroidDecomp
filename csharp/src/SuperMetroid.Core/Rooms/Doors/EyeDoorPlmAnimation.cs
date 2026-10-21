@@ -18,7 +18,7 @@ internal sealed class EyeDoorPlmAnimation(EyeDoorOrientation orientation, EyeDoo
         EyeDoorPlmProgramDefinitions.ProgramsFor(Orientation);
 
     /// <inheritdoc/>
-    private protected override ushort DrawList(EyeDoorPlmFrame frame) =>
+    private protected override PlmDraw DrawList(EyeDoorPlmFrame frame) =>
         EyeDoorPlmDrawDefinitions.DrawList(Orientation, Component, frame);
 
     /// <inheritdoc/>

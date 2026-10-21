@@ -38,18 +38,18 @@ public sealed class RoomPlmMaridiaElevatubeVisualCatalog
         visualWord = blocks[0];
     }
 
-    /// <summary>Resolves the installed elevatube appearance for its sole draw cell; the shared Kraid draw pointer does not share this catalog's selection.</summary>
-    /// <param name="drawPointer">The compiled bank-$84 draw identity $9367.</param>
+    /// <summary>Resolves the installed elevatube appearance for its sole draw cell; the Kraid crumble that shares its cartridge draw does not share this catalog's selection.</summary>
+    /// <param name="draw">The draw whose visual word is resolved.</param>
     /// <param name="runIndex">Native run ordinal; must be zero.</param>
     /// <param name="blockIndex">Word ordinal within the run; must be zero.</param>
     /// <returns>The selected metatile/flip word.</returns>
     /// <exception cref="InvalidDataException">The draw pointer, run ordinal, or block ordinal does not identify the sole elevatube cell.</exception>
-    public ushort GetWord(ushort drawPointer, int runIndex, int blockIndex)
+    internal ushort GetWord(PlmDraw draw, int runIndex, int blockIndex)
     {
-        if (drawPointer != MaridiaElevatubePlmDefinitions.DrawPointer ||
+        if (draw != MaridiaElevatubePlmDefinitions.BlockDraw ||
             runIndex != 0 || blockIndex != 0)
             throw new InvalidDataException(
-                $"Maridia elevatube visuals lack draw ${drawPointer:X4} run {runIndex} block {blockIndex}.");
+                $"Maridia elevatube visuals lack draw {draw} run {runIndex} block {blockIndex}.");
         return visualWord;
     }
 }

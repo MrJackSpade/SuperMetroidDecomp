@@ -7,21 +7,21 @@ internal static class RoomPlmBombedRevealDrawDefinitions
     /// Describes a draw pointer handed over by the shared PLM draw interpreter; pointers
     /// outside the three reveals belong to other families.
     /// </summary>
-    internal static bool TryGet(ushort pointer, out RoomPlmShotBlockDrawDefinitions.DrawList draw)
+    internal static bool TryGet(PlmDraw request, out RoomPlmShotBlockDrawDefinitions.DrawList draw)
     {
-        if (!Enum.IsDefined((RoomPlmBombedRevealDraw)pointer))
+        if (request is not PlmFrameDraw<RoomPlmBombedRevealDraw>)
         {
             draw = default;
             return false;
         }
-        ushort word = (RoomPlmBombedRevealDraw)pointer switch
+        ushort word = PlmDraw.FrameOf<RoomPlmBombedRevealDraw>(request, "RoomPlmBombedRevealDraw") switch
         {
             RoomPlmBombedRevealDraw.PowerBomb => 0xc057,
             RoomPlmBombedRevealDraw.SuperMissile => 0xc09f,
             RoomPlmBombedRevealDraw.CrumbleSingle => 0xb0bc,
-            _ => throw new InvalidOperationException($"Undefined bombed-reveal draw ${pointer:X4}."),
+            _ => throw new InvalidOperationException($"Undefined bombed-reveal draw {request}."),
         };
-        draw = new(pointer, new RoomPlmShotBlockDrawDefinitions.Run[] { new(1, new ushort[] { word }, new(0, 0)) });
+        draw = new(request, new RoomPlmShotBlockDrawDefinitions.Run[] { new(1, new ushort[] { word }, new(0, 0)) });
         return true;
     }
 }

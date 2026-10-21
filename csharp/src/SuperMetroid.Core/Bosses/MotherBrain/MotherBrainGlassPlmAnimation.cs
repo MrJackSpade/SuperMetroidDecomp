@@ -12,7 +12,7 @@ internal sealed class MotherBrainGlassPlmAnimation()
         MotherBrainGlassPlmProgramDefinitions.Programs;
 
     /// <inheritdoc/>
-    private protected override ushort DrawList(MotherBrainGlassDraw frame) => (ushort)frame;
+    private protected override PlmDraw DrawList(MotherBrainGlassDraw frame) => PlmDraw.Of(frame);
 
     /// <inheritdoc/>
     private protected override MotherBrainGlassPlmProgram? Publish(MotherBrainGlassPlmCue cue, PlmSlot slot, PlmStepContext context)

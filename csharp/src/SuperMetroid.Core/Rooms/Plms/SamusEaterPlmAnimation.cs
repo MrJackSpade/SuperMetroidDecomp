@@ -11,7 +11,7 @@ internal sealed class SamusEaterPlmAnimation(SamusEaterProgram program)
         SamusEaterPlmProgramDefinitions.Programs;
 
     /// <inheritdoc/>
-    private protected override ushort DrawList(SamusEaterDraw frame) => (ushort)frame;
+    private protected override PlmDraw DrawList(SamusEaterDraw frame) => PlmDraw.Of(frame);
 
     /// <inheritdoc/>
     private protected override SamusEaterProgram? Publish(SamusEaterCue cue, PlmSlot slot, PlmStepContext context)

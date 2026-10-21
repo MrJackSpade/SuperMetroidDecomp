@@ -68,7 +68,7 @@ internal static class ClipAudioOverrides
             Convert.ToHexString(SHA256.HashData(identity.ToArray())));
     }
 
-    /// <summary>The music identity of <paramref name="bank"/>'s <paramref name="track"/>, as the override names it.</summary>
+    /// <summary>The music identity of <paramref name="audioSet"/>'s <paramref name="track"/>, as the override names it.</summary>
     internal static string MusicId(AudioBank audioSet, int track) =>
         $"{MusicPrefix}{AudioAssetCatalogDefinitions.Get(audioSet).DataIndex:x2}-track-{track:00}";
 

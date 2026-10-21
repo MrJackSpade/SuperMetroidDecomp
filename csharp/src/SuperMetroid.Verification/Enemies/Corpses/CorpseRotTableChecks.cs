@@ -11,10 +11,10 @@ internal static class CorpseRotTableChecks
     /// rotting heap: a delay written through it is read back at the configured location.
     /// </summary>
     internal static void AssertConfiguredRotTable(
-        RoomEnemySystem enemies, ushort configuredPointer, int configuredEntryCount, CorpseRotTable actual, string context)
+        RoomEnemySystem enemies, int configuredOffset, int configuredEntryCount, CorpseRotTable actual, string context)
     {
         AssertEqual(configuredEntryCount, actual.EntryCount, $"{context} rot entry count");
-        CorpseRotTable configured = enemies.Room.Staging.RotTable(configuredPointer, configuredEntryCount);
+        CorpseRotTable configured = enemies.Room.Staging.RotTable(configuredOffset, configuredEntryCount);
         int last = configuredEntryCount - 1;
         ushort probe = unchecked((ushort)(configured.Delay(last) + 1));
         actual.SetDelay(last, probe);

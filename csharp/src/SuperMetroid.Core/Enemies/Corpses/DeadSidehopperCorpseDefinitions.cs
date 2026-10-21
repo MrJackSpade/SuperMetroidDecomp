@@ -8,8 +8,8 @@ internal static class DeadSidehopperCorpseDefinitions
     /// used by the initially living Shitroid victim.
     /// </summary>
     internal static readonly DeadSidehopperCorpseDefinition InitiallyAlive = new(
-        RottingTablePointer: 0x9000,
-        VramTransferPointer: 0xe0e0,
+        RotTableOffset: 0,
+        VramTransfers: new(CorpseRotationTable.Sidehopper, 0),
         EntryCount: 0x0028,
         WrapOffset: 0x0094);
 
@@ -18,8 +18,8 @@ internal static class DeadSidehopperCorpseDefinitions
     /// used by the already dead Tourian sidehopper.
     /// </summary>
     internal static readonly DeadSidehopperCorpseDefinition InitiallyDead = new(
-        RottingTablePointer: 0x90a0,
-        VramTransferPointer: 0xe10a,
+        RotTableOffset: 0xa0,
+        VramTransfers: new(CorpseRotationTable.Sidehopper, 1),
         EntryCount: 0x0028,
         WrapOffset: 0x0094);
 

@@ -159,7 +159,7 @@ public sealed class ClipAudioCatalog
             _ = catalog.ReadClip(layer.Clip);
     }
 
-    /// <summary>The music clip for <paramref name="track"/> in <paramref name="bank"/>.</summary>
+    /// <summary>The music clip for <paramref name="track"/> in <paramref name="audioSet"/>.</summary>
     /// <exception cref="KeyNotFoundException">The bank has no such track.</exception>
     public MusicClipEntry GetMusic(AudioBank audioSet, int track) =>
         music.TryGetValue(new MusicTrackKey(audioSet, track), out MusicClipEntry? entry)

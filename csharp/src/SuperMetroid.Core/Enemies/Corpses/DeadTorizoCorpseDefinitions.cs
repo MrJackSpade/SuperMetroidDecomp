@@ -9,7 +9,7 @@ internal static class DeadTorizoCorpseDefinitions
     /// at <c>$A9:E228</c>.
     /// </summary>
     internal static readonly DeadTorizoCorpseDefinition Corpse = new(
-        RottingTablePointer: 0x9000,
+        RotTableOffset: 0,
         EntryCount: 0x0060,
         WrapOffset: 0x0134);
 }

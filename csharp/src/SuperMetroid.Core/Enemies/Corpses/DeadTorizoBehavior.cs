@@ -73,7 +73,7 @@ internal sealed class DeadTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
         DeadTorizo = new DeadTorizoEnemyState(slot,
             new CorpseRottingProgram { YLimit = yLimit, LateMoveEntryIndex = yLimit - 1, WrapOffset = definition.WrapOffset })
         {
-            RotTable = _room.Staging.RotTable(definition.RottingTablePointer, definition.EntryCount),
+            RotTable = _room.Staging.RotTable(definition.RotTableOffset, definition.EntryCount),
             SandLineCounter = 15,
             Function = DeadTorizoFunction.Wait,
             Velocity = new(default, new SnesSignedEightEight(8)),

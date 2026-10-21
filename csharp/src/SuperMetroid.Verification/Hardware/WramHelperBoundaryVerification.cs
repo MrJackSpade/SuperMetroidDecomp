@@ -37,7 +37,7 @@ internal static class WramHelperBoundaryVerification
     /// <summary>Checks staggered corpse-row callbacks and sentinel writes in the rotting heap.</summary>
     private static void VerifyWramCorpseScheduler()
     {
-        CorpseRotTable table = new EnemyStagingSurfaces().RotTable(0x9000, 3);
+        CorpseRotTable table = new EnemyStagingSurfaces().RotTable(0, 3);
         CorpseRottingTableProcessor.Initialize(table);
         for (int index = 0; index < 3; index++)
             AssertEqual(new CorpseRottingTableEntry((short)(2 - index), (ushort)(2 * index)),

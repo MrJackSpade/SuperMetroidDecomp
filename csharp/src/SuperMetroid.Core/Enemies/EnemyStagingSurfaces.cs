@@ -40,14 +40,13 @@ public sealed class EnemyStagingSurfaces : IWorkRamStagingSource
             EnemyStagingDefinitions.MotherBrainRotTableEntryCount);
 
     /// <summary>
-    /// The dead-monster rot table of <paramref name="entryCount"/> entries at bank-$7E pointer
-    /// <paramref name="nativePointer"/>, which must lie inside the rotting heap.
+    /// The dead-monster rot table of <paramref name="entryCount"/> entries <paramref name="firstByte"/> bytes into the
+    /// rotting heap, which it must lie inside.
     /// </summary>
-    public CorpseRotTable RotTable(ushort nativePointer, int entryCount)
+    public CorpseRotTable RotTable(int firstByte, int entryCount)
     {
-        int firstByte = nativePointer - SnesAddress.FromBusAddress(EnemyStagingDefinitions.RottingHeapNativeAddress).Offset;
         if (firstByte < 0 || firstByte + entryCount * CorpseRotTable.EntryByteCount > RottingHeap.Length)
-            throw new InvalidDataException($"Corpse rot table $7E:{nativePointer:X4} with {entryCount} entries lies outside the rotting heap.");
+            throw new InvalidDataException($"Corpse rot table at heap byte {firstByte} with {entryCount} entries lies outside the rotting heap.");
         return new(RottingHeap.ByteView(0, RottingHeap.Length), firstByte, entryCount);
     }
 

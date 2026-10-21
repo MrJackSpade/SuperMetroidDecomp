@@ -8,7 +8,7 @@ namespace SuperMetroid.Core.Enemies;
 /// </summary>
 public interface IRoomEnemyDefinitionSource
 {
-    /// <summary>The enemy header named by <paramref name="pointer"/>.</summary>
+    /// <summary>The enemy header named by <paramref name="definitionId"/>.</summary>
     RoomEnemyDefinition ReadEnemyDefinition(EnemyDefinitionId definitionId);
 
     /// <summary>The population record Mother Brain's cutscene spawns for falling tube <paramref name="piece"/>.</summary>

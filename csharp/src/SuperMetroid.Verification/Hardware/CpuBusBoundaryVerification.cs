@@ -161,7 +161,7 @@ internal static class CpuBusBoundaryVerification
     private static void VerifyCpuBusTypedRoundTrips()
     {
         var scratch = new EnemyStagingSurfaces();
-        AssertThrows<InvalidDataException>(() => scratch.RotTable(0x8ffc, 2), "a rot table must lie inside the rotting heap");
+        AssertThrows<InvalidDataException>(() => scratch.RotTable(-4, 2), "a rot table must lie inside the rotting heap");
         scratch.CorpseTiles.WriteWord(0x10, 0x4321);
         AssertEqual((ushort)0x4321, scratch.EnemyBg2Tilemap[8], "corpse tiles and the enemy BG2 image share $7E:2000");
     }

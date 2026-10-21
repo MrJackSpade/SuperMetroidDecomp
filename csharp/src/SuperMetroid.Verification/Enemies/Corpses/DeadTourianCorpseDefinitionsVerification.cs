@@ -101,9 +101,9 @@ internal static class DeadTourianCorpseDefinitionsVerification
         AssertEqual(AnimationProgramCursor<DeadTourianProgram>.Start(expected.InitialProgram),
             enemies.DeadTourianBehavior.Extensions[slot.SlotIndex].Program,
             $"dead {species} variant {variantIndex} started animation");
-        CorpseRotTableChecks.AssertConfiguredRotTable(enemies, expected.RottingTablePointer, expected.EntryCount,
+        CorpseRotTableChecks.AssertConfiguredRotTable(enemies, expected.RotTableOffset, expected.EntryCount,
             state.RotTable, $"dead {species} variant {variantIndex}");
-        AssertTrue(DeadMonsterRottingDefinitions.ForTransferTable(expected.VramTransferPointer).SequenceEqual(state.VramTransfers),
+        AssertTrue(DeadMonsterRottingDefinitions.ForTransferTable(expected.VramTransfers).SequenceEqual(state.VramTransfers),
             $"dead {species} variant {variantIndex} uploads the configured VRAM transfer list");
         AssertEqual((ushort)state.Profile.RowLayout,
             CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa90000 | (ConfigurationPointer(rom, species, variantIndex) + 12)),

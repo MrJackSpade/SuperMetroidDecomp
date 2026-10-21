@@ -3,14 +3,10 @@ namespace SuperMetroid.Core.Enemies.Corpses;
 /// <summary>Calculated initializer and corpse-rotting metadata for dead Tourian enemies.</summary>
 internal static class DeadTourianCorpseDefinitions
 {
-    /// <summary>$7E:92C0 begins the five64-byte Zoomer/Ripper rotting work areas.</summary>
-    private const ushort FirstWideRottingArea = 0x92c0;
-    /// <summary>$7E:9140 begins the three128-byte Skree rotting work areas.</summary>
-    private const ushort FirstSkreeRottingArea = 0x9140;
-    /// <summary>$A9:E134 begins five18-byte Zoomer/Ripper DMA lists.</summary>
-    private const ushort FirstWideTransfer = 0xe134;
-    /// <summary>$A9:E18E begins three34-byte Skree DMA lists.</summary>
-    private const ushort FirstSkreeTransfer = 0xe18e;
+    /// <summary>The five 64-byte Zoomer and Ripper rot tables begin this far into the rotting heap.</summary>
+    private const int FirstWideRotTable = 0x2c0;
+    /// <summary>The three 128-byte Skree rot tables begin this far into the rotting heap.</summary>
+    private const int FirstSkreeRotTable = 0x140;
 
     /// <summary>The corpse pose program of the eight Zoomer, Ripper and Skree variants, in native configuration order.</summary>
     private static DeadTourianProgram CorpseProgram(int ordinal) => ordinal switch
@@ -42,9 +38,18 @@ internal static class DeadTourianCorpseDefinitions
         bool skree = species == DeadTourianCorpseSpecies.Skree;
         int layout = skree ? variantIndex : ordinal;
         int rowTiles = skree ? 2 : 3;
+        CorpseRotationTable transfers = species switch
+        {
+            DeadTourianCorpseSpecies.Zoomer => CorpseRotationTable.Zoomer,
+            DeadTourianCorpseSpecies.Ripper => CorpseRotationTable.Ripper,
+            DeadTourianCorpseSpecies.Skree => CorpseRotationTable.Skree,
+            _ => throw new ArgumentOutOfRangeException(nameof(species), species, null),
+        };
         return new(
             CorpseProgram(ordinal),
-            (ushort)((skree ? FirstSkreeRottingArea : FirstWideRottingArea)+(skree ? 128 : 64)*layout),
-            (ushort)((skree ? FirstSkreeTransfer : FirstWideTransfer)+(skree ? 34 : 18)*layout),            skree ? (ushort)32 : (ushort)16,            (ushort)(32*rowTiles-12));
+            (skree ? FirstSkreeRotTable : FirstWideRotTable) + (skree ? 128 : 64) * layout,
+            new CorpseTransferTable(transfers, variantIndex),
+            skree ? (ushort)32 : (ushort)16,
+            (ushort)(32 * rowTiles - 12));
     }
 }

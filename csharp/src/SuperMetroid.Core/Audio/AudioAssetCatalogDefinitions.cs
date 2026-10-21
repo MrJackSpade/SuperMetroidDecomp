@@ -44,7 +44,7 @@ public static class AudioAssetCatalogDefinitions
     }
 
     /// <summary>Returns the catalog entry of one bank; <see cref="AudioBank"/> follows the pointer-table order.</summary>
-    /// <exception cref="ArgumentOutOfRangeException"><paramref name="bank"/> is not a defined bank.</exception>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="audioSet"/> is not a defined bank.</exception>
     public static AudioUploadAssetDefinition Get(AudioBank audioSet) => audioSet switch
     {
         AudioBank.SpcEngine => Common,

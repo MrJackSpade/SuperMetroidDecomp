@@ -5,14 +5,6 @@ namespace SuperMetroid.Core.Enemies.Corpses;
 /// <remarks>No tile pixels or cartridge byte decoder are stored here.</remarks>
 internal static class DeadMonsterRottingDefinitions
 {
-    /// <summary>CorpseRottingVRAMTransferDefinitions_Sidehopper_Param1_0 at $A9:E0E0; two42-byte variant lists.</summary>
-    internal const ushort SidehopperTransfers = 0xe0e0;
-    /// <summary>CorpseRottingVRAMTransferDefinitions_Zoomer_Param1_0 at $A9:E134; three18-byte variant lists.</summary>
-    internal const ushort ZoomerTransfers = 0xe134;
-    /// <summary>CorpseRottingVRAMTransferDefinitions_Ripper_Param1_0 at $A9:E16A; two18-byte variant lists.</summary>
-    internal const ushort RipperTransfers = 0xe16a;
-    /// <summary>CorpseRottingVRAMTransferDefinitions_Skree_Param1_0 at $A9:E18E; three34-byte variant lists.</summary>
-    internal const ushort SkreeTransfers = 0xe18e;
     /// <summary>Dead Torizo's seven asymmetric touch rectangles at $A9:D77C..D7B5.</summary>
     private static readonly EnemyHitboxRectangle[] TorizoHitboxRecords =
     [
@@ -78,38 +70,38 @@ internal static class DeadMonsterRottingDefinitions
     }
 
     /// <summary>Calculates live-WRAM DMA rows for supported Sidehopper, Zoomer, Ripper, and Skree variant tables.</summary>
-    internal static ImmutableArray<DeadMonsterVramTransferDefinition> ForTransferTable(ushort table)
+    internal static ImmutableArray<DeadMonsterVramTransferDefinition> ForTransferTable(CorpseTransferTable table)
     {
-        int offset = table - SidehopperTransfers;
-        if (offset >= 0 && offset < 84 && offset % 42 == 0)
+        int Variant(int count) => (uint)table.Variant < count
+            ? table.Variant
+            : throw new InvalidDataException($"Corpse transfer table {table} has no compiled definition.");
+        return table.Species switch
         {
-            int variant = offset / 42;
-            return Rows(5, 0xa0, (ushort)(0x2040 + variant * 0x2e0),
-                (ushort)(0x7000 + variant * 0x90), variant == 0 ? (ushort)0x60 : (ushort)0x40,
-                variant == 0 ? (ushort)0x20 : (ushort)0);
-        }
-        offset = table - ZoomerTransfers;
-        if (offset >= 0 && offset < 54 && offset % 18 == 0)
-        {
-            int variant = offset / 18;
-            return Rows(2, 0x60, (ushort)(0x2940 + variant * 0xc0), (ushort)(0x7530 + variant * 0x30));
-        }
-        offset = table - RipperTransfers;
-        if (offset >= 0 && offset < 36 && offset % 18 == 0)
-        {
-            int variant = offset / 18;
-            return Rows(2, 0x60, (ushort)(0x2b80 + variant * 0xc0), (ushort)(0x7500 + variant * 0xc0));
-        }
-        offset = table - SkreeTransfers;
-        if (offset >= 0 && offset < 102 && offset % 34 == 0)
-        {
-            int variant = offset / 34;
-            // The first corpse begins on the next VRAM tile row; later variants occupy row zero.
-            int destination = variant == 0 ? 0x7150 : 0x7000 + variant * 0x70;
-            return Rows(4, 0x40, (ushort)(0x2640 + variant * 0x100), (ushort)destination);
-        }
-        throw new InvalidDataException($"Corpse transfer table $A9:{table:X4} has no compiled definition.");
+            CorpseRotationTable.Sidehopper => SidehopperRows(Variant(2)),
+            CorpseRotationTable.Zoomer => ZoomerRows(Variant(3)),
+            CorpseRotationTable.Ripper => RipperRows(Variant(2)),
+            CorpseRotationTable.Skree => SkreeRows(Variant(3)),
+            CorpseRotationTable.Torizo => throw new InvalidDataException("The Torizo corpse has no VRAM transfer list."),
+            _ => throw new InvalidDataException($"Corpse transfer table {table} has no compiled definition."),
+        };
     }
+
+    /// <summary>The rows of Sidehopper corpse <paramref name="variant"/>.</summary>
+    private static ImmutableArray<DeadMonsterVramTransferDefinition> SidehopperRows(int variant) =>
+        Rows(5, 0xa0, (ushort)(0x2040 + variant * 0x2e0), (ushort)(0x7000 + variant * 0x90),
+            variant == 0 ? (ushort)0x60 : (ushort)0x40, variant == 0 ? (ushort)0x20 : (ushort)0);
+
+    /// <summary>The rows of Zoomer corpse <paramref name="variant"/>.</summary>
+    private static ImmutableArray<DeadMonsterVramTransferDefinition> ZoomerRows(int variant) =>
+        Rows(2, 0x60, (ushort)(0x2940 + variant * 0xc0), (ushort)(0x7530 + variant * 0x30));
+
+    /// <summary>The rows of Ripper corpse <paramref name="variant"/>.</summary>
+    private static ImmutableArray<DeadMonsterVramTransferDefinition> RipperRows(int variant) =>
+        Rows(2, 0x60, (ushort)(0x2b80 + variant * 0xc0), (ushort)(0x7500 + variant * 0xc0));
+
+    /// <summary>The rows of Skree corpse <paramref name="variant"/>: the first begins on the next VRAM tile row, later ones on row zero.</summary>
+    private static ImmutableArray<DeadMonsterVramTransferDefinition> SkreeRows(int variant) =>
+        Rows(4, 0x40, (ushort)(0x2640 + variant * 0x100), (ushort)(variant == 0 ? 0x7150 : 0x7000 + variant * 0x70));
 
     /// <summary>
     /// Consecutive live-WRAM tile rows placed in 32-tile VRAM rows, in native descriptor order; sidehoppers clip their

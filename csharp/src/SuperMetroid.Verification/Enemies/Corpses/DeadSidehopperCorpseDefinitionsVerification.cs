@@ -77,9 +77,9 @@ internal static class DeadSidehopperCorpseDefinitionsVerification
         DeadSidehopperEnemyState state = (enemies.DeadSidehoppers[0] ?? throw new InvalidOperationException("Verification requires enemies.DeadSidehoppers[0]."));
         AssertEqual(graphicsVariant, state.GraphicsVariant,
             $"dead sidehopper parameter {parameter1} graphics variant");
-        CorpseRotTableChecks.AssertConfiguredRotTable(enemies, expected.RottingTablePointer, expected.EntryCount,
+        CorpseRotTableChecks.AssertConfiguredRotTable(enemies, expected.RotTableOffset, expected.EntryCount,
             state.RotTable, $"dead sidehopper parameter {parameter1}");
-        AssertTrue(DeadMonsterRottingDefinitions.ForTransferTable(expected.VramTransferPointer).SequenceEqual(state.VramTransfers),
+        AssertTrue(DeadMonsterRottingDefinitions.ForTransferTable(expected.VramTransfers).SequenceEqual(state.VramTransfers),
             $"dead sidehopper parameter {parameter1} uploads the configured VRAM transfer list");
         AssertEqual(expected.EntryCount - 1, state.YLimit,
             $"dead sidehopper parameter {parameter1} Y limit");

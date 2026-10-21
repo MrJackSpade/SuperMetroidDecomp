@@ -39,7 +39,7 @@ internal static class DeadTorizoCorpseDefinitionsVerification
         initialize(slot);
 
         DeadTorizoEnemyState state = (enemies.DeadTorizo ?? throw new InvalidOperationException("Verification requires enemies.DeadTorizo."));
-        CorpseRotTableChecks.AssertConfiguredRotTable(enemies, definition.RottingTablePointer, definition.EntryCount,
+        CorpseRotTableChecks.AssertConfiguredRotTable(enemies, definition.RotTableOffset, definition.EntryCount,
             state.RotTable, "dead Torizo production");
         AssertEqual(definition.EntryCount - 1, state.YLimit,
             "dead Torizo production Y limit");

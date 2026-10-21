@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Samus.Poses;
-using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Grapple;
@@ -315,7 +314,7 @@ public sealed class HudState
         Ensure.NotNull(queue);
         if (!IsInitialized)
             throw new InvalidOperationException("Initialize the HUD before queueing its tilemap.");
-        queue.EnqueueWords(MutableByteCount, GameplayHudDefinitions.MutableTilemapNativeAddress, Tiles, RoomFxVram.HudMutableRowsDma);
+        queue.EnqueueWords(MutableByteCount, GameplayHudDefinitions.MutableTilemapNativeAddress, Tiles, HudVram.HudMutableRowsDma);
     }
 
     /// <summary>Updates energy digits and tanks through the installed HUD artwork.</summary>

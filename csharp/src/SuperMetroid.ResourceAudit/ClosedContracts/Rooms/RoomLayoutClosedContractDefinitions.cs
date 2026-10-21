@@ -8,8 +8,8 @@ internal static class RoomLayoutClosedContractDefinitions
     [
         new("SuperMetroid.Core.Rooms.RoomVisualLayoutCatalog", "room-layout-complete-required-source-installation", ["Get"],
             [new("csharp/src/SuperMetroid.Core/Rooms/RoomVisualLayoutCatalog.cs"),
-             new("csharp/src/SuperMetroid.Core/Rooms/RoomVisualLayoutSourceDefinitions.cs"),
-             new("csharp/src/SuperMetroid.Core/Rooms/RoomStateDefinitions.cs"),
-             new("csharp/src/SuperMetroid.Core/Rooms/CartridgeRoomHeader.cs")]),
+             new("csharp/src/SuperMetroid.Core/World/RoomStates/RoomVisualLayoutSourceDefinitions.cs"),
+             new("csharp/src/SuperMetroid.Core/World/RoomStates/RoomStateDefinitions.cs"),
+             new("csharp/src/SuperMetroid.Core/World/RoomStates/CartridgeRoomHeader.cs")]),
     ];
 }

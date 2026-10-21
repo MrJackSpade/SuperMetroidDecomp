@@ -1,5 +1,4 @@
-﻿using SuperMetroid.Core.Fx;
-using SuperMetroid.Core.Progression;
+﻿using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Rooms.Plms;
 
@@ -12,12 +11,12 @@ internal sealed class SpeedBoosterEscapePlms
     /// <summary>The game's event flags.</summary>
     private readonly IGlobalEventFlags? _events;
     /// <summary>The room's layer-3 FX.</summary>
-    private readonly RoomLayer3FxState? _roomFx;
+    private readonly IRoomFxMotion? _roomFx;
     /// <summary>The room's earthquake.</summary>
     private readonly IRoomEarthquakeWriter? _earthquake;
 
     /// <summary>Binds the escape PLM behavior to its room-level state owners.</summary>
-    internal SpeedBoosterEscapePlms(IRoomSamusAccess? samus, IGlobalEventFlags? events, RoomLayer3FxState? roomFx, IRoomEarthquakeWriter? earthquake)
+    internal SpeedBoosterEscapePlms(IRoomSamusAccess? samus, IGlobalEventFlags? events, IRoomFxMotion? roomFx, IRoomEarthquakeWriter? earthquake)
     {
         _samus = samus;
         _events = events;
@@ -46,7 +45,7 @@ internal sealed class SpeedBoosterEscapePlms
     /// <summary>Dispatches the exact callback pointer installed by the cartridge list.</summary>
     internal void RunSpeedBoosterEscapePreInstruction(PlmSlot slot, SpeedBoosterEscapePreInstruction preInstruction)
     {
-        RoomLayer3FxState fx = _roomFx
+        IRoomFxMotion fx = _roomFx
             ?? throw new InvalidOperationException(
                 "Resident Speed Booster escape PLM lost its room-FX owner.");
         IRoomSamus samus = _samus?.Current
@@ -81,7 +80,7 @@ internal sealed class SpeedBoosterEscapePlms
     private void RunWaitForSpeedBooster(
         PlmSlot slot,
         IRoomSamus samus,
-        RoomLayer3FxState fx)
+        IRoomFxMotion fx)
     {
         if (!samus.CollectedItems.HasAny(SamusEquipmentFlags.SpeedBooster))
         {
@@ -111,7 +110,7 @@ internal sealed class SpeedBoosterEscapePlms
     private void RunAdvanceLava(
         PlmSlot slot,
         IRoomSamus samus,
-        RoomLayer3FxState fx)
+        IRoomFxMotion fx)
     {
         SpeedBoosterEscapeStageDefinition? stage =
             SpeedBoosterEscapeStageDefinitions.Resolve(checked((ushort)slot.LoopTimer));

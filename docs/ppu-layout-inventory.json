@@ -1,6 +1,54 @@
 {
   "cells": [
     {
+      "owner": "SuperMetroid.Core.Areas.Artwork.AreaCgramLayout",
+      "name": "CeresDoorAnimation",
+      "region": "Cgram",
+      "offset": "$0029",
+      "count": 6,
+      "encoding": "Bgr555 door animation",
+      "aliasOf": "PpuMemoryLayout.BackgroundPaletteRows[2]",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Areas/Artwork/AreaPalettes.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Areas.Artwork.AreaCgramLayout",
+      "name": "TourianStatue",
+      "region": "Cgram",
+      "offset": "$00A0",
+      "count": 16,
+      "encoding": "Bgr555 OBJ palette 2",
+      "aliasOf": "PpuMemoryLayout.ObjectPaletteRows[2]",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Areas/Artwork/AreaPalettes.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Areas.Artwork.AreaCgramLayout",
+      "name": "TourianStatueBase",
+      "region": "Cgram",
+      "offset": "$00F0",
+      "count": 16,
+      "encoding": "Bgr555 OBJ palette 7",
+      "aliasOf": "PpuMemoryLayout.ObjectPaletteRows[7]",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Areas/Artwork/AreaPalettes.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Areas.Artwork.AreaCgramLayout",
+      "name": "TourianStatueEye",
+      "region": "Cgram",
+      "offset": "$00F9",
+      "count": 4,
+      "encoding": "Bgr555 eye glow",
+      "aliasOf": "PpuMemoryLayout.ObjectPaletteRows[7]",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Areas/Artwork/AreaPalettes.cs"
+      ]
+    },
+    {
       "owner": "SuperMetroid.Core.Areas.Ceres.CeresDoorVramLayout",
       "name": "Tiles",
       "region": "Vram",
@@ -14,24 +62,36 @@
     },
     {
       "owner": "SuperMetroid.Core.Bosses.Artwork.BossCgramLayout",
-      "name": "CeresDoorAnimation",
+      "name": "BabyMetroidCutscene",
       "region": "Cgram",
-      "offset": "$0029",
-      "count": 6,
-      "encoding": "Bgr555 door animation",
-      "aliasOf": "PpuMemoryLayout.BackgroundPaletteRows[2]",
+      "offset": "$00F1",
+      "count": 15,
+      "encoding": "Bgr555 OBJ palette colours",
+      "aliasOf": "PpuMemoryLayout.ObjectPaletteRows[7]",
       "consumers": [
         "csharp/src/SuperMetroid.Core/Bosses/Artwork/BossPalettes.cs"
       ]
     },
     {
       "owner": "SuperMetroid.Core.Bosses.Artwork.BossCgramLayout",
-      "name": "ChozoAndTube",
+      "name": "BotwoonBody",
       "region": "Cgram",
-      "offset": "$0090",
-      "count": 32,
-      "encoding": "Bgr555 OBJ palettes 1-2",
-      "aliasOf": "PpuMemoryLayout.ObjectPalettes",
+      "offset": "$00F0",
+      "count": 16,
+      "encoding": "Bgr555 OBJ palette",
+      "aliasOf": "PpuMemoryLayout.ObjectPaletteRows[7]",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Bosses/Artwork/BossPalettes.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Bosses.Artwork.BossCgramLayout",
+      "name": "CeresRidleyRevealedObjects",
+      "region": "Cgram",
+      "offset": "$00F1",
+      "count": 15,
+      "encoding": "Bgr555 OBJ palette colours",
+      "aliasOf": "PpuMemoryLayout.ObjectPaletteRows[7]",
       "consumers": [
         "csharp/src/SuperMetroid.Core/Bosses/Artwork/BossPalettes.cs"
       ]
@@ -45,8 +105,7 @@
       "encoding": "Bgr555 body inks",
       "aliasOf": "PpuMemoryLayout.BackgroundPaletteRows[7]",
       "consumers": [
-        "csharp/src/SuperMetroid.Core/Bosses/Artwork/BossPalettes.cs",
-        "csharp/src/SuperMetroid.Core/Enemies/Drawing/EnemyPalettes.cs"
+        "csharp/src/SuperMetroid.Core/Bosses/Artwork/BossPalettes.cs"
       ]
     },
     {
@@ -147,11 +206,155 @@
     },
     {
       "owner": "SuperMetroid.Core.Bosses.Artwork.BossCgramLayout",
-      "name": "TourianStatue",
+      "name": "KraidBody",
+      "region": "Cgram",
+      "offset": "$0070",
+      "count": 16,
+      "encoding": "Bgr555 BG palette",
+      "aliasOf": "PpuMemoryLayout.BackgroundPaletteRows[7]",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Bosses/Artwork/BossPalettes.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Bosses.Artwork.BossCgramLayout",
+      "name": "KraidEye",
+      "region": "Cgram",
+      "offset": "$0071",
+      "count": 3,
+      "encoding": "Bgr555 BG palette colours",
+      "aliasOf": "PpuMemoryLayout.BackgroundPaletteRows[7]",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Bosses/Artwork/BossPalettes.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Bosses.Artwork.BossCgramLayout",
+      "name": "KraidRoomBackdrop",
+      "region": "Cgram",
+      "offset": "$0060",
+      "count": 16,
+      "encoding": "Bgr555 BG palette",
+      "aliasOf": "PpuMemoryLayout.BackgroundPaletteRows[6]",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Bosses/Artwork/BossPalettes.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Bosses.Artwork.BossCgramLayout",
+      "name": "KraidSecondary",
+      "region": "Cgram",
+      "offset": "$00F0",
+      "count": 16,
+      "encoding": "Bgr555 OBJ palette",
+      "aliasOf": "PpuMemoryLayout.ObjectPaletteRows[7]",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Bosses/Artwork/BossPalettes.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Bosses.Artwork.BossCgramLayout",
+      "name": "KraidSprites",
+      "region": "Cgram",
+      "offset": "$00B0",
+      "count": 16,
+      "encoding": "Bgr555 OBJ palette",
+      "aliasOf": "PpuMemoryLayout.ObjectPaletteRows[3]",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Bosses/Artwork/BossPalettes.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Bosses.Artwork.BossCgramLayout",
+      "name": "MotherBrainBody",
+      "region": "Cgram",
+      "offset": "$0041",
+      "count": 14,
+      "encoding": "Bgr555 BG palette colours",
+      "aliasOf": "PpuMemoryLayout.BackgroundPaletteRows[4]",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Bosses/Artwork/BossPalettes.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Bosses.Artwork.BossCgramLayout",
+      "name": "MotherBrainBrain",
+      "region": "Cgram",
+      "offset": "$0091",
+      "count": 15,
+      "encoding": "Bgr555 OBJ palette colours",
+      "aliasOf": "PpuMemoryLayout.ObjectPaletteRows[1]",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Bosses/Artwork/BossPalettes.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Bosses.Artwork.BossCgramLayout",
+      "name": "MotherBrainCorpse",
+      "region": "Cgram",
+      "offset": "$00F1",
+      "count": 15,
+      "encoding": "Bgr555 OBJ palette colours",
+      "aliasOf": "PpuMemoryLayout.ObjectPaletteRows[7]",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Bosses/Artwork/BossPalettes.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Bosses.Artwork.BossCgramLayout",
+      "name": "MotherBrainLegs",
+      "region": "Cgram",
+      "offset": "$00B1",
+      "count": 14,
+      "encoding": "Bgr555 OBJ palette colours",
+      "aliasOf": "PpuMemoryLayout.ObjectPaletteRows[3]",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Bosses/Artwork/BossPalettes.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Bosses.Artwork.BossCgramLayout",
+      "name": "NorfairRidleyBody",
+      "region": "Cgram",
+      "offset": "$0071",
+      "count": 15,
+      "encoding": "Bgr555 BG palette colours",
+      "aliasOf": "PpuMemoryLayout.BackgroundPaletteRows[7]",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Bosses/Artwork/BossPalettes.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Bosses.Artwork.BossCgramLayout",
+      "name": "NorfairRidleyTail",
+      "region": "Cgram",
+      "offset": "$00F1",
+      "count": 15,
+      "encoding": "Bgr555 OBJ palette colours",
+      "aliasOf": "PpuMemoryLayout.ObjectPaletteRows[7]",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Bosses/Artwork/BossPalettes.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Bosses.Artwork.BossCgramLayout",
+      "name": "PhantoonBody",
+      "region": "Cgram",
+      "offset": "$0070",
+      "count": 16,
+      "encoding": "Bgr555 BG palette",
+      "aliasOf": "PpuMemoryLayout.BackgroundPaletteRows[7]",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Bosses/Artwork/BossPalettes.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Bosses.Artwork.BossCgramLayout",
+      "name": "ShitroidBody",
       "region": "Cgram",
       "offset": "$00A0",
       "count": 16,
-      "encoding": "Bgr555 OBJ palette 2",
+      "encoding": "Bgr555 OBJ palette",
       "aliasOf": "PpuMemoryLayout.ObjectPaletteRows[2]",
       "consumers": [
         "csharp/src/SuperMetroid.Core/Bosses/Artwork/BossPalettes.cs"
@@ -159,11 +362,11 @@
     },
     {
       "owner": "SuperMetroid.Core.Bosses.Artwork.BossCgramLayout",
-      "name": "TourianStatueBase",
+      "name": "ShitroidDeadSidehopper",
       "region": "Cgram",
       "offset": "$00F0",
       "count": 16,
-      "encoding": "Bgr555 OBJ palette 7",
+      "encoding": "Bgr555 OBJ palette",
       "aliasOf": "PpuMemoryLayout.ObjectPaletteRows[7]",
       "consumers": [
         "csharp/src/SuperMetroid.Core/Bosses/Artwork/BossPalettes.cs"
@@ -171,14 +374,170 @@
     },
     {
       "owner": "SuperMetroid.Core.Bosses.Artwork.BossCgramLayout",
-      "name": "TourianStatueEye",
+      "name": "ShitroidMembrane",
       "region": "Cgram",
-      "offset": "$00F9",
+      "offset": "$00A5",
       "count": 4,
-      "encoding": "Bgr555 eye glow",
+      "encoding": "Bgr555 OBJ palette colours",
+      "aliasOf": "PpuMemoryLayout.ObjectPaletteRows[2]",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Bosses/Artwork/BossPalettes.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Bosses.Artwork.BossCgramLayout",
+      "name": "ShitroidSidehopper",
+      "region": "Cgram",
+      "offset": "$0090",
+      "count": 16,
+      "encoding": "Bgr555 OBJ palette",
+      "aliasOf": "PpuMemoryLayout.ObjectPaletteRows[1]",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Bosses/Artwork/BossPalettes.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Bosses.Artwork.BossCgramLayout",
+      "name": "SporeSpawnBody",
+      "region": "Cgram",
+      "offset": "$0090",
+      "count": 16,
+      "encoding": "Bgr555 OBJ palette",
+      "aliasOf": "PpuMemoryLayout.ObjectPaletteRows[1]",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Bosses/Artwork/BossPalettes.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Bosses.Artwork.BossCgramLayout",
+      "name": "SporeSpawnDeathBackground",
+      "region": "Cgram",
+      "offset": "$0070",
+      "count": 16,
+      "encoding": "Bgr555 BG palette",
+      "aliasOf": "PpuMemoryLayout.BackgroundPaletteRows[7]",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Bosses/Artwork/BossPalettes.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Bosses.Artwork.BossCgramLayout",
+      "name": "SporeSpawnDeathLevel",
+      "region": "Cgram",
+      "offset": "$0040",
+      "count": 16,
+      "encoding": "Bgr555 BG palette",
+      "aliasOf": "PpuMemoryLayout.BackgroundPaletteRows[4]",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Bosses/Artwork/BossPalettes.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Bosses.Artwork.BossCgramLayout",
+      "name": "SporeSpawnSpores",
+      "region": "Cgram",
+      "offset": "$00F0",
+      "count": 16,
+      "encoding": "Bgr555 OBJ palette",
       "aliasOf": "PpuMemoryLayout.ObjectPaletteRows[7]",
       "consumers": [
         "csharp/src/SuperMetroid.Core/Bosses/Artwork/BossPalettes.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Bosses.Artwork.BossCgramLayout",
+      "name": "TorizoBelly",
+      "region": "Cgram",
+      "offset": "$00A0",
+      "count": 16,
+      "encoding": "Bgr555 OBJ palette",
+      "aliasOf": "PpuMemoryLayout.ObjectPaletteRows[2]",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Bosses/Artwork/BossPalettes.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Bosses.Artwork.BossCgramLayout",
+      "name": "TorizoBody",
+      "region": "Cgram",
+      "offset": "$0090",
+      "count": 16,
+      "encoding": "Bgr555 OBJ palette",
+      "aliasOf": "PpuMemoryLayout.ObjectPaletteRows[1]",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Bosses/Artwork/BossPalettes.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Bosses.Artwork.BossCgramLayout",
+      "name": "TorizoSharedFirst",
+      "region": "Cgram",
+      "offset": "$00B0",
+      "count": 16,
+      "encoding": "Bgr555 OBJ palette",
+      "aliasOf": "PpuMemoryLayout.ObjectPaletteRows[3]",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Bosses/Artwork/BossPalettes.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Bosses.Artwork.BossCgramLayout",
+      "name": "TorizoSharedSecond",
+      "region": "Cgram",
+      "offset": "$00F0",
+      "count": 16,
+      "encoding": "Bgr555 OBJ palette",
+      "aliasOf": "PpuMemoryLayout.ObjectPaletteRows[7]",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Bosses/Artwork/BossPalettes.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Bosses.Artwork.BossVramLayout",
+      "name": "CrocomireSkeletonTiles",
+      "region": "Vram",
+      "offset": "$6000",
+      "count": 8192,
+      "encoding": "4-bpp OBJ characters",
+      "aliasOf": "GameplayVramLayout.ObjectCharacters",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Enemies/EnemyVram.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Bosses.Artwork.BossVramLayout",
+      "name": "DraygonEvirTiles",
+      "region": "Vram",
+      "offset": "$6D00",
+      "count": 768,
+      "encoding": "4-bpp OBJ characters",
+      "aliasOf": "EnemyVramLayout.EnemyTiles",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Enemies/EnemyVram.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Bosses.Artwork.BossVramLayout",
+      "name": "KraidBg3Restore",
+      "region": "Vram",
+      "offset": "$4000",
+      "count": 2048,
+      "encoding": "2-bpp BG3 characters",
+      "aliasOf": "GameplayVramLayout.HudCharacters",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Enemies/EnemyVram.cs"
+      ]
+    },
+    {
+      "owner": "SuperMetroid.Core.Bosses.Artwork.BossVramLayout",
+      "name": "KraidRoomBackgroundTiles",
+      "region": "Vram",
+      "offset": "$3F00",
+      "count": 256,
+      "encoding": "4-bpp BG characters",
+      "aliasOf": "GameplayVramLayout.BackgroundCharacters",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Enemies/EnemyVram.cs"
       ]
     },
     {
@@ -507,36 +866,12 @@
     },
     {
       "owner": "SuperMetroid.Core.Enemies.Drawing.EnemyPaletteLayout",
-      "name": "BabyMetroidCutscene",
+      "name": "ChozoAndTube",
       "region": "Cgram",
-      "offset": "$00F1",
-      "count": 15,
-      "encoding": "Bgr555 OBJ palette colours",
-      "aliasOf": "PpuMemoryLayout.ObjectPaletteRows[7]",
-      "consumers": [
-        "csharp/src/SuperMetroid.Core/Enemies/Drawing/EnemyPalettes.cs"
-      ]
-    },
-    {
-      "owner": "SuperMetroid.Core.Enemies.Drawing.EnemyPaletteLayout",
-      "name": "BotwoonBody",
-      "region": "Cgram",
-      "offset": "$00F0",
-      "count": 16,
-      "encoding": "Bgr555 OBJ palette",
-      "aliasOf": "PpuMemoryLayout.ObjectPaletteRows[7]",
-      "consumers": [
-        "csharp/src/SuperMetroid.Core/Enemies/Drawing/EnemyPalettes.cs"
-      ]
-    },
-    {
-      "owner": "SuperMetroid.Core.Enemies.Drawing.EnemyPaletteLayout",
-      "name": "CeresRidleyRevealedObjects",
-      "region": "Cgram",
-      "offset": "$00F1",
-      "count": 15,
-      "encoding": "Bgr555 OBJ palette colours",
-      "aliasOf": "PpuMemoryLayout.ObjectPaletteRows[7]",
+      "offset": "$0090",
+      "count": 32,
+      "encoding": "Bgr555 OBJ palettes 1-2",
+      "aliasOf": "PpuMemoryLayout.ObjectPalettes",
       "consumers": [
         "csharp/src/SuperMetroid.Core/Enemies/Drawing/EnemyPalettes.cs"
       ]
@@ -579,295 +914,7 @@
     },
     {
       "owner": "SuperMetroid.Core.Enemies.Drawing.EnemyPaletteLayout",
-      "name": "KraidBody",
-      "region": "Cgram",
-      "offset": "$0070",
-      "count": 16,
-      "encoding": "Bgr555 BG palette",
-      "aliasOf": "PpuMemoryLayout.BackgroundPaletteRows[7]",
-      "consumers": [
-        "csharp/src/SuperMetroid.Core/Enemies/Drawing/EnemyPalettes.cs"
-      ]
-    },
-    {
-      "owner": "SuperMetroid.Core.Enemies.Drawing.EnemyPaletteLayout",
-      "name": "KraidEye",
-      "region": "Cgram",
-      "offset": "$0071",
-      "count": 3,
-      "encoding": "Bgr555 BG palette colours",
-      "aliasOf": "PpuMemoryLayout.BackgroundPaletteRows[7]",
-      "consumers": [
-        "csharp/src/SuperMetroid.Core/Enemies/Drawing/EnemyPalettes.cs"
-      ]
-    },
-    {
-      "owner": "SuperMetroid.Core.Enemies.Drawing.EnemyPaletteLayout",
-      "name": "KraidRoomBackdrop",
-      "region": "Cgram",
-      "offset": "$0060",
-      "count": 16,
-      "encoding": "Bgr555 BG palette",
-      "aliasOf": "PpuMemoryLayout.BackgroundPaletteRows[6]",
-      "consumers": [
-        "csharp/src/SuperMetroid.Core/Enemies/Drawing/EnemyPalettes.cs"
-      ]
-    },
-    {
-      "owner": "SuperMetroid.Core.Enemies.Drawing.EnemyPaletteLayout",
-      "name": "KraidSecondary",
-      "region": "Cgram",
-      "offset": "$00F0",
-      "count": 16,
-      "encoding": "Bgr555 OBJ palette",
-      "aliasOf": "PpuMemoryLayout.ObjectPaletteRows[7]",
-      "consumers": [
-        "csharp/src/SuperMetroid.Core/Enemies/Drawing/EnemyPalettes.cs"
-      ]
-    },
-    {
-      "owner": "SuperMetroid.Core.Enemies.Drawing.EnemyPaletteLayout",
-      "name": "KraidSprites",
-      "region": "Cgram",
-      "offset": "$00B0",
-      "count": 16,
-      "encoding": "Bgr555 OBJ palette",
-      "aliasOf": "PpuMemoryLayout.ObjectPaletteRows[3]",
-      "consumers": [
-        "csharp/src/SuperMetroid.Core/Enemies/Drawing/EnemyPalettes.cs"
-      ]
-    },
-    {
-      "owner": "SuperMetroid.Core.Enemies.Drawing.EnemyPaletteLayout",
-      "name": "MotherBrainBody",
-      "region": "Cgram",
-      "offset": "$0041",
-      "count": 14,
-      "encoding": "Bgr555 BG palette colours",
-      "aliasOf": "PpuMemoryLayout.BackgroundPaletteRows[4]",
-      "consumers": [
-        "csharp/src/SuperMetroid.Core/Enemies/Drawing/EnemyPalettes.cs"
-      ]
-    },
-    {
-      "owner": "SuperMetroid.Core.Enemies.Drawing.EnemyPaletteLayout",
-      "name": "MotherBrainBrain",
-      "region": "Cgram",
-      "offset": "$0091",
-      "count": 15,
-      "encoding": "Bgr555 OBJ palette colours",
-      "aliasOf": "PpuMemoryLayout.ObjectPaletteRows[1]",
-      "consumers": [
-        "csharp/src/SuperMetroid.Core/Enemies/Drawing/EnemyPalettes.cs"
-      ]
-    },
-    {
-      "owner": "SuperMetroid.Core.Enemies.Drawing.EnemyPaletteLayout",
-      "name": "MotherBrainCorpse",
-      "region": "Cgram",
-      "offset": "$00F1",
-      "count": 15,
-      "encoding": "Bgr555 OBJ palette colours",
-      "aliasOf": "PpuMemoryLayout.ObjectPaletteRows[7]",
-      "consumers": [
-        "csharp/src/SuperMetroid.Core/Enemies/Drawing/EnemyPalettes.cs"
-      ]
-    },
-    {
-      "owner": "SuperMetroid.Core.Enemies.Drawing.EnemyPaletteLayout",
-      "name": "MotherBrainLegs",
-      "region": "Cgram",
-      "offset": "$00B1",
-      "count": 14,
-      "encoding": "Bgr555 OBJ palette colours",
-      "aliasOf": "PpuMemoryLayout.ObjectPaletteRows[3]",
-      "consumers": [
-        "csharp/src/SuperMetroid.Core/Enemies/Drawing/EnemyPalettes.cs"
-      ]
-    },
-    {
-      "owner": "SuperMetroid.Core.Enemies.Drawing.EnemyPaletteLayout",
       "name": "NinjaSpacePirate",
-      "region": "Cgram",
-      "offset": "$00F0",
-      "count": 16,
-      "encoding": "Bgr555 OBJ palette",
-      "aliasOf": "PpuMemoryLayout.ObjectPaletteRows[7]",
-      "consumers": [
-        "csharp/src/SuperMetroid.Core/Enemies/Drawing/EnemyPalettes.cs"
-      ]
-    },
-    {
-      "owner": "SuperMetroid.Core.Enemies.Drawing.EnemyPaletteLayout",
-      "name": "NorfairRidleyBody",
-      "region": "Cgram",
-      "offset": "$0071",
-      "count": 15,
-      "encoding": "Bgr555 BG palette colours",
-      "aliasOf": "PpuMemoryLayout.BackgroundPaletteRows[7]",
-      "consumers": [
-        "csharp/src/SuperMetroid.Core/Enemies/Drawing/EnemyPalettes.cs"
-      ]
-    },
-    {
-      "owner": "SuperMetroid.Core.Enemies.Drawing.EnemyPaletteLayout",
-      "name": "NorfairRidleyTail",
-      "region": "Cgram",
-      "offset": "$00F1",
-      "count": 15,
-      "encoding": "Bgr555 OBJ palette colours",
-      "aliasOf": "PpuMemoryLayout.ObjectPaletteRows[7]",
-      "consumers": [
-        "csharp/src/SuperMetroid.Core/Enemies/Drawing/EnemyPalettes.cs"
-      ]
-    },
-    {
-      "owner": "SuperMetroid.Core.Enemies.Drawing.EnemyPaletteLayout",
-      "name": "PhantoonBody",
-      "region": "Cgram",
-      "offset": "$0070",
-      "count": 16,
-      "encoding": "Bgr555 BG palette",
-      "aliasOf": "PpuMemoryLayout.BackgroundPaletteRows[7]",
-      "consumers": [
-        "csharp/src/SuperMetroid.Core/Enemies/Drawing/EnemyPalettes.cs"
-      ]
-    },
-    {
-      "owner": "SuperMetroid.Core.Enemies.Drawing.EnemyPaletteLayout",
-      "name": "ShitroidBody",
-      "region": "Cgram",
-      "offset": "$00A0",
-      "count": 16,
-      "encoding": "Bgr555 OBJ palette",
-      "aliasOf": "PpuMemoryLayout.ObjectPaletteRows[2]",
-      "consumers": [
-        "csharp/src/SuperMetroid.Core/Enemies/Drawing/EnemyPalettes.cs"
-      ]
-    },
-    {
-      "owner": "SuperMetroid.Core.Enemies.Drawing.EnemyPaletteLayout",
-      "name": "ShitroidDeadSidehopper",
-      "region": "Cgram",
-      "offset": "$00F0",
-      "count": 16,
-      "encoding": "Bgr555 OBJ palette",
-      "aliasOf": "PpuMemoryLayout.ObjectPaletteRows[7]",
-      "consumers": [
-        "csharp/src/SuperMetroid.Core/Enemies/Drawing/EnemyPalettes.cs"
-      ]
-    },
-    {
-      "owner": "SuperMetroid.Core.Enemies.Drawing.EnemyPaletteLayout",
-      "name": "ShitroidMembrane",
-      "region": "Cgram",
-      "offset": "$00A5",
-      "count": 4,
-      "encoding": "Bgr555 OBJ palette colours",
-      "aliasOf": "PpuMemoryLayout.ObjectPaletteRows[2]",
-      "consumers": [
-        "csharp/src/SuperMetroid.Core/Enemies/Drawing/EnemyPalettes.cs"
-      ]
-    },
-    {
-      "owner": "SuperMetroid.Core.Enemies.Drawing.EnemyPaletteLayout",
-      "name": "ShitroidSidehopper",
-      "region": "Cgram",
-      "offset": "$0090",
-      "count": 16,
-      "encoding": "Bgr555 OBJ palette",
-      "aliasOf": "PpuMemoryLayout.ObjectPaletteRows[1]",
-      "consumers": [
-        "csharp/src/SuperMetroid.Core/Enemies/Drawing/EnemyPalettes.cs"
-      ]
-    },
-    {
-      "owner": "SuperMetroid.Core.Enemies.Drawing.EnemyPaletteLayout",
-      "name": "SporeSpawnBody",
-      "region": "Cgram",
-      "offset": "$0090",
-      "count": 16,
-      "encoding": "Bgr555 OBJ palette",
-      "aliasOf": "PpuMemoryLayout.ObjectPaletteRows[1]",
-      "consumers": [
-        "csharp/src/SuperMetroid.Core/Enemies/Drawing/EnemyPalettes.cs"
-      ]
-    },
-    {
-      "owner": "SuperMetroid.Core.Enemies.Drawing.EnemyPaletteLayout",
-      "name": "SporeSpawnDeathBackground",
-      "region": "Cgram",
-      "offset": "$0070",
-      "count": 16,
-      "encoding": "Bgr555 BG palette",
-      "aliasOf": "PpuMemoryLayout.BackgroundPaletteRows[7]",
-      "consumers": [
-        "csharp/src/SuperMetroid.Core/Enemies/Drawing/EnemyPalettes.cs"
-      ]
-    },
-    {
-      "owner": "SuperMetroid.Core.Enemies.Drawing.EnemyPaletteLayout",
-      "name": "SporeSpawnDeathLevel",
-      "region": "Cgram",
-      "offset": "$0040",
-      "count": 16,
-      "encoding": "Bgr555 BG palette",
-      "aliasOf": "PpuMemoryLayout.BackgroundPaletteRows[4]",
-      "consumers": [
-        "csharp/src/SuperMetroid.Core/Enemies/Drawing/EnemyPalettes.cs"
-      ]
-    },
-    {
-      "owner": "SuperMetroid.Core.Enemies.Drawing.EnemyPaletteLayout",
-      "name": "SporeSpawnSpores",
-      "region": "Cgram",
-      "offset": "$00F0",
-      "count": 16,
-      "encoding": "Bgr555 OBJ palette",
-      "aliasOf": "PpuMemoryLayout.ObjectPaletteRows[7]",
-      "consumers": [
-        "csharp/src/SuperMetroid.Core/Enemies/Drawing/EnemyPalettes.cs"
-      ]
-    },
-    {
-      "owner": "SuperMetroid.Core.Enemies.Drawing.EnemyPaletteLayout",
-      "name": "TorizoBelly",
-      "region": "Cgram",
-      "offset": "$00A0",
-      "count": 16,
-      "encoding": "Bgr555 OBJ palette",
-      "aliasOf": "PpuMemoryLayout.ObjectPaletteRows[2]",
-      "consumers": [
-        "csharp/src/SuperMetroid.Core/Enemies/Drawing/EnemyPalettes.cs"
-      ]
-    },
-    {
-      "owner": "SuperMetroid.Core.Enemies.Drawing.EnemyPaletteLayout",
-      "name": "TorizoBody",
-      "region": "Cgram",
-      "offset": "$0090",
-      "count": 16,
-      "encoding": "Bgr555 OBJ palette",
-      "aliasOf": "PpuMemoryLayout.ObjectPaletteRows[1]",
-      "consumers": [
-        "csharp/src/SuperMetroid.Core/Enemies/Drawing/EnemyPalettes.cs"
-      ]
-    },
-    {
-      "owner": "SuperMetroid.Core.Enemies.Drawing.EnemyPaletteLayout",
-      "name": "TorizoSharedFirst",
-      "region": "Cgram",
-      "offset": "$00B0",
-      "count": 16,
-      "encoding": "Bgr555 OBJ palette",
-      "aliasOf": "PpuMemoryLayout.ObjectPaletteRows[3]",
-      "consumers": [
-        "csharp/src/SuperMetroid.Core/Enemies/Drawing/EnemyPalettes.cs"
-      ]
-    },
-    {
-      "owner": "SuperMetroid.Core.Enemies.Drawing.EnemyPaletteLayout",
-      "name": "TorizoSharedSecond",
       "region": "Cgram",
       "offset": "$00F0",
       "count": 16,
@@ -891,30 +938,6 @@
     },
     {
       "owner": "SuperMetroid.Core.Enemies.EnemyVramLayout",
-      "name": "CrocomireSkeletonTiles",
-      "region": "Vram",
-      "offset": "$6000",
-      "count": 8192,
-      "encoding": "4-bpp OBJ characters",
-      "aliasOf": "GameplayVramLayout.ObjectCharacters",
-      "consumers": [
-        "csharp/src/SuperMetroid.Core/Enemies/EnemyVram.cs"
-      ]
-    },
-    {
-      "owner": "SuperMetroid.Core.Enemies.EnemyVramLayout",
-      "name": "DraygonEvirTiles",
-      "region": "Vram",
-      "offset": "$6D00",
-      "count": 768,
-      "encoding": "4-bpp OBJ characters",
-      "aliasOf": "EnemyVramLayout.EnemyTiles",
-      "consumers": [
-        "csharp/src/SuperMetroid.Core/Enemies/EnemyVram.cs"
-      ]
-    },
-    {
-      "owner": "SuperMetroid.Core.Enemies.EnemyVramLayout",
       "name": "EnemyBg2Tilemap",
       "region": "Vram",
       "offset": "$4800",
@@ -934,30 +957,7 @@
       "encoding": "4-bpp OBJ characters",
       "aliasOf": "GameplayVramLayout.ObjectCharacters",
       "consumers": [
-        "csharp/src/SuperMetroid.Core/Enemies/EnemyVram.cs"
-      ]
-    },
-    {
-      "owner": "SuperMetroid.Core.Enemies.EnemyVramLayout",
-      "name": "KraidBg3Restore",
-      "region": "Vram",
-      "offset": "$4000",
-      "count": 2048,
-      "encoding": "2-bpp BG3 characters",
-      "aliasOf": "GameplayVramLayout.HudCharacters",
-      "consumers": [
-        "csharp/src/SuperMetroid.Core/Enemies/EnemyVram.cs"
-      ]
-    },
-    {
-      "owner": "SuperMetroid.Core.Enemies.EnemyVramLayout",
-      "name": "KraidRoomBackgroundTiles",
-      "region": "Vram",
-      "offset": "$3F00",
-      "count": 256,
-      "encoding": "4-bpp BG characters",
-      "aliasOf": "GameplayVramLayout.BackgroundCharacters",
-      "consumers": [
+        "csharp/src/SuperMetroid.Core/Bosses/Artwork/BossVramLayout.cs",
         "csharp/src/SuperMetroid.Core/Enemies/EnemyVram.cs"
       ]
     },
@@ -1630,18 +1630,6 @@
       ]
     },
     {
-      "owner": "SuperMetroid.Core.Fx.RoomFxVramLayout",
-      "name": "HudMutableRows",
-      "region": "Vram",
-      "offset": "$5820",
-      "count": 96,
-      "encoding": "BG3 tilemap words",
-      "aliasOf": "GameplayVramLayout.HudTilemap",
-      "consumers": [
-        "csharp/src/SuperMetroid.Core/Fx/RoomFxVram.cs"
-      ]
-    },
-    {
       "owner": "SuperMetroid.Core.Gameplay.NewGamePaletteLayout",
       "name": "CeresElevatorConcealer",
       "region": "Cgram",
@@ -1662,7 +1650,7 @@
       "encoding": "4-bpp BG characters (16 words each)",
       "aliasOf": "PpuMemoryLayout.Vram",
       "consumers": [
-        "csharp/src/SuperMetroid.Core/Enemies/EnemyVramLayout.cs",
+        "csharp/src/SuperMetroid.Core/Bosses/Artwork/BossVramLayout.cs",
         "csharp/src/SuperMetroid.Core/Rooms/LevelData/RoomGraphicsLayout.cs"
       ]
     },
@@ -1700,7 +1688,7 @@
       "encoding": "2-bpp BG3 characters (8 words each)",
       "aliasOf": "PpuMemoryLayout.Vram",
       "consumers": [
-        "csharp/src/SuperMetroid.Core/Enemies/EnemyVramLayout.cs",
+        "csharp/src/SuperMetroid.Core/Bosses/Artwork/BossVramLayout.cs",
         "csharp/src/SuperMetroid.Core/Hardware/GameplayVram.cs"
       ]
     },
@@ -1713,8 +1701,8 @@
       "encoding": "BG3 tilemap words (32x64)",
       "aliasOf": "PpuMemoryLayout.Vram",
       "consumers": [
-        "csharp/src/SuperMetroid.Core/Fx/RoomFxVramLayout.cs",
         "csharp/src/SuperMetroid.Core/Hardware/GameplayVram.cs",
+        "csharp/src/SuperMetroid.Core/Hud/HudVramLayout.cs",
         "csharp/src/SuperMetroid.Verification/Hardware/PpuLayoutBoundaryVerification.cs"
       ]
     },
@@ -1728,6 +1716,7 @@
       "aliasOf": "PpuMemoryLayout.Vram",
       "consumers": [
         "csharp/src/SuperMetroid.Core/Areas/Ceres/CeresDoorVramLayout.cs",
+        "csharp/src/SuperMetroid.Core/Bosses/Artwork/BossVramLayout.cs",
         "csharp/src/SuperMetroid.Core/Bosses/MotherBrain/MotherBrainEncounter.cs",
         "csharp/src/SuperMetroid.Core/Bosses/Torizo/BombTorizoBehavior.cs",
         "csharp/src/SuperMetroid.Core/Enemies/EnemyVramLayout.cs",
@@ -2159,6 +2148,18 @@
       ]
     },
     {
+      "owner": "SuperMetroid.Core.Hud.HudVramLayout",
+      "name": "HudMutableRows",
+      "region": "Vram",
+      "offset": "$5820",
+      "count": 96,
+      "encoding": "BG3 tilemap words",
+      "aliasOf": "GameplayVramLayout.HudTilemap",
+      "consumers": [
+        "csharp/src/SuperMetroid.Core/Hud/HudVram.cs"
+      ]
+    },
+    {
       "owner": "SuperMetroid.Core.Rooms.LevelData.RoomGraphicsLayout",
       "name": "AreaCharacters",
       "region": "Vram",
@@ -2167,7 +2168,7 @@
       "encoding": "4-bpp BG characters",
       "aliasOf": "GameplayVramLayout.BackgroundCharacters",
       "consumers": [
-        "csharp/src/SuperMetroid.Core/Rooms/CartridgeRoomAssets.cs",
+        "csharp/src/SuperMetroid.Core/World/RoomStates/CartridgeRoomAssets.cs",
         "csharp/src/SuperMetroid.Tooling/AssetExtraction/ReferenceRendering/RoomRenderer.cs",
         "csharp/src/SuperMetroid.Verification/Rooms/BgArtworkBindingsVerification.cs"
       ]
@@ -2193,7 +2194,7 @@
       "encoding": "4-bpp BG characters",
       "aliasOf": "GameplayVramLayout.BackgroundCharacters",
       "consumers": [
-        "csharp/src/SuperMetroid.Core/Rooms/CartridgeRoomAssets.cs",
+        "csharp/src/SuperMetroid.Core/World/RoomStates/CartridgeRoomAssets.cs",
         "csharp/src/SuperMetroid.Tooling/AssetExtraction/ReferenceRendering/RoomRenderer.cs",
         "csharp/src/SuperMetroid.Verification/Rooms/BgArtworkBindingsVerification.cs",
         "csharp/src/SuperMetroid.Verification/Rooms/RoomArtworkRenderParityVerification.cs"
@@ -2220,8 +2221,8 @@
       "encoding": "Bgr555 OBJ palette",
       "aliasOf": "PpuMemoryLayout.ObjectPaletteRows[6]",
       "consumers": [
-        "csharp/src/SuperMetroid.Core/Rooms/Doors/DoorTransitionPalettes.cs",
-        "csharp/src/SuperMetroid.Core/Samus/Palettes/SamusPalettes.cs"
+        "csharp/src/SuperMetroid.Core/Samus/Palettes/SamusPalettes.cs",
+        "csharp/src/SuperMetroid.Core/World/DoorTransitionPalettes.cs"
       ]
     },
     {
@@ -2317,8 +2318,8 @@
       "encoding": "Bgr555 OBJ palette colour",
       "aliasOf": "PpuMemoryLayout.ObjectPaletteRows[4]",
       "consumers": [
-        "csharp/src/SuperMetroid.Core/Rooms/Doors/DoorTransitionPalettes.cs",
-        "csharp/src/SuperMetroid.Core/Samus/Palettes/SamusPalettes.cs"
+        "csharp/src/SuperMetroid.Core/Samus/Palettes/SamusPalettes.cs",
+        "csharp/src/SuperMetroid.Core/World/DoorTransitionPalettes.cs"
       ]
     }
   ]

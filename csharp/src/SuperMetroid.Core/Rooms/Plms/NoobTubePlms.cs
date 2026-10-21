@@ -1,5 +1,4 @@
 ﻿using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.LevelData;
 
@@ -14,7 +13,7 @@ internal sealed class NoobTubePlms
     /// <summary>The game's event flags.</summary>
     private readonly IGlobalEventFlags? _events;
     /// <summary>The room's layer-3 FX.</summary>
-    private readonly RoomLayer3FxState? _roomFx;
+    private readonly IRoomWaterPhysics? _waterPhysics;
     /// <summary>The room's earthquake.</summary>
     private readonly IRoomEarthquakeWriter? _earthquake;
     /// <summary>The enemy effects room objects trigger.</summary>
@@ -23,11 +22,11 @@ internal sealed class NoobTubePlms
     private readonly PlmSoundQueue _sounds;
 
     /// <summary>Shares the room services and sound queue used by the tube PLM interpreter.</summary>
-    internal NoobTubePlms(IRoomSamusAccess? samus, IGlobalEventFlags? events, RoomLayer3FxState? roomFx, IRoomEarthquakeWriter? earthquake, IRoomPlmEnemyEffects? enemies, PlmSoundQueue sounds)
+    internal NoobTubePlms(IRoomSamusAccess? samus, IGlobalEventFlags? events, IRoomWaterPhysics? waterPhysics, IRoomEarthquakeWriter? earthquake, IRoomPlmEnemyEffects? enemies, PlmSoundQueue sounds)
     {
         _samus = samus;
         _events = events;
-        _roomFx = roomFx;
+        _waterPhysics = waterPhysics;
         _earthquake = earthquake;
         _enemies = enemies;
         _sounds = sounds;
@@ -115,15 +114,10 @@ internal sealed class NoobTubePlms
         (_events ?? throw new InvalidOperationException(
             "N00b tube has no event writer.")).Set(NoobTubePlmRomData.BrokenEvent);
 
-    /// <summary>Enables the room's water physics and applies them to Samus.</summary>
-    internal void EnableWaterPhysics()
-    {
-        RoomLayer3FxState roomFx = _roomFx
-            ?? throw new InvalidOperationException(
-                "N00b tube has no room-FX owner for its water-physics write.");
-        roomFx.EnableWaterPhysics();
-        RequireNoobTubeSamus().ConfigureLiquidFor(roomFx);
-    }
+    /// <summary>Enables the room's water physics, Samus's included.</summary>
+    internal void EnableWaterPhysics() =>
+        (_waterPhysics ?? throw new InvalidOperationException(
+            "N00b tube has no room water physics for its water-physics write.")).EnableWaterPhysics();
 
     /// <summary>Requires the room event owner before testing the broken-tube event.</summary>
     private IGlobalEventFlags RequireNoobTubeEvents() =>

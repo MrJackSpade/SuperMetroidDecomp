@@ -16,7 +16,6 @@ using SuperMetroid.Core.Bosses.SporeSpawn;
 using SuperMetroid.Core.Bosses.Torizo;
 using SuperMetroid.Core.Enemies.Alcoon;
 using SuperMetroid.Core.Enemies.Animals;
-using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Enemies.Atomic;
 using SuperMetroid.Core.Enemies.Beetom;
 using SuperMetroid.Core.Enemies.Boulder;
@@ -801,16 +800,6 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
     public IReadOnlyList<SolidEnemyCollisionBody> InteractiveCollisionBodies =>
         _interactiveCollisionBodies;
 
-    /// <summary>
-    /// Installed enemy presentation. Drawing or a named artwork transfer requires its
-    /// corresponding catalog; null does not enable a cartridge-backed fallback.
-    /// </summary>
-    public EnemyTileArtworkCatalog? TileArtwork
-    {
-        get => Room.Session.TileArtwork;
-        set => Room.Session.TileArtwork = value;
-    }
-
     /// <summary>What the room\'s bosses draw with: its presentation surfaces and the installed boss artwork.</summary>
     internal BossPresentation BossPresentation { get; }
 
@@ -819,13 +808,6 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
 
     /// <summary>The areas' installed artwork, read through the session's binding.</summary>
     internal AreaArtworkBinding AreaArtworkBinding { get; }
-
-    /// <summary>The bosses' installed artwork; setting it rebinds the session's boss artwork.</summary>
-    public BossArtworkCatalog? BossArtwork
-    {
-        get => BossArtworkBinding.Artwork;
-        set => BossArtworkBinding.Artwork = value;
-    }
 
     /// <summary>The areas' installed artwork; setting it rebinds the session's area artwork.</summary>
     public AreaArtworkCatalog? AreaArtwork

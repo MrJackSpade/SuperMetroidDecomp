@@ -13,6 +13,7 @@ using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.TestSupport.VerificationImporters;
 namespace SuperMetroid.Verification.Rooms.Plms;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.World;
 
 /// <summary>Checks compiled room PLM populations, header metadata, scroll programs, and collectible uploads against ROM.</summary>
 internal static class RoomPlmPopulationDefinitionsVerification

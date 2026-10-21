@@ -2,6 +2,7 @@ using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Fx.PaletteFx;
+using SuperMetroid.Core.Fx.Artwork;
 
 namespace SuperMetroid.Core.Areas.Tourian;
 
@@ -11,8 +12,6 @@ namespace SuperMetroid.Core.Areas.Tourian;
 /// </summary>
 public sealed class TourianStatueAnimatedTileProgramDefinition
 {
-    /// <summary>Every picture a statue program shows.</summary>
-    private static readonly TourianStatueTilePicture[] AllPictures = Enum.GetValues<TourianStatueTilePicture>();
 
     /// <summary>Only the statue catalog creates definitions.</summary>
     internal TourianStatueAnimatedTileProgramDefinition()
@@ -59,8 +58,6 @@ public sealed class TourianStatueAnimatedTileProgramDefinition
     /// <summary>The CGRAM colour index that receives the eight common grey colours.</summary>
     public required int GreyColorIndex { get; init; }
 
-    /// <summary>The pictures every statue's program shows, each one artwork window.</summary>
-    public static IReadOnlyList<TourianStatueTilePicture> Pictures => AllPictures;
 
     /// <summary>The statue's typed animated-tile programs.</summary>
     internal AnimationProgramSet<TourianStatueTileProgram, TourianStatueTilePicture, TourianStatueTileCue> Program =>

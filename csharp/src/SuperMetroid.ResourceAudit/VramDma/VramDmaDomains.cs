@@ -9,7 +9,6 @@ using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Samus.Artwork;
-using SuperMetroid.Core.Areas.Tourian.Artwork;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Fx.Artwork;
 using SuperMetroid.Core.Samus.Drawing;
@@ -72,8 +71,8 @@ internal static class VramDmaDomains
                     (BeamTileCatalog.AssetFor(selection), BeamTileAtlasDefinitions.ByteCount)));
             case "statues":
                 return Native(TourianStatueAnimatedTileMechanicsDefinitions.All.SelectMany(definition =>
-                    TourianStatueAnimatedTileProgramDefinition.Pictures.Select(picture =>
-                        (TourianStatueAnimatedTileArtworkDefinitions.SourceAddress(definition, picture), definition.TransferByteCount))));
+                    TourianStatueTileStripDefinitions.Pictures.Select(picture =>
+                        (TourianStatueTileStripDefinitions.SourceAddress(definition.ObjectPointer, picture), definition.TransferByteCount))));
             case "treadmill":
                 return Native(Enumerable.Range(0, RoomFxAnimatedTileAtlasFormat.TreadmillFrameCount).Select(index =>
                     (WreckedShipTreadmillRomData.FrameSource(index), (int)WreckedShipTreadmillRomData.TransferByteCount)));

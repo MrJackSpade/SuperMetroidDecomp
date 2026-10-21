@@ -6,6 +6,7 @@ using SuperMetroid.Core.Rooms.Scrolling;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Gameplay;
 using SuperMetroid.Core.Areas.Tourian;
+using SuperMetroid.Core.Fx.Artwork;
 
 namespace SuperMetroid.Core.World;
 

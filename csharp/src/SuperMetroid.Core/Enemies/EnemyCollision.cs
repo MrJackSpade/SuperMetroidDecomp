@@ -7,7 +7,6 @@ using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Enemies.Drawing;
-using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Enemies;
@@ -35,9 +34,6 @@ internal sealed class EnemyCollision
     private readonly EnemyProjectileEngine _projectiles;
     /// <summary>Supplies the active room's area and environment to collision logic.</summary>
     private readonly EnemyRoomBinding _room;
-
-    /// <summary>The installed word each enemy frame identity shows.</summary>
-    internal IEnemyFrameWords Frames => _room.Frames;
     /// <summary>Defines native enemy iteration order for the collision passes.</summary>
     private readonly EnemySlotTable _slotTable;
 

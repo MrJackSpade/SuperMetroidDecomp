@@ -9,7 +9,7 @@ internal static class BossColorClosedContractDefinitions
         new("SuperMetroid.Core.Samus.Artwork.BeamPaletteCatalog", "beam-palettes-v1-twelve-selections", ["LoadTo"],
             [new("csharp/src/SuperMetroid.Core/Samus/Artwork/BeamPaletteCatalog.cs"),
              new("csharp/src/SuperMetroid.Core/Samus/Artwork/BeamPaintDefinitions.cs"),
-             new("csharp/src/SuperMetroid.Core/Samus/SamusEquipmentFlags.cs"),
+             new("csharp/src/SuperMetroid.Core/Progression/SamusEquipmentFlags.cs"),
              new("csharp/src/SuperMetroid.Core/Samus/Artwork/BeamTileAtlas.cs"),
              new("csharp/src/SuperMetroid.Core/Samus/Artwork/SpazerCompositionGeometryDefinitions.cs")]),
         new("SuperMetroid.Core.Bosses.Ridley.Artwork.CeresRidleyColorCatalog", "ceres-ridley-v3-complete-palette-rows",

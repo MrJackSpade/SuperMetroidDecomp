@@ -3,7 +3,6 @@ using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Enemies.WreckedShip;
 using SuperMetroid.Core.Fx;
-using SuperMetroid.Core.Areas.Tourian.Artwork;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Fx.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -183,7 +182,7 @@ internal static class RoomFxAnimatedTileArtworkVerification
             "edited treadmill pixel reaches the production runtime NMI destination");
         AssertEqual(0, guarded.ForbiddenReadAttempts,
             "edited treadmill animation and queued upload remain ROM-free");
-        int statueSource = TourianStatueAnimatedTileArtworkDefinitions.FirstSource;
+        int statueSource = TourianStatueTileStripDefinitions.FirstSource;
         AssertTrue(baseline.RoomFxAnimatedTiles.TryResolve(statueSource, 0x80,
                 out ReadOnlyMemory<byte> stockStatue),
             "stock Tourian statue frame is installed");

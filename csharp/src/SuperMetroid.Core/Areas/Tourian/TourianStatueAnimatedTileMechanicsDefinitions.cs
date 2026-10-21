@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Fx.Artwork;
 using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Progression;
@@ -10,7 +11,7 @@ namespace SuperMetroid.Core.Areas.Tourian;
 /// </summary>
 /// <remarks>
 /// The pictures each program shows are presentation references in
-/// <see cref="SuperMetroid.Core.Areas.Tourian.Artwork.TourianStatueAnimatedTileArtworkDefinitions"/>.
+/// <see cref="SuperMetroid.Core.Fx.Artwork.TourianStatueTileStripDefinitions"/>.
 /// </remarks>
 public static class TourianStatueAnimatedTileMechanicsDefinitions
 {
@@ -24,7 +25,7 @@ public static class TourianStatueAnimatedTileMechanicsDefinitions
         AnimatedTileObject.TourianStatuePhantoon => new()
         {
             ObjectPointer = AnimatedTileObject.TourianStatuePhantoon,
-            TransferByteCount = 128,
+            TransferByteCount = TourianStatueTileStripDefinitions.WindowByteCount(AnimatedTileObject.TourianStatuePhantoon),
             EncodedVramDestination = 0x7800,
             AnimatingFlag = TourianStatueAnimationState.PhantoonAnimating,
             GreyEvent = EventNumber.PhantoonStatueGrey,
@@ -39,7 +40,7 @@ public static class TourianStatueAnimatedTileMechanicsDefinitions
         AnimatedTileObject.TourianStatueRidley => new()
         {
             ObjectPointer = AnimatedTileObject.TourianStatueRidley,
-            TransferByteCount = 64,
+            TransferByteCount = TourianStatueTileStripDefinitions.WindowByteCount(AnimatedTileObject.TourianStatueRidley),
             EncodedVramDestination = 0x7220,
             AnimatingFlag = TourianStatueAnimationState.RidleyAnimating,
             GreyEvent = EventNumber.RidleyStatueGrey,
@@ -54,7 +55,7 @@ public static class TourianStatueAnimatedTileMechanicsDefinitions
         AnimatedTileObject.TourianStatueKraid => new()
         {
             ObjectPointer = AnimatedTileObject.TourianStatueKraid,
-            TransferByteCount = 64,
+            TransferByteCount = TourianStatueTileStripDefinitions.WindowByteCount(AnimatedTileObject.TourianStatueKraid),
             EncodedVramDestination = 0x0b40,
             AnimatingFlag = TourianStatueAnimationState.KraidAnimating,
             GreyEvent = EventNumber.KraidStatueGrey,
@@ -69,7 +70,7 @@ public static class TourianStatueAnimatedTileMechanicsDefinitions
         AnimatedTileObject.TourianStatueDraygon => new()
         {
             ObjectPointer = AnimatedTileObject.TourianStatueDraygon,
-            TransferByteCount = 128,
+            TransferByteCount = TourianStatueTileStripDefinitions.WindowByteCount(AnimatedTileObject.TourianStatueDraygon),
             EncodedVramDestination = 0x0ca0,
             AnimatingFlag = TourianStatueAnimationState.DraygonAnimating,
             GreyEvent = EventNumber.DraygonStatueGrey,

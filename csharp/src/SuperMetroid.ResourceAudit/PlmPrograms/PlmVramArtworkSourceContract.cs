@@ -11,7 +11,7 @@ internal static class PlmVramArtworkSourceContract
     internal static readonly ReviewedSource[] Sources =
     [
         .. EnemyArtworkClosedContractDefinitions.All[0].Sources,
-        new("csharp/src/SuperMetroid.Core/Gameplay/RuntimeArtwork.cs"),
+        new("csharp/src/SuperMetroid.Core/World/RuntimeArtwork.cs"),
         new("csharp/src/SuperMetroid.Core/Samus/Artwork/BeamTileCatalog.cs"),
         new("csharp/src/SuperMetroid.Core/Samus/Artwork/BeamTileAtlasDefinitions.cs"),
         new("csharp/src/SuperMetroid.Core/Hardware/VramWriteQueue.cs"),

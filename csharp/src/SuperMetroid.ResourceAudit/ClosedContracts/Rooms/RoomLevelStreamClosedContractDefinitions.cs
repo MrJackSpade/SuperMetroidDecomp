@@ -8,8 +8,8 @@ internal static class RoomLevelStreamClosedContractDefinitions
     [
         new("SuperMetroid.Core.Rooms.LevelData.RoomLevelStreamCatalog", "room-level-stream-complete-required-source-installation", ["Get"],
             [new("csharp/src/SuperMetroid.Core/Rooms/LevelData/RoomLevelStreamCatalog.cs"),
-             new("csharp/src/SuperMetroid.Core/Rooms/RoomVisualLayoutSourceDefinitions.cs"),
-             new("csharp/src/SuperMetroid.Core/Rooms/RoomStateDefinitions.cs"),
-             new("csharp/src/SuperMetroid.Core/Rooms/CartridgeRoomHeader.cs")]),
+             new("csharp/src/SuperMetroid.Core/World/RoomStates/RoomVisualLayoutSourceDefinitions.cs"),
+             new("csharp/src/SuperMetroid.Core/World/RoomStates/RoomStateDefinitions.cs"),
+             new("csharp/src/SuperMetroid.Core/World/RoomStates/CartridgeRoomHeader.cs")]),
     ];
 }

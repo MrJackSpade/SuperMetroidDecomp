@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Areas.Tourian;
+namespace SuperMetroid.Core.Fx.Artwork;
 
 /// <summary>
 /// The pictures a Tourian boss statue's animated tiles show. The idle animation swings through the three oscillation

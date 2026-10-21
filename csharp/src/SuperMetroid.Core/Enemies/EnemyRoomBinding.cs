@@ -51,10 +51,6 @@ internal sealed class EnemyRoomBinding
     /// <summary>The session's installed enemy presentation; drawing and named artwork transfers require it.</summary>
     internal EnemyTileArtworkCatalog? Artwork => Session.TileArtwork;
 
-    /// <summary>The installed enemy presentation; drawing and named artwork transfers require it.</summary>
-    internal EnemyTileArtworkCatalog InstalledArtwork => Artwork ??
-        throw new InvalidDataException("Enemy artwork is not installed; the host installs it with the room.");
-
     /// <summary>The session's enemy staging surfaces; they outlive each room, as the cartridge's WRAM does.</summary>
     internal EnemyStagingSurfaces Staging => Session.Staging;
 

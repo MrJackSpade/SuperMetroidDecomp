@@ -622,7 +622,7 @@ internal static class RoomPlmPopulationVerification
             Action<ushort> writeEarthquake)
         {
             var plms = PlmFixtures.Unbound();
-            AssertEqual(1, PlmFixtures.LoadPopulation(ref plms, new PlmRoom(level, BgArtworkFixtures.For(new SnesVram()), system, AreaId.Norfair), RoomPlmPopulationImporter.Read(bus, population), new RoomPlmServices { Samus = new FixtureRoomSamus(() => samus), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false }, Events = new FixtureEventFlags { HasEvent = system.HasEvent, SetEvent = system.SetEvent }, RoomFx = fx, Earthquake = new FixtureRoomEarthquake { WriteTimer = writeEarthquake } }),
+            AssertEqual(1, PlmFixtures.LoadPopulation(ref plms, new PlmRoom(level, BgArtworkFixtures.For(new SnesVram()), system, AreaId.Norfair), RoomPlmPopulationImporter.Read(bus, population), new RoomPlmServices { Samus = new FixtureRoomSamus(() => samus), Bosses = new FixtureAreaBossFlags { IsTorizoDefeated = () => false }, Events = new FixtureEventFlags { HasEvent = system.HasEvent, SetEvent = system.SetEvent }, RoomFx = new RoomPlmFx(fx, () => samus), Earthquake = new FixtureRoomEarthquake { WriteTimer = writeEarthquake } }),
                 "Speed Booster escape record is accepted by sequential loader");
             return plms;
         }

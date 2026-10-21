@@ -11,6 +11,7 @@ using SuperMetroid.Core.Samus.Grapple;
 using SuperMetroid.TestSupport.VerificationImporters;
 namespace SuperMetroid.Verification.Enemies.Animals;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.World;
 
 /// <summary>Verifies the escape-room rescue PLMs using imported room population and the native shot-block sequence.</summary>
 internal static class EscapeAnimalBlocksVerification

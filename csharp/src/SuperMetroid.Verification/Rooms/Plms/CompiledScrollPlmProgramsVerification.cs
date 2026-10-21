@@ -11,6 +11,7 @@ using SuperMetroid.Core;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 namespace SuperMetroid.Verification.Rooms.Plms;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.World;
 
 /// <summary>Checks compiled room-scroll PLM programs through both catalog lookup and retail execution.</summary>
 internal static class CompiledScrollPlmProgramsVerification

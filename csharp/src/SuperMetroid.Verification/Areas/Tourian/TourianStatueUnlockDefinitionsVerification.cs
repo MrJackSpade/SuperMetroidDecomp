@@ -11,7 +11,6 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Progression;
-using SuperMetroid.Core.Areas.Tourian.Artwork;
 using SuperMetroid.Core.Fx.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Fx;
@@ -91,9 +90,9 @@ internal static class TourianStatueUnlockDefinitionsVerification
             new MemoryStream(RoomFxAnimatedTileAtlasExtractor.Extract(rom)));
         foreach (TourianStatueAnimatedTileProgramDefinition definition in
                  TourianStatueAnimatedTileMechanicsDefinitions.All)
-        foreach (TourianStatueTilePicture picture in TourianStatueAnimatedTileProgramDefinition.Pictures)
+        foreach (TourianStatueTilePicture picture in TourianStatueTileStripDefinitions.Pictures)
         {
-            int source = TourianStatueAnimatedTileArtworkDefinitions.SourceAddress(definition, picture);
+            int source = TourianStatueTileStripDefinitions.SourceAddress(definition.ObjectPointer, picture);
             byte[] native = ReadNativeTourianStatueFrame(rom, source, definition.TransferByteCount);
             AssertTrue(artwork.TryResolve(source, native.Length,
                     out ReadOnlyMemory<byte> installed) &&
@@ -121,8 +120,8 @@ internal static class TourianStatueUnlockDefinitionsVerification
         var guarded = new MutableCartridgeReadGuard(rom);
         guarded
             .Forbid(address => forbidArtworkReads &&
-                    address >= TourianStatueAnimatedTileArtworkDefinitions.FirstSource &&
-                    address < TourianStatueAnimatedTileArtworkDefinitions.SourceEnd,
+                    address >= TourianStatueTileStripDefinitions.FirstSource &&
+                    address < TourianStatueTileStripDefinitions.SourceEnd,
                 address => $"Installed Tourian statue artwork read cartridge byte ${address:X6}.")
             .Forbid(address => IsTourianStatueProgramByte(programOffsets, address),
                 address => $"Production read Tourian statue program byte {SnesAddress.FromBusAddress(address)}.");

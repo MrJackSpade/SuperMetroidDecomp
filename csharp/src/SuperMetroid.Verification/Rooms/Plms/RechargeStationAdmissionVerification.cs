@@ -12,6 +12,7 @@ using SuperMetroid.TestSupport.VerificationImporters;
 namespace SuperMetroid.Verification.Rooms.Plms;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Spatial;
+using SuperMetroid.Core.World;
 
 /// <summary>Checks admission and input-lock behavior for energy and missile stations approached from either side.</summary>
 internal static class RechargeStationAdmissionVerification

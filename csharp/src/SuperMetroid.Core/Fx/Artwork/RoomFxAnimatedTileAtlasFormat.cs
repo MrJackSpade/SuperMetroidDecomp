@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Enemies.WreckedShip;
-using SuperMetroid.Core.Areas.Tourian.Artwork;
 
 namespace SuperMetroid.Core.Fx.Artwork;
 
@@ -19,7 +18,7 @@ public static class RoomFxAnimatedTileAtlasFormat
     /// <summary>Character count of the historical prefix after its eight treadmill characters, before the shared Tourian-statue strip.</summary>
     public const int PreStatueTileCount = LegacyTileCount + TreadmillFrameCount * 2;
     /// <summary>Character count in the contiguous Tourian-statue source strip beginning at $87:9364; runtime frame operands select overlapping windows within it.</summary>
-    public const int StatueTileCount = TourianStatueAnimatedTileArtworkDefinitions.TransferByteCount / 16;
+    public const int StatueTileCount = TourianStatueTileStripDefinitions.TransferByteCount / 16;
     /// <summary>Character count of the historical prefix including the statue strip but preceding the spore animation extension.</summary>
     public const int PreSporesTileCount = PreStatueTileCount + StatueTileCount;
     /// <summary>Nine 2bpp characters across the native spore animation images beginning at $87:A7E4.</summary>
@@ -69,9 +68,9 @@ public static class RoomFxAnimatedTileAtlasFormat
             yield return new(WreckedShipTreadmillRomData.FrameSource(frame),
                 WreckedShipTreadmillRomData.TransferByteCount, true);
         }
-        total += TourianStatueAnimatedTileArtworkDefinitions.TransferByteCount;
-        yield return new(TourianStatueAnimatedTileArtworkDefinitions.FirstSource,
-            TourianStatueAnimatedTileArtworkDefinitions.TransferByteCount, false);
+        total += TourianStatueTileStripDefinitions.TransferByteCount;
+        yield return new(TourianStatueTileStripDefinitions.FirstSource,
+            TourianStatueTileStripDefinitions.TransferByteCount, false);
         foreach (var segment in Frames(RoomFxAnimatedTileMechanicsDefinitions.Require(AnimatedTileObject.Spores)))
         {
             total += segment.ByteCount;

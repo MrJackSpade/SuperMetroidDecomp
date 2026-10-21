@@ -4,7 +4,6 @@ using SuperMetroid.Core.Areas.Tourian;
 using SuperMetroid.Core.Bosses.Kraid;
 using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Samus.Artwork;
-using SuperMetroid.Core.Areas.Tourian.Artwork;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Fx.Artwork;
 using SuperMetroid.Core.Hud.Artwork;
@@ -41,8 +40,8 @@ internal static class VramDmaOwnership
         if (PlmVramArtworkAudit.OwnsInstalledTransfer(source, count)) return true;
         if (RoomFxAnimatedTileAtlasFormat.Segments.Any(frame => frame.IsFrame && frame.SourceAddress == source && frame.ByteCount == count)) return true;
         if (TourianStatueAnimatedTileMechanicsDefinitions.All.Any(definition =>
-            definition.TransferByteCount == count && TourianStatueAnimatedTileProgramDefinition.Pictures.Any(picture =>
-                TourianStatueAnimatedTileArtworkDefinitions.SourceAddress(definition, picture) == source))) return true;
+            definition.TransferByteCount == count && TourianStatueTileStripDefinitions.Pictures.Any(picture =>
+                TourianStatueTileStripDefinitions.SourceAddress(definition.ObjectPointer, picture) == source))) return true;
         int offset = source - RoomSkyTilemapFormat.FirstSourceAddress;
         return offset >= 0 && offset + count <= RoomSkyTilemapFormat.TotalByteCount &&
             offset % RoomSkyTilemapFormat.PageByteCount == 0 && count == RoomSkyTilemapFormat.PageByteCount;

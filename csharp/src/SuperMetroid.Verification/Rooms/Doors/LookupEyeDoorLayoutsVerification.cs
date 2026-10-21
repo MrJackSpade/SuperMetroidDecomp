@@ -8,6 +8,7 @@ using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Rooms.Plms;
 namespace SuperMetroid.Verification.Rooms.Doors;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.World;
 
 /// <summary>Checks eye-door PLM geometry, collision, and visual words against all native draw lists.</summary>
 internal static class LookupEyeDoorLayoutsVerification

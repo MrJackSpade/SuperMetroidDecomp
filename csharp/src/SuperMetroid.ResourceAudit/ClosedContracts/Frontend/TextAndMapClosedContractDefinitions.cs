@@ -7,8 +7,8 @@ internal static class TextAndMapClosedContractDefinitions
     internal static readonly ClosedPresentationContract[] All =
     [
         new("SuperMetroid.Core.Escape.Artwork.EscapeTypewriterPresentation", "escape-text-complete-program-membership", ["Get"],
-            [new("csharp/src/SuperMetroid.Core/Areas/Escape/Artwork/EscapeTypewriterPresentation.cs"),
-             new("csharp/src/SuperMetroid.Core/Areas/Escape/Artwork/EscapeTypewriterDefinitions.cs")]),
+            [new("csharp/src/SuperMetroid.Core/Escape/Artwork/EscapeTypewriterPresentation.cs"),
+             new("csharp/src/SuperMetroid.Core/Escape/Artwork/EscapeTypewriterDefinitions.cs")]),
         new("SuperMetroid.Core.Frontend.Intro.Artwork.IntroNarrationPresentation", "narration-complete-compiled-pages", ["GetLines", "Compile"],
             [new("csharp/src/SuperMetroid.Core/Frontend/Intro/Artwork/IntroNarrationPresentation.cs"),
              new("csharp/src/SuperMetroid.Core/Frontend/Intro/Artwork/IntroNarrationDefinitions.cs")]),
@@ -44,6 +44,6 @@ internal static class TextAndMapClosedContractDefinitions
         new("SuperMetroid.Core.Frontend.Map.Artwork.MapScreenPresentation", "map-screen-complete-pages-and-bounded-names", ["LoadTo"],
             [new("csharp/src/SuperMetroid.Core/Frontend/Map/Artwork/MapScreenPresentation.cs"),
              new("csharp/src/SuperMetroid.Core/Frontend/Map/Artwork/MapScreenDefinitions.cs"),
-             new("csharp/src/SuperMetroid.Core/Rooms/AreaId.cs")]),
+             new("csharp/src/SuperMetroid.Core/Progression/AreaId.cs")]),
     ];
 }

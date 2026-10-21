@@ -8,6 +8,7 @@ using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.Plms;
 namespace SuperMetroid.Verification.Enemies.Elevator;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.World;
 
 /// <summary>Compares the three exported elevator platform PLM draw lists with cartridge data and room effects.</summary>
 internal static class LookupElevatorPlatformLayoutsVerification

@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.LevelData;
@@ -23,7 +22,7 @@ internal sealed class CollectiblePlms : IPlmFamilySource
     /// <summary>Samus as the room reads and changes her.</summary>
     private readonly IRoomSamusAccess? _samus;
     /// <summary>The room's layer-3 FX.</summary>
-    private readonly RoomLayer3FxState? _roomFx;
+    private readonly IRoomFxMotion? _roomFx;
     /// <summary>Updates level blocks and queues their tilemap draws.</summary>
     private readonly IPlmDrawing _drawing;
     /// <summary>Enumerates active item PLMs in native slot order.</summary>
@@ -32,7 +31,7 @@ internal sealed class CollectiblePlms : IPlmFamilySource
     private readonly PlmSoundQueue _sounds;
 
     /// <summary>Connects permanent-item PLMs to room state, drawing, and sound services.</summary>
-    internal CollectiblePlms(Bank80SystemState? system, IRoomSamusAccess? samus, RoomLayer3FxState? roomFx, IPlmDrawing drawing, PlmSlotTable slotTable, PlmSoundQueue sounds)
+    internal CollectiblePlms(Bank80SystemState? system, IRoomSamusAccess? samus, IRoomFxMotion? roomFx, IPlmDrawing drawing, PlmSlotTable slotTable, PlmSoundQueue sounds)
     {
         _system = system;
         _samus = samus;
@@ -84,7 +83,7 @@ internal sealed class CollectiblePlms : IPlmFamilySource
     {
         if (!_pendingSpeedBoosterPickupContinuation)
             return;
-        RoomLayer3FxState fx = _roomFx
+        IRoomFxMotion fx = _roomFx
             ?? throw new InvalidOperationException("Speed Booster pickup has no room-FX owner.");
         fx.ApplyCartridgeMotionWrites(
             packedYVelocity: SpeedBoosterPickupDefinitions.LavaRiseVelocity);

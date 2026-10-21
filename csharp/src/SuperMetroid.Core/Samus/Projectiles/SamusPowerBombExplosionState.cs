@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Samus.Artwork;
 
@@ -16,6 +17,9 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// </remarks>
 public sealed class SamusPowerBombExplosionState
 {
+    /// <summary>Whether the explosion is active, as rooms and FX read it.</summary>
+    internal IActivePowerBomb Activity => field ??= new SamusPowerBombActivity(this);
+
     /// <summary>Current host-owned explosion colors; excluded from debugger-state serialization.</summary>
     [field: NonSerialized]
     public PowerBombFixedColorCatalog? PresentationColors { get; set; }

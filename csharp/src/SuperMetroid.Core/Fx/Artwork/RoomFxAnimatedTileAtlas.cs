@@ -1,6 +1,4 @@
-using SuperMetroid.Core.Areas.Tourian;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Areas.Tourian.Artwork;
 
 namespace SuperMetroid.Core.Fx.Artwork;
 
@@ -81,18 +79,17 @@ public sealed class RoomFxAnimatedTileAtlas : IInstalledArtworkTransferSource
             frameOffset += segment.ByteCount;
         }
         // Statue operands name overlapping windows of the shared strip.
-        foreach (TourianStatueAnimatedTileProgramDefinition definition in
-                 TourianStatueAnimatedTileMechanicsDefinitions.All)
-        foreach (TourianStatueTilePicture picture in TourianStatueAnimatedTileProgramDefinition.Pictures)
+        foreach (AnimatedTileObject statue in TourianStatueTileStripDefinitions.Statues)
+        foreach (TourianStatueTilePicture picture in TourianStatueTileStripDefinitions.Pictures)
         {
-            if (TourianStatueAnimatedTileArtworkDefinitions.SourceAddress(definition,
-                    picture) != sourceAddress)
+            if (TourianStatueTileStripDefinitions.SourceAddress(statue, picture) != sourceAddress)
                 continue;
-            if (byteCount != definition.TransferByteCount)
+            int windowByteCount = TourianStatueTileStripDefinitions.WindowByteCount(statue);
+            if (byteCount != windowByteCount)
                 throw new InvalidDataException(
-                    $"Tourian statue art ${sourceAddress:X6} requires {definition.TransferByteCount} bytes, not {byteCount}.");
+                    $"Tourian statue art ${sourceAddress:X6} requires {windowByteCount} bytes, not {byteCount}.");
             int offset = RoomFxAnimatedTileAtlasFormat.PreStatueTileCount * 16 +
-                sourceAddress - TourianStatueAnimatedTileArtworkDefinitions.FirstSource;
+                sourceAddress - TourianStatueTileStripDefinitions.FirstSource;
             data = transfer.AsMemory(offset, byteCount);
             return true;
         }

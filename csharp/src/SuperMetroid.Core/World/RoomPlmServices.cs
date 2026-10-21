@@ -1,8 +1,9 @@
 using SuperMetroid.Core.Areas.Tourian;
-using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Rooms.Plms;
 
-namespace SuperMetroid.Core.Rooms.Plms;
+namespace SuperMetroid.Core.World;
 
 /// <summary>
 /// The room services resident PLMs use after load (#633). Samus and the area's boss flags are
@@ -26,7 +27,7 @@ public sealed record RoomPlmServices
     public ITourianStatueProgress? TourianStatue { get; init; }
 
     /// <summary>Layer-3 FX the Speed Booster escape and N00b tube drive.</summary>
-    public RoomLayer3FxState? RoomFx { get; init; }
+    public IRoomPlmFx? RoomFx { get; init; }
 
     /// <summary>Room-shake writes.</summary>
     public IRoomEarthquakeWriter? Earthquake { get; init; }

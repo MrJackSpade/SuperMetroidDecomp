@@ -20,6 +20,7 @@ using SuperMetroid.TestSupport.VerificationImporters;
 namespace SuperMetroid.Verification.Rooms.Plms;
 
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.World;
 
 /// <summary>Checks two reported right-facing gate activations against captured native success and control records.</summary>
 internal static class RightFacingGateGlitchVerification

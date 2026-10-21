@@ -1,3 +1,4 @@
+using SuperMetroid.Core.World;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Enemies.PipeBugs;
 using SuperMetroid.Verification.Enemies.PipeBugs;

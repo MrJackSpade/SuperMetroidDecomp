@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Progression;
 
 namespace SuperMetroid.Core.Rooms;
@@ -74,9 +73,6 @@ public interface IRoomSamus
 
     /// <summary>Turns Samus to face forward, as a save station centres her.</summary>
     void FaceForward();
-
-    /// <summary>Takes the room FX's liquid into Samus's liquid physics, as the broken n00b tube floods the room.</summary>
-    void ConfigureLiquidFor(RoomLayer3FxState fx);
 
     /// <summary>Takes <paramref name="damage"/> through the periodic-damage path, as a chewing plant does.</summary>
     void TakePeriodicDamage(ushort damage);

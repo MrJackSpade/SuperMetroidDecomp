@@ -1,6 +1,4 @@
-﻿using SuperMetroid.Core.Samus.Projectiles;
-
-namespace SuperMetroid.Core.Rooms.Plms;
+﻿namespace SuperMetroid.Core.Rooms.Plms;
 
 /// <summary>PLM sound requests for the frame, each stamped with the power-bomb guard at the moment the PLM queued it.</summary>
 internal sealed class PlmSoundQueue
@@ -22,10 +20,10 @@ internal sealed class PlmSoundQueue
 
     /// <summary>Live explosion state consulted when each request is created, then rebound after restores.</summary>
     [NonSerialized]
-    private SamusPowerBombExplosionState? _audioPowerBomb;
+    private IActivePowerBomb? _audioPowerBomb;
 
     /// <summary>Reconnects the live sound guard before collision setup or instruction execution.</summary>
-    public void BindPowerBombAudio(SamusPowerBombExplosionState powerBomb) => _audioPowerBomb = powerBomb;
+    public void BindPowerBombAudio(IActivePowerBomb powerBomb) => _audioPowerBomb = powerBomb;
 
     /// <summary>
     /// Captures the explosion guard when the PLM queues a sound, as native QueueSfx does;

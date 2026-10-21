@@ -1,15 +1,15 @@
+using SuperMetroid.Core.Fx.Artwork;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Rooms.Doors.DoorDefinitionsVerification;
 using static SuperMetroid.Verification.Areas.Tourian.LookupTourianArtworkVerification;
 using static SuperMetroid.Verification.Areas.Tourian.LookupTourianDescriptorsVerification;
 using SuperMetroid.Core.Areas.Tourian;
-using SuperMetroid.Core.Areas.Tourian.Artwork;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Fx.PaletteFx;
 using Step = SuperMetroid.Core.Programs.AnimationProgramStep<
     SuperMetroid.Core.Areas.Tourian.TourianStatueTileProgram,
-    SuperMetroid.Core.Areas.Tourian.TourianStatueTilePicture,
+    SuperMetroid.Core.Fx.Artwork.TourianStatueTilePicture,
     SuperMetroid.Core.Areas.Tourian.TourianStatueTileCue>;
 
 namespace SuperMetroid.Verification.Areas.Tourian;
@@ -189,8 +189,8 @@ internal static class LookupTourianProgramVerification
     private static TourianStatueTilePicture Picture(TourianStatueAnimatedTileProgramDefinition definition, ushort operand, string at)
     {
         int source = RoomFxRomData.Banks.AnimatedTiles | operand;
-        TourianStatueTilePicture[] matches = [.. TourianStatueAnimatedTileProgramDefinition.Pictures.Where(picture =>
-            TourianStatueAnimatedTileArtworkDefinitions.SourceAddress(definition, picture) == source)];
+        TourianStatueTilePicture[] matches = [.. TourianStatueTileStripDefinitions.Pictures.Where(picture =>
+            TourianStatueTileStripDefinitions.SourceAddress(definition.ObjectPointer, picture) == source)];
         AssertEqual(1, matches.Length, $"{at}: frame source selects exactly one statue picture");
         return matches[0];
     }

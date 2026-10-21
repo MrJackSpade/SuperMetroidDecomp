@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Samus.Projectiles;
+using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Fx;
 
@@ -28,7 +28,7 @@ public sealed record RoomLayer3FxFrame
     public int FirefleaDarknessLevel { get; init => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value); }
 
     /// <summary>Power bomb.</summary>
-    public SamusPowerBombExplosionState? PowerBomb { get; init; } = null;
+    public IActivePowerBomb? PowerBomb { get; init; } = null;
 
     /// <summary>Liquid motion already advanced.</summary>
     public bool LiquidMotionAlreadyAdvanced { get; init; } = false;

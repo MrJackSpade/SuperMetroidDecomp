@@ -500,7 +500,7 @@ internal sealed class SuperMetroidRuntime
         RoomScope scope = Room.LoadedScope;
         Artwork.BindProjectiles(scope.Projectiles, scope.BombProjectiles);
         scope.Projectiles.Earthquakes.BindRoomEarthquake(scope.Enemies.Earthquake);
-        scope.Plms.Sounds.BindPowerBombAudio(scope.BombProjectiles.PowerBombExplosion);
+        scope.Plms.Sounds.BindPowerBombAudio(scope.BombProjectiles.PowerBombExplosion.Activity);
         Player.Samus?.Shinespark.BindProjectileOwners(BeamCharge, scope.BombProjectiles.PowerBombExplosion);
         EnemyRoomEffects.ApplyPendingChozoStatuePlms(scope.Plms, scope.Layer3Fx, Room.LoadedScope.Enemies);
     }
@@ -580,7 +580,7 @@ internal sealed class SuperMetroidRuntime
         }
         if (Room.Camera is not null)
         {
-            Room.LoadedScope.Layer3Fx.Step(BgArtwork, new RoomLayer3FxFrame { Camera = Room.Camera.PixelPosition, TimeIsFrozen = Freeze.TimeIsFrozen, MainGameLoopCarry = System.MainGameLoopCarry, RandomNumber = System.RandomNumber, FirefleaDarknessLevel = Room.LoadedScope.Enemies.RoomStatus.FirefleaDarknessLevel, PowerBomb = Room.LoadedScope.BombProjectiles.PowerBombExplosion, LiquidMotionAlreadyAdvanced = Room.LoadedScope.Layer3Fx.MovesLiquidInHdmaPass });
+            Room.LoadedScope.Layer3Fx.Step(BgArtwork, new RoomLayer3FxFrame { Camera = Room.Camera.PixelPosition, TimeIsFrozen = Freeze.TimeIsFrozen, MainGameLoopCarry = System.MainGameLoopCarry, RandomNumber = System.RandomNumber, FirefleaDarknessLevel = Room.LoadedScope.Enemies.RoomStatus.FirefleaDarknessLevel, PowerBomb = Room.LoadedScope.BombProjectiles.PowerBombExplosion.Activity, LiquidMotionAlreadyAdvanced = Room.LoadedScope.Layer3Fx.MovesLiquidInHdmaPass });
             if (Room.LoadedScope.Layer3Fx.EarthquakeRequest is { } roomFxEarthquake)
             {
                 // Lava/acid rise pre-instructions use TSB on the shared timer after writing
@@ -637,7 +637,7 @@ internal sealed class SuperMetroidRuntime
         {
             Room.LoadedScope.PaletteFx.Step(Cgram, Artwork.MapPresentation?.RoomPaletteFx ?? throw new InvalidOperationException(
                     "Gameplay palette FX requires installed map presentation colors."), new PaletteFxConditions { SamusY = Player.Samus?.Position.Y.Whole ?? 0, EquippedItems = Player.Samus?.EquippedItems ?? 0, EnemyZeroIsDead = Room.LoadedScope.Enemies.SlotTable.Slots.Count == 0 || Room.LoadedScope.Enemies.SlotTable.Slots[0].Health == 0, AreaMiniBossDefeated = Room.ActiveRoom is { } paletteRoom &&
-                    System.HasAnyBossBits(paletteRoom.AreaIndex, BossBits.AreaMiniBoss), Samus = Player.Samus, NmiFrameCounter = Clock.Counter }, Room.LoadedScope.BombProjectiles.PowerBombExplosion);
+                    System.HasAnyBossBits(paletteRoom.AreaIndex, BossBits.AreaMiniBoss), Samus = Player.Samus, NmiFrameCounter = Clock.Counter }, Room.LoadedScope.BombProjectiles.PowerBombExplosion.Activity);
         }
         // Hyper Beam's palette object lives in the same native pool and handler.
         if (Room.LoadedScope.PaletteFx.HandlerEnabled)

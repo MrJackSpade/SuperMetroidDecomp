@@ -8,7 +8,6 @@ using System.Text.Json.Nodes;
 using SuperMetroid.Core.Areas.Tourian;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Samus.Movement;
-using SuperMetroid.Core.Areas.Tourian.Artwork;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.Core.Fx.Artwork;
 using SuperMetroid.Core.Map.Artwork;
@@ -236,11 +235,11 @@ internal static class InstalledSporesTests
             // Statue frames overlap the middle strip and must retain their original
             // aliases even though spores now occupy the final nine characters.
             foreach (var statue in TourianStatueAnimatedTileMechanicsDefinitions.All)
-            foreach (var picture in TourianStatueAnimatedTileProgramDefinition.Pictures)
+            foreach (var picture in TourianStatueTileStripDefinitions.Pictures)
             {
-                int source = TourianStatueAnimatedTileArtworkDefinitions.SourceAddress(statue, picture);
+                int source = TourianStatueTileStripDefinitions.SourceAddress(statue.ObjectPointer, picture);
                 int statueOffset = RoomFxAnimatedTileAtlasFormat.PreStatueTileCount * 16 +
-                    source - TourianStatueAnimatedTileArtworkDefinitions.FirstSource;
+                    source - TourianStatueTileStripDefinitions.FirstSource;
                 Require(legacy.TryResolve(source, statue.TransferByteCount, out var actual) &&
                     actual.Span.SequenceEqual(expected.AsSpan(statueOffset, statue.TransferByteCount)),
                     "Appending spores shifted an existing statue alias.");

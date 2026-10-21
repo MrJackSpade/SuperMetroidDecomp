@@ -25,7 +25,7 @@ internal static class PauseClosedContractDefinitions
             [new("csharp/src/SuperMetroid.Core/Frontend/Pause/Artwork/PauseBackdropPresentation.cs"),
              new("csharp/src/SuperMetroid.Core/Frontend/Pause/Artwork/PauseBackdropDefinitions.cs"),
              new("csharp/src/SuperMetroid.Core/Frontend/Pause/Artwork/PauseTileGrid.cs"),
-             new("csharp/src/SuperMetroid.Core/Rooms/AreaId.cs")]),
+             new("csharp/src/SuperMetroid.Core/Progression/AreaId.cs")]),
         new("SuperMetroid.Core.Frontend.Pause.Artwork.PauseWireframePresentation", "pause-wireframe-complete-suit-images", ["ApplyTo"],
             [new("csharp/src/SuperMetroid.Core/Frontend/Pause/Artwork/PauseWireframePresentation.cs"),
              new("csharp/src/SuperMetroid.Core/Frontend/Pause/Artwork/PauseWireframeDefinitions.cs"),

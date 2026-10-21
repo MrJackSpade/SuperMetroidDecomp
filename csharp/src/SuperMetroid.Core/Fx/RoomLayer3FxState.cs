@@ -1,7 +1,6 @@
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Progression;
-using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Fx.Artwork;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rooms.Doors;
@@ -115,7 +114,7 @@ public sealed class RoomLayer3FxState
     /// <summary>Audio requests emitted in native order during the current effect pass.</summary>
     private readonly List<SoundRequest> soundRequests = [];
     /// <summary>Rebound sound recipient for effect requests after a debugger restore.</summary>
-    [NonSerialized] private SamusPowerBombExplosionState? audioPowerBomb;
+    [NonSerialized] private IActivePowerBomb? audioPowerBomb;
     /// <summary>Countdown between quake sound requests in earthquake FX rooms.</summary>
     internal NativeCountdown EarthquakeSoundTimer { get; set; }
     /// <summary>Position in the room earthquake sound sequence.</summary>
@@ -481,6 +480,10 @@ public sealed class RoomLayer3FxState
     /// cartridge-owned liquid-options word. Bank $84 uses <c>TRB</c> on WRAM $197E, so
     /// this mutation must live on the room-FX owner that republishes the word to Samus;
     /// changing only Samus's projected copy would be undone by the next FX frame.
+    /// </summary>
+    /// <summary>
+    /// Clears the water-physics-disabled bit as <c>Instruction_PLM_EnableWaterPhysics</c> does; see
+    /// <see cref="ApplyCartridgeMotionWrites"/> for why the room-FX owner holds the word.
     /// </summary>
     internal void EnableWaterPhysics() =>
         LiquidOptions &= ~RoomLiquidOptions.WaterPhysicsDisabledOrHorizontalHeatWave;

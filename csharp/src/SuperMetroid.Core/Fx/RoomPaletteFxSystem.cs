@@ -2,7 +2,6 @@ using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Fx.PaletteFx;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Samus;
-using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Fx.Artwork;
 using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Progression;
@@ -32,7 +31,7 @@ public sealed class RoomPaletteFxSystem
     /// <summary>Momentary sound publications cleared at the start of each handler pass.</summary>
     private readonly List<SoundRequest> soundRequests = [];
     /// <summary>Live Power Bomb state used to suppress palette-FX sound requests.</summary>
-    [NonSerialized] private SamusPowerBombExplosionState? audioPowerBomb;
+    [NonSerialized] private IActivePowerBomb? audioPowerBomb;
     /// <summary>Momentary music publications cleared at the start of each handler pass.</summary>
     private readonly List<DelayedMusicRequest> musicRequests = [];
     /// <summary>The handler enable bit and heat palette phases, which outlive each room's slots.</summary>
@@ -146,7 +145,7 @@ public sealed class RoomPaletteFxSystem
     /// state; it cannot hide an unbound color source until a later instruction.
     /// </remarks>
     public void Step(IPaletteColors cgram, IPaletteFxColorSource colors, PaletteFxConditions conditions,
-        SamusPowerBombExplosionState? powerBomb = null)
+        IActivePowerBomb? powerBomb = null)
     {
         Ensure.NotNull(cgram);
         Ensure.NotNull(colors);

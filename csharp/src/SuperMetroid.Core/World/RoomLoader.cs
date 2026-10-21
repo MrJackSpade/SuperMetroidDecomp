@@ -972,13 +972,13 @@ internal sealed class RoomLoader
             Bosses = progress,
             Events = progress,
             TourianStatue = plmServices,
-            RoomFx = roomLayer3Fx,
+            RoomFx = roomLayer3Fx is { } fx ? new RoomPlmFx(fx, () => _player.Samus) : null,
             Earthquake = plmServices,
             Enemies = plmServices,
         };
         var plms = new RoomPlmSystem(plmRoom, plmBindings, _shotBlockVisuals);
         scope.Plms = plms;
-        plms.Sounds.BindPowerBombAudio(bombs.PowerBombExplosion);
+        plms.Sounds.BindPowerBombAudio(bombs.PowerBombExplosion.Activity);
         var areaServices = new RoomEnemyRuntimeServices(_system, _room, _player, plms, _display, progress);
         scope.Services = areaServices;
         plms.PopulationLoader.LoadRoomPopulation(plmRoom, room.State.PlmPopulation, plmBindings);

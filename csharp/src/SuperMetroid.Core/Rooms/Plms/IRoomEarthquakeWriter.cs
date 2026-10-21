@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Fx;
+namespace SuperMetroid.Core.Rooms.Plms;
 
 /// <summary>The room-shake writes PLMs make (#633).</summary>
 public interface IRoomEarthquakeWriter

@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Areas.Tourian.Artwork;
+using SuperMetroid.Core.Fx.Artwork;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Fx;
 
@@ -16,7 +16,7 @@ internal sealed record TourianStatuePictureCharacters(AnimatedTileObject Statue,
         TourianStatueAnimatedTileProgramDefinition definition =
             TourianStatueAnimatedTileMechanicsDefinitions.All.Single(statue => statue.ObjectPointer == Statue);
         return InstalledObjCharacterArtwork.Of(resolver).AnimatedTiles.TryResolve(
-            TourianStatueAnimatedTileArtworkDefinitions.SourceAddress(definition, Picture), definition.TransferByteCount,
+            TourianStatueTileStripDefinitions.SourceAddress(definition.ObjectPointer, Picture), definition.TransferByteCount,
             out ReadOnlyMemory<byte> characters)
             ? characters
             : throw new InvalidDataException($"Installed animated tiles hold no {Statue} {Picture} picture.");

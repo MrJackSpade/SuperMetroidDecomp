@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Samus.Poses;
@@ -75,9 +74,6 @@ internal sealed class SamusRoomView(SamusState samus) : IRoomSamus
 
     /// <inheritdoc/>
     public void FaceForward() => SamusPoseMetadata.ApplyForwardFacingPoseSetup(samus);
-
-    /// <inheritdoc/>
-    public void ConfigureLiquidFor(RoomLayer3FxState fx) => samus.LiquidPhysics.ConfigureFor(fx);
 
     /// <inheritdoc/>
     public void TakePeriodicDamage(ushort damage) => samus.LiquidPhysics.AccumulatePeriodicDamage(0, damage);

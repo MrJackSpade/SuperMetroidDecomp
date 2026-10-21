@@ -9,6 +9,7 @@ using SuperMetroid.Core.Samus;
 using SuperMetroid.Core;
 namespace SuperMetroid.Verification.Rooms.Plms;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.World;
 
 /// <summary>Checks typed PLM population ownership and execution on a RAM-only bus.</summary>
 internal static class PlmPopulationInputBoundaryVerification

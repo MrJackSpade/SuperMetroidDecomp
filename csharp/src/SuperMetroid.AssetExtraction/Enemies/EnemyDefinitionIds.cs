@@ -1,11 +1,13 @@
-namespace SuperMetroid.Core.Enemies;
+using SuperMetroid.Core.Enemies;
+
+namespace SuperMetroid.AssetExtraction.Enemies;
 
 /// <summary>Decoding for <see cref="EnemyDefinitionId"/>.</summary>
-public static class EnemyDefinitionIds
+internal static class EnemyDefinitionIds
 {
     /// <summary>The species a stored bank-$A0 header pointer names.</summary>
     /// <exception cref="InvalidDataException">The pointer is not a labelled enemy header.</exception>
-    public static EnemyDefinitionId FromHeaderPointer(ushort pointer)
+    internal static EnemyDefinitionId FromHeaderPointer(ushort pointer)
     {
         var id = (EnemyDefinitionId)pointer;
         return id != EnemyDefinitionId.None && Enum.IsDefined(id)

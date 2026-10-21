@@ -116,18 +116,18 @@ public sealed class EnemyTileArtworkCatalog
         Ensure.NotNull(parts);
         Ensure.NotNull(parts.Sheets);
         Ensure.NotNull(parts.Palettes);
-        if (parts.Sheets.Count != parts.Palettes.Count || parts.Sheets.Keys.Any(pointer => !parts.Palettes.ContainsKey(pointer)))
+        if (parts.Sheets.Count != parts.Palettes.Count || parts.Sheets.Keys.Any(definition => !parts.Palettes.ContainsKey(definition)))
             throw new InvalidDataException("Enemy artwork requires one color sheet per tile sheet.");
         this.sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(parts.Sheets);
         this.palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(parts.Palettes);
         byDmaSource = new Dictionary<EnemyDmaSourceKey, RoomCharacterAtlas>();
         if (parts.DmaSources is not null)
         {
-            foreach ((EnemyDefinitionId pointer, int sourceAddress) in parts.DmaSources)
+            foreach ((EnemyDefinitionId definition, int sourceAddress) in parts.DmaSources)
             {
-                if (!this.sheets.TryGetValue(pointer, out RoomCharacterAtlas? atlas))
+                if (!this.sheets.TryGetValue(definition, out RoomCharacterAtlas? atlas))
                     throw new InvalidDataException(
-                        $"Enemy ${(int)pointer:X4} DMA source has no installed sheet.");
+                        $"Enemy {definition} DMA source has no installed sheet.");
                 var key = new EnemyDmaSourceKey(sourceAddress, atlas.Transfer.Length);
                 if (byDmaSource.TryGetValue(key, out RoomCharacterAtlas? existing))
                 {

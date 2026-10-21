@@ -15,9 +15,9 @@ public static class EnemyTileSourceDefinitions
         EnemyTileSourceDefinition[] definitions = RoomEnemyGraphicsSetDefinitions.All
             .SelectMany(set => set.Records.ToArray())
             .Select(record => record.DefinitionId).Distinct().Order()
-            .Select(pointer => {
-                RoomEnemyDefinition header = RoomEnemyDefinitionCatalog.Get(pointer);
-                return new EnemyTileSourceDefinition(pointer, header.TileDataAddress,
+            .Select(definition => {
+                RoomEnemyDefinition header = RoomEnemyDefinitionCatalog.Get(definition);
+                return new EnemyTileSourceDefinition(definition, header.TileDataAddress,
                     header.TileDataSize & EnemyTileArtworkFormat.TileByteCountMask);
             }).ToArray();
         string keys = string.Join(",", definitions.Select(definition => $"{(int)definition.DefinitionId:X4}"));

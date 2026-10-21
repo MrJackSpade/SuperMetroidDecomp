@@ -61,7 +61,7 @@ internal static class RetailElevatorDepartureTests
         while (transition.IsActive && doorFrames++ < 512)
         {
             if (transition.Phase == DoorTransitionPhase.WaitForDoorOpeningScroll) scrolling++;
-            transition.Step(runtime, audio, 0, SuperMetroid.Core.Rooms.Doors.LagFreeDoorLoaderProgress.Instance); Compare(transition.Phase.ToString());
+            transition.Step(runtime, audio, 0, SuperMetroid.Core.Compatibility.InstantRoomLoad.Instance); Compare(transition.Phase.ToString());
         }
         if (transition.IsActive || scrolling < 12 || runtime.Room.ActiveRoom?.Definition != RoomHeaderDefinitions.MorphBall)
             throw new InvalidOperationException("Downward elevator did not complete the authored transition.");

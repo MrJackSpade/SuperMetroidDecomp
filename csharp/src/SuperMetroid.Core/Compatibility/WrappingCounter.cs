@@ -1,11 +1,12 @@
-namespace SuperMetroid.Core.Hardware;
+namespace SuperMetroid.Core.Compatibility;
 
 /// <summary>Shared operations for cartridge-owned wrapping and saturating word counters.</summary>
+[CompatibilityService("counters that wrap at their width instead of saturating, so an expired timer keeps counting from the top")]
 [SnesEncodingOwner]
-public static class NativeWordCounter
+public static class WrappingCounter
 {
     /// <summary>Executes one wrapping 16-bit DEC of a word, 0 through 65535, and exposes its resulting N/Z flags.</summary>
-    public static NativeWordCounterStep Decrement(int value) =>
+    public static CountdownStep Decrement(int value) =>
         new(unchecked((ushort)(Ensure.BetweenInclusive(0, ushort.MaxValue, value) - 1)));
 
     /// <summary>
@@ -29,6 +30,6 @@ public static class NativeWordCounter
     /// byte countdown packed beside independent state. The low byte wraps from <c>$00</c> to <c>$FF</c>
     /// without borrowing into the high byte, which is kept unchanged; the step's flags are byte-width.
     /// </summary>
-    public static NativeLowByteCounterStep DecrementLowByte(ushort word) =>
+    public static LowByteCountdownStep DecrementLowByte(ushort word) =>
         new(SnesLittleEndian.Word(unchecked((byte)(SnesLittleEndian.LowByte(word) - 1)), SnesLittleEndian.HighByte(word)));
 }

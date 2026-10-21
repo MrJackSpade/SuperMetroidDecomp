@@ -30,13 +30,13 @@ internal static class DeadSidehopperLaunchDefinitionsVerification
             for (int raw = 0; raw <= ushort.MaxValue; raw++)
             {
                 state.Function = DeadSidehopperAiFunction.PostLandingDelay;
-                state.StateTimer = NativeCountdown.FromRaw((ushort)raw);
+                state.StateTimer = WrappingCountdown.FromRaw((ushort)raw);
                 state.PaletteStage = paletteStage;
                 state.JumpPhase = phase;
                 state.Velocity = new EightEightVector<RoomPixels>(0x1234, 0x1234);
                 enemies.DeadSidehopperBehavior.Extensions[0].Program = AnimationProgramCursor<DeadTourianProgram>.Start(DeadTourianProgram.SidehopperCorpse);
-                slot.InstructionTimer = NativeCountdown.Start(9);
-                slot.Timer = NativeCountdown.Start(17);
+                slot.InstructionTimer = WrappingCountdown.Start(9);
+                slot.Timer = WrappingCountdown.Start(17);
                 dispatch(slot, state, null, null, default);
                 ushort timer = unchecked((ushort)(raw - 1));
                 bool expired = (timer & 0x8000) != 0;

@@ -54,7 +54,7 @@ internal static class YardInstructionProgramDefinitionsVerification
     {
         for (int update = 0; update < updates; update++)
         {
-            yard.InstructionTimer = NativeCountdown.Start(1);
+            yard.InstructionTimer = WrappingCountdown.Start(1);
             EnemyInstructionInterpreter.ProcessInstructions(yard, null, null, Position16<RoomPixels>.Zero, 0);
         }
     }

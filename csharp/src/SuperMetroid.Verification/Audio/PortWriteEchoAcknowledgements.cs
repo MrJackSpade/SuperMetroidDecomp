@@ -9,7 +9,7 @@ namespace SuperMetroid.Verification.Audio;
 /// The dispatcher's current request byte for a library is exactly the value it last wrote to
 /// that library's port: every send, rewrite, clear and downtime write updates both together.
 /// </remarks>
-internal sealed class PortWriteEchoAcknowledgements : ISoundAcknowledgementSource
+internal sealed class PortWriteEchoAcknowledgements : ISoundAcknowledgementTiming
 {
     /// <summary>The stateless echo policy.</summary>
     internal static PortWriteEchoAcknowledgements Instance { get; } = new();
@@ -18,6 +18,6 @@ internal sealed class PortWriteEchoAcknowledgements : ISoundAcknowledgementSourc
     private PortWriteEchoAcknowledgements() { }
 
     /// <summary>Returns the dispatcher's latest port writes, ignoring the modeled acknowledgements.</summary>
-    public CartridgeAudioAcknowledgements ForNextFrame(CartridgeAudioAcknowledgements modeled, CartridgeAudioAcknowledgements portWrites) =>
+    public SoundAcknowledgements ForNextUpdate(SoundAcknowledgements modeled, SoundAcknowledgements portWrites) =>
         portWrites;
 }

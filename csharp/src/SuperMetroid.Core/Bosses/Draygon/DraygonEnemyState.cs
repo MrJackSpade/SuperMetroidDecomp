@@ -108,7 +108,7 @@ public sealed class DraygonEnemyState
     public SnesAngle GoopYOscillationAngle { get; internal set; }
 
     /// <summary>Native long count initialized to sixteen when a firing pass begins.</summary>
-    public NativeCountdown GoopCounter { get; internal set; }
+    public WrappingCountdown GoopCounter { get; internal set; }
 
     /// <summary>Count of wall-turret projectiles admitted to the shared pool; disabled cannons and exhausted allocations do not increment it.</summary>
     public int WallTurretsSpawned { get; internal set; }
@@ -142,7 +142,7 @@ public sealed class DraygonEnemyState
     public SnesAngle SpiralAngleDelta { get; internal set; }
 
     /// <summary>Native <c>$7E:7818</c> countdown for an incidental 64-frame tail whip.</summary>
-    public NativeCountdown TailWhipTimer { get; internal set; }
+    public WrappingCountdown TailWhipTimer { get; internal set; }
 
     /// <summary>Debugger-visible proof that the physical chase reached its grab window.</summary>
     public int SuccessfulGrabs { get; internal set; }
@@ -222,9 +222,9 @@ public sealed class DraygonEnemyState
     /// Intro elapsed-frame count or burial-wait countdown according to <see cref="Function"/>. The cartridge keeps it in
     /// the word that holds <see cref="SwoopOffset"/> during swoops.
     /// </summary>
-    public NativeCountdown FunctionTimer
+    public WrappingCountdown FunctionTimer
     {
-        get => NativeCountdown.FromRaw(checked((ushort)_timerOrSwoopOffsetWord));
+        get => WrappingCountdown.FromRaw(checked((ushort)_timerOrSwoopOffsetWord));
         internal set => _timerOrSwoopOffsetWord = value.RawValue;
     }
 

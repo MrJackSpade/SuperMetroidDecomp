@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Boulder;
 namespace SuperMetroid.Verification.Enemies.Boulder;
@@ -21,14 +20,14 @@ internal static class BoulderRecordStateVerification
         state.Function = Enum.GetValues<BoulderAiFunction>()[^1];
         state.TravelSpeedAccumulator = 1;
         state.BounceSpeedAccumulator = 1;
-        state.BounceCounter = NativeCountdown.Start(1);
+        state.BounceCounter = WrappingCountdown.Start(1);
         state.DirectionSelector = 1;
 
         slot.Clear();
         AssertEqual<BoulderAiFunction?>(null, state.Function, "a kill empties Function");
         AssertEqual<int>(0, state.TravelSpeedAccumulator, "a kill empties TravelSpeedAccumulator");
         AssertEqual<int>(0, state.BounceSpeedAccumulator, "a kill empties BounceSpeedAccumulator");
-        AssertEqual<NativeCountdown>(NativeCountdown.Start(0), state.BounceCounter, "a kill empties BounceCounter");
+        AssertEqual<WrappingCountdown>(WrappingCountdown.Start(0), state.BounceCounter, "a kill empties BounceCounter");
         AssertEqual<int>(0, state.DirectionSelector, "a kill empties DirectionSelector");
         Console.WriteLine("Boulder record state: a kill empties every value the record holds.");
     }

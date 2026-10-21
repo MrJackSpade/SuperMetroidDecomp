@@ -36,9 +36,9 @@ public sealed class BabyTurtleEnemyState
     public Offset16<RoomPixels> Velocity { get; internal set; }
 
     /// <summary>Gets the phase-specific Baby Turtle countdown.</summary>
-    public NativeCountdown FunctionTimer { get; internal set; }
+    public WrappingCountdown FunctionTimer { get; internal set; }
     /// <summary>Gets the reaction countdown used while the child is not carrying Samus.</summary>
-    public NativeCountdown NotCarryingSamusReactionTimer { get; internal set; }
+    public WrappingCountdown NotCarryingSamusReactionTimer { get; internal set; }
 
     /// <summary>Empties the values the cartridge keeps in the enemy's common record.</summary>
     internal void ClearWithRecord()

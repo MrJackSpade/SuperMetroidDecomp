@@ -121,7 +121,7 @@ internal static class SbugMovementDefinitionsVerification
         AssertEqual(7, state.CustomFacing, "heading 16 faces down-right");
         AssertEqual(SbugEnemyFunction.MoveStraightAndReverseWhenFar, state.Function, "the chooser starts a reversal-aware leg");
 
-        state.StraightMovementTimer = NativeCountdown.Start(512);
+        state.StraightMovementTimer = WrappingCountdown.Start(512);
         enemies.SbugBehavior.RunSbugMain(slot, samus, null);
         AssertEqual(1, state.CustomFacing, "the reversal folds facing 7 into facing 1");
         AssertEqual(AnimationProgramCursor<SbugProgram>.Start(SbugMovementDefinitions.FacingProgram(1)), state.Program,

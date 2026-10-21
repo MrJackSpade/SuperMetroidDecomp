@@ -45,7 +45,7 @@ internal sealed class MotherBrainThirdPhaseFight
         MotherBrainPhase3NeckPhase.Inactive;
 
     /// <summary>Signed-underflow timer shared by the two phase-three recoil functions.</summary>
-    public NativeCountdown Phase3NeckFunctionTimer { get; private set; }
+    public WrappingCountdown Phase3NeckFunctionTimer { get; private set; }
 
     /// <summary>
     /// Whether phase-three attacks are suspended (<c>$7E:803E</c>). Hyper Beam recoil sets it
@@ -161,7 +161,7 @@ internal sealed class MotherBrainThirdPhaseFight
                 _state.LowerNeckMovementIndex = MotherBrainNeckMovement.Lower;
                 _state.UpperNeckMovementIndex = MotherBrainNeckMovement.Lower;
                 Phase3NeckPhase = MotherBrainPhase3NeckPhase.RecoilRecovery;
-                Phase3NeckFunctionTimer = NativeCountdown.Start(16);
+                Phase3NeckFunctionTimer = WrappingCountdown.Start(16);
 
                 // `$C354` falls directly into `$C37B`; the newly loaded sixteen is already
                 // fifteen when this single handler call returns.
@@ -184,12 +184,12 @@ internal sealed class MotherBrainThirdPhaseFight
                 _state.NeckMovementEnabled = true;
                 Phase3DisableAttacks = true;
                 _state.SetHeadProgram(MotherBrainHeadProgram.HyperBeamRecoil);
-                _state.BrainMainShakeTimer = NativeCountdown.Start(50);
+                _state.BrainMainShakeTimer = WrappingCountdown.Start(50);
                 _state.NeckAngleDelta = 2304;
                 _state.LowerNeckMovementIndex = MotherBrainNeckMovement.Raise;
                 _state.UpperNeckMovementIndex = MotherBrainNeckMovement.Raise;
                 Phase3NeckPhase = MotherBrainPhase3NeckPhase.HyperBeamRecoil;
-                Phase3NeckFunctionTimer = NativeCountdown.Start(11);
+                Phase3NeckFunctionTimer = WrappingCountdown.Start(11);
 
                 // Setup also falls through, making the externally visible first timer `$0A`.
                 goto case MotherBrainPhase3NeckPhase.HyperBeamRecoil;
@@ -223,7 +223,7 @@ internal sealed class MotherBrainThirdPhaseFight
         // legitimately reject it at the arena's hard left limit.
         _state.Body.Form = MotherBrainForm.ThirdPhase;
         _state.Phase = MotherBrainBodyFunction.ThirdPhaseRecoverSetupForFighting;
-        _state.FunctionTimer = NativeCountdown.Start(32);
+        _state.FunctionTimer = WrappingCountdown.Start(32);
         requests.BodyWalkRequested = _state.RequestWalkBackward(
             unchecked((ushort)(_state.Body.Position.X - 14)),
             animationDelay: 2).Requested;
@@ -287,7 +287,7 @@ internal sealed class MotherBrainThirdPhaseFight
         }
 
         _state.Phase = MotherBrainBodyFunction.ThirdPhaseFightingAttackCooldown;
-        _state.FunctionTimer = NativeCountdown.Start(64);
+        _state.FunctionTimer = WrappingCountdown.Start(64);
         return false;
     }
 

@@ -83,7 +83,7 @@ internal static class SpikeDamageBoostVerification
         samus.HorizontalSpeed.CalculateTotalSpeed(samus.HorizontalSpeed.BaseFixed);
         samus.KnockbackActive = false;
         samus.KnockbackDirection = 0;
-        samus.KnockbackTimer = NativeCountdown.Start(0);
+        samus.KnockbackTimer = WrappingCountdown.Start(0);
         runtime.Controller1.Latch((SnesButton.Right | SnesButton.A));
         runtime.StepFrame((SnesButton.Right | SnesButton.A));
         AssertEqual(SamusPoseId.NormalLandingRightPose, samus.Pose, "expired hurt floor probe selects landing");
@@ -102,7 +102,7 @@ internal static class SpikeDamageBoostVerification
         samus.Pose = SamusPoseId.SpinJumpRightPose;
         samus.KnockbackActive = false;
         samus.KnockbackDirection = 0;
-        SamusKnockbackMovement.Start(samus, 0, new KnockbackLaunch { KnockbackXDirection = KnockbackHorizontalDirection.Left, KnockbackTimer = NativeCountdown.Start(4) });
+        SamusKnockbackMovement.Start(samus, 0, new KnockbackLaunch { KnockbackXDirection = KnockbackHorizontalDirection.Left, KnockbackTimer = WrappingCountdown.Start(4) });
         samus.Position = samus.Position.WithWholeX(131);
         samus.Kinematics.Position = samus.Kinematics.Position.WithFractionX(0x6000);
         samus.Position = samus.Position.WithWholeY(160);
@@ -129,7 +129,7 @@ internal static class SpikeDamageBoostVerification
         }
 
         samus.KnockbackActive = false;
-        samus.KnockbackTimer = NativeCountdown.Start(0);
+        samus.KnockbackTimer = WrappingCountdown.Start(0);
         samus.KnockbackDirection = 0;
         samus.HorizontalSpeed.ClearHorizontalMomentum(SamusPoseMetadata.ReadFacingDirection(samus));
         foreach (SamusPoseId retainedPose in new SamusPoseId[]

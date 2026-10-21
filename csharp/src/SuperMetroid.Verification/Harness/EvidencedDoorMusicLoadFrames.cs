@@ -1,5 +1,4 @@
 using SuperMetroid.Core;
-using SuperMetroid.Core.Rooms.Doors;
 
 namespace SuperMetroid.Verification.Harness;
 
@@ -8,7 +7,7 @@ namespace SuperMetroid.Verification.Harness;
 /// the update being replayed. The count is timing evidence from the native input timeline,
 /// like the wait's controller latch; no gameplay state is read from the reference.
 /// </summary>
-internal sealed class EvidencedDoorMusicUploadNmis : IDoorMusicUploadNmiSource
+internal sealed class EvidencedDoorMusicLoadFrames : IDoorMusicLoadFrames
 {
     /// <summary>Gameplay update whose following upload wait has native timing evidence.</summary>
     private int update;
@@ -27,11 +26,11 @@ internal sealed class EvidencedDoorMusicUploadNmis : IDoorMusicUploadNmiSource
     }
 
     /// <summary>Consumes the evidenced accepted-NMI count once, rejecting an unexpected or duplicate upload.</summary>
-    public int AcceptedNmisDuringUpload(int musicDataIndex)
+    public int FramesCountedDuringMusicLoad(int musicSet)
     {
         if (expected == 0)
             throw new InvalidDataException(
-                $"Update {update} uploaded music set ${musicDataIndex:X2}, but native recorded no upload wait.");
+                $"Update {update} uploaded music set ${musicSet:X2}, but native recorded no upload wait.");
         if (consumed)
             throw new InvalidDataException($"Update {update} uploaded music data twice.");
         consumed = true;

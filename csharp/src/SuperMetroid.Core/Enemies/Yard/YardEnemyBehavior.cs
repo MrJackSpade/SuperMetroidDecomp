@@ -107,7 +107,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.SetSpeciesState(state, state.ClearWithRecord);
 
         slot.Frame = EnemyFrameId.Empty;
-        slot.InstructionTimer = NativeCountdown.Start(1);
+        slot.InstructionTimer = WrappingCountdown.Start(1);
 
         YardDirectionDefinition definition = YardDirectionDefinitions.ForDirection(direction);
         state.Program = AnimationProgramCursor<YardProgram>.Start(definition.CrawlingProgram);
@@ -206,8 +206,8 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
             {
                 state.Program = AnimationProgramCursor<YardProgram>.Start(hiding);
                 slot.Frame = EnemyFrameId.Empty;
-                slot.InstructionTimer = NativeCountdown.Start(1);
-                slot.Timer = NativeCountdown.Start(0);
+                slot.InstructionTimer = WrappingCountdown.Start(1);
+                slot.Timer = WrappingCountdown.Start(0);
                 state.Behavior = YardBehavior.Hiding;
                 return;
             }
@@ -379,7 +379,7 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
         YardProgram program)
     {
         state.Program = AnimationProgramCursor<YardProgram>.Start(program);
-        slot.InstructionTimer = NativeCountdown.Start(1);
+        slot.InstructionTimer = WrappingCountdown.Start(1);
         state.TurnTransitionDisabled = true;
         state.TurnTransitionDisableCounter = 0;
     }
@@ -479,8 +479,8 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
         state.MovementFunction = YardMovementFunction.InstructionPending;
         state.Program = AnimationProgramCursor<YardProgram>.Start(state.HidingProgram ??
             throw new InvalidDataException("A landing Yard has no hiding animation to resume."));
-        slot.InstructionTimer = NativeCountdown.Start(1);
-        slot.Timer = NativeCountdown.Start(0);
+        slot.InstructionTimer = WrappingCountdown.Start(1);
+        slot.Timer = WrappingCountdown.Start(0);
     }
 
     /// <summary>Selects visible and hiding instruction lists from Yard's airborne facing direction.</summary>
@@ -492,8 +492,8 @@ internal sealed class YardEnemyBehavior : IEnemySpecies, IEnemyEntityFactory
             YardDirectionDefinitions.ForAirborneFacing(state.AirborneFacingDirection);
         state.Program = AnimationProgramCursor<YardProgram>.Start(definition.VisibleProgram);
         state.HidingProgram = definition.HidingProgram;
-        slot.InstructionTimer = NativeCountdown.Start(1);
-        slot.Timer = NativeCountdown.Start(0);
+        slot.InstructionTimer = WrappingCountdown.Start(1);
+        slot.Timer = WrappingCountdown.Start(0);
     }
 
     /// <summary>Turns Yard after landing only when its airborne facing points away from Samus.</summary>

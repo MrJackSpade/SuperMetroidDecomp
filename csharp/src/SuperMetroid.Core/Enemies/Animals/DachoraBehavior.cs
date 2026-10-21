@@ -95,8 +95,8 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
         // Population property $0400 already excludes these actors from host interaction.
         slot.Properties = slot.Properties.With(EnemyProperties.ProcessInstructions);
         slot.Frame = EnemyFrameId.Empty;
-        slot.InstructionTimer = NativeCountdown.Start(1);
-        slot.Timer = NativeCountdown.Start(0);
+        slot.InstructionTimer = WrappingCountdown.Start(1);
+        slot.Timer = WrappingCountdown.Start(0);
 
         short direction = unchecked((short)slot.Spawn.Population.Parameter1);
         if (direction < 0)
@@ -188,7 +188,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
                 ? DachoraProgram.BlinkRight
                 : DachoraProgram.BlinkLeft);
         state.Function = DachoraAiFunction.BlinkingBeforeRun;
-        state.PhaseTimer = NativeCountdown.Start(DachoraBlinkDuration);
+        state.PhaseTimer = WrappingCountdown.Start(DachoraBlinkDuration);
         LastDachoraSoundEffect = DachoraActivationSound;
     }
 
@@ -261,7 +261,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
 
         InstallDachoraInstruction(slot, state, DachoraProgram.ChargeRight);
         state.Function = DachoraAiFunction.ChargingShinespark;
-        state.PhaseTimer = NativeCountdown.Start(DachoraChargeDuration);
+        state.PhaseTimer = WrappingCountdown.Start(DachoraChargeDuration);
         // Variable A now holds the charge countdown; only the speed's fraction word is cleared.
         state.Speed = state.Speed.WithFraction(0);
         state.SetPaletteCycle(frame: 0, ticks: 0);
@@ -335,13 +335,13 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
         // The charge animation is asleep at $F4B7. Stepping past the sleep enters the same
         // right-facing echo animation used by the four trails, exactly as the cartridge does on launch.
         state.Program = AnimationProgramCursor<DachoraProgram>.Start(DachoraAnimations.AfterSleep(state.Program.Program));
-        slot.InstructionTimer = NativeCountdown.Start(1);
+        slot.InstructionTimer = WrappingCountdown.Start(1);
         state.Function = DachoraAiFunction.Shinesparking;
 
         RoomEnemySlot[] echoes = RequireDachoraEchoSlots(slot);
-        echoes[0].RequireSpeciesState<DachoraEnemyState>().EchoPositionTimer = NativeCountdown.Start(0);
+        echoes[0].RequireSpeciesState<DachoraEnemyState>().EchoPositionTimer = WrappingCountdown.Start(0);
         foreach (RoomEnemySlot echo in echoes)
-            echo.RequireSpeciesState<DachoraEnemyState>().EchoLifetime = NativeCountdown.Start(0);
+            echo.RequireSpeciesState<DachoraEnemyState>().EchoLifetime = WrappingCountdown.Start(0);
         state.VerticalAcceleration = SnesSignedSixteenSixteen.Zero;
         slot.Position = slot.Position.WithWholeY(unchecked((ushort)(slot.Position.Y.Whole - 8)));
         LastDachoraSoundEffect = DachoraLaunchSound;
@@ -435,7 +435,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        first.EchoPositionTimer = NativeCountdown.Start(DachoraEchoPositionInterval);
+        first.EchoPositionTimer = WrappingCountdown.Start(DachoraEchoPositionInterval);
         foreach (RoomEnemySlot echo in echoes)
         {
             DachoraEnemyState echoState = echo.RequireSpeciesState<DachoraEnemyState>();
@@ -443,7 +443,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
                 continue;
 
             echo.Position = echo.Position.WithWhole(body.Position.Whole);
-            echoState.EchoLifetime = NativeCountdown.Start(DachoraEchoLifetime);
+            echoState.EchoLifetime = WrappingCountdown.Start(DachoraEchoLifetime);
             return;
         }
     }
@@ -521,7 +521,7 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
     private static void InstallDachoraInstruction(RoomEnemySlot slot, DachoraEnemyState state, DachoraProgram program)
     {
         state.Program = AnimationProgramCursor<DachoraProgram>.Start(program);
-        slot.InstructionTimer = NativeCountdown.Start(1);
+        slot.InstructionTimer = WrappingCountdown.Start(1);
     }
 
     /// <summary>The faster clone of a run loop, where native's 28-byte speed-up jump lands at the same pose.</summary>

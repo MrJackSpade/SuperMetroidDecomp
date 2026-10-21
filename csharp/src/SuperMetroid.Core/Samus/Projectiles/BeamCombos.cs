@@ -67,7 +67,7 @@ internal sealed class BeamCombos
                     SamusComboKind.Plasma => SamusProjectilePreInstruction.PlasmaCombo,
                     _ => throw new InvalidOperationException($"Undefined combo {kind}."),
                 };
-                if (kind != SamusComboKind.Plasma) slot.TrailTimer = NativeCountdown.FromRaw(kind == SamusComboKind.Spazer && i < 2 ? (ushort)0 : (ushort)4);
+                if (kind != SamusComboKind.Plasma) slot.TrailTimer = WrappingCountdown.FromRaw(kind == SamusComboKind.Spazer && i < 2 ? (ushort)0 : (ushort)4);
                 slot.Variable = kind is SamusComboKind.Ice or SamusComboKind.Plasma
                     ? SamusComboMechanicsDefinitions.GetOriginAngle(i)
                     : (ushort)0;
@@ -118,7 +118,7 @@ internal sealed class BeamCombos
         if (unchecked((short)slot.Damage) < 0) throw new InvalidDataException("Negative native combo projectile damage.");
         SamusProjectileProgram? program = SamusProjectileHeaderDefinitions.Program((ushort)data, comboData != BeamComboData.Combo ? slot.Direction & 15 : 0);
         slot.Cursor = SamusProjectilePrograms.Start(program);
-        slot.InstructionTimer = NativeCountdown.Start(1);
+        slot.InstructionTimer = WrappingCountdown.Start(1);
         if (comboData == BeamComboData.Charged)
             slot.Radius = SamusProjectilePrograms.InitialRadius(program);
     }
@@ -135,10 +135,10 @@ internal sealed class BeamCombos
             return outward ? (ushort)0 : (ushort)36;
         }
         ushort oldTimer = slot.TrailTimer.RawValue;
-        slot.TrailTimer = NativeCountdown.FromRaw(unchecked((ushort)(oldTimer - 1)));
+        slot.TrailTimer = WrappingCountdown.FromRaw(unchecked((ushort)(oldTimer - 1)));
         if (oldTimer == 1)
         {
-            slot.TrailTimer = NativeCountdown.Start(4);
+            slot.TrailTimer = WrappingCountdown.Start(4);
             _trails.SpawnTrail(slot);
         }
         ushort distance = outward ? unchecked((ushort)slot.Velocity.X.SignedRawValue) : (ushort)32;
@@ -260,10 +260,10 @@ internal sealed class BeamCombos
             return 0;
         }
         ushort previousTimer = slot.TrailTimer.RawValue;
-        slot.TrailTimer = NativeCountdown.FromRaw(unchecked((ushort)(previousTimer - 1)));
+        slot.TrailTimer = WrappingCountdown.FromRaw(unchecked((ushort)(previousTimer - 1)));
         if (previousTimer == 1)
         {
-            slot.TrailTimer = NativeCountdown.Start(4);
+            slot.TrailTimer = WrappingCountdown.Start(4);
             _trails.SpawnTrail(slot);
         }
         if (falling)
@@ -337,7 +337,7 @@ internal sealed class BeamCombos
     {
         slot.Position = slot.Position.WithWholeX(unchecked((ushort)(slot.Position.X.Whole + (slot.SlotIndex < 2 ? 16 : -16))));
         slot.Direction = 5;
-        slot.TrailTimer = NativeCountdown.Start(4);
+        slot.TrailTimer = WrappingCountdown.Start(4);
         slot.PreInstruction = SamusProjectilePreInstruction.SpazerComboFalling;
         if (slot.SlotIndex < 2)
         {
@@ -366,10 +366,10 @@ internal sealed class BeamCombos
         }
         short oldXSpeed = slot.Velocity.X.SignedRawValue;
         ushort oldTimer = slot.TrailTimer.RawValue;
-        slot.TrailTimer = NativeCountdown.FromRaw(unchecked((ushort)(oldTimer - 1)));
+        slot.TrailTimer = WrappingCountdown.FromRaw(unchecked((ushort)(oldTimer - 1)));
         if (oldTimer == 1)
         {
-            slot.TrailTimer = NativeCountdown.Start(4);
+            slot.TrailTimer = WrappingCountdown.Start(4);
             _trails.SpawnTrail(slot);
         }
         slot.Velocity = slot.Velocity.WithX(SnesSignedEightEight.FromSignedRaw(AccelerateWaveAxis(slot.Velocity.X.SignedRawValue, unchecked((short)(samus.Position.X.Whole - slot.Position.X.Whole)))));

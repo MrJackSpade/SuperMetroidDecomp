@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Bosses.Crocomire;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -165,7 +164,7 @@ internal static class CrocomireNativeListAddresses
         internal void Step(IImportCartridgeSource cartridge)
         {
             ushort old = Timer;
-            Timer = NativeWordCounter.Decrement(Timer).Value;
+            Timer = WrappingCounter.Decrement(Timer).Value;
             if (old != 1)
                 return;
             for (int command = 0; command < 8; command++)

@@ -48,7 +48,7 @@ internal sealed class KraidProjectiles
         KraidEncounterAccess.EnsureKraidSlot(lint, expectedSlot, "lint");
         KraidEncounterAccess.RegisterKraidPart(lint, state);
         lint.PaletteIndex = _slotTable.Slots[0].PaletteIndex;
-        lint.InstructionTimer = NativeCountdown.Start(KraidBehavior.KraidStillPartTimer);
+        lint.InstructionTimer = WrappingCountdown.Start(KraidBehavior.KraidStillPartTimer);
         _access.SetKraidPartProgram(lint, KraidPartProgram.LintInitial);
         lint.Frame = EnemyFrameId.KraidLint00;
         state.Parts[lint.SlotIndex].Function = KraidAiFunction.LintInactive;
@@ -69,7 +69,7 @@ internal sealed class KraidProjectiles
         KraidPartState nailPart = state.Parts[nail.SlotIndex];
         nailPart.NailVelocity = nailPart.NailVelocity.WithX(nailPart.NailVelocity.X.WithFraction(40));
         nail.Properties = nail.Properties.With(EnemyProperties.Invisible);
-        nail.InstructionTimer = NativeCountdown.Start(KraidBehavior.KraidStillPartTimer);
+        nail.InstructionTimer = WrappingCountdown.Start(KraidBehavior.KraidStillPartTimer);
         _access.SetKraidPartProgram(nail, KraidPartProgram.NailLoop);
         nail.Frame = EnemyFrameId.KraidNail0;
         state.Parts[nail.SlotIndex].NextFunction = KraidAiFunction.FingernailInitialize;
@@ -272,7 +272,7 @@ internal sealed class KraidProjectiles
         part.NailLaunched = true;
         nail.Properties = nail.Properties.Without(
             EnemyProperties.IgnoreSamusCollision | EnemyProperties.Invisible);
-        nail.InstructionTimer = NativeCountdown.Start(1);
+        nail.InstructionTimer = WrappingCountdown.Start(1);
         _access.SetKraidPartProgram(nail, KraidPartProgram.NailLoop);
         part.Function = KraidAiFunction.FingernailFire;
 
@@ -332,7 +332,7 @@ internal sealed class KraidProjectiles
         KraidEnemyState state = _access.RequireKraidState(lint);
         if (samus is not null)
             ResolveKraidLintContact(lint, samus);
-        lint.InstructionTimer = NativeCountdown.Start(KraidBehavior.KraidStillPartTimer);
+        lint.InstructionTimer = WrappingCountdown.Start(KraidBehavior.KraidStillPartTimer);
         KraidPartState part = state.Parts[lint.SlotIndex];
         switch (state.Parts[lint.SlotIndex].Function)
         {
@@ -434,7 +434,7 @@ internal sealed class KraidProjectiles
         lint.PaletteIndex = (_access.Part(lint).FunctionTimer & 1) != 0 ? (ushort)3584 : (ushort)0;
         lint.Position = lint.Position.WithWholeX(unchecked((ushort)(
             _access.Part(lint).LintXOffset + _slotTable.Slots[0].Position.X.Whole - _access.Part(lint).LintTravel)));
-        NativeWordCounterStep charge = NativeCountdown.FromRaw(checked((ushort)_access.Part(lint).FunctionTimer)).Decrement();
+        CountdownStep charge = WrappingCountdown.FromRaw(checked((ushort)_access.Part(lint).FunctionTimer)).Decrement();
         _access.Part(lint).FunctionTimer = charge.Remaining.RawValue;
         if (charge.IsZero)
         {

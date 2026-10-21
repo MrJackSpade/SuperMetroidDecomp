@@ -28,7 +28,7 @@ public sealed class SamusCrystalFlashState
     public CrystalFlashPhase Phase { get; private set; }
 
     /// <summary>WRAM <c>$0A64</c>, initialized to nine for the ten two-pixel raise frames.</summary>
-    public NativeCountdown RaiseTimer { get; private set; }
+    public WrappingCountdown RaiseTimer { get; private set; }
 
     /// <summary>
     /// The ammunition the drain is consuming: missiles at activation, then super missiles and power bombs as each
@@ -37,11 +37,11 @@ public sealed class SamusCrystalFlashState
     public CrystalFlashAmmoKind DrainingAmmo { get; private set; }
 
     /// <summary>WRAM <c>$0DEC</c>, reloaded to ten between the three ammunition families.</summary>
-    public NativeCountdown AmmoDecrementTimer { get; private set; }
+    public WrappingCountdown AmmoDecrementTimer { get; private set; }
 
     /// <summary>Mirrors another owner's write, 0 through 65535, to the shared ammo-countdown word; other values are rejected.</summary>
     internal void SetSharedAmmoCounter(int value) =>
-        AmmoDecrementTimer = NativeCountdown.FromRaw(checked((ushort)Ensure.BetweenInclusive(0, ushort.MaxValue, value)));
+        AmmoDecrementTimer = WrappingCountdown.FromRaw(checked((ushort)Ensure.BetweenInclusive(0, ushort.MaxValue, value)));
 
     /// <summary>Replaces the movement pointer without clearing the live Flash palette/timer.</summary>
     internal void RelinquishMovementHandler() => Phase = CrystalFlashPhase.Inactive;
@@ -50,7 +50,7 @@ public sealed class SamusCrystalFlashState
     internal void RelinquishPaletteHandler()
     {
         SpecialPaletteKind = SamusSpecialPaletteType.None;
-        SpecialPaletteTimer = NativeCountdown.Start(0);
+        SpecialPaletteTimer = WrappingCountdown.Start(0);
     }
 
     /// <summary>
@@ -61,7 +61,7 @@ public sealed class SamusCrystalFlashState
     public Position16<RoomPixels> RaisedPosition { get; private set; }
 
     /// <summary>WRAM <c>$0DF2</c>, seeded to one for bank-$91's palette program.</summary>
-    public NativeCountdown CrystalPaletteTimer { get; private set; }
+    public WrappingCountdown CrystalPaletteTimer { get; private set; }
 
     /// <summary>
     /// The special-palette handler this owner holds: Crystal Flash from activation until the finish restores the
@@ -77,7 +77,7 @@ public sealed class SamusCrystalFlashState
     public int SpecialPaletteFrame { get; private set; }
 
     /// <summary>WRAM <c>$0A68</c>; <c>$FFFF</c> requests beam-palette restoration at finish.</summary>
-    public NativeCountdown SpecialPaletteTimer { get; internal set; }
+    public WrappingCountdown SpecialPaletteTimer { get; internal set; }
 
     /// <summary>
     /// Byte offset of the current body-palette record, four bytes per record. Activation inherits the value the
@@ -175,15 +175,15 @@ public sealed class SamusCrystalFlashState
         // instead of reproducing the documented adjacent timing that frees the stun.
         samus.Drained.RelinquishMovementHandler();
         samus.InputSnapshot.CrystalFlashPoseInputLocked = true;
-        RaiseTimer = NativeCountdown.Start(9);
+        RaiseTimer = WrappingCountdown.Start(9);
         DrainingAmmo = CrystalFlashAmmoKind.Missiles;
-        AmmoDecrementTimer = NativeCountdown.Start(10);
+        AmmoDecrementTimer = WrappingCountdown.Start(10);
         samus.DraygonGrabbed.SetSharedEscapeCounter(AmmoDecrementTimer.RawValue);
         RaisedPosition = Position16<RoomPixels>.Zero;
-        CrystalPaletteTimer = NativeCountdown.Start(1);
+        CrystalPaletteTimer = WrappingCountdown.Start(1);
         SpecialPaletteKind = SamusSpecialPaletteType.CrystalFlash;
         SpecialPaletteFrame = 0;
-        SpecialPaletteTimer = NativeCountdown.Start(1);
+        SpecialPaletteTimer = WrappingCountdown.Start(1);
         // `$90:D5A2` clears shared `$0ACE` but does not write shared `$0AD0`. The latter
         // is also Speed Booster's palette timer, so preserve the live aliased word rather
         // than silently inventing the usual zero initialization.
@@ -192,8 +192,8 @@ public sealed class SamusCrystalFlashState
         BubbleHdmaRequested = false;
         ActivationSoundRequested = false;
         // Activation discards existing hit immunity; Crystal Flash is not a damage shield.
-        samus.InvincibilityTimer = NativeCountdown.Start(0);
-        samus.KnockbackTimer = NativeCountdown.Start(0);
+        samus.InvincibilityTimer = WrappingCountdown.Start(0);
+        samus.KnockbackTimer = WrappingCountdown.Start(0);
         samus.KnockbackDirection = Movement.SamusKnockbackDirection.None;
         samus.KnockbackActive = false;
         Phase = CrystalFlashPhase.Raising;
@@ -226,8 +226,8 @@ public sealed class SamusCrystalFlashState
                 StepAmmoDrain(samus, nmiFrameCounter);
                 // The native wrapper clears both words after calling the ammo handler,
                 // including its seven no-drain frames and the final phase-changing call.
-                samus.InvincibilityTimer = NativeCountdown.Start(0);
-                samus.KnockbackTimer = NativeCountdown.Start(0);
+                samus.InvincibilityTimer = WrappingCountdown.Start(0);
+                samus.KnockbackTimer = WrappingCountdown.Start(0);
                 break;
 
             case CrystalFlashPhase.Finishing:
@@ -252,7 +252,7 @@ public sealed class SamusCrystalFlashState
 
         // Native initializes nine, then uses DEC/BPL. Values 8..0 return; the tenth call
         // underflows to $FFFF and installs the main handler after completing its Y move.
-        NativeWordCounterStep raiseTimer = RaiseTimer.Decrement();
+        CountdownStep raiseTimer = RaiseTimer.Decrement();
         RaiseTimer = raiseTimer.Remaining;
         if (raiseTimer.IsNonNegative)
             return;
@@ -264,8 +264,8 @@ public sealed class SamusCrystalFlashState
         Phase = CrystalFlashPhase.DrainingAmmo;
         BubbleHdmaRequested = true;
         ActivationSoundRequested = true;
-        samus.InvincibilityTimer = NativeCountdown.Start(0);
-        samus.KnockbackTimer = NativeCountdown.Start(0);
+        samus.InvincibilityTimer = WrappingCountdown.Start(0);
+        samus.KnockbackTimer = WrappingCountdown.Start(0);
         samus.KnockbackActive = false;
     }
 
@@ -297,7 +297,7 @@ public sealed class SamusCrystalFlashState
         }
 
         SamusEnergyRestoration.Restore(samus, 50);
-        NativeWordCounterStep ammoTimer = AmmoDecrementTimer.Decrement();
+        CountdownStep ammoTimer = AmmoDecrementTimer.Decrement();
         AmmoDecrementTimer = ammoTimer.Remaining;
         samus.DraygonGrabbed.SetSharedEscapeCounter(AmmoDecrementTimer.RawValue);
         bool timerExpired = ammoTimer.IsZeroOrNegative;
@@ -306,7 +306,7 @@ public sealed class SamusCrystalFlashState
 
         if (DrainingAmmo != CrystalFlashAmmoKind.PowerBombs)
         {
-            AmmoDecrementTimer = NativeCountdown.Start(10);
+            AmmoDecrementTimer = WrappingCountdown.Start(10);
             samus.DraygonGrabbed.SetSharedEscapeCounter(AmmoDecrementTimer.RawValue);
             DrainingAmmo = DrainingAmmo == CrystalFlashAmmoKind.Missiles
                 ? CrystalFlashAmmoKind.SuperMissiles
@@ -335,12 +335,12 @@ public sealed class SamusCrystalFlashState
         if (SamusPoseMetadata.ReadMovementKind(samus) != SamusMovementType.Standing)
             return;
 
-        SpecialPaletteTimer = NativeCountdown.Start(ushort.MaxValue);
+        SpecialPaletteTimer = WrappingCountdown.Start(ushort.MaxValue);
         samus.InputSnapshot.ShinesparkPoseInputLocked = false;
         samus.InputSnapshot.CrystalFlashPoseInputLocked = false;
         // Normal-input completion clears the same hit timers as the native return path.
-        samus.InvincibilityTimer = NativeCountdown.Start(0);
-        samus.KnockbackTimer = NativeCountdown.Start(0);
+        samus.InvincibilityTimer = WrappingCountdown.Start(0);
+        samus.KnockbackTimer = WrappingCountdown.Start(0);
         samus.KnockbackActive = false;
         Phase = CrystalFlashPhase.Inactive;
     }
@@ -379,19 +379,19 @@ public sealed class SamusCrystalFlashState
             SpecialPaletteKind = SamusSpecialPaletteType.None;
             SpecialPaletteFrame = 0;
             BodyPaletteRecordOffset = 0;
-            SpecialPaletteTimer = NativeCountdown.Start(0);
-            CrystalPaletteTimer = NativeCountdown.Start(0);
+            SpecialPaletteTimer = WrappingCountdown.Start(0);
+            CrystalPaletteTimer = WrappingCountdown.Start(0);
             PublishSharedPaletteWords(samus);
             return true;
         }
 
         // DEC followed by BEQ/BPL treats both zero and a signed underflow as expiry.
-        NativeWordCounterStep specialPaletteTimer =
+        CountdownStep specialPaletteTimer =
             SpecialPaletteTimer.Decrement();
         SpecialPaletteTimer = specialPaletteTimer.Remaining;
         if (specialPaletteTimer.IsZeroOrNegative)
         {
-            SpecialPaletteTimer = NativeCountdown.Start(5);
+            SpecialPaletteTimer = WrappingCountdown.Start(5);
             if (colors is null || (SpecialPaletteFrame & 1) != 0 ||
                 SpecialPaletteFrame >= SamusPaletteRomData.CrystalFlash.BubblePaletteCount * sizeof(ushort))
                 throw new InvalidDataException(
@@ -406,7 +406,7 @@ public sealed class SamusCrystalFlashState
                     : 0;
         }
 
-        NativeWordCounterStep crystalPaletteTimer =
+        CountdownStep crystalPaletteTimer =
             CrystalPaletteTimer.Decrement();
         CrystalPaletteTimer = crystalPaletteTimer.Remaining;
         if (crystalPaletteTimer.IsZeroOrNegative)
@@ -418,7 +418,7 @@ public sealed class SamusCrystalFlashState
                 throw new InvalidDataException(
                     $"Crystal Flash body frame {BodyPaletteRecordOffset} has no installed color.");
             CrystalPaletteTimer =
-                NativeCountdown.FromRaw(CrystalFlashPaletteTimingDefinitions.DurationForByteOffset(
+                WrappingCountdown.FromRaw(CrystalFlashPaletteTimingDefinitions.DurationForByteOffset(
                     BodyPaletteRecordOffset));
             colors.ApplyBody(cgram,
                 BodyPaletteRecordOffset / SamusPaletteRomData.CrystalFlash.BodyRecordByteCount);
@@ -447,6 +447,6 @@ public sealed class SamusCrystalFlashState
         // Their handlers are mutually exclusive, but exposing the alias keeps breakpoint
         // inspection and the next owner's initial state faithful to WRAM.
         samus.HorizontalSpeed.SpecialPaletteFrame = checked((ushort)SpecialPaletteFrame);
-        samus.HorizontalSpeed.SpecialPaletteTimer = NativeCountdown.FromRaw(checked((ushort)BodyPaletteRecordOffset));
+        samus.HorizontalSpeed.SpecialPaletteTimer = WrappingCountdown.FromRaw(checked((ushort)BodyPaletteRecordOffset));
     }
 }

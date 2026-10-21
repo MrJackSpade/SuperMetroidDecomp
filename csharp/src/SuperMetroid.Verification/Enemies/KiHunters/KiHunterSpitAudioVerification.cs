@@ -53,7 +53,7 @@ internal static class KiHunterSpitAudioVerification
         // Stage the real spit opcode; subsequent frames must not replay its one-shot call.
         // The spit cue, four poses into the right spit animation.
         state.Program = new AnimationProgramCursor<KiHunterProgram>(KiHunterProgram.SpitRight, 4);
-        body.InstructionTimer = NativeCountdown.Start(1);
+        body.InstructionTimer = WrappingCountdown.Start(1);
         var game = CreateRetailGameFixture(new SuperMetroid.Core.Saves.SaveSlotStore(), renderGameplayFrames: false,
             hostServices: SuperMetroidGameHostServices.Default with { SoundAcknowledgements = PortWriteEchoAcknowledgements.Instance }, random: random);
         game.EnterMainGameplay(runtime);
@@ -71,7 +71,7 @@ internal static class KiHunterSpitAudioVerification
         // Remain in the post-spit waiting state without introducing another attack.
         // The right spit animation's final sleep.
         state.Program = new AnimationProgramCursor<KiHunterProgram>(KiHunterProgram.SpitRight, 8);
-        body.InstructionTimer = NativeCountdown.Start(1);
+        body.InstructionTimer = WrappingCountdown.Start(1);
         for (int frame = 1; frame < 20; frame++) Step();
         Console.WriteLine($"One KiHunter spit: {requests} requests, {starts} SPC starts over 20 frames.");
         var level = runtime.Room.LoadedLevelData;

@@ -92,19 +92,19 @@ public sealed class CartridgeEncodingAnalyzer : DiagnosticAnalyzer
     private static readonly DiagnosticDescriptor CountdownSignTestRule = new(
         CountdownSignTestId,
         "Hand-written countdown sign test",
-        "{0}; store the timer as NativeCountdown and test the NativeWordCounterStep its Decrement returns " +
+        "{0}; store the timer as WrappingCountdown and test the CountdownStep its Decrement returns " +
             "(IsNegative, IsNonNegative, IsZeroOrNegative) or the countdown's IsNegative ({1})",
         "Design",
         DiagnosticSeverity.Warning,
         isEnabledByDefault: true,
         description: "A countdown's '& 0x8000', '& 0x80', comparison with $8000 or $80, or '(short)t < 0' restates the " +
-            "65C816 N flag by hand. NativeCountdown and NativeWordCounterStep name the native branch instead.");
+            "65C816 N flag by hand. WrappingCountdown and CountdownStep name the native branch instead.");
 
     private static readonly DiagnosticDescriptor CountdownSelfDecrementRule = new(
         CountdownSelfDecrementId,
         "Hand-written wrapping decrement",
-        "{0}; use NativeCountdown.Decrement (DEC then BPL/BEQ/BMI), DecrementToZero (LDA, BEQ, DEC) or " +
-            "NativeWordCounter.DecrementLowByte (8-bit DEC of a packed low byte) ({1})",
+        "{0}; use WrappingCountdown.Decrement (DEC then BPL/BEQ/BMI), DecrementToZero (LDA, BEQ, DEC) or " +
+            "WrappingCounter.DecrementLowByte (8-bit DEC of a packed low byte) ({1})",
         "Design",
         DiagnosticSeverity.Warning,
         isEnabledByDefault: true,

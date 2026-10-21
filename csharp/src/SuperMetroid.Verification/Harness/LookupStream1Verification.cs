@@ -304,7 +304,7 @@ internal static class LookupStream1Verification
                 _ => PowampProgram.BalloonStartSinking,
             });
             var pair = new PowampBalloon(balloon, balloon.RequireSpeciesState<PowampEnemyState>());
-            slot.InstructionTimer = NativeCountdown.Start(1);
+            slot.InstructionTimer = WrappingCountdown.Start(1);
             object?[] arguments = [slot, null, null, Position16<RoomPixels>.Zero, SnesButton.None];
             int calls = 0;
             for (int pose = 0; pose < 3; pose++)
@@ -360,7 +360,7 @@ internal static class LookupStream1Verification
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.Bind(EnemyDefinitionId.Metroid, slot.Definition);
             slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = 0xa3 });
-            slot.InstructionTimer = NativeCountdown.Start(1);
+            slot.InstructionTimer = WrappingCountdown.Start(1);
             enemies.SlotTable.Slots[0].SetSpeciesState(new MetroidEnemyState(new RoomSpriteObjectSlot(0), new RoomSpriteObjectSlot(1))
             {
                 Program = AnimationProgramCursor<MetroidProgram>.Start(chasing ? MetroidProgram.ChasingSamus : MetroidProgram.DrainingSamus),
@@ -2749,7 +2749,7 @@ internal static class LookupStream1Verification
             {
                 ushort duration = Word(0x930000 | pointer);
                 ushort sprite = edited ? (ushort)0xa117 : Word(0x930000 | (pointer + 2));
-                var slot = new SamusProjectileSlot(0) { InstructionTimer = NativeCountdown.Start(1), Cursor = SamusProjectileProgramAddresses.CursorAt(pointer) };
+                var slot = new SamusProjectileSlot(0) { InstructionTimer = WrappingCountdown.Start(1), Cursor = SamusProjectileProgramAddresses.CursorAt(pointer) };
                 AssertTrue(!shots.Animation.RunProjectileInstructionHandler(slot), "Actual native timed frame survives");
                 AssertEqual(duration, slot.InstructionTimer.RawValue, "Actual timer unchanged");
                 AssertEqual(sprite, slot.SpritemapPointer, "Independent installed artwork selection");
@@ -2759,7 +2759,7 @@ internal static class LookupStream1Verification
                 AssertEqual(unchecked((ushort)(pointer + 8)), slot.InstructionPointer, "Actual record progression unchanged");
                 interpreted++;
                 if (duration == 0) continue; // Existing bomb contract excludes zero-duration timed records.
-                var bomb = new SamusBombProjectileSlot(0) { InstructionTimer = NativeCountdown.Start(1), Cursor = SamusProjectileProgramAddresses.CursorAt(pointer), Type = 0x0500 };
+                var bomb = new SamusBombProjectileSlot(0) { InstructionTimer = WrappingCountdown.Start(1), Cursor = SamusProjectileProgramAddresses.CursorAt(pointer), Type = 0x0500 };
                 AssertTrue(!bombs.RunProjectileInstructionHandler(bomb), "Actual bomb timed frame survives");
                 AssertEqual(duration, bomb.InstructionTimer.RawValue, "Actual bomb timer unchanged");
                 AssertEqual(sprite, bomb.SpritemapPointer, "Independent bomb artwork selection");
@@ -2827,8 +2827,8 @@ internal static class LookupStream1Verification
         {
             var shots = new SamusProjectileSystem(new BeamChargeState(), SamusProjectileResidue.None) { Animation = { FrameBindings = bindings } };
             var bombs = new SamusBombProjectileSystem { FrameBindings = bindings };
-            var slot = new SamusProjectileSlot(0) { InstructionTimer = NativeCountdown.Start(1), Cursor = SamusProjectileProgramAddresses.CursorAt(program.Start), Damage = 30 };
-            var bomb = new SamusBombProjectileSlot(0) { InstructionTimer = NativeCountdown.Start(1), Cursor = SamusProjectileProgramAddresses.CursorAt(program.Start), Type = 0x0500 };
+            var slot = new SamusProjectileSlot(0) { InstructionTimer = WrappingCountdown.Start(1), Cursor = SamusProjectileProgramAddresses.CursorAt(program.Start), Damage = 30 };
+            var bomb = new SamusBombProjectileSlot(0) { InstructionTimer = WrappingCountdown.Start(1), Cursor = SamusProjectileProgramAddresses.CursorAt(program.Start), Type = 0x0500 };
             ushort timer = 1, pointer = program.Start, sprite = 0, x = 0, y = 0, trail = 0;
             var visited = new HashSet<ushort>();
             bool finished = false;

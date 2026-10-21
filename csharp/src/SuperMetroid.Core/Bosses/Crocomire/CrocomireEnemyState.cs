@@ -108,9 +108,9 @@ public sealed class CrocomireEnemyState
     /// In the submerged pause and the skeleton tile upload: the frames left in that death phase, a saturating countdown
     /// (<c>LDA</c>, <c>BEQ</c>, <c>DEC</c>).
     /// </summary>
-    public NativeCountdown DeathPhaseDelay
+    public WrappingCountdown DeathPhaseDelay
     {
-        get => NativeCountdown.FromRaw(checked((ushort)_stepsDelayRumbleOrAccelerationWord));
+        get => WrappingCountdown.FromRaw(checked((ushort)_stepsDelayRumbleOrAccelerationWord));
         internal set => _stepsDelayRumbleOrAccelerationWord = value.RawValue;
     }
 

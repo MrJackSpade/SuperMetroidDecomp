@@ -1,7 +1,6 @@
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Runtime;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Samus;
@@ -33,7 +32,7 @@ internal static class ShaktoolSamusContactVerification
         SamusState samus = runtime.Player.IntroducedSamus;
         samus.Position = samus.Position.WithWhole(segment.Position.Whole);
         samus.Kinematics.Radius = new(5, 19);
-        samus.InvincibilityTimer = NativeCountdown.Start(0);
+        samus.InvincibilityTimer = WrappingCountdown.Start(0);
         int healthBefore = samus.Health;
 
         runtime.Enemies.ProcessingWindow.DetermineWhichEnemiesToProcess(

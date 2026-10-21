@@ -56,7 +56,7 @@ public sealed class SamusBombProjectileSystem
     }
 
     /// <summary>WRAM $0CCC. Its low byte gates another bomb while one is active.</summary>
-    public NativeCountdown CooldownTimer { get; private set; }
+    public WrappingCountdown CooldownTimer { get; private set; }
 
     /// <summary>
     /// Replaces WRAM <c>$0CCC</c> from another Samus-projectile producer.
@@ -67,7 +67,7 @@ public sealed class SamusBombProjectileSystem
     /// separate translated class because the native slot arrays split cleanly at byte index
     /// <c>$0A</c>, but that host boundary must not accidentally create a second clock.
     /// </remarks>
-    internal void SetSharedCooldown(ushort value) => CooldownTimer = NativeCountdown.FromRaw(value);
+    internal void SetSharedCooldown(ushort value) => CooldownTimer = WrappingCountdown.FromRaw(value);
 
     /// <summary>
     /// Replaces WRAM <c>$0CD2</c> from an enemy-owned Samus interaction. Shitroid writes
@@ -306,7 +306,7 @@ public sealed class SamusBombProjectileSystem
         foreach (SamusBombProjectileSlot slot in _slots)
             slot.ClearFields();
         BombCounter = 0;
-        CooldownTimer = NativeCountdown.Start(0);
+        CooldownTimer = WrappingCountdown.Start(0);
         PowerBombExplosion.Reset();
         LastFrameResult = default;
     }
@@ -341,7 +341,7 @@ public sealed class SamusBombProjectileSystem
         // down, so the first shot after X-ray waits out the full delay.
         if (timeIsFrozen)
         {
-            CooldownTimer = NativeCountdown.Start(SamusProjectileCooldownDefinitions.FrozenTime);
+            CooldownTimer = WrappingCountdown.Start(SamusProjectileCooldownDefinitions.FrozenTime);
             return;
         }
 
@@ -353,13 +353,13 @@ public sealed class SamusBombProjectileSystem
         // debugger mutation from producing a permanently locked firing state.
         if (CooldownTimer.IsNegative)
         {
-            CooldownTimer = NativeCountdown.Start(0);
+            CooldownTimer = WrappingCountdown.Start(0);
             return;
         }
 
         CooldownTimer = CooldownTimer.Decrement().Remaining;
         if (CooldownTimer.IsNegative)
-            CooldownTimer = NativeCountdown.Start(0);
+            CooldownTimer = WrappingCountdown.Start(0);
     }
 
     /// <summary>Applies held/new Shoot admission, ammo and equipment gates, then initializes a normal or power bomb in a native slot.</summary>
@@ -414,9 +414,9 @@ public sealed class SamusBombProjectileSystem
         slot.Type = placingPowerBomb ? PowerBombType : NormalBombType;
         slot.Direction = 0;
         slot.Position = slot.Position.WithWhole(samus.Position.Whole);
-        slot.BombTimer = NativeCountdown.Start(SamusBombSpreadRomData.InitialBombTimer);
+        slot.BombTimer = WrappingCountdown.Start(SamusBombSpreadRomData.InitialBombTimer);
         InitializeBombFromRom(slot);
-        CooldownTimer = NativeCountdown.FromRaw(placingPowerBomb
+        CooldownTimer = WrappingCountdown.FromRaw(placingPowerBomb
             ? SamusBombSpreadRomData.PowerBombCooldown
             : SamusBombSpreadRomData.NormalBombCooldown);
 
@@ -494,7 +494,7 @@ public sealed class SamusBombProjectileSystem
             InitializeBombFromRom(slot);
 
             BombSpreadLaunchDefinition launch = SamusBombSpreadLaunchDefinitions.ForSlot(index);
-            slot.BombTimer = NativeCountdown.FromRaw(launch.FuseTimer);
+            slot.BombTimer = WrappingCountdown.FromRaw(launch.FuseTimer);
             slot.BombSpreadHorizontal = BombSpreadHorizontalVelocity.FromLaunchWord(launch.XVelocity);
             // The held charge adds up to three whole pixels of upward launch speed; the negated whole word
             // wraps exactly as the cartridge's sixteen-bit subtraction from zero does.
@@ -504,7 +504,7 @@ public sealed class SamusBombProjectileSystem
         }
 
         BombCounter = SlotCount;
-        CooldownTimer = NativeCountdown.Start(SamusBombSpreadRomData.NormalBombCooldown);
+        CooldownTimer = WrappingCountdown.Start(SamusBombSpreadRomData.NormalBombCooldown);
         samus.BombSpreadChargeTimeoutCounter = 0;
         samus.ProjectileFlareCounter = 0;
     }
@@ -526,7 +526,7 @@ public sealed class SamusBombProjectileSystem
 
         // Helper two increments both values before the caller searches for storage. The
         // caller immediately replaces cooldown with table entry five ($10) after init.
-        CooldownTimer = NativeCountdown.FromRaw(unchecked((ushort)(CooldownTimer.RawValue + 1)));
+        CooldownTimer = WrappingCountdown.FromRaw(unchecked((ushort)(CooldownTimer.RawValue + 1)));
         BombCounter = unchecked((ushort)(BombCounter + 1));
 
         return true;
@@ -566,7 +566,7 @@ public sealed class SamusBombProjectileSystem
             throw new InvalidDataException($"Bomb data at $93:{dataPointer:X4} has crash-marker damage ${slot.Damage:X4}.");
 
         slot.Cursor = SamusProjectilePrograms.Start(SamusProjectileHeaderDefinitions.Program(dataPointer, 0));
-        slot.InstructionTimer = NativeCountdown.Start(1);
+        slot.InstructionTimer = WrappingCountdown.Start(1);
     }
 
     /// <summary>Advances one bomb fuse or spread trajectory, starts explosions and visits terrain on the native trigger frame.</summary>
@@ -629,7 +629,7 @@ public sealed class SamusBombProjectileSystem
                 // $93:814E reads the pointer word embedded in the bomb-explosion data
                 // record at $93:8683 and resets the instruction timer to one.
                 slot.Cursor = SamusProjectilePrograms.Start(SamusProjectileProgram.BombExplosion);
-                slot.InstructionTimer = NativeCountdown.Start(1);
+                slot.InstructionTimer = WrappingCountdown.Start(1);
                 explosionStarted = true;
             }
         }
@@ -654,7 +654,7 @@ public sealed class SamusBombProjectileSystem
             // rectangle border using the high bytes of bank-$88's shared radii.
             if (slot.BombTimer.IsNegative)
             {
-                slot.BombTimer = NativeCountdown.Start(0);
+                slot.BombTimer = WrappingCountdown.Start(0);
             }
             else if (slot.BombTimer.IsZero && PowerBombExplosion.IsArmed)
             {
@@ -1057,7 +1057,7 @@ public sealed class SamusBombProjectileSystem
         }
         if (duration == 0)
             throw new InvalidDataException($"Bomb record $93:{record.Address:X4} has zero duration.");
-        slot.InstructionTimer = NativeCountdown.FromRaw((ushort)duration);
+        slot.InstructionTimer = WrappingCountdown.FromRaw((ushort)duration);
         slot.SpritemapPointer = FrameBindings?.Resolve(checked((ushort)record.Address)) ?? record.Spritemap;
         slot.Radius = record.Radius;
         slot.Cursor = cursor;
@@ -1120,7 +1120,7 @@ public sealed class SamusBombProjectileSystem
 
         // ClearProjectile decrements the aggregate for byte indices >= $0A and clamps a
         // signed underflow to zero. Consistent state cannot underflow, but the clamp is real.
-        NativeWordCounterStep remaining = NativeWordCounter.Decrement(BombCounter);
+        CountdownStep remaining = WrappingCounter.Decrement(BombCounter);
         BombCounter = remaining.IsNegative ? (ushort)0 : remaining.Value;
     }
 

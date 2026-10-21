@@ -61,7 +61,7 @@ public sealed class SamusHorizontalSpeedState
     public int SpecialPaletteFrame { get; set; }
 
     /// <summary>WRAM <c>$0AD0</c>, seeded to one on the first boosted running frame.</summary>
-    public NativeCountdown SpecialPaletteTimer { get; set; }
+    public WrappingCountdown SpecialPaletteTimer { get; set; }
 
     /// <summary>
     /// One-shot event set when `$90:852C` enters stage four. Audio can consume this flag
@@ -227,7 +227,7 @@ public sealed class SamusHorizontalSpeedState
                 // Palette writes themselves remain renderer work, but their native
                 // frame/timer state is movement-visible and therefore retained here.
                 HasRunningMomentum = true;
-                SpecialPaletteTimer = NativeCountdown.Start(1);
+                SpecialPaletteTimer = WrappingCountdown.Start(1);
                 SpecialPaletteFrame = 0;
                 SpeedBoostCounter = new SamusSpeedBoostCounter(SamusRunningCadenceDefinitions.ReadResetWord(0));
             }
@@ -427,12 +427,12 @@ public sealed class SamusHorizontalSpeedState
 
         // DEC is a full 16-bit operation. BEQ/BPL mean zero and signed underflow both reload
         // four, though ordinary execution arrives with timer one and never underflows.
-        NativeWordCounterStep timer = SpecialPaletteTimer.Decrement();
+        CountdownStep timer = SpecialPaletteTimer.Decrement();
         SpecialPaletteTimer = timer.Remaining;
         if (!timer.IsZero && timer.IsNonNegative)
             return paletteCopied;
 
-        SpecialPaletteTimer = NativeCountdown.Start(4);
+        SpecialPaletteTimer = WrappingCountdown.Start(4);
 
         ushort palettePointer = SamusPaletteRomData.FullBodyCycles.ReadActiveSpeedBoosterPalettePointer(
             suitTableOffset, checked((ushort)SpecialPaletteFrame));
@@ -605,7 +605,7 @@ public sealed class SamusHorizontalSpeedState
             HasRunningMomentum = false;
             SpeedBoostCounter = default;
             SpecialPaletteFrame = 0;
-            SpecialPaletteTimer = NativeCountdown.Start(0);
+            SpecialPaletteTimer = WrappingCountdown.Start(0);
             NormalSuitPaletteRestoreRequested = true;
         }
 
@@ -633,7 +633,7 @@ public sealed class SamusHorizontalSpeedState
         {
             if (HasRunningMomentum && SpeedBoostCounter == default)
             {
-                SpecialPaletteTimer = NativeCountdown.Start(0);
+                SpecialPaletteTimer = WrappingCountdown.Start(0);
                 SpecialPaletteFrame = 0;
                 SpeedBoostCounter = new SamusSpeedBoostCounter(SamusRunningCadenceDefinitions.ReadResetWord(0));
             }
@@ -641,7 +641,7 @@ public sealed class SamusHorizontalSpeedState
         }
 
         HasRunningMomentum = false;
-        SpecialPaletteTimer = NativeCountdown.Start(0);
+        SpecialPaletteTimer = WrappingCountdown.Start(0);
         SpecialPaletteFrame = 0;
         SpeedBoostCounter = default;
         SpeedEchoIndex = 0;

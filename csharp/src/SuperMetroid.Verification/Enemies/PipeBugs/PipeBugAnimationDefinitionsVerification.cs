@@ -45,8 +45,8 @@ internal static class PipeBugAnimationDefinitionsVerification
                 var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
                 var slot = new RoomEnemySlot(0, EnemySlotFixtures.Registry)
                 {
-                    InstructionTimer = NativeCountdown.Start(0x2222),
-                    Timer = NativeCountdown.Start(0x3333),
+                    InstructionTimer = WrappingCountdown.Start(0x2222),
+                    Timer = WrappingCountdown.Start(0x3333),
                 };
                 slot.SetSpawnParameter1(strong ? 1 : 0);
                 var state = new PipeBugEnemyState(slot)

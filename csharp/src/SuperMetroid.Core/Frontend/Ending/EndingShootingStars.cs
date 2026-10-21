@@ -17,7 +17,7 @@ internal sealed class EndingShootingStars
             ushort delay = EndingShootingStarDefinitions.Records[index].Delay;
             if (delay == 0) continue;
             stars[index].Delayed = true;
-            stars[index].Timer = NativeCountdown.FromRaw(delay);
+            stars[index].Timer = WrappingCountdown.FromRaw(delay);
         }
     }
 
@@ -32,7 +32,7 @@ internal sealed class EndingShootingStars
             {
                 star.Timer = star.Timer.Decrement().Remaining;
                 if (!star.Timer.IsNegative) continue;
-                star.Timer = NativeCountdown.Start(EndingShootingStarDefinitions.InitialTimer);
+                star.Timer = WrappingCountdown.Start(EndingShootingStarDefinitions.InitialTimer);
                 star.Delayed = false;
                 star.AnimationFrame = 0;
                 // Expiring delay skips motion, but joins the same call's drawing pass.
@@ -54,7 +54,7 @@ internal sealed class EndingShootingStars
             star.Timer = star.Timer.Decrement().Remaining;
             if ((short)star.Timer.RawValue <= 0)
             {
-                star.Timer = NativeCountdown.FromRaw(definition.Period);
+                star.Timer = WrappingCountdown.FromRaw(definition.Period);
                 star.AnimationFrame++;
             }
         }
@@ -75,6 +75,6 @@ internal sealed class EndingShootingStars
     private static void Reset(ref EndingShootingStar star) => star = new()
     {
         Position = new(new(EndingShootingStarDefinitions.Origin, 0), new(EndingShootingStarDefinitions.Origin, 0)),
-        Timer = NativeCountdown.Start(EndingShootingStarDefinitions.InitialTimer)
+        Timer = WrappingCountdown.Start(EndingShootingStarDefinitions.InitialTimer)
     };
 }

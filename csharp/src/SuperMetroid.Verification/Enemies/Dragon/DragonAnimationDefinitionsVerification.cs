@@ -112,7 +112,7 @@ internal static class DragonAnimationDefinitionsVerification
             facingLeft ? "live left-facing Dragon wing" : "live right-facing Dragon wing",
             expectedInstructionTimer: facingLeft ? (ushort)0 : (ushort)1);
 
-        bodyState.FunctionTimer = NativeCountdown.Start(0);
+        bodyState.FunctionTimer = WrappingCountdown.Start(0);
         enemies.DragonBehavior.RunDragonRising(body, bodyState);
         enemies.DragonBehavior.RunDragonAttacking(body, bodyState);
         DragonAnimationSelector attacking = facingLeft
@@ -128,8 +128,8 @@ internal static class DragonAnimationDefinitionsVerification
     /// <summary>Starts with nondefault instruction values so an omitted install remains observable.</summary>
     private static RoomEnemySlot NewDragonAnimationSlot(int index) => new(index, EnemySlotFixtures.Registry)
     {
-        InstructionTimer = NativeCountdown.Start(0x2222),
-        Timer = NativeCountdown.Start(0x3333),
+        InstructionTimer = WrappingCountdown.Start(0x2222),
+        Timer = WrappingCountdown.Start(0x3333),
     };
 
     /// <summary>Provides a fresh Dragon state for a standalone animation slot.</summary>

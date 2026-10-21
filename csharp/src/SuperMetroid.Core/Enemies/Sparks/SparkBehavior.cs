@@ -70,9 +70,9 @@ internal sealed class SparkBehavior : IEnemySpecies, IEnemyEntityFactory
         state.BaseFunctionTime = slot.Spawn.Population.Parameter2;
         SetSparkFunctionTimer(state, additionalTime: 0);
 
-        slot.InstructionTimer = NativeCountdown.Start(1);
+        slot.InstructionTimer = WrappingCountdown.Start(1);
         state.Program = definition.Program is { } program ? AnimationProgramCursor<SparkProgram>.Start(program) : null;
-        slot.Timer = NativeCountdown.Start(0);
+        slot.Timer = WrappingCountdown.Start(0);
 
         if (_room.Services.Bosses.IsDefeated(BossBits.AreaBoss))
             return;
@@ -129,7 +129,7 @@ internal sealed class SparkBehavior : IEnemySpecies, IEnemyEntityFactory
     /// </summary>
     internal static bool DecrementSparkTimerAndTestExpired(SparkEnemyState state)
     {
-        NativeWordCounterStep step = state.FunctionTimer.Decrement();
+        CountdownStep step = state.FunctionTimer.Decrement();
         if (step.IsZero)
             return true;
 
@@ -147,14 +147,14 @@ internal sealed class SparkBehavior : IEnemySpecies, IEnemyEntityFactory
             baseTime = (nextRandom() & 63) + 4;
         }
 
-        state.FunctionTimer = NativeCountdown.FromRaw(unchecked((ushort)(baseTime + additionalTime)));
+        state.FunctionTimer = WrappingCountdown.FromRaw(unchecked((ushort)(baseTime + additionalTime)));
     }
 
     /// <summary>Selects an animation and makes its first step due on the next pass.</summary>
     private static void InstallSparkProgram(RoomEnemySlot slot, SparkEnemyState state, SparkProgram program)
     {
         state.Program = AnimationProgramCursor<SparkProgram>.Start(program);
-        slot.InstructionTimer = NativeCountdown.Start(1);
+        slot.InstructionTimer = WrappingCountdown.Start(1);
     }
 
     /// <summary>Ports Spark's main AI.</summary>

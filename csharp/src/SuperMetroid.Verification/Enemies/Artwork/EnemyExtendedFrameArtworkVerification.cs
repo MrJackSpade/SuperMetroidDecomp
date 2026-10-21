@@ -1349,7 +1349,7 @@ internal static class EnemyExtendedFrameArtworkVerification
         slot.ExtraProperties = slot.ExtraProperties.With(
             EnemyExtraProperties.UsesExtendedSpritemap);
         slot.SpritemapPointer = pointer;
-        slot.InstructionTimer = NativeCountdown.Start(7);
+        slot.InstructionTimer = WrappingCountdown.Start(7);
         slot.Position = slot.Position.WithWhole(position);
         var oam = new OamBuffer();
         enemies.Drawing.DrawLayersAsOam(oam, new(0, 0), 0, 0);

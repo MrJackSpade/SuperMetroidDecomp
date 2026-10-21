@@ -320,7 +320,7 @@ internal sealed class CrocomireCombat
         SamusProjectileTypeWord projectileType,
         Position16<RoomPixels> projectile)
     {
-        body.InvincibilityTimer = NativeCountdown.Start(0);
+        body.InvincibilityTimer = WrappingCountdown.Start(0);
 
         // The off-screen branch bypasses projectile-family selection and still publishes
         // the pending-hit state. This wrapped signed comparison is the cartridge's exact
@@ -335,7 +335,7 @@ internal sealed class CrocomireCombat
             {
                 if (!projectileType.IsChargedBeam)
                 {
-                    body.InstructionTimer = NativeCountdown.Start(8);
+                    body.InstructionTimer = WrappingCountdown.Start(8);
                     SpawnCrocomireShotDust(projectileType, projectile);
                     return;
                 }
@@ -360,7 +360,7 @@ internal sealed class CrocomireCombat
                 // Both regional constants at $A4:8692/$8694 are eight. Keep the branch
                 // explicit because the source distinguishes projectile-attack state even
                 // though this ROM revision stores identical delay values.
-                body.InstructionTimer = NativeCountdown.FromRaw(unchecked((ushort)(
+                body.InstructionTimer = WrappingCountdown.FromRaw(unchecked((ushort)(
                     body.InstructionTimer.RawValue +
                     (state.FightFunction == CrocomireFightFunction.ProjectileAttack ? 8 : 8))));
             }
@@ -370,7 +370,7 @@ internal sealed class CrocomireCombat
             state.ReactionTimer = 10;
         }
 
-        body.FlashTimer = NativeCountdown.FromRaw(unchecked((ushort)(body.FlashTimer.RawValue + 14)));
+        body.FlashTimer = WrappingCountdown.FromRaw(unchecked((ushort)(body.FlashTimer.RawValue + 14)));
         body.AiStates |= EnemyAiStates.Hurt;
     }
 
@@ -400,7 +400,7 @@ internal sealed class CrocomireCombat
         state.FightFlags = (state.FightFlags & ~(CrocomireFightFlags.ClawTouchedSamus | CrocomireFightFlags.Engaged)) |
             CrocomireFightFlags.Engaged;
         state.ReactionTimer = 10;
-        body.FlashTimer = NativeCountdown.FromRaw(unchecked((ushort)(body.FlashTimer.RawValue + 4)));
+        body.FlashTimer = WrappingCountdown.FromRaw(unchecked((ushort)(body.FlashTimer.RawValue + 4)));
         body.AiStates |= EnemyAiStates.Hurt;
         state.FightFunction = CrocomireFightFunction.PowerBombCharge;
 

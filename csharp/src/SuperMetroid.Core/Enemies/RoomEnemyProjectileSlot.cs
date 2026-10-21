@@ -29,7 +29,7 @@ public sealed class RoomEnemyProjectileSlot
     /// <summary>The typed program the projectile plays (#641), or null for a free slot.</summary>
     internal EnemyProjectileAnimation? Animation { get; private set; }
     /// <summary>Gets the native draw-instruction countdown; allocation starts it at one so the initial list runs on its first reached pass.</summary>
-    public NativeCountdown InstructionTimer { get; internal set; }
+    public WrappingCountdown InstructionTimer { get; internal set; }
     /// <summary>The frame the projectile shows: the blank frame from allocation until its program shows one, none once freed.</summary>
     public EnemyProjectileFrameId? Frame { get; internal set; }
     /// <summary>Gets the bank-$86 routine offset dispatched before this slot's instruction-list processing.</summary>
@@ -141,7 +141,7 @@ public sealed class RoomEnemyProjectileSlot
     internal void StartAnimation(EnemyProjectileAnimation animation)
     {
         Animation = Ensure.NotNull(animation);
-        InstructionTimer = NativeCountdown.Start(1);
+        InstructionTimer = WrappingCountdown.Start(1);
     }
 
     /// <summary>
@@ -165,7 +165,7 @@ public sealed class RoomEnemyProjectileSlot
         Position = Position.WithFractionX(0).WithFractionY(0);
         PreInstruction = 0;
         Frame = null;
-        InstructionTimer = NativeCountdown.Start(0);
+        InstructionTimer = WrappingCountdown.Start(0);
         Animation = null;
         Radius = Extent16<RoomPixels>.Zero;
         GraphicsIndex = Damage = InvincibilityFrames = GeneralTimer = 0;

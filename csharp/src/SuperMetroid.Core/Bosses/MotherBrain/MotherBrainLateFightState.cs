@@ -37,13 +37,13 @@ internal sealed class MotherBrainLateFightState
     public MotherBrainNeckMovement UpperNeckMovementIndex { get; internal set; }
 
     /// <summary>Native body function timer at enemy word <c>$0FB0</c>.</summary>
-    public NativeCountdown FunctionTimer { get; internal set; }
+    public WrappingCountdown FunctionTimer { get; internal set; }
 
     /// <summary>Native rainbow-beam SFX-playing flag.</summary>
     public bool RainbowBeamSoundPlaying { get; internal set; }
 
     /// <summary>Main brain-shake timer seeded to fifty by <c>$A9:BE96</c> when clear.</summary>
-    public NativeCountdown BrainMainShakeTimer { get; internal set; }
+    public WrappingCountdown BrainMainShakeTimer { get; internal set; }
 
     /// <summary>Native brain-palette handling flag cleared when the rainbow beam expires.</summary>
     public bool BrainPaletteHandlingEnabled { get; internal set; } = true;
@@ -97,7 +97,7 @@ internal sealed class MotherBrainLateFightState
     /// Earthquake timer as last written by this actor. The global earthquake updater owns
     /// independent per-frame decrements, so this class does not fabricate them.
     /// </summary>
-    public NativeCountdown EarthquakeTimer { get; internal set; }
+    public WrappingCountdown EarthquakeTimer { get; internal set; }
 
     /// <summary>
     /// Zero-based index of the next Baby Metroid sprite-tile transfer. Four means the

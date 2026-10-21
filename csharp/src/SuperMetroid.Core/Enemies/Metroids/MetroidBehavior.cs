@@ -222,7 +222,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
         StoreMetroidYVelocity(state, 0);
 
         ushort oldTimer = state.EscapeTimer.RawValue;
-        state.EscapeTimer = NativeCountdown.FromRaw(unchecked((ushort)(oldTimer - 1)));
+        state.EscapeTimer = WrappingCountdown.FromRaw(unchecked((ushort)(oldTimer - 1)));
         if (oldTimer != 1)
             return;
 
@@ -237,7 +237,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
         if (!state.EscapeTimer.IsZero)
         {
             state.EscapeTimer = state.EscapeTimer.Decrement().Remaining;
-            slot.FlashTimer = NativeCountdown.Start(2);
+            slot.FlashTimer = WrappingCountdown.Start(2);
         }
 
         FreezeMetroidOuterBody(state.OuterBodyA, MetroidOuterBodyDefinitions.OuterBodyAFrozenProgram);
@@ -354,11 +354,11 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
 
         if (new SamusProjectileTypeWord(collisionProjectileType).BeamCombination.HasIce)
         {
-            slot.FlashTimer = NativeCountdown.Start(4);
+            slot.FlashTimer = WrappingCountdown.Start(4);
             if (collisionProjectileDamage >= state.IceDamageToFreeze)
             {
                 state.IceDamageToFreeze = 0;
-                slot.FrozenTimer = NativeCountdown.Start(MetroidFrozenDuration);
+                slot.FrozenTimer = WrappingCountdown.Start(MetroidFrozenDuration);
                 slot.AiStates |= EnemyAiStates.Frozen;
                 return;
             }
@@ -374,7 +374,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
         MetroidEnemyState state,
         SamusState? samus)
     {
-        state.EscapeTimer = NativeCountdown.Start(MetroidEscapeDuration);
+        state.EscapeTimer = WrappingCountdown.Start(MetroidEscapeDuration);
         state.Function = MetroidAiFunction.PowerBombEscape;
         SetMetroidProgram(slot, state, MetroidProgram.ChasingSamus);
         if (samus is not null)
@@ -448,7 +448,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
     private static void SetMetroidProgram(RoomEnemySlot slot, MetroidEnemyState state, MetroidProgram program)
     {
         state.Program = AnimationProgramCursor<MetroidProgram>.Start(program);
-        slot.InstructionTimer = NativeCountdown.Start(1);
+        slot.InstructionTimer = WrappingCountdown.Start(1);
     }
 
     /// <summary>Routes bomb-family collisions through Metroid's attachment and recoil rules.</summary>
@@ -527,7 +527,7 @@ internal sealed class MetroidBehavior : IEnemySpecies, IEnemyEntityFactory
             int frozenDamage = (c.ProjectileDamage >> 1) * EnemyVulnerabilityDefinitions.Multiplier(frozenVulnerability);
             if (!EnemyVulnerabilityDefinitions.IsSentinel(frozenVulnerability) && frozenDamage != 0)
             {
-                enemy.FlashTimer = NativeCountdown.Start(enemy.HurtFlashFrames + 8);
+                enemy.FlashTimer = WrappingCountdown.Start(enemy.HurtFlashFrames + 8);
                 enemy.AiStates |= EnemyAiStates.Hurt;
                 enemy.Health = frozenDamage >= enemy.Health
                     ? 0

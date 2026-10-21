@@ -182,8 +182,8 @@ internal sealed class StokeBehavior : IEnemySpecies, IEnemyEntityFactory
     private static void SetStokeProgram(RoomEnemySlot slot, StokeEnemyState state, StokeProgram program)
     {
         state.Program = AnimationProgramCursor<StokeProgram>.Start(program);
-        slot.InstructionTimer = NativeCountdown.Start(1);
-        slot.Timer = NativeCountdown.Start(0);
+        slot.InstructionTimer = WrappingCountdown.Start(1);
+        slot.Timer = WrappingCountdown.Start(0);
     }
 
     /// <summary>Instructions <c>$A2:8990</c> (left) and <c>$A2:899D</c> (right): resume movement in <paramref name="direction"/>.</summary>

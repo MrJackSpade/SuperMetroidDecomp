@@ -161,7 +161,7 @@ internal static class GrappleConnectionDefinitionsVerification
         for (int coordinate = 0; coordinate <= ushort.MaxValue; coordinate++)
         {
             g.Anchor = g.Anchor.WithX((ushort)coordinate); g.Anchor = g.Anchor.WithY(unchecked((ushort)~coordinate));
-            g.Angle = row.Angle; g.WallJumpTimer = NativeCountdown.Start(77);
+            g.Angle = row.Angle; g.WallJumpTimer = WrappingCountdown.Start(77);
             AssertTrue(special(samus, g, new(0, ushort.MaxValue), out var result), "Native special record dispatch");
             ushort x = unchecked((ushort)(g.Anchor.X + row.SamusOffset.X)), y = unchecked((ushort)(g.Anchor.Y + row.SamusOffset.Y));
             AssertEqual(x, samus.Position.X.Whole, "Special wrapped body X");
@@ -217,7 +217,7 @@ internal static class GrappleConnectionDefinitionsVerification
                 SamusMovementRomData.Poses.Definitions + sourcePose * 8 + 3);
             samus.Pose = (SamusPoseId)sourcePose;
             samus.Grapple.Phase = GrapplePhase.Firing; samus.Grapple.FireDirection = SuperMetroid.Core.Samus.Projectiles.SamusProjectileDirection.Right;
-            samus.Grapple.PoseChangeAutoFireTimer = NativeCountdown.FromRaw(timer);
+            samus.Grapple.PoseChangeAutoFireTimer = WrappingCountdown.FromRaw(timer);
             samus.LiquidPhysics.BeginFrameSoundRequests();
             var result = cancel(empty, samus, 0);
             bool invalidDirection = (direction & 0xf0) != 0;

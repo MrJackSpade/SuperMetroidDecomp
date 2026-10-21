@@ -91,8 +91,8 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.Properties = slot.Properties.With(
             EnemyProperties.BlocksPlasmaBeam | EnemyProperties.ProcessInstructions);
         slot.PaletteIndex = EnemyPaletteBits.Palette2;
-        slot.InstructionTimer = NativeCountdown.Start(1);
-        slot.Timer = NativeCountdown.Start(0);
+        slot.InstructionTimer = WrappingCountdown.Start(1);
+        slot.Timer = WrappingCountdown.Start(0);
 
         var state = new ShitroidEnemyState(slot)
         {
@@ -179,7 +179,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
 
             case ShitroidAiFunction.BeginEntranceDelay:
                 state.Function = ShitroidAiFunction.EntranceDelay;
-                state.StateTimer = NativeCountdown.Start(464);
+                state.StateTimer = WrappingCountdown.Start(464);
                 goto case ShitroidAiFunction.EntranceDelay;
 
             case ShitroidAiFunction.EntranceDelay:
@@ -225,7 +225,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
                 DeadSidehopperBehavior.ActivateDeadSidehopperVictim(RequireShitroidVictim(slot));
                 state.VictimActivationFlag = true;
                 state.Function = ShitroidAiFunction.RiseAfterFeeding;
-                state.StateTimer = NativeCountdown.Start(192);
+                state.StateTimer = WrappingCountdown.Start(192);
                 goto case ShitroidAiFunction.RiseAfterFeeding;
 
             case ShitroidAiFunction.RiseAfterFeeding:
@@ -270,14 +270,14 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
 
             case ShitroidAiFunction.BeginPostDrainPause:
                 state.Function = ShitroidAiFunction.PostDrainPause;
-                state.StateTimer = NativeCountdown.Start(120);
+                state.StateTimer = WrappingCountdown.Start(120);
                 goto case ShitroidAiFunction.PostDrainPause;
 
             case ShitroidAiFunction.PostDrainPause:
                 if (PredecrementShitroidTimerBecameNegative(state))
                 {
                     state.Function = ShitroidAiFunction.RiseAfterDrainingSamus;
-                    state.StateTimer = NativeCountdown.Start(192);
+                    state.StateTimer = WrappingCountdown.Start(192);
                     goto case ShitroidAiFunction.RiseAfterDrainingSamus;
                 }
                 return;
@@ -290,7 +290,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
                 {
                     LastShitroidSoundEffectLibrary2 = ShitroidSoundDefinitions.FlyAwayCry;
                     state.Function = ShitroidAiFunction.FlyLeft;
-                    state.StateTimer = NativeCountdown.Start(88);
+                    state.StateTimer = WrappingCountdown.Start(88);
                     SetShitroidProgram(slot, ShitroidProgram.LatchedOn);
                     goto case ShitroidAiFunction.FlyLeft;
                 }
@@ -309,7 +309,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
                 if (PredecrementShitroidTimerBecameNegative(state))
                 {
                     state.Function = ShitroidAiFunction.FlyRight;
-                    state.StateTimer = NativeCountdown.Start(88);
+                    state.StateTimer = WrappingCountdown.Start(88);
                     goto case ShitroidAiFunction.FlyRight;
                 }
                 return;
@@ -327,7 +327,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
                 if (PredecrementShitroidTimerBecameNegative(state))
                 {
                     state.Function = ShitroidAiFunction.HoldSamusBeforeRelease;
-                    state.StateTimer = NativeCountdown.Start(256);
+                    state.StateTimer = WrappingCountdown.Start(256);
                     SetShitroidProgram(slot, ShitroidProgram.Remorse);
                 }
                 return;
@@ -427,7 +427,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Function = ShitroidAiFunction.DrainSidehopper;
         state.PaletteDelay = 1;
         state.ReactsToSamus = false;
-        state.StateTimer = NativeCountdown.Start(320);
+        state.StateTimer = WrappingCountdown.Start(320);
     }
 
     /// <summary>Shakes above the victim for 320 ticks before activating its corpse sequence.</summary>
@@ -438,7 +438,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.Position = slot.Position.WithWhole(
             victim.Position.Whole + ShitroidShakeOffsets[shakeIndex] + new Offset16<RoomPixels>(0, -32));
         ushort oldTimer = state.StateTimer.RawValue;
-        state.StateTimer = NativeCountdown.FromRaw(unchecked((ushort)(oldTimer - 1)));
+        state.StateTimer = WrappingCountdown.FromRaw(unchecked((ushort)(oldTimer - 1)));
         if (oldTimer == 1)
         {
             state.Function = ShitroidAiFunction.ActivateSidehopperCorpse;
@@ -479,7 +479,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
             return followedY;
         }
         if ((_room.Random.Read() & 4095) >= 4064)
-            state.HoverTimer = NativeCountdown.Start(32);
+            state.HoverTimer = WrappingCountdown.Start(32);
         return 80;
     }
 
@@ -789,8 +789,8 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
     private void SetShitroidProgram(RoomEnemySlot slot, ShitroidProgram program)
     {
         RequireShitroidState(slot).Cursor = AnimationProgramCursor<ShitroidProgram>.Start(program);
-        slot.InstructionTimer = NativeCountdown.Start(1);
-        slot.Timer = NativeCountdown.Start(0);
+        slot.InstructionTimer = WrappingCountdown.Start(1);
+        slot.Timer = WrappingCountdown.Start(0);
     }
 
     /// <summary>Requires the Sidehopper victim in the physical enemy slot immediately after Shitroid.</summary>
@@ -819,7 +819,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Applies the native wrapping countdown and reports its signed-negative transition.</summary>
     private static bool PredecrementShitroidTimerBecameNegative(ShitroidEnemyState state)
     {
-        NativeWordCounterStep timer = state.StateTimer.Decrement();
+        CountdownStep timer = state.StateTimer.Decrement();
         state.StateTimer = timer.Remaining;
         return timer.IsNegative;
     }
@@ -855,7 +855,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         ShitroidEnemyState state = RequireShitroidState(slot);
         ushort oldTimer = slot.InstructionTimer.RawValue;
-        slot.InstructionTimer = NativeCountdown.FromRaw(unchecked((ushort)(oldTimer - 1)));
+        slot.InstructionTimer = WrappingCountdown.FromRaw(unchecked((ushort)(oldTimer - 1)));
         if (oldTimer != 1)
         {
             slot.ExtraProperties = slot.ExtraProperties.Without(EnemyExtraProperties.NewInstructionFrame);
@@ -863,14 +863,14 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         AnimationProgramCursor<ShitroidProgram> cursor = state.Cursor;
-        NativeCountdown counter = slot.Timer;
+        WrappingCountdown counter = slot.Timer;
         AnimationProgramAdvance<BabyMetroidFrame> advance = ShitroidAnimations.Programs.Advance(ref cursor, ref counter,
             (cue, continuation) => ApplyShitroidCue(cue));
         slot.Timer = counter;
         state.Cursor = cursor;
         if (advance is not AnimationProgramAdvance<BabyMetroidFrame>.Show shown)
             throw new InvalidOperationException($"The Shitroid's programs have no {advance} step.");
-        slot.InstructionTimer = NativeCountdown.FromRaw((ushort)shown.Duration);
+        slot.InstructionTimer = WrappingCountdown.FromRaw((ushort)shown.Duration);
         slot.Frame = BabyMetroidVisualDefinitions.ShownFrames.Of(shown.Frame);
         slot.ExtraProperties = slot.ExtraProperties.With(EnemyExtraProperties.NewInstructionFrame);
     }

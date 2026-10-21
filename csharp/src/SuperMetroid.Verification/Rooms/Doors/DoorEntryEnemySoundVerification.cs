@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Programs;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Runtime;
 using static SuperMetroid.Verification.Harness.RetailGameFixtureVerification;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
@@ -49,7 +48,7 @@ internal static class DoorEntryEnemySoundVerification
         // The real spit opcode (library two $4C) executes during the entry frame's enemy pass.
         // The spit cue, four poses into the right spit animation.
         state.Program = new AnimationProgramCursor<KiHunterProgram>(KiHunterProgram.SpitRight, 4);
-        body.InstructionTimer = NativeCountdown.Start(1);
+        body.InstructionTimer = WrappingCountdown.Start(1);
         var game = CreateRetailGameFixture(new SuperMetroid.Core.Saves.SaveSlotStore(), renderGameplayFrames: false, random: random);
         game.AdoptRuntime(runtime);
         game.Session.LastAudioRoomState = runtime.Room.LoadedRoom.State;

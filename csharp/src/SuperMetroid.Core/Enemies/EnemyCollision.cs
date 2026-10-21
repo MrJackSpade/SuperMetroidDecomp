@@ -97,7 +97,7 @@ internal sealed class EnemyCollision
                 EnemyInteractionCallback.NoOp or EnemyInteractionCallback.NoOpShortReturn)
                 continue;
             if (contactDamageIndex != SamusContactDamageIndex.None)
-                samus.InvincibilityTimer = NativeCountdown.Start(0);
+                samus.InvincibilityTimer = WrappingCountdown.Start(0);
 
             // Native touch collision does not interpret property $0100 as a collision bit;
             // it suppresses rendering only. Hibashi relies on that distinction: its second
@@ -290,7 +290,7 @@ internal sealed class EnemyCollision
                 {
                     // The multibox prelude requests this earthquake before dispatching the
                     // hitbox callback, even when that callback is the no-op shell region.
-                    _earthquake.EarthquakeTimer = NativeCountdown.Start(SamusProjectileRomData.NonBeam.SuperMissileEarthquakeDuration);
+                    _earthquake.EarthquakeTimer = WrappingCountdown.Start(SamusProjectileRomData.NonBeam.SuperMissileEarthquakeDuration);
                     _earthquake.EarthquakeType = SamusProjectileRomData.NonBeam.SuperMissileEnemyHitEarthquakeType;
                 }
 
@@ -362,7 +362,7 @@ internal sealed class EnemyCollision
                 }
                 if (damage != 0)
                 {
-                    enemy.FlashTimer = NativeCountdown.Start(enemy.HurtFlashFrames + 8);
+                    enemy.FlashTimer = WrappingCountdown.Start(enemy.HurtFlashFrames + 8);
                     enemy.AiStates = enemy.AiStates | EnemyAiStates.Hurt;
                     // Common shot AI queues the header cry before subtracting health,
                     // including lethal hits. Frozen targets suppress this cry; death
@@ -375,7 +375,7 @@ internal sealed class EnemyCollision
                     // The packed beam type uses bit three for Plasma; other families do not
                     // set that low bit in their ordinary projectile words.
                     if (new SamusProjectileTypeWord(projectileType).BeamCombination.HasPlasma)
-                        enemy.InvincibilityTimer = NativeCountdown.Start(EnemyShotTiming.PlasmaInvincibilityFrames);
+                        enemy.InvincibilityTimer = WrappingCountdown.Start(EnemyShotTiming.PlasmaInvincibilityFrames);
 
                     bool lethal = damage >= enemy.Health;
                     bool freezeInsteadOfKilling = lethal &&
@@ -612,7 +612,7 @@ internal sealed class EnemyCollision
         if (damage == 0)
             return;
 
-        enemy.FlashTimer = NativeCountdown.Start(enemy.HurtFlashFrames + 8);
+        enemy.FlashTimer = WrappingCountdown.Start(enemy.HurtFlashFrames + 8);
         enemy.AiStates = enemy.AiStates | EnemyAiStates.Hurt;
         enemy.Health = damage >= enemy.Health
             ? 0
@@ -708,8 +708,8 @@ internal sealed class EnemyCollision
                 int damage = 100 * EnemyVulnerabilityDefinitions.Multiplier(vulnerability);
                 if (damage != 0)
                 {
-                    enemy.InvincibilityTimer = NativeCountdown.Start(48);
-                    enemy.FlashTimer = NativeCountdown.Start(enemy.HurtFlashFrames + 8);
+                    enemy.InvincibilityTimer = WrappingCountdown.Start(48);
+                    enemy.FlashTimer = WrappingCountdown.Start(enemy.HurtFlashFrames + 8);
                     enemy.AiStates = enemy.AiStates | EnemyAiStates.Hurt;
                     enemy.Health = damage >= enemy.Health
                         ? 0
@@ -809,11 +809,11 @@ internal sealed class EnemyCollision
         // reaches this helper only with an initially zero clock.
         if (enemy.FrozenTimer.IsZero)
             _audio.QueueEnemySound(SoundEffectLibrary3Sounds.EnemyFreeze, maximumQueued: 3);
-        enemy.FrozenTimer = NativeCountdown.FromRaw(samus?.LiquidPhysics.AreaIndex == AreaId.Norfair
+        enemy.FrozenTimer = WrappingCountdown.FromRaw(samus?.LiquidPhysics.AreaIndex == AreaId.Norfair
             ? (ushort)300
             : (ushort)400);
         enemy.AiStates = enemy.AiStates | EnemyAiStates.Frozen;
-        enemy.InvincibilityTimer = NativeCountdown.Start(10);
+        enemy.InvincibilityTimer = WrappingCountdown.Start(10);
     }
 
     /// <summary>Selects the enemy's beam-combination or weapon-family vulnerability byte, using the default table when no private pointer exists.</summary>
@@ -989,10 +989,10 @@ internal sealed class EnemyCollision
         // Touch damage uses the raw hurt-AI duration (default four), unlike projectile and
         // power-bomb paths which add their own visible-flash tail. Samus's timers are also
         // explicitly cleared because this branch represents Samus attacking the enemy.
-        enemy.FlashTimer = NativeCountdown.Start(enemy.HurtFlashFrames);
+        enemy.FlashTimer = WrappingCountdown.Start(enemy.HurtFlashFrames);
         enemy.AiStates = enemy.AiStates | EnemyAiStates.Hurt;
-        samus.InvincibilityTimer = NativeCountdown.Start(0);
-        samus.KnockbackTimer = NativeCountdown.Start(0);
+        samus.InvincibilityTimer = WrappingCountdown.Start(0);
+        samus.KnockbackTimer = WrappingCountdown.Start(0);
         enemy.Health = damage >= enemy.Health
             ? 0
             : enemy.Health - damage;
@@ -1030,12 +1030,12 @@ internal sealed class EnemyCollision
         samus.Health = samus.Health <= damage
             ? 0
             : samus.Health - damage;
-        samus.InvincibilityTimer = NativeCountdown.Start(96);
+        samus.InvincibilityTimer = WrappingCountdown.Start(96);
         KnockbackHorizontalDirection direction = samus.Position.X.Whole >= damageSourceX ? KnockbackHorizontalDirection.Right : KnockbackHorizontalDirection.Left;
         // $A0:A4A1 publishes a hit request; $90:DDE9 admits it only when no
         // knockback direction is installed. Damage can recur after invincibility
         // expires even if the old movement handler remains active (e.g. a boss grab).
-        samus.KnockbackTimer = NativeCountdown.Start(5);
+        samus.KnockbackTimer = WrappingCountdown.Start(5);
         samus.KnockbackXDirection = direction;
         // EnemyMain only publishes the request. The common post-animation
         // interruption owns pose/handler initialization later in this frame.

@@ -44,7 +44,7 @@ internal static class ProjectileQuakeVerification
             actor.DrawPriority = priority;
             actor.Position = actor.Position.WithWhole(new(unchecked((ushort)position), unchecked((ushort)position)));
             enemies.Earthquake.EarthquakeType = type;
-            enemies.Earthquake.EarthquakeTimer = NativeCountdown.FromRaw(timer);
+            enemies.Earthquake.EarthquakeTimer = WrappingCountdown.FromRaw(timer);
             short dx = 0, dy = 0;
             if (timer != 0 && type < 36 && !frozen)
             {

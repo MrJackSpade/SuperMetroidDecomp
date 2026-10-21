@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Audio;
 /// update into semantic <see cref="AudioEvent"/>s for an <see cref="ClipAudioBackend"/>.
 /// </summary>
 /// <remarks>
-/// Acknowledgements come only from the synthesis-free <see cref="SpcCommandPorts"/>, so they are
+/// Acknowledgements come only from the synthesis-free <see cref="SoundAcceptanceClock"/>, so they are
 /// identical whether a host plays audio, has audio disabled, or has no device. Audio output is
 /// presentation: when a host binds the installed clips, the update's events also drive a
 /// <see cref="ClipAudioBackend"/> whose PCM the host copies out (#1305). The backend is never
@@ -39,7 +39,7 @@ public sealed class CartridgeAudioSession
 
     /// <summary>The acknowledgement bytes published by the most recent update, for the next one.</summary>
     /// <remarks>The music echo on port zero belongs to the sequencer and is never read by gameplay; it is published as zero.</remarks>
-    public CartridgeAudioAcknowledgements Acknowledgements => eventSource.Acknowledgements;
+    public SoundAcknowledgements Acknowledgements => eventSource.Acknowledgements;
 
     /// <summary>
     /// Binds the installed clips (#1305) so each following update also renders host PCM from them.

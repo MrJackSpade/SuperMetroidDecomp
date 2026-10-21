@@ -68,11 +68,11 @@ internal sealed class MotherBrainFakeDeath
     /// <summary>Steps Mother Brain's fake-death gray fade and advances when its palette cycle completes.</summary>
     internal void RunMotherBrainFadeToGray(MotherBrainEnemyState state)
     {
-        NativeWordCounterStep timer = state.FunctionTimer.Decrement();
+        CountdownStep timer = state.FunctionTimer.Decrement();
         state.FunctionTimer = timer.Remaining;
         if (timer.IsNegative)
         {
-            state.FunctionTimer = NativeCountdown.Start(8);
+            state.FunctionTimer = WrappingCountdown.Start(8);
             int step = state.GrayFadeIndex++;
             if (step == MotherBrainFakeDeathPaletteRomData.FrameCount)
             {
@@ -109,12 +109,12 @@ internal sealed class MotherBrainFakeDeath
     /// <summary>Emits timed explosions while the first-phase body appears to die.</summary>
     internal void RunMotherBrainFakeDeathExplosion(MotherBrainEnemyState state)
     {
-        NativeWordCounterStep timer = state.FakeDeathExplosionTimer.Decrement();
+        CountdownStep timer = state.FakeDeathExplosionTimer.Decrement();
         state.FakeDeathExplosionTimer = timer.Remaining;
         if (timer.IsNonNegative)
             return;
 
-        state.FakeDeathExplosionTimer = NativeCountdown.Start(8);
+        state.FakeDeathExplosionTimer = WrappingCountdown.Start(8);
         // The index steps backward through the eight positions, from the first back to the last.
         state.FakeDeathExplosionIndex = (state.FakeDeathExplosionIndex + MotherBrainBehavior.MotherBrainFakeDeathExplosionPositions.Length - 1) %
             MotherBrainBehavior.MotherBrainFakeDeathExplosionPositions.Length;
@@ -246,7 +246,7 @@ internal sealed class MotherBrainFakeDeath
     /// <summary>Implements the tube phase's wraparound countdown transition.</summary>
     private static bool DecrementMotherBrainTubeTimerPastZero(MotherBrainEnemyState state)
     {
-        NativeWordCounterStep timer = state.TubeCollapseTimer.Decrement();
+        CountdownStep timer = state.TubeCollapseTimer.Decrement();
         state.TubeCollapseTimer = timer.Remaining;
         return timer.IsNegative;
     }
@@ -261,7 +261,7 @@ internal sealed class MotherBrainFakeDeath
     {
         _access.RequestMotherBrainPlm(block, header);
         state.TubeCollapseFunction = next;
-        state.TubeCollapseTimer = NativeCountdown.Start(timer);
+        state.TubeCollapseTimer = WrappingCountdown.Start(timer);
     }
 
     /// <summary>Spawns the top tube projectile for the scripted collapse.</summary>
@@ -311,7 +311,7 @@ internal sealed class MotherBrainFakeDeath
                 ? MotherBrainTubeFunction.MainTube_WaitingToFall
                 : MotherBrainTubeFunction.NonMainTube,
             FloorY = tubeBody.Floor,
-            FallDelay = NativeCountdown.FromRaw(checked((ushort)tube.Spawn.Population.Parameter2)),
+            FallDelay = WrappingCountdown.FromRaw(checked((ushort)tube.Spawn.Population.Parameter2)),
         };
         tube.SetSpeciesState(state, state.ClearWithRecord);
     }
@@ -327,7 +327,7 @@ internal sealed class MotherBrainFakeDeath
                 return;
             case MotherBrainTubeFunction.MainTube_WaitingToFall:
                 // The main tube's fall delay expires when it passes zero.
-                NativeWordCounterStep fallDelay = tubeState.FallDelay.Decrement();
+                CountdownStep fallDelay = tubeState.FallDelay.Decrement();
                 tubeState.FallDelay = fallDelay.Remaining;
                 if (fallDelay.IsNonNegative)
                     return;
@@ -383,7 +383,7 @@ internal sealed class MotherBrainFakeDeath
 
         StopMotherBrainRoomPalette(state);
         _earthquake.EarthquakeType = 25;
-        _earthquake.EarthquakeTimer = NativeCountdown.Start(32);
+        _earthquake.EarthquakeTimer = WrappingCountdown.Start(32);
         // `$A9:8C0C/$8C0F` zero the channel words of HDMA objects 0-3, deleting the room's
         // liquid scroll objects (and any X-ray object) for the rest of the encounter.
         _frameResults.DeleteLiquidHdmaObjects = true;
@@ -406,12 +406,12 @@ internal sealed class MotherBrainFakeDeath
     {
         // The smoke cadence counts down and emits when it passes zero.
         MotherBrainFallingTubeState tubeState = tube.RequireSpeciesState<MotherBrainFallingTubeState>();
-        NativeWordCounterStep smokeDelay = tubeState.SmokeDelay.Decrement();
+        CountdownStep smokeDelay = tubeState.SmokeDelay.Decrement();
         tubeState.SmokeDelay = smokeDelay.Remaining;
         if (smokeDelay.IsNonNegative)
             return;
 
-        tubeState.SmokeDelay = NativeCountdown.Start(8);
+        tubeState.SmokeDelay = WrappingCountdown.Start(8);
         tubeState.SmokePositionIndex = (tubeState.SmokePositionIndex + 1) & 3;
         _projectiles.SpawnRoomGraphicsDustExplosion(
             new(unchecked((ushort)(tube.Position.X.Whole + MotherBrainBehavior.MotherBrainFallingTubeSmokeXOffsets[tubeState.SmokePositionIndex])), 208),
@@ -558,7 +558,7 @@ internal sealed class MotherBrainFakeDeath
         if (!MotherBrainEncounterAccess.DecrementMotherBrainTimerPastZero(state))
             return;
 
-        state.FunctionTimer = NativeCountdown.Start(4);
+        state.FunctionTimer = WrappingCountdown.Start(4);
         int paletteStep = state.GrayTransitionCounter++;
         if (paletteStep < MotherBrainFakeDeathPaletteRomData.FrameCount)
         {
@@ -577,6 +577,6 @@ internal sealed class MotherBrainFakeDeath
         state.UpperNeckMovementIndex = MotherBrainNeckMovement.Lower;
         state.NeckAngleDelta = 1280;
         state.Function = MotherBrainBodyFunction.SecondPhaseStretchingShakeHead;
-        state.FunctionTimer = NativeCountdown.Start(23);
+        state.FunctionTimer = WrappingCountdown.Start(23);
     }
 }

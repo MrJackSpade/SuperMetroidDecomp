@@ -38,7 +38,7 @@ public sealed class HyperBeamPaletteFxState
     /// Native per-object instruction timer. Spawn initializes it to one; the handler
     /// decrements before testing, so the first palette record executes on its first call.
     /// </summary>
-    public NativeCountdown InstructionTimer { get; private set; }
+    public WrappingCountdown InstructionTimer { get; private set; }
 
     /// <summary>Last palette record written, or -1 before the first handler call.</summary>
     public int CurrentFrameIndex { get; private set; } = -1;
@@ -59,7 +59,7 @@ public sealed class HyperBeamPaletteFxState
         // one, then calls the object's no-op setup routine. This specialized state has no
         // reusable slot fields to clear, but preserves every observable field and delay.
         IsActive = true;
-        InstructionTimer = NativeCountdown.Start(1);
+        InstructionTimer = WrappingCountdown.Start(1);
         CurrentFrameIndex = -1;
         CompletedCycles = 0;
         Cursor = AnimationProgramCursor<PaletteFxProgram>.Start(HyperBeamDefinition().InitialProgram);
@@ -93,7 +93,7 @@ public sealed class HyperBeamPaletteFxState
             return new HyperBeamPaletteFxStepResult();
         }
 
-        NativeCountdown unusedCounter = default;
+        WrappingCountdown unusedCounter = default;
         AnimationProgramAdvance<PaletteFxFrame> advance = PaletteFxAnimations.Programs.Advance(ref cursor, ref unusedCounter,
             (cue, _) => cue == new PaletteFxCue.SetColorIndex(ColorIndex: DestinationColorIndex)
                 ? null
@@ -111,7 +111,7 @@ public sealed class HyperBeamPaletteFxState
             "Hyper Beam palette FX requires installed colors."))
             .Apply(cgram, frameIndex, DestinationColorIndex);
 
-        InstructionTimer = NativeCountdown.FromRaw((ushort)shown.Duration);
+        InstructionTimer = WrappingCountdown.FromRaw((ushort)shown.Duration);
         CurrentFrameIndex = frameIndex;
         return new HyperBeamPaletteFxStepResult();
     }

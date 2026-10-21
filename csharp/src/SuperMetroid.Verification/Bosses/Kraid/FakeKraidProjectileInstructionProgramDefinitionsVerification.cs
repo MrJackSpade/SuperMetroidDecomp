@@ -107,7 +107,7 @@ List:FakeKraidProjectileInstructionProgramDefinitionsConstants.SpikeRight),
 
         void RunForcedTick(RoomEnemyProjectileSlot projectile)
         {
-            projectile.InstructionTimer = NativeCountdown.Start(1);
+            projectile.InstructionTimer = WrappingCountdown.Start(1);
             enemies.Projectiles.ProcessEnemyProjectileInstructions(projectile, new SamusState(), Position16<RoomPixels>.Zero);
         }
     }

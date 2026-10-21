@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Compatibility;
 using SuperMetroid.Core.Audio;
 using SuperMetroid.AssetExtraction.Audio.Synthesis;
 
@@ -63,12 +64,12 @@ internal sealed class SoundEffectObserver(int libraryIndex, int command) : ISpcD
     internal void Attach(SpcAudioClipRenderer value) => renderer = value;
 
     /// <inheritdoc />
-    public void TickStarting(SpcDriverTick tick)
+    public void TickStarting(SoundClockStep tick)
     {
         tickSample = MusicTrackAnalysis.NativeSample(MusicTrackAnalysis.Required(renderer), tick);
-        polled = tick.SoundEffectsPolled;
-        SpcSoundEffectPoll poll = tick.LibraryPolls[libraryIndex];
-        requested = polled && poll.Changed && poll.Command == command;
+        polled = tick.ChecksRequests;
+        SoundRequestCheck poll = tick.Checks[libraryIndex];
+        requested = polled && poll.Changed && poll.Request == command;
     }
 
     /// <inheritdoc />

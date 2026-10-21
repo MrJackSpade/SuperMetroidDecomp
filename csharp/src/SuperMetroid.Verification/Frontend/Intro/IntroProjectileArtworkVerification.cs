@@ -64,7 +64,7 @@ internal static class IntroProjectileArtworkVerification
         document.Required("frames").Required(ProjectileTrailVisualDefinitions.Name(frame))["flipX"] = true;
         var editedTrails = ProjectileTrailCatalog.Load(new MemoryStream(Encoding.UTF8.GetBytes(document.ToJsonString())), installedTrailTiles);
         var side = projectiles.TrailSlots[0].Left;
-        side.InstructionPointer = (ushort)(frame + 4); side.InstructionTimer = NativeCountdown.Start(100);
+        side.InstructionPointer = (ushort)(frame + 4); side.InstructionTimer = WrappingCountdown.Start(100);
         side.Position = side.Position.WithX(100).WithY(100); side.TileNumberAttributes = trails.Resolve(frame);
         byte[] nativeTrail = Draw(intro);
         game.BindArtwork(game.Artwork with

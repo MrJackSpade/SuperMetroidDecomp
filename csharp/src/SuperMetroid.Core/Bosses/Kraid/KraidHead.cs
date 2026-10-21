@@ -49,7 +49,7 @@ internal sealed class KraidHead
         state.HurtFrameTimer = state.HurtFrameTimer.Decrement().Remaining;
         if (state.HurtFrameTimer.IsZero)
         {
-            state.HurtFrameTimer = NativeCountdown.Start(2);
+            state.HurtFrameTimer = WrappingCountdown.Start(2);
             state.StepHurtFrameDown();
             UpdateKraidHealthPalettes(body, state);
         }
@@ -102,7 +102,7 @@ internal sealed class KraidHead
         _slotTable.Slots[2].Position = _slotTable.Slots[2].Position.WithWholeY(unchecked((ushort)(body.Position.Y.Whole - 20)));
         _slotTable.Slots[3].Position = _slotTable.Slots[3].Position.WithWholeY(unchecked((ushort)(body.Position.Y.Whole + 46)));
         _slotTable.Slots[4].Position = _slotTable.Slots[4].Position.WithWholeY(unchecked((ushort)(body.Position.Y.Whole + 112)));
-        state.ThinkingTimer = NativeCountdown.FromRaw(ReadKraidThinkingTimer());
+        state.ThinkingTimer = WrappingCountdown.FromRaw(ReadKraidThinkingTimer());
     }
 
     /// <summary>Advances the open-mouth attack and its head instruction timing.</summary>
@@ -151,10 +151,10 @@ internal sealed class KraidHead
     /// </summary>
     internal ushort ProcessKraidHeadInstruction(RoomEnemySlot body, KraidEnemyState state)
     {
-        NativeCountdown headTimer = NativeCountdown.FromRaw(checked((ushort)state.Parts[body.SlotIndex].HeadTimer));
+        WrappingCountdown headTimer = WrappingCountdown.FromRaw(checked((ushort)state.Parts[body.SlotIndex].HeadTimer));
         if (headTimer.IsZero)
             return 0;
-        NativeWordCounterStep step = headTimer.Decrement();
+        CountdownStep step = headTimer.Decrement();
         state.Parts[body.SlotIndex].HeadTimer = step.Remaining.RawValue;
         return step.IsZero ? ExecuteKraidHeadInstruction(body, state) : headTimer.RawValue;
     }
@@ -168,7 +168,7 @@ internal sealed class KraidHead
     {
         AnimationProgramCursor<KraidHeadProgram> cursor = state.HeadProgram ?? throw new InvalidDataException(
             "Kraid's head program has not been started.");
-        NativeCountdown unusedLoopCounter = default;
+        WrappingCountdown unusedLoopCounter = default;
         AnimationProgramAdvance<KraidHeadFrame> advance = KraidHeadAnimations.Programs.AdvanceTo(
             ref cursor, ref unusedLoopCounter, (cue, _) =>
             {

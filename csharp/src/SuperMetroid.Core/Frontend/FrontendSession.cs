@@ -9,7 +9,6 @@ using SuperMetroid.Core.Frontend.Pause;
 using SuperMetroid.Core.Frontend.Title;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Progression;
-using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Saves;
 using SuperMetroid.Core.Frontend.CeresCinematics;
@@ -210,8 +209,8 @@ internal sealed class FrontendSession
     public SuperMetroidGameState GameState { get; internal set; } = SuperMetroidGameState.Reset;
     /// <summary>The hardware-timing policies fixed at construction; production uses the lag-free defaults.</summary>
     internal SuperMetroidGameHostServices HostServices { get; }
-    /// <summary>How far the cartridge's door loader has progressed; see <see cref="IDoorLoaderProgressSource"/>.</summary>
-    internal IDoorLoaderProgressSource DoorLoaderProgress => HostServices.DoorLoaderProgress;
+    /// <summary>How far room loading has progressed; see <see cref="IRoomLoadProgress"/>.</summary>
+    internal IRoomLoadProgress RoomLoadProgress => HostServices.RoomLoadProgress;
     /// <summary>
     /// Moves already-translated per-frame publishers into the single cartridge queue.
     /// </summary>

@@ -56,8 +56,8 @@ internal static class XrayControlsVerification
             pendingBomb.Type = (ushort)SamusProjectileFamily.Bomb;
             pendingBomb.Cursor = SamusProjectilePrograms.Start(SamusProjectileProgram.Bomb);
             pendingBomb.SpritemapPointer = (runtime.Artwork.ProjectileFrameBindings ?? throw new InvalidOperationException("Verification requires runtime.Artwork.ProjectileFrameBindings.")).Resolve(checked((ushort)pendingBomb.InstructionPointer));
-            pendingBomb.InstructionTimer = NativeCountdown.Start(100);
-            pendingBomb.BombTimer = NativeCountdown.Start(60);
+            pendingBomb.InstructionTimer = WrappingCountdown.Start(100);
+            pendingBomb.BombTimer = WrappingCountdown.Start(60);
             runtime.StepFrame((runtime.Options.ControllerBindings.Dash | runtime.Options.ControllerBindings.Shoot));
             AssertEqual(60, pendingBomb.BombTimer.RawValue, "X-ray activation freezes an existing bomb fuse immediately");
             AssertEqual(100, pendingBomb.InstructionTimer.RawValue, "X-ray activation skips existing bomb animation immediately");

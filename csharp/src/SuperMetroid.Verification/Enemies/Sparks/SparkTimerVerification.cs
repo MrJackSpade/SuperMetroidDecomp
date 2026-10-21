@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Sparks;
 namespace SuperMetroid.Verification.Enemies.Sparks;
@@ -14,11 +13,11 @@ internal static class SparkTimerVerification
     /// </summary>
     internal static void VerifySparkTimer()
     {
-        var state = new SparkEnemyState { FunctionTimer = NativeCountdown.Start(1) };
+        var state = new SparkEnemyState { FunctionTimer = WrappingCountdown.Start(1) };
         AssertTrue(SparkBehavior.DecrementSparkTimerAndTestExpired(state), "a countdown at one expires");
         AssertEqual((ushort)1, state.FunctionTimer.RawValue, "the expiring update leaves the countdown for its reset");
 
-        state.FunctionTimer = NativeCountdown.Start(0);
+        state.FunctionTimer = WrappingCountdown.Start(0);
         AssertTrue(!SparkBehavior.DecrementSparkTimerAndTestExpired(state), "a countdown at zero does not expire");
         AssertEqual(ushort.MaxValue, state.FunctionTimer.RawValue, "a countdown at zero wraps");
 

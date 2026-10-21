@@ -120,7 +120,7 @@ internal sealed class PlmPopulationLoader
 
         slot.HeaderPointer = record.HeaderPointer;
         slot.BlockIndex = blockIndex;
-        slot.InstructionTimer = NativeCountdown.Start(1);
+        slot.InstructionTimer = WrappingCountdown.Start(1);
         slot.RoomArgument = record.RoomArgument;
         return slot;
     }

@@ -443,9 +443,9 @@ public sealed class SamusSuitPickupState
     /// <summary>Decrements each fixed-color component by one until it reaches its target.</summary>
     private void StepColorDownToward(int red, int green, int blue)
     {
-        if (FixedColorRed != red) FixedColorRed = NativeWordCounter.DecrementByte(FixedColorRed);
-        if (FixedColorGreen != green) FixedColorGreen = NativeWordCounter.DecrementByte(FixedColorGreen);
-        if (FixedColorBlue != blue) FixedColorBlue = NativeWordCounter.DecrementByte(FixedColorBlue);
+        if (FixedColorRed != red) FixedColorRed = WrappingCounter.DecrementByte(FixedColorRed);
+        if (FixedColorGreen != green) FixedColorGreen = WrappingCounter.DecrementByte(FixedColorGreen);
+        if (FixedColorBlue != blue) FixedColorBlue = WrappingCounter.DecrementByte(FixedColorBlue);
     }
 
     /// <summary>Advances a raw fixed-color component by two without overshooting its stage target.</summary>

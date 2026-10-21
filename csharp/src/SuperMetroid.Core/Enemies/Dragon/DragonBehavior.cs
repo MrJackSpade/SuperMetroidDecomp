@@ -131,7 +131,7 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
 
         RoomEnemySlot wing = GetDragonWing(body);
         DragonEnemyState wingState = wing.RequireSpeciesState<DragonEnemyState>();
-        bodyState.FunctionTimer = NativeCountdown.Start(DragonRiseOrSinkFrames);
+        bodyState.FunctionTimer = WrappingCountdown.Start(DragonRiseOrSinkFrames);
         bodyState.Function = DragonEnemyFunction.Rising;
 
         // $E666-$E672 records the sign of (Samus X - body X) as the body's facing. The following byte-sized list
@@ -157,7 +157,7 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
             bodyState.RequestedInstructionListIndex =
                 DragonAnimationDefinitions.AttackingWithSameFacing(
                     bodyState.RequestedInstructionListIndex);
-            bodyState.AttackCounter = NativeCountdown.Start(DragonShotCount);
+            bodyState.AttackCounter = WrappingCountdown.Start(DragonShotCount);
             bodyState.Function = DragonEnemyFunction.Attacking;
         }
 
@@ -191,7 +191,7 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
         bodyState.RequestedInstructionListIndex =
             DragonAnimationDefinitions.IdleWithSameFacing(
                 bodyState.RequestedInstructionListIndex);
-        bodyState.FunctionTimer = NativeCountdown.Start(DragonWaitBeforeSinkFrames);
+        bodyState.FunctionTimer = WrappingCountdown.Start(DragonWaitBeforeSinkFrames);
         bodyState.Function = DragonEnemyFunction.WaitToSink;
     }
 
@@ -204,7 +204,7 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
         if (!bodyState.FunctionTimer.IsZero)
             return;
 
-        bodyState.FunctionTimer = NativeCountdown.Start(DragonRiseOrSinkFrames);
+        bodyState.FunctionTimer = WrappingCountdown.Start(DragonRiseOrSinkFrames);
         bodyState.Function = DragonEnemyFunction.Sinking;
         InstallDragonInstructionList(body, bodyState);
     }
@@ -215,7 +215,7 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
         bodyState.FunctionTimer = bodyState.FunctionTimer.Decrement().Remaining;
         if (bodyState.FunctionTimer.IsNegative)
         {
-            bodyState.FunctionTimer = NativeCountdown.Start(DragonWaitBeforeRiseFrames);
+            bodyState.FunctionTimer = WrappingCountdown.Start(DragonWaitBeforeRiseFrames);
             bodyState.Function = DragonEnemyFunction.WaitToRise;
         }
 
@@ -278,8 +278,8 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
         state.InstalledInstructionListIndex = state.RequestedInstructionListIndex;
         state.Program = AnimationProgramCursor<DragonProgram>.Start(DragonAnimationDefinitions.Program(
             state.RequestedInstructionListIndex));
-        slot.InstructionTimer = NativeCountdown.Start(1);
-        slot.Timer = NativeCountdown.Start(0);
+        slot.InstructionTimer = WrappingCountdown.Start(1);
+        slot.Timer = WrappingCountdown.Start(0);
     }
 
     /// <summary>Requires Dragon's authored body/wing population pair in adjacent physical slots.</summary>

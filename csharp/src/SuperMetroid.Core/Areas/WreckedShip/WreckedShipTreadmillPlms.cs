@@ -58,7 +58,7 @@ internal sealed class WreckedShipTreadmillPlms : IPlmFamilySource
 
         slot.HeaderPointer = header;
         slot.BlockIndex = origin;
-        slot.InstructionTimer = NativeCountdown.Start(1);
+        slot.InstructionTimer = WrappingCountdown.Start(1);
         slot.Family = new WreckedShipTreadmillPlmState(
             direction,
             areaBossDefeated);
@@ -90,7 +90,7 @@ internal sealed class WreckedShipTreadmillPlms : IPlmFamilySource
         slot.HeaderPointer = PlmHeaderId.MaridiaElevatube;
         slot.BlockIndex = blockIndex;
         slot.StartAnimation(new ScriptedRoomPlmAnimation(ScriptedRoomPlmProgram.MaridiaElevatube));
-        slot.InstructionTimer = NativeCountdown.Start(1);
+        slot.InstructionTimer = WrappingCountdown.Start(1);
         return true;
     }
 

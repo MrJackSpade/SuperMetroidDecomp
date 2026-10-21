@@ -8,7 +8,7 @@ internal struct EndingShootingStar
     /// <summary>Animation frame: zero during the invisible lead-in, then one more per animation period until the star leaves the screen.</summary>
     internal int AnimationFrame;
     /// <summary>Current delay or animation countdown.</summary>
-    internal NativeCountdown Timer;
+    internal WrappingCountdown Timer;
     /// <summary>Fixed-point screen position before centering the sprite for OAM.</summary>
     internal FixedPosition<ScreenPixels> Position;
     /// <summary>Current signed 8.8 motion accumulated by the star's acceleration.</summary>

@@ -198,8 +198,8 @@ internal static class AudioClipExportVerification
         internal long? StartSample { get; private set; }
 
         /// <inheritdoc />
-        public void TickStarting(SpcDriverTick tick) =>
-            tickSample = (long)Frame * ManagedSnesDsp.NativeStereoFramesPerVideoFrame + tick.DspCycleOffset;
+        public void TickStarting(SoundClockStep tick) =>
+            tickSample = (long)Frame * ManagedSnesDsp.NativeStereoFramesPerVideoFrame + tick.SampleOffset;
 
         /// <inheritdoc />
         public void PhraseStarting()

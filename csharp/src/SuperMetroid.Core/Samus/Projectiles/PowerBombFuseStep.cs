@@ -10,4 +10,4 @@ namespace SuperMetroid.Core.Samus.Projectiles;
 /// <param name="DeleteProjectile">Whether the caller deletes the projectile.</param>
 [IndependentFlag("independent outcomes of one fuse step")]
 public readonly record struct PowerBombFuseStep(
-    NativeCountdown Timer, bool FastAnimation, bool SpawnExplosion, bool DeleteProjectile);
+    WrappingCountdown Timer, bool FastAnimation, bool SpawnExplosion, bool DeleteProjectile);

@@ -47,11 +47,12 @@ internal static class SpcMemoryBoundaryVerification
         AssertEqual(unchecked((sbyte)0xa5), player.Music.ReadFirCoefficient(1), "FIR preset byte 1 through its own view");
         AssertEqual(0xa5, panNext, "pan index 21's next entry aliases FIR preset byte 1");
 
-        // Ports are typed; an out-of-range port is rejected.
-        var ports = new SpcCommandPorts();
-        ports.WritePort(ApuPort.SoundLibrary3, 0x42);
-        AssertThrows<ArgumentOutOfRangeException>(() => ports.WritePort((ApuPort)4, 0), "APU input ports are $2140-$2143");
-        AssertThrows<ArgumentOutOfRangeException>(() => ports.ReadSoundEffectPort((ApuPort)4), "APU output ports are $2140-$2143");
+        // Requests are typed by library: a request outside 0 through 255, and a port that carries no library, are rejected.
+        var clock = new SoundAcceptanceClock();
+        clock.Request(2, 0x42);
+        AssertThrows<ArgumentOutOfRangeException>(() => clock.Request(2, 0x100), "a sound request is 0 through 255");
+        AssertThrows<ArgumentOutOfRangeException>(() => clock.Request(SoundAcceptanceClock.LibraryCount, 0), "a sound library index is 0 through 2");
+        AssertThrows<ArgumentOutOfRangeException>(() => ApuPorts.LibraryIndexAt(ApuPort.Music), "the music port carries no sound library");
         AssertEqual(ApuPort.SoundLibrary2, new CartridgeAudioCommand.WritePort(ApuPort.SoundLibrary2, 1).InputPort, "port commands round-trip their port");
     }
 

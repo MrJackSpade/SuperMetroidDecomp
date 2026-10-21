@@ -71,7 +71,7 @@ internal static class SamusImpulseDefinitionsVerification
             hurt.BombJumpActive = true;
             hurt.HorizontalSpeed.ExtraRunSpeed = new SnesUnsignedSixteenSixteen(ushort.MaxValue, ushort.MaxValue);
             hurt.HorizontalSpeed.ContactDamageIndex = SamusContactDamageIndex.SpeedBooster;
-            AssertTrue(SamusKnockbackMovement.Start(hurt, input, new KnockbackLaunch { KnockbackXDirection = side == 0 ? KnockbackHorizontalDirection.Left : KnockbackHorizontalDirection.Right, KnockbackTimer = NativeCountdown.Start(11) }), "Native hurt branch admitted");
+            AssertTrue(SamusKnockbackMovement.Start(hurt, input, new KnockbackLaunch { KnockbackXDirection = side == 0 ? KnockbackHorizontalDirection.Left : KnockbackHorizontalDirection.Right, KnockbackTimer = WrappingCountdown.Start(11) }), "Native hurt branch admitted");
             int medium = (equipment & 4) != 0 || environment == 3 ? 0 : environment;
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x909ee9 + medium * 2)), hurt.Kinematics.YSpeed.Whole, "Hurt native whole launch");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x909eef + medium * 2)), hurt.Kinematics.YSpeed.Fraction, "Hurt native fractional launch");

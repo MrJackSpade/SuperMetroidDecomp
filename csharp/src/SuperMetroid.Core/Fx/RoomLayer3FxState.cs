@@ -82,9 +82,9 @@ public sealed class RoomLayer3FxState
     /// </summary>
     private Offset16<Bg3Subpixels> waterDrift;
     /// <summary>Countdown before advancing the water BG3 waveform.</summary>
-    private NativeCountdown waterBg3WaveTimer;
+    private WrappingCountdown waterBg3WaveTimer;
     /// <summary>Countdown for the optional water BG2 horizontal wave.</summary>
-    private NativeCountdown waterBg2WaveTimer;
+    private WrappingCountdown waterBg2WaveTimer;
     /// <summary>Selected BG3 water displacement frame.</summary>
     private int waterBg3WavePhase;
     /// <summary>Selected BG2 water displacement frame.</summary>
@@ -92,7 +92,7 @@ public sealed class RoomLayer3FxState
     /// <summary>Liquid surface relative to the camera, used to clip the effect plane.</summary>
     private short waterSurfaceScreenY;
     /// <summary>Countdown for lava or acid's optional BG2 wave.</summary>
-    private NativeCountdown lavaAcidBg2WaveTimer;
+    private WrappingCountdown lavaAcidBg2WaveTimer;
     /// <summary>Selected lava or acid BG2 wave displacement frame.</summary>
     private int lavaAcidBg2WavePhase;
     /// <summary>
@@ -107,7 +107,7 @@ public sealed class RoomLayer3FxState
     internal bool LiquidHdmaObjectsDeleted { get; set; }
 
     /// <summary>HDMA-object variable two of the lava/acid BG3 object: the ambient sound timer.</summary>
-    private NativeCountdown lavaSoundTimer;
+    private WrappingCountdown lavaSoundTimer;
     /// <summary>Current liquid rise or fall state selected by the FX record.</summary>
     private LiquidRisePhase liquidRisePhase;
     /// <summary>Audio requests emitted in native order during the current effect pass.</summary>
@@ -115,7 +115,7 @@ public sealed class RoomLayer3FxState
     /// <summary>Rebound sound recipient for effect requests after a debugger restore.</summary>
     [NonSerialized] private IActivePowerBomb? audioPowerBomb;
     /// <summary>Countdown between quake sound requests in earthquake FX rooms.</summary>
-    internal NativeCountdown EarthquakeSoundTimer { get; set; }
+    internal WrappingCountdown EarthquakeSoundTimer { get; set; }
     /// <summary>Position in the room earthquake sound sequence.</summary>
     internal int EarthquakeSoundSequenceIndex { get; set; }
 
@@ -138,7 +138,7 @@ public sealed class RoomLayer3FxState
     public SnesSignedEightEight YVelocity { get; private set; }
 
     /// <summary>Native zero-extended FX timer byte loaded from record offset eight.</summary>
-    public NativeCountdown Timer { get; private set; }
+    public WrappingCountdown Timer { get; private set; }
 
     /// <summary>FX B layer-blending selector installed by the effect pre-instruction.</summary>
     public LayerBlendingConfiguration LayerBlendConfiguration { get; private set; } = LayerBlendingConfiguration.Unconfigured;
@@ -211,14 +211,14 @@ public sealed class RoomLayer3FxState
         Ensure.NotNull(cgram);
 
         if (source.Room is { } room && RoomFxRomData.Earthquake.SoundSuppressedRooms.Contains(room))
-            EarthquakeSoundTimer = NativeCountdown.Start(ushort.MaxValue);
+            EarthquakeSoundTimer = WrappingCountdown.Start(ushort.MaxValue);
         if ((source.SuppliedDefinition ?? source.Fx?.Select(source.Door)) is not { } definition)
             return;
 
         BaseY = BaseY.WithWhole(definition.BaseYPosition);
         TargetSurface = new(0, definition.TargetYPosition);
         YVelocity = new(definition.PackedYVelocity);
-        Timer = NativeCountdown.FromRaw(definition.Timer);
+        Timer = WrappingCountdown.FromRaw(definition.Timer);
         LiquidOptions = RoomLiquidOptionsCodec.FromRecordByte(definition.LiquidOptions);
         Surface = new(0, BaseY.Whole);
 
@@ -243,15 +243,15 @@ public sealed class RoomLayer3FxState
         {
             // Both spawned HDMA objects execute their phase initializer on the first
             // handler pass. A one-frame timer reproduces that first-call rotation.
-            waterBg3WaveTimer = NativeCountdown.Start(1);
-            waterBg2WaveTimer = NativeCountdown.Start(1);
+            waterBg3WaveTimer = WrappingCountdown.Start(1);
+            waterBg2WaveTimer = WrappingCountdown.Start(1);
         }
         else if (Type is RoomFxType.Lava or RoomFxType.Acid)
         {
             // `$88:B4CE` seeds timer B to one, so the first HDMA-object pass rotates A
             // from zero to $1E and then reloads either four or six. Expressing the already-
             // resolved waveform phase as zero produces the same first visible table.
-            lavaAcidBg2WaveTimer = NativeCountdown.FromRaw(UsesLavaAcidVerticalWave
+            lavaAcidBg2WaveTimer = WrappingCountdown.FromRaw(UsesLavaAcidVerticalWave
                 ? RoomFxRomData.LavaAcid.VerticalWavePhaseDuration
                 : RoomFxRomData.LavaAcid.HorizontalWavePhaseDuration);
             lavaAcidBg2WavePhase = 0;
@@ -294,7 +294,7 @@ public sealed class RoomLayer3FxState
             LavaAcidBg3PreInstructionInstalled = true;
             // $88:C3E7 sets the sound timer in the same pass that installs the pre-instruction.
             if (lavaOrAcid)
-                lavaSoundTimer = NativeCountdown.Start(RoomFxRomData.LavaAcid.AmbientSoundPeriod);
+                lavaSoundTimer = WrappingCountdown.Start(RoomFxRomData.LavaAcid.AmbientSoundPeriod);
             return;
         }
         if (timeIsFrozen)
@@ -323,7 +323,7 @@ public sealed class RoomLayer3FxState
         lavaSoundTimer = lavaSoundTimer.Decrement().Remaining;
         if (!lavaSoundTimer.IsZero)
             return;
-        lavaSoundTimer = NativeCountdown.Start(RoomFxRomData.LavaAcid.AmbientSoundPeriod);
+        lavaSoundTimer = WrappingCountdown.Start(RoomFxRomData.LavaAcid.AmbientSoundPeriod);
         soundRequests.Add(new SoundRequest(
             RoomFxRomData.LavaAcid.AmbientSound(random),
             RoomFxRomData.LavaAcid.AmbientSoundMaximumQueued,
@@ -443,7 +443,7 @@ public sealed class RoomLayer3FxState
         if (packedYVelocity is ushort velocity)
             YVelocity = new(velocity);
         if (timer is ushort newTimer)
-            Timer = NativeCountdown.FromRaw(newTimer);
+            Timer = WrappingCountdown.FromRaw(newTimer);
     }
 
     /// <summary>
@@ -457,7 +457,7 @@ public sealed class RoomLayer3FxState
         BaseY = BaseY.WithWhole(definition.BaseYPosition);
         TargetSurface = new(0, definition.TargetYPosition);
         YVelocity = new(definition.PackedYVelocity);
-        Timer = NativeCountdown.FromRaw(definition.Timer);
+        Timer = WrappingCountdown.FromRaw(definition.Timer);
         LiquidOptions = RoomLiquidOptionsCodec.FromRecordByte(definition.LiquidOptions);
         LayerBlendConfiguration = LayerBlendingConfigurations.FromCartridge(
             definition.Layer3LayerBlend, "LoadFxEntry");
@@ -507,7 +507,7 @@ public sealed class RoomLayer3FxState
         waterBg3WaveTimer = waterBg3WaveTimer.Decrement().Remaining;
         if (waterBg3WaveTimer.IsZero)
         {
-            waterBg3WaveTimer = NativeCountdown.Start(RoomFxRomData.Water.Bg3WavePhaseDuration);
+            waterBg3WaveTimer = WrappingCountdown.Start(RoomFxRomData.Water.Bg3WavePhaseDuration);
             waterBg3WavePhase =
                 (waterBg3WavePhase + 1) % RoomFxRomData.Water.WaveDisplacementCount;
         }
@@ -522,7 +522,7 @@ public sealed class RoomLayer3FxState
         waterBg2WaveTimer = waterBg2WaveTimer.Decrement().Remaining;
         if (waterBg2WaveTimer.IsZero)
         {
-            waterBg2WaveTimer = NativeCountdown.Start(RoomFxRomData.Water.Bg2WavePhaseDuration);
+            waterBg2WaveTimer = WrappingCountdown.Start(RoomFxRomData.Water.Bg2WavePhaseDuration);
             waterBg2WavePhase =
                 (waterBg2WavePhase + 1) % RoomFxRomData.Water.WaveDisplacementCount;
         }
@@ -565,7 +565,7 @@ public sealed class RoomLayer3FxState
         lavaAcidBg2WavePhase =
             (lavaAcidBg2WavePhase - 1 + RoomFxRomData.LavaAcid.WaveDisplacementCount) %
             RoomFxRomData.LavaAcid.WaveDisplacementCount;
-        lavaAcidBg2WaveTimer = NativeCountdown.FromRaw(UsesLavaAcidVerticalWave
+        lavaAcidBg2WaveTimer = WrappingCountdown.FromRaw(UsesLavaAcidVerticalWave
             ? RoomFxRomData.LavaAcid.VerticalWavePhaseDuration
             : RoomFxRomData.LavaAcid.HorizontalWavePhaseDuration);
     }
@@ -663,7 +663,7 @@ public sealed class RoomLayer3FxState
             SoundEffectLibrary2Sounds.Earthquake,
             MaximumQueued: 6,
             SoundSuppressed: audioPowerBomb?.IsActive == true));
-        EarthquakeSoundTimer = NativeCountdown.FromRaw(unchecked((ushort)(
+        EarthquakeSoundTimer = WrappingCountdown.FromRaw(unchecked((ushort)(
             baseTimers[EarthquakeSoundSequenceIndex] + (randomNumber & 3) + (mainGameLoopCarry ? 1 : 0))));
         EarthquakeSoundSequenceIndex++;
     }
@@ -778,7 +778,7 @@ public sealed class RoomLayer3FxState
         Type = RoomFxType.None;
         TargetSurface = Position16<RoomPixels>.Zero;
         YVelocity = default;
-        Timer = NativeCountdown.Start(0);
+        Timer = WrappingCountdown.Start(0);
         LayerBlendConfiguration = default;
         Scroll = Position16<Bg3Pixels>.Zero;
         drift = Offset16<Bg3Subpixels>.Zero;
@@ -791,18 +791,18 @@ public sealed class RoomLayer3FxState
         Surface = NoSurface;
         LiquidOptions = RoomLiquidOptions.None;
         waterDrift = Offset16<Bg3Subpixels>.Zero;
-        waterBg2WaveTimer = NativeCountdown.Start(0);
-        waterBg3WaveTimer = NativeCountdown.Start(0);
+        waterBg2WaveTimer = WrappingCountdown.Start(0);
+        waterBg3WaveTimer = WrappingCountdown.Start(0);
         waterBg3WavePhase = waterBg2WavePhase = 0;
         waterSurfaceScreenY = short.MaxValue;
-        lavaAcidBg2WaveTimer = NativeCountdown.Start(0);
+        lavaAcidBg2WaveTimer = WrappingCountdown.Start(0);
         lavaAcidBg2WavePhase = 0;
         liquidRisePhase = LiquidRisePhase.Dormant;
         LavaAcidBg3PreInstructionInstalled = false;
         LiquidHdmaObjectsDeleted = false;
-        lavaSoundTimer = NativeCountdown.Start(0);
+        lavaSoundTimer = WrappingCountdown.Start(0);
         EarthquakeRequest = null;
-        EarthquakeSoundTimer = NativeCountdown.Start(0);
+        EarthquakeSoundTimer = WrappingCountdown.Start(0);
         EarthquakeSoundSequenceIndex = 0;
     }
 

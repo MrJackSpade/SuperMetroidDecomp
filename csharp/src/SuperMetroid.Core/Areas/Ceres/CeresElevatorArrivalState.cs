@@ -44,7 +44,7 @@ public sealed class CeresElevatorArrivalState
         pad = LoadProjectile(
             CeresElevatorArrivalDefinitions.MovingPad,
             MovingPadUnder(samus));
-        pad.WaitTimer = NativeCountdown.Start(CeresElevatorArrivalDefinitions.MovingPadWaitFrames);
+        pad.WaitTimer = WrappingCountdown.Start(CeresElevatorArrivalDefinitions.MovingPadWaitFrames);
 
         platform = LoadProjectile(
             CeresElevatorArrivalDefinitions.StationaryPlatform,
@@ -78,7 +78,7 @@ public sealed class CeresElevatorArrivalState
             else
             {
                 if (pad.WaitTimer.RawValue == 1)
-                    pad.WaitTimer = NativeCountdown.Start(0);
+                    pad.WaitTimer = WrappingCountdown.Start(0);
 
                 // `$86:A342` samples the old Samus position for the pad, then increments
                 // Samus. That one-pixel separation is visible throughout the descent.
@@ -145,14 +145,14 @@ public sealed class CeresElevatorArrivalState
 
         AnimationProgramCursor<CeresElevatorArrivalProgram> cursor = projectile.Program;
         // The arrival lists use no counted loops; their counter is never loaded.
-        NativeCountdown counter = NativeCountdown.Start(0);
+        WrappingCountdown counter = WrappingCountdown.Start(0);
         AnimationProgramAdvance<CeresElevatorArrivalPose> advance = CeresElevatorArrivalAnimations.Programs.Advance(ref cursor, ref counter,
             (cue, _) => throw new InvalidOperationException($"The Ceres elevator arrival programs publish no cue; got {cue}."));
         projectile.Program = cursor;
         switch (advance)
         {
             case AnimationProgramAdvance<CeresElevatorArrivalPose>.Show shown:
-                projectile.InstructionTimer = NativeCountdown.FromRaw((ushort)shown.Duration);
+                projectile.InstructionTimer = WrappingCountdown.FromRaw((ushort)shown.Duration);
                 projectile.Pose = shown.Frame;
                 return;
             case AnimationProgramAdvance<CeresElevatorArrivalPose>.Stop:
@@ -214,18 +214,18 @@ public sealed class CeresElevatorArrivalState
         /// <summary>Whole room position; the pre-instruction only rewrites Y.</summary>
         public Position16<RoomPixels> Position { get; set; }
         /// <summary>Pad-only startup delay before it begins moving Samus toward the platform.</summary>
-        public NativeCountdown WaitTimer { get; set; }
+        public WrappingCountdown WaitTimer { get; set; }
         /// <summary>Where the projectile's typed program resumes when its frame expires.</summary>
         internal AnimationProgramCursor<CeresElevatorArrivalProgram> Program { get; set; }
 
         /// <summary>Starts <paramref name="program"/> on the next update.</summary>
         internal void Start(CeresElevatorArrivalProgram program)
         {
-            InstructionTimer = NativeCountdown.Start(1);
+            InstructionTimer = WrappingCountdown.Start(1);
             Program = AnimationProgramCursor<CeresElevatorArrivalProgram>.Start(program);
         }
         /// <summary>Frames until this projectile's next instruction pass.</summary>
-        public NativeCountdown InstructionTimer { get; set; } = NativeCountdown.Start(1);
+        public WrappingCountdown InstructionTimer { get; set; } = WrappingCountdown.Start(1);
         /// <summary>The pose the projectile shows, none before its first frame.</summary>
         internal CeresElevatorArrivalPose? Pose { get; set; }
     }

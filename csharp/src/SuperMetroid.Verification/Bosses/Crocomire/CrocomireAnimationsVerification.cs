@@ -126,7 +126,7 @@ internal static class CrocomireAnimationsVerification
     private static void Start(CrocomireEnemyState state, CrocomireBodyProgram program)
     {
         state.BodyCursor = AnimationProgramCursor<CrocomireBodyProgram>.Start(program);
-        state.Body.InstructionTimer = NativeCountdown.Start(1);
+        state.Body.InstructionTimer = WrappingCountdown.Start(1);
     }
 
     /// <summary>Runs one body update through the production interpreter.</summary>
@@ -199,7 +199,7 @@ internal static class CrocomireAnimationsVerification
         CrocomireAnimationsExpected[] expected = [new CrocomireAnimationsExpected(26, 32), new CrocomireAnimationsExpected(25, 5), new CrocomireAnimationsExpected(25, 8), new CrocomireAnimationsExpected(24, 2), new CrocomireAnimationsExpected(24, 1), new CrocomireAnimationsExpected(24, 48)];
         for (int index = 0; index < expected.Length; index++)
         {
-            state.Body.InstructionTimer = NativeCountdown.Start(1);
+            state.Body.InstructionTimer = WrappingCountdown.Start(1);
             Pass(enemies, state);
             AssertEqual(CrocomireBodyFrameSpritemapsTooling.Spritemap(new CrocomireBodyFrame(CrocomireBodyFrameSet.Body, expected[index].Frame)), state.Body.SpritemapPointer,
                 $"roar close frame {index}");
@@ -221,7 +221,7 @@ internal static class CrocomireAnimationsVerification
             state.Tongue = tongue;
             state.TongueProgram = program;
             state.TonguePosition = 0;
-            tongue.InstructionTimer = NativeCountdown.Start(1);
+            tongue.InstructionTimer = WrappingCountdown.Start(1);
             var native = new NativeEnemyListDefinitions.Reader(BodyBankNumber, entry, 1, _ => 0);
             for (int update = 0; update < 60; update++)
             {

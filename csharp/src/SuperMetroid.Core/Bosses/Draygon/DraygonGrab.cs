@@ -163,7 +163,7 @@ internal sealed class DraygonGrab
         // actors are the producers; a low byte of zero inserts one 64-frame tail whip.
         if ((SnesLittleEndian.LowByte(_room.Random.Read())) == 0)
         {
-            state.TailWhipTimer = NativeCountdown.Start(DraygonBehavior.DraygonTailWhipDuration);
+            state.TailWhipTimer = WrappingCountdown.Start(DraygonBehavior.DraygonTailWhipDuration);
             state.Function = DraygonAiFunction.TailWhipWithSamus;
             return;
         }
@@ -327,7 +327,7 @@ internal sealed class DraygonGrab
     private static void MarkDraygonGrappleShock(DraygonEnemyState state)
     {
         RoomEnemySlot body = state.Body;
-        body.FlashTimer = NativeCountdown.Start(body.HurtAiTime + 8);
+        body.FlashTimer = WrappingCountdown.Start(body.HurtAiTime + 8);
         body.AiStates = body.AiStates | EnemyAiStates.Hurt;
     }
 

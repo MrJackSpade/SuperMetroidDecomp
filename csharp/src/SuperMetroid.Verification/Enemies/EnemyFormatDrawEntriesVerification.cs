@@ -77,7 +77,7 @@ internal static class EnemyFormatDrawEntriesVerification
         extended.Bind(EnemyDefinitionId.Boyon, default(RoomEnemyDefinition) with { Bank = extendedFrame.Bank });
         extended.ExtraProperties = extended.ExtraProperties.With(EnemyExtraProperties.UsesExtendedSpritemap);
         extended.SpritemapPointer = extendedFrame.Pointer;
-        extended.InstructionTimer = NativeCountdown.Start(7);
+        extended.InstructionTimer = WrappingCountdown.Start(7);
         extended.Position = extended.Position.WithWhole(new(120, 110));
         enemies.Drawing.Enqueue(1, EnemySlotTable.NativeSlotSize);
 
@@ -123,10 +123,10 @@ internal static class EnemyFormatDrawEntriesVerification
 
         // The shake tick belongs to the advance: it is consumed identically whether or not the frame is drawn.
         ordinary.FrameCounter = 0;
-        ordinary.ShakeTimer = NativeCountdown.Start(2);
+        ordinary.ShakeTimer = WrappingCountdown.Start(2);
         enemies.Drawing.AdvanceLayers(Position16<RoomPixels>.Zero, 0, 7);
         ushort undisplayed = ordinary.ShakeTimer.RawValue;
-        ordinary.ShakeTimer = NativeCountdown.Start(2);
+        ordinary.ShakeTimer = WrappingCountdown.Start(2);
         sprites.BeginFrame();
         enemies.Drawing.AdvanceLayers(Position16<RoomPixels>.Zero, 0, 7);
         enemies.Drawing.DrawLayers(sprites, page, Position16<RoomPixels>.Zero, 0, 7);

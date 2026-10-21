@@ -504,7 +504,7 @@ internal sealed class ProjectileTerrainCollision
 
         slot.Type = slot.PackedType.WithFamily(SamusProjectileFamily.BeamExplosion);
         slot.Cursor = SamusProjectilePrograms.Start(SamusProjectileProgram.BeamExplosion);
-        slot.InstructionTimer = NativeCountdown.Start(1);
+        slot.InstructionTimer = WrappingCountdown.Start(1);
         slot.Damage = 8;
         slot.PreInstruction = SamusProjectilePreInstruction.None;
     }
@@ -533,7 +533,7 @@ internal sealed class ProjectileTerrainCollision
         slot.Type = slot.PackedType.WithFamily(SamusProjectileFamily.MissileExplosion);
         slot.Cursor = SamusProjectilePrograms.Start(
             wasSuperMissile ? SamusProjectileProgram.SuperMissileExplosion : SamusProjectileProgram.MissileExplosion);
-        slot.InstructionTimer = NativeCountdown.Start(1);
+        slot.InstructionTimer = WrappingCountdown.Start(1);
         slot.Damage = 8;
         slot.PreInstruction = SamusProjectilePreInstruction.None;
 

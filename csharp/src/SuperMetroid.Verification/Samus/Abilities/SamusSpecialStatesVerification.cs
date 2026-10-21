@@ -114,7 +114,7 @@ internal static void VerifySamusCrystalFlash()
         Missiles = 10,
         SuperMissiles = 10,
         PowerBombs = 10,
-        InvincibilityTimer = NativeCountdown.Start(96),
+        InvincibilityTimer = WrappingCountdown.Start(96),
     };
     SamusPoseMetadata.RefreshCollisionRadii(samus);
 
@@ -177,7 +177,7 @@ internal static void VerifySamusCrystalFlash()
         "Crystal Flash body palette retains independent countdown");
 
     ushort initialY = samus.Position.Y.Whole;
-    samus.InvincibilityTimer = NativeCountdown.Start(77);
+    samus.InvincibilityTimer = WrappingCountdown.Start(77);
     for (int frame = 0; frame < 9; frame++)
     {
         samus.CrystalFlash.Step(samus, (ushort)frame);
@@ -258,8 +258,8 @@ internal static void VerifySamusCrystalFlash()
 
     // Call only accepted NMI counters divisible by eight. These are the only handler calls
     // that can consume ammo or restore energy; skipped counters are checked separately.
-    samus.InvincibilityTimer = NativeCountdown.Start(77);
-    samus.KnockbackTimer = NativeCountdown.Start(5);
+    samus.InvincibilityTimer = WrappingCountdown.Start(77);
+    samus.KnockbackTimer = WrappingCountdown.Start(5);
     var resourcesBeforeSkipped =
         new ResourcesBeforeSkipped(samus.Health, samus.Missiles, samus.SuperMissiles, samus.PowerBombs);
     samus.CrystalFlash.Step(samus, 15);
@@ -270,8 +270,8 @@ internal static void VerifySamusCrystalFlash()
         "non-mod-eight frame leaves Crystal Flash resources untouched");
     for (ushort drain = 1; drain <= 30; drain++)
     {
-        samus.InvincibilityTimer = NativeCountdown.Start(77);
-        samus.KnockbackTimer = NativeCountdown.Start(5);
+        samus.InvincibilityTimer = WrappingCountdown.Start(77);
+        samus.KnockbackTimer = WrappingCountdown.Start(5);
         samus.CrystalFlash.Step(samus, unchecked((ushort)(drain * 8)));
         AssertEqual(0, samus.InvincibilityTimer.RawValue, "ammo-drain frame clears hit immunity, including final drain");
         AssertEqual(0, samus.KnockbackTimer.RawValue, "ammo-drain frame clears knockback timer");
@@ -300,7 +300,7 @@ internal static void VerifySamusCrystalFlash()
         "Crystal Flash standing transition is applied");
     AssertEqual(CrystalFlashPhase.Finishing, samus.CrystalFlash.Phase,
         "pose transition does not prematurely replace installed handler");
-    samus.InvincibilityTimer = NativeCountdown.Start(77);
+    samus.InvincibilityTimer = WrappingCountdown.Start(77);
     samus.CrystalFlash.Step(samus, 0x0200);
     AssertEqual(0, samus.InvincibilityTimer.RawValue, "Crystal Flash normal-input completion clears hit immunity");
     AssertEqual(CrystalFlashPhase.Inactive, samus.CrystalFlash.Phase,
@@ -678,7 +678,7 @@ internal static void VerifySamusXray()
         "X-ray rejects unsupported previous movement type");
     var fiveBombQuirk = Rejected(SamusPoseId.FacingRightNormalPose);
     fiveBombQuirk.XSpeedDivisor = 2;
-    AssertTrue(!fiveBombQuirk.Xray.TryBegin(fiveBombQuirk, previousMovementType: SamusMovementType.Standing, conditions: new XrayBeginConditions { GameState = SuperMetroidGameState.MainGameplay, ProjectileCooldownTimer = NativeCountdown.Start(7), BombCounter = 5 }),
+    AssertTrue(!fiveBombQuirk.Xray.TryBegin(fiveBombQuirk, previousMovementType: SamusMovementType.Standing, conditions: new XrayBeginConditions { GameState = SuperMetroidGameState.MainGameplay, ProjectileCooldownTimer = WrappingCountdown.Start(7), BombCounter = 5 }),
         "X-ray preserves five-bomb cooldown/divisor rejection");
 
     Console.WriteLine(

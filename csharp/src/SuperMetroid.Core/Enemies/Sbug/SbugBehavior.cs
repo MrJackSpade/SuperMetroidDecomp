@@ -118,12 +118,12 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
                 state.Function = SbugEnemyFunction.ChooseRandomDirectionUntilCollision;
                 return;
             case SbugEnemyFunction.ActivateRandomAndReverseWhenFar:
-                state.StraightMovementTimer = NativeCountdown.Start(SbugLongRandomLifetime);
+                state.StraightMovementTimer = WrappingCountdown.Start(SbugLongRandomLifetime);
                 SetSbugRandomSeed();
                 state.Function = SbugEnemyFunction.ChooseRandomDirectionAndReverseWhenFar;
                 return;
             case SbugEnemyFunction.ActivateMoveForwardThenWait:
-                state.MovementTimer = NativeCountdown.Start(SbugMovementSegmentFrames);
+                state.MovementTimer = WrappingCountdown.Start(SbugMovementSegmentFrames);
                 state.Function = SbugEnemyFunction.MoveForwardThenWait;
                 return;
             case SbugEnemyFunction.ActivateMoveTowardSamus:
@@ -294,7 +294,7 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
         int angleDelta = unchecked((byte)(randomLow - EnemyByteAngleDefinitions.QuarterTurn));
         state.TurnCustomHeading(angleDelta);
         RecalculateSbugCustomDirection(slot, state);
-        state.MovementTimer = NativeCountdown.Start(SbugMovementSegmentFrames);
+        state.MovementTimer = WrappingCountdown.Start(SbugMovementSegmentFrames);
         state.Function = movement;
     }
 
@@ -441,8 +441,8 @@ internal sealed class SbugBehavior : IEnemySpecies, IEnemyEntityFactory
 
         state.InstalledProgram = state.RequestedProgram;
         state.Program = AnimationProgramCursor<SbugProgram>.Start(state.RequestedProgram.Value);
-        slot.InstructionTimer = NativeCountdown.Start(1);
-        slot.Timer = NativeCountdown.Start(0);
+        slot.InstructionTimer = WrappingCountdown.Start(1);
+        slot.Timer = WrappingCountdown.Start(0);
     }
 
     /// <summary>Resets the shared enemy random seed when random wandering is activated.</summary>

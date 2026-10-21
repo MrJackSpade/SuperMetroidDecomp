@@ -39,9 +39,9 @@ public sealed class GrowingShutterEnemyState
     /// The timer-mode activation wait: tested for expiry before each decrement, so a wait of N activates on call N + 1
     /// and an expired wait stays expired instead of wrapping.
     /// </summary>
-    public NativeCountdown ActivationTimer
+    public WrappingCountdown ActivationTimer
     {
-        get => NativeCountdown.FromRaw(checked((ushort)_activationWord));
+        get => WrappingCountdown.FromRaw(checked((ushort)_activationWord));
         internal set => _activationWord = value.RawValue;
     }
 

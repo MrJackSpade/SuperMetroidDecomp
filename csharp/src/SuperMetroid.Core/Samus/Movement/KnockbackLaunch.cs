@@ -7,7 +7,7 @@ public sealed record KnockbackLaunch
     public required KnockbackHorizontalDirection KnockbackXDirection { get; init; }
 
     /// <summary>Nonzero producer-owned hurt countdown in gameplay updates; normal contact supplies five, while scripted intro Rinka contact supplies eleven.</summary>
-    public NativeCountdown KnockbackTimer { get; init; } = NativeCountdown.Start(5);
+    public WrappingCountdown KnockbackTimer { get; init; } = WrappingCountdown.Start(5);
 
     /// <summary>
     /// The launch a damage producer left pending on Samus: the direction its contact published and the hurt

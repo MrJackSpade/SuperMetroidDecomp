@@ -223,8 +223,8 @@ internal static class KiHunterInstructionProgramDefinitionsVerification
         static void Install(RoomEnemySlot slot, KiHunterEnemyState state, KiHunterProgram program)
         {
             state.Program = AnimationProgramCursor<KiHunterProgram>.Start(program);
-            slot.InstructionTimer = NativeCountdown.Start(1);
-            slot.Timer = NativeCountdown.Start(0);
+            slot.InstructionTimer = WrappingCountdown.Start(1);
+            slot.Timer = WrappingCountdown.Start(0);
         }
 
         // The cursor rests on the program's sleep step.

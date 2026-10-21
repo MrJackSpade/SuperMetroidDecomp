@@ -86,7 +86,7 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
         var state = new AlcoonEnemyState();
         slot.SetSpeciesState(state, state.ClearWithRecord);
 
-        state.StepCounter = NativeCountdown.Start(0);
+        state.StepCounter = WrappingCountdown.Start(0);
         state.SpawnPosition = slot.Position.Whole;
         slot.Properties = slot.Properties.With(EnemyProperties.ProcessInstructions);
         state.Program = AnimationProgramCursor<AlcoonProgram>.Start(AlcoonProgram.WalkingLeft);
@@ -232,7 +232,7 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
             InstallAlcoonInstruction(slot, state, AlcoonProgram.WalkingRight);
         }
         state.Function = AlcoonEnemyFunction.WalkingAndFiring;
-        state.StepCounter = NativeCountdown.Start(1);
+        state.StepCounter = WrappingCountdown.Start(1);
     }
 
     /// <summary>Maintains floor contact, starts a retreat at the spawn-distance limit, or begins a forward volley.</summary>
@@ -344,7 +344,7 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
     private static void InstallAlcoonInstruction(RoomEnemySlot slot, AlcoonEnemyState state, AlcoonProgram program)
     {
         state.Program = AnimationProgramCursor<AlcoonProgram>.Start(program);
-        slot.InstructionTimer = NativeCountdown.Start(1);
+        slot.InstructionTimer = WrappingCountdown.Start(1);
     }
 
     /// <summary>Implements Alcoon instruction <c>$A8:DF3F</c> and returns the walk the animation continues at.</summary>
@@ -353,7 +353,7 @@ internal sealed class AlcoonBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Function = AlcoonEnemyFunction.WalkingAndFiring;
         Func<int> readRandomNumber = _room.Random.Read;
         ushort count = unchecked((ushort)(readRandomNumber() & 3));
-        state.StepCounter = NativeCountdown.FromRaw(count == 0 ? (ushort)2 : count);
+        state.StepCounter = WrappingCountdown.FromRaw(count == 0 ? (ushort)2 : count);
         return state.Velocity.X.WholePixels < 0
             ? AlcoonProgram.WalkingLeft
             : AlcoonProgram.WalkingRight;

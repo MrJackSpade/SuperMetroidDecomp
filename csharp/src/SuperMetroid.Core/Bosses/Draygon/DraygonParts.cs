@@ -67,7 +67,7 @@ internal sealed class DraygonParts
         _presentation.AttachBg2Image(new EnemyBg2Image(EnemyBg2SurfaceDefinitions.BlankTile.Raw));
 
         body.PaletteIndex = EnemyPaletteBits.Palette7;
-        body.InstructionTimer = NativeCountdown.Start(1);
+        body.InstructionTimer = WrappingCountdown.Start(1);
 
         _frameContext.RequestFullSweep();
         Draygon = new DraygonEnemyState(body)
@@ -88,7 +88,7 @@ internal sealed class DraygonParts
         DraygonEnemyState state = Draygon ??
             throw new InvalidDataException("Draygon part appeared before the body record.");
 
-        part.InstructionTimer = NativeCountdown.Start(1);
+        part.InstructionTimer = WrappingCountdown.Start(1);
         switch (DraygonPartDefinitions.Parts[part.EnemyDefinitionPointer])
         {
             case DraygonPart.Eye:
@@ -158,7 +158,7 @@ internal sealed class DraygonParts
         DraygonEnemyState state = Draygon ??
             throw new InvalidDataException("Draygon program started without encounter state.");
         state.SetCursor(part, AnimationProgramCursor<DraygonProgram>.Start(program));
-        part.InstructionTimer = NativeCountdown.Start(1);
+        part.InstructionTimer = WrappingCountdown.Start(1);
     }
 
     /// <summary>
@@ -171,7 +171,7 @@ internal sealed class DraygonParts
         DraygonEnemyState state = Draygon ??
             throw new InvalidDataException("Draygon part ran without encounter state.");
         ushort oldTimer = part.InstructionTimer.RawValue;
-        part.InstructionTimer = NativeCountdown.FromRaw(unchecked((ushort)(oldTimer - 1)));
+        part.InstructionTimer = WrappingCountdown.FromRaw(unchecked((ushort)(oldTimer - 1)));
         if (oldTimer != 1)
         {
             part.ExtraProperties = part.ExtraProperties.Without(EnemyExtraProperties.NewInstructionFrame);
@@ -179,7 +179,7 @@ internal sealed class DraygonParts
         }
 
         AnimationProgramCursor<DraygonProgram> cursor = state.Cursor(part);
-        NativeCountdown counter = part.Timer;
+        WrappingCountdown counter = part.Timer;
         AnimationProgramAdvance<DraygonFrame> advance = DraygonAnimations.Programs.Advance(ref cursor, ref counter,
             (cue, continuation) => ApplyDraygonCue(state, part, samus, cue));
         part.Timer = counter;
@@ -187,13 +187,13 @@ internal sealed class DraygonParts
         {
             case AnimationProgramAdvance<DraygonFrame>.Show shown:
                 state.SetCursor(part, cursor);
-                part.InstructionTimer = NativeCountdown.FromRaw((ushort)shown.Duration);
+                part.InstructionTimer = WrappingCountdown.FromRaw((ushort)shown.Duration);
                 part.Frame = DraygonFrameDefinitions.ShownFrames.Of(shown.Frame);
                 part.ExtraProperties = part.ExtraProperties.With(EnemyExtraProperties.NewInstructionFrame);
                 return;
             case AnimationProgramAdvance<DraygonFrame>.Wait waiting:
                 state.SetCursor(part, cursor);
-                part.InstructionTimer = NativeCountdown.FromRaw((ushort)waiting.Duration);
+                part.InstructionTimer = WrappingCountdown.FromRaw((ushort)waiting.Duration);
                 return;
             case AnimationProgramAdvance<DraygonFrame>.Hold:
                 // The native sleep: the timer wraps from zero and the last frame stays.
@@ -223,10 +223,10 @@ internal sealed class DraygonParts
                 state.SetCursor(RequirePart(state.Eye), AnimationProgramCursor<DraygonProgram>.Start(start.Eye));
                 state.SetCursor(RequirePart(state.Tail), AnimationProgramCursor<DraygonProgram>.Start(start.Tail));
                 state.SetCursor(RequirePart(state.Arms), AnimationProgramCursor<DraygonProgram>.Start(start.Arms));
-                state.Arms.InstructionTimer = NativeCountdown.Start(1);
-                state.Tail.InstructionTimer = NativeCountdown.Start(1);
-                state.Eye.InstructionTimer = NativeCountdown.Start(1);
-                state.Body.InstructionTimer = NativeCountdown.Start(1);
+                state.Arms.InstructionTimer = WrappingCountdown.Start(1);
+                state.Tail.InstructionTimer = WrappingCountdown.Start(1);
+                state.Eye.InstructionTimer = WrappingCountdown.Start(1);
+                state.Body.InstructionTimer = WrappingCountdown.Start(1);
                 return null;
             case DraygonCue.BeginHudDraw:
                 state.RoomLoadingIrqCommand = RoomLoadingInterruptCommand.BeginHudDraw;
@@ -315,7 +315,7 @@ internal sealed class DraygonParts
                 : DraygonProgram.EyeFacingLeftLookingUp,
         };
         StartDraygonProgram(eye, look);
-        eye.Timer = NativeCountdown.Start(0);
+        eye.Timer = WrappingCountdown.Start(0);
     }
 
     /// <summary>Places a death-animation sprite at a room-RNG offset from the body.</summary>
@@ -355,7 +355,7 @@ internal sealed class DraygonParts
         // `$A5:9B9A` also publishes the same 32-frame, type-seven quake used by the
         // cartridge's grabbed-tail impact. Keeping it on the shared room-enemy surface lets
         // the ordinary camera renderer observe the hit instead of reducing it to HP loss.
-        _earthquake.EarthquakeTimer = NativeCountdown.Start(32);
+        _earthquake.EarthquakeTimer = WrappingCountdown.Start(32);
         _earthquake.EarthquakeType = 7;
 
         state.TailWhipHits++;

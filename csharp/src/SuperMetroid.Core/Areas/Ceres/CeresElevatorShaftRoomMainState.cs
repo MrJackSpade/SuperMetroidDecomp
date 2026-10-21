@@ -30,7 +30,7 @@ public sealed class CeresElevatorShaftRoomMainState
     public bool IsActive { get; private set; }
 
     /// <summary>Live RoomMainASMVar2 countdown.</summary>
-    public NativeCountdown RotationTimer { get; private set; }
+    public WrappingCountdown RotationTimer { get; private set; }
 
     /// <summary>True after the elevator bounds have admitted Samus once.</summary>
     public bool DepartureRequested { get; private set; }
@@ -54,7 +54,7 @@ public sealed class CeresElevatorShaftRoomMainState
         if (active)
         {
             scratch.Var1 = InitialRotationIndex;
-            RotationTimer = NativeCountdown.Start(InitialRotationTimer);
+            RotationTimer = WrappingCountdown.Start(InitialRotationTimer);
         }
     }
 
@@ -111,7 +111,7 @@ public sealed class CeresElevatorShaftRoomMainState
         // DEC followed by BMI is deliberately modeled as a wrapping 16-bit decrement.
         // Zero remains visible for one complete call; only the following call makes it
         // $FFFF and consumes the next record. This differs from a conventional <= 0 timer.
-        NativeWordCounterStep timer = RotationTimer.Decrement();
+        CountdownStep timer = RotationTimer.Decrement();
         RotationTimer = timer.Remaining;
         if (timer.IsNonNegative)
             return new(Transform, MatrixChanged: false, DepartureRequestedThisFrame);
@@ -121,7 +121,7 @@ public sealed class CeresElevatorShaftRoomMainState
         // mapping back into the tail of this very table during the reverse sweep.
         ushort rotationIndex = checked((ushort)scratch.Var1);
         var record = CeresShaftRotationDefinitions.Read(rotationIndex);
-        RotationTimer = NativeCountdown.FromRaw(record.Timer);
+        RotationTimer = WrappingCountdown.FromRaw(record.Timer);
         ushort sine = record.Sine;
         ushort cosine = record.Cosine;
         Transform = new SamusMode7Transform(

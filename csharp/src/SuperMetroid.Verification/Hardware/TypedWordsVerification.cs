@@ -198,51 +198,51 @@ internal static void VerifyTypedNativeWords()
         () => SnesSignedSixteenSixteen.FromWholePixels(32768),
         "signed 16.16 checked whole conversion rejects positive overflow");
 
-    NativeWordCounterStep fromOne = NativeWordCounter.Decrement(0x0001);
+    CountdownStep fromOne = WrappingCounter.Decrement(0x0001);
     AssertEqual((ushort)0x0000, fromOne.Value, "native DEC one reaches zero");
     AssertTrue(fromOne.IsZero && fromOne.IsNonNegative && !fromOne.IsNegative,
         "native DEC one exposes Z without N");
-    NativeWordCounterStep fromZero = NativeWordCounter.Decrement(0x0000);
+    CountdownStep fromZero = WrappingCounter.Decrement(0x0000);
     AssertEqual(ushort.MaxValue, fromZero.Value, "native DEC zero wraps to $FFFF");
     AssertTrue(fromZero.IsNegative && fromZero.Underflowed && !fromZero.IsZero,
         "native DEC zero exposes N and underflow without Z");
-    NativeWordCounterStep fromMaximum = NativeWordCounter.Decrement(ushort.MaxValue);
+    CountdownStep fromMaximum = WrappingCounter.Decrement(ushort.MaxValue);
     AssertEqual((ushort)0xfffe, fromMaximum.Value, "native DEC $FFFF reaches $FFFE");
     AssertTrue(fromMaximum.IsNegative && !fromMaximum.Underflowed,
         "native DEC $FFFF retains N without reporting zero underflow");
-    NativeWordCounterStep ordinaryCounter = NativeWordCounter.Decrement(0x1234);
+    CountdownStep ordinaryCounter = WrappingCounter.Decrement(0x1234);
     AssertEqual((ushort)0x1233, ordinaryCounter.Value, "native DEC ordinary positive value");
     AssertTrue(ordinaryCounter.IsNonNegative && !ordinaryCounter.IsZeroOrNegative,
         "native DEC ordinary positive result exposes neither expiry flag");
-    AssertEqual((ushort)0, NativeWordCounter.DecrementSaturating(0),
+    AssertEqual((ushort)0, WrappingCounter.DecrementSaturating(0),
         "saturating native counter pins zero");
-    AssertEqual((ushort)0, NativeWordCounter.DecrementSaturating(1),
+    AssertEqual((ushort)0, WrappingCounter.DecrementSaturating(1),
         "saturating native counter decrements one");
-    AssertEqual((ushort)0x1233, NativeWordCounter.DecrementSaturating(0x1234),
+    AssertEqual((ushort)0x1233, WrappingCounter.DecrementSaturating(0x1234),
         "saturating native counter decrements ordinary positive value");
 
     // #1324: the stored countdown keeps each native branch's expiry count and the exact wrapped word.
-    NativeWordCounterStep clearedStep = NativeCountdown.Start(0).Decrement();
+    CountdownStep clearedStep = WrappingCountdown.Start(0).Decrement();
     AssertTrue(clearedStep.IsNegative, "a cleared countdown goes negative on the first DEC (DEC then BPL)");
     AssertEqual(ushort.MaxValue, clearedStep.Remaining.RawValue, "a cleared countdown is left holding the wrapped $FFFF");
     AssertTrue(clearedStep.Remaining.IsNegative && !clearedStep.IsZero,
         "the wrapped word reads back negative and does not report reaching zero");
     const int startedFrames = 3;
-    NativeCountdown started = NativeCountdown.Start(startedFrames);
+    WrappingCountdown started = WrappingCountdown.Start(startedFrames);
     int negativeCall = 0;
     for (int call = 1; call <= startedFrames + 1; call++)
     {
-        NativeWordCounterStep step = started.Decrement();
+        CountdownStep step = started.Decrement();
         started = step.Remaining;
         if (step.IsNegative && negativeCall == 0)
             negativeCall = call;
     }
     AssertEqual(startedFrames + 1, negativeCall, "a countdown started at N goes negative on call N + 1");
-    NativeCountdown reachedZero = NativeCountdown.Start(0);
+    WrappingCountdown reachedZero = WrappingCountdown.Start(0);
     int zeroCall = 0;
     for (int call = 1; call <= ushort.MaxValue + 1; call++)
     {
-        NativeWordCounterStep step = reachedZero.Decrement();
+        CountdownStep step = reachedZero.Decrement();
         reachedZero = step.Remaining;
         if (step.IsZero)
         {
@@ -252,23 +252,23 @@ internal static void VerifyTypedNativeWords()
     }
     AssertEqual(ushort.MaxValue + 1, zeroCall,
         "reached-zero from a cleared countdown wraps to $FFFF and waits 65,535 more DECs (DEC then BEQ)");
-    AssertTrue(NativeCountdown.Start(1).Decrement().IsZeroOrNegative && NativeCountdown.Start(0).Decrement().IsZeroOrNegative &&
-        !NativeCountdown.Start(2).Decrement().IsZeroOrNegative, "DEC, BEQ, BMI expires on zero or on wrapping");
-    AssertEqual(NativeCountdown.Start(0), NativeCountdown.Start(0).DecrementToZero(), "the saturating countdown never wraps");
-    AssertEqual(NativeCountdown.Start(4), NativeCountdown.Start(5).DecrementToZero(), "the saturating countdown decrements");
-    AssertEqual((ushort)0x8001, NativeCountdown.FromRaw(0x8001).RawValue, "a raw countdown word is preserved exactly");
-    AssertThrows<ArgumentOutOfRangeException>(() => NativeCountdown.Start(ushort.MaxValue + 1),
+    AssertTrue(WrappingCountdown.Start(1).Decrement().IsZeroOrNegative && WrappingCountdown.Start(0).Decrement().IsZeroOrNegative &&
+        !WrappingCountdown.Start(2).Decrement().IsZeroOrNegative, "DEC, BEQ, BMI expires on zero or on wrapping");
+    AssertEqual(WrappingCountdown.Start(0), WrappingCountdown.Start(0).DecrementToZero(), "the saturating countdown never wraps");
+    AssertEqual(WrappingCountdown.Start(4), WrappingCountdown.Start(5).DecrementToZero(), "the saturating countdown decrements");
+    AssertEqual((ushort)0x8001, WrappingCountdown.FromRaw(0x8001).RawValue, "a raw countdown word is preserved exactly");
+    AssertThrows<ArgumentOutOfRangeException>(() => WrappingCountdown.Start(ushort.MaxValue + 1),
         "a countdown start must fit the native word");
-    AssertThrows<ArgumentOutOfRangeException>(() => NativeCountdown.Start(-1), "a countdown start cannot be negative");
+    AssertThrows<ArgumentOutOfRangeException>(() => WrappingCountdown.Start(-1), "a countdown start cannot be negative");
 
-    NativeLowByteCounterStep laneToZero = NativeWordCounter.DecrementLowByte(0x1201);
+    LowByteCountdownStep laneToZero = WrappingCounter.DecrementLowByte(0x1201);
     AssertEqual((ushort)0x1200, laneToZero.Remaining, "8-bit low-byte DEC keeps the high byte");
     AssertTrue(laneToZero.IsZero && !laneToZero.IsNegative, "8-bit low-byte DEC reports byte-width zero");
-    NativeLowByteCounterStep laneWrapped = NativeWordCounter.DecrementLowByte(0x3400);
+    LowByteCountdownStep laneWrapped = WrappingCounter.DecrementLowByte(0x3400);
     AssertEqual((ushort)0x34ff, laneWrapped.Remaining, "8-bit low-byte DEC wraps without borrowing from the high byte");
     AssertTrue(laneWrapped.IsNegative && !laneWrapped.IsZero && laneWrapped.IsZeroOrNegative,
         "8-bit low-byte DEC reports byte-width negative");
-    NativeLowByteCounterStep laneHighBitOnly = NativeWordCounter.DecrementLowByte(0x8003);
+    LowByteCountdownStep laneHighBitOnly = WrappingCounter.DecrementLowByte(0x8003);
     AssertTrue(laneHighBitOnly.IsNonNegative && laneHighBitOnly.Low == 2,
         "8-bit low-byte DEC ignores the high byte's sign bit");
 

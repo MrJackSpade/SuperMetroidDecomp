@@ -37,13 +37,13 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         Action<int> setRandomNumber = _room.Random.Seed;
 
-        slot.InstructionTimer = NativeCountdown.Start(1);
-        slot.Timer = NativeCountdown.Start(0);
+        slot.InstructionTimer = WrappingCountdown.Start(1);
+        slot.Timer = WrappingCountdown.Start(0);
         var state = new PolypEnemyState
         {
             Program = AnimationProgramCursor<PolypProgram>.Start(PolypProgram.Stationary),
             Function = PolypEnemyFunction.WaitingForSamus,
-            CooldownTimer = NativeCountdown.Start(0),
+            CooldownTimer = WrappingCountdown.Start(0),
         };
         slot.SetSpeciesState(state, state.ClearWithRecord);
 
@@ -82,7 +82,7 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
                 return;
 
             case PolypEnemyFunction.Cooldown:
-                NativeWordCounterStep timer = state.CooldownTimer.Decrement();
+                CountdownStep timer = state.CooldownTimer.Decrement();
                 state.CooldownTimer = timer.Remaining;
                 if (timer.IsNegative)
                     state.Function = PolypEnemyFunction.WaitingForSamus;
@@ -103,7 +103,7 @@ internal sealed class PolypBehavior : IEnemySpecies, IEnemyEntityFactory
         SpawnPolypRock(slot, initialYSpeed, xVelocity);
 
         state.Function = PolypEnemyFunction.Cooldown;
-        state.CooldownTimer = NativeCountdown.FromRaw(PolypLaunchDefinitions.Cooldown(_room.Random.Generate()));
+        state.CooldownTimer = WrappingCountdown.FromRaw(PolypLaunchDefinitions.Cooldown(_room.Random.Generate()));
     }
 
     /// <summary>

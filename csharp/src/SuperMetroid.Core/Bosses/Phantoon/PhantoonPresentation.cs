@@ -115,7 +115,7 @@ internal sealed class PhantoonPresentation
     /// <summary>Counts the body function timer down and reports its expiry.</summary>
     internal static bool TickPhantoonFunctionTimer(PhantoonPartState body)
     {
-        NativeWordCounterStep step = NativeWordCounter.Decrement(checked((ushort)body.FunctionTimer));
+        CountdownStep step = WrappingCounter.Decrement(checked((ushort)body.FunctionTimer));
         body.FunctionTimer = step.Value;
         return step.IsZeroOrNegative;
     }
@@ -131,7 +131,7 @@ internal sealed class PhantoonPresentation
         RoomEnemySlot slot,
         PhantoonPartProgram program)
     {
-        slot.InstructionTimer = NativeCountdown.Start(1);
+        slot.InstructionTimer = WrappingCountdown.Start(1);
         state.PartProgram(slot) = AnimationProgramCursor<PhantoonPartProgram>.Start(program);
     }
 }

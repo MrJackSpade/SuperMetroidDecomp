@@ -58,7 +58,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
     private const int WorkRobotStepPixels = 4;
 
     /// <summary>Shared countdown to the next robot palette animation record.</summary>
-    internal NativeCountdown WorkRobotPaletteAnimationTimer { get; set; }
+    internal WrappingCountdown WorkRobotPaletteAnimationTimer { get; set; }
     /// <summary>
     /// The next palette record the robot palette hook loads, 0 through
     /// <see cref="WorkRobotPaletteTimingDefinitions.RecordCount"/>; the count itself is the table's terminator, which the
@@ -97,15 +97,15 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
         // $8000. Population records already carry process-off-screen $0800 in retail rooms.
         slot.Properties = slot.Properties.With(
             EnemyProperties.SolidToSamus | EnemyProperties.ProcessInstructions);
-        slot.InstructionTimer = NativeCountdown.Start(4);
-        slot.Timer = NativeCountdown.Start(0);
+        slot.InstructionTimer = WrappingCountdown.Start(4);
+        slot.Timer = WrappingCountdown.Start(0);
         state.Program = AnimationProgramCursor<WorkRobotProgram>.Start(WorkRobotProgram.Initial);
         state.LaserVelocity = WorkRobotFacingLeftVelocity;
-        state.LaserCooldown = NativeCountdown.Start(0);
+        state.LaserCooldown = WrappingCountdown.Start(0);
 
         // The graphics-drawn hook is global. Every powered initialization resets its shared
         // clock/table and remembers this actor's OBJ palette exactly as $A8:CB83-$CBCB does.
-        WorkRobotPaletteAnimationTimer = NativeCountdown.Start(1);
+        WorkRobotPaletteAnimationTimer = WrappingCountdown.Start(1);
         WorkRobotPaletteAnimationRecord = 0;
         WorkRobotPaletteAnimationPaletteRow = (slot.PaletteIndex >> 9) & 7;
     }
@@ -124,12 +124,12 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Program = AnimationProgramCursor<WorkRobotProgram>.Start(
             WorkRobotInitializationDefinitions.InitialProgram(animation));
         slot.Properties = slot.Properties.With(EnemyProperties.SolidToSamus);
-        slot.InstructionTimer = NativeCountdown.Start(1);
-        slot.Timer = NativeCountdown.Start(0);
+        slot.InstructionTimer = WrappingCountdown.Start(1);
+        slot.Timer = WrappingCountdown.Start(0);
 
         // This global write disables an earlier robot's palette hook too. Mixed powered and
         // unpowered sets are unusual, but retaining the shared timer makes order observable.
-        WorkRobotPaletteAnimationTimer = NativeCountdown.Start(0);
+        WorkRobotPaletteAnimationTimer = WrappingCountdown.Start(0);
         state.FallVelocity = WorkRobotInitialFallVelocity;
 
         // $A8:CC1C writes four colors to active palette RAM through a stale global palette
@@ -152,7 +152,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // Enemy instruction processing will decrement the timer later in this same frame.
         // Incrementing here cancels that tick, freezing the current art while airborne.
-        slot.InstructionTimer = NativeCountdown.FromRaw(unchecked((ushort)(slot.InstructionTimer.RawValue + 1)));
+        slot.InstructionTimer = WrappingCountdown.FromRaw(unchecked((ushort)(slot.InstructionTimer.RawValue + 1)));
         // The fraction carries into the whole pixels, which wrap, as the cartridge's paired additions do.
         state.FallVelocity += WorkRobotGravity;
     }
@@ -243,7 +243,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
                 slot,
                 SnesSixteenSixteen.FromWhole(step.HorizontalPixels)))
         {
-            state.LaserCooldown = NativeCountdown.FromRaw(unchecked((ushort)(state.LaserCooldown.RawValue + 8)));
+            state.LaserCooldown = WrappingCountdown.FromRaw(unchecked((ushort)(state.LaserCooldown.RawValue + 8)));
             return step.WallProgram;
         }
 
@@ -265,7 +265,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
         if (floorFound)
             return null;
 
-        state.LaserCooldown = NativeCountdown.FromRaw(unchecked((ushort)(state.LaserCooldown.RawValue + 8)));
+        state.LaserCooldown = WrappingCountdown.FromRaw(unchecked((ushort)(state.LaserCooldown.RawValue + 8)));
         state.LaserVelocity = step.FallLaserVelocity;
         return step.FallProgram ?? throw new InvalidOperationException("A ledge-watching Work Robot step names no fall animation.");
     }
@@ -294,7 +294,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         Func<int> readRandomNumber = _room.Random.Read;
-        state.LaserCooldown = NativeCountdown.FromRaw(unchecked((ushort)((readRandomNumber() & 31) + 16)));
+        state.LaserCooldown = WrappingCountdown.FromRaw(unchecked((ushort)((readRandomNumber() & 31) + 16)));
         SpawnWorkRobotLaser(robot, state, projectileDefinition, camera);
         return firingProgram;
     }
@@ -343,8 +343,8 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
                 ? WorkRobotProgram.FacingRightShotSamusAhead
                 : WorkRobotProgram.FacingRightShotSamusBehind);
         }
-        robot.InstructionTimer = NativeCountdown.Start(1);
-        state.LaserCooldown = NativeCountdown.FromRaw(unchecked((ushort)(state.LaserCooldown.RawValue + 64)));
+        robot.InstructionTimer = WrappingCountdown.Start(1);
+        state.LaserCooldown = WrappingCountdown.FromRaw(unchecked((ushort)(state.LaserCooldown.RawValue + 64)));
     }
 
     /// <summary>Ports the global graphics-drawn palette hook at $A8:CC67.</summary>
@@ -369,7 +369,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
             "Work Robot palette animation requires installed artwork."))
             .ApplyFrame(_presentation.Cgram, record, destination);
         WorkRobotPaletteAnimationTimer =
-            NativeCountdown.FromRaw(WorkRobotPaletteTimingDefinitions.DurationForByteOffset(recordByteOffset));
+            WrappingCountdown.FromRaw(WorkRobotPaletteTimingDefinitions.DurationForByteOffset(recordByteOffset));
         WorkRobotPaletteAnimationRecord = record + 1;
     }
 

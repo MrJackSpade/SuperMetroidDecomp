@@ -91,8 +91,8 @@ internal sealed class ProjectileTrails
         if (trail is null)
             return;
 
-        trail.Left.InstructionTimer = NativeCountdown.Start(1);
-        trail.Right.InstructionTimer = NativeCountdown.Start(1);
+        trail.Left.InstructionTimer = WrappingCountdown.Start(1);
+        trail.Right.InstructionTimer = WrappingCountdown.Start(1);
         trail.Left.InstructionPointer = leftProgram;
         trail.Right.InstructionPointer = rightProgram;
         trail.Left.Position = trail.Left.Position.WithX(AddSignedOffset(projectile.Position.X.Whole, leftX, -4)).WithY(AddSignedOffset(projectile.Position.Y.Whole, leftY, -4));
@@ -135,7 +135,7 @@ internal sealed class ProjectileTrails
                         SamusProjectileRomData.Banks.Movement | pointer);
                     if (!ProjectileTrailProgramDefinitions.IsInstruction(instructionOrTimer))
                     {
-                        side.InstructionTimer = NativeCountdown.FromRaw(instructionOrTimer);
+                        side.InstructionTimer = WrappingCountdown.FromRaw(instructionOrTimer);
                         if (instructionOrTimer == 0)
                             return;
 

@@ -119,7 +119,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         var state = new MamaTurtleEnemyState
         {
             Function = MamaTurtleAiFunction.Initial,
-            AsleepFlag = NativeCountdown.Start(1),
+            AsleepFlag = WrappingCountdown.Start(1),
         };
         slot.SetSpeciesState(state, state.ClearWithRecord);
 
@@ -127,8 +127,8 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         // Spell that write out because instruction processing is essential to leaving shell.
         slot.Properties = slot.Properties.With(EnemyProperties.ProcessInstructions);
         slot.Frame = EnemyFrameId.Empty;
-        slot.InstructionTimer = NativeCountdown.Start(1);
-        slot.Timer = NativeCountdown.Start(0);
+        slot.InstructionTimer = WrappingCountdown.Start(1);
+        slot.Timer = WrappingCountdown.Start(0);
         slot.Radius = slot.Radius.WithY(0);
         state.Program = AnimationProgramCursor<MamaTurtleProgram>.Start(MamaTurtleProgram.MamaAsleep);
     }
@@ -145,8 +145,8 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         };
         slot.SetSpeciesState(state, state.ClearWithRecord);
 
-        slot.InstructionTimer = NativeCountdown.Start(1);
-        slot.Timer = NativeCountdown.Start(0);
+        slot.InstructionTimer = WrappingCountdown.Start(1);
+        slot.Timer = WrappingCountdown.Start(0);
         state.Program = AnimationProgramCursor<MamaTurtleProgram>.Start(unchecked((short)slot.Spawn.Population.Parameter1) < 0
             ? MamaTurtleProgram.BabyCrawlingLeft
             : MamaTurtleProgram.BabyCrawlingRight);
@@ -358,7 +358,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             ReverseMamaTurtleAtWall(state);
             _earthquake.EarthquakeType = 0;
-            _earthquake.EarthquakeTimer = NativeCountdown.Start(16);
+            _earthquake.EarthquakeTimer = WrappingCountdown.Start(16);
             LastMamaTurtleSoundEffect = EnemySoundEffectDefinitions.MamaTurtleWallSound;
             return;
         }
@@ -433,7 +433,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         ResolveMamaTurtleExpandedContact(mama, samus);
         if (unchecked((short)(mama.Position.Y.Whole - MamaTurtlePeakYPosition)) < 0)
         {
-            state.FunctionTimer = NativeCountdown.Start(MamaTurtlePeakPauseFrames);
+            state.FunctionTimer = WrappingCountdown.Start(MamaTurtlePeakPauseFrames);
             state.Function = MamaTurtleAiFunction.HoveringAtPeak;
             state.Velocity = state.Velocity.WithY(SnesSignedSixteenSixteen.Zero);
             return;
@@ -515,7 +515,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
                 if (PlatformsBehavior.IsSamusRidingPlatform(baby, samus))
                 {
                     state.Function = BabyTurtleAiFunction.HidingCarryingSamus;
-                    state.NotCarryingSamusReactionTimer = NativeCountdown.Start(4);
+                    state.NotCarryingSamusReactionTimer = WrappingCountdown.Start(4);
                     InstallTurtleInstruction(
                         baby,
                         state,
@@ -528,14 +528,14 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
             case BabyTurtleAiFunction.HidingCarryingSamus:
                 if (PlatformsBehavior.IsSamusRidingPlatform(baby, samus))
                 {
-                    state.NotCarryingSamusReactionTimer = NativeCountdown.Start(4);
+                    state.NotCarryingSamusReactionTimer = WrappingCountdown.Start(4);
                     return;
                 }
                 state.NotCarryingSamusReactionTimer = state.NotCarryingSamusReactionTimer.Decrement().Remaining;
                 if (state.NotCarryingSamusReactionTimer.IsZero)
                 {
                     state.Function = BabyTurtleAiFunction.HidingNotCarryingSamus;
-                    state.FunctionTimer = NativeCountdown.Start(60);
+                    state.FunctionTimer = WrappingCountdown.Start(60);
                 }
                 return;
 
@@ -672,7 +672,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         // opposite sign: $9451 writes -1 and $946B writes +1.
         state.Function = MamaTurtleAiFunction.RisingToHover;
         state.Velocity = state.Velocity.WithWholeX(direction == HorizontalDirection.Right ? (short)-1 : (short)1);
-        state.FunctionTimer = NativeCountdown.Start(16);
+        state.FunctionTimer = WrappingCountdown.Start(16);
     }
 
     /// <summary>Instruction <c>$A2:9485</c>: branch out of hiding only while ridden; otherwise the hiding animation runs on.</summary>
@@ -832,14 +832,14 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
     private static void InstallTurtleInstruction(RoomEnemySlot slot, MamaTurtleEnemyState state, MamaTurtleProgram program)
     {
         state.Program = AnimationProgramCursor<MamaTurtleProgram>.Start(program);
-        slot.InstructionTimer = NativeCountdown.Start(1);
+        slot.InstructionTimer = WrappingCountdown.Start(1);
     }
 
     /// <summary>Starts a baby turtle animation with its instruction timer set to one.</summary>
     private static void InstallTurtleInstruction(RoomEnemySlot slot, BabyTurtleEnemyState state, MamaTurtleProgram program)
     {
         state.Program = AnimationProgramCursor<MamaTurtleProgram>.Start(program);
-        slot.InstructionTimer = NativeCountdown.Start(1);
+        slot.InstructionTimer = WrappingCountdown.Start(1);
     }
 
     /// <summary>Rejects turtle movement without active room collision data.</summary>

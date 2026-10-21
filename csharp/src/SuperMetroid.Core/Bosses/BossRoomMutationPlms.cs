@@ -64,7 +64,7 @@ internal sealed class BossRoomMutationPlms
         // SpawnHardcodedPLM initializes a new slot's instruction timer to one. Only the
         // live crumble header replaces it: setup `$84:AB28` writes $0040 to the separate
         // PLM instruction-timer allocation before returning to the enemy initializer.
-        slot.InstructionTimer = NativeCountdown.FromRaw(header == PlmHeaderId.CrumbleBotwoonWall
+        slot.InstructionTimer = WrappingCountdown.FromRaw(header == PlmHeaderId.CrumbleBotwoonWall
             ? (ushort)64
             : (ushort)1);
         return true;
@@ -99,7 +99,7 @@ internal sealed class BossRoomMutationPlms
         slot.StartAnimation(new SporeSpawnCeilingPlmAnimation(header == PlmHeaderId.CrumbleSporeSpawnCeiling
             ? SporeSpawnCeilingProgram.Crumble
             : SporeSpawnCeilingProgram.Clear));
-        slot.InstructionTimer = NativeCountdown.Start(1);
+        slot.InstructionTimer = WrappingCountdown.Start(1);
         return true;
     }
 
@@ -414,7 +414,7 @@ internal sealed class BossRoomMutationPlms
         slot.HeaderPointer = header;
         slot.BlockIndex = blockIndex;
         slot.StartAnimation(new KraidRoomPlmAnimation(program));
-        slot.InstructionTimer = NativeCountdown.Start(1);
+        slot.InstructionTimer = WrappingCountdown.Start(1);
 
         // PlmSetup_DeactivatePlm clears level-word bits 12..14, not all four collision
         // bits. Bit 15 is the independent tile priority flag and survives setup.
@@ -737,7 +737,7 @@ internal sealed class BossRoomMutationPlms
         slot.RestoreLevelWord = 0;
         slot.LoopTimer = 0;
         slot.StartAnimation(new CrocomireArenaPlmAnimation(program));
-        slot.InstructionTimer = NativeCountdown.Start(1);
+        slot.InstructionTimer = WrappingCountdown.Start(1);
         slot.HeaderPointer = header;
         return true;
     }
@@ -775,7 +775,7 @@ internal sealed class BossRoomMutationPlms
         slot.PreInstruction = PlmPreInstructions.Inert;
         slot.RoomArgument = 0;
         PlmProgramStart.Delete.StartOn(slot);
-        slot.InstructionTimer = NativeCountdown.Start(1);
+        slot.InstructionTimer = WrappingCountdown.Start(1);
 
         // Both setup routines walk downward through ten blocks in the same column.
         // The mutation is part of setup, so it must occur before the PLM handler's
@@ -1105,7 +1105,7 @@ internal sealed class BossRoomMutationPlms
         slot.RestoreLevelWord = 0;
         slot.LoopTimer = 0;
         slot.StartAnimation(new MotherBrainFakeDeathPlmAnimation(program));
-        slot.InstructionTimer = NativeCountdown.Start(1);
+        slot.InstructionTimer = WrappingCountdown.Start(1);
         slot.HeaderPointer = header;
         if (header == PlmHeaderId.MotherBrainsRoomEscapeDoor)
         {

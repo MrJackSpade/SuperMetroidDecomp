@@ -96,8 +96,8 @@ public static class SamusTerrainHazardCollision
         ushort wholeDamage)
     {
         samus.LiquidPhysics.AccumulatePeriodicDamage(subDamage: 0, wholeDamage);
-        samus.InvincibilityTimer = NativeCountdown.Start(SamusTerrainHazardRomData.InvincibilityFrames);
-        samus.KnockbackTimer = NativeCountdown.Start(SamusTerrainHazardRomData.KnockbackFrames);
+        samus.InvincibilityTimer = WrappingCountdown.Start(SamusTerrainHazardRomData.InvincibilityFrames);
+        samus.KnockbackTimer = WrappingCountdown.Start(SamusTerrainHazardRomData.KnockbackFrames);
 
         // The native expression `((pose_x_dir ^ $0C) & $08) != 0` maps right-facing
         // records to leftward knockback and both left/front-special records to the other

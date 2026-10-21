@@ -362,7 +362,7 @@ internal sealed class MotherBrainProjectiles
         fragment.Velocity = fragment.Velocity.WithY(new SnesSignedEightEight(unchecked((ushort)(fragment.Velocity.Y.RawValue + MotherBrainDeathRomData.DoorFragmentGravity))));
         fragment.Position = fragment.Position.Advance(fragment.Velocity.ToSixteenSixteen());
         // The fragment's lifetime counts down in variable zero and expires when it passes zero.
-        NativeWordCounterStep lifetime = NativeCountdown.FromRaw(checked((ushort)fragment.Variable0)).Decrement();
+        CountdownStep lifetime = WrappingCountdown.FromRaw(checked((ushort)fragment.Variable0)).Decrement();
         fragment.Variable0 = lifetime.Remaining.RawValue;
         if (lifetime.IsNonNegative) return;
         ushort x = fragment.Position.X.Whole, y = unchecked((ushort)(fragment.Position.Y.Whole - MotherBrainDeathRomData.DoorDustYOffset));
@@ -548,7 +548,7 @@ internal sealed class MotherBrainProjectiles
                 new(impactX, impactY),
                 MiscDustAnimation.BigExplosion);
             state.LastSoundEffectLibrary3 = MotherBrainSoundDefinitions.Explosion;
-            _earthquake.EarthquakeTimer = NativeCountdown.Start(10);
+            _earthquake.EarthquakeTimer = WrappingCountdown.Start(10);
             _earthquake.EarthquakeType = 5;
             return;
         }
@@ -614,7 +614,7 @@ internal sealed class MotherBrainProjectiles
             "Mother Brain onion ring ran without its multipart encounter state.");
 
         // The ring stays pinned to the mouth while its attach delay in variable zero runs out.
-        NativeCountdown attachDelay = NativeCountdown.FromRaw(checked((ushort)ring.Variable0));
+        WrappingCountdown attachDelay = WrappingCountdown.FromRaw(checked((ushort)ring.Variable0));
         if (!attachDelay.IsZero)
         {
             ring.Variable0 = attachDelay.DecrementToZero().RawValue;
@@ -662,8 +662,8 @@ internal sealed class MotherBrainProjectiles
             samus.Health = samus.Health <= damage
                 ? 0
                 : samus.Health - damage;
-            samus.InvincibilityTimer = NativeCountdown.Start(96);
-            samus.KnockbackTimer = NativeCountdown.Start(5);
+            samus.InvincibilityTimer = WrappingCountdown.Start(96);
+            samus.KnockbackTimer = WrappingCountdown.Start(5);
             samus.KnockbackXDirection = unchecked((short)(samus.Position.X.Whole - ringPosition.X)) >= 0
                 ? KnockbackHorizontalDirection.Right
                 : KnockbackHorizontalDirection.Left;
@@ -677,7 +677,7 @@ internal sealed class MotherBrainProjectiles
         if (signedY < 32 || ring.Position.Y.Whole >= 216 || signedX < 0 ||
             screenX < 0 || screenX >= 248)
         {
-            _earthquake.EarthquakeTimer = NativeCountdown.Start(10);
+            _earthquake.EarthquakeTimer = WrappingCountdown.Start(10);
             _earthquake.EarthquakeType = 5;
             ExplodeMotherBrainOnionRing(ring, state, ring.Position.Whole);
         }

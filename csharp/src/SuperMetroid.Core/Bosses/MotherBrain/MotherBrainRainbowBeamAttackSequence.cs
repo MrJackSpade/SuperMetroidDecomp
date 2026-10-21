@@ -99,7 +99,7 @@ public sealed class MotherBrainRainbowBeamAttackSequence
     /// attaches; the fake-death ascent dust last wrote it.
     /// </summary>
     internal void InheritDeathAndEscapeExplosionIndex(ushort bodySubFunctionTimer) =>
-        ThirdPhaseDeath.DeathAndEscapeExplosionIndex = NativeCountdown.FromRaw(bodySubFunctionTimer);
+        ThirdPhaseDeath.DeathAndEscapeExplosionIndex = WrappingCountdown.FromRaw(bodySubFunctionTimer);
 
     /// <summary>
     /// Starts the repeatable rainbow-beam cycle at `$A9:B8EB`, before its two charge waits.
@@ -216,7 +216,7 @@ public sealed class MotherBrainRainbowBeamAttackSequence
             // The neck function itself runs on Mother Brain's next ordinary phase-three
             // main call.
             ThirdPhaseFight.Phase3NeckPhase = MotherBrainPhase3NeckPhase.SetupHyperBeamRecoil;
-            State.FunctionTimer = NativeCountdown.Start(0);
+            State.FunctionTimer = WrappingCountdown.Start(0);
         }
     }
 

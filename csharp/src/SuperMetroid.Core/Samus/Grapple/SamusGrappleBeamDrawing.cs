@@ -66,7 +66,7 @@ public static class SamusGrappleBeamDrawing
         if (grapple.FlareCounter == 1)
         {
             grapple.FlareAnimationFrame = ChargeFlareAnimationDefinitions.GrappleInitialFrame;
-            grapple.FlareAnimationTimer = NativeCountdown.Start(ChargeFlareAnimationDefinitions.GrappleInitialDelay);
+            grapple.FlareAnimationTimer = WrappingCountdown.Start(ChargeFlareAnimationDefinitions.GrappleInitialDelay);
         }
 
         grapple.FlareAnimationTimer = grapple.FlareAnimationTimer.Decrement().Remaining;
@@ -91,7 +91,7 @@ public static class SamusGrappleBeamDrawing
                         grapple.FlareAnimationFrame);
             }
 
-            grapple.FlareAnimationTimer = NativeCountdown.FromRaw(delay);
+            grapple.FlareAnimationTimer = WrappingCountdown.FromRaw(delay);
         }
 
         ushort screenX = unchecked((ushort)(grapple.BeamStart.X - layer1.X));
@@ -123,8 +123,8 @@ public static class SamusGrappleBeamDrawing
         // begins at the same authentic first flare state rather than inventing a static OBJ.
         grapple.FlareCounter = 1;
         grapple.FlareAnimationFrame = 0;
-        grapple.FlareAnimationTimer = NativeCountdown.Start(0);
-        grapple.PointAnimationTimer = NativeCountdown.Start(GrapplePointAnimationDefinitions.Delay);
+        grapple.FlareAnimationTimer = WrappingCountdown.Start(0);
+        grapple.PointAnimationTimer = WrappingCountdown.Start(GrapplePointAnimationDefinitions.Delay);
         grapple.PointAnimationFrame = 0;
         // GrappleFunc_AF87 at $94:AF87 seeds sixteen independent segment instruction
         // slots. Slot 15 starts on tile $24, slot 14 on $23, slot 13 on $22, slot 12 on
@@ -132,7 +132,7 @@ public static class SamusGrappleBeamDrawing
         // consume each initial record on its first draw.
         for (int slot = 0; slot < grapple.SegmentAnimationFrames.Length; slot++)
         {
-            grapple.SegmentAnimationTimers[slot] = NativeCountdown.Start(1);
+            grapple.SegmentAnimationTimers[slot] = WrappingCountdown.Start(1);
             grapple.SegmentAnimationFrames[slot] = unchecked((byte)(slot & 3));
             grapple.SegmentAnimationStarted[slot] = false;
         }
@@ -235,7 +235,7 @@ public static class SamusGrappleBeamDrawing
             int instructionSlot = SamusGrappleRomData.Rendering.FirstSegmentSlot - segment;
             if ((grapple.SegmentAnimationTimers[instructionSlot] = grapple.SegmentAnimationTimers[instructionSlot].Decrement().Remaining).IsZero)
             {
-                grapple.SegmentAnimationTimers[instructionSlot] = NativeCountdown.Start(SamusGrappleRomData.Rendering.SegmentAnimationDelay);
+                grapple.SegmentAnimationTimers[instructionSlot] = WrappingCountdown.Start(SamusGrappleRomData.Rendering.SegmentAnimationDelay);
                 if (grapple.SegmentAnimationStarted[instructionSlot])
                 {
                     grapple.SegmentAnimationFrames[instructionSlot] = unchecked((byte)(
@@ -300,6 +300,6 @@ public static class SamusGrappleBeamDrawing
         // words before restoring the ordinary draw handler and projectile palette.
         grapple.FlareCounter = 0;
         grapple.FlareAnimationFrame = 0;
-        grapple.FlareAnimationTimer = NativeCountdown.Start(0);
+        grapple.FlareAnimationTimer = WrappingCountdown.Start(0);
     }
 }

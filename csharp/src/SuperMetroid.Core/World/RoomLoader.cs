@@ -265,7 +265,7 @@ internal sealed class RoomLoader
                 : _player.IntroducedSamus.EquippedItems.HasAny(SamusEquipmentFlags.VariaSuit)
                     ? RoomLoadingRomData.VariaSuitLoadPaletteFx
                     : RoomLoadingRomData.PowerSuitLoadPaletteFx;
-        _player.BeginLoadAppearance(loadAppearance, NativeCountdown.Start(RoomLoadingRomData.SavedGameAppearanceFrameCount));
+        _player.BeginLoadAppearance(loadAppearance, WrappingCountdown.Start(RoomLoadingRomData.SavedGameAppearanceFrameCount));
         _room.LoadedScope.PaletteFx.SpawnDefinition(
             loadAppearance,
             _player.IntroducedSamus.EquippedItems,
@@ -516,7 +516,7 @@ internal sealed class RoomLoader
     internal void BeginDoorOpeningScroll(
         CartridgeDoorHeader door,
         FixedPosition<RoomPixels> sourceSamus,
-        IDoorLoaderProgressSource loaderProgress,
+        IRoomLoadProgress loaderProgress,
         int completedLoadingIrqSteps = 0)
     {
         if (_room.Camera is null || _player.Samus is null)
@@ -574,7 +574,7 @@ internal sealed class RoomLoader
     /// Runs one <c>Irq_FollowDoorTransition</c> coordinate update. True means the IRQ set
     /// bit $8000 in <c>door_transition_flag</c> on this call.
     /// </summary>
-    internal bool StepDoorOpeningScroll(IDoorLoaderProgressSource loaderProgress)
+    internal bool StepDoorOpeningScroll(IRoomLoadProgress loaderProgress)
     {
         DoorOpeningScrollState state = _doorOpeningScroll
             ?? throw new InvalidOperationException("No door-opening scroll is active.");

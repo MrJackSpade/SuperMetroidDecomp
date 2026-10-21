@@ -138,7 +138,7 @@ internal static class PhantoonAnimationsVerification
     private static void Pass(RoomEnemySlot part, bool forceExpiry = false)
     {
         if (forceExpiry)
-            part.InstructionTimer = NativeCountdown.Start(1);
+            part.InstructionTimer = WrappingCountdown.Start(1);
         EnemyInstructionInterpreter.ProcessInstructions(part, samus: null, level: null, Position16<RoomPixels>.Zero, controllerInput: 0);
     }
 
@@ -152,7 +152,7 @@ internal static class PhantoonAnimationsVerification
         PhantoonEnemyState state = RequireState(enemies);
         RoomEnemySlot eye = state.Eye;
         state.PartProgram(eye) = AnimationProgramCursor<PhantoonPartProgram>.Start(PhantoonPartProgram.EyeOpen);
-        eye.InstructionTimer = NativeCountdown.Start(1);
+        eye.InstructionTimer = WrappingCountdown.Start(1);
         for (int frame = 0; frame < 3; frame++)
         {
             Pass(eye, forceExpiry: true);

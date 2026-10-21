@@ -21,7 +21,7 @@ internal static class CeresShaftRotationVerification
         // publication against independently read retail records and word arithmetic.
         while (updates < 548)
         {
-            NativeWordCounterStep step = NativeWordCounter.Decrement(timer);
+            CountdownStep step = WrappingCounter.Decrement(timer);
             timer = step.Value;
             bool changed = step.IsNegative;
             int offset = (ushort)(phaseWord * 6);

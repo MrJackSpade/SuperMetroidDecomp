@@ -1,5 +1,4 @@
 using SuperMetroid.Verification.Samus.Projectiles;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Runtime;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
 using SuperMetroid.Core.Enemies;
@@ -38,7 +37,7 @@ internal static class MetroidDeathDropsVerification
         // Metroid showed when it was shot ($F137).
         metroid.SpritemapPointer = 0xf137;
         // A frozen Metroid takes the frozen branch of its shot AI; one missile finishes it.
-        metroid.FrozenTimer = NativeCountdown.Start(100);
+        metroid.FrozenTimer = WrappingCountdown.Start(100);
         metroid.Health = 1;
         runtime.Enemies.ProcessingWindow.PrepareEnemyProcessingList(new((ushort)(metroid.Position.X.Whole - 0x80), (ushort)(metroid.Position.Y.Whole - 0x70)));
 
@@ -46,7 +45,7 @@ internal static class MetroidDeathDropsVerification
         shot.Type = 0x0100; shot.Damage = 100; shot.Direction = (ushort)(alreadyMarked ? 0x12 : 0x02);
         shot.Position = shot.Position.WithWhole(metroid.Position.Whole);
         shot.Radius = new(4, 4);
-        shot.Cursor = ProjectileFixtureCursors.Active; shot.InstructionTimer = NativeCountdown.Start(1);
+        shot.Cursor = ProjectileFixtureCursors.Active; shot.InstructionTimer = WrappingCountdown.Start(1);
         runtime.Enemies.Collision.ResolveOrdinaryProjectileHits(runtime.Projectiles, runtime.BombProjectiles, samus);
         AssertEqual(0, metroid.Health, $"the missile kills the frozen Metroid (already marked: {alreadyMarked})");
 

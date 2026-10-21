@@ -26,7 +26,7 @@ internal sealed class BeamChargeState
     /// white frames and a fourth-call suit restore. Hyper Beam uses `$8014` through `$8000`
     /// for ten ROM palettes held two calls each before the same restore path.
     /// </summary>
-    public NativeCountdown ChargedShotGlowTimer { get; internal set; }
+    public WrappingCountdown ChargedShotGlowTimer { get; internal set; }
 
     /// <summary>
     /// WRAM <c>$0B62</c>, a byte offset into the active six-word charge-palette list.
@@ -48,7 +48,7 @@ internal sealed class BeamChargeState
     /// <summary>Current animation frame for each of the three flare components.</summary>
     internal readonly ushort[] FlareFrames = new ushort[3];
     /// <summary>Countdown to each flare component's next authored frame.</summary>
-    internal readonly NativeCountdown[] FlareTimers = new NativeCountdown[3];
+    internal readonly WrappingCountdown[] FlareTimers = new WrappingCountdown[3];
 
     /// <summary>The current animation frame of flare <paramref name="component"/>.</summary>
     internal ushort FlareFrame(int component) => FlareFrames[component];
@@ -57,12 +57,12 @@ internal sealed class BeamChargeState
     internal void SetFlareFrame(int component, ushort frame) => FlareFrames[component] = frame;
 
     /// <summary>Restarts flare <paramref name="component"/>'s countdown to its next frame.</summary>
-    internal void StartFlareTimer(int component, int frames) => FlareTimers[component] = NativeCountdown.Start(frames);
+    internal void StartFlareTimer(int component, int frames) => FlareTimers[component] = WrappingCountdown.Start(frames);
 
     /// <summary>Counts one call of flare <paramref name="component"/>'s countdown, keeping what remains.</summary>
-    internal NativeWordCounterStep DecrementFlareTimer(int component)
+    internal CountdownStep DecrementFlareTimer(int component)
     {
-        NativeWordCounterStep step = FlareTimers[component].Decrement();
+        CountdownStep step = FlareTimers[component].Decrement();
         FlareTimers[component] = step.Remaining;
         return step;
     }

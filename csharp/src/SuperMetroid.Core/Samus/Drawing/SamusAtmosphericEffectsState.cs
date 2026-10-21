@@ -63,7 +63,7 @@ public sealed class SamusAtmosphericEffectsState
 
         SamusAtmosphericEffectSlot slot = _slots[slotIndex];
         slot.FrameAndType = unchecked(SnesLittleEndian.Word(animationFrame, type));
-        slot.AnimationTimer = NativeCountdown.FromRaw(animationTimer);
+        slot.AnimationTimer = WrappingCountdown.FromRaw(animationTimer);
         slot.Position = anchor;
     }
 
@@ -119,7 +119,7 @@ public sealed class SamusAtmosphericEffectsState
                 // packed word. That ordering is why a newly created timer-three frame is
                 // visible for two calls before frame one begins.
                 slot.AnimationTimer =
-                    NativeCountdown.FromRaw(SamusAtmosphericAnimationDefinitions.FrameTimer((byte)type, frameBeforeTimer));
+                    WrappingCountdown.FromRaw(SamusAtmosphericAnimationDefinitions.FrameTimer((byte)type, frameBeforeTimer));
                 slot.FrameAndType = unchecked((ushort)(slot.FrameAndType + 1));
                 if (slot.AnimationFrame >=
                     SamusAtmosphericAnimationDefinitions.FrameCount((byte)type))
@@ -135,7 +135,7 @@ public sealed class SamusAtmosphericEffectsState
                 if (slot.AnimationTimer.RawValue != DelayedStartMarker)
                     continue;
                 slot.AnimationTimer =
-                    NativeCountdown.FromRaw(SamusAtmosphericAnimationDefinitions.FrameTimer((byte)type, frameBeforeTimer));
+                    WrappingCountdown.FromRaw(SamusAtmosphericAnimationDefinitions.FrameTimer((byte)type, frameBeforeTimer));
             }
 
             switch (type)

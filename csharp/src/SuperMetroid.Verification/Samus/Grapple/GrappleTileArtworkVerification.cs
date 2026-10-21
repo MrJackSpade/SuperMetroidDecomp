@@ -39,7 +39,7 @@ internal static class GrappleTileArtworkVerification
             .Forbid(address => GrappleTileDefinitions.Transfers.Any(transfer =>
                     address >= transfer.SourceAddress && address < transfer.SourceAddress + transfer.ByteCount),
                 _ => "Grapple still reads tile pixel ROM.");
-        AssertThrows<InvalidOperationException>(() => SamusGrappleBeamDrawing.DrawConnectedBeam(new SamusGrappleState { Phase = GrapplePhase.Firing, PointAnimationTimer = NativeCountdown.Start(5) },
+        AssertThrows<InvalidOperationException>(() => SamusGrappleBeamDrawing.DrawConnectedBeam(new SamusGrappleState { Phase = GrapplePhase.Firing, PointAnimationTimer = WrappingCountdown.Start(5) },
                 new SpriteFrameBuffer(), new(0, 0)),
             "The grapple beam fails loudly without installed grapple artwork");
         for (int angle = 0; angle <= ushort.MaxValue; angle++)
@@ -75,7 +75,7 @@ internal static class GrappleTileArtworkVerification
             cases++;
             SamusGrappleState Seed() => new()
             {
-                Phase = GrapplePhase.ConnectedSwinging, PointAnimationFrame = frame, PointAnimationTimer = NativeCountdown.FromRaw(timer),
+                Phase = GrapplePhase.ConnectedSwinging, PointAnimationFrame = frame, PointAnimationTimer = WrappingCountdown.FromRaw(timer),
                 Angle = SnesAngle.FromRaw((ushort)(sector * 1024 + 1023)), RopeLength = (ushort)(sector % 16 * 8),
                 BeamStart = new(100, 100), Anchor = new(200, 60), FlareCounter = 1,
             };

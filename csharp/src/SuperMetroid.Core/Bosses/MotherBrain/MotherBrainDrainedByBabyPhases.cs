@@ -20,7 +20,7 @@ internal sealed class MotherBrainDrainedByBabyPhases
     public int PainfulWalkingAnimationDelay { get; internal set; }
 
     /// <summary>Pause timer used after each completed forward/backward body list.</summary>
-    public NativeCountdown PainfulWalkingFunctionTimer { get; private set; }
+    public WrappingCountdown PainfulWalkingFunctionTimer { get; private set; }
 
     /// <summary>True while the nested painful-walk function is on its forward half.</summary>
     public bool PainfulWalkingForward { get; internal set; }
@@ -48,7 +48,7 @@ internal sealed class MotherBrainDrainedByBabyPhases
         if (walk.ReachedTarget)
         {
             int timerIndex = Math.Min(PainfulWalkingStage, 7);
-            PainfulWalkingFunctionTimer = NativeCountdown.Start(MotherBrainPainfulWalkingDefinitions.FunctionTimer(timerIndex));
+            PainfulWalkingFunctionTimer = WrappingCountdown.Start(MotherBrainPainfulWalkingDefinitions.FunctionTimer(timerIndex));
         }
         return walk.Requested;
     }
@@ -67,7 +67,7 @@ internal sealed class MotherBrainDrainedByBabyPhases
         _state.UpperNeckMovementIndex = MotherBrainNeckMovement.Raise;
         _state.NeckAngleDelta = 1792;
         _state.Phase = MotherBrainBodyFunction.SecondPhaseDrainedByBabyRegainBalance;
-        _state.FunctionTimer = NativeCountdown.Start(48);
+        _state.FunctionTimer = WrappingCountdown.Start(48);
         return true;
     }
 
@@ -87,7 +87,7 @@ internal sealed class MotherBrainDrainedByBabyPhases
             PainfulWalkingForward = true;
             PainfulWalkingStage = 0;
             PainfulWalkingAnimationDelay = 2;
-            PainfulWalkingFunctionTimer = NativeCountdown.Start(0);
+            PainfulWalkingFunctionTimer = WrappingCountdown.Start(0);
             _state.LowerNeckMovementIndex = MotherBrainNeckMovement.BobDown;
             _state.UpperNeckMovementIndex = MotherBrainNeckMovement.BobUp;
             _state.Phase = MotherBrainBodyFunction.SecondPhaseDrainedByBabyFiringRainbowBeam;
@@ -105,7 +105,7 @@ internal sealed class MotherBrainDrainedByBabyPhases
         // The head animation owns any decrement; retaining the write gate avoids
         // fabricating a body-side countdown that does not exist in this routine.
         if (_state.BrainMainShakeTimer.IsZero)
-            _state.BrainMainShakeTimer = NativeCountdown.Start(50);
+            _state.BrainMainShakeTimer = WrappingCountdown.Start(50);
         requests.PaletteRequested = true;
         requests.BodyWalkRequested = StepPainfulWalking();
 
@@ -184,7 +184,7 @@ internal sealed class MotherBrainDrainedByBabyPhases
             _state.Body.SetProgram(MotherBrainBodyProgram.CrouchFast);
             requests.BodyPostureRequested = true;
             _state.Phase = MotherBrainBodyFunction.SecondPhaseDrainedByBabyPrepareTransitionToGrey;
-            _state.FunctionTimer = NativeCountdown.Start(64);
+            _state.FunctionTimer = WrappingCountdown.Start(64);
         }
         return false;
     }
@@ -200,7 +200,7 @@ internal sealed class MotherBrainDrainedByBabyPhases
         {
             _state.GreyTransitionCounter = 0;
             _state.Phase = MotherBrainBodyFunction.SecondPhaseDrainedByBabyTransitionToGrey;
-            _state.FunctionTimer = NativeCountdown.Start(16);
+            _state.FunctionTimer = WrappingCountdown.Start(16);
             return true;
         }
         return false;
@@ -215,7 +215,7 @@ internal sealed class MotherBrainDrainedByBabyPhases
         _state.FunctionTimer = _state.FunctionTimer.Decrement().Remaining;
         if (_state.FunctionTimer.IsNegative)
         {
-            _state.FunctionTimer = NativeCountdown.Start(16);
+            _state.FunctionTimer = WrappingCountdown.Start(16);
 
             // Bank `$AD:EF4A` has eight nonzero palette pointers followed by zero.
             // The caller increments its counter, passes the old index, and treats

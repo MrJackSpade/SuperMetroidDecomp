@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Samus.Grapple;
 using SuperMetroid.Verification.Harness;
@@ -25,7 +24,7 @@ internal static class GrappleQuantityRangesVerification
                 Phase = GrapplePhase.Firing,
                 RopeLength = 0,
                 FlareCounter = start,
-                PointAnimationTimer = NativeCountdown.Start(5),
+                PointAnimationTimer = WrappingCountdown.Start(5),
             };
             SamusGrappleBeamDrawing.DrawConnectedBeam(grapple, new SpriteFrameBuffer(), new(0, 0),
                 SpriteFrameTestArtwork.BlankGrapple, standardObjects: SpriteFrameTestArtwork.StandardObjects);

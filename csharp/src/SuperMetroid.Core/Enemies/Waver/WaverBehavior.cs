@@ -134,8 +134,8 @@ internal sealed class WaverBehavior : IEnemySpecies, IEnemyEntityFactory
 
         state.CurrentInstructionListIndex = requested;
         state.Program = AnimationProgramCursor<WaverProgram>.Start(WaverAnimationDefinitions.Program(requested));
-        slot.InstructionTimer = NativeCountdown.Start(1);
-        slot.Timer = NativeCountdown.Start(0);
+        slot.InstructionTimer = WrappingCountdown.Start(1);
+        slot.Timer = WrappingCountdown.Start(0);
     }
 
     /// <summary>Ports Waver's main AI.</summary>

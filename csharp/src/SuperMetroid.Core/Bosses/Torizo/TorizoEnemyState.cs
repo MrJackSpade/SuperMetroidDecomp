@@ -53,7 +53,7 @@ public sealed class TorizoEnemyState
     internal AnimationProgramCursor<TorizoBodyProgram> InterruptedCursor { get; set; }
 
     /// <summary>Native <c>toriz_var_03</c>: delayed in-air transition counter.</summary>
-    public NativeCountdown AirTransitionTimer { get; internal set; }
+    public WrappingCountdown AirTransitionTimer { get; internal set; }
 
     /// <summary>
     /// Native <c>toriz_var_04</c>, held as whether the body's animation is locked: the awakening list locks it and

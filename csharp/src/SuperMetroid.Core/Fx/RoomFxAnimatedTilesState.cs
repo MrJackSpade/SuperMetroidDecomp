@@ -24,7 +24,7 @@ internal sealed class RoomFxAnimatedTilesState
     /// </summary>
     private int nextFrame;
     /// <summary>Remaining handler passes before the current animated frame advances.</summary>
-    private NativeCountdown instructionTimer;
+    private WrappingCountdown instructionTimer;
     /// <summary>Frame schedule, transfer size and destination of the loaded object.</summary>
     private RoomFxAnimatedTileObjectDefinition? compiledMechanics;
 
@@ -76,7 +76,7 @@ internal sealed class RoomFxAnimatedTilesState
         if (!RoomFxAnimatedTileMechanicsDefinitions.TryResolve(objectPointer, out compiledMechanics))
             throw new InvalidDataException($"Room-FX animation {objectPointer} is not compiled.");
         nextFrame = 0;
-        instructionTimer = NativeCountdown.Start(1);
+        instructionTimer = WrappingCountdown.Start(1);
         IsActive = true;
 
         if (compiledMechanics.TransferByteCount == 0)
@@ -105,7 +105,7 @@ internal sealed class RoomFxAnimatedTilesState
             throw new InvalidDataException($"Room-FX animated-tile object {objectPointer} has a zero-duration frame {shown}.");
 
         int sourceAddress = RoomFxAnimatedTileArtworkDefinitions.SourceAddress(mechanics, frame.InstructionPointer);
-        instructionTimer = NativeCountdown.Start(frame.Duration);
+        instructionTimer = WrappingCountdown.Start(frame.Duration);
         // The list's goto after the last frame returns to the first frame.
         nextFrame = shown + 1 < mechanics.Frames.Count ? shown + 1 : 0;
         LastSourceAddress = sourceAddress;

@@ -94,13 +94,13 @@ public sealed class BullEnemyState
     /// Wrapping movement-delay counter initialized/reloaded to $0010, with targeting selected when its decrement
     /// reaches exactly zero.
     /// </summary>
-    public NativeCountdown ActivationTimer { get; internal set; }
+    public WrappingCountdown ActivationTimer { get; internal set; }
 
     /// <summary>
     /// Shared acceleration/deceleration interval countdown, decremented on eligible speed-update calls and reloaded
     /// from the current phase's reset value on exact-zero expiry.
     /// </summary>
-    public NativeCountdown AccelerationIntervalTimer { get; internal set; }
+    public WrappingCountdown AccelerationIntervalTimer { get; internal set; }
 
     /// <summary>Native extension offset $00: maximum-speed threshold in 256ths of a pixel per update, 1023 through 2815, selected by population parameter two; prevents further acceleration when reached but does not clamp an overshooting update.</summary>
     public int MaxSpeed
@@ -145,9 +145,9 @@ public sealed class BullEnemyState
     }
 
     /// <summary>Native extension offset $0E: wrapping guard timer set to $0030 by an immune-shot kick and decremented each main-AI call; reaching zero clears the flag and pins the timer to one, while an initial zero first wraps to $FFFF.</summary>
-    public NativeCountdown ShotReactionDisableTimer
+    public WrappingCountdown ShotReactionDisableTimer
     {
-        get => NativeCountdown.FromRaw(_words.ShotReactionDisableTimer);
+        get => WrappingCountdown.FromRaw(_words.ShotReactionDisableTimer);
         internal set => _words.ShotReactionDisableTimer = value.RawValue;
     }
 
@@ -165,7 +165,7 @@ public sealed class BullEnemyState
         Acceleration = 0;
         AccelerationDelta = 0;
         Speed = 0;
-        ActivationTimer = NativeCountdown.Start(0);
-        AccelerationIntervalTimer = NativeCountdown.Start(0);
+        ActivationTimer = WrappingCountdown.Start(0);
+        AccelerationIntervalTimer = WrappingCountdown.Start(0);
     }
 }

@@ -95,7 +95,7 @@ internal static class KraidHeadInstructionsVerification
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
         {
             state.Parts[0].Function = KraidAiFunction.MainloopThinking;
-            state.ThinkingTimer = NativeCountdown.FromRaw((ushort)raw);
+            state.ThinkingTimer = WrappingCountdown.FromRaw((ushort)raw);
             state.Parts[0].HeadTimer = 999;
             combat(body, state, null, 0);
             AssertEqual(raw == 1
@@ -104,7 +104,7 @@ internal static class KraidHeadInstructionsVerification
                 state.Parts[0].HeadTimer, "Roar timer loads only on thinker expiry");
 
             state.Parts[0].Function = KraidAiFunction.SecondPhaseThinking;
-            state.ThinkingTimer = NativeCountdown.FromRaw((ushort)raw);
+            state.ThinkingTimer = WrappingCountdown.FromRaw((ushort)raw);
             state.Parts[0].HeadTimer = 999;
             combat(body, state, null, 0);
             AssertEqual(raw == 1

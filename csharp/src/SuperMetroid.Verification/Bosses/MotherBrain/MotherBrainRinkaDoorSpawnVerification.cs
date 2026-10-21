@@ -4,7 +4,6 @@ using static SuperMetroid.Verification.Harness.RetailGameFixtureVerification;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Hud;
-using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Poses;
@@ -40,7 +39,7 @@ internal static class MotherBrainRinkaDoorSpawnVerification
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         SamusPresentation.InitializeAnimation(samus);
         var game = CreateRetailGameFixture(new SuperMetroid.Core.Saves.SaveSlotStore(), renderGameplayFrames: false,
-            hostServices: SuperMetroidGameHostServices.Default with { DoorLoaderProgress = new CameraReachedLoaderProgress(runtime, 0x038c) }, random: random);
+            hostServices: SuperMetroidGameHostServices.Default with { RoomLoadProgress = new CameraReachedLoaderProgress(runtime, 0x038c) }, random: random);
         game.AdoptRuntime(runtime);
         game.Session.LastAudioRoomState = runtime.Room.LoadedRoom.State;
 
@@ -79,7 +78,7 @@ internal static class MotherBrainRinkaDoorSpawnVerification
     }
 
     /// <summary>Reports every enemy initialized once the door scroll has reached a layer-1 X.</summary>
-    internal sealed class CameraReachedLoaderProgress(SuperMetroidRuntime runtime, ushort cameraX) : IDoorLoaderProgressSource
+    internal sealed class CameraReachedLoaderProgress(SuperMetroidRuntime runtime, ushort cameraX) : IRoomLoadProgress
     {
         /// <summary>Allows enemy initialization once scrolling reaches the recorded layer-1 X.</summary>
         public bool HasInitializedEnemySlot(int slot) => runtime.Room.LoadedCamera.PixelPosition.X <= cameraX;

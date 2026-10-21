@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Samus.Drawing;
-using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.Plms;
@@ -96,7 +95,7 @@ internal static class BombJumpWallVerification
         AssertTrue(SamusKnockbackMovement.Start(hurt, 0, new KnockbackLaunch { KnockbackXDirection = KnockbackHorizontalDirection.Left }), "normal hurt interrupts humanoid bomb start");
         AssertTrue(!hurt.BombJumpStarting && !hurt.BombJumpActive, "hurt replaces the bomb movement owner immediately");
         AssertTrue(hurt.BombJumpPoseInputLocked, "hurt admission preserves independent bomb input lock");
-        hurt.KnockbackTimer = NativeCountdown.Start(0);
+        hurt.KnockbackTimer = WrappingCountdown.Start(0);
         AssertTrue(SamusKnockbackMovement.TryFinishExpiredHitInterruption(hurt), "hurt expiry consumes its transitional command");
         AssertTrue(!hurt.BombJumpPoseInputLocked, "hurt expiry restores normal pose input");
     }

@@ -47,16 +47,16 @@ public sealed class DachoraEnemyState
     /// While blinking or charging: the native wrapping countdown to the next phase (<c>DEC</c>, <c>BNE</c>), kept in
     /// the word that holds <see cref="Speed"/>'s whole pixels.
     /// </summary>
-    public NativeCountdown PhaseTimer
+    public WrappingCountdown PhaseTimer
     {
-        get => NativeCountdown.FromRaw(checked((ushort)_speedWholeOrPhaseTime));
+        get => WrappingCountdown.FromRaw(checked((ushort)_speedWholeOrPhaseTime));
         internal set => _speedWholeOrPhaseTime = value.RawValue;
     }
 
     /// <summary>On the first echo: frames until the echo positions next advance.</summary>
-    public NativeCountdown EchoPositionTimer
+    public WrappingCountdown EchoPositionTimer
     {
-        get => NativeCountdown.FromRaw(checked((ushort)_speedWholeOrPhaseTime));
+        get => WrappingCountdown.FromRaw(checked((ushort)_speedWholeOrPhaseTime));
         internal set => _speedWholeOrPhaseTime = value.RawValue;
     }
 
@@ -79,9 +79,9 @@ public sealed class DachoraEnemyState
     /// On an echo: the updates the echo stays visible, counted down to zero and never below it (<c>LDA</c>,
     /// <c>BEQ</c>, <c>DEC</c>); zero marks the echo free for the next trail position.
     /// </summary>
-    public NativeCountdown EchoLifetime
+    public WrappingCountdown EchoLifetime
     {
-        get => NativeCountdown.FromRaw(checked((ushort)_accelerationFractionOrEchoLifetime));
+        get => WrappingCountdown.FromRaw(checked((ushort)_accelerationFractionOrEchoLifetime));
         internal set => _accelerationFractionOrEchoLifetime = value.RawValue;
     }
 
@@ -108,7 +108,7 @@ public sealed class DachoraEnemyState
     /// </summary>
     internal bool TickPaletteCycle()
     {
-        _paletteCycle = NativeWordCounter.Decrement(checked((ushort)_paletteCycle)).Value;
+        _paletteCycle = WrappingCounter.Decrement(checked((ushort)_paletteCycle)).Value;
         return PaletteTicks == 0;
     }
 

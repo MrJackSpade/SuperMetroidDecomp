@@ -43,7 +43,7 @@ public sealed class MotherBrainEnemyState
     /// Native <c>mbn_var_F</c>. Every fake-death pause decrements this unsigned word and
     /// branches when bit 15 becomes set; zero therefore expires immediately to $FFFF.
     /// </summary>
-    public NativeCountdown FunctionTimer { get; internal set; }
+    public WrappingCountdown FunctionTimer { get; internal set; }
 
     /// <summary>
     /// Body-animation state written by private instruction opcodes. The body AI reads this
@@ -56,7 +56,7 @@ public sealed class MotherBrainEnemyState
     public int GrayFadeIndex { get; internal set; }
 
     /// <summary>Eight-frame cadence and wrapping coordinate cursor for fake-death dust.</summary>
-    public NativeCountdown FakeDeathExplosionTimer { get; internal set; }
+    public WrappingCountdown FakeDeathExplosionTimer { get; internal set; }
     /// <summary>Wrapping index 0 through 7 into authored fake-death explosion positions; decremented modulo eight whenever the explosion timer underflows.</summary>
     public int FakeDeathExplosionIndex { get; internal set; }
 
@@ -71,7 +71,7 @@ public sealed class MotherBrainEnemyState
     /// <summary>Head-record sub-dispatch and its independent underflow timer.</summary>
     public MotherBrainTubeCollapseFunction TubeCollapseFunction { get; internal set; }
     /// <summary>Independent wrapping word countdown used by selected tube spawn stages; expiration occurs after decrement sets the sign bit.</summary>
-    public NativeCountdown TubeCollapseTimer { get; internal set; }
+    public WrappingCountdown TubeCollapseTimer { get; internal set; }
 
     /// <summary>Exact delayed music writes made during the most recent enemy frame.</summary>
     public IReadOnlyList<DelayedMusicRequest> MusicRequests => _musicRequests;
@@ -123,7 +123,7 @@ public sealed class MotherBrainEnemyState
         AnimationProgramCursor<MotherBrainBodyProgram>.Start(MotherBrainBodyProgram.InitialDummy);
 
     /// <summary>Earthquake timer copied into the head-shake word after the glass event.</summary>
-    public NativeCountdown BrainMainShakeTimer { get; internal set; }
+    public WrappingCountdown BrainMainShakeTimer { get; internal set; }
 
     /// <summary>Shared flag that asks Mother Brain Rinkas and turrets to remove themselves.</summary>
     public bool DeleteTurretsAndRinkas { get; internal set; }
@@ -207,7 +207,7 @@ public sealed class MotherBrainEnemyState
     public bool EnemyBg2TilemapTransferRequested { get; internal set; }
 
     /// <summary>Four-frame cadence cursor for the eight ascent dust positions.</summary>
-    public NativeCountdown BodySubFunctionTimer { get; internal set; }
+    public WrappingCountdown BodySubFunctionTimer { get; internal set; }
 
     /// <summary>Zero-based palette pointer-table index used while leaving fake-death grey.</summary>
     public int GrayTransitionCounter { get; internal set; }
@@ -251,7 +251,7 @@ public sealed class MotherBrainEnemyState
     public MotherBrainAttackPhase AttackPhase { get; internal set; }
 
     /// <summary>Unsigned 64-frame attack cooldown decremented by <c>$A9:B764</c>.</summary>
-    public NativeCountdown AttackCooldown { get; internal set; }
+    public WrappingCountdown AttackCooldown { get; internal set; }
 
     /// <summary>
     /// Number of live Mother Brain bombs. Phase two refuses another bomb when this is at

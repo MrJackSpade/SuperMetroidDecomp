@@ -45,7 +45,7 @@ internal static class MamaTurtleShellContourVerification
             "Mama Turtle shell contour rejects right distance twenty-four");
 
         var mama = new RoomEnemySlot(0, EnemySlotFixtures.Registry) { Position = FixedPosition<RoomPixels>.FromWhole(new(0x0200, 0x0200))};
-        var state = new MamaTurtleEnemyState { AsleepFlag = NativeCountdown.Start(1) };
+        var state = new MamaTurtleEnemyState { AsleepFlag = WrappingCountdown.Start(1) };
         var samus = new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(new(0, 0)) };
         Action<RoomEnemySlot, MamaTurtleEnemyState, SamusState> runAsleep = MamaTurtleBehavior.RunMamaTurtleAsleep;
 

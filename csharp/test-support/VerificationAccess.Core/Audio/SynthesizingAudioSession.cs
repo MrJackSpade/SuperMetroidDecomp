@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Compatibility;
 using SuperMetroid.AssetExtraction.Audio.Synthesis;
 namespace SuperMetroid.Core.Audio;
 
@@ -19,7 +20,7 @@ internal sealed class SynthesizingAudioSession(ExtractedAudioAssetCatalog assets
     private readonly short[] lastPcm = new short[CartridgeAudioSession.PcmSamplesPerFrame];
 
     /// <summary>The acknowledgement bytes the most recent update published.</summary>
-    internal CartridgeAudioAcknowledgements Acknowledgements => events.Acknowledgements;
+    internal SoundAcknowledgements Acknowledgements => events.Acknowledgements;
 
     /// <summary>The emulated driver the backend plays through.</summary>
     internal ManagedSpcPlayer PlayerForVerification => backend.Player;

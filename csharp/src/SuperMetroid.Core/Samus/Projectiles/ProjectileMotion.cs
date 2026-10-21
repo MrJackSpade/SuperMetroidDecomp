@@ -46,7 +46,7 @@ internal sealed class ProjectileMotion
         slot.TrailTimer = slot.TrailTimer.Decrement().Remaining;
         if (slot.TrailTimer.IsZero)
         {
-            slot.TrailTimer = NativeCountdown.Start(4);
+            slot.TrailTimer = WrappingCountdown.Start(4);
             _trails.SpawnTrail(slot);
         }
 
@@ -109,7 +109,7 @@ internal sealed class ProjectileMotion
         slot.TrailTimer = slot.TrailTimer.Decrement().Remaining;
         if (slot.TrailTimer.IsZero)
         {
-            slot.TrailTimer = NativeCountdown.FromRaw(slot.PreInstruction ==
+            slot.TrailTimer = WrappingCountdown.FromRaw(slot.PreInstruction ==
                 SamusProjectilePreInstruction.WaveBeamThreeFrameTrail
                     ? (ushort)3
                     : (ushort)4);
@@ -190,7 +190,7 @@ internal sealed class ProjectileMotion
         slot.TrailTimer = slot.TrailTimer.Decrement().Remaining;
         if (slot.TrailTimer.IsZero)
         {
-            slot.TrailTimer = NativeCountdown.Start(4);
+            slot.TrailTimer = WrappingCountdown.Start(4);
             _trails.SpawnTrail(slot);
         }
 
@@ -266,7 +266,7 @@ internal sealed class ProjectileMotion
         slot.TrailTimer = slot.TrailTimer.Decrement().Remaining;
         if (slot.TrailTimer.IsZero)
         {
-            slot.TrailTimer = NativeCountdown.Start(2);
+            slot.TrailTimer = WrappingCountdown.Start(2);
             _trails.SpawnTrail(slot);
         }
 
@@ -368,7 +368,7 @@ internal sealed class ProjectileMotion
             SamusProjectileRomData.NonBeam.SuperMissileLinkDataPointers + 4);
         link.Damage = SamusProjectileDamageDefinitions.Read(SamusProjectileRomData.Banks.Projectile | dataPointer);
         link.Cursor = SamusProjectilePrograms.Start(SamusProjectileHeaderDefinitions.Program(dataPointer, 0));
-        link.InstructionTimer = NativeCountdown.Start(1);
+        link.InstructionTimer = WrappingCountdown.Start(1);
         link.PreInstruction = SamusProjectilePreInstruction.SuperMissileLink;
 
         owner.Variable = unchecked((ushort)((SnesLittleEndian.HighByteInPlace(owner.Variable)) + link.NativeByteIndex));

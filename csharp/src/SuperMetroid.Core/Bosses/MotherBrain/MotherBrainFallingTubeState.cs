@@ -21,7 +21,7 @@ internal sealed class MotherBrainFallingTubeState
     public SnesSignedEightEight FallSpeed { get; internal set; }
 
     /// <summary>The updates before the next smoke puff, counted down past zero.</summary>
-    public NativeCountdown SmokeDelay { get; internal set; }
+    public WrappingCountdown SmokeDelay { get; internal set; }
 
     /// <summary>The smoke puff's horizontal position, cycling through the four authored offsets.</summary>
     public int SmokePositionIndex
@@ -31,16 +31,16 @@ internal sealed class MotherBrainFallingTubeState
     }
 
     /// <summary>The main tube's wait before it falls (parameter two), counted down past zero.</summary>
-    public NativeCountdown FallDelay { get; internal set; }
+    public WrappingCountdown FallDelay { get; internal set; }
 
     /// <summary>Empties the values the cartridge keeps in the enemy's common record.</summary>
     internal void ClearWithRecord()
     {
-        FallDelay = NativeCountdown.Start(0);
+        FallDelay = WrappingCountdown.Start(0);
         Function = null;
         FloorY = 0;
         FallSpeed = default;
-        SmokeDelay = NativeCountdown.Start(0);
+        SmokeDelay = WrappingCountdown.Start(0);
         SmokePositionIndex = 0;
     }
 }

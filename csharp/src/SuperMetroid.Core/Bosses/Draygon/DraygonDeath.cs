@@ -60,7 +60,7 @@ internal sealed class DraygonDeath
         SpawnDraygonDeathEvirs(state);
         state.Function = DraygonAiFunction.DyingSink;
         state.MusicRequest = MusicCommand.SelectTrack(3);
-        state.FunctionTimer = NativeCountdown.Start(DraygonBehavior.DraygonDeathWaitFramesUs);
+        state.FunctionTimer = WrappingCountdown.Start(DraygonBehavior.DraygonDeathWaitFramesUs);
         _parts.StartDraygonProgram(body, DraygonProgram.Sleep);
 
         EnemyPropertyWord deletedPartProperties = body.Properties.With(EnemyProperties.Deleted);

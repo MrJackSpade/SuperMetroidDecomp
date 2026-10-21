@@ -48,7 +48,7 @@ internal sealed class NorfairRidleyDeath
         if (state.FightMode != RidleyFightMode.Dying)
         {
             SamusMovementType movement = samus is null ? SamusMovementType.Standing : SamusPoseMetadata.ReadMovementType(samus);
-            state.IntangibilityTimer = NativeCountdown.FromRaw(RidleySamusInteractionDefinitions.ReleaseIntangibilityFrames(movement));
+            state.IntangibilityTimer = WrappingCountdown.FromRaw(RidleySamusInteractionDefinitions.ReleaseIntangibilityFrames(movement));
         }
     }
 
@@ -80,10 +80,10 @@ internal sealed class NorfairRidleyDeath
         state.Velocity = new EightEightVector<RoomPixels>(0, 0);
         RidleyLiquidMotion.Publish(_roomFx, state, RidleyLiquidRomData.DrainedHeight,
             RidleyLiquidRomData.DrainVelocity, RidleyLiquidRomData.DrainDelay);
-        state.DeathExplosionTimer = NativeCountdown.Start(0);
+        state.DeathExplosionTimer = WrappingCountdown.Start(0);
         state.DeathExplosionCount = 0;
         state.Function = RidleyAiFunction.NorfairDeathFall;
-        state.FunctionTimer = NativeCountdown.Start(160);
+        state.FunctionTimer = WrappingCountdown.Start(160);
         TickNorfairRidleyDeathExplosions(body, state, samus: null);
     }
 
@@ -120,7 +120,7 @@ internal sealed class NorfairRidleyDeath
         state.MovementAnimationEnabled = false;
         body.Properties = body.Properties.With(EnemyProperties.Invisible);
         state.Function = RidleyAiFunction.NorfairDeathWait;
-        state.FunctionTimer = NativeCountdown.Start(32);
+        state.FunctionTimer = WrappingCountdown.Start(32);
     }
 
     /// <summary>$A6:C5C8's deliberate 32-frame pre-wait before the final 256 frames.</summary>
@@ -129,7 +129,7 @@ internal sealed class NorfairRidleyDeath
         if (!NorfairRidleyMovement.TickRidleyFunctionTimer(state))
             return;
         state.Function = RidleyAiFunction.NorfairDeathFinish;
-        state.FunctionTimer = NativeCountdown.Start(256);
+        state.FunctionTimer = WrappingCountdown.Start(256);
     }
 
     /// <summary>
@@ -173,7 +173,7 @@ internal sealed class NorfairRidleyDeath
             return;
         }
 
-        state.DeathExplosionTimer = NativeCountdown.Start(4);
+        state.DeathExplosionTimer = WrappingCountdown.Start(4);
         state.DeathExplosionCount++;
         if (state.DeathExplosionCount >= 10)
             state.DeathExplosionCount = 0;
@@ -227,15 +227,15 @@ internal sealed class NorfairRidleyDeath
         RidleyExplosionPart part = ClosedNativeWords.Decode<RidleyExplosionPart>(
             checked((ushort)fragment.Spawn.Population.Parameter1), "Ridley explosion part");
 
-        fragment.InstructionTimer = NativeCountdown.Start(1);
-        fragment.Timer = NativeCountdown.Start(0);
+        fragment.InstructionTimer = WrappingCountdown.Start(1);
+        fragment.Timer = WrappingCountdown.Start(0);
         fragment.VramTilesIndex = 0;
         fragment.PaletteIndex = EnemyPaletteBits.Palette7;
         int random = _room.Random.Generate();
         ushort horizontalMagnitude = unchecked((ushort)(random & RidleyExplosionDefinitions.FragmentSpeedMask));
         var fragmentState = new RidleyExplosionFragmentState
         {
-            Lifetime = NativeCountdown.FromRaw(RidleyExplosionDefinitions.GetPart(checked((ushort)fragment.Spawn.Population.Parameter1)).Lifetime),
+            Lifetime = WrappingCountdown.FromRaw(RidleyExplosionDefinitions.GetPart(checked((ushort)fragment.Spawn.Population.Parameter1)).Lifetime),
             Velocity = new(new SnesSignedEightEight(unchecked((short)random) < 0
                 ? unchecked((ushort)-horizontalMagnitude)
                 : horizontalMagnitude), default),
@@ -287,7 +287,7 @@ internal sealed class NorfairRidleyDeath
         fragmentState.Velocity = velocity;
         fragment.Position = fragment.Position.Advance(new(velocity.X.ToSixteenSixteenDelta(), velocity.Y.ToSixteenSixteenDelta()));
 
-        NativeWordCounterStep lifetime = fragmentState.Lifetime.Decrement();
+        CountdownStep lifetime = fragmentState.Lifetime.Decrement();
         fragmentState.Lifetime = lifetime.Remaining;
         if (lifetime.IsNonNegative)
             return;

@@ -35,9 +35,9 @@ internal static class GrappleEndpointGeometryVerification
             {
                 Phase = GrapplePhase.Firing, RopeLength = 8,
                 BeamStart = new(camera, camera),
-                Anchor = new(endpointX, endpointY), PointAnimationTimer = NativeCountdown.Start(5),
+                Anchor = new(endpointX, endpointY), PointAnimationTimer = WrappingCountdown.Start(5),
             };
-            grapple.SegmentAnimationTimers[15] = NativeCountdown.Start(1);
+            grapple.SegmentAnimationTimers[15] = WrappingCountdown.Start(1);
             var oamFrame = new SpriteFrameBuffer();
             SamusGrappleBeamDrawing.DrawConnectedBeam(grapple, oamFrame, new(camera, camera), SpriteFrameTestArtwork.BlankGrapple, samusPose: pose, standardObjects: SpriteFrameTestArtwork.StandardObjects);
             OamBuffer oam = oamFrame.FinalizeAsOam();
@@ -81,7 +81,7 @@ internal static class GrappleEndpointGeometryVerification
             samus.Grapple.Anchor = samus.Grapple.Anchor.WithY(unchecked((ushort)(runtime.Room.LoadedCamera.PixelPosition.Y - 1)));
             samus.Grapple.BeamStart = samus.Grapple.BeamStart.WithX(samus.Position.X.Whole);
             samus.Grapple.BeamStart = samus.Grapple.BeamStart.WithY(samus.Position.Y.Whole);
-            samus.Grapple.SegmentAnimationTimers[15] = NativeCountdown.Start(1);
+            samus.Grapple.SegmentAnimationTimers[15] = WrappingCountdown.Start(1);
             runtime.Sprites.BeginFrame();
             runtime.ActorDrawing.DrawGameplayActors(runtime.Room.LoadedScope, SamusDrawOwner.Gameplay, SamusPaletteEffects.Hold);
             runtime.Sprites.FinalizeFrame();

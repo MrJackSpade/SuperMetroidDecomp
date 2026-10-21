@@ -34,7 +34,7 @@ internal sealed class ProjectileEarthquakes
             // Publish at the native collision call, not at frame end: later enemy/room
             // producers may replace this request, and earlier draw owners may read it.
             earthquake.EarthquakeType = EarthquakeType;
-            earthquake.EarthquakeTimer = NativeCountdown.Start(EarthquakeTimer);
+            earthquake.EarthquakeTimer = WrappingCountdown.Start(EarthquakeTimer);
         }
     }
 

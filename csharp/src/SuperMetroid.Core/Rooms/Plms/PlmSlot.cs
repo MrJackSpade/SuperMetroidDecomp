@@ -24,7 +24,7 @@ internal sealed class PlmSlot
     /// <summary>The typed program the slot runs (#1296), or null for a slot a family step drives or a free slot.</summary>
     internal PlmAnimation? Animation { get; private set; }
     /// <summary>Countdown until the slot's next instruction-list step.</summary>
-    public NativeCountdown InstructionTimer { get; set; }
+    public WrappingCountdown InstructionTimer { get; set; }
     /// <summary>The pre-instruction run before the timer/list pass (native bank-$84 pointer <c>$1CD7,x</c>).</summary>
     internal IPlmPreInstruction PreInstruction { get; set; } = PlmPreInstructions.Inert;
     /// <summary>Native room argument word owned independently by every physical PLM slot.</summary>
@@ -54,7 +54,7 @@ internal sealed class PlmSlot
         BlockIndex = 0;
         RestoreLevelWord = 0;
         Animation = null;
-        InstructionTimer = NativeCountdown.Start(0);
+        InstructionTimer = WrappingCountdown.Start(0);
         PreInstruction = PlmPreInstructions.Inert;
         RoomArgument = 0;
         LoopTimer = 0;
@@ -86,13 +86,13 @@ internal sealed class PlmSlot
     internal void WakeAtLink()
     {
         (Animation ?? throw new InvalidOperationException("A PLM woke at its link without a typed program.")).WakeAtLink();
-        InstructionTimer = NativeCountdown.Start(1);
+        InstructionTimer = WrappingCountdown.Start(1);
     }
 
     /// <summary>A pre-instruction's wake past the sleep the slot rests on: the typed program steps over its hold, on the next pass.</summary>
     internal void WakePastSleep()
     {
         (Animation ?? throw new InvalidOperationException("A PLM woke past its sleep without a typed program.")).WakePastSleep();
-        InstructionTimer = NativeCountdown.Start(1);
+        InstructionTimer = WrappingCountdown.Start(1);
     }
 }

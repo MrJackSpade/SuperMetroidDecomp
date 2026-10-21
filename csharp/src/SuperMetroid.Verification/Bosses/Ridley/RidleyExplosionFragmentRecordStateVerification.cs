@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Enemies;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Bosses.Ridley;
 namespace SuperMetroid.Verification.Bosses.Ridley;
 using SuperMetroid.Verification.Harness;
@@ -16,11 +15,11 @@ internal static class RidleyExplosionFragmentRecordStateVerification
         var state = new RidleyExplosionFragmentState();
         slot.SetSpeciesState(state, state.ClearWithRecord);
         state.Velocity = new(new SnesSignedEightEight(0x0130), new SnesSignedEightEight(4));
-        state.Lifetime = NativeCountdown.Start(72);
+        state.Lifetime = WrappingCountdown.Start(72);
 
         slot.Clear();
         AssertEqual(default(EightEightVector<RoomPixels>), state.Velocity, "a kill empties the velocity");
-        AssertEqual(NativeCountdown.Start(0), state.Lifetime, "a kill empties the lifetime");
+        AssertEqual(WrappingCountdown.Start(0), state.Lifetime, "a kill empties the lifetime");
         Console.WriteLine("Ridley explosion fragment record state: a kill empties every value the record holds.");
     }
 

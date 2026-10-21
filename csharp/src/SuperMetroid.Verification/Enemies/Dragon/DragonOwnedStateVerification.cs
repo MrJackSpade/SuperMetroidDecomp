@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Dragon;
 namespace SuperMetroid.Verification.Enemies.Dragon;
@@ -29,7 +28,7 @@ internal static class DragonOwnedStateVerification
         AssertEqual(DragonEnemyFunction.WingNoOp, wingState.Function, "the wing runs no body AI");
 
         bodyState.FacingLeft = true;
-        bodyState.AttackCounter = NativeCountdown.Start(2);
+        bodyState.AttackCounter = WrappingCountdown.Start(2);
         body.Clear();
         AssertTrue(!bodyState.FacingLeft, "a kill empties the facing");
         AssertEqual((ushort)0, bodyState.AttackCounter.RawValue, "a kill empties the shot counter");

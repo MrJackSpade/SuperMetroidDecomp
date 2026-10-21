@@ -120,13 +120,13 @@ internal static class FullMovieReplayVerification
         NativeCheckpointMemory memory = checkpoints.ReadAfter(0) ?? throw new InvalidDataException(
             "The converted replay has no native checkpoint before its first update.");
         // The replay's hardware-timing evidence is fixed for the game's lifetime, across console resets.
-        var uploadNmis = new EvidencedDoorMusicUploadNmis();
-        var loaderProgress = new EvidencedDoorLoaderProgress();
+        var uploadNmis = new EvidencedDoorMusicLoadFrames();
+        var loaderProgress = new EvidencedRoomLoadProgress();
         var soundAcknowledgements = new EvidencedSoundAcknowledgements(memory);
         var hostServices = new SuperMetroidGameHostServices
         {
-            DoorMusicUploadNmis = uploadNmis,
-            DoorLoaderProgress = loaderProgress,
+            DoorMusicLoadFrames = uploadNmis,
+            RoomLoadProgress = loaderProgress,
             SoundAcknowledgements = soundAcknowledgements,
             GameplayFrames = CapturedGameplayFrames.Instance,
         };

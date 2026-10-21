@@ -1856,7 +1856,7 @@ internal static class LookupStream5Verification
         foreach (ushort camera in new ushort[] { 0, ushort.MaxValue })
         for (ushort phase = 0; phase < 4; phase++)
         {
-            door.Position = door.Position.WithWholeX(x); enemies.Earthquake.EarthquakeTimer = NativeCountdown.FromRaw(phase);
+            door.Position = door.Position.WithWholeX(x); enemies.Earthquake.EarthquakeTimer = WrappingCountdown.FromRaw(phase);
             var actual = new OamBuffer(); actual.BeginFrame();
             actual.AppendDrawn(frame => enemies.CeresRidleyBehavior.BabyScene.DrawCeresRidleyImmediateBabyAndDoor(frame, EnemyFormatDrawAccess.BlankObjectPage, new(camera, 0))); actual.FinalizeFrame();
             ushort native = CartridgeImportSource.Require(rom).ReadCartridgeWord(0xa6a321 + phase);

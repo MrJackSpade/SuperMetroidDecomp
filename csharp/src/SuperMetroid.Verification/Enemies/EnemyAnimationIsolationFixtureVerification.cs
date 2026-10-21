@@ -78,7 +78,7 @@ internal static class EnemyAnimationIsolationFixtureVerification
             Actor.Layer = Actor.Definition.Layer;
             Actor.Position = Actor.Position.WithWhole(new(128, (ushort)(FloorY - Actor.Radius.Y - 12)));
             Actor.Properties = new EnemyPropertyWord(EnemyProperties.ProcessInstructions | EnemyProperties.ProcessOffScreen);
-            Actor.InstructionTimer = NativeCountdown.Start(1);
+            Actor.InstructionTimer = WrappingCountdown.Start(1);
             if (golden)
             {
                 Actor.ExtraProperties = EnemyExtraPropertyWord.FromNativeWord((ushort)EnemyExtraProperties.UsesExtendedSpritemap);

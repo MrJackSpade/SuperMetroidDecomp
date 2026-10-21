@@ -90,7 +90,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
     /// <summary>Starts <paramref name="program"/> on <paramref name="slot"/> from the next update.</summary>
     private void StartGunshipProgram(RoomEnemySlot slot, GunshipProgram program)
     {
-        slot.InstructionTimer = NativeCountdown.Start(1);
+        slot.InstructionTimer = WrappingCountdown.Start(1);
         _shipPrograms[slot.SlotIndex] = AnimationProgramCursor<GunshipProgram>.Start(program);
     }
 
@@ -112,8 +112,8 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
         slot.SetSpeciesState(part, part.ClearWithRecord);
         slot.Properties = slot.Properties.With(
             EnemyProperties.ProcessInstructions | EnemyProperties.IgnoreSamusCollision);
-        slot.InstructionTimer = NativeCountdown.Start(1);
-        slot.Timer = NativeCountdown.Start(0);
+        slot.InstructionTimer = WrappingCountdown.Start(1);
+        slot.Timer = WrappingCountdown.Start(0);
         _shipPrograms[slot.SlotIndex] = AnimationProgramCursor<GunshipProgram>.Start(GunshipProgram.TopHull);
         slot.PaletteIndex = EnemyPaletteBits.Palette7;
         if (_gunshipLoadScenario == GunshipLoadScenario.EscapingCeres)
@@ -143,8 +143,8 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
         slot.SetSpeciesState(part, part.ClearWithRecord);
         slot.Properties = slot.Properties.With(
             EnemyProperties.ProcessInstructions | EnemyProperties.IgnoreSamusCollision);
-        slot.InstructionTimer = NativeCountdown.Start(1);
-        slot.Timer = NativeCountdown.Start(0);
+        slot.InstructionTimer = WrappingCountdown.Start(1);
+        slot.Timer = WrappingCountdown.Start(0);
         _shipPrograms[slot.SlotIndex] = AnimationProgramCursor<GunshipProgram>.Start(slot.Spawn.Population.Parameter2 != 0
             ? GunshipProgram.BottomEntrancePad
             : GunshipProgram.BottomHull);
@@ -199,7 +199,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
         // $A2:A75C decrements the solid bottom's engine-sound timer and reloads 70 on
         // one/underflow. QueueSfx2_Max6($4D) occurs before the reload, exactly as it does in
         // GunshipTop_Main; this periodic producer continues while the ship is idling/bobbing.
-        NativeWordCounterStep bottomTimer = NativeCountdown.FromRaw(checked((ushort)Part(bottom).EngineSoundTimer)).Decrement();
+        CountdownStep bottomTimer = WrappingCountdown.FromRaw(checked((ushort)Part(bottom).EngineSoundTimer)).Decrement();
         Part(bottom).EngineSoundTimer = bottomTimer.Value;
         if (bottomTimer.IsZeroOrNegative)
         {
@@ -391,7 +391,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
     /// <summary>Cycles the four native idle-bob entries while moving the hull and pad together.</summary>
     internal void StepGunshipBob(RoomEnemySlot top)
     {
-        NativeWordCounterStep bobTimer = NativeCountdown.FromRaw(checked((ushort)Part(top).BobTimer)).Decrement();
+        CountdownStep bobTimer = WrappingCountdown.FromRaw(checked((ushort)Part(top).BobTimer)).Decrement();
         Part(top).BobTimer = bobTimer.Value;
         if (!bobTimer.IsZeroOrNegative)
             return;
@@ -448,7 +448,7 @@ internal sealed class GunshipBehavior : IEnemyEntityFactory
     /// <summary>Decrements the native function timer, treating one and signed underflow as expiry.</summary>
     private static bool TickGunshipFunctionTimer(RoomEnemySlot top)
     {
-        NativeWordCounterStep functionTimer = NativeCountdown.FromRaw(checked((ushort)Part(top).FunctionTimer)).Decrement();
+        CountdownStep functionTimer = WrappingCountdown.FromRaw(checked((ushort)Part(top).FunctionTimer)).Decrement();
         Part(top).FunctionTimer = functionTimer.Value;
         return functionTimer.IsZeroOrNegative;
     }

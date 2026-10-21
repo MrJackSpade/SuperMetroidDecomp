@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Metroids;
 namespace SuperMetroid.Verification.Enemies.Metroids;
@@ -19,12 +18,12 @@ internal static class MochtroidRecordStateVerification
         var state = new MochtroidEnemyState();
         slot.SetSpeciesState(state, state.ClearWithRecord);
         state.Velocity = FixedVector<RoomPixels>.FromWords(1, 0, 0, 0);
-        state.ShakeTimer = NativeCountdown.Start(1);
+        state.ShakeTimer = WrappingCountdown.Start(1);
         state.MovementMode = Enum.GetValues<MochtroidMovementMode>()[^1];
 
         slot.Clear();
         AssertEqual<FixedVector<RoomPixels>>(FixedVector<RoomPixels>.Zero, state.Velocity, "a kill empties Velocity");
-        AssertEqual<NativeCountdown>(NativeCountdown.Start(0), state.ShakeTimer, "a kill empties ShakeTimer");
+        AssertEqual<WrappingCountdown>(WrappingCountdown.Start(0), state.ShakeTimer, "a kill empties ShakeTimer");
         AssertEqual<MochtroidMovementMode>(default(MochtroidMovementMode), state.MovementMode, "a kill empties MovementMode");
         Console.WriteLine("Mochtroid record state: a kill empties every value the record holds.");
     }

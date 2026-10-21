@@ -52,7 +52,7 @@ public sealed class SamusProjectileSlot
     /// <summary>The bank-$93 instruction pointer the cursor stands for; zero marks the slot inactive.</summary>
     public int InstructionPointer => SamusProjectileProgramAddresses.Address(Cursor);
     /// <summary>Updates remaining before the current projectile instruction advances.</summary>
-    public NativeCountdown InstructionTimer { get; internal set; }
+    public WrappingCountdown InstructionTimer { get; internal set; }
     /// <summary>Bank-relative pointer to the projectile's current spritemap.</summary>
     public int SpritemapPointer { get; internal set; }
     /// <summary>Current animation frame index.</summary>
@@ -62,7 +62,7 @@ public sealed class SamusProjectileSlot
         internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
     }
     /// <summary>Countdown controlling projectile-trail emission.</summary>
-    public NativeCountdown TrailTimer { get; internal set; }
+    public WrappingCountdown TrailTimer { get; internal set; }
     /// <summary>WRAM <c>$0C7C</c>; missile ignition/acceleration state in the high byte.</summary>
     [NativeWord("projectile variable word whose meaning each projectile family decodes")]
     public int Variable
@@ -100,7 +100,7 @@ public sealed class SamusProjectileSlot
         Velocity = default(EightEightVector<RoomPixels>);
         Radius = Extent16<RoomPixels>.Zero;
         Cursor = null;
-        InstructionTimer = NativeCountdown.Start(0);
+        InstructionTimer = WrappingCountdown.Start(0);
         SpritemapPointer = 0;
         AnimationFrame = 0;
         Variable = 0;
@@ -114,7 +114,7 @@ public sealed class SamusProjectileSlot
     /// </summary>
     internal void ClearForProjectileDataReset()
     {
-        TrailTimer = NativeCountdown.Start(0);
+        TrailTimer = WrappingCountdown.Start(0);
         Position = Position.WithWhole(Position16<RoomPixels>.Zero);
         Direction = 0;
         Velocity = default(EightEightVector<RoomPixels>);
@@ -122,7 +122,7 @@ public sealed class SamusProjectileSlot
         Type = 0;
         Damage = 0;
         Cursor = null;
-        InstructionTimer = NativeCountdown.Start(0);
+        InstructionTimer = WrappingCountdown.Start(0);
         Variable = 0;
         SpritemapPointer = 0;
         PreInstruction = SamusProjectilePreInstruction.None;

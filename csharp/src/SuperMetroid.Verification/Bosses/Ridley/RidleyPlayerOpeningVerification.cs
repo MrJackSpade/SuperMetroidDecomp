@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Hardware;
 using System.Globalization;
 using SuperMetroid.Core.Runtime;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
@@ -58,8 +57,8 @@ internal static class RidleyPlayerOpeningVerification
         // Ridley's body runs typed programs (#1287); the recording's native pointer selects the matching cursor.
         var pointers = new RidleyNativeInstructionPointers(CartridgeImportSource.Require(bus));
         (state ?? throw new InvalidOperationException("Verification requires Ridley's state.")).BodyProgram = pointers.BodyCursorAt(W(seed, 0xf92));
-        body.InstructionTimer = NativeCountdown.FromRaw(W(seed, 0xf94));
-        body.Timer = NativeCountdown.FromRaw(W(seed, 0xf90)); body.FrameCounter = W(seed, 0xfa4);
+        body.InstructionTimer = WrappingCountdown.FromRaw(W(seed, 0xf94));
+        body.Timer = WrappingCountdown.FromRaw(W(seed, 0xf90)); body.FrameCounter = W(seed, 0xfa4);
         body.SpritemapPointer = W(seed, 0xf8e);
         body.Position = body.Position.WithFractionX(W(seed, 0xf7c)); body.Position = body.Position.WithFractionY(W(seed, 0xf80));
         ushort random = 0;

@@ -132,7 +132,7 @@ internal sealed class CeresRidleyGetaway
             // special push/fall handler remains responsible for restoring normal input;
             // ending Mode 7 itself does not unlock her in the cartridge.
             state.Function = RidleyAiFunction.CeresActivateSelfDestruct;
-            state.FunctionTimer = NativeCountdown.Start(0);
+            state.FunctionTimer = WrappingCountdown.Start(0);
             return;
         }
 
@@ -242,14 +242,14 @@ internal sealed class CeresRidleyGetaway
                 CopyCeresWarningColors(_presentation.CgramRows.BackgroundRow(0), _presentation.CgramRows.BackgroundRow(6));
                 CopyCeresWarningColors(_presentation.CgramRows.BackgroundRow(1), _presentation.CgramRows.BackgroundRow(5));
                 state.CeresEscapeTransfers = CeresEscapeTransferCursor.TimerSprites;
-                state.FunctionTimer = NativeCountdown.Start(2);
+                state.FunctionTimer = WrappingCountdown.Start(2);
                 goto case 2;
 
             case 2:
                 if (QueueNextCeresEscapeTransfer(state, vramWriteQueue))
                 {
                     state.CeresEscapeTransfers = CeresEscapeTransferCursor.TimerBackgrounds;
-                    state.FunctionTimer = NativeCountdown.Start(4);
+                    state.FunctionTimer = WrappingCountdown.Start(4);
                     goto case 4;
                 }
                 return;
@@ -266,14 +266,14 @@ internal sealed class CeresRidleyGetaway
                     // static warning tilemap page. The frontend consumes this typed request
                     // through the same bank-$80 queue used by every other music producer.
                     state.MusicRequest = MusicCommand.SelectTrack(7);
-                    state.FunctionTimer = NativeCountdown.Start(6);
-                    state.CeresEscapeTextDelayTimer = NativeCountdown.Start(128);
+                    state.FunctionTimer = WrappingCountdown.Start(6);
+                    state.CeresEscapeTextDelayTimer = WrappingCountdown.Start(128);
                 }
                 return;
 
             case 6:
                 UpdateCeresSelfDestructPalette(state, _slotTable.Slots[0].FrameCounter);
-                NativeWordCounterStep delay = state.CeresEscapeTextDelayTimer.Decrement();
+                CountdownStep delay = state.CeresEscapeTextDelayTimer.Decrement();
                 state.CeresEscapeTextDelayTimer = delay.Remaining;
                 if (!delay.IsZero)
                     return;
@@ -288,32 +288,32 @@ internal sealed class CeresRidleyGetaway
                 // translation incorrectly counted the two INC instructions as four phase
                 // entries and jumped English directly to phase 12, suppressing every
                 // character below "EMERGENCY".
-                state.FunctionTimer = NativeCountdown.FromRaw(_roomStatus.JapaneseText ? (ushort)8 : (ushort)10);
+                state.FunctionTimer = WrappingCountdown.FromRaw(_roomStatus.JapaneseText ? (ushort)8 : (ushort)10);
                 return;
 
             case 8:
                 UpdateCeresSelfDestructPalette(state, _slotTable.Slots[0].FrameCounter);
-                NativeWordCounterStep japaneseDelay = state.CeresEscapeTextDelayTimer.Decrement();
+                CountdownStep japaneseDelay = state.CeresEscapeTextDelayTimer.Decrement();
                 state.CeresEscapeTextDelayTimer = japaneseDelay.Remaining;
                 if (japaneseDelay.IsZero)
                 {
-                    state.FunctionTimer = NativeCountdown.Start(10);
+                    state.FunctionTimer = WrappingCountdown.Start(10);
                     DrawCeresJapaneseOverlay(CeresEscapeVramTransferDefinitions.JapaneseOverlay);
                 }
                 if (StepCeresEscapeTypewriter(state))
-                    state.FunctionTimer = NativeCountdown.FromRaw(unchecked((ushort)(state.FunctionTimer.RawValue + 2)));
+                    state.FunctionTimer = WrappingCountdown.FromRaw(unchecked((ushort)(state.FunctionTimer.RawValue + 2)));
                 return;
 
             case 10:
                 UpdateCeresSelfDestructPalette(state, _slotTable.Slots[0].FrameCounter);
                 if (StepCeresEscapeTypewriter(state))
-                    state.FunctionTimer = NativeCountdown.Start(12);
+                    state.FunctionTimer = WrappingCountdown.Start(12);
                 return;
 
             case 12:
                 UpdateCeresSelfDestructPalette(state, _slotTable.Slots[0].FrameCounter);
                 state.Velocity = new EightEightVector<RoomPixels>(0, 0);
-                state.FunctionTimer = NativeCountdown.Start(0);
+                state.FunctionTimer = WrappingCountdown.Start(0);
                 state.Function = RidleyAiFunction.CeresSelfDestructPaletteOnly;
                 _ridleyEncounter.CeresStatus = CeresEscapeStatus.SelfDestructStarted;
                 // $A6:C131 sets the area-boss bit inside Ridley's AI, so later slots (the

@@ -15,7 +15,7 @@ namespace SuperMetroid.Core.Frontend.Intro;
 internal sealed class IntroDiscoverySprite
 {
     /// <summary>Countdown before the next sprite instruction is decoded; setup may stagger the first frame.</summary>
-    private NativeCountdown instructionTimer = NativeCountdown.Start(1);
+    private WrappingCountdown instructionTimer = WrappingCountdown.Start(1);
 
     /// <summary>Creates an actor at a whole-pixel origin with its starting OBJ attributes and program.</summary>
     public IntroDiscoverySprite(
@@ -67,9 +67,9 @@ internal sealed class IntroDiscoverySprite
     /// <see cref="GeneralTimer"/> read as the loop countdown of the set-timer and decrement-timer-and-goto
     /// opcodes (<c>DEC</c>, <c>BNE</c>).
     /// </summary>
-    private NativeCountdown InstructionLoopCountdown
+    private WrappingCountdown InstructionLoopCountdown
     {
-        get => NativeCountdown.FromRaw(GeneralTimer);
+        get => WrappingCountdown.FromRaw(GeneralTimer);
         set => GeneralTimer = value.RawValue;
     }
 
@@ -83,7 +83,7 @@ internal sealed class IntroDiscoverySprite
     public void Start(CinematicSpriteProgram program)
     {
         Program = AnimationProgramCursor<CinematicSpriteProgram>.Start(program);
-        instructionTimer = NativeCountdown.Start(1);
+        instructionTimer = WrappingCountdown.Start(1);
     }
 
     /// <summary>
@@ -101,7 +101,7 @@ internal sealed class IntroDiscoverySprite
     {
         if (frames == 0)
             throw new ArgumentOutOfRangeException(nameof(frames), "A native instruction delay must be nonzero.");
-        instructionTimer = NativeCountdown.Start(frames);
+        instructionTimer = WrappingCountdown.Start(frames);
     }
 
     /// <summary>Installs the pre-instruction the actor's owner selects, or none.</summary>
@@ -136,7 +136,7 @@ internal sealed class IntroDiscoverySprite
         // Counter steps count the actor's goto-timer word, as the native timer-load and countdown opcodes do. Only a
         // counter step changes it, so an owner's own use of the word between steps survives.
         ushort timerBefore = checked((ushort)GeneralTimer);
-        NativeCountdown counter = InstructionLoopCountdown;
+        WrappingCountdown counter = InstructionLoopCountdown;
         AnimationProgramAdvance<CinematicSpritePose> advance = CinematicSpriteAnimations.Programs.Advance(ref cursor, ref counter,
             (cue, _) =>
             {
@@ -149,7 +149,7 @@ internal sealed class IntroDiscoverySprite
         switch (advance)
         {
             case AnimationProgramAdvance<CinematicSpritePose>.Show shown:
-                instructionTimer = NativeCountdown.FromRaw((ushort)shown.Duration);
+                instructionTimer = WrappingCountdown.FromRaw((ushort)shown.Duration);
                 Pose = shown.Frame;
                 return;
             case AnimationProgramAdvance<CinematicSpritePose>.Hold:

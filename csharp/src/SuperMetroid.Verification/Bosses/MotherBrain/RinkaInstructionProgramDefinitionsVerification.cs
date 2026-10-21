@@ -58,7 +58,7 @@ internal static class RinkaInstructionProgramDefinitionsVerification
         rinka.Bind(EnemyDefinitionId.Rinka, rinka.Definition);
         rinka.Bind(rinka.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = 0xa2 });
         rinka.SetSpawnParameter1(special ? (ushort)1 : (ushort)0);
-        rinka.InstructionTimer = NativeCountdown.Start(1);
+        rinka.InstructionTimer = WrappingCountdown.Start(1);
 
         var state = new RinkaEnemyState()
         {

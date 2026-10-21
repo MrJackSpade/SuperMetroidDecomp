@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Bosses.Torizo;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core;
@@ -58,7 +57,7 @@ internal static class GoldenTorizoRoomSetupVerification
                 "forced left-turn starts before the shared facing-screen frame");
             (game.GameplayRuntimeForVerification.Enemies.BombTorizoBehavior.Attacks.GoldenTorizo
                 ?? throw new InvalidOperationException("Verification requires the Golden Torizo state.")).BodyProgram = AnimationProgramCursor<TorizoBodyProgram>.Start(program);
-            boss.InstructionTimer = NativeCountdown.Start(1);
+            boss.InstructionTimer = WrappingCountdown.Start(1);
         }
     }
 }

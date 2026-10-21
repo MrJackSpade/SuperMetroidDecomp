@@ -27,7 +27,7 @@ public sealed class KzanEnemyState
     /// Top-position wait in actor updates; decremented with 16-bit wrapping, so an initial zero does not expire
     /// immediately.
     /// </summary>
-    public NativeCountdown FallWaitTimer { get; internal set; }
+    public WrappingCountdown FallWaitTimer { get; internal set; }
 
     /// <summary>
     /// The top's original position, where upward motion stops before restarting the wait; only its Y is meaningful.
@@ -82,9 +82,9 @@ public sealed class KzanEnemyState
     }
 
     /// <summary>Post-landing wait in actor updates, backed by <c>$7E:7806,x</c>; loaded with 64 on landing and decremented to zero before upward motion begins.</summary>
-    public NativeCountdown RiseWaitTimer
+    public WrappingCountdown RiseWaitTimer
     {
-        get => NativeCountdown.FromRaw(_words.RiseWaitTimer);
+        get => WrappingCountdown.FromRaw(_words.RiseWaitTimer);
         internal set => _words.RiseWaitTimer = value.RawValue;
     }
 
@@ -92,7 +92,7 @@ public sealed class KzanEnemyState
     internal void ClearWithRecord()
     {
         Function = null;
-        FallWaitTimer = NativeCountdown.Start(0);
+        FallWaitTimer = WrappingCountdown.Start(0);
         RisingTarget = Position16<RoomPixels>.Zero;
         FallingTarget = Position16<RoomPixels>.Zero;
         InitialFallingSpeed = SnesSignedSixteenSixteen.Zero;

@@ -32,8 +32,8 @@ internal static class MaridiaLargeSnailInstructionDefinitionsVerification
                 RequestedInstructionListIndex = animationIndex,
                 InstalledInstructionListIndex = -1,
             };
-            slot.InstructionTimer = NativeCountdown.Start(0x1234);
-            slot.Timer = NativeCountdown.Start(0x5678);
+            slot.InstructionTimer = WrappingCountdown.Start(0x1234);
+            slot.Timer = WrappingCountdown.Start(0x5678);
             MaridiaLargeSnailBehavior.InstallMaridiaLargeSnailInstructionList(slot, state);
             AssertEqual(animationIndex, state.InstalledInstructionListIndex, $"Oum installed selector {animationIndex}");
             AssertEqual(AnimationProgramCursor<MaridiaLargeSnailProgram>.Start(program), state.Program, $"Oum installed animation {animationIndex}");
@@ -91,8 +91,8 @@ internal static class MaridiaLargeSnailInstructionDefinitionsVerification
     private static void Start(RoomEnemySlot slot, MaridiaLargeSnailEnemyState state, MaridiaLargeSnailProgram program)
     {
         state.Program = AnimationProgramCursor<MaridiaLargeSnailProgram>.Start(program);
-        slot.InstructionTimer = NativeCountdown.Start(1);
-        slot.Timer = NativeCountdown.Start(0);
+        slot.InstructionTimer = WrappingCountdown.Start(1);
+        slot.Timer = WrappingCountdown.Start(0);
     }
 
     /// <summary>Runs the Oum checks and its program oracle against the local retail cartridge.</summary>

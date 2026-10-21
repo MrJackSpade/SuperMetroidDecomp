@@ -19,10 +19,10 @@ public sealed class DragonEnemyState
     public bool FacingLeft { get; internal set; }
 
     /// <summary>The body's countdown while waiting, rising, or sinking.</summary>
-    public NativeCountdown FunctionTimer { get; internal set; }
+    public WrappingCountdown FunctionTimer { get; internal set; }
 
     /// <summary>The body's shots left while attacking; initialized to three before the first volley.</summary>
-    public NativeCountdown AttackCounter { get; internal set; }
+    public WrappingCountdown AttackCounter { get; internal set; }
 
     /// <summary>The current behaviour; none once a kill has emptied the record.</summary>
     public DragonEnemyFunction? Function { get; internal set; }
@@ -41,8 +41,8 @@ public sealed class DragonEnemyState
     {
         IsWing = false;
         FacingLeft = false;
-        FunctionTimer = NativeCountdown.Start(0);
-        AttackCounter = NativeCountdown.Start(0);
+        FunctionTimer = WrappingCountdown.Start(0);
+        AttackCounter = WrappingCountdown.Start(0);
         Function = null;
     }
 }

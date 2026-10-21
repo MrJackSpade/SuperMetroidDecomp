@@ -107,7 +107,7 @@ internal sealed class MotherBrainFinishSamusOffPhases
         if (stoodUp)
         {
             _state.Phase = MotherBrainBodyFunction.SecondPhaseFinishSamusOffAdmire;
-            _state.FunctionTimer = NativeCountdown.Start(16);
+            _state.FunctionTimer = WrappingCountdown.Start(16);
             return true;
         }
         return false;
@@ -126,7 +126,7 @@ internal sealed class MotherBrainFinishSamusOffPhases
         {
             _state.SetHeadProgram(MotherBrainHeadProgram.StretchingPhase2);
             _state.Phase = MotherBrainBodyFunction.SecondPhaseFinishSamusOffChargeFinalBeam;
-            _state.FunctionTimer = NativeCountdown.Start(256);
+            _state.FunctionTimer = WrappingCountdown.Start(256);
         }
         return false;
     }
@@ -163,7 +163,7 @@ internal sealed class MotherBrainFinishSamusOffPhases
             _state.BabyMetroidSpawned = true;
             requests.BabySpawnRequested = true;
             _state.Phase = MotherBrainBodyFunction.SecondPhaseFinishSamusOffFireFinalBeam;
-            _state.FunctionTimer = NativeCountdown.Start(256);
+            _state.FunctionTimer = WrappingCountdown.Start(256);
         }
         return false;
     }

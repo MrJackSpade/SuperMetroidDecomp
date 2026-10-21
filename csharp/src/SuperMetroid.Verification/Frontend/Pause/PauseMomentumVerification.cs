@@ -24,7 +24,7 @@ internal static class PauseMomentumVerification
                 ExtraRunSpeed = new SnesUnsignedSixteenSixteen(2, 0x8000),
                 SpeedBoostCounter = new SamusSpeedBoostCounter(0x0402),
                 SpecialPaletteFrame = 6,
-                SpecialPaletteTimer = NativeCountdown.Start(3),
+                SpecialPaletteTimer = WrappingCountdown.Start(3),
             };
             // Populate both echo slots through their production capture path, then
             // put them in departure mode. Unpause must erase rather than restart it.

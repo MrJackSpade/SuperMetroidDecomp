@@ -64,7 +64,7 @@ public sealed class MagdolliteEnemyState
     /// remains observable and matches main AI exactly. The wrapping word counts enemy updates, is reset to $0100 by the
     /// throw list, and expires when the head observes its sign bit after decrementing through zero.
     /// </summary>
-    public NativeCountdown AttackTimer { get; internal set; }
+    public WrappingCountdown AttackTimer { get; internal set; }
 
     /// <summary>
     /// Signed 16.16 downward velocity in room pixels per update, from the population's linear speed record; the falling

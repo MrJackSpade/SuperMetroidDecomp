@@ -114,7 +114,7 @@ internal static class BeetomInstructionProgramDefinitionsVerification
         {
             random = (ushort)value;
             fixture.State.Function = BeetomEnemyFunction.DecideActionSamusNotInProximity;
-            fixture.State.FunctionTimer = NativeCountdown.Start(0x1234);
+            fixture.State.FunctionTimer = WrappingCountdown.Start(0x1234);
             AnimationProgramCursor<BeetomProgram> program = fixture.State.Program;
             fixture.Choose(fixture.State);
             ushort expected = ReadBeetomInstructionWord(rom, (ushort)(0xb74e + 2 * (value & 7)));
@@ -155,7 +155,7 @@ internal static class BeetomInstructionProgramDefinitionsVerification
     {
         for (int call = 0; call < calls; call++)
         {
-            slot.InstructionTimer = NativeCountdown.Start(1);
+            slot.InstructionTimer = WrappingCountdown.Start(1);
             EnemyInstructionRunner.Process(arguments);
         }
     }

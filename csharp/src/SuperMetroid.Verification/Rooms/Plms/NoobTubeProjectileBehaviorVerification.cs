@@ -225,7 +225,7 @@ internal static class NoobTubeProjectileBehaviorVerification
             for (int tick = 1; tick <= maximumTicks; tick++)
             {
                 system.Projectiles.CurrentFrame8 = unchecked((byte)tick);
-                projectile.InstructionTimer = NativeCountdown.Start(1);
+                projectile.InstructionTimer = WrappingCountdown.Start(1);
                 Process(system, projectile);
                 if (!projectile.IsActive)
                     return tick;

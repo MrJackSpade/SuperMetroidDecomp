@@ -82,7 +82,7 @@ internal sealed class DraygonGoop
             state.Function = direction == HorizontalDirection.Right
                 ? DraygonAiFunction.GoopRightTail
                 : DraygonAiFunction.GoopLeftTail;
-            state.GoopCounter = NativeCountdown.Start(16);
+            state.GoopCounter = WrappingCountdown.Start(16);
             return;
         }
         MoveDraygonAlongGoopPath(state, direction == HorizontalDirection.Right);
@@ -305,8 +305,8 @@ internal sealed class DraygonGoop
         goop.BlocksSamusProjectiles = false;
         goop.CanDamageSamus = false;
         goop.PersistsOnSamusContact = true;
-        samus.InvincibilityTimer = NativeCountdown.Start(0);
-        samus.KnockbackTimer = NativeCountdown.Start(0);
+        samus.InvincibilityTimer = WrappingCountdown.Start(0);
+        samus.KnockbackTimer = WrappingCountdown.Start(0);
     }
 
     /// <summary>Follows Samus with attached goop and counts down its removal timer.</summary>
@@ -326,7 +326,7 @@ internal sealed class DraygonGoop
 
         goop.Position = goop.Position.WithWhole(new(samus.Position.X.Whole, unchecked((ushort)(samus.Position.Y.Whole + goop.Variable1 * 4 - 12))));
         // The attachment lifetime counts down in variable zero (DEC then BNE): the goop falls off when it reaches zero.
-        NativeWordCounterStep lifetime = NativeCountdown.FromRaw(checked((ushort)goop.Variable0)).Decrement();
+        CountdownStep lifetime = WrappingCountdown.FromRaw(checked((ushort)goop.Variable0)).Decrement();
         goop.Variable0 = lifetime.Remaining.RawValue;
         if (lifetime.IsZero)
             RemoveAttachedDraygonGoop(goop, samus);

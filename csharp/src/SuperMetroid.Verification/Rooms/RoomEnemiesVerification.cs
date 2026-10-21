@@ -367,7 +367,7 @@ internal static void VerifyEnemyProjectileCollisionLifecycle()
     owner.Direction = (ushort)SamusProjectileDirection.Right;
     owner.Position = owner.Position.WithWhole(new(0x01b7, 0x0196));
     owner.Cursor = SamusProjectileProgramAddresses.CursorAt(0x9f3b);
-    owner.InstructionTimer = NativeCountdown.Start(15);
+    owner.InstructionTimer = WrappingCountdown.Start(15);
     owner.SpritemapPointer = 0xae0f;
     owner.PreInstruction = SamusProjectilePreInstruction.SuperMissile;
 
@@ -377,7 +377,7 @@ internal static void VerifyEnemyProjectileCollisionLifecycle()
     link.Direction = (ushort)SamusProjectileDirection.Right;
     link.Position = link.Position.WithWhole(new(0x01af, 0x0196));
     link.Cursor = SamusProjectileProgramAddresses.CursorAt(0x9f7b);
-    link.InstructionTimer = NativeCountdown.Start(1);
+    link.InstructionTimer = WrappingCountdown.Start(1);
     link.SpritemapPointer = 0;
     link.PreInstruction = SamusProjectilePreInstruction.SuperMissileLink;
 
@@ -502,9 +502,9 @@ internal static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool 
             {
                 ripper.Properties = EnemyPropertyWord.FromNativeWord((ushort)(EnemyProperties.Invisible | EnemyProperties.ProcessOffScreen |
                     (intangible ? EnemyProperties.IgnoreSamusCollision : default(EnemyProperties))));
-                ripper.InvincibilityTimer = NativeCountdown.FromRaw(initial);
-                ripper.FlashTimer = NativeCountdown.Start(16);
-                ripper.FrozenTimer = NativeCountdown.Start(400);
+                ripper.InvincibilityTimer = WrappingCountdown.FromRaw(initial);
+                ripper.FlashTimer = WrappingCountdown.Start(16);
+                ripper.FrozenTimer = WrappingCountdown.Start(400);
                 for (int frame = 1; frame <= 12; frame++)
                 {
                     enemies.StepFrame(new RoomEnemyFrame { Camera = new(0, 0), TimeIsFrozen = true, Level = level });
@@ -516,9 +516,9 @@ internal static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool 
             Console.WriteLine("X-Plasma: 120 original-CPU EnemyMain frame records match production exactly.");
             return;
         }
-        ripper.InvincibilityTimer = NativeCountdown.Start(10);
-        ripper.FlashTimer = NativeCountdown.Start(16);
-        ripper.FrozenTimer = NativeCountdown.Start(400);
+        ripper.InvincibilityTimer = WrappingCountdown.Start(10);
+        ripper.FlashTimer = WrappingCountdown.Start(16);
+        ripper.FrozenTimer = WrappingCountdown.Start(400);
         ushort initialX = ripper.Position.X.Whole;
         int initialInstruction = ripper.CurrentInstruction;
         for (int frame = 1; frame <= 12; frame++)
@@ -532,13 +532,13 @@ internal static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool 
             AssertEqual(initialInstruction, ripper.CurrentInstruction, "X-ray holds enemy instruction pointer");
         }
         ripper.Properties = ripper.Properties.With(EnemyProperties.IgnoreSamusCollision);
-        ripper.InvincibilityTimer = NativeCountdown.Start(10);
+        ripper.InvincibilityTimer = WrappingCountdown.Start(10);
         enemies.StepFrame(new RoomEnemyFrame { Camera = new(0, 0), TimeIsFrozen = true, Level = level });
         AssertEqual(10, ripper.InvincibilityTimer.RawValue, "intangible actor bypasses native invincibility clock");
         ripper.Properties = ripper.Properties.Without(EnemyProperties.IgnoreSamusCollision);
-        ripper.InvincibilityTimer = NativeCountdown.Start(1);
-        ripper.FrozenTimer = NativeCountdown.Start(0);
-        ripper.FlashTimer = NativeCountdown.Start(0);
+        ripper.InvincibilityTimer = WrappingCountdown.Start(1);
+        ripper.FrozenTimer = WrappingCountdown.Start(0);
+        ripper.FlashTimer = WrappingCountdown.Start(0);
         var touchingSamus = new SamusState
         {
             Pose = SamusPoseId.FacingRightNormalPose,
@@ -586,7 +586,7 @@ internal static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool 
     enemies.TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = sheets, Palettes = palettes, Spritemaps = EnemySpritemapDocuments.Load(spriteJson) });
     var shakenOam = new OamBuffer();
     ripper.FrameCounter = 0;
-    ripper.ShakeTimer = NativeCountdown.Start(2);
+    ripper.ShakeTimer = WrappingCountdown.Start(2);
     shakenOam.BeginFrame();
     enemies.Drawing.DrawLayersAsOam(shakenOam, new(0, 0), 0, 7);
     shakenOam.FinalizeFrame();
@@ -595,7 +595,7 @@ internal static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool 
     AssertEqual(1, ripper.ShakeTimer.RawValue, "enemy draw consumes one shake tick");
 
     ripper.FrameCounter = 2;
-    ripper.ShakeTimer = NativeCountdown.Start(2);
+    ripper.ShakeTimer = WrappingCountdown.Start(2);
     shakenOam.BeginFrame();
     enemies.Drawing.DrawLayersAsOam(shakenOam, new(0, 0), 0, 7);
     shakenOam.FinalizeFrame();
@@ -641,7 +641,7 @@ internal static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool 
         projectile.Position = projectile.Position.WithWhole(target.Position.Whole);
         projectile.Radius = new(4, 4);
         projectile.Cursor = ProjectileFixtureCursors.Active;
-        projectile.InstructionTimer = NativeCountdown.Start(1);
+        projectile.InstructionTimer = WrappingCountdown.Start(1);
     }
 
     SamusProjectileSlot shot = projectiles.Slots[0];
@@ -661,8 +661,8 @@ internal static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool 
 
     // Clear the focused freeze fixture and prove the Super Missile multiplier, hurt flash, and
     // common death/deletion accounting on the same loaded actor.
-    ripper.FrozenTimer = NativeCountdown.Start(0);
-    ripper.InvincibilityTimer = NativeCountdown.Start(0);
+    ripper.FrozenTimer = WrappingCountdown.Start(0);
+    ripper.InvincibilityTimer = WrappingCountdown.Start(0);
     ripper.AiStates = EnemyAiStates.None;
     byte expectedHurtCry = unchecked((byte)ripper.Definition.HurtSoundEffect);
     int criesBefore = enemies.Audio.SoundRequests.Count(request =>
@@ -795,7 +795,7 @@ internal static void VerifyCeresDoorBossBranch()
     enemies.Load(new RoomEnemyLoadRequest(bus.ReadEnemyPopulation(populationPointer), bus.ReadEnemyGraphicsSet(tilesetPointer), BgArtworkFixtures.For(vram), cgram) { Samus = samus });
     RoomEnemySlot door = enemies.SlotTable.Slots[0];
     door.CurrentInstruction = 0xf55e;
-    door.InstructionTimer = NativeCountdown.Start(1);
+    door.InstructionTimer = WrappingCountdown.Start(1);
 
     for (int frame = 0; frame < 4; frame++)
         enemies.StepFrame(new RoomEnemyFrame { Camera = new(0, 0), TimeIsFrozen = false, Samus = samus });
@@ -944,7 +944,7 @@ internal static void VerifyCeresRidleyRoomEntry()
     short[] expectedDoorOffsets = [0, 0, -4, -1];
     for (ushort timer = 0; timer < expectedDoorOffsets.Length; timer++)
     {
-        enemies.Earthquake.EarthquakeTimer = NativeCountdown.FromRaw(timer);
+        enemies.Earthquake.EarthquakeTimer = WrappingCountdown.FromRaw(timer);
         var doorOam = new OamBuffer();
         doorOam.BeginFrame();
         doorOam.AppendDrawn(frame => enemies.CeresRidleyBehavior.BabyScene.DrawCeresRidleyImmediateBabyAndDoor(frame, EnemyFormatDrawAccess.BlankObjectPage, new(0, 0)));
@@ -954,7 +954,7 @@ internal static void VerifyCeresRidleyRoomEntry()
     }
     overlayDoor.Bind(0, overlayDoor.Definition);
     enemies.RidleyEncounter.CeresStatus = CeresEscapeStatus.RidleyNotEscaped;
-    enemies.Earthquake.EarthquakeTimer = NativeCountdown.Start(0);
+    enemies.Earthquake.EarthquakeTimer = WrappingCountdown.Start(0);
 
     enemies.StepFrame(new RoomEnemyFrame { Camera = new(0, 0), TimeIsFrozen = false });
     AssertEqual((ushort)RidleyAiFunction.InitialDelay, (ushort)state.Function,

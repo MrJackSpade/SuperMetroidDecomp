@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Core.Audio;
+﻿using SuperMetroid.Core.Compatibility;
+using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Hardware;
 
 namespace SuperMetroid.AssetExtraction.Audio.Synthesis;
@@ -706,7 +707,7 @@ internal sealed class SpcMusicSequencer
     /// <c>$F4</c> as the sequencer reads it: the CPU's latest music command, or
     /// <see cref="MusicPortCommand.None"/> once a tempo tick consumed it. The sound-effect
     /// latches, their acknowledgements and the driver timer belong to the game session's
-    /// <see cref="SpcCommandPorts"/>, which schedules this player's ticks (#1304).
+    /// <see cref="Core.Compatibility.SoundAcceptanceClock"/>, which schedules this player's ticks (#1304).
     /// </summary>
     internal int musicInputLatch;
 

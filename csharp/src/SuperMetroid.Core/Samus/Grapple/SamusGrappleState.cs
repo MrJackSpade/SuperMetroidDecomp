@@ -48,7 +48,7 @@ public sealed class SamusGrappleState
     /// </summary>
     public SuperMetroid.Core.Samus.Projectiles.SamusProjectileDirection FireDirection { get; set; }
     /// <summary>Native $0CF6, GrappleBeam_PoseChangeAutoFireTimer; permits early pose-directed refiring.</summary>
-    public NativeCountdown PoseChangeAutoFireTimer { get; set; }
+    public WrappingCountdown PoseChangeAutoFireTimer { get; set; }
     /// <summary>Gets or sets the signed 8.8 endpoint extension velocity.</summary>
     public EightEightVector<RoomPixels> ExtensionVelocity { get; set; }
 
@@ -80,7 +80,7 @@ public sealed class SamusGrappleState
     /// <summary>Gets or sets the signed vertical impulse applied by a grapple wall jump.</summary>
     public short JumpImpulse { get; set; }
     /// <summary>Gets or sets the countdown suppressing repeated swing-collision bounces.</summary>
-    public NativeCountdown CollisionBounceTimer { get; set; }
+    public WrappingCountdown CollisionBounceTimer { get; set; }
     /// <summary>Gets or sets whether the grapple movement uses submerged physics.</summary>
     public bool Submerged { get; set; }
 
@@ -122,7 +122,7 @@ public sealed class SamusGrappleState
     /// Native `$0D30` grace counter. Wall-grab release seeds 30, then `$9B:C832` performs
     /// one DEC/BPL wall-jump check per frame until zero wraps to `$FFFF`.
     /// </summary>
-    public NativeCountdown WallJumpTimer { get; set; }
+    public WrappingCountdown WallJumpTimer { get; set; }
 
     /// <summary>
     /// Distinguishes `$C856` reached from a locked type-$16 pose from ordinary firing
@@ -150,10 +150,10 @@ public sealed class SamusGrappleState
     public int FlareAnimationFrame { get; set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value); }
 
     /// <summary>Native decrement-before-test animation timer `$0CD8`.</summary>
-    public NativeCountdown FlareAnimationTimer { get; set; }
+    public WrappingCountdown FlareAnimationTimer { get; set; }
 
     /// <summary>Gets or sets the grapple endpoint animation countdown.</summary>
-    public NativeCountdown PointAnimationTimer { get; set; }
+    public WrappingCountdown PointAnimationTimer { get; set; }
     /// <summary>
     /// Endpoint animation frame, normally zero through three. The advance keeps every ordinal it produces below
     /// 128 and restored ordinals are 0 through 255; other writes are rejected.
@@ -168,7 +168,7 @@ public sealed class SamusGrappleState
     /// Sixteen timers at WRAM $7E:0D42. A connected rope draws slots 15 downward; retaining
     /// all sixteen makes shortening and lengthening the rope resume the original slot state.
     /// </summary>
-    public NativeCountdown[] SegmentAnimationTimers { get; } = new NativeCountdown[16];
+    public WrappingCountdown[] SegmentAnimationTimers { get; } = new WrappingCountdown[16];
 
     /// <summary>
     /// Readable $21-$24 instruction phases corresponding to WRAM pointers $7E:0D62-$0D80.

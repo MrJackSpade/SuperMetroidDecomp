@@ -271,8 +271,8 @@ internal static void VerifySamusRenderingSlice()
     // `$90:85E2` suppresses body OAM on odd invincibility frames but still calls the
     // bank-$92 tile-definition selector. This is deliberately not folded into the arm-
     // cannon test: `$90:C663` has a similar-looking but stricter condition of its own.
-    samus.InvincibilityTimer = NativeCountdown.Start(1);
-    samus.KnockbackTimer = NativeCountdown.Start(0);
+    samus.InvincibilityTimer = WrappingCountdown.Start(1);
+    samus.KnockbackTimer = WrappingCountdown.Start(0);
     samus.Presentation.TileTransfers.ClearTransferFlags();
     oamFrame.BeginFrame();
     BindSyntheticSamusRendering(bus, samus);
@@ -294,7 +294,7 @@ internal static void VerifySamusRenderingSlice()
 
     // Knockback and shine are two independent OR terms in the native branch. Prove each
     // on an odd frame so neither can pass accidentally through the even-NMI condition.
-    samus.KnockbackTimer = NativeCountdown.Start(1);
+    samus.KnockbackTimer = WrappingCountdown.Start(1);
     oamFrame.BeginFrame();
     BindSyntheticSamusRendering(bus, samus);
     samus.Presentation.Draw(samus, oamFrame, layer1: new(0x0400, 0), nmiFrameCounter: 1);
@@ -302,7 +302,7 @@ internal static void VerifySamusRenderingSlice()
     AssertEqual(2, oam.LastFinalizedSpriteCount,
         "knockback overrides odd-frame invincibility blink");
 
-    samus.KnockbackTimer = NativeCountdown.Start(0);
+    samus.KnockbackTimer = WrappingCountdown.Start(0);
     AssertTrue(samus.Shinespark.TryStoreFromSpeedBooster(new SamusSpeedBoostCounter(0x0400)),
         "test fixture installs nonzero native shine timer");
     oamFrame.BeginFrame();
@@ -320,8 +320,8 @@ internal static void VerifySamusRenderingSlice()
     // Reset the unrelated flicker inputs before exercising the complete `$90:86EE/$870C`
     // bottom-half matrix using authored pose/movement pairs. Movement type $0C has no
     // authored pose record, so production correctly cannot reach that dispatcher slot.
-    samus.InvincibilityTimer = NativeCountdown.Start(0);
-    samus.KnockbackTimer = NativeCountdown.Start(0);
+    samus.InvincibilityTimer = WrappingCountdown.Start(0);
+    samus.KnockbackTimer = WrappingCountdown.Start(0);
     SeedBodyHalfRoutingTileAnimation(bus);
     foreach ((SamusPoseId pose, byte movementType, ushort frame, int expectedSprites, string name) in new[]
     {
@@ -602,11 +602,11 @@ internal static void VerifySamusArmCannon()
         "the bound cover character is the installed tile the native $9A:9E00 upload names");
 
     // Odd invincibility frames and an off-screen coordinate both publish no cover draw.
-    samus.InvincibilityTimer = NativeCountdown.Start(1);
+    samus.InvincibilityTimer = WrappingCountdown.Start(1);
     OamBuffer flickerOam = SpriteFrameBuffer.DrawnOam(frame => cannon.Draw(frame, samus, new(0x0400, 0), nmiFrameCounter: 1));
     AssertEqual(0, flickerOam.LastFinalizedSpriteCount, "odd invincibility frame suppresses the cover draw");
 
-    samus.InvincibilityTimer = NativeCountdown.Start(0);
+    samus.InvincibilityTimer = WrappingCountdown.Start(0);
     OamBuffer clippedOam = SpriteFrameBuffer.DrawnOam(frame => cannon.Draw(frame, samus, layer1: new(0x0500, 0), nmiFrameCounter: 0));
     AssertEqual(0, clippedOam.LastFinalizedSpriteCount, "off-screen cover publishes no draw");
 

@@ -1,5 +1,4 @@
 using SuperMetroid.Verification.Samus.Projectiles;
-using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Runtime;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
@@ -41,8 +40,8 @@ internal static class RidleyShotHealthStageVerification
         ridley.Position = ridley.Position.WithWhole(new(0x00a4, 0x0148));
         ridley.SpritemapPointer = 0xe983;
         ridley.Properties = EnemyPropertyWord.FromNativeWord(0x3800);
-        ridley.InvincibilityTimer = NativeCountdown.Start(0);
-        ridley.InstructionTimer = NativeCountdown.Start(0x7fff);
+        ridley.InvincibilityTimer = WrappingCountdown.Start(0);
+        ridley.InstructionTimer = WrappingCountdown.Start(0x7fff);
         ridley.Health = 9340;
         state.FightMode = RidleyFightMode.PowerBombDodge;
         state.HealthStage = 0;
@@ -53,7 +52,7 @@ internal static class RidleyShotHealthStageVerification
             shot.Type = 0x8200; shot.Damage = 300; shot.Direction = 2;
             shot.Position = shot.Position.WithWhole(new(0x00c5, 0x0164));
             shot.Radius = new(8, 8);
-            shot.Cursor = ProjectileFixtureCursors.Active; shot.InstructionTimer = NativeCountdown.Start(1);
+            shot.Cursor = ProjectileFixtureCursors.Active; shot.InstructionTimer = WrappingCountdown.Start(1);
         }
         runtime.Enemies.Collision.ResolveOrdinaryProjectileHits(runtime.Projectiles, runtime.BombProjectiles, samus,
             onlyNativeEnemyIndex: ridley.NativeIndex);

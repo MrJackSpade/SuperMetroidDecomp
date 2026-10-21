@@ -1,5 +1,4 @@
 using SuperMetroid.Verification.Bosses.Botwoon;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Runtime;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
 using SuperMetroid.Core.Bosses.MotherBrain;
@@ -25,7 +24,7 @@ internal static class MotherBrainInheritedExplosionIndexVerification
         MotherBrainEnemyState state = runtime.Enemies.MotherBrainEncounter.MotherBrain
             ?? throw new InvalidOperationException("Mother Brain's room has no encounter state.");
 
-        state.BodySubFunctionTimer = NativeCountdown.Start(2);
+        state.BodySubFunctionTimer = WrappingCountdown.Start(2);
         runtime.Enemies.MotherBrainBehavior.Attacks.StartLiveMotherBrainRainbowBeam(state, runtime.Player.IntroducedSamus, null);
         MotherBrainRainbowBeamAttackSequence sequence = (state.RainbowBeamSequence ?? throw new InvalidOperationException("Verification requires state.RainbowBeamSequence."));
         AssertEqual((ushort)2, sequence.ThirdPhaseDeath.DeathAndEscapeExplosionIndex.RawValue, "the sequence inherits word $0FF2");

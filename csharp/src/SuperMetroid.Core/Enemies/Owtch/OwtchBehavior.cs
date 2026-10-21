@@ -78,7 +78,7 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
             LeftVelocity = left,
             Behavior = (OwtchBehaviorState)initialState,
             BurialDepth = 0,
-            UndergroundTimer = NativeCountdown.FromRaw(undergroundTimer),
+            UndergroundTimer = WrappingCountdown.FromRaw(undergroundTimer),
             MinimumPosition = new(unchecked((ushort)(slot.Position.X.Whole - travelDistance)), 0),
             MaximumPosition = new(unchecked((ushort)(slot.Position.X.Whole + travelDistance)), 0),
         };
@@ -123,7 +123,7 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
                 if (state.BurialDepth >= OwtchMaximumBurialDepth)
                 {
                     state.Behavior = OwtchBehaviorState.Underground;
-                    state.UndergroundTimer = NativeCountdown.FromRaw(OwtchMovementDefinitions.UndergroundTimer(
+                    state.UndergroundTimer = WrappingCountdown.FromRaw(OwtchMovementDefinitions.UndergroundTimer(
                         SnesLittleEndian.HighByte(slot.Spawn.Population.Parameter1)));
                 }
                 return;
@@ -203,8 +203,8 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
     private static void SetOwtchProgram(RoomEnemySlot slot, OwtchEnemyState state, OwtchProgram program)
     {
         state.Program = AnimationProgramCursor<OwtchProgram>.Start(program);
-        slot.InstructionTimer = NativeCountdown.Start(1);
-        slot.Timer = NativeCountdown.Start(0);
+        slot.InstructionTimer = WrappingCountdown.Start(1);
+        slot.Timer = WrappingCountdown.Start(0);
     }
 
     /// <summary>Allows common bomb damage only while Owtch occupies vulnerable movement state zero.</summary>

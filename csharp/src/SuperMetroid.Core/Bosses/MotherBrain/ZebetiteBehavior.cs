@@ -111,8 +111,8 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
         // raw while naming only the independently verified instruction-processing bit.
         slot.Properties = slot.Properties.With(EnemyProperties.ProcessInstructions);
         slot.Properties = slot.Properties.With(EnemyProperties.SolidToSamus);
-        slot.InstructionTimer = NativeCountdown.Start(1);
-        slot.Timer = NativeCountdown.Start(0);
+        slot.InstructionTimer = WrappingCountdown.Start(1);
+        slot.Timer = WrappingCountdown.Start(0);
         slot.PaletteIndex = EnemyPaletteBits.Palette2;
         // Tile 128: the Zebetite artwork follows the room's first 128 enemy tiles.
         slot.VramTilesIndex = 128;
@@ -145,7 +145,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
     private void RunZebetiteMain(RoomEnemySlot slot, ZebetiteEnemyState state)
     {
         if (_earthquake.EarthquakeTimer.IsZero)
-            slot.ShakeTimer = NativeCountdown.Start(0);
+            slot.ShakeTimer = WrappingCountdown.Start(0);
 
         switch (state.Function)
         {
@@ -236,8 +236,8 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Cursor = AnimationProgramCursor<ZebetiteProgram>.Start(ZebetiteAnimations.HealthProgram(
             linkedPair: (state.GenerationFlags & ZebetiteGenerationFlags.LinkedPair) != 0,
             slot.Health));
-        slot.InstructionTimer = NativeCountdown.Start(1);
-        slot.Timer = NativeCountdown.Start(0);
+        slot.InstructionTimer = WrappingCountdown.Start(1);
+        slot.Timer = WrappingCountdown.Start(0);
     }
 
     /// <summary>Finds a free physical slot and initializes a primary or linked half from its population record.</summary>
@@ -338,7 +338,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         ZebetiteEnemyState state = slot.RequireSpeciesState<ZebetiteEnemyState>();
         ushort oldTimer = slot.InstructionTimer.RawValue;
-        slot.InstructionTimer = NativeCountdown.FromRaw(unchecked((ushort)(oldTimer - 1)));
+        slot.InstructionTimer = WrappingCountdown.FromRaw(unchecked((ushort)(oldTimer - 1)));
         if (oldTimer != 1)
         {
             slot.ExtraProperties = slot.ExtraProperties.Without(EnemyExtraProperties.NewInstructionFrame);
@@ -346,7 +346,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         AnimationProgramCursor<ZebetiteProgram> cursor = state.Cursor;
-        NativeCountdown counter = slot.Timer;
+        WrappingCountdown counter = slot.Timer;
         AnimationProgramAdvance<ZebetiteFrame> advance = ZebetiteAnimations.Programs.Advance(ref cursor, ref counter,
             (cue, continuation) => throw new InvalidOperationException($"Zebetite programs publish no cue {cue}."));
         slot.Timer = counter;
@@ -354,7 +354,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
         switch (advance)
         {
             case AnimationProgramAdvance<ZebetiteFrame>.Show shown:
-                slot.InstructionTimer = NativeCountdown.FromRaw((ushort)shown.Duration);
+                slot.InstructionTimer = WrappingCountdown.FromRaw((ushort)shown.Duration);
                 slot.Frame = ZebetiteVisualDefinitions.ShownFrames.Of(shown.Frame);
                 slot.ExtraProperties = slot.ExtraProperties.With(EnemyExtraProperties.NewInstructionFrame);
                 return;

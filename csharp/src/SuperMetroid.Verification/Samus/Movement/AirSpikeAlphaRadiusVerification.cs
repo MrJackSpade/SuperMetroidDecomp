@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Samus.Drawing;
-using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
@@ -52,7 +51,7 @@ internal static class AirSpikeAlphaRadiusVerification
         samus.Position = samus.Position.WithWholeY(495);
         SamusPresentation.InitializeAnimation(samus);
         samus.Kinematics.Radius = new(5, 12);
-        samus.InvincibilityTimer = NativeCountdown.Start(0);
+        samus.InvincibilityTimer = WrappingCountdown.Start(0);
         runtime.Room.LoadedCamera.SetPosition(new Position16<RoomPixels>(400, 350));
         int health = samus.Health;
 

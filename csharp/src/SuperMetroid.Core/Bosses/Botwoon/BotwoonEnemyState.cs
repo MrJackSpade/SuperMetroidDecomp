@@ -33,9 +33,9 @@ public sealed class BotwoonEnemyState
     /// <summary>History-entry distance between successive body samples, selected inversely to movement speed: 6, 4, or 3.</summary>
     public int SegmentSpacingEntries { get; internal set; }
     /// <summary>Initial unsigned countdown, seeded to 256 and decremented until zero before normal traversal begins.</summary>
-    public NativeCountdown InitialDelayTimer { get; internal set; }
+    public WrappingCountdown InitialDelayTimer { get; internal set; }
     /// <summary>Spit-action cooldown, seeded to 48 for the stationary attack and decremented to signed underflow by the head callback before being pinned to zero.</summary>
-    public NativeCountdown AttackTimer { get; internal set; }
+    public WrappingCountdown AttackTimer { get; internal set; }
     /// <summary>
     /// Pre-fall death count: seeded to 240 once the tail completes the hole transition and incremented once per update
     /// until it reaches 256, when the head starts falling; it stays within 240..256.
@@ -50,9 +50,9 @@ public sealed class BotwoonEnemyState
     /// <summary>Elapsed wall-explosion update count 0 through 192, also used as the vertical progression of randomized explosion positions.</summary>
     public int WallExplosionFrame { get; internal set; }
     /// <summary>Large wall-explosion countdown, active from update 64 and reloaded to 12 after signed underflow.</summary>
-    public NativeCountdown LargeExplosionTimer { get; internal set; }
+    public WrappingCountdown LargeExplosionTimer { get; internal set; }
     /// <summary>Small wall-explosion countdown, active from update 64 and reloaded to four after signed underflow to emit a pair of effects.</summary>
-    public NativeCountdown SmallExplosionTimer { get; internal set; }
+    public WrappingCountdown SmallExplosionTimer { get; internal set; }
     /// <summary>Health-selected movement magnitude 2, 3, or 4: pixels per direct-vector update or signed path samples consumed per authored-path update.</summary>
     public int Speed { get; internal set; }
     /// <summary>The hole, zero through three, that direct movement targets and the next path choice starts from.</summary>

@@ -60,7 +60,7 @@ internal sealed class RidleyBodyAnimation
                     return null;
                 // $A6:E4E2 stores 8 to the Ridley timer at $7E:7800 before the goto,
                 // cutting the fireball hover short.
-                state.FunctionTimer = NativeCountdown.Start(8);
+                state.FunctionTimer = WrappingCountdown.Start(8);
                 return goToIfCeresAndSamusLowEnergy.Target;
             case RidleyBodyCue.Command { Kind: RidleyBodyCueKind.Roar }:
                 state.Roaring = true;

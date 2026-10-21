@@ -305,7 +305,7 @@ public sealed class SamusProjectileSystem
         {
             // `$91:D7C1` branches before DEC at `$D7CB`. Native explicitly zeroes the
             // already-`$8000` timer and returns carry so `$D717` performs the suit copy.
-            Charge.ChargedShotGlowTimer = NativeCountdown.Start(0);
+            Charge.ChargedShotGlowTimer = WrappingCountdown.Start(0);
             ProjectileAnimation.LoadNormalSuitPalette(cgram, samus);
             LastBeamChargePaletteStep = new(
                 SamusBeamChargePaletteAction.RestoredNormalSuit);
@@ -566,11 +566,11 @@ public sealed class SamusProjectileSystem
             // flare (WRAM offsets four, two, zero), so preserve that reverse OAM order.
             for (int component = 2; component >= 0; component--)
             {
-                NativeWordCounterStep timer = Charge.DecrementFlareTimer(component);
+                CountdownStep timer = Charge.DecrementFlareTimer(component);
                 if (timer.IsZeroOrNegative)
                 {
                     bool finalFrame = Charge.FlareFrame(component) == 1;
-                    Charge.SetFlareFrame(component, NativeWordCounter.Decrement(Charge.FlareFrame(component)).Value);
+                    Charge.SetFlareFrame(component, WrappingCounter.Decrement(Charge.FlareFrame(component)).Value);
                     if (finalFrame)
                     {
                         // The fast-spark component at native offset four owns the global
@@ -739,7 +739,7 @@ public sealed class SamusProjectileSystem
         ClearProjectileData(samus);
         Charge.FlareCounter = 0;
         Charge.PreviousBeamChargeCounter = 0;
-        Charge.ChargedShotGlowTimer = NativeCountdown.Start(0);
+        Charge.ChargedShotGlowTimer = WrappingCountdown.Start(0);
         Charge.ClearFlare();
         LastBeamChargePaletteStep = default;
         LastVisorPaletteStep = default;
@@ -763,7 +763,7 @@ public sealed class SamusProjectileSystem
         foreach (SamusProjectileTrailSlot trail in SlotTable.TrailSlots)
             trail.ClearFields();
         SlotTable.ProjectileCounter = 0;
-        Firing.ProjectileInvincibilityTimer = NativeCountdown.Start(0);
+        Firing.ProjectileInvincibilityTimer = WrappingCountdown.Start(0);
         Earthquakes.EarthquakeType = 0;
         Earthquakes.EarthquakeTimer = 0;
         LastFrameResult = default;

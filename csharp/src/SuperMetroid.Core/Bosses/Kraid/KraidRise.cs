@@ -100,7 +100,7 @@ internal sealed class KraidRise
         // growth, and death functions upload in independently timed slices.
         InitializeKraidBackground(state);
         state.HurtFrame = 0;
-        state.HurtFrameTimer = NativeCountdown.Start(0);
+        state.HurtFrameTimer = WrappingCountdown.Start(0);
 
         body.Position = body.Position.WithWhole(new(176, 592));
         body.Properties = body.Properties.With(EnemyProperties.IgnoreSamusCollision);
@@ -173,7 +173,7 @@ internal sealed class KraidRise
         _slotTable.Slots[2].Position = _slotTable.Slots[2].Position.WithWholeY(unchecked((ushort)(body.Position.Y.Whole - 20)));
         _slotTable.Slots[3].Position = _slotTable.Slots[3].Position.WithWholeY(unchecked((ushort)(body.Position.Y.Whole + 46)));
         _slotTable.Slots[4].Position = _slotTable.Slots[4].Position.WithWholeY(unchecked((ushort)(body.Position.Y.Whole + 112)));
-        state.ThinkingTimer = NativeCountdown.FromRaw(_head.ReadKraidThinkingTimer());
+        state.ThinkingTimer = WrappingCountdown.FromRaw(_head.ReadKraidThinkingTimer());
     }
 
     /// <summary>Dispatches rise, scroll, tilemap, and palette stages of growth.</summary>
@@ -376,14 +376,14 @@ internal sealed class KraidRise
                 RestrictSamusToKraidFirstScreen(samus);
                 state.Parts[body.SlotIndex].Function = KraidAiFunction.RaiseRocksEvery16Frames;
                 state.Parts[body.SlotIndex].RisingRockTimer = 120;
-                _earthquake.EarthquakeTimer = NativeCountdown.Start(496);
+                _earthquake.EarthquakeTimer = WrappingCountdown.Start(496);
                 state.MusicRequest = MusicCommand.SelectTrack(5);
                 KraidBackground.TransferKraidBottomTilemap(state);
                 return;
 
             case KraidAiFunction.RaiseRocksEvery16Frames:
                 RestrictSamusToKraidFirstScreen(samus);
-                NativeWordCounterStep slowRockStep = NativeCountdown.FromRaw(checked((ushort)state.Parts[body.SlotIndex].RisingRockTimer)).Decrement();
+                CountdownStep slowRockStep = WrappingCountdown.FromRaw(checked((ushort)state.Parts[body.SlotIndex].RisingRockTimer)).Decrement();
                 state.Parts[body.SlotIndex].RisingRockTimer = slowRockStep.Remaining.RawValue;
                 if (slowRockStep.IsZero)
                 {
@@ -398,7 +398,7 @@ internal sealed class KraidRise
 
             case KraidAiFunction.RaiseRocksEvery8Frames:
                 RestrictSamusToKraidFirstScreen(samus);
-                NativeWordCounterStep fastRockStep = NativeCountdown.FromRaw(checked((ushort)state.Parts[body.SlotIndex].RisingRockTimer)).Decrement();
+                CountdownStep fastRockStep = WrappingCountdown.FromRaw(checked((ushort)state.Parts[body.SlotIndex].RisingRockTimer)).Decrement();
                 state.Parts[body.SlotIndex].RisingRockTimer = fastRockStep.Remaining.RawValue;
                 if (fastRockStep.IsZero)
                 {

@@ -124,14 +124,14 @@ internal static class KraidAnimationsVerification
         (_, KraidEnemyState state, RoomEnemySlot body, RoomEnemySlot arm) = NewKraid();
         body.Health = 104;
         state.Parts[1].Cursor = AnimationProgramCursor<KraidPartProgram>.Start(KraidPartProgram.ArmNormalPause);
-        arm.InstructionTimer = NativeCountdown.Start(1);
+        arm.InstructionTimer = WrappingCountdown.Start(1);
         Pass(arm);
         Pass(arm, forceExpiry: true);
         AssertEqual(KraidPartProgram.ArmNormal, state.Parts[1].Cursor.Program, "a healthy arm loops its normal swing");
 
         body.Health = 51;
         state.Parts[1].Cursor = AnimationProgramCursor<KraidPartProgram>.Start(KraidPartProgram.ArmNormalPause);
-        arm.InstructionTimer = NativeCountdown.Start(1);
+        arm.InstructionTimer = WrappingCountdown.Start(1);
         Pass(arm);
         Pass(arm, forceExpiry: true);
         AssertEqual(KraidPartProgram.ArmSlow, state.Parts[1].Cursor.Program, "below half health the pause starts the slow swing");
@@ -139,7 +139,7 @@ internal static class KraidAnimationsVerification
         AssertEqual((ushort)8, arm.InstructionTimer.RawValue, "the slow swing's first frame lasts eight updates");
 
         state.Parts[1].Cursor = new(KraidPartProgram.ArmSlow, KraidAnimations.Programs.Steps(KraidPartProgram.ArmSlow).Count - 3);
-        arm.InstructionTimer = NativeCountdown.Start(1);
+        arm.InstructionTimer = WrappingCountdown.Start(1);
         Pass(arm);
         Pass(arm, forceExpiry: true);
         AssertEqual(KraidPartProgram.ArmSlow, state.Parts[1].Cursor.Program, "a slow arm's callback keeps the slow swing");
@@ -149,7 +149,7 @@ internal static class KraidAnimationsVerification
     private static void Pass(RoomEnemySlot part, bool forceExpiry = false)
     {
         if (forceExpiry)
-            part.InstructionTimer = NativeCountdown.Start(1);
+            part.InstructionTimer = WrappingCountdown.Start(1);
         EnemyInstructionInterpreter.ProcessInstructions(part, samus: null, level: null, Position16<RoomPixels>.Zero, controllerInput: 0);
     }
 

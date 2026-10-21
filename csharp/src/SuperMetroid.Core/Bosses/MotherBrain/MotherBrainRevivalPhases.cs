@@ -34,7 +34,7 @@ internal sealed class MotherBrainRevivalPhases
         // `$C059` only installs the next function and its `$0300` timer. It does not
         // fall through, so the first pre-decrement belongs to the following call.
         _state.Phase = MotherBrainBodyFunction.SecondPhaseReviveShowSignsOfLife;
-        _state.FunctionTimer = NativeCountdown.Start(768);
+        _state.FunctionTimer = WrappingCountdown.Start(768);
         return false;
     }
 
@@ -53,7 +53,7 @@ internal sealed class MotherBrainRevivalPhases
             EnableSmallPurpleBreathGeneration();
             _state.DroolGenerationEnabled = true;
             _state.Phase = MotherBrainBodyFunction.SecondPhaseReviveTransitionFromGrey;
-            _state.FunctionTimer = NativeCountdown.Start(224);
+            _state.FunctionTimer = WrappingCountdown.Start(224);
             _state.GreyTransitionCounter = 0;
             return true;
         }
@@ -69,7 +69,7 @@ internal sealed class MotherBrainRevivalPhases
         _state.FunctionTimer = _state.FunctionTimer.Decrement().Remaining;
         if (_state.FunctionTimer.IsNegative)
         {
-            _state.FunctionTimer = NativeCountdown.Start(16);
+            _state.FunctionTimer = WrappingCountdown.Start(16);
 
             // `$AD:ED9C` reverses the same eight grey palettes used by the corpse
             // transition and follows them with zero. The body counter is incremented
@@ -106,7 +106,7 @@ internal sealed class MotherBrainRevivalPhases
             _state.NeckAngleDelta = 1280;
             _state.NeckMovementEnabled = true;
             _state.Phase = MotherBrainBodyFunction.SecondPhaseReviveWakeUpStretch;
-            _state.FunctionTimer = NativeCountdown.Start(16);
+            _state.FunctionTimer = WrappingCountdown.Start(16);
             return true;
         }
         return false;
@@ -123,7 +123,7 @@ internal sealed class MotherBrainRevivalPhases
         {
             _state.SetHeadProgram(MotherBrainHeadProgram.StretchingPhase3);
             _state.Phase = MotherBrainBodyFunction.SecondPhaseReviveWalkUpToBaby;
-            _state.FunctionTimer = NativeCountdown.Start(128);
+            _state.FunctionTimer = WrappingCountdown.Start(128);
             return true;
         }
         return false;
@@ -203,7 +203,7 @@ internal sealed class MotherBrainRevivalPhases
                 ? MotherBrainHeadProgram.AttackingBabyMetroid
                 : MotherBrainHeadProgram.AttackingSamusFourOnionRingsPhase3);
             _state.Phase = MotherBrainBodyFunction.SecondPhaseMurderBabyAttackCooldown;
-            _state.FunctionTimer = NativeCountdown.Start(64);
+            _state.FunctionTimer = WrappingCountdown.Start(64);
         }
         return false;
     }

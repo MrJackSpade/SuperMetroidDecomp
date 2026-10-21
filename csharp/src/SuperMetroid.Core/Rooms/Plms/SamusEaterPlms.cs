@@ -34,7 +34,7 @@ internal sealed class SamusEaterPlms
         slot.HeaderPointer = header;
         slot.BlockIndex = block.Index;
         slot.StartAnimation(new SamusEaterPlmAnimation(definition.Program));
-        slot.InstructionTimer = NativeCountdown.Start(1);
+        slot.InstructionTimer = WrappingCountdown.Start(1);
         slot.PlantHeldPosition = new(samus.Position.X.Whole, unchecked((ushort)(samus.Position.Y.Whole + (definition.Ceiling ? 1 : -1))));
         level.SetForegroundEntry(block.Index, (ushort)(block.PackedWord.Raw & SamusEaterPlmRomData.DeactivatedTriggerMask));
         return;
@@ -51,7 +51,7 @@ internal sealed class SamusEaterPlms
         samus.Position = samus.Position.WithWhole(new(slot.PlantHeldPosition.X, slot.PlantHeldPosition.Y));
         // Native TSB is bitwise OR, not a clamp or an input lock. Samus's normal
         // movement runs before this placement, preserving cartridge interactions.
-        samus.InvincibilityTimer = NativeCountdown.FromRaw(unchecked((ushort)(samus.InvincibilityTimer.RawValue | SamusEaterPlmRomData.HeldInvincibilityBit)));
+        samus.InvincibilityTimer = WrappingCountdown.FromRaw(unchecked((ushort)(samus.InvincibilityTimer.RawValue | SamusEaterPlmRomData.HeldInvincibilityBit)));
     }
 
     /// <summary><c>$84:AC9D</c>: one chew's periodic damage to the held Samus.</summary>
@@ -59,5 +59,5 @@ internal sealed class SamusEaterPlms
 
     /// <summary><c>$84:ACB1</c>: gives the released Samus her release immunity.</summary>
     internal void ReleaseSamus() =>
-        RequirePlantSamus().InvincibilityTimer = NativeCountdown.Start(SamusEaterPlmRomData.ReleaseInvincibilityFrames);
+        RequirePlantSamus().InvincibilityTimer = WrappingCountdown.Start(SamusEaterPlmRomData.ReleaseInvincibilityFrames);
 }

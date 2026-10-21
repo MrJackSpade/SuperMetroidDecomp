@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Input;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
-using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Samus;
@@ -47,7 +46,7 @@ internal static class OverlappingEnemyShotsVerification
         shot.Position = shot.Position.WithWhole(new(128, 128));
         shot.Radius = new(4, 4);
         shot.Cursor = ProjectileFixtureCursors.Active;
-        shot.InstructionTimer = NativeCountdown.Start(1);
+        shot.InstructionTimer = WrappingCountdown.Start(1);
         shot.PreInstruction = SamusProjectilePreInstruction.Missile;
 
         AssertEqual(3, enemies.Collision.ResolveOrdinaryProjectileHits(shots, bombs, samus),
@@ -62,8 +61,8 @@ internal static class OverlappingEnemyShotsVerification
         foreach (var enemy in enemies.SlotTable.Slots.Take(3))
         {
             enemy.AiStates = EnemyAiStates.None;
-            enemy.FlashTimer = NativeCountdown.Start(0);
-            enemy.InvincibilityTimer = NativeCountdown.Start(0);
+            enemy.FlashTimer = WrappingCountdown.Start(0);
+            enemy.InvincibilityTimer = WrappingCountdown.Start(0);
         }
         AssertEqual(0, enemies.Collision.ResolveOrdinaryProjectileHits(shots, bombs, samus),
             "removed projectile cannot damage the stack on the next pass");

@@ -64,7 +64,7 @@ internal sealed class EscapeRoomEffects
         if (type is { } quake)
         {
             enemies.Earthquake.EarthquakeType = quake;
-            enemies.Earthquake.EarthquakeTimer = NativeCountdown.Start(ushort.MaxValue);
+            enemies.Earthquake.EarthquakeTimer = WrappingCountdown.Start(ushort.MaxValue);
         }
         if (setup == RoomSetupCallback.SetZebesTimebombEventAndLightHorizontalShaking)
             _system.SetEvent(SuperMetroid.Core.Progression.EventNumber.ZebesTimebombSet);
@@ -91,7 +91,7 @@ internal sealed class EscapeRoomEffects
             }
             else if (_system.NextRandom() < (light ? ZebesEscapeRomData.LightChance : ZebesEscapeRomData.MediumChance))
             {
-                _room.RoomMainScratch.Countdown = NativeCountdown.Start(ZebesEscapeRomData.DiagonalFrames);
+                _room.RoomMainScratch.Countdown = WrappingCountdown.Start(ZebesEscapeRomData.DiagonalFrames);
                 enemies.Earthquake.EarthquakeType = light ? ZebesEscapeRomData.MediumDiagonal : ZebesEscapeRomData.StrongDiagonal;
             }
         }

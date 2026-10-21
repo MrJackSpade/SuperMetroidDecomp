@@ -42,7 +42,7 @@ public sealed class EscapeTypewriterState
     /// <summary>Countdown reload in <see cref="Step"/> calls: zero, then the two-call character delay once the program starts.</summary>
     public int Delay { get; private set; }
     /// <summary>Calls still to skip before interpreting another character; a call that decrements it to zero still performs no character work.</summary>
-    public NativeCountdown DelayTimer { get; private set; }
+    public WrappingCountdown DelayTimer { get; private set; }
     /// <summary>Total non-space glyphs transferred to VRAM; spaces advance the destination but do not increment this count.</summary>
     public int GlyphsWritten { get; private set; }
     /// <summary>True after an eligible interpretation call passes the end of all lines; subsequent calls return completion without writing or requesting sound.</summary>
@@ -93,7 +93,7 @@ public sealed class EscapeTypewriterState
     private bool StepInstalled(EscapeTypewriterProgram program, out EscapeTypewriterGlyph? glyph)
     {
         glyph = null;
-        DelayTimer = NativeCountdown.Start(Delay);
+        DelayTimer = WrappingCountdown.Start(Delay);
         if (!ProgramStarted)
         {
             Delay = EscapeTypewriterDefinitions.CharacterDelayFrames;

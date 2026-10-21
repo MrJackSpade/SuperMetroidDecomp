@@ -73,7 +73,7 @@ internal sealed class DoorTransitionState
         SuperMetroidRuntime runtime,
         CartridgeAudioState audio,
         SnesButton controllerInput,
-        IDoorLoaderProgressSource loaderProgress,
+        IRoomLoadProgress loaderProgress,
         Action? publishSoundWaitAudio = null)
     {
         Ensure.NotNull(runtime);

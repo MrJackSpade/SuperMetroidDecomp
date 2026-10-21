@@ -19,5 +19,5 @@ internal sealed class ChootExtensionWords
     internal int InitialYSpeedTableIndex { get; set; }
 
     /// <summary>Parameter-two delay remaining before each armed Choot jumps.</summary>
-    internal NativeCountdown JumpDelayTimer { get; set; }
+    internal WrappingCountdown JumpDelayTimer { get; set; }
 }

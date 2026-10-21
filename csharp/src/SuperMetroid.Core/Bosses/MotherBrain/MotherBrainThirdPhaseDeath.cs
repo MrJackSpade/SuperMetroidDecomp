@@ -58,7 +58,7 @@ internal sealed class MotherBrainThirdPhaseDeath
     /// Native word <c>$0FF0</c>: the explosion interval timer of <c>$A9:B03E</c> and
     /// <c>$A9:B346</c>, aliased with the body sub-function pointer.
     /// </summary>
-    public NativeCountdown DeathExplosionIntervalTimer { get; internal set; }
+    public WrappingCountdown DeathExplosionIntervalTimer { get; internal set; }
 
     /// <summary>
     /// Native word <c>$0FF2</c>, one word under three names: the ascent dust's body
@@ -66,7 +66,7 @@ internal sealed class MotherBrainThirdPhaseDeath
     /// four-record escape-door dust index (<c>$A9:B355</c>). Each effect inherits the value
     /// the previous one left unless native code explicitly clears it.
     /// </summary>
-    public NativeCountdown DeathAndEscapeExplosionIndex { get; internal set; }
+    public WrappingCountdown DeathAndEscapeExplosionIndex { get; internal set; }
 
     /// <summary>OBJ palette selection forced to palette seven when the dying brain effects shut down.</summary>
     public SnesObjAttributeWord BrainPalette { get; internal set; }
@@ -162,10 +162,10 @@ internal sealed class MotherBrainThirdPhaseDeath
         if (!DeathExplosionIntervalTimer.IsNegative)
             return;
 
-        DeathExplosionIntervalTimer = NativeCountdown.Start(style == MotherBrainDeathExplosionStyle.Mixed ? 8 : 16);
+        DeathExplosionIntervalTimer = WrappingCountdown.Start(style == MotherBrainDeathExplosionStyle.Mixed ? 8 : 16);
         DeathAndEscapeExplosionIndex = DeathAndEscapeExplosionIndex.Decrement().Remaining;
         if (DeathAndEscapeExplosionIndex.IsNegative)
-            DeathAndEscapeExplosionIndex = NativeCountdown.Start(MotherBrainDeathExplosionDefinitions.GroupCount - 1);
+            DeathAndEscapeExplosionIndex = WrappingCountdown.Start(MotherBrainDeathExplosionDefinitions.GroupCount - 1);
 
         int simultaneousCount = style == MotherBrainDeathExplosionStyle.Mixed ? MotherBrainDeathExplosionDefinitions.AnchorsPerGroup : 2;
         int pairIndex = DeathAndEscapeExplosionIndex.RawValue * MotherBrainDeathExplosionDefinitions.AnchorsPerGroup;
@@ -205,10 +205,10 @@ internal sealed class MotherBrainThirdPhaseDeath
         if (!DeathExplosionIntervalTimer.IsNegative)
             return null;
 
-        DeathExplosionIntervalTimer = NativeCountdown.Start(4);
+        DeathExplosionIntervalTimer = WrappingCountdown.Start(4);
         DeathAndEscapeExplosionIndex = DeathAndEscapeExplosionIndex.Decrement().Remaining;
         if (DeathAndEscapeExplosionIndex.IsNegative)
-            DeathAndEscapeExplosionIndex = NativeCountdown.Start(3);
+            DeathAndEscapeExplosionIndex = WrappingCountdown.Start(3);
 
         // The table is stored as interleaved X/Y words and indexed by `index * 4` bytes.
         // Spell out the semantic pairs so neither host endianness nor array stride can alter
@@ -258,7 +258,7 @@ internal sealed class MotherBrainThirdPhaseDeath
         if (dyingRetreat.ReachedTarget)
         {
             _state.Phase = MotherBrainBodyFunction.ThirdPhaseDeathIdleWhilstExploding;
-            _state.FunctionTimer = NativeCountdown.Start(128);
+            _state.FunctionTimer = WrappingCountdown.Start(128);
             return true;
         }
         return false;
@@ -298,7 +298,7 @@ internal sealed class MotherBrainThirdPhaseDeath
             _state.UpperNeckMovementIndex = MotherBrainNeckMovement.Lower;
             _state.NeckAngleDelta = 1280;
             _state.Phase = MotherBrainBodyFunction.ThirdPhaseDeathDisableBrainEffects;
-            _state.FunctionTimer = NativeCountdown.Start(32);
+            _state.FunctionTimer = WrappingCountdown.Start(32);
         }
         return false;
     }
@@ -326,8 +326,8 @@ internal sealed class MotherBrainThirdPhaseDeath
             BrainPalette = SnesObjPalettes.Palette(7);
             requests.PaletteRequested = true;
             // `$AF91/$AF94` clear words $0FF0 and $0FF2 before the fade-out explosions.
-            DeathExplosionIntervalTimer = NativeCountdown.Start(0);
-            DeathAndEscapeExplosionIndex = NativeCountdown.Start(0);
+            DeathExplosionIntervalTimer = WrappingCountdown.Start(0);
+            DeathAndEscapeExplosionIndex = WrappingCountdown.Start(0);
             _state.Phase = MotherBrainBodyFunction.ThirdPhaseDeathSetupBodyFadeOut;
             return true;
         }
@@ -347,7 +347,7 @@ internal sealed class MotherBrainThirdPhaseDeath
         {
             _state.GreyTransitionCounter = 0;
             _state.Phase = MotherBrainBodyFunction.ThirdPhaseDeathFadeOutBody;
-            _state.FunctionTimer = NativeCountdown.Start(0);
+            _state.FunctionTimer = WrappingCountdown.Start(0);
             return true;
         }
         return false;
@@ -368,7 +368,7 @@ internal sealed class MotherBrainThirdPhaseDeath
         _state.FunctionTimer = _state.FunctionTimer.Decrement().Remaining;
         if (_state.FunctionTimer.IsNegative)
         {
-            _state.FunctionTimer = NativeCountdown.Start(16);
+            _state.FunctionTimer = WrappingCountdown.Start(16);
             int paletteIndex = _state.GreyTransitionCounter;
             _state.GreyTransitionCounter++;
             requests.PaletteRequested |= paletteIndex < 16;
@@ -380,7 +380,7 @@ internal sealed class MotherBrainThirdPhaseDeath
                     .Without(EnemyProperties.ProcessInstructions);
                 BodyProperties2 = default;
                 _state.Phase = MotherBrainBodyFunction.ThirdPhaseDeathFinalFewExplosions;
-                _state.FunctionTimer = NativeCountdown.Start(16);
+                _state.FunctionTimer = WrappingCountdown.Start(16);
             }
         }
         return false;
@@ -410,7 +410,7 @@ internal sealed class MotherBrainThirdPhaseDeath
         // setup, clears its 8.8 falling velocity, then falls through immediately.
         _state.SetHeadProgram(MotherBrainHeadProgram.Decapitated);
         BrainDrawSetupRequested = true;
-        _state.FunctionTimer = NativeCountdown.Start(0);
+        _state.FunctionTimer = WrappingCountdown.Start(0);
         _state.Phase = MotherBrainBodyFunction.ThirdPhaseDeathBrainFallsToGround;
         return true;
     }
@@ -424,17 +424,17 @@ internal sealed class MotherBrainThirdPhaseDeath
         // `$B12D` treats FunctionTimer as unsigned 8.8 velocity: add `$20`, use only
         // its high byte as this frame's whole-pixel displacement, and accumulate Y.
         // Crossing `$C4` clamps the head and publishes earthquake type two for 20.
-        _state.FunctionTimer = NativeCountdown.FromRaw(unchecked((ushort)(_state.FunctionTimer.RawValue + 32)));
+        _state.FunctionTimer = WrappingCountdown.FromRaw(unchecked((ushort)(_state.FunctionTimer.RawValue + 32)));
         ushort fallingDisplacement = SnesLittleEndian.HighByte(_state.FunctionTimer.RawValue);
         ushort candidateBrainY = unchecked((ushort)(_state.BrainPosition.Y + fallingDisplacement));
         if (candidateBrainY >= 196)
         {
             _state.EarthquakeType = 2;
-            _state.EarthquakeTimer = NativeCountdown.Start(20);
+            _state.EarthquakeTimer = WrappingCountdown.Start(20);
             _state.BrainPosition = _state.BrainPosition.WithY(196);
             CorpseTileTransferIndex = 0;
             _state.Phase = MotherBrainBodyFunction.ThirdPhaseDeathLoadCorpseTiles;
-            _state.FunctionTimer = NativeCountdown.Start(256);
+            _state.FunctionTimer = WrappingCountdown.Start(256);
         }
         else
         {
@@ -455,7 +455,7 @@ internal sealed class MotherBrainThirdPhaseDeath
         if (CorpseTileTransferIndex == MotherBrainCorpseArtworkDefinitions.RowCount)
         {
             _state.Phase = MotherBrainBodyFunction.ThirdPhaseDeathSetupFadeToGrey;
-            _state.FunctionTimer = NativeCountdown.Start(32);
+            _state.FunctionTimer = WrappingCountdown.Start(32);
         }
         return false;
     }
@@ -471,7 +471,7 @@ internal sealed class MotherBrainThirdPhaseDeath
         {
             _state.GreyTransitionCounter = 0;
             _state.Phase = MotherBrainBodyFunction.ThirdPhaseDeathFadeToGrey;
-            _state.FunctionTimer = NativeCountdown.Start(0);
+            _state.FunctionTimer = WrappingCountdown.Start(0);
         }
         return false;
     }
@@ -490,13 +490,13 @@ internal sealed class MotherBrainThirdPhaseDeath
             requests.PaletteRequested = paletteIndex < 8;
             if (paletteIndex < 8)
             {
-                _state.FunctionTimer = NativeCountdown.Start(16);
+                _state.FunctionTimer = WrappingCountdown.Start(16);
             }
             else
             {
                 _state.SetHeadProgram(MotherBrainHeadProgram.Corpse);
                 _state.Phase = MotherBrainBodyFunction.ThirdPhaseDeathCorpseTipsOver;
-                _state.FunctionTimer = NativeCountdown.Start(256);
+                _state.FunctionTimer = WrappingCountdown.Start(256);
             }
         }
         return false;
@@ -553,7 +553,7 @@ internal sealed class MotherBrainThirdPhaseDeath
         requests.MusicStopQueued = true;   // Queue music value `$0000`.
         requests.EscapeMusicQueued = true; // Queue music value `$FF24`.
         _state.Phase = MotherBrainBodyFunction.ThirdPhaseDeath20FrameDelay;
-        _state.FunctionTimer = NativeCountdown.Start(20);
+        _state.FunctionTimer = WrappingCountdown.Start(20);
         return true;
     }
 
@@ -610,14 +610,14 @@ internal sealed class MotherBrainThirdPhaseDeath
         requests.ExplodedDoorPaletteRequested = true; // `$A9:9534`, 14 colors -> target `$0122`.
         requests.EscapeMusicTrackQueued = true;        // Eight-frame-delay music value `$0007`.
         _state.EarthquakeType = 5;
-        _state.EarthquakeTimer = NativeCountdown.Start(ushort.MaxValue);
+        _state.EarthquakeTimer = WrappingCountdown.Start(ushort.MaxValue);
         requests.EscapePaletteFxRequests.Add(PaletteFxObject.TourianShutterRedFlashing);
         requests.EscapePaletteFxRequests.Add(PaletteFxObject.TourianBackgroundRedFlashing);
         requests.EscapePaletteFxRequests.Add(PaletteFxObject.TourianGeneralLevelRedFlashing);
         requests.EscapePaletteFxRequests.Add(PaletteFxObject.TourianRedFlashingArkanoidBlocksAndRedOrbs);
         MotherBrainUnpauseHookEnabled = false;
         requests.EscapeTypewriterSetupRequested = true;
-        _state.FunctionTimer = NativeCountdown.Start(32);
+        _state.FunctionTimer = WrappingCountdown.Start(32);
         _state.Phase = frame.AlternateEscapeText
             ? MotherBrainBodyFunction.ThirdPhaseDeathSpawnTimeBombSetSubtitle
             : MotherBrainBodyFunction.ThirdPhaseDeathTypeOutZebesEscapeText;
@@ -658,7 +658,7 @@ internal sealed class MotherBrainThirdPhaseDeath
         if (frame.TypewriterFinished)
         {
             _state.Phase = MotherBrainBodyFunction.ThirdPhaseDeathDoorExplodingStartTimer;
-            _state.FunctionTimer = NativeCountdown.Start(32);
+            _state.FunctionTimer = WrappingCountdown.Start(32);
         }
         return false;
     }
@@ -685,8 +685,8 @@ internal sealed class MotherBrainThirdPhaseDeath
         requests.MotherBrainBossBitRequested = true;
         requests.ZebesTimebombEventRequested = true;
         _state.Phase = MotherBrainBodyFunction.ThirdPhaseDeathBlowUpEscapeDoor;
-        DeathExplosionIntervalTimer = NativeCountdown.Start(0);
-        DeathAndEscapeExplosionIndex = NativeCountdown.Start(0);
+        DeathExplosionIntervalTimer = WrappingCountdown.Start(0);
+        DeathAndEscapeExplosionIndex = WrappingCountdown.Start(0);
         return false;
     }
 
@@ -718,11 +718,11 @@ internal sealed class MotherBrainThirdPhaseDeath
         // EarthquakeTimer is global WRAM and is normally decremented outside enemy
         // AI. A supplied sample is therefore authoritative. `$B33C` changes only a
         // visible zero to `$FFFF`; every nonzero value, including `$FFFF`, survives.
-        if (frame.GlobalEarthquakeTimer is NativeCountdown observedEarthquakeTimer)
+        if (frame.GlobalEarthquakeTimer is WrappingCountdown observedEarthquakeTimer)
             _state.EarthquakeTimer = observedEarthquakeTimer;
         if (_state.EarthquakeTimer.IsZero)
         {
-            _state.EarthquakeTimer = NativeCountdown.Start(ushort.MaxValue);
+            _state.EarthquakeTimer = WrappingCountdown.Start(ushort.MaxValue);
             requests.EarthquakeTimerRefreshed = true;
         }
         return false;

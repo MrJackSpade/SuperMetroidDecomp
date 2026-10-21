@@ -11,7 +11,7 @@ public sealed class FileSelectMapWindow
     /// <summary>Current 16.16 left, right, top, and bottom clipping positions.</summary>
     internal readonly uint[] edges = new uint[4];
     /// <summary>Signed-underflow countdown controlling the final moving frame.</summary>
-    private NativeCountdown timer;
+    private WrappingCountdown timer;
 
     /// <summary>Creates the area-to-room expanding window at the installed label anchor, with collapsed edges and native area-specific 16.16 velocities/timer; editable anchors do not change compiled motion.</summary>
     /// <param name="area">Game-area identity 0..5 for the six Zebes areas, not the file-select display-order ordinal.</param>
@@ -33,7 +33,7 @@ public sealed class FileSelectMapWindow
         ushort y = installedLabels.Get(area).Y;
         edges[0] = edges[1] = SnesSixteenSixteen.FromWhole((uint)x);
         edges[2] = edges[3] = SnesSixteenSixteen.FromWhole((uint)y);
-        timer = NativeCountdown.Start(motion.Timer);
+        timer = WrappingCountdown.Start(motion.Timer);
         if (timer.IsNegative)
             throw new InvalidDataException("Map-window timer must begin before signed underflow.");
         velocities[0] = motion.Left;
@@ -65,7 +65,7 @@ public sealed class FileSelectMapWindow
     {
         var window = new FileSelectMapWindow(area, labels);
         window.IsReturning = true;
-        window.timer = NativeCountdown.FromRaw(unchecked((ushort)(window.timer.RawValue - FileSelectMapRomData.ReturnWindowTimerReduction)));
+        window.timer = WrappingCountdown.FromRaw(unchecked((ushort)(window.timer.RawValue - FileSelectMapRomData.ReturnWindowTimerReduction)));
         int inset = FileSelectMapRomData.ReturnWindowInset;
         window.edges[0] = window.edges[2] = SnesSixteenSixteen.FromWhole((uint)inset);
         window.edges[1] = SnesSixteenSixteen.FromWhole((uint)(FrontendFrame.Width - inset));

@@ -67,7 +67,7 @@ internal sealed class ChainsawWindow
 
         // The misaligned callback runs the Power Bomb fuse over the shot's multipurpose
         // variable word, so the fuse countdown is read from and written back to that word.
-        PowerBombFuseStep fuse = SamusPowerBombFuse.Step(NativeCountdown.FromRaw(checked((ushort)slot.Variable)), sharedProjectiles.PowerBombExplosion.IsArmed);
+        PowerBombFuseStep fuse = SamusPowerBombFuse.Step(WrappingCountdown.FromRaw(checked((ushort)slot.Variable)), sharedProjectiles.PowerBombExplosion.IsArmed);
         slot.Variable = fuse.Timer.RawValue;
         if (fuse.FastAnimation)
             slot.Cursor = SamusPowerBombFuse.FastAnimation(slot.Cursor);

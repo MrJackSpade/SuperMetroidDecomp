@@ -12,7 +12,7 @@ internal sealed class CinematicTextGlowSystem
         for (int i = slots.Length - 1; i >= 0; i--)
         {
             if (slots[i].Active) continue;
-            slots[i] = new GlowSlot { Active = true, Cell = cell, Size = size, Timer = NativeCountdown.Start(1) };
+            slots[i] = new GlowSlot { Active = true, Cell = cell, Size = size, Timer = WrappingCountdown.Start(1) };
             return;
         }
     }
@@ -36,7 +36,7 @@ internal sealed class CinematicTextGlowSystem
             else
             {
                 slot.Palette++;
-                slot.Timer = NativeCountdown.Start(CinematicTextGlowRomData.PaletteDuration);
+                slot.Timer = WrappingCountdown.Start(CinematicTextGlowRomData.PaletteDuration);
             }
         }
     }
@@ -51,7 +51,7 @@ internal sealed class CinematicTextGlowSystem
         /// <summary>Number of text cells recolored along each axis.</summary>
         public Extent16<TilemapCells> Size;
         /// <summary>Frames until this rectangle's next palette phase.</summary>
-        public NativeCountdown Timer;
+        public WrappingCountdown Timer;
         /// <summary>
         /// Current palette written to the rectangle's tilemap cells: zero when the glow starts, raised by one each
         /// phase up to <see cref="CinematicTextGlowRomData.FinalPalette"/>, where the glow ends.

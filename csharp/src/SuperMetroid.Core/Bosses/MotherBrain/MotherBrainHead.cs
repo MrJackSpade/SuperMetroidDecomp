@@ -74,7 +74,7 @@ internal sealed class MotherBrainHead
         // `$A9:8714` gives the head enemy the dummy program for life (the encounter state's
         // head-slot cursor starts there): its $A320 frame is the head's collision hitbox.
         // The visible brain runs a separate program (`$A9:8734`).
-        head.InstructionTimer = NativeCountdown.Start(1);
+        head.InstructionTimer = WrappingCountdown.Start(1);
         head.VramTilesIndex = 0;
         head.Properties = head.Properties.With(
             EnemyProperties.BlocksPlasmaBeam | EnemyProperties.Invisible);
@@ -273,7 +273,7 @@ internal sealed class MotherBrainHead
             cursor = cursor with { Position = cursor.Position + 1 };
         }
 
-        NativeCountdown unusedCounter = default;
+        WrappingCountdown unusedCounter = default;
         AnimationProgramAdvance<MotherBrainHeadFrame> advance = programs.Advance(ref cursor, ref unusedCounter,
             (cue, continuation) => ApplyMotherBrainHeadCue(state, samus, cue));
         if (advance is not AnimationProgramAdvance<MotherBrainHeadFrame>.Show shown)
@@ -295,7 +295,7 @@ internal sealed class MotherBrainHead
         switch (cue)
         {
             case MotherBrainHeadCue.Command { Kind: MotherBrainHeadCueKind.ShakeBrain }:
-                state.BrainMainShakeTimer = NativeCountdown.Start(50);
+                state.BrainMainShakeTimer = WrappingCountdown.Start(50);
                 return null;
             case MotherBrainHeadCue.Command { Kind: MotherBrainHeadCueKind.SpawnDrool }:
                 SpawnMotherBrainDrool(state);

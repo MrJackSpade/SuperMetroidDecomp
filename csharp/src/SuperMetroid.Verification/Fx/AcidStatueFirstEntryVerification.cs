@@ -79,7 +79,7 @@ internal static class AcidStatueFirstEntryVerification
         for (int frame = 0; transition.IsActive && frame < 500; frame++)
         {
             DoorTransitionPhase phase = transition.Phase;
-            transition.Step(runtime, audio, 0, SuperMetroid.Core.Rooms.Doors.LagFreeDoorLoaderProgress.Instance);
+            transition.Step(runtime, audio, 0, SuperMetroid.Core.Compatibility.InstantRoomLoad.Instance);
             RoomHeaderDefinition activeRoom = runtime.Room.LoadedRoom.Definition;
             RoomLayer3FxRenderSnapshot? displayed = runtime.Display.DisplayedRoomLayer3Fx;
             if (activeRoom != destinationRoom)

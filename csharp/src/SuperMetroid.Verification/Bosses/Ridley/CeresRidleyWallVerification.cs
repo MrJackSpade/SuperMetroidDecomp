@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
@@ -23,7 +22,7 @@ internal static class CeresRidleyWallVerification
         // Continue an in-flight lunge just before its left-boundary collision. The real
         // attack dispatcher still calculates acceleration and the shared mover clips X.
         (ridley ?? throw new InvalidOperationException("Verification requires ridley.")).Function = RidleyAiFunction.CeresLungeMain;
-        ridley.FunctionTimer = NativeCountdown.Start(100);
+        ridley.FunctionTimer = WrappingCountdown.Start(100);
         ridley.MovementAnimationEnabled = true;
         ridley.Velocity = ridley.Velocity.WithX(new SnesSignedEightEight(unchecked((ushort)-768)));
         body.Position = body.Position.WithWhole(new(41, 100));

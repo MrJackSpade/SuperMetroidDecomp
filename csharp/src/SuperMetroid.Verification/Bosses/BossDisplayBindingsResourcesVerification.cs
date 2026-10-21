@@ -113,7 +113,7 @@ internal static class BossDisplayBindingsResourcesVerification
         fixture.Enemies.PhantoonBehavior.Combat.Phantoon = state;
         fixture.SetFrame(0, false);
         state.PartProgram(fixture.Actor) = AnimationProgramCursor<PhantoonPartProgram>.Start(PhantoonPartProgram.Tentacles);
-        fixture.Actor.InstructionTimer = NativeCountdown.Start(1);
+        fixture.Actor.InstructionTimer = WrappingCountdown.Start(1);
         return fixture;
     }
 }

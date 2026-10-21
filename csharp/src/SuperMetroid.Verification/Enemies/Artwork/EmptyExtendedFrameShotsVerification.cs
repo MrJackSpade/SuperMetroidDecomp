@@ -1,5 +1,4 @@
 using SuperMetroid.Verification.Samus.Projectiles;
-using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Runtime;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
@@ -37,7 +36,7 @@ internal static class EmptyExtendedFrameShotsVerification
         // Native update 37306: the pirate at ($1F4,$A0) on $804F, the charged beam at ($1F2,$A3).
         pirate.Position = pirate.Position.WithWhole(new(0x01f4, 0x00a0));
         pirate.SpritemapPointer = CommonEnemyEmptyExtendedFrameDefinitions.Frame;
-        pirate.InstructionTimer = NativeCountdown.Start(0x7fff);
+        pirate.InstructionTimer = WrappingCountdown.Start(0x7fff);
         int health = pirate.Health;
         runtime.Enemies.ProcessingWindow.PrepareEnemyProcessingList(pirate.Position.Whole);
 
@@ -45,7 +44,7 @@ internal static class EmptyExtendedFrameShotsVerification
         shot.Type = 0x9010; shot.Damage = 60; shot.Direction = 7;
         shot.Position = shot.Position.WithWhole(new(0x01f2, 0x00a3));
         shot.Radius = new(8, 8);
-        shot.Cursor = ProjectileFixtureCursors.Active; shot.InstructionTimer = NativeCountdown.Start(1);
+        shot.Cursor = ProjectileFixtureCursors.Active; shot.InstructionTimer = WrappingCountdown.Start(1);
         int hits = runtime.Enemies.Collision.ResolveOrdinaryProjectileHits(runtime.Projectiles, runtime.BombProjectiles, samus,
             onlyNativeEnemyIndex: pirate.NativeIndex);
 

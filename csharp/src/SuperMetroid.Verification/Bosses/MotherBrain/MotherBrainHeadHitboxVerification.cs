@@ -1,6 +1,5 @@
 using SuperMetroid.Verification.Samus.Projectiles;
 using SuperMetroid.Core.Programs;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Runtime;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
 using SuperMetroid.Core.Bosses.MotherBrain;
@@ -39,12 +38,12 @@ internal static class MotherBrainHeadHitboxVerification
         state.Form = MotherBrainForm.SecondPhase;
         head.Health = 18000;
         head.Position = head.Position.WithWhole(new(0x007c, 0x0058));
-        head.InvincibilityTimer = NativeCountdown.Start(0);
+        head.InvincibilityTimer = WrappingCountdown.Start(0);
         runtime.Enemies.ProcessingWindow.PrepareEnemyProcessingList(new(0x0000, 0x0000));
         var shot = runtime.Projectiles.Slots[0];
         shot.Type = 0x901b; shot.Damage = 900; shot.Direction = 8;
         shot.Position = shot.Position.WithWhole(new(0x009e, 0x0081)); shot.Radius = new(24, 24);
-        shot.Cursor = ProjectileFixtureCursors.Active; shot.InstructionTimer = NativeCountdown.Start(1);
+        shot.Cursor = ProjectileFixtureCursors.Active; shot.InstructionTimer = WrappingCountdown.Start(1);
         runtime.Enemies.Collision.ResolveOrdinaryProjectileHits(runtime.Projectiles, runtime.BombProjectiles, runtime.Player.Samus);
         AssertEqual(17100, head.Health, "the charged beam lands on the head's native hitbox");
         Console.WriteLine("Mother Brain head hitbox: the head enemy keeps $A320; the brain list runs separately.");

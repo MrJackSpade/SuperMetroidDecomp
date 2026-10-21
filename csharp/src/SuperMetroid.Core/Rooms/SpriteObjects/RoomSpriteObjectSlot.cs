@@ -37,7 +37,7 @@ public sealed class RoomSpriteObjectSlot
     internal AnimationProgramCursor<RoomSpriteObjectProgram>? Cursor { get; set; }
 
     /// <summary>Native $7E:EFF8 plus the slot offset: updates left showing <see cref="Frame"/>; a held frame reloads $7FFF.</summary>
-    public NativeCountdown Timer { get; internal set; }
+    public WrappingCountdown Timer { get; internal set; }
 
     /// <summary>The frame the object shows.</summary>
     internal RoomSpriteObjectFrame Frame { get; set; }

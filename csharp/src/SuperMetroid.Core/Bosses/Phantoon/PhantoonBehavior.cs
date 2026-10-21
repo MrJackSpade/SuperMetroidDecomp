@@ -134,8 +134,8 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
         PhantoonEnemyState state = Combat.Phantoon ??
             throw new InvalidOperationException("Phantoon body must initialize before its parts.");
         part.Frame = EnemyFrameId.Empty;
-        part.InstructionTimer = NativeCountdown.Start(1);
-        part.Timer = NativeCountdown.Start(0);
+        part.InstructionTimer = WrappingCountdown.Start(1);
+        part.Timer = WrappingCountdown.Start(0);
         part.PaletteIndex = state.Body.PaletteIndex;
         part.VramTilesIndex = state.Body.VramTilesIndex;
         state.PartProgram(part) = AnimationProgramCursor<PhantoonPartProgram>.Start(program);

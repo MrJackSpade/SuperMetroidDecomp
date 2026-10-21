@@ -52,7 +52,7 @@ internal static class ProjectileTrailArtworkVerification
             {
                 var pair = system.TrailSlots[0];
                 foreach (var side in new[] { pair.Left, pair.Right })
-                { side.InstructionPointer = start; side.InstructionTimer = NativeCountdown.Start(1); side.Position = side.Position.WithX(100).WithY(100); }
+                { side.InstructionPointer = start; side.InstructionTimer = WrappingCountdown.Start(1); side.Position = side.Position.WithX(100).WithY(100); }
             }
             for (int frame = 0; frame < 80; frame++)
             {
@@ -97,7 +97,7 @@ internal static class ProjectileTrailArtworkVerification
             ushort attributes = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), SamusProjectileRomData.Banks.Movement | (frame + 2));
             var system = new SamusProjectileSystem(new BeamChargeState(), SamusProjectileResidue.None);
             var side = system.TrailSlots[SamusProjectileSystem.TrailSlotCount - 1].Left;
-            side.InstructionPointer = (ushort)(frame + 4); side.InstructionTimer = NativeCountdown.Start(3);
+            side.InstructionPointer = (ushort)(frame + 4); side.InstructionTimer = WrappingCountdown.Start(3);
             side.Position = side.Position.WithX(coordinate).WithY(coordinate); side.TileNumberAttributes = attributes;
             // The OAM capacity stop is a dropped presentation quirk (#1308); culling and every byte remain.
             OamBuffer native = SpriteFrameBuffer.DrawnOam(sprites =>
@@ -125,7 +125,7 @@ internal static class ProjectileTrailArtworkVerification
         AssertEqual((ushort)(catalog.Resolve(first) ^ 0x4000), edited.Resolve(first), "Trail flip edit changes only horizontal-flip bit");
         var animation = new SamusProjectileSystem(new BeamChargeState(), SamusProjectileResidue.None);
         var trail = animation.TrailSlots[SamusProjectileSystem.TrailSlotCount - 1].Left;
-        trail.InstructionPointer = first; trail.InstructionTimer = NativeCountdown.Start(1); trail.Position = trail.Position.WithX(100).WithY(100);
+        trail.InstructionPointer = first; trail.InstructionTimer = WrappingCountdown.Start(1); trail.Position = trail.Position.WithX(100).WithY(100);
         OamBuffer frozen = SpriteFrameBuffer.DrawnOam(sprites =>
         {
             animation.AdvanceTrails(true, edited);
@@ -175,7 +175,7 @@ internal static class ProjectileTrailArtworkVerification
                     ushort command = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0x900000 | cursor);
                     if (command < 0x8000)
                     {
-                        side.InstructionTimer = NativeCountdown.FromRaw(command);
+                        side.InstructionTimer = WrappingCountdown.FromRaw(command);
                         if (command != 0)
                         {
                             side.TileNumberAttributes = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0x900000 | (unchecked((ushort)(cursor + 2))));
@@ -210,7 +210,7 @@ internal static class ProjectileTrailArtworkVerification
         runtime.Freeze.GameplayTimeFrozen = true;
         var side = runtime.Projectiles.TrailSlots[0].Left;
         side.InstructionPointer = (ushort)(ProjectileTrailVisualDefinitions.Frames[0] + 4);
-        side.InstructionTimer = NativeCountdown.Start(3); side.TileNumberAttributes = stock.Resolve(ProjectileTrailVisualDefinitions.Frames[0]);
+        side.InstructionTimer = WrappingCountdown.Start(3); side.TileNumberAttributes = stock.Resolve(ProjectileTrailVisualDefinitions.Frames[0]);
         side.Position = side.Position.WithX((ushort)(runtime.Room.LoadedCamera.PixelPosition.X + 100)).WithY((ushort)(runtime.Room.LoadedCamera.PixelPosition.Y + 100));
         var game = CreateRetailGameFixture(new SuperMetroid.Core.Saves.SaveSlotStore(), random: random);
         game.AdoptRuntime(runtime);

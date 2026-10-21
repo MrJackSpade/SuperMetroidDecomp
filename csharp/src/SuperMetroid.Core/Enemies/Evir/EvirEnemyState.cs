@@ -20,7 +20,7 @@ public sealed class EvirEnemyState
     /// The body's bobbing countdown, decremented every update and expiring when it wraps below zero, which reverses
     /// the bobbing and restarts it at the body's direction-change period.
     /// </summary>
-    public NativeCountdown MovementTimer { get; internal set; }
+    public WrappingCountdown MovementTimer { get; internal set; }
 
     /// <summary>
     /// The regenerating spit's horizontal offset from the body's mouth, in room pixels: eight pixels away from the
@@ -56,7 +56,7 @@ public sealed class EvirEnemyState
     {
         Facing = EvirFacing.Left;
         Function = null;
-        MovementTimer = NativeCountdown.Start(0);
+        MovementTimer = WrappingCountdown.Start(0);
         RegenerationOffset = Offset16<RoomPixels>.Zero;
     }
 }

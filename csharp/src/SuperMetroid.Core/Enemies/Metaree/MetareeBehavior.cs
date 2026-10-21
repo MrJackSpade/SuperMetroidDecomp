@@ -44,7 +44,7 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         var state = new MetareeEnemyState
         {
-            BurrowTimer = NativeCountdown.Start(0),
+            BurrowTimer = WrappingCountdown.Start(0),
             Function = MetareeEnemyFunction.Idling,
             RequestedInstructionListIndex = SkreeMetareeAnimationPhase.Idling,
             InstalledInstructionListIndex = SkreeMetareeAnimationPhase.Idling,
@@ -146,7 +146,7 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         // Native AI reloads this every airborne frame. It becomes a countdown only after
         // the solid-bit probe reports the ground, which is why interrupted dives never age.
-        state.BurrowTimer = NativeCountdown.Start(MetareeBurrowLifetimeNtsc);
+        state.BurrowTimer = WrappingCountdown.Start(MetareeBurrowLifetimeNtsc);
 
         // Bits zero/one are still unnamed because their general engine semantics are not
         // proven. Metaree writes the literal mask `$0003`; retaining it raw avoids inventing
@@ -157,8 +157,8 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemyEntityFactory
                 slot,
                 SnesSixteenSixteen.FromWhole(state.YVelocity)))
         {
-            slot.InstructionTimer = NativeCountdown.Start(1);
-            slot.Timer = NativeCountdown.Start(0);
+            slot.InstructionTimer = WrappingCountdown.Start(1);
+            slot.Timer = WrappingCountdown.Start(0);
             state.Function = MetareeEnemyFunction.Burrowing;
             LastMetareeSoundEffect = EnemySoundEffectDefinitions.BurrowSound;
             return;
@@ -203,8 +203,8 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemyEntityFactory
 
         state.InstalledInstructionListIndex = requested;
         state.Program = AnimationProgramCursor<SkreeMetareeProgram>.Start(SkreeMetareeAnimationDefinitions.MetareeProgram(requested));
-        slot.InstructionTimer = NativeCountdown.Start(1);
-        slot.Timer = NativeCountdown.Start(0);
+        slot.InstructionTimer = WrappingCountdown.Start(1);
+        slot.Timer = WrappingCountdown.Start(0);
     }
 
     /// <summary>Ports Metaree's main AI.</summary>

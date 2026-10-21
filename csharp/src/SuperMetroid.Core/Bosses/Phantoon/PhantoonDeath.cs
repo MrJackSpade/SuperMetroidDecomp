@@ -208,7 +208,7 @@ internal sealed class PhantoonDeath
     {
         if (state.Parts[body.SlotIndex].FunctionTimer != 0)
         {
-            state.Parts[body.SlotIndex].FunctionTimer = NativeWordCounter.Decrement(checked((ushort)state.Parts[body.SlotIndex].FunctionTimer)).Value;
+            state.Parts[body.SlotIndex].FunctionTimer = WrappingCounter.Decrement(checked((ushort)state.Parts[body.SlotIndex].FunctionTimer)).Value;
             return;
         }
         if ((_frameContext.NmiFrameCounter & 3) != 0)

@@ -83,7 +83,7 @@ internal sealed class CrocomireSkeleton
 
         CrocomireDeathState death = _access.RequireCrocomireDeath();
         death.RumbleYOffset = 0;
-        death.RumbleCooldown = NativeCountdown.Start(10);
+        death.RumbleCooldown = WrappingCountdown.Start(10);
         death.RumbleDelta = 1;
         state.FightFlags = 0;
         body.Radius = body.Radius.WithY(56);
@@ -100,8 +100,8 @@ internal sealed class CrocomireSkeleton
         if (definition.IsTerminator)
         {
             // The rumble hands its shared word back to the melt's shake counter, with both bytes at 128.
-            death.MeltShakeCounter = NativeCountdown.FromRaw(CrocomireBehavior.MeltShakeCounterAfterRumble);
-            state.DeathPhaseDelay = NativeCountdown.Start(128);
+            death.MeltShakeCounter = WrappingCountdown.FromRaw(CrocomireBehavior.MeltShakeCounterAfterRumble);
+            state.DeathPhaseDelay = WrappingCountdown.Start(128);
             (_bossArtwork.Artwork?.CrocomireColors ?? throw new InvalidOperationException(
                 "Crocomire wall spikes require installed colors.")).ApplyWallSpikes(_presentation.Cgram);
             state.DeathSequenceIndex = state.DeathSequenceIndex.Next();
@@ -120,7 +120,7 @@ internal sealed class CrocomireSkeleton
                     return;
                 }
 
-                death.RumbleCooldown = NativeCountdown.FromRaw(definition.Cooldown);
+                death.RumbleCooldown = WrappingCountdown.FromRaw(definition.Cooldown);
                 death.RumbleDelta = definition.Delta;
             }
             state.RumbleTableOffset = definition.NextTargetOffset;
@@ -145,7 +145,7 @@ internal sealed class CrocomireSkeleton
 
         RoomEnemySlot body = state.Body;
         body.Position = body.Position.WithWhole(new(480, 54));
-        death.RumbleCooldown = NativeCountdown.Start(80);
+        death.RumbleCooldown = WrappingCountdown.Start(80);
         state.SkeletonVelocity = SnesSignedSixteenSixteen.Zero;
         _access.PublishCrocomirePlm(new Position16<RoomBlocks>(32, 3), PlmHeaderId.ClearCrocomireInvisibleWall);
         _access.PublishCrocomirePlm(new Position16<RoomBlocks>(30, 3), PlmHeaderId.CreateCrocomireInvisibleWall);

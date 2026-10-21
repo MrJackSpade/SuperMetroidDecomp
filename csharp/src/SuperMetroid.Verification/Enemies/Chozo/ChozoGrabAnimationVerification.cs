@@ -1,7 +1,6 @@
 using SuperMetroid.Core.Samus.Drawing;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
@@ -37,7 +36,7 @@ internal static class ChozoGrabAnimationVerification
         SamusPresentation.InitializeAnimation(samus);
         samus.CommitPoseHistory();
         samus.AnimationFrame = 2;
-        samus.AnimationFrameTimer = NativeCountdown.Start(3);
+        samus.AnimationFrameTimer = WrappingCountdown.Start(3);
         samus.Position = samus.Position.WithWhole(new(0x4a * 16 + 8, (ushort)(0x17 * 16 - samus.Kinematics.Radius.Y)));
         var level = runtime.Room.LoadedLevelData;
         var block = level.GetCollisionBlockByIndex(level.GetBlockIndex(new(0x4a, 0x17)));

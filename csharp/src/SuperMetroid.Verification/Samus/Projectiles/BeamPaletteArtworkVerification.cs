@@ -93,7 +93,7 @@ internal static class BeamPaletteArtworkVerification
         runtime.Artwork.BeamArtwork = artwork;
         runtime.FrameBoundary.BeginAcceptedFrame(0);
         AssertEqual(123, runtime.Cgram.Colors[224], "Rebind cannot erase active Crystal Flash palette");
-        flash.SpecialPaletteTimer = NativeCountdown.Start(ushort.MaxValue);
+        flash.SpecialPaletteTimer = WrappingCountdown.Start(ushort.MaxValue);
         AssertTrue(flash.UpdatePalette(runtime.Cgram, runtime.Player.IntroducedSamus, palettes), "Crystal Flash restores catalog without ROM reads");
         AssertTrue(runtime.Cgram.Colors.Slice(224, 16).SequenceEqual(expected.Colors.Slice(224, 16)), "Crystal Flash completion restores selected palette");
         AssertEqual(SamusSpecialPaletteType.None, flash.SpecialPaletteKind, "Crystal Flash still clears its owner on completion");

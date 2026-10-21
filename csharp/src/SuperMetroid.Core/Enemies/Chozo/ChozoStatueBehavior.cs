@@ -105,8 +105,8 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
             EnemyProperties.ProcessInstructions |
             EnemyProperties.ProcessOffScreen);
         statue.Frame = EnemyFrameId.Empty;
-        statue.InstructionTimer = NativeCountdown.Start(1);
-        statue.Timer = NativeCountdown.Start(0);
+        statue.InstructionTimer = WrappingCountdown.Start(1);
+        statue.Timer = WrappingCountdown.Start(0);
         statue.PaletteIndex = 0;
 
         var state = new ChozoStatueState
@@ -204,7 +204,7 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
                 if (state.HandTriggered)
                 {
                     state.Program = AnimationProgramCursor<ChozoStatueProgram>.Start(ChozoStatueProgram.LowerNorfairActivated);
-                    statue.InstructionTimer = NativeCountdown.Start(1);
+                    statue.InstructionTimer = WrappingCountdown.Start(1);
                 }
                 return;
 
@@ -212,7 +212,7 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
                 if (_room.Services.Bosses.IsDefeated(BossBits.AreaBoss) && state.HandTriggered)
                 {
                     state.Program = AnimationProgramCursor<ChozoStatueProgram>.Start(ChozoStatueProgram.WreckedShipActivated);
-                    statue.InstructionTimer = NativeCountdown.Start(1);
+                    statue.InstructionTimer = WrappingCountdown.Start(1);
                 }
                 return;
 

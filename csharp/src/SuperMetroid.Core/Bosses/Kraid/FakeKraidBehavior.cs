@@ -104,16 +104,16 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
         // isolated callers that did not expose that native seam.
         int random = ReadFakeKraidRandomNumber();
         ushort seedDelay = unchecked((ushort)((random & 3) + 2));
-        state.WalkStepTimer = NativeCountdown.FromRaw(seedDelay);
-        state.SpitDecisionTimer = NativeCountdown.FromRaw(seedDelay);
+        state.WalkStepTimer = WrappingCountdown.FromRaw(seedDelay);
+        state.SpitDecisionTimer = WrappingCountdown.FromRaw(seedDelay);
         state.SpikeTimers[0] = unchecked((ushort)(seedDelay + 64));
         state.SpikeTimers[1] = unchecked((ushort)(seedDelay + 96));
         state.SpikeTimers[2] = unchecked((ushort)(seedDelay + 48));
         state.SpikeTimerIndex = 0;
 
         slot.Properties = slot.Properties.With(EnemyProperties.ProcessInstructions);
-        slot.InstructionTimer = NativeCountdown.Start(1);
-        slot.Timer = NativeCountdown.Start(0);
+        slot.InstructionTimer = WrappingCountdown.Start(1);
+        slot.Timer = WrappingCountdown.Start(0);
         state.WalkDelta = -4;
         state.FacingDelta = -4;
         state.Program = AnimationProgramCursor<FakeKraidProgram>.Start(FakeKraidProgram.StepForwardsFacingLeft);
@@ -171,12 +171,12 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
         // reverse without moving. Otherwise attempt the signed four-pixel 16.16
         // displacement and reverse only if the room collision helper reports a wall. A
         // cleared timer wraps rather than expiring, so it still performs the attempted step.
-        NativeWordCounterStep walkStep = state.WalkStepTimer.Decrement();
+        CountdownStep walkStep = state.WalkStepTimer.Decrement();
         state.WalkStepTimer = walkStep.Remaining;
         bool reverse = walkStep.IsZero;
         if (reverse)
         {
-            state.WalkStepTimer = NativeCountdown.Start(
+            state.WalkStepTimer = WrappingCountdown.Start(
                 (ReadFakeKraidRandomNumber() & 3) + 7);
         }
         else
@@ -214,7 +214,7 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
                 : FakeKraidProgram.StepForwardsFacingRight;
         }
 
-        state.SpitDecisionTimer = NativeCountdown.FromRaw(unchecked((ushort)(
+        state.SpitDecisionTimer = WrappingCountdown.FromRaw(unchecked((ushort)(
             (ReadFakeKraidRandomNumber() & 3) + 3)));
         return state.FacingDelta < 0
             ? FakeKraidProgram.FireSpitFacingLeft

@@ -72,7 +72,7 @@ public sealed class PipeBugEnemyState
     /// A Brinstar Pipe Bug's respawn countdown, in AI updates: started at 48 when it leaves the screen, and expiring
     /// when a decrement reaches zero.
     /// </summary>
-    public NativeCountdown RespawnDelay { get; internal set; }
+    public WrappingCountdown RespawnDelay { get; internal set; }
     /// <summary>
     /// Byte offset, 0 through 2040, of this Norfair bug's positive record in the common linear speed table: eight
     /// bytes per record, with the negative half four bytes later.
@@ -89,7 +89,7 @@ public sealed class PipeBugEnemyState
     /// <summary>A yellow Pipe Bug's leftward flight velocity: the separately authored negative record, not a negation.</summary>
     public SnesSignedSixteenSixteen NegativeVelocity { get; internal set; }
     /// <summary>Gets the yellow Pipe Bug's countdown before straight flight begins.</summary>
-    public NativeCountdown EmergenceDelay { get; internal set; }
+    public WrappingCountdown EmergenceDelay { get; internal set; }
     /// <summary>
     /// The quadratic-speed record a yellow Pipe Bug's arc reads, from 0 through the table's last record. The rising
     /// phase counts it down from 40 and ends when it would go below zero; the returning phase counts it back up.

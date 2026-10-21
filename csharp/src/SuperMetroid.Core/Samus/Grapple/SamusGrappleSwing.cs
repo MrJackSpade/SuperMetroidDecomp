@@ -372,7 +372,7 @@ public static class SamusGrappleSwing
                 }
                 else
                 {
-                    grapple.CollisionBounceTimer = NativeCountdown.Start(16);
+                    grapple.CollisionBounceTimer = WrappingCountdown.Start(16);
                     grapple.AngularVelocity = NegatedArithmeticHalf(grapple.AngularVelocity);
                     grapple.JumpImpulse = NegatedArithmeticHalf(grapple.JumpImpulse);
                 }
@@ -586,8 +586,8 @@ public static class SamusGrappleSwing
         samus.LiquidPhysics.AccumulatePeriodicDamage(
             subDamage: 0,
             wholeDamage: damage);
-        samus.InvincibilityTimer = NativeCountdown.Start(60);
-        samus.KnockbackTimer = NativeCountdown.Start(10);
+        samus.InvincibilityTimer = WrappingCountdown.Start(60);
+        samus.KnockbackTimer = WrappingCountdown.Start(10);
     }
 
 

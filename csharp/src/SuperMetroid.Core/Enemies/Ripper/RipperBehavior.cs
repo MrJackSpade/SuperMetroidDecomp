@@ -211,8 +211,8 @@ internal sealed class RipperBehavior : IEnemySpecies, IEnemyEntityFactory
     private void SetRipperProgram(RoomEnemySlot slot, RipperProgram program)
     {
         Extensions[slot.SlotIndex].Program = AnimationProgramCursor<RipperProgram>.Start(program);
-        slot.InstructionTimer = NativeCountdown.Start(1);
-        slot.Timer = NativeCountdown.Start(0);
+        slot.InstructionTimer = WrappingCountdown.Start(1);
+        slot.Timer = WrappingCountdown.Start(0);
     }
 
     /// <summary>Advances Ripper's typed animation.</summary>

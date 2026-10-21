@@ -7,7 +7,7 @@ namespace SuperMetroid.Verification.Audio;
 internal static class TickAccumulatorVerification
 {
     /// <summary>Driver ticks between sound-effect polls: the period divided by the per-tick step.</summary>
-    private const int TicksPerPoll = TickAccumulator.Period / SpcPortDefinitions.SoundEffectTimerStep;
+    private const int TicksPerPoll = TickAccumulator.Period / SoundAcceptanceClock.CheckTimerIncrement;
 
     /// <summary>Updates walked when checking the poll cadence.</summary>
     private const int CadenceFrames = 20;
@@ -34,19 +34,19 @@ internal static class TickAccumulatorVerification
         AssertThrows<ArgumentOutOfRangeException>(() => TickAccumulatorConstants.FromPhase(TickAccumulator.Period), "a phase must lie inside one period");
         AssertThrows<ArgumentOutOfRangeException>(() => TickAccumulatorConstants.FromPhase(0).Advance(-1), "a step cannot be negative");
 
-        var ports = new SpcCommandPorts();
-        Span<SpcDriverTick> schedule = stackalloc SpcDriverTick[SpcCommandPorts.MaximumTicksPerFrame];
+        SoundAcceptanceClock ports = new SoundAcceptanceClock();
+        Span<SoundClockStep> schedule = stackalloc SoundClockStep[SoundAcceptanceClock.MaximumStepsPerUpdate];
         int tickNumber = 0;
         int polls = 0;
         for (int frame = 0; frame < CadenceFrames; frame++)
         {
-            int count = ports.AdvanceFrame(schedule);
-            foreach (SpcDriverTick tick in schedule[..count])
+            int count = ports.Advance(schedule);
+            foreach (SoundClockStep tick in schedule[..count])
             {
-                tickNumber += tick.Ticks;
-                AssertEqual(tickNumber % TicksPerPoll == 0, tick.SoundEffectsPolled,
+                tickNumber += tick.Steps;
+                AssertEqual(tickNumber % TicksPerPoll == 0, tick.ChecksRequests,
                     $"driver tick {tickNumber} polls the sound-effect ports only on every eighth tick");
-                if (tick.SoundEffectsPolled)
+                if (tick.ChecksRequests)
                     polls++;
             }
         }

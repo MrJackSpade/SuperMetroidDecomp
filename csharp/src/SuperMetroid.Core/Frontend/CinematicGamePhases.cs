@@ -51,8 +51,8 @@ internal sealed class CinematicGamePhases(FrontendSession session)
                 "Ceres destruction with Samus requires her gameplay state.");
             lostSamus.SelectedHudItem = HudItem.Beam;
             lostSamus.AutoCancelHudItemIndex = HudItem.Beam;
-            lostSamus.InvincibilityTimer = NativeCountdown.Start(0);
-            lostSamus.KnockbackTimer = NativeCountdown.Start(0);
+            lostSamus.InvincibilityTimer = WrappingCountdown.Start(0);
+            lostSamus.KnockbackTimer = WrappingCountdown.Start(0);
             session.Close<CeresDestructionCinematicState>();
             BeginForcedBlankDeathBlackOut();
         }

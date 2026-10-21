@@ -65,9 +65,9 @@ internal static class DraygonPrebattleXrayVerification
         // End X-Ray, then stage the native end of the intro rather than replaying the dance.
         for (int frame = 0; frame < 8; frame++) runtime.StepFrame(0);
         AssertTrue(!samus.Xray.IsActive, "release restores ordinary gameplay");
-        boss.FunctionTimer = NativeCountdown.Start(0x100);
+        boss.FunctionTimer = WrappingCountdown.Start(0x100);
         runtime.StepFrame(0); // Initial-delay exit records the native reset positions and acceleration.
-        boss.FunctionTimer = NativeCountdown.Start(DraygonIntroDanceDefinitions.DurationFrames);
+        boss.FunctionTimer = WrappingCountdown.Start(DraygonIntroDanceDefinitions.DurationFrames);
         runtime.StepFrame(0); // Dance completion selects the first swoop.
         runtime.StepFrame(0); // Build the authored swoop path.
         int descentFrames = boss.SwoopPathEntryCount;

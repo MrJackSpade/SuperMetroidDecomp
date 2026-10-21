@@ -56,7 +56,7 @@ internal sealed class EscapeAnimalPlms : ICrittersEscapeReaction
         slot.HeaderPointer = PlmHeaderId.CrateriaMainstreetEscapePassage;
         slot.LoopTimer = 0;
         slot.StartAnimation(new ScriptedRoomPlmAnimation(ScriptedRoomPlmProgram.CrateriaPassage));
-        slot.InstructionTimer = NativeCountdown.Start(1);
+        slot.InstructionTimer = WrappingCountdown.Start(1);
         return true;
     }
 
@@ -73,7 +73,7 @@ internal sealed class EscapeAnimalPlms : ICrittersEscapeReaction
 
         slot.BlockIndex = blockIndex;
         slot.StartAnimation(new ScriptedRoomPlmAnimation(ScriptedRoomPlmProgram.EscapeAnimalReaction));
-        slot.InstructionTimer = NativeCountdown.Start(1);
+        slot.InstructionTimer = WrappingCountdown.Start(1);
         RoomCollisionBlock block = level.GetCollisionBlockByIndex(blockIndex);
         slot.RestoreLevelWord = (ushort)((block.PackedWord.Raw & EscapeAnimalPlmRomData.ReactionCollisionMask) | EscapeAnimalPlmRomData.ReactionVisualBlock);
         level.SetForegroundEntry(blockIndex, (ushort)(slot.RestoreLevelWord.Raw & EscapeAnimalPlmRomData.ReactionTemporaryCollisionMask));

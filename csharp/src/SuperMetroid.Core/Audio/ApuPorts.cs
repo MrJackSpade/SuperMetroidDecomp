@@ -5,10 +5,6 @@ namespace SuperMetroid.Core.Audio;
 /// <summary>Domain-owned transitions over <see cref="ApuPort"/>.</summary>
 public static class ApuPorts
 {
-    /// <summary>The four ports in register order, <c>$2140</c> through <c>$2143</c>.</summary>
-    public static ImmutableArray<ApuPort> InRegisterOrder { get; } =
-        [ApuPort.Music, ApuPort.SoundLibrary1, ApuPort.SoundLibrary2, ApuPort.SoundLibrary3];
-
     /// <summary>The sound-library ports in host queue order: the cartridge writes library queue X to <c>$2141+X</c>.</summary>
     public static ImmutableArray<ApuPort> SoundLibraryPorts { get; } =
         [ApuPort.SoundLibrary1, ApuPort.SoundLibrary2, ApuPort.SoundLibrary3];
@@ -21,9 +17,10 @@ public static class ApuPorts
     /// <param name="library">The sound-effect library.</param>
     public static ApuPort ForLibrary(SoundEffectLibrary library) => ForSoundLibrary(SoundEffectLibraries.ToQueueIndex(library));
 
-    /// <summary>The position of <paramref name="port"/> in register order.</summary>
-    /// <param name="port">The port.</param>
-    public static int RegisterIndex(ApuPort port) => InRegisterOrder.IndexOf(port) is int index and >= 0
+    /// <summary>The zero-based index of the sound library whose requests <paramref name="port"/> carries.</summary>
+    /// <param name="port">A sound-library port.</param>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="port"/> carries music, not a sound library.</exception>
+    public static int LibraryIndexAt(ApuPort port) => SoundLibraryPorts.IndexOf(port) is int index and >= 0
         ? index
-        : throw new ArgumentOutOfRangeException(nameof(port), port, "Unknown APU port.");
+        : throw new ArgumentOutOfRangeException(nameof(port), port, "The port carries no sound library.");
 }

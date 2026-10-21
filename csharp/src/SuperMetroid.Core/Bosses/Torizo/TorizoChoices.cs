@@ -132,7 +132,7 @@ internal sealed class TorizoChoices
         int displacement = SnesSixteenSixteen.FromWhole(state.Velocity.X.SignedRawValue);
         if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, torizo, displacement))
         {
-            state.AirTransitionTimer = NativeCountdown.Start(0);
+            state.AirTransitionTimer = WrappingCountdown.Start(0);
             return AnimationProgramCursor<TorizoBodyProgram>.Start(_access.FacesRight(torizo)
                 ? TorizoBodyProgram.GoldenTurningLeft
                 : TorizoBodyProgram.GoldenTurningRight);
@@ -142,7 +142,7 @@ internal sealed class TorizoChoices
         if (samus is not null && BombTorizoParameterMatchesSamusDelta(torizo, samus) &&
             state.AirTransitionTimer.IsZero)
         {
-            state.AirTransitionTimer = NativeCountdown.Start(16);
+            state.AirTransitionTimer = WrappingCountdown.Start(16);
         }
         return null;
     }
@@ -155,7 +155,7 @@ internal sealed class TorizoChoices
         state.Velocity = new EightEightVector<RoomPixels>(
             _access.FacesRight(torizo) ? (short)512 : (short)-512, -1472);
         state.JumpAcceleration = new EightEightVector<RoomPixels>(0, 40);
-        torizo.InstructionTimer = NativeCountdown.Start(1);
+        torizo.InstructionTimer = WrappingCountdown.Start(1);
     }
 
     /// <summary>Sets the faster reverse leap velocity used by Golden Torizo's repeated-jump branch.</summary>
@@ -166,7 +166,7 @@ internal sealed class TorizoChoices
         state.Velocity = new EightEightVector<RoomPixels>(
             _access.FacesRight(torizo) ? (short)-768 : (short)768, -1152);
         state.JumpAcceleration = new EightEightVector<RoomPixels>(0, 40);
-        torizo.InstructionTimer = NativeCountdown.Start(1);
+        torizo.InstructionTimer = WrappingCountdown.Start(1);
     }
 
     /// <summary>Uses the walk table's velocity and wall branches, arming a 72-frame air transition when Samus crosses the facing test.</summary>
@@ -176,7 +176,7 @@ internal sealed class TorizoChoices
         int displacement = SnesSixteenSixteen.FromWhole(state.Velocity.X.SignedRawValue);
         if (_terrain.MoveEnemyHorizontallyIgnoringNonSquareSlopes(level, torizo, displacement))
         {
-            state.AirTransitionTimer = NativeCountdown.Start(0);
+            state.AirTransitionTimer = WrappingCountdown.Start(0);
             return AnimationProgramCursor<TorizoBodyProgram>.Start(_access.FacesRight(torizo)
                 ? step.CollisionFacingRight
                 : step.CollisionFacingLeft);
@@ -186,7 +186,7 @@ internal sealed class TorizoChoices
         if (samus is not null && BombTorizoParameterMatchesSamusDelta(torizo, samus) &&
             state.AirTransitionTimer.IsZero)
         {
-            state.AirTransitionTimer = NativeCountdown.Start(72);
+            state.AirTransitionTimer = WrappingCountdown.Start(72);
         }
         return null;
     }
@@ -225,7 +225,7 @@ internal sealed class TorizoChoices
         state.Velocity = new EightEightVector<RoomPixels>(
             _access.FacesRight(torizo) ? (short)-768 : (short)768, -1152);
         state.JumpAcceleration = new EightEightVector<RoomPixels>(0, 40);
-        torizo.InstructionTimer = NativeCountdown.Start(1);
+        torizo.InstructionTimer = WrappingCountdown.Start(1);
         return AnimationProgramCursor<TorizoBodyProgram>.Start(target);
     }
 

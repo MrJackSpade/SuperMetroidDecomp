@@ -70,7 +70,7 @@ internal sealed class BoulderBehavior : IEnemySpecies, IEnemyEntityFactory
 
         state.BounceSpeedAccumulator = 0;
         state.TravelSpeedAccumulator = 0;
-        state.BounceCounter = NativeCountdown.Start(2);
+        state.BounceCounter = WrappingCountdown.Start(2);
         state.Function = BoulderAiFunction.WaitingForSamus;
         state.InitialPosition = slot.Position.Whole;
         state.PreviousY = slot.Position.Y;

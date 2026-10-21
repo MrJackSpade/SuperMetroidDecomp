@@ -1,31 +1,29 @@
-using SuperMetroid.Core.Rooms.Doors;
-
 namespace SuperMetroid.Core.Frontend;
 
 /// <summary>
-/// The hardware-timing and display policies a session runs against, fixed at construction. Production uses
-/// <see cref="Default"/>, which eliminates hardware lag and captures every gameplay frame; replay verification supplies
+/// The compatibility services and display policy a session runs against, fixed at construction. The game uses
+/// <see cref="Default"/>, the game's own timing with every gameplay frame captured; replay verification supplies
 /// recorded evidence instead, and simulation-only verification may retain the prior display.
 /// </summary>
 internal sealed record SuperMetroidGameHostServices
 {
-    /// <summary>The lag-free policies every production host uses.</summary>
+    /// <summary>The game's own timing, which every production host uses.</summary>
     public static SuperMetroidGameHostServices Default { get; } = new()
     {
-        DoorMusicUploadNmis = LagFreeDoorMusicUploadNmis.Instance,
-        DoorLoaderProgress = LagFreeDoorLoaderProgress.Instance,
-        SoundAcknowledgements = ModeledSoundAcknowledgements.Instance,
+        DoorMusicLoadFrames = InstantDoorMusicLoad.Instance,
+        RoomLoadProgress = InstantRoomLoad.Instance,
+        SoundAcknowledgements = ClockedSoundAcknowledgements.Instance,
         GameplayFrames = CapturedGameplayFrames.Instance,
     };
 
-    /// <summary>Accepted NMIs taken while a door transition's music upload blocks the main loop.</summary>
-    public required IDoorMusicUploadNmiSource DoorMusicUploadNmis { get; init; }
+    /// <summary>Frames counted while a door's new music loads.</summary>
+    public required IDoorMusicLoadFrames DoorMusicLoadFrames { get; init; }
 
-    /// <summary>How far the cartridge's door loader has progressed when enemies initialize.</summary>
-    public required IDoorLoaderProgressSource DoorLoaderProgress { get; init; }
+    /// <summary>How far room loading has progressed when each enemy initializes.</summary>
+    public required IRoomLoadProgress RoomLoadProgress { get; init; }
 
-    /// <summary>The SPC acknowledgements each update's sound handlers read.</summary>
-    public required ISoundAcknowledgementSource SoundAcknowledgements { get; init; }
+    /// <summary>The sound acknowledgements each update's sound handlers read.</summary>
+    public required ISoundAcknowledgementTiming SoundAcknowledgements { get; init; }
 
     /// <summary>How each gameplay update becomes the published display.</summary>
     public required IGameplayFramePublication GameplayFrames { get; init; }

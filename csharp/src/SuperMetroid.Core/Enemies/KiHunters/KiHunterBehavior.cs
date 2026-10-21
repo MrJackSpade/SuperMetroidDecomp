@@ -415,7 +415,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
             {
                 state.Velocity = state.Velocity.WithY(SnesSignedSixteenSixteen.FromParts(-4, 0));
                 state.Function = KiHunterEnemyFunction.NoOp;
-                state.WaitTimer = NativeCountdown.Start(KiHunterGroundWaitFrames);
+                state.WaitTimer = WrappingCountdown.Start(KiHunterGroundWaitFrames);
                 InstallKiHunterInstruction(
                     body,
                     body.RequireSpeciesState<KiHunterEnemyState>(),
@@ -707,7 +707,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         LastKiHunterSoundEffect = SoundEffectLibrary2Sounds.KiHunterAcidSpit;
         _audio.QueueEnemySound(SoundEffectLibrary2Sounds.KiHunterAcidSpit, maximumQueued: 6);
         SpawnKiHunterAcidSpit(body, direction == HorizontalDirection.Right);
-        body.RequireSpeciesState<KiHunterEnemyState>().WaitTimer = NativeCountdown.Start(KiHunterSpitWaitFrames);
+        body.RequireSpeciesState<KiHunterEnemyState>().WaitTimer = WrappingCountdown.Start(KiHunterSpitWaitFrames);
     }
 
     /// <summary>Restarts matching body and still-attached wing lists for the selected flight direction.</summary>
@@ -807,8 +807,8 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     private static void InstallKiHunterInstruction(RoomEnemySlot slot, KiHunterEnemyState state, KiHunterProgram program)
     {
         state.Program = AnimationProgramCursor<KiHunterProgram>.Start(program);
-        slot.InstructionTimer = NativeCountdown.Start(1);
-        slot.Timer = NativeCountdown.Start(0);
+        slot.InstructionTimer = WrappingCountdown.Start(1);
+        slot.Timer = WrappingCountdown.Start(0);
     }
 
     /// <summary>The <c>$0000:E000</c> 16.16 downward acceleration added to a falling or hopping body each frame.</summary>

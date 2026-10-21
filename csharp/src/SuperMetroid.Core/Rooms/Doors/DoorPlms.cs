@@ -76,7 +76,7 @@ internal sealed class DoorPlms : IPlmFamilySource
                 residentDoor.StartClosing();
             else
                 ResidentDoorClosingDefinitions.Resolve(resident.HeaderPointer).StartOn(resident);
-            resident.InstructionTimer = NativeCountdown.Start(1);
+            resident.InstructionTimer = WrappingCountdown.Start(1);
             return true;
         }
 
@@ -89,7 +89,7 @@ internal sealed class DoorPlms : IPlmFamilySource
         slot.HeaderPointer = fallback.Header;
         slot.BlockIndex = blockIndex;
         fallback.Start.StartOn(slot);
-        slot.InstructionTimer = NativeCountdown.Start(1);
+        slot.InstructionTimer = WrappingCountdown.Start(1);
         SetupDoorTransitionDeactivatedSlot(level, slot);
         return true;
     }
@@ -308,7 +308,7 @@ internal sealed class DoorPlms : IPlmFamilySource
         slot.BlockIndex = blockIndex;
         slot.RestoreLevelWord = 0;
         slot.StartAnimation(new BlueDoorPlmAnimation(BlueDoorPlmProgramDefinitions.Opening(orientation)));
-        slot.InstructionTimer = NativeCountdown.Start(1);
+        slot.InstructionTimer = WrappingCountdown.Start(1);
         slot.PreInstruction = PlmPreInstructions.Inert;
         slot.RoomArgument = 0;
         slot.LoopTimer = 0;

@@ -55,7 +55,7 @@ public sealed class SamusDrainedState
     public int SpecialPaletteFrame { get; private set; }
 
     /// <summary>Common palette timer initialized to one by command `$16`.</summary>
-    public NativeCountdown CommonPaletteTimer { get; private set; }
+    public WrappingCountdown CommonPaletteTimer { get; private set; }
 
     /// <summary>
     /// Index of the Hyper Beam palette shown by the rainbow cycle, 0 through the palette count minus one: cleared by
@@ -155,7 +155,7 @@ public sealed class SamusDrainedState
         Ensure.NotNull(samus);
         RainbowPaletteEnabled = true;
         SpecialPaletteFrame = 1;
-        CommonPaletteTimer = NativeCountdown.Start(1);
+        CommonPaletteTimer = WrappingCountdown.Start(1);
         ChargePaletteIndex = 0;
         _suitPaletteRestoreRequested = false;
     }
@@ -181,7 +181,7 @@ public sealed class SamusDrainedState
         Ensure.NotNull(samus);
         RainbowPaletteEnabled = false;
         SpecialPaletteFrame = 0;
-        CommonPaletteTimer = NativeCountdown.Start(0);
+        CommonPaletteTimer = WrappingCountdown.Start(0);
         ChargePaletteIndex = 0;
         _suitPaletteRestoreRequested = true;
         SamusPresentation.SetAnimationFrameFromSpecialHandler(samus, frame: 13, timer: 1);
@@ -228,12 +228,12 @@ public sealed class SamusDrainedState
             new SamusPalettes(cgram).Suit.Write(index,
                 PresentationColors.Resolve(paletteFrame, index));
 
-        NativeWordCounterStep timer = CommonPaletteTimer.Decrement();
+        CountdownStep timer = CommonPaletteTimer.Decrement();
         CommonPaletteTimer = timer.Remaining;
         if (!timer.IsZero && timer.IsNonNegative)
             return true;
 
-        CommonPaletteTimer = NativeCountdown.Start(SpecialPaletteFrame);
+        CommonPaletteTimer = WrappingCountdown.Start(SpecialPaletteFrame);
         ChargePaletteIndex++;
         if (ChargePaletteIndex >= SamusPaletteRomData.FullBodyCycles.HyperBeamPaletteCount)
             ChargePaletteIndex = 0;

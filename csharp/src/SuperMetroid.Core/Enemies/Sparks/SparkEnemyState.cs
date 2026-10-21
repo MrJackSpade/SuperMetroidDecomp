@@ -20,13 +20,13 @@ public sealed class SparkEnemyState
     public int BaseFunctionTime { get; internal set; }
 
     /// <summary>The countdown decremented with the cartridge's <c>DEC; BEQ</c>: reaching zero expires it, and one that starts from zero wraps instead.</summary>
-    public NativeCountdown FunctionTimer { get; internal set; }
+    public WrappingCountdown FunctionTimer { get; internal set; }
 
     /// <summary>Empties every value, when a kill empties the enemy's common record.</summary>
     internal void ClearWithRecord()
     {
         Function = null;
         BaseFunctionTime = 0;
-        FunctionTimer = NativeCountdown.Start(0);
+        FunctionTimer = WrappingCountdown.Start(0);
     }
 }

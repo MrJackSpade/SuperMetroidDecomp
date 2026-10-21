@@ -78,9 +78,9 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
             StopMovementNextFrame = false,
             Function = MaridiaLargeSnailEnemyFunction.Idle,
             YSpeedTableIndex = 0,
-            AttackCooldown = NativeCountdown.Start(MaridiaLargeSnailInitialAttackCooldown),
+            AttackCooldown = WrappingCountdown.Start(MaridiaLargeSnailInitialAttackCooldown),
             MovingLeft = false,
-            RemainingBounces = NativeCountdown.Start(MaridiaLargeSnailInitialBounceCount),
+            RemainingBounces = WrappingCountdown.Start(MaridiaLargeSnailInitialBounceCount),
             BounceFunction = MaridiaLargeSnailBounceFunction.Falling,
         };
         slot.SetSpeciesState(state, state.ClearWithRecord);
@@ -181,7 +181,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
             // complete three-impact settling sequence without skipping horizontal work.
             state.YSpeedTableIndex = 0;
             state.BounceFunction = MaridiaLargeSnailBounceFunction.Falling;
-            state.RemainingBounces = NativeCountdown.Start(MaridiaLargeSnailInitialBounceCount);
+            state.RemainingBounces = WrappingCountdown.Start(MaridiaLargeSnailInitialBounceCount);
         }
 
         // StopMovementNextFrame was produced at the end of the preceding main-AI call. The
@@ -193,7 +193,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
         bool cooldownExpired = state.AttackCooldown.IsNegative;
         if (cooldownExpired)
         {
-            state.AttackCooldown = NativeCountdown.Start(0);
+            state.AttackCooldown = WrappingCountdown.Start(0);
             bool mayAttack = EnemyMath.IsWithinStrictModularDistance(
                     samus.Position.X.Whole,
                     slot.Position.X.Whole,
@@ -210,7 +210,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
                     state.MovingLeft = true;
                 }
 
-                state.AttackCooldown = NativeCountdown.Start(MaridiaLargeSnailInitialAttackCooldown);
+                state.AttackCooldown = WrappingCountdown.Start(MaridiaLargeSnailInitialAttackCooldown);
                 state.RequestedInstructionListIndex =
                     (state.RequestedInstructionListIndex & MaridiaLargeSnailFacingSelector) | MaridiaLargeSnailAttackSelector;
                 InstallMaridiaLargeSnailInstructionList(slot, state);
@@ -265,7 +265,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
                 // An impact that leaves the record below zero ends the bounces; the negative record is kept.
                 state.YSpeedTableIndex -= MaridiaLargeSnailImpactIndexLoss;
                 if (state.YSpeedTableIndex < 0)
-                    state.RemainingBounces = NativeCountdown.Start(0);
+                    state.RemainingBounces = WrappingCountdown.Start(0);
                 state.BounceFunction = MaridiaLargeSnailBounceFunction.Rising;
                 return;
 
@@ -485,8 +485,8 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
         state.InstalledInstructionListIndex = state.RequestedInstructionListIndex;
         state.Program = AnimationProgramCursor<MaridiaLargeSnailProgram>.Start(MaridiaLargeSnailInstructionDefinitions
             .Program(state.RequestedInstructionListIndex));
-        slot.InstructionTimer = NativeCountdown.Start(1);
-        slot.Timer = NativeCountdown.Start(0);
+        slot.InstructionTimer = WrappingCountdown.Start(1);
+        slot.Timer = WrappingCountdown.Start(0);
     }
 
     /// <summary>

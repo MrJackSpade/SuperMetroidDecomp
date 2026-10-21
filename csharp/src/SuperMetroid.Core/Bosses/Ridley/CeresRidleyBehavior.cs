@@ -82,7 +82,7 @@ internal sealed class CeresRidleyBehavior
                 if (_roomStatus.EnemyDoorTransitionActive)
                     break;
                 state.Function = RidleyAiFunction.InitialDelay;
-                state.FunctionTimer = NativeCountdown.Start(512);
+                state.FunctionTimer = WrappingCountdown.Start(512);
                 CeresRidleyFlight.TickCeresRidleyInitialDelay(state);
                 break;
 
@@ -103,7 +103,7 @@ internal sealed class CeresRidleyBehavior
                 if (state.FunctionTimer.IsNegative)
                 {
                     CeresRidleyFlight.StartRidleyProgram(state, slot, RidleyBodyProgram.OpeningRoar);
-                    state.FunctionTimer = NativeCountdown.Start(252);
+                    state.FunctionTimer = WrappingCountdown.Start(252);
                     state.Function = RidleyAiFunction.WaitBeforeLiftoff;
                 }
                 break;
@@ -117,7 +117,7 @@ internal sealed class CeresRidleyBehavior
                     // Function_Ridley_RoarBeforeFly at $A6:A4B4-A4CB primes the wing
                     // timer, enables every tail segment, and selects neutral tail AI in
                     // the same transition that installs instruction list $E91D.
-                    state.WingAnimationTimer = NativeCountdown.Start(8);
+                    state.WingAnimationTimer = WrappingCountdown.Start(8);
                     state.WingAnimationTimerDelta = 8;
                     foreach (RidleyTailSegment segment in state.TailSegments)
                         segment.Active = true;
@@ -159,7 +159,7 @@ internal sealed class CeresRidleyBehavior
             case RidleyAiFunction.CeresLungeSetup:
                 CeresRidleyFlight.StartRidleyProgram(state, slot, RidleyBodyProgram.CeresLunge);
                 state.Function = RidleyAiFunction.CeresLungeMain;
-                state.FunctionTimer = NativeCountdown.Start(64);
+                state.FunctionTimer = WrappingCountdown.Start(64);
                 CeresRidleyFlight.TickCeresRidleyLunge(slot, state, samus);
                 break;
 
@@ -169,7 +169,7 @@ internal sealed class CeresRidleyBehavior
 
             case RidleyAiFunction.CeresSwoopSetup:
                 state.Function = RidleyAiFunction.CeresSwoopMoveToPosition;
-                state.FunctionTimer = NativeCountdown.Start(10);
+                state.FunctionTimer = WrappingCountdown.Start(10);
                 state.SwoopAngleAccumulator = SnesAngle.Zero;
                 state.IdleTailWhipEnabled = false;
                 CeresRidleyFlight.TickCeresRidleySwoopMoveToPosition(slot, state);

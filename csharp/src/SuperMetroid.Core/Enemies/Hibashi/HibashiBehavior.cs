@@ -49,7 +49,7 @@ internal sealed class HibashiBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         var state = new HibashiEnemyState
         {
-            InactiveTimerReset = NativeCountdown.FromRaw(checked((ushort)slot.Spawn.Population.Parameter1)),
+            InactiveTimerReset = WrappingCountdown.FromRaw(checked((ushort)slot.Spawn.Population.Parameter1)),
             IsCollisionPart = slot.Spawn.Population.Parameter2 != 0,
         };
         slot.SetSpeciesState(state, state.ClearWithRecord);
@@ -57,8 +57,8 @@ internal sealed class HibashiBehavior : IEnemySpecies, IEnemyEntityFactory
         // Every part starts with the one-frame hitbox map. Only part zero replaces it with
         // the eruption animation and initializes the state-machine words below.
         state.Program = AnimationProgramCursor<HibashiProgram>.Start(HibashiProgram.Hitbox);
-        slot.InstructionTimer = NativeCountdown.Start(1);
-        slot.Timer = NativeCountdown.Start(0);
+        slot.InstructionTimer = WrappingCountdown.Start(1);
+        slot.Timer = WrappingCountdown.Start(0);
         if (state.IsCollisionPart)
             return;
 
@@ -105,8 +105,8 @@ internal sealed class HibashiBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemySlot hitbox = GetFollowingHibashiPart(graphics);
         state.Function = HibashiEnemyFunction.Active;
         state.ActivityFinished = false;
-        graphics.InstructionTimer = NativeCountdown.Start(1);
-        graphics.Timer = NativeCountdown.Start(0);
+        graphics.InstructionTimer = WrappingCountdown.Start(1);
+        graphics.Timer = WrappingCountdown.Start(0);
         state.Program = AnimationProgramCursor<HibashiProgram>.Start(HibashiProgram.Graphics);
 
         // Property $0100 controls rendering only. Property $0400 controls admission to

@@ -42,7 +42,7 @@ internal static class ProjectileFrameBindingsVerification
             var nativeShot = new SamusProjectileSlot(0)
             {
                 Cursor = SamusProjectileProgramAddresses.CursorAt(unchecked((ushort)(pointer + 8))),
-                InstructionTimer = NativeCountdown.FromRaw(Word(0)), SpritemapPointer = Word(2),
+                InstructionTimer = WrappingCountdown.FromRaw(Word(0)), SpritemapPointer = Word(2),
                 Radius = new(CpuBusRegionRead.Read(rom, record + 4), CpuBusRegionRead.Read(rom, record + 5)),
                 AnimationFrame = Word(6), Damage = 30,
             };
@@ -55,9 +55,9 @@ internal static class ProjectileFrameBindingsVerification
                 Type = 0x0500, Damage = 30,
             };
             var installedShot = new SamusProjectileSlot(0)
-                { Cursor = SamusProjectileProgramAddresses.CursorAt(pointer), InstructionTimer = NativeCountdown.Start(1), Damage = 30 };
+                { Cursor = SamusProjectileProgramAddresses.CursorAt(pointer), InstructionTimer = WrappingCountdown.Start(1), Damage = 30 };
             var installedBomb = new SamusBombProjectileSlot(0)
-                { Cursor = SamusProjectileProgramAddresses.CursorAt(pointer), InstructionTimer = NativeCountdown.Start(1), Type = 0x0500, Damage = 30 };
+                { Cursor = SamusProjectileProgramAddresses.CursorAt(pointer), InstructionTimer = WrappingCountdown.Start(1), Type = 0x0500, Damage = 30 };
             var shots = new SamusProjectileSystem(new BeamChargeState(), SamusProjectileResidue.None) { Animation = { FrameBindings = stock } };
             var bombs = new SamusBombProjectileSystem { FrameBindings = stock };
             AssertTrue(nativeShot.InstructionTimer.RawValue is > 0 and < 0x8000,
@@ -106,7 +106,7 @@ internal static class ProjectileFrameBindingsVerification
         byte[] editedJson = ProjectileFrameBindingCatalog.Write(document);
         var edited = ProjectileFrameBindingCatalog.Load(new MemoryStream(editedJson));
         var editedShot = new SamusProjectileSlot(0)
-            { Cursor = SamusProjectileProgramAddresses.CursorAt(editedPointer), InstructionTimer = NativeCountdown.Start(1), Damage = 30 };
+            { Cursor = SamusProjectileProgramAddresses.CursorAt(editedPointer), InstructionTimer = WrappingCountdown.Start(1), Damage = 30 };
         new SamusProjectileSystem(new BeamChargeState(), SamusProjectileResidue.None) { Animation = { FrameBindings = edited } }
             .Animation.RunProjectileInstructionHandler(editedShot);
         AssertEqual(replacement, editedShot.SpritemapPointer,

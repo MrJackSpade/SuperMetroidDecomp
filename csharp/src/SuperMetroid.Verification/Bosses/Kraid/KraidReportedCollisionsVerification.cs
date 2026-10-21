@@ -35,7 +35,7 @@ internal static class KraidReportedCollisionsVerification
             samus.Position = samus.Position.WithWhole(new(120, 491));
             body.Position = body.Position.WithWhole(new(176, 592));
             state.Parts[0].Function = KraidAiFunction.MainloopThinking;
-            state.ThinkingTimer = NativeCountdown.Start(100);
+            state.ThinkingTimer = WrappingCountdown.Start(100);
             // The closed case starts the roar; the open case stands just past the roar cry, on the fully open pose.
             state.HeadProgram = closed
                 ? AnimationProgramCursor<KraidHeadProgram>.Start(KraidHeadProgram.Roar)
@@ -63,8 +63,8 @@ internal static class KraidReportedCollisionsVerification
         {
             samus.Position = samus.Position.WithWhole(new(x, y));
             samus.Health = 999; samus.EquippedItems = 0;
-            samus.KnockbackTimer = NativeCountdown.Start(0);
-            samus.InvincibilityTimer = NativeCountdown.Start(0);
+            samus.KnockbackTimer = WrappingCountdown.Start(0);
+            samus.InvincibilityTimer = WrappingCountdown.Start(0);
             samus.HorizontalSpeed.ContactDamageIndex = SamusContactDamageIndex.None;
             samus.Kinematics.ExtraDisplacement = samus.Kinematics.ExtraDisplacement.WithWhole(new(0, 0));
             samus.Kinematics.Radius = new(8, 16);
@@ -119,7 +119,7 @@ internal static class KraidReportedCollisionsVerification
         {
             body.Position = body.Position.WithWhole(new(176, 592));
             state.Parts[0].Function = KraidAiFunction.MainloopThinking;
-            state.ThinkingTimer = NativeCountdown.Start(100);
+            state.ThinkingTimer = WrappingCountdown.Start(100);
             ResetSamus(180, 500);
             runtime.Enemies.KraidBehavior.RunKraidBodyMain(body, samus, new Position16<RoomPixels>(0, 384), null, null, null);
             AssertEqual((ushort)172, samus.Position.X.Whole, "Kraid ejects Samus eight pixels left");
@@ -133,7 +133,7 @@ internal static class KraidReportedCollisionsVerification
             state.EjectionLimit = new Position16<RoomPixels>(0, 496);
             body.Position = body.Position.WithWhole(new(176, 592));
             state.Parts[0].Function = KraidAiFunction.MainloopThinking;
-            state.ThinkingTimer = NativeCountdown.Start(100);
+            state.ThinkingTimer = WrappingCountdown.Start(100);
             ResetSamus(180, 500);
             runtime.Enemies.KraidBehavior.RunKraidBodyMain(body, samus, new Position16<RoomPixels>(0, 384), null, null, null);
             state.EjectionLimit = smallFormLimit;

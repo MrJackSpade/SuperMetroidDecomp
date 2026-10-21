@@ -22,8 +22,8 @@ internal static class AudioVerification
         var retail = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(
             Path.GetFullPath("Super Metroid.smc"));
         Suite(nameof(VerifyAudioUploadCatalog), () => VerifyAudioUploadCatalog(retail));
-        Suite(nameof(SpcCommandPortsVerification.VerifySpcCommandPortsMatchEmulatedDriver),
-            () => SpcCommandPortsVerification.VerifySpcCommandPortsMatchEmulatedDriver());
+        Suite(nameof(SoundAcceptanceClockVerification.VerifySoundAcceptanceClockMatchesEmulatedDriver),
+            () => SoundAcceptanceClockVerification.VerifySoundAcceptanceClockMatchesEmulatedDriver());
         Suite(nameof(TickAccumulatorVerification.VerifyTickAccumulator),
             () => TickAccumulatorVerification.VerifyTickAccumulator());
         var invalidMusicData = new CartridgeAudioState();
@@ -208,7 +208,7 @@ internal static class AudioVerification
         AssertEqual(new CartridgeAudioCommand.WritePort(ApuPort.SoundLibrary2, 0x57), request.Single(), "SFX request write");
         AssertEqual(
             0,
-            sfx.AdvanceFrame(new CartridgeAudioAcknowledgements(0, 0, 0x57, 0)).Count,
+            sfx.AdvanceFrame(new SoundAcknowledgements(0, 0x57, 0)).Count,
             "SFX acknowledgement enters two-frame clear delay");
         AssertEqual(0, sfx.AdvanceFrame(default).Count, "SFX clear delay frame one");
         AssertEqual(

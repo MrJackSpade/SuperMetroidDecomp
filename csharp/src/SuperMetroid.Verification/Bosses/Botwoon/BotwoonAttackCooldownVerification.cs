@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Bosses.Botwoon;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Samus;
@@ -26,28 +25,28 @@ internal static class BotwoonAttackCooldownVerification
         movingState.Function = BotwoonEnemyFunction.ChooseNextAction;
         movingState.MovementFunction = BotwoonMovementFunction.MoveTowardHole;
         movingState.HeadFunction = BotwoonHeadFunction.AttackCooldown;
-        movingState.AttackTimer = NativeCountdown.Start(1);
+        movingState.AttackTimer = WrappingCountdown.Start(1);
 
         moving.BotwoonBehavior.RunBotwoonMainAi(movingHead, Frame());
-        AssertEqual(NativeCountdown.Start(0), movingState.AttackTimer, "a cooldown at one steps to zero");
+        AssertEqual(WrappingCountdown.Start(0), movingState.AttackTimer, "a cooldown at one steps to zero");
         AssertEqual(BotwoonHeadFunction.AttackCooldown, movingState.HeadFunction, "reaching zero does not end the cooldown");
 
         moving.BotwoonBehavior.RunBotwoonMainAi(movingHead, Frame());
-        AssertEqual(NativeCountdown.Start(0), movingState.AttackTimer, "the cooldown that wraps below zero is pinned back to zero");
+        AssertEqual(WrappingCountdown.Start(0), movingState.AttackTimer, "the cooldown that wraps below zero is pinned back to zero");
         AssertEqual(BotwoonHeadFunction.AnimateFromMovement, movingState.HeadFunction, "the wrapped cooldown returns the head to following its movement");
 
         // Hidden spit: the state's gate runs the cooldown while it is nonzero and leaves once it reads zero.
         (RoomEnemySystem hidden, RoomEnemySlot hiddenHead, BotwoonEnemyState hiddenState) = NewBotwoon();
         hiddenState.Function = BotwoonEnemyFunction.SpitWhileHidden;
         hiddenState.HeadFunction = BotwoonHeadFunction.AttackCooldown;
-        hiddenState.AttackTimer = NativeCountdown.Start(1);
+        hiddenState.AttackTimer = WrappingCountdown.Start(1);
 
         hidden.BotwoonBehavior.RunBotwoonMainAi(hiddenHead, Frame());
-        AssertEqual(NativeCountdown.Start(0), hiddenState.AttackTimer, "the hidden-spit gate runs a nonzero cooldown");
+        AssertEqual(WrappingCountdown.Start(0), hiddenState.AttackTimer, "the hidden-spit gate runs a nonzero cooldown");
         AssertEqual(BotwoonEnemyFunction.SpitWhileHidden, hiddenState.Function, "a running cooldown keeps Botwoon spitting from the hole");
 
         hidden.BotwoonBehavior.RunBotwoonMainAi(hiddenHead, Frame());
-        AssertEqual(NativeCountdown.Start(0), hiddenState.AttackTimer, "the gate does not decrement a zero cooldown");
+        AssertEqual(WrappingCountdown.Start(0), hiddenState.AttackTimer, "the gate does not decrement a zero cooldown");
         AssertEqual(BotwoonEnemyFunction.FollowAuthoredPath, hiddenState.Function, "a zero cooldown ends the hidden spit");
         AssertEqual(BotwoonHeadFunction.AnimateFromMovement, hiddenState.HeadFunction, "leaving the hidden spit returns the head to movement");
 

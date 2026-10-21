@@ -18,7 +18,7 @@ public sealed class SamusAtmosphericEffectSlot
     public SamusAtmosphericEffectType Type => (SamusAtmosphericEffectType)SnesLittleEndian.HighByte(checked((ushort)FrameAndType));
 
     /// <summary>$0AD4 array countdown in update calls; negative words suppress motion/drawing until decrement reaches $8000 and reloads the current frame duration.</summary>
-    public NativeCountdown AnimationTimer { get; internal set; }
+    public WrappingCountdown AnimationTimer { get; internal set; }
 
     /// <summary>
     /// $0ADC/$0AE4 array anchor in whole room pixels; camera subtraction occurs only when
@@ -31,7 +31,7 @@ public sealed class SamusAtmosphericEffectSlot
     internal void Clear()
     {
         FrameAndType = 0;
-        AnimationTimer = NativeCountdown.Start(0);
+        AnimationTimer = WrappingCountdown.Start(0);
         Position = Position16<RoomPixels>.Zero;
     }
 }

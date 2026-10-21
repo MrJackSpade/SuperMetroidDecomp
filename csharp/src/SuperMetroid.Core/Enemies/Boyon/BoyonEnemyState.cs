@@ -87,7 +87,7 @@ public sealed class BoyonEnemyState
     /// </summary>
     internal bool RetreatSpeedTableIndex()
     {
-        NativeWordCounterStep step = NativeWordCounter.Decrement(checked((ushort)SpeedTableIndex));
+        CountdownStep step = WrappingCounter.Decrement(checked((ushort)SpeedTableIndex));
         SpeedTableIndex = step.Value;
         return step.IsNegative;
     }

@@ -37,14 +37,14 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.SetSpeciesState(state, state.ClearWithRecord);
 
         state.Program = AnimationProgramCursor<NuclearWaffleProgram>.Start(NuclearWaffleProgram.BodyLoop);
-        slot.InstructionTimer = NativeCountdown.Start(1);
-        slot.Timer = NativeCountdown.Start(0);
+        slot.InstructionTimer = WrappingCountdown.Start(1);
+        slot.Timer = WrappingCountdown.Start(0);
 
         int angularSpeedIndex = SnesLittleEndian.LowByte(slot.Spawn.Population.Parameter1);
         state.OrbitRadius = SnesLittleEndian.HighByte(slot.Spawn.Population.Parameter1);
         byte direction = SnesLittleEndian.LowByte(slot.Spawn.Population.Parameter2);
         state.WaitingTimerReset = SnesLittleEndian.HighByte(slot.Spawn.Population.Parameter2);
-        state.WaitingTimer = NativeCountdown.Start(state.WaitingTimerReset);
+        state.WaitingTimer = WrappingCountdown.Start(state.WaitingTimerReset);
         state.Function = NuclearWaffleEnemyFunction.Waiting;
 
         // The sweep table holds only directions zero and one, so the definition rejects any other selector.
@@ -97,12 +97,12 @@ internal sealed class NuclearWaffleBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemySlot slot,
         NuclearWaffleEnemyState state)
     {
-        NativeWordCounterStep step = state.WaitingTimer.Decrement();
+        CountdownStep step = state.WaitingTimer.Decrement();
         state.WaitingTimer = step.Remaining;
         if (!step.IsNegative)
             return;
 
-        state.WaitingTimer = NativeCountdown.Start(state.WaitingTimerReset);
+        state.WaitingTimer = WrappingCountdown.Start(state.WaitingTimerReset);
         state.SweepAngle = SnesSignedSixteenSixteen.FromParts(checked((short)state.SweepStartAngle), 0);
         state.Function = NuclearWaffleEnemyFunction.Sweeping;
         state.HeadOrientationState = NuclearWaffleTurnState.BeforeTurns;

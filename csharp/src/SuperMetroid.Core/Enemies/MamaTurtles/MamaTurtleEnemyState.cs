@@ -18,10 +18,10 @@ public sealed class MamaTurtleEnemyState
     public FixedVector<RoomPixels> Velocity { get; internal set; }
 
     /// <summary>Wake counter; each Baby touch or shot decrements it, and the Mama wakes once it reaches zero.</summary>
-    public NativeCountdown AsleepFlag { get; internal set; }
+    public WrappingCountdown AsleepFlag { get; internal set; }
 
     /// <summary>Gets the phase-specific countdown used by peak and transition states.</summary>
-    public NativeCountdown FunctionTimer { get; internal set; }
+    public WrappingCountdown FunctionTimer { get; internal set; }
 
     /// <summary>
     /// Signed 16.16 horizontal acceleration per hovering update, toward Samus's side when hovering starts; a wall
@@ -38,6 +38,6 @@ public sealed class MamaTurtleEnemyState
     {
         Function = null;
         Velocity = Velocity.WithX(Velocity.X.WithWholePixels(0));
-        AsleepFlag = NativeCountdown.Start(0);
+        AsleepFlag = WrappingCountdown.Start(0);
     }
 }

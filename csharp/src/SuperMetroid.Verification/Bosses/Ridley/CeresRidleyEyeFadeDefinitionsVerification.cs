@@ -59,7 +59,7 @@ internal static class CeresRidleyEyeFadeDefinitionsVerification
              offset++)
         {
             state.FadePaletteOffset = offset;
-            state.FunctionTimer = NativeCountdown.Start(0);
+            state.FunctionTimer = WrappingCountdown.Start(0);
             tick(state);
 
             CeresRidleyEyeFadeStep expected = CeresRidleyEyeFadeDefinitions.Get(offset);
@@ -78,7 +78,7 @@ internal static class CeresRidleyEyeFadeDefinitionsVerification
         }
 
         state.FadePaletteOffset = CeresRidleyEyeFadeDefinitions.PaletteStepCount;
-        state.FunctionTimer = NativeCountdown.Start(0);
+        state.FunctionTimer = WrappingCountdown.Start(0);
         tick(state);
         AssertEqual(0, state.FadePaletteOffset,
             "production Ceres eye-fade terminator resets its offset");

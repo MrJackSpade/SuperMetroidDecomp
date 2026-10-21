@@ -28,10 +28,10 @@ public sealed class SamusDeathSequenceState
     public bool IsActive => Phase != SamusDeathSequencePhase.Inactive;
 
     /// <summary>WRAM `$0A9A`; sixteen calls precede the alternating yellow flash.</summary>
-    public NativeCountdown PreFlashingTimer { get; private set; }
+    public WrappingCountdown PreFlashingTimer { get; private set; }
 
     /// <summary>WRAM `$0A9C`; reused by flash and suit-explosion palette timing.</summary>
-    public NativeCountdown AnimationTimer { get; private set; }
+    public WrappingCountdown AnimationTimer { get; private set; }
 
     /// <summary>
     /// Flash palette selector (zero or one) while flashing, then the suit-explosion frame index from zero up to
@@ -113,8 +113,8 @@ public sealed class SamusDeathSequenceState
         // screen-space pair here for the eventual explosion-spritemap path.
         ScreenPosition = samus.Position.Whole.ToScreen(layer1);
 
-        PreFlashingTimer = NativeCountdown.Start(SamusSpecialSequenceRomData.Death.PreFlashFrameCount);
-        AnimationTimer = NativeCountdown.Start(3);
+        PreFlashingTimer = WrappingCountdown.Start(SamusSpecialSequenceRomData.Death.PreFlashFrameCount);
+        AnimationTimer = WrappingCountdown.Start(3);
         AnimationIndex = 0;
         AnimationCounter = 0;
         SpinJumpSoundRequested = sourceMovementType == SamusMovementType.SpinJumping;
@@ -164,7 +164,7 @@ public sealed class SamusDeathSequenceState
                     WritePalettePair(samus, cgram, paletteIndex: 0, artwork);
                     paletteChanged = true;
                     AnimationTimer =
-                        NativeCountdown.FromRaw(SamusDeathExplosionTimingDefinitions.DurationForIndex(index: 0));
+                        WrappingCountdown.FromRaw(SamusDeathExplosionTimingDefinitions.DurationForIndex(index: 0));
                     AnimationIndex = 0;
                     AnimationCounter = 0;
                     Phase = SamusDeathSequencePhase.SuitExplosion;
@@ -183,12 +183,12 @@ public sealed class SamusDeathSequenceState
                         if (AnimationIndex == 0)
                         {
                             AnimationIndex = 1;
-                            AnimationTimer = NativeCountdown.Start(1);
+                            AnimationTimer = WrappingCountdown.Start(1);
                         }
                         else
                         {
                             AnimationIndex = 0;
-                            AnimationTimer = NativeCountdown.Start(3);
+                            AnimationTimer = WrappingCountdown.Start(3);
                         }
                         WritePalettePair(samus, cgram, AnimationIndex, artwork);
                         paletteChanged = true;
@@ -262,7 +262,7 @@ public sealed class SamusDeathSequenceState
         }
 
         AnimationTimer =
-            NativeCountdown.FromRaw(SamusDeathExplosionTimingDefinitions.DurationForIndex(AnimationIndex));
+            WrappingCountdown.FromRaw(SamusDeathExplosionTimingDefinitions.DurationForIndex(AnimationIndex));
         int paletteIndex = (artwork ?? throw new InvalidOperationException(
             "Samus death requires installed palette artwork.")).ExplosionPaletteIndex(AnimationIndex);
         WritePalettePair(samus, cgram, paletteIndex, artwork);

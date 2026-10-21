@@ -1,5 +1,4 @@
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Runtime;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
 using SuperMetroid.Core.Enemies;
@@ -40,7 +39,7 @@ internal static class ProjectileContactPhaseVerification
         projectile.Kind = RoomEnemyProjectileKind.CeresRidleyFireball;
         projectile.StartAnimation(new RidleyFireballAnimation(RidleyFireballProgram.Fireball));
         projectile.PreInstruction = EnemyProjectilePreInstruction.RTS_8684FB;
-        projectile.InstructionTimer = NativeCountdown.Start(2);
+        projectile.InstructionTimer = WrappingCountdown.Start(2);
         projectile.Position = projectile.Position.WithWhole(new(128, 235));
         projectile.Radius = new(8, 8);
         projectile.Damage = 20; projectile.InvincibilityFrames = 96;
@@ -87,7 +86,7 @@ internal static class ProjectileContactPhaseVerification
             projectile.Kind = RoomEnemyProjectileKind.CeresRidleyFireball;
             projectile.StartAnimation(new RidleyFireballAnimation(RidleyFireballProgram.Fireball));
             projectile.PreInstruction = EnemyProjectilePreInstruction.RTS_8684FB;
-            projectile.InstructionTimer = NativeCountdown.Start(2);
+            projectile.InstructionTimer = WrappingCountdown.Start(2);
             projectile.Position = projectile.Position.WithWhole(new(120, 120));
             projectile.Radius = new(8, 8);
             projectile.Damage = 20;

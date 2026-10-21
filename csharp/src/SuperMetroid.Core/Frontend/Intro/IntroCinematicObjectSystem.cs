@@ -22,9 +22,9 @@ internal sealed class IntroCinematicObjectSystem
     /// <summary>Where the portrait eye's blink program resumes.</summary>
     internal AnimationProgramCursor<IntroEyeProgram> EyeProgram { get => eyeProgram; private set => eyeProgram = value; }
     /// <summary>Countdown before the eye shows its program's next frame.</summary>
-    internal NativeCountdown EyeInstructionTimer { get; private set; } = NativeCountdown.Start(1);
+    internal WrappingCountdown EyeInstructionTimer { get; private set; } = WrappingCountdown.Start(1);
     /// <summary>Countdown for initial marker, glyph, or final page hold.</summary>
-    private NativeCountdown textInstructionTimer;
+    private WrappingCountdown textInstructionTimer;
     /// <summary>Caller-installed narration artwork, rebound after debugger restoration.</summary>
     [NonSerialized] private IntroNarrationPresentation? narrationPresentation;
     /// <summary>Caller-installed eye rectangles, rebound after debugger restoration.</summary>
@@ -183,7 +183,7 @@ internal sealed class IntroCinematicObjectSystem
         // B4BC observes the page-six cinematic function and permanently changes the eye
         // object to its closed/half-open/deadpan program.
         EyeProgram = AnimationProgramCursor<IntroEyeProgram>.Start(IntroEyeProgram.FinalPageClosing);
-        EyeInstructionTimer = NativeCountdown.Start(1);
+        EyeInstructionTimer = WrappingCountdown.Start(1);
     }
 
     /// <summary>Runs the same post-state-function object order as game state $25.</summary>
@@ -224,7 +224,7 @@ internal sealed class IntroCinematicObjectSystem
     /// <summary>Compiles an installed page and primes its subtitle marker before the first glyph.</summary>
     private void StartNarration(IntroNarrationPageId page)
     {
-        textInstructionTimer = NativeCountdown.Start(IntroNarrationDefinitions.InitialMarkerDelayFrames);
+        textInstructionTimer = WrappingCountdown.Start(IntroNarrationDefinitions.InitialMarkerDelayFrames);
         narrationCharacterIndex = 0;
         narrationInitialMarkerPending = true;
         narrationFinalHoldStarted = false;
@@ -248,7 +248,7 @@ internal sealed class IntroCinematicObjectSystem
             subtitles.BeginPage(narrationPage ?? throw new InvalidDataException(
                 "Installed narration started without an active page identity."));
             narrationInitialMarkerPending = false;
-            textInstructionTimer = NativeCountdown.Start(IntroNarrationDefinitions.InitialMarkerDelayFrames);
+            textInstructionTimer = WrappingCountdown.Start(IntroNarrationDefinitions.InitialMarkerDelayFrames);
             return;
         }
 
@@ -287,7 +287,7 @@ internal sealed class IntroCinematicObjectSystem
             textTilemap[character.Row * IntroCinematicRomData.Layers.TilemapWidth +
                 character.Column] = character.TilemapWord.Raw;
             narrationCharacterIndex++;
-            textInstructionTimer = NativeCountdown.Start(IntroNarrationDefinitions.CharacterDelayFrames);
+            textInstructionTimer = WrappingCountdown.Start(IntroNarrationDefinitions.CharacterDelayFrames);
             return;
         }
 
@@ -295,7 +295,7 @@ internal sealed class IntroCinematicObjectSystem
         {
             SetCaretBlinking();
             narrationFinalHoldStarted = true;
-            textInstructionTimer = NativeCountdown.Start(IntroNarrationDefinitions.FinalPageHoldFrames);
+            textInstructionTimer = WrappingCountdown.Start(IntroNarrationDefinitions.FinalPageHoldFrames);
             return;
         }
 
@@ -347,12 +347,12 @@ internal sealed class IntroCinematicObjectSystem
             return;
 
         // The eye programs load no loop counter; the program set still takes one.
-        NativeCountdown loopCounter = default;
+        WrappingCountdown loopCounter = default;
         AnimationProgramAdvance<IntroEyeFrame> advance = IntroEyeAnimations.Programs.Advance(
             ref eyeProgram, ref loopCounter, static (_, _) => null);
         if (advance is not AnimationProgramAdvance<IntroEyeFrame>.Show shown)
             throw new InvalidOperationException($"The intro eye program {EyeProgram.Program} ended an update with {advance}.");
-        EyeInstructionTimer = NativeCountdown.Start(shown.Duration);
+        EyeInstructionTimer = WrappingCountdown.Start(shown.Duration);
         ShowEyeFrame(shown.Frame);
     }
 

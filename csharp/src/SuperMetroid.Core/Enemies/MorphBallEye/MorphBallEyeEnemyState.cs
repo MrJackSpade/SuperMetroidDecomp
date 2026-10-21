@@ -23,7 +23,7 @@ public sealed class MorphBallEyeEnemyState
     public SnesAngle Angle { get; internal set; }
 
     /// <summary>Activation/deactivation countdown.</summary>
-    public NativeCountdown FunctionTimer { get; internal set; }
+    public WrappingCountdown FunctionTimer { get; internal set; }
 
     /// <summary>Indirect bank-$A8 function word; none once a kill has emptied the record.</summary>
     public MorphBallEyeAiFunction? Function { get; internal set; }
@@ -33,7 +33,7 @@ public sealed class MorphBallEyeEnemyState
     {
         IsActivated = false;
         Angle = SnesAngle.FromTableIndex(0);
-        FunctionTimer = NativeCountdown.Start(0);
+        FunctionTimer = WrappingCountdown.Start(0);
         Function = null;
     }
 }

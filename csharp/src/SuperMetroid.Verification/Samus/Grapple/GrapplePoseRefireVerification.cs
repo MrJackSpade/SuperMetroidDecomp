@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
@@ -51,7 +50,7 @@ internal static class GrapplePoseRefireVerification
             AssertTrue(grapple.Anchor.Y < samus.Position.Y.Whole + grapple.OriginOffset.Y, "restarted beam actually travels up");
             AssertTrue(left ? grapple.EndpointOffset.X.RawValue < 0 : grapple.EndpointOffset.X.RawValue > 0, "restarted beam travels toward aimed side");
         }
-        var state = new SamusGrappleState { PoseChangeAutoFireTimer = NativeCountdown.Start(7) };
+        var state = new SamusGrappleState { PoseChangeAutoFireTimer = WrappingCountdown.Start(7) };
         using var stream = new MemoryStream();
         DebuggerObjectGraphSerializer.Serialize(stream, state);
         stream.Position = 0;

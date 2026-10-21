@@ -109,7 +109,7 @@ internal static class PlatformInstructionProgramDefinitionsVerification
             [slot, null, null, Position16<RoomPixels>.Zero, SnesButton.None];
         for (int call = 0; call < callCount; call++)
         {
-            slot.InstructionTimer = NativeCountdown.Start(1);
+            slot.InstructionTimer = WrappingCountdown.Start(1);
             EnemyInstructionRunner.Process(arguments);
         }
     }

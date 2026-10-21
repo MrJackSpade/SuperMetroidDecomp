@@ -66,7 +66,7 @@ internal sealed class RoomSpriteObjectPool
             RoomSpriteObjectSlot slot = _roomSpriteObjects[index];
             if (!slot.IsActive || slot.UpdatesDisabled)
                 continue;
-            NativeWordCounterStep step = slot.Timer.Decrement();
+            CountdownStep step = slot.Timer.Decrement();
             slot.Timer = step.Remaining;
             if (step.IsZero)
                 AdvanceProgram(slot);
@@ -81,7 +81,7 @@ internal sealed class RoomSpriteObjectPool
     {
         AnimationProgramCursor<RoomSpriteObjectProgram> cursor = slot.Cursor ?? throw new InvalidOperationException(
             $"Sprite object slot {slot.SlotIndex} has no program to advance.");
-        NativeCountdown counter = default;
+        WrappingCountdown counter = default;
         AnimationProgramAdvance<RoomSpriteObjectFrame> advance =
             RoomSpriteObjectAnimations.Programs.Advance(ref cursor, ref counter, static (_, _) => null);
         switch (advance)
@@ -89,11 +89,11 @@ internal sealed class RoomSpriteObjectPool
             case AnimationProgramAdvance<RoomSpriteObjectFrame>.Show shown:
                 slot.Cursor = cursor;
                 slot.Frame = shown.Frame;
-                slot.Timer = NativeCountdown.Start(shown.Duration);
+                slot.Timer = WrappingCountdown.Start(shown.Duration);
                 return;
             case AnimationProgramAdvance<RoomSpriteObjectFrame>.Hold:
                 slot.Cursor = cursor;
-                slot.Timer = NativeCountdown.FromRaw(short.MaxValue);
+                slot.Timer = WrappingCountdown.FromRaw(short.MaxValue);
                 return;
             case AnimationProgramAdvance<RoomSpriteObjectFrame>.Stop:
                 slot.Clear();

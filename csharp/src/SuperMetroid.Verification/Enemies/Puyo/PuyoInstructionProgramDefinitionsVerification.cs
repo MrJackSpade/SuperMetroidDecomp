@@ -58,8 +58,8 @@ internal static class PuyoInstructionProgramDefinitionsVerification
     private static void Start(RoomEnemySlot slot, PuyoEnemyState state, PuyoProgram program)
     {
         state.Program = AnimationProgramCursor<PuyoProgram>.Start(program);
-        slot.InstructionTimer = NativeCountdown.Start(1);
-        slot.Timer = NativeCountdown.Start(0);
+        slot.InstructionTimer = WrappingCountdown.Start(1);
+        slot.Timer = WrappingCountdown.Start(0);
     }
 
     /// <summary>Runs the Puyo checks and its program oracle against the local retail cartridge.</summary>

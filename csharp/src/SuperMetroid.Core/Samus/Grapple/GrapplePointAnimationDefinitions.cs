@@ -22,7 +22,7 @@ internal static class GrapplePointAnimationDefinitions
     {
         state.PointAnimationTimer = state.PointAnimationTimer.Decrement().Remaining;
         if (!state.PointAnimationTimer.IsNegative) return;
-        state.PointAnimationTimer = NativeCountdown.Start(Delay);
+        state.PointAnimationTimer = WrappingCountdown.Start(Delay);
         ushort pointer = unchecked((ushort)(SourceAddress(state.PointAnimationFrame) + FrameStride));
         if (unchecked((short)(pointer - EndPointer)) >= 0) pointer = BeginPointer;
         state.PointAnimationFrame = unchecked((ushort)(pointer - BeginPointer)) / FrameStride;

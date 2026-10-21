@@ -204,7 +204,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         if (unchecked((short)(body.Position.Y.Whole - SporeSpawnDeathCenterY)) >= 0)
         {
             state.BodyProgram = AnimationProgramCursor<SporeSpawnBodyProgram>.Start(SporeSpawnBodyProgram.FightStarted);
-            body.InstructionTimer = NativeCountdown.Start(1);
+            body.InstructionTimer = WrappingCountdown.Start(1);
         }
 
         state.MaximumXRadius = SporeSpawnDescentMaximumXRadius;
@@ -487,7 +487,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
                 state.AngleDelta = -state.AngleDelta;
                 state.Damaged = true;
                 state.BodyProgram = AnimationProgramCursor<SporeSpawnBodyProgram>.Start(SporeSpawnBodyProgram.CloseAndMove);
-                body.InstructionTimer = NativeCountdown.Start(1);
+                body.InstructionTimer = WrappingCountdown.Start(1);
 
                 ushort paletteOffset = body.Health >= 770
                     ? (ushort)0
@@ -520,8 +520,8 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
 
         state.DeathStarted = true;
         state.SporeGenerationSuppressed = false;
-        body.InvincibilityTimer = NativeCountdown.Start(0);
-        body.FlashTimer = NativeCountdown.Start(0);
+        body.InvincibilityTimer = WrappingCountdown.Start(0);
+        body.FlashTimer = WrappingCountdown.Start(0);
         body.AiStates = EnemyAiStates.None;
         // Literal property $0400 removes the dead body from the interactive-enemy list.
         body.Properties = body.Properties.With(EnemyProperties.IgnoreSamusCollision);
@@ -532,7 +532,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
             _projectiles.EnemyProjectiles[projectileSlot].Clear();
 
         state.BodyProgram = AnimationProgramCursor<SporeSpawnBodyProgram>.Start(SporeSpawnBodyProgram.Death);
-        body.InstructionTimer = NativeCountdown.Start(1);
+        body.InstructionTimer = WrappingCountdown.Start(1);
         _room.Services.Bosses.SetDefeated(BossBits.AreaMiniBoss);
         state.ScrollClampHookActive = false;
         PublishSporeSpawnPlm(header: PlmHeaderId.CrumbleSporeSpawnCeiling);
@@ -778,7 +778,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
             spawner.StartAnimation(new SporeSpawnProjectileAnimation(SporeSpawnProjectileProgram.SpawnerRelease));
             spawner.Variable1 = unchecked((ushort)(_room.Random.Generate() % 512));
         }
-        spawner.Variable1 = NativeWordCounter.Decrement(checked((ushort)spawner.Variable1)).Value;
+        spawner.Variable1 = WrappingCounter.Decrement(checked((ushort)spawner.Variable1)).Value;
     }
 
     /// <summary>Ports projectile instruction $86:DC5A's complete property-word replace.</summary>

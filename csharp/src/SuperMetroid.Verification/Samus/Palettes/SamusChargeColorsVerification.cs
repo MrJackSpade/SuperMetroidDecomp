@@ -96,7 +96,7 @@ internal static class SamusChargeColorsVerification
         }
         AssertEqual(0, projectiles.Charge.SamusChargePaletteIndex, "six charge phases wrap");
         samus.HyperBeamEnabled = true;
-        projectiles.Charge.ChargedShotGlowTimer = NativeCountdown.Start(0x8014);
+        projectiles.Charge.ChargedShotGlowTimer = WrappingCountdown.Start(0x8014);
         for (int call = 0; call < 20; call++)
         {
             Bgr555[] before = cgram.Colors.ToArray();

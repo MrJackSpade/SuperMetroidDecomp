@@ -6,7 +6,7 @@ public sealed class SamusProjectileTrailSide
     /// <summary>Room-pixel trail-sprite position.</summary>
     public Position16<RoomPixels> Position { get; internal set; }
     /// <summary>Updates remaining before the current trail instruction advances.</summary>
-    public NativeCountdown InstructionTimer { get; internal set; }
+    public WrappingCountdown InstructionTimer { get; internal set; }
     /// <summary>Bank-$90 pointer to the current trail instruction.</summary>
     public int InstructionPointer { get; internal set; }
     /// <summary>Packed tile number and OBJ attributes drawn for this trail side.</summary>
@@ -21,7 +21,7 @@ public sealed class SamusProjectileTrailSide
     internal void ClearFields()
     {
         Position = Position16<RoomPixels>.Zero;
-        InstructionTimer = NativeCountdown.Start(0);
+        InstructionTimer = WrappingCountdown.Start(0);
         InstructionPointer = 0;
         TileNumberAttributes = default;
         DisplayedPosition = Position16<RoomPixels>.Zero;

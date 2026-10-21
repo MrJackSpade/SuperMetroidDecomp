@@ -1094,7 +1094,7 @@ internal sealed class PauseMenuState : IFrontendScreen
     }
 
     /// <summary>Native $0757 sound cadence, advanced only by the selected reserve-transfer handler.</summary>
-    internal NativeCountdown ReserveTransferSoundDelay { get; private set; }
+    internal WrappingCountdown ReserveTransferSoundDelay { get; private set; }
 
     /// <summary>The selected item while the reserve-tank category is selected.</summary>
     private PauseReserveItem SelectedReserveItem => Enum.IsDefined((PauseReserveItem)SelectedItem)
@@ -1122,7 +1122,7 @@ internal sealed class PauseMenuState : IFrontendScreen
         if (ReserveTransferSoundDelay.IsZero)
         {
             if ((pressed & SnesButton.A) == 0) return;
-            ReserveTransferSoundDelay = NativeCountdown.FromRaw(unchecked((ushort)((samus.ReserveEnergy +
+            ReserveTransferSoundDelay = WrappingCountdown.FromRaw(unchecked((ushort)((samus.ReserveEnergy +
                 PauseReserveTransferRomData.SoundCadenceMask) & ~PauseReserveTransferRomData.SoundCadenceMask)));
         }
         ReserveTransferSoundDelay = ReserveTransferSoundDelay.Decrement().Remaining;
@@ -1146,7 +1146,7 @@ internal sealed class PauseMenuState : IFrontendScreen
         // Retail exhausts ALL reserves even when only a small top-up was needed.
         // Preserve that behavior and clear both bytes of the packed selector.
         samus.ReserveEnergy = 0;
-        ReserveTransferSoundDelay = NativeCountdown.Start(0);
+        ReserveTransferSoundDelay = WrappingCountdown.Start(0);
         SelectedCategory = PauseEquipmentCategory.Reserves;
         SelectedItem = PauseReserveTransferRomData.ModeItem;
     }

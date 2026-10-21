@@ -1,5 +1,4 @@
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
@@ -42,7 +41,7 @@ internal static class WrapShotEnemiesVerification
             int target = left ? 0x123f : 0x0280;
             enemy.Position = enemy.Position.WithWhole(new((ushort)((target % 64) * 16 + 8), (ushort)((target / 64) * 16 + 8)));
             enemy.Properties = enemy.Properties.With(EnemyProperties.ProcessOffScreen);
-            enemy.InvincibilityTimer = NativeCountdown.Start(0);
+            enemy.InvincibilityTimer = WrappingCountdown.Start(0);
             // Populate the real interactive list while freezing AI movement. The
             // remote enemy must be eligible, not silently excluded as offscreen.
             runtime.Enemies.StepFrame(new RoomEnemyFrame { Camera = new(0, 0), TimeIsFrozen = true, Level = runtime.Room.LevelData });

@@ -31,11 +31,11 @@ internal static class GrappleRopeGeometryVerification
                 Phase = GrapplePhase.Firing, RopeLength = length,
                 BeamStart = new((ushort)origin, 128),
                 Anchor = new((ushort)(origin + direction * 100), 28),
-                PointAnimationTimer = NativeCountdown.Start(5),
+                PointAnimationTimer = WrappingCountdown.Start(5),
             };
             for (int slot = 0; slot < 16; slot++)
             {
-                grapple.SegmentAnimationTimers[slot] = NativeCountdown.Start(1);
+                grapple.SegmentAnimationTimers[slot] = WrappingCountdown.Start(1);
                 grapple.SegmentAnimationFrames[slot] = (byte)(slot & 3);
             }
             // Equal-magnitude up/right and up/left vectors select $20/$E0.

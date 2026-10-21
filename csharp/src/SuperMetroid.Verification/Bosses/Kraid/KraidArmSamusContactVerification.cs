@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
@@ -39,7 +38,7 @@ internal static class KraidArmSamusContactVerification
         SamusState samus = runtime.Player.IntroducedSamus;
         samus.Position = samus.Position.WithWhole(new(0x007f, 0x019a));
         samus.Kinematics.Radius = new(5, 19);
-        samus.InvincibilityTimer = NativeCountdown.Start(0);
+        samus.InvincibilityTimer = WrappingCountdown.Start(0);
         samus.Kinematics.ExtraDisplacement = samus.Kinematics.ExtraDisplacement.WithWhole(new(0, 0));
         // The header radius box (top $1AF) misses Samus's feet at $1AD; the arm frame does not.
         AssertTrue(!RadiusBoxesOverlapForArm(arm, samus), "the header radius alone does not reach Samus");

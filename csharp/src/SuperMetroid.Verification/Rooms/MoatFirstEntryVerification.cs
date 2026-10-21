@@ -86,7 +86,7 @@ internal static class MoatFirstEntryVerification
             for (int frame = 0; transition.IsActive && frame < 400; frame++)
             {
                 var phase = transition.Phase;
-                transition.Step(runtime, audio, 0, SuperMetroid.Core.Rooms.Doors.LagFreeDoorLoaderProgress.Instance);
+                transition.Step(runtime, audio, 0, SuperMetroid.Core.Compatibility.InstantRoomLoad.Instance);
                 // SuperMetroidGame publishes gameplay immediately after this same
                 // transition step. Capture the IRQ scroll and palette fade too,
                 // not just the already-completed destination used by older probes.

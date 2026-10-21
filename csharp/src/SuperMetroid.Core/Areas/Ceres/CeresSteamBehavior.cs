@@ -59,7 +59,7 @@ internal sealed class CeresSteamBehavior : IEnemyEntityFactory
             {
                 // The vent's activation delay, which initialization staggers.
                 CeresSteamEnemyState state = slot.RequireSpeciesState<CeresSteamEnemyState>();
-                NativeWordCounterStep step = state.ActivationDelay.Decrement();
+                CountdownStep step = state.ActivationDelay.Decrement();
                 state.ActivationDelay = step.Remaining;
                 if (!step.IsZero)
                     return countDown.Target;
@@ -95,15 +95,15 @@ internal sealed class CeresSteamBehavior : IEnemyEntityFactory
         slot.Properties = slot.Properties.With(EnemyProperties.ProcessInstructions);
         slot.ExtraProperties = slot.ExtraProperties.With(
             EnemyExtraProperties.UsesExtendedSpritemap);
-        slot.InstructionTimer = NativeCountdown.Start(1);
-        slot.Timer = NativeCountdown.Start(0);
+        slot.InstructionTimer = WrappingCountdown.Start(1);
+        slot.Timer = WrappingCountdown.Start(0);
         slot.PaletteIndex = CeresSteamPaletteIndex;
 
         // `$A6:EFD9-$EFE0` masks the live RNG to 0..31 and adds one. The delay is then
         // consumed by instruction `$F127`, giving each vent a cartridge-authored stagger.
         var state = new CeresSteamEnemyState
         {
-            ActivationDelay = NativeCountdown.Start((_room.Random.Generate() & CeresSteamDefinitions.ActivationDelayMask) + 1),
+            ActivationDelay = WrappingCountdown.Start((_room.Random.Generate() & CeresSteamDefinitions.ActivationDelayMask) + 1),
         };
         slot.SetSpeciesState(state, state.ClearWithRecord);
 

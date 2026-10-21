@@ -23,7 +23,7 @@ internal sealed class EndingBackgroundTextState
     /// <summary>Selects the Japanese subtitle row during the percentage hold.</summary>
     private readonly bool japaneseText;
     /// <summary>Remaining calls until the next installed character or hold transition.</summary>
-    internal NativeCountdown InstructionTimer { get; set; } = NativeCountdown.Start(1);
+    internal WrappingCountdown InstructionTimer { get; set; } = WrappingCountdown.Start(1);
     /// <summary>Scene-selected background map the staging tilemap is uploaded into.</summary>
     private readonly EndingTextTilemap destinationTilemap;
     /// <summary>The installed ending text presentation; it is rebound after state restoration.</summary>
@@ -95,7 +95,7 @@ internal sealed class EndingBackgroundTextState
         if (InstalledInitialMarkerPending)
         {
             InstalledInitialMarkerPending = false;
-            InstructionTimer = NativeCountdown.Start(EndingTextDefinitions.InitialDelayFrames);
+            InstructionTimer = WrappingCountdown.Start(EndingTextDefinitions.InitialDelayFrames);
             return;
         }
         if (InstalledCharacterIndex < InstalledProgram.Length)
@@ -105,7 +105,7 @@ internal sealed class EndingBackgroundTextState
             tilemap[target] = character.TopWord.Raw;
             if (character.BottomWord is { } bottom)
                 tilemap[target + EndingTextDefinitions.TilemapWidth] = bottom.Raw;
-            InstructionTimer = NativeCountdown.Start(EndingTextDefinitions.CharacterDelayFrames);
+            InstructionTimer = WrappingCountdown.Start(EndingTextDefinitions.CharacterDelayFrames);
             Upload(screen);
             return;
         }
@@ -117,7 +117,7 @@ internal sealed class EndingBackgroundTextState
                     EndingCreditsRomData.Text.JapaneseSubtitleDestination,
                     EndingCreditsRomData.Text.JapaneseSubtitleWords));
             installedHoldStarted = true;
-            InstructionTimer = NativeCountdown.Start(EndingTextDefinitions.PercentageHoldFrames);
+            InstructionTimer = WrappingCountdown.Start(EndingTextDefinitions.PercentageHoldFrames);
             Upload(screen);
             return;
         }

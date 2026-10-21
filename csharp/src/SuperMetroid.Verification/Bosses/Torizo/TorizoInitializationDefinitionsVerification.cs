@@ -42,8 +42,8 @@ internal static class TorizoInitializationDefinitionsVerification
                 actor.Position = new(new(0xffff, 0x1234), new(0xffff, 0xabcd));
                 actor.Health = 0x3456;
                 actor.PaletteIndex = 0xffff;
-                actor.Timer = NativeCountdown.Start(0xffff);
-                actor.InstructionTimer = NativeCountdown.Start(0xffff);
+                actor.Timer = WrappingCountdown.Start(0xffff);
+                actor.InstructionTimer = WrappingCountdown.Start(0xffff);
                 actor.CurrentInstruction = 0xffff;
                 initialize(actor);
                 AssertEqual(native[0], actor.Position.X.Whole, "Real Torizo initial X");

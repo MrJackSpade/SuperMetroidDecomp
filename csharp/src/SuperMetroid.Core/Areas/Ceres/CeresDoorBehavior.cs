@@ -157,8 +157,8 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory
             CeresDoorInitializationDefinitions.For(variant);
 
         slot.Frame = EnemyFrameId.CeresDoorInitial;
-        slot.InstructionTimer = NativeCountdown.Start(1);
-        slot.Timer = NativeCountdown.Start(0);
+        slot.InstructionTimer = WrappingCountdown.Start(1);
+        slot.Timer = WrappingCountdown.Start(0);
         slot.VramTilesIndex = 0;
         slot.PaletteIndex = EnemyPaletteBits.Palette2;
         var state = new CeresDoorEnemyState { Function = initialization.MainFunction };
@@ -258,12 +258,12 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory
         if (lowTwelveBits < 128)
         {
             // Rarely select the stronger sibling quake six entries after the base type.
-            _earthquake.EarthquakeTimer = NativeCountdown.Start(4);
+            _earthquake.EarthquakeTimer = WrappingCountdown.Start(4);
             _earthquake.EarthquakeType = unchecked((ushort)(baseEarthquakeType + 6));
             return;
         }
 
-        _earthquake.EarthquakeTimer = NativeCountdown.Start(2);
+        _earthquake.EarthquakeTimer = WrappingCountdown.Start(2);
         _earthquake.EarthquakeType = baseEarthquakeType;
     }
 
@@ -271,7 +271,7 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void RunCeresDoorRumbleAndExplosions(RoomEnemySlot slot)
     {
         CeresDoorEnemyState state = slot.RequireSpeciesState<CeresDoorEnemyState>();
-        NativeWordCounterStep rumble = NativeWordCounter.Decrement(checked((ushort)state.RumbleCallsLeft));
+        CountdownStep rumble = WrappingCounter.Decrement(checked((ushort)state.RumbleCallsLeft));
         state.RumbleCallsLeft = rumble.Value;
         if (rumble.IsNegative)
         {
@@ -285,13 +285,13 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         }
 
-        NativeWordCounterStep interval = NativeWordCounter.Decrement(checked((ushort)state.ExplosionIntervalLeft));
+        CountdownStep interval = WrappingCounter.Decrement(checked((ushort)state.ExplosionIntervalLeft));
         state.ExplosionIntervalLeft = interval.Value;
         if (!interval.IsNegative)
             return;
 
         state.ExplosionIntervalLeft = CeresDoorRumbleInterval;
-        NativeWordCounterStep burst = NativeWordCounter.Decrement(checked((ushort)state.ExplosionPositionIndex));
+        CountdownStep burst = WrappingCounter.Decrement(checked((ushort)state.ExplosionPositionIndex));
         state.ExplosionPositionIndex = burst.IsNegative ? CeresDoorRumbleGeometryDefinitions.Count - 1 : burst.Value;
 
         (short xOffset, short yOffset) = CeresDoorRumbleGeometryDefinitions.Offset(state.ExplosionPositionIndex);

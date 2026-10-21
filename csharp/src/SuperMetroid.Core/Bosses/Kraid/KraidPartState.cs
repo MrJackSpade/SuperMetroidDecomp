@@ -20,7 +20,7 @@ public sealed class KraidPartState
     public KraidAiFunction NextFunction { get; internal set; }
 
     /// <summary>Gets the second-phase foot's think timer, which expires when its decrement reaches zero.</summary>
-    public NativeCountdown ThinkTimer { get; internal set; }
+    public WrappingCountdown ThinkTimer { get; internal set; }
 
     /// <summary>
     /// Gets whether this fingernail's last launch was the fixed-left spawn rather than the body-side one. A nail

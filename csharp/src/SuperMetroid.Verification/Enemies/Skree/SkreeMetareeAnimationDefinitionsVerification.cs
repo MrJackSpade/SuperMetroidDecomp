@@ -162,8 +162,8 @@ internal static class SkreeMetareeAnimationDefinitionsVerification
     /// <summary>Seeds nondefault instruction and timer values so installation must visibly replace them.</summary>
     private static RoomEnemySlot NewSkreeMetareeAnimationSlot() => new(0, EnemySlotFixtures.Registry)
     {
-        InstructionTimer = NativeCountdown.Start(0x2222),
-        Timer = NativeCountdown.Start(0x3333),
+        InstructionTimer = WrappingCountdown.Start(0x2222),
+        Timer = WrappingCountdown.Start(0x3333),
     };
 
     /// <summary>Chooses an installed phase distinct from the requested one for each handoff fixture.</summary>

@@ -18,7 +18,7 @@ public sealed class WreckedShipGhostEnemyState
     public WreckedShipGhostAiFunction? Function { get; internal set; }
 
     /// <summary>Initial/reappearance delay, flicker interval, or visible lifetime, depending on <see cref="Function"/>.</summary>
-    public NativeCountdown PhaseTimer { get; internal set; }
+    public WrappingCountdown PhaseTimer { get; internal set; }
 
     /// <summary>
     /// The flicker-duration table's byte offset, two per interval, 0 through 65535. It starts at two, steps by two with
@@ -35,7 +35,7 @@ public sealed class WreckedShipGhostEnemyState
     internal void ClearWithRecord()
     {
         Function = null;
-        PhaseTimer = NativeCountdown.Start(0);
+        PhaseTimer = WrappingCountdown.Start(0);
         FlickerTableOffset = 0;
     }
 
@@ -68,10 +68,10 @@ public sealed class WreckedShipGhostEnemyState
     public Position16<RoomPixels> SamusUpperBound { get; internal set; }
 
     /// <summary>Extended word $0D: 64-frame timer while Samus remains nearly still.</summary>
-    public NativeCountdown StablePositionTimer { get; internal set; }
+    public WrappingCountdown StablePositionTimer { get; internal set; }
 
     /// <summary>Extended word $0E: 16-frame timer while Samus keeps one direction.</summary>
-    public NativeCountdown StableDirectionTimer { get; internal set; }
+    public WrappingCountdown StableDirectionTimer { get; internal set; }
 
     /// <summary>
     /// Actor-selected sixteen-color target palette. Retail stores this in global target

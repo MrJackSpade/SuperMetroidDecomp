@@ -38,7 +38,7 @@ internal static class RidleyBreakupProgramsVerification
         body.Bind(EnemyDefinitionId.Ridley, body.Definition);
         var state = new RidleyEnemyState
         {
-            GrabState = RidleyGrabState.CarryingSamus, FunctionTimer = NativeCountdown.Start(0),
+            GrabState = RidleyGrabState.CarryingSamus, FunctionTimer = WrappingCountdown.Start(0),
             TailSegments = Enumerable.Range(0, 7).Select(index => new RidleyTailSegment
                 { Angle = index == 6 ? (ushort)0x10 : (ushort)0, Position = new Position16<RoomPixels>(128, 128) }).ToArray(),
         };
@@ -83,7 +83,7 @@ internal static class RidleyBreakupProgramsVerification
             ushort expectedPointer = CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(RidleyNativeListAddresses.BodyBankNumber << 16 | operand);
             var fragment = fragments[0];
             state.BreakupPrograms[fragment.SlotIndex] = AnimationProgramCursor<RidleyBreakupFrame>.Start(frame);
-            fragment.InstructionTimer = NativeCountdown.Start(1);
+            fragment.InstructionTimer = WrappingCountdown.Start(1);
             process(fragment, null, null, Position16<RoomPixels>.Zero, 0);
             AssertEqual(expectedPointer, fragment.SpritemapPointer, "breakup selects native sprite");
             process(fragment, null, null, Position16<RoomPixels>.Zero, 0);
@@ -100,7 +100,7 @@ internal static class RidleyBreakupProgramsVerification
         ushort deathX = expiring.Position.X.Whole, deathY = expiring.Position.Y.Whole;
         RidleyExplosionFragmentState expiringState = expiring.SpeciesState<RidleyExplosionFragmentState>()
             ?? throw new InvalidOperationException("The spawned fragment has no state.");
-        expiringState.Lifetime = NativeCountdown.Start(0);
+        expiringState.Lifetime = WrappingCountdown.Start(0);
         expiringState.Velocity = default;
         expiring.Position = expiring.Position.WithFractionX(0).WithFractionY(0);
         enemies.RidleyBehavior.Death.RunNorfairRidleyExplosionMain(expiring);

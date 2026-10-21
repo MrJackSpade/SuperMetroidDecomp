@@ -49,8 +49,8 @@ internal sealed class EnemySlotDispatch : IEnemyDispatch
         slot.Properties = population.Properties;
         slot.ExtraProperties = population.ExtraProperties;
         slot.AiStates = EnemyAiStates.None;
-        slot.Timer = NativeCountdown.Start(0);
-        slot.InstructionTimer = NativeCountdown.Start(1);
+        slot.Timer = WrappingCountdown.Start(0);
+        slot.InstructionTimer = WrappingCountdown.Start(1);
         slot.FrameCounter = 0;
         slot.HurtAiTime = definition.HurtAiTime;
         slot.PaletteIndex = paletteIndex;

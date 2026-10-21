@@ -82,12 +82,12 @@ internal abstract class PlmProgramAnimation<TProgram, TFrame, TCue> : PlmAnimati
             {
                 case AnimationProgramStep<TProgram, TFrame, TCue>.ShowStep show:
                     Cursor = next;
-                    slot.InstructionTimer = NativeCountdown.FromRaw((ushort)show.Duration);
+                    slot.InstructionTimer = WrappingCountdown.FromRaw((ushort)show.Duration);
                     Draw(show.Frame, slot, context);
                     return;
                 case AnimationProgramStep<TProgram, TFrame, TCue>.WaitStep wait:
                     Cursor = next;
-                    slot.InstructionTimer = NativeCountdown.FromRaw((ushort)wait.Duration);
+                    slot.InstructionTimer = WrappingCountdown.FromRaw((ushort)wait.Duration);
                     return;
                 case AnimationProgramStep<TProgram, TFrame, TCue>.CueStep cue:
                     Cursor = next;
@@ -109,13 +109,13 @@ internal abstract class PlmProgramAnimation<TProgram, TFrame, TCue> : PlmAnimati
                     slot.LoopTimer = (ushort)setCounter.Count;
                     break;
                 case AnimationProgramStep<TProgram, TFrame, TCue>.RepeatWhileCountingStep repeat:
-                    NativeWordCounterStep counted = NativeWordCounter.Decrement(slot.LoopTimer);
+                    CountdownStep counted = WrappingCounter.Decrement(slot.LoopTimer);
                     slot.LoopTimer = counted.Value;
                     Cursor = counted.IsZero ? next : AnimationProgramCursor<TProgram>.Start(repeat.Target);
                     break;
                 case AnimationProgramStep<TProgram, TFrame, TCue>.HoldStep:
                     // The native sleep rewinds onto itself and runs again on the next pass.
-                    slot.InstructionTimer = NativeCountdown.Start(1);
+                    slot.InstructionTimer = WrappingCountdown.Start(1);
                     return;
                 case AnimationProgramStep<TProgram, TFrame, TCue>.StopStep:
                     context.Plms.DeletePlm(slot);

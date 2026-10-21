@@ -459,7 +459,7 @@ level, targetPose, nmiFrameCounter, plms, out int centerAdjustment);
     /// </remarks>
     public static void ApplyWallContactAnimationRewind(SamusState samus)
     {
-        samus.AnimationFrameTimer = NativeCountdown.Start(1);
+        samus.AnimationFrameTimer = WrappingCountdown.Start(1);
 
         // `$90:9D96-$90:9DA6` gives Screw Attack a longer pre-contact animation. Its first
         // eligible wall frame is 27, so contact rewinds to 26. Ordinary spin and Space Jump

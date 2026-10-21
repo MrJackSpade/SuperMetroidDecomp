@@ -74,7 +74,7 @@ internal sealed class PhantoonPatterns
         StepPhantoonFigureEight(body, state.Parts[body.SlotIndex], state.Parts[state.Eye.SlotIndex]);
         StepPhantoonCasualFlameSchedule(state);
 
-        NativeWordCounterStep figureEight = NativeWordCounter.Decrement(checked((ushort)state.Parts[state.Eye.SlotIndex].ClosedTimer));
+        CountdownStep figureEight = WrappingCounter.Decrement(checked((ushort)state.Parts[state.Eye.SlotIndex].ClosedTimer));
         state.Parts[state.Eye.SlotIndex].ClosedTimer = figureEight.Value;
         // Native DEC/BEQ/BPL admits both zero and negative expiration. Waiting
         // for underflow adds a movement/flame frame before the eye-opening handoff.
@@ -222,14 +222,14 @@ internal sealed class PhantoonPatterns
     internal void StepPhantoonCasualFlameSchedule(PhantoonEnemyState state)
     {
         RoomEnemySlot mouth = state.Mouth;
-        NativeWordCounterStep holdStep = NativeWordCounter.Decrement(checked((ushort)state.Parts[mouth.SlotIndex].CasualFlameHold));
+        CountdownStep holdStep = WrappingCounter.Decrement(checked((ushort)state.Parts[mouth.SlotIndex].CasualFlameHold));
         state.Parts[mouth.SlotIndex].CasualFlameHold = holdStep.Value;
         if (!holdStep.IsZeroOrNegative)
             return;
 
         if (unchecked((short)state.Parts[mouth.SlotIndex].CasualFlameCount) >= 0)
         {
-            NativeWordCounterStep countStep = NativeWordCounter.Decrement(checked((ushort)state.Parts[mouth.SlotIndex].CasualFlameCount));
+            CountdownStep countStep = WrappingCounter.Decrement(checked((ushort)state.Parts[mouth.SlotIndex].CasualFlameCount));
             state.Parts[mouth.SlotIndex].CasualFlameCount = countStep.Value;
             // Native zero and negative counts both terminate the pattern. The
             // inter-pattern delay is word one; word zero is never a timer.
@@ -474,7 +474,7 @@ internal sealed class PhantoonPatterns
         RoomEnemySlot eye = state.Eye;
         StepPhantoonFigureEight(body, state.Parts[body.SlotIndex], state.Parts[eye.SlotIndex]);
         StepPhantoonCasualFlameSchedule(state);
-        NativeWordCounterStep closedStep = NativeWordCounter.Decrement(checked((ushort)state.Parts[eye.SlotIndex].ClosedTimer));
+        CountdownStep closedStep = WrappingCounter.Decrement(checked((ushort)state.Parts[eye.SlotIndex].ClosedTimer));
         state.Parts[eye.SlotIndex].ClosedTimer = closedStep.Value;
         // $A7:D836 DEC/BEQ/BPL: reaching zero expires the timer, as does underflow.
         if (!closedStep.IsZeroOrNegative)

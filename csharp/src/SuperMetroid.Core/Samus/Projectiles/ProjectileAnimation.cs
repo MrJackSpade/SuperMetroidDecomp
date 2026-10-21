@@ -36,7 +36,7 @@ internal sealed class ProjectileAnimation
             ClearProjectile(slot);
             return true;
         }
-        slot.InstructionTimer = NativeCountdown.FromRaw((ushort)duration);
+        slot.InstructionTimer = WrappingCountdown.FromRaw((ushort)duration);
         slot.SpritemapPointer = FrameBindings?.Resolve(checked((ushort)record.Address)) ?? record.Spritemap;
         slot.Radius = record.Radius;
         slot.AnimationFrame = record.AnimationFrame;
@@ -81,7 +81,7 @@ internal sealed class ProjectileAnimation
         // The assembly advances only when 16-bit DEC crosses zero into `$FFFF`. A timer
         // value of zero therefore survives one visible call; testing equality here would
         // make every ROM-authored delay one frame too short.
-        NativeWordCounterStep timer = _charge.DecrementFlareTimer(component);
+        CountdownStep timer = _charge.DecrementFlareTimer(component);
         if (timer.IsNonNegative)
             return;
 

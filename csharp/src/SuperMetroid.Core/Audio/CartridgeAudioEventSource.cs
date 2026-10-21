@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Audio;
 
 /// <summary>
 /// Turns one update's cartridge uploads and port writes into ordered semantic
-/// <see cref="AudioEvent"/>s through the synthesis-free <see cref="SpcCommandPorts"/> (#1304):
+/// <see cref="AudioEvent"/>s through the synthesis-free <see cref="SoundAcceptanceClock"/> (#1304):
 /// bank loads and music-port commands first, then the update's driver ticks, each polling tick
 /// followed by the sound-effect starts the driver acts on. It also publishes the acknowledgement
 /// bytes the next update's sound handlers read. The game session and the offline clip renderer
@@ -10,12 +10,11 @@ namespace SuperMetroid.Core.Audio;
 /// </summary>
 internal sealed class CartridgeAudioEventSource
 {
-    /// <summary>SPC port model that owns the driver timer, sound-effect polls and acknowledgements.</summary>
-    private readonly SpcCommandPorts ports = new();
+    /// <summary>The clock that decides when each library accepts and acknowledges a request.</summary>
+    private readonly SoundAcceptanceClock clock = new();
 
     /// <summary>The acknowledgement bytes published by the most recent update, for the next one.</summary>
-    /// <remarks>The music echo on port zero belongs to the sequencer and is never read by gameplay; it is published as zero.</remarks>
-    internal CartridgeAudioAcknowledgements Acknowledgements { get; private set; }
+    internal SoundAcknowledgements Acknowledgements { get; private set; }
 
     /// <summary>
     /// Applies <paramref name="commands"/> in order, walks the driver timer for one update and
@@ -27,46 +26,43 @@ internal sealed class CartridgeAudioEventSource
     internal AudioEvent[] Advance(IReadOnlyList<CartridgeAudioCommand> commands)
     {
         Ensure.NotNull(commands);
-        var events = new List<AudioEvent>(commands.Count + SpcCommandPorts.MaximumTicksPerFrame);
+        var events = new List<AudioEvent>(commands.Count + SoundAcceptanceClock.MaximumStepsPerUpdate);
         foreach (CartridgeAudioCommand command in commands)
         {
             switch (command)
             {
                 case CartridgeAudioCommand.Upload upload:
-                    ports.ResetForUpload();
+                    clock.PauseForMusicLoad();
                     events.Add(new AudioEvent.LoadAudioBank(upload.Bank));
                     break;
                 case CartridgeAudioCommand.WritePort writePort:
-                    ports.WritePort(writePort.InputPort, writePort.Value);
                     if (writePort.InputPort == ApuPort.Music)
                         events.Add(new AudioEvent.WriteMusicPort(MusicCommand.FromCartridge(writePort.Value)));
+                    else
+                        clock.Request(ApuPorts.LibraryIndexAt(writePort.InputPort), writePort.Value);
                     break;
                 default:
                     throw new InvalidDataException($"Unknown cartridge audio command {command}.");
             }
         }
-        Span<SpcDriverTick> schedule = stackalloc SpcDriverTick[SpcCommandPorts.MaximumTicksPerFrame];
-        int tickCount = ports.AdvanceFrame(schedule);
-        foreach (SpcDriverTick tick in schedule[..tickCount])
+        Span<SoundClockStep> schedule = stackalloc SoundClockStep[SoundAcceptanceClock.MaximumStepsPerUpdate];
+        int tickCount = clock.Advance(schedule);
+        foreach (SoundClockStep tick in schedule[..tickCount])
         {
-            events.Add(new AudioEvent.DriverTick(tick.DspCycleOffset, tick.Ticks, tick.SoundEffectsPolled));
-            if (!tick.SoundEffectsPolled)
+            events.Add(new AudioEvent.DriverTick(tick.SampleOffset, tick.Steps, tick.ChecksRequests));
+            if (!tick.ChecksRequests)
                 continue;
             for (int library = 0; library < SoundEffectLibraries.Count; library++)
-                AddStart(events, tick, SoundEffectLibraries.FromQueueIndex(library), tick.LibraryPolls[library]);
+                AddStart(events, tick, SoundEffectLibraries.FromQueueIndex(library), tick.Checks[library]);
         }
-        Acknowledgements = new CartridgeAudioAcknowledgements(
-            0,
-            ports.ReadSoundEffectPort(ApuPort.SoundLibrary1),
-            ports.ReadSoundEffectPort(ApuPort.SoundLibrary2),
-            ports.ReadSoundEffectPort(ApuPort.SoundLibrary3));
+        Acknowledgements = clock.Acknowledgements;
         return [.. events];
     }
 
     /// <summary>The driver starts a sound only for a changed nonzero request latched at the previous poll.</summary>
-    private static void AddStart(List<AudioEvent> events, SpcDriverTick tick, SoundEffectLibrary library, SpcSoundEffectPoll poll)
+    private static void AddStart(List<AudioEvent> events, SoundClockStep tick, SoundEffectLibrary library, SoundRequestCheck poll)
     {
-        if (poll.Changed && poll.Command != 0)
-            events.Add(new AudioEvent.StartSoundEffect(new SoundEffectId(library, poll.Command), tick.DspCycleOffset));
+        if (poll.Changed && poll.Request != 0)
+            events.Add(new AudioEvent.StartSoundEffect(new SoundEffectId(library, poll.Request), tick.SampleOffset));
     }
 }

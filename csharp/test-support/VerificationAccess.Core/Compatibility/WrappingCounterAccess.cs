@@ -1,10 +1,10 @@
-namespace SuperMetroid.Core.Hardware;
+namespace SuperMetroid.Core.Compatibility;
 
-/// <summary>Verification access to <see cref="NativeWordCounter"/> members production does not use.</summary>
-internal static class NativeWordCounterAccess
+/// <summary>Verification access to <see cref="WrappingCounter"/> members production does not use.</summary>
+internal static class WrappingCounterAccess
 {
     /// <summary>Supplies a saturating timer decrement for native counter assertions.</summary>
-    extension(NativeWordCounter)
+    extension(WrappingCounter)
     {
         /// <summary>
         /// Decrements a nonzero word and leaves zero saturated, matching the common

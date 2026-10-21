@@ -20,8 +20,8 @@ internal sealed class AtomicBehavior : IEnemySpecies, IEnemyEntityFactory
         var state = new AtomicEnemyState();
         slot.SetSpeciesState(state, state.ClearWithRecord);
 
-        slot.InstructionTimer = NativeCountdown.Start(1);
-        slot.Timer = NativeCountdown.Start(0);
+        slot.InstructionTimer = WrappingCountdown.Start(1);
+        slot.Timer = WrappingCountdown.Start(0);
 
         state.Program = AnimationProgramCursor<AtomicProgram>.Start(AtomicMovementDefinitions.InitialProgram(checked((ushort)slot.Spawn.Population.Parameter1)));
 

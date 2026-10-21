@@ -94,7 +94,7 @@ internal sealed class NorfairRidleyCombat
             MovementMinimum = new Position16<RoomPixels>(64, 64),
             MovementMaximum = new Position16<RoomPixels>(224, 416),
             WingFrame = 0,
-            WingAnimationTimer = NativeCountdown.Start(0),
+            WingAnimationTimer = WrappingCountdown.Start(0),
             WingAnimationTimerDelta = 0,
             TailFunctionIndex = RidleyTailFunction.None,
             TailAngleDelta = 1,
@@ -128,7 +128,7 @@ internal sealed class NorfairRidleyCombat
         if (!state.FunctionTimer.IsNegative)
             return;
 
-        state.FunctionTimer = NativeCountdown.Start(2);
+        state.FunctionTimer = WrappingCountdown.Start(2);
         int row = state.FadePaletteOffset;
         bool hasPalette;
         var colors = _bossArtwork.Artwork?.NorfairRidleyColors ?? throw new InvalidOperationException(
@@ -146,7 +146,7 @@ internal sealed class NorfairRidleyCombat
             RidleyLiquidRomData.RiseVelocity, RidleyLiquidRomData.RiseDelay);
         state.FadePaletteOffset = 0;
         CeresRidleyFlight.StartRidleyProgram(state, slot, RidleyBodyProgram.TransitionToFlying);
-        state.WingAnimationTimer = NativeCountdown.Start(8);
+        state.WingAnimationTimer = WrappingCountdown.Start(8);
         state.WingAnimationTimerDelta = 8;
         foreach (RidleyTailSegment segment in state.TailSegments)
             segment.Active = true;
@@ -182,7 +182,7 @@ internal sealed class NorfairRidleyCombat
             return;
 
         state.Function = RidleyAiFunction.NorfairSwoopAimDown;
-        state.SwoopPhaseTimer = NativeCountdown.Start(32);
+        state.SwoopPhaseTimer = WrappingCountdown.Start(32);
         state.SwoopAngleAccumulator = SnesAngle.Zero;
     }
 
@@ -203,7 +203,7 @@ internal sealed class NorfairRidleyCombat
         }
 
         state.Function = nextFunction;
-        state.SwoopPhaseTimer = NativeCountdown.FromRaw(nextTimer);
+        state.SwoopPhaseTimer = WrappingCountdown.FromRaw(nextTimer);
         return true;
     }
 
@@ -244,7 +244,7 @@ internal sealed class NorfairRidleyCombat
         state.Function = direction == VerticalDirection.Down
             ? RidleyAiFunction.NorfairPogoAscending
             : RidleyAiFunction.NorfairPogoDescending;
-        state.FunctionTimer = NativeCountdown.Start(128);
+        state.FunctionTimer = WrappingCountdown.Start(128);
         SelectNorfairRidleyFacingInstruction(slot, state);
     }
 
@@ -267,7 +267,7 @@ internal sealed class NorfairRidleyCombat
         {
             SelectNorfairRidleyFacingInstruction(slot, state);
             state.Function = RidleyAiFunction.NorfairFireballMoveToHeight;
-            state.FunctionTimer = NativeCountdown.Start(32);
+            state.FunctionTimer = WrappingCountdown.Start(32);
             TickNorfairRidleyGroundAttackMoveToHeight(slot, state, samus);
             return;
         }
@@ -290,7 +290,7 @@ internal sealed class NorfairRidleyCombat
         _ridleyTail.TickRidleyPogoTail(slot, state, samus);
         InitializeNorfairRidleyPogoVelocity(state);
         state.Function = RidleyAiFunction.NorfairFireballAttack;
-        state.FunctionTimer = NativeCountdown.FromRaw(unchecked((ushort)(_room.Random.Read() % 64 + 128)));
+        state.FunctionTimer = WrappingCountdown.FromRaw(unchecked((ushort)(_room.Random.Read() % 64 + 128)));
     }
 
     /// <summary>Checks claw grab, accelerates downward, and bounces the tail on terrain contact.</summary>
@@ -322,7 +322,7 @@ internal sealed class NorfairRidleyCombat
         _ridleyProjectiles.SpawnRidleyDust(tip.Position + new Offset16<RoomPixels>(0, 12), variant: 9);
         _audio.QueueEnemySound(SoundEffectLibrary2Sounds.RidleyTailTerrainImpact, maximumQueued: 6);
         _earthquake.EarthquakeType = 13;
-        _earthquake.EarthquakeTimer = NativeCountdown.Start(4);
+        _earthquake.EarthquakeTimer = WrappingCountdown.Start(4);
         SetRidleyPogoHorizontalDirection(slot, state, samus);
         InitializeNorfairRidleyPogoVelocity(state);
         for (int index = 0; index < state.TailSegments.Length; index++)
@@ -458,7 +458,7 @@ internal sealed class NorfairRidleyCombat
                 ? (ushort)256
                 : unchecked((ushort)(slot.Position.Y.Whole - 64)));
         state.Function = RidleyAiFunction.NorfairCarryMoveToAnchor;
-        state.FunctionTimer = NativeCountdown.Start(32);
+        state.FunctionTimer = WrappingCountdown.Start(32);
         NorfairRidleyMovement.MoveNorfairRidleyToward(slot, state, state.Target, 0);
         NorfairRidleyMovement.TickRidleyFunctionTimer(state);
     }
@@ -523,7 +523,7 @@ internal sealed class NorfairRidleyCombat
             state.FacingDirection == RidleyFacing.Left
                 ? RidleyBodyProgram.TurnFromLeftToRight
                 : RidleyBodyProgram.TurnFromRightToLeft);
-        slot.InstructionTimer = NativeCountdown.Start(2);
+        slot.InstructionTimer = WrappingCountdown.Start(2);
     }
 
     /// <summary>Selects a hover acceleration divisor from Ridley's capped health stage.</summary>
@@ -594,7 +594,7 @@ internal sealed class NorfairRidleyCombat
     {
         CeresRidleyFlight.StartRidleyProgram(state, body, RidleyBodyProgram.DeathRoar);
         state.Function = RidleyAiFunction.NorfairDeathExplosions;
-        state.FunctionTimer = NativeCountdown.Start(32);
+        state.FunctionTimer = WrappingCountdown.Start(32);
     }
 
     /// <summary>Ports $A6:BA85: death has priority over power-bomb dodge and ordinary retreat.</summary>

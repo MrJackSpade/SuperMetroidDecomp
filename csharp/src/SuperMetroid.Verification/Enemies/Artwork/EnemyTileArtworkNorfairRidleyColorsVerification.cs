@@ -182,7 +182,7 @@ internal static class EnemyTileArtworkNorfairRidleyColorsVerification
             state.FunctionTimer = state.FunctionTimer.Decrement().Remaining;
             if (!state.FunctionTimer.IsNegative)
                 return;
-            state.FunctionTimer = NativeCountdown.Start(2);
+            state.FunctionTimer = WrappingCountdown.Start(2);
             ushort pointer = ReadReferenceWord(0xa6a4eb + state.FadePaletteOffset * 2);
             state.FadePaletteOffset++;
             if (pointer != 0)
@@ -215,7 +215,7 @@ internal static class EnemyTileArtworkNorfairRidleyColorsVerification
             RidleyEnemyState state = enemy.RidleyEncounter.Ridley ??
                 throw new InvalidOperationException("Norfair Ridley initialization did not publish its state.");
             state.Function = RidleyAiFunction.WaitBeforeLiftoff;
-            state.FunctionTimer = NativeCountdown.Start(0);
+            state.FunctionTimer = WrappingCountdown.Start(0);
             return new EnemyTileArtworkNorfairRidleyColorsCreateResult(enemy, cgram, slot, state);
         }
 

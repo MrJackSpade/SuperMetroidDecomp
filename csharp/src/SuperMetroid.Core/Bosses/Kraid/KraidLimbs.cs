@@ -98,7 +98,7 @@ internal sealed class KraidLimbs
             case KraidPartCue.LowerBodyAndShake:
                 body.Position = body.Position.WithWholeY(unchecked((ushort)(body.Position.Y.Whole + 1)));
                 _earthquake.EarthquakeType = 1;
-                _earthquake.EarthquakeTimer = NativeCountdown.Start(10);
+                _earthquake.EarthquakeTimer = WrappingCountdown.Start(10);
                 return null;
             case KraidPartCue.StepSound:
                 _access.LastKraidSoundEffect = new KraidSoundRequest(KraidSoundDefinitions.Footstep);
@@ -141,7 +141,7 @@ internal sealed class KraidLimbs
         state.HeadProgram = KraidHeadAnimations.GrowthResumeCursor(resume);
         state.Parts[body.SlotIndex].HeadTimer = checked((ushort)KraidHeadAnimations.GrowthResumeDelay(resume));
         _earthquake.EarthquakeType = 4;
-        _earthquake.EarthquakeTimer = NativeCountdown.Start(340);
+        _earthquake.EarthquakeTimer = WrappingCountdown.Start(340);
 
         RoomEnemySlot foot = _slotTable.Slots[5];
         _access.StartKraidPartProgram(foot, KraidPartProgram.FootInitial);
@@ -186,7 +186,7 @@ internal sealed class KraidLimbs
         // While mouth reopens are pending, incrementing the timer here cancels the common
         // interpreter's later decrement and freezes the selected arm map.
         if (state.PendingMouthReopens != 0)
-            arm.InstructionTimer = NativeCountdown.FromRaw(unchecked((ushort)(arm.InstructionTimer.RawValue + 1)));
+            arm.InstructionTimer = WrappingCountdown.FromRaw(unchecked((ushort)(arm.InstructionTimer.RawValue + 1)));
     }
 
     /// <summary>Dispatches the foot's lunge, retreat, and grown-form walking functions.</summary>
@@ -326,16 +326,16 @@ internal sealed class KraidLimbs
         {
             _access.SetKraidPartProgram(foot, KraidPartProgram.FootLungeForward);
         }
-        foot.InstructionTimer = NativeCountdown.Start(1);
+        foot.InstructionTimer = WrappingCountdown.Start(1);
     }
 
     /// <summary>Counts down a foot phase and installs its next function at zero.</summary>
     private void TickKraidFootTransitionTimer(RoomEnemySlot foot, KraidPartState part)
     {
-        NativeCountdown phaseTimer = NativeCountdown.FromRaw(checked((ushort)_access.Part(foot).FunctionTimer));
+        WrappingCountdown phaseTimer = WrappingCountdown.FromRaw(checked((ushort)_access.Part(foot).FunctionTimer));
         if (phaseTimer.IsZero)
             return;
-        NativeWordCounterStep step = phaseTimer.Decrement();
+        CountdownStep step = phaseTimer.Decrement();
         _access.Part(foot).FunctionTimer = step.Remaining.RawValue;
         if (step.IsZero)
         {
@@ -418,7 +418,7 @@ internal sealed class KraidLimbs
         bool rightward)
     {
         _access.RequireKraidState(foot).WalkTarget = new Position16<RoomPixels>(targetX, 0);
-        part.ThinkTimer = NativeCountdown.FromRaw(thinkTimer);
+        part.ThinkTimer = WrappingCountdown.FromRaw(thinkTimer);
         _access.Part(foot).Function = rightward ? KraidAiFunction.FootSecondPhaseWalkingRight : KraidAiFunction.FootSecondPhaseWalkingLeft;
         _access.StartKraidPartProgram(foot, rightward ? KraidPartProgram.FootWalkingBackward : KraidPartProgram.FootWalkingForward);
     }

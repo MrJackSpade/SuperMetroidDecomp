@@ -20,7 +20,7 @@ public sealed class KraidEnemyState
     /// </summary>
     public int Unknown2 { get; internal set; }
     /// <summary>Gets the body think countdown selected from the native random-delay table and consumed before the next mouth attack.</summary>
-    public NativeCountdown ThinkingTimer { get; internal set; }
+    public WrappingCountdown ThinkingTimer { get; internal set; }
     /// <summary>
     /// Gets the room position whose Y is the highest Samus may be pushed to when Kraid's body ejects her: Y 324 for the
     /// small form and 164 once growth raises the clamp. Only the Y axis is meaningful; Samus's position is compared with
@@ -48,7 +48,7 @@ public sealed class KraidEnemyState
     /// <summary>Gets the hurt-palette phase, from zero to six: started at six by a vulnerable mouth hit and stepped down by its frame timer.</summary>
     public int HurtFrame { get; internal set; }
     /// <summary>Gets the countdown pacing hurt-palette phases, normally reloaded to two and reused by background fades during death.</summary>
-    public NativeCountdown HurtFrameTimer { get; internal set; }
+    public WrappingCountdown HurtFrameTimer { get; internal set; }
     /// <summary>The head pose Kraid is showing, which selects the head image; null until the head program shows its first pose.</summary>
     internal KraidHeadFrame? DisplayedHeadFrame { get; set; }
 
@@ -147,7 +147,7 @@ public sealed class KraidEnemyState
     /// <summary>Gets whether growth has relinquished the first-screen camera lock for the enlarged encounter.</summary>
     public bool CameraReleasedForSecondPhase { get; internal set; }
     /// <summary>Gets the sinking sound countdown, initially forty-three and reloaded to thirty after each request.</summary>
-    public NativeCountdown DeathSoundTimer { get; internal set; }
+    public WrappingCountdown DeathSoundTimer { get; internal set; }
     /// <summary>Gets the number of authored sinking-table events consumed during the death descent.</summary>
     public int SinkTableEventCount { get; internal set; }
     /// <summary>Gets the number of pickup actors requested by Kraid's authored death scatter, independent of pool allocation success.</summary>

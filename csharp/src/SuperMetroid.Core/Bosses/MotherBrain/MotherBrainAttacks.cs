@@ -177,7 +177,7 @@ internal sealed class MotherBrainAttacks
         MotherBrainEnemyState state,
         SamusState samus)
     {
-        state.AttackCooldown = NativeCountdown.Start(64);
+        state.AttackCooldown = WrappingCountdown.Start(64);
         state.AttackPhase = MotherBrainAttackPhase.Cooldown;
 
         byte randomLow = unchecked((byte)_room.Random.Read());
@@ -324,7 +324,7 @@ internal sealed class MotherBrainAttacks
     {
         MotherBrainEncounterAccess.SetMotherBrainBrainProgram(state, MotherBrainHeadProgram.BombPhase2);
         state.Function = MotherBrainBodyFunction.SecondPhaseBombFired;
-        state.FunctionTimer = NativeCountdown.Start(44);
+        state.FunctionTimer = WrappingCountdown.Start(44);
     }
 
     /// <summary>Ports stored body state <c>$A9:B7E8</c> and its stand-up fallthrough.</summary>
@@ -437,7 +437,7 @@ internal sealed class MotherBrainAttacks
         state.UpperNeckMovementIndex = targetIndex;
         state.NeckAngleDelta = 512;
         state.Function = MotherBrainBodyFunction.SecondPhaseLaserPositionHeadSlowlyAndFire;
-        state.FunctionTimer = NativeCountdown.Start(4);
+        state.FunctionTimer = WrappingCountdown.Start(4);
     }
 
     /// <summary>
@@ -454,7 +454,7 @@ internal sealed class MotherBrainAttacks
         state.NeckAngleDelta = state.NeckAngleDelta >= 0 ? 256 : -256;
         MotherBrainEncounterAccess.SetMotherBrainBrainProgram(state, MotherBrainHeadProgram.Laser);
         state.Function = MotherBrainBodyFunction.SecondPhaseLaserFinishAttack;
-        state.FunctionTimer = NativeCountdown.Start(16);
+        state.FunctionTimer = WrappingCountdown.Start(16);
     }
 
     /// <summary>

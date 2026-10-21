@@ -35,7 +35,7 @@ public sealed class SamusBombProjectileSlot
     /// <summary>Where the slot's projectile program resumes; null marks an inactive slot, and a consumed timed frame advances it past that record.</summary>
     internal AnimationProgramCursor<SamusProjectileProgram>? Cursor { get; set; }
     /// <summary>Wrapping sixteen-bit duration countdown at <c>$0C5E + 2*Index</c>, decremented once per unfrozen projectile update; reaching zero runs the next bank-$93 instruction.</summary>
-    public NativeCountdown InstructionTimer { get; internal set; }
+    public WrappingCountdown InstructionTimer { get; internal set; }
     /// <summary>Current bank-$93 spritemap identity at <c>$0CC2 + 2*Index</c>, selected by the timed-frame interpreter or installed frame binding and resolved through the sprite catalog when drawing.</summary>
     public int SpritemapPointer { get; internal set; }
     /// <summary>Collision half-extents in whole pixels, loaded from timed-frame bytes and stored in native <c>SamusProjectile_X/YRadii</c> at <c>$0BBE/$0BD2 + 2*Index</c>; not the global Power Bomb blast radius.</summary>
@@ -57,7 +57,7 @@ public sealed class SamusBombProjectileSlot
     /// The word called <c>projectile_variables[5+Index]</c> by bank $90 and
     /// <c>bomb_timers[Index]</c> by bank $A0 due to the original overlapping arrays.
     /// </summary>
-    public NativeCountdown BombTimer { get; internal set; }
+    public WrappingCountdown BombTimer { get; internal set; }
 
     /// <summary>Instruction pointer is the native active-slot sentinel.</summary>
     public bool IsActive => Cursor is not null;
@@ -70,10 +70,10 @@ public sealed class SamusBombProjectileSlot
         Type = 0;
         Damage = 0;
         Cursor = null;
-        InstructionTimer = NativeCountdown.Start(0);
+        InstructionTimer = WrappingCountdown.Start(0);
         SpritemapPointer = 0;
         Radius = Extent16<RoomPixels>.Zero;
-        BombTimer = NativeCountdown.Start(0);
+        BombTimer = WrappingCountdown.Start(0);
         IsBombSpread = false;
         BombSpreadHorizontal = default;
         BombSpreadVerticalVelocity = SnesSignedSixteenSixteen.Zero;

@@ -19,7 +19,7 @@ internal static class EnemyProgramAnimation
     {
         Ensure.NotNull(slot);
         ushort oldTimer = slot.InstructionTimer.RawValue;
-        slot.InstructionTimer = NativeCountdown.FromRaw(unchecked((ushort)(oldTimer - 1)));
+        slot.InstructionTimer = WrappingCountdown.FromRaw(unchecked((ushort)(oldTimer - 1)));
         if (oldTimer == 1)
             return true;
         slot.ExtraProperties = slot.ExtraProperties.Without(EnemyExtraProperties.NewInstructionFrame);
@@ -121,8 +121,8 @@ internal static class EnemyProgramAnimation
         if (installed is { } current && EqualityComparer<TProgram>.Default.Equals(current, program))
             return;
         install(program);
-        slot.InstructionTimer = NativeCountdown.Start(1);
-        slot.Timer = NativeCountdown.Start(0);
+        slot.InstructionTimer = WrappingCountdown.Start(1);
+        slot.Timer = WrappingCountdown.Start(0);
     }
 
     /// <summary>Runs a program set whose lists publish no cues, after the slot's frame expired.</summary>
@@ -155,19 +155,19 @@ internal static class EnemyProgramAnimation
         Ensure.NotNull(frame);
         // A counting set keeps its loop counter in the enemy's timer word, as the native timer-load and countdown
         // commands do; a set that never counts leaves that word to its owner.
-        NativeCountdown loopCounter = programs.CountsLoops ? slot.Timer : NativeCountdown.Start(0);
+        WrappingCountdown loopCounter = programs.CountsLoops ? slot.Timer : WrappingCountdown.Start(0);
         AnimationProgramAdvance<TFrame> advance = programs.AdvanceTo(ref cursor, ref loopCounter, publish);
         if (programs.CountsLoops)
             slot.Timer = loopCounter;
         switch (advance)
         {
             case AnimationProgramAdvance<TFrame>.Show shown:
-                slot.InstructionTimer = NativeCountdown.FromRaw((ushort)shown.Duration);
+                slot.InstructionTimer = WrappingCountdown.FromRaw((ushort)shown.Duration);
                 slot.Frame = frame(shown.Frame);
                 slot.ExtraProperties = slot.ExtraProperties.With(EnemyExtraProperties.NewInstructionFrame);
                 return;
             case AnimationProgramAdvance<TFrame>.Wait waiting:
-                slot.InstructionTimer = NativeCountdown.FromRaw((ushort)waiting.Duration);
+                slot.InstructionTimer = WrappingCountdown.FromRaw((ushort)waiting.Duration);
                 return;
             case AnimationProgramAdvance<TFrame>.Hold:
                 return;

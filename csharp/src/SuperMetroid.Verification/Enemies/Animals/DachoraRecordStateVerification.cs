@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Animals;
-using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.Verification.Enemies.Animals;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
@@ -20,7 +19,7 @@ internal static class DachoraRecordStateVerification
         slot.SetSpeciesState(state, state.ClearWithRecord);
 
         state.Speed = SnesSignedSixteenSixteen.FromParts(3, 0x8000);
-        state.PhaseTimer = NativeCountdown.Start(5);
+        state.PhaseTimer = WrappingCountdown.Start(5);
         state.Speed = state.Speed.WithFraction(0);
         AssertEqual(SnesSignedSixteenSixteen.FromParts(5, 0), state.Speed,
             "a run that begins after a countdown starts from the countdown's last value");

@@ -43,13 +43,13 @@ public sealed class OwtchEnemyState
     /// </summary>
     internal bool RiseOnePixel()
     {
-        NativeWordCounterStep step = NativeWordCounter.Decrement(checked((ushort)BurialDepth));
+        CountdownStep step = WrappingCounter.Decrement(checked((ushort)BurialDepth));
         BurialDepth = step.Value;
         return step.IsZero;
     }
 
     /// <summary>Native extended word <c>$7E:7800,x</c>.</summary>
-    public NativeCountdown UndergroundTimer { get; internal set; }
+    public WrappingCountdown UndergroundTimer { get; internal set; }
 
     /// <summary>
     /// Native extended word <c>$7E:7802,x</c>: the left end of the patrol, the spawn X less the travel distance with

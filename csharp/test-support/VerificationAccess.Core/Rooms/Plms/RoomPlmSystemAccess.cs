@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Hardware;
+using SuperMetroid.Core.Compatibility;
 namespace SuperMetroid.Core.Rooms.Plms;
 
 using SuperMetroid.Core.Bosses.Draygon;
@@ -163,7 +163,7 @@ internal static class RoomPlmSystemAccess
             if (active.Length != 1)
                 throw new InvalidOperationException("Program probe requires exactly one active PLM slot.");
             start.StartOn(active[0]);
-            active[0].InstructionTimer = NativeCountdown.Start(1);
+            active[0].InstructionTimer = WrappingCountdown.Start(1);
         }
 
         /// <summary>Current PLM instruction countdown, or zero after deletion.</summary>
@@ -365,7 +365,7 @@ internal static class RoomPlmSystemAccess
 
             RoomCollisionBlock block = level.GetCollisionBlockByIndex(blockIndex);
             slot.BlockIndex = blockIndex;
-            slot.InstructionTimer = NativeCountdown.Start(1);
+            slot.InstructionTimer = WrappingCountdown.Start(1);
             slot.RestoreLevelWord = 0;
 
             if (areaDependent)

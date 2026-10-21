@@ -11,7 +11,7 @@ namespace SuperMetroid.Verification.Harness;
 /// waiting state during an update; the replay reproduces exactly that outcome. Music
 /// (port 0), updates without native evidence, and normal play keep the session's SPC model.
 /// </remarks>
-internal sealed class EvidencedSoundAcknowledgements : ISoundAcknowledgementSource
+internal sealed class EvidencedSoundAcknowledgements : ISoundAcknowledgementTiming
 {
     /// <summary>$0649..$064B: APU_SoundStateLib1..3.</summary>
     private const int SoundStateLib1 = 0x0649;
@@ -53,16 +53,16 @@ internal sealed class EvidencedSoundAcknowledgements : ISoundAcknowledgementSour
     public void Invalidate() => captured = false;
 
     /// <inheritdoc/>
-    public CartridgeAudioAcknowledgements ForNextFrame(CartridgeAudioAcknowledgements modeled, CartridgeAudioAcknowledgements portWrites) =>
+    public SoundAcknowledgements ForNextUpdate(SoundAcknowledgements modeled, SoundAcknowledgements portWrites) =>
         captured && expectedAfter is not null ? ForUpdate(modeled, expectedAfter) : modeled;
 
     /// <summary>
     /// Acknowledgements for the update whose native result is <paramref name="nativeAfter"/>.
     /// A waiting library that left its state saw its echo; one that stayed did not.
     /// </summary>
-    public CartridgeAudioAcknowledgements ForUpdate(CartridgeAudioAcknowledgements spc, NativeCheckpointMemory nativeAfter)
+    public SoundAcknowledgements ForUpdate(SoundAcknowledgements spc, NativeCheckpointMemory nativeAfter)
     {
-        int[] ports = [.. ApuPorts.SoundLibraryPorts.Select(port => spc[port])];
+        int[] ports = [spc[0], spc[1], spc[2]];
         for (int library = 0; library < LibraryCount; library++)
         {
             byte before = states[library];
@@ -78,7 +78,7 @@ internal sealed class EvidencedSoundAcknowledgements : ISoundAcknowledgementSour
                 // unless it already matches.
                 ports[library] = unchecked((byte)(compared + 1));
         }
-        return new CartridgeAudioAcknowledgements(spc[ApuPort.Music], ports[0], ports[1], ports[2]);
+        return new SoundAcknowledgements(ports[0], ports[1], ports[2]);
     }
 
     /// <summary>Records the native sound-handler state after an update.</summary>

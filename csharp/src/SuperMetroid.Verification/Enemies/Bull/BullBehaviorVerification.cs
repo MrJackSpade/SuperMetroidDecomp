@@ -56,7 +56,7 @@ internal static class BullBehaviorVerification
         state.Speed = 10;
         state.Acceleration = 48;
         state.AccelerationDelta = 24;
-        state.AccelerationIntervalTimer = NativeCountdown.Start(1);
+        state.AccelerationIntervalTimer = WrappingCountdown.Start(1);
 
         BullBehavior.RunBullMain(slot, state, samus: null);
         AssertEqual(24, state.Acceleration, "the expiring interval shrinks the acceleration by its delta");

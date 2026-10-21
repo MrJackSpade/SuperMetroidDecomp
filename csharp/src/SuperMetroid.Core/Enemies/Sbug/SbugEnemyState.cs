@@ -17,7 +17,7 @@ public sealed class SbugEnemyState
     internal SbugEnemyState(RoomEnemySlot slot) => _slot = slot;
 
     /// <summary>The long lifetime used only by behavior four.</summary>
-    public NativeCountdown StraightMovementTimer { get; internal set; }
+    public WrappingCountdown StraightMovementTimer { get; internal set; }
 
     /// <summary>The current same-bank AI dispatch pointer; none once a kill has emptied the record.</summary>
     public SbugEnemyFunction? Function { get; internal set; }
@@ -40,7 +40,7 @@ public sealed class SbugEnemyState
         CustomHeading = CustomHeading.AddTableUnits(Ensure.BetweenInclusive(0, byte.MaxValue, tableUnits));
 
     /// <summary>The 32-frame segment/wait countdown.</summary>
-    public NativeCountdown MovementTimer { get; internal set; }
+    public WrappingCountdown MovementTimer { get; internal set; }
 
     /// <summary>Parameter one's low byte, 0 through 255: the speed the trigonometry tables are multiplied by.</summary>
     public int Speed => SnesLittleEndian.LowByte(_slot.Spawn.Population.Parameter1);
@@ -95,9 +95,9 @@ public sealed class SbugEnemyState
     /// <summary>Empties the values the cartridge keeps in the enemy's common record.</summary>
     internal void ClearWithRecord()
     {
-        StraightMovementTimer = NativeCountdown.Start(0);
+        StraightMovementTimer = WrappingCountdown.Start(0);
         Function = null;
         CustomHeading = SnesAngle.FromTableIndex(0);
-        MovementTimer = NativeCountdown.Start(0);
+        MovementTimer = WrappingCountdown.Start(0);
     }
 }

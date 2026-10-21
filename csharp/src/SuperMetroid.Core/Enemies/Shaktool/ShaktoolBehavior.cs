@@ -58,8 +58,8 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
         // The population's first parameter holds the chain's initial motion flags; the chain then writes its flags
         // to every segment together.
         state.MotionFlags = (ShaktoolMotionFlags)slot.Spawn.Population.Parameter1;
-        slot.InstructionTimer = NativeCountdown.Start(1);
-        slot.Timer = NativeCountdown.Start(0);
+        slot.InstructionTimer = WrappingCountdown.Start(1);
+        slot.Timer = WrappingCountdown.Start(0);
         state.TargetAngle = SnesAngle.Zero;
         state.ResetOrientation();
         slot.Properties = slot.Properties.With(definition.PropertyMask);
@@ -176,7 +176,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
         state.OrientationBucket = directionBucket;
         state.Program = AnimationProgramCursor<ShaktoolProgram>.Start(
             ShaktoolInstructionDefinitions.ForOrientationBucket(directionBucket));
-        slot.InstructionTimer = NativeCountdown.Start(1);
+        slot.InstructionTimer = WrappingCountdown.Start(1);
     }
 
     /// <summary>Ports the last segment's collision/reversal controller at <c>$AA:DD25</c>.</summary>
@@ -285,7 +285,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
             segmentState.PreInstruction = ShaktoolPreInstruction.IdleAfterAttack;
             segmentState.Program = AnimationProgramCursor<ShaktoolProgram>.Start(
                 ShaktoolInstructionDefinitions.CollisionForSegment(index));
-            segment.InstructionTimer = NativeCountdown.Start(1);
+            segment.InstructionTimer = WrappingCountdown.Start(1);
         }
     }
 

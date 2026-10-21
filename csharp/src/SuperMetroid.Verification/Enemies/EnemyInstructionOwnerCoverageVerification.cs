@@ -82,7 +82,7 @@ internal static class EnemyInstructionOwnerCoverageVerification
                 slot.ExtraProperties = population.ExtraProperties;
                 slot.SetSpawnParameter1(checked((ushort)population.Parameter1));
                 slot.SetSpawnParameter2(checked((ushort)population.Parameter2));
-                slot.InstructionTimer = NativeCountdown.Start(1);
+                slot.InstructionTimer = WrappingCountdown.Start(1);
 
                 bool translatedRecord = true;
                 try

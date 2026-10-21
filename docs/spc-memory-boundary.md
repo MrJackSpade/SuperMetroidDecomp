@@ -6,9 +6,9 @@ hardware; the simulation does not.
 
 What the runtime keeps is a **stub**: the acknowledgement timing the driver imposed on gameplay (which update a
 sound is accepted on, when a command port reads back as free) is gameplay-observable, so the session advances a
-port model, `SpcCommandPorts`, every update and surfaces its outcomes as semantic `AudioEvent`s. The stub's job
-is the timing, not the hardware; it carries the `[SpcMemoryAccess]`/`[SpcMemoryBoundary]` markers because it
-still models ports by number, and that is the part of it still to be expressed in domain terms.
+`SoundAcceptanceClock` (a compatibility service, `docs/compatibility-layer.md`) every update and surfaces its outcomes
+as semantic `AudioEvent`s. The clock holds requests and acknowledgements per sound library as typed state; it models
+no port by number.
 
 Within the renderer, the driver port never indexes APU RAM or uses raw port numbers in its music, sound-effect,
 instrument, echo or upload logic. APU RAM addresses, byte order and 16-bit wrapping live in the typed
@@ -16,7 +16,7 @@ driver-memory views in `ManagedSpcPlayer.Memory.cs`; the CPU/APU ports are the `
 
 ## Boundary and enforcement
 
-- `[SpcMemoryAccess]`: the player's APU RAM array, `SpcCommandPorts`' port arrays, the stored debugger byte
+- `[SpcMemoryAccess]`: the player's APU RAM array, the stored debugger byte
   `CartridgeAudioCommand.Port`, and the verification reader `ReadApuByteForVerification`.
 - `[SpcMemoryBoundary("reason")]`: the driver-memory views, the DSP's shared view of APU RAM, the
   port-command codec, and exact APU memory tests.
@@ -37,7 +37,7 @@ driver-memory views in `ManagedSpcPlayer.Memory.cs`; the CPU/APU ports are the `
 | Uploads and compiled definitions | `WriteBytes`, `WriteByte` | 16-bit wrapping copy |
 | Driver reset work regions | `ClearDriverWorkRegions()` | the regions the native reset clears |
 | DSP sample/echo memory | `CreateDsp()` | the DSP shares APU RAM |
-| CPU→APU / APU→CPU ports | `SpcCommandPorts.WritePort(ApuPort, byte)`, `CartridgeAudioCommand.InputPort`; latches, sound-effect acknowledgement ports and the driver timer owned by `SpcCommandPorts`, which the game session's `CartridgeAudioSession` advances every update. The player receives only the music command (`WriteMusicPort`) and the tick schedule, as semantic `AudioEvent`s through `ManagedSpcAudioBackend` | $2140-$2143 |
+| CPU→APU / APU→CPU ports | `CartridgeAudioCommand.InputPort`, translated to a library by `ApuPorts.LibraryAt`; requests, acknowledgements and the check timing owned by `SoundAcceptanceClock`, which the game session's `CartridgeAudioSession` advances every update. The player receives only the music command (`WriteMusicPort`) and the tick schedule, as semantic `AudioEvent`s through `ManagedSpcAudioBackend` | $2140-$2143 |
 
 **Alias:** pan indices from 21 read past the 21 pan samples ($1E1D + 21 = $1E32) into the echo FIR
 preset table. `ReadPanVolumePair` and `ReadFirCoefficient` are separate views of those bytes.

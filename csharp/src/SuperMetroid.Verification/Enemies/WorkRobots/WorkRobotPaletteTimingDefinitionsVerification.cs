@@ -94,7 +94,7 @@ internal static class WorkRobotPaletteTimingDefinitionsVerification
         };
         Type type = typeof(RoomEnemySystem);
         enemies.Presentation.BindCgram(cgram);
-        enemies.WorkRobotBehavior.WorkRobotPaletteAnimationTimer = NativeCountdown.Start(1);
+        enemies.WorkRobotBehavior.WorkRobotPaletteAnimationTimer = WrappingCountdown.Start(1);
         enemies.WorkRobotBehavior.WorkRobotPaletteAnimationRecord = 0;
         enemies.WorkRobotBehavior.WorkRobotPaletteAnimationPaletteRow = 0;
         var step = new Action(enemies.WorkRobotBehavior.StepWorkRobotPaletteAnimation);

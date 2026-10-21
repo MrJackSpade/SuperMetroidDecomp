@@ -114,7 +114,7 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
 
         CopyBabyMetroidActorToPhysicalSlot(slot, baby);
         slot.InstructionTimer = baby.InstructionTimer;
-        slot.Timer = NativeCountdown.Start(0);
+        slot.Timer = WrappingCountdown.Start(0);
 
         // The writer receives byte index $01E2 and count $000F. Color zero is deliberately
         // skipped at source `$94D2+2`, preserving the room's transparent backdrop entry.
@@ -152,7 +152,7 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
         SamusState target = samus ?? throw new InvalidOperationException(
             "The cutscene Baby requires the live Samus actor.");
 
-        slot.ShakeTimer = NativeCountdown.Start(0);
+        slot.ShakeTimer = WrappingCountdown.Start(0);
         if (state.PendingBabyCryCount != 0 &&
             baby.Phase is BabyMetroidCutscenePhase.HealSamusToFullHealth or
                 BabyMetroidCutscenePhase.IdleUntilNoHealth)
@@ -308,7 +308,7 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
         MotherBrainEnemyState state = _motherBrainEncounter.MotherBrain ?? throw new InvalidDataException(
             "The cutscene Baby's program ran without Mother Brain's encounter state.");
         ushort oldTimer = slot.InstructionTimer.RawValue;
-        slot.InstructionTimer = NativeCountdown.FromRaw(unchecked((ushort)(oldTimer - 1)));
+        slot.InstructionTimer = WrappingCountdown.FromRaw(unchecked((ushort)(oldTimer - 1)));
         if (oldTimer != 1)
         {
             slot.ExtraProperties = slot.ExtraProperties.Without(EnemyExtraProperties.NewInstructionFrame);
@@ -316,7 +316,7 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
         }
 
         AnimationProgramCursor<MotherBrainBabyProgram> cursor = state.BabyCursor;
-        NativeCountdown counter = slot.Timer;
+        WrappingCountdown counter = slot.Timer;
         AnimationProgramAdvance<BabyMetroidFrame> advance = MotherBrainBabyAnimations.Programs.Advance(ref cursor, ref counter,
             (cue, continuation) => throw new InvalidOperationException($"The cutscene Baby's programs publish no cue {cue}."));
         slot.Timer = counter;
@@ -324,7 +324,7 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
         switch (advance)
         {
             case AnimationProgramAdvance<BabyMetroidFrame>.Show shown:
-                slot.InstructionTimer = NativeCountdown.FromRaw((ushort)shown.Duration);
+                slot.InstructionTimer = WrappingCountdown.FromRaw((ushort)shown.Duration);
                 slot.Frame = BabyMetroidVisualDefinitions.ShownFrames.Of(shown.Frame);
                 slot.ExtraProperties = slot.ExtraProperties.With(EnemyExtraProperties.NewInstructionFrame);
                 return;
@@ -341,7 +341,7 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
     {
         state.BabyCursor = AnimationProgramCursor<MotherBrainBabyProgram>.Start(program);
         state.BabyAppliedProgram = program;
-        slot.InstructionTimer = NativeCountdown.Start(1);
-        slot.Timer = NativeCountdown.Start(0);
+        slot.InstructionTimer = WrappingCountdown.Start(1);
+        slot.Timer = WrappingCountdown.Start(0);
     }
 }

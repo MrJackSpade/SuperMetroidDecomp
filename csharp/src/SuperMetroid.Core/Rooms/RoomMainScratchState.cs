@@ -24,9 +24,9 @@ public sealed class RoomMainScratchState
     /// WRAM <c>$07E1</c> read as the wrapping countdown the timed and screen-shaking room-main routines keep
     /// in it; other routines use the same word as an index or position fraction through <see cref="Var1"/>.
     /// </summary>
-    public NativeCountdown Countdown
+    public WrappingCountdown Countdown
     {
-        get => NativeCountdown.FromRaw(Var1);
+        get => WrappingCountdown.FromRaw(Var1);
         set => Var1 = value.RawValue;
     }
 }

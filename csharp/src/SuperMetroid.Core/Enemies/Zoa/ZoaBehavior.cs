@@ -170,8 +170,8 @@ internal sealed class ZoaBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         state.PreviousInstructionListTableIndex = state.InstructionListTableIndex;
         state.Program = AnimationProgramCursor<ZoaProgram>.Start(ZoaAnimationDefinitions.Program(state.InstructionListTableIndex));
-        slot.InstructionTimer = NativeCountdown.Start(1);
-        slot.Timer = NativeCountdown.Start(0);
+        slot.InstructionTimer = WrappingCountdown.Start(1);
+        slot.Timer = WrappingCountdown.Start(0);
     }
 
     /// <summary>Ports Zoa's main AI.</summary>

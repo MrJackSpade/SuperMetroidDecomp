@@ -160,7 +160,7 @@ internal static class SpacePirateProjectileInstructionProgramDefinitionsVerifica
             RoomEnemySystem enemies,
             RoomEnemyProjectileSlot projectile)
         {
-            projectile.InstructionTimer = NativeCountdown.Start(1);
+            projectile.InstructionTimer = WrappingCountdown.Start(1);
             enemies.Projectiles.ProcessEnemyProjectileInstructions(projectile, new SamusState(), Position16<RoomPixels>.Zero);
             // The shown frame's operand sits just before the instruction the native pointer stands on.
             VerifyExecutedProjectileFrame(rom, projectile, spriteArtwork, executedOperands,

@@ -42,8 +42,8 @@ internal sealed class CrocomireEncounterAccess
     internal static void StartCrocomireBodyProgram(CrocomireEnemyState state, CrocomireBodyProgram program)
     {
         state.BodyCursor = AnimationProgramCursor<CrocomireBodyProgram>.Start(program);
-        state.Body.InstructionTimer = NativeCountdown.Start(1);
-        state.Body.Timer = NativeCountdown.Start(0);
+        state.Body.InstructionTimer = WrappingCountdown.Start(1);
+        state.Body.Timer = WrappingCountdown.Start(0);
     }
 
     /// <summary>Finds the Crocomire encounter owning an enemy slot, failing if its room state is absent.</summary>

@@ -27,7 +27,7 @@ internal static class RoomShakeDefinitionsVerification
         {
             RoomShakeDefinition definition = RoomShakeDefinitions.ForType(type);
             enemies.Earthquake.EarthquakeType = type;
-            enemies.Earthquake.EarthquakeTimer = NativeCountdown.Start(1);
+            enemies.Earthquake.EarthquakeTimer = WrappingCountdown.Start(1);
             RoomShakeFrameResult positive = enemies.HandleRoomShaking(timeIsFrozen: false);
             AssertEqual(new RoomShakeFrameResult(definition.Bg1, definition.Bg2),
                 positive,
@@ -35,7 +35,7 @@ internal static class RoomShakeDefinitionsVerification
             AssertEqual((ushort)0, enemies.Earthquake.EarthquakeTimer.RawValue,
                 $"room shake type {type} positive timer consumption");
 
-            enemies.Earthquake.EarthquakeTimer = NativeCountdown.Start(2);
+            enemies.Earthquake.EarthquakeTimer = WrappingCountdown.Start(2);
             RoomShakeFrameResult negative = enemies.HandleRoomShaking(timeIsFrozen: false);
             AssertEqual(new RoomShakeFrameResult(
                     new(unchecked((short)-definition.Bg1.X), unchecked((short)-definition.Bg1.Y)),
@@ -43,12 +43,12 @@ internal static class RoomShakeDefinitionsVerification
                 negative,
                 $"room shake type {type} alternating production frame");
 
-            enemies.Earthquake.EarthquakeTimer = NativeCountdown.Start(1);
+            enemies.Earthquake.EarthquakeTimer = WrappingCountdown.Start(1);
             var positiveProjectile = enemies.Earthquake.GetEnemyProjectileShake(false);
             AssertEqual(definition.Projectile, positiveProjectile,
                 $"room shake type {type} positive projectile displacement");
 
-            enemies.Earthquake.EarthquakeTimer = NativeCountdown.Start(2);
+            enemies.Earthquake.EarthquakeTimer = WrappingCountdown.Start(2);
             var negativeProjectile = enemies.Earthquake.GetEnemyProjectileShake(false);
             AssertEqual(-definition.Projectile,
                 negativeProjectile,
@@ -60,7 +60,7 @@ internal static class RoomShakeDefinitionsVerification
             "room shake type outside rendered table");
 
         enemies.Earthquake.EarthquakeType = RoomFxRomData.Earthquake.FirstNonRenderedType;
-        enemies.Earthquake.EarthquakeTimer = NativeCountdown.Start(4);
+        enemies.Earthquake.EarthquakeTimer = WrappingCountdown.Start(4);
         AssertEqual(default(RoomShakeFrameResult), enemies.HandleRoomShaking(timeIsFrozen: false),
             "non-rendered earthquake type does not access compiled definitions");
         AssertEqual((ushort)4, enemies.Earthquake.EarthquakeTimer.RawValue,
@@ -72,7 +72,7 @@ internal static class RoomShakeDefinitionsVerification
         // The type holds the cartridge's whole word as a non-negative number: its largest value is still an
         // ordinary non-rendered type, and anything outside the word is rejected instead of wrapping.
         enemies.Earthquake.EarthquakeType = ushort.MaxValue;
-        enemies.Earthquake.EarthquakeTimer = NativeCountdown.Start(4);
+        enemies.Earthquake.EarthquakeTimer = WrappingCountdown.Start(4);
         AssertEqual(default(RoomShakeFrameResult), enemies.HandleRoomShaking(timeIsFrozen: false),
             "largest earthquake type is non-rendered");
         AssertEqual((ushort)4, enemies.Earthquake.EarthquakeTimer.RawValue,
@@ -83,7 +83,7 @@ internal static class RoomShakeDefinitionsVerification
             "negative earthquake type is rejected");
 
         // Timer bits are OR'd into the running timer, keeping its existing bits.
-        enemies.Earthquake.EarthquakeTimer = NativeCountdown.Start(1);
+        enemies.Earthquake.EarthquakeTimer = WrappingCountdown.Start(1);
         enemies.Earthquake.AddTimerBits(RoomFxRomData.Earthquake.RisingLiquidTimerBits);
         AssertEqual((ushort)(1 | RoomFxRomData.Earthquake.RisingLiquidTimerBits), enemies.Earthquake.EarthquakeTimer.RawValue,
             "earthquake timer bits keep the running timer's bits");

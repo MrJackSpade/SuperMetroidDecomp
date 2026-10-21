@@ -26,13 +26,13 @@ public sealed class ScreenFade
     /// Dispatches skipped between brightness steps. The slow cinematic fades also count its low byte down beside an
     /// unchanged high byte, so it keeps the exact countdown word.
     /// </summary>
-    public NativeCountdown Delay { get; private set; }
+    public WrappingCountdown Delay { get; private set; }
 
     /// <summary>
     /// Dispatches remaining before the next brightness step: a wrapping countdown whose sign after the decrement
     /// decides whether the dispatch steps brightness.
     /// </summary>
-    public NativeCountdown Counter { get; private set; }
+    public WrappingCountdown Counter { get; private set; }
 
     /// <summary>Displayed brightness nibble of an INIDISP byte, zero while forced blank is set.</summary>
     public static byte Displayed(int inidisp) =>
@@ -44,8 +44,8 @@ public sealed class ScreenFade
     /// <summary>Stores both fade words, as menu setup code does before a fade.</summary>
     public void SetTiming(ushort delay, ushort counter)
     {
-        Delay = NativeCountdown.FromRaw(delay);
-        Counter = NativeCountdown.FromRaw(counter);
+        Delay = WrappingCountdown.FromRaw(delay);
+        Counter = WrappingCountdown.FromRaw(counter);
     }
 
     /// <summary>$80:894D: one dispatch of fading in. Completion is <c>inidisp == FullyLit</c>.</summary>
@@ -119,26 +119,26 @@ public sealed class ScreenFade
     /// <summary>8-bit DEC $0723 with BEQ/BPL: true while the decremented byte stays positive.</summary>
     private bool ConsumeSlowDelay()
     {
-        NativeLowByteCounterStep step = NativeWordCounter.DecrementLowByte(Delay.RawValue);
-        Delay = NativeCountdown.FromRaw(step.Remaining);
+        LowByteCountdownStep step = WrappingCounter.DecrementLowByte(Delay.RawValue);
+        Delay = WrappingCountdown.FromRaw(step.Remaining);
         return !step.IsZeroOrNegative;
     }
 
     /// <summary>8-bit LDA $0725 : STA $0723.</summary>
-    private void ReloadSlowDelay() => Delay = NativeCountdown.FromRaw(
+    private void ReloadSlowDelay() => Delay = WrappingCountdown.FromRaw(
         (ushort)(SnesLittleEndian.HighByteInPlace(Delay.RawValue) | SnesLittleEndian.LowByte(Counter.RawValue)));
 
     /// <summary>8-bit STZ $0723 and $0725 on reaching the fade's end.</summary>
     private void ClearSlowTiming()
     {
-        Delay = NativeCountdown.FromRaw((ushort)SnesLittleEndian.HighByteInPlace(Delay.RawValue));
-        Counter = NativeCountdown.FromRaw((ushort)SnesLittleEndian.HighByteInPlace(Counter.RawValue));
+        Delay = WrappingCountdown.FromRaw((ushort)SnesLittleEndian.HighByteInPlace(Delay.RawValue));
+        Counter = WrappingCountdown.FromRaw((ushort)SnesLittleEndian.HighByteInPlace(Counter.RawValue));
     }
 
     /// <summary>DEC/BMI on the 16-bit counter; returns true when this dispatch only counts down.</summary>
     private bool ConsumeCounter()
     {
-        NativeWordCounterStep step = Counter.Decrement();
+        CountdownStep step = Counter.Decrement();
         if (step.IsNonNegative)
         {
             Counter = step.Remaining;

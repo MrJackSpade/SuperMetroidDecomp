@@ -60,7 +60,7 @@ internal sealed class SamusRoomView(SamusState samus) : IRoomSamus
     public int ProjectileFlareCounter { get => samus.ProjectileFlareCounter; set => samus.ProjectileFlareCounter = value; }
 
     /// <inheritdoc/>
-    public NativeCountdown InvincibilityTimer { get => samus.InvincibilityTimer; set => samus.InvincibilityTimer = value; }
+    public WrappingCountdown InvincibilityTimer { get => samus.InvincibilityTimer; set => samus.InvincibilityTimer = value; }
 
     /// <inheritdoc/>
     public IRoomSamusControl Control => samus.Control;

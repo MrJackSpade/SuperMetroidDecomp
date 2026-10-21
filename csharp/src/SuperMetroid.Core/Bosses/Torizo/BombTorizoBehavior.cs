@@ -359,13 +359,13 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
                 for (int explosion = 0; explosion < 6; explosion++)
                     Attacks.SpawnBombTorizoLowHealthExplosion(torizo, parameterizedSpawn.Parameter);
                 // The program then waits forty updates, as the native callback's sleep does.
-                torizo.FlashTimer = NativeCountdown.Start(40);
+                torizo.FlashTimer = WrappingCountdown.Start(40);
                 return null;
 
             case TorizoCue.Command { Kind: TorizoCueKind.SpawnDeathExplosion }:
                 Attacks.SpawnBombTorizoDeathExplosion(torizo);
                 // The program then waits one update, as the native callback's sleep does.
-                torizo.FlashTimer = NativeCountdown.Start(1);
+                torizo.FlashTimer = WrappingCountdown.Start(1);
                 return null;
 
             case TorizoCue.Command { Kind: TorizoCueKind.SpawnLandingDust }:

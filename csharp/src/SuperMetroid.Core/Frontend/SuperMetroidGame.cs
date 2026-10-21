@@ -191,9 +191,9 @@ public sealed class SuperMetroidGame
         // SendAPUData stalls a door dispatch while door IRQs keep NMIs accepted; nothing
         // between this update's own NMI and the upload reads the counters.
         if (doorAudioDispatch && prologueMusicCommands.Any(command => command is CartridgeAudioCommand.Upload))
-            Session.GameplayRuntime.Clock.AdvanceHardwareWaitFrames(Session.HostServices.DoorMusicUploadNmis.AcceptedNmisDuringUpload(Session.audio.MusicDataIndex));
+            Session.GameplayRuntime.Clock.AdvanceHardwareWaitFrames(Session.HostServices.DoorMusicLoadFrames.FramesCountedDuringMusicLoad(Session.audio.MusicDataIndex));
         var gameplayAudio = new GameplayAudioFramePublication(Session.audio);
-        FrameNumber = NativeWordCounter.IncrementWord(FrameNumber);
+        FrameNumber = WrappingCounter.IncrementWord(FrameNumber);
         if (Session.Runtime is null)
             Session.frameClock.AdvanceAcceptedFrame();
         AdvanceMenuRandom();
@@ -225,7 +225,7 @@ public sealed class SuperMetroidGame
             // The opening dispatch's HandleSounds runs only once the routine returns.
             soundHandlers = 0;
         }
-        IReadOnlyList<CartridgeAudioCommand> trailingAudioCommands = Session.audio.AdvanceFrame(Session.HostServices.SoundAcknowledgements.ForNextFrame(Session.audioSession.Acknowledgements, Session.audio.SoundPortWrites),
+        IReadOnlyList<CartridgeAudioCommand> trailingAudioCommands = Session.audio.AdvanceFrame(Session.HostServices.SoundAcknowledgements.ForNextUpdate(Session.audioSession.Acknowledgements, Session.audio.SoundPortWrites),
             advanceMusicQueue: musicHandler,
             soundEffectHandlerCalls: soundHandlers);
         IReadOnlyList<CartridgeAudioCommand> audioCommands = prologueMusicCommands.Count == 0 ? trailingAudioCommands

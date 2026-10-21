@@ -60,14 +60,14 @@ internal static class PhantoonCasualFlamesVerification
             for (int frame = 0; frame < 2048; frame++)
             {
                 state.PartProgram(mouth) = default;
-                mouth.InstructionTimer = NativeCountdown.Start(0);
+                mouth.InstructionTimer = WrappingCountdown.Start(0);
                 bool draw = false;
-                timer = NativeWordCounter.Decrement(timer).Value;
+                timer = WrappingCounter.Decrement(timer).Value;
                 if ((short)timer <= 0)
                 {
                     if ((short)count >= 0)
                     {
-                        count = NativeWordCounter.Decrement(count).Value;
+                        count = WrappingCounter.Decrement(count).Value;
                         if ((short)count <= 0)
                         {
                             count = 0xffff;

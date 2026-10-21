@@ -58,14 +58,14 @@ internal static class CrocomireStateQuantitiesVerification
             state.FightFunction = CrocomireFightFunction.PowerBombCharge;
             state.StepCounter = start;
             state.BodyCursor = AnimationProgramCursor<CrocomireBodyProgram>.Start(CrocomireBodyProgram.Initial);
-            state.Body.InstructionTimer = NativeCountdown.Start(1);
+            state.Body.InstructionTimer = WrappingCountdown.Start(1);
             // The initial program shows its frame on the first update and runs its fight-AI cue on every later one.
             Pass(enemies, state);
 
             ushort nativeSteps = checked((ushort)start);
             for (int cue = 1; cue <= start + 1; cue++)
             {
-                nativeSteps = NativeWordCounter.Decrement(nativeSteps).Value;
+                nativeSteps = WrappingCounter.Decrement(nativeSteps).Value;
                 bool nativeEnds = unchecked((short)(nativeSteps - 2)) < 0;
                 if (nativeEnds)
                     nativeSteps = 0;
@@ -237,7 +237,7 @@ internal static class CrocomireStateQuantitiesVerification
         body.Position = body.Position.WithWhole(new(100, 54));
         FixedPosition<RoomPixels> position = body.Position;
         int delay = 40;
-        death.RumbleCooldown = NativeCountdown.Start(delay);
+        death.RumbleCooldown = WrappingCountdown.Start(delay);
         state.DeathSequenceIndex = CrocomireDeathPhase.DelaySkeletonFall;
 
         // The drift right of the broken wall, while the skeleton is left of X 224.
@@ -318,7 +318,7 @@ internal static class CrocomireStateQuantitiesVerification
         ushort nativeCounter = 0;
         for (int frame = 1; frame <= 8; frame++)
         {
-            nativeCounter = NativeWordCounter.Decrement(nativeCounter).Value;
+            nativeCounter = WrappingCounter.Decrement(nativeCounter).Value;
             int jitter = (nativeCounter & 2) != 0 ? 4 : 0;
             fixture.Dissolve();
             AssertEqual(nativeCounter, fixture.Effect.MeltShakeCounter.RawValue, $"melt frame {frame}: shake counter word");

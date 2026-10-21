@@ -72,7 +72,7 @@ public sealed class TourianStatueSequence
         public AnimationProgramCursor<TourianStatueTileProgram>? Cursor { get; private set; } =
             AnimationProgramCursor<TourianStatueTileProgram>.Start(TourianStatueTileProgram.Entry);
         /// <summary>Remaining duration of the current tile frame.</summary>
-        public NativeCountdown Timer { get; private set; } = NativeCountdown.Start(1);
+        public WrappingCountdown Timer { get; private set; } = WrappingCountdown.Start(1);
 
         /// <summary>Counts a live statue's frame down one tick and reports whether the frame has expired; a stopped statue never counts.</summary>
         internal bool CountDown()
@@ -87,7 +87,7 @@ public sealed class TourianStatueSequence
         internal void Show(AnimationProgramCursor<TourianStatueTileProgram> cursor, int duration)
         {
             Cursor = cursor;
-            Timer = NativeCountdown.Start(duration);
+            Timer = WrappingCountdown.Start(duration);
         }
 
         /// <summary>Ends the program, deleting the object.</summary>
@@ -187,7 +187,7 @@ public sealed class TourianStatueSequence
         {
             if (!tile.CountDown() || tile.Cursor is not { } cursor) continue;
             // The statue programs load no loop counter; the program set still takes one.
-            NativeCountdown loopCounter = NativeCountdown.Start(0);
+            WrappingCountdown loopCounter = WrappingCountdown.Start(0);
             TourianStatueAnimatedTileProgramDefinition definition = tile.Definition;
             AnimationProgramAdvance<TourianStatueTilePicture> advance = definition.Program.AdvanceTo(
                 ref cursor, ref loopCounter, (cue, _) => RunCue(definition, cue));

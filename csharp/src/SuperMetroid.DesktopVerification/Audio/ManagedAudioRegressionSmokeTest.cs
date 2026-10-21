@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Compatibility;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using SuperMetroid.Core;
@@ -223,10 +224,10 @@ public static class ManagedAudioRegressionSmokeTest
         tally.Acknowledgements.AppendData(name);
         ReadOnlySpan<short> pcm = engine.RenderFrame(commands);
         tally.Pcm.AppendData(MemoryMarshal.AsBytes(pcm));
-        CartridgeAudioAcknowledgements acknowledgements = engine.Acknowledgements;
-        Span<byte> ports = stackalloc byte[AudioRomData.Apu.PortCount];
-        foreach (ApuPort port in Enum.GetValues<ApuPort>())
-            ports[(int)port] = checked((byte)acknowledgements[port]);
+        SoundAcknowledgements acknowledgements = engine.Acknowledgements;
+        Span<byte> ports = stackalloc byte[Enum.GetValues<ApuPort>().Length];
+        for (int library = 0; library < SoundAcceptanceClock.LibraryCount; library++)
+            ports[(int)ApuPorts.ForSoundLibrary(library)] = checked((byte)acknowledgements[library]);
         // The corpus pinned port zero as the sequencer's music echo, which the session never publishes.
         ports[(int)ApuPort.Music] = checked((byte)engine.PlayerForVerification.Music.musicPortToSnes);
         tally.Acknowledgements.AppendData(ports);

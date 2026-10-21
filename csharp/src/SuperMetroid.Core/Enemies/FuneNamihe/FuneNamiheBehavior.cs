@@ -151,8 +151,8 @@ internal sealed class FuneNamiheBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemySlot slot,
         FuneNamiheEnemyState state)
     {
-        slot.InstructionTimer = NativeCountdown.Start(1);
-        slot.Timer = NativeCountdown.Start(0);
+        slot.InstructionTimer = WrappingCountdown.Start(1);
+        slot.Timer = WrappingCountdown.Start(0);
         state.Program = AnimationProgramCursor<FuneNamiheProgram>.Start(SelectFuneNamiheProgram(state));
     }
 

@@ -16,7 +16,7 @@ public sealed class HibashiEnemyState
     public HibashiEnemyFunction? Function { get; internal set; }
 
     /// <summary>Countdown decremented once per inactive AI update; zero wraps to $FFFF and erupts immediately, while a nonnegative reset N waits N+1 updates.</summary>
-    public NativeCountdown InactiveTimer { get; internal set; }
+    public WrappingCountdown InactiveTimer { get; internal set; }
 
     /// <summary>Animation-to-AI handshake: cleared when an eruption starts, set by the finishing cue after the hitbox is disabled, and awaited by active AI.</summary>
     public bool ActivityFinished { get; internal set; }
@@ -25,7 +25,7 @@ public sealed class HibashiEnemyState
     public Position16<RoomPixels> SpawnHeight { get; internal set; }
 
     /// <summary>The inactive countdown's restart value, population parameter one.</summary>
-    public NativeCountdown InactiveTimerReset { get; internal set; }
+    public WrappingCountdown InactiveTimerReset { get; internal set; }
 
     /// <summary>Whether this is the collision part (population parameter two nonzero) rather than the graphics part.</summary>
     public bool IsCollisionPart { get; internal set; }
@@ -34,10 +34,10 @@ public sealed class HibashiEnemyState
     internal void ClearWithRecord()
     {
         Function = null;
-        InactiveTimer = NativeCountdown.Start(0);
+        InactiveTimer = WrappingCountdown.Start(0);
         ActivityFinished = false;
         SpawnHeight = Position16<RoomPixels>.Zero;
-        InactiveTimerReset = NativeCountdown.Start(0);
+        InactiveTimerReset = WrappingCountdown.Start(0);
         IsCollisionPart = false;
     }
 }

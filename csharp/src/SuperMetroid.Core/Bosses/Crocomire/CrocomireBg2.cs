@@ -31,14 +31,14 @@ internal sealed class CrocomireBg2
 
     /// <summary>Switches an actor's instruction pointer and resets its timer for the next native list.</summary>
     /// <summary>Starts the tongue's <paramref name="program"/> from its first step once <paramref name="timer"/> expires.</summary>
-    internal static void StartCrocomireTongueProgram(CrocomireEnemyState state, CrocomireTongueProgram program, NativeCountdown timer)
+    internal static void StartCrocomireTongueProgram(CrocomireEnemyState state, CrocomireTongueProgram program, WrappingCountdown timer)
     {
         RoomEnemySlot tongue = state.Tongue ??
             throw new InvalidOperationException("Crocomire's tongue program started without a tongue.");
         state.TongueProgram = program;
         state.TonguePosition = 0;
         tongue.InstructionTimer = timer;
-        tongue.Timer = NativeCountdown.Start(0);
+        tongue.Timer = WrappingCountdown.Start(0);
     }
 
     /// <summary>BG2 tile word used to clear Crocomire's working background rows.</summary>
@@ -122,7 +122,7 @@ internal sealed class CrocomireBg2
         death.AcidSmokeTimer = death.AcidSmokeTimer.Decrement().Remaining;
         if (!death.AcidSmokeTimer.IsZero)
             return;
-        death.AcidSmokeTimer = NativeCountdown.Start(6);
+        death.AcidSmokeTimer = WrappingCountdown.Start(6);
 
         int random = _access.ReadCrocomireRandom();
         ushort xOffset = unchecked((ushort)(random & 63));

@@ -17,11 +17,11 @@ internal static class GrapplePointAnimationVerification
         Suite(nameof(VerifyGrappleRopeGeometry), () => VerifyGrappleRopeGeometry(bus));
         ushort begin = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), SamusGrappleRomData.Rendering.PointTilePointers);
         ushort end = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), SamusGrappleRomData.Rendering.PointTilePointers + 2);
-        var grapple = new SamusGrappleState { Phase = GrapplePhase.Firing, PointAnimationTimer = NativeCountdown.Start(5) };
+        var grapple = new SamusGrappleState { Phase = GrapplePhase.Firing, PointAnimationTimer = WrappingCountdown.Start(5) };
         ushort expectedTimer = 5, expectedPointer = begin;
         for (int tick = 0; tick < 48; tick++)
         {
-            NativeWordCounterStep expectedStep = NativeWordCounter.Decrement(expectedTimer);
+            CountdownStep expectedStep = WrappingCounter.Decrement(expectedTimer);
             expectedTimer = expectedStep.Value;
             if (expectedStep.IsNegative)
             {
@@ -37,9 +37,9 @@ internal static class GrapplePointAnimationVerification
         foreach (ushort timer in new ushort[] { 0, 1, 5, 32768, 32769, 65535 })
         for (int frame = 0; frame < 256; frame++)
         {
-            grapple.PointAnimationFrame = (byte)frame; grapple.PointAnimationTimer = NativeCountdown.FromRaw(timer);
+            grapple.PointAnimationFrame = (byte)frame; grapple.PointAnimationTimer = WrappingCountdown.FromRaw(timer);
             expectedPointer = unchecked((ushort)(begin + frame * 512));
-            NativeWordCounterStep expectedStep = NativeWordCounter.Decrement(timer);
+            CountdownStep expectedStep = WrappingCounter.Decrement(timer);
             expectedTimer = expectedStep.Value;
             if (expectedStep.IsNegative)
             {

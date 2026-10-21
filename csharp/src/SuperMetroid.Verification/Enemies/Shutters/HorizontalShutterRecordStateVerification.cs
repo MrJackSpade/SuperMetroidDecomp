@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Shutters;
 namespace SuperMetroid.Verification.Enemies.Shutters;
@@ -19,13 +18,13 @@ internal static class HorizontalShutterRecordStateVerification
         var state = new HorizontalShutterEnemyState();
         slot.SetSpeciesState(state, state.ClearWithRecord);
         state.Function = Enum.GetValues<HorizontalShutterFunction>()[^1];
-        state.FunctionTimer = NativeCountdown.Start(1);
+        state.FunctionTimer = WrappingCountdown.Start(1);
         state.RightVelocity = SnesSignedSixteenSixteen.FromParts(1, 0);
         state.LeftVelocity = SnesSignedSixteenSixteen.FromParts(1, 0);
 
         slot.Clear();
         AssertEqual<HorizontalShutterFunction?>(null, state.Function, "a kill empties Function");
-        AssertEqual<NativeCountdown>(NativeCountdown.Start(0), state.FunctionTimer, "a kill empties FunctionTimer");
+        AssertEqual<WrappingCountdown>(WrappingCountdown.Start(0), state.FunctionTimer, "a kill empties FunctionTimer");
         AssertEqual<SnesSignedSixteenSixteen>(SnesSignedSixteenSixteen.Zero, state.RightVelocity, "a kill empties RightVelocity");
         AssertEqual<SnesSignedSixteenSixteen>(SnesSignedSixteenSixteen.Zero, state.LeftVelocity, "a kill empties LeftVelocity");
         Console.WriteLine("HorizontalShutter record state: a kill empties every value the record holds.");

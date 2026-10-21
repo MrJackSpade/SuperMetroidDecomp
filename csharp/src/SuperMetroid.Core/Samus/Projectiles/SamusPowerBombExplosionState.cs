@@ -105,7 +105,7 @@ public sealed class SamusPowerBombExplosionState
     public bool IsActive => Status >= ActiveStatus;
 
     /// <summary>HDMA fade timer; its zero initialization underflows to permit the first afterglow step.</summary>
-    private NativeCountdown _afterglowTimer;
+    private WrappingCountdown _afterglowTimer;
 
     /// <summary>
     /// Afterglow steps left, 32 when the final white-explosion frame primes them; each step consumes one, and the
@@ -148,7 +148,7 @@ public sealed class SamusPowerBombExplosionState
         RenderedPhase = PowerBombExplosionPhase.Inactive;
         RenderedPreExplosionRadius = PowerBombRadius.Zero;
         RenderedExplosionRadius = PowerBombRadius.Zero;
-        _afterglowTimer = NativeCountdown.Start(0);
+        _afterglowTimer = WrappingCountdown.Start(0);
         _afterglowStepsRemaining = 0;
         _crystalFlashAfterglowStepsRemaining = 0;
         FixedColorRed = 0;
@@ -180,7 +180,7 @@ public sealed class SamusPowerBombExplosionState
         FixedColorRed = 0;
         FixedColorGreen = 0;
         FixedColorBlue = 0;
-        _afterglowTimer = NativeCountdown.Start(0);
+        _afterglowTimer = WrappingCountdown.Start(0);
         _afterglowStepsRemaining = 0;
         _crystalFlashAfterglowStepsRemaining = 0;
     }
@@ -264,7 +264,7 @@ public sealed class SamusPowerBombExplosionState
         FixedColorRed = 0;
         FixedColorGreen = 0;
         FixedColorBlue = 0;
-        _afterglowTimer = NativeCountdown.Start(0);
+        _afterglowTimer = WrappingCountdown.Start(0);
         _afterglowStepsRemaining = 0;
         _crystalFlashAfterglowStepsRemaining = 0;
     }
@@ -404,7 +404,7 @@ public sealed class SamusPowerBombExplosionState
         // $88:8EB2 primes D=32 and timer=0. The list then installs the afterglow
         // pre-instruction; it performs the first decrement on the following frame.
         _afterglowStepsRemaining = 32;
-        _afterglowTimer = NativeCountdown.Start(0);
+        _afterglowTimer = WrappingCountdown.Start(0);
         Phase = PowerBombExplosionPhase.Afterglow;
     }
 
@@ -434,11 +434,11 @@ public sealed class SamusPowerBombExplosionState
         }
 
         if (FixedColorRed != 0)
-            FixedColorRed = NativeWordCounter.DecrementByte(FixedColorRed);
+            FixedColorRed = WrappingCounter.DecrementByte(FixedColorRed);
         if (FixedColorGreen != 0)
-            FixedColorGreen = NativeWordCounter.DecrementByte(FixedColorGreen);
+            FixedColorGreen = WrappingCounter.DecrementByte(FixedColorGreen);
         if (FixedColorBlue != 0)
-            FixedColorBlue = NativeWordCounter.DecrementByte(FixedColorBlue);
+            FixedColorBlue = WrappingCounter.DecrementByte(FixedColorBlue);
 
         ReloadAfterglowTimerLowByte();
         return false;
@@ -463,7 +463,7 @@ public sealed class SamusPowerBombExplosionState
 
         // The sleeping list clears the HDMA timer before installing `$88:A35D`. As with
         // the ordinary afterglow, zero underflows on its first active pre-instruction.
-        _afterglowTimer = NativeCountdown.Start(0);
+        _afterglowTimer = WrappingCountdown.Start(0);
         _crystalFlashAfterglowStepsRemaining =
             SamusSpecialSequenceRomData.PowerBomb.CrystalFlashAfterglowSteps(checked((ushort)RenderedExplosionRadius.RawValue));
         Phase = PowerBombExplosionPhase.CrystalFlashAfterglow;
@@ -484,11 +484,11 @@ public sealed class SamusPowerBombExplosionState
         {
             _crystalFlashAfterglowStepsRemaining--;
             if (FixedColorRed != 0)
-                FixedColorRed = NativeWordCounter.DecrementByte(FixedColorRed);
+                FixedColorRed = WrappingCounter.DecrementByte(FixedColorRed);
             if (FixedColorGreen != 0)
-                FixedColorGreen = NativeWordCounter.DecrementByte(FixedColorGreen);
+                FixedColorGreen = WrappingCounter.DecrementByte(FixedColorGreen);
             if (FixedColorBlue != 0)
-                FixedColorBlue = NativeWordCounter.DecrementByte(FixedColorBlue);
+                FixedColorBlue = WrappingCounter.DecrementByte(FixedColorBlue);
             ReloadAfterglowTimerLowByte();
             return false;
         }
@@ -532,7 +532,7 @@ public sealed class SamusPowerBombExplosionState
     {
         // Both $88:8BD5 and $88:A3A2 execute STA with an eight-bit accumulator.
         // DEC turned zero into FFFF; retaining FF is observable, not unused scratch.
-        _afterglowTimer = NativeCountdown.FromRaw((ushort)((SnesLittleEndian.HighByteInPlace(_afterglowTimer.RawValue)) |
+        _afterglowTimer = WrappingCountdown.FromRaw((ushort)((SnesLittleEndian.HighByteInPlace(_afterglowTimer.RawValue)) |
             SamusSpecialSequenceRomData.PowerBomb.AfterglowTimerReload));
     }
 

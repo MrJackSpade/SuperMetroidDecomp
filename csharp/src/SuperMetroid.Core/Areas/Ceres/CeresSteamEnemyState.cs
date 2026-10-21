@@ -10,12 +10,12 @@ internal sealed class CeresSteamEnemyState
     public CeresSteamFunction? Function { get; internal set; }
 
     /// <summary>The staggered updates before the vent first appears, counted down by its program.</summary>
-    public NativeCountdown ActivationDelay { get; internal set; }
+    public WrappingCountdown ActivationDelay { get; internal set; }
 
     /// <summary>Empties the values the cartridge keeps in the enemy's common record.</summary>
     internal void ClearWithRecord()
     {
         Function = null;
-        ActivationDelay = NativeCountdown.Start(0);
+        ActivationDelay = WrappingCountdown.Start(0);
     }
 }

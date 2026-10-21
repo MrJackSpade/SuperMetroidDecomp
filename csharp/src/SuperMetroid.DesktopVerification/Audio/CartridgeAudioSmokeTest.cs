@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Compatibility;
 namespace SuperMetroid.DesktopVerification.Audio;
 
 /// <summary>Runs the real title music path without opening an audio device or game window.</summary>
@@ -15,7 +16,7 @@ public static class CartridgeAudioSmokeTest
 
         int nonZeroSamples = 0;
         int peakAmplitude = 0;
-        CartridgeAudioAcknowledgements acknowledgements = default;
+        SoundAcknowledgements acknowledgements = default;
         var engine = DesktopAccess.CreateAudioSession();
         for (int frame = 0; frame < frames; frame++)
         {
@@ -60,7 +61,7 @@ public static class CartridgeAudioSmokeTest
         soundQueue.QueueSound(
             SoundEffectId.FromCartridge(SoundEffectLibrary.Library1, powerBeamSound),
             maximumQueued: 15);
-        CartridgeAudioAcknowledgements acknowledgements = default;
+        SoundAcknowledgements acknowledgements = default;
         bool requestAcknowledged = false;
         bool clearAcknowledgedAfterRequest = false;
         int nonZeroSamples = 0;
@@ -77,9 +78,9 @@ public static class CartridgeAudioSmokeTest
             }
 
             acknowledgements = soundEngine.Acknowledgements;
-            if (acknowledgements[ApuPort.SoundLibrary1] == powerBeamSound)
+            if (acknowledgements[0] == powerBeamSound)
                 requestAcknowledged = true;
-            else if (requestAcknowledged && acknowledgements[ApuPort.SoundLibrary1] == 0)
+            else if (requestAcknowledged && acknowledgements[0] == 0)
                 clearAcknowledgedAfterRequest = true;
         }
 

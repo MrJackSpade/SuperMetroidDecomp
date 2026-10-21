@@ -48,7 +48,7 @@ public sealed class ControllerInputState
     public SnesButton Previous { get; private set; }
 
     /// <summary>Current 16-bit repeat countdown at direct page <c>$9B</c>.</summary>
-    public NativeCountdown RepeatTimer { get; private set; }
+    public WrappingCountdown RepeatTimer { get; private set; }
 
     /// <summary>
     /// Temporarily publishes the demo's explicit held/edge pair, as bank-$90 demo alpha
@@ -98,14 +98,14 @@ public sealed class ControllerInputState
             if (RepeatTimer.IsZero)
             {
                 NewlyPressedWithRepeat = Current;
-                RepeatTimer = NativeCountdown.Start(SubsequentRepeatDelay);
+                RepeatTimer = WrappingCountdown.Start(SubsequentRepeatDelay);
             }
         }
         else
         {
             // A release, first press, or change in a multi-button chord all reload the
             // longer initial delay. The genuine newly-pressed output remains unaffected.
-            RepeatTimer = NativeCountdown.Start(InitialRepeatDelay);
+            RepeatTimer = WrappingCountdown.Start(InitialRepeatDelay);
         }
 
         Previous = Current;

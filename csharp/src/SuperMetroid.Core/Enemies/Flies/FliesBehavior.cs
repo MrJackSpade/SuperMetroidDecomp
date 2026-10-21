@@ -37,7 +37,7 @@ internal sealed class FliesBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.SetSpeciesState(state, state.ClearWithRecord);
         state.Program = AnimationProgramCursor<FlyProgram>.Start(FlyProgram.Flight);
         slot.Frame = EnemyFrameId.Empty;
-        slot.InstructionTimer = NativeCountdown.Start(1);
+        slot.InstructionTimer = WrappingCountdown.Start(1);
     }
 
     /// <summary>Advances room RNG and dispatches a fly's circle, attack, or retreat phase.</summary>
@@ -66,7 +66,7 @@ internal sealed class FliesBehavior : IEnemySpecies, IEnemyEntityFactory
                 state.RetreatTimer = state.RetreatTimer.Decrement().Remaining;
                 if (state.RetreatTimer.IsNegative)
                 {
-                    state.RetreatTimer = NativeCountdown.Start(24);
+                    state.RetreatTimer = WrappingCountdown.Start(24);
                     state.Function = FlyEnemyFunction.ClockwiseCircle;
                 }
                 return;
@@ -123,7 +123,7 @@ internal sealed class FliesBehavior : IEnemySpecies, IEnemyEntityFactory
     private static void RunFlyAttack(RoomEnemySlot slot, FlyEnemyState state)
     {
         MoveFlyAccordingToVelocities(slot, state);
-        state.RetreatTimer = NativeCountdown.FromRaw(unchecked((ushort)(state.RetreatTimer.RawValue + 1)));
+        state.RetreatTimer = WrappingCountdown.FromRaw(unchecked((ushort)(state.RetreatTimer.RawValue + 1)));
 
         bool crossedTarget = state.Velocity.Y.SignedRawValue < 0
             ? slot.Position.Y.Whole < state.TargetHeight.Y

@@ -7,7 +7,7 @@ namespace SuperMetroid.Core.Fx;
 internal sealed class RoomEarthquake
 {
     /// <summary>Shared wrapping room-shake lifetime word, written by actor/effect producers and decremented by <see cref="Advance"/> for supported types while time is not frozen.</summary>
-    public NativeCountdown EarthquakeTimer { get; set; }
+    public WrappingCountdown EarthquakeTimer { get; set; }
 
     /// <summary>
     /// ORs <paramref name="bits"/> into the shake timer word, as the producers' <c>ORA</c>/<c>STA</c> into
@@ -15,7 +15,7 @@ internal sealed class RoomEarthquake
     /// thousands of frames, which is how continuous effects avoid re-arming the timer every frame.
     /// </summary>
     internal void AddTimerBits(int bits) =>
-        EarthquakeTimer = NativeCountdown.FromRaw(unchecked((ushort)(EarthquakeTimer.RawValue | Ensure.BetweenInclusive(0, ushort.MaxValue, bits))));
+        EarthquakeTimer = WrappingCountdown.FromRaw(unchecked((ushort)(EarthquakeTimer.RawValue | Ensure.BetweenInclusive(0, ushort.MaxValue, bits))));
 
     /// <summary>
     /// Room-shake type selecting background/projectile offsets and whether actors shake; types 0 through 35 are

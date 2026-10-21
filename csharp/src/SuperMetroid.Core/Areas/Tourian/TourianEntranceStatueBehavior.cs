@@ -62,8 +62,8 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies, IEnemyEntit
         }
 
         statue.PaletteIndex = 0;
-        statue.InstructionTimer = NativeCountdown.Start(1);
-        statue.Timer = NativeCountdown.Start(0);
+        statue.InstructionTimer = WrappingCountdown.Start(1);
+        statue.Timer = WrappingCountdown.Start(0);
         Extensions[statue.SlotIndex].Program = AnimationProgramCursor<TourianEntranceStatueProgram>.Start(
             TourianEntranceStatueAnimationDefinitions.InitialProgram(checked((ushort)statue.Spawn.Population.Parameter1)));
 

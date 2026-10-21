@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Alcoon;
 namespace SuperMetroid.Verification.Enemies.Alcoon;
@@ -25,7 +24,7 @@ internal static class AlcoonOwnedStateVerification
             SpawnPosition = new(0x0300, 0x0180),
             LandingPosition = new(0x0300, 0x01a0),
             YAcceleration = SnesSignedSixteenSixteen.FromParts(0, 0x8000),
-            StepCounter = NativeCountdown.Start(2),
+            StepCounter = WrappingCountdown.Start(2),
         };
         AssertThrows<InvalidOperationException>(
             () => state.Velocity = state.Velocity.WithX(SnesSignedSixteenSixteen.FromParts(1, 1)),

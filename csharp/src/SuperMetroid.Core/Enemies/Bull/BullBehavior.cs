@@ -33,17 +33,17 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
         var state = new BullEnemyState(_extensions[slot.SlotIndex]);
         slot.SetSpeciesState(state, state.ClearWithRecord);
 
-        slot.InstructionTimer = NativeCountdown.Start(1);
-        slot.Timer = NativeCountdown.Start(0);
+        slot.InstructionTimer = WrappingCountdown.Start(1);
+        slot.Timer = WrappingCountdown.Start(0);
         state.Program = AnimationProgramCursor<BullProgram>.Start(BullProgram.Normal);
 
         // These are definition selectors, not live timers or editable presentation data.
         // Unsupported debug-edited selectors fail explicitly instead of reading adjacent code.
         var intervals = BullMovementDefinitions.Intervals(checked((ushort)slot.Spawn.Population.Parameter1));
         state.AccelerationIntervalTimerReset = intervals.Acceleration;
-        state.AccelerationIntervalTimer = NativeCountdown.Start(state.AccelerationIntervalTimerReset);
+        state.AccelerationIntervalTimer = WrappingCountdown.Start(state.AccelerationIntervalTimerReset);
         state.DecelerationIntervalTimerReset = intervals.Deceleration;
-        state.ActivationTimer = NativeCountdown.Start(BullMovementDelayFrames);
+        state.ActivationTimer = WrappingCountdown.Start(BullMovementDelayFrames);
         state.Function = BullEnemyFunction.MovementDelay;
         state.MaxSpeed = BullMovementDefinitions.MaximumSpeed(checked((ushort)slot.Spawn.Population.Parameter2));
     }
@@ -56,7 +56,7 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             // Once the timer reaches zero the cartridge pins it at one, clearing the guard
             // every subsequent frame. A zero-initialized timer first wraps to $FFFF instead.
-            state.ShotReactionDisableTimer = NativeCountdown.Start(1);
+            state.ShotReactionDisableTimer = WrappingCountdown.Start(1);
             state.ShotReactionDisabled = false;
         }
 
@@ -66,7 +66,7 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
                 state.ActivationTimer = state.ActivationTimer.Decrement().Remaining;
                 if (state.ActivationTimer.IsZero)
                 {
-                    state.ActivationTimer = NativeCountdown.Start(BullMovementDelayFrames);
+                    state.ActivationTimer = WrappingCountdown.Start(BullMovementDelayFrames);
                     state.Function = BullEnemyFunction.TargetSamus;
                 }
                 return;
@@ -120,7 +120,7 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
         if (!state.AccelerationIntervalTimer.IsZero)
             return;
 
-        state.AccelerationIntervalTimer = NativeCountdown.Start(state.AccelerationIntervalTimerReset);
+        state.AccelerationIntervalTimer = WrappingCountdown.Start(state.AccelerationIntervalTimerReset);
         state.Accelerate();
     }
 
@@ -131,7 +131,7 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
         if (!state.AccelerationIntervalTimer.IsZero)
             return;
 
-        state.AccelerationIntervalTimer = NativeCountdown.Start(state.DecelerationIntervalTimerReset);
+        state.AccelerationIntervalTimer = WrappingCountdown.Start(state.DecelerationIntervalTimerReset);
         state.Decelerate();
     }
 
@@ -215,15 +215,15 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
         if (state.ShotReactionDisabled)
             return;
 
-        bull.InstructionTimer = NativeCountdown.Start(1);
-        bull.Timer = NativeCountdown.Start(0);
+        bull.InstructionTimer = WrappingCountdown.Start(1);
+        bull.Timer = WrappingCountdown.Start(0);
         state.Program = AnimationProgramCursor<BullProgram>.Start(BullProgram.Shot);
         int direction = projectileDirection & SamusProjectileDirectionMasks.Direction;
         state.Angle = BullMovementDefinitions.ShotAngle(direction);
         state.Acceleration = 256;
         state.Speed = 1536;
         state.Function = BullEnemyFunction.Decelerating;
-        state.ShotReactionDisableTimer = NativeCountdown.Start(48);
+        state.ShotReactionDisableTimer = WrappingCountdown.Start(48);
         state.ShotReactionDisabled = true;
     }
 

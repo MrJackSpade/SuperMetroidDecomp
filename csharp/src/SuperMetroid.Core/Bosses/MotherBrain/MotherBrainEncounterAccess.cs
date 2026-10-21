@@ -55,7 +55,7 @@ internal sealed class MotherBrainEncounterAccess
     /// </summary>
     internal static bool DecrementMotherBrainTimerPastZero(MotherBrainEnemyState state)
     {
-        NativeWordCounterStep timer = state.FunctionTimer.Decrement();
+        CountdownStep timer = state.FunctionTimer.Decrement();
         state.FunctionTimer = timer.Remaining;
         return timer.IsNegative;
     }
@@ -64,7 +64,7 @@ internal sealed class MotherBrainEncounterAccess
     internal static void SetMotherBrainBodyProgram(MotherBrainEnemyState state, MotherBrainBodyProgram program)
     {
         state.BodyCursor = AnimationProgramCursor<MotherBrainBodyProgram>.Start(program);
-        state.Body.InstructionTimer = NativeCountdown.Start(1);
-        state.Body.Timer = NativeCountdown.Start(0);
+        state.Body.InstructionTimer = WrappingCountdown.Start(1);
+        state.Body.Timer = WrappingCountdown.Start(0);
     }
 }

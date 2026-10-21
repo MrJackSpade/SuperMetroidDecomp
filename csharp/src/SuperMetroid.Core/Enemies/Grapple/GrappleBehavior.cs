@@ -87,9 +87,9 @@ internal sealed class GrappleBehavior : IGrappleTargets
         {
             case GrappleAiRoutine.NoInteraction:
                 enemy.AiStates = EnemyAiStates.None;
-                enemy.InvincibilityTimer = NativeCountdown.Start(0);
-                enemy.FrozenTimer = NativeCountdown.Start(0);
-                enemy.ShakeTimer = NativeCountdown.Start(0);
+                enemy.InvincibilityTimer = WrappingCountdown.Start(0);
+                enemy.FrozenTimer = WrappingCountdown.Start(0);
+                enemy.ShakeTimer = WrappingCountdown.Start(0);
                 return true;
 
             case GrappleAiRoutine.Attach:
@@ -99,7 +99,7 @@ internal sealed class GrappleBehavior : IGrappleTargets
                 }
                 else
                 {
-                    enemy.FlashTimer = NativeCountdown.Start(enemy.HurtFlashFrames);
+                    enemy.FlashTimer = WrappingCountdown.Start(enemy.HurtFlashFrames);
                     enemy.AiStates = EnemyAiStates.None;
                 }
                 return true;
@@ -132,7 +132,7 @@ internal sealed class GrappleBehavior : IGrappleTargets
                 return true;
 
             case GrappleAiRoutine.AttachAndParalyze:
-                enemy.FlashTimer = NativeCountdown.Start(enemy.HurtFlashFrames);
+                enemy.FlashTimer = WrappingCountdown.Start(enemy.HurtFlashFrames);
                 enemy.AiStates = EnemyAiStates.None;
                 enemy.ExtraProperties = enemy.ExtraProperties.WithUntranslatedBits(
                     EnemyExtraPropertyRawBits.GrappleParalyzeBit0001, "grapple attach-and-paralyze");

@@ -65,8 +65,8 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
         // instruction interpreter's loop counter before choosing the half-specific list.
         slot.Properties = slot.Properties.With(EnemyProperties.ProcessInstructions);
         slot.Frame = EnemyFrameId.Empty;
-        slot.InstructionTimer = NativeCountdown.Start(1);
-        slot.Timer = NativeCountdown.Start(0);
+        slot.InstructionTimer = WrappingCountdown.Start(1);
+        slot.Timer = WrappingCountdown.Start(0);
 
         if (!state.IsBalloon)
         {
@@ -74,7 +74,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
             // $40-byte negative index. Reject malformed populations instead of accidentally
             // binding a body to an unrelated actor.
             RequirePowampBalloon(slot);
-            state.FunctionTimer = NativeCountdown.Start(PowampRestFrames);
+            state.FunctionTimer = WrappingCountdown.Start(PowampRestFrames);
             state.Function = PowampEnemyFunction.DeflatedResting;
             SetPowampProgram(slot, state, PowampProgram.BodySlow);
             return;
@@ -145,7 +145,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             SetPowampProgram(balloon.Slot, balloon.State, PowampProgram.BalloonInflate0);
             state.Function = PowampEnemyFunction.Inflating;
-            state.FunctionTimer = NativeCountdown.Start(PowampTransitionFrames);
+            state.FunctionTimer = WrappingCountdown.Start(PowampTransitionFrames);
         }
         AlignPowampBalloonY(body, balloon);
     }
@@ -292,7 +292,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             body.Position = body.Position.WithWholeY(spawnY);
             state.Function = PowampEnemyFunction.DeflatedResting;
-            state.FunctionTimer = NativeCountdown.Start(PowampRestFrames);
+            state.FunctionTimer = WrappingCountdown.Start(PowampRestFrames);
             SetPowampProgram(body, state, PowampProgram.BodySlow);
         }
         AlignPowampBalloonY(body, balloon);
@@ -319,7 +319,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         state.Function = PowampEnemyFunction.DeathSequence;
-        state.FunctionTimer = NativeCountdown.Start(PowampDeathDelayFrames);
+        state.FunctionTimer = WrappingCountdown.Start(PowampDeathDelayFrames);
         AlignPowampBalloonY(body, balloon);
     }
 
@@ -408,7 +408,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
         if (!state.WiggleTimer.IsZero && !EnemyMath.IsNegative16(state.WiggleTimer.RawValue))
             return false;
 
-        state.WiggleTimer = NativeCountdown.Start(PowampWiggleFramesPerOffset);
+        state.WiggleTimer = WrappingCountdown.Start(PowampWiggleFramesPerOffset);
         if (state.WiggleIndex >= PowampMotionDefinitions.WigglePhaseCount)
         {
             throw new InvalidDataException(
@@ -458,7 +458,7 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
     private static void StartPowampDeflating(PowampEnemyState state, PowampBalloon balloon)
     {
         state.Function = PowampEnemyFunction.Deflating;
-        state.FunctionTimer = NativeCountdown.Start(PowampTransitionFrames);
+        state.FunctionTimer = WrappingCountdown.Start(PowampTransitionFrames);
         SetPowampProgram(balloon.Slot, balloon.State, PowampProgram.BalloonStartSinking);
     }
 
@@ -479,8 +479,8 @@ internal sealed class PowampBehavior : IEnemySpecies, IEnemyEntityFactory
     private static void SetPowampProgram(RoomEnemySlot slot, PowampEnemyState state, PowampProgram program)
     {
         state.Program = AnimationProgramCursor<PowampProgram>.Start(program);
-        slot.InstructionTimer = NativeCountdown.Start(1);
-        slot.Timer = NativeCountdown.Start(0);
+        slot.InstructionTimer = WrappingCountdown.Start(1);
+        slot.Timer = WrappingCountdown.Start(0);
     }
 
     /// <summary>Rejects a rise or sink dispatch without room collision data.</summary>

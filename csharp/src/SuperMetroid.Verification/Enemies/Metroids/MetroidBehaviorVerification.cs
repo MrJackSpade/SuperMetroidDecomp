@@ -23,7 +23,7 @@ internal static class MetroidBehaviorVerification
         slot.Bind(EnemyDefinitionId.Metroid, slot.Definition);
         slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = MetroidFrameToolingDefinitions.Bank });
         // The room spawn primes the instruction timer before the species initializer runs.
-        slot.InstructionTimer = NativeCountdown.Start(1);
+        slot.InstructionTimer = WrappingCountdown.Start(1);
         enemies.MetroidBehavior.InitializeMetroid(slot);
         MetroidEnemyState state = enemies.MetroidStates[0] ?? throw new InvalidOperationException("The Metroid has no state.");
         AssertEqual(AnimationProgramCursor<MetroidProgram>.Start(MetroidProgram.ChasingSamus), state.Program, "the Metroid starts chasing");
@@ -33,7 +33,7 @@ internal static class MetroidBehaviorVerification
             int randomCalls = 0;
             enemies.VerificationServices().NextRandom = () => { randomCalls++; return 0; };
             state.Program = AnimationProgramCursor<MetroidProgram>.Start(loop);
-            slot.InstructionTimer = NativeCountdown.Start(1);
+            slot.InstructionTimer = WrappingCountdown.Start(1);
             AssertEqual(EnemyInstructionRunner.ExpectedLoop(MetroidAnimations.Programs, loop, MetroidFrameToolingDefinitions.Spritemap),
                 EnemyInstructionRunner.ShownFrames(slot, EnemyInstructionRunner.LoopUpdates(MetroidAnimations.Programs, loop)), $"Metroid {loop} loop");
             AssertEqual(cries, randomCalls, $"Metroid {loop} loop's RNG use");

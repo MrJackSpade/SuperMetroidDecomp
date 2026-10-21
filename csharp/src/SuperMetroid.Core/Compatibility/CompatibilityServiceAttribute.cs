@@ -6,10 +6,10 @@ namespace SuperMetroid.Core.Compatibility;
 /// summary states the gameplay behaviour it reproduces, the point in the update at which it is consulted, and the evidence
 /// (a recording or the original routine) that established it (#1401, <c>docs/compatibility-layer.md</c>).
 /// </summary>
-/// <param name="behaviour">The gameplay behaviour the service reproduces, in the game's terms.</param>
 [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct | AttributeTargets.Interface, Inherited = false)]
-public sealed class CompatibilityServiceAttribute(string behaviour) : Attribute
+public sealed class CompatibilityServiceAttribute : Attribute
 {
-    /// <summary>The gameplay behaviour the service reproduces.</summary>
-    public string Behaviour { get; } = behaviour;
+    /// <summary>Marks a compatibility service; the analyzers read the behaviour from the attribute argument.</summary>
+    /// <param name="behaviour">The gameplay behaviour the service reproduces, in the game's terms.</param>
+    public CompatibilityServiceAttribute(string behaviour) => ArgumentException.ThrowIfNullOrWhiteSpace(behaviour);
 }

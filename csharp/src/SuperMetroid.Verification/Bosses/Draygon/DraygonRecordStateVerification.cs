@@ -22,7 +22,7 @@ internal static class DraygonRecordStateVerification
         var eyeState = new DraygonEyeState { Function = DraygonEyeFunction.FacingLeft, LookAngle = 64 };
         eye.SetSpeciesState(eyeState, eyeState.ClearWithRecord);
 
-        state.FunctionTimer = NativeCountdown.Start(12);
+        state.FunctionTimer = WrappingCountdown.Start(12);
         AssertEqual(12, state.SwoopOffset, "the function timer and the swoop cursor are one record word");
 
         state.Function = DraygonAiFunction.Dying;

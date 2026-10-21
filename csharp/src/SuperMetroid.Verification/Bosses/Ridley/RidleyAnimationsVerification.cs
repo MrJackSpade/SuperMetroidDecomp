@@ -312,7 +312,7 @@ internal static class RidleyAnimationsVerification
     /// <summary>Runs one body update, expiring the current frame first.</summary>
     private static void Pass(RoomEnemySlot body, SamusState? samus)
     {
-        body.InstructionTimer = NativeCountdown.Start(1);
+        body.InstructionTimer = WrappingCountdown.Start(1);
         EnemyInstructionInterpreter.ProcessInstructions(body, samus, level: null, Position16<RoomPixels>.Zero, controllerInput: 0);
     }
 

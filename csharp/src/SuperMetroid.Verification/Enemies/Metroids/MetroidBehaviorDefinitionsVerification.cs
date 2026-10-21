@@ -56,7 +56,7 @@ internal static class MetroidBehaviorDefinitionsVerification
                 new RoomSpriteObjectSlot(0),
                 new RoomSpriteObjectSlot(1))
             {
-                EscapeTimer = NativeCountdown.FromRaw((ushort)timer),
+                EscapeTimer = WrappingCountdown.FromRaw((ushort)timer),
                 Function = MetroidAiFunction.PowerBombEscape,
                 Program = AnimationProgramCursor<MetroidProgram>.Start(MetroidProgram.DrainingSamus),
             };
@@ -93,7 +93,7 @@ internal static class MetroidBehaviorDefinitionsVerification
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.Bind(EnemyDefinitionId.Metroid, slot.Definition);
             slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = 0xa3 });
-            slot.InstructionTimer = NativeCountdown.Start(1);
+            slot.InstructionTimer = WrappingCountdown.Start(1);
             // Start at the chasing loop's random-cry cue, after its twenty pulse poses.
             enemies.SlotTable.Slots[0].SetSpeciesState(new MetroidEnemyState(new RoomSpriteObjectSlot(0), new RoomSpriteObjectSlot(1))
             {

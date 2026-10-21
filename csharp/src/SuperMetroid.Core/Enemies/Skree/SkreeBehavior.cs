@@ -103,12 +103,12 @@ internal sealed class SkreeBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         // The USA/Japan build reloads 21 every airborne frame. It becomes the complete
         // burrow lifetime only on the frame whose six-pixel downward probe collides.
-        state.BurrowTimer = NativeCountdown.Start(21);
+        state.BurrowTimer = WrappingCountdown.Start(21);
         slot.Properties = slot.Properties.WithFamilyData((byte)(slot.Properties.FamilyData | 3));
         if (EnemyTerrain.EnemyHasSolidHighBitBelow(level, slot, 6 << 16))
         {
-            slot.InstructionTimer = NativeCountdown.Start(1);
-            slot.Timer = NativeCountdown.Start(0);
+            slot.InstructionTimer = WrappingCountdown.Start(1);
+            slot.Timer = WrappingCountdown.Start(0);
             state.Function = SkreeEnemyFunction.Burrowing;
             // The floor collision has its own distinct impact/burrow request at `$A3:C771`.
             _audio.QueueEnemySound(SoundEffectLibrary2Sounds.SkreeBurrow, maximumQueued: 6);
@@ -148,8 +148,8 @@ internal sealed class SkreeBehavior : IEnemySpecies, IEnemyEntityFactory
         state.InstalledInstructionIndex = state.RequestedInstructionIndex;
         state.Program = AnimationProgramCursor<SkreeMetareeProgram>.Start(SkreeMetareeAnimationDefinitions.SkreeProgram(
             state.RequestedInstructionIndex));
-        slot.InstructionTimer = NativeCountdown.Start(1);
-        slot.Timer = NativeCountdown.Start(0);
+        slot.InstructionTimer = WrappingCountdown.Start(1);
+        slot.Timer = WrappingCountdown.Start(0);
     }
 
     /// <summary>Ports Skree's main AI.</summary>

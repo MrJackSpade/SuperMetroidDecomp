@@ -48,12 +48,12 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
         // Kago's population word already carries the other authored property bits. Native
         // init ORs only $2000 so the common instruction interpreter animates the shell.
         slot.Properties = slot.Properties.With(EnemyProperties.ProcessInstructions);
-        slot.InstructionTimer = NativeCountdown.Start(1);
-        slot.Timer = NativeCountdown.Start(0);
+        slot.InstructionTimer = WrappingCountdown.Start(1);
+        slot.Timer = WrappingCountdown.Start(0);
         state.Program = AnimationProgramCursor<KagoProgram>.Start(KagoProgram.Slow);
         state.Function = KagoEnemyFunction.InstallNoOp;
         state.DeathAnimationStarted = false;
-        state.HitCounter = NativeCountdown.FromRaw(checked((ushort)slot.Spawn.Population.Parameter1));
+        state.HitCounter = WrappingCountdown.FromRaw(checked((ushort)slot.Spawn.Population.Parameter1));
     }
 
     /// <summary>Ports <c>Kago_Main</c> and its one useful indirect target.</summary>
@@ -80,13 +80,13 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void ResolveKagoShotAfterCommon(RoomEnemySlot slot, KagoEnemyState state)
     {
         _earthquake.EarthquakeType = 2;
-        _earthquake.EarthquakeTimer = NativeCountdown.Start(16);
+        _earthquake.EarthquakeTimer = WrappingCountdown.Start(16);
 
         if (!state.UsesFastAnimation)
         {
             state.UsesFastAnimation = true;
             state.Program = AnimationProgramCursor<KagoProgram>.Start(KagoProgram.Fast);
-            slot.InstructionTimer = NativeCountdown.Start(1);
+            slot.InstructionTimer = WrappingCountdown.Start(1);
         }
 
         state.HitCounter = state.HitCounter.Decrement().Remaining;
@@ -234,7 +234,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Ports the library-two sound countdown shared by every live bug state.</summary>
     private void StepKagoBugSound(RoomEnemyProjectileSlot projectile)
     {
-        NativeCountdown soundTimer = NativeCountdown.FromRaw(checked((ushort)projectile.Variable0));
+        WrappingCountdown soundTimer = WrappingCountdown.FromRaw(checked((ushort)projectile.Variable0));
         if (soundTimer.IsZero)
             return;
 
@@ -266,7 +266,7 @@ internal sealed class KagoBehavior : IEnemySpecies, IEnemyEntityFactory
         // of one therefore decrements to zero and remains idle until the following frame.
         if (projectile.CollidedProjectileType != 0)
         {
-            projectile.CollidedProjectileType = NativeWordCounter.Decrement(checked((ushort)projectile.CollidedProjectileType)).Value;
+            projectile.CollidedProjectileType = WrappingCounter.Decrement(checked((ushort)projectile.CollidedProjectileType)).Value;
             return;
         }
 

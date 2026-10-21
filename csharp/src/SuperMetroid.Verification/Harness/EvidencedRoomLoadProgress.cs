@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Rooms.Doors;
-
 namespace SuperMetroid.Verification.Harness;
 
 /// <summary>
@@ -7,7 +5,7 @@ namespace SuperMetroid.Verification.Harness;
 /// replayed: how many enemy slots native's <c>$82:E4A9</c> had initialized by the end of the
 /// update. Like the music-upload NMIs, this is CPU-timing evidence from the native capture.
 /// </summary>
-internal sealed class EvidencedDoorLoaderProgress : IDoorLoaderProgressSource
+internal sealed class EvidencedRoomLoadProgress : IRoomLoadProgress
 {
     /// <summary>Native initialized-slot count for the pending replay update, or null without timing evidence.</summary>
     private int? completedSlots;

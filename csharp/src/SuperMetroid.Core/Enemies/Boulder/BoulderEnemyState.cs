@@ -41,7 +41,7 @@ public sealed class BoulderEnemyState
     }
 
     /// <summary>Variable D. Its deliberate zero-to-$FFFF underflow ends the bounce phase.</summary>
-    public NativeCountdown BounceCounter { get; internal set; }
+    public WrappingCountdown BounceCounter { get; internal set; }
 
     /// <summary>
     /// Parameter one's high byte (0 through 255): zero rolls right, any other value rolls left, and two also breaks the
@@ -78,7 +78,7 @@ public sealed class BoulderEnemyState
         Function = null;
         TravelSpeedAccumulator = 0;
         BounceSpeedAccumulator = 0;
-        BounceCounter = NativeCountdown.Start(0);
+        BounceCounter = WrappingCountdown.Start(0);
         DirectionSelector = 0;
     }
 }

@@ -24,8 +24,8 @@ internal sealed class DeathGamePhases(FrontendSession session)
             ?? throw new InvalidOperationException("Death sequence lost its Samus owner.");
         dyingSamus.SelectedHudItem = HudItem.Beam;
         dyingSamus.AutoCancelHudItemIndex = HudItem.Beam;
-        dyingSamus.InvincibilityTimer = NativeCountdown.Start(0);
-        dyingSamus.KnockbackTimer = NativeCountdown.Start(0);
+        dyingSamus.InvincibilityTimer = WrappingCountdown.Start(0);
+        dyingSamus.KnockbackTimer = WrappingCountdown.Start(0);
         dyingSamus.KnockbackActive = false;
         session.GameState = SuperMetroidGameState.DeathBlackOutSurroundings;
     }

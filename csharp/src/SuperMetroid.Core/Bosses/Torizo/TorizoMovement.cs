@@ -74,8 +74,8 @@ internal sealed class TorizoMovement
         torizo.ExtraProperties = torizo.ExtraProperties.With(
             EnemyExtraProperties.UsesExtendedSpritemap);
         torizo.Radius = definition.Radius;
-        torizo.InstructionTimer = NativeCountdown.Start(1);
-        torizo.Timer = NativeCountdown.Start(0);
+        torizo.InstructionTimer = WrappingCountdown.Start(1);
+        torizo.Timer = WrappingCountdown.Start(0);
         torizo.PaletteIndex = 0;
         torizo.Frame = EnemyFrameId.BombTorizoDormant;
 
@@ -218,7 +218,7 @@ internal sealed class TorizoMovement
             if (velocity is >= 0 and not 256)
             {
                 _earthquake.EarthquakeType = 4;
-                _earthquake.EarthquakeTimer = NativeCountdown.Start(32);
+                _earthquake.EarthquakeTimer = WrappingCountdown.Start(32);
                 state.Velocity = state.Velocity.WithY(new SnesSignedEightEight(256));
             }
             return;
@@ -247,7 +247,7 @@ internal sealed class TorizoMovement
             TorizoBody.StartTorizoBodyProgram(torizo, state, state.ReturnCursor);
             state.Velocity = state.Velocity.WithY(new SnesSignedEightEight(256));
             _earthquake.EarthquakeType = 4;
-            _earthquake.EarthquakeTimer = NativeCountdown.Start(32);
+            _earthquake.EarthquakeTimer = WrappingCountdown.Start(32);
             return;
         }
 

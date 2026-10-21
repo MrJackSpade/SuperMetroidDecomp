@@ -31,7 +31,7 @@ internal sealed class RoomPlmRuntimeServices(
     public bool IsFinished => Enemies.TourianStatue.Finished;
 
     /// <summary>Publishes a PLM-triggered quake countdown to the shared room earthquake.</summary>
-    public void SetTimer(ushort timer) => Enemies.Earthquake.EarthquakeTimer = NativeCountdown.FromRaw(timer);
+    public void SetTimer(ushort timer) => Enemies.Earthquake.EarthquakeTimer = WrappingCountdown.FromRaw(timer);
 
     /// <summary>Publishes the native quake selector alongside the shared countdown.</summary>
     public void SetType(ushort type) => Enemies.Earthquake.EarthquakeType = type;

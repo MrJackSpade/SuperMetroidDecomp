@@ -41,7 +41,7 @@ internal sealed class CrocomireMelting
 
         if (state.Tongue is { } tongue)
         {
-            CrocomireBg2.StartCrocomireTongueProgram(state, CrocomireTongueProgram.Melting, NativeCountdown.Start(1));
+            CrocomireBg2.StartCrocomireTongueProgram(state, CrocomireTongueProgram.Melting, WrappingCountdown.Start(1));
             tongue.Properties = tongue.Properties.Replace(
                 EnemyProperties.ProcessInstructions |
                     EnemyProperties.ProcessOffScreen |

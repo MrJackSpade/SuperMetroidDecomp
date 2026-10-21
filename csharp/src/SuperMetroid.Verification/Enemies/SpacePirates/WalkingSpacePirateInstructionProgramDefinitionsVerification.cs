@@ -71,7 +71,7 @@ internal static class WalkingSpacePirateInstructionProgramDefinitionsVerificatio
                 WalkingSpacePirateEnemyState state, SamusState samus) = CreateSystem();
             samus.Position = samus.Position.WithWholeX(movingRight ? (ushort)0x0180 : (ushort)0x0080);
             state.Program = AnimationProgramCursor<WalkingSpacePirateProgram>.Start(program);
-            slot.InstructionTimer = NativeCountdown.Start(1);
+            slot.InstructionTimer = WrappingCountdown.Start(1);
             RunFrames(enemies, slot, samus, 113);
             AssertEqual(expectedCursor, state.Program,
                 $"walking Pirate {(movingRight ? "right" : "left")} attack loops");
@@ -90,7 +90,7 @@ internal static class WalkingSpacePirateInstructionProgramDefinitionsVerificatio
             (RoomEnemySystem enemies, RoomEnemySlot slot,
                 WalkingSpacePirateEnemyState state, SamusState samus) = CreateSystem();
             state.Program = AnimationProgramCursor<WalkingSpacePirateProgram>.Start(program);
-            slot.InstructionTimer = NativeCountdown.Start(1);
+            slot.InstructionTimer = WrappingCountdown.Start(1);
             RunFrames(enemies, slot, samus, frames);
             AssertEqual(expectedCursor, state.Program,
                 $"walking Pirate program {program} cursor");

@@ -32,7 +32,7 @@ internal static class RioInstructionProgramDefinitionsVerification
         rio.Bind(EnemyDefinitionId.Rio, rio.Definition);
         rio.Bind(rio.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = RioFrameToolingDefinitions.Bank });
         // The room spawn primes the instruction timer before the species initializer runs.
-        rio.InstructionTimer = NativeCountdown.Start(1);
+        rio.InstructionTimer = WrappingCountdown.Start(1);
         RioBehavior.InitializeRio(rio);
         RioEnemyState state = enemies.RioStates[0] ?? throw new InvalidOperationException("The Rio has no state.");
         AssertEqual(AnimationProgramCursor<RioProgram>.Start(RioProgram.Idle), state.Program, "real Rio initializer starts idling");
@@ -48,7 +48,7 @@ internal static class RioInstructionProgramDefinitionsVerification
         {
             state.AnimationFinished = false;
             state.Program = AnimationProgramCursor<RioProgram>.Start(swoop);
-            rio.InstructionTimer = NativeCountdown.Start(1);
+            rio.InstructionTimer = WrappingCountdown.Start(1);
             AssertEqual(EnemyInstructionRunner.ExpectedFrames(RioAnimationsConstants.Spritemaps(swoop), Enumerable.Repeat(3, 5)),
                 EnemyInstructionRunner.ShownFrames(rio, 5 * 3),
                 $"Rio {swoop} shows its five poses");
@@ -59,7 +59,7 @@ internal static class RioInstructionProgramDefinitionsVerification
         }
 
         state.Program = AnimationProgramCursor<RioProgram>.Start(RioProgram.SwoopingPart2);
-        rio.InstructionTimer = NativeCountdown.Start(1);
+        rio.InstructionTimer = WrappingCountdown.Start(1);
         AssertEqual(EnemyInstructionRunner.ExpectedLoop(RioAnimations.Programs, RioProgram.SwoopingPart2, RioFrameToolingDefinitions.Spritemap),
             EnemyInstructionRunner.ShownFrames(rio, EnemyInstructionRunner.LoopUpdates(RioAnimations.Programs, RioProgram.SwoopingPart2)),
             "second swoop phase loops");

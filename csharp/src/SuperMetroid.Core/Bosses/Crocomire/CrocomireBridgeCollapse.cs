@@ -59,15 +59,15 @@ internal sealed class CrocomireBridgeCollapse
         _access.LastCrocomireSoundEffect = CrocomireSoundDefinitions.BridgeCollapse;
         CrocomireDeathState death = _access.RequireCrocomireDeath();
         death.BridgeFragmentsSpawned = 0;
-        death.AcidSmokeTimer = NativeCountdown.Start(1);
-        death.AcidSoundTimer = NativeCountdown.Start(1);
+        death.AcidSmokeTimer = WrappingCountdown.Start(1);
+        death.AcidSoundTimer = WrappingCountdown.Start(1);
 
         PublishCrocomireBridgeCollapsePlms();
 
         if (state.Tongue is { } tongue)
         {
             // The sleep is installed behind the native maximum timer, so it is reached only after 32767 updates.
-            CrocomireBg2.StartCrocomireTongueProgram(state, CrocomireTongueProgram.Sleep, NativeCountdown.Start(32767));
+            CrocomireBg2.StartCrocomireTongueProgram(state, CrocomireTongueProgram.Sleep, WrappingCountdown.Start(32767));
             tongue.Properties = tongue.Properties.With(EnemyProperties.Invisible);
         }
     }
@@ -207,7 +207,7 @@ internal sealed class CrocomireBridgeCollapse
         death.AcidSoundTimer = death.AcidSoundTimer.Decrement().Remaining;
         if (!death.AcidSoundTimer.IsZero)
             return;
-        death.AcidSoundTimer = NativeCountdown.Start(32);
+        death.AcidSoundTimer = WrappingCountdown.Start(32);
         _access.LastCrocomireSoundEffect = CrocomireSoundDefinitions.AcidBurn;
     }
 
@@ -234,7 +234,7 @@ internal sealed class CrocomireBridgeCollapse
         if (unchecked((short)(body.Position.Y.Whole - 280)) >= 0)
         {
             state.DeathSequenceIndex = state.DeathSequenceIndex.Next();
-            state.DeathPhaseDelay = NativeCountdown.Start(48);
+            state.DeathPhaseDelay = WrappingCountdown.Start(48);
             return;
         }
 

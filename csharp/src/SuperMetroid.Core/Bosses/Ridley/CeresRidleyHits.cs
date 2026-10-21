@@ -103,7 +103,7 @@ internal sealed class CeresRidleyHits
         // 14 only when that shift produced carry. In host terms this is precisely old bit
         // zero; testing bit one (or simply toggling the new value) changes repeated-hit
         // timing and eventually moves the escape threshold relative to the hurt palette.
-        slot.FlashTimer = NativeCountdown.FromRaw(!slot.FlashTimer.IsZero && (slot.FlashTimer.RawValue & 1) != 0
+        slot.FlashTimer = WrappingCountdown.FromRaw(!slot.FlashTimer.IsZero && (slot.FlashTimer.RawValue & 1) != 0
             ? (ushort)14
             : (ushort)13);
         state.HitCounter++;

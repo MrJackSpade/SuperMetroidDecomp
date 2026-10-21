@@ -442,7 +442,7 @@ internal static class SamusFullBodyCycleColorsVerification
                 var speed = new SamusHorizontalSpeedState
                 {
                     SpeedBoostCounter = new SamusSpeedBoostCounter(0x0400),
-                    SpecialPaletteTimer = NativeCountdown.Start(1),
+                    SpecialPaletteTimer = WrappingCountdown.Start(1),
                     SpecialPaletteFrame = (ushort)(phase * 2),
                 };
                 var cgram = new SnesCgram();

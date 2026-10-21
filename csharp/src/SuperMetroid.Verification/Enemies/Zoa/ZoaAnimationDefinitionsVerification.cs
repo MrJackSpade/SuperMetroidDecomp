@@ -101,8 +101,8 @@ internal static class ZoaAnimationDefinitionsVerification
     private static RoomEnemySlot NewZoaAnimationSlot() => new(0, EnemySlotFixtures.Registry)
     {
         CurrentInstruction = 0x7777,
-        InstructionTimer = NativeCountdown.Start(0x2222),
-        Timer = NativeCountdown.Start(0x3333),
+        InstructionTimer = WrappingCountdown.Start(0x2222),
+        Timer = WrappingCountdown.Start(0x3333),
     };
 
     /// <summary>Checks requested and installed selectors, the started animation, and reset timers.</summary>

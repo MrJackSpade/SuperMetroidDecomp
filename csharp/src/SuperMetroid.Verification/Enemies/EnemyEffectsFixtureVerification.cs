@@ -46,7 +46,7 @@ internal static class EnemyEffectsFixtureVerification
             Enemies.SlotTable.Slots[1].SetSpeciesState(tongueState, tongueState.ClearWithRecord);
             Actor.Body.Position = Actor.Body.Position.WithWhole(new(400, 144));
             Actor.Tongue.Position = Actor.Tongue.Position.WithWholeY(160);
-            Effect.AcidSmokeTimer = NativeCountdown.Start(1);
+            Effect.AcidSmokeTimer = WrappingCountdown.Start(1);
             Effect.MutableMeltingGraphics.Fill(0x39);
             Effect.MutableBg2WorkingTilemap.Fill(0x137);
             Effect.MutableBg2ScrollByScanline.Fill(19);

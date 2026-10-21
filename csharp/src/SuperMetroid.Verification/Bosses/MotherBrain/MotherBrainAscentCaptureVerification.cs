@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Runtime;
 namespace SuperMetroid.Verification.Bosses.MotherBrain;
@@ -11,7 +10,7 @@ internal static class MotherBrainAscentCaptureVerification
     {
         var state = runtime.Enemies.MotherBrainEncounter.MotherBrain;
         AssertTrue(Layer().MainScreenLayersByLine.IsEmpty, "No ascent mask before the native state starts it");
-        (state ?? throw new InvalidOperationException("Verification requires state.")).FunctionTimer = NativeCountdown.Start(0);
+        (state ?? throw new InvalidOperationException("Verification requires state.")).FunctionTimer = WrappingCountdown.Start(0);
         runtime.Enemies.MotherBrainBehavior.Ascent.PrepareMotherBrainForRising(state);
         AssertTrue(state.RisingHdmaActive, "Production rising setup activates HDMA");
         var captured = Layer();

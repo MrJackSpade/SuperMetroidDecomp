@@ -1,6 +1,5 @@
 using SuperMetroid.Verification.Bosses.MotherBrain;
 using SuperMetroid.Verification.Samus.Projectiles;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Runtime;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
 using SuperMetroid.Core.Enemies;
@@ -36,7 +35,7 @@ internal static class GoldNinjaDeathDropsVerification
         // ($B2:8779), the callback the movie's kill entered, and hold that frame.
         const ushort normalShotFrame = 0x8ea2;
         pirate.SpritemapPointer = normalShotFrame;
-        pirate.InstructionTimer = NativeCountdown.Start(0x7fff);
+        pirate.InstructionTimer = WrappingCountdown.Start(0x7fff);
         pirate.Health = 1;
         runtime.Enemies.ProcessingWindow.PrepareEnemyProcessingList(pirate.Position.Whole);
         MotherBrainRinkaDoorSpawnExpected target = new MotherBrainRinkaDoorSpawnExpected(pirate.Position.X.Whole, (ushort)(pirate.Position.Y.Whole + 15));
@@ -45,7 +44,7 @@ internal static class GoldNinjaDeathDropsVerification
         shot.Type = 0x0200; shot.Damage = 300; shot.Direction = 2;
         shot.Position = shot.Position.WithWhole(new(target.X, target.Y));
         shot.Radius = new(4, 4);
-        shot.Cursor = ProjectileFixtureCursors.Active; shot.InstructionTimer = NativeCountdown.Start(1);
+        shot.Cursor = ProjectileFixtureCursors.Active; shot.InstructionTimer = WrappingCountdown.Start(1);
         runtime.Enemies.Collision.ResolveOrdinaryProjectileHits(runtime.Projectiles, runtime.BombProjectiles, samus,
             onlyNativeEnemyIndex: pirate.NativeIndex);
         AssertEqual(0, pirate.Health, "the shot kills the Gold Ninja Pirate");

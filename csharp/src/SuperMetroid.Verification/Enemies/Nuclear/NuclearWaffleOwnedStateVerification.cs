@@ -23,11 +23,11 @@ internal static class NuclearWaffleOwnedStateVerification
         enemies.NuclearWaffleBehavior.InitializeNuclearWaffle(slot);
         NuclearWaffleEnemyState state = enemies.NuclearWaffleStates[0] ?? throw new InvalidOperationException("Nuclear Waffle has no state.");
         AssertEqual<NuclearWaffleEnemyFunction?>(NuclearWaffleEnemyFunction.Waiting, state.Function, "a new Nuclear Waffle waits");
-        AssertEqual(NativeCountdown.Start(6), state.WaitingTimer, "the wait starts at the population's reset value");
+        AssertEqual(WrappingCountdown.Start(6), state.WaitingTimer, "the wait starts at the population's reset value");
 
         slot.Clear();
         AssertEqual<NuclearWaffleEnemyFunction?>(null, state.Function, "a kill empties the behaviour");
-        AssertEqual(NativeCountdown.Start(0), state.WaitingTimer, "a kill empties the wait");
+        AssertEqual(WrappingCountdown.Start(0), state.WaitingTimer, "a kill empties the wait");
         AssertTrue(state.SweepsForward, "the sweep direction outlives the kill");
         Console.WriteLine("Nuclear Waffle owned state: the initial wait and the cleared record match.");
     }

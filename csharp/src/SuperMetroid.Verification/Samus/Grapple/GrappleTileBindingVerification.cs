@@ -32,7 +32,7 @@ internal static class GrappleTileBindingVerification
         samus.Pose = SamusPoseId.FacingRightNormalPose; samus.Position = samus.Position.WithWhole(new((ushort)(runtime.Room.LoadedCamera.PixelPosition.X + 100), (ushort)(runtime.Room.LoadedCamera.PixelPosition.Y + 100)));
         SamusPresentation.InitializeAnimation(samus); samus.Presentation.PrimeGraphics(samus);
         samus.Grapple.Phase = GrapplePhase.ConnectedLocked;
-        samus.Grapple.PointAnimationFrame = 1; samus.Grapple.PointAnimationTimer = NativeCountdown.Start(4);
+        samus.Grapple.PointAnimationFrame = 1; samus.Grapple.PointAnimationTimer = WrappingCountdown.Start(4);
         samus.Grapple.BeamStart = samus.Grapple.BeamStart.WithX(samus.Position.X.Whole); samus.Grapple.BeamStart = samus.Grapple.BeamStart.WithY(samus.Position.Y.Whole);
         samus.Grapple.Angle = SnesAngle.FromRaw(0x6000);
         // A connected rope with on-screen endpoint, so the beam's draws exist to bind.

@@ -51,8 +51,8 @@ internal sealed class RioBehavior : IEnemySpecies, IEnemyEntityFactory
         // Rio_Init writes the list directly rather than calling Rio_6. The installed animation must
         // therefore remain none until the first behavioral transition installs a new list.
         state.Program = AnimationProgramCursor<RioProgram>.Start(RioProgram.Idle);
-        slot.InstructionTimer = NativeCountdown.Start(1);
-        slot.Timer = NativeCountdown.Start(0);
+        slot.InstructionTimer = WrappingCountdown.Start(1);
+        slot.Timer = WrappingCountdown.Start(0);
     }
 
     /// <summary>Ports <c>Rio_Main</c> and Rio_1..Rio_5 at $A2:BBE3-$BD53.</summary>

@@ -24,7 +24,7 @@ public sealed class WorkRobotEnemyState
     public EightEightVector<RoomPixels> LaserVelocity { get; internal set; }
 
     /// <summary>The wrapping countdown that gates the next laser attempt.</summary>
-    public NativeCountdown LaserCooldown { get; internal set; }
+    public WrappingCountdown LaserCooldown { get; internal set; }
 
     /// <summary>The whole-pixel room position saved during a temporary ledge probe.</summary>
     public Position16<RoomPixels> BackupPosition { get; internal set; }
@@ -39,7 +39,7 @@ public sealed class WorkRobotEnemyState
     internal void ClearWithRecord()
     {
         LaserVelocity = default;
-        LaserCooldown = NativeCountdown.Start(0);
+        LaserCooldown = WrappingCountdown.Start(0);
         BackupPosition = Position16<RoomPixels>.Zero;
         FallVelocity = SnesSignedSixteenSixteen.Zero;
     }

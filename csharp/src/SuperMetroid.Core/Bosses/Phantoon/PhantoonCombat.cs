@@ -193,7 +193,7 @@ internal sealed class PhantoonCombat
             // no-op shell hit therefore still marks the beam and shakes for a Super Missile.
             if (family == SamusProjectileFamily.SuperMissile)
             {
-                _earthquake.EarthquakeTimer = NativeCountdown.Start(SamusProjectileRomData.NonBeam.SuperMissileEarthquakeDuration);
+                _earthquake.EarthquakeTimer = WrappingCountdown.Start(SamusProjectileRomData.NonBeam.SuperMissileEarthquakeDuration);
                 _earthquake.EarthquakeType = SamusProjectileRomData.NonBeam.SuperMissileEnemyHitEarthquakeType;
             }
 
@@ -229,21 +229,21 @@ internal sealed class PhantoonCombat
                 EnemyCollision.ReadNormalShotVulnerability(body, new SamusProjectileTypeWord(projectileType));
             if (vulnerability.FreezeImmediately)
             {
-                body.FrozenTimer = NativeCountdown.Start(400);
+                body.FrozenTimer = WrappingCountdown.Start(400);
                 body.AiStates |= EnemyAiStates.Frozen;
-                body.InvincibilityTimer = NativeCountdown.Start(10);
+                body.InvincibilityTimer = WrappingCountdown.Start(10);
             }
             else
             {
                 int damage = (projectileDamage >> 1) * vulnerability.Multiplier;
                 if (damage != 0)
                 {
-                    body.FlashTimer = NativeCountdown.Start(body.HurtFlashFrames + 8);
+                    body.FlashTimer = WrappingCountdown.Start(body.HurtFlashFrames + 8);
                     body.AiStates |= EnemyAiStates.Hurt;
                     // Plasma alone installs this clock; ordinary missiles retain
                     // the timer behavior of the shared native damage helper.
                     if (new SamusProjectileTypeWord(projectileType).HasAnyBeam(SamusBeamFlags.Plasma))
-                        body.InvincibilityTimer = NativeCountdown.Start(EnemyShotTiming.PlasmaInvincibilityFrames);
+                        body.InvincibilityTimer = WrappingCountdown.Start(EnemyShotTiming.PlasmaInvincibilityFrames);
                     body.Health = damage >= body.Health
                         ? 0
                         : body.Health - damage;
@@ -403,7 +403,7 @@ internal sealed class PhantoonCombat
             {
                 flame.Position = flame.Position.WithWhole(new(state.Body.Position.X.Whole, unchecked((ushort)(state.Body.Position.Y.Whole + 16))));
                 flame.StartAnimation(new PhantoonFlameAnimation(PhantoonFlameProgram.Delete));
-                flame.InstructionTimer = NativeCountdown.Start(1);
+                flame.InstructionTimer = WrappingCountdown.Start(1);
                 return;
             }
         }
@@ -430,7 +430,7 @@ internal sealed class PhantoonCombat
         flame.PreInstruction =
             EnemyProjectilePreInstruction.PhantoonDestroyableFlame_Casual_HitGround;
         flame.StartAnimation(new PhantoonFlameAnimation(PhantoonFlameProgram.CasualHitGround));
-        flame.InstructionTimer = NativeCountdown.Start(1);
+        flame.InstructionTimer = WrappingCountdown.Start(1);
         flame.Variable0 = 8;
         flame.Position = flame.Position.WithWholeY(unchecked((ushort)(flame.Position.Y.Whole + 8)));
     }
@@ -440,7 +440,7 @@ internal sealed class PhantoonCombat
         RoomEnemyProjectileSlot flame,
         int nmiFrameCounter)
     {
-        NativeWordCounterStep pauseStep = NativeWordCounter.Decrement(checked((ushort)flame.Variable0));
+        CountdownStep pauseStep = WrappingCounter.Decrement(checked((ushort)flame.Variable0));
         flame.Variable0 = pauseStep.Value;
         if (!pauseStep.IsZeroOrNegative)
             return;
@@ -448,7 +448,7 @@ internal sealed class PhantoonCombat
         flame.PreInstruction =
             EnemyProjectilePreInstruction.PhantoonDestroyableFlame_Casual_Bouncing;
         flame.StartAnimation(new PhantoonFlameAnimation(PhantoonFlameProgram.CasualBouncing));
-        flame.InstructionTimer = NativeCountdown.Start(1);
+        flame.InstructionTimer = WrappingCountdown.Start(1);
         flame.Position = flame.Position.WithWholeY(unchecked((ushort)(flame.Position.Y.Whole - 8)));
         flame.Velocity = flame.Velocity.WithY(SnesSignedEightEight.FromSignedRaw(-768));
         flame.Variable0 = 0;
@@ -482,7 +482,7 @@ internal sealed class PhantoonCombat
     private static void RestPhantoonCasualFlame(RoomEnemyProjectileSlot flame)
     {
         flame.StartAnimation(new PhantoonFlameAnimation(PhantoonFlameProgram.CasualResting));
-        flame.InstructionTimer = NativeCountdown.Start(1);
+        flame.InstructionTimer = WrappingCountdown.Start(1);
         flame.PreInstruction = EnemyProjectilePreInstruction.RTS_869A44;
     }
 
@@ -524,7 +524,7 @@ internal sealed class PhantoonCombat
         if (!EnemyProjectileEngine.MoveProjectileAxis(flame, level, axis: Axis.Vertical))
             return;
         flame.StartAnimation(new PhantoonFlameAnimation(PhantoonFlameProgram.RainImpact));
-        flame.InstructionTimer = NativeCountdown.Start(1);
+        flame.InstructionTimer = WrappingCountdown.Start(1);
         flame.Position = flame.Position.WithWholeY(unchecked((ushort)(flame.Position.Y.Whole + 8)));
         flame.PreInstruction = EnemyProjectilePreInstruction.RTS_869A44;
         _audio.QueueEnemySound(PhantoonFlameMotionRomData.RainFallSound, PhantoonFlameMotionRomData.RainSoundQueueCapacity);
@@ -579,7 +579,7 @@ internal sealed class PhantoonCombat
             unchecked((short)flame.Position.Y.Whole) < 0 || flame.Position.Y.Whole >= 256)
         {
             flame.StartAnimation(new PhantoonFlameAnimation(PhantoonFlameProgram.Delete));
-            flame.InstructionTimer = NativeCountdown.Start(1);
+            flame.InstructionTimer = WrappingCountdown.Start(1);
         }
     }
 

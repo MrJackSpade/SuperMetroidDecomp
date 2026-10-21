@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using static SuperMetroid.Verification.Enemies.EnemyDropsVerification;
 using static SuperMetroid.Verification.Frontend.Pause.PauseEquipmentRulesVerification;
@@ -120,15 +119,15 @@ internal static class MurderBeamVerification
         AssertEqual(0, shot.InstructionPointer,
             "Murder Beam remains zero-list after enemy impact");
 
-        target.InvincibilityTimer = NativeCountdown.Start(0);
+        target.InvincibilityTimer = WrappingCountdown.Start(0);
         AssertEqual(1, combat.System.Collision.ResolveOrdinaryProjectileHits(
             projectiles, shared, samus),
             "persistent Murder Beam can damage again after invincibility");
         AssertEqual(600, target.Health,
             "second Murder Beam contact repeats the native damage");
 
-        target.InvincibilityTimer = NativeCountdown.Start(0);
-        target.FrozenTimer = NativeCountdown.Start(0);
+        target.InvincibilityTimer = WrappingCountdown.Start(0);
+        target.FrozenTimer = WrappingCountdown.Start(0);
         target.Health = 100;
         AssertEqual(1, combat.System.Collision.ResolveOrdinaryProjectileHits(
             projectiles, shared, samus),

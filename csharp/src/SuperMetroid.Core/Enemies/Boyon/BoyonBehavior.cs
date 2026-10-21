@@ -213,8 +213,8 @@ internal sealed class BoyonBehavior : IEnemySpecies, IEnemyEntityFactory
     private static void SetBoyonProgram(RoomEnemySlot slot, BoyonEnemyState state, BoyonProgram program)
     {
         state.Program = AnimationProgramCursor<BoyonProgram>.Start(program);
-        slot.InstructionTimer = NativeCountdown.Start(1);
-        slot.Timer = NativeCountdown.Start(0);
+        slot.InstructionTimer = WrappingCountdown.Start(1);
+        slot.Timer = WrappingCountdown.Start(0);
     }
 
     /// <summary>Instruction <c>$A2:88C6</c>: permit the arc and request sound $0E.</summary>

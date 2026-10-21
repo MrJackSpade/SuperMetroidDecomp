@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 
 namespace SuperMetroid.Verification.Input;
@@ -20,10 +19,10 @@ internal sealed class NativeDemoInputReference(Func<ushort, ushort> readWord)
     internal ushort InstructionPointer { get; private set; }
 
     /// <summary>Frames remaining in the active input record, with native word wrapping.</summary>
-    internal NativeCountdown InstructionTimer { get; private set; }
+    internal WrappingCountdown InstructionTimer { get; private set; }
 
     /// <summary>General loop timer manipulated by instructions <c>$844F/$8459</c>.</summary>
-    internal NativeCountdown Timer { get; private set; }
+    internal WrappingCountdown Timer { get; private set; }
 
     /// <summary>Initializer parameter stored at WRAM <c>$0A80</c>.</summary>
     internal ushort InitializationParameter { get; private set; }
@@ -59,8 +58,8 @@ internal sealed class NativeDemoInputReference(Func<ushort, ushort> readWord)
         AssertEqual(DemoInputRomData.Routines.NoOp, readWord(objectPointer), $"demo object $91:{objectPointer:X4} initializer");
         PreInstructionPointer = readWord(unchecked((ushort)(objectPointer + 2)));
         InstructionPointer = readWord(unchecked((ushort)(objectPointer + 4)));
-        InstructionTimer = NativeCountdown.Start(1);
-        Timer = NativeCountdown.Start(0);
+        InstructionTimer = WrappingCountdown.Start(1);
+        Timer = WrappingCountdown.Start(0);
     }
 
     /// <summary>A pre-instruction's redirect of all three object words.</summary>
@@ -68,7 +67,7 @@ internal sealed class NativeDemoInputReference(Func<ushort, ushort> readWord)
     {
         PreInstructionPointer = preInstructionPointer;
         InstructionPointer = instructionPointer;
-        InstructionTimer = NativeCountdown.FromRaw(instructionTimer);
+        InstructionTimer = WrappingCountdown.FromRaw(instructionTimer);
     }
 
     /// <summary>
@@ -80,7 +79,7 @@ internal sealed class NativeDemoInputReference(Func<ushort, ushort> readWord)
         if (!Enabled || InstructionPointer == 0)
             return;
         preInstruction(this, PreInstructionPointer);
-        NativeWordCounterStep instructionTimer = InstructionTimer.Decrement();
+        CountdownStep instructionTimer = InstructionTimer.Decrement();
         InstructionTimer = instructionTimer.Remaining;
         if (instructionTimer.IsZero)
             ProcessInstructionList(routine);
@@ -99,7 +98,7 @@ internal sealed class NativeDemoInputReference(Func<ushort, ushort> readWord)
             ushort word = readWord(cursor);
             if (word < DemoInputListWords.RoutineWord)
             {
-                InstructionTimer = NativeCountdown.FromRaw(word);
+                InstructionTimer = WrappingCountdown.FromRaw(word);
                 Held = readWord(unchecked((ushort)(cursor + 2)));
                 NewlyPressed = readWord(unchecked((ushort)(cursor + 4)));
                 InstructionPointer = unchecked((ushort)(cursor + DemoInputListWords.InputRecordBytes));
@@ -129,12 +128,12 @@ internal sealed class NativeDemoInputReference(Func<ushort, ushort> readWord)
                     cursor = readWord(cursor);
                     break;
                 case DemoInputInstruction.DecrementTimerAndGoto:
-                    NativeWordCounterStep timer = Timer.Decrement();
+                    CountdownStep timer = Timer.Decrement();
                     Timer = timer.Remaining;
                     cursor = !timer.IsZero ? readWord(cursor) : unchecked((ushort)(cursor + 2));
                     break;
                 case DemoInputInstruction.SetTimer:
-                    Timer = NativeCountdown.FromRaw(readWord(cursor));
+                    Timer = WrappingCountdown.FromRaw(readWord(cursor));
                     cursor = unchecked((ushort)(cursor + 2));
                     break;
                 default:

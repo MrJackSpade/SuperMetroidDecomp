@@ -207,7 +207,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
 
             case DeadSidehopperAiFunction.BeginPostLandingDelay:
                 state.Function = DeadSidehopperAiFunction.PostLandingDelay;
-                state.StateTimer = NativeCountdown.Start(64);
+                state.StateTimer = WrappingCountdown.Start(64);
                 return;
 
             case DeadSidehopperAiFunction.PostLandingDelay:
@@ -539,8 +539,8 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
     /// <summary>Resets <paramref name="slot"/>'s instruction clocks and returns <paramref name="program"/>'s starting cursor.</summary>
     internal static AnimationProgramCursor<DeadTourianProgram> StartDeadTourianProgram(RoomEnemySlot slot, DeadTourianProgram program)
     {
-        slot.InstructionTimer = NativeCountdown.Start(1);
-        slot.Timer = NativeCountdown.Start(0);
+        slot.InstructionTimer = WrappingCountdown.Start(1);
+        slot.Timer = WrappingCountdown.Start(0);
         return AnimationProgramCursor<DeadTourianProgram>.Start(program);
     }
 

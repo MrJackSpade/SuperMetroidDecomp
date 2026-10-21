@@ -60,13 +60,13 @@ public sealed class MaridiaLargeSnailEnemyState
     }
 
     /// <summary>Signed-underflow attack cooldown, initialized to 128.</summary>
-    public NativeCountdown AttackCooldown { get; internal set; }
+    public WrappingCountdown AttackCooldown { get; internal set; }
 
     /// <summary>Whether the snail moves left rather than right.</summary>
     public bool MovingLeft { get; internal set; }
 
     /// <summary>Remaining landing impacts before Oum is settled.</summary>
-    public NativeCountdown RemainingBounces { get; internal set; }
+    public WrappingCountdown RemainingBounces { get; internal set; }
 
     /// <summary>Falling/rising half of the quadratic bounce; none once a kill has emptied the record.</summary>
     public MaridiaLargeSnailBounceFunction? BounceFunction { get; internal set; }
@@ -76,9 +76,9 @@ public sealed class MaridiaLargeSnailEnemyState
     {
         Function = null;
         YSpeedTableIndex = 0;
-        AttackCooldown = NativeCountdown.Start(0);
+        AttackCooldown = WrappingCountdown.Start(0);
         MovingLeft = false;
-        RemainingBounces = NativeCountdown.Start(0);
+        RemainingBounces = WrappingCountdown.Start(0);
         BounceFunction = null;
     }
 }

@@ -73,7 +73,7 @@ internal sealed class AnimationProgramSet<TProgram, TFrame, TCue>
         Ensure.NotNull(publish);
         if (CountsLoops)
             throw new InvalidOperationException("This program set counts loops; its owner must keep the loop counter.");
-        NativeCountdown counter = default;
+        WrappingCountdown counter = default;
         return Advance(ref cursor, ref counter, (cue, _) =>
         {
             publish(cue);
@@ -89,7 +89,7 @@ internal sealed class AnimationProgramSet<TProgram, TFrame, TCue>
     /// </summary>
     internal AnimationProgramAdvance<TFrame> Advance(
         ref AnimationProgramCursor<TProgram> cursor,
-        ref NativeCountdown counter,
+        ref WrappingCountdown counter,
         Func<TCue, AnimationProgramCursor<TProgram>, TProgram?> publish)
     {
         Ensure.NotNull(publish);
@@ -98,12 +98,12 @@ internal sealed class AnimationProgramSet<TProgram, TFrame, TCue>
     }
 
     /// <summary>
-    /// Like <see cref="Advance(ref AnimationProgramCursor{TProgram}, ref NativeCountdown, Func{TCue, AnimationProgramCursor{TProgram}, TProgram?})"/>, but a cue may resume anywhere: <paramref name="publish"/> returns the cursor the
+    /// Like <see cref="Advance(ref AnimationProgramCursor{TProgram}, ref WrappingCountdown, Func{TCue, AnimationProgramCursor{TProgram}, TProgram?})"/>, but a cue may resume anywhere: <paramref name="publish"/> returns the cursor the
     /// program continues at, as a native return to a saved instruction pointer does, or null to run on.
     /// </summary>
     internal AnimationProgramAdvance<TFrame> AdvanceTo(
         ref AnimationProgramCursor<TProgram> cursor,
-        ref NativeCountdown counter,
+        ref WrappingCountdown counter,
         Func<TCue, AnimationProgramCursor<TProgram>, AnimationProgramCursor<TProgram>?> publish)
     {
         Ensure.NotNull(publish);
@@ -124,7 +124,7 @@ internal sealed class AnimationProgramSet<TProgram, TFrame, TCue>
                         cursor = Validate(redirect);
                     break;
                 case AnimationProgramStep<TProgram, TFrame, TCue>.SetCounterStep setCounter:
-                    counter = NativeCountdown.FromRaw((ushort)setCounter.Count);
+                    counter = WrappingCountdown.FromRaw((ushort)setCounter.Count);
                     cursor = cursor with { Position = cursor.Position + 1 };
                     break;
                 case AnimationProgramStep<TProgram, TFrame, TCue>.RepeatWhileCountingStep repeat:

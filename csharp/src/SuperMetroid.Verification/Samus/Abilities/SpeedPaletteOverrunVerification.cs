@@ -28,7 +28,7 @@ internal static class SpeedPaletteOverrunVerification
         int traceRow = 1;
         foreach (ushort phase in new ushort[] { 8, 10 })
         {
-            var speed = new SamusHorizontalSpeedState { SpeedBoostCounter = new SamusSpeedBoostCounter(0x0400), SpecialPaletteTimer = NativeCountdown.Start(1) };
+            var speed = new SamusHorizontalSpeedState { SpeedBoostCounter = new SamusSpeedBoostCounter(0x0400), SpecialPaletteTimer = WrappingCountdown.Start(1) };
             var cgram = new SnesCgram();
             ushort equipped = ((SamusEquipmentFlags.GravitySuit | SamusEquipmentFlags.ScrewAttack | SamusEquipmentFlags.SpeedBooster).ToNativeWord());
             for (int call = 0; call < phase / 2; call++)

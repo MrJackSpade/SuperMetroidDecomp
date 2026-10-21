@@ -1249,7 +1249,7 @@ internal static class LookupStream4Verification
                 int address = (EndingCreditsRomData.Rendering.PostCreditsTilemapWord + destination + cell) * 2;
                 AssertEqual(expected[cell], SnesLittleEndian.Word(vram.Bytes[address], vram.Bytes[address + 1]), "Actual subtitle reaches VRAM unchanged");
             }
-            state.InstructionTimer = NativeCountdown.Start(1);
+            state.InstructionTimer = WrappingCountdown.Start(1);
             state.Step(screen);
             AssertTrue(tilemap.AsSpan(destination, expected.Length).All(word => word == EndingCreditsRomData.Rendering.BlankTile), "Actual ending state clears the subtitle at its hold boundary");
             AssertTrue(state.Completed && state.RequestedItemPercentageScroll, "Subtitle clear preserves completion and scroll handoff");
@@ -1818,7 +1818,7 @@ internal static class LookupStream4Verification
             var samus = new SamusState { Pose = (SamusPoseId)pose };
             byte flags = rom.ReadCartridgeByte(0xa6bd04 + rom.ReadCartridgeByte(0x91b62a + pose * 8));
             AssertEqual((flags & 0x80) != 0, canGrab(samus), "Actual grab policy preserves each native real-pose classification");
-            var state = new RidleyEnemyState { GrabState = RidleyGrabState.CarryingSamus, TailWhipRequest = 0, TailFunctionIndex = RidleyTailFunction.Pogo, IntangibilityTimer = NativeCountdown.Start(99) };
+            var state = new RidleyEnemyState { GrabState = RidleyGrabState.CarryingSamus, TailWhipRequest = 0, TailFunctionIndex = RidleyTailFunction.Pogo, IntangibilityTimer = WrappingCountdown.Start(99) };
             release(state, samus);
             AssertEqual((flags & 0x40) != 0 ? morphedFrames : ordinaryFrames, state.IntangibilityTimer.RawValue, "Actual release preserves native movement-dependent intangibility");
             AssertEqual(RidleyGrabState.Released, state.GrabState, "Actual release clears grab");
@@ -2209,13 +2209,13 @@ internal static class LookupStream4Verification
         var electricity = electricitySystem.Projectiles.EnemyProjectiles.Single(p => p.Kind == RoomEnemyProjectileKind.SaveStationElectricity);
         for (int frame = 0; frame < 160; frame++)
         {
-            electricity.InstructionTimer = NativeCountdown.Start(1);
+            electricity.InstructionTimer = WrappingCountdown.Start(1);
             electricitySystem.Projectiles.ProcessEnemyProjectileInstructions(electricity, null, Position16<RoomPixels>.Zero);
             AssertTrue(electricity.IsActive, "stream4 electricity active throughout twenty cycles");
             AssertEqual((ushort)1, electricity.InstructionTimer.RawValue, "stream4 electricity one-frame timing");
             AssertEqual((ushort)(0xe689 + 4 * (frame % 8)), electricity.PresentationOperandAddress, "stream4 electricity installed presentation operand identity");
         }
-        electricity.InstructionTimer = NativeCountdown.Start(1);
+        electricity.InstructionTimer = WrappingCountdown.Start(1);
         electricitySystem.Projectiles.ProcessEnemyProjectileInstructions(electricity, null, Position16<RoomPixels>.Zero);
         AssertTrue(!electricity.IsActive, "stream4 electricity deletes after twenty complete cycles");
         AssertEqual(0, electricityGuard.ForbiddenReadAttempts, "stream4 electricity no mechanics ROM reads");
@@ -2535,7 +2535,7 @@ internal static class LookupStream4Verification
                 Action<RoomEnemySlot,DraygonEnemyState,SamusState?> hurt = enemies.DraygonBehavior.Combat.ApplyDraygonHurt;
                 foreach(ushort timer in new ushort[]{2,0})
                 {
-                    body.FlashTimer=NativeCountdown.FromRaw(timer); hurt(body,state,null);
+                    body.FlashTimer=WrappingCountdown.FromRaw(timer); hurt(body,state,null);
                     for(int color=0;color<16;color++)AssertEqual(Pack((timer==2?document.WhiteFlash:document.Sprite)[color]),cgram.Colors[240+color],"Actual sprite hurt phase and independent edited clear/color targets");
                 }
             }
@@ -2600,7 +2600,7 @@ internal static class LookupStream4Verification
                 Action<RoomEnemySlot,DraygonEnemyState,SamusState?> hurt = enemies.DraygonBehavior.Combat.ApplyDraygonHurt;
                 foreach(ushort timer in new ushort[]{2,0})
                 {
-                    body.FlashTimer=NativeCountdown.FromRaw(timer); hurt(body,state,null);
+                    body.FlashTimer=WrappingCountdown.FromRaw(timer); hurt(body,state,null);
                     for(int color=0;color<16;color++) AssertEqual(timer==2?Pack(document.WhiteFlash[color]):color is >=9 and <=12?Pack(document.HealthBands[3][color-9]):Pack(document.Background[color]),cgram.Colors[80+color],"Actual hurt producer preserves edited targets and health overlay");
                 }
             }
@@ -2662,9 +2662,9 @@ internal static class LookupStream4Verification
                     for (int shade = 0; shade < 4; shade++) AssertEqual(Pack(document.HealthBands[band][shade]), cgram.Colors[89 + shade], "Actual health producer copy");
                     cgram.SetColor(89, Bgr555.FromWord(0x1234)); update(state);
                     AssertEqual(0x1234, cgram.Colors[89], "Same health band does not spuriously recopy colors");
-                    body.FlashTimer = NativeCountdown.Start(2); hurt(body,state,null);
+                    body.FlashTimer = WrappingCountdown.Start(2); hurt(body,state,null);
                     for (int color = 0; color < 16; color++) AssertEqual(Pack(document.WhiteFlash[color]),cgram.Colors[80 + color],"Actual white hurt phase");
-                    body.FlashTimer = NativeCountdown.Start(0); hurt(body,state,null);
+                    body.FlashTimer = WrappingCountdown.Start(0); hurt(body,state,null);
                     for (int color = 0; color < 16; color++)
                     {
                         AssertEqual(color is >= 9 and <= 12 ? Pack(document.HealthBands[band][color - 9]) : Pack(document.Background[color]), cgram.Colors[80 + color], "Actual normal hurt restores selected belly band");
@@ -2794,7 +2794,7 @@ internal static class LookupStream4Verification
                 RoomEnemySlot slot = enemies.SlotTable.Slots[0]; slot.Bind(EnemyDefinitionId.Ridley, slot.Definition);
                 new Action<RoomEnemySlot>(enemies.RidleyBehavior.Combat.InitializeNorfairRidley)(slot);
                 RidleyEnemyState state = (enemies.RidleyEncounter.Ridley ?? throw new InvalidOperationException("Verification requires enemies.RidleyEncounter.Ridley."));
-                state.Function = RidleyAiFunction.WaitBeforeLiftoff; state.FunctionTimer = NativeCountdown.Start(0);
+                state.Function = RidleyAiFunction.WaitBeforeLiftoff; state.FunctionTimer = WrappingCountdown.Start(0);
                 Action<RoomEnemySlot, RidleyEnemyState> tick = enemies.RidleyBehavior.Combat.TickNorfairRidleyArenaReveal;
                 for (int call = 0; call < 46; call++)
                 {

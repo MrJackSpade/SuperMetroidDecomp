@@ -104,7 +104,7 @@ internal static class RidleyMovementTargetsVerification
             AssertEqual(Expected(x, ground[(int)facing], 0), state.Velocity.X.RawValue, "Ground side target reaches motion");
             state.Velocity = new EightEightVector<RoomPixels>(new SnesSignedEightEight(0), new SnesSignedEightEight(0));
             state.Function = RidleyAiFunction.NorfairCarryRelease;
-            state.FunctionTimer = NativeCountdown.Start(1);
+            state.FunctionTimer = WrappingCountdown.Start(1);
             run(slot, state, null, 0, null);
             AssertEqual(Expected(x, release[(int)facing], 0), state.Velocity.X.RawValue, "Carry release target reaches motion");
         }

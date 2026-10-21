@@ -19,7 +19,7 @@ public sealed class PuyoEnemyState
     public int YSpeedTableIndex { get; internal set; }
 
     /// <summary>Grounded-frame countdown copied from population parameter one.</summary>
-    public NativeCountdown HopCooldownTimer { get; internal set; }
+    public WrappingCountdown HopCooldownTimer { get; internal set; }
 
     /// <summary>Whether the Puyo is grounded or airborne; none once a kill has emptied the record.</summary>
     public PuyoEnemyFunction? Function { get; internal set; }
@@ -76,7 +76,7 @@ public sealed class PuyoEnemyState
     internal void ClearWithRecord()
     {
         YSpeedTableIndex = 0;
-        HopCooldownTimer = NativeCountdown.Start(0);
+        HopCooldownTimer = WrappingCountdown.Start(0);
         Function = null;
         AirborneFunction = null;
         HopRecord = 0;

@@ -17,7 +17,7 @@ public sealed class HorizontalShutterEnemyState
     /// Wrapping AI-update countdown; initial wait tests for zero after decrement, whereas endpoint rests test for
     /// signed underflow.
     /// </summary>
-    public NativeCountdown FunctionTimer { get; internal set; }
+    public WrappingCountdown FunctionTimer { get; internal set; }
 
     /// <summary>
     /// Rightward signed 16.16 velocity in pixels per update, also supplied to an overlapping Samus's extra-X
@@ -70,7 +70,7 @@ public sealed class HorizontalShutterEnemyState
     internal void ClearWithRecord()
     {
         Function = null;
-        FunctionTimer = NativeCountdown.Start(0);
+        FunctionTimer = WrappingCountdown.Start(0);
         RightVelocity = SnesSignedSixteenSixteen.Zero;
         LeftVelocity = SnesSignedSixteenSixteen.Zero;
     }

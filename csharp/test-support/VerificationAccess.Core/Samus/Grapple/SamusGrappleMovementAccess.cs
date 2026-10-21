@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Compatibility;
 using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Hardware;
 namespace SuperMetroid.Core.Samus.Grapple;
@@ -48,7 +49,7 @@ internal static class SamusGrappleMovementAccess
             grapple.DirectionInputAcceleration = 0;
             grapple.GravityAcceleration = 0;
             grapple.JumpImpulse = 0;
-            grapple.CollisionBounceTimer = NativeCountdown.Start(0);
+            grapple.CollisionBounceTimer = WrappingCountdown.Start(0);
             grapple.Submerged = false;
             // This public helper is the debugger's already-accepted-anchor seam. Its caller may
             // deliberately place an anchor where the current room has no grapple block (the
@@ -57,7 +58,7 @@ internal static class SamusGrappleMovementAccess
             grapple.ValidateAnchorBlock = false;
             grapple.ValidateAnchorEnemy = false;
             grapple.SpecialAngleHandling = false;
-            grapple.WallJumpTimer = NativeCountdown.Start(0);
+            grapple.WallJumpTimer = WrappingCountdown.Start(0);
             grapple.CancelFromConnectedPose = false;
             SamusGrappleBeamDrawing.InitializeBeamAnimation(grapple);
 

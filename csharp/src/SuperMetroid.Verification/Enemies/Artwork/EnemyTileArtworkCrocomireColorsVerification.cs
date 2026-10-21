@@ -107,7 +107,7 @@ internal static class EnemyTileArtworkCrocomireColorsVerification
         AssertBand(CrocomirePaletteRomData.FightBodyDestination,
             CrocomirePaletteRomData.FightBodyCount, colors.ResolveFightBody,
             "restored fight-body CGRAM");
-        body.FlashTimer = NativeCountdown.Start(1);
+        body.FlashTimer = WrappingCountdown.Start(1);
         enemies.FrameContext.SeedRandomEnemyCounter(2);
         enemies.CrocomireBehavior.Combat.ApplyCrocomireHurtPalette(body);
         for (int color = 0; color < CrocomirePaletteRomData.FightBodyCount; color++)
@@ -116,7 +116,7 @@ internal static class EnemyTileArtworkCrocomireColorsVerification
                 $"Crocomire native white hurt flash {color}");
         AssertEqual(CrocomireDeathPhase.Fighting, state.DeathSequenceIndex,
             "white hurt flash leaves fight phase unchanged");
-        state.DeathPhaseDelay = NativeCountdown.Start(0);
+        state.DeathPhaseDelay = WrappingCountdown.Start(0);
         enemies.CrocomireBehavior.Skeleton.RunCrocomireSkeletonTileLoadAndWallBreak(state);
         AssertBand(CrocomirePaletteRomData.SkeletonArmDestination,
             CrocomirePaletteRomData.SkeletonArmCount, colors.ResolveSkeletonArm,

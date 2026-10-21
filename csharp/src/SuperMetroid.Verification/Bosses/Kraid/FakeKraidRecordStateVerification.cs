@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Bosses.Kraid;
 namespace SuperMetroid.Verification.Bosses.Kraid;
@@ -20,14 +19,14 @@ internal static class FakeKraidRecordStateVerification
         slot.SetSpeciesState(state, state.ClearWithRecord);
         state.WalkDelta = 1;
         state.FacingDelta = 1;
-        state.WalkStepTimer = NativeCountdown.Start(1);
-        state.SpitDecisionTimer = NativeCountdown.Start(1);
+        state.WalkStepTimer = WrappingCountdown.Start(1);
+        state.SpitDecisionTimer = WrappingCountdown.Start(1);
 
         slot.Clear();
         AssertEqual<short>(0, state.WalkDelta, "a kill empties WalkDelta");
         AssertEqual<short>(0, state.FacingDelta, "a kill empties FacingDelta");
-        AssertEqual<NativeCountdown>(NativeCountdown.Start(0), state.WalkStepTimer, "a kill empties WalkStepTimer");
-        AssertEqual<NativeCountdown>(NativeCountdown.Start(0), state.SpitDecisionTimer, "a kill empties SpitDecisionTimer");
+        AssertEqual<WrappingCountdown>(WrappingCountdown.Start(0), state.WalkStepTimer, "a kill empties WalkStepTimer");
+        AssertEqual<WrappingCountdown>(WrappingCountdown.Start(0), state.SpitDecisionTimer, "a kill empties SpitDecisionTimer");
         Console.WriteLine("FakeKraid record state: a kill empties every value the record holds.");
     }
 

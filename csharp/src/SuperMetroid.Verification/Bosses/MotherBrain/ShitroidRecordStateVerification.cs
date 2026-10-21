@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Bosses.MotherBrain;
 namespace SuperMetroid.Verification.Bosses.MotherBrain;
@@ -23,7 +22,7 @@ internal static class ShitroidRecordStateVerification
         state.PalettePhase = 1;
         state.PaletteTimer = 1;
         state.PaletteDelay = 1;
-        state.StateTimer = NativeCountdown.Start(1);
+        state.StateTimer = WrappingCountdown.Start(1);
 
         slot.Clear();
         AssertEqual<ShitroidAiFunction?>(null, state.Function, "a kill empties Function");
@@ -31,7 +30,7 @@ internal static class ShitroidRecordStateVerification
         AssertEqual<int>(0, state.PalettePhase, "a kill empties PalettePhase");
         AssertEqual<int>(0, state.PaletteTimer, "a kill empties PaletteTimer");
         AssertEqual<int>(0, state.PaletteDelay, "a kill empties PaletteDelay");
-        AssertEqual<NativeCountdown>(NativeCountdown.Start(0), state.StateTimer, "a kill empties StateTimer");
+        AssertEqual<WrappingCountdown>(WrappingCountdown.Start(0), state.StateTimer, "a kill empties StateTimer");
         Console.WriteLine("Shitroid record state: a kill empties every value the record holds.");
     }
 

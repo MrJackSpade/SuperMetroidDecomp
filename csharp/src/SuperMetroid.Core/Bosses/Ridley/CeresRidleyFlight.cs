@@ -91,7 +91,7 @@ internal sealed class CeresRidleyFlight
             BabyCurrentPose = null,
             BabyPosition = FixedPosition<RoomPixels>.FromWhole(slot.Position.Whole + CeresRidleyBabyScene.CeresBabyArmsAnchor),
             WingFrame = 5,
-            WingAnimationTimer = NativeCountdown.Start(0),
+            WingAnimationTimer = WrappingCountdown.Start(0),
             WingAnimationTimerDelta = 0,
             TailFunctionIndex = RidleyTailFunction.None,
             TailAngleDelta = 1,
@@ -205,7 +205,7 @@ internal sealed class CeresRidleyFlight
         // assignment out produces correct boss motion with a conspicuously silent attack.
         StartRidleyProgram(state, slot, RidleyBodyProgram.Fireballing);
         state.Function = RidleyAiFunction.CeresFireballShooting;
-        state.FunctionTimer = NativeCountdown.Start(224);
+        state.FunctionTimer = WrappingCountdown.Start(224);
         TickCeresRidleyFireballShooting(slot, state);
     }
 
@@ -262,7 +262,7 @@ internal sealed class CeresRidleyFlight
         if (unchecked((short)(slot.Position.Y.Whole - 96)) < 0)
         {
             state.Function = RidleyAiFunction.CeresSwoopDescendingAimingDown;
-            state.FunctionTimer = NativeCountdown.Start(10);
+            state.FunctionTimer = WrappingCountdown.Start(10);
             state.SwoopAngleAccumulator = SnesAngle.Zero;
         }
     }
@@ -281,7 +281,7 @@ internal sealed class CeresRidleyFlight
         if (state.FunctionTimer.IsNegative)
         {
             state.Function = nextFunction;
-            state.FunctionTimer = NativeCountdown.FromRaw(nextTimer);
+            state.FunctionTimer = WrappingCountdown.FromRaw(nextTimer);
         }
     }
 
@@ -344,7 +344,7 @@ internal sealed class CeresRidleyFlight
         {
             state.BabyFunction = CeresBabyFunction.Drop;
             state.Function = RidleyAiFunction.CeresWaitBeforeRetrievingBaby;
-            state.FunctionTimer = NativeCountdown.Start(21);
+            state.FunctionTimer = WrappingCountdown.Start(21);
         }
     }
 
@@ -376,7 +376,7 @@ internal sealed class CeresRidleyFlight
         if (unchecked((short)(slot.Position.Y.Whole + 128)) < 0)
         {
             state.Function = RidleyAiFunction.CeresRetreatDelay;
-            state.FunctionTimer = NativeCountdown.Start(64);
+            state.FunctionTimer = WrappingCountdown.Start(64);
             TickCeresRidleyRetreatDelay(state);
         }
     }
@@ -488,7 +488,7 @@ internal sealed class CeresRidleyFlight
                 Math.Abs((int)state.Velocity.Y.SignedRawValue)) >= RidleyWallImpactDefinitions.MinimumSpeed)
         {
             _earthquake.EarthquakeType = RidleyWallImpactDefinitions.EarthquakeType;
-            _earthquake.EarthquakeTimer = NativeCountdown.Start(RidleyWallImpactDefinitions.Duration);
+            _earthquake.EarthquakeTimer = WrappingCountdown.Start(RidleyWallImpactDefinitions.Duration);
         }
         (SnesFixedPosition x, int xVelocity) = IntegrateAxis(
             slot.Position.X,
@@ -549,15 +549,15 @@ internal sealed class CeresRidleyFlight
 
         state.Function = RidleyAiFunction.FadeInEyes;
         state.FadePaletteOffset = 0;
-        state.FunctionTimer = NativeCountdown.Start(0);
+        state.FunctionTimer = WrappingCountdown.Start(0);
     }
 
     /// <summary>Restarts Ridley's native enemy instruction cursor and frame timer at a selected list.</summary>
     internal static void StartRidleyProgram(RidleyEnemyState state, RoomEnemySlot slot, RidleyBodyProgram program)
     {
         state.BodyProgram = AnimationProgramCursor<RidleyBodyProgram>.Start(program);
-        slot.InstructionTimer = NativeCountdown.Start(1);
-        slot.Timer = NativeCountdown.Start(0);
+        slot.InstructionTimer = WrappingCountdown.Start(1);
+        slot.Timer = WrappingCountdown.Start(0);
     }
 
     /// <summary>Ports $A6:D97D-$D9EC after the common Ridley movement pass.</summary>
@@ -581,12 +581,12 @@ internal sealed class CeresRidleyFlight
             state.WingAnimationTimerDelta = delta;
         }
 
-        state.WingAnimationTimer = NativeCountdown.FromRaw(unchecked((ushort)(
+        state.WingAnimationTimer = WrappingCountdown.FromRaw(unchecked((ushort)(
             state.WingAnimationTimer.RawValue - state.WingAnimationTimerDelta)));
         if (!state.WingAnimationTimer.IsNegative)
             return;
 
-        state.WingAnimationTimer = NativeCountdown.Start(32);
+        state.WingAnimationTimer = WrappingCountdown.Start(32);
         state.WingFrame = (state.WingFrame + 1) % 10;
     }
 

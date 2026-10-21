@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Runtime;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
 using SuperMetroid.Core.Enemies;
@@ -46,7 +45,7 @@ internal static class YappingMawGrappleReleaseVerification
         var maw = runtime.Enemies.YappingMawStates.Single(state => state?.Origin.X == 936);
         (maw ?? throw new InvalidOperationException("Verification requires maw.")).Function = YappingMawAiFunction.RetractedDelay;
         maw.HasGrabbedSamus = true;
-        maw.RetractedDelayTimer = NativeCountdown.Start(1);
+        maw.RetractedDelayTimer = WrappingCountdown.Start(1);
         maw.HeldSamusOffset = new Offset16<RoomPixels>(0, -20);
         // The grapple handler runs in Samus's alpha pass, before EnemyMain. The Maw's
         // command three therefore queues $9B:C8C5 after this frame's swing, and the drop

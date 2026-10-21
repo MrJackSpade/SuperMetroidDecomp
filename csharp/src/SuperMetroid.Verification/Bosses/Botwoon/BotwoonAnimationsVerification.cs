@@ -123,7 +123,7 @@ internal static class BotwoonAnimationsVerification
         state.HeadHistory[3] = new Position16<RoomPixels>(1000, 1000);
         state.InsideHole = false;
         animateHead(head, state);
-        head.InstructionTimer = NativeCountdown.Start(7);
+        head.InstructionTimer = WrappingCountdown.Start(7);
         state.HeadHistory[3] = new Position16<RoomPixels>(1000, 1000);
         animateHead(head, state);
         AssertEqual((ushort)7, head.InstructionTimer.RawValue, "reinstalling Botwoon's unchanged head program keeps it running");
@@ -220,7 +220,7 @@ internal static class BotwoonAnimationsVerification
         (RoomEnemySystem enemies, RoomEnemySlot head, BotwoonEnemyState state) = NewBotwoonHead();
         state.HeadProgram = program;
         state.HeadAnimationPosition = 0;
-        head.InstructionTimer = NativeCountdown.Start(1);
+        head.InstructionTimer = WrappingCountdown.Start(1);
         CompareBotwoonHead(rom, nativeList, enemies, head, state, label, drawn);
     }
 
@@ -255,7 +255,7 @@ internal static class BotwoonAnimationsVerification
         {
             pass(projectile);
             ushort old = timer;
-            timer = NativeWordCounter.Decrement(timer).Value;
+            timer = WrappingCounter.Decrement(timer).Value;
             if (old == 1)
             {
                 for (int command = 0; command < 8; command++)
@@ -305,7 +305,7 @@ internal static class BotwoonAnimationsVerification
         internal bool Step(SuperMetroidAddressSpace rom)
         {
             ushort old = Timer;
-            Timer = NativeWordCounter.Decrement(Timer).Value;
+            Timer = WrappingCounter.Decrement(Timer).Value;
             if (old != 1)
             {
                 NewFrame = false;

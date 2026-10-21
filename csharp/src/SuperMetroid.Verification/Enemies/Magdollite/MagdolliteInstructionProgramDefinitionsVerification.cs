@@ -146,8 +146,8 @@ internal static class MagdolliteInstructionProgramDefinitionsVerification
         static void Install(RoomEnemySlot slot, MagdolliteEnemyState state, MagdolliteProgram program)
         {
             state.Program = AnimationProgramCursor<MagdolliteProgram>.Start(program);
-            slot.InstructionTimer = NativeCountdown.Start(1);
-            slot.Timer = NativeCountdown.Start(0);
+            slot.InstructionTimer = WrappingCountdown.Start(1);
+            slot.Timer = WrappingCountdown.Start(0);
         }
 
         static void RunFrames(RoomEnemySystem enemies, RoomEnemySlot slot, int frames)

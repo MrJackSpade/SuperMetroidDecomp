@@ -346,7 +346,7 @@ internal static class FrontendRomFreeVerification
                                 slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.GoldenTorizo);
                             (game.GameplayRuntimeForVerification.Enemies.BombTorizoBehavior.Attacks.GoldenTorizo ?? throw new InvalidOperationException("Verification requires the Golden Torizo state.")).BodyProgram =
                                 AnimationProgramCursor<TorizoBodyProgram>.Start(TorizoBodyProgram.GoldenSonicBoomsFacingRightLeftFootFwd0);
-                            boss.InstructionTimer = NativeCountdown.Start(1);
+                            boss.InstructionTimer = WrappingCountdown.Start(1);
                         }
                     }, golden: new GoldenTorizoForcing { ForcedGoldenSonicStart = TorizoBodyProgram.GoldenSonicBoomsFacingRightLeftFootFwd0 });
                 VerifyFrontendRomFreeRoom(native, installed, new RomFreeRoom { Room = RoomHeaderDefinitions.GoldenTorizo, RoomName = "Golden Torizo right-foot right-sonic program" }, frameCount: 90, setup: (nativeRoom, installedRoom) =>
@@ -357,7 +357,7 @@ internal static class FrontendRomFreeVerification
                                 slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.GoldenTorizo);
                             (game.GameplayRuntimeForVerification.Enemies.BombTorizoBehavior.Attacks.GoldenTorizo ?? throw new InvalidOperationException("Verification requires the Golden Torizo state.")).BodyProgram =
                                 AnimationProgramCursor<TorizoBodyProgram>.Start(TorizoBodyProgram.GoldenSonicBoomsFacingRightRightFootFwd0);
-                            boss.InstructionTimer = NativeCountdown.Start(1);
+                            boss.InstructionTimer = WrappingCountdown.Start(1);
                         }
                     }, golden: new GoldenTorizoForcing { ForcedGoldenSonicStart = TorizoBodyProgram.GoldenSonicBoomsFacingRightRightFootFwd0 });
                 VerifyFrontendRomFreeRoom(native, installed, new RomFreeRoom { Room = RoomHeaderDefinitions.GoldenTorizo, RoomName = "Golden Torizo stunned tile loop" }, frameCount: 80, setup: (nativeRoom, installedRoom) =>
@@ -369,7 +369,7 @@ internal static class FrontendRomFreeVerification
                                 slot.EnemyDefinitionPointer == EnemyDefinitionId.GoldenTorizo);
                             (enemies.BombTorizoBehavior.Attacks.GoldenTorizo ?? throw new InvalidOperationException("Verification requires enemies.BombTorizoBehavior.GoldenTorizo.")).BodyProgram =
                                 AnimationProgramCursor<TorizoBodyProgram>.Start(TorizoBodyProgram.Stunned0);
-                            boss.InstructionTimer = NativeCountdown.Start(1);
+                            boss.InstructionTimer = WrappingCountdown.Start(1);
                             (enemies.BombTorizoBehavior.Attacks.GoldenTorizo ?? throw new InvalidOperationException("Verification requires enemies.BombTorizoBehavior.GoldenTorizo.")).Behavior |= TorizoBehaviorFlags.Stunned;
                             (enemies.BombTorizoBehavior.Attacks.GoldenTorizo ?? throw new InvalidOperationException("Verification requires enemies.BombTorizoBehavior.GoldenTorizo.")).ReturnCursor =
                                 AnimationProgramCursor<TorizoBodyProgram>.Start(TorizoBodyProgram.GoldenWalkingLeftRightLegMoving);
@@ -394,7 +394,7 @@ internal static class FrontendRomFreeVerification
                                 slot.EnemyDefinitionPointer == EnemyDefinitionId.GoldenTorizo);
                             (enemies.BombTorizoBehavior.Attacks.GoldenTorizo ?? throw new InvalidOperationException("Verification requires enemies.BombTorizoBehavior.GoldenTorizo.")).BodyProgram =
                                 AnimationProgramCursor<TorizoBodyProgram>.Start(TorizoBodyProgram.GoldenSpewChozoOrbFacingLeftLeftFootFwd0);
-                            boss.InstructionTimer = NativeCountdown.Start(1);
+                            boss.InstructionTimer = WrappingCountdown.Start(1);
                             (enemies.BombTorizoBehavior.Attacks.GoldenTorizo ?? throw new InvalidOperationException("Verification requires enemies.BombTorizoBehavior.GoldenTorizo.")).ReturnCursor =
                                 AnimationProgramCursor<TorizoBodyProgram>.Start(TorizoBodyProgram.GoldenWalkingLeftRightLegMoving);
                         }

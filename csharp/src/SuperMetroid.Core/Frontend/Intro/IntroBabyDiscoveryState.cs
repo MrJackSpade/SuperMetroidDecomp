@@ -306,7 +306,7 @@ internal sealed class IntroBabyDiscoveryState
                 {
                     confusedBaby.InstallPreInstruction(
                         CinematicSpritePreInstruction.ConfusedBabyDancing);
-                    BabyIdleTimer = NativeCountdown.Start(0);
+                    BabyIdleTimer = WrappingCountdown.Start(0);
                     BabyVelocity = BabyVelocity.WithY(default);
                     confusedBaby.GeneralTimer = 0;
                 }
@@ -357,7 +357,7 @@ internal sealed class IntroBabyDiscoveryState
     private EightEightVector<ScreenPixels> BabyVelocity { get; set; }
 
     /// <summary>Countdown from the apex of the baby's rise to the start of its dance.</summary>
-    private NativeCountdown BabyIdleTimer { get; set; }
+    private WrappingCountdown BabyIdleTimer { get; set; }
 
     /// <summary>Spawns slime at the authored scanline and accelerates the baby toward its hover point.</summary>
     private void StepHatchedBaby()
@@ -391,7 +391,7 @@ internal sealed class IntroBabyDiscoveryState
         // then holds for $80 frames before enabling the two-axis dance around Samus.
         if (unchecked((short)BabyVelocity.Y.RawValue) >= 0)
         {
-            BabyIdleTimer = NativeCountdown.Start(128);
+            BabyIdleTimer = WrappingCountdown.Start(128);
             confusedBaby.InstallPreInstruction(
                 CinematicSpritePreInstruction.ConfusedBabyIdling);
         }
@@ -410,7 +410,7 @@ internal sealed class IntroBabyDiscoveryState
 
         if (confusedBaby.GeneralTimer < 128)
         {
-            confusedBaby.GeneralTimer = NativeWordCounter.IncrementWord(confusedBaby.GeneralTimer);
+            confusedBaby.GeneralTimer = WrappingCounter.IncrementWord(confusedBaby.GeneralTimer);
             // `$8B:BB24` cries when the post-increment timer reaches $40 and $80.
             if (confusedBaby.GeneralTimer % 64 == 0)
                 audio?.QueueSound(

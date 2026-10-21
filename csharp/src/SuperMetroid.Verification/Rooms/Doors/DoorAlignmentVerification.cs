@@ -154,7 +154,7 @@ internal static class DoorAlignmentVerification
             DoorTransitionPhase phaseBeforeStep = transition.Phase;
             if (transition.Phase == DoorTransitionPhase.AlignSourceCamera)
                 alignmentCalls++;
-            transition.Step(runtime, audio, heldLeftRight, SuperMetroid.Core.Rooms.Doors.LagFreeDoorLoaderProgress.Instance);
+            transition.Step(runtime, audio, heldLeftRight, SuperMetroid.Core.Compatibility.InstantRoomLoad.Instance);
             if (phaseBeforeStep == DoorTransitionPhase.BuildDestinationOam &&
                 transition.Phase == DoorTransitionPhase.FadeInDestinationPalette)
             {

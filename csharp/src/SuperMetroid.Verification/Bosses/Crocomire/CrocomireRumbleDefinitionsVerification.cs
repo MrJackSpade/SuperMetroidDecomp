@@ -76,7 +76,7 @@ internal static class CrocomireRumbleDefinitionsVerification
         var death = new CrocomireDeathState
         {
             RumbleYOffset = 0,
-            RumbleCooldown = NativeCountdown.Start(10),
+            RumbleCooldown = WrappingCountdown.Start(10),
             RumbleDelta = 1,
         };
         RoomEnemySlot body = enemies.SlotTable.Slots[0];

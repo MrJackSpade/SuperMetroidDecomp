@@ -160,7 +160,7 @@ internal static class LookupStream2Verification
         enemies.Presentation.BindCgram(cgram);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.PaletteIndex = 0;
-        var state = new WreckedShipGhostEnemyState { PhaseTimer = NativeCountdown.Start(2) };
+        var state = new WreckedShipGhostEnemyState { PhaseTimer = WrappingCountdown.Start(2) };
         Action<RoomEnemySlot, WreckedShipGhostEnemyState> brightening = enemies.WreckedShipGhostBehavior.RunWreckedShipGhostBrightening;
         Func<RoomEnemySlot, WreckedShipGhostEnemyState, int> fade = enemies.WreckedShipGhostBehavior.StepWreckedShipGhostPaletteTowardTarget;
         var native = new ushort[16];
@@ -1314,8 +1314,8 @@ internal static class LookupStream2Verification
                 slot.Bind(EnemyDefinitionId.Gamet, slot.Definition);
                 slot.Position = slot.Position.WithWhole(new(128, 128)); slot.SetSpawnParameter2(64);
                 PipeBugsBehavior.InitializeNorfairPipeBug(slot);
-                slot.InstructionTimer = NativeCountdown.FromRaw((ushort)(member + 4));
-                slot.Timer = NativeCountdown.FromRaw((ushort)(member + 8));
+                slot.InstructionTimer = WrappingCountdown.FromRaw((ushort)(member + 4));
+                slot.Timer = WrappingCountdown.FromRaw((ushort)(member + 8));
             }
             var samus = new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(new(samusX, 112)) };
             enemies.PipeBugsBehavior.RunNorfairPipeBugSamusWait(enemies.SlotTable.Slots[0], (enemies.PipeBugStates[0] ?? throw new InvalidOperationException("Verification requires enemies.PipeBugStates[0].")), samus);
@@ -1404,7 +1404,7 @@ internal static class LookupStream2Verification
             {
                 var pair = system.TrailSlots[0];
                 foreach (var side in new[] { pair.Left, pair.Right })
-                { side.InstructionPointer = start; side.InstructionTimer = NativeCountdown.Start(1); side.Position = side.Position.WithX(100).WithY(100); }
+                { side.InstructionPointer = start; side.InstructionTimer = WrappingCountdown.Start(1); side.Position = side.Position.WithX(100).WithY(100); }
             }
             for (int frame = 0; frame < 80; frame++)
             {
@@ -1457,7 +1457,7 @@ internal static class LookupStream2Verification
                     ushort word = ReadVerificationWord(bus, 0x900000 | cursor);
                     if (word < 0x8000)
                     {
-                        side.InstructionTimer = NativeCountdown.FromRaw(word);
+                        side.InstructionTimer = WrappingCountdown.FromRaw(word);
                         if (word == 0) return;
                         side.TileNumberAttributes = ReadVerificationWord(bus, 0x900000 | (cursor + 2));
                         side.InstructionPointer = (ushort)(cursor + 4);
@@ -1827,7 +1827,7 @@ internal static class LookupStream2Verification
             short original = unchecked((short)ReadVerificationWord(rom, 0xa89acc + 2 * (offset / 2)));
             AssertEqual(original, WreckedShipGhostAppearanceDefinitions.FlickerDuration(offset / 2), "Ghost original flicker interval");
             slot.Properties = new EnemyPropertyWord(EnemyProperties.Invisible | EnemyProperties.ProcessOffScreen);
-            state.PhaseTimer = NativeCountdown.Start(1);
+            state.PhaseTimer = WrappingCountdown.Start(1);
             state.FlickerTableOffset = offset;
             flicker(slot, state);
             AssertEqual(original < 0 ? (ushort)0 : (ushort)original, state.PhaseTimer.RawValue, "Ghost actual next interval");
@@ -1835,17 +1835,17 @@ internal static class LookupStream2Verification
             bool remainsInvisible = original < 0 || (offset & 2) != 0;
             AssertEqual((ushort)(EnemyProperties.ProcessOffScreen | (remainsInvisible ? EnemyProperties.Invisible : default(EnemyProperties))), slot.Properties.ToNativeWord(), "Ghost actual visibility preserves unrelated flags");
         }
-        state.PhaseTimer = NativeCountdown.Start(2);
+        state.PhaseTimer = WrappingCountdown.Start(2);
         state.FlickerTableOffset = 2;
         slot.Properties = new EnemyPropertyWord(EnemyProperties.Invisible);
         flicker(slot, state);
         AssertEqual((ushort)1, state.PhaseTimer.RawValue, "Ghost interval countdown");
         AssertEqual(2, state.FlickerTableOffset, "Ghost no early interval advance");
         AssertEqual((ushort)EnemyProperties.Invisible, slot.Properties.ToNativeWord(), "Ghost no early visibility change");
-        state.PhaseTimer = NativeCountdown.Start(0);
+        state.PhaseTimer = WrappingCountdown.Start(0);
         flicker(slot, state);
         AssertEqual((ushort)0, slot.Properties.ToNativeWord(), "Ghost terminal next call clears invisibility");
-        state.PhaseTimer = NativeCountdown.Start(1);
+        state.PhaseTimer = WrappingCountdown.Start(1);
         state.FlickerTableOffset = 34;
         AssertThrows<InvalidDataException>(() => flicker(slot, state), "Ghost malformed offset remains rejected");
         state.SpawnColumn = 3;
@@ -2061,7 +2061,7 @@ internal static class LookupStream2Verification
         {
             ushort pointer = (ushort)(0x86db + direction * 12);
             AssertTrue(!remaining.Contains(pointer), "Stock compass selector is absent from stored residuals");
-            var shot = new SamusProjectileSlot(0) { Cursor = SamusProjectileProgramAddresses.CursorAt(pointer), InstructionTimer = NativeCountdown.Start(1) };
+            var shot = new SamusProjectileSlot(0) { Cursor = SamusProjectileProgramAddresses.CursorAt(pointer), InstructionTimer = WrappingCountdown.Start(1) };
             var system = new SamusProjectileSystem(new BeamChargeState(), SamusProjectileResidue.None) { Animation = { FrameBindings = stock } };
             _ = system.Animation.RunProjectileInstructionHandler(shot);
             AssertEqual(ReadVerificationWord(rom, (0x930000 | pointer) + 2), shot.SpritemapPointer, "Actual projectile handler selects calculated compass pose");
@@ -2069,7 +2069,7 @@ internal static class LookupStream2Verification
             string original = document.Frames[key];
             document.Frames[key] = ProjectileSpriteDefinitions.Name(ProjectileSpriteDefinitions.NativePointers[0]);
             var edited = ProjectileFrameBindingCatalog.Load(new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, options)));
-            var editedShot = new SamusProjectileSlot(0) { Cursor = SamusProjectileProgramAddresses.CursorAt(pointer), InstructionTimer = NativeCountdown.Start(1) };
+            var editedShot = new SamusProjectileSlot(0) { Cursor = SamusProjectileProgramAddresses.CursorAt(pointer), InstructionTimer = WrappingCountdown.Start(1) };
             system.Animation.FrameBindings = edited;
             _ = system.Animation.RunProjectileInstructionHandler(editedShot);
             AssertEqual(ProjectileSpriteDefinitions.NativePointers[0], editedShot.SpritemapPointer, "Independent direction edit overrides calculation in actual handler");
@@ -2105,7 +2105,7 @@ internal static class LookupStream2Verification
                 checkedCappedSweep++;
             }
             AssertTrue(!remaining.Contains(pointer), "Calculated Wave/Ice selector is absent from stored residuals");
-            var shot = new SamusProjectileSlot(0) { Cursor = SamusProjectileProgramAddresses.CursorAt(pointer), InstructionTimer = NativeCountdown.Start(1) };
+            var shot = new SamusProjectileSlot(0) { Cursor = SamusProjectileProgramAddresses.CursorAt(pointer), InstructionTimer = WrappingCountdown.Start(1) };
             var system = new SamusProjectileSystem(new BeamChargeState(), SamusProjectileResidue.None) { Animation = { FrameBindings = stock } };
             _ = system.Animation.RunProjectileInstructionHandler(shot);
             AssertEqual(ReadVerificationWord(rom, (0x930000 | pointer) + 2), shot.SpritemapPointer, "Actual handler uses native Wave/Ice traversal pose");
@@ -2116,7 +2116,7 @@ internal static class LookupStream2Verification
             document.Frames[key] = ProjectileSpriteDefinitions.Name(replacement);
             var edited = ProjectileFrameBindingCatalog.Load(new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, options)));
             system.Animation.FrameBindings = edited;
-            var editedShot = new SamusProjectileSlot(0) { Cursor = SamusProjectileProgramAddresses.CursorAt(pointer), InstructionTimer = NativeCountdown.Start(1) };
+            var editedShot = new SamusProjectileSlot(0) { Cursor = SamusProjectileProgramAddresses.CursorAt(pointer), InstructionTimer = WrappingCountdown.Start(1) };
             _ = system.Animation.RunProjectileInstructionHandler(editedShot);
             AssertEqual(replacement, editedShot.SpritemapPointer, "Every Wave/Ice supplied edit takes precedence");
             AssertEqual(shot.InstructionTimer.RawValue, editedShot.InstructionTimer.RawValue, "Wave/Ice visual edit preserves duration");
@@ -2133,7 +2133,7 @@ internal static class LookupStream2Verification
         foreach (ushort pointer in SamusProjectileRecordDefinitions.TimedRecordAddresses)
         {
             if (pointer is < 0x9f87 or >= 0xa007) continue;
-            var bomb = new SamusBombProjectileSlot(0) { Cursor = SamusProjectileProgramAddresses.CursorAt(pointer), InstructionTimer = NativeCountdown.Start(1), Type = 0x0500 };
+            var bomb = new SamusBombProjectileSlot(0) { Cursor = SamusProjectileProgramAddresses.CursorAt(pointer), InstructionTimer = WrappingCountdown.Start(1), Type = 0x0500 };
             var bombs = new SamusBombProjectileSystem { FrameBindings = stock };
             _ = bombs.RunProjectileInstructionHandler(bomb);
             AssertEqual(ReadVerificationWord(rom, (0x930000 | pointer) + 2), bomb.SpritemapPointer, "Actual bomb handler uses sequential normal/fast pose");

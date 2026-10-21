@@ -319,7 +319,7 @@ internal sealed class MotherBrainRainbowAndDeath
             // fallthrough decrements neck timer `$0B` to `$0A`. The physical draw hook owns
             // subsequent shake decrements, so publish this event only on that exact setup
             // result rather than copying the sequence's retained word every enemy frame.
-            state.BrainMainShakeTimer = NativeCountdown.Start(50);
+            state.BrainMainShakeTimer = WrappingCountdown.Start(50);
         }
         state.Form = sequence.State.Body.Form;
         state.BodySubFunctionTimer = sequence.ThirdPhaseDeath.DeathAndEscapeExplosionIndex;
@@ -376,17 +376,17 @@ internal sealed class MotherBrainRainbowAndDeath
             current.PhaseAfter == MotherBrainBodyFunction.SecondPhaseRainbowStartDrainingSamus)
         {
             _earthquake.EarthquakeType = 8;
-            _earthquake.EarthquakeTimer = NativeCountdown.Start(8);
+            _earthquake.EarthquakeTimer = WrappingCountdown.Start(8);
         }
         else if (current.PhaseBefore == MotherBrainBodyFunction.SecondPhaseRainbowStartDrainingSamus)
         {
             _earthquake.EarthquakeType = 8;
-            _earthquake.EarthquakeTimer = NativeCountdown.Start(299);
+            _earthquake.EarthquakeTimer = WrappingCountdown.Start(299);
         }
         else if (current.PhaseBefore == MotherBrainBodyFunction.SecondPhaseRainbowFinishFiring &&
             current.PhaseAfter == MotherBrainBodyFunction.SecondPhaseRainbowLetSamusFall)
         {
-            _earthquake.EarthquakeTimer = NativeCountdown.Start(0);
+            _earthquake.EarthquakeTimer = WrappingCountdown.Start(0);
             state.LastSoundEffectLibrary1 = MotherBrainSoundDefinitions.StopRainbowDrain;
         }
 

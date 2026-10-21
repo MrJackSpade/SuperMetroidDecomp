@@ -91,7 +91,7 @@ internal static class MiscDustProjectileBehaviorVerification
     {
         for (int tick = 0; tick < count; tick++)
         {
-            projectile.InstructionTimer = NativeCountdown.Start(1);
+            projectile.InstructionTimer = WrappingCountdown.Start(1);
             Process(rom, enemies, projectile, samus);
         }
     }

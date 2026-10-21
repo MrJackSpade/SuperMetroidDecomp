@@ -33,7 +33,7 @@ internal static class EnemyPickupDefinitionsVerification
             {
                 Variable0 = 0xffff,
                 Variable1 = 0xffff,
-                InstructionTimer = NativeCountdown.Start(0xffff),
+                InstructionTimer = WrappingCountdown.Start(0xffff),
                 PreInstruction = EnemyProjectilePreInstruction.None,
                 PersistsOnSamusContact = true,
             };

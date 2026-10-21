@@ -33,7 +33,7 @@ internal static class EtecoonInstructionProgramDefinitionsVerification
             if (EtecoonAnimations.Programs.Steps(program)[^1] is not AnimationProgramStep<EtecoonProgram, EtecoonFrame, NoAnimationCue>.GoToStep last || last.Target != program)
                 continue;
             state.Program = AnimationProgramCursor<EtecoonProgram>.Start(program);
-            slot.InstructionTimer = NativeCountdown.Start(1);
+            slot.InstructionTimer = WrappingCountdown.Start(1);
             AssertEqual(EnemyInstructionRunner.ExpectedLoop(EtecoonAnimations.Programs, program, EtecoonFrameDefinitions.Spritemap),
                 EnemyInstructionRunner.ShownFrames(slot, EnemyInstructionRunner.LoopUpdates(EtecoonAnimations.Programs, program)),
                 $"Etecoon {program} loop");
@@ -43,7 +43,7 @@ internal static class EtecoonInstructionProgramDefinitionsVerification
             // Four six-pose flex cycles, then two held poses: 4 x 6 x 8 + 2 x 32 updates reach the final sleep.
             (RoomEnemySystem enemies, RoomEnemySlot slot, EtecoonEnemyState state) = NewEtecoon();
             state.Program = AnimationProgramCursor<EtecoonProgram>.Start(EtecoonProgram.Flexing);
-            slot.InstructionTimer = NativeCountdown.Start(1);
+            slot.InstructionTimer = WrappingCountdown.Start(1);
             _ = EnemyInstructionRunner.ShownFrames(slot, 4 * 6 * 8 + 2 * 32);
             AnimationProgramCursor<EtecoonProgram> held = state.Program;
             _ = EnemyInstructionRunner.ShownFrames(slot, 8);

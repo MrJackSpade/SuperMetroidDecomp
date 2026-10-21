@@ -65,7 +65,7 @@ internal sealed class DoorGamePhases(FrontendSession session)
     /// <summary>Runs one dispatch of <see cref="SuperMetroidGameState.LoadingNextRoomB"/>.</summary>
     internal void DispatchLoadingNextRoomB(SnesButton controllerInput)
     {
-        session.doorTransition.Step(session.GameplayRuntime, session.audio, controllerInput, session.DoorLoaderProgress,
+        session.doorTransition.Step(session.GameplayRuntime, session.audio, controllerInput, session.RoomLoadProgress,
             publishSoundWaitAudio: () => CollectDoorSoundWaitAudioRequests(session.GameplayRuntime));
         session.display.PublishGameplay(session.GameplayRuntime);
         if (session.doorTransition.Phase == DoorTransitionPhase.Complete)

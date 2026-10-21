@@ -7,13 +7,13 @@ using SuperMetroid.TestSupport.RepositoryInstallation;
 namespace SuperMetroid.Verification.Audio;
 
 /// <summary>Confirms the SPC command-port model and the semantic audio events reproduce the emulated driver (#1304).</summary>
-internal static class SpcCommandPortsVerification
+internal static class SoundAcceptanceClockVerification
 {
     /// <summary>Updates in the recorded queue scenario.</summary>
     private const int ScenarioFrames = 120;
 
     /// <summary>
-    /// Recorded from the emulated driver before <see cref="SpcCommandPorts"/> was extracted (#1304 stage 1):
+    /// Recorded from the emulated driver before <see cref="SoundAcceptanceClock"/> was extracted (#1304 stage 1):
     /// SHA-256 of the scenario's four acknowledgement bytes per update.
     /// </summary>
     private const string EmulatedAcknowledgementsSha256 =
@@ -38,16 +38,16 @@ internal static class SpcCommandPortsVerification
     /// the music downtime; and the acknowledgements and PCM must match the recording made before
     /// the extraction.
     /// </summary>
-    internal static void VerifySpcCommandPortsMatchEmulatedDriver()
+    internal static void VerifySoundAcceptanceClockMatchesEmulatedDriver()
     {
         var session = CartridgeAudioSessionAccess.CreateSynthesizing(RepositoryInstallation.Installation.LoadAudio());
         var rendered = new CartridgeAudioState();
-        var ports = new SpcCommandPorts();
+        SoundAcceptanceClock ports = new SoundAcceptanceClock();
         var modeled = new CartridgeAudioState();
         var acknowledgementBytes = new List<byte>();
         using var pcm = IncrementalHash.CreateHash(HashAlgorithmName.SHA256);
         var samples = new short[CartridgeAudioSession.PcmSamplesPerFrame];
-        CartridgeAudioAcknowledgements modeledAcknowledgements = default;
+        SoundAcknowledgements modeledAcknowledgements = default;
         var starts = new List<StartValue>();
         int uploadFrame = -1, trackFrame = -1, downtimeRequestFrame = -1;
         for (int frame = 0; frame < ScenarioFrames; frame++)
@@ -71,19 +71,15 @@ internal static class SpcCommandPortsVerification
             IReadOnlyList<AudioEvent> events = session.Advance(commands);
             session.CopyFrame(samples);
             pcm.AppendData(MemoryMarshal.AsBytes(samples.AsSpan()));
-            CartridgeAudioAcknowledgements sessionAcknowledgements = session.Acknowledgements;
+            SoundAcknowledgements sessionAcknowledgements = session.Acknowledgements;
             // Port zero is the sequencer's music echo, which gameplay never reads; the recording took it from the driver.
             acknowledgementBytes.Add(checked((byte)session.PlayerForVerification.Music.musicPortToSnes));
-            foreach (ApuPort port in ApuPorts.SoundLibraryPorts)
-                acknowledgementBytes.Add(checked((byte)sessionAcknowledgements[port]));
+            for (int library = 0; library < SoundAcceptanceClock.LibraryCount; library++)
+                acknowledgementBytes.Add(checked((byte)sessionAcknowledgements[library]));
 
             List<AudioEvent> expected = ExpectedEvents(ports, commands, out modeledAcknowledgements);
             AssertSequenceEqual(expected, events, $"frame {frame} events equal the port model's writes, ticks and polls");
-            foreach (ApuPort port in new[] { ApuPort.SoundLibrary1, ApuPort.SoundLibrary2, ApuPort.SoundLibrary3 })
-            {
-                AssertEqual(sessionAcknowledgements[port], modeledAcknowledgements[port],
-                    $"frame {frame} {port} acknowledgement");
-            }
+            AssertEqual(sessionAcknowledgements, modeledAcknowledgements, $"frame {frame} acknowledgements");
             starts.AddRange(events.OfType<AudioEvent.StartSoundEffect>()
                 .Select(audioEvent => new StartValue(frame, audioEvent)));
         }
@@ -99,11 +95,11 @@ internal static class SpcCommandPortsVerification
         // nothing until the dispatcher sends it once the eight downtime calls end.
         AssertSequenceEqual(new[]
             {
-                new VerifySpcCommandPortsMatchEmulatedDriverCase(3, SoundEffectLibrary1Sounds.MenuCursor),
-                new VerifySpcCommandPortsMatchEmulatedDriverCase(5, SoundEffectLibrary2Sounds.CancelAll),
-                new VerifySpcCommandPortsMatchEmulatedDriverCase(27, SoundEffectLibrary3Sounds.SpeedBoosterEcho),
-                new VerifySpcCommandPortsMatchEmulatedDriverCase(39, SoundEffectLibrary3Sounds.HardLanding),
-            }, starts.Select(start => new VerifySpcCommandPortsMatchEmulatedDriverCase(start.Frame, start.Start.SoundEffect)),
+                new SoundAcceptanceClockCase(3, SoundEffectLibrary1Sounds.MenuCursor),
+                new SoundAcceptanceClockCase(5, SoundEffectLibrary2Sounds.CancelAll),
+                new SoundAcceptanceClockCase(27, SoundEffectLibrary3Sounds.SpeedBoosterEcho),
+                new SoundAcceptanceClockCase(39, SoundEffectLibrary3Sounds.HardLanding),
+            }, starts.Select(start => new SoundAcceptanceClockCase(start.Frame, start.Start.SoundEffect)),
             "sound effects start only at the poll after the latch, and none during the music downtime");
         AssertTrue(!starts.Any(start => start.Frame > trackFrame && start.Frame <= trackFrame + AudioRomData.Queues.MusicAndSfxDowntimeFrames),
             "a request queued during the music downtime starts nothing until the downtime ends");
@@ -123,41 +119,39 @@ internal static class SpcCommandPortsVerification
     /// nonzero latched command). Port zero's music echo belongs to the sequencer, which this path
     /// does not run; the dispatcher reads only the three sound-effect ports.
     /// </summary>
-    private static List<AudioEvent> ExpectedEvents(SpcCommandPorts ports,
-        IReadOnlyList<CartridgeAudioCommand> commands, out CartridgeAudioAcknowledgements acknowledgements)
+    private static List<AudioEvent> ExpectedEvents(SoundAcceptanceClock ports,
+        IReadOnlyList<CartridgeAudioCommand> commands, out SoundAcknowledgements acknowledgements)
     {
         var expected = new List<AudioEvent>();
         foreach (CartridgeAudioCommand command in commands)
         {
             if (command is CartridgeAudioCommand.Upload upload)
             {
-                ports.ResetForUpload();
+                ports.PauseForMusicLoad();
                 expected.Add(new AudioEvent.LoadAudioBank(upload.Bank));
                 continue;
             }
             var write = AssertIs<CartridgeAudioCommand.WritePort>(command, "a cartridge audio command is an upload or a port write");
-            ports.WritePort(write.InputPort, write.Value);
             if (write.InputPort == ApuPort.Music)
                 expected.Add(new AudioEvent.WriteMusicPort(MusicCommand.FromCartridge(write.Value)));
+            else
+                ports.Request(ApuPorts.LibraryIndexAt(write.InputPort), write.Value);
         }
-        Span<SpcDriverTick> schedule = stackalloc SpcDriverTick[SpcCommandPorts.MaximumTicksPerFrame];
-        int ticks = ports.AdvanceFrame(schedule);
-        foreach (SpcDriverTick tick in schedule[..ticks])
+        Span<SoundClockStep> schedule = stackalloc SoundClockStep[SoundAcceptanceClock.MaximumStepsPerUpdate];
+        int ticks = ports.Advance(schedule);
+        foreach (SoundClockStep tick in schedule[..ticks])
         {
-            expected.Add(new AudioEvent.DriverTick(tick.DspCycleOffset, tick.Ticks, tick.SoundEffectsPolled));
-            if (!tick.SoundEffectsPolled)
+            expected.Add(new AudioEvent.DriverTick(tick.SampleOffset, tick.Steps, tick.ChecksRequests));
+            if (!tick.ChecksRequests)
                 continue;
             for (int library = 0; library < SoundEffectLibraries.Count; library++)
             {
-                SpcSoundEffectPoll poll = tick.LibraryPolls[library];
-                if (poll.Changed && poll.Command != 0)
-                    expected.Add(new AudioEvent.StartSoundEffect(new SoundEffectId(SoundEffectLibraries.FromQueueIndex(library), poll.Command), tick.DspCycleOffset));
+                SoundRequestCheck poll = tick.Checks[library];
+                if (poll.Changed && poll.Request != 0)
+                    expected.Add(new AudioEvent.StartSoundEffect(new SoundEffectId(SoundEffectLibraries.FromQueueIndex(library), poll.Request), tick.SampleOffset));
             }
         }
-        acknowledgements = new CartridgeAudioAcknowledgements(0,
-            ports.ReadSoundEffectPort(ApuPort.SoundLibrary1),
-            ports.ReadSoundEffectPort(ApuPort.SoundLibrary2),
-            ports.ReadSoundEffectPort(ApuPort.SoundLibrary3));
+        acknowledgements = ports.Acknowledgements;
         return expected;
     }
 

@@ -110,7 +110,7 @@ internal static class ProjectileInstructionsVerification
             trailSlot.Cursor = SamusProjectileProgramAddresses.CursorAt(entry);
             foreach (ushort timer in new ushort[] { 0, 1, 2, ushort.MaxValue })
             {
-                trailSlot.InstructionTimer = NativeCountdown.FromRaw(timer);
+                trailSlot.InstructionTimer = WrappingCountdown.FromRaw(timer);
                 trailSlot.AnimationFrame = 0xbeef;
                 AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(0x930000 | (entry - 2)), trailFrame(trailSlot), "Trail owner consumes the previous list word regardless of timer or cached frame");
                 AssertEqual(timer, trailSlot.InstructionTimer.RawValue, "Trail frame lookup leaves timer unchanged");
@@ -123,13 +123,13 @@ internal static class ProjectileInstructionsVerification
         int frames = 0;
         foreach (ushort entry in entries)
         {
-            var slot = new SamusProjectileSlot(0) { Cursor = SamusProjectileProgramAddresses.CursorAt(entry), InstructionTimer = NativeCountdown.Start(1), Damage = 30 };
-            var bomb = new SamusBombProjectileSlot(0) { Cursor = SamusProjectileProgramAddresses.CursorAt(entry), InstructionTimer = NativeCountdown.Start(1), Type = 0x0500, Damage = 30 };
+            var slot = new SamusProjectileSlot(0) { Cursor = SamusProjectileProgramAddresses.CursorAt(entry), InstructionTimer = WrappingCountdown.Start(1), Damage = 30 };
+            var bomb = new SamusBombProjectileSlot(0) { Cursor = SamusProjectileProgramAddresses.CursorAt(entry), InstructionTimer = WrappingCountdown.Start(1), Type = 0x0500, Damage = 30 };
             ushort timer = 1, pointer = entry, sprite = 0, x = 0, y = 0, trail = 0;
             for (int frame = 0; frame < 64; frame++)
             {
                 bool deleted = false;
-                timer = NativeWordCounter.Decrement(timer).Value;
+                timer = WrappingCounter.Decrement(timer).Value;
                 if (timer == 0)
                 {
                     int operations = 0;

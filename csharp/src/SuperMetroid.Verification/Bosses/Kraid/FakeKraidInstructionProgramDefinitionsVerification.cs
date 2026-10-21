@@ -109,11 +109,11 @@ internal static class FakeKraidInstructionProgramDefinitionsVerification
                 out SamusState samus,
                 out FakeKraidEnemyState state);
             state.Program = AnimationProgramCursor<FakeKraidProgram>.Start(program);
-            slot.InstructionTimer = NativeCountdown.Start(1);
+            slot.InstructionTimer = WrappingCountdown.Start(1);
             state.WalkDelta = walkDelta;
             state.FacingDelta = movingRight ? (short)4 : (short)-4;
-            state.WalkStepTimer = NativeCountdown.Start(0x0100);
-            state.SpitDecisionTimer = NativeCountdown.Start(0x0100);
+            state.WalkStepTimer = WrappingCountdown.Start(0x0100);
+            state.SpitDecisionTimer = WrappingCountdown.Start(0x0100);
 
             RunFrames(enemies, slot, samus, level, 60);
 
@@ -131,9 +131,9 @@ internal static class FakeKraidInstructionProgramDefinitionsVerification
                 out SamusState samus,
                 out FakeKraidEnemyState state);
             state.Program = AnimationProgramCursor<FakeKraidProgram>.Start(program);
-            slot.InstructionTimer = NativeCountdown.Start(1);
-            state.WalkStepTimer = NativeCountdown.Start(0x0100);
-            state.SpitDecisionTimer = NativeCountdown.Start(0x0100);
+            slot.InstructionTimer = WrappingCountdown.Start(1);
+            state.WalkStepTimer = WrappingCountdown.Start(0x0100);
+            state.SpitDecisionTimer = WrappingCountdown.Start(0x0100);
 
             RunFrames(enemies, slot, samus, level, 60);
 
@@ -153,11 +153,11 @@ internal static class FakeKraidInstructionProgramDefinitionsVerification
                 out SamusState samus,
                 out FakeKraidEnemyState state);
             state.Program = AnimationProgramCursor<FakeKraidProgram>.Start(program);
-            slot.InstructionTimer = NativeCountdown.Start(1);
+            slot.InstructionTimer = WrappingCountdown.Start(1);
             state.WalkDelta = walkDelta;
             state.FacingDelta = movingRight ? (short)4 : (short)-4;
-            state.WalkStepTimer = NativeCountdown.Start(1);
-            state.SpitDecisionTimer = NativeCountdown.Start(UnexpiredSpitDecisions);
+            state.WalkStepTimer = WrappingCountdown.Start(1);
+            state.SpitDecisionTimer = WrappingCountdown.Start(UnexpiredSpitDecisions);
             ushort startX = slot.Position.X.Whole;
 
             RunFrames(enemies, slot, samus, level, 60);
@@ -179,11 +179,11 @@ internal static class FakeKraidInstructionProgramDefinitionsVerification
                 out SamusState samus,
                 out FakeKraidEnemyState state);
             state.Program = AnimationProgramCursor<FakeKraidProgram>.Start(program);
-            slot.InstructionTimer = NativeCountdown.Start(1);
+            slot.InstructionTimer = WrappingCountdown.Start(1);
             state.WalkDelta = walkDelta;
             state.FacingDelta = movingRight ? (short)4 : (short)-4;
-            state.WalkStepTimer = NativeCountdown.Start(0);
-            state.SpitDecisionTimer = NativeCountdown.Start(UnexpiredSpitDecisions);
+            state.WalkStepTimer = WrappingCountdown.Start(0);
+            state.SpitDecisionTimer = WrappingCountdown.Start(UnexpiredSpitDecisions);
             ushort startX = slot.Position.X.Whole;
 
             RunFrames(enemies, slot, samus, level, 60);

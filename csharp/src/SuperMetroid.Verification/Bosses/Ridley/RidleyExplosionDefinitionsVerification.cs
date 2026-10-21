@@ -145,7 +145,7 @@ internal static class RidleyExplosionDefinitionsVerification
             body.Position = body.Position.WithWhole(new(0xfff8, 0x0008));
             var state = new RidleyEnemyState
             {
-                DeathExplosionTimer = NativeCountdown.Start(0),
+                DeathExplosionTimer = WrappingCountdown.Start(0),
                 DeathExplosionCount = (selectedIndex + 9) % 10,
             };
 

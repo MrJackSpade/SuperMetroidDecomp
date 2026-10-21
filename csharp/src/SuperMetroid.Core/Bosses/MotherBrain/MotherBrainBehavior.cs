@@ -279,7 +279,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
                 // `$A9:881D` installs the following countdown and falls through to it. The
                 // first observable value is therefore 63, not the host-friendly value 64.
                 state.Function = MotherBrainBodyFunction.FakeDeathDescentPauseBeforeLock;
-                state.FunctionTimer = NativeCountdown.Start(64);
+                state.FunctionTimer = WrappingCountdown.Start(64);
                 RunMotherBrainPauseBeforeLock(state, samus);
                 return;
 
@@ -293,7 +293,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
                 state.RequestMusic(MusicCommand.Stop, MusicCommandDelay.EightFrames);
                 state.RequestMusic(MusicCommand.LoadData(MotherBrainDeathRomData.FakeDeathMusicData), MusicCommandDelay.EightFrames);
                 state.Function = MotherBrainBodyFunction.FakeDeathDescentPauseBeforeUnlock;
-                state.FunctionTimer = NativeCountdown.Start(12);
+                state.FunctionTimer = WrappingCountdown.Start(12);
                 RunMotherBrainFakeDeath(state, samus);
                 return;
 
@@ -303,7 +303,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
                 // $A9:8874: Samus command one restores the normal handler pair.
                 samus?.Control.Unlock();
                 state.Function = MotherBrainBodyFunction.FakeDeathDescentPauseBeforeFlash;
-                state.FunctionTimer = NativeCountdown.Start(8);
+                state.FunctionTimer = WrappingCountdown.Start(8);
                 RunMotherBrainFakeDeath(state, samus);
                 return;
 
@@ -317,9 +317,9 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
                 state.RoomFlashTimer = 1;
                 _frameResults.MotherBrainFxEntry = 2;
                 state.TubeCollapseFunction = MotherBrainTubeCollapseFunction.WaitForFourFreeProjectileSlots;
-                state.TubeCollapseTimer = NativeCountdown.Start(0);
+                state.TubeCollapseTimer = WrappingCountdown.Start(0);
                 state.Function = MotherBrainBodyFunction.FakeDeathDescentFadeToGray;
-                state.FunctionTimer = NativeCountdown.Start(0);
+                state.FunctionTimer = WrappingCountdown.Start(0);
                 state.GrayFadeIndex = 0;
                 Access.RequestMotherBrainPlm(new(14, 2), PlmHeaderId.ClearMotherBrainCeilingBlock);
                 return;
@@ -493,7 +493,7 @@ internal sealed class MotherBrainBehavior : IEnemySpecies, IEnemyEntityFactory
         _room.Services.RoomScroll.Write(1, RoomScrollState.RedBoundary);
 
         state.Function = MotherBrainBodyFunction.FakeDeathDescentPauseBeforeMusic;
-        state.FunctionTimer = NativeCountdown.Start(32);
+        state.FunctionTimer = WrappingCountdown.Start(32);
         RunMotherBrainFakeDeath(state, samus);
     }
 

@@ -178,8 +178,8 @@ internal sealed class CacatacBehavior : IEnemySpecies, IEnemyEntityFactory
     internal static void SetCacatacProgram(RoomEnemySlot slot, CacatacEnemyState state, CacatacProgram program)
     {
         state.Program = AnimationProgramCursor<CacatacProgram>.Start(program);
-        slot.InstructionTimer = NativeCountdown.Start(1);
-        slot.Timer = NativeCountdown.Start(0);
+        slot.InstructionTimer = WrappingCountdown.Start(1);
+        slot.Timer = WrappingCountdown.Start(0);
     }
 
     /// <summary>Registers the spike's ten direction-table movers and viewport cull.</summary>

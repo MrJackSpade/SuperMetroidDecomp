@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Compatibility;
 using SuperMetroid.Core.Audio;
 using SuperMetroid.Core;
 namespace SuperMetroid.AssetExtraction.Audio.Synthesis;
@@ -5,7 +6,7 @@ namespace SuperMetroid.AssetExtraction.Audio.Synthesis;
 /// <summary>
 /// The emulated SPC sequencer and S-DSP driven by the session's audio events (#1304): it installs
 /// extracted banks, latches music commands, and runs the translated driver at the tick offsets
-/// and sound-effect starts the session's <see cref="SpcCommandPorts"/> published. One owner must
+/// and sound-effect starts the session's <see cref="SoundAcceptanceClock"/> published. One owner must
 /// call it in update order.
 /// </summary>
 public sealed class ManagedSpcAudioBackend
@@ -13,7 +14,7 @@ public sealed class ManagedSpcAudioBackend
     /// <summary>Decoded cartridge uploads, instruments, music, sound programs, and sample banks.</summary>
     private readonly ExtractedAudioAssetCatalog assets;
     /// <summary>Reusable driver schedule rebuilt from each update's tick events.</summary>
-    private readonly SpcDriverTick[] schedule = new SpcDriverTick[SpcCommandPorts.MaximumTicksPerFrame];
+    private readonly SoundClockStep[] schedule = new SoundClockStep[SoundAcceptanceClock.MaximumStepsPerUpdate];
 
     /// <summary>Creates the backend over a catalog, continuing an existing player or creating a new one.</summary>
     /// <param name="assets">Upload, instrument, music, sound-program, and sample definitions installed by bank loads.</param>
@@ -39,7 +40,7 @@ public sealed class ManagedSpcAudioBackend
         Player.AdvanceSequencer(Schedule(frame));
 
     /// <summary>Applies the update's bank loads and music commands, and builds its driver schedule with each sound-effect start at its poll.</summary>
-    private ReadOnlySpan<SpcDriverTick> Schedule(in AudioFrameEvents frame)
+    private ReadOnlySpan<SoundClockStep> Schedule(in AudioFrameEvents frame)
     {
         IReadOnlyList<AudioEvent> events = Ensure.NotNull(frame.Events);
         int ticks = 0;
@@ -58,12 +59,12 @@ public sealed class ManagedSpcAudioBackend
                 case AudioEvent.DriverTick driverTick:
                     if (ticks == schedule.Length)
                         throw new InvalidDataException($"An update holds more than {schedule.Length} driver ticks.");
-                    schedule[ticks++] = new SpcDriverTick(driverTick.DspCycleOffset, driverTick.Ticks,
+                    schedule[ticks++] = new SoundClockStep(driverTick.DspCycleOffset, driverTick.Ticks,
                         driverTick.SoundEffectsPolled, default);
                     break;
                 case AudioEvent.StartSoundEffect startSoundEffect:
-                    if (ticks == 0 || !schedule[ticks - 1].SoundEffectsPolled ||
-                        schedule[ticks - 1].DspCycleOffset != startSoundEffect.DspCycleOffset)
+                    if (ticks == 0 || !schedule[ticks - 1].ChecksRequests ||
+                        schedule[ticks - 1].SampleOffset != startSoundEffect.DspCycleOffset)
                         throw new InvalidDataException($"{audioEvent} does not follow its polling driver tick.");
                     schedule[ticks - 1] = StartAt(schedule[ticks - 1], startSoundEffect.SoundEffect);
                     break;
@@ -92,11 +93,11 @@ public sealed class ManagedSpcAudioBackend
     }
 
     /// <summary>Marks <paramref name="soundEffect"/>'s library as acting on a changed request at <paramref name="tick"/>'s poll.</summary>
-    private static SpcDriverTick StartAt(SpcDriverTick tick, SoundEffectId soundEffect)
+    private static SoundClockStep StartAt(SoundClockStep tick, SoundEffectId soundEffect)
     {
-        var start = new SpcSoundEffectPoll(soundEffect.Value, Changed: true);
-        SoundLibraryPolls polls = tick.LibraryPolls;
+        SoundRequestCheck start = new SoundRequestCheck(soundEffect.Value, Changed: true);
+        SoundRequestChecks polls = tick.Checks;
         polls[SoundEffectLibraries.ToQueueIndex(soundEffect.Library)] = start;
-        return tick with { LibraryPolls = polls };
+        return tick with { Checks = polls };
     }
 }

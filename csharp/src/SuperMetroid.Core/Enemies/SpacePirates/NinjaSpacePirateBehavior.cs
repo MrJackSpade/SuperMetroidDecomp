@@ -627,7 +627,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
                 state.ActiveProgram = unchecked((short)(slot.Position.X.Whole - samus.Position.X.Whole)) < 0
                     ? NinjaSpacePirateProgram.ActiveFacingRight
                     : NinjaSpacePirateProgram.ActiveFacingLeft;
-                slot.InstructionTimer = NativeCountdown.Start(1);
+                slot.InstructionTimer = WrappingCountdown.Start(1);
                 // The native instruction returns the selected list, not its next word.
                 // Re-entering that list runs its function cue and restores decision AI
                 // after the idle animation explicitly installed the no-op function.
@@ -653,7 +653,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
         NinjaSpacePirateProgram program)
     {
         state.Program = AnimationProgramCursor<NinjaSpacePirateProgram>.Start(program);
-        slot.InstructionTimer = NativeCountdown.Start(1);
+        slot.InstructionTimer = WrappingCountdown.Start(1);
     }
 
     /// <summary>Binds both claw directions to the same outbound-and-return pre-instruction.</summary>

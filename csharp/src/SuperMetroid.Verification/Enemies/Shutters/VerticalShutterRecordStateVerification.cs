@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Shutters;
 namespace SuperMetroid.Verification.Enemies.Shutters;
@@ -19,13 +18,13 @@ internal static class VerticalShutterRecordStateVerification
         var state = new VerticalShutterEnemyState();
         slot.SetSpeciesState(state, state.ClearWithRecord);
         state.Function = Enum.GetValues<VerticalShutterFunction>()[^1];
-        state.FunctionTimer = NativeCountdown.Start(1);
+        state.FunctionTimer = WrappingCountdown.Start(1);
         state.DownVelocity = SnesSignedSixteenSixteen.FromParts(1, 0);
         state.UpVelocity = SnesSignedSixteenSixteen.FromParts(1, 0);
 
         slot.Clear();
         AssertEqual<VerticalShutterFunction?>(null, state.Function, "a kill empties Function");
-        AssertEqual<NativeCountdown>(NativeCountdown.Start(0), state.FunctionTimer, "a kill empties FunctionTimer");
+        AssertEqual<WrappingCountdown>(WrappingCountdown.Start(0), state.FunctionTimer, "a kill empties FunctionTimer");
         AssertEqual<SnesSignedSixteenSixteen>(SnesSignedSixteenSixteen.Zero, state.DownVelocity, "a kill empties DownVelocity");
         AssertEqual<SnesSignedSixteenSixteen>(SnesSignedSixteenSixteen.Zero, state.UpVelocity, "a kill empties UpVelocity");
         Console.WriteLine("VerticalShutter record state: a kill empties every value the record holds.");

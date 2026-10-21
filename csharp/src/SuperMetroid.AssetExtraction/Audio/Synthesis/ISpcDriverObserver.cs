@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Compatibility;
 using SuperMetroid.Core.Audio;
 namespace SuperMetroid.AssetExtraction.Audio.Synthesis;
 
@@ -9,7 +10,7 @@ namespace SuperMetroid.AssetExtraction.Audio.Synthesis;
 internal interface ISpcDriverObserver
 {
     /// <summary>Called before the driver services <paramref name="tick"/>.</summary>
-    void TickStarting(SpcDriverTick tick);
+    void TickStarting(SoundClockStep tick);
 
     /// <summary>Called when the music sequencer is about to read its next top-level record (the native NextPhrase).</summary>
     void PhraseStarting();

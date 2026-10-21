@@ -48,7 +48,7 @@ internal sealed class ScrollPlms : IPlmFamilySource
             {
                 scroll.Triggered = true;
                 slot.RestoreLevelWord = new RoomLevelWord(0).WithCollisionType(RoomCollisionType.SolidBlock).Raw;
-                slot.InstructionTimer = NativeCountdown.Start(1);
+                slot.InstructionTimer = WrappingCountdown.Start(1);
             }
             return true;
         }

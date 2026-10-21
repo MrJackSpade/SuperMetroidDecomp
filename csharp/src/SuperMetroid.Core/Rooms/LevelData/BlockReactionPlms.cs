@@ -43,7 +43,7 @@ internal sealed class BlockReactionPlms
         slot.StartAnimation(new BlockReactionPlmAnimation(bts.GrappleReactionIndex == 1
             ? BlockReactionPlmProgram.RespawningBreakableGrappleBlock
             : BlockReactionPlmProgram.PermanentBreakableGrappleBlock));
-        slot.InstructionTimer = NativeCountdown.Start(1);
+        slot.InstructionTimer = WrappingCountdown.Start(1);
 
         // Setup_CFB5 saves the complete original level word but clears only the low BTS
         // byte. It deliberately leaves collision type E intact until the first PLM pass
@@ -81,7 +81,7 @@ internal sealed class BlockReactionPlms
         slot.RestoreLevelWord = new RoomLevelWord(RoomPlmVisualBlockDefinitions.CollisionBombParent)
             .WithCollisionType(block.CollisionType).Raw;
         slot.StartAnimation(new BlockReactionPlmAnimation(BlockReactionPlmPrograms.CollisionBomb(bts.NormalReactionIndex)));
-        slot.InstructionTimer = NativeCountdown.Start(1);
+        slot.InstructionTimer = WrappingCountdown.Start(1);
         level.SetForegroundEntry(blockIndex, RoomPlmVisualBlockDefinitions.CollisionBombParent);
         return true;
     }
@@ -122,7 +122,7 @@ internal sealed class BlockReactionPlms
             .WithVisualBlockIndex(RoomPlmVisualBlockDefinitions.ContactCrumbleParent);
         slot.RestoreLevelWord = restoreWord.Raw;
         slot.StartAnimation(new BlockReactionPlmAnimation(BlockReactionPlmPrograms.ContactCrumble(bts.NormalReactionIndex)));
-        slot.InstructionTimer = NativeCountdown.Start(4);
+        slot.InstructionTimer = WrappingCountdown.Start(4);
         level.SetForegroundEntry(
             blockIndex,
             restoreWord.WithCollisionType(RoomCollisionType.SolidBlock).Raw);
@@ -179,7 +179,7 @@ internal sealed class BlockReactionPlms
             .WithVisualBlockIndex(RoomPlmVisualBlockDefinitions.SpeedBoosterParent)
             .Raw;
         slot.StartAnimation(new SpeedBoosterBlockPlmAnimation(definition.Program));
-        slot.InstructionTimer = NativeCountdown.Start(1);
+        slot.InstructionTimer = WrappingCountdown.Start(1);
         level.SetForegroundEntry(
             blockIndex,
             slot.RestoreLevelWord
@@ -218,7 +218,7 @@ internal sealed class BlockReactionPlms
 
         RoomCollisionBlock block = level.GetCollisionBlockByIndex(blockIndex);
         slot.BlockIndex = blockIndex;
-        slot.InstructionTimer = NativeCountdown.Start(1);
+        slot.InstructionTimer = WrappingCountdown.Start(1);
 
         if (!bts.IsNormalReactionIndex(8))
         {
@@ -297,7 +297,7 @@ internal sealed class BlockReactionPlms
 
         RoomCollisionBlock block = level.GetCollisionBlockByIndex(blockIndex);
         slot.BlockIndex = blockIndex;
-        slot.InstructionTimer = NativeCountdown.Start(1);
+        slot.InstructionTimer = WrappingCountdown.Start(1);
         slot.RestoreLevelWord = 0;
 
         if (areaDependent)
@@ -441,7 +441,7 @@ internal sealed class BlockReactionPlms
         slot.BlockIndex = blockIndex;
         slot.RestoreLevelWord = 0;
         program.StartOn(slot);
-        slot.InstructionTimer = NativeCountdown.Start(1);
+        slot.InstructionTimer = WrappingCountdown.Start(1);
         return true;
     }
 }

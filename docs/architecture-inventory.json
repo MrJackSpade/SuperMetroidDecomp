@@ -9772,19 +9772,6 @@
       "disposition": "value"
     },
     {
-      "type": "SuperMetroid.Core.Audio.ApuPortEchoes",
-      "kind": "struct",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Audio/ApuPortEchoes.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
       "type": "SuperMetroid.Core.Audio.ApuPorts",
       "kind": "static class",
       "scope": "product",
@@ -9980,19 +9967,6 @@
       "disposition": "definition-catalog"
     },
     {
-      "type": "SuperMetroid.Core.Audio.AudioRomData.Apu",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Audio/AudioRomData.cs"
-      ],
-      "partial": "none",
-      "disposition": "definition-catalog"
-    },
-    {
       "type": "SuperMetroid.Core.Audio.AudioRomData.Assets",
       "kind": "static class",
       "scope": "product",
@@ -10045,38 +10019,6 @@
       "disposition": "definition-catalog"
     },
     {
-      "type": "SuperMetroid.Core.Audio.AudioRomDataApuConstants",
-      "kind": "static class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.DesktopVerification",
-        "SuperMetroid.IntegrationVerification",
-        "SuperMetroid.RenderVerification",
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/test-support/VerificationAccess.Core/Audio/AudioRomDataApuConstants.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Core.Audio.AudioRomDataApuConstants.extension(SuperMetroid.Core.Audio.AudioRomData.Apu)",
-      "kind": "class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.DesktopVerification",
-        "SuperMetroid.IntegrationVerification",
-        "SuperMetroid.RenderVerification",
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/test-support/VerificationAccess.Core/Audio/AudioRomDataApuConstants.cs"
-      ],
-      "partial": "none",
-      "disposition": "stateless"
-    },
-    {
       "type": "SuperMetroid.Core.Audio.AudioRomDataMusicTracks",
       "kind": "static class",
       "scope": "test",
@@ -10117,19 +10059,6 @@
       ],
       "partial": "none",
       "disposition": "record"
-    },
-    {
-      "type": "SuperMetroid.Core.Audio.CartridgeAudioAcknowledgements",
-      "kind": "record struct",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Audio/CartridgeAudioAcknowledgements.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Core.Audio.CartridgeAudioCommand",
@@ -10394,19 +10323,6 @@
       "disposition": "stateless"
     },
     {
-      "type": "SuperMetroid.Core.Audio.ISoundAcknowledgementSource",
-      "kind": "interface",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Audio/ISoundAcknowledgementSource.cs"
-      ],
-      "partial": "none",
-      "disposition": "contract"
-    },
-    {
       "type": "SuperMetroid.Core.Audio.LowHealthModeEffect",
       "kind": "enum",
       "scope": "product",
@@ -10479,19 +10395,6 @@
       ],
       "files": [
         "csharp/test-support/VerificationAccess.Core/Audio/ManagedSpcPlayerAccess.cs"
-      ],
-      "partial": "none",
-      "disposition": "stateless"
-    },
-    {
-      "type": "SuperMetroid.Core.Audio.ModeledSoundAcknowledgements",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Audio/ModeledSoundAcknowledgements.cs"
       ],
       "partial": "none",
       "disposition": "stateless"
@@ -11089,19 +10992,6 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Audio.SoundLibraryPolls",
-      "kind": "struct",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Audio/SoundLibraryPolls.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
       "type": "SuperMetroid.Core.Audio.SoundQueueState",
       "kind": "record struct",
       "scope": "test",
@@ -11129,19 +11019,6 @@
       ],
       "partial": "none",
       "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.Core.Audio.SpcCommandPorts",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Audio/SpcCommandPorts.cs"
-      ],
-      "partial": "none",
-      "disposition": "owner"
     },
     {
       "type": "SuperMetroid.Core.Audio.SpcDriverDefinitionsRamConstants",
@@ -11174,19 +11051,6 @@
       ],
       "partial": "none",
       "disposition": "stateless"
-    },
-    {
-      "type": "SuperMetroid.Core.Audio.SpcDriverTick",
-      "kind": "record struct",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Audio/SpcDriverTick.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Core.Audio.SpcMemoryAccessAttribute",
@@ -11258,19 +11122,6 @@
       ],
       "partial": "none",
       "disposition": "definition-catalog"
-    },
-    {
-      "type": "SuperMetroid.Core.Audio.SpcSoundEffectPoll",
-      "kind": "record struct",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Audio/SpcSoundEffectPoll.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Core.Audio.SynthesizerHostRateAccess",
@@ -11369,19 +11220,6 @@
       "disposition": "owner"
     },
     {
-      "type": "SuperMetroid.Core.Audio.TickAccumulator",
-      "kind": "record struct",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Audio/TickAccumulator.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
       "type": "SuperMetroid.Core.Audio.TickAccumulatorConstants",
       "kind": "static class",
       "scope": "test",
@@ -11396,19 +11234,6 @@
       ],
       "partial": "none",
       "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Core.Audio.TickAdvance",
-      "kind": "record struct",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Audio/TickAdvance.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Core.Audio.UnrenderableSoundEffect",
@@ -28567,6 +28392,362 @@
       ],
       "partial": "none",
       "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Compatibility.ClockedSoundAcknowledgements",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Compatibility/ClockedSoundAcknowledgements.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
+    },
+    {
+      "type": "SuperMetroid.Core.Compatibility.CompatibilityServiceAttribute",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Compatibility/CompatibilityServiceAttribute.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
+    },
+    {
+      "type": "SuperMetroid.Core.Compatibility.CountdownStep",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Compatibility/CountdownStep.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Compatibility.CountdownStepAccess",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Compatibility/CountdownStepAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Compatibility.CountdownStepAccess.extension(SuperMetroid.Core.Compatibility.CountdownStep)",
+      "kind": "class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Compatibility/CountdownStepAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
+    },
+    {
+      "type": "SuperMetroid.Core.Compatibility.IDoorMusicLoadFrames",
+      "kind": "interface",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Compatibility/IDoorMusicLoadFrames.cs"
+      ],
+      "partial": "none",
+      "disposition": "contract"
+    },
+    {
+      "type": "SuperMetroid.Core.Compatibility.IRoomLoadProgress",
+      "kind": "interface",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Compatibility/IRoomLoadProgress.cs"
+      ],
+      "partial": "none",
+      "disposition": "contract"
+    },
+    {
+      "type": "SuperMetroid.Core.Compatibility.ISoundAcknowledgementTiming",
+      "kind": "interface",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Compatibility/ISoundAcknowledgementTiming.cs"
+      ],
+      "partial": "none",
+      "disposition": "contract"
+    },
+    {
+      "type": "SuperMetroid.Core.Compatibility.InstantDoorMusicLoad",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Compatibility/InstantDoorMusicLoad.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
+    },
+    {
+      "type": "SuperMetroid.Core.Compatibility.InstantRoomLoad",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Compatibility/InstantRoomLoad.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
+    },
+    {
+      "type": "SuperMetroid.Core.Compatibility.LowByteCountdownStep",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Compatibility/LowByteCountdownStep.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Compatibility.LowByteCountdownStepAccess",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Compatibility/LowByteCountdownStepAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Compatibility.LowByteCountdownStepAccess.extension(SuperMetroid.Core.Compatibility.LowByteCountdownStep)",
+      "kind": "class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Compatibility/LowByteCountdownStepAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
+    },
+    {
+      "type": "SuperMetroid.Core.Compatibility.SoundAcceptanceClock",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Compatibility/SoundAcceptanceClock.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Core.Compatibility.SoundAcceptanceClock.PerLibrary",
+      "kind": "struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Compatibility/SoundAcceptanceClock.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Compatibility.SoundAcknowledgements",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Compatibility/SoundAcknowledgements.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Compatibility.SoundAcknowledgements.PerLibrary",
+      "kind": "struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Compatibility/SoundAcknowledgements.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Compatibility.SoundClockStep",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Compatibility/SoundClockStep.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Compatibility.SoundRequestCheck",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Compatibility/SoundRequestCheck.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Compatibility.SoundRequestChecks",
+      "kind": "struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Compatibility/SoundRequestChecks.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Compatibility.TickAccumulator",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Compatibility/TickAccumulator.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Compatibility.TickAdvance",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Compatibility/TickAdvance.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Compatibility.WrappingCountdown",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Compatibility/WrappingCountdown.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Core.Compatibility.WrappingCounter",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Compatibility/WrappingCounter.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Compatibility.WrappingCounterAccess",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Compatibility/WrappingCounterAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.Core.Compatibility.WrappingCounterAccess.extension(SuperMetroid.Core.Compatibility.WrappingCounter)",
+      "kind": "class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.DesktopVerification",
+        "SuperMetroid.IntegrationVerification",
+        "SuperMetroid.RenderVerification",
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/test-support/VerificationAccess.Core/Compatibility/WrappingCounterAccess.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
     },
     {
       "type": "SuperMetroid.Core.CoreAccess",
@@ -74806,154 +74987,6 @@
       "disposition": "definition-catalog"
     },
     {
-      "type": "SuperMetroid.Core.Hardware.NativeCountdown",
-      "kind": "record struct",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Hardware/NativeCountdown.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.Core.Hardware.NativeLowByteCounterStep",
-      "kind": "record struct",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Hardware/NativeLowByteCounterStep.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.Core.Hardware.NativeLowByteCounterStepAccess",
-      "kind": "static class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.DesktopVerification",
-        "SuperMetroid.IntegrationVerification",
-        "SuperMetroid.RenderVerification",
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/test-support/VerificationAccess.Core/Hardware/NativeLowByteCounterStepAccess.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Core.Hardware.NativeLowByteCounterStepAccess.extension(SuperMetroid.Core.Hardware.NativeLowByteCounterStep)",
-      "kind": "class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.DesktopVerification",
-        "SuperMetroid.IntegrationVerification",
-        "SuperMetroid.RenderVerification",
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/test-support/VerificationAccess.Core/Hardware/NativeLowByteCounterStepAccess.cs"
-      ],
-      "partial": "none",
-      "disposition": "stateless"
-    },
-    {
-      "type": "SuperMetroid.Core.Hardware.NativeWordCounter",
-      "kind": "static class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Hardware/NativeWordCounter.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Core.Hardware.NativeWordCounterAccess",
-      "kind": "static class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.DesktopVerification",
-        "SuperMetroid.IntegrationVerification",
-        "SuperMetroid.RenderVerification",
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/test-support/VerificationAccess.Core/Hardware/NativeWordCounterAccess.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Core.Hardware.NativeWordCounterAccess.extension(SuperMetroid.Core.Hardware.NativeWordCounter)",
-      "kind": "class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.DesktopVerification",
-        "SuperMetroid.IntegrationVerification",
-        "SuperMetroid.RenderVerification",
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/test-support/VerificationAccess.Core/Hardware/NativeWordCounterAccess.cs"
-      ],
-      "partial": "none",
-      "disposition": "stateless"
-    },
-    {
-      "type": "SuperMetroid.Core.Hardware.NativeWordCounterStep",
-      "kind": "record struct",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Hardware/NativeWordCounterStep.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.Core.Hardware.NativeWordCounterStepAccess",
-      "kind": "static class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.DesktopVerification",
-        "SuperMetroid.IntegrationVerification",
-        "SuperMetroid.RenderVerification",
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/test-support/VerificationAccess.Core/Hardware/NativeWordCounterStepAccess.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Core.Hardware.NativeWordCounterStepAccess.extension(SuperMetroid.Core.Hardware.NativeWordCounterStep)",
-      "kind": "class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.DesktopVerification",
-        "SuperMetroid.IntegrationVerification",
-        "SuperMetroid.RenderVerification",
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/test-support/VerificationAccess.Core/Hardware/NativeWordCounterStepAccess.cs"
-      ],
-      "partial": "none",
-      "disposition": "stateless"
-    },
-    {
       "type": "SuperMetroid.Core.Hardware.OamBuffer",
       "kind": "class",
       "scope": "test",
@@ -83236,32 +83269,6 @@
       "disposition": "value"
     },
     {
-      "type": "SuperMetroid.Core.Rooms.Doors.IDoorLoaderProgressSource",
-      "kind": "interface",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Rooms/Doors/IDoorLoaderProgressSource.cs"
-      ],
-      "partial": "none",
-      "disposition": "contract"
-    },
-    {
-      "type": "SuperMetroid.Core.Rooms.Doors.IDoorMusicUploadNmiSource",
-      "kind": "interface",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Rooms/Doors/IDoorMusicUploadNmiSource.cs"
-      ],
-      "partial": "none",
-      "disposition": "contract"
-    },
-    {
       "type": "SuperMetroid.Core.Rooms.Doors.IEyeDoorProjectileSpawner",
       "kind": "interface",
       "scope": "product",
@@ -83286,32 +83293,6 @@
       ],
       "partial": "none",
       "disposition": "contract"
-    },
-    {
-      "type": "SuperMetroid.Core.Rooms.Doors.LagFreeDoorLoaderProgress",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Rooms/Doors/LagFreeDoorLoaderProgress.cs"
-      ],
-      "partial": "none",
-      "disposition": "stateless"
-    },
-    {
-      "type": "SuperMetroid.Core.Rooms.Doors.LagFreeDoorMusicUploadNmis",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Rooms/Doors/LagFreeDoorMusicUploadNmis.cs"
-      ],
-      "partial": "none",
-      "disposition": "stateless"
     },
     {
       "type": "SuperMetroid.Core.Rooms.Doors.MaridiaDoorDefinitions",
@@ -107028,6 +107009,32 @@
       "disposition": "value"
     },
     {
+      "type": "SuperMetroid.EnsureAnalyzer.Contracts.CompatibilityServiceAnalyzer",
+      "kind": "class",
+      "scope": "tool",
+      "assemblies": [
+        "SuperMetroid.EnsureAnalyzer"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.EnsureAnalyzer/Contracts/CompatibilityServiceAnalyzer.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
+    },
+    {
+      "type": "SuperMetroid.EnsureAnalyzer.Contracts.CoreVocabularyAnalyzer",
+      "kind": "class",
+      "scope": "tool",
+      "assemblies": [
+        "SuperMetroid.EnsureAnalyzer"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.EnsureAnalyzer/Contracts/CoreVocabularyAnalyzer.cs"
+      ],
+      "partial": "none",
+      "disposition": "stateless"
+    },
+    {
       "type": "SuperMetroid.EnsureAnalyzer.Contracts.DomainSite",
       "kind": "record struct",
       "scope": "tool",
@@ -108079,6 +108086,32 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.EnsureVerification/Contracts/AdapterChainAnalyzerTests.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.EnsureVerification.Contracts.CompatibilityServiceAnalyzerTests",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.EnsureVerification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.EnsureVerification/Contracts/CompatibilityServiceAnalyzerTests.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
+      "type": "SuperMetroid.EnsureVerification.Contracts.CoreVocabularyAnalyzerTests",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.EnsureVerification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.EnsureVerification/Contracts/CoreVocabularyAnalyzerTests.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
@@ -115142,6 +115175,32 @@
       "disposition": "static-functions"
     },
     {
+      "type": "SuperMetroid.Verification.Audio.SoundAcceptanceClockCase",
+      "kind": "record struct",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Audio/SoundAcceptanceClockCase.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
+    },
+    {
+      "type": "SuperMetroid.Verification.Audio.SoundAcceptanceClockVerification",
+      "kind": "static class",
+      "scope": "test",
+      "assemblies": [
+        "SuperMetroid.Verification"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Verification/Audio/SoundAcceptanceClockVerification.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.Verification.Audio.SoundQueueReturnVerification",
       "kind": "static class",
       "scope": "test",
@@ -115163,19 +115222,6 @@
       ],
       "files": [
         "csharp/src/SuperMetroid.Verification/Audio/SpcAllocationAddressesVerification.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Verification.Audio.SpcCommandPortsVerification",
-      "kind": "static class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Verification/Audio/SpcCommandPortsVerification.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
@@ -115335,19 +115381,6 @@
       ],
       "partial": "none",
       "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Verification.Audio.VerifySpcCommandPortsMatchEmulatedDriverCase",
-      "kind": "record struct",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Verification/Audio/VerifySpcCommandPortsMatchEmulatedDriverCase.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Verification.Bosses.BossDisplayBindingsClippingVerification",
@@ -135890,27 +135923,27 @@
       "disposition": "value"
     },
     {
-      "type": "SuperMetroid.Verification.Harness.EvidencedDoorLoaderProgress",
+      "type": "SuperMetroid.Verification.Harness.EvidencedDoorMusicLoadFrames",
       "kind": "class",
       "scope": "test",
       "assemblies": [
         "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Verification/Harness/EvidencedDoorLoaderProgress.cs"
+        "csharp/src/SuperMetroid.Verification/Harness/EvidencedDoorMusicLoadFrames.cs"
       ],
       "partial": "none",
       "disposition": "owner"
     },
     {
-      "type": "SuperMetroid.Verification.Harness.EvidencedDoorMusicUploadNmis",
+      "type": "SuperMetroid.Verification.Harness.EvidencedRoomLoadProgress",
       "kind": "class",
       "scope": "test",
       "assemblies": [
         "SuperMetroid.Verification"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Verification/Harness/EvidencedDoorMusicUploadNmis.cs"
+        "csharp/src/SuperMetroid.Verification/Harness/EvidencedRoomLoadProgress.cs"
       ],
       "partial": "none",
       "disposition": "owner"

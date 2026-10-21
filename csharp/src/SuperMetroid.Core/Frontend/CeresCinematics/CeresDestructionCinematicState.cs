@@ -107,7 +107,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
     /// <summary>Cycles the authored offsets for repeating small explosions.</summary>
     private int explosionOffsetIndex;
     /// <summary>Countdown carried between repeating explosion spawn calls; it fires on reaching zero or below.</summary>
-    private NativeCountdown explosionRepeatCountdown;
+    private WrappingCountdown explosionRepeatCountdown;
     /// <summary>Selects Mode 7 or the planet-reveal Mode 1 tilemap path.</summary>
     private bool usesMode7 = true;
     /// <summary>Controls whether BG1 is inserted between OBJ priorities during Mode-7 rendering.</summary>
@@ -243,7 +243,7 @@ internal sealed class CeresDestructionCinematicState : IFrontendScreen
                 StepSlowFadeIn();
                 if (brightness == 15)
                 {
-                    explosionRepeatCountdown = NativeCountdown.Start(CeresExplosionDefinitions.RepeatingCountdownSeed);
+                    explosionRepeatCountdown = WrappingCountdown.Start(CeresExplosionDefinitions.RepeatingCountdownSeed);
                     Phase = CeresDestructionPhase.ApproachExplosion;
                 }
                 break;

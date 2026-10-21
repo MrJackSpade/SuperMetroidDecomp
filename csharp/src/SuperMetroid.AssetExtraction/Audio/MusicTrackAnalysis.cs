@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Compatibility;
 using SuperMetroid.Core.Audio;
 using SuperMetroid.AssetExtraction.Audio.Synthesis;
 
@@ -77,8 +78,8 @@ internal sealed record MusicTrackAnalysis(
     }
 
     /// <summary>The native sample position of <paramref name="tick"/> in the renderer's current frame.</summary>
-    internal static long NativeSample(SpcAudioClipRenderer renderer, SpcDriverTick tick) =>
-        (renderer.Frame - 1) * ManagedSnesDsp.NativeStereoFramesPerVideoFrame + tick.DspCycleOffset;
+    internal static long NativeSample(SpcAudioClipRenderer renderer, SoundClockStep tick) =>
+        (renderer.Frame - 1) * ManagedSnesDsp.NativeStereoFramesPerVideoFrame + tick.SampleOffset;
 
     /// <summary>The attached renderer; observers are attached before the first frame.</summary>
     internal static SpcAudioClipRenderer Required(SpcAudioClipRenderer? renderer) =>
@@ -113,7 +114,7 @@ internal sealed record MusicTrackAnalysis(
         internal void Attach(SpcAudioClipRenderer value) => renderer = value;
 
         /// <inheritdoc />
-        public void TickStarting(SpcDriverTick tick) =>
+        public void TickStarting(SoundClockStep tick) =>
             tickSample = NativeSample(Required(renderer), tick);
 
         /// <inheritdoc />

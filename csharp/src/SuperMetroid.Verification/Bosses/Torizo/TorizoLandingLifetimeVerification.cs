@@ -1,7 +1,6 @@
 using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Frontend;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Bosses.Torizo;
 using SuperMetroid.Core.Enemies;
@@ -34,7 +33,7 @@ internal static class TorizoLandingLifetimeVerification
         state.Function=TorizoFunction.Active;state.PreInstruction=TorizoPreInstruction.Jump;state.ReturnCursor=AnimationProgramCursor<TorizoBodyProgram>.Start(TorizoBodyProgram.FacingLeftFalling2);
         state.Velocity=new EightEightVector<RoomPixels>(0,0x400);state.JumpAcceleration=new EightEightVector<RoomPixels>(0,40);
         body.Health=body.Definition.Health;state.Posture=TorizoPostureFlags.None;state.PostureParameterLowBits=0;state.Behavior=0;
-        body.Properties=EnemyPropertyWord.FromNativeWord(0x2000);state.BodyProgram=AnimationProgramCursor<TorizoBodyProgram>.Start(TorizoBodyProgram.FacingLeftFalling1);body.InstructionTimer=NativeCountdown.Start(5);
+        body.Properties=EnemyPropertyWord.FromNativeWord(0x2000);state.BodyProgram=AnimationProgramCursor<TorizoBodyProgram>.Start(TorizoBodyProgram.FacingLeftFalling1);body.InstructionTimer=WrappingCountdown.Start(5);
         body.Position = body.Position.WithWhole(new(128, (ushort)(190-body.Radius.Y)));
         var words=new ushort[256];for(int i=12*16;i<13*16;i++)words[i]=0x8000;
         var level=new RoomLevelData(new Extent16<RoomBlocks>(16, 16), new RoomLevelPlanes(words, new byte[256], new ushort[256]), new byte[8]);

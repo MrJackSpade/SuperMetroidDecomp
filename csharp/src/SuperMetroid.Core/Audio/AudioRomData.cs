@@ -67,13 +67,4 @@ public static class AudioRomData
         /// <summary>First mapped source offset selected in the next bank when an upload stream crosses $FFFF.</summary>
         public const int FirstMappedBankOffset = 0x8000;
     }
-
-    /// <summary>Zero-based APU I/O port selectors and SPC music-control command bytes, not host audio-channel indices.</summary>
-    public static class Apu
-    {
-        /// <summary>Number of byte-wide bidirectional APU I/O ports, indexed zero through three and mapped to SNES registers <c>$2140-$2143</c>.</summary>
-        public const int PortCount = 4;
-
-
-    }
 }

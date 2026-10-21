@@ -14,7 +14,7 @@ internal static class SamusProjectilePrograms
     /// </summary>
     internal static SamusProjectileRecord? RunToNextRecord(ref AnimationProgramCursor<SamusProjectileProgram> cursor, out int duration)
     {
-        NativeCountdown counter = default;
+        WrappingCountdown counter = default;
         AnimationProgramAdvance<SamusProjectileFrame> advance =
             SamusProjectileAnimations.Programs.Advance(ref cursor, ref counter, static (_, _) => null);
         switch (advance)

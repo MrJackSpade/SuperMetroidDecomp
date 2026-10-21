@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Compatibility;
 using SuperMetroid.Core.Audio;
 using SuperMetroid.AssetExtraction.Audio.Synthesis;
 
@@ -72,7 +73,7 @@ internal static class AudioClipMeasurements
         internal void Attach(SpcAudioClipRenderer value) => renderer = value;
 
         /// <inheritdoc />
-        public void TickStarting(SpcDriverTick tick)
+        public void TickStarting(SoundClockStep tick)
         {
         }
 

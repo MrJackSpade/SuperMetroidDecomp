@@ -71,7 +71,7 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Program = AnimationProgramCursor<CrawlerProgram>.Start(CrawlerAnimationDefinitions.InitialProgram(
             animationFamily, orientation));
         slot.Frame = EnemyFrameId.Empty;
-        slot.InstructionTimer = NativeCountdown.Start(1);
+        slot.InstructionTimer = WrappingCountdown.Start(1);
         state.Function = CrawlerEnemyFunction.InstructionPending;
 
         state.Velocity = ResetCrawlerVelocitiesFromProperties(slot, state.SpeedParameter, state.Velocity);
@@ -127,7 +127,7 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
         state.Program = AnimationProgramCursor<CrawlerProgram>.Start(CrawlerAnimationDefinitions.InitialProgram(
             CrawlerAnimationFamily.HZoomer, orientation));
         slot.Frame = EnemyFrameId.Empty;
-        slot.InstructionTimer = NativeCountdown.Start(1);
+        slot.InstructionTimer = WrappingCountdown.Start(1);
         ushort velocity = CrawlerSpeedDefinitions.ForParameter(checked((ushort)speedParameter));
         state.Velocity = new(new SnesSignedEightEight(velocity), new SnesSignedEightEight(velocity));
         state.Velocity = (slot.Properties.FamilyData & 3) switch
@@ -291,8 +291,8 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
         CrawlerProgram program)
     {
         state.Program = AnimationProgramCursor<CrawlerProgram>.Start(program);
-        slot.InstructionTimer = NativeCountdown.Start(1);
-        slot.Timer = NativeCountdown.Start(0);
+        slot.InstructionTimer = WrappingCountdown.Start(1);
+        slot.Timer = WrappingCountdown.Start(0);
     }
 
     /// <summary>Ports shared crawler main AI at $A3:E6C2.</summary>
@@ -468,8 +468,8 @@ internal sealed class CrawlersBehavior : IEnemySpecies, IEnemyEntityFactory
         }
         state.Program = AnimationProgramCursor<CrawlerProgram>.Start(CrawlerAnimationDefinitions.SurfaceProgram(
             checked((ushort)state.SurfaceTableOffset), orientation));
-        slot.InstructionTimer = NativeCountdown.Start(1);
-        slot.Timer = NativeCountdown.Start(0);
+        slot.InstructionTimer = WrappingCountdown.Start(1);
+        slot.Timer = WrappingCountdown.Start(0);
     }
 
     /// <summary>Converts the current crawler velocity to a horizontal move adjusted for the supporting slope.</summary>

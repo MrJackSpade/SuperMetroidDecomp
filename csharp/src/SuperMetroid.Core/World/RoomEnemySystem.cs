@@ -959,7 +959,7 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
                     // immediately. That branch stores the remaining AI bits into BOTH
                     // words; replacing the clock with literal zero loses retail behavior
                     // when hurt and frozen dispatch coexist.
-                    slot.FlashTimer = NativeCountdown.Start(0);
+                    slot.FlashTimer = WrappingCountdown.Start(0);
                     bool thaw = slot.FrozenTimer.IsZero ||
                         (frame.Samus is not null &&
                             (frame.Samus.EquippedBeams & SamusBeamFlags.Ice) == 0);
@@ -968,7 +968,7 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
                     else
                     {
                         slot.AiStates = slot.AiStates & ~EnemyAiStates.Frozen;
-                        slot.FrozenTimer = NativeCountdown.FromRaw(slot.AiStates.NativeWord);
+                        slot.FrozenTimer = WrappingCountdown.FromRaw(slot.AiStates.NativeWord);
                     }
                     foreach (Action<RoomEnemySlot> handler in frozen?.FrozenHandlers() ?? [])
                         handler(slot);
@@ -984,7 +984,7 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
 
                 if (ranActorAi)
                 {
-                    slot.FrameCounter = NativeWordCounter.IncrementWord(slot.FrameCounter);
+                    slot.FrameCounter = WrappingCounter.IncrementWord(slot.FrameCounter);
                     // `$A0:8FF7` skips the instruction interpreter whenever frozen bit
                     // four is present, even if lower-priority hurt bit two selected an
                     // enemy-specific hurt callback above. Testing only `ranActorAi` here
@@ -1061,7 +1061,7 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
         if (Earthquake.Advance(timeIsFrozen))
         {
             foreach (ushort nativeIndex in ProcessingWindow.ActiveEnemyIndexes)
-                SlotTable.SlotFromNativeIndex(nativeIndex).ShakeTimer = NativeCountdown.Start(RoomFxRomData.Earthquake.EnemyShakeDuration);
+                SlotTable.SlotFromNativeIndex(nativeIndex).ShakeTimer = WrappingCountdown.Start(RoomFxRomData.Earthquake.EnemyShakeDuration);
         }
         return Earthquake.LastRoomShake;
     }

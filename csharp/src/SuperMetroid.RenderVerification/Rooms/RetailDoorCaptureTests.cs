@@ -47,7 +47,7 @@ internal static class RetailDoorCaptureTests
             while (transition.IsActive && frames < 320)
             {
                 if (transition.Phase == DoorTransitionPhase.WaitForDoorOpeningScroll) scrollFrames++;
-                transition.Step(runtime, audio, 0, SuperMetroid.Core.Rooms.Doors.LagFreeDoorLoaderProgress.Instance);
+                transition.Step(runtime, audio, 0, SuperMetroid.Core.Compatibility.InstantRoomLoad.Instance);
                 var expected = FrontendScenePixelsAccess.Pixels(runtime.PublishDisplayFrame());
                 var packet = new RenderFrameSnapshot(new(++frames, 1, (ushort)frames), GameplayDisplayCapture.Capture(runtime.PublishDisplayFrame()));
                 publish?.Invoke(packet);

@@ -1,7 +1,6 @@
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.WreckedShip;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Samus;
 namespace SuperMetroid.Verification.Enemies.WreckedShip;
 using SuperMetroid.Verification.Harness;
@@ -36,7 +35,7 @@ internal static class WreckedShipGhostBobbingVerification
             var state = new WreckedShipGhostEnemyState
             {
                 Function = WreckedShipGhostAiFunction.BobbingWhileVisible,
-                PhaseTimer = NativeCountdown.Start(120),
+                PhaseTimer = WrappingCountdown.Start(120),
                 BobbingOrigin = new(0, originY),
                 VerticalVelocity = SnesSignedSixteenSixteen.FromParts(whole, 0),
             };

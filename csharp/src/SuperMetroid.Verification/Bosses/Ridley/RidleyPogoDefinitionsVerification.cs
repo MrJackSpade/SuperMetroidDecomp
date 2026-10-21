@@ -50,7 +50,7 @@ internal static class RidleyPogoDefinitionsVerification
             reads = advances = 0;
             state.HealthStage = health;
             state.Velocity = state.Velocity.WithX(new SnesSignedEightEight(previous));
-            state.FunctionTimer = NativeCountdown.Start(0x1234);
+            state.FunctionTimer = WrappingCountdown.Start(0x1234);
             initialize(state);
             var expected = reference[raw & 3, Math.Min(health, (ushort)3) + 2];
             AssertEqual(0, advances, "Native Ridley pogo initializer must not advance RNG");
@@ -94,7 +94,7 @@ internal static class RidleyPogoDefinitionsVerification
 
             reads = advances = 0;
             state.Function = RidleyAiFunction.NorfairFireballMoveToHeight;
-            state.FunctionTimer = NativeCountdown.Start(0);
+            state.FunctionTimer = WrappingCountdown.Start(0);
             state.TailSegments = Enumerable.Range(0, 7).Select(_ => new RidleyTailSegment()).ToArray();
             attack(slot, state, null);
             AssertEqual(0, advances, "Native Ridley fireball setup must not advance RNG");

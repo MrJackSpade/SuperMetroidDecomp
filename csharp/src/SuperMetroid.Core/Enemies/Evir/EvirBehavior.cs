@@ -111,7 +111,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
     /// loads: for the second Evir of either retail room the third enemy is the first Evir's spit, already carrying its
     /// body's palette, so the first half-cycle is not zero.
     /// </summary>
-    private NativeCountdown ReadFirstHalfCycle(int speedRecord)
+    private WrappingCountdown ReadFirstHalfCycle(int speedRecord)
     {
         foreach (EvirFirstHalfCycleSource source in EvirInitDefinitions.FirstHalfCycleSources)
         {
@@ -124,7 +124,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
                 EvirHalfCycleSourceField.Palette => checked((ushort)enemy.PaletteIndex),
                 _ => throw new InvalidOperationException($"Undefined {nameof(EvirHalfCycleSourceField)} {source.Field}."),
             };
-            return NativeCountdown.Start(SnesLittleEndian.HighByte(value) / 2);
+            return WrappingCountdown.Start(SnesLittleEndian.HighByte(value) / 2);
         }
         throw new InvalidDataException(
             $"Evir speed record {speedRecord} takes its first half-cycle from a value no retail Evir reads.");
@@ -188,11 +188,11 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
 
         // DEC/BPL means zero expires immediately into $FFFF. Every later reset uses the
         // unshifted high parameter byte, despite initialization's unrelated aliasing bug.
-        NativeWordCounterStep step = state.MovementTimer.Decrement();
+        CountdownStep step = state.MovementTimer.Decrement();
         state.MovementTimer = step.Remaining;
         if (step.IsNegative)
         {
-            state.MovementTimer = NativeCountdown.Start(SnesLittleEndian.HighByte(slot.Spawn.Population.Parameter2));
+            state.MovementTimer = WrappingCountdown.Start(SnesLittleEndian.HighByte(slot.Spawn.Population.Parameter2));
             state.MovingDown = !state.MovingDown;
         }
     }
@@ -449,8 +449,8 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         state.Program = AnimationProgramCursor<EvirProgram>.Start(state.RequestedProgram);
         state.InstalledProgram = state.RequestedProgram;
-        slot.InstructionTimer = NativeCountdown.Start(1);
-        slot.Timer = NativeCountdown.Start(0);
+        slot.InstructionTimer = WrappingCountdown.Start(1);
+        slot.Timer = WrappingCountdown.Start(0);
     }
 
     /// <summary>Validates physical body/arms/spit offsets while tolerating a cleared header after initialization.</summary>

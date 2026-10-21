@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Enemies;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Areas.Ceres;
 namespace SuperMetroid.Verification.Areas.Ceres;
 using SuperMetroid.Verification.Harness;
@@ -16,11 +15,11 @@ internal static class CeresSteamRecordStateVerification
         var state = new CeresSteamEnemyState();
         slot.SetSpeciesState(state, state.ClearWithRecord);
         state.Function = CeresSteamFunction.ApplyRotatingElevatorOffset;
-        state.ActivationDelay = NativeCountdown.Start(20);
+        state.ActivationDelay = WrappingCountdown.Start(20);
 
         slot.Clear();
         AssertEqual<CeresSteamFunction?>(null, state.Function, "a kill empties the function");
-        AssertEqual(NativeCountdown.Start(0), state.ActivationDelay, "a kill empties the activation delay");
+        AssertEqual(WrappingCountdown.Start(0), state.ActivationDelay, "a kill empties the activation delay");
         Console.WriteLine("Ceres steam record state: a kill empties every value the record holds.");
     }
 

@@ -181,7 +181,7 @@ internal static class CinematicSpriteAnimationsVerification
         /// <summary>The next native word.</summary>
         private ushort cursor = cursor;
         /// <summary>Updates before the next word is read.</summary>
-        private NativeCountdown frameTimer = NativeCountdown.Start(1);
+        private WrappingCountdown frameTimer = WrappingCountdown.Start(1);
         /// <summary>Whether the list has deleted the actor.</summary>
         internal bool Active { get; private set; } = true;
         /// <summary>The latest frame's spritemap.</summary>
@@ -189,7 +189,7 @@ internal static class CinematicSpriteAnimationsVerification
         /// <summary>The installed pre-instruction.</summary>
         internal ushort PreInstruction { get; private set; }
         /// <summary>The goto timer word.</summary>
-        internal NativeCountdown Timer { get; private set; }
+        internal WrappingCountdown Timer { get; private set; }
         /// <summary>The owner instructions the latest update ran.</summary>
         internal List<CinematicSpriteCueKind> Cues { get; } = [];
 
@@ -208,7 +208,7 @@ internal static class CinematicSpriteAnimationsVerification
                 ushort operand = Word(cartridge, unchecked((ushort)(cursor + 2)));
                 if ((word & CinematicCodePointers.InstructionCommandBit) == 0)
                 {
-                    frameTimer = NativeCountdown.FromRaw(word);
+                    frameTimer = WrappingCountdown.FromRaw(word);
                     Spritemap = operand;
                     cursor = unchecked((ushort)(cursor + 4));
                     return;
@@ -235,7 +235,7 @@ internal static class CinematicSpriteAnimationsVerification
                         cursor = operand;
                         continue;
                     case SharedWord.SetCounter:
-                        Timer = NativeCountdown.FromRaw(operand);
+                        Timer = WrappingCountdown.FromRaw(operand);
                         cursor = unchecked((ushort)(cursor + 4));
                         continue;
                     case SharedWord.RepeatWhileCounting:

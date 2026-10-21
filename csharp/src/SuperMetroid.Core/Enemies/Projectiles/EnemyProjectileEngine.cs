@@ -318,7 +318,7 @@ internal sealed class EnemyProjectileEngine
         if (finalKnockbackXDirection.HasValue)
         {
             samus.KnockbackXDirection = finalKnockbackXDirection.Value;
-            samus.KnockbackTimer = NativeCountdown.Start(5);
+            samus.KnockbackTimer = WrappingCountdown.Start(5);
         }
     }
 
@@ -439,7 +439,7 @@ internal sealed class EnemyProjectileEngine
         projectile.PreInstruction = definition.PreInstruction;
         // SpawnEprojInner starts the instruction timer at one, so the first step runs on the first pass. A kind without
         // a typed start has its spawner start the program its producer chooses.
-        projectile.InstructionTimer = NativeCountdown.Start(1);
+        projectile.InstructionTimer = WrappingCountdown.Start(1);
         if (EnemyProjectileTypedStarts.Initial(kind) is { } animation)
             projectile.StartAnimation(animation);
 
@@ -710,7 +710,7 @@ internal sealed class EnemyProjectileEngine
         samus.Health = samus.Health <= damage
             ? 0
             : samus.Health - damage;
-        samus.InvincibilityTimer = NativeCountdown.FromRaw(checked((ushort)projectile.InvincibilityFrames));
+        samus.InvincibilityTimer = WrappingCountdown.FromRaw(checked((ushort)projectile.InvincibilityFrames));
         KnockbackHorizontalDirection knockbackXDirection = unchecked((short)(
             samus.Position.X.Whole - projectile.Position.X.Whole)) >= 0
             ? KnockbackHorizontalDirection.Right

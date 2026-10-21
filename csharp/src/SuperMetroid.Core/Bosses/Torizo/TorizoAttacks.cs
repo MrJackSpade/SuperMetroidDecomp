@@ -623,7 +623,7 @@ internal sealed class TorizoAttacks
         RoomEnemyProjectileSlot projectile,
         RoomLevelData level)
     {
-        NativeWordCounterStep hatch = NativeCountdown.FromRaw(checked((ushort)projectile.Variable1)).Decrement();
+        CountdownStep hatch = WrappingCountdown.FromRaw(checked((ushort)projectile.Variable1)).Decrement();
         projectile.Variable1 = hatch.Value;
         if (hatch.IsNegative)
         {

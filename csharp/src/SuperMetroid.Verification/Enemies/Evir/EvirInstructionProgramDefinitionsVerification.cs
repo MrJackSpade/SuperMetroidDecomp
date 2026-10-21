@@ -66,7 +66,7 @@ internal static class EvirInstructionProgramDefinitionsVerification
             object?[] arguments = [slot, null, null, Position16<RoomPixels>.Zero, SnesButton.None];
             for (int call = 0; call < 10; call++)
             {
-                slot.InstructionTimer = NativeCountdown.Start(1);
+                slot.InstructionTimer = WrappingCountdown.Start(1);
                 EnemyInstructionRunner.Process(arguments);
                 if (call == 0)
                     AssertEqual(new Offset16<RoomPixels>(8, 0), state.RegenerationOffset,
@@ -103,7 +103,7 @@ internal static class EvirInstructionProgramDefinitionsVerification
     {
         slot.Bind(definition, slot.Definition);
         slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = EvirFrameToolingDefinitions.Bank });
-        slot.InstructionTimer = NativeCountdown.Start(1);
+        slot.InstructionTimer = WrappingCountdown.Start(1);
         var state = new EvirEnemyState
         {
             RequestedProgram = program,

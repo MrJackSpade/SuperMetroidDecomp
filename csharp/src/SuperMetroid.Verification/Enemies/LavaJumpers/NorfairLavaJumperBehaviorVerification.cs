@@ -32,7 +32,7 @@ internal static class NorfairLavaJumperBehaviorVerification
         AssertEqual(AnimationProgramCursor<NorfairLavaJumperProgram>.Start(NorfairLavaJumperProgram.Hidden), parentState.Program,
             "lava-jumper parent starts hidden");
         // The initializer leaves the population's instruction timer; start the hidden pose on the next update.
-        parent.InstructionTimer = NativeCountdown.Start(1);
+        parent.InstructionTimer = WrappingCountdown.Start(1);
         ushort hidden = NorfairLavaJumperAnimations.Spritemaps(NorfairLavaJumperProgram.Hidden).Single();
         AssertEqual(EnemyInstructionRunner.ExpectedFrames([hidden, hidden], [1, 1]), EnemyInstructionRunner.ShownFrames(parent, 3),
             "lava-jumper hidden pose");
@@ -57,7 +57,7 @@ internal static class NorfairLavaJumperBehaviorVerification
             ?? throw new InvalidOperationException("Verification requires enemies.NorfairLavaJumpingEnemyStates[1].");
         AssertEqual(AnimationProgramCursor<NorfairLavaJumperProgram>.Start(NorfairLavaJumperProgram.Follower), followerState.Program,
             "real follower initializer starts the follower loop");
-        follower.InstructionTimer = NativeCountdown.Start(1);
+        follower.InstructionTimer = WrappingCountdown.Start(1);
         ushort[] startup = NorfairLavaJumperAnimations.Spritemaps(NorfairLavaJumperProgram.Follower).ToArray();
         ushort[] loop = NorfairLavaJumperAnimations.Spritemaps(NorfairLavaJumperProgram.FollowerLoop).ToArray();
         ushort[] expected = [.. startup, .. loop, startup[0]];

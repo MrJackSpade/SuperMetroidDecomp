@@ -58,7 +58,7 @@ public static class SamusGrappleMovement
 
         grapple.Phase = GrapplePhase.Firing;
         grapple.FireDirection = (SamusProjectileDirection)direction;
-        grapple.PoseChangeAutoFireTimer = NativeCountdown.Start(SamusGrappleRomData.Firing.PoseChangeAutoFireFrames);
+        grapple.PoseChangeAutoFireTimer = WrappingCountdown.Start(SamusGrappleRomData.Firing.PoseChangeAutoFireFrames);
         var launch = GrappleFiringDefinitions.Launch(direction);
         grapple.ExtensionVelocity = launch.Velocity;
         grapple.Angle = launch.Angle;
@@ -89,12 +89,12 @@ public static class SamusGrappleMovement
         grapple.GravityAcceleration = 0;
         grapple.VelocityCorrection = 0;
         grapple.JumpImpulse = 0;
-        grapple.CollisionBounceTimer = NativeCountdown.Start(0);
+        grapple.CollisionBounceTimer = WrappingCountdown.Start(0);
         grapple.ValidateAnchorBlock = false;
         grapple.ValidateAnchorEnemy = false;
         grapple.SpecialAngleHandling = false;
         grapple.SlowScrolling = false; // $9B:C66F
-        grapple.WallJumpTimer = NativeCountdown.Start(0);
+        grapple.WallJumpTimer = WrappingCountdown.Start(0);
         grapple.CancelFromConnectedPose = false;
         SamusGrappleBeamDrawing.InitializeBeamAnimation(grapple);
 
@@ -479,7 +479,7 @@ public static class SamusGrappleMovement
         samus.Health = samus.Health <= damage
             ? 0
             : samus.Health - damage;
-        samus.InvincibilityTimer = NativeCountdown.Start(96);
+        samus.InvincibilityTimer = WrappingCountdown.Start(96);
 
         // Facing left is knocked right and facing right is knocked left. Start owns the
         // authentic pose, animation, vertical speed, contact-damage cancellation, and
@@ -487,7 +487,7 @@ public static class SamusGrappleMovement
         KnockbackHorizontalDirection knockbackXDirection = SamusPoseMetadata.IsFacingLeft(samus.Pose)
             ? KnockbackHorizontalDirection.Right
             : KnockbackHorizontalDirection.Left;
-        SamusKnockbackMovement.Start(samus, controllerInput, new KnockbackLaunch { KnockbackXDirection = knockbackXDirection, KnockbackTimer = NativeCountdown.Start(5) });
+        SamusKnockbackMovement.Start(samus, controllerInput, new KnockbackLaunch { KnockbackXDirection = knockbackXDirection, KnockbackTimer = WrappingCountdown.Start(5) });
     }
 
     /// <summary>Keeps the wall-contact pose attached until Shoot or anchor support ends, then opens a 30-update wall-jump window.</summary>
@@ -512,7 +512,7 @@ public static class SamusGrappleMovement
 
         // `$9B:C81B` writes decimal 30 and changes only the grapple function. The contact
         // pose and beam remain visible throughout the following grace-window probes.
-        grapple.WallJumpTimer = NativeCountdown.Start(30);
+        grapple.WallJumpTimer = WrappingCountdown.Start(30);
         grapple.Phase = GrapplePhase.WallGrabRelease;
         return new GrappleMovementResult(
             grapple.Phase);
@@ -665,7 +665,7 @@ public static class SamusGrappleMovement
             SamusPoseMetadata.RefreshCollisionRadii(samus);
             SamusPresentation.InitializeAnimation(samus, initialFrame: 0);
             grapple.Phase = phase;
-            grapple.WallJumpTimer = NativeCountdown.Start(0);
+            grapple.WallJumpTimer = WrappingCountdown.Start(0);
             grapple.SlowScrolling = false; // $9B:BB0D
 
             Position16<RoomPixels> cameraPrevious = ClampPreviousPosition(samus.Position.Whole, previousPosition);
@@ -1005,7 +1005,7 @@ public static class SamusGrappleMovement
         grapple.ValidateAnchorBlock = anchor == GrappleAnchorKind.Block;
         grapple.ValidateAnchorEnemy = anchor == GrappleAnchorKind.Enemy;
         grapple.SpecialAngleHandling = false;
-        grapple.WallJumpTimer = NativeCountdown.Start(0);
+        grapple.WallJumpTimer = WrappingCountdown.Start(0);
         grapple.CancelFromConnectedPose = false;
 
         // The connection helper clears delta while choosing the new pose, but its caller
@@ -1178,7 +1178,7 @@ public static class SamusGrappleMovement
         grapple.Phase = GrapplePhase.Inactive;
         // $9B:C66F/$C884 (cancel) and $90:F4E9 (kill) clear the slow-scroll flag.
         grapple.SlowScrolling = false;
-        grapple.PoseChangeAutoFireTimer = NativeCountdown.Start(0);
+        grapple.PoseChangeAutoFireTimer = WrappingCountdown.Start(0);
         grapple.RopeLength = 0;
         grapple.RopeLengthDelta = 0;
         grapple.ExtensionVelocity = default(EightEightVector<RoomPixels>);
@@ -1264,7 +1264,7 @@ public static class SamusGrappleMovement
         grapple.VelocityCorrection = 0;
         grapple.JumpImpulse = 0;
         grapple.RopeLengthDelta = 0;
-        grapple.CollisionBounceTimer = NativeCountdown.Start(0);
+        grapple.CollisionBounceTimer = WrappingCountdown.Start(0);
         grapple.ValidateAnchorBlock = false;
         grapple.ValidateAnchorEnemy = false;
         SamusGrappleBeamDrawing.ClearFlareAnimation(grapple);
@@ -1293,11 +1293,11 @@ public static class SamusGrappleMovement
         grapple.GravityAcceleration = 0;
         grapple.VelocityCorrection = 0;
         grapple.JumpImpulse = 0;
-        grapple.CollisionBounceTimer = NativeCountdown.Start(0);
+        grapple.CollisionBounceTimer = WrappingCountdown.Start(0);
         grapple.SpecialAngleHandling = false;
         // $9B:C979 (dropped) and $9B:CA24 (wall jumping) clear the slow-scroll flag.
         grapple.SlowScrolling = false;
-        grapple.WallJumpTimer = NativeCountdown.Start(0);
+        grapple.WallJumpTimer = WrappingCountdown.Start(0);
         grapple.CancelFromConnectedPose = false;
         grapple.ValidateAnchorBlock = false;
         grapple.ValidateAnchorEnemy = false;

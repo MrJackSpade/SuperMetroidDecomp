@@ -51,7 +51,7 @@ internal sealed class KraidEncounterAccess
     internal void StartKraidPartProgram(RoomEnemySlot part, KraidPartProgram program)
     {
         SetKraidPartProgram(part, program);
-        part.InstructionTimer = NativeCountdown.Start(1);
+        part.InstructionTimer = WrappingCountdown.Start(1);
     }
 
     /// <summary>Consumes one value from the room RNG for Kraid's next decision.</summary>
@@ -61,10 +61,10 @@ internal sealed class KraidEncounterAccess
     /// <summary>Counts a Kraid function timer down and installs its next state at zero.</summary>
     internal static void TickKraidFunctionTimer(KraidPartState part)
     {
-        NativeCountdown functionTimer = NativeCountdown.FromRaw(checked((ushort)part.FunctionTimer));
+        WrappingCountdown functionTimer = WrappingCountdown.FromRaw(checked((ushort)part.FunctionTimer));
         if (functionTimer.IsZero)
             return;
-        NativeWordCounterStep step = functionTimer.Decrement();
+        CountdownStep step = functionTimer.Decrement();
         part.FunctionTimer = step.Remaining.RawValue;
         if (step.IsZero)
             part.Function = part.NextFunction;

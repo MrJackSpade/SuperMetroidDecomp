@@ -66,7 +66,7 @@ internal sealed class MotherBrainBody
     internal void AdvanceMotherBrainTubeAnimation(RoomEnemySlot tube)
     {
         ushort oldTimer = tube.InstructionTimer.RawValue;
-        tube.InstructionTimer = NativeCountdown.FromRaw(unchecked((ushort)(oldTimer - 1)));
+        tube.InstructionTimer = WrappingCountdown.FromRaw(unchecked((ushort)(oldTimer - 1)));
         if (oldTimer != 1)
         {
             tube.ExtraProperties = tube.ExtraProperties.Without(EnemyExtraProperties.NewInstructionFrame);
@@ -74,7 +74,7 @@ internal sealed class MotherBrainBody
         }
 
         AnimationProgramCursor<MotherBrainTubePiece> cursor = _extensions[tube.SlotIndex].FallingTubeCursor;
-        NativeCountdown counter = tube.Timer;
+        WrappingCountdown counter = tube.Timer;
         AnimationProgramAdvance<MotherBrainTubeFrame> advance = MotherBrainTubeAnimations.Programs.Advance(ref cursor, ref counter,
             (cue, continuation) => throw new InvalidOperationException($"Falling-tube programs publish no cue {cue}."));
         tube.Timer = counter;
@@ -82,7 +82,7 @@ internal sealed class MotherBrainBody
         switch (advance)
         {
             case AnimationProgramAdvance<MotherBrainTubeFrame>.Show shown:
-                tube.InstructionTimer = NativeCountdown.FromRaw((ushort)shown.Duration);
+                tube.InstructionTimer = WrappingCountdown.FromRaw((ushort)shown.Duration);
                 tube.Frame = MotherBrainVisualDefinitions.TubeFrames.Of(shown.Frame);
                 tube.ExtraProperties = tube.ExtraProperties.With(EnemyExtraProperties.NewInstructionFrame);
                 return;
@@ -109,7 +109,7 @@ internal sealed class MotherBrainBody
         for (int index = 0; index < MotherBrainBg2Definitions.ClearWordCount; index++)
             bg2[index] = MotherBrainBg2Definitions.BlankTile;
 
-        body.InstructionTimer = NativeCountdown.Start(1);
+        body.InstructionTimer = WrappingCountdown.Start(1);
         body.VramTilesIndex = 0;
         body.Properties = body.Properties.With(
             EnemyProperties.BlocksPlasmaBeam |
@@ -156,7 +156,7 @@ internal sealed class MotherBrainBody
         bool glassDestroyed = _room.Services.Events.Has(EventNumber.MotherBrainGlassDestroyed);
         if (glassDestroyed)
         {
-            state.BrainMainShakeTimer = NativeCountdown.FromRaw(_earthquake.EarthquakeTimer.RawValue);
+            state.BrainMainShakeTimer = WrappingCountdown.FromRaw(_earthquake.EarthquakeTimer.RawValue);
             if (samus is not null && samus.Position.X.Whole < 236 && state.Head.Health == 0)
             {
                 // This is the exact first-phase exit at `$A9:87FE-$8814`. The following
@@ -196,7 +196,7 @@ internal sealed class MotherBrainBody
         MotherBrainEnemyState state = _access.RequireCompleteMotherBrainState(slot);
         bool body = ReferenceEquals(slot, state.Body);
         ushort oldTimer = slot.InstructionTimer.RawValue;
-        slot.InstructionTimer = NativeCountdown.FromRaw(unchecked((ushort)(oldTimer - 1)));
+        slot.InstructionTimer = WrappingCountdown.FromRaw(unchecked((ushort)(oldTimer - 1)));
         if (oldTimer != 1)
         {
             slot.ExtraProperties = slot.ExtraProperties.Without(EnemyExtraProperties.NewInstructionFrame);
@@ -204,7 +204,7 @@ internal sealed class MotherBrainBody
         }
 
         AnimationProgramCursor<MotherBrainBodyProgram> cursor = body ? state.BodyCursor : state.HeadSlotCursor;
-        NativeCountdown counter = slot.Timer;
+        WrappingCountdown counter = slot.Timer;
         AnimationProgramAdvance<MotherBrainBodyFrame> advance = MotherBrainAnimations.Body.Advance(ref cursor, ref counter,
             (cue, continuation) =>
             {
@@ -219,7 +219,7 @@ internal sealed class MotherBrainBody
         switch (advance)
         {
             case AnimationProgramAdvance<MotherBrainBodyFrame>.Show shown:
-                slot.InstructionTimer = NativeCountdown.FromRaw((ushort)shown.Duration);
+                slot.InstructionTimer = WrappingCountdown.FromRaw((ushort)shown.Duration);
                 slot.Frame = MotherBrainBodyVisualDefinitions.ShownFrames.Of(shown.Frame);
                 slot.ExtraProperties = slot.ExtraProperties.With(EnemyExtraProperties.NewInstructionFrame);
                 return;
@@ -356,8 +356,8 @@ internal sealed class MotherBrainBody
             // Native clamps shallow contact UP to four pixels. The resulting words are
             // consumed by Samus movement later in the frame, so overwrite rather than add.
             samus.Kinematics.ExtraDisplacement = FixedVector<RoomPixels>.FromWholePixels(new(unchecked((short)Math.Max(xOverlap, 4)), 4));
-            samus.InvincibilityTimer = NativeCountdown.Start(96);
-            samus.KnockbackTimer = NativeCountdown.Start(5);
+            samus.InvincibilityTimer = WrappingCountdown.Start(96);
+            samus.KnockbackTimer = WrappingCountdown.Start(5);
             samus.KnockbackXDirection = KnockbackHorizontalDirection.Right;
             if (unchecked((short)(samus.Position.Y.Whole - 192)) < 0)
                 samus.Kinematics.YDirection = SamusVerticalDirection.Down;
@@ -382,8 +382,8 @@ internal sealed class MotherBrainBody
         samus.Health = samus.Health <= damage
             ? 0
             : samus.Health - damage;
-        samus.InvincibilityTimer = NativeCountdown.Start(96);
-        samus.KnockbackTimer = NativeCountdown.Start(5);
+        samus.InvincibilityTimer = WrappingCountdown.Start(96);
+        samus.KnockbackTimer = WrappingCountdown.Start(5);
         samus.KnockbackXDirection = samus.Position.X.Whole >= body.Position.X.Whole ? KnockbackHorizontalDirection.Right : KnockbackHorizontalDirection.Left;
     }
 
@@ -458,7 +458,7 @@ internal sealed class MotherBrainBody
     private void RunMotherBrainFootstep()
     {
         _earthquake.EarthquakeType = 1;
-        _earthquake.EarthquakeTimer = NativeCountdown.Start(4);
+        _earthquake.EarthquakeTimer = WrappingCountdown.Start(4);
 
         // Form three additionally queues library-three sound $16. Phase two normally never
         // reaches that branch, but retaining it here makes the shared gait opcode complete.

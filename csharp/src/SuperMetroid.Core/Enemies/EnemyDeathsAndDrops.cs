@@ -447,7 +447,7 @@ internal sealed class EnemyDeathsAndDrops
         SamusState? samus)
     {
         // The lifetime is decremented first; the pickup expires on the update it reaches zero.
-        NativeWordCounterStep lifetime = NativeCountdown.FromRaw(checked((ushort)projectile.Variable1)).Decrement();
+        CountdownStep lifetime = WrappingCountdown.FromRaw(checked((ushort)projectile.Variable1)).Decrement();
         projectile.Variable1 = lifetime.Value;
         if (lifetime.IsZero)
         {

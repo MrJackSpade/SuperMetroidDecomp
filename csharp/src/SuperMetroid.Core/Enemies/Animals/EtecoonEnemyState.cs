@@ -16,7 +16,7 @@ public sealed class EtecoonEnemyState
     public FixedVector<RoomPixels> Velocity { get; internal set; }
 
     /// <summary>Wrapped countdown.</summary>
-    public NativeCountdown FunctionTimer { get; internal set; }
+    public WrappingCountdown FunctionTimer { get; internal set; }
 
     /// <summary>Bank-$A7 function address; none once a kill has emptied the record.</summary>
     public EtecoonAiFunction? Function { get; internal set; }
@@ -74,7 +74,7 @@ public sealed class EtecoonEnemyState
     internal void ClearWithRecord()
     {
         Velocity = FixedVector<RoomPixels>.Zero;
-        FunctionTimer = NativeCountdown.Start(0);
+        FunctionTimer = WrappingCountdown.Start(0);
         Function = null;
         Route = 0;
         QuakePauseFrames = 0;

@@ -265,9 +265,9 @@ public sealed class IntroCinematicState : IFrontendScreen
     internal RoomLevelData FlashbackLevel => CurrentFlashbackLevel ??
         throw new InvalidOperationException("The Mother Brain flashback room is not loaded.");
     /// <summary>Cinematic-function countdown for the active palette transition.</summary>
-    private NativeCountdown crossfadeCounter;
+    private WrappingCountdown crossfadeCounter;
     /// <summary>Alternate transition countdown retained between scientist and text phases.</summary>
-    private NativeCountdown introCrossfadeCounter;
+    private WrappingCountdown introCrossfadeCounter;
     /// <summary>
     /// Updates the cinematic has run, counted from zero at its creation; the shared Samus systems receive it through
     /// <see cref="NmiFrameWord"/> as their frame-counter word.
@@ -732,7 +732,7 @@ public sealed class IntroCinematicState : IFrontendScreen
 
         // The sprite setup stored 127 in both cinematic_var13 and (through sprite object
         // $CE55's setup) cinematic_var4. $B250 tests the old counter, then decrements it.
-        crossfadeCounter = NativeCountdown.Start(IntroCinematicRomData.Palette.CrossfadeInitialCounter);
+        crossfadeCounter = WrappingCountdown.Start(IntroCinematicRomData.Palette.CrossfadeInitialCounter);
         Phase = IntroCinematicPhase.MotherBrainCrossfade;
     }
 
@@ -773,7 +773,7 @@ public sealed class IntroCinematicState : IFrontendScreen
         paletteFader = new CinematicPaletteFader(introPalette);
         ClearPaletteSpans(IntroCinematicRomData.Palette.GameplayClear);
         paletteFader.ComposeInto(palette);
-        crossfadeCounter = NativeCountdown.Start(IntroCinematicRomData.Palette.CrossfadeInitialCounter);
+        crossfadeCounter = WrappingCountdown.Start(IntroCinematicRomData.Palette.CrossfadeInitialCounter);
         Phase = IntroCinematicPhase.PageTwoCrossfade;
     }
 
@@ -825,7 +825,7 @@ public sealed class IntroCinematicState : IFrontendScreen
         paletteFader = new CinematicPaletteFader(introPalette);
         ClearPaletteSpans(IntroCinematicRomData.Palette.Narration);
         paletteFader.ComposeInto(palette);
-        crossfadeCounter = NativeCountdown.Start(IntroCinematicRomData.Palette.CrossfadeInitialCounter);
+        crossfadeCounter = WrappingCountdown.Start(IntroCinematicRomData.Palette.CrossfadeInitialCounter);
         Phase = IntroCinematicPhase.BabyDiscoveryCrossfade;
     }
 
@@ -859,7 +859,7 @@ public sealed class IntroCinematicState : IFrontendScreen
         paletteFader = new CinematicPaletteFader(introPalette);
         ClearPaletteSpans(IntroCinematicRomData.Palette.GameplayClear);
         paletteFader.ComposeInto(palette);
-        crossfadeCounter = NativeCountdown.Start(IntroCinematicRomData.Palette.CrossfadeInitialCounter);
+        crossfadeCounter = WrappingCountdown.Start(IntroCinematicRomData.Palette.CrossfadeInitialCounter);
         Phase = IntroCinematicPhase.PageThreeCrossfade;
     }
 
@@ -890,8 +890,8 @@ public sealed class IntroCinematicState : IFrontendScreen
 
         // The native intro alternates two adjacent WRAM counters. Page-three setup left
         // CinematicFunctionTimer at $007F; this setup writes the separate intro counter.
-        crossfadeCounter = NativeCountdown.Start(IntroCinematicRomData.Palette.CrossfadeInitialCounter);
-        introCrossfadeCounter = NativeCountdown.Start(IntroCinematicRomData.Palette.CrossfadeInitialCounter);
+        crossfadeCounter = WrappingCountdown.Start(IntroCinematicRomData.Palette.CrossfadeInitialCounter);
+        introCrossfadeCounter = WrappingCountdown.Start(IntroCinematicRomData.Palette.CrossfadeInitialCounter);
         Phase = IntroCinematicPhase.BabyMetroidDeliveryCrossfade;
     }
 
@@ -931,7 +931,7 @@ public sealed class IntroCinematicState : IFrontendScreen
         paletteFader = new CinematicPaletteFader(introPalette);
         ClearPaletteSpans(IntroCinematicRomData.Palette.GameplayClear);
         paletteFader.ComposeInto(palette);
-        crossfadeCounter = NativeCountdown.Start(IntroCinematicRomData.Palette.CrossfadeInitialCounter);
+        crossfadeCounter = WrappingCountdown.Start(IntroCinematicRomData.Palette.CrossfadeInitialCounter);
         Phase = IntroCinematicPhase.PageFourCrossfade;
     }
 
@@ -969,8 +969,8 @@ public sealed class IntroCinematicState : IFrontendScreen
         paletteFader = new CinematicPaletteFader(introPalette);
         ClearPaletteSpans(IntroCinematicRomData.Palette.Discovery);
         paletteFader.ComposeInto(palette);
-        crossfadeCounter = NativeCountdown.Start(IntroCinematicRomData.Palette.CrossfadeInitialCounter);
-        introCrossfadeCounter = NativeCountdown.Start(IntroCinematicRomData.Palette.CrossfadeInitialCounter);
+        crossfadeCounter = WrappingCountdown.Start(IntroCinematicRomData.Palette.CrossfadeInitialCounter);
+        introCrossfadeCounter = WrappingCountdown.Start(IntroCinematicRomData.Palette.CrossfadeInitialCounter);
         Phase = IntroCinematicPhase.BabyMetroidExaminationCrossfade;
     }
 
@@ -985,7 +985,7 @@ public sealed class IntroCinematicState : IFrontendScreen
         paletteFader = new CinematicPaletteFader(introPalette);
         ClearPaletteSpans(IntroCinematicRomData.Palette.GameplayClear);
         paletteFader.ComposeInto(palette);
-        crossfadeCounter = NativeCountdown.Start(IntroCinematicRomData.Palette.CrossfadeInitialCounter);
+        crossfadeCounter = WrappingCountdown.Start(IntroCinematicRomData.Palette.CrossfadeInitialCounter);
         Phase = IntroCinematicPhase.PageFiveCrossfade;
     }
 
@@ -998,7 +998,7 @@ public sealed class IntroCinematicState : IFrontendScreen
     {
         // $8B:B1EB seeds IntroCrossFadeTimer. English takes B1F4's direct fall-through into
         // B207; Japanese text selects B207 as the next dispatch's cinematic function.
-        introCrossfadeCounter = NativeCountdown.Start(IntroCinematicRomData.Palette.CrossfadeInitialCounter);
+        introCrossfadeCounter = WrappingCountdown.Start(IntroCinematicRomData.Palette.CrossfadeInitialCounter);
         if (subtitles.Enabled)
             Phase = IntroCinematicPhase.StartPageSix;
         else

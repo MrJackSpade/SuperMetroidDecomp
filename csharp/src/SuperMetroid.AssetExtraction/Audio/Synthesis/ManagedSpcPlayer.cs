@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Compatibility;
 using SuperMetroid.Core.Audio;
 using SuperMetroid.Core;
 namespace SuperMetroid.AssetExtraction.Audio.Synthesis;
@@ -97,7 +98,7 @@ public sealed class ManagedSpcPlayer
     /// </summary>
     /// <exception cref="ArgumentException"><paramref name="destination"/> is too short.</exception>
     /// <exception cref="InvalidDataException">The schedule is out of order or outside the frame, or the driver state cannot be synthesized.</exception>
-    internal void GenerateNativeFrame(ReadOnlySpan<SpcDriverTick> schedule, Span<short> destination)
+    internal void GenerateNativeFrame(ReadOnlySpan<SoundClockStep> schedule, Span<short> destination)
     {
         RunFrame(schedule, synthesize: true);
         dsp.CopyNativeSamples(destination);
@@ -109,27 +110,27 @@ public sealed class ManagedSpcPlayer
     /// <see cref="GenerateNativeFrame"/>; the DSP only receives the register writes.
     /// </summary>
     /// <exception cref="InvalidDataException">The schedule is out of order or outside the frame.</exception>
-    internal void AdvanceSequencer(ReadOnlySpan<SpcDriverTick> schedule) => RunFrame(schedule, synthesize: false);
+    internal void AdvanceSequencer(ReadOnlySpan<SoundClockStep> schedule) => RunFrame(schedule, synthesize: false);
 
     /// <summary>Services the frame's driver ticks in order, clocking the DSP up to each tick when synthesizing.</summary>
-    private void RunFrame(ReadOnlySpan<SpcDriverTick> schedule, bool synthesize)
+    private void RunFrame(ReadOnlySpan<SoundClockStep> schedule, bool synthesize)
     {
         if (dsp.BufferedStereoFrameCount != 0)
             throw new InvalidDataException("S-DSP sample cursor is not at a frame boundary.");
 
         int cycle = 0;
-        foreach (SpcDriverTick tick in schedule)
+        foreach (SoundClockStep tick in schedule)
         {
-            if (tick.DspCycleOffset < cycle || tick.DspCycleOffset >= SpcCommandPorts.DspCyclesPerFrame)
-                throw new InvalidDataException($"Driver tick at DSP cycle {tick.DspCycleOffset} is out of order or outside the frame.");
-            for (; synthesize && cycle < tick.DspCycleOffset; cycle++)
+            if (tick.SampleOffset < cycle || tick.SampleOffset >= SoundAcceptanceClock.SamplesPerUpdate)
+                throw new InvalidDataException($"Driver tick at DSP cycle {tick.SampleOffset} is out of order or outside the frame.");
+            for (; synthesize && cycle < tick.SampleOffset; cycle++)
                 dsp.Cycle();
-            cycle = tick.DspCycleOffset;
+            cycle = tick.SampleOffset;
             Music.observer?.TickStarting(tick);
             LoopPartTwo(tick);
             LoopPartOne();
         }
-        for (; synthesize && cycle < SpcCommandPorts.DspCyclesPerFrame; cycle++)
+        for (; synthesize && cycle < SoundAcceptanceClock.SamplesPerUpdate; cycle++)
             dsp.Cycle();
     }
 
@@ -219,13 +220,13 @@ public sealed class ManagedSpcPlayer
     }
 
     /// <summary>Advances sound and music accumulators, servicing latched commands only on their native carry ticks.</summary>
-    private void LoopPartTwo(SpcDriverTick tick)
+    private void LoopPartTwo(SoundClockStep tick)
     {
-        int ticks = tick.Ticks;
-        if (tick.SoundEffectsPolled)
+        int ticks = tick.Steps;
+        if (tick.ChecksRequests)
         {
             for (int library = 0; library < SoundEffectLibraries.Count; library++)
-                SoundLibraries.HandleSoundLibraryCommand(library, tick.LibraryPolls[library]);
+                SoundLibraries.HandleSoundLibraryCommand(library, tick.Checks[library]);
             if (Music.echoStoredTime != Music.echoDelay)
                 Music.echoStoredTime = SpcDriverWrap.Byte(Music.echoStoredTime + 1);
         }

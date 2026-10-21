@@ -1,6 +1,5 @@
 using static SuperMetroid.Verification.Enemies.Deaths.EnemyDeathProjectilePrograms;
 using SuperMetroid.Core.Enemies.Deaths;
-using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Runtime;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
@@ -45,19 +44,19 @@ internal static class SuperMissileDeathAnimationVerification
         samus.Control.LockHandlers();
         RoomEnemySlot enemy = runtime.Enemies.SlotTable.Slots.First(slot => slot.EnemyDefinitionPointer == enemyDefinition);
         enemy.Health = 1;
-        enemy.InvincibilityTimer = NativeCountdown.Start(0);
+        enemy.InvincibilityTimer = WrappingCountdown.Start(0);
         // The room loads both on the empty map, which the shot pass skips. The Dragon shows its surfaced frame ($E80C,
         // as at native update 40203) and the Sova a shared crawler surface frame.
         if (enemy.Frame == EnemyFrameId.Empty)
             enemy.Frame = enemyDefinition == EnemyDefinitionId.Dragon ? EnemyFrameId.DragonBodyIdleLeft : EnemyFrameId.HzoomerUpsideUp0;
-        enemy.InstructionTimer = NativeCountdown.Start(0x7fff);
+        enemy.InstructionTimer = WrappingCountdown.Start(0x7fff);
         runtime.Enemies.ProcessingWindow.PrepareEnemyProcessingList(enemy.Position.Whole);
 
         SamusProjectileSlot shot = runtime.Projectiles.Slots[0];
         shot.Type = 0x0200; shot.Damage = 300; shot.Direction = 2;
         shot.Position = shot.Position.WithWhole(enemy.Position.Whole);
         shot.Radius = new(4, 4);
-        shot.Cursor = ProjectileFixtureCursors.Active; shot.InstructionTimer = NativeCountdown.Start(1);
+        shot.Cursor = ProjectileFixtureCursors.Active; shot.InstructionTimer = WrappingCountdown.Start(1);
         runtime.Enemies.Collision.ResolveOrdinaryProjectileHits(runtime.Projectiles, runtime.BombProjectiles, samus,
             onlyNativeEnemyIndex: enemy.NativeIndex);
 

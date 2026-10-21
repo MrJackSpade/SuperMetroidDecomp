@@ -22,10 +22,10 @@ public sealed class DemoInputState
     internal AnimationProgramCursor<DemoInputProgram>? Cursor { get; private set; }
 
     /// <summary>Frames remaining in the active input record, with native word wrapping.</summary>
-    public NativeCountdown InstructionTimer { get; private set; }
+    public WrappingCountdown InstructionTimer { get; private set; }
 
     /// <summary>General loop timer of instructions <c>$844F/$8459</c>; no demo program counts it.</summary>
-    public NativeCountdown Timer { get; private set; }
+    public WrappingCountdown Timer { get; private set; }
 
     /// <summary>Controller word currently replacing player-held input.</summary>
     public SnesButton Held { get; private set; }
@@ -57,8 +57,8 @@ public sealed class DemoInputState
         Enabled = false;
         PreInstruction = DemoInputPreInstruction.None;
         Cursor = null;
-        InstructionTimer = NativeCountdown.Start(0);
-        Timer = NativeCountdown.Start(0);
+        InstructionTimer = WrappingCountdown.Start(0);
+        Timer = WrappingCountdown.Start(0);
         Held = 0;
         NewlyPressed = 0;
         PreviousHeld = 0;
@@ -81,8 +81,8 @@ public sealed class DemoInputState
     {
         PreInstruction = definition.PreInstruction;
         Cursor = AnimationProgramCursor<DemoInputProgram>.Start(definition.Program);
-        InstructionTimer = NativeCountdown.Start(1);
-        Timer = NativeCountdown.Start(0);
+        InstructionTimer = WrappingCountdown.Start(1);
+        Timer = WrappingCountdown.Start(0);
     }
 
     /// <summary>
@@ -97,7 +97,7 @@ public sealed class DemoInputState
     {
         PreInstruction = preInstruction;
         Cursor = AnimationProgramCursor<DemoInputProgram>.Start(program);
-        InstructionTimer = NativeCountdown.FromRaw(instructionTimer);
+        InstructionTimer = WrappingCountdown.FromRaw(instructionTimer);
     }
 
     /// <summary>
@@ -117,11 +117,11 @@ public sealed class DemoInputState
         // DEC is a 16-bit 65C816 operation. In particular, a zero duration wraps and lasts
         // 65,536 handler calls; using an int countdown would quietly change malformed or
         // intentionally unusual ROM data.
-        NativeWordCounterStep instructionTimer = InstructionTimer.Decrement();
+        CountdownStep instructionTimer = InstructionTimer.Decrement();
         InstructionTimer = instructionTimer.Remaining;
         if (instructionTimer.IsZero)
         {
-            NativeCountdown timer = Timer;
+            WrappingCountdown timer = Timer;
             AnimationProgramAdvance<DemoInputFrame> advance = DemoInputAnimations.Programs.Advance(ref cursor, ref timer,
                 (published, _) =>
                 {
@@ -132,7 +132,7 @@ public sealed class DemoInputState
             switch (advance)
             {
                 case AnimationProgramAdvance<DemoInputFrame>.Show shown:
-                    InstructionTimer = NativeCountdown.FromRaw((ushort)shown.Duration);
+                    InstructionTimer = WrappingCountdown.FromRaw((ushort)shown.Duration);
                     Held = shown.Frame.Held;
                     NewlyPressed = shown.Frame.NewlyPressed;
                     Cursor = cursor;

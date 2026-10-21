@@ -21,7 +21,7 @@ public sealed class VerticalShutterEnemyState
     /// Wrapping AI-update countdown; initial waiting activates at zero, while endpoint resting resumes on signed
     /// underflow.
     /// </summary>
-    public NativeCountdown FunctionTimer { get; internal set; }
+    public WrappingCountdown FunctionTimer { get; internal set; }
     /// <summary>Downward signed 16.16 velocity in pixels per update, from the common linear-speed table.</summary>
     public SnesSignedSixteenSixteen DownVelocity { get; internal set; }
 
@@ -68,7 +68,7 @@ public sealed class VerticalShutterEnemyState
     internal void ClearWithRecord()
     {
         Function = null;
-        FunctionTimer = NativeCountdown.Start(0);
+        FunctionTimer = WrappingCountdown.Start(0);
         DownVelocity = SnesSignedSixteenSixteen.Zero;
         UpVelocity = SnesSignedSixteenSixteen.Zero;
     }

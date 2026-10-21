@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Core.Input;
+﻿using SuperMetroid.Core.Compatibility;
+using SuperMetroid.Core.Input;
 using System.Security.Cryptography;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend;
@@ -62,7 +63,7 @@ public static class AudioInputReplaySmokeTest
                 ? recording.InputAt(frameIndex)
                 : SnesButton.None;
             FrontendFrame frame = game.Step(input);
-            CartridgeAudioAcknowledgements acknowledgements = game.AudioAcknowledgementsForVerification;
+            SoundAcknowledgements acknowledgements = game.AudioAcknowledgementsForVerification;
             framesExecuted++;
 
             RoomHeaderDefinition? activeRoom = game.GameplayActiveRoom;
@@ -83,7 +84,7 @@ public static class AudioInputReplaySmokeTest
             powerBeamCommandObserved |= game.AudioEventsForVerification.Any(audioEvent =>
                 audioEvent is AudioEvent.StartSoundEffect { SoundEffect: var started } &&
                 started == SoundEffectLibrary1Sounds.PowerBeam);
-            powerBeamAcknowledged |= acknowledgements[ApuPort.SoundLibrary1] == 0x0b;
+            powerBeamAcknowledged |= acknowledgements[0] == 0x0b;
 
             if (game.GameState == SuperMetroidGameState.LoadingNextRoomB)
                 firstDoorBegan = true;

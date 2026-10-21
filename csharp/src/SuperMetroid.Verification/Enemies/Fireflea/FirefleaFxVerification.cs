@@ -57,7 +57,7 @@ internal static class FirefleaFxVerification
             AssertEqual(shade | 0x80, fixedColor.Green, $"Fireflea second COLDATA write frame {frame}");
             AssertEqual(shade | 0x40, fixedColor.Blue, $"Fireflea third COLDATA write frame {frame}");
         }
-        NativeCountdown timer = fx.Fireflea.Timer;
+        WrappingCountdown timer = fx.Fireflea.Timer;
         int red = fixedColor.Red;
         for (int frame = 0; frame < 100; frame++) fx.Step(BgArtworkFixtures.For(vram), new RoomLayer3FxFrame { Camera = Position16<RoomPixels>.Zero, TimeIsFrozen = true, MainGameLoopCarry = true });
         AssertEqual(timer, fx.Fireflea.Timer, "X-ray frozen time retains flashing phase");
@@ -118,7 +118,7 @@ internal static class FirefleaFxVerification
         var fixedColor = new FixedColorState();
         fireflea.Initialize();
         for (int frame = 0; frame < 10; frame++) fireflea.Step(fixedColor, frozen: false, darkness: 0);
-        NativeCountdown timer = fireflea.Timer;
+        WrappingCountdown timer = fireflea.Timer;
         int index = fireflea.Index;
         fireflea.Step(fixedColor, frozen: true, darkness: 2);
         AssertEqual(timer, fireflea.Timer, "frozen Fireflea holds its flash timer");

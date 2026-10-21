@@ -70,9 +70,9 @@ internal static class RidleyFullMovieVerification
         {
             runtime.System.SetRandomNumber((ushort)sample.First);
             (state ?? throw new InvalidOperationException("Verification requires state.")).Roaring = sample.Second; state.FacingDirection = sample.Third;
-            state.FunctionTimer = NativeCountdown.Start(20); samus.Pose = SamusPoseId.SpinJumpRightPose;
+            state.FunctionTimer = WrappingCountdown.Start(20); samus.Pose = SamusPoseId.SpinJumpRightPose;
             state.BodyProgram = pointers.BodyCursorAt(NativeSnapshotMemory.RidleyRightFlyingSleep);
-            body.InstructionTimer = NativeCountdown.Start(9); body.Timer = NativeCountdown.Start(11);
+            body.InstructionTimer = WrappingCountdown.Start(9); body.Timer = WrappingCountdown.Start(11);
             runtime.Enemies.RidleyBehavior.Combat.TickNorfairRidleyPogo(body, state, samus, VerticalDirection.Down);
             AssertEqual(sample.Fourth ? RidleyNativeInstructionPointers.BodyEntry(RidleyBodyProgram.Fireballing) : NativeSnapshotMemory.RidleyRightFlyingSleep,
                 pointers.Body(state), "native spin-response fireball threshold/roar/facing gate");
@@ -95,12 +95,12 @@ internal static class RidleyFullMovieVerification
         body.Position = body.Position.WithWhole(new(139, 282));
         body.SpritemapPointer = 0xe9e9; body.Properties = EnemyPropertyWord.FromNativeWord(0x3800);
         (state ?? throw new InvalidOperationException("Verification requires state.")).FightMode = RidleyFightMode.Fighting; state.MovementAnimationEnabled = true; state.FacingDirection = RidleyFacing.Left;
-        state.Function = RidleyAiFunction.NorfairCarryRelease; state.FunctionTimer = NativeCountdown.Start(10);
+        state.Function = RidleyAiFunction.NorfairCarryRelease; state.FunctionTimer = WrappingCountdown.Start(10);
         state.Velocity = state.Velocity.WithX(new SnesSignedEightEight(0xfc00)); state.Velocity = state.Velocity.WithY(new SnesSignedEightEight(0x0300));
         state.TailFunctionIndex = RidleyTailFunction.None;
         samus.Position = samus.Position.WithWhole(new(110, 300)); samus.Pose = SamusPoseId.NormalJumpAimDiagonalUpRightPose;
         samus.Health = 399; samus.EquippedItems = SamusEquipmentFlags.GravitySuit;
-        samus.InvincibilityTimer = NativeCountdown.Start(0); SamusPoseMetadata.RefreshCollisionRadii(samus);
+        samus.InvincibilityTimer = WrappingCountdown.Start(0); SamusPoseMetadata.RefreshCollisionRadii(samus);
         // One EnemyMain pass outside the frame loop, as the door-transition wait runs it: no prepared processing list.
         runtime.EnemyPhase.RunEnemyMainPhase(processingList: EnemyProcessingList.Unprepared, runtime.Room.Camera?.PreviousSamusPoint, runtime.Room.LoadedScope);
         AssertEqual(399, samus.Health, "source4234 body entering overlap cannot damage before next contact pass");
@@ -119,12 +119,12 @@ internal static class RidleyFullMovieVerification
         runtime.RoomLoader.InitializeStartingCeresRoom(); runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.Ridley);
         var body = runtime.Enemies.SlotTable.Slots[0]; var state = runtime.Enemies.RidleyEncounter.Ridley;
-        (state ?? throw new InvalidOperationException("Verification requires state.")).Function = RidleyAiFunction.NorfairSwoopSetup; state.FunctionTimer = NativeCountdown.Start(112);
+        (state ?? throw new InvalidOperationException("Verification requires state.")).Function = RidleyAiFunction.NorfairSwoopSetup; state.FunctionTimer = WrappingCountdown.Start(112);
         body.Position = body.Position.WithWhole(new(212, 200)); state.FacingDirection = RidleyFacing.Right;
         runtime.Enemies.RidleyBehavior.RunNorfairRidleyFunction(body, state, runtime.Player.Samus, 0, runtime.Room.LevelData);
         AssertEqual((ushort)112, state.FunctionTimer.RawValue, "native swoop setup retains general AI timer");
         AssertEqual((ushort)10, state.SwoopPhaseTimer.RawValue, "native swoop setup initializes independent countdown");
-        state.Function = RidleyAiFunction.NorfairSwoopAimDown; state.SwoopPhaseTimer = NativeCountdown.Start(1);
+        state.Function = RidleyAiFunction.NorfairSwoopAimDown; state.SwoopPhaseTimer = WrappingCountdown.Start(1);
         runtime.Enemies.RidleyBehavior.RunNorfairRidleyFunction(body, state, runtime.Player.Samus, 0, runtime.Room.LevelData);
         AssertEqual((ushort)0, state.SwoopPhaseTimer.RawValue, "native swoop decrements its own timer");
         AssertEqual((ushort)112, state.FunctionTimer.RawValue, "native swoop countdown retains general timer");
@@ -143,7 +143,7 @@ internal static class RidleyFullMovieVerification
         runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.Ridley);
         var body = runtime.Enemies.SlotTable.Slots[0]; var state = runtime.Enemies.RidleyEncounter.Ridley;
         runtime.Enemies.DeathsAndDrops.BindSamus(runtime.Player.Samus);
-        (state ?? throw new InvalidOperationException("Verification requires state.")).Function = RidleyAiFunction.NorfairDeathFinish; state.FunctionTimer = NativeCountdown.Start(0);
+        (state ?? throw new InvalidOperationException("Verification requires state.")).Function = RidleyAiFunction.NorfairDeathFinish; state.FunctionTimer = WrappingCountdown.Start(0);
         runtime.Enemies.RidleyBehavior.RunNorfairRidleyFunction(body, state, runtime.Player.Samus, 0, runtime.Room.LevelData);
         AssertEqual(RidleyAiFunction.NorfairDeathComplete, state.Function, "death finish selects native C600 return");
         AssertTrue(body.Properties.HasAny(EnemyProperties.Deleted), "death finish publishes deletion");
@@ -199,7 +199,7 @@ internal static class RidleyFullMovieVerification
         // Source10132 takes the zero-health branch, whose JMP executes C538 immediately.
         body.Position = new(new(134, 0x7d00), new(356, 0xec00)); body.Health = 0;
         state.Velocity = state.Velocity.WithX(new SnesSignedEightEight(0x1de)); state.Velocity = state.Velocity.WithY(new SnesSignedEightEight(0x419));
-        state.FightMode = RidleyFightMode.Fighting; state.GrabState = RidleyGrabState.Released; state.FunctionTimer = NativeCountdown.Start(0x29);
+        state.FightMode = RidleyFightMode.Fighting; state.GrabState = RidleyGrabState.Released; state.FunctionTimer = WrappingCountdown.Start(0x29);
         samus.Position = samus.Position.WithWhole(new(134, 411)); samus.Pose = SamusPoseId.FacingRightNormalPose;
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         runtime.Enemies.RidleyBehavior.Combat.TickNorfairRidleyGrabApproach(body, state, samus);
@@ -209,7 +209,7 @@ internal static class RidleyFullMovieVerification
         AssertEqual((ushort)0x29, state.FunctionTimer.RawValue, "death entry retains existing general countdown");
         foreach (var function in new[] { RidleyAiFunction.NorfairCarryRise, RidleyAiFunction.NorfairCarryRelease })
         {
-            state.Function = function; state.FunctionTimer = NativeCountdown.Start(0);
+            state.Function = function; state.FunctionTimer = WrappingCountdown.Start(0);
             state.Velocity = state.Velocity.WithX(new SnesSignedEightEight(0xffca)); state.Velocity = state.Velocity.WithY(new SnesSignedEightEight(0xfecb));
             state.Target = state.Target.WithX(208); body.Position = body.Position.WithWhole(new(212, 142));
             runtime.Enemies.RidleyBehavior.RunNorfairRidleyFunction(body, state, samus, 0, runtime.Room.LevelData);
@@ -487,7 +487,7 @@ internal static class RidleyFullMovieVerification
     internal static void VerifyRidleyScreenGate()
     {
         var body = new RoomEnemySlot(0, EnemySlotFixtures.Registry) { Position = FixedPosition<RoomPixels>.FromWhole(new(64, 253))};
-        var state = new RidleyEnemyState { FightMode = RidleyFightMode.Fighting, IntangibilityTimer = NativeCountdown.Start(3) };
+        var state = new RidleyEnemyState { FightMode = RidleyFightMode.Fighting, IntangibilityTimer = WrappingCountdown.Start(3) };
         // Original source 3062/3063: pre-movement Y253 is outside camera Y287.
         RidleyInteractions.UpdateNorfairRidleyIntangibility(body, state, new Position16<RoomPixels>(0, 287));
         AssertTrue(body.Properties.HasAny(EnemyProperties.IgnoreSamusCollision), "native above-camera Ridley disables collision");
@@ -537,8 +537,8 @@ internal static class RidleyFullMovieVerification
         SamusPoseMetadata.RefreshCollisionRadii(samus); SamusPresentation.InitializeAnimation(samus);
         samus.Position = new(new(202, 0x8000), new(425, ushort.MaxValue));
         samus.KnockbackActive = true; samus.KnockbackDirection = SamusKnockbackDirection.UpRight;
-        samus.KnockbackXDirection = KnockbackHorizontalDirection.Right; samus.KnockbackTimer = NativeCountdown.Start(4);
-        samus.InvincibilityTimer = NativeCountdown.Start(95);
+        samus.KnockbackXDirection = KnockbackHorizontalDirection.Right; samus.KnockbackTimer = WrappingCountdown.Start(4);
+        samus.InvincibilityTimer = WrappingCountdown.Start(95);
         samus.Kinematics.YDirection = SamusVerticalDirection.Up; samus.Kinematics.YSpeed = samus.Kinematics.YSpeed.WithWhole(5); samus.Kinematics.YSpeed = samus.Kinematics.YSpeed.WithFraction(0);
         runtime.StepFrame(0);
         AssertEqual(0x00cb4000u, samus.Kinematics.Position.X.RawValue, "stationary spring hurt frame preserves native displacement");
@@ -617,7 +617,7 @@ internal static class RidleyFullMovieVerification
         foreach (var sample in cases)
         {
             var slot = new RoomEnemySlot(0, EnemySlotFixtures.Registry) { Position = FixedPosition<RoomPixels>.FromWhole(new(sample.X, 0)),
-                InstructionTimer = NativeCountdown.Start(7), Timer = NativeCountdown.Start(9) };
+                InstructionTimer = WrappingCountdown.Start(7), Timer = WrappingCountdown.Start(9) };
             var state = new RidleyEnemyState { FacingDirection = sample.Facing };
             state.BodyProgram = pointers.BodyCursorAt(NativeSnapshotMemory.RidleyRightFlyingSleep);
             NorfairRidleyCombat.SelectNorfairRidleyFacingInstruction(slot, state);
@@ -628,7 +628,7 @@ internal static class RidleyFullMovieVerification
             AssertEqual(sample.Turn ? (ushort)2 : (ushort)7, slot.InstructionTimer.RawValue, "turn timer changes only when native condition is met");
             AssertEqual(sample.Turn ? (ushort)0 : (ushort)9, slot.Timer.RawValue, "loop counter is preserved when no turn is needed");
         }
-        var hoverState = new RidleyEnemyState { FunctionTimer = NativeCountdown.Start(0), Function = RidleyAiFunction.NorfairHover };
+        var hoverState = new RidleyEnemyState { FunctionTimer = WrappingCountdown.Start(0), Function = RidleyAiFunction.NorfairHover };
         NorfairRidleyCombat.TickNorfairRidleyHover(new RoomEnemySlot(0, EnemySlotFixtures.Registry), hoverState);
         AssertEqual(ushort.MaxValue, hoverState.FunctionTimer.RawValue, "native hover decrements zero before selecting next attack");
         AssertEqual(RidleyAiFunction.NorfairSelectAttack, hoverState.Function, "negative hover timer exits before movement");
@@ -771,7 +771,7 @@ internal static class RidleyFullMovieVerification
         var pipeBugPointers = new PipeBugNativeInstructionPointers(CartridgeImportSource.Require(bus));
         PipeBugEnemyState pipeBug = runtime.Enemies.PipeBugStates[6] ?? throw new InvalidOperationException("The source-room pipe bug has no state.");
         pipeBug.Program = pipeBugPointers.CursorAt(NativeSnapshotMemory.PipeBugBeforeFadeInstruction);
-        actor.InstructionTimer = NativeCountdown.Start(1);
+        actor.InstructionTimer = WrappingCountdown.Start(1);
         actor.SpritemapPointer = NativeSnapshotMemory.PipeBugBeforeFadeSpritemap;
         game.Step(0);
         AssertEqual(0xadd4, runtime.System.RandomNumber, "first source fade advances native HDMA/RNG");

@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Bosses.MotherBrain;
 namespace SuperMetroid.Verification.Bosses.MotherBrain;
@@ -21,13 +20,13 @@ internal static class RinkaRecordStateVerification
         state.Function = Enum.GetValues<RinkaEnemyFunction>()[^1];
         state.Velocity = new EightEightVector<RoomPixels>(new SnesSignedEightEight(1), default);
         state.SpawnResourceToken = 1;
-        state.DelayTimer = NativeCountdown.Start(1);
+        state.DelayTimer = WrappingCountdown.Start(1);
 
         slot.Clear();
         AssertEqual<RinkaEnemyFunction?>(null, state.Function, "a kill empties Function");
         AssertEqual<EightEightVector<RoomPixels>>(default(EightEightVector<RoomPixels>), state.Velocity, "a kill empties Velocity");
         AssertEqual<int>(0, state.SpawnResourceToken, "a kill empties SpawnResourceToken");
-        AssertEqual<NativeCountdown>(NativeCountdown.Start(0), state.DelayTimer, "a kill empties DelayTimer");
+        AssertEqual<WrappingCountdown>(WrappingCountdown.Start(0), state.DelayTimer, "a kill empties DelayTimer");
         Console.WriteLine("Rinka record state: a kill empties every value the record holds.");
     }
 

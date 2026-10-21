@@ -11,7 +11,7 @@ public sealed class FlyEnemyState
     internal AnimationProgramCursor<FlyProgram> Program { get; set; }
 
     /// <summary>Counts up per attack update, down through signed underflow during retreat, and then down from 24 to gate another idle attack.</summary>
-    public NativeCountdown RetreatTimer { get; internal set; }
+    public WrappingCountdown RetreatTimer { get; internal set; }
 
     /// <summary>
     /// Signed 8.8 attack/retreat velocity in room pixels per actor update: X sampled from Samus's attack-start angle
@@ -35,7 +35,7 @@ public sealed class FlyEnemyState
     /// <summary>Empties every value, when a kill empties the enemy's common record.</summary>
     internal void ClearWithRecord()
     {
-        RetreatTimer = NativeCountdown.Start(0);
+        RetreatTimer = WrappingCountdown.Start(0);
         Velocity = new EightEightVector<RoomPixels>(0, 0);
         TargetHeight = Position16<RoomPixels>.Zero;
         Angle = SnesAngle.Zero;

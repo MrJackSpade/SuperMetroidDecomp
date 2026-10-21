@@ -18,7 +18,7 @@ public sealed class CeresDepartureState
     public CeresDeparturePhase Phase { get; private set; } = CeresDeparturePhase.Inactive;
 
     /// <summary>Live state-$20 countdown seeded to 60 by Samus code two.</summary>
-    public NativeCountdown HoldFramesRemaining { get; private set; }
+    public WrappingCountdown HoldFramesRemaining { get; private set; }
 
     /// <summary>
     /// Master brightness during the state-$21 fade, from fifteen (full) down to zero (forced blank); every step is
@@ -33,7 +33,7 @@ public sealed class CeresDepartureState
         if (Phase != CeresDeparturePhase.Inactive)
             throw new InvalidOperationException("Ceres elevator departure was started twice.");
 
-        HoldFramesRemaining = NativeCountdown.Start(CeresElevatorShaftRoomMainState.DepartureHoldFrames);
+        HoldFramesRemaining = WrappingCountdown.Start(CeresElevatorShaftRoomMainState.DepartureHoldFrames);
         Brightness = 15;
         Phase = CeresDeparturePhase.HoldingOnElevator;
     }

@@ -45,7 +45,7 @@ internal static class CeresSteamDefinitionsVerification
                 ?? throw new InvalidOperationException("The initialized vent has no state.");
             AssertEqual<CeresSteamFunction?>(definition.Function, steamState.Function,
                 $"production Ceres steam {variant} function");
-            AssertEqual(NativeCountdown.Start(0x0020), steamState.ActivationDelay,
+            AssertEqual(WrappingCountdown.Start(0x0020), steamState.ActivationDelay,
                 $"production Ceres steam {variant} activation timer");
         }
 

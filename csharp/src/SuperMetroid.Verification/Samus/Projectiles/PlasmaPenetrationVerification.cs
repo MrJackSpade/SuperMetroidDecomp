@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Samus.Projectiles;
 namespace SuperMetroid.Verification.Samus.Projectiles;
@@ -22,7 +21,7 @@ internal static class PlasmaPenetrationVerification
             slot.Damage = 100;
             slot.Direction = (ushort)SamusProjectileDirection.Right;
             slot.Cursor = ProjectileFixtureCursors.Active;
-            slot.InstructionTimer = NativeCountdown.Start(7);
+            slot.InstructionTimer = WrappingCountdown.Start(7);
             var bombs = new SamusBombProjectileSystem();
             for (int hit = 0; hit < 2; hit++)
             {

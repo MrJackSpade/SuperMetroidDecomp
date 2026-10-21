@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Compatibility;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Frontend.Ending.Artwork;
@@ -54,7 +55,7 @@ public static class CreditsPresentationExtractor
 
         var rows = new List<ushort[]>(CreditsPresentationDefinitions.ExpectedCompiledRows);
         ushort pointer = CreditsPresentationDefinitions.Native.InitialInstruction;
-        NativeCountdown timer = NativeCountdown.Start(0);
+        WrappingCountdown timer = WrappingCountdown.Start(0);
         for (int operation = 0; operation < CreditsPresentationDefinitions.Native.MaximumOperations; operation++)
         {
             ushort instruction = ReadWord(bus, pointer);
@@ -88,7 +89,7 @@ public static class CreditsPresentationExtractor
             switch (command)
             {
                 case CreditsInstruction.SetTimer:
-                    timer = NativeCountdown.FromRaw(ReadWord(bus, Add(pointer, 2)));
+                    timer = WrappingCountdown.FromRaw(ReadWord(bus, Add(pointer, 2)));
                     pointer = Add(pointer, 4);
                     break;
                 case CreditsInstruction.DecrementTimerAndGoto:

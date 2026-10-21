@@ -1,5 +1,4 @@
 using SuperMetroid.Verification.Samus.Projectiles;
-using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Enemies;
@@ -54,12 +53,12 @@ internal static class MotherBrainPlasmaImpactVerification
                 "Later overlap does not spend walk credit again");
         }
         // Later checks are new shots after that immunity has run out.
-        head.InvincibilityTimer = NativeCountdown.Start(0);
+        head.InvincibilityTimer = WrappingCountdown.Start(0);
         state.Form = MotherBrainForm.Glass;
         SeedChargedPlasma();
         Hit();
         AssertEqual(17550, head.Health, "First form retains its missile-only damage restriction");
-        head.InvincibilityTimer = NativeCountdown.Start(0);
+        head.InvincibilityTimer = WrappingCountdown.Start(0);
         state.Form = MotherBrainForm.ThirdPhase;
         state.RainbowBeamSequence = new MotherBrainRainbowBeamAttackSequence();
         state.RainbowBeamSequence.State.Body.Form = MotherBrainForm.ThirdPhase;
@@ -69,7 +68,7 @@ internal static class MotherBrainPlasmaImpactVerification
         shot.Type = 0x9018; shot.Damage = 1000; shot.PreInstruction = SamusProjectilePreInstruction.HyperBeam;
         // The first case's Plasma hit left the head invincible; $A0:A17C skips it until the
         // timer expires, so this case starts once that immunity has run out.
-        head.InvincibilityTimer = NativeCountdown.Start(0);
+        head.InvincibilityTimer = WrappingCountdown.Start(0);
         AssertEqual(1, Hit(), "Hyper Beam still accepts its later-form damage callback");
         AssertEqual(16550, head.Health, "Hyper Beam retains its native charged damage selection");
         AssertEqual(MotherBrainPhase3NeckPhase.SetupHyperBeamRecoil, state.RainbowBeamSequence.ThirdPhaseFight.Phase3NeckPhase,
@@ -83,7 +82,7 @@ internal static class MotherBrainPlasmaImpactVerification
         {
             shot.Type = 0x8018; shot.Damage = 450; shot.Direction = 2;
             shot.Position = shot.Position.WithWhole(new(128, 128)); shot.Radius = new(4, 4);
-            shot.Cursor = ProjectileFixtureCursors.Active; shot.InstructionTimer = NativeCountdown.Start(1);
+            shot.Cursor = ProjectileFixtureCursors.Active; shot.InstructionTimer = WrappingCountdown.Start(1);
             shot.PreInstruction = SamusProjectilePreInstruction.NoWaveBeam;
         }
     }

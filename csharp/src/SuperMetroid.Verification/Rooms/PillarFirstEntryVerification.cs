@@ -61,7 +61,7 @@ internal static class PillarFirstEntryVerification
         var audio = new CartridgeAudioState();
         transition.Begin(runtime);
         for (int frame = 0; transition.IsActive && frame < 400; frame++)
-            transition.Step(runtime, audio, 0, SuperMetroid.Core.Rooms.Doors.LagFreeDoorLoaderProgress.Instance);
+            transition.Step(runtime, audio, 0, SuperMetroid.Core.Compatibility.InstantRoomLoad.Instance);
         AssertTrue(!transition.IsActive, "Pillar Room transition completes");
         AssertEqual(destination, runtime.Room.LoadedRoom.Definition, "Pillar Room entered through retail door");
         AssertEqual(2, runtime.Enemies.NuclearWaffleStates.Count(state => state is not null),

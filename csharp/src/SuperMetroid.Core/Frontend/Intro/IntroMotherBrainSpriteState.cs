@@ -18,7 +18,7 @@ internal sealed class IntroMotherBrainSpriteState
         new(IntroMotherBrainDefinitions.MotherBrainOrigin, IntroCinematicRomData.Objects.DiscoveryPalette.Raw,
             IntroMotherBrainDefinitions.MotherBrain.Program);
     /// <summary>Remaining palette alternations after a missile hit.</summary>
-    private NativeCountdown hurtFlashTimer;
+    private WrappingCountdown hurtFlashTimer;
     /// <summary>
     /// Updates since the fourth hit began the explosion phase: zero at the hit, counted up once per update to the
     /// 128 that starts the page-two program, after which it is no longer advanced.
@@ -122,7 +122,7 @@ internal sealed class IntroMotherBrainSpriteState
     /// <summary>Records the synchronous hit side effects after the projectile is killed.</summary>
     public bool RegisterMissileHit()
     {
-        hurtFlashTimer = NativeCountdown.Start(8);
+        hurtFlashTimer = WrappingCountdown.Start(8);
         HitCount++;
         if (HitCount != 4)
             return false;

@@ -31,7 +31,7 @@ public sealed class RinkaEnemyState
     }
 
     /// <summary>Wrapping 16-bit countdown used both before flight and before special respawn.</summary>
-    public NativeCountdown DelayTimer { get; internal set; }
+    public WrappingCountdown DelayTimer { get; internal set; }
 
     /// <summary>Empties the values the cartridge keeps in the enemy's common record.</summary>
     internal void ClearWithRecord()
@@ -39,6 +39,6 @@ public sealed class RinkaEnemyState
         Function = null;
         Velocity = default;
         SpawnResourceToken = 0;
-        DelayTimer = NativeCountdown.Start(0);
+        DelayTimer = WrappingCountdown.Start(0);
     }
 }

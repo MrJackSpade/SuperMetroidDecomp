@@ -81,7 +81,7 @@ internal sealed class MotherBrainAscent
             state.Head.Properties.Without(EnemyProperties.IgnoreSamusCollision);
         state.Head.Health = 18000;
         state.Function = MotherBrainBodyFunction.FakeDeathAscentPauseForSuspense;
-        state.FunctionTimer = NativeCountdown.Start(128);
+        state.FunctionTimer = WrappingCountdown.Start(128);
 
         // `$8D49` falls directly into `$8D79`; the freshly written timer is observed as
         // $007F before another enemy slot can run.
@@ -96,7 +96,7 @@ internal sealed class MotherBrainAscent
             return;
 
         state.Function = MotherBrainBodyFunction.FakeDeathAscentPrepareForRising;
-        state.FunctionTimer = NativeCountdown.Start(32);
+        state.FunctionTimer = WrappingCountdown.Start(32);
         PrepareMotherBrainForRising(state);
     }
 
@@ -114,7 +114,7 @@ internal sealed class MotherBrainAscent
         state.Head.Properties = state.Head.Properties.With(EnemyProperties.Invisible);
         MotherBrainEncounterAccess.SetMotherBrainBrainProgram(state, MotherBrainHeadProgram.Initial);
         state.Function = MotherBrainBodyFunction.FakeDeathAscentLoadLegTiles;
-        state.FunctionTimer = NativeCountdown.Start(256);
+        state.FunctionTimer = WrappingCountdown.Start(256);
 
         // The first $0200-byte transfer is queued on the same frame as HDMA creation.
         LoadMotherBrainLegTiles(state);
@@ -172,13 +172,13 @@ internal sealed class MotherBrainAscent
     internal void StartMotherBrainAscent(MotherBrainEnemyState state)
     {
         MotherBrainEncounterAccess.SetMotherBrainBodyProgram(state, MotherBrainBodyProgram.Crouched);
-        state.Head.InstructionTimer = NativeCountdown.Start(1);
+        state.Head.InstructionTimer = WrappingCountdown.Start(1);
         state.Body.Properties = state.Body.Properties.Without(EnemyProperties.Invisible);
         state.Body.Position = state.Body.Position.WithWhole(new(59, 279));
         MotherBrainBody.PublishMotherBrainBg2Scroll(state, new(unchecked((ushort)-27), unchecked((ushort)-217)));
         state.RequestMusic(MusicCommand.SelectTrack(5), MusicCommandDelay.EightFrames);
         _earthquake.EarthquakeType = 2;
-        _earthquake.EarthquakeTimer = NativeCountdown.Start(256);
+        _earthquake.EarthquakeTimer = WrappingCountdown.Start(256);
         state.NeckAngleDelta = 80;
         state.NeckMovementEnabled = true;
         state.LowerNeckMovementIndex = MotherBrainNeckMovement.Raise;
@@ -204,7 +204,7 @@ internal sealed class MotherBrainAscent
         state.EnemyBg2TilemapSize = 320;
         state.EnemyBg2TilemapTransferRequested = true;
         state.Body.Position = state.Body.Position.WithWholeY(188);
-        _earthquake.EarthquakeTimer = NativeCountdown.Start(0);
+        _earthquake.EarthquakeTimer = WrappingCountdown.Start(0);
         state.RisingHdmaActive = false;
         MotherBrainEncounterAccess.SetMotherBrainBodyProgram(state, MotherBrainBodyProgram.StandAfterCrouchSlow);
         state.Function = MotherBrainBodyFunction.FakeDeathAscentWaitUntilUncrouched;
@@ -213,10 +213,10 @@ internal sealed class MotherBrainAscent
     /// <summary>Emits dust at the feet as the body rises from the floor.</summary>
     private void SpawnMotherBrainAscentDust(MotherBrainEnemyState state)
     {
-        NativeWordCounterStep timer = state.BodySubFunctionTimer.Decrement();
+        CountdownStep timer = state.BodySubFunctionTimer.Decrement();
         state.BodySubFunctionTimer = timer.Remaining;
         if (timer.IsNegative)
-            state.BodySubFunctionTimer = NativeCountdown.Start(7);
+            state.BodySubFunctionTimer = WrappingCountdown.Start(7);
 
         ushort x = MotherBrainBehavior.MotherBrainAscentDustXPositions[state.BodySubFunctionTimer.RawValue];
         int random = _room.Random.Read();
@@ -233,7 +233,7 @@ internal sealed class MotherBrainAscent
 
         state.GrayTransitionCounter = 0;
         state.Function = MotherBrainBodyFunction.FakeDeathAscentTransitionFromGray;
-        state.FunctionTimer = NativeCountdown.Start(0);
+        state.FunctionTimer = WrappingCountdown.Start(0);
     }
 
     /// <summary>Applies the phase-two head shake before normal combat begins.</summary>
@@ -246,7 +246,7 @@ internal sealed class MotherBrainAscent
         MotherBrainEncounterAccess.SetMotherBrainBrainProgram(state, MotherBrainHeadProgram.StretchingPhase2);
         state.Function = MotherBrainBodyFunction.SecondPhaseStretchingBringHeadUp;
         state.NeckAngleDelta = 64;
-        state.FunctionTimer = NativeCountdown.Start(256);
+        state.FunctionTimer = WrappingCountdown.Start(256);
         BringMotherBrainHeadBackUp(state);
     }
 
@@ -260,7 +260,7 @@ internal sealed class MotherBrainAscent
         state.LowerNeckMovementIndex = MotherBrainNeckMovement.BobDown;
         state.UpperNeckMovementIndex = MotherBrainNeckMovement.BobUp;
         state.Function = MotherBrainBodyFunction.SecondPhaseStretchingFinish;
-        state.FunctionTimer = NativeCountdown.Start(64);
+        state.FunctionTimer = WrappingCountdown.Start(64);
         FinishMotherBrainStretching(state);
     }
 

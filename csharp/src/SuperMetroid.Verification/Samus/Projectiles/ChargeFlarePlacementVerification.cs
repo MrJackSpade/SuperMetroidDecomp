@@ -172,7 +172,7 @@ internal static class ChargeFlarePlacementVerification
         runtime.Player.IntroducedSamus.Position = runtime.Player.IntroducedSamus.Position.WithWhole(new((ushort)(runtime.Room.LoadedCamera.PixelPosition.X + 100), (ushort)(runtime.Room.LoadedCamera.PixelPosition.Y + 100)));
         SamusPresentation.InitializeAnimation(runtime.Player.IntroducedSamus); runtime.Player.IntroducedSamus.Presentation.PrimeGraphics(runtime.Player.IntroducedSamus);
         runtime.Projectiles.Charge.FlareCounter = 30;
-        Array.Fill(runtime.Projectiles.Charge.FlareTimers, NativeCountdown.Start(100));
+        Array.Fill(runtime.Projectiles.Charge.FlareTimers, WrappingCountdown.Start(100));
         var game = CreateRetailGameFixture(new SuperMetroid.Core.Saves.SaveSlotStore(), random: random);
         game.AdoptRuntime(runtime);
         // The fixture game has no host artwork of its own; adopting the runtime cleared its projectile sheets.

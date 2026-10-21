@@ -29,7 +29,7 @@ internal static class BoulderBounceDefinitionsVerification
             ushort expected = CartridgeImportSource.Require(rom).ReadCartridgeWord(address);
             AssertEqual(expected, BoulderBounceDefinitions.SpeedIndex(counter), "Boulder native leading-zero/bounce word");
             actor.Position = actor.Position.WithY(new(55, 0));
-            state.BounceCounter = NativeCountdown.FromRaw(counter);
+            state.BounceCounter = WrappingCountdown.FromRaw(counter);
             state.BounceSpeedAccumulator = 0x2000;
             state.Function = BoulderAiFunction.Falling;
             fall(actor, state, level);

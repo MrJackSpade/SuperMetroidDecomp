@@ -160,7 +160,7 @@ internal static class DraygonAnimationsVerification
     {
         (_, DraygonEnemyState state) = NewDraygon();
         state.SetCursor(state.Body, AnimationProgramCursor<DraygonProgram>.Start(DraygonProgram.BodyFacingRightReset));
-        state.Body.InstructionTimer = NativeCountdown.Start(1);
+        state.Body.InstructionTimer = WrappingCountdown.Start(1);
         Pass(state.Body);
         AssertEqual(AnimationProgramCursor<DraygonProgram>.Start(DraygonProgram.EyeFacingRightIdle), state.Cursor(state.Eye), "the reset starts the eye");
         AssertEqual(AnimationProgramCursor<DraygonProgram>.Start(DraygonProgram.TailFacingRightIdle), state.Cursor(state.Tail), "the reset starts the tail");
@@ -183,7 +183,7 @@ internal static class DraygonAnimationsVerification
         (RoomEnemySystem enemies, DraygonEnemyState state) = NewDraygon();
         RoomEnemySlot arms = state.Arms;
         state.SetCursor(arms, AnimationProgramCursor<DraygonProgram>.Start(DraygonProgram.ArmsFacingLeftDying));
-        arms.InstructionTimer = NativeCountdown.Start(1);
+        arms.InstructionTimer = WrappingCountdown.Start(1);
         var native = new NativeEnemyListDefinitions.Reader(BodyBankNumber, Entry(DraygonProgram.ArmsFacingLeftDying), 1, OperandWords);
         bool paralysed = false;
         for (int update = 0; update < 400; update++)

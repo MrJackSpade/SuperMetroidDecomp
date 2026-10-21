@@ -60,7 +60,7 @@ public interface IRoomSamus
     int ProjectileFlareCounter { get; set; }
 
     /// <summary>The remaining invincibility frames.</summary>
-    NativeCountdown InvincibilityTimer { get; set; }
+    WrappingCountdown InvincibilityTimer { get; set; }
 
     /// <summary>The controls stations lock and release.</summary>
     IRoomSamusControl Control { get; }

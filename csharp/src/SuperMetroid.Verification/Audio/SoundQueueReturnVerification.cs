@@ -33,7 +33,7 @@ internal static class SoundQueueReturnVerification
             byte acknowledgement = 0;
             for (int frame = 0; frame < 256; frame++)
             {
-                foreach (var command in queue.AdvanceFrame(new CartridgeAudioAcknowledgements(0, 0, 0, acknowledgement)))
+                foreach (var command in queue.AdvanceFrame(new SoundAcknowledgements(0, 0, acknowledgement)))
                 {
                     if (command == new CartridgeAudioCommand.WritePort(ApuPort.SoundLibrary3, 0)) acknowledgement = 0;
                     else if (command == new CartridgeAudioCommand.WritePort(ApuPort.SoundLibrary3, 0x22))

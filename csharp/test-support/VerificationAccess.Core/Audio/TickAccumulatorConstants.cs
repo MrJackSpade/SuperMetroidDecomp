@@ -1,4 +1,6 @@
-﻿namespace SuperMetroid.Core.Audio;
+﻿using SuperMetroid.Core.Compatibility;
+using SuperMetroid.Core.Compatibility;
+namespace SuperMetroid.Core.Audio;
 
 /// <summary>Cartridge values and helpers of <see cref="TickAccumulator"/> that only verification reads.</summary>
 internal static class TickAccumulatorConstants

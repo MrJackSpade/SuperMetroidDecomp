@@ -202,8 +202,8 @@ public sealed class RoomPaletteFxSystem
         slot.ColorIndex = 0;
         slot.PreInstruction = PaletteFxPreInstruction.Null;
         slot.Cursor = AnimationProgramCursor<PaletteFxProgram>.Start(compiled.InitialProgram);
-        slot.InstructionTimer = NativeCountdown.Start(1);
-        slot.Timer = NativeCountdown.Start(0);
+        slot.InstructionTimer = WrappingCountdown.Start(1);
+        slot.Timer = WrappingCountdown.Start(0);
 
         PaletteFxSetup setup = compiled.SetupCallback;
         switch (setup)
@@ -258,7 +258,7 @@ public sealed class RoomPaletteFxSystem
                 if (conditions.SamusY <
                     CrateriaLightningPaletteFxColorDefinitions.VerticalSwitchSamusY)
                 {
-                    slot.InstructionTimer = NativeCountdown.Start(1);
+                    slot.InstructionTimer = WrappingCountdown.Start(1);
                     slot.Cursor = AnimationProgramCursor<PaletteFxProgram>.Start(PaletteFxProgram.Crateria11);
                 }
                 return;
@@ -267,7 +267,7 @@ public sealed class RoomPaletteFxSystem
                 if (conditions.SamusY <
                     CrateriaLightningPaletteFxColorDefinitions.VerticalSwitchSamusY)
                 {
-                    slot.InstructionTimer = NativeCountdown.Start(1);
+                    slot.InstructionTimer = WrappingCountdown.Start(1);
                     slot.Cursor = AnimationProgramCursor<PaletteFxProgram>.Start(PaletteFxProgram.CrateriaAboveY380Second);
                 }
                 return;
@@ -334,7 +334,7 @@ public sealed class RoomPaletteFxSystem
             return;
 
         _session.PreviousSamusInHeatPaletteIndex = _session.SamusInHeatPaletteIndex;
-        slot.InstructionTimer = NativeCountdown.Start(1);
+        slot.InstructionTimer = WrappingCountdown.Start(1);
         slot.Cursor = AnimationProgramCursor<PaletteFxProgram>.Start(PaletteFxHeatPrograms.Phase(
             PaletteFxHeatPrograms.SuitFor(equippedItems),
             _session.SamusInHeatPaletteIndex));
@@ -347,7 +347,7 @@ public sealed class RoomPaletteFxSystem
         PaletteFxSlot slot)
     {
         AnimationProgramCursor<PaletteFxProgram> cursor = slot.Cursor;
-        NativeCountdown timer = slot.Timer;
+        WrappingCountdown timer = slot.Timer;
         AnimationProgramAdvance<PaletteFxFrame> advance = PaletteFxAnimations.Programs.Advance(ref cursor, ref timer,
             (cue, _) =>
             {
@@ -359,7 +359,7 @@ public sealed class RoomPaletteFxSystem
         switch (advance)
         {
             case AnimationProgramAdvance<PaletteFxFrame>.Show shown:
-                slot.InstructionTimer = NativeCountdown.FromRaw((ushort)shown.Duration);
+                slot.InstructionTimer = WrappingCountdown.FromRaw((ushort)shown.Duration);
                 WritePaletteRecord(cgram, colors, slot, shown.Frame);
                 return;
             case AnimationProgramAdvance<PaletteFxFrame>.Stop:
@@ -450,9 +450,9 @@ public sealed class RoomPaletteFxSystem
         /// <summary>Where this object's typed program resumes.</summary>
         public AnimationProgramCursor<PaletteFxProgram> Cursor { get; set; }
         /// <summary>Frames remaining before this object's next bytecode step.</summary>
-        public NativeCountdown InstructionTimer { get; set; }
+        public WrappingCountdown InstructionTimer { get; set; }
         /// <summary>Loop counter consumed by the decrement-and-goto command.</summary>
-        public NativeCountdown Timer { get; set; }
+        public WrappingCountdown Timer { get; set; }
 
         /// <summary>Releases the object and clears every native interpreter word for reuse.</summary>
         public void Clear()
@@ -461,8 +461,8 @@ public sealed class RoomPaletteFxSystem
             ColorIndex = 0;
             PreInstruction = null;
             Cursor = default;
-            InstructionTimer = NativeCountdown.Start(0);
-            Timer = NativeCountdown.Start(0);
+            InstructionTimer = WrappingCountdown.Start(0);
+            Timer = WrappingCountdown.Start(0);
         }
     }
 }

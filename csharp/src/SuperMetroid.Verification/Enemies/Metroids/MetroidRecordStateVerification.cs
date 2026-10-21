@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Rooms.SpriteObjects;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Metroids;
 namespace SuperMetroid.Verification.Enemies.Metroids;
@@ -21,12 +20,12 @@ internal static class MetroidRecordStateVerification
         var state = new MetroidEnemyState(new RoomSpriteObjectSlot(0), new RoomSpriteObjectSlot(1));
         slot.SetSpeciesState(state, state.ClearWithRecord);
         state.Velocity = FixedVector<RoomPixels>.FromWords(1, 0, 0, 0);
-        state.EscapeTimer = NativeCountdown.Start(1);
+        state.EscapeTimer = WrappingCountdown.Start(1);
         state.Function = Enum.GetValues<MetroidAiFunction>()[^1];
 
         slot.Clear();
         AssertEqual<FixedVector<RoomPixels>>(FixedVector<RoomPixels>.Zero, state.Velocity, "a kill empties Velocity");
-        AssertEqual<NativeCountdown>(NativeCountdown.Start(0), state.EscapeTimer, "a kill empties EscapeTimer");
+        AssertEqual<WrappingCountdown>(WrappingCountdown.Start(0), state.EscapeTimer, "a kill empties EscapeTimer");
         AssertEqual<MetroidAiFunction>(default(MetroidAiFunction), state.Function, "a kill empties Function");
         Console.WriteLine("Metroid record state: a kill empties every value the record holds.");
     }

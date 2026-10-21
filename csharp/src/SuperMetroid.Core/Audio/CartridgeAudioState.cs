@@ -36,7 +36,7 @@ public sealed class CartridgeAudioState
     private readonly byte[] _currentSounds = new byte[AudioRomData.Queues.SoundLibraryCount];
 
     /// <summary>The request bytes the three sound dispatchers last wrote to their APU ports; port 0 is zero.</summary>
-    internal CartridgeAudioAcknowledgements SoundPortWrites => new(0, _currentSounds[0], _currentSounds[1], _currentSounds[2]);
+    internal SoundAcknowledgements SoundPortWrites => new(_currentSounds[0], _currentSounds[1], _currentSounds[2]);
     /// <summary>Two-frame hold before a recognized SFX request is cleared from the APU port.</summary>
     private readonly byte[] _soundClearDelays =
         new byte[AudioRomData.Queues.SoundLibraryCount];
@@ -51,7 +51,7 @@ public sealed class CartridgeAudioState
     /// The music delay countdown. It expires on reaching zero, and a cleared timer wraps negative on the
     /// next call, which is what fetches the next queued entry.
     /// </summary>
-    internal NativeCountdown MusicTimer { get; private set; }
+    internal WrappingCountdown MusicTimer { get; private set; }
     /// <summary>Music command currently awaiting delay expiry and APU dispatch.</summary>
     private MusicCommand _musicEntry = MusicCommand.Stop;
     /// <summary>Sound-handler calls, 0 through <see cref="AudioRomData.Queues.MusicAndSfxDowntimeFrames"/>, for which a music change forces all SFX ports to zero.</summary>
@@ -283,7 +283,7 @@ public sealed class CartridgeAudioState
 
     /// <summary>Runs selected audio dispatch owners and returns their pending APU writes, which only the session's port model consumes.</summary>
     internal IReadOnlyList<CartridgeAudioCommand> AdvanceFrame(
-        CartridgeAudioAcknowledgements acknowledgements,
+        SoundAcknowledgements acknowledgements,
         bool advanceMusicQueue = true,
         int soundEffectHandlerCalls = 1)
     {
@@ -331,7 +331,7 @@ public sealed class CartridgeAudioState
     /// <summary>Advances the bank-80 timer and emits either a data upload or music port write at expiry.</summary>
     private void HandleMusicQueue(List<CartridgeAudioCommand> commands)
     {
-        NativeWordCounterStep step = MusicTimer.Decrement();
+        CountdownStep step = MusicTimer.Decrement();
         MusicTimer = step.Remaining;
         bool timerExpired = step.IsZero;
         if (step.IsNonNegative)
@@ -373,7 +373,7 @@ public sealed class CartridgeAudioState
         }
 
         _musicEntry = _musicEntries[MusicReadPosition];
-        MusicTimer = NativeCountdown.Start(MusicDelays[MusicReadPosition].Frames);
+        MusicTimer = WrappingCountdown.Start(MusicDelays[MusicReadPosition].Frames);
     }
 
     /// <summary>Retires the processed music command and its delay before fetching the next entry.</summary>
@@ -386,7 +386,7 @@ public sealed class CartridgeAudioState
 
     /// <summary>Either clears all three SFX ports during music downtime or advances their independent handshakes.</summary>
     private void HandleSoundEffects(
-        CartridgeAudioAcknowledgements acknowledgements,
+        SoundAcknowledgements acknowledgements,
         List<CartridgeAudioCommand> commands)
     {
         if (_soundHandlerDowntime != 0)
@@ -407,7 +407,7 @@ public sealed class CartridgeAudioState
         for (int queue = 0; queue < AudioRomData.Queues.SoundLibraryCount; queue++)
             HandleSoundEffectQueue(
                 queue,
-                acknowledgements[ApuPorts.ForSoundLibrary(queue)],
+                acknowledgements[queue],
                 commands);
     }
 
@@ -438,7 +438,7 @@ public sealed class CartridgeAudioState
                 break;
 
             case 2: // $82:8A6C - wait two frames, then clear both request and mirror.
-                if ((_soundClearDelays[queue] = NativeWordCounter.DecrementByte(_soundClearDelays[queue])) == 0)
+                if ((_soundClearDelays[queue] = WrappingCounter.DecrementByte(_soundClearDelays[queue])) == 0)
                 {
                     commands.Add(new CartridgeAudioCommand.WritePort(
                         ApuPorts.ForSoundLibrary(queue), 0));

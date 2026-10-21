@@ -2,7 +2,6 @@ using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Bosses.Draygon;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 using SuperMetroid.Core.Hud;
@@ -35,8 +34,8 @@ internal static class DraygonGoopTouchOrderVerification
             runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.Draygon);
             SamusState samus = runtime.Player.IntroducedSamus;
             samus.Position = FixedPosition<RoomPixels>.FromWhole(new(samusX, 385));
-            samus.InvincibilityTimer = NativeCountdown.Start(96);
-            samus.KnockbackTimer = NativeCountdown.Start(5);
+            samus.InvincibilityTimer = WrappingCountdown.Start(96);
+            samus.KnockbackTimer = WrappingCountdown.Start(5);
             samus.XSpeedDivisor = 0;
             var enemies = runtime.Enemies;
             var goop = enemies.Projectiles.EnemyProjectiles[^1];

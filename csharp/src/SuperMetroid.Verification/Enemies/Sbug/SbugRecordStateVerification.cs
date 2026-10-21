@@ -18,16 +18,16 @@ internal static class SbugRecordStateVerification
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         var state = new SbugEnemyState(slot);
         slot.SetSpeciesState(state, state.ClearWithRecord);
-        state.StraightMovementTimer = NativeCountdown.Start(1);
+        state.StraightMovementTimer = WrappingCountdown.Start(1);
         state.Function = Enum.GetValues<SbugEnemyFunction>()[^1];
         state.FaceCustomHeading(SnesAngle.FromTableIndex(1));
-        state.MovementTimer = NativeCountdown.Start(1);
+        state.MovementTimer = WrappingCountdown.Start(1);
 
         slot.Clear();
-        AssertEqual<NativeCountdown>(NativeCountdown.Start(0), state.StraightMovementTimer, "a kill empties StraightMovementTimer");
+        AssertEqual<WrappingCountdown>(WrappingCountdown.Start(0), state.StraightMovementTimer, "a kill empties StraightMovementTimer");
         AssertEqual<SbugEnemyFunction?>(null, state.Function, "a kill empties Function");
         AssertEqual<SnesAngle>(SnesAngle.FromTableIndex(0), state.CustomHeading, "a kill empties CustomHeading");
-        AssertEqual<NativeCountdown>(NativeCountdown.Start(0), state.MovementTimer, "a kill empties MovementTimer");
+        AssertEqual<WrappingCountdown>(WrappingCountdown.Start(0), state.MovementTimer, "a kill empties MovementTimer");
         Console.WriteLine("Sbug record state: a kill empties every value the record holds.");
     }
 

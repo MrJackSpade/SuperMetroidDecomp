@@ -27,10 +27,10 @@ internal sealed class CeresRidleyFades
     {
         // The original INC/BNE sequence advances once per AI call for every reachable
         // counter value, resetting the scratch timer immediately afterward.
-        state.FunctionTimer = NativeCountdown.FromRaw(unchecked((ushort)(state.FunctionTimer.RawValue + 1)));
+        state.FunctionTimer = WrappingCountdown.FromRaw(unchecked((ushort)(state.FunctionTimer.RawValue + 1)));
         if (state.FunctionTimer.IsZero)
             return;
-        state.FunctionTimer = NativeCountdown.Start(0);
+        state.FunctionTimer = WrappingCountdown.Start(0);
 
         CeresRidleyEyeFadeStep fadeStep =
             CeresRidleyEyeFadeDefinitions.Get(state.FadePaletteOffset);
@@ -51,10 +51,10 @@ internal sealed class CeresRidleyFades
     /// <summary>Reveals body palette rows, clears intangible collision and queues the battle track at the final row.</summary>
     internal void TickCeresRidleyBodyFade(RoomEnemySlot slot, RidleyEnemyState state)
     {
-        state.FunctionTimer = NativeCountdown.FromRaw(unchecked((ushort)(state.FunctionTimer.RawValue + 1)));
+        state.FunctionTimer = WrappingCountdown.FromRaw(unchecked((ushort)(state.FunctionTimer.RawValue + 1)));
         if (state.FunctionTimer.RawValue < 2)
             return;
-        state.FunctionTimer = NativeCountdown.Start(0);
+        state.FunctionTimer = WrappingCountdown.Start(0);
 
         // The cartridge steps a colour offset one row of colours at a time; the row it reaches is the fade's progress.
         int row = state.FadePaletteOffset;
@@ -72,7 +72,7 @@ internal sealed class CeresRidleyFades
         slot.Properties = slot.Properties.Without(EnemyProperties.IgnoreSamusCollision);
         state.FadePaletteOffset = 0;
         state.Function = RidleyAiFunction.WaitBeforeRoar;
-        state.FunctionTimer = NativeCountdown.Start(4);
+        state.FunctionTimer = WrappingCountdown.Start(4);
         // `$A6:A449` queues track five immediately after the final body-palette row.
         // This is the Ceres battle/escape track; it intentionally continues after Ridley
         // retreats, so omitting this single publication silences both scenes.

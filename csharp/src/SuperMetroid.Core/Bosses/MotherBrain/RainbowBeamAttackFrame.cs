@@ -25,5 +25,5 @@ public sealed record RainbowBeamAttackFrame
     public bool TypewriterFinished { get; init; } = false;
 
     /// <summary>The global earthquake timer as this frame observes it, or null when the caller supplies none.</summary>
-    public NativeCountdown? GlobalEarthquakeTimer { get; init; } = null;
+    public WrappingCountdown? GlobalEarthquakeTimer { get; init; } = null;
 }

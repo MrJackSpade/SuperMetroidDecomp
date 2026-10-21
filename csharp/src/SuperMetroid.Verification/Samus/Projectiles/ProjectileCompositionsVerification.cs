@@ -137,7 +137,7 @@ internal static class ProjectileCompositionsVerification
             var bomb = bombs.Slots[0];
             bomb.Cursor = ProjectileFixtureCursors.Active; bomb.SpritemapPointer = id;
             bomb.Type = type; bomb.Position = bomb.Position.WithWhole(new(coordinate, coordinate));
-            bomb.BombTimer = NativeCountdown.Start(1);
+            bomb.BombTimer = WrappingCountdown.Start(1);
             foreach (ushort parity in new ushort[] { 0, 1, 2, 3 })
             {
                 ProjectileDrawArtwork artwork = InstalledFixtures.ProjectileArtwork(content);
@@ -159,7 +159,7 @@ internal static class ProjectileCompositionsVerification
             }
             if (type == 0x300)
             {
-                bomb.BombTimer = NativeCountdown.Start(0);
+                bomb.BombTimer = WrappingCountdown.Start(0);
                 var hidden = new SpriteFrameBuffer();
                 hidden.BeginFrame();
                 bombs.Draw(hidden, Position16<RoomPixels>.Zero, InstalledFixtures.ProjectileArtwork(content));

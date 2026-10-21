@@ -94,7 +94,7 @@ internal sealed class KraidDeath
                 if (_background.AdvanceKraidRoomBackgroundFade(fade: KraidBackdropFade.ToBlack))
                 {
                     state.Parts[body.SlotIndex].Function = KraidAiFunction.DeathUpdateTopTilemap;
-                    state.HurtFrameTimer = NativeCountdown.Start(1);
+                    state.HurtFrameTimer = WrappingCountdown.Start(1);
                     state.HurtFrame = 1;
                     KraidBackground.TransferKraidTopTilemap(state);
                 }
@@ -114,10 +114,10 @@ internal sealed class KraidDeath
             case KraidAiFunction.DeathUpdateBottomTilemap:
                 _ = _head.ProcessKraidHeadInstruction(body, state);
                 state.Parts[body.SlotIndex].Function = KraidAiFunction.DeathSink;
-                state.DeathSoundTimer = NativeCountdown.Start(43);
+                state.DeathSoundTimer = WrappingCountdown.Start(43);
                 body.Properties = body.Properties.With(EnemyProperties.SolidToSamus);
                 _earthquake.EarthquakeType = 1;
-                _earthquake.EarthquakeTimer = NativeCountdown.Start(256);
+                _earthquake.EarthquakeTimer = WrappingCountdown.Start(256);
                 _access.StartKraidPartProgram(_slotTable.Slots[1], KraidPartProgram.ArmRisingOrSinking);
                 _access.StartKraidPartProgram(_slotTable.Slots[5], KraidPartProgram.FootInitial);
                 state.Parts[_slotTable.Slots[5].SlotIndex].Function = KraidAiFunction.NoOperation;
@@ -279,7 +279,7 @@ internal sealed class KraidDeath
         if (state.DeathSoundTimer.IsZero)
         {
             _access.LastKraidSoundEffect = new KraidSoundRequest(KraidSoundDefinitions.RockSpit);
-            state.DeathSoundTimer = NativeCountdown.Start(30);
+            state.DeathSoundTimer = WrappingCountdown.Start(30);
         }
         ProcessKraidSinkTable(body, state);
         body.Position = body.Position.WithWholeY(unchecked((ushort)(body.Position.Y.Whole + 1)));

@@ -54,7 +54,7 @@ internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies, IEnemyEntit
     /// runs last therefore owns this one shared base.</remarks>
     private bool _blueBrinstarFaceBlockPaletteHookInstalled;
     /// <summary>Shared countdown, reset to sixteen after each color update or actor activation.</summary>
-    private NativeCountdown _blueBrinstarFaceBlockPaletteTimer;
+    private WrappingCountdown _blueBrinstarFaceBlockPaletteTimer;
     /// <summary>Shared eight-frame color index, 0 through 7, intentionally retained when an actor activates.</summary>
     private int _blueBrinstarFaceBlockPaletteFrame;
     /// <summary>OBJ palette row selected by the last eligible block processed by main AI.</summary>
@@ -69,8 +69,8 @@ internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies, IEnemyEntit
         // `$E828` is a one-frame neutral map followed by the common sleep instruction. All
         // authored directional lists use the same neutral map as their first frame.
         state.Program = AnimationProgramCursor<BlueBrinstarFaceBlockProgram>.Start(BlueBrinstarFaceBlockProgram.Initial);
-        slot.InstructionTimer = NativeCountdown.Start(1);
-        slot.Timer = NativeCountdown.Start(0);
+        slot.InstructionTimer = WrappingCountdown.Start(1);
+        slot.Timer = WrappingCountdown.Start(0);
 
         // The initializer always primes the shared countdown, even before Morph Ball exists.
         // It installs the hook only when collected-items bit two is already present. Main AI
@@ -78,7 +78,7 @@ internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies, IEnemyEntit
         // room to become active immediately after the item is acquired.
         if (HasCollectedMorphBall(samus))
             InstallBlueBrinstarFaceBlockPaletteHook(slot);
-        _blueBrinstarFaceBlockPaletteTimer = NativeCountdown.Start(BlueBrinstarFaceBlockPalettePeriod);
+        _blueBrinstarFaceBlockPaletteTimer = WrappingCountdown.Start(BlueBrinstarFaceBlockPalettePeriod);
 
         // Native keeps only parameter two bit zero, moved to the sign bit. This looks
         // backwards until main AI is read: activation requires the Samus delta sign to be
@@ -123,13 +123,13 @@ internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies, IEnemyEntit
         state.Program = AnimationProgramCursor<BlueBrinstarFaceBlockProgram>.Start(samusToTheLeft
             ? BlueBrinstarFaceBlockProgram.SamusLeft
             : BlueBrinstarFaceBlockProgram.SamusRight);
-        slot.InstructionTimer = NativeCountdown.Start(1);
-        slot.Timer = NativeCountdown.Start(0);
+        slot.InstructionTimer = WrappingCountdown.Start(1);
+        slot.Timer = WrappingCountdown.Start(0);
         state.Activated = true;
 
         // Activation restarts the singleton palette hook at the cartridge's sixteen-frame
         // cadence but deliberately does not reset its frame index.
-        _blueBrinstarFaceBlockPaletteTimer = NativeCountdown.Start(BlueBrinstarFaceBlockPalettePeriod);
+        _blueBrinstarFaceBlockPaletteTimer = WrappingCountdown.Start(BlueBrinstarFaceBlockPalettePeriod);
     }
 
     /// <summary>Uses the collected-item word so unequipping Morph Ball does not put active blocks back to sleep.</summary>
@@ -170,7 +170,7 @@ internal sealed class BlueBrinstarFaceBlockBehavior : IEnemySpecies, IEnemyEntit
         if (!_blueBrinstarFaceBlockPaletteTimer.IsZero)
             return;
 
-        _blueBrinstarFaceBlockPaletteTimer = NativeCountdown.Start(BlueBrinstarFaceBlockPalettePeriod);
+        _blueBrinstarFaceBlockPaletteTimer = WrappingCountdown.Start(BlueBrinstarFaceBlockPalettePeriod);
         int frame = _blueBrinstarFaceBlockPaletteFrame & (BlueBrinstarFaceBlockPaletteFrameCount - 1);
         var colors = _room.Artwork?.AuxiliaryColors ?? throw new InvalidDataException(
             "Face-block palette animation requires installed artwork.");

@@ -1,7 +1,6 @@
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Animals;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
 namespace SuperMetroid.Verification.Enemies.Animals;
@@ -77,11 +76,11 @@ internal static class DachoraMotionStateVerification
         {
             (RoomEnemySystem enemies, RoomEnemySlot slot, DachoraEnemyState state) = NewDachora(parameter: ushort.MaxValue);
             AssertEqual(DachoraAiFunction.Echo, state.Function, "a negative parameter makes an echo");
-            state.EchoLifetime = NativeCountdown.Start(lifetime);
+            state.EchoLifetime = WrappingCountdown.Start(lifetime);
 
             enemies.DachoraBehavior.RunDachoraMainAi(slot, frame);
 
-            AssertEqual(NativeCountdown.Start(expected), state.EchoLifetime, $"echo lifetime {lifetime} counts down without wrapping");
+            AssertEqual(WrappingCountdown.Start(expected), state.EchoLifetime, $"echo lifetime {lifetime} counts down without wrapping");
             AssertEqual(invisible, slot.Properties.HasAny(EnemyProperties.Invisible), $"echo lifetime {lifetime} visibility");
         }
         Console.WriteLine("  Dachora echo lifetime: counts down to zero and stays there, hiding the echo.");

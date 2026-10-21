@@ -324,8 +324,8 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
     private static void InstallPlatformProgram(RoomEnemySlot slot, PlatformEnemyState state, PlatformProgram program)
     {
         state.Program = AnimationProgramCursor<PlatformProgram>.Start(program);
-        slot.InstructionTimer = NativeCountdown.Start(1);
-        slot.Timer = NativeCountdown.Start(0);
+        slot.InstructionTimer = WrappingCountdown.Start(1);
+        slot.Timer = WrappingCountdown.Start(0);
     }
 
     /// <summary>Ports the four equivalent list commands at $A3:9C6B/$9C76/$9C81/$9C8C.</summary>

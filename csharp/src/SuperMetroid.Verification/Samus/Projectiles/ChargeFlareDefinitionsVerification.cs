@@ -28,7 +28,7 @@ internal static class ChargeFlareDefinitionsVerification
         var timers = system.Charge.FlareTimers;
         for (int component = 0; component < 3; component++)
         {
-            frames[component] = 0; timers[component] = NativeCountdown.Start(0);
+            frames[component] = 0; timers[component] = WrappingCountdown.Start(0);
             ushort expectedFrame = 0, expectedTimer = 0;
             for (int tick = 0; tick < 1024; tick++)
             {
@@ -41,7 +41,7 @@ internal static class ChargeFlareDefinitionsVerification
             for (int frame = 0; frame <= maximumLiveFrame; frame++)
             {
                 expectedFrame = frames[component] = frame == 256 ? ushort.MaxValue : (ushort)frame;
-                timers[component] = NativeCountdown.FromRaw(timer);
+                timers[component] = WrappingCountdown.FromRaw(timer);
                 expectedTimer = timer;
                 Reference(component, ref expectedFrame, ref expectedTimer);
                 advance(component);

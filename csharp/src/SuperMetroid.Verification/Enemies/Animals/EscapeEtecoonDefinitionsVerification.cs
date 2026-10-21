@@ -164,7 +164,7 @@ internal static class EscapeEtecoonDefinitionsVerification
             [etecoon, null, null, Position16<RoomPixels>.Zero, SnesButton.None];
         for (int step = 0; step < steps; step++)
         {
-            etecoon.InstructionTimer = NativeCountdown.Start(1);
+            etecoon.InstructionTimer = WrappingCountdown.Start(1);
             EnemyInstructionRunner.Process(arguments);
             shown.Add(etecoon.SpritemapPointer);
         }

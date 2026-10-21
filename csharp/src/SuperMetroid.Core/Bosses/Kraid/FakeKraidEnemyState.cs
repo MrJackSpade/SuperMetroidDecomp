@@ -22,10 +22,10 @@ public sealed class FakeKraidEnemyState
     /// Walk steps remaining before the next forced reversal. A step expires when its decrement reaches zero; a cleared
     /// timer wraps instead and counts down from the full word.
     /// </summary>
-    public NativeCountdown WalkStepTimer { get; internal set; }
+    public WrappingCountdown WalkStepTimer { get; internal set; }
 
     /// <summary>Number of animation decision points before the next spit attack.</summary>
-    public NativeCountdown SpitDecisionTimer { get; internal set; }
+    public WrappingCountdown SpitDecisionTimer { get; internal set; }
 
     /// <summary>
     /// Three independent spike clocks stored at scratch words three through five. Main AI
@@ -48,7 +48,7 @@ public sealed class FakeKraidEnemyState
     {
         WalkDelta = 0;
         FacingDelta = 0;
-        WalkStepTimer = NativeCountdown.Start(0);
-        SpitDecisionTimer = NativeCountdown.Start(0);
+        WalkStepTimer = WrappingCountdown.Start(0);
+        SpitDecisionTimer = WrappingCountdown.Start(0);
     }
 }

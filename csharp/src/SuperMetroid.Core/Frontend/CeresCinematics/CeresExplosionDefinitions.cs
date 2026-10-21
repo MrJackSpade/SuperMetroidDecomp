@@ -40,17 +40,17 @@ internal static class CeresExplosionDefinitions
     internal const ushort RepeatingCountdownSeed = 1;
 
     /// <summary>Native spawner events, with repeating pre-instruction before final-wave instruction.</summary>
-    internal static CeresExplosionSpawnEvents EventsAtFrame(int frame, bool repeatingEnabled, ref NativeCountdown countdown)
+    internal static CeresExplosionSpawnEvents EventsAtFrame(int frame, bool repeatingEnabled, ref WrappingCountdown countdown)
     {
         bool repeat = false;
         if (repeatingEnabled && frame >= RepeatingFirstFrame && frame <= SpawnerFinalFrame)
         {
-            NativeWordCounterStep step = countdown.Decrement();
+            CountdownStep step = countdown.Decrement();
             countdown = step.Remaining;
             if (step.IsZeroOrNegative)
             {
                 repeat = true;
-                countdown = NativeCountdown.Start(RepeatingPeriodFrames);
+                countdown = WrappingCountdown.Start(RepeatingPeriodFrames);
             }
         }
         return new(frame == FrameOf(SpawnerMilestone.InitialWave), repeat,

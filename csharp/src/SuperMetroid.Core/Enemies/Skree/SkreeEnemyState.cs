@@ -11,7 +11,7 @@ public sealed class SkreeEnemyState
     internal AnimationProgramCursor<SkreeMetareeProgram> Program { get; set; }
 
     /// <summary>Reloaded to 21 while diving and counted down while burrowing.</summary>
-    public NativeCountdown BurrowTimer { get; internal set; }
+    public WrappingCountdown BurrowTimer { get; internal set; }
 
     /// <summary>The literal bank-$A3 phase-function pointer; none once a kill has emptied the record.</summary>
     public SkreeEnemyFunction? Function { get; internal set; }
@@ -28,7 +28,7 @@ public sealed class SkreeEnemyState
     /// <summary>Empties the values the cartridge keeps in the enemy's common record.</summary>
     internal void ClearWithRecord()
     {
-        BurrowTimer = NativeCountdown.Start(0);
+        BurrowTimer = WrappingCountdown.Start(0);
         Function = null;
         RequestedInstructionIndex = default;
         InstalledInstructionIndex = default;

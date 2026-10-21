@@ -10,7 +10,7 @@ public sealed record XrayBeginConditions
     public bool PowerBombExplosionActive { get; init; } = false;
 
     /// <summary>The shared projectile cooldown; exactly seven, with five bombs and divisor two, rejects activation.</summary>
-    public NativeCountdown ProjectileCooldownTimer { get; init; } = NativeCountdown.Start(0);
+    public WrappingCountdown ProjectileCooldownTimer { get; init; } = WrappingCountdown.Start(0);
 
     /// <summary>The number of live bombs, a count of bomb slots; exactly five, with that cooldown, rejects activation.</summary>
     public int BombCounter { get; init; } = 0;

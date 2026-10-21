@@ -114,7 +114,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
                 if (_roomStatus.EnemyDoorTransitionActive)
                     return;
                 state.Function = RidleyAiFunction.InitialDelay;
-                state.FunctionTimer = NativeCountdown.Start(170);
+                state.FunctionTimer = WrappingCountdown.Start(170);
                 CeresRidleyFlight.TickCeresRidleyInitialDelay(state);
                 return;
 
@@ -137,7 +137,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
                 if (state.FunctionTimer.IsNegative)
                 {
                     CeresRidleyFlight.StartRidleyProgram(state, slot, RidleyBodyProgram.OpeningRoar);
-                    state.FunctionTimer = NativeCountdown.Start(0);
+                    state.FunctionTimer = WrappingCountdown.Start(0);
                     state.Function = RidleyAiFunction.WaitBeforeLiftoff;
                 }
                 return;
@@ -166,7 +166,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
 
             case RidleyAiFunction.NorfairHoverSetup:
                 state.Function = RidleyAiFunction.NorfairHover;
-                state.FunctionTimer = NativeCountdown.Start(128);
+                state.FunctionTimer = WrappingCountdown.Start(128);
                 NorfairRidleyCombat.TickNorfairRidleyHover(slot, state);
                 return;
 
@@ -176,7 +176,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
 
             case RidleyAiFunction.NorfairSwoopSetup:
                 state.Function = RidleyAiFunction.NorfairSwoopMoveToStart;
-                state.SwoopPhaseTimer = NativeCountdown.Start(10);
+                state.SwoopPhaseTimer = WrappingCountdown.Start(10);
                 state.SwoopAngleAccumulator = SnesAngle.Zero;
                 NorfairRidleyCombat.TickNorfairRidleySwoopMoveToStart(slot, state);
                 return;
@@ -247,7 +247,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
                 state.IdealInterSegmentTailAngle = 11;
                 state.TailExtensionSpeed = 384;
                 state.Function = RidleyAiFunction.NorfairPogoDescending;
-                state.FunctionTimer = NativeCountdown.FromRaw(unchecked((ushort)(_room.Random.Read() % 32 + 32)));
+                state.FunctionTimer = WrappingCountdown.FromRaw(unchecked((ushort)(_room.Random.Read() % 32 + 32)));
                 Combat.TickNorfairRidleyPogo(slot, state, samus, direction: VerticalDirection.Down);
                 return;
 
@@ -296,7 +296,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
                 if (NorfairRidleyMovement.TickRidleyFunctionTimer(state))
                 {
                     state.Function = RidleyAiFunction.NorfairCarryRise;
-                    state.FunctionTimer = NativeCountdown.Start(32);
+                    state.FunctionTimer = WrappingCountdown.Start(32);
                 }
                 return;
 
@@ -307,7 +307,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
                     state.TailExtensionSpeed = RidleyTailDefinitions.CarryReleaseExtensionSpeed;
                     NorfairRidleyDeath.ReleaseNorfairRidleyGrab(state, samus);
                     state.Function = RidleyAiFunction.NorfairCarryRelease;
-                    state.FunctionTimer = NativeCountdown.Start(64);
+                    state.FunctionTimer = WrappingCountdown.Start(64);
                 }
                 else
                     NorfairRidleyMovement.MoveNorfairRidleyToward(slot, state, state.Target.WithY(256), 0);

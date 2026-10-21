@@ -30,7 +30,7 @@ public sealed class ChootEnemyState
     public int FallingPatternFrame { get; internal set; }
 
     /// <summary>Loop counter initialized to parameter one's low byte minus one, expiring when it decrements below zero.</summary>
-    public NativeCountdown FallingPatternLoopCounter { get; internal set; }
+    public WrappingCountdown FallingPatternLoopCounter { get; internal set; }
 
     /// <summary>The authored falling path the Choot follows after its apex; none once a kill has emptied the record.</summary>
     internal ChootFallingPath? FallingPath { get; set; }
@@ -70,7 +70,7 @@ public sealed class ChootEnemyState
     /// Parameter-two countdown. The jump begins only after decrementing through zero to
     /// <c>$FFFF</c>, so a population delay of zero launches on the first preparation frame.
     /// </summary>
-    public NativeCountdown JumpDelayTimer
+    public WrappingCountdown JumpDelayTimer
     {
         get => _words.JumpDelayTimer;
         internal set => _words.JumpDelayTimer = value;
@@ -82,7 +82,7 @@ public sealed class ChootEnemyState
         Function = null;
         YSpeedTableIndex = 0;
         FallingPatternFrame = 0;
-        FallingPatternLoopCounter = NativeCountdown.Start(0);
+        FallingPatternLoopCounter = WrappingCountdown.Start(0);
         FallingPath = null;
         FallingPatternYDistance = 0;
     }

@@ -81,7 +81,7 @@ internal static class ChootPatternDefinitionsVerification
             ChootEnemyState fallState = (fallEnemies.ChootStates[0] ?? throw new InvalidOperationException("Verification requires fallEnemies.ChootStates[0]."));
             fallState.FallingOrigin = new(0x4000, 0x5000);
             fallState.FallingPatternFrame = 0;
-            fallState.FallingPatternLoopCounter = NativeCountdown.Start(1);
+            fallState.FallingPatternLoopCounter = WrappingCountdown.Start(1);
 
             for (int frameIndex = 0; frameIndex < frameCounts[patternIndex] - 1; frameIndex++)
             {

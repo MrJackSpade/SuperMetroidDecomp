@@ -68,12 +68,12 @@ internal sealed class DraygonIntro
                     }
                 }
             }
-            state.FunctionTimer = NativeCountdown.FromRaw(unchecked((ushort)(state.FunctionTimer.RawValue + 1)));
+            state.FunctionTimer = WrappingCountdown.FromRaw(unchecked((ushort)(state.FunctionTimer.RawValue + 1)));
             return;
         }
 
         state.Function = DraygonAiFunction.IntroDance;
-        state.FunctionTimer = NativeCountdown.Start(0);
+        state.FunctionTimer = WrappingCountdown.Start(0);
         state.LeftSideReset = state.Body.Position.Whole;
         state.RightSideReset = state.LeftSideReset + DraygonBehavior.DraygonRightSideResetDistance;
         state.Body.Position = state.Body.Position.WithWhole(state.LeftSideReset);
@@ -90,7 +90,7 @@ internal sealed class DraygonIntro
         if (state.FunctionTimer.RawValue >= DraygonIntroDanceDefinitions.DurationFrames)
         {
             state.Function = DraygonAiFunction.SwoopRightSetup;
-            state.FunctionTimer = NativeCountdown.Start(0);
+            state.FunctionTimer = WrappingCountdown.Start(0);
             return;
         }
 
@@ -119,6 +119,6 @@ internal sealed class DraygonIntro
 
         state.FightIntroDanceIndex += DraygonIntroDanceDefinitions.StreamIndexAdvance;
         state.IntroDanceFrames++;
-        state.FunctionTimer = NativeCountdown.FromRaw(unchecked((ushort)(state.FunctionTimer.RawValue + 1)));
+        state.FunctionTimer = WrappingCountdown.FromRaw(unchecked((ushort)(state.FunctionTimer.RawValue + 1)));
     }
 }

@@ -253,7 +253,7 @@ internal sealed class BeamFiring
         {
             // Consistent state cannot arrive here. Match the producer's defensive rollback
             // so a debugger mutation does not leave the count permanently above five.
-            _slotTable.ProjectileCounter = NativeWordCounter.Decrement(_slotTable.ProjectileCounter).Value;
+            _slotTable.ProjectileCounter = WrappingCounter.Decrement(_slotTable.ProjectileCounter).Value;
             return new BeamShot(null, null);
         }
 
@@ -268,15 +268,15 @@ internal sealed class BeamFiring
 
         if (!new SamusProjectileDirectionWord(direction).IsValidInitialDirection)
         {
-            _slotTable.ProjectileCounter = NativeWordCounter.Decrement(_slotTable.ProjectileCounter).Value;
+            _slotTable.ProjectileCounter = WrappingCounter.Decrement(_slotTable.ProjectileCounter).Value;
             return new BeamShot(null, null);
         }
 
         slot.Direction = direction;
         InitializePosition(samus, slot);
-        slot.TrailTimer = NativeCountdown.Start(4);
+        slot.TrailTimer = WrappingCountdown.Start(4);
         slot.Type = SamusProjectileTypeWord.CreateBeam(samus.EquippedBeams, charged);
-        ProjectileInvincibilityTimer = NativeCountdown.Start(10);
+        ProjectileInvincibilityTimer = WrappingCountdown.Start(10);
 
         // The four low bits are a direct ROM table index, not four independent animation
         // layers composed by the host. In particular, Spazer's familiar three streaks live
@@ -294,7 +294,7 @@ internal sealed class BeamFiring
         SamusProjectileProgram? program = SamusProjectileHeaderDefinitions.Program(dataPointer, direction);
         slot.Cursor = SamusProjectilePrograms.Start(program);
         slot.Radius = SamusProjectilePrograms.InitialRadius(program);
-        slot.InstructionTimer = NativeCountdown.Start(1);
+        slot.InstructionTimer = WrappingCountdown.Start(1);
 
         // $90:B8ED checks Charge equipment and both input-edge latches before
         // selecting ordinary cooldown. Only uncharged auto-fire without those
@@ -310,7 +310,7 @@ internal sealed class BeamFiring
 
         SoundEffectId? sound = LibraryOneRequest(SamusProjectileSoundRoutingDefinitions.Resolve(charged, beamType));
         if (charged)
-            _charge.ChargedShotGlowTimer = NativeCountdown.Start(4);
+            _charge.ChargedShotGlowTimer = WrappingCountdown.Start(4);
 
         // FireUnchargedBeam and FireChargedBeam explicitly zero both speed words and call
         // CheckBeamCollByDir/WaveBeam_CheckColl before installing the pre-instruction and
@@ -355,7 +355,7 @@ internal sealed class BeamFiring
         int slotIndex = _slotTable.FindFreeSlotIndex();
         if (slotIndex < 0)
         {
-            _slotTable.ProjectileCounter = NativeWordCounter.Decrement(_slotTable.ProjectileCounter).Value;
+            _slotTable.ProjectileCounter = WrappingCounter.Decrement(_slotTable.ProjectileCounter).Value;
             return new BeamShot(null, null);
         }
 
@@ -364,13 +364,13 @@ internal sealed class BeamFiring
         byte direction = SamusPoseMetadata.ReadShotDirection(samus);
         if (!new SamusProjectileDirectionWord(direction).IsValidInitialDirection)
         {
-            _slotTable.ProjectileCounter = NativeWordCounter.Decrement(_slotTable.ProjectileCounter).Value;
+            _slotTable.ProjectileCounter = WrappingCounter.Decrement(_slotTable.ProjectileCounter).Value;
             return new BeamShot(null, null);
         }
         slot.Direction = direction;
 
         InitializePosition(samus, slot);
-        ProjectileInvincibilityTimer = NativeCountdown.Start(10);
+        ProjectileInvincibilityTimer = WrappingCountdown.Start(10);
 
         // The literal `$9018` is charged Plasma for bank-$93 data/art purposes even though
         // acquisition equips `$1009` Wave+Plasma tiles/palette. InitializeProjectile first
@@ -384,7 +384,7 @@ internal sealed class BeamFiring
         SamusProjectileProgram? program = SamusProjectileHeaderDefinitions.Program(dataPointer, slot.PackedDirection.DirectionIndex);
         slot.Cursor = SamusProjectilePrograms.Start(program);
         slot.Radius = SamusProjectilePrograms.InitialRadius(program);
-        slot.InstructionTimer = NativeCountdown.Start(1);
+        slot.InstructionTimer = WrappingCountdown.Start(1);
         slot.Damage = 1000;
 
         // Hyper uses WaveBeam_CheckColl at this same producer seam. It publishes door and
@@ -402,7 +402,7 @@ internal sealed class BeamFiring
         // These are literal stores at `$90:BD29-$BD52`. `$8014` is not an ordinary four-call
         // glow timer: its sign bit identifies Hyper's palette phase to the later consumer.
         sharedProjectiles.SetSharedCooldown(21);
-        _charge.ChargedShotGlowTimer = NativeCountdown.Start((1 << 15) | 20);
+        _charge.ChargedShotGlowTimer = WrappingCountdown.Start((1 << 15) | 20);
         _charge.StartHyperBeamFlare();
         _charge.FlareCounter = 1 << 15;
 
@@ -456,12 +456,12 @@ internal sealed class BeamFiring
 
         InitializePosition(samus, slot);
         _slotTable.ProjectileCounter = unchecked((ushort)(_slotTable.ProjectileCounter + 1));
-        ProjectileInvincibilityTimer = NativeCountdown.Start(20);
+        ProjectileInvincibilityTimer = WrappingCountdown.Start(20);
         if (isSuperMissile)
             samus.SuperMissiles = SamusQuantity.DecrementWord(samus.SuperMissiles);
         else
             samus.Missiles = SamusQuantity.DecrementWord(samus.Missiles);
-        slot.TrailTimer = NativeCountdown.Start(4);
+        slot.TrailTimer = WrappingCountdown.Start(4);
         slot.Type = (ushort)(SamusProjectileTypeWord.LiveMarker | (ushort)(isSuperMissile ? SamusProjectileFamily.SuperMissile : SamusProjectileFamily.Missile));
         slot.Variable = 0;
 
@@ -476,7 +476,7 @@ internal sealed class BeamFiring
         SamusProjectileProgram? program = SamusProjectileHeaderDefinitions.Program(dataPointer, slot.PackedDirection.DirectionIndex);
         slot.Cursor = SamusProjectilePrograms.Start(program);
         slot.Radius = SamusProjectilePrograms.InitialRadius(program);
-        slot.InstructionTimer = NativeCountdown.Start(1);
+        slot.InstructionTimer = WrappingCountdown.Start(1);
         slot.PreInstruction = isSuperMissile
             ? SamusProjectilePreInstruction.SuperMissile
             : SamusProjectilePreInstruction.Missile;
@@ -546,7 +546,7 @@ internal sealed class BeamFiring
     /// WRAM <c>$18AC</c>; humanoid shots temporarily suppress Samus/projectile
     /// interaction, including bomb jumps. Decremented by the shared gameplay tail.
     /// </summary>
-    public NativeCountdown ProjectileInvincibilityTimer { get; internal set; }
+    public WrappingCountdown ProjectileInvincibilityTimer { get; internal set; }
 
     /// <summary>Decrements the projectile-owned word of native DecrementSamusTimers.</summary>
     public void DecrementInteractionTimer()

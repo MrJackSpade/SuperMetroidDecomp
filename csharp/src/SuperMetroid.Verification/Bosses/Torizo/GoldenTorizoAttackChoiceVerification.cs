@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Programs;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
@@ -35,7 +34,7 @@ internal static class GoldenTorizoAttackChoiceVerification
             ?? throw new InvalidOperationException("Verification requires the Golden Torizo state.");
         state.BodyProgram = AnimationProgramCursor<TorizoBodyProgram>.Start(TorizoNativeListAddresses.ProgramAt(landedFacingLeft)
             ?? throw new InvalidOperationException("No Torizo program starts at the landing list."));
-        torizo.InstructionTimer = NativeCountdown.Start(1);
+        torizo.InstructionTimer = WrappingCountdown.Start(1);
         runtime.Enemies.StepFrame(new RoomEnemyFrame { Camera = new(runtime.Room.LoadedCamera.PixelPosition.X, runtime.Room.LoadedCamera.PixelPosition.Y), TimeIsFrozen = false, Samus = samus, NewlyPressedControllerInput = 0, Level = runtime.Room.LevelData, ControllerInput = 0, SamusProjectiles = runtime.Projectiles, NmiFrameCounter8 = 0x2d, NmiFrameCounter = 0xefd8 });
         ushort running = TorizoNativeListAddresses.Entry(state.BodyProgram.Program);
         AssertTrue(running is >= sonicBoomsFacingLeft and < 0xcc57,

@@ -11,7 +11,7 @@ public sealed class FirefleaFxState
     /// <c>FirefleaFlashing_Timer</c>: frames until the next flashing-index step, held while time is frozen. A step
     /// that reaches zero restarts it; one that starts from zero, before the FX initializes, wraps instead.
     /// </summary>
-    public NativeCountdown Timer { get; private set; }
+    public WrappingCountdown Timer { get; private set; }
 
     /// <summary><c>FirefleaFlashing_Index</c>: the current flashing-table element index, 0 through 11.</summary>
     public int Index { get; private set; }
@@ -22,7 +22,7 @@ public sealed class FirefleaFxState
     /// <summary>Seeds the initial flash duration, first shade index, and undarkened room state.</summary>
     internal void Initialize()
     {
-        Timer = NativeCountdown.Start(FirefleaFxDefinitions.FlashDuration);
+        Timer = WrappingCountdown.Start(FirefleaFxDefinitions.FlashDuration);
         Index = 0;
         Darkness = 0;
     }
@@ -36,12 +36,12 @@ public sealed class FirefleaFxState
         Ensure.NotNull(fixedColor);
         Darkness = darkness;
         if (frozen) return;
-        NativeWordCounterStep step = Timer.Decrement();
-        NativeCountdown timer = step.Remaining;
+        CountdownStep step = Timer.Decrement();
+        WrappingCountdown timer = step.Remaining;
         int index = Index;
         if (step.IsZero)
         {
-            timer = NativeCountdown.Start(FirefleaFxDefinitions.FlashDuration);
+            timer = WrappingCountdown.Start(FirefleaFxDefinitions.FlashDuration);
             if (unchecked((short)(darkness - FirefleaFxDefinitions.SteadyDarknessThreshold)) < 0)
             {
                 index++;

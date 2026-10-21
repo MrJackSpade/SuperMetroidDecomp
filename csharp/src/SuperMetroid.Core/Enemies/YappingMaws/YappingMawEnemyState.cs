@@ -76,7 +76,7 @@ public sealed class YappingMawEnemyState
     public bool QuadraticSpeedNegative { get; internal set; }
 
     /// <summary>Native E: 64-frame hold after the tongue fully retracts.</summary>
-    public NativeCountdown RetractedDelayTimer { get; internal set; }
+    public WrappingCountdown RetractedDelayTimer { get; internal set; }
 
     /// <summary>
     /// Native F: the population parameter-one distance, 0 through 65535, below which an attack starts. The cartridge
@@ -106,7 +106,7 @@ public sealed class YappingMawEnemyState
     /// Native variable 35. Main AI decrements it unconditionally; touch may grab only while
     /// its sign bit is set. Values 48 and zero therefore form real cooldown states, not bools.
     /// </summary>
-    public NativeCountdown GrabCooldown { get; internal set; }
+    public WrappingCountdown GrabCooldown { get; internal set; }
 
     /// <summary>Result of the point-based $A0:AD70 viewport test sampled before movement.</summary>
     public bool IsOffScreen { get; internal set; }

@@ -169,7 +169,7 @@ internal sealed class RidleyProjectiles
     /// <summary>Decrements the native low-byte chain counter and repeats the branch while its sign bit remains clear.</summary>
     internal void SpawnNextAfterburn(RoomEnemyProjectileSlot source)
     {
-        NativeLowByteCounterStep step = NativeWordCounter.DecrementLowByte(checked((ushort)source.RemainingAfterburns));
+        LowByteCountdownStep step = WrappingCounter.DecrementLowByte(checked((ushort)source.RemainingAfterburns));
         source.RemainingAfterburns = step.Remaining;
         if (step.IsNegative)
             return;

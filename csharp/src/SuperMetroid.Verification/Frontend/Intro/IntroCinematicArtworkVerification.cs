@@ -618,7 +618,7 @@ internal static class IntroCinematicArtworkVerification
         IntroEyeTilemapPresentation.Write(editedJson, document);
         editedJson.Position = 0;
         IntroEyeTilemapPresentation edited = IntroEyeTilemapPresentation.Load(editedJson);
-        NativeCountdown timer = installed.EyeInstructionTimer;
+        WrappingCountdown timer = installed.EyeInstructionTimer;
         var program = installed.EyeProgram;
         installed.BindEyeArtwork(edited);
         AssertEqual(timer, installed.EyeInstructionTimer,

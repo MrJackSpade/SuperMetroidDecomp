@@ -41,7 +41,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
     }
 
     /// <summary>Eight-frame countdown for the singleton graphics-drawn palette hook.</summary>
-    internal NativeCountdown MagdollitePaletteAnimationTimer { get; set; }
+    internal WrappingCountdown MagdollitePaletteAnimationTimer { get; set; }
     /// <summary>The palette cycle's current row, 0 through <see cref="MagdollitePaletteRomData.FrameCount"/> minus one; each step advances it around the cycle.</summary>
     internal int MagdollitePaletteFrame { get; set; }
     /// <summary>OBJ palette byte offset selected by the final initialized Magdollite record.</summary>
@@ -97,7 +97,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
             checked((ushort)slot.PaletteIndex)).PaletteIndex;
         MagdollitePaletteBaseColor =
             (paletteNumber * MagdollitePaletteRomData.PaletteBytes + MagdollitePaletteRomData.SpritePaletteByteBase) / sizeof(ushort);
-        MagdollitePaletteAnimationTimer = NativeCountdown.Start(8);
+        MagdollitePaletteAnimationTimer = WrappingCountdown.Start(8);
         MagdollitePaletteFrame = 0;
     }
 
@@ -142,7 +142,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         state.Origin = slot.Position.Whole;
         state.InstalledProgram = null;
-        state.AttackTimer = NativeCountdown.Start(0);
+        state.AttackTimer = WrappingCountdown.Start(0);
         state.DesiredProgram = MagdolliteProgram.PillarCap;
         InstallMagdolliteInstructionList(slot, state);
         slot.Position = slot.Position.WithWholeY(unchecked((ushort)(slot.Position.Y.Whole + 32)));
@@ -220,7 +220,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         if (!EnemyMath.IsNegative16(overlayState.AttackTimer.RawValue))
             return;
 
-        overlayState.AttackTimer = NativeCountdown.Start(0);
+        overlayState.AttackTimer = WrappingCountdown.Start(0);
         ushort range = unchecked((byte)head.Spawn.Population.Parameter2);
         if (!EnemyMath.IsWithinStrictModularDistance(head.Position.X.Whole, samus.Position.X.Whole, range))
             return;
@@ -489,8 +489,8 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
             return;
         state.Program = AnimationProgramCursor<MagdolliteProgram>.Start(state.DesiredProgram);
         state.InstalledProgram = state.DesiredProgram;
-        slot.InstructionTimer = NativeCountdown.Start(1);
-        slot.Timer = NativeCountdown.Start(0);
+        slot.InstructionTimer = WrappingCountdown.Start(1);
+        slot.Timer = WrappingCountdown.Start(0);
     }
 
     /// <summary>Finds and validates the retail-ordered head, body and overlay around any one component.</summary>
@@ -523,7 +523,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         if (!MagdollitePaletteAnimationTimer.IsZero)
             return;
 
-        MagdollitePaletteAnimationTimer = NativeCountdown.Start(8);
+        MagdollitePaletteAnimationTimer = WrappingCountdown.Start(8);
         MagdollitePaletteFrame = (MagdollitePaletteFrame + 1) % MagdollitePaletteRomData.FrameCount;
         int paletteFrame = MagdollitePaletteFrame;
         int destination = MagdollitePaletteBaseColor +
@@ -624,7 +624,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
                 slot.Position = slot.Position.WithWhole(state.ThrowOrigin + new Offset16<RoomPixels>(-8, -4));
                 break;
             case MagdolliteCueKind.StartCooldown:
-                state.AttackTimer = NativeCountdown.Start(256);
+                state.AttackTimer = WrappingCountdown.Start(256);
                 break;
             default:
                 throw new InvalidOperationException($"Undefined {nameof(MagdolliteCueKind)} {cue.Kind}.");

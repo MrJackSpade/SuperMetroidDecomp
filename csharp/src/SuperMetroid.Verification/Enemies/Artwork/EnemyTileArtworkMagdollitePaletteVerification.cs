@@ -75,7 +75,7 @@ internal static class EnemyTileArtworkMagdollitePaletteVerification
         var cgram = new SnesCgram();
         enemies.Presentation.BindCgram(cgram);
         enemies.MagdolliteBehavior.MagdollitePaletteAnimationInstalled = true;
-        enemies.MagdolliteBehavior.MagdollitePaletteAnimationTimer = NativeCountdown.Start(8);
+        enemies.MagdolliteBehavior.MagdollitePaletteAnimationTimer = WrappingCountdown.Start(8);
         enemies.MagdolliteBehavior.MagdollitePaletteFrame = 0;
         enemies.MagdolliteBehavior.MagdollitePaletteBaseColor = 0x80;
         Action step = enemies.MagdolliteBehavior.StepMagdollitePaletteAnimation;

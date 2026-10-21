@@ -13,7 +13,7 @@ public sealed class MetareeEnemyState
     internal AnimationProgramCursor<SkreeMetareeProgram> Program { get; set; }
 
     /// <summary>Reloaded to 21 during flight, then counted down while underground.</summary>
-    public NativeCountdown BurrowTimer { get; internal set; }
+    public WrappingCountdown BurrowTimer { get; internal set; }
 
     /// <summary>The idle, preparing, diving or burrowing behaviour; none once a kill has emptied the record.</summary>
     public MetareeEnemyFunction? Function { get; internal set; }
@@ -37,7 +37,7 @@ public sealed class MetareeEnemyState
     /// <summary>Empties every value, when a kill empties the enemy's common record.</summary>
     internal void ClearWithRecord()
     {
-        BurrowTimer = NativeCountdown.Start(0);
+        BurrowTimer = WrappingCountdown.Start(0);
         Function = null;
         RequestedInstructionListIndex = SkreeMetareeAnimationPhase.Idling;
         InstalledInstructionListIndex = SkreeMetareeAnimationPhase.Idling;

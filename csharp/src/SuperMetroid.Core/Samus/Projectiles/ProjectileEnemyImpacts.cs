@@ -121,7 +121,7 @@ internal sealed class ProjectileEnemyImpacts
         SamusProjectileProgram? program = SamusProjectileHeaderDefinitions.Program(dataPointer, slot.PackedDirection.DirectionIndex);
         slot.Cursor = SamusProjectilePrograms.Start(program);
         slot.Radius = SamusProjectilePrograms.InitialRadius(program);
-        slot.InstructionTimer = NativeCountdown.Start(1);
+        slot.InstructionTimer = WrappingCountdown.Start(1);
 
         if (family == SamusProjectileFamily.Missile)
         {

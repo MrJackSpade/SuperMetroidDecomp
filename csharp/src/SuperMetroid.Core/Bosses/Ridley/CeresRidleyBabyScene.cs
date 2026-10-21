@@ -241,7 +241,7 @@ internal sealed class CeresRidleyBabyScene
         }
 
         AnimationProgramCursor<CeresBabyProgram> cursor = state.BabyProgram;
-        NativeCountdown counter = NativeCountdown.Start(0);
+        WrappingCountdown counter = WrappingCountdown.Start(0);
         AnimationProgramAdvance<CeresBabyPose> advance = CeresBabyAnimations.Programs.Advance(ref cursor, ref counter,
             (cue, _) => ApplyCeresBabyCue(state, cue));
         state.BabyProgram = cursor;

@@ -3033,8 +3033,8 @@ internal static class EnemySpritemapArtworkVerification
             if (spritemapBank is byte bank)
                 slot.Bind(slot.EnemyDefinitionPointer, slot.Definition with { Bank = bank });
             slot.SpritemapPointer = pointer;
-            slot.InstructionTimer = NativeCountdown.Start(7);
-            slot.Timer = NativeCountdown.Start(9);
+            slot.InstructionTimer = WrappingCountdown.Start(7);
+            slot.Timer = WrappingCountdown.Start(9);
             slot.Position = slot.Position.WithWhole(new(0x0040, 0x0080));
             var oam = new OamBuffer();
             enemies.Drawing.DrawLayersAsOam(oam, new(0, 0), 0, 0);

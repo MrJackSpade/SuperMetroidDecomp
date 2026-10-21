@@ -12,7 +12,7 @@ namespace SuperMetroid.Core.Fx;
 public sealed class WreckedShipTreadmillAnimatedTilesState
 {
     /// <summary>Passes left before the object next shows a frame or re-tests the boss wait.</summary>
-    private NativeCountdown _instructionTimer;
+    private WrappingCountdown _instructionTimer;
     /// <summary>Whether the object is still waiting for Phantoon's area-boss bit before its first frame.</summary>
     private bool _waitingForAreaBoss;
 
@@ -66,7 +66,7 @@ public sealed class WreckedShipTreadmillAnimatedTilesState
             throw new InvalidDataException(
                 $"Wrecked Ship treadmill $87:{(int)objectPointer:X4} belongs to {_compiledMechanics.Direction}, not {direction}.");
         _waitingForAreaBoss = true;
-        _instructionTimer = NativeCountdown.Start(1);
+        _instructionTimer = WrappingCountdown.Start(1);
     }
 
     /// <summary>
@@ -91,7 +91,7 @@ public sealed class WreckedShipTreadmillAnimatedTilesState
         {
             if (!areaBossDefeated)
             {
-                _instructionTimer = NativeCountdown.Start(1);
+                _instructionTimer = WrappingCountdown.Start(1);
                 return;
             }
             _waitingForAreaBoss = false;
@@ -99,7 +99,7 @@ public sealed class WreckedShipTreadmillAnimatedTilesState
 
         WreckedShipTreadmillObjectDefinition definition = _compiledMechanics ?? throw new InvalidOperationException(
             "Wrecked Ship treadmill lost its compiled mechanics.");
-        _instructionTimer = NativeCountdown.Start(WreckedShipTreadmillMechanicsDefinitions.FrameDuration);
+        _instructionTimer = WrappingCountdown.Start(WreckedShipTreadmillMechanicsDefinitions.FrameDuration);
         int source = definition.FrameSource(NextFrameIndex);
         LastSourceAddress = source;
         writes.EnqueueBackground(

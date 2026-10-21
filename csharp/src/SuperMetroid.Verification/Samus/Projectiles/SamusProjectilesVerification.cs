@@ -822,7 +822,7 @@ internal static void VerifySamusPowerBeamProjectiles()
         ushort commandAddress = unchecked((ushort)(list + 6 * 4));
         AssertEqual((ushort)command, ProjectileTrailProgramDefinitions.Read(SamusProjectileRomData.Banks.Movement | commandAddress),
             "the compiled ice list holds its fall command after six poses");
-        executingSide.InstructionTimer = NativeCountdown.Start(1);
+        executingSide.InstructionTimer = WrappingCountdown.Start(1);
         executingSide.InstructionPointer = commandAddress;
         trailOam = SpriteFrameBuffer.DrawnOam(frame =>
         {

@@ -81,7 +81,7 @@ internal static class EnemyExtendedFrameArtworkSporeSpawnSelectorsVerification
         for (int frame = 0; frame < frames; frame++)
         {
             ushort oldTimer = timer;
-            timer = NativeWordCounter.Decrement(timer).Value;
+            timer = WrappingCounter.Decrement(timer).Value;
             if (oldTimer != 1)
                 extra &= 0x7fff;
             else
@@ -106,7 +106,7 @@ internal static class EnemyExtendedFrameArtworkSporeSpawnSelectorsVerification
                         case 0x80ed: cursor = Read(cursor + 2); break;
                         case 0x8110:
                             ushort oldLoop = loop;
-                            loop = NativeWordCounter.Decrement(loop).Value;
+                            loop = WrappingCounter.Decrement(loop).Value;
                             cursor = oldLoop == 1 ? cursor + 4 : Read(cursor + 2);
                             break;
                         case 0x8123: loop = Read(cursor + 2); cursor += 4; break;

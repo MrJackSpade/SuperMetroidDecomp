@@ -23,10 +23,10 @@ internal sealed class MotherBrainRainbowAttackPhases
     public int AngularWidth { get; internal set; }
 
     /// <summary>Native signed SFX queue countdown. Six produces seven queue attempts.</summary>
-    public NativeCountdown SoundQueueCount { get; internal set; }
+    public WrappingCountdown SoundQueueCount { get; internal set; }
 
     /// <summary>Rainbow-beam explosion timer at Mother Brain body extra word <c>$0FA8</c>.</summary>
-    public NativeCountdown ExplosionTimer { get; private set; }
+    public WrappingCountdown ExplosionTimer { get; private set; }
 
     /// <summary>Index of the offset pair the latest beam explosion used, cycling through the eight pairs.</summary>
     public int ExplosionIndex { get; private set; }
@@ -35,7 +35,7 @@ internal sealed class MotherBrainRainbowAttackPhases
     public bool HdmaActive { get; internal set; }
 
     /// <summary>Samus projectile cooldown written at beam shutdown.</summary>
-    public NativeCountdown SamusProjectileCooldownTimer { get; private set; }
+    public WrappingCountdown SamusProjectileCooldownTimer { get; private set; }
 
     /// <summary>
     /// Starts at `$A9:B983`, immediately after the power-bomb gate and charge countdown.
@@ -47,13 +47,13 @@ internal sealed class MotherBrainRainbowAttackPhases
         _state.SetHeadProgram(MotherBrainHeadProgram.FiringRainbowBeam);
         AngularWidth = 512;
         ExplosionIndex = 0;
-        ExplosionTimer = NativeCountdown.Start(0);
-        SoundQueueCount = NativeCountdown.Start(6);
+        ExplosionTimer = WrappingCountdown.Start(0);
+        SoundQueueCount = WrappingCountdown.Start(6);
         _state.RainbowBeamSoundPlaying = false;
         HdmaActive = true;
         _state.EarthquakeType = 0;
-        _state.EarthquakeTimer = NativeCountdown.Start(0);
-        SamusProjectileCooldownTimer = NativeCountdown.Start(0);
+        _state.EarthquakeTimer = WrappingCountdown.Start(0);
+        SamusProjectileCooldownTimer = WrappingCountdown.Start(0);
         _state.NeckAngleDelta = 64;
         _state.NeckMovementEnabled = true;
         _state.LowerNeckMovementIndex = MotherBrainNeckMovement.BobDown;
@@ -80,7 +80,7 @@ internal sealed class MotherBrainRainbowAttackPhases
         _state.LowerNeckMovementIndex = MotherBrainNeckMovement.BobDown;
         _state.UpperNeckMovementIndex = MotherBrainNeckMovement.BobUp;
         _state.Phase = MotherBrainBodyFunction.SecondPhaseRainbowStartCharging;
-        _state.FunctionTimer = NativeCountdown.Start(256);
+        _state.FunctionTimer = WrappingCountdown.Start(256);
     }
 
     /// <summary>Requests the slow forward body animation until its target is reached.</summary>
@@ -143,7 +143,7 @@ internal sealed class MotherBrainRainbowAttackPhases
         if (!ExplosionTimer.IsNegative)
             return null;
 
-        ExplosionTimer = NativeCountdown.Start(8);
+        ExplosionTimer = WrappingCountdown.Start(8);
         ExplosionIndex = (ExplosionIndex + 1) % MotherBrainRainbowBeamAttackSequence.ExplosionOffsets.Length;
         return new MotherBrainRainbowExplosionRequest(
             MotherBrainRainbowBeamAttackSequence.ExplosionOffsets[ExplosionIndex]);
@@ -244,7 +244,7 @@ internal sealed class MotherBrainRainbowAttackPhases
         {
             _state.RetractHead();
             _state.Phase = MotherBrainBodyFunction.SecondPhaseRainbowWaitForCharge;
-            _state.FunctionTimer = NativeCountdown.Start(256);
+            _state.FunctionTimer = WrappingCountdown.Start(256);
             return true;
         }
         return false;
@@ -272,12 +272,12 @@ internal sealed class MotherBrainRainbowAttackPhases
     /// </summary>
     internal bool RunSecondPhaseRainbowExtendNeckDown()
     {
-        SamusProjectileCooldownTimer = NativeCountdown.Start(8);
+        SamusProjectileCooldownTimer = WrappingCountdown.Start(8);
         _state.LowerNeckMovementIndex = MotherBrainNeckMovement.Lower;
         _state.UpperNeckMovementIndex = MotherBrainNeckMovement.Lower;
         _state.NeckAngleDelta = 1280; // NTSC value of regional `$0500/$0700`.
         _state.Phase = MotherBrainBodyFunction.SecondPhaseRainbowStartFiring;
-        _state.FunctionTimer = NativeCountdown.Start(16); // NTSC value of regional `$0010/$000C`.
+        _state.FunctionTimer = WrappingCountdown.Start(16); // NTSC value of regional `$0010/$000C`.
         return true;
     }
 
@@ -296,7 +296,7 @@ internal sealed class MotherBrainRainbowAttackPhases
             {
                 // The cartridge redundantly rereads the power-bomb flag here. The
                 // parameter is one stable WRAM sample for this translated AI call.
-                SamusProjectileCooldownTimer = NativeCountdown.Start(0);
+                SamusProjectileCooldownTimer = WrappingCountdown.Start(0);
                 StartActiveBeam(samus);
             }
         }
@@ -318,7 +318,7 @@ internal sealed class MotherBrainRainbowAttackPhases
         if (requests.Movement.Value.ReachedVerticalBoundary)
         {
             _state.Phase = MotherBrainBodyFunction.SecondPhaseRainbowOneFrameDelay;
-            _state.FunctionTimer = NativeCountdown.Start(0);
+            _state.FunctionTimer = WrappingCountdown.Start(0);
         }
         return false;
     }
@@ -341,7 +341,7 @@ internal sealed class MotherBrainRainbowAttackPhases
         if (_state.FunctionTimer.IsNegative)
         {
             _state.EarthquakeType = 8;
-            _state.EarthquakeTimer = NativeCountdown.Start(8);
+            _state.EarthquakeTimer = WrappingCountdown.Start(8);
             _state.Phase = MotherBrainBodyFunction.SecondPhaseRainbowStartDrainingSamus;
         }
         return false;
@@ -356,8 +356,8 @@ internal sealed class MotherBrainRainbowAttackPhases
         // `$A9:BA27` installs draining, seeds both timers with `$012B`, and falls
         // through into the draining function in the same enemy-processing call.
         _state.Phase = MotherBrainBodyFunction.SecondPhaseRainbowDrainingSamus;
-        _state.FunctionTimer = NativeCountdown.Start(299);
-        _state.EarthquakeTimer = NativeCountdown.Start(299);
+        _state.FunctionTimer = WrappingCountdown.Start(299);
+        _state.EarthquakeTimer = WrappingCountdown.Start(299);
         _state.EarthquakeType = 8;
         return true;
     }
@@ -403,10 +403,10 @@ internal sealed class MotherBrainRainbowAttackPhases
             AngularWidth = 512;
             _movement.BeginFallingAfterRainbowBeam();
             HdmaActive = false;
-            _state.EarthquakeTimer = NativeCountdown.Start(0);
+            _state.EarthquakeTimer = WrappingCountdown.Start(0);
             _state.RainbowBeamSoundPlaying = false;
             samus.Control.Unlock(); // Samus command one at `$90:F117`.
-            SamusProjectileCooldownTimer = NativeCountdown.Start(8);
+            SamusProjectileCooldownTimer = WrappingCountdown.Start(8);
             _state.Phase = MotherBrainBodyFunction.SecondPhaseRainbowLetSamusFall;
         }
         return false;
@@ -446,7 +446,7 @@ internal sealed class MotherBrainRainbowAttackPhases
         // Neck words are presentation/actor-animation state. This phase's movement-
         // relevant effect is the exact function/timer handoff to `$A9:BB06`.
         _state.Phase = MotherBrainBodyFunction.SecondPhaseRainbowDecideNextAction;
-        _state.FunctionTimer = NativeCountdown.Start(128);
+        _state.FunctionTimer = WrappingCountdown.Start(128);
         return false;
     }
 

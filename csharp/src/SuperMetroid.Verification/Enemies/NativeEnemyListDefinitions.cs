@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.AssetExtraction.Cartridge;
 
@@ -87,7 +86,7 @@ internal static class NativeEnemyListDefinitions
             if (Stopped)
                 return callbacks;
             ushort old = Timer;
-            Timer = NativeWordCounter.Decrement(Timer).Value;
+            Timer = WrappingCounter.Decrement(Timer).Value;
             if (old != 1)
             {
                 NewFrame = false;
@@ -118,7 +117,7 @@ internal static class NativeEnemyListDefinitions
                         Cursor = unchecked((ushort)(Cursor + 4));
                         continue;
                     case WordKind.RepeatWhileCounting:
-                        Counter = NativeCountdown.FromRaw(Counter).Decrement().Remaining.RawValue;
+                        Counter = WrappingCountdown.FromRaw(Counter).Decrement().Remaining.RawValue;
                         Cursor = Counter != 0 ? operand : unchecked((ushort)(Cursor + 4));
                         continue;
                     case WordKind.Wait:

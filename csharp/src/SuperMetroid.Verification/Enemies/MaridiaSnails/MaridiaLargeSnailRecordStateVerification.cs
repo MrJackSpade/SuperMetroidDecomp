@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.MaridiaSnails;
 namespace SuperMetroid.Verification.Enemies.MaridiaSnails;
@@ -20,17 +19,17 @@ internal static class MaridiaLargeSnailRecordStateVerification
         slot.SetSpeciesState(state, state.ClearWithRecord);
         state.Function = Enum.GetValues<MaridiaLargeSnailEnemyFunction>()[^1];
         state.YSpeedTableIndex = 1;
-        state.AttackCooldown = NativeCountdown.Start(1);
+        state.AttackCooldown = WrappingCountdown.Start(1);
         state.MovingLeft = true;
-        state.RemainingBounces = NativeCountdown.Start(1);
+        state.RemainingBounces = WrappingCountdown.Start(1);
         state.BounceFunction = Enum.GetValues<MaridiaLargeSnailBounceFunction>()[^1];
 
         slot.Clear();
         AssertEqual<MaridiaLargeSnailEnemyFunction?>(null, state.Function, "a kill empties Function");
         AssertEqual<int>(0, state.YSpeedTableIndex, "a kill empties YSpeedTableIndex");
-        AssertEqual<NativeCountdown>(NativeCountdown.Start(0), state.AttackCooldown, "a kill empties AttackCooldown");
+        AssertEqual<WrappingCountdown>(WrappingCountdown.Start(0), state.AttackCooldown, "a kill empties AttackCooldown");
         AssertEqual<bool>(false, state.MovingLeft, "a kill empties MovingLeft");
-        AssertEqual<NativeCountdown>(NativeCountdown.Start(0), state.RemainingBounces, "a kill empties RemainingBounces");
+        AssertEqual<WrappingCountdown>(WrappingCountdown.Start(0), state.RemainingBounces, "a kill empties RemainingBounces");
         AssertEqual<MaridiaLargeSnailBounceFunction?>(null, state.BounceFunction, "a kill empties BounceFunction");
         Console.WriteLine("MaridiaLargeSnail record state: a kill empties every value the record holds.");
     }

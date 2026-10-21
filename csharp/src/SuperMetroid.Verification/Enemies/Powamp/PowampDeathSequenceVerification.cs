@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Runtime;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
@@ -32,7 +31,7 @@ internal static class PowampDeathSequenceVerification
 
         body.Health = 0;
         state.Function = PowampEnemyFunction.DeathSequence;
-        state.FunctionTimer = NativeCountdown.Start(1);
+        state.FunctionTimer = WrappingCountdown.Start(1);
         runtime.Enemies.PowampBehavior.RunPowampMain(body, state, runtime.Room.LevelData);
 
         var projectiles = runtime.Enemies.Projectiles.EnemyProjectiles;

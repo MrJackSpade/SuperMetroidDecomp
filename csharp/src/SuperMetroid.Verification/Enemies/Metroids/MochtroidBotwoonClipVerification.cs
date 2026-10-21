@@ -1,7 +1,6 @@
 using SuperMetroid.Core.Samus.Drawing;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using System.Globalization;
-using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
@@ -94,7 +93,7 @@ internal static class MochtroidBotwoonClipVerification
             SamusEquipmentFlags.HiJumpBoots));
         samus.EquippedBeams = samus.CollectedBeams = SamusBeamFlags.Ice;
         samus.Health = samus.MaxHealth = 1499;
-        samus.InvincibilityTimer = NativeCountdown.Start(120);
+        samus.InvincibilityTimer = WrappingCountdown.Start(120);
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         SamusPresentation.InitializeAnimation(samus);
         samus.CommitPoseHistory();
@@ -109,7 +108,7 @@ internal static class MochtroidBotwoonClipVerification
             slot.Clear();
         }
         mochtroid.Position = FixedPosition<RoomPixels>.FromWhole(expected.Enemy);
-        mochtroid.FrozenTimer = NativeCountdown.Start(1000);
+        mochtroid.FrozenTimer = WrappingCountdown.Start(1000);
         mochtroid.AiStates = EnemyAiStates.Frozen;
 
         ushort minimumY = samus.Position.Y.Whole;

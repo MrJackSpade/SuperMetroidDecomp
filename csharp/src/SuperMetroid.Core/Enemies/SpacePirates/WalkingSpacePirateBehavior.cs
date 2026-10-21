@@ -330,7 +330,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
         WalkingSpacePirateProgram program)
     {
         state.Program = AnimationProgramCursor<WalkingSpacePirateProgram>.Start(program);
-        slot.InstructionTimer = NativeCountdown.Start(1);
+        slot.InstructionTimer = WrappingCountdown.Start(1);
     }
 
     /// <summary>Ports firing opcodes <c>$B2:FC68/$FC90</c> and initializer $86:A009.</summary>
@@ -630,7 +630,7 @@ internal sealed class WalkingSpacePirateBehavior : IEnemySpecies, IEnemyEntityFa
         }
         if (pirateAction == PirateHitboxShotActions.PirateHitboxShotAction.Reflect)
         {
-            c.Enemy.InvincibilityTimer = NativeCountdown.Start(10);
+            c.Enemy.InvincibilityTimer = WrappingCountdown.Start(10);
             c.Projectile.Direction = (c.Projectile.Direction & SamusProjectileDirectionMasks.Direction) switch
             {
                 (ushort)SamusProjectileDirection.Left => (ushort)SamusProjectileDirection.UpRight,

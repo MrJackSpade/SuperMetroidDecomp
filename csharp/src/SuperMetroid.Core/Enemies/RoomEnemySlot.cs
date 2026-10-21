@@ -118,7 +118,7 @@ public sealed class RoomEnemySlot
     /// <summary>Enemy.spritemap at +$16: the frame the actor shows, an installed spritemap or extended frame; null before any.</summary>
     public EnemyFrameId? Frame { get; internal set; }
     /// <summary>Enemy.loopCounter at +$18: actor/instruction-owned loop or delay word; it is not a universal elapsed-frame counter.</summary>
-    public NativeCountdown Timer { get; internal set; }
+    public WrappingCountdown Timer { get; internal set; }
     /// <summary>
     /// Enemy.instList at +$1A, 0 through 65535: populated from the population's actor-specific initialization
     /// parameter, which several families read as packed selectors; an imported state carries the native instruction
@@ -130,7 +130,7 @@ public sealed class RoomEnemySlot
         internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
     }
     /// <summary>Enemy.instTimer at +$1C: animation instruction countdown in processing updates; initialization starts it at one.</summary>
-    public NativeCountdown InstructionTimer { get; internal set; }
+    public WrappingCountdown InstructionTimer { get; internal set; }
     /// <summary>Enemy.palette at +$1E: native OBJ palette attribute bits, normally the graphics-set palette index shifted left nine, rather than a CGRAM color index.</summary>
     public int PaletteIndex
     {
@@ -153,13 +153,13 @@ public sealed class RoomEnemySlot
         internal set => field = Ensure.BetweenInclusive(0, ushort.MaxValue, value);
     }
     /// <summary>Enemy.flashTimer at +$24: hurt-flash countdown consumed by enemy processing and palette selection; reaching the native threshold clears hurt-AI dispatch.</summary>
-    public NativeCountdown FlashTimer { get; internal set; }
+    public WrappingCountdown FlashTimer { get; internal set; }
     /// <summary>Enemy.freezeTimer at +$26: remaining freeze-processing countdown; frozen palette blinking and thaw decisions read the same native word.</summary>
-    public NativeCountdown FrozenTimer { get; internal set; }
+    public WrappingCountdown FrozenTimer { get; internal set; }
     /// <summary>Enemy.invincibilityTimer at +$28: damage-interaction suppression countdown, sampled before its per-enemy decrement.</summary>
-    public NativeCountdown InvincibilityTimer { get; internal set; }
+    public WrappingCountdown InvincibilityTimer { get; internal set; }
     /// <summary>Enemy.shakeTimer at +$2A: remaining draw calls applying the enemy's one-pixel horizontal shake, decremented during drawing.</summary>
-    public NativeCountdown ShakeTimer { get; internal set; }
+    public WrappingCountdown ShakeTimer { get; internal set; }
     /// <summary>
     /// Enemy.frameCounter at +$2C, 0 through 65535: wrapping enemy-processing counter used by actor behavior and
     /// drawing, independent of the global NMI counter.
@@ -193,18 +193,18 @@ public sealed class RoomEnemySlot
         ExtraProperties = default;
         Health = 0;
         AiStates = EnemyAiStates.None;
-        InstructionTimer = NativeCountdown.Start(0);
+        InstructionTimer = WrappingCountdown.Start(0);
         CurrentInstruction = 0;
-        Timer = NativeCountdown.Start(0);
+        Timer = WrappingCountdown.Start(0);
         Frame = null;
-        FrozenTimer = NativeCountdown.Start(0);
-        FlashTimer = NativeCountdown.Start(0);
+        FrozenTimer = WrappingCountdown.Start(0);
+        FlashTimer = WrappingCountdown.Start(0);
         Layer = 0;
         VramTilesIndex = 0;
         PaletteIndex = 0;
         FrameCounter = 0;
-        ShakeTimer = NativeCountdown.Start(0);
-        InvincibilityTimer = NativeCountdown.Start(0);
+        ShakeTimer = WrappingCountdown.Start(0);
+        InvincibilityTimer = WrappingCountdown.Start(0);
         HurtAiTime = 0;
         SpawnOffset = Offset16<RoomPixels>.Zero;
         foreach (Action clearWithRecord in _clearWithRecord.Values)

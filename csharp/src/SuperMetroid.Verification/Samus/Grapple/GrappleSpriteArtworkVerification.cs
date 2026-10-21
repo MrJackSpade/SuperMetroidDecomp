@@ -69,9 +69,9 @@ internal static class GrappleSpriteArtworkVerification
                 {
                     Phase = GrapplePhase.ConnectedSwinging, RopeLength = 120,
                     BeamStart = new(100, 100), Anchor = new(200, 60),
-                    Angle = SnesAngle.FromTableIndex(unchecked((byte)angle)), PointAnimationTimer = NativeCountdown.Start(5),
+                    Angle = SnesAngle.FromTableIndex(unchecked((byte)angle)), PointAnimationTimer = WrappingCountdown.Start(5),
                 };
-                for (int i = 0; i < 16; i++) { state.SegmentAnimationTimers[i] = NativeCountdown.Start(1); state.SegmentAnimationFrames[i] = (byte)(i & 3); }
+                for (int i = 0; i < 16; i++) { state.SegmentAnimationTimers[i] = WrappingCountdown.Start(1); state.SegmentAnimationFrames[i] = (byte)(i & 3); }
                 return state;
             }
         }

@@ -543,7 +543,7 @@ internal static void VerifySamusKnockbackAndDamageBoost()
         Pose = SamusPoseId.FacingRightNormalPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(96, 96)),
     };
-    SamusKnockbackMovement.Start(introTimedKnockback, controllerInput: 0, launch: new KnockbackLaunch { KnockbackXDirection = KnockbackHorizontalDirection.Right, KnockbackTimer = NativeCountdown.Start(11) });
+    SamusKnockbackMovement.Start(introTimedKnockback, controllerInput: 0, launch: new KnockbackLaunch { KnockbackXDirection = KnockbackHorizontalDirection.Right, KnockbackTimer = WrappingCountdown.Start(11) });
     AssertEqual(11, introTimedKnockback.KnockbackTimer.RawValue,
         "intro Rinka preserves producer-owned eleven-frame knockback timer");
     AssertEqual(SamusPoseId.KnockbackRightPose, introTimedKnockback.Pose,
@@ -556,7 +556,7 @@ internal static void VerifySamusKnockbackAndDamageBoost()
     {
         Pose = SamusPoseId.FacingRightNormalPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(96, 96)),
-        KnockbackTimer = NativeCountdown.Start(SamusTerrainHazardRomData.KnockbackFrames),
+        KnockbackTimer = WrappingCountdown.Start(SamusTerrainHazardRomData.KnockbackFrames),
         KnockbackXDirection = KnockbackHorizontalDirection.Left,
     };
     AssertTrue(
@@ -853,7 +853,7 @@ floorLevel, downKnockback, nmiFrameCounter: 0);
         Pose = SamusPoseId.NormalJumpAimDownRightPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(0x007a, 0x0696)),
         KnockbackDirection = SamusKnockbackDirection.DownRight,
-        KnockbackTimer = NativeCountdown.Start(0),
+        KnockbackTimer = WrappingCountdown.Start(0),
     };
     floorClipOverlap.Kinematics.Position = floorClipOverlap.Kinematics.Position.WithFractionX(0xffff).WithFractionY(0xffff);
     floorClipOverlap.Kinematics.YSpeed = new SnesUnsignedSixteenSixteen(0xffff, 0xac00);
@@ -885,7 +885,7 @@ floorLevel, downKnockback, nmiFrameCounter: 0);
         Pose = SamusPoseId.NormalJumpAimDownRightPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(0, 0x0696)),
         KnockbackDirection = SamusKnockbackDirection.DownRight,
-        KnockbackTimer = NativeCountdown.Start(0),
+        KnockbackTimer = WrappingCountdown.Start(0),
     };
     sameRadiusExpiry.PoseHistory.PreviousPose = SamusPoseId.NormalJumpAimDownRightPose;
     SamusPoseMetadata.RefreshCollisionRadii(sameRadiusExpiry);
@@ -904,7 +904,7 @@ floorLevel, downKnockback, nmiFrameCounter: 0);
         Pose = SamusPoseId.TurningRightToLeftPose,
         Position = FixedPosition<RoomPixels>.FromWhole(new(96, 96)),
     };
-    bool turnStarted = SamusKnockbackMovement.Start(suppressedTurnHit, controllerInput: 0, launch: new KnockbackLaunch { KnockbackXDirection = KnockbackHorizontalDirection.Right, KnockbackTimer = NativeCountdown.Start(7) });
+    bool turnStarted = SamusKnockbackMovement.Start(suppressedTurnHit, controllerInput: 0, launch: new KnockbackLaunch { KnockbackXDirection = KnockbackHorizontalDirection.Right, KnockbackTimer = WrappingCountdown.Start(7) });
     AssertTrue(!turnStarted, "movement type $0E suppresses knockback transition");
     AssertTrue(!suppressedTurnHit.KnockbackActive,
         "suppressed grounded-turn hit leaves normal movement installed");

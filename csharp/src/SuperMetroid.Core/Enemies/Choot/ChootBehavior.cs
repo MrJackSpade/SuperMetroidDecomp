@@ -95,14 +95,14 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemyEntityFactory
         if (unchecked((short)(distance - ChootActivationDistance)) >= 0)
             return;
 
-        state.JumpDelayTimer = NativeCountdown.FromRaw(checked((ushort)slot.Spawn.Population.Parameter2));
+        state.JumpDelayTimer = WrappingCountdown.FromRaw(checked((ushort)slot.Spawn.Population.Parameter2));
         state.Function = ChootEnemyFunction.PreparingJump;
     }
 
     /// <summary>Decrements the native delay word until it turns negative, then starts the jumping instruction list.</summary>
     internal static void PrepareChootJump(RoomEnemySlot slot, ChootEnemyState state)
     {
-        NativeWordCounterStep timer = state.JumpDelayTimer.Decrement();
+        CountdownStep timer = state.JumpDelayTimer.Decrement();
         state.JumpDelayTimer = timer.Remaining;
         if (timer.IsNonNegative)
             return;
@@ -130,7 +130,7 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.Position = slot.Position.WithWhole(state.InitialFallingPosition);
         state.FallingOrigin = state.InitialFallingPosition;
         state.FallingPatternFrame = 0;
-        state.FallingPatternLoopCounter = NativeCountdown.FromRaw(unchecked((ushort)(
+        state.FallingPatternLoopCounter = WrappingCountdown.FromRaw(unchecked((ushort)(
             (SnesLittleEndian.LowByte(slot.Spawn.Population.Parameter1)) - 1)));
         SetChootProgram(slot, state, ChootProgram.Falling);
         state.Function = ChootEnemyFunction.Falling;
@@ -193,8 +193,8 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemyEntityFactory
         ChootProgram program)
     {
         state.Program = AnimationProgramCursor<ChootProgram>.Start(program);
-        slot.InstructionTimer = NativeCountdown.Start(1);
-        slot.Timer = NativeCountdown.Start(0);
+        slot.InstructionTimer = WrappingCountdown.Start(1);
+        slot.Timer = WrappingCountdown.Start(0);
     }
 
     /// <summary>Advances Choot's typed animation.</summary>

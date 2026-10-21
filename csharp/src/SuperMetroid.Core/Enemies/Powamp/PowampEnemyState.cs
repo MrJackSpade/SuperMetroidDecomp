@@ -25,7 +25,7 @@ public sealed class PowampEnemyState
     public int WiggleIndex { get; internal set; }
 
     /// <summary>The body's AI-update countdown, restarted at five for each horizontal wiggle offset.</summary>
-    public NativeCountdown WiggleTimer { get; internal set; }
+    public WrappingCountdown WiggleTimer { get; internal set; }
 
     /// <summary>
     /// The balloon's grappled rise in room pixels, copied from population parameter two (0 through 65535) and
@@ -34,7 +34,7 @@ public sealed class PowampEnemyState
     public int BalloonGrappleTravelDistance { get; internal set; }
 
     /// <summary>The body's countdown, decremented once per relevant main-AI invocation; initialized to 60 for rest, ten for inflation/deflation, or 32 for death, and expires at zero or signed underflow.</summary>
-    public NativeCountdown FunctionTimer { get; internal set; }
+    public WrappingCountdown FunctionTimer { get; internal set; }
 
     /// <summary>The main-AI behaviour; balloons keep the no-op, and none once a kill has emptied the record.</summary>
     public PowampEnemyFunction? Function { get; internal set; }
@@ -53,9 +53,9 @@ public sealed class PowampEnemyState
         YVelocity = SnesSignedSixteenSixteen.Zero;
         BalloonSpawn = Position16<RoomPixels>.Zero;
         WiggleIndex = 0;
-        WiggleTimer = NativeCountdown.Start(0);
+        WiggleTimer = WrappingCountdown.Start(0);
         BalloonGrappleTravelDistance = 0;
-        FunctionTimer = NativeCountdown.Start(0);
+        FunctionTimer = WrappingCountdown.Start(0);
         Function = null;
     }
 }

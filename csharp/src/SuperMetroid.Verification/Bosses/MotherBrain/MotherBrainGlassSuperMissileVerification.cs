@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Enemies;
@@ -52,7 +51,7 @@ internal static class MotherBrainGlassSuperMissileVerification
             var shot = shots.Slots[slot];
             shot.Type = 0x8200; shot.Damage = 300; shot.Direction = 7;
             shot.Position = shot.Position.WithWhole(new(128, 128)); shot.Radius = new(pair[slot].Radius, pair[slot].Radius);
-            shot.Cursor = SamusProjectileProgramAddresses.CursorAt(pair[slot].List); shot.InstructionTimer = NativeCountdown.Start(1);
+            shot.Cursor = SamusProjectileProgramAddresses.CursorAt(pair[slot].List); shot.InstructionTimer = WrappingCountdown.Start(1);
             shot.PreInstruction = pair[slot].Pre;
         }
 
@@ -67,8 +66,8 @@ internal static class MotherBrainGlassSuperMissileVerification
         var level = CreateRoom(new(16, 16), new ushort[256], new byte[256]);
         shots.StepFrame(new SamusTerrain { Level = level }, samus, new ProjectileButtonInput { ControllerInput = 0, ControllerNewInput = 0 }, Position16<RoomPixels>.Zero, bombs, projectileProducerEnabled: false);
         head.AiStates = EnemyAiStates.None;
-        head.FlashTimer = NativeCountdown.Start(0);
-        head.InvincibilityTimer = NativeCountdown.Start(0);
+        head.FlashTimer = WrappingCountdown.Start(0);
+        head.InvincibilityTimer = WrappingCountdown.Start(0);
         AssertEqual(0, enemies.Collision.ResolveOrdinaryProjectileHits(shots, bombs, samus), "nothing of the pair is left to hit the glass");
         AssertEqual(2700, head.Health, "the glass takes no second hit");
         Console.WriteLine("Mother Brain glass Super Missile: one marked hit, $6E, and the pair removed on the next pass.");

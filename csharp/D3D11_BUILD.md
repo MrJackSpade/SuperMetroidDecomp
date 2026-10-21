@@ -200,6 +200,10 @@ The additional 100 message cases cover every supported row count (3–6) and rev
 radius (0–24), random tile flips/palettes and the two temporary message colors.
 Glyphs are decoded on GPU from captured VRAM; gameplay CGRAM remains unchanged.
 
+`--xray-smoke` checks gameplay color math on both devices: X-ray window reveal, OBJ
+palette exemptions, subscreen arithmetic, Fireflea darkness and Phantoon's additive
+BG2, from both the VRAM tilemap and a boss's own BG2 image (#1426).
+
 `--ordinary-smoke` checks 96 exact ordinary gameplay comparisons on both devices in
 Debug and Release. All eight BG1/BG2/OBJ enable combinations, three BG2 geometries,
 and independent X/Y HDMA tables are covered. The GPU composes the Mode-1 priority

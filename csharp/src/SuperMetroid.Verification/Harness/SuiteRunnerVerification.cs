@@ -15,9 +15,10 @@ internal static class SuiteRunnerVerification
     /// <summary>
     /// Resolves one verifier for <c>--suite</c>: a suite the full run registers under <paramref name="name"/>, or else
     /// the one <c>internal static</c> method of that name among this assembly's verification types. A method may take
-    /// no parameters, or one required parameter that is the retail cartridge address space or the shared retail
-    /// <see cref="GameInstallation"/> (optional parameters take their defaults). Verifiers that need other prepared
-    /// inputs keep running through their parent flag.
+    /// no parameters, or one required parameter that is the retail cartridge address space, the shared retail
+    /// <see cref="GameInstallation"/>, or a shared installed fixture of that type from <see cref="InstalledFixtures"/>
+    /// (optional parameters take their defaults). Verifiers that need other prepared inputs keep running through their
+    /// parent flag.
     /// </summary>
     /// <returns>Runs the verifier as a timed suite and returns its exit code.</returns>
     [ReflectionAudit("verifier discovery: a suite is selected by its method name from the command line")]
@@ -51,7 +52,15 @@ internal static class SuiteRunnerVerification
         int installationArgument = required.Length == 1 && required[0].ParameterType == typeof(GameInstallation)
             ? Array.IndexOf(parameters, required[0])
             : -1;
-        if (installationArgument < 0 && required.Length == 1)
+        PropertyInfo? installedFixture = installationArgument < 0 && required.Length == 1
+            ? typeof(InstalledFixtures).GetProperties(BindingFlags.NonPublic | BindingFlags.Static)
+                .SingleOrDefault(property => property.PropertyType == required[0].ParameterType)
+            : null;
+        if (installedFixture is not null)
+        {
+            arguments[Array.IndexOf(parameters, required[0])] = installedFixture.GetValue(null);
+        }
+        else if (installationArgument < 0 && required.Length == 1)
         {
             var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
             if (!required[0].ParameterType.IsInstanceOfType(rom))

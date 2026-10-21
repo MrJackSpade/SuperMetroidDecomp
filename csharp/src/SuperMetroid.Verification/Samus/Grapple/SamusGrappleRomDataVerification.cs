@@ -75,7 +75,7 @@ internal static class SamusGrappleRomDataVerification
         for (int point = 0; point < 2; point++)
         {
             ushort pointer = CartridgeImportSource.Require(bus).ReadCartridgeWord((SamusGrappleRomData.Rendering.PointTilePointers + point * sizeof(ushort)));
-            TouchRange(bus, SamusGrappleRomData.Banks.CharacterData | pointer,
+            TouchRange(bus, GrapplePointAnimationNative.CharacterDataBank | pointer,
                 SamusGrappleRomDataRenderingConstants.PointTileByteCount,
                 $"Grapple point character frame {point}");
         }
@@ -86,7 +86,7 @@ internal static class SamusGrappleRomDataVerification
         for (int segment = 0; segment < segmentPointerCount; segment++)
         {
             ushort pointer = CartridgeImportSource.Require(bus).ReadCartridgeWord((SamusGrappleRomData.Rendering.SegmentTilePointers + segment * sizeof(ushort)));
-            TouchRange(bus, SamusGrappleRomData.Banks.CharacterData | pointer,
+            TouchRange(bus, GrapplePointAnimationNative.CharacterDataBank | pointer,
                 SamusGrappleRomData.Rendering.SegmentTileByteCount,
                 $"Grapple segment character set {segment}");
         }

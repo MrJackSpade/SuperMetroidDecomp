@@ -3,28 +3,27 @@ namespace SuperMetroid.Core.Samus.Grapple;
 /// <summary>Native endpoint animation at $9B:BFBD, distinct from the rope's angle selection.</summary>
 internal static class GrapplePointAnimationDefinitions
 {
-    /// <summary>$9B:C342, GrappleBeamStartTilesBeginEndPointers_0: first endpoint tile in bank $9A.</summary>
-    internal const ushort BeginPointer = 0x8200;
-    /// <summary>$9B:C344, GrappleBeamStartTilesBeginEndPointers_1: exclusive endpoint animation limit.</summary>
-    internal const ushort EndPointer = 0x8a00;
-    /// <summary>$9B:BFD0 advances the tile source by $0200 bytes on timer expiry.</summary>
-    internal const ushort FrameStride = 0x0200;
+    /// <summary>$9B:C342/C344: the endpoint animation shows four frames before returning to the first.</summary>
+    internal const int FrameCount = 4;
+    /// <summary>
+    /// $9B:BFD0 advances a 16-bit tile-source word by one frame's tiles, so the frame it names repeats every 128 frames
+    /// and the end test compares the signed distance past the last frame.
+    /// </summary>
+    private const int SourceWordFrames = 128;
     /// <summary>$9B:BFC6/C645 NTSC delay: five, decremented through zero for a six-call interval.</summary>
     internal const ushort Delay = 5;
 
-    /// <summary>Combines a frame's bank-relative tile pointer with the grapple character-data bank.</summary>
-    internal static int SourceAddress(int frame) => SamusGrappleRomData.Banks.CharacterData |
-        unchecked((ushort)(BeginPointer + frame * FrameStride));
-
-    /// <summary>Decrements the endpoint timer, advances by one native tile stride on expiry, and wraps at the exclusive limit.</summary>
-    /// <remarks>Pointer arithmetic occurs in 16 bits before conversion back to the saved frame ordinal, retaining wrapped states.</remarks>
+    /// <summary>Decrements the endpoint timer, advances one frame on expiry, and returns to the first frame past the last.</summary>
+    /// <remarks>
+    /// A restored frame up to half the source word's span past the last frame also returns to the first; one beyond that
+    /// reads as before the start, so it keeps advancing until the source word wraps back to the first frame.
+    /// </remarks>
     internal static void Advance(SamusGrappleState state)
     {
         state.PointAnimationTimer = state.PointAnimationTimer.Decrement().Remaining;
         if (!state.PointAnimationTimer.IsNegative) return;
         state.PointAnimationTimer = WrappingCountdown.Start(Delay);
-        ushort pointer = unchecked((ushort)(SourceAddress(state.PointAnimationFrame) + FrameStride));
-        if (unchecked((short)(pointer - EndPointer)) >= 0) pointer = BeginPointer;
-        state.PointAnimationFrame = unchecked((ushort)(pointer - BeginPointer)) / FrameStride;
+        int next = (state.PointAnimationFrame + 1) % SourceWordFrames;
+        state.PointAnimationFrame = next >= FrameCount && next - FrameCount < SourceWordFrames / 2 ? 0 : next;
     }
 }

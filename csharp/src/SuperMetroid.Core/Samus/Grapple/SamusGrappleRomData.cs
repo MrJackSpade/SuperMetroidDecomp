@@ -34,13 +34,6 @@ public static class SamusGrappleRomData
         /// <summary>$9B:C856/C8C5/C9CE/CB8B: QueueSfx1_Max15(7), stop the active grapple sound.</summary>
         public static readonly SoundRequest Stop = new(SoundEffectId.FromCartridge(SoundEffectLibrary.Library1, 7), 15);
     }
-    /// <summary>Native banks used by grapple's same-bank pointers.</summary>
-    public static class Banks
-    {
-        /// <summary>Bank containing Grapple character graphics.</summary>
-        public const int CharacterData = 0x9a0000;
-    }
-
     /// <summary>Native angular-physics coefficients embedded in bank-$9B behavior.</summary>
     public static class Physics
     {

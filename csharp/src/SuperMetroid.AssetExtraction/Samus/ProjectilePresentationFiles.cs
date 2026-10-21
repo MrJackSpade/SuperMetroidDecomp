@@ -15,7 +15,7 @@ public static class ProjectilePresentationFiles
     /// <summary>Stock projectile provenance manifest filename, separate from persistent override content.</summary>
     public const string ManifestFileName = "projectile-manifest.json";
     /// <summary>Current projectile manifest schema version covering all projectile, beam, flare, trail, and Grapple visual assets.</summary>
-    public const int Version = 15;
+    public const int Version = 16;
     /// <summary>Strict manifest JSON encoding with required fields and no unknown properties.</summary>
     private static readonly JsonSerializerOptions Options = new()
     {

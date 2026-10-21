@@ -89,7 +89,7 @@ internal static class ProjectileFrameBindingsVerification
         var document = RequiredJson.Deserialize<ProjectileFrameBindingDocument>(stockJson,
             new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
         ushort editedPointer = SamusProjectileRecordDefinitions.TimedRecordAddresses[0];
-        string frameName = ProjectileFrameBindingFormat.FrameName(editedPointer);
+        string frameName = ProjectileFrameBindingFormat.FrameNameAt(editedPointer);
         ushort originalSprite = stock.Resolve(editedPointer);
         ProjectileSpriteCatalog compositions = ProjectileSpriteCatalog.Load(
             new MemoryStream(ProjectileSpriteExtractor.Extract(rom)));

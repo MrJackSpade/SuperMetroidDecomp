@@ -47,8 +47,8 @@ internal static class DefinitionAudit
         // This is an explicit zero-part definition, not a missing art fallback.
         exports.Add(ResourceDomains.EnemyProjectileSprite,
             ResourceIndex.Address(ResourceBanks.ProjectileOamAndPaletteFx, EnemyProjectileSpritemapDefinitions.BlankSpritemap));
-        foreach (ushort pointer in ProjectileSpriteDefinitions.NativePointers)
-            exports.Add(ResourceDomains.SamusProjectile, ResourceIndex.Address(ResourceBanks.SamusProjectiles, pointer));
+        foreach (ProjectileSpriteId sprite in ProjectileSpriteDefinitions.All)
+            exports.Add(ResourceDomains.SamusProjectile, sprite.Name);
 
         int enemyReferences = 0, projectileReferences = 0;
         for (int index = 0; index < CompiledEnemyVisualSelectorsTooling.Count; index++)

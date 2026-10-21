@@ -82,7 +82,7 @@ internal static class MapInstallationVerification
         File.WriteAllText(flareOverride, flareDocument.ToJsonString());
         string flareCompositionOverride = Path.Combine(installation.ProjectileOverrideDirectory, ChargeFlareSpriteDefinitions.FileName);
         var flareComposition = RequiredJson.Parse(File.ReadAllText(Path.Combine(installation.ProjectileDirectory, ChargeFlareSpriteDefinitions.FileName)));
-        flareComposition.Required("frames").Required(ProjectileSpriteDefinitions.Name(ChargeFlareSpriteDefinitions.Selectors[0])).Required(0)["offsetX"] = 17;
+        flareComposition.Required("frames").Required(ChargeFlareSpriteDefinitions.Selectors[0].Name).Required(0)["offsetX"] = 17;
         File.WriteAllText(flareCompositionOverride, flareComposition.ToJsonString());
         string grappleOverride = Path.Combine(installation.ProjectileOverrideDirectory, GrappleTileDefinitions.FileName);
         using (var input = File.OpenRead(Path.Combine(installation.ProjectileDirectory, GrappleTileDefinitions.FileName)))

@@ -1,4 +1,5 @@
 using SuperMetroid.Verification.Bosses.MotherBrain;
+using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core.World.Artwork;
 using SuperMetroid.Core.Areas;
 using SuperMetroid.Core.Enemies.Drawing;

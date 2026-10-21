@@ -178,6 +178,18 @@ internal static class ConsumerAudit
             : null;
     }
 
+    /// <summary>The name of the projectile composition a lookup constructs from constants, or null when it is computed.</summary>
+    internal static string? ProjectileSpriteKey(Microsoft.CodeAnalysis.Operations.IInvocationOperation invocation)
+    {
+        IOperation? sprite = invocation.Arguments.FirstOrDefault(argument => argument.Parameter?.Ordinal == 0)?.Value;
+        while (sprite is Microsoft.CodeAnalysis.Operations.IConversionOperation conversion)
+            sprite = conversion.Operand;
+        if (sprite is not Microsoft.CodeAnalysis.Operations.IObjectCreationOperation { Type.Name: "ProjectileSpriteId" } creation ||
+            creation.Arguments is not [{ Value.ConstantValue: { HasValue: true, Value: { } group } }, { Value.ConstantValue: { HasValue: true, Value: { } index } }])
+            return null;
+        return $"{(SuperMetroid.Core.Samus.Artwork.ProjectileSpriteGroup)Convert.ToInt32(group)}.{Convert.ToInt32(index)}";
+    }
+
     private static string? ConstantKey(string domain, InvocationExpressionSyntax call, SemanticModel semantic)
     {
         // Match parameter identities, not textual argument order; named arguments
@@ -185,6 +197,8 @@ internal static class ConsumerAudit
         if (semantic.GetOperation(call) is not Microsoft.CodeAnalysis.Operations.IInvocationOperation invocation) return null;
         if (domain is ResourceDomains.EnemySimple or ResourceDomains.EnemyExtended)
             return EnemyFrameKey(invocation);
+        if (domain is ResourceDomains.SamusProjectile)
+            return ProjectileSpriteKey(invocation);
         var numbers = new Dictionary<int, int>();
         foreach (var argument in invocation.Arguments)
         {
@@ -199,7 +213,6 @@ internal static class ConsumerAudit
         {
             ResourceDomains.PaletteFx or ResourceDomains.EnemyProjectileSprite => ResourceBanks.ProjectileOamAndPaletteFx,
             ResourceDomains.EnemyProjectileProgram => ResourceBanks.EnemyProjectilePrograms,
-            ResourceDomains.SamusProjectile => ResourceBanks.SamusProjectiles,
             _ => throw new InvalidDataException("Unregistered resource address domain: " + domain),
         };
         return ResourceIndex.Address(bank, first);

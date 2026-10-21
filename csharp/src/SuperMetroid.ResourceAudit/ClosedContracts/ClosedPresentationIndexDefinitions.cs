@@ -137,7 +137,7 @@ internal static class ClosedPresentationIndexDefinitions
         ("RoomSkyTilemapCatalog", "Row", "row") => new(0, RoomSkyTilemapFormat.RowsPerPage),
         ("BeamTileCatalog", "Resolve", "asset") => new((int)VramAssetId.BeamPowerTiles, BeamTileAtlasDefinitions.SelectionCount, Additional: (int)VramAssetId.BeamChainsawTiles, AdditionalMaximum: (int)VramAssetId.BeamSpacetimeTiles),
         ("ChargeFlarePlacementCatalog", "Resolve", "direction") => new(0, ChargeFlarePlacementDefinitions.DirectionCount),
-        ("ChargeFlareSpriteCatalog", "Frame", "selector") => new(0, ChargeFlareSpriteDefinitions.Selectors.Length),
+        ("ChargeFlareSpriteCatalog", "Frame", "selector") => new(0, ChargeFlareSpriteDefinitions.Selectors.Count),
         ("GrappleSpriteCatalog", "Segment", "frame") => new(0, GrappleSpriteDefinitions.SegmentAttributeAddresses.Length),
         ("SamusBodyArtworkCatalog", "GraphicsYOffset", "pose") => new(0, SamusBodyArtworkCatalog.PoseCount),
         ("SamusSpritemapArtworkCatalog", "TopBase" or "BottomBase", "pose") => new(0, SamusBodyArtworkCatalog.PoseCount),

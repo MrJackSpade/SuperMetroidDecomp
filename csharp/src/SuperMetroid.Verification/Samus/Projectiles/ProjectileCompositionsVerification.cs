@@ -86,7 +86,7 @@ internal static class ProjectileCompositionsVerification
         AssertTrue(!baselineOam.LowTable.SequenceEqual(editedOam.LowTable), "Loaded composition owns immutable compiled parts");
 
         void Reject(ProjectileSpriteDocument bad) => AssertThrows<InvalidDataException>(() => ProjectileSpriteCatalog.Load(new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(bad, options))), "Malformed composition rejected");
-        Reject(document with { Version = 2 });
+        Reject(document with { Version = ProjectileSpriteDefinitions.Version + 1 });
         foreach (var badPart in new[] { original with { Palette = null }, original with { TileColumn = 16 }, original with { TileRow = 32 }, original with { OffsetX = 256 }, original with { OffsetY = -129 }, original with { Size = 32 } })
         {
             document.Frames[name][0] = badPart; Reject(document);
@@ -438,7 +438,7 @@ internal static class ProjectileCompositionsVerification
         string compositionStock = Path.Combine(installation.ProjectileDirectory, ChargeFlareSpriteDefinitions.FileName);
         string compositionOverride = Path.Combine(installation.ProjectileOverrideDirectory, ChargeFlareSpriteDefinitions.FileName);
         var compositionDocument = RequiredJson.Parse(File.ReadAllText(compositionStock));
-        string firstFlare = ProjectileSpriteDefinitions.Name(ChargeFlareSpriteDefinitions.Selectors[0]);
+        string firstFlare = ChargeFlareSpriteDefinitions.Selectors[0].Name;
         compositionDocument.Required("frames").Required(firstFlare).Required(0)["offsetX"] = 17;
         File.WriteAllText(compositionOverride, compositionDocument.ToJsonString());
         var compositionEdited = installation.LoadProjectiles();

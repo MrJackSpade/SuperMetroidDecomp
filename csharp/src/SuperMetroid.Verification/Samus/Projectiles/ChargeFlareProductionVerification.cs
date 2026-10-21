@@ -155,7 +155,7 @@ internal static class ChargeFlareProductionVerification
     internal static CartridgeReadGuard NewChargeFlareCompositionGuard(ISnesAddressSpace source)
     {
         var forbidden = new HashSet<int>();
-        for (int i = 0; i < ChargeFlareSpriteDefinitions.Selectors.Length * 2; i++)
+        for (int i = 0; i < ChargeFlareSpriteDefinitions.Selectors.Count * 2; i++)
             forbidden.Add(ChargeFlareSpriteDefinitions.SelectorTable + i);
         foreach (ushort pointer in ChargeFlareSpriteDefinitions.NativePointers)
         {

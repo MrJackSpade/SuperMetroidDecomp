@@ -2023,7 +2023,7 @@ internal static class LookupStream1Verification
         for (ushort selector = 0; selector < 54; selector++)
         {
             ushort pointer = Word(0x93a1a1 + selector * 2);
-            AssertEqual(pointer, selectors[selector], "native charge flare phased selector");
+            AssertEqual(pointer, ProjectileSpriteNative.Address(selectors[selector]), "native charge flare phased selector");
             if (!nativePointers.Contains(pointer)) nativePointers.Add(pointer);
             var expected = new OamBuffer();
             var actual = new OamBuffer();
@@ -2732,16 +2732,16 @@ internal static class LookupStream1Verification
         }
         var document = new ProjectileFrameBindingDocument
         {
-            Version = 1,
-            Frames = expected.ToDictionary(pointer => ProjectileFrameBindingFormat.FrameName(pointer),
-                pointer => $"sprite_{Word(0x930000 | (pointer + 2)):X4}"),
+            Version = ProjectileFrameBindingFormat.Version,
+            Frames = expected.ToDictionary(pointer => ProjectileFrameBindingFormat.FrameNameAt(pointer),
+                pointer => ProjectileSpriteDefinitions.Name(Word(0x930000 | (pointer + 2)))),
         };
         var guard = NewLookupFlareForbiddenBus();
         int interpreted = 0, bombInterpreted = 0;
         foreach (bool edited in new[] { false, true })
         {
             if (edited)
-                foreach (ushort pointer in expected) document.Frames[ProjectileFrameBindingFormat.FrameName(pointer)] = "sprite_A117";
+                foreach (ushort pointer in expected) document.Frames[ProjectileFrameBindingFormat.FrameNameAt(pointer)] = ProjectileSpriteDefinitions.Name(0xa117);
             var bindings = ProjectileFrameBindingCatalog.Load(new MemoryStream(ProjectileFrameBindingCatalog.Write(document)));
             var shots = new SamusProjectileSystem(new BeamChargeState(), SamusProjectileResidue.None) { Animation = { FrameBindings = bindings } };
             var bombs = new SamusBombProjectileSystem { FrameBindings = bindings };
@@ -2816,9 +2816,9 @@ internal static class LookupStream1Verification
         AssertEqual(105, programs.Count, "Independent native complete program domains");
         var document = new ProjectileFrameBindingDocument
         {
-            Version = 1,
-            Frames = records.ToDictionary(pointer => ProjectileFrameBindingFormat.FrameName(pointer),
-                pointer => $"sprite_{Word(0x930000 | (pointer + 2)):X4}"),
+            Version = ProjectileFrameBindingFormat.Version,
+            Frames = records.ToDictionary(pointer => ProjectileFrameBindingFormat.FrameNameAt(pointer),
+                pointer => ProjectileSpriteDefinitions.Name(Word(0x930000 | (pointer + 2)))),
         };
         var bindings = ProjectileFrameBindingCatalog.Load(new MemoryStream(ProjectileFrameBindingCatalog.Write(document)));
         var guard = NewLookupFlareForbiddenBus();

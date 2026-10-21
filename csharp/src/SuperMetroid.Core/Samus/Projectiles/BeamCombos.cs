@@ -227,7 +227,7 @@ internal sealed class BeamCombos
         SamusOverreadCatalog? overreads,
         SamusProjectileSlot slot)
     {
-        ushort inheritedY = slot.SpritemapPointer == 0
+        ushort inheritedY = slot.Sprite is null
             ? unchecked((ushort)(slot.PackedType.BeamCombination.TableIndex *
                 SamusProjectileRomData.Beams.InitialSpeedRowBytes))
             : unchecked((ushort)(slot.InstructionPointer -

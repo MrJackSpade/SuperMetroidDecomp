@@ -51,10 +51,10 @@ internal static class ChargeFlareCompositionsVerification
             VerifyGrappleTileArtwork(bus);
         }
         int cases = 0;
-        for (ushort selector = 0; selector < ChargeFlareSpriteDefinitions.Selectors.Length; selector++)
+        for (ushort selector = 0; selector < ChargeFlareSpriteDefinitions.Selectors.Count; selector++)
         {
             AssertEqual(ReadNativeChargeFlareSelector(bus, selector),
-                ChargeFlareSpriteDefinitions.Selectors[selector], "Compiled charge-flare selector matches pinned cartridge");
+                ProjectileSpriteNative.Address(ChargeFlareSpriteDefinitions.Selectors[selector]), "Compiled charge-flare selector matches pinned cartridge");
             foreach (ushort x in new ushort[] { 0, 1, 127, 255, 256, 511, 65535 })
             foreach (ushort y in new ushort[] { 0, 1, 127, 255, 256, 511, 65535 })
             foreach (int occupied in new[] { 0, 126, 127 })
@@ -74,7 +74,7 @@ internal static class ChargeFlareCompositionsVerification
             }
         }
         var document = RequiredJson.Parse(json);
-        string first = ProjectileSpriteDefinitions.Name(ChargeFlareSpriteDefinitions.Selectors[0]);
+        string first = ChargeFlareSpriteDefinitions.Selectors[0].Name;
         int oldX = document.Required("frames").Required(first).Required(0).Required("offsetX").GetValue<int>();
         document.Required("frames").Required(first).Required(0)["offsetX"] = oldX + 7;
         var edited = Load(document);

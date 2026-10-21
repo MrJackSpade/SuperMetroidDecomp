@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Samus.Artwork;
 namespace SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>One debugger-readable ordinary slot corresponding to a native even byte index.</summary>
@@ -53,8 +54,8 @@ public sealed class SamusProjectileSlot
     public int InstructionPointer => SamusProjectileProgramAddresses.Address(Cursor);
     /// <summary>Updates remaining before the current projectile instruction advances.</summary>
     public WrappingCountdown InstructionTimer { get; internal set; }
-    /// <summary>Bank-relative pointer to the projectile's current spritemap.</summary>
-    public int SpritemapPointer { get; internal set; }
+    /// <summary>The composition the projectile shows (native <c>$0CC2 + 2*Index</c>), selected by the timed-frame interpreter or installed frame binding; none before its first frame.</summary>
+    public ProjectileSpriteId? Sprite { get; internal set; }
     /// <summary>Current animation frame index.</summary>
     public int AnimationFrame
     {
@@ -101,7 +102,7 @@ public sealed class SamusProjectileSlot
         Radius = Extent16<RoomPixels>.Zero;
         Cursor = null;
         InstructionTimer = WrappingCountdown.Start(0);
-        SpritemapPointer = 0;
+        Sprite = null;
         AnimationFrame = 0;
         Variable = 0;
         PreInstruction = SamusProjectilePreInstruction.None;
@@ -124,7 +125,7 @@ public sealed class SamusProjectileSlot
         Cursor = null;
         InstructionTimer = WrappingCountdown.Start(0);
         Variable = 0;
-        SpritemapPointer = 0;
+        Sprite = null;
         PreInstruction = SamusProjectilePreInstruction.None;
     }
 }

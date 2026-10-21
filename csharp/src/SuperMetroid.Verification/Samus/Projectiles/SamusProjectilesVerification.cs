@@ -250,7 +250,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     SamusProjectileSlot spazerShot = spazerFlickerProjectiles.Slots[0];
     AssertProjectileEntry(
         DrawnEntries(frame => spazerFlickerProjectiles.DrawLiveProjectiles(frame, Position16<RoomPixels>.Zero, nmiFrameCounter: 0, spazerArtwork)),
-        new SpriteSource(SpriteSourceKind.SamusProjectile, 0), spazerArtwork.Sprites.Frame(checked((ushort)spazerShot.SpritemapPointer)), spazerArtwork,
+        new SpriteSource(SpriteSourceKind.SamusProjectile, 0), spazerArtwork.Sprites.Frame(ProjectileSpriteNative.Projectile(spazerShot.SpritemapPointer)), spazerArtwork,
         new Position16<ScreenPixels>(spazerShot.Position.X.Whole, spazerShot.Position.Y.Whole), "Spazer shot");
     spazerFlickerOam = SpriteFrameBuffer.DrawnOam(frame => spazerFlickerProjectiles.DrawLiveProjectiles(frame, Position16<RoomPixels>.Zero, nmiFrameCounter: 2, InstalledFixtures.ProjectileArtwork(fixtureSprites)));
     AssertEqual(0, spazerFlickerOam.LastFinalizedSpriteCount,
@@ -1049,7 +1049,7 @@ internal static void VerifySamusPowerBeamProjectiles()
     ProjectileDrawArtwork missileArtwork = InstalledFixtures.ProjectileArtwork(fixtureSprites);
     AssertProjectileEntry(
         DrawnEntries(frame => missileProjectiles.DrawLiveProjectiles(frame, Position16<RoomPixels>.Zero, nmiFrameCounter: 0, missileArtwork)),
-        new SpriteSource(SpriteSourceKind.SamusProjectile, 0), missileArtwork.Sprites.Frame(checked((ushort)missile.SpritemapPointer)), missileArtwork,
+        new SpriteSource(SpriteSourceKind.SamusProjectile, 0), missileArtwork.Sprites.Frame(ProjectileSpriteNative.Projectile(missile.SpritemapPointer)), missileArtwork,
         new Position16<ScreenPixels>(missile.Position.X.Whole, missile.Position.Y.Whole), "Missile");
     AssertEqual(0x044, missileOam.GetEntry(0).TileNumber,
         "missile draw consumes its `$2A44` fixture OBJ");

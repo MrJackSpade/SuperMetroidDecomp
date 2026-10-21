@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.Samus.Artwork;
 namespace SuperMetroid.Core.Samus.Projectiles;
 
 /// <summary>One semantic view over a physical WRAM bomb slot.</summary>
@@ -36,8 +37,8 @@ public sealed class SamusBombProjectileSlot
     internal AnimationProgramCursor<SamusProjectileProgram>? Cursor { get; set; }
     /// <summary>Wrapping sixteen-bit duration countdown at <c>$0C5E + 2*Index</c>, decremented once per unfrozen projectile update; reaching zero runs the next bank-$93 instruction.</summary>
     public WrappingCountdown InstructionTimer { get; internal set; }
-    /// <summary>Current bank-$93 spritemap identity at <c>$0CC2 + 2*Index</c>, selected by the timed-frame interpreter or installed frame binding and resolved through the sprite catalog when drawing.</summary>
-    public int SpritemapPointer { get; internal set; }
+    /// <summary>The composition the bomb shows (native <c>$0CC2 + 2*Index</c>), selected by the timed-frame interpreter or installed frame binding; none before its first frame.</summary>
+    public ProjectileSpriteId? Sprite { get; internal set; }
     /// <summary>Collision half-extents in whole pixels, loaded from timed-frame bytes and stored in native <c>SamusProjectile_X/YRadii</c> at <c>$0BBE/$0BD2 + 2*Index</c>; not the global Power Bomb blast radius.</summary>
     public Extent16<RoomPixels> Radius { get; internal set; }
 
@@ -71,7 +72,7 @@ public sealed class SamusBombProjectileSlot
         Damage = 0;
         Cursor = null;
         InstructionTimer = WrappingCountdown.Start(0);
-        SpritemapPointer = 0;
+        Sprite = null;
         Radius = Extent16<RoomPixels>.Zero;
         BombTimer = WrappingCountdown.Start(0);
         IsBombSpread = false;

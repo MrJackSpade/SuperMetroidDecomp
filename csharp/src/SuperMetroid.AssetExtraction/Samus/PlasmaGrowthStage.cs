@@ -1,4 +1,4 @@
-﻿namespace SuperMetroid.Core.Samus.Artwork;
+namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>Four selected growth stages of the native startup instruction streams. Their selected sizes remain independent FrameBindingCatalog policy.</summary>
 internal enum PlasmaGrowthStage

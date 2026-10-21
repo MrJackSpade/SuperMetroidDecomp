@@ -14,31 +14,26 @@ internal readonly struct SpazerSeedParts(int pose) : IReadOnlyList<CompiledSprit
         {
             if ((uint)index >= Count) throw new ArgumentOutOfRangeException(nameof(index));
             int size = SpazerCompositionGeometryDefinitions.TileSize;
-            SpazerSeedDirection direction = (SpazerSeedDirection)pose;
+            var direction = (SpazerSeedDirection)pose;
+            SnesTileFlipFlags flips = SpazerCompositionGeometryDefinitions.SeedFlips[direction];
             int x, y, tile;
-            bool flipX, flipY;
             if (pose < 4)
             {
                 x = SpazerCompositionGeometryDefinitions.DiagonalFirstPairOriginX + (index / 2 + index % 2) * size;
                 y = SpazerCompositionGeometryDefinitions.DiagonalFirstPairOriginY - (index / 2) * size;
-                flipX = direction is SpazerSeedDirection.UpRight or SpazerSeedDirection.DownRight;
-                flipY = direction is SpazerSeedDirection.DownRight or SpazerSeedDirection.DownLeft;
-                if (!flipX) x = -size - x;
-                if (flipY) y = -size - y;
+                if (!flips.HasFlag(SnesTileFlipFlags.Horizontal)) x = -size - x;
+                if (flips.HasFlag(SnesTileFlipFlags.Vertical)) y = -size - y;
                 tile = ProjectileSpritePartDefinitions.SpazerDiagonalGlyph - index % 2;
             }
             else
             {
-                bool vertical = direction is SpazerSeedDirection.Up or SpazerSeedDirection.Down;
+                bool vertical = direction is not (SpazerSeedDirection.Left or SpazerSeedDirection.Right);
                 bool reverse = direction is SpazerSeedDirection.Down or SpazerSeedDirection.Right;
                 int along = (reverse ? index - 1 : -index) * size;
                 x = vertical ? -size / 2 : along;
                 y = vertical ? along : SpazerCompositionGeometryDefinitions.HorizontalStripOriginY;
-                flipX = direction == SpazerSeedDirection.Right;
-                flipY = direction == SpazerSeedDirection.Down;
                 tile = vertical ? ProjectileSpritePartDefinitions.SpazerVerticalGlyph : ProjectileSpritePartDefinitions.SpazerHorizontalGlyph;
             }
-            var flips = (flipX ? SnesTileFlipFlags.Horizontal : 0) | (flipY ? SnesTileFlipFlags.Vertical : 0);
             return new(SnesSpritemapXWord.Create(x, false), SnesSpritemapYByte.Create(y),
                 SnesObjAttributeWord.Create(tile, ProjectileSpritePartDefinitions.PowerPalette, ProjectileSpritePartDefinitions.PowerPriority, flips), false);
         }

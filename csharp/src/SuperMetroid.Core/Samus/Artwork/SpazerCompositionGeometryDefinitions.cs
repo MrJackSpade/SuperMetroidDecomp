@@ -22,4 +22,18 @@ internal static class SpazerCompositionGeometryDefinitions
 
     /// <summary>$93:D6EE/D846: horizontal tile30 has Y=-4, centering its8px cell on the projectile. Painted rows3/4 have pixel centers-0.5/+0.5.</summary>
     internal const int HorizontalStripOriginY = -TileSize / 2;
+
+    /// <summary>$93:D10E..D842: how each seed direction mirrors its cells.</summary>
+    internal static readonly IReadOnlyDictionary<SpazerSeedDirection, SnesTileFlipFlags> SeedFlips =
+        new Dictionary<SpazerSeedDirection, SnesTileFlipFlags>
+        {
+            [SpazerSeedDirection.UpRight] = SnesTileFlipFlags.Horizontal,
+            [SpazerSeedDirection.DownRight] = SnesTileFlipFlags.Horizontal | SnesTileFlipFlags.Vertical,
+            [SpazerSeedDirection.DownLeft] = SnesTileFlipFlags.Vertical,
+            [SpazerSeedDirection.UpLeft] = SnesTileFlipFlags.None,
+            [SpazerSeedDirection.Down] = SnesTileFlipFlags.Vertical,
+            [SpazerSeedDirection.Left] = SnesTileFlipFlags.None,
+            [SpazerSeedDirection.Up] = SnesTileFlipFlags.None,
+            [SpazerSeedDirection.Right] = SnesTileFlipFlags.Horizontal,
+        };
 }

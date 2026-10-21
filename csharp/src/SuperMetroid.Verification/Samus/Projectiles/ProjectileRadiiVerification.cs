@@ -104,7 +104,7 @@ internal static class ProjectileRadiiVerification
             new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
         ushort[] replacementSprites = ProjectileSpriteDefinitions.NativePointers.ToArray();
         foreach (ushort frame in SamusProjectileRecordDefinitions.TimedRecordAddresses)
-            editedDocument.Frames[ProjectileFrameBindingFormat.FrameName(frame)] =
+            editedDocument.Frames[ProjectileFrameBindingFormat.FrameNameAt(frame)] =
                 ProjectileSpriteDefinitions.Name(stock.Resolve(frame) == replacementSprites[0]
                     ? replacementSprites[1] : replacementSprites[0]);
         var edited = ProjectileFrameBindingCatalog.Load(

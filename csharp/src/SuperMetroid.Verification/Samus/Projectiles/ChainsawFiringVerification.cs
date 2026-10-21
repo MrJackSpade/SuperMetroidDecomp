@@ -1,4 +1,5 @@
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
+using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
 using static SuperMetroid.Verification.Enemies.EnemyDropsVerification;

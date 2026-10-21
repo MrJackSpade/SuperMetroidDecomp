@@ -386,7 +386,7 @@ internal static class LookupStream2Verification
             if (((SpriteComposition)composition).parts is HorizontalPlasmaWaveShortParts)
                 calculatedPlasmaShort++;
         AssertEqual(5, calculatedPlasmaShort, "Five horizontal PlasmaWave Short poses calculate cell and lobe geometry");
-        var firstCharged = (SpriteComposition)(frames[(ushort)0xec3e] ?? throw new InvalidOperationException("Verification requires frames[(ushort)0xec3e]."));
+        var firstCharged = (SpriteComposition)(frames[ProjectileSpriteNative.Projectile(0xec3e)] ?? throw new InvalidOperationException("Verification requires the first charged Power composition."));
         AssertTrue(firstCharged.parts is CompiledSpritePart[], "Distinct initial charged-Power ordering stays explicitly supplied/pending");
         foreach (ushort pointer in expected)
         {
@@ -450,11 +450,11 @@ internal static class LookupStream2Verification
         expectedWave[1]++;
         AssertTrue(expectedWave.SequenceEqual(editedWave.LowTable) && nativeWave.HighTable.SequenceEqual(editedWave.HighTable), "Independent diagonal Wave Y edit changes exactly its emitted coordinate and preserves X ninth bit");
         var flare = ChargeFlareSpriteCatalog.Load(new MemoryStream(ChargeFlareSpriteExtractor.Extract(rom)));
-        for (ushort selector = 0; selector < ChargeFlareSpriteDefinitions.Selectors.Length; selector++)
+        for (ushort selector = 0; selector < ChargeFlareSpriteDefinitions.Selectors.Count; selector++)
         {
             var native = new OamBuffer();
             var actual = new OamBuffer();
-            DrawImportedProjectileSpritemap(rom, native, ChargeFlareSpriteDefinitions.Selectors[selector], new(255, 255));
+            DrawImportedProjectileSpritemap(rom, native, ProjectileSpriteNative.Address(ChargeFlareSpriteDefinitions.Selectors[selector]), new(255, 255));
             flare.Draw(selector, actual, new(255, 255));
             AssertTrue(native.ImageEquals(actual), "Existing flare span caller preserves exact extracted OAM");
         }
@@ -2066,7 +2066,7 @@ internal static class LookupStream2Verification
             var system = new SamusProjectileSystem(new BeamChargeState(), SamusProjectileResidue.None) { Animation = { FrameBindings = stock } };
             _ = system.Animation.RunProjectileInstructionHandler(shot);
             AssertEqual(ReadVerificationWord(rom, (0x930000 | pointer) + 2), shot.SpritemapPointer, "Actual projectile handler selects calculated compass pose");
-            string key = ProjectileFrameBindingFormat.FrameName(pointer);
+            string key = ProjectileFrameBindingFormat.FrameNameAt(pointer);
             string original = document.Frames[key];
             document.Frames[key] = ProjectileSpriteDefinitions.Name(ProjectileSpriteDefinitions.NativePointers[0]);
             var edited = ProjectileFrameBindingCatalog.Load(new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, options)));
@@ -2110,7 +2110,7 @@ internal static class LookupStream2Verification
             var system = new SamusProjectileSystem(new BeamChargeState(), SamusProjectileResidue.None) { Animation = { FrameBindings = stock } };
             _ = system.Animation.RunProjectileInstructionHandler(shot);
             AssertEqual(ReadVerificationWord(rom, (0x930000 | pointer) + 2), shot.SpritemapPointer, "Actual handler uses native Wave/Ice traversal pose");
-            string key = ProjectileFrameBindingFormat.FrameName(pointer);
+            string key = ProjectileFrameBindingFormat.FrameNameAt(pointer);
             string original = document.Frames[key];
             ushort replacement = stock.Resolve(pointer) == ProjectileSpriteDefinitions.NativePointers[0]
                 ? ProjectileSpriteDefinitions.NativePointers[1] : ProjectileSpriteDefinitions.NativePointers[0];

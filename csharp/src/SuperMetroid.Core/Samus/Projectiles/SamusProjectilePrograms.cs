@@ -12,7 +12,7 @@ internal static class SamusProjectilePrograms
     /// Runs from <paramref name="cursor"/> to the next timed record and returns it with its duration, leaving the cursor
     /// past it; returns null when the list deletes the projectile.
     /// </summary>
-    internal static SamusProjectileRecord? RunToNextRecord(ref AnimationProgramCursor<SamusProjectileProgram> cursor, out int duration)
+    internal static SamusProjectileFrame? RunToNextRecord(ref AnimationProgramCursor<SamusProjectileProgram> cursor, out int duration)
     {
         WrappingCountdown counter = default;
         AnimationProgramAdvance<SamusProjectileFrame> advance =
@@ -21,7 +21,7 @@ internal static class SamusProjectilePrograms
         {
             case AnimationProgramAdvance<SamusProjectileFrame>.Show shown:
                 duration = shown.Duration;
-                return SamusProjectileRecordDefinitions.Get(shown.Frame);
+                return shown.Frame;
             case AnimationProgramAdvance<SamusProjectileFrame>.Stop:
                 duration = 0;
                 return null;

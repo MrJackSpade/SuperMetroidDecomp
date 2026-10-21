@@ -11,7 +11,7 @@ internal static class ChargeFlareSpriteCatalogAccess
         /// <summary>Draws a valid native charge-flare selector without consulting ROM.</summary>
         public void Draw(ushort selector, OamBuffer oam, Position16<OamPixels> origin)
         {
-            if (selector >= ChargeFlareSpriteDefinitions.Selectors.Length)
+            if (selector >= ChargeFlareSpriteDefinitions.Selectors.Count)
                 throw new InvalidDataException($"Unknown charge-flare sprite selector {selector:X4}.");
             self.sprites.Draw(ChargeFlareSpriteDefinitions.Selectors[selector], oam, origin);
         }

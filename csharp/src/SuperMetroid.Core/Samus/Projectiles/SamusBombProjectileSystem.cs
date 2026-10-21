@@ -295,7 +295,7 @@ public sealed class SamusBombProjectileSystem
                 continue;
 
             sprites.Add(new SpriteDraw(new SpriteSource(SpriteSourceKind.SamusBomb, slotIndex),
-                artwork.Sprites.Frame(checked((ushort)slot.SpritemapPointer)), artwork.Page,
+                artwork.Sprites.Frame(slot.Sprite ?? throw new InvalidOperationException("A drawn bomb shows a composition.")), artwork.Page,
                 new Position16<ScreenPixels>(unchecked((ushort)screenX), screenY), default, 0, 0));
         }
     }
@@ -1050,15 +1050,16 @@ public sealed class SamusBombProjectileSystem
 
         AnimationProgramCursor<SamusProjectileProgram> cursor = slot.Cursor
             ?? throw new InvalidOperationException("An inactive bomb has no list to run.");
-        if (SamusProjectilePrograms.RunToNextRecord(ref cursor, out int duration) is not { } record)
+        if (SamusProjectilePrograms.RunToNextRecord(ref cursor, out int duration) is not { } frame)
         {
             ClearProjectile(slot);
             return true;
         }
         if (duration == 0)
-            throw new InvalidDataException($"Bomb record $93:{record.Address:X4} has zero duration.");
+            throw new InvalidDataException($"Bomb record {frame.Record} has zero duration.");
+        SamusProjectileRecord record = SamusProjectileRecordDefinitions.Get(frame);
         slot.InstructionTimer = WrappingCountdown.FromRaw((ushort)duration);
-        slot.SpritemapPointer = FrameBindings?.Resolve(checked((ushort)record.Address)) ?? record.Spritemap;
+        slot.Sprite = FrameBindings?.Resolve(frame) ?? record.Sprite;
         slot.Radius = record.Radius;
         slot.Cursor = cursor;
         return false;

@@ -1,5 +1,5 @@
 
-namespace SuperMetroid.Core.Samus.Artwork;
+namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>A plasma growth stage and whether it travels diagonally.</summary>
 /// <param name="Stage">The stage.</param>

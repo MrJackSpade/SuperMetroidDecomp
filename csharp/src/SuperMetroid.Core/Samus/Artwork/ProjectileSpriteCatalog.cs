@@ -7,38 +7,38 @@ namespace SuperMetroid.Core.Samus.Artwork;
 /// <summary>Immutable, ROM-independent projectile visual compositions; no damage, collision or timing fields.</summary>
 public sealed class ProjectileSpriteCatalog
 {
-    /// <summary>Compiled OAM compositions keyed by bank-$93 spritemap offsets.</summary>
-    internal readonly Dictionary<ushort, SpriteComposition> frames;
-    /// <summary>Accepts the complete validated set of native projectile sprite identities.</summary>
-    private ProjectileSpriteCatalog(Dictionary<ushort, SpriteComposition> frames) => this.frames = frames;
+    /// <summary>Compiled OAM compositions keyed by composition.</summary>
+    internal readonly Dictionary<ProjectileSpriteId, SpriteComposition> frames;
+    /// <summary>Accepts the complete validated set of compositions.</summary>
+    private ProjectileSpriteCatalog(Dictionary<ProjectileSpriteId, SpriteComposition> frames) => this.frames = frames;
 
     /// <summary>One installed projectile composition as a whole frame.</summary>
-    /// <param name="id">Native composition identity.</param>
+    /// <param name="id">The composition.</param>
     /// <returns>The composition as a whole frame whose characters are its OBJ tile numbers.</returns>
-    public SpriteFrame Frame(ushort id)
+    public SpriteFrame Frame(ProjectileSpriteId id)
     {
-        if (!frames.TryGetValue(id, out var parts)) throw new InvalidDataException($"Missing projectile sprite {id:X4}.");
-        return wholeFrames.GetOrAdd(id, key => parts.ToFrame($"Projectile.{key:X4}", 0));
+        if (!frames.TryGetValue(id, out var parts)) throw new InvalidDataException($"Missing projectile sprite {id.Name}.");
+        return wholeFrames.GetOrAdd(id, key => parts.ToFrame($"Projectile.{key.Name}", 0));
     }
 
-    /// <summary>Whole frames already built, by composition identity.</summary>
-    private readonly System.Collections.Concurrent.ConcurrentDictionary<ushort, SpriteFrame> wholeFrames = new();
+    /// <summary>Whole frames already built, by composition.</summary>
+    private readonly System.Collections.Concurrent.ConcurrentDictionary<ProjectileSpriteId, SpriteFrame> wholeFrames = new();
 
     /// <summary>Validates and compiles the complete required projectile spritemap set into independently owned visual compositions, including the empty Nothing frame.</summary>
     /// <param name="json">Readable JSON stream at its current position; it remains open and caller-owned.</param>
-    /// <returns>Installed artwork keyed by the 417 native timed-record spritemap identities. Matching stock geometry may use immutable calculated parts; authored changes retain their compiled parts.</returns>
+    /// <returns>Installed artwork keyed by the 417 compositions timed records draw. Matching stock geometry may use immutable calculated parts; authored changes retain their compiled parts.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="json"/> is null.</exception>
     /// <exception cref="InvalidDataException">JSON is malformed or ambiguous, its schema or required identity set is invalid, or a part exceeds the supported OAM fields or count.</exception>
     public static ProjectileSpriteCatalog Load(Stream json)
-        => LoadFrames(json, default, pointers: ProjectileFramePointers.NativeProjectile);
+        => LoadFrames(json, ProjectileSpriteDefinitions.All);
 
     /// <summary>
     /// Loads the native part format for either timed projectiles or charge flares. Charge
-    /// flares have a separate required identity set, preserving existing projectile overrides.
+    /// flares have a separate required composition set, preserving existing projectile overrides.
     /// </summary>
-    internal static ProjectileSpriteCatalog LoadFrames(Stream json, ReadOnlySpan<ushort> requiredPointers, ProjectileFramePointers pointers = ProjectileFramePointers.Required)
+    internal static ProjectileSpriteCatalog LoadFrames(Stream json, IReadOnlyList<ProjectileSpriteId> required)
     {
-        int requiredCount = pointers == ProjectileFramePointers.NativeProjectile ? ProjectileSpriteDefinitions.NativePointers.Length : requiredPointers.Length;
+        int requiredCount = required.Count;
         ProjectileSpriteDocument document;
         try
         {
@@ -52,12 +52,11 @@ public sealed class ProjectileSpriteCatalog
         }
         catch (JsonException error) { throw new InvalidDataException("Invalid projectile composition JSON.", error); }
         if (document.Version != ProjectileSpriteDefinitions.Version || document.Frames is null || document.Frames.Count != requiredCount)
-            throw new InvalidDataException("Projectile compositions require version 1 and every required sprite identity.");
-        var frames = new Dictionary<ushort, SpriteComposition>();
-        for (int pointerIndex = 0; pointerIndex < requiredCount; pointerIndex++)
+            throw new InvalidDataException($"Projectile compositions require version {ProjectileSpriteDefinitions.Version} and every required composition.");
+        var frames = new Dictionary<ProjectileSpriteId, SpriteComposition>();
+        foreach (ProjectileSpriteId id in required)
         {
-            ushort id = pointers == ProjectileFramePointers.NativeProjectile ? ProjectileSpriteDefinitions.NativePointers[pointerIndex] : requiredPointers[pointerIndex];
-            string name = ProjectileSpriteDefinitions.Name(id);
+            string name = id.Name;
             if (!document.Frames.TryGetValue(name, out var parts) || parts is null || parts.Length > ProjectileSpriteDefinitions.MaximumParts)
                 throw new InvalidDataException($"Projectile sprite {name} is missing or exceeds OAM capacity.");
             var compiled = new CompiledSpritePart[parts.Length];

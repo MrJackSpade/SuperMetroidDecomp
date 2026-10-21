@@ -31,13 +31,14 @@ internal sealed class ProjectileAnimation
             return false;
         AnimationProgramCursor<SamusProjectileProgram> cursor = slot.Cursor
             ?? throw new InvalidOperationException("An inactive projectile has no list to run.");
-        if (SamusProjectilePrograms.RunToNextRecord(ref cursor, out int duration) is not { } record)
+        if (SamusProjectilePrograms.RunToNextRecord(ref cursor, out int duration) is not { } frame)
         {
             ClearProjectile(slot);
             return true;
         }
+        SamusProjectileRecord record = SamusProjectileRecordDefinitions.Get(frame);
         slot.InstructionTimer = WrappingCountdown.FromRaw((ushort)duration);
-        slot.SpritemapPointer = FrameBindings?.Resolve(checked((ushort)record.Address)) ?? record.Spritemap;
+        slot.Sprite = FrameBindings?.Resolve(frame) ?? record.Sprite;
         slot.Radius = record.Radius;
         slot.AnimationFrame = record.AnimationFrame;
         slot.Cursor = cursor;
@@ -71,7 +72,7 @@ internal sealed class ProjectileAnimation
             return;
         }
 
-        sprites.Add(new SpriteDraw(source, artwork.Sprites.Frame(checked((ushort)slot.SpritemapPointer)), artwork.Page,
+        sprites.Add(new SpriteDraw(source, artwork.Sprites.Frame(slot.Sprite ?? throw new InvalidOperationException("A drawn projectile shows a composition.")), artwork.Page,
             new Position16<ScreenPixels>(unchecked((ushort)screenX), screenY), default, 0, 0));
     }
 

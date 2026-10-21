@@ -21,22 +21,21 @@ public static class ProjectileSpriteExtractor
     /// <exception cref="InvalidDataException">A native frame exceeds the OAM part limit or its extracted composition fails catalog validation.</exception>
     public static byte[] Extract(ISnesAddressSpace bus)
     {
-        byte[] json = ExtractFrames(bus, default, useProjectilePointers: true);
+        byte[] json = ExtractFrames(bus, ProjectileSpriteDefinitions.All, ProjectileSpriteLocations.Projectiles());
         _ = ProjectileSpriteCatalog.Load(new MemoryStream(json));
         return json;
     }
 
-    /// <summary>Decodes selected bank-$93 spritemaps into named OAM parts; the standard projectile mode uses catalog pointers, while callers can supply a bounded pointer span.</summary>
-    internal static byte[] ExtractFrames(ISnesAddressSpace bus, ReadOnlySpan<ushort> requiredPointers, bool useProjectilePointers = false)
+    /// <summary>Decodes the <paramref name="required"/> compositions, each from the bank-$93 record <paramref name="locations"/> places it at, into named OAM parts.</summary>
+    internal static byte[] ExtractFrames(ISnesAddressSpace bus, IReadOnlyList<ProjectileSpriteId> required,
+        IReadOnlyDictionary<ProjectileSpriteId, ushort> locations)
     {
         var frames = new Dictionary<string, SpriteVisualPart[]>();
-        int requiredCount = useProjectilePointers ? ProjectileSpriteDefinitions.NativePointers.Length : requiredPointers.Length;
-        for (int pointerIndex = 0; pointerIndex < requiredCount; pointerIndex++)
+        foreach (ProjectileSpriteId id in required)
         {
-            ushort id = useProjectilePointers ? ProjectileSpriteDefinitions.NativePointers[pointerIndex] : requiredPointers[pointerIndex];
-            int address = CartridgeBankWindow.At(SamusCartridgeTables.ProjectileBank, id);
+            int address = CartridgeBankWindow.At(SamusCartridgeTables.ProjectileBank, locations[id]);
             int count = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), address);
-            if (count > ProjectileSpriteDefinitions.MaximumParts) throw new InvalidDataException($"Projectile sprite {id:X4} exceeds OAM capacity.");
+            if (count > ProjectileSpriteDefinitions.MaximumParts) throw new InvalidDataException($"Projectile sprite {id.Name} exceeds OAM capacity.");
             var parts = new SpriteVisualPart[count];
             for (int i = 0; i < count; i++)
             {
@@ -47,7 +46,7 @@ public static class ProjectileSpriteExtractor
                     TileColumn = a.TileNumber % ProjectileSpriteDefinitions.TileColumns, TileRow = a.TileNumber / ProjectileSpriteDefinitions.TileColumns,
                     Size = x.IsLarge ? 16 : 8, Palette = a.PaletteIndex, Priority = a.Priority, FlipX = a.FlipHorizontally, FlipY = a.FlipVertically };
             }
-            frames.Add(ProjectileSpriteDefinitions.Name(id), parts);
+            frames.Add(id.Name, parts);
         }
         byte[] json = JsonSerializer.SerializeToUtf8Bytes(new ProjectileSpriteDocument { Version = ProjectileSpriteDefinitions.Version, Frames = frames },
             CamelCaseIndentedJson);

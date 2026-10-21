@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Samus.Artwork;
+namespace SuperMetroid.AssetExtraction.Samus;
 
 /// <summary>The first part and core part count of a plasma wave shape.</summary>
 /// <param name="Start">The start.</param>

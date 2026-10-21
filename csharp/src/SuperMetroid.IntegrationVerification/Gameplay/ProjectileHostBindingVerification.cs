@@ -77,7 +77,7 @@ internal static class ProjectileHostBindingVerification
         flare.Required("offsets").Required(ChargeFlarePlacementDefinitions.Key(false, 0))["x"] = 17;
         File.WriteAllText(Path.Combine(installation.ProjectileOverrideDirectory, ChargeFlarePlacementDefinitions.FileName), flare.ToJsonString());
         var flareComposition = RequiredJson.Parse(File.ReadAllText(Path.Combine(installation.ProjectileDirectory, ChargeFlareSpriteDefinitions.FileName)));
-        flareComposition.Required("frames").Required(ProjectileSpriteDefinitions.Name(ChargeFlareSpriteDefinitions.Selectors[0])).Required(0)["offsetX"] = 17;
+        flareComposition.Required("frames").Required(ChargeFlareSpriteDefinitions.Selectors[0].Name).Required(0)["offsetX"] = 17;
         File.WriteAllText(Path.Combine(installation.ProjectileOverrideDirectory, ChargeFlareSpriteDefinitions.FileName), flareComposition.ToJsonString());
         using (var input = File.OpenRead(Path.Combine(installation.ProjectileDirectory, GrappleTileDefinitions.FileName)))
             image = IndexedPng.Read(input, new(GrappleTileDefinitions.Width, GrappleTileDefinitions.Height));
@@ -169,7 +169,7 @@ internal static class ProjectileHostBindingVerification
     private static void CheckFlareCompositions(ChargeFlareSpriteCatalog actual, ChargeFlareSpriteCatalog expected)
     {
         if (actual is null) throw new InvalidDataException("Host did not bind flare compositions.");
-        for (ushort selector = 0; selector < ChargeFlareSpriteDefinitions.Selectors.Length; selector++)
+        for (ushort selector = 0; selector < ChargeFlareSpriteDefinitions.Selectors.Count; selector++)
         {
             var a = new OamBuffer(); var b = new OamBuffer();
             actual.Draw(selector, a, new(100, 100)); expected.Draw(selector, b, new(100, 100));

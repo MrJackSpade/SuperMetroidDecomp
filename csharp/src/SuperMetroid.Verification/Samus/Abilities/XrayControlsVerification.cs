@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Samus.Drawing;
+using SuperMetroid.Core.Samus.Artwork;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Hardware;

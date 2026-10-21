@@ -655,7 +655,7 @@ public sealed class SamusProjectileSystem
             // Unlike the bomb/explosion pass, native live projectile drawing does not
             // cull by world X. OAM retains the nine-bit X and lets the PPU clip it.
             // This also preserves sprite ordering/capacity when a combo orbits offscreen.
-            if (unchecked((short)slot.SpritemapPointer) < 0)
+            if (slot.Sprite is not null)
                 ProjectileAnimation.DrawSlot(sprites, new SpriteSource(SpriteSourceKind.SamusProjectile, slotIndex),
                     slot, layer1, horizontalMargin: null, artwork);
         }

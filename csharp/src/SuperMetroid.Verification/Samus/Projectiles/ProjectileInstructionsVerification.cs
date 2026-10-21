@@ -1,4 +1,5 @@
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
 using SuperMetroid.Core.Samus.Projectiles;

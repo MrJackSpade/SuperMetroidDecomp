@@ -13,14 +13,18 @@ internal static class ProjectileSpriteCatalogAccess
         /// <param name="oam">Destination OAM buffer; the native wrapping insertion cursor advances for every part.</param>
         /// <param name="origin">Native wrapped sixteen-bit screen origin in pixels.</param>
         /// <exception cref="InvalidDataException">The requested sprite identity is not installed.</exception>
-        public void Draw(ushort id, OamBuffer oam, Position16<OamPixels> origin)
+        public void Draw(ProjectileSpriteId id, OamBuffer oam, Position16<OamPixels> origin)
         {
-            if (!self.frames.TryGetValue(id, out var parts)) throw new InvalidDataException($"Missing projectile sprite {id:X4}.");
+            if (!self.frames.TryGetValue(id, out var parts)) throw new InvalidDataException($"Missing projectile sprite {id.Name}.");
             for (int index = 0; index < parts.PartCount; index++)
             {
                 var part = parts.Part(index);
                 oam.AddProjectileSpritePart(part.X, part.Y.Raw, part.Attributes, origin);
             }
         }
+
+        /// <summary>Draws the composition stored at bank-$93 <paramref name="address"/> without consulting ROM.</summary>
+        public void Draw(int address, OamBuffer oam, Position16<OamPixels> origin) =>
+            self.Draw(ProjectileSpriteNative.Projectile(address), oam, origin);
     }
 }

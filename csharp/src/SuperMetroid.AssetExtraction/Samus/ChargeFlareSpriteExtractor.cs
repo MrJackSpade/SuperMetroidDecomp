@@ -11,7 +11,7 @@ public static class ChargeFlareSpriteExtractor
     /// <returns>UTF-8 JSON bytes containing charge-flare sprite parts only.</returns>
     public static byte[] Extract(ISnesAddressSpace bus)
     {
-        byte[] json = ProjectileSpriteExtractor.ExtractFrames(bus, ChargeFlareSpriteDefinitions.NativePointers.ToArray());
+        byte[] json = ProjectileSpriteExtractor.ExtractFrames(bus, ChargeFlareSpriteDefinitions.All, ProjectileSpriteLocations.Flares());
         _ = ChargeFlareSpriteCatalog.Load(new MemoryStream(json));
         return json;
     }

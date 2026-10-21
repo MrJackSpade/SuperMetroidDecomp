@@ -1,4 +1,5 @@
-using SuperMetroid.Verification.Rooms.Plms;
+﻿using SuperMetroid.Verification.Rooms.Plms;
+using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core.Samus.Drawing;
 using static SuperMetroid.Verification.Samus.Projectiles.ProjectileDrawEntriesVerification;
 using SuperMetroid.Core.Assets;
@@ -619,7 +620,7 @@ empty, spring, controllerInput: 0, nmiFrameCounter: 0);
     ProjectileDrawArtwork bombArtwork = InstalledFixtures.ProjectileArtwork();
     AssertProjectileEntry(
         DrawnEntries(frame => bombs.Draw(frame, layer1: new(0, 0), bombArtwork)),
-        new SpriteSource(SpriteSourceKind.SamusBomb, 0), bombArtwork.Sprites.Frame(checked((ushort)bombs.Slots[0].SpritemapPointer)), bombArtwork,
+        new SpriteSource(SpriteSourceKind.SamusBomb, 0), bombArtwork.Sprites.Frame(ProjectileSpriteNative.Projectile(bombs.Slots[0].SpritemapPointer)), bombArtwork,
         new Position16<ScreenPixels>(bombs.Slots[0].Position.X.Whole, bombs.Slots[0].Position.Y.Whole), "Bomb");
     AssertEqual(4, bombs.Slots[0].Radius.X, "first instruction publishes ROM X radius");
     AssertEqual(4, bombs.Slots[0].Radius.Y, "first instruction publishes ROM Y radius");

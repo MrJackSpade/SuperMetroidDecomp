@@ -1,4 +1,6 @@
-﻿namespace SuperMetroid.Core.Bosses.Kraid.Artwork;
+﻿using SuperMetroid.Core.Enemies.Projectiles;
+
+namespace SuperMetroid.Core.Bosses.Kraid.Artwork;
 
 /// <summary>Frame lists and counts of <see cref="KraidRockVisualDefinitions"/> that only development tools read.</summary>
 internal static class KraidRockVisualDefinitionsFramesTooling

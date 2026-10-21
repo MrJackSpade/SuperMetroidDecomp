@@ -1,7 +1,7 @@
 using SuperMetroid.Core.Programs;
-using Step = SuperMetroid.Core.Programs.AnimationProgramStep<SuperMetroid.Core.Bosses.Kraid.KraidRockProgram, SuperMetroid.Core.Bosses.Kraid.KraidRockFrame, SuperMetroid.Core.Bosses.Kraid.KraidRockCue>;
+using Step = SuperMetroid.Core.Programs.AnimationProgramStep<SuperMetroid.Core.Enemies.Projectiles.KraidRockProgram, SuperMetroid.Core.Enemies.Projectiles.KraidRockFrame, SuperMetroid.Core.Enemies.Projectiles.KraidRockCue>;
 
-namespace SuperMetroid.Core.Bosses.Kraid;
+namespace SuperMetroid.Core.Enemies.Projectiles;
 
 /// <summary>Kraid's typed rock programs (#641), in place of their bank-$86 instruction lists.</summary>
 internal static class KraidRockAnimations

@@ -1,6 +1,4 @@
 using SuperMetroid.Core.Input;
-using SuperMetroid.Core.Bosses.Crocomire;
-using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus;
@@ -15,20 +13,17 @@ namespace SuperMetroid.Core.Enemies;
 [RoomLifetime]
 internal sealed class EnemyInstructionInterpreter
 {
-    /// <summary>Owns the working BG2 tilemap used by Crocomire's extended frames.</summary>
-    private readonly CrocomireBehavior _crocomireBehavior;
-    /// <summary>Owns the Mother Brain BG2 working tilemap when that encounter is active.</summary>
-    private readonly MotherBrainEncounter _motherBrainEncounter;
+    /// <summary>The bosses' own copies of the enemy BG2 image, which an extended frame's BG2 half also writes.</summary>
+    private readonly IEnemyBg2Copies _bossCopies;
     /// <summary>Provides VRAM for installed BG2 frame and instruction-time tile transfers.</summary>
     private readonly EnemyPresentation _presentation;
     /// <summary>Provides installed visual assets and room scratch memory.</summary>
     private readonly EnemyRoomBinding _room;
 
     /// <summary>Captures visual, room and encounter owners for instruction execution.</summary>
-    internal EnemyInstructionInterpreter(CrocomireBehavior crocomireBehavior, MotherBrainEncounter motherBrainEncounter, EnemyPresentation presentation, EnemyRoomBinding room)
+    internal EnemyInstructionInterpreter(IEnemyBg2Copies bossCopies, EnemyPresentation presentation, EnemyRoomBinding room)
     {
-        _crocomireBehavior = crocomireBehavior;
-        _motherBrainEncounter = motherBrainEncounter;
+        _bossCopies = bossCopies;
         _presentation = presentation;
         _room = room;
     }
@@ -67,19 +62,12 @@ internal sealed class EnemyInstructionInterpreter
         if (destinationWord < 0 || words.Length == 0 ||
             destinationWord + words.Length > EnemyBg2FrameLayout.TilemapWordCount)
             throw new InvalidDataException("Extended BG2 write exceeds the enemy tilemap buffer.");
-        if (_crocomireBehavior.Access.CrocomireDeath is { } death)
-            words.CopyTo(death.MutableBg2WorkingTilemap.Slice(destinationWord, words.Length));
-        if (_motherBrainEncounter.MotherBrain is not null)
-        {
-            StagingWordView bg2 = _room.Staging.EnemyBg2Tilemap;
-            for (int index = 0; index < words.Length; index++)
-                bg2[destinationWord + index] = words[index];
-        }
+        _bossCopies.Write(destinationWord, words);
         // A boss that owns the enemy BG2 image draws into it (#1353). Mother Brain only stages her body until her
         // phase-two transition attaches the image (#1356), as native uploads nothing before then.
         if (_presentation.Bg2Image is { } image)
             image.Write(destinationWord, words);
-        else if (_motherBrainEncounter.MotherBrain is null)
+        else if (!_bossCopies.StagesBody)
             new EnemyVram(_presentation.Vram).EnemyBg2Tilemap.Write(words, destinationWord);
     }
 

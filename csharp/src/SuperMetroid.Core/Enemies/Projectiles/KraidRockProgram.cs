@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Bosses.Kraid;
+namespace SuperMetroid.Core.Enemies.Projectiles;
 
 /// <summary>Kraid's rock projectile programs, which the Kago bug's initial pose shares.</summary>
 public enum KraidRockProgram

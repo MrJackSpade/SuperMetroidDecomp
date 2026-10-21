@@ -1,8 +1,6 @@
-using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Programs;
-using SuperMetroid.Core.Enemies.MamaTurtles;
 
-namespace SuperMetroid.Core.Bosses.MotherBrain;
+namespace SuperMetroid.Core.Enemies.MamaTurtles;
 
 /// <summary>
 /// The state of a Baby Turtle, with its required extension words. The values the cartridge keeps in the enemy's common

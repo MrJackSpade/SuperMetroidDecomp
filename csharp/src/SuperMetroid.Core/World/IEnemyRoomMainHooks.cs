@@ -1,7 +1,7 @@
 using SuperMetroid.Core.Bosses.Crocomire;
 using SuperMetroid.Core.Rooms.Scrolling;
 
-namespace SuperMetroid.Core.Enemies;
+namespace SuperMetroid.Core.World;
 
 /// <summary>The enemy state and hooks the room main routines and scrolling read or run.</summary>
 internal interface IEnemyRoomMainHooks

@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Bosses.Kraid;
+namespace SuperMetroid.Core.Enemies.Projectiles;
 
 /// <summary>Gameplay cues of Kraid's rock programs.</summary>
 internal enum KraidRockCue

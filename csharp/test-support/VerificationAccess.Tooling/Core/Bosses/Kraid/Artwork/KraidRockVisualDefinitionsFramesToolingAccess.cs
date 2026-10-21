@@ -1,4 +1,6 @@
-﻿namespace SuperMetroid.Core.Bosses.Kraid.Artwork;
+﻿using SuperMetroid.Core.Enemies.Projectiles;
+
+namespace SuperMetroid.Core.Bosses.Kraid.Artwork;
 
 /// <summary>Verification access to <see cref="KraidRockVisualDefinitionsFramesTooling"/> members production does not use.</summary>
 internal static class KraidRockVisualDefinitionsFramesToolingAccess

@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Bosses.MotherBrain;
+namespace SuperMetroid.Core.Enemies.MamaTurtles;
 
 /// <summary>Indirect function pointers stored in each Baby Turtle's variable A.</summary>
 public enum BabyTurtleAiFunction : ushort

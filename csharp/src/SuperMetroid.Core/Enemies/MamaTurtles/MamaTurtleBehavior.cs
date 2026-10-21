@@ -2,7 +2,6 @@ using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies.MamaTurtles.Artwork;
 using System.Diagnostics.CodeAnalysis;
-using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Enemies.Platforms;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Rooms.LevelData;

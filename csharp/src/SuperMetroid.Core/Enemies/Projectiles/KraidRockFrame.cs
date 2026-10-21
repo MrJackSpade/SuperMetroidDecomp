@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Bosses.Kraid;
+namespace SuperMetroid.Core.Enemies.Projectiles;
 
 /// <summary>One Kraid rock frame: its program and its position there.</summary>
 /// <param name="Program">The program the frame belongs to.</param>

@@ -1,4 +1,5 @@
 using SuperMetroid.Core.Bosses.Kraid;
+using SuperMetroid.Core.Enemies.Projectiles;
 
 namespace SuperMetroid.Verification.Bosses.Kraid;
 

@@ -1,8 +1,6 @@
 using SuperMetroid.Core.Programs;
-using SuperMetroid.Core.Enemies.Projectiles;
-using SuperMetroid.Core.Bosses.Kraid.Artwork;
 
-namespace SuperMetroid.Core.Bosses.Kraid;
+namespace SuperMetroid.Core.Enemies.Projectiles;
 
 /// <summary>A Kraid rock's (or the Kago bug's initial) typed animation.</summary>
 /// <param name="program">The program to play.</param>

@@ -1,7 +1,4 @@
-using SuperMetroid.Core.Enemies.Projectiles;
-
-
-namespace SuperMetroid.Core.Bosses.Kraid.Artwork;
+namespace SuperMetroid.Core.Enemies.Projectiles;
 
 /// <summary>
 /// The presentation boundary of Kraid's rocks (#641): the projectile frame every typed frame

@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.AssetExtraction.Frontend.Ending;
@@ -54,7 +55,8 @@ public static class InstalledArtworkIdentity
             .Concat(EndingPresentationIdentity.Create(Require(artwork.EndingMode7Art), Require(artwork.EndingObjectArt),
                 Require(artwork.EndingPaletteArt)))
             .Append(KeyValuePair.Create(GameInstallationLayout.IntroCinematicDirectoryName, Require(artwork.IntroCinematicArt).ContentIdentity))
-            .Append(KeyValuePair.Create(GameInstallationLayout.EnemyTileDirectoryName, Require(artwork.EnemyTileArtwork).ContentIdentity));
+            .Append(KeyValuePair.Create(GameInstallationLayout.EnemyTileDirectoryName, new InstalledEnemyArtwork(
+                Require(artwork.EnemyTileArtwork), Require(artwork.BossArtwork), Require(artwork.AreaArtwork)).ContentIdentity));
     }
 
     /// <summary>Fails identity collection when a bound installation omits any required artwork catalog.</summary>

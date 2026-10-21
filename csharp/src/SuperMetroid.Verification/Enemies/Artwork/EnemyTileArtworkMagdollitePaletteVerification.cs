@@ -54,14 +54,14 @@ internal static class EnemyTileArtworkMagdollitePaletteVerification
         Directory.CreateDirectory(overrides);
         string overrideFile = Path.Combine(overrides, MagdollitePaletteCycleFormat.FileName);
         File.WriteAllBytes(overrideFile, MagdollitePaletteCycle.Write(document));
-        EnemyTileArtworkCatalog edited = EnemyTileArtworkFiles.Load(stockDirectory, overrides);
-        MagdollitePaletteCycle cycle = edited.MagdollitePaletteCycle ??
+        InstalledEnemyArtwork edited = EnemyTileArtworkFiles.Load(stockDirectory, overrides);
+        MagdollitePaletteCycle cycle = edited.Enemies.MagdollitePaletteCycle ??
             throw new InvalidDataException("Edited enemy art has no Magdollite palette cycle.");
         AssertTrue(cycle.Resolve(1, 0) != native.Resolve(1, 0),
             "Magdollite color override changes the selected RGB5 word");
         AssertEqual(cycle.Resolve(1, 0),
             (EnemyTileArtworkFiles.Load(stockDirectory, overrides)
-                .MagdollitePaletteCycle ?? throw new InvalidOperationException("Verification requires EnemyTileArtworkFiles.Load(stockDirectory, overrides) .MagdollitePaletteCycle.")).Resolve(1, 0),
+                .Enemies.MagdollitePaletteCycle ?? throw new InvalidOperationException("Verification requires EnemyTileArtworkFiles.Load(stockDirectory, overrides) .MagdollitePaletteCycle.")).Resolve(1, 0),
             "Magdollite color override persists across catalog reload");
         for (int frame = 0; frame < MagdollitePaletteRomData.FrameCount; frame++)
         for (int color = 0; color < MagdollitePaletteRomData.AnimatedColorCount; color++)
@@ -71,7 +71,7 @@ internal static class EnemyTileArtworkMagdollitePaletteVerification
 
         // Exercise the actual global graphics-drawn hook, not a palette helper.
         // Forbid all bus reads: installed artwork must be sufficient on every tick.
-        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = edited };
+        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = edited.Enemies, BossArtwork = edited.Bosses, AreaArtwork = edited.Areas };
         var cgram = new SnesCgram();
         enemies.Presentation.BindCgram(cgram);
         enemies.MagdolliteBehavior.MagdollitePaletteAnimationInstalled = true;

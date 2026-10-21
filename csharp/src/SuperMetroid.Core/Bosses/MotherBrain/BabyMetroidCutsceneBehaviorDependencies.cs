@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Rooms;
@@ -31,4 +32,7 @@ internal sealed record BabyMetroidCutsceneBehaviorDependencies
 
     /// <summary>Mother brain encounter.</summary>
     public required MotherBrainEncounter MotherBrainEncounter { get; init; }
+
+    /// <summary>The session's installed boss artwork.</summary>
+    public required BossArtworkBinding BossArtwork { get; init; }
 }

@@ -58,8 +58,8 @@ internal static class EnemyTileArtworkDachoraColorsVerification
         Directory.CreateDirectory(overrides);
         string overrideFile = Path.Combine(overrides, DachoraColorFormat.FileName);
         File.WriteAllBytes(overrideFile, DachoraColorCatalog.Write(visual));
-        EnemyTileArtworkCatalog edited = EnemyTileArtworkFiles.Load(stockDirectory, overrides);
-        DachoraColorCatalog colors = edited.DachoraColors ??
+        InstalledEnemyArtwork edited = EnemyTileArtworkFiles.Load(stockDirectory, overrides);
+        DachoraColorCatalog colors = edited.Enemies.DachoraColors ??
             throw new InvalidDataException("Edited enemy art has no Dachora colors.");
         CheckEditedFrame(DachoraPalettePhase.Default, 0);
         for (int frame = 0; frame < DachoraColorRomData.AnimatedFrameCount; frame++)
@@ -69,7 +69,7 @@ internal static class EnemyTileArtworkDachoraColorsVerification
         }
         AssertEqual(colors.Resolve(DachoraPalettePhase.Shine, 3, 5),
             (EnemyTileArtworkFiles.Load(stockDirectory, overrides)
-                .DachoraColors ?? throw new InvalidOperationException("Verification requires EnemyTileArtworkFiles.Load(stockDirectory, overrides) .DachoraColors.")).Resolve(DachoraPalettePhase.Shine, 3, 5),
+                .Enemies.DachoraColors ?? throw new InvalidOperationException("Verification requires EnemyTileArtworkFiles.Load(stockDirectory, overrides) .DachoraColors.")).Resolve(DachoraPalettePhase.Shine, 3, 5),
             "Dachora color override survives catalog reload");
 
         CartridgeReadGuard guard = new CartridgeReadGuard(rom).Forbid(
@@ -84,7 +84,7 @@ internal static class EnemyTileArtworkDachoraColorsVerification
                     DachoraColorRomData.AnimatedFrameCount * sizeof(ushort),
             address => $"Live Dachora read migrated color/selector ROM ${address:X6}.");
         var cgram = new SnesCgram();
-        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = edited };
+        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = edited.Enemies, BossArtwork = edited.Bosses, AreaArtwork = edited.Areas };
         Type type = typeof(RoomEnemySystem);
         enemies.Presentation.BindCgram(cgram);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Core.Bosses.Crocomire.Artwork;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Enemies;
@@ -8,9 +9,12 @@ namespace SuperMetroid.Core.Bosses.Crocomire;
 /// <param name="species">The Crocomire species owner.</param>
 /// <param name="slot">The slot the enemy occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal sealed class CrocomireEntity(CrocomireBehavior species, RoomEnemySlot slot, EnemyCommonParticipation common)
+/// <param name="bossArtwork">The session's installed boss artwork.</param>
+internal sealed class CrocomireEntity(CrocomireBehavior species, RoomEnemySlot slot, EnemyCommonParticipation common, BossArtworkBinding bossArtwork)
     : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation, IEnemyExtendedHitboxes, IEnemyNormalBombAdmission, IEnemyBg2Frames, IEnemyPrivateShotCallback
 {
+    /// <summary>The session's installed boss artwork.</summary>
+    private readonly BossArtworkBinding _bossArtwork = bossArtwork;
     /// <inheritdoc/>
     public EnemyInitializationAiHandler? FindInitialization() => CrocomirePartDefinitions.Parts[Slot.EnemyDefinitionPointer] switch
     {
@@ -55,7 +59,7 @@ internal sealed class CrocomireEntity(CrocomireBehavior species, RoomEnemySlot s
             Slot.Definition.Bank != CrocomireBodyVisualDefinitions.Bank || !CrocomireBodyVisualDefinitions.HasBg2(selected))
             return null;
         ReadOnlyMemory<EnemyBg2TilemapWrite> writes = default;
-        bool found = room.InstalledArtwork.CrocomireBg2Frames?.TryGet(selected, out writes) == true;
+        bool found = _bossArtwork.Installed.CrocomireBg2Frames?.TryGet(selected, out writes) == true;
         return new("Crocomire body", found, writes);
     }
 

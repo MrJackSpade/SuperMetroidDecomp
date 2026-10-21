@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Bosses.Artwork;
+using SuperMetroid.Core.Areas;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Gameplay;
@@ -160,4 +162,10 @@ internal interface IGameplayArtwork
 
     /// <summary>Enemy sprite sheets, palettes and enemy-projectile spritemaps.</summary>
     EnemyTileArtworkCatalog? EnemyTileArtwork { get; }
+
+    /// <summary>The bosses' melts, skeletons, BG2 frames, special pages and colors.</summary>
+    BossArtworkCatalog? BossArtwork { get; }
+
+    /// <summary>The Ceres door and escape artwork and the Tourian statues' colors.</summary>
+    AreaArtworkCatalog? AreaArtwork { get; }
 }

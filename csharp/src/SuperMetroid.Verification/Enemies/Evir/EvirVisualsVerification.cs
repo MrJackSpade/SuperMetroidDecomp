@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Enemies.Evir.Artwork;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Enemies.Evir.EvirInstructionProgramDefinitionsVerification;
@@ -20,12 +21,12 @@ internal static class EvirVisualsVerification
     /// </summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     internal static void VerifyInstalledEvirVisuals(
-        SuperMetroidAddressSpace rom, EnemyTileArtworkCatalog stock)
+        SuperMetroidAddressSpace rom, InstalledEnemyArtwork stock)
     {
         var shownFrames = EvirAnimationsConstants.Spritemaps(Enum.GetValues<EvirProgram>()).ToHashSet();
         foreach (ushort pointer in shownFrames)
         {
-            AssertTrue((stock.Spritemaps ?? throw new InvalidOperationException("Verification requires stock.Spritemaps.")).TryGetDisplay(
+            AssertTrue((stock.Enemies.Spritemaps ?? throw new InvalidOperationException("Verification requires stock.Spritemaps.")).TryGetDisplay(
                     EvirVisualDefinitions.Bank, pointer,
                     out EnemySpritemapParts installedParts),
                 $"Evir pose $A8:{pointer:X4} has editable OAM");
@@ -44,7 +45,9 @@ internal static class EvirVisualsVerification
         foreach (EvirProgram loop in new[] { EvirProgram.BodyFacingLeft, EvirProgram.ArmsFacingLeft, EvirProgram.BodyFacingRight, EvirProgram.ArmsFacingRight })
         {
             RoomEnemySystem enemies = NewEvirInstructionSystem();
-            enemies.TileArtwork = stock;
+            enemies.TileArtwork = stock.Enemies;
+            enemies.BossArtwork = stock.Bosses;
+            enemies.AreaArtwork = stock.Areas;
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             PrepareEvirInstructionSlot(slot, EnemyDefinitionId.Evir, loop);
             AssertEqual(EnemyInstructionRunner.ExpectedLoop(EvirAnimations.Programs, loop, EvirFrameToolingDefinitions.Spritemap),

@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Hardware;
@@ -34,10 +35,15 @@ internal static class BossDisplayBindingsFixtureVerification
             Extent16<RoomPixels> radius, HitboxCallbackKind callbackKind, out EnemyInteractionCallback? callback);
 
         /// <summary>Installs one centered boss actor in <paramref name="slot"/> and enqueues it for the production draw path.</summary>
-        internal BossDisplayFixture(EnemyDefinitionId definition, EnemyTileArtworkCatalog artwork, int slot = 0)
+        internal BossDisplayFixture(EnemyDefinitionId definition, InstalledEnemyArtwork artwork, int slot = 0)
         {
             _slot = slot;
-            Enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork };
+            Enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance)
+            {
+                TileArtwork = artwork.Enemies, BossArtwork = artwork.Bosses, AreaArtwork = artwork.Areas,
+            };
+            Enemies.Presentation.BindVram(BgArtworkFixtures.For(Vram));
+            Enemies.Presentation.BindCgram(new SnesCgram());
             Actor.Bind(definition, Actor.Definition);
             Actor.Bind(Actor.EnemyDefinitionPointer, RoomEnemyDefinitionCatalog.Get(definition));
             Actor.Position = Actor.Position.WithWhole(new(128, 128));

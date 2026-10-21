@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Hardware;
@@ -7,7 +8,6 @@ using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Bosses.SporeSpawn;
 using SuperMetroid.Core.Bosses.SporeSpawn.Artwork;
 using SuperMetroid.Core.Enemies;
-using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -210,11 +210,14 @@ internal static class SporeSpawnAnimationsVerification
     internal static (RoomEnemySystem System, RoomEnemySlot Body) RunSporeSpawnProgram(
         SporeSpawnBodyProgram program,
         int frames,
-        EnemyTileArtworkCatalog? artwork = null,
+        InstalledEnemyArtwork? artwork = null,
         Action<RoomEnemySystem, RoomEnemySlot>? afterFrame = null)
     {
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null));
-        enemies.TileArtwork = artwork ?? InstalledFixtures.EnemyTiles;
+        InstalledEnemyArtwork bound = artwork ?? InstalledFixtures.EnemyArtwork;
+        enemies.TileArtwork = bound.Enemies;
+        enemies.BossArtwork = bound.Bosses;
+        enemies.AreaArtwork = bound.Areas;
         RoomEnemySlot body = enemies.SlotTable.Slots[0];
         body.Bind(EnemyDefinitionId.SporeSpawn, body.Definition);
         body.Bind(body.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = BodyBankNumber });

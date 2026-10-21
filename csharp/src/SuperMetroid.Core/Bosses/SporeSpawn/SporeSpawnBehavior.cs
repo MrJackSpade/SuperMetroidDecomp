@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Core.Bosses.Draygon.Artwork;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies;
@@ -41,10 +42,14 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
     private readonly EnemyCollision _collision;
     /// <summary>Creates item drops from Spore Spawn and its spores.</summary>
     private readonly EnemyDeathsAndDrops _deathsAndDrops;
+    /// <summary>The session's installed boss artwork.</summary>
+    private readonly BossArtworkBinding _bossArtwork;
+
 
     /// <summary>Captures the room and combat systems used by boss and spore behavior.</summary>
     internal SporeSpawnBehavior(SporeSpawnBehaviorDependencies dependencies)
     {
+        _bossArtwork = dependencies.BossArtwork;
         _frameResults = dependencies.FrameResults;
         _room = dependencies.Room;
         _projectiles = dependencies.Projectiles;
@@ -126,7 +131,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         // while retaining the independent target copy above.
         for (int color = 0; color < SporeSpawnColorRomData.ColorsPerFrame; color++)
         {
-            Bgr555 value = (_room.Artwork?.SporeSpawnColors ?? throw new InvalidDataException(
+            Bgr555 value = (_bossArtwork.Artwork?.SporeSpawnColors ?? throw new InvalidDataException(
                 "Spore Spawn spore palette requires installed artwork.")).ResolveSpore(color);
             state.WriteTargetColor(SporeSpawnColorRomData.SporeDestination + color, value);
             _presentation.BossPalettes.SporeSpawnSpores.Write(color, value);
@@ -596,7 +601,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             _presentation.BossPalettes.SporeSpawnBody.Write(
                 color,
-                (_room.Artwork?.SporeSpawnColors ?? throw new InvalidDataException(
+                (_bossArtwork.Artwork?.SporeSpawnColors ?? throw new InvalidDataException(
                     "Spore Spawn health palette requires installed artwork.")).ResolveHealth(frame, color));
         }
     }
@@ -637,7 +642,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         int destination = SporeSpawnColorRomData.DeathDestination(layer);
         for (int color = 0; color < SporeSpawnColorRomData.ColorsPerFrame; color++)
         {
-            Bgr555 value = (_room.Artwork?.SporeSpawnColors ?? throw new InvalidDataException(
+            Bgr555 value = (_bossArtwork.Artwork?.SporeSpawnColors ?? throw new InvalidDataException(
                 "Spore Spawn death palette requires installed artwork.")).ResolveDeath(layer, frame, color);
             if (targetOnly)
                 state.WriteTargetColor(destination + color, value);

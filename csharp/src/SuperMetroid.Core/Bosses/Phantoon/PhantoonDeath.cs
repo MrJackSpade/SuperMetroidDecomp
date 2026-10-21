@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Core.Enemies;
+﻿using SuperMetroid.Core.Bosses.Artwork;
+using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.Plms;
@@ -27,17 +28,21 @@ internal sealed class PhantoonDeath
     private readonly PhantoonPresentation _phantoonPresentation;
     /// <summary>Phantoon's attack rounds: figure eights, eye tracking, swoops, flame rain and rage.</summary>
     private readonly PhantoonPatterns _patterns;
+    /// <summary>The session's installed boss artwork.</summary>
+    private readonly BossArtworkBinding _bossArtwork;
+
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
-    internal PhantoonDeath(EnemyRoomBinding room, EnemyProjectileEngine projectiles, EnemyPresentation presentation, EnemyFrameContext frameContext, EnemyDeathsAndDrops deathsAndDrops, PhantoonPresentation phantoonPresentation, PhantoonPatterns patterns)
+    internal PhantoonDeath(PhantoonDeathDependencies dependencies)
     {
-        _room = room;
-        _projectiles = projectiles;
-        _presentation = presentation;
-        _frameContext = frameContext;
-        _deathsAndDrops = deathsAndDrops;
-        _phantoonPresentation = phantoonPresentation;
-        _patterns = patterns;
+        _room = dependencies.Room;
+        _projectiles = dependencies.Projectiles;
+        _presentation = dependencies.Presentation;
+        _frameContext = dependencies.FrameContext;
+        _deathsAndDrops = dependencies.DeathsAndDrops;
+        _phantoonPresentation = dependencies.PhantoonPresentation;
+        _patterns = dependencies.Patterns;
+        _bossArtwork = dependencies.BossArtwork;
     }
 
     /// <summary>Tracks Samus during the fatal swoop and advances once the body reaches the center band.</summary>
@@ -255,7 +260,7 @@ internal sealed class PhantoonDeath
         for (int color = 0; color < room.Count; color++)
         {
             Bgr555 current = room[color];
-            Bgr555 target = (_room.Artwork?.PhantoonColors ?? throw new InvalidDataException(
+            Bgr555 target = (_bossArtwork.Artwork?.PhantoonColors ?? throw new InvalidDataException(
                 "Wrecked Ship power-on palette requires installed artwork.")).ResolvePowerOn(color);
             room.Write(
                 color,

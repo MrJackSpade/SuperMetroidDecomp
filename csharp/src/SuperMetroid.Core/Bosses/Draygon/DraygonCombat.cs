@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Core.Bosses.Draygon.Artwork;
+﻿using SuperMetroid.Core.Bosses.Artwork;
+using SuperMetroid.Core.Bosses.Draygon.Artwork;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Rooms;
@@ -12,8 +13,6 @@ namespace SuperMetroid.Core.Bosses.Draygon;
 [RoomLifetime]
 internal sealed class DraygonCombat
 {
-    /// <summary>Provides the active room bus, random source, and persistent boss state.</summary>
-    private readonly EnemyRoomBinding _room;
     /// <summary>Allocates Draygon's goop, eye drops, and other enemy projectiles.</summary>
     private readonly EnemyProjectileEngine _projectiles;
     /// <summary>Updates the body and eye palette bands used by Draygon's presentation.</summary>
@@ -24,11 +23,14 @@ internal sealed class DraygonCombat
     private readonly DraygonParts _parts;
     /// <summary>Draygon grabbing Samus: the chase, the spiral carry, the tail whips and the release.</summary>
     private readonly DraygonGrab _grab;
+    /// <summary>The session's installed boss artwork.</summary>
+    private readonly BossArtworkBinding _bossArtwork;
+
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
-    internal DraygonCombat(EnemyRoomBinding room, EnemyProjectileEngine projectiles, EnemyPresentation presentation, EnemyCollision collision, DraygonParts parts, DraygonGrab grab)
+    internal DraygonCombat(EnemyProjectileEngine projectiles, EnemyPresentation presentation, EnemyCollision collision, DraygonParts parts, DraygonGrab grab, BossArtworkBinding bossArtwork)
     {
-        _room = room;
+        _bossArtwork = bossArtwork;
         _projectiles = projectiles;
         _presentation = presentation;
         _collision = collision;
@@ -105,7 +107,7 @@ internal sealed class DraygonCombat
         SamusState? samus)
     {
         bool whiteFrame = (body.FlashTimer.RawValue & 2) != 0;
-        (_room.Artwork?.DraygonColors ?? throw new InvalidOperationException(
+        (_bossArtwork.Artwork?.DraygonColors ?? throw new InvalidOperationException(
             "Draygon damage requires installed color artwork."))
             .ApplyHurt(_presentation.Cgram, whiteFrame, RequireHealthPaletteBand(state));
 
@@ -196,7 +198,7 @@ internal sealed class DraygonCombat
     /// <summary>Copies the selected installed health palette band into live CGRAM.</summary>
     internal void CopyDraygonHealthColors(DraygonEnemyState state)
     {
-        (_room.Artwork?.DraygonColors ?? throw new InvalidDataException(
+        (_bossArtwork.Artwork?.DraygonColors ?? throw new InvalidDataException(
             "Draygon health colors require installed artwork."))
             .ApplyHealthBand(_presentation.Cgram, RequireHealthPaletteBand(state));
     }

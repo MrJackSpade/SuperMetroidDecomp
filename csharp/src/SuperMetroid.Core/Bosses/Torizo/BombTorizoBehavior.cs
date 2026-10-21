@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Programs;
@@ -51,11 +52,15 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Bomb and Golden Torizo's hitboxes, touch and hurt, and what Samus's weapons do to them.</summary>
     internal TorizoCombat Combat { get; }
+    /// <summary>The session's installed boss artwork.</summary>
+    private readonly BossArtworkBinding _bossArtwork;
+
 
 
     /// <summary>Connects the Bomb and Golden Torizo callbacks to their room-scoped services.</summary>
     internal BombTorizoBehavior(BombTorizoBehaviorDependencies dependencies)
     {
+        _bossArtwork = dependencies.BossArtwork;
         _room = dependencies.Room;
         _projectiles = dependencies.Projectiles;
         _audio = dependencies.Audio;
@@ -245,7 +250,7 @@ internal sealed class BombTorizoBehavior : IEnemySpecies, IEnemyEntityFactory
     private void ApplyTorizoTileTransfer(int transfer)
     {
         TorizoInstructionVramTransferDefinition definition = TorizoInstructionVramTransferDefinitions.Entries[transfer];
-        var installed = _room.Artwork?.TorizoInstructionVram ?? throw new InvalidDataException(
+        var installed = _bossArtwork.Artwork?.TorizoInstructionVram ?? throw new InvalidDataException(
             "Torizo instruction-time tile transfers require installed artwork.");
         if (!installed.TryResolve(definition.SourceAddress, definition.ByteCount, out _))
             throw new InvalidDataException($"Torizo tile transfer {transfer} has no installed art.");

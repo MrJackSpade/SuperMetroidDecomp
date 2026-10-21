@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Programs;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core;
@@ -19,7 +20,7 @@ internal static class CrawlerBehaviorVerification
     /// installs the movement function (vertical crawling on the side walls, horizontal on floors and ceilings, with the
     /// orange Zoomer's own functions) and its poses then loop on time. Every pose has installed artwork when supplied.
     /// </summary>
-    internal static void VerifyCrawlerBehavior(EnemyTileArtworkCatalog? artwork = null)
+    internal static void VerifyCrawlerBehavior(InstalledEnemyArtwork? artwork = null)
     {
         (CrawlerAnimationFamily Family, EnemyDefinitionId Definition, ushort? SpeciesOffset)[] families =
         [
@@ -32,7 +33,7 @@ internal static class CrawlerBehaviorVerification
         foreach ((CrawlerAnimationFamily family, EnemyDefinitionId definition, ushort? speciesOffset) in families)
         foreach (CrawlerSurfaceOrientation orientation in Enum.GetValues<CrawlerSurfaceOrientation>())
         {
-            var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork };
+            var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork?.Enemies, BossArtwork = artwork?.Bosses, AreaArtwork = artwork?.Areas };
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.Bind(definition, slot.Definition);
             slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = CrawlerFrameToolingDefinitions.Bank });
@@ -66,7 +67,7 @@ internal static class CrawlerBehaviorVerification
             AssertEqual(expected, state.Function, $"{context} installs its movement function");
             if (artwork is not null)
                 foreach (ushort pose in CrawlerAnimations.Spritemaps(loop))
-                    AssertTrue((artwork.Spritemaps ?? throw new InvalidOperationException("Verification requires installed spritemaps.")).TryGet(CrawlerFrameToolingDefinitions.Bank, pose, out _),
+                    AssertTrue((artwork.Enemies.Spritemaps ?? throw new InvalidOperationException("Verification requires installed spritemaps.")).TryGet(CrawlerFrameToolingDefinitions.Bank, pose, out _),
                         $"{context} pose ${pose:X4} has installed artwork");
         }
         Console.WriteLine("  Crawler behavior: all five families' four surfaces start, install their movement functions and loop on time.");

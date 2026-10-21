@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Hardware;
@@ -6,7 +7,6 @@ using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Alcoon;
-using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Poses;
@@ -31,7 +31,7 @@ internal static class AlcoonInstructionProgramDefinitionsVerification
 
     /// <summary>Runs a real Alcoon room until reachable frames and both fire directions execute without source reads.</summary>
     internal static void VerifyAlcoonInstructionProgramDefinitions(
-        SuperMetroidAddressSpace rom, EnemyTileArtworkCatalog? installedArt = null)
+        SuperMetroidAddressSpace rom, InstalledEnemyArtwork? installedArt = null)
     {
         CartridgeRoomHeader room = SuperMetroid.TestSupport.RoomHeaderImport.CartridgeRoomHeaderImporter.Load(rom, AlcoonInstructionAuditRoom);
         var installation = RepositoryInstallation.Installation;
@@ -42,7 +42,7 @@ internal static class AlcoonInstructionProgramDefinitionsVerification
         var cgram = new SnesCgram();
         assets.LoadGraphics(BgArtworkFixtures.For(vram), cgram);
         var random = new Bank80SystemState();
-        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new StandaloneRoomEnemyServices(random.NextRandom) { ReadRandom = () => random.RandomNumber, SeedRandom = random.SetRandomNumber }) { TileArtwork = installedArt ?? InstalledFixtures.EnemyTiles };
+        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new StandaloneRoomEnemyServices(random.NextRandom) { ReadRandom = () => random.RandomNumber, SeedRandom = random.SetRandomNumber }) { TileArtwork = (installedArt ?? InstalledFixtures.EnemyArtwork).Enemies, BossArtwork = (installedArt ?? InstalledFixtures.EnemyArtwork).Bosses, AreaArtwork = (installedArt ?? InstalledFixtures.EnemyArtwork).Areas };
         enemies.Load(new RoomEnemyLoadRequest(room.State.EnemyPopulation, room.State.EnemyGraphicsSet, BgArtworkFixtures.For(vram), cgram) { Level = assets.LevelData });
 
         RoomEnemySlot actor = enemies.SlotTable.Slots[0];

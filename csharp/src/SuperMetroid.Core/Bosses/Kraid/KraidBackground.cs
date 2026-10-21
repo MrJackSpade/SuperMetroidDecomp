@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Core.Enemies;
+﻿using SuperMetroid.Core.Bosses.Artwork;
+using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Bosses.Kraid.Artwork;
 using SuperMetroid.Core.Enemies.Drawing;
@@ -10,19 +11,20 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 [RoomLifetime]
 internal sealed class KraidBackground
 {
-    /// <summary>Room scratch memory, services, and tilemap state used throughout the Kraid fight.</summary>
-    private readonly EnemyRoomBinding _room;
     /// <summary>Owns rocks, lint, and other fight projectiles.</summary>
     private readonly EnemyProjectileEngine _projectiles;
     /// <summary>Applies Kraid palettes, background tiles, and OAM presentation.</summary>
     private readonly EnemyPresentation _presentation;
     /// <summary>Kraid's state and part lookups, part programs, function timer, random numbers and the sound he last requested.</summary>
     private readonly KraidEncounterAccess _access;
+    /// <summary>The session's installed boss artwork.</summary>
+    private readonly BossArtworkBinding _bossArtwork;
+
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
-    internal KraidBackground(EnemyRoomBinding room, EnemyProjectileEngine projectiles, EnemyPresentation presentation, KraidEncounterAccess access)
+    internal KraidBackground(EnemyProjectileEngine projectiles, EnemyPresentation presentation, KraidEncounterAccess access, BossArtworkBinding bossArtwork)
     {
-        _room = room;
+        _bossArtwork = bossArtwork;
         _projectiles = projectiles;
         _presentation = presentation;
         _access = access;
@@ -47,7 +49,7 @@ internal sealed class KraidBackground
     {
         if ((uint)index >= KraidPaletteRomData.ColorCount(source))
             throw new ArgumentOutOfRangeException(nameof(index));
-        KraidColorCatalog colors = _room.Artwork?.KraidColors ?? throw new InvalidDataException(
+        KraidColorCatalog colors = _bossArtwork.Artwork?.KraidColors ?? throw new InvalidDataException(
             "Installed enemy artwork has no Kraid RGB5 palette catalog.");
         return colors.Resolve(source, index);
     }

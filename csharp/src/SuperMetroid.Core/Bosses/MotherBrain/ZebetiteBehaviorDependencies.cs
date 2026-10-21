@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Elevator;
 using SuperMetroid.Core.Enemies.Projectiles;
@@ -36,4 +37,7 @@ internal sealed record ZebetiteBehaviorDependencies
 
     /// <summary>Collision.</summary>
     public required EnemyCollision Collision { get; init; }
+
+    /// <summary>The session's installed boss artwork.</summary>
+    public required BossArtworkBinding BossArtwork { get; init; }
 }

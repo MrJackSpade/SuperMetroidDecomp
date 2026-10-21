@@ -32,7 +32,7 @@ internal static class DeadTorizoCorpseDefinitionsVerification
         AssertEqual((ushort)0, Word(1),
             "dead Torizo has no generic transfer list; it uploads through its alternating halves");
 
-        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = InstalledFixtures.EnemyTiles };
+        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = InstalledFixtures.EnemyTiles, BossArtwork = InstalledFixtures.BossArtwork, AreaArtwork = InstalledFixtures.AreaArtwork };
         Action<RoomEnemySlot> initialize = enemies.DeadTorizoBehavior.InitializeDeadTorizo;
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
 

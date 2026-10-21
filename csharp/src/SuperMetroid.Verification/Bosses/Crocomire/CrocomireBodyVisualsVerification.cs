@@ -87,9 +87,9 @@ internal static class CrocomireBodyVisualsVerification
     [CpuBusBoundary("exact bus test: retail ROM oracle for installed Crocomire body visuals")]
     internal static void VerifyInstalledCrocomireBodyVisuals(
         SuperMetroidAddressSpace rom, string stockDirectory,
-        EnemyTileArtworkCatalog stock)
+        InstalledEnemyArtwork stock)
     {
-        AssertTrue(stock.ExtendedFrames is not null && stock.CrocomireBg2Frames is not null,
+        AssertTrue(stock.Enemies.ExtendedFrames is not null && stock.Bosses.CrocomireBg2Frames is not null,
             "installed Crocomire body has both OAM and BG2 presentations");
         Suite(nameof(VerifyCrocomireBodyFrameGeometry), () => VerifyCrocomireBodyFrameGeometry(rom));
         AssertEqual(CrocomireBodyVisualDefinitions.MixedBg2FrameCount,
@@ -98,7 +98,7 @@ internal static class CrocomireBodyVisualsVerification
 
         foreach (ushort pointer in CrocomireBodyVisualDefinitions.Frames)
         {
-            AssertTrue((stock.ExtendedFrames ?? throw new InvalidOperationException("Verification requires stock.ExtendedFrames.")).TryGetDisplay(
+            AssertTrue((stock.Enemies.ExtendedFrames ?? throw new InvalidOperationException("Verification requires stock.ExtendedFrames.")).TryGetDisplay(
                     CrocomireBodyVisualDefinitions.Bank, pointer, out _),
                 $"Crocomire body OAM frame $A4:{pointer:X4} is installed");
             var guard = NewExtendedVisualReadGuard(rom, out Action<byte, ushort> guardBlockFrame);
@@ -119,7 +119,7 @@ internal static class CrocomireBodyVisualsVerification
 
         foreach (SpritemapFrameDefinition frame in CrocomireBg2FrameDefinitions.Frames)
         {
-            AssertTrue((stock.CrocomireBg2Frames ?? throw new InvalidOperationException("Verification requires stock.CrocomireBg2Frames.")).TryGet(frame.Pointer,
+            AssertTrue((stock.Bosses.CrocomireBg2Frames ?? throw new InvalidOperationException("Verification requires stock.CrocomireBg2Frames.")).TryGet(frame.Pointer,
                     out ReadOnlyMemory<EnemyBg2TilemapWrite> installed),
                 $"Crocomire BG2 half $A4:{frame.Pointer:X4} is installed");
             var native = new List<(ushort DestinationWord, ushort[] Tiles)>();
@@ -182,7 +182,7 @@ internal static class CrocomireBodyVisualsVerification
             CrocomireBg2FrameDefinitions.FileName);
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(authored,
             CamelCaseJson));
-        EnemyTileArtworkCatalog edited = EnemyTileArtworkFiles.Load(
+        InstalledEnemyArtwork edited = EnemyTileArtworkFiles.Load(
             stockDirectory, overrideDirectory);
         var editedGuard = NewExtendedVisualReadGuard(rom, out Action<byte, ushort> editedGuardBlockFrame);
         editedGuardBlockFrame(CrocomireBodyVisualDefinitions.Bank, editedFrame.Pointer);
@@ -205,10 +205,10 @@ internal static class CrocomireBodyVisualsVerification
             (DrawReferenceExtendedFrame(rom, 0xa4, pointer, new(0x0080, 0x0080)),
                 ReadReferenceExtendedBg2Vram(rom, 0xa4, pointer, newFrame));
         // Draw one compiled Crocomire frame through production enemy presentation into fresh OAM and VRAM buffers.
-        static (OamBuffer Oam, byte[] Vram) Draw(EnemyTileArtworkCatalog art,
+        static (OamBuffer Oam, byte[] Vram) Draw(InstalledEnemyArtwork art,
             ISnesAddressSpace bus, ushort pointer, bool newFrame)
         {
-            var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = art };
+            var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = art.Enemies, BossArtwork = art.Bosses, AreaArtwork = art.Areas };
             var vram = new SnesVram();
             enemies.Presentation.BindVram(BgArtworkFixtures.For(vram));
             enemies.Drawing.Enqueue(0, 0);

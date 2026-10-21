@@ -4,7 +4,6 @@ using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Enemies;
-using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Enemies;
@@ -23,9 +22,9 @@ internal static class EnemyTileArtworkShitroidColorsVerification
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for installed Shitroid colors")]
     internal static void VerifyInstalledShitroidColors(
-        ISnesAddressSpace rom, string stockDirectory, EnemyTileArtworkCatalog stock)
+        ISnesAddressSpace rom, string stockDirectory, InstalledEnemyArtwork stock)
     {
-        ShitroidColorCatalog native = stock.ShitroidColors ??
+        ShitroidColorCatalog native = stock.Bosses.ShitroidColors ??
             throw new InvalidDataException("Installed enemy art has no Shitroid colors.");
         for (int frame = 0; frame < ShitroidColorRomData.NormalFrameCount; frame++)
         for (int color = 0; color < ShitroidColorRomData.NormalColorsPerFrame; color++)
@@ -52,8 +51,8 @@ internal static class EnemyTileArtworkShitroidColorsVerification
         Directory.CreateDirectory(overrides);
         string overrideFile = Path.Combine(overrides, ShitroidColorFormat.FileName);
         File.WriteAllBytes(overrideFile, ShitroidColorCatalog.Write(visual));
-        EnemyTileArtworkCatalog edited = EnemyTileArtworkFiles.Load(stockDirectory, overrides);
-        ShitroidColorCatalog colors = edited.ShitroidColors ??
+        InstalledEnemyArtwork edited = EnemyTileArtworkFiles.Load(stockDirectory, overrides);
+        ShitroidColorCatalog colors = edited.Bosses.ShitroidColors ??
             throw new InvalidDataException("Edited enemy art has no Shitroid colors.");
         for (int frame = 0; frame < ShitroidColorRomData.NormalFrameCount; frame++)
         {
@@ -71,7 +70,7 @@ internal static class EnemyTileArtworkShitroidColorsVerification
         }
         AssertEqual(colors.NormalColor(7, 2),
             (EnemyTileArtworkFiles.Load(stockDirectory, overrides)
-                .ShitroidColors ?? throw new InvalidOperationException("Verification requires EnemyTileArtworkFiles.Load(stockDirectory, overrides) .ShitroidColors.")).NormalColor(7, 2),
+                .Bosses.ShitroidColors ?? throw new InvalidOperationException("Verification requires EnemyTileArtworkFiles.Load(stockDirectory, overrides) .ShitroidColors.")).NormalColor(7, 2),
             "Shitroid color override survives catalog reload");
 
         CartridgeReadGuard guard = new CartridgeReadGuard(rom).Forbid(
@@ -84,7 +83,7 @@ internal static class EnemyTileArtworkShitroidColorsVerification
                         ShitroidColorRomData.TargetColorCount * sizeof(ushort)),
             address => $"Live Shitroid read migrated color ROM ${address:X6}.");
         var cgram = new SnesCgram();
-        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = edited };
+        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = edited.Enemies, BossArtwork = edited.Bosses, AreaArtwork = edited.Areas };
         Type type = typeof(RoomEnemySystem);
         enemies.Presentation.BindCgram(cgram);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];

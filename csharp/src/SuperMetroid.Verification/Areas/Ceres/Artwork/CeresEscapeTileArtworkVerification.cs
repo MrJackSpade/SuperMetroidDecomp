@@ -25,14 +25,14 @@ internal static class CeresEscapeTileArtworkVerification
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for Ceres escape tile artwork")]
     internal static void VerifyCeresEscapeTileArtwork(ISnesAddressSpace rom,
-        string stockDirectory, EnemyTileArtworkCatalog stock)
+        string stockDirectory, InstalledEnemyArtwork stock)
     {
-        AssertTrue(stock.CeresEscapeTiles is not null,
+        AssertTrue(stock.Areas.CeresEscapeTiles is not null,
             "installed Ceres escape warning and door PNGs exist");
         foreach (TileSheetDefinition page in
                  CeresEscapeTileArtworkDefinitions.All)
         {
-            AssertTrue((stock.CeresEscapeTiles ?? throw new InvalidOperationException("Verification requires stock.CeresEscapeTiles.")).TryResolve(page.SourceAddress,
+            AssertTrue((stock.Areas.CeresEscapeTiles ?? throw new InvalidOperationException("Verification requires stock.Areas.CeresEscapeTiles.")).TryResolve(page.SourceAddress,
                     page.ByteCount, out ReadOnlyMemory<byte> nativePage),
                 $"Ceres escape page {page.FileName} resolves completely");
             for (int offset = 0; offset < page.ByteCount; offset++)
@@ -47,7 +47,8 @@ internal static class CeresEscapeTileArtworkVerification
         var guarded = NewCeresEscapeArtworkReadGuard(rom);
         var installed = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance)
         {
-            TileArtwork = stock,
+            TileArtwork = stock.Enemies,
+            AreaArtwork = stock.Areas,
             Presentation = { EscapeTimerArtwork = timer },
         };
         var installedQueue = new VramWriteQueue();
@@ -67,7 +68,7 @@ internal static class CeresEscapeTileArtworkVerification
         AssertEqual(15, installedQueue.Entries.Count,
             "Ceres escape production queues both complete timer lists");
         var installedVram = new SnesVram();
-        installedQueue.DrainTo(installedVram, new CeresEscapeArtworkProvider(stock, timer), null, BgArtworkFixtures.For(installedVram));
+        installedQueue.DrainTo(installedVram, new EnemyTileTransfers(stock, timer: timer), null, BgArtworkFixtures.For(installedVram));
 
         var nativeQueue = new VramWriteQueue();
         foreach (CeresEscapeVramTransferDefinition transfer in
@@ -104,11 +105,11 @@ internal static class CeresEscapeTileArtworkVerification
             IndexedPng.Write(output, new(image.Size.X, image.Size.Y),
                 image.Pixels, image.Palette);
         }
-        EnemyTileArtworkCatalog edited = EnemyTileArtworkFiles.Load(
+        InstalledEnemyArtwork edited = EnemyTileArtworkFiles.Load(
             stockDirectory, overrideDirectory);
-        CeresEscapeTileArtwork stockArt = stock.CeresEscapeTiles
+        CeresEscapeTileArtwork stockArt = stock.Areas.CeresEscapeTiles
             ?? throw new InvalidOperationException("Stock Ceres escape art was not installed.");
-        CeresEscapeTileArtwork editedArt = edited.CeresEscapeTiles
+        CeresEscapeTileArtwork editedArt = edited.Areas.CeresEscapeTiles
             ?? throw new InvalidOperationException("Edited Ceres escape art was not installed.");
         AssertTrue(stockArt.TryResolve(warning.SourceAddress,
                 0x0200, out ReadOnlyMemory<byte> stockChunk),
@@ -122,7 +123,8 @@ internal static class CeresEscapeTileArtworkVerification
             "Ceres warning PNG edit leaves other transfer bytes unchanged");
         var editedEnemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance)
         {
-            TileArtwork = edited,
+            TileArtwork = edited.Enemies,
+            AreaArtwork = edited.Areas,
             Presentation = { EscapeTimerArtwork = timer },
         };
         // The cursor starts at the first warning-text record, part-way through the timer-sprite list.
@@ -137,7 +139,7 @@ internal static class CeresEscapeTileArtworkVerification
         var editedQueue = new VramWriteQueue();
         _ = editedEnemies.CeresRidleyBehavior.Getaway.QueueNextCeresEscapeTransfer(editedState, editedQueue);
         var editedVram = new SnesVram();
-        editedQueue.DrainTo(editedVram, new CeresEscapeArtworkProvider(edited, timer), null, BgArtworkFixtures.For(editedVram));
+        editedQueue.DrainTo(editedVram, new EnemyTileTransfers(edited, timer: timer), null, BgArtworkFixtures.For(editedVram));
         AssertTrue(CeresEscapeVramTransferDefinitions.TryGet(
                 CeresEscapeVramTransferDefinitions.WarningTextFirstTransfer,
                 out CeresEscapeVramTransferDefinition warningTransfer),
@@ -146,7 +148,7 @@ internal static class CeresEscapeTileArtworkVerification
             editedVram.ReadByte(warningTransfer.DestinationWord * 2),
             "edited Ceres warning PNG changes the production VRAM upload");
         AssertTrue((EnemyTileArtworkFiles.Load(stockDirectory, overrideDirectory)
-                .CeresEscapeTiles ?? throw new InvalidOperationException("Verification requires EnemyTileArtworkFiles.Load(stockDirectory, overrideDirectory) .CeresEscapeTiles.")).TryResolve(warning.SourceAddress, 0x0200,
+                .Areas.CeresEscapeTiles ?? throw new InvalidOperationException("Verification requires the reloaded Ceres escape tiles.")).TryResolve(warning.SourceAddress, 0x0200,
                     out ReadOnlyMemory<byte> reloaded) &&
                    reloaded.Span.SequenceEqual(editedChunk.Span),
             "Ceres warning tile override survives catalog reload");
@@ -182,35 +184,6 @@ internal static class CeresEscapeTileArtworkVerification
         Console.WriteLine(
             "Ceres escape tiles: both indexed PNGs match native bytes; all 15 live " +
             "transfers match VRAM without ROM art reads; edit, reload, and rejection pass.");
-    }
-
-    /// <summary>Provides installed escape timer assets and enemy tile pages to the queued VRAM writer.</summary>
-    internal sealed class CeresEscapeArtworkProvider(
-        EnemyTileArtworkCatalog tiles, EscapeTimerTileAtlas timer)
-        : IVramAssetProvider, IInstalledArtworkTransferSource, IObjCharacterSourceResolver, IInstalledObjCharacterArtwork
-    {
-        /// <summary>Resolves a typed timer transfer from the installed indexed-PNG atlas.</summary>
-        public ReadOnlyMemory<byte> Resolve(VramAssetId asset) => timer.Resolve(asset);
-
-        /// <summary>Resolves a typed timer page shown in the OBJ characters.</summary>
-        public ReadOnlyMemory<byte> ResolveAsset(VramAssetId asset) => timer.Resolve(asset);
-
-        /// <summary>Resolves a source-address transfer from installed Ceres escape tile pages.</summary>
-        public ReadOnlyMemory<byte> ResolveTransfer(int sourceAddress, int byteCount) =>
-            tiles.TryResolve(sourceAddress, byteCount, out ReadOnlyMemory<byte> data) ? data
-                : throw new InvalidOperationException($"No Ceres escape tiles at ${sourceAddress:X6}.");
-
-        /// <inheritdoc/>
-        public EnemyTileArtworkCatalog EnemyTiles => tiles;
-
-        /// <summary>Rejects animated tiles, which the Ceres escape fixture never binds.</summary>
-        public SuperMetroid.Core.Fx.Artwork.RoomFxAnimatedTileAtlas AnimatedTiles =>
-            throw new InvalidOperationException("The Ceres escape fixture binds no animated tiles.");
-
-        /// <summary>Resolves source-address transfers from installed Ceres escape tile pages.</summary>
-        public bool TryResolve(int sourceAddress, int byteCount,
-            out ReadOnlyMemory<byte> data) =>
-            tiles.TryResolve(sourceAddress, byteCount, out data);
     }
 
     /// <summary>Rejects live descriptor, overlay, warning-tile, and timer-tile source reads.</summary>

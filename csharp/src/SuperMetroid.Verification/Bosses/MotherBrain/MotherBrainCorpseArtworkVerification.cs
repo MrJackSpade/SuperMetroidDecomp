@@ -3,7 +3,6 @@ using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Enemies;
-using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Enemies.Corpses;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core.Rooms.Artwork;
@@ -38,9 +37,9 @@ internal static class MotherBrainCorpseArtworkVerification
     /// <summary>Compares six installed VRAM pages and corpse staging with native bytes, then checks one PNG pixel edit and reload.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     internal static void VerifyInstalledMotherBrainCorpseArtwork(
-        string directory, EnemyTileArtworkCatalog stock)
+        string directory, InstalledEnemyArtwork stock)
     {
-        RoomCharacterAtlas artwork = stock.MotherBrainCorpse ??
+        RoomCharacterAtlas artwork = stock.Bosses.MotherBrainCorpse ??
             throw new InvalidDataException("Extracted Mother Brain corpse PNG was not bound.");
         var rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
         byte[] native = ReadNativeMotherBrainCorpseArtwork(rom);
@@ -104,7 +103,7 @@ internal static class MotherBrainCorpseArtworkVerification
         string overridePath = Path.Combine(overrideDirectory, fileName);
         using (var output = File.Create(overridePath))
             IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels, image.Palette);
-        EnemyTileArtworkCatalog edited = EnemyTileArtworkFiles.Load(directory, overrideDirectory);
+        InstalledEnemyArtwork edited = EnemyTileArtworkFiles.Load(directory, overrideDirectory);
         byte[] editedCharacters = TransferMotherBrainCorpsePages(edited);
         int editedVramOffset = (MotherBrainCorpseArtworkDefinitions.VramPageDestination(0) - GameplayVramLayout.ObjectCharacters.Offset) * 2 +
             6 * RoomCharacterAtlasFormat.BytesPerTile;
@@ -112,7 +111,7 @@ internal static class MotherBrainCorpseArtworkVerification
             editedCharacters[editedVramOffset],
             "Mother Brain corpse PNG edit changes live sprite VRAM");
         var editedStaging = new EnemyStagingSurfaces();
-        new MotherBrainCorpseRottingState().Initialize(editedStaging, (edited.MotherBrainCorpse ?? throw new InvalidOperationException("Verification requires edited.MotherBrainCorpse.")));
+        new MotherBrainCorpseRottingState().Initialize(editedStaging, (edited.Bosses.MotherBrainCorpse ?? throw new InvalidOperationException("Verification requires edited.MotherBrainCorpse.")));
         StagingByteView installedTiles = installedStaging.MotherBrainCorpseTiles;
         StagingByteView editedTiles = editedStaging.MotherBrainCorpseTiles;
         AssertEqual((byte)(installedTiles[0] ^ 0x80),
@@ -124,7 +123,7 @@ internal static class MotherBrainCorpseArtworkVerification
                 "Mother Brain corpse PNG edit leaves other staged pixels unchanged");
         var reloadedStaging = new EnemyStagingSurfaces();
         RoomCharacterAtlas reloaded = (EnemyTileArtworkFiles.Load(directory, overrideDirectory)
-            .MotherBrainCorpse ?? throw new InvalidOperationException("Verification requires EnemyTileArtworkFiles.Load(directory, overrideDirectory) .MotherBrainCorpse."));
+            .Bosses.MotherBrainCorpse ?? throw new InvalidOperationException("Verification requires EnemyTileArtworkFiles.Load(directory, overrideDirectory) .MotherBrainCorpse."));
         new MotherBrainCorpseRottingState().Initialize(reloadedStaging, (reloaded));
         AssertEqual(editedTiles[0], reloadedStaging.MotherBrainCorpseTiles[0],
             "Mother Brain corpse override survives catalog reload");
@@ -139,9 +138,9 @@ internal static class MotherBrainCorpseArtworkVerification
 
     /// <summary>Routes all corpse page requests through the production encounter into cartridge-free VRAM.</summary>
     private static byte[] TransferMotherBrainCorpsePages(
-        EnemyTileArtworkCatalog artwork)
+        InstalledEnemyArtwork artwork)
     {
-        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork };
+        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork.Enemies, BossArtwork = artwork.Bosses, AreaArtwork = artwork.Areas };
         for (int page = 0; page < MotherBrainCorpseArtworkDefinitions.RowCount; page++)
         {
             var request = new MotherBrainSpriteTileTransferRequest(

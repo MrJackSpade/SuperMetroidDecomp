@@ -25,10 +25,10 @@ internal static class CeresEscapeOverlayTilemapsVerification
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for Ceres escape overlay tilemaps")]
     internal static void VerifyCeresEscapeOverlayTilemaps(ISnesAddressSpace rom,
-        string stockDirectory, EnemyTileArtworkCatalog stock)
+        string stockDirectory, InstalledEnemyArtwork stock)
     {
         CeresEscapeOverlayTilemapCatalog stockOverlay =
-            stock.CeresEscapeOverlayTilemaps ?? throw new InvalidOperationException(
+            stock.Areas.CeresEscapeOverlayTilemaps ?? throw new InvalidOperationException(
                 "Installed Ceres escape overlay tilemaps are absent.");
         foreach (CeresEscapeOverlayTilemapDefinition page in
                  CeresEscapeOverlayTilemapDefinitions.All)
@@ -45,7 +45,7 @@ internal static class CeresEscapeOverlayTilemapsVerification
         var guarded = NewCeresEscapeArtworkReadGuard(rom);
         var installedOverlay = new RecordedBg1Overlay();
         var installed = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance,
-            services: installedOverlay.Services()) { TileArtwork = stock };
+            services: installedOverlay.Services()) { TileArtwork = stock.Enemies, BossArtwork = stock.Bosses, AreaArtwork = stock.Areas };
         installed.CeresRidleyBehavior.Getaway.DrawCeresEmergencyText();
         installed.CeresRidleyBehavior.Getaway.DrawCeresJapaneseOverlay(CeresEscapeVramTransferDefinitions.JapaneseOverlay);
 
@@ -91,12 +91,12 @@ internal static class CeresEscapeOverlayTilemapsVerification
         document.Pages[title.Name][0] ^= 1;
         File.WriteAllBytes(Path.Combine(overrideDirectory, fileName),
             CeresEscapeOverlayTilemapCatalog.Write(document));
-        EnemyTileArtworkCatalog edited = EnemyTileArtworkFiles.Load(
+        InstalledEnemyArtwork edited = EnemyTileArtworkFiles.Load(
             stockDirectory, overrideDirectory);
         AssertTrue(stockOverlay.TryResolve(title.SourceAddress,
                 title.WordCount * sizeof(ushort), out ReadOnlyMemory<byte> stockWords),
             "stock English Ceres title resolves");
-        AssertTrue((edited.CeresEscapeOverlayTilemaps ?? throw new InvalidOperationException("Verification requires edited.CeresEscapeOverlayTilemaps.")).TryResolve(title.SourceAddress,
+        AssertTrue((edited.Areas.CeresEscapeOverlayTilemaps ?? throw new InvalidOperationException("Verification requires edited.CeresEscapeOverlayTilemaps.")).TryResolve(title.SourceAddress,
                 title.WordCount * sizeof(ushort), out ReadOnlyMemory<byte> editedWords),
             "edited English Ceres title resolves");
         AssertEqual((byte)(stockWords.Span[0] ^ 1), editedWords.Span[0],
@@ -105,13 +105,13 @@ internal static class CeresEscapeOverlayTilemapsVerification
             "edited Ceres title leaves other tilemap bytes unchanged");
         var editedOverlay = new RecordedBg1Overlay();
         var editedEnemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance,
-            services: editedOverlay.Services()) { TileArtwork = edited };
+            services: editedOverlay.Services()) { TileArtwork = edited.Enemies, BossArtwork = edited.Bosses, AreaArtwork = edited.Areas };
         editedEnemies.CeresRidleyBehavior.Getaway.DrawCeresEmergencyText();
         int titleWord = CeresEscapeOverlayTilemapDefinitions.EmergencyDestination - GameplayVramLayout.Bg1TilemapWord;
         AssertEqual(native.Words[titleWord] ^ 1, editedOverlay.Overlay.Words[titleWord],
             "edited Ceres title changes the word shown over BG1");
         AssertTrue((EnemyTileArtworkFiles.Load(stockDirectory, overrideDirectory)
-                .CeresEscapeOverlayTilemaps ?? throw new InvalidOperationException("Verification requires EnemyTileArtworkFiles.Load(stockDirectory, overrideDirectory) .CeresEscapeOverlayTilemaps.")).TryResolve(title.SourceAddress,
+                .Areas.CeresEscapeOverlayTilemaps ?? throw new InvalidOperationException("Verification requires EnemyTileArtworkFiles.Load(stockDirectory, overrideDirectory) .CeresEscapeOverlayTilemaps.")).TryResolve(title.SourceAddress,
                     title.WordCount * sizeof(ushort),
                     out ReadOnlyMemory<byte> reloaded) &&
                    reloaded.Span.SequenceEqual(editedWords.Span),

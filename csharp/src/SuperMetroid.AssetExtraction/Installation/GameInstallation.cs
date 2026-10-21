@@ -4,7 +4,6 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Audio;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.Core.Samus;
@@ -384,8 +383,8 @@ public sealed record GameInstallation(string Root)
     public string EnemyTileDirectory => Path.Combine(ContentDirectory, GameInstallationLayout.EnemyTileDirectoryName);
     /// <summary>Persistent ordinary-enemy PNG replacements, preserved during stock rebuilds.</summary>
     public string EnemyTileOverrideDirectory => Path.Combine(Root, "overrides", GameInstallationLayout.EnemyTileDirectoryName);
-    /// <summary>Loads validated ordinary-enemy tile sheets and compatible replacement PNGs from the persistent override tree.</summary>
-    public EnemyTileArtworkCatalog LoadEnemyTiles() =>
+    /// <summary>Loads validated enemy, boss and area artwork and compatible replacement PNGs from the persistent override tree.</summary>
+    public InstalledEnemyArtwork LoadEnemyTiles() =>
         EnemyTileArtworkFiles.Load(EnemyTileDirectory, EnemyTileOverrideDirectory);
     /// <summary>Outside the replaceable game directory: reinstall and stock repair preserve these edits.</summary>
     public string MapOverrideDirectory => Path.Combine(Root, "overrides", GameInstallationLayout.MapDirectoryName);
@@ -401,6 +400,7 @@ public sealed record GameInstallation(string Root)
     {
         Ensure.NotNull(maps);
         Ensure.NotNull(projectiles);
+        InstalledEnemyArtwork enemies = LoadEnemyTiles();
         return new GameArtwork
         {
             MapPresentation = maps,
@@ -449,7 +449,9 @@ public sealed record GameInstallation(string Root)
             ProjectileCompositions = projectiles.Catalog,
             ProjectileFrameBindings = projectiles.FrameBindings,
             BeamArtwork = projectiles.BeamTiles,
-            EnemyTileArtwork = LoadEnemyTiles(),
+            EnemyTileArtwork = enemies.Enemies,
+            BossArtwork = enemies.Bosses,
+            AreaArtwork = enemies.Areas,
             TrailArtwork = projectiles.Trails,
             ChargeFlarePlacement = projectiles.FlarePlacement,
             ChargeFlareCompositions = projectiles.FlareCompositions,

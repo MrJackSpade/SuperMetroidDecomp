@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core.Enemies;
@@ -8,9 +9,12 @@ namespace SuperMetroid.Core.Bosses.MotherBrain;
 /// <param name="species">The MotherBrain species owner.</param>
 /// <param name="slot">The slot the enemy occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal sealed class MotherBrainEntity(MotherBrainBehavior species, RoomEnemySlot slot, EnemyCommonParticipation common)
+/// <param name="bossArtwork">The session's installed boss artwork.</param>
+internal sealed class MotherBrainEntity(MotherBrainBehavior species, RoomEnemySlot slot, EnemyCommonParticipation common, BossArtworkBinding bossArtwork)
     : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation, IEnemyExtendedHitboxes, IEnemyBg2Frames, IEnemyPrivateShotCallback
 {
+    /// <summary>The session's installed boss artwork.</summary>
+    private readonly BossArtworkBinding _bossArtwork = bossArtwork;
     /// <inheritdoc/>
     public EnemyInitializationAiHandler? FindInitialization() => MotherBrainPartDefinitions.Parts[Slot.EnemyDefinitionPointer] switch
     {
@@ -47,7 +51,7 @@ internal sealed class MotherBrainEntity(MotherBrainBehavior species, RoomEnemySl
             Slot.Definition.Bank != MotherBrainBodyVisualDefinitions.Bank || !MotherBrainBodyVisualDefinitions.HasBg2(selected))
             return null;
         ReadOnlyMemory<EnemyBg2TilemapWrite> writes = default;
-        bool found = room.InstalledArtwork.MotherBrainBodyBg2Frames?.TryGet(selected, out writes) == true;
+        bool found = _bossArtwork.Installed.MotherBrainBodyBg2Frames?.TryGet(selected, out writes) == true;
         return new("Mother Brain body", found, writes);
     }
 

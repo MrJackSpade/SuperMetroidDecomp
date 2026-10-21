@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.Bosses.Artwork;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 
@@ -12,7 +12,7 @@ internal sealed record MotherBrainSpecialSpriteCharacters(int Sheet, int Page, i
     public override ReadOnlyMemory<byte> Resolve(IObjCharacterSourceResolver resolver)
     {
         MotherBrainSpecialSpriteSheetDefinition sheet = MotherBrainSpecialSpriteArtworkDefinitions.All[Sheet];
-        MotherBrainSpecialSpriteArtworkCatalog artwork = InstalledObjCharacterArtwork.Of(resolver).EnemyTiles.MotherBrainSpecialSprites ??
+        MotherBrainSpecialSpriteArtworkCatalog artwork = InstalledBossObjCharacterArtwork.Of(resolver).BossTiles.MotherBrainSpecialSprites ??
             throw new InvalidDataException($"Installed enemy artwork is missing {sheet.FileName}.");
         return artwork.Get(sheet.SourceAddress).Transfer.Slice(Page * MotherBrainSpecialSpriteSheetDefinition.PageByteCount, ByteCount);
     }

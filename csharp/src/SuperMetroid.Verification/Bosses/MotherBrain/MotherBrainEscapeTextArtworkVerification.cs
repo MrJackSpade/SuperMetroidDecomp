@@ -2,7 +2,6 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Enemies;
-using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Enemies;
@@ -21,9 +20,9 @@ internal static class MotherBrainEscapeTextArtworkVerification
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for the Mother Brain escape-text characters and transfer records")]
     internal static void VerifyInstalledMotherBrainEscapeTextArtwork(
-        string directory, EnemyTileArtworkCatalog stock)
+        string directory, InstalledEnemyArtwork stock)
     {
-        RoomCharacterAtlas artwork = stock.MotherBrainEscapeText ??
+        RoomCharacterAtlas artwork = stock.Bosses.MotherBrainEscapeText ??
             throw new InvalidDataException("Extracted Mother Brain escape-text PNG was not bound.");
         var rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
         byte[] native = RomDataReader.ReadFixedBank(rom,
@@ -71,7 +70,7 @@ internal static class MotherBrainEscapeTextArtworkVerification
         string overridePath = Path.Combine(overrideDirectory, fileName);
         using (var output = File.Create(overridePath))
             IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels, image.Palette);
-        EnemyTileArtworkCatalog edited = EnemyTileArtworkFiles.Load(directory, overrideDirectory);
+        InstalledEnemyArtwork edited = EnemyTileArtworkFiles.Load(directory, overrideDirectory);
         SnesVram editedVram = TransferMotherBrainEscapeTextPages(edited);
         int firstDestination = EscapeTextArtworkDefinitions.PageDestination(0) * 2;
         AssertEqual((byte)(installedVram.ReadByte(firstDestination) ^ 0x80),
@@ -83,8 +82,8 @@ internal static class MotherBrainEscapeTextArtworkVerification
                 EscapeTextArtworkDefinitions.PageByteCount(0) - 1)),
             "Mother Brain escape-text edit leaves neighboring source bytes unchanged");
         RoomCharacterAtlas reloaded = (EnemyTileArtworkFiles.Load(directory, overrideDirectory)
-            .MotherBrainEscapeText ?? throw new InvalidOperationException("Verification requires EnemyTileArtworkFiles.Load(directory, overrideDirectory) .MotherBrainEscapeText."));
-        AssertTrue(reloaded.Transfer.Span.SequenceEqual((edited.MotherBrainEscapeText ?? throw new InvalidOperationException("Verification requires edited.MotherBrainEscapeText.")).Transfer.Span),
+            .Bosses.MotherBrainEscapeText ?? throw new InvalidOperationException("Verification requires EnemyTileArtworkFiles.Load(directory, overrideDirectory) .MotherBrainEscapeText."));
+        AssertTrue(reloaded.Transfer.Span.SequenceEqual((edited.Bosses.MotherBrainEscapeText ?? throw new InvalidOperationException("Verification requires edited.MotherBrainEscapeText.")).Transfer.Span),
             "Mother Brain escape-text override survives catalog reload");
 
         File.WriteAllBytes(overridePath, [0]);
@@ -97,11 +96,11 @@ internal static class MotherBrainEscapeTextArtworkVerification
 
     /// <summary>Applies all five escape-text transfer requests through the production Mother Brain path.</summary>
     private static SnesVram TransferMotherBrainEscapeTextPages(
-        EnemyTileArtworkCatalog artwork)
+        InstalledEnemyArtwork artwork)
     {
-        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork };
+        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork.Enemies, BossArtwork = artwork.Bosses, AreaArtwork = artwork.Areas };
         SnesVram ObjVram() => ObjCharacterVramImage.Of(enemies.Room.Session.ObjCharacters,
-            new EnemyTileTransfers(enemies.TileArtwork ?? InstalledFixtures.EnemyTiles));
+            new EnemyTileTransfers(new InstalledEnemyArtwork(enemies.TileArtwork ?? InstalledFixtures.EnemyTiles, enemies.BossArtwork ?? InstalledFixtures.BossArtwork, enemies.AreaArtwork ?? InstalledFixtures.AreaArtwork)));
         for (int page = 0; page < EscapeTextArtworkDefinitions.PageCount; page++)
         {
             var request = new MotherBrainSpriteTileTransferRequest(

@@ -3,7 +3,6 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Bosses.Botwoon;
 using SuperMetroid.Core.Enemies;
-using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Bosses.Botwoon.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Enemies;
@@ -22,9 +21,9 @@ internal static class EnemyTileArtworkBotwoonColorsVerification
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for Botwoon health palettes and thresholds")]
     internal static void VerifyInstalledBotwoonColors(
-        ISnesAddressSpace rom, string stockDirectory, EnemyTileArtworkCatalog stock)
+        ISnesAddressSpace rom, string stockDirectory, InstalledEnemyArtwork stock)
     {
-        BotwoonColorCatalog native = stock.BotwoonColors ??
+        BotwoonColorCatalog native = stock.Bosses.BotwoonColors ??
             throw new InvalidDataException("Installed enemy art has no Botwoon colors.");
         for (int band = 0; band < BotwoonHealthPaletteDefinitions.PaletteCount; band++)
         for (int color = 0; color < BotwoonHealthPaletteDefinitions.ColorsPerPalette; color++)
@@ -45,8 +44,8 @@ internal static class EnemyTileArtworkBotwoonColorsVerification
         Directory.CreateDirectory(overrides);
         string overrideFile = Path.Combine(overrides, BotwoonColorFormat.FileName);
         File.WriteAllBytes(overrideFile, BotwoonColorCatalog.Write(visual));
-        EnemyTileArtworkCatalog edited = EnemyTileArtworkFiles.Load(stockDirectory, overrides);
-        BotwoonColorCatalog colors = edited.BotwoonColors ??
+        InstalledEnemyArtwork edited = EnemyTileArtworkFiles.Load(stockDirectory, overrides);
+        BotwoonColorCatalog colors = edited.Bosses.BotwoonColors ??
             throw new InvalidDataException("Edited enemy art has no Botwoon colors.");
         for (int band = 0; band < BotwoonHealthPaletteDefinitions.PaletteCount; band++)
         {
@@ -57,12 +56,12 @@ internal static class EnemyTileArtworkBotwoonColorsVerification
         }
         AssertEqual(colors.HealthColor(7, 5),
             (EnemyTileArtworkFiles.Load(stockDirectory, overrides)
-                .BotwoonColors ?? throw new InvalidOperationException("Verification requires EnemyTileArtworkFiles.Load(stockDirectory, overrides) .BotwoonColors.")).HealthColor(7, 5),
+                .Bosses.BotwoonColors ?? throw new InvalidOperationException("Verification requires EnemyTileArtworkFiles.Load(stockDirectory, overrides) .BotwoonColors.")).HealthColor(7, 5),
             "Botwoon color override survives catalog reload");
 
         var guard = NewBotwoonColorReadGuard(rom);
         var cgram = new SnesCgram();
-        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = edited };
+        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = edited.Enemies, BossArtwork = edited.Bosses, AreaArtwork = edited.Areas };
         enemies.Presentation.BindCgram(cgram);
         Action<RoomEnemySlot, BotwoonEnemyState> update = enemies.BotwoonBehavior.UpdateBotwoonHealthPalette;
         RoomEnemySlot head = enemies.SlotTable.Slots[0];

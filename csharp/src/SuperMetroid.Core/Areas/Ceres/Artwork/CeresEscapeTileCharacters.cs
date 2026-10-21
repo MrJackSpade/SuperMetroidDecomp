@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Enemies.Artwork;
-
 namespace SuperMetroid.Core.Areas.Ceres.Artwork;
 
 /// <summary>A range of one installed Ceres escape character page, uploaded by the escape's transfer lists.</summary>
@@ -25,7 +23,7 @@ internal sealed record CeresEscapeTileCharacters(int Page, int Offset, int ByteC
     /// <inheritdoc/>
     /// <exception cref="InvalidDataException">The installed Ceres escape artwork holds no such page.</exception>
     public override ReadOnlyMemory<byte> Resolve(IObjCharacterSourceResolver resolver) =>
-        (InstalledObjCharacterArtwork.Of(resolver).EnemyTiles.CeresEscapeTiles ?? throw new InvalidDataException(
+        (InstalledAreaObjCharacterArtwork.Of(resolver).AreaTiles.CeresEscapeTiles ?? throw new InvalidDataException(
             "Installed Ceres escape has no editable character pages."))
         .TryResolve(CeresEscapeTileArtworkDefinitions.All[Page].SourceAddress + Offset, ByteCount, out ReadOnlyMemory<byte> characters)
             ? characters

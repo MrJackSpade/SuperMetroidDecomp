@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Areas;
+using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Tooling;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -81,7 +83,7 @@ internal static class MotherBrainBodyPresentationVerification
             }
         }
         AssertTrue(baseline.ScrollCalls.Count > 0, "production body bytecode actually moves and counter-scrolls");
-        var missing = new MotherBrainPresentationFixture(EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(), ExtendedFrames = EnemyExtendedFrameCatalog.Load(author.Json(stockOam)) }));
+        var missing = new MotherBrainPresentationFixture(new InstalledEnemyArtwork(EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(), ExtendedFrames = EnemyExtendedFrameCatalog.Load(author.Json(stockOam)) }), new BossArtworkCatalog(), new AreaArtworkCatalog()));
         missing.SetFrame(mixed[0].Pointer, fresh: true);
         AssertThrows<InvalidDataException>(() => missing.Draw(), "missing mixed-frame BG2 art fails explicitly");
         // Installed artwork is not part of debugger states: the room binding holds it as non-serialized, and the host
@@ -89,7 +91,7 @@ internal static class MotherBrainBodyPresentationVerification
         Console.WriteLine($"PASS Mother Brain: all 17 exact OAM/BG2 poses, mixed remaps, new-frame gating, " +
             $"{steps} production instruction steps with unchanged movement/timing/scroll/physics, and missing-art rejection. RAM-only.");
 
-        EnemyTileArtworkCatalog Build(EnemyExtendedFrameDocument oam, EnemyBg2FrameDocument bg2) => author.Build(
+        InstalledEnemyArtwork Build(EnemyExtendedFrameDocument oam, EnemyBg2FrameDocument bg2) => author.Build(
             extendedFrames: EnemyExtendedFrameCatalog.Load(author.Json(oam)),
             motherBrainBodyBg2Frames: MotherBrainBodyBg2FrameCatalog.Load(author.Json(bg2)));
 
@@ -182,10 +184,10 @@ internal static class MotherBrainBodyPresentationVerification
         string stockPath = Path.Combine(temporary.Root, "stock"), overridePath = Path.Combine(temporary.Root, "overrides");
         EnemyTileArtworkFiles.Extract(source, stockPath, SupportedCartridge.Sha256);
         EnemyTileArtworkFiles.ValidateStock(stockPath);
-        EnemyTileArtworkCatalog installed = EnemyTileArtworkFiles.Load(stockPath, null);
-        AssertEqual(bg2.ContentIdentity, (installed.MotherBrainBodyBg2Frames ?? throw new InvalidOperationException("Verification requires installed.MotherBrainBodyBg2Frames.")).ContentIdentity,
+        InstalledEnemyArtwork installed = EnemyTileArtworkFiles.Load(stockPath, null);
+        AssertEqual(bg2.ContentIdentity, (installed.Bosses.MotherBrainBodyBg2Frames ?? throw new InvalidOperationException("Verification requires installed.MotherBrainBodyBg2Frames.")).ContentIdentity,
             "manifest loads the exact imported Mother Brain body catalog");
-        AssertEqual(oam.ContentIdentity, (installed.ExtendedFrames ?? throw new InvalidOperationException("Verification requires installed.ExtendedFrames.")).ContentIdentity,
+        AssertEqual(oam.ContentIdentity, (installed.Enemies.ExtendedFrames ?? throw new InvalidOperationException("Verification requires installed.ExtendedFrames.")).ContentIdentity,
             "manifest loads the complete current multipart catalog");
         string file = Path.Combine(stockPath, MotherBrainBodyVisualDefinitions.Bg2FileName);
         var author = new EnemyIdentityFixture();
@@ -197,9 +199,9 @@ internal static class MotherBrainBodyPresentationVerification
         Directory.CreateDirectory(overridePath);
         string selectedFile = Path.Combine(overridePath, MotherBrainBodyVisualDefinitions.Bg2FileName);
         using (var json = author.Json(document)) File.WriteAllBytes(selectedFile, json.ToArray());
-        EnemyTileArtworkCatalog edited = EnemyTileArtworkFiles.Load(stockPath, overridePath);
+        InstalledEnemyArtwork edited = EnemyTileArtworkFiles.Load(stockPath, overridePath);
         AssertTrue(installed.ContentIdentity != edited.ContentIdentity, "selected Mother Brain BG2 edit changes installed bundle identity");
-        AssertEqual(installed.ExtendedFrames.ContentIdentity, (edited.ExtendedFrames ?? throw new InvalidOperationException("Verification requires edited.ExtendedFrames.")).ContentIdentity,
+        AssertEqual(installed.Enemies.ExtendedFrames.ContentIdentity, (edited.Enemies.ExtendedFrames ?? throw new InvalidOperationException("Verification requires edited.ExtendedFrames.")).ContentIdentity,
             "a BG2-only override does not alter limb compositions");
         using (var json = author.Json(document with { Version = document.Version + 1 }))
             File.WriteAllBytes(selectedFile, json.ToArray());

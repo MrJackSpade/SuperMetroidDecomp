@@ -88,37 +88,37 @@ internal static class EnemySpritemapArtworkVerification
 
     /// <summary>Runs the Alcoon in a real room with the installed artwork.</summary>
     private static void VerifyInstalledAlcoonInstructionFrames(
-        SuperMetroidAddressSpace rom, EnemyTileArtworkCatalog stock)
+        SuperMetroidAddressSpace rom, InstalledEnemyArtwork stock)
     {
         Suite(nameof(VerifyAlcoonInstructionProgramDefinitions), () => VerifyAlcoonInstructionProgramDefinitions(rom, stock));
     }
 
     /// <summary>Runs the Beetom programs with the installed artwork.</summary>
     private static void VerifyInstalledBeetomInstructionFrames(
-        SuperMetroidAddressSpace rom, EnemyTileArtworkCatalog stock)
+        SuperMetroidAddressSpace rom, InstalledEnemyArtwork stock)
     {
         Suite(nameof(VerifyBeetomInstructionProgramDefinitions), () => VerifyBeetomInstructionProgramDefinitions(rom, stock));
     }
 
     /// <summary>Runs the hopper family's typed animations with the installed stock artwork.</summary>
     private static void VerifyInstalledHopperInstructionFrames(
-        SuperMetroidAddressSpace rom, EnemyTileArtworkCatalog stock)
+        SuperMetroidAddressSpace rom, InstalledEnemyArtwork stock)
     {
         Suite(nameof(VerifyHopperAnimationDefinitions), () => VerifyHopperAnimationDefinitions(rom, stock));
     }
 
     /// <summary>Runs Choot's idle, jumping and falling animations with the installed stock artwork.</summary>
     private static void VerifyInstalledChootInstructionFrames(
-        EnemyTileArtworkCatalog stock)
+        InstalledEnemyArtwork stock)
     {
         Suite(nameof(ChootBehaviorVerification.VerifyChootBehavior), () => ChootBehaviorVerification.VerifyChootBehavior(stock));
     }
 
     /// <summary>Checks Bull frame selectors and exercises normal and immune-shot programs without cartridge visual reads.</summary>
     private static void VerifyInstalledBullInstructionFrames(
-        EnemyTileArtworkCatalog stock)
+        InstalledEnemyArtwork stock)
     {
-        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = stock };
+        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = stock.Enemies, BossArtwork = stock.Bosses, AreaArtwork = stock.Areas };
         RoomEnemySlot bull = enemies.SlotTable.Slots[0];
         bull.Bind(EnemyDefinitionId.Bull, bull.Definition);
         bull.Bind(bull.EnemyDefinitionPointer, default(RoomEnemyDefinition) with
@@ -143,7 +143,7 @@ internal static class EnemySpritemapArtworkVerification
 
     /// <summary>Runs Puyo's grounded and airborne programs with the installed stock artwork.</summary>
     private static void VerifyInstalledPuyoInstructionFrames(
-        EnemyTileArtworkCatalog stock) =>
+        InstalledEnemyArtwork stock) =>
         Suite(nameof(PuyoInstructionProgramDefinitionsVerification.VerifyPuyoInstructionProgramDefinitions),
             () => PuyoInstructionProgramDefinitionsVerification.VerifyPuyoInstructionProgramDefinitions(stock));
 
@@ -151,10 +151,10 @@ internal static class EnemySpritemapArtworkVerification
     /// The stock catalog from <paramref name="stockDirectory"/> with its compositions replaced, as the installation
     /// loader selects a composition override; nothing is derived from the compositions when the catalog is built.
     /// </summary>
-    private static EnemyTileArtworkCatalog StockWithSpritemaps(string stockDirectory, EnemySpritemapCatalog spritemaps)
+    private static InstalledEnemyArtwork StockWithSpritemaps(string stockDirectory, EnemySpritemapCatalog spritemaps)
     {
-        EnemyTileArtworkCatalog catalog = EnemyTileArtworkFiles.Load(stockDirectory, null);
-        catalog.Spritemaps = Ensure.NotNull(spritemaps);
+        InstalledEnemyArtwork catalog = EnemyTileArtworkFiles.Load(stockDirectory, null);
+        catalog.Enemies.Spritemaps = Ensure.NotNull(spritemaps);
         return catalog;
     }
 
@@ -162,9 +162,9 @@ internal static class EnemySpritemapArtworkVerification
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     internal static void VerifyInstalledEnemySpritemaps(
         SuperMetroidAddressSpace rom, string stockDirectory,
-        EnemyTileArtworkCatalog stock)
+        InstalledEnemyArtwork stock)
     {
-        AssertTrue(stock.Spritemaps is not null,
+        AssertTrue(stock.Enemies.Spritemaps is not null,
             "installed enemy catalog contains named OAM compositions");
         AssertEqual(EnemySpritemapDefinitions.PreCeresDoorFrameCount,
             EnemySpritemapDefinitions.PreDisplayBindingsFrameCount,
@@ -384,16 +384,16 @@ internal static class EnemySpritemapArtworkVerification
         Suite(nameof(VerifyInstalledPuyoInstructionFrames), () => VerifyInstalledPuyoInstructionFrames(stock));
         Suite(nameof(VerifyInstalledBullInstructionFrames), () => VerifyInstalledBullInstructionFrames(stock));
         Suite(nameof(VerifyInstalledAlcoonInstructionFrames), () => VerifyInstalledAlcoonInstructionFrames(rom, stock));
-        Suite(nameof(VerifyInstalledMochtroidVisuals), () => VerifyInstalledMochtroidVisuals(rom, stock));
+        Suite(nameof(VerifyInstalledMochtroidVisuals), () => VerifyInstalledMochtroidVisuals(rom, stock.Enemies));
         Suite(nameof(VerifyInstalledEvirVisuals), () => VerifyInstalledEvirVisuals(rom, stock));
-        Suite(nameof(VerifyInstalledWorkRobotVisuals), () => VerifyInstalledWorkRobotVisuals(rom, stock));
-        Suite(nameof(VerifyInstalledYardVisuals), () => VerifyInstalledYardVisuals(rom, stock));
-        Suite(nameof(VerifyInstalledBotwoonVisuals), () => VerifyInstalledBotwoonVisuals(rom, stock));
+        Suite(nameof(VerifyInstalledWorkRobotVisuals), () => VerifyInstalledWorkRobotVisuals(rom, stock.Enemies));
+        Suite(nameof(VerifyInstalledYardVisuals), () => VerifyInstalledYardVisuals(rom, stock.Enemies));
+        Suite(nameof(VerifyInstalledBotwoonVisuals), () => VerifyInstalledBotwoonVisuals(rom, stock.Enemies));
         Suite(nameof(VerifyInstalledBeetomInstructionFrames), () => VerifyInstalledBeetomInstructionFrames(rom, stock));
         Suite(nameof(VerifyInstalledHopperInstructionFrames), () => VerifyInstalledHopperInstructionFrames(rom, stock));
         Suite(nameof(VerifyInstalledChootInstructionFrames), () => VerifyInstalledChootInstructionFrames(stock));
         Suite(nameof(VerifyInstalledHZoomerInstructionFrames), () => VerifyInstalledHZoomerInstructionFrames(stock));
-        Suite(nameof(VerifyInstalledSharedCrawlerFrames), () => VerifyInstalledSharedCrawlerFrames(stock));
+        Suite(nameof(VerifyInstalledSharedCrawlerFrames), () => VerifyInstalledSharedCrawlerFrames(stock.Enemies));
         AssertTrue(MorphBallEyeVisualDefinitions.Frames().Select(frame => frame.Pointer).ToHashSet().SetEquals(
                 MorphBallEyeAnimationsConstants.Spritemaps(Enum.GetValues<MorphBallEyeProgram>())),
             "the installed Morph Ball eye frames are exactly the poses its programs show");
@@ -457,9 +457,9 @@ internal static class EnemySpritemapArtworkVerification
             "every installed Rinka composition is shown by a Rinka program");
         foreach (EnemySpritemapDefinition frame in EnemySpritemapDefinitions.Frames)
         {
-            AssertTrue((stock.Spritemaps ?? throw new InvalidOperationException("Verification requires stock.Spritemaps.")).TryGet(frame.Bank, frame.Pointer, out var parts),
+            AssertTrue((stock.Enemies.Spritemaps ?? throw new InvalidOperationException("Verification requires stock.Spritemaps.")).TryGet(frame.Bank, frame.Pointer, out var parts),
                 $"installed enemy frame {frame.Name} exists");
-            AssertTrue(stock.Spritemaps.TryGetDisplay(frame.Bank, frame.Pointer, out _),
+            AssertTrue(stock.Enemies.Spritemaps.TryGetDisplay(frame.Bank, frame.Pointer, out _),
                 $"installed enemy frame {frame.Name} has a display binding");
             foreach ((ushort x, ushort y, ushort palette, ushort baseTile) in
                      new (ushort, ushort, ushort, ushort)[]
@@ -660,7 +660,7 @@ internal static class EnemySpritemapArtworkVerification
             }, CamelCaseJson)))
         {
             EnemySpritemapCatalog yardUpgraded = EnemySpritemapCatalog.Load(
-                preYardJson, stock.Spritemaps);
+                preYardJson, stock.Enemies.Spritemaps);
             foreach (EnemySpritemapDefinition frame in YardVisualDefinitions.Frames())
                 AssertTrue(yardUpgraded.TryGetDisplay(frame.Bank, frame.Pointer, out _),
                     $"version-fifty-eight override inherits {frame.Name}");
@@ -684,7 +684,7 @@ internal static class EnemySpritemapArtworkVerification
             }, CamelCaseJson)))
         {
             EnemySpritemapCatalog robotUpgraded = EnemySpritemapCatalog.Load(
-                preRobotJson, stock.Spritemaps);
+                preRobotJson, stock.Enemies.Spritemaps);
             foreach (EnemySpritemapDefinition frame in WorkRobotVisualDefinitions.Frames())
                 AssertTrue(robotUpgraded.TryGetDisplay(frame.Bank, frame.Pointer, out _),
                     $"version-fifty-seven override inherits {frame.Name}");
@@ -708,7 +708,7 @@ internal static class EnemySpritemapArtworkVerification
             }, CamelCaseJson)))
         {
             EnemySpritemapCatalog evirUpgraded = EnemySpritemapCatalog.Load(
-                preEvirJson, stock.Spritemaps);
+                preEvirJson, stock.Enemies.Spritemaps);
             foreach (EnemySpritemapDefinition frame in EvirVisualDefinitions.Frames())
                 AssertTrue(evirUpgraded.TryGetDisplay(frame.Bank, frame.Pointer, out _),
                     $"version-fifty-six override inherits {frame.Name}");
@@ -732,7 +732,7 @@ internal static class EnemySpritemapArtworkVerification
             }, CamelCaseJson)))
         {
             EnemySpritemapCatalog mochtroidUpgraded = EnemySpritemapCatalog.Load(
-                preMochtroidJson, stock.Spritemaps);
+                preMochtroidJson, stock.Enemies.Spritemaps);
             foreach (EnemySpritemapDefinition frame in MochtroidVisualDefinitions.Frames())
                 AssertTrue(mochtroidUpgraded.TryGetDisplay(frame.Bank, frame.Pointer, out _),
                     $"version-fifty-five override inherits {frame.Name}");
@@ -756,7 +756,7 @@ internal static class EnemySpritemapArtworkVerification
             }, CamelCaseJson)))
         {
             EnemySpritemapCatalog corpsesUpgraded = EnemySpritemapCatalog.Load(
-                preCorpsesJson, stock.Spritemaps);
+                preCorpsesJson, stock.Enemies.Spritemaps);
             foreach (EnemySpritemapDefinition frame in
                      DeadTourianCorpseVisualDefinitions.Frames())
                 AssertTrue(corpsesUpgraded.TryGetDisplay(frame.Bank, frame.Pointer, out _),
@@ -779,7 +779,7 @@ internal static class EnemySpritemapArtworkVerification
             }, CamelCaseJson)))
         {
             EnemySpritemapCatalog stationaryUpgraded = EnemySpritemapCatalog.Load(
-                preDeadTorizoJson, stock.Spritemaps);
+                preDeadTorizoJson, stock.Enemies.Spritemaps);
             AssertTrue(stationaryUpgraded.TryGetDisplay(
                     DeadTorizoArtworkDefinitions.SpritemapBank,
                     DeadTorizoArtworkDefinitions.StationarySpritemap, out _),
@@ -802,7 +802,7 @@ internal static class EnemySpritemapArtworkVerification
             }, CamelCaseJson)))
         {
             EnemySpritemapCatalog rinkaUpgraded = EnemySpritemapCatalog.Load(
-                preRinkaJson, stock.Spritemaps);
+                preRinkaJson, stock.Enemies.Spritemaps);
             foreach (EnemySpritemapDefinition frame in RinkaVisualDefinitions.Frames())
                 AssertTrue(rinkaUpgraded.TryGetDisplay(frame.Bank, frame.Pointer, out _),
                     $"version-fifty-two override inherits Rinka frame {frame.Name}");
@@ -824,7 +824,7 @@ internal static class EnemySpritemapArtworkVerification
             }, CamelCaseJson)))
         {
             EnemySpritemapCatalog violaUpgraded = EnemySpritemapCatalog.Load(
-                preViolaJson, stock.Spritemaps);
+                preViolaJson, stock.Enemies.Spritemaps);
             foreach (EnemySpritemapDefinition frame in ViolaVisualDefinitions.Frames())
                 AssertTrue(violaUpgraded.TryGetDisplay(frame.Bank, frame.Pointer, out _),
                     $"version-fifty-one override inherits Viola frame {frame.Name}");
@@ -847,7 +847,7 @@ internal static class EnemySpritemapArtworkVerification
             }, CamelCaseJson)))
         {
             EnemySpritemapCatalog chozoUpgraded = EnemySpritemapCatalog.Load(
-                preChozoStatueJson, stock.Spritemaps);
+                preChozoStatueJson, stock.Enemies.Spritemaps);
             foreach (EnemySpritemapDefinition frame in ChozoStatueVisualDefinitions.Frames())
                 AssertTrue(chozoUpgraded.TryGetDisplay(frame.Bank, frame.Pointer, out _),
                     $"version-fifty override inherits Chozo frame {frame.Name}");
@@ -870,7 +870,7 @@ internal static class EnemySpritemapArtworkVerification
             }, CamelCaseJson)))
         {
             EnemySpritemapCatalog lavaJumperUpgraded = EnemySpritemapCatalog.Load(
-                preNorfairLavaJumperJson, stock.Spritemaps);
+                preNorfairLavaJumperJson, stock.Enemies.Spritemaps);
             foreach (EnemySpritemapDefinition frame in NorfairLavaJumperVisualDefinitions.Frames())
                 AssertTrue(lavaJumperUpgraded.TryGetDisplay(frame.Bank, frame.Pointer, out _),
                     $"version-forty-nine override inherits lava-jumper frame {frame.Name}");
@@ -892,7 +892,7 @@ internal static class EnemySpritemapArtworkVerification
             }, CamelCaseJson)))
         {
             EnemySpritemapCatalog multiviolaUpgraded = EnemySpritemapCatalog.Load(
-                preMultiviolaJson, stock.Spritemaps);
+                preMultiviolaJson, stock.Enemies.Spritemaps);
             foreach (EnemySpritemapDefinition frame in MultiviolaVisualDefinitions.Frames())
                 AssertTrue(multiviolaUpgraded.TryGetDisplay(frame.Bank, frame.Pointer, out _),
                     $"version-forty-eight override inherits Multiviola frame {frame.Name}");
@@ -914,7 +914,7 @@ internal static class EnemySpritemapArtworkVerification
             }, CamelCaseJson)))
         {
             EnemySpritemapCatalog dragonUpgraded = EnemySpritemapCatalog.Load(
-                preDragonJson, stock.Spritemaps);
+                preDragonJson, stock.Enemies.Spritemaps);
             foreach (EnemySpritemapDefinition frame in DragonVisualDefinitions.Frames())
                 AssertTrue(dragonUpgraded.TryGetDisplay(frame.Bank, frame.Pointer, out _),
                     $"version-forty-seven override inherits Dragon frame {frame.Name}");
@@ -936,7 +936,7 @@ internal static class EnemySpritemapArtworkVerification
             }, CamelCaseJson)))
         {
             EnemySpritemapCatalog platformUpgraded = EnemySpritemapCatalog.Load(
-                preTripperKamerJson, stock.Spritemaps);
+                preTripperKamerJson, stock.Enemies.Spritemaps);
             foreach (EnemySpritemapDefinition frame in TripperKamerVisualDefinitions.Frames())
                 AssertTrue(platformUpgraded.TryGetDisplay(frame.Bank, frame.Pointer, out _),
                     $"version-forty-six override inherits platform frame {frame.Name}");
@@ -959,7 +959,7 @@ internal static class EnemySpritemapArtworkVerification
             }, CamelCaseJson)))
         {
             EnemySpritemapCatalog shaktoolUpgraded = EnemySpritemapCatalog.Load(
-                preShaktoolJson, stock.Spritemaps);
+                preShaktoolJson, stock.Enemies.Spritemaps);
             foreach (EnemySpritemapDefinition frame in ShaktoolVisualDefinitions.Frames())
                 AssertTrue(shaktoolUpgraded.TryGetDisplay(frame.Bank, frame.Pointer, out _),
                     $"version-forty-five override inherits Shaktool frame {frame.Name}");
@@ -1242,11 +1242,11 @@ internal static class EnemySpritemapArtworkVerification
         EnemySpritemapCatalog LoadSpritemapOverride()
         {
             using FileStream json = File.OpenRead(overridePath);
-            return EnemySpritemapCatalog.Load(json, stock.Spritemaps);
+            return EnemySpritemapCatalog.Load(json, stock.Enemies.Spritemaps);
         }
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(document,
             CamelCaseJson));
-        EnemyTileArtworkCatalog edited = EnemyTileArtworkFiles.Load(
+        InstalledEnemyArtwork edited = EnemyTileArtworkFiles.Load(
             stockDirectory, overrideDirectory);
         OamBuffer stockDragon = DrawEnemy(stock, NewFrameReadGuard(rom),
             DragonAnimationsConstants.Spritemaps(DragonProgram.IdleFacingLeft).Single(),
@@ -1797,7 +1797,7 @@ internal static class EnemySpritemapArtworkVerification
                 $"shared crawler ${(int)definition:X4} retains physical X");
         }
         AssertTrue((EnemyTileArtworkFiles.Load(stockDirectory, overrideDirectory)
-                .Spritemaps ?? throw new InvalidOperationException("Verification requires EnemyTileArtworkFiles.Load(stockDirectory, overrideDirectory) .Spritemaps.")).TryGet(EnemySpritemapDefinitions.BoyonBank, framePointer, out _),
+                .Enemies.Spritemaps ?? throw new InvalidOperationException("Verification requires EnemyTileArtworkFiles.Load(stockDirectory, overrideDirectory) .Spritemaps.")).TryGet(EnemySpritemapDefinitions.BoyonBank, framePointer, out _),
             "enemy composition override survives catalog reload");
         // Preserve the edited values while selecting exactly the pre-Dragon schema.
         HashSet<string> historicalNames = EnemySpritemapDefinitions.Frames
@@ -2199,7 +2199,7 @@ internal static class EnemySpritemapArtworkVerification
                 Frames = preElevatorFrames,
                 DisplayFrames = preElevatorBindings,
             }, CamelCaseJson));
-        EnemyTileArtworkCatalog preElevatorUpgraded = StockWithSpritemaps(stockDirectory, LoadSpritemapOverride());
+        InstalledEnemyArtwork preElevatorUpgraded = StockWithSpritemaps(stockDirectory, LoadSpritemapOverride());
         AssertTrue(DrawEnemy(preElevatorUpgraded, NewFrameReadGuard(rom), 0x962f,
                 EnemyDefinitionId.Elevator).LowTable
             .SequenceEqual(DrawEnemy(stock, NewFrameReadGuard(rom), 0x962f,
@@ -2221,7 +2221,7 @@ internal static class EnemySpritemapArtworkVerification
                 Frames = preKamerFrames,
                 DisplayFrames = preKamerBindings,
             }, CamelCaseJson));
-        EnemyTileArtworkCatalog preKamerUpgraded = StockWithSpritemaps(stockDirectory, LoadSpritemapOverride());
+        InstalledEnemyArtwork preKamerUpgraded = StockWithSpritemaps(stockDirectory, LoadSpritemapOverride());
         AssertTrue(DrawEnemy(preKamerUpgraded, NewFrameReadGuard(rom), 0xf468,
                 EnemyDefinitionId.Kamer).LowTable
             .SequenceEqual(DrawEnemy(stock, NewFrameReadGuard(rom), 0xf468,
@@ -2245,7 +2245,7 @@ internal static class EnemySpritemapArtworkVerification
                 Frames = preFuneFrames,
                 DisplayFrames = preFuneBindings,
             }, CamelCaseJson));
-        EnemyTileArtworkCatalog preFuneUpgraded = StockWithSpritemaps(stockDirectory, LoadSpritemapOverride());
+        InstalledEnemyArtwork preFuneUpgraded = StockWithSpritemaps(stockDirectory, LoadSpritemapOverride());
         OamBuffer inheritedFune = DrawEnemy(preFuneUpgraded,
             NewFrameReadGuard(rom), 0x94cb,
             EnemyDefinitionId.Fune);
@@ -2276,8 +2276,8 @@ internal static class EnemySpritemapArtworkVerification
                 Frames = preSbugFrames,
                 DisplayFrames = preSbugBindings,
             }, CamelCaseJson));
-        EnemyTileArtworkCatalog preSbugUpgraded = StockWithSpritemaps(stockDirectory, LoadSpritemapOverride());
-        AssertTrue((preSbugUpgraded.Spritemaps ?? throw new InvalidOperationException("Verification requires preSbugUpgraded.Spritemaps.")).TryGet(
+        InstalledEnemyArtwork preSbugUpgraded = StockWithSpritemaps(stockDirectory, LoadSpritemapOverride());
+        AssertTrue((preSbugUpgraded.Enemies.Spritemaps ?? throw new InvalidOperationException("Verification requires preSbugUpgraded.Spritemaps.")).TryGet(
                 EnemySpritemapDefinitions.SbugBank, sbugPointer, out _),
             "version-twenty-six override inherits stock Sbug artwork");
         AssertTrue(DrawEnemy(preSbugUpgraded, NewFrameReadGuard(rom),
@@ -2306,7 +2306,7 @@ internal static class EnemySpritemapArtworkVerification
                 Frames = preHZoomerFrames,
                 DisplayFrames = preHZoomerBindings,
             }, CamelCaseJson));
-        EnemyTileArtworkCatalog preHZoomerUpgraded = StockWithSpritemaps(stockDirectory, LoadSpritemapOverride());
+        InstalledEnemyArtwork preHZoomerUpgraded = StockWithSpritemaps(stockDirectory, LoadSpritemapOverride());
         OamBuffer retainedPreHZoomerEdit = DrawEnemy(preHZoomerUpgraded,
             NewFrameReadGuard(rom), chootPointer, EnemyDefinitionId.Choot);
         AssertEqual(editedChoot.LowTable[1], retainedPreHZoomerEdit.LowTable[1],
@@ -2316,7 +2316,7 @@ internal static class EnemySpritemapArtworkVerification
             .SequenceEqual(DrawEnemy(stock, NewFrameReadGuard(rom), 0x88e1,
                 EnemyDefinitionId.Boyon).LowTable),
             "version-twenty-five override retains edited display binding");
-        AssertTrue((preHZoomerUpgraded.Spritemaps ?? throw new InvalidOperationException("Verification requires preHZoomerUpgraded.Spritemaps.")).TryGet(
+        AssertTrue((preHZoomerUpgraded.Enemies.Spritemaps ?? throw new InvalidOperationException("Verification requires preHZoomerUpgraded.Spritemaps.")).TryGet(
                 EnemySpritemapDefinitions.HZoomerBank, hzoomerPointer, out _),
             "version-twenty-five override gains stock HZoomer artwork");
         var preChootFrames = preHZoomerFrames
@@ -2335,7 +2335,7 @@ internal static class EnemySpritemapArtworkVerification
                 Frames = preChootFrames,
                 DisplayFrames = preChootBindings,
             }, CamelCaseJson));
-        EnemyTileArtworkCatalog preChootUpgraded = StockWithSpritemaps(stockDirectory, LoadSpritemapOverride());
+        InstalledEnemyArtwork preChootUpgraded = StockWithSpritemaps(stockDirectory, LoadSpritemapOverride());
         OamBuffer retainedPreChootEdit = DrawEnemy(preChootUpgraded,
             NewFrameReadGuard(rom), hopperPointer, EnemyDefinitionId.Sidehopper);
         AssertEqual(editedHopper.LowTable[1], retainedPreChootEdit.LowTable[1],
@@ -2345,7 +2345,7 @@ internal static class EnemySpritemapArtworkVerification
             .SequenceEqual(DrawEnemy(stock, NewFrameReadGuard(rom), 0x88e1,
                 EnemyDefinitionId.Boyon).LowTable),
             "version-twenty-four override retains edited display binding");
-        AssertTrue((preChootUpgraded.Spritemaps ?? throw new InvalidOperationException("Verification requires preChootUpgraded.Spritemaps.")).TryGet(
+        AssertTrue((preChootUpgraded.Enemies.Spritemaps ?? throw new InvalidOperationException("Verification requires preChootUpgraded.Spritemaps.")).TryGet(
                 EnemySpritemapDefinitions.ChootBank, chootPointer, out _),
             "version-twenty-four override gains stock Choot artwork");
         var preHopperFrames = preChootFrames
@@ -2367,7 +2367,7 @@ internal static class EnemySpritemapArtworkVerification
                 Frames = preHopperFrames,
                 DisplayFrames = preHopperBindings,
             }, CamelCaseJson));
-        EnemyTileArtworkCatalog preHopperUpgraded = StockWithSpritemaps(stockDirectory, LoadSpritemapOverride());
+        InstalledEnemyArtwork preHopperUpgraded = StockWithSpritemaps(stockDirectory, LoadSpritemapOverride());
         OamBuffer retainedPreHopperEdit = DrawEnemy(preHopperUpgraded,
             NewFrameReadGuard(rom), beetomPointer, EnemyDefinitionId.Beetom);
         AssertEqual(editedBeetom.LowTable[1], retainedPreHopperEdit.LowTable[1],
@@ -2377,7 +2377,7 @@ internal static class EnemySpritemapArtworkVerification
             .SequenceEqual(DrawEnemy(stock, NewFrameReadGuard(rom), 0x88e1,
                 EnemyDefinitionId.Boyon).LowTable),
             "version-twenty-three override retains edited display binding");
-        AssertTrue((preHopperUpgraded.Spritemaps ?? throw new InvalidOperationException("Verification requires preHopperUpgraded.Spritemaps.")).TryGet(
+        AssertTrue((preHopperUpgraded.Enemies.Spritemaps ?? throw new InvalidOperationException("Verification requires preHopperUpgraded.Spritemaps.")).TryGet(
                 EnemySpritemapDefinitions.HopperBank, hopperPointer, out _),
             "version-twenty-three override gains stock Hopper artwork");
         var preBeetomFrames = preHopperFrames
@@ -2396,7 +2396,7 @@ internal static class EnemySpritemapArtworkVerification
                 Frames = preBeetomFrames,
                 DisplayFrames = preBeetomBindings,
             }, CamelCaseJson));
-        EnemyTileArtworkCatalog preBeetomUpgraded = StockWithSpritemaps(stockDirectory, LoadSpritemapOverride());
+        InstalledEnemyArtwork preBeetomUpgraded = StockWithSpritemaps(stockDirectory, LoadSpritemapOverride());
         OamBuffer retainedPreBeetomEdit = DrawEnemy(preBeetomUpgraded,
             NewFrameReadGuard(rom), alcoonPointer, EnemyDefinitionId.Alcoon);
         AssertEqual(editedAlcoon.LowTable[1], retainedPreBeetomEdit.LowTable[1],
@@ -2406,7 +2406,7 @@ internal static class EnemySpritemapArtworkVerification
             .SequenceEqual(DrawEnemy(stock, NewFrameReadGuard(rom), 0x88e1,
                 EnemyDefinitionId.Boyon).LowTable),
             "version-twenty-two override retains its edited display binding");
-        AssertTrue((preBeetomUpgraded.Spritemaps ?? throw new InvalidOperationException("Verification requires preBeetomUpgraded.Spritemaps.")).TryGet(
+        AssertTrue((preBeetomUpgraded.Enemies.Spritemaps ?? throw new InvalidOperationException("Verification requires preBeetomUpgraded.Spritemaps.")).TryGet(
                 EnemySpritemapDefinitions.BeetomBank, beetomPointer, out _),
             "version-twenty-two override gains stock Beetom artwork");
         var preAlcoonFrames = preBeetomFrames
@@ -2424,12 +2424,12 @@ internal static class EnemySpritemapArtworkVerification
                 Frames = preAlcoonFrames,
                 DisplayFrames = preAlcoonBindings,
             }, CamelCaseJson));
-        EnemyTileArtworkCatalog preAlcoonUpgraded = StockWithSpritemaps(stockDirectory, LoadSpritemapOverride());
+        InstalledEnemyArtwork preAlcoonUpgraded = StockWithSpritemaps(stockDirectory, LoadSpritemapOverride());
         OamBuffer retainedPreAlcoonEdit = DrawEnemy(preAlcoonUpgraded,
             NewFrameReadGuard(rom), bullPointer, EnemyDefinitionId.Bull);
         AssertEqual(editedBull.LowTable[1], retainedPreAlcoonEdit.LowTable[1],
             "version-twenty-one override retains an edited Bull frame");
-        AssertTrue((preAlcoonUpgraded.Spritemaps ?? throw new InvalidOperationException("Verification requires preAlcoonUpgraded.Spritemaps.")).TryGet(
+        AssertTrue((preAlcoonUpgraded.Enemies.Spritemaps ?? throw new InvalidOperationException("Verification requires preAlcoonUpgraded.Spritemaps.")).TryGet(
                 EnemySpritemapDefinitions.AlcoonBank, alcoonPointer, out _),
             "version-twenty-one override gains stock Alcoon artwork");
         var preBullFrames = preAlcoonFrames
@@ -2447,12 +2447,12 @@ internal static class EnemySpritemapArtworkVerification
                 Frames = preBullFrames,
                 DisplayFrames = preBullBindings,
             }, CamelCaseJson));
-        EnemyTileArtworkCatalog preBullUpgraded = StockWithSpritemaps(stockDirectory, LoadSpritemapOverride());
+        InstalledEnemyArtwork preBullUpgraded = StockWithSpritemaps(stockDirectory, LoadSpritemapOverride());
         OamBuffer retainedPreBullEdit = DrawEnemy(preBullUpgraded,
             NewFrameReadGuard(rom), puyoPointer, EnemyDefinitionId.Puyo);
         AssertEqual(editedPuyo.LowTable[1], retainedPreBullEdit.LowTable[1],
             "version-twenty override retains an edited Puyo frame");
-        AssertTrue((preBullUpgraded.Spritemaps ?? throw new InvalidOperationException("Verification requires preBullUpgraded.Spritemaps.")).TryGet(
+        AssertTrue((preBullUpgraded.Enemies.Spritemaps ?? throw new InvalidOperationException("Verification requires preBullUpgraded.Spritemaps.")).TryGet(
                 EnemySpritemapDefinitions.BullBank, bullPointer, out _),
             "version-twenty override gains stock Bull artwork");
         var prePuyoFrames = preBullFrames
@@ -2470,12 +2470,12 @@ internal static class EnemySpritemapArtworkVerification
                 Frames = prePuyoFrames,
                 DisplayFrames = prePuyoBindings,
             }, CamelCaseJson));
-        EnemyTileArtworkCatalog prePuyoUpgraded = StockWithSpritemaps(stockDirectory, LoadSpritemapOverride());
+        InstalledEnemyArtwork prePuyoUpgraded = StockWithSpritemaps(stockDirectory, LoadSpritemapOverride());
         OamBuffer retainedPrePuyoEdit = DrawEnemy(prePuyoUpgraded,
             NewFrameReadGuard(rom), framePointer, EnemyDefinitionId.Boyon);
         AssertEqual(editedOam.LowTable[1], retainedPrePuyoEdit.LowTable[1],
             "version-nineteen override retains an edited older enemy frame");
-        AssertTrue((prePuyoUpgraded.Spritemaps ?? throw new InvalidOperationException("Verification requires prePuyoUpgraded.Spritemaps.")).TryGet(
+        AssertTrue((prePuyoUpgraded.Enemies.Spritemaps ?? throw new InvalidOperationException("Verification requires prePuyoUpgraded.Spritemaps.")).TryGet(
                 EnemySpritemapDefinitions.PuyoBank, puyoPointer, out _),
             "version-nineteen override gains stock Puyo artwork");
         var preNorfairRioFrames = prePuyoFrames
@@ -2494,7 +2494,7 @@ internal static class EnemySpritemapArtworkVerification
                 Frames = preNorfairRioFrames,
                 DisplayFrames = preNorfairRioBindings,
             }, CamelCaseJson));
-        EnemyTileArtworkCatalog preNorfairRioUpgraded = StockWithSpritemaps(stockDirectory, LoadSpritemapOverride());
+        InstalledEnemyArtwork preNorfairRioUpgraded = StockWithSpritemaps(stockDirectory, LoadSpritemapOverride());
         OamBuffer priorNorfairRioEraRemap = DrawEnemy(preNorfairRioUpgraded,
             NewFrameReadGuard(rom), 0x88da, EnemyDefinitionId.Boyon);
         OamBuffer priorNorfairRioEraSelected = DrawEnemy(stock,
@@ -2502,7 +2502,7 @@ internal static class EnemySpritemapArtworkVerification
         AssertTrue(priorNorfairRioEraSelected.LowTable.SequenceEqual(
                 priorNorfairRioEraRemap.LowTable),
             "version-eighteen override retains its display binding");
-        AssertTrue((preNorfairRioUpgraded.Spritemaps ?? throw new InvalidOperationException("Verification requires preNorfairRioUpgraded.Spritemaps.")).TryGet(
+        AssertTrue((preNorfairRioUpgraded.Enemies.Spritemaps ?? throw new InvalidOperationException("Verification requires preNorfairRioUpgraded.Spritemaps.")).TryGet(
                 EnemySpritemapDefinitions.NorfairRioBank, norfairRioPointer, out _),
             "version-eighteen override gains stock Norfair Rio artwork");
         var preLowerRioFrames = prePuyoFrames
@@ -2523,7 +2523,7 @@ internal static class EnemySpritemapArtworkVerification
                 Frames = preLowerRioFrames,
                 DisplayFrames = preLowerRioBindings,
             }, CamelCaseJson));
-        EnemyTileArtworkCatalog preLowerRioUpgraded = StockWithSpritemaps(stockDirectory, LoadSpritemapOverride());
+        InstalledEnemyArtwork preLowerRioUpgraded = StockWithSpritemaps(stockDirectory, LoadSpritemapOverride());
         OamBuffer priorLowerRioEraRemap = DrawEnemy(preLowerRioUpgraded,
             NewFrameReadGuard(rom), 0x88da, EnemyDefinitionId.Boyon);
         OamBuffer priorLowerRioEraSelected = DrawEnemy(stock,
@@ -2531,7 +2531,7 @@ internal static class EnemySpritemapArtworkVerification
         AssertTrue(priorLowerRioEraSelected.LowTable.SequenceEqual(
                 priorLowerRioEraRemap.LowTable),
             "version-seventeen override retains its display binding");
-        AssertTrue((preLowerRioUpgraded.Spritemaps ?? throw new InvalidOperationException("Verification requires preLowerRioUpgraded.Spritemaps.")).TryGet(
+        AssertTrue((preLowerRioUpgraded.Enemies.Spritemaps ?? throw new InvalidOperationException("Verification requires preLowerRioUpgraded.Spritemaps.")).TryGet(
                 EnemySpritemapDefinitions.LowerNorfairRioBank, lowerRioPointer, out _),
             "version-seventeen override gains stock Lower Norfair Rio artwork");
         var preRioFrames = prePuyoFrames
@@ -2554,14 +2554,14 @@ internal static class EnemySpritemapArtworkVerification
                 Frames = preRioFrames,
                 DisplayFrames = preRioBindings,
             }, CamelCaseJson));
-        EnemyTileArtworkCatalog preRioUpgraded = StockWithSpritemaps(stockDirectory, LoadSpritemapOverride());
+        InstalledEnemyArtwork preRioUpgraded = StockWithSpritemaps(stockDirectory, LoadSpritemapOverride());
         OamBuffer priorRioEraRemap = DrawEnemy(preRioUpgraded,
             NewFrameReadGuard(rom), 0x88da, EnemyDefinitionId.Boyon);
         OamBuffer priorRioEraSelected = DrawEnemy(stock,
             NewFrameReadGuard(rom), 0x88e1, EnemyDefinitionId.Boyon);
         AssertTrue(priorRioEraSelected.LowTable.SequenceEqual(priorRioEraRemap.LowTable),
             "version-sixteen override retains its display binding");
-        AssertTrue((preRioUpgraded.Spritemaps ?? throw new InvalidOperationException("Verification requires preRioUpgraded.Spritemaps.")).TryGet(
+        AssertTrue((preRioUpgraded.Enemies.Spritemaps ?? throw new InvalidOperationException("Verification requires preRioUpgraded.Spritemaps.")).TryGet(
                 EnemySpritemapDefinitions.RioBank, rioPointer, out _),
             "version-sixteen override gains stock Rio artwork");
         var preCeresBabyFrames = prePuyoFrames
@@ -2587,7 +2587,7 @@ internal static class EnemySpritemapArtworkVerification
                 Frames = preCeresBabyFrames,
                 DisplayFrames = preCeresBabyBindings,
             }, CamelCaseJson));
-        EnemyTileArtworkCatalog preCeresBabyUpgraded = StockWithSpritemaps(stockDirectory, LoadSpritemapOverride());
+        InstalledEnemyArtwork preCeresBabyUpgraded = StockWithSpritemaps(stockDirectory, LoadSpritemapOverride());
         OamBuffer priorCeresRemap = DrawEnemy(preCeresBabyUpgraded,
             NewFrameReadGuard(rom), 0xfa13,
             EnemyDefinitionId.CeresDoor);
@@ -2595,7 +2595,7 @@ internal static class EnemySpritemapArtworkVerification
             0xfa3d, EnemyDefinitionId.CeresDoor);
         AssertTrue(priorCeresSelected.LowTable.SequenceEqual(priorCeresRemap.LowTable),
             "version-fifteen override retains its Ceres door display binding");
-        AssertTrue((preCeresBabyUpgraded.Spritemaps ?? throw new InvalidOperationException("Verification requires preCeresBabyUpgraded.Spritemaps.")).TryGet(
+        AssertTrue((preCeresBabyUpgraded.Enemies.Spritemaps ?? throw new InvalidOperationException("Verification requires preCeresBabyUpgraded.Spritemaps.")).TryGet(
                 CeresBabyFrameDefinitions.Bank,
                 CeresBabyFrameDefinitions.RoundFrame, out _),
             "version-fifteen override gains stock Ceres Baby artwork");
@@ -2616,7 +2616,7 @@ internal static class EnemySpritemapArtworkVerification
                 Frames = preCeresDoorFrames,
                 DisplayFrames = preCeresDoorBindings,
             }, CamelCaseJson));
-        EnemyTileArtworkCatalog preCeresDoorUpgraded = StockWithSpritemaps(stockDirectory, LoadSpritemapOverride());
+        InstalledEnemyArtwork preCeresDoorUpgraded = StockWithSpritemaps(stockDirectory, LoadSpritemapOverride());
         OamBuffer priorRemap = DrawEnemy(preCeresDoorUpgraded, NewFrameReadGuard(rom),
             0x88da, EnemyDefinitionId.Boyon);
         OamBuffer priorSelected = DrawEnemy(stock, NewFrameReadGuard(rom),
@@ -2627,7 +2627,7 @@ internal static class EnemySpritemapArtworkVerification
             NewFrameReadGuard(rom), cacatacPointer, EnemyDefinitionId.Cacatac);
         AssertTrue(editedCacatac.LowTable.SequenceEqual(priorEditedCacatac.LowTable),
             "version-fourteen override also retains its edited frame parts");
-        AssertTrue((preCeresDoorUpgraded.Spritemaps ?? throw new InvalidOperationException("Verification requires preCeresDoorUpgraded.Spritemaps.")).TryGet(
+        AssertTrue((preCeresDoorUpgraded.Enemies.Spritemaps ?? throw new InvalidOperationException("Verification requires preCeresDoorUpgraded.Spritemaps.")).TryGet(
                 CeresDoorFrameDefinitions.Bank, 0xfa13, out _),
             "version-fourteen override gains stock Ceres door artwork");
         preCeresDoorBindings.Remove("boyon_idle_0");
@@ -2653,7 +2653,7 @@ internal static class EnemySpritemapArtworkVerification
                 Version = (int)EnemySpritemapSchema.PreMagdollite,
                 Frames = preMagdolliteFrames,
             }, CamelCaseJson));
-        EnemyTileArtworkCatalog preMagdolliteUpgraded = StockWithSpritemaps(stockDirectory, LoadSpritemapOverride());
+        InstalledEnemyArtwork preMagdolliteUpgraded = StockWithSpritemaps(stockDirectory, LoadSpritemapOverride());
         OamBuffer upgradedMagdollite = DrawEnemy(preMagdolliteUpgraded,
             NewFrameReadGuard(rom), magdollitePointer,
             EnemyDefinitionId.Magdollite);
@@ -2675,7 +2675,7 @@ internal static class EnemySpritemapArtworkVerification
                 Version = (int)EnemySpritemapSchema.PreFireflea,
                 Frames = preFirefleaFrames,
             }, CamelCaseJson));
-        EnemyTileArtworkCatalog preFirefleaUpgraded = StockWithSpritemaps(stockDirectory, LoadSpritemapOverride());
+        InstalledEnemyArtwork preFirefleaUpgraded = StockWithSpritemaps(stockDirectory, LoadSpritemapOverride());
         OamBuffer upgradedFireflea = DrawEnemy(preFirefleaUpgraded,
             NewFrameReadGuard(rom), firefleaPointer, EnemyDefinitionId.Fireflea);
         AssertTrue(stockFireflea.LowTable.SequenceEqual(upgradedFireflea.LowTable),
@@ -2697,7 +2697,7 @@ internal static class EnemySpritemapArtworkVerification
                 Version = (int)EnemySpritemapSchema.PreRipper,
                 Frames = preRipperFrames,
             }, CamelCaseJson));
-        EnemyTileArtworkCatalog preRipperUpgraded = StockWithSpritemaps(stockDirectory, LoadSpritemapOverride());
+        InstalledEnemyArtwork preRipperUpgraded = StockWithSpritemaps(stockDirectory, LoadSpritemapOverride());
         OamBuffer upgradedRipper = DrawEnemy(preRipperUpgraded, NewFrameReadGuard(rom),
             0xe54b, EnemyDefinitionId.Ripper);
         OamBuffer stockRipper = DrawEnemy(stock, NewFrameReadGuard(rom),
@@ -2722,7 +2722,7 @@ internal static class EnemySpritemapArtworkVerification
                 Version = (int)EnemySpritemapSchema.PreOwtchStoke,
                 Frames = preOwtchStokeFrames,
             }, CamelCaseJson));
-        EnemyTileArtworkCatalog preOwtchStokeUpgraded = StockWithSpritemaps(stockDirectory, LoadSpritemapOverride());
+        InstalledEnemyArtwork preOwtchStokeUpgraded = StockWithSpritemaps(stockDirectory, LoadSpritemapOverride());
         ushort owtchPointer = OwtchAnimationsConstants.Spritemaps(OwtchProgram.MovingLeftLoop).First();
         OamBuffer stockOwtch = DrawEnemy(stock, NewFrameReadGuard(rom),
             owtchPointer, EnemyDefinitionId.Owtch);
@@ -2742,7 +2742,7 @@ internal static class EnemySpritemapArtworkVerification
                 Version = (int)EnemySpritemapSchema.Previous,
                 Frames = previousFrames,
             }, CamelCaseJson));
-        EnemyTileArtworkCatalog upgraded = StockWithSpritemaps(stockDirectory, LoadSpritemapOverride());
+        InstalledEnemyArtwork upgraded = StockWithSpritemaps(stockDirectory, LoadSpritemapOverride());
         ushort nailPointer = KraidVisualDefinitions.InitialNailFrame;
         OamBuffer stockNail = DrawEnemy(stock, NewFrameReadGuard(rom),
             nailPointer, EnemyDefinitionId.KraidNail);
@@ -2772,7 +2772,7 @@ internal static class EnemySpritemapArtworkVerification
                 Version = (int)EnemySpritemapSchema.Prior,
                 Frames = priorFrames,
             }, CamelCaseJson));
-        EnemyTileArtworkCatalog priorUpgraded = StockWithSpritemaps(stockDirectory, LoadSpritemapOverride());
+        InstalledEnemyArtwork priorUpgraded = StockWithSpritemaps(stockDirectory, LoadSpritemapOverride());
         ushort pipePointer = PipeBugAnimationsConstants.Spritemaps(PipeBugProgram.GametRisingLeft).First();
         OamBuffer stockPipe = DrawEnemy(stock, NewFrameReadGuard(rom),
             pipePointer, EnemyDefinitionId.Gamet);
@@ -2793,7 +2793,7 @@ internal static class EnemySpritemapArtworkVerification
                 Version = (int)EnemySpritemapSchema.Earlier,
                 Frames = earlierFrames,
             }, CamelCaseJson));
-        EnemyTileArtworkCatalog earlierUpgraded = StockWithSpritemaps(stockDirectory, LoadSpritemapOverride());
+        InstalledEnemyArtwork earlierUpgraded = StockWithSpritemaps(stockDirectory, LoadSpritemapOverride());
         var upgradedBoyon = DrawEnemy(earlierUpgraded, NewFrameReadGuard(rom),
             framePointer, EnemyDefinitionId.Boyon);
         var upgradedSkultera = DrawEnemy(earlierUpgraded, NewFrameReadGuard(rom),
@@ -2824,7 +2824,7 @@ internal static class EnemySpritemapArtworkVerification
                 Version = (int)EnemySpritemapSchema.Intermediate,
                 Frames = intermediateFrames,
             }, CamelCaseJson));
-        EnemyTileArtworkCatalog intermediateUpgraded = StockWithSpritemaps(stockDirectory, LoadSpritemapOverride());
+        InstalledEnemyArtwork intermediateUpgraded = StockWithSpritemaps(stockDirectory, LoadSpritemapOverride());
         var intermediateBoyon = DrawEnemy(intermediateUpgraded, NewFrameReadGuard(rom),
             framePointer, EnemyDefinitionId.Boyon);
         var intermediateWaver = DrawEnemy(intermediateUpgraded, NewFrameReadGuard(rom),
@@ -2844,7 +2844,7 @@ internal static class EnemySpritemapArtworkVerification
                 Version = (int)EnemySpritemapSchema.Legacy,
                 Frames = legacyFrames,
             }, CamelCaseJson));
-        EnemyTileArtworkCatalog legacyUpgraded = StockWithSpritemaps(stockDirectory, LoadSpritemapOverride());
+        InstalledEnemyArtwork legacyUpgraded = StockWithSpritemaps(stockDirectory, LoadSpritemapOverride());
         var legacyBoyon = DrawEnemy(legacyUpgraded, NewFrameReadGuard(rom),
             framePointer, EnemyDefinitionId.Boyon);
         var legacySkultera = DrawEnemy(legacyUpgraded, NewFrameReadGuard(rom),
@@ -2860,7 +2860,7 @@ internal static class EnemySpritemapArtworkVerification
         };
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
             preBindings, CamelCaseJson));
-        EnemyTileArtworkCatalog upgradedBindings = StockWithSpritemaps(stockDirectory, LoadSpritemapOverride());
+        InstalledEnemyArtwork upgradedBindings = StockWithSpritemaps(stockDirectory, LoadSpritemapOverride());
         AssertEqual(editedOam.LowTable[0],
             DrawEnemy(upgradedBindings, NewFrameReadGuard(rom), framePointer,
                 EnemyDefinitionId.Boyon).LowTable[0],
@@ -2873,7 +2873,7 @@ internal static class EnemySpritemapArtworkVerification
         (remapped.DisplayFrames ?? throw new InvalidOperationException("Verification requires remapped.DisplayFrames."))["boyon_idle_0"] = "boyon_idle_1";
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
             remapped, CamelCaseJson));
-        EnemyTileArtworkCatalog swappedArt = StockWithSpritemaps(stockDirectory, LoadSpritemapOverride());
+        InstalledEnemyArtwork swappedArt = StockWithSpritemaps(stockDirectory, LoadSpritemapOverride());
         OamBuffer nativeFirst = DrawEnemy(stock, NewFrameReadGuard(rom), 0x88da,
             EnemyDefinitionId.Boyon);
         OamBuffer nativeSecond = DrawEnemy(stock, NewFrameReadGuard(rom), 0x88e1,
@@ -2916,11 +2916,11 @@ internal static class EnemySpritemapArtworkVerification
             () => LoadSpritemapOverride(),
             "malformed enemy composition override fails loudly");
 
-        static OamBuffer DrawEnemy(EnemyTileArtworkCatalog art,
+        static OamBuffer DrawEnemy(InstalledEnemyArtwork art,
             ISnesAddressSpace guard, ushort pointer, EnemyDefinitionId definition,
             Action<RoomEnemySlot>? inspect = null, byte? spritemapBank = null)
         {
-            var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = art };
+            var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = art.Enemies, BossArtwork = art.Bosses, AreaArtwork = art.Areas };
             enemies.Drawing.Enqueue(0, 0);
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.Bind(definition, slot.Definition);
@@ -3045,7 +3045,7 @@ internal static class EnemySpritemapArtworkVerification
     /// <summary>Checks Mother Brain's private draw hook against native head frames and above-screen culling.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     private static void VerifyInstalledMotherBrainDrawHook(
-        SuperMetroidAddressSpace rom, EnemyTileArtworkCatalog stock)
+        SuperMetroidAddressSpace rom, InstalledEnemyArtwork stock)
     {
         foreach (EnemySpritemapDefinition frame in MotherBrainVisualDefinitions.Frames())
         {
@@ -3066,10 +3066,10 @@ internal static class EnemySpritemapArtworkVerification
 
     /// <summary>Draws one Mother Brain world frame through the installed private renderer under a cartridge-read guard.</summary>
     private static OamBuffer DrawInstalledMotherBrainFrame(
-        EnemyTileArtworkCatalog art, ushort pointer,
+        InstalledEnemyArtwork art, ushort pointer,
         Position16<RoomPixels> world)
     {
-        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = art };
+        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = art.Enemies, BossArtwork = art.Bosses, AreaArtwork = art.Areas };
         var oam = new OamBuffer();
         EnemyFrameId frame = RoomEnemySlotFrameAccess.FrameAt(MotherBrainVisualDefinitions.Bank, pointer)
             ?? throw new InvalidOperationException("A Mother Brain draw shows a frame.");
@@ -3081,10 +3081,10 @@ internal static class EnemySpritemapArtworkVerification
 
     /// <summary>Spawns and draws a room sprite object to inspect its installed OAM output.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
-    private static OamBuffer DrawRoomSpriteObject(EnemyTileArtworkCatalog art,
+    private static OamBuffer DrawRoomSpriteObject(InstalledEnemyArtwork art,
         RoomSpriteObjectKind kind)
     {
-        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = art };
+        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = art.Enemies, BossArtwork = art.Bosses, AreaArtwork = art.Areas };
         Func<RoomEnemySystem, Position16<RoomPixels>, RoomSpriteObjectKind, ushort, RoomSpriteObjectSlot?> spawn =
             (owner, position, kind, graphicsIndex) => owner.SpriteObjects.SpawnRoomSpriteObject(position, kind, graphicsIndex);
         Action<RoomEnemySystem, OamBuffer, Position16<RoomPixels>> draw =

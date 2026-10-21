@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Areas.Tourian;
 using SuperMetroid.Core.Assets;
@@ -68,10 +69,10 @@ internal static class BossSpriteEntriesVerification
     /// <summary>Stage 2: Draygon's opening Evir sheet and Torizo's instruction-time copies name their installed tiles.</summary>
     internal static void VerifyBossSpriteEntriesStage2()
     {
-        EnemyTileArtworkCatalog artwork = InstalledFixtures.EnemyTiles;
+        InstalledEnemyArtwork artwork = InstalledFixtures.EnemyArtwork;
         var resolver = new EnemyTileTransfers(artwork);
         RoomEnemyDefinition evir = RoomEnemyDefinitionCatalog.Get(EnemyDefinitionId.Evir);
-        AssertTrue(artwork.TryResolve(evir.TileDataAddress, evir.TileDataSize & short.MaxValue, out ReadOnlyMemory<byte> evirTiles) &&
+        AssertTrue(artwork.Enemies.TryResolve(evir.TileDataAddress, evir.TileDataSize & short.MaxValue, out ReadOnlyMemory<byte> evirTiles) &&
             new EnemyTileCharacters(EnemyDefinitionId.Evir).Resolve(resolver).Span.SequenceEqual(evirTiles.Span),
             "Evir's tiles resolve to its installed sheet");
         var uploads = new ObjCharacterUploads();
@@ -89,8 +90,8 @@ internal static class BossSpriteEntriesVerification
     /// </summary>
     internal static void VerifyBossSpriteEntriesStage3()
     {
-        EnemyTileArtworkCatalog artwork = InstalledFixtures.EnemyTiles;
-        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork };
+        InstalledEnemyArtwork artwork = InstalledFixtures.EnemyArtwork;
+        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork.Enemies, BossArtwork = artwork.Bosses, AreaArtwork = artwork.Areas };
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.RidleyCeres, slot.Definition);
         slot.Position = slot.Position.WithWhole(new(200, 100));
@@ -119,7 +120,7 @@ internal static class BossSpriteEntriesVerification
             ?? throw new InvalidOperationException("The warning page holds the transfer.");
         AssertEqual(new CeresEscapeTileCharacters(0, 64, 128), characters, "A warning-text transfer names its page range");
         AssertTrue(CeresEscapeTileCharacters.ForTransfer(0x7e9000, 64) is null, "A transfer outside both pages names no page");
-        AssertTrue((artwork.CeresEscapeTiles ?? throw new InvalidOperationException("The installation has no Ceres escape pages."))
+        AssertTrue((artwork.Areas.CeresEscapeTiles ?? throw new InvalidOperationException("The installation has no Ceres escape pages."))
                 .TryResolve(warning.SourceAddress + 64, 128, out ReadOnlyMemory<byte> installed) &&
             characters.Resolve(new EnemyTileTransfers(artwork)).Span.SequenceEqual(installed.Span),
             "The page range resolves to the installed warning characters");
@@ -129,8 +130,8 @@ internal static class BossSpriteEntriesVerification
     /// <summary>Stage 4: Mother Brain's tile transfers show installed pages, and its WRAM corpse buffer the bytes it held.</summary>
     internal static void VerifyBossSpriteEntriesStage4()
     {
-        EnemyTileArtworkCatalog artwork = InstalledFixtures.EnemyTiles;
-        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork };
+        InstalledEnemyArtwork artwork = InstalledFixtures.EnemyArtwork;
+        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork.Enemies, BossArtwork = artwork.Bosses, AreaArtwork = artwork.Areas };
         ObjCharacterUploads uploads = enemies.Room.Session.ObjCharacters;
         int corpseBytes = MotherBrainCorpseArtworkDefinitions.VramPageByteCount;
         enemies.MotherBrainEncounter.ApplyMotherBrainRainbowTileTransfer(new MotherBrainSpriteTileTransferRequest(0, corpseBytes,
@@ -140,7 +141,7 @@ internal static class BossSpriteEntriesVerification
         AssertEqual((MotherBrainCorpseArtworkDefinitions.VramPageDestination(1) - GameplayVramLayout.ObjectCharacters.Offset) * 2,
             uploads.Uploads.Single().FirstByte, "The corpse page lands at its native OBJ position");
         var resolver = new EnemyTileTransfers(artwork);
-        AssertTrue((artwork.MotherBrainCorpse ?? throw new InvalidOperationException("The installation has no Mother Brain corpse tiles."))
+        AssertTrue((artwork.Bosses.MotherBrainCorpse ?? throw new InvalidOperationException("The installation has no Mother Brain corpse tiles."))
                 .Transfer.Span.Slice(checked((int)MotherBrainCorpseArtworkDefinitions.VramPageSource(1)) - MotherBrainCorpseArtworkDefinitions.SourceAddress, corpseBytes)
                 .SequenceEqual(new MotherBrainCorpseCharacters(1).Resolve(resolver).Span),
             "The corpse page resolves to the installed corpse tiles");

@@ -1,9 +1,9 @@
+using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Enemies.Artwork.ExtendedCollisionReferenceVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Bosses.Crocomire;
 using SuperMetroid.Core.Enemies;
-using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
@@ -15,10 +15,10 @@ using SuperMetroid.Core.World;
 internal static class CrocomireTongueCollisionDefinitionsVerification
 {
     /// <summary>Checks that every typed tongue frame has installed art, with all cartridge reads denied.</summary>
-    internal static void VerifyInstalledCrocomireTongueVisualSelectors(EnemyTileArtworkCatalog stock)
+    internal static void VerifyInstalledCrocomireTongueVisualSelectors(InstalledEnemyArtwork stock)
     {
         var denied = NewCrocomireTongueNoReadBus();
-        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = stock };
+        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = stock.Enemies, BossArtwork = stock.Bosses, AreaArtwork = stock.Areas };
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.CrocomireTongue, slot.Definition);
         slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with
@@ -27,7 +27,7 @@ internal static class CrocomireTongueCollisionDefinitionsVerification
         foreach (CrocomireTongueFrame frame in Enum.GetValues<CrocomireTongueFrame>())
         {
             ushort selected = (ushort)frame;
-            AssertTrue((stock.ExtendedFrames ?? throw new InvalidOperationException("Verification requires stock.ExtendedFrames.")).TryGetDisplay(
+            AssertTrue((stock.Enemies.ExtendedFrames ?? throw new InvalidOperationException("Verification requires stock.ExtendedFrames.")).TryGetDisplay(
                     CrocomireTongueCollisionDefinitions.Bank, selected, out _),
                 $"Crocomire tongue frame {frame} has installed art");
             seen.Add(selected);

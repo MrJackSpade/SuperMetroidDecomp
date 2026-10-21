@@ -35,17 +35,21 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory
     private readonly EnemyProjectileEngine _projectiles;
     /// <summary>Supplies Ridley's escape status and receives the completed-escape marker.</summary>
     private readonly RidleyEncounter _ridleyEncounter;
+    /// <summary>The session's installed area artwork.</summary>
+    private readonly AreaArtworkBinding _areaArtwork;
+
 
     /// <summary>Captures the room systems used by the Ceres door's variants and escape sequence.</summary>
-    internal CeresDoorBehavior(EnemyRoomBinding room, RoomEarthquake earthquake, EnemyAudioQueue audio, EnemySlotTable slotTable, EnemyPresentation presentation, EnemyProjectileEngine projectiles, RidleyEncounter ridleyEncounter)
+    internal CeresDoorBehavior(CeresDoorBehaviorDependencies dependencies)
     {
-        _room = room;
-        _earthquake = earthquake;
-        _audio = audio;
-        _slotTable = slotTable;
-        _presentation = presentation;
-        _projectiles = projectiles;
-        _ridleyEncounter = ridleyEncounter;
+        _room = dependencies.Room;
+        _earthquake = dependencies.Earthquake;
+        _audio = dependencies.Audio;
+        _slotTable = dependencies.SlotTable;
+        _presentation = dependencies.Presentation;
+        _projectiles = dependencies.Projectiles;
+        _ridleyEncounter = dependencies.RidleyEncounter;
+        _areaArtwork = dependencies.AreaArtwork;
     }
 
     /// <summary>Each door slot's typed program cursor in the loaded room.</summary>
@@ -138,7 +142,7 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Gets the installed Ceres door artwork required by initialization and animation.</summary>
     private CeresDoorVisualCatalog SelectedCeresDoorVisual =>
-        _room.Artwork?.CeresDoorVisual ?? throw new InvalidOperationException(
+        _areaArtwork.Artwork?.CeresDoorVisual ?? throw new InvalidOperationException(
             "Ceres door requires installed visual artwork.");
 
     /// <summary>Ports <c>CeresDoor_Init</c> at $A6:F6C5 for every retail population variant.</summary>

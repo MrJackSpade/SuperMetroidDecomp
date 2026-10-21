@@ -4,7 +4,6 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.Core.Enemies;
-using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Areas.Ceres.Artwork;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -21,9 +20,9 @@ internal static class EnemyTileArtworkCeresDoorVerification
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native VRAM words")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for Ceres door tiles, palettes and Mode-7 transfer records")]
     internal static void VerifyInstalledCeresDoorVisuals(ISnesAddressSpace bus,
-        string directory, EnemyTileArtworkCatalog stock)
+        string directory, InstalledEnemyArtwork stock)
     {
-        CeresDoorVisualCatalog visual = stock.CeresDoorVisual
+        CeresDoorVisualCatalog visual = stock.Areas.CeresDoorVisual
             ?? throw new InvalidDataException("Installed Ceres-door visuals are missing.");
         var vram = new SnesVram();
         visual.LoadTiles(vram);
@@ -111,7 +110,7 @@ internal static class EnemyTileArtworkCeresDoorVerification
             CeresDoorVisualFormat.ColorsFileName),
             CeresDoorVisualCatalog.Write(document));
         CeresDoorVisualCatalog edited = (EnemyTileArtworkFiles.Load(directory,
-            overrides).CeresDoorVisual ?? throw new InvalidOperationException("Verification requires EnemyTileArtworkFiles.Load(directory, overrides).CeresDoorVisual."));
+            overrides).Areas.CeresDoorVisual ?? throw new InvalidOperationException("Verification requires EnemyTileArtworkFiles.Load(directory, overrides).CeresDoorVisual."));
         var editedVram = new SnesVram();
         edited.LoadTiles(editedVram);
         AssertEqual((byte)(nativeTiles[0] ^ 0x80),

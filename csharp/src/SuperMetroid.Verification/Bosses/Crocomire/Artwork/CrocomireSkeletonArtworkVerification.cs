@@ -19,9 +19,9 @@ internal static class CrocomireSkeletonArtworkVerification
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for Crocomire skeleton artwork")]
     internal static void VerifyCrocomireSkeletonArtwork(
-        ISnesAddressSpace rom, string stockDirectory, EnemyTileArtworkCatalog stock)
+        ISnesAddressSpace rom, string stockDirectory, InstalledEnemyArtwork stock)
     {
-        CrocomireSkeletonArtwork artwork = stock.CrocomireSkeleton ??
+        CrocomireSkeletonArtwork artwork = stock.Bosses.CrocomireSkeleton ??
             throw new InvalidDataException("Installed enemy art omitted Crocomire skeleton tiles.");
         CrocomireSkeletonTransferSequence frames =
             CrocomireSkeletonTransferDefinitions.Frames;
@@ -91,7 +91,7 @@ internal static class CrocomireSkeletonArtworkVerification
             IndexedPng.Write(output, new(image.Size.X, image.Size.Y),
                 image.Pixels, image.Palette);
         }
-        EnemyTileArtworkCatalog edited = EnemyTileArtworkFiles.Load(
+        InstalledEnemyArtwork edited = EnemyTileArtworkFiles.Load(
             stockDirectory, overrides);
         (byte[] editedCharacters, _, CartridgeReadGuard editedGuard) =
             RunInstalled(edited);
@@ -123,9 +123,9 @@ internal static class CrocomireSkeletonArtworkVerification
             "guarded installed upload, isolated visible PNG edit, reload and strict files pass.");
 
         static (byte[] Characters, CrocomireDeathState State,
-            CartridgeReadGuard Guard) RunInstalled(EnemyTileArtworkCatalog art)
+            CartridgeReadGuard Guard) RunInstalled(InstalledEnemyArtwork art)
         {
-            var system = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = art };
+            var system = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = art.Enemies, BossArtwork = art.Bosses, AreaArtwork = art.Areas };
             var vram = new SnesVram();
             var guard = NewCrocomireSkeletonNoReadBus();
             var state = new CrocomireDeathState();

@@ -27,16 +27,16 @@ internal static class EnemyTileArtworkPhantoonBg2FramesVerification
     [CpuBusBoundary("exact bus test: retail ROM oracle for installed Phantoon BG2 frames")]
     internal static void VerifyInstalledPhantoonBg2Frames(
         SuperMetroidAddressSpace rom, string stockDirectory,
-        EnemyTileArtworkCatalog stock)
+        InstalledEnemyArtwork stock)
     {
-        AssertTrue(stock.PhantoonBg2Frames is not null,
+        AssertTrue(stock.Bosses.PhantoonBg2Frames is not null,
             "installed enemy art includes Phantoon BG2 frames");
         var identities = new HashSet<ushort>();
         foreach (SpritemapFrameDefinition frame in PhantoonBg2FrameDefinitions.Frames)
         {
             AssertTrue(identities.Add(frame.Pointer),
                 $"Phantoon frame {frame.Name} has a distinct physical selector");
-            AssertTrue((stock.PhantoonBg2Frames ?? throw new InvalidOperationException("Verification requires stock.PhantoonBg2Frames.")).TryGet(frame.Pointer,
+            AssertTrue((stock.Bosses.PhantoonBg2Frames ?? throw new InvalidOperationException("Verification requires stock.PhantoonBg2Frames.")).TryGet(frame.Pointer,
                     out ReadOnlyMemory<EnemyBg2TilemapWrite> installed),
                 $"installed Phantoon BG2 frame {frame.Name} exists");
             var native = new List<(ushort Destination, ushort[] Tiles)>();
@@ -97,16 +97,16 @@ internal static class EnemyTileArtworkPhantoonBg2FramesVerification
         File.WriteAllBytes(overridePath,
             JsonSerializer.SerializeToUtf8Bytes(document,
                 CamelCaseJson));
-        EnemyTileArtworkCatalog edited = EnemyTileArtworkFiles.Load(
+        InstalledEnemyArtwork edited = EnemyTileArtworkFiles.Load(
             stockDirectory, overrideDirectory);
-        AssertTrue((edited.PhantoonBg2Frames ?? throw new InvalidOperationException("Verification requires edited.PhantoonBg2Frames.")).TryGet(
+        AssertTrue((edited.Bosses.PhantoonBg2Frames ?? throw new InvalidOperationException("Verification requires edited.PhantoonBg2Frames.")).TryGet(
             PhantoonBg2FrameDefinitions.Frames[0].Pointer,
             out ReadOnlyMemory<EnemyBg2TilemapWrite> editedFrame),
             "Phantoon BG2 edited frame is installed");
         AssertEqual((ushort)(originalTile ^ 1), editedFrame.Span[0].Tiles.Span[0],
             "Phantoon BG2 override changes the selected tile reference");
         AssertEqual((ushort)originalTile,
-            (stock.PhantoonBg2Frames ?? throw new InvalidOperationException("Verification requires stock.PhantoonBg2Frames.")).TryGet(
+            (stock.Bosses.PhantoonBg2Frames ?? throw new InvalidOperationException("Verification requires stock.PhantoonBg2Frames.")).TryGet(
                 PhantoonBg2FrameDefinitions.Frames[0].Pointer,
                 out ReadOnlyMemory<EnemyBg2TilemapWrite> stockFrame)
                 ? stockFrame.Span[0].Tiles.Span[0] : (ushort)0,
@@ -127,9 +127,9 @@ internal static class EnemyTileArtworkPhantoonBg2FramesVerification
         AssertTrue(DrawPhantoonBg2(edited, firstPointer, newInstructionFrame: false).All(value => value == 0),
             "Phantoon BG2 override retains the native new-frame producer gate");
         Suite(nameof(VerifyPhantoonCollisionDefinitions), () => VerifyPhantoonCollisionDefinitions(rom, stock, edited));
-        EnemyTileArtworkCatalog reloaded = EnemyTileArtworkFiles.Load(
+        InstalledEnemyArtwork reloaded = EnemyTileArtworkFiles.Load(
             stockDirectory, overrideDirectory);
-        AssertTrue((reloaded.PhantoonBg2Frames ?? throw new InvalidOperationException("Verification requires reloaded.PhantoonBg2Frames.")).TryGet(
+        AssertTrue((reloaded.Bosses.PhantoonBg2Frames ?? throw new InvalidOperationException("Verification requires reloaded.PhantoonBg2Frames.")).TryGet(
                 PhantoonBg2FrameDefinitions.Frames[0].Pointer,
                 out ReadOnlyMemory<EnemyBg2TilemapWrite> reloadedFrame) &&
             reloadedFrame.Span[0].Tiles.Span[0] == (ushort)(originalTile ^ 1),
@@ -148,7 +148,7 @@ internal static class EnemyTileArtworkPhantoonBg2FramesVerification
     /// <summary>Compares compiled frame components and three hitbox lists with retail data while checking stock and edited artwork select the same callbacks.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for Phantoon collision definitions")]
     private static void VerifyPhantoonCollisionDefinitions(
-        SuperMetroidAddressSpace rom, EnemyTileArtworkCatalog stock, EnemyTileArtworkCatalog edited)
+        SuperMetroidAddressSpace rom, InstalledEnemyArtwork stock, InstalledEnemyArtwork edited)
     {
         var checkedLists = new HashSet<ushort>();
         foreach (SpritemapFrameDefinition frame in PhantoonBg2FrameDefinitions.Frames)
@@ -213,9 +213,9 @@ internal static class EnemyTileArtworkPhantoonBg2FramesVerification
 
     /// <summary>Invokes the production extended-hitbox walker for a selected Phantoon frame and returns its touch or shot callback.</summary>
     internal static ushort FindPhantoonHitboxCallback(
-        EnemyTileArtworkCatalog? art, ushort pointer, Position16<RoomPixels> target, bool selectShot)
+        InstalledEnemyArtwork? art, ushort pointer, Position16<RoomPixels> target, bool selectShot)
     {
-        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = art };
+        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = art?.Enemies, BossArtwork = art?.Bosses, AreaArtwork = art?.Areas };
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.PhantoonBody, slot.Definition);
         slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with
@@ -232,10 +232,10 @@ internal static class EnemyTileArtworkPhantoonBg2FramesVerification
 
     /// <summary>Draws a Phantoon BG2 frame into fresh VRAM, optionally setting the native new-instruction-frame upload bit.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
-    private static byte[] DrawPhantoonBg2(EnemyTileArtworkCatalog art,
+    private static byte[] DrawPhantoonBg2(InstalledEnemyArtwork art,
         ushort pointer, bool newInstructionFrame)
     {
-        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = art };
+        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = art.Enemies, BossArtwork = art.Bosses, AreaArtwork = art.Areas };
         var vram = new SnesVram();
         enemies.Presentation.BindVram(BgArtworkFixtures.For(vram));
         enemies.Drawing.Enqueue(0, 0);

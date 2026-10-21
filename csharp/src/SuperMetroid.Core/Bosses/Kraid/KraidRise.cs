@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Core.Bosses.MotherBrain;
+﻿using SuperMetroid.Core.Bosses.Artwork;
+using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Fx;
@@ -37,10 +38,14 @@ internal sealed class KraidRise
     private readonly KraidBackground _background;
     /// <summary>Kraid's head: the mouth-open attack and reaction, the eye glow and the health palettes.</summary>
     private readonly KraidHead _head;
+    /// <summary>The session's installed boss artwork.</summary>
+    private readonly BossArtworkBinding _bossArtwork;
+
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
     internal KraidRise(KraidRiseDependencies dependencies)
     {
+        _bossArtwork = dependencies.BossArtwork;
         _frameResults = dependencies.FrameResults;
         _room = dependencies.Room;
         _projectiles = dependencies.Projectiles;
@@ -134,7 +139,7 @@ internal sealed class KraidRise
     /// <summary>Binds the fixed 4-bpp room backdrop characters at their native VRAM word (#1352).</summary>
     internal void UploadKraidRoomBackgroundTiles()
     {
-        KraidBackgroundArtwork art = _room.Artwork?.KraidBackground
+        KraidBackgroundArtwork art = _bossArtwork.Artwork?.KraidBackground
             ?? throw new InvalidDataException("Installed enemy artwork has no Kraid background characters.");
         EnemyVram.BindKraidRoomBackgroundTiles(_presentation.Backgrounds, KraidBehavior.KraidRoomBackgroundIdentity, art.RoomBackgroundTiles.Transfer.Span);
     }

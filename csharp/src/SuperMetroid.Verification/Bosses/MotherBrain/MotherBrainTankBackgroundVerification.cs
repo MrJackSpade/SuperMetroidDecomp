@@ -47,8 +47,8 @@ internal static class MotherBrainTankBackgroundVerification
         AssertTrue(runtime.Vram.Bytes.Slice(bg2ByteAddress, 0x1000).SequenceEqual(
             expectedVram.Bytes.Slice(bg2ByteAddress, 0x1000)),
             "Phase-two setup publishes the staged first page at the native transition, retaining page two");
-        var artwork = runtime.Enemies.TileArtwork;
-        AssertTrue(((artwork ?? throw new InvalidOperationException("Verification requires artwork.")).MotherBrainBodyBg2Frames ?? throw new InvalidOperationException("Verification requires (artwork ?? throw new InvalidOperationException(\"Verification requires artwork.\")).Moth....")).TryGet(0xa252, out var writes),
+        var artwork = runtime.Enemies.BossArtwork;
+        AssertTrue(((artwork ?? throw new InvalidOperationException("Verification requires boss artwork.")).MotherBrainBodyBg2Frames ?? throw new InvalidOperationException("Verification requires Mother Brain's body BG2 frames.")).TryGet(0xa252, out var writes),
             "Crouched body BG2 artwork is installed");
         state.Body.ExtraProperties = state.Body.ExtraProperties.With(EnemyExtraProperties.NewInstructionFrame);
         runtime.Enemies.Instructions.ApplyInstalledEnemyBg2Frame(state.Body, 0xa252);

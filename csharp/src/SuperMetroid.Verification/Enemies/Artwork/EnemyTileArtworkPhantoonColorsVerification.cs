@@ -4,7 +4,6 @@ using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Bosses.Phantoon;
 using SuperMetroid.Core.Enemies;
-using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Bosses.Phantoon.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Enemies;
@@ -25,9 +24,9 @@ internal static class EnemyTileArtworkPhantoonColorsVerification
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for installed Phantoon palette bands")]
     internal static void VerifyInstalledPhantoonColors(
-        ISnesAddressSpace rom, string stockDirectory, EnemyTileArtworkCatalog stock)
+        ISnesAddressSpace rom, string stockDirectory, InstalledEnemyArtwork stock)
     {
-        PhantoonColorCatalog native = stock.PhantoonColors ??
+        PhantoonColorCatalog native = stock.Bosses.PhantoonColors ??
             throw new InvalidDataException("Installed enemy art has no Phantoon colors.");
         Suite(nameof(VerifyBand), () => VerifyBand(PhantoonColorRomData.FadeOutSource,
             PhantoonColorRomData.FadeOutCount, native.ResolveFadeOut, "fade-out"));
@@ -54,8 +53,8 @@ internal static class EnemyTileArtworkPhantoonColorsVerification
         Directory.CreateDirectory(overrides);
         string overrideFile = Path.Combine(overrides, PhantoonColorFormat.FileName);
         File.WriteAllBytes(overrideFile, PhantoonColorCatalog.Write(visual));
-        EnemyTileArtworkCatalog edited = EnemyTileArtworkFiles.Load(stockDirectory, overrides);
-        PhantoonColorCatalog colors = edited.PhantoonColors ??
+        InstalledEnemyArtwork edited = EnemyTileArtworkFiles.Load(stockDirectory, overrides);
+        PhantoonColorCatalog colors = edited.Bosses.PhantoonColors ??
             throw new InvalidDataException("Edited enemy art has no Phantoon colors.");
         AssertTrue(colors.ResolveHealth(2, 1) != native.ResolveHealth(2, 1),
             "Phantoon health color edit changes selected RGB5 word");
@@ -75,7 +74,7 @@ internal static class EnemyTileArtworkPhantoonColorsVerification
             native.ResolvePowerOn, colors.ResolvePowerOn, "power-on");
         AssertEqual(colors.ResolvePowerOn(1),
             (EnemyTileArtworkFiles.Load(stockDirectory, overrides)
-                .PhantoonColors ?? throw new InvalidOperationException("Verification requires EnemyTileArtworkFiles.Load(stockDirectory, overrides) .PhantoonColors.")).ResolvePowerOn(1),
+                .Bosses.PhantoonColors ?? throw new InvalidOperationException("Verification requires EnemyTileArtworkFiles.Load(stockDirectory, overrides) .PhantoonColors.")).ResolvePowerOn(1),
             "Phantoon override survives catalog reload");
 
         // Drive the actual boss palette handlers. The complete authored color range is
@@ -87,7 +86,7 @@ internal static class EnemyTileArtworkPhantoonColorsVerification
                     PhantoonColorRomData.HealthBandColorCount * sizeof(ushort)),
             address => $"Phantoon accessed migrated palette ROM ${address:X6}.");
         var cgram = new SnesCgram();
-        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = edited };
+        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = edited.Enemies, BossArtwork = edited.Bosses, AreaArtwork = edited.Areas };
         Type type = typeof(RoomEnemySystem);
         enemies.Presentation.BindCgram(cgram);
         RoomEnemySlot body = enemies.SlotTable.Slots[0];

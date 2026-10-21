@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Core.Samus.Poses;
+﻿using SuperMetroid.Core.Bosses.Artwork;
+using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Progression;
@@ -31,10 +32,14 @@ internal sealed class NorfairRidleyCombat
     private readonly RidleyProjectiles _ridleyProjectiles;
     /// <summary>Raises the arena liquid during Ridley's reveal.</summary>
     private readonly EnemyRoomFx _roomFx;
+    /// <summary>The session's installed boss artwork.</summary>
+    private readonly BossArtworkBinding _bossArtwork;
+
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
     internal NorfairRidleyCombat(NorfairRidleyCombatDependencies dependencies)
     {
+        _bossArtwork = dependencies.BossArtwork;
         _room = dependencies.Room;
         _earthquake = dependencies.Earthquake;
         _audio = dependencies.Audio;
@@ -106,7 +111,7 @@ internal sealed class NorfairRidleyCombat
         // WriteColorsToTargetPalette($140, $A6:E1CF, $20) installs both body and manual
         // tail/wing source palettes. The following loops clear the two fifteen-color OBJ
         // ranges that the reveal gradually fills; color zero remains transparent.
-        (_room.Artwork?.NorfairRidleyColors ?? throw new InvalidOperationException(
+        (_bossArtwork.Artwork?.NorfairRidleyColors ?? throw new InvalidOperationException(
             "Norfair Ridley requires installed colors."))
             .ApplyInitial(_presentation.Cgram);
         _presentation.BossPalettes.NorfairRidleyBody.Fill(Bgr555.Black);
@@ -126,7 +131,7 @@ internal sealed class NorfairRidleyCombat
         state.FunctionTimer = NativeCountdown.Start(2);
         int row = state.FadePaletteOffset;
         bool hasPalette;
-        var colors = _room.Artwork?.NorfairRidleyColors ?? throw new InvalidOperationException(
+        var colors = _bossArtwork.Artwork?.NorfairRidleyColors ?? throw new InvalidOperationException(
             "Norfair Ridley reveal requires installed colors.");
         if (row > NorfairRidleyPaletteRomData.RevealRowCount)
             throw new InvalidDataException($"Norfair Ridley reveal row {row} escaped its native terminator.");

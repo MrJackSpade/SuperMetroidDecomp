@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Samus;
@@ -13,7 +14,7 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [.. DraygonPartDefinitions.Parts.Keys];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new DraygonEntity(this, slot, common);
+    public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new DraygonEntity(this, slot, common, _bossArtwork);
 
     /// <summary>Provides the active room bus, random source, and persistent boss state.</summary>
     private readonly EnemyRoomBinding _room;
@@ -45,14 +46,18 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Draygon's hitboxes, touch and hurt, and what Samus's weapons do to it.</summary>
     internal DraygonCombat Combat { get; }
+    /// <summary>The session's installed boss artwork.</summary>
+    private readonly BossArtworkBinding _bossArtwork;
+
 
 
     /// <summary>Binds the encounter's room, projectile, presentation, and interaction owners.</summary>
     internal DraygonBehavior(DraygonBehaviorDependencies dependencies)
     {
+        _bossArtwork = dependencies.BossArtwork;
         _room = dependencies.Room;
         _frameContext = dependencies.FrameContext;
-        Parts = new DraygonParts(_room, dependencies.Projectiles, dependencies.Earthquake, dependencies.SpriteObjects, dependencies.Presentation, _frameContext);
+        Parts = new DraygonParts(_room, dependencies.Projectiles, dependencies.Earthquake, dependencies.SpriteObjects, dependencies.Presentation, _frameContext, _bossArtwork);
         Turrets = new DraygonTurrets(_room, dependencies.Projectiles);
         Intro = new DraygonIntro(_room, dependencies.SpriteObjects, dependencies.Presentation, Turrets);
         Movement = new DraygonMovement(dependencies.SpriteObjects);
@@ -60,7 +65,7 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
         Goop = new DraygonGoop(_room, dependencies.Audio, dependencies.DeathsAndDrops, Parts, Turrets, Movement);
         Grab = new DraygonGrab(dependencies.FrameResults, _room, dependencies.SpriteObjects, dependencies.ScrollCap, Parts, Turrets);
         Death = new DraygonDeath(_room, dependencies.SpriteObjects, dependencies.DeathsAndDrops, Parts);
-        Combat = new DraygonCombat(_room, dependencies.Projectiles, dependencies.Presentation, dependencies.Collision, Parts, Grab);
+        Combat = new DraygonCombat(dependencies.Projectiles, dependencies.Presentation, dependencies.Collision, Parts, Grab, _bossArtwork);
     }
 
     /// <summary>Ports <c>MainAI_DraygonBody</c> at <c>$A5:86FC</c>.</summary>

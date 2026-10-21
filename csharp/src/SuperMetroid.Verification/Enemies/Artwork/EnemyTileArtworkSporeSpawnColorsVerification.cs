@@ -5,7 +5,6 @@ using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Bosses.SporeSpawn;
 using SuperMetroid.Core.Enemies;
-using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Bosses.SporeSpawn.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Enemies;
@@ -25,9 +24,9 @@ internal static class EnemyTileArtworkSporeSpawnColorsVerification
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for installed Spore Spawn colors")]
     internal static void VerifyInstalledSporeSpawnColors(
-        ISnesAddressSpace rom, string stockDirectory, EnemyTileArtworkCatalog stock)
+        ISnesAddressSpace rom, string stockDirectory, InstalledEnemyArtwork stock)
     {
-        SporeSpawnColorCatalog native = stock.SporeSpawnColors ??
+        SporeSpawnColorCatalog native = stock.Bosses.SporeSpawnColors ??
             throw new InvalidDataException("Installed enemy art has no Spore Spawn colors.");
         Suite(nameof(VerifyFrame), () => VerifyFrame(SporeSpawnColorRomData.SporeSource, native.ResolveSpore,
             "spore initialization"));
@@ -62,8 +61,8 @@ internal static class EnemyTileArtworkSporeSpawnColorsVerification
         Directory.CreateDirectory(overrides);
         string overrideFile = Path.Combine(overrides, SporeSpawnColorFormat.FileName);
         File.WriteAllBytes(overrideFile, SporeSpawnColorCatalog.Write(visual));
-        EnemyTileArtworkCatalog edited = EnemyTileArtworkFiles.Load(stockDirectory, overrides);
-        SporeSpawnColorCatalog colors = edited.SporeSpawnColors ??
+        InstalledEnemyArtwork edited = EnemyTileArtworkFiles.Load(stockDirectory, overrides);
+        SporeSpawnColorCatalog colors = edited.Bosses.SporeSpawnColors ??
             throw new InvalidDataException("Edited enemy art has no Spore Spawn colors.");
         AssertTrue(native.ResolveSpore(5) != colors.ResolveSpore(5),
             "Spore Spawn initial spore edit changes its selected color");
@@ -83,7 +82,7 @@ internal static class EnemyTileArtworkSporeSpawnColorsVerification
         }
         AssertEqual(colors.ResolveDeathSprite(6, 5),
             (EnemyTileArtworkFiles.Load(stockDirectory, overrides)
-                .SporeSpawnColors ?? throw new InvalidOperationException("Verification requires EnemyTileArtworkFiles.Load(stockDirectory, overrides) .SporeSpawnColors.")).ResolveDeathSprite(6, 5),
+                .Bosses.SporeSpawnColors ?? throw new InvalidOperationException("Verification requires EnemyTileArtworkFiles.Load(stockDirectory, overrides) .SporeSpawnColors.")).ResolveDeathSprite(6, 5),
             "Spore Spawn override survives catalog reload");
 
         CartridgeReadGuard guarded = new CartridgeReadGuard(rom).Forbid(
@@ -93,7 +92,7 @@ internal static class EnemyTileArtworkSporeSpawnColorsVerification
                     SporeSpawnColorRomData.FrameByteCount),
             address => $"Live Spore Spawn read migrated color ROM ${address:X6}.");
         var cgram = new SnesCgram();
-        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null)) { TileArtwork = edited };
+        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null)) { TileArtwork = edited.Enemies, BossArtwork = edited.Bosses, AreaArtwork = edited.Areas };
         Type type = typeof(RoomEnemySystem);
         enemies.Presentation.BindCgram(cgram);
         enemies.VerificationServices().IsAreaMiniBossDefeated = () => false;

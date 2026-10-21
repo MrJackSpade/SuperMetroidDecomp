@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -5,7 +6,6 @@ using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Frontend.FrontendRomFreeVerification;
 using static SuperMetroid.Verification.Harness.RetailPresentationFixtureVerification;
-using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Enemies.Gunship;
 using SuperMetroid.Core.Frontend.GameOver;
 using SuperMetroid.Core.Frontend.Options;
@@ -28,7 +28,7 @@ internal static class CeresSaveStartupVerification
     /// the actual options dispatcher at its completed fade with checksummed SRAM.
     /// The cinematic checkpoint must never construct an escaping Ceres room.
     /// </summary>
-    internal static void VerifyCeresSaveStartup(string installationRoot, EnemyTileArtworkCatalog? enemyArtwork = null)
+    internal static void VerifyCeresSaveStartup(string installationRoot, InstalledEnemyArtwork? enemyArtwork = null)
     {
         var installation = new GameInstallation(Path.GetFullPath(installationRoot));
         var maps = installation.LoadMaps();

@@ -1,3 +1,6 @@
+using SuperMetroid.Core.Areas;
+using SuperMetroid.Core.Bosses.Artwork;
+using SuperMetroid.AssetExtraction.Enemies;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Areas.Ceres;
@@ -142,7 +145,7 @@ internal static class EnemyContentIdentityFixtureVerification
             (reverse ? source.Reverse() : source).ToDictionary();
 
         /// <summary>Assembles every installed enemy presentation domain with one optional controlled edit.</summary>
-        public EnemyTileArtworkCatalog Build(EnemySpritemapCatalog? spritemaps = null,
+        public InstalledEnemyArtwork Build(EnemySpritemapCatalog? spritemaps = null,
             EnemyExtendedFrameCatalog? extendedFrames = null,
             EnemyProjectileSpritemapCatalog? projectileSpritemaps = null,
             MotherBrainBodyBg2FrameCatalog? motherBrainBodyBg2Frames = null)
@@ -209,15 +212,21 @@ internal static class EnemyContentIdentityFixtureVerification
                     KeyValuePair.Create(definition.Id, ColorRows("auxiliary-" + definition.Id, definition.FrameCount, definition.ColorCount)))),
             }));
 
-            return EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = sheets, Palettes = palettes, CrocomireMelting = CrocomireMeltingArtwork.Load(Png("melt-first", CrocomireMeltingArtworkFormat.FirstByteCount),
-                    Png("melt-second", CrocomireMeltingArtworkFormat.SecondByteCount), Json(meltFirstMap), Json(meltSecondMap)), Spritemaps = spritemaps ?? Oam(), ExtendedFrames = extendedFrames ?? Extended(), KraidBackground = new KraidBackgroundArtwork(Map("kraid-upper", KraidBackgroundRomData.DecompressedTilemapBytes),
+            return new InstalledEnemyArtwork(
+                EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = sheets, Palettes = palettes, Spritemaps = spritemaps ?? Oam(), ExtendedFrames = extendedFrames ?? Extended(), GunshipLiftoff = new GunshipLiftoffArtworkCatalog(gunship), DmaSources = dma, ProjectileSpritemaps = projectileSpritemaps ?? Projectiles(), MagdollitePaletteCycle = ColorCatalog(MagdollitePaletteCycle.Load, ("frames", MagdollitePaletteRomData.FrameCount, MagdollitePaletteRomData.AnimatedColorCount)), WorkRobotPaletteCycle = ColorCatalog(WorkRobotPaletteCycle.Load, ("frames", WorkRobotPaletteTimingDefinitions.RecordCount, WorkRobotPaletteRomData.ColorCount)), ChozoAndTubeColors = ColorCatalog(ChozoAndTubeColorCatalog.Load,
+                    ("tubeCracks", 0, ChozoAndTubeColorRomData.ColorCount), ("wreckedShip", 0, ChozoAndTubeColorRomData.ColorCount),
+                    ("lowerNorfair", 0, ChozoAndTubeColorRomData.ColorCount)), DachoraColors = ColorCatalog(DachoraColorCatalog.Load, ("normal", 0, DachoraColorRomData.ColorsPerFrame),
+                    ("speed", DachoraColorRomData.AnimatedFrameCount, DachoraColorRomData.ColorsPerFrame),
+                    ("shine", DachoraColorRomData.AnimatedFrameCount, DachoraColorRomData.ColorsPerFrame)), AuxiliaryColors = auxiliary }),
+                new BossArtworkCatalog { CrocomireMelting = CrocomireMeltingArtwork.Load(Png("melt-first", CrocomireMeltingArtworkFormat.FirstByteCount),
+                    Png("melt-second", CrocomireMeltingArtworkFormat.SecondByteCount), Json(meltFirstMap), Json(meltSecondMap)), KraidBackground = new KraidBackgroundArtwork(Map("kraid-upper", KraidBackgroundRomData.DecompressedTilemapBytes),
                     Map("kraid-lower", KraidBackgroundRomData.DecompressedTilemapBytes), heads,
                     Characters("kraid-background", KraidBackgroundRomData.RoomBackgroundTileBytes)), KraidColors = ColorCatalog(KraidColorCatalog.Load,
                     ("roomBackdrop", 0, KraidPaletteRomData.ColorCount(KraidPaletteSource.RoomBackdrop)),
                     ("initialTarget", 0, KraidPaletteRomData.ColorCount(KraidPaletteSource.InitialTarget)),
                     ("health", 0, KraidPaletteRomData.ColorCount(KraidPaletteSource.Health)),
                     ("secondary", 0, KraidPaletteRomData.ColorCount(KraidPaletteSource.Secondary)),
-                    ("deathArm", 0, KraidPaletteRomData.ColorCount(KraidPaletteSource.DeathArm))), GunshipLiftoff = new GunshipLiftoffArtworkCatalog(gunship), CeresDoorVisual = door, DmaSources = dma, ProjectileSpritemaps = projectileSpritemaps ?? Projectiles(), MagdollitePaletteCycle = ColorCatalog(MagdollitePaletteCycle.Load, ("frames", MagdollitePaletteRomData.FrameCount, MagdollitePaletteRomData.AnimatedColorCount)), WorkRobotPaletteCycle = ColorCatalog(WorkRobotPaletteCycle.Load, ("frames", WorkRobotPaletteTimingDefinitions.RecordCount, WorkRobotPaletteRomData.ColorCount)), CrocomireColors = ColorCatalog(CrocomireColorCatalog.Load,
+                    ("deathArm", 0, KraidPaletteRomData.ColorCount(KraidPaletteSource.DeathArm))), CrocomireColors = ColorCatalog(CrocomireColorCatalog.Load,
                     ("fightBody", 0, CrocomirePaletteRomData.FightBodyCount), ("initialWall", 0, CrocomirePaletteRomData.InitialWallCount),
                     ("initialProjectile", 0, CrocomirePaletteRomData.InitialProjectileCount), ("skeletonArm", 0, CrocomirePaletteRomData.SkeletonArmCount),
                     ("wallSpikes", 0, CrocomirePaletteRomData.WallSpikesCount)), DraygonColors = ColorCatalog(DraygonColorCatalog.Load,
@@ -225,15 +234,11 @@ internal static class EnemyContentIdentityFixtureVerification
                     ("sprite", 0, DraygonColorRomData.SpriteCount), ("whiteFlash", 0, DraygonColorRomData.WhiteFlashCount),
                     ("healthBands", DraygonColorRomData.HealthBandCount, DraygonColorRomData.HealthBandColorCount)), PhantoonColors = ColorCatalog(PhantoonColorCatalog.Load,
                     ("healthBands", PhantoonColorRomData.HealthBandCount, PhantoonColorRomData.HealthBandColorCount),
-                    ("fadeOut", 0, PhantoonColorRomData.FadeOutCount), ("powerOn", 0, PhantoonColorRomData.PowerOnCount)), ChozoAndTubeColors = ColorCatalog(ChozoAndTubeColorCatalog.Load,
-                    ("tubeCracks", 0, ChozoAndTubeColorRomData.ColorCount), ("wreckedShip", 0, ChozoAndTubeColorRomData.ColorCount),
-                    ("lowerNorfair", 0, ChozoAndTubeColorRomData.ColorCount)), SporeSpawnColors = ColorCatalog(SporeSpawnColorCatalog.Load,
+                    ("fadeOut", 0, PhantoonColorRomData.FadeOutCount), ("powerOn", 0, PhantoonColorRomData.PowerOnCount)), SporeSpawnColors = ColorCatalog(SporeSpawnColorCatalog.Load,
                     ("spores", 0, SporeSpawnColorRomData.ColorsPerFrame), ("health", SporeSpawnColorRomData.HealthFrameCount, SporeSpawnColorRomData.ColorsPerFrame),
                     ("deathSprite", SporeSpawnColorRomData.DeathSpriteFrameCount, SporeSpawnColorRomData.ColorsPerFrame),
                     ("deathLevel", SporeSpawnColorRomData.DeathSceneFrameCount, SporeSpawnColorRomData.ColorsPerFrame),
-                    ("deathBackground", SporeSpawnColorRomData.DeathSceneFrameCount, SporeSpawnColorRomData.ColorsPerFrame)), DachoraColors = ColorCatalog(DachoraColorCatalog.Load, ("normal", 0, DachoraColorRomData.ColorsPerFrame),
-                    ("speed", DachoraColorRomData.AnimatedFrameCount, DachoraColorRomData.ColorsPerFrame),
-                    ("shine", DachoraColorRomData.AnimatedFrameCount, DachoraColorRomData.ColorsPerFrame)), ShitroidColors = ColorCatalog(ShitroidColorCatalog.Load,
+                    ("deathBackground", SporeSpawnColorRomData.DeathSceneFrameCount, SporeSpawnColorRomData.ColorsPerFrame)), ShitroidColors = ColorCatalog(ShitroidColorCatalog.Load,
                     ("normal", ShitroidColorRomData.NormalFrameCount, ShitroidColorRomData.NormalColorsPerFrame),
                     ("sidehopper", 0, ShitroidColorRomData.TargetColorCount), ("shitroid", 0, ShitroidColorRomData.TargetColorCount),
                     ("deadSidehopper", 0, ShitroidColorRomData.TargetColorCount)), BabyMetroidCutsceneColors = ColorCatalog(BabyMetroidCutsceneColorCatalog.Load,
@@ -245,10 +250,11 @@ internal static class EnemyContentIdentityFixtureVerification
                     ("corpseFade", MotherBrainDeathRomData.CorpseFadeFrameCount, MotherBrainDeathRomData.CorpseColorCount),
                     ("explodedDoor", 0, MotherBrainDeathRomData.BodyColorCount)), ZebetiteColors = ColorCatalog(ZebetiteColorCatalog.Load, ("frames", ZebetiteColorFormat.FrameCount, ZebetiteColorFormat.ColorsPerFrame)), NorfairRidleyColors = ColorCatalog(NorfairRidleyColorCatalog.Load,
                     ("initial", 0, NorfairRidleyPaletteRomData.InitialColorCount),
-                    ("reveal", NorfairRidleyPaletteRomData.RevealRowCount, NorfairRidleyPaletteRomData.RevealColorCount)), TourianStatueColors = ColorCatalog(TourianStatueColorCatalog.Load,
+                    ("reveal", NorfairRidleyPaletteRomData.RevealRowCount, NorfairRidleyPaletteRomData.RevealColorCount)), PhantoonBg2Frames = PhantoonBg2FrameCatalog.Load(Bg2("phantoon-bg2", PhantoonBg2FrameDefinitions.Frames)), DraygonBg2Frames = DraygonBg2FrameCatalog.Load(Bg2("draygon-bg2", DraygonBg2FrameDefinitions.Frames)), CrocomireBg2Frames = CrocomireBg2FrameCatalog.Load(Bg2("crocomire-bg2", CrocomireBg2FrameDefinitions.Frames)), MotherBrainBodyBg2Frames = motherBrainBodyBg2Frames ?? MotherBrainBodyBg2FrameCatalog.Load(
+                    Bg2("mother-brain-body-bg2", MotherBrainBodyVisualDefinitions.Bg2Frames)), MotherBrainCorpse = Characters("mother-brain-corpse", RoomCharacterAtlasFormat.BytesPerTile), MotherBrainEscapeText = Characters("mother-brain-text", RoomCharacterAtlasFormat.BytesPerTile), MotherBrainSpecialSprites = special, CrocomireSkeleton = CrocomireSkeletonArtwork.Load(Png("crocomire-skeleton", CrocomireSkeletonTransferDefinitions.TotalByteCount)), TorizoInstructionVram = torizo },
+                new AreaArtworkCatalog { CeresDoorVisual = door, TourianStatueColors = ColorCatalog(TourianStatueColorCatalog.Load,
                     ("base", 0, TourianStatuePaletteRomData.BaseColorCount), ("statue", 0, TourianStatuePaletteRomData.StatueColorCount),
-                    ("eye", TourianStatuePaletteRomData.EyeRowCount, TourianStatuePaletteRomData.EyeColorCount), ("grey", 0, TourianStatuePaletteRomData.GreyColorCount)), PhantoonBg2Frames = PhantoonBg2FrameCatalog.Load(Bg2("phantoon-bg2", PhantoonBg2FrameDefinitions.Frames)), DraygonBg2Frames = DraygonBg2FrameCatalog.Load(Bg2("draygon-bg2", DraygonBg2FrameDefinitions.Frames)), CrocomireBg2Frames = CrocomireBg2FrameCatalog.Load(Bg2("crocomire-bg2", CrocomireBg2FrameDefinitions.Frames)), MotherBrainBodyBg2Frames = motherBrainBodyBg2Frames ?? MotherBrainBodyBg2FrameCatalog.Load(
-                    Bg2("mother-brain-body-bg2", MotherBrainBodyVisualDefinitions.Bg2Frames)), MotherBrainCorpse = Characters("mother-brain-corpse", RoomCharacterAtlasFormat.BytesPerTile), MotherBrainEscapeText = Characters("mother-brain-text", RoomCharacterAtlasFormat.BytesPerTile), MotherBrainSpecialSprites = special, CrocomireSkeleton = CrocomireSkeletonArtwork.Load(Png("crocomire-skeleton", CrocomireSkeletonTransferDefinitions.TotalByteCount)), TorizoInstructionVram = torizo, CeresEscapeTiles = ceresTiles, CeresEscapeOverlayTilemaps = overlay, AuxiliaryColors = auxiliary });
+                    ("eye", TourianStatuePaletteRomData.EyeRowCount, TourianStatuePaletteRomData.EyeColorCount), ("grey", 0, TourianStatuePaletteRomData.GreyColorCount)), CeresEscapeTiles = ceresTiles, CeresEscapeOverlayTilemaps = overlay });
         }
 
         /// <summary>Changes the final Crocomire melt tile only for the selected map edit.</summary>

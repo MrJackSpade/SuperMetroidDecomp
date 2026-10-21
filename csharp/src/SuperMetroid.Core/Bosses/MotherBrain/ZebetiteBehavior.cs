@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies.Deaths;
 using SuperMetroid.Core.Enemies;
@@ -42,10 +43,14 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Resolves touch reactions through the shared enemy collision rules.</summary>
     private readonly EnemyCollision _collision;
+    /// <summary>The session's installed boss artwork.</summary>
+    private readonly BossArtworkBinding _bossArtwork;
+
 
     /// <summary>Captures the shared systems used by Zebetite initialization, AI, and reactions.</summary>
     internal ZebetiteBehavior(ZebetiteBehaviorDependencies dependencies)
     {
+        _bossArtwork = dependencies.BossArtwork;
         _collision = dependencies.Collision;
         _elevatorBehavior = dependencies.ElevatorBehavior;
         _dispatch = dependencies.Dispatch;
@@ -218,7 +223,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
 
         int paletteCycle = (SharedPaletteCycle + 1) & ZebetiteDefinitions.PaletteCycleMask;
         SharedPaletteCycle = paletteCycle;
-        (_room.Artwork?.ZebetiteColors ?? throw new InvalidOperationException(
+        (_bossArtwork.Artwork?.ZebetiteColors ?? throw new InvalidOperationException(
             "Zebetite requires installed palette-cycle colors."))
             .Apply(_presentation.Cgram, paletteCycle, ZebetiteDefinitions.PaletteDestinationColor);
     }

@@ -48,14 +48,14 @@ internal static class EnemyTileArtworkWorkRobotPaletteVerification
         Directory.CreateDirectory(overrides);
         string overrideFile = Path.Combine(overrides, WorkRobotPaletteCycleFormat.FileName);
         File.WriteAllBytes(overrideFile, WorkRobotPaletteCycle.Write(visual));
-        EnemyTileArtworkCatalog edited = EnemyTileArtworkFiles.Load(stockDirectory, overrides);
-        WorkRobotPaletteCycle cycle = edited.WorkRobotPaletteCycle ??
+        InstalledEnemyArtwork edited = EnemyTileArtworkFiles.Load(stockDirectory, overrides);
+        WorkRobotPaletteCycle cycle = edited.Enemies.WorkRobotPaletteCycle ??
             throw new InvalidDataException("Edited enemy art has no Work Robot palette cycle.");
         AssertTrue(cycle.Resolve(2, 1) != native.Resolve(2, 1),
             "Work Robot color override changes the selected RGB5 word");
         AssertEqual(cycle.Resolve(2, 1),
             (EnemyTileArtworkFiles.Load(stockDirectory, overrides)
-                .WorkRobotPaletteCycle ?? throw new InvalidOperationException("Verification requires EnemyTileArtworkFiles.Load(stockDirectory, overrides) .WorkRobotPaletteCycle.")).Resolve(2, 1),
+                .Enemies.WorkRobotPaletteCycle ?? throw new InvalidOperationException("Verification requires EnemyTileArtworkFiles.Load(stockDirectory, overrides) .WorkRobotPaletteCycle.")).Resolve(2, 1),
             "Work Robot color override persists across reload");
         for (int record = 0; record < WorkRobotPaletteTimingDefinitions.RecordCount; record++)
         for (int color = 0; color < WorkRobotPaletteRomData.ColorCount; color++)

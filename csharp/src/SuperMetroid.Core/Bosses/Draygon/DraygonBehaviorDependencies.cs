@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Fx;
@@ -43,4 +44,7 @@ internal sealed record DraygonBehaviorDependencies
 
     /// <summary>Scroll cap.</summary>
     public required SamusScrollCap ScrollCap { get; init; }
+
+    /// <summary>The session's installed boss artwork.</summary>
+    public required BossArtworkBinding BossArtwork { get; init; }
 }

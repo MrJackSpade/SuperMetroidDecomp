@@ -141,7 +141,7 @@ internal static class EnemyEffectIsolationVerification
                 baseline.Bg2.Bytes.SequenceEqual(edited.Bg2.Bytes), "corpse art changes only its graphics buffer");
             foreach (var request in expected.VramTransfers) baselineTransfer(request);
             foreach (var request in actual.VramTransfers) editedTransfer(request);
-            SnesVram shown = ObjCharacterVramImage.Of(baselineEnemies.Room.Session.ObjCharacters, new EnemyTileTransfers(InstalledFixtures.EnemyTiles));
+            SnesVram shown = ObjCharacterVramImage.Of(baselineEnemies.Room.Session.ObjCharacters, new EnemyTileTransfers(InstalledFixtures.EnemyArtwork));
             foreach (var request in expected.VramTransfers)
             {
                 int source = checked((int)request.SourceAddress) - MotherBrainCorpseRottingState.GraphicsBufferAddress;

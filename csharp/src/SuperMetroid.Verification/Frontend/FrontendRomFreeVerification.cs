@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Programs;
 using static SuperMetroid.Verification.Harness.RepositoryInputsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -115,7 +116,7 @@ internal static class FrontendRomFreeVerification
     /// room snapshot is restored. Debugger states omit external artwork by design.
     /// </summary>
     internal static Action<SuperMetroidGame, bool> PrepareRomFreeBindings(GameInstallation installation,
-        EnemyTileArtworkCatalog? enemyArtwork = null)
+        InstalledEnemyArtwork? enemyArtwork = null)
     {
         var maps = installation.LoadMaps();
         var palettes = installation.LoadGameplayBasePalettes();
@@ -166,7 +167,9 @@ internal static class FrontendRomFreeVerification
             {
                 MapPresentation = maps,
                 GameplayBasePalettes = palettes,
-                EnemyTileArtwork = enemies,
+                EnemyTileArtwork = enemies.Enemies,
+                BossArtwork = enemies.Bosses,
+                AreaArtwork = enemies.Areas,
                 StandardObjectArt = objects,
                 RoomPlmShotBlockVisuals = assetRoomPlmShotBlockVisuals,
                 RoomPlmGrappleBlockVisuals = assetRoomPlmGrappleBlockVisuals,

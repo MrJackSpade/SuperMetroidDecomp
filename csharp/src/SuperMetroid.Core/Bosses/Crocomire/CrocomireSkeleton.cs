@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Core.Bosses.MotherBrain;
+﻿using SuperMetroid.Core.Bosses.Artwork;
+using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Progression;
@@ -26,10 +27,14 @@ internal sealed class CrocomireSkeleton
     private readonly ZebetiteBehavior _zebetiteBehavior;
     /// <summary>Crocomire's state lookups, body program start, PLMs, dust and random numbers, and the sound and music it last requested.</summary>
     private readonly CrocomireEncounterAccess _access;
+    /// <summary>The session's installed boss artwork.</summary>
+    private readonly BossArtworkBinding _bossArtwork;
+
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
-    internal CrocomireSkeleton(EnemyRoomBinding room, EnemyProjectileEngine projectiles, EnemyPresentation presentation, EnemyDeathsAndDrops deathsAndDrops, ZebetiteBehavior zebetiteBehavior, CrocomireEncounterAccess access)
+    internal CrocomireSkeleton(EnemyRoomBinding room, EnemyProjectileEngine projectiles, EnemyPresentation presentation, EnemyDeathsAndDrops deathsAndDrops, ZebetiteBehavior zebetiteBehavior, CrocomireEncounterAccess access, BossArtworkBinding bossArtwork)
     {
+        _bossArtwork = bossArtwork;
         _room = room;
         _projectiles = projectiles;
         _presentation = presentation;
@@ -97,7 +102,7 @@ internal sealed class CrocomireSkeleton
             // The rumble hands its shared word back to the melt's shake counter, with both bytes at 128.
             death.MeltShakeCounter = NativeCountdown.FromRaw(CrocomireBehavior.MeltShakeCounterAfterRumble);
             state.DeathPhaseDelay = NativeCountdown.Start(128);
-            (_room.Artwork?.CrocomireColors ?? throw new InvalidOperationException(
+            (_bossArtwork.Artwork?.CrocomireColors ?? throw new InvalidOperationException(
                 "Crocomire wall spikes require installed colors.")).ApplyWallSpikes(_presentation.Cgram);
             state.DeathSequenceIndex = state.DeathSequenceIndex.Next();
             return;
@@ -148,7 +153,7 @@ internal sealed class CrocomireSkeleton
         _access.LastCrocomireSoundEffect = CrocomireSoundDefinitions.Crumble;
         CrocomireEncounterAccess.StartCrocomireBodyProgram(state, CrocomireBodyProgram.SkeletonFallsApart);
         body.PaletteIndex = 0;
-        (_room.Artwork?.CrocomireColors ?? throw new InvalidOperationException(
+        (_bossArtwork.Artwork?.CrocomireColors ?? throw new InvalidOperationException(
             "Crocomire skeleton requires installed colors.")).ApplySkeletonArm(_presentation.Cgram);
 
         foreach (RoomEnemyProjectileSlot projectile in _projectiles.EnemyProjectiles)
@@ -252,7 +257,7 @@ internal sealed class CrocomireSkeleton
     internal void UploadNextCrocomireSkeletonTileChunk(CrocomireDeathState death)
     {
         int entry = death.SkeletonTileChunk;
-        var artwork = _room.Artwork?.CrocomireSkeleton ?? throw new InvalidDataException(
+        var artwork = _bossArtwork.Artwork?.CrocomireSkeleton ?? throw new InvalidDataException(
             "Installed Crocomire artwork is missing its skeleton characters.");
         if (!CrocomireSkeletonTransferDefinitions.TryGet(entry, out
                 CrocomireSkeletonTransferDefinition frame))

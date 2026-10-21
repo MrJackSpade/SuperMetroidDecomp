@@ -1,4 +1,6 @@
+using SuperMetroid.Core.Areas;
 using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
@@ -56,11 +58,13 @@ internal static class EnemyTileArtworkPresentationContractChecks
         CeresEscapeOverlayTilemapCatalog overlays = CeresEscapeOverlayTilemapCatalog.Load(overlayJson);
         var torizo = new TorizoInstructionVramArtwork(TorizoInstructionVramArtworkDefinitions.All
             .Select(page => Sheet(page.ByteCount)).ToArray());
-        EnemyTileArtworkCatalog Install() => EnemyTileArtworkCatalog.FromInstalledArtwork(new EnemyTileArtworkParts { Sheets = sheets, Palettes = palettes, DmaSources = sources, TorizoInstructionVram = torizo, CeresEscapeTiles = ceres, CeresEscapeOverlayTilemaps = overlays });
+        EnemyTileArtworkCatalog Install() => EnemyTileArtworkCatalog.FromInstalledArtwork(new EnemyTileArtworkParts { Sheets = sheets, Palettes = palettes, DmaSources = sources });
         EnemyTileSourceDefinition first = EnemyTileSourceDefinitions.All[0];
         EnemyTileArtworkCatalog catalog = Install();
-        Reject(() => EnemyTileArtworkCatalog.FromInstalledArtwork(new EnemyTileArtworkParts { Sheets = sheets, Palettes = palettes }), "required Ceres DMA extensions");
-        Reject(() => EnemyTileArtworkCatalog.FromInstalledArtwork(new EnemyTileArtworkParts { Sheets = sheets, Palettes = palettes, CeresEscapeTiles = ceres, CeresEscapeOverlayTilemaps = overlays }), "required Torizo DMA extension");
+        _ = AreaArtworkCatalog.FromInstalledArtwork(new AreaArtworkCatalog { CeresEscapeTiles = ceres, CeresEscapeOverlayTilemaps = overlays });
+        _ = BossArtworkCatalog.FromInstalledArtwork(new BossArtworkCatalog { TorizoInstructionVram = torizo });
+        Reject(() => AreaArtworkCatalog.FromInstalledArtwork(new AreaArtworkCatalog { CeresEscapeTiles = ceres }), "required Ceres DMA extensions");
+        Reject(() => BossArtworkCatalog.FromInstalledArtwork(new BossArtworkCatalog()), "required Torizo DMA extension");
         RoomCharacterAtlas original = sheets[first.DefinitionPointer];
         sheets.Remove(first.DefinitionPointer); sheets.Add(0, original);
         Reject(() => Install(), "same-count substituted identity");
@@ -77,10 +81,10 @@ internal static class EnemyTileArtworkPresentationContractChecks
             bytes.Length == first.ByteCount, "copied native DMA alias");
         Require(!catalog.TryResolve(0, int.MinValue, out _), "unowned source remains a false query");
         TileSheetDefinition warning = CeresEscapeTileArtworkDefinitions.WarningText;
-        Require(catalog.TryResolve(warning.SourceAddress + 1, 1, out bytes) && bytes.Length == 1,
+        Require(ceres.TryResolve(warning.SourceAddress + 1, 1, out bytes) && bytes.Length == 1,
             "bounded Ceres tile slice");
         CeresEscapeOverlayTilemapDefinition overlay = CeresEscapeOverlayTilemapDefinitions.Emergency;
-        Require(catalog.TryResolve(overlay.SourceAddress, overlay.WordCount * sizeof(ushort), out bytes) &&
+        Require(overlays.TryResolve(overlay.SourceAddress, overlay.WordCount * sizeof(ushort), out bytes) &&
             bytes.Length == overlay.WordCount * sizeof(ushort), "exact Ceres overlay source");
         var vram = new SnesVram();
         vram.LoadBytes(0, Enumerable.Repeat((byte)0xa5, first.ByteCount + 2).ToArray());

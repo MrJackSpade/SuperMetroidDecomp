@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Fx;
@@ -46,4 +47,7 @@ internal sealed record MotherBrainBehaviorDependencies
     /// <summary>The other actors in the room that Mother Brain asks to spawn, fire or stop.</summary>
     public required IMotherBrainRoomActors RoomActors { get; init; }
 
+
+    /// <summary>The session's installed boss artwork.</summary>
+    public required BossArtworkBinding BossArtwork { get; init; }
 }

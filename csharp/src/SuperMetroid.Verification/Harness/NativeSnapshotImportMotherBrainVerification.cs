@@ -178,7 +178,7 @@ internal static class NativeSnapshotImportMotherBrainVerification
     private static void ImportNativeMotherBrainRainbowSequence(SuperMetroidRuntime runtime, MotherBrainEnemyState state,
         MotherBrainBodyFunction phase, Func<int, ushort> W)
     {
-        var artwork = runtime.Enemies.Room.MotherBrainCorpseArtwork;
+        var artwork = runtime.Enemies.BossArtworkBinding.MotherBrainCorpse;
         var sequence = new MotherBrainRainbowBeamAttackSequence(artwork);
         sequence.State.Phase = phase;
         sequence.State.FunctionTimer = NativeCountdown.FromRaw(W(MotherBrainMemory.BodyFunctionTimer));

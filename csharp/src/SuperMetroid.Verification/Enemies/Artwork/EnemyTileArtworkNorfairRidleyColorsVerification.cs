@@ -4,7 +4,6 @@ using System.Text.Json.Nodes;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Bosses.Ridley;
 using SuperMetroid.Core.Enemies;
-using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Bosses.Ridley.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Enemies;
@@ -21,14 +20,14 @@ internal static class EnemyTileArtworkNorfairRidleyColorsVerification
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for installed Norfair Ridley colors and reveal pointers")]
     internal static void VerifyInstalledNorfairRidleyColors(ISnesAddressSpace bus,
-        string stockDirectory, EnemyTileArtworkCatalog stock)
+        string stockDirectory, InstalledEnemyArtwork stock)
     {
-        if (stock.NorfairRidleyColors is null)
+        if (stock.Bosses.NorfairRidleyColors is null)
             throw new InvalidDataException("Installed enemy artwork lacks Norfair Ridley colors.");
         var forbidden = new HashSet<int>();
         for (int color = 0; color < NorfairRidleyPaletteRomData.InitialColorCount; color++)
             CheckSource(NorfairRidleyPaletteRomData.InitialColors + color * sizeof(ushort),
-                stock.NorfairRidleyColors.ResolveInitial(color).ToWord());
+                stock.Bosses.NorfairRidleyColors.ResolveInitial(color).ToWord());
         for (int row = 0; row < NorfairRidleyPaletteRomData.RevealRowCount; row++)
         {
             int pointerAddress = NorfairRidleyPaletteRomData.RevealSourcePointers + row * sizeof(ushort);
@@ -38,7 +37,7 @@ internal static class EnemyTileArtworkNorfairRidleyColorsVerification
             AssertTrue(pointer >= 0x8000, $"Norfair Ridley reveal row {row} has a bank-$A6 source");
             for (int color = 0; color < NorfairRidleyPaletteRomData.RevealColorCount; color++)
                 CheckSource(0xa60000 + pointer + color * sizeof(ushort),
-                    (stock.NorfairRidleyColors.ResolveReveal(row, color)).ToWord());
+                    (stock.Bosses.NorfairRidleyColors.ResolveReveal(row, color)).ToWord());
         }
         int terminatorAddress = NorfairRidleyPaletteRomData.RevealSourcePointers +
             NorfairRidleyPaletteRomData.RevealRowCount * sizeof(ushort);
@@ -85,7 +84,7 @@ internal static class EnemyTileArtworkNorfairRidleyColorsVerification
         changed.Required("reveal").Required(7).Required(3)["blue"] = revealBlue ^ 1;
         byte[] editedBytes = Encoding.UTF8.GetBytes(changed.ToJsonString());
         File.WriteAllBytes(overridePath, editedBytes);
-        EnemyTileArtworkCatalog edited = EnemyTileArtworkFiles.Load(stockDirectory, overrides);
+        InstalledEnemyArtwork edited = EnemyTileArtworkFiles.Load(stockDirectory, overrides);
         (RoomEnemySystem editedEnemy, SnesCgram editedCgram, RoomEnemySlot editedSlot,
             RidleyEnemyState editedState) = Create(guard, edited);
         (SnesCgram controlCgram, RidleyEnemyState controlState) = CreateReference();
@@ -115,9 +114,9 @@ internal static class EnemyTileArtworkNorfairRidleyColorsVerification
         EnemyTileArtworkFiles.Extract(bus, stockDirectory, SupportedCartridge.Sha256);
         AssertTrue(editedBytes.SequenceEqual(File.ReadAllBytes(overridePath)),
             "Stock re-extraction leaves Norfair Ridley override untouched");
-        EnemyTileArtworkCatalog reloaded = EnemyTileArtworkFiles.Load(stockDirectory, overrides);
-        AssertEqual((edited.NorfairRidleyColors ?? throw new InvalidOperationException("Verification requires edited.NorfairRidleyColors.")).ResolveReveal(7, 3),
-            (reloaded.NorfairRidleyColors ?? throw new InvalidOperationException("Verification requires reloaded.NorfairRidleyColors.")).ResolveReveal(7, 3),
+        InstalledEnemyArtwork reloaded = EnemyTileArtworkFiles.Load(stockDirectory, overrides);
+        AssertEqual((edited.Bosses.NorfairRidleyColors ?? throw new InvalidOperationException("Verification requires edited.NorfairRidleyColors.")).ResolveReveal(7, 3),
+            (reloaded.Bosses.NorfairRidleyColors ?? throw new InvalidOperationException("Verification requires reloaded.NorfairRidleyColors.")).ResolveReveal(7, 3),
             "Norfair Ridley reveal edit survives restart/re-extraction");
         File.WriteAllText(overridePath, "broken");
         AssertThrows<InvalidDataException>(() => EnemyTileArtworkFiles.Load(stockDirectory, overrides),
@@ -202,9 +201,9 @@ internal static class EnemyTileArtworkNorfairRidleyColorsVerification
 
         // Initializes the production Norfair Ridley actor with selected artwork and seeded CGRAM.
         static (RoomEnemySystem, SnesCgram, RoomEnemySlot, RidleyEnemyState) Create(
-            ISnesAddressSpace source, EnemyTileArtworkCatalog artwork)
+            ISnesAddressSpace source, InstalledEnemyArtwork artwork)
         {
-            var enemy = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null)) { TileArtwork = artwork };
+            var enemy = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null)) { TileArtwork = artwork.Enemies, BossArtwork = artwork.Bosses, AreaArtwork = artwork.Areas };
             var cgram = new SnesCgram();
             for (int color = 0; color < SnesCgram.ColorCount; color++)
                 cgram.SetColor(color, Bgr555.FromWord((ushort)(color * 31)));

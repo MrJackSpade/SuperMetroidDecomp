@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.Bosses.Artwork;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 
@@ -8,7 +8,7 @@ internal sealed record MotherBrainCorpseCharacters(int Page) : ObjCharacterSourc
 {
     /// <inheritdoc/>
     public override ReadOnlyMemory<byte> Resolve(IObjCharacterSourceResolver resolver) =>
-        (InstalledObjCharacterArtwork.Of(resolver).EnemyTiles.MotherBrainCorpse ?? throw new InvalidDataException(
+        (InstalledBossObjCharacterArtwork.Of(resolver).BossTiles.MotherBrainCorpse ?? throw new InvalidDataException(
             "Installed enemy artwork is missing mother-brain-corpse-tiles.png.")).Transfer.Slice(
             checked((int)MotherBrainCorpseArtworkDefinitions.VramPageSource(Page)) - MotherBrainCorpseArtworkDefinitions.SourceAddress,
             MotherBrainCorpseArtworkDefinitions.VramPageByteCount);

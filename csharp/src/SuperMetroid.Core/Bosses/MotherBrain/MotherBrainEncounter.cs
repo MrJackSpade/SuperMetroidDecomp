@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core.Escape.Artwork;
@@ -15,10 +16,14 @@ internal sealed class MotherBrainEncounter
     private readonly EnemyPresentation _presentation;
     /// <summary>Room services supplying installed artwork and mutable memory for native transfers.</summary>
     private readonly EnemyRoomBinding _room;
+    /// <summary>The session's installed boss artwork.</summary>
+    private readonly BossArtworkBinding _bossArtwork;
+
 
     /// <summary>Binds the encounter's sprite transfers to presentation and room asset owners.</summary>
-    internal MotherBrainEncounter(EnemyPresentation presentation, EnemyRoomBinding room)
+    internal MotherBrainEncounter(EnemyPresentation presentation, EnemyRoomBinding room, BossArtworkBinding bossArtwork)
     {
+        _bossArtwork = bossArtwork;
         _presentation = presentation;
         _room = room;
     }
@@ -43,7 +48,7 @@ internal sealed class MotherBrainEncounter
         {
             int page = sheet.ResolvePage(
                 transfer.SourceAddress, transfer.Size, transfer.VramDestination);
-            if (_room.Artwork.MotherBrainSpecialSprites is null)
+            if (_bossArtwork.Artwork?.MotherBrainSpecialSprites is null)
                 throw new InvalidDataException(
                     $"Installed enemy artwork is missing {sheet.FileName}.");
             _presentation.ObjCharacters.RecordUpload(destination, transfer.Size, new MotherBrainSpecialSpriteCharacters(
@@ -72,7 +77,7 @@ internal sealed class MotherBrainEncounter
                 throw new InvalidDataException(
                     $"Invalid Mother Brain escape-text sprite transfer {transfer}.");
 
-            if (_room.Artwork.MotherBrainEscapeText is null)
+            if (_bossArtwork.Artwork?.MotherBrainEscapeText is null)
                 throw new InvalidDataException(
                     "Installed enemy artwork is missing mother-brain-escape-text-tiles.png.");
             _presentation.ObjCharacters.RecordUpload(destination, transfer.Size, new MotherBrainEscapeTextCharacters(page));
@@ -102,7 +107,7 @@ internal sealed class MotherBrainEncounter
                 throw new InvalidDataException(
                     $"Invalid Mother Brain corpse sprite transfer {transfer}.");
 
-            _ = _room.MotherBrainCorpseArtwork;
+            _ = _bossArtwork.MotherBrainCorpse;
             _presentation.ObjCharacters.RecordUpload(destination, transfer.Size, new MotherBrainCorpseCharacters(page));
             return;
         }

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Rooms.SpriteObjects;
@@ -32,4 +33,7 @@ internal sealed record SporeSpawnBehaviorDependencies
 
     /// <summary>Frame results.</summary>
     public required EnemyFrameResultBuilder FrameResults { get; init; }
+
+    /// <summary>The session's installed boss artwork.</summary>
+    public required BossArtworkBinding BossArtwork { get; init; }
 }

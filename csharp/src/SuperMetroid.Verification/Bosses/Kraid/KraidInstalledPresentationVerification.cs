@@ -4,7 +4,6 @@ using static SuperMetroid.Verification.Bosses.Kraid.KraidInstalledPresentationOr
 using static SuperMetroid.Verification.Bosses.Kraid.KraidInstalledPresentationResourcesVerification;
 using static SuperMetroid.Verification.Bosses.Kraid.KraidInstalledPresentationTailVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
-using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
@@ -23,7 +22,7 @@ internal static class KraidInstalledPresentationVerification
         string stockPath = Path.Combine(temporary.Root, "stock");
         EnemyTileArtworkFiles.Extract(source, stockPath, SupportedCartridge.Sha256);
         EnemyTileArtworkFiles.ValidateStock(stockPath);
-        EnemyTileArtworkCatalog stock = EnemyTileArtworkFiles.Load(stockPath, null);
+        InstalledEnemyArtwork stock = EnemyTileArtworkFiles.Load(stockPath, null);
         Suite(nameof(VerifyInstalledKraidBackground), () => VerifyInstalledKraidBackground(source, stockPath, stock));
         Suite(nameof(VerifyKraidInstalledControlOracle), () => VerifyKraidInstalledControlOracle(source));
         Suite(nameof(VerifyKraidInstalledHeadIsolation), () => VerifyKraidInstalledHeadIsolation(source, stockPath, stock));

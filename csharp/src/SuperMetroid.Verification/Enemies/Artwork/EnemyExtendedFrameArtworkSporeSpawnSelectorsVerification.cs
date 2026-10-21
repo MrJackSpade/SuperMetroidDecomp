@@ -1,10 +1,10 @@
+using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Bosses.SporeSpawn.SporeSpawnAnimationsVerification;
 using SuperMetroid.Verification.Bosses.SporeSpawn;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Bosses.SporeSpawn;
 using SuperMetroid.Core.Enemies;
-using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.World;
 
 namespace SuperMetroid.Verification.Enemies.Artwork;
@@ -19,9 +19,9 @@ internal static class EnemyExtendedFrameArtworkSporeSpawnSelectorsVerification
     /// </summary>
     internal static void VerifyInstalledSporeSpawnSelectorPrograms(
         SuperMetroidAddressSpace rom,
-        EnemyTileArtworkCatalog stock)
+        InstalledEnemyArtwork stock)
     {
-        AssertTrue(stock.Spritemaps is not null && stock.ExtendedFrames is not null,
+        AssertTrue(stock.Enemies.Spritemaps is not null && stock.Enemies.ExtendedFrames is not null,
             "installed Spore Spawn comparison has complete enemy art");
 
         (SporeSpawnBodyProgram Program, int Frames)[] programs =
@@ -160,8 +160,8 @@ internal static class EnemyExtendedFrameArtworkSporeSpawnSelectorsVerification
     /// <summary>Checks that replacing compatible display frames leaves all five programs' timing and gameplay state intact.</summary>
     internal static void VerifySporeSpawnVisualRemapKeepsMechanics(
         SuperMetroidAddressSpace rom,
-        EnemyTileArtworkCatalog stock,
-        EnemyTileArtworkCatalog remapped)
+        InstalledEnemyArtwork stock,
+        InstalledEnemyArtwork remapped)
     {
         (SporeSpawnBodyProgram Program, int Frames)[] programs =
         [

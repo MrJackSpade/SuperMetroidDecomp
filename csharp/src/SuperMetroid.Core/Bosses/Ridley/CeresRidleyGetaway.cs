@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Core.Areas.Ceres;
+﻿using SuperMetroid.Core.Areas;
+using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Samus;
@@ -27,17 +28,21 @@ internal sealed class CeresRidleyGetaway
     private readonly RidleyEncounter _ridleyEncounter;
     /// <summary>Publishes Ceres escape and self-destruct room status.</summary>
     private readonly EnemyRoomStatus _roomStatus;
+    /// <summary>The session's installed area artwork.</summary>
+    private readonly AreaArtworkBinding _areaArtwork;
+
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
-    internal CeresRidleyGetaway(EnemyFrameResultBuilder frameResults, EnemyRoomBinding room, EnemyAudioQueue audio, EnemySlotTable slotTable, EnemyPresentation presentation, RidleyEncounter ridleyEncounter, EnemyRoomStatus roomStatus)
+    internal CeresRidleyGetaway(CeresRidleyGetawayDependencies dependencies)
     {
-        _frameResults = frameResults;
-        _room = room;
-        _audio = audio;
-        _slotTable = slotTable;
-        _presentation = presentation;
-        _ridleyEncounter = ridleyEncounter;
-        _roomStatus = roomStatus;
+        _frameResults = dependencies.FrameResults;
+        _room = dependencies.Room;
+        _audio = dependencies.Audio;
+        _slotTable = dependencies.SlotTable;
+        _presentation = dependencies.Presentation;
+        _ridleyEncounter = dependencies.RidleyEncounter;
+        _roomStatus = dependencies.RoomStatus;
+        _areaArtwork = dependencies.AreaArtwork;
     }
 
     /// <summary>
@@ -337,7 +342,7 @@ internal sealed class CeresRidleyGetaway
     [PpuLayoutBoundary("codec: Ceres warning tilemaps' native BG1 tilemap destinations")]
     private void DrawCeresOverlay(int sourceAddress, int byteCount, ushort destinationWord, string page)
     {
-        CeresEscapeOverlayTilemapCatalog overlays = _room.Artwork?.CeresEscapeOverlayTilemaps
+        CeresEscapeOverlayTilemapCatalog overlays = _areaArtwork.Artwork?.CeresEscapeOverlayTilemaps
             ?? throw new InvalidDataException("The Ceres escape has no installed warning tilemaps.");
         if (!overlays.TryResolve(sourceAddress, byteCount, out ReadOnlyMemory<byte> data))
             throw new InvalidDataException($"Installed Ceres escape has no editable {page} tilemap.");
@@ -374,9 +379,9 @@ internal sealed class CeresRidleyGetaway
             EscapeTimerTilePages.IsSource(sourceAddress))
             throw new InvalidDataException(
                 "Installed Ceres escape timer has no editable sprite tile artwork.");
-        if (_room.Artwork is { } installed &&
+        if (_room.Artwork is not null &&
             CeresEscapeTileArtworkDefinitions.Contains(sourceAddress, byteCount) &&
-            installed.CeresEscapeTiles?.TryResolve(sourceAddress, byteCount, out _) != true)
+            _areaArtwork.Artwork?.CeresEscapeTiles?.TryResolve(sourceAddress, byteCount, out _) != true)
             throw new InvalidDataException(
                 $"Installed Ceres escape has no editable character page for ${sourceAddress:X6}.");
 

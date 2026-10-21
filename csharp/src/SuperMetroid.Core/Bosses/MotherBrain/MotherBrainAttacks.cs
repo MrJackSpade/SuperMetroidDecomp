@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Core.Samus.Poses;
+﻿using SuperMetroid.Core.Bosses.Artwork;
+using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Movement;
@@ -15,10 +16,14 @@ internal sealed class MotherBrainAttacks
     private readonly EnemyRoomBinding _room;
     /// <summary>Mother Brain's rainbow beam, its palette, and her death.</summary>
     private readonly MotherBrainRainbowAndDeath _rainbowAndDeath;
+    /// <summary>The session's installed boss artwork.</summary>
+    private readonly BossArtworkBinding _bossArtwork;
+
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
-    internal MotherBrainAttacks(EnemyRoomBinding room, MotherBrainRainbowAndDeath rainbowAndDeath)
+    internal MotherBrainAttacks(EnemyRoomBinding room, MotherBrainRainbowAndDeath rainbowAndDeath, BossArtworkBinding bossArtwork)
     {
+        _bossArtwork = bossArtwork;
         _room = room;
         _rainbowAndDeath = rainbowAndDeath;
     }
@@ -522,7 +527,7 @@ internal sealed class MotherBrainAttacks
         SamusState samus,
         SamusBombProjectileSystem? sharedProjectiles)
     {
-        var sequence = new MotherBrainRainbowBeamAttackSequence(_room.MotherBrainCorpseArtwork, _room.Staging);
+        var sequence = new MotherBrainRainbowBeamAttackSequence(_bossArtwork.MotherBrainCorpse, _room.Staging);
         MotherBrainRainbowAndDeath.SynchronizeLiveMotherBrainRainbowActor(state, sequence);
         // Word $0FF2 keeps the fake-death ascent dust's last value; the death explosions
         // start from it. Word $0FF0 then holds a bank-$A9 sub-function pointer, always

@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Core.Enemies;
+﻿using SuperMetroid.Core.Bosses.Artwork;
+using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Rooms;
 
@@ -8,17 +9,18 @@ namespace SuperMetroid.Core.Bosses.Phantoon;
 [RoomLifetime]
 internal sealed class PhantoonPresentation
 {
-    /// <summary>Room services and tilemap state used by the Wrecked Ship encounter.</summary>
-    private readonly EnemyRoomBinding _room;
     /// <summary>Applies body palettes and BG2 tilemap changes.</summary>
     private readonly EnemyPresentation _presentation;
     /// <summary>Supplies Samus state for eye tracking and attack selection.</summary>
     private readonly EnemyFrameContext _frameContext;
+    /// <summary>The session's installed boss artwork.</summary>
+    private readonly BossArtworkBinding _bossArtwork;
+
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
-    internal PhantoonPresentation(EnemyRoomBinding room, EnemyPresentation presentation, EnemyFrameContext frameContext)
+    internal PhantoonPresentation(EnemyPresentation presentation, EnemyFrameContext frameContext, BossArtworkBinding bossArtwork)
     {
-        _room = room;
+        _bossArtwork = bossArtwork;
         _presentation = presentation;
         _frameContext = frameContext;
     }
@@ -120,7 +122,7 @@ internal sealed class PhantoonPresentation
 
     /// <summary>Resolves the selected visual color; health-band selection stays in AI.</summary>
     internal Bgr555 ReadPhantoonHealthColor(int healthBand, int color) =>
-        (_room.Artwork?.PhantoonColors ?? throw new InvalidDataException(
+        (_bossArtwork.Artwork?.PhantoonColors ?? throw new InvalidDataException(
             "Phantoon health palette requires installed artwork.")).ResolveHealth(healthBand, color);
 
     /// <summary>Restarts a part's program with a one-tick timer, as a native list-pointer store does.</summary>

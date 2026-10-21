@@ -28,9 +28,9 @@ internal static class EnemyTileArtworkTourianStatueColorsVerification
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for installed Tourian statue palette sources")]
     internal static void VerifyInstalledTourianStatueColors(ISnesAddressSpace bus,
-        string stockDirectory, EnemyTileArtworkCatalog stock)
+        string stockDirectory, InstalledEnemyArtwork stock)
     {
-        TourianStatueColorCatalog colors = stock.TourianStatueColors ??
+        TourianStatueColorCatalog colors = stock.Areas.TourianStatueColors ??
             throw new InvalidDataException("Installed enemy artwork lacks Tourian statue colors.");
         var forbidden = new HashSet<int>();
         for (int color = 0; color < TourianStatuePaletteRomData.BaseColorCount; color++)
@@ -93,7 +93,7 @@ internal static class EnemyTileArtworkTourianStatueColorsVerification
         changed.Required("statue").Required(1)["green"] = changed.Required("statue").Required(1).Required("green").GetValue<int>() ^ 1;
         changed.Required("eye").Required(2).Required(1)["blue"] = changed.Required("eye").Required(2).Required(1).Required("blue").GetValue<int>() ^ 1;
         File.WriteAllBytes(overridePath, Encoding.UTF8.GetBytes(changed.ToJsonString()));
-        EnemyTileArtworkCatalog edited = EnemyTileArtworkFiles.Load(stockDirectory, overrides);
+        InstalledEnemyArtwork edited = EnemyTileArtworkFiles.Load(stockDirectory, overrides);
         SnesCgram nativeEntryCgram = SeedColors();
         (RoomEnemySystem editedEntry, SnesCgram editedEntryCgram) = CreateEnemy(guard, edited);
         ReferenceEntrance(nativeEntryCgram);
@@ -118,7 +118,7 @@ internal static class EnemyTileArtworkTourianStatueColorsVerification
             greyOnly.Required("grey").Required(1).Required("blue").GetValue<int>() ^ 1;
         byte[] greyBytes = Encoding.UTF8.GetBytes(greyOnly.ToJsonString());
         File.WriteAllBytes(overridePath, greyBytes);
-        EnemyTileArtworkCatalog editedGrey = EnemyTileArtworkFiles.Load(stockDirectory, overrides);
+        InstalledEnemyArtwork editedGrey = EnemyTileArtworkFiles.Load(stockDirectory, overrides);
         string romPath = Path.GetFullPath("Super Metroid.smc");
         var installedRoom = CreateGreyRoom(
             NewTourianStatueColorGuard(
@@ -154,9 +154,9 @@ internal static class EnemyTileArtworkTourianStatueColorsVerification
         EnemyTileArtworkFiles.Extract(bus, stockDirectory, SupportedCartridge.Sha256);
         AssertTrue(greyBytes.SequenceEqual(File.ReadAllBytes(overridePath)),
             "Stock re-extraction preserves Tourian statue override");
-        EnemyTileArtworkCatalog reloaded = EnemyTileArtworkFiles.Load(stockDirectory, overrides);
-        AssertEqual((editedGrey.TourianStatueColors ?? throw new InvalidOperationException("Verification requires editedGrey.TourianStatueColors.")).ResolveGrey(1),
-            (reloaded.TourianStatueColors ?? throw new InvalidOperationException("Verification requires reloaded.TourianStatueColors.")).ResolveGrey(1),
+        InstalledEnemyArtwork reloaded = EnemyTileArtworkFiles.Load(stockDirectory, overrides);
+        AssertEqual((editedGrey.Areas.TourianStatueColors ?? throw new InvalidOperationException("Verification requires editedGrey.TourianStatueColors.")).ResolveGrey(1),
+            (reloaded.Areas.TourianStatueColors ?? throw new InvalidOperationException("Verification requires reloaded.TourianStatueColors.")).ResolveGrey(1),
             "Tourian statue grey edit survives reload");
         File.WriteAllText(overridePath, "broken");
         AssertThrows<InvalidDataException>(() => EnemyTileArtworkFiles.Load(stockDirectory, overrides),
@@ -213,9 +213,9 @@ internal static class EnemyTileArtworkTourianStatueColorsVerification
         }
 
         static (RoomEnemySystem, SnesCgram) CreateEnemy(
-            ISnesAddressSpace source, EnemyTileArtworkCatalog artwork)
+            ISnesAddressSpace source, InstalledEnemyArtwork artwork)
         {
-            var enemy = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork };
+            var enemy = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork.Enemies, BossArtwork = artwork.Bosses, AreaArtwork = artwork.Areas };
             SnesCgram cgram = SeedColors();
             enemy.Presentation.BindCgram(cgram);
             return (enemy, cgram);
@@ -230,10 +230,12 @@ internal static class EnemyTileArtworkTourianStatueColorsVerification
         }
 
         static SuperMetroidRuntime CreateGreyRoom(
-            ISnesAddressSpace source, EnemyTileArtworkCatalog artwork)
+            ISnesAddressSpace source, InstalledEnemyArtwork artwork)
         {
             var runtime = CreateRetailRuntimeFixture(playerInvincibilityEnabled: true);
-            runtime.EnemySession.TileArtwork = artwork;
+            runtime.EnemySession.TileArtwork = artwork.Enemies;
+            runtime.BossArtwork.Artwork = artwork.Bosses;
+            runtime.AreaArtwork.Artwork = artwork.Areas;
             runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
             runtime.RoomLoader.InitializeStartingCeresRoom();
             runtime.RoomLoader.InitializeCeresStartSamus();

@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Enemies.Artwork;
-using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.Core.World;
 
 namespace SuperMetroid.Core.Enemies;
@@ -50,11 +49,6 @@ internal sealed class EnemyRoomBinding
     /// <summary>The installed enemy presentation; drawing and named artwork transfers require it.</summary>
     internal EnemyTileArtworkCatalog InstalledArtwork => Artwork ??
         throw new InvalidDataException("Enemy artwork is not installed; the host installs it with the room.");
-
-    /// <summary>The installed Mother Brain corpse tiles; the bound artwork must provide them.</summary>
-    internal RoomCharacterAtlas MotherBrainCorpseArtwork =>
-        Artwork?.MotherBrainCorpse ?? throw new InvalidDataException(
-            "Installed enemy artwork is missing mother-brain-corpse-tiles.png.");
 
     /// <summary>The session's enemy staging surfaces; they outlive each room, as the cartridge's WRAM does.</summary>
     internal EnemyStagingSurfaces Staging => Session.Staging;

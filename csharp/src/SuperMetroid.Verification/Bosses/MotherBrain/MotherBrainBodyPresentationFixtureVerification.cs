@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Enemies.EnemyAnimationIsolationFixtureVerification;
@@ -25,7 +26,7 @@ internal static class MotherBrainBodyPresentationFixtureVerification
         private readonly Action<RoomEnemySlot, SamusState?, RoomLevelData?, Position16<RoomPixels>, SnesButton> instructions;
 
         /// <summary>Creates and binds a third-form body with installed artwork and the enemy BG2 image it owns since phase two.</summary>
-        internal MotherBrainPresentationFixture(EnemyTileArtworkCatalog artwork)
+        internal MotherBrainPresentationFixture(InstalledEnemyArtwork artwork)
         {
             Inner = new EnemyAnimationFixture(artwork, golden: false);
             EnemyDefinitionId bodyId = EnemyDefinitionId.MotherBrainBody;

@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Core.Enemies;
+﻿using SuperMetroid.Core.Bosses.Artwork;
+using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Samus;
@@ -33,10 +34,14 @@ internal sealed class MotherBrainHead
     private readonly MotherBrainProjectiles _projectileAttacks;
     /// <summary>Mother Brain's state lookups, body and brain program setters, timers and PLM requests.</summary>
     private readonly MotherBrainEncounterAccess _access;
+    /// <summary>The session's installed boss artwork.</summary>
+    private readonly BossArtworkBinding _bossArtwork;
+
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
     internal MotherBrainHead(MotherBrainHeadDependencies dependencies)
     {
+        _bossArtwork = dependencies.BossArtwork;
         _room = dependencies.Room;
         _projectiles = dependencies.Projectiles;
         _audio = dependencies.Audio;
@@ -63,7 +68,7 @@ internal sealed class MotherBrainHead
         // The cartridge seeds the complete future corpse effect during room load, not when
         // Mother Brain dies. Keeping this eager call preserves the exact WRAM state visible
         // throughout every earlier phase and prevents the death sequence from inventing it.
-        state.CorpseRotting.Initialize(_room.Staging, _room.MotherBrainCorpseArtwork);
+        state.CorpseRotting.Initialize(_room.Staging, _bossArtwork.MotherBrainCorpse);
 
         head.Health = 3000;
         // `$A9:8714` gives the head enemy the dummy program for life (the encounter state's

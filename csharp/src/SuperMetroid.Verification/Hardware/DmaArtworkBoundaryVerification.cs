@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Enemies;
 using static SuperMetroid.Verification.Harness.RepositoryInputsVerification;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Hardware.DmaSourceRoutingVerification;
@@ -6,7 +7,6 @@ using static SuperMetroid.Verification.Hardware.QueuedVramAssetsVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Bosses.Kraid;
 using SuperMetroid.Core.Enemies;
-using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Frontend.Map.Artwork;
 using SuperMetroid.AssetExtraction.Installation;
@@ -34,9 +34,9 @@ internal static class DmaArtworkBoundaryVerification
         GameInstallation installation = GameAssetInstaller.Install(sourceRom, temporary.Root);
         var reference = CartridgeImportAddressSpaceTooling.LoadRetailRom(sourceRom);
         AreaMapPresentationCatalog maps = installation.LoadMaps();
-        EnemyTileArtworkCatalog art = installation.LoadEnemyTiles();
+        InstalledEnemyArtwork art = installation.LoadEnemyTiles();
         var memory = SuperMetroidAddressSpace.CreateWithoutCartridge();
-        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = art, Presentation = { HudTileArtwork = maps.HudTiles } };
+        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = art.Enemies, BossArtwork = art.Bosses, AreaArtwork = art.Areas, Presentation = { HudTileArtwork = maps.HudTiles } };
         var background = new SnesVram();
         enemies.Presentation.BindVram(BgArtworkFixtures.For(background));
         Action upload = new Action(enemies.KraidBehavior.Rise.UploadKraidRoomBackgroundTiles);
@@ -51,7 +51,9 @@ internal static class DmaArtworkBoundaryVerification
         enemies.TileArtwork = null;
         AssertThrows<InvalidDataException>(upload,
             "missing Kraid background artwork is not a cartridge fallback");
-        enemies.TileArtwork = art;
+        enemies.TileArtwork = art.Enemies;
+        enemies.BossArtwork = art.Bosses;
+        enemies.AreaArtwork = art.Areas;
 
         Action<RoomEnemySlot, KraidEnemyState, int, KraidAiFunction, VramWriteQueue?> transfer = enemies.KraidBehavior.Death.AdvanceKraidDeathBg3Transfer;
         foreach (bool queued in new[] { false, true })

@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Programs;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Enemies;
@@ -18,9 +19,9 @@ internal static class ChootBehaviorVerification
     /// start the jumping and falling animations, which switch it on. Each shows its frames and holds the last; the update
     /// that reaches the native sleep still reports the held frame as new.
     /// </summary>
-    internal static void VerifyChootBehavior(EnemyTileArtworkCatalog? artwork = null)
+    internal static void VerifyChootBehavior(InstalledEnemyArtwork? artwork = null)
     {
-        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork };
+        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork?.Enemies, BossArtwork = artwork?.Bosses, AreaArtwork = artwork?.Areas };
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.Choot, slot.Definition);
         slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = ChootFrameToolingDefinitions.Bank });

@@ -90,7 +90,9 @@ internal static class CeresRidleyColorsVerification
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance)
         {
             Presentation = { CeresRidleyColors = edited.CeresRidleyColors },
-            TileArtwork = fixtureAssets.EnemyTiles,
+            TileArtwork = fixtureAssets.EnemyTiles.Enemies,
+            BossArtwork = fixtureAssets.EnemyTiles.Bosses,
+            AreaArtwork = fixtureAssets.EnemyTiles.Areas,
         };
         var cgram = new SnesCgram();
         enemies.Presentation.BindCgram(cgram);

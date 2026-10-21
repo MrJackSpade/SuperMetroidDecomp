@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
@@ -36,10 +37,14 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
 
     /// <summary>Shares physical body, head, rainbow sequence, and requested music state with Mother Brain.</summary>
     private readonly MotherBrainEncounter _motherBrainEncounter;
+    /// <summary>The session's installed boss artwork.</summary>
+    private readonly BossArtworkBinding _bossArtwork;
+
 
     /// <summary>Connects the cutscene Baby to its Mother Brain encounter and room services.</summary>
     internal BabyMetroidCutsceneBehavior(BabyMetroidCutsceneBehaviorDependencies dependencies)
     {
+        _bossArtwork = dependencies.BossArtwork;
         _motherBrainEncounter = dependencies.MotherBrainEncounter;
         _dispatch = dependencies.Dispatch;
         _room = dependencies.Room;
@@ -119,7 +124,7 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
     /// <summary>Copies installed Baby start colors while leaving CGRAM's transparent entry untouched.</summary>
     internal void LoadBabyMetroidCutsceneInitialPalette()
     {
-        var colors = _room.Artwork?.BabyMetroidCutsceneColors ?? throw new InvalidOperationException(
+        var colors = _bossArtwork.Artwork?.BabyMetroidCutsceneColors ?? throw new InvalidOperationException(
             "Baby Metroid cutscene requires installed colors.");
         for (int color = 0; color < BabyMetroidCutsceneColorRomData.InitialColorCount; color++)
             _presentation.BossPalettes.BabyMetroidCutscene.Write(color, colors.InitialColor(color));
@@ -281,7 +286,7 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
             throw new InvalidDataException(
                 $"Cutscene Baby fade {palette.PaletteIndex} has a non-native transfer layout.");
 
-        var colors = _room.Artwork?.BabyMetroidCutsceneColors ?? throw new InvalidOperationException(
+        var colors = _bossArtwork.Artwork?.BabyMetroidCutsceneColors ?? throw new InvalidOperationException(
             "Baby Metroid fade requires installed colors.");
         for (int color = 0; color < palette.ColorCount; color++)
             _presentation.BossPalettes.BabyMetroidCutscene.Write(color,

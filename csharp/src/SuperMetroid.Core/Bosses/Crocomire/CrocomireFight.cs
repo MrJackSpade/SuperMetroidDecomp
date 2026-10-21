@@ -1,4 +1,5 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using SuperMetroid.Core.Bosses.Artwork;
+using System.Diagnostics.CodeAnalysis;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
@@ -39,10 +40,14 @@ internal sealed class CrocomireFight
     private readonly CrocomireBg2 _bg2;
     /// <summary>Crocomire's state lookups, body program start, PLMs, dust and random numbers, and the sound and music it last requested.</summary>
     private readonly CrocomireEncounterAccess _access;
+    /// <summary>The session's installed boss artwork.</summary>
+    private readonly BossArtworkBinding _bossArtwork;
+
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
     internal CrocomireFight(CrocomireFightDependencies dependencies)
     {
+        _bossArtwork = dependencies.BossArtwork;
         _room = dependencies.Room;
         _terrain = dependencies.Terrain;
         _projectiles = dependencies.Projectiles;
@@ -105,7 +110,7 @@ internal sealed class CrocomireFight
         // The initializer copies seventeen words, not sixteen: X starts at $20 and reaches
         // zero inclusively. Preserve that palette-boundary write because later fades compare
         // the exact target image produced by the cartridge.
-        (_room.Artwork?.CrocomireColors ?? throw new InvalidOperationException(
+        (_bossArtwork.Artwork?.CrocomireColors ?? throw new InvalidOperationException(
             "Crocomire requires installed color artwork.")).ApplyInitial(_presentation.Cgram);
     }
 

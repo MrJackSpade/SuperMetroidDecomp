@@ -72,7 +72,7 @@ internal static class EnemyGameplayAcceptanceVerification
         string stockPath = Path.Combine(temporary.Root, "stock");
         string overridePath = Path.Combine(temporary.Root, "overrides");
         EnemyTileArtworkFiles.Extract(source, stockPath, SupportedCartridge.Sha256);
-        EnemyTileArtworkCatalog stock = EnemyTileArtworkFiles.Load(stockPath, null);
+        InstalledEnemyArtwork stock = EnemyTileArtworkFiles.Load(stockPath, null);
 
         // Body/wing adjacency is gameplay-visible: the wing initializer aliases the
         // immediately preceding physical slot. Choose one complete retail pair list,
@@ -125,7 +125,7 @@ internal static class EnemyGameplayAcceptanceVerification
         }
         byte[] stockBytes = File.ReadAllBytes(Path.Combine(stockPath, EnemyTileArtworkFormat.FileName(editedPointer)));
         string stockHash = Convert.ToHexString(SHA256.HashData(stockBytes));
-        EnemyTileArtworkCatalog edited = EnemyTileArtworkFiles.Load(stockPath, overridePath);
+        InstalledEnemyArtwork edited = EnemyTileArtworkFiles.Load(stockPath, overridePath);
         (RoomEnemySystem changed, SnesVram afterVram, SnesCgram afterColors) = Load(edited);
         byte[] expectedVram = beforeVram.Bytes.ToArray();
         foreach (RoomEnemyGraphicsSetEntry entry in baseline.GraphicsSet.Entries
@@ -150,10 +150,10 @@ internal static class EnemyGameplayAcceptanceVerification
         Console.WriteLine($"Enemy population binding: {population.Records.Length} linked slots at {population.Name} " +
             "initialize with RAM-only memory; PNG edits change VRAM, not any slot field or quota.");
 
-        (RoomEnemySystem, SnesVram, SnesCgram) Load(EnemyTileArtworkCatalog artwork)
+        (RoomEnemySystem, SnesVram, SnesCgram) Load(InstalledEnemyArtwork artwork)
         {
             var memory = SuperMetroidAddressSpace.CreateWithoutCartridge();
-            var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new StandaloneRoomEnemyServices(() => 1)) { TileArtwork = artwork };
+            var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new StandaloneRoomEnemyServices(() => 1)) { TileArtwork = artwork.Enemies, BossArtwork = artwork.Bosses, AreaArtwork = artwork.Areas };
             var vram = new SnesVram(); var colors = new SnesCgram();
             enemies.Load(new RoomEnemyLoadRequest(state.EnemyPopulation, state.EnemyGraphicsSet, BgArtworkFixtures.For(vram), colors));
             return (enemies, vram, colors);

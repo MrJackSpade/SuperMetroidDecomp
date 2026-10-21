@@ -29,15 +29,15 @@ internal static class EnemyTileArtworkDraygonBg2FramesVerification
     [CpuBusBoundary("exact bus test: retail ROM oracle for installed Draygon BG2 frames")]
     internal static void VerifyInstalledDraygonBg2Frames(
         SuperMetroidAddressSpace rom, string stockDirectory,
-        EnemyTileArtworkCatalog stock)
+        InstalledEnemyArtwork stock)
     {
-        AssertTrue(stock.DraygonBg2Frames is not null,
+        AssertTrue(stock.Bosses.DraygonBg2Frames is not null,
             "installed enemy art includes Draygon BG2 frames");
         var noCartridge = NewFrontendCartridgeReadGuard(rom);
         int writeCount = 0;
         foreach (SpritemapFrameDefinition frame in DraygonBg2FrameDefinitions.Frames)
         {
-            AssertTrue((stock.DraygonBg2Frames ?? throw new InvalidOperationException("Verification requires stock.DraygonBg2Frames.")).TryGet(frame.Pointer,
+            AssertTrue((stock.Bosses.DraygonBg2Frames ?? throw new InvalidOperationException("Verification requires stock.DraygonBg2Frames.")).TryGet(frame.Pointer,
                     out ReadOnlyMemory<EnemyBg2TilemapWrite> installed),
                 $"installed Draygon BG2 frame {frame.Name} exists");
             int root = ((int)new SnesAddress(DraygonBg2FrameDefinitions.Bank, frame.Pointer));
@@ -113,9 +113,9 @@ internal static class EnemyTileArtworkDraygonBg2FramesVerification
             DraygonBg2FrameDefinitions.FileName);
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(document,
             CamelCaseJson));
-        EnemyTileArtworkCatalog edited = EnemyTileArtworkFiles.Load(
+        InstalledEnemyArtwork edited = EnemyTileArtworkFiles.Load(
             stockDirectory, overrideDirectory);
-        AssertTrue((edited.DraygonBg2Frames ?? throw new InvalidOperationException("Verification requires edited.DraygonBg2Frames.")).TryGet(editedIdentity.Pointer,
+        AssertTrue((edited.Bosses.DraygonBg2Frames ?? throw new InvalidOperationException("Verification requires edited.DraygonBg2Frames.")).TryGet(editedIdentity.Pointer,
                 out ReadOnlyMemory<EnemyBg2TilemapWrite> editedFrame),
             "edited Draygon BG2 frame is installed");
         int vramByte = (EnemyBg2FrameLayout.VramBase +
@@ -125,9 +125,9 @@ internal static class EnemyTileArtworkDraygonBg2FramesVerification
             "Draygon visual override changes the live BG2 tile word");
         AssertTrue(DrawDraygonBg2(edited, editedIdentity.Pointer, false).All(value => value == 0),
             "Draygon override preserves the native new-frame producer gate");
-        EnemyTileArtworkCatalog reloaded = EnemyTileArtworkFiles.Load(
+        InstalledEnemyArtwork reloaded = EnemyTileArtworkFiles.Load(
             stockDirectory, overrideDirectory);
-        AssertTrue((reloaded.DraygonBg2Frames ?? throw new InvalidOperationException("Verification requires reloaded.DraygonBg2Frames.")).TryGet(editedIdentity.Pointer,
+        AssertTrue((reloaded.Bosses.DraygonBg2Frames ?? throw new InvalidOperationException("Verification requires reloaded.DraygonBg2Frames.")).TryGet(editedIdentity.Pointer,
                 out ReadOnlyMemory<EnemyBg2TilemapWrite> reloadedFrame) &&
             reloadedFrame.Span[0].Tiles.Span[0] == (ushort)changedTile,
             "Draygon BG2 override survives reload");
@@ -227,10 +227,10 @@ internal static class EnemyTileArtworkDraygonBg2FramesVerification
 
     /// <summary>Draws one selected Draygon frame through the enemy layer producer and captures its resulting VRAM bytes.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
-    private static byte[] DrawDraygonBg2(EnemyTileArtworkCatalog art,
+    private static byte[] DrawDraygonBg2(InstalledEnemyArtwork art,
         ushort pointer, bool newInstructionFrame)
     {
-        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = art };
+        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = art.Enemies, BossArtwork = art.Bosses, AreaArtwork = art.Areas };
         var vram = new SnesVram();
         enemies.Presentation.BindVram(BgArtworkFixtures.For(vram));
         enemies.Drawing.Enqueue(0, 0);

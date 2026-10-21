@@ -48,8 +48,8 @@ internal static class EnemyTileArtworkChozoAndTubeColorsVerification
         Directory.CreateDirectory(overrides);
         string overrideFile = Path.Combine(overrides, ChozoAndTubeColorFormat.FileName);
         File.WriteAllBytes(overrideFile, ChozoAndTubeColorCatalog.Write(visual));
-        EnemyTileArtworkCatalog edited = EnemyTileArtworkFiles.Load(stockDirectory, overrides);
-        ChozoAndTubeColorCatalog colors = edited.ChozoAndTubeColors ??
+        InstalledEnemyArtwork edited = EnemyTileArtworkFiles.Load(stockDirectory, overrides);
+        ChozoAndTubeColorCatalog colors = edited.Enemies.ChozoAndTubeColors ??
             throw new InvalidDataException("Edited enemy art has no Chozo/tube colors.");
         CheckEditedBand(native.ResolveTubeCracks, colors.ResolveTubeCracks, "tube cracks");
         CheckEditedBand(native.ResolveWreckedShip, colors.ResolveWreckedShip,
@@ -58,7 +58,7 @@ internal static class EnemyTileArtworkChozoAndTubeColorsVerification
             "Lower Norfair Chozo");
         AssertEqual(colors.ResolveWreckedShip(5),
             (EnemyTileArtworkFiles.Load(stockDirectory, overrides)
-                .ChozoAndTubeColors ?? throw new InvalidOperationException("Verification requires EnemyTileArtworkFiles.Load(stockDirectory, overrides) .ChozoAndTubeColors.")).ResolveWreckedShip(5),
+                .Enemies.ChozoAndTubeColors ?? throw new InvalidOperationException("Verification requires EnemyTileArtworkFiles.Load(stockDirectory, overrides) .ChozoAndTubeColors.")).ResolveWreckedShip(5),
             "Chozo/tube override survives catalog reload");
 
         // Every live initializer must use the installed data, while variant selection,
@@ -105,7 +105,7 @@ internal static class EnemyTileArtworkChozoAndTubeColorsVerification
             Action<RoomEnemySystem, RoomEnemySlot> initialize, ChozoStatueProgram? expectedProgram)
         {
             var cgram = new SnesCgram();
-            var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = edited };
+            var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = edited.Enemies, BossArtwork = edited.Bosses, AreaArtwork = edited.Areas };
             enemies.Presentation.BindCgram(cgram);
             RoomEnemySlot statue = enemies.SlotTable.Slots[0];
             statue.SetSpawnParameter2(variant);

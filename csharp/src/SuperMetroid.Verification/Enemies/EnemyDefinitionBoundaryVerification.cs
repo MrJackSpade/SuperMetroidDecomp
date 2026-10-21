@@ -50,14 +50,14 @@ internal static class EnemyDefinitionBoundaryVerification
         Suite(nameof(VerifyCrocomirePowerBombReactionDefinitions), () => VerifyCrocomirePowerBombReactionDefinitions(source));
         Suite(nameof(VerifyEnemyAuxiliaryColors), () => VerifyEnemyAuxiliaryColors(source));
         using var temporary = new TestScratchDirectory("map-catalog");
-        EnemyTileArtworkCatalog artwork = GameAssetInstaller.Install(sourceRom, temporary.Root).LoadEnemyTiles();
-        AssertTrue(artwork.AuxiliaryColors is not null, "complete installation supplies auxiliary palettes");
+        InstalledEnemyArtwork artwork = GameAssetInstaller.Install(sourceRom, temporary.Root).LoadEnemyTiles();
+        AssertTrue(artwork.Enemies.AuxiliaryColors is not null, "complete installation supplies auxiliary palettes");
         var memory = SuperMetroidAddressSpace.CreateWithoutCartridge();
         int drawCases = 0;
         foreach (ushort frame in TorizoCollisionDefinitions.FramePointers)
         foreach ((ushort x, ushort y) in new (ushort, ushort)[] { (128, 96), (0, 0), (511, 252) })
         {
-            AssertTrue((artwork.ExtendedFrames ?? throw new InvalidOperationException("Verification requires artwork.ExtendedFrames.")).TryGet(TorizoFrameDefinitions.Bank, frame, out _),
+            AssertTrue((artwork.Enemies.ExtendedFrames ?? throw new InvalidOperationException("Verification requires artwork.ExtendedFrames.")).TryGet(TorizoFrameDefinitions.Bank, frame, out _),
                 $"installed Torizo extended frame {frame:X4}");
             OamBuffer actual = DrawExtendedForBank(artwork, TorizoFrameDefinitions.Bank, frame, new(x, y));
             var expected = new OamBuffer();

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Bosses.Phantoon.Artwork;
@@ -9,9 +10,12 @@ namespace SuperMetroid.Core.Bosses.Phantoon;
 /// <param name="species">The Phantoon species owner.</param>
 /// <param name="slot">The slot the enemy occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal sealed class PhantoonEntity(PhantoonBehavior species, RoomEnemySlot slot, EnemyCommonParticipation common)
+/// <param name="bossArtwork">The session's installed boss artwork.</param>
+internal sealed class PhantoonEntity(PhantoonBehavior species, RoomEnemySlot slot, EnemyCommonParticipation common, BossArtworkBinding bossArtwork)
     : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation, IEnemyExtendedHitboxes, IEnemyBg2Frames, IEnemyContactHooks, IEnemyPrivateShotCallback
 {
+    /// <summary>The session's installed boss artwork.</summary>
+    private readonly BossArtworkBinding _bossArtwork = bossArtwork;
     /// <inheritdoc/>
     public EnemyInitializationAiHandler? FindInitialization() => PhantoonPartDefinitions.Parts[Slot.EnemyDefinitionPointer] switch
     {
@@ -43,7 +47,7 @@ internal sealed class PhantoonEntity(PhantoonBehavior species, RoomEnemySlot slo
         if (Slot.Definition.Bank != PhantoonBg2FrameDefinitions.Bank || !PhantoonBg2FrameDefinitions.IsFrame(selected))
             return null;
         ReadOnlyMemory<EnemyBg2TilemapWrite> writes = default;
-        bool found = room.InstalledArtwork.PhantoonBg2Frames?.TryGet(selected, out writes) == true;
+        bool found = _bossArtwork.Installed.PhantoonBg2Frames?.TryGet(selected, out writes) == true;
         return new("Phantoon", found, writes);
     }
 

@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Bosses.Artwork;
+using SuperMetroid.Core.Areas;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Areas.Ceres;
@@ -49,6 +51,12 @@ internal sealed class RoomLoader
     private readonly DoorTransitionRunner _doorTransition;
     /// <summary>The enemy words and installed enemy artwork that outlive each room; each room's enemies are built over it.</summary>
     private readonly EnemySession _enemySession;
+
+    /// <summary>The session's installed boss artwork, which each room's bosses read.</summary>
+    private readonly BossArtworkBinding _bossArtwork;
+
+    /// <summary>The session's installed area artwork, which each room's area actors read.</summary>
+    private readonly AreaArtworkBinding _areaArtwork;
     /// <summary>The session's BG tilemap staging, which library-background programs fill.</summary>
     private readonly Bg2TilemapStaging _bg2TilemapStaging;
     /// <summary>Applies room-scoped visual effects driven by enemies.</summary>
@@ -105,6 +113,8 @@ internal sealed class RoomLoader
         _display = dependencies.Display;
         _doorTransition = dependencies.DoorTransition;
         _enemySession = dependencies.EnemySession;
+        _bossArtwork = dependencies.BossArtwork;
+        _areaArtwork = dependencies.AreaArtwork;
         _bg2TilemapStaging = dependencies.Bg2TilemapStaging;
         _enemyRoomEffects = dependencies.EnemyRoomEffects;
         _escapeEffects = dependencies.EscapeEffects;
@@ -1007,7 +1017,8 @@ internal sealed class RoomLoader
 
         // `$A0:8A1E` LoadEnemies builds the destination's enemy RAM, with the door-transition gates clear, over the
         // projectile and first-free words the outgoing room's enemies left.
-        var enemies = new RoomEnemySystem(_enemySession, carryOver.EnemyResidue, CompiledRoomEnemyDefinitions.Instance, areaServices);
+        var enemies = new RoomEnemySystem(_enemySession, carryOver.EnemyResidue, CompiledRoomEnemyDefinitions.Instance, areaServices,
+            _bossArtwork, _areaArtwork);
         scope.Enemies = enemies;
         projectiles.Earthquakes.BindRoomEarthquake(enemies.Earthquake);
         enemies.Load(new RoomEnemyLoadRequest(

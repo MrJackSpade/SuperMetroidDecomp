@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Core.Bosses.Draygon.Artwork;
+﻿using SuperMetroid.Core.Bosses.Artwork;
+using SuperMetroid.Core.Bosses.Draygon.Artwork;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
@@ -27,10 +28,14 @@ internal sealed class DraygonParts
     private readonly EnemyPresentation _presentation;
     /// <summary>Supplies frame timing for the body and linked-part AI callbacks.</summary>
     private readonly EnemyFrameContext _frameContext;
+    /// <summary>The session's installed boss artwork.</summary>
+    private readonly BossArtworkBinding _bossArtwork;
+
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
-    internal DraygonParts(EnemyRoomBinding room, EnemyProjectileEngine projectiles, RoomEarthquake earthquake, RoomSpriteObjectPool spriteObjects, EnemyPresentation presentation, EnemyFrameContext frameContext)
+    internal DraygonParts(EnemyRoomBinding room, EnemyProjectileEngine projectiles, RoomEarthquake earthquake, RoomSpriteObjectPool spriteObjects, EnemyPresentation presentation, EnemyFrameContext frameContext, BossArtworkBinding bossArtwork)
     {
+        _bossArtwork = bossArtwork;
         _room = room;
         _projectiles = projectiles;
         _earthquake = earthquake;
@@ -51,7 +56,7 @@ internal sealed class DraygonParts
         // The native copy targets colors 144..168. This runtime has one concrete CGRAM
         // surface instead of a second fade-target array, so publish those exact 25 colors
         // immediately; the room's normal fade-in controls when they become visible.
-        (_room.Artwork?.DraygonColors ?? throw new InvalidOperationException(
+        (_bossArtwork.Artwork?.DraygonColors ?? throw new InvalidOperationException(
             "Draygon requires installed color artwork.")).ApplyIntro(_presentation.Cgram);
 
         // $7E:2000 is the enemy BG2 staging surface: all $800 words are filled, not merely the currently visible page.

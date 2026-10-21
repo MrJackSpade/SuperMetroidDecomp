@@ -24,6 +24,8 @@ internal static class GrappleEnemyDeathVerification
         samus.Position = samus.Position.WithWhole(new(220, 180));
         var fixture = CreateEnemyDropFixture(samus, [1]);
         fixture.System.TileArtwork = InstalledFixtures.EnemyTiles;
+        fixture.System.BossArtwork = InstalledFixtures.BossArtwork;
+        fixture.System.AreaArtwork = InstalledFixtures.AreaArtwork;
         SeedGrappleEnemyDeathRetailBanks(fixture.Bus);
         const ushort header = 0x9000;
         SeedEnemyDropChancePointer(fixture.Bus, header);
@@ -110,6 +112,8 @@ internal static class GrappleEnemyDeathVerification
             samus.Position = samus.Position.WithWhole(new(220, 100));
             var fixture = CreateEnemyDropFixture(samus, [1]);
         fixture.System.TileArtwork = InstalledFixtures.EnemyTiles;
+        fixture.System.BossArtwork = InstalledFixtures.BossArtwork;
+        fixture.System.AreaArtwork = InstalledFixtures.AreaArtwork;
             var enemy = fixture.System.SlotTable.Slots[0];
             enemy.Bind((EnemyDefinitionId)0x9000, enemy.Definition);
             enemy.Bind(enemy.EnemyDefinitionPointer, default(RoomEnemyDefinition) with

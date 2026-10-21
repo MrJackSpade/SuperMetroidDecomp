@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Fx;
@@ -35,4 +36,7 @@ internal sealed record PhantoonBehaviorDependencies
 
     /// <summary>Deaths and drops.</summary>
     public required EnemyDeathsAndDrops DeathsAndDrops { get; init; }
+
+    /// <summary>The session's installed boss artwork.</summary>
+    public required BossArtworkBinding BossArtwork { get; init; }
 }

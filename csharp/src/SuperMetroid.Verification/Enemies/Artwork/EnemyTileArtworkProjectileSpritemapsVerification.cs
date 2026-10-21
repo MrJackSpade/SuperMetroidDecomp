@@ -89,9 +89,9 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
     /// <summary>Checks imported projectile maps and representative animated effects against cartridge OAM at ordinary and wrapped screen coordinates.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     internal static void VerifyInstalledEnemyProjectileSpritemaps(
-        ISnesAddressSpace bus, string directory, EnemyTileArtworkCatalog stock)
+        ISnesAddressSpace bus, string directory, InstalledEnemyArtwork stock)
     {
-        EnemyProjectileSpritemapCatalog installed = stock.ProjectileSpritemaps
+        EnemyProjectileSpritemapCatalog installed = stock.Enemies.ProjectileSpritemaps
             ?? throw new InvalidDataException("Installed enemy-projectile compositions are missing.");
         foreach ((ushort pointer, _) in EnemyProjectileSpritemapDefinitions.Frames)
         foreach ((ushort originX, ushort originY, ushort graphicsIndex) in new[]
@@ -489,8 +489,8 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
         File.WriteAllBytes(Path.Combine(overrides,
             EnemyProjectileSpritemapDefinitions.FileName),
             EnemyProjectileSpritemapCatalog.Write(document));
-        EnemyTileArtworkCatalog editedArt = EnemyTileArtworkFiles.Load(directory, overrides);
-        EnemyProjectileSpritemapCatalog edited = (editedArt.ProjectileSpritemaps ?? throw new InvalidOperationException("Verification requires editedArt.ProjectileSpritemaps."));
+        InstalledEnemyArtwork editedArt = EnemyTileArtworkFiles.Load(directory, overrides);
+        EnemyProjectileSpritemapCatalog edited = (editedArt.Enemies.ProjectileSpritemaps ?? throw new InvalidOperationException("Verification requires editedArt.ProjectileSpritemaps."));
         var originalOam = new OamBuffer();
         var editedOam = new OamBuffer();
         originalOam.BeginFrame();
@@ -628,14 +628,14 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
             "a partial version-one composition cannot stand alone as stock content");
         File.WriteAllBytes(Path.Combine(overrides,
             EnemyProjectileSpritemapDefinitions.FileName), legacyJson);
-        EnemyTileArtworkCatalog migrated = EnemyTileArtworkFiles.Load(directory, overrides);
+        InstalledEnemyArtwork migrated = EnemyTileArtworkFiles.Load(directory, overrides);
         AssertTrue(DrawBurst(migrated,
                 SkreeMetareeParticleNativeListAddresses.Entry(SkreeMetareeParticleProgram.Skree), bus)
             .LowTable.SequenceEqual(stockBurst.LowTable),
             "version-one Ceres override inherits stock Skree debris composition");
         var migratedPad = new OamBuffer();
         migratedPad.BeginFrame();
-        migratedPad.AddEnemySpritemap((migrated.ProjectileSpritemaps ?? throw new InvalidOperationException("Verification requires migrated.ProjectileSpritemaps.")).Get(0xb1ba).Span,
+        migratedPad.AddEnemySpritemap((migrated.Enemies.ProjectileSpritemaps ?? throw new InvalidOperationException("Verification requires migrated.ProjectileSpritemaps.")).Get(0xb1ba).Span,
             new Position16<OamPixels>(0x0080, 0x0004), 0, 0, clipVerticalWrap: true);
         AssertEqual(editedOam.LowTable[0], migratedPad.LowTable[0],
             "version-one Ceres composition edit survives the version-three catalog upgrade");
@@ -647,7 +647,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
             }, CamelCaseJson);
         File.WriteAllBytes(Path.Combine(overrides,
             EnemyProjectileSpritemapDefinitions.FileName), versionTwoJson);
-        EnemyTileArtworkCatalog migratedV2 = EnemyTileArtworkFiles.Load(directory, overrides);
+        InstalledEnemyArtwork migratedV2 = EnemyTileArtworkFiles.Load(directory, overrides);
         AssertTrue(DrawBurst(migratedV2,
                 SkreeMetareeParticleNativeListAddresses.Entry(SkreeMetareeParticleProgram.Skree), bus)
             .LowTable.SequenceEqual(editedBurst.LowTable),
@@ -669,7 +669,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
             }, CamelCaseJson);
         File.WriteAllBytes(Path.Combine(overrides,
             EnemyProjectileSpritemapDefinitions.FileName), versionThreeJson);
-        EnemyTileArtworkCatalog migratedV3 = EnemyTileArtworkFiles.Load(directory, overrides);
+        InstalledEnemyArtwork migratedV3 = EnemyTileArtworkFiles.Load(directory, overrides);
         AssertTrue(DrawSharedFrame(migratedV3, editableProgramFrame.OperandAddress,
                 NewEnemyProjectileVisualGuard(bus)).LowTable
             .SequenceEqual(DrawSharedFrame(editedArt, editableProgramFrame.OperandAddress,
@@ -698,7 +698,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
             }, CamelCaseJson);
         File.WriteAllBytes(Path.Combine(overrides,
             EnemyProjectileSpritemapDefinitions.FileName), versionFourJson);
-        EnemyTileArtworkCatalog migratedV4 = EnemyTileArtworkFiles.Load(directory, overrides);
+        InstalledEnemyArtwork migratedV4 = EnemyTileArtworkFiles.Load(directory, overrides);
         AssertTrue(DrawProgramFrame(migratedV4, ceresOperand,
                 NewEnemyProjectileVisualGuard(bus),
                 RoomEnemyProjectileKind.CeresRidleyFireball).LowTable
@@ -725,7 +725,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
             }, CamelCaseJson);
         File.WriteAllBytes(Path.Combine(overrides,
             EnemyProjectileSpritemapDefinitions.FileName), versionFiveJson);
-        EnemyTileArtworkCatalog migratedV5 = EnemyTileArtworkFiles.Load(directory, overrides);
+        InstalledEnemyArtwork migratedV5 = EnemyTileArtworkFiles.Load(directory, overrides);
         AssertTrue(DrawProgramFrame(migratedV5, alcoonOperand,
                 NewEnemyProjectileVisualGuard(bus),
                 RoomEnemyProjectileKind.AlcoonFireball).LowTable
@@ -759,7 +759,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
             }, CamelCaseJson);
         File.WriteAllBytes(Path.Combine(overrides,
             EnemyProjectileSpritemapDefinitions.FileName), versionSixJson);
-        EnemyTileArtworkCatalog migratedV6 = EnemyTileArtworkFiles.Load(directory, overrides);
+        InstalledEnemyArtwork migratedV6 = EnemyTileArtworkFiles.Load(directory, overrides);
         AssertTrue(DrawProgramFrame(migratedV6, goldenMissileOperand,
                 NewEnemyProjectileVisualGuard(bus),
                 RoomEnemyProjectileKind.GoldenTorizoSuperMissile).LowTable
@@ -786,7 +786,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
             }, CamelCaseJson);
         File.WriteAllBytes(Path.Combine(overrides,
             EnemyProjectileSpritemapDefinitions.FileName), versionSevenJson);
-        EnemyTileArtworkCatalog migratedV7 = EnemyTileArtworkFiles.Load(directory, overrides);
+        InstalledEnemyArtwork migratedV7 = EnemyTileArtworkFiles.Load(directory, overrides);
         AssertTrue(DrawProgramFrame(migratedV7, goldenEggOperand,
                 NewEnemyProjectileVisualGuard(bus),
                 RoomEnemyProjectileKind.GoldenTorizoEgg).LowTable
@@ -816,7 +816,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
             }, CamelCaseJson);
         File.WriteAllBytes(Path.Combine(overrides,
             EnemyProjectileSpritemapDefinitions.FileName), versionEightJson);
-        EnemyTileArtworkCatalog migratedV8 = EnemyTileArtworkFiles.Load(directory, overrides);
+        InstalledEnemyArtwork migratedV8 = EnemyTileArtworkFiles.Load(directory, overrides);
         ushort editedTorizoOperand = torizoEditableOperands["Chozo orb"];
         AssertTrue(DrawProgramFrame(migratedV8, editedTorizoOperand,
                 NewEnemyProjectileVisualGuard(bus),
@@ -847,7 +847,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
             }, CamelCaseJson);
         File.WriteAllBytes(Path.Combine(overrides,
             EnemyProjectileSpritemapDefinitions.FileName), versionNineJson);
-        EnemyTileArtworkCatalog migratedV9 = EnemyTileArtworkFiles.Load(directory, overrides);
+        InstalledEnemyArtwork migratedV9 = EnemyTileArtworkFiles.Load(directory, overrides);
         ushort editedDeathOperand = genericDeathEditableOperands["enemy death"];
         AssertTrue(DrawProgramFrame(migratedV9, editedDeathOperand,
                 NewEnemyProjectileVisualGuard(bus),
@@ -878,7 +878,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
             }, CamelCaseJson);
         File.WriteAllBytes(Path.Combine(overrides,
             EnemyProjectileSpritemapDefinitions.FileName), versionTenJson);
-        EnemyTileArtworkCatalog migratedV10 = EnemyTileArtworkFiles.Load(directory, overrides);
+        InstalledEnemyArtwork migratedV10 = EnemyTileArtworkFiles.Load(directory, overrides);
         ushort editedEnvironmentOperand = environmentEditableOperands["falling spark"];
         AssertTrue(DrawProgramFrame(migratedV10, editedEnvironmentOperand,
                 NewEnemyProjectileVisualGuard(bus),
@@ -901,7 +901,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
             $"{EnemyProjectilePresentationFrameSets.All.Length} catalogued timed/flicker frames " +
             "match native OAM; installed draws, editable frames, and v1-v10 migrations pass.");
 
-        void VerifySharedProgramVisuals(EnemyTileArtworkCatalog artwork)
+        void VerifySharedProgramVisuals(InstalledEnemyArtwork artwork)
         {
             ReadOnlySpan<EnemyProjectilePresentationFrameDefinition> frames =
                 EnemyProjectilePresentationFrameSets.All;
@@ -941,7 +941,7 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
             }
         }
 
-        void VerifyBurstVisuals(EnemyTileArtworkCatalog artwork)
+        void VerifyBurstVisuals(InstalledEnemyArtwork artwork)
         {
             foreach (ushort program in new[]
                      {
@@ -985,10 +985,10 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
             return oam;
         }
 
-        static OamBuffer DrawBurst(EnemyTileArtworkCatalog artwork, ushort program,
+        static OamBuffer DrawBurst(InstalledEnemyArtwork artwork, ushort program,
             ISnesAddressSpace source)
         {
-            var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork };
+            var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork.Enemies, BossArtwork = artwork.Bosses, AreaArtwork = artwork.Areas };
             Action<RoomEnemySlot> spawn = program == SkreeMetareeParticleNativeListAddresses.Entry(SkreeMetareeParticleProgram.Skree)
                 ? enemies.Projectiles.SpawnSkreeParticleBurst : enemies.Projectiles.SpawnMetareeParticleBurst;
             var enemy = new RoomEnemySlot(0, EnemySlotFixtures.Registry)
@@ -1010,12 +1010,12 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
             return oam;
         }
 
-        static OamBuffer DrawSharedFrame(EnemyTileArtworkCatalog artwork,
+        static OamBuffer DrawSharedFrame(InstalledEnemyArtwork artwork,
             ushort operand, ISnesAddressSpace source) =>
             DrawProgramFrame(artwork, operand, source,
                 RoomEnemyProjectileKind.MiscDustExplosion);
 
-        static OamBuffer DrawProgramFrame(EnemyTileArtworkCatalog artwork,
+        static OamBuffer DrawProgramFrame(InstalledEnemyArtwork artwork,
             ushort operand, ISnesAddressSpace source, RoomEnemyProjectileKind kind)
         {
             // Typed programs (#641) present their frames by key.
@@ -1024,10 +1024,10 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
                 : throw new InvalidOperationException($"Projectile {kind} plays no typed program.");
         }
 
-        static OamBuffer DrawPresentedFrame(EnemyTileArtworkCatalog artwork,
+        static OamBuffer DrawPresentedFrame(InstalledEnemyArtwork artwork,
             ushort presentationKey, ISnesAddressSpace source, RoomEnemyProjectileKind kind)
         {
-            var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork };
+            var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork.Enemies, BossArtwork = artwork.Bosses, AreaArtwork = artwork.Areas };
             RoomEnemyProjectileSlot slot = enemies.Projectiles.EnemyProjectiles[0];
             slot.Kind = kind;
             slot.Position = slot.Position.WithWhole(new(128, 96));
@@ -1040,10 +1040,10 @@ internal static class EnemyTileArtworkProjectileSpritemapsVerification
             return oam;
         }
 
-        static OamBuffer DrawNoobTubeShard(EnemyTileArtworkCatalog artwork,
+        static OamBuffer DrawNoobTubeShard(InstalledEnemyArtwork artwork,
             ISnesAddressSpace source)
         {
-            var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork };
+            var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork.Enemies, BossArtwork = artwork.Bosses, AreaArtwork = artwork.Areas };
             RoomEnemyProjectileSlot slot = enemies.Projectiles.EnemyProjectiles[0];
             slot.Kind = RoomEnemyProjectileKind.NoobTubeShard;
             slot.Variable1 = 128;

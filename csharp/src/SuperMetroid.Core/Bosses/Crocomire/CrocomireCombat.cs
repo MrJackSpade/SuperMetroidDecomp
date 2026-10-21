@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Core.Enemies;
+﻿using SuperMetroid.Core.Bosses.Artwork;
+using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus.Projectiles;
@@ -12,8 +13,6 @@ namespace SuperMetroid.Core.Bosses.Crocomire;
 [RoomLifetime]
 internal sealed class CrocomireCombat
 {
-    /// <summary>Accesses the active room, enemy slots, and shared RNG.</summary>
-    private readonly EnemyRoomBinding _room;
     /// <summary>Spawns Crocomire's attacks, dust, smoke, and post-death drops.</summary>
     private readonly EnemyProjectileEngine _projectiles;
     /// <summary>Owns Crocomire body, skeleton, and melting tile uploads.</summary>
@@ -26,11 +25,14 @@ internal sealed class CrocomireCombat
     private readonly EnemyDeathsAndDrops _deathsAndDrops;
     /// <summary>Crocomire's state lookups, body program start, PLMs, dust and random numbers, and the sound and music it last requested.</summary>
     private readonly CrocomireEncounterAccess _access;
+    /// <summary>The session's installed boss artwork.</summary>
+    private readonly BossArtworkBinding _bossArtwork;
+
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
-    internal CrocomireCombat(EnemyRoomBinding room, EnemyProjectileEngine projectiles, EnemyPresentation presentation, EnemyFrameContext frameContext, EnemyCollision collision, EnemyDeathsAndDrops deathsAndDrops, CrocomireEncounterAccess access)
+    internal CrocomireCombat(EnemyProjectileEngine projectiles, EnemyPresentation presentation, EnemyFrameContext frameContext, EnemyCollision collision, EnemyDeathsAndDrops deathsAndDrops, CrocomireEncounterAccess access, BossArtworkBinding bossArtwork)
     {
-        _room = room;
+        _bossArtwork = bossArtwork;
         _projectiles = projectiles;
         _presentation = presentation;
         _frameContext = frameContext;
@@ -45,7 +47,7 @@ internal sealed class CrocomireCombat
         bool white = !body.FlashTimer.IsZero && (_frameContext.RandomEnemyCounter & 2) != 0;
         if (!white)
         {
-            (_room.Artwork?.CrocomireColors ?? throw new InvalidDataException(
+            (_bossArtwork.Artwork?.CrocomireColors ?? throw new InvalidDataException(
                 "Crocomire hurt palette requires installed artwork.")).ApplyFightBody(_presentation.Cgram);
             return;
         }

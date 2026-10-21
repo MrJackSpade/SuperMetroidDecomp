@@ -252,7 +252,7 @@ public sealed class TourianStatueSequence
                     statue.AnimationState &= ~(TourianStatueAnimationState.ReleaseInProgress | definition.AnimatingFlag);
                     return null;
                 case TourianStatueTileCueKind.ApplyGreyColors:
-                    (_enemies.TileArtwork?.TourianStatueColors ?? throw new InvalidOperationException(
+                    (_enemies.AreaArtwork?.TourianStatueColors ?? throw new InvalidOperationException(
                         "Tourian statue animation requires installed grey colors."))
                         .ApplyGrey(_cgram, definition.GreyColorIndex);
                     return null;

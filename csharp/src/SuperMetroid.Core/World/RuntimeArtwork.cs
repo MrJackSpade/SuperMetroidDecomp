@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Bosses.Artwork;
+using SuperMetroid.Core.Areas;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Enemies;
@@ -21,7 +23,7 @@ namespace SuperMetroid.Core.World;
 /// and the VRAM asset and installed-artwork transfer source the runtime's VRAM queue resolves through.
 /// </summary>
 internal sealed class RuntimeArtwork : IVramAssetProvider, IInstalledArtworkTransferSource, IObjCharacterSourceResolver,
-    IInstalledObjCharacterArtwork
+    IInstalledObjCharacterArtwork, IInstalledBossObjCharacterArtwork, IInstalledAreaObjCharacterArtwork
 {
     /// <summary>The page cache for the gameplay OBJ character table; artwork, never saved.</summary>
     [NonSerialized] private ObjCharacterTablePage? gameplayObjectPage;
@@ -39,6 +41,12 @@ internal sealed class RuntimeArtwork : IVramAssetProvider, IInstalledArtworkTran
     ReadOnlyMemory<byte> IObjCharacterSourceResolver.ResolveTransfer(int sourceAddress, int byteCount) =>
         TryResolveInstalledArtwork(sourceAddress, byteCount, out ReadOnlyMemory<byte> data) ? data
             : throw new InvalidOperationException($"No bound artwork serves the OBJ upload from ${sourceAddress:X6} ({byteCount} bytes).");
+
+    /// <inheritdoc/>
+    BossArtworkCatalog IInstalledBossObjCharacterArtwork.BossTiles => _bossArtwork.Installed;
+
+    /// <inheritdoc/>
+    AreaArtworkCatalog IInstalledAreaObjCharacterArtwork.AreaTiles => _areaArtwork.Installed;
 
     /// <inheritdoc/>
     EnemyTileArtworkCatalog IInstalledObjCharacterArtwork.EnemyTiles =>
@@ -80,6 +88,12 @@ internal sealed class RuntimeArtwork : IVramAssetProvider, IInstalledArtworkTran
     private readonly GameplayDisplayState _display;
     /// <summary>Receives enemy artwork and presentation catalogs for every room's enemies.</summary>
     private readonly EnemySession _enemySession;
+
+    /// <summary>The session's installed boss artwork.</summary>
+    private readonly BossArtworkBinding _bossArtwork;
+
+    /// <summary>The session's installed area artwork.</summary>
+    private readonly AreaArtworkBinding _areaArtwork;
     /// <summary>The loaded room, whose active escape typewriters follow a rebound escape-warning text.</summary>
     private readonly ActiveRoomState _room;
     /// <summary>Receives gameplay HUD presentation and reports initialization state.</summary>
@@ -115,6 +129,8 @@ internal sealed class RuntimeArtwork : IVramAssetProvider, IInstalledArtworkTran
         _cgram = dependencies.Cgram;
         _display = dependencies.Display;
         _enemySession = dependencies.EnemySession;
+        _bossArtwork = dependencies.BossArtwork;
+        _areaArtwork = dependencies.AreaArtwork;
         _room = dependencies.Room;
         _hud = dependencies.Hud;
         _messageBox = dependencies.MessageBox;
@@ -231,6 +247,14 @@ internal sealed class RuntimeArtwork : IVramAssetProvider, IInstalledArtworkTran
                 sourceAddress, byteCount, out data) == true)
             return true;
         if (_enemySession.TileArtwork?.TryResolve(sourceAddress, byteCount, out data) == true)
+            return true;
+        if (_areaArtwork.Artwork?.CeresEscapeTiles?.TryResolve(sourceAddress, byteCount, out data) == true)
+            return true;
+        if (_areaArtwork.Artwork?.CeresEscapeOverlayTilemaps?.TryResolve(sourceAddress, byteCount, out data) == true)
+            return true;
+        // The hand PLM queues its fragment sheet through NMI, unlike the enemy
+        // instruction uploads that apply directly. Both use current installed art.
+        if (_bossArtwork.Artwork?.TorizoInstructionVram?.TryResolve(sourceAddress, byteCount, out data) == true)
             return true;
         if (MapPresentation?.RoomFxAnimatedTiles.TryResolve(sourceAddress, byteCount, out data) == true)
             return true;

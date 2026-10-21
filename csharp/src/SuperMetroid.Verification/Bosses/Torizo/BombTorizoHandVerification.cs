@@ -1,3 +1,5 @@
+using SuperMetroid.TestSupport.VerificationOracles;
+using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using static SuperMetroid.Verification.Bosses.Torizo.BombTorizoHandArtworkVerification;
@@ -28,7 +30,7 @@ internal static class BombTorizoHandVerification
     /// eight debris requests, final music command, and cartridge-timed deletion together.
     /// </summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
-    internal static void VerifyBombTorizoHandPlm(EnemyTileArtworkCatalog? installedArtwork = null)
+    internal static void VerifyBombTorizoHandPlm(InstalledEnemyArtwork? installedArtwork = null)
     {
         Suite(nameof(VerifyBombTorizoHandProgramDefinitions), () => VerifyBombTorizoHandProgramDefinitions());
         Suite(nameof(VerifyBombTorizoHandVisualInstallation), () => VerifyBombTorizoHandVisualInstallation());
@@ -109,12 +111,14 @@ internal static class BombTorizoHandVerification
             // provider and RAM-only memory boundary, as the accepted NMI does.
             var memory = SuperMetroidAddressSpace.CreateWithoutCartridge();
             var runtime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(new SuperMetroid.Core.Gameplay.HostGameplayOverrides(), initialPaletteArt: BombTorizoHandFixturePalette());
-            runtime.EnemySession.TileArtwork = installedArtwork;
+            runtime.EnemySession.TileArtwork = installedArtwork.Enemies;
+            runtime.BossArtwork.Artwork = installedArtwork.Bosses;
+            runtime.AreaArtwork.Artwork = installedArtwork.Areas;
             PlmVramWriteRequest request = plms.BombTorizoHand.VramWriteRequests[0];
             runtime.VramWrites.Enqueue(checked((ushort)request.SizeInBytes), request.SourceAddress,
                 request.Destination);
             runtime.VramWrites.DrainTo(runtime.Vram, runtime.Artwork, null, runtime.BgArtwork);
-            AssertTrue(installedArtwork.TryResolve(request.SourceAddress,
+            AssertTrue(new EnemyTileTransfers(installedArtwork).TryResolve(request.SourceAddress,
                 request.SizeInBytes, out ReadOnlyMemory<byte> expected),
                 "Bomb Torizo PLM transfer resolves installed artwork");
             for (int offset = 0; offset < expected.Length; offset++)

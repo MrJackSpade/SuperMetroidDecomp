@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Areas;
 using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.Verification.Samus.Projectiles;
@@ -690,8 +691,8 @@ internal static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool 
         "vulnerabilities, freeze, damage, and death agree.");
 }
 
-/// <summary>Extracts fixture Ceres-door tiles and colors into an installed enemy artwork catalog.</summary>
-private static EnemyTileArtworkCatalog CreateCeresDoorFixtureArtwork(TestAddressSpace bus)
+/// <summary>Extracts fixture Ceres-door tiles and colors into an installed Ceres-door visual catalog.</summary>
+private static CeresDoorVisualCatalog CreateCeresDoorFixtureVisuals(TestAddressSpace bus)
 {
     using var directoryScratch = new TestScratchDirectory("ceres-door-fixture");
     string directory = directoryScratch.Root;
@@ -699,7 +700,7 @@ private static EnemyTileArtworkCatalog CreateCeresDoorFixtureArtwork(TestAddress
     var visuals = SuperMetroid.AssetExtraction.Areas.Ceres.CeresDoorVisualFiles.Load(
         File.ReadAllBytes(Path.Combine(directory, CeresDoorVisualFormat.TilesFileName)),
         File.ReadAllBytes(Path.Combine(directory, CeresDoorVisualFormat.ColorsFileName)));
-    return EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(), CeresDoorVisual = visuals });
+    return visuals;
 }
 
 /// <summary>
@@ -733,7 +734,7 @@ internal static void VerifyCeresElevatorPlatformAnimation()
 
     // The platform frames are written into the room's Mode 7 map (#1349).
     var map = new Mode7Map(new byte[Mode7Map.Cells], default);
-    var enemies = new RoomEnemySystem(new EnemySession(), definitions: bus, services: new StandaloneRoomEnemyServices(() => 0) { Mode7Map = map }) { TileArtwork = CreateCeresDoorFixtureArtwork(bus) };
+    var enemies = new RoomEnemySystem(new EnemySession(), definitions: bus, services: new StandaloneRoomEnemyServices(() => 0) { Mode7Map = map }) { TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() }), AreaArtwork = new AreaArtworkCatalog { CeresDoorVisual = CreateCeresDoorFixtureVisuals(bus) } };
     enemies.Load(new RoomEnemyLoadRequest(bus.ReadEnemyPopulation(populationPointer), bus.ReadEnemyGraphicsSet(tilesetPointer), BgArtworkFixtures.For(vram), cgram));
     enemies.StepFrame(new RoomEnemyFrame { Camera = new(0, 0), TimeIsFrozen = false });
     for (int index = 0; index < 4; index++)
@@ -788,7 +789,7 @@ internal static void VerifyCeresDoorBossBranch()
         {
             areaBossReads++;
             return areaBossDefeated;
-        } } }) { TileArtwork = CreateCeresDoorFixtureArtwork(bus) };
+        } } }) { TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() }), AreaArtwork = new AreaArtworkCatalog { CeresDoorVisual = CreateCeresDoorFixtureVisuals(bus) } };
     enemies.Load(new RoomEnemyLoadRequest(bus.ReadEnemyPopulation(populationPointer), bus.ReadEnemyGraphicsSet(tilesetPointer), BgArtworkFixtures.For(vram), cgram) { Samus = samus });
     RoomEnemySlot door = enemies.SlotTable.Slots[0];
     door.CurrentInstruction = 0xf55e;
@@ -896,7 +897,7 @@ internal static void VerifyCeresRidleyRoomEntry()
             {
                 [definitionPointer] = EnemyPaletteSheet.Load(new MemoryStream(
                     EnemyPaletteSheet.Write(new EnemyPaletteSheetDocument { Version = 1, Colors = fixturePalette }))),
-            }, Spritemaps = EnemySpritemapCatalog.Load(fixtureSpriteJson), CeresDoorVisual = CreateCeresDoorFixtureArtwork(bus).CeresDoorVisual, CeresEscapeTiles = InstalledFixtures.EnemyTiles.CeresEscapeTiles, CeresEscapeOverlayTilemaps = InstalledFixtures.EnemyTiles.CeresEscapeOverlayTilemaps }),
+            }, Spritemaps = EnemySpritemapCatalog.Load(fixtureSpriteJson) }), AreaArtwork = new AreaArtworkCatalog { CeresDoorVisual = CreateCeresDoorFixtureVisuals(bus), CeresEscapeTiles = InstalledFixtures.AreaArtwork.CeresEscapeTiles, CeresEscapeOverlayTilemaps = InstalledFixtures.AreaArtwork.CeresEscapeOverlayTilemaps },
         Presentation =
         {
             CeresRidleyColors = CeresRidleyColorCatalog.Load(new MemoryStream(
@@ -1282,7 +1283,7 @@ internal static void VerifyCeresRidleyRoomEntry()
     AssertEqual(VramAssetId.EscapeTimerSecondTiles, escapeWrites.Entries[1].AssetId,
         "Ceres second timer record selects installed artwork");
     CeresEscapeOverlayTilemapDefinition emergency = CeresEscapeOverlayTilemapDefinitions.Emergency;
-    AssertTrue((InstalledFixtures.EnemyTiles.CeresEscapeOverlayTilemaps ?? throw new InvalidOperationException(
+    AssertTrue((InstalledFixtures.AreaArtwork.CeresEscapeOverlayTilemaps ?? throw new InvalidOperationException(
             "Verification requires installed Ceres overlay tilemaps.")).TryResolve(0xa6c164, emergency.WordCount * sizeof(ushort),
             out ReadOnlyMemory<byte> emergencyBytes),
         "Ceres EMERGENCY text resolves the cartridge tilemap words");

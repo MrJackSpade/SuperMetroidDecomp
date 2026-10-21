@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Programs;
@@ -16,7 +17,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [.. PhantoonPartDefinitions.Parts.Keys];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new PhantoonEntity(this, slot, common);
+    public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new PhantoonEntity(this, slot, common, _bossArtwork);
 
     /// <summary>Room services and tilemap state used by the Wrecked Ship encounter.</summary>
     private readonly EnemyRoomBinding _room;
@@ -40,20 +41,24 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Phantoon's death: the fatal swoop, the fades, explosions and wavy mosaic, and Wrecked Ship's power returning.</summary>
     internal PhantoonDeath Death { get; }
+    /// <summary>The session's installed boss artwork.</summary>
+    private readonly BossArtworkBinding _bossArtwork;
+
 
 
     /// <summary>Binds room and enemy services for the four-part boss actor.</summary>
     internal PhantoonBehavior(PhantoonBehaviorDependencies dependencies)
     {
+        _bossArtwork = dependencies.BossArtwork;
         _room = dependencies.Room;
         _audio = dependencies.Audio;
         _slotTable = dependencies.SlotTable;
         _presentation = dependencies.Presentation;
-        Presentation = new PhantoonPresentation(_room, _presentation, dependencies.FrameContext);
+        Presentation = new PhantoonPresentation(_presentation, dependencies.FrameContext, _bossArtwork);
         Opening = new PhantoonOpening(dependencies.Projectiles, _audio, Presentation);
         Combat = new PhantoonCombat(_room, dependencies.Projectiles, dependencies.Earthquake, _audio, _slotTable, dependencies.Collision, dependencies.DeathsAndDrops);
-        Patterns = new PhantoonPatterns(_room, dependencies.Projectiles, _audio, _presentation, dependencies.FrameContext, Presentation);
-        Death = new PhantoonDeath(_room, dependencies.Projectiles, _presentation, dependencies.FrameContext, dependencies.DeathsAndDrops, Presentation, Patterns);
+        Patterns = new PhantoonPatterns(_room, dependencies.Projectiles, _audio, _presentation, dependencies.FrameContext, Presentation, _bossArtwork);
+        Death = new PhantoonDeath(new PhantoonDeathDependencies { Room = _room, Projectiles = dependencies.Projectiles, Presentation = _presentation, FrameContext = dependencies.FrameContext, DeathsAndDrops = dependencies.DeathsAndDrops, PhantoonPresentation = Presentation, Patterns = Patterns, BossArtwork = _bossArtwork });
     }
 
     /// <summary>Native per-update increase in introductory wave amplitude.</summary>

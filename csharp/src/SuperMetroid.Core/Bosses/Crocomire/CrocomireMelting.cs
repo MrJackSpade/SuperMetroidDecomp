@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Core.Enemies;
+﻿using SuperMetroid.Core.Bosses.Artwork;
+using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Bosses.Crocomire.Artwork;
 using SuperMetroid.Core.Rooms;
@@ -9,19 +10,20 @@ namespace SuperMetroid.Core.Bosses.Crocomire;
 [RoomLifetime]
 internal sealed class CrocomireMelting
 {
-    /// <summary>Accesses the active room, enemy slots, and shared RNG.</summary>
-    private readonly EnemyRoomBinding _room;
     /// <summary>Owns Crocomire body, skeleton, and melting tile uploads.</summary>
     private readonly EnemyPresentation _presentation;
     /// <summary>Crocomire's BG2 body: its scroll, scroll table, tilemap transfers and the acid smoke drawn with it.</summary>
     private readonly CrocomireBg2 _bg2;
     /// <summary>Crocomire's state lookups, body program start, PLMs, dust and random numbers, and the sound and music it last requested.</summary>
     private readonly CrocomireEncounterAccess _access;
+    /// <summary>The session's installed boss artwork.</summary>
+    private readonly BossArtworkBinding _bossArtwork;
+
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
-    internal CrocomireMelting(EnemyRoomBinding room, EnemyPresentation presentation, CrocomireBg2 bg2, CrocomireEncounterAccess access)
+    internal CrocomireMelting(EnemyPresentation presentation, CrocomireBg2 bg2, CrocomireEncounterAccess access, BossArtworkBinding bossArtwork)
     {
-        _room = room;
+        _bossArtwork = bossArtwork;
         _presentation = presentation;
         _bg2 = bg2;
         _access = access;
@@ -71,7 +73,7 @@ internal sealed class CrocomireMelting
 
     /// <summary>Requires a complete installed melting map before phase, actor, scratch, or VRAM state changes.</summary>
     internal ReadOnlySpan<ushort> RequireCrocomireMeltingTilemap(CrocomireMeltingTilemapAddress tilemapAddress) =>
-        (_room.Artwork?.CrocomireMelting ?? throw new InvalidDataException(
+        (_bossArtwork.Artwork?.CrocomireMelting ?? throw new InvalidDataException(
             "Crocomire melting requires installed tilemap artwork.")).Tilemap(tilemapAddress);
 
     /// <summary>Starts the selected body melting list and synchronizes actor state with the new BG2 map.</summary>
@@ -103,7 +105,7 @@ internal sealed class CrocomireMelting
         CrocomireDeathState death = _access.RequireCrocomireDeath();
         CrocomireMeltingPass pass = CrocomireMeltingTransferDefinitions.Header(
             death.MeltingTableOffset);
-        var artwork = _room.Artwork?.CrocomireMelting ?? throw new InvalidDataException(
+        var artwork = _bossArtwork.Artwork?.CrocomireMelting ?? throw new InvalidDataException(
             "Crocomire melting requires installed graphics artwork.");
 
         // Both assets have already passed geometry/padding validation during installation.

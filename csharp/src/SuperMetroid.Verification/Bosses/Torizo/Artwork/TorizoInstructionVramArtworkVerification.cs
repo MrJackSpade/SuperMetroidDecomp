@@ -3,7 +3,6 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Bosses.Torizo;
 using SuperMetroid.Core.Enemies;
-using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Bosses.Torizo.Artwork;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -22,13 +21,13 @@ internal static class TorizoInstructionVramArtworkVerification
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for Torizo instruction VRAM artwork")]
     internal static void VerifyTorizoInstructionVramArtwork(
-        ISnesAddressSpace rom, string stockDirectory, EnemyTileArtworkCatalog stock)
+        ISnesAddressSpace rom, string stockDirectory, InstalledEnemyArtwork stock)
     {
         AssertEqual(52, TorizoInstructionVramTransferDefinitions.All.Length,
             "all bank-AA Torizo $814B transfer descriptors are catalogued");
-        AssertTrue(stock.TorizoInstructionVram is not null,
+        AssertTrue(stock.Bosses.TorizoInstructionVram is not null,
             "installed Torizo instruction tile pages exist");
-        var installedEnemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = stock };
+        var installedEnemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = stock.Enemies, BossArtwork = stock.Bosses, AreaArtwork = stock.Areas };
         RoomEnemySlot installedSlot = installedEnemies.SlotTable.Slots[0];
         installedSlot.Bind(EnemyDefinitionId.GoldenTorizo, installedSlot.Definition);
         installedSlot.Bind(installedSlot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with
@@ -57,7 +56,7 @@ internal static class TorizoInstructionVramArtworkVerification
                 $"Torizo transfer $AA:{instruction:X4} source");
             AssertEqual(transfer.DestinationWord, CartridgeImportSource.Require(rom).ReadCartridgeWord((descriptor + 5)),
                 $"Torizo transfer $AA:{instruction:X4} VRAM destination");
-            AssertTrue((stock.TorizoInstructionVram ?? throw new InvalidOperationException("Verification requires stock.TorizoInstructionVram.")).TryResolve(
+            AssertTrue((stock.Bosses.TorizoInstructionVram ?? throw new InvalidOperationException("Verification requires stock.TorizoInstructionVram.")).TryResolve(
                     transfer.SourceAddress, transfer.ByteCount,
                     out ReadOnlyMemory<byte> installed),
                 $"Torizo transfer $AA:{instruction:X4} installed tile source");
@@ -109,13 +108,13 @@ internal static class TorizoInstructionVramArtworkVerification
             IndexedPng.Write(output, new(image.Size.X, image.Size.Y),
                 image.Pixels, image.Palette);
         }
-        EnemyTileArtworkCatalog edited = EnemyTileArtworkFiles.Load(
+        InstalledEnemyArtwork edited = EnemyTileArtworkFiles.Load(
             stockDirectory, overrideDirectory);
-        AssertTrue((stock.TorizoInstructionVram ?? throw new InvalidOperationException("Verification requires stock.TorizoInstructionVram.")).TryResolve(
+        AssertTrue((stock.Bosses.TorizoInstructionVram ?? throw new InvalidOperationException("Verification requires stock.TorizoInstructionVram.")).TryResolve(
                 golden.SourceAddress, golden.ByteCount,
                 out ReadOnlyMemory<byte> stockBytes),
             "stock Golden Torizo upload remains addressable");
-        AssertTrue((edited.TorizoInstructionVram ?? throw new InvalidOperationException("Verification requires edited.TorizoInstructionVram.")).TryResolve(
+        AssertTrue((edited.Bosses.TorizoInstructionVram ?? throw new InvalidOperationException("Verification requires edited.TorizoInstructionVram.")).TryResolve(
                 golden.SourceAddress, golden.ByteCount,
                 out ReadOnlyMemory<byte> editedBytes),
             "edited Golden Torizo upload remains addressable");
@@ -123,7 +122,7 @@ internal static class TorizoInstructionVramArtworkVerification
             "Golden Torizo PNG edit changes the first native tile-plane byte");
         AssertTrue(stockBytes.Span[1..].SequenceEqual(editedBytes.Span[1..]),
             "Golden Torizo PNG edit leaves every other tile byte intact");
-        var editedEnemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = edited };
+        var editedEnemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = edited.Enemies, BossArtwork = edited.Bosses, AreaArtwork = edited.Areas };
         RoomEnemySlot editedSlot = editedEnemies.SlotTable.Slots[0];
         editedSlot.Bind(EnemyDefinitionId.GoldenTorizo, editedSlot.Definition);
         editedSlot.Bind(editedSlot.EnemyDefinitionPointer, installedSlot.Definition);
@@ -140,7 +139,7 @@ internal static class TorizoInstructionVramArtworkVerification
                 new EnemyTileTransfers(edited)).Characters[(0x6d00 - GameplayVramLayout.ObjectCharacters.Offset) * 2],
             "edited Golden Torizo PNG changes the production OBJ page upload");
         AssertTrue((EnemyTileArtworkFiles.Load(stockDirectory, overrideDirectory)
-                .TorizoInstructionVram ?? throw new InvalidOperationException("Verification requires EnemyTileArtworkFiles.Load(stockDirectory, overrideDirectory) .TorizoInstructionVram.")).TryResolve(golden.SourceAddress,
+                .Bosses.TorizoInstructionVram ?? throw new InvalidOperationException("Verification requires EnemyTileArtworkFiles.Load(stockDirectory, overrideDirectory) .TorizoInstructionVram.")).TryResolve(golden.SourceAddress,
                     golden.ByteCount, out ReadOnlyMemory<byte> reloaded) &&
                    reloaded.Span.SequenceEqual(editedBytes.Span),
             "Golden Torizo tile override survives catalog reload");

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Areas;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Rooms;
@@ -29,11 +30,15 @@ internal sealed class CeresRidleyBehavior
 
     /// <summary>Ceres Ridley's Mode 7 getaway and the station's self-destruct countdown that follows.</summary>
     internal CeresRidleyGetaway Getaway { get; }
+    /// <summary>The session's installed area artwork.</summary>
+    private readonly AreaArtworkBinding _areaArtwork;
+
 
 
     /// <summary>Connects Ceres Ridley's enemy AI, drawing, collision and room-main collaborators.</summary>
     internal CeresRidleyBehavior(CeresRidleyBehaviorDependencies dependencies)
     {
+        _areaArtwork = dependencies.AreaArtwork;
         _ridleyTail = dependencies.RidleyTail;
         _ridleyEncounter = dependencies.RidleyEncounter;
         _roomStatus = dependencies.RoomStatus;
@@ -41,7 +46,7 @@ internal sealed class CeresRidleyBehavior
         BabyScene = new CeresRidleyBabyScene(dependencies.Room, dependencies.Earthquake, dependencies.Audio, dependencies.SlotTable, dependencies.Presentation, _ridleyEncounter);
         Fades = new CeresRidleyFades(dependencies.Presentation);
         Hits = new CeresRidleyHits(dependencies.Room, dependencies.SlotTable, dependencies.Presentation, dependencies.Collision, _ridleyEncounter);
-        Getaway = new CeresRidleyGetaway(dependencies.FrameResults, dependencies.Room, dependencies.Audio, dependencies.SlotTable, dependencies.Presentation, _ridleyEncounter, _roomStatus);
+        Getaway = new CeresRidleyGetaway(new CeresRidleyGetawayDependencies { FrameResults = dependencies.FrameResults, Room = dependencies.Room, Audio = dependencies.Audio, SlotTable = dependencies.SlotTable, Presentation = dependencies.Presentation, RidleyEncounter = _ridleyEncounter, RoomStatus = _roomStatus, AreaArtwork = _areaArtwork });
     }
 
     /// <summary>

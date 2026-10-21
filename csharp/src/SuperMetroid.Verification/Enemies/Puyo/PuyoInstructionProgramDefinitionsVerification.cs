@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Programs;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core;
@@ -18,7 +19,7 @@ internal static class PuyoInstructionProgramDefinitionsVerification
     /// The real initializer starts the fast grounded loop; each grounded loop runs on time and each airborne program
     /// shows its pose once and holds. With installed artwork supplied, every pose has an installed composition.
     /// </summary>
-    internal static void VerifyPuyoInstructionProgramDefinitions(EnemyTileArtworkCatalog? artwork = null)
+    internal static void VerifyPuyoInstructionProgramDefinitions(InstalledEnemyArtwork? artwork = null)
     {
         (RoomEnemySystem enemies, RoomEnemySlot slot, PuyoEnemyState state) = Create(artwork);
         AssertEqual(AnimationProgramCursor<PuyoProgram>.Start(PuyoProgram.GroundedFast), state.Program, "Puyo starts on its fast grounded loop");
@@ -37,15 +38,15 @@ internal static class PuyoInstructionProgramDefinitionsVerification
         }
         if (artwork is not null)
             foreach (ushort pose in PuyoAnimationsConstants.Spritemaps(Enum.GetValues<PuyoProgram>()).Distinct())
-                AssertTrue((artwork.Spritemaps ?? throw new InvalidOperationException("Verification requires installed spritemaps.")).TryGet(PuyoFrameToolingDefinitions.Bank, pose, out _),
+                AssertTrue((artwork.Enemies.Spritemaps ?? throw new InvalidOperationException("Verification requires installed spritemaps.")).TryGet(PuyoFrameToolingDefinitions.Bank, pose, out _),
                     $"Puyo pose ${pose:X4} has installed artwork");
         Console.WriteLine("  Puyo: the fast-loop start, three grounded loops and five airborne poses pass.");
     }
 
     /// <summary>A Puyo after its real initializer.</summary>
-    private static (RoomEnemySystem, RoomEnemySlot, PuyoEnemyState) Create(EnemyTileArtworkCatalog? artwork)
+    private static (RoomEnemySystem, RoomEnemySlot, PuyoEnemyState) Create(InstalledEnemyArtwork? artwork)
     {
-        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork };
+        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork?.Enemies, BossArtwork = artwork?.Bosses, AreaArtwork = artwork?.Areas };
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.Puyo, slot.Definition);
         slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = PuyoFrameToolingDefinitions.Bank });

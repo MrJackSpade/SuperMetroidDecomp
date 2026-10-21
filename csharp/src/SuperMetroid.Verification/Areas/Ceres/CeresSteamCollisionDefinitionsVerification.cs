@@ -1,9 +1,9 @@
+using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Input;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.Core.Enemies;
-using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
@@ -17,7 +17,7 @@ internal static class CeresSteamCollisionDefinitionsVerification
 {
     /// <summary>Runs all four directional instruction cycles and checks their selected frames exist in installed art.</summary>
     internal static void VerifyInstalledCeresSteamInstructionFrames(
-        EnemyTileArtworkCatalog stock)
+        InstalledEnemyArtwork stock)
     {
         int selected = 0;
         foreach (CeresSteamVariant variant in new[]
@@ -27,7 +27,7 @@ internal static class CeresSteamCollisionDefinitionsVerification
                  })
         {
             var denied = NewCeresSteamCollisionNoReadBus();
-            var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null)) { TileArtwork = stock };
+            var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null)) { TileArtwork = stock.Enemies, BossArtwork = stock.Bosses, AreaArtwork = stock.Areas };
             enemies.VerificationServices().NextRandom = () => 0;
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.Bind(EnemyDefinitionId.Steam, slot.Definition);
@@ -42,7 +42,7 @@ internal static class CeresSteamCollisionDefinitionsVerification
                 EnemyInstructionRunner.Process(arguments);
                 if ((slot.SpritemapPointer & 0x8000) == 0)
                     continue;
-                AssertTrue((stock.ExtendedFrames ?? throw new InvalidOperationException("Verification requires stock.ExtendedFrames.")).TryGetDisplay(
+                AssertTrue((stock.Enemies.ExtendedFrames ?? throw new InvalidOperationException("Verification requires stock.ExtendedFrames.")).TryGetDisplay(
                         CeresSteamCollisionDefinitions.Bank, slot.SpritemapPointer,
                         out _),
                     $"installed Ceres steam {variant} frame {frame} has editable art");

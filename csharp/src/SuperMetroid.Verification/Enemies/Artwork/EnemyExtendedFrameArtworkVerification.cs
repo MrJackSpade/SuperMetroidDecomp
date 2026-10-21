@@ -66,10 +66,10 @@ internal static class EnemyExtendedFrameArtworkVerification
     /// The stock catalog from <paramref name="stockDirectory"/> with its extended frames replaced, as the installation
     /// loader selects an extended-frame override; nothing is derived from the frames when the catalog is built.
     /// </summary>
-    private static EnemyTileArtworkCatalog StockWithExtendedFrames(string stockDirectory, EnemyExtendedFrameCatalog extendedFrames)
+    private static InstalledEnemyArtwork StockWithExtendedFrames(string stockDirectory, EnemyExtendedFrameCatalog extendedFrames)
     {
-        EnemyTileArtworkCatalog catalog = EnemyTileArtworkFiles.Load(stockDirectory, null);
-        catalog.ExtendedFrames = Ensure.NotNull(extendedFrames);
+        InstalledEnemyArtwork catalog = EnemyTileArtworkFiles.Load(stockDirectory, null);
+        catalog.Enemies.ExtendedFrames = Ensure.NotNull(extendedFrames);
         return catalog;
     }
 
@@ -77,20 +77,20 @@ internal static class EnemyExtendedFrameArtworkVerification
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     internal static void VerifyInstalledEnemyExtendedFrames(
         SuperMetroidAddressSpace rom, string stockDirectory,
-        EnemyTileArtworkCatalog stock)
+        InstalledEnemyArtwork stock)
     {
-        AssertTrue(stock.ExtendedFrames is not null,
+        AssertTrue(stock.Enemies.ExtendedFrames is not null,
             "installed enemy catalog contains extended visual compositions");
         var guard = NewExtendedVisualReadGuard(rom, out Action<byte, ushort> guardBlockFrame);
         foreach (EnemySpritemapDefinition frame in EnemyExtendedFrameDefinitions.Frames)
         {
             guardBlockFrame(frame.Bank, frame.Pointer);
-            AssertTrue((stock.ExtendedFrames ?? throw new InvalidOperationException("Verification requires stock.ExtendedFrames.")).TryGet(frame.Bank, frame.Pointer, out _),
+            AssertTrue((stock.Enemies.ExtendedFrames ?? throw new InvalidOperationException("Verification requires stock.ExtendedFrames.")).TryGet(frame.Bank, frame.Pointer, out _),
                 $"installed extended frame {frame.Name} exists");
         }
         ushort emptyPointer = EnemyAiCodePointers.BankB2.EmptyExtendedSpritemap;
         guardBlockFrame(EnemyExtendedFrameDefinitions.Bank, emptyPointer);
-        AssertTrue((stock.ExtendedFrames ?? throw new InvalidOperationException("Verification requires stock.ExtendedFrames.")).TryGet(EnemyExtendedFrameDefinitions.Bank,
+        AssertTrue((stock.Enemies.ExtendedFrames ?? throw new InvalidOperationException("Verification requires stock.ExtendedFrames.")).TryGet(EnemyExtendedFrameDefinitions.Bank,
                 emptyPointer, out ReadOnlyMemory<EnemyExtendedDrawComponent> empty) &&
                    empty.IsEmpty,
             "walking Pirate initial empty frame is a compiled draw identity");
@@ -103,7 +103,7 @@ internal static class EnemyExtendedFrameArtworkVerification
             "walking Pirate common empty frame draws without ROM reads");
         Suite(nameof(VerifySharedEmptyExtendedFrames), () => VerifySharedEmptyExtendedFrames(rom, stock));
         Suite(nameof(VerifyInstalledCeresSteamInstructionFrames), () => VerifyInstalledCeresSteamInstructionFrames(stock));
-        Suite(nameof(VerifyInstalledOumVisualSelectors), () => VerifyInstalledOumVisualSelectors(stock));
+        Suite(nameof(VerifyInstalledOumVisualSelectors), () => VerifyInstalledOumVisualSelectors(stock.Enemies));
         Suite(nameof(VerifyInstalledCrocomireTongueVisualSelectors), () => VerifyInstalledCrocomireTongueVisualSelectors(stock));
         AssertEqual(EnemyExtendedFrameDefinitions.ExpectedFrameCount,
             EnemyExtendedFrameDefinitions.Frames.Length,
@@ -264,7 +264,7 @@ internal static class EnemyExtendedFrameArtworkVerification
         File.WriteAllBytes(Path.Combine(ridleyOverrideDirectory,
             EnemyExtendedFrameDefinitions.FileName),
             JsonSerializer.SerializeToUtf8Bytes(document, CamelCaseJson));
-        EnemyTileArtworkCatalog editedRidley = EnemyTileArtworkFiles.Load(
+        InstalledEnemyArtwork editedRidley = EnemyTileArtworkFiles.Load(
             stockDirectory, ridleyOverrideDirectory);
         OamBuffer stockRidley = DrawExtendedForBank(stock, 0xa6, 0xe983, new(0x0040, 0x0080));
         OamBuffer movedRidley = DrawExtendedForBank(editedRidley, 0xa6, 0xe983, new(0x0040, 0x0080));
@@ -309,11 +309,11 @@ internal static class EnemyExtendedFrameArtworkVerification
         EnemyExtendedFrameCatalog LoadExtendedFrameOverride()
         {
             using FileStream json = File.OpenRead(overridePath);
-            return EnemyExtendedFrameCatalog.Load(json, stock.ExtendedFrames);
+            return EnemyExtendedFrameCatalog.Load(json, stock.Enemies.ExtendedFrames);
         }
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
             document, CamelCaseJson));
-        EnemyTileArtworkCatalog edited = EnemyTileArtworkFiles.Load(
+        InstalledEnemyArtwork edited = EnemyTileArtworkFiles.Load(
             stockDirectory, overrideDirectory);
         ushort editedPointer = EnemyExtendedFrameDefinitions.Frames
             .Single(frame => frame.Name == editedName).Pointer;
@@ -328,7 +328,7 @@ internal static class EnemyExtendedFrameArtworkVerification
             GetTouchCallback(edited, editedPointer),
             "editable walking Pirate component does not move the compiled hitbox");
         AssertTrue((EnemyTileArtworkFiles.Load(stockDirectory, overrideDirectory)
-                .ExtendedFrames ?? throw new InvalidOperationException("Verification requires EnemyTileArtworkFiles.Load(stockDirectory, overrideDirectory) .ExtendedFrames.")).TryGet(EnemyExtendedFrameDefinitions.Bank,
+                .Enemies.ExtendedFrames ?? throw new InvalidOperationException("Verification requires EnemyTileArtworkFiles.Load(stockDirectory, overrideDirectory) .ExtendedFrames.")).TryGet(EnemyExtendedFrameDefinitions.Bank,
                     editedPointer, out _),
             "extended composition override survives catalog reload");
 
@@ -347,7 +347,7 @@ internal static class EnemyExtendedFrameArtworkVerification
                 new MemoryStream(legacyJson, writable: false)),
             "legacy extended override needs complete verified stock to merge");
         File.WriteAllBytes(overridePath, legacyJson);
-        EnemyTileArtworkCatalog legacy = StockWithExtendedFrames(stockDirectory, LoadExtendedFrameOverride());
+        InstalledEnemyArtwork legacy = StockWithExtendedFrames(stockDirectory, LoadExtendedFrameOverride());
         OamBuffer legacyWalking = DrawExtended(legacy, editedPointer, new(0x0040, 0x0080));
         AssertTrue(legacyWalking.ImageEquals(editedOam),
             "v1 walking-Pirate artwork edit survives the v2 catalog update");
@@ -367,7 +367,7 @@ internal static class EnemyExtendedFrameArtworkVerification
         };
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
             document, CamelCaseJson));
-        EnemyTileArtworkCatalog editedWall = StockWithExtendedFrames(stockDirectory, LoadExtendedFrameOverride());
+        InstalledEnemyArtwork editedWall = StockWithExtendedFrames(stockDirectory, LoadExtendedFrameOverride());
         OamBuffer movedWall = DrawExtended(editedWall, wallPointer, new(0x0040, 0x0080));
         AssertEqual(unchecked((byte)(stockWall.LowTable[0] + 1)),
             movedWall.LowTable[0],
@@ -396,7 +396,7 @@ internal static class EnemyExtendedFrameArtworkVerification
                 new MemoryStream(versionTwoJson, writable: false)),
             "v2 extended override requires complete verified v3 stock");
         File.WriteAllBytes(overridePath, versionTwoJson);
-        EnemyTileArtworkCatalog versionTwo = StockWithExtendedFrames(stockDirectory, LoadExtendedFrameOverride());
+        InstalledEnemyArtwork versionTwo = StockWithExtendedFrames(stockDirectory, LoadExtendedFrameOverride());
         OamBuffer versionTwoWalking = DrawExtended(versionTwo, editedPointer, new(0x0040, 0x0080));
         OamBuffer versionTwoWall = DrawExtended(versionTwo, wallPointer, new(0x0040, 0x0080));
         AssertTrue(versionTwoWalking.LowTable.SequenceEqual(editedOam.LowTable) &&
@@ -422,7 +422,7 @@ internal static class EnemyExtendedFrameArtworkVerification
         };
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
             document, CamelCaseJson));
-        EnemyTileArtworkCatalog editedNinja = StockWithExtendedFrames(stockDirectory, LoadExtendedFrameOverride());
+        InstalledEnemyArtwork editedNinja = StockWithExtendedFrames(stockDirectory, LoadExtendedFrameOverride());
         OamBuffer movedNinja = DrawExtended(editedNinja, ninjaPointer, new(0x0040, 0x0080));
         AssertEqual(unchecked((byte)(stockNinja.LowTable[0] + 1)),
             movedNinja.LowTable[0],
@@ -443,7 +443,7 @@ internal static class EnemyExtendedFrameArtworkVerification
         };
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
             preBindings, CamelCaseJson));
-        EnemyTileArtworkCatalog upgradedBindings = StockWithExtendedFrames(stockDirectory, LoadExtendedFrameOverride());
+        InstalledEnemyArtwork upgradedBindings = StockWithExtendedFrames(stockDirectory, LoadExtendedFrameOverride());
         AssertTrue(movedNinja.LowTable.SequenceEqual(DrawExtended(
                 upgradedBindings, ninjaPointer, new(0x0040, 0x0080)).LowTable),
             "version-three extended override retains edited art and stock display bindings");
@@ -462,7 +462,7 @@ internal static class EnemyExtendedFrameArtworkVerification
         versionFour.DisplayFrames[sourceNameForLegacyBinding] = targetNameForLegacyBinding;
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
             versionFour, CamelCaseJson));
-        EnemyTileArtworkCatalog upgradedVersionFour = StockWithExtendedFrames(stockDirectory, LoadExtendedFrameOverride());
+        InstalledEnemyArtwork upgradedVersionFour = StockWithExtendedFrames(stockDirectory, LoadExtendedFrameOverride());
         ushort legacySourcePointer = EnemyExtendedFrameDefinitions.Frames
             .Single(frame => frame.Name == sourceNameForLegacyBinding).Pointer;
         ushort legacyTargetPointer = EnemyExtendedFrameDefinitions.Frames
@@ -470,7 +470,7 @@ internal static class EnemyExtendedFrameArtworkVerification
         AssertTrue(DrawExtended(upgradedVersionFour, legacySourcePointer,
                 new(0x0040, 0x0080)).LowTable.SequenceEqual(DrawExtended(stock, legacyTargetPointer, new(0x0040, 0x0080)).LowTable),
             "version-four visual binding survives Ridley-frame migration");
-        AssertTrue((upgradedVersionFour.ExtendedFrames ?? throw new InvalidOperationException("Verification requires upgradedVersionFour.ExtendedFrames.")).TryGet(0xa6, 0xe983, out _),
+        AssertTrue((upgradedVersionFour.Enemies.ExtendedFrames ?? throw new InvalidOperationException("Verification requires upgradedVersionFour.ExtendedFrames.")).TryGet(0xa6, 0xe983, out _),
             "version-four override inherits stock Ridley body art");
 
         // The immediately preceding schema includes Ridley but not Draygon.
@@ -485,11 +485,11 @@ internal static class EnemyExtendedFrameArtworkVerification
         versionFive.DisplayFrames[sourceNameForLegacyBinding] = targetNameForLegacyBinding;
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
             versionFive, CamelCaseJson));
-        EnemyTileArtworkCatalog upgradedVersionFive = StockWithExtendedFrames(stockDirectory, LoadExtendedFrameOverride());
+        InstalledEnemyArtwork upgradedVersionFive = StockWithExtendedFrames(stockDirectory, LoadExtendedFrameOverride());
         AssertTrue(DrawExtended(upgradedVersionFive, legacySourcePointer,
                 new(0x0040, 0x0080)).LowTable.SequenceEqual(DrawExtended(stock, legacyTargetPointer, new(0x0040, 0x0080)).LowTable),
             "version-five override retains its authored Pirate display binding");
-        AssertTrue((upgradedVersionFive.ExtendedFrames ?? throw new InvalidOperationException("Verification requires upgradedVersionFive.ExtendedFrames.")).TryGet(0xa5, 0xa2df, out _),
+        AssertTrue((upgradedVersionFive.Enemies.ExtendedFrames ?? throw new InvalidOperationException("Verification requires upgradedVersionFive.ExtendedFrames.")).TryGet(0xa5, 0xa2df, out _),
             "version-five override inherits stock Draygon OAM art");
 
         // V6 published the Spore Spawn roots with Draygon-prefixed author keys.
@@ -520,7 +520,7 @@ internal static class EnemyExtendedFrameArtworkVerification
         };
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
             versionSix, CamelCaseJson));
-        EnemyTileArtworkCatalog upgradedVersionSix = StockWithExtendedFrames(stockDirectory, LoadExtendedFrameOverride());
+        InstalledEnemyArtwork upgradedVersionSix = StockWithExtendedFrames(stockDirectory, LoadExtendedFrameOverride());
         OamBuffer stockSpore = DrawExtendedForBank(stock, 0xa5, 0xee6f, new(0x0040, 0x0080));
         OamBuffer editedSpore = DrawExtendedForBank(upgradedVersionSix, 0xa5, 0xee6f, new(0x0040, 0x0080));
         AssertEqual(unchecked((byte)(stockSpore.LowTable[0] + 1)),
@@ -541,7 +541,7 @@ internal static class EnemyExtendedFrameArtworkVerification
         };
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
             versionSeven, CamelCaseJson));
-        EnemyTileArtworkCatalog upgradedVersionSeven = StockWithExtendedFrames(stockDirectory, LoadExtendedFrameOverride());
+        InstalledEnemyArtwork upgradedVersionSeven = StockWithExtendedFrames(stockDirectory, LoadExtendedFrameOverride());
         OamBuffer inheritedSteam = DrawExtendedForBank(upgradedVersionSeven, 0xa6, 0xf142, new(0x0040, 0x0080));
         AssertTrue(inheritedSteam.ImageEquals(stockSteam),
             "version-seven override inherits verified stock Ceres steam art");
@@ -557,7 +557,7 @@ internal static class EnemyExtendedFrameArtworkVerification
         };
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
             versionEight, CamelCaseJson));
-        EnemyTileArtworkCatalog upgradedVersionEight = StockWithExtendedFrames(stockDirectory, LoadExtendedFrameOverride());
+        InstalledEnemyArtwork upgradedVersionEight = StockWithExtendedFrames(stockDirectory, LoadExtendedFrameOverride());
         OamBuffer inheritedOum = DrawExtendedForBank(upgradedVersionEight, 0xa2, 0xcb87, new(0x0040, 0x0080));
         AssertTrue(inheritedOum.ImageEquals(stockOum),
             "version-eight override inherits verified stock Oum art");
@@ -573,7 +573,7 @@ internal static class EnemyExtendedFrameArtworkVerification
         };
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
             versionNine, CamelCaseJson));
-        EnemyTileArtworkCatalog upgradedVersionNine = StockWithExtendedFrames(stockDirectory, LoadExtendedFrameOverride());
+        InstalledEnemyArtwork upgradedVersionNine = StockWithExtendedFrames(stockDirectory, LoadExtendedFrameOverride());
         OamBuffer inheritedCrocomire = DrawExtendedForBank(upgradedVersionNine, 0xa4, 0xc65e, new(0x0040, 0x0080));
         AssertTrue(inheritedCrocomire.ImageEquals(stockCrocomire),
             "version-nine override inherits verified stock Crocomire tongue art");
@@ -605,7 +605,7 @@ internal static class EnemyExtendedFrameArtworkVerification
             versionEleven.Frames.Count, "version-eleven extended-frame schema count");
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
             versionEleven, CamelCaseJson));
-        EnemyTileArtworkCatalog upgradedVersionEleven = StockWithExtendedFrames(stockDirectory, LoadExtendedFrameOverride());
+        InstalledEnemyArtwork upgradedVersionEleven = StockWithExtendedFrames(stockDirectory, LoadExtendedFrameOverride());
         OamBuffer stockDormantTorizo = DrawExtendedForBank(stock, 0xaa, 0x87d0, new(0x0040, 0x0080));
         OamBuffer inheritedDormantTorizo = DrawExtendedForBank(
             upgradedVersionEleven, 0xaa, 0x87d0, new(0x0040, 0x0080));
@@ -628,7 +628,7 @@ internal static class EnemyExtendedFrameArtworkVerification
             versionTwelve.Frames.Count, "version-twelve extended-frame schema count");
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
             versionTwelve, CamelCaseJson));
-        EnemyTileArtworkCatalog upgradedVersionTwelve = StockWithExtendedFrames(stockDirectory, LoadExtendedFrameOverride());
+        InstalledEnemyArtwork upgradedVersionTwelve = StockWithExtendedFrames(stockDirectory, LoadExtendedFrameOverride());
         OamBuffer stockInitialGoldenTorizo = DrawExtendedForBank(stock, 0xaa, 0xaa30, new(0x0040, 0x0080));
         OamBuffer inheritedInitialGoldenTorizo = DrawExtendedForBank(
             upgradedVersionTwelve, 0xaa, 0xaa30, new(0x0040, 0x0080));
@@ -651,7 +651,7 @@ internal static class EnemyExtendedFrameArtworkVerification
             versionThirteen.Frames.Count, "version-thirteen extended-frame schema count");
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
             versionThirteen, CamelCaseJson));
-        EnemyTileArtworkCatalog upgradedVersionThirteen = StockWithExtendedFrames(stockDirectory, LoadExtendedFrameOverride());
+        InstalledEnemyArtwork upgradedVersionThirteen = StockWithExtendedFrames(stockDirectory, LoadExtendedFrameOverride());
         OamBuffer stockKraidArm = DrawExtendedForBank(stock, 0xa7, 0x90fd, new(0x0040, 0x0080));
         OamBuffer inheritedKraidArm = DrawExtendedForBank(
             upgradedVersionThirteen, 0xa7, 0x90fd, new(0x0040, 0x0080));
@@ -672,7 +672,7 @@ internal static class EnemyExtendedFrameArtworkVerification
             "version-fourteen extended-frame schema count");
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
             versionFourteen, CamelCaseJson));
-        EnemyTileArtworkCatalog upgradedVersionFourteen = StockWithExtendedFrames(stockDirectory, LoadExtendedFrameOverride());
+        InstalledEnemyArtwork upgradedVersionFourteen = StockWithExtendedFrames(stockDirectory, LoadExtendedFrameOverride());
         OamBuffer stockAwakeGoldenTorizo = DrawExtendedForBank(stock, 0xaa, 0xaa5e, new(0x0040, 0x0080));
         OamBuffer inheritedAwakeGoldenTorizo = DrawExtendedForBank(
             upgradedVersionFourteen, 0xaa, 0xaa5e, new(0x0040, 0x0080));
@@ -696,7 +696,7 @@ internal static class EnemyExtendedFrameArtworkVerification
             "version-fifteen extended-frame schema count");
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
             versionFifteen, CamelCaseJson));
-        EnemyTileArtworkCatalog upgradedVersionFifteen = StockWithExtendedFrames(stockDirectory, LoadExtendedFrameOverride());
+        InstalledEnemyArtwork upgradedVersionFifteen = StockWithExtendedFrames(stockDirectory, LoadExtendedFrameOverride());
         OamBuffer stockWalkingGoldenTorizo = DrawExtendedForBank(stock, 0xaa, 0xa4fa, new(0x0040, 0x0080));
         OamBuffer inheritedWalkingGoldenTorizo = DrawExtendedForBank(
             upgradedVersionFifteen, 0xaa, 0xa4fa, new(0x0040, 0x0080));
@@ -720,7 +720,7 @@ internal static class EnemyExtendedFrameArtworkVerification
             "version-sixteen extended-frame schema count");
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
             versionSixteen, CamelCaseJson));
-        EnemyTileArtworkCatalog upgradedVersionSixteen = StockWithExtendedFrames(stockDirectory, LoadExtendedFrameOverride());
+        InstalledEnemyArtwork upgradedVersionSixteen = StockWithExtendedFrames(stockDirectory, LoadExtendedFrameOverride());
         OamBuffer stockRightwardGoldenTorizo = DrawExtendedForBank(stock, 0xaa, 0xa4f0, new(0x0040, 0x0080));
         OamBuffer inheritedRightwardGoldenTorizo = DrawExtendedForBank(
             upgradedVersionSixteen, 0xaa, 0xa4f0, new(0x0040, 0x0080));
@@ -744,7 +744,7 @@ internal static class EnemyExtendedFrameArtworkVerification
             "version-seventeen extended-frame schema count");
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
             versionSeventeen, CamelCaseJson));
-        EnemyTileArtworkCatalog upgradedVersionSeventeen = StockWithExtendedFrames(stockDirectory, LoadExtendedFrameOverride());
+        InstalledEnemyArtwork upgradedVersionSeventeen = StockWithExtendedFrames(stockDirectory, LoadExtendedFrameOverride());
         OamBuffer stockJumpBackTorizo = DrawExtendedForBank(stock, 0xaa, 0xb048, new(0x0040, 0x0080));
         OamBuffer inheritedJumpBackTorizo = DrawExtendedForBank(
             upgradedVersionSeventeen, 0xaa, 0xb048, new(0x0040, 0x0080));
@@ -768,7 +768,7 @@ internal static class EnemyExtendedFrameArtworkVerification
             "version-eighteen extended-frame schema count");
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
             versionEighteen, CamelCaseJson));
-        EnemyTileArtworkCatalog upgradedVersionEighteen = StockWithExtendedFrames(stockDirectory, LoadExtendedFrameOverride());
+        InstalledEnemyArtwork upgradedVersionEighteen = StockWithExtendedFrames(stockDirectory, LoadExtendedFrameOverride());
         OamBuffer stockRightOrbTorizo = DrawExtendedForBank(stock, 0xaa, 0xac88, new(0x0040, 0x0080));
         OamBuffer inheritedRightOrbTorizo = DrawExtendedForBank(
             upgradedVersionEighteen, 0xaa, 0xac88, new(0x0040, 0x0080));
@@ -792,7 +792,7 @@ internal static class EnemyExtendedFrameArtworkVerification
             "version-nineteen extended-frame schema count");
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
             versionNineteen, CamelCaseJson));
-        EnemyTileArtworkCatalog upgradedVersionNineteen = StockWithExtendedFrames(stockDirectory, LoadExtendedFrameOverride());
+        InstalledEnemyArtwork upgradedVersionNineteen = StockWithExtendedFrames(stockDirectory, LoadExtendedFrameOverride());
         OamBuffer stockRightSonicTorizo = DrawExtendedForBank(stock, 0xaa, 0xabec, new(0x0040, 0x0080));
         OamBuffer inheritedRightSonicTorizo = DrawExtendedForBank(
             upgradedVersionNineteen, 0xaa, 0xabec, new(0x0040, 0x0080));
@@ -816,7 +816,7 @@ internal static class EnemyExtendedFrameArtworkVerification
             "version-twenty extended-frame schema count");
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
             versionTwenty, CamelCaseJson));
-        EnemyTileArtworkCatalog upgradedVersionTwenty = StockWithExtendedFrames(stockDirectory, LoadExtendedFrameOverride());
+        InstalledEnemyArtwork upgradedVersionTwenty = StockWithExtendedFrames(stockDirectory, LoadExtendedFrameOverride());
         OamBuffer stockFallingLeft = DrawExtendedForBank(stock, 0xaa, TorizoFallingLeftFrame, new(0x0040, 0x0080));
         OamBuffer inheritedFallingLeft = DrawExtendedForBank(upgradedVersionTwenty,
             0xaa, TorizoFallingLeftFrame, new(0x0040, 0x0080));
@@ -838,7 +838,7 @@ internal static class EnemyExtendedFrameArtworkVerification
             };
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
             fallingLeftOverride, CamelCaseJson));
-        EnemyTileArtworkCatalog editedFallingLeft = StockWithExtendedFrames(stockDirectory, LoadExtendedFrameOverride());
+        InstalledEnemyArtwork editedFallingLeft = StockWithExtendedFrames(stockDirectory, LoadExtendedFrameOverride());
         OamBuffer movedFallingLeft = DrawExtendedForBank(editedFallingLeft,
             0xaa, TorizoFallingLeftFrame, new(0x0040, 0x0080));
         AssertEqual(unchecked((byte)(stockFallingLeft.LowTable[0] + 1)),
@@ -862,7 +862,7 @@ internal static class EnemyExtendedFrameArtworkVerification
             "version-twenty-one extended-frame schema count");
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
             versionTwentyOne, CamelCaseJson));
-        EnemyTileArtworkCatalog upgradedVersionTwentyOne = StockWithExtendedFrames(stockDirectory, LoadExtendedFrameOverride());
+        InstalledEnemyArtwork upgradedVersionTwentyOne = StockWithExtendedFrames(stockDirectory, LoadExtendedFrameOverride());
         OamBuffer stockLeftFootOrb = DrawExtendedForBank(stock, 0xaa, 0xac06, new(0x0040, 0x0080));
         OamBuffer inheritedLeftFootOrb = DrawExtendedForBank(
             upgradedVersionTwentyOne, 0xaa, 0xac06, new(0x0040, 0x0080));
@@ -883,7 +883,7 @@ internal static class EnemyExtendedFrameArtworkVerification
             "version-twenty-two extended-frame schema count");
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
             versionTwentyTwo, CamelCaseJson));
-        EnemyTileArtworkCatalog upgradedVersionTwentyTwo = StockWithExtendedFrames(stockDirectory, LoadExtendedFrameOverride());
+        InstalledEnemyArtwork upgradedVersionTwentyTwo = StockWithExtendedFrames(stockDirectory, LoadExtendedFrameOverride());
         OamBuffer stockLeftJumpBack = DrawExtendedForBank(stock, 0xaa, 0xaffa, new(0x0040, 0x0080));
         OamBuffer inheritedLeftJumpBack = DrawExtendedForBank(
             upgradedVersionTwentyTwo, 0xaa, 0xaffa, new(0x0040, 0x0080));
@@ -904,7 +904,7 @@ internal static class EnemyExtendedFrameArtworkVerification
             "version-twenty-three extended-frame schema count");
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
             versionTwentyThree, CamelCaseJson));
-        EnemyTileArtworkCatalog upgradedVersionTwentyThree = StockWithExtendedFrames(stockDirectory, LoadExtendedFrameOverride());
+        InstalledEnemyArtwork upgradedVersionTwentyThree = StockWithExtendedFrames(stockDirectory, LoadExtendedFrameOverride());
         OamBuffer stockLeftOrb = DrawExtendedForBank(stock, 0xaa, 0xa6ea, new(0x0040, 0x0080));
         OamBuffer inheritedLeftOrb = DrawExtendedForBank(
             upgradedVersionTwentyThree, 0xaa, 0xa6ea, new(0x0040, 0x0080));
@@ -927,7 +927,7 @@ internal static class EnemyExtendedFrameArtworkVerification
             };
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
             leftFootOrbOverride, CamelCaseJson));
-        EnemyTileArtworkCatalog editedLeftFootOrb = StockWithExtendedFrames(stockDirectory, LoadExtendedFrameOverride());
+        InstalledEnemyArtwork editedLeftFootOrb = StockWithExtendedFrames(stockDirectory, LoadExtendedFrameOverride());
         OamBuffer movedLeftFootOrb = DrawExtendedForBank(
             editedLeftFootOrb, 0xaa, 0xac06, new(0x0040, 0x0080));
         AssertEqual(unchecked((byte)(stockLeftFootOrb.LowTable[0] + 1)),
@@ -952,7 +952,7 @@ internal static class EnemyExtendedFrameArtworkVerification
             };
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
             rightSonicOverride, CamelCaseJson));
-        EnemyTileArtworkCatalog editedRightSonic = StockWithExtendedFrames(stockDirectory, LoadExtendedFrameOverride());
+        InstalledEnemyArtwork editedRightSonic = StockWithExtendedFrames(stockDirectory, LoadExtendedFrameOverride());
         OamBuffer movedRightSonic = DrawExtendedForBank(
             editedRightSonic, 0xaa, 0xabec, new(0x0040, 0x0080));
         AssertEqual(unchecked((byte)(stockRightSonicTorizo.LowTable[0] + 1)),
@@ -977,7 +977,7 @@ internal static class EnemyExtendedFrameArtworkVerification
             };
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
             rightOrbOverride, CamelCaseJson));
-        EnemyTileArtworkCatalog editedRightOrb = StockWithExtendedFrames(stockDirectory, LoadExtendedFrameOverride());
+        InstalledEnemyArtwork editedRightOrb = StockWithExtendedFrames(stockDirectory, LoadExtendedFrameOverride());
         OamBuffer movedRightOrb = DrawExtendedForBank(
             editedRightOrb, 0xaa, 0xac88, new(0x0040, 0x0080));
         AssertEqual(unchecked((byte)(stockRightOrbTorizo.LowTable[0] + 1)),
@@ -1002,7 +1002,7 @@ internal static class EnemyExtendedFrameArtworkVerification
             };
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
             jumpBackOverride, CamelCaseJson));
-        EnemyTileArtworkCatalog editedJumpBack = StockWithExtendedFrames(stockDirectory, LoadExtendedFrameOverride());
+        InstalledEnemyArtwork editedJumpBack = StockWithExtendedFrames(stockDirectory, LoadExtendedFrameOverride());
         OamBuffer movedJumpBack = DrawExtendedForBank(
             editedJumpBack, 0xaa, 0xb048, new(0x0040, 0x0080));
         AssertEqual(unchecked((byte)(stockJumpBackTorizo.LowTable[0] + 1)),
@@ -1027,7 +1027,7 @@ internal static class EnemyExtendedFrameArtworkVerification
             };
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
             goldenRightwardOverride, CamelCaseJson));
-        EnemyTileArtworkCatalog editedGoldenRightward = StockWithExtendedFrames(stockDirectory, LoadExtendedFrameOverride());
+        InstalledEnemyArtwork editedGoldenRightward = StockWithExtendedFrames(stockDirectory, LoadExtendedFrameOverride());
         OamBuffer movedGoldenRightward = DrawExtendedForBank(
             editedGoldenRightward, 0xaa, 0xa4f0, new(0x0040, 0x0080));
         AssertEqual(unchecked((byte)(stockRightwardGoldenTorizo.LowTable[0] + 1)),
@@ -1052,7 +1052,7 @@ internal static class EnemyExtendedFrameArtworkVerification
             };
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
             goldenWalkingOverride, CamelCaseJson));
-        EnemyTileArtworkCatalog editedGoldenWalking = StockWithExtendedFrames(stockDirectory, LoadExtendedFrameOverride());
+        InstalledEnemyArtwork editedGoldenWalking = StockWithExtendedFrames(stockDirectory, LoadExtendedFrameOverride());
         OamBuffer movedGoldenWalking = DrawExtendedForBank(
             editedGoldenWalking, 0xaa, 0xa4fa, new(0x0040, 0x0080));
         AssertEqual(unchecked((byte)(stockWalkingGoldenTorizo.LowTable[0] + 1)),
@@ -1077,7 +1077,7 @@ internal static class EnemyExtendedFrameArtworkVerification
             };
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
             goldenAwakeningOverride, CamelCaseJson));
-        EnemyTileArtworkCatalog editedGoldenAwakening = StockWithExtendedFrames(stockDirectory, LoadExtendedFrameOverride());
+        InstalledEnemyArtwork editedGoldenAwakening = StockWithExtendedFrames(stockDirectory, LoadExtendedFrameOverride());
         OamBuffer movedGoldenAwakening = DrawExtendedForBank(
             editedGoldenAwakening, 0xaa, 0xaa5e, new(0x0040, 0x0080));
         AssertEqual(unchecked((byte)(stockAwakeGoldenTorizo.LowTable[0] + 1)),
@@ -1100,7 +1100,7 @@ internal static class EnemyExtendedFrameArtworkVerification
         };
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
             kraidArmOverride, CamelCaseJson));
-        EnemyTileArtworkCatalog editedKraidArm = StockWithExtendedFrames(stockDirectory, LoadExtendedFrameOverride());
+        InstalledEnemyArtwork editedKraidArm = StockWithExtendedFrames(stockDirectory, LoadExtendedFrameOverride());
         OamBuffer movedKraidArm = DrawExtendedForBank(editedKraidArm, 0xa7, 0x90fd, new(0x0040, 0x0080));
         AssertEqual(unchecked((byte)(stockKraidArm.LowTable[0] + 1)),
             movedKraidArm.LowTable[0],
@@ -1127,12 +1127,12 @@ internal static class EnemyExtendedFrameArtworkVerification
             targetSporeFrame.Name;
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
             sporeVisualRemap, CamelCaseJson));
-        EnemyTileArtworkCatalog swappedSpore = StockWithExtendedFrames(stockDirectory, LoadExtendedFrameOverride());
+        InstalledEnemyArtwork swappedSpore = StockWithExtendedFrames(stockDirectory, LoadExtendedFrameOverride());
         OamBuffer openSpore = DrawExtendedForBank(stock, targetSporeFrame.Bank, targetSporeFrame.Pointer, new(0x0040, 0x0080));
         OamBuffer swappedClosedSpore = DrawExtendedForBank(swappedSpore, 0xa5, 0xee65, new(0x0040, 0x0080));
         AssertTrue(swappedClosedSpore.ImageEquals(openSpore),
             "Spore Spawn display remap changes live OAM to the selected frame");
-        EnemyTileArtworkCatalog reloadedSpore = StockWithExtendedFrames(stockDirectory, LoadExtendedFrameOverride());
+        InstalledEnemyArtwork reloadedSpore = StockWithExtendedFrames(stockDirectory, LoadExtendedFrameOverride());
         OamBuffer reloadedClosedSpore = DrawExtendedForBank(reloadedSpore, 0xa5, 0xee65, new(0x0040, 0x0080));
         AssertTrue(reloadedClosedSpore.ImageEquals(openSpore),
             "Spore Spawn display remap survives asset reload");
@@ -1146,7 +1146,7 @@ internal static class EnemyExtendedFrameArtworkVerification
         (remapped.DisplayFrames ?? throw new InvalidOperationException("Verification requires remapped.DisplayFrames."))[sourceName] = targetName;
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
             remapped, CamelCaseJson));
-        EnemyTileArtworkCatalog swapped = StockWithExtendedFrames(stockDirectory, LoadExtendedFrameOverride());
+        InstalledEnemyArtwork swapped = StockWithExtendedFrames(stockDirectory, LoadExtendedFrameOverride());
         ushort sourcePointer = EnemyExtendedFrameDefinitions.Frames
             .Single(frame => frame.Name == sourceName).Pointer;
         ushort targetPointer = EnemyExtendedFrameDefinitions.Frames
@@ -1320,7 +1320,7 @@ internal static class EnemyExtendedFrameArtworkVerification
     }
 
     /// <summary>Draws a bank-$B2 installed frame through the production enemy-layer path for OAM comparison.</summary>
-    private static OamBuffer DrawExtended(EnemyTileArtworkCatalog art,
+    private static OamBuffer DrawExtended(InstalledEnemyArtwork art,
         ushort pointer, Position16<RoomPixels> position,
         Action<RoomEnemySlot>? inspect = null)
     {
@@ -1329,11 +1329,11 @@ internal static class EnemyExtendedFrameArtworkVerification
     }
 
     /// <summary>Installs a chosen extended frame on a fixture enemy and captures the production layer draw for its bank.</summary>
-    internal static OamBuffer DrawExtendedForBank(EnemyTileArtworkCatalog? art,
+    internal static OamBuffer DrawExtendedForBank(InstalledEnemyArtwork? art,
         byte bank, ushort pointer, Position16<RoomPixels> position,
         Action<RoomEnemySlot>? inspect = null)
     {
-        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = art };
+        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = art?.Enemies, BossArtwork = art?.Bosses, AreaArtwork = art?.Areas };
         enemies.Drawing.Enqueue(0, 0);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         // A non-Ridley definition lets the focused OAM comparison isolate the
@@ -1356,10 +1356,10 @@ internal static class EnemyExtendedFrameArtworkVerification
     }
 
     /// <summary>Samples a stock Space Pirate hitbox through the production collision walker and returns its touch callback.</summary>
-    private static ushort GetTouchCallback(EnemyTileArtworkCatalog art,
+    private static ushort GetTouchCallback(InstalledEnemyArtwork art,
         ushort pointer)
     {
-        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = art };
+        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = art.Enemies, BossArtwork = art.Bosses, AreaArtwork = art.Areas };
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(PirateDefinitionForFrame(pointer), slot.Definition);
         slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with

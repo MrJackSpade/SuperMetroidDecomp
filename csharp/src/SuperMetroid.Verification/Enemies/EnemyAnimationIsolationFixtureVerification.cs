@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Core.Enemies.Boyon;
 using SuperMetroid.Core.Programs;
@@ -53,7 +54,7 @@ internal static class EnemyAnimationIsolationFixtureVerification
         internal TorizoEnemyState? Torizo => Enemies.BombTorizoBehavior.Attacks.GoldenTorizo;
 
         /// <summary>Creates matching terrain and services, then initializes either Boyon or a fixed Torizo attack phase.</summary>
-        internal EnemyAnimationFixture(EnemyTileArtworkCatalog artwork, bool golden)
+        internal EnemyAnimationFixture(InstalledEnemyArtwork artwork, bool golden)
         {
             const int roomBlocks = 32;
             var layer = new ushort[roomBlocks * roomBlocks];
@@ -61,7 +62,7 @@ internal static class EnemyAnimationIsolationFixtureVerification
             for (int x = 0; x < roomBlocks; x++)
                 layer[y * roomBlocks + x] = RoomLevelWord.Create(0, 0, RoomCollisionType.SolidBlock).Raw;
             Level = new RoomLevelData(new Extent16<RoomBlocks>(roomBlocks, roomBlocks), new RoomLevelPlanes(layer, new byte[layer.Length], new ushort[layer.Length]), []);
-            Enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null)) { TileArtwork = artwork };
+            Enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null)) { TileArtwork = artwork.Enemies, BossArtwork = artwork.Bosses, AreaArtwork = artwork.Areas };
             Enemies.Presentation.BindVram(BgArtworkFixtures.For(Vram));
             Enemies.Presentation.BindCgram(Colors);
             Enemies.VerificationServices().NextRandom = NextRandom;

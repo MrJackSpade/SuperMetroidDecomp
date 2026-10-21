@@ -100,7 +100,7 @@ internal static class EnemyTileArtworkVerification
         private readonly string directory = Path.Combine(Path.GetFullPath("csharp/test-temp"),
             "enemy-tiles-" + Guid.NewGuid().ToString("N"));
         /// <summary>Stock catalog loaded from the extraction.</summary>
-        private readonly EnemyTileArtworkCatalog stock;
+        private readonly InstalledEnemyArtwork stock;
 
         /// <summary>Extracts and loads the stock enemy artwork.</summary>
         internal EnemyTileFixture()
@@ -110,7 +110,7 @@ internal static class EnemyTileArtworkVerification
         }
 
         /// <summary>Supplies the cartridge, extraction directory and stock catalog.</summary>
-        internal void Deconstruct(out CartridgeImportAddressSpace bus, out string directory, out EnemyTileArtworkCatalog stock)
+        internal void Deconstruct(out CartridgeImportAddressSpace bus, out string directory, out InstalledEnemyArtwork stock)
         {
             bus = this.bus;
             directory = this.directory;
@@ -148,16 +148,16 @@ internal static class EnemyTileArtworkVerification
         using var fixture = new EnemyTileFixture();
         var (bus, directory, stock) = fixture;
         Suite(nameof(VerifyInstalledTourianStatueColors), () => VerifyInstalledTourianStatueColors(bus, directory, stock));
-        Suite(nameof(VerifyInstalledMagdollitePaletteCycle), () => VerifyInstalledMagdollitePaletteCycle(bus, directory, stock));
-        Suite(nameof(VerifyInstalledWorkRobotPaletteCycle), () => VerifyInstalledWorkRobotPaletteCycle(bus, directory, stock));
+        Suite(nameof(VerifyInstalledMagdollitePaletteCycle), () => VerifyInstalledMagdollitePaletteCycle(bus, directory, stock.Enemies));
+        Suite(nameof(VerifyInstalledWorkRobotPaletteCycle), () => VerifyInstalledWorkRobotPaletteCycle(bus, directory, stock.Enemies));
         Suite(nameof(VerifyInstalledCrocomireColors), () => VerifyInstalledCrocomireColors(bus, directory, stock));
         Suite(nameof(VerifyCrocomireBg2ScrollDefinitions), () => VerifyCrocomireBg2ScrollDefinitions(bus));
         Suite(nameof(VerifyCrocomireSkeletonArtwork), () => VerifyCrocomireSkeletonArtwork(bus, directory, stock));
         Suite(nameof(VerifyInstalledDraygonColors), () => VerifyInstalledDraygonColors(bus, directory, stock));
         Suite(nameof(VerifyInstalledPhantoonColors), () => VerifyInstalledPhantoonColors(bus, directory, stock));
-        Suite(nameof(VerifyInstalledChozoAndTubeColors), () => VerifyInstalledChozoAndTubeColors(bus, directory, stock));
+        Suite(nameof(VerifyInstalledChozoAndTubeColors), () => VerifyInstalledChozoAndTubeColors(bus, directory, stock.Enemies));
         Suite(nameof(VerifyInstalledSporeSpawnColors), () => VerifyInstalledSporeSpawnColors(bus, directory, stock));
-        Suite(nameof(VerifyInstalledDachoraColors), () => VerifyInstalledDachoraColors(bus, directory, stock));
+        Suite(nameof(VerifyInstalledDachoraColors), () => VerifyInstalledDachoraColors(bus, directory, stock.Enemies));
         Suite(nameof(VerifyInstalledShitroidColors), () => VerifyInstalledShitroidColors(bus, directory, stock));
         Suite(nameof(VerifyInstalledBabyMetroidCutsceneColors), () => VerifyInstalledBabyMetroidCutsceneColors(bus, directory, stock));
         Suite(nameof(VerifyInstalledBotwoonColors), () => VerifyInstalledBotwoonColors(bus, directory, stock));
@@ -197,7 +197,7 @@ internal static class EnemyTileArtworkVerification
         try
         {
             EnemyTileArtworkFiles.Extract(bus, directory, SupportedCartridge.Sha256);
-            EnemyTileArtworkCatalog stock = EnemyTileArtworkFiles.Load(directory, null);
+            InstalledEnemyArtwork stock = EnemyTileArtworkFiles.Load(directory, null);
             string[] files = Directory.GetFiles(directory, "enemy-????-tiles.png");
             AssertEqual(EnemyTileArtworkFormat.RetailDefinitionCount, files.Length,
                 "one indexed PNG per distinct retail enemy graphics definition");
@@ -223,16 +223,16 @@ internal static class EnemyTileArtworkVerification
                 RoomEnemyDefinition definition = SuperMetroid.AssetExtraction.Enemies.RoomEnemyDefinitionImporter.Load(bus, pointer);
                 int byteCount = definition.TileDataSize & 0x7fff;
                 byte[] native = ReadNativeEnemyTiles(bus, definition, byteCount);
-                AssertTrue(stock.TryResolve(definition.TileDataAddress, byteCount,
+                AssertTrue(stock.Enemies.TryResolve(definition.TileDataAddress, byteCount,
                         out ReadOnlyMemory<byte> queued) && queued.Span.SequenceEqual(native),
                     $"enemy ${(int)pointer:X4} queued VRAM DMA resolves its installed PNG");
                 var vram = new SnesVram();
-                stock.LoadTo(pointer, byteCount, new VramStore(vram).All, 0);
+                stock.Enemies.LoadTo(pointer, byteCount, new VramStore(vram).All, 0);
                 AssertTrue(vram.Bytes[..byteCount].SequenceEqual(native),
                     $"enemy ${(int)pointer:X4} PNG preserves every native tile byte");
                 SnesCgram nativeCgram = LoadNativeEnemyPalette(bus, definition);
                 var installedCgram = new SnesCgram();
-                stock.LoadPaletteTo(pointer, new CgramPalettes(installedCgram).All.Slice(8 * 16, 16));
+                stock.Enemies.LoadPaletteTo(pointer, new CgramPalettes(installedCgram).All.Slice(8 * 16, 16));
                 AssertTrue(new CgramPalettes(nativeCgram).ImageEquals(new CgramPalettes(installedCgram)),
                     $"enemy ${(int)pointer:X4} RGB5 JSON preserves all native palette slots");
             }
@@ -253,7 +253,7 @@ internal static class EnemyTileArtworkVerification
             string overridePath = Path.Combine(overrideDirectory, Path.GetFileName(editedFile));
             using (var output = File.Create(overridePath))
                 IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels, image.Palette);
-            EnemyTileArtworkCatalog edited = EnemyTileArtworkFiles.Load(directory, overrideDirectory);
+            InstalledEnemyArtwork edited = EnemyTileArtworkFiles.Load(directory, overrideDirectory);
             string meltFile = Path.Combine(directory,
                 CrocomireMeltingArtworkFormat.FirstFileName);
             using (var meltInput = new MemoryStream(File.ReadAllBytes(meltFile), writable: false))
@@ -265,7 +265,7 @@ internal static class EnemyTileArtworkVerification
                 IndexedPng.Write(meltOutput, new(meltImage.Size.X, meltImage.Size.Y),
                     meltImage.Pixels, meltImage.Palette);
             }
-            EnemyTileArtworkCatalog editedMelt = EnemyTileArtworkFiles.Load(
+            InstalledEnemyArtwork editedMelt = EnemyTileArtworkFiles.Load(
                 directory, overrideDirectory);
             byte[] changedMelt = VerifyInstalledCrocomireMeltingPass(editedMelt,
                 CrocomireMeltingTransferDefinitions.Passes[0]);
@@ -298,7 +298,7 @@ internal static class EnemyTileArtworkVerification
             using (var tilemapOutput = File.Create(tilemapOverride))
                 CrocomireMeltingArtwork.WriteTilemap(tilemapOutput,
                     tilemapDocument with { Cells = editedCells });
-            EnemyTileArtworkCatalog editedMeltMap = EnemyTileArtworkFiles.Load(
+            InstalledEnemyArtwork editedMeltMap = EnemyTileArtworkFiles.Load(
                 directory, overrideDirectory);
             ushort[] changedTiles = VerifyInstalledCrocomireMeltingTilemap(
                 bus, editedMeltMap, CrocomireMeltingTilemapAddress.FirstTilemap,
@@ -324,15 +324,15 @@ internal static class EnemyTileArtworkVerification
                 "Crocomire melt tilemap override survives catalog reload");
             var stockVram = new SnesVram();
             var editedVram = new SnesVram();
-            stock.LoadTo(editedPointer, editedByteCount, new VramStore(stockVram).All, 0);
-            edited.LoadTo(editedPointer, editedByteCount, new VramStore(editedVram).All, 0);
+            stock.Enemies.LoadTo(editedPointer, editedByteCount, new VramStore(stockVram).All, 0);
+            edited.Enemies.LoadTo(editedPointer, editedByteCount, new VramStore(editedVram).All, 0);
             AssertEqual((byte)(stockVram.ReadByte(0) ^ 0x80), editedVram.ReadByte(0),
                 "edited enemy PNG changes its first indexed pixel at the native tile location");
             AssertTrue(stockVram.Bytes[1..].SequenceEqual(editedVram.Bytes[1..]),
                 "enemy PNG edit leaves all neighboring VRAM bytes unchanged");
             var reloadedVram = new SnesVram();
             EnemyTileArtworkFiles.Load(directory, overrideDirectory)
-                .LoadTo(editedPointer, editedByteCount, new VramStore(reloadedVram).All, 0);
+                .Enemies.LoadTo(editedPointer, editedByteCount, new VramStore(reloadedVram).All, 0);
             AssertTrue(reloadedVram.ImageEquals(editedVram),
                 "enemy override survives content reload without modifying stock PNG");
 
@@ -347,11 +347,11 @@ internal static class EnemyTileArtworkVerification
                 EnemyTileArtworkFormat.PaletteFileName(editedPointer));
             File.WriteAllBytes(paletteOverridePath, EnemyPaletteSheet.Write(
                 new EnemyPaletteSheetDocument { Version = 1, Colors = editedColors }));
-            EnemyTileArtworkCatalog editedPalette = EnemyTileArtworkFiles.Load(directory, overrideDirectory);
+            InstalledEnemyArtwork editedPalette = EnemyTileArtworkFiles.Load(directory, overrideDirectory);
             var originalColors = new SnesCgram();
             var changedColors = new SnesCgram();
-            stock.LoadPaletteTo(editedPointer, new CgramPalettes(originalColors).All.Slice(8 * 16, 16));
-            editedPalette.LoadPaletteTo(editedPointer, new CgramPalettes(changedColors).All.Slice(8 * 16, 16));
+            stock.Enemies.LoadPaletteTo(editedPointer, new CgramPalettes(originalColors).All.Slice(8 * 16, 16));
+            editedPalette.Enemies.LoadPaletteTo(editedPointer, new CgramPalettes(changedColors).All.Slice(8 * 16, 16));
             AssertEqual((ushort)(originalColors.Colors[128].ToWord() ^ 1), changedColors.Colors[128],
                 "RGB5 override changes its selected enemy palette channel");
             for (int color = 0; color < SnesCgram.ColorCount; color++)
@@ -360,7 +360,7 @@ internal static class EnemyTileArtworkVerification
                         "enemy palette edit leaves all other CGRAM slots unchanged");
             var reloadedColors = new SnesCgram();
             EnemyTileArtworkFiles.Load(directory, overrideDirectory)
-                .LoadPaletteTo(editedPointer, new CgramPalettes(reloadedColors).All.Slice(8 * 16, 16));
+                .Enemies.LoadPaletteTo(editedPointer, new CgramPalettes(reloadedColors).All.Slice(8 * 16, 16));
             AssertTrue(new CgramPalettes(reloadedColors).ImageEquals(new CgramPalettes(changedColors)),
                 "enemy palette override survives catalog reload");
 
@@ -442,7 +442,7 @@ internal static class EnemyTileArtworkVerification
     {
         using var fixture = new EnemyTileFixture();
         var (bus, directory, stock) = fixture;
-        VerifyInstalledDachoraColors(bus, directory, stock);
+        VerifyInstalledDachoraColors(bus, directory, stock.Enemies);
         return 0;
     }
 

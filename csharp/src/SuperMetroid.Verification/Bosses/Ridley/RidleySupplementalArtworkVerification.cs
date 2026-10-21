@@ -1,8 +1,8 @@
+using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Hardware.ImportedSpritemapsVerification;
 using SuperMetroid.Core.Bosses.Ridley;
 using SuperMetroid.Core.Enemies;
-using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Bosses.Ridley.Artwork;
 using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -17,7 +17,7 @@ internal static class RidleySupplementalArtworkVerification
 {
     /// <summary>Compares all wing phases and tail directions with native selectors and rendered OAM.</summary>
     internal static void VerifyInstalledRidleySupplementalArtwork(
-        SuperMetroidAddressSpace rom, EnemyTileArtworkCatalog stock)
+        SuperMetroidAddressSpace rom, InstalledEnemyArtwork stock)
     {
         AssertEqual(20, RidleySupplementalVisualDefinitions.WingPointerCount,
             "Ridley wing table retains twenty animation selections");
@@ -67,9 +67,9 @@ internal static class RidleySupplementalArtworkVerification
 
     /// <summary>Constructs a Ridley state and draws its installed wing or articulated-tail supplement.</summary>
     internal static OamBuffer DrawInstalledRidleySupplement(
-        EnemyTileArtworkCatalog artwork, RidleyFacing facing, ushort wingFrame, int? tailDirection)
+        InstalledEnemyArtwork artwork, RidleyFacing facing, ushort wingFrame, int? tailDirection)
     {
-        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork };
+        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork.Enemies, BossArtwork = artwork.Bosses, AreaArtwork = artwork.Areas };
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.RidleyCeres, slot.Definition);
         slot.Position = slot.Position.WithWhole(new(200, 100));

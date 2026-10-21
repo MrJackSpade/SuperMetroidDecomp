@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Rooms.Scrolling;
 using SuperMetroid.Core.Samus;
@@ -14,7 +15,7 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [.. CrocomirePartDefinitions.Parts.Keys];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new CrocomireEntity(this, slot, common);
+    public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new CrocomireEntity(this, slot, common, _bossArtwork);
 
     /// <summary>Accesses the active room, enemy slots, and shared RNG.</summary>
     private readonly EnemyRoomBinding _room;
@@ -38,19 +39,23 @@ internal sealed class CrocomireBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Crocomire's skeleton: waiting behind the wall, breaking through, its arc and collapse, and the fight's end.</summary>
     internal CrocomireSkeleton Skeleton { get; }
+    /// <summary>The session's installed boss artwork.</summary>
+    private readonly BossArtworkBinding _bossArtwork;
+
 
 
     /// <summary>Connects Crocomire AI to room collision, rendering, projectiles, and boss-status owners.</summary>
     internal CrocomireBehavior(CrocomireBehaviorDependencies dependencies)
     {
+        _bossArtwork = dependencies.BossArtwork;
         _room = dependencies.Room;
         Access = new CrocomireEncounterAccess(dependencies.FrameResults, _room, dependencies.Projectiles);
         Bg2 = new CrocomireBg2(dependencies.SpriteObjects, dependencies.Presentation, Access);
-        Fight = new CrocomireFight(new CrocomireFightDependencies { Room = _room, Terrain = dependencies.Terrain, Projectiles = dependencies.Projectiles, Earthquake = dependencies.Earthquake, Presentation = dependencies.Presentation, Collision = dependencies.Collision, ZebetiteBehavior = dependencies.ZebetiteBehavior, RoomStatus = dependencies.RoomStatus, Bg2 = Bg2, Access = Access });
-        Combat = new CrocomireCombat(_room, dependencies.Projectiles, dependencies.Presentation, dependencies.FrameContext, dependencies.Collision, dependencies.DeathsAndDrops, Access);
+        Fight = new CrocomireFight(new CrocomireFightDependencies { Room = _room, Terrain = dependencies.Terrain, Projectiles = dependencies.Projectiles, Earthquake = dependencies.Earthquake, Presentation = dependencies.Presentation, Collision = dependencies.Collision, ZebetiteBehavior = dependencies.ZebetiteBehavior, RoomStatus = dependencies.RoomStatus, Bg2 = Bg2, Access = Access , BossArtwork = _bossArtwork });
+        Combat = new CrocomireCombat(dependencies.Projectiles, dependencies.Presentation, dependencies.FrameContext, dependencies.Collision, dependencies.DeathsAndDrops, Access, _bossArtwork);
         BridgeCollapse = new CrocomireBridgeCollapse(_room, dependencies.Projectiles, dependencies.ZebetiteBehavior, Bg2, Access);
-        Melting = new CrocomireMelting(_room, dependencies.Presentation, Bg2, Access);
-        Skeleton = new CrocomireSkeleton(_room, dependencies.Projectiles, dependencies.Presentation, dependencies.DeathsAndDrops, dependencies.ZebetiteBehavior, Access);
+        Melting = new CrocomireMelting(dependencies.Presentation, Bg2, Access, _bossArtwork);
+        Skeleton = new CrocomireSkeleton(_room, dependencies.Projectiles, dependencies.Presentation, dependencies.DeathsAndDrops, dependencies.ZebetiteBehavior, Access, _bossArtwork);
     }
 
     /// <summary>Body X threshold at which Crocomire begins breaking the arena bridge.</summary>

@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.TestSupport.VerificationOracles;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
@@ -35,12 +36,12 @@ internal static class EnemyFormatDrawEntriesVerification
     /// <summary>Publishes a constructed population and checks every entry and the bound tile set.</summary>
     internal static void VerifyEnemyFormatDrawEntries()
     {
-        EnemyTileArtworkCatalog artwork = InstalledFixtures.EnemyTiles;
-        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork };
+        InstalledEnemyArtwork artwork = InstalledFixtures.EnemyArtwork;
+        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork.Enemies, BossArtwork = artwork.Bosses, AreaArtwork = artwork.Areas };
         var resolver = new EnemyTileTransfers(artwork);
-        EnemySpritemapCatalog spritemaps = artwork.Spritemaps ?? throw new InvalidOperationException("The installation has no enemy spritemaps.");
-        EnemyExtendedFrameCatalog extendedFrames = artwork.ExtendedFrames ?? throw new InvalidOperationException("The installation has no extended enemy frames.");
-        EnemyProjectileSpritemapCatalog projectileSpritemaps = artwork.ProjectileSpritemaps ?? throw new InvalidOperationException("The installation has no enemy projectile spritemaps.");
+        EnemySpritemapCatalog spritemaps = artwork.Enemies.Spritemaps ?? throw new InvalidOperationException("The installation has no enemy spritemaps.");
+        EnemyExtendedFrameCatalog extendedFrames = artwork.Enemies.ExtendedFrames ?? throw new InvalidOperationException("The installation has no extended enemy frames.");
+        EnemyProjectileSpritemapCatalog projectileSpritemaps = artwork.Enemies.ProjectileSpritemaps ?? throw new InvalidOperationException("The installation has no enemy projectile spritemaps.");
 
         // The room's enemy tile set reaches the OBJ characters only through the NMI queue, as a named transfer.
         RoomEnemyDefinition boyon = RoomEnemyDefinitionCatalog.Get(EnemyDefinitionId.Boyon);
@@ -51,7 +52,7 @@ internal static class EnemyFormatDrawEntriesVerification
         ObjCharacterUpload upload = enemies.Room.Session.ObjCharacters.Uploads.Single();
         AssertTrue(upload.Source is TransferObjCharacters, "Enemy tiles bind their installed artwork, not copied bytes");
         SpriteArtwork page = new ObjCharacterTablePage().Page(enemies.Room.Session.ObjCharacters, resolver);
-        AssertTrue(artwork.TryResolve(boyon.TileDataAddress, boyonBytes, out ReadOnlyMemory<byte> boyonTiles) &&
+        AssertTrue(artwork.Enemies.TryResolve(boyon.TileDataAddress, boyonBytes, out ReadOnlyMemory<byte> boyonTiles) &&
             page.Characters.Slice(upload.FirstByte, boyonBytes).SequenceEqual(boyonTiles.Span),
             "The OBJ page shows the room's enemy tile set where its upload lands");
 

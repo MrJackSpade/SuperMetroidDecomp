@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Core.Enemies;
+﻿using SuperMetroid.Core.Bosses.Artwork;
+using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Rooms;
 
@@ -37,4 +38,7 @@ internal sealed record MotherBrainHeadDependencies
 
     /// <summary>Mother Brain's state lookups, body and brain program setters, timers and PLM requests.</summary>
     public required MotherBrainEncounterAccess Access { get; init; }
+
+    /// <summary>The session's installed boss artwork.</summary>
+    public required BossArtworkBinding BossArtwork { get; init; }
 }

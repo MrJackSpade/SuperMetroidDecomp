@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Programs;
@@ -37,10 +38,14 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Controls whether the normal membrane palette can advance during the Zebetite sequence.</summary>
     private readonly ZebetiteBehavior _zebetiteBehavior;
+    /// <summary>The session's installed boss artwork.</summary>
+    private readonly BossArtworkBinding _bossArtwork;
+
 
     /// <summary>Connects the Tourian Baby Metroid to room, victim, palette, and Zebetite owners.</summary>
-    internal ShitroidBehavior(EnemyRoomBinding room, EnemySlotTable slotTable, EnemyPresentation presentation, ZebetiteBehavior zebetiteBehavior, EnemyFrameResultBuilder frameResults)
+    internal ShitroidBehavior(EnemyRoomBinding room, EnemySlotTable slotTable, EnemyPresentation presentation, ZebetiteBehavior zebetiteBehavior, EnemyFrameResultBuilder frameResults, BossArtworkBinding bossArtwork)
     {
+        _bossArtwork = bossArtwork;
         _frameResults = frameResults;
         _zebetiteBehavior = zebetiteBehavior;
         _room = room;
@@ -124,7 +129,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         for (int color = 0; color < ShitroidColorRomData.TargetColorCount; color++)
         {
-            Bgr555 value = (_room.Artwork?.ShitroidColors ?? throw new InvalidDataException(
+            Bgr555 value = (_bossArtwork.Artwork?.ShitroidColors ?? throw new InvalidDataException(
                 "Shitroid target palette requires installed artwork.")).TargetColor(target, color);
             state.MutableTargetPalette[destinationColor + color] = value;
 
@@ -772,7 +777,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
 
         for (int color = 0; color < ShitroidColorRomData.NormalColorsPerFrame; color++)
         {
-            Bgr555 value = (_room.Artwork?.ShitroidColors ?? throw new InvalidDataException(
+            Bgr555 value = (_bossArtwork.Artwork?.ShitroidColors ?? throw new InvalidDataException(
                 "Shitroid normal palette requires installed artwork.")).NormalColor(phase, color);
             _presentation.BossPalettes.ShitroidMembrane.Write(color, value);
         }

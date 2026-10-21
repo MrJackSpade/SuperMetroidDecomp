@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Core.Enemies;
+﻿using SuperMetroid.Core.Bosses.Artwork;
+using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Rooms;
@@ -21,10 +22,14 @@ internal sealed class PhantoonPatterns
     private readonly EnemyFrameContext _frameContext;
     /// <summary>Phantoon's fades, health colors, wave amplitude, programs and function timer, shared by every phase of the fight.</summary>
     private readonly PhantoonPresentation _phantoonPresentation;
+    /// <summary>The session's installed boss artwork.</summary>
+    private readonly BossArtworkBinding _bossArtwork;
+
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
-    internal PhantoonPatterns(EnemyRoomBinding room, EnemyProjectileEngine projectiles, EnemyAudioQueue audio, EnemyPresentation presentation, EnemyFrameContext frameContext, PhantoonPresentation phantoonPresentation)
+    internal PhantoonPatterns(EnemyRoomBinding room, EnemyProjectileEngine projectiles, EnemyAudioQueue audio, EnemyPresentation presentation, EnemyFrameContext frameContext, PhantoonPresentation phantoonPresentation, BossArtworkBinding bossArtwork)
     {
+        _bossArtwork = bossArtwork;
         _room = room;
         _projectiles = projectiles;
         _audio = audio;
@@ -683,7 +688,7 @@ internal sealed class PhantoonPatterns
         for (int color = 0; color < 16; color++)
         {
             Bgr555 current = _presentation.BossPalettes.PhantoonBody[color];
-            Bgr555 target = (_room.Artwork?.PhantoonColors ?? throw new InvalidDataException(
+            Bgr555 target = (_bossArtwork.Artwork?.PhantoonColors ?? throw new InvalidDataException(
                 "Phantoon fade palette requires installed artwork.")).ResolveFadeOut(color);
             _presentation.BossPalettes.PhantoonBody.Write(
                 color,

@@ -3,7 +3,6 @@ using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Enemies.EnemyAnimationIsolationFixtureVerification;
 using SuperMetroid.Core.Bosses.Kraid;
 using SuperMetroid.Core.Enemies;
-using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Bosses.Kraid.Artwork;
 using SuperMetroid.AssetExtraction.Enemies;
@@ -18,7 +17,7 @@ internal static class KraidInstalledPresentationHeadClockVerification
 {
     /// <summary>Replacing every head image must not replace the compiled clock, callback or mouth window.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
-    internal static void VerifyKraidInstalledHeadIsolation(CartridgeImportAddressSpace source, string directory, EnemyTileArtworkCatalog stock)
+    internal static void VerifyKraidInstalledHeadIsolation(CartridgeImportAddressSpace source, string directory, InstalledEnemyArtwork stock)
     {
         var native = new KraidHeadNativeCursors(CartridgeImportSource.Require(source));
         string overrides = Path.Combine(directory, "kraid-head-clock-overrides");
@@ -26,7 +25,7 @@ internal static class KraidInstalledPresentationHeadClockVerification
         ushort[] pointers = [.. KraidHeadFrameDefinitions.PresentationKeys];
         for (int index = 0; index < pointers.Length; index++)
         {
-            ReadOnlySpan<ushort> replacement = (stock.KraidBackground ?? throw new InvalidOperationException("Verification requires stock.KraidBackground.")).HeadWords(pointers[(index + 1) % pointers.Length]);
+            ReadOnlySpan<ushort> replacement = (stock.Bosses.KraidBackground ?? throw new InvalidOperationException("Verification requires stock.KraidBackground.")).HeadWords(pointers[(index + 1) % pointers.Length]);
             var words = new byte[replacement.Length * sizeof(ushort)];
             for (int word = 0; word < replacement.Length; word++)
                 BinaryPrimitives.WriteUInt16LittleEndian(words.AsSpan(word * 2),
@@ -34,7 +33,7 @@ internal static class KraidInstalledPresentationHeadClockVerification
             File.WriteAllBytes(Path.Combine(overrides, KraidBackgroundArtworkFormat.HeadFileName(pointers[index])),
                 KraidHeadTilemapAtlas.Encode(words));
         }
-        EnemyTileArtworkCatalog edited = EnemyTileArtworkFiles.Load(directory, overrides);
+        InstalledEnemyArtwork edited = EnemyTileArtworkFiles.Load(directory, overrides);
         AssertTrue(stock.ContentIdentity != edited.ContentIdentity, "head replacement contributes to selected identity");
         AssertEqual(edited.ContentIdentity, EnemyTileArtworkFiles.Load(directory, overrides).ContentIdentity,
             "all four head replacements survive catalog reload");
@@ -92,8 +91,8 @@ internal static class KraidInstalledPresentationHeadClockVerification
                     nextEvent += admission.Opcode;
                     physical = admission.Tilemap; outer = admission.OuterShape; inner = admission.InnerShape;
                     uploadCount++; frames++;
-                    KraidHeadClockFixture.ExpectedUpload(expectedStock, (stock.KraidBackground ?? throw new InvalidOperationException("Verification requires stock.KraidBackground.")).HeadWords(physical));
-                    KraidHeadClockFixture.ExpectedUpload(expectedEdited, (edited.KraidBackground ?? throw new InvalidOperationException("Verification requires edited.KraidBackground.")).HeadWords(physical));
+                    KraidHeadClockFixture.ExpectedUpload(expectedStock, (stock.Bosses.KraidBackground ?? throw new InvalidOperationException("Verification requires stock.KraidBackground.")).HeadWords(physical));
+                    KraidHeadClockFixture.ExpectedUpload(expectedEdited, (edited.Bosses.KraidBackground ?? throw new InvalidOperationException("Verification requires edited.KraidBackground.")).HeadWords(physical));
                     AssertTrue(!baseline.Shown().SequenceEqual(changed.Shown()), "replacement head is actually visible");
                 }
                 AssertEqual((ushort)(nextEvent - tick), baseline.State.Parts[0].HeadTimer, "native countdown on every hold tick");
@@ -147,13 +146,13 @@ internal static class KraidInstalledPresentationHeadClockVerification
         /// <summary>Bound production mouth-versus-projectile overlap check.</summary>
         private readonly Func<RoomEnemySlot, ushort, SamusProjectileSlot, bool> hit;
         /// <summary>The selected art, from which the shown body resolves.</summary>
-        private readonly EnemyTileArtworkCatalog art;
+        private readonly InstalledEnemyArtwork art;
 
         /// <summary>Initializes Kraid's background with selected art.</summary>
-        internal KraidHeadClockFixture(EnemyTileArtworkCatalog art)
+        internal KraidHeadClockFixture(InstalledEnemyArtwork art)
         {
             this.art = art;
-            Enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = art };
+            Enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = art.Enemies, BossArtwork = art.Bosses, AreaArtwork = art.Areas };
             State = new KraidEnemyState();
             Enemies.KraidBehavior.Rise.InitializeKraidBackground(State);
             step = new Func<RoomEnemySlot, KraidEnemyState, ushort>(Enemies.KraidBehavior.Head.ProcessKraidHeadInstruction);
@@ -164,7 +163,7 @@ internal static class KraidInstalledPresentationHeadClockVerification
         /// <summary>Advances one head instruction tick using the production interpreter.</summary>
         internal ushort Step() => step(Body, State);
         /// <summary>The BG2 tilemap words Kraid's body frame shows.</summary>
-        internal ushort[] Shown() => KraidBodyFixtures.Shown(art, State);
+        internal ushort[] Shown() => KraidBodyFixtures.Shown(art.Bosses, State);
         /// <summary>Tests a projectile against the selected physical mouth hitbox.</summary>
         internal bool Hit(ushort pointer, SamusProjectileSlot shot) => hit(Body, pointer, shot);
         /// <summary>Updates an expected shown tilemap with one head tilemap's words over the upper page.</summary>

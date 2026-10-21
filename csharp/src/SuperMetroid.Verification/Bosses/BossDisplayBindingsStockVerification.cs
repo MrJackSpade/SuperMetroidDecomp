@@ -36,7 +36,7 @@ internal static class BossDisplayBindingsStockVerification
         string path = Path.Combine(temporary.Root, "stock"), overrides = Path.Combine(temporary.Root, "overrides");
         EnemyTileArtworkFiles.Extract(source, path, SupportedCartridge.Sha256);
         EnemyTileArtworkFiles.ValidateStock(path);
-        EnemyTileArtworkCatalog installed = EnemyTileArtworkFiles.Load(path, null);
+        InstalledEnemyArtwork installed = EnemyTileArtworkFiles.Load(path, null);
         int frames = 0, parts = 0, runs = 0, tiles = 0;
         var nativeLists = new HashSet<int>();
         foreach ((EnemyDefinitionId definition, EnemySpritemapDefinition[] family) in BossDisplayDocuments.Families())
@@ -46,7 +46,7 @@ internal static class BossDisplayBindingsStockVerification
             {
                 frames++;
                 var native = ReadBossDisplayOracle(source, frame, nativeLists);
-                AssertTrue((installed.ExtendedFrames ?? throw new InvalidOperationException("Verification requires installed.ExtendedFrames.")).TryGetDisplay(frame.Bank, frame.Pointer, out var actual), "stock root is installed");
+                AssertTrue((installed.Enemies.ExtendedFrames ?? throw new InvalidOperationException("Verification requires installed.ExtendedFrames.")).TryGetDisplay(frame.Bank, frame.Pointer, out var actual), "stock root is installed");
                 AssertEqual(native.Oam.Length, actual.Length, frame.Name + " exact OAM component count");
                 var expectedOam = new OamBuffer(); expectedOam.BeginFrame();
                 for (int index = 0; index < native.Oam.Length; index++)
@@ -84,21 +84,21 @@ internal static class BossDisplayBindingsStockVerification
     }
 
     /// <summary>Resolves one Crocomire, Phantoon, or Draygon frame's installed BG2 writes.</summary>
-    private static ReadOnlyMemory<EnemyBg2TilemapWrite> StockBossWrites(EnemyTileArtworkCatalog catalog, EnemySpritemapDefinition frame)
+    private static ReadOnlyMemory<EnemyBg2TilemapWrite> StockBossWrites(InstalledEnemyArtwork catalog, EnemySpritemapDefinition frame)
     {
         ReadOnlyMemory<EnemyBg2TilemapWrite> writes;
         bool exists = frame.Bank switch
         {
-            CrocomireBg2FrameDefinitions.Bank => (catalog.CrocomireBg2Frames ?? throw new InvalidOperationException("Verification requires catalog.CrocomireBg2Frames.")).TryGet(frame.Pointer, out writes),
-            PhantoonBg2FrameDefinitions.Bank => (catalog.PhantoonBg2Frames ?? throw new InvalidOperationException("Verification requires catalog.PhantoonBg2Frames.")).TryGet(frame.Pointer, out writes),
-            DraygonBg2FrameDefinitions.Bank => (catalog.DraygonBg2Frames ?? throw new InvalidOperationException("Verification requires catalog.DraygonBg2Frames.")).TryGet(frame.Pointer, out writes),
+            CrocomireBg2FrameDefinitions.Bank => (catalog.Bosses.CrocomireBg2Frames ?? throw new InvalidOperationException("Verification requires catalog.CrocomireBg2Frames.")).TryGet(frame.Pointer, out writes),
+            PhantoonBg2FrameDefinitions.Bank => (catalog.Bosses.PhantoonBg2Frames ?? throw new InvalidOperationException("Verification requires catalog.PhantoonBg2Frames.")).TryGet(frame.Pointer, out writes),
+            DraygonBg2FrameDefinitions.Bank => (catalog.Bosses.DraygonBg2Frames ?? throw new InvalidOperationException("Verification requires catalog.DraygonBg2Frames.")).TryGet(frame.Pointer, out writes),
             _ => throw new InvalidDataException("Unknown stock fixture family."),
         };
         return exists ? writes : ReadOnlyMemory<EnemyBg2TilemapWrite>.Empty;
     }
 
     /// <summary>Checks edited root remaps persist and malformed or missing stock resources fail loading.</summary>
-    private static void VerifyBossDisplayInstallation(string stock, string overrides, EnemyTileArtworkCatalog baseline)
+    private static void VerifyBossDisplayInstallation(string stock, string overrides, InstalledEnemyArtwork baseline)
     {
         var json = new EnemyIdentityFixture();
         string stockFile = Path.Combine(stock, EnemyExtendedFrameDefinitions.FileName);
@@ -110,11 +110,11 @@ internal static class BossDisplayBindingsStockVerification
         foreach ((_, EnemySpritemapDefinition[] family) in families)
             (document.DisplayFrames ?? throw new InvalidOperationException("Verification requires document.DisplayFrames."))[family[0].Name] = family[1].Name;
         using (var bytes = json.Json(document)) File.WriteAllBytes(file, bytes.ToArray());
-        EnemyTileArtworkCatalog edited = EnemyTileArtworkFiles.Load(stock, overrides);
+        InstalledEnemyArtwork edited = EnemyTileArtworkFiles.Load(stock, overrides);
         AssertTrue(baseline.ContentIdentity != edited.ContentIdentity, "selected BG2 display bindings affect bundle identity");
         AssertEqual(edited.ContentIdentity, EnemyTileArtworkFiles.Load(stock, overrides).ContentIdentity, "installed edits persist across reload");
         foreach ((_, EnemySpritemapDefinition[] family) in families)
-            AssertEqual(family[1].Pointer, (edited.ExtendedFrames ?? throw new InvalidOperationException("Verification requires edited.ExtendedFrames.")).GetDisplayPointer(family[0].Bank, family[0].Pointer), "loader retains exact selected root");
+            AssertEqual(family[1].Pointer, (edited.Enemies.ExtendedFrames ?? throw new InvalidOperationException("Verification requires edited.ExtendedFrames.")).GetDisplayPointer(family[0].Bank, family[0].Pointer), "loader retains exact selected root");
         using (var bytes = json.Json(document with { Version = document.Version + 1 })) File.WriteAllBytes(file, bytes.ToArray());
         AssertThrows<InvalidDataException>(() => EnemyTileArtworkFiles.Load(stock, overrides), "future/malformed binding schema fails explicitly");
         using (var bytes = json.Json(document)) File.WriteAllBytes(file, bytes.ToArray());

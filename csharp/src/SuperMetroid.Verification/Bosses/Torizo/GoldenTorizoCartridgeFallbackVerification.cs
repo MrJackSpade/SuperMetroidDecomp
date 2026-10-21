@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Runtime;
@@ -25,7 +26,10 @@ internal static class GoldenTorizoCartridgeFallbackVerification
     {
         var bus = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom(sourceRom);
         var runtime = CreateRetailRuntimeFixture();
-        runtime.EnemySession.TileArtwork = installation.LoadEnemyTiles();
+        InstalledEnemyArtwork installedArtwork = installation.LoadEnemyTiles();
+        runtime.EnemySession.TileArtwork = installedArtwork.Enemies;
+        runtime.BossArtwork.Artwork = installedArtwork.Bosses;
+        runtime.AreaArtwork.Artwork = installedArtwork.Areas;
         runtime.HudSetup.InitializeHud(HudSnapshot.CeresDebug);
         runtime.RoomLoader.InitializeStartingCeresRoom();
         runtime.RoomLoader.InitializeCeresStartSamus();

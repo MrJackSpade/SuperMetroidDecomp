@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Core.Enemies;
+﻿using SuperMetroid.Core.Bosses.Artwork;
+using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Samus;
@@ -36,10 +37,14 @@ internal sealed class MotherBrainRainbowAndDeath
     private readonly MotherBrainProjectiles _projectileAttacks;
     /// <summary>Mother Brain's state lookups, body and brain program setters, timers and PLM requests.</summary>
     private readonly MotherBrainEncounterAccess _access;
+    /// <summary>The session's installed boss artwork.</summary>
+    private readonly BossArtworkBinding _bossArtwork;
+
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
     internal MotherBrainRainbowAndDeath(MotherBrainRainbowAndDeathDependencies dependencies)
     {
+        _bossArtwork = dependencies.BossArtwork;
         _frameResults = dependencies.FrameResults;
         _room = dependencies.Room;
         _projectiles = dependencies.Projectiles;
@@ -158,7 +163,7 @@ internal sealed class MotherBrainRainbowAndDeath
     /// <summary>Applies the requested body-color row during the death fade.</summary>
     internal void LoadMotherBrainDeathBodyFade(int frame)
     {
-        if (_room.Artwork?.MotherBrainDeathColors is { } colors)
+        if (_bossArtwork.Artwork?.MotherBrainDeathColors is { } colors)
         {
             for (int color = 0; color < MotherBrainDeathRomData.BodyColorCount; color++)
             {
@@ -175,7 +180,7 @@ internal sealed class MotherBrainRainbowAndDeath
     /// <summary>Applies the requested corpse-color row during the death fade.</summary>
     internal void LoadMotherBrainDeathCorpseFade(int frame)
     {
-        if (_room.Artwork?.MotherBrainDeathColors is { } colors)
+        if (_bossArtwork.Artwork?.MotherBrainDeathColors is { } colors)
         {
             for (int color = 0; color < MotherBrainDeathRomData.CorpseColorCount; color++)
                 _presentation.BossPalettes.MotherBrainCorpse.Write(color, colors.CorpseColor(frame, color));
@@ -187,7 +192,7 @@ internal sealed class MotherBrainRainbowAndDeath
     /// <summary>Restores the room door colors required after Mother Brain dies.</summary>
     internal void LoadMotherBrainDeathDoorPalette()
     {
-        if (_room.Artwork?.MotherBrainDeathColors is { } colors)
+        if (_bossArtwork.Artwork?.MotherBrainDeathColors is { } colors)
         {
             for (int color = 0; color < MotherBrainDeathRomData.BodyColorCount; color++)
                 _presentation.BossPalettes.MotherBrainBrain.Write(color, colors.ExplodedDoorColor(color));

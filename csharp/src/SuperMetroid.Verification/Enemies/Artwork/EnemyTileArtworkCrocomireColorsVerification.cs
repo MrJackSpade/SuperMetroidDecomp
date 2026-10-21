@@ -5,7 +5,6 @@ using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Bosses.Crocomire;
 using SuperMetroid.Core.Enemies;
-using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Bosses.Crocomire.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Enemies;
@@ -26,9 +25,9 @@ internal static class EnemyTileArtworkCrocomireColorsVerification
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for installed Crocomire palette bands")]
     internal static void VerifyInstalledCrocomireColors(
-        ISnesAddressSpace rom, string stockDirectory, EnemyTileArtworkCatalog stock)
+        ISnesAddressSpace rom, string stockDirectory, InstalledEnemyArtwork stock)
     {
-        CrocomireColorCatalog native = stock.CrocomireColors ??
+        CrocomireColorCatalog native = stock.Bosses.CrocomireColors ??
             throw new InvalidDataException("Installed enemy art has no Crocomire colors.");
         Suite(nameof(VerifyBand), () => VerifyBand(CrocomirePaletteRomData.FightBodySource,
             CrocomirePaletteRomData.FightBodyCount, native.ResolveFightBody, "fight body"));
@@ -56,8 +55,8 @@ internal static class EnemyTileArtworkCrocomireColorsVerification
         Directory.CreateDirectory(overrides);
         string overrideFile = Path.Combine(overrides, CrocomireColorFormat.FileName);
         File.WriteAllBytes(overrideFile, CrocomireColorCatalog.Write(visual));
-        EnemyTileArtworkCatalog edited = EnemyTileArtworkFiles.Load(stockDirectory, overrides);
-        CrocomireColorCatalog colors = edited.CrocomireColors ??
+        InstalledEnemyArtwork edited = EnemyTileArtworkFiles.Load(stockDirectory, overrides);
+        CrocomireColorCatalog colors = edited.Bosses.CrocomireColors ??
             throw new InvalidDataException("Edited enemy art has no Crocomire colors.");
         CheckEditedBand(CrocomirePaletteRomData.FightBodyCount,
             native.ResolveFightBody, colors.ResolveFightBody, "fight body");
@@ -72,7 +71,7 @@ internal static class EnemyTileArtworkCrocomireColorsVerification
             native.ResolveWallSpikes, colors.ResolveWallSpikes, "wall spikes");
         AssertEqual(colors.ResolveFightBody(1),
             (EnemyTileArtworkFiles.Load(stockDirectory, overrides)
-                .CrocomireColors ?? throw new InvalidOperationException("Verification requires EnemyTileArtworkFiles.Load(stockDirectory, overrides) .CrocomireColors.")).ResolveFightBody(1),
+                .Bosses.CrocomireColors ?? throw new InvalidOperationException("Verification requires EnemyTileArtworkFiles.Load(stockDirectory, overrides) .CrocomireColors.")).ResolveFightBody(1),
             "Crocomire color override survives catalog reload");
 
         // Execute the real boss initializer and hurt-flash hook with palette ROM reads
@@ -84,7 +83,7 @@ internal static class EnemyTileArtworkCrocomireColorsVerification
                     CrocomirePaletteRomData.WallSpikesCount * sizeof(ushort)),
             address => $"Crocomire accessed migrated palette ROM ${address:X6}.");
         var cgram = new SnesCgram();
-        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null)) { TileArtwork = edited };
+        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null)) { TileArtwork = edited.Enemies, BossArtwork = edited.Bosses, AreaArtwork = edited.Areas };
         Type type = typeof(RoomEnemySystem);
         enemies.Presentation.BindCgram(cgram);
         enemies.VerificationServices().IsAreaMiniBossDefeated = () => false;

@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Bosses.BossDisplayBindingsDocumentsVerification;
@@ -56,7 +57,7 @@ internal static class BossDisplayBindingsResourcesVerification
         string oldDraygon = old.First(frame => frame.Name.StartsWith("draygon_oam_", StringComparison.Ordinal)).Name;
         foreach (string name in legacy.DisplayFrames.Keys.ToArray())
             if (!legacy.Frames.ContainsKey(legacy.DisplayFrames[name])) legacy.DisplayFrames[name] = oldDraygon;
-        EnemyExtendedFrameCatalog baseline = (stock.Build().ExtendedFrames ?? throw new InvalidOperationException("Verification requires stock.Build().ExtendedFrames."));
+        EnemyExtendedFrameCatalog baseline = (stock.Build().Enemies.ExtendedFrames ?? throw new InvalidOperationException("Verification requires stock.Build().ExtendedFrames."));
         EnemyExtendedFrameCatalog merged = EnemyExtendedFrameCatalog.Load(json.Json(legacy), baseline);
         AssertEqual(merged.ContentIdentity, EnemyExtendedFrameCatalog.Load(json.Json(legacy), baseline).ContentIdentity,
             "schema-26 merge persists identically across reload");
@@ -97,7 +98,7 @@ internal static class BossDisplayBindingsResourcesVerification
     }
 
     /// <summary>Phantoon's tentacles in their own slot beside the body, starting their program on a one-update timer.</summary>
-    private static BossDisplayFixture NewTentacleFixture(EnemyTileArtworkCatalog artwork)
+    private static BossDisplayFixture NewTentacleFixture(InstalledEnemyArtwork artwork)
     {
         var fixture = new BossDisplayFixture(EnemyDefinitionId.PhantoonTentacles, artwork, slot: 2);
         RoomEnemySlot body = fixture.Enemies.SlotTable.Slots[0];

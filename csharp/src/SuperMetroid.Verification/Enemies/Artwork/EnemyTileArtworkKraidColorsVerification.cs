@@ -7,7 +7,6 @@ using static SuperMetroid.Verification.Bosses.Kraid.KraidPaletteDefinitionsVerif
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Bosses.Kraid;
 using SuperMetroid.Core.Enemies;
-using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Bosses.Kraid.Artwork;
 using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -23,14 +22,14 @@ internal static class EnemyTileArtworkKraidColorsVerification
     /// <summary>Compares every stock color with ROM, checks guarded production writes, and confirms edited colors survive reload.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for installed Kraid palette rows")]
     internal static void VerifyInstalledKraidColors(
-        SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace rom, string directory, EnemyTileArtworkCatalog stock)
+        SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace rom, string directory, InstalledEnemyArtwork stock)
     {
         Suite(nameof(VerifyKraidPaletteSourceAddresses), () => VerifyKraidPaletteSourceAddresses(rom));
         Suite(nameof(VerifyKraidPaletteSourceLengths), () => VerifyKraidPaletteSourceLengths());
-        KraidColorCatalog catalog = stock.KraidColors
+        KraidColorCatalog catalog = stock.Bosses.KraidColors
             ?? throw new InvalidDataException("Installed enemy artwork lacks Kraid colors.");
         var guardForAllColors = NewKraidPaletteSourceGuard(rom);
-        var colorReaderOwner = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = stock };
+        var colorReaderOwner = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = stock.Enemies, BossArtwork = stock.Bosses, AreaArtwork = stock.Areas };
         Func<KraidPaletteSource, int, Bgr555> productionReader = colorReaderOwner.KraidBehavior.Background.ReadKraidColor;
         foreach (KraidPaletteSource source in Enum.GetValues<KraidPaletteSource>())
         {
@@ -85,7 +84,7 @@ internal static class EnemyTileArtworkKraidColorsVerification
         Directory.CreateDirectory(overrides);
         string overridePath = Path.Combine(overrides, KraidColorFormat.FileName);
         File.WriteAllBytes(overridePath, KraidColorCatalog.Write(editedDocument));
-        EnemyTileArtworkCatalog edited = EnemyTileArtworkFiles.Load(directory, overrides);
+        InstalledEnemyArtwork edited = EnemyTileArtworkFiles.Load(directory, overrides);
         foreach ((KraidPaletteConsumer consumer, int cgramIndex) in new[]
         {
             (KraidPaletteConsumer.BackdropLoad, 96),
@@ -104,7 +103,7 @@ internal static class EnemyTileArtworkKraidColorsVerification
             AssertEqual((ushort)(baseline[cgramIndex] ^ 1), changed[cgramIndex],
                 $"edited Kraid {consumer} changes CGRAM {cgramIndex}");
         }
-        EnemyTileArtworkCatalog reloaded = EnemyTileArtworkFiles.Load(directory, overrides);
+        InstalledEnemyArtwork reloaded = EnemyTileArtworkFiles.Load(directory, overrides);
         AssertTrue(CaptureKraidPaletteConsumer(reloaded,
                 KraidPaletteConsumer.HealthNormal)
             .SequenceEqual(CaptureKraidPaletteConsumer(edited, KraidPaletteConsumer.HealthNormal)),
@@ -191,10 +190,10 @@ internal static class EnemyTileArtworkKraidColorsVerification
     /// <summary>Runs one Kraid palette consumer and captures the resulting complete CGRAM image.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     private static Bgr555[] CaptureKraidPaletteConsumer(
-        EnemyTileArtworkCatalog artwork,
+        InstalledEnemyArtwork artwork,
         KraidPaletteConsumer consumer)
     {
-        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork };
+        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork.Enemies, BossArtwork = artwork.Bosses, AreaArtwork = artwork.Areas };
         var cgram = new SnesCgram();
         enemies.Presentation.BindCgram(cgram);
         RoomEnemySlot body = enemies.SlotTable.Slots[0];

@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Hardware;
@@ -28,13 +29,13 @@ internal static class BeetomInstructionProgramDefinitionsVerification
     /// exactly the installed Beetom frames, with optional installed artwork; the program oracle matches bank $A8.
     /// </summary>
     internal static void VerifyBeetomInstructionProgramDefinitions(
-        SuperMetroidAddressSpace rom, EnemyTileArtworkCatalog? artwork = null)
+        SuperMetroidAddressSpace rom, InstalledEnemyArtwork? artwork = null)
     {
         Suite(nameof(VerifyBeetomNativeMaps), () => VerifyBeetomNativeMaps(rom));
         Suite(nameof(VerifyBeetomDistantActionMapping), () => VerifyBeetomDistantActionMapping(rom));
         Suite(nameof(VerifyBeetomDistantDirectionMapping), () => VerifyBeetomDistantDirectionMapping());
 
-        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null)) { TileArtwork = artwork };
+        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null)) { TileArtwork = artwork?.Enemies, BossArtwork = artwork?.Bosses, AreaArtwork = artwork?.Areas };
         enemies.VerificationServices().SeedRandom = _ => { };
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.Beetom, slot.Definition);

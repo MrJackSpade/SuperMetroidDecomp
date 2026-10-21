@@ -17,10 +17,14 @@ internal sealed class TourianUnlockBehavior
     private readonly EnemyAudioQueue _audio;
     /// <summary>CGRAM owner receiving installed statue eye colors.</summary>
     private readonly EnemyPresentation _presentation;
+    /// <summary>The session's installed area artwork.</summary>
+    private readonly AreaArtworkBinding _areaArtwork;
+
 
     /// <summary>Binds the unlock effects to the current room's projectile, audio, FX, and artwork owners.</summary>
-    internal TourianUnlockBehavior(EnemyRoomBinding room, EnemyProjectileEngine projectiles, RoomEarthquake earthquake, EnemyAudioQueue audio, EnemyPresentation presentation)
+    internal TourianUnlockBehavior(EnemyRoomBinding room, EnemyProjectileEngine projectiles, RoomEarthquake earthquake, EnemyAudioQueue audio, EnemyPresentation presentation, AreaArtworkBinding areaArtwork)
     {
+        _areaArtwork = areaArtwork;
         _room = room;
         _projectiles = projectiles;
         _earthquake = earthquake;
@@ -53,7 +57,7 @@ internal sealed class TourianUnlockBehavior
     public void SpawnTourianEyeGlow(ushort parameter)
     {
         if (SpawnAtStatueEye(RoomEnemyProjectileKind.TourianStatueEyeGlow, parameter) is null) return;
-        (_room.Artwork?.TourianStatueColors ?? throw new InvalidOperationException(
+        (_areaArtwork.Artwork?.TourianStatueColors ?? throw new InvalidOperationException(
             "Tourian statue eye requires installed colors."))
             .ApplyEye(_presentation.Cgram, parameter);
     }

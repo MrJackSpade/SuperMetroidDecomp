@@ -4,7 +4,6 @@ using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Bosses.Draygon;
 using SuperMetroid.Core.Enemies;
-using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Bosses.Draygon.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Enemies;
@@ -23,9 +22,9 @@ internal static class EnemyTileArtworkDraygonColorsVerification
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for installed Draygon palette bands")]
     internal static void VerifyInstalledDraygonColors(
-        ISnesAddressSpace rom, string stockDirectory, EnemyTileArtworkCatalog stock)
+        ISnesAddressSpace rom, string stockDirectory, InstalledEnemyArtwork stock)
     {
-        DraygonColorCatalog native = stock.DraygonColors ??
+        DraygonColorCatalog native = stock.Bosses.DraygonColors ??
             throw new InvalidDataException("Installed enemy art has no Draygon colors.");
         Suite(nameof(VerifyBand), () => VerifyBand(DraygonColorRomData.IntroSource, DraygonColorRomData.IntroCount,
             native.ResolveIntro, "intro"));
@@ -57,8 +56,8 @@ internal static class EnemyTileArtworkDraygonColorsVerification
         Directory.CreateDirectory(overrides);
         string overrideFile = Path.Combine(overrides, DraygonColorFormat.FileName);
         File.WriteAllBytes(overrideFile, DraygonColorCatalog.Write(visual));
-        EnemyTileArtworkCatalog edited = EnemyTileArtworkFiles.Load(stockDirectory, overrides);
-        DraygonColorCatalog colors = edited.DraygonColors ??
+        InstalledEnemyArtwork edited = EnemyTileArtworkFiles.Load(stockDirectory, overrides);
+        DraygonColorCatalog colors = edited.Bosses.DraygonColors ??
             throw new InvalidDataException("Edited enemy art has no Draygon colors.");
         CheckEditedBand(DraygonColorRomData.IntroCount,
             native.ResolveIntro, colors.ResolveIntro, "intro");
@@ -80,7 +79,7 @@ internal static class EnemyTileArtworkDraygonColorsVerification
                     $"Draygon health band {band} color {color} remains unchanged");
         AssertEqual(colors.ResolveHealthBand(1, 1),
             (EnemyTileArtworkFiles.Load(stockDirectory, overrides)
-                .DraygonColors ?? throw new InvalidOperationException("Verification requires EnemyTileArtworkFiles.Load(stockDirectory, overrides) .DraygonColors.")).ResolveHealthBand(1, 1),
+                .Bosses.DraygonColors ?? throw new InvalidOperationException("Verification requires EnemyTileArtworkFiles.Load(stockDirectory, overrides) .DraygonColors.")).ResolveHealthBand(1, 1),
             "Draygon color override survives catalog reload");
 
         // Invoke the actual body initializer and hurt program with the visual source
@@ -95,7 +94,7 @@ internal static class EnemyTileArtworkDraygonColorsVerification
                         DraygonColorRomData.WhiteFlashCount * sizeof(ushort)),
             address => $"Draygon accessed migrated palette ROM ${address:X6}.");
         var cgram = new SnesCgram();
-        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = edited };
+        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = edited.Enemies, BossArtwork = edited.Bosses, AreaArtwork = edited.Areas };
         Type type = typeof(RoomEnemySystem);
         enemies.Presentation.BindCgram(cgram);
         enemies.Presentation.BindVram(BgArtworkFixtures.For(new SnesVram()));

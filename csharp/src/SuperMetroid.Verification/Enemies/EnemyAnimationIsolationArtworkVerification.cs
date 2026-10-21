@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Enemies.EnemyAnimationIsolationFixtureVerification;
@@ -13,7 +14,7 @@ namespace SuperMetroid.Verification.Enemies;
 internal static class EnemyAnimationIsolationArtworkVerification
 {
     /// <summary>Changes Boyon, Torizo, projectile, death, and pickup artwork while remapping selected display frames.</summary>
-    internal static EnemyTileArtworkCatalog CreateEditedEnemyAnimationArtwork()
+    internal static InstalledEnemyArtwork CreateEditedEnemyAnimationArtwork()
     {
         var fixture = new EnemyIdentityFixture();
         EnemySpritemapDocument ordinary = fixture.OamDocument();

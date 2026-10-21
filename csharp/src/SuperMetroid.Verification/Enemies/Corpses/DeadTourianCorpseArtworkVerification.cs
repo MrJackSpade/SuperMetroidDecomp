@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Areas;
+using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Hardware.ImportedSpritemapsVerification;
@@ -21,9 +23,9 @@ internal static class DeadTourianCorpseArtworkVerification
 {
     /// <summary>Compares all corpse initializer variants against native WRAM and confirms a sidehopper PNG edit reaches live staging.</summary>
     internal static void VerifyInstalledDeadTourianCorpseArtwork(
-        string directory, EnemyTileArtworkCatalog stock)
+        string directory, InstalledEnemyArtwork stock)
     {
-        Suite(nameof(VerifyDeadTourianCorpseVisuals), () => VerifyDeadTourianCorpseVisuals(stock));
+        Suite(nameof(VerifyDeadTourianCorpseVisuals), () => VerifyDeadTourianCorpseVisuals(stock.Enemies));
         // Compare the installed initialization callbacks with independent native
         // copy layouts. The installed path forbids reads from the visual source bank.
         foreach (ushort parameter in new ushort[] { 0, 2 })
@@ -60,7 +62,7 @@ internal static class DeadTourianCorpseArtworkVerification
             }
         }
 
-        var missing = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() });
+        var missing = new InstalledEnemyArtwork(EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>() }), new BossArtworkCatalog(), new AreaArtworkCatalog());
         AssertThrows<InvalidDataException>(() => InitializeDeadSidehopperArtwork(
                 SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc"), missing, 0),
             "bound dead-sidehopper art cannot silently fall back to ROM");
@@ -184,9 +186,9 @@ internal static class DeadTourianCorpseArtworkVerification
 
     /// <summary>Runs the real sidehopper initializer with corpse-sheet ROM reads forbidden; returns the staging it wrote.</summary>
     private static EnemyStagingSurfaces InitializeDeadSidehopperArtwork(
-        SuperMetroidAddressSpace bus, EnemyTileArtworkCatalog artwork, ushort parameter)
+        SuperMetroidAddressSpace bus, InstalledEnemyArtwork artwork, ushort parameter)
     {
-        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork };
+        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork.Enemies, BossArtwork = artwork.Bosses, AreaArtwork = artwork.Areas };
         ISnesAddressSpace source = NewDeadTourianCorpseArtworkReadGuard(bus);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.SetSpawnParameter1(parameter);
@@ -196,10 +198,10 @@ internal static class DeadTourianCorpseArtworkVerification
 
     /// <summary>Runs a Zoomer, Ripper, or Skree corpse initializer using installed artwork under a source read guard; returns the staging it wrote.</summary>
     private static EnemyStagingSurfaces InitializeDeadTourianCorpseArtwork(
-        SuperMetroidAddressSpace bus, EnemyTileArtworkCatalog artwork,
+        SuperMetroidAddressSpace bus, InstalledEnemyArtwork artwork,
         EnemyDefinitionId definition, int variant)
     {
-        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork };
+        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork.Enemies, BossArtwork = artwork.Bosses, AreaArtwork = artwork.Areas };
         ISnesAddressSpace source = NewDeadTourianCorpseArtworkReadGuard(bus);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(definition, slot.Definition);

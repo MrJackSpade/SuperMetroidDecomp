@@ -83,6 +83,13 @@ it states what it needs as a capability interface in its own module (`IEnemyPlmS
 lowest type that owns them: the enemy slot limits are `EnemySlotTable`'s, and a solid enemy body carries its slot and
 whether it blocks Samus instead of the raw enemy words Samus would have to decode.
 
+Installed artwork follows the same rule. The enemy directory is read once, but it is published as three catalogs, one
+per owning domain: `EnemyTileArtworkCatalog` (ordinary enemies), `BossArtworkCatalog` (bosses) and
+`AreaArtworkCatalog` (the Ceres and Tourian actors). The runtime owns a `BossArtworkBinding` and an
+`AreaArtworkBinding` for the session; each room's enemy system hands them to the classes that read them, so a rebind
+reaches actors already in the room. The runtime artwork resolves boss and area transfers through the bindings, and
+the directory's content identity covers all three catalogs.
+
 ## Partial types
 
 The build analyzer enforces partial-type rules in every project:

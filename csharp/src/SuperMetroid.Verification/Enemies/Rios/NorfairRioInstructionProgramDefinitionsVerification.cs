@@ -1,8 +1,8 @@
+using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Enemies;
-using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Enemies.Rios;
 using SuperMetroid.Core.Programs;
 namespace SuperMetroid.Verification.Enemies.Rios;
@@ -88,9 +88,9 @@ internal static class NorfairRioInstructionProgramDefinitionsVerification
         RoomEnemySlot Slot,
         NorfairRioEnemyState State) NewNorfairRioInstructionSystem(
             NorfairRioProgram entry,
-            EnemyTileArtworkCatalog? art = null)
+            InstalledEnemyArtwork? art = null)
     {
-        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = art };
+        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = art?.Enemies, BossArtwork = art?.Bosses, AreaArtwork = art?.Areas };
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.Geruta, slot.Definition);
         slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = 0xa2 });

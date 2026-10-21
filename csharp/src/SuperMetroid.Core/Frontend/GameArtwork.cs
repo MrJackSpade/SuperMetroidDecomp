@@ -1,4 +1,6 @@
-﻿using SuperMetroid.Core.Assets;
+﻿using SuperMetroid.Core.Bosses.Artwork;
+using SuperMetroid.Core.Areas;
+using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Rooms.LevelData;
@@ -169,6 +171,12 @@ public sealed record GameArtwork : IGameplayArtwork
 
     /// <summary>Enemy sprite sheets, palettes and enemy-projectile spritemaps.</summary>
     public EnemyTileArtworkCatalog? EnemyTileArtwork { get; init; }
+
+    /// <summary>The bosses' melts, skeletons, BG2 frames, special pages and colors.</summary>
+    public BossArtworkCatalog? BossArtwork { get; init; }
+
+    /// <summary>The Ceres door and escape artwork and the Tourian statues' colors.</summary>
+    public AreaArtworkCatalog? AreaArtwork { get; init; }
 
     /// <summary>Projectile trail artwork.</summary>
     public ProjectileTrailCatalog? TrailArtwork { get; init; }

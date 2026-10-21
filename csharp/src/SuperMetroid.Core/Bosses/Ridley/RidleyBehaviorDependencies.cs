@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Rooms;
@@ -45,4 +46,7 @@ internal sealed record RidleyBehaviorDependencies
 
     /// <summary>Room fx.</summary>
     public required EnemyRoomFx RoomFx { get; init; }
+
+    /// <summary>The session's installed boss artwork.</summary>
+    public required BossArtworkBinding BossArtwork { get; init; }
 }

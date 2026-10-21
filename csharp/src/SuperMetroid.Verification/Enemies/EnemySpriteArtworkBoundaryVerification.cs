@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Enemies;
 using static SuperMetroid.Verification.Harness.RepositoryInputsVerification;
 using System.Reflection;
 using SuperMetroid.Core.Hardware;
@@ -35,9 +36,9 @@ internal static class EnemySpriteArtworkBoundaryVerification
         var installation = GameAssetInstaller.Install(sourceRom, temporary.Root);
         var source = CartridgeImportAddressSpaceTooling.LoadRetailRom(sourceRom);
         var memory = SuperMetroidAddressSpace.CreateWithoutCartridge();
-        EnemyTileArtworkCatalog artwork = installation.LoadEnemyTiles();
-        EnemyProjectileSpritemapCatalog projectileArtwork = (artwork.ProjectileSpritemaps ?? throw new InvalidOperationException("Verification requires artwork.ProjectileSpritemaps."));
-        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork };
+        InstalledEnemyArtwork artwork = installation.LoadEnemyTiles();
+        EnemyProjectileSpritemapCatalog projectileArtwork = (artwork.Enemies.ProjectileSpritemaps ?? throw new InvalidOperationException("Verification requires artwork.ProjectileSpritemaps."));
+        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork.Enemies, BossArtwork = artwork.Bosses, AreaArtwork = artwork.Areas };
         int enemyCases = 0, projectileCases = 0, spriteObjectCases = 0;
 
         foreach (EnemySpritemapDefinition frame in EnemySpritemapDefinitions.Frames)

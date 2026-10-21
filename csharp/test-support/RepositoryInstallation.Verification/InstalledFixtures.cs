@@ -1,3 +1,6 @@
+using SuperMetroid.Core.Areas;
+using SuperMetroid.Core.Bosses.Artwork;
+using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Enemies.Artwork;
@@ -37,7 +40,7 @@ internal static class InstalledFixtures
     private static readonly Lazy<AreaMapPresentationCatalog> maps = new(() => RepositoryInstallation.Installation.LoadMaps());
 
     /// <summary>Lazy installed enemy tile and sprite artwork.</summary>
-    private static readonly Lazy<EnemyTileArtworkCatalog> enemyTiles = new(() => RepositoryInstallation.Installation.LoadEnemyTiles());
+    private static readonly Lazy<InstalledEnemyArtwork> enemyArtwork = new(() => RepositoryInstallation.Installation.LoadEnemyTiles());
 
     /// <summary>Lazy projectile art, bindings, and tiles.</summary>
     private static readonly Lazy<InstalledProjectilePresentation> projectiles = new(() => RepositoryInstallation.Installation.LoadProjectiles());
@@ -59,7 +62,16 @@ internal static class InstalledFixtures
     internal static AreaMapPresentationCatalog Maps => maps.Value;
 
     /// <summary>The installation's stock enemy artwork, loaded once per process.</summary>
-    internal static EnemyTileArtworkCatalog EnemyTiles => enemyTiles.Value;
+    internal static EnemyTileArtworkCatalog EnemyTiles => enemyArtwork.Value.Enemies;
+
+    /// <summary>The installation's stock enemy, boss and area artwork, loaded once per process.</summary>
+    internal static InstalledEnemyArtwork EnemyArtwork => enemyArtwork.Value;
+
+    /// <summary>The installation's stock boss artwork, loaded once per process with the enemy artwork.</summary>
+    internal static BossArtworkCatalog BossArtwork => enemyArtwork.Value.Bosses;
+
+    /// <summary>The installation's stock area artwork, loaded once per process with the enemy artwork.</summary>
+    internal static AreaArtworkCatalog AreaArtwork => enemyArtwork.Value.Areas;
 
 
     /// <summary>The installation's projectile artwork and frame bindings, loaded once per process.</summary>

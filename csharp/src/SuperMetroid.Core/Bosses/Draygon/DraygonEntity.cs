@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Core.Bosses.Draygon.Artwork;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Enemies;
@@ -8,9 +9,12 @@ namespace SuperMetroid.Core.Bosses.Draygon;
 /// <param name="species">The Draygon species owner.</param>
 /// <param name="slot">The slot the enemy occupies.</param>
 /// <param name="common">The shared participation.</param>
-internal sealed class DraygonEntity(DraygonBehavior species, RoomEnemySlot slot, EnemyCommonParticipation common)
+/// <param name="bossArtwork">The session's installed boss artwork.</param>
+internal sealed class DraygonEntity(DraygonBehavior species, RoomEnemySlot slot, EnemyCommonParticipation common, BossArtworkBinding bossArtwork)
     : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation, IEnemyExtendedHitboxes, IEnemyBg2Frames, IEnemyPrivateShotCallback
 {
+    /// <summary>The session's installed boss artwork.</summary>
+    private readonly BossArtworkBinding _bossArtwork = bossArtwork;
     /// <inheritdoc/>
     public EnemyInitializationAiHandler? FindInitialization() => DraygonPartDefinitions.Parts[Slot.EnemyDefinitionPointer] switch
     {
@@ -50,7 +54,7 @@ internal sealed class DraygonEntity(DraygonBehavior species, RoomEnemySlot slot,
         if (Slot.Definition.Bank != DraygonBg2FrameDefinitions.Bank || !DraygonBg2FrameDefinitions.IsFrame(selected))
             return null;
         ReadOnlyMemory<EnemyBg2TilemapWrite> writes = default;
-        bool found = room.InstalledArtwork.DraygonBg2Frames?.TryGet(selected, out writes) == true;
+        bool found = _bossArtwork.Installed.DraygonBg2Frames?.TryGet(selected, out writes) == true;
         return new("Draygon", found, writes);
     }
 

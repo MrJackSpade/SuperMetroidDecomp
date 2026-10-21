@@ -3,7 +3,6 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Enemies;
-using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Enemies;
@@ -22,9 +21,9 @@ internal static class EnemyTileArtworkMotherBrainDeathColorsVerification
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for installed Mother Brain death colors and selectors")]
     internal static void VerifyInstalledMotherBrainDeathColors(
-        ISnesAddressSpace rom, string stockDirectory, EnemyTileArtworkCatalog stock)
+        ISnesAddressSpace rom, string stockDirectory, InstalledEnemyArtwork stock)
     {
-        MotherBrainDeathColorCatalog native = stock.MotherBrainDeathColors ??
+        MotherBrainDeathColorCatalog native = stock.Bosses.MotherBrainDeathColors ??
             throw new InvalidDataException("Installed enemy art has no Mother Brain death colors.");
         for (int frame = 0; frame < MotherBrainDeathRomData.BodyFadeFrameCount; frame++)
         {
@@ -81,8 +80,8 @@ internal static class EnemyTileArtworkMotherBrainDeathColorsVerification
         string overrideFile = Path.Combine(overrides,
             MotherBrainDeathColorFormat.FileName);
         File.WriteAllBytes(overrideFile, MotherBrainDeathColorCatalog.Write(visual));
-        EnemyTileArtworkCatalog edited = EnemyTileArtworkFiles.Load(stockDirectory, overrides);
-        MotherBrainDeathColorCatalog colors = edited.MotherBrainDeathColors ??
+        InstalledEnemyArtwork edited = EnemyTileArtworkFiles.Load(stockDirectory, overrides);
+        MotherBrainDeathColorCatalog colors = edited.Bosses.MotherBrainDeathColors ??
             throw new InvalidDataException("Edited enemy art has no Mother Brain death colors.");
         for (int frame = 0; frame < MotherBrainDeathRomData.BodyFadeFrameCount; frame++)
         {
@@ -100,7 +99,7 @@ internal static class EnemyTileArtworkMotherBrainDeathColorsVerification
             "Mother Brain exploded-door edit takes effect");
         AssertEqual(colors.CorpseColor(7, 5),
             (EnemyTileArtworkFiles.Load(stockDirectory, overrides)
-                .MotherBrainDeathColors ?? throw new InvalidOperationException("Verification requires EnemyTileArtworkFiles.Load(stockDirectory, overrides) .MotherBrainDeathColors.")).CorpseColor(7, 5),
+                .Bosses.MotherBrainDeathColors ?? throw new InvalidOperationException("Verification requires EnemyTileArtworkFiles.Load(stockDirectory, overrides) .MotherBrainDeathColors.")).CorpseColor(7, 5),
             "Mother Brain death color override survives catalog reload");
 
         CartridgeReadGuard guard = new CartridgeReadGuard(rom).Forbid(
@@ -117,7 +116,7 @@ internal static class EnemyTileArtworkMotherBrainDeathColorsVerification
                         MotherBrainDeathRomData.BodyColorCount * sizeof(ushort)),
             address => $"Live Mother Brain death read migrated ROM ${address:X6}.");
         var cgram = new SnesCgram();
-        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = edited };
+        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = edited.Enemies, BossArtwork = edited.Bosses, AreaArtwork = edited.Areas };
         Type type = typeof(RoomEnemySystem);
         enemies.Presentation.BindCgram(cgram);
         cgram.SetColor(MotherBrainDeathRomData.BodyColors - 1, Bgr555.FromWord(0x1234));

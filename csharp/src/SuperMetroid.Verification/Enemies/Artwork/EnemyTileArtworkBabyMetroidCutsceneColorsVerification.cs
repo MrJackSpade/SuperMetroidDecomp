@@ -3,7 +3,6 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Enemies;
-using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Enemies;
@@ -22,9 +21,9 @@ internal static class EnemyTileArtworkBabyMetroidCutsceneColorsVerification
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for Baby Metroid cutscene colors and fade selectors")]
     internal static void VerifyInstalledBabyMetroidCutsceneColors(
-        ISnesAddressSpace rom, string stockDirectory, EnemyTileArtworkCatalog stock)
+        ISnesAddressSpace rom, string stockDirectory, InstalledEnemyArtwork stock)
     {
-        BabyMetroidCutsceneColorCatalog native = stock.BabyMetroidCutsceneColors ??
+        BabyMetroidCutsceneColorCatalog native = stock.Bosses.BabyMetroidCutsceneColors ??
             throw new InvalidDataException("Installed enemy art has no cutscene Baby colors.");
         for (int color = 0; color < BabyMetroidCutsceneColorRomData.InitialColorCount; color++)
             AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom),
@@ -60,8 +59,8 @@ internal static class EnemyTileArtworkBabyMetroidCutsceneColorsVerification
         string overrideFile = Path.Combine(overrides,
             BabyMetroidCutsceneColorFormat.FileName);
         File.WriteAllBytes(overrideFile, BabyMetroidCutsceneColorCatalog.Write(visual));
-        EnemyTileArtworkCatalog edited = EnemyTileArtworkFiles.Load(stockDirectory, overrides);
-        BabyMetroidCutsceneColorCatalog colors = edited.BabyMetroidCutsceneColors ??
+        InstalledEnemyArtwork edited = EnemyTileArtworkFiles.Load(stockDirectory, overrides);
+        BabyMetroidCutsceneColorCatalog colors = edited.Bosses.BabyMetroidCutsceneColors ??
             throw new InvalidDataException("Edited enemy art has no cutscene Baby colors.");
         AssertTrue(native.InitialColor(5) != colors.InitialColor(5),
             "cutscene Baby initial edit takes effect");
@@ -76,12 +75,12 @@ internal static class EnemyTileArtworkBabyMetroidCutsceneColorsVerification
         }
         AssertEqual(colors.FadeColor(6, 5),
             (EnemyTileArtworkFiles.Load(stockDirectory, overrides)
-                .BabyMetroidCutsceneColors ?? throw new InvalidOperationException("Verification requires EnemyTileArtworkFiles.Load(stockDirectory, overrides) .BabyMetroidCutsceneColors.")).FadeColor(6, 5),
+                .Bosses.BabyMetroidCutsceneColors ?? throw new InvalidOperationException("Verification requires EnemyTileArtworkFiles.Load(stockDirectory, overrides) .BabyMetroidCutsceneColors.")).FadeColor(6, 5),
             "cutscene Baby color override survives catalog reload");
 
         var guard = NewBabyMetroidCutsceneColorReadGuard(rom);
         var cgram = new SnesCgram();
-        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = edited };
+        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = edited.Enemies, BossArtwork = edited.Bosses, AreaArtwork = edited.Areas };
         Type type = typeof(RoomEnemySystem);
         enemies.Presentation.BindCgram(cgram);
         int destination = BabyMetroidCutsceneColorRomData.DestinationByteIndex / 2;

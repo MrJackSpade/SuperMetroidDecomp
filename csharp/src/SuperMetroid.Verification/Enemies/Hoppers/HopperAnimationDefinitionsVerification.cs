@@ -1,8 +1,8 @@
+using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Enemies;
-using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Enemies.Hoppers;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core;
@@ -20,7 +20,7 @@ internal static class HopperAnimationDefinitionsVerification
     /// shows its four timed poses and then lets main AI hop again.
     /// </summary>
     internal static void VerifyHopperAnimationDefinitions(
-        SuperMetroidAddressSpace rom, EnemyTileArtworkCatalog? artwork = null)
+        SuperMetroidAddressSpace rom, InstalledEnemyArtwork? artwork = null)
     {
         int[] tables = [0xa3aac2, 0xa3aaca, 0xa3aad2, 0xa3aada];
         for (ushort variant = 0; variant < 4; variant++)
@@ -46,7 +46,7 @@ internal static class HopperAnimationDefinitionsVerification
         {
             bool upsideDown = orientation != 0;
             string context = $"{variant}/{orientation}";
-            var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null)) { TileArtwork = artwork };
+            var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null)) { TileArtwork = artwork?.Enemies, BossArtwork = artwork?.Bosses, AreaArtwork = artwork?.Areas };
             enemies.VerificationServices().SeedRandom = _ => { };
             enemies.VerificationServices().NextRandom = () => 0;
 
@@ -102,9 +102,9 @@ internal static class HopperAnimationDefinitionsVerification
 
     /// <summary>Checks the Tourian Sidehopper uses the large-Sidehopper landed program and sound.</summary>
     private static void VerifyTourianSidehopperInstructionAlias(
-        EnemyTileArtworkCatalog? artwork)
+        InstalledEnemyArtwork? artwork)
     {
-        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null)) { TileArtwork = artwork };
+        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new VerificationRoomEnemyServices(null)) { TileArtwork = artwork?.Enemies, BossArtwork = artwork?.Bosses, AreaArtwork = artwork?.Areas };
         enemies.VerificationServices().SeedRandom = _ => { };
         enemies.VerificationServices().NextRandom = () => 0;
 

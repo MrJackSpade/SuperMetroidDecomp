@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Programs;
@@ -39,10 +40,14 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
     private readonly EnemyCollision _collision;
     /// <summary>Spawns the sixteen special drops from the native chance table.</summary>
     private readonly EnemyDeathsAndDrops _deathsAndDrops;
+    /// <summary>The session's installed boss artwork.</summary>
+    private readonly BossArtworkBinding _bossArtwork;
+
 
     /// <summary>Binds Botwoon's head, body, palette, collision, and drop services.</summary>
     internal BotwoonBehavior(BotwoonBehaviorDependencies dependencies)
     {
+        _bossArtwork = dependencies.BossArtwork;
         _frameResults = dependencies.FrameResults;
         _room = dependencies.Room;
         _projectiles = dependencies.Projectiles;
@@ -697,7 +702,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
 
         int destinationColor = state.PaletteDestinationColor;
         int colorCount = 256 - destinationColor;
-        if (_room.Artwork?.BotwoonColors is { } colors)
+        if (_bossArtwork.Artwork?.BotwoonColors is { } colors)
         {
             // The retail actor owns OBJ palette seven. A restored/non-retail offset
             // would copy past this authored image into adjacent ROM data; do not

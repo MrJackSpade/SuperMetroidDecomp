@@ -14,17 +14,18 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies, IEnemyEntit
     /// <inheritdoc/>
     public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => new TourianEntranceStatueEntity(this, slot, common);
 
-    /// <summary>Provides installed statue colors and room-owned state.</summary>
-    private readonly EnemyRoomBinding _room;
     /// <summary>Allocates the three fixed statue decoration actors in native reverse-slot order.</summary>
     private readonly EnemyProjectileEngine _projectiles;
     /// <summary>Supplies visible CGRAM for the entrance statue's initial palette rows.</summary>
     private readonly EnemyPresentation _presentation;
+    /// <summary>The session's installed area artwork.</summary>
+    private readonly AreaArtworkBinding _areaArtwork;
+
 
     /// <summary>Binds room state, projectile allocation, and installed presentation to the statue species.</summary>
-    internal TourianEntranceStatueBehavior(EnemyRoomBinding room, EnemyProjectileEngine projectiles, EnemyPresentation presentation)
+    internal TourianEntranceStatueBehavior(EnemyProjectileEngine projectiles, EnemyPresentation presentation, AreaArtworkBinding areaArtwork)
     {
-        _room = room;
+        _areaArtwork = areaArtwork;
         _projectiles = projectiles;
         _presentation = presentation;
     }
@@ -85,7 +86,7 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies, IEnemyEntit
         // Statue init writes target palette rows $F and $A from $AA:D785/$D765.
         // This runtime exposes the currently visible CGRAM buffer, so install those rows
         // directly while retaining every cartridge color word.
-        (_room.Artwork?.TourianStatueColors ?? throw new InvalidDataException(
+        (_areaArtwork.Artwork?.TourianStatueColors ?? throw new InvalidDataException(
             "Tourian entrance statues require installed palette artwork.")).ApplyEntrance(_presentation.Cgram);
     }
 

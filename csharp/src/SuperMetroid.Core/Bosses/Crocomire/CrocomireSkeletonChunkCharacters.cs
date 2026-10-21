@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Enemies.Artwork;
+using SuperMetroid.Core.Bosses.Artwork;
 
 namespace SuperMetroid.Core.Bosses.Crocomire;
 
@@ -8,7 +8,7 @@ internal sealed record CrocomireSkeletonChunkCharacters(int Entry) : ObjCharacte
 {
     /// <inheritdoc/>
     public override ReadOnlyMemory<byte> Resolve(IObjCharacterSourceResolver resolver) =>
-        (InstalledObjCharacterArtwork.Of(resolver).EnemyTiles.CrocomireSkeleton ?? throw new InvalidOperationException(
+        (InstalledBossObjCharacterArtwork.Of(resolver).BossTiles.CrocomireSkeleton ?? throw new InvalidOperationException(
             "Installed Crocomire artwork is missing its skeleton characters.")).Chunk(Entry);
 
     /// <summary>Names the source for diagnostics.</summary>

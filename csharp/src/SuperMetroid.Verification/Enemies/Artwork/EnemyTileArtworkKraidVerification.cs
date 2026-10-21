@@ -33,9 +33,9 @@ internal static class EnemyTileArtworkKraidVerification
     /// <summary>Matches Kraid's working BG2 map and both shown body pages, then checks an edited tile.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for installed Kraid background tilemaps")]
     internal static void VerifyInstalledKraidBackground(
-        SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace rom, string directory, EnemyTileArtworkCatalog stock)
+        SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace rom, string directory, InstalledEnemyArtwork stock)
     {
-        KraidBackgroundArtwork art = stock.KraidBackground
+        KraidBackgroundArtwork art = stock.Bosses.KraidBackground
             ?? throw new InvalidDataException("Installed enemy artwork lacks Kraid maps.");
         AssertTrue(art.Upper.Transfer.Span.SequenceEqual(RomDataReader.Decompress(
                 rom, KraidBackgroundRomData.UpperTilemap,
@@ -74,7 +74,7 @@ internal static class EnemyTileArtworkKraidVerification
         using (var output = File.Create(overridePath))
             RoomBackgroundTilemapAtlas.Write(output, document with { Pages = pages },
                 KraidBackgroundRomData.DecompressedTilemapBytes);
-        EnemyTileArtworkCatalog edited = EnemyTileArtworkFiles.Load(directory, overrides);
+        InstalledEnemyArtwork edited = EnemyTileArtworkFiles.Load(directory, overrides);
         ushort[] changed = BuildKraidWorkingMap(edited);
         AssertEqual((ushort)(native[0] ^ 1), changed[0],
             "edited Kraid BG2 reference changes the visible working-map cell");
@@ -98,7 +98,7 @@ internal static class EnemyTileArtworkKraidVerification
     /// <summary>Checks each authored Kraid head frame and confirms a JSON edit reaches the shown body.</summary>
     [CpuBusBoundary("exact bus test: retail ROM oracle for installed Kraid head frames")]
     private static void VerifyInstalledKraidHeadFrames(
-        SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace rom, string directory, EnemyTileArtworkCatalog stock)
+        SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace rom, string directory, InstalledEnemyArtwork stock)
     {
         ushort[] pointers = KraidHeadFrameDefinitions.PresentationKeys.Order().ToArray();
         AssertEqual(4, pointers.Length, "four distinct Kraid head art frames");
@@ -107,7 +107,7 @@ internal static class EnemyTileArtworkKraidVerification
             byte[] native = RomDataReader.ReadFixedBank(rom,
                 KraidBackgroundRomData.NativeBank | pointer,
                 KraidBackgroundRomData.HeadTilemapWords * sizeof(ushort));
-            ReadOnlySpan<ushort> installed = (stock.KraidBackground ?? throw new InvalidOperationException("Verification requires stock.KraidBackground.")).HeadWords(pointer);
+            ReadOnlySpan<ushort> installed = (stock.Bosses.KraidBackground ?? throw new InvalidOperationException("Verification requires stock.KraidBackground.")).HeadWords(pointer);
             for (int word = 0; word < installed.Length; word++)
                 AssertEqual(SnesLittleEndian.Word(native[word * 2], native[word * 2 + 1]),
                     installed[word], $"Kraid head ${pointer:X4} word {word}");
@@ -136,7 +136,7 @@ internal static class EnemyTileArtworkKraidVerification
         string overridePath = Path.Combine(overrides, fileName);
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
             document with { Cells = cells }, CamelCaseIndentedJson));
-        EnemyTileArtworkCatalog edited = EnemyTileArtworkFiles.Load(directory, overrides);
+        InstalledEnemyArtwork edited = EnemyTileArtworkFiles.Load(directory, overrides);
         (_, ushort[] changedShown) = RunKraidHeadFrame(edited, editedPointer);
         (_, ushort[] stockShown) = ReadImportedKraidHeadFrame(rom, editedPointer);
         AssertEqual((ushort)(stockShown[0] ^ 1), changedShown[0],
@@ -163,7 +163,7 @@ internal static class EnemyTileArtworkKraidVerification
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots, native VRAM words")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for installed Kraid BG3 restoration")]
     private static void VerifyInstalledKraidBg3Restoration(
-        SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace rom, string directory, EnemyTileArtworkCatalog enemyArtwork)
+        SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace rom, string directory, InstalledEnemyArtwork enemyArtwork)
     {
         AssertEqual(24, (int)VramAssetId.GrappleVerticalSegmentTiles,
             "existing pending-VRAM asset identities remain stable");
@@ -197,7 +197,9 @@ internal static class EnemyTileArtworkKraidVerification
                 Colors(GameplayBasePaletteFormat.SpriteColorCount))));
         var runtime = SuperMetroid.Core.Runtime.SuperMetroidRuntime.Create(HostGameplayOverrides.None, initialPaletteArt: initial);
         runtime.Artwork.MapPresentation = stock;
-        runtime.EnemySession.TileArtwork = enemyArtwork;
+        runtime.EnemySession.TileArtwork = enemyArtwork.Enemies;
+        runtime.BossArtwork.Artwork = enemyArtwork.Bosses;
+        runtime.AreaArtwork.Artwork = enemyArtwork.Areas;
         AssertTrue(ReferenceEquals(stock.HudTiles, runtime.EnemySession.HudTileArtwork),
             "runtime presentation binding supplies shared HUD art to Kraid");
         for (int quarter = 0; quarter < KraidBackgroundRomData.StandardBg3TransferCount;
@@ -256,7 +258,7 @@ internal static class EnemyTileArtworkKraidVerification
 
     /// <summary>Invokes each death-phase BG3 quarter transfer through the live Kraid behavior.</summary>
     private static SnesVram RunKraidBg3Restoration(
-        EnemyTileArtworkCatalog enemyArtwork,
+        InstalledEnemyArtwork enemyArtwork,
         HudTileAtlas hud,
         AreaMapPresentationCatalog map,
         bool useQueue)
@@ -264,7 +266,7 @@ internal static class EnemyTileArtworkKraidVerification
         var bus = SuperMetroid.Core.Hardware.SuperMetroidAddressSpace.CreateWithoutCartridge();
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance)
         {
-            TileArtwork = enemyArtwork,
+            TileArtwork = enemyArtwork.Enemies, BossArtwork = enemyArtwork.Bosses, AreaArtwork = enemyArtwork.Areas,
             Presentation = { HudTileArtwork = hud },
         };
         var vram = new SnesVram();
@@ -299,12 +301,12 @@ internal static class EnemyTileArtworkKraidVerification
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for installed Kraid room background")]
     private static void VerifyInstalledKraidRoomBackground(
-        SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace rom, string directory, EnemyTileArtworkCatalog stock)
+        SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace rom, string directory, InstalledEnemyArtwork stock)
     {
         byte[] native = RomDataReader.ReadFixedBank(rom,
             KraidBackgroundRomData.RoomBackgroundTileAddress,
             KraidBackgroundRomData.RoomBackgroundTileBytes);
-        AssertTrue((stock.KraidBackground ?? throw new InvalidOperationException("Verification requires stock.KraidBackground.")).RoomBackgroundTiles.Transfer.Span.SequenceEqual(native),
+        AssertTrue((stock.Bosses.KraidBackground ?? throw new InvalidOperationException("Verification requires stock.KraidBackground.")).RoomBackgroundTiles.Transfer.Span.SequenceEqual(native),
             "installed Kraid room-background PNG preserves native planar characters");
         var baseline = new SnesVram();
         baseline.LoadBytes(KraidBackgroundRomData.RoomBackgroundTileVramWord * 2, native);
@@ -324,7 +326,7 @@ internal static class EnemyTileArtworkKraidVerification
         using (var output = File.Create(overridePath))
             IndexedPng.Write(output, new(image.Size.X, image.Size.Y),
                 image.Pixels, image.Palette);
-        EnemyTileArtworkCatalog edited = EnemyTileArtworkFiles.Load(directory, overrides);
+        InstalledEnemyArtwork edited = EnemyTileArtworkFiles.Load(directory, overrides);
         SnesVram changed = UploadKraidRoomBackground(edited);
         int destination = KraidBackgroundRomData.RoomBackgroundTileVramWord * sizeof(ushort);
         AssertEqual((byte)(baseline.ReadByte(destination) ^ 0x80),
@@ -347,9 +349,9 @@ internal static class EnemyTileArtworkKraidVerification
     }
 
     /// <summary>The image a capture shows after the room-background characters bind, using a cartridge-free Kraid owner.</summary>
-    private static SnesVram UploadKraidRoomBackground(EnemyTileArtworkCatalog artwork)
+    private static SnesVram UploadKraidRoomBackground(InstalledEnemyArtwork artwork)
     {
-        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork };
+        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork.Enemies, BossArtwork = artwork.Bosses, AreaArtwork = artwork.Areas };
         var vram = new SnesVram();
         enemies.Presentation.BindVram(BgArtworkFixtures.For(vram));
         Action upload = enemies.KraidBehavior.Rise.UploadKraidRoomBackgroundTiles;
@@ -358,21 +360,21 @@ internal static class EnemyTileArtworkKraidVerification
     }
 
     /// <summary>The BG2 tilemap a selected installed head frame shows over blank pages.</summary>
-    private static (KraidEnemyState State, ushort[] Shown) RunKraidHeadFrame(EnemyTileArtworkCatalog artwork, ushort pointer)
+    private static (KraidEnemyState State, ushort[] Shown) RunKraidHeadFrame(InstalledEnemyArtwork artwork, ushort pointer)
     {
         KraidHeadFrame frame = KraidHeadFrame.ByMouthStage.Single(candidate => KraidHeadFrameDefinitions.PresentationKey(candidate) == pointer);
         var state = new KraidEnemyState();
         KraidHead.TransferKraidHeadTilemap(state, frame);
-        return (state, KraidBodyFixtures.Shown(artwork, state));
+        return (state, KraidBodyFixtures.Shown(artwork.Bosses, state));
     }
 
     /// <summary>Kraid's working map as his installed art composes it, without cartridge reads.</summary>
-    internal static ushort[] BuildKraidWorkingMap(EnemyTileArtworkCatalog artwork) => KraidBodyFixtures.WorkingMap(artwork);
+    internal static ushort[] BuildKraidWorkingMap(InstalledEnemyArtwork artwork) => KraidBodyFixtures.WorkingMap(artwork.Bosses);
 
     /// <summary>Runs Kraid's background initializer against installed art without cartridge reads.</summary>
-    private static KraidEnemyState InitializeKraidBackground(EnemyTileArtworkCatalog artwork)
+    private static KraidEnemyState InitializeKraidBackground(InstalledEnemyArtwork artwork)
     {
-        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork };
+        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork.Enemies, BossArtwork = artwork.Bosses, AreaArtwork = artwork.Areas };
         Action<KraidEnemyState> initialize = enemies.KraidBehavior.Rise.InitializeKraidBackground;
         var state = new KraidEnemyState();
         initialize(state);
@@ -380,13 +382,13 @@ internal static class EnemyTileArtworkKraidVerification
     }
 
     /// <summary>Shows both BG2 working-map pages and checks their native upload counts.</summary>
-    private static ushort[] ShowKraidVisiblePages(EnemyTileArtworkCatalog artwork)
+    private static ushort[] ShowKraidVisiblePages(InstalledEnemyArtwork artwork)
     {
         KraidEnemyState state = InitializeKraidBackground(artwork);
         KraidBackground.TransferKraidTopTilemap(state);
         KraidBackground.TransferKraidBottomTilemap(state);
         AssertEqual(1, state.TopTilemapUploadCount, "Kraid upper page transfer count");
         AssertEqual(1, state.BottomTilemapUploadCount, "Kraid lower page transfer count");
-        return KraidBodyFixtures.Shown(artwork, state);
+        return KraidBodyFixtures.Shown(artwork.Bosses, state);
     }
 }

@@ -3,7 +3,6 @@ using System.Text.Json.Nodes;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Enemies;
-using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Enemies;
@@ -22,9 +21,9 @@ internal static class EnemyTileArtworkZebetiteColorsVerification
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for installed Zebetite colors")]
     internal static void VerifyInstalledZebetiteColors(ISnesAddressSpace bus,
-        string stockDirectory, EnemyTileArtworkCatalog stock)
+        string stockDirectory, InstalledEnemyArtwork stock)
     {
-        if (stock.ZebetiteColors is null)
+        if (stock.Bosses.ZebetiteColors is null)
             throw new InvalidDataException("Installed enemy artwork lacks Zebetite pulse colors.");
         SnesCgram nativeCgram = SeedColors();
         ushort nativeCounter = 0;
@@ -60,7 +59,7 @@ internal static class EnemyTileArtworkZebetiteColorsVerification
         editedDocument.Required("frames").Required(3).Required(1)["red"] = red.GetValue<int>() ^ 1;
         byte[] selectedBytes = System.Text.Encoding.UTF8.GetBytes(editedDocument.ToJsonString());
         File.WriteAllBytes(overridePath, selectedBytes);
-        EnemyTileArtworkCatalog edited = EnemyTileArtworkFiles.Load(stockDirectory, overrides);
+        InstalledEnemyArtwork edited = EnemyTileArtworkFiles.Load(stockDirectory, overrides);
         (RoomEnemySystem selected, SnesCgram selectedCgram) = Create(guard, edited);
         SnesCgram controlCgram = SeedColors();
         ushort controlCounter = 0;
@@ -96,7 +95,7 @@ internal static class EnemyTileArtworkZebetiteColorsVerification
             "Stock re-extraction preserves the Zebetite color override");
         var reloaded = EnemyTileArtworkFiles.Load(stockDirectory, overrides);
         var persistedCgram = new SnesCgram();
-        (reloaded.ZebetiteColors ?? throw new InvalidOperationException("Verification requires reloaded.ZebetiteColors.")).Apply(persistedCgram, 3,
+        (reloaded.Bosses.ZebetiteColors ?? throw new InvalidOperationException("Verification requires reloaded.ZebetiteColors.")).Apply(persistedCgram, 3,
             ZebetiteDefinitions.PaletteDestinationColor);
         AssertEqual(selectedCgram.Colors[ZebetiteDefinitions.PaletteDestinationColor + 1],
             persistedCgram.Colors[ZebetiteDefinitions.PaletteDestinationColor + 1],
@@ -121,9 +120,9 @@ internal static class EnemyTileArtworkZebetiteColorsVerification
         Console.WriteLine("  Zebetite colors: 16 native RGB5 words, sixteen live pulse calls, full CGRAM, ROM guard, isolated edit, gates, persistence and strict failures pass.");
 
         static (RoomEnemySystem Enemies, SnesCgram Cgram) Create(
-            ISnesAddressSpace source, EnemyTileArtworkCatalog artwork)
+            ISnesAddressSpace source, InstalledEnemyArtwork artwork)
         {
-            var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork };
+            var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork.Enemies, BossArtwork = artwork.Bosses, AreaArtwork = artwork.Areas };
             SnesCgram cgram = SeedColors();
             enemies.Presentation.BindCgram(cgram);
             RoomEnemySlot primarySlot = enemies.SlotTable.Slots[0];

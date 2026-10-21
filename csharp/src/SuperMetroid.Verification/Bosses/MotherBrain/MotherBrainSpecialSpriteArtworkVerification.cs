@@ -3,7 +3,6 @@ using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Enemies;
-using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.AssetExtraction.Areas.Escape;
@@ -37,7 +36,7 @@ internal static class MotherBrainSpecialSpriteArtworkVerification
         StagingByteView corpseTiles = enemies.Room.Staging.MotherBrainCorpseTiles;
         corpseTiles[0] = 0x5a;
         SnesVram ObjVram() => ObjCharacterVramImage.Of(enemies.Room.Session.ObjCharacters,
-            new EnemyTileTransfers(enemies.TileArtwork ?? InstalledFixtures.EnemyTiles));
+            new EnemyTileTransfers(new InstalledEnemyArtwork(enemies.TileArtwork ?? InstalledFixtures.EnemyTiles, enemies.BossArtwork ?? InstalledFixtures.BossArtwork, enemies.AreaArtwork ?? InstalledFixtures.AreaArtwork)));
 
         enemies.MotherBrainEncounter.ApplyMotherBrainRainbowTileTransfer(new MotherBrainSpriteTileTransferRequest(0, 1,
             MotherBrainCorpseRottingStateConstants.GraphicsBufferAddress, 0x7000));
@@ -52,10 +51,10 @@ internal static class MotherBrainSpecialSpriteArtworkVerification
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for the Mother Brain special sprite sheets and Baby tile records")]
     internal static void VerifyInstalledMotherBrainSpecialSpriteArtwork(
-        string directory, EnemyTileArtworkCatalog stock)
+        string directory, InstalledEnemyArtwork stock)
     {
         MotherBrainSpecialSpriteArtworkCatalog installed =
-            stock.MotherBrainSpecialSprites ?? throw new InvalidDataException(
+            stock.Bosses.MotherBrainSpecialSprites ?? throw new InvalidDataException(
                 "Extracted Mother Brain special sprite PNGs were not bound.");
         var rom = SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpaceTooling.LoadRetailRom("Super Metroid.smc");
         foreach (MotherBrainSpecialSpriteSheetDefinition sheet in
@@ -96,7 +95,7 @@ internal static class MotherBrainSpecialSpriteArtworkVerification
             string overridePath = Path.Combine(overrideDirectory, sheet.FileName);
             using (var output = File.Create(overridePath))
                 IndexedPng.Write(output, new(image.Size.X, image.Size.Y), image.Pixels, image.Palette);
-            EnemyTileArtworkCatalog edited = EnemyTileArtworkFiles.Load(directory, overrideDirectory);
+            InstalledEnemyArtwork edited = EnemyTileArtworkFiles.Load(directory, overrideDirectory);
             SnesVram editedVram = TransferMotherBrainSpecialPages(edited,
                 sheet);
             int firstDestination = sheet.FirstDestinationWord * 2;
@@ -109,9 +108,9 @@ internal static class MotherBrainSpecialSpriteArtworkVerification
                     MotherBrainSpecialSpriteSheetDefinition.PageByteCount - 1)),
                 $"{sheet.FileName} edit leaves neighboring bytes unchanged");
             RoomCharacterAtlas reloaded = (EnemyTileArtworkFiles.Load(directory, overrideDirectory)
-                .MotherBrainSpecialSprites ?? throw new InvalidOperationException("Verification requires EnemyTileArtworkFiles.Load(directory, overrideDirectory) .MotherBrainSpecialSprites.")).Get(sheet.SourceAddress);
+                .Bosses.MotherBrainSpecialSprites ?? throw new InvalidOperationException("Verification requires EnemyTileArtworkFiles.Load(directory, overrideDirectory) .MotherBrainSpecialSprites.")).Get(sheet.SourceAddress);
             AssertTrue(reloaded.Transfer.Span.SequenceEqual(
-                    (edited.MotherBrainSpecialSprites ?? throw new InvalidOperationException("Verification requires edited.MotherBrainSpecialSprites.")).Get(sheet.SourceAddress).Transfer.Span),
+                    (edited.Bosses.MotherBrainSpecialSprites ?? throw new InvalidOperationException("Verification requires edited.MotherBrainSpecialSprites.")).Get(sheet.SourceAddress).Transfer.Span),
                 $"{sheet.FileName} override survives catalog reload");
 
             File.WriteAllBytes(overridePath, [0]);
@@ -161,11 +160,11 @@ internal static class MotherBrainSpecialSpriteArtworkVerification
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for the Mother Brain leg tile-transfer records and pixels")]
     private static void VerifyMotherBrainLegTileTransfers(
-        EnemyTileArtworkCatalog stock, SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace rom)
+        InstalledEnemyArtwork stock, SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace rom)
     {
-        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = stock };
+        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = stock.Enemies, BossArtwork = stock.Bosses, AreaArtwork = stock.Areas };
         SnesVram ObjVram() => ObjCharacterVramImage.Of(enemies.Room.Session.ObjCharacters,
-            new EnemyTileTransfers(enemies.TileArtwork ?? InstalledFixtures.EnemyTiles));
+            new EnemyTileTransfers(new InstalledEnemyArtwork(enemies.TileArtwork ?? InstalledFixtures.EnemyTiles, enemies.BossArtwork ?? InstalledFixtures.BossArtwork, enemies.AreaArtwork ?? InstalledFixtures.AreaArtwork)));
         var state = new MotherBrainEnemyState(enemies.SlotTable.Slots[0]);
 
         for (int page = 0; page < MotherBrainLegTileTransferDefinitions.PageCount; page++)
@@ -213,15 +212,15 @@ internal static class MotherBrainSpecialSpriteArtworkVerification
     /// <summary>Requires installed escape-timer sheets for cartridge-backed requests while retaining live corpse-WRAM transfers.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     private static void VerifyMotherBrainInstalledTransferBoundary(
-        EnemyTileArtworkCatalog stock, SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace rom)
+        InstalledEnemyArtwork stock, SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace rom)
     {
         EscapeTimerTileAtlas timer = EscapeTimerTileAtlas.Load(new MemoryStream(EscapeTimerTileAtlasExtractor.Extract(rom)));
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance)
         {
-            TileArtwork = stock,
+            TileArtwork = stock.Enemies, BossArtwork = stock.Bosses, AreaArtwork = stock.Areas,
             Presentation = { EscapeTimerArtwork = timer },
         };
-        SnesVram ObjVram() => ObjCharacterVramImage.Of(enemies.Room.Session.ObjCharacters, new EnemyTileTransfers(stock, timer));
+        SnesVram ObjVram() => ObjCharacterVramImage.Of(enemies.Room.Session.ObjCharacters, new EnemyTileTransfers(stock, timer: timer));
 
         MotherBrainSpriteTileTransferRequest[] timerRequests =
         [
@@ -300,11 +299,11 @@ internal static class MotherBrainSpecialSpriteArtworkVerification
     }
     /// <summary>Runs the same sheet-page requests through the installed artwork and production enemy transfer path.</summary>
     private static SnesVram TransferMotherBrainSpecialPages(
-        EnemyTileArtworkCatalog artwork, MotherBrainSpecialSpriteSheetDefinition sheet)
+        InstalledEnemyArtwork artwork, MotherBrainSpecialSpriteSheetDefinition sheet)
     {
-        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork };
+        var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork.Enemies, BossArtwork = artwork.Bosses, AreaArtwork = artwork.Areas };
         SnesVram ObjVram() => ObjCharacterVramImage.Of(enemies.Room.Session.ObjCharacters,
-            new EnemyTileTransfers(enemies.TileArtwork ?? InstalledFixtures.EnemyTiles));
+            new EnemyTileTransfers(new InstalledEnemyArtwork(enemies.TileArtwork ?? InstalledFixtures.EnemyTiles, enemies.BossArtwork ?? InstalledFixtures.BossArtwork, enemies.AreaArtwork ?? InstalledFixtures.AreaArtwork)));
         for (int page = 0; page < sheet.PageCount; page++)
         {
             var request = new MotherBrainSpriteTileTransferRequest(

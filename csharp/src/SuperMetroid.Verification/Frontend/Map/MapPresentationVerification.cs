@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Tooling;
 using System.Text;
@@ -226,7 +227,7 @@ internal static class MapPresentationVerification
         /// <summary>Initial CGRAM colors loaded when the fixture enters gameplay.</summary>
         public GameplayBasePaletteCatalog InitialPalettes { get; }
         /// <summary>Enemy character and sprite art bound alongside room art.</summary>
-        public EnemyTileArtworkCatalog EnemyTiles { get; }
+        public InstalledEnemyArtwork EnemyTiles { get; }
         /// <summary>Samus body art bound before gameplay drawing begins.</summary>
         public SamusBodyArtworkCatalog SamusBody { get; }
 
@@ -261,7 +262,9 @@ internal static class MapPresentationVerification
             runtime.Artwork.RoomLevelStreams = levelStreams;
             runtime.Artwork.RoomBackgroundTilemapArt = backgrounds;
             runtime.Artwork.RoomSkyTilemapArt = skies;
-            runtime.EnemySession.TileArtwork = EnemyTiles;
+            runtime.EnemySession.TileArtwork = EnemyTiles.Enemies;
+            runtime.BossArtwork.Artwork = EnemyTiles.Bosses;
+            runtime.AreaArtwork.Artwork = EnemyTiles.Areas;
             runtime.Artwork.BeamArtwork = beamTiles;
             runtime.Artwork.TrailArtwork = trails;
             runtime.Artwork.SamusBodyArt = SamusBody;

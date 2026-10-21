@@ -36,8 +36,8 @@ internal static class GunshipInstalledCompositionsVerification
         string directory = Path.Combine(Path.GetFullPath(outputRoot), "enemy-tiles-" + Guid.NewGuid().ToString("N"));
         EnemyTileArtworkFiles.Extract(imported, directory, SupportedCartridge.Sha256);
         EnemyTileArtworkFiles.ValidateStock(directory);
-        EnemyTileArtworkCatalog stock = EnemyTileArtworkFiles.Load(directory, overrideDirectory: null);
-        EnemySpritemapCatalog compositions = (stock.Spritemaps ?? throw new InvalidOperationException("Verification requires stock.Spritemaps."));
+        InstalledEnemyArtwork stock = EnemyTileArtworkFiles.Load(directory, overrideDirectory: null);
+        EnemySpritemapCatalog compositions = (stock.Enemies.Spritemaps ?? throw new InvalidOperationException("Verification requires stock.Spritemaps."));
         EnemySpritemapDefinition[] shipFrames = GunshipVisualDefinitions.Frames();
         AssertEqual(GunshipVisualDefinitions.FrameCount, shipFrames.Length,
             "#1154 gunship exports its two hull and eleven pad compositions");
@@ -87,7 +87,7 @@ internal static class GunshipInstalledCompositionsVerification
     /// destruction handoff. Retain the actual initialized gameplay/HUD owner,
     /// as the reported escape-to-Landing-Site transition does. No replay is needed.
     /// </summary>
-    internal static void VerifyGunshipLandingCompositions(string installationRoot, EnemyTileArtworkCatalog? enemyArtwork = null)
+    internal static void VerifyGunshipLandingCompositions(string installationRoot, InstalledEnemyArtwork? enemyArtwork = null)
     {
         var installation = new GameInstallation(Path.GetFullPath(installationRoot));
         var bus = SuperMetroidAddressSpace.CreateWithoutCartridge();

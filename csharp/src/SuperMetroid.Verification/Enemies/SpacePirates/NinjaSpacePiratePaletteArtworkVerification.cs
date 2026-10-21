@@ -20,7 +20,7 @@ internal static class NinjaSpacePiratePaletteArtworkVerification
     [PpuLayoutBoundary("exact hardware test: checks native CGRAM slots")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for Ninja Space Pirate palette")]
     internal static void VerifyInstalledNinjaSpacePiratePalette(ISnesAddressSpace bus,
-        string stockDirectory, EnemyTileArtworkCatalog stock)
+        string stockDirectory, InstalledEnemyArtwork stock)
     {
         RoomEnemyDefinition shared = SuperMetroid.AssetExtraction.Enemies.RoomEnemyDefinitionImporter.Load(bus,
             EnemyDefinitionId.PirateGoldWall);
@@ -83,9 +83,9 @@ internal static class NinjaSpacePiratePaletteArtworkVerification
         Console.WriteLine("Ninja Pirate palette: shared gold-Pirate sheet matches native CGRAM; live edit, ROM guard, placement isolation and override persistence pass.");
 
         static (RoomEnemySlot Slot, SnesCgram Colors, AnimationProgramCursor<NinjaSpacePirateProgram> Program) Initialize(
-            EnemyTileArtworkCatalog artwork)
+            InstalledEnemyArtwork artwork)
         {
-            var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork };
+            var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = artwork.Enemies, BossArtwork = artwork.Bosses, AreaArtwork = artwork.Areas };
             var colors = new SnesCgram();
             for (int color = 0; color < SnesCgram.ColorCount; color++)
                 colors.SetColor(color, Bgr555.FromWord((ushort)(color * 17)));

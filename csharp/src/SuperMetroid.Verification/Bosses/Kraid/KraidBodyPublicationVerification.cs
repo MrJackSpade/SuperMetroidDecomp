@@ -1,6 +1,6 @@
+using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Core.Bosses.Kraid;
 using SuperMetroid.Core.Bosses.Kraid.Artwork;
-using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rendering;
@@ -31,8 +31,8 @@ internal static class KraidBodyPublicationVerification
         runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.Kraid);
         KraidEnemyState state = runtime.Enemies.KraidBehavior.Access.Kraid
             ?? throw new InvalidOperationException("Kraid's room loads Kraid.");
-        EnemyTileArtworkCatalog art = runtime.EnemySession.TileArtwork
-            ?? throw new InvalidOperationException("The retail runtime installs enemy artwork.");
+        BossArtworkCatalog art = runtime.BossArtwork.Artwork
+            ?? throw new InvalidOperationException("The retail runtime installs boss artwork.");
         ushort[] working = KraidBodyFixtures.WorkingMap(art);
         ReadOnlySpan<ushort> upper = working.AsSpan(0, KraidBackgroundRomData.VisiblePageWords);
         ReadOnlySpan<ushort> lower = working.AsSpan(KraidBackgroundRomData.WorkingLowerHalfWord, KraidBackgroundRomData.VisiblePageWords);

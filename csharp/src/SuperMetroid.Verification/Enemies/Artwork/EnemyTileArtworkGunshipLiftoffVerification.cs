@@ -21,9 +21,9 @@ internal static class EnemyTileArtworkGunshipLiftoffVerification
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     [CpuBusBoundary("exact bus test: retail ROM oracle for installed gunship liftoff transfers")]
     internal static void VerifyInstalledGunshipLiftoffArtwork(
-        SuperMetroidAddressSpace bus, string directory, EnemyTileArtworkCatalog stock)
+        SuperMetroidAddressSpace bus, string directory, InstalledEnemyArtwork stock)
     {
-        GunshipLiftoffArtworkCatalog installed = stock.GunshipLiftoff ??
+        GunshipLiftoffArtworkCatalog installed = stock.Enemies.GunshipLiftoff ??
             throw new InvalidDataException("Installed enemy art omitted gunship takeoff frames.");
         GunshipLiftoffTransferDefinitions.TransferSequence transfers =
             GunshipLiftoffTransferDefinitions.Frames;
@@ -48,7 +48,9 @@ internal static class EnemyTileArtworkGunshipLiftoffVerification
         }
 
         var runtime = CreateRetailRuntimeFixture();
-        runtime.EnemySession.TileArtwork = stock;
+        runtime.EnemySession.TileArtwork = stock.Enemies;
+        runtime.BossArtwork.Artwork = stock.Bosses;
+        runtime.AreaArtwork.Artwork = stock.Areas;
         VramWriteQueue stockQueue = QueueAllTakeoffFrames(stock);
         var nativeQueue = new VramWriteQueue();
         for (int index = 0; index < transfers.Length; index++)
@@ -83,8 +85,10 @@ internal static class EnemyTileArtworkGunshipLiftoffVerification
             IndexedPng.Write(output, new(image.Size.X, image.Size.Y),
                 image.Pixels, image.Palette);
         }
-        EnemyTileArtworkCatalog edited = EnemyTileArtworkFiles.Load(directory, overrides);
-        runtime.EnemySession.TileArtwork = edited;
+        InstalledEnemyArtwork edited = EnemyTileArtworkFiles.Load(directory, overrides);
+        runtime.EnemySession.TileArtwork = edited.Enemies;
+        runtime.BossArtwork.Artwork = edited.Bosses;
+        runtime.AreaArtwork.Artwork = edited.Areas;
         VramWriteQueue pending = QueueAllTakeoffFrames(stock);
         var editedVram = new SnesVram();
         pending.DrainTo(editedVram, runtime.Artwork, null, BgArtworkFixtures.For(editedVram));
@@ -105,7 +109,7 @@ internal static class EnemyTileArtworkGunshipLiftoffVerification
         AssertEqual(editedVram.ReadByte(firstDestinationByte),
             legacyVram.ReadByte(firstDestinationByte),
             "older pending cartridge-source takeoff upload rebinds to current art");
-        AssertTrue(EnemyTileArtworkFiles.Load(directory, overrides).GunshipLiftoff is not null,
+        AssertTrue(EnemyTileArtworkFiles.Load(directory, overrides).Enemies.GunshipLiftoff is not null,
             "gunship PNG override survives reload");
 
         File.WriteAllBytes(stockPath, [0]);
@@ -120,9 +124,9 @@ internal static class EnemyTileArtworkGunshipLiftoffVerification
             "Gunship takeoff art: five compiled transfers, installed PNG parity, " +
             "live/rebound VRAM edit, legacy queue rebind and strict resources pass.");
 
-        static VramWriteQueue QueueAllTakeoffFrames(EnemyTileArtworkCatalog art)
+        static VramWriteQueue QueueAllTakeoffFrames(InstalledEnemyArtwork art)
         {
-            var enemies = new RoomEnemySystem(new EnemySession()) { TileArtwork = art };
+            var enemies = new RoomEnemySystem(new EnemySession()) { TileArtwork = art.Enemies, BossArtwork = art.Bosses, AreaArtwork = art.Areas };
             RoomEnemySlot top = enemies.SlotTable.Slots[0];
             var part = new GunshipPartState();
             top.SetSpeciesState(part, part.ClearWithRecord);

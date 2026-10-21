@@ -1,4 +1,4 @@
-﻿using SuperMetroid.Core.Enemies;
+﻿using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Core.Bosses.Kraid.Artwork;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rooms.Backgrounds;
@@ -9,15 +9,16 @@ namespace SuperMetroid.Core.Bosses.Kraid;
 [RoomLifetime]
 internal sealed class KraidBodyLayer
 {
-    /// <summary>Room scratch memory, services, and tilemap state used throughout the Kraid fight.</summary>
-    private readonly EnemyRoomBinding _room;
     /// <summary>Kraid's state and part lookups, part programs, function timer, random numbers and the sound he last requested.</summary>
     private readonly KraidEncounterAccess _access;
+    /// <summary>The session's installed boss artwork.</summary>
+    private readonly BossArtworkBinding _bossArtwork;
+
 
     /// <summary>Builds the component from the collaborators it uses.</summary>
-    internal KraidBodyLayer(EnemyRoomBinding room, KraidEncounterAccess access)
+    internal KraidBodyLayer(KraidEncounterAccess access, BossArtworkBinding bossArtwork)
     {
-        _room = room;
+        _bossArtwork = bossArtwork;
         _access = access;
     }
 
@@ -59,5 +60,5 @@ internal sealed class KraidBodyLayer
 
     /// <summary>Kraid's installed BG2 artwork.</summary>
     private KraidBackgroundArtwork RequireBackgroundArtwork() =>
-        _room.Artwork?.KraidBackground ?? throw new InvalidOperationException("Kraid BG2 requires installed enemy artwork.");
+        _bossArtwork.Artwork?.KraidBackground ?? throw new InvalidOperationException("Kraid BG2 requires installed enemy artwork.");
 }

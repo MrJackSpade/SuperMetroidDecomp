@@ -9,7 +9,6 @@ using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Areas.Maridia;
 using SuperMetroid.Core.Enemies;
-using SuperMetroid.Core.Enemies.WreckedShip;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.World;
 using SuperMetroid.Core.Escape.Artwork;

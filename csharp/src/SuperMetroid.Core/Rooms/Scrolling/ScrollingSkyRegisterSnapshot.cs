@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Fx;
+
 namespace SuperMetroid.Core.Rooms.Scrolling;
 
 /// <summary>

@@ -1,7 +1,7 @@
-using SuperMetroid.Core.Rooms.Scrolling;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Samus.Movement;
 
 namespace SuperMetroid.Core.World;
 

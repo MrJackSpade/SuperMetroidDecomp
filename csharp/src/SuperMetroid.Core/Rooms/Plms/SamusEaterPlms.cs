@@ -55,7 +55,7 @@ internal sealed class SamusEaterPlms
     }
 
     /// <summary><c>$84:AC9D</c>: one chew's periodic damage to the held Samus.</summary>
-    internal void DamageSamus() => RequirePlantSamus().TakePeriodicDamage(SamusEaterPlmRomData.ChewDamage);
+    internal void DamageSamus() => RequirePlantSamus().TakePeriodicDamage(0, SamusEaterPlmRomData.ChewDamage);
 
     /// <summary><c>$84:ACB1</c>: gives the released Samus her release immunity.</summary>
     internal void ReleaseSamus() =>

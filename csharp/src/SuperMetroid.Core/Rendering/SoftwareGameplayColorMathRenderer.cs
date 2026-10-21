@@ -1,5 +1,5 @@
 using System.Buffers;
-using SuperMetroid.Core.Rooms.Backgrounds;
+using SuperMetroid.Core.Gameplay;
 
 namespace SuperMetroid.Core.Rendering;
 

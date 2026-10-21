@@ -310,14 +310,14 @@ public sealed class RoomPaletteFxSystem
     private void RunHeatPreInstruction(
         PaletteFxSlot slot,
         SuperMetroid.Core.Progression.SamusEquipmentFlags equippedItems,
-        SamusState? samus,
+        IRoomSamus? samus,
         int nmiFrameCounter)
     {
         bool protectedFromHeat = equippedItems.HasAny(
             SamusEquipmentFlags.VariaSuit | SamusEquipmentFlags.GravitySuit);
         if (!protectedFromHeat && samus is not null)
         {
-            samus.LiquidPhysics.AccumulatePeriodicDamage(
+            samus.TakePeriodicDamage(
                 PaletteFxHeatData.SubdamagePerFrame,
                 wholeDamage: 0);
             if ((nmiFrameCounter & 7) == 0 &&

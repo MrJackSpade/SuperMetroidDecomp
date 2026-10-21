@@ -1,7 +1,7 @@
 using System.Collections.Immutable;
-using SuperMetroid.Core.Fx;
+using SuperMetroid.Core.Rooms.Scrolling;
 
-namespace SuperMetroid.Core.Rooms.Scrolling;
+namespace SuperMetroid.Core.Fx;
 
 /// <summary>
 /// The scrolling sky as a frame shows it (#1347): its tile rows, and 23 bands that each shift horizontally by their

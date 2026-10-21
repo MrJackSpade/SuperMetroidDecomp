@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Enemies;
+namespace SuperMetroid.Core.Hardware;
 
 /// <summary>Immutable integer samples used by the shared enemy multiplication routines.
 /// These are engine math definitions, not editable presentation assets.</summary>

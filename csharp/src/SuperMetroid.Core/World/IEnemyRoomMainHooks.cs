@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Bosses.Crocomire;
 using SuperMetroid.Core.Rooms.Scrolling;
+using SuperMetroid.Core.Samus.Movement;
 
 namespace SuperMetroid.Core.World;
 

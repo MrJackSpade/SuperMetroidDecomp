@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Samus;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;

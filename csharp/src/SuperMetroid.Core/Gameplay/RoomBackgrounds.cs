@@ -1,7 +1,8 @@
 using SuperMetroid.Core.Rooms.Scrolling;
 using SuperMetroid.Core.Fx;
+using SuperMetroid.Core.Rooms.Backgrounds;
 
-namespace SuperMetroid.Core.Rooms.Backgrounds;
+namespace SuperMetroid.Core.Gameplay;
 
 /// <summary>
 /// The room backgrounds one gameplay frame shows (#1346), resolved from level data with no tilemap: BG1 from the room's

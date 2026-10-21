@@ -11,6 +11,7 @@ namespace SuperMetroid.Verification.Rooms.Backgrounds;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Rooms.Scrolling;
 using SuperMetroid.Core.Rooms.Backgrounds;
+using SuperMetroid.Core.Fx;
 
 /// <summary>Checks West Ocean's published scrolling-sky rows against ROM.</summary>
 internal static class OceanSkyVerification

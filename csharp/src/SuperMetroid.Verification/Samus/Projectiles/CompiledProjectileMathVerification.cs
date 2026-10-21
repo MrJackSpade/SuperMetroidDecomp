@@ -13,6 +13,7 @@ namespace SuperMetroid.Verification.Samus.Projectiles;
 using SuperMetroid.Verification.Enemies;
 using SuperMetroid.Core.Enemies.EyeDoor;
 using SuperMetroid.Core.Enemies.NoobTube;
+using SuperMetroid.Core.Spatial;
 
 /// <summary>Checks compiled projectile trigonometry across production consumers against cartridge samples.</summary>
 internal static class CompiledProjectileMathVerification

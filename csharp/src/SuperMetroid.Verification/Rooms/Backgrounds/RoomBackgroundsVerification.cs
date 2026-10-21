@@ -9,6 +9,7 @@ using SuperMetroid.Core.Hud;
 using static SuperMetroid.Verification.Harness.RetailRuntimeFixtureVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
+using SuperMetroid.Core.Gameplay;
 
 namespace SuperMetroid.Verification.Rooms.Backgrounds;
 

@@ -24,6 +24,7 @@ using SuperMetroid.Core.Map;
 using SuperMetroid.Core.Runtime.Attract;
 using SuperMetroid.Core.World;
 using SuperMetroid.Core.Escape;
+using SuperMetroid.Core.Samus.Movement;
 
 namespace SuperMetroid.Core.Runtime;
 
@@ -637,7 +638,7 @@ internal sealed class SuperMetroidRuntime
         {
             Room.LoadedScope.PaletteFx.Step(Cgram, Artwork.MapPresentation?.RoomPaletteFx ?? throw new InvalidOperationException(
                     "Gameplay palette FX requires installed map presentation colors."), new PaletteFxConditions { SamusY = Player.Samus?.Position.Y.Whole ?? 0, EquippedItems = Player.Samus?.EquippedItems ?? 0, EnemyZeroIsDead = Room.LoadedScope.Enemies.SlotTable.Slots.Count == 0 || Room.LoadedScope.Enemies.SlotTable.Slots[0].Health == 0, AreaMiniBossDefeated = Room.ActiveRoom is { } paletteRoom &&
-                    System.HasAnyBossBits(paletteRoom.AreaIndex, BossBits.AreaMiniBoss), Samus = Player.Samus, NmiFrameCounter = Clock.Counter }, Room.LoadedScope.BombProjectiles.PowerBombExplosion.Activity);
+                    System.HasAnyBossBits(paletteRoom.AreaIndex, BossBits.AreaMiniBoss), Samus = Player.Samus?.RoomView, NmiFrameCounter = Clock.Counter }, Room.LoadedScope.BombProjectiles.PowerBombExplosion.Activity);
         }
         // Hyper Beam's palette object lives in the same native pool and handler.
         if (Room.LoadedScope.PaletteFx.HandlerEnabled)

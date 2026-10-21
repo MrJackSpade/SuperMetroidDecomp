@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Enemies;
-
 namespace SuperMetroid.Core.Frontend.Ending;
 
 /// <summary>Post-credits BG3 scroll program and artwork identities.</summary>

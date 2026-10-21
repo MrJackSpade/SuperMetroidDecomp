@@ -5,7 +5,7 @@ using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Rendering;
-using SuperMetroid.Core.Rooms.Scrolling;
+using SuperMetroid.Core.Fx;
 
 namespace SuperMetroid.Core.Runtime;
 

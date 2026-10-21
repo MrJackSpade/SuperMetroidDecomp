@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Samus.Artwork;
+
 namespace SuperMetroid.Core.Fx.PaletteFx;
 
 /// <summary>Cartridge values of <see cref="HyperBeamPaletteFxColorDefinitions"/> that only verification reads.</summary>

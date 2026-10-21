@@ -1,7 +1,7 @@
-using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Enemies.WreckedShip;
 
-namespace SuperMetroid.Core.Enemies.WreckedShip;
+namespace SuperMetroid.Core.Fx;
 
 /// <summary>
 /// Runs the two animated-tile objects spawned by Wrecked Ship entrance door setup. The door

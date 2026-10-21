@@ -1,7 +1,8 @@
 using SuperMetroid.Core.Samus.Grapple;
-using SuperMetroid.Core.Samus.Movement;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Rooms.Scrolling;
 
-namespace SuperMetroid.Core.Rooms.Scrolling;
+namespace SuperMetroid.Core.Samus.Movement;
 
 /// <summary>
 /// Layer-1 camera position constrained by Super Metroid's directional scroll-zone handlers.

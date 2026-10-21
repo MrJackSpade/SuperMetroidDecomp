@@ -13,6 +13,7 @@ using SuperMetroid.Rendering.Direct3D11.Device;
 using SuperMetroid.Rendering.Direct3D11.Telemetry;
 using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Fx;
+using SuperMetroid.Core.Gameplay;
 
 namespace SuperMetroid.Rendering.Direct3D11.Frames;
 

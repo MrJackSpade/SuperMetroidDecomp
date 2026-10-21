@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Samus.Projectiles;
-using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Samus.Abilities;
 
 namespace SuperMetroid.Core.Rendering;

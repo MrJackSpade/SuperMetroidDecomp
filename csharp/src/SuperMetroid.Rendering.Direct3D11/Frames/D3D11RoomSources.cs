@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Rooms.Backgrounds;
+using SuperMetroid.Core.Gameplay;
 
 namespace SuperMetroid.Rendering.Direct3D11.Frames;
 

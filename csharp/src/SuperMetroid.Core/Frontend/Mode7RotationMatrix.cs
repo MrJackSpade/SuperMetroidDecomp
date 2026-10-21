@@ -1,5 +1,3 @@
-using SuperMetroid.Core.Enemies;
-
 namespace SuperMetroid.Core.Frontend;
 
 /// <summary>The Mode-7 rotation and scale matrix the Ceres flight and destruction scenes write each frame.</summary>

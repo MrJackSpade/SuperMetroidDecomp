@@ -1,7 +1,6 @@
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Fx.PaletteFx;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.AssetExtraction.Fx;
 

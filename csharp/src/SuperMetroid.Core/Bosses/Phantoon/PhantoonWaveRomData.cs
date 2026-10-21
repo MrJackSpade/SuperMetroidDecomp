@@ -1,4 +1,3 @@
-using SuperMetroid.Core.Enemies;
 namespace SuperMetroid.Core.Bosses.Phantoon;
 
 /// <summary>Native wavy-Phantoon HDMA definitions from bank $88.</summary>

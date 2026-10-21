@@ -4,10 +4,10 @@ using static SuperMetroid.Verification.Rooms.RoomDefinitionIntegrationVerificati
 using SuperMetroid.Core.Enemies.Gunship;
 using SuperMetroid.Core.Hud;
 using SuperMetroid.Core.Progression;
-using SuperMetroid.Core.Rooms.Scrolling;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Runtime;
+using SuperMetroid.Core.Samus.Movement;
 namespace SuperMetroid.Verification.Areas.Ceres;
 
 /// <summary>Checks station-load state and the gunship unlock boundary after the Ceres escape.</summary>

@@ -1,7 +1,7 @@
 using SuperMetroid.Core.Hardware;
-using SuperMetroid.Core.Enemies;
 using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Hardware;
+
 using SuperMetroid.Verification.Enemies;
 
 /// <summary>Compares generated half-wave tables with the retail ROM's byte and word samples.</summary>

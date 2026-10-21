@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Samus;
+using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Fx.PaletteFx;
 
@@ -23,7 +23,7 @@ public sealed record PaletteFxConditions
     public required bool AreaMiniBossDefeated { get; init; }
 
     /// <summary>Samus.</summary>
-    public SamusState? Samus { get; init; } = null;
+    public IRoomSamus? Samus { get; init; } = null;
 
     /// <summary>
     /// The frame counter this frame, 0 through 65535: the heat pre-instruction plays its damage sound on every

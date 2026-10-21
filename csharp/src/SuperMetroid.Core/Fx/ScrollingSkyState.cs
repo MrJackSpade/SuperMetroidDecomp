@@ -1,7 +1,8 @@
 using System.Collections.Immutable;
-using SuperMetroid.Core.Fx;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Rooms.Scrolling;
 
-namespace SuperMetroid.Core.Rooms.Scrolling;
+namespace SuperMetroid.Core.Fx;
 
 /// <summary>
 /// The scrolling sky's 23 parallax bands and BG2 vertical scroll (#1347).

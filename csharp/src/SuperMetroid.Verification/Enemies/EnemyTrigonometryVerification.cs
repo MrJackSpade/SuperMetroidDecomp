@@ -286,6 +286,7 @@ using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Enemies;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Frontend;
+using SuperMetroid.Core.Spatial;
 
 /// <summary>Registers compiled enemy math and instruction checks against pinned cartridge data.</summary>
 internal static class EnemyTrigonometryVerification

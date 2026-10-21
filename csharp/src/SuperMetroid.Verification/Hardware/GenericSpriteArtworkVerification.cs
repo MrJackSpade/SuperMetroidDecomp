@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Tooling;
 using static SuperMetroid.Verification.Harness.RepositoryInputsVerification;
@@ -60,7 +61,7 @@ internal static class GenericSpriteArtworkVerification
             title.PrepareRenderSprites();
             expected = new OamBuffer(); expected.BeginFrame();
             DrawImportedSpritemap(reference, expected,
-                (int)new SnesAddress(TitleSequenceRomData.Sprites.Bank, spritemaps[frame.Sprite]), new(x, y), palette);
+                (int)new SnesAddress(FrontendCartridgeTables.TitleSpritemapBank, spritemaps[frame.Sprite]), new(x, y), palette);
             expected.FinalizeFrame();
             EqualSprites(expected, title.objects, "title composition/coordinate/palette parity");
             titleCases++;
@@ -70,8 +71,8 @@ internal static class GenericSpriteArtworkVerification
         title.PrepareRenderSprites();
         expected = new OamBuffer(); expected.BeginFrame();
         DrawImportedSpritemap(reference, expected,
-            (int)new SnesAddress(TitleSequenceRomData.Sprites.Bank,
-                TitleSequenceRomData.Sprites.NintendoCopyright),
+            (int)new SnesAddress(FrontendCartridgeTables.TitleSpritemapBank,
+                FrontendCartridgeTables.TitleCopyrightSpritemap),
             new(TitleSequenceRomData.Sprites.CopyrightOrigin.X, TitleSequenceRomData.Sprites.CopyrightOrigin.Y),
             TitleSequenceRomData.Sprites.CopyrightPalette.Raw);
         expected.FinalizeFrame();

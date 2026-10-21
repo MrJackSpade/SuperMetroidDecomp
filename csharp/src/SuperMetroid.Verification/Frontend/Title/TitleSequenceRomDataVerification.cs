@@ -161,7 +161,7 @@ internal static class TitleSequenceRomDataVerification
             (ushort)TitleSequenceInstruction.TriggerScene3);
         WriteRomWord(
             rom,
-            TitleSequenceRomData.Sprites.LogoPointerAddress,
+            FrontendCartridgeTables.TitleLogoSpritemapOperand,
             TitleSequenceRomDataSpritesConstants.SuperMetroidLogo);
         return rom;
     }
@@ -185,7 +185,7 @@ internal static class TitleSequenceRomDataVerification
             }
             WriteRomWord(rom, pointer, checked((ushort)step.Duration));
             WriteRomWord(rom, pointer + sizeof(ushort), step.Sprite is { } sprite
-                ? ConstructedSpritemap(sprite) : TitleSequenceRomData.Sprites.Blank);
+                ? ConstructedSpritemap(sprite) : FrontendCartridgeTables.TitleBlankSpritemap);
             pointer += TitleSequenceRomData.TextSequences.TimedEntryByteCount;
         }
     }
@@ -199,6 +199,6 @@ internal static class TitleSequenceRomDataVerification
         int ordinal = TitleSpriteDefinitions.All.ToList().IndexOf(sprite);
         if (ordinal < 0)
             throw new ArgumentOutOfRangeException(nameof(sprite), sprite, "Undefined title composition.");
-        return checked((ushort)(TitleSequenceRomData.Sprites.NintendoCopyright + sizeof(ushort) * (1 + ordinal)));
+        return checked((ushort)(FrontendCartridgeTables.TitleCopyrightSpritemap + sizeof(ushort) * (1 + ordinal)));
     }
 }

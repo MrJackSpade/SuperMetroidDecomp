@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Frontend;
 namespace SuperMetroid.Core.Frontend.GameOver;
 
 /// <summary>Cartridge values of <see cref="GameOverBabyAnimationDefinitions"/> that only verification reads.</summary>

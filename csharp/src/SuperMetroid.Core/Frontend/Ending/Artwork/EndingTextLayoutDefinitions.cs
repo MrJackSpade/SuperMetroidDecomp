@@ -42,7 +42,7 @@ internal static class EndingTextLayoutDefinitions
     private const string DevelopmentTeam = "TEAM SHIKAMARU";
     /// <summary>$8C:DC9B..DEDA fills nine rows with two small and two large lines, distributing the remaining rows equally across the three intervening gaps.</summary>
     private const int CreditLineGap = (EndingTextDefinitions.ResultPanelRows -
-        2 * (EndingTextDefinitions.Native.SmallGlyphHeight + EndingTextDefinitions.Native.LargeGlyphHeight)) / 3;
+        2 * (EndingTextDefinitions.SmallGlyphHeight + EndingTextDefinitions.LargeGlyphHeight)) / 3;
     /// <summary>$8C:DD31 applies BG palette6 to the DEER FORCE label; this chosen style remains required.</summary>
     private const ushort DevelopmentGroupAttributes = 6 << 10;
     /// <summary>$8C:DE6D applies BG palette7 to TEAM SHIKAMARU; this chosen style remains required.</summary>
@@ -60,16 +60,16 @@ internal static class EndingTextLayoutDefinitions
         if ((uint)cell >= ResultCellCount) throw new ArgumentOutOfRangeException(nameof(cell));
         int row = cell / EndingTextDefinitions.TilemapWidth;
         int column = cell % EndingTextDefinitions.TilemapWidth;
-        int groupRow = EndingTextDefinitions.Native.SmallGlyphHeight + CreditLineGap;
-        int prepositionRow = groupRow + EndingTextDefinitions.Native.LargeGlyphHeight + CreditLineGap;
-        int teamRow = prepositionRow + EndingTextDefinitions.Native.SmallGlyphHeight + CreditLineGap;
+        int groupRow = EndingTextDefinitions.SmallGlyphHeight + CreditLineGap;
+        int prepositionRow = groupRow + EndingTextDefinitions.LargeGlyphHeight + CreditLineGap;
+        int teamRow = prepositionRow + EndingTextDefinitions.SmallGlyphHeight + CreditLineGap;
         if (row == EndingTextDefinitions.ResultProducedBy.Row)
             return Glyph(producedBy, column - EndingTextDefinitions.ResultProducedBy.Column, EndingTextStyle.ResultSmall, bottom: false, attributes: 0);
-        if (row >= groupRow && row < groupRow + EndingTextDefinitions.Native.LargeGlyphHeight)
+        if (row >= groupRow && row < groupRow + EndingTextDefinitions.LargeGlyphHeight)
             return Centered(DevelopmentGroup, column, EndingTextStyle.CopyrightLarge, row != groupRow, DevelopmentGroupAttributes);
         if (row == prepositionRow)
             return Centered(AttributionPreposition, column, EndingTextStyle.ResultSmall, bottom: false, attributes: 0);
-        if (row >= teamRow && row < teamRow + EndingTextDefinitions.Native.LargeGlyphHeight)
+        if (row >= teamRow && row < teamRow + EndingTextDefinitions.LargeGlyphHeight)
             return Centered(DevelopmentTeam, column, EndingTextStyle.CopyrightLarge, row != teamRow, DevelopmentTeamAttributes);
         return EndingTextDefinitions.ResultBlankWord;
     }

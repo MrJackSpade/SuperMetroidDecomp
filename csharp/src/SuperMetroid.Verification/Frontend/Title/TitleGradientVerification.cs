@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core.Input;
 using static SuperMetroid.Verification.Frontend.Title.TitleSequenceRomDataVerification;
 using SuperMetroid.Core.Hardware;
@@ -138,7 +139,7 @@ internal static class TitleGradientVerification
         foreach (TitleSpriteFrame frame in spriteDocument.Sprites)
         {
             var nativeOam = new OamBuffer(); var installedOam = ScreenSpritesFixtures.Blank();
-            int address = ((int)new SnesAddress(TitleSequenceRomData.Sprites.Bank, spritemaps[frame.Sprite]));
+            int address = ((int)new SnesAddress(FrontendCartridgeTables.TitleSpritemapBank, spritemaps[frame.Sprite]));
             ushort Word(int at) => SnesLittleEndian.Word(CpuBusRegionRead.Read(bus, at), CpuBusRegionRead.Read(bus, at + 1));
             int count = Word(address);
             for (int part = 0; part < count; part++)

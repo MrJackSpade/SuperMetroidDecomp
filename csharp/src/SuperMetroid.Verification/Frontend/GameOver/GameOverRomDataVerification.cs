@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Frontend;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;

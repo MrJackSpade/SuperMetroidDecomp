@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Frontend;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Rooms.Doors.DoorDefinitionsVerification;
 using SuperMetroid.Core.Frontend.GameOver;

@@ -1,4 +1,6 @@
-namespace SuperMetroid.Core.Frontend.FileSelect;
+using SuperMetroid.Core.Frontend.FileSelect;
+
+namespace SuperMetroid.AssetExtraction.Frontend;
 
 /// <summary>Control words in the bank-$81 file-select tilemap stream format.</summary>
 internal static class FileSelectTilemapFormat

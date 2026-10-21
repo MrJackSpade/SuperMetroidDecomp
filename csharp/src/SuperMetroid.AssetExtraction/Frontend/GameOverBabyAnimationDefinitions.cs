@@ -1,4 +1,7 @@
-namespace SuperMetroid.Core.Frontend.GameOver;
+using SuperMetroid.Core.Frontend.GameOver;
+using SuperMetroid.Core.Hardware;
+
+namespace SuperMetroid.AssetExtraction.Frontend;
 
 /// <summary>
 /// Cartridge identities of the game-over Baby program's records, read only by the extraction pipeline and its
@@ -9,7 +12,8 @@ namespace SuperMetroid.Core.Frontend.GameOver;
 /// Native $82:BC27..BD96 holds sixty six-byte frame records in play order. The first cry step of each group is
 /// followed by a two-byte sound callback, and the final record by the $FFFF restart marker at $BD95.
 /// </remarks>
-public static class GameOverBabyAnimationDefinitions
+[CpuBusBoundary("codec: game-over Baby animation identities → bank-$82 frame, palette and cry words")]
+internal static class GameOverBabyAnimationDefinitions
 {
     /// <summary>First native frame record at <c>$82:BC27</c>, where extraction begins its walk of the stream.</summary>
     public const ushort FirstPointer = 0xbc27;

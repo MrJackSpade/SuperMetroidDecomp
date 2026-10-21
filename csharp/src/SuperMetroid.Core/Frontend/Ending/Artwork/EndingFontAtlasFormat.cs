@@ -94,7 +94,7 @@ public static class EndingFontAtlasFormat
     {
         if ((uint)pixel >= Width * Height) throw new ArgumentOutOfRangeException(nameof(pixel));
         int tile = pixel / Width / TileSize * TilesPerRow + pixel % Width / TileSize;
-        int topTile = tile - tile / TilesPerRow % EndingTextDefinitions.Native.LargeGlyphHeight * TilesPerRow;
+        int topTile = tile - tile / TilesPerRow % EndingTextDefinitions.LargeGlyphHeight * TilesPerRow;
         bool large = topTile is >= EndingTextDefinitions.LargeFirstGroupTopBase
                 and < (EndingTextDefinitions.LargeFirstGroupTopBase + EndingTextDefinitions.LargeSecondGroupFirstLetter)
             or >= EndingTextDefinitions.LargeSecondGroupTopBase
@@ -153,7 +153,7 @@ public static class EndingFontAtlasFormat
         int x = pixel % TileSize;
         int y = large ? (pixel - largeOrigin) / Width : pixel / Width % TileSize;
         int origin = large ? largeOrigin : pixel - y * Width - x;
-        int height = large ? EndingTextDefinitions.Native.LargeGlyphHeight * TileSize : TileSize;
+        int height = large ? EndingTextDefinitions.LargeGlyphHeight * TileSize : TileSize;
         for (int adjacentY = Math.Max(0, y - GlyphOutlineWidth); adjacentY <= Math.Min(height - 1, y + GlyphOutlineWidth); adjacentY++)
         for (int adjacentX = Math.Max(0, x - GlyphOutlineWidth); adjacentX <= Math.Min(TileSize - 1, x + GlyphOutlineWidth); adjacentX++)
             if (requiredFootprint.Contains(origin + adjacentY * Width + adjacentX))

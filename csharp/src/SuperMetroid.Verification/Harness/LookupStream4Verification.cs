@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Verification.Fx.Artwork;
 using SuperMetroid.Core.Bosses.Artwork;
@@ -1156,7 +1157,7 @@ internal static class LookupStream4Verification
     internal static void VerifyLookupStream4EndingResultPanel(ISnesAddressSpace rom)
     {
         byte[] source = EndingTextExtractor.Extract(rom);
-        ushort[] native = ReadEndingWords(rom, EndingTextDefinitions.Native.ResultPanel,
+        ushort[] native = ReadEndingWords(rom, EndingCartridgeTables.EndingResultPanel,
             EndingTextDefinitions.ResultPanelRows * EndingTextDefinitions.TilemapWidth);
         var stock = EndingTextPresentation.Load(new MemoryStream(source));
         AssertTrue(native.SequenceEqual(stock.BuildResultPanel()), "Calculated credit lines preserve all288 original producer-panel cells");
@@ -1199,7 +1200,7 @@ internal static class LookupStream4Verification
     internal static void VerifyLookupStream4EndingSubtitle(ISnesAddressSpace rom)
     {
         byte[] source = EndingTextExtractor.Extract(rom);
-        ushort[] native = ReadEndingWords(rom, EndingTextDefinitions.Native.JapaneseSubtitle,
+        ushort[] native = ReadEndingWords(rom, EndingCartridgeTables.EndingJapaneseSubtitle,
             EndingTextDefinitions.JapaneseSubtitleRows * EndingTextDefinitions.TilemapWidth);
         var stock = EndingTextPresentation.Load(new MemoryStream(source));
         var stockOverrides = stock.subtitleOverrides;

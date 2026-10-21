@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction.Frontend.Cinematics;
 using static SuperMetroid.Verification.Frontend.Intro.IntroArtworkPostSlicesVerification;
 using static SuperMetroid.Verification.Harness.FullRunSuitesVerification;
@@ -96,8 +97,8 @@ internal static class IntroCinematicArtworkVerification
             for (int frame = 0; frame < IntroEyeTilemapFormat.FrameCount; frame++)
             {
                 int source = (int)new SnesAddress(IntroCinematicRomData.Banks.Spritemaps,
-                    (ushort)(IntroEyeAnimationDefinitions.FrameStartPointer +
-                        frame * IntroEyeAnimationDefinitions.FrameStride));
+                    (ushort)(FrontendCartridgeTables.IntroEyeFrameRecords +
+                        frame * FrontendCartridgeTables.IntroEyeFrameRecordStride));
                 for (int cell = 0; cell < IntroEyeTilemapFormat.CellsPerFrame; cell++)
                 {
                     int wordSource = source + 4 + cell * sizeof(ushort);
@@ -1043,7 +1044,7 @@ internal static class IntroCinematicArtworkVerification
         if (CinematicSpriteNativeListAddresses.InListRegion(address))
             return $"Cinematic reread a native cinematic sprite list ${address:X6}.";
         int eyeFrameStart = (int)new SnesAddress(IntroCinematicRomData.Banks.Spritemaps,
-            IntroEyeAnimationDefinitions.FrameStartPointer);
+            FrontendCartridgeTables.IntroEyeFrameRecords);
         foreach (CinematicSpriteFrameDefinition caret in IntroCaretSpriteDefinitions.Frames)
         {
             int sourceAddress = (int)new SnesAddress(
@@ -1071,7 +1072,7 @@ internal static class IntroCinematicArtworkVerification
                     IntroEyeAnimationDefinitionsConstants.StartPointer) ||
             (address >= eyeFrameStart &&
                 address < eyeFrameStart + IntroEyeAnimationDefinitionsConstants.FrameCount *
-                    IntroEyeAnimationDefinitions.FrameStride))
+                    FrontendCartridgeTables.IntroEyeFrameRecordStride))
         {
             return $"Cinematic reread opening eye source ${address:X6}.";
         }

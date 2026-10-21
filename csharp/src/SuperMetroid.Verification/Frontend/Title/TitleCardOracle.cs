@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Frontend.Title;
 using SuperMetroid.Core.Frontend.Title;
@@ -47,13 +48,13 @@ internal static class TitleCardOracle
                     if (step.Sprite is { } sprite)
                         AssertEqual(nativeSpritemap, extracted[sprite], $"{at}: {sprite} is extracted from the listed spritemap");
                     else
-                        AssertEqual(TitleSequenceRomData.Sprites.Blank, nativeSpritemap, $"{at}: blank typed frame is a blank native entry");
+                        AssertEqual(FrontendCartridgeTables.TitleBlankSpritemap, nativeSpritemap, $"{at}: blank typed frame is a blank native entry");
                     address += TitleSequenceRomData.TextSequences.TimedEntryByteCount;
                 }
                 compared++;
             }
         }
-        AssertEqual(cartridge.ReadCartridgeWord(TitleSequenceRomData.Sprites.LogoPointerAddress),
+        AssertEqual(cartridge.ReadCartridgeWord(FrontendCartridgeTables.TitleLogoSpritemapOperand),
             extracted[TitleSprite.SuperMetroidLogo], "title logo is extracted from the logo pointer");
         AssertEqual(TitleSpriteDefinitions.All.Count, extracted.Count, "extraction maps every title composition");
         AssertEqual(extracted.Count, extracted.Values.Distinct().Count(), "every title composition has its own spritemap");

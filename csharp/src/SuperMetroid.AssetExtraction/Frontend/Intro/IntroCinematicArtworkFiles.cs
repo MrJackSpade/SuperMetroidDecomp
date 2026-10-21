@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.AssetExtraction.Frontend.Cinematics;
 using SuperMetroid.AssetExtraction.Frontend.Ending;
 using SuperMetroid.Core;
@@ -203,8 +204,8 @@ public static class IntroCinematicArtworkFiles
             var native = new ushort[frames.Length][];
             for (int frame = 0; frame < frames.Length; frame++)
             {
-                ushort pointer = (ushort)(IntroEyeAnimationDefinitions.FrameStartPointer +
-                    frame * IntroEyeAnimationDefinitions.FrameStride);
+                ushort pointer = (ushort)(FrontendCartridgeTables.IntroEyeFrameRecords +
+                    frame * FrontendCartridgeTables.IntroEyeFrameRecordStride);
                 int source = (int)new SnesAddress(IntroCinematicRomData.Banks.Spritemaps, pointer);
                 ushort function = CartridgeImportSource.Require(bus).ReadCartridgeWord(source);
                 if ((CinematicIndirectInstructionFunction)function != CinematicIndirectInstructionFunction.DrawToPortraitTilemap ||

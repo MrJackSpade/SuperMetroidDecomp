@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Samus.Abilities.Artwork;
+using SuperMetroid.Core.Samus.Abilities.Artwork;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;

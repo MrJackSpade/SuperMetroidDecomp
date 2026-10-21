@@ -19,6 +19,7 @@ internal static class EnemyColorPresentationContractChecks
                 File.ReadAllText(source.Path), path: source.Path)).ToList<SyntaxTree>();
         trees.Add(CoreGlobalUsings.Tree());
         const string consumer = """
+            using SuperMetroid.Core.Areas.Ceres;
             using SuperMetroid.Core.Bosses.Botwoon;
             using SuperMetroid.Core.Bosses.Botwoon.Artwork;
             using SuperMetroid.Core.Bosses.Kraid;

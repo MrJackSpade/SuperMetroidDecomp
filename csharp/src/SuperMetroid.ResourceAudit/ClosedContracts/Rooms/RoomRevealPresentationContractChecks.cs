@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Samus.Abilities.Artwork;
+using SuperMetroid.Core.Samus.Abilities.Artwork;
 using SuperMetroid.Tooling;
 using SuperMetroid.Core;
 using Microsoft.CodeAnalysis;
@@ -25,6 +27,7 @@ internal static class RoomRevealPresentationContractChecks
             using SuperMetroid.Core.Rooms.LevelData;
             using SuperMetroid.Core.Rooms.Plms;
             using SuperMetroid.Core.Rooms.Xray;
+            using SuperMetroid.Core.Samus.Abilities.Artwork;
             class RevealConsumer {
                 void Inspect(XrayRevealVisualCatalog reveals, XrayOverlayVisualCatalog overlays,
                     RoomPlmDynamicCollectibleArtCatalog items) {

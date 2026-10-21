@@ -1,7 +1,7 @@
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rooms.LevelData;
 
-namespace SuperMetroid.Core.Samus.Abilities;
+namespace SuperMetroid.Core.Samus.Abilities.Artwork;
 
 /// <summary>
 /// Installed visual choices for X-ray blocks. The cartridge's collision/BTS lookup,

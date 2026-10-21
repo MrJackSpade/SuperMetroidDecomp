@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Enemies.Elevator.Artwork;
+using SuperMetroid.Core.Enemies.Chozo.Artwork;
 using SuperMetroid.Core;
 using SuperMetroid.Tooling;
 using Microsoft.CodeAnalysis;
@@ -40,13 +42,13 @@ internal static class PlmPresentationContractChecks
         // The consumer names draws through these internal enums; compiled from source so its constants bind.
         trees.AddRange(new[]
         {
-            "csharp/src/SuperMetroid.Core/Bosses/Draygon/DraygonCannonDraw.cs", "csharp/src/SuperMetroid.Core/Enemies/Chozo/ChozoStatueDraw.cs",
+            "csharp/src/SuperMetroid.Core/Bosses/Draygon/DraygonCannonDraw.cs", "csharp/src/SuperMetroid.Core/Rooms/Plms/ChozoStatueDraw.cs",
             "csharp/src/SuperMetroid.Core/Areas/Tourian/TourianAccessDraw.cs", "csharp/src/SuperMetroid.Core/Rooms/Plms/KraidRoomDraw.cs",
             "csharp/src/SuperMetroid.Core/Bosses/Crocomire/CrocomireArenaDraw.cs", "csharp/src/SuperMetroid.Core/Bosses/MotherBrain/MotherBrainFakeDeathDraw.cs",
-            "csharp/src/SuperMetroid.Core/Bosses/Torizo/BombTorizoHandDraw.cs", "csharp/src/SuperMetroid.Core/Enemies/Elevator/ElevatorPlatformDraw.cs",
+            "csharp/src/SuperMetroid.Core/Bosses/Torizo/BombTorizoHandDraw.cs", "csharp/src/SuperMetroid.Core/Rooms/Plms/ElevatorPlatformDraw.cs",
             "csharp/src/SuperMetroid.Core/Rooms/LevelData/BombBlockRestoreDraw.cs", "csharp/src/SuperMetroid.Core/Bosses/SporeSpawn/SporeSpawnCeilingDraw.cs",
             "csharp/src/SuperMetroid.Core/Rooms/Plms/SamusEaterDraw.cs", "csharp/src/SuperMetroid.Core/Rooms/Plms/StationDraw.cs",
-            "csharp/src/SuperMetroid.Core/Rooms/Plms/PlmDraw.cs",
+            "csharp/src/SuperMetroid.Core/Rooms/Plms/PlmDraw.cs", "csharp/src/SuperMetroid.Core/Rooms/Plms/PlmFrameDraw.cs",
         }.Where(path => trees.All(tree => tree.FilePath != path))
             .Select(path => CSharpSyntaxTree.ParseText(File.ReadAllText(path), path: path)));
         const string consumer = """
@@ -60,9 +62,17 @@ internal static class PlmPresentationContractChecks
             using SuperMetroid.Core.Bosses.SporeSpawn;
             using SuperMetroid.Core.Bosses.Torizo;
             using SuperMetroid.Core.Enemies.Chozo;
+            using SuperMetroid.Core.Enemies.Chozo.Artwork;
             using SuperMetroid.Core.Enemies.Elevator;
+            using SuperMetroid.Core.Enemies.Elevator.Artwork;
             using SuperMetroid.Core.Rooms.LevelData;
             using SuperMetroid.Core.Rooms.Plms;
+            using SuperMetroid.Core.Areas.Tourian.Artwork;
+            using SuperMetroid.Core.Bosses.Crocomire.Artwork;
+            using SuperMetroid.Core.Bosses.Draygon.Artwork;
+            using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
+            using SuperMetroid.Core.Bosses.SporeSpawn.Artwork;
+            using SuperMetroid.Core.Bosses.Torizo.Artwork;
             class PlmConsumer {
                 void Inspect(RoomPlmShotBlockVisualCatalog shot, RoomPlmStationVisualCatalog station,
                     RoomPlmBombTorizoHandVisualCatalog hand, RoomPlmMotherBrainGlassVisualCatalog glass,

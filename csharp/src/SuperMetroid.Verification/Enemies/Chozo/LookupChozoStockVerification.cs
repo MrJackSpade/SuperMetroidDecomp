@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies.Chozo.Artwork;
 using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.Verification.Areas.Escape;
 using SuperMetroid.Core.Hardware;

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Abilities.Artwork;
 using SuperMetroid.Core.Rooms.Backgrounds;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Progression;

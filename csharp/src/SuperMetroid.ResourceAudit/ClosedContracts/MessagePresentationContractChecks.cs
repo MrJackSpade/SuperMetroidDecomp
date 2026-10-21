@@ -22,6 +22,7 @@ internal static class MessagePresentationContractChecks
         const string consumer = """
             using SuperMetroid.Core.Hud;
             using SuperMetroid.Core.Hud.Artwork;
+            using SuperMetroid.Core.Rooms;
             class MessageConsumer {
                 void Inspect(GameplayMessageTitlePresentation titles, GameplayMessagePanelPresentation panels,
                     GameplayMessageNoticePresentation notices, System.Span<ushort> cells) {

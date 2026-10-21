@@ -19,8 +19,8 @@ internal static class TextAndMapPresentationContractChecks
                 File.ReadAllText(source.Path), path: source.Path)).ToList<SyntaxTree>();
         trees.Add(CoreGlobalUsings.Tree());
         const string consumer = """
-            using SuperMetroid.Core.Areas.Escape.Artwork;
             using SuperMetroid.Core.Assets;
+            using SuperMetroid.Core.Escape.Artwork;
             using SuperMetroid.Core.Frontend.Ending.Artwork;
             using SuperMetroid.Core.Frontend.Intro.Artwork;
             using SuperMetroid.Core.Frontend.Map;
@@ -28,6 +28,7 @@ internal static class TextAndMapPresentationContractChecks
             using SuperMetroid.Core.Frontend.Menus;
             using SuperMetroid.Core.Frontend.Pause;
             using SuperMetroid.Core.Hardware;
+            using SuperMetroid.Core.Progression;
             using SuperMetroid.Core.Rooms;
             class TextMapConsumer {
                 void Inspect(EscapeTypewriterPresentation escape, IntroNarrationPresentation intro,

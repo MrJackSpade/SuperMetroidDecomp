@@ -28,13 +28,14 @@ internal static class PlmDoorPresentationContractChecks
         // The consumer names escape-gate draws through this internal enum; compiled from source so its constants bind.
         trees.AddRange(new[]
         {
-            "csharp/src/SuperMetroid.Core/Bosses/MotherBrain/MotherBrainEscapeGateDraw.cs", "csharp/src/SuperMetroid.Core/Rooms/Plms/PlmDraw.cs",
+            "csharp/src/SuperMetroid.Core/Rooms/Plms/MotherBrainEscapeGateDraw.cs", "csharp/src/SuperMetroid.Core/Rooms/Plms/PlmDraw.cs", "csharp/src/SuperMetroid.Core/Rooms/Plms/PlmFrameDraw.cs",
             "csharp/src/SuperMetroid.Core/Rooms/Plms/StationDraw.cs", "csharp/src/SuperMetroid.Core/Rooms/Plms/GrappleBlockDraw.cs",
             "csharp/src/SuperMetroid.Core/Rooms/Doors/EyeDoorOrientation.cs", "csharp/src/SuperMetroid.Core/Rooms/Doors/EyeDoorComponent.cs", "csharp/src/SuperMetroid.Core/Rooms/Doors/EyeDoorPlmFrame.cs",
         }.Where(path => trees.All(tree => tree.FilePath != path))
             .Select(path => CSharpSyntaxTree.ParseText(File.ReadAllText(path), path: path)));
         const string consumer = """
             using SuperMetroid.Core.Bosses.MotherBrain;
+            using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
             using SuperMetroid.Core.Rooms.Doors;
             using SuperMetroid.Core.Rooms.Plms;
             class PlmDoorConsumer {

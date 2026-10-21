@@ -1,3 +1,6 @@
+using SuperMetroid.Core.Samus.Abilities.Artwork;
+using SuperMetroid.Core.Enemies.Elevator.Artwork;
+using SuperMetroid.Core.Enemies.Chozo.Artwork;
 using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Core.Areas;
 using SuperMetroid.Core.Assets;
@@ -15,9 +18,6 @@ using SuperMetroid.Core.Bosses.Draygon.Artwork;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core.Bosses.SporeSpawn.Artwork;
 using SuperMetroid.Core.Areas.Tourian.Artwork;
-using SuperMetroid.Core.Enemies.Chozo;
-using SuperMetroid.Core.Enemies.Elevator;
-using SuperMetroid.Core.Samus.Abilities;
 
 namespace SuperMetroid.Core.Runtime;
 

@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Samus.Abilities.Artwork;
+using SuperMetroid.Core.Samus.Abilities.Artwork;
 using SuperMetroid.Core;
 using System.Security.Cryptography;
 using System.Text.Json;

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Abilities.Artwork;
 using SuperMetroid.Tooling;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -37,6 +38,7 @@ internal static class XrayRoomOverlayPresentationContractChecks
         trees.Add(CoreGlobalUsings.Tree());
         SyntaxTree calls = CSharpSyntaxTree.ParseText($$"""
             using SuperMetroid.Core.Rooms.Xray;
+            using SuperMetroid.Core.Samus.Abilities.Artwork;
             class OverlayConsumer {
                 void Inspect(XrayOverlayVisualCatalog overlays, XrayRoomOverlayDefinition selected) {
                     overlays.RoomTiles(XrayRoomOverlayDefinitions.{{first.Name}});

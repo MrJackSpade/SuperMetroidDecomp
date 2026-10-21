@@ -1,12 +1,12 @@
-﻿using SuperMetroid.Core.Rooms.Plms;
+﻿using SuperMetroid.Core.Enemies.Elevator.Artwork;
+using SuperMetroid.Core.Enemies.Chozo.Artwork;
+using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.Core.Bosses.Torizo.Artwork;
 using SuperMetroid.Core.Bosses.Crocomire.Artwork;
 using SuperMetroid.Core.Bosses.Draygon.Artwork;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core.Bosses.SporeSpawn.Artwork;
 using SuperMetroid.Core.Areas.Tourian.Artwork;
-using SuperMetroid.Core.Enemies.Chozo;
-using SuperMetroid.Core.Enemies.Elevator;
 
 namespace SuperMetroid.Core.World;
 

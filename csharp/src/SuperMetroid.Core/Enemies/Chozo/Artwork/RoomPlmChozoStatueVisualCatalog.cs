@@ -2,7 +2,7 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.Plms;
 
-namespace SuperMetroid.Core.Enemies.Chozo;
+namespace SuperMetroid.Core.Enemies.Chozo.Artwork;
 
 /// <summary>
 /// Editable Chozo hand and slope-access appearances. The calculated draw geometry and full

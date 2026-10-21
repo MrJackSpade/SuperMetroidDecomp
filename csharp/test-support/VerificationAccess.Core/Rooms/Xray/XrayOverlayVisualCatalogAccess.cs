@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Abilities.Artwork;
 using SuperMetroid.Core.Samus.Abilities;
 
 namespace SuperMetroid.Core.Rooms.Xray;

@@ -89,13 +89,13 @@ internal static class EnemyDisplayArtworkContractChecks
         Require(after.MissingCount == 0 && after.UnresolvedCount == 2 && after.Classifications.Count == 5 && after.Consumers.Count == 7,
             "valid pairs and compiled empty fallback qualify; unowned pairs remain findings" + " (" + after.Describe() + ")");
         SyntaxTree extraDefinition = CSharpSyntaxTree.ParseText(
-            "namespace SuperMetroid.Core.Enemies.Artwork; internal static partial class EnemySpritemapDefinitions { }",
+            $"namespace {typeof(EnemySpritemapDefinitions).Namespace}; internal static partial class {nameof(EnemySpritemapDefinitions)} {{ }}",
             path: "fixture-unreviewed-simple-definitions.cs");
         AuditReport revoked = Inspect(Compile(trees.Append(extraDefinition)), true);
         Require(revoked.Classifications.Count == 3 && revoked.UnresolvedCount == 4 && revoked.Consumers.Count == 7,
             "additional simple metadata declaration revokes only its rule, not the independent extended rule" + " (" + revoked.Describe() + ")");
         SyntaxTree extraGenerator = CSharpSyntaxTree.ParseText(
-            "namespace SuperMetroid.Core.Enemies.Artwork; internal static partial class PirateArtworkNameDefinitions { }",
+            $"namespace {typeof(PirateArtworkNameDefinitions).Namespace}; internal static partial class {nameof(PirateArtworkNameDefinitions)} {{ }}",
             path: "fixture-unreviewed-pirate-name-generator.cs");
         revoked = Inspect(Compile(trees.Append(extraGenerator)), true);
         Require(revoked.Classifications.Count == 2 && revoked.UnresolvedCount == 5,

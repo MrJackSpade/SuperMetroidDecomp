@@ -2,7 +2,7 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.Plms;
 
-namespace SuperMetroid.Core.Enemies.Elevator;
+namespace SuperMetroid.Core.Enemies.Elevator.Artwork;
 
 /// <summary>
 /// Presentation-only elevator-platform block selection. The native four-step

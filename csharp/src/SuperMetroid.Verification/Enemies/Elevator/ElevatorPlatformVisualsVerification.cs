@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies.Elevator.Artwork;
 using SuperMetroid.Core;
 using SuperMetroid.Tooling;
 using System.Text.Json.Nodes;

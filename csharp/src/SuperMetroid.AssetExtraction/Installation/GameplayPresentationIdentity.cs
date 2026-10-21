@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Samus.Abilities.Artwork;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Rooms.Artwork;
 using SuperMetroid.Core.Samus.Abilities;

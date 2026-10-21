@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies.Elevator.Artwork;
 using SuperMetroid.TestSupport.RepositoryInstallation;
 using SuperMetroid.Core.Enemies.Elevator;
 

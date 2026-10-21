@@ -2,7 +2,7 @@ using SuperMetroid.Core.Assets;
 using System.Text;
 using SuperMetroid.Core.Rooms.Xray;
 
-namespace SuperMetroid.Core.Samus.Abilities;
+namespace SuperMetroid.Core.Samus.Abilities.Artwork;
 
 /// <summary>Installed item and room-specific X-ray presentation, independent of PLM state.</summary>
 public sealed class XrayOverlayVisualCatalog

@@ -1,8 +1,10 @@
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Bosses.Torizo;
 using SuperMetroid.Core.Rooms.Doors;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Rooms.Plms;
 
-namespace SuperMetroid.Core.Rooms.Plms;
+namespace SuperMetroid.Core.World;
 
 /// <summary>The collaborators a <see cref="PlmPopulationLoader"/> is constructed with, built once by the owner that creates it (#621).</summary>
 [RoomLifetime]

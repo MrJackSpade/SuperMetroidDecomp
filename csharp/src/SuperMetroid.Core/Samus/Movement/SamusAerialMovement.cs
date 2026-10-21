@@ -1,7 +1,6 @@
 using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.Core.Samus.Poses;
 
 namespace SuperMetroid.Core.Samus.Movement;
@@ -89,13 +88,13 @@ public static class SamusAerialMovement
     /// Executes one movement-type-2 frame from <c>Samus_Jumping_Movement</c> at
     /// <c>$90:8FB3</c>.
     /// </summary>
-    public static AerialMovementResult StepNormalJump(
+    internal static AerialMovementResult StepNormalJump(
 
         RoomLevelData level,
         SamusState samus,
         SnesButton controllerInput,
         int nmiFrameCounter,
-        RoomPlmSystem? plms = null)
+        ISamusRoomPlms? plms = null)
     {
         ValidateCommon(level, samus);
         if (SamusPoseMetadata.ReadMovementKind(samus) != SamusMovementType.NormalJumping)
@@ -156,14 +155,14 @@ public static class SamusAerialMovement
     /// Executes one movement-type-3 frame from <c>Samus_SpinJumping_Movement</c> at
     /// <c>$90:9040</c>, including `$90:9D35`'s block-wall contact and launch test.
     /// </summary>
-    public static AerialMovementResult StepSpinJump(
+    internal static AerialMovementResult StepSpinJump(
 
         RoomLevelData level,
         SamusState samus,
         SnesButton controllerInput,
         int nmiFrameCounter,
         SnesButton controllerNewInput = SnesButton.None,
-        RoomPlmSystem? plms = null)
+        ISamusRoomPlms? plms = null)
     {
         ValidateCommon(level, samus);
         if (SamusPoseMetadata.ReadMovementKind(samus) != SamusMovementType.SpinJumping)
@@ -277,13 +276,13 @@ public static class SamusAerialMovement
     /// Executes movement type `$14` at `$90:A734`, including its animation-frame/charge-
     /// selected contact damage before the ordinary jumping routine.
     /// </summary>
-    public static AerialMovementResult StepWallJump(
+    internal static AerialMovementResult StepWallJump(
 
         RoomLevelData level,
         SamusState samus,
         SnesButton controllerInput,
         int nmiFrameCounter,
-        RoomPlmSystem? plms = null)
+        ISamusRoomPlms? plms = null)
     {
         ValidateCommon(level, samus);
         if (SamusPoseMetadata.ReadMovementKind(samus) != SamusMovementType.WallJumping ||
@@ -320,13 +319,13 @@ public static class SamusAerialMovement
     /// <c>Samus_Jumping_Movement</c>; damage boost therefore receives ordinary variable-
     /// height jump cutoff, type-indexed X physics, block collision, gravity, and landing.
     /// </summary>
-    public static AerialMovementResult StepDamageBoost(
+    internal static AerialMovementResult StepDamageBoost(
 
         RoomLevelData level,
         SamusState samus,
         SnesButton controllerInput,
         int nmiFrameCounter,
-        RoomPlmSystem? plms = null)
+        ISamusRoomPlms? plms = null)
     {
         ValidateCommon(level, samus);
         if (SamusPoseMetadata.ReadMovementKind(samus) != SamusMovementType.DamageBoost ||
@@ -358,12 +357,12 @@ public static class SamusAerialMovement
     /// motion this calls the deceleration-ALLOWED X routine and does not apply variable-jump
     /// release; the three-frame turn animation therefore preserves native reversal momentum.
     /// </summary>
-    public static AerialMovementResult StepTurningInAir(
+    internal static AerialMovementResult StepTurningInAir(
 
         RoomLevelData level,
         SamusState samus,
         int nmiFrameCounter,
-        RoomPlmSystem? plms = null)
+        ISamusRoomPlms? plms = null)
     {
         ValidateCommon(level, samus);
         SamusMovementType movementType = SamusPoseMetadata.ReadMovementType(samus);
@@ -427,13 +426,13 @@ public static class SamusAerialMovement
     }
 
     /// <summary>Executes one movement-type-6 frame from <c>$90:9168</c>.</summary>
-    public static AerialMovementResult StepFalling(
+    internal static AerialMovementResult StepFalling(
 
         RoomLevelData level,
         SamusState samus,
         SnesButton controllerInput,
         int nmiFrameCounter,
-        RoomPlmSystem? plms = null)
+        ISamusRoomPlms? plms = null)
     {
         ValidateCommon(level, samus);
         if (SamusPoseMetadata.ReadMovementKind(samus) != SamusMovementType.Falling)
@@ -488,13 +487,13 @@ public static class SamusAerialMovement
     /// a ceiling hit. Keeping that lifetime explicit prevents a grapple launch from silently
     /// acquiring ordinary jump input/caps one frame too early.
     /// </remarks>
-    public static AerialMovementResult StepReleasedFromGrapple(
+    internal static AerialMovementResult StepReleasedFromGrapple(
 
         RoomLevelData level,
         SamusState samus,
         SnesButton controllerInput,
         int nmiFrameCounter,
-        RoomPlmSystem? plms = null)
+        ISamusRoomPlms? plms = null)
     {
         ValidateCommon(level, samus);
         if (!samus.Grapple.ReleasedMovementActive)
@@ -568,7 +567,7 @@ public static class SamusAerialMovement
         SamusState samus,
         SnesButton controllerInput,
         SamusMovementType movementType,
-        RoomPlmSystem? plms)
+        ISamusRoomPlms? plms)
     {
         SamusHorizontalSpeedState speed = samus.HorizontalSpeed;
         speed.SelectEnvironmentSpeedTable(samus.LiquidPhysics.DetermineMovementMedium(samus));
@@ -605,7 +604,7 @@ public static class SamusAerialMovement
         RoomLevelData level,
         SamusState samus,
         int nmiFrameCounter,
-        RoomPlmSystem? plms = null,
+        ISamusRoomPlms? plms = null,
         SamusCeilingResponse ceilingResponse = SamusCeilingResponse.Immediate)
     {
         BlockMoveResult vertical = StepVerticalWithSpeedCalculations(new SamusTerrain { Level = level, Plms = plms }, samus, nmiFrameCounter, out bool hitCeiling, out bool downwardDisplacement, ceilingResponse);
@@ -722,7 +721,7 @@ public static class SamusAerialMovement
         SamusState samus,
         SnesButton controllerInput,
         SnesButton controllerNewInput,
-        RoomPlmSystem? plms)
+        ISamusRoomPlms? plms)
     {
         // $90:9D35 rejects before either enemy or terrain observation. Probing
         // first is not equivalent: block contact can mutate real X subposition.

@@ -1,6 +1,6 @@
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.Core.Rooms.Plms;
+using SuperMetroid.Core.World;
 
 namespace SuperMetroid.Verification.Bosses.Torizo;
 

@@ -3,7 +3,6 @@ using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.Core.Samus.Movement;
 
 namespace SuperMetroid.Core.Samus.Poses;
@@ -668,7 +667,7 @@ internal static class SamusPoseMetadata
         bool timeIsFrozen,
         int nmiFrameCounter,
         SnesButton controllerNewInput,
-        RoomPlmSystem? plms = null)
+        ISamusRoomPlms? plms = null)
     {
 
         Ensure.NotNull(level);

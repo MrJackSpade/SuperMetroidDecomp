@@ -6,7 +6,6 @@ using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Enemies.Animals;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Poses;
 
@@ -574,7 +573,7 @@ public sealed class SamusBombProjectileSystem
         RoomLevelData level,
         SamusBombProjectileSlot slot,
         List<BombBlockReaction> blockReactions,
-        RoomPlmSystem? roomPlms,
+        ISamusRoomPlms? roomPlms,
         AreaId areaIndex,
         SamusKinematicsState samusKinematics)
     {
@@ -761,12 +760,12 @@ public sealed class SamusBombProjectileSystem
     /// $94:A06A boundary traversal, shared by every callback that dispatches to it.
     /// Coordinates and radius belong to the global explosion, not the calling slot.
     /// </summary>
-    public static void CollectPowerBombBoundaryReactions(
+    internal static void CollectPowerBombBoundaryReactions(
         RoomLevelData level,
         Position16<RoomPixels> explosion,
         PowerBombRadius explosionRadius,
         List<BombBlockReaction> reactions,
-        RoomPlmSystem? roomPlms,
+        ISamusRoomPlms? roomPlms,
         AreaId areaIndex,
         ushort projectileType)
     {
@@ -800,7 +799,7 @@ public sealed class SamusBombProjectileSystem
         RoomLevelData level,
         SamusBombProjectileSlot slot,
         List<BombBlockReaction> reactions,
-        RoomPlmSystem? roomPlms,
+        ISamusRoomPlms? roomPlms,
         AreaId areaIndex)
     {
         int centerX = slot.Position.X.Whole >> 4;
@@ -841,7 +840,7 @@ public sealed class SamusBombProjectileSystem
         RoomLevelData level,
         Position16<RoomBlocks> bombedBlock,
         List<BombBlockReaction> reactions,
-        RoomPlmSystem? roomPlms,
+        ISamusRoomPlms? roomPlms,
         AreaId areaIndex,
         ushort projectileType)
     {

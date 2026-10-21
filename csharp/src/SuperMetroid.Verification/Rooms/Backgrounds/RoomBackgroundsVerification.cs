@@ -93,7 +93,7 @@ internal static class RoomBackgroundsVerification
         RoomLevelPlane before = level.ForegroundPlane;
         AssertTrue(ReferenceEquals(before, level.ForegroundPlane), "an unchanged room publishes one plane");
         const int block = 2 * Side + 1;
-        PlmBlockDrawing.DrawLevelWord(level, block, 0x8007);
+        PlmLevelWrites.DrawLevelWord(level, block, 0x8007);
         RoomLevelPlane after = level.ForegroundPlane;
         AssertEqual(LevelBlockTilemapExpander.Expand(0x8007, definitions), after.BlockTiles(new(1, 2)),
             "the next plane shows the PLM's block");

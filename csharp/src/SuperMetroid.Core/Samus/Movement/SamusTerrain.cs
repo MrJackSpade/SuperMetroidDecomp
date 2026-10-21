@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Samus.Movement;
@@ -14,7 +13,7 @@ public readonly record struct SamusTerrain
     public required RoomLevelData Level { get; init; }
 
     /// <summary>Optional current-room PLM owner receiving block reactions during spark movement.</summary>
-    public RoomPlmSystem? Plms { get; init; }
+    internal ISamusRoomPlms? Plms { get; init; }
 
     /// <summary>
     /// The session's progression, which SpaceTime's malformed palette copy overwrites as raw bytes (#1318, #1330). Only

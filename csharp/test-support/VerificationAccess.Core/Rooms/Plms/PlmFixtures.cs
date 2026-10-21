@@ -1,4 +1,5 @@
 using System.Runtime.CompilerServices;
+using SuperMetroid.Core.World;
 
 namespace SuperMetroid.Core.Rooms.Plms;
 

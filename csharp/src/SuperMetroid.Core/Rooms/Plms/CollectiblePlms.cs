@@ -27,14 +27,14 @@ internal sealed class CollectiblePlms : IPlmFamilySource
     /// <summary>The room's layer-3 FX.</summary>
     private readonly RoomLayer3FxState? _roomFx;
     /// <summary>Updates level blocks and queues their tilemap draws.</summary>
-    private readonly PlmBlockDrawing _drawing;
+    private readonly IPlmDrawing _drawing;
     /// <summary>Enumerates active item PLMs in native slot order.</summary>
     private readonly PlmSlotTable _slotTable;
     /// <summary>Receives item instruction sound requests.</summary>
     private readonly PlmSoundQueue _sounds;
 
     /// <summary>Connects permanent-item PLMs to room state, drawing, and sound services.</summary>
-    internal CollectiblePlms(Bank80SystemState? system, IRoomSamusAccess? samus, RoomLayer3FxState? roomFx, PlmBlockDrawing drawing, PlmSlotTable slotTable, PlmSoundQueue sounds)
+    internal CollectiblePlms(Bank80SystemState? system, IRoomSamusAccess? samus, RoomLayer3FxState? roomFx, IPlmDrawing drawing, PlmSlotTable slotTable, PlmSoundQueue sounds)
     {
         _system = system;
         _samus = samus;
@@ -460,7 +460,7 @@ internal sealed class CollectiblePlms : IPlmFamilySource
                     item.Timer = 4;
                     return true;
                 }
-                PlmBlockDrawing.DrawLevelWord(level, slot.BlockIndex, slot.RestoreLevelWord.Raw);
+                PlmLevelWrites.DrawLevelWord(level, slot.BlockIndex, slot.RestoreLevelWord.Raw);
                 item.Phase = CollectiblePhase.ShotBlock;
                 return true;
 
@@ -479,7 +479,7 @@ internal sealed class CollectiblePlms : IPlmFamilySource
                     item.Timer = 4;
                     return true;
                 }
-                PlmBlockDrawing.DrawLevelWord(level, slot.BlockIndex, slot.RestoreLevelWord.Raw);
+                PlmLevelWrites.DrawLevelWord(level, slot.BlockIndex, slot.RestoreLevelWord.Raw);
                 item.Phase = CollectiblePhase.CollectedShotBlock;
                 return true;
 

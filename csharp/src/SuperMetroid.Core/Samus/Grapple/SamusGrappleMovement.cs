@@ -1,7 +1,6 @@
 using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Samus.Projectiles;
@@ -133,12 +132,12 @@ public static class SamusGrappleMovement
     /// Ports <c>GrappleBeamFunc_Firing</c> at <c>$9B:C703</c>, including the bank-$A0
     /// enemy pass which precedes <c>BlockCollGrappleBeam</c> at <c>$94:A85B</c>.
     /// </summary>
-    public static GrappleMovementResult StepFiring(
+    internal static GrappleMovementResult StepFiring(
 
         RoomLevelData level,
         SamusState samus,
         SnesButton controllerInput,
-        RoomPlmSystem? plms = null,
+        ISamusRoomPlms? plms = null,
         Func<Position16<RoomPixels>, GrappleEnemyCollision>? enemyCollision = null,
         GrapplePoseChange connectionPoseChange = GrapplePoseChange.Immediate)
     {
@@ -590,7 +589,7 @@ public static class SamusGrappleMovement
         SamusState samus,
         SamusGrappleState grapple,
         int nmiFrameCounter,
-        RoomPlmSystem? plms,
+        ISamusRoomPlms? plms,
         bool deferPoseChange)
     {
         SamusPoseId targetPose = SelectDroppedPose(samus);
@@ -724,7 +723,7 @@ public static class SamusGrappleMovement
         RoomLevelData level,
         SamusState samus,
         Position16<RoomPixels> endpoint,
-        RoomPlmSystem? plms = null)
+        ISamusRoomPlms? plms = null)
     {
         int blockX = endpoint.X >> 4;
         int blockY = endpoint.Y >> 4;
@@ -813,7 +812,7 @@ public static class SamusGrappleMovement
                         if (plms is null)
                         {
                             throw new InvalidOperationException(
-                                "Breakable grapple acquisition requires a RoomPlmSystem.");
+                                "Breakable grapple acquisition requires a ISamusRoomPlms.");
                         }
                         if (!plms.BlockReactions.TrySpawnBreakableGrappleBlock(level, block.Index, block.Bts))
                         {
@@ -839,7 +838,7 @@ public static class SamusGrappleMovement
                     if (plms is null)
                     {
                         throw new InvalidOperationException(
-                            "Shootable grapple reaction requires a RoomPlmSystem.");
+                            "Shootable grapple reaction requires a ISamusRoomPlms.");
                     }
                     // Blue caps occupy the same native table as breakable blocks but
                     // select door PLMs. Grapple's negative projectile index bypasses the

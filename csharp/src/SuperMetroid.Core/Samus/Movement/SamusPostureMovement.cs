@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.Core.Samus.Poses;
 
 namespace SuperMetroid.Core.Samus.Movement;
@@ -19,12 +18,12 @@ public static class SamusPostureMovement
     /// Ports movement type five at <c>$90:A573</c> for the complete equal-radius
     /// `$27/$28/$71-$74/$85/$86` crouch family.
     /// </summary>
-    public static GroundedMovementResult StepCrouching(
+    internal static GroundedMovementResult StepCrouching(
 
         RoomLevelData level,
         SamusState samus,
         int nmiFrameCounter,
-        RoomPlmSystem? plms = null)
+        ISamusRoomPlms? plms = null)
     {
         Validate(level, samus);
         if (!SamusPoseMetadata.IsRightFacingCrouchingPose(samus.Pose) &&
@@ -53,12 +52,12 @@ public static class SamusPostureMovement
     /// Ports the `$35/$36/$3B/$3C/$F1-$FC` crouch/stand subset of movement type
     /// `$0F` at <c>$90:A61C</c>.
     /// </summary>
-    public static GroundedMovementResult StepCrouchStandTransition(
+    internal static GroundedMovementResult StepCrouchStandTransition(
 
         RoomLevelData level,
         SamusState samus,
         int nmiFrameCounter,
-        RoomPlmSystem? plms = null)
+        ISamusRoomPlms? plms = null)
     {
         Validate(level, samus);
         if (!SamusPoseMetadata.IsCrouchStandTransitionPose(samus.Pose))
@@ -79,7 +78,7 @@ public static class SamusPostureMovement
         RoomLevelData level,
         SamusState samus,
         int nmiFrameCounter,
-        RoomPlmSystem? plms)
+        ISamusRoomPlms? plms)
     {
         SamusHorizontalSpeedState speed = samus.HorizontalSpeed;
 

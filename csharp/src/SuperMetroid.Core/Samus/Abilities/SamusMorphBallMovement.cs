@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Samus.Projectiles;
@@ -22,12 +21,12 @@ namespace SuperMetroid.Core.Samus.Abilities;
 public static class SamusMorphBallMovement
 {
     /// <summary>Executes movement type four at <c>$90:A521</c>.</summary>
-    public static MorphBallMovementResult StepGrounded(
+    internal static MorphBallMovementResult StepGrounded(
 
         RoomLevelData level,
         SamusState samus,
         int nmiFrameCounter,
-        RoomPlmSystem? plms = null)
+        ISamusRoomPlms? plms = null)
     {
         Validate(level, samus);
         bool ordinary = SamusPoseMetadata.IsGroundedMorphBallPose(samus.Pose);
@@ -109,13 +108,13 @@ public static class SamusMorphBallMovement
     }
 
     /// <summary>Executes movement type eight at <c>$90:A5CA</c>.</summary>
-    public static MorphBallMovementResult StepFalling(
+    internal static MorphBallMovementResult StepFalling(
 
         RoomLevelData level,
         SamusState samus,
         SnesButton controllerInput,
         int nmiFrameCounter,
-        RoomPlmSystem? plms = null)
+        ISamusRoomPlms? plms = null)
     {
         Validate(level, samus);
         bool ordinary = SamusPoseMetadata.IsAirborneMorphBallPose(samus.Pose);
@@ -154,7 +153,7 @@ public static class SamusMorphBallMovement
         SamusState samus,
         SnesButton controllerInput,
         int nmiFrameCounter,
-        RoomPlmSystem? plms,
+        ISamusRoomPlms? plms,
         SamusMovementType movementType)
     {
         SamusHorizontalSpeedState speed = samus.HorizontalSpeed;
@@ -215,13 +214,13 @@ public static class SamusMorphBallMovement
     }
 
     /// <summary>Executes Spring Ball movement type $12 at <c>$90:A6F1</c>.</summary>
-    public static MorphBallMovementResult StepSpringBallInAir(
+    internal static MorphBallMovementResult StepSpringBallInAir(
 
         RoomLevelData level,
         SamusState samus,
         SnesButton controllerInput,
         int nmiFrameCounter,
-        RoomPlmSystem? plms = null)
+        ISamusRoomPlms? plms = null)
     {
         Validate(level, samus);
         if (samus.Pose is not (SamusPoseId.SpringBallJumpRightPose or SamusPoseId.SpringBallJumpLeftPose) ||
@@ -298,12 +297,12 @@ level, samus, controllerInput, nmiFrameCounter, plms, SamusMovementType.SpringBa
     /// Executes the `$37/$38/$3D/$3E` subset of transition movement type $0F at
     /// <c>$90:A61C</c>, including its airborne gravity branch.
     /// </summary>
-    public static MorphBallMovementResult StepTransition(
+    internal static MorphBallMovementResult StepTransition(
 
         RoomLevelData level,
         SamusState samus,
         int nmiFrameCounter,
-        RoomPlmSystem? plms = null)
+        ISamusRoomPlms? plms = null)
     {
         Validate(level, samus);
         if (!SamusPoseMetadata.IsMorphTransitionPose(samus.Pose) ||
@@ -366,7 +365,7 @@ level, samus, controllerInput, nmiFrameCounter, plms, SamusMovementType.SpringBa
         RoomLevelData level,
         SamusState samus,
         int nmiFrameCounter,
-        RoomPlmSystem? plms,
+        ISamusRoomPlms? plms,
         out bool landed,
         out bool hitCeiling)
     {
@@ -420,7 +419,7 @@ level, samus, controllerInput, nmiFrameCounter, plms, SamusMovementType.SpringBa
         RoomLevelData level,
         SamusState samus,
         int nmiFrameCounter,
-        RoomPlmSystem? plms,
+        ISamusRoomPlms? plms,
         out bool hitCeiling)
     {
         int displacement = SamusExtraDisplacement.CalculateNoSpeedVerticalDisplacement(

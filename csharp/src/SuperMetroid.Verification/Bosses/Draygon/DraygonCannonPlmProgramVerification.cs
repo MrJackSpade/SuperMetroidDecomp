@@ -15,6 +15,7 @@ using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.TestSupport.VerificationImporters;
 namespace SuperMetroid.Verification.Bosses.Draygon;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.World;
 
 /// <summary>Checks Draygon cannon PLM controls, visual layouts, and compiled damage programs.</summary>
 internal static class DraygonCannonPlmProgramVerification

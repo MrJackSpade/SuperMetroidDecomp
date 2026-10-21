@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Enemies.Chozo;
 
 /// <summary>Chozo statue hand PLMs ($84:D6EA family): the Wrecked Ship and Lower Norfair hand checks and the hardcoded statue spawns.</summary>
 [RoomLifetime]
-internal sealed class ChozoStatuePlms
+internal sealed class ChozoStatuePlms : IChozoStatueHand
 {
     /// <summary>The room's system and event state.</summary>
     private readonly Bank80SystemState? _system;

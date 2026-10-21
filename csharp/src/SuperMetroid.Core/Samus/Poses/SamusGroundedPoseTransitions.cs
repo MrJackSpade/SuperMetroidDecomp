@@ -1,7 +1,6 @@
 ﻿using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Samus.Drawing;
@@ -171,7 +170,7 @@ internal static class SamusGroundedPoseTransitions
         SamusPoseId? prospectivePose,
         bool currentXSpeedKilledByBlock,
         out BlockMoveResult? onePixelProbe,
-        RoomPlmSystem? plms = null)
+        ISamusRoomPlms? plms = null)
     {
 
         Ensure.NotNull(level);
@@ -607,7 +606,7 @@ internal static class SamusGroundedPoseTransitions
     /// </summary>
     internal static bool TryResolveKnockbackPoseCollision(SamusState samus, 
 RoomLevelData level, SamusPoseId targetPose,
-        int nmiFrameCounter, RoomPlmSystem? plms)
+        int nmiFrameCounter, ISamusRoomPlms? plms)
     {
         SamusPoseId sourcePose = samus.Pose;
         LargerPoseCollisionOutcome outcome = samus.ResolveLargerPoseCollision(

@@ -10,6 +10,7 @@ using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Rooms.LevelData;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.World;
 
 /// <summary>Retail and guarded playback checks for bomb-block control lists, shared breakup frames and restoration art.</summary>
 internal static class BombBlockProgramsVerification

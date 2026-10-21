@@ -358,15 +358,15 @@ internal sealed class EyeDoorPlms : IPlmFamilySource
 
         if (component == EyeDoorComponent.Eye)
         {
-            RoomPlmSystem.WritePlmCollisionTypeAndBts(level, slot.BlockIndex, EyeDoorPlmRomData.EyeCollisionWord);
-            RoomPlmSystem.WritePlmCollisionTypeAndBts(
+            PlmLevelWrites.WritePlmCollisionTypeAndBts(level, slot.BlockIndex, EyeDoorPlmRomData.EyeCollisionWord);
+            PlmLevelWrites.WritePlmCollisionTypeAndBts(
                 level,
                 checked(slot.BlockIndex + level.Size.X),
                 EyeDoorPlmRomData.EyeExtensionWord);
             return;
         }
 
-        RoomPlmSystem.WritePlmCollisionTypeAndBts(level, slot.BlockIndex, EyeDoorPlmRomData.ClosedComponentWord);
+        PlmLevelWrites.WritePlmCollisionTypeAndBts(level, slot.BlockIndex, EyeDoorPlmRomData.ClosedComponentWord);
     }
 
     /// <summary>Wakes opened components or consumes a pending missile hit before instruction dispatch.</summary>
@@ -478,14 +478,14 @@ internal sealed class EyeDoorPlms : IPlmFamilySource
             _ => throw new InvalidOperationException($"Undefined {nameof(EyeDoorOrientation)} {orientation}."),
         };
         slot.BlockIndex = checked(slot.BlockIndex - level.Size.X);
-        RoomPlmSystem.WritePlmCollisionTypeAndBts(
+        PlmLevelWrites.WritePlmCollisionTypeAndBts(
             level,
             slot.BlockIndex,
             RoomCollisionType.ShootableBlock,
             facing.Value);
         for (int row = 1; row <= EyeDoorPlmRomData.BlueDoorExtensionCount; row++)
         {
-            RoomPlmSystem.WritePlmCollisionTypeAndBts(
+            PlmLevelWrites.WritePlmCollisionTypeAndBts(
                 level,
                 checked(slot.BlockIndex + row * level.Size.X),
                 RoomCollisionType.VerticalExtension,

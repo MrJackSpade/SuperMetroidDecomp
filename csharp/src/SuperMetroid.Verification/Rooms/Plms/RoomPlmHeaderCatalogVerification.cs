@@ -2,6 +2,7 @@ using System.Globalization;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.AssetExtraction.Cartridge;
+using SuperMetroid.Core.World;
 
 namespace SuperMetroid.Verification.Rooms.Plms;
 

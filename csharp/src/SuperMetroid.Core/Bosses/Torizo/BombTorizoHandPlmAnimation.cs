@@ -21,7 +21,7 @@ internal sealed class BombTorizoHandPlmAnimation()
     /// <inheritdoc/>
     private protected override BombTorizoHandProgram? Publish(BombTorizoHandCue cue, PlmSlot slot, PlmStepContext context)
     {
-        BombTorizoHandPlms hand = context.Plms.BombTorizoHand;
+        BombTorizoHandPlms hand = context.Plms.Bosses().BombTorizoHand;
         switch (cue.Kind)
         {
             case BombTorizoHandCueKind.ArmBombWake:

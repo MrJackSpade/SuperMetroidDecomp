@@ -9,6 +9,7 @@ using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.AssetExtraction.Cartridge;
 namespace SuperMetroid.Verification.Rooms.Plms;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.World;
 
 /// <summary>Retail and guarded playback checks for all eight contact-crumble PLM programs and linked restore draws.</summary>
 internal static class ContactCrumbleProgramsVerification

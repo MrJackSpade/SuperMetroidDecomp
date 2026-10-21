@@ -7,7 +7,6 @@ using SuperMetroid.Core.Enemies.Elevator;
 using SuperMetroid.Core.Enemies.WreckedShip;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.Backgrounds;
-using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Gameplay;

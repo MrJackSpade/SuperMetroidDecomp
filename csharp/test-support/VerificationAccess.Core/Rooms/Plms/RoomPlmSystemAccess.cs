@@ -8,6 +8,7 @@ using SuperMetroid.Core.Rooms.Scrolling;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Spatial;
+using SuperMetroid.Core.World;
 
 /// <summary>Verification access to <see cref="RoomPlmSystem"/> members production does not use.</summary>
 internal static class RoomPlmSystemAccess

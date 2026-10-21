@@ -7,8 +7,10 @@ using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.Scrolling;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Rooms.Plms;
 
-namespace SuperMetroid.Core.Rooms.Plms;
+namespace SuperMetroid.Core.World;
 
 /// <summary>Loads a room PLM population: installs the room bindings, allocates native slots and runs each family setup in record order.</summary>
 [RoomLifetime]

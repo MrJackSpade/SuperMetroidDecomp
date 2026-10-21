@@ -1,10 +1,10 @@
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using System.Reflection;
-using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core;
 namespace SuperMetroid.Verification.Hardware;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.World;
 
 /// <summary>Checks that migrated PLM instructions and speed rows consume live WRAM through typed boundaries.</summary>
 internal static class MechanicsWorkRamBoundaryVerification

@@ -1,6 +1,5 @@
 ﻿using SuperMetroid.Core.Enemies.Animals;
 using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Rooms;
 
@@ -29,7 +28,7 @@ internal sealed class ProjectileTerrainCollision
     internal static bool MoveHorizontally(
         RoomLevelData level,
         SamusProjectileSlot slot,
-        RoomPlmSystem? roomPlms,
+        ISamusRoomPlms? roomPlms,
         bool waveBeam = false)
     {
         slot.Position = slot.Position.AdvanceX(EightEightDelta(slot.Velocity.X.SignedRawValue));
@@ -48,7 +47,7 @@ internal sealed class ProjectileTerrainCollision
     internal bool RunInitialBeamCollision(
         RoomLevelData level,
         SamusProjectileSlot slot,
-        RoomPlmSystem? roomPlms,
+        ISamusRoomPlms? roomPlms,
         bool waveBeam,
         SamusPowerBombExplosionState powerBomb)
     {
@@ -113,7 +112,7 @@ internal sealed class ProjectileTerrainCollision
     internal static bool MoveVertically(
         RoomLevelData level,
         SamusProjectileSlot slot,
-        RoomPlmSystem? roomPlms,
+        ISamusRoomPlms? roomPlms,
         bool waveBeam = false)
     {
         slot.Position = slot.Position.AdvanceY(EightEightDelta(slot.Velocity.Y.SignedRawValue));
@@ -130,7 +129,7 @@ internal sealed class ProjectileTerrainCollision
     internal static bool ScanHorizontalShotReactions(
         RoomLevelData level,
         SamusProjectileSlot slot,
-        RoomPlmSystem? roomPlms)
+        ISamusRoomPlms? roomPlms)
     {
         int topBlock = unchecked((ushort)(slot.Position.Y.Whole - slot.Radius.Y)) >> 4;
         int bottomBlock = unchecked((ushort)(slot.Position.Y.Whole + slot.Radius.Y - 1)) >> 4;
@@ -166,7 +165,7 @@ internal sealed class ProjectileTerrainCollision
     internal static bool ScanVerticalShotReactions(
         RoomLevelData level,
         SamusProjectileSlot slot,
-        RoomPlmSystem? roomPlms)
+        ISamusRoomPlms? roomPlms)
     {
         int leftBlock = unchecked((ushort)(slot.Position.X.Whole - slot.Radius.X)) >> 4;
         int rightBlock = unchecked((ushort)(slot.Position.X.Whole + slot.Radius.X - 1)) >> 4;
@@ -255,7 +254,7 @@ internal sealed class ProjectileTerrainCollision
         RoomLevelData level,
         SamusProjectileSlot slot,
         RoomCollisionBlock block,
-        RoomPlmSystem? roomPlms,
+        ISamusRoomPlms? roomPlms,
         ShotSpan span,
         out bool endSpan,
         Axis axis = Axis.Horizontal)
@@ -391,7 +390,7 @@ internal sealed class ProjectileTerrainCollision
         RoomLevelData level,
         SamusProjectileSlot slot,
         RoomCollisionBlock block,
-        RoomPlmSystem? roomPlms)
+        ISamusRoomPlms? roomPlms)
     {
         if (roomPlms is null)
             return;
@@ -453,7 +452,7 @@ internal sealed class ProjectileTerrainCollision
 
     /// <summary>Publishes the projectile type to the PLM occupying a resident-trigger block and fails if none owns it.</summary>
     private static void NotifyResidentProjectileHit(
-        RoomPlmSystem? roomPlms,
+        ISamusRoomPlms? roomPlms,
         RoomCollisionBlock block,
         SamusProjectileTypeWord projectileType)
     {
@@ -551,7 +550,7 @@ internal sealed class ProjectileTerrainCollision
     }
     /// <summary>Preserves bank $94:A352's byte indexing and chained-ADC carry.</summary>
     internal static void ScanHorizontalWaveShotReactions(
-        RoomLevelData level, SamusProjectileSlot slot, RoomPlmSystem? roomPlms)
+        RoomLevelData level, SamusProjectileSlot slot, ISamusRoomPlms? roomPlms)
     {
         ushort top = unchecked((ushort)(slot.Position.Y.Whole - slot.Radius.Y));
         ushort bottom = unchecked((ushort)(slot.Position.Y.Whole + slot.Radius.Y - 1));
@@ -601,7 +600,7 @@ internal sealed class ProjectileTerrainCollision
     /// Preserves bank $94:A3E4's linear tile addressing across the room's side edges.
     /// </summary>
     internal static void ScanVerticalWaveShotReactions(
-        RoomLevelData level, SamusProjectileSlot slot, RoomPlmSystem? roomPlms)
+        RoomLevelData level, SamusProjectileSlot slot, ISamusRoomPlms? roomPlms)
     {
         ushort left = unchecked((ushort)(slot.Position.X.Whole - slot.Radius.X));
         ushort right = unchecked((ushort)(slot.Position.X.Whole + slot.Radius.X - 1));

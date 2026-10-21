@@ -24,14 +24,14 @@ internal sealed class StationPlms : IPlmFamilySource
     /// <summary>Samus as the room reads and changes her.</summary>
     private readonly IRoomSamusAccess? _samus;
     /// <summary>Applies the station and access-arm draw lists to the room tilemap.</summary>
-    private readonly PlmBlockDrawing _drawing;
+    private readonly IPlmDrawing _drawing;
     /// <summary>Locates resident station PLMs when collision or frontend confirmation arrives.</summary>
     private readonly PlmSlotTable _slotTable;
     /// <summary>Queues extension, retraction, and save-animation sounds.</summary>
     private readonly PlmSoundQueue _sounds;
 
     /// <summary>Connects station activation to room state, PLM drawing, resident slots, and sound requests.</summary>
-    internal StationPlms(Bank80SystemState? system, IRoomSamusAccess? samus, PlmBlockDrawing drawing, PlmSlotTable slotTable, PlmSoundQueue sounds)
+    internal StationPlms(Bank80SystemState? system, IRoomSamusAccess? samus, IPlmDrawing drawing, PlmSlotTable slotTable, PlmSoundQueue sounds)
     {
         _system = system;
         _samus = samus;

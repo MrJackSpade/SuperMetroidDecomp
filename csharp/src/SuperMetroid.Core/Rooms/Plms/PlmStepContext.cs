@@ -11,7 +11,7 @@ namespace SuperMetroid.Core.Rooms.Plms;
 /// <param name="Frame">What the handler reads from the rest of the frame.</param>
 [RoomScopeBoundary("A per-call input, built for one call and never kept.")]
 internal readonly record struct PlmStepContext(
-    RoomPlmSystem Plms, RoomLevelData Level, PlmFrameInputs Frame)
+    IRoomPlms Plms, RoomLevelData Level, PlmFrameInputs Frame)
 {
     /// <summary>Draws the bank-$84 draw list <paramref name="drawList"/> at the slot's block, as a timed draw does.</summary>
     internal void Draw(PlmSlot slot, ushort drawList) =>
@@ -22,7 +22,7 @@ internal readonly record struct PlmStepContext(
     /// respawning block.
     /// </summary>
     internal void DrawRestoredBlock(PlmSlot slot) =>
-        PlmBlockDrawing.DrawLevelWord(Level, slot.BlockIndex, slot.RestoreLevelWord.Raw);
+        PlmLevelWrites.DrawLevelWord(Level, slot.BlockIndex, slot.RestoreLevelWord.Raw);
 
     /// <summary>Queues <paramref name="sound"/> under the native queue cap <paramref name="maximumQueued"/>.</summary>
     internal void QueueSound(SoundEffectId sound, int maximumQueued) =>

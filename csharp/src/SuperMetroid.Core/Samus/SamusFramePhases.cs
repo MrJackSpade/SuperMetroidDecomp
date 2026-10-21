@@ -3,7 +3,6 @@ using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Enemies.Elevator;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.Core.Rooms.Scrolling;
 using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Samus.Grapple;
@@ -83,7 +82,7 @@ internal sealed class SamusFramePhases
     /// connected and release functions own Samus's movement; an extending or cancelling
     /// beam coexists with the current pose's ordinary movement.
     /// </summary>
-    private bool RunGrappleBeamHandler(SamusBetaHandler beta, RoomPlmSystem plms, SamusProjectileSystem projectiles, RoomScope room)
+    private bool RunGrappleBeamHandler(SamusBetaHandler beta, ISamusRoomPlms plms, SamusProjectileSystem projectiles, RoomScope room)
     {
         if (_player.Samus is null || _room.LevelData is null)
             throw new InvalidOperationException("The grapple handler requires Samus and room collision data.");
@@ -196,7 +195,7 @@ internal sealed class SamusFramePhases
     /// Runs <c>$90:A337</c>'s movement-type table for a pose stored without
     /// <c>InitializeSamusPose_1</c>: the cached <c>$0A1F</c> type, not the pose, selects the mover.
     /// </summary>
-    private void StepUninitializedPoseMovement(RoomPlmSystem plms)
+    private void StepUninitializedPoseMovement(ISamusRoomPlms plms)
     {
         RoomLevelData level = _room.LevelData ?? throw new InvalidOperationException(
             "Uninitialized-pose movement requires active room level data.");
@@ -745,7 +744,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, plms);
     /// Runs the pose's normal movement-table entry ($90:A337). Every pose the retail producers reach has a branch; any
     /// other pose is corrupt state.
     /// </summary>
-    private void RunPoseMovement(SamusState samus, RoomPlmSystem plms, RoomScope room)
+    private void RunPoseMovement(SamusState samus, ISamusRoomPlms plms, RoomScope room)
     {
         if (_room.LevelData is null)
             throw new InvalidOperationException("Grounded Samus movement requires active room level data.");
@@ -1070,7 +1069,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, plms);
     }
 
     /// <summary>Runs forward-facing <c>$00/$9B</c> movement, including the elevator's one-pixel downward block scan.</summary>
-    private void StepForwardFacingMovement(SamusState samus, RoomPlmSystem plms, RoomScope room)
+    private void StepForwardFacingMovement(SamusState samus, ISamusRoomPlms plms, RoomScope room)
     {
         if (_room.LevelData is null)
             throw new InvalidOperationException("Grounded Samus movement requires active room level data.");
@@ -1093,7 +1092,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, plms);
     }
 
     /// <summary>Runs a turn pose's movement through its movement-type byte: ground turning, or turning in the air.</summary>
-    private void StepTurningPoseMovement(SamusState samus, RoomPlmSystem plms)
+    private void StepTurningPoseMovement(SamusState samus, ISamusRoomPlms plms)
     {
         if (_room.LevelData is null)
             throw new InvalidOperationException("Grounded Samus movement requires active room level data.");
@@ -1136,7 +1135,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, plms);
     }
 
     /// <summary>Runs knockback's normal type-$0A entry ($90:A5FC): the one-frame grounding tail before bank $91's target.</summary>
-    private void StepKnockbackEndingMovement(SamusState samus, RoomPlmSystem plms)
+    private void StepKnockbackEndingMovement(SamusState samus, ISamusRoomPlms plms)
     {
         if (_room.LevelData is null)
             throw new InvalidOperationException("Grounded Samus movement requires active room level data.");
@@ -1166,7 +1165,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, plms);
     /// refresh, pose-input lookup and the lookup-failure pose ($91:82D9).
     /// </summary>
     private void RunAlphaHead(SamusHandlerFrame frame, SamusState samus, ScrollBoundaryCamera camera,
-        FixedPosition<RoomPixels>? cameraPointAtFrameStart, RoomPlmSystem plms, RoomScope room)
+        FixedPosition<RoomPixels>? cameraPointAtFrameStart, ISamusRoomPlms plms, RoomScope room)
     {
         // X-ray's HDMA object is not part of the Samus handler. Advance its explicit
         // setup/beam/deactivation state before alpha so state five can restore the
@@ -1276,7 +1275,7 @@ level, _player.IntroducedSamus, _controller1.Current, _clock.Counter, plms);
     /// ($90:E738) with Draygon's escape, animation or the death sequence, the pose transitions, and periodic damage with
     /// the low-energy check.
     /// </summary>
-    private void RunBetaTail(SamusHandlerFrame frame, SamusState samus, ISamusFrameAudio audio, RoomPlmSystem plms, RoomScope room)
+    private void RunBetaTail(SamusHandlerFrame frame, SamusState samus, ISamusFrameAudio audio, ISamusRoomPlms plms, RoomScope room)
     {
         // Samus_MovementHandler_Normal calls `$90:EEE7` after the selected movement
         // function and before animation/pose transitions. Every fourth gameplay frame

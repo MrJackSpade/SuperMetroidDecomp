@@ -4,8 +4,9 @@ using SuperMetroid.Core.Bosses.Crocomire;
 using SuperMetroid.Core.Bosses.Kraid;
 using SuperMetroid.Core.Bosses.MotherBrain;
 using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Rooms.Plms;
 
-namespace SuperMetroid.Core.Rooms.Plms;
+namespace SuperMetroid.Core.Bosses;
 
 /// <summary>Boss-room terrain PLMs: Botwoon's wall, the Spore Spawn ceiling, and the Kraid, Crocomire, baby Metroid wall and Mother Brain room mutations.</summary>
 internal sealed class BossRoomMutationPlms
@@ -1110,9 +1111,9 @@ internal sealed class BossRoomMutationPlms
         {
             // B5F8 installs the door-list index and three upward-linked extensions
             // synchronously, before the first draw instruction changes their artwork.
-            RoomPlmSystem.WritePlmCollisionTypeAndBts(level, slot.BlockIndex, MotherBrainDeathRomData.EscapeDoorCollision);
+            PlmLevelWrites.WritePlmCollisionTypeAndBts(level, slot.BlockIndex, MotherBrainDeathRomData.EscapeDoorCollision);
             for (int row = 1; row < 4; row++)
-                RoomPlmSystem.WritePlmCollisionTypeAndBts(level, slot.BlockIndex + row * level.Size.X,
+                PlmLevelWrites.WritePlmCollisionTypeAndBts(level, slot.BlockIndex + row * level.Size.X,
                     MotherBrainDeathRomData.EscapeDoorExtension);
         }
         return true;

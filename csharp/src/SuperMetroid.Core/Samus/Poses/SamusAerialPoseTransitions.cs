@@ -1,7 +1,6 @@
 ﻿using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.Core.Samus.Grapple;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Projectiles;
@@ -45,7 +44,7 @@ internal static class SamusAerialPoseTransitions
         SamusPoseId targetPose,
         int nmiFrameCounter,
         SnesButton controllerNewInput,
-        RoomPlmSystem? plms = null)
+        ISamusRoomPlms? plms = null)
     {
 
         Ensure.NotNull(level);
@@ -133,7 +132,7 @@ internal static class SamusAerialPoseTransitions
         RoomLevelData level,
         SamusPoseId genericTargetPose,
         int nmiFrameCounter,
-        RoomPlmSystem? plms = null)
+        ISamusRoomPlms? plms = null)
     {
 
         Ensure.NotNull(level);
@@ -275,7 +274,7 @@ internal static class SamusAerialPoseTransitions
 
         RoomLevelData? level = null,
         int nmiFrameCounter = 0,
-        RoomPlmSystem? plms = null)
+        ISamusRoomPlms? plms = null)
     {
 
         // Only the type-3 spin mover reaches `$91:EABE`. The cached movement type, not the
@@ -387,7 +386,7 @@ level, targetPose, nmiFrameCounter, plms, out int centerAdjustment);
         RoomLevelData level,
         SamusPoseId targetPose,
         int nmiFrameCounter,
-        RoomPlmSystem? plms = null,
+        ISamusRoomPlms? plms = null,
         GrappleDropSpeed speed = GrappleDropSpeed.Cleared)
     {
 
@@ -1020,7 +1019,7 @@ level, targetPose, nmiFrameCounter, plms, out int centerAdjustment);
         RoomLevelData level,
         SamusPoseId targetPose,
         int nmiFrameCounter,
-        RoomPlmSystem? plms = null)
+        ISamusRoomPlms? plms = null)
     {
 
         Ensure.NotNull(level);

@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Rooms;
 
@@ -31,7 +30,7 @@ internal sealed class ProjectileMotion
         RoomLevelData level,
         SamusProjectileSlot slot,
         Position16<RoomPixels> layer1,
-        RoomPlmSystem? roomPlms,
+        ISamusRoomPlms? roomPlms,
         SamusPowerBombExplosionState powerBomb)
     {
         if (slot.PackedDirection.HasLowByteLifecycleState)
@@ -94,7 +93,7 @@ internal sealed class ProjectileMotion
         RoomLevelData level,
         SamusProjectileSlot slot,
         Position16<RoomPixels> layer1,
-        RoomPlmSystem? roomPlms)
+        ISamusRoomPlms? roomPlms)
     {
         if (slot.PackedDirection.HasLowByteLifecycleState)
         {
@@ -124,7 +123,7 @@ internal sealed class ProjectileMotion
         RoomLevelData level,
         SamusProjectileSlot slot,
         Position16<RoomPixels> layer1,
-        RoomPlmSystem? roomPlms)
+        ISamusRoomPlms? roomPlms)
     {
         if (slot.PackedDirection.HasLowByteLifecycleState)
         {
@@ -143,7 +142,7 @@ internal sealed class ProjectileMotion
         RoomLevelData level,
         SamusProjectileSlot slot,
         Position16<RoomPixels> layer1,
-        RoomPlmSystem? roomPlms)
+        ISamusRoomPlms? roomPlms)
     {
         int direction = slot.PackedDirection.DirectionIndex;
         slot.Velocity = slot.Velocity.WithX(SnesSignedEightEight.FromSignedRaw(unchecked((short)(slot.Velocity.X.SignedRawValue +
@@ -179,7 +178,7 @@ internal sealed class ProjectileMotion
         SamusProjectileSlot slot,
         Position16<RoomPixels> layer1,
         SamusBombProjectileSystem sharedProjectiles,
-        RoomPlmSystem? roomPlms)
+        ISamusRoomPlms? roomPlms)
     {
         if (slot.PackedDirection.HasLowByteLifecycleState)
         {
@@ -251,7 +250,7 @@ internal sealed class ProjectileMotion
         SamusProjectileSlot slot,
         Position16<RoomPixels> layer1,
         SamusBombProjectileSystem sharedProjectiles,
-        RoomPlmSystem? roomPlms)
+        ISamusRoomPlms? roomPlms)
     {
         if (slot.PackedDirection.HasLowByteLifecycleState)
         {
@@ -392,7 +391,7 @@ internal sealed class ProjectileMotion
         SamusProjectileSlot owner,
         Axis axis,
         SamusBombProjectileSystem sharedProjectiles,
-        RoomPlmSystem? roomPlms)
+        ISamusRoomPlms? roomPlms)
     {
         if ((SnesLittleEndian.HighByteInPlace(owner.Variable)) == 0)
             return;
@@ -459,7 +458,7 @@ internal sealed class ProjectileMotion
     private static bool MoveMissileHorizontally(
         RoomLevelData level,
         SamusProjectileSlot slot,
-        RoomPlmSystem? roomPlms)
+        ISamusRoomPlms? roomPlms)
     {
         slot.Position = slot.Position.AdvanceX(ProjectileTerrainCollision.EightEightDelta(slot.Velocity.X.SignedRawValue));
 
@@ -477,7 +476,7 @@ internal sealed class ProjectileMotion
     private static bool MoveMissileVertically(
         RoomLevelData level,
         SamusProjectileSlot slot,
-        RoomPlmSystem? roomPlms)
+        ISamusRoomPlms? roomPlms)
     {
         slot.Position = slot.Position.AdvanceY(ProjectileTerrainCollision.EightEightDelta(slot.Velocity.Y.SignedRawValue));
 
@@ -493,7 +492,7 @@ internal sealed class ProjectileMotion
         RoomLevelData level,
         SamusProjectileSlot slot,
         bool horizontalMovement,
-        RoomPlmSystem? roomPlms)
+        ISamusRoomPlms? roomPlms)
     {
         int blockX = slot.Position.X.Whole >> 4;
         int blockY = slot.Position.Y.Whole >> 4;

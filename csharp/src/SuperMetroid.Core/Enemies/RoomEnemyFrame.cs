@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Samus.Drawing;
@@ -49,7 +48,7 @@ public sealed record RoomEnemyFrame
     public bool ResolveSamusContactBeforeAi { get; init; } = false;
 
     /// <summary>Optional room PLMs participating in the scoped enemy terrain-collision probes.</summary>
-    public RoomPlmSystem? CollisionPlms { get; init; } = null;
+    internal EnemyBreakableTerrainPlms? CollisionPlms { get; init; } = null;
 
     /// <summary>Current independent sixteen-bit NMI clock; null uses the standalone enemy-pass clock.</summary>
     public int? NmiFrameCounter { get; init; } = null;

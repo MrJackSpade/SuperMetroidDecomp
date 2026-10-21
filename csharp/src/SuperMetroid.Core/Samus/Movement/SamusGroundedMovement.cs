@@ -1,7 +1,6 @@
 using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.Core.Samus.Poses;
 
 namespace SuperMetroid.Core.Samus.Movement;
@@ -33,13 +32,13 @@ public static class SamusGroundedMovement
     /// word and platform art; this method translates the complete Samus-side consumer.
     /// </remarks>
     [IndependentFlag("Elevator motion and door side-effect publication are independent states of the frame.")]
-    public static BlockMoveResult? StepFacingForward(
+    internal static BlockMoveResult? StepFacingForward(
 
         RoomLevelData level,
         SamusState samus,
         int nmiFrameCounter,
         bool elevatorIsMoving = false,
-        RoomPlmSystem? plms = null,
+        ISamusRoomPlms? plms = null,
         bool publishDoorSideEffects = true)
     {
 
@@ -72,13 +71,13 @@ public static class SamusGroundedMovement
     /// Ports the movement-relevant portion of <c>Samus_Movement_00_Standing</c> at <c>$90:A383</c> for either facing:
     /// the right-facing $01/$03/$05/$07 family or the left-facing $02/$04/$06/$08 family.
     /// </summary>
-    public static GroundedMovementResult StepStanding(
+    internal static GroundedMovementResult StepStanding(
 
         RoomLevelData level,
         SamusState samus,
         int nmiFrameCounter,
         SnesButton controllerInput,
-        RoomPlmSystem? plms = null)
+        ISamusRoomPlms? plms = null)
     {
 
         Ensure.NotNull(level);
@@ -131,13 +130,13 @@ public static class SamusGroundedMovement
     /// Ports <c>Samus_Movement_01_Running</c> at <c>$90:A3E5</c> in dry air, including ordinary Dash, for either
     /// facing: the $09/$0D/$0F/$11 right-moving family or the $0A/$0E/$10/$12 left-moving family.
     /// </summary>
-    public static GroundedMovementResult StepRunning(
+    internal static GroundedMovementResult StepRunning(
 
         RoomLevelData level,
         SamusState samus,
         int nmiFrameCounter,
         SnesButton controllerInput = SnesButton.None,
-        RoomPlmSystem? plms = null)
+        ISamusRoomPlms? plms = null)
     {
 
         Ensure.NotNull(level);
@@ -198,12 +197,12 @@ public static class SamusGroundedMovement
     /// The latter name is misleading for `$97-$9A/$A2/$A3`: crouched entry leaves Y direction
     /// zero, so native runs its no-speed grounding probe rather than airborne gravity.
     /// </summary>
-    public static GroundedMovementResult StepTurningOnGround(
+    internal static GroundedMovementResult StepTurningOnGround(
 
         RoomLevelData level,
         SamusState samus,
         int nmiFrameCounter,
-        RoomPlmSystem? plms = null)
+        ISamusRoomPlms? plms = null)
     {
 
         Ensure.NotNull(level);
@@ -278,12 +277,12 @@ public static class SamusGroundedMovement
     /// Ports <c>SamusMovement_Moonwalking</c> at <c>$90:A694</c> for stable poses
     /// `$49/$4A/$75-$78`, including the complete shared extra-run-speed prepass.
     /// </summary>
-    public static GroundedMovementResult StepMoonwalking(
+    internal static GroundedMovementResult StepMoonwalking(
 
         RoomLevelData level,
         SamusState samus,
         int nmiFrameCounter,
-        RoomPlmSystem? plms = null)
+        ISamusRoomPlms? plms = null)
     {
 
         Ensure.NotNull(level);
@@ -333,12 +332,12 @@ public static class SamusGroundedMovement
     /// Ports <c>Samus_Movement_15_RanIntoWall</c> at <c>$90:A75F</c> for
     /// `$89/$8A/$CF-$D2` in the block-only dry-room slice.
     /// </summary>
-    public static GroundedMovementResult StepRanIntoWall(
+    internal static GroundedMovementResult StepRanIntoWall(
 
         RoomLevelData level,
         SamusState samus,
         int nmiFrameCounter,
-        RoomPlmSystem? plms = null)
+        ISamusRoomPlms? plms = null)
     {
 
         Ensure.NotNull(level);
@@ -385,12 +384,12 @@ public static class SamusGroundedMovement
     /// zero-base-speed horizontal pass, grounding probe, and momentum cleanup until animation
     /// command `$F8` returns to pose `$01/$02`.
     /// </summary>
-    public static GroundedMovementResult StepLanding(
+    internal static GroundedMovementResult StepLanding(
 
         RoomLevelData level,
         SamusState samus,
         int nmiFrameCounter,
-        RoomPlmSystem? plms = null)
+        ISamusRoomPlms? plms = null)
     {
 
         Ensure.NotNull(level);
@@ -433,12 +432,12 @@ public static class SamusGroundedMovement
     /// vertical-collision result and performs only the shared no-speed Y probe; it does not
     /// invent another knockback arc or silently reinterpret the hurt body as standing.
     /// </summary>
-    public static BlockMoveResult StepKnockbackOrCrystalFlashEnding(
+    internal static BlockMoveResult StepKnockbackOrCrystalFlashEnding(
 
         RoomLevelData level,
         SamusState samus,
         int nmiFrameCounter,
-        RoomPlmSystem? plms = null)
+        ISamusRoomPlms? plms = null)
     {
 
         Ensure.NotNull(level);
@@ -466,7 +465,7 @@ public static class SamusGroundedMovement
         RoomLevelData level,
         SamusState samus,
         int nmiFrameCounter,
-        RoomPlmSystem? plms)
+        ISamusRoomPlms? plms)
     {
         int displacement = SamusExtraDisplacement.CalculateNoSpeedVerticalDisplacement(
             samus.Kinematics,

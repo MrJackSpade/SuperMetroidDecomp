@@ -1,6 +1,5 @@
 ﻿using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Gameplay;
-using SuperMetroid.Core.Rooms.Plms;
 
 namespace SuperMetroid.Core.World;
 

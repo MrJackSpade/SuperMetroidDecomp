@@ -1,5 +1,4 @@
 ﻿using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.Core.Rooms.Plms;
 
 namespace SuperMetroid.Core.Samus.Projectiles;
 
@@ -57,7 +56,7 @@ internal sealed class ChainsawWindow
         SamusState samus,
         SamusProjectileSlot slot,
         SamusBombProjectileSystem sharedProjectiles,
-        RoomPlmSystem? roomPlms)
+        ISamusRoomPlms? roomPlms)
     {
         ushort inheritedY = slot.SpritemapPointer == 0
             ? unchecked((ushort)(slot.PackedType.BeamCombination.TableIndex *

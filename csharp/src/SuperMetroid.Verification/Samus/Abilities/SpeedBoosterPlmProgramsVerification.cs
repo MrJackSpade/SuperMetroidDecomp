@@ -12,6 +12,7 @@ using SuperMetroid.TestSupport.CpuBusTestDoubles;
 namespace SuperMetroid.Verification.Samus.Abilities;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Verification.Rooms.Plms;
+using SuperMetroid.Core.World;
 
 /// <summary>Checks Speed Booster block PLM selection, compiled programs, sound, and physical reveal behavior.</summary>
 internal static class SpeedBoosterPlmProgramsVerification

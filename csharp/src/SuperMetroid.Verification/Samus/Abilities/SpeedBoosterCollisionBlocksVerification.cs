@@ -13,6 +13,7 @@ using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.TestSupport.VerificationImporters;
 namespace SuperMetroid.Verification.Samus.Abilities;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.World;
 
 /// <summary>Focused collision-path checks for issue #297's Speed Booster terrain and spawned PLM programs.</summary>
 internal static class SpeedBoosterCollisionBlocksVerification

@@ -40,7 +40,7 @@ internal sealed class XrayReveal
     /// copy reads the BG1 plane the room shows from level data (#1351), where the cartridge read two BG1 screens back out
     /// of VRAM on the two setup calls before; time is frozen across them.
     /// </summary>
-    internal void BuildXrayRevealTilemap(RoomPlmSystem plms)
+    internal void BuildXrayRevealTilemap(IRoomPlms plms)
     {
         var room = _room.ActiveRoom ?? throw new InvalidOperationException("X-ray setup has no room.");
         var level = _room.LevelData ?? throw new InvalidOperationException("X-ray setup has no level data.");

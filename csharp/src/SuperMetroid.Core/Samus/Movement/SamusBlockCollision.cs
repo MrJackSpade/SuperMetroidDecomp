@@ -22,13 +22,13 @@ public static class SamusBlockCollision
     /// <c>$94:967F</c>. The native routine publishes available distance in `$12` but does
     /// not commit Samus's whole-pixel probe position. Collision still writes subpixels.
     /// </summary>
-    public static BlockMoveResult ProbeWallHorizontal(
+    internal static BlockMoveResult ProbeWallHorizontal(
 
         RoomLevelData level,
         SamusKinematicsState state,
         SamusState? owner,
         int signedDistance,
-        RoomPlmSystem? plms = null)
+        ISamusRoomPlms? plms = null)
     {
         Ensure.NotNull(state);
         SamusKinematicsState probe = state.CreateCollisionProbe();
@@ -626,7 +626,7 @@ public static class SamusBlockCollision
                     // Hand reactions change state but return unconditional collision:
                     // even an admitted morph contact is clipped by this same scan.
                     if (owner is { } chozoSamus)
-                        terrain.Plms?.ChozoStatue.NotifyChozoStatueHandCollision(terrain.Level, block, chozoSamus,
+                        terrain.Plms?.ChozoStatueHand.NotifyChozoStatueHandCollision(terrain.Level, block, chozoSamus,
                             state.CollisionPose, movingDown: acceptedDisplacement > 0 &&
                                 (move.BlockReactionDirection ?? SamusCollisionDirection.Down) == SamusCollisionDirection.Down);
                     // The vertical special-solid dispatcher shares setup `$84:CDEA`
@@ -745,14 +745,14 @@ public static class SamusBlockCollision
     /// <param name="displacement">Signed 16.16 distance to test; zero tests the current bottom boundary.</param>
     /// <param name="scanLeftToRight">Scan order chosen by the NMI frame counter's parity.</param>
     /// <param name="plms">The room's PLM owner for special and bombable blocks.</param>
-    public static BlockMoveResult ProbeChangedPoseVertical(
+    internal static BlockMoveResult ProbeChangedPoseVertical(
 
         RoomLevelData level,
         SamusKinematicsState state,
         SamusState? owner,
         int displacement,
         bool scanLeftToRight,
-        RoomPlmSystem? plms)
+        ISamusRoomPlms? plms)
     {
 
         Ensure.NotNull(level);
@@ -767,7 +767,7 @@ public static class SamusBlockCollision
     /// </summary>
     /// <remarks>
     /// This narrowly retained fallback is for direct collision tests and embedders that do
-    /// not own a room runtime. The playable runtime always passes <see cref="RoomPlmSystem"/>
+    /// not own a room runtime. The playable runtime always passes <see cref="ISamusRoomPlms"/>
     /// and therefore never takes this incomplete branch.
     /// </remarks>
     private static bool ClearCollisionTypeWithoutLifecycle(RoomLevelData level, int blockIndex)
@@ -780,7 +780,7 @@ public static class SamusBlockCollision
     /// Runs the shared bomb-block setup for non-solid cells without consuming carry.
     /// </summary>
     private static void ActivateCollisionBombableAir(RoomLevelData level, RoomCollisionBlock block,
-        SamusState? owner, bool explicitAdmission, RoomPlmSystem? plms)
+        SamusState? owner, bool explicitAdmission, ISamusRoomPlms? plms)
     {
         // Native horizontal/vertical air dispatch invokes the same setup as solid
         // bomb blocks, but ignores its carry. Rejection or exhausted actor slots

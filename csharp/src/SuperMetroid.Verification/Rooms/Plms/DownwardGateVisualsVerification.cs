@@ -12,6 +12,7 @@ using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Rooms.Plms;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.World;
 
 /// <summary>Checks editable downward-gate PLM art without changing column or trigger collision.</summary>
 internal static class DownwardGateVisualsVerification

@@ -13,6 +13,7 @@ using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core;
 using SuperMetroid.TestSupport.VerificationImporters;
 namespace SuperMetroid.Verification.Rooms.Scrolling;
+
 using SuperMetroid.Verification.Harness;
 
 /// <summary>Checks resident room-scroll PLMs through center contact, extensions, Morph Ball, and bomb jump.</summary>

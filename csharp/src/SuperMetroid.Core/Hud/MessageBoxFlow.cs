@@ -101,7 +101,7 @@ internal sealed class MessageBoxFlow
     }
 
     /// <summary>Applies the effects that follow a message box closing.</summary>
-    internal void ResolveClosedMessageBox(bool frameSuspended, RoomPlmSystem plms, SamusBombProjectileSystem bombProjectiles, RoomScope room)
+    internal void ResolveClosedMessageBox(bool frameSuspended, IRoomPlms plms, SamusBombProjectileSystem bombProjectiles, RoomScope room)
     {
         if (room.Enemies.Gunship.SavePromptPending)
         {

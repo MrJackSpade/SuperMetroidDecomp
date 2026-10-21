@@ -17,7 +17,7 @@ internal sealed class MotherBrainGlassPlmAnimation()
     /// <inheritdoc/>
     private protected override MotherBrainGlassPlmProgram? Publish(MotherBrainGlassPlmCue cue, PlmSlot slot, PlmStepContext context)
     {
-        MotherBrainGlassPlms glass = context.Plms.MotherBrainGlass;
+        MotherBrainGlassPlms glass = context.Plms.Bosses().MotherBrainGlass;
         switch (cue)
         {
             case MotherBrainGlassPlmCue.Command { Kind: MotherBrainGlassPlmCueKind.SkipIfBossDead }:

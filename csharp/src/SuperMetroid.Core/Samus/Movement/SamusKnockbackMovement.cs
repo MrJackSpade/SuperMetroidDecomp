@@ -1,7 +1,6 @@
 using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Samus.Poses;
 
@@ -30,14 +29,14 @@ public static class SamusKnockbackMovement
     /// or suppresses that request according to the current movement type. Keeping this as
     /// a shared handoff prevents spike blocks and spike-air from inventing bespoke motion.
     /// </remarks>
-    public static bool TryStartPendingHitInterruption(
+    internal static bool TryStartPendingHitInterruption(
 
         SamusState samus,
         SnesButton controllerInput,
         bool timeIsFrozen,
         RoomLevelData? level = null,
         int nmiFrameCounter = 0,
-        RoomPlmSystem? plms = null)
+        ISamusRoomPlms? plms = null)
     {
 
         Ensure.NotNull(samus);
@@ -70,7 +69,7 @@ public static class SamusKnockbackMovement
     /// True when the movement-type table installs the special knockback handler. False for
     /// native interrupt-suppression entries such as turning, grapple, and shinespark.
     /// </returns>
-    public static bool Start(SamusState samus, SnesButton controllerInput, KnockbackLaunch launch, RoomLevelData? level = null, int nmiFrameCounter = 0, RoomPlmSystem? plms = null)
+    internal static bool Start(SamusState samus, SnesButton controllerInput, KnockbackLaunch launch, RoomLevelData? level = null, int nmiFrameCounter = 0, ISamusRoomPlms? plms = null)
     {
 
         Ensure.NotNull(samus);
@@ -216,12 +215,12 @@ level, targetPose, nmiFrameCounter, plms))
     }
 
     /// <summary>Executes one `$90:DF38` special movement-handler frame.</summary>
-    public static KnockbackMovementResult Step(
+    internal static KnockbackMovementResult Step(
 
         RoomLevelData level,
         SamusState samus,
         int nmiFrameCounter,
-        RoomPlmSystem? plms = null)
+        ISamusRoomPlms? plms = null)
     {
 
         Ensure.NotNull(level);
@@ -419,7 +418,7 @@ level, targetPose, nmiFrameCounter, plms))
         RoomLevelData level,
         SamusState samus,
         int nmiFrameCounter,
-        RoomPlmSystem? plms)
+        ISamusRoomPlms? plms)
     {
         // `$90:DF53` calls the exact same `$90:90E2` vertical routine as ordinary aerial
         // movement, so reuse that translated owner instead of maintaining a subtly narrower
@@ -436,7 +435,7 @@ level, targetPose, nmiFrameCounter, plms))
         RoomLevelData level,
         SamusState samus,
         int nmiFrameCounter,
-        RoomPlmSystem? plms)
+        ISamusRoomPlms? plms)
     {
         // `$90:923F` gives nonzero external Y priority over its normal total-X-plus-one
         // slope-following probe. This down-knockback path consumes the exact same helper.

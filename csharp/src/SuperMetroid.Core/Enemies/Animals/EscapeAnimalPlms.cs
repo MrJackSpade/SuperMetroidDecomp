@@ -27,9 +27,9 @@ internal sealed class EscapeAnimalPlms
         // Hardcoded spawn cannot execute setup when every native PLM slot is occupied.
         if (_slotTable.IsFull)
             throw new InvalidOperationException("Animal rescue wall setup has no free PLM slot.");
-        RoomPlmSystem.WritePlmCollisionTypeAndBts(level, blockIndex, EscapeAnimalPlmRomData.OriginCollision);
+        PlmLevelWrites.WritePlmCollisionTypeAndBts(level, blockIndex, EscapeAnimalPlmRomData.OriginCollision);
         for (int row = 1; row <= 2; row++)
-            RoomPlmSystem.WritePlmCollisionTypeAndBts(level, blockIndex + row * level.Size.X,
+            PlmLevelWrites.WritePlmCollisionTypeAndBts(level, blockIndex + row * level.Size.X,
                 EscapeAnimalPlmRomData.ExtensionCollision);
     }
 

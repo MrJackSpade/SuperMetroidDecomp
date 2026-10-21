@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.Core.Samus.Movement;
 
 namespace SuperMetroid.Core.Enemies;
@@ -603,14 +602,14 @@ internal sealed class EnemyTerrain
     /// The active frame's room PLM owner for enemy-breakable blocks. This synchronous call
     /// context is not persisted; every enemy frame supplies it again after debugger restoration.
     /// </summary>
-    [NonSerialized] private RoomPlmSystem? _collisionPlms;
+    [NonSerialized] private EnemyBreakableTerrainPlms? _collisionPlms;
 
     /// <summary>Spawns the breakable-block PLM for an enemy spike reaction and clears collision even if its pool is full.</summary>
     internal bool ReactToEnemySpikeBlock(RoomLevelData level, int blockIndex, RoomCollisionBlock block)
     {
         if (!EnemyBreakableTerrainDefinitions.IsEnemyBreakable(block.Bts.Value)) return true;
         var plms = _collisionPlms ?? throw new InvalidOperationException("Enemy-breakable terrain requires the active room PLM owner.");
-        plms.BreakableTerrain.TrySpawnEnemyBreakableBlock(level, blockIndex);
+        plms.TrySpawnEnemyBreakableBlock(level, blockIndex);
         return false; // $A0:C2D6 clears carry even if the PLM pool was full.
     }
 
@@ -620,9 +619,9 @@ internal sealed class EnemyTerrain
         /// <summary>Terrain owner whose active PLM context is temporarily replaced.</summary>
         private readonly EnemyTerrain owner;
         /// <summary>PLM context restored when the enemy frame leaves this scope.</summary>
-        private readonly RoomPlmSystem? previous;
+        private readonly EnemyBreakableTerrainPlms? previous;
         /// <summary>Installs the frame's room PLM owner while retaining the previous context.</summary>
-        public EnemyTerrainScope(EnemyTerrain owner, RoomPlmSystem? current)
+        public EnemyTerrainScope(EnemyTerrain owner, EnemyBreakableTerrainPlms? current)
         {
             this.owner = owner;
             previous = owner._collisionPlms;

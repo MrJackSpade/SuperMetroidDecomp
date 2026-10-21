@@ -20,6 +20,7 @@ namespace SuperMetroid.Verification.Samus.Abilities;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Audio;
+using SuperMetroid.Core.World;
 
 /// <summary>Constructed cartridge checks for ball movement, bombs, blast reactions, and tight passages.</summary>
 internal static class SamusMorphBallVerification

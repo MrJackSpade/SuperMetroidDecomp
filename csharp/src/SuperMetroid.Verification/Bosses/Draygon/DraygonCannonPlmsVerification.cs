@@ -11,6 +11,7 @@ using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.TestSupport.VerificationImporters;
 namespace SuperMetroid.Verification.Bosses.Draygon;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.World;
 
 /// <summary>Checks Draygon cannon PLM setup, missile damage, destruction terrain, and enemy firing flags in a constructed room.</summary>
 internal static class DraygonCannonPlmsVerification

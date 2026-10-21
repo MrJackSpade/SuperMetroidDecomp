@@ -1,3 +1,6 @@
+using SuperMetroid.Core.Areas;
+using SuperMetroid.Core.Bosses;
+using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Progression;
 using SuperMetroid.Core.Areas.Tourian;
 using SuperMetroid.Core.Bosses.Draygon;
@@ -13,8 +16,10 @@ using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.Scrolling;
 using SuperMetroid.Core.Samus.Projectiles;
+using SuperMetroid.Core.Rooms;
+using SuperMetroid.Core.Rooms.Plms;
 
-namespace SuperMetroid.Core.Rooms.Plms;
+namespace SuperMetroid.Core.World;
 
 /// <summary>
 /// Frame-steppable room PLM owner translating movement-triggered breakable terrain and its
@@ -34,7 +39,7 @@ namespace SuperMetroid.Core.Rooms.Plms;
 /// family.
 /// </remarks>
 [RoomLifetime]
-public sealed class RoomPlmSystem
+public sealed class RoomPlmSystem : ISamusRoomPlms, IBossRoomPlms, IAreaRoomPlms, IEnemyRoomPlms, IScriptedRoomPlmHooks
 {
     /// <summary>Creates collision-triggered block PLMs from Samus and projectile reactions.</summary>
     internal BlockReactionPlms BlockReactions { get; }
@@ -222,19 +227,96 @@ public sealed class RoomPlmSystem
         slot.Family = null;
     }
 
-    /// <summary>
-    /// Shared Write_Level_Data_Block_Type_and_BTS operation: preserve visual index/flips,
-    /// replace the collision nibble, and publish the independent low-byte behavior.
-    /// </summary>
-    internal static void WritePlmCollisionTypeAndBts(RoomLevelData level, int blockIndex, ushort typeAndBts) =>
-        WritePlmCollisionTypeAndBts(level, blockIndex, new RoomLevelWord(typeAndBts).CollisionType, unchecked((byte)typeAndBts));
+    /// <inheritdoc/>
+    BlockReactionPlms IRoomPlms.BlockReactions => BlockReactions;
 
-    /// <summary>Replaces a block's collision type and BTS, keeping its visual payload.</summary>
-    internal static void WritePlmCollisionTypeAndBts(RoomLevelData level, int blockIndex, RoomCollisionType collisionType, int bts)
+    /// <inheritdoc/>
+    IGlobalEventFlags? IRoomPlms.Events => Events;
+
+    /// <inheritdoc/>
+    PlmSoundQueue IRoomPlms.Sounds => Sounds;
+
+    /// <inheritdoc/>
+    IPlmDrawing IRoomPlms.Drawing => Drawing;
+
+    /// <inheritdoc/>
+    CollectiblePlms IRoomPlms.CollectiblePlms => CollectiblePlms;
+
+    /// <inheritdoc/>
+    StationPlms IRoomPlms.Stations => Stations;
+
+    /// <inheritdoc/>
+    DoorPlms IRoomPlms.DoorPlms => DoorPlms;
+
+    /// <inheritdoc/>
+    EyeDoorPlms IRoomPlms.EyeDoors => EyeDoors;
+
+    /// <inheritdoc/>
+    GreyDoorPlms IRoomPlms.GreyDoors => GreyDoors;
+
+    /// <inheritdoc/>
+    GatePlms IRoomPlms.Gates => Gates;
+
+    /// <inheritdoc/>
+    NoobTubePlms IRoomPlms.NoobTube => NoobTube;
+
+    /// <inheritdoc/>
+    SamusEaterPlms IRoomPlms.SamusEater => SamusEater;
+
+    /// <inheritdoc/>
+    ScrollPlms IRoomPlms.Scrolls => Scrolls;
+
+    /// <inheritdoc/>
+    SpeedBoosterEscapePlms IRoomPlms.SpeedBoosterEscape => SpeedBoosterEscape;
+
+    /// <inheritdoc/>
+    IScriptedRoomPlmHooks IRoomPlms.ScriptedHooks => this;
+
+    /// <inheritdoc/>
+    void IRoomPlms.DeletePlm(PlmSlot slot) => DeletePlm(slot);
+
+    /// <inheritdoc/>
+    ProjectileTriggerPlms ISamusRoomPlms.ProjectileTriggers => ProjectileTriggers;
+
+    /// <inheritdoc/>
+    QuicksandPlms ISamusRoomPlms.Quicksand => Quicksand;
+
+    /// <inheritdoc/>
+    IChozoStatueHand ISamusRoomPlms.ChozoStatueHand => ChozoStatue;
+
+    /// <inheritdoc/>
+    BombTorizoHandPlms IBossRoomPlms.BombTorizoHand => BombTorizoHand;
+
+    /// <inheritdoc/>
+    DraygonCannonPlms IBossRoomPlms.DraygonCannons => DraygonCannons;
+
+    /// <inheritdoc/>
+    MotherBrainGlassPlms IBossRoomPlms.MotherBrainGlass => MotherBrainGlass;
+
+    /// <inheritdoc/>
+    TourianPlms IAreaRoomPlms.Tourian => Tourian;
+
+    /// <inheritdoc/>
+    ShaktoolPlms IEnemyRoomPlms.Shaktool => Shaktool;
+
+    /// <inheritdoc/>
+    IPlmPreInstruction IScriptedRoomPlmHooks.PreInstruction(ScriptedRoomPlmPreInstruction preInstruction) => preInstruction switch
     {
-        var original = level.GetPlmCollisionBlockByIndex(blockIndex).PackedWord;
-        level.SetPlmForegroundEntry(blockIndex, RoomLevelWord.Create(original.VisualBlockIndex,
-            original.VisualFlipFlags, collisionType).Raw);
-        level.SetPlmBehavior(blockIndex, new RoomBlockBehavior(bts));
-    }
+        ScriptedRoomPlmPreInstruction.ShaktoolRoomController => ShaktoolRoomPreInstructions.Controller,
+        ScriptedRoomPlmPreInstruction.OldTourianWallWaitForSamus => TourianPreInstructions.OldTourianEscapeShaftWallWaitForSamus,
+        ScriptedRoomPlmPreInstruction.LowerNorfairChozoHandWait => ChozoStatuePreInstructions.WaitForLowerNorfairHand,
+        _ => throw new InvalidOperationException($"Undefined {nameof(ScriptedRoomPlmPreInstruction)} {preInstruction}."),
+    };
+
+    /// <inheritdoc/>
+    bool IScriptedRoomPlmHooks.HasLoweredLowerNorfairAcid => ChozoStatue.HasLoweredLowerNorfairAcid;
+
+    /// <inheritdoc/>
+    void IScriptedRoomPlmHooks.SetLoweredAcidHeight() => ChozoStatue.SetLoweredAcidHeight();
+
+    /// <inheritdoc/>
+    void IScriptedRoomPlmHooks.TransformSpikesToSlopes(RoomLevelData level) => ChozoStatuePlms.TransformSpikesToSlopes(level);
+
+    /// <inheritdoc/>
+    void IScriptedRoomPlmHooks.RevertSlopesToSpikes(RoomLevelData level) => ChozoStatuePlms.RevertSlopesToSpikes(level);
 }

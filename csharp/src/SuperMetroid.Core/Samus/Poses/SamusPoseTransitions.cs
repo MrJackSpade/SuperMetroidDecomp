@@ -1,7 +1,6 @@
 ﻿using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Drawing;
 
@@ -18,7 +17,7 @@ internal static class SamusPoseTransitions
     /// </summary>
     public static void ApplyWalkedOffFloorTransition(SamusState samus, 
 RoomLevelData level, SamusPoseId targetPose,
-        int nmiFrameCounter = 0, RoomPlmSystem? plms = null)
+        int nmiFrameCounter = 0, ISamusRoomPlms? plms = null)
     {
 
         Ensure.NotNull(level);
@@ -132,7 +131,7 @@ level, targetPose, nmiFrameCounter, plms, out int centerAdjustment);
         bool wasSpinning,
         SnesButton controllerInput,
         int nmiFrameCounter,
-        RoomPlmSystem? plms = null)
+        ISamusRoomPlms? plms = null)
     {
 
         Ensure.NotNull(level);
@@ -252,7 +251,7 @@ level, targetPose, nmiFrameCounter, plms, out int centerAdjustment);
 
         RoomLevelData level,
         int nmiFrameCounter,
-        RoomPlmSystem? plms = null)
+        ISamusRoomPlms? plms = null)
     {
 
         Ensure.NotNull(level);

@@ -1,7 +1,6 @@
 using SuperMetroid.Core.Samus.Drawing;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Palettes;
 using SuperMetroid.Core.Samus.Poses;
@@ -1085,7 +1084,7 @@ false,             CrashSequenceFinished: true);
 
         RoomLevelData level,
         SamusState samus,
-        RoomPlmSystem? plms)
+        ISamusRoomPlms? plms)
     {
         ShineTimer = NativeCountdown.Start(15);
         uint accelerated = unchecked(SnesSixteenSixteen.Compose(
@@ -1109,7 +1108,7 @@ false,             CrashSequenceFinished: true);
         RoomLevelData level,
         SamusState samus,
         int nmiFrameCounter,
-        RoomPlmSystem? plms)
+        ISamusRoomPlms? plms)
     {
         ShineTimer = NativeCountdown.Start(15);
         VerticalAcceleration += SnesSignedSixteenSixteen.FromRaw(unchecked((int)SnesSixteenSixteen.Compose(

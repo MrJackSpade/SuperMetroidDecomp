@@ -1,7 +1,6 @@
 ﻿using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Drawing;
 
@@ -25,7 +24,7 @@ internal static class SamusPosturePoseTransitions
         RoomLevelData level,
         SamusPoseId targetPose,
         int nmiFrameCounter,
-        RoomPlmSystem? plms = null)
+        ISamusRoomPlms? plms = null)
     {
 
         Ensure.NotNull(level);
@@ -88,7 +87,7 @@ internal static class SamusPosturePoseTransitions
         RoomLevelData level,
         SamusPoseId targetPose,
         int nmiFrameCounter,
-        RoomPlmSystem? plms = null)
+        ISamusRoomPlms? plms = null)
     {
 
         Ensure.NotNull(level);
@@ -152,7 +151,7 @@ internal static class SamusPosturePoseTransitions
         RoomLevelData level,
         SamusPoseId targetPose,
         int nmiFrameCounter,
-        RoomPlmSystem? plms = null)
+        ISamusRoomPlms? plms = null)
     {
 
         Ensure.NotNull(level);
@@ -276,7 +275,7 @@ level, SnesSixteenSixteen.FromWhole(SamusPostureDefinitions.CrouchEntryDownwardP
         RoomLevelData level,
         SamusPoseId targetPose,
         int nmiFrameCounter,
-        RoomPlmSystem? plms = null)
+        ISamusRoomPlms? plms = null)
     {
 
         Ensure.NotNull(level);
@@ -414,7 +413,7 @@ level, SnesSixteenSixteen.FromWhole(SamusPostureDefinitions.MorphEntryDownwardPi
         RoomLevelData level,
         SamusPoseId targetPose,
         int nmiFrameCounter,
-        RoomPlmSystem? plms = null)
+        ISamusRoomPlms? plms = null)
     {
 
         Ensure.NotNull(level);

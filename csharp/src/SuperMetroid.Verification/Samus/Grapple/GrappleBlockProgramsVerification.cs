@@ -13,6 +13,7 @@ using SuperMetroid.Core.Assets;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Samus.Grapple;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.World;
 
 /// <summary>Retail and guarded-runtime checks for respawning/permanent grapple-block PLMs and editable visuals.</summary>
 internal static class GrappleBlockProgramsVerification

@@ -1,6 +1,3 @@
-using SuperMetroid.Core.Areas.Tourian;
-using SuperMetroid.Core.Enemies.Chozo;
-using SuperMetroid.Core.Enemies.Shaktool;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Progression;
 
@@ -33,13 +30,8 @@ internal sealed class ScriptedRoomPlmAnimation(ScriptedRoomPlmProgram program)
                 context.QueueSound(SoundEffectId.FromCartridge(SoundEffectLibrary.Library2, checked((byte)queueSoundLibrary2Maximum6.SoundId)), 6);
                 return null;
             case ScriptedRoomPlmCue.InstallPreInstruction installPreInstruction:
-                slot.PreInstruction = installPreInstruction.PreInstruction switch
-                {
-                    ScriptedRoomPlmPreInstruction.ShaktoolRoomController => ShaktoolRoomPreInstructions.Controller,
-                    ScriptedRoomPlmPreInstruction.OldTourianWallWaitForSamus => TourianPreInstructions.OldTourianEscapeShaftWallWaitForSamus,
-                    ScriptedRoomPlmPreInstruction.LowerNorfairChozoHandWait => ChozoStatuePreInstructions.WaitForLowerNorfairHand,
-                    _ => throw new InvalidOperationException($"Undefined {nameof(ScriptedRoomPlmPreInstruction)} {installPreInstruction.PreInstruction}."),
-                };
+                slot.PreInstruction = context.Plms.ScriptedHooks.PreInstruction(installPreInstruction.PreInstruction ?? throw new InvalidOperationException(
+                    $"Undefined {nameof(ScriptedRoomPlmPreInstruction)} in {installPreInstruction}."));
                 return null;
             case ScriptedRoomPlmCue.Command { Kind: ScriptedRoomPlmCueKind.ClearPreInstruction }:
                 slot.PreInstruction = PlmPreInstructions.Inert;
@@ -52,15 +44,15 @@ internal sealed class ScriptedRoomPlmAnimation(ScriptedRoomPlmProgram program)
                 context.MoveOrigin(slot, 4, 0);
                 return null;
             case ScriptedRoomPlmCue.Command { Kind: ScriptedRoomPlmCueKind.ContinueIfLowerNorfairAcidLowered }:
-                return context.Plms.ChozoStatue.HasLoweredLowerNorfairAcid ? ScriptedRoomPlmProgram.LowerNorfairChozoHandLowered : null;
+                return context.Plms.ScriptedHooks.HasLoweredLowerNorfairAcid ? ScriptedRoomPlmProgram.LowerNorfairChozoHandLowered : null;
             case ScriptedRoomPlmCue.Command { Kind: ScriptedRoomPlmCueKind.SetLoweredAcidHeight }:
-                context.Plms.ChozoStatue.SetLoweredAcidHeight();
+                context.Plms.ScriptedHooks.SetLoweredAcidHeight();
                 return null;
             case ScriptedRoomPlmCue.Command { Kind: ScriptedRoomPlmCueKind.TransformSpikesToSlopes }:
-                ChozoStatuePlms.TransformSpikesToSlopes(context.Level);
+                context.Plms.ScriptedHooks.TransformSpikesToSlopes(context.Level);
                 return null;
             case ScriptedRoomPlmCue.Command { Kind: ScriptedRoomPlmCueKind.RevertSlopesToSpikes }:
-                ChozoStatuePlms.RevertSlopesToSpikes(context.Level);
+                context.Plms.ScriptedHooks.RevertSlopesToSpikes(context.Level);
                 return null;
             default:
                 throw new InvalidOperationException($"Undefined {nameof(ScriptedRoomPlmCueKind)} {cue}.");

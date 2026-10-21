@@ -14,6 +14,7 @@ using SuperMetroid.TestSupport.CpuBusTestDoubles;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Rooms.Plms;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.World;
 
 /// <summary>Checks shot-block PLM programs, editable draw frames, and ROM-free runtime execution against cartridge data.</summary>
 internal static class ShotBlockPlmProgramsVerification

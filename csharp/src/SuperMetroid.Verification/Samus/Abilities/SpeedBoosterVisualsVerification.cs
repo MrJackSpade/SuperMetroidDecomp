@@ -14,6 +14,7 @@ using SuperMetroid.AssetExtraction.Rooms;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Samus.Abilities;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.World;
 
 /// <summary>Checks the bomb-revealed Speed Booster block's editable image independently of its collision behavior.</summary>
 internal static class SpeedBoosterVisualsVerification

@@ -33,7 +33,7 @@ internal static class EnemyBreakableTerrainDefinitionsVerification
             var terrain = new EnemyTerrain();
             RoomCollisionBlock block = level.GetCollisionBlockByIndex(0);
             bool collision;
-            using (new EnemyTerrain.EnemyTerrainScope(terrain, plms))
+            using (new EnemyTerrain.EnemyTerrainScope(terrain, plms.BreakableTerrain))
                 collision = terrain.ReactToEnemySpikeBlock(level, 0, block);
 
             AssertEqual(index != 15, collision,

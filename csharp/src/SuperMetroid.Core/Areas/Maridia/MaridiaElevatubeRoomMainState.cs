@@ -1,7 +1,6 @@
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Movement;
 
@@ -78,12 +77,12 @@ public sealed class MaridiaElevatubeRoomMainState
     /// the room scratch position and Samus's 16.16 position through the ordinary bank-$94
     /// vertical collision dispatcher, then apply the cartridge's bounded acceleration.
     /// </summary>
-    public BlockMoveResult? Step(
+    internal BlockMoveResult? Step(
 
         RoomLevelData level,
         SamusState? samus,
         int nmiFrameCounter,
-        RoomPlmSystem plms,
+        ISamusRoomPlms plms,
         RoomMainScratchState scratch)
     {
         if (!IsActive)

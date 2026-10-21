@@ -12,12 +12,13 @@ using SuperMetroid.Core.Enemies.Chozo;
 using SuperMetroid.Core.Enemies.Elevator;
 using SuperMetroid.Core.Rooms.Doors;
 using SuperMetroid.Core.Rooms.LevelData;
+using SuperMetroid.Core.Rooms.Plms;
 
-namespace SuperMetroid.Core.Rooms.Plms;
+namespace SuperMetroid.Core.World;
 
 /// <summary>Draws PLM blocks into the room level data and BG1: compiled draw lists, level words and the visual catalogs that resolve them.</summary>
 /// <param name="visuals">The host's installed PLM artwork, which outlives each room's drawing.</param>
-internal sealed class PlmBlockDrawing(PlmShotBlockVisuals visuals)
+internal sealed class PlmBlockDrawing(PlmShotBlockVisuals visuals) : IPlmDrawing
 {
     /// <summary>The host's installed PLM artwork.</summary>
     private readonly PlmShotBlockVisuals _visuals = Ensure.NotNull(visuals);
@@ -111,11 +112,11 @@ internal sealed class PlmBlockDrawing(PlmShotBlockVisuals visuals)
     public RoomPlmDynamicCollectibleArtCatalog? DynamicCollectibleArt => _visuals.RoomPlmDynamicCollectibleArt;
 
     /// <summary>Draws a PLM without header-specific visual ownership using its block origin and instruction pointer.</summary>
-    internal void DrawPlmInstruction(RoomLevelData level, int blockIndex, ushort drawPointer) =>
+    public void DrawPlmInstruction(RoomLevelData level, int blockIndex, ushort drawPointer) =>
         DrawPlmInstruction(level, 0, blockIndex, drawPointer);
 
     /// <summary>Resolves a compiled or cartridge draw list, selecting installed visuals by PLM owner while retaining physical collision words.</summary>
-    internal void DrawPlmInstruction(RoomLevelData level, PlmHeaderId headerPointer, int blockIndex, ushort drawPointer)
+    public void DrawPlmInstruction(RoomLevelData level, PlmHeaderId headerPointer, int blockIndex, ushort drawPointer)
     {
         // `$84:861E-$86B3` treats each record as a direction/count word followed by complete
         // level words. Bit 15 means a vertical column; a clear bit means a horizontal row.
@@ -465,15 +466,9 @@ internal sealed class PlmBlockDrawing(PlmShotBlockVisuals visuals)
                 "the safe native level allocation.", error);
         }
 
-        DrawLevelWord(level, blockIndex, levelWord, visualWord);
+        PlmLevelWrites.DrawLevelWord(level, blockIndex, levelWord, visualWord);
     }
 
-    /// <summary>Updates level collision and BG1 appearance; BG1 shows the new block because it renders from level data.</summary>
-    internal static void DrawLevelWord(RoomLevelData level, int blockIndex, ushort levelWord, ushort? visualWord = null)
-    {
-        ushort renderedWord = visualWord ?? new RoomLevelWord(levelWord).VisualWord;
-        level.SetPlmForegroundEntry(blockIndex, levelWord, renderedWord);
-    }
 
 
     /// <summary>Draws one horizontal Kraid mutation with optional Kraid-owned visual replacements.</summary>

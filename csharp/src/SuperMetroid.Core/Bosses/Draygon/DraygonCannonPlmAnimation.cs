@@ -31,7 +31,7 @@ internal sealed class DraygonCannonPlmAnimation(DraygonCannonProgram program)
                     ? right ? DraygonCannonProgram.RightDestroy : DraygonCannonProgram.LeftDestroy
                     : null;
             case DraygonCannonCue.Damage:
-                context.Plms.DraygonCannons.DamageDraygonCannon(context.Level, slot);
+                context.Plms.Bosses().DraygonCannons.DamageDraygonCannon(context.Level, slot);
                 return null;
             default:
                 throw new InvalidOperationException($"Undefined {nameof(DraygonCannonCue)} {cue}.");

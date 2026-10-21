@@ -14,7 +14,7 @@ internal static class TourianPreInstructions
     /// </summary>
     internal static PlmPreInstruction OldTourianEscapeShaftWallWaitForSamus { get; } = new(
         "old Tourian escape-shaft wall wait",
-        static (slot, context) => context.Plms.Tourian.RunOldTourianEscapeShaftWallWait(slot));
+        static (slot, context) => context.Plms.Areas().Tourian.RunOldTourianEscapeShaftWallWait(slot));
 
     /// <summary>
     /// The Metroids-cleared table's routines, by entry: nine deliberate returns, then four quota observers that mark their
@@ -27,7 +27,7 @@ internal static class TourianPreInstructions
             var roomArgument = (ushort)(entry * 2);
             return MetroidsClearedPlmRomData.ResolveEvent(roomArgument) is { } eventNumber
                 ? new PlmPreInstruction($"Metroids cleared: {eventNumber}", (slot, context) =>
-                    context.Plms.Tourian.RunMetroidsClearedObserver(eventNumber, context.Frame.EnemyDeaths, context.Frame.EnemyDeathQuota))
+                    context.Plms.Areas().Tourian.RunMetroidsClearedObserver(eventNumber, context.Frame.EnemyDeaths, context.Frame.EnemyDeathQuota))
                 : PlmPreInstruction.NoOp($"Metroids cleared: entry {entry} return");
         }),
     ];

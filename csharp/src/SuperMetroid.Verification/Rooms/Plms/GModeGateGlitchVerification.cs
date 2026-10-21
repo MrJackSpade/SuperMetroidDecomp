@@ -27,6 +27,7 @@ using SuperMetroid.Core.Gameplay;
 namespace SuperMetroid.Verification.Rooms.Plms;
 
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.World;
 
 /// <summary>Checks the reported G-Mode gate route and the PLM suspension effects that drive it.</summary>
 internal static class GModeGateGlitchVerification

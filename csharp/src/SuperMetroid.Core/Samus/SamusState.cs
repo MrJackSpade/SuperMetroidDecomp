@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.Core.Samus.Abilities;
 using SuperMetroid.Core.Samus.Grapple;
 using SuperMetroid.Core.Samus.Movement;
@@ -569,7 +568,7 @@ public sealed class SamusState
         RoomLevelData level,
         SamusPoseId targetPose,
         int nmiFrameCounter,
-        RoomPlmSystem? plms,
+        ISamusRoomPlms? plms,
         out int centerAdjustment)
     {
         ushort targetRadius = SamusPoseMetadata.ReadPoseYRadius(targetPose);
@@ -719,7 +718,7 @@ level,
         int displacement,
         bool scanLeftToRight,
         SamusPoseId targetPose,
-        RoomPlmSystem? plms)
+        ISamusRoomPlms? plms)
     {
         short wholePixels = unchecked((short)(SnesSixteenSixteen.WholeOf(displacement)));
         if ((Math.Abs(wholePixels) & ~7) != 0)

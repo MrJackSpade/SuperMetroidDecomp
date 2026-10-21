@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.Core.Samus.Movement;
 
 namespace SuperMetroid.Core.Samus.Projectiles;
@@ -40,12 +39,12 @@ public static class SamusBombJumpMovement
     }
 
     /// <summary>Runs one `$90:E032` main-handler frame.</summary>
-    public static BombJumpMovementResult Step(
+    internal static BombJumpMovementResult Step(
 
         RoomLevelData level,
         SamusState samus,
         int nmiFrameCounter,
-        RoomPlmSystem plms)
+        ISamusRoomPlms plms)
     {
 
         Ensure.NotNull(level);
@@ -131,7 +130,7 @@ public static class SamusBombJumpMovement
         RoomLevelData level,
         SamusState samus,
         int nmiFrameCounter,
-        RoomPlmSystem plms)
+        ISamusRoomPlms plms)
     {
         SamusKinematicsState state = samus.Kinematics;
         uint oldSpeed = state.VerticalSpeedFixed;

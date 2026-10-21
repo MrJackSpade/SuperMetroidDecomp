@@ -1,6 +1,5 @@
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Rooms.LevelData;
-using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Poses;
 using SuperMetroid.Core.Rooms;
@@ -74,7 +73,7 @@ internal sealed class BeamFiring
         SnesButton controllerInput,
         SnesButton controllerNewInput,
         SamusBombProjectileSystem sharedProjectiles,
-        RoomPlmSystem? roomPlms)
+        ISamusRoomPlms? roomPlms)
     {
         const SnesButton shoot = SnesButton.X;
         _charge.PreviousBeamChargeCounter = _charge.FlareCounter;
@@ -228,7 +227,7 @@ internal sealed class BeamFiring
         SamusState samus,
         SnesButton controllerNewInput,
         SamusBombProjectileSystem sharedProjectiles,
-        RoomPlmSystem? roomPlms,
+        ISamusRoomPlms? roomPlms,
         bool charged)
     {
         const SnesButton shoot = SnesButton.X;
@@ -340,7 +339,7 @@ internal sealed class BeamFiring
         RoomLevelData level,
         SamusState samus,
         SamusBombProjectileSystem sharedProjectiles,
-        RoomPlmSystem? roomPlms)
+        ISamusRoomPlms? roomPlms)
     {
         // `$90:AC39` is shared with normal beams: five counted ordinary slots and a nonzero
         // low cooldown byte reject firing before any slot fields are touched.

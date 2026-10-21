@@ -1,3 +1,4 @@
+using SuperMetroid.Core.World.Artwork;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
@@ -68,7 +69,7 @@ internal static class ExtendedEnemyCompositionResourceChecks
 
     /// <summary>Loads an in-memory document through the production catalog parser, optionally inheriting stock frames.</summary>
     internal static EnemyExtendedFrameCatalog Load(EnemyExtendedFrameDocument document,
-        EnemyExtendedFrameCatalog? stock = null) => EnemyExtendedFrameCatalog.Load(
+        EnemyExtendedFrameCatalog? stock = null) => EnemyExtendedFrameDocuments.Load(
             new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(document,
                 new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase })), stock);
 

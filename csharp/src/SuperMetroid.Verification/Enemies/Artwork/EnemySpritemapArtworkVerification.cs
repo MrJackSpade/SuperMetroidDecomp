@@ -1,3 +1,4 @@
+using SuperMetroid.Core.World.Artwork;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Verification.Enemies.Puyo;
 using SuperMetroid.Core.Enemies.Boyon;
@@ -659,7 +660,7 @@ internal static class EnemySpritemapArtworkVerification
                 DisplayFrames = preYardBindings,
             }, CamelCaseJson)))
         {
-            EnemySpritemapCatalog yardUpgraded = EnemySpritemapCatalog.Load(
+            EnemySpritemapCatalog yardUpgraded = EnemySpritemapDocuments.Load(
                 preYardJson, stock.Enemies.Spritemaps);
             foreach (EnemySpritemapDefinition frame in YardVisualDefinitions.Frames())
                 AssertTrue(yardUpgraded.TryGetDisplay(frame.Bank, frame.Pointer, out _),
@@ -683,7 +684,7 @@ internal static class EnemySpritemapArtworkVerification
                 DisplayFrames = preRobotBindings,
             }, CamelCaseJson)))
         {
-            EnemySpritemapCatalog robotUpgraded = EnemySpritemapCatalog.Load(
+            EnemySpritemapCatalog robotUpgraded = EnemySpritemapDocuments.Load(
                 preRobotJson, stock.Enemies.Spritemaps);
             foreach (EnemySpritemapDefinition frame in WorkRobotVisualDefinitions.Frames())
                 AssertTrue(robotUpgraded.TryGetDisplay(frame.Bank, frame.Pointer, out _),
@@ -707,7 +708,7 @@ internal static class EnemySpritemapArtworkVerification
                 DisplayFrames = preEvirBindings,
             }, CamelCaseJson)))
         {
-            EnemySpritemapCatalog evirUpgraded = EnemySpritemapCatalog.Load(
+            EnemySpritemapCatalog evirUpgraded = EnemySpritemapDocuments.Load(
                 preEvirJson, stock.Enemies.Spritemaps);
             foreach (EnemySpritemapDefinition frame in EvirVisualDefinitions.Frames())
                 AssertTrue(evirUpgraded.TryGetDisplay(frame.Bank, frame.Pointer, out _),
@@ -731,7 +732,7 @@ internal static class EnemySpritemapArtworkVerification
                 DisplayFrames = preMochtroidBindings,
             }, CamelCaseJson)))
         {
-            EnemySpritemapCatalog mochtroidUpgraded = EnemySpritemapCatalog.Load(
+            EnemySpritemapCatalog mochtroidUpgraded = EnemySpritemapDocuments.Load(
                 preMochtroidJson, stock.Enemies.Spritemaps);
             foreach (EnemySpritemapDefinition frame in MochtroidVisualDefinitions.Frames())
                 AssertTrue(mochtroidUpgraded.TryGetDisplay(frame.Bank, frame.Pointer, out _),
@@ -755,7 +756,7 @@ internal static class EnemySpritemapArtworkVerification
                 DisplayFrames = preCorpsesBindings,
             }, CamelCaseJson)))
         {
-            EnemySpritemapCatalog corpsesUpgraded = EnemySpritemapCatalog.Load(
+            EnemySpritemapCatalog corpsesUpgraded = EnemySpritemapDocuments.Load(
                 preCorpsesJson, stock.Enemies.Spritemaps);
             foreach (EnemySpritemapDefinition frame in
                      DeadTourianCorpseVisualDefinitions.Frames())
@@ -778,7 +779,7 @@ internal static class EnemySpritemapArtworkVerification
                 DisplayFrames = preStationaryBindings,
             }, CamelCaseJson)))
         {
-            EnemySpritemapCatalog stationaryUpgraded = EnemySpritemapCatalog.Load(
+            EnemySpritemapCatalog stationaryUpgraded = EnemySpritemapDocuments.Load(
                 preDeadTorizoJson, stock.Enemies.Spritemaps);
             AssertTrue(stationaryUpgraded.TryGetDisplay(
                     DeadTorizoArtworkDefinitions.SpritemapBank,
@@ -801,7 +802,7 @@ internal static class EnemySpritemapArtworkVerification
                 DisplayFrames = preRinkaBindings,
             }, CamelCaseJson)))
         {
-            EnemySpritemapCatalog rinkaUpgraded = EnemySpritemapCatalog.Load(
+            EnemySpritemapCatalog rinkaUpgraded = EnemySpritemapDocuments.Load(
                 preRinkaJson, stock.Enemies.Spritemaps);
             foreach (EnemySpritemapDefinition frame in RinkaVisualDefinitions.Frames())
                 AssertTrue(rinkaUpgraded.TryGetDisplay(frame.Bank, frame.Pointer, out _),
@@ -823,7 +824,7 @@ internal static class EnemySpritemapArtworkVerification
                 DisplayFrames = preViolaBindings,
             }, CamelCaseJson)))
         {
-            EnemySpritemapCatalog violaUpgraded = EnemySpritemapCatalog.Load(
+            EnemySpritemapCatalog violaUpgraded = EnemySpritemapDocuments.Load(
                 preViolaJson, stock.Enemies.Spritemaps);
             foreach (EnemySpritemapDefinition frame in ViolaVisualDefinitions.Frames())
                 AssertTrue(violaUpgraded.TryGetDisplay(frame.Bank, frame.Pointer, out _),
@@ -846,7 +847,7 @@ internal static class EnemySpritemapArtworkVerification
                 DisplayFrames = preChozoStatueBindings,
             }, CamelCaseJson)))
         {
-            EnemySpritemapCatalog chozoUpgraded = EnemySpritemapCatalog.Load(
+            EnemySpritemapCatalog chozoUpgraded = EnemySpritemapDocuments.Load(
                 preChozoStatueJson, stock.Enemies.Spritemaps);
             foreach (EnemySpritemapDefinition frame in ChozoStatueVisualDefinitions.Frames())
                 AssertTrue(chozoUpgraded.TryGetDisplay(frame.Bank, frame.Pointer, out _),
@@ -869,7 +870,7 @@ internal static class EnemySpritemapArtworkVerification
                 DisplayFrames = preNorfairLavaJumperBindings,
             }, CamelCaseJson)))
         {
-            EnemySpritemapCatalog lavaJumperUpgraded = EnemySpritemapCatalog.Load(
+            EnemySpritemapCatalog lavaJumperUpgraded = EnemySpritemapDocuments.Load(
                 preNorfairLavaJumperJson, stock.Enemies.Spritemaps);
             foreach (EnemySpritemapDefinition frame in NorfairLavaJumperVisualDefinitions.Frames())
                 AssertTrue(lavaJumperUpgraded.TryGetDisplay(frame.Bank, frame.Pointer, out _),
@@ -891,7 +892,7 @@ internal static class EnemySpritemapArtworkVerification
                 DisplayFrames = preMultiviolaBindings,
             }, CamelCaseJson)))
         {
-            EnemySpritemapCatalog multiviolaUpgraded = EnemySpritemapCatalog.Load(
+            EnemySpritemapCatalog multiviolaUpgraded = EnemySpritemapDocuments.Load(
                 preMultiviolaJson, stock.Enemies.Spritemaps);
             foreach (EnemySpritemapDefinition frame in MultiviolaVisualDefinitions.Frames())
                 AssertTrue(multiviolaUpgraded.TryGetDisplay(frame.Bank, frame.Pointer, out _),
@@ -913,7 +914,7 @@ internal static class EnemySpritemapArtworkVerification
                 DisplayFrames = preDragonBindings,
             }, CamelCaseJson)))
         {
-            EnemySpritemapCatalog dragonUpgraded = EnemySpritemapCatalog.Load(
+            EnemySpritemapCatalog dragonUpgraded = EnemySpritemapDocuments.Load(
                 preDragonJson, stock.Enemies.Spritemaps);
             foreach (EnemySpritemapDefinition frame in DragonVisualDefinitions.Frames())
                 AssertTrue(dragonUpgraded.TryGetDisplay(frame.Bank, frame.Pointer, out _),
@@ -935,7 +936,7 @@ internal static class EnemySpritemapArtworkVerification
                 DisplayFrames = preTripperKamerBindings,
             }, CamelCaseJson)))
         {
-            EnemySpritemapCatalog platformUpgraded = EnemySpritemapCatalog.Load(
+            EnemySpritemapCatalog platformUpgraded = EnemySpritemapDocuments.Load(
                 preTripperKamerJson, stock.Enemies.Spritemaps);
             foreach (EnemySpritemapDefinition frame in TripperKamerVisualDefinitions.Frames())
                 AssertTrue(platformUpgraded.TryGetDisplay(frame.Bank, frame.Pointer, out _),
@@ -958,7 +959,7 @@ internal static class EnemySpritemapArtworkVerification
                 DisplayFrames = preShaktoolBindings,
             }, CamelCaseJson)))
         {
-            EnemySpritemapCatalog shaktoolUpgraded = EnemySpritemapCatalog.Load(
+            EnemySpritemapCatalog shaktoolUpgraded = EnemySpritemapDocuments.Load(
                 preShaktoolJson, stock.Enemies.Spritemaps);
             foreach (EnemySpritemapDefinition frame in ShaktoolVisualDefinitions.Frames())
                 AssertTrue(shaktoolUpgraded.TryGetDisplay(frame.Bank, frame.Pointer, out _),
@@ -1242,7 +1243,7 @@ internal static class EnemySpritemapArtworkVerification
         EnemySpritemapCatalog LoadSpritemapOverride()
         {
             using FileStream json = File.OpenRead(overridePath);
-            return EnemySpritemapCatalog.Load(json, stock.Enemies.Spritemaps);
+            return EnemySpritemapDocuments.Load(json, stock.Enemies.Spritemaps);
         }
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(document,
             CamelCaseJson));

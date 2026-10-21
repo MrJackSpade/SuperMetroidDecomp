@@ -14,6 +14,9 @@ internal sealed class EnemyPresentation
     /// <summary>Room artwork binding used to resolve enemy display compositions.</summary>
     private readonly EnemyRoomBinding _room;
 
+    /// <summary>The installed word each enemy frame identity shows.</summary>
+    internal IEnemyFrameWords Frames => _room.Frames;
+
     /// <summary>Binds enemy presentation to its room's installed artwork catalog.</summary>
     internal EnemyPresentation(EnemyRoomBinding room)
     {
@@ -91,7 +94,7 @@ internal sealed class EnemyPresentation
         // The common empty frame is compiled definition data, not missing artwork.
         if (draw.Frame == EnemyFrameId.Empty)
             return;
-        if (_room.Artwork?.Spritemaps?.TryGetDisplay(EnemyFrames.Bank(draw.Frame), EnemyFrames.Spritemap(draw.Frame),
+        if (_room.Artwork?.Spritemaps?.TryGetDisplay(_room.Frames.Bank(draw.Frame), _room.Frames.Spritemap(draw.Frame),
                 out EnemySpritemapParts installed) == true)
         {
             ushort paletteBits = checked((ushort)draw.PaletteBits);

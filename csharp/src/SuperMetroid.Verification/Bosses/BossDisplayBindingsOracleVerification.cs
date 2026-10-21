@@ -66,7 +66,7 @@ internal static class BossDisplayBindingsOracleVerification
                 continue;
             }
             int sprites = source.ReadCartridgeWord(Address(visual));
-            AssertTrue(sprites <= EnemySpritemapDefinitions.MaximumParts, "native oracle OAM count is bounded");
+            AssertTrue(sprites <= EnemySpritemapCatalog.MaximumParts, "native oracle OAM count is bounded");
             var parts = new SpritemapPart[sprites];
             for (int index = 0; index < sprites; index++)
             {

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.World.Artwork;
 using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Programs;
 using static SuperMetroid.Verification.Enemies.Deaths.EnemyDeathProjectilePrograms;
@@ -57,7 +58,7 @@ internal static class RidleyBreakupProgramsVerification
         }
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         byte[] stockBytes = EnemySpritemapFiles.Extract(rom);
-        var stock = EnemySpritemapCatalog.Load(new MemoryStream(stockBytes));
+        var stock = EnemySpritemapDocuments.Load(new MemoryStream(stockBytes));
         var options = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
         var document = RequiredJson.Deserialize<EnemySpritemapDocument>(stockBytes, options);
         var previous = EnemySpritemapDefinitions.Frames.Take(EnemySpritemapDefinitions.PreRidleyBreakupFrameCount).ToArray();
@@ -70,10 +71,10 @@ internal static class RidleyBreakupProgramsVerification
         string edited = previous[0].Name;
         legacy.Frames[edited] = [legacy.Frames[edited][0] with { OffsetX = -11 }];
         byte[] legacyBytes = JsonSerializer.SerializeToUtf8Bytes(legacy, options);
-        var merged = EnemySpritemapCatalog.Load(new MemoryStream(legacyBytes), stock);
+        var merged = EnemySpritemapDocuments.Load(new MemoryStream(legacyBytes), stock);
         AssertTrue(merged.TryGetDisplay(previous[0].Bank, previous[0].Pointer, out var parts), "schema-68 override retains existing frame");
         AssertEqual(-11, parts[0].X.SignedOffset, "schema-68 edit survives stock refresh");
-        AssertThrows<InvalidDataException>(() => EnemySpritemapCatalog.Load(new MemoryStream(legacyBytes)), "schema-68 incomplete stock requires refresh");
+        AssertThrows<InvalidDataException>(() => EnemySpritemapDocuments.Load(new MemoryStream(legacyBytes)), "schema-68 incomplete stock requires refresh");
         enemies.TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(), Spritemaps = merged });
         // VerifyRidleyAnimations matches each typed breakup program to its native list; this draws every pose.
         foreach (RidleyBreakupFrame frame in Enum.GetValues<RidleyBreakupFrame>())

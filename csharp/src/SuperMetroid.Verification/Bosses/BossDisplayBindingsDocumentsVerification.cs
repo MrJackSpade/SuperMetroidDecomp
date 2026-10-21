@@ -1,3 +1,4 @@
+using SuperMetroid.Core.World.Artwork;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Core.Areas;
@@ -50,7 +51,7 @@ internal static class BossDisplayBindingsDocumentsVerification
 
         /// <summary>Loads fixture documents into an artwork catalog, optionally omitting one BG2 family.</summary>
         internal InstalledEnemyArtwork Build(bool extended = true, byte? omitBg2Bank = null) => new(
-            EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(), ExtendedFrames = extended ? EnemyExtendedFrameCatalog.Load(json.Json(Oam)) : null }),
+            EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(), ExtendedFrames = extended ? EnemyExtendedFrameDocuments.Load(json.Json(Oam)) : null }),
             new BossArtworkCatalog { CrocomireBg2Frames = omitBg2Bank == CrocomireBg2FrameDefinitions.Bank ? null : CrocomireBg2FrameCatalog.Load(json.Json(Crocomire)), PhantoonBg2Frames = omitBg2Bank == PhantoonBg2FrameDefinitions.Bank ? null : PhantoonBg2FrameCatalog.Load(json.Json(Phantoon)), DraygonBg2Frames = omitBg2Bank == DraygonBg2FrameDefinitions.Bank ? null : DraygonBg2FrameCatalog.Load(json.Json(Draygon)) },
             new AreaArtworkCatalog());
 

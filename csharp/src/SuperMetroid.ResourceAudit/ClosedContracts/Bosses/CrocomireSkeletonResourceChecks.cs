@@ -4,6 +4,7 @@ using SuperMetroid.Core.Bosses.Crocomire.Artwork;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.ResourceAudit.ClosedContracts.Enemies;
 using SuperMetroid.ResourceAudit.Resources;
+using SuperMetroid.Core.World.Artwork;
 
 namespace SuperMetroid.ResourceAudit.ClosedContracts.Bosses;
 

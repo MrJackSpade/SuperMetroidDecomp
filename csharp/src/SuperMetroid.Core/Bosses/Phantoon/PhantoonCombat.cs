@@ -4,7 +4,6 @@ using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Samus.Projectiles;
-using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Progression;
 
@@ -151,7 +150,7 @@ internal sealed class PhantoonCombat
 
         RoomEnemySlot body = state.Body;
         if (body.EnemyDefinitionPointer != EnemyDefinitionId.PhantoonBody ||
-            CommonEnemyEmptyExtendedFrameDefinitions.DrawsNothing(EnemyFrames.Spritemap(body.Frame)) ||
+            CommonEnemyEmptyExtendedFrameDefinitions.DrawsNothing(_room.Frames.Spritemap(body.Frame)) ||
             !body.InvincibilityTimer.IsZero ||
             body.Properties.HasAny(
                 EnemyProperties.Deleted |
@@ -657,7 +656,7 @@ internal sealed class PhantoonCombat
         // data. Preserve the native component and rectangle order from
         // the compiled bank-$A7 definitions, including point no-ops.
         foreach (PhantoonCollisionComponent component in
-                 PhantoonCollisionDefinitions.ComponentsAt(EnemyFrames.Spritemap(enemy.Frame)))
+                 PhantoonCollisionDefinitions.ComponentsAt(probe.Frames.Spritemap(enemy.Frame)))
         {
             Position16<RoomPixels> componentOrigin = enemy.Position.Whole + component.Offset;
             foreach (PhantoonCollisionHitbox hitbox in component.Hitboxes)

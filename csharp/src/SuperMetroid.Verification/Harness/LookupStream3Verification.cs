@@ -1,3 +1,4 @@
+using SuperMetroid.Core.World.Artwork;
 using SuperMetroid.Core.Frontend.Options;
 using SuperMetroid.Verification.Enemies.Projectiles;
 using SuperMetroid.Verification.Enemies.Deaths;
@@ -2652,7 +2653,7 @@ internal static class LookupStream3Verification
                 };
             }).ToArray();
         }
-        EnemySpritemapCatalog Load() => EnemySpritemapCatalog.Load(new MemoryStream(
+        EnemySpritemapCatalog Load() => EnemySpritemapDocuments.Load(new MemoryStream(
             System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options)));
         void Check(EnemySpritemapCatalog catalog)
         {

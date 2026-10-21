@@ -1,4 +1,6 @@
-﻿namespace SuperMetroid.Core.Enemies.Artwork;
+﻿using SuperMetroid.Core.Enemies.Artwork;
+
+namespace SuperMetroid.Core.World.Artwork;
 
 /// <summary>How many frames each enemy spritemap schema holds.</summary>
 internal static class EnemySpritemapFrameCounts

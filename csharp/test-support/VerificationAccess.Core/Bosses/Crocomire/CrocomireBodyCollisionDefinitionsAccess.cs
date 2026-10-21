@@ -1,3 +1,4 @@
+using SuperMetroid.Core.World.Artwork;
 using SuperMetroid.Core.Enemies;
 
 namespace SuperMetroid.Core.Bosses.Crocomire;
@@ -10,13 +11,13 @@ internal static class CrocomireBodyCollisionDefinitionsAccess
     {
         /// <summary>Whether the living or defeated body frame at native address <paramref name="frame"/> has compiled collision.</summary>
         internal static bool HasFrame(ushort frame) => RoomEnemySlotFrameAccess.Shows(CrocomireBodyCollisionDefinitions.Bank, frame)
-            ? CrocomireBodyCollisionDefinitions.HasFrame(RoomEnemySlotFrameAccess.FrameAt(CrocomireBodyCollisionDefinitions.Bank, frame))
+            ? CrocomireBodyCollisionDefinitions.HasFrame(EnemyFrames.Installed, RoomEnemySlotFrameAccess.FrameAt(CrocomireBodyCollisionDefinitions.Bank, frame))
             : CrocomireCorpseCollisionDefinitions.HasFrame(frame);
 
         /// <summary>The components of the living or defeated body frame at native address <paramref name="frame"/>.</summary>
         internal static ReadOnlySpan<CrocomireBodyCollisionComponent> ComponentsAt(ushort frame) =>
             RoomEnemySlotFrameAccess.Shows(CrocomireBodyCollisionDefinitions.Bank, frame)
-                ? CrocomireBodyCollisionDefinitions.ComponentsAt(RoomEnemySlotFrameAccess.FrameAt(CrocomireBodyCollisionDefinitions.Bank, frame))
+                ? CrocomireBodyCollisionDefinitions.ComponentsAt(EnemyFrames.Installed, RoomEnemySlotFrameAccess.FrameAt(CrocomireBodyCollisionDefinitions.Bank, frame))
                 : CrocomireCorpseCollisionDefinitions.ComponentsAt(frame);
     }
 }

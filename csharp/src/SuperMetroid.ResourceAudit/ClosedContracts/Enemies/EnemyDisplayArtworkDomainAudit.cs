@@ -1,6 +1,7 @@
 using Microsoft.CodeAnalysis.Operations;
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Enemies.Drawing;
+using SuperMetroid.Core.World.Artwork;
 
 namespace SuperMetroid.ResourceAudit.ClosedContracts.Enemies;
 

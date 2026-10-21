@@ -3,7 +3,6 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Samus.Movement;
 using SuperMetroid.Core.Samus.Projectiles;
-using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Bosses.MotherBrain;
@@ -300,7 +299,7 @@ internal sealed class MotherBrainCombat
 
         // Body and head walk the same bank-$A9 roots; the head's dummy list keeps $A320.
         foreach (MotherBrainCollisionComponent component in
-                 MotherBrainCollisionDefinitions.ComponentsAt(EnemyFrames.Spritemap(enemy.Frame)))
+                 MotherBrainCollisionDefinitions.ComponentsAt(probe.Frames.Spritemap(enemy.Frame)))
         {
             Position16<RoomPixels> componentOrigin = enemy.Position.Whole + component.Offset;
             ushort componentX = componentOrigin.X;

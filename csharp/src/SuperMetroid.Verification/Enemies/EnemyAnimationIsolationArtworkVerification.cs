@@ -1,3 +1,4 @@
+using SuperMetroid.Core.World.Artwork;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
@@ -50,8 +51,8 @@ internal static class EnemyAnimationIsolationArtworkVerification
             projectile.Frames[name] = EditedAnimationParts(5);
         foreach (string name in (projectile.ProgramFrames ?? throw new InvalidOperationException("Verification requires projectile.ProgramFrames.")).Keys.ToArray())
             projectile.ProgramFrames[name] = EditedAnimationParts(7);
-        return fixture.Build(EnemySpritemapCatalog.Load(fixture.Json(ordinary)),
-            EnemyExtendedFrameCatalog.Load(fixture.Json(extended)),
+        return fixture.Build(EnemySpritemapDocuments.Load(fixture.Json(ordinary)),
+            EnemyExtendedFrameDocuments.Load(fixture.Json(extended)),
             EnemyProjectileSpritemapCatalog.Load(fixture.Json(projectile)));
     }
 

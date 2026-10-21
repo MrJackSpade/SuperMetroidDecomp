@@ -1,6 +1,7 @@
 ﻿using SuperMetroid.Core.Areas.Ceres.Artwork;
+using SuperMetroid.Core.Enemies.Artwork;
 
-namespace SuperMetroid.Core.Enemies.Artwork;
+namespace SuperMetroid.Core.World.Artwork;
 
 /// <summary>The enemy spritemap frames named outside a schema's numbered list.</summary>
 internal static class EnemyNamedSpritemapFrameDefinitions

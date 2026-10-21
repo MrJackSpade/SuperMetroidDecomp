@@ -1,13 +1,17 @@
 using SuperMetroid.Core.Enemies.Drawing;
+using SuperMetroid.Core.Enemies.Artwork;
 
-namespace SuperMetroid.Core.Enemies.Artwork;
+namespace SuperMetroid.Core.World.Artwork;
 
 /// <summary>
 /// The presentation boundary of enemy frames: the installed spritemap or extended frame an <see cref="EnemyFrameId"/>
 /// shows, bound to the installed schemas by composition name.
 /// </summary>
-internal static class EnemyFrames
+internal sealed class EnemyFrames : IEnemyFrameWords
 {
+    /// <summary>The binding of the installed enemy-bank frame schema.</summary>
+    internal static EnemyFrames Installed { get; } = new();
+
     /// <summary>Each catalogued frame's installed spritemap or extended-frame word.</summary>
     private static readonly Lazy<Dictionary<EnemyFrameId, ushort>> Words = new(Bind);
 
@@ -41,7 +45,7 @@ internal static class EnemyFrames
     }
 
     /// <summary>The enemy bank holding installed composition <paramref name="frame"/>.</summary>
-    internal static byte Bank(EnemyFrameId frame) => Banks.Value.TryGetValue(frame, out byte bank)
+    public byte Bank(EnemyFrameId frame) => Banks.Value.TryGetValue(frame, out byte bank)
         ? bank
         : throw new ArgumentOutOfRangeException(nameof(frame), frame, "A shared empty frame belongs to no single bank.");
 
@@ -50,10 +54,10 @@ internal static class EnemyFrames
         Enum.Parse<EnemyFrameId>(string.Concat(name.Split('_').Select(part => part.Length == 0 ? part : char.ToUpperInvariant(part[0]) + part[1..])));
 
     /// <summary>The bank-local word of the frame an enemy shows, zero before it shows any.</summary>
-    internal static ushort Spritemap(EnemyFrameId? frame) => frame is { } shown ? Spritemap(shown) : (ushort)0;
+    public ushort Spritemap(EnemyFrameId? frame) => frame is { } shown ? Spritemap(shown) : (ushort)0;
 
     /// <summary>The bank-local word of the spritemap or extended frame <paramref name="frame"/> shows, in the enemy's bank.</summary>
-    internal static ushort Spritemap(EnemyFrameId frame) => Words.Value.TryGetValue(frame, out ushort word)
+    public ushort Spritemap(EnemyFrameId frame) => Words.Value.TryGetValue(frame, out ushort word)
         ? word
         : throw new ArgumentOutOfRangeException(nameof(frame), frame, "No installed composition shows this enemy frame.");
 }

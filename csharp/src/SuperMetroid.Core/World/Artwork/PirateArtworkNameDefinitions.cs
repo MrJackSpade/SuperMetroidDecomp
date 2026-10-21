@@ -1,4 +1,4 @@
-namespace SuperMetroid.Core.Enemies.Artwork;
+namespace SuperMetroid.Core.World.Artwork;
 
 /// <summary>Published artwork keys in first-seen instruction-frame order.
 /// Action, facing and local animation ordinal determine each key; native

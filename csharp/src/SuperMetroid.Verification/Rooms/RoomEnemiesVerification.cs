@@ -1,3 +1,4 @@
+using SuperMetroid.Core.World.Artwork;
 using SuperMetroid.Core.Areas;
 using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Core.Areas.Ceres;
@@ -581,7 +582,7 @@ internal static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool 
     };
     using var spriteJson = new MemoryStream(System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(
         spriteDocument, CamelCaseJson));
-    enemies.TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = sheets, Palettes = palettes, Spritemaps = EnemySpritemapCatalog.Load(spriteJson) });
+    enemies.TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = sheets, Palettes = palettes, Spritemaps = EnemySpritemapDocuments.Load(spriteJson) });
     var shakenOam = new OamBuffer();
     ripper.FrameCounter = 0;
     ripper.ShakeTimer = NativeCountdown.Start(2);
@@ -897,7 +898,7 @@ internal static void VerifyCeresRidleyRoomEntry()
             {
                 [definitionPointer] = EnemyPaletteSheet.Load(new MemoryStream(
                     EnemyPaletteSheet.Write(new EnemyPaletteSheetDocument { Version = 1, Colors = fixturePalette }))),
-            }, Spritemaps = EnemySpritemapCatalog.Load(fixtureSpriteJson) }), AreaArtwork = new AreaArtworkCatalog { CeresDoorVisual = CreateCeresDoorFixtureVisuals(bus), CeresEscapeTiles = InstalledFixtures.AreaArtwork.CeresEscapeTiles, CeresEscapeOverlayTilemaps = InstalledFixtures.AreaArtwork.CeresEscapeOverlayTilemaps },
+            }, Spritemaps = EnemySpritemapDocuments.Load(fixtureSpriteJson) }), AreaArtwork = new AreaArtworkCatalog { CeresDoorVisual = CreateCeresDoorFixtureVisuals(bus), CeresEscapeTiles = InstalledFixtures.AreaArtwork.CeresEscapeTiles, CeresEscapeOverlayTilemaps = InstalledFixtures.AreaArtwork.CeresEscapeOverlayTilemaps },
         BossArtworkBinding =
         {
             CeresRidleyColors = CeresRidleyColorCatalog.Load(new MemoryStream(

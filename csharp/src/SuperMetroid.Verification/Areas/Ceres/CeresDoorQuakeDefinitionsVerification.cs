@@ -1,3 +1,4 @@
+using SuperMetroid.Core.World.Artwork;
 using SuperMetroid.Tooling;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using System.Text.Json;
@@ -61,7 +62,7 @@ internal static class CeresDoorQuakeDefinitionsVerification
         door.SetSpeciesState(doorState, doorState.ClearWithRecord);
         door.Position = door.Position.WithWhole(new(100, 80));
         byte[] stockJson = EnemySpritemapFiles.Extract(rom);
-        EnemySpritemapCatalog installed = EnemySpritemapCatalog.Load(
+        EnemySpritemapCatalog installed = EnemySpritemapDocuments.Load(
             new MemoryStream(stockJson, writable: false));
         enemies.TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(), Spritemaps = installed });
         short[] expectedOffsets = [0, 0, -4, -1];
@@ -99,7 +100,7 @@ internal static class CeresDoorQuakeDefinitionsVerification
         };
         byte[] editedJson = JsonSerializer.SerializeToUtf8Bytes(visual,
             CamelCaseJson);
-        enemies.TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(), Spritemaps = EnemySpritemapCatalog.Load(
+        enemies.TileArtwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(), Spritemaps = EnemySpritemapDocuments.Load(
                 new MemoryStream(editedJson, writable: false)) });
         var editedOverlay = new OamBuffer();
         editedOverlay.BeginFrame();

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.World.Artwork;
 using SuperMetroid.Core.Enemies.Polyp.Artwork;
 using SuperMetroid.Core;
 using SuperMetroid.Tooling;
@@ -29,7 +30,7 @@ internal static class SingleFrameEnemyVisualsVerification
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         var options = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
         byte[] stockBytes = EnemySpritemapFiles.Extract(rom);
-        var stock = EnemySpritemapCatalog.Load(new MemoryStream(stockBytes));
+        var stock = EnemySpritemapDocuments.Load(new MemoryStream(stockBytes));
         var document = RequiredJson.Deserialize<EnemySpritemapDocument>(stockBytes, options);
         EnemySpritemapDefinition[] previous = EnemySpritemapDefinitions.Frames
             .Take(EnemySpritemapDefinitions.PreSingleFrameFrameCount).ToArray();
@@ -42,11 +43,11 @@ internal static class SingleFrameEnemyVisualsVerification
         };
         legacy.Frames[edited] = [legacy.Frames[edited][0] with { OffsetX = -11 }];
         byte[] legacyBytes = JsonSerializer.SerializeToUtf8Bytes(legacy, options);
-        var merged = EnemySpritemapCatalog.Load(new MemoryStream(legacyBytes), stock);
+        var merged = EnemySpritemapDocuments.Load(new MemoryStream(legacyBytes), stock);
         AssertTrue(merged.TryGetDisplay(previous[0].Bank, previous[0].Pointer, out var editedParts),
             "schema-67 override retains its existing frame");
         AssertEqual(-11, editedParts[0].X.SignedOffset, "schema-67 edit survives new stock");
-        AssertThrows<InvalidDataException>(() => EnemySpritemapCatalog.Load(new MemoryStream(legacyBytes)),
+        AssertThrows<InvalidDataException>(() => EnemySpritemapDocuments.Load(new MemoryStream(legacyBytes)),
             "old stock requests reimport instead of omitting the new compositions");
 
         var enemies = new RoomEnemySystem(new EnemySession())

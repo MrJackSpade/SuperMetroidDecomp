@@ -1,3 +1,4 @@
+using SuperMetroid.Core.World.Artwork;
 using SuperMetroid.Core.Areas;
 using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.AssetExtraction.Enemies;
@@ -70,10 +71,10 @@ internal static class EnemyContentIdentityVerification
             DisplayFrames = null,
         };
         AssertEqual(stockOam.ContentIdentity,
-            EnemySpritemapCatalog.Load(baseline.Json(legacyOam), stockOam).ContentIdentity,
+            EnemySpritemapDocuments.Load(baseline.Json(legacyOam), stockOam).ContentIdentity,
             "older OAM overrides hash the merged current stock frames and bindings");
         EnemySpritemapCatalog changedOam = new EnemyIdentityFixture("oam-x").Oam();
-        AssertTrue(stockOam.ContentIdentity != EnemySpritemapCatalog.Load(baseline.Json(legacyOam), changedOam).ContentIdentity,
+        AssertTrue(stockOam.ContentIdentity != EnemySpritemapDocuments.Load(baseline.Json(legacyOam), changedOam).ContentIdentity,
             "inherited new stock OAM changes are not hidden by an unchanged old override");
 
         EnemyExtendedFrameCatalog stockExtended = baseline.Extended();
@@ -84,11 +85,11 @@ internal static class EnemyContentIdentityVerification
             DisplayFrames = null,
         };
         AssertEqual(stockExtended.ContentIdentity,
-            EnemyExtendedFrameCatalog.Load(baseline.Json(legacyExtended), stockExtended).ContentIdentity,
+            EnemyExtendedFrameDocuments.Load(baseline.Json(legacyExtended), stockExtended).ContentIdentity,
             "older extended overrides hash merged stock components and bindings");
         EnemyExtendedFrameCatalog changedExtended = new EnemyIdentityFixture("extended-x").Extended();
         AssertTrue(stockExtended.ContentIdentity !=
-            EnemyExtendedFrameCatalog.Load(baseline.Json(legacyExtended), changedExtended).ContentIdentity,
+            EnemyExtendedFrameDocuments.Load(baseline.Json(legacyExtended), changedExtended).ContentIdentity,
             "inherited new extended frames contribute to the selected identity");
 
         EnemyProjectileSpritemapCatalog stockProjectiles = baseline.Projectiles();

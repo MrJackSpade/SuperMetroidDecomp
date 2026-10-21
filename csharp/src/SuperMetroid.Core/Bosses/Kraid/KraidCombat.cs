@@ -3,7 +3,6 @@ using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Rooms.SpriteObjects;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Projectiles;
-using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Progression;
 
@@ -319,7 +318,7 @@ internal sealed class KraidCombat
         if (!(enemy.EnemyDefinitionPointer == EnemyDefinitionId.KraidFoot &&
             enemy.Definition.Bank == KraidFootCollisionDefinitions.Bank &&
             KraidFootCollisionDefinitions.TryGetComponents(
-            EnemyFrames.Spritemap(enemy.Frame), out var footComponents)))
+            probe.Frames.Spritemap(enemy.Frame), out var footComponents)))
             return null;
 
         // Kraid's foot art is replaceable, but each native extended frame
@@ -352,7 +351,7 @@ internal sealed class KraidCombat
         if (!(enemy.EnemyDefinitionPointer == EnemyDefinitionId.KraidArm &&
             enemy.Definition.Bank == KraidArmCollisionDefinitions.Bank &&
             KraidArmCollisionDefinitions.TryGetComponents(
-            EnemyFrames.Spritemap(enemy.Frame), out var kraidComponents)))
+            probe.Frames.Spritemap(enemy.Frame), out var kraidComponents)))
             return null;
 
         // Kraid's arm art is editable, but the native extended spritemap

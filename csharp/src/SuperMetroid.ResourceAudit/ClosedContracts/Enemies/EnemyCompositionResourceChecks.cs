@@ -1,3 +1,4 @@
+using SuperMetroid.Core.World.Artwork;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
@@ -90,7 +91,7 @@ internal static class EnemyCompositionResourceChecks
     /// <summary>Loads a constructed composition document, optionally merging missing entries from stock.</summary>
     private static EnemySpritemapCatalog Load(EnemySpritemapDocument document,
         EnemySpritemapCatalog? stock = null) =>
-        EnemySpritemapCatalog.Load(new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(document,
+        EnemySpritemapDocuments.Load(new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(document,
             new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase })), stock);
 
     /// <summary>Reports a failed composition resource contract with its specific reason.</summary>

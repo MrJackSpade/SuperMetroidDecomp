@@ -1,3 +1,4 @@
+using SuperMetroid.Core.World.Artwork;
 using SuperMetroid.Tooling;
 using System.Text.Json;
 using Microsoft.CodeAnalysis;
@@ -24,12 +25,12 @@ internal static class EnemyDisplayArtworkContractChecks
             Version = (int)EnemySpritemapSchema.Current, Frames = simpleFrames, DisplayFrames = simpleBindings };
         Stream Json<T>(T document) => new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(document,
             new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase }));
-        EnemySpritemapCatalog simple = EnemySpritemapCatalog.Load(Json(simpleDocument));
+        EnemySpritemapCatalog simple = EnemySpritemapDocuments.Load(Json(simpleDocument));
         EnemySpritemapDefinition simpleId = EnemySpritemapDefinitions.Frames[0];
         Require(simple.TryGetDisplay(simpleId.Bank, simpleId.Pointer, out var parts) && parts.IsEmpty,
             "installed simple binding resolves authored parts");
         simpleBindings[simpleId.Name] = "unowned-target";
-        Reject(() => EnemySpritemapCatalog.Load(Json(simpleDocument)), "unowned simple display target");
+        Reject(() => EnemySpritemapDocuments.Load(Json(simpleDocument)), "unowned simple display target");
         simpleBindings[simpleId.Name] = simpleId.Name;
 
         var extendedFrames = EnemyExtendedFrameDefinitions.Frames.ToDictionary(frame => frame.Name, _ => new[] {
@@ -37,13 +38,13 @@ internal static class EnemyDisplayArtworkContractChecks
         var extendedBindings = extendedFrames.Keys.ToDictionary(name => name, name => name);
         var extendedDocument = new EnemyExtendedFrameDocument {
             Version = (int)EnemyExtendedFrameSchema.Current, Frames = extendedFrames, DisplayFrames = extendedBindings };
-        EnemyExtendedFrameCatalog extended = EnemyExtendedFrameCatalog.Load(Json(extendedDocument));
+        EnemyExtendedFrameCatalog extended = EnemyExtendedFrameDocuments.Load(Json(extendedDocument));
         EnemySpritemapDefinition extendedId = EnemyExtendedFrameDefinitions.Frames.First();
         Require(extended.TryGetDisplay(extendedId.Bank, extendedId.Pointer, out var components) && components.Length == 1 &&
             extended.TryGetDisplay(0xa5, CommonEnemyEmptyExtendedFrameDefinitions.Frame, out components) && components.IsEmpty,
             "installed extended binding and compiled empty fallback");
         extendedBindings[extendedId.Name] = "unowned-target";
-        Reject(() => EnemyExtendedFrameCatalog.Load(Json(extendedDocument)), "unowned extended display target");
+        Reject(() => EnemyExtendedFrameDocuments.Load(Json(extendedDocument)), "unowned extended display target");
         ConfirmStaticCalls(simpleId, extendedId);
     }
 

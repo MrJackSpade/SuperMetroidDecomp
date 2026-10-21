@@ -11,8 +11,9 @@ using SuperMetroid.Core.Bosses.Draygon.Artwork;
 using SuperMetroid.Core.Bosses.Kraid.Artwork;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core.Bosses.Phantoon.Artwork;
+using SuperMetroid.Core.Enemies.Artwork;
 
-namespace SuperMetroid.Core.Enemies.Artwork;
+namespace SuperMetroid.Core.World.Artwork;
 
 /// <summary>
 /// Named visual identities for Pirate, Ridley, Draygon, Spore Spawn, Ceres steam,
@@ -85,16 +86,10 @@ internal static class EnemyExtendedFrameDefinitions
     internal const int WallFrameCount = 18;
     /// <summary>Ninja Pirate frames following the wall family.</summary>
     internal const int NinjaFrameCount = 76;
-    /// <summary>Side-facing Ridley body frames in this visual catalog.</summary>
-    internal const int RidleyFrameCount = 11;
-    /// <summary>Draygon OAM component frames, separate from its BG2-only poses.</summary>
-    internal const int DraygonOamFrameCount = 48;
     /// <summary>Draygon frames whose editable content consists solely of BG2 tiles.</summary>
     internal const int DraygonBg2FrameCount = 34;
     /// <summary>Phantoon frames whose editable content consists solely of BG2 tiles.</summary>
     internal const int PhantoonBg2FrameCount = 22;
-    /// <summary>Spore Spawn OAM frames selected by its animation instructions.</summary>
-    internal const int SporeSpawnOamFrameCount = 12;
     /// <summary>Ceres steam OAM frames added after Spore Spawn identities.</summary>
     internal const int CeresSteamFrameCount = 28;
     /// <summary>Oum snail OAM frames supplied by Maridia's instruction catalog.</summary>
@@ -134,8 +129,8 @@ internal static class EnemyExtendedFrameDefinitions
         WalkingFrameCount + WallFrameCount + NinjaFrameCount;
     /// <summary>Expected complete schema length, checked against family enumeration.</summary>
     internal const int ExpectedFrameCount =
-        PirateFrameCount + RidleyFrameCount +
-        DraygonOamFrameCount + SporeSpawnOamFrameCount +
+        PirateFrameCount + BossOamFrameDefinitions.RidleyFrameCount +
+        BossOamFrameDefinitions.DraygonOamFrameCount + BossOamFrameDefinitions.SporeSpawnOamFrameCount +
         CeresSteamFrameCount + OumFrameCount + CrocomireOamFrameCount +
         CrocomireBodyFrameCount + BombTorizoDormantFrameCount +
         GoldenTorizoInitialFrameCount + KraidArmFrameCount +
@@ -217,7 +212,7 @@ internal static class EnemyExtendedFrameDefinitions
         if (ninjaCount != NinjaFrameCount || count != PirateFrameCount)
             throw new InvalidDataException(
                 $"Ninja Pirate has {ninjaCount} distinct frames; expected {NinjaFrameCount}.");
-        for (int index = 0; index < RidleyFrameCount; index++)
+        for (int index = 0; index < BossOamFrameDefinitions.RidleyFrameCount; index++)
         {
             ushort pointer = BossOamFrameDefinitions.RidleyPointer(index);
             yield return Emit(new EnemySpritemapDefinition(0xa6, pointer,
@@ -225,13 +220,13 @@ internal static class EnemyExtendedFrameDefinitions
         }
         if (count != PreDraygonFrameCount)
             throw new InvalidDataException("Draygon/Spore Spawn OAM frame catalog prefix changed.");
-        for (int index = 0; index < DraygonOamFrameCount; index++)
+        for (int index = 0; index < BossOamFrameDefinitions.DraygonOamFrameCount; index++)
         {
             ushort pointer = BossOamFrameDefinitions.DraygonPointer(index);
             yield return Emit(new EnemySpritemapDefinition(0xa5, pointer,
                 $"draygon_oam_{pointer:X4}"));
         }
-        for (int index = 0; index < SporeSpawnOamFrameCount; index++)
+        for (int index = 0; index < BossOamFrameDefinitions.SporeSpawnOamFrameCount; index++)
         {
             ushort pointer = BossOamFrameDefinitions.SporeSpawnPointer(index);
             yield return Emit(new EnemySpritemapDefinition(0xa5, pointer,

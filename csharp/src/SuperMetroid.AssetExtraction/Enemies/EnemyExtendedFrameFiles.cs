@@ -1,3 +1,4 @@
+using SuperMetroid.Core.World.Artwork;
 using SuperMetroid.Core;
 using System.Text.Json;
 using SuperMetroid.Core.Hardware;
@@ -41,7 +42,7 @@ internal static class EnemyExtendedFrameFiles
                     .ToDictionary(frame => frame.Name, frame => frame.Name,
                         StringComparer.Ordinal),
             }, CamelCaseIndentedJson);
-        _ = EnemyExtendedFrameCatalog.Load(new MemoryStream(json, writable: false));
+        _ = EnemyExtendedFrameDocuments.Load(new MemoryStream(json, writable: false));
         return json;
     }
 

@@ -109,12 +109,12 @@ internal static class CrocomireBodyCollisionDefinitions
     };
 
     /// <summary>Accepts a living-body frame or delegates defeated-body frames to the corpse catalog.</summary>
-    internal static bool HasFrame(EnemyFrameId? frame) => Frames.Contains(frame) ||
-        CrocomireCorpseCollisionDefinitions.HasFrame(EnemyFrames.Spritemap(frame));
+    internal static bool HasFrame(IEnemyFrameWords frames, EnemyFrameId? frame) => Frames.Contains(frame) ||
+        CrocomireCorpseCollisionDefinitions.HasFrame(frames.Spritemap(frame));
 
     /// <summary>Finds the physical components, each with its own hitbox list, for a living or defeated frame.</summary>
-    internal static ReadOnlySpan<CrocomireBodyCollisionComponent> ComponentsAt(EnemyFrameId? frame) =>
+    internal static ReadOnlySpan<CrocomireBodyCollisionComponent> ComponentsAt(IEnemyFrameWords frames, EnemyFrameId? frame) =>
         Frames.TryGet(frame, out CrocomireBodyCollisionComponent[] components)
             ? components
-            : CrocomireCorpseCollisionDefinitions.ComponentsAt(EnemyFrames.Spritemap(frame));
+            : CrocomireCorpseCollisionDefinitions.ComponentsAt(frames.Spritemap(frame));
 }

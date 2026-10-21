@@ -1,3 +1,4 @@
+using SuperMetroid.Core.World.Artwork;
 using SuperMetroid.Tooling;
 using System.Text.Json;
 using SuperMetroid.Core.Hardware;
@@ -68,7 +69,7 @@ internal static class BotwoonVisualsVerification
                 Frames = previousFrames,
                 DisplayFrames = previousBindings,
             }, CamelCaseJson));
-        EnemySpritemapCatalog upgraded = EnemySpritemapCatalog.Load(
+        EnemySpritemapCatalog upgraded = EnemySpritemapDocuments.Load(
             previousJson, stock.Spritemaps);
         foreach (EnemySpritemapDefinition frame in BotwoonVisualDefinitions.Frames())
             AssertTrue(upgraded.TryGetDisplay(frame.Bank, frame.Pointer, out _),

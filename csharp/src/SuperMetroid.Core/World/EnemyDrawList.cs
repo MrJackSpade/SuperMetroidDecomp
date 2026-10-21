@@ -111,7 +111,7 @@ internal sealed class EnemyDrawList
                         $"Enemy ${(int)slot.EnemyDefinitionPointer:X4} draws before showing a frame.");
                     // Only the enemy banks carrying the shared empty record can show the common empty frame.
                     if (frame == EnemyFrameId.Empty &&
-                        !CommonEnemyEmptyExtendedFrameDefinitions.HasEmptySpritemap(slot.Definition.Bank, EnemyFrames.Spritemap(frame)))
+                        !CommonEnemyEmptyExtendedFrameDefinitions.HasEmptySpritemap(slot.Definition.Bank, _room.Frames.Spritemap(frame)))
                         throw new InvalidDataException(
                             $"Enemy ${(int)slot.EnemyDefinitionPointer:X4} in bank ${slot.Definition.Bank:X2} has no common empty frame.");
                     prepared.Add(new PreparedEnemyDraw(layer, slot, nativeIndex, origin, drawPaletteIndex, frame, null));
@@ -119,14 +119,14 @@ internal sealed class EnemyDrawList
                 }
 
                 if (_room.Artwork?.ExtendedFrames?.TryGetDisplay(slot.Definition.Bank,
-                        EnemyFrames.Spritemap(slot.Frame),
+                        _room.Frames.Spritemap(slot.Frame),
                         out ReadOnlyMemory<EnemyExtendedDrawComponent> installed) == true)
                 {
                     // Resolve both halves through one presentation binding. Validate
                     // the composition before any BG2 side effects; physical selectors
                     // continue to belong to compiled animation and collision programs.
                     ushort selected = _room.Artwork.ExtendedFrames.GetDisplayPointer(
-                        slot.Definition.Bank, EnemyFrames.Spritemap(slot.Frame));
+                        slot.Definition.Bank, _room.Frames.Spritemap(slot.Frame));
                     _instructions.ApplyInstalledEnemyBg2Frame(slot, selected);
                     prepared.Add(new PreparedEnemyDraw(layer, slot, nativeIndex, origin, drawPaletteIndex, null, installed));
                     continue;

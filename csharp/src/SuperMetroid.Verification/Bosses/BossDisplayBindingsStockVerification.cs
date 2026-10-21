@@ -20,6 +20,7 @@ using SuperMetroid.Core.Rendering;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 namespace SuperMetroid.Verification.Bosses;
 using SuperMetroid.Verification.Harness;
+using SuperMetroid.Core.World.Artwork;
 
 /// <summary>Checks stock boss display roots and installed BG2 bindings against cartridge artwork.</summary>
 internal static class BossDisplayBindingsStockVerification

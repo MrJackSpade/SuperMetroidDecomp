@@ -1,3 +1,4 @@
+using SuperMetroid.Core.World.Artwork;
 using System.Reflection;
 using static SuperMetroid.Verification.Enemies.EnemyContentIdentityFixtureVerification;
 using SuperMetroid.Core.Enemies.Artwork;
@@ -89,7 +90,7 @@ internal static class EnemyExtendedLegacyOverridesVerification
         EnemyExtendedFrameCatalog Load(EnemyExtendedFrameDocument value, EnemyExtendedFrameCatalog? baseline = null)
         {
             using var json = fixture.Json(value);
-            return EnemyExtendedFrameCatalog.Load(json, baseline);
+            return EnemyExtendedFrameDocuments.Load(json, baseline);
         }
         static string AuthoredName(EnemySpritemapDefinition frame, int version) =>
             version == (int)EnemyExtendedFrameSchema.PreSporeIdentity && frame.Name.StartsWith("spore_spawn_oam_", StringComparison.Ordinal)

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.World.Artwork;
 using SuperMetroid.Core;
 using System.Security.Cryptography;
 using System.Text;
@@ -590,10 +591,10 @@ public static class EnemyTileArtworkFiles
             // compiled once; without an override that compiled stock is the selection.
             byte[] stockComposition = ReadVerifiedStock(
                 EnemySpritemapDefinitions.FileName, manifest.EnemyCompositionsSha256);
-            EnemySpritemapCatalog stockSpritemaps = EnemySpritemapCatalog.Load(
+            EnemySpritemapCatalog stockSpritemaps = EnemySpritemapDocuments.Load(
                 new MemoryStream(stockComposition, writable: false));
             spritemaps = OverridePath(EnemySpritemapDefinitions.FileName) is { } compositionOverride
-                ? EnemySpritemapCatalog.Load(
+                ? EnemySpritemapDocuments.Load(
                     new MemoryStream(File.ReadAllBytes(compositionOverride), writable: false), stockSpritemaps)
                 : stockSpritemaps;
         }
@@ -628,10 +629,10 @@ public static class EnemyTileArtworkFiles
             // newly added Ninja art cannot discard the user's existing edits.
             byte[] stockExtendedJson = ReadVerifiedStock(
                 EnemyExtendedFrameDefinitions.FileName, manifest.EnemyExtendedCompositionsSha256);
-            EnemyExtendedFrameCatalog stockExtended = EnemyExtendedFrameCatalog.Load(
+            EnemyExtendedFrameCatalog stockExtended = EnemyExtendedFrameDocuments.Load(
                 new MemoryStream(stockExtendedJson, writable: false));
             extendedFrames = OverridePath(EnemyExtendedFrameDefinitions.FileName) is { } extendedOverride
-                ? EnemyExtendedFrameCatalog.Load(
+                ? EnemyExtendedFrameDocuments.Load(
                     new MemoryStream(File.ReadAllBytes(extendedOverride), writable: false), stockExtended)
                 : stockExtended;
         }

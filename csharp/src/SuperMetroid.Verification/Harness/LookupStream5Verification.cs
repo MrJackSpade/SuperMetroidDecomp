@@ -1,3 +1,4 @@
+using SuperMetroid.Core.World.Artwork;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Areas;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
@@ -1838,7 +1839,7 @@ internal static class LookupStream5Verification
     {
         Suite(nameof(VerifyCeresDoorQuakeDefinitions), () => VerifyCeresDoorQuakeDefinitions(rom));
         byte[] stockJson = SuperMetroid.AssetExtraction.Enemies.EnemySpritemapFiles.Extract(rom);
-        var installed = EnemySpritemapCatalog.Load(new MemoryStream(stockJson, writable: false));
+        var installed = EnemySpritemapDocuments.Load(new MemoryStream(stockJson, writable: false));
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance)
         {
             RidleyEncounter = { CeresStatus = CeresEscapeStatus.RidleyEscaped },

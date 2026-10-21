@@ -1,3 +1,4 @@
+using SuperMetroid.Core.World.Artwork;
 using SuperMetroid.Core.Areas;
 using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Core.Programs;
@@ -83,7 +84,7 @@ internal static class MotherBrainBodyPresentationVerification
             }
         }
         AssertTrue(baseline.ScrollCalls.Count > 0, "production body bytecode actually moves and counter-scrolls");
-        var missing = new MotherBrainPresentationFixture(new InstalledEnemyArtwork(EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(), ExtendedFrames = EnemyExtendedFrameCatalog.Load(author.Json(stockOam)) }), new BossArtworkCatalog(), new AreaArtworkCatalog()));
+        var missing = new MotherBrainPresentationFixture(new InstalledEnemyArtwork(EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(), ExtendedFrames = EnemyExtendedFrameDocuments.Load(author.Json(stockOam)) }), new BossArtworkCatalog(), new AreaArtworkCatalog()));
         missing.SetFrame(mixed[0].Pointer, fresh: true);
         AssertThrows<InvalidDataException>(() => missing.Draw(), "missing mixed-frame BG2 art fails explicitly");
         // Installed artwork is not part of debugger states: the room binding holds it as non-serialized, and the host
@@ -92,7 +93,7 @@ internal static class MotherBrainBodyPresentationVerification
             $"{steps} production instruction steps with unchanged movement/timing/scroll/physics, and missing-art rejection. RAM-only.");
 
         InstalledEnemyArtwork Build(EnemyExtendedFrameDocument oam, EnemyBg2FrameDocument bg2) => author.Build(
-            extendedFrames: EnemyExtendedFrameCatalog.Load(author.Json(oam)),
+            extendedFrames: EnemyExtendedFrameDocuments.Load(author.Json(oam)),
             motherBrainBodyBg2Frames: MotherBrainBodyBg2FrameCatalog.Load(author.Json(bg2)));
 
         EnemyExtendedFrameDocument BodyOam(bool edited)
@@ -165,7 +166,7 @@ internal static class MotherBrainBodyPresentationVerification
         var source = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
         MotherBrainBodyBg2FrameCatalog bg2 = MotherBrainBodyBg2FrameCatalog.Load(new MemoryStream(
             MotherBrainBodyBg2FrameFiles.Extract(source), writable: false));
-        EnemyExtendedFrameCatalog oam = EnemyExtendedFrameCatalog.Load(new MemoryStream(
+        EnemyExtendedFrameCatalog oam = EnemyExtendedFrameDocuments.Load(new MemoryStream(
             EnemyExtendedFrameFiles.Extract(source), writable: false));
         int limbs = 0, sprites = 0, runs = 0, tiles = 0;
         foreach (EnemySpritemapDefinition frame in MotherBrainBodyVisualDefinitions.Frames)

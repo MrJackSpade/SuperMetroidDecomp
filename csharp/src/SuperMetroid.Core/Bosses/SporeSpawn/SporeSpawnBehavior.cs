@@ -10,7 +10,6 @@ using SuperMetroid.Core.Rooms.SpriteObjects;
 using SuperMetroid.Core.Samus.Projectiles;
 using SuperMetroid.Core.Bosses.SporeSpawn.Artwork;
 using SuperMetroid.Core.Enemies.Drawing;
-using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Bosses.SporeSpawn;
@@ -838,7 +837,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         callback = null;
         if (!(enemy.EnemyDefinitionPointer == EnemyDefinitionId.SporeSpawn &&
             enemy.Definition.Bank == DraygonBg2FrameDefinitions.Bank &&
-            SporeSpawnCollisionDefinitions.IsFrame(EnemyFrames.Spritemap(enemy.Frame))))
+            SporeSpawnCollisionDefinitions.IsFrame(probe.Frames.Spritemap(enemy.Frame))))
             return null;
 
         // These twelve OAM frames are selected by Spore Spawn. Old visual
@@ -846,7 +845,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
         // and callback comes from the compiled gameplay catalog.
         foreach (SporeSpawnCollisionComponent component in
                  SporeSpawnCollisionDefinitions.ComponentsAt(
-                     EnemyFrames.Spritemap(enemy.Frame)))
+                     probe.Frames.Spritemap(enemy.Frame)))
         {
             Position16<RoomPixels> componentOrigin = enemy.Position.Whole + component.Offset;
             ushort componentX = componentOrigin.X;

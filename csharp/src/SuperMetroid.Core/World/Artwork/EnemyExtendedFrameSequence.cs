@@ -1,6 +1,7 @@
 using System.Collections;
+using SuperMetroid.Core.Enemies.Artwork;
 
-namespace SuperMetroid.Core.Enemies.Artwork;
+namespace SuperMetroid.Core.World.Artwork;
 
 /// <summary>Ordered view of the extended-frame catalog without a generated lookup cache.
 /// Ranges preserve the historical schema prefixes; entries are emitted by their owners.</summary>

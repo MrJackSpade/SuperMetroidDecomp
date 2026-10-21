@@ -1,3 +1,4 @@
+using SuperMetroid.Core.World.Artwork;
 using SuperMetroid.Core.Enemies.Drawing;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Hardware;
@@ -19,7 +20,7 @@ internal static class PowerBombDeathDrawingVerification
     internal static void VerifyPowerBombDeathDrawing()
     {
         var rom = CartridgeImportAddressSpaceTooling.LoadRetailRom(Path.GetFullPath("Super Metroid.smc"));
-        var spritemaps = EnemySpritemapCatalog.Load(new MemoryStream(EnemySpritemapFiles.Extract(rom)));
+        var spritemaps = EnemySpritemapDocuments.Load(new MemoryStream(EnemySpritemapFiles.Extract(rom)));
         var artwork = EnemyTileArtworkCatalog.FromArtworkForVerification(new EnemyTileArtworkParts { Sheets = new Dictionary<EnemyDefinitionId, RoomCharacterAtlas>(), Palettes = new Dictionary<EnemyDefinitionId, EnemyPaletteSheet>(), Spritemaps = spritemaps });
 
         Confirm(EnemyDefinitionId.Atomic, respawns: false, lethal: true);

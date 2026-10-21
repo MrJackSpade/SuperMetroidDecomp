@@ -11,6 +11,7 @@ using SuperMetroid.ResourceAudit.ClosedContracts.Frontend;
 using SuperMetroid.ResourceAudit.ClosedContracts.Samus;
 using SuperMetroid.ResourceAudit.PlmPrograms;
 using SuperMetroid.ResourceAudit.Reports;
+using SuperMetroid.Core.World.Artwork;
 
 namespace SuperMetroid.ResourceAudit.ClosedContracts;
 

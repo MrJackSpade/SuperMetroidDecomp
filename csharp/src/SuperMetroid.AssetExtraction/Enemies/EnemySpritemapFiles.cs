@@ -1,3 +1,4 @@
+using SuperMetroid.Core.World.Artwork;
 using SuperMetroid.Core;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
@@ -36,7 +37,7 @@ internal static class EnemySpritemapFiles
                 .ToDictionary(frame => frame.Name, frame => frame.Name,
                     StringComparer.Ordinal),
         }, CamelCaseIndentedJson);
-        _ = EnemySpritemapCatalog.Load(new MemoryStream(json, writable: false));
+        _ = EnemySpritemapDocuments.Load(new MemoryStream(json, writable: false));
         return json;
     }
 
@@ -45,7 +46,7 @@ internal static class EnemySpritemapFiles
         ISnesAddressSpace bus, byte bank, ushort pointer)
     {
         int count = CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(((int)new SnesAddress(bank, pointer)));
-        if (count > EnemySpritemapDefinitions.MaximumParts)
+        if (count > EnemySpritemapCatalog.MaximumParts)
             throw new InvalidDataException(
                 $"Enemy spritemap ${bank:X2}:{pointer:X4} has {count} parts.");
         var parts = new SpriteVisualPart[count];
@@ -59,8 +60,8 @@ internal static class EnemySpritemapFiles
             {
                 OffsetX = x.SignedOffset,
                 OffsetY = unchecked((sbyte)y),
-                TileColumn = attributes.TileNumber % EnemySpritemapDefinitions.TileColumns,
-                TileRow = attributes.TileNumber / EnemySpritemapDefinitions.TileColumns,
+                TileColumn = attributes.TileNumber % EnemySpritemapCatalog.TileColumns,
+                TileRow = attributes.TileNumber / EnemySpritemapCatalog.TileColumns,
                 Size = x.IsLarge ? 16 : 8,
                 Priority = attributes.Priority,
                 Palette = attributes.PaletteIndex,

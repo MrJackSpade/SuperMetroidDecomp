@@ -1,3 +1,4 @@
+using SuperMetroid.Core.World.Artwork;
 using SuperMetroid.Core.Areas;
 using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.AssetExtraction.Enemies;
@@ -314,7 +315,7 @@ internal static class EnemyContentIdentityFixtureVerification
             };
         }
         /// <summary>Compiles fixture OAM data through the installed spritemap loader.</summary>
-        public EnemySpritemapCatalog Oam() => EnemySpritemapCatalog.Load(Json(OamDocument()));
+        public EnemySpritemapCatalog Oam() => EnemySpritemapDocuments.Load(Json(OamDocument()));
 
         /// <summary>Builds extended sprite components with independently editable offsets and frame bindings.</summary>
         public EnemyExtendedFrameDocument ExtendedDocument()
@@ -343,7 +344,7 @@ internal static class EnemyContentIdentityFixtureVerification
             };
         }
         /// <summary>Compiles extended frame fixtures through the installed catalog loader.</summary>
-        public EnemyExtendedFrameCatalog Extended() => EnemyExtendedFrameCatalog.Load(Json(ExtendedDocument()));
+        public EnemyExtendedFrameCatalog Extended() => EnemyExtendedFrameDocuments.Load(Json(ExtendedDocument()));
 
         /// <summary>Builds ordinary and instruction-program projectile OAM frames.</summary>
         public EnemyProjectileSpritemapDocument ProjectileDocument()

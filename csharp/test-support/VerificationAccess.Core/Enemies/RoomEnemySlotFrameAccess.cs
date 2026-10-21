@@ -1,5 +1,6 @@
 using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Enemies.Drawing;
+using SuperMetroid.Core.World.Artwork;
 
 namespace SuperMetroid.Core.Enemies;
 
@@ -47,7 +48,7 @@ internal static class RoomEnemySlotFrameAccess
         /// <summary>The bank-local word of the frame the slot shows, zero before it shows any.</summary>
         internal ushort SpritemapPointer
         {
-            get => EnemyFrames.Spritemap(self.Frame);
+            get => EnemyFrames.Installed.Spritemap(self.Frame);
             set
             {
                 try

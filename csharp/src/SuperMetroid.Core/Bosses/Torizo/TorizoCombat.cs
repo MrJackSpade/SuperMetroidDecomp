@@ -2,7 +2,6 @@
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Samus.Projectiles;
-using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Bosses.Torizo;
@@ -315,7 +314,7 @@ internal sealed class TorizoCombat
             return null;
 
         foreach (GoldenTorizoCollisionComponent component in
-                 TorizoCollisionDefinitions.ComponentsAt(EnemyFrames.Spritemap(enemy.Frame)))
+                 TorizoCollisionDefinitions.ComponentsAt(probe.Frames.Spritemap(enemy.Frame)))
         {
             Position16<RoomPixels> componentOrigin = enemy.Position.Whole + component.Offset;
             ushort componentX = componentOrigin.X;

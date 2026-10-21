@@ -1,3 +1,4 @@
+using SuperMetroid.Core.World.Artwork;
 using SuperMetroid.Core.Bosses;
 using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Core.Areas;
@@ -576,7 +577,7 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
     {
         BossArtworkBinding = bossArtwork ?? new();
         AreaArtworkBinding = areaArtwork ?? new();
-        Room = new EnemyRoomBinding(session, definitions, services);
+        Room = new EnemyRoomBinding(session, definitions, services, EnemyFrames.Installed);
         // Shared collaborators first: every species owner receives the ones it uses.
         ScrollCap = new SamusScrollCap();
         RoomFx = new EnemyRoomFx();

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.World.Artwork;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Hardware;
@@ -35,13 +36,13 @@ internal static class BossDisplayBindingsResourcesVerification
         var bad = new Dictionary<string, EnemyExtendedVisualComponent[]>(stock.Oam.Frames, StringComparer.Ordinal);
         string ordinary = EnemyExtendedFrameDefinitions.Frames.First(frame => !EnemyExtendedFrameDefinitions.IsBg2Only(frame)).Name;
         bad[ordinary] = [];
-        AssertThrows<InvalidDataException>(() => EnemyExtendedFrameCatalog.Load(json.Json(stock.Oam with { Frames = bad })),
+        AssertThrows<InvalidDataException>(() => EnemyExtendedFrameDocuments.Load(json.Json(stock.Oam with { Frames = bad })),
             "empty components are permitted only on declared BG2-only physical roots");
         var cross = new Dictionary<string, string>((edits.Oam.DisplayFrames ?? throw new InvalidOperationException("Verification requires edits.Oam.DisplayFrames.")), StringComparer.Ordinal);
         string phantoon = cross.Keys.First(name => name.StartsWith("phantoon_bg2_", StringComparison.Ordinal));
         string draygon = cross.Keys.First(name => name.StartsWith("draygon_bg2_", StringComparison.Ordinal));
         cross[phantoon] = draygon;
-        AssertThrows<InvalidDataException>(() => EnemyExtendedFrameCatalog.Load(json.Json(edits.Oam with { DisplayFrames = cross })),
+        AssertThrows<InvalidDataException>(() => EnemyExtendedFrameDocuments.Load(json.Json(edits.Oam with { DisplayFrames = cross })),
             "BG2 bindings cannot select another boss's visuals");
         // Version 26 retains every prior user edit/binding and inherits the 56 new
         // stock roots. It must not discard or silently synthesize the new bindings.
@@ -58,8 +59,8 @@ internal static class BossDisplayBindingsResourcesVerification
         foreach (string name in legacy.DisplayFrames.Keys.ToArray())
             if (!legacy.Frames.ContainsKey(legacy.DisplayFrames[name])) legacy.DisplayFrames[name] = oldDraygon;
         EnemyExtendedFrameCatalog baseline = (stock.Build().Enemies.ExtendedFrames ?? throw new InvalidOperationException("Verification requires stock.Build().ExtendedFrames."));
-        EnemyExtendedFrameCatalog merged = EnemyExtendedFrameCatalog.Load(json.Json(legacy), baseline);
-        AssertEqual(merged.ContentIdentity, EnemyExtendedFrameCatalog.Load(json.Json(legacy), baseline).ContentIdentity,
+        EnemyExtendedFrameCatalog merged = EnemyExtendedFrameDocuments.Load(json.Json(legacy), baseline);
+        AssertEqual(merged.ContentIdentity, EnemyExtendedFrameDocuments.Load(json.Json(legacy), baseline).ContentIdentity,
             "schema-26 merge persists identically across reload");
         // Later schema versions also add ordinary OAM roots; only BG2-only roots must stay empty.
         foreach (EnemySpritemapDefinition frame in EnemyExtendedFrameDefinitions.Frames[EnemyExtendedFrameDefinitions.PreBg2BossBindingsFrameCount..])

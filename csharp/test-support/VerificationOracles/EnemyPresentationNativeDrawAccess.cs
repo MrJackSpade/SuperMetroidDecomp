@@ -2,6 +2,7 @@ using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.World;
+using SuperMetroid.Core.World.Artwork;
 
 namespace SuperMetroid.TestSupport.VerificationOracles;
 
@@ -23,7 +24,7 @@ internal static class EnemyPresentationNativeDrawAccess
             // The common empty frame is compiled definition data, not missing artwork.
             if (frame == EnemyFrameId.Empty)
                 return;
-            if (self.TileArtwork?.Spritemaps?.TryGetDisplay(EnemyFrames.Bank(frame), EnemyFrames.Spritemap(frame),
+            if (self.TileArtwork?.Spritemaps?.TryGetDisplay(EnemyFrames.Installed.Bank(frame), EnemyFrames.Installed.Spritemap(frame),
                     out EnemySpritemapParts installed) != true)
                 throw new InvalidDataException($"Enemy frame {frame} requires an installed display composition.");
             oam.AddEnemySpritemap(installed, new Position16<OamPixels>(draw.Origin.X, draw.Origin.Y),

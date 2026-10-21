@@ -2,13 +2,13 @@ using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Bosses.Ridley;
 using SuperMetroid.Core.Enemies;
-using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
 namespace SuperMetroid.Verification.Bosses.Ridley;
 using SuperMetroid.Verification.Harness;
 using SuperMetroid.Core.World;
+using SuperMetroid.Core.World.Artwork;
 
 /// <summary>Retail oracle checks for Ceres and Norfair Ridley body hitboxes and both production collision walkers.</summary>
 internal static class RidleyCollisionDefinitionsVerification
@@ -127,7 +127,7 @@ internal static class RidleyCollisionDefinitionsVerification
                             bool expectedCeres = NativeCeresOverlap(frame, new Position16<RoomPixels>(originX, originY),
                                 new Position16<RoomPixels>(xs[xi], ys[yi]), new Extent16<RoomPixels>(radiusX, radiusY));
                             bool actualCeres = CeresRidleyHits.ExtendedSpritemapOverlapsRectangle(
-                                compiledSlot, new Position16<RoomPixels>(xs[xi], ys[yi]), new Extent16<RoomPixels>(radiusX, radiusY));
+                                EnemyFrames.Installed, compiledSlot, new Position16<RoomPixels>(xs[xi], ys[yi]), new Extent16<RoomPixels>(radiusX, radiusY));
                             AssertEqual(expectedCeres, actualCeres,
                                 $"Ceres private Ridley projectile overlap $A6:{frame:X4}");
                         }

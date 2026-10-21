@@ -3,8 +3,9 @@ using SuperMetroid.Core.Bosses.Kraid.Artwork;
 using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.Core.Bosses.Ridley.Artwork;
 using SuperMetroid.Core.Rooms.Artwork;
+using SuperMetroid.Core.Enemies.Artwork;
 
-namespace SuperMetroid.Core.Enemies.Artwork;
+namespace SuperMetroid.Core.World.Artwork;
 
 /// <summary>
 /// Stock identities for installed enemy compositions. These are visual frame selections,
@@ -203,12 +204,6 @@ internal static class EnemySpritemapDefinitions
     internal const byte BoulderBank = 0xa6;
     /// <summary>Bank $A8 containing Atomic composition pointers.</summary>
     internal const byte AtomicBank = 0xa8;
-    /// <summary>Upper bound on sprite pieces accepted from one editable enemy composition.</summary>
-    internal const int MaximumParts = 128;
-    /// <summary>Character-sheet width in eight-pixel tiles for composition tile references.</summary>
-    internal const int TileColumns = 16;
-    /// <summary>Character-sheet height in eight-pixel tiles for composition tile references.</summary>
-    internal const int TileRows = 32;
 
     /// <summary>Two-byte part count followed by five bytes per native OAM part.</summary>
     internal static int NativeFrameBytes(int parts) => 2 + 5 * parts;

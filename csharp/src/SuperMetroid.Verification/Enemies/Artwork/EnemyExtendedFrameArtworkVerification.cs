@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Bosses.Artwork;
+using SuperMetroid.Core.World.Artwork;
 using SuperMetroid.Tooling;
 using SuperMetroid.Core;
 using System.Text.Json;
@@ -135,7 +137,7 @@ internal static class EnemyExtendedFrameArtworkVerification
         }
         Console.WriteLine("  Extended enemy OAM: every installed composition matches native component offsets, clipping, and packed sprite bytes at all three fixture origins.");
         Suite(nameof(VerifyInstalledSporeSpawnSelectorPrograms), () => VerifyInstalledSporeSpawnSelectorPrograms(rom, stock));
-        AssertEqual(EnemyExtendedFrameDefinitions.RidleyFrameCount,
+        AssertEqual(BossOamFrameDefinitions.RidleyFrameCount,
             EnemyExtendedFrameDefinitions.Frames.Count(
                 frame => frame.Name.StartsWith("ridley_body_", StringComparison.Ordinal)),
             "all Ceres/Lower Norfair Ridley body frames are installed");
@@ -200,11 +202,11 @@ internal static class EnemyExtendedFrameArtworkVerification
             EnemyExtendedFrameDefinitions.Frames.Count(
                 frame => frame.Name.StartsWith("golden_torizo_left_foot_orb_", StringComparison.Ordinal)),
             "all new Golden Torizo left-foot orb visual frames are installed");
-        AssertEqual(EnemyExtendedFrameDefinitions.DraygonOamFrameCount,
+        AssertEqual(BossOamFrameDefinitions.DraygonOamFrameCount,
             EnemyExtendedFrameDefinitions.Frames.Count(
                 frame => frame.Name.StartsWith("draygon_oam_", StringComparison.Ordinal)),
             "all selected ordinary-OAM Draygon extended frames are installed");
-        AssertEqual(EnemyExtendedFrameDefinitions.SporeSpawnOamFrameCount,
+        AssertEqual(BossOamFrameDefinitions.SporeSpawnOamFrameCount,
             EnemyExtendedFrameDefinitions.Frames.Count(
                 frame => frame.Name.StartsWith("spore_spawn_oam_", StringComparison.Ordinal)),
             "all selected Spore Spawn extended frames are installed");
@@ -309,7 +311,7 @@ internal static class EnemyExtendedFrameArtworkVerification
         EnemyExtendedFrameCatalog LoadExtendedFrameOverride()
         {
             using FileStream json = File.OpenRead(overridePath);
-            return EnemyExtendedFrameCatalog.Load(json, stock.Enemies.ExtendedFrames);
+            return EnemyExtendedFrameDocuments.Load(json, stock.Enemies.ExtendedFrames);
         }
         File.WriteAllBytes(overridePath, JsonSerializer.SerializeToUtf8Bytes(
             document, CamelCaseJson));
@@ -343,7 +345,7 @@ internal static class EnemyExtendedFrameArtworkVerification
         byte[] legacyJson = JsonSerializer.SerializeToUtf8Bytes(legacyDocument,
             CamelCaseJson);
         AssertThrows<InvalidDataException>(
-            () => EnemyExtendedFrameCatalog.Load(
+            () => EnemyExtendedFrameDocuments.Load(
                 new MemoryStream(legacyJson, writable: false)),
             "legacy extended override needs complete verified stock to merge");
         File.WriteAllBytes(overridePath, legacyJson);
@@ -392,7 +394,7 @@ internal static class EnemyExtendedFrameArtworkVerification
         byte[] versionTwoJson = JsonSerializer.SerializeToUtf8Bytes(versionTwoDocument,
             CamelCaseJson);
         AssertThrows<InvalidDataException>(
-            () => EnemyExtendedFrameCatalog.Load(
+            () => EnemyExtendedFrameDocuments.Load(
                 new MemoryStream(versionTwoJson, writable: false)),
             "v2 extended override requires complete verified v3 stock");
         File.WriteAllBytes(overridePath, versionTwoJson);

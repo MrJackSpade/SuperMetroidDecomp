@@ -1,3 +1,4 @@
+using SuperMetroid.Core.World.Artwork;
 using static SuperMetroid.Verification.Enemies.Artwork.EnemyExtendedLegacyOverridesVerification;
 using static SuperMetroid.Verification.Enemies.Projectiles.EnemyProjectileLegacyOverridesVerification;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -117,7 +118,7 @@ internal static class EnemyLegacyOverridesVerification
         EnemySpritemapCatalog Load(EnemySpritemapDocument value, EnemySpritemapCatalog? baseline = null)
         {
             using var json = fixture.Json(value);
-            return EnemySpritemapCatalog.Load(json, baseline);
+            return EnemySpritemapDocuments.Load(json, baseline);
         }
     }
 

@@ -5,7 +5,6 @@ using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Rooms;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Grapple;
-using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Bosses.Draygon;
 
@@ -246,7 +245,7 @@ internal sealed class DraygonCombat
         // component offsets and hitbox pointers remain fixed gameplay data.
         foreach (DraygonCollisionComponent component in
                  DraygonCollisionDefinitions.ComponentsAt(
-                     EnemyFrames.Spritemap(enemy.Frame)))
+                     probe.Frames.Spritemap(enemy.Frame)))
         {
             Position16<RoomPixels> componentOrigin = enemy.Position.Whole + component.Offset;
             foreach (DraygonCollisionHitbox hitbox in component.Hitboxes)

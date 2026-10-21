@@ -74,6 +74,7 @@ using SuperMetroid.Core.World;
 using SuperMetroid.Core.Escape.Artwork;
 using SuperMetroid.Core.Map;
 using SuperMetroid.Core.Progression;
+using SuperMetroid.Core.World.Artwork;
 namespace SuperMetroid.Verification.Harness;
 
 /// <summary>Compares stream-four imported definitions and runtime consumers with pinned cartridge data.</summary>
@@ -3338,7 +3339,7 @@ internal static class LookupStream4Verification
             var cgram = new SnesCgram();
             var enemies = new RoomEnemySystem(new EnemySession()) { BossArtworkBinding = { CeresRidleyColors = selected } };
             enemies.Presentation.BindCgram(cgram);
-            Func<RidleyEnemyState, ushort> advance = baby => EnemyFrames.Spritemap(enemies.CeresRidleyBehavior.BabyScene.AdvanceCeresBabyDrawInstruction(baby));
+            Func<RidleyEnemyState, ushort> advance = baby => EnemyFrames.Installed.Spritemap(enemies.CeresRidleyBehavior.BabyScene.AdvanceCeresBabyDrawInstruction(baby));
             for (int phase = 0; phase < 12; phase++)
             {
                 int cursor = 0xbf5d + phase * 8;

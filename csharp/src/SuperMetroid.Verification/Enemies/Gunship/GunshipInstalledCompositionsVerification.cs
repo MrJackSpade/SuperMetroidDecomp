@@ -1,3 +1,4 @@
+using SuperMetroid.Core.World.Artwork;
 using SuperMetroid.Tooling;
 using static SuperMetroid.Verification.Harness.RepositoryInputsVerification;
 using System.Text.Json;
@@ -64,7 +65,7 @@ internal static class GunshipInstalledCompositionsVerification
         string editedName = oldFrames[0].Name;
         legacy.Frames[editedName][0] = legacy.Frames[editedName][0] with { OffsetX = 7 };
         using var legacyJson = new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(legacy, jsonOptions));
-        var merged = EnemySpritemapCatalog.Load(legacyJson, compositions);
+        var merged = EnemySpritemapDocuments.Load(legacyJson, compositions);
         AssertTrue(merged.TryGetDisplay(oldFrames[0].Bank, oldFrames[0].Pointer, out var edited),
             "#1154 schema-60 edited frame remains resolvable");
         AssertTrue(edited.SequenceEqual(EnemySpritemapCatalog.CompileParts(legacy.Frames[editedName], editedName)),

@@ -2,7 +2,6 @@
 using SuperMetroid.Core.Rooms.SpriteObjects;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Bosses.Crocomire.Artwork;
-using SuperMetroid.Core.Enemies.Artwork;
 using SuperMetroid.Core.Rooms;
 
 namespace SuperMetroid.Core.Bosses.Crocomire;
@@ -72,7 +71,7 @@ internal sealed class CrocomireBg2
     {
         RoomEnemySlot body = state.Body;
         CrocomireBg2Scroll = CrocomireBg2Scroll.WithY(CrocomireBg2ScrollDefinitions.VerticalScroll(
-            body.Position.Y.Whole, EnemyFrames.Spritemap(body.Frame)));
+            body.Position.Y.Whole, _presentation.Frames.Spritemap(body.Frame)));
         UpdateCrocomireTongueAndBg2Horizontal(state);
     }
 

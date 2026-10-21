@@ -122,6 +122,7 @@ using SuperMetroid.Core.Bosses.MotherBrain.Artwork;
 using SuperMetroid.ResourceAudit.Reports;
 using SuperMetroid.ResourceAudit.Resources;
 using SuperMetroid.Core.Enemies.Projectiles;
+using SuperMetroid.Core.World.Artwork;
 
 namespace SuperMetroid.ResourceAudit.EnemyVisualPrograms;
 
@@ -298,7 +299,7 @@ internal static class EnemyVisualTypedProgramAudit
             nameof(EtecoonAnimations), "csharp/src/SuperMetroid.Core/Enemies/Animals/EtecoonAnimations.cs");
         RequireTypedFrames(HibashiAnimations.Programs, HibashiFrameDefinitions.Spritemap, HibashiFrameToolingDefinitions.Bank,
             nameof(HibashiAnimations), "csharp/src/SuperMetroid.Core/Enemies/Hibashi/HibashiAnimations.cs");
-        RequireTypedFrames(TourianEntranceStatueAnimations.Programs, frame => EnemyFrames.Spritemap(TourianEntranceStatueFrameDefinitions.ShownFrames.Of(frame)), TourianEntranceStatueFrameToolingDefinitions.Bank,
+        RequireTypedFrames(TourianEntranceStatueAnimations.Programs, frame => EnemyFrames.Installed.Spritemap(TourianEntranceStatueFrameDefinitions.ShownFrames.Of(frame)), TourianEntranceStatueFrameToolingDefinitions.Bank,
             nameof(TourianEntranceStatueAnimations), "csharp/src/SuperMetroid.Core/Areas/Tourian/TourianEntranceStatueAnimations.cs");
         RequireTypedFrames(WorkRobotAnimations.Programs, WorkRobotFrameToolingDefinitions.Spritemap, WorkRobotFrameToolingDefinitions.Bank,
             nameof(WorkRobotAnimations), "csharp/src/SuperMetroid.Core/Enemies/WorkRobots/WorkRobotAnimations.cs");

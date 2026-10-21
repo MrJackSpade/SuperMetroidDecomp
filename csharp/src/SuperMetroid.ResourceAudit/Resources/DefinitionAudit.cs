@@ -5,6 +5,7 @@ using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.ResourceAudit.ClosedContracts.Bosses;
 using SuperMetroid.ResourceAudit.Reports;
+using SuperMetroid.Core.World.Artwork;
 
 namespace SuperMetroid.ResourceAudit.Resources;
 

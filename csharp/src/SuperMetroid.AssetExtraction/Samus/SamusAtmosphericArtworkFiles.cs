@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core;
 using System.Security.Cryptography;
 using System.Text.Json;
@@ -43,7 +44,7 @@ public static class SamusAtmosphericArtworkFiles
         Ensure.NotNull(bus);
         ArgumentException.ThrowIfNullOrWhiteSpace(directory);
         Directory.CreateDirectory(directory);
-        int table = SamusMovementRomData.Environment.AtmosphericSpriteAttributeListPointers;
+        int table = SamusCartridgeTables.AtmosphericSpriteAttributeListPointers;
         // Only nonzero, authored pointers become extracted assets. Type two's zero
         // pointer is an intentional mutable-memory read, not a missing art record.
         AssertPointer(bus, table, 1, SamusMovementRomData.Environment.TypeOneAtmosphericAttributes);

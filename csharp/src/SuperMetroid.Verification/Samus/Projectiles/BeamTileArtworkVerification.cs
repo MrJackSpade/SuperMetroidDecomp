@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.TestSupport.RepositoryInstallation.Verification;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
@@ -94,7 +95,7 @@ internal static class BeamTileArtworkVerification
         SnesCgram cgram, VramWriteQueue? queue, ushort selection)
     {
         int tileSource = SamusProjectileRomData.Banks.CharacterData |
-            CartridgeImportSource.Require(bus).ReadCartridgeWord((SamusProjectileRomData.Beams.TilePointers + selection * 2));
+            CartridgeImportSource.Require(bus).ReadCartridgeWord((SamusCartridgeTables.TilePointers + selection * 2));
         if (vram is not null)
         {
             var bytes = new byte[BeamTileAtlasDefinitions.ByteCount];

@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Spatial;
 using SuperMetroid.Core.Frontend.FileSelect;
@@ -51,7 +52,7 @@ public static class MapLandmarkExtractor
             if (Read(elevator + elevators.Length * 6) != ushort.MaxValue)
                 throw new InvalidDataException($"Unexpected {area} elevator labels.");
         }
-        int ship = Pointer(FileSelectMapRomData.SavePointMapPointers, AreaId.Crateria);
+        int ship = Pointer(FrontendCartridgeTables.SavePointMapPointers, AreaId.Crateria);
         points.Add(MapLandmarkDefinitions.Gunship, new(Read(ship), Read(ship + 2)));
         using var stream = new MemoryStream();
         MapLandmarkLayout.Write(stream, new() { Version = MapLandmarkFormat.Version, Markers = points });

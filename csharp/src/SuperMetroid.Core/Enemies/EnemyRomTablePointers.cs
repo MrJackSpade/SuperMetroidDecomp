@@ -31,8 +31,6 @@ internal static class EnemyRomTablePointers
     {
         /// <summary>Thirty-two initial body/tail palette words at $A6:E1CF (64 bytes).</summary>
         public const int InitialPaletteWords = 0xa6e1cf;
-        /// <summary>Area-two reveal-palette source-pointer words at $A6:A4EB.</summary>
-        public const int RevealPaletteSourcePointers = 0xa6a4eb;
     }
 
     /// <summary>Tourian entrance statue palettes and instruction tables.</summary>

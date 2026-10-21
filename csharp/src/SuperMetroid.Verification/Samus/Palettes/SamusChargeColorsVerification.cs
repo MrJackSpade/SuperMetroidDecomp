@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Tooling;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
@@ -37,7 +38,7 @@ internal static class SamusChargeColorsVerification
         {
             ushort offset = (ushort)(SamusChargePaletteDefinitions.LastHyperTableByteOffset -
                 frame * sizeof(ushort));
-            ushort pointer = BlockWord(SamusProjectileRomData.Palettes.HyperBeamShotPointers + offset);
+            ushort pointer = BlockWord(SamusCartridgeTables.HyperBeamShotPointers + offset);
             AssertTrue(SamusChargePaletteDefinitions.TryHyperShot(offset, out ushort compiledPointer),
                 "all native Hyper-shot entries are compiled");
             AssertEqual(pointer, compiledPointer, $"Hyper-shot frame {frame} pointer");
@@ -184,7 +185,7 @@ internal static class SamusChargeColorsVerification
             }
             for (int suit = 0; suit < 3; suit++)
             {
-                int table = family == 0 ? SamusProjectileRomData.Palettes.BeamChargePointers : SamusProjectileRomData.Palettes.PseudoScrewPointers;
+                int table = family == 0 ? SamusCartridgeTables.BeamChargePointers : SamusCartridgeTables.PseudoScrewPointers;
                 ushort list = Word(table + suit * 2);
                 for (int phase = 0; phase < 6; phase++)
                 {
@@ -219,13 +220,13 @@ internal static class SamusChargeColorsVerification
             deathSuited[suit] = new ushort[10][];
             for (int palette = 0; palette < 10; palette++)
             {
-                ushort pointer = Word(SamusPaletteRomData.Death.SuitPointers + (suit * 10 + palette) * 2);
+                ushort pointer = Word(SamusCartridgeTables.SuitPointers + (suit * 10 + palette) * 2);
                 deathSuited[suit][palette] = Enumerable.Range(0, 16).Select(color => Word(0x9b0000 | (pointer + color * 2))).ToArray();
             }
         }
         for (int palette = 0; palette < 10; palette++)
         {
-            ushort pointer = Word(SamusPaletteRomData.Death.SuitlessPointers + palette * 2);
+            ushort pointer = Word(SamusCartridgeTables.SuitlessPointers + palette * 2);
             deathSuitless[palette] = Enumerable.Range(0, 16).Select(color => Word(0x9b0000 | (pointer + color * 2))).ToArray();
         }
         var whiteout = Enumerable.Range(0, SamusPaletteRomData.Death.WhiteoutShadeCount)

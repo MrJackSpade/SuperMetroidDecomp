@@ -79,14 +79,8 @@ public static class SamusRenderingRomData
     /// <summary>Seven-byte body-character DMA definitions and their fixed destinations.</summary>
     public static class TileTransfers
     {
-        /// <summary><c>$92:D94E</c>, animation-record-list pointer for each pose.</summary>
-        public const int AnimationDefinitionListPointers = 0x92d94e;
 
-        /// <summary><c>$92:D91E</c>, top-definition-list pointer for each graphics set.</summary>
-        public const int TopDefinitionListPointers = 0x92d91e;
 
-        /// <summary><c>$92:D938</c>, bottom-definition-list pointer for each graphics set.</summary>
-        public const int BottomDefinitionListPointers = 0x92d938;
 
         /// <summary>Bottom-set sentinel meaning that a frame does not upload lower-body art.</summary>
         public const byte NoBottomTransferSet = 0xff;
@@ -104,14 +98,10 @@ public static class SamusRenderingRomData
     /// <summary>Arm-cannon cover state, OAM, character-list, and DMA definitions.</summary>
     public static class ArmCannon
     {
-        /// <summary><c>$90:C7DF</c>, pose-indexed drawing-data pointers.</summary>
-        public const int PoseDrawingDataPointers = 0x90c7df;
 
         /// <summary><c>$90:C791</c>, packed OBJ attributes for ten directions.</summary>
         public const int SpriteAttributes = 0x90c791;
 
-        /// <summary><c>$90:C7A5</c>, direction-indexed tile-list pointers.</summary>
-        public const int TileListPointers = 0x90c7a5;
 
         /// <summary>Bytes uploaded for the cover's single 4bpp 8x8 character.</summary>
         public const ushort TileUploadByteCount = 0x20;

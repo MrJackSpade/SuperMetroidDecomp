@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core.Samus.Drawing;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Hardware;
@@ -70,7 +71,7 @@ static void SeedCrystalFlashCartridge(TestAddressSpace bus)
     for (int frame = 0; frame < CrystalFlashColorFormat.BodyFrameCount; frame++)
         WriteTestWord(bus, SamusPaletteRomData.CrystalFlash.BodyRecords + frame * 4, 0x9500);
     for (int frame = 0; frame < CrystalFlashColorFormat.BubbleFrameCount; frame++)
-        WriteTestWord(bus, SamusPaletteRomData.CrystalFlash.BubblePointers + frame * 2, 0x9620);
+        WriteTestWord(bus, SamusCartridgeTables.BubblePointers + frame * 2, 0x9620);
     WriteTestWord(bus, 0x91dc02, 10);
     WriteTestWord(bus, 0x91dc28, 0x9600);
     WriteTestWord(bus, 0x91dc2a, 0x9620);

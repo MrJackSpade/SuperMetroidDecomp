@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core;
 using System.Security.Cryptography;
 using System.Text.Json;
@@ -43,7 +44,7 @@ public static class SamusArmCannonArtworkFiles
         Directory.CreateDirectory(directory);
         int[] pointers = Enumerable.Range(0, SamusBodyArtworkCatalog.PoseCount)
             .Select(pose => (int)RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
-                SamusRenderingRomData.ArmCannon.PoseDrawingDataPointers + pose * 2)).ToArray();
+                SamusCartridgeTables.PoseDrawingDataPointers + pose * 2)).ToArray();
         int[] drawingData = Enumerable.Range(0, SamusArmCannonArtworkFormat.DrawingDataByteCount)
             .Select(index => (int)bus.ReadCartridgeByte(SamusRenderingRomData.Banks.Movement |
                 (SamusArmCannonArtworkFormat.DrawingDataStart + index))).ToArray();
@@ -54,7 +55,7 @@ public static class SamusArmCannonArtworkFiles
             .Select(direction =>
             {
                 ushort list = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
-                    SamusRenderingRomData.ArmCannon.TileListPointers + direction * 2);
+                    SamusCartridgeTables.TileListPointers + direction * 2);
                 return Enumerable.Range(0, SamusArmCannonArtworkFormat.FramesPerDirection)
                     .Select(frame => (int)RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
                         SamusRenderingRomData.Banks.Movement | (list + frame * 2))).ToArray();

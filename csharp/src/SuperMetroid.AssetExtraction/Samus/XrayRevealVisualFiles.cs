@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core.Samus.Abilities.Artwork;
 using SuperMetroid.Core;
 using System.Security.Cryptography;
@@ -84,7 +85,7 @@ public static class XrayRevealVisualFiles
         ushort[] itemMetatiles = Enumerable.Range(0, XrayOverlayRomData.DynamicGraphicsSlots * 2)
             .Select(slot =>
             {
-                ushort pointer = CartridgeImportSource.Require(bus).ReadCartridgeWord((XrayOverlayRomData.ItemDrawPointers + slot * sizeof(ushort)));
+                ushort pointer = CartridgeImportSource.Require(bus).ReadCartridgeWord((SamusCartridgeTables.ItemDrawPointers + slot * sizeof(ushort)));
                 if (pointer is < SnesBusLayout.RomWindowStart or > ushort.MaxValue - 3)
                     throw new InvalidDataException($"X-ray item draw pointer ${pointer:X4} is invalid.");
                 return new RoomLevelWord(CartridgeImportSource.Require(bus).ReadCartridgeWord((XrayOverlayRomData.ItemBank | (pointer + 2)))).VisualWord;

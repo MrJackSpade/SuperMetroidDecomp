@@ -79,8 +79,6 @@ public static class SamusProjectileRomData
         public const int XAccelerations = 0x90c353;
         /// <summary>Direction-indexed Y acceleration words.</summary>
         public const int YAccelerations = 0x90c367;
-        /// <summary>Beam-combination-indexed character-data pointers.</summary>
-        public const int TilePointers = 0x90c3b1;
         /// <summary>Beam-combination-indexed palette pointers at <c>$90:C3C9..C3E0</c>.</summary>
         /// <remarks>
         /// The twelve stock little-endian words select one of five bank-$90
@@ -115,12 +113,6 @@ public static class SamusProjectileRomData
     {
         /// <summary>$90:ACCD writes the sixteen beam colors beginning at CGRAM index $E0.</summary>
         public const int BeamDestinationIndex = 0xe0;
-        /// <summary>Suit-indexed pointers to charged-beam palette instruction lists.</summary>
-        public const int BeamChargePointers = 0x91d7d5;
-        /// <summary>Suit-indexed pointers to pseudo-Screw palette instruction lists.</summary>
-        public const int PseudoScrewPointers = 0x91d7ff;
-        /// <summary>Hyper Beam shot palette pointers indexed by flash frame.</summary>
-        public const int HyperBeamShotPointers = 0x91d829;
     }
 
     /// <summary>Missile, Super Missile, bomb, and linked-projectile definitions.</summary>

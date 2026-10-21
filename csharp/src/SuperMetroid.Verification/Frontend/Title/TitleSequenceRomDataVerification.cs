@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core.Frontend;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
@@ -116,7 +117,7 @@ internal static class TitleSequenceRomDataVerification
         // Valid constructed fixed-color/control streams; retail tests check the real
         // gradient bands separately. Every zoom index selects the same black run.
         for (int index = 0; index < 16; index++)
-            WriteRomWord(rom, TitleGradientRomData.FixedColorPointers + index * 2, 0xbc7d);
+            WriteRomWord(rom, FrontendCartridgeTables.FixedColorPointers + index * 2, 0xbc7d);
         WriteRomWord(rom, 0x8cbc7d, 0xe07f);
         WriteRomWord(rom, 0x8cbc7f, 0xe07f);
         WriteRomWord(rom, TitleGradientRomData.ControlTable, 0xa17a);

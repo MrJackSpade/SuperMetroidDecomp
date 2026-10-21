@@ -13,8 +13,6 @@ public static class NorfairRidleyPaletteRomData
     /// <summary>CGRAM entry 160, converted from native color-memory byte offset $0140; the initial copy covers entries 160..191, OBJ palettes 2 and 3.</summary>
     public const int InitialCgramIndex = 0x140 / 2;
 
-    /// <summary>Fifteen nonzero fixed-bank source pointers and a zero terminator at $A6:A4EB.</summary>
-    public const int RevealSourcePointers = EnemyRomTablePointers.Ridley.RevealPaletteSourcePointers;
     /// <summary>Fifteen arena-background reveal rows, selected as indices 0..14 every third reveal-AI call; index 15 is the zero-pointer terminator, not color data.</summary>
     public const int RevealRowCount = 15;
     /// <summary>Fourteen RGB5 words per row, covering BG palette 7 colors 1..14 and leaving its color-zero and color-fifteen slots untouched.</summary>

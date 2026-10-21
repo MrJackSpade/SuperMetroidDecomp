@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core.Samus.Abilities.Artwork;
 using SuperMetroid.Tooling;
 using System.Text.Json.Nodes;
@@ -42,7 +43,7 @@ internal static class XrayRevealVisualInstallationVerification
         ushort NativeWord(int address) => CartridgeImportSource.Require(nativeBus).ReadCartridgeWord(address);
         for (int slot = 0; slot < XrayOverlayRomData.DynamicGraphicsSlots * 2; slot++)
         {
-            ushort pointer = NativeWord(XrayOverlayRomData.ItemDrawPointers + slot * 2);
+            ushort pointer = NativeWord(SamusCartridgeTables.ItemDrawPointers + slot * 2);
             AssertEqual((ushort)(NativeWord(XrayOverlayRomData.ItemBank | (pointer + 2)) & 0x0fff),
                 overlays.ItemMetatile(slot), $"stock X-ray item graphics slot {slot}");
         }

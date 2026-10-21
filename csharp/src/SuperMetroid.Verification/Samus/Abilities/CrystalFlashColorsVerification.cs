@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.CartridgeTables;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
@@ -36,7 +37,7 @@ internal static class CrystalFlashColorsVerification
         }
         for (int frame = 0; frame < CrystalFlashColorFormat.BubbleFrameCount; frame++)
         {
-            ushort pointer = ReadWord(rom, SamusPaletteRomData.CrystalFlash.BubblePointers +
+            ushort pointer = ReadWord(rom, SamusCartridgeTables.BubblePointers +
                 frame * sizeof(ushort));
             for (int color = 0; color < CrystalFlashColorFormat.BubbleColorCount; color++)
                 AssertEqual(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(rom),
@@ -178,7 +179,7 @@ internal static class CrystalFlashColorsVerification
         }
         for (int frame = 0; frame < CrystalFlashColorFormat.BubbleFrameCount; frame++)
         {
-            int address = SamusPaletteRomData.CrystalFlash.BubblePointers +
+            int address = SamusCartridgeTables.BubblePointers +
                 frame * sizeof(ushort);
             ushort pointer = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(source), address);
             forbidden.Add(address);

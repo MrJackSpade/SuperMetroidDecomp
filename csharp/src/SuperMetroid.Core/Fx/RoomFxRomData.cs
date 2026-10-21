@@ -28,8 +28,6 @@ public static class RoomFxRomData
     /// <summary>Fixed pointer tables shared by room loading and effect interpreters.</summary>
     public static class Tables
     {
-        /// <summary>$83:ABF0, table of layer-three effect tilemap pointers.</summary>
-        public const int Layer3TilemapPointers = 0x83abf0;
         /// <summary>$89:AA02, color words blended into the temporary FX palette entries.</summary>
         public const int PaletteBlendColors = 0x89aa02;
     }

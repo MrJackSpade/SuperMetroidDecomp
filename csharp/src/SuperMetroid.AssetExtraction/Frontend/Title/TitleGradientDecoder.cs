@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Frontend.Title;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -15,7 +16,7 @@ public static class TitleGradientDecoder
     /// <returns>The decoded title gradient scanlines.</returns>
     public static TitleGradientLine[] Decode(IImportCartridgeSource cartridge, ushort zoom)
     {
-        int pointer = TitleGradientRomData.FixedColorPointers + (zoom >> 4) % 16 * sizeof(ushort);
+        int pointer = FrontendCartridgeTables.FixedColorPointers + (zoom >> 4) % 16 * sizeof(ushort);
         int table = TitleGradientRomData.FixedColorBank |
             cartridge.ReadCartridgeWord(pointer);
         byte[] fixedWrites = Expand(cartridge, table);

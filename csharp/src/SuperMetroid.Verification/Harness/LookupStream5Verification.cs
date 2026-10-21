@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.AssetExtraction.Frontend.Cinematics;
 using SuperMetroid.Core.World.Artwork;
@@ -694,7 +695,7 @@ internal static class LookupStream5Verification
                 icons.DrawAfterMarker(actual, new(7, 9));
                 if (area == AreaId.Crateria)
                 {
-                    int ship = Root(FileSelectMapRomData.SavePointMapPointers, area);
+                    int ship = Root(FrontendCartridgeTables.SavePointMapPointers, area);
                     Draw(MapSpriteId.MarkerGunship, Read(ship), Read(ship + 2), FileSelectMapRomData.StationMarkerPalette);
                 }
                 if (downloaded)

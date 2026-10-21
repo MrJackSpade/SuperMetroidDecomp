@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Tooling;
 using System.Text.Json.Nodes;
 using SuperMetroid.Core.Assets;
@@ -245,10 +246,10 @@ internal static class SamusBodyArtworkVerification
         for (int suit = 0; suit < SamusDeathPaletteArtworkCatalog.SuitCount; suit++)
         for (int palette = 0; palette < SamusPaletteRomData.Death.PaletteCount; palette++)
         {
-            int pointerAt = SamusPaletteRomData.Death.SuitPointers +
+            int pointerAt = SamusCartridgeTables.SuitPointers +
                 (suit * SamusPaletteRomData.Death.PaletteCount + palette) * sizeof(ushort);
             ushort suitPointer = CartridgeImportSource.Require(bus).ReadCartridgeWord(pointerAt);
-            int suitlessAt = SamusPaletteRomData.Death.SuitlessPointers + palette * sizeof(ushort);
+            int suitlessAt = SamusCartridgeTables.SuitlessPointers + palette * sizeof(ushort);
             ushort suitlessPointer = CartridgeImportSource.Require(bus).ReadCartridgeWord(suitlessAt);
             for (int color = 0; color < SamusDeathPaletteArtworkCatalog.ColorCount; color++)
             {
@@ -635,7 +636,7 @@ internal static class SamusBodyArtworkVerification
         SamusArmCannonArtworkCatalog armCannon = body.ArmCannon;
         for (int pose = 0; pose < SamusBodyArtworkCatalog.PoseCount; pose++)
         {
-            int source = SamusRenderingRomData.ArmCannon.PoseDrawingDataPointers + pose * 2;
+            int source = SamusCartridgeTables.PoseDrawingDataPointers + pose * 2;
             ushort native = CartridgeImportSource.Require(bus).ReadCartridgeWord(source);
             AssertEqual(native, armCannon.PoseDrawingData(pose),
                 $"arm-cannon pose {pose:X2} drawing pointer");
@@ -650,7 +651,7 @@ internal static class SamusBodyArtworkVerification
             int attrAddress = SamusRenderingRomData.ArmCannon.SpriteAttributes + direction * 2;
             AssertEqual(CartridgeImportSource.Require(bus).ReadCartridgeWord(attrAddress),
                 armCannon.SpriteAttributes(direction), $"arm-cannon direction {direction} OAM");
-            int listAddress = SamusRenderingRomData.ArmCannon.TileListPointers + direction * 2;
+            int listAddress = SamusCartridgeTables.TileListPointers + direction * 2;
             int list = CartridgeImportSource.Require(bus).ReadCartridgeWord(listAddress);
             for (int frame = 0; frame < SamusArmCannonArtworkFormat.FramesPerDirection; frame++)
             {

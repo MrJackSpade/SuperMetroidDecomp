@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core.Samus.Artwork;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Samus.Movement.SamusMovementRomDataVerification;
@@ -50,12 +51,12 @@ internal static class SamusRenderingRomDataVerification
                 $"suit palette ${palette:X6}");
         }
 
-        TouchRange(bus, SamusRenderingRomData.TileTransfers.AnimationDefinitionListPointers,
+        TouchRange(bus, SamusCartridgeTables.AnimationDefinitionListPointers,
             poseCount * sizeof(ushort), "pose animation-definition pointers");
-        TouchRange(bus, SamusRenderingRomData.TileTransfers.TopDefinitionListPointers,
+        TouchRange(bus, SamusCartridgeTables.TopDefinitionListPointers,
             SamusRenderingRomData.TileTransfers.TopDefinitionSetCount * sizeof(ushort),
             "top DMA-definition pointers");
-        TouchRange(bus, SamusRenderingRomData.TileTransfers.BottomDefinitionListPointers,
+        TouchRange(bus, SamusCartridgeTables.BottomDefinitionListPointers,
             SamusRenderingRomData.TileTransfers.BottomDefinitionSetCount * sizeof(ushort),
             "bottom DMA-definition pointers");
 
@@ -63,7 +64,7 @@ internal static class SamusRenderingRomDataVerification
         // checks the indirection used by live rendering, not only the pointer table itself.
         for (int pose = 0; pose < poseCount; pose++)
         {
-            ushort pointer = CartridgeImportSource.Require(bus).ReadCartridgeWord((SamusRenderingRomData.TileTransfers.AnimationDefinitionListPointers +
+            ushort pointer = CartridgeImportSource.Require(bus).ReadCartridgeWord((SamusCartridgeTables.AnimationDefinitionListPointers +
                     pose * sizeof(ushort)));
             AssertTrue(pointer >= 0x8000,
                 $"pose ${pose:X2} graphics selector remains in bank $92 ROM");
@@ -74,12 +75,12 @@ internal static class SamusRenderingRomDataVerification
                 $"pose ${pose:X2} frame-zero graphics selector");
         }
 
-        TouchRange(bus, SamusRenderingRomData.ArmCannon.PoseDrawingDataPointers,
+        TouchRange(bus, SamusCartridgeTables.PoseDrawingDataPointers,
             poseCount * sizeof(ushort), "arm-cannon pose drawing pointers");
         TouchRange(bus, SamusRenderingRomData.ArmCannon.SpriteAttributes,
             SamusRenderingRomData.ArmCannon.DirectionCount * sizeof(ushort),
             "arm-cannon sprite attributes");
-        TouchRange(bus, SamusRenderingRomData.ArmCannon.TileListPointers,
+        TouchRange(bus, SamusCartridgeTables.TileListPointers,
             SamusRenderingRomData.ArmCannon.DirectionCount * sizeof(ushort),
             "arm-cannon tile-list pointers");
 

@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Samus.Projectiles.ProjectileSoundRoutingVerification;
 using static SuperMetroid.Verification.Samus.Movement.SamusMovementRomDataVerification;
@@ -66,7 +67,7 @@ internal static class SamusProjectileRomDataVerification
         TouchRange(bus, SamusProjectileRomData.Beams.YAccelerations,
             SamusProjectileRomData.Origins.DirectionCount * sizeof(ushort),
             "beam Y accelerations");
-        TouchRange(bus, SamusProjectileRomData.Beams.TilePointers,
+        TouchRange(bus, SamusCartridgeTables.TilePointers,
             SamusProjectileRomData.Beams.CombinationCount * sizeof(ushort),
             "beam tile pointers");
         TouchRange(bus, SamusProjectileRomData.Beams.PalettePointers,

@@ -22,14 +22,14 @@ public static class NorfairRidleyColorExtractor
         for (int row = 0; row < reveal.Length; row++)
         {
             ushort pointer = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
-                NorfairRidleyPaletteRomData.RevealSourcePointers + row * sizeof(ushort));
+                EnemyCartridgeTables.RevealSourcePointers + row * sizeof(ushort));
             if (pointer < SnesBusLayout.RomWindowStart)
                 throw new InvalidDataException($"Norfair Ridley reveal row {row} has invalid source ${pointer:X4}.");
             reveal[row] = ReadColors(bus, CartridgeBankWindow.At(EnemyCartridgeTables.RidleyBank, pointer),
                 NorfairRidleyPaletteRomData.RevealColorCount);
         }
         ushort terminator = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
-            NorfairRidleyPaletteRomData.RevealSourcePointers +
+            EnemyCartridgeTables.RevealSourcePointers +
             reveal.Length * sizeof(ushort));
         if (terminator != 0)
             throw new InvalidDataException("Norfair Ridley reveal has no zero pointer terminator.");

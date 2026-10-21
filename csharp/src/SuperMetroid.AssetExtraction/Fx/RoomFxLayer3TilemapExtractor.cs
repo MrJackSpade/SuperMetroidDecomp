@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core;
 using System.Buffers.Binary;
 using SuperMetroid.Core.Hardware;
@@ -26,7 +27,7 @@ public static class RoomFxLayer3TilemapExtractor
         {
             int source = RoomFxLayer3TilemapFormat.SourceAddress(type);
             ushort pointer = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
-                RoomFxRomData.Tables.Layer3TilemapPointers + (int)type);
+                RoomFxCartridgeTables.Layer3TilemapPointers + (int)type);
             if ((RoomFxRomData.Banks.Tilemaps | pointer) != source)
                 throw new InvalidDataException(
                     $"Room-FX {type} tilemap pointer ${pointer:X4} does not select ${source:X6}.");

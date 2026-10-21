@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
@@ -26,9 +27,9 @@ public static class SamusChargeColorExtractor
         for (int suit = 0; suit < SamusChargeColorFormat.SuitCount; suit++)
         {
             charged[suit] = ReadSixPhaseList(
-                SamusProjectileRomData.Palettes.BeamChargePointers, suit);
+                SamusCartridgeTables.BeamChargePointers, suit);
             pseudo[suit] = ReadSixPhaseList(
-                SamusProjectileRomData.Palettes.PseudoScrewPointers, suit);
+                SamusCartridgeTables.PseudoScrewPointers, suit);
         }
         var hyper = new PaletteRgb5[SamusChargeColorFormat.HyperFrameCount][];
         for (int frame = 0; frame < hyper.Length; frame++)
@@ -36,7 +37,7 @@ public static class SamusChargeColorExtractor
             int tableOffset = SamusChargePaletteDefinitions.LastHyperTableByteOffset -
                 frame * sizeof(ushort);
             ushort pointer = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
-                SamusProjectileRomData.Palettes.HyperBeamShotPointers + tableOffset);
+                SamusCartridgeTables.HyperBeamShotPointers + tableOffset);
             hyper[frame] = ReadColors(pointer);
         }
         return SamusChargeColorCatalog.Write(new SamusChargeColorDocument

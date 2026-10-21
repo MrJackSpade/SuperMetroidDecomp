@@ -53,13 +53,13 @@ public static class SamusBodyArtworkFiles
         ArgumentException.ThrowIfNullOrWhiteSpace(directory);
         Directory.CreateDirectory(directory);
         ushort[] topPointers = ReadPointers(bus,
-            SamusRenderingRomData.TileTransfers.TopDefinitionListPointers,
+            SamusCartridgeTables.TopDefinitionListPointers,
             SamusBodyArtworkCatalog.TopSetCount);
         ushort[] bottomPointers = ReadPointers(bus,
-            SamusRenderingRomData.TileTransfers.BottomDefinitionListPointers,
+            SamusCartridgeTables.BottomDefinitionListPointers,
             SamusBodyArtworkCatalog.BottomSetCount);
         ushort[] posePointers = ReadPointers(bus,
-            SamusRenderingRomData.TileTransfers.AnimationDefinitionListPointers,
+            SamusCartridgeTables.AnimationDefinitionListPointers,
             SamusBodyArtworkCatalog.PoseCount);
         int[] topSetStarts = [.. topPointers.Select(BodyRecord)];
         int[] bottomSetStarts = [.. bottomPointers.Select(BodyRecord)];

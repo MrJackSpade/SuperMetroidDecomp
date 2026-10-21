@@ -19,4 +19,7 @@ internal static class EnemyCartridgeTables
     /// </summary>
     internal static readonly CpuBusCell RidleyBank = CpuBusCell.CartridgeBytes(nameof(RidleyBank), 0xa68000, 0x8000,
         "Ridley BGR555 color rows (u16 little-endian)");
+
+    /// <summary>Fifteen nonzero fixed-bank source pointers and a zero terminator at $A6:A4EB.</summary>
+    internal const int RevealSourcePointers = 0xa6a4eb;
 }

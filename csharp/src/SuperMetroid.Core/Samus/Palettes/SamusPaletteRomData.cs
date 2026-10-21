@@ -274,107 +274,6 @@ public static class SamusPaletteRomData
     /// <summary>Palette tables consumed by the fatal-damage sequence.</summary>
     public static class Death
     {
-        /// <summary><c>$9B:B7D3</c>, three families of ten suited palette pointers.</summary>
-        /// <remarks>
-        /// Issue #889 / #625: all thirty little-endian words at
-        /// <c>$9B:B7D3..B80E</c> match the pinned NTSC J/U v1.0 ROM
-        /// and native bank-$9B listing. For suit <c>s=0..2</c> and
-        /// palette index <c>k=0..9</c>, index zero points to
-        /// <c>$9820+$0100*s</c>, index one to the shared yellow flash
-        /// at <c>$9420</c>, indices two through eight to
-        /// <c>$9820+$0100*s+$0020*(k-1)</c>, and index nine to the
-        /// shared final palette at <c>$A220</c>. The caller selects
-        /// Power, Varia, or Gravity with native suit offsets
-        /// <c>0,2,4</c> (Gravity priority), indexes zero/one during
-        /// flashing and zero/two through nine during explosion, then
-        /// copies all sixteen target colors. This formula describes
-        /// pointers; the target palettes remain separate data.
-        ///
-        /// Issue #894 / #625: all 128 Power Suit BGR555 words in
-        /// eight death/beam-charge rows at <c>$9B:9820..991F</c>
-        /// match the pinned ROM and native bank-$9B listing. For
-        /// frame <c>f=0..7</c> and color <c>c=0..15</c>, take each
-        /// five-bit component <c>b</c> from the authored first row
-        /// at <c>$9820</c>; the corresponding component is exactly
-        /// <c>floor((b*(8-f)+31*f)/8)</c>. Direct comparison found
-        /// zero mismatches across all 128 words. Pointer index zero
-        /// selects frame zero and indices two through eight select
-        /// frames one through seven. Issue1165 implements this shared fade in
-        /// SamusPaletteFade for both charge and death. Base-input review remains separate.
-        ///
-        /// Issue #895 / #625: all 128 Varia Suit BGR555 words in
-        /// eight death/beam-charge rows at <c>$9B:9920..9A1F</c>
-        /// match the pinned ROM and native bank-$9B listing. For
-        /// frame <c>f=0..7</c>, each five-bit component <c>b</c> from
-        /// the authored first row at <c>$9920</c> becomes exactly
-        /// <c>floor((b*(8-f)+31*f)/8)</c>. Direct comparison of all
-        /// 128 words found zero mismatches. Pointer index zero selects
-        /// frame zero and indices two through eight select frames
-        /// one through seven; the first four frames are also used
-        /// for beam charging, and alternate rows feed stored shine.
-        /// The base row remains authored presentation data.
-        ///
-        /// Issue #896 / #625: all 128 Gravity Suit BGR555 words in
-        /// eight death/beam-charge rows at <c>$9B:9A20..9B1F</c>
-        /// match the pinned ROM and native bank-$9B listing. For
-        /// frame <c>f=0..7</c>, each five-bit component <c>b</c> from
-        /// the authored first row at <c>$9A20</c> becomes exactly
-        /// <c>floor((b*(8-f)+31*f)/8)</c>. Direct comparison of all
-        /// 128 words found zero mismatches, including the distinct
-        /// Gravity source colors.
-        /// Pointer index zero selects frame zero and indices two
-        /// through eight select frames one through seven. The first
-        /// four rows also serve beam charging; alternate rows feed
-        /// stored shine. The base row remains authored data.
-        ///
-        /// Issue #898 / #625: the shared yellow-flash palette at
-        /// <c>$9B:9420..943F</c> contains exactly sixteen
-        /// <c>$03FF</c> BGR555 words in the pinned ROM/native listing.
-        /// Suited pointer index one selects it for Power, Varia, and
-        /// Gravity while the death flash alternates with index zero.
-        /// The suitless pointer at index one instead repeats its
-        /// ordinary first row at <c>$A120</c>. The uniform yellow
-        /// row needs no per-color authored exceptions.
-        /// </remarks>
-        public const int SuitPointers = 0x9bb7d3;
-        /// <summary><c>$9B:B80F</c>, ten suitless palette pointers.</summary>
-        /// <remarks>
-        /// Issue #890 / #625: all ten little-endian words at
-        /// <c>$9B:B80F..B822</c> match the pinned NTSC J/U v1.0 ROM
-        /// and native bank-$9B listing. For palette index
-        /// <c>k=0..9</c>, the pointer is exactly
-        /// <c>$A120+$0020*max(0,k-1)</c>: indices zero and one
-        /// share the first suitless row, while index nine selects
-        /// <c>$A220</c>, also the suited table's final palette.
-        /// The death caller reaches zero/one during flashing and
-        /// zero/two through nine during explosion and copies all
-        /// sixteen colors to suitless OBJ palette seven. Target
-        /// colors remain separate authored data.
-        ///
-        /// Issue #897 / #625: all 128 suitless Samus BGR555 words in
-        /// eight death rows at <c>$9B:A120..A21F</c> match the pinned
-        /// ROM and native bank-$9B listing. For frame <c>f=0..7</c>,
-        /// each five-bit component <c>b</c> from the authored first
-        /// row at <c>$A120</c> becomes exactly
-        /// <c>floor((b*(8-f)+31*f)/8)</c>. Direct comparison found
-        /// zero mismatches; color five stays <c>$7FFF</c> in every
-        /// frame. Pointer indices zero and one both select frame
-        /// zero, and indices two through eight select frames one
-        /// through seven. The death setup also directly copies
-        /// frame zero to suitless OBJ palette seven. The base row
-        /// remains authored presentation data.
-        ///
-        /// Issue #899 / #625: the final shared palette at
-        /// <c>$9B:A220..A23F</c> contains exactly sixteen
-        /// <c>$77BD</c> BGR555 words in the pinned ROM/native listing,
-        /// a uniform grayscale level of 29 on each five-bit channel.
-        /// Palette index nine in all three suited pointer families
-        /// and the suitless list aliases this same physical row.
-        /// Explosion record eight selects index nine with its
-        /// eighty-call duration before the terminal full-screen
-        /// whiteout; no separate final colors are authored by suit.
-        /// </remarks>
-        public const int SuitlessPointers = 0x9bb80f;
         /// <summary><c>$9B:B823</c>, nine interleaved timer/palette-index records.</summary>
         /// <remarks>
         /// Issue #891 / #625: the nine timer bytes at even offsets
@@ -463,17 +362,6 @@ public static class SamusPaletteRomData
         /// duration words are compiled separately. Investigation: #625 / #669.
         /// </remarks>
         public const int BodyRecords = 0x91dc00;
-        /// <summary><c>$91:DC28</c>, six bubble-palette pointers.</summary>
-        /// <remarks>
-        /// The six stock bank-$9B pointers are exactly
-        /// <c>$96D4 + $20 * i</c> for even byte offsets <c>2*i</c>,
-        /// <c>i = 0..5</c>; all match the pinned NTSC J/U v1.0 ROM.
-        /// The next word at <c>$91:DC34</c> is instruction bytes, not a
-        /// seventh pointer. Keep the six words as live presentation data for
-        /// installed palettes; the bubble cursor wraps at byte offset 12.
-        /// Investigation: #625 / #670.
-        /// </remarks>
-        public const int BubblePointers = 0x91dc28;
         /// <summary>Number of Crystal Flash body records.</summary>
         public const int BodyRecordCount = 10;
         /// <summary>Bytes occupied by one body pointer/timer record.</summary>

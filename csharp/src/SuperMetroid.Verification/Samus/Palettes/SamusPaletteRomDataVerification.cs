@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Samus.Movement.SamusMovementRomDataVerification;
 using SuperMetroid.Core.Samus.Abilities;
@@ -83,10 +84,10 @@ internal static class SamusPaletteRomDataVerification
                 2 * sizeof(ushort),
             "Hyper Beam palette-FX instruction stream");
 
-        TouchRange(bus, SamusPaletteRomData.Death.SuitPointers,
+        TouchRange(bus, SamusCartridgeTables.SuitPointers,
             3 * SamusPaletteRomData.Death.PaletteCount * sizeof(ushort),
             "suited death palette pointers");
-        TouchRange(bus, SamusPaletteRomData.Death.SuitlessPointers,
+        TouchRange(bus, SamusCartridgeTables.SuitlessPointers,
             SamusPaletteRomData.Death.PaletteCount * sizeof(ushort),
             "suitless death palette pointers");
         TouchRange(bus, SamusPaletteRomData.Death.ExplosionTimingAndPaletteIndices,
@@ -102,7 +103,7 @@ internal static class SamusPaletteRomDataVerification
             SamusPaletteRomData.CrystalFlash.BodyRecordCount *
                 SamusPaletteRomData.CrystalFlash.BodyRecordByteCount,
             "Crystal Flash body palette records");
-        TouchRange(bus, SamusPaletteRomData.CrystalFlash.BubblePointers,
+        TouchRange(bus, SamusCartridgeTables.BubblePointers,
             SamusPaletteRomData.CrystalFlash.BubblePaletteCount * sizeof(ushort),
             "Crystal Flash bubble palette pointers");
 

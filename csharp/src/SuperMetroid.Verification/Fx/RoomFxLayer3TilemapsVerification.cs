@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.CartridgeTables;
 using System.Text.Json;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Fx.LookupAtmosphereTilemapsVerification;
@@ -128,8 +129,8 @@ internal static class RoomFxLayer3TilemapsVerification
     private static CartridgeReadGuard NewForbiddenRoomFxTilemapBus(ISnesAddressSpace source) =>
         new CartridgeReadGuard(source).Forbid(
             address => (SnesAddressMath.BankNumber(address)) == 0x8a ||
-                address >= RoomFxRomData.Tables.Layer3TilemapPointers &&
-                address < RoomFxRomData.Tables.Layer3TilemapPointers + 14,
+                address >= RoomFxCartridgeTables.Layer3TilemapPointers &&
+                address < RoomFxCartridgeTables.Layer3TilemapPointers + 14,
             address => $"Installed room-FX BG3 tilemap read ROM ${address:X6}.");
 
     /// <summary>Runs the FX tilemap source lookup suite.</summary>

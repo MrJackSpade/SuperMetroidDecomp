@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Rendering;
 using SuperMetroid.Core.Runtime;
@@ -26,7 +27,7 @@ internal static class CrystalFlashVisualsVerification
             while (remaining >= Word(CrystalFlash.BodyRecords + record * CrystalFlash.BodyRecordByteCount + 2))
                 remaining -= Word(CrystalFlash.BodyRecords + record++ * CrystalFlash.BodyRecordByteCount + 2);
             int body = Banks.Palette | Word(CrystalFlash.BodyRecords + record * CrystalFlash.BodyRecordByteCount);
-            int bubble = Banks.Palette | Word(CrystalFlash.BubblePointers + elapsed / 5 % CrystalFlash.BubblePaletteCount * 2);
+            int bubble = Banks.Palette | Word(SamusCartridgeTables.BubblePointers + elapsed / 5 % CrystalFlash.BubblePaletteCount * 2);
             for (int color = 0; color < CrystalFlash.BodyColorCount; color++)
                 AssertEqual(Word(body + color * 2), packet.Memory.Cgram[CrystalFlash.BodyCgramStart + color],
                     $"runtime Crystal Flash body palette at frame {elapsed}");

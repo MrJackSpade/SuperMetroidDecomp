@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Tooling;
 using System.Text;
 using System.Text.Json.Nodes;
@@ -30,7 +31,7 @@ internal static class EnemyTileArtworkNorfairRidleyColorsVerification
                 stock.Bosses.NorfairRidleyColors.ResolveInitial(color).ToWord());
         for (int row = 0; row < NorfairRidleyPaletteRomData.RevealRowCount; row++)
         {
-            int pointerAddress = NorfairRidleyPaletteRomData.RevealSourcePointers + row * sizeof(ushort);
+            int pointerAddress = EnemyCartridgeTables.RevealSourcePointers + row * sizeof(ushort);
             ushort pointer = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), pointerAddress);
             forbidden.Add(pointerAddress);
             forbidden.Add(pointerAddress + 1);
@@ -39,7 +40,7 @@ internal static class EnemyTileArtworkNorfairRidleyColorsVerification
                 CheckSource(0xa60000 + pointer + color * sizeof(ushort),
                     (stock.Bosses.NorfairRidleyColors.ResolveReveal(row, color)).ToWord());
         }
-        int terminatorAddress = NorfairRidleyPaletteRomData.RevealSourcePointers +
+        int terminatorAddress = EnemyCartridgeTables.RevealSourcePointers +
             NorfairRidleyPaletteRomData.RevealRowCount * sizeof(ushort);
         AssertEqual((ushort)0, RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), terminatorAddress),
             "Norfair Ridley reveal pointer table ends after fifteen color rows");

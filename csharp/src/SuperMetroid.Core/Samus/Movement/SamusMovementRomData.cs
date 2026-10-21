@@ -66,8 +66,6 @@ public static class SamusMovementRomData
     /// <summary>Liquid damage, splashes, footsteps, and atmospheric-effect animation data.</summary>
     public static class Environment
     {
-        /// <summary>Direct OAM attribute-list pointers indexed by atmospheric-effect type.</summary>
-        public const int AtmosphericSpriteAttributeListPointers = 0x908bff;
 
         /// <summary>Four words per authored direct small-OBJ effect list at $90:8C0F/$90:8C17.</summary>
         public const int DirectAtmosphericFrameCount = 4;

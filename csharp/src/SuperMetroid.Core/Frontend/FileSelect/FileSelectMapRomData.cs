@@ -33,8 +33,6 @@ public static class FileSelectMapRomData
     public const int TilemapBytes = 0x800;
     /// <summary><c>$82:C749</c>, PLANET ZEBES spritemap ID followed by geographic-area label IDs.</summary>
     public const int LabelSpritemapBase = 0x82c749;
-    /// <summary><c>$82:C80B</c>, bank-$82 save-point map-coordinate-list pointers per area.</summary>
-    public const int SavePointMapPointers = 0x82c80b;
     /// <summary><c>$81:AA1C</c>, FileSelectMap_Labels_Positions: X/Y words per geographic area.</summary>
     public const int LabelPositions = 0x81aa1c;
     /// <summary>Six Zebes areas participate; Ceres has no world-map selection entry.</summary>

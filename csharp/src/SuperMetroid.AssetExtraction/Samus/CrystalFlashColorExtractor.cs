@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
@@ -32,7 +33,7 @@ public static class CrystalFlashColorExtractor
         for (int frame = 0; frame < bubble.Length; frame++)
         {
             ushort pointer = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus),
-                SamusPaletteRomData.CrystalFlash.BubblePointers + frame * sizeof(ushort));
+                SamusCartridgeTables.BubblePointers + frame * sizeof(ushort));
             bubble[frame] = ReadColors(pointer, CrystalFlashColorFormat.BubbleColorCount);
         }
         return CrystalFlashColorCatalog.Write(new CrystalFlashColorDocument

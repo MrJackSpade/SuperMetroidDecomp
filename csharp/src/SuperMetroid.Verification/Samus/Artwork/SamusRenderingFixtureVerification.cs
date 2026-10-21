@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Harness.VerificationHelpersVerification;
 using SuperMetroid.Core.Samus;
@@ -32,7 +33,7 @@ internal static class SamusRenderingFixtureVerification
     /// <summary>Points one pose's <c>$92:D94E</c> tile-animation list pointer at a synthetic record.</summary>
     [CpuBusBoundary("exact bus test: synthetic cartridge fixture for one Samus tile-animation list pointer")]
     internal static void WriteSamusTileAnimationPointer(TestAddressSpace bus, SamusPoseId pose, ushort pointer) =>
-        WriteTestWord(bus, SamusRenderingRomData.TileTransfers.AnimationDefinitionListPointers + (int)pose * 2, pointer);
+        WriteTestWord(bus, SamusCartridgeTables.AnimationDefinitionListPointers + (int)pose * 2, pointer);
 
     /// <summary>Seeds one pose's <c>$92:9263/$92:945D</c> top and bottom spritemap base indices.</summary>
     [CpuBusBoundary("exact bus test: synthetic cartridge fixture for one Samus pose's spritemap base indices")]
@@ -65,9 +66,9 @@ internal static class SamusRenderingFixtureVerification
                 if (bus.HasSeededByte(address + index)) original[index] = unchecked((sbyte)bus.ReadByte(address + index));
             return original;
         }
-        var topPointers = OverrideWords(SamusRenderingRomData.TileTransfers.TopDefinitionListPointers, stock.TopSetPointers.ToArray());
-        var bottomPointers = OverrideWords(SamusRenderingRomData.TileTransfers.BottomDefinitionListPointers, stock.BottomSetPointers.ToArray());
-        var posePointers = OverrideWords(SamusRenderingRomData.TileTransfers.AnimationDefinitionListPointers, stock.PosePointers.ToArray());
+        var topPointers = OverrideWords(SamusCartridgeTables.TopDefinitionListPointers, stock.TopSetPointers.ToArray());
+        var bottomPointers = OverrideWords(SamusCartridgeTables.BottomDefinitionListPointers, stock.BottomSetPointers.ToArray());
+        var posePointers = OverrideWords(SamusCartridgeTables.AnimationDefinitionListPointers, stock.PosePointers.ToArray());
         sbyte[] offsets = stock.GraphicsYOffsets.ToArray();
         for (int pose = 0; pose < offsets.Length; pose++)
         {

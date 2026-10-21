@@ -30,6 +30,13 @@ internal static class RidleyCollisionDefinitionsAccess
         internal static bool HasFrame(ushort frame) =>
             RidleyCollisionDefinitions.HasFrame(RoomEnemySlotFrameAccess.TryFrameAt(NativeBank, frame));
 
+        /// <summary>The body frame stored at native address <paramref name="frame"/>, or null when none is.</summary>
+        internal static RidleyCollisionDefinitions.BodyFrame? BodyFrameAt(ushort frame) =>
+            RoomEnemySlotFrameAccess.TryFrameAt(NativeBank, frame) is { } shown &&
+                Artwork.RidleyBodyFrameDefinitions.ShownFrames.TryFind(shown, out RidleyCollisionDefinitions.BodyFrame body)
+                ? body
+                : null;
+
         /// <summary>The components of the body frame at native address <paramref name="frame"/>.</summary>
         internal static ImmutableArray<RidleyCollisionComponent> ComponentsAt(ushort frame) =>
             RidleyCollisionDefinitions.ComponentsAt(RoomEnemySlotFrameAccess.TryFrameAt(NativeBank, frame));

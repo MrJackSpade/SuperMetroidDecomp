@@ -76,7 +76,7 @@ internal static class RidleyAnimationsVerification
                 case NativeEnemyListDefinitions.WordKind.Frame:
                     var show = AssertIs<AnimationProgramStep<RidleyBodyProgram, RidleyCollisionDefinitions.BodyFrame, RidleyBodyCue>.ShowStep>(step, $"{at}: frame");
                     AssertEqual(word, show.Duration, $"{at}: duration");
-                    AssertEqual(operand, (ushort)show.Frame, $"{at}: spritemap");
+                    AssertEqual(RidleyCollisionDefinitions.BodyFrameAt(operand), (RidleyCollisionDefinitions.BodyFrame?)show.Frame, $"{at}: spritemap");
                     cursor = unchecked((ushort)(cursor + 4));
                     continue;
                 case NativeEnemyListDefinitions.WordKind.Sleep:

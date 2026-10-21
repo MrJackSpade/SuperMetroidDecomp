@@ -82,7 +82,7 @@ internal static class RoomEnemySystemAccess
             Ensure.NotNull(sharedProjectiles);
             var kraid = self.KraidBehavior.Access.Kraid;
             RoomEnemySlot body = self.SlotTable.Slots[0];
-            if (kraid is null || body.EnemyDefinitionPointer != EnemyDefinitionId.Kraid ||
+            if (kraid is null || body.DefinitionId != EnemyDefinitionId.Kraid ||
                 body.Properties.HasAny(EnemyProperties.Deleted))
                 return 0;
             var shots = new KraidBehavior.KraidShotSlots(projectiles, sharedProjectiles);

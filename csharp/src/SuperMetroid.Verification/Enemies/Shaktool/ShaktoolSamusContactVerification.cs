@@ -25,7 +25,7 @@ internal static class ShaktoolSamusContactVerification
         runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.Shaktool);
         RoomEnemySlot segment = runtime.Enemies.SlotTable.Slots[0];
-        AssertEqual(EnemyDefinitionId.Shaktool, segment.EnemyDefinitionPointer, "slot zero is a Shaktool segment");
+        AssertEqual(EnemyDefinitionId.Shaktool, segment.DefinitionId, "slot zero is a Shaktool segment");
         AssertEqual(EnemyInteractionCallback.ShaktoolTouch, EnemyCollision.TouchAi(segment), "Shaktool's header touch callback");
         AssertTrue(segment.SpritemapPointer != 0, "the loaded segment publishes a sprite map");
 

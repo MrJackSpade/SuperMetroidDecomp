@@ -9,6 +9,6 @@ namespace SuperMetroid.Core.Enemies.Chozo;
 /// </summary>
 [IndependentFlag("whether the request spawns the hard-coded PLM rather than one from the room list")]
 public readonly record struct ChozoStatuePlmRequest(
-    PlmHeaderId HeaderPointer,
+    PlmHeaderId Header,
     Position16<RoomBlocks> Block,
     bool IsHardcoded);

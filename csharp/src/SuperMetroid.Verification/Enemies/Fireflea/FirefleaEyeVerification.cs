@@ -26,7 +26,7 @@ internal static class FirefleaEyeVerification
         runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.LNFireflea);
         AssertEqual(RoomFxType.Fireflea, runtime.RoomLayer3Fx.Type, "reported room uses Fireflea darkness");
         var eye = runtime.Enemies.SlotTable.Slots[0];
-        AssertEqual(EnemyDefinitionId.Fune, eye.EnemyDefinitionPointer, "reported rock eye is retail Fune/Namihe family");
+        AssertEqual(EnemyDefinitionId.Fune, eye.DefinitionId, "reported rock eye is retail Fune/Namihe family");
         ushort cameraX = 368, cameraY = 608;
         runtime.Enemies.StepFrame(new RoomEnemyFrame { Camera = new(cameraX, cameraY), TimeIsFrozen = false, Samus = runtime.Player.Samus, Level = runtime.Room.LevelData });
         // The display reads the state the NMI latches (#1307); latch the loaded room's darkness once, as its first frame would.

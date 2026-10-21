@@ -12,7 +12,7 @@ public sealed class PipeBugEnemyState
     /// <summary>Captures the original enemy identity before generic death can clear its live definition word.</summary>
     internal PipeBugEnemyState(RoomEnemySlot slot)
     {
-        DefinitionAtInitialization = slot.EnemyDefinitionPointer;
+        DefinitionAtInitialization = slot.DefinitionId;
     }
 
     /// <summary>Where the typed animation (#641) resumes, in place of the native instruction pointer.</summary>

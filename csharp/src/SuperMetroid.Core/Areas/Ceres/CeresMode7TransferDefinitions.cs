@@ -44,17 +44,17 @@ public static class CeresMode7TransferDefinitions
     [ new(11,4), new(0,14), new(0,14), new(1,12), new(1,15), new(0,16) ];
 
     /// <summary>Resolves a native list pointer without reading cartridge memory or constructing a transfer table.</summary>
-    public static TransferSequence Get(CeresMode7TransferList pointer) => pointer switch
+    public static TransferSequence Get(CeresMode7TransferList transferList) => transferList switch
     {
-        CeresMode7TransferList.ElevatorLight or CeresMode7TransferList.ElevatorDark => new(pointer, 1),
-        CeresMode7TransferList.BabyFrame0 or CeresMode7TransferList.BabyFrame1 or CeresMode7TransferList.BabyFrame2 => new(pointer, 2),
-        CeresMode7TransferList.WingFrame0 or CeresMode7TransferList.WingFrame1 => new(pointer, WingRegions.Length),
-        _ => throw new InvalidDataException($"Unknown Ceres Mode7 transfer list $A6:{(int)pointer:X4}."),
+        CeresMode7TransferList.ElevatorLight or CeresMode7TransferList.ElevatorDark => new(transferList, 1),
+        CeresMode7TransferList.BabyFrame0 or CeresMode7TransferList.BabyFrame1 or CeresMode7TransferList.BabyFrame2 => new(transferList, 2),
+        CeresMode7TransferList.WingFrame0 or CeresMode7TransferList.WingFrame1 => new(transferList, WingRegions.Length),
+        _ => throw new InvalidDataException($"Unknown Ceres Mode7 transfer list $A6:{(int)transferList:X4}."),
     };
     /// <summary>Allocation-free calculated view of one native Ceres transfer list, preserving descriptor order and the 128-cell map-row stride.</summary>
-    /// <param name="pointer">Supported bank-$A6 list identity, normally selected through <see cref="Get"/>.</param>
+    /// <param name="transferList">Supported bank-$A6 list identity, normally selected through <see cref="Get"/>.</param>
     /// <param name="count">Descriptor count matching that identity: one for the elevator, two for the capsule, or six for Ridley's wing.</param>
-    public readonly struct TransferSequence(CeresMode7TransferList pointer, int count) : IReadOnlyList<CeresMode7Transfer>
+    public readonly struct TransferSequence(CeresMode7TransferList transferList, int count) : IReadOnlyList<CeresMode7Transfer>
     {
         /// <summary>Number of transfer descriptors in this view, not total tile bytes or elapsed animation updates.</summary>
         public int Count => count;
@@ -67,21 +67,21 @@ public static class CeresMode7TransferDefinitions
             get
             {
                 if ((uint)index >= Count) throw new ArgumentOutOfRangeException(nameof(index));
-                if (pointer is CeresMode7TransferList.ElevatorLight or CeresMode7TransferList.ElevatorDark)
-                    return new(PlatformRow * MapColumns + PlatformColumn, new(pointer, index, 4),
-                        pointer == CeresMode7TransferList.ElevatorLight ? PlatformLightSource : PlatformDarkSource);
-                if (pointer is CeresMode7TransferList.BabyFrame0 or CeresMode7TransferList.BabyFrame1 or CeresMode7TransferList.BabyFrame2)
+                if (transferList is CeresMode7TransferList.ElevatorLight or CeresMode7TransferList.ElevatorDark)
+                    return new(PlatformRow * MapColumns + PlatformColumn, new(transferList, index, 4),
+                        transferList == CeresMode7TransferList.ElevatorLight ? PlatformLightSource : PlatformDarkSource);
+                if (transferList is CeresMode7TransferList.BabyFrame0 or CeresMode7TransferList.BabyFrame1 or CeresMode7TransferList.BabyFrame2)
                 {
-                    int frame = (pointer - CeresMode7TransferList.BabyFrame0) / (2 * 9 + 1);
-                    return new((BabyRow + index) * MapColumns + BabyColumn, new(pointer, index, 2),
+                    int frame = (transferList - CeresMode7TransferList.BabyFrame0) / (2 * 9 + 1);
+                    return new((BabyRow + index) * MapColumns + BabyColumn, new(transferList, index, 2),
                         BabySources + BabyRowBytes * (2 * frame + index));
                 }
                 WingRegion region = WingRegions[index];
                 int offset = 0;
                 for (int row = 0; row < index; row++) offset += 2 * WingRegions[row].Width;
-                if (pointer == CeresMode7TransferList.WingFrame1) offset += region.Width;
+                if (transferList == CeresMode7TransferList.WingFrame1) offset += region.Width;
                 return new(index * MapColumns + region.Column,
-                    new(pointer, index, region.Width), WingSources + offset);
+                    new(transferList, index, region.Width), WingSources + offset);
             }
         }
         /// <summary>Enumerates calculated descriptors in native transfer order without executing DMA or advancing animation.</summary>
@@ -94,10 +94,10 @@ public static class CeresMode7TransferDefinitions
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
     /// <summary>Allocation-free view of the authored character selectors in one contiguous Ceres Mode 7 map-row transfer.</summary>
-    /// <param name="pointer">Supported bank-$A6 elevator, capsule, or wing list identity defining the displayed frame.</param>
+    /// <param name="transferList">Supported bank-$A6 elevator, capsule, or wing list identity defining the displayed frame.</param>
     /// <param name="row">Descriptor-row ordinal: zero for the elevator, 0..1 for the capsule, or 0..5 for the wing; not the absolute map Y coordinate.</param>
     /// <param name="count">Authored row width: four elevator cells, two capsule cells, or the selected wing region's width.</param>
-    public readonly struct TileSequence(CeresMode7TransferList pointer, int row, int count) : IReadOnlyList<byte>
+    public readonly struct TileSequence(CeresMode7TransferList transferList, int row, int count) : IReadOnlyList<byte>
     {
         /// <summary>Number of eight-bit tile selectors written to consecutive low-byte map cells by this row transfer.</summary>
         public int Count => count;
@@ -105,7 +105,7 @@ public static class CeresMode7TransferDefinitions
         /// <param name="index">Zero-based column within this row transfer, not the absolute map column.</param>
         /// <returns>The eight-bit Mode 7 character selector.</returns>
         /// <exception cref="ArgumentOutOfRangeException">The column is outside this view.</exception>
-        public byte this[int index] => (uint)index < Count ? TileAt(pointer, row, index) : throw new ArgumentOutOfRangeException(nameof(index));
+        public byte this[int index] => (uint)index < Count ? TileAt(transferList, row, index) : throw new ArgumentOutOfRangeException(nameof(index));
         /// <summary>Enumerates character selectors from left to right in their native row-transfer order.</summary>
         /// <returns>An enumerator yielding the same tile bytes as indexed access.</returns>
         public IEnumerator<byte> GetEnumerator()
@@ -135,13 +135,13 @@ public static class CeresMode7TransferDefinitions
     }
 
     /// <summary>$A6:AD1B-AD26: six baby row origins remain REQUIRED; adjacent right tiles calculate. Platform glyphs use their shared canonical owner.</summary>
-    private static byte TileAt(CeresMode7TransferList pointer, int row, int column)
+    private static byte TileAt(CeresMode7TransferList transferList, int row, int column)
     {
-        if (pointer is CeresMode7TransferList.ElevatorLight or CeresMode7TransferList.ElevatorDark)
-            return PlatformTile(pointer == CeresMode7TransferList.ElevatorDark ? 1 : 0, column);
-        if (pointer is CeresMode7TransferList.BabyFrame0 or CeresMode7TransferList.BabyFrame1 or CeresMode7TransferList.BabyFrame2)
+        if (transferList is CeresMode7TransferList.ElevatorLight or CeresMode7TransferList.ElevatorDark)
+            return PlatformTile(transferList == CeresMode7TransferList.ElevatorDark ? 1 : 0, column);
+        if (transferList is CeresMode7TransferList.BabyFrame0 or CeresMode7TransferList.BabyFrame1 or CeresMode7TransferList.BabyFrame2)
         {
-            int origin = new CeresMode7TransferRow(pointer, row) switch
+            int origin = new CeresMode7TransferRow(transferList, row) switch
             {
                 (CeresMode7TransferList.BabyFrame0, 0) => 0x59, (CeresMode7TransferList.BabyFrame0, 1) => 0x69,
                 (CeresMode7TransferList.BabyFrame1, 0) => 0x8a, (CeresMode7TransferList.BabyFrame1, 1) => 0x8c,
@@ -150,7 +150,7 @@ public static class CeresMode7TransferDefinitions
             };
             return (byte)(origin + column);
         }
-        return WingTile(pointer == CeresMode7TransferList.WingFrame1, row, column);
+        return WingTile(transferList == CeresMode7TransferList.WingFrame1, row, column);
     }
     /// <summary>$A6:ADB7-AE4C: contiguous atlas runs and shared cells derive. Every selected run origin/extent and isolated glyph below remains REQUIRED artwork placement; no artwork exemption is claimed.</summary>
     private static byte WingTile(bool secondFrame, int row, int column)

@@ -10,7 +10,7 @@ internal sealed class SparkBehavior : IEnemySpecies, IEnemyEntityFactory
 {
     /// <summary>The pass-through shot reaction for this species' private shot callback.</summary>
     internal static EnemyShotReaction PassThroughShot { get; } =
-        new(enemy => enemy.EnemyDefinitionPointer == EnemyDefinitionId.Spark &&
+        new(enemy => enemy.DefinitionId == EnemyDefinitionId.Spark &&
                      EnemyCollision.ShotAi(enemy) == EnemyInteractionCallback.SparkShot)
         {
             AfterSuperMissileQuake = ProjectilePassThrough.Shot,

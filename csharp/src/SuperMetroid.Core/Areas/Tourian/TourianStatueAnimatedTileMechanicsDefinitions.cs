@@ -19,12 +19,12 @@ public static class TourianStatueAnimatedTileMechanicsDefinitions
     /// The statue identity selects its transfer geometry, event, boss test, palette destinations and effect
     /// parameters. Animated-tile objects that are not statues return null.
     /// </summary>
-    private static TourianStatueAnimatedTileProgramDefinition? SelectObject(AnimatedTileObject objectPointer) =>
-        objectPointer switch
+    private static TourianStatueAnimatedTileProgramDefinition? SelectObject(AnimatedTileObject animatedObject) =>
+        animatedObject switch
     {
         AnimatedTileObject.TourianStatuePhantoon => new()
         {
-            ObjectPointer = AnimatedTileObject.TourianStatuePhantoon,
+            AnimatedObject = AnimatedTileObject.TourianStatuePhantoon,
             TransferByteCount = TourianStatueTileStripDefinitions.WindowByteCount(AnimatedTileObject.TourianStatuePhantoon),
             EncodedVramDestination = 0x7800,
             AnimatingFlag = TourianStatueAnimationState.PhantoonAnimating,
@@ -39,7 +39,7 @@ public static class TourianStatueAnimatedTileMechanicsDefinitions
         },
         AnimatedTileObject.TourianStatueRidley => new()
         {
-            ObjectPointer = AnimatedTileObject.TourianStatueRidley,
+            AnimatedObject = AnimatedTileObject.TourianStatueRidley,
             TransferByteCount = TourianStatueTileStripDefinitions.WindowByteCount(AnimatedTileObject.TourianStatueRidley),
             EncodedVramDestination = 0x7220,
             AnimatingFlag = TourianStatueAnimationState.RidleyAnimating,
@@ -54,7 +54,7 @@ public static class TourianStatueAnimatedTileMechanicsDefinitions
         },
         AnimatedTileObject.TourianStatueKraid => new()
         {
-            ObjectPointer = AnimatedTileObject.TourianStatueKraid,
+            AnimatedObject = AnimatedTileObject.TourianStatueKraid,
             TransferByteCount = TourianStatueTileStripDefinitions.WindowByteCount(AnimatedTileObject.TourianStatueKraid),
             EncodedVramDestination = 0x0b40,
             AnimatingFlag = TourianStatueAnimationState.KraidAnimating,
@@ -69,7 +69,7 @@ public static class TourianStatueAnimatedTileMechanicsDefinitions
         },
         AnimatedTileObject.TourianStatueDraygon => new()
         {
-            ObjectPointer = AnimatedTileObject.TourianStatueDraygon,
+            AnimatedObject = AnimatedTileObject.TourianStatueDraygon,
             TransferByteCount = TourianStatueTileStripDefinitions.WindowByteCount(AnimatedTileObject.TourianStatueDraygon),
             EncodedVramDestination = 0x0ca0,
             AnimatingFlag = TourianStatueAnimationState.DraygonAnimating,
@@ -89,12 +89,12 @@ public static class TourianStatueAnimatedTileMechanicsDefinitions
             AnimatedTileObject.MaridiaSandFalling or AnimatedTileObject.WreckedShipTreadmillRightwards or
             AnimatedTileObject.WreckedShipTreadmillLeftwards or AnimatedTileObject.Lava or
             AnimatedTileObject.Acid or AnimatedTileObject.Rain or AnimatedTileObject.Spores => null,
-        _ => throw new InvalidOperationException($"Undefined AnimatedTileObject {objectPointer}."),
+        _ => throw new InvalidOperationException($"Undefined AnimatedTileObject {animatedObject}."),
     };
 
     /// <summary>The definition of an object this catalog supports.</summary>
-    private static TourianStatueAnimatedTileProgramDefinition Require(AnimatedTileObject objectPointer) => SelectObject(objectPointer) ??
-        throw new InvalidOperationException($"{objectPointer} has no definition in this catalog.");
+    private static TourianStatueAnimatedTileProgramDefinition Require(AnimatedTileObject animatedObject) => SelectObject(animatedObject) ??
+        throw new InvalidOperationException($"{animatedObject} has no definition in this catalog.");
 
     /// <summary>The four boss-statue programs in cartridge header order, without a stored roster.</summary>
     public static IEnumerable<TourianStatueAnimatedTileProgramDefinition> All
@@ -110,10 +110,10 @@ public static class TourianStatueAnimatedTileMechanicsDefinitions
 
     /// <summary>Resolves one statue's animated-tile definition.</summary>
     public static bool TryResolveObjectHeader(
-        AnimatedTileObject objectPointer,
+        AnimatedTileObject animatedObject,
         [NotNullWhen(true)] out TourianStatueAnimatedTileProgramDefinition? definition)
     {
-        definition = SelectObject(objectPointer);
+        definition = SelectObject(animatedObject);
         return definition is not null;
     }
 }

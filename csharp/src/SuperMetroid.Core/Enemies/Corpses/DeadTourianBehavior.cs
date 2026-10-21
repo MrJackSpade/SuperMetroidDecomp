@@ -44,48 +44,48 @@ internal sealed class DeadTourianBehavior : IEnemySpecies, IEnemyEntityFactory
         [.. Enumerable.Range(0, EnemySlotTable.MaximumEnemyCount).Select(_ => new DeadTourianExtensionWords())];
 
     /// <summary>Recognizes the three Tourian corpse enemy headers handled by this owner.</summary>
-    internal static bool IsDeadTourianCorpseDefinition(EnemyDefinitionId definitionPointer) =>
-        definitionPointer is EnemyDefinitionId.CorpseZoomer or EnemyDefinitionId.CorpseRipper or EnemyDefinitionId.CorpseSkree;
+    internal static bool IsDeadTourianCorpseDefinition(EnemyDefinitionId definitionId) =>
+        definitionId is EnemyDefinitionId.CorpseZoomer or EnemyDefinitionId.CorpseRipper or EnemyDefinitionId.CorpseSkree;
 
     /// <summary>Selects the species-specific native callbacks and art layout for a corpse header.</summary>
-    private static DeadTourianCorpseProfile ProfileForDeadTourianCorpse(EnemyDefinitionId definitionPointer) =>
-        DeadTourianPartDefinitions.Parts[definitionPointer] switch
+    private static DeadTourianCorpseProfile ProfileForDeadTourianCorpse(EnemyDefinitionId definitionId) =>
+        DeadTourianPartDefinitions.Parts[definitionId] switch
         {
             DeadTourianPart.CorpseZoomer => DeadTourianCorpseProfileDefinitions.DeadZoomerProfile,
             DeadTourianPart.CorpseRipper => DeadTourianCorpseProfileDefinitions.DeadRipperProfile,
             DeadTourianPart.CorpseSkree => DeadTourianCorpseProfileDefinitions.DeadSkreeProfile,
-            _ => throw new ArgumentOutOfRangeException(nameof(definitionPointer)),
+            _ => throw new ArgumentOutOfRangeException(nameof(definitionId)),
         };
 
     /// <summary>Checks that the header's touch AI points to its species' rot trigger.</summary>
     private static bool HasDeadTourianCorpseTouchOrShotCallback(RoomEnemySlot slot)
     {
-        if (!IsDeadTourianCorpseDefinition(slot.EnemyDefinitionPointer))
+        if (!IsDeadTourianCorpseDefinition(slot.DefinitionId))
             return false;
-        return EnemyCollision.TouchAi(slot) == ProfileForDeadTourianCorpse(slot.EnemyDefinitionPointer).TouchAndShot;
+        return EnemyCollision.TouchAi(slot) == ProfileForDeadTourianCorpse(slot.DefinitionId).TouchAndShot;
     }
 
     /// <summary>Checks that the header's shot AI points to its species' rot trigger.</summary>
     internal static bool HasDeadTourianCorpseShotCallback(RoomEnemySlot slot)
     {
-        if (!IsDeadTourianCorpseDefinition(slot.EnemyDefinitionPointer))
+        if (!IsDeadTourianCorpseDefinition(slot.DefinitionId))
             return false;
-        return EnemyCollision.ShotAi(slot) == ProfileForDeadTourianCorpse(slot.EnemyDefinitionPointer).TouchAndShot;
+        return EnemyCollision.ShotAi(slot) == ProfileForDeadTourianCorpse(slot.DefinitionId).TouchAndShot;
     }
 
     /// <summary>Checks that the header's power-bomb AI points to its species' rot trigger.</summary>
     private static bool HasDeadTourianCorpsePowerBombCallback(RoomEnemySlot slot)
     {
-        if (!IsDeadTourianCorpseDefinition(slot.EnemyDefinitionPointer))
+        if (!IsDeadTourianCorpseDefinition(slot.DefinitionId))
             return false;
-        return EnemyCollision.PowerBombReaction(slot) == ProfileForDeadTourianCorpse(slot.EnemyDefinitionPointer).PowerBomb;
+        return EnemyCollision.PowerBombReaction(slot) == ProfileForDeadTourianCorpse(slot.DefinitionId).PowerBomb;
     }
 
     /// <summary>Ports initializers <c>$A9:D849/$D876/$D89F</c>, validating the art variant before registering state and copying tiles into work RAM.</summary>
     internal void InitializeDeadTourianCorpse(RoomEnemySlot slot)
     {
         DeadTourianCorpseProfile profile =
-            ProfileForDeadTourianCorpse(slot.EnemyDefinitionPointer);
+            ProfileForDeadTourianCorpse(slot.DefinitionId);
         if ((slot.Spawn.Population.Parameter1 & 1) != 0 || slot.Spawn.Population.Parameter1 / 2 >= profile.Variants.Length)
         {
             throw new InvalidDataException(

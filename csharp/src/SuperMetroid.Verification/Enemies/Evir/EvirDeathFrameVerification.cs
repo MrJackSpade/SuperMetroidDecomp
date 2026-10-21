@@ -24,7 +24,7 @@ internal static class EvirDeathFrameVerification
         {
             var slot = enemies.SlotTable.Slots[index];
             slot.Bind(index == 8 ? EnemyDefinitionId.EvirProjectile : EnemyDefinitionId.Evir, slot.Definition);
-            slot.Bind(slot.EnemyDefinitionPointer, RoomEnemyDefinitionCatalog.Get(slot.EnemyDefinitionPointer));
+            slot.Bind(slot.DefinitionId, RoomEnemyDefinitionCatalog.Get(slot.DefinitionId));
             slot.Position = slot.Position.WithWhole(new(128, 128));
             slot.Radius = new(slot.Definition.Radius.X, slot.Definition.Radius.Y);
             slot.Health = slot.Definition.Health;
@@ -43,7 +43,7 @@ internal static class EvirDeathFrameVerification
         // Arms and spit are marked deleted by the native contact tail but still receive
         // their already-scheduled calls before next frame's population pass removes them.
         enemies.StepFrame(new RoomEnemyFrame { Camera = new(0, 0), TimeIsFrozen = false, Samus = samus, Level = fixture.Level, ResolveSamusContactBeforeAi = true });
-        AssertEqual(EnemyDefinitionId.None, body.EnemyDefinitionPointer, "Screw Attack clears Evir body during contact");
+        AssertEqual(EnemyDefinitionId.None, body.DefinitionId, "Screw Attack clears Evir body during contact");
         AssertEqual(1, enemies.RoomStatus.EnemiesKilled, "only body counts as a killed enemy");
         AssertTrue(arms.Properties.HasAny(EnemyProperties.Deleted) && projectile.Properties.HasAny(EnemyProperties.Deleted),
             "Evir contact tail marks both following physical slots deleted");
@@ -55,8 +55,8 @@ internal static class EvirDeathFrameVerification
         AssertTrue(enemies.Projectiles.EnemyProjectiles.Any(item => item.Kind == RoomEnemyProjectileKind.EnemyDeathExplosion),
             "normal death explosion remains alive");
         enemies.StepFrame(new RoomEnemyFrame { Camera = new(0, 0), TimeIsFrozen = false, Samus = samus, Level = fixture.Level });
-        AssertEqual(EnemyDefinitionId.None, arms.EnemyDefinitionPointer, "next frame removes deleted arms");
-        AssertEqual(EnemyDefinitionId.None, projectile.EnemyDefinitionPointer, "next frame removes deleted spit");
+        AssertEqual(EnemyDefinitionId.None, arms.DefinitionId, "next frame removes deleted arms");
+        AssertEqual(EnemyDefinitionId.None, projectile.DefinitionId, "next frame removes deleted spit");
         AssertEqual(0, enemies.ActiveEnemyIndexes.Count, "no orphan Evir remains active");
         AssertThrows<InvalidDataException>(() => initialize(arms, samus),
             "initialization still rejects a missing body even when a prior typed state survives");

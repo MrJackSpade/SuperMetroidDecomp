@@ -28,8 +28,8 @@ internal static class AudioUploadCatalogVerification
             AssertEqual(pointer, actual.SnesAddress, "original upload pointer");
             AssertEqual((byte)index, actual.DataIndex, "native byte offset identity");
             AssertEqual(names[index / 3], actual.Name, "published asset name");
-            AssertEqual((AudioBank)(index / 3), actual.Bank, "stable bank identity in pointer-table order");
-            AssertEqual(actual, AudioAssetCatalogDefinitions.Get(actual.Bank), "bank identity lookup");
+            AssertEqual((AudioBank)(index / 3), actual.AudioSet, "stable bank identity in pointer-table order");
+            AssertEqual(actual, AudioAssetCatalogDefinitions.Get(actual.AudioSet), "bank identity lookup");
             AssertEqual(actual, AudioAssetCatalogDefinitions.ResolveSnesAddress(pointer), "manifest address lookup");
             AssertEqual(actual, all[index / 3], "ordered enumeration");
             if (index != 0) AssertEqual(actual, AudioAssetCatalogDefinitions.Music[index / 3 - 1], "music index view");

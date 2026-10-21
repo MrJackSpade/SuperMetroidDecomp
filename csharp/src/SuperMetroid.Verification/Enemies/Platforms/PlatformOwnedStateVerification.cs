@@ -18,7 +18,7 @@ internal static class PlatformOwnedStateVerification
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.Tripper, slot.Definition);
-        slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = 0xa3 });
+        slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition) with { Bank = 0xa3 });
         slot.SetSpawnParameter1((ushort)PlatformHorizontalMovement.Left);
         const int speedRecord = 5;
         const int accelerationCap = 3;

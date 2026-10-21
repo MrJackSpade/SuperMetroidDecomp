@@ -16,7 +16,7 @@ namespace SuperMetroid.Core.Enemies;
 /// <param name="PartCount">Header +$14 native multipart-enemy count.</param>
 /// <param name="Unused16">Header +$16 unused native word, retained verbatim rather than interpreted as runtime state.</param>
 /// <param name="MainAiPointer">Header +$18 bank-relative ordinary AI entry point.</param>
-/// <param name="GrappleAiPointer">Header +$1A bank-relative Grapple reaction entry point.</param>
+/// <param name="GrappleAi">Header +$1A bank-relative Grapple reaction entry point.</param>
 /// <param name="HurtAiPointer">Header +$1C bank-relative hurt AI entry point.</param>
 /// <param name="FrozenAiPointer">Header +$1E bank-relative frozen-enemy AI entry point, separate from globally frozen game time.</param>
 /// <param name="TimeFrozenAiPointer">Header +$20 bank-relative AI entry point used when game time is frozen.</param>
@@ -49,7 +49,7 @@ public readonly record struct RoomEnemyDefinition(
     ushort PartCount,
     ushort Unused16,
     ushort MainAiPointer,
-    GrappleAiRoutine GrappleAiPointer,
+    GrappleAiRoutine GrappleAi,
     ushort HurtAiPointer,
     ushort FrozenAiPointer,
     ushort TimeFrozenAiPointer,

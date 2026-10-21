@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Samus.Poses;
 internal static class SamusPoseInputRulesLate
 {
     /// <summary>Dispatches the later bank-$91 pose tables in cartridge order, separating held chords from new presses.</summary>
-    internal static SamusPoseInputMatch Match(SamusPoseInputList pointer, SnesButton held, SnesButton newlyPressed) => pointer switch
+    internal static SamusPoseInputMatch Match(SamusPoseInputList inputList, SnesButton held, SnesButton newlyPressed) => inputList switch
     {
         SpringBallGroundRightPoseList => MatchSpringBallGroundRightPoseList(held, newlyPressed),
         SpringBallGroundLeftPoseList => MatchSpringBallGroundLeftPoseList(held, newlyPressed),
@@ -98,8 +98,8 @@ internal static class SamusPoseInputRulesLate
             SamusPoseInputList.KnockbackRightPoseList or
             SamusPoseInputList.KnockbackLeftPoseList or
             SamusPoseInputList.UnusedPose5BList or
-            SamusPoseInputList.UnusedPose5CList => throw new InvalidOperationException($"Pose-input list {pointer} belongs to the other rule section."),
-        _ => throw new InvalidOperationException($"Pose-input list {pointer} belongs to the other rule section."),
+            SamusPoseInputList.UnusedPose5CList => throw new InvalidOperationException($"Pose-input list {inputList} belongs to the other rule section."),
+        _ => throw new InvalidOperationException($"Pose-input list {inputList} belongs to the other rule section."),
     };
 
     /// <summary>$91:A90C TransitionTable_79_7B_FacingRight_MorphBall_Spring_OnGround: native priority order.</summary>

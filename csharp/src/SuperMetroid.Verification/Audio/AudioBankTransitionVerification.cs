@@ -53,7 +53,7 @@ internal static class AudioBankTransitionVerification
         {
             var renderer = CartridgeAudioSessionAccess.CreateSynthesizing(assets);
             renderer.RenderFrame([new CartridgeAudioCommand.Upload(AudioBank.SpcEngine)]);
-            renderer.RenderFrame([new CartridgeAudioCommand.Upload(bank.Bank)]);
+            renderer.RenderFrame([new CartridgeAudioCommand.Upload(bank.AudioSet)]);
             renderer.RenderFrame([new CartridgeAudioCommand.WritePort(ApuPort.Music, 5)]);
             for (int frame = 0; frame < 600; frame++) renderer.RenderFrame([]);
             renderer.RenderFrame([new CartridgeAudioCommand.Upload(AudioBank.LastMetroidInCaptivity)]);

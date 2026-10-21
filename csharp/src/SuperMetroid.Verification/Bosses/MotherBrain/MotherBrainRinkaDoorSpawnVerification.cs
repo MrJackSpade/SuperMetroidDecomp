@@ -64,7 +64,7 @@ internal static class MotherBrainRinkaDoorSpawnVerification
         AssertEqual(RoomHeaderDefinitions.MotherBrain, runtime.Room.LoadedRoom.Definition, "Samus is in Mother Brain's room");
 
         RoomEnemySlot[] rinkas = runtime.Enemies.SlotTable.Slots
-            .Where(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Rinka && slot.Spawn.Population.Parameter1 != 0)
+            .Where(slot => slot.DefinitionId == EnemyDefinitionId.Rinka && slot.Spawn.Population.Parameter1 != 0)
             .OrderBy(slot => slot.SlotIndex)
             .ToArray();
         AssertEqual(3, rinkas.Length, "Mother Brain's room has three special Rinkas");

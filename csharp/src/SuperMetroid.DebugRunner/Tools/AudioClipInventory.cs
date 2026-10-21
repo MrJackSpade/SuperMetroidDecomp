@@ -58,7 +58,7 @@ internal static class AudioClipInventory
             AudioSoundEffectMetadata effect = catalog.SoundLibraries
                 .Single(library => library.Library == SoundEffectLibraries.ToQueueIndex(key.Library) + 1)
                 .Effects.Single(candidate => candidate.Command == key.Command);
-            AudioBank bank = key.Context ?? AudioAssetCatalogDefinitions.Common.Bank;
+            AudioBank bank = key.Context ?? AudioAssetCatalogDefinitions.Common.AudioSet;
             string[] missing = [.. effect.ChannelPrograms
                 .SelectMany(program => exportScans[program].UnmappedSources(catalog.GetInstrumentBank(bank), catalog.GetSampleBank(bank)))
                 .Distinct()];
@@ -118,10 +118,10 @@ internal static class AudioClipInventory
         MusicRow[] noPeriod = [.. document.Music.Where(row => row.Shape == MusicTrackShape.NoPeriodFound)];
         SoundEffectStateScan[] dependent = [.. document.Programs.Where(scan => scan.DependsOnPriorStateInAnyContext)];
         var contexts = new List<AudioBank?> { null };
-        contexts.AddRange(AudioAssetCatalogDefinitions.Music.Select(bank => (AudioBank?)bank.Bank));
+        contexts.AddRange(AudioAssetCatalogDefinitions.Music.Select(bank => (AudioBank?)bank.AudioSet));
         string[] inheritedNoise = [.. document.Programs
             .Where(scan => contexts.Any(context => scan.UsesInheritedNoiseRate(
-                catalog.GetInstrumentBank(context ?? AudioAssetCatalogDefinitions.Common.Bank))))
+                catalog.GetInstrumentBank(context ?? AudioAssetCatalogDefinitions.Common.AudioSet))))
             .Select(scan => scan.ProgramId)];
         text.AppendLine("## Gate");
         text.AppendLine();

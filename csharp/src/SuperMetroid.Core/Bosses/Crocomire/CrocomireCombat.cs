@@ -60,7 +60,7 @@ internal sealed class CrocomireCombat
         // Specials consulted before the selected literal no-op gate, in the original order.
         // Crocomire has no header shot callback; every live component supplies its own bank-$A4 routine. Bomb
         // family $0500 therefore reaches the same no-op counter, dust, or mouth reaction selected by the map.
-        table.AddBombSpecial(c => c.Enemy.EnemyDefinitionPointer == EnemyDefinitionId.Crocomire &&
+        table.AddBombSpecial(c => c.Enemy.DefinitionId == EnemyDefinitionId.Crocomire &&
                                   c.Enemy.Definition.ShotAiPointer == 0 && c.UsesExtendedHitboxes &&
                                   c.SelectedShotAi != EnemyInteractionCallback.NormalEnemyShot,
             c => ResolveCrocomireHitboxShot(c.Bomb.PackedType.Raw, c.Bomb.Position.Whole, c.SelectedShotAi));
@@ -93,7 +93,7 @@ internal sealed class CrocomireCombat
     /// <summary>Routes power-bomb hits on each Crocomire component to their authored reactions.</summary>
     internal void RegisterCrocomirePowerBombReactions(EnemySharedReactions table)
     {
-        table.AddPowerBomb(new EnemyPowerBombReaction(enemy => enemy.EnemyDefinitionPointer == EnemyDefinitionId.Crocomire &&
+        table.AddPowerBomb(new EnemyPowerBombReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.Crocomire &&
                                                                EnemyCollision.PowerBombReaction(enemy) == EnemyInteractionCallback.CrocomirePowerBomb)
         {
             ReplacesCommon = (enemy, _) => ResolveCrocomirePowerBombReaction(enemy),
@@ -103,9 +103,9 @@ internal sealed class CrocomireCombat
     /// <summary>Routes body, mouth, and auxiliary hitboxes to their distinct shot reactions.</summary>
     internal void RegisterCrocomireShotReactions(EnemySharedReactions table)
     {
-        table.AddShot(new EnemyShotReaction(enemy => enemy.EnemyDefinitionPointer == EnemyDefinitionId.Crocomire &&
+        table.AddShot(new EnemyShotReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.Crocomire &&
                                                      enemy.Definition.ShotAiPointer == 0 ||
-                                                     enemy.EnemyDefinitionPointer == EnemyDefinitionId.CrocomireTongue &&
+                                                     enemy.DefinitionId == EnemyDefinitionId.CrocomireTongue &&
                                                      EnemyCollision.ShotAi(enemy) == EnemyInteractionCallback.NormalEnemyShot)
         {
             AfterSuperMissileQuake = (in EnemyShotContext c) =>
@@ -124,9 +124,9 @@ internal sealed class CrocomireCombat
     /// <summary>Registers Crocomire component contact, including normal enemy touch damage.</summary>
     internal void RegisterCrocomireTouch(EnemySharedReactions table)
     {
-        table.AddTouch(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Crocomire &&
+        table.AddTouch(slot => slot.DefinitionId == EnemyDefinitionId.Crocomire &&
                                EnemyCollision.TouchAi(slot) == EnemyInteractionCallback.CrocomireHeaderTouch ||
-                               slot.EnemyDefinitionPointer == EnemyDefinitionId.CrocomireTongue &&
+                               slot.DefinitionId == EnemyDefinitionId.CrocomireTongue &&
                                EnemyCollision.TouchAi(slot) == EnemyInteractionCallback.NormalEnemyTouch,
             context =>
             {
@@ -562,7 +562,7 @@ internal sealed class CrocomireCombat
     internal static bool? FindCrocomireBodyHitboxCallback(RoomEnemySlot enemy, EnemyHitboxProbe probe, out EnemyInteractionCallback? callback)
     {
         callback = null;
-        if (!(enemy.EnemyDefinitionPointer == EnemyDefinitionId.Crocomire &&
+        if (!(enemy.DefinitionId == EnemyDefinitionId.Crocomire &&
             CrocomireBodyCollisionDefinitions.HasFrame(enemy.Frame)))
             return null;
 
@@ -593,7 +593,7 @@ internal sealed class CrocomireCombat
     internal static bool? FindCrocomireTongueHitboxCallback(RoomEnemySlot enemy, EnemyHitboxProbe probe, out EnemyInteractionCallback? callback)
     {
         callback = null;
-        if (!(enemy.EnemyDefinitionPointer == EnemyDefinitionId.CrocomireTongue &&
+        if (!(enemy.DefinitionId == EnemyDefinitionId.CrocomireTongue &&
             (CrocomireTongueCollisionDefinitions.HasFrame(enemy.Frame) ||
             probe.ArtworkInstalled)))
             return null;
@@ -604,7 +604,7 @@ internal sealed class CrocomireCombat
         CrocomireTongueCollisionComponent component =
             CrocomireTongueCollisionDefinitions.ComponentAt(enemy.Frame);
         _ = CrocomireTongueCollisionDefinitions.HitboxCountAt(
-            component.HitboxPointer);
+            component.HitboxList);
         return false;
     
     }

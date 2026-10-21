@@ -139,7 +139,7 @@ internal sealed class EnemyCollision
             // $A0:A10E-A11F: on the ordinary radius path a frozen enemy never runs its touch
             // AI, except the respawn placeholder. The extended-hitbox path has no such gate.
             if (!usesExtendedHitboxes && !slot.FrozenTimer.IsZero &&
-                slot.EnemyDefinitionPointer != EnemyDefinitionId.Respawn)
+                slot.DefinitionId != EnemyDefinitionId.Respawn)
             {
                 continue;
             }
@@ -658,7 +658,7 @@ internal sealed class EnemyCollision
             if (_deathsAndDrops.TakeRespawnScratch() is { } deathScratch)
                 horizontalRadius = deathScratch;
             RoomEnemySlot enemy = _slotTable.Slots[slotIndex];
-            if (enemy.EnemyDefinitionPointer is 0 or EnemyDefinitionId.Respawn ||
+            if (enemy.DefinitionId is 0 or EnemyDefinitionId.Respawn ||
                 !enemy.InvincibilityTimer.IsZero ||
                 enemy.Properties.HasAny(EnemyProperties.Deleted))
             {
@@ -686,7 +686,7 @@ internal sealed class EnemyCollision
             if (reactionPointerWord != 0 && reaction is null)
             {
                 throw new InvalidDataException(
-                    $"Enemy ${(int)enemy.EnemyDefinitionPointer:X4} power-bomb reaction " +
+                    $"Enemy ${(int)enemy.DefinitionId:X4} power-bomb reaction " +
                     $"${enemy.Definition.Bank:X2}:{reactionPointerWord:X4} is not translated.");
             }
 
@@ -899,7 +899,7 @@ internal sealed class EnemyCollision
             return owned;
 
         throw new InvalidDataException(
-            $"Enemy ${(int)enemy.EnemyDefinitionPointer:X4} extended collision frame " +
+            $"Enemy ${(int)enemy.DefinitionId:X4} extended collision frame " +
             $"${enemy.Definition.Bank:X2}:{enemy.Frame} has no compiled geometry.");
     }
 

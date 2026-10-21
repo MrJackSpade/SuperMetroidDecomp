@@ -184,7 +184,7 @@ public static class RoomEnemyDefinitionCatalog
     }
 
     /// <summary>Gets an application-owned retail header, rejecting unrecognized pointers.</summary>
-    public static RoomEnemyDefinition Get(EnemyDefinitionId pointer)
+    public static RoomEnemyDefinition Get(EnemyDefinitionId definitionId)
     {
         int low = 0;
         int high = Definitions.Length - 1;
@@ -192,15 +192,15 @@ public static class RoomEnemyDefinitionCatalog
         {
             int middle = low + ((high - low) >> 1);
             var candidate = Definitions[middle];
-            if (candidate.Id == pointer)
+            if (candidate.Id == definitionId)
                 return candidate.Definition;
-            if (candidate.Id < pointer)
+            if (candidate.Id < definitionId)
                 low = middle + 1;
             else
                 high = middle - 1;
         }
 
-        throw new ArgumentOutOfRangeException(nameof(pointer), pointer,
+        throw new ArgumentOutOfRangeException(nameof(definitionId), definitionId,
             "Pointer is not a referenced retail bank-$A0 enemy definition.");
     }
 }

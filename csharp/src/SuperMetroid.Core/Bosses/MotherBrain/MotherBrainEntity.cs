@@ -16,29 +16,29 @@ internal sealed class MotherBrainEntity(MotherBrainBehavior species, RoomEnemySl
     /// <summary>The session's installed boss artwork.</summary>
     private readonly BossArtworkBinding _bossArtwork = bossArtwork;
     /// <inheritdoc/>
-    public EnemyInitializationAiHandler? FindInitialization() => MotherBrainPartDefinitions.Parts[Slot.EnemyDefinitionPointer] switch
+    public EnemyInitializationAiHandler? FindInitialization() => MotherBrainPartDefinitions.Parts[Slot.DefinitionId] switch
     {
         MotherBrainPart.Body => species.Body.InitializeMotherBrainBody,
         MotherBrainPart.Head => species.Head.InitializeMotherBrainHead,
         MotherBrainPart.Tubes => species.FakeDeath.InitializeMotherBrainFallingTube,
-        _ => throw new InvalidOperationException($"MotherBrain entity bound to {Slot.EnemyDefinitionPointer}."),
+        _ => throw new InvalidOperationException($"MotherBrain entity bound to {Slot.DefinitionId}."),
     };
 
     /// <inheritdoc/>
-    public EnemyMainAiHandler? FindMain() => MotherBrainPartDefinitions.Parts[Slot.EnemyDefinitionPointer] switch
+    public EnemyMainAiHandler? FindMain() => MotherBrainPartDefinitions.Parts[Slot.DefinitionId] switch
     {
         MotherBrainPart.Body => species.RunMotherBrainBodyMainAi,
         MotherBrainPart.Head => species.RunMotherBrainHeadMainAi,
         MotherBrainPart.Tubes => (enemy, _) => species.FakeDeath.RunMotherBrainFallingTubeMain(enemy),
-        _ => throw new InvalidOperationException($"MotherBrain entity bound to {Slot.EnemyDefinitionPointer}."),
+        _ => throw new InvalidOperationException($"MotherBrain entity bound to {Slot.DefinitionId}."),
     };
 
     /// <inheritdoc/>
-    public Action<RoomEnemySlot, EnemyInstructionContext>? FindTypedAnimation() => MotherBrainPartDefinitions.Parts[Slot.EnemyDefinitionPointer] switch
+    public Action<RoomEnemySlot, EnemyInstructionContext>? FindTypedAnimation() => MotherBrainPartDefinitions.Parts[Slot.DefinitionId] switch
     {
         MotherBrainPart.Tubes => (enemy, _) => species.Body.AdvanceMotherBrainTubeAnimation(enemy),
         MotherBrainPart.Body or MotherBrainPart.Head => species.AdvanceMotherBrainBodyTypedAnimation,
-        _ => throw new InvalidOperationException($"MotherBrain entity bound to {Slot.EnemyDefinitionPointer}."),
+        _ => throw new InvalidOperationException($"MotherBrain entity bound to {Slot.DefinitionId}."),
     };
 
     /// <inheritdoc/>
@@ -47,7 +47,7 @@ internal sealed class MotherBrainEntity(MotherBrainBehavior species, RoomEnemySl
     /// <inheritdoc/>
     public EnemyBg2FrameLookup? FindBg2Frame(EnemyFrameId selected, EnemyRoomBinding room)
     {
-        if (Slot.EnemyDefinitionPointer != EnemyDefinitionId.MotherBrainBody || !MotherBrainBodyVisualDefinitions.HasBg2(selected))
+        if (Slot.DefinitionId != EnemyDefinitionId.MotherBrainBody || !MotherBrainBodyVisualDefinitions.HasBg2(selected))
             return null;
         ReadOnlyMemory<EnemyBg2TilemapWrite> writes = default;
         bool found = _bossArtwork.Installed.MotherBrainBodyBg2Frames?.TryGet(selected, out writes) == true;
@@ -56,11 +56,11 @@ internal sealed class MotherBrainEntity(MotherBrainBehavior species, RoomEnemySl
 
     /// <summary>The body's and head's shots enter the extended-spritemap walker; their contact and the tubes' use the header radius.</summary>
     public override EnemyCapabilities Capabilities =>
-        Slot.EnemyDefinitionPointer is EnemyDefinitionId.MotherBrainBody or EnemyDefinitionId.MotherBrainHead ? EnemyCapabilities.ExtendedProjectileHitboxes : EnemyCapabilities.None;
+        Slot.DefinitionId is EnemyDefinitionId.MotherBrainBody or EnemyDefinitionId.MotherBrainHead ? EnemyCapabilities.ExtendedProjectileHitboxes : EnemyCapabilities.None;
 
     /// <summary>The body's and head's own shot callbacks, which normal bombs dispatch like the common one.</summary>
     /// <param name="callback">The named callback the selected pointer decodes to, or null.</param>
     public bool OwnsPrivateShotCallback(EnemyInteractionCallback? callback) =>
-        Slot.EnemyDefinitionPointer == EnemyDefinitionId.MotherBrainBody && callback == EnemyInteractionCallback.MotherBrainBodyShot ||
-        Slot.EnemyDefinitionPointer == EnemyDefinitionId.MotherBrainHead && callback == EnemyInteractionCallback.MotherBrainHeadShot;
+        Slot.DefinitionId == EnemyDefinitionId.MotherBrainBody && callback == EnemyInteractionCallback.MotherBrainBodyShot ||
+        Slot.DefinitionId == EnemyDefinitionId.MotherBrainHead && callback == EnemyInteractionCallback.MotherBrainHeadShot;
 }

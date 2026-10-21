@@ -15,7 +15,7 @@ namespace SuperMetroid.Core.Fx;
 internal sealed class RoomFxAnimatedTilesState
 {
     /// <summary>The object chosen by the current room FX type, or <see cref="AnimatedTileObject.None"/>.</summary>
-    private AnimatedTileObject objectPointer;
+    private AnimatedTileObject animatedObject;
     /// <summary>
     /// The frame shown when the timer next expires, an index into the loaded object's
     /// <see cref="RoomFxAnimatedTileObjectDefinition.Frames"/>. It replaces the cartridge's instruction pointer into
@@ -67,20 +67,20 @@ internal sealed class RoomFxAnimatedTilesState
     public void LoadDefinition(AnimatedTileObject definition)
     {
         // Each room builds its own animated-tile objects, so an object loads one definition, from its fresh state.
-        if (objectPointer != AnimatedTileObject.None)
-            throw new InvalidOperationException($"Room-FX animation already loaded {objectPointer}.");
-        objectPointer = definition;
-        if (objectPointer == AnimatedTileObject.None)
+        if (animatedObject != AnimatedTileObject.None)
+            throw new InvalidOperationException($"Room-FX animation already loaded {animatedObject}.");
+        animatedObject = definition;
+        if (animatedObject == AnimatedTileObject.None)
             return;
 
-        if (!RoomFxAnimatedTileMechanicsDefinitions.TryResolve(objectPointer, out compiledMechanics))
-            throw new InvalidDataException($"Room-FX animation {objectPointer} is not compiled.");
+        if (!RoomFxAnimatedTileMechanicsDefinitions.TryResolve(animatedObject, out compiledMechanics))
+            throw new InvalidDataException($"Room-FX animation {animatedObject} is not compiled.");
         nextFrame = 0;
         instructionTimer = WrappingCountdown.Start(1);
         IsActive = true;
 
         if (compiledMechanics.TransferByteCount == 0)
-            throw new InvalidDataException($"Room-FX animated-tile object {objectPointer} has no transfer bytes.");
+            throw new InvalidDataException($"Room-FX animated-tile object {animatedObject} has no transfer bytes.");
     }
 
     /// <summary>
@@ -102,7 +102,7 @@ internal sealed class RoomFxAnimatedTilesState
         int shown = nextFrame;
         RoomFxAnimatedTileFrameDefinition frame = mechanics.Frames[shown];
         if (frame.Duration == 0)
-            throw new InvalidDataException($"Room-FX animated-tile object {objectPointer} has a zero-duration frame {shown}.");
+            throw new InvalidDataException($"Room-FX animated-tile object {animatedObject} has a zero-duration frame {shown}.");
 
         int sourceAddress = RoomFxAnimatedTileArtworkDefinitions.SourceAddress(mechanics, frame.InstructionPointer);
         instructionTimer = WrappingCountdown.Start(frame.Duration);

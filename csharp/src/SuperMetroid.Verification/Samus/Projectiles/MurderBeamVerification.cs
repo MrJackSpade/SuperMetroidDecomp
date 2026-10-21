@@ -97,7 +97,7 @@ internal static class MurderBeamVerification
         EnemyDropFixture combat = CreateEnemyDropFixture(samus, [1]);
         RoomEnemySlot target = combat.System.SlotTable.Slots[0];
         target.Bind((EnemyDefinitionId)0x9000, target.Definition);
-        target.Bind(target.EnemyDefinitionPointer, default(RoomEnemyDefinition) with
+        target.Bind(target.DefinitionId, default(RoomEnemyDefinition) with
         {
             Bank = 0xa3,
             ShotAiPointer = EnemyAiCodePointers.BankA0.NormalEnemyShot,

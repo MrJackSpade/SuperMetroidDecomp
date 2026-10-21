@@ -199,7 +199,7 @@ internal static class RightFacingGateGlitchVerification
         runtime.Room.LoadedCamera.SetPosition(new Position16<RoomPixels>(128, 0));
 
         RoomEnemySlot frozen = runtime.Enemies.SlotTable.Slots.First(slot =>
-            slot.EnemyDefinitionPointer == EnemyDefinitionId.Boyon);
+            slot.DefinitionId == EnemyDefinitionId.Boyon);
         foreach (RoomEnemySlot enemy in runtime.Enemies.SlotTable.Slots)
         {
             if (!ReferenceEquals(enemy, frozen))

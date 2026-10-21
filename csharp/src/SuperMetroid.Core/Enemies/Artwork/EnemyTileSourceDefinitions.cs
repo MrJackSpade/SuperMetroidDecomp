@@ -14,13 +14,13 @@ public static class EnemyTileSourceDefinitions
     {
         EnemyTileSourceDefinition[] definitions = RoomEnemyGraphicsSetDefinitions.All
             .SelectMany(set => set.Records.ToArray())
-            .Select(record => record.DefinitionPointer).Distinct().Order()
+            .Select(record => record.DefinitionId).Distinct().Order()
             .Select(pointer => {
                 RoomEnemyDefinition header = RoomEnemyDefinitionCatalog.Get(pointer);
                 return new EnemyTileSourceDefinition(pointer, header.TileDataAddress,
                     header.TileDataSize & EnemyTileArtworkFormat.TileByteCountMask);
             }).ToArray();
-        string keys = string.Join(",", definitions.Select(definition => $"{(int)definition.DefinitionPointer:X4}"));
+        string keys = string.Join(",", definitions.Select(definition => $"{(int)definition.DefinitionId:X4}"));
         if (definitions.Length != EnemyTileArtworkFormat.RetailDefinitionCount ||
             Convert.ToHexString(SHA256.HashData(Encoding.ASCII.GetBytes(keys))) != EnemyTileArtworkFormat.RetailDefinitionIdsSha256)
             throw new InvalidDataException("Compiled enemy artwork sources differ from the pinned installation identities.");

@@ -41,7 +41,7 @@ internal static class VramDmaOwnership
         if (RoomFxAnimatedTileAtlasFormat.Segments.Any(frame => frame.IsFrame && frame.SourceAddress == source && frame.ByteCount == count)) return true;
         if (TourianStatueAnimatedTileMechanicsDefinitions.All.Any(definition =>
             definition.TransferByteCount == count && TourianStatueTileStripDefinitions.Pictures.Any(picture =>
-                TourianStatueTileStripDefinitions.SourceAddress(definition.ObjectPointer, picture) == source))) return true;
+                TourianStatueTileStripDefinitions.SourceAddress(definition.AnimatedObject, picture) == source))) return true;
         int offset = source - RoomSkyTilemapFormat.FirstSourceAddress;
         return offset >= 0 && offset + count <= RoomSkyTilemapFormat.TotalByteCount &&
             offset % RoomSkyTilemapFormat.PageByteCount == 0 && count == RoomSkyTilemapFormat.PageByteCount;

@@ -58,7 +58,7 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
     /// <summary>Allocates the Baby in the first free native slot, runs its initializer, and preserves the post-init empty map until its first scheduled turn.</summary>
     internal void SpawnMotherBrainBabyMetroid(MotherBrainEnemyState state)
     {
-        if (state.BabyMetroidSlot is { EnemyDefinitionPointer: not 0 })
+        if (state.BabyMetroidSlot is { DefinitionId: not 0 })
         {
             throw new InvalidOperationException(
                 "Mother Brain attempted to allocate the cutscene Baby more than once.");
@@ -72,15 +72,15 @@ internal sealed class BabyMetroidCutsceneBehavior : IEnemyEntityFactory
 
         RoomEnemyPopulationRecord population =
             MotherBrainBabyMetroidDefinitions.SpawnPopulation;
-        if (population.DefinitionPointer != EnemyDefinitionId.BabyMetroidCutscene)
+        if (population.DefinitionId != EnemyDefinitionId.BabyMetroidCutscene)
         {
             throw new InvalidDataException(
                 "Mother Brain Baby spawn record " +
-                $"names enemy ${(int)population.DefinitionPointer:X4}, not $ECBF.");
+                $"names enemy ${(int)population.DefinitionId:X4}, not $ECBF.");
         }
 
         RoomEnemySlot babySlot = _slotTable.Slots[slotIndex];
-        RoomEnemyDefinition definition = _room.LoadedDefinitions.ReadEnemyDefinition(population.DefinitionPointer);
+        RoomEnemyDefinition definition = _room.LoadedDefinitions.ReadEnemyDefinition(population.DefinitionId);
         _dispatch.InitializeSlotFromDefinition(babySlot, population, definition);
         _dispatch.RunInitializationAi(babySlot, EnemySpawnSurroundings.None);
 

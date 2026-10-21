@@ -181,10 +181,10 @@ internal sealed class StationPlms : IPlmFamilySource
         AreaId area,
         PlmSlot slot)
     {
-        if (slot.HeaderPointer is not (PlmHeaderId.ElevatorPlatform or PlmHeaderId.MapStation or
+        if (slot.Header is not (PlmHeaderId.ElevatorPlatform or PlmHeaderId.MapStation or
             PlmHeaderId.EnergyStation or PlmHeaderId.MissileStation or PlmHeaderId.SaveStation))
             return false;
-        switch (slot.HeaderPointer)
+        switch (slot.Header)
         {
             case PlmHeaderId.ElevatorPlatform:
                 {
@@ -485,7 +485,7 @@ internal sealed class StationPlms : IPlmFamilySource
             case PlmHeaderId.ShotBlockMorphBall:
             case PlmHeaderId.ShotBlockReserveTank:
             default:
-                throw new InvalidOperationException($"Undefined station header {slot.HeaderPointer}.");
+                throw new InvalidOperationException($"Undefined station header {slot.Header}.");
         }
     }
 
@@ -527,7 +527,7 @@ internal sealed class StationPlms : IPlmFamilySource
             RoomCollisionType.SpecialBlock,
             new RoomBlockBehavior((byte)StationAccessBehavior.SaveFloor));
         StationAnimationList saveList = ClosedNativeWords.Decode<StationAnimationList>(
-            RoomPlmHeaderDefinitions.Get(slot.HeaderPointer).InitialInstruction, "save-station animation list");
+            RoomPlmHeaderDefinitions.Get(slot.Header).InitialInstruction, "save-station animation list");
         slot.Family = new StationPlmState(
             StationKind.Save,
             area,
@@ -553,11 +553,11 @@ internal sealed class StationPlms : IPlmFamilySource
         WriteAccessBlock(level, slot.BlockIndex + layout.LeftOffset, layout.LeftBehavior);
 
         StationAnimationList normalAnimationList = ClosedNativeWords.Decode<StationAnimationList>(
-            unchecked((ushort)(RoomPlmHeaderDefinitions.Get(slot.HeaderPointer).InitialInstruction + StationNormalAnimationOffset)),
+            unchecked((ushort)(RoomPlmHeaderDefinitions.Get(slot.Header).InitialInstruction + StationNormalAnimationOffset)),
             "station animation list");
         StationAnimationList completedAnimationList = layout.HasAcquiredAnimation
             ? ClosedNativeWords.Decode<StationAnimationList>(
-                unchecked((ushort)(RoomPlmHeaderDefinitions.Get(slot.HeaderPointer).InitialInstruction + MapStationAcquiredAnimationOffset)),
+                unchecked((ushort)(RoomPlmHeaderDefinitions.Get(slot.Header).InitialInstruction + MapStationAcquiredAnimationOffset)),
                 "map-station acquired animation list")
             : normalAnimationList;
         StationAnimationList initialAnimationList = layout.HasAcquiredAnimation && system.HasAreaMap(area)

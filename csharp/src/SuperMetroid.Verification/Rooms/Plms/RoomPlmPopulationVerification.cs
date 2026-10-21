@@ -120,7 +120,7 @@ internal static class RoomPlmPopulationVerification
                 PlmBlock: new(1, 1),
                 DestinationScreen: new(0, 0),
                 SamusDistance: 0,
-                SetupCodePointer: DoorSetupCode.None);
+                SetupCode: DoorSetupCode.None);
             bool spawned = plms.DoorPlms.TrySpawnDoorClosingPlm(
                 level, door, new Bank80SystemState());
             AssertEqual(expectedHeader != 0, spawned,
@@ -211,7 +211,7 @@ internal static class RoomPlmPopulationVerification
                 PlmBlock: new(blockX, blockY),
                 DestinationScreen: new(0, 0),
                 SamusDistance: 0,
-                SetupCodePointer: DoorSetupCode.None);
+                SetupCode: DoorSetupCode.None);
             AssertTrue(plms.DoorPlms.TrySpawnDoorClosingPlm(level, enteringDoor, system),
                 $"resident door $84:{raw:X4} accepts transition redirect");
             RoomPlmSlotSnapshot slot = plms.PopulationSlots.Single();
@@ -393,7 +393,7 @@ internal static class RoomPlmPopulationVerification
             PlmBlock: new(doorX, doorY),
             DestinationScreen: new(0, 0),
             SamusDistance: 0x8000,
-            SetupCodePointer: DoorSetupCode.None);
+            SetupCode: DoorSetupCode.None);
         AssertTrue(plms.DoorPlms.TrySpawnDoorClosingPlm(level, enteringDoor, system),
             "Bomb Torizo entry redirects the resident door to its secondary list");
         AssertEqual(GreyDoorPhase.Closing, plms.GreyDoorSnapshots.Single().Phase,
@@ -500,7 +500,7 @@ internal static class RoomPlmPopulationVerification
             PlmBlock: new(doorX, doorY),
             DestinationScreen: new(0, 0),
             SamusDistance: 0x8000,
-            SetupCodePointer: DoorSetupCode.None);
+            SetupCode: DoorSetupCode.None);
         AssertTrue(plms.DoorPlms.TrySpawnDoorClosingPlm(level, enteringDoor, system),
             "room $9B9D redirects its resident grey door to closing list $BE59");
 
@@ -873,7 +873,7 @@ internal static class RoomPlmPopulationVerification
             PlmBlock: new(gateX, gateY),
             DestinationScreen: new(0, 0),
             SamusDistance: 0x8000,
-            SetupCodePointer: DoorSetupCode.None);
+            SetupCode: DoorSetupCode.None);
         AssertTrue(escape.DoorPlms.TrySpawnDoorClosingPlm(escapeLevel, motherBrainExit, system),
             "direction-nine Mother Brain exit redirects the resident gate");
         AssertEqual(1, escape.SlotTable.ActiveCount,

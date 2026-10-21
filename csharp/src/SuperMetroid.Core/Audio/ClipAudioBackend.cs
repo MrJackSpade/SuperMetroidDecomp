@@ -64,7 +64,7 @@ public sealed class ClipAudioBackend
             {
                 case AudioEvent.LoadAudioBank loadAudioBank:
                     RequireBeforeTicks(ticked, audioEvent);
-                    Upload(loadAudioBank.Bank, frameStart);
+                    Upload(loadAudioBank.AudioSet, frameStart);
                     break;
                 case AudioEvent.WriteMusicPort writeMusicPort:
                     RequireBeforeTicks(ticked, audioEvent);
@@ -95,10 +95,10 @@ public sealed class ClipAudioBackend
     }
 
     /// <summary>An upload stops the music, clears the music latch and silences each playing sound until its next key-on in the new context.</summary>
-    private void Upload(AudioBank bank, long now)
+    private void Upload(AudioBank audioSet, long now)
     {
         ReleaseMusic(now);
-        State.Upload(bank == AudioAssetCatalogDefinitions.Common.Bank ? null : bank);
+        State.Upload(audioSet == AudioAssetCatalogDefinitions.Common.AudioSet ? null : audioSet);
         for (int index = 0; index < State.Libraries.Length; index++)
         {
             ClipLibraryState library = State.Libraries[index];

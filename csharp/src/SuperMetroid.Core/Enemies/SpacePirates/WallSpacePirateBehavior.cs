@@ -348,14 +348,14 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
     /// <summary>Applies the ordinary Pirate power-bomb callback across wall, walking, and Ninja variants.</summary>
     internal static void RegisterWallSpacePiratePowerBombReactions(EnemySharedReactions table)
     {
-        table.AddPowerBomb(new EnemyPowerBombReaction(enemy => IsOrdinarySpacePirateDefinition(enemy.EnemyDefinitionPointer) &&
+        table.AddPowerBomb(new EnemyPowerBombReaction(enemy => IsOrdinarySpacePirateDefinition(enemy.DefinitionId) &&
                                                                EnemyCollision.PowerBombReaction(enemy) == EnemyInteractionCallback.SpacePiratePowerBomb));
     }
 
     /// <summary>Uses shared Pirate shot logic, including hitbox quake, big death explosion, and Gold Ninja drops.</summary>
     internal void RegisterWallSpacePirateShotReactions(EnemySharedReactions table)
     {
-        table.AddShot(new EnemyShotReaction(enemy => IsOrdinarySpacePirateDefinition(enemy.EnemyDefinitionPointer) &&
+        table.AddShot(new EnemyShotReaction(enemy => IsOrdinarySpacePirateDefinition(enemy.DefinitionId) &&
                                                      EnemyCollision.ShotAi(enemy) == EnemyInteractionCallback.SpacePirateShot)
         {
             AfterSuperMissileQuake = _walkingSpacePirateBehavior.ResolveSpacePirateHitboxShot,
@@ -370,7 +370,7 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
                 // $B2:878F records the Gold Ninja's position as the drop origin before EnemyDeath clears the slot;
                 // $B2:87B4 then spawns the death explosion before MetalNinjaPirateDeathItemDropRoutine ($B2:87B8)
                 // spawns the drops.
-                bool spawnsGoldNinjaDrops = c.Enemy.EnemyDefinitionPointer == EnemyDefinitionId.PirateGoldNinja;
+                bool spawnsGoldNinjaDrops = c.Enemy.DefinitionId == EnemyDefinitionId.PirateGoldNinja;
                 Position16<RoomPixels> dropOrigin = c.Enemy.Position.Whole;
                 _deathsAndDrops.StartGenericEnemyDeath(
                     c.Enemy,
@@ -385,7 +385,7 @@ internal sealed class WallSpacePirateBehavior : IEnemySpecies, IEnemyEntityFacto
     /// <summary>Skips frozen contact and rejects unsupported extended hitbox callbacks before normal touch damage.</summary>
     internal void RegisterWallSpacePirateTouch(EnemySharedReactions table)
     {
-        table.AddTouch(slot => IsOrdinarySpacePirateDefinition(slot.EnemyDefinitionPointer) &&
+        table.AddTouch(slot => IsOrdinarySpacePirateDefinition(slot.DefinitionId) &&
                                EnemyCollision.TouchAi(slot) == EnemyInteractionCallback.SpacePirateTouch,
             context =>
             {

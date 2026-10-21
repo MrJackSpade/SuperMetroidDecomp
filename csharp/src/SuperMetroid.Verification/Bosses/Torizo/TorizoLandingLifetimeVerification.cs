@@ -28,7 +28,7 @@ internal static class TorizoLandingLifetimeVerification
         runtime.RoomLoader.InitializeStartingCeresRoom();runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.System.SetEvent(EventNumber.ZebesAwake);
         runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.BombTorizo);
-        var body=runtime.Enemies.SlotTable.Slots.First(e=>e.EnemyDefinitionPointer==EnemyDefinitionId.BombTorizo);
+        var body=runtime.Enemies.SlotTable.Slots.First(e=>e.DefinitionId==EnemyDefinitionId.BombTorizo);
         var state= runtime.Enemies.BombTorizoBehavior.Access.TorizoState ?? throw new InvalidOperationException("Verification requires runtime.Enemies.BombTorizoBehavior._torizoState.");
         state.Function=TorizoFunction.Active;state.PreInstruction=TorizoPreInstruction.Jump;state.ReturnCursor=AnimationProgramCursor<TorizoBodyProgram>.Start(TorizoBodyProgram.FacingLeftFalling2);
         state.Velocity=new EightEightVector<RoomPixels>(0,0x400);state.JumpAcceleration=new EightEightVector<RoomPixels>(0,40);

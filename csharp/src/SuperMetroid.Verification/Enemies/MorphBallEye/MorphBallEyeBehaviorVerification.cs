@@ -109,7 +109,7 @@ internal static class MorphBallEyeBehaviorVerification
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.Eye, slot.Definition);
-        slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = MorphBallEyeFrameToolingDefinitions.Bank });
+        slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition) with { Bank = MorphBallEyeFrameToolingDefinitions.Bank });
         slot.SetSpawnParameter1(parameter1);
         slot.SetSpawnParameter2(parameter2);
         enemies.MorphBallEyeBehavior.InitializeMorphBallEye(slot);

@@ -49,7 +49,7 @@ internal sealed class PhantoonCombat
         // AI; their private callbacks own slot cleanup or a staged death. Bank-$A8 callbacks reuse the same
         // translated post-common routines as beams. Normal bombs cannot freeze, but their damage, staged-death,
         // child synchronization, recoil, release, and attack side effects are otherwise the same callback tails.
-        table.AddBombCommon(new EnemyBombReaction(c => c.Enemy.EnemyDefinitionPointer == EnemyDefinitionId.PhantoonBody &&
+        table.AddBombCommon(new EnemyBombReaction(c => c.Enemy.DefinitionId == EnemyDefinitionId.PhantoonBody &&
                                                        c.SelectedShotAi == EnemyInteractionCallback.PhantoonShot)
         {
             RunsGenericDeath = false,
@@ -149,7 +149,7 @@ internal sealed class PhantoonCombat
             return 0;
 
         RoomEnemySlot body = state.Body;
-        if (body.EnemyDefinitionPointer != EnemyDefinitionId.PhantoonBody ||
+        if (body.DefinitionId != EnemyDefinitionId.PhantoonBody ||
             CommonEnemyEmptyExtendedFrameDefinitions.DrawsNothing(body.Frame) ||
             !body.InvincibilityTimer.IsZero ||
             body.Properties.HasAny(
@@ -611,10 +611,10 @@ internal sealed class PhantoonCombat
     internal PhantoonEnemyState RequirePhantoonState(RoomEnemySlot slot)
     {
         if (Phantoon is null ||
-            _slotTable.Slots[0].EnemyDefinitionPointer != EnemyDefinitionId.PhantoonBody)
+            _slotTable.Slots[0].DefinitionId != EnemyDefinitionId.PhantoonBody)
         {
             throw new InvalidOperationException(
-                $"Enemy ${(int)slot.EnemyDefinitionPointer:X4} requires Phantoon's retail body in slot zero.");
+                $"Enemy ${(int)slot.DefinitionId:X4} requires Phantoon's retail body in slot zero.");
         }
         return Phantoon;
     }
@@ -627,7 +627,7 @@ internal sealed class PhantoonCombat
     /// <summary>Binds Phantoon body contact to the shared enemy collision path.</summary>
     internal void RegisterPhantoonBodyTouch(EnemySharedReactions table)
     {
-        table.AddTouch(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.PhantoonBody &&
+        table.AddTouch(slot => slot.DefinitionId == EnemyDefinitionId.PhantoonBody &&
                                EnemyCollision.TouchAi(slot) == EnemyInteractionCallback.PhantoonTouch,
             context =>
             {
@@ -648,7 +648,7 @@ internal sealed class PhantoonCombat
     internal static bool? FindPhantoonHitboxCallback(RoomEnemySlot enemy, EnemyHitboxProbe probe, out EnemyInteractionCallback? callback)
     {
         callback = null;
-        if (!(PhantoonCombat.IsPhantoonPartDefinition(enemy.EnemyDefinitionPointer)))
+        if (!(PhantoonCombat.IsPhantoonPartDefinition(enemy.DefinitionId)))
             return null;
 
         // Phantoon's extended frame roots include hitbox-list pointers,

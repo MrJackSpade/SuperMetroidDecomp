@@ -66,10 +66,10 @@ internal sealed class EnemySpeciesRegistry
     internal IEnemyEntity Create(RoomEnemySlot slot)
     {
         Ensure.NotNull(slot);
-        if (_factories.TryGetValue(slot.EnemyDefinitionPointer, out IEnemyEntityFactory? factory))
+        if (_factories.TryGetValue(slot.DefinitionId, out IEnemyEntityFactory? factory))
             return factory.Create(slot, _common);
-        if (UnportedDefinitions.Contains(slot.EnemyDefinitionPointer))
-            throw new InvalidDataException($"Enemy slot {slot.SlotIndex} holds {slot.EnemyDefinitionPointer}, whose species AI is not ported.");
+        if (UnportedDefinitions.Contains(slot.DefinitionId))
+            throw new InvalidDataException($"Enemy slot {slot.SlotIndex} holds {slot.DefinitionId}, whose species AI is not ported.");
         return new InertEnemyEntity(slot, _common);
     }
 }

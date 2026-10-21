@@ -56,7 +56,7 @@ internal sealed class WreckedShipTreadmillPlms : IPlmFamilySource
         if (_slotTable.SpawnHardcoded() is not { } slot)
             return false;
 
-        slot.HeaderPointer = header;
+        slot.Header = header;
         slot.BlockIndex = origin;
         slot.InstructionTimer = WrappingCountdown.Start(1);
         slot.Family = new WreckedShipTreadmillPlmState(
@@ -87,7 +87,7 @@ internal sealed class WreckedShipTreadmillPlms : IPlmFamilySource
         if (_slotTable.SpawnHardcoded() is not { } slot)
             return false;
 
-        slot.HeaderPointer = PlmHeaderId.MaridiaElevatube;
+        slot.Header = PlmHeaderId.MaridiaElevatube;
         slot.BlockIndex = blockIndex;
         slot.StartAnimation(new ScriptedRoomPlmAnimation(ScriptedRoomPlmProgram.MaridiaElevatube));
         slot.InstructionTimer = WrappingCountdown.Start(1);

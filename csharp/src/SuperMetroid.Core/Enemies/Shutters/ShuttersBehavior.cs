@@ -582,7 +582,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         // `$A2:F0A2` never calls common shot AI. Bomb collision has already marked the physical bomb, then the
         // callback only advances the shutter state machine exactly as a beam, missile, touch, or power bomb would.
-        table.AddBombSpecial(c => c.Enemy.EnemyDefinitionPointer is EnemyDefinitionId.ShutterShootable or EnemyDefinitionId.Kamer &&
+        table.AddBombSpecial(c => c.Enemy.DefinitionId is EnemyDefinitionId.ShutterShootable or EnemyDefinitionId.Kamer &&
                                   c.SelectedShotAi == EnemyInteractionCallback.ShootableVerticalShutterShot,
             c => ReactVerticalShutter(c.Enemy, _shutterCamera));
     }
@@ -590,7 +590,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Runs common bomb damage before reacting a destroyable vertical shutter.</summary>
     internal void RegisterDestroyableShutterBombReactions(EnemySharedReactions table)
     {
-        table.AddBombCommon(new EnemyBombReaction(c => c.Enemy.EnemyDefinitionPointer == EnemyDefinitionId.ShutterDestroyable &&
+        table.AddBombCommon(new EnemyBombReaction(c => c.Enemy.DefinitionId == EnemyDefinitionId.ShutterDestroyable &&
                                                        c.SelectedShotAi == EnemyInteractionCallback.DestroyableVerticalShutterShot)
         {
             AfterCommon = c => ReactVerticalShutter(c.Enemy, _shutterCamera),
@@ -663,12 +663,12 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Uses movement reactions instead of common power-bomb damage for shutter families.</summary>
     internal void RegisterShuttersPowerBombReactions(EnemySharedReactions table)
     {
-        table.AddPowerBomb(new EnemyPowerBombReaction(enemy => IsVerticalShutterDefinition(enemy.EnemyDefinitionPointer) &&
+        table.AddPowerBomb(new EnemyPowerBombReaction(enemy => IsVerticalShutterDefinition(enemy.DefinitionId) &&
                                                                EnemyCollision.PowerBombReaction(enemy) == EnemyInteractionCallback.VerticalShutterPowerBomb)
         {
             ReplacesCommon = (enemy, _) => ReactVerticalShutter(enemy, _shutterCamera),
         });
-        table.AddPowerBomb(new EnemyPowerBombReaction(enemy => enemy.EnemyDefinitionPointer == EnemyDefinitionId.ShutterHorizShootable &&
+        table.AddPowerBomb(new EnemyPowerBombReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.ShutterHorizShootable &&
                                                                EnemyCollision.PowerBombReaction(enemy) == EnemyInteractionCallback.HorizontalShutterPowerBomb)
         {
             ReplacesCommon = (enemy, _) => ReactHorizontalShutter(enemy),
@@ -678,7 +678,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Marks a shootable vertical shutter's projectile collision before activating it.</summary>
     internal void RegisterShuttersShotReactions(EnemySharedReactions table)
     {
-        table.AddShot(new EnemyShotReaction(enemy => enemy.EnemyDefinitionPointer is EnemyDefinitionId.ShutterShootable or EnemyDefinitionId.Kamer &&
+        table.AddShot(new EnemyShotReaction(enemy => enemy.DefinitionId is EnemyDefinitionId.ShutterShootable or EnemyDefinitionId.Kamer &&
                                                      EnemyCollision.ShotAi(enemy) == EnemyInteractionCallback.ShootableVerticalShutterShot)
         {
             // $F0A2 goes directly to the shutter reaction instead of normal shot AI. The bank-$A0 collision walker
@@ -695,13 +695,13 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Runs common shot damage for destroyable shutters and movement reactions for horizontal ones.</summary>
     internal void RegisterDestroyableAndHorizontalShutterShotReactions(EnemySharedReactions table)
     {
-        table.AddShot(new EnemyShotReaction(enemy => enemy.EnemyDefinitionPointer == EnemyDefinitionId.ShutterDestroyable &&
+        table.AddShot(new EnemyShotReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.ShutterDestroyable &&
                                                      EnemyCollision.ShotAi(enemy) == EnemyInteractionCallback.DestroyableVerticalShutterShot)
         {
             AfterCommon = c => ReactVerticalShutter(c.Enemy, _shutterCamera),
         });
 
-        table.AddShot(new EnemyShotReaction(enemy => enemy.EnemyDefinitionPointer == EnemyDefinitionId.ShutterHorizShootable &&
+        table.AddShot(new EnemyShotReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.ShutterHorizShootable &&
                                                      EnemyCollision.ShotAi(enemy) == EnemyInteractionCallback.HorizontalShutterShot)
         {
             ExemptFromGenericDeath = true,
@@ -714,11 +714,11 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         // $F09D does not enter common contact damage. Body overlap is itself the trigger, and $F0B6 decides
         // whether this population mode may start moving.
-        table.AddTouch(slot => IsVerticalShutterDefinition(slot.EnemyDefinitionPointer) &&
+        table.AddTouch(slot => IsVerticalShutterDefinition(slot.DefinitionId) &&
                                EnemyCollision.TouchAi(slot) == EnemyInteractionCallback.VerticalShutterTouch,
             context => ReactVerticalShutter(context.Slot, _shutterCamera));
 
-        table.AddTouch(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.ShutterHorizShootable &&
+        table.AddTouch(slot => slot.DefinitionId == EnemyDefinitionId.ShutterHorizShootable &&
                                EnemyCollision.TouchAi(slot) == EnemyInteractionCallback.HorizontalShutterTouch,
             context =>
             {
@@ -733,10 +733,10 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Ports $A2:EE05/$A2:EE12 and their shared tail at $A2:EE1F.</summary>
     internal static void InitializeVerticalShutter(RoomEnemySlot slot)
     {
-        if (!IsVerticalShutterDefinition(slot.EnemyDefinitionPointer))
+        if (!IsVerticalShutterDefinition(slot.DefinitionId))
         {
             throw new InvalidDataException(
-                $"Definition ${(int)slot.EnemyDefinitionPointer:X4} does not use vertical-shutter initialization.");
+                $"Definition ${(int)slot.DefinitionId:X4} does not use vertical-shutter initialization.");
         }
 
         var state = new VerticalShutterEnemyState();
@@ -778,7 +778,7 @@ internal sealed class ShuttersBehavior : IEnemySpecies, IEnemyEntityFactory
         InstallVerticalShutterProgram(
             slot,
             state,
-            slot.EnemyDefinitionPointer == EnemyDefinitionId.Kamer ? ShutterProgram.KamerPlatform : ShutterProgram.FortyPixels);
+            slot.DefinitionId == EnemyDefinitionId.Kamer ? ShutterProgram.KamerPlatform : ShutterProgram.FortyPixels);
     }
 
     /// <summary>Ports <c>VerticalShutter_Main</c> at $A2:EED1.</summary>

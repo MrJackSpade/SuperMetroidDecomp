@@ -284,11 +284,11 @@ internal sealed class MotherBrainFakeDeath
     {
         // The bound source supplies the fixed cutscene placement; retail rooms resolve it without touching bank $A9.
         RoomEnemyPopulationRecord population = _room.LoadedDefinitions.ReadFallingTubePopulation(piece);
-        if (population.DefinitionPointer != EnemyDefinitionId.MotherBrainTubes)
+        if (population.DefinitionId != EnemyDefinitionId.MotherBrainTubes)
         {
             throw new InvalidDataException(
                 $"Mother Brain tube record for {piece} names enemy " +
-                $"${(int)population.DefinitionPointer:X4}, not the falling tube.");
+                $"${(int)population.DefinitionId:X4}, not the falling tube.");
         }
 
         // SpawnEnemy silently fails when all 32 native records are occupied.

@@ -60,7 +60,7 @@ internal sealed class ChozoStatuePlms : IChozoStatueHand
         if (_slotTable.SpawnAtCurrentBlock() is not { } reaction)
             return;
 
-        reaction.HeaderPointer = wreckedShip ? PlmHeaderId.CollisionWreckedShipChozoHandCheck
+        reaction.Header = wreckedShip ? PlmHeaderId.CollisionWreckedShipChozoHandCheck
             : PlmHeaderId.CollisionLowerNorfairChozoHandCheck;
         reaction.BlockIndex = block.Index;
         if (eligible)
@@ -78,19 +78,19 @@ internal sealed class ChozoStatuePlms : IChozoStatueHand
     public bool TrySpawnChozoStatuePlm(RoomLevelData level, ChozoStatuePlmRequest request)
     {
         ChozoStatuePlmDefinition definition =
-            ChozoStatuePlmDefinitions.Resolve(request.HeaderPointer);
+            ChozoStatuePlmDefinitions.Resolve(request.Header);
         int index = level.GetBlockIndex(request.Block);
         if ((request.IsHardcoded ? _slotTable.SpawnHardcoded() : _slotTable.SpawnAtCurrentBlock()) is not { } slot)
             return false;
 
-        slot.HeaderPointer = definition.HeaderPointer;
+        slot.Header = definition.Header;
         slot.BlockIndex = index;
         definition.Program.StartOn(slot);
         slot.InstructionTimer = WrappingCountdown.Start(1);
-        if (request.HeaderPointer == PlmHeaderId.WreckedShipChozoHand)
+        if (request.Header == PlmHeaderId.WreckedShipChozoHand)
             WriteChozoBlock(level, index, RoomCollisionType.SpecialBlock,
                 ChozoStatuePlmRomData.WreckedShipHandBts.Value);
-        else if (request.HeaderPointer == PlmHeaderId.CrumbleLowerNorfairChozoRoomPlug)
+        else if (request.Header == PlmHeaderId.CrumbleLowerNorfairChozoRoomPlug)
         {
             // Native D108 omits LDA: the two spawn entry points leave different A
             // values, so preserve that quirk rather than reading the previous tile.

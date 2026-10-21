@@ -45,7 +45,7 @@ public static class SamusPoseTransitionTable
         SnesButton held = canonicalHeldInput & ~StartAndSelectMask;
         SnesButton newlyPressed = canonicalNewInput & ~StartAndSelectMask;
 
-        if (!SamusPoseInputDefinitions.TryGetPointer(currentPose, out SamusPoseInputList tablePointer))
+        if (!SamusPoseInputDefinitions.TryGetInputList(currentPose, out SamusPoseInputList tablePointer))
         {
             throw new InvalidDataException(
                 $"Pose ${(int)currentPose:X2} has no authored input-transition graph; " +

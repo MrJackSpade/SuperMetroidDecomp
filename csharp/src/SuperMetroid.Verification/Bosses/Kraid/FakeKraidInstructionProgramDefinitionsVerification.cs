@@ -208,7 +208,7 @@ internal static class FakeKraidInstructionProgramDefinitionsVerification
 
             slot = enemies.SlotTable.Slots[0];
             slot.Bind(EnemyDefinitionId.MiniKraid, slot.Definition);
-            slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = 0xa6 });
+            slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition) with { Bank = 0xa6 });
             // The header's collision half-extents: the terrain movers scan the rows the body spans.
             slot.Radius = CompiledRoomEnemyDefinitions.Instance.ReadEnemyDefinition(EnemyDefinitionId.MiniKraid).Radius;
             slot.Position = slot.Position.WithWhole(new(0x0100, 0x0100));

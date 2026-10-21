@@ -26,7 +26,7 @@ internal sealed class EnemyBreakableTerrainPlms
         if (_slotTable.SpawnAtCurrentBlock() is not { } slot)
             return false;
 
-        slot.HeaderPointer = PlmHeaderId.EnemyBreakableBlock;
+        slot.Header = PlmHeaderId.EnemyBreakableBlock;
         slot.BlockIndex = blockIndex;
         slot.StartAnimation(new ScriptedRoomPlmAnimation(ScriptedRoomPlmProgram.EnemyBreakableTerrain));
         slot.InstructionTimer = WrappingCountdown.Start(1);

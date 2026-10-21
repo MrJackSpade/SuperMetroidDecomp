@@ -33,7 +33,7 @@ internal static void VerifySamusPoseTransitionMatching()
         canonicalHeldInput: SnesButton.Up | SnesButton.Right | SnesButton.A,
         canonicalNewInput: SnesButton.A) ?? throw new InvalidOperationException("Verification requires SamusPoseTransitionTable.Find( bus, currentPose: fixturePose, canonicalHeldInput: 0x098...."));
     AssertEqual(0x55, (byte)jumpUp.ProspectivePose, "Samus transition required-new plus held chord");
-    AssertTrue(SamusPoseInputDefinitions.TryGetPointer(fixturePose, out _),
+    AssertTrue(SamusPoseInputDefinitions.TryGetInputList(fixturePose, out _),
         "Samus transition fixture pose has an authored table");
 
     SamusPoseTransition up = (SamusPoseTransitionTable.Find(

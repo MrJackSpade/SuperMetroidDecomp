@@ -2,7 +2,7 @@ namespace SuperMetroid.Core.Rooms.Plms;
 
 /// <summary>One native room-graphics enemy-projectile spawn emitted by PLM $D70C.</summary>
 public readonly record struct NoobTubeProjectileRequest(
-    NoobTubeProjectileDefinition DefinitionPointer,
+    NoobTubeProjectileDefinition Definition,
     int Parameter,
     int PlmBlockIndex)
 {

@@ -43,8 +43,8 @@ internal sealed class TorizoCombat
         SamusBombProjectileSlot bomb,
         EnemyInteractionCallback? selectedShotAi)
     {
-        bool isBombTorizo = torizo.EnemyDefinitionPointer == EnemyDefinitionId.BombTorizo;
-        bool isGoldenTorizo = torizo.EnemyDefinitionPointer == EnemyDefinitionId.GoldenTorizo;
+        bool isBombTorizo = torizo.DefinitionId == EnemyDefinitionId.BombTorizo;
+        bool isGoldenTorizo = torizo.DefinitionId == EnemyDefinitionId.GoldenTorizo;
         if (!isBombTorizo && !isGoldenTorizo)
             throw new ArgumentException("Normal-bomb Torizo dispatch requires a Torizo body.");
 
@@ -126,7 +126,7 @@ internal sealed class TorizoCombat
         _body.MaybeSpawnBombTorizoLowHealthDrool(torizo);
         if ((torizo.FlashTimer.RawValue & 1) == 0)
         {
-            if (torizo.EnemyDefinitionPointer == EnemyDefinitionId.GoldenTorizo)
+            if (torizo.DefinitionId == EnemyDefinitionId.GoldenTorizo)
                 LoadGoldenTorizoHealthPalette(torizo.Health);
             else
                 LoadTorizoDeathPalette();
@@ -162,15 +162,15 @@ internal sealed class TorizoCombat
     /// <summary>Routes overlapping normal bombs through the selected Torizo hitbox callback.</summary>
     internal void RegisterBombTorizoBombReactions(EnemySharedReactions table)
     {
-        table.AddBombSpecial(c => c.Enemy.EnemyDefinitionPointer is EnemyDefinitionId.BombTorizo or EnemyDefinitionId.GoldenTorizo,
+        table.AddBombSpecial(c => c.Enemy.DefinitionId is EnemyDefinitionId.BombTorizo or EnemyDefinitionId.GoldenTorizo,
             c => ResolveTorizoNormalBomb(c.Enemy, c.Bomb, c.SelectedShotAi));
     }
 
     /// <summary>Validates extended hitbox callbacks, handles catches, and defers death to Torizo's own sequence.</summary>
     internal void RegisterBombTorizoShotReactions(EnemySharedReactions table)
     {
-        table.AddShot(new EnemyShotReaction(enemy => enemy.EnemyDefinitionPointer is EnemyDefinitionId.BombTorizo or EnemyDefinitionId.GoldenTorizo &&
-                                                     EnemyCollision.ShotAi(enemy) == (enemy.EnemyDefinitionPointer == EnemyDefinitionId.BombTorizo
+        table.AddShot(new EnemyShotReaction(enemy => enemy.DefinitionId is EnemyDefinitionId.BombTorizo or EnemyDefinitionId.GoldenTorizo &&
+                                                     EnemyCollision.ShotAi(enemy) == (enemy.DefinitionId == EnemyDefinitionId.BombTorizo
                                                          ? EnemyInteractionCallback.BombTorizoShot
                                                          : EnemyInteractionCallback.GoldenTorizoShot))
         {
@@ -201,7 +201,7 @@ internal sealed class TorizoCombat
     /// <summary>Registers extended body touch damage without invoking the generic death animation.</summary>
     internal void RegisterBombTorizoTouch(EnemySharedReactions table)
     {
-        table.AddTouch(slot => slot.EnemyDefinitionPointer is EnemyDefinitionId.BombTorizo or EnemyDefinitionId.GoldenTorizo &&
+        table.AddTouch(slot => slot.DefinitionId is EnemyDefinitionId.BombTorizo or EnemyDefinitionId.GoldenTorizo &&
                                EnemyCollision.TouchAi(slot) == EnemyInteractionCallback.BombTorizoTouch,
             context =>
             {
@@ -223,7 +223,7 @@ internal sealed class TorizoCombat
     internal bool ResolveTorizoShotBeforeImpact(in EnemyShotContext c)
     {
         RoomEnemySlot enemy = c.Enemy;
-        bool isBombTorizo = enemy.EnemyDefinitionPointer == EnemyDefinitionId.BombTorizo;
+        bool isBombTorizo = enemy.DefinitionId == EnemyDefinitionId.BombTorizo;
         bool isGoldenTorizo = !isBombTorizo;
         TorizoEnemyState torizoState = _access.RequireBombTorizoState(enemy);
         if (c.HitboxShotAi == EnemyInteractionCallback.TorizoStandUpSitDownShot)
@@ -303,14 +303,14 @@ internal sealed class TorizoCombat
     /// advances after the hurt callback, matching <c>$A0:8FF7</c>.
     /// </summary>
     internal void RegisterBombTorizoHurtAi(EnemySharedReactions table) =>
-        table.AddHurt(slot => slot.EnemyDefinitionPointer is EnemyDefinitionId.BombTorizo or EnemyDefinitionId.GoldenTorizo,
+        table.AddHurt(slot => slot.DefinitionId is EnemyDefinitionId.BombTorizo or EnemyDefinitionId.GoldenTorizo,
             (slot, _) => ApplyBombTorizoHurt(slot));
 
     /// <summary>The callback of the first hitbox the probe overlaps on these frames, or null when they are not this part's.</summary>
     internal static bool? FindTorizoHitboxCallback(RoomEnemySlot enemy, EnemyHitboxProbe probe, out EnemyInteractionCallback? callback)
     {
         callback = null;
-        if (enemy.EnemyDefinitionPointer is not (EnemyDefinitionId.BombTorizo or EnemyDefinitionId.GoldenTorizo))
+        if (enemy.DefinitionId is not (EnemyDefinitionId.BombTorizo or EnemyDefinitionId.GoldenTorizo))
             return null;
 
         foreach (GoldenTorizoCollisionComponent component in

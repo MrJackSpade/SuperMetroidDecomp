@@ -37,7 +37,7 @@ public static class RoomFxAnimatedTileArtworkDefinitions
         ushort instructionPointer)
     {
         Ensure.NotNull(definition);
-        int first = definition.ObjectPointer switch
+        int first = definition.AnimatedObject switch
         {
             AnimatedTileObject.HorizontalSpikes => HorizontalSpikesFirstSource,
             AnimatedTileObject.MaridiaSandCeiling => MaridiaSandCeilingFirstSource,
@@ -59,15 +59,15 @@ public static class RoomFxAnimatedTileArtworkDefinitions
                 AnimatedTileObject.WreckedShipScreen or
                 AnimatedTileObject.WreckedShipTreadmillRightwards or
                 AnimatedTileObject.WreckedShipTreadmillLeftwards => throw new InvalidDataException(
-                $"No compiled artwork source for room-FX object $87:{(int)definition.ObjectPointer:X4}."),
+                $"No compiled artwork source for room-FX object $87:{(int)definition.AnimatedObject:X4}."),
             _ => throw new InvalidDataException(
-                $"No compiled artwork source for room-FX object $87:{(int)definition.ObjectPointer:X4}."),
+                $"No compiled artwork source for room-FX object $87:{(int)definition.AnimatedObject:X4}."),
         };
         for (int index = 0; index < definition.Frames.Count; index++)
             if (definition.Frames[index].InstructionPointer == instructionPointer)
-                return first + (definition.ObjectPointer == AnimatedTileObject.HorizontalSpikes && index == 3
+                return first + (definition.AnimatedObject == AnimatedTileObject.HorizontalSpikes && index == 3
                     ? 1 : index) * definition.TransferByteCount;
         throw new InvalidDataException(
-            $"Room-FX object $87:{(int)definition.ObjectPointer:X4} has no artwork frame at $87:{instructionPointer:X4}.");
+            $"Room-FX object $87:{(int)definition.AnimatedObject:X4} has no artwork frame at $87:{instructionPointer:X4}.");
     }
 }

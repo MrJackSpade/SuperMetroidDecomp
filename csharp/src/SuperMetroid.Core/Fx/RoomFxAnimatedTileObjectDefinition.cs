@@ -8,7 +8,7 @@ public sealed class RoomFxAnimatedTileObjectDefinition
 
     /// <summary>Binds a bank-$87 object header to its transfer geometry and frame schedule.</summary>
     internal RoomFxAnimatedTileObjectDefinition(
-        AnimatedTileObject objectPointer,
+        AnimatedTileObject animatedObject,
         ushort instructionPointer,
         ushort transferByteCount,
         ushort encodedVramDestination,
@@ -17,7 +17,7 @@ public sealed class RoomFxAnimatedTileObjectDefinition
     {
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(frameCount);
 
-        ObjectPointer = objectPointer;
+        AnimatedObject = animatedObject;
         InstructionPointer = instructionPointer;
         TransferByteCount = transferByteCount;
         EncodedVramDestination = encodedVramDestination;
@@ -55,7 +55,7 @@ public sealed class RoomFxAnimatedTileObjectDefinition
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
     /// <summary>The object-header address within bank $87.</summary>
-    public AnimatedTileObject ObjectPointer { get; }
+    public AnimatedTileObject AnimatedObject { get; }
 
     /// <summary>The first timed instruction in the object's bank-$87 loop.</summary>
     public ushort InstructionPointer { get; }

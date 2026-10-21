@@ -21,7 +21,7 @@ internal static class KraidFootCollisionDefinitionsVerification
         var installed = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
 
         RoomEnemySlot installedFoot = installed.SlotTable.Slots[0];
-        installedFoot.Bind(installedFoot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = 0xa7 });
+        installedFoot.Bind(installedFoot.DefinitionId, default(RoomEnemyDefinition) with { Bank = 0xa7 });
         installedFoot.Bind(EnemyDefinitionId.KraidFoot, installedFoot.Definition);
         AssertEqual(35, KraidFootCollisionDefinitions.FrameCount,
             "Kraid foot walking extended-frame count");

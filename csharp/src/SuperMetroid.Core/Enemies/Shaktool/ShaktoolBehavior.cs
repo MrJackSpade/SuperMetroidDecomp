@@ -509,7 +509,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Runs the native post-common lethal-shot tail for bomb hits.</summary>
     internal void RegisterShaktoolBombReactions(EnemySharedReactions table)
     {
-        table.AddBombCommon(new EnemyBombReaction(c => c.Enemy.EnemyDefinitionPointer == EnemyDefinitionId.Shaktool &&
+        table.AddBombCommon(new EnemyBombReaction(c => c.Enemy.DefinitionId == EnemyDefinitionId.Shaktool &&
                                                        c.SelectedShotAi == EnemyInteractionCallback.ShaktoolShot)
         {
             AfterCommon = c => ResolveShaktoolShotAfterCommon(c.Enemy),
@@ -551,7 +551,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>`$AA:DF2F`: Shaktool contact is the common normal-enemy touch, death animation included.</summary>
     internal void RegisterShaktoolTouch(EnemySharedReactions table)
     {
-        table.AddTouch(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Shaktool &&
+        table.AddTouch(slot => slot.DefinitionId == EnemyDefinitionId.Shaktool &&
                                EnemyCollision.TouchAi(slot) == EnemyInteractionCallback.ShaktoolTouch,
             context => _collision.ResolveNormalEnemyTouch(context.Slot, context.Samus));
     }
@@ -559,7 +559,7 @@ internal sealed class ShaktoolBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Runs the native post-common lethal-shot tail for regular projectile hits.</summary>
     internal void RegisterShaktoolShotReactions(EnemySharedReactions table)
     {
-        table.AddShot(new EnemyShotReaction(enemy => enemy.EnemyDefinitionPointer == EnemyDefinitionId.Shaktool &&
+        table.AddShot(new EnemyShotReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.Shaktool &&
                                                      EnemyCollision.ShotAi(enemy) == EnemyInteractionCallback.ShaktoolShot)
         {
             AfterCommon = c => ResolveShaktoolShotAfterCommon(c.Enemy),

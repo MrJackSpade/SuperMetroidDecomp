@@ -72,7 +72,7 @@ internal static class EnemyInstructionOwnerCoverageVerification
                     // The registry refuses a room-placed header whose species AI no code ports.
                     continue;
                 }
-                slot.Bind(slot.EnemyDefinitionPointer, definition);
+                slot.Bind(slot.DefinitionId, definition);
                 slot.Radius = new(definition.Radius.X, definition.Radius.Y);
                 slot.Health = definition.Health;
                 slot.Layer = definition.Layer;
@@ -148,7 +148,7 @@ internal static class EnemyInstructionOwnerCoverageVerification
         var unknownEnemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot unknown = unknownEnemies.SlotTable.Slots[0];
         unknown.Bind((EnemyDefinitionId)0x9000, unknown.Definition);
-        unknown.Bind(unknown.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = 0xa2 });
+        unknown.Bind(unknown.DefinitionId, default(RoomEnemyDefinition) with { Bank = 0xa2 });
         InvalidDataException unknownException = AssertThrows<InvalidDataException>(
             () => EnemyInstructionRunner.Process([unknown, null, null, Position16<RoomPixels>.Zero, SnesButton.None]),
             "an instruction-processing enemy without a typed animation fails instead of reading cartridge lists");

@@ -111,7 +111,7 @@ internal sealed class AttractDemoDriver : IAttractSamusInput
             PowerBombs = scene.PowerBombs, MaxPowerBombs = scene.PowerBombs,
         };
         _artwork.BindSamusPalettePresentation();
-        ApplyAttractSamusSetup(scene.SamusSetupPointer);
+        ApplyAttractSamusSetup(scene.SamusSetup);
         _player.Samus.PreviousHealthForHurtCheck = _player.Samus.Health;
         _hudSetup.InitializeHud(new HudSnapshot(_player.Samus.Health, _player.Samus.MaxHealth,
             _player.Samus.Missiles, _player.Samus.MaxMissiles, _player.Samus.SuperMissiles, _player.Samus.MaxSuperMissiles,
@@ -124,7 +124,7 @@ internal sealed class AttractDemoDriver : IAttractSamusInput
         _roomLoader.LoadCartridgeRoom(door, room, scene.CameraPosition,
             RoomViewportLoadMode.DisplayInitialViewport);
         // The scene's room setup acts on the demo room the load just built.
-        ApplyAttractRoomSetup(scene.RoomSetupPointer, _room.LoadedScope.Enemies);
+        ApplyAttractRoomSetup(scene.RoomSetup, _room.LoadedScope.Enemies);
         _player.Samus.Presentation.LoadSuitPalette(_player.Samus, _cgram);
         SamusPoseMetadata.RefreshCollisionRadii(_player.Samus);
         SamusPresentation.InitializeAnimation(_player.Samus);
@@ -135,10 +135,10 @@ internal sealed class AttractDemoDriver : IAttractSamusInput
     }
 
     /// <summary>Applies the recorded entry pose, low-health adjustment, or demo shinespark launch.</summary>
-    private void ApplyAttractSamusSetup(AttractDemoSamusSetup pointer)
+    private void ApplyAttractSamusSetup(AttractDemoSamusSetup samusSetup)
     {
         var samus = _player.Samus ?? throw new InvalidOperationException("Demo setup requires Samus.");
-        switch (pointer)
+        switch (samusSetup)
         {
             case AttractDemoSamusSetup.LandingSite:
                 SamusPoseMetadata.ApplyForwardFacingPoseSetup(samus);
@@ -165,14 +165,14 @@ internal sealed class AttractDemoDriver : IAttractSamusInput
                 samus.Shinespark.BeginDemoLaunch(samus, SamusPoseId.ShinesparkHorizontalLeftPose);
                 break;
             default:
-                throw new InvalidOperationException($"Undefined AttractDemoSamusSetup {pointer}.");
+                throw new InvalidOperationException($"Undefined AttractDemoSamusSetup {samusSetup}.");
         }
     }
 
     /// <summary>Applies scene-specific scroll, sky-owner, Kraid timer, or defeated-boss setup.</summary>
-    private void ApplyAttractRoomSetup(AttractDemoRoomSetup pointer, RoomEnemySystem enemies)
+    private void ApplyAttractRoomSetup(AttractDemoRoomSetup roomSetup, RoomEnemySystem enemies)
     {
-        switch (pointer)
+        switch (roomSetup)
         {
             case AttractDemoRoomSetup.NoOp:
                 break;
@@ -192,7 +192,7 @@ internal sealed class AttractDemoDriver : IAttractSamusInput
                 _system.SetBossBits(AreaId.Brinstar, BossBits.AreaBoss);
                 break;
             default:
-                throw new InvalidOperationException($"Undefined AttractDemoRoomSetup {pointer}.");
+                throw new InvalidOperationException($"Undefined AttractDemoRoomSetup {roomSetup}.");
         }
     }
 }

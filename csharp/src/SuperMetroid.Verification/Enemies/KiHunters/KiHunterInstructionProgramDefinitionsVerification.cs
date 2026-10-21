@@ -207,13 +207,13 @@ internal static class KiHunterInstructionProgramDefinitionsVerification
 
             RoomEnemySlot body = enemies.SlotTable.Slots[0];
             body.Bind(EnemyDefinitionId.KihunterGreen, body.Definition);
-            body.Bind(body.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = 0xa8 });
+            body.Bind(body.DefinitionId, default(RoomEnemyDefinition) with { Bank = 0xa8 });
             // The header's collision half-extents: the terrain movers scan the rows the body spans.
             body.Radius = CompiledRoomEnemyDefinitions.Instance.ReadEnemyDefinition(EnemyDefinitionId.KihunterGreen).Radius;
             body.Position = body.Position.WithWhole(new(0x0080, 0x0080));
             RoomEnemySlot wings = enemies.SlotTable.Slots[1];
             wings.Bind(EnemyDefinitionId.KihunterGreenWings, wings.Definition);
-            wings.Bind(wings.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = 0xa8 });
+            wings.Bind(wings.DefinitionId, default(RoomEnemyDefinition) with { Bank = 0xa8 });
             initializeBody(body);
             initializeWings(wings);
             return new CreatePairResult(enemies, body, wings,

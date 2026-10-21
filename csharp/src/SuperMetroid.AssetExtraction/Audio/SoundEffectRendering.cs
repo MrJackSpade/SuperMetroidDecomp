@@ -51,7 +51,7 @@ internal static class SoundEffectRendering
     {
         var renderer = new SpcAudioClipRenderer(catalog, observer);
         observer.Attach(renderer);
-        renderer.LoadBank(AudioAssetCatalogDefinitions.Common.Bank);
+        renderer.LoadBank(AudioAssetCatalogDefinitions.Common.AudioSet);
         if (context is not null)
             renderer.LoadBank(context.Value);
         if (synthesize)

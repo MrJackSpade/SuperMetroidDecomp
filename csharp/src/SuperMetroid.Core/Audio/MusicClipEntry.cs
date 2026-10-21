@@ -6,13 +6,13 @@ namespace SuperMetroid.Core.Audio;
 /// [<see cref="LoopStart"/>, end); an ending track stops at its last frame, where the driver
 /// returned the music port to zero.
 /// </summary>
-/// <param name="Bank">The music bank whose upload holds the track.</param>
+/// <param name="AudioSet">The music bank whose upload holds the track.</param>
 /// <param name="Track">The track number written to the music port.</param>
 /// <param name="Clip">The rendered clip.</param>
 /// <param name="LoopStart">The loop's first frame, or null for a track that ends.</param>
 /// <param name="TempoSegments">The tempo in force from each frame on, in frame order, starting at frame zero.</param>
 public sealed record MusicClipEntry(
-    AudioBank Bank,
+    AudioBank AudioSet,
     int Track,
     AudioClipFile Clip,
     long? LoopStart,

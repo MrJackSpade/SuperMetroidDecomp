@@ -344,7 +344,7 @@ internal static class FrontendRomFreeVerification
                         foreach (SuperMetroidGame game in new[] { nativeRoom, installedRoom })
                         {
                             RoomEnemySlot boss = game.GameplayRuntimeForVerification.Enemies.SlotTable.Slots.Single(
-                                slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.GoldenTorizo);
+                                slot => slot.DefinitionId == EnemyDefinitionId.GoldenTorizo);
                             (game.GameplayRuntimeForVerification.Enemies.BombTorizoBehavior.Attacks.GoldenTorizo ?? throw new InvalidOperationException("Verification requires the Golden Torizo state.")).BodyProgram =
                                 AnimationProgramCursor<TorizoBodyProgram>.Start(TorizoBodyProgram.GoldenSonicBoomsFacingRightLeftFootFwd0);
                             boss.InstructionTimer = WrappingCountdown.Start(1);
@@ -355,7 +355,7 @@ internal static class FrontendRomFreeVerification
                         foreach (SuperMetroidGame game in new[] { nativeRoom, installedRoom })
                         {
                             RoomEnemySlot boss = game.GameplayRuntimeForVerification.Enemies.SlotTable.Slots.Single(
-                                slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.GoldenTorizo);
+                                slot => slot.DefinitionId == EnemyDefinitionId.GoldenTorizo);
                             (game.GameplayRuntimeForVerification.Enemies.BombTorizoBehavior.Attacks.GoldenTorizo ?? throw new InvalidOperationException("Verification requires the Golden Torizo state.")).BodyProgram =
                                 AnimationProgramCursor<TorizoBodyProgram>.Start(TorizoBodyProgram.GoldenSonicBoomsFacingRightRightFootFwd0);
                             boss.InstructionTimer = WrappingCountdown.Start(1);
@@ -367,7 +367,7 @@ internal static class FrontendRomFreeVerification
                         {
                             RoomEnemySystem enemies = game.GameplayRuntimeForVerification.Enemies;
                             RoomEnemySlot boss = enemies.SlotTable.Slots.Single(slot =>
-                                slot.EnemyDefinitionPointer == EnemyDefinitionId.GoldenTorizo);
+                                slot.DefinitionId == EnemyDefinitionId.GoldenTorizo);
                             (enemies.BombTorizoBehavior.Attacks.GoldenTorizo ?? throw new InvalidOperationException("Verification requires enemies.BombTorizoBehavior.GoldenTorizo.")).BodyProgram =
                                 AnimationProgramCursor<TorizoBodyProgram>.Start(TorizoBodyProgram.Stunned0);
                             boss.InstructionTimer = WrappingCountdown.Start(1);
@@ -392,7 +392,7 @@ internal static class FrontendRomFreeVerification
                         {
                             RoomEnemySystem enemies = game.GameplayRuntimeForVerification.Enemies;
                             RoomEnemySlot boss = enemies.SlotTable.Slots.Single(slot =>
-                                slot.EnemyDefinitionPointer == EnemyDefinitionId.GoldenTorizo);
+                                slot.DefinitionId == EnemyDefinitionId.GoldenTorizo);
                             (enemies.BombTorizoBehavior.Attacks.GoldenTorizo ?? throw new InvalidOperationException("Verification requires enemies.BombTorizoBehavior.GoldenTorizo.")).BodyProgram =
                                 AnimationProgramCursor<TorizoBodyProgram>.Start(TorizoBodyProgram.GoldenSpewChozoOrbFacingLeftLeftFootFwd0);
                             boss.InstructionTimer = WrappingCountdown.Start(1);
@@ -560,7 +560,7 @@ internal static class FrontendRomFreeVerification
         RoomEnemySlot? awakenedGoldenTorizo = room.Room == RoomHeaderDefinitions.GoldenTorizo &&
             setup is not null
             ? installed.GameplayRuntimeForVerification.Enemies.SlotTable.Slots.FirstOrDefault(slot =>
-                slot.EnemyDefinitionPointer == EnemyDefinitionId.GoldenTorizo)
+                slot.DefinitionId == EnemyDefinitionId.GoldenTorizo)
             : null;
         if (room.Room == RoomHeaderDefinitions.GoldenTorizo && setup is not null)
         {

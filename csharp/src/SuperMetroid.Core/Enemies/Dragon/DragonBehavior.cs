@@ -289,7 +289,7 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
             throw new InvalidDataException("Dragon body occupies the final physical enemy slot.");
 
         RoomEnemySlot wing = _slotTable.Slots[body.SlotIndex + 1];
-        if (body.Spawn.Population.Parameter1 != 0 || wing.EnemyDefinitionPointer != EnemyDefinitionId.Dragon ||
+        if (body.Spawn.Population.Parameter1 != 0 || wing.DefinitionId != EnemyDefinitionId.Dragon ||
             wing.Spawn.Population.Parameter1 == 0)
         {
             throw new InvalidDataException(
@@ -309,7 +309,7 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Applies Dragon's paired-body combat tail after the common bomb-as-shot callback.</summary>
     internal void RegisterDragonBombReactions(EnemySharedReactions table)
     {
-        table.AddBombCommon(new EnemyBombReaction(c => c.Enemy.EnemyDefinitionPointer == EnemyDefinitionId.Dragon &&
+        table.AddBombCommon(new EnemyBombReaction(c => c.Enemy.DefinitionId == EnemyDefinitionId.Dragon &&
                                                        c.SelectedShotAi == EnemyInteractionCallback.DragonShot)
         {
             AfterCommon = c => ResolveDragonCombatAfterCommon(c.Enemy),
@@ -340,7 +340,7 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Synchronizes wing and body state after a Dragon power-bomb reaction.</summary>
     internal void RegisterDragonPowerBombReactions(EnemySharedReactions table)
     {
-        table.AddPowerBomb(new EnemyPowerBombReaction(enemy => enemy.EnemyDefinitionPointer == EnemyDefinitionId.Dragon &&
+        table.AddPowerBomb(new EnemyPowerBombReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.Dragon &&
                                                                EnemyCollision.PowerBombReaction(enemy) == EnemyInteractionCallback.DragonPowerBomb)
         {
             AfterCommon = (enemy, _) => ResolveDragonCombatAfterCommon(enemy),
@@ -350,7 +350,7 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Synchronizes wing and body state after common projectile damage resolution.</summary>
     internal void RegisterDragonShotReactions(EnemySharedReactions table)
     {
-        table.AddShot(new EnemyShotReaction(enemy => enemy.EnemyDefinitionPointer == EnemyDefinitionId.Dragon &&
+        table.AddShot(new EnemyShotReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.Dragon &&
                                                      EnemyCollision.ShotAi(enemy) == EnemyInteractionCallback.DragonShot)
         {
             AfterCommon = c => ResolveDragonCombatAfterCommon(c.Enemy),
@@ -360,7 +360,7 @@ internal sealed class DragonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Runs ordinary enemy touch damage before mirroring Dragon's hurt and freeze state into its wing.</summary>
     internal void RegisterDragonTouch(EnemySharedReactions table)
     {
-        table.AddTouch(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Dragon &&
+        table.AddTouch(slot => slot.DefinitionId == EnemyDefinitionId.Dragon &&
                                EnemyCollision.TouchAi(slot) == EnemyInteractionCallback.DragonTouch,
             context =>
             {

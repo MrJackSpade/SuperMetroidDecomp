@@ -54,8 +54,8 @@ internal static class VramDmaDomains
             case "enemies":
                 return Native(RoomEnemyGraphicsSetDefinitions.All.SelectMany(set =>
                     set.Records.ToArray()).Select(entry =>
-                    new NativeTransfer(RoomEnemyDefinitionCatalog.Get(entry.DefinitionPointer).TileDataAddress,
-                     RoomEnemyDefinitionCatalog.Get(entry.DefinitionPointer).TileDataSize & VramDmaDomainGeometry.EnemyTileByteCountMask)).Distinct());
+                    new NativeTransfer(RoomEnemyDefinitionCatalog.Get(entry.DefinitionId).TileDataAddress,
+                     RoomEnemyDefinitionCatalog.Get(entry.DefinitionId).TileDataSize & VramDmaDomainGeometry.EnemyTileByteCountMask)).Distinct());
             case "fx":
                 return Native(RoomFxAnimatedTileMechanicsDefinitions.All.SelectMany(definition => definition.Frames.Select(frame =>
                     new NativeTransfer(RoomFxAnimatedTileArtworkDefinitions.SourceAddress(definition, frame.InstructionPointer), definition.TransferByteCount))));
@@ -71,7 +71,7 @@ internal static class VramDmaDomains
             case "statues":
                 return Native(TourianStatueAnimatedTileMechanicsDefinitions.All.SelectMany(definition =>
                     TourianStatueTileStripDefinitions.Pictures.Select(picture =>
-                        new NativeTransfer(TourianStatueTileStripDefinitions.SourceAddress(definition.ObjectPointer, picture), definition.TransferByteCount))));
+                        new NativeTransfer(TourianStatueTileStripDefinitions.SourceAddress(definition.AnimatedObject, picture), definition.TransferByteCount))));
             case "treadmill":
                 return Native(Enumerable.Range(0, RoomFxAnimatedTileAtlasFormat.TreadmillFrameCount).Select(index =>
                     new NativeTransfer(WreckedShipTreadmillRomData.FrameSource(index), WreckedShipTreadmillRomData.TransferByteCount)));

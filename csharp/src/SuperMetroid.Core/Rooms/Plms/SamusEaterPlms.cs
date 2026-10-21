@@ -31,7 +31,7 @@ internal sealed class SamusEaterPlms
         if (_slotTable.SpawnAtCurrentBlock() is not { } slot)
             return;
 
-        slot.HeaderPointer = header;
+        slot.Header = header;
         slot.BlockIndex = block.Index;
         slot.StartAnimation(new SamusEaterPlmAnimation(definition.Program));
         slot.InstructionTimer = WrappingCountdown.Start(1);

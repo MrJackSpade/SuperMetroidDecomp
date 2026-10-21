@@ -30,7 +30,7 @@ internal static class RioInstructionProgramDefinitionsVerification
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot rio = enemies.SlotTable.Slots[0];
         rio.Bind(EnemyDefinitionId.Rio, rio.Definition);
-        rio.Bind(rio.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = RioFrameToolingDefinitions.Bank });
+        rio.Bind(rio.DefinitionId, default(RoomEnemyDefinition) with { Bank = RioFrameToolingDefinitions.Bank });
         // The room spawn primes the instruction timer before the species initializer runs.
         rio.InstructionTimer = WrappingCountdown.Start(1);
         RioBehavior.InitializeRio(rio);

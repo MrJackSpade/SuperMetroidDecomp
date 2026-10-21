@@ -57,8 +57,8 @@ public static class PpuMemoryLayout
     }
 
     /// <summary>Creates a sixteen-color CGRAM row nested under its background or OBJ bank.</summary>
-    private static PpuLayoutCell Row(string name, int row, PpuLayoutCell bank) =>
-        new(name, PpuLayoutRegion.Cgram, row * ColorsPerRow, ColorsPerRow, "Bgr555 4-bpp palette row", bank);
+    private static PpuLayoutCell Row(string name, int row, PpuLayoutCell palettes) =>
+        new(name, PpuLayoutRegion.Cgram, row * ColorsPerRow, ColorsPerRow, "Bgr555 4-bpp palette row", palettes);
 
     /// <summary>Checks whether the requested color interval fits entirely inside a hardware container.</summary>
     private static bool Covers(PpuLayoutCell outer, int first, int count) =>

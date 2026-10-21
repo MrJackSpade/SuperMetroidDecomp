@@ -28,7 +28,7 @@ internal static class TourianEntranceStatueInstructionProgramDefinitionsVerifica
             enemies.Presentation.BindCgram(new SnesCgram());
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.Bind(EnemyDefinitionId.TourianStatue, slot.Definition);
-            slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = 0xaa });
+            slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition) with { Bank = 0xaa });
             slot.SetSpawnParameter1(parameter);
             enemies.TourianEntranceStatueBehavior.InitializeTourianEntranceStatue(slot);
             AssertEqual(

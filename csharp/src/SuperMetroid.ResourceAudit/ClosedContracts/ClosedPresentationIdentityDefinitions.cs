@@ -77,8 +77,8 @@ internal static class ClosedPresentationIdentityDefinitions
         ("RoomLevelStreamCatalog", "Get", "sourceAddress") => RoomVisualLayoutSourceDefinitions.All.ToArray(),
         ("MotherBrainSpecialSpriteArtworkCatalog", "Get", "sourceAddress") => MotherBrainSpecialSpriteArtworkDefinitions.All
             .Select(sheet => sheet.SourceAddress).ToArray(),
-        ("EnemyTileArtworkCatalog", "LoadTo" or "LoadPaletteTo", "definitionPointer") => EnemyTileSourceDefinitions.All
-            .Select(definition => (int)definition.DefinitionPointer).ToArray(),
+        ("EnemyTileArtworkCatalog", "LoadTo" or "LoadPaletteTo", "definitionId") => EnemyTileSourceDefinitions.All
+            .Select(definition => (int)definition.DefinitionId).ToArray(),
         ("EnemyProjectileSpritemapCatalog", "Get", "pointer") => EnemyProjectileSpritemapDefinitions.Frames
             .Select(frame => (int)frame.Pointer).Append(EnemyProjectileSpritemapDefinitions.BlankSpritemap).ToArray(),
         ("EnemyProjectileSpritemapCatalog", "GetProgramFrame", "operandAddress") => EnemyProjectilePresentationFrameSets.All

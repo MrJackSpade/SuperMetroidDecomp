@@ -54,7 +54,7 @@ public static class RoomFxAnimatedTileAtlasFormat
     {
         int total = 0;
         foreach (RoomFxAnimatedTileObjectDefinition definition in RoomFxAnimatedTileMechanicsDefinitions.All)
-            if (definition.ObjectPointer is not (AnimatedTileObject.Spores or AnimatedTileObject.HorizontalSpikes))
+            if (definition.AnimatedObject is not (AnimatedTileObject.Spores or AnimatedTileObject.HorizontalSpikes))
                 foreach (var segment in Frames(definition))
                 {
                     total += segment.ByteCount;
@@ -87,7 +87,7 @@ public static class RoomFxAnimatedTileAtlasFormat
             foreach (RoomFxAnimatedTileFrameDefinition frame in definition.Frames)
             {
                 // The last spike step reuses image 1, already present in the strip.
-                if (definition.ObjectPointer == AnimatedTileObject.HorizontalSpikes &&
+                if (definition.AnimatedObject == AnimatedTileObject.HorizontalSpikes &&
                     frame.InstructionPointer == definition.Frames[3].InstructionPointer) continue;
                 yield return new(RoomFxAnimatedTileArtworkDefinitions.SourceAddress(definition, frame.InstructionPointer),
                     definition.TransferByteCount, true);

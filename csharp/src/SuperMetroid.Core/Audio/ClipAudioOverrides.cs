@@ -69,8 +69,8 @@ internal static class ClipAudioOverrides
     }
 
     /// <summary>The music identity of <paramref name="bank"/>'s <paramref name="track"/>, as the override names it.</summary>
-    internal static string MusicId(AudioBank bank, int track) =>
-        $"{MusicPrefix}{AudioAssetCatalogDefinitions.Get(bank).DataIndex:x2}-track-{track:00}";
+    internal static string MusicId(AudioBank audioSet, int track) =>
+        $"{MusicPrefix}{AudioAssetCatalogDefinitions.Get(audioSet).DataIndex:x2}-track-{track:00}";
 
     /// <summary>The sound-effect identity of <paramref name="library"/>'s <paramref name="command"/>, as the override names it.</summary>
     internal static string SoundEffectId(SoundEffectLibrary library, int command) =>
@@ -102,7 +102,7 @@ internal static class ClipAudioOverrides
     /// <summary>Replaces one song's clip and loop, keeping its tempo timeline.</summary>
     private static void ReplaceMusic(List<MusicClipEntry> music, AudioClipOverride replacement, AudioClipFile clip)
     {
-        int index = music.FindIndex(entry => MusicId(entry.Bank, entry.Track) == replacement.Id);
+        int index = music.FindIndex(entry => MusicId(entry.AudioSet, entry.Track) == replacement.Id);
         if (index < 0)
             throw new InvalidDataException($"Audio override '{replacement.Id}' names no installed song.");
         music[index] = music[index] with { Clip = clip, LoopStart = replacement.LoopStart };

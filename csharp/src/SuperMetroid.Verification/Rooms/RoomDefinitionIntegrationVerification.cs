@@ -129,10 +129,10 @@ internal static class RoomDefinitionIntegrationVerification
             if (doorPointer == DoorDefinitionsAccess.SharedElevatorPseudoDoorPointer)
                 continue;
             CartridgeDoorHeader door = DoorDefinitions.Get(doorPointer);
-            if (door.SetupCodePointer != DoorSetupCode.None)
+            if (door.SetupCode != DoorSetupCode.None)
             {
                 forbidden.Add(RoomHeaderRomDataConstants.BankAddress |
-                    (ushort)door.SetupCodePointer);
+                    (ushort)door.SetupCode);
             }
         }
 

@@ -66,7 +66,7 @@ internal static class RoomPlmSystemAccess
             .. ActiveSlots(self).Select(slot => new ColoredDoorSlot(slot, Door:slot.Family as ColoredDoorPlmState))
                 .Where(entry => entry.Door is not null)
                 .Select(entry => new ColoredDoorPlmSnapshot(
-                    entry.Slot.HeaderPointer,
+                    entry.Slot.Header,
                     entry.Slot.BlockIndex,
                     checked((ushort)entry.Slot.RoomArgument),
                     (entry.Door ?? throw new InvalidOperationException("Verification requires entry.door.")).Color,
@@ -81,7 +81,7 @@ internal static class RoomPlmSystemAccess
             .. ActiveSlots(self).Select(slot => new GreyDoorSlot(slot, Door:slot.Family as GreyDoorPlmState))
                 .Where(entry => entry.Door is not null)
                 .Select(entry => new GreyDoorPlmSnapshot(
-                    entry.Slot.HeaderPointer,
+                    entry.Slot.Header,
                     entry.Slot.BlockIndex,
                     checked((ushort)entry.Slot.RoomArgument),
                     entry.Slot.Animation is GreyDoorPlmAnimation grey ? grey.Variant.Orientation
@@ -96,7 +96,7 @@ internal static class RoomPlmSystemAccess
             .. ActiveSlots(self).Select(slot => new EyeDoorSlot(slot, Door:slot.Family as EyeDoorPlms.EyeDoorPlmState))
                 .Where(entry => entry.Door is not null)
                 .Select(entry => new EyeDoorPlmSnapshot(
-                    entry.Slot.HeaderPointer,
+                    entry.Slot.Header,
                     entry.Slot.BlockIndex,
                     checked((ushort)entry.Slot.RoomArgument),
                     ((entry.Door ?? throw new InvalidOperationException("Verification requires entry.door."))).Component,
@@ -198,7 +198,7 @@ internal static class RoomPlmSystemAccess
 
         /// <summary>Every live elevator-platform PLM in native physical-slot order.</summary>
         internal IReadOnlyList<RoomPlmSlotSnapshot> ElevatorPlatforms => self.PopulationSlots
-            .Where(snapshot => self.SlotTable.Slots[snapshot.NativeSlotIndex].HeaderPointer == PlmHeaderId.ElevatorPlatform)
+            .Where(snapshot => self.SlotTable.Slots[snapshot.NativeSlotIndex].Header == PlmHeaderId.ElevatorPlatform)
             .ToArray();
 
         /// <summary>Physical-slot views in cartridge handler order, highest ID first.</summary>
@@ -220,7 +220,7 @@ internal static class RoomPlmSystemAccess
             PlmSlot slot = self.SlotTable.Slots[index];
             return new RoomPlmSlotSnapshot(
                 NativeSlotIndex: index,
-                HeaderPointer: slot.HeaderPointer,
+                HeaderPointer: slot.Header,
                 BlockIndex: slot.BlockIndex,
                 RoomArgument: checked((ushort)slot.RoomArgument),
                 PreInstruction: PlmPreInstructionNativeRoutines.Of(slot.PreInstruction),

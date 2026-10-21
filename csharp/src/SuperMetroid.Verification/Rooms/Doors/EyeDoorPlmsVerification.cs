@@ -162,9 +162,9 @@ internal static class EyeDoorPlmsVerification
 
         // Three blocks in front of the eye: near enough to open it, too far to make it close.
         samus.Position = FixedPosition<RoomPixels>.FromWhole(new((eyeX + 3) * 16 + 8, eyeY * 16 + 8));
-        for (int frame = 0; frame < 256 && !effects.Any(effect => effect.DefinitionPointer == EyeDoorProjectileDefinition.Projectile); frame++)
+        for (int frame = 0; frame < 256 && !effects.Any(effect => effect.Definition == EyeDoorProjectileDefinition.Projectile); frame++)
             StepEyeDoorPlms(plms, level);
-        EyeDoorProjectileRequest shot = effects.First(effect => effect.DefinitionPointer == EyeDoorProjectileDefinition.Projectile);
+        EyeDoorProjectileRequest shot = effects.First(effect => effect.Definition == EyeDoorProjectileDefinition.Projectile);
         AssertEqual(EyeDoorPlmProgramDefinitions.ShotParameterOf(orientation), shot.Parameter, $"{orientation} attack operand");
         AssertEqual(eyeBlock, shot.PlmBlockIndex, $"{orientation} attack leaves the eye's block");
         AssertEqual(doorBit, shot.DoorBit, $"{orientation} attack carries the door bit");
@@ -194,13 +194,13 @@ internal static class EyeDoorPlmsVerification
                     new SamusProjectileTypeWord(projectileWord)),
                 $"{orientation} missile-family hit {hit + 1} reaches resident eye");
             StepEyeDoorPlms(plms, level);
-            if (hit + 1 < acceptedHits && !effects.Any(effect => effect.DefinitionPointer == EyeDoorProjectileDefinition.Sweat))
+            if (hit + 1 < acceptedHits && !effects.Any(effect => effect.Definition == EyeDoorProjectileDefinition.Sweat))
             {
                 // A hit that leaves the door shut ends its flinch with the eye's sweat.
-                for (int frame = 0; frame < 128 && !effects.Any(effect => effect.DefinitionPointer == EyeDoorProjectileDefinition.Sweat); frame++)
+                for (int frame = 0; frame < 128 && !effects.Any(effect => effect.Definition == EyeDoorProjectileDefinition.Sweat); frame++)
                     StepEyeDoorPlms(plms, level);
                 AssertEqual(EyeDoorPlmProgramDefinitions.SweatParameterOf(orientation),
-                    effects.First(effect => effect.DefinitionPointer == EyeDoorProjectileDefinition.Sweat).Parameter,
+                    effects.First(effect => effect.Definition == EyeDoorProjectileDefinition.Sweat).Parameter,
                     $"{orientation} sweat operand");
             }
         }
@@ -211,7 +211,7 @@ internal static class EyeDoorPlmsVerification
             StepEyeDoorPlms(plms, level);
         AssertEqual(0, plms.SlotTable.ActiveCount,
             $"{orientation} eye and both passive components complete together");
-        AssertEqual(2, effects.Count(effect => effect.DefinitionPointer == EyeDoorProjectileDefinition.Smoke &&
+        AssertEqual(2, effects.Count(effect => effect.Definition == EyeDoorProjectileDefinition.Smoke &&
                 effect.Parameter == EyeDoorPlmRomData.CenteredSmokeParameter),
             $"{orientation} the destroyed eye puffs two centred smoke clouds");
 

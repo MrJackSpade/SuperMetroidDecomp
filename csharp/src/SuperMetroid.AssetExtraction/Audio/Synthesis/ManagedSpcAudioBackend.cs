@@ -50,7 +50,7 @@ public sealed class ManagedSpcAudioBackend
             {
                 case AudioEvent.LoadAudioBank loadAudioBank:
                     RequireBeforeTicks(ticks, audioEvent);
-                    LoadBank(loadAudioBank.Bank);
+                    LoadBank(loadAudioBank.AudioSet);
                     break;
                 case AudioEvent.WriteMusicPort writeMusicPort:
                     RequireBeforeTicks(ticks, audioEvent);

@@ -24,7 +24,7 @@ public static class EnemyTileArtworkFormat
         "8B665DEC36A4AA649CDF2327E4B7F60197D42B84534CD354347F4581D1442DD1";
 
     /// <summary>Creates the indexed-PNG filename for a bank-$A0 enemy-definition pointer.</summary>
-    public static string FileName(EnemyDefinitionId definitionPointer) => $"enemy-{(ushort)definitionPointer:X4}-tiles.png";
+    public static string FileName(EnemyDefinitionId definitionId) => $"enemy-{(ushort)definitionId:X4}-tiles.png";
     /// <summary>Creates the RGB5 palette JSON filename for a bank-$A0 enemy-definition pointer.</summary>
-    public static string PaletteFileName(EnemyDefinitionId definitionPointer) => $"enemy-{(ushort)definitionPointer:X4}-colors.json";
+    public static string PaletteFileName(EnemyDefinitionId definitionId) => $"enemy-{(ushort)definitionId:X4}-colors.json";
 }

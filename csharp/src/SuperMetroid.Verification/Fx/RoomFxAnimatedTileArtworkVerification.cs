@@ -39,8 +39,8 @@ internal static class RoomFxAnimatedTileArtworkVerification
             var directVram = new SnesVram();
             var queuedVram = new SnesVram();
             var writes = new VramWriteQueue();
-            direct.LoadDefinition(definition.ObjectPointer);
-            queued.LoadDefinition(definition.ObjectPointer);
+            direct.LoadDefinition(definition.AnimatedObject);
+            queued.LoadDefinition(definition.AnimatedObject);
             for (int frameIndex = 0; frameIndex < definition.Frames.Count; frameIndex++)
             {
                 RoomFxAnimatedTileFrameDefinition frame = definition.Frames[frameIndex];

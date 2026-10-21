@@ -234,7 +234,7 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Applies Bull's immune-hit recoil after common bomb damage handling.</summary>
     internal EnemyBombReaction BombReaction { get; } =
-        new(c => c.Enemy.EnemyDefinitionPointer == EnemyDefinitionId.Bull && c.SelectedShotAi == EnemyInteractionCallback.BullShot)
+        new(c => c.Enemy.DefinitionId == EnemyDefinitionId.Bull && c.SelectedShotAi == EnemyInteractionCallback.BullShot)
         {
             AfterCommon = c =>
             {
@@ -247,7 +247,7 @@ internal sealed class BullBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Applies recoil after a frozen or undamaging accepted projectile hit.</summary>
     internal EnemyShotReaction ShotReaction { get; } =
-        new(enemy => enemy.EnemyDefinitionPointer == EnemyDefinitionId.Bull &&
+        new(enemy => enemy.DefinitionId == EnemyDefinitionId.Bull &&
                      EnemyCollision.ShotAi(enemy) == EnemyInteractionCallback.BullShot)
         {
             AfterCommon = c =>

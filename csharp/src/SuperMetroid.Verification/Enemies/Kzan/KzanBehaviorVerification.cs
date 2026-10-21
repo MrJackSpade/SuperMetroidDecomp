@@ -23,7 +23,7 @@ internal static class KzanBehaviorVerification
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.KzanTop, slot.Definition);
-        slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = KzanFrameToolingDefinitions.Bank });
+        slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition) with { Bank = KzanFrameToolingDefinitions.Bank });
         slot.Position = slot.Position.WithWholeY(128);
         enemies.KzanBehavior.InitializeKzanTop(slot);
         AssertEqual(AnimationProgramCursor<KzanProgram>.Start(KzanProgram.Idle),

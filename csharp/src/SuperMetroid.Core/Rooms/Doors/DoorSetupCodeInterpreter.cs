@@ -7,12 +7,12 @@ internal static class DoorSetupCodeInterpreter
 {
     /// <summary>Applies only scroll-byte effects of a door setup program; non-scroll setup remains with the runtime.</summary>
     public static void ApplyScrollWrites(
-        DoorSetupCode setupCodePointer,
+        DoorSetupCode setupCode,
         string doorName,
         RoomScrollGrid scrolls)
     {
         Ensure.NotNull(scrolls);
-        switch (setupCodePointer)
+        switch (setupCode)
         {
             case DoorSetupCode.None:
             case DoorSetupCode.DoorASM_ToCeresElevatorShaft:
@@ -109,10 +109,10 @@ internal static class DoorSetupCodeInterpreter
             case DoorSetupCode.DoorASM_Scroll_0_1_Green_duplicate:
             case DoorSetupCode.DoorASM_Scroll_18_Blue_19_Red:
             default:
-                if (DoorScrollPrograms.TryApply(setupCodePointer, scrolls))
+                if (DoorScrollPrograms.TryApply(setupCode, scrolls))
                     return;
                 throw new InvalidOperationException(
-                    $"Undefined {nameof(DoorSetupCode)} {(int)setupCodePointer:X4} in door {doorName}.");
+                    $"Undefined {nameof(DoorSetupCode)} {(int)setupCode:X4} in door {doorName}.");
         }
     }
 }

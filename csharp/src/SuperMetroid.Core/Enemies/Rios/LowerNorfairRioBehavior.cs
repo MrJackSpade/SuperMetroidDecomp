@@ -295,7 +295,7 @@ internal sealed class LowerNorfairRioBehavior : IEnemySpecies, IEnemyEntityFacto
     private void ValidateLowerNorfairRioParent(RoomEnemySlot follower)
     {
         RoomEnemySlot parent = GetPrecedingLowerNorfairRioSlot(follower);
-        if (parent.EnemyDefinitionPointer != EnemyDefinitionId.Holtz ||
+        if (parent.DefinitionId != EnemyDefinitionId.Holtz ||
             (parent.Spawn.Population.Parameter1 & EnemyParameterMasks.FollowerBit) != 0)
         {
             throw new InvalidDataException(

@@ -8,19 +8,19 @@ internal sealed class EvirEntity(EvirBehavior species, RoomEnemySlot slot, Enemy
     : CommonParticipationEnemyEntity(slot, common), IEnemySurroundingsInitialization, IEnemyMainAi, IEnemyTypedAnimation, IEnemyPrivateShotCallback
 {
     /// <inheritdoc/>
-    public EnemySurroundingsInitializationAiHandler? FindSurroundingsInitialization() => EvirPartDefinitions.Parts[Slot.EnemyDefinitionPointer] switch
+    public EnemySurroundingsInitializationAiHandler? FindSurroundingsInitialization() => EvirPartDefinitions.Parts[Slot.DefinitionId] switch
     {
         EvirPart.Evir => species.RunEvirInitializationAi,
         EvirPart.Projectile => (projectile, _) => species.InitializeEvirProjectile(projectile),
-        _ => throw new InvalidOperationException($"Evir entity bound to {Slot.EnemyDefinitionPointer}."),
+        _ => throw new InvalidOperationException($"Evir entity bound to {Slot.DefinitionId}."),
     };
 
     /// <inheritdoc/>
-    public EnemyMainAiHandler? FindMain() => EvirPartDefinitions.Parts[Slot.EnemyDefinitionPointer] switch
+    public EnemyMainAiHandler? FindMain() => EvirPartDefinitions.Parts[Slot.DefinitionId] switch
     {
         EvirPart.Evir => species.RunEvirMainAi,
         EvirPart.Projectile => species.RunEvirProjectileMainAi,
-        _ => throw new InvalidOperationException($"Evir entity bound to {Slot.EnemyDefinitionPointer}."),
+        _ => throw new InvalidOperationException($"Evir entity bound to {Slot.DefinitionId}."),
     };
 
     /// <inheritdoc/>
@@ -29,5 +29,5 @@ internal sealed class EvirEntity(EvirBehavior species, RoomEnemySlot slot, Enemy
     /// <summary>The Evir body's own shot callback, which normal bombs dispatch like the common one.</summary>
     /// <param name="callback">The named callback the selected pointer decodes to, or null.</param>
     public bool OwnsPrivateShotCallback(EnemyInteractionCallback? callback) =>
-        Slot.EnemyDefinitionPointer == EnemyDefinitionId.Evir && callback == EnemyInteractionCallback.EvirShot;
+        Slot.DefinitionId == EnemyDefinitionId.Evir && callback == EnemyInteractionCallback.EvirShot;
 }

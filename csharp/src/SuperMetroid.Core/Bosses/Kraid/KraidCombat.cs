@@ -40,15 +40,15 @@ internal sealed class KraidCombat
     /// <summary>Binds Kraid's body and mouth reactions to Samus bomb contacts.</summary>
     internal void RegisterKraidBombReactions(EnemySharedReactions table)
     {
-        table.AddBombSpecial(c => c.Enemy.EnemyDefinitionPointer is EnemyDefinitionId.KraidArm or EnemyDefinitionId.KraidFoot,
+        table.AddBombSpecial(c => c.Enemy.DefinitionId is EnemyDefinitionId.KraidArm or EnemyDefinitionId.KraidFoot,
             c =>
             {
                 if (c.SelectedShotAi is not (EnemyInteractionCallback.KraidNoOpShot or EnemyInteractionCallback.KraidArmShot) ||
-                    c.Enemy.EnemyDefinitionPointer == EnemyDefinitionId.KraidFoot &&
+                    c.Enemy.DefinitionId == EnemyDefinitionId.KraidFoot &&
                         c.SelectedShotAi != EnemyInteractionCallback.KraidNoOpShot)
                 {
                     throw new InvalidDataException(
-                        $"Kraid part ${(int)c.Enemy.EnemyDefinitionPointer:X4} selected " +
+                        $"Kraid part ${(int)c.Enemy.DefinitionId:X4} selected " +
                         $"normal-bomb shot AI {c.SelectedShotAi?.ToString() ?? "(unnamed)"}.");
                 }
 
@@ -65,18 +65,18 @@ internal sealed class KraidCombat
     {
         // Kraid's arm and foot are admitted by their literal no-op header callback, but their authored hitboxes
         // select the arm's private callback.
-        table.AddShot(new EnemyShotReaction(enemy => enemy.EnemyDefinitionPointer is EnemyDefinitionId.KraidArm or EnemyDefinitionId.KraidFoot &&
+        table.AddShot(new EnemyShotReaction(enemy => enemy.DefinitionId is EnemyDefinitionId.KraidArm or EnemyDefinitionId.KraidFoot &&
                                                      EnemyCollision.IsLiteralNoOpShotAi(enemy.Definition.Bank, EnemyCollision.ShotAi(enemy)))
         {
             AfterSuperMissileQuake = (in EnemyShotContext c) =>
             {
                 if (!c.UsesExtendedHitboxes ||
                     c.HitboxShotAi is not (EnemyInteractionCallback.KraidNoOpShot or EnemyInteractionCallback.KraidArmShot) ||
-                    c.Enemy.EnemyDefinitionPointer == EnemyDefinitionId.KraidFoot &&
+                    c.Enemy.DefinitionId == EnemyDefinitionId.KraidFoot &&
                         c.HitboxShotAi != EnemyInteractionCallback.KraidNoOpShot)
                 {
                     throw new InvalidDataException(
-                        $"Kraid part ${(int)c.Enemy.EnemyDefinitionPointer:X4} selected " +
+                        $"Kraid part ${(int)c.Enemy.DefinitionId:X4} selected " +
                         $"shot AI {c.HitboxShotAi?.ToString() ?? "(unnamed)"}.");
                 }
 
@@ -91,7 +91,7 @@ internal sealed class KraidCombat
     /// <summary>Binds Samus contact handling for Kraid's body and parts.</summary>
     internal void RegisterKraidTouch(EnemySharedReactions table)
     {
-        table.AddTouch(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.KraidArm &&
+        table.AddTouch(slot => slot.DefinitionId == EnemyDefinitionId.KraidArm &&
                                EnemyCollision.TouchAi(slot) == EnemyInteractionCallback.KraidArmTouch,
             context =>
             {
@@ -316,7 +316,7 @@ internal sealed class KraidCombat
     internal static bool? FindKraidFootHitboxCallback(RoomEnemySlot enemy, EnemyHitboxProbe probe, out EnemyInteractionCallback? callback)
     {
         callback = null;
-        if (!(enemy.EnemyDefinitionPointer == EnemyDefinitionId.KraidFoot &&
+        if (!(enemy.DefinitionId == EnemyDefinitionId.KraidFoot &&
             KraidFootCollisionDefinitions.TryGetComponents(enemy.Frame, out var footComponents)))
             return null;
 
@@ -347,7 +347,7 @@ internal sealed class KraidCombat
     internal static bool? FindKraidArmHitboxCallback(RoomEnemySlot enemy, EnemyHitboxProbe probe, out EnemyInteractionCallback? callback)
     {
         callback = null;
-        if (!(enemy.EnemyDefinitionPointer == EnemyDefinitionId.KraidArm &&
+        if (!(enemy.DefinitionId == EnemyDefinitionId.KraidArm &&
             KraidArmCollisionDefinitions.TryGetComponents(enemy.Frame, out var kraidComponents)))
             return null;
 

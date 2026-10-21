@@ -19,7 +19,7 @@ internal static class PolypBehaviorVerification
         enemies.VerificationServices().SeedRandom = _ => { };
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.LavaRocks, slot.Definition);
-        slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = PolypFrameToolingDefinitions.Bank });
+        slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition) with { Bank = PolypFrameToolingDefinitions.Bank });
         enemies.PolypBehavior.InitializePolyp(slot);
         AssertEqual(AnimationProgramCursor<PolypProgram>.Start(PolypProgram.Stationary),
             (enemies.SlotTable.Slots[0].EntityState<PolypEntity, PolypEnemyState>() ?? throw new InvalidOperationException("The Polyp has no state.")).Program,

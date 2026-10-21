@@ -27,7 +27,7 @@ internal static class EnemyTileArtworkDraygonOamCollisionVerification
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.DraygonBody, slot.Definition);
-        slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with
+        slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition) with
         {
             Bank = DraygonBg2FrameToolingDefinitions.Bank,
         });

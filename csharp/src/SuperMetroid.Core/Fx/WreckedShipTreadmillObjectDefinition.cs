@@ -9,11 +9,11 @@ public sealed class WreckedShipTreadmillObjectDefinition
     /// <summary>Builds one direction's boss-gated header and first frame cursor.</summary>
     internal WreckedShipTreadmillObjectDefinition(
         WreckedShipTreadmillDirection direction,
-        AnimatedTileObject objectPointer,
+        AnimatedTileObject animatedObject,
         ushort waitInstructionPointer)
     {
         Direction = direction;
-        ObjectPointer = objectPointer;
+        AnimatedObject = animatedObject;
         WaitInstructionPointer = waitInstructionPointer;
         frameInstructionPointers = new(LoopInstructionPointer);
     }
@@ -39,7 +39,7 @@ public sealed class WreckedShipTreadmillObjectDefinition
     public WreckedShipTreadmillDirection Direction { get; }
 
     /// <summary>The object-header address within bank $87.</summary>
-    public AnimatedTileObject ObjectPointer { get; }
+    public AnimatedTileObject AnimatedObject { get; }
 
     /// <summary>The boss-wait command installed by the object header.</summary>
     public ushort WaitInstructionPointer { get; }

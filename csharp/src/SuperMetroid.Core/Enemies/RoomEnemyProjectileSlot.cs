@@ -133,7 +133,7 @@ public sealed class RoomEnemyProjectileSlot
     /// metadata. Death explosions use offset $3A of this record to find their six-byte
     /// bank-$B4 drop table.
     /// </summary>
-    public EnemyDefinitionId EnemyHeaderPointer { get; internal set; }
+    public EnemyDefinitionId DropDefinitionId { get; internal set; }
     /// <summary>The chance table a boss-selected drop rolls against instead of its enemy header's, or null.</summary>
     internal EnemyDropChances? DropChancesOverride { get; set; }
 
@@ -175,7 +175,7 @@ public sealed class RoomEnemyProjectileSlot
         DirectionParameter = Variable0 = Variable1 = 0;
         CollisionOption = EnemyProjectileCollisionOption.RunShotList;
         CollidedProjectileType = KilledEnemyNativeIndex = 0;
-        EnemyHeaderPointer = EnemyDefinitionId.None;
+        DropDefinitionId = EnemyDefinitionId.None;
         DropChancesOverride = null;
         CanDamageSamus = PersistsOnSamusContact = BlocksSamusProjectiles = false;
     }

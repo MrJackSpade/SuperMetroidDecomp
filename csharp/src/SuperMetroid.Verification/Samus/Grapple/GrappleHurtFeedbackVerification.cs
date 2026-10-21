@@ -48,7 +48,7 @@ internal static class GrappleHurtFeedbackVerification
         AssertEqual(GrapplePhase.ConnectedSwinging, samus.Grapple.Phase, "fixture is hanging from an attached grapple");
         var target = runtime.Enemies.SlotTable.Slots[0];
         target.Bind(EnemyDefinitionId.Ripper, target.Definition);
-        target.Bind(target.EnemyDefinitionPointer, RoomEnemyDefinitionCatalog.Get(target.EnemyDefinitionPointer));
+        target.Bind(target.DefinitionId, RoomEnemyDefinitionCatalog.Get(target.DefinitionId));
         target.Position = target.Position.WithWhole(samus.Position.Whole);
         target.Radius = new(8, 8);
         target.SpritemapPointer = 1;

@@ -53,7 +53,7 @@ internal sealed class EnemyGraphicsSet
 
         foreach (RoomEnemyGraphicsSetHeader source in graphicsSet.Records.Span)
         {
-            EnemyDefinitionId definitionPointer = source.DefinitionPointer;
+            EnemyDefinitionId definitionPointer = source.DefinitionId;
             if (Entries.Count == EnemyGraphicsSet.MaximumGraphicsSetCount)
             {
                 throw new InvalidDataException(
@@ -103,11 +103,11 @@ internal sealed class EnemyGraphicsSet
     }
 
     /// <summary>Finds the room-set tile and OBJ palette indexes, falling back to standard sprite tile zero and palette five.</summary>
-    internal EnemyGraphicsIndexes FindGraphicsIndexes(EnemyDefinitionId definitionPointer)
+    internal EnemyGraphicsIndexes FindGraphicsIndexes(EnemyDefinitionId definitionId)
     {
         foreach (RoomEnemyGraphicsSetEntry entry in Entries)
         {
-            if (entry.DefinitionPointer == definitionPointer)
+            if (entry.DefinitionId == definitionId)
             {
                 return new EnemyGraphicsIndexes(                    checked((ushort)entry.VramTilesIndex),
                     unchecked((ushort)((entry.PaletteRow & EnemyTileDataMasks.PaletteNibbleBits) << 9)));

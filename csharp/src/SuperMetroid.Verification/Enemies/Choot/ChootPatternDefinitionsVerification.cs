@@ -21,17 +21,17 @@ internal static class ChootPatternDefinitionsVerification
             ChootPatternDefinition definition = ChootPatternDefinitions.ForIndex(patternIndex);
             ushort nativePointer = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa2df5e + patternIndex * 2));
             ushort distancePointer = CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa2df6a + patternIndex * 2));
-            AssertEqual(nativePointer, (ushort)definition.FallingPatternPointer,
+            AssertEqual(nativePointer, (ushort)definition.FallingPath,
                 $"Choot pattern pointer {patternIndex}");
             AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa20000 | distancePointer)),
                 definition.FallingPatternYDistance,
                 $"Choot pattern distance {patternIndex}");
 
-            int pathAddress = 0xa20000 | (ushort)definition.FallingPatternPointer;
+            int pathAddress = 0xa20000 | (ushort)definition.FallingPath;
             for (int frameIndex = 0; frameIndex < frameCounts[patternIndex]; frameIndex++)
             {
                 ChootFallingPathPoint point = ChootFallingPathDefinitions.At(
-                    definition.FallingPatternPointer,
+                    definition.FallingPath,
                     frameIndex);
                 AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((pathAddress + frameIndex * 4)),
                     unchecked((ushort)point.Offset.X),
@@ -43,7 +43,7 @@ internal static class ChootPatternDefinitionsVerification
 
             AssertThrows<InvalidDataException>(
                 () => ChootFallingPathDefinitions.At(
-                    definition.FallingPatternPointer,
+                    definition.FallingPath,
                     frameCounts[patternIndex]),
                 $"Choot path {patternIndex} rejects its first post-terminator frame");
 
@@ -60,7 +60,7 @@ internal static class ChootPatternDefinitionsVerification
                 ChootEnemyState state = (enemies.ChootStates[0] ?? throw new InvalidOperationException("Verification requires enemies.ChootStates[0]."));
                 ushort jumpHeight = unchecked((ushort)(
                     loopCount * (SnesLittleEndian.LowByte(definition.FallingPatternYDistance))));
-                AssertEqual<ChootFallingPath?>(definition.FallingPatternPointer, state.FallingPath,
+                AssertEqual<ChootFallingPath?>(definition.FallingPath, state.FallingPath,
                     $"Choot production pattern {patternIndex}/{loopCount}");
                 AssertEqual(definition.FallingPatternYDistance, state.FallingPatternYDistance,
                     $"Choot production pattern distance {patternIndex}/{loopCount}");
@@ -86,7 +86,7 @@ internal static class ChootPatternDefinitionsVerification
             for (int frameIndex = 0; frameIndex < frameCounts[patternIndex] - 1; frameIndex++)
             {
                 ChootFallingPathPoint point = ChootFallingPathDefinitions.At(
-                    definition.FallingPatternPointer,
+                    definition.FallingPath,
                     frameIndex);
                 runFall(fallSlot, fallState);
                 AssertEqual(unchecked((ushort)(0x4000 + point.Offset.X)),

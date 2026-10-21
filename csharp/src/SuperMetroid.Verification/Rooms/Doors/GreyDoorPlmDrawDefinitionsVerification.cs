@@ -119,7 +119,7 @@ internal static class GreyDoorPlmDrawDefinitionsVerification
                     PlmBlock: new(4, 4),
                     DestinationScreen: new(0, 0),
                     SamusDistance: 0,
-                    SetupCodePointer: DoorSetupCode.None);
+                    SetupCode: DoorSetupCode.None);
                 AssertTrue(plms.DoorPlms.TrySpawnDoorClosingPlm(level, enteringDoor,
                         system),
                     $"resident grey door ${(int)header:X4} selects its closing list");
@@ -200,7 +200,7 @@ internal static class GreyDoorPlmDrawDefinitionsVerification
             PlmBlock: new(4, 4),
             DestinationScreen: new(0, 0),
             SamusDistance: 0,
-            SetupCodePointer: DoorSetupCode.None);
+            SetupCode: DoorSetupCode.None);
         AssertTrue(room.Plms.DoorPlms.TrySpawnDoorClosingPlm(room.Level, enteringDoor, room.System),
             "Bomb Torizo door selects its Bomb-gated closing list");
         for (int frame = 0; frame < 10; frame++)

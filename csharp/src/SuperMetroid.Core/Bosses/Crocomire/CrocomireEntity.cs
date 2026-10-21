@@ -16,28 +16,28 @@ internal sealed class CrocomireEntity(CrocomireBehavior species, RoomEnemySlot s
     /// <summary>The session's installed boss artwork.</summary>
     private readonly BossArtworkBinding _bossArtwork = bossArtwork;
     /// <inheritdoc/>
-    public EnemyInitializationAiHandler? FindInitialization() => CrocomirePartDefinitions.Parts[Slot.EnemyDefinitionPointer] switch
+    public EnemyInitializationAiHandler? FindInitialization() => CrocomirePartDefinitions.Parts[Slot.DefinitionId] switch
     {
         CrocomirePart.Crocomire => species.Fight.InitializeCrocomire,
         CrocomirePart.Tongue => species.Fight.InitializeCrocomireTongue,
-        _ => throw new InvalidOperationException($"Crocomire entity bound to {Slot.EnemyDefinitionPointer}."),
+        _ => throw new InvalidOperationException($"Crocomire entity bound to {Slot.DefinitionId}."),
     };
 
     /// <inheritdoc/>
-    public EnemyMainAiHandler? FindMain() => CrocomirePartDefinitions.Parts[Slot.EnemyDefinitionPointer] switch
+    public EnemyMainAiHandler? FindMain() => CrocomirePartDefinitions.Parts[Slot.DefinitionId] switch
     {
         CrocomirePart.Crocomire => species.RunCrocomireMainAi,
         // $A4:F6BB is a literal RTL; the tongue follows the body through its instruction list and extended map.
         CrocomirePart.Tongue => EnemyNoOpAi.Main,
-        _ => throw new InvalidOperationException($"Crocomire entity bound to {Slot.EnemyDefinitionPointer}."),
+        _ => throw new InvalidOperationException($"Crocomire entity bound to {Slot.DefinitionId}."),
     };
 
     /// <inheritdoc/>
-    public Action<RoomEnemySlot, EnemyInstructionContext>? FindTypedAnimation() => CrocomirePartDefinitions.Parts[Slot.EnemyDefinitionPointer] switch
+    public Action<RoomEnemySlot, EnemyInstructionContext>? FindTypedAnimation() => CrocomirePartDefinitions.Parts[Slot.DefinitionId] switch
     {
         CrocomirePart.Crocomire => species.AdvanceCrocomireTypedAnimation,
         CrocomirePart.Tongue => (enemy, _) => species.Fight.AdvanceCrocomireTongueAnimation(enemy),
-        _ => throw new InvalidOperationException($"Crocomire entity bound to {Slot.EnemyDefinitionPointer}."),
+        _ => throw new InvalidOperationException($"Crocomire entity bound to {Slot.DefinitionId}."),
     };
 
     /// <inheritdoc/>
@@ -50,12 +50,12 @@ internal sealed class CrocomireEntity(CrocomireBehavior species, RoomEnemySlot s
 
     /// <summary>The Crocomire body takes normal bombs on its extended frames although its header names no shot callback.</summary>
     public bool AdmitsNormalBombs(bool usesExtendedHitboxes) =>
-        Slot.EnemyDefinitionPointer == EnemyDefinitionId.Crocomire && Slot.Definition.ShotAiPointer == 0 && usesExtendedHitboxes;
+        Slot.DefinitionId == EnemyDefinitionId.Crocomire && Slot.Definition.ShotAiPointer == 0 && usesExtendedHitboxes;
 
     /// <inheritdoc/>
     public EnemyBg2FrameLookup? FindBg2Frame(EnemyFrameId selected, EnemyRoomBinding room)
     {
-        if (Slot.EnemyDefinitionPointer != EnemyDefinitionId.Crocomire || !CrocomireBg2FrameDefinitions.IsFrame(selected))
+        if (Slot.DefinitionId != EnemyDefinitionId.Crocomire || !CrocomireBg2FrameDefinitions.IsFrame(selected))
             return null;
         ReadOnlyMemory<EnemyBg2TilemapWrite> writes = default;
         bool found = _bossArtwork.Installed.CrocomireBg2Frames?.TryGet(selected, out writes) == true;

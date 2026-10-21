@@ -32,7 +32,7 @@ internal static class RetailElevatorDepartureTests
         samus.Pose = SamusPoseId.FacingRightNormalPose;
         SamusPresentation.InitializeAnimation(samus);
         runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.ElevToBlueBrinstar);
-        var actor = runtime.Enemies.SlotTable.Slots.First(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Elevator);
+        var actor = runtime.Enemies.SlotTable.Slots.First(slot => slot.DefinitionId == EnemyDefinitionId.Elevator);
         samus.Position = samus.Position.WithWhole(new(actor.Position.X.Whole, unchecked((ushort)(actor.Position.Y.Whole - ElevatorCaptureFixtureDefinitions.SamusAttachmentOffset))));
         samus.Kinematics.YSpeed = default;
         runtime.Enemies.ElevatorBehavior.PublishElevatorDoorContact();

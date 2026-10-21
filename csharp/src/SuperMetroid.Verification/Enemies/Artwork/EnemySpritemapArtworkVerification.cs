@@ -122,7 +122,7 @@ internal static class EnemySpritemapArtworkVerification
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = stock.Enemies, BossArtwork = stock.Bosses, AreaArtwork = stock.Areas };
         RoomEnemySlot bull = enemies.SlotTable.Slots[0];
         bull.Bind(EnemyDefinitionId.Bull, bull.Definition);
-        bull.Bind(bull.EnemyDefinitionPointer, default(RoomEnemyDefinition) with
+        bull.Bind(bull.DefinitionId, default(RoomEnemyDefinition) with
             { Bank = EnemySpritemapDefinitions.BullBank });
         new Action<RoomEnemySlot>(enemies.BullBehavior.InitializeBull)(bull);
         object?[] arguments =
@@ -2925,7 +2925,7 @@ internal static class EnemySpritemapArtworkVerification
             enemies.Drawing.Enqueue(0, 0);
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.Bind(definition, slot.Definition);
-            slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with
+            slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition) with
                 { Bank = definition == EnemyDefinitionId.YappingMaw
                     ? YappingMawVisualDefinitions.Bank
                     : definition is EnemyDefinitionId.KihunterGreen or
@@ -3031,7 +3031,7 @@ internal static class EnemySpritemapArtworkVerification
             // The catalog-wide composition check includes families newer than the
             // fixture's actor-name mapping. Its frame identity owns the actual bank.
             if (spritemapBank is byte bank)
-                slot.Bind(slot.EnemyDefinitionPointer, slot.Definition with { Bank = bank });
+                slot.Bind(slot.DefinitionId, slot.Definition with { Bank = bank });
             slot.SpritemapPointer = pointer;
             slot.InstructionTimer = WrappingCountdown.Start(7);
             slot.Timer = WrappingCountdown.Start(9);

@@ -20,7 +20,7 @@ public static class RoomFxAnimatedTileMechanicsDefinitions
     /// bank_87.asm (362be646929cf8e483f692b73a6561cfc2dc1d0d).
     /// Frame schedules use the separately verified arithmetic view; neither headers
     /// nor frames are retained in a generated table.</remarks>
-    private static RoomFxAnimatedTileObjectDefinition? SelectObject(AnimatedTileObject objectPointer) => objectPointer switch
+    private static RoomFxAnimatedTileObjectDefinition? SelectObject(AnimatedTileObject animatedObject) => animatedObject switch
     {
         AnimatedTileObject.HorizontalSpikes => new(AnimatedTileObject.HorizontalSpikes,
             instructionPointer: 0x817e,
@@ -64,12 +64,12 @@ public static class RoomFxAnimatedTileMechanicsDefinitions
             AnimatedTileObject.UnusedCrateriaLava or AnimatedTileObject.BrinstarPlant or
             AnimatedTileObject.WreckedShipScreen or AnimatedTileObject.WreckedShipTreadmillRightwards or
             AnimatedTileObject.WreckedShipTreadmillLeftwards => null,
-        _ => throw new InvalidOperationException($"Undefined AnimatedTileObject {objectPointer}."),
+        _ => throw new InvalidOperationException($"Undefined AnimatedTileObject {animatedObject}."),
     };
 
     /// <summary>The definition of an object this catalog supports.</summary>
-    internal static RoomFxAnimatedTileObjectDefinition Require(AnimatedTileObject objectPointer) => SelectObject(objectPointer) ??
-        throw new InvalidOperationException($"{objectPointer} has no definition in this catalog.");
+    internal static RoomFxAnimatedTileObjectDefinition Require(AnimatedTileObject animatedObject) => SelectObject(animatedObject) ??
+        throw new InvalidOperationException($"{animatedObject} has no definition in this catalog.");
 
     /// <summary>Enumerates the seven supported objects without stored headers.</summary>
     public static IEnumerable<RoomFxAnimatedTileObjectDefinition> All
@@ -87,9 +87,9 @@ public static class RoomFxAnimatedTileMechanicsDefinitions
     }
 
     /// <summary>Resolves a supported header; unknown identities preserve false and null output.</summary>
-    public static bool TryResolve(AnimatedTileObject objectPointer, [NotNullWhen(true)] out RoomFxAnimatedTileObjectDefinition? definition)
+    public static bool TryResolve(AnimatedTileObject animatedObject, [NotNullWhen(true)] out RoomFxAnimatedTileObjectDefinition? definition)
     {
-        definition = SelectObject(objectPointer);
+        definition = SelectObject(animatedObject);
         return definition is not null;
     }
 }

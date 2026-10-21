@@ -31,7 +31,7 @@ internal sealed class ShaktoolPlms
         if (_slotTable.SpawnHardcoded() is not { } slot)
             return false;
 
-        slot.HeaderPointer = PlmHeaderId.ShaktoolsRoom;
+        slot.Header = PlmHeaderId.ShaktoolsRoom;
         slot.BlockIndex = 0;
         slot.StartAnimation(new ScriptedRoomPlmAnimation(ScriptedRoomPlmProgram.ShaktoolRoomController));
         slot.InstructionTimer = WrappingCountdown.Start(1);
@@ -55,7 +55,7 @@ internal sealed class ShaktoolPlms
         if (samus.Position.X.Whole <= ShaktoolRoomPlmRomData.ClearedPathXBoundary) return;
         _events.Set(EventNumber.ShaktoolClearedPath);
         // B8D2 clears only the ID; inactive instruction/timer words remain in RAM.
-        slot.HeaderPointer = 0;
+        slot.Header = 0;
         slot.Delete();
     }
 }

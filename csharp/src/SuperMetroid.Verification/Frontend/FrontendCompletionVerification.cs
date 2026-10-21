@@ -209,7 +209,7 @@ internal static void VerifyDoorOpeningTrajectories()
             PlmBlock: new(0, 0),
             DestinationScreen: new(3, 2),
             SamusDistance: 0x0100,
-            SetupCodePointer: DoorSetupCode.None);
+            SetupCode: DoorSetupCode.None);
         ushort finalCameraY = direction == 3
             ? (ushort)(destinationY + 0x20)
             : destinationY;

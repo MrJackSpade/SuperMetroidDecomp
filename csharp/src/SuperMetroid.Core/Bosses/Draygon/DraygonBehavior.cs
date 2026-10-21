@@ -318,6 +318,6 @@ internal sealed class DraygonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// grapple electrocution may drain another 256 health every eighth frame.
     /// </summary>
     internal void RegisterDraygonHurtAi(EnemySharedReactions table) =>
-        table.AddHurt(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.DraygonBody,
+        table.AddHurt(slot => slot.DefinitionId == EnemyDefinitionId.DraygonBody,
             (slot, frame) => Combat.ApplyDraygonHurt(slot, Combat.RequireCompleteDraygonState(slot), frame.Samus));
 }

@@ -15,10 +15,10 @@ public sealed class CompiledRoomEnemyDefinitions : IRoomEnemyDefinitionSource
     }
 
     /// <inheritdoc />
-    public RoomEnemyDefinition ReadEnemyDefinition(EnemyDefinitionId pointer) =>
-        RoomEnemyAuxiliaryDefinitionCatalog.TryGet(pointer, out RoomEnemyDefinition auxiliary)
+    public RoomEnemyDefinition ReadEnemyDefinition(EnemyDefinitionId definitionId) =>
+        RoomEnemyAuxiliaryDefinitionCatalog.TryGet(definitionId, out RoomEnemyDefinition auxiliary)
             ? auxiliary
-            : RoomEnemyDefinitionCatalog.Get(pointer);
+            : RoomEnemyDefinitionCatalog.Get(definitionId);
 
     /// <inheritdoc />
     public RoomEnemyPopulationRecord ReadFallingTubePopulation(MotherBrainTubePiece piece) =>

@@ -11,12 +11,12 @@ internal sealed class WorkRobotEntity(WorkRobotBehavior species, RoomEnemySlot s
     public EnemyInitializationAiHandler? FindInitialization() => species.InitializeWorkRobot;
 
     /// <inheritdoc/>
-    public EnemyMainAiHandler? FindMain() => WorkRobotPartDefinitions.Parts[Slot.EnemyDefinitionPointer] switch
+    public EnemyMainAiHandler? FindMain() => WorkRobotPartDefinitions.Parts[Slot.DefinitionId] switch
     {
         WorkRobotPart.Robot => species.RunWorkRobotMainAi,
         // The unpowered robot's main is the native RTL at $A8:CC66.
         WorkRobotPart.RobotNoPower => EnemyNoOpAi.Main,
-        _ => throw new InvalidOperationException($"WorkRobot entity bound to {Slot.EnemyDefinitionPointer}."),
+        _ => throw new InvalidOperationException($"WorkRobot entity bound to {Slot.DefinitionId}."),
     };
 
     /// <inheritdoc/>
@@ -24,7 +24,7 @@ internal sealed class WorkRobotEntity(WorkRobotBehavior species, RoomEnemySlot s
 
     /// <summary>The powered robot ($E8FF) returns before common shot AI until Phantoon's area-boss bit is set.</summary>
     public bool AdmitsShots() =>
-        Slot.EnemyDefinitionPointer != EnemyDefinitionId.Robot || species.IsAreaBossDefeated;
+        Slot.DefinitionId != EnemyDefinitionId.Robot || species.IsAreaBossDefeated;
 
     /// <summary>The powered and unpowered robots' shot callbacks, which normal bombs dispatch like the common one.</summary>
     /// <param name="callback">The named callback the selected pointer decodes to, or null.</param>

@@ -1,7 +1,7 @@
 namespace SuperMetroid.Core.Enemies;
 
 /// <summary>One literal 16-byte bank-$A1 room-population record.</summary>
-/// <param name="DefinitionPointer">Record +$00 bank-$A0 enemy header pointer; population list terminator $FFFF is not a spawn record.</param>
+/// <param name="DefinitionId">Record +$00 bank-$A0 enemy header pointer; population list terminator $FFFF is not a spawn record.</param>
 /// <param name="Position">Record +$02/+$04 initial room position in whole pixels, retaining both native sixteen-bit words.</param>
 /// <param name="InitializationParameter">Actor-specific initialization value, 0 through 65535, initially copied to the slot's instruction-list field.</param>
 /// <param name="Properties">The enemy's properties governing interaction, processing and visibility.</param>
@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Enemies;
 /// <param name="Parameter1">First actor-specific spawn parameter, 0 through 65535; its units and meaning belong to the selected enemy AI.</param>
 /// <param name="Parameter2">Second actor-specific spawn parameter, 0 through 65535; its units and meaning belong to the selected enemy AI.</param>
 public readonly record struct RoomEnemyPopulationRecord(
-    EnemyDefinitionId DefinitionPointer,
+    EnemyDefinitionId DefinitionId,
     Position16<RoomPixels> Position,
     int InitializationParameter,
     EnemyPropertyWord Properties,

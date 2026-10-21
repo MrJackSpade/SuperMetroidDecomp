@@ -45,7 +45,7 @@ public static class AudioAssetCatalogDefinitions
 
     /// <summary>Returns the catalog entry of one bank; <see cref="AudioBank"/> follows the pointer-table order.</summary>
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="bank"/> is not a defined bank.</exception>
-    public static AudioUploadAssetDefinition Get(AudioBank bank) => bank switch
+    public static AudioUploadAssetDefinition Get(AudioBank audioSet) => audioSet switch
     {
         AudioBank.SpcEngine => Common,
         AudioBank.TitleSequence or
@@ -71,8 +71,8 @@ public static class AudioAssetCatalogDefinitions
             AudioBank.LastMetroidInCaptivity or
             AudioBank.GalaxyAtPeace or
             AudioBank.BabyMetroidBossFight2 or
-            AudioBank.SamusThemeUpperCrateria => Music[(int)bank - 1],
-        _ => throw new ArgumentOutOfRangeException(nameof(bank), bank, "Undefined audio bank."),
+            AudioBank.SamusThemeUpperCrateria => Music[(int)audioSet - 1],
+        _ => throw new ArgumentOutOfRangeException(nameof(audioSet), audioSet, "Undefined audio bank."),
     };
 
     /// <summary>Resolves an on-disk manifest's 24-bit cartridge source address to its catalog entry.</summary>

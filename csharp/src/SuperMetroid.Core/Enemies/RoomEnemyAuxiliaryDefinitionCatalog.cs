@@ -27,6 +27,6 @@ internal static class RoomEnemyAuxiliaryDefinitionCatalog
     };
 
     /// <summary>Looks up one native dynamic-actor header without reading the cartridge.</summary>
-    internal static bool TryGet(EnemyDefinitionId pointer, out RoomEnemyDefinition definition) =>
-        Definitions.TryGetValue(pointer, out definition);
+    internal static bool TryGet(EnemyDefinitionId definitionId, out RoomEnemyDefinition definition) =>
+        Definitions.TryGetValue(definitionId, out definition);
 }

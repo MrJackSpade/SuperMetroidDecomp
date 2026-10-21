@@ -18,7 +18,7 @@ internal sealed class EnemySlotTable
     public IReadOnlyList<RoomEnemySlot> Slots => _slots;
 
     /// <summary>The lowest physical slot with no enemy definition, or -1 when every slot is taken.</summary>
-    internal int FindFreeSlotIndex() => Array.FindIndex(_slots, slot => slot.EnemyDefinitionPointer == 0);
+    internal int FindFreeSlotIndex() => Array.FindIndex(_slots, slot => slot.DefinitionId == 0);
 
 
     /// <summary>Creates the 32 slots once, each bound to the species registry that dispatches its entity.</summary>

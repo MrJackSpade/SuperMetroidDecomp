@@ -767,7 +767,7 @@ internal static class RidleyFullMovieVerification
         AssertEqual(0xa4e1, runtime.Clock.Counter, "sound wait accepts exactly one NMI");
         AssertEqual(DoorTransitionPhase.FadeOutSourcePalette, game.DoorTransitionPhaseForVerification, "source fade begins after sound drain");
         var actor = runtime.Enemies.SlotTable.Slots[6];
-        AssertEqual(EnemyDefinitionId.Zebbo, actor.EnemyDefinitionPointer, "native source-room pipe bug");
+        AssertEqual(EnemyDefinitionId.Zebbo, actor.DefinitionId, "native source-room pipe bug");
         var pipeBugPointers = new PipeBugNativeInstructionPointers(CartridgeImportSource.Require(bus));
         PipeBugEnemyState pipeBug = runtime.Enemies.PipeBugStates[6] ?? throw new InvalidOperationException("The source-room pipe bug has no state.");
         pipeBug.Program = pipeBugPointers.CursorAt(NativeSnapshotMemory.PipeBugBeforeFadeInstruction);
@@ -943,7 +943,7 @@ internal static class RidleyFullMovieVerification
                 if (color != SamusXrayRomData.Palette.VisorCgramIndex)
                     words.Add(runtime.Cgram.Colors[color].ToWord());
             foreach (var actor in runtime.Enemies.SlotTable.Slots)
-                words.AddRange([(ushort)actor.EnemyDefinitionPointer, actor.Position.X.Whole, actor.Position.X.Fraction,
+                words.AddRange([(ushort)actor.DefinitionId, actor.Position.X.Whole, actor.Position.X.Fraction,
                     actor.Position.Y.Whole, actor.Position.Y.Fraction, checked((ushort)actor.Health), actor.SpritemapPointer,
                     checked((ushort)actor.CurrentInstruction), actor.InstructionTimer.RawValue]);
             return words.ToArray();
@@ -1276,8 +1276,8 @@ internal static class RidleyFullMovieVerification
                 if (deferLoadingOwners) continue;
                 int address = NativeSnapshotMemory.EnemyBase + actor.NativeIndex;
                 string owner = $"Enemy {actor.SlotIndex}";
-                Check(owner + " identity", (ushort)actor.EnemyDefinitionPointer, address);
-                if (actor.EnemyDefinitionPointer == 0 || W(address) == 0) continue;
+                Check(owner + " identity", (ushort)actor.DefinitionId, address);
+                if (actor.DefinitionId == 0 || W(address) == 0) continue;
                 Check(owner + " X", actor.Position.X.Whole, address + 2);
                 Check(owner + " X fraction", actor.Position.X.Fraction, address + 4);
                 Check(owner + " Y", actor.Position.Y.Whole, address + 6);
@@ -1703,7 +1703,7 @@ internal static class RidleyFullMovieVerification
                     // caller X ($86:EF3E/F118), not allocated-slot Y, and never read it
                     // again. Their retained per-slot word is not a live source identity.
                     if (projectile.Kind == RoomEnemyProjectileKind.EnemyDeathExplosion)
-                        Check(owner + " source enemy header", (ushort)projectile.EnemyHeaderPointer, NativeSnapshotMemory.EnemyProjectileEnemyHeader + index);
+                        Check(owner + " source enemy header", (ushort)projectile.DropDefinitionId, NativeSnapshotMemory.EnemyProjectileEnemyHeader + index);
                     Check(owner + " killed enemy index", projectile.KilledEnemyNativeIndex, NativeSnapshotMemory.EnemyProjectileKilledEnemy + index);
                 }
                 ushort nativeDamage = (ushort)(W(NativeSnapshotMemory.EnemyProjectileProperties + index) & 0x0fff);

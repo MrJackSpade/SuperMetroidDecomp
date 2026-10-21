@@ -57,7 +57,7 @@ internal static class LookupRetailDoorHeadersVerification
     /// <summary>Matches the two-byte Samus transition distance at offset eight.</summary>
     private static void VerifyDoorHeaderSamusDistance(SuperMetroidAddressSpace rom) => VerifyDoorHeaderField(rom, 8, 2, header => header.SamusDistance);
     /// <summary>Matches the setup-code word and the Ceres Mode 7 selection predicate at offset ten.</summary>
-    private static void VerifyDoorHeaderSetupCodePointer(SuperMetroidAddressSpace rom) => VerifyDoorHeaderField(rom, 10, 2, header => (ushort)header.SetupCodePointer);
+    private static void VerifyDoorHeaderSetupCodePointer(SuperMetroidAddressSpace rom) => VerifyDoorHeaderField(rom, 10, 2, header => (ushort)header.SetupCode);
 
     /// <summary>Reads one physical field for every door and compares the compiled typed projection.</summary>
     private static void VerifyDoorHeaderField(SuperMetroidAddressSpace rom, int offset, int width,

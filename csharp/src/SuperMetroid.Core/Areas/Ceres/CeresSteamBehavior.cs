@@ -159,7 +159,7 @@ internal sealed class CeresSteamBehavior : IEnemyEntityFactory
     /// <summary>Registers contact handling only for steam's authored extended hitbox callback.</summary>
     internal void RegisterCeresSteamTouch(EnemySharedReactions table)
     {
-        table.AddTouch(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Steam &&
+        table.AddTouch(slot => slot.DefinitionId == EnemyDefinitionId.Steam &&
                                EnemyCollision.TouchAi(slot) == EnemyInteractionCallback.CeresSteamTouch,
             context =>
             {
@@ -185,7 +185,7 @@ internal sealed class CeresSteamBehavior : IEnemyEntityFactory
     /// <summary>Routes steam shots to ordinary common shot AI without a species-specific reaction.</summary>
     internal static void RegisterCeresSteamShotReactions(EnemySharedReactions table)
     {
-        table.AddShot(new EnemyShotReaction(enemy => enemy.EnemyDefinitionPointer == EnemyDefinitionId.Steam &&
+        table.AddShot(new EnemyShotReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.Steam &&
                                                      EnemyCollision.ShotAi(enemy) == EnemyInteractionCallback.NoOp));
     }
 

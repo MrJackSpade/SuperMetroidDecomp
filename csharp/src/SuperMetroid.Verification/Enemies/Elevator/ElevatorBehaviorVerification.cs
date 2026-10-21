@@ -18,7 +18,7 @@ internal static class ElevatorBehaviorVerification
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.Elevator, slot.Definition);
-        slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = ElevatorFrameToolingDefinitions.Bank });
+        slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition) with { Bank = ElevatorFrameToolingDefinitions.Bank });
         enemies.ElevatorBehavior.InitializeElevator(slot, null);
         AssertEqual(AnimationProgramCursor<ElevatorProgram>.Start(ElevatorProgram.Loop), (enemies.SlotTable.Slots[0].EntityState<ElevatorEntity, ElevatorEnemyState>() ?? throw new InvalidOperationException("The elevator has no state.")).Program,
             "elevator initializer animation");

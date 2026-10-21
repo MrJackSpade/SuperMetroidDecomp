@@ -50,7 +50,7 @@ internal sealed class GrappleBehavior : IGrappleTargets
             // The collision routine stores exactly one, rather than ORing it into an old
             // hurt/frozen handler. The next EnemyMain pass therefore dispatches grapple AI.
             enemy.AiStates = EnemyAiStates.Grappled;
-            GrappleEnemyReaction reaction = enemy.Definition.GrappleAiPointer switch
+            GrappleEnemyReaction reaction = enemy.Definition.GrappleAi switch
             {
                 GrappleAiRoutine.NoInteraction => GrappleEnemyReaction.None,
                 GrappleAiRoutine.Attach => GrappleEnemyReaction.Attach,
@@ -61,8 +61,8 @@ internal sealed class GrappleBehavior : IGrappleTargets
                 GrappleAiRoutine.AttachAndParalyze => GrappleEnemyReaction.AttachAndParalyze,
                 GrappleAiRoutine.HurtSamus => GrappleEnemyReaction.HurtSamus,
                 GrappleAiRoutine.None or GrappleAiRoutine.ElevatorMainAi or _ => throw new InvalidDataException(
-                    $"Enemy ${(int)enemy.EnemyDefinitionPointer:X4} grapple AI " +
-                    $"${enemy.Definition.Bank:X2}:{(int)enemy.Definition.GrappleAiPointer:X4} " +
+                    $"Enemy ${(int)enemy.DefinitionId:X4} grapple AI " +
+                    $"${enemy.Definition.Bank:X2}:{(int)enemy.Definition.GrappleAi:X4} " +
                     "is not one of the translated common reactions."),
             };
             return new GrappleEnemyCollision(
@@ -83,7 +83,7 @@ internal sealed class GrappleBehavior : IGrappleTargets
         if ((enemy.AiStates & EnemyAiStates.Grappled) == 0)
             return false;
 
-        switch (enemy.Definition.GrappleAiPointer)
+        switch (enemy.Definition.GrappleAi)
         {
             case GrappleAiRoutine.NoInteraction:
                 enemy.AiStates = EnemyAiStates.None;
@@ -142,8 +142,8 @@ internal sealed class GrappleBehavior : IGrappleTargets
             case GrappleAiRoutine.ElevatorMainAi:
             default:
                 throw new InvalidDataException(
-                    $"Enemy ${(int)enemy.EnemyDefinitionPointer:X4} grapple AI " +
-                    $"${enemy.Definition.Bank:X2}:{(int)enemy.Definition.GrappleAiPointer:X4} is not translated.");
+                    $"Enemy ${(int)enemy.DefinitionId:X4} grapple AI " +
+                    $"${enemy.Definition.Bank:X2}:{(int)enemy.Definition.GrappleAi:X4} is not translated.");
         }
     }
 

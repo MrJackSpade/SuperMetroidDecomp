@@ -14,8 +14,8 @@ internal abstract record CartridgeAudioCommand
     }
 
     /// <summary>Uploads one cartridge music/SFX data stream into SPC RAM.</summary>
-    /// <param name="Bank">The bank the upload installs.</param>
-    internal sealed record Upload(AudioBank Bank) : CartridgeAudioCommand;
+    /// <param name="AudioSet">The bank the upload installs.</param>
+    internal sealed record Upload(AudioBank AudioSet) : CartridgeAudioCommand;
 
     /// <summary>Writes one byte to SNES APU input port $2140-$2143.</summary>
     /// <param name="InputPort">The CPU-to-APU input port written.</param>

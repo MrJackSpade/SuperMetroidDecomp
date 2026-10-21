@@ -404,7 +404,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Requires the initialized four-slot encounter state for a part callback.</summary>
     private PhantoonEnemyState RequireCompletePhantoonStateForPart(RoomEnemySlot stateSlot) =>
-        RequireCompletePhantoonState(stateSlot.EnemyDefinitionPointer == EnemyDefinitionId.PhantoonBody
+        RequireCompletePhantoonState(stateSlot.DefinitionId == EnemyDefinitionId.PhantoonBody
             ? stateSlot
             : _slotTable.Slots[0]);
     /// <summary>Initial flame callback that holds position before orbit activation.</summary>
@@ -452,6 +452,6 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <remarks>$A7:DD3F owns every Phantoon hurt frame. It alternates palette seven between white and the new health
     /// band; body movement/main AI resumes only after common flash timing clears handler bit two.</remarks>
     internal void RegisterPhantoonHurtAi(EnemySharedReactions table) =>
-        table.AddHurt(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.PhantoonBody,
+        table.AddHurt(slot => slot.DefinitionId == EnemyDefinitionId.PhantoonBody,
             (slot, _) => ApplyPhantoonHurt(slot, RequireCompletePhantoonState(slot)));
 }

@@ -50,7 +50,7 @@ internal static class RetailEndingHandoffTests
             var runtime = game.GameplayRuntimeForVerification;
             runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.LandingSite);
             var top = runtime.Enemies.SlotTable.Slots.First(slot =>
-                slot.EnemyDefinitionPointer == EnemyDefinitionId.ShipTop);
+                slot.DefinitionId == EnemyDefinitionId.ShipTop);
             // Stage the existing accelerating integrator near its native completion
             // threshold. It—not the fixture—publishes the frontend escape event.
             GunshipPartState.Of(top).Function = GunshipFunction.AcceleratingLiftoff;

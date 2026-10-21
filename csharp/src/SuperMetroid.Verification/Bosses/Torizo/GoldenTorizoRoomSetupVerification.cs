@@ -51,7 +51,7 @@ internal static class GoldenTorizoRoomSetupVerification
         foreach (SuperMetroidGame game in new[] { native, installed })
         {
             RoomEnemySlot boss = game.GameplayRuntimeForVerification.Enemies.SlotTable.Slots.Single(
-                slot => slot.EnemyDefinitionPointer ==
+                slot => slot.DefinitionId ==
                     EnemyDefinitionId.GoldenTorizo);
             AssertTrue(boss.SpritemapPointer != GoldenTorizoFacingScreenFrame,
                 "forced left-turn starts before the shared facing-screen frame");

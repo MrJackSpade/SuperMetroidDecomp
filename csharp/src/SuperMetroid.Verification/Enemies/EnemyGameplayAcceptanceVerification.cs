@@ -93,7 +93,7 @@ internal static class EnemyGameplayAcceptanceVerification
             RoomEnemySlot slot = baseline.SlotTable.Slots[index];
             AssertEqual(index * EnemySlotTable.NativeSlotSize, slot.NativeIndex, "linked population physical slot order");
             AssertEqual(population.Records.Span[index], slot.Spawn.Population, "linked population preserves every spawn word");
-            AssertEqual(RoomEnemyDefinitionCatalog.Get(slot.EnemyDefinitionPointer), slot.Definition, "linked slot uses compiled header");
+            AssertEqual(RoomEnemyDefinitionCatalog.Get(slot.DefinitionId), slot.Definition, "linked slot uses compiled header");
             AssertEqual(slot.Definition.Health, slot.Health, "linked slot starts at compiled health");
             if ((index & 1) != 0)
             {
@@ -112,7 +112,7 @@ internal static class EnemyGameplayAcceptanceVerification
         Directory.CreateDirectory(overridePath);
         foreach (EnemyDefinitionId alias in RoomEnemyGraphicsSetDefinitions.Pointers
                      .SelectMany(pointer => RoomEnemyGraphicsSetDefinitions.Get(pointer).Records.ToArray())
-                     .Select(record => record.DefinitionPointer).Distinct()
+                     .Select(record => record.DefinitionId).Distinct()
                      .Where(pointer => RoomEnemyDefinitionCatalog.Get(pointer).TileDataAddress == editedDefinition.TileDataAddress &&
                          RoomEnemyDefinitionCatalog.Get(pointer).TileDataSize == editedDefinition.TileDataSize))
         {
@@ -165,7 +165,7 @@ internal static class EnemyGameplayAcceptanceVerification
             ReadOnlySpan<RoomEnemyPopulationRecord> records = RoomEnemyPopulationDefinitions.Get(pointer).Records.Span;
             if (records.IsEmpty || (records.Length & 1) != 0) return false;
             for (int index = 0; index < records.Length; index++)
-                if (records[index].DefinitionPointer != ((index & 1) == 0
+                if (records[index].DefinitionId != ((index & 1) == 0
                     ? EnemyDefinitionId.KihunterGreen : EnemyDefinitionId.KihunterGreenWings)) return false;
             return true;
         }

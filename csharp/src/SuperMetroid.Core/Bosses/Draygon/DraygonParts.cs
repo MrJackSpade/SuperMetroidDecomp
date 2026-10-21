@@ -89,7 +89,7 @@ internal sealed class DraygonParts
             throw new InvalidDataException("Draygon part appeared before the body record.");
 
         part.InstructionTimer = WrappingCountdown.Start(1);
-        switch (DraygonPartDefinitions.Parts[part.EnemyDefinitionPointer])
+        switch (DraygonPartDefinitions.Parts[part.DefinitionId])
         {
             case DraygonPart.Eye:
                 if (part.SlotIndex != 1)
@@ -123,16 +123,16 @@ internal sealed class DraygonParts
             case DraygonPart.Body:
             default:
                 throw new InvalidDataException(
-                    $"Enemy ${(int)part.EnemyDefinitionPointer:X4} is not a Draygon part.");
+                    $"Enemy ${(int)part.DefinitionId:X4} is not a Draygon part.");
         }
     }
 
     /// <summary>Ports the no-op tail/arms main AI and the active eye dispatcher.</summary>
     internal void RunDraygonPartMain(RoomEnemySlot part, SamusState? samus)
     {
-        if (part.EnemyDefinitionPointer is EnemyDefinitionId.DraygonTail or EnemyDefinitionId.DraygonArms)
+        if (part.DefinitionId is EnemyDefinitionId.DraygonTail or EnemyDefinitionId.DraygonArms)
             return;
-        if (part.EnemyDefinitionPointer != EnemyDefinitionId.DraygonEye)
+        if (part.DefinitionId != EnemyDefinitionId.DraygonEye)
             throw new InvalidDataException("Draygon part dispatcher received another family.");
 
         DraygonEyeFunction function = part.RequireSpeciesState<DraygonEyeState>().Function

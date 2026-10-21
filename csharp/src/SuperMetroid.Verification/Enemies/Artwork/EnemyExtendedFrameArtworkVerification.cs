@@ -1342,7 +1342,7 @@ internal static class EnemyExtendedFrameArtworkVerification
         // extended body from Ridley's separately drawn tail and wings.
         slot.Bind(bank == EnemyExtendedFrameDefinitions.Bank
             ? PirateDefinitionForFrame(pointer) : EnemyDefinitionId.Boyon, slot.Definition);
-        slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with
+        slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition) with
         {
             Bank = bank,
         });
@@ -1364,7 +1364,7 @@ internal static class EnemyExtendedFrameArtworkVerification
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = art.Enemies, BossArtwork = art.Bosses, AreaArtwork = art.Areas };
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(PirateDefinitionForFrame(pointer), slot.Definition);
-        slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with
+        slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition) with
         {
             Bank = EnemyExtendedFrameDefinitions.Bank,
         });

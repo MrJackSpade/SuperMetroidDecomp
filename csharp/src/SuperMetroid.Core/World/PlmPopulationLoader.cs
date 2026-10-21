@@ -118,7 +118,7 @@ internal sealed class PlmPopulationLoader
         if (_slotTable.SpawnRoomPlm() is not { } slot)
             return null;
 
-        slot.HeaderPointer = record.HeaderPointer;
+        slot.Header = record.Header;
         slot.BlockIndex = blockIndex;
         slot.InstructionTimer = WrappingCountdown.Start(1);
         slot.RoomArgument = record.RoomArgument;
@@ -136,7 +136,7 @@ internal sealed class PlmPopulationLoader
         RoomLevelData level = room.Level;
         Bank80SystemState system = room.System;
         AreaId areaIndex = room.AreaIndex;
-        PlmHeaderId header = record.HeaderPointer;
+        PlmHeaderId header = record.Header;
         if (DoorPlms.TryIdentifyColoredDoor(
                 header,
                 out ColoredDoorColor color,

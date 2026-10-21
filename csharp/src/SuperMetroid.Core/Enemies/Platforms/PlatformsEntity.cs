@@ -19,5 +19,5 @@ internal sealed class PlatformsEntity(PlatformsBehavior species, RoomEnemySlot s
     /// <summary>The Tripper's own shot callback, which normal bombs dispatch like the common one.</summary>
     /// <param name="callback">The named callback the selected pointer decodes to, or null.</param>
     public bool OwnsPrivateShotCallback(EnemyInteractionCallback? callback) =>
-        Slot.EnemyDefinitionPointer == EnemyDefinitionId.Tripper && callback == EnemyInteractionCallback.TripperShot;
+        Slot.DefinitionId == EnemyDefinitionId.Tripper && callback == EnemyInteractionCallback.TripperShot;
 }

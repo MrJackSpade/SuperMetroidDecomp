@@ -51,11 +51,11 @@ internal static class AudioClipExporter
         var keys = new List<MusicKey>();
         foreach (AudioUploadAssetDefinition bank in AudioAssetCatalogDefinitions.Music)
         {
-            IReadOnlyList<ushort> pointers = catalog.GetMusicBank(bank.Bank).TrackPointers;
+            IReadOnlyList<ushort> pointers = catalog.GetMusicBank(bank.AudioSet).TrackPointers;
             for (int track = 1; track < pointers.Count; track++)
             {
                 if (pointers[track] != 0)
-                    keys.Add(new MusicKey(bank.Bank, track));
+                    keys.Add(new MusicKey(bank.AudioSet, track));
             }
         }
         return keys;
@@ -65,7 +65,7 @@ internal static class AudioClipExporter
     internal static IReadOnlyList<SoundEffectKey> AllSoundEffects(ExtractedAudioAssetCatalog catalog)
     {
         var contexts = new List<AudioBank?> { null };
-        contexts.AddRange(AudioAssetCatalogDefinitions.Music.Select(bank => (AudioBank?)bank.Bank));
+        contexts.AddRange(AudioAssetCatalogDefinitions.Music.Select(bank => (AudioBank?)bank.AudioSet));
         return [.. from library in catalog.SoundLibraries
                    from effect in library.Effects
                    from context in contexts
@@ -140,7 +140,7 @@ internal static class AudioClipExporter
         AudioSoundEffectMetadata effect = catalog.SoundLibraries
             .Single(library => library.Library == libraryIndex + 1)
             .Effects.Single(candidate => candidate.Command == key.Command);
-        AudioBank bank = key.Context ?? AudioAssetCatalogDefinitions.Common.Bank;
+        AudioBank bank = key.Context ?? AudioAssetCatalogDefinitions.Common.AudioSet;
         string[] missing = [.. effect.ChannelPrograms
             .SelectMany(program => scans[program].UnmappedSources(catalog.GetInstrumentBank(bank), catalog.GetSampleBank(bank)))
             .Distinct()];

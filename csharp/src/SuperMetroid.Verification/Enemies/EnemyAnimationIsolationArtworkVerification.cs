@@ -76,7 +76,7 @@ internal static class EnemyAnimationIsolationArtworkVerification
     internal static void AssertEditedAnimationDraw(EnemyAnimationFixture edited, OamBuffer drawn, int frame)
     {
         RoomEnemySlot actor = edited.Actor;
-        if (actor.EnemyDefinitionPointer == 0 || actor.Properties.HasAny(EnemyProperties.Invisible | EnemyProperties.Deleted))
+        if (actor.DefinitionId == 0 || actor.Properties.HasAny(EnemyProperties.Invisible | EnemyProperties.Deleted))
             return;
         var expected = new OamBuffer();
         expected.BeginFrame();

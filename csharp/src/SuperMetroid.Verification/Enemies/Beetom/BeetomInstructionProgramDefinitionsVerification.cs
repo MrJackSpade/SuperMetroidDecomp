@@ -40,7 +40,7 @@ internal static class BeetomInstructionProgramDefinitionsVerification
         enemies.VerificationServices().SeedRandom = _ => { };
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.Beetom, slot.Definition);
-        slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = 0xa8 });
+        slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition) with { Bank = 0xa8 });
         slot.Position = slot.Position.WithWholeX(0x0200);
         var samus = new SamusState { Position = FixedPosition<RoomPixels>.FromWhole(new(0x0100, 0)) };
         enemies.BeetomBehavior.InitializeBeetom(slot, samus, 0);

@@ -41,14 +41,14 @@ internal sealed class NoobTubeBehavior
         if (request.PlmBlockIndex < 0)
             throw new ArgumentOutOfRangeException(nameof(request));
 
-        RoomEnemyProjectileKind kind = request.DefinitionPointer switch
+        RoomEnemyProjectileKind kind = request.Definition switch
         {
             NoobTubeProjectileDefinition.Crack => RoomEnemyProjectileKind.NoobTubeCrack,
             NoobTubeProjectileDefinition.Shard => RoomEnemyProjectileKind.NoobTubeShard,
             NoobTubeProjectileDefinition.ReleasedAirBubble =>
                 RoomEnemyProjectileKind.NoobTubeReleasedAirBubble,
             _ => throw new InvalidOperationException(
-                $"Undefined n00b-tube projectile definition {request.DefinitionPointer}."),
+                $"Undefined n00b-tube projectile definition {request.Definition}."),
         };
 
         RoomEnemyProjectileSlot? projectile = _projectiles.AllocateEnemyProjectile();

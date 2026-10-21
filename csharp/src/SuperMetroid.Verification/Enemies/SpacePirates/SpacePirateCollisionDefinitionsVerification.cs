@@ -237,7 +237,7 @@ internal static class SpacePirateCollisionDefinitionsVerification
                 true when wallFrame => EnemyDefinitionId.PirateGreyWall,
                 _ => EnemyDefinitionId.PirateGreyWalking,
             }, slot.Definition);
-            slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = 0xb2 });
+            slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition) with { Bank = 0xb2 });
             slot.SpritemapPointer = pointer;
             slot.Position = slot.Position.WithWhole(new(x, y));
             return new DachoraInstructionProgramDefinitionsNewDachoraResult(enemies, slot);
@@ -249,7 +249,7 @@ internal static class SpacePirateCollisionDefinitionsVerification
         {
             object?[] arguments =
                 [slot, new Position16<RoomPixels>(x, y), new Extent16<RoomPixels>(radiusX, radiusY), shot, SnesButton.None];
-            bool hit = slot.EnemyDefinitionPointer == (EnemyDefinitionId)0xffff
+            bool hit = slot.DefinitionId == (EnemyDefinitionId)0xffff
                 ? ReferenceExtendedCollision(rom, arguments)
                 : ExtendedHitboxWalker.Find(enemies, arguments);
             return new HitboxResult(hit, (ushort)(arguments[4] ?? throw new InvalidOperationException("Verification requires arguments[4].")));

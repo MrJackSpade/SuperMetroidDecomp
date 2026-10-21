@@ -100,7 +100,7 @@ internal static class MochtroidBotwoonClipVerification
 
         RoomEnemySlot mochtroid = runtime.Enemies.SlotTable.Slots.Single(
             slot => slot.NativeIndex == expected.EnemyNativeIndex);
-        AssertEqual(EnemyDefinitionId.Mochtroid, mochtroid.EnemyDefinitionPointer,
+        AssertEqual(EnemyDefinitionId.Mochtroid, mochtroid.DefinitionId,
             $"{expected.Case} fixture selects retail Mochtroid slot");
         foreach (RoomEnemySlot slot in runtime.Enemies.SlotTable.Slots.Where(
                      slot => slot.NativeIndex != expected.EnemyNativeIndex))

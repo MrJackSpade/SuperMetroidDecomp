@@ -51,8 +51,8 @@ public sealed class ClipAudioCatalog
         music = [];
         foreach (MusicClipEntry entry in manifest.Music)
         {
-            if (!music.TryAdd(new MusicTrackKey(entry.Bank, entry.Track), entry))
-                throw new InvalidDataException($"Clip manifest repeats {entry.Bank} track {entry.Track}.");
+            if (!music.TryAdd(new MusicTrackKey(entry.AudioSet, entry.Track), entry))
+                throw new InvalidDataException($"Clip manifest repeats {entry.AudioSet} track {entry.Track}.");
         }
         soundEffects = [];
         foreach (SoundEffectClipEntry entry in manifest.SoundEffects)
@@ -118,9 +118,9 @@ public sealed class ClipAudioCatalog
         {
             ValidateFile(root, entry.Clip);
             if (entry.LoopStart is long loop && (loop < 0 || loop >= entry.Clip.Frames))
-                throw new InvalidDataException($"{entry.Bank} track {entry.Track} loops at {loop} of {entry.Clip.Frames} frames.");
+                throw new InvalidDataException($"{entry.AudioSet} track {entry.Track} loops at {loop} of {entry.Clip.Frames} frames.");
             if (entry.TempoSegments.Count == 0 || entry.TempoSegments[0].Frame != 0)
-                throw new InvalidDataException($"{entry.Bank} track {entry.Track} has no tempo at frame zero.");
+                throw new InvalidDataException($"{entry.AudioSet} track {entry.Track} has no tempo at frame zero.");
         }
         foreach (SoundEffectClipEntry entry in manifest.SoundEffects)
         {
@@ -161,10 +161,10 @@ public sealed class ClipAudioCatalog
 
     /// <summary>The music clip for <paramref name="track"/> in <paramref name="bank"/>.</summary>
     /// <exception cref="KeyNotFoundException">The bank has no such track.</exception>
-    public MusicClipEntry GetMusic(AudioBank bank, int track) =>
-        music.TryGetValue(new MusicTrackKey(bank, track), out MusicClipEntry? entry)
+    public MusicClipEntry GetMusic(AudioBank audioSet, int track) =>
+        music.TryGetValue(new MusicTrackKey(audioSet, track), out MusicClipEntry? entry)
             ? entry
-            : throw new KeyNotFoundException($"No music clip for {bank} track {track}.");
+            : throw new KeyNotFoundException($"No music clip for {audioSet} track {track}.");
 
     /// <summary>The sound effect's entry in <paramref name="context"/> (null for the common upload alone).</summary>
     /// <exception cref="InvalidDataException">The effect keys sources the context does not upload, so it has no clip there.</exception>

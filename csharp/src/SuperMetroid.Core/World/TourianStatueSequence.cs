@@ -163,12 +163,12 @@ public sealed class TourianStatueSequence
         Spawn(AnimatedTileObject.TourianStatueRidley);
 
         // Resolve each statue's definition and start it at its program entry.
-        void Spawn(AnimatedTileObject objectPointer)
+        void Spawn(AnimatedTileObject animatedObject)
         {
             if (!TourianStatueAnimatedTileMechanicsDefinitions.TryResolveObjectHeader(
-                    objectPointer, out TourianStatueAnimatedTileProgramDefinition? definition))
+                    animatedObject, out TourianStatueAnimatedTileProgramDefinition? definition))
                 throw new InvalidDataException(
-                    $"Tourian statue animated-tile object {objectPointer} is not cataloged.");
+                    $"Tourian statue animated-tile object {animatedObject} is not cataloged.");
 
             objects.Add(new(definition));
         }
@@ -196,7 +196,7 @@ public sealed class TourianStatueSequence
                 case AnimationProgramAdvance<TourianStatueTilePicture>.Show shown:
                     tile.Show(cursor, shown.Duration);
                     _vramWrites.EnqueueBackgroundSource(
-                        new TourianStatuePictureCharacters(definition.ObjectPointer, shown.Frame),
+                        new TourianStatuePictureCharacters(definition.AnimatedObject, shown.Frame),
                         checked((ushort)definition.TransferByteCount),
                         definition.Destination);
                     break;
@@ -205,7 +205,7 @@ public sealed class TourianStatueSequence
                     break;
                 default:
                     throw new InvalidOperationException(
-                        $"Tourian statue {definition.ObjectPointer} program ended an advance with unauthored {advance}.");
+                        $"Tourian statue {definition.AnimatedObject} program ended an advance with unauthored {advance}.");
             }
         }
 

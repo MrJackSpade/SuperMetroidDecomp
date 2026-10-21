@@ -41,7 +41,7 @@ internal sealed class RidleyEncounter : ICeresEscapeStatus
     /// encounter assumptions to the real boss fight.
     /// </summary>
     public RidleyEnemyState? CeresRidley =>
-        _slotTable.Slots[0].EnemyDefinitionPointer == EnemyDefinitionId.RidleyCeres ? Ridley : null;
+        _slotTable.Slots[0].DefinitionId == EnemyDefinitionId.RidleyCeres ? Ridley : null;
 
     /// <summary>
     /// How far Ceres's escape has progressed, consumed by the Ceres doors and the elevator shaft. A fresh station load
@@ -57,7 +57,7 @@ internal sealed class RidleyEncounter : ICeresEscapeStatus
     /// <summary>Requires a slot-zero Ridley definition and its shared bank-$A6 state extension.</summary>
     internal RidleyEnemyState RequireRidley(RoomEnemySlot slot)
     {
-        if (!RidleyInteractions.IsRidleyDefinition(slot.EnemyDefinitionPointer) ||
+        if (!RidleyInteractions.IsRidleyDefinition(slot.DefinitionId) ||
             slot.SlotIndex != 0 ||
             Ridley is null)
         {
@@ -71,11 +71,11 @@ internal sealed class RidleyEncounter : ICeresEscapeStatus
     /// <summary>Admits only Lower Norfair Ridley before returning the shared state extension.</summary>
     internal RidleyEnemyState RequireNorfairRidley(RoomEnemySlot slot)
     {
-        if (slot.EnemyDefinitionPointer != EnemyDefinitionId.Ridley)
+        if (slot.DefinitionId != EnemyDefinitionId.Ridley)
         {
             throw new InvalidOperationException(
                 $"Enemy slot {slot.SlotIndex} executed Lower Norfair Ridley code as " +
-                $"definition ${(int)slot.EnemyDefinitionPointer:X4}.");
+                $"definition ${(int)slot.DefinitionId:X4}.");
         }
         return RequireRidley(slot);
     }
@@ -83,7 +83,7 @@ internal sealed class RidleyEncounter : ICeresEscapeStatus
     /// <summary>Admits only Ceres Ridley's slot-zero actor and initialized state extension.</summary>
     internal RidleyEnemyState RequireCeresRidley(RoomEnemySlot slot)
     {
-        if (slot.EnemyDefinitionPointer != EnemyDefinitionId.RidleyCeres ||
+        if (slot.DefinitionId != EnemyDefinitionId.RidleyCeres ||
             slot.SlotIndex != 0 ||
             Ridley is null)
         {

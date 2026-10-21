@@ -124,7 +124,7 @@ internal static class ColoredDoorPlmDrawDefinitionsVerification
                 PlmBlock: new(4, 4),
                 DestinationScreen: new(0, 0),
                 SamusDistance: 0,
-                SetupCodePointer: DoorSetupCode.None);
+                SetupCode: DoorSetupCode.None);
             AssertTrue(plms.DoorPlms.TrySpawnDoorClosingPlm(level, enteringDoor, system),
                 $"resident colored door ${(int)header:X4} selects its native closing list");
             for (int frame = 0; frame < 20 &&

@@ -22,8 +22,8 @@ internal sealed class RidleyInteractions
     }
 
     /// <summary>Includes both Ceres and Lower Norfair Ridley definition records.</summary>
-    internal static bool IsRidleyDefinition(EnemyDefinitionId definitionPointer) =>
-        definitionPointer is EnemyDefinitionId.RidleyCeres or EnemyDefinitionId.Ridley;
+    internal static bool IsRidleyDefinition(EnemyDefinitionId definitionId) =>
+        definitionId is EnemyDefinitionId.RidleyCeres or EnemyDefinitionId.Ridley;
 
     /// <summary>Selects three damage-color rows at 9000, 5400, and 1800 health.</summary>
     internal void UpdateNorfairRidleyHealthPalette(RoomEnemySlot slot, RidleyEnemyState state)
@@ -80,7 +80,7 @@ internal sealed class RidleyInteractions
     /// <summary>Requires the extended Ridley hitbox callback and suppresses generic death on shots.</summary>
     internal static void RegisterRidleyShotReactions(EnemySharedReactions table)
     {
-        table.AddShot(new EnemyShotReaction(enemy => enemy.EnemyDefinitionPointer == EnemyDefinitionId.Ridley &&
+        table.AddShot(new EnemyShotReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.Ridley &&
                                                      EnemyCollision.ShotAi(enemy) == EnemyInteractionCallback.RidleyShot)
         {
             BeforeSuperMissileQuake = (in EnemyShotContext c) =>
@@ -101,7 +101,7 @@ internal sealed class RidleyInteractions
     /// <summary>Routes bombs through Ridley's native shot callback without generic death.</summary>
     internal static void RegisterRidleyBombReactions(EnemySharedReactions table)
     {
-        table.AddBombCommon(new EnemyBombReaction(c => c.Enemy.EnemyDefinitionPointer == EnemyDefinitionId.Ridley &&
+        table.AddBombCommon(new EnemyBombReaction(c => c.Enemy.DefinitionId == EnemyDefinitionId.Ridley &&
                                                        c.SelectedShotAi == EnemyInteractionCallback.RidleyShot)
         {
             RunsGenericDeath = false,
@@ -112,7 +112,7 @@ internal sealed class RidleyInteractions
     internal static bool? FindRidleyHitboxCallback(RoomEnemySlot enemy, EnemyHitboxProbe probe, out EnemyInteractionCallback? callback)
     {
         callback = null;
-        if (!(RidleyInteractions.IsRidleyDefinition(enemy.EnemyDefinitionPointer) &&
+        if (!(RidleyInteractions.IsRidleyDefinition(enemy.DefinitionId) &&
             (RidleyCollisionDefinitions.HasFrame(enemy.Frame) ||
             probe.ArtworkInstalled)))
             return null;
@@ -144,7 +144,7 @@ internal sealed class RidleyInteractions
 
     /// <summary>Ridley's Power Bomb reaction, exempt from the generic death.</summary>
     internal static void RegisterRidleyPowerBombReactions(EnemySharedReactions table) =>
-        table.AddPowerBomb(new EnemyPowerBombReaction(enemy => enemy.EnemyDefinitionPointer is EnemyDefinitionId.Ridley or EnemyDefinitionId.RidleyCeres &&
+        table.AddPowerBomb(new EnemyPowerBombReaction(enemy => enemy.DefinitionId is EnemyDefinitionId.Ridley or EnemyDefinitionId.RidleyCeres &&
                                                                EnemyCollision.PowerBombReaction(enemy) == EnemyInteractionCallback.RidleyPowerBomb)
         {
             ExemptFromGenericDeath = true,

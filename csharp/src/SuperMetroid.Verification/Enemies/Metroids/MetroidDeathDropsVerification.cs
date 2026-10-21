@@ -32,7 +32,7 @@ internal static class MetroidDeathDropsVerification
         var samus = runtime.Player.IntroducedSamus;
         samus.Control.LockHandlers();
         RoomEnemySlot metroid = runtime.Enemies.SlotTable.Slots.First(slot =>
-            slot.EnemyDefinitionPointer == EnemyDefinitionId.Metroid);
+            slot.DefinitionId == EnemyDefinitionId.Metroid);
         // The shot pass rejects the empty spritemap sentinel; install the frame the movie's
         // Metroid showed when it was shot ($F137).
         metroid.SpritemapPointer = 0xf137;

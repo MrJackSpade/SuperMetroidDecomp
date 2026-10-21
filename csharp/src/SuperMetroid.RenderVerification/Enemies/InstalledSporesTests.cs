@@ -76,7 +76,7 @@ internal static class InstalledSporesTests
         List<RenderFrameSnapshot> packets)
     {
         var mechanics = RoomFxAnimatedTileMechanicsDefinitions.All.Single(
-            value => value.ObjectPointer == AnimatedTileObject.Spores);
+            value => value.AnimatedObject == AnimatedTileObject.Spores);
         Require(mechanics.InstructionPointer == 0x82ed && mechanics.TransferByteCount == 48 &&
             mechanics.EncodedVramDestination == 0x4280 && mechanics.GotoInstructionPointer == 0x82f9 &&
             mechanics.Frames.Count == 3 && mechanics.Frames.All(frame => frame.Duration == 10),
@@ -197,7 +197,7 @@ internal static class InstalledSporesTests
         Require(segmentOffset == planar.Length, "Installed sheet length differs from its native segment list.");
         int sporesOffset = RoomFxAnimatedTileAtlasFormat.PreSporesWidth * 2;
         var controls = RoomFxAnimatedTileMechanicsDefinitions.All.Single(
-            value => value.ObjectPointer == AnimatedTileObject.Spores);
+            value => value.AnimatedObject == AnimatedTileObject.Spores);
         for (int frame = 0; frame < 3; frame++)
         {
             int source = RoomFxAnimatedTileArtworkDefinitions.SourceAddress(controls, controls.Frames[frame].InstructionPointer);
@@ -237,7 +237,7 @@ internal static class InstalledSporesTests
             foreach (var statue in TourianStatueAnimatedTileMechanicsDefinitions.All)
             foreach (var picture in TourianStatueTileStripDefinitions.Pictures)
             {
-                int source = TourianStatueTileStripDefinitions.SourceAddress(statue.ObjectPointer, picture);
+                int source = TourianStatueTileStripDefinitions.SourceAddress(statue.AnimatedObject, picture);
                 int statueOffset = RoomFxAnimatedTileAtlasFormat.PreStatueTileCount * 16 +
                     source - TourianStatueTileStripDefinitions.FirstSource;
                 Require(legacy.TryResolve(source, statue.TransferByteCount, out var actual) &&

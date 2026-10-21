@@ -16,20 +16,20 @@ internal sealed class DraygonEntity(DraygonBehavior species, RoomEnemySlot slot,
     /// <summary>The session's installed boss artwork.</summary>
     private readonly BossArtworkBinding _bossArtwork = bossArtwork;
     /// <inheritdoc/>
-    public EnemyInitializationAiHandler? FindInitialization() => DraygonPartDefinitions.Parts[Slot.EnemyDefinitionPointer] switch
+    public EnemyInitializationAiHandler? FindInitialization() => DraygonPartDefinitions.Parts[Slot.DefinitionId] switch
     {
         DraygonPart.Body => species.Parts.InitializeDraygonBody,
         DraygonPart.Eye or DraygonPart.Tail or DraygonPart.Arms => species.Parts.InitializeDraygonPart,
-        _ => throw new InvalidOperationException($"Draygon entity bound to {Slot.EnemyDefinitionPointer}."),
+        _ => throw new InvalidOperationException($"Draygon entity bound to {Slot.DefinitionId}."),
     };
 
     /// <inheritdoc/>
-    public EnemyMainAiHandler? FindMain() => DraygonPartDefinitions.Parts[Slot.EnemyDefinitionPointer] switch
+    public EnemyMainAiHandler? FindMain() => DraygonPartDefinitions.Parts[Slot.DefinitionId] switch
     {
         DraygonPart.Body => species.RunDraygonBodyMainAi,
         DraygonPart.Eye => species.RunDraygonEyeMainAi,
         DraygonPart.Tail or DraygonPart.Arms => species.RunDraygonTailMainAi,
-        _ => throw new InvalidOperationException($"Draygon entity bound to {Slot.EnemyDefinitionPointer}."),
+        _ => throw new InvalidOperationException($"Draygon entity bound to {Slot.DefinitionId}."),
     };
 
     /// <inheritdoc/>
@@ -44,7 +44,7 @@ internal sealed class DraygonEntity(DraygonBehavior species, RoomEnemySlot slot,
 
     /// <summary>The Draygon body's dud shot ($A5:8046 CreateDudShot) after the no-op check, ahead of the shared ones.</summary>
     public override Action<EnemyBombContext>? FindBombSpecialAfterNoOp(EnemyBombContext context) =>
-        Slot.EnemyDefinitionPointer == EnemyDefinitionId.DraygonBody && context.SelectedShotAi == EnemyInteractionCallback.DudShot
+        Slot.DefinitionId == EnemyDefinitionId.DraygonBody && context.SelectedShotAi == EnemyInteractionCallback.DudShot
             ? EnemyDudShot.Bomb
             : base.FindBombSpecialAfterNoOp(context);
 
@@ -60,10 +60,10 @@ internal sealed class DraygonEntity(DraygonBehavior species, RoomEnemySlot slot,
 
     /// <summary>Only the body's contact and shots enter the extended-spritemap walker over its own hitboxes.</summary>
     public override EnemyCapabilities Capabilities =>
-        Slot.EnemyDefinitionPointer == EnemyDefinitionId.DraygonBody ? EnemyCapabilities.ExtendedSamusHitboxes | EnemyCapabilities.ExtendedProjectileHitboxes : EnemyCapabilities.None;
+        Slot.DefinitionId == EnemyDefinitionId.DraygonBody ? EnemyCapabilities.ExtendedSamusHitboxes | EnemyCapabilities.ExtendedProjectileHitboxes : EnemyCapabilities.None;
 
     /// <summary>The body's shot callback and its dud shot, which normal bombs dispatch like the common one.</summary>
     /// <param name="callback">The named callback the selected pointer decodes to, or null.</param>
     public bool OwnsPrivateShotCallback(EnemyInteractionCallback? callback) =>
-        Slot.EnemyDefinitionPointer == EnemyDefinitionId.DraygonBody && callback is EnemyInteractionCallback.DraygonShot or EnemyInteractionCallback.DudShot;
+        Slot.DefinitionId == EnemyDefinitionId.DraygonBody && callback is EnemyInteractionCallback.DraygonShot or EnemyInteractionCallback.DudShot;
 }

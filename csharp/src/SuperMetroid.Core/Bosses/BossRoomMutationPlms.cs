@@ -55,7 +55,7 @@ internal sealed class BossRoomMutationPlms
         slot.RestoreLevelWord = 0;
         // SpawnHardcodedPlm stores the header before setup. Keep identity intact
         // for owner queries and mixed populations, not just instruction dispatch.
-        slot.HeaderPointer = header;
+        slot.Header = header;
         slot.LoopTimer = 0;
         slot.StartAnimation(new BotwoonWallPlmAnimation(header == PlmHeaderId.ClearBotwoonWall
             ? BotwoonWallProgram.Clear
@@ -411,7 +411,7 @@ internal sealed class BossRoomMutationPlms
         if (_slotTable.SpawnHardcoded() is not { } slot)
             return false;
 
-        slot.HeaderPointer = header;
+        slot.Header = header;
         slot.BlockIndex = blockIndex;
         slot.StartAnimation(new KraidRoomPlmAnimation(program));
         slot.InstructionTimer = WrappingCountdown.Start(1);
@@ -738,7 +738,7 @@ internal sealed class BossRoomMutationPlms
         slot.LoopTimer = 0;
         slot.StartAnimation(new CrocomireArenaPlmAnimation(program));
         slot.InstructionTimer = WrappingCountdown.Start(1);
-        slot.HeaderPointer = header;
+        slot.Header = header;
         return true;
     }
 
@@ -768,7 +768,7 @@ internal sealed class BossRoomMutationPlms
         if (_slotTable.SpawnHardcoded() is not { } slot)
             return false;
 
-        slot.HeaderPointer = header;
+        slot.Header = header;
         slot.BlockIndex = level.GetBlockIndex(block);
         slot.RestoreLevelWord = 0;
         slot.LoopTimer = 0;
@@ -1106,7 +1106,7 @@ internal sealed class BossRoomMutationPlms
         slot.LoopTimer = 0;
         slot.StartAnimation(new MotherBrainFakeDeathPlmAnimation(program));
         slot.InstructionTimer = WrappingCountdown.Start(1);
-        slot.HeaderPointer = header;
+        slot.Header = header;
         if (header == PlmHeaderId.MotherBrainsRoomEscapeDoor)
         {
             // B5F8 installs the door-list index and three upward-linked extensions

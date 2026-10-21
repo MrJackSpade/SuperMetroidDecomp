@@ -44,7 +44,7 @@ public sealed class WreckedShipTreadmillAnimatedTilesState
     {
         WreckedShipTreadmillObjectDefinition definition =
             WreckedShipTreadmillMechanicsDefinitions.ForDirection(direction);
-        StartDefinition(direction, definition.ObjectPointer);
+        StartDefinition(direction, definition.AnimatedObject);
     }
 
     /// <summary>
@@ -53,18 +53,18 @@ public sealed class WreckedShipTreadmillAnimatedTilesState
     /// </summary>
     internal void StartDefinition(
         WreckedShipTreadmillDirection direction,
-        AnimatedTileObject objectPointer)
+        AnimatedTileObject animatedObject)
     {
 
         IsActive = true;
         Direction = direction;
         NextFrameIndex = 0;
         LastSourceAddress = null;
-        if (!WreckedShipTreadmillMechanicsDefinitions.TryResolve(objectPointer, out _compiledMechanics))
-            throw new InvalidDataException($"Wrecked Ship treadmill $87:{(int)objectPointer:X4} is not compiled.");
+        if (!WreckedShipTreadmillMechanicsDefinitions.TryResolve(animatedObject, out _compiledMechanics))
+            throw new InvalidDataException($"Wrecked Ship treadmill $87:{(int)animatedObject:X4} is not compiled.");
         if (_compiledMechanics.Direction != direction)
             throw new InvalidDataException(
-                $"Wrecked Ship treadmill $87:{(int)objectPointer:X4} belongs to {_compiledMechanics.Direction}, not {direction}.");
+                $"Wrecked Ship treadmill $87:{(int)animatedObject:X4} belongs to {_compiledMechanics.Direction}, not {direction}.");
         _waitingForAreaBoss = true;
         _instructionTimer = WrappingCountdown.Start(1);
     }

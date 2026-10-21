@@ -303,7 +303,7 @@ internal sealed class NorfairRioBehavior : IEnemySpecies, IEnemyEntityFactory
     private void ValidateNorfairRioParent(RoomEnemySlot follower)
     {
         RoomEnemySlot parent = GetPrecedingNorfairRioSlot(follower);
-        if (parent.EnemyDefinitionPointer != EnemyDefinitionId.Geruta ||
+        if (parent.DefinitionId != EnemyDefinitionId.Geruta ||
             (parent.Spawn.Population.Parameter1 & EnemyParameterMasks.FollowerBit) != 0)
         {
             throw new InvalidDataException(

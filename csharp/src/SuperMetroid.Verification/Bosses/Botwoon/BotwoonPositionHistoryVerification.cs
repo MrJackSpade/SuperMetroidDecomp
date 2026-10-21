@@ -23,7 +23,7 @@ internal static class BotwoonPositionHistoryVerification
         runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.Botwoon);
 
         RoomEnemySlot head = runtime.Enemies.SlotTable.Slots.Single(slot =>
-            slot.EnemyDefinitionPointer == EnemyDefinitionId.Botwoon);
+            slot.DefinitionId == EnemyDefinitionId.Botwoon);
         BotwoonEnemyState state = runtime.Enemies.Botwoon
             ?? throw new InvalidOperationException("Botwoon's room did not initialize its state.");
         AssertTrue(state.History.All(position => position == Position16<RoomPixels>.Zero),

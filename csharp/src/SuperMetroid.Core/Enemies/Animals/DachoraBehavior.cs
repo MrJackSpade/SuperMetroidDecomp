@@ -507,10 +507,10 @@ internal sealed class DachoraBehavior : IEnemySpecies, IEnemyEntityFactory
         for (int echoIndex = 0; echoIndex < echoes.Length; echoIndex++)
         {
             RoomEnemySlot echo = _slotTable.Slots[body.SlotIndex + echoIndex + 1];
-            if (echo.EnemyDefinitionPointer != EnemyDefinitionId.Dachora)
+            if (echo.DefinitionId != EnemyDefinitionId.Dachora)
             {
                 throw new InvalidDataException(
-                    $"Dachora echo {echoIndex} is enemy ${(int)echo.EnemyDefinitionPointer:X4}, expected $E5FF.");
+                    $"Dachora echo {echoIndex} is enemy ${(int)echo.DefinitionId:X4}, expected $E5FF.");
             }
             echoes[echoIndex] = echo;
         }

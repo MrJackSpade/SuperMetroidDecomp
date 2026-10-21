@@ -85,7 +85,7 @@ internal sealed class EnemyInstructionInterpreter
         if ((slot.Entity as IEnemyTypedAnimation)?.FindTypedAnimation() is not { } advance)
         {
             throw new InvalidDataException(
-                $"Enemy {slot.EnemyDefinitionPointer} processes instructions but has no typed animation.");
+                $"Enemy {slot.DefinitionId} processes instructions but has no typed animation.");
         }
         advance(slot, new EnemyInstructionContext
             { Samus = samus, Level = level, Camera = camera, ControllerInput = controllerInput });

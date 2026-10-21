@@ -30,7 +30,7 @@ internal static class WrapShotEnemiesVerification
             runtime.RoomLoader.InitializeStartingCeresRoom();
             runtime.RoomLoader.InitializeCeresStartSamus();
             runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.RedTower);
-            var enemy = runtime.Enemies.SlotTable.Slots.First(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Ripper);
+            var enemy = runtime.Enemies.SlotTable.Slots.First(slot => slot.DefinitionId == EnemyDefinitionId.Ripper);
             foreach (var other in runtime.Enemies.SlotTable.Slots) if (!ReferenceEquals(other, enemy)) other.Clear();
             enemy.Properties = enemy.Properties.With(EnemyProperties.ProcessOffScreen);
             // Run the first real animation entry before freezing; a never-drawn

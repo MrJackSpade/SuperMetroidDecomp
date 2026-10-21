@@ -71,7 +71,7 @@ internal static class AlcoonInstructionProgramDefinitionsVerification
             foreach (RoomEnemySlot slot in enemies.SlotTable.Slots)
             {
                 // A cursor that has just passed a pose step is showing that pose.
-                if (slot.EnemyDefinitionPointer == EnemyDefinitionId.Alcoon &&
+                if (slot.DefinitionId == EnemyDefinitionId.Alcoon &&
                     enemies.AlcoonStates[slot.SlotIndex] is { Program: { Position: > 0 } cursor } &&
                     AlcoonAnimations.Programs.Steps(cursor.Program)[cursor.Position - 1] is AnimationProgramStep<AlcoonProgram, AlcoonFrame, AlcoonCue>.ShowStep)
                     reachedPoses.Add(new ReachedPose(cursor.Program, cursor.Position - 1));

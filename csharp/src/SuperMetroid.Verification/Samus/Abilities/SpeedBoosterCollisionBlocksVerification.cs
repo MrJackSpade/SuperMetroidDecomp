@@ -141,7 +141,7 @@ internal static class SpeedBoosterCollisionBlocksVerification
             AssertTrue(!result.Collided,
                 $"Brinstar BTS ${bts:X2} clears through the production collision path");
             RoomPlmSlotSnapshot slot = plms.PopulationSlots.Single();
-            AssertEqual(expected.HeaderPointer, slot.HeaderPointer,
+            AssertEqual(expected.Header, slot.HeaderPointer,
                 $"Brinstar BTS ${bts:X2} selects its exact PLM header");
             AssertTrue(slot.Animation is SpeedBoosterBlockPlmAnimation animation && animation.Program == expected.Program,
                 $"Brinstar BTS ${bts:X2} starts its exact typed program");

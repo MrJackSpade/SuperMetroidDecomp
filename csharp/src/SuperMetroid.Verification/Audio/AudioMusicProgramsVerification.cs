@@ -22,15 +22,15 @@ internal static class AudioMusicProgramsVerification
         int instructionCount = 0;
         foreach (AudioUploadAssetDefinition definition in AudioAssetCatalogDefinitions.All)
         {
-            AudioBankMetadata bank = stock.GetMusicBank(definition.Bank);
+            AudioBankMetadata bank = stock.GetMusicBank(definition.AudioSet);
             trackCount += bank.MusicTracks.Count;
             phraseCount += bank.MusicPhrases.Count;
             programCount += bank.MusicPrograms.Count;
             instructionCount += bank.MusicPrograms.Sum(program => program.Instructions.Count);
             var raw = new ManagedSpcPlayer();
             raw.Uploads.Upload(stock.GetUpload(AudioBank.SpcEngine).Span);
-            if (definition.Bank != AudioBank.SpcEngine)
-                raw.Uploads.Upload(stock.GetUpload(definition.Bank).Span);
+            if (definition.AudioSet != AudioBank.SpcEngine)
+                raw.Uploads.Upload(stock.GetUpload(definition.AudioSet).Span);
             foreach ((int address, byte value) in SpcMusicDefinitionCodec.CompileBank(bank))
             {
                 AssertEqual(

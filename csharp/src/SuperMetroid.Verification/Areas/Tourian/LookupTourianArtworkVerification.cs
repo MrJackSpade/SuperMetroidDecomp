@@ -66,7 +66,7 @@ internal static class LookupTourianArtworkVerification
             int[] native = [.. OriginalTourianFrames(rom, header).Select(frame => frame.Source)];
             AssertEqual(9, native.Length, "Nine original timed statue frames");
             int[] produced = [.. TourianStatueTileStripDefinitions.Pictures.Select(picture =>
-                TourianStatueTileStripDefinitions.SourceAddress(resolved.ObjectPointer, picture))];
+                TourianStatueTileStripDefinitions.SourceAddress(resolved.AnimatedObject, picture))];
             AssertEqual(produced.Length, produced.Distinct().Count(), "Each statue picture is its own artwork window");
             AssertTrue(native.ToHashSet().SetEquals(produced),
                 "Every native frame source is one statue picture and every picture is shown");

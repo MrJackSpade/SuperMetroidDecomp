@@ -81,13 +81,13 @@ public sealed class ExtractedAudioAssetCatalog
                 throw new InvalidDataException(
                     $"Extracted audio stream '{path}' has SHA-256 {actualHash}, expected {entry.Sha256}.");
             }
-            AudioBank uploadBank = AudioAssetCatalogDefinitions.ResolveSnesAddress(entry.SnesAddress).Bank;
+            AudioBank uploadBank = AudioAssetCatalogDefinitions.ResolveSnesAddress(entry.SnesAddress).AudioSet;
             if (!loaded.TryAdd(uploadBank, bytes))
                 throw new InvalidDataException($"Audio manifest repeats SNES upload address ${entry.SnesAddress:X6}.");
         }
 
         int[] missing = AudioAssetCatalogDefinitions.All
-            .Where(definition => !loaded.ContainsKey(definition.Bank))
+            .Where(definition => !loaded.ContainsKey(definition.AudioSet))
             .Select(definition => definition.SnesAddress)
             .ToArray();
         if (missing.Length != 0)
@@ -139,16 +139,16 @@ public sealed class ExtractedAudioAssetCatalog
                     throw new InvalidDataException($"PCM bank '{bank.Name}' has ambiguous loop entry ${mapping.LoopAddress:X4}.");
                 loopEntries.Add(mapping.Source, targets[0].Source);
             }
-            if (!banks.TryAdd(definition.Bank, new ManagedPcmSampleBank(bank.Name, definition.Bank, sources, loopEntries)))
+            if (!banks.TryAdd(definition.AudioSet, new ManagedPcmSampleBank(bank.Name, definition.AudioSet, sources, loopEntries)))
                 throw new InvalidDataException($"Audio manifest repeats sample bank address ${bank.SnesAddress:X6}.");
-            if (!instruments.TryAdd(definition.Bank, ValidateInstruments(bank)))
+            if (!instruments.TryAdd(definition.AudioSet, ValidateInstruments(bank)))
                 throw new InvalidDataException($"Audio manifest repeats instrument bank address ${bank.SnesAddress:X6}.");
             ValidateMusicBank(bank);
-            if (!musicBanks.TryAdd(definition.Bank, bank))
+            if (!musicBanks.TryAdd(definition.AudioSet, bank))
                 throw new InvalidDataException($"Audio manifest repeats music bank address ${bank.SnesAddress:X6}.");
         }
         int[] missingBanks = AudioAssetCatalogDefinitions.All
-            .Where(definition => !banks.ContainsKey(definition.Bank))
+            .Where(definition => !banks.ContainsKey(definition.AudioSet))
             .Select(definition => definition.SnesAddress)
             .ToArray();
         if (missingBanks.Length != 0)

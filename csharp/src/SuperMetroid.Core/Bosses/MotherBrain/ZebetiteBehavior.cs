@@ -252,15 +252,15 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
 
         RoomEnemyPopulationRecord population =
             ZebetiteDefinitions.SpawnPopulation(half);
-        if (population.DefinitionPointer != EnemyDefinitionId.Zebetite)
+        if (population.DefinitionId != EnemyDefinitionId.Zebetite)
         {
             throw new InvalidDataException(
                 $"Zebetite {half} spawn record names enemy " +
-                $"${(int)population.DefinitionPointer:X4}.");
+                $"${(int)population.DefinitionId:X4}.");
         }
 
         RoomEnemySlot spawned = _slotTable.Slots[slotIndex];
-        RoomEnemyDefinition definition = _room.LoadedDefinitions.ReadEnemyDefinition(population.DefinitionPointer);
+        RoomEnemyDefinition definition = _room.LoadedDefinitions.ReadEnemyDefinition(population.DefinitionId);
         _dispatch.InitializeSlotFromDefinition(spawned, population, definition);
         _dispatch.RunInitializationAi(spawned, EnemySpawnSurroundings.None);
         _slotTable.EnemyCount = unchecked((ushort)Math.Max(_slotTable.EnemyCount, slotIndex + 1));
@@ -298,7 +298,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
                 RoomEnemyProjectileKind.EnemyDeathExplosion,
                 graphicsIndex: 0);
             projectile.Position = projectile.Position.WithWhole(slot.Position.Whole);
-            projectile.EnemyHeaderPointer = slot.EnemyDefinitionPointer;
+            projectile.DropDefinitionId = slot.DefinitionId;
             projectile.KilledEnemyNativeIndex = slot.NativeIndex;
             projectile.StartAnimation(new EnemyDeathProjectileAnimation(EnemyDeathProjectileProgram.SmallExplosion));
         }
@@ -369,7 +369,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Registers bombs to share the Zebetite shot tail without generic death handling.</summary>
     internal void RegisterZebetiteBombReactions(EnemySharedReactions table)
     {
-        table.AddBombCommon(new EnemyBombReaction(c => c.Enemy.EnemyDefinitionPointer == EnemyDefinitionId.Zebetite &&
+        table.AddBombCommon(new EnemyBombReaction(c => c.Enemy.DefinitionId == EnemyDefinitionId.Zebetite &&
                                                        c.SelectedShotAi == EnemyInteractionCallback.ZebetiteShot)
         {
             RunsGenericDeath = false,
@@ -386,7 +386,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Registers shot damage with the Zebetite-specific linked-health tail and no generic death.</summary>
     internal void RegisterZebetiteShotReactions(EnemySharedReactions table)
     {
-        table.AddShot(new EnemyShotReaction(enemy => enemy.EnemyDefinitionPointer == EnemyDefinitionId.Zebetite &&
+        table.AddShot(new EnemyShotReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.Zebetite &&
                                                      EnemyCollision.ShotAi(enemy) == EnemyInteractionCallback.ZebetiteShot)
         {
             AlwaysUsesCollisionPrelude = true,
@@ -411,7 +411,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Routes Zebetite contact through normal touch collision while skipping generic death animation.</summary>
     internal void RegisterZebetiteTouch(EnemySharedReactions table)
     {
-        table.AddTouch(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Zebetite &&
+        table.AddTouch(slot => slot.DefinitionId == EnemyDefinitionId.Zebetite &&
                                EnemyCollision.TouchAi(slot) == EnemyInteractionCallback.ZebetiteTouch,
             context => _collision.ResolveNormalEnemyTouch(context.Slot, context.Samus, deathAnimation: TouchDeathAnimation.Skip));
     }

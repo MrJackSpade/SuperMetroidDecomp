@@ -116,7 +116,7 @@ internal sealed class EnemyDeathsAndDrops
                 RoomEnemyProjectileKind.EnemyDeathExplosion,
                 graphicsIndex: 0);
             explosion.Position = explosion.Position.WithWhole(enemy.Position.Whole);
-            explosion.EnemyHeaderPointer = enemy.EnemyDefinitionPointer;
+            explosion.DropDefinitionId = enemy.DefinitionId;
             explosion.KilledEnemyNativeIndex = respawns
                 ? unchecked((ushort)(enemy.NativeIndex | KilledEnemyIndexMasks.RespawnMarker))
                 : enemy.NativeIndex;
@@ -177,7 +177,7 @@ internal sealed class EnemyDeathsAndDrops
     /// and drop selection then advance it independently inside pickup $F337.
     /// </summary>
     internal void SpawnEnemyDropScatter(
-        EnemyDefinitionId enemyHeaderPointer,
+        EnemyDefinitionId definitionId,
         int count,
         ushort xBase,
         ushort xMask,
@@ -189,13 +189,13 @@ internal sealed class EnemyDeathsAndDrops
             int random = _room.Random.Generate();
             ushort x = unchecked((ushort)((random & xMask) + xBase));
             ushort y = unchecked((ushort)(SnesLittleEndian.HighByte(unchecked((ushort)(random & yMask))) + yBase));
-            SpawnEnemyDropFromEnemyHeader(new(x, y), enemyHeaderPointer);
+            SpawnEnemyDropFromEnemyHeader(new(x, y), definitionId);
         }
     }
 
     /// <summary>Scatters drops within a 32-pixel square around a defeated actor.</summary>
     internal void SpawnEnemyDropScatterAround(
-        EnemyDefinitionId enemyHeaderPointer,
+        EnemyDefinitionId definitionId,
         int count,
         Position16<RoomPixels> origin)
     {
@@ -204,7 +204,7 @@ internal sealed class EnemyDeathsAndDrops
             int random = _room.Random.Generate();
             ushort x = unchecked((ushort)(origin.X + (random & EnemyDropMasks.ScatterBits) - 16));
             ushort y = unchecked((ushort)(origin.Y + ((SnesLittleEndian.HighByte(random) & EnemyDropMasks.ScatterBits)) - 16));
-            SpawnEnemyDropFromEnemyHeader(new(x, y), enemyHeaderPointer);
+            SpawnEnemyDropFromEnemyHeader(new(x, y), definitionId);
         }
     }
 
@@ -215,7 +215,7 @@ internal sealed class EnemyDeathsAndDrops
     /// </summary>
     internal RoomEnemyProjectileSlot? SpawnEnemyDropFromEnemyHeader(
         Position16<RoomPixels> position,
-        EnemyDefinitionId enemyHeaderPointer)
+        EnemyDefinitionId definitionId)
     {
         _room.EnsureLoaded();
         RoomEnemyProjectileSlot? pickup = _projectiles.AllocateEnemyProjectile();
@@ -227,7 +227,7 @@ internal sealed class EnemyDeathsAndDrops
             RoomEnemyProjectileKind.EnemyDeathPickup,
             graphicsIndex: 0);
         pickup.Position = pickup.Position.WithWhole(position);
-        pickup.EnemyHeaderPointer = enemyHeaderPointer;
+        pickup.DropDefinitionId = definitionId;
         pickup.KilledEnemyNativeIndex = KilledEnemyIndexMasks.None;
         InitializeDirectEnemyPickup(pickup);
         return pickup;
@@ -435,9 +435,9 @@ internal sealed class EnemyDeathsAndDrops
     {
         if (projectile.DropChancesOverride is { } table)
             return table;
-        ushort pointer = projectile.EnemyHeaderPointer == 0
+        ushort pointer = projectile.DropDefinitionId == 0
             ? EnemyDropChanceDefinitions.ClearedHeaderPointer
-            : _room.LoadedDefinitions.ReadEnemyDefinition(projectile.EnemyHeaderPointer).ItemDropChancesPointer;
+            : _room.LoadedDefinitions.ReadEnemyDefinition(projectile.DropDefinitionId).ItemDropChancesPointer;
         return pointer == 0 ? null : EnemyDropChanceDefinitions.At(pointer);
     }
 
@@ -597,13 +597,13 @@ internal sealed class EnemyDeathsAndDrops
     {
         RoomEnemySlot slot = _slotTable.SlotFromNativeIndex(nativeIndex);
         RoomEnemySpawnSnapshot spawn = slot.Spawn;
-        if (spawn.Population.DefinitionPointer == 0)
+        if (spawn.Population.DefinitionId == 0)
         {
             throw new InvalidDataException(
                 $"Enemy slot ${nativeIndex:X4} has no surviving population snapshot to respawn.");
         }
 
-        RoomEnemyDefinition definition = _room.LoadedDefinitions.ReadEnemyDefinition(spawn.Population.DefinitionPointer);
+        RoomEnemyDefinition definition = _room.LoadedDefinitions.ReadEnemyDefinition(spawn.Population.DefinitionId);
         // Unlike Initialise_Enemies ($A0:8B93) and Spawn_Enemy ($A0:93D9), Respawn_Enemy
         // ($86:F264) never writes the spritemap: the actor keeps EnemyDeath's cleared word,
         // or what its init AI wrote, until its first instruction. A zero spritemap is also

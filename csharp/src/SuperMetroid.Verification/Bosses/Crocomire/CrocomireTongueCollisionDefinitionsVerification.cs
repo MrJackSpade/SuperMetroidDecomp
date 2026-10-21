@@ -22,7 +22,7 @@ internal static class CrocomireTongueCollisionDefinitionsVerification
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = stock.Enemies, BossArtwork = stock.Bosses, AreaArtwork = stock.Areas };
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.CrocomireTongue, slot.Definition);
-        slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with
+        slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition) with
         { Bank = CrocomireTongueCollisionDefinitionsConstants.Bank });
         var seen = new HashSet<ushort>();
         foreach (CrocomireTongueFrame frame in Enum.GetValues<CrocomireTongueFrame>())
@@ -66,10 +66,10 @@ internal static class CrocomireTongueCollisionDefinitionsVerification
             var component = CrocomireTongueCollisionDefinitions.ComponentAt(frame);
             AssertEqual((ushort)1, CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa40000 | frame)),
                 $"Crocomire tongue $A4:{frame:X4} native one-component header");
-            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa40000 | frame + 8)), (ushort)component.HitboxPointer,
+            AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa40000 | frame + 8)), (ushort)component.HitboxList,
                 "Crocomire tongue native hitbox-list pointer");
-            AssertEqual((ushort)0, CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa40000 | (ushort)component.HitboxPointer)), "tongue native empty hitboxes");
-            AssertEqual(0, CrocomireTongueCollisionDefinitions.HitboxCountAt(component.HitboxPointer), "tongue empty hitbox case");
+            AssertEqual((ushort)0, CartridgeImportSource.Require(rom).ReadCartridgeWord((0xa40000 | (ushort)component.HitboxList)), "tongue native empty hitboxes");
+            AssertEqual(0, CrocomireTongueCollisionDefinitions.HitboxCountAt(component.HitboxList), "tongue empty hitbox case");
         }
         for (int frame = 0; frame <= ushort.MaxValue; frame++)
             AssertEqual(Array.IndexOf(frames, (ushort)frame) >= 0,
@@ -92,8 +92,8 @@ internal static class CrocomireTongueCollisionDefinitionsVerification
         RoomEnemySlot compiledSlot = compiled.SlotTable.Slots[0];
         var boundDefinition = default(RoomEnemyDefinition) with
             { Bank = CrocomireTongueCollisionDefinitionsConstants.Bank };
-        nativeSlot.Bind(nativeSlot.EnemyDefinitionPointer, boundDefinition);
-        compiledSlot.Bind(compiledSlot.EnemyDefinitionPointer, boundDefinition);
+        nativeSlot.Bind(nativeSlot.DefinitionId, boundDefinition);
+        compiledSlot.Bind(compiledSlot.DefinitionId, boundDefinition);
         nativeSlot.Bind((EnemyDefinitionId)0xffff, nativeSlot.Definition);
         compiledSlot.Bind(EnemyDefinitionId.CrocomireTongue, compiledSlot.Definition);
         AssertEqual(9, CrocomireTongueCollisionDefinitionsConstants.FrameCount,
@@ -106,7 +106,7 @@ internal static class CrocomireTongueCollisionDefinitionsVerification
             ushort frame = CrocomireTongueCollisionDefinitionsConstants.FramePointer(frameIndex);
             CrocomireTongueCollisionComponent component =
                 CrocomireTongueCollisionDefinitions.ComponentAt(frame);
-            seenLists.Add((ushort)component.HitboxPointer);
+            seenLists.Add((ushort)component.HitboxList);
             nativeSlot.SpritemapPointer = compiledSlot.SpritemapPointer = frame;
             foreach ((ushort x, ushort y) in new VerifyCrocomireTongueCollisionDefinitionsCase[]
                      {

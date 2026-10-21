@@ -751,7 +751,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         // therefore valid until the callback finishes; revalidating only the mutable header
         // converts the ordinary fatal-shot path into a host exception.
         bool initializedBody = body.SpeciesState<KiHunterEnemyState>() is { IsWing: false };
-        if ((!IsKiHunterBodyDefinition(body.EnemyDefinitionPointer) && !initializedBody) ||
+        if ((!IsKiHunterBodyDefinition(body.DefinitionId) && !initializedBody) ||
             body.SlotIndex >= EnemySlotTable.MaximumEnemyCount - 1)
         {
             throw new InvalidDataException(
@@ -759,10 +759,10 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         }
 
         RoomEnemySlot wings = _slotTable.Slots[body.SlotIndex + 1];
-        if (body.EnemyDefinitionPointer == 0 && initializedBody)
+        if (body.DefinitionId == 0 && initializedBody)
             return wings;
 
-        EnemyDefinitionId expected = KiHunterPartDefinitions.Parts[body.EnemyDefinitionPointer] switch
+        EnemyDefinitionId expected = KiHunterPartDefinitions.Parts[body.DefinitionId] switch
         {
             KiHunterPart.KihunterGreen => EnemyDefinitionId.KihunterGreenWings,
             KiHunterPart.KihunterYellow => EnemyDefinitionId.KihunterYellowWings,
@@ -775,11 +775,11 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
         // the native physical alias even if deletion cleared the definition or the slot was
         // subsequently reused. The latter is intentional: the 65C816 routine would alias and
         // mutate that replacement record too rather than performing a type check.
-        if (wings.EnemyDefinitionPointer != expected &&
+        if (wings.DefinitionId != expected &&
             wings.SpeciesState<KiHunterEnemyState>() is null)
         {
             throw new InvalidDataException(
-                $"Ki-Hunter body slot {body.SlotIndex} is followed by ${(int)wings.EnemyDefinitionPointer:X4}, " +
+                $"Ki-Hunter body slot {body.SlotIndex} is followed by ${(int)wings.DefinitionId:X4}, " +
                 $"not expected wing ${(int)expected:X4}.");
         }
         return wings;
@@ -788,7 +788,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Resolves a wing's preceding body record and validates its color pairing.</summary>
     private RoomEnemySlot GetKiHunterBody(RoomEnemySlot wings)
     {
-        if (!IsKiHunterWingDefinition(wings.EnemyDefinitionPointer) || wings.SlotIndex == 0)
+        if (!IsKiHunterWingDefinition(wings.DefinitionId) || wings.SlotIndex == 0)
             throw new InvalidDataException($"Enemy slot {wings.SlotIndex} is not a linked Ki-Hunter wing.");
         RoomEnemySlot body = _slotTable.Slots[wings.SlotIndex - 1];
         _ = GetKiHunterWings(body); // Performs the exact body/variant adjacency validation.
@@ -824,7 +824,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         RequireKiHunterSamus(samus);
         RequireKiHunterLevel(level);
-        if (!IsKiHunterBodyDefinition(actor.EnemyDefinitionPointer))
+        if (!IsKiHunterBodyDefinition(actor.DefinitionId))
             throw new InvalidDataException("A Ki-Hunter wing entered body-only movement AI.");
     }
 
@@ -845,7 +845,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Runs wing-detachment logic after common bomb damage to a Ki-Hunter body.</summary>
     internal void RegisterKiHunterBombReactions(EnemySharedReactions table)
     {
-        table.AddBombCommon(new EnemyBombReaction(c => IsKiHunterBodyDefinition(c.Enemy.EnemyDefinitionPointer) &&
+        table.AddBombCommon(new EnemyBombReaction(c => IsKiHunterBodyDefinition(c.Enemy.DefinitionId) &&
                                                        c.SelectedShotAi == EnemyInteractionCallback.KiHunterShot)
         {
             AfterCommon = c => ResolveKiHunterShotAfterCommon(c.Enemy),
@@ -886,7 +886,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Runs wing-detachment logic after common power-bomb damage to a body.</summary>
     internal void RegisterKiHunterPowerBombReactions(EnemySharedReactions table)
     {
-        table.AddPowerBomb(new EnemyPowerBombReaction(enemy => IsKiHunterBodyDefinition(enemy.EnemyDefinitionPointer) &&
+        table.AddPowerBomb(new EnemyPowerBombReaction(enemy => IsKiHunterBodyDefinition(enemy.DefinitionId) &&
                                                                EnemyCollision.PowerBombReaction(enemy) == EnemyInteractionCallback.KiHunterShot)
         {
             AfterCommon = (enemy, _) => ResolveKiHunterShotAfterCommon(enemy),
@@ -896,7 +896,7 @@ internal sealed class KiHunterBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Runs wing-detachment logic after common shot damage to a body.</summary>
     internal void RegisterKiHunterShotReactions(EnemySharedReactions table)
     {
-        table.AddShot(new EnemyShotReaction(enemy => IsKiHunterBodyDefinition(enemy.EnemyDefinitionPointer) &&
+        table.AddShot(new EnemyShotReaction(enemy => IsKiHunterBodyDefinition(enemy.DefinitionId) &&
                                                      EnemyCollision.ShotAi(enemy) == EnemyInteractionCallback.KiHunterShot)
         {
             AfterCommon = c => ResolveKiHunterShotAfterCommon(c.Enemy),

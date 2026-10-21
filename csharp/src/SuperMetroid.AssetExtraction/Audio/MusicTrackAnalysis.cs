@@ -51,7 +51,7 @@ internal sealed record MusicTrackAnalysis(
     /// </summary>
     internal static void QueueBanks(SpcAudioClipRenderer renderer, AudioBank bank)
     {
-        renderer.LoadBank(AudioAssetCatalogDefinitions.Common.Bank);
+        renderer.LoadBank(AudioAssetCatalogDefinitions.Common.AudioSet);
         renderer.LoadBank(bank);
     }
 

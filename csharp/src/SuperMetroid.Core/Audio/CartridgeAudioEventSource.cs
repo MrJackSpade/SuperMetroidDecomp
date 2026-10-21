@@ -33,7 +33,7 @@ internal sealed class CartridgeAudioEventSource
             {
                 case CartridgeAudioCommand.Upload upload:
                     clock.PauseForMusicLoad();
-                    events.Add(new AudioEvent.LoadAudioBank(upload.Bank));
+                    events.Add(new AudioEvent.LoadAudioBank(upload.AudioSet));
                     break;
                 case CartridgeAudioCommand.WritePort writePort:
                     if (writePort.InputPort == ApuPort.Music)

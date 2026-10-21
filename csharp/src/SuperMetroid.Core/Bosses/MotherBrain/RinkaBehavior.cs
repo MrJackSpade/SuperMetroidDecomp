@@ -473,7 +473,7 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Runs the private lethal-health tail after common bomb damage without generic death.</summary>
     internal void RegisterRinkaBombReactions(EnemySharedReactions table)
     {
-        table.AddBombCommon(new EnemyBombReaction(c => c.Enemy.EnemyDefinitionPointer == EnemyDefinitionId.Rinka &&
+        table.AddBombCommon(new EnemyBombReaction(c => c.Enemy.DefinitionId == EnemyDefinitionId.Rinka &&
                                                        c.SelectedShotAi == EnemyInteractionCallback.RinkaShot)
         {
             RunsGenericDeath = false,
@@ -496,7 +496,7 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Skips invisible actors and applies the private death lifecycle after power-bomb damage.</summary>
     internal void RegisterRinkaPowerBombReactions(EnemySharedReactions table)
     {
-        table.AddPowerBomb(new EnemyPowerBombReaction(enemy => enemy.EnemyDefinitionPointer == EnemyDefinitionId.Rinka &&
+        table.AddPowerBomb(new EnemyPowerBombReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.Rinka &&
                                                                EnemyCollision.PowerBombReaction(enemy) == EnemyInteractionCallback.RinkaPowerBomb)
         {
             SkipsEnemy = enemy => enemy.Properties.HasAny(EnemyProperties.Invisible),
@@ -509,7 +509,7 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void RegisterRinkaShotReactions(EnemySharedReactions table)
     {
         // Rinka's tail follows the damage path only; the immediate-freeze path skips it.
-        table.AddShot(new EnemyShotReaction(enemy => enemy.EnemyDefinitionPointer == EnemyDefinitionId.Rinka &&
+        table.AddShot(new EnemyShotReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.Rinka &&
                                                      EnemyCollision.ShotAi(enemy) == EnemyInteractionCallback.RinkaShot)
         {
             ExemptFromGenericDeath = true,
@@ -524,7 +524,7 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Applies normal contact damage before the Rinka-specific lethal-health lifecycle.</summary>
     internal void RegisterRinkaTouch(EnemySharedReactions table)
     {
-        table.AddTouch(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Rinka &&
+        table.AddTouch(slot => slot.DefinitionId == EnemyDefinitionId.Rinka &&
                                EnemyCollision.TouchAi(slot) == EnemyInteractionCallback.RinkaTouch,
             context =>
             {
@@ -562,7 +562,7 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
                 RoomEnemyProjectileKind.EnemyDeathExplosion,
                 graphicsIndex: 0);
             projectile.Position = projectile.Position.WithWhole(slot.Position.Whole);
-            projectile.EnemyHeaderPointer = slot.EnemyDefinitionPointer;
+            projectile.DropDefinitionId = slot.DefinitionId;
             projectile.KilledEnemyNativeIndex = respawns
                 ? unchecked((ushort)(slot.NativeIndex | KilledEnemyIndexMasks.RespawnMarker))
                 : slot.NativeIndex;
@@ -610,5 +610,5 @@ internal sealed class RinkaBehavior : IEnemySpecies, IEnemyEntityFactory
 
     /// <summary>Runs the Rinka viewport and termination check before common frozen AI.</summary>
     internal void RegisterRinkaFrozenPreemption(EnemySharedReactions table) =>
-        table.AddFrozenPreemption(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Rinka, RunRinkaFrozenTail);
+        table.AddFrozenPreemption(slot => slot.DefinitionId == EnemyDefinitionId.Rinka, RunRinkaFrozenTail);
 }

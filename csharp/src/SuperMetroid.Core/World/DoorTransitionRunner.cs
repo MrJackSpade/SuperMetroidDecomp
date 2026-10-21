@@ -74,11 +74,11 @@ internal sealed class DoorTransitionRunner
             throw new InvalidOperationException("Door setup requires the destination scroll grid.");
 
         DoorSetupCodeInterpreter.ApplyScrollWrites(
-            door.SetupCodePointer,
+            door.SetupCode,
             door.Name,
             _room.Camera.Scrolls);
 
-        switch (door.SetupCodePointer)
+        switch (door.SetupCode)
         {
             case DoorSetupCode.None:
                 return;
@@ -205,10 +205,10 @@ internal sealed class DoorTransitionRunner
             case DoorSetupCode.DoorASM_Scroll_0_1_Green_duplicate:
             case DoorSetupCode.DoorASM_Scroll_18_Blue_19_Red:
             default:
-                if (DoorScrollPrograms.Contains(door.SetupCodePointer))
+                if (DoorScrollPrograms.Contains(door.SetupCode))
                     return;
                 throw new InvalidOperationException(
-                    $"Undefined {nameof(DoorSetupCode)} {(int)door.SetupCodePointer:X4} in door {door.Name}.");
+                    $"Undefined {nameof(DoorSetupCode)} {(int)door.SetupCode:X4} in door {door.Name}.");
         }
     }
 

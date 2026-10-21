@@ -112,7 +112,7 @@ internal static class ShotCallbackDefinitionsVerification
             var guard = NewEnemyCallbackOpcodeReadGuard(rom, forbidden);
             (RoomEnemySystem enemies, RoomEnemySlot enemy) =
                 CreateLiteralNoOpCombatSystem();
-            enemy.Bind(enemy.EnemyDefinitionPointer, default(RoomEnemyDefinition) with
+            enemy.Bind(enemy.DefinitionId, default(RoomEnemyDefinition) with
             {
                 Bank = (byte)(callback >> 16),
                 TouchAiPointer = unchecked((ushort)callback),
@@ -137,7 +137,7 @@ internal static class ShotCallbackDefinitionsVerification
             var guard = NewEnemyCallbackOpcodeReadGuard(rom, forbidden);
             (RoomEnemySystem enemies, RoomEnemySlot enemy) =
                 CreateLiteralNoOpCombatSystem();
-            enemy.Bind(enemy.EnemyDefinitionPointer, default(RoomEnemyDefinition) with
+            enemy.Bind(enemy.DefinitionId, default(RoomEnemyDefinition) with
             {
                 Bank = (byte)(callback >> 16),
                 ShotAiPointer = unchecked((ushort)callback),

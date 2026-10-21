@@ -503,9 +503,9 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemySlot head = _slotTable.Slots[headIndex];
         RoomEnemySlot body = _slotTable.Slots[headIndex + 1];
         RoomEnemySlot overlay = _slotTable.Slots[headIndex + 2];
-        if (head.EnemyDefinitionPointer != EnemyDefinitionId.Magdollite || head.Spawn.Population.Parameter1 != 0 ||
-            body.EnemyDefinitionPointer != EnemyDefinitionId.Magdollite || body.Spawn.Population.Parameter1 != 1 ||
-            overlay.EnemyDefinitionPointer != EnemyDefinitionId.Magdollite || overlay.Spawn.Population.Parameter1 != 2)
+        if (head.DefinitionId != EnemyDefinitionId.Magdollite || head.Spawn.Population.Parameter1 != 0 ||
+            body.DefinitionId != EnemyDefinitionId.Magdollite || body.Spawn.Population.Parameter1 != 1 ||
+            overlay.DefinitionId != EnemyDefinitionId.Magdollite || overlay.Spawn.Population.Parameter1 != 2)
         {
             throw new InvalidDataException(
                 $"Magdollite slot {member.SlotIndex} is not inside a retail-ordered 0/1/2 composite.");
@@ -678,7 +678,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Attaches the species tail after common bomb damage when the shot AI selects Magdollite's reaction.</summary>
     internal void RegisterMagdolliteBombReactions(EnemySharedReactions table)
     {
-        table.AddBombCommon(new EnemyBombReaction(c => c.Enemy.EnemyDefinitionPointer == EnemyDefinitionId.Magdollite &&
+        table.AddBombCommon(new EnemyBombReaction(c => c.Enemy.DefinitionId == EnemyDefinitionId.Magdollite &&
                                                        c.SelectedShotAi == EnemyInteractionCallback.MagdolliteShot)
         {
             AfterCommon = c => ResolveMagdolliteCombatAfterCommon(c.Enemy),
@@ -734,7 +734,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Propagates common power-bomb death and freezing effects to following composite records.</summary>
     internal void RegisterMagdollitePowerBombReactions(EnemySharedReactions table)
     {
-        table.AddPowerBomb(new EnemyPowerBombReaction(enemy => enemy.EnemyDefinitionPointer == EnemyDefinitionId.Magdollite &&
+        table.AddPowerBomb(new EnemyPowerBombReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.Magdollite &&
                                                                EnemyCollision.PowerBombReaction(enemy) == EnemyInteractionCallback.MagdollitePowerBomb)
         {
             AfterCommon = (enemy, _) => ResolveMagdolliteCombatAfterCommon(enemy),
@@ -744,7 +744,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Propagates common shot death and freezing effects to following composite records.</summary>
     internal void RegisterMagdolliteShotReactions(EnemySharedReactions table)
     {
-        table.AddShot(new EnemyShotReaction(enemy => enemy.EnemyDefinitionPointer == EnemyDefinitionId.Magdollite &&
+        table.AddShot(new EnemyShotReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.Magdollite &&
                                                      EnemyCollision.ShotAi(enemy) == EnemyInteractionCallback.MagdolliteShot)
         {
             AfterCommon = c => ResolveMagdolliteCombatAfterCommon(c.Enemy),
@@ -754,7 +754,7 @@ internal sealed class MagdolliteBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Applies normal Samus contact damage before mirroring the enemy's death or freeze state.</summary>
     internal void RegisterMagdolliteTouch(EnemySharedReactions table)
     {
-        table.AddTouch(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Magdollite &&
+        table.AddTouch(slot => slot.DefinitionId == EnemyDefinitionId.Magdollite &&
                                EnemyCollision.TouchAi(slot) == EnemyInteractionCallback.MagdolliteTouch,
             context =>
             {

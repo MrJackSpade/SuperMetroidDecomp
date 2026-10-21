@@ -9,7 +9,7 @@ namespace SuperMetroid.Core.Samus.Poses;
 internal static class SamusPoseInputRulesEarly
 {
     /// <summary>Selects the first native input chord in an early bank-$91 transition list and rejects lists owned by the other rule section.</summary>
-    internal static SamusPoseInputMatch Match(SamusPoseInputList pointer, SnesButton held, SnesButton newlyPressed) => pointer switch
+    internal static SamusPoseInputMatch Match(SamusPoseInputList inputList, SnesButton held, SnesButton newlyPressed) => inputList switch
     {
         EmptyTransitionList => MatchEmptyTransitionList(),
         ForwardFacingPowerSuitPoseList => MatchForwardFacingPowerSuitPoseList(held),
@@ -96,8 +96,8 @@ internal static class SamusPoseInputRulesEarly
             SamusPoseInputList.MoonwalkTurnJumpAimUpLeftPoseList or
             SamusPoseInputList.MoonwalkTurnJumpAimUpRightPoseList or
             SamusPoseInputList.MoonwalkTurnJumpAimDownLeftPoseList or
-            SamusPoseInputList.MoonwalkTurnJumpAimDownRightPoseList => throw new InvalidOperationException($"Pose-input list {pointer} belongs to the other rule section."),
-        _ => throw new InvalidOperationException($"Pose-input list {pointer} belongs to the other rule section."),
+            SamusPoseInputList.MoonwalkTurnJumpAimDownRightPoseList => throw new InvalidOperationException($"Pose-input list {inputList} belongs to the other rule section."),
+        _ => throw new InvalidOperationException($"Pose-input list {inputList} belongs to the other rule section."),
     };
 
     /// <summary>$91:A0DC TransitionTable list for pose $2F: native priority order.</summary>

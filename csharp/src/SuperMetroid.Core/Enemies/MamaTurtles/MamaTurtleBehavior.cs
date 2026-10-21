@@ -214,11 +214,11 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
         for (int childOffset = 1; childOffset <= 4; childOffset++)
         {
             RoomEnemySlot child = _slotTable.Slots[mama.SlotIndex + childOffset];
-            if (child.EnemyDefinitionPointer != EnemyDefinitionId.BabyTurtle)
+            if (child.DefinitionId != EnemyDefinitionId.BabyTurtle)
             {
                 throw new InvalidDataException(
                     $"Mama Turtle slot {mama.SlotIndex} expected Baby Turtle in following " +
-                    $"slot {child.SlotIndex}, found ${(int)child.EnemyDefinitionPointer:X4}.");
+                    $"slot {child.SlotIndex}, found ${(int)child.DefinitionId:X4}.");
             }
 
             BabyTurtleEnemyState childState = child.RequireSpeciesState<BabyTurtleEnemyState>();
@@ -808,11 +808,11 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
     private MamaTurtleEnemyState RequireMamaTurtleParent(BabyTurtleEnemyState child)
     {
         RoomEnemySlot parent = _slotTable.Slots[child.ParentSlotIndex];
-        if (parent.EnemyDefinitionPointer != EnemyDefinitionId.MamaTurtle)
+        if (parent.DefinitionId != EnemyDefinitionId.MamaTurtle)
         {
             throw new InvalidDataException(
                 $"Baby Turtle parent slot {child.ParentSlotIndex} names enemy " +
-                $"${(int)parent.EnemyDefinitionPointer:X4}, not Mama Turtle.");
+                $"${(int)parent.DefinitionId:X4}, not Mama Turtle.");
         }
         return parent.RequireSpeciesState<MamaTurtleEnemyState>();
     }
@@ -852,7 +852,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Runs the baby wake callback after common bomb damage.</summary>
     internal void RegisterMamaTurtleBombReactions(EnemySharedReactions table)
     {
-        table.AddBombCommon(new EnemyBombReaction(c => c.Enemy.EnemyDefinitionPointer == EnemyDefinitionId.BabyTurtle &&
+        table.AddBombCommon(new EnemyBombReaction(c => c.Enemy.DefinitionId == EnemyDefinitionId.BabyTurtle &&
                                                        c.SelectedShotAi == EnemyInteractionCallback.BabyTurtleShot)
         {
             AfterCommon = c => ResolveBabyTurtleShotAfterCommon(c.Enemy.RequireSpeciesState<BabyTurtleEnemyState>()),
@@ -903,7 +903,7 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Runs the baby wake callback after common projectile damage.</summary>
     internal void RegisterMamaTurtleShotReactions(EnemySharedReactions table)
     {
-        table.AddShot(new EnemyShotReaction(enemy => enemy.EnemyDefinitionPointer == EnemyDefinitionId.BabyTurtle &&
+        table.AddShot(new EnemyShotReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.BabyTurtle &&
                                                      EnemyCollision.ShotAi(enemy) == EnemyInteractionCallback.BabyTurtleShot)
         {
             AfterCommon = c => ResolveBabyTurtleShotAfterCommon(c.Enemy.RequireSpeciesState<BabyTurtleEnemyState>()),
@@ -913,11 +913,11 @@ internal sealed class MamaTurtleBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Routes Mama contact to shell/fall handling and baby contact to separation and wake behavior.</summary>
     internal void RegisterMamaTurtleTouch(EnemySharedReactions table)
     {
-        table.AddTouch(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.MamaTurtle &&
+        table.AddTouch(slot => slot.DefinitionId == EnemyDefinitionId.MamaTurtle &&
                                EnemyCollision.TouchAi(slot) == EnemyInteractionCallback.MamaTurtleTouch,
             context => ResolveMamaTurtleTouch(context.Slot, context.Slot.RequireSpeciesState<MamaTurtleEnemyState>(), context.Samus));
 
-        table.AddTouch(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.BabyTurtle &&
+        table.AddTouch(slot => slot.DefinitionId == EnemyDefinitionId.BabyTurtle &&
                                EnemyCollision.TouchAi(slot) == EnemyInteractionCallback.BabyTurtleTouch,
             context => ResolveBabyTurtleTouch(context.Slot, context.Slot.RequireSpeciesState<BabyTurtleEnemyState>(), context.Samus, context.Level));
     }

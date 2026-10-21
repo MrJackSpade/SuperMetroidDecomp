@@ -53,7 +53,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Ports the two entry points and common initializer at $A3:9C9F-$9D15.</summary>
     internal static void InitializePlatform(RoomEnemySlot slot)
     {
-        bool isKamer = slot.EnemyDefinitionPointer == EnemyDefinitionId.Kamer2;
+        bool isKamer = slot.DefinitionId == EnemyDefinitionId.Kamer2;
         var state = new PlatformEnemyState();
         slot.SetSpeciesState(state, state.ClearWithRecord);
 
@@ -339,7 +339,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Replaces a frozen Tripper's map after common Bomb reaction using its movement direction.</summary>
     internal static void RegisterPlatformsBombReactions(EnemySharedReactions table)
     {
-        table.AddBombCommon(new EnemyBombReaction(c => c.Enemy.EnemyDefinitionPointer == EnemyDefinitionId.Tripper &&
+        table.AddBombCommon(new EnemyBombReaction(c => c.Enemy.DefinitionId == EnemyDefinitionId.Tripper &&
                                                        c.SelectedShotAi == EnemyInteractionCallback.TripperShot)
         {
             AfterCommon = c =>
@@ -367,7 +367,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         // Tripper's private tail runs after common shot AI on the immediate-freeze path and replaces the current
         // frame with a direction-specific two-piece frozen map.
-        table.AddShot(new EnemyShotReaction(enemy => enemy.EnemyDefinitionPointer == EnemyDefinitionId.Tripper &&
+        table.AddShot(new EnemyShotReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.Tripper &&
                                                      EnemyCollision.ShotAi(enemy) == EnemyInteractionCallback.TripperShot)
         {
             AfterCommon = c =>
@@ -383,7 +383,7 @@ internal sealed class PlatformsBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         // `$A3:9F07` is a literal RTL. Platform solidity and the asymmetric rider test live in other handlers;
         // ordinary body overlap must neither injure Samus nor synthesize knockback here.
-        table.AddTouch(slot => IsPlatformDefinition(slot.EnemyDefinitionPointer) &&
+        table.AddTouch(slot => IsPlatformDefinition(slot.DefinitionId) &&
                                EnemyCollision.TouchAi(slot) == EnemyInteractionCallback.PlatformNoOpTouch,
             static _ => { });
     }

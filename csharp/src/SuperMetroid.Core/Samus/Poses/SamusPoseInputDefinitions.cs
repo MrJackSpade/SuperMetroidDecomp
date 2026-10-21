@@ -76,15 +76,15 @@ internal static class SamusPoseInputDefinitions
 
     /// <summary>Maps a supported pose to its bank-91 transition list, preserving shared and empty-list identities.</summary>
     /// <returns>False only when the pose lies beyond the native 253-pose dispatch table.</returns>
-    internal static bool TryGetPointer(SamusPoseId pose, out SamusPoseInputList pointer)
+    internal static bool TryGetInputList(SamusPoseId pose, out SamusPoseInputList inputList)
     {
         // Indexes past the 253 native poses read adjacent bank-$91 code, not a graph.
         if ((int)pose >= SuperMetroid.Core.Samus.Artwork.SamusBodyArtworkCatalog.PoseCount)
         {
-            pointer = default;
+            inputList = default;
             return false;
         }
-        pointer = pose switch
+        inputList = pose switch
         {
             SamusPoseId.TurningRightToLeftJumpPose or SamusPoseId.TurningLeftToRightJumpPose or SamusPoseId.CrouchingTransitionRightPose or SamusPoseId.CrouchingTransitionLeftPose or SamusPoseId.MorphingTransitionRightPose or SamusPoseId.MorphingTransitionLeftPose or NativePose39 or NativePose3A or SamusPoseId.StandingTransitionRightPose or SamusPoseId.StandingTransitionLeftPose or NativePose3F or NativePose40 or SamusPoseId.TurningRightToLeftCrouchingPose or SamusPoseId.TurningLeftToRightCrouchingPose or NativePose5D or NativePose5E or NativePose5F or NativePose60 or NativePose61 or NativePose62 or SamusPoseId.TurningRightToLeftFallingPose or SamusPoseId.TurningLeftToRightFallingPose or SamusPoseId.TurningRightToLeftJumpAimUpPose or SamusPoseId.TurningLeftToRightJumpAimUpPose or SamusPoseId.TurningRightToLeftJumpAimDownPose or SamusPoseId.TurningLeftToRightJumpAimDownPose or SamusPoseId.TurningRightToLeftFallingAimUpPose or SamusPoseId.TurningLeftToRightFallingAimUpPose or SamusPoseId.TurningRightToLeftFallingAimDownPose or SamusPoseId.TurningLeftToRightFallingAimDownPose or SamusPoseId.TurningRightToLeftCrouchingAimUpPose or SamusPoseId.TurningLeftToRightCrouchingAimUpPose or SamusPoseId.TurningRightToLeftCrouchingAimDiagonalDownPose or SamusPoseId.TurningLeftToRightCrouchingAimDiagonalDownPose or SamusPoseId.TurningRightToLeftAimDiagonalUpPose or SamusPoseId.TurningLeftToRightAimDiagonalUpPose or SamusPoseId.TurningRightToLeftJumpAimDiagonalUpPose or SamusPoseId.TurningLeftToRightJumpAimDiagonalUpPose or SamusPoseId.TurningRightToLeftFallingAimDiagonalUpPose or SamusPoseId.TurningLeftToRightFallingAimDiagonalUpPose or SamusPoseId.TurningRightToLeftCrouchingAimDiagonalUpPose or SamusPoseId.TurningLeftToRightCrouchingAimDiagonalUpPose or SamusPoseId.GrappleStandingRightPose or SamusPoseId.GrappleStandingLeftPose or SamusPoseId.GrappleStandingDownRightPose or SamusPoseId.GrappleStandingDownLeftPose or NativePoseAC or NativePoseAD or NativePoseAE or NativePoseAF or NativePoseB0 or NativePoseB1 or SamusPoseId.GrappleSwingRightPose or SamusPoseId.GrappleSwingLeftPose or SamusPoseId.GrappleCrouchingRightPose or SamusPoseId.GrappleCrouchingLeftPose or SamusPoseId.GrappleCrouchingDownRightPose or SamusPoseId.GrappleCrouchingDownLeftPose or SamusPoseId.GrappleWallContactLeftPose or SamusPoseId.GrappleWallContactRightPose or NativePoseC5 or NativePoseC6 or SamusPoseId.ShinesparkHorizontalRightPose or SamusPoseId.ShinesparkHorizontalLeftPose or SamusPoseId.ShinesparkVerticalRightPose or SamusPoseId.ShinesparkVerticalLeftPose or SamusPoseId.ShinesparkDiagonalRightPose or SamusPoseId.ShinesparkDiagonalLeftPose or SamusPoseId.CrystalFlashRightPose or SamusPoseId.CrystalFlashLeftPose or SamusPoseId.XrayingStandingRightPose or SamusPoseId.XrayingStandingLeftPose or SamusPoseId.DeathSequenceRightPose or SamusPoseId.DeathSequenceLeftPose or SamusPoseId.XrayingCrouchingRightPose or SamusPoseId.XrayingCrouchingLeftPose or SamusPoseId.UnusedPoseDb or SamusPoseId.UnusedPoseDc or SamusPoseId.UnusedPoseDd or SamusPoseId.UnusedPoseDe or SamusPoseId.DrainedCrouchingRightPose or SamusPoseId.DrainedCrouchingLeftPose or SamusPoseId.DrainedStandingRightPose or SamusPoseId.DrainedStandingLeftPose or SamusPoseId.CrouchingTransitionAimUpRightPose or SamusPoseId.CrouchingTransitionAimUpLeftPose or SamusPoseId.CrouchingTransitionAimDiagonalUpRightPose or SamusPoseId.CrouchingTransitionAimDiagonalUpLeftPose or SamusPoseId.CrouchingTransitionAimDiagonalDownRightPose or SamusPoseId.CrouchingTransitionAimDiagonalDownLeftPose or SamusPoseId.StandingTransitionAimUpRightPose or SamusPoseId.StandingTransitionAimUpLeftPose or SamusPoseId.StandingTransitionAimDiagonalUpRightPose or SamusPoseId.StandingTransitionAimDiagonalUpLeftPose or SamusPoseId.StandingTransitionAimDiagonalDownRightPose or SamusPoseId.StandingTransitionAimDiagonalDownLeftPose => EmptyTransitionList,
             SamusPoseId.ForwardFacingPowerSuitPose or SamusPoseId.ForwardFacingSuitedPose => ForwardFacingPowerSuitPoseList,
@@ -181,10 +181,10 @@ internal static class SamusPoseInputDefinitions
     }
 
     /// <summary>Evaluates the selected transition list in its early or late native graph section using held and edge inputs.</summary>
-    internal static SamusPoseInputMatch Match(SamusPoseInputList pointer, SnesButton held, SnesButton newlyPressed) =>
-        (ushort)pointer < LaterListsBegin
-            ? SamusPoseInputRulesEarly.Match(pointer, held, newlyPressed)
-            : SamusPoseInputRulesLate.Match(pointer, held, newlyPressed);
+    internal static SamusPoseInputMatch Match(SamusPoseInputList inputList, SnesButton held, SnesButton newlyPressed) =>
+        (ushort)inputList < LaterListsBegin
+            ? SamusPoseInputRulesEarly.Match(inputList, held, newlyPressed)
+            : SamusPoseInputRulesLate.Match(inputList, held, newlyPressed);
 
     /// <summary>
     /// Exchanges Left and Right in <paramref name="input"/>. A left-facing list is its right-facing list read with the

@@ -26,7 +26,7 @@ internal static class GoldenTorizoAttackChoiceVerification
         runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.GoldenTorizo);
         var samus = runtime.Player.IntroducedSamus;
         RoomEnemySlot torizo = runtime.Enemies.SlotTable.Slots.Single(slot =>
-            slot.EnemyDefinitionPointer == EnemyDefinitionId.GoldenTorizo);
+            slot.DefinitionId == EnemyDefinitionId.GoldenTorizo);
 
         samus.Position = samus.Position.WithWholeX(0x01b8);
         samus.Missiles = 187;

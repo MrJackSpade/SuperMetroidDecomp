@@ -42,7 +42,7 @@ internal sealed class EnemyPopulationLoader
         for (int slotIndex = 0; slotIndex < records.Length; slotIndex++)
         {
             RoomEnemyPopulationRecord population = records[slotIndex];
-            EnemyDefinitionId definitionPointer = population.DefinitionPointer;
+            EnemyDefinitionId definitionPointer = population.DefinitionId;
             if (slotIndex == EnemySlotTable.MaximumEnemyCount)
             {
                 throw new InvalidDataException(

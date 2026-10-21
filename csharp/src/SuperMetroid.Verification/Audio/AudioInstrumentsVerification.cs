@@ -24,11 +24,11 @@ internal static class AudioInstrumentsVerification
         {
             var rawPlayer = new ManagedSpcPlayer();
             rawPlayer.Uploads.Upload(stock.GetUpload(AudioBank.SpcEngine).Span);
-            if (bank.Bank != AudioBank.SpcEngine)
-                rawPlayer.Uploads.Upload(stock.GetUpload(bank.Bank).Span);
+            if (bank.AudioSet != AudioBank.SpcEngine)
+                rawPlayer.Uploads.Upload(stock.GetUpload(bank.AudioSet).Span);
 
             IReadOnlyList<AudioInstrumentMetadata> definitions =
-                stock.GetInstrumentBank(bank.Bank);
+                stock.GetInstrumentBank(bank.AudioSet);
             AssertEqual(
                 SpcDriverDefinitions.Ram.InstrumentCount,
                 definitions.Count,

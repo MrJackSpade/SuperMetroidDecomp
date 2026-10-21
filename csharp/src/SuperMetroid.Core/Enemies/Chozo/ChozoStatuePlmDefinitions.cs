@@ -25,7 +25,7 @@ internal static class ChozoStatuePlmDefinitions
     public static ChozoStatuePlmDefinition CrumblePlug =>
         new(PlmHeaderId.CrumbleLowerNorfairChozoRoomPlug, PlmProgramStart.Typed(ScriptedRoomPlmProgram.ChozoCrumblePlug));
     /// <summary>Resolves a supported header without interpreting adjacent bank-$84 data.</summary>
-    public static ChozoStatuePlmDefinition Resolve(PlmHeaderId headerPointer) => headerPointer switch
+    public static ChozoStatuePlmDefinition Resolve(PlmHeaderId header) => header switch
     {
         PlmHeaderId.LowerNorfairChozoHand => LowerNorfairHand,
         PlmHeaderId.WreckedShipChozoHand => WreckedShipHand,
@@ -306,7 +306,7 @@ internal static class ChozoStatuePlmDefinitions
             PlmHeaderId.ShotBlockSpaceJump or
             PlmHeaderId.ShotBlockScrewAttack or
             PlmHeaderId.ShotBlockMorphBall or
-            PlmHeaderId.ShotBlockReserveTank => throw new InvalidDataException($"Unsupported Chozo PLM ${(int)headerPointer:X4}."),
-        _ => throw new InvalidDataException($"Unsupported Chozo PLM ${(int)headerPointer:X4}."),
+            PlmHeaderId.ShotBlockReserveTank => throw new InvalidDataException($"Unsupported Chozo PLM ${(int)header:X4}."),
+        _ => throw new InvalidDataException($"Unsupported Chozo PLM ${(int)header:X4}."),
     };
 }

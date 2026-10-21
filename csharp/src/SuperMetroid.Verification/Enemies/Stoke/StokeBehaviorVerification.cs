@@ -53,7 +53,7 @@ internal static class StokeBehaviorVerification
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.Stoke, slot.Definition);
-        slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = StokeFrameToolingDefinitions.Bank });
+        slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition) with { Bank = StokeFrameToolingDefinitions.Bank });
         slot.SetSpawnParameter1((ushort)direction);
         slot.Position = slot.Position.WithWhole(new(128, 128));
         StokeBehavior.InitializeStoke(slot);

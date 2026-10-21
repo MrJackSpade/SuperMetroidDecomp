@@ -55,7 +55,7 @@ internal static class RoomScopeVerification
             PlmBlock: default,
             DestinationScreen: camera.ToRoomScreen(),
             SamusDistance: 0,
-            SetupCodePointer: DoorSetupCode.None);
+            SetupCode: DoorSetupCode.None);
         runtime.RoomLoader.LoadCartridgeRoom(door, parlor, camera, RoomViewportLoadMode.StreamThroughDoor);
 
         RoomScope destination = runtime.Room.Scope;

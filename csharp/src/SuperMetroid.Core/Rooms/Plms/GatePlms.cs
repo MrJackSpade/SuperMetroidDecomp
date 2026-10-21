@@ -110,7 +110,7 @@ internal sealed class GatePlms : IPlmFamilySource
         // as the cartridge does.
         if (_slotTable.SpawnAtCurrentBlock() is not { } temporary)
             return true;
-        temporary.HeaderPointer = HeaderForGateTrigger(trigger);
+        temporary.Header = HeaderForGateTrigger(trigger);
         temporary.BlockIndex = blockIndex;
         temporary.LoopTimer = projectileType.Raw;
 

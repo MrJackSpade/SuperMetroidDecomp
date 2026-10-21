@@ -196,7 +196,7 @@ internal static void VerifyRoomEnemyLoading()
     RoomEnemyDefinition definition = slot.Definition;
     AssertEqual(0x110e, definition.HurtSoundEffect, "definition hurt SFX offset $0E");
     AssertEqual(0x1114, definition.PartCount, "definition part count offset $14");
-    AssertEqual(GrappleAiRoutine.Cancel, definition.GrappleAiPointer, "definition grapple AI offset $1A");
+    AssertEqual(GrappleAiRoutine.Cancel, definition.GrappleAi, "definition grapple AI offset $1A");
     AssertEqual(0x1128, definition.PowerBombReactionPointer,
         "definition power-bomb reaction offset $28");
     AssertEqual(0x1134, definition.InitialSpritemapPointer,
@@ -679,12 +679,12 @@ internal static void VerifyRipperEnemy(bool verifyDeferredContact = false, bool 
             "common shot queues header low-byte cry for surviving and lethal hits");
     }
     AssertEqual(0, ripper.Health, "Ripper Super Missile vulnerability reaches zero health");
-    AssertEqual(EnemyDefinitionId.None, ripper.EnemyDefinitionPointer,
+    AssertEqual(EnemyDefinitionId.None, ripper.DefinitionId,
         "Ripper generic death clears its common enemy record immediately");
     RoomEnemyProjectileSlot ripperDeath = enemies.Projectiles.EnemyProjectiles[17];
     AssertEqual(RoomEnemyProjectileKind.EnemyDeathExplosion, ripperDeath.Kind,
         "Ripper zero health allocates the shared F345 death actor");
-    AssertEqual(definitionPointer, ripperDeath.EnemyHeaderPointer,
+    AssertEqual(definitionPointer, ripperDeath.DropDefinitionId,
         "Ripper death actor retains its header for EEAF drop selection");
     AssertEqual(1, enemies.RoomStatus.EnemiesKilled, "Ripper death increments room kill count");
 
@@ -1189,7 +1189,7 @@ internal static void VerifyCeresRidleyRoomEntry()
     AssertTrue(ridley.Properties.HasAny(EnemyProperties.Invisible),
         "Ceres Ridley ordinary actor yields to getaway presentation");
     RoomEnemySlot[] mode7Walls = enemies.SlotTable.Slots
-        .Where(slot => slot.EnemyDefinitionPointer == ceresDoorDefinitionPointer &&
+        .Where(slot => slot.DefinitionId == ceresDoorDefinitionPointer &&
             slot.Spawn.Population.Parameter1 is 5 or 6)
         .ToArray();
     AssertEqual(2, mode7Walls.Length,

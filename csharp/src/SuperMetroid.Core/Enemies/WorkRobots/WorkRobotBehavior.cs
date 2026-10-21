@@ -75,8 +75,8 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
     public SoundEffectId? LastWorkRobotSoundEffect { get; private set; }
 
     /// <summary>Matches powered and unpowered Wrecked Ship robot population definitions.</summary>
-    internal static bool IsWorkRobotDefinition(EnemyDefinitionId definitionPointer) =>
-        definitionPointer is EnemyDefinitionId.Robot or EnemyDefinitionId.RobotNoPower;
+    internal static bool IsWorkRobotDefinition(EnemyDefinitionId definitionId) =>
+        definitionId is EnemyDefinitionId.Robot or EnemyDefinitionId.RobotNoPower;
 
     /// <summary>Ports <c>InitAI_Robot</c> at $A8:CB77.</summary>
     internal void InitializeWorkRobot(RoomEnemySlot slot)
@@ -85,7 +85,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
         slot.SetSpeciesState(state, state.ClearWithRecord);
 
         bool areaBossDefeated = _room.Services.Bosses.IsDefeated(BossBits.AreaBoss);
-        if (slot.EnemyDefinitionPointer != EnemyDefinitionId.Robot || !areaBossDefeated)
+        if (slot.DefinitionId != EnemyDefinitionId.Robot || !areaBossDefeated)
         {
             InitializeWorkRobotNoPower(slot, state);
             return;
@@ -322,7 +322,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
     /// </summary>
     private void ResolveWorkRobotShotAfterCommon(RoomEnemySlot robot, SamusState? samus)
     {
-        if (robot.EnemyDefinitionPointer != EnemyDefinitionId.Robot || robot.Health == 0)
+        if (robot.DefinitionId != EnemyDefinitionId.Robot || robot.Health == 0)
             return;
         if (!_room.Services.Bosses.IsDefeated(BossBits.AreaBoss))
             return;
@@ -378,10 +378,10 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         // Powered Work Robot returns until Phantoon is dead. Bank $A0 has already marked the bomb, so callback
         // rejection belongs here rather than in collision admission.
-        table.AddBombCommon(new EnemyBombReaction(c => IsWorkRobotDefinition(c.Enemy.EnemyDefinitionPointer) &&
+        table.AddBombCommon(new EnemyBombReaction(c => IsWorkRobotDefinition(c.Enemy.DefinitionId) &&
                                                        c.SelectedShotAi is EnemyInteractionCallback.WorkRobotShot or EnemyInteractionCallback.WorkRobotNoPowerShot)
         {
-            Rejects = c => c.Enemy.EnemyDefinitionPointer == EnemyDefinitionId.Robot &&
+            Rejects = c => c.Enemy.DefinitionId == EnemyDefinitionId.Robot &&
                            c.SelectedShotAi == EnemyInteractionCallback.WorkRobotShot &&
                            !_room.Services.Bosses.IsDefeated(BossBits.AreaBoss),
             AfterCommon = c => ResolveWorkRobotShotAfterCommon(c.Enemy, c.Samus),
@@ -412,7 +412,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Applies the powered robot's accepted-impact recoil tail after common projectile shots.</summary>
     internal void RegisterWorkRobotShotReactions(EnemySharedReactions table)
     {
-        table.AddShot(new EnemyShotReaction(enemy => IsWorkRobotDefinition(enemy.EnemyDefinitionPointer) &&
+        table.AddShot(new EnemyShotReaction(enemy => IsWorkRobotDefinition(enemy.DefinitionId) &&
                                                      EnemyCollision.ShotAi(enemy) is EnemyInteractionCallback.WorkRobotShot or EnemyInteractionCallback.WorkRobotNoPowerShot)
         {
             AfterCommon = c => ResolveWorkRobotShotAfterCommon(c.Enemy, c.Samus),
@@ -422,7 +422,7 @@ internal sealed class WorkRobotBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Routes robot contact to its four-pixel external push without Samus damage.</summary>
     internal static void RegisterWorkRobotTouch(EnemySharedReactions table)
     {
-        table.AddTouch(slot => IsWorkRobotDefinition(slot.EnemyDefinitionPointer) &&
+        table.AddTouch(slot => IsWorkRobotDefinition(slot.DefinitionId) &&
                                EnemyCollision.TouchAi(slot) == EnemyInteractionCallback.WorkRobotTouch,
             context => ResolveWorkRobotTouch(context.Slot, context.Samus));
     }

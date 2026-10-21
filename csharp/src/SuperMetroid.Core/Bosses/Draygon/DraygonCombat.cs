@@ -54,7 +54,7 @@ internal sealed class DraygonCombat
     /// <summary>Routes body bomb hits through Draygon's special shot reaction.</summary>
     internal void RegisterDraygonBombReactions(EnemySharedReactions table)
     {
-        table.AddBombCommon(new EnemyBombReaction(c => c.Enemy.EnemyDefinitionPointer == EnemyDefinitionId.DraygonBody &&
+        table.AddBombCommon(new EnemyBombReaction(c => c.Enemy.DefinitionId == EnemyDefinitionId.DraygonBody &&
                                                        c.SelectedShotAi == EnemyInteractionCallback.DraygonShot)
         {
             RunsGenericDeath = false,
@@ -66,7 +66,7 @@ internal sealed class DraygonCombat
     /// <summary>Routes power-bomb damage for Draygon's body through its encounter reaction.</summary>
     internal void RegisterDraygonPowerBombReactions(EnemySharedReactions table)
     {
-        table.AddPowerBomb(new EnemyPowerBombReaction(enemy => enemy.EnemyDefinitionPointer == EnemyDefinitionId.DraygonBody &&
+        table.AddPowerBomb(new EnemyPowerBombReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.DraygonBody &&
                                                                EnemyCollision.PowerBombReaction(enemy) == EnemyInteractionCallback.DraygonPowerBomb)
         {
             ExemptFromGenericDeath = true,
@@ -77,7 +77,7 @@ internal sealed class DraygonCombat
     /// <summary>Registers the body and linked-part contact behavior against Samus.</summary>
     internal void RegisterDraygonTouch(EnemySharedReactions table)
     {
-        table.AddTouch(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.DraygonBody &&
+        table.AddTouch(slot => slot.DefinitionId == EnemyDefinitionId.DraygonBody &&
                                EnemyCollision.TouchAi(slot) == EnemyInteractionCallback.DraygonTouch,
             context =>
             {
@@ -204,7 +204,7 @@ internal sealed class DraygonCombat
     /// <summary>Registers Draygon's shot response, including acceleration and special death exemption.</summary>
     internal void RegisterDraygonShotReactions(EnemySharedReactions table)
     {
-        table.AddShot(new EnemyShotReaction(enemy => enemy.EnemyDefinitionPointer == EnemyDefinitionId.DraygonBody &&
+        table.AddShot(new EnemyShotReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.DraygonBody &&
                                                      EnemyCollision.ShotAi(enemy) == EnemyInteractionCallback.DraygonShot)
         {
             BeforeSuperMissileQuake = (in EnemyShotContext c) =>
@@ -236,7 +236,7 @@ internal sealed class DraygonCombat
     internal static bool? FindDraygonHitboxCallback(RoomEnemySlot enemy, EnemyHitboxProbe probe, out EnemyInteractionCallback? callback)
     {
         callback = null;
-        if (!DraygonCombat.IsDraygonDefinition(enemy.EnemyDefinitionPointer))
+        if (!DraygonCombat.IsDraygonDefinition(enemy.DefinitionId))
             return null;
 
         // Both OAM and BG2 art are replaceable presentation. Their native

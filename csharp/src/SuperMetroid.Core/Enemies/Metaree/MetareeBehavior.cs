@@ -237,7 +237,7 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Spawns four metal debris actors with the dying Metaree's graphics indexes before common shot death clears them.</summary>
     internal void RegisterMetareeShotReactions(EnemySharedReactions table)
     {
-        table.AddShot(new EnemyShotReaction(enemy => enemy.EnemyDefinitionPointer == EnemyDefinitionId.Metaree &&
+        table.AddShot(new EnemyShotReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.Metaree &&
                                                      EnemyCollision.ShotAi(enemy) == EnemyInteractionCallback.MetareeShot)
         {
             BeforeGenericDeath = c =>
@@ -252,7 +252,7 @@ internal sealed class MetareeBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>After a lethal bomb, spawns debris while the body's graphics words are intact, then clears both indexes on the retained host record.</summary>
     internal void RegisterMetareeBombReactions(EnemySharedReactions table)
     {
-        table.AddBombCommon(new EnemyBombReaction(c => c.Enemy.EnemyDefinitionPointer == EnemyDefinitionId.Metaree &&
+        table.AddBombCommon(new EnemyBombReaction(c => c.Enemy.DefinitionId == EnemyDefinitionId.Metaree &&
                                                        c.SelectedShotAi == EnemyInteractionCallback.MetareeShot)
         {
             AfterCommon = c =>

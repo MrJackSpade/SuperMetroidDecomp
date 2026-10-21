@@ -168,7 +168,7 @@ internal static class AudioClipExportVerification
         var pcm = new List<short>();
         IReadOnlyList<CartridgeAudioCommand>[] script =
         [
-            [new CartridgeAudioCommand.Upload(AudioAssetCatalogDefinitions.Common.Bank), new CartridgeAudioCommand.Upload(context)],
+            [new CartridgeAudioCommand.Upload(AudioAssetCatalogDefinitions.Common.AudioSet), new CartridgeAudioCommand.Upload(context)],
             [request],
         ];
         for (int index = 0; pcm.Count < frames * 2; index++)

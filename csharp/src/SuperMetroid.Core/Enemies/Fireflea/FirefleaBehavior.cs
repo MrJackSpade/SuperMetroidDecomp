@@ -115,7 +115,7 @@ internal sealed class FirefleaBehavior : IEnemySpecies, IEnemyEntityFactory
         // With ordinary contact, native A still contains the surviving health ($A0:A480).
         // EnemyDeath clamps values above four to the small explosion. Queue that real
         // death program before clearing the actor so its artwork and sound can run.
-        if (slot.EnemyDefinitionPointer != 0)
+        if (slot.DefinitionId != 0)
             _deathsAndDrops.StartGenericEnemyDeath(slot, deathAnimation: checked((ushort)slot.Health));
         else
         {
@@ -144,7 +144,7 @@ internal sealed class FirefleaBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Advances darkness after common bomb damage kills a Fireflea.</summary>
     internal void RegisterFirefleaBombReactions(EnemySharedReactions table)
     {
-        table.AddBombCommon(new EnemyBombReaction(c => c.Enemy.EnemyDefinitionPointer == EnemyDefinitionId.Fireflea &&
+        table.AddBombCommon(new EnemyBombReaction(c => c.Enemy.DefinitionId == EnemyDefinitionId.Fireflea &&
                                                        c.SelectedShotAi == EnemyInteractionCallback.FirefleaShot)
         {
             AfterCommon = c =>
@@ -170,7 +170,7 @@ internal sealed class FirefleaBehavior : IEnemySpecies, IEnemyEntityFactory
     internal void RegisterFirefleaPowerBombReactions(EnemySharedReactions table)
     {
         // Reactions around common power-bomb damage.
-        table.AddPowerBomb(new EnemyPowerBombReaction(enemy => enemy.EnemyDefinitionPointer == EnemyDefinitionId.Fireflea &&
+        table.AddPowerBomb(new EnemyPowerBombReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.Fireflea &&
                                                                EnemyCollision.PowerBombReaction(enemy) == EnemyInteractionCallback.FirefleaPowerBomb)
         {
             BeforeGenericDeath = (_, _) => AdvanceFirefleaDarknessLevel(),
@@ -180,7 +180,7 @@ internal sealed class FirefleaBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Advances darkness before a lethal common projectile death is finalized.</summary>
     internal void RegisterFirefleaShotReactions(EnemySharedReactions table)
     {
-        table.AddShot(new EnemyShotReaction(enemy => enemy.EnemyDefinitionPointer == EnemyDefinitionId.Fireflea &&
+        table.AddShot(new EnemyShotReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.Fireflea &&
                                                      EnemyCollision.ShotAi(enemy) == EnemyInteractionCallback.FirefleaShot)
         {
             BeforeGenericDeath = _ => AdvanceFirefleaDarknessLevel(),
@@ -190,7 +190,7 @@ internal sealed class FirefleaBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Registers Fireflea's touch callback, which runs the retail unconditional-death sequence.</summary>
     internal void RegisterFirefleaTouch(EnemySharedReactions table)
     {
-        table.AddTouch(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Fireflea &&
+        table.AddTouch(slot => slot.DefinitionId == EnemyDefinitionId.Fireflea &&
                                EnemyCollision.TouchAi(slot) == EnemyInteractionCallback.FirefleaTouch,
             context => ResolveFirefleaTouch(context.Slot, context.Samus));
     }

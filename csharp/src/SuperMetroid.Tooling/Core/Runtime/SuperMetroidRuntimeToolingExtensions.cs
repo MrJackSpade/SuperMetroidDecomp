@@ -58,7 +58,7 @@ internal static class SuperMetroidRuntimeToolingExtensions
                 PlmBlock: default,
                 DestinationScreen: camera.ToRoomScreen(),
                 SamusDistance: 0,
-                SetupCodePointer: DoorSetupCode.None);
+                SetupCode: DoorSetupCode.None);
 
             InitialViewportResult viewport = self.RoomLoader.LoadCartridgeRoom(
                 door,

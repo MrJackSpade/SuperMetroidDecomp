@@ -14,7 +14,7 @@ public sealed class KiHunterEnemyState
         // The definition word is mutable native storage and is cleared during deletion.
         // Role is established by the initializer and must survive that later write because
         // body/wing callbacks continue using physical +/-$40 slot aliases.
-        IsWing = KiHunterBehavior.IsKiHunterWingDefinition(slot.EnemyDefinitionPointer);
+        IsWing = KiHunterBehavior.IsKiHunterWingDefinition(slot.DefinitionId);
     }
 
     /// <summary>Where the typed animation (#641) resumes, in place of the native instruction pointer.</summary>

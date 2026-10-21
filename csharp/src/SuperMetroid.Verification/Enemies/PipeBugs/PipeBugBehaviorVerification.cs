@@ -129,7 +129,7 @@ internal static class PipeBugBehaviorVerification
     private static PipeBugEnemyState Initialize(RoomEnemySystem enemies, RoomEnemySlot slot, EnemyDefinitionId definition, ushort parameter)
     {
         slot.Bind(definition, slot.Definition);
-        slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = PipeBugFrameToolingDefinitions.Bank });
+        slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition) with { Bank = PipeBugFrameToolingDefinitions.Bank });
         slot.SetSpawnParameter1(parameter);
         switch (definition)
         {

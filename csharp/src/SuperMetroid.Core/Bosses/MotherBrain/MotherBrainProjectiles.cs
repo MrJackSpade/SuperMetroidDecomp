@@ -274,7 +274,7 @@ internal sealed class MotherBrainProjectiles
             _projectiles.SpawnRoomGraphicsDustExplosion(new(x, y), MiscDustAnimation.SmallDustCloud);
             _deathsAndDrops.SpawnEnemyDropFromEnemyHeader(
                 new(x, y),
-                state.Head.EnemyDefinitionPointer);
+                state.Head.DefinitionId);
             return true;
         }
 

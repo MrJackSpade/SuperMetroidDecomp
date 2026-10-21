@@ -8,21 +8,21 @@ internal sealed class RipperEntity(RipperBehavior species, RoomEnemySlot slot, E
     : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation, IEnemyPrivateShotCallback
 {
     /// <inheritdoc/>
-    public EnemyInitializationAiHandler? FindInitialization() => RipperPartDefinitions.Parts[Slot.EnemyDefinitionPointer] switch
+    public EnemyInitializationAiHandler? FindInitialization() => RipperPartDefinitions.Parts[Slot.DefinitionId] switch
     {
         RipperPart.GRipper => species.InitializeGRipper,
         RipperPart.Ripper2 => species.InitializeRipper2,
         RipperPart.Ripper => species.InitializeRipper,
-        _ => throw new InvalidOperationException($"Ripper entity bound to {Slot.EnemyDefinitionPointer}."),
+        _ => throw new InvalidOperationException($"Ripper entity bound to {Slot.DefinitionId}."),
     };
 
     /// <inheritdoc/>
-    public EnemyMainAiHandler? FindMain() => RipperPartDefinitions.Parts[Slot.EnemyDefinitionPointer] switch
+    public EnemyMainAiHandler? FindMain() => RipperPartDefinitions.Parts[Slot.DefinitionId] switch
     {
         RipperPart.GRipper => species.RunGRipperMainAi,
         RipperPart.Ripper2 => species.RunRipper2MainAi,
         RipperPart.Ripper => species.RunRipperMainAi,
-        _ => throw new InvalidOperationException($"Ripper entity bound to {Slot.EnemyDefinitionPointer}."),
+        _ => throw new InvalidOperationException($"Ripper entity bound to {Slot.DefinitionId}."),
     };
 
     /// <inheritdoc/>
@@ -31,5 +31,5 @@ internal sealed class RipperEntity(RipperBehavior species, RoomEnemySlot slot, E
     /// <summary>The grapple Ripper's and second Ripper's shared shot callback, which normal bombs dispatch like the common one.</summary>
     /// <param name="callback">The named callback the selected pointer decodes to, or null.</param>
     public bool OwnsPrivateShotCallback(EnemyInteractionCallback? callback) =>
-        Slot.EnemyDefinitionPointer is EnemyDefinitionId.GRipper or EnemyDefinitionId.Ripper2 && callback == EnemyInteractionCallback.GRipperRipper2Shot;
+        Slot.DefinitionId is EnemyDefinitionId.GRipper or EnemyDefinitionId.Ripper2 && callback == EnemyInteractionCallback.GRipperRipper2Shot;
 }

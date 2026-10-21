@@ -362,7 +362,7 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         // Fake Kraid saves its coordinates before common no-death AI, then requests death variant three and the
         // Mini-Kraid drop. Its definition never runs the generic death, whatever callback a hitbox selects.
-        table.AddBombCommon(new EnemyBombReaction(c => c.Enemy.EnemyDefinitionPointer == EnemyDefinitionId.MiniKraid)
+        table.AddBombCommon(new EnemyBombReaction(c => c.Enemy.DefinitionId == EnemyDefinitionId.MiniKraid)
         {
             RunsGenericDeath = false,
             AfterCommon = c =>
@@ -413,7 +413,7 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         // Mini Kraid's private power-bomb callback still owns its four direct pickup explosions, spawned after its
         // death explosion.
-        table.AddPowerBomb(new EnemyPowerBombReaction(enemy => enemy.EnemyDefinitionPointer == EnemyDefinitionId.MiniKraid &&
+        table.AddPowerBomb(new EnemyPowerBombReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.MiniKraid &&
                                                                EnemyCollision.PowerBombReaction(enemy) == EnemyInteractionCallback.FakeKraidShot)
         {
             ReplacesGenericDeath = (enemy, _) => KillFakeKraid(enemy),
@@ -423,7 +423,7 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Replaces ordinary projectile-shot death and preserves the pickup scatter on a lethal hit.</summary>
     internal void RegisterFakeKraidShotReactions(EnemySharedReactions table)
     {
-        table.AddShot(new EnemyShotReaction(enemy => enemy.EnemyDefinitionPointer == EnemyDefinitionId.MiniKraid &&
+        table.AddShot(new EnemyShotReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.MiniKraid &&
                                                      EnemyCollision.ShotAi(enemy) == EnemyInteractionCallback.FakeKraidShot)
         {
             ReplacesGenericDeath = c =>
@@ -433,7 +433,7 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
             },
             AfterCommon = c =>
             {
-                if (!c.Froze && c.Enemy.EnemyDefinitionPointer != 0 && c.HealthBefore != 0 && c.Enemy.Health == 0)
+                if (!c.Froze && c.Enemy.DefinitionId != 0 && c.HealthBefore != 0 && c.Enemy.Health == 0)
                     SpawnFakeKraidDeathDrops(c.Enemy.Position.Whole);
             },
         });
@@ -442,7 +442,7 @@ internal sealed class FakeKraidBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Runs common Samus contact and routes a resulting lethal hit to Mini-Kraid's death sequence.</summary>
     internal void RegisterFakeKraidTouch(EnemySharedReactions table)
     {
-        table.AddTouch(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.MiniKraid &&
+        table.AddTouch(slot => slot.DefinitionId == EnemyDefinitionId.MiniKraid &&
                                EnemyCollision.TouchAi(slot) == EnemyInteractionCallback.FakeKraidTouch,
             context =>
             {

@@ -52,7 +52,7 @@ internal sealed class CeresRidleyHits
             return 0;
 
         RoomEnemySlot slot = _slotTable.Slots[0];
-        if (slot.EnemyDefinitionPointer != EnemyDefinitionId.RidleyCeres ||
+        if (slot.DefinitionId != EnemyDefinitionId.RidleyCeres ||
             slot.Properties.HasAny(
                 EnemyProperties.Invisible |
                 EnemyProperties.Deleted |
@@ -90,11 +90,11 @@ internal sealed class CeresRidleyHits
     private void ResolveCeresRidleyShotAfterCollision(RoomEnemySlot slot)
     {
         RidleyEnemyState state = _ridleyEncounter.RequireRidley(slot);
-        if (slot.EnemyDefinitionPointer != EnemyDefinitionId.RidleyCeres)
+        if (slot.DefinitionId != EnemyDefinitionId.RidleyCeres)
         {
             throw new InvalidOperationException(
                 $"Enemy slot {slot.SlotIndex} entered Ceres Ridley's shot branch as " +
-                $"definition ${(int)slot.EnemyDefinitionPointer:X4}.");
+                $"definition ${(int)slot.DefinitionId:X4}.");
         }
 
         // `$DF99-$DFA9` starts with Y=13, shifts the old nonzero timer once, and selects
@@ -163,7 +163,7 @@ internal sealed class CeresRidleyHits
         // treats an exploding normal bomb exactly like an ordinary shot for its cinematic counter: the bank-$A0
         // walker has already marked the physical bomb, while Ridley alternates hurt timing and advances the 100-hit
         // escape condition.
-        table.AddBombSpecial(c => c.Enemy.EnemyDefinitionPointer == EnemyDefinitionId.RidleyCeres &&
+        table.AddBombSpecial(c => c.Enemy.DefinitionId == EnemyDefinitionId.RidleyCeres &&
                                   c.SelectedShotAi == EnemyInteractionCallback.RidleyShot,
             c => ResolveCeresRidleyShotAfterCollision(c.Enemy));
     }
@@ -179,8 +179,8 @@ internal sealed class CeresRidleyHits
         // suppress every later Ridley overlap even after invincibility had expired.
         RoomEnemySlot slot = _slotTable.Slots[0];
         if (_ridleyEncounter.Ridley is null ||
-            !RidleyInteractions.IsRidleyDefinition(slot.EnemyDefinitionPointer) ||
-            slot.EnemyDefinitionPointer == EnemyDefinitionId.RidleyCeres && _ridleyEncounter.CeresStatus != CeresEscapeStatus.RidleyNotEscaped ||
+            !RidleyInteractions.IsRidleyDefinition(slot.DefinitionId) ||
+            slot.DefinitionId == EnemyDefinitionId.RidleyCeres && _ridleyEncounter.CeresStatus != CeresEscapeStatus.RidleyNotEscaped ||
             !samus.InvincibilityTimer.IsZero)
         {
             return false;

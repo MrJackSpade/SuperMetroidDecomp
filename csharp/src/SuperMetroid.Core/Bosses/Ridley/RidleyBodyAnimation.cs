@@ -49,7 +49,7 @@ internal sealed class RidleyBodyAnimation
             case RidleyBodyCue.GoToUnlessFacingLeft goToUnlessFacingLeft:
                 return state.FacingDirection != RidleyFacing.Left ? goToUnlessFacingLeft.Target : null;
             case RidleyBodyCue.GoToIfCeresAndSamusLowEnergy goToIfCeresAndSamusLowEnergy:
-                if (slot.EnemyDefinitionPointer == EnemyDefinitionId.Ridley)
+                if (slot.DefinitionId == EnemyDefinitionId.Ridley)
                     return null;
                 if (samus is null)
                 {

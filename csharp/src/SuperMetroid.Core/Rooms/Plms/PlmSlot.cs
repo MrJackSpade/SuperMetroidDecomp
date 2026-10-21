@@ -13,7 +13,7 @@ internal sealed class PlmSlot
     /// </summary>
     public bool Active { get; private set; }
     /// <summary>Bank-$84 header selecting the resident PLM's setup and behavior.</summary>
-    public PlmHeaderId HeaderPointer { get; set; }
+    public PlmHeaderId Header { get; set; }
     /// <summary>Index of the room block owned by this PLM.</summary>
     public int BlockIndex { get; set; }
     /// <summary>
@@ -50,7 +50,7 @@ internal sealed class PlmSlot
     {
         Active = false;
         PlantHeldPosition = Position16<RoomPixels>.Zero;
-        HeaderPointer = 0;
+        Header = 0;
         BlockIndex = 0;
         RestoreLevelWord = 0;
         Animation = null;

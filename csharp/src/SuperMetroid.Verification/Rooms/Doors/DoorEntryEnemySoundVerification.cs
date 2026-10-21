@@ -41,7 +41,7 @@ internal static class DoorEntryEnemySoundVerification
         samus.Control.LockHandlers();
         SamusPoseMetadata.RefreshCollisionRadii(samus);
         SamusPresentation.InitializeAnimation(samus);
-        var body = runtime.Enemies.SlotTable.Slots.First(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.KihunterGreen);
+        var body = runtime.Enemies.SlotTable.Slots.First(slot => slot.DefinitionId == EnemyDefinitionId.KihunterGreen);
         var state = runtime.Enemies.KiHunterStates[body.NativeIndex / 64];
         body.Position = body.Position.WithWhole(new(128, 128));
         (state ?? throw new InvalidOperationException("Verification requires state.")).Function = KiHunterEnemyFunction.NoOp;

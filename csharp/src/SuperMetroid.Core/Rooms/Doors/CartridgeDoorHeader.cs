@@ -14,7 +14,7 @@ public sealed record CartridgeDoorHeader(
     Position16<RoomBlocks> PlmBlock,
     Position16<RoomScreens> DestinationScreen,
     int SamusDistance,
-    DoorSetupCode SetupCodePointer)
+    DoorSetupCode SetupCode)
 {
     /// <summary>The door's Samus-distance word, 0 through 65535.</summary>
     public int SamusDistance { get; } = Ensure.BetweenInclusive(0, ushort.MaxValue, SamusDistance);
@@ -24,5 +24,5 @@ public sealed record CartridgeDoorHeader(
     /// B=C=0, M7X=$0080, and M7Y=$03F0 at $8F:E4E0.
     /// </summary>
     public bool UsesCeresElevatorMode7 =>
-        SetupCodePointer == DoorSetupCode.DoorASM_ToCeresElevatorShaft;
+        SetupCode == DoorSetupCode.DoorASM_ToCeresElevatorShaft;
 }

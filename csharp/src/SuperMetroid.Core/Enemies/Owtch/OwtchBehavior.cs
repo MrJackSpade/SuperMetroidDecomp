@@ -211,7 +211,7 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
     internal static void RegisterOwtchBombReactions(EnemySharedReactions table)
     {
         // Owtch's shell accepts common damage only during its vulnerable state zero.
-        table.AddBombCommon(new EnemyBombReaction(c => c.Enemy.EnemyDefinitionPointer == EnemyDefinitionId.Owtch &&
+        table.AddBombCommon(new EnemyBombReaction(c => c.Enemy.DefinitionId == EnemyDefinitionId.Owtch &&
                                                        c.SelectedShotAi == EnemyInteractionCallback.OwtchShot)
         {
             Rejects = c => !OwtchAcceptsOrdinaryShot(c.Enemy.RequireSpeciesState<OwtchEnemyState>()),
@@ -233,7 +233,7 @@ internal sealed class OwtchBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Preserves collision marking while rejecting ordinary shots against Owtch's shell.</summary>
     internal static void RegisterOwtchShotReactions(EnemySharedReactions table)
     {
-        table.AddShot(new EnemyShotReaction(enemy => enemy.EnemyDefinitionPointer == EnemyDefinitionId.Owtch &&
+        table.AddShot(new EnemyShotReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.Owtch &&
                                                      EnemyCollision.ShotAi(enemy) == EnemyInteractionCallback.OwtchShot)
         {
             // Owtch's private $A2:A579 callback returns before common shot AI unless signed(state - 1) is negative.

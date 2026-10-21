@@ -70,7 +70,7 @@ internal static class RetailElevatorReturnTests
             runtime.StepFrame(0);
             arrivalFrames++;
             cameraPositions.Add(runtime.Room.LoadedCamera.PixelPosition.Y);
-            var actor = runtime.Enemies.SlotTable.Slots.First(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Elevator);
+            var actor = runtime.Enemies.SlotTable.Slots.First(slot => slot.DefinitionId == EnemyDefinitionId.Elevator);
             actorPositions.Add(actor.Position.Y.Whole);
             Compare("return");
         }

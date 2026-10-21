@@ -25,7 +25,7 @@ internal static class ShitroidGradualAccelerationVerification
         runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.BigBoy);
         RoomEnemySlot shitroid = runtime.Enemies.SlotTable.Slots.First(slot =>
-            slot.EnemyDefinitionPointer == EnemyDefinitionId.BabyMetroid);
+            slot.DefinitionId == EnemyDefinitionId.BabyMetroid);
 
         // The movie's state when the drain ends, entering RiseAfterFeeding with no velocity.
         ShitroidEnemyState state = shitroid.SpeciesState<ShitroidEnemyState>()
@@ -55,7 +55,7 @@ internal static class ShitroidGradualAccelerationVerification
         runtime.RoomLoader.InitializeCeresStartSamus();
         runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.BigBoy);
         RoomEnemySlot shitroid = runtime.Enemies.SlotTable.Slots.First(slot =>
-            slot.EnemyDefinitionPointer == EnemyDefinitionId.BabyMetroid);
+            slot.DefinitionId == EnemyDefinitionId.BabyMetroid);
         var samus = runtime.Player.IntroducedSamus;
         ShitroidEnemyState state = shitroid.SpeciesState<ShitroidEnemyState>()
             ?? throw new InvalidOperationException("The Big Boy room's Shitroid has no state.");

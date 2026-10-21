@@ -564,7 +564,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
     /// <summary>Routes bomb-special hits on the corpse shot callback to its decay check.</summary>
     internal static void RegisterDeadSidehopperBombReactions(EnemySharedReactions table)
     {
-        table.AddBombSpecialAfterNoOp(c => c.Enemy.EnemyDefinitionPointer == EnemyDefinitionId.CorpseSidehopper &&
+        table.AddBombSpecialAfterNoOp(c => c.Enemy.DefinitionId == EnemyDefinitionId.CorpseSidehopper &&
                                            c.SelectedShotAi == EnemyInteractionCallback.DeadSidehopperShot,
             c => ResolveDeadSidehopperShot(c.Enemy));
     }
@@ -589,7 +589,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
     /// <summary>Uses the private power-bomb callback in place of common enemy damage handling.</summary>
     internal void RegisterDeadSidehopperPowerBombReactions(EnemySharedReactions table)
     {
-        table.AddPowerBomb(new EnemyPowerBombReaction(enemy => enemy.EnemyDefinitionPointer == EnemyDefinitionId.CorpseSidehopper &&
+        table.AddPowerBomb(new EnemyPowerBombReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.CorpseSidehopper &&
                                                                EnemyCollision.PowerBombReaction(enemy) == EnemyInteractionCallback.DeadSidehopperPowerBomb)
         {
             ReplacesCommon = ResolveDeadSidehopperPowerBomb,
@@ -599,7 +599,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
     /// <summary>Marks projectile collision while withholding damage until the transformed corpse can decay.</summary>
     internal static void RegisterDeadSidehopperShotReactions(EnemySharedReactions table)
     {
-        table.AddShot(new EnemyShotReaction(enemy => enemy.EnemyDefinitionPointer == EnemyDefinitionId.CorpseSidehopper &&
+        table.AddShot(new EnemyShotReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.CorpseSidehopper &&
                                                      EnemyCollision.ShotAi(enemy) == EnemyInteractionCallback.DeadSidehopperShot)
         {
             // The common projectile prelude always marks the shot, but the private callback ignores it until the
@@ -618,7 +618,7 @@ internal sealed class DeadSidehopperBehavior : IEnemySpecies, IEnemyEntityFactor
     {
         // Before Shitroid finishes feeding, `$A9:DD44` uses normal contact damage without a death animation. At
         // palette stage eight it instead starts the corpse decomposition and never enters common touch damage.
-        table.AddTouch(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.CorpseSidehopper &&
+        table.AddTouch(slot => slot.DefinitionId == EnemyDefinitionId.CorpseSidehopper &&
                                EnemyCollision.TouchAi(slot) == EnemyInteractionCallback.DeadSidehopperTouch,
             context => ResolveDeadSidehopperTouch(context.Slot, RequireDeadSidehopperState(context.Slot), context.Samus));
     }

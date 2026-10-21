@@ -42,7 +42,7 @@ internal static class PowerBombDeathRadiusVerification
             if (killerLethal)
             {
                 AssertEqual(killerRespawns ? EnemyDefinitionId.Respawn : 0,
-                    higher.EnemyDefinitionPointer, label + ": higher slot dies first");
+                    higher.DefinitionId, label + ": higher slot dies first");
             }
             AssertEqual(expectLowerHit ? (ushort)48 : (ushort)0, lower.InvincibilityTimer.RawValue,
                 label + ": lower slot invincibility");
@@ -52,7 +52,7 @@ internal static class PowerBombDeathRadiusVerification
         static RoomEnemySlot Place(RoomEnemySlot actor, ushort x, ushort health)
         {
             actor.Bind(EnemyDefinitionId.Atomic, actor.Definition);
-            actor.Bind(actor.EnemyDefinitionPointer, RoomEnemyDefinitionCatalog.Get(actor.EnemyDefinitionPointer));
+            actor.Bind(actor.DefinitionId, RoomEnemyDefinitionCatalog.Get(actor.DefinitionId));
             actor.Health = health;
             actor.Position = actor.Position.WithWhole(new(x, explosionY));
             actor.Radius = new(actor.Definition.Radius.X, actor.Definition.Radius.Y);

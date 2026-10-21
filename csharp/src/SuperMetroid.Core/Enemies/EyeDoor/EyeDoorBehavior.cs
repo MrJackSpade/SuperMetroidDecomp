@@ -39,7 +39,7 @@ internal sealed class EyeDoorBehavior
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(roomWidthInBlocks);
         Ensure.NotNull(system);
 
-        RoomEnemyProjectileKind kind = request.DefinitionPointer switch
+        RoomEnemyProjectileKind kind = request.Definition switch
         {
             EyeDoorProjectileDefinition.Projectile =>
                 RoomEnemyProjectileKind.EyeDoorProjectile,
@@ -48,7 +48,7 @@ internal sealed class EyeDoorBehavior
             EyeDoorProjectileDefinition.Smoke =>
                 RoomEnemyProjectileKind.EyeDoorSmoke,
             _ => throw new InvalidOperationException(
-                $"Undefined {nameof(EyeDoorProjectileDefinition)} {(int)request.DefinitionPointer:X4}."),
+                $"Undefined {nameof(EyeDoorProjectileDefinition)} {(int)request.Definition:X4}."),
         };
 
         RoomEnemyProjectileSlot? projectile = _projectiles.AllocateEnemyProjectile();

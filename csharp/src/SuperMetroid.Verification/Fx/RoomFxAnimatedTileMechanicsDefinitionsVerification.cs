@@ -51,7 +51,7 @@ internal static class RoomFxAnimatedTileMechanicsDefinitionsVerification
             {
                 AssertTrue(!definition.TryReadMechanicsWord(
                         frame.SourceOperandPointer, out _),
-                    $"object $87:{(int)definition.ObjectPointer:X4} leaves source operand " +
+                    $"object $87:{(int)definition.AnimatedObject:X4} leaves source operand " +
                     $"$87:{frame.SourceOperandPointer:X4} presentation-owned");
                 mechanicsWordCount++;
                 frameCount++;
@@ -64,7 +64,7 @@ internal static class RoomFxAnimatedTileMechanicsDefinitionsVerification
             var state = new RoomFxAnimatedTilesState();
             var vram = new SnesVram();
             var writes = new VramWriteQueue();
-            state.LoadDefinition(definition.ObjectPointer);
+            state.LoadDefinition(definition.AnimatedObject);
 
             int steps = definition.Frames.Sum(frame => frame.Duration) + 1;
             int observedFrames = 0;
@@ -76,11 +76,11 @@ internal static class RoomFxAnimatedTileMechanicsDefinitionsVerification
             }
 
             AssertEqual(definition.Frames.Count + 1, observedFrames,
-                $"object $87:{(int)definition.ObjectPointer:X4} executes one complete loop");
+                $"object $87:{(int)definition.AnimatedObject:X4} executes one complete loop");
             AssertEqual(0, guarded.ForbiddenReadAttempts,
-                $"object $87:{(int)definition.ObjectPointer:X4} performs no mechanics ROM reads");
+                $"object $87:{(int)definition.AnimatedObject:X4} performs no mechanics ROM reads");
             AssertEqual(0, presentationReadCount,
-                $"object $87:{(int)definition.ObjectPointer:X4} reads no compiled artwork-source operands");
+                $"object $87:{(int)definition.AnimatedObject:X4} reads no compiled artwork-source operands");
         }
 
         AssertEqual(7, RoomFxAnimatedTileMechanicsDefinitions.All.Count(),
@@ -137,7 +137,7 @@ internal static class RoomFxAnimatedTileMechanicsDefinitionsVerification
             var state = new RoomFxAnimatedTilesState();
             var vram = new SnesVram();
             var writes = new VramWriteQueue();
-            state.LoadDefinition(definition.ObjectPointer);
+            state.LoadDefinition(definition.AnimatedObject);
             var observed = new List<RoomFxAnimatedTileMechanicsDefinitionsExpected>();
             for (int step = 0; step <= expected[^1].Update; step++)
             {
@@ -146,7 +146,7 @@ internal static class RoomFxAnimatedTileMechanicsDefinitionsVerification
                     observed.Add(new RoomFxAnimatedTileMechanicsDefinitionsExpected(step, source));
             }
             AssertTrue(expected.SequenceEqual(observed),
-                $"{definition.ObjectPointer} shows each frame on its update and returns to the first after the last");
+                $"{definition.AnimatedObject} shows each frame on its update and returns to the first after the last");
         }
     }
 

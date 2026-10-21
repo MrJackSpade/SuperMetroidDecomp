@@ -43,14 +43,14 @@ internal static class TourianAccessPlmDrawDefinitions
     internal static string VisualId(PlmDraw draw) => VisualId(PlmDraw.FrameOf<TourianAccessDraw>(draw, "Tourian access"));
 
     /// <summary>Names the empty, three crumble, or six-row clear frame for visual files.</summary>
-    internal static string VisualId(TourianAccessDraw pointer) => pointer switch
+    internal static string VisualId(TourianAccessDraw draw) => draw switch
     {
         TourianAccessDraw.EmptyRow => "crumble-empty-row",
         TourianAccessDraw.CrumbleFirst => "crumble-frame-0",
         TourianAccessDraw.CrumbleSecond => "crumble-frame-1",
         TourianAccessDraw.CrumbleThird => "crumble-frame-2",
         TourianAccessDraw.Clear => "clear-six-rows",
-        _ => throw new InvalidOperationException($"Undefined TourianAccessDraw {pointer}."),
+        _ => throw new InvalidOperationException($"Undefined TourianAccessDraw {draw}."),
     };
 
     /// <summary>Finds a compiled floor draw by its case-sensitive visual identity.</summary>

@@ -24,7 +24,7 @@ internal static class DeadTourianBehaviorVerification
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = InstalledFixtures.EnemyTiles, BossArtwork = InstalledFixtures.BossArtwork, AreaArtwork = InstalledFixtures.AreaArtwork };
         RoomEnemySlot corpse = enemies.SlotTable.Slots[0];
         corpse.Bind(EnemyDefinitionId.CorpseSidehopper, corpse.Definition);
-        corpse.Bind(corpse.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = DeadTourianFrameToolingDefinitions.Bank });
+        corpse.Bind(corpse.DefinitionId, default(RoomEnemyDefinition) with { Bank = DeadTourianFrameToolingDefinitions.Bank });
         corpse.SetSpawnParameter1(0);
         enemies.DeadSidehopperBehavior.InitializeDeadSidehopper(corpse);
         AssertEqual(AnimationProgramCursor<DeadTourianProgram>.Start(DeadTourianProgram.SidehopperIdle),

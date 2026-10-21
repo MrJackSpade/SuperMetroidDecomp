@@ -211,11 +211,11 @@ internal sealed class CeresRidleyGetaway
     /// Writes one compiled $80:8B4F Mode-7 transfer list into the room's Mode 7 map (#1349) and queues its native
     /// descriptors. Its source bytes are immutable cartridge definitions, so gameplay needs no bank-$A6 read.
     /// </summary>
-    private void ApplyMode7TransferList(CeresMode7TransferList pointer, ref Mode7TransferQueue queue)
+    private void ApplyMode7TransferList(CeresMode7TransferList transferList, ref Mode7TransferQueue queue)
     {
-        foreach (CeresMode7Transfer transfer in CeresMode7TransferDefinitions.Get(pointer))
+        foreach (CeresMode7Transfer transfer in CeresMode7TransferDefinitions.Get(transferList))
             _room.Services.DrawMode7Map(transfer.DestinationWord, [.. transfer.TileNumbers]);
-        foreach (CeresMode7Transfer transfer in CeresMode7TransferDefinitions.Get(pointer))
+        foreach (CeresMode7Transfer transfer in CeresMode7TransferDefinitions.Get(transferList))
         {
             queue.QueueVramTilemapTransfer(
                 new SnesAddress(Mode7TransferQueueLayout.CeresSourceBank, checked((ushort)transfer.SourceOffset)),

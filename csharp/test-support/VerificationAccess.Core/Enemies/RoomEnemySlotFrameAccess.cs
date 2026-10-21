@@ -38,7 +38,7 @@ internal static class RoomEnemySlotFrameAccess
                 catch (ArgumentOutOfRangeException exception)
                 {
                     throw new InvalidOperationException(
-                        $"Enemy slot {self.SlotIndex} ({self.EnemyDefinitionPointer}, properties {self.Properties}) cannot show ${self.Definition.Bank:X2}:{value:X4}.",
+                        $"Enemy slot {self.SlotIndex} ({self.DefinitionId}, properties {self.Properties}) cannot show ${self.Definition.Bank:X2}:{value:X4}.",
                         exception);
                 }
             }

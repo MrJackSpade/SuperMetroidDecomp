@@ -21,7 +21,7 @@ public sealed class RoomEnemySlot
     /// <summary>Native byte index into EnemyData, equal to <see cref="SlotIndex"/> times $40, rather than a WRAM address.</summary>
     public int NativeIndex => SlotIndex * EnemySlotTable.NativeSlotSize;
     /// <summary>Enemy.ID at slot +$00: bank-$A0 header identity; zero denotes a cleared/inactive slot.</summary>
-    public EnemyDefinitionId EnemyDefinitionPointer { get; private set; }
+    public EnemyDefinitionId DefinitionId { get; private set; }
     /// <summary>Immutable resolved header for the current enemy identity, supplying initialization, collision, and AI definitions.</summary>
     public RoomEnemyDefinition Definition { get; private set; }
 
@@ -83,19 +83,19 @@ public sealed class RoomEnemySlot
     /// Installs a new occupant's identity and binds the entity its species creates. Every identity change goes through
     /// here, at the statement that changes the header pointer, because the cartridge re-reads the header each dispatch.
     /// </summary>
-    /// <param name="definitionPointer">The occupant's header pointer.</param>
+    /// <param name="definitionId">The occupant's header pointer.</param>
     /// <param name="definition">The occupant's header.</param>
-    internal void Bind(EnemyDefinitionId definitionPointer, RoomEnemyDefinition definition)
+    internal void Bind(EnemyDefinitionId definitionId, RoomEnemyDefinition definition)
     {
-        EnemyDefinitionPointer = definitionPointer;
+        DefinitionId = definitionId;
         Definition = definition;
-        Entity = definitionPointer == 0 ? null : _registry.Create(this);
+        Entity = definitionId == 0 ? null : _registry.Create(this);
     }
 
     /// <summary>Empties the slot's identity, as the deleted-property path does, leaving its other words.</summary>
     internal void Unbind()
     {
-        EnemyDefinitionPointer = 0;
+        DefinitionId = 0;
         Entity = null;
     }
     /// <summary>Original population and character-offset values retained independently of mutable live slot fields.</summary>

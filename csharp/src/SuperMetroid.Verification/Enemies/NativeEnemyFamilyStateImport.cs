@@ -437,7 +437,7 @@ internal static class NativeEnemyFamilyStateImport
             beetom.ButtonCounter = WrappingCountdown.FromRaw(words.E);
             beetom.PreviousController1Input = (SnesButton)words.F;
         }
-        if (slot.EnemyDefinitionPointer == EnemyDefinitionId.Shaktool && enemies.ShaktoolSegments[index] is { } segment)
+        if (slot.DefinitionId == EnemyDefinitionId.Shaktool && enemies.ShaktoolSegments[index] is { } segment)
         {
             segment.TargetAngle = SnesAngle.FromRaw(words.A);
             segment.OrbitAngle = SnesAngle.FromRaw(words.B);
@@ -488,7 +488,7 @@ internal static class NativeEnemyFamilyStateImport
             kago.UsesFastAnimation = words.B != 0;
             kago.DeathAnimationStarted = words.F != 0;
         }
-        if (slot.EnemyDefinitionPointer == EnemyDefinitionId.Coven && slot.SpeciesState<WreckedShipGhostEnemyState>() is { } ghost)
+        if (slot.DefinitionId == EnemyDefinitionId.Coven && slot.SpeciesState<WreckedShipGhostEnemyState>() is { } ghost)
         {
             ghost.Function = words.A == 0 ? null : (WreckedShipGhostAiFunction)words.A;
             ghost.PhaseTimer = WrappingCountdown.FromRaw(words.B);
@@ -507,33 +507,33 @@ internal static class NativeEnemyFamilyStateImport
             crawler.Velocity = new(new SnesSignedEightEight(words.A), new SnesSignedEightEight(words.B));
             crawler.Function = words.F == 0 ? null : (CrawlerEnemyFunction)words.F;
         }
-        if (slot.EnemyDefinitionPointer == EnemyDefinitionId.Holtz && slot.SpeciesState<LowerNorfairRioEnemyState>() is { } holtz)
+        if (slot.DefinitionId == EnemyDefinitionId.Holtz && slot.SpeciesState<LowerNorfairRioEnemyState>() is { } holtz)
         {
             holtz.Velocity = new(new SnesSignedEightEight(words.D), new SnesSignedEightEight(words.C));
             holtz.Function = words.F == 0 ? null : (LowerNorfairRioEnemyFunction)words.F;
             holtz.IsFollower = (slot.Spawn.Population.Parameter1 & EnemyParameterMasks.FollowerBit) != 0;
         }
-        if (slot.EnemyDefinitionPointer == EnemyDefinitionId.EtecoonEscape && slot.SpeciesState<EscapeEtecoonEnemyState>() is { } escape)
+        if (slot.DefinitionId == EnemyDefinitionId.EtecoonEscape && slot.SpeciesState<EscapeEtecoonEnemyState>() is { } escape)
         {
             escape.Velocity = new EightEightVector<RoomPixels>(new SnesSignedEightEight(words.A), default);
             escape.PreInstruction = words.F == 0 ? null : (EscapeEtecoonPreInstruction)words.F;
         }
-        if (slot.EnemyDefinitionPointer == EnemyDefinitionId.FaceBlock && slot.SpeciesState<BlueBrinstarFaceBlockEnemyState>() is { } faceBlock)
+        if (slot.DefinitionId == EnemyDefinitionId.FaceBlock && slot.SpeciesState<BlueBrinstarFaceBlockEnemyState>() is { } faceBlock)
         {
             faceBlock.Activated = words.A != 0;
             faceBlock.LastHorizontalDelta = words.B;
         }
-        if (slot.EnemyDefinitionPointer == EnemyDefinitionId.Puromi && slot.SpeciesState<NuclearWaffleEnemyState>() is { } waffle)
+        if (slot.DefinitionId == EnemyDefinitionId.Puromi && slot.SpeciesState<NuclearWaffleEnemyState>() is { } waffle)
         {
             waffle.Function = words.A == 0 ? null : (NuclearWaffleEnemyFunction)words.A;
             waffle.WaitingTimer = WrappingCountdown.FromRaw(words.B);
         }
-        if (slot.EnemyDefinitionPointer == EnemyDefinitionId.LavaRocks && slot.SpeciesState<PolypEnemyState>() is { } polyp)
+        if (slot.DefinitionId == EnemyDefinitionId.LavaRocks && slot.SpeciesState<PolypEnemyState>() is { } polyp)
         {
             polyp.Function = words.A == 0 ? null : (PolypEnemyFunction)words.A;
             polyp.CooldownTimer = WrappingCountdown.FromRaw(words.B);
         }
-        if (slot.EnemyDefinitionPointer == EnemyDefinitionId.Powamp && slot.SpeciesState<PowampEnemyState>() is { } powamp)
+        if (slot.DefinitionId == EnemyDefinitionId.Powamp && slot.SpeciesState<PowampEnemyState>() is { } powamp)
         {
             // The halves reuse the same words for different values.
             if (powamp.IsBalloon)
@@ -550,7 +550,7 @@ internal static class NativeEnemyFamilyStateImport
             }
             powamp.Function = words.F == 0 ? null : (PowampEnemyFunction)words.F;
         }
-        if (slot.EnemyDefinitionPointer == EnemyDefinitionId.MamaTurtle && slot.SpeciesState<MamaTurtleEnemyState>() is { } mama)
+        if (slot.DefinitionId == EnemyDefinitionId.MamaTurtle && slot.SpeciesState<MamaTurtleEnemyState>() is { } mama)
         {
             mama.Function = words.A == 0 ? null : (MamaTurtleAiFunction)words.A;
             // Only the horizontal velocity's whole pixels live in the record; its fraction and the vertical velocity do not.
@@ -636,7 +636,7 @@ internal static class NativeEnemyFamilyStateImport
             funeNamihe.ShowsActiveAnimation = active;
             funeNamihe.FacingRight = right;
         }
-        if (slot.EnemyDefinitionPointer is EnemyDefinitionId.GRipper or EnemyDefinitionId.Ripper or EnemyDefinitionId.Ripper2 &&
+        if (slot.DefinitionId is EnemyDefinitionId.GRipper or EnemyDefinitionId.Ripper or EnemyDefinitionId.Ripper2 &&
             slot.SpeciesState<RipperEnemyState>() is { } ripperVariant)
         {
             ripperVariant.XVelocity = SnesSignedSixteenSixteen.FromParts(unchecked((short)words.D), words.C);

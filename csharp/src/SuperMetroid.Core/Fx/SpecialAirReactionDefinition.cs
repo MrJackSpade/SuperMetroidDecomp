@@ -7,5 +7,5 @@ namespace SuperMetroid.Core.Fx;
 /// by its bank-$84 PLM header.
 /// </summary>
 public readonly record struct SpecialAirReactionDefinition(
-    PlmHeaderId HeaderPointer,
-    SpecialAirReactionSetup SetupPointer);
+    PlmHeaderId Header,
+    SpecialAirReactionSetup Setup);

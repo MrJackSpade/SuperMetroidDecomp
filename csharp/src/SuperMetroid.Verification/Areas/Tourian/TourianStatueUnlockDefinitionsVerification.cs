@@ -92,12 +92,12 @@ internal static class TourianStatueUnlockDefinitionsVerification
                  TourianStatueAnimatedTileMechanicsDefinitions.All)
         foreach (TourianStatueTilePicture picture in TourianStatueTileStripDefinitions.Pictures)
         {
-            int source = TourianStatueTileStripDefinitions.SourceAddress(definition.ObjectPointer, picture);
+            int source = TourianStatueTileStripDefinitions.SourceAddress(definition.AnimatedObject, picture);
             byte[] native = ReadNativeTourianStatueFrame(rom, source, definition.TransferByteCount);
             AssertTrue(artwork.TryResolve(source, native.Length,
                     out ReadOnlyMemory<byte> installed) &&
                 installed.Span.SequenceEqual(native),
-                $"statue {definition.ObjectPointer} picture {picture} preserves every cartridge pixel byte");
+                $"statue {definition.AnimatedObject} picture {picture} preserves every cartridge pixel byte");
             pictureCount++;
         }
 

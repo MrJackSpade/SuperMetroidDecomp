@@ -29,7 +29,7 @@ internal static class PoseInputDefinitionsVerification
                 if (native.Count >= 1000) throw new InvalidDataException("Native pose-input fixture does not terminate.");
                 native.Add(new PoseInputDefinitionsNative(CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank(address), CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank((address + 2)), CartridgeImportSource.Require(rom).ReadCartridgeWordFixedBank((address + 4))));
             }
-            AssertTrue(SamusPoseInputDefinitions.TryGetPointer(pose, out SamusPoseInputList actualPointer), "Authored graph exists");
+            AssertTrue(SamusPoseInputDefinitions.TryGetInputList(pose, out SamusPoseInputList actualPointer), "Authored graph exists");
             AssertEqual(pointer, (ushort)actualPointer, "Native transition-list diagnostic identity");
             AssertEqual(native.Count != 0, SamusPoseInputDefinitions.Match(actualPointer, (SnesButton)ushort.MaxValue, (SnesButton)ushort.MaxValue).HasConditions, "Native empty versus nonempty input program");
             for (int i = 0; i < native.Count; i++)
@@ -72,7 +72,7 @@ internal static class PoseInputDefinitionsVerification
         for (int pose = 253; pose <= byte.MaxValue; pose++)
         {
             SamusPoseId invalidPose = (SamusPoseId)pose;
-            AssertTrue(!SamusPoseInputDefinitions.TryGetPointer(invalidPose, out _), "Trailing pose indexes have no authored graph");
+            AssertTrue(!SamusPoseInputDefinitions.TryGetInputList(invalidPose, out _), "Trailing pose indexes have no authored graph");
             AssertThrows<InvalidDataException>(
                 () => SamusPoseTransitionTable.Lookup(invalidPose, (SnesButton)1, (SnesButton)1),
                 "Non-authored pose graph rejects adjacent code");

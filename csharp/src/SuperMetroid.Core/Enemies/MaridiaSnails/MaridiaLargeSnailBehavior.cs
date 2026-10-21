@@ -516,7 +516,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
     /// <summary>Publishes Oum's native shot sound after common bomb damage.</summary>
     internal void RegisterMaridiaLargeSnailBombReactions(EnemySharedReactions table)
     {
-        table.AddBombCommon(new EnemyBombReaction(c => c.Enemy.EnemyDefinitionPointer == EnemyDefinitionId.Oum &&
+        table.AddBombCommon(new EnemyBombReaction(c => c.Enemy.DefinitionId == EnemyDefinitionId.Oum &&
                                                        c.SelectedShotAi == EnemyInteractionCallback.MaridiaLargeSnailShot)
         {
             AfterCommon = _ => ResolveMaridiaLargeSnailShotAfterCommon(),
@@ -543,7 +543,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
     /// <summary>Preserves protected-shell no-op hits and runs common damage only for vulnerable hitboxes.</summary>
     internal void RegisterMaridiaLargeSnailShotReactions(EnemySharedReactions table)
     {
-        table.AddShot(new EnemyShotReaction(enemy => enemy.EnemyDefinitionPointer == EnemyDefinitionId.Oum &&
+        table.AddShot(new EnemyShotReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.Oum &&
                                                      EnemyCollision.ShotAi(enemy) == EnemyInteractionCallback.MaridiaLargeSnailShot)
         {
             AfterSuperMissileQuake = (in EnemyShotContext c) =>
@@ -573,7 +573,7 @@ internal sealed class MaridiaLargeSnailBehavior : IEnemySpecies, IEnemyEntityFac
     /// <summary>Dispatches damaging and non-damaging Oum hitboxes with their distinct Samus pushes.</summary>
     internal void RegisterMaridiaLargeSnailTouch(EnemySharedReactions table)
     {
-        table.AddTouch(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Oum &&
+        table.AddTouch(slot => slot.DefinitionId == EnemyDefinitionId.Oum &&
                                EnemyCollision.TouchAi(slot) == EnemyInteractionCallback.MaridiaLargeSnailNonDamagingTouch,
             context =>
             {

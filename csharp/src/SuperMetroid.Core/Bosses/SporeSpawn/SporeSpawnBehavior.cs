@@ -329,7 +329,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Routes accepted bomb hits through the boss-specific post-damage response.</summary>
     internal void RegisterSporeSpawnBombReactions(EnemySharedReactions table)
     {
-        table.AddBombCommon(new EnemyBombReaction(c => c.Enemy.EnemyDefinitionPointer == EnemyDefinitionId.SporeSpawn &&
+        table.AddBombCommon(new EnemyBombReaction(c => c.Enemy.DefinitionId == EnemyDefinitionId.SporeSpawn &&
                                                        c.SelectedShotAi == EnemyInteractionCallback.SporeSpawnShot)
         {
             RunsGenericDeath = false,
@@ -408,7 +408,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Restricts core-hitbox damage to accepted projectile families and handles boss death.</summary>
     internal void RegisterSporeSpawnShotReactions(EnemySharedReactions table)
     {
-        table.AddShot(new EnemyShotReaction(enemy => enemy.EnemyDefinitionPointer == EnemyDefinitionId.SporeSpawn &&
+        table.AddShot(new EnemyShotReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.SporeSpawn &&
                                                      EnemyCollision.ShotAi(enemy) == EnemyInteractionCallback.SporeSpawnShot)
         {
             AfterSuperMissileQuake = (in EnemyShotContext c) =>
@@ -443,7 +443,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Routes vulnerable hitbox touch through common damage while excluding no-op hitboxes.</summary>
     internal void RegisterSporeSpawnTouch(EnemySharedReactions table)
     {
-        table.AddTouch(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.SporeSpawn &&
+        table.AddTouch(slot => slot.DefinitionId == EnemyDefinitionId.SporeSpawn &&
                                EnemyCollision.TouchAi(slot) == EnemyInteractionCallback.SporeSpawnTouch,
             context =>
             {
@@ -835,7 +835,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
     internal static bool? FindSporeSpawnHitboxCallback(RoomEnemySlot enemy, EnemyHitboxProbe probe, out EnemyInteractionCallback? callback)
     {
         callback = null;
-        if (!(enemy.EnemyDefinitionPointer == EnemyDefinitionId.SporeSpawn &&
+        if (!(enemy.DefinitionId == EnemyDefinitionId.SporeSpawn &&
             SporeSpawnCollisionDefinitions.IsFrame(enemy.Frame)))
             return null;
 

@@ -45,7 +45,7 @@ internal static class RidleyBreakupProgramsVerification
         enemies.RidleyEncounter.Ridley = state;
         death(body, state, new SamusState());
         AssertEqual(RidleyGrabState.Released, state.GrabState, "Ridley death releases Samus before breakup");
-        var fragments = enemies.SlotTable.Slots.Where(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.RidleyExplosion).ToArray();
+        var fragments = enemies.SlotTable.Slots.Where(slot => slot.DefinitionId == EnemyDefinitionId.RidleyExplosion).ToArray();
         AssertEqual(12, fragments.Length, "Ridley death spawns all twelve body/tail fragments");
         AssertEqual(RidleyBreakupFrame.TailTip1, state.BreakupPrograms[fragments[0].SlotIndex].Program,
             "reported tail orientation selects the second tip pose ($A6:CA9B)");
@@ -104,11 +104,11 @@ internal static class RidleyBreakupProgramsVerification
         expiringState.Velocity = default;
         expiring.Position = expiring.Position.WithFractionX(0).WithFractionY(0);
         enemies.RidleyBehavior.Death.RunNorfairRidleyExplosionMain(expiring);
-        AssertEqual(EnemyDefinitionId.None, expiring.EnemyDefinitionPointer, "native breakup expiry clears the actor immediately");
+        AssertEqual(EnemyDefinitionId.None, expiring.DefinitionId, "native breakup expiry clears the actor immediately");
         var explosion = enemies.Projectiles.EnemyProjectiles.Single(p => p.Kind == RoomEnemyProjectileKind.EnemyDeathExplosion);
         AssertEqual(deathX, explosion.Position.X.Whole, "fragment death effect retains final X");
         AssertEqual(deathY, explosion.Position.Y.Whole, "fragment death effect retains final Y");
-        AssertEqual(EnemyDefinitionId.RidleyExplosion, explosion.EnemyHeaderPointer, "fragment drop retains native header");
+        AssertEqual(EnemyDefinitionId.RidleyExplosion, explosion.DropDefinitionId, "fragment drop retains native header");
         AssertEqual(EnemyDeathProjectileProgram.SmallExplosion,
             ProgramOf(explosion), "fragment expiry selects native small death animation");
         AssertEqual(1, enemies.RoomStatus.EnemiesKilled, "fragment death updates shared kill count");

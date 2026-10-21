@@ -121,8 +121,8 @@ public static class ManagedAudioRegressionSmokeTest
             IReadOnlyList<CartridgeAudioCommand> commands = frame == 0
                 ?
                 [
-                    new CartridgeAudioCommand.Upload(AudioAssetCatalogDefinitions.Common.Bank),
-                    new CartridgeAudioCommand.Upload(bank.Bank),
+                    new CartridgeAudioCommand.Upload(AudioAssetCatalogDefinitions.Common.AudioSet),
+                    new CartridgeAudioCommand.Upload(bank.AudioSet),
                     new CartridgeAudioCommand.WritePort(ApuPort.Music, 1),
                 ]
                 : Array.Empty<CartridgeAudioCommand>();
@@ -144,7 +144,7 @@ public static class ManagedAudioRegressionSmokeTest
             List<CartridgeAudioCommand> commands = [];
             if (frame == 0)
             {
-                commands.Add(new CartridgeAudioCommand.Upload(AudioAssetCatalogDefinitions.Common.Bank));
+                commands.Add(new CartridgeAudioCommand.Upload(AudioAssetCatalogDefinitions.Common.AudioSet));
                 commands.AddRange(startCommands.Select(command =>
                     new CartridgeAudioCommand.WritePort(command.Port, command.Command)));
             }
@@ -174,8 +174,8 @@ public static class ManagedAudioRegressionSmokeTest
             List<CartridgeAudioCommand> commands = [];
             if (frame == 0)
             {
-                commands.Add(new CartridgeAudioCommand.Upload(AudioAssetCatalogDefinitions.Common.Bank));
-                commands.Add(new CartridgeAudioCommand.Upload(first.Bank));
+                commands.Add(new CartridgeAudioCommand.Upload(AudioAssetCatalogDefinitions.Common.AudioSet));
+                commands.Add(new CartridgeAudioCommand.Upload(first.AudioSet));
                 commands.Add(new CartridgeAudioCommand.WritePort(ApuPort.Music, 1));
             }
             else if (frame == 120)
@@ -184,7 +184,7 @@ public static class ManagedAudioRegressionSmokeTest
             }
             else if (frame == 150)
             {
-                commands.Add(new CartridgeAudioCommand.Upload(second.Bank));
+                commands.Add(new CartridgeAudioCommand.Upload(second.AudioSet));
                 commands.Add(new CartridgeAudioCommand.WritePort(ApuPort.Music, 1));
             }
             else if (frame == 270)

@@ -38,7 +38,7 @@ internal sealed class QuicksandPlms
         if (_slotTable.SpawnAtCurrentBlock() is not { } slot)
             return false;
 
-        slot.HeaderPointer = header;
+        slot.Header = header;
         slot.BlockIndex = blockIndex;
         definition.Program.StartOn(slot);
         slot.InstructionTimer = WrappingCountdown.Start(1);

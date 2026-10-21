@@ -111,7 +111,7 @@ internal sealed class CollectiblePlms : IPlmFamilySource
     public IReadOnlyList<CollectiblePlmSnapshot> Collectibles => _slotTable.Slots
         .Where(slot => slot.Active)
         .SelectMany(slot => slot.Family is CollectiblePlmState { } item
-            ? [new CollectiblePlmSnapshot(slot.HeaderPointer, slot.BlockIndex, slot.RoomArgument, item.Kind, item.GraphicsSlot)]
+            ? [new CollectiblePlmSnapshot(slot.Header, slot.BlockIndex, slot.RoomArgument, item.Kind, item.GraphicsSlot)]
             : Array.Empty<CollectiblePlmSnapshot>())
         .ToArray();
 
@@ -341,13 +341,13 @@ internal sealed class CollectiblePlms : IPlmFamilySource
             case CollectiblePhase.EmptyAwaitingDelete:
                 // InstList_PLM_EmptyItem's Instruction_PLM_Delete ($84:DFAD).
                 slot.Delete();
-                slot.HeaderPointer = 0;
+                slot.Header = 0;
                 return true;
 
             case CollectiblePhase.CollectedEmpty:
                 DrawCollectible(level, slot, RoomPlmCollectibleDrawDefinitions.Empty);
                 slot.Delete();
-                slot.HeaderPointer = 0;
+                slot.Header = 0;
                 return true;
 
             case CollectiblePhase.Visible:

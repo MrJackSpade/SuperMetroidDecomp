@@ -19,7 +19,7 @@ public sealed class TourianStatueAnimatedTileProgramDefinition
     }
 
     /// <summary>The animated-tile object this statue's program belongs to.</summary>
-    public required AnimatedTileObject ObjectPointer { get; init; }
+    public required AnimatedTileObject AnimatedObject { get; init; }
 
     /// <summary>The bytes of statue artwork each shown frame transfers.</summary>
     public required int TransferByteCount { get; init; }

@@ -36,7 +36,7 @@ internal sealed class MotherBrainCombat
     /// <summary>Installs the handlers used when Samus's bombs contact Mother Brain.</summary>
     internal void RegisterMotherBrainBombReactions(EnemySharedReactions table)
     {
-        table.AddBombSpecial(c => c.Enemy.EnemyDefinitionPointer == EnemyDefinitionId.MotherBrainHead &&
+        table.AddBombSpecial(c => c.Enemy.DefinitionId == EnemyDefinitionId.MotherBrainHead &&
                                   c.SelectedShotAi == EnemyInteractionCallback.MotherBrainHeadShot,
             c => ResolveMotherBrainHeadNormalBomb(c.Enemy, c.Bomb));
     }
@@ -44,7 +44,7 @@ internal sealed class MotherBrainCombat
     /// <summary>Binds head and body shot responses for each combat phase.</summary>
     internal void RegisterMotherBrainShotReactions(EnemySharedReactions table)
     {
-        table.AddShot(new EnemyShotReaction(enemy => enemy.EnemyDefinitionPointer == EnemyDefinitionId.MotherBrainBody &&
+        table.AddShot(new EnemyShotReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.MotherBrainBody &&
                                                      EnemyCollision.ShotAi(enemy) == EnemyInteractionCallback.MotherBrainBodyShot)
         {
             BeforeSuperMissileQuake = (in EnemyShotContext c) =>
@@ -64,7 +64,7 @@ internal sealed class MotherBrainCombat
             },
         });
 
-        table.AddShot(new EnemyShotReaction(enemy => enemy.EnemyDefinitionPointer == EnemyDefinitionId.MotherBrainHead &&
+        table.AddShot(new EnemyShotReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.MotherBrainHead &&
                                                      EnemyCollision.ShotAi(enemy) == EnemyInteractionCallback.MotherBrainHeadShot)
         {
             BeforeSuperMissileQuake = (in EnemyShotContext c) =>
@@ -265,7 +265,7 @@ internal sealed class MotherBrainCombat
     /// <summary>Registers the head-touch reaction for the active body/head pair.</summary>
     internal static void RegisterMotherBrainHeadTouch(EnemySharedReactions table)
     {
-        table.AddTouch(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.MotherBrainHead &&
+        table.AddTouch(slot => slot.DefinitionId == EnemyDefinitionId.MotherBrainHead &&
                                EnemyCollision.TouchAi(slot) == EnemyInteractionCallback.MotherBrainHeadTouch,
             context =>
             {
@@ -285,7 +285,7 @@ internal sealed class MotherBrainCombat
     /// the body callback performs no health, phase, or multipart-state work of its own.</remarks>
     internal static void RegisterMotherBrainBodyBombReactions(EnemySharedReactions table)
     {
-        table.AddBombSpecial(c => c.Enemy.EnemyDefinitionPointer == EnemyDefinitionId.MotherBrainBody &&
+        table.AddBombSpecial(c => c.Enemy.DefinitionId == EnemyDefinitionId.MotherBrainBody &&
                                   c.SelectedShotAi == EnemyInteractionCallback.MotherBrainBodyShot,
             static _ => { });
     }
@@ -294,7 +294,7 @@ internal sealed class MotherBrainCombat
     internal static bool? FindMotherBrainHitboxCallback(RoomEnemySlot enemy, EnemyHitboxProbe probe, out EnemyInteractionCallback? callback)
     {
         callback = null;
-        if (enemy.EnemyDefinitionPointer is not (EnemyDefinitionId.MotherBrainBody or EnemyDefinitionId.MotherBrainHead))
+        if (enemy.DefinitionId is not (EnemyDefinitionId.MotherBrainBody or EnemyDefinitionId.MotherBrainHead))
             return null;
 
         // Body and head walk the same bank-$A9 roots; the head's dummy list keeps $A320.

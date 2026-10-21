@@ -146,7 +146,7 @@ internal sealed class GreyDoorPlms : IPlmFamilySource
         if ((conditionOffset & 1) != 0 || conditionOffset > 12)
         {
             throw new InvalidDataException(
-                $"Grey-door header ${(int)slot.HeaderPointer:X4} selected invalid condition " +
+                $"Grey-door header ${(int)slot.Header:X4} selected invalid condition " +
                 $"offset ${conditionOffset:X2} from room argument ${rawRoomArgument:X4}.");
         }
 
@@ -154,7 +154,7 @@ internal sealed class GreyDoorPlms : IPlmFamilySource
         slot.RoomArgument = GreyDoorRoomArgumentDefinitions.DoorBitArgument(rawRoomArgument);
         ApplyGreyDoorSetup(level, slot.BlockIndex);
         slot.Family = new GreyDoorPlmState(condition);
-        var variant = new GreyDoorVariant(orientation, BombTorizo: slot.HeaderPointer == PlmHeaderId.BombTorizoGreyDoor);
+        var variant = new GreyDoorVariant(orientation, BombTorizo: slot.Header == PlmHeaderId.BombTorizoGreyDoor);
         slot.StartAnimation(new GreyDoorPlmAnimation(variant, GreyDoorProgram.Waiting));
     }
 

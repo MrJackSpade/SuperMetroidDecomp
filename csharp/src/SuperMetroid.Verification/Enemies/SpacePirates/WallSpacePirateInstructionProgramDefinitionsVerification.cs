@@ -168,7 +168,7 @@ internal static class WallSpacePirateInstructionProgramDefinitionsVerification
             enemies.VerificationServices().NextRandom = () => 0;
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.Bind(EnemyDefinitionId.PirateGreyWall, slot.Definition);
-            slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with
+            slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition) with
             {
                 Bank = 0xb2,
                 Damage = 20,

@@ -22,7 +22,7 @@ internal static class MotherBrainBabyMetroidDefinitionsVerification
             MotherBrainBabyMetroidDefinitions.SpawnPopulation;
         ushort[] actual =
         [
-            (ushort)population.DefinitionPointer,
+            (ushort)population.DefinitionId,
             population.Position.X,
             population.Position.Y,
             checked((ushort)population.InitializationParameter),
@@ -37,7 +37,7 @@ internal static class MotherBrainBabyMetroidDefinitionsVerification
                 $"Mother Brain Baby population word {word}");
         }
         AssertEqual(EnemyDefinitionId.BabyMetroidCutscene,
-            population.DefinitionPointer,
+            population.DefinitionId,
             "Mother Brain Baby population definition");
 
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = InstalledFixtures.EnemyTiles, BossArtwork = InstalledFixtures.BossArtwork, AreaArtwork = InstalledFixtures.AreaArtwork };
@@ -57,7 +57,7 @@ internal static class MotherBrainBabyMetroidDefinitionsVerification
             throw new InvalidDataException("Mother Brain Baby allocator produced no physical slot.");
         AssertEqual(1, baby.SlotIndex, "Mother Brain Baby first free physical slot");
         AssertEqual(EnemyDefinitionId.BabyMetroidCutscene,
-            baby.EnemyDefinitionPointer,
+            baby.DefinitionId,
             "Mother Brain Baby physical definition");
         AssertEqual(population, baby.Spawn.Population,
             "Mother Brain Baby retained population snapshot");

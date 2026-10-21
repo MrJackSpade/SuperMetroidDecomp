@@ -176,7 +176,7 @@ internal static class EnemyProgramAnimation
                 slot.Properties = slot.Properties.With(EnemyProperties.Deleted);
                 return;
             default:
-                throw new InvalidOperationException($"Enemy {slot.EnemyDefinitionPointer}'s programs have no {advance} step.");
+                throw new InvalidOperationException($"Enemy {slot.DefinitionId}'s programs have no {advance} step.");
         }
     }
 }

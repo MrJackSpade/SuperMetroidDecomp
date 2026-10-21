@@ -39,8 +39,8 @@ internal static class MaridiaLargeSnailCollisionDefinitionsVerification
         RoomEnemySlot compiledSlot = compiled.SlotTable.Slots[0];
         var boundDefinition = default(RoomEnemyDefinition) with
             { Bank = MaridiaLargeSnailCollisionDefinitions.Bank };
-        nativeSlot.Bind(nativeSlot.EnemyDefinitionPointer, boundDefinition);
-        compiledSlot.Bind(compiledSlot.EnemyDefinitionPointer, boundDefinition);
+        nativeSlot.Bind(nativeSlot.DefinitionId, boundDefinition);
+        compiledSlot.Bind(compiledSlot.DefinitionId, boundDefinition);
         nativeSlot.Bind((EnemyDefinitionId)0xffff, nativeSlot.Definition);
         compiledSlot.Bind(EnemyDefinitionId.Oum, compiledSlot.Definition);
         AssertEqual(30, MaridiaLargeSnailCollisionDefinitionsConstants.FramePointers.Length,

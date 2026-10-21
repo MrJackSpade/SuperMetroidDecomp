@@ -33,9 +33,9 @@ internal static class GrappleEnemyDeathVerification
         SeedEnemyDropChancePointer(fixture.Bus, header);
         var enemy = fixture.System.SlotTable.Slots[0];
         enemy.Bind((EnemyDefinitionId)header, enemy.Definition);
-        enemy.Bind(enemy.EnemyDefinitionPointer, default(RoomEnemyDefinition) with
+        enemy.Bind(enemy.DefinitionId, default(RoomEnemyDefinition) with
         {
-            GrappleAiPointer = GrappleAiRoutine.Kill,
+            GrappleAi = GrappleAiRoutine.Kill,
             DeathAnimation = 4,
         });
         enemy.Position = enemy.Position.WithWhole(new(100, 100));
@@ -52,7 +52,7 @@ internal static class GrappleEnemyDeathVerification
         AssertEqual(GrapplePhase.Dropped, samus.Grapple.Phase, "native death routine drops the active grapple");
         AssertEqual(100, explosion.Position.X.Whole, "death explosion preserves enemy X");
         AssertEqual(100, explosion.Position.Y.Whole, "death explosion preserves enemy Y");
-        AssertEqual((EnemyDefinitionId)header, explosion.EnemyHeaderPointer, "death actor retains drop-table identity");
+        AssertEqual((EnemyDefinitionId)header, explosion.DropDefinitionId, "death actor retains drop-table identity");
         var spriteFrames = new HashSet<string>();
         bool sawPickup = false;
         bool heardDeath = false;
@@ -118,9 +118,9 @@ internal static class GrappleEnemyDeathVerification
         fixture.System.AreaArtwork = InstalledFixtures.AreaArtwork;
             var enemy = fixture.System.SlotTable.Slots[0];
             enemy.Bind((EnemyDefinitionId)0x9000, enemy.Definition);
-            enemy.Bind(enemy.EnemyDefinitionPointer, default(RoomEnemyDefinition) with
+            enemy.Bind(enemy.DefinitionId, default(RoomEnemyDefinition) with
             {
-                GrappleAiPointer = GrappleAiRoutine.Kill,
+                GrappleAi = GrappleAiRoutine.Kill,
             });
             enemy.Position = enemy.Position.WithWhole(new(100, 100));
             enemy.Radius = new(8, 8);

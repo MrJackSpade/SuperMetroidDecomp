@@ -47,7 +47,7 @@ internal sealed class TorizoMovement
     /// </summary>
     internal void InitializeBombTorizo(RoomEnemySlot torizo, SamusState? samus, SnesButton controllerInput)
     {
-        bool isGolden = torizo.EnemyDefinitionPointer == EnemyDefinitionId.GoldenTorizo;
+        bool isGolden = torizo.DefinitionId == EnemyDefinitionId.GoldenTorizo;
         var state = new TorizoEnemyState(torizo, isGolden)
         {
             Posture = TorizoParameterFlagCodec.PostureOf(torizo.Spawn.Population.Parameter1),

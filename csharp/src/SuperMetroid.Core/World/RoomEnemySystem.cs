@@ -919,12 +919,12 @@ public sealed class RoomEnemySystem : IEnemyProjectileHandlerSource, IEnemyFrame
                 // them before this actor's touch and AI, so escape starts now.
                 if (frame.SharedProjectiles is not null && frame.SamusProjectiles is not null)
                     Collision.ResolveOrdinaryBombHits(frame.SharedProjectiles, frame.SamusProjectiles, frame.Samus, nativeIndex);
-                if (slot.EnemyDefinitionPointer == 0)
+                if (slot.DefinitionId == 0)
                     continue;
                 Collision.ResolveOrdinarySamusContact(frame.Samus, frame.ControllerInput, frame.Level, nativeIndex);
                 if (slot.Entity is IEnemyContactHooks contact)
                     contact.ResolveAfterSamusContact(frame.Samus);
-                if (slot.EnemyDefinitionPointer == 0)
+                if (slot.DefinitionId == 0)
                     continue;
             }
             if (!frame.TimeIsFrozen)

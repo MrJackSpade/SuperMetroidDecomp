@@ -517,16 +517,16 @@ internal sealed class KraidProjectiles
     /// <summary>Binds nail touch callbacks and their shared contact-damage path.</summary>
     internal void RegisterKraidNailTouch(EnemySharedReactions table)
     {
-        table.AddTouch(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.KraidNail &&
+        table.AddTouch(slot => slot.DefinitionId == EnemyDefinitionId.KraidNail &&
                                EnemyCollision.TouchAi(slot) == EnemyInteractionCallback.KraidNailTouch ||
-                               slot.EnemyDefinitionPointer == EnemyDefinitionId.KraidNailBad &&
+                               slot.DefinitionId == EnemyDefinitionId.KraidNailBad &&
                                EnemyCollision.TouchAi(slot) == EnemyInteractionCallback.KraidBadNailTouch,
             context =>
             {
                 _collision.ResolveNormalEnemyTouch(context.Slot, context.Samus);
                 // The callback passes the common routine's remaining-health accumulator
                 // to EnemyDeath; its bounded animation selector normalizes values >= 5.
-                if (context.Slot.EnemyDefinitionPointer != 0)
+                if (context.Slot.DefinitionId != 0)
                     _deathsAndDrops.StartGenericEnemyDeath(context.Slot, checked((ushort)context.Slot.Health));
             });
     }

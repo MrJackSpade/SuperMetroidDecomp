@@ -25,7 +25,7 @@ internal static class FirefleaDoubleDeathVerification
         runtime.LoadCartridgeRoomForDebug(RoomHeaderDefinitions.LNFireflea);
         var samus = runtime.Player.IntroducedSamus;
         RoomEnemySlot fireflea = runtime.Enemies.SlotTable.Slots.First(slot =>
-            slot.EnemyDefinitionPointer == EnemyDefinitionId.Fireflea);
+            slot.DefinitionId == EnemyDefinitionId.Fireflea);
         ushort x = fireflea.Position.X.Whole, y = fireflea.Position.Y.Whole;
         // Screw attack contact ($0A6E = 3) kills through CommonA3_NormalEnemyTouchAI.
         samus.HorizontalSpeed.ContactDamageIndex = SamusContactDamageIndex.ScrewAttack;
@@ -41,7 +41,7 @@ internal static class FirefleaDoubleDeathVerification
         var cleared = explosions.Single(p => p != real);
         AssertEqual((ushort)0, cleared.Position.X.Whole, "the second explosion reads the cleared X position");
         AssertEqual((ushort)0, cleared.Position.Y.Whole, "the second explosion reads the cleared Y position");
-        AssertEqual(EnemyDefinitionId.None, cleared.EnemyHeaderPointer, "the second explosion carries header zero");
+        AssertEqual(EnemyDefinitionId.None, cleared.DropDefinitionId, "the second explosion carries header zero");
         AssertEqual(EnemyDeathProjectileProgram.SmallExplosion, ProgramOf(cleared),
             "EnemyDeath's returned A selects the small explosion");
         AssertEqual(killsBefore + 2, runtime.Enemies.RoomStatus.EnemiesKilled, "both deaths count a kill");

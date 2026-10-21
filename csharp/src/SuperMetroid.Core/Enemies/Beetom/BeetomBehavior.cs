@@ -572,7 +572,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         // Common damage can clear a lethally hit slot before this private tail runs. Bank $A8 still clears Beetom's
         // separate attached flag after returning from common shot AI, so the identity is matched before dispatch.
-        table.AddBombCommon(new EnemyBombReaction(c => c.Enemy.EnemyDefinitionPointer == EnemyDefinitionId.Beetom &&
+        table.AddBombCommon(new EnemyBombReaction(c => c.Enemy.DefinitionId == EnemyDefinitionId.Beetom &&
                                                        EnemyCollision.ShotAi(c.Enemy) == EnemyInteractionCallback.BeetomShot &&
                                                        c.SelectedShotAi == EnemyInteractionCallback.BeetomShot)
         {
@@ -603,7 +603,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         // Beetom's private tail runs after common shot AI for every accepted hit, including immune/zero-damage
         // vulnerability results.
-        table.AddShot(new EnemyShotReaction(enemy => enemy.EnemyDefinitionPointer == EnemyDefinitionId.Beetom &&
+        table.AddShot(new EnemyShotReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.Beetom &&
                                                      EnemyCollision.ShotAi(enemy) == EnemyInteractionCallback.BeetomShot)
         {
             AfterCommon = c => ResolveBeetomShotAfterCommon(c.Enemy, c.Enemy.RequireSpeciesState<BeetomEnemyState>()),
@@ -613,7 +613,7 @@ internal sealed class BeetomBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Attaches Beetom to Samus on its selected custom contact callback.</summary>
     internal void RegisterBeetomTouch(EnemySharedReactions table)
     {
-        table.AddTouch(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Beetom &&
+        table.AddTouch(slot => slot.DefinitionId == EnemyDefinitionId.Beetom &&
                                EnemyCollision.TouchAi(slot) == EnemyInteractionCallback.BeetomTouch,
             context => ResolveBeetomTouch(context.Slot, context.Slot.RequireSpeciesState<BeetomEnemyState>(), context.Samus));
     }

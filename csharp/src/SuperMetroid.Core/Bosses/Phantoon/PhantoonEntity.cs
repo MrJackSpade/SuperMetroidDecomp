@@ -17,22 +17,22 @@ internal sealed class PhantoonEntity(PhantoonBehavior species, RoomEnemySlot slo
     /// <summary>The session's installed boss artwork.</summary>
     private readonly BossArtworkBinding _bossArtwork = bossArtwork;
     /// <inheritdoc/>
-    public EnemyInitializationAiHandler? FindInitialization() => PhantoonPartDefinitions.Parts[Slot.EnemyDefinitionPointer] switch
+    public EnemyInitializationAiHandler? FindInitialization() => PhantoonPartDefinitions.Parts[Slot.DefinitionId] switch
     {
         PhantoonPart.Body => species.InitializePhantoonBody,
         PhantoonPart.Eye or PhantoonPart.Tentacles or PhantoonPart.Mouth => species.InitializePhantoonPart,
-        _ => throw new InvalidOperationException($"Phantoon entity bound to {Slot.EnemyDefinitionPointer}."),
+        _ => throw new InvalidOperationException($"Phantoon entity bound to {Slot.DefinitionId}."),
     };
 
     /// <inheritdoc/>
-    public EnemyMainAiHandler? FindMain() => PhantoonPartDefinitions.Parts[Slot.EnemyDefinitionPointer] switch
+    public EnemyMainAiHandler? FindMain() => PhantoonPartDefinitions.Parts[Slot.DefinitionId] switch
     {
         PhantoonPart.Body => species.RunPhantoonBodyMainAi,
         // The eye's main is the literal RTL at the start of bank $A7; the body positions it and its own list animates it.
         PhantoonPart.Eye => EnemyNoOpAi.Main,
         // $A7:E011 is a literal RTL; these drawing parts animate through their own bank-$A7 lists.
         PhantoonPart.Tentacles or PhantoonPart.Mouth => EnemyNoOpAi.Main,
-        _ => throw new InvalidOperationException($"Phantoon entity bound to {Slot.EnemyDefinitionPointer}."),
+        _ => throw new InvalidOperationException($"Phantoon entity bound to {Slot.DefinitionId}."),
     };
 
     /// <inheritdoc/>
@@ -57,7 +57,7 @@ internal sealed class PhantoonEntity(PhantoonBehavior species, RoomEnemySlot slo
     /// </summary>
     public void ResolveBeforeOrdinaryHits(RoomEnemyFrame frame)
     {
-        if (Slot.EnemyDefinitionPointer == EnemyDefinitionId.PhantoonBody &&
+        if (Slot.DefinitionId == EnemyDefinitionId.PhantoonBody &&
             frame.SamusProjectiles is not null && frame.SharedProjectiles is not null)
             _ = species.Combat.ResolvePhantoonProjectileHits(frame.SamusProjectiles, frame.SharedProjectiles);
     }
@@ -72,10 +72,10 @@ internal sealed class PhantoonEntity(PhantoonBehavior species, RoomEnemySlot slo
 
     /// <summary>Only the body's Samus contact enters the extended-spritemap walker; its weapon collision is the encounter's own resolver.</summary>
     public override EnemyCapabilities Capabilities =>
-        Slot.EnemyDefinitionPointer == EnemyDefinitionId.PhantoonBody ? EnemyCapabilities.ExtendedSamusHitboxes : EnemyCapabilities.None;
+        Slot.DefinitionId == EnemyDefinitionId.PhantoonBody ? EnemyCapabilities.ExtendedSamusHitboxes : EnemyCapabilities.None;
 
     /// <summary>The body's shot callback, which normal bombs dispatch like the common one.</summary>
     /// <param name="callback">The named callback the selected pointer decodes to, or null.</param>
     public bool OwnsPrivateShotCallback(EnemyInteractionCallback? callback) =>
-        Slot.EnemyDefinitionPointer == EnemyDefinitionId.PhantoonBody && callback == EnemyInteractionCallback.PhantoonShot;
+        Slot.DefinitionId == EnemyDefinitionId.PhantoonBody && callback == EnemyInteractionCallback.PhantoonShot;
 }

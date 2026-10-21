@@ -28,7 +28,7 @@ internal static class SkulteraBehaviorVerification
             var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.Bind(EnemyDefinitionId.Skultera, slot.Definition);
-            slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = SkulteraFrameToolingDefinitions.Bank });
+            slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition) with { Bank = SkulteraFrameToolingDefinitions.Bank });
             slot.SetSpawnParameter1(startsLeft ? SkulteraNativeValues.StartsLeftParameter : (ushort)0);
             // The room spawn primes the instruction timer before the species initializer runs.
             slot.InstructionTimer = WrappingCountdown.Start(1);

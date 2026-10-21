@@ -38,7 +38,7 @@ internal sealed class ChootBehavior : IEnemySpecies, IEnemyEntityFactory
         // retail population selects it, so expose corrupt/high parameters as invalid data.
         ushort patternIndex = SnesLittleEndian.HighByte(slot.Spawn.Population.Parameter1);
         ChootPatternDefinition pattern = ChootPatternDefinitions.ForIndex(patternIndex);
-        state.FallingPath = pattern.FallingPatternPointer;
+        state.FallingPath = pattern.FallingPath;
         state.FallingPatternYDistance = pattern.FallingPatternYDistance;
 
         // The SNES multiplier consumes only the loop count's low byte; the authored loop advance is

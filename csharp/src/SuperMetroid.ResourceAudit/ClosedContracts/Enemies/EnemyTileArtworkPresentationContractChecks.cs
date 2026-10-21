@@ -43,14 +43,14 @@ internal static class EnemyTileArtworkPresentationContractChecks
             cached.Add(bytes, atlas);
             return atlas;
         }
-        var sheets = EnemyTileSourceDefinitions.All.ToDictionary(definition => definition.DefinitionPointer,
+        var sheets = EnemyTileSourceDefinitions.All.ToDictionary(definition => definition.DefinitionId,
             definition => Sheet(definition.ByteCount));
         using var paletteJson = new MemoryStream(EnemyPaletteSheet.Write(new EnemyPaletteSheetDocument {
             Version = 1, Colors = Enumerable.Range(0, EnemyPaletteSheet.ColorCount)
                 .Select(_ => new PaletteRgb5 { Red = 1, Green = 0, Blue = 0 }).ToArray() }));
         EnemyPaletteSheet palette = EnemyPaletteSheet.Load(paletteJson);
-        var palettes = EnemyTileSourceDefinitions.All.ToDictionary(definition => definition.DefinitionPointer, _ => palette);
-        var sources = EnemyTileSourceDefinitions.All.ToDictionary(definition => definition.DefinitionPointer, definition => definition.SourceAddress);
+        var palettes = EnemyTileSourceDefinitions.All.ToDictionary(definition => definition.DefinitionId, _ => palette);
+        var sources = EnemyTileSourceDefinitions.All.ToDictionary(definition => definition.DefinitionId, definition => definition.SourceAddress);
         var ceres = new CeresEscapeTileArtwork(CeresEscapeTileArtworkDefinitions.All.Select(page => Sheet(page.ByteCount)).ToArray());
         using var overlayJson = new MemoryStream(CeresEscapeOverlayTilemapCatalog.Write(new CeresEscapeOverlayTilemapDocument {
             Version = CeresEscapeOverlayTilemapDefinitions.Version,
@@ -65,14 +65,14 @@ internal static class EnemyTileArtworkPresentationContractChecks
         _ = BossArtworkCatalog.FromInstalledArtwork(new BossArtworkCatalog { TorizoInstructionVram = torizo });
         Reject(() => AreaArtworkCatalog.FromInstalledArtwork(new AreaArtworkCatalog { CeresEscapeTiles = ceres }), "required Ceres DMA extensions");
         Reject(() => BossArtworkCatalog.FromInstalledArtwork(new BossArtworkCatalog()), "required Torizo DMA extension");
-        RoomCharacterAtlas original = sheets[first.DefinitionPointer];
-        sheets.Remove(first.DefinitionPointer); sheets.Add(0, original);
+        RoomCharacterAtlas original = sheets[first.DefinitionId];
+        sheets.Remove(first.DefinitionId); sheets.Add(0, original);
         Reject(() => Install(), "same-count substituted identity");
         sheets.Remove(0);
-        sheets[first.DefinitionPointer] = Sheet(first.ByteCount == 32 ? 64 : 32);
+        sheets[first.DefinitionId] = Sheet(first.ByteCount == 32 ? 64 : 32);
         Reject(() => Install(), "incorrect native sheet length");
-        sheets[first.DefinitionPointer] = original;
-        sources[first.DefinitionPointer]++;
+        sheets[first.DefinitionId] = original;
+        sources[first.DefinitionId]++;
         Reject(() => Install(), "incorrect native DMA alias");
 
         // Mutation of the caller-owned dictionaries cannot invalidate an admitted catalog.
@@ -88,11 +88,11 @@ internal static class EnemyTileArtworkPresentationContractChecks
             bytes.Length == overlay.WordCount * sizeof(ushort), "exact Ceres overlay source");
         var vram = new SnesVram();
         vram.LoadBytes(0, Enumerable.Repeat((byte)0xa5, first.ByteCount + 2).ToArray());
-        catalog.LoadTo(first.DefinitionPointer, first.ByteCount, new VramStore(vram).All, 1);
+        catalog.LoadTo(first.DefinitionId, first.ByteCount, new VramStore(vram).All, 1);
         Require(vram.ReadByte(0) == 0xa5 && vram.ReadByte(first.ByteCount + 1) == 0xa5 &&
             vram.Bytes.Slice(1, first.ByteCount).IndexOfAnyExcept((byte)0) < 0, "exact tile upload and unchanged neighbors");
         var cgram = new SnesCgram();
-        catalog.LoadPaletteTo(first.DefinitionPointer, new CgramPalettes(cgram).All.Slice(1, 16));
+        catalog.LoadPaletteTo(first.DefinitionId, new CgramPalettes(cgram).All.Slice(1, 16));
         Require(cgram.Colors[0] == Bgr555.Black && cgram.Colors[1] == new Bgr555(1, 0, 0) && cgram.Colors[16] == new Bgr555(1, 0, 0) && cgram.Colors[17] == Bgr555.Black,
             "exact palette upload and unchanged neighbors");
     }

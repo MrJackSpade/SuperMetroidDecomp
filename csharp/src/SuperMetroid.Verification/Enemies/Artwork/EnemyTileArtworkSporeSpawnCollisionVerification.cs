@@ -24,7 +24,7 @@ internal static class EnemyTileArtworkSporeSpawnCollisionVerification
         var installed = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
 
         RoomEnemySlot installedSlot = installed.SlotTable.Slots[0];
-        installedSlot.Bind(installedSlot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with
+        installedSlot.Bind(installedSlot.DefinitionId, default(RoomEnemyDefinition) with
             {
                 Bank = DraygonBg2FrameToolingDefinitions.Bank,
             });

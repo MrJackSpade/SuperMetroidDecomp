@@ -8,26 +8,26 @@ internal sealed class KzanEntity(KzanBehavior species, RoomEnemySlot slot, Enemy
     : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation
 {
     /// <inheritdoc/>
-    public EnemyInitializationAiHandler? FindInitialization() => KzanPartDefinitions.Parts[Slot.EnemyDefinitionPointer] switch
+    public EnemyInitializationAiHandler? FindInitialization() => KzanPartDefinitions.Parts[Slot.DefinitionId] switch
     {
         KzanPart.Top => species.InitializeKzanTop,
         KzanPart.Bottom => species.InitializeKzanBottom,
-        _ => throw new InvalidOperationException($"Kzan entity bound to {Slot.EnemyDefinitionPointer}."),
+        _ => throw new InvalidOperationException($"Kzan entity bound to {Slot.DefinitionId}."),
     };
 
     /// <inheritdoc/>
-    public EnemyMainAiHandler? FindMain() => KzanPartDefinitions.Parts[Slot.EnemyDefinitionPointer] switch
+    public EnemyMainAiHandler? FindMain() => KzanPartDefinitions.Parts[Slot.DefinitionId] switch
     {
         KzanPart.Top => species.RunKzanTopMainAi,
         KzanPart.Bottom => (enemy, _) => species.RunKzanBottomMain(enemy),
-        _ => throw new InvalidOperationException($"Kzan entity bound to {Slot.EnemyDefinitionPointer}."),
+        _ => throw new InvalidOperationException($"Kzan entity bound to {Slot.DefinitionId}."),
     };
 
     /// <inheritdoc/>
-    public Action<RoomEnemySlot, EnemyInstructionContext>? FindTypedAnimation() => KzanPartDefinitions.Parts[Slot.EnemyDefinitionPointer] switch
+    public Action<RoomEnemySlot, EnemyInstructionContext>? FindTypedAnimation() => KzanPartDefinitions.Parts[Slot.DefinitionId] switch
     {
         KzanPart.Top => KzanBehavior.AdvanceKzanTypedAnimation,
         KzanPart.Bottom => null,
-        _ => throw new InvalidOperationException($"Kzan entity bound to {Slot.EnemyDefinitionPointer}."),
+        _ => throw new InvalidOperationException($"Kzan entity bound to {Slot.DefinitionId}."),
     };
 }

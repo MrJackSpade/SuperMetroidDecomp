@@ -16,7 +16,7 @@ internal static class WalkingSpacePirateOwnedStateVerification
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.PirateGreyWalking, slot.Definition);
-        slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = 0xb2 });
+        slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition) with { Bank = 0xb2 });
         slot.Position = slot.Position.WithWhole(new(0x0100, 0x0100));
         slot.SetSpawnParameter2(48);
         WalkingSpacePirateBehavior.InitializeWalkingSpacePirate(slot);

@@ -62,7 +62,7 @@ internal static class EnemyDropsVerification
         var fixture = CreateEnemyDropFixture(samus, [1]);
         var enemy = fixture.System.SlotTable.Slots[0];
         enemy.Bind((EnemyDefinitionId)0x9000, enemy.Definition);
-        enemy.Bind(enemy.EnemyDefinitionPointer, default(RoomEnemyDefinition) with
+        enemy.Bind(enemy.DefinitionId, default(RoomEnemyDefinition) with
         {
             Bank = 0xa3,
             TouchAiPointer = EnemyAiCodePointers.BankA0.NormalEnemyTouch,
@@ -76,7 +76,7 @@ internal static class EnemyDropsVerification
         enemy.Properties = new EnemyPropertyWord(EnemyProperties.RespawnIfKilled);
         var projectiles = new SamusProjectileSystem(new BeamChargeState(), SamusProjectileResidue.None);
         fixture.System.StepFrame(new RoomEnemyFrame { Camera = new(0, 0), TimeIsFrozen = false, Samus = samus, Level = fixture.Level, SamusProjectiles = projectiles, ResolveSamusContactBeforeAi = true });
-        AssertEqual(EnemyDefinitionId.Respawn, enemy.EnemyDefinitionPointer, "contact death retains respawn placeholder");
+        AssertEqual(EnemyDefinitionId.Respawn, enemy.DefinitionId, "contact death retains respawn placeholder");
         AssertEqual(1, fixture.System.RoomStatus.EnemiesKilled, "contact death counted once");
         AssertEqual(1, enemy.FrameCounter, "death frame dispatches inert placeholder then advances native frame counter");
         AssertEqual((int)EnemyCommonNoOpRoutine.BankA3,
@@ -355,7 +355,7 @@ internal static class EnemyDropsVerification
         // Variant nine proves the common routine applies the native >=5 clamp before it
         // indexes the five-pointer death-animation table.
         fixture.System.DeathsAndDrops.StartGenericEnemyDeath(enemy, deathAnimation: 9);
-        AssertEqual(EnemyDefinitionId.Respawn, enemy.EnemyDefinitionPointer,
+        AssertEqual(EnemyDefinitionId.Respawn, enemy.DefinitionId,
             "respawning death leaves native DAFF placeholder in physical enemy slot");
         AssertEqual((byte)0xa3, enemy.Definition.Bank,
             "respawning death leaves native placeholder AI bank");
@@ -365,7 +365,7 @@ internal static class EnemyDropsVerification
         RoomEnemyProjectileSlot explosion = fixture.System.Projectiles.EnemyProjectiles[17];
         AssertEqual(RoomEnemyProjectileKind.EnemyDeathExplosion, explosion.Kind,
             "generic death allocates projectile definition F345");
-        AssertEqual((EnemyDefinitionId)enemyHeader, explosion.EnemyHeaderPointer,
+        AssertEqual((EnemyDefinitionId)enemyHeader, explosion.DropDefinitionId,
             "death actor retains killed enemy header for later chance lookup");
         AssertEqual((ushort)321, explosion.Position.X.Whole,
             "death actor retains killed enemy X position");

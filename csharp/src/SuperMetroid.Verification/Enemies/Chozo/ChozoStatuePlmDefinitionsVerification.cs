@@ -39,7 +39,7 @@ internal static class ChozoStatuePlmDefinitionsVerification
         AssertEqual(5, definitions.Length, "Chozo terrain PLM definition count");
 
         ushort[] headers = [0xd6d6,0xd6ee,0xd6f8,0xd6fc,0xd113];
-        AssertTrue(headers.SequenceEqual(definitions.Select(d => (ushort)d.HeaderPointer)), "Chozo original header enumeration");
+        AssertTrue(headers.SequenceEqual(definitions.Select(d => (ushort)d.Header)), "Chozo original header enumeration");
         for (int raw = 0; raw <= ushort.MaxValue; raw++)
         {
             ushort header = (ushort)raw;
@@ -48,19 +48,19 @@ internal static class ChozoStatuePlmDefinitionsVerification
             else
             {
                 var selected = ChozoStatuePlmDefinitions.Resolve((PlmHeaderId)header);
-                AssertEqual(header, (ushort)selected.HeaderPointer, "Chozo dispatch header identity");
+                AssertEqual(header, (ushort)selected.Header, "Chozo dispatch header identity");
                 AssertEqual(PlmProgramStartOracle.ForNativeList(CartridgeImportSource.Require(rom).ReadCartridgeWord((0x840000 | (header + 2)))), selected.Program,
                     "Chozo dispatch original initial list");
-                AssertEqual(definitions.Single(d => (ushort)d.HeaderPointer == header), selected, "Chozo named/enumerated dispatch agreement");
+                AssertEqual(definitions.Single(d => (ushort)d.Header == header), selected, "Chozo named/enumerated dispatch agreement");
             }
         }
         foreach (ChozoStatuePlmDefinition definition in definitions)
         {
-            ushort expected = CartridgeImportSource.Require(rom).ReadCartridgeWord((0x840000 | unchecked((ushort)(definition.HeaderPointer + 2))));
+            ushort expected = CartridgeImportSource.Require(rom).ReadCartridgeWord((0x840000 | unchecked((ushort)(definition.Header + 2))));
             AssertEqual(
                 PlmProgramStartOracle.ForNativeList(expected),
                 definition.Program,
-                $"Chozo PLM ${(int)definition.HeaderPointer:X4} initial program matches cartridge");
+                $"Chozo PLM ${(int)definition.Header:X4} initial program matches cartridge");
 
             const int width = 32;
             const int height = 16;
@@ -68,21 +68,21 @@ internal static class ChozoStatuePlmDefinitionsVerification
             var level = new RoomLevelData(new Extent16<RoomBlocks>(width, height), new RoomLevelPlanes(new ushort[blockCount], new byte[blockCount], new ushort[blockCount]), new byte[8]);
             var plms = PlmFixtures.Unbound();
             var request = new ChozoStatuePlmRequest(
-                definition.HeaderPointer,
+                definition.Header,
                 Block: new Position16<RoomBlocks>(3, 4),
                 IsHardcoded: false);
 
             AssertTrue(
                 plms.ChozoStatue.TrySpawnChozoStatuePlm(level, request),
-                $"Chozo PLM ${(int)definition.HeaderPointer:X4} allocates");
+                $"Chozo PLM ${(int)definition.Header:X4} allocates");
             RoomPlmSlotSnapshot slot = plms.PopulationSlots.Single();
             AssertEqual(39, slot.NativeSlotIndex, "Chozo PLM uses highest free native slot");
-            AssertEqual(definition.HeaderPointer, slot.HeaderPointer, "Chozo PLM header identity");
+            AssertEqual(definition.Header, slot.HeaderPointer, "Chozo PLM header identity");
             AssertEqual(4 * width + 3, slot.BlockIndex, "Chozo PLM requested block coordinate");
             AssertTrue(PlmProgramStartOracle.IsRunning(definition.Program, slot), "Chozo PLM starts its first program");
             AssertEqual(1, slot.InstructionTimer, "Chozo PLM starts on timer one");
 
-            if (definition.HeaderPointer == PlmHeaderId.WreckedShipChozoHand)
+            if (definition.Header == PlmHeaderId.WreckedShipChozoHand)
             {
                 RoomCollisionBlock block = level.GetCollisionBlock(new(3, 4));
                 AssertEqual(

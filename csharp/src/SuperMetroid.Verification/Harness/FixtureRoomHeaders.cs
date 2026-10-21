@@ -19,5 +19,5 @@ internal static class FixtureRoomHeaders
         PlmBlock: default,
         DestinationScreen: default,
         SamusDistance: 0,
-        SetupCodePointer: DoorSetupCode.None);
+        SetupCode: DoorSetupCode.None);
 }

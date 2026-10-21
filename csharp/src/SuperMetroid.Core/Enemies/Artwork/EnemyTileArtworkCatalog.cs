@@ -86,10 +86,10 @@ public sealed class EnemyTileArtworkCatalog
     }
 
     /// <summary>Loads the sixteen indexed colors selected by a room graphics-set record.</summary>
-    public void LoadPaletteTo(EnemyDefinitionId definitionPointer, CgramPalette destination)
+    public void LoadPaletteTo(EnemyDefinitionId definitionId, CgramPalette destination)
     {
-        if (!palettes.TryGetValue(definitionPointer, out EnemyPaletteSheet? palette))
-            throw new InvalidDataException($"Enemy ${(int)definitionPointer:X4} has no installed palette.");
+        if (!palettes.TryGetValue(definitionId, out EnemyPaletteSheet? palette))
+            throw new InvalidDataException($"Enemy ${(int)definitionId:X4} has no installed palette.");
         palette.LoadTo(destination);
     }
 
@@ -159,18 +159,18 @@ public sealed class EnemyTileArtworkCatalog
             palettes.Count != EnemyTileSourceDefinitions.All.Count)
             throw new InvalidDataException("Installed enemy artwork must contain every required sheet and palette.");
         foreach (EnemyTileSourceDefinition definition in EnemyTileSourceDefinitions.All)
-            if (!sheets.TryGetValue(definition.DefinitionPointer, out RoomCharacterAtlas? sheet) || sheet is null ||
+            if (!sheets.TryGetValue(definition.DefinitionId, out RoomCharacterAtlas? sheet) || sheet is null ||
                 sheet.Transfer.Length != definition.ByteCount ||
-                !palettes.TryGetValue(definition.DefinitionPointer, out EnemyPaletteSheet? palette) || palette is null)
+                !palettes.TryGetValue(definition.DefinitionId, out EnemyPaletteSheet? palette) || palette is null)
                 throw new InvalidDataException(
-                    $"Installed enemy ${(int)definition.DefinitionPointer:X4} lacks its complete tile sheet or palette.");
+                    $"Installed enemy ${(int)definition.DefinitionId:X4} lacks its complete tile sheet or palette.");
     }
 
     /// <summary>Checks supplied DMA aliases against compiled graphics sources and returns the complete mapping.</summary>
     private static Dictionary<EnemyDefinitionId, int> InstalledDmaSources(IReadOnlyDictionary<EnemyDefinitionId, int>? sources)
     {
         var expected = EnemyTileSourceDefinitions.All.ToDictionary(
-            definition => definition.DefinitionPointer, definition => definition.SourceAddress);
+            definition => definition.DefinitionId, definition => definition.SourceAddress);
         if (sources is not null && (sources.Count != expected.Count ||
             expected.Any(pair => !sources.TryGetValue(pair.Key, out int source) || source != pair.Value)))
             throw new InvalidDataException("Installed enemy DMA aliases must match the compiled graphics definitions.");

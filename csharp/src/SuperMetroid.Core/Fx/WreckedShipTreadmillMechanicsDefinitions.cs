@@ -30,9 +30,9 @@ public static class WreckedShipTreadmillMechanicsDefinitions
     };
 
     /// <summary>Resolves either named header; all other bank87 identities return false/null.</summary>
-    public static bool TryResolve(AnimatedTileObject objectPointer, [NotNullWhen(true)] out WreckedShipTreadmillObjectDefinition? definition)
+    public static bool TryResolve(AnimatedTileObject animatedObject, [NotNullWhen(true)] out WreckedShipTreadmillObjectDefinition? definition)
     {
-        definition = objectPointer switch
+        definition = animatedObject switch
         {
             AnimatedTileObject.WreckedShipTreadmillRightwards => ForDirection(WreckedShipTreadmillDirection.Rightwards),
             AnimatedTileObject.WreckedShipTreadmillLeftwards => ForDirection(WreckedShipTreadmillDirection.Leftwards),
@@ -45,7 +45,7 @@ public static class WreckedShipTreadmillMechanicsDefinitions
                 AnimatedTileObject.MaridiaSandCeiling or AnimatedTileObject.MaridiaSandFalling or
                 AnimatedTileObject.Lava or AnimatedTileObject.Acid or AnimatedTileObject.Rain or
                 AnimatedTileObject.Spores => null,
-            _ => throw new InvalidOperationException($"Undefined AnimatedTileObject {objectPointer}."),
+            _ => throw new InvalidOperationException($"Undefined AnimatedTileObject {animatedObject}."),
         };
         return definition is not null;
     }

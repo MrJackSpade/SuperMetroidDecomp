@@ -84,7 +84,7 @@ internal sealed class EnemyDrawList
                 // Power-bomb damage runs after queue construction and can clear a
                 // queued actor or replace it with the inert respawn reservation.
                 // Neither lifecycle state owns a display composition.
-                if (slot.EnemyDefinitionPointer is 0 or EnemyDefinitionId.Respawn)
+                if (slot.DefinitionId is 0 or EnemyDefinitionId.Respawn)
                     continue;
 
                 // Enemy spawn-point offsets are zero for ordinary room-population entries.
@@ -108,7 +108,7 @@ internal sealed class EnemyDrawList
                 if (!slot.ExtraProperties.HasAny(EnemyExtraProperties.UsesExtendedSpritemap))
                 {
                     EnemyFrameId frame = slot.Frame ?? throw new InvalidDataException(
-                        $"Enemy ${(int)slot.EnemyDefinitionPointer:X4} draws before showing a frame.");
+                        $"Enemy ${(int)slot.DefinitionId:X4} draws before showing a frame.");
                     prepared.Add(new PreparedEnemyDraw(layer, slot, nativeIndex, origin, drawPaletteIndex, frame, null));
                     continue;
                 }
@@ -126,7 +126,7 @@ internal sealed class EnemyDrawList
                 }
 
                 throw new InvalidDataException(
-                    $"Enemy ${(int)slot.EnemyDefinitionPointer:X4} extended frame " +
+                    $"Enemy ${(int)slot.DefinitionId:X4} extended frame " +
                     $"{slot.Frame} has no installed presentation.");
             }
         }

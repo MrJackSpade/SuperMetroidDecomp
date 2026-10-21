@@ -37,7 +37,7 @@ internal static class PowerBombDeathDrawingVerification
             enemies.TileArtwork = artwork;
             var actor = enemies.SlotTable.Slots[0];
             actor.Bind(header, actor.Definition);
-            actor.Bind(actor.EnemyDefinitionPointer, RoomEnemyDefinitionCatalog.Get(header));
+            actor.Bind(actor.DefinitionId, RoomEnemyDefinitionCatalog.Get(header));
             actor.Health = lethal ? (ushort)1 : (ushort)1000;
             actor.Position = actor.Position.WithWhole(new(128, 128));
             actor.Radius = new(actor.Definition.Radius.X, actor.Definition.Radius.Y);
@@ -59,7 +59,7 @@ internal static class PowerBombDeathDrawingVerification
             if (lethal)
             {
                 AssertEqual(respawns ? EnemyDefinitionId.Respawn : 0,
-                    actor.EnemyDefinitionPointer, "lethal power bomb clears or reserves the physical slot");
+                    actor.DefinitionId, "lethal power bomb clears or reserves the physical slot");
                 AssertEqual(0, after.NextByteOffset, "dead enemy emits no sprite records");
                 AssertEqual(1, enemies.RoomStatus.EnemiesKilled, "death is counted once");
                 AssertTrue(enemies.Projectiles.EnemyProjectiles.Any(projectile =>

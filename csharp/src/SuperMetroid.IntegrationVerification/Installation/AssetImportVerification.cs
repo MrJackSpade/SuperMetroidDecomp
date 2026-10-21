@@ -110,8 +110,8 @@ try
     for (int frame = 0; frame < 120; frame++)
     {
         CartridgeAudioCommand[] commands = frame == 0
-            ? [new CartridgeAudioCommand.Upload(AudioAssetCatalogDefinitions.Common.Bank),
-               new CartridgeAudioCommand.Upload(AudioAssetCatalogDefinitions.Music[0].Bank),
+            ? [new CartridgeAudioCommand.Upload(AudioAssetCatalogDefinitions.Common.AudioSet),
+               new CartridgeAudioCommand.Upload(AudioAssetCatalogDefinitions.Music[0].AudioSet),
                new CartridgeAudioCommand.WritePort(ApuPort.Music, AudioRomDataMusicTracks.Title)] : [];
         foreach (short sample in renderer.RenderFrame(commands)) if (sample != 0) audible++;
     }

@@ -41,14 +41,14 @@ public static class SamusInsideBlockReactions
                 SpecialAirReactionDefinitions.ResolveInside(
                     area,
                     block.Bts.AreaReactionIndex);
-            PlmHeaderId header = areaReaction.HeaderPointer;
+            PlmHeaderId header = areaReaction.Header;
             if (header == 0) return;
             bool hasCompiledReaction = QuicksandDefinitions.TryGetReaction(
                 header,
                 out QuicksandReactionDefinition reaction);
             SpecialAirReactionSetup setup = hasCompiledReaction
-                ? reaction.SetupPointer
-                : areaReaction.SetupPointer;
+                ? reaction.Setup
+                : areaReaction.Setup;
             if (hasCompiledReaction && plms is not null &&
                 !plms.Quicksand.TrySpawnQuicksandReaction(block.Index, header))
             {
@@ -166,14 +166,14 @@ public static class SamusInsideBlockReactions
             SpecialAirReactionDefinitions.ResolveCollision(
                 body.SandCollisionArea,
                 block.Bts.AreaReactionIndex);
-        PlmHeaderId header = areaReaction.HeaderPointer;
+        PlmHeaderId header = areaReaction.Header;
         if (header == 0) return false;
         bool hasCompiledReaction = QuicksandDefinitions.TryGetReaction(
             header,
             out QuicksandReactionDefinition reaction);
         SpecialAirReactionSetup setup = hasCompiledReaction
-            ? reaction.SetupPointer
-            : areaReaction.SetupPointer;
+            ? reaction.Setup
+            : areaReaction.Setup;
         if (hasCompiledReaction && plms is not null &&
             !plms.Quicksand.TrySpawnQuicksandReaction(block.Index, header))
         {

@@ -47,7 +47,7 @@ internal sealed class EyeDoorPlms : IPlmFamilySource
         RoomLevelData level,
         PlmSlot slot)
     {
-        (EyeDoorComponent component, EyeDoorOrientation orientation) = slot.HeaderPointer switch
+        (EyeDoorComponent component, EyeDoorOrientation orientation) = slot.Header switch
         {
             PlmHeaderId.EyeDoorEyeFacingRight =>
                 new EyeDoorPart(EyeDoorComponent.Eye, EyeDoorOrientation.Right),
@@ -335,9 +335,9 @@ internal sealed class EyeDoorPlms : IPlmFamilySource
                 PlmHeaderId.ShotBlockScrewAttack or
                 PlmHeaderId.ShotBlockMorphBall or
                 PlmHeaderId.ShotBlockReserveTank => throw new ArgumentOutOfRangeException(
-                nameof(slot), slot.HeaderPointer, "Not an eye-door PLM header."),
+                nameof(slot), slot.Header, "Not an eye-door PLM header."),
             _ => throw new ArgumentOutOfRangeException(
-                nameof(slot), slot.HeaderPointer, "Not an eye-door PLM header."),
+                nameof(slot), slot.Header, "Not an eye-door PLM header."),
         };
         slot.Family = new EyeDoorPlmState(component);
         slot.StartAnimation(new EyeDoorPlmAnimation(orientation, component,
@@ -494,13 +494,13 @@ internal sealed class EyeDoorPlms : IPlmFamilySource
     /// <summary>Sends an eye-door projectile request with the source block and room argument to enemy services.</summary>
     private void SpawnEyeDoorProjectile(
         PlmSlot slot,
-        EyeDoorProjectileDefinition definitionPointer,
+        EyeDoorProjectileDefinition definition,
         ushort parameter)
     {
         IEyeDoorProjectileSpawner enemies = _enemies ??
             throw new InvalidOperationException("Eye-door bytecode has no bank-$86 spawn owner.");
         enemies.SpawnEyeDoorProjectile(new EyeDoorProjectileRequest(
-            definitionPointer,
+            definition,
             parameter,
             slot.BlockIndex,
             slot.RoomArgument));

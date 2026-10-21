@@ -17,7 +17,7 @@ internal static class LookupAnimatedHeadersVerification
     internal static void VerifySimpleAnimationObjectDomain()
     {
         AssertTrue(OriginalSimpleAnimationObjects.SequenceEqual(
-            RoomFxAnimatedTileMechanicsDefinitions.All.Select(x => (ushort)x.ObjectPointer)),
+            RoomFxAnimatedTileMechanicsDefinitions.All.Select(x => (ushort)x.AnimatedObject)),
             "Original seven-object enumeration order");
         var original = OriginalSimpleAnimationObjects.ToHashSet();
         foreach (AnimatedTileObject header in Enum.GetValues<AnimatedTileObject>())
@@ -26,7 +26,7 @@ internal static class LookupAnimatedHeadersVerification
             bool resolved = RoomFxAnimatedTileMechanicsDefinitions.TryResolve(header, out var definition);
             AssertEqual(original.Contains(pointer), resolved, "Simple animation full identity domain");
             if (resolved)
-                AssertEqual(pointer, (ushort)(definition ?? throw new InvalidOperationException("Verification requires definition.")).ObjectPointer, "Selected native object identity");
+                AssertEqual(pointer, (ushort)(definition ?? throw new InvalidOperationException("Verification requires definition.")).AnimatedObject, "Selected native object identity");
             else
                 AssertTrue(definition is null, "Unknown simple animation preserves null output");
         }
@@ -50,7 +50,7 @@ internal static class LookupAnimatedHeadersVerification
     private static void VerifySimpleAnimationHeaderField(SuperMetroidAddressSpace rom, int offset,
         Func<RoomFxAnimatedTileObjectDefinition, ushort> field)
     {
-        var enumerated = RoomFxAnimatedTileMechanicsDefinitions.All.ToDictionary(x => x.ObjectPointer);
+        var enumerated = RoomFxAnimatedTileMechanicsDefinitions.All.ToDictionary(x => x.AnimatedObject);
         foreach (ushort pointer in OriginalSimpleAnimationObjects)
         {
             ushort expected = ReadVerificationWord(rom, (0x870000 | pointer) + offset);

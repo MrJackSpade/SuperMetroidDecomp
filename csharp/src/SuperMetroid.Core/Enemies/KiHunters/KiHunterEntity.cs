@@ -8,11 +8,11 @@ internal sealed class KiHunterEntity(KiHunterBehavior species, RoomEnemySlot slo
     : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation, IEnemyPrivateShotCallback
 {
     /// <inheritdoc/>
-    public EnemyInitializationAiHandler? FindInitialization() => KiHunterPartDefinitions.Parts[Slot.EnemyDefinitionPointer] switch
+    public EnemyInitializationAiHandler? FindInitialization() => KiHunterPartDefinitions.Parts[Slot.DefinitionId] switch
     {
         KiHunterPart.KihunterGreen or KiHunterPart.KihunterYellow or KiHunterPart.KihunterRed => KiHunterBehavior.InitializeKiHunter,
         KiHunterPart.KihunterGreenWings or KiHunterPart.KihunterYellowWings or KiHunterPart.KihunterRedWings => species.InitializeKiHunterWings,
-        _ => throw new InvalidOperationException($"KiHunter entity bound to {Slot.EnemyDefinitionPointer}."),
+        _ => throw new InvalidOperationException($"KiHunter entity bound to {Slot.DefinitionId}."),
     };
 
     /// <inheritdoc/>
@@ -24,5 +24,5 @@ internal sealed class KiHunterEntity(KiHunterBehavior species, RoomEnemySlot slo
     /// <summary>The Ki-Hunter body's own shot callback, which normal bombs dispatch like the common one; the wings own none.</summary>
     /// <param name="callback">The named callback the selected pointer decodes to, or null.</param>
     public bool OwnsPrivateShotCallback(EnemyInteractionCallback? callback) =>
-        KiHunterBehavior.IsKiHunterBodyDefinition(Slot.EnemyDefinitionPointer) && callback == EnemyInteractionCallback.KiHunterShot;
+        KiHunterBehavior.IsKiHunterBodyDefinition(Slot.DefinitionId) && callback == EnemyInteractionCallback.KiHunterShot;
 }

@@ -20,7 +20,7 @@ internal static class BoulderBehaviorVerification
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.Boulder, slot.Definition);
-        slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = BoulderFrameToolingDefinitions.Bank });
+        slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition) with { Bank = BoulderFrameToolingDefinitions.Bank });
         slot.CurrentInstruction = 8;
         slot.SetSpawnParameter1(256);
         slot.SetSpawnParameter2(264);

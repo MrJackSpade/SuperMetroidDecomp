@@ -233,9 +233,9 @@ internal static class InstallationOverrideLifecycleVerification
         samples[0] = unchecked((short)(samples[0] ^ 1));
         string replacement = Path.Combine(installation.Root, "replacement-song.wav");
         PcmWaveFile.WriteStereoPcm16(replacement, clips.Manifest.SampleRate, samples);
-        _ = AudioAssetOverrideInstaller.Replace(installation, ClipAudioOverrides.MusicId(song.Bank, song.Track), replacement, song.LoopStart);
+        _ = AudioAssetOverrideInstaller.Replace(installation, ClipAudioOverrides.MusicId(song.AudioSet, song.Track), replacement, song.LoopStart);
         File.Delete(replacement);
-        return new(standard, font, selectedColor, song.Bank, song.Track, samples[0]);
+        return new(standard, font, selectedColor, song.AudioSet, song.Track, samples[0]);
     }
 
     /// <summary>Changes the first indexed pixel of an override PNG and returns its encoded SNES tile bytes.</summary>

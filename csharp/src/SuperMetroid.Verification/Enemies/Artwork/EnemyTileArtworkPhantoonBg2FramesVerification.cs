@@ -217,7 +217,7 @@ internal static class EnemyTileArtworkPhantoonBg2FramesVerification
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance) { TileArtwork = art?.Enemies, BossArtwork = art?.Bosses, AreaArtwork = art?.Areas };
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.PhantoonBody, slot.Definition);
-        slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with
+        slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition) with
         {
             Bank = PhantoonBg2FrameDefinitionsConstants.Bank,
         });
@@ -240,7 +240,7 @@ internal static class EnemyTileArtworkPhantoonBg2FramesVerification
         enemies.Drawing.Enqueue(0, 0);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.PhantoonBody, slot.Definition);
-        slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with
+        slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition) with
         {
             Bank = PhantoonBg2FrameDefinitionsConstants.Bank,
         });

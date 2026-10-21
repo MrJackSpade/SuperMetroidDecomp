@@ -467,7 +467,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
         // still execute once and read the cleared common words. Validate authored
         // identities at initialization, then retain the established physical alias.
         if ((uint)targetIndex >= _slotTable.Slots.Count ||
-            (_slotTable.Slots[targetIndex].EnemyDefinitionPointer != expectedDefinition &&
+            (_slotTable.Slots[targetIndex].DefinitionId != expectedDefinition &&
                 (initializing || _slotTable.Slots[targetIndex].SpeciesState<EvirEnemyState>() is null)))
         {
             throw new InvalidDataException(
@@ -519,7 +519,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Runs the shared post-common Evir combat tail after bomb hits.</summary>
     internal void RegisterEvirBombReactions(EnemySharedReactions table)
     {
-        table.AddBombCommon(new EnemyBombReaction(c => c.Enemy.EnemyDefinitionPointer == EnemyDefinitionId.Evir &&
+        table.AddBombCommon(new EnemyBombReaction(c => c.Enemy.DefinitionId == EnemyDefinitionId.Evir &&
                                                        c.SelectedShotAi == EnemyInteractionCallback.EvirShot)
         {
             AfterCommon = c => ResolveEvirCombatAfterCommon(c.Enemy),
@@ -567,7 +567,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
         // Touch and shot collision lists exclude the arms through property $0400, but $A0:A306's power-bomb walker
         // does not. Both body and arms therefore dispatch $A8:8B0C and its intentionally physical +$40/+80 follow-up
         // aliases.
-        table.AddPowerBomb(new EnemyPowerBombReaction(enemy => enemy.EnemyDefinitionPointer == EnemyDefinitionId.Evir &&
+        table.AddPowerBomb(new EnemyPowerBombReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.Evir &&
                                                                EnemyCollision.PowerBombReaction(enemy) == EnemyInteractionCallback.EvirPowerBomb)
         {
             AfterCommon = (enemy, _) => ResolveEvirCombatAfterCommon(enemy),
@@ -579,7 +579,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         // Evir's bank-$A8 shot tail runs after every accepted common shot, including the $FF ice result. That is
         // where the body copies the newly installed frozen timer to its arms and attached (idle) spit.
-        table.AddShot(new EnemyShotReaction(enemy => enemy.EnemyDefinitionPointer == EnemyDefinitionId.Evir &&
+        table.AddShot(new EnemyShotReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.Evir &&
                                                      enemy.Spawn.Population.Parameter1 == 0 &&
                                                      EnemyCollision.ShotAi(enemy) == EnemyInteractionCallback.EvirShot)
         {
@@ -590,7 +590,7 @@ internal sealed class EvirBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Runs common body contact and then Evir's physical-slot combat follow-up.</summary>
     internal void RegisterEvirTouch(EnemySharedReactions table)
     {
-        table.AddTouch(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Evir &&
+        table.AddTouch(slot => slot.DefinitionId == EnemyDefinitionId.Evir &&
                                slot.Spawn.Population.Parameter1 == 0 &&
                                EnemyCollision.TouchAi(slot) == EnemyInteractionCallback.EvirTouch,
             context =>

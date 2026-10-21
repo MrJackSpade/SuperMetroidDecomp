@@ -43,7 +43,7 @@ internal static class DraygonGoopDropsVerification
         AssertEqual(2, burstMaps.Count, "retail goop burst displays both spritemaps");
         enemies.StepEnemyProjectiles(runtime.Room.LoadedLevelData, runtime.Player.Samus);
         AssertTrue(!goop.IsActive, "drop callback returns into native goto/delete tail");
-        var pickup = enemies.Projectiles.EnemyProjectiles.Single(projectile => projectile.EnemyHeaderPointer == EnemyDefinitionId.DraygonEye);
+        var pickup = enemies.Projectiles.EnemyProjectiles.Single(projectile => projectile.DropDefinitionId == EnemyDefinitionId.DraygonEye);
         AssertTrue(pickup.IsActive && pickup.SpritemapPointer != 0,
             "critical-energy drop becomes a live rendered pickup in the same handler pass");
         AssertEqual(120, pickup.Position.X.Whole, "drop uses destroyed goop world X");
@@ -51,7 +51,7 @@ internal static class DraygonGoopDropsVerification
         AssertEqual(goop.SlotIndex - 1, pickup.SlotIndex,
             "drop allocation occurs before parent deletion in the descending shared pool");
         enemies.StepEnemyProjectiles(runtime.Room.LoadedLevelData, runtime.Player.Samus);
-        AssertEqual(1, enemies.Projectiles.EnemyProjectiles.Count(projectile => projectile.EnemyHeaderPointer == EnemyDefinitionId.DraygonEye),
+        AssertEqual(1, enemies.Projectiles.EnemyProjectiles.Count(projectile => projectile.DropDefinitionId == EnemyDefinitionId.DraygonEye),
             "deleted goop cannot repeatedly spawn its drop");
         Console.WriteLine("Draygon goop: two burst images, native drop timing/header/position/slot, and deletion pass.");
     }

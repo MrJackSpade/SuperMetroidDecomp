@@ -26,7 +26,7 @@ internal static class PirateHitboxShotActions
             throw new InvalidDataException(
                 $"Space Pirate hitbox shot AI {hitboxShotAi?.ToString() ?? "(unnamed)"} is not translated.");
         }
-        if (enemy.EnemyDefinitionPointer != EnemyDefinitionId.PirateGoldNinja)
+        if (enemy.DefinitionId != EnemyDefinitionId.PirateGoldNinja)
             return PirateHitboxShotAction.Normal;
 
         SamusProjectileFamily family = projectile.PackedType.Family;
@@ -86,7 +86,7 @@ internal static class PirateHitboxShotActions
                 $"Space Pirate normal-bomb hitbox AI {hitboxShotAi?.ToString() ?? "(unnamed)"} is not translated.");
         }
 
-        return enemy.EnemyDefinitionPointer == EnemyDefinitionId.PirateGoldNinja
+        return enemy.DefinitionId == EnemyDefinitionId.PirateGoldNinja
             ? PirateHitboxShotAction.Ignore
             : PirateHitboxShotAction.Normal;
     }

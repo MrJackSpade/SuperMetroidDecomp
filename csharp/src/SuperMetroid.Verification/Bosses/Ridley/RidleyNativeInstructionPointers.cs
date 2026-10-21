@@ -48,9 +48,9 @@ internal sealed class RidleyNativeInstructionPointers
     /// </summary>
     internal ushort Enemy(RoomEnemySystem enemies, RoomEnemySlot actor)
     {
-        if (RidleyInteractions.IsRidleyDefinition(actor.EnemyDefinitionPointer))
+        if (RidleyInteractions.IsRidleyDefinition(actor.DefinitionId))
             return Body(RequireRidley(enemies));
-        if (actor.EnemyDefinitionPointer == EnemyDefinitionId.RidleyExplosion)
+        if (actor.DefinitionId == EnemyDefinitionId.RidleyExplosion)
         {
             if (!RequireRidley(enemies).BreakupPrograms.TryGetValue(actor.SlotIndex, out AnimationProgramCursor<RidleyBreakupFrame> cursor))
                 throw new InvalidOperationException($"Ridley breakup fragment in slot {actor.SlotIndex} has no program.");

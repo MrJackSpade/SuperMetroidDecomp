@@ -34,7 +34,7 @@ internal sealed class DraygonCannonPlms : IPlmFamilySource
     /// <summary>Captures cannon orientation and its enemy control word, installing shootable terrain unless the cannon starts destroyed.</summary>
     internal static void SetupDraygonCannonSlot(RoomLevelData level, PlmSlot slot)
     {
-        DraygonCannonOrientation orientation = slot.HeaderPointer switch
+        DraygonCannonOrientation orientation = slot.Header switch
         {
             PlmHeaderId.DraygonCannonFacingRight or
                 PlmHeaderId.DraygonCannonFacingRightDestroyed =>
@@ -317,21 +317,21 @@ internal sealed class DraygonCannonPlms : IPlmFamilySource
                 PlmHeaderId.ShotBlockScrewAttack or
                 PlmHeaderId.ShotBlockMorphBall or
                 PlmHeaderId.ShotBlockReserveTank => throw new ArgumentOutOfRangeException(
-                nameof(slot), slot.HeaderPointer, "Not a retail Draygon cannon header."),
+                nameof(slot), slot.Header, "Not a retail Draygon cannon header."),
             _ => throw new ArgumentOutOfRangeException(
-                nameof(slot), slot.HeaderPointer, "Not a retail Draygon cannon header."),
+                nameof(slot), slot.Header, "Not a retail Draygon cannon header."),
         };
 
         ushort variablePointer = checked((ushort)slot.RoomArgument);
         if (!DraygonCannonWorkRamAddresses.TryDecode(variablePointer, out DraygonCannonControlWord controlWord))
         {
             throw new InvalidDataException(
-                $"Draygon cannon header $84:{(int)slot.HeaderPointer:X4} has invalid control " +
+                $"Draygon cannon header $84:{(int)slot.Header:X4} has invalid control " +
                 $"word ${variablePointer:X4}.");
         }
 
         slot.Family = new DraygonCannonPlmState(controlWord);
-        if (slot.HeaderPointer == PlmHeaderId.DraygonCannonFacingRightDestroyed)
+        if (slot.Header == PlmHeaderId.DraygonCannonFacingRightDestroyed)
         {
             // Setup $DF4C only moves the original argument to PLM_Variable and seeds three.
             // Its list begins at the damage instruction, which owns the terrain mutation.

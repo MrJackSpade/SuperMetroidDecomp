@@ -67,7 +67,7 @@ internal static class DoorAlignmentVerification
                 PlmBlock: new(0, 0),
                 DestinationScreen: new(3, 2),
                 SamusDistance: 0x0100,
-                SetupCodePointer: DoorSetupCode.None);
+                SetupCode: DoorSetupCode.None);
             DoorOpeningScrollState transition = DoorOpeningScrollState.Create(
                 door,
                 source,

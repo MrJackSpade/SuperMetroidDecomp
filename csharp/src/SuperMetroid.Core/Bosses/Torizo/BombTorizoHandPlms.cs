@@ -45,7 +45,7 @@ internal sealed class BombTorizoHandPlms
     /// translated family owns a slot, only whether one of forty header words matches.
     /// </summary>
     public bool HasActiveHeader(PlmHeaderId header) =>
-        _slotTable.Slots.Any(slot => slot.Active && slot.HeaderPointer == header);
+        _slotTable.Slots.Any(slot => slot.Active && slot.Header == header);
 
     /// <summary>Runs setup $D606 after the generic room allocator has installed the header.</summary>
     internal void SetupBombTorizoHandSlot(
@@ -115,9 +115,9 @@ internal sealed class BombTorizoHandPlms
     /// <summary>Removes the hand's header and wake pre-instruction once its PLM has been deleted.</summary>
     internal static void MarkBombTorizoHandDeleted(PlmSlot slot)
     {
-        if (slot.HeaderPointer != PlmHeaderId.BombTorizoHand)
+        if (slot.Header != PlmHeaderId.BombTorizoHand)
             return;
-        slot.HeaderPointer = 0;
+        slot.Header = 0;
         slot.PreInstruction = PlmPreInstructions.Inert;
     }
 }

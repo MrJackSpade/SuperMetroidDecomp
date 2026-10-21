@@ -16,32 +16,32 @@ internal sealed class RidleyEntity(
         IEnemyExtendedHitboxes, IEnemyContactHooks, IEnemyShotAdmission, IEnemyDrawHooks, IEnemyPrivateShotCallback
 {
     /// <summary>Whether the occupant is one of the two Ridley bodies rather than the breakup actor.</summary>
-    private bool IsBody => Slot.EnemyDefinitionPointer is EnemyDefinitionId.Ridley or EnemyDefinitionId.RidleyCeres;
+    private bool IsBody => Slot.DefinitionId is EnemyDefinitionId.Ridley or EnemyDefinitionId.RidleyCeres;
 
     /// <inheritdoc/>
-    public EnemyInitializationAiHandler? FindInitialization() => RidleyPartDefinitions.Parts[Slot.EnemyDefinitionPointer] switch
+    public EnemyInitializationAiHandler? FindInitialization() => RidleyPartDefinitions.Parts[Slot.DefinitionId] switch
     {
         RidleyPart.Ridley => ridley.Combat.InitializeNorfairRidley,
         RidleyPart.Ceres => ceres.Flight.InitializeCeresRidley,
         RidleyPart.Explosion => ridley.Death.RunRidleyExplosionInitializationAi,
-        _ => throw new InvalidOperationException($"Ridley entity bound to {Slot.EnemyDefinitionPointer}."),
+        _ => throw new InvalidOperationException($"Ridley entity bound to {Slot.DefinitionId}."),
     };
 
     /// <inheritdoc/>
-    public EnemyMainAiHandler? FindMain() => RidleyPartDefinitions.Parts[Slot.EnemyDefinitionPointer] switch
+    public EnemyMainAiHandler? FindMain() => RidleyPartDefinitions.Parts[Slot.DefinitionId] switch
     {
         RidleyPart.Ridley => ridley.RunRidleyMainAi,
         RidleyPart.Ceres => ceres.RunCeresRidleyMainAi,
         RidleyPart.Explosion => (enemy, _) => ridley.Death.RunNorfairRidleyExplosionMain(enemy),
-        _ => throw new InvalidOperationException($"Ridley entity bound to {Slot.EnemyDefinitionPointer}."),
+        _ => throw new InvalidOperationException($"Ridley entity bound to {Slot.DefinitionId}."),
     };
 
     /// <inheritdoc/>
-    public Action<RoomEnemySlot, EnemyInstructionContext>? FindTypedAnimation() => RidleyPartDefinitions.Parts[Slot.EnemyDefinitionPointer] switch
+    public Action<RoomEnemySlot, EnemyInstructionContext>? FindTypedAnimation() => RidleyPartDefinitions.Parts[Slot.DefinitionId] switch
     {
         RidleyPart.Ridley or RidleyPart.Ceres => ridley.Animation.AdvanceRidleyBodyTypedAnimation,
         RidleyPart.Explosion => (enemy, _) => ridley.Animation.AdvanceRidleyBreakupAnimation(enemy),
-        _ => throw new InvalidOperationException($"Ridley entity bound to {Slot.EnemyDefinitionPointer}."),
+        _ => throw new InvalidOperationException($"Ridley entity bound to {Slot.DefinitionId}."),
     };
 
     /// <inheritdoc/>
@@ -67,7 +67,7 @@ internal sealed class RidleyEntity(
     }
 
     /// <summary>Ceres Ridley never enters the ordinary shot pass; its encounter resolves its own shots.</summary>
-    public bool AdmitsShots() => Slot.EnemyDefinitionPointer != EnemyDefinitionId.RidleyCeres;
+    public bool AdmitsShots() => Slot.DefinitionId != EnemyDefinitionId.RidleyCeres;
 
     /// <summary>Ridley's AI publishes the common writer's palette: its body, wings and tail share one latched phase.</summary>
     public ushort? CommonDrawPaletteIndex() => IsBody ? encounter.Ridley?.CommonDrawPaletteIndex.Raw : null;
@@ -84,7 +84,7 @@ internal sealed class RidleyEntity(
     /// breakup actor's take neither.
     /// </summary>
     public override EnemyCapabilities Capabilities =>
-        Slot.EnemyDefinitionPointer == EnemyDefinitionId.Ridley ? EnemyCapabilities.ExtendedProjectileHitboxes : EnemyCapabilities.None;
+        Slot.DefinitionId == EnemyDefinitionId.Ridley ? EnemyCapabilities.ExtendedProjectileHitboxes : EnemyCapabilities.None;
 
     /// <summary>Both Ridley bodies' shot callback, which normal bombs dispatch like the common one.</summary>
     /// <param name="callback">The named callback the selected pointer decodes to, or null.</param>

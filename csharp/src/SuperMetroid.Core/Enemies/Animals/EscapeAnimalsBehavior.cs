@@ -16,11 +16,11 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
     public IReadOnlyList<EnemyDefinitionId> Definitions { get; } = [.. EscapeAnimalsPartDefinitions.Parts.Keys];
 
     /// <inheritdoc/>
-    public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => EscapeAnimalsPartDefinitions.Parts[slot.EnemyDefinitionPointer] switch
+    public IEnemyEntity Create(RoomEnemySlot slot, EnemyCommonParticipation common) => EscapeAnimalsPartDefinitions.Parts[slot.DefinitionId] switch
     {
         EscapeAnimalsPart.EtecoonEscape => new EscapeEtecoonEntity(this, slot, common),
         EscapeAnimalsPart.DachoraEscape => new EscapeDachoraEntity(this, slot, common),
-        _ => throw new InvalidOperationException($"Escape animals do not own {slot.EnemyDefinitionPointer}."),
+        _ => throw new InvalidOperationException($"Escape animals do not own {slot.DefinitionId}."),
     };
 
     /// <summary>Provides room events and live Samus state used by both escape-animal branches.</summary>
@@ -167,7 +167,7 @@ internal sealed class EscapeAnimalsBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         if (!EnemyProgramAnimation.Expire(slot))
             return;
-        if (slot.EnemyDefinitionPointer == EnemyDefinitionId.EtecoonEscape)
+        if (slot.DefinitionId == EnemyDefinitionId.EtecoonEscape)
         {
             EscapeEtecoonEnemyState state = slot.RequireSpeciesState<EscapeEtecoonEnemyState>();
             AnimationProgramCursor<EscapeEtecoonProgram> cursor = state.Program;

@@ -206,7 +206,7 @@ internal static class CrocomireBodyVisualsVerification
             enemies.Drawing.Enqueue(0, 0);
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.Bind(EnemyDefinitionId.Crocomire, slot.Definition);
-            slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with
+            slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition) with
                 { Bank = CrocomireBodyVisualToolingDefinitions.Bank });
             slot.ExtraProperties = slot.ExtraProperties.With(
                 EnemyExtraProperties.UsesExtendedSpritemap);

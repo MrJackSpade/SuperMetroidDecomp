@@ -45,7 +45,7 @@ internal static class BossDisplayBindingsFixtureVerification
             Enemies.Presentation.BindVram(BgArtworkFixtures.For(Vram));
             Enemies.Presentation.BindCgram(new SnesCgram());
             Actor.Bind(definition, Actor.Definition);
-            Actor.Bind(Actor.EnemyDefinitionPointer, RoomEnemyDefinitionCatalog.Get(definition));
+            Actor.Bind(Actor.DefinitionId, RoomEnemyDefinitionCatalog.Get(definition));
             Actor.Position = Actor.Position.WithWhole(new(128, 128));
             Actor.Health = Actor.Definition.Health;
             Actor.Radius = new(Actor.Definition.Radius.X, Actor.Definition.Radius.Y);

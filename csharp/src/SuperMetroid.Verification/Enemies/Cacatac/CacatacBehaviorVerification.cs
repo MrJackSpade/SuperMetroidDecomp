@@ -107,7 +107,7 @@ internal static class CacatacBehaviorVerification
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot slot = enemies.SlotTable.Slots[0];
         slot.Bind(EnemyDefinitionId.Cacatac, slot.Definition);
-        slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = CacatacFrameToolingDefinitions.Bank });
+        slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition) with { Bank = CacatacFrameToolingDefinitions.Bank });
         slot.SetSpawnParameter1(upsideUp ? CacatacNativeValues.UpsideUpParameter : (ushort)0);
         CacatacBehavior.InitializeCacatac(slot);
         return new CacatacBehaviorCreateResult(enemies, slot, enemies.CacatacStates[0] ?? throw new InvalidOperationException("Cacatac has no state."));

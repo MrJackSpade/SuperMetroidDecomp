@@ -686,7 +686,7 @@ internal sealed class NinjaSpacePirateBehavior : IEnemySpecies, IEnemyEntityFact
     /// <summary>Accepts gold ninja extended-hitbox bomb overlaps without damage or generic death.</summary>
     internal static void RegisterGoldNinjaPirateBombReactions(EnemySharedReactions table)
     {
-        table.AddBombSpecial(c => c.Enemy.EnemyDefinitionPointer == EnemyDefinitionId.PirateGoldNinja &&
+        table.AddBombSpecial(c => c.Enemy.DefinitionId == EnemyDefinitionId.PirateGoldNinja &&
                                   c.UsesExtendedHitboxes && c.SelectedShotAi != EnemyInteractionCallback.NormalEnemyShot,
             c =>
             {

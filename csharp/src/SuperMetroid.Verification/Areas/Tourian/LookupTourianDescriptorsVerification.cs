@@ -29,7 +29,7 @@ internal static class LookupTourianDescriptorsVerification
     private static void VerifyTourianStatueObjectDomain()
     {
         AssertTrue(OriginalTourianObjects.SequenceEqual(
-            TourianStatueAnimatedTileMechanicsDefinitions.All.Select(x => (ushort)x.ObjectPointer)),
+            TourianStatueAnimatedTileMechanicsDefinitions.All.Select(x => (ushort)x.AnimatedObject)),
             "Original statue descriptor enumeration order");
         var original = OriginalTourianObjects.ToHashSet();
         foreach (AnimatedTileObject header in Enum.GetValues<AnimatedTileObject>())
@@ -37,7 +37,7 @@ internal static class LookupTourianDescriptorsVerification
             ushort pointer = (ushort)header;
             bool found = TourianStatueAnimatedTileMechanicsDefinitions.TryResolveObjectHeader(header, out var definition);
             AssertEqual(original.Contains(pointer), found, "Complete statue object identity domain");
-            if (found) AssertEqual(pointer, (ushort)(definition ?? throw new InvalidOperationException("Verification requires definition.")).ObjectPointer, "Selected statue identity");
+            if (found) AssertEqual(pointer, (ushort)(definition ?? throw new InvalidOperationException("Verification requires definition.")).AnimatedObject, "Selected statue identity");
             else AssertTrue(definition is null, "Unknown statue preserves false/null contract");
         }
         foreach (ushort undefined in UndefinedAnimatedTileObjects)

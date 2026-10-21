@@ -92,7 +92,7 @@ internal static class NinjaSpacePiratePaletteArtworkVerification
             enemies.Presentation.BindCgram(colors);
             RoomEnemySlot slot = enemies.SlotTable.Slots[0];
             slot.Bind(EnemyDefinitionId.PirateGreyNinja, slot.Definition);
-            slot.Bind(slot.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = 0xb2 });
+            slot.Bind(slot.DefinitionId, default(RoomEnemyDefinition) with { Bank = 0xb2 });
             slot.Position = slot.Position.WithWhole(new(0x0100, 0x0100));
             slot.SetSpawnParameter2(0x0080);
             enemies.NinjaSpacePirateBehavior.InitializeNinjaSpacePirate(slot);

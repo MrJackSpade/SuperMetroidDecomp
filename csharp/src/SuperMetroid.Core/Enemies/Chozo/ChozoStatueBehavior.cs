@@ -151,7 +151,7 @@ internal sealed class ChozoStatueBehavior : IEnemySpecies, IEnemyEntityFactory
         Ensure.NotNull(level);
         _room.EnsureLoaded();
         RoomEnemySlot statue = _slotTable.Slots[0];
-        if (statue.EnemyDefinitionPointer != EnemyDefinitionId.Chozo)
+        if (statue.DefinitionId != EnemyDefinitionId.Chozo)
             throw new InvalidOperationException("Chozo hand trigger requires statue $F0FF in enemy slot zero.");
 
         ChozoStatueState state = statue.RequireSpeciesState<ChozoStatueState>();

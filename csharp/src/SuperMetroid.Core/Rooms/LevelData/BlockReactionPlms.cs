@@ -115,7 +115,7 @@ internal sealed class BlockReactionPlms
             return false;
 
         RoomCollisionBlock block = level.GetCollisionBlockByIndex(blockIndex);
-        slot.HeaderPointer =
+        slot.Header =
             RoomPlmHeaders.ContactCrumbleByReactionIndex(bts.NormalReactionIndex);
         slot.BlockIndex = blockIndex;
         RoomLevelWord restoreWord = block.PackedWord
@@ -173,7 +173,7 @@ internal sealed class BlockReactionPlms
             return false;
 
         RoomCollisionBlock block = level.GetCollisionBlockByIndex(blockIndex);
-        slot.HeaderPointer = definition.HeaderPointer;
+        slot.Header = definition.Header;
         slot.BlockIndex = blockIndex;
         slot.RestoreLevelWord = block.PackedWord
             .WithVisualBlockIndex(RoomPlmVisualBlockDefinitions.SpeedBoosterParent)

@@ -6,13 +6,13 @@ namespace SuperMetroid.Core.Rooms.Doors;
 internal static class DoorScrollPrograms
 {
     /// <summary>True when the setup code selects a translated pure scroll callback.</summary>
-    public static bool Contains(DoorSetupCode pointer) => DoorScrollProgramDefinitions.Writes(pointer) is not null;
+    public static bool Contains(DoorSetupCode setupCode) => DoorScrollProgramDefinitions.Writes(setupCode) is not null;
 
     /// <summary>Executes ordered scroll writes; setup routines without scroll writes leave the grid unchanged.</summary>
-    public static bool TryApply(DoorSetupCode pointer, RoomScrollGrid scrolls)
+    public static bool TryApply(DoorSetupCode setupCode, RoomScrollGrid scrolls)
     {
         Ensure.NotNull(scrolls);
-        if (DoorScrollProgramDefinitions.Writes(pointer) is not { } writes)
+        if (DoorScrollProgramDefinitions.Writes(setupCode) is not { } writes)
             return false;
         foreach (DoorScrollWrite write in writes)
             scrolls.SetStorage(write.ScrollIndex, write.State);

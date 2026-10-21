@@ -177,7 +177,7 @@ internal static class QuicksandVerification
             if (instruction)
                 AssertEqual(PlmProgramStartOracle.ForNativeList(native), actual.Program, $"quicksand header {(int)header:X4} program");
             else
-                AssertEqual(native, (ushort)actual.SetupPointer, $"quicksand header {(int)header:X4} setup");
+                AssertEqual(native, (ushort)actual.Setup, $"quicksand header {(int)header:X4} setup");
         }
     }
 
@@ -273,7 +273,7 @@ internal static class QuicksandVerification
             AssertEqual(true, bts.UsesAreaReactionTable, "special-air BTS sign selects area dispatch");
             AssertEqual((byte)index, bts.AreaReactionIndex, "special-air BTS clears its sign bit");
             SpecialAirReactionDefinition actual = resolve(area, bts.AreaReactionIndex);
-            AssertEqual(expected, setup ? (ushort)actual.SetupPointer : (ushort)actual.HeaderPointer,
+            AssertEqual(expected, setup ? (ushort)actual.Setup : (ushort)actual.Header,
                 $"special-air {nativePointers:X6} area {rawArea} index {index} setup {setup}");
         }
     }

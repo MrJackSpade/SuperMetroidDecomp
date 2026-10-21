@@ -13,11 +13,11 @@ internal sealed class BombTorizoEntity(BombTorizoBehavior species, RoomEnemySlot
     public EnemySurroundingsInitializationAiHandler? FindSurroundingsInitialization() => species.Movement.RunBombTorizoInitializationAi;
 
     /// <inheritdoc/>
-    public EnemyMainAiHandler? FindMain() => BombTorizoPartDefinitions.Parts[Slot.EnemyDefinitionPointer] switch
+    public EnemyMainAiHandler? FindMain() => BombTorizoPartDefinitions.Parts[Slot.DefinitionId] switch
     {
         BombTorizoPart.BombTorizo => species.RunBombTorizoMainAi,
         BombTorizoPart.GoldenTorizo => species.RunGoldenTorizoMainAi,
-        _ => throw new InvalidOperationException($"BombTorizo entity bound to {Slot.EnemyDefinitionPointer}."),
+        _ => throw new InvalidOperationException($"BombTorizo entity bound to {Slot.DefinitionId}."),
     };
 
     /// <inheritdoc/>
@@ -38,5 +38,5 @@ internal sealed class BombTorizoEntity(BombTorizoBehavior species, RoomEnemySlot
     /// <param name="callback">The named callback the selected pointer decodes to, or null.</param>
     public bool OwnsPrivateShotCallback(EnemyInteractionCallback? callback) =>
         callback is EnemyInteractionCallback.BombTorizoShot or EnemyInteractionCallback.TorizoStandUpSitDownShot ||
-        Slot.EnemyDefinitionPointer == EnemyDefinitionId.GoldenTorizo && callback == EnemyInteractionCallback.GoldenTorizoShot;
+        Slot.DefinitionId == EnemyDefinitionId.GoldenTorizo && callback == EnemyInteractionCallback.GoldenTorizoShot;
 }

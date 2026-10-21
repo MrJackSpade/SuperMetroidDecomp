@@ -30,8 +30,8 @@ internal static class CrocomireBodyCollisionDefinitionsVerification
         RoomEnemySlot compiledSlot = compiled.SlotTable.Slots[0];
         var boundDefinition = default(RoomEnemyDefinition) with
             { Bank = CrocomireBodyCollisionDefinitions.Bank };
-        nativeSlot.Bind(nativeSlot.EnemyDefinitionPointer, boundDefinition);
-        compiledSlot.Bind(compiledSlot.EnemyDefinitionPointer, boundDefinition);
+        nativeSlot.Bind(nativeSlot.DefinitionId, boundDefinition);
+        compiledSlot.Bind(compiledSlot.DefinitionId, boundDefinition);
         // The native side uses the independent test-side ROM walker. The
         // installed side selects Crocomire's compiled physical data.
         nativeSlot.Bind((EnemyDefinitionId)0xffff, nativeSlot.Definition);

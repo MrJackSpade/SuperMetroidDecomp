@@ -83,11 +83,11 @@ internal static class ChootFallingPathDefinitions
     ];
 
     /// <summary>Returns the exact physical sample of one falling path at one frame.</summary>
-    internal static ChootFallingPathPoint At(ChootFallingPath pointer, int frameIndex)
+    internal static ChootFallingPathPoint At(ChootFallingPath fallingPath, int frameIndex)
     {
         Offset16<RoomPixels>[] path;
         int expandedFrames = 0;
-        switch (pointer)
+        switch (fallingPath)
         {
             case ChootFallingPath.Normal:
                 path = Normal;
@@ -107,14 +107,14 @@ internal static class ChootFallingPathDefinitions
                 expandedFrames = VerySlowPlateauFrames;
                 break;
             default:
-                throw new InvalidOperationException($"Undefined ChootFallingPath {pointer}.");
+                throw new InvalidOperationException($"Undefined ChootFallingPath {fallingPath}.");
         }
 
         int sourceFrame = CollapseExpandedPlateaus(frameIndex, expandedFrames);
         if ((uint)sourceFrame >= (uint)path.Length)
         {
             throw new InvalidDataException(
-                $"Choot falling-pattern frame {frameIndex} exceeds stream ${(int)pointer:X4}.");
+                $"Choot falling-pattern frame {frameIndex} exceeds stream ${(int)fallingPath:X4}.");
         }
 
         return new ChootFallingPathPoint(path[sourceFrame]);

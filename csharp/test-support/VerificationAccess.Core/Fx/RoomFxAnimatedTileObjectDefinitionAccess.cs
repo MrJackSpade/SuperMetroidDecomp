@@ -14,11 +14,11 @@ internal static class RoomFxAnimatedTileObjectDefinitionAccess
         /// </summary>
         public bool TryReadMechanicsWord(ushort pointer, out ushort value)
         {
-            if (pointer == (ushort)self.ObjectPointer)
+            if (pointer == (ushort)self.AnimatedObject)
                 value = self.InstructionPointer;
-            else if (pointer == unchecked((ushort)((ushort)self.ObjectPointer + 2)))
+            else if (pointer == unchecked((ushort)((ushort)self.AnimatedObject + 2)))
                 value = self.TransferByteCount;
-            else if (pointer == unchecked((ushort)((ushort)self.ObjectPointer + 4)))
+            else if (pointer == unchecked((ushort)((ushort)self.AnimatedObject + 4)))
                 value = self.EncodedVramDestination;
             else if (pointer == self.GotoInstructionPointer)
                 value = (ushort)AnimatedTileInstruction.Goto;

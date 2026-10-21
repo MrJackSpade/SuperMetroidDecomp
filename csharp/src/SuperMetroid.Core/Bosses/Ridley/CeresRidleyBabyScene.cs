@@ -106,7 +106,7 @@ internal sealed class CeresRidleyBabyScene
         Position16<RoomPixels> camera)
     {
         RidleyEnemyState state = _ridleyEncounter.RequireRidley(slot);
-        if ((slot.EnemyDefinitionPointer == EnemyDefinitionId.RidleyCeres && _ridleyEncounter.CeresStatus != CeresEscapeStatus.RidleyNotEscaped) ||
+        if ((slot.DefinitionId == EnemyDefinitionId.RidleyCeres && _ridleyEncounter.CeresStatus != CeresEscapeStatus.RidleyNotEscaped) ||
             !state.MovementAnimationEnabled)
             return;
 
@@ -166,7 +166,7 @@ internal sealed class CeresRidleyBabyScene
         // The shared Ridley state also exists in Lower Norfair. Only Ceres
         // Ridley's initializer installs this private Baby/door draw path.
         if (_ridleyEncounter.Ridley is null ||
-            _slotTable.Slots[0].EnemyDefinitionPointer != EnemyDefinitionId.RidleyCeres ||
+            _slotTable.Slots[0].DefinitionId != EnemyDefinitionId.RidleyCeres ||
             _ridleyEncounter.Ridley.MovementAnimationEnabled)
             return;
 
@@ -187,7 +187,7 @@ internal sealed class CeresRidleyBabyScene
         Ensure.NotNull(objects);
         _room.EnsureLoaded();
         if (_ridleyEncounter.Ridley is null ||
-            _slotTable.Slots[0].EnemyDefinitionPointer != EnemyDefinitionId.RidleyCeres ||
+            _slotTable.Slots[0].DefinitionId != EnemyDefinitionId.RidleyCeres ||
             !_ridleyEncounter.Ridley.MovementAnimationEnabled)
             return;
 

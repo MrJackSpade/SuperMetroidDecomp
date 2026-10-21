@@ -205,7 +205,7 @@ public sealed class RoomPlmSystem : ISamusRoomPlms, IBossRoomPlms, IAreaRoomPlms
                 continue;
 
             (slot.Animation ?? throw new InvalidOperationException(
-                $"PLM slot {slotIndex} ({slot.HeaderPointer}) runs neither a typed program nor a family step.")).Advance(slot, context);
+                $"PLM slot {slotIndex} ({slot.Header}) runs neither a typed program nor a family step.")).Advance(slot, context);
         }
 
     }

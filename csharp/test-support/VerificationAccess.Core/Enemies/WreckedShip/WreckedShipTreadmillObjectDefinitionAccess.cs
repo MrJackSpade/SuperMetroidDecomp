@@ -26,7 +26,7 @@ internal static class WreckedShipTreadmillObjectDefinitionAccess
             int listIndex = self.FrameIndex(instructionPointer);
             if (listIndex < 0)
                 throw new InvalidDataException(
-                    $"Treadmill $87:{(int)self.ObjectPointer:X4} has no frame at $87:{instructionPointer:X4}.");
+                    $"Treadmill $87:{(int)self.AnimatedObject:X4} has no frame at $87:{instructionPointer:X4}.");
             return self.FrameSource(listIndex);
         }
         /// <summary>The terminal loop command after the fourth frame.</summary>
@@ -35,11 +35,11 @@ internal static class WreckedShipTreadmillObjectDefinitionAccess
         /// <summary>Reads one immutable mechanics word, excluding presentation source operands.</summary>
         public bool TryReadMechanicsWord(ushort pointer, out ushort value)
         {
-            if (pointer == (ushort)self.ObjectPointer)
+            if (pointer == (ushort)self.AnimatedObject)
                 value = self.WaitInstructionPointer;
-            else if (pointer == unchecked((ushort)(self.ObjectPointer + 2)))
+            else if (pointer == unchecked((ushort)(self.AnimatedObject + 2)))
                 value = WreckedShipTreadmillRomData.TransferByteCount;
-            else if (pointer == unchecked((ushort)(self.ObjectPointer + 4)))
+            else if (pointer == unchecked((ushort)(self.AnimatedObject + 4)))
                 value = WreckedShipTreadmillRomData.EncodedVramDestination;
             else if (pointer == self.WaitInstructionPointer)
                 value = (ushort)AnimatedTileInstruction.WaitUntilAreaBossIsDead;

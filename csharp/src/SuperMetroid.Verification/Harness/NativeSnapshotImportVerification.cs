@@ -264,7 +264,7 @@ internal static class NativeSnapshotImportVerification
             var slot = runtime.Enemies.SlotTable.Slots[index];
             int address = NativeSnapshotMemory.EnemyBase + index * 64;
             if (W(address) != 0)
-                AssertTrue((ushort)slot.EnemyDefinitionPointer == W(address), "initial enemy species agrees with room population");
+                AssertTrue((ushort)slot.DefinitionId == W(address), "initial enemy species agrees with room population");
             slot.Bind((EnemyDefinitionId)W(address), slot.Definition);
             slot.Position = FixedPosition<RoomPixels>.FromWords(W(address + 2), W(address + 4), W(address + 6), W(address + 8));
             slot.Radius = new(W(address + 10), W(address + 12));
@@ -290,7 +290,7 @@ internal static class NativeSnapshotImportVerification
             NativeEnemyFamilyStateImport.Import(runtime.Enemies, slot, words);
             // Kraid's head program is typed and kept in the encounter state; the recorded body word is its native cursor,
             // which only this import translates. Before the first attack the word names no head record and the head stays unstarted.
-            if (slot.EnemyDefinitionPointer == EnemyDefinitionId.Kraid && runtime.Enemies.KraidBehavior.Access.Kraid is { } kraid)
+            if (slot.DefinitionId == EnemyDefinitionId.Kraid && runtime.Enemies.KraidBehavior.Access.Kraid is { } kraid)
                 kraid.HeadProgram = kraidHeadCursors.TryCursorAt(words.B);
             // A Pipe Bug's animation runs as a typed program (#641): resume it where the recorded pointer stands.
             if (runtime.Enemies.PipeBugStates[index] is { } pipeBug)

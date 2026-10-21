@@ -205,7 +205,7 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
         // The native bank-$88 code addresses Enemy[1] and Eye.*+$40 literally. Refusing a
         // different layout catches a malformed/custom population instead of quietly aiming
         // the room-global beam from whichever actor happened to request it.
-        if (eye.SlotIndex != 1 || eye.EnemyDefinitionPointer != EnemyDefinitionId.Eye)
+        if (eye.SlotIndex != 1 || eye.DefinitionId != EnemyDefinitionId.Eye)
         {
             throw new InvalidDataException(
                 $"Morph-ball eye beam requires the body in retail enemy slot 1, got {eye.SlotIndex}.");
@@ -313,7 +313,7 @@ internal sealed class MorphBallEyeBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         int index = MorphBallEyeBeam.BodySlotIndex;
         if ((uint)index >= _slotTable.Slots.Count ||
-            _slotTable.Slots[index].EnemyDefinitionPointer != EnemyDefinitionId.Eye ||
+            _slotTable.Slots[index].DefinitionId != EnemyDefinitionId.Eye ||
             unchecked((short)_slotTable.Slots[index].Spawn.Population.Parameter2) < 0)
         {
             throw new InvalidDataException(

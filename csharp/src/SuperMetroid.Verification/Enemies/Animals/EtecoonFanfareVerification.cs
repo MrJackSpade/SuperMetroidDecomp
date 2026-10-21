@@ -22,7 +22,7 @@ internal static class EtecoonFanfareVerification
         {
             var slot = enemies.SlotTable.Slots[index];
             slot.Bind(EnemyDefinitionId.Etecoon, slot.Definition);
-            slot.Bind(slot.EnemyDefinitionPointer, RoomEnemyDefinitionCatalog.Get(slot.EnemyDefinitionPointer));
+            slot.Bind(slot.DefinitionId, RoomEnemyDefinitionCatalog.Get(slot.DefinitionId));
             slot.Health = slot.Definition.Health;
             slot.Radius = new(slot.Definition.Radius.X, slot.Definition.Radius.Y);
             slot.Position = slot.Position.WithWhole(new((ushort)(0x25f + index * 16), 0xb98));

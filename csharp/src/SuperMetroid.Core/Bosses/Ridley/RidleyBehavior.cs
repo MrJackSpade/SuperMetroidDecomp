@@ -496,7 +496,7 @@ internal sealed class RidleyBehavior : IEnemySpecies
     /// <remarks>$A6:B297 owns hurt frames instead of falling back to ordinary main AI. Movement/function work runs only
     /// on even actor frames, while tail projectile armor and hurt palettes remain live on every frame.</remarks>
     internal void RegisterRidleyHurtAi(EnemySharedReactions table) =>
-        table.AddHurt(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Ridley, (slot, frame) => RunNorfairRidleyHurt(
+        table.AddHurt(slot => slot.DefinitionId == EnemyDefinitionId.Ridley, (slot, frame) => RunNorfairRidleyHurt(
             slot,
             frame.Samus,
             frame.ControllerInput,

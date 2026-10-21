@@ -170,7 +170,7 @@ internal sealed class SkreeBehavior : IEnemySpecies, IEnemyEntityFactory
     /// common death animation releases the enemy slot.</remarks>
     internal void RegisterSkreeShotReactions(EnemySharedReactions table)
     {
-        table.AddShot(new EnemyShotReaction(enemy => enemy.EnemyDefinitionPointer == EnemyDefinitionId.Skree &&
+        table.AddShot(new EnemyShotReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.Skree &&
                                                      EnemyCollision.ShotAi(enemy) == EnemyInteractionCallback.SkreeShot)
         {
             BeforeGenericDeath = c => _projectiles.SpawnSkreeParticleBurst(c.Enemy),
@@ -182,7 +182,7 @@ internal sealed class SkreeBehavior : IEnemySpecies, IEnemyEntityFactory
     /// `NormalEnemyShotAiSkipDeathAnim`. A normal bomb selects death variant zero (only missiles select two).</remarks>
     internal void RegisterSkreeBombReactions(EnemySharedReactions table)
     {
-        table.AddBombCommon(new EnemyBombReaction(c => c.Enemy.EnemyDefinitionPointer == EnemyDefinitionId.Skree &&
+        table.AddBombCommon(new EnemyBombReaction(c => c.Enemy.DefinitionId == EnemyDefinitionId.Skree &&
                                                        c.SelectedShotAi == EnemyInteractionCallback.SkreeShot)
         {
             RunsGenericDeath = false,

@@ -347,7 +347,7 @@ public sealed class CartridgeAudioState
                 MusicTrackIndex = byte.MaxValue;
                 AudioUploadAssetDefinition upload =
                     AudioAssetCatalogDefinitions.ResolveDataIndex(dataIndex);
-                commands.Add(new CartridgeAudioCommand.Upload(upload.Bank));
+                commands.Add(new CartridgeAudioCommand.Upload(upload.AudioSet));
                 MusicTrackIndex = 0;
                 // `$80:8F89-$8FA2` retires the data entry and returns. The timer stays zero,
                 // so the next entry is fetched only on the following call when it underflows.

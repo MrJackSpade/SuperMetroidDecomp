@@ -5,5 +5,5 @@ namespace SuperMetroid.Core.Rooms.Plms;
 /// <c>$94:9139-$92F7</c> when Samus touches Speed Booster terrain.
 /// </summary>
 internal readonly record struct SpeedBoosterBlockPlmDefinition(
-    PlmHeaderId HeaderPointer,
+    PlmHeaderId Header,
     SpeedBoosterBlockProgram Program);

@@ -56,7 +56,7 @@ internal static class RinkaInstructionProgramDefinitionsVerification
         var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance);
         RoomEnemySlot rinka = enemies.SlotTable.Slots[0];
         rinka.Bind(EnemyDefinitionId.Rinka, rinka.Definition);
-        rinka.Bind(rinka.EnemyDefinitionPointer, default(RoomEnemyDefinition) with { Bank = 0xa2 });
+        rinka.Bind(rinka.DefinitionId, default(RoomEnemyDefinition) with { Bank = 0xa2 });
         rinka.SetSpawnParameter1(special ? (ushort)1 : (ushort)0);
         rinka.InstructionTimer = WrappingCountdown.Start(1);
 

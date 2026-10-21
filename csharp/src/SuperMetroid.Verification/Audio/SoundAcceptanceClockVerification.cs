@@ -128,7 +128,7 @@ internal static class SoundAcceptanceClockVerification
             if (command is CartridgeAudioCommand.Upload upload)
             {
                 ports.PauseForMusicLoad();
-                expected.Add(new AudioEvent.LoadAudioBank(upload.Bank));
+                expected.Add(new AudioEvent.LoadAudioBank(upload.AudioSet));
                 continue;
             }
             var write = AssertIs<CartridgeAudioCommand.WritePort>(command, "a cartridge audio command is an upload or a port write");

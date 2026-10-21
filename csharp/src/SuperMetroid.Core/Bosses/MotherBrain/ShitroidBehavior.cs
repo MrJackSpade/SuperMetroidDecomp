@@ -797,7 +797,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
     internal RoomEnemySlot RequireShitroidVictim(RoomEnemySlot slot)
     {
         int victimIndex = slot.SlotIndex + 1;
-        if ((uint)victimIndex >= _slotTable.Slots.Count || _slotTable.Slots[victimIndex].EnemyDefinitionPointer == 0)
+        if ((uint)victimIndex >= _slotTable.Slots.Count || _slotTable.Slots[victimIndex].DefinitionId == 0)
             throw new InvalidDataException("Shitroid's physical slot-one victim is missing.");
         return _slotTable.Slots[victimIndex];
     }
@@ -830,7 +830,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
         // `$A9:F842` reads damage from the selected physical projectile slot, but always reads aim coordinates from
         // ordinary slot zero. For a bomb collision that means family-$0500 damage controls recoil strength while
         // whatever stale/live shot occupies slot zero controls direction. It never enters vulnerability damage.
-        table.AddBombSpecial(c => c.Enemy.EnemyDefinitionPointer == EnemyDefinitionId.BabyMetroid &&
+        table.AddBombSpecial(c => c.Enemy.DefinitionId == EnemyDefinitionId.BabyMetroid &&
                                   c.SelectedShotAi == EnemyInteractionCallback.ShitroidShot,
             c => ResolveShitroidShot(c.Enemy, checked((ushort)c.Bomb.Damage), c.OrdinaryProjectiles.Slots[0]));
     }
@@ -895,7 +895,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Runs the private power-bomb callback in place of common enemy damage.</summary>
     internal void RegisterShitroidPowerBombReactions(EnemySharedReactions table)
     {
-        table.AddPowerBomb(new EnemyPowerBombReaction(enemy => enemy.EnemyDefinitionPointer == EnemyDefinitionId.BabyMetroid &&
+        table.AddPowerBomb(new EnemyPowerBombReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.BabyMetroid &&
                                                                EnemyCollision.PowerBombReaction(enemy) == EnemyInteractionCallback.ShitroidPowerBomb)
         {
             ReplacesCommon = ResolveShitroidPowerBomb,
@@ -905,7 +905,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Marks projectile collision and converts shot damage into recoil without vulnerability damage.</summary>
     internal void RegisterShitroidShotReactions(EnemySharedReactions table)
     {
-        table.AddShot(new EnemyShotReaction(enemy => enemy.EnemyDefinitionPointer == EnemyDefinitionId.BabyMetroid &&
+        table.AddShot(new EnemyShotReaction(enemy => enemy.DefinitionId == EnemyDefinitionId.BabyMetroid &&
                                                      EnemyCollision.ShotAi(enemy) == EnemyInteractionCallback.ShitroidShot)
         {
             // Like Dead Torizo, Shitroid receives the bank-$A0 projectile prelude but never creates an impact or
@@ -924,7 +924,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         // `$A9:F789` replaces normal touch damage entirely. Depending on its current cutscene state, contact either
         // starts pursuit/latching or adds a spin-jump recoil vector to the actor itself; Samus is never hurt here.
-        table.AddTouch(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.BabyMetroid &&
+        table.AddTouch(slot => slot.DefinitionId == EnemyDefinitionId.BabyMetroid &&
                                EnemyCollision.TouchAi(slot) == EnemyInteractionCallback.ShitroidTouch,
             context => ResolveShitroidTouch(context.Slot, context.Samus));
     }

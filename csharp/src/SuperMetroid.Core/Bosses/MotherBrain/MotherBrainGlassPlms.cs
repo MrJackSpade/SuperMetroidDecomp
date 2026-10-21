@@ -142,7 +142,7 @@ internal sealed class MotherBrainGlassPlms
         if ((uint)_motherBrainGlassSlotIndex < (uint)_slotTable.Slots.Count)
         {
             PlmSlot candidate = _slotTable.Slots[_motherBrainGlassSlotIndex];
-            if (candidate.Active && candidate.HeaderPointer == PlmHeaderId.MotherBrainGlass)
+            if (candidate.Active && candidate.Header == PlmHeaderId.MotherBrainGlass)
             {
                 slot = candidate;
                 return true;
@@ -155,13 +155,13 @@ internal sealed class MotherBrainGlassPlms
     /// <summary>Retains the glass hit count and clears the deleted slot's glass-only instruction identity.</summary>
     internal void OnPlmDeleted(PlmSlot slot)
     {
-        if (slot.HeaderPointer != PlmHeaderId.MotherBrainGlass)
+        if (slot.Header != PlmHeaderId.MotherBrainGlass)
             return;
         MotherBrainGlassLastRoomArgument = slot.RoomArgument;
         _motherBrainGlassSlotIndex = -1;
         // Deleted physical slots are reusable. Clear the family discriminator now so a
         // later ordinary PLM cannot accidentally inherit glass-only instruction dispatch.
-        slot.HeaderPointer = 0;
+        slot.Header = 0;
         slot.PreInstruction = PlmPreInstructions.Inert;
     }
 }

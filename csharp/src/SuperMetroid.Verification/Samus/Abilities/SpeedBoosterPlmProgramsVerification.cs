@@ -97,7 +97,7 @@ internal static class SpeedBoosterPlmProgramsVerification
                     definition.Program, "speed native selected list starts its typed program");
             }
             else
-                AssertEqual(header,(ushort)definition.HeaderPointer,"speed native selected header");
+                AssertEqual(header,(ushort)definition.Header,"speed native selected header");
         }
     }
 

@@ -8,19 +8,19 @@ internal sealed class GunshipEntity(GunshipBehavior species, RoomEnemySlot slot,
     : CommonParticipationEnemyEntity(slot, common), IEnemyInitialization, IEnemyMainAi, IEnemyTypedAnimation
 {
     /// <inheritdoc/>
-    public EnemyInitializationAiHandler? FindInitialization() => GunshipPartDefinitions.Parts[Slot.EnemyDefinitionPointer] switch
+    public EnemyInitializationAiHandler? FindInitialization() => GunshipPartDefinitions.Parts[Slot.DefinitionId] switch
     {
         GunshipPart.ShipTop => species.InitializeGunshipTop,
         GunshipPart.ShipBottomEntrance => species.InitializeGunshipBottom,
-        _ => throw new InvalidOperationException($"Gunship entity bound to {Slot.EnemyDefinitionPointer}."),
+        _ => throw new InvalidOperationException($"Gunship entity bound to {Slot.DefinitionId}."),
     };
 
     /// <inheritdoc/>
-    public EnemyMainAiHandler? FindMain() => GunshipPartDefinitions.Parts[Slot.EnemyDefinitionPointer] switch
+    public EnemyMainAiHandler? FindMain() => GunshipPartDefinitions.Parts[Slot.DefinitionId] switch
     {
         GunshipPart.ShipTop => species.RunGunshipMainAi,
         GunshipPart.ShipBottomEntrance => EnemyCommonParticipation.FindMain(Slot),
-        _ => throw new InvalidOperationException($"Gunship entity bound to {Slot.EnemyDefinitionPointer}."),
+        _ => throw new InvalidOperationException($"Gunship entity bound to {Slot.DefinitionId}."),
     };
 
     /// <inheritdoc/>

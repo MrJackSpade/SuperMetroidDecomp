@@ -23,7 +23,7 @@ internal static class SyntheticEnemyCartridgeFixturesVerification
         foreach (RoomEnemyPopulationRecord record in records)
         {
             WriteTestWords(bus, address,
-                (ushort)record.DefinitionPointer, record.Position.X, record.Position.Y,
+                (ushort)record.DefinitionId, record.Position.X, record.Position.Y,
                 checked((ushort)record.InitializationParameter), record.Properties.ToNativeWord(), record.ExtraProperties.ToNativeWord(),
                 checked((ushort)record.Parameter1), checked((ushort)record.Parameter2));
             address += 16;
@@ -43,7 +43,7 @@ internal static class SyntheticEnemyCartridgeFixturesVerification
         int address = 0xb40000 | tileset;
         foreach (RoomEnemyGraphicsSetHeader record in records)
         {
-            WriteTestWords(bus, address, (ushort)record.DefinitionPointer, record.NativePlacement);
+            WriteTestWords(bus, address, (ushort)record.DefinitionId, record.NativePlacement);
             address += 4;
         }
         WriteTestWord(bus, address, 0xffff);

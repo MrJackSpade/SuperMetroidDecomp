@@ -175,7 +175,7 @@ internal static class NoobTubePlmVerification
             AssertTrue(restored.Control.Mode.Beta != SamusBetaHandler.ScriptLocked, "generic unlock clears stale stationary ownership");
         }
         AssertEqual(1, projectiles.Count, "break sequence initially spawns only the crack");
-        AssertEqual(NoobTubeProjectileDefinition.Crack, projectiles[0].DefinitionPointer,
+        AssertEqual(NoobTubeProjectileDefinition.Crack, projectiles[0].Definition,
             "first spawned actor is the n00b-tube crack");
 
         // The first broken image lasts $30 frames. Two one-frame images follow, after which
@@ -185,11 +185,11 @@ internal static class NoobTubePlmVerification
         AssertEqual(17, projectiles.Count,
             "break burst contains one crack, ten shards, and six bubbles");
         AssertEqual(NoobTubeProjectileDefinition.Shard,
-            projectiles[1].DefinitionPointer, "burst begins with shard parameter zero");
+            projectiles[1].Definition, "burst begins with shard parameter zero");
         AssertEqual(0x12, projectiles[10].Parameter,
             "tenth shard retains the final even ROM parameter");
         AssertEqual(NoobTubeProjectileDefinition.ReleasedAirBubble,
-            projectiles[11].DefinitionPointer, "six bubbles follow all shards");
+            projectiles[11].Definition, "six bubbles follow all shards");
         AssertEqual(0x0a, projectiles[^1].Parameter,
             "sixth bubble retains the final even ROM parameter");
         AssertEqual(2, earthquakes.Count,

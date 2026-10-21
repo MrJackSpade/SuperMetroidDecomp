@@ -17,12 +17,12 @@ public abstract record AudioEvent
     {
     }
 
-    /// <summary>Installs <see cref="Bank"/> before the frame's driver ticks run; the driver's music port then reads empty.</summary>
-    /// <param name="Bank">The bank installed.</param>
-    public sealed record LoadAudioBank(AudioBank Bank) : AudioEvent
+    /// <summary>Installs <see cref="AudioSet"/> before the frame's driver ticks run; the driver's music port then reads empty.</summary>
+    /// <param name="AudioSet">The bank installed.</param>
+    public sealed record LoadAudioBank(AudioBank AudioSet) : AudioEvent
     {
         /// <inheritdoc />
-        public override string ToString() => $"load:{Bank}";
+        public override string ToString() => $"load:{AudioSet}";
     }
 
     /// <summary>

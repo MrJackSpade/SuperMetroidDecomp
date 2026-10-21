@@ -82,7 +82,7 @@ internal static class FrozenGateGlitchVerification
             "Caterpillar retail downward gate block");
 
         RoomEnemySlot[] zeros = runtime.Enemies.SlotTable.Slots
-            .Where(slot => slot.EnemyDefinitionPointer == EnemyDefinitionId.Zero)
+            .Where(slot => slot.DefinitionId == EnemyDefinitionId.Zero)
             .ToArray();
         AssertEqual(3, zeros.Length, "Caterpillar retains its three retail Zero enemies");
         RoomEnemySlot zero = zeros[0];

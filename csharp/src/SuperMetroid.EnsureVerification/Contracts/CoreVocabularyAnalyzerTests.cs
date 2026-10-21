@@ -1,0 +1,59 @@
+using SuperMetroid.EnsureAnalyzer.Contracts;
+using SuperMetroid.EnsureAnalyzer.Modules;
+using static SuperMetroid.EnsureVerification.Harness.AnalyzerTests;
+
+namespace SuperMetroid.EnsureVerification.Contracts;
+
+/// <summary>Checks the #1400 Core vocabulary rule, SME6438.</summary>
+internal static class CoreVocabularyAnalyzerTests
+{
+    /// <summary>One positive per hardware word, the near misses that share its letters, and the documentation allowance.</summary>
+    internal static void VerifyCoreVocabularyAnalyzer()
+    {
+        var analyzer = new CoreVocabularyAnalyzer();
+        void Expect(string source, string? message = null) =>
+            VerifySnippet(source, message is null ? null : CoreVocabularyAnalyzer.HardwareWordId, message, analyzer,
+                assemblyName: CoreLayerAnalyzer.CoreAssembly);
+
+        // Each word, in each kind of declaration the rule reads.
+        Expect("class SnesColor { }", "'SnesColor' names the hardware ('Snes')");
+        Expect("class P { int vramOffset; }", "'vramOffset' names the hardware ('Vram')");
+        Expect("class P { int CgramIndex { get; set; } }", "'CgramIndex' names the hardware ('Cgram')");
+        Expect("class P { void ClearOam() { } }", "'ClearOam' names the hardware ('Oam')");
+        Expect("class P { void Draw(int objSize) { } }", "'objSize' names the hardware ('Obj')");
+        Expect("class P { void Run() { int dmaLength = 0; _ = dmaLength; } }", "'dmaLength' names the hardware ('Dma')");
+        Expect("enum Effect { None, HdmaGradient }", "'HdmaGradient' names the hardware ('Hdma')");
+        Expect("class P { event System.Action? NmiStarted; }", "'NmiStarted' names the hardware ('Nmi')");
+        Expect("class Queue<TApuPort> { }", "'TApuPort' names the hardware ('Apu')");
+        Expect("namespace Audio.Spc { class P { } }", "'Spc' names the hardware ('Spc')");
+        Expect("class P { int Run() { int Echo(int dspValue) => dspValue; return Echo(0); } }", "'dspValue' names the hardware ('Dsp')");
+        Expect("class P { int Run() { int WramWord() => 0; return WramWord(); } }", "'WramWord' names the hardware ('Wram')");
+        Expect("class P { void Run(int[] values) { foreach (int ppuLine in values) { } } }", "'ppuLine' names the hardware ('Ppu')");
+        Expect("class P { void Run(object value) { if (value is int nativeWord) { } } }", "'nativeWord' names the hardware ('Native')");
+        Expect("record RomTable(int First);", "'RomTable' names the hardware ('Rom')");
+        Expect("class P { int Banked; }", "'Banked' names the hardware ('Bank')");
+        Expect("class P { int[] Pointers = []; }", "'Pointers' names the hardware ('Pointer')");
+        Expect("class P { void Run() { try { } catch (System.Exception addressing) { _ = addressing; } } }", "'addressing' names the hardware ('Address')");
+        Expect("interface ICartridgeSource { }", "'ICartridgeSource' names the hardware ('Cartridge')");
+        Expect("class Mode7Floor { }", "'Mode7Floor' names the hardware ('Mode7')");
+        Expect("using System.Linq; class P { int Run(int[] values) => (from register in values select register).Sum(); }",
+            "'register' names the hardware ('Register')");
+        // An acronym written in capitals is the same word.
+        Expect("class OAMBuffer { }", "'OAMBuffer' names the hardware ('Oam')");
+
+        // Words that merely share letters with a hardware word are the game's own.
+        Expect("class Objective { int Roman; int Banker; int Pointed; int Addressee; int Nativity; int Registry; int Dsplay; }");
+        Expect("class P { object Mode; int Mode8; }");
+        // A record's positional parameter and its property are one declaration, reported once.
+        Expect("record Span(int VramStart);", "'VramStart' names the hardware ('Vram')");
+        // A compatibility service may say in its documentation which hardware behaviour it reproduces.
+        Expect("""
+            sealed class CompatibilityServiceAttribute : System.Attribute { }
+            /// <summary>Reproduces when the sound program acknowledges a request, as the SPC port handshake did.</summary>
+            [CompatibilityService]
+            sealed class SoundAcceptanceClock { }
+            """);
+        // Outside Core the import pipeline may name the ROM.
+        VerifySnippet("class RomReader { }", analyzer: analyzer, assemblyName: "SuperMetroid.AssetExtraction");
+    }
+}

@@ -10,6 +10,9 @@ internal interface IEnemyPlmRequests
     /// <summary>Applies the Chozo statue PLM work the statues requested this frame.</summary>
     void ApplyPendingChozoStatuePlms(RoomLevelData level, ChozoStatuePlms chozoStatuePlms);
 
+    /// <summary>Starts the Chozo statue's hand sequence from the hand block Samus landed on.</summary>
+    void ActivateChozoStatueHandTrigger(RoomLevelData level, int collisionBlockIndex);
+
     /// <summary>Spawns or wakes the downward gate's projectile a gate PLM requested.</summary>
     void ApplyDownwardGateProjectileRequest(DownwardGateProjectileRequest request, int roomWidthInBlocks);
 }

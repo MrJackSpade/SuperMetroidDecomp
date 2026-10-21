@@ -99,7 +99,7 @@ internal sealed class TourianEntranceStatueBehavior : IEnemySpecies, IEnemyEntit
         if (projectile is null)
             return;
 
-        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(projectile, kind, graphicsIndex: 0);
+        TourianStatueProjectileStarts.Initialize(projectile, kind, graphicsIndex: 0);
         projectile.Position = projectile.Position.WithWhole(position);
         // The projectile's two general words retain the authored spawn coordinates.
         projectile.Variable0 = position.X;

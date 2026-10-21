@@ -5,7 +5,6 @@ using SuperMetroid.Core.Rooms.LevelData;
 using SuperMetroid.Core.Rooms.Plms;
 using SuperMetroid.Core.Samus;
 using SuperMetroid.Core.Samus.Poses;
-using SuperMetroid.Core.World;
 
 namespace SuperMetroid.Core.Enemies.Chozo;
 
@@ -27,17 +26,17 @@ internal sealed class ChozoStatuePlms : IChozoStatueHand
         _area = area;
         _slotTable = slotTable;
     }
-    /// <summary>Bound enemy owner for statue hand activation; reattached after room load or state restore.</summary>
-    [NonSerialized] private RoomEnemySystem? _chozoEnemies;
+    /// <summary>Bound enemy PLM requests for hand activation; reattached after room load or state restore.</summary>
+    [NonSerialized] private IEnemyPlmRequests? _chozoHands;
     /// <summary>Bound room FX owner for Lower Norfair acid height writes; reattached after restore.</summary>
     [NonSerialized] private RoomLayer3FxState? _chozoRoomFx;
 
     /// <summary>Connects the bank-$84 hand setup to the existing bank-$AA actor owner.</summary>
-    public void BindChozoStatueContext(RoomEnemySystem enemies, RoomLayer3FxState roomFx)
+    internal void BindChozoStatueContext(IEnemyPlmRequests hands, EnemyRoomFx enemyRoomFx, RoomLayer3FxState roomFx)
     {
-        _chozoEnemies = enemies;
+        _chozoHands = hands;
         _chozoRoomFx = roomFx;
-        enemies.RoomFx.BindRoomFx(roomFx);
+        enemyRoomFx.BindRoomFx(roomFx);
     }
 
     /// <summary>Runs the native one-shot special-block setup; the caller still clips to solid.</summary>
@@ -66,11 +65,11 @@ internal sealed class ChozoStatuePlms : IChozoStatueHand
         reaction.BlockIndex = block.Index;
         if (eligible)
         {
-            RoomEnemySystem enemies = _chozoEnemies ??
-                throw new InvalidOperationException("Chozo hand has no bound enemy owner.");
-            enemies.ChozoStatueBehavior.ActivateChozoStatueHandTrigger(level, block.Index);
+            IEnemyPlmRequests hands = _chozoHands ??
+                throw new InvalidOperationException("Chozo hand has no bound enemy PLM requests.");
+            hands.ActivateChozoStatueHandTrigger(level, block.Index);
             // The nested hardcoded spawn occurs while the reaction slot is occupied.
-            enemies.ChozoStatueBehavior.ApplyPendingChozoStatuePlms(level, this);
+            hands.ApplyPendingChozoStatuePlms(level, this);
         }
         reaction.Clear();
     }

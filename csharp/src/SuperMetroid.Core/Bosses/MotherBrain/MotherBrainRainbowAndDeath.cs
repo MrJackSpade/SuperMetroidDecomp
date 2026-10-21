@@ -147,7 +147,7 @@ internal sealed class MotherBrainRainbowAndDeath
             var subtitle = _projectiles.AllocateEnemyProjectile();
             if (subtitle is not null)
             {
-                EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(subtitle, RoomEnemyProjectileKind.MotherBrainEscapeSubtitle, graphicsIndex: 0);
+                MotherBrainProjectileStarts.Initialize(subtitle, RoomEnemyProjectileKind.MotherBrainEscapeSubtitle, graphicsIndex: 0);
                 MotherBrainProjectiles.PinMotherBrainEscapeSubtitle(subtitle);
             }
         }
@@ -207,7 +207,7 @@ internal sealed class MotherBrainRainbowAndDeath
         MiscDustProjectileProgram program = MotherBrainDeathExplosionDefinitions.Program(request.ProjectileParameter);
         var projectile = _projectiles.AllocateEnemyProjectile();
         if (projectile is null) return; // Native shared-pool exhaustion drops the spawn.
-        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(projectile, RoomEnemyProjectileKind.MotherBrainDeathExplosion, graphicsIndex: 0);
+        MotherBrainProjectileStarts.Initialize(projectile, RoomEnemyProjectileKind.MotherBrainDeathExplosion, graphicsIndex: 0);
         projectile.StartAnimation(new MiscDustProjectileAnimation(program));
         // The native initializer keeps the body-relative offset in the velocity words.
         projectile.Velocity = new EightEightVector<RoomPixels>(request.Offset.X, request.Offset.Y);
@@ -221,7 +221,7 @@ internal sealed class MotherBrainRainbowAndDeath
             MotherBrainDoorFragmentDefinitions.ForParameter(parameter);
         var fragment = _projectiles.AllocateEnemyProjectile();
         if (fragment is null) return;
-        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(fragment, RoomEnemyProjectileKind.MotherBrainEscapeDoorFragment, graphicsIndex: 0);
+        MotherBrainProjectileStarts.Initialize(fragment, RoomEnemyProjectileKind.MotherBrainEscapeDoorFragment, graphicsIndex: 0);
         fragment.Position = fragment.Position.WithWhole(new Position16<RoomPixels>(MotherBrainDeathRomData.DoorX, MotherBrainDeathRomData.DoorY) + definition.Offset);
         fragment.Velocity = definition.Velocity;
         fragment.Variable0 = MotherBrainDeathRomData.DoorFragmentLifetime;
@@ -433,7 +433,7 @@ internal sealed class MotherBrainRainbowAndDeath
         if (projectile is null)
             return;
 
-        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
+        MotherBrainProjectileStarts.Initialize(
             projectile,
             RoomEnemyProjectileKind.MotherBrainRainbowBeamExplosion,
             graphicsIndex: 0);

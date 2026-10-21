@@ -426,7 +426,7 @@ internal sealed class MotherBrainHead
         if (bomb is null)
             return;
 
-        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
+        MotherBrainProjectileStarts.Initialize(
             bomb,
             RoomEnemyProjectileKind.MotherBrainBomb,
             graphicsIndex: 1024);
@@ -457,7 +457,7 @@ internal sealed class MotherBrainHead
         if (ring is null)
             return;
 
-        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
+        MotherBrainProjectileStarts.Initialize(
             ring,
             RoomEnemyProjectileKind.MotherBrainOnionRing,
             graphicsIndex: 1024);
@@ -492,7 +492,7 @@ internal sealed class MotherBrainHead
         RoomEnemyProjectileKind kind = state.NeckAngleDelta < 128
             ? RoomEnemyProjectileKind.MotherBrainDrool
             : RoomEnemyProjectileKind.MotherBrainDyingDrool;
-        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(drool, kind, graphicsIndex: 0);
+        MotherBrainProjectileStarts.Initialize(drool, kind, graphicsIndex: 0);
         drool.Variable0 = (ushort)parameter;
 
         // SpawnEnemyProjectile runs initializer C843 immediately. It falls through into
@@ -508,7 +508,7 @@ internal sealed class MotherBrainHead
         if (breath is null)
             return;
 
-        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
+        MotherBrainProjectileStarts.Initialize(
             breath,
             RoomEnemyProjectileKind.MotherBrainPurpleBreathBig,
             graphicsIndex: 0);
@@ -523,7 +523,7 @@ internal sealed class MotherBrainHead
         if (breath is null)
             return;
 
-        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
+        MotherBrainProjectileStarts.Initialize(
             breath,
             RoomEnemyProjectileKind.MotherBrainPurpleBreathSmall,
             graphicsIndex: 0);
@@ -539,7 +539,7 @@ internal sealed class MotherBrainHead
         if (projectile is null)
             return;
 
-        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
+        MotherBrainProjectileStarts.Initialize(
             projectile,
             RoomEnemyProjectileKind.MotherBrainRainbowBeamCharging,
             graphicsIndex: 0);

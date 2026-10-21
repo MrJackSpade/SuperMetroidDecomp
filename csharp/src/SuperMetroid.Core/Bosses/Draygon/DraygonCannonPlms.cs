@@ -425,7 +425,7 @@ internal sealed class DraygonCannonPlms : IPlmFamilySource
 
     /// <summary>Per-slot cannon enemy control-word identity, destruction state, and queued hit flag.</summary>
     internal sealed class DraygonCannonPlmState(
-        DraygonCannonControlWord controlWord) : PlmFamilyState
+        DraygonCannonControlWord controlWord) : PlmFamilyState, IShotTriggeredPlm
     {
         /// <inheritdoc/>
         internal override PlmFamily Family => PlmFamily.DraygonCannon;
@@ -436,5 +436,8 @@ internal sealed class DraygonCannonPlms : IPlmFamilySource
         public bool Destroyed { get; set; }
         /// <summary>Indicates a projectile collision awaiting missile-family filtering.</summary>
         public bool HasPendingHit { get; set; }
+
+        /// <inheritdoc/>
+        public void RecordShot() => HasPendingHit = true;
     }
 }

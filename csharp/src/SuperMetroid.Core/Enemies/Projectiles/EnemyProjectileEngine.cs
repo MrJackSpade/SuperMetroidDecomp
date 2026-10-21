@@ -1,5 +1,4 @@
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Areas.Ceres;
 using SuperMetroid.Core.Enemies.Gunship;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Rooms.LevelData;
@@ -843,7 +842,7 @@ internal sealed class EnemyProjectileEngine
     /// <c>$8F:E525</c>. The X coordinate and palette variant come directly from the room's
     /// current RNG word; this initializer owns only bank-$86's projectile fields.
     /// </summary>
-    public void SpawnCeresFallingDebris(ushort xPosition, bool dark)
+    public void SpawnCeresFallingDebris(ushort xPosition, bool dark, EnemyProjectileAnimation animation)
     {
         _room.EnsureLoaded();
         RoomEnemyProjectileSlot? projectile = AllocateEnemyProjectile();
@@ -858,7 +857,7 @@ internal sealed class EnemyProjectileEngine
         projectile.Velocity = new(new SnesSignedEightEight(0), new SnesSignedEightEight(16));
         projectile.Variable0 = 0;
         projectile.Variable1 = 0;
-        projectile.StartAnimation(new CeresFallingDebrisAnimation(dark ? CeresFallingDebrisProgram.Dark : CeresFallingDebrisProgram.Light));
+        projectile.StartAnimation(animation);
     }
 
     /// <summary>Deletes a gunship dust cloud when its program ends.</summary>

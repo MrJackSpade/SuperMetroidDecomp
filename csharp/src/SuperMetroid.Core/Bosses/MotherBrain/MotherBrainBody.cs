@@ -399,7 +399,7 @@ internal sealed class MotherBrainBody
         if (beam is null)
             return;
 
-        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
+        MotherBrainProjectileStarts.Initialize(
             beam,
             RoomEnemyProjectileKind.MotherBrainHandBeamCharging,
             graphicsIndex: 64);
@@ -496,7 +496,7 @@ internal sealed class MotherBrainBody
         if (turret is null)
             return;
 
-        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
+        MotherBrainProjectileStarts.Initialize(
             turret,
             RoomEnemyProjectileKind.MotherBrainRoomTurret,
             MotherBrainTurretDefinitions.GraphicsIndex);

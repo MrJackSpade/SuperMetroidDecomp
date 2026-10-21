@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Hud.Artwork;
 namespace SuperMetroid.Core.Bosses.Kraid;
 
 /// <summary>
@@ -41,13 +42,13 @@ public static class KraidBackgroundRomData
     public const int StandardBg3TilesAddress = 0x9ab200;
 
     /// <summary>One of the four $0400-byte standard-BG3 transfers made during Kraid's death.</summary>
-    public const ushort StandardBg3TransferBytes = 0x0400;
+    public const ushort StandardBg3TransferBytes = HudTileAtlasFormat.RestoreQuarterBytes;
 
     /// <summary>First VRAM word restored by <c>$A7:C777</c>.</summary>
     public const ushort StandardBg3VramWord = 0x4000;
 
     /// <summary>Number of sequential standard-BG3 quarters restored by Kraid's death AI.</summary>
-    public const int StandardBg3TransferCount = 4;
+    public const int StandardBg3TransferCount = HudTileAtlasFormat.RestoreQuarterCount;
 
     /// <summary>The cartridge source of standard-BG3 quarter <paramref name="quarter"/>.</summary>
     public static int StandardBg3QuarterAddress(int quarter) => StandardBg3TilesAddress + quarter * StandardBg3TransferBytes;

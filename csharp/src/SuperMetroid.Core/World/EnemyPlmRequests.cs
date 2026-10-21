@@ -16,6 +16,10 @@ internal sealed class EnemyPlmRequests(ChozoStatueBehavior chozoStatue, Downward
         chozoStatue.ApplyPendingChozoStatuePlms(level, chozoStatuePlms);
 
     /// <inheritdoc/>
+    public void ActivateChozoStatueHandTrigger(RoomLevelData level, int collisionBlockIndex) =>
+        chozoStatue.ActivateChozoStatueHandTrigger(level, collisionBlockIndex);
+
+    /// <inheritdoc/>
     public void ApplyDownwardGateProjectileRequest(DownwardGateProjectileRequest request, int roomWidthInBlocks) =>
         downwardGate.ApplyDownwardGateProjectileRequest(request, roomWidthInBlocks);
 }

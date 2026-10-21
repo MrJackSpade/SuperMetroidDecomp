@@ -33,14 +33,14 @@ internal static class MotherBrainEffectBehaviorVerification
 
         RoomEnemySystem bombEnemies = CreateRoomEnemySystem();
         RoomEnemyProjectileSlot bomb = bombEnemies.Projectiles.EnemyProjectiles[^1];
-        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(bomb, RoomEnemyProjectileKind.MotherBrainBomb, 1024);
+        FamilyProjectileStarts.Initialize(bomb, RoomEnemyProjectileKind.MotherBrainBomb, 1024);
         RunForcedTicks(rom, bombEnemies, bomb, samus, 10);
         AssertTrue(bomb.IsActive && bomb.Animation is MotherBrainEffectAnimation { Cursor.Program: MotherBrainEffectProgram.Bomb },
             "room-system Mother Brain bomb keeps looping its program");
 
         RoomEnemySystem breathEnemies = CreateRoomEnemySystem();
         RoomEnemyProjectileSlot breath = breathEnemies.Projectiles.EnemyProjectiles[^1];
-        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(breath, RoomEnemyProjectileKind.MotherBrainPurpleBreathBig, 0);
+        FamilyProjectileStarts.Initialize(breath, RoomEnemyProjectileKind.MotherBrainPurpleBreathBig, 0);
         RunForcedTicks(rom, breathEnemies, breath, samus, 9);
         AssertTrue(!breath.IsActive, "room-system Mother Brain purple breath reaches its deletion");
 
@@ -92,14 +92,14 @@ internal static class MotherBrainEffectBehaviorVerification
 
         RoomEnemySystem fragmentEnemies = CreateRoomEnemySystem();
         RoomEnemyProjectileSlot fragment = fragmentEnemies.Projectiles.EnemyProjectiles[^1];
-        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(fragment, RoomEnemyProjectileKind.MotherBrainEscapeDoorFragment, 0);
+        FamilyProjectileStarts.Initialize(fragment, RoomEnemyProjectileKind.MotherBrainEscapeDoorFragment, 0);
         RunForcedTicks(rom, fragmentEnemies, fragment, samus, 9);
         AssertTrue(fragment.IsActive && fragment.Animation is MotherBrainEffectAnimation { Cursor.Program: MotherBrainEffectProgram.EscapeDoorParticle },
             "room-system Mother Brain escape fragment keeps looping its program");
 
         RoomEnemySystem subtitleEnemies = CreateRoomEnemySystem();
         RoomEnemyProjectileSlot subtitle = subtitleEnemies.Projectiles.EnemyProjectiles[^1];
-        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(subtitle, RoomEnemyProjectileKind.MotherBrainEscapeSubtitle, 0);
+        FamilyProjectileStarts.Initialize(subtitle, RoomEnemyProjectileKind.MotherBrainEscapeSubtitle, 0);
         RunForcedTicks(rom, subtitleEnemies, subtitle, samus, 2);
         AssertTrue(subtitle.IsActive && subtitle.Animation is MotherBrainEffectAnimation { Cursor.Program: MotherBrainEffectProgram.EscapeSubtitle },
             "room-system Mother Brain escape subtitle holds at its sleep");

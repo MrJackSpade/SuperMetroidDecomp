@@ -293,7 +293,7 @@ internal sealed class ZebetiteBehavior : IEnemySpecies, IEnemyEntityFactory
         RoomEnemyProjectileSlot? projectile = _projectiles.AllocateEnemyProjectile();
         if (projectile is not null)
         {
-            EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
+            MotherBrainProjectileStarts.Initialize(
                 projectile,
                 RoomEnemyProjectileKind.EnemyDeathExplosion,
                 graphicsIndex: 0);

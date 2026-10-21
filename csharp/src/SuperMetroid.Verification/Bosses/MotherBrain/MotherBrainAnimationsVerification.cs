@@ -190,7 +190,7 @@ internal static class MotherBrainAnimationsVerification
     {
         (RoomEnemySystem enemies, _) = NewMotherBrain();
         RoomEnemyProjectileSlot projectile = enemies.Projectiles.EnemyProjectiles[^1];
-        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(projectile, kind, MotherBrainTurretDefinitions.GraphicsIndex);
+        FamilyProjectileStarts.Initialize(projectile, kind, MotherBrainTurretDefinitions.GraphicsIndex);
         projectile.StartAnimation(animation);
         var native = new NativeEnemyProjectileListDefinitions.Reader(entry, projectile.InstructionTimer.RawValue);
         int update = 0;
@@ -225,7 +225,7 @@ internal static class MotherBrainAnimationsVerification
         state.HandBeamNextPosition = FixedPosition<RoomPixels>.FromWhole(new(128, 112));
         state.HandBeamNextVelocity = new(new SnesSignedEightEight(256), new SnesSignedEightEight(0));
         RoomEnemyProjectileSlot beam = enemies.Projectiles.EnemyProjectiles[^1];
-        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(beam, RoomEnemyProjectileKind.MotherBrainHandBeamCharging, 0);
+        FamilyProjectileStarts.Initialize(beam, RoomEnemyProjectileKind.MotherBrainHandBeamCharging, 0);
         beam.StartAnimation(new MotherBrainHandBeamAnimation());
         var native = new NativeEnemyProjectileListDefinitions.Reader(HandBeamProgram, beam.InstructionTimer.RawValue);
         int spawns = 0;

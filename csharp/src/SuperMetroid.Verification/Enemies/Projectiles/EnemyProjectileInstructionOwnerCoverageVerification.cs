@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Bosses.MotherBrain;
+using SuperMetroid.Core.Areas.Tourian;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction.Cartridge;
 using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
@@ -89,7 +91,9 @@ internal static class EnemyProjectileInstructionOwnerCoverageVerification
                 // Mother Brain's death explosion plays a typed misc-dust program.
                 RoomEnemyProjectileKind.MotherBrainDeathExplosion ||
                 // The regular enemies' projectiles whose definitions start typed programs (#1291).
-                EnemyProjectileTypedStarts.Initial(kind) is not null;
+                EnemyProjectileTypedStarts.Initial(kind) is not null ||
+                // Tourian statue and Mother Brain spawners start their families' typed programs (#1395).
+                TourianStatueProjectileStarts.ForKind(kind) is not null || MotherBrainProjectileStarts.ForKind(kind) is not null;
             AssertTrue(typed, $"Projectile {kind} starts a typed program");
             // Mother Brain's onion ring starts a typed touch program too (#1292).
             if (kind is not (RoomEnemyProjectileKind.DraygonGoop or RoomEnemyProjectileKind.MotherBrainRoomTurretBullet or

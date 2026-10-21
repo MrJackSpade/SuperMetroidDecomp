@@ -28,11 +28,11 @@ public sealed class HudTileAtlas : IInstalledArtworkTransferSource
     /// <summary>One native 0x400-byte death-restoration slice of the shared BG3 characters.</summary>
     public ReadOnlyMemory<byte> KraidRestoreQuarter(int index)
     {
-        if ((uint)index >= SuperMetroid.Core.Bosses.Kraid.KraidBackgroundRomData.StandardBg3TransferCount)
+        if ((uint)index >= HudTileAtlasFormat.RestoreQuarterCount)
             throw new ArgumentOutOfRangeException(nameof(index));
         return transfer.AsMemory(
-            index * SuperMetroid.Core.Bosses.Kraid.KraidBackgroundRomData.StandardBg3TransferBytes,
-            SuperMetroid.Core.Bosses.Kraid.KraidBackgroundRomData.StandardBg3TransferBytes);
+            index * HudTileAtlasFormat.RestoreQuarterBytes,
+            HudTileAtlasFormat.RestoreQuarterBytes);
     }
     /// <summary>Writes all $2000 bytes at the standard BG3 character base: the characters followed by the zero-filled BG2 tilemap-clearing half.</summary>
     /// <param name="vram">Destination VRAM whose existing bytes are overwritten.</param>

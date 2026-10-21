@@ -244,7 +244,7 @@ internal sealed class EnemyRoomEffects
     /// </summary>
     internal void ApplyPendingChozoStatuePlms(RoomPlmSystem plms, RoomLayer3FxState roomLayer3Fx, RoomEnemySystem enemies)
     {
-        plms.ChozoStatue.BindChozoStatueContext(enemies, roomLayer3Fx);
+        plms.ChozoStatue.BindChozoStatueContext(enemies.PlmRequests, enemies.RoomFx, roomLayer3Fx);
         if (_room.LevelData is not null)
             enemies.PlmRequests.ApplyPendingChozoStatuePlms(_room.LevelData, plms.ChozoStatue);
     }

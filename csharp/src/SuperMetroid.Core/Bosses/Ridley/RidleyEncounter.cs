@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Core.Enemies;
+﻿using SuperMetroid.Core.Areas.Ceres;
+using SuperMetroid.Core.Enemies;
 
 namespace SuperMetroid.Core.Bosses.Ridley;
 
@@ -6,7 +7,7 @@ namespace SuperMetroid.Core.Bosses.Ridley;
 /// Ridley encounter state shared by the Ceres and Lower Norfair fights, and the native
 /// <c>ceres_status</c> escape handoff word that Ceres Ridley publishes.
 /// </summary>
-internal sealed class RidleyEncounter
+internal sealed class RidleyEncounter : ICeresEscapeStatus
 {
     /// <summary>Physical slot table used to distinguish the Ceres actor from the Norfair boss.</summary>
     private readonly EnemySlotTable _slotTable;

@@ -1,4 +1,4 @@
-using SuperMetroid.Core.Bosses.Torizo.Artwork;
+using SuperMetroid.Core.Enemies.Artwork;
 
 namespace SuperMetroid.Core.Bosses.Ridley.Artwork;
 

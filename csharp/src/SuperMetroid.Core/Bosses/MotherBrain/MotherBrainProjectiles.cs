@@ -428,7 +428,7 @@ internal sealed class MotherBrainProjectiles
         if (shard is null)
             return; // SpawnEprojInner silently loses actors when all eighteen slots are full.
 
-        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
+        MotherBrainProjectileStarts.Initialize(
             shard,
             RoomEnemyProjectileKind.MotherBrainGlassShard,
             graphicsIndex: 0);
@@ -488,7 +488,7 @@ internal sealed class MotherBrainProjectiles
         if (sparkle is null)
             return;
 
-        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
+        MotherBrainProjectileStarts.Initialize(
             sparkle,
             RoomEnemyProjectileKind.MotherBrainGlassSparkle,
             graphicsIndex: 0);
@@ -517,7 +517,7 @@ internal sealed class MotherBrainProjectiles
         if (beam is null)
             return;
 
-        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
+        MotherBrainProjectileStarts.Initialize(
             beam,
             RoomEnemyProjectileKind.MotherBrainHandBeamFired,
             graphicsIndex: 0);
@@ -831,7 +831,7 @@ internal sealed class MotherBrainProjectiles
         if (bullet is null)
             return;
 
-        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
+        MotherBrainProjectileStarts.Initialize(
             bullet,
             RoomEnemyProjectileKind.MotherBrainRoomTurretBullet,
             MotherBrainTurretDefinitions.GraphicsIndex);

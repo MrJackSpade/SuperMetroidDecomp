@@ -1,5 +1,4 @@
-﻿using SuperMetroid.Core.Bosses.Ridley;
-using SuperMetroid.Core.Enemies;
+﻿using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Programs;
@@ -34,7 +33,7 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory
     /// <summary>Spawns smoke or explosion effects around the shaking door.</summary>
     private readonly EnemyProjectileEngine _projectiles;
     /// <summary>Supplies Ridley's escape status and receives the completed-escape marker.</summary>
-    private readonly RidleyEncounter _ridleyEncounter;
+    private readonly ICeresEscapeStatus _ridleyEncounter;
     /// <summary>The session's installed area artwork.</summary>
     private readonly AreaArtworkBinding _areaArtwork;
 
@@ -48,7 +47,7 @@ internal sealed class CeresDoorBehavior : IEnemySpecies, IEnemyEntityFactory
         _slotTable = dependencies.SlotTable;
         _presentation = dependencies.Presentation;
         _projectiles = dependencies.Projectiles;
-        _ridleyEncounter = dependencies.RidleyEncounter;
+        _ridleyEncounter = dependencies.CeresEscape;
         _areaArtwork = dependencies.AreaArtwork;
     }
 

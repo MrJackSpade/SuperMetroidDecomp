@@ -507,8 +507,15 @@ internal sealed class EyeDoorPlms : IPlmFamilySource
     }
 
     /// <summary>Per-component hit state retained across eye-door instruction frames.</summary>
-    internal sealed class EyeDoorPlmState(EyeDoorComponent component) : PlmFamilyState
+    internal sealed class EyeDoorPlmState(EyeDoorComponent component) : PlmFamilyState, IShotTriggeredPlm
     {
+        /// <summary>Only the eye takes the shot; the middle and bottom components ignore it.</summary>
+        public void RecordShot()
+        {
+            if (Component == EyeDoorComponent.Eye)
+                HasPendingHit = true;
+        }
+
         /// <inheritdoc/>
         internal override PlmFamily Family => PlmFamily.EyeDoor;
 

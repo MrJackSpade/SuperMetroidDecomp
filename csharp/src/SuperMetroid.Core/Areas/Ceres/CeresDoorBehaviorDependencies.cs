@@ -1,5 +1,4 @@
 ﻿using SuperMetroid.Core.Rooms;
-using SuperMetroid.Core.Bosses.Ridley;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Fx;
@@ -29,7 +28,7 @@ internal sealed record CeresDoorBehaviorDependencies
     public required EnemyProjectileEngine Projectiles { get; init; }
 
     /// <summary>Supplies Ridley's escape status and receives the completed-escape marker.</summary>
-    public required RidleyEncounter RidleyEncounter { get; init; }
+    public required ICeresEscapeStatus CeresEscape { get; init; }
 
     /// <summary>The session's installed area artwork.</summary>
     public required AreaArtworkBinding AreaArtwork { get; init; }

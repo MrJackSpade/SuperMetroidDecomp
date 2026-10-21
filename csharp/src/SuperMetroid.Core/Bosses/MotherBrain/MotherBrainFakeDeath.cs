@@ -273,7 +273,7 @@ internal sealed class MotherBrainFakeDeath
         if (projectile is null)
             return;
 
-        EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(projectile, kind, graphicsIndex: EnemyPaletteBits.Palette7);
+        MotherBrainProjectileStarts.Initialize(projectile, kind, graphicsIndex: EnemyPaletteBits.Palette7);
         projectile.Position = projectile.Position.WithWhole(position);
         projectile.Velocity = new(new SnesSignedEightEight(0), new SnesSignedEightEight(0));
         projectile.Variable0 = (ushort)MotherBrainTopTubeFunction.SpawnDust;

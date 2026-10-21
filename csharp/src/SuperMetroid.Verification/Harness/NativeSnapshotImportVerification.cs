@@ -354,7 +354,7 @@ internal static class NativeSnapshotImportVerification
             var kind = (RoomEnemyProjectileKind)id;
             AssertTrue(NativeSlotOnlyEnemyProjectileKinds.Contains(kind),
                 $"initial native enemy projectile {projectile.SlotIndex} kind ${id:X4} has a verified slot-only import");
-            EnemyProjectileEngine.InitializeEnemyProjectileFromDefinition(
+            FamilyProjectileStarts.Initialize(
                 projectile, kind, W(NativeSnapshotMemory.EnemyProjectileGraphics + index));
             projectile.PreInstructionWord = W(NativeSnapshotMemory.EnemyProjectilePreInstruction + index);
             ushort instruction = W(NativeSnapshotMemory.NativeEnemyProjectileInstruction + index);

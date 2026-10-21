@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.CartridgeTables;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Spatial;
@@ -16,16 +17,16 @@ public static class PauseSelectorExtractor
     /// <returns>UTF-8 JSON bytes for selector presentation, excluding the fixed category dispatcher.</returns>
     public static byte[] Extract(ISnesAddressSpace bus)
     {
-        if (RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), PauseSelectorDefinitions.VariantPointer) != PauseSelectorDefinitions.CategoryVariable)
+        if (RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), PauseMenuCartridgeTables.PauseSelectorVariant) != PauseMenuCartridgeTables.PauseSelectorCategoryVariable)
             throw new InvalidDataException("Unexpected native selector category binding.");
-        int bases = PauseSelectorDefinitions.Bank | RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), PauseSelectorDefinitions.BasePointer);
+        int bases = PauseMenuCartridgeTables.PauseSelectorBank | RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), PauseMenuCartridgeTables.PauseSelectorBases);
         foreach (PauseEquipmentCategory category in Enum.GetValues<PauseEquipmentCategory>())
             if (RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), bases + (int)category * 2) != PauseSelectorDefinitions.NativeSpriteId(category))
                 throw new InvalidDataException("Unexpected native selector sprite binding.");
         var anchors = new Dictionary<string, Position16<OamPixels>>();
         foreach (var anchor in PauseSelectorDefinitions.Anchors())
         {
-            int position = PauseSelectorDefinitions.Bank | RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), PauseSelectorDefinitions.PositionPointers + (int)anchor.Category * 2);
+            int position = PauseMenuCartridgeTables.PauseSelectorBank | RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), PauseMenuCartridgeTables.PauseSelectorPositionPointers + (int)anchor.Category * 2);
             anchors.Add(anchor.Name, new(unchecked((ushort)(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), position + anchor.Item * 4) - 1)),
                 unchecked((ushort)(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), position + anchor.Item * 4 + 2) - 1))));
         }
@@ -33,7 +34,7 @@ public static class PauseSelectorExtractor
         // Suits and boots share the Equipment frames, so only the first three categories own a group.
         foreach (PauseEquipmentCategory category in new[] { PauseEquipmentCategory.Reserves, PauseEquipmentCategory.Beams, PauseEquipmentCategory.Suits })
             frames.Add(PauseSelectorDefinitions.Group(category), MenuSpriteExtractor.Read(bus, PauseSelectorDefinitions.NativeSpriteId(category)));
-        int animation = PauseSelectorDefinitions.Bank | RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), PauseSelectorDefinitions.AnimationPointer);
+        int animation = PauseMenuCartridgeTables.PauseSelectorBank | RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), PauseMenuCartridgeTables.PauseSelectorAnimation);
         var phases = new List<PauseSelectorPhase>();
         for (int i = 0; ; i++)
         {
@@ -43,11 +44,11 @@ public static class PauseSelectorExtractor
                 throw new InvalidDataException("Unexpected native selector frame offset or missing terminator.");
             phases.Add(new() { DurationTicks = duration, Reserve = "Reserve", Beam = "Beam", Equipment = "Equipment" });
         }
-        var palette = new SnesObjAttributeWord(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), PauseSelectorDefinitions.PaletteSource));
+        var palette = new SnesObjAttributeWord(RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), PauseMenuCartridgeTables.PauseSelectorPalette));
         if (palette.Raw != palette.PaletteBits) throw new InvalidDataException("Invalid native selector palette word.");
         using var output = new MemoryStream();
         PauseSelectorPresentation.Write(output, new() { Version = PauseSelectorDefinitions.Version,
-            InitialDurationTicks = bus.ReadCartridgeByte(PauseSelectorDefinitions.InitialTimer), Palette = palette.PaletteIndex,
+            InitialDurationTicks = bus.ReadCartridgeByte(PauseMenuCartridgeTables.PauseSelectorInitialTimer), Palette = palette.PaletteIndex,
             Anchors = anchors, Frames = frames, Animation = phases.ToArray() });
         return output.ToArray();
     }

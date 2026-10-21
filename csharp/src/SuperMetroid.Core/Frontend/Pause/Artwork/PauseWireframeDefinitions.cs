@@ -13,8 +13,6 @@ public static class PauseWireframeDefinitions
 
     /// <summary>The four complete Power/Varia and regular/Hi-Jump artwork variants.</summary>
     public const int Count = 4;
-    /// <summary>$82:B25F Samus_Wireframe_Tilemaps pointer order: Power, Power/Hi-Jump, Varia, Varia/Hi-Jump.</summary>
-    public const int Pointers = PauseMenuRomData.EquipmentTilemapPatchPointerTable;
     /// <summary>$82:B20C copies seventeen rows of eight words from bank $82.</summary>
     public const int Columns = 8, Rows = 17, Cells = Columns * Rows;
     /// <summary>$82:B20C destination starts at EquipmentScreenBG1Tilemap+$1D8, tile (12,7).</summary>
@@ -23,8 +21,6 @@ public static class PauseWireframeDefinitions
     public const int DestinationStride = 64;
     /// <summary>Native equipment page byte size, one 32x32 tilemap.</summary>
     public const int DestinationSize = 2048;
-    /// <summary>All four native artwork patches share bank $82.</summary>
-    public const int Bank = 0x820000;
     /// <summary>Native packed body-piece rows advance sixteen BG characters within the pause interface artwork.</summary>
     private const int PieceRowStride = 16;
     /// <summary>$82:D527 and corresponding variants: left helmet half starts at tile $1B3.</summary>

@@ -19,14 +19,6 @@ public static class PauseBackdropDefinitions
     public const int AtlasTileCount = AtlasColumns * AtlasRows;
     /// <summary>Separate button foreground dimensions: sixteen 32-column rows, or 512 cells; stock content is the backdrop's lower half at $B6:E400-$E7FF.</summary>
     public const int ButtonRows = 16, ButtonCells = Columns * ButtonRows;
-    /// <summary>$82:8EDA copies the mutable button image from $B6:E400 to WRAM $3400.</summary>
-    public const int ButtonSource = PauseMenuRomData.ButtonTilemap;
-    /// <summary>$82:8EDA LoadPauseScreen_BaseTilemaps copies the $B6:E000 BG2 image.</summary>
-    public const int FrameSource = PauseMenuRomData.BackgroundTilemap;
-    /// <summary>$82:93C3 loads the twelve-word area label through $82:965F.</summary>
-    public const int LabelPointers = PauseMenuRomData.AreaMapLabelPointerTable;
-    /// <summary>Area-label fragments use the fixed bank $82.</summary>
-    public const int LabelBank = 0x820000;
     /// <summary>$82:93C3 writes the label at BG2 word $38AA, 170 words into its page.</summary>
     public const int LabelCell = 170, LabelWords = 12;
     /// <summary>$82:966F-9716 area letters use the contiguous uppercase font beginning at $30.</summary>

@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.CartridgeTables;
 using System.Buffers.Binary;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Input;
@@ -129,7 +130,7 @@ internal static class PauseEquipmentRulesVerification
         {
             var pause = Create(new SamusState { EquippedItems = (SamusEquipmentFlags)items, CollectedItems = (SamusEquipmentFlags)items }); EnterPauseEquipment(pause);
             int variant = Array.IndexOf(wireframeMasks, (ushort)(items & 0x0101));
-            int pointer = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), PauseMenuRomData.EquipmentTilemapPatchPointerTable + variant * 2);
+            int pointer = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), PauseMenuCartridgeTables.PauseWireframePointers + variant * 2);
             var memory = pause.CaptureRenderSnapshot().Memory;
             for (int row = 0; row < 17; row++)
             for (int column = 0; column < 8; column++)

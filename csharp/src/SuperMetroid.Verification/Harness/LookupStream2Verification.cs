@@ -657,7 +657,7 @@ internal static class LookupStream2Verification
         int pieceCells = 0, stockOverrides = 0;
         foreach (PauseWireframeKind kind in Enum.GetValues<PauseWireframeKind>())
         {
-            int pointer = CartridgeImportSource.Require(rom).ReadCartridgeWord((PauseWireframeDefinitions.Pointers + (int)kind * 2)) | 0x820000;
+            int pointer = CartridgeImportSource.Require(rom).ReadCartridgeWord((PauseMenuCartridgeTables.PauseWireframePointers + (int)kind * 2)) | 0x820000;
             var native = new byte[PauseWireframeDefinitions.Cells * 2];
             for (int cell = 0; cell < PauseWireframeDefinitions.Cells; cell++)
                 System.Buffers.Binary.BinaryPrimitives.WriteUInt16LittleEndian(native.AsSpan(cell * 2), CartridgeImportSource.Require(rom).ReadCartridgeWord((pointer + cell * 2)));

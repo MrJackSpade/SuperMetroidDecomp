@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.CartridgeTables;
 using System.Buffers.Binary;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Frontend.Pause.Artwork;
@@ -17,17 +18,17 @@ public static class PauseBackdropExtractor
     /// <returns>UTF-8 JSON bytes for all area backdrops and pause buttons.</returns>
     public static byte[] Extract(ISnesAddressSpace bus)
     {
-        byte[] frame = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), PauseBackdropDefinitions.FrameSource, PauseBackdropDefinitions.ByteCount);
+        byte[] frame = RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), PauseMenuCartridgeTables.PauseFrameTilemap, PauseBackdropDefinitions.ByteCount);
         var areas = new Dictionary<string, PauseBackdropCell[]>();
         foreach (AreaId area in Enum.GetValues<AreaId>())
         {
             byte[] image = frame.ToArray();
-            ushort label = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), PauseBackdropDefinitions.LabelPointers + AreaIds.ToIndex(area) * 2);
-            RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), PauseBackdropDefinitions.LabelBank | label, PauseBackdropDefinitions.LabelWords * 2)
+            ushort label = RomDataReader.ReadWordFixedBank(CartridgeImportSource.Require(bus), PauseMenuCartridgeTables.PauseAreaLabelPointers + AreaIds.ToIndex(area) * 2);
+            RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), PauseMenuCartridgeTables.PauseAreaLabelBank | label, PauseBackdropDefinitions.LabelWords * 2)
                 .CopyTo(image, PauseBackdropDefinitions.LabelCell * 2);
             areas.Add(area.ToString(), Cells(image, area.ToString()));
         }
-        var buttons = Cells(RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), PauseBackdropDefinitions.ButtonSource,
+        var buttons = Cells(RomDataReader.ReadFixedBank(CartridgeImportSource.Require(bus), PauseMenuCartridgeTables.PauseButtonTilemap,
             PauseBackdropDefinitions.ButtonCells * 2), "Buttons");
         using var output = new MemoryStream();
         PauseBackdropPresentation.Write(output, new() { Version = PauseBackdropDefinitions.Version, Areas = areas, Buttons = buttons });

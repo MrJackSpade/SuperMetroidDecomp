@@ -9,22 +9,6 @@ public static class PauseSelectorDefinitions
     public const string FileName = "pause-selectors.json";
     /// <summary>Presentation limits: sixteen required equipment anchors, at most 255 named visual frames and 255 cyclic phases, and initial/phase dwell times from 1 through 254 accepted update ticks.</summary>
     public const int AnchorCount = 16, MaximumFrames = 255, MaximumPhases = 255, MaximumDuration = 254;
-    /// <summary>$82:C18E equipment-selector positions: tanks, weapons, suit/misc, boots.</summary>
-    public const int PositionPointers = PauseMenuRomData.EquipmentSelectorPositionPointerTable;
-    /// <summary>$82:C0EC points to selector timing entries, (duration, unused, sprite offset).</summary>
-    public const int AnimationPointer = PauseMenuRomData.ItemSelectorAnimationPointer;
-    /// <summary>$82:AB98 initializes the selector timer from the first byte at $82:C10C.</summary>
-    public const int InitialTimer = PauseMenuRomData.ItemSelectorAnimationTimer;
-    /// <summary>$82:C0DA identifies the low-byte category variable at WRAM $0755.</summary>
-    public const int VariantPointer = PauseMenuRomData.ItemSelectorAnimationVariantPointer;
-    /// <summary>$7E:0755 PauseMenu_EquipmentScreenCategoryIndex; the animation reads only its low byte.</summary>
-    public const ushort CategoryVariable = 0x0755;
-    /// <summary>$82:C1E8 points to the four category sprite bases.</summary>
-    public const int BasePointer = PauseMenuRomData.EquipmentSelectorBaseTablePointer;
-    /// <summary>$82:C100 is the native caller palette word, selecting OBJ palette three.</summary>
-    public const int PaletteSource = PauseMenuRomData.SelectedItemSpritemapPointer;
-    /// <summary>Bank $82 owns selector positions, timing and sprite-pointer data.</summary>
-    public const int Bank = 0x820000;
     /// <summary>Enumerates every editable selector anchor in native category/item order: two reserve controls, five beams, six suit/miscellaneous items, and three boots; does not alter navigation or eligibility.</summary>
     /// <returns>Sixteen tuples containing the compiled category, item index, and stable asset anchor name.</returns>
     public static IEnumerable<PauseSelectorAnchor> Anchors()

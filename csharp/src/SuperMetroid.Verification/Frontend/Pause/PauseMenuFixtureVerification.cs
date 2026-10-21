@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.CartridgeTables;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
@@ -45,7 +46,7 @@ internal static class PauseMenuFixtureVerification
         areas[AreaIds.ToIndex(AreaId.Crateria)] = AreaMapImporter.Load(bus, AreaId.Crateria);
         var backdrops = PauseBackdropPresentation.FromTilemaps(
             Enum.GetValues<AreaId>().Select(_ => Read(0xb6e000, 0x0800)).ToArray(),
-            Read(PauseBackdropDefinitions.ButtonSource, PauseBackdropDefinitions.ButtonCells * 2));
+            Read(PauseMenuCartridgeTables.PauseButtonTilemap, PauseBackdropDefinitions.ButtonCells * 2));
         var hud = new byte[HudTileAtlasFormat.TransferByteCount];
         Read(HudTileAtlasFormat.SourceAddress, HudTileAtlasFormat.CharacterByteCount).CopyTo(hud, 0);
 

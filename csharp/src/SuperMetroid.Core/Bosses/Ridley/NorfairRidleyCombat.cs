@@ -114,8 +114,8 @@ internal sealed class NorfairRidleyCombat
         (_bossArtwork.Artwork?.NorfairRidleyColors ?? throw new InvalidOperationException(
             "Norfair Ridley requires installed colors."))
             .ApplyInitial(_presentation.Cgram);
-        _presentation.BossPalettes.NorfairRidleyBody.Fill(Bgr555.Black);
-        _presentation.BossPalettes.NorfairRidleyTail.Fill(Bgr555.Black);
+        _presentation.BossPalettes().NorfairRidleyBody.Fill(Bgr555.Black);
+        _presentation.BossPalettes().NorfairRidleyTail.Fill(Bgr555.Black);
     }
 
     /// <summary>

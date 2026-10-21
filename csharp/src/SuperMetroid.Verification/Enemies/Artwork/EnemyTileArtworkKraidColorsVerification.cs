@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Tooling;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
@@ -8,7 +9,6 @@ using static SuperMetroid.Verification.Harness.SuiteTimingVerification;
 using SuperMetroid.Core.Bosses.Kraid;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Bosses.Kraid.Artwork;
-using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.TestSupport.CpuBusTestDoubles;
@@ -210,8 +210,8 @@ internal static class EnemyTileArtworkKraidColorsVerification
                             ? KraidPaletteSource.RoomBackdrop
                             : KraidPaletteSource.InitialTarget,
                         consumer == KraidPaletteConsumer.BackdropLoad
-                            ? new EnemyPalettes(cgram).KraidRoomBackdrop
-                            : new EnemyPalettes(cgram).KraidSprites);
+                            ? new BossPalettes(cgram).KraidRoomBackdrop
+                            : new BossPalettes(cgram).KraidSprites);
                 break;
             case KraidPaletteConsumer.BackdropFade:
                 for (int step = 0; step < 13; step++)

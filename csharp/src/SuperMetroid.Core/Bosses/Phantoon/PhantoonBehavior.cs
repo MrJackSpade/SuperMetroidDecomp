@@ -89,7 +89,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
         // Target BG palette seven is black at fight start. In the software PPU CGRAM is the
         // renderer-visible incarnation of native current/target palette storage; clearing
         // these exact sixteen words makes the later health-palette interpolation observable.
-        _presentation.BossPalettes.PhantoonBody.Fill(Bgr555.Black);
+        _presentation.BossPalettes().PhantoonBody.Fill(Bgr555.Black);
 
         Combat.Part(body).FunctionTimer = PhantoonTimerDefinitions.InitialFlameDelayFrames;
         Combat.Part(body).StartingFlameIndex = 0;
@@ -316,7 +316,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
         if ((body.FrameCounter & 2) == 0 || tentacles.HurtFlashShown)
             return;
 
-        _presentation.BossPalettes.PhantoonBody.Fill(Bgr555.White);
+        _presentation.BossPalettes().PhantoonBody.Fill(Bgr555.White);
         tentacles.HurtFlashShown = true;
     }
 
@@ -325,7 +325,7 @@ internal sealed class PhantoonBehavior : IEnemySpecies, IEnemyEntityFactory
     {
         int healthBand = Math.Min(7, Math.Max(0, (body.Health - 1) / 312));
         for (int color = 0; color < PhantoonColorRomData.HealthBandColorCount; color++)
-            _presentation.BossPalettes.PhantoonBody.Write(color, Presentation.ReadPhantoonHealthColor(healthBand, color));
+            _presentation.BossPalettes().PhantoonBody.Write(color, Presentation.ReadPhantoonHealthColor(healthBand, color));
     }
     /// <summary>Per-update wave increment during the wavy mosaic death animation.</summary>
     internal const ushort PhantoonDeathWaveDelta = 256;

@@ -13,7 +13,7 @@ internal static class MotherBrainBodyVisualDefinitions
     /// <summary>Mother Brain extended-frame bank $A9.</summary>
     internal const byte Bank = 0xa9;
     /// <summary>Largest native root: ten components, including two BG2 streams.</summary>
-    internal const int MaximumNativeComponents = 10;
+    internal const int MaximumNativeComponents = EnemyBg2FrameLayout.MaximumComponents;
     /// <summary>Standing, walking, crouch, dummy, and death-beam body roots selected by compiled programs.</summary>
     internal const int FrameCount = 17;
     /// <summary>Every selected body root except the OAM-only initial dummy.</summary>

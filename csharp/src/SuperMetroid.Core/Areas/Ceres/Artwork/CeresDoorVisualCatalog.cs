@@ -1,7 +1,7 @@
+using SuperMetroid.Core.Areas.Artwork;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Core.Rooms.Artwork;
 
 namespace SuperMetroid.Core.Areas.Ceres.Artwork;
@@ -151,7 +151,7 @@ public sealed class CeresDoorVisualCatalog
         Ensure.NotNull(cgram);
         if ((uint)row >= CeresDoorVisualRomData.AnimationRowCount) throw new ArgumentOutOfRangeException(nameof(row));
         for (int color = 0; color < CeresDoorVisualRomData.AnimationColorCount; color++)
-            new BossPalettes(cgram).CeresDoorAnimation.Write(color, AnimationColor(row, color));
+            new AreaPalettes(cgram).CeresDoorAnimation.Write(color, AnimationColor(row, color));
     }
 
     /// <summary>Resolves one ink from the actor-selected door animation row.</summary>

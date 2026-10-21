@@ -78,7 +78,7 @@ internal sealed class KraidRise
             // immediately before that initializer are not cosmetic bookkeeping: they
             // restore the defeated arena on every room load so the broken ceiling and
             // removed floor spikes cannot return when the player exits and re-enters.
-            LoadKraidColorBand(KraidPaletteSource.RoomBackdrop, _presentation.BossPalettes.KraidRoomBackdrop);
+            LoadKraidColorBand(KraidPaletteSource.RoomBackdrop, _presentation.BossPalettes().KraidRoomBackdrop);
             state.WorkingTop = state.WorkingBottom = KraidBodyPage.Blank;
             state.BackgroundTilemapsPrepared = true;
             UploadKraidRoomBackgroundTiles();
@@ -111,7 +111,7 @@ internal sealed class KraidRise
 
         // Background palette three's target colors are written at CGRAM palette eleven in
         // native target-palette storage. The software renderer exposes that buffer directly.
-        LoadKraidColorBand(KraidPaletteSource.InitialTarget, _presentation.BossPalettes.KraidSprites);
+        LoadKraidColorBand(KraidPaletteSource.InitialTarget, _presentation.BossPalettes().KraidSprites);
         _earthquake.EarthquakeType = 5;
     }
 

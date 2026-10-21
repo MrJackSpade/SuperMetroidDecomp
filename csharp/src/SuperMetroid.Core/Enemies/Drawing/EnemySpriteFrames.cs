@@ -40,25 +40,6 @@ internal static class EnemySpriteFrames
             key => Compile(parts.Span, key.Base, key.Palette));
     }
 
-    /// <summary>
-    /// The frame an extended enemy component shows at <paramref name="originY"/>: only the parts whose own row lies in
-    /// the 256-row OBJ space. The cartridge's extended component writers ($81:8B22, $81:8B96) hide a part that would
-    /// cross the vertical boundary instead of wrapping it to the other edge.
-    /// </summary>
-    /// <param name="parts">The component's composition, frontmost part first.</param>
-    /// <param name="originY">The component origin's row, a signed 16-bit value.</param>
-    /// <param name="baseTileIndex">Packed tile base added to every part's attribute word.</param>
-    /// <param name="paletteBits">Palette bits ORed into every part's attribute word.</param>
-    public static SpriteFrame RowClippedFrame(EnemySpritemapParts parts, short originY, ushort baseTileIndex, ushort paletteBits)
-    {
-        Ensure.NotNull(parts);
-        SpritemapPart[] shown = parts.Where(part => (uint)(originY + part.Y.SignedOffset) < ObjRowSpace).ToArray();
-        return shown.Length == parts.Count ? Frame(parts, baseTileIndex, paletteBits) : Compile(shown, baseTileIndex, paletteBits);
-    }
-
-    /// <summary>The rows an OBJ part can occupy without wrapping.</summary>
-    private const int ObjRowSpace = 256;
-
     /// <summary>Forms each part's final attribute word and places it as a whole-frame part.</summary>
     private static SpriteFrame Compile(ReadOnlySpan<SpritemapPart> parts, ushort baseTileIndex, ushort paletteBits)
     {

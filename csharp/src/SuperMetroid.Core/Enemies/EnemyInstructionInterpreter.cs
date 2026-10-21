@@ -65,7 +65,7 @@ internal sealed class EnemyInstructionInterpreter
     private void ApplyExtendedEnemyBg2Words(int destinationWord, ReadOnlySpan<ushort> words)
     {
         if (destinationWord < 0 || words.Length == 0 ||
-            destinationWord + words.Length > CrocomireDeathState.Bg2WorkingWordCount)
+            destinationWord + words.Length > EnemyBg2FrameLayout.TilemapWordCount)
             throw new InvalidDataException("Extended BG2 write exceeds the enemy tilemap buffer.");
         if (_crocomireBehavior.Access.CrocomireDeath is { } death)
             words.CopyTo(death.MutableBg2WorkingTilemap.Slice(destinationWord, words.Length));

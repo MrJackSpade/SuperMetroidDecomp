@@ -256,7 +256,7 @@ internal sealed class PhantoonDeath
             return true;
         }
 
-        CgramPalette room = _presentation.BossPalettes.WreckedShipPowerOn;
+        CgramPalette room = _presentation.Palettes.WreckedShipPowerOn;
         for (int color = 0; color < room.Count; color++)
         {
             Bgr555 current = room[color];

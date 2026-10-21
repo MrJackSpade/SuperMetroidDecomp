@@ -134,7 +134,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
             Bgr555 value = (_bossArtwork.Artwork?.SporeSpawnColors ?? throw new InvalidDataException(
                 "Spore Spawn spore palette requires installed artwork.")).ResolveSpore(color);
             state.WriteTargetColor(SporeSpawnColorRomData.SporeDestination + color, value);
-            _presentation.BossPalettes.SporeSpawnSpores.Write(color, value);
+            _presentation.BossPalettes().SporeSpawnSpores.Write(color, value);
         }
 
         // SpawnEprojWithGfx searches the eighteen-slot pool downward. Four calls therefore
@@ -599,7 +599,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
             sourceByteOffset, SporeSpawnColorRomData.HealthFrameCount);
         for (int color = 0; color < SporeSpawnColorRomData.ColorsPerFrame; color++)
         {
-            _presentation.BossPalettes.SporeSpawnBody.Write(
+            _presentation.BossPalettes().SporeSpawnBody.Write(
                 color,
                 (_bossArtwork.Artwork?.SporeSpawnColors ?? throw new InvalidDataException(
                     "Spore Spawn health palette requires installed artwork.")).ResolveHealth(frame, color));
@@ -647,7 +647,7 @@ internal sealed class SporeSpawnBehavior : IEnemySpecies, IEnemyEntityFactory
             if (targetOnly)
                 state.WriteTargetColor(destination + color, value);
             else
-                _presentation.BossPalettes.SporeSpawnDeath(layer).Write(color, value);
+                _presentation.BossPalettes().SporeSpawnDeath(layer).Write(color, value);
         }
     }
 

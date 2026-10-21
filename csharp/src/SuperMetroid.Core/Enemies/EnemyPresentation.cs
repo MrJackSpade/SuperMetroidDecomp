@@ -21,7 +21,7 @@ internal sealed class EnemyPresentation
     }
 
     /// <summary>The bound CGRAM's enemy and boss ranges.</summary>
-    internal EnemyPalettes BossPalettes => new(Cgram);
+    internal EnemyPalettes Palettes => new(Cgram);
 
     /// <summary>The bound CGRAM's hardware banks and rows, for actors whose palette row is selected at run time.</summary>
     internal CgramPalettes CgramRows => new(Cgram);

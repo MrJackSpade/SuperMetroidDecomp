@@ -1,6 +1,3 @@
-using SuperMetroid.Core.Bosses.Crocomire;
-using SuperMetroid.Core.Bosses.Draygon;
-using SuperMetroid.Core.Bosses.Kraid;
 
 namespace SuperMetroid.Core.Enemies;
 
@@ -10,28 +7,12 @@ public static class EnemyVramLayout
 {
 
     /// <summary>
-    /// VMADD $4000-$47FF: the standard BG3 characters Kraid's death restores in four $0400-byte
-    /// quarters (<c>$A7:C777-$C7EF</c>) after his private BG2 map overwrote them.
-    /// </summary>
-    public static readonly PpuLayoutCell KraidBg3Restore = new(nameof(KraidBg3Restore), PpuLayoutRegion.Vram,
-        KraidBackgroundRomData.StandardBg3VramWord,
-        KraidBackgroundRomData.StandardBg3TransferCount * KraidBackgroundRomData.StandardBg3TransferBytes / sizeof(ushort),
-        "2-bpp BG3 characters", GameplayVramLayout.HudCharacters);
-
-    /// <summary>
     /// VMADD $4800-$4FFF: the enemy BG2 image that boss routines stage at <c>$7E:2000</c> and
     /// upload over the room's BG2 tilemap (Phantoon, Draygon, Crocomire, Mother Brain).
     /// </summary>
     public static readonly PpuLayoutCell EnemyBg2Tilemap = new(nameof(EnemyBg2Tilemap), PpuLayoutRegion.Vram,
-        SuperMetroid.Core.Enemies.Artwork.EnemyBg2FrameLayout.VramBase, CrocomireDeathState.Bg2WorkingWordCount, "BG tilemap words (32x64)",
+        SuperMetroid.Core.Enemies.Artwork.EnemyBg2FrameLayout.VramBase, SuperMetroid.Core.Enemies.Artwork.EnemyBg2FrameLayout.TilemapWordCount, "BG tilemap words (32x64)",
         GameplayVramLayout.Bg2Tilemap);
-
-    /// <summary>
-    /// VMADD $6000-$7FFF: the OBJ table as Crocomire's skeleton uploads address it, by atlas
-    /// tile relative to the OBSEL base (<c>$A4:99CB</c>/<c>$99D9</c>).
-    /// </summary>
-    public static readonly PpuLayoutCell CrocomireSkeletonTiles = new(nameof(CrocomireSkeletonTiles), PpuLayoutRegion.Vram,
-        SuperMetroid.Core.Bosses.Crocomire.Artwork.CrocomireSkeletonTransferDefinitions.ObselBaseWord, 0x2000, "4-bpp OBJ characters", GameplayVramLayout.ObjectCharacters);
 
     /// <summary>
     /// VMADD $6C00-$7FFF: the enemy graphics-set character area that room loading fills from
@@ -40,13 +21,4 @@ public static class EnemyVramLayout
     public static readonly PpuLayoutCell EnemyTiles = new(nameof(EnemyTiles), PpuLayoutRegion.Vram,
         RoomEnemyRomLayout.VramByteBase / sizeof(ushort), 0x1400, "4-bpp OBJ characters", GameplayVramLayout.ObjectCharacters);
 
-    /// <summary>VMADD $6D00-$6FFF: the Evir characters Draygon's opening uploads (<c>$A5:8745</c>).</summary>
-    public static readonly PpuLayoutCell DraygonEvirTiles = new(nameof(DraygonEvirTiles), PpuLayoutRegion.Vram,
-        DraygonIntroPresentationDefinitions.EvirTilesVramByteAddress / sizeof(ushort),
-        DraygonIntroPresentationDefinitions.EvirTilesByteCount / sizeof(ushort), "4-bpp OBJ characters", EnemyTiles);
-
-    /// <summary>VMADD $3F00-$3FFF: the Kraid room's backdrop BG characters uploaded from <c>$A7:A716</c>.</summary>
-    public static readonly PpuLayoutCell KraidRoomBackgroundTiles = new(nameof(KraidRoomBackgroundTiles), PpuLayoutRegion.Vram,
-        KraidBackgroundRomData.RoomBackgroundTileVramWord, KraidBackgroundRomData.RoomBackgroundTileBytes / sizeof(ushort),
-        "4-bpp BG characters", GameplayVramLayout.BackgroundCharacters);
 }

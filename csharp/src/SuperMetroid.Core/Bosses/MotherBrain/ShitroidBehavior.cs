@@ -136,7 +136,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
             // This runtime currently presents completed room fades directly in CGRAM.
             // Keep the separate target copy above, but install the same completed value so
             // the encounter does not wait on an untranslated global palette-fade owner.
-            _presentation.BossPalettes.ShitroidTarget(target).Write(color, value);
+            _presentation.BossPalettes().ShitroidTarget(target).Write(color, value);
         }
     }
 
@@ -779,7 +779,7 @@ internal sealed class ShitroidBehavior : IEnemySpecies, IEnemyEntityFactory
         {
             Bgr555 value = (_bossArtwork.Artwork?.ShitroidColors ?? throw new InvalidDataException(
                 "Shitroid normal palette requires installed artwork.")).NormalColor(phase, color);
-            _presentation.BossPalettes.ShitroidMembrane.Write(color, value);
+            _presentation.BossPalettes().ShitroidMembrane.Write(color, value);
         }
     }
 

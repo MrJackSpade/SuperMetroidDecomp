@@ -5,13 +5,10 @@ using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Artwork;
 namespace SuperMetroid.Verification.Bosses;
 
-/// <summary>Checks authored BG2-only boss OAM against native coordinate wrap and clipping behavior.</summary>
+/// <summary>Checks authored BG2-only boss OAM against the whole-frame coordinate wrap and component clipping.</summary>
 internal static class BossDisplayBindingsClippingVerification
 {
-    /// <summary>The OAM row the cartridge parks a hidden sprite on.</summary>
-    private const byte HiddenRow = 240;
-
-    /// <summary>Newly authored OAM on BG2-only roots must use the common native wrap/clipping path.</summary>
+    /// <summary>Newly authored OAM on BG2-only roots keeps wrapped coordinates and clips whole components off the window.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native OAM tables")]
     internal static void VerifyBossDisplayClipping()
     {
@@ -26,7 +23,7 @@ internal static class BossDisplayBindingsClippingVerification
             var original = author.Oam.Frames[selected][0].Parts[0];
             foreach ((ushort originY, int offset, byte expectedY) in new[]
             {
-                ((ushort)252, 8, (byte)240), ((ushort)4, -8, (byte)240),
+                ((ushort)252, 8, (byte)4), ((ushort)4, -8, (byte)252),
                 (unchecked((ushort)-4), 8, (byte)4), ((ushort)260, -8, (byte)252),
             })
             {
@@ -34,16 +31,10 @@ internal static class BossDisplayBindingsClippingVerification
                 var fixture = new BossDisplayFixture(definition, author.Build());
                 fixture.SetFrame(frame.Pointer, false); fixture.Actor.Position = fixture.Actor.Position.WithWholeY(originY);
                 var result = fixture.Draw();
-                // A part the cartridge's carry/sign tests would park at the hidden row is not drawn at all.
-                if (expectedY == HiddenRow)
-                {
-                    AssertEqual(0, result.NextByteOffset, "BG2-only part crossing the vertical boundary is hidden, not wrapped");
-                }
-                else
-                {
-                    AssertEqual(4, result.NextByteOffset, "BG2-only replacement emits exactly its authored sprite");
-                    AssertEqual(expectedY, result.LowTable[1], "new BG2-only OAM obeys complementary native carry/sign wrap tests");
-                }
+                // The cartridge parks a part that crosses the vertical boundary at Y=$F0; #1308 drops that
+                // presentation quirk, so the whole-frame draw keeps the part at its wrapped coordinate.
+                AssertEqual(4, result.NextByteOffset, "BG2-only replacement emits exactly its authored sprite");
+                AssertEqual(expectedY, result.LowTable[1], "new BG2-only OAM keeps its wrapped coordinate (#1308)");
                 checks++;
             }
             foreach ((ushort x, ushort y) in new[] { ((ushort)512, (ushort)128), ((ushort)128, (ushort)512) })

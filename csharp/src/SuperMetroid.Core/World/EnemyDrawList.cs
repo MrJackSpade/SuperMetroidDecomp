@@ -198,7 +198,7 @@ internal sealed class EnemyDrawList
                         ((componentOrigin.Y + 128) & EnemyDrawMasks.OffscreenBits) != 0)
                         continue;
                     EnemyPresentation.PublishParts(sprites, objects, source,
-                        EnemySpriteFrames.RowClippedFrame(component.Parts, unchecked((short)componentOrigin.Y), checked((ushort)slot.VramTilesIndex), checked((ushort)draw.PaletteBits)),
+                        EnemySpriteFrames.Frame(component.Parts, checked((ushort)slot.VramTilesIndex), checked((ushort)draw.PaletteBits)),
                         new Position16<ScreenPixels>(componentOrigin.X, componentOrigin.Y), checked((ushort)draw.PaletteBits));
                 }
             }

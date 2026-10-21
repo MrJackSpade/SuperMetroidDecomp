@@ -1,5 +1,5 @@
+using SuperMetroid.Core.Enemies.Drawing;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Bosses.Artwork;
 using SuperMetroid.Core.Enemies.Chozo;
 
 namespace SuperMetroid.Core.Enemies.Artwork;
@@ -86,7 +86,7 @@ public sealed class ChozoAndTubeColorCatalog
     {
         Ensure.NotNull(cgram);
         for (int color = 0; color < ChozoAndTubeColorRomData.ColorCount; color++)
-            new BossPalettes(cgram).ChozoAndTube.Write(color, ResolveTubeCracks(color));
+            new EnemyPalettes(cgram).ChozoAndTube.Write(color, ResolveTubeCracks(color));
     }
     /// <summary>Installs the 32 selected Wrecked Ship Chozo inks at CGRAM 144–175, replacing the $AA:E31D image copied by initializer $AA:E75C.</summary>
     public void ApplyWreckedShip(IPaletteColors cgram) => Apply(cgram, ChozoStatuePalette.WreckedShip);
@@ -118,7 +118,7 @@ public sealed class ChozoAndTubeColorCatalog
     {
         Ensure.NotNull(cgram);
         for (int color = 0; color < ChozoAndTubeColorRomData.ColorCount; color++)
-            new BossPalettes(cgram).ChozoAndTube.Write(color, ResolveStatue(palette, color));
+            new EnemyPalettes(cgram).ChozoAndTube.Write(color, ResolveStatue(palette, color));
     }
 
     /// <summary>Validates exactly 32 five-bit RGB triples and converts them to packed CGRAM colors.</summary>

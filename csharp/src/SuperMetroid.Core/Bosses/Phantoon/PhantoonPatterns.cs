@@ -687,10 +687,10 @@ internal sealed class PhantoonPatterns
 
         for (int color = 0; color < 16; color++)
         {
-            Bgr555 current = _presentation.BossPalettes.PhantoonBody[color];
+            Bgr555 current = _presentation.BossPalettes().PhantoonBody[color];
             Bgr555 target = (_bossArtwork.Artwork?.PhantoonColors ?? throw new InvalidDataException(
                 "Phantoon fade palette requires installed artwork.")).ResolveFadeOut(color);
-            _presentation.BossPalettes.PhantoonBody.Write(
+            _presentation.BossPalettes().PhantoonBody.Write(
                 color,
                 PhantoonPresentation.CalculatePhantoonTransitionColor(numerator, denominator, current, target));
         }

@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Core.Input;
+﻿using SuperMetroid.Core.Bosses.Artwork;
+using SuperMetroid.Core.Input;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Fx;
 using SuperMetroid.Core.Programs;
@@ -114,8 +115,8 @@ internal sealed class TorizoMovement
         ReadOnlySpan<Bgr555> rows = TorizoPaletteDefinitions.SharedRows;
         for (int color = 0; color < 16; color++)
         {
-            _presentation.BossPalettes.TorizoSharedFirst.Write(color, rows[color]);
-            _presentation.BossPalettes.TorizoSharedSecond.Write(color, rows[16 + color]);
+            _presentation.BossPalettes().TorizoSharedFirst.Write(color, rows[color]);
+            _presentation.BossPalettes().TorizoSharedSecond.Write(color, rows[16 + color]);
         }
     }
 

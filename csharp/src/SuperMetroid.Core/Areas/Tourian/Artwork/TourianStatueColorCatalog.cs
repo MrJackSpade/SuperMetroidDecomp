@@ -1,7 +1,7 @@
+using SuperMetroid.Core.Areas.Artwork;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using SuperMetroid.Core.Assets;
-using SuperMetroid.Core.Bosses.Artwork;
 
 namespace SuperMetroid.Core.Areas.Tourian.Artwork;
 
@@ -65,8 +65,8 @@ public sealed class TourianStatueColorCatalog
     /// <summary>Installs all sixteen base-decoration inks at CGRAM 240–255 and all sixteen statue inks at 160–175, matching the entrance initializer's two OBJ palette bands.</summary>
     public void ApplyEntrance(IPaletteColors cgram)
     {
-        baseColors.Apply(new BossPalettes(cgram).TourianStatueBase);
-        statueColors.Apply(new BossPalettes(cgram).TourianStatue);
+        baseColors.Apply(new AreaPalettes(cgram).TourianStatueBase);
+        statueColors.Apply(new AreaPalettes(cgram).TourianStatue);
     }
 
     /// <summary>Installs the selected four-color eye glow at CGRAM 249–252 without altering boss completion or animated-tile state.</summary>
@@ -78,7 +78,7 @@ public sealed class TourianStatueColorCatalog
             throw new ArgumentOutOfRangeException(nameof(doubledBossParameter));
         Ensure.NotNull(cgram);
         for (int color = 0; color < TourianStatuePaletteRomData.EyeColorCount; color++)
-            new BossPalettes(cgram).TourianStatueEye.Write(color, ResolveEye(doubledBossParameter >> 1, color));
+            new AreaPalettes(cgram).TourianStatueEye.Write(color, ResolveEye(doubledBossParameter >> 1, color));
     }
 
     /// <summary>Installs the eight selected grey inks in current CGRAM at the animation instruction's destination; this method does not own target-palette fade progression.</summary>

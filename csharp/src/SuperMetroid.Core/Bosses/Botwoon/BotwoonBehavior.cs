@@ -713,7 +713,7 @@ internal sealed class BotwoonBehavior : IEnemySpecies, IEnemyEntityFactory
                     $"Botwoon palette destination {destinationColor} is outside the retail sprite palette.");
             int band = state.PalettePhase;
             for (int color = 0; color < colorCount; color++)
-                _presentation.BossPalettes.BotwoonBody.Write(color, colors.HealthColor(band, color));
+                _presentation.BossPalettes().BotwoonBody.Write(color, colors.HealthColor(band, color));
         }
         else throw new InvalidOperationException("Botwoon requires installed health colors.");
         state.PalettePhase++;

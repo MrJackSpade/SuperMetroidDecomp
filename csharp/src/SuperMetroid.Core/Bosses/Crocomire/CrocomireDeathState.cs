@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Enemies.Artwork;
 namespace SuperMetroid.Core.Bosses.Crocomire;
 
 /// <summary>
@@ -14,7 +15,7 @@ public sealed class CrocomireDeathState
     /// <remarks>$A4:943D copies $0201 words for each nominal $0200-word chunk; the seventh second-melt chunk reaches beyond the authored $0E00-byte image.</remarks>
     internal const int MeltingGraphicsByteCount = 4608;
     /// <summary>BG2 tilemap words held while Crocomire's melting image is assembled.</summary>
-    internal const int Bg2WorkingWordCount = 2048;
+    internal const int Bg2WorkingWordCount = EnemyBg2FrameLayout.TilemapWordCount;
 
     /// <summary>Per-column erased heights used by the melting progression.</summary>
     internal readonly byte[] MeltingColumnHeights = new byte[MeltingColumnCount];

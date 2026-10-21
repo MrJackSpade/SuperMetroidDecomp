@@ -63,11 +63,11 @@ internal sealed class KraidBackground
         {
             for (int color = 0; color < 16; color++)
             {
-                Bgr555 current = _presentation.BossPalettes.KraidRoomBackdrop[color];
+                Bgr555 current = _presentation.BossPalettes().KraidRoomBackdrop[color];
                 Bgr555 target = fade == KraidBackdropFade.ToBlack
                     ? Bgr555.Black
                     : ReadKraidColor(KraidPaletteSource.RoomBackdrop, color);
-                _presentation.BossPalettes.KraidRoomBackdrop.Write(color, TransitionKraidColor(step, current, target));
+                _presentation.BossPalettes().KraidRoomBackdrop.Write(color, TransitionKraidColor(step, current, target));
             }
             _presentation.GradualColorChange.Advance();
             return false;

@@ -1,4 +1,5 @@
-﻿using SuperMetroid.Core.Programs;
+﻿using SuperMetroid.Core.Bosses.Artwork;
+using SuperMetroid.Core.Programs;
 using SuperMetroid.Core.Enemies;
 using SuperMetroid.Core.Enemies.Projectiles;
 using SuperMetroid.Core.Enemies.Drawing;
@@ -74,10 +75,10 @@ internal sealed class KraidHead
         int sourceColor = 8 * (thresholdWordOffset + 2);
         for (int color = 0; color < 16; color++)
         {
-            _presentation.BossPalettes.KraidBody.Write(
+            _presentation.BossPalettes().KraidBody.Write(
                 color,
                 _background.ReadKraidColor(KraidPaletteSource.Health, sourceColor + color));
-            _presentation.BossPalettes.KraidSecondary.Write(
+            _presentation.BossPalettes().KraidSecondary.Write(
                 color,
                 _background.ReadKraidColor(KraidPaletteSource.Secondary, sourceColor + color));
         }
@@ -249,7 +250,7 @@ internal sealed class KraidHead
     {
         _ = ProcessKraidHeadInstruction(body, state);
         int completedChannels = 0;
-        CgramPalette eyeColors = _presentation.BossPalettes.KraidEye;
+        CgramPalette eyeColors = _presentation.BossPalettes().KraidEye;
         for (int colorIndex = 0; colorIndex < eyeColors.Count; colorIndex++)
         {
             Bgr555 color = eyeColors[colorIndex];
@@ -291,7 +292,7 @@ internal sealed class KraidHead
         }
         int sourceColor = 8 * (thresholdWordOffset + 2) + 1;
         int changedChannels = 0;
-        CgramPalette eyeColors = _presentation.BossPalettes.KraidEye;
+        CgramPalette eyeColors = _presentation.BossPalettes().KraidEye;
         for (int eye = 0; eye < eyeColors.Count; eye++)
         {
             Bgr555 current = eyeColors[eye];

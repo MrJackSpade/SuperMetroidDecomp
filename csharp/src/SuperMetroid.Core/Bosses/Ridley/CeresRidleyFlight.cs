@@ -117,7 +117,7 @@ internal sealed class CeresRidleyFlight
         // The native loop clears target-palette byte offsets $1E2..$1FE: OBJ palette seven,
         // colors one through fifteen. Color zero belongs to the shared transparent backdrop
         // and is intentionally left untouched.
-        _presentation.BossPalettes.CeresRidleyRevealedObjects.Fill(Bgr555.Black);
+        _presentation.BossPalettes().CeresRidleyRevealedObjects.Fill(Bgr555.Black);
     }
 
     /// <summary>Applies the crossing-frame -16 then +20 velocity changes before shared Ridley motion.</summary>

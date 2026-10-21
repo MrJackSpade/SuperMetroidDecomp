@@ -1,6 +1,7 @@
 using System.Reflection;
 using System.Security.Cryptography;
 using SuperMetroid.Core.Assets;
+using SuperMetroid.TestSupport.VerificationOracles;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rooms;
 using static SuperMetroid.Verification.Enemies.EnemyDefinitionsVerification;
@@ -63,7 +64,7 @@ internal static class EnemyGameplayAcceptanceVerification
         Console.WriteLine("Enemy reference closure: all 153 headers resolve compiled vulnerabilities and drops.");
     }
 
-    /// <summary>Loads a retail KiHunter body-wing population without cartridge memory and checks a PNG edit affects VRAM but no enemy slot or quota.</summary>
+    /// <summary>Loads a retail KiHunter body-wing population without cartridge memory and checks a PNG edit affects the OBJ characters but no enemy slot or quota.</summary>
     [PpuLayoutBoundary("exact hardware test: checks native VRAM words")]
     private static void VerifyEnemyPopulationPresentationIsolation(CartridgeImportAddressSpace source)
     {
@@ -81,7 +82,7 @@ internal static class EnemyGameplayAcceptanceVerification
             .OrderBy(candidate => candidate.EnemyPopulation.Records.Length)
             .ThenBy(candidate => RoomEnemyPopulationDefinitions.PointerOf(candidate.EnemyPopulation)).First();
         RoomEnemyPopulationDefinition population = state.EnemyPopulation;
-        (RoomEnemySystem baseline, SnesVram beforeVram, SnesCgram beforeColors) = Load(stock);
+        (RoomEnemySystem baseline, byte[] beforeCharacters, SnesCgram beforeColors) = Load(stock);
         AssertEqual(population.Records.Length, baseline.SlotTable.EnemyCount, "compiled population publishes its exact count");
         AssertEqual(population.Records.Length * EnemySlotTable.NativeSlotSize, baseline.SlotTable.FirstFreeEnemyIndex,
             "compiled population publishes its physical first-free offset");
@@ -125,14 +126,25 @@ internal static class EnemyGameplayAcceptanceVerification
         byte[] stockBytes = File.ReadAllBytes(Path.Combine(stockPath, EnemyTileArtworkFormat.FileName(editedPointer)));
         string stockHash = Convert.ToHexString(SHA256.HashData(stockBytes));
         InstalledEnemyArtwork edited = EnemyTileArtworkFiles.Load(stockPath, overridePath);
-        (RoomEnemySystem changed, SnesVram afterVram, SnesCgram afterColors) = Load(edited);
-        byte[] expectedVram = beforeVram.Bytes.ToArray();
-        foreach (RoomEnemyGraphicsSetEntry entry in baseline.GraphicsSet.Entries
-                     .Where(entry => entry.Definition.TileDataAddress == editedDefinition.TileDataAddress &&
-                         entry.Definition.TileDataSize == editedDefinition.TileDataSize))
-            expectedVram[RoomEnemyRomLayout.VramByteBase + entry.StagingOffset] ^= 0x80;
-        AssertTrue(!beforeVram.ImageEquals(afterVram) && afterVram.Bytes.SequenceEqual(expectedVram),
-            "PNG replacement changes exactly the authored pixel at its production VRAM destination");
+        (RoomEnemySystem changed, byte[] afterCharacters, SnesCgram afterColors) = Load(edited);
+        RoomEnemyGraphicsSetEntry[] entries = [.. baseline.GraphicsSet.Entries];
+        ObjCharacterUpload[] uploads = [.. baseline.Room.Session.ObjCharacters.Uploads];
+        AssertEqual(entries.Length, uploads.Length, "each selected enemy tile set lands as one OBJ character upload");
+        byte[] expectedCharacters = beforeCharacters.ToArray();
+        for (int index = 0; index < entries.Length; index++)
+            if (entries[index].Definition.TileDataAddress == editedDefinition.TileDataAddress &&
+                entries[index].Definition.TileDataSize == editedDefinition.TileDataSize)
+                expectedCharacters[uploads[index].FirstByte] ^= 0x80;
+        static string ChangedOffsets(ReadOnlySpan<byte> before, ReadOnlySpan<byte> after)
+        {
+            var changed = new List<string>();
+            for (int offset = 0; offset < before.Length; offset++)
+                if (before[offset] != after[offset])
+                    changed.Add($"{offset:X5}:{before[offset]:X2}->{after[offset]:X2}");
+            return string.Join(",", changed);
+        }
+        AssertEqual(ChangedOffsets(beforeCharacters, expectedCharacters), ChangedOffsets(beforeCharacters, afterCharacters),
+            "PNG replacement changes exactly the authored pixel where its upload lands on the OBJ characters");
         AssertTrue(new CgramPalettes(beforeColors).ImageEquals(new CgramPalettes(afterColors)), "PNG replacement does not change enemy colors");
         AssertTrue(stock.ContentIdentity != edited.ContentIdentity, "PNG replacement changes selected presentation identity");
         AssertEqual(edited.ContentIdentity, EnemyTileArtworkFiles.Load(stockPath, overridePath).ContentIdentity,
@@ -147,7 +159,7 @@ internal static class EnemyGameplayAcceptanceVerification
         AssertEqual(baseline.SlotTable.FirstFreeEnemyIndex, changed.SlotTable.FirstFreeEnemyIndex, "enemy artwork cannot change slot allocation");
         AssertEqual(baseline.RoomStatus.BossId, changed.RoomStatus.BossId, "enemy artwork cannot change boss selection");
         Console.WriteLine($"Enemy population binding: {population.Records.Length} linked slots at {population.Name} " +
-            "initialize with RAM-only memory; PNG edits change VRAM, not any slot field or quota.");
+            "initialize with RAM-only memory; PNG edits change the OBJ characters, not any slot field or quota.");
 
         LoadResult Load(InstalledEnemyArtwork artwork)
         {
@@ -155,7 +167,13 @@ internal static class EnemyGameplayAcceptanceVerification
             var enemies = new RoomEnemySystem(new EnemySession(), definitions: CompiledRoomEnemyDefinitions.Instance, services: new StandaloneRoomEnemyServices(() => 1)) { TileArtwork = artwork.Enemies, BossArtwork = artwork.Bosses, AreaArtwork = artwork.Areas };
             var vram = new SnesVram(); var colors = new SnesCgram();
             enemies.Load(new RoomEnemyLoadRequest(state.EnemyPopulation, state.EnemyGraphicsSet, BgArtworkFixtures.For(vram), colors));
-            return new LoadResult(enemies, vram, colors);
+            // The room's enemy tile set reaches the OBJ characters only through the NMI queue, as named transfers.
+            var transfers = new EnemyTileTransfers(artwork);
+            var queue = new VramWriteQueue();
+            enemies.GraphicsSet.QueueGraphicsUploads(queue);
+            queue.DrainTo(vram, transfers, enemies.Room.Session.ObjCharacters, BgArtworkFixtures.For(vram));
+            byte[] characters = new ObjCharacterTablePage().Page(enemies.Room.Session.ObjCharacters, transfers).Characters.ToArray();
+            return new LoadResult(enemies, characters, colors);
         }
 
         static bool IsKiHunterPairList(ushort pointer)

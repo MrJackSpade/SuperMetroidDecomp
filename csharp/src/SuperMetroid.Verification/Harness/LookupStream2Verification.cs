@@ -111,17 +111,21 @@ internal static class LookupStream2Verification
                 AssertTrue(parts.SequenceEqual(EnemySpritemapCatalog.CompileParts(document.Frames[frame.Name], frame.Name)),
                     "Chozo source/supplied part ordering and every visual field remain exact");
             }
-            string expected = SelectedPresentationHash.Create("enemy-oam-v1", content =>
+            string expected = SelectedPresentationHash.Create("enemy-oam-v2", content =>
             {
-                foreach (var frame in definitions.OrderBy(frame => ((int)new SnesAddress(frame.Bank, frame.Pointer))))
+                var ordered = definitions
+                    .OrderBy(frame => frame.Frame.ToString(), StringComparer.Ordinal)
+                    .ToArray();
+                foreach (var frame in ordered)
                 {
-                    content.Append("frame", ((int)new SnesAddress(frame.Bank, frame.Pointer)));
+                    content.AppendName("frame", frame.Frame.ToString());
                     content.AppendEnemyParts(EnemySpritemapCatalog.CompileParts(document.Frames[frame.Name], frame.Name));
                 }
-                foreach (var frame in definitions.OrderBy(frame => ((int)new SnesAddress(frame.Bank, frame.Pointer))))
+                foreach (var frame in ordered)
                 {
-                    content.Append("native-binding", ((int)new SnesAddress(frame.Bank, frame.Pointer)));
-                    content.Append("selected-binding", ((int)new SnesAddress(frame.Bank, frame.Pointer)));
+                    string identity = frame.Frame.ToString();
+                    content.AppendName("native-binding", identity);
+                    content.AppendName("selected-binding", identity);
                 }
             });
             AssertEqual(expected, catalog.ContentIdentity, "Chozo calculated foot fields retain canonical presentation hash");
@@ -475,7 +479,7 @@ internal static class LookupStream2Verification
             AssertEqual((NorfairEnvironmentalPaletteOwner)count, item.Owner, "Norfair native owner order");
             AssertEqual(ReadVerificationWord(rom, 0x8d0000 | item.DefinitionPointer + 2), item.ProgramStart, "Native Norfair definition/list binding");
             AssertEqual(ReadVerificationWord(rom, 0x8d0000 | item.ProgramStart + 2), item.ColorByteIndex, "Native Norfair palette/color role");
-            AssertEqual(ReadVerificationWord(rom, 0x8d0000 | item.LoopInstructionPointer + 2), item.FirstFramePointer, "Native Norfair loop target");
+            AssertEqual(ReadVerificationWord(rom, 0x8d0000 | item.LoopInstructionPointer + 2), item.FirstRecordPointer, "Native Norfair loop target");
             AssertEqual(norfair[count].ProgramStart, item.ProgramStart, "Indexed and enumerated Norfair identities agree");
             count++;
         }
@@ -493,8 +497,8 @@ internal static class LookupStream2Verification
         AssertEqual(2, count, "Complete accent lazy enumeration");
         AssertThrows<ArgumentOutOfRangeException>(() => { _ = norfair[-1]; }, "Norfair lower owner bound");
         AssertThrows<ArgumentOutOfRangeException>(() => { _ = norfair[4]; }, "Norfair upper owner bound");
-        AssertThrows<ArgumentOutOfRangeException>(() => { _ = accents[-1]; }, "Accent lower owner bound");
-        AssertThrows<ArgumentOutOfRangeException>(() => { _ = accents[2]; }, "Accent upper owner bound");
+        AssertThrows<IndexOutOfRangeException>(() => { _ = accents[-1]; }, "Accent lower owner bound");
+        AssertThrows<IndexOutOfRangeException>(() => { _ = accents[2]; }, "Accent upper owner bound");
         Console.WriteLine("Environmental catalogs:six native definition/color/loop bindings,292mechanics words,16heat phase bytes,actual complete/repeating cycles,live colors,enumeration/order and bounds pass; accent timing and independent colors remain pending.");
     }
     /// <summary>Checks extracted pause backdrop geometry, independent edits, and VRAM tile output.</summary>
@@ -1653,7 +1657,7 @@ internal static class LookupStream2Verification
     {
         var transfers = GunshipLiftoffTransferDefinitions.Frames;
         AssertEqual(5, transfers.Count, "Gunship calculated transfer count");
-        var enemies = new RoomEnemySystem(new EnemySession());
+        var enemies = new RoomEnemySystem(new EnemySession()) { TileArtwork = InstalledFixtures.EnemyTiles };
         var slot = enemies.SlotTable.Slots[0];
         var part = new GunshipPartState();
         slot.SetSpeciesState(part, part.ClearWithRecord);
@@ -1670,7 +1674,7 @@ internal static class LookupStream2Verification
             AssertEqual(transfers[enumerated], transfer, "Gunship enumeration and indexing agree");
             append(slot, queue);
             AssertEqual(destination, queue.Entries[enumerated].Destination.Encoded, "Gunship actual queued destination");
-            AssertEqual(source, queue.Entries[enumerated].SourceAddress, "Gunship actual queued source");
+            AssertEqual(transfer.Asset, queue.Entries[enumerated].AssetId, "Gunship actual queued liftoff artwork");
             enumerated++;
         }
         AssertEqual(5, enumerated, "Gunship enumerates every transfer");
@@ -1872,8 +1876,8 @@ internal static class LookupStream2Verification
             enumerated++;
         }
         AssertEqual(2, enumerated, "Torizo definition enumeration");
-        AssertThrows<ArgumentOutOfRangeException>(() => { _ = definitions[-1]; }, "Torizo definition lower bound");
-        AssertThrows<ArgumentOutOfRangeException>(() => { _ = definitions[2]; }, "Torizo definition upper bound");
+        AssertThrows<IndexOutOfRangeException>(() => { _ = definitions[-1]; }, "Torizo definition lower bound");
+        AssertThrows<IndexOutOfRangeException>(() => { _ = definitions[2]; }, "Torizo definition upper bound");
         AssertThrows<ArgumentOutOfRangeException>(() => UpperCrateriaEscapeRedFlashPaletteFxColorDefinitions.FramePointer(-1), "Upper Crateria lower frame bound");
         AssertThrows<ArgumentOutOfRangeException>(() => UpperCrateriaEscapeRedFlashPaletteFxColorDefinitions.FramePointer(14), "Upper Crateria upper frame bound");
         AssertThrows<ArgumentOutOfRangeException>(() => OldTourianEscapeRedFlashPaletteFxColorDefinitions.ColorPointer(0, -1), "Old Tourian lower color bound");
@@ -2214,12 +2218,14 @@ internal static class LookupStream2Verification
                 AssertTrue(expectedOam.ImageEquals(actualOam),
                     "Golden Torizo calculated stock/supplied parts produce exact packed OAM");
             }
-            var identities = definitions.ToDictionary(frame => frame.Name, frame => ((int)new SnesAddress(frame.Bank, frame.Pointer)), StringComparer.Ordinal);
-            string expectedHash = SelectedPresentationHash.Create("enemy-extended-oam-v1", content =>
+            var identities = definitions.ToDictionary(frame => frame.Name,
+                frame => (RoomEnemySlotFrameAccess.FrameAt(frame.Bank, frame.Pointer) ?? throw new InvalidOperationException($"{frame.Name} shows no frame.")).ToString(), StringComparer.Ordinal);
+            var orderedFrames = definitions.OrderBy(frame => identities[frame.Name], StringComparer.Ordinal).ToArray();
+            string expectedHash = SelectedPresentationHash.Create("enemy-extended-oam-v2", content =>
             {
-                foreach (var frame in definitions.OrderBy(frame => ((int)new SnesAddress(frame.Bank, frame.Pointer))))
+                foreach (var frame in orderedFrames)
                 {
-                    content.Append("frame", ((int)new SnesAddress(frame.Bank, frame.Pointer)));
+                    content.AppendName("frame", identities[frame.Name]);
                     var components = document.Frames[frame.Name];
                     content.Append("components", components.Length);
                     foreach (var component in components)
@@ -2228,10 +2234,10 @@ internal static class LookupStream2Verification
                         content.AppendEnemyParts(EnemySpritemapCatalog.CompileParts(component.Parts, frame.Name));
                     }
                 }
-                foreach (var frame in definitions.OrderBy(frame => ((int)new SnesAddress(frame.Bank, frame.Pointer))))
+                foreach (var frame in orderedFrames)
                 {
-                    content.Append("native-binding", ((int)new SnesAddress(frame.Bank, frame.Pointer)));
-                    content.Append("selected-binding", identities[(document.DisplayFrames ?? throw new InvalidOperationException("Verification requires document.DisplayFrames."))[frame.Name]]);
+                    content.AppendName("native-binding", identities[frame.Name]);
+                    content.AppendName("selected-binding", identities[(document.DisplayFrames ?? throw new InvalidOperationException("Verification requires document.DisplayFrames."))[frame.Name]]);
                 }
             });
             AssertEqual(expectedHash, catalog.ContentIdentity, "Golden Torizo calculated extended-part hash remains canonical");

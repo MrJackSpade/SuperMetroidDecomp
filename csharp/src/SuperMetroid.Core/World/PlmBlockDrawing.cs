@@ -1,4 +1,6 @@
-﻿using SuperMetroid.Core.Areas.Tourian;
+﻿using SuperMetroid.Core.Enemies.Elevator.Artwork;
+using SuperMetroid.Core.Enemies.Chozo.Artwork;
+using SuperMetroid.Core.Areas.Tourian;
 using SuperMetroid.Core.Bosses.Crocomire;
 using SuperMetroid.Core.Bosses.Draygon;
 using SuperMetroid.Core.Bosses.MotherBrain;

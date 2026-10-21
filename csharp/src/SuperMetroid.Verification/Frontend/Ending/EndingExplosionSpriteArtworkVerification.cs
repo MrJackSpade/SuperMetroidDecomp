@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Frontend.Cinematics;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
@@ -38,26 +39,26 @@ internal static class EndingExplosionSpriteArtworkVerification
             ushort pointer = CartridgeImportSource.Require(bus).ReadCartridgeWord(address);
             int header = 0x8c0000 | pointer;
             int parts = CartridgeImportSource.Require(bus).ReadCartridgeWord(header);
-            AssertEqual(pointer, frames[i].Pointer, $"explosion catalog native pointer {i}");
-            AssertEqual(pointer, i < 10 ? EndingExplosionSpriteDefinitions.PlanetPointer(i) :
-                EndingExplosionSpriteDefinitions.Pointer((EndingExplosionSpriteDefinitions.Pose)i),
-                $"explosion shared pose pointer {i}");
+            AssertEqual(pointer, CinematicSpritemapAddresses.Of(frames[i].Pose), $"explosion catalog native pointer {i}");
+            AssertEqual(frames[i].Pose, i < 10 ? EndingExplosionSpriteDefinitions.PlanetPose(i) :
+                EndingExplosionSpriteDefinitions.PoseOf((EndingExplosionSpriteDefinitions.Pose)i),
+                $"explosion shared pose {i}");
             AssertEqual(parts, frames[i].StockPartCount, $"explosion catalog native part count {i}");
             AssertEqual(names[i], frames[i].Name, $"explosion catalog asset key {i}");
         }
         AssertTrue(frames.Select(frame => frame.Name).SequenceEqual(names), "explosion catalog enumeration order");
         foreach (int invalid in new[] { int.MinValue, -1, 16, int.MaxValue })
         {
-            AssertThrows<ArgumentOutOfRangeException>(() => _ = frames[invalid], "explosion catalog index bounds");
-            AssertThrows<ArgumentOutOfRangeException>(() => EndingExplosionSpriteDefinitions.Pointer(
+            AssertThrows<IndexOutOfRangeException>(() => _ = frames[invalid], "explosion catalog index bounds");
+            AssertThrows<ArgumentOutOfRangeException>(() => EndingExplosionSpriteDefinitions.PoseOf(
                 (EndingExplosionSpriteDefinitions.Pose)invalid), "explosion pose pointer bounds");
-            AssertThrows<ArgumentOutOfRangeException>(() => EndingExplosionSpriteDefinitions.PlanetPointer(invalid),
+            AssertThrows<ArgumentOutOfRangeException>(() => EndingExplosionSpriteDefinitions.PlanetPose(invalid),
                 "explosion planet record bounds");
         }
         foreach (int planet in new[] { 0, 9 })
-            AssertThrows<ArgumentOutOfRangeException>(() => EndingExplosionSpriteDefinitions.Pointer(
+            AssertThrows<ArgumentOutOfRangeException>(() => EndingExplosionSpriteDefinitions.PoseOf(
                 (EndingExplosionSpriteDefinitions.Pose)planet), "planet records are not composite poses");
-        AssertThrows<ArgumentOutOfRangeException>(() => EndingExplosionSpriteDefinitions.PlanetPointer(10),
+        AssertThrows<ArgumentOutOfRangeException>(() => EndingExplosionSpriteDefinitions.PlanetPose(10),
             "planet record count");
     }
 
@@ -66,11 +67,13 @@ internal static class EndingExplosionSpriteArtworkVerification
     private static void VerifyEndingExplosionCalculatedParts(ISnesAddressSpace bus)
     {
         // Applies the five calculation families only when the supplied sprite map still matches their supported basis.
-        static SpriteComposition Calculate(ushort pointer, SpriteComposition supplied) =>
-            EndingExplosionGridParts.CalculateIfMatching(pointer, EndingExplosionQuadrantParts.CalculateIfMatching(pointer, EndingExplosionStarfieldParts.CalculateIfMatching(pointer, EndingExplosionAfterglowParts.CalculateIfMatching(pointer, EndingExplosionSilhouetteParts.CalculateIfMatching(pointer, supplied)))));
+        static SpriteComposition Calculate(CinematicSpritePose shown, SpriteComposition supplied) =>
+            EndingExplosionGridParts.CalculateIfMatching(shown, EndingExplosionQuadrantParts.CalculateIfMatching(shown, EndingExplosionStarfieldParts.CalculateIfMatching(shown, EndingExplosionAfterglowParts.CalculateIfMatching(shown, EndingExplosionSilhouetteParts.CalculateIfMatching(shown, supplied)))));
         for (int pose = 0; pose < 16; pose++)
         {
             ushort pointer = pose < 10 ? (ushort)(0xa396 + pose * 22) : pose == 10 ? (ushort)0xa472 : pose == 11 ? (ushort)0xa4b0 : pose == 12 ? (ushort)0xa516 : pose == 13 ? (ushort)0xa28b : pose == 14 ? (ushort)0xa5e2 : (ushort)0xa57c;
+            CinematicSpritePose shown = EndingExplosionSpriteDefinitions.Frames
+                .Single(frame => CinematicSpritemapAddresses.Of(frame.Pose) == pointer).Pose;
             int count = CartridgeImportSource.Require(bus).ReadCartridgeWordFixedBank(0x8c0000 | pointer);
             var visual = new SpriteVisualPart[count];
             for (int index = 0; index < count; index++)
@@ -95,7 +98,7 @@ internal static class EndingExplosionSpriteArtworkVerification
                 foreach (int invalid in new[] { int.MinValue, -1, 37, int.MaxValue })
                     AssertThrows<ArgumentOutOfRangeException>(() => EndingExplosionAfterglowParts.StockTile(invalid), "afterglow tile sequence bounds");
             }
-            SpriteComposition calculated = Calculate(pointer, original);
+            SpriteComposition calculated = Calculate(shown, original);
             AssertTrue(!ReferenceEquals(original, calculated), "original grid uses calculated parts");
             // Hashes every compiled visual field and part order to compare authored and calculated compositions.
             string Identity(SpriteComposition composition) => SelectedPresentationHash.Create("grid", composition.AppendIdentity);
@@ -123,7 +126,7 @@ internal static class EndingExplosionSpriteArtworkVerification
                     AssertThrows<ArgumentOutOfRangeException>(() => EndingExplosionQuadrantParts.StockBasis(role, invalid), "quadrant basis index bounds");
                 SpriteComposition editedBasis = IntroCinematicSpriteCompiler.Compile(
                     visual.Select(part => part with { TileRow = part.TileRow + 1, Palette = 3 }).ToArray(), "edited symmetric quadrants");
-                SpriteComposition calculatedBasis = Calculate(pointer, editedBasis);
+                SpriteComposition calculatedBasis = Calculate(shown, editedBasis);
                 AssertTrue(!ReferenceEquals(editedBasis, calculatedBasis), "symmetric edits retain calculated quadrants");
                 AssertEqual(Identity(editedBasis), Identity(calculatedBasis), "edited quadrant inputs preserve every field");
             }
@@ -138,7 +141,7 @@ internal static class EndingExplosionSpriteArtworkVerification
             {
                 visual[0] = edited;
                 SpriteComposition supplied = IntroCinematicSpriteCompiler.Compile(visual, "edited grid");
-                AssertTrue(pose >= 13 ? Identity(supplied) == Identity(Calculate(pointer, supplied)) : ReferenceEquals(supplied, Calculate(pointer, supplied)),
+                AssertTrue(pose >= 13 ? Identity(supplied) == Identity(Calculate(shown, supplied)) : ReferenceEquals(supplied, Calculate(shown, supplied)),
                     "independent edited field keeps supplied composition");
             }
             visual[0] = first;
@@ -149,9 +152,9 @@ internal static class EndingExplosionSpriteArtworkVerification
                 visual[1] = held1;
             }
             SpriteComposition reordered = IntroCinematicSpriteCompiler.Compile(visual, "reordered grid");
-            AssertTrue(pose >= 13 ? Identity(reordered) == Identity(Calculate(pointer, reordered)) : ReferenceEquals(reordered, Calculate(pointer, reordered)), "edited part order is preserved");
+            AssertTrue(pose >= 13 ? Identity(reordered) == Identity(Calculate(shown, reordered)) : ReferenceEquals(reordered, Calculate(shown, reordered)), "edited part order is preserved");
             SpriteComposition shortened = IntroCinematicSpriteCompiler.Compile(visual[..^1], "shortened grid");
-            AssertTrue(pose >= 13 ? Identity(shortened) == Identity(Calculate(pointer, shortened)) : ReferenceEquals(shortened, Calculate(pointer, shortened)), "edited part count is preserved");
+            AssertTrue(pose >= 13 ? Identity(shortened) == Identity(Calculate(shown, shortened)) : ReferenceEquals(shortened, Calculate(shown, shortened)), "edited part count is preserved");
         }
         foreach (int invalid in new[] { int.MinValue, -1, 0, 9, 13, int.MaxValue })
             AssertThrows<ArgumentOutOfRangeException>(() => EndingExplosionQuadrantParts.StockBasis(
@@ -164,14 +167,14 @@ internal static class EndingExplosionSpriteArtworkVerification
     {
         Suite(nameof(VerifyEndingExplosionFrameCatalog), () => VerifyEndingExplosionFrameCatalog(bus));
 
-        foreach (SpriteFrameDefinition frame in EndingExplosionSpriteDefinitions.Frames)
+        foreach (CinematicSpriteFrameDefinition frame in EndingExplosionSpriteDefinitions.Frames)
         {
             foreach (ushort y in new ushort[] { 0x0048, 0xfff8 })
             {
                 bool onScreen =
                     ((y & CinematicSpriteDrawDefinitions.OriginYHighByteMask)) == 0;
                 int source = (int)new SnesAddress(
-                    IntroCinematicRomData.Banks.Spritemaps, frame.Pointer);
+                    IntroCinematicRomData.Banks.Spritemaps, CinematicSpritemapAddresses.Of(frame.Pose));
                 var nativeOam = new OamBuffer();
                 nativeOam.BeginFrame();
                 if (onScreen)
@@ -181,7 +184,7 @@ internal static class EndingExplosionSpriteArtworkVerification
                 nativeOam.FinalizeFrame();
                 var installedOam = ScreenSpritesFixtures.Blank();
                 installedOam.BeginFrame();
-                stock.ExplosionSprites.Draw(frame.Pointer, installedOam,
+                stock.ExplosionSprites.Draw(frame.Pose, installedOam,
                     new(120, y), 0x0800, onScreen);
                 installedOam.FinalizeFrame();
                 AssertTrue(nativeOam.ImageEquals(installedOam) &&

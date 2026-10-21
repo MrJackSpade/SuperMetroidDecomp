@@ -1,58 +1,42 @@
-using System.Collections;
-
 namespace SuperMetroid.Core.Frontend.Intro.Artwork;
 
 /// <summary>Visual OAM compositions selected by the SR388 egg and confused-baby lists.</summary>
 internal static class IntroDiscoveryActorSpriteDefinitions
 {
-    /// <summary>$8C:8D6F, first egg composition.</summary>
-    internal const ushort EggStart = 0x8d6f;
-    /// <summary>$8C:8FCB, first confused-baby composition.</summary>
-    internal const ushort BabyStart = 0x8fcb;
-    /// <summary>$8C:909D, Ceres large asteroids reused by the second confused-baby list.
-    /// The published asset key remains hatched-baby.</summary>
-    internal const ushort BabyLarge = 0x909d;
+    /// <summary>
+    /// Sixteen egg states (intact, seven cracking stages, hatched, seven remnants), three confused Baby states, and the
+    /// large Baby composition the second confused-baby list shares with the Ceres large asteroids; the published asset key
+    /// remains hatched-baby.
+    /// </summary>
+    internal static IReadOnlyList<CinematicSpriteFrameDefinition> Frames { get; } =
+    [
+        new("egg-intact", new(3), 6),
+        new("egg-crack-1", new(4), 9),
+        new("egg-crack-2", new(5), 9),
+        new("egg-crack-3", new(6), 9),
+        new("egg-crack-4", new(7), 9),
+        new("egg-crack-5", new(8), 9),
+        new("egg-crack-6", new(9), 9),
+        new("egg-crack-7", new(10), 9),
+        new("egg-hatched", new(11), 9),
+        new("egg-remnant-1", new(12), 3),
+        new("egg-remnant-2", new(13), 3),
+        new("egg-remnant-3", new(14), 3),
+        new("egg-remnant-4", new(15), 3),
+        new("egg-remnant-5", new(16), 3),
+        new("egg-remnant-6", new(17), 3),
+        new("egg-remnant-7", new(18), 3),
+        new("confused-baby-1", new(30), 1),
+        new("confused-baby-2", new(31), 1),
+        new("confused-baby-3", new(32), 1),
+        new("hatched-baby", new(33), 19),
+    ];
 
-    /// <summary>Six-part intact record, eight nine-part cracking records, then seven three-part remnants.</summary>
-    internal static ushort EggFramePointer(int frame)
-    {
-        if ((uint)frame >= 16) throw new ArgumentOutOfRangeException(nameof(frame));
-        return (ushort)(EggStart + (frame > 0 ? 32 : 0) + 47 * Math.Clamp(frame - 1, 0, 8) + 17 * Math.Max(frame - 9, 0));
-    }
+    /// <summary>The pose of egg state <paramref name="frame"/>, 0 (intact) through 15 (last remnant).</summary>
+    internal static CinematicSpritePose EggFramePose(int frame) =>
+        (uint)frame < 16 ? Frames[frame].Pose : throw new ArgumentOutOfRangeException(nameof(frame));
 
-    /// <summary>Three consecutive one-part confused-baby records, seven bytes each.</summary>
-    internal static ushort BabyFramePointer(int frame)
-    {
-        if ((uint)frame >= 3) throw new ArgumentOutOfRangeException(nameof(frame));
-        return (ushort)(BabyStart + 7 * frame);
-    }
-
-    /// <summary>Exposes sixteen egg states, three confused Baby states, and the separately keyed large Baby composition.</summary>
-    internal static IReadOnlyList<IntroSpriteFrameDefinition> Frames { get; } = new FrameList();
-    /// <summary>Calculates native pointers and expected OAM part counts for the twenty discovery compositions.</summary>
-    private sealed class FrameList : IReadOnlyList<IntroSpriteFrameDefinition>
-    {
-        /// <summary>Sixteen egg states plus four Baby compositions.</summary>
-        public int Count => 20;
-        /// <summary>Pairs a discovery frame's native pointer with its asset key and expected part count.</summary>
-        public IntroSpriteFrameDefinition this[int index]
-        {
-            get
-            {
-                if ((uint)index >= Count) throw new ArgumentOutOfRangeException(nameof(index));
-                if (index == 19) return new(BabyLarge, "hatched-baby", 19);
-                if (index >= 16) return new(BabyFramePointer(index - 16), $"confused-baby-{index - 15}", 1);
-                string name = index == 0 ? "egg-intact" : index == 8 ? "egg-hatched"
-                    : index < 8 ? $"egg-crack-{index}" : $"egg-remnant-{index - 8}";
-                return new(EggFramePointer(index), name, index == 0 ? 6 : index < 9 ? 9 : 3);
-            }
-        }
-        /// <summary>Enumerates discovery frames in egg, confused Baby, then large Baby order.</summary>
-        public IEnumerator<IntroSpriteFrameDefinition> GetEnumerator()
-        {
-            for (int index = 0; index < Count; index++) yield return this[index];
-        }
-        /// <summary>Exposes the same frame order to non-generic collection consumers.</summary>
-        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
-    }
+    /// <summary>The pose of confused-baby state <paramref name="frame"/>, 0 through 2.</summary>
+    internal static CinematicSpritePose BabyFramePose(int frame) =>
+        (uint)frame < 3 ? Frames[16 + frame].Pose : throw new ArgumentOutOfRangeException(nameof(frame));
 }

@@ -1,75 +1,39 @@
-using System.Collections;
-using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Frontend.Intro;
 
 namespace SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
 
-/// <summary>Six named visual selections made by the five Ceres flight instruction
-/// streams. The vortex stream alternates two drawings; the other streams each
-/// select one drawing. Catalog order and published asset names remain stable.</summary>
+/// <summary>Six named visual selections made by the five Ceres flight instruction streams. The vortex stream alternates
+/// two drawings; the other streams each select one drawing. Catalog order and published asset names remain stable.</summary>
 public static class CeresFlightSpriteDefinitions
 {
-    /// <summary>8C:9478, SpaceSpritemaps_CeresStars, selected by 8B:CDA3.</summary>
-    internal const ushort Stars = 0x9478;
-    /// <summary>8C:94F7, SpaceSpritemaps_CeresExplosionLargeAsteroids, selected by 8B:CE4B.</summary>
-    internal const ushort LargeAsteroids = 0x94f7;
-    /// <summary>8C:9150, SpaceSpritemaps_CeresUnderAttack, selected by 8B:CC47.</summary>
-    internal const ushort StationUnderAttack = 0x9150;
-    /// <summary>8C:90FE, SpaceSpritemaps_CeresSmallAsteroids, selected by 8B:CC4F.</summary>
-    internal const ushort SmallAsteroids = 0x90fe;
-    /// <summary>8C:8FE7, SpaceSpritemaps_CeresPurpleVortexFrame1, first drawing in 8B:CC57.</summary>
-    internal const ushort VortexEven = (ushort)CeresVortexFrame.Even;
-    /// <summary>8C:93D1, SpaceSpritemaps_CeresPurpleVortexFrame2, second drawing in 8B:CC57.</summary>
-    internal const ushort VortexOdd = (ushort)CeresVortexFrame.Odd;
+    /// <summary>The stars, large asteroid, station under attack, small asteroid and the two vortex drawings.</summary>
+    public static IReadOnlyList<CinematicSpriteFrameDefinition> Frames { get; } =
+    [
+        new("stars", new(66), 25),
+        new("large-asteroid", new(82), 19),
+        new("station-under-attack", new(34), 41),
+        new("small-asteroid", new(35), 16),
+        new("vortex-even", new(36), 36),
+        new("vortex-odd", new(37), 33),
+    ];
 
-    /// <summary>Immutable six-name bank-$8C catalog in stable stars, large-asteroid, station, small-asteroid, and two-vortex order; maps editable composition names to native visual identities and descriptive stock OAM counts, not instruction timing.</summary>
-    public static IReadOnlyList<SpriteFrameDefinition> Frames { get; } = new FrameList();
+    /// <summary>The star field the flight background stream shows.</summary>
+    internal static CinematicSpritePose Stars => Frames[0].Pose;
 
-    /// <summary>Stable ordinal positions of the six published Ceres flight compositions.</summary>
-    private enum Visual
+    /// <summary>The large asteroids of the approach, at OBJ priority zero.</summary>
+    internal static CinematicSpritePose LargeAsteroids => Frames[1].Pose;
+
+    /// <summary>The damaged station of the attack sequence.</summary>
+    internal static CinematicSpritePose StationUnderAttack => Frames[2].Pose;
+
+    /// <summary>The small asteroids beside the station.</summary>
+    internal static CinematicSpritePose SmallAsteroids => Frames[3].Pose;
+
+    /// <summary>The cinematic pose of a purple vortex drawing.</summary>
+    internal static CinematicSpritePose VortexPose(CeresVortexFrame frame) => frame switch
     {
-        /// <summary>Star field drawing selected by the flight background stream.</summary>
-        Stars,
-        /// <summary>Large asteroid composition selected during the explosion flight.</summary>
-        LargeAsteroids,
-        /// <summary>Damaged station drawing selected during the attack sequence.</summary>
-        StationUnderAttack,
-        /// <summary>Small asteroid composition selected beside the station.</summary>
-        SmallAsteroids,
-        /// <summary>First of the two alternating purple vortex drawings.</summary>
-        VortexEven,
-        /// <summary>Second of the two alternating purple vortex drawings.</summary>
-        VortexOdd,
-    }
-
-    /// <summary>Projects stable visual ordinals to native pointers and stock OAM counts.</summary>
-    private sealed class FrameList : IReadOnlyList<SpriteFrameDefinition>
-    {
-        /// <summary>Four single-frame streams and the vortex stream's two alternating frames.</summary>
-        public int Count => 6;
-        /// <summary>Pairs a visual ordinal with its published name, native pointer, and stock part count.</summary>
-        public SpriteFrameDefinition this[int index]
-        {
-            get
-            {
-                if ((uint)index >= Count) throw new ArgumentOutOfRangeException(nameof(index));
-                return (Visual)index switch
-                {
-                    Visual.Stars => new("stars", Stars, 25),
-                    Visual.LargeAsteroids => new("large-asteroid", LargeAsteroids, 19),
-                    Visual.StationUnderAttack => new("station-under-attack", StationUnderAttack, 41),
-                    Visual.SmallAsteroids => new("small-asteroid", SmallAsteroids, 16),
-                    Visual.VortexEven => new("vortex-even", VortexEven, 36),
-                    Visual.VortexOdd => new("vortex-odd", VortexOdd, 33),
-                    _ => throw new ArgumentOutOfRangeException(nameof(index)),
-                };
-            }
-        }
-        /// <summary>Yields the six compositions in published catalog order.</summary>
-        public IEnumerator<SpriteFrameDefinition> GetEnumerator()
-        {
-            for (int index = 0; index < Count; index++) yield return this[index];
-        }
-        /// <summary>Exposes published catalog order to non-generic callers.</summary>
-        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
-    }
+        CeresVortexFrame.Even => Frames[4].Pose,
+        CeresVortexFrame.Odd => Frames[5].Pose,
+        _ => throw new ArgumentOutOfRangeException(nameof(frame)),
+    };
 }

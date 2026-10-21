@@ -55,7 +55,7 @@ internal static class CeresReflectedStarPartsVerification
                 else reference.DrawOffScreen(expectedOam, new(120, y), 0x0800);
                 expectedOam.FinalizeFrame();
                 var actual = ScreenSpritesFixtures.Blank(); actual.BeginFrame();
-                loaded.Draw(0x8fe7, actual, new(120, y), 0x0800, y == 72); actual.FinalizeFrame();
+                loaded.Draw(CeresFlightSpriteDefinitions.VortexPose(CeresVortexFrame.Even), actual, new(120, y), 0x0800, y == 72); actual.FinalizeFrame();
                 AssertTrue(expectedOam.ImageEquals(actual)
                     && expectedOam.LastFinalizedSpriteCount == actual.LastFinalizedSpriteCount, "reflection loader preserves independent and paired edits");
             }

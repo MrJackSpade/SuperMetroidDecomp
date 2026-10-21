@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend.Intro;
 using System.Collections;
 using SuperMetroid.Core.Assets;
 
@@ -8,8 +9,8 @@ namespace SuperMetroid.Core.Frontend.Ending.Artwork;
 internal sealed class EndingRewardJumpParts : IReadOnlyList<CompiledSpritePart>
 {
     /// <summary>Uses calculated parts only for the suited ending jump frame.</summary>
-    internal static SpriteComposition CalculateIfMatching(ushort pointer, SpriteComposition supplied) =>
-        pointer == EndingRewardSpriteDefinitions.FramePointer(EndingRewardSpriteFrame.LargeSamusFromEndingJumping)
+    internal static SpriteComposition CalculateIfMatching(CinematicSpritePose shown, SpriteComposition supplied) =>
+        shown == EndingRewardSpriteDefinitions.FramePose(EndingRewardSpriteFrame.LargeSamusFromEndingJumping)
             ? supplied.CalculateIfMatching(new EndingRewardJumpParts()) : supplied;
 
     /// <summary>Twenty native limb and body sprite strips form the jumping pose.</summary>

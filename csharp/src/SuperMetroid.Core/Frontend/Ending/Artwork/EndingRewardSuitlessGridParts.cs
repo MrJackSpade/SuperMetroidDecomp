@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend.Intro;
 using System.Collections;
 using Pose = SuperMetroid.Core.Frontend.Ending.Artwork.EndingRewardSpriteFrame;
 using SuperMetroid.Core.Assets;
@@ -9,13 +10,13 @@ namespace SuperMetroid.Core.Frontend.Ending.Artwork;
 internal sealed class EndingRewardSuitlessGridParts(Pose pose) : IReadOnlyList<CompiledSpritePart>
 {
     /// <summary>Recalculates only the three suitless frame compositions represented by atlas grids.</summary>
-    internal static SpriteComposition CalculateIfMatching(ushort pointer, SpriteComposition supplied)
+    internal static SpriteComposition CalculateIfMatching(CinematicSpritePose shown, SpriteComposition supplied)
     {
-        if (pointer == EndingRewardSpriteDefinitions.FramePointer(Pose.SuitlessSamusLowerBody))
+        if (shown == EndingRewardSpriteDefinitions.FramePose(Pose.SuitlessSamusLowerBody))
             return supplied.CalculateIfMatching(new EndingRewardSuitlessGridParts(Pose.SuitlessSamusLowerBody));
-        if (pointer == EndingRewardSpriteDefinitions.FramePointer(Pose.SuitlessSamusPreparingToJump))
+        if (shown == EndingRewardSpriteDefinitions.FramePose(Pose.SuitlessSamusPreparingToJump))
             return supplied.CalculateIfMatching(new EndingRewardSuitlessGridParts(Pose.SuitlessSamusPreparingToJump));
-        if (pointer == EndingRewardSpriteDefinitions.FramePointer(Pose.SuitlessSamusJumping))
+        if (shown == EndingRewardSpriteDefinitions.FramePose(Pose.SuitlessSamusJumping))
             return supplied.CalculateIfMatching(new EndingRewardSuitlessGridParts(Pose.SuitlessSamusJumping));
         return supplied;
     }

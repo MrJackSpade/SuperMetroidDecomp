@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Frontend.Cinematics;
 using SuperMetroid.Verification.Frontend.Intro;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
@@ -76,7 +77,7 @@ internal static class EndingLogoVerification
         {
             var definition = catalog[index];
             return IntroCinematicSpriteCompiler.Compile(IntroCinematicSpriteFrameExtractor.Extract(
-                bus, definition.Pointer, definition.StockPartCount, definition.Name), definition.Name);
+                bus, CinematicSpritemapAddresses.Of(definition.Pose), definition.StockPartCount, definition.Name), definition.Name);
         }
         SpriteComposition upper = ReadComposition(0).CalculateIfMatching(new EndingLogoUpperParts()),
             completeRight = EndingLogoWrapParts.CalculateIfMatching(ReadComposition(4));
@@ -86,7 +87,7 @@ internal static class EndingLogoVerification
             ushort pointer = SnesLittleEndian.Word(CpuBusRegionRead.Read(bus, operand), CpuBusRegionRead.Read(bus, operand + 1));
             int header = 0x8c0000 | pointer;
             int count = SnesLittleEndian.Word(CpuBusRegionRead.Read(bus, header), CpuBusRegionRead.Read(bus, header + 1));
-            AssertEqual(pointer, catalog[i].Pointer, "logo frame address from original instruction operand");
+            AssertEqual(pointer, CinematicSpritemapAddresses.Of(catalog[i].Pose), "logo frame address from original instruction operand");
             AssertEqual(count, catalog[i].StockPartCount, "logo part count from original OAM header");
             AssertEqual(names[i], catalog[i].Name, "logo published asset key");
             VerifyEndingLogoRelatedParts(bus, i, catalog[i], upper, completeRight);
@@ -94,17 +95,16 @@ internal static class EndingLogoVerification
         AssertTrue(catalog.Select(frame => frame.Name).SequenceEqual(names), "logo catalog enumeration order");
         foreach (int invalid in new[] { int.MinValue, -1, 8, int.MaxValue })
         {
-            AssertThrows<ArgumentOutOfRangeException>(() => _ = catalog[invalid], "logo catalog bounds");
-            AssertThrows<ArgumentOutOfRangeException>(() => EndingLogoSpriteDefinitions.FramePointer(invalid), "logo frame address bounds");
+            AssertThrows<IndexOutOfRangeException>(() => _ = catalog[invalid], "logo catalog bounds");
         }
     }
 
     /// <summary>Checks calculated logo sprite relationships while preserving supplied edits and native OAM placement.</summary>
     private static void VerifyEndingLogoRelatedParts(ISnesAddressSpace bus, int frame,
-        SpriteFrameDefinition definition, SpriteComposition upper, SpriteComposition completeRight)
+        CinematicSpriteFrameDefinition definition, SpriteComposition upper, SpriteComposition completeRight)
     {
         SpriteVisualPart[] visual = IntroCinematicSpriteFrameExtractor.Extract(bus,
-            definition.Pointer, definition.StockPartCount, definition.Name);
+            CinematicSpritemapAddresses.Of(definition.Pose), definition.StockPartCount, definition.Name);
         SpriteComposition supplied = IntroCinematicSpriteCompiler.Compile(visual, definition.Name);
         if (frame == 4)
         {
@@ -148,7 +148,7 @@ internal static class EndingLogoVerification
             var originalOam = new OamBuffer();
             var calculatedOam = new OamBuffer();
             originalOam.BeginFrame(); calculatedOam.BeginFrame();
-            DrawImportedSpritemap(bus, originalOam, 0x8c0000 | definition.Pointer, new(120, y), 0x0800, originIsOnScreen: y == 72);
+            DrawImportedSpritemap(bus, originalOam, 0x8c0000 | CinematicSpritemapAddresses.Of(definition.Pose), new(120, y), 0x0800, originIsOnScreen: y == 72);
             if (y == 72) calculated.DrawOnScreen(calculatedOam, new(120, y), 0x0800);
             else calculated.DrawOffScreen(calculatedOam, new(120, y), 0x0800);
             originalOam.FinalizeFrame(); calculatedOam.FinalizeFrame();

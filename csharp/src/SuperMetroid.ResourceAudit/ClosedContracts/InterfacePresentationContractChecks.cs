@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.Tooling;
 using System.Text.Json;
 using Microsoft.CodeAnalysis;
@@ -23,7 +24,7 @@ internal static class InterfacePresentationContractChecks
             Frames = IntroDiscoveryActorSpriteDefinitions.Frames.ToDictionary(frame => frame.Name, _ => Array.Empty<SpriteVisualPart>()) };
         Stream Json() => new MemoryStream(JsonSerializer.SerializeToUtf8Bytes(document, ArtworkJson.Options));
         IntroDiscoveryActorSpritePresentation actor = IntroDiscoveryActorSpritePresentation.Load(Json());
-        actor.Draw(IntroDiscoveryActorSpriteDefinitions.Frames[0].Pointer,
+        actor.Draw(IntroDiscoveryActorSpriteDefinitions.Frames[0].Pose,
             new ScreenSprites(new SpriteArtwork(new SpriteArtworkId(SpriteArtworkKind.IntroObjects), new byte[SpriteArtwork.CharacterByteCount]),
                 ObjectSelectionCodec.Sizes(MenuRenderDefinitions.ObjectSelection)), new(0, 0), 0, true);
         document.Frames.Remove(IntroDiscoveryActorSpriteDefinitions.Frames[0].Name);
@@ -42,9 +43,9 @@ internal static class InterfacePresentationContractChecks
             using SuperMetroid.Core.Fx.PaletteFx;
             using SuperMetroid.Core.Hardware;
             class InterfaceConsumer {
-                void Inspect(IIntroCinematicSpritePresentation sprites, IPaletteFxColorSource colors, ushort pointer, PaletteFxColorKey key, SuperMetroid.Core.Assets.ScreenSprites oam) {
-                    sprites.Draw(pointer, oam, default, 0, true);
-                    sprites.Draw(0, oam, default, 0, true);
+                void Inspect(IIntroCinematicSpritePresentation sprites, IPaletteFxColorSource colors, SuperMetroid.Core.Frontend.Intro.CinematicSpritePose pose, PaletteFxColorKey key, SuperMetroid.Core.Assets.ScreenSprites oam) {
+                    sprites.Draw(pose, oam, default, 0, true);
+                    sprites.Draw(new SuperMetroid.Core.Frontend.Intro.CinematicSpritePose(26), oam, default, 0, true);
                     colors.TryReadColor(key, out _);
                 }
             }
@@ -69,7 +70,7 @@ internal static class InterfacePresentationContractChecks
         Require(after.Classifications.Count == 2 && after.UnresolvedCount == 1 && after.Consumers.Count == 3,
             "reviewed interface operations qualify but an unowned cinematic frame remains a finding" + " (" + after.Describe() + ")");
         foreach (string extra in new[] {
-            "class OtherSprite : SuperMetroid.Core.Frontend.Intro.Artwork.IIntroCinematicSpritePresentation { public void Draw(ushort pointer, SuperMetroid.Core.Assets.ScreenSprites objects, SuperMetroid.Core.Spatial.Position16<SuperMetroid.Core.Spatial.OamPixels> origin, ushort paletteBits, bool originIsOnScreen) {} }",
+            "class OtherSprite : SuperMetroid.Core.Frontend.Intro.Artwork.IIntroCinematicSpritePresentation { public void Draw(SuperMetroid.Core.Frontend.Intro.CinematicSpritePose pose, SuperMetroid.Core.Assets.ScreenSprites objects, SuperMetroid.Core.Spatial.Position16<SuperMetroid.Core.Spatial.OamPixels> origin, ushort paletteBits, bool originIsOnScreen) {} }",
             "class OtherColors : SuperMetroid.Core.Fx.Artwork.IPaletteFxColorSource { public bool TryReadColor(SuperMetroid.Core.Fx.PaletteFx.PaletteFxColorKey key, out SuperMetroid.Core.Hardware.Bgr555 color) { color = default; return false; } }" })
         {
             AuditReport revoked = Inspect(Compile(trees.Append(CSharpSyntaxTree.ParseText(extra, path: "fixture-unreviewed-interface-owner.cs"))), true);

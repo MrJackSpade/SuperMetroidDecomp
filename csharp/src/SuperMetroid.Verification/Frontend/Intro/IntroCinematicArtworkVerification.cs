@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Frontend.Cinematics;
 using static SuperMetroid.Verification.Frontend.Intro.IntroArtworkPostSlicesVerification;
 using static SuperMetroid.Verification.Harness.FullRunSuitesVerification;
 using static SuperMetroid.Verification.Harness.SuiteSchedulingVerification;
@@ -663,17 +664,17 @@ internal static class IntroCinematicArtworkVerification
         const ushort originX = 8;
         const ushort originY = 24;
         ushort paletteBits = IntroCinematicRomData.Objects.ScientistPalette.Raw;
-        foreach (IntroSpriteFrameDefinition definition in IntroCaretSpriteDefinitions.Frames)
+        foreach (CinematicSpriteFrameDefinition definition in IntroCaretSpriteDefinitions.Frames)
         {
             var native = new OamBuffer();
             native.BeginFrame();
             DrawImportedSpritemap(bus, native,
                 (int)new SnesAddress(IntroCinematicRomData.Banks.Spritemaps,
-                    definition.Pointer), new(originX, originY), paletteBits);
+                    CinematicSpritemapAddresses.Of(definition.Pose)), new(originX, originY), paletteBits);
             native.FinalizeFrame();
             var installed = ScreenSpritesFixtures.Blank();
             installed.BeginFrame();
-            stock.CaretSprites.Draw(definition.Pointer, installed,
+            stock.CaretSprites.Draw(definition.Pose, installed,
                 new(originX, originY), paletteBits);
             installed.FinalizeFrame();
             AssertTrue(installed.ImageEquals(native) &&
@@ -705,12 +706,12 @@ internal static class IntroCinematicArtworkVerification
             IntroCaretSpritePresentation previous = IntroCaretSpritePresentation.Load(previousJson);
             var previousOam = ScreenSpritesFixtures.Blank();
             previousOam.BeginFrame();
-            previous.Draw(IntroCaretSpriteDefinitions.Still, previousOam,
+            previous.Draw(IntroCaretSpriteDefinitions.Visible.Pose, previousOam,
                 new(originX, originY), paletteBits);
             previousOam.FinalizeFrame();
             var stockOam = ScreenSpritesFixtures.Blank();
             stockOam.BeginFrame();
-            stock.CaretSprites.Draw(IntroCaretSpriteDefinitions.Still, stockOam,
+            stock.CaretSprites.Draw(IntroCaretSpriteDefinitions.Visible.Pose, stockOam,
                 new(originX, originY), paletteBits);
             stockOam.FinalizeFrame();
             AssertTrue(previousOam.ImageEquals(stockOam),
@@ -724,11 +725,11 @@ internal static class IntroCinematicArtworkVerification
         IntroCaretSpritePresentation edited = IntroCaretSpritePresentation.Load(editedJson);
         var changed = ScreenSpritesFixtures.Blank();
         changed.BeginFrame();
-        edited.Draw(IntroCaretSpriteDefinitions.Still, changed, new(originX, originY), paletteBits);
+        edited.Draw(IntroCaretSpriteDefinitions.Visible.Pose, changed, new(originX, originY), paletteBits);
         changed.FinalizeFrame();
         var original = ScreenSpritesFixtures.Blank();
         original.BeginFrame();
-        stock.CaretSprites.Draw(IntroCaretSpriteDefinitions.Still, original,
+        stock.CaretSprites.Draw(IntroCaretSpriteDefinitions.Visible.Pose, original,
             new(originX, originY), paletteBits);
         original.FinalizeFrame();
         AssertTrue(!changed.LowTable.SequenceEqual(original.LowTable) &&
@@ -759,7 +760,7 @@ internal static class IntroCinematicArtworkVerification
         {
             nativeBlink.Step(0);
             installedBlink.Step(0);
-            ushort expected = (frame / 5) % 2 == 0 ? IntroCaretSpriteDefinitions.Still : (ushort)0;
+            ushort expected = (frame / 5) % 2 == 0 ? CinematicSpritemapAddresses.Of(IntroCaretSpriteDefinitions.Visible.Pose) : (ushort)0;
             AssertEqual(expected, CinematicSpritePoseSpritemaps.Of(nativeBlink.CaretPose),
                 $"native caret blink selects visible/blank frame at frame {frame}");
             AssertEqual(expected, CinematicSpritePoseSpritemaps.Of(installedBlink.CaretPose),
@@ -799,20 +800,20 @@ internal static class IntroCinematicArtworkVerification
     private static void VerifyIntroMotherBrainSpriteArtwork(SuperMetroid.AssetExtraction.Cartridge.CartridgeImportAddressSpace bus,
         IntroCinematicArtworkCatalog stock, GameInstallation installation)
     {
-        foreach (SpritemapFrameDefinition definition in
+        foreach (CinematicSpriteFrameDefinition definition in
             IntroMotherBrainSpriteDefinitions.Frames)
         {
             var native = new OamBuffer();
             native.BeginFrame();
             DrawImportedSpritemap(bus, native,
                 (int)new SnesAddress(IntroCinematicRomData.Banks.Spritemaps,
-                    definition.Pointer),
+                    CinematicSpritemapAddresses.Of(definition.Pose)),
                 new(IntroMotherBrainSpriteState.Position.X, IntroMotherBrainSpriteState.Position.Y),
                 IntroMotherBrainSpriteState.PaletteBits);
             native.FinalizeFrame();
             var installed = ScreenSpritesFixtures.Blank();
             installed.BeginFrame();
-            stock.MotherBrainSprites.Draw(definition.Pointer, installed,
+            stock.MotherBrainSprites.Draw(definition.Pose, installed,
                 IntroMotherBrainSpriteState.Position.ToOam(),
                 IntroMotherBrainSpriteState.PaletteBits);
             installed.FinalizeFrame();
@@ -834,13 +835,13 @@ internal static class IntroCinematicArtworkVerification
         IntroCinematicArtworkCatalog edited = installation.LoadIntroCinematicArt();
         var stockOam = ScreenSpritesFixtures.Blank();
         stockOam.BeginFrame();
-        stock.MotherBrainSprites.Draw(IntroMotherBrainSpriteDefinitions.FrameZero, stockOam,
+        stock.MotherBrainSprites.Draw(IntroMotherBrainSpriteDefinitions.FramePose(0), stockOam,
             IntroMotherBrainSpriteState.Position.ToOam(),
             IntroMotherBrainSpriteState.PaletteBits);
         stockOam.FinalizeFrame();
         var editedOam = ScreenSpritesFixtures.Blank();
         editedOam.BeginFrame();
-        edited.MotherBrainSprites.Draw(IntroMotherBrainSpriteDefinitions.FrameZero, editedOam,
+        edited.MotherBrainSprites.Draw(IntroMotherBrainSpriteDefinitions.FramePose(0), editedOam,
             IntroMotherBrainSpriteState.Position.ToOam(),
             IntroMotherBrainSpriteState.PaletteBits);
         editedOam.FinalizeFrame();
@@ -881,18 +882,18 @@ internal static class IntroCinematicArtworkVerification
         const ushort x = 120;
         const ushort y = 100;
         ushort palette = IntroCinematicRomData.Objects.ExplosionPalette.Raw;
-        foreach (IntroSpriteFrameDefinition definition in
+        foreach (CinematicSpriteFrameDefinition definition in
             IntroMotherBrainExplosionSpriteDefinitions.Frames)
         {
             var native = new OamBuffer();
             native.BeginFrame();
             DrawImportedSpritemap(bus, native,
                 (int)new SnesAddress(IntroCinematicRomData.Banks.Spritemaps,
-                    definition.Pointer), new(x, y), palette);
+                    CinematicSpritemapAddresses.Of(definition.Pose)), new(x, y), palette);
             native.FinalizeFrame();
             var installed = ScreenSpritesFixtures.Blank();
             installed.BeginFrame();
-            stock.MotherBrainExplosionSprites.Draw(definition.Pointer, installed,
+            stock.MotherBrainExplosionSprites.Draw(definition.Pose, installed,
                 new(x, y), palette);
             installed.FinalizeFrame();
             AssertTrue(installed.ImageEquals(native) &&
@@ -977,10 +978,10 @@ internal static class IntroCinematicArtworkVerification
     {
         if (blocked.HasFlag(IntroArtworkSources.CeresFlightSprites))
         {
-            foreach (SpriteFrameDefinition frame in CeresFlightSpriteDefinitions.Frames)
+            foreach (CinematicSpriteFrameDefinition frame in CeresFlightSpriteDefinitions.Frames)
             {
                 int start = (int)new SnesAddress(
-                    IntroCinematicRomData.Banks.Spritemaps, frame.Pointer);
+                    IntroCinematicRomData.Banks.Spritemaps, CinematicSpritemapAddresses.Of(frame.Pose));
                 if (address >= start && address < start + 2 + frame.StockPartCount * 5)
                 {
                     return $"Ceres flight reread installed spritemap ${address:X6}.";
@@ -993,7 +994,7 @@ internal static class IntroCinematicArtworkVerification
                 CeresDestructionSpriteDefinitions.Frames)
             {
                 int start = (int)new SnesAddress(
-                    IntroCinematicRomData.Banks.Spritemaps, frame.Pointer);
+                    IntroCinematicRomData.Banks.Spritemaps, CinematicSpritemapAddresses.Of(frame.Pose));
                 if (address >= start && address < start + 2 + frame.StockPartCount * 5)
                 {
                     return $"Ceres destruction reread installed spritemap ${address:X6}.";
@@ -1043,90 +1044,28 @@ internal static class IntroCinematicArtworkVerification
             return $"Cinematic reread a native cinematic sprite list ${address:X6}.";
         int eyeFrameStart = (int)new SnesAddress(IntroCinematicRomData.Banks.Spritemaps,
             IntroEyeAnimationDefinitions.FrameStartPointer);
-        foreach (IntroSpriteFrameDefinition caret in IntroCaretSpriteDefinitions.Frames)
+        foreach (CinematicSpriteFrameDefinition caret in IntroCaretSpriteDefinitions.Frames)
         {
             int sourceAddress = (int)new SnesAddress(
-                IntroCinematicRomData.Banks.Spritemaps, caret.Pointer);
+                IntroCinematicRomData.Banks.Spritemaps, CinematicSpritemapAddresses.Of(caret.Pose));
             int byteCount = 2 + caret.StockPartCount * 5;
             if (address >= sourceAddress && address < sourceAddress + byteCount)
             {
                 return $"Cinematic reread caret composition ${address:X6}.";
             }
         }
-        int motherBrainSpriteStart = (int)new SnesAddress(
-            IntroCinematicRomData.Banks.Spritemaps,
-            IntroMotherBrainSpriteDefinitions.FrameZero);
-        int motherBrainSpriteEnd = (int)new SnesAddress(
-            IntroCinematicRomData.Banks.Spritemaps,
-            (ushort)(IntroMotherBrainSpriteDefinitions.FrameTwo +
-                2 + IntroMotherBrainSpriteDefinitions.StockPartCount * 5));
-        if (address >= motherBrainSpriteStart && address < motherBrainSpriteEnd)
-        {
+        if (RereadsFrame(IntroMotherBrainSpriteDefinitions.Frames))
             return $"Cinematic reread intro Mother Brain sprite ${address:X6}.";
-        }
-        int explosionSpriteStart = (int)new SnesAddress(
-            IntroCinematicRomData.Banks.Spritemaps,
-            IntroMotherBrainExplosionSpriteDefinitions.SmallStart);
-        int explosionSpriteEnd = (int)new SnesAddress(
-            IntroCinematicRomData.Banks.Spritemaps,
-            IntroMotherBrainExplosionSpriteDefinitions.End);
-        if (blocked.HasFlag(IntroArtworkSources.IntroMotherBrainExplosions) &&
-            address >= explosionSpriteStart && address < explosionSpriteEnd)
-        {
+        if (blocked.HasFlag(IntroArtworkSources.IntroMotherBrainExplosions) && RereadsFrame(IntroMotherBrainExplosionSpriteDefinitions.Frames))
             return $"Cinematic reread intro Mother Brain explosion sprite ${address:X6}.";
-        }
-        int rinkaSpriteStart = (int)new SnesAddress(
-            IntroCinematicRomData.Banks.Spritemaps, IntroRinkaSpriteDefinitions.First);
-        int rinkaSpriteEnd = (int)new SnesAddress(
-            IntroCinematicRomData.Banks.Spritemaps, IntroRinkaSpriteDefinitions.End);
-        if (blocked.HasFlag(IntroArtworkSources.IntroRinkas) &&
-            address >= rinkaSpriteStart && address < rinkaSpriteEnd)
-        {
+        if (blocked.HasFlag(IntroArtworkSources.IntroRinkas) && RereadsFrame(IntroRinkaSpriteDefinitions.Frames))
             return $"Cinematic reread intro Rinka sprite ${address:X6}.";
-        }
-        int eggEffectSpriteStart = (int)new SnesAddress(
-            IntroCinematicRomData.Banks.Spritemaps,
-            IntroEggEffectSpriteDefinitions.Start);
-        int eggEffectSpriteEnd = (int)new SnesAddress(
-            IntroCinematicRomData.Banks.Spritemaps,
-            IntroEggEffectSpriteDefinitions.End);
-        if (blocked.HasFlag(IntroArtworkSources.IntroEggEffects) &&
-            address >= eggEffectSpriteStart && address < eggEffectSpriteEnd)
-        {
+        if (blocked.HasFlag(IntroArtworkSources.IntroEggEffects) && RereadsFrame(IntroEggEffectSpriteDefinitions.Frames))
             return $"Cinematic reread intro egg effect sprite ${address:X6}.";
-        }
-        if (blocked.HasFlag(IntroArtworkSources.IntroDiscoveryActors))
-        {
-            int eggStart = (int)new SnesAddress(IntroCinematicRomData.Banks.Spritemaps,
-                IntroDiscoveryActorSpriteDefinitions.EggStart);
-            int eggEnd = (int)new SnesAddress(IntroCinematicRomData.Banks.Spritemaps,
-                IntroDiscoveryActorSpriteDefinitions.EggEnd);
-            int babyStart = (int)new SnesAddress(IntroCinematicRomData.Banks.Spritemaps,
-                IntroDiscoveryActorSpriteDefinitions.BabyStart);
-            int babySmallEnd = (int)new SnesAddress(IntroCinematicRomData.Banks.Spritemaps,
-                IntroDiscoveryActorSpriteDefinitions.BabySmallEnd);
-            int babyLarge = (int)new SnesAddress(IntroCinematicRomData.Banks.Spritemaps,
-                IntroDiscoveryActorSpriteDefinitions.BabyLarge);
-            int babyEnd = (int)new SnesAddress(IntroCinematicRomData.Banks.Spritemaps,
-                IntroDiscoveryActorSpriteDefinitions.BabyEnd);
-            if (address >= eggStart && address < eggEnd ||
-                address >= babyStart && address < babySmallEnd ||
-                address >= babyLarge && address < babyEnd)
-            {
-                return $"Cinematic reread intro discovery actor sprite ${address:X6}.";
-            }
-        }
-        int scientistSpriteStart = (int)new SnesAddress(
-            IntroCinematicRomData.Banks.Spritemaps,
-            IntroScientistSpriteDefinitions.Start);
-        int scientistSpriteEnd = (int)new SnesAddress(
-            IntroCinematicRomData.Banks.Spritemaps,
-            IntroScientistSpriteDefinitions.End);
-        if (blocked.HasFlag(IntroArtworkSources.IntroScientistSprites) &&
-            address >= scientistSpriteStart && address < scientistSpriteEnd)
-        {
+        if (blocked.HasFlag(IntroArtworkSources.IntroDiscoveryActors) && RereadsFrame(IntroDiscoveryActorSpriteDefinitions.Frames))
+            return $"Cinematic reread intro discovery actor sprite ${address:X6}.";
+        if (blocked.HasFlag(IntroArtworkSources.IntroScientistSprites) && RereadsFrame(IntroScientistSpriteDefinitions.Frames))
             return $"Cinematic reread intro scientist sprite ${address:X6}.";
-        }
         if ((address >= eyeScriptStart &&
                 address < eyeScriptStart + IntroEyeAnimationDefinitionsConstants.EndPointer -
                     IntroEyeAnimationDefinitionsConstants.StartPointer) ||
@@ -1137,6 +1076,11 @@ internal static class IntroCinematicArtworkVerification
             return $"Cinematic reread opening eye source ${address:X6}.";
         }
         return null;
+
+        // Whether the read lands inside one of the frames' stock spritemap records.
+        bool RereadsFrame(IEnumerable<CinematicSpriteFrameDefinition> frames) => frames.Any(frame =>
+            (int)new SnesAddress(IntroCinematicRomData.Banks.Spritemaps, CinematicSpritemapAddresses.Of(frame.Pose)) is var start &&
+            address >= start && address < start + 2 + frame.StockPartCount * 5);
     }
 
     /// <summary>The installed artwork sources an intro read guard forbids the cinematic to reread (#633).</summary>

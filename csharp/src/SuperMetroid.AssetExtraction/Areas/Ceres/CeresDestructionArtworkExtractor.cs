@@ -1,3 +1,5 @@
+using SuperMetroid.AssetExtraction.Frontend.Cinematics;
+using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.Core;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
@@ -65,7 +67,7 @@ internal static class CeresDestructionArtworkExtractor
         foreach (CeresDestructionSpriteFrameDefinition definition in
             CeresDestructionSpriteDefinitions.Frames)
             frames.Add(definition.Name, IntroCinematicSpriteFrameExtractor.Extract(
-                bus, definition.Pointer, definition.StockPartCount, definition.Name));
+                bus, CinematicSpritemapAddresses.Of(definition.Pose), definition.StockPartCount, definition.Name));
         using var spritesJson = new MemoryStream();
         CeresDestructionSpritePresentation.Write(spritesJson,
             new CeresDestructionSpriteDocument

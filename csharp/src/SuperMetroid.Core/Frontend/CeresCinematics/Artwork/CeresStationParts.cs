@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend.Intro;
 using System.Collections;
 using SuperMetroid.Core.Assets;
 
@@ -7,9 +8,9 @@ namespace SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
 /// and their adjoining cells. Preserve the native publication order.</summary>
 internal sealed class CeresStationParts : IReadOnlyList<CompiledSpritePart>
 {
-    /// <summary>Uses calculated station pieces only for the matching under-attack frame pointer.</summary>
-    internal static SpriteComposition CalculateIfMatching(ushort pointer, SpriteComposition supplied) =>
-        pointer == CeresFlightSpriteDefinitions.StationUnderAttack
+    /// <summary>Uses calculated station pieces only for the matching under-attack pose.</summary>
+    internal static SpriteComposition CalculateIfMatching(CinematicSpritePose shown, SpriteComposition supplied) =>
+        shown == CeresFlightSpriteDefinitions.StationUnderAttack
             ? supplied.CalculateIfMatching(new CeresStationParts()) : supplied;
     /// <summary>Native under-attack station composition spans forty-one OAM parts.</summary>
     public int Count => 41;

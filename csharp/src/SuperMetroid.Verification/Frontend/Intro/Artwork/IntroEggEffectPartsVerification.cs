@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Frontend.Cinematics;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Frontend.Map.MapSpritesVerification;
@@ -16,9 +17,9 @@ internal static class IntroEggEffectPartsVerification
         string Identity(SpriteComposition value) => SelectedPresentationHash.Create("egg-effect", value.AppendIdentity);
         foreach (var definition in IntroEggEffectSpriteDefinitions.Frames)
         {
-            SpriteVisualPart[] visual = IntroCinematicSpriteFrameExtractor.Extract(rom, definition.Pointer, 1, definition.Name);
+            SpriteVisualPart[] visual = IntroCinematicSpriteFrameExtractor.Extract(rom, CinematicSpritemapAddresses.Of(definition.Pose), 1, definition.Name);
             SpriteComposition source = IntroCinematicSpriteCompiler.Compile(visual, definition.Name);
-            SpriteComposition result = IntroEggEffectParts.CalculateIfMatching(definition.Pointer, source);
+            SpriteComposition result = IntroEggEffectParts.CalculateIfMatching(definition.Pose, source);
             AssertTrue(!ReferenceEquals(source, result), "original egg effect selects calculated parts");
             AssertEqual(Identity(source), Identity(result), "all original egg-effect compiled fields");
             var part = visual[0];
@@ -33,17 +34,17 @@ internal static class IntroEggEffectPartsVerification
             foreach (var edit in edits)
             {
                 var supplied = IntroCinematicSpriteCompiler.Compile([edit], "edited egg effect");
-                AssertTrue(ReferenceEquals(supplied, IntroEggEffectParts.CalculateIfMatching(definition.Pointer, supplied)),
+                AssertTrue(ReferenceEquals(supplied, IntroEggEffectParts.CalculateIfMatching(definition.Pose, supplied)),
                     "independent egg-effect field edit stays supplied");
             }
             var extra = IntroCinematicSpriteCompiler.Compile([part, part], "two-part effect");
-            AssertTrue(ReferenceEquals(extra, IntroEggEffectParts.CalculateIfMatching(definition.Pointer, extra)), "custom part count preserved");
+            AssertTrue(ReferenceEquals(extra, IntroEggEffectParts.CalculateIfMatching(definition.Pose, extra)), "custom part count preserved");
             foreach (int invalid in new[] { -1, 1, int.MaxValue })
                 AssertThrows<ArgumentOutOfRangeException>(() => result.Part(invalid), "calculated egg part bounds");
             foreach (ushort y in new ushort[] { 72, 0xfff8 })
             {
                 var native = new OamBuffer(); native.BeginFrame();
-                DrawImportedSpritemap(rom, native, 0x8c0000 + definition.Pointer, new(120, y), 0x0e00, originIsOnScreen: y == 72);
+                DrawImportedSpritemap(rom, native, 0x8c0000 + CinematicSpritemapAddresses.Of(definition.Pose), new(120, y), 0x0e00, originIsOnScreen: y == 72);
                 native.FinalizeFrame();
                 var actual = new OamBuffer(); actual.BeginFrame();
                 if (y == 72) result.DrawOnScreen(actual, new(120, y), 0x0e00);

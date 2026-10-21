@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend.Intro;
 using System.Collections;
 using SuperMetroid.Core.Assets;
 
@@ -19,11 +20,17 @@ internal sealed class CeresLargeAsteroidParts(
     : IReadOnlyList<CompiledSpritePart>
 {
     /// <summary>Reconstructs native asteroid atlas parts only when a supplied composition matches the nineteen-part layout.</summary>
-    internal static SpriteComposition CalculateIfMatching(ushort pointer, SpriteComposition supplied)
+    internal static SpriteComposition CalculateIfMatching(CinematicSpritePose shown, SpriteComposition supplied)
     {
-        // Shared OAM-record pointer space: other compositions belong to other owners.
-        if (!Enum.IsDefined((CeresLargeAsteroidComposition)pointer) || supplied.PartCount != 19) return supplied;
-        var composition = (CeresLargeAsteroidComposition)pointer;
+        // Other poses belong to other owners.
+        CeresLargeAsteroidComposition composition;
+        if (shown == CeresDestructionSpriteDefinitions.BackdropPose(CeresDestructionBackdrop.LargeAsteroids))
+            composition = CeresLargeAsteroidComposition.UnderAttack;
+        else if (shown == CeresFlightSpriteDefinitions.LargeAsteroids)
+            composition = CeresLargeAsteroidComposition.Approach;
+        else
+            return supplied;
+        if (supplied.PartCount != 19) return supplied;
         static Offset16<OamPixels> Anchor(CompiledSpritePart part) => new Offset16<OamPixels>(checked((short)part.X.SignedOffset), checked((short)part.Y.SignedOffset));
         var left = Anchor(supplied.Part(5));
         var right = Anchor(supplied.Part(12));

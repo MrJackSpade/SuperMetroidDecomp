@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend.Intro;
 using System.Collections;
 using SuperMetroid.Core.Assets;
 
@@ -21,9 +22,9 @@ internal sealed class EndingExplosionStarfieldParts : IReadOnlyList<CompiledSpri
     private EndingExplosionStarfieldParts(Star[] stars) => this.stars = stars;
 
     /// <summary>Recognizes the star pose and tile family, then substitutes calculated OAM only when every supplied part matches.</summary>
-    internal static SpriteComposition CalculateIfMatching(ushort pointer, SpriteComposition supplied)
+    internal static SpriteComposition CalculateIfMatching(CinematicSpritePose shown, SpriteComposition supplied)
     {
-        if (pointer != EndingExplosionSpriteDefinitions.Pointer(EndingExplosionSpriteDefinitions.Pose.Stars)) return supplied;
+        if (shown != EndingExplosionSpriteDefinitions.PoseOf(EndingExplosionSpriteDefinitions.Pose.Stars)) return supplied;
         var stars = new Star[supplied.PartCount];
         for (int index = 0; index < stars.Length; index++)
         {

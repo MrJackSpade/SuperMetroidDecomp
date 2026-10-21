@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend.Intro;
 using System.Collections;
 using SuperMetroid.Core.Assets;
 
@@ -9,9 +10,9 @@ internal sealed class CeresStarPointParts(CeresStarPointDefinition[] points, Sne
     : IReadOnlyList<CompiledSpritePart>
 {
     /// <summary>Reconstructs common attributes only for the 25-part Ceres star composition; otherwise retains supplied artwork.</summary>
-    internal static SpriteComposition CalculateIfMatching(ushort pointer, SpriteComposition supplied)
+    internal static SpriteComposition CalculateIfMatching(CinematicSpritePose shown, SpriteComposition supplied)
     {
-        if (pointer != CeresFlightSpriteDefinitions.Stars || supplied.PartCount != 25) return supplied;
+        if (shown != CeresFlightSpriteDefinitions.Stars || supplied.PartCount != 25) return supplied;
         var parts = Enumerable.Range(0, supplied.PartCount).Select(supplied.Part).ToArray();
         var selected = CalculateIfMatching(parts, SnesTileFlipFlags.Horizontal);
         return ReferenceEquals(parts, selected) ? supplied : supplied.CalculateIfMatching(selected);

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend.Intro;
 using System.Collections;
 using Pose = SuperMetroid.Core.Frontend.Ending.Artwork.EndingExplosionSpriteDefinitions.Pose;
 using SuperMetroid.Core.Assets;
@@ -97,13 +98,13 @@ internal sealed class EndingExplosionQuadrantParts : IReadOnlyList<CompiledSprit
     }
 
     /// <summary>Uses a supplied first quadrant to calculate matching glow or supernova reflections.</summary>
-    internal static SpriteComposition CalculateIfMatching(ushort pointer, SpriteComposition supplied)
+    internal static SpriteComposition CalculateIfMatching(CinematicSpritePose shown, SpriteComposition supplied)
     {
         int count, first;
         Pose pose;
-        if (pointer == EndingExplosionSpriteDefinitions.Pointer(Pose.Glow)) { count = 3; first = 0; pose = Pose.Glow; }
-        else if (pointer == EndingExplosionSpriteDefinitions.Pointer(Pose.SupernovaFirst)) { count = 5; first = 0; pose = Pose.SupernovaFirst; }
-        else if (pointer == EndingExplosionSpriteDefinitions.Pointer(Pose.SupernovaSecond)) { count = 5; first = 3; pose = Pose.SupernovaSecond; }
+        if (shown == EndingExplosionSpriteDefinitions.PoseOf(Pose.Glow)) { count = 3; first = 0; pose = Pose.Glow; }
+        else if (shown == EndingExplosionSpriteDefinitions.PoseOf(Pose.SupernovaFirst)) { count = 5; first = 0; pose = Pose.SupernovaFirst; }
+        else if (shown == EndingExplosionSpriteDefinitions.PoseOf(Pose.SupernovaSecond)) { count = 5; first = 3; pose = Pose.SupernovaSecond; }
         else return supplied;
         if (supplied.PartCount != count * 4) return supplied;
         var basis = new CompiledSpritePart[count];

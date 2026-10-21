@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend.Intro;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
@@ -7,25 +8,25 @@ namespace SuperMetroid.Core.Frontend.Ending.Artwork;
 /// <summary>Editable OAM compositions for the 56 completion-message glyph frames.</summary>
 public sealed class EndingCompletionTextSpritePresentation : IIntroCinematicSpritePresentation
 {
-    /// <summary>Compiled phrase prefixes, digits, and colon keyed by their bank-$8C spritemap pointers.</summary>
-    private readonly Dictionary<ushort, SpriteComposition> frames;
+    /// <summary>Compiled phrase prefixes, digits, and colon keyed by the poses that show them.</summary>
+    private readonly Dictionary<CinematicSpritePose, SpriteComposition> frames;
 
     /// <summary>Retains the complete validated composition set independently of authoring arrays.</summary>
-    private EndingCompletionTextSpritePresentation(Dictionary<ushort, SpriteComposition> frames) =>
+    private EndingCompletionTextSpritePresentation(Dictionary<CinematicSpritePose, SpriteComposition> frames) =>
         this.frames = frames;
 
     /// <summary>Canonical identity of the selected decoded visual frames, not JSON formatting.</summary>
-    public string ContentIdentity => SelectedPresentationHash.FromCompositions(nameof(EndingCompletionTextSpritePresentation), frames);
+    public string ContentIdentity => CinematicSpriteArtwork.ContentIdentity(nameof(EndingCompletionTextSpritePresentation), frames);
 
     /// <summary>Appends the selected completion-text composition's parts in authored OAM order, preserving inherited palettes and the native on-screen/off-screen clipping path.</summary>
-    /// <param name="pointer">Bank-$8C spritemap identity for a phrase prefix, digit, or colon; an uninstalled identity is rejected.</param>
+    /// <param name="pose">The cinematic pose whose composition to draw.</param>
     /// <param name="objects">Destination OAM buffer for this frame's text parts.</param>
     /// <param name="origin">Native wrapped sixteen-bit screen origin in pixels.</param>
     /// <param name="paletteBits">Packed OBJ palette bits used only by parts whose editable palette is null.</param>
     /// <param name="originIsOnScreen">Selects ordinary origin clipping when true or the native negative-origin Y-wrap path when false.</param>
-    public void Draw(ushort pointer, ScreenSprites objects, Position16<OamPixels> origin,
+    public void Draw(CinematicSpritePose pose, ScreenSprites objects, Position16<OamPixels> origin,
         ushort paletteBits, bool originIsOnScreen) =>
-        SpriteComposition.DrawInstalled(frames, "Ending completion text", pointer, objects, origin, paletteBits, originIsOnScreen);
+        CinematicSpriteArtwork.DrawInstalled(frames, "Ending completion text", pose, objects, origin, paletteBits, originIsOnScreen);
 
     /// <summary>Loads version-1 <c>ending-completion-text-sprites.json</c>, requiring all 56 named compositions and validating each ordered part's offsets, tile region, size, palette, and priority.</summary>
     /// <param name="json">Caller-owned JSON stream consumed from its current position and left open; unknown and duplicate properties are rejected.</param>
@@ -35,21 +36,21 @@ public sealed class EndingCompletionTextSpritePresentation : IIntroCinematicSpri
         Ensure.NotNull(json);
         EndingCompletionTextSpriteDocument document;
         document = JsonAssetDocument.Read<EndingCompletionTextSpriteDocument>(json, ArtworkJson.Options, "ending completion text sprite");
-        IReadOnlyList<SpriteFrameDefinition> definitions =
+        IReadOnlyList<CinematicSpriteFrameDefinition> definitions =
             EndingCompletionTextSpriteDefinitions.Frames;
         if (document.Version != EndingCompletionTextSpriteFormat.Version ||
             document.Frames is null || document.Frames.Count != definitions.Count)
             throw new InvalidDataException(
                 $"Ending completion text requires exactly {definitions.Count} named visual frames.");
-        var frames = new Dictionary<ushort, SpriteComposition>();
+        var frames = new Dictionary<CinematicSpritePose, SpriteComposition>();
         for (int index = 0; index < definitions.Count; index++)
         {
-            SpriteFrameDefinition definition = definitions[index];
+            CinematicSpriteFrameDefinition definition = definitions[index];
             if (!document.Frames.TryGetValue(definition.Name, out SpriteVisualPart[]? visual) ||
                 visual is null)
                 throw new InvalidDataException(
                     $"Ending completion text frame {definition.Name} is missing.");
-            frames.Add(definition.Pointer,
+            frames.Add(definition.Pose,
                 IntroCinematicSpriteCompiler.Compile(visual, definition.Name)
                     .CalculateIfMatching(new EndingCompletionTextParts(index)));
         }

@@ -1,50 +1,26 @@
-using System.Collections;
-
 namespace SuperMetroid.Core.Frontend.Intro.Artwork;
 
-/// <summary>The twelve OAM compositions selected by the fourth-hit explosion loops.</summary>
+/// <summary>The twelve OAM compositions selected by the fourth-hit explosion loops: six small, then six large.</summary>
 internal static class IntroMotherBrainExplosionSpriteDefinitions
 {
-    /// <summary>$8C:97F7, first small-explosion frame; the last frame ends at $8C:985D.</summary>
-    internal const ushort SmallStart = 0x97f7;
-    /// <summary>$8C:985D, first large-explosion frame; the last frame ends at $8C:98D2.</summary>
-    internal const ushort BigStart = 0x985d;
+    /// <summary>Six small explosion frames (two one-part, then four-part), then six large (one one-part, then four-part).</summary>
+    internal static IReadOnlyList<CinematicSpriteFrameDefinition> Frames { get; } =
+    [
+        new("small-explosion-0", new(41), 1),
+        new("small-explosion-1", new(42), 1),
+        new("small-explosion-2", new(43), 4),
+        new("small-explosion-3", new(44), 4),
+        new("small-explosion-4", new(45), 4),
+        new("small-explosion-5", new(46), 4),
+        new("big-explosion-0", new(67), 1),
+        new("big-explosion-1", new(68), 4),
+        new("big-explosion-2", new(69), 4),
+        new("big-explosion-3", new(70), 4),
+        new("big-explosion-4", new(71), 4),
+        new("big-explosion-5", new(72), 4),
+    ];
 
-    /// <summary>Six consecutive native records per effect. Small starts with two
-    /// one-part records; big starts with one. Remaining records contain four parts.
-    /// Each record is a two-byte count plus five bytes per part, hence strides7/22.</summary>
-    internal static ushort FramePointer(bool big, int frame)
-    {
-        if ((uint)frame >= 6) throw new ArgumentOutOfRangeException(nameof(frame));
-        int single = Math.Min(frame, big ? 1 : 2);
-        return (ushort)((big ? BigStart : SmallStart) + single * 7 + (frame - single) * 22);
-    }
-
-    /// <summary>Enumerates six small and six large explosion OAM records in native effect order.</summary>
-    internal static IReadOnlyList<IntroSpriteFrameDefinition> Frames { get; } = new FrameList();
-    /// <summary>Computes native OAM pointers, stable artwork keys, and part counts for each explosion pose.</summary>
-    private sealed class FrameList : IReadOnlyList<IntroSpriteFrameDefinition>
-    {
-        /// <summary>Six frames for each of the two explosion sizes.</summary>
-        public int Count => 12;
-        /// <summary>Selects a small or large frame and its one- or four-part native OAM record.</summary>
-        public IntroSpriteFrameDefinition this[int index]
-        {
-            get
-            {
-                if ((uint)index >= Count) throw new ArgumentOutOfRangeException(nameof(index));
-                bool big = index >= 6;
-                int frame = index % 6;
-                return new(FramePointer(big, frame), $"{(big ? "big" : "small")}-explosion-{frame}",
-                    frame < (big ? 1 : 2) ? 1 : 4);
-            }
-        }
-        /// <summary>Yields all small frames followed by all large frames.</summary>
-        public IEnumerator<IntroSpriteFrameDefinition> GetEnumerator()
-        {
-            for (int index = 0; index < Count; index++) yield return this[index];
-        }
-        /// <summary>Preserves native effect order for non-generic collection consumers.</summary>
-        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
-    }
+    /// <summary>The pose of explosion frame <paramref name="frame"/>, 0 through 5, of the small or <paramref name="big"/> effect.</summary>
+    internal static CinematicSpritePose FramePose(bool big, int frame) =>
+        (uint)frame < 6 ? Frames[(big ? 6 : 0) + frame].Pose : throw new ArgumentOutOfRangeException(nameof(frame));
 }

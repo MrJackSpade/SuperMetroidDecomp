@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend.Intro;
 using System.Collections;
 using Pose = SuperMetroid.Core.Frontend.Ending.Artwork.EndingRewardSpriteFrame;
 using SuperMetroid.Core.Assets;
@@ -37,12 +38,12 @@ internal sealed class EndingRewardHairParts : IReadOnlyList<CompiledSpritePart>
     internal static Offset16<OamPixels> OppositeForearm(Offset16<OamPixels> anchor)
         => new Offset16<OamPixels>(checked((short)(1 - 16 - anchor.X)), checked((short)(anchor.Y - 1)));
     /// <summary>Replaces a matching hair-release frame with its packed atlas composition when the supplied part count agrees.</summary>
-    internal static SpriteComposition CalculateIfMatching(ushort pointer, SpriteComposition supplied)
+    internal static SpriteComposition CalculateIfMatching(CinematicSpritePose shown, SpriteComposition supplied)
     {
         for (int stage = 0; stage < EndingRewardSpriteFrameSeries.HairOpening.Count; stage++)
         {
             Pose pose = EndingRewardSpriteFrameSeries.HairOpening[stage];
-            if (pointer != EndingRewardSpriteDefinitions.FramePointer(pose)) continue;
+            if (shown != EndingRewardSpriteDefinitions.FramePose(pose)) continue;
             if (supplied.PartCount != PartCount(stage)) return supplied;
             return supplied.CalculateIfMatching(new EndingRewardHairParts(stage, supplied));
         }

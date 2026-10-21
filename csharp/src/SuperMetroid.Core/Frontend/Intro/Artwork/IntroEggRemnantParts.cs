@@ -7,10 +7,10 @@ namespace SuperMetroid.Core.Frontend.Intro.Artwork;
 internal sealed class IntroEggRemnantParts(int frame) : IReadOnlyList<CompiledSpritePart>
 {
     /// <summary>Uses calculated shell parts only for one of the seven remnant frame pointers.</summary>
-    internal static SpriteComposition CalculateIfMatching(ushort pointer, SpriteComposition supplied)
+    internal static SpriteComposition CalculateIfMatching(CinematicSpritePose shown, SpriteComposition supplied)
     {
         for (int frame = 0; frame < 7; frame++)
-            if (IntroDiscoveryActorSpriteDefinitions.EggFramePointer(9 + frame) == pointer)
+            if (IntroDiscoveryActorSpriteDefinitions.EggFramePose(9 + frame) == shown)
                 return supplied.CalculateIfMatching(new IntroEggRemnantParts(frame));
         return supplied;
     }

@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Frontend.Cinematics;
 using SuperMetroid.AssetExtraction.Frontend.Ending;
 using SuperMetroid.Core;
 using System.Buffers.Binary;
@@ -254,9 +255,9 @@ public static class IntroCinematicArtworkFiles
         void WriteCaretSprites()
         {
             var frames = new Dictionary<string, SpriteVisualPart[]>(StringComparer.Ordinal);
-            foreach (IntroSpriteFrameDefinition definition in IntroCaretSpriteDefinitions.Frames)
+            foreach (CinematicSpriteFrameDefinition definition in IntroCaretSpriteDefinitions.Frames)
                 frames.Add(definition.Name, IntroCinematicSpriteFrameExtractor.Extract(bus,
-                    definition.Pointer, definition.StockPartCount, definition.Name));
+                    CinematicSpritemapAddresses.Of(definition.Pose), definition.StockPartCount, definition.Name));
             using var json = new MemoryStream();
             IntroCaretSpritePresentation.Write(json, new IntroCaretSpriteDocument
             {
@@ -273,10 +274,10 @@ public static class IntroCinematicArtworkFiles
         void WriteMotherBrainSprites()
         {
             var frames = new Dictionary<string, SpriteVisualPart[]>(StringComparer.Ordinal);
-            foreach (SpritemapFrameDefinition definition in
+            foreach (CinematicSpriteFrameDefinition definition in
                 IntroMotherBrainSpriteDefinitions.Frames)
                 frames.Add(definition.Name, IntroCinematicSpriteFrameExtractor.Extract(bus,
-                    definition.Pointer, IntroMotherBrainSpriteDefinitions.StockPartCount,
+                    CinematicSpritemapAddresses.Of(definition.Pose), IntroMotherBrainSpriteDefinitions.StockPartCount,
                     definition.Name));
             using var json = new MemoryStream();
             IntroMotherBrainSpritePresentation.Write(json, new IntroMotherBrainSpriteDocument
@@ -294,10 +295,10 @@ public static class IntroCinematicArtworkFiles
         void WriteMotherBrainExplosionSprites()
         {
             var frames = new Dictionary<string, SpriteVisualPart[]>(StringComparer.Ordinal);
-            foreach (IntroSpriteFrameDefinition definition in
+            foreach (CinematicSpriteFrameDefinition definition in
                 IntroMotherBrainExplosionSpriteDefinitions.Frames)
                 frames.Add(definition.Name, IntroCinematicSpriteFrameExtractor.Extract(bus,
-                    definition.Pointer, definition.StockPartCount, definition.Name));
+                    CinematicSpritemapAddresses.Of(definition.Pose), definition.StockPartCount, definition.Name));
             using var json = new MemoryStream();
             IntroMotherBrainExplosionSpritePresentation.Write(json,
                 new IntroMotherBrainExplosionSpriteDocument
@@ -316,9 +317,9 @@ public static class IntroCinematicArtworkFiles
         void WriteRinkaSprites()
         {
             var frames = new Dictionary<string, SpriteVisualPart[]>(StringComparer.Ordinal);
-            foreach (SpritemapFrameDefinition definition in IntroRinkaSpriteDefinitions.Frames)
+            foreach (CinematicSpriteFrameDefinition definition in IntroRinkaSpriteDefinitions.Frames)
                 frames.Add(definition.Name, IntroCinematicSpriteFrameExtractor.Extract(bus,
-                    definition.Pointer, IntroRinkaSpriteDefinitions.StockPartCount,
+                    CinematicSpritemapAddresses.Of(definition.Pose), IntroRinkaSpriteDefinitions.StockPartCount,
                     definition.Name));
             using var json = new MemoryStream();
             IntroRinkaSpritePresentation.Write(json, new IntroRinkaSpriteDocument
@@ -337,10 +338,10 @@ public static class IntroCinematicArtworkFiles
         void WriteEggEffectSprites()
         {
             var frames = new Dictionary<string, SpriteVisualPart[]>(StringComparer.Ordinal);
-            foreach (SpritemapFrameDefinition definition in
+            foreach (CinematicSpriteFrameDefinition definition in
                 IntroEggEffectSpriteDefinitions.Frames)
                 frames.Add(definition.Name, IntroCinematicSpriteFrameExtractor.Extract(bus,
-                    definition.Pointer, IntroEggEffectSpriteDefinitions.StockPartCount,
+                    CinematicSpritemapAddresses.Of(definition.Pose), IntroEggEffectSpriteDefinitions.StockPartCount,
                     definition.Name));
             using var json = new MemoryStream();
             IntroEggEffectSpritePresentation.Write(json, new IntroEggEffectSpriteDocument
@@ -359,10 +360,10 @@ public static class IntroCinematicArtworkFiles
         void WriteDiscoveryActorSprites()
         {
             var frames = new Dictionary<string, SpriteVisualPart[]>(StringComparer.Ordinal);
-            foreach (IntroSpriteFrameDefinition definition in
+            foreach (CinematicSpriteFrameDefinition definition in
                 IntroDiscoveryActorSpriteDefinitions.Frames)
                 frames.Add(definition.Name, IntroCinematicSpriteFrameExtractor.Extract(bus,
-                    definition.Pointer, definition.StockPartCount, definition.Name));
+                    CinematicSpritemapAddresses.Of(definition.Pose), definition.StockPartCount, definition.Name));
             using var json = new MemoryStream();
             IntroDiscoveryActorSpritePresentation.Write(json,
                 new IntroDiscoveryActorSpriteDocument
@@ -381,10 +382,10 @@ public static class IntroCinematicArtworkFiles
         void WriteScientistSprites()
         {
             var frames = new Dictionary<string, SpriteVisualPart[]>(StringComparer.Ordinal);
-            foreach (IntroSpriteFrameDefinition definition in
+            foreach (CinematicSpriteFrameDefinition definition in
                 IntroScientistSpriteDefinitions.Frames)
                 frames.Add(definition.Name, IntroCinematicSpriteFrameExtractor.Extract(bus,
-                    definition.Pointer, definition.StockPartCount, definition.Name));
+                    CinematicSpritemapAddresses.Of(definition.Pose), definition.StockPartCount, definition.Name));
             using var json = new MemoryStream();
             IntroScientistSpritePresentation.Write(json, new IntroScientistSpriteDocument
             {

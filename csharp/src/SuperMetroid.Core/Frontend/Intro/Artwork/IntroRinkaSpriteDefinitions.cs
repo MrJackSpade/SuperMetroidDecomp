@@ -1,37 +1,20 @@
-using System.Collections;
-using SuperMetroid.Core.Assets;
-
 namespace SuperMetroid.Core.Frontend.Intro.Artwork;
 
 /// <summary>The three four-quadrant Rinka frames selected by the intro list.</summary>
 internal static class IntroRinkaSpriteDefinitions
 {
-    /// <summary>$8C:8C8D, first intro Rinka composition.</summary>
-    internal const ushort First = 0x8c8d;
-
-    /// <summary>Three native four-part records: two count bytes plus four five-byte parts.</summary>
-    internal static ushort FramePointer(int frame)
-    {
-        if ((uint)frame >= 3) throw new ArgumentOutOfRangeException(nameof(frame));
-        return (ushort)(First + frame * (2 + 5 * StockPartCount));
-    }
-    /// <summary>Ordered view of the three native intro Rinka frame identities.</summary>
-    internal static IReadOnlyList<SpritemapFrameDefinition> Frames { get; } = new FrameList();
-    /// <summary>Calculates each pointer and stable asset name from its checked native frame index.</summary>
-    private sealed class FrameList : IReadOnlyList<SpritemapFrameDefinition>
-    {
-        /// <summary>Exactly three compositions are present in the intro sequence.</summary>
-        public int Count => 3;
-        /// <summary>Pairs a checked native pointer with its stable <c>rinka-N</c> asset name.</summary>
-        public SpritemapFrameDefinition this[int index] => new(FramePointer(index), $"rinka-{index}");
-        /// <summary>Yields the native compositions in their three-frame order.</summary>
-        public IEnumerator<SpritemapFrameDefinition> GetEnumerator()
-        {
-            for (int index = 0; index < Count; index++) yield return this[index];
-        }
-        /// <summary>Exposes the same ordered frames through the nongeneric collection interface.</summary>
-        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
-    }
-    /// <summary>Number of five-byte OAM parts in each stock Rinka composition.</summary>
+    /// <summary>Number of OAM parts in each stock Rinka composition.</summary>
     internal const int StockPartCount = 4;
+
+    /// <summary>The three intro Rinka compositions.</summary>
+    internal static IReadOnlyList<CinematicSpriteFrameDefinition> Frames { get; } =
+    [
+        new("rinka-0", new(73), 4),
+        new("rinka-1", new(74), 4),
+        new("rinka-2", new(75), 4),
+    ];
+
+    /// <summary>The pose of Rinka frame <paramref name="frame"/>, 0 through 2.</summary>
+    internal static CinematicSpritePose FramePose(int frame) =>
+        (uint)frame < 3 ? Frames[frame].Pose : throw new ArgumentOutOfRangeException(nameof(frame));
 }

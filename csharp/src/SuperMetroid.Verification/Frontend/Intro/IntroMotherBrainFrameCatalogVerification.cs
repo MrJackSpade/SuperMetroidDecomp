@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Frontend.Cinematics;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -16,17 +17,17 @@ internal static class IntroMotherBrainFrameCatalogVerification
         {
             int operand = 0x8bcb07 + 4 * frame;
             ushort pointer = SnesLittleEndian.Word(IntroMotherBrainFrameCatalogRomByte(rom, operand), IntroMotherBrainFrameCatalogRomByte(rom, operand + 1));
-            AssertEqual(pointer, frames[frame].Pointer, "original Mother Brain frame operand");
+            AssertEqual(pointer, CinematicSpritemapAddresses.Of(frames[frame].Pose), "original Mother Brain frame operand");
             int count = SnesLittleEndian.Word(IntroMotherBrainFrameCatalogRomByte(rom, 0x8c0000 + pointer), IntroMotherBrainFrameCatalogRomByte(rom, 0x8c0001 + pointer));
             AssertEqual(count, IntroMotherBrainSpriteDefinitions.StockPartCount, "original nine-part frame");
             AssertEqual($"mother-brain-frame-{frame}", frames[frame].Name, "published frame key");
         }
-        AssertEqual(frames[1].Pointer, IntroMotherBrainSpriteDefinitions.FrameOne, "second frame alias");
-        AssertEqual(frames[2].Pointer, IntroMotherBrainSpriteDefinitions.FrameTwo, "third frame alias");
+        AssertEqual(frames[1].Pose, IntroMotherBrainSpriteDefinitions.FramePose(1), "second frame pose");
+        AssertEqual(frames[2].Pose, IntroMotherBrainSpriteDefinitions.FramePose(2), "third frame pose");
         foreach (int invalid in new[] { int.MinValue, -1, 3, int.MaxValue })
         {
-            AssertThrows<ArgumentOutOfRangeException>(() => { _ = frames[invalid]; }, "frame catalog bounds");
-            AssertThrows<ArgumentOutOfRangeException>(() => IntroMotherBrainSpriteDefinitions.FramePointer(invalid), "frame pointer bounds");
+            AssertThrows<IndexOutOfRangeException>(() => { _ = frames[invalid]; }, "frame catalog bounds");
+            AssertThrows<ArgumentOutOfRangeException>(() => IntroMotherBrainSpriteDefinitions.FramePose(invalid), "frame pointer bounds");
         }
         AssertTrue(frames.SequenceEqual(frames.ToArray()), "frame enumeration matches indexing");
     }

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend.Intro;
 using System.Collections;
 using Pose = SuperMetroid.Core.Frontend.Ending.Artwork.EndingRewardSpriteFrame;
 using SuperMetroid.Core.Assets;
@@ -9,11 +10,11 @@ namespace SuperMetroid.Core.Frontend.Ending.Artwork;
 internal sealed class EndingRewardStandingParts(int armParts) : IReadOnlyList<CompiledSpritePart>
 {
     /// <summary>Replaces matching stock standing poses with calculated parts while preserving edited compositions.</summary>
-    internal static SpriteComposition CalculateIfMatching(ushort pointer, SpriteComposition supplied)
+    internal static SpriteComposition CalculateIfMatching(CinematicSpritePose shown, SpriteComposition supplied)
     {
-        if (pointer == EndingRewardSpriteDefinitions.FramePointer(Pose.LargeSamusFromEndingStanding))
+        if (shown == EndingRewardSpriteDefinitions.FramePose(Pose.LargeSamusFromEndingStanding))
             return supplied.CalculateIfMatching(new EndingRewardStandingParts(armParts: 4));
-        if (pointer == EndingRewardSpriteDefinitions.FramePointer(Pose.HeadlessArmlessSuitedSamus))
+        if (shown == EndingRewardSpriteDefinitions.FramePose(Pose.HeadlessArmlessSuitedSamus))
             return supplied.CalculateIfMatching(new EndingRewardStandingParts(armParts: 0));
         return supplied;
     }

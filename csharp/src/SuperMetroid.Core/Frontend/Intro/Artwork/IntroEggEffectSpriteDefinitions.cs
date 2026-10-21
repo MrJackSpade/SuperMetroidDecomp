@@ -1,44 +1,28 @@
-using System.Collections;
-using SuperMetroid.Core.Assets;
-
 namespace SuperMetroid.Core.Frontend.Intro.Artwork;
 
 /// <summary>Six shell fragments and five slime-drop OAM frames from the SR388 scene.</summary>
 internal static class IntroEggEffectSpriteDefinitions
 {
-    /// <summary>$8C:8F7E, first shell-fragment one-part composition.</summary>
-    internal const ushort Start = 0x8f7e;
-    /// <summary>Every shell-fragment and slime-drop record contains one OAM part.</summary>
+    /// <summary>Every shell-fragment and slime-drop composition contains one OAM part.</summary>
     internal const int StockPartCount = 1;
 
-    /// <summary>Eleven native one-part records, each two count bytes plus five part bytes.</summary>
-    internal static ushort FramePointer(int frame)
-    {
-        if ((uint)frame >= 11) throw new ArgumentOutOfRangeException(nameof(frame));
-        return (ushort)(Start + frame * 7);
-    }
     /// <summary>Ordered six shell fragments, one moving slime frame, and four impact frames.</summary>
-    internal static IReadOnlyList<SpritemapFrameDefinition> Frames { get; } = new FrameList();
-    /// <summary>Calculates native pointers and asset names without a stored frame array.</summary>
-    private sealed class FrameList : IReadOnlyList<SpritemapFrameDefinition>
-    {
-        /// <summary>Six fragments and five slime-drop states occupy eleven consecutive records.</summary>
-        public int Count => 11;
-        /// <summary>Maps an indexed seven-byte record to its shell or slime asset identity.</summary>
-        public SpritemapFrameDefinition this[int index]
-        {
-            get
-            {
-                ushort pointer = FramePointer(index);
-                return new(pointer, index < 6 ? $"fragment-{index}" : index == 6 ? "slime-moving" : $"slime-impact-{index - 7}");
-            }
-        }
-        /// <summary>Visits the eleven native records in pointer order.</summary>
-        public IEnumerator<SpritemapFrameDefinition> GetEnumerator()
-        {
-            for (int index = 0; index < Count; index++) yield return this[index];
-        }
-        /// <summary>Uses the same pointer-order traversal for non-generic enumeration.</summary>
-        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
-    }
+    internal static IReadOnlyList<CinematicSpriteFrameDefinition> Frames { get; } =
+    [
+        new("fragment-0", new(51), 1),
+        new("fragment-1", new(52), 1),
+        new("fragment-2", new(53), 1),
+        new("fragment-3", new(54), 1),
+        new("fragment-4", new(55), 1),
+        new("fragment-5", new(56), 1),
+        new("slime-moving", new(57), 1),
+        new("slime-impact-0", new(58), 1),
+        new("slime-impact-1", new(59), 1),
+        new("slime-impact-2", new(60), 1),
+        new("slime-impact-3", new(61), 1),
+    ];
+
+    /// <summary>The pose of effect frame <paramref name="frame"/>, 0 through 10.</summary>
+    internal static CinematicSpritePose FramePose(int frame) =>
+        (uint)frame < 11 ? Frames[frame].Pose : throw new ArgumentOutOfRangeException(nameof(frame));
 }

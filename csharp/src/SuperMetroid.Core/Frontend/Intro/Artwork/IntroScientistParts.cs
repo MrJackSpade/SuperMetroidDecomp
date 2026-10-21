@@ -6,11 +6,11 @@ namespace SuperMetroid.Core.Frontend.Intro.Artwork;
 /// <summary>Atlas packing and sprite geometry for subtitle arrows, delivered/examined baby and caret.</summary>
 internal sealed class IntroScientistParts(int frame) : IReadOnlyList<CompiledSpritePart>
 {
-    /// <summary>Recalculates one of ten arrow, baby, or caret frames when its native pointer matches.</summary>
-    internal static SpriteComposition CalculateIfMatching(ushort pointer, SpriteComposition supplied)
+    /// <summary>Recalculates one of ten arrow, baby, or caret frames when its pose matches.</summary>
+    internal static SpriteComposition CalculateIfMatching(CinematicSpritePose shown, SpriteComposition supplied)
     {
         for (int frame = 0; frame < 10; frame++)
-            if (IntroScientistSpriteDefinitions.FramePointer(frame) == pointer)
+            if (IntroScientistSpriteDefinitions.FramePose(frame) == shown)
                 return supplied.CalculateIfMatching(new IntroScientistParts(frame));
         return supplied;
     }

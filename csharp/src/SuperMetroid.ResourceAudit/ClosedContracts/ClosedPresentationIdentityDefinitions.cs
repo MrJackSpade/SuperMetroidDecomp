@@ -51,9 +51,9 @@ internal static class ClosedPresentationIdentityDefinitions
         ("MapSpriteCatalog", "Draw", "id") => MapSpriteDefinitions.Frames.Select(frame => (int)frame.Id).ToArray(),
         ("PauseReserveTankPresentation", "Draw", "nativeIdentity") => PauseReserveTankDefinitions.Frames().Select(frame => (int)frame.Id).ToArray(),
         ("TitleGraphicsPresentation", "DrawSprite", "sprite") => TitleSpriteDefinitions.All.Select(sprite => (int)sprite).ToArray(),
-        ("IntroCaretSpritePresentation", "Draw", "pointer") => IntroCaretSpriteDefinitions.Frames.Select(frame => (int)frame.Pointer).ToArray(),
-        ("IntroMotherBrainSpritePresentation", "Draw", "pointer") => IntroMotherBrainSpriteDefinitions.Frames.Select(frame => (int)frame.Pointer).ToArray(),
-        ("IntroMotherBrainExplosionSpritePresentation", "Draw", "pointer") => IntroMotherBrainExplosionSpriteDefinitions.Frames.Select(frame => (int)frame.Pointer).ToArray(),
+        ("IntroCaretSpritePresentation", "Draw", "pose.Index") => IntroCaretSpriteDefinitions.Frames.Select(frame => frame.Pose.Index).ToArray(),
+        ("IntroMotherBrainSpritePresentation", "Draw", "pose.Index") => IntroMotherBrainSpriteDefinitions.Frames.Select(frame => frame.Pose.Index).ToArray(),
+        ("IntroMotherBrainExplosionSpritePresentation", "Draw", "pose.Index") => IntroMotherBrainExplosionSpriteDefinitions.Frames.Select(frame => frame.Pose.Index).ToArray(),
         ("ProjectileTrailCatalog", "Resolve", "frame") => ProjectileTrailVisualDefinitions.Frames.Select(frame => (int)frame).ToArray(),
         ("ProjectileTrailCatalog", "ResolveCurrent", "nextInstruction") => ProjectileTrailVisualDefinitions.Frames
             .Select(frame => (int)unchecked((ushort)(frame + 4))).Concat(new[] { (int)ProjectileTrailDefinitions.Empty,

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend.Intro;
 using System.Collections;
 using SuperMetroid.Core.Assets;
 
@@ -9,15 +10,12 @@ internal sealed class CeresVortexParts(bool odd, Offset16<OamPixels> anchor, IRe
     : IReadOnlyList<CompiledSpritePart>
 {
     /// <summary>Calculates stock vortex grid parts only when a recognized frame and its supplied part count match.</summary>
-    internal static SpriteComposition CalculateIfMatching(ushort pointer, SpriteComposition supplied, SpriteComposition? reflectionSource = null)
+    internal static SpriteComposition CalculateIfMatching(CinematicSpritePose shown, SpriteComposition supplied, SpriteComposition? reflectionSource = null)
     {
-        if (!Enum.IsDefined((CeresVortexFrame)pointer)) return supplied;
-        bool odd = (CeresVortexFrame)pointer switch
-        {
-            CeresVortexFrame.Even => false,
-            CeresVortexFrame.Odd => true,
-            var frame => throw new InvalidOperationException($"Undefined {nameof(CeresVortexFrame)} {(int)frame}."),
-        };
+        bool odd;
+        if (shown == CeresFlightSpriteDefinitions.VortexPose(CeresVortexFrame.Even)) odd = false;
+        else if (shown == CeresFlightSpriteDefinitions.VortexPose(CeresVortexFrame.Odd)) odd = true;
+        else return supplied;
         if (supplied.PartCount != (odd ? 33 : 36)) return supplied;
         int tip = odd ? 3 : 0, core = odd ? 12 : 18;
         var anchorPart = supplied.Part(core + 10);

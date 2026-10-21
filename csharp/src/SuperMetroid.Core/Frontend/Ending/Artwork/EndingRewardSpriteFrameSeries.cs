@@ -29,15 +29,6 @@ internal static class EndingRewardSpriteFrameSeries
         EndingRewardSpriteFrame.SamusArmFromEndingFrame8,
     ];
 
-    /// <summary>The four helmetless head-turn frames, in display order.</summary>
-    internal static IReadOnlyList<EndingRewardSpriteFrame> HelmetlessHead { get; } =
-    [
-        EndingRewardSpriteFrame.SamusHeadFromEndingFrame1,
-        EndingRewardSpriteFrame.SamusHeadFromEndingFrame2,
-        EndingRewardSpriteFrame.SamusHeadFromEndingFrame3,
-        EndingRewardSpriteFrame.SamusHeadFromEndingFrame4,
-    ];
-
     /// <summary>The four small falling, landing, landed and shooting figures.</summary>
     internal static IReadOnlyList<EndingRewardSpriteFrame> ShootingScene { get; } =
     [

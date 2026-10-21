@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Frontend.Cinematics;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Frontend.Map.MapSpritesVerification;
@@ -18,12 +19,12 @@ internal static class IntroMotherBrainPartsVerification
         string Identity(SpriteComposition value) => SelectedPresentationHash.Create("MotherBrain", value.AppendIdentity);
         foreach (var definition in IntroMotherBrainSpriteDefinitions.Frames)
         {
-            SpriteVisualPart[] visual = IntroCinematicSpriteFrameExtractor.Extract(rom, definition.Pointer, IntroMotherBrainSpriteDefinitions.StockPartCount, definition.Name);
+            SpriteVisualPart[] visual = IntroCinematicSpriteFrameExtractor.Extract(rom, CinematicSpritemapAddresses.Of(definition.Pose), IntroMotherBrainSpriteDefinitions.StockPartCount, definition.Name);
             SpriteComposition source = IntroCinematicSpriteCompiler.Compile(visual, definition.Name);
-            var calculated = new IntroMotherBrainParts((definition.Pointer - IntroMotherBrainSpriteDefinitions.FrameZero) / 47);
+            var calculated = new IntroMotherBrainParts(Enumerable.Range(0, 3).Single(frame => IntroMotherBrainSpriteDefinitions.FramePose(frame) == definition.Pose));
             for (int index = 0; index < visual.Length; index++)
                 AssertTrue(source.Part(index).Equals(calculated[index]), $"{definition.Name} part{index}: expected{source.Part(index)},actual{calculated[index]}");
-            SpriteComposition result = IntroMotherBrainParts.CalculateIfMatching(definition.Pointer, source);
+            SpriteComposition result = IntroMotherBrainParts.CalculateIfMatching(definition.Pose, source);
             AssertTrue(!ReferenceEquals(source, result), "original MotherBrain selects calculated parts");
             AssertEqual(Identity(source), Identity(result), "all original MotherBrain compiled fields");
             for (int piece = 0; piece < visual.Length; piece++)
@@ -42,18 +43,18 @@ internal static class IntroMotherBrainPartsVerification
                     var edited = (SpriteVisualPart[])visual.Clone();
                     edited[piece] = edit;
                     var supplied = IntroCinematicSpriteCompiler.Compile(edited, "edited MotherBrain");
-                    AssertTrue(ReferenceEquals(supplied, IntroMotherBrainParts.CalculateIfMatching(definition.Pointer, supplied)),
+                    AssertTrue(ReferenceEquals(supplied, IntroMotherBrainParts.CalculateIfMatching(definition.Pose, supplied)),
                         "independent MotherBrain field edit stays supplied");
                 }
             }
             var extra = IntroCinematicSpriteCompiler.Compile(visual.Length == 1 ? [visual[0], visual[0]] : [visual[0]], "custom MotherBrain");
-            AssertTrue(ReferenceEquals(extra, IntroMotherBrainParts.CalculateIfMatching(definition.Pointer, extra)), "custom part count preserved");
+            AssertTrue(ReferenceEquals(extra, IntroMotherBrainParts.CalculateIfMatching(definition.Pose, extra)), "custom part count preserved");
             foreach (int invalid in new[] { -1, result.PartCount, int.MaxValue })
                 AssertThrows<ArgumentOutOfRangeException>(() => result.Part(invalid), "calculated MotherBrain part bounds");
             foreach (ushort y in new ushort[] { 72, 0xfff8 })
             {
                 var native = new OamBuffer(); native.BeginFrame();
-                DrawImportedSpritemap(rom, native, 0x8c0000 + definition.Pointer, new(120, y), 0x0e00, originIsOnScreen: y == 72);
+                DrawImportedSpritemap(rom, native, 0x8c0000 + CinematicSpritemapAddresses.Of(definition.Pose), new(120, y), 0x0e00, originIsOnScreen: y == 72);
                 native.FinalizeFrame();
                 var actual = new OamBuffer(); actual.BeginFrame();
                 if (y == 72) result.DrawOnScreen(actual, new(120, y), 0x0e00);

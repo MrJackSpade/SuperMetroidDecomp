@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Frontend.Cinematics;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
@@ -50,7 +51,7 @@ internal static class CeresDestructionArtworkVerification
                 bool onScreen =
                     ((y & CinematicSpriteDrawDefinitions.OriginYHighByteMask)) == 0;
                 int source = (int)new SnesAddress(
-                    IntroCinematicRomData.Banks.Spritemaps, frame.Pointer);
+                    IntroCinematicRomData.Banks.Spritemaps, CinematicSpritemapAddresses.Of(frame.Pose));
                 var nativeOam = new OamBuffer();
                 nativeOam.BeginFrame();
                 if (onScreen)
@@ -60,7 +61,7 @@ internal static class CeresDestructionArtworkVerification
                 nativeOam.FinalizeFrame();
                 var installedOam = ScreenSpritesFixtures.Blank();
                 installedOam.BeginFrame();
-                stock.CeresDestruction.Sprites.Draw(frame.Pointer, installedOam,
+                stock.CeresDestruction.Sprites.Draw(frame.Pose, installedOam,
                     new(120, y), 0x0800, onScreen);
                 installedOam.FinalizeFrame();
                 AssertTrue(installedOam.ImageEquals(nativeOam) &&

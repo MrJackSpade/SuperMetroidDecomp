@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend.Intro;
 using System.Collections;
 using SuperMetroid.Core.Assets;
 
@@ -15,12 +16,12 @@ internal sealed class EndingExplosionGridParts : IReadOnlyList<CompiledSpritePar
     private EndingExplosionGridParts(int pose) => this.pose = pose;
 
     /// <summary>Reconstructs grid parts only for the ten contiguous planet and lava records.</summary>
-    internal static SpriteComposition CalculateIfMatching(ushort pointer, SpriteComposition supplied)
+    internal static SpriteComposition CalculateIfMatching(CinematicSpritePose shown, SpriteComposition supplied)
     {
-        int offset = pointer - EndingExplosionSpriteDefinitions.PlanetPointer(0);
-        const int recordBytes = 2 + 4 * 5;
-        if ((uint)offset >= 10 * recordBytes || offset % recordBytes != 0) return supplied;
-        return supplied.CalculateIfMatching(new EndingExplosionGridParts(offset / recordBytes));
+        for (int record = 0; record < 10; record++)
+            if (shown == EndingExplosionSpriteDefinitions.PlanetPose(record))
+                return supplied.CalculateIfMatching(new EndingExplosionGridParts(record));
+        return supplied;
     }
 
     /// <summary>Each native pose draws a two-by-two tile grid.</summary>

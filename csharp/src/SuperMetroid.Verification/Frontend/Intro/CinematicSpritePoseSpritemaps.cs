@@ -1,5 +1,5 @@
 using SuperMetroid.Core.Frontend.Intro;
-using SuperMetroid.Core.Frontend.Intro.Artwork;
+using SuperMetroid.AssetExtraction.Frontend.Cinematics;
 
 namespace SuperMetroid.Verification.Frontend.Intro;
 
@@ -11,8 +11,8 @@ internal static class CinematicSpritePoseSpritemaps
 {
     /// <summary>
     /// The spritemap the native list selects for <paramref name="pose"/>; zero, as the native actor's spritemap word
-    /// holds, when the actor has shown no pose yet or has been deleted.
+    /// holds, for the blank pose or when the actor has shown no pose yet or has been deleted.
     /// </summary>
     internal static ushort Of(CinematicSpritePose? pose) =>
-        pose is { } shown ? CinematicSpritePoseDefinitions.Spritemap(shown) : (ushort)0;
+        pose is { } shown && shown != CinematicSpritePose.Blank ? CinematicSpritemapAddresses.Of(shown) : (ushort)0;
 }

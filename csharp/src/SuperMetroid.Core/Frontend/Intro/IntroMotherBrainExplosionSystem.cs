@@ -47,14 +47,11 @@ internal sealed class IntroMotherBrainExplosionSystem
         Ensure.NotNull(installedArt);
         foreach (ExplosionActor actor in actors)
         {
-            if (!actor.IsActive || actor.Pose is not { } pose)
-                continue;
-            // The blank pose's spritemap draws nothing.
-            ushort spritemap = CinematicSpritePoseDefinitions.Spritemap(pose);
-            if (spritemap == 0)
+            // The blank pose draws nothing.
+            if (!actor.IsActive || actor.Pose is not { } pose || pose == CinematicSpritePose.Blank)
                 continue;
 
-            installedArt.Draw(spritemap, objects, actor.Position.ToOam(), IntroCinematicRomData.Objects.ExplosionPalette.Raw);
+            installedArt.Draw(pose, objects, actor.Position.ToOam(), IntroCinematicRomData.Objects.ExplosionPalette.Raw);
         }
     }
 

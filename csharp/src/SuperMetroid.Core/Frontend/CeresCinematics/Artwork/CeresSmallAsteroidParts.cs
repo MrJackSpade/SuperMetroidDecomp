@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend.Intro;
 using System.Collections;
 using SuperMetroid.Core.Assets;
 
@@ -18,9 +19,9 @@ namespace SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
 internal sealed class CeresSmallAsteroidParts(Offset16<OamPixels>[] anchors) : IReadOnlyList<CompiledSpritePart>
 {
     /// <summary>Calculates repeated rock shapes only for the matching sixteen-part Ceres asteroid composition.</summary>
-    internal static SpriteComposition CalculateIfMatching(ushort pointer, SpriteComposition supplied)
+    internal static SpriteComposition CalculateIfMatching(CinematicSpritePose shown, SpriteComposition supplied)
     {
-        if (pointer != CeresFlightSpriteDefinitions.SmallAsteroids || supplied.PartCount != 16) return supplied;
+        if (shown != CeresFlightSpriteDefinitions.SmallAsteroids || supplied.PartCount != 16) return supplied;
         Offset16<OamPixels> Anchor(int index)
         {
             var part = supplied.Part(index);

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend.Intro;
 using System.Collections;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
@@ -9,10 +10,10 @@ namespace SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
 internal sealed class CeresStationBlastParts(int frame) : IReadOnlyList<CompiledSpritePart>
 {
     /// <summary>Uses calculated reflected parts only for one of the six native station-blast compositions.</summary>
-    internal static SpriteComposition CalculateIfMatching(ushort pointer, SpriteComposition supplied)
+    internal static SpriteComposition CalculateIfMatching(CinematicSpritePose shown, SpriteComposition supplied)
     {
         for (int frame = 0; frame < 6; frame++)
-            if (pointer == CeresDestructionSpriteDefinitions.StationFrame(frame))
+            if (shown == CeresDestructionSpriteDefinitions.StationFrame(frame))
                 return supplied.CalculateIfMatching(new CeresStationBlastParts(frame));
         return supplied;
     }

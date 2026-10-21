@@ -7,24 +7,24 @@ namespace SuperMetroid.Core.Frontend.Intro.Artwork;
 public sealed class IntroScientistSpritePresentation : IIntroCinematicSpritePresentation
 {
     /// <summary>Validated baby-Metroid compositions keyed by bank-$8C spritemap identity.</summary>
-    private readonly Dictionary<ushort, SpriteComposition> frames;
+    private readonly Dictionary<CinematicSpritePose, SpriteComposition> frames;
 
     /// <summary>Canonical identity of all selected decoded visual frames, preserving ordered OAM parts.</summary>
-    public string ContentIdentity => SelectedPresentationHash.FromCompositions(nameof(IntroScientistSpritePresentation), frames);
+    public string ContentIdentity => CinematicSpriteArtwork.ContentIdentity(nameof(IntroScientistSpritePresentation), frames);
 
     /// <summary>Retains the ten validated frames after JSON compilation.</summary>
-    private IntroScientistSpritePresentation(Dictionary<ushort, SpriteComposition> frames) =>
+    private IntroScientistSpritePresentation(Dictionary<CinematicSpritePose, SpriteComposition> frames) =>
         this.frames = frames;
 
     /// <summary>Draws one installed baby-Metroid composition used by the two scientist scenes.</summary>
-    /// <param name="pointer">Native bank-$8C spritemap identity for one of the ten frames.</param>
+    /// <param name="pose">The cinematic pose whose composition to draw.</param>
     /// <param name="objects">The OAM buffer receiving the ordered sprite parts.</param>
     /// <param name="origin">Native wrapped sixteen-bit screen origin in pixels.</param>
     /// <param name="paletteBits">OBJ palette attribute bits applied to inherited-palette parts.</param>
     /// <param name="originIsOnScreen">Whether the anchor is already in screen space rather than the off-screen cinematic space.</param>
-    public void Draw(ushort pointer, ScreenSprites objects, Position16<OamPixels> origin,
+    public void Draw(CinematicSpritePose pose, ScreenSprites objects, Position16<OamPixels> origin,
         ushort paletteBits, bool originIsOnScreen) =>
-        SpriteComposition.DrawInstalled(frames, "Intro scientist baby", pointer, objects, origin, paletteBits, originIsOnScreen);
+        CinematicSpriteArtwork.DrawInstalled(frames, "Intro scientist baby", pose, objects, origin, paletteBits, originIsOnScreen);
 
     /// <summary>Loads and validates all ten baby-Metroid visual frames for the scientist scenes.</summary>
     /// <param name="json">The caller-owned stream containing the editable sprite document.</param>
@@ -35,20 +35,20 @@ public sealed class IntroScientistSpritePresentation : IIntroCinematicSpritePres
         Ensure.NotNull(json);
         IntroScientistSpriteDocument document;
         document = JsonAssetDocument.Read<IntroScientistSpriteDocument>(json, ArtworkJson.Options, "intro scientist sprite");
-        IReadOnlyList<IntroSpriteFrameDefinition> definitions =
+        IReadOnlyList<CinematicSpriteFrameDefinition> definitions =
             IntroScientistSpriteDefinitions.Frames;
         if (document.Version != IntroScientistSpriteFormat.Version ||
             document.Frames is null || document.Frames.Count != definitions.Count)
             throw new InvalidDataException("Intro scientist scenes require ten named visual frames.");
-        var frames = new Dictionary<ushort, SpriteComposition>();
-        foreach (IntroSpriteFrameDefinition definition in definitions)
+        var frames = new Dictionary<CinematicSpritePose, SpriteComposition>();
+        foreach (CinematicSpriteFrameDefinition definition in definitions)
         {
             if (!document.Frames.TryGetValue(definition.Name, out SpriteVisualPart[]? visual) ||
                 visual is null)
                 throw new InvalidDataException(
                     $"Intro scientist sprite frame {definition.Name} is missing.");
-            frames.Add(definition.Pointer,
-                IntroScientistParts.CalculateIfMatching(definition.Pointer,
+            frames.Add(definition.Pose,
+                IntroScientistParts.CalculateIfMatching(definition.Pose,
                     IntroCinematicSpriteCompiler.Compile(visual, definition.Name)));
         }
         return new IntroScientistSpritePresentation(frames);

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend.Intro;
 using System.Collections;
 using Pose = SuperMetroid.Core.Frontend.Ending.Artwork.EndingRewardSpriteFrame;
 using SuperMetroid.Core.Assets;
@@ -76,11 +77,11 @@ internal sealed class EndingRewardArmParts : IReadOnlyList<CompiledSpritePart>
         return EndingRewardArmCellDefinitions.PairedUpper + 2 * variant + (index == 0 ? 32 : 0);
     }
     /// <summary>Uses calculated arm and shoulder parts when a supplied reward frame matches their native form.</summary>
-    internal static SpriteComposition CalculateIfMatching(ushort pointer, SpriteComposition supplied)
+    internal static SpriteComposition CalculateIfMatching(CinematicSpritePose shown, SpriteComposition supplied)
     {
         foreach (Pose pose in EndingRewardSpriteFrameSeries.Arm)
         {
-            if (pointer != EndingRewardSpriteDefinitions.FramePointer(pose)) continue;
+            if (shown != EndingRewardSpriteDefinitions.FramePose(pose)) continue;
             bool split = pose == Pose.SamusArmFromEndingFrame2;
             int armCount = split ? 3 : 2;
             if (supplied.PartCount != armCount + 3) return supplied;

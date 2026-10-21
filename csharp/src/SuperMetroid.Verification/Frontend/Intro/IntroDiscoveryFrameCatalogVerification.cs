@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Frontend.Cinematics;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -31,18 +32,18 @@ internal static class IntroDiscoveryFrameCatalogVerification
                 pointer = SnesLittleEndian.Word(IntroDiscoveryFrameCatalogRomByte(rom, 0x8bcc41), IntroDiscoveryFrameCatalogRomByte(rom, 0x8bcc42));
             }
             int count = SnesLittleEndian.Word(IntroDiscoveryFrameCatalogRomByte(rom, 0x8c0000 + pointer), IntroDiscoveryFrameCatalogRomByte(rom, 0x8c0001 + pointer));
-            AssertEqual((ushort)pointer, frames[index].Pointer, "discovery original record pointer");
+            AssertEqual((ushort)pointer, CinematicSpritemapAddresses.Of(frames[index].Pose), "discovery original record pointer");
             AssertEqual(count, frames[index].StockPartCount, "discovery original part count");
             AssertEqual(names[index], frames[index].Name, "discovery published asset key");
             pointer += 2 + 5 * count;
         }
         AssertEqual(0x90fe, pointer, "large baby record chain end");
         foreach (int invalid in new[] { int.MinValue, -1, 20, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => { _ = frames[invalid]; }, "discovery catalog bounds");
+            AssertThrows<IndexOutOfRangeException>(() => { _ = frames[invalid]; }, "discovery catalog bounds");
         foreach (int invalid in new[] { int.MinValue, -1, 16, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => IntroDiscoveryActorSpriteDefinitions.EggFramePointer(invalid), "egg pointer bounds");
+            AssertThrows<ArgumentOutOfRangeException>(() => IntroDiscoveryActorSpriteDefinitions.EggFramePose(invalid), "egg pointer bounds");
         foreach (int invalid in new[] { int.MinValue, -1, 3, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => IntroDiscoveryActorSpriteDefinitions.BabyFramePointer(invalid), "baby pointer bounds");
+            AssertThrows<ArgumentOutOfRangeException>(() => IntroDiscoveryActorSpriteDefinitions.BabyFramePose(invalid), "baby pointer bounds");
         AssertTrue(frames.SequenceEqual(frames.ToArray()), "discovery enumeration agrees with indexing");
     }
 

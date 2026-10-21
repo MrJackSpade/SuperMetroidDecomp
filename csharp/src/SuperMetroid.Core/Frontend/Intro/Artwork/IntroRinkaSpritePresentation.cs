@@ -6,26 +6,26 @@ namespace SuperMetroid.Core.Frontend.Intro.Artwork;
 /// <summary>Editable intro Rinka OAM art, without movement or hit behavior.</summary>
 public sealed class IntroRinkaSpritePresentation : IIntroCinematicSpritePresentation
 {
-    /// <summary>Three compiled OAM compositions keyed by their bank-$8C frame pointers.</summary>
-    private readonly Dictionary<ushort, SpriteComposition> frames;
+    /// <summary>Three compiled OAM compositions keyed by the poses that show them.</summary>
+    private readonly Dictionary<CinematicSpritePose, SpriteComposition> frames;
 
     /// <summary>Canonical identity of all selected decoded visual frames, preserving ordered OAM parts.</summary>
-    public string ContentIdentity => SelectedPresentationHash.FromCompositions(nameof(IntroRinkaSpritePresentation), frames);
+    public string ContentIdentity => CinematicSpriteArtwork.ContentIdentity(nameof(IntroRinkaSpritePresentation), frames);
 
     /// <summary>Retains the validated frame lookup produced by the JSON compiler.</summary>
-    private IntroRinkaSpritePresentation(Dictionary<ushort, SpriteComposition> frames) =>
+    private IntroRinkaSpritePresentation(Dictionary<CinematicSpritePose, SpriteComposition> frames) =>
         this.frames = frames;
 
     /// <summary>Appends an installed intro Rinka composition to OAM without changing its actor's movement, hit behavior, or animation timing.</summary>
-    /// <param name="pointer">Native bank-$8C frame identity $8C8D, $8CA3, or $8CB9.</param>
+    /// <param name="pose">The cinematic pose whose composition to draw.</param>
     /// <param name="objects">Destination object-attribute buffer receiving the authored parts in their original order.</param>
     /// <param name="origin">Native wrapped sixteen-bit screen origin in pixels.</param>
     /// <param name="paletteBits">Actor's OBJ palette bits, used only for parts configured to inherit a palette.</param>
     /// <param name="originIsOnScreen">Whether to use ordinary origin clipping; false selects the cinematic negative-origin Y-wrap clipping path.</param>
     /// <exception cref="InvalidDataException">The requested frame identity is not installed.</exception>
-    public void Draw(ushort pointer, ScreenSprites objects, Position16<OamPixels> origin,
+    public void Draw(CinematicSpritePose pose, ScreenSprites objects, Position16<OamPixels> origin,
         ushort paletteBits, bool originIsOnScreen) =>
-        SpriteComposition.DrawInstalled(frames, "Intro Rinka", pointer, objects, origin, paletteBits, originIsOnScreen);
+        CinematicSpriteArtwork.DrawInstalled(frames, "Intro Rinka", pose, objects, origin, paletteBits, originIsOnScreen);
 
     /// <summary>Validates and compiles all three named intro Rinka frames into independently owned visual compositions.</summary>
     /// <param name="json">Readable JSON stream at its current position; it remains open and caller-owned.</param>
@@ -37,18 +37,18 @@ public sealed class IntroRinkaSpritePresentation : IIntroCinematicSpritePresenta
         Ensure.NotNull(json);
         IntroRinkaSpriteDocument document;
         document = JsonAssetDocument.Read<IntroRinkaSpriteDocument>(json, ArtworkJson.Options, "intro Rinka sprite");
-        IReadOnlyList<SpritemapFrameDefinition> definitions = IntroRinkaSpriteDefinitions.Frames;
+        IReadOnlyList<CinematicSpriteFrameDefinition> definitions = IntroRinkaSpriteDefinitions.Frames;
         if (document.Version != IntroRinkaSpriteFormat.Version ||
             document.Frames is null || document.Frames.Count != definitions.Count)
             throw new InvalidDataException("Intro Rinkas require three named visual frames.");
-        var frames = new Dictionary<ushort, SpriteComposition>();
-        foreach (SpritemapFrameDefinition definition in definitions)
+        var frames = new Dictionary<CinematicSpritePose, SpriteComposition>();
+        foreach (CinematicSpriteFrameDefinition definition in definitions)
         {
             if (!document.Frames.TryGetValue(definition.Name, out SpriteVisualPart[]? visual) ||
                 visual is null)
                 throw new InvalidDataException($"Intro Rinka frame {definition.Name} is missing.");
-            frames.Add(definition.Pointer,
-                IntroRinkaParts.CalculateIfMatching(definition.Pointer,
+            frames.Add(definition.Pose,
+                IntroRinkaParts.CalculateIfMatching(definition.Pose,
                     IntroCinematicSpriteCompiler.Compile(visual, definition.Name)));
         }
         return new IntroRinkaSpritePresentation(frames);

@@ -2831,6 +2831,19 @@
       "disposition": "static-functions"
     },
     {
+      "type": "SuperMetroid.AssetExtraction.Frontend.Cinematics.CinematicSpritemapAddresses",
+      "kind": "static class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.AssetExtraction"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.AssetExtraction/Frontend/Cinematics/CinematicSpritemapAddresses.cs"
+      ],
+      "partial": "none",
+      "disposition": "static-functions"
+    },
+    {
       "type": "SuperMetroid.AssetExtraction.Frontend.Ending.CreditsPresentationExtractor",
       "kind": "static class",
       "scope": "product",
@@ -9624,19 +9637,6 @@
       ],
       "partial": "none",
       "disposition": "stateless"
-    },
-    {
-      "type": "SuperMetroid.Core.Assets.SpriteFrameDefinition",
-      "kind": "record struct",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Assets/SpriteFrameDefinition.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Core.Assets.SpriteFramePart",
@@ -33668,6 +33668,19 @@
       "disposition": "stateless"
     },
     {
+      "type": "SuperMetroid.Core.Enemies.Chozo.Artwork.RoomPlmChozoStatueVisualCatalog",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Chozo/Artwork/RoomPlmChozoStatueVisualCatalog.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
       "type": "SuperMetroid.Core.Enemies.Chozo.ChozoAndTubeColorRomData",
       "kind": "static class",
       "scope": "product",
@@ -34162,19 +34175,6 @@
       ],
       "partial": "none",
       "disposition": "contract"
-    },
-    {
-      "type": "SuperMetroid.Core.Enemies.Chozo.RoomPlmChozoStatueVisualCatalog",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/Chozo/RoomPlmChozoStatueVisualCatalog.cs"
-      ],
-      "partial": "none",
-      "disposition": "owner"
     },
     {
       "type": "SuperMetroid.Core.Enemies.ClockedEnemyAiFrame",
@@ -36228,6 +36228,19 @@
       "disposition": "static-functions"
     },
     {
+      "type": "SuperMetroid.Core.Enemies.Elevator.Artwork.RoomPlmElevatorPlatformVisualCatalog",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Enemies/Elevator/Artwork/RoomPlmElevatorPlatformVisualCatalog.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
       "type": "SuperMetroid.Core.Enemies.Elevator.ElevatorActorDefinitions",
       "kind": "static class",
       "scope": "product",
@@ -36456,19 +36469,6 @@
       ],
       "partial": "none",
       "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.Core.Enemies.Elevator.RoomPlmElevatorPlatformVisualCatalog",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Enemies/Elevator/RoomPlmElevatorPlatformVisualCatalog.cs"
-      ],
-      "partial": "none",
-      "disposition": "owner"
     },
     {
       "type": "SuperMetroid.Core.Enemies.EnemyAiCodePointers",
@@ -53143,19 +53143,6 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Frontend.CeresCinematics.Artwork.CeresDestructionSpriteDefinitions.FrameList",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Frontend/CeresCinematics/Artwork/CeresDestructionSpriteDefinitions.cs"
-      ],
-      "partial": "none",
-      "disposition": "stateless"
-    },
-    {
       "type": "SuperMetroid.Core.Frontend.CeresCinematics.Artwork.CeresDestructionSpriteDocument",
       "kind": "record",
       "scope": "product",
@@ -53348,33 +53335,7 @@
         "csharp/src/SuperMetroid.Core/Frontend/CeresCinematics/Artwork/CeresFlightSpriteDefinitions.cs"
       ],
       "partial": "none",
-      "disposition": "definition-catalog"
-    },
-    {
-      "type": "SuperMetroid.Core.Frontend.CeresCinematics.Artwork.CeresFlightSpriteDefinitions.FrameList",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Frontend/CeresCinematics/Artwork/CeresFlightSpriteDefinitions.cs"
-      ],
-      "partial": "none",
-      "disposition": "stateless"
-    },
-    {
-      "type": "SuperMetroid.Core.Frontend.CeresCinematics.Artwork.CeresFlightSpriteDefinitions.Visual",
-      "kind": "enum",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Frontend/CeresCinematics/Artwork/CeresFlightSpriteDefinitions.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
+      "disposition": "static-functions"
     },
     {
       "type": "SuperMetroid.Core.Frontend.CeresCinematics.Artwork.CeresFlightSpriteDocument",
@@ -54664,33 +54625,7 @@
         "csharp/src/SuperMetroid.Core/Frontend/Ending/Artwork/EndingCloudSpriteDefinitions.cs"
       ],
       "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Core.Frontend.Ending.Artwork.EndingCloudSpriteDefinitions.FrameView",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Frontend/Ending/Artwork/EndingCloudSpriteDefinitions.cs"
-      ],
-      "partial": "none",
-      "disposition": "stateless"
-    },
-    {
-      "type": "SuperMetroid.Core.Frontend.Ending.Artwork.EndingCloudSpriteDefinitions.Record",
-      "kind": "enum",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Frontend/Ending/Artwork/EndingCloudSpriteDefinitions.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
+      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.Core.Frontend.Ending.Artwork.EndingCloudSpriteDefinitions.Role",
@@ -54768,20 +54703,7 @@
         "csharp/src/SuperMetroid.Core/Frontend/Ending/Artwork/EndingCompletionTextSpriteDefinitions.cs"
       ],
       "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Core.Frontend.Ending.Artwork.EndingCompletionTextSpriteDefinitions.FrameView",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Frontend/Ending/Artwork/EndingCompletionTextSpriteDefinitions.cs"
-      ],
-      "partial": "none",
-      "disposition": "stateless"
+      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.Core.Frontend.Ending.Artwork.EndingCompletionTextSpriteDocument",
@@ -54912,19 +54834,6 @@
       ],
       "partial": "none",
       "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Core.Frontend.Ending.Artwork.EndingExplosionSpriteDefinitions.FrameView",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Frontend/Ending/Artwork/EndingExplosionSpriteDefinitions.cs"
-      ],
-      "partial": "none",
-      "disposition": "stateless"
     },
     {
       "type": "SuperMetroid.Core.Frontend.Ending.Artwork.EndingExplosionSpriteDefinitions.Pose",
@@ -55125,33 +55034,7 @@
         "csharp/src/SuperMetroid.Core/Frontend/Ending/Artwork/EndingLogoSpriteDefinitions.cs"
       ],
       "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Core.Frontend.Ending.Artwork.EndingLogoSpriteDefinitions.CircleStage",
-      "kind": "enum",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Frontend/Ending/Artwork/EndingLogoSpriteDefinitions.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.Core.Frontend.Ending.Artwork.EndingLogoSpriteDefinitions.FrameView",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Frontend/Ending/Artwork/EndingLogoSpriteDefinitions.cs"
-      ],
-      "partial": "none",
-      "disposition": "stateless"
+      "disposition": "definition-catalog"
     },
     {
       "type": "SuperMetroid.Core.Frontend.Ending.Artwork.EndingLogoSpriteDocument",
@@ -55650,32 +55533,6 @@
       ],
       "partial": "none",
       "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Core.Frontend.Ending.Artwork.EndingRewardSpriteDefinitions.AssetRole",
-      "kind": "enum",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Frontend/Ending/Artwork/EndingRewardSpriteDefinitions.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.Core.Frontend.Ending.Artwork.EndingRewardSpriteDefinitions.FrameView",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Frontend/Ending/Artwork/EndingRewardSpriteDefinitions.cs"
-      ],
-      "partial": "none",
-      "disposition": "stateless"
     },
     {
       "type": "SuperMetroid.Core.Frontend.Ending.Artwork.EndingRewardSpriteDocument",
@@ -59062,14 +58919,14 @@
       "disposition": "contract"
     },
     {
-      "type": "SuperMetroid.Core.Frontend.Intro.Artwork.CinematicSpritePoseDefinitions",
+      "type": "SuperMetroid.Core.Frontend.Intro.Artwork.CinematicSpriteArtwork",
       "kind": "static class",
       "scope": "product",
       "assemblies": [
         "SuperMetroid.Core"
       ],
       "files": [
-        "csharp/src/SuperMetroid.Core/Frontend/Intro/Artwork/CinematicSpritePoseDefinitions.cs"
+        "csharp/src/SuperMetroid.Core/Frontend/Intro/Artwork/CinematicSpriteArtwork.cs"
       ],
       "partial": "none",
       "disposition": "static-functions"
@@ -59365,51 +59222,6 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Frontend.Intro.Artwork.IntroDiscoveryActorSpriteDefinitions.FrameList",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Frontend/Intro/Artwork/IntroDiscoveryActorSpriteDefinitions.cs"
-      ],
-      "partial": "none",
-      "disposition": "stateless"
-    },
-    {
-      "type": "SuperMetroid.Core.Frontend.Intro.Artwork.IntroDiscoveryActorSpriteDefinitionsConstants",
-      "kind": "static class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.DesktopVerification",
-        "SuperMetroid.IntegrationVerification",
-        "SuperMetroid.RenderVerification",
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/test-support/VerificationAccess.Core/Frontend/Intro/Artwork/IntroDiscoveryActorSpriteDefinitionsConstants.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Core.Frontend.Intro.Artwork.IntroDiscoveryActorSpriteDefinitionsConstants.extension(SuperMetroid.Core.Frontend.Intro.Artwork.IntroDiscoveryActorSpriteDefinitions)",
-      "kind": "class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.DesktopVerification",
-        "SuperMetroid.IntegrationVerification",
-        "SuperMetroid.RenderVerification",
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/test-support/VerificationAccess.Core/Frontend/Intro/Artwork/IntroDiscoveryActorSpriteDefinitionsConstants.cs"
-      ],
-      "partial": "none",
-      "disposition": "stateless"
-    },
-    {
       "type": "SuperMetroid.Core.Frontend.Intro.Artwork.IntroDiscoveryActorSpriteDocument",
       "kind": "record",
       "scope": "product",
@@ -59525,51 +59337,6 @@
       ],
       "partial": "none",
       "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Core.Frontend.Intro.Artwork.IntroEggEffectSpriteDefinitions.FrameList",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Frontend/Intro/Artwork/IntroEggEffectSpriteDefinitions.cs"
-      ],
-      "partial": "none",
-      "disposition": "stateless"
-    },
-    {
-      "type": "SuperMetroid.Core.Frontend.Intro.Artwork.IntroEggEffectSpriteDefinitionsConstants",
-      "kind": "static class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.DesktopVerification",
-        "SuperMetroid.IntegrationVerification",
-        "SuperMetroid.RenderVerification",
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/test-support/VerificationAccess.Core/Frontend/Intro/Artwork/IntroEggEffectSpriteDefinitionsConstants.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Core.Frontend.Intro.Artwork.IntroEggEffectSpriteDefinitionsConstants.extension(SuperMetroid.Core.Frontend.Intro.Artwork.IntroEggEffectSpriteDefinitions)",
-      "kind": "class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.DesktopVerification",
-        "SuperMetroid.IntegrationVerification",
-        "SuperMetroid.RenderVerification",
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/test-support/VerificationAccess.Core/Frontend/Intro/Artwork/IntroEggEffectSpriteDefinitionsConstants.cs"
-      ],
-      "partial": "none",
-      "disposition": "stateless"
     },
     {
       "type": "SuperMetroid.Core.Frontend.Intro.Artwork.IntroEggEffectSpriteDocument",
@@ -59871,51 +59638,6 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Frontend.Intro.Artwork.IntroMotherBrainExplosionSpriteDefinitions.FrameList",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Frontend/Intro/Artwork/IntroMotherBrainExplosionSpriteDefinitions.cs"
-      ],
-      "partial": "none",
-      "disposition": "stateless"
-    },
-    {
-      "type": "SuperMetroid.Core.Frontend.Intro.Artwork.IntroMotherBrainExplosionSpriteDefinitionsConstants",
-      "kind": "static class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.DesktopVerification",
-        "SuperMetroid.IntegrationVerification",
-        "SuperMetroid.RenderVerification",
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/test-support/VerificationAccess.Core/Frontend/Intro/Artwork/IntroMotherBrainExplosionSpriteDefinitionsConstants.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Core.Frontend.Intro.Artwork.IntroMotherBrainExplosionSpriteDefinitionsConstants.extension(SuperMetroid.Core.Frontend.Intro.Artwork.IntroMotherBrainExplosionSpriteDefinitions)",
-      "kind": "class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.DesktopVerification",
-        "SuperMetroid.IntegrationVerification",
-        "SuperMetroid.RenderVerification",
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/test-support/VerificationAccess.Core/Frontend/Intro/Artwork/IntroMotherBrainExplosionSpriteDefinitionsConstants.cs"
-      ],
-      "partial": "none",
-      "disposition": "stateless"
-    },
-    {
       "type": "SuperMetroid.Core.Frontend.Intro.Artwork.IntroMotherBrainExplosionSpriteDocument",
       "kind": "record",
       "scope": "product",
@@ -59979,51 +59701,6 @@
       ],
       "partial": "none",
       "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Core.Frontend.Intro.Artwork.IntroMotherBrainSpriteDefinitions.FrameList",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Frontend/Intro/Artwork/IntroMotherBrainSpriteDefinitions.cs"
-      ],
-      "partial": "none",
-      "disposition": "stateless"
-    },
-    {
-      "type": "SuperMetroid.Core.Frontend.Intro.Artwork.IntroMotherBrainSpriteDefinitionsConstants",
-      "kind": "static class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.DesktopVerification",
-        "SuperMetroid.IntegrationVerification",
-        "SuperMetroid.RenderVerification",
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/test-support/VerificationAccess.Core/Frontend/Intro/Artwork/IntroMotherBrainSpriteDefinitionsConstants.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Core.Frontend.Intro.Artwork.IntroMotherBrainSpriteDefinitionsConstants.extension(SuperMetroid.Core.Frontend.Intro.Artwork.IntroMotherBrainSpriteDefinitions)",
-      "kind": "class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.DesktopVerification",
-        "SuperMetroid.IntegrationVerification",
-        "SuperMetroid.RenderVerification",
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/test-support/VerificationAccess.Core/Frontend/Intro/Artwork/IntroMotherBrainSpriteDefinitionsConstants.cs"
-      ],
-      "partial": "none",
-      "disposition": "stateless"
     },
     {
       "type": "SuperMetroid.Core.Frontend.Intro.Artwork.IntroMotherBrainSpriteDocument",
@@ -60234,51 +59911,6 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Frontend.Intro.Artwork.IntroRinkaSpriteDefinitions.FrameList",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Frontend/Intro/Artwork/IntroRinkaSpriteDefinitions.cs"
-      ],
-      "partial": "none",
-      "disposition": "stateless"
-    },
-    {
-      "type": "SuperMetroid.Core.Frontend.Intro.Artwork.IntroRinkaSpriteDefinitionsConstants",
-      "kind": "static class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.DesktopVerification",
-        "SuperMetroid.IntegrationVerification",
-        "SuperMetroid.RenderVerification",
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/test-support/VerificationAccess.Core/Frontend/Intro/Artwork/IntroRinkaSpriteDefinitionsConstants.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Core.Frontend.Intro.Artwork.IntroRinkaSpriteDefinitionsConstants.extension(SuperMetroid.Core.Frontend.Intro.Artwork.IntroRinkaSpriteDefinitions)",
-      "kind": "class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.DesktopVerification",
-        "SuperMetroid.IntegrationVerification",
-        "SuperMetroid.RenderVerification",
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/test-support/VerificationAccess.Core/Frontend/Intro/Artwork/IntroRinkaSpriteDefinitionsConstants.cs"
-      ],
-      "partial": "none",
-      "disposition": "stateless"
-    },
-    {
       "type": "SuperMetroid.Core.Frontend.Intro.Artwork.IntroRinkaSpriteDocument",
       "kind": "record",
       "scope": "product",
@@ -60357,51 +59989,6 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Frontend.Intro.Artwork.IntroScientistSpriteDefinitions.FrameList",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Frontend/Intro/Artwork/IntroScientistSpriteDefinitions.cs"
-      ],
-      "partial": "none",
-      "disposition": "stateless"
-    },
-    {
-      "type": "SuperMetroid.Core.Frontend.Intro.Artwork.IntroScientistSpriteDefinitionsConstants",
-      "kind": "static class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.DesktopVerification",
-        "SuperMetroid.IntegrationVerification",
-        "SuperMetroid.RenderVerification",
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/test-support/VerificationAccess.Core/Frontend/Intro/Artwork/IntroScientistSpriteDefinitionsConstants.cs"
-      ],
-      "partial": "none",
-      "disposition": "static-functions"
-    },
-    {
-      "type": "SuperMetroid.Core.Frontend.Intro.Artwork.IntroScientistSpriteDefinitionsConstants.extension(SuperMetroid.Core.Frontend.Intro.Artwork.IntroScientistSpriteDefinitions)",
-      "kind": "class",
-      "scope": "test",
-      "assemblies": [
-        "SuperMetroid.DesktopVerification",
-        "SuperMetroid.IntegrationVerification",
-        "SuperMetroid.RenderVerification",
-        "SuperMetroid.Verification"
-      ],
-      "files": [
-        "csharp/test-support/VerificationAccess.Core/Frontend/Intro/Artwork/IntroScientistSpriteDefinitionsConstants.cs"
-      ],
-      "partial": "none",
-      "disposition": "stateless"
-    },
-    {
       "type": "SuperMetroid.Core.Frontend.Intro.Artwork.IntroScientistSpriteDocument",
       "kind": "record",
       "scope": "product",
@@ -60439,19 +60026,6 @@
       ],
       "partial": "none",
       "disposition": "owner"
-    },
-    {
-      "type": "SuperMetroid.Core.Frontend.Intro.Artwork.IntroSpriteFrameDefinition",
-      "kind": "record struct",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Frontend/Intro/Artwork/IntroSpriteFrameDefinition.cs"
-      ],
-      "partial": "none",
-      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Core.Frontend.Intro.CinematicActorDefinition",
@@ -60636,6 +60210,19 @@
       ],
       "partial": "none",
       "disposition": "definition-catalog"
+    },
+    {
+      "type": "SuperMetroid.Core.Frontend.Intro.CinematicSpriteFrameDefinition",
+      "kind": "record struct",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Frontend/Intro/CinematicSpriteFrameDefinition.cs"
+      ],
+      "partial": "none",
+      "disposition": "value"
     },
     {
       "type": "SuperMetroid.Core.Frontend.Intro.CinematicSpriteInstruction",
@@ -86634,7 +86221,7 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Rooms.Plms.RoomPlmChozoStatueVisualCatalogAccess.extension(SuperMetroid.Core.Enemies.Chozo.RoomPlmChozoStatueVisualCatalog)",
+      "type": "SuperMetroid.Core.Rooms.Plms.RoomPlmChozoStatueVisualCatalogAccess.extension(SuperMetroid.Core.Enemies.Chozo.Artwork.RoomPlmChozoStatueVisualCatalog)",
       "kind": "class",
       "scope": "test",
       "assemblies": [
@@ -87092,7 +86679,7 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Rooms.Plms.RoomPlmElevatorPlatformVisualCatalogAccess.extension(SuperMetroid.Core.Enemies.Elevator.RoomPlmElevatorPlatformVisualCatalog)",
+      "type": "SuperMetroid.Core.Rooms.Plms.RoomPlmElevatorPlatformVisualCatalogAccess.extension(SuperMetroid.Core.Enemies.Elevator.Artwork.RoomPlmElevatorPlatformVisualCatalog)",
       "kind": "class",
       "scope": "test",
       "assemblies": [
@@ -91205,7 +90792,7 @@
       "disposition": "static-functions"
     },
     {
-      "type": "SuperMetroid.Core.Rooms.Xray.XrayOverlayVisualCatalogAccess.extension(SuperMetroid.Core.Samus.Abilities.XrayOverlayVisualCatalog)",
+      "type": "SuperMetroid.Core.Rooms.Xray.XrayOverlayVisualCatalogAccess.extension(SuperMetroid.Core.Samus.Abilities.Artwork.XrayOverlayVisualCatalog)",
       "kind": "class",
       "scope": "test",
       "assemblies": [
@@ -91824,6 +91411,32 @@
       ],
       "partial": "none",
       "disposition": "stateless"
+    },
+    {
+      "type": "SuperMetroid.Core.Samus.Abilities.Artwork.XrayOverlayVisualCatalog",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Samus/Abilities/Artwork/XrayOverlayVisualCatalog.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
+    },
+    {
+      "type": "SuperMetroid.Core.Samus.Abilities.Artwork.XrayRevealVisualCatalog",
+      "kind": "class",
+      "scope": "product",
+      "assemblies": [
+        "SuperMetroid.Core"
+      ],
+      "files": [
+        "csharp/src/SuperMetroid.Core/Samus/Abilities/Artwork/XrayRevealVisualCatalog.cs"
+      ],
+      "partial": "none",
+      "disposition": "owner"
     },
     {
       "type": "SuperMetroid.Core.Samus.Abilities.CrashEchoSlotOwner",
@@ -92865,19 +92478,6 @@
       "disposition": "definition-catalog"
     },
     {
-      "type": "SuperMetroid.Core.Samus.Abilities.XrayOverlayVisualCatalog",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Samus/Abilities/XrayOverlayVisualCatalog.cs"
-      ],
-      "partial": "none",
-      "disposition": "owner"
-    },
-    {
       "type": "SuperMetroid.Core.Samus.Abilities.XrayPoseInputResult",
       "kind": "record struct",
       "scope": "product",
@@ -93006,19 +92606,6 @@
       ],
       "partial": "none",
       "disposition": "value"
-    },
-    {
-      "type": "SuperMetroid.Core.Samus.Abilities.XrayRevealVisualCatalog",
-      "kind": "class",
-      "scope": "product",
-      "assemblies": [
-        "SuperMetroid.Core"
-      ],
-      "files": [
-        "csharp/src/SuperMetroid.Core/Samus/Abilities/XrayRevealVisualCatalog.cs"
-      ],
-      "partial": "none",
-      "disposition": "owner"
     },
     {
       "type": "SuperMetroid.Core.Samus.Abilities.XrayRevealVisualDefinition",

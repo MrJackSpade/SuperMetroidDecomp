@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Frontend.Cinematics;
 using SuperMetroid.Tooling;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
@@ -22,7 +23,7 @@ internal static class IntroScientistSpriteArtworkVerification
     {
         const ushort x = 120;
         ushort palette = IntroBabyActorDefinitions.DeliveredBaby.PaletteBits;
-        foreach (IntroSpriteFrameDefinition definition in
+        foreach (CinematicSpriteFrameDefinition definition in
             IntroScientistSpriteDefinitions.Frames)
         {
             foreach (ushort y in new ushort[] { 0x0048, 0xfff8 })
@@ -30,7 +31,7 @@ internal static class IntroScientistSpriteArtworkVerification
                 bool onScreen =
                     ((y & CinematicSpriteDrawDefinitions.OriginYHighByteMask)) == 0;
                 int source = (int)new SnesAddress(IntroCinematicRomData.Banks.Spritemaps,
-                    definition.Pointer);
+                    CinematicSpritemapAddresses.Of(definition.Pose));
                 var native = new OamBuffer();
                 native.BeginFrame();
                 if (onScreen)
@@ -40,7 +41,7 @@ internal static class IntroScientistSpriteArtworkVerification
                 native.FinalizeFrame();
                 var installed = ScreenSpritesFixtures.Blank();
                 installed.BeginFrame();
-                stock.ScientistSprites.Draw(definition.Pointer, installed, new(x, y),
+                stock.ScientistSprites.Draw(definition.Pose, installed, new(x, y),
                     palette, onScreen);
                 installed.FinalizeFrame();
                 AssertTrue(installed.ImageEquals(native) &&

@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Frontend.Cinematics;
 using System.Text.Json;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
@@ -20,14 +21,14 @@ internal static class EndingRewardSpriteArtworkVerification
     internal static void VerifyEndingRewardSpriteArtwork(ISnesAddressSpace bus,
         EndingObjectArtworkCatalog stock)
     {
-        foreach (SpriteFrameDefinition frame in EndingRewardSpriteDefinitions.Frames)
+        foreach (CinematicSpriteFrameDefinition frame in EndingRewardSpriteDefinitions.Frames)
         {
             foreach (ushort y in new ushort[] { 0x0048, 0xfff8 })
             {
                 bool onScreen =
                     ((y & CinematicSpriteDrawDefinitions.OriginYHighByteMask)) == 0;
                 int source = (int)new SnesAddress(
-                    IntroCinematicRomData.Banks.Spritemaps, frame.Pointer);
+                    IntroCinematicRomData.Banks.Spritemaps, CinematicSpritemapAddresses.Of(frame.Pose));
                 var nativeOam = new OamBuffer();
                 nativeOam.BeginFrame();
                 if (onScreen)
@@ -37,7 +38,7 @@ internal static class EndingRewardSpriteArtworkVerification
                 nativeOam.FinalizeFrame();
                 var installedOam = ScreenSpritesFixtures.Blank();
                 installedOam.BeginFrame();
-                stock.RewardSprites.Draw(frame.Pointer, installedOam,
+                stock.RewardSprites.Draw(frame.Pose, installedOam,
                     new(120, y), 0x0800, onScreen);
                 installedOam.FinalizeFrame();
                 AssertTrue(nativeOam.ImageEquals(installedOam) &&

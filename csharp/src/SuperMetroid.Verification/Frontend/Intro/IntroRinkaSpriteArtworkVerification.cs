@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Frontend.Cinematics;
 using SuperMetroid.Tooling;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
@@ -35,14 +36,14 @@ internal static class IntroRinkaSpriteArtworkVerification
     {
         const ushort x = 120;
         ushort palette = IntroCinematicRomData.Objects.DiscoveryPalette.Raw;
-        foreach (SpritemapFrameDefinition definition in IntroRinkaSpriteDefinitions.Frames)
+        foreach (CinematicSpriteFrameDefinition definition in IntroRinkaSpriteDefinitions.Frames)
         {
             foreach (ushort y in new ushort[] { 0x0048, 0xfff8 })
             {
                 bool onScreen =
                     ((y & CinematicSpriteDrawDefinitions.OriginYHighByteMask)) == 0;
                 int source = (int)new SnesAddress(IntroCinematicRomData.Banks.Spritemaps,
-                    definition.Pointer);
+                    CinematicSpritemapAddresses.Of(definition.Pose));
                 var native = new OamBuffer();
                 native.BeginFrame();
                 if (onScreen)
@@ -52,7 +53,7 @@ internal static class IntroRinkaSpriteArtworkVerification
                 native.FinalizeFrame();
                 var installed = ScreenSpritesFixtures.Blank();
                 installed.BeginFrame();
-                stock.RinkaSprites.Draw(definition.Pointer, installed, new(x, y), palette,
+                stock.RinkaSprites.Draw(definition.Pose, installed, new(x, y), palette,
                     onScreen);
                 installed.FinalizeFrame();
                 AssertTrue(installed.ImageEquals(native) &&

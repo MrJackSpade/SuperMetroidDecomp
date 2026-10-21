@@ -179,11 +179,8 @@ internal sealed class IntroDiscoverySprite
     public void Draw(ScreenSprites objects, Offset16<ScreenPixels> scroll = default,
         IIntroCinematicSpritePresentation? installedArt = null)
     {
-        if (!IsActive || Pose is not { } pose)
-            return;
-        // The blank pose's spritemap draws nothing.
-        ushort spritemap = CinematicSpritePoseDefinitions.Spritemap(pose);
-        if (spritemap == 0)
+        // The blank pose draws nothing.
+        if (!IsActive || Pose is not { } pose || pose == CinematicSpritePose.Blank)
             return;
         Position16<ScreenPixels> origin = Position.Whole - scroll;
         ushort y = origin.Y;
@@ -196,6 +193,6 @@ internal sealed class IntroDiscoverySprite
             ((y & CinematicSpriteDrawDefinitions.OriginYHighByteMask)) == 0;
         (installedArt ?? throw new InvalidOperationException(
             "Cinematic sprites require installed artwork."))
-            .Draw(spritemap, objects, origin.ToOam(), Attributes.Raw, originIsOnScreen);
+            .Draw(pose, objects, origin.ToOam(), Attributes.Raw, originIsOnScreen);
     }
 }

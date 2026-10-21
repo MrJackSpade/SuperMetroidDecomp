@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend.Intro;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
@@ -8,28 +9,28 @@ namespace SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
 /// <summary>Editable OAM compositions unique to the station blast and Zebes reveal.</summary>
 public sealed class CeresDestructionSpritePresentation : IIntroCinematicSpritePresentation
 {
-    /// <summary>Validated destruction and reveal compositions keyed by their bank-8C spritemap pointers.</summary>
-    private readonly Dictionary<ushort, SpriteComposition> frames;
+    /// <summary>Validated destruction and reveal compositions keyed by the poses that show them.</summary>
+    private readonly Dictionary<CinematicSpritePose, SpriteComposition> frames;
 
     /// <summary>Canonical identity of all selected decoded visual frames, preserving ordered OAM parts.</summary>
-    public string ContentIdentity => SelectedPresentationHash.FromCompositions(nameof(CeresDestructionSpritePresentation), frames);
+    public string ContentIdentity => CinematicSpriteArtwork.ContentIdentity(nameof(CeresDestructionSpritePresentation), frames);
 
-    /// <summary>Retains the fully validated compositions selected by the scene's native frame pointers.</summary>
-    private CeresDestructionSpritePresentation(Dictionary<ushort, SpriteComposition> frames) =>
+    /// <summary>Retains the fully validated compositions the scene's poses show.</summary>
+    private CeresDestructionSpritePresentation(Dictionary<CinematicSpritePose, SpriteComposition> frames) =>
         this.frames = frames;
 
     /// <summary>Whether a bank-$8C spritemap identity belongs to this destruction/reveal catalog; the scene router uses this to distinguish unique frames from shared Ceres-flight artwork.</summary>
-    public bool Contains(ushort pointer) => frames.ContainsKey(pointer);
+    public bool Contains(CinematicSpritePose pose) => frames.ContainsKey(pose);
 
     /// <summary>Appends the selected blast or backdrop composition in authored OAM order, applying palette inheritance and the requested native origin-clipping path.</summary>
-    /// <param name="pointer">Installed bank-$8C spritemap identity; shared flight-frame identities must be routed to the flight catalog.</param>
+    /// <param name="pose">The cinematic pose whose composition to draw.</param>
     /// <param name="objects">Destination OAM buffer for this frame's ordered visual parts.</param>
     /// <param name="origin">Native wrapped sixteen-bit screen origin in pixels.</param>
     /// <param name="paletteBits">Packed OBJ palette bits used only by parts whose editable palette is null.</param>
     /// <param name="originIsOnScreen">True for ordinary origin clipping, false for the native off-screen Y-wrap path.</param>
-    public void Draw(ushort pointer, ScreenSprites objects, Position16<OamPixels> origin,
+    public void Draw(CinematicSpritePose pose, ScreenSprites objects, Position16<OamPixels> origin,
         ushort paletteBits, bool originIsOnScreen) =>
-        SpriteComposition.DrawInstalled(frames, "Ceres destruction sprite", pointer, objects, origin, paletteBits, originIsOnScreen);
+        CinematicSpriteArtwork.DrawInstalled(frames, "Ceres destruction sprite", pose, objects, origin, paletteBits, originIsOnScreen);
 
     /// <summary>Loads version-1 <c>ceres-destruction-sprites.json</c>, requiring all 23 named compositions and validating each ordered part's offset, atlas region, size, palette, and priority.</summary>
     /// <param name="json">Caller-owned JSON stream consumed from its current position and left open; unknown and duplicate properties are rejected.</param>
@@ -45,7 +46,7 @@ public sealed class CeresDestructionSpritePresentation : IIntroCinematicSpritePr
             document.Frames is null || document.Frames.Count != definitions.Count)
             throw new InvalidDataException(
                 $"Ceres destruction requires exactly {definitions.Count} named visual frames.");
-        var frames = new Dictionary<ushort, SpriteComposition>();
+        var frames = new Dictionary<CinematicSpritePose, SpriteComposition>();
         foreach (CeresDestructionSpriteFrameDefinition definition in definitions)
         {
             if (!document.Frames.TryGetValue(definition.Name, out SpriteVisualPart[]? visual) ||
@@ -53,14 +54,14 @@ public sealed class CeresDestructionSpritePresentation : IIntroCinematicSpritePr
                 throw new InvalidDataException(
                     $"Ceres destruction sprite {definition.Name} is missing.");
             var compiled = IntroCinematicSpriteCompiler.Compile(visual, definition.Name);
-            compiled = CeresLargeAsteroidParts.CalculateIfMatching(definition.Pointer, compiled);
-            compiled = IntroMotherBrainExplosionParts.CalculateIfMatching(definition.Pointer, compiled);
-            compiled = CeresStationBlastParts.CalculateIfMatching(definition.Pointer, compiled);
-            compiled = CeresLargeBlastParts.CalculateIfMatching(definition.Pointer, compiled);
+            compiled = CeresLargeAsteroidParts.CalculateIfMatching(definition.Pose, compiled);
+            compiled = IntroMotherBrainExplosionParts.CalculateIfMatching(definition.Pose, compiled);
+            compiled = CeresStationBlastParts.CalculateIfMatching(definition.Pose, compiled);
+            compiled = CeresLargeBlastParts.CalculateIfMatching(definition.Pose, compiled);
             compiled = PlanetZebesTitleParts.CalculateIfMatching(definition.Backdrop, compiled);
             compiled = ZebesPlanetBandParts.CalculateIfMatching(definition.Backdrop, compiled);
             compiled = ZebesStarGridParts.CalculateIfMatching(definition.Backdrop, compiled);
-            frames.Add(definition.Pointer, compiled);
+            frames.Add(definition.Pose, compiled);
         }
         return new CeresDestructionSpritePresentation(frames);
     }

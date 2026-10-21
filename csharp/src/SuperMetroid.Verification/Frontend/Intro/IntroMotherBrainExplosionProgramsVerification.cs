@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Frontend.Cinematics;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -19,15 +20,15 @@ internal static class IntroMotherBrainExplosionProgramsVerification
             int operand = (index < 6 ? 0x8bcdcd : 0x8bcdad) + 4 * (index % 6);
             ushort pointer = SnesLittleEndian.Word(IntroMotherBrainExplosionFrameCatalogRomByte(rom, operand), IntroMotherBrainExplosionFrameCatalogRomByte(rom, operand + 1));
             int count = SnesLittleEndian.Word(IntroMotherBrainExplosionFrameCatalogRomByte(rom, 0x8c0000 + pointer), IntroMotherBrainExplosionFrameCatalogRomByte(rom, 0x8c0001 + pointer));
-            AssertEqual(pointer, frames[index].Pointer, "original explosion frame operand");
+            AssertEqual(pointer, CinematicSpritemapAddresses.Of(frames[index].Pose), "original explosion frame operand");
             AssertEqual(count, frames[index].StockPartCount, "original explosion part count");
             AssertEqual(names[index], frames[index].Name, "stable explosion asset name");
         }
         foreach (int invalid in new[] { int.MinValue, -1, 12, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => { _ = frames[invalid]; }, "explosion catalog bounds");
+            AssertThrows<IndexOutOfRangeException>(() => { _ = frames[invalid]; }, "explosion catalog bounds");
         foreach (int invalid in new[] { -1, 6, int.MaxValue })
         foreach (bool big in new[] { false, true })
-            AssertThrows<ArgumentOutOfRangeException>(() => IntroMotherBrainExplosionSpriteDefinitions.FramePointer(big, invalid), "explosion pointer bounds");
+            AssertThrows<ArgumentOutOfRangeException>(() => IntroMotherBrainExplosionSpriteDefinitions.FramePose(big, invalid), "explosion pointer bounds");
         AssertTrue(frames.SequenceEqual(frames.ToArray()), "explosion enumeration preserves indexed order");
     }
 

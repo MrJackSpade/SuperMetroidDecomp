@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Frontend.Cinematics;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Frontend.Map.MapSpritesVerification;
@@ -16,9 +17,9 @@ internal static class IntroRinkaPartsVerification
         string Identity(SpriteComposition value) => SelectedPresentationHash.Create("Rinka", value.AppendIdentity);
         foreach (var definition in IntroRinkaSpriteDefinitions.Frames)
         {
-            SpriteVisualPart[] visual = IntroCinematicSpriteFrameExtractor.Extract(rom, definition.Pointer, 4, definition.Name);
+            SpriteVisualPart[] visual = IntroCinematicSpriteFrameExtractor.Extract(rom, CinematicSpritemapAddresses.Of(definition.Pose), 4, definition.Name);
             SpriteComposition source = IntroCinematicSpriteCompiler.Compile(visual, definition.Name);
-            SpriteComposition result = IntroRinkaParts.CalculateIfMatching(definition.Pointer, source);
+            SpriteComposition result = IntroRinkaParts.CalculateIfMatching(definition.Pose, source);
             AssertTrue(!ReferenceEquals(source, result), "original Rinka selects calculated parts");
             AssertEqual(Identity(source), Identity(result), "all original Rinka compiled fields");
             for (int piece = 0; piece < visual.Length; piece++)
@@ -37,18 +38,18 @@ internal static class IntroRinkaPartsVerification
                     var edited = (SpriteVisualPart[])visual.Clone();
                     edited[piece] = edit;
                     var supplied = IntroCinematicSpriteCompiler.Compile(edited, "edited Rinka");
-                    AssertTrue(ReferenceEquals(supplied, IntroRinkaParts.CalculateIfMatching(definition.Pointer, supplied)),
+                    AssertTrue(ReferenceEquals(supplied, IntroRinkaParts.CalculateIfMatching(definition.Pose, supplied)),
                         "independent Rinka field edit stays supplied");
                 }
             }
             var extra = IntroCinematicSpriteCompiler.Compile([visual[0]], "one-part Rinka");
-            AssertTrue(ReferenceEquals(extra, IntroRinkaParts.CalculateIfMatching(definition.Pointer, extra)), "custom part count preserved");
+            AssertTrue(ReferenceEquals(extra, IntroRinkaParts.CalculateIfMatching(definition.Pose, extra)), "custom part count preserved");
             foreach (int invalid in new[] { -1, 4, int.MaxValue })
                 AssertThrows<ArgumentOutOfRangeException>(() => result.Part(invalid), "calculated Rinka part bounds");
             foreach (ushort y in new ushort[] { 72, 0xfff8 })
             {
                 var native = new OamBuffer(); native.BeginFrame();
-                DrawImportedSpritemap(rom, native, 0x8c0000 + definition.Pointer, new(120, y), 0x0e00, originIsOnScreen: y == 72);
+                DrawImportedSpritemap(rom, native, 0x8c0000 + CinematicSpritemapAddresses.Of(definition.Pose), new(120, y), 0x0e00, originIsOnScreen: y == 72);
                 native.FinalizeFrame();
                 var actual = new OamBuffer(); actual.BeginFrame();
                 if (y == 72) result.DrawOnScreen(actual, new(120, y), 0x0e00);

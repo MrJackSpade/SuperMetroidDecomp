@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.Core.Assets;
 
 namespace SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
@@ -18,11 +19,11 @@ namespace SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
 internal static class CeresLargeBlastParts
 {
     /// <summary>Replaces a matching one-part native blast with calculated placement while retaining its supplied tile drawing.</summary>
-    internal static SpriteComposition CalculateIfMatching(ushort pointer, SpriteComposition supplied)
+    internal static SpriteComposition CalculateIfMatching(CinematicSpritePose shown, SpriteComposition supplied)
     {
         if (supplied.PartCount != 1) return supplied;
         for (int frame = 0; frame < 4; frame++)
-            if (pointer == CeresDestructionSpriteDefinitions.LargeFrame(frame))
+            if (shown == CeresDestructionSpriteDefinitions.LargeFrame(frame))
                 return supplied.CalculateIfMatching(Parts(frame, supplied.Part(0).Attributes.TileNumber));
         return supplied;
     }

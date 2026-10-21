@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
 using SuperMetroid.Core.Assets;
 using System.Diagnostics.CodeAnalysis;
@@ -7,7 +8,7 @@ namespace SuperMetroid.Core.Frontend.Ending;
 /// <summary>Bank-$8B/$8C definitions for the rescued animals' escape pod ($EF21).</summary>
 internal sealed class EndingAnimalEscapeDefinitions : IIntroCinematicSpritePresentation
 {
-    /// <summary>Shared presenter for the rescue pod's four bank-$8C spritemaps.</summary>
+    /// <summary>Shared presenter for the rescue pod's four frames.</summary>
     internal static readonly EndingAnimalEscapeDefinitions Presentation = new();
     /// <summary>$8B:DD98 tests event $0F, then $DDA7 forces native byte slot $04.</summary>
     internal const int NativeSlot = 2;
@@ -23,12 +24,8 @@ internal sealed class EndingAnimalEscapeDefinitions : IIntroCinematicSpritePrese
     internal const ushort XVelocity = 1;
     /// <summary>$8B:EFD8 deletes the actor when its center reaches $0110.</summary>
     internal const ushort DeleteX = 0x0110;
-    /// <summary>$8C:BC41-BC56 defines four single-small-OBJ frames, centered at (-4,-4).</summary>
-    private const ushort FrameStart = 0xbc41;
-    /// <summary>Each native pod spritemap record occupies a count word and one five-byte OAM part.</summary>
-    private const ushort FrameStride = 7;
-    /// <summary>The escape pod cycles through four one-frame OAM compositions.</summary>
-    private const int FrameCount = 4;
+    /// <summary>The poses of the pod's four single-small-OBJ frames, centered at (-4,-4), in cycle order.</summary>
+    private static readonly CinematicSpritePose[] FramePoses = [new(155), new(156), new(157), new(158)];
     /// <summary>Centers the eight-pixel pod sprite four pixels left and above its actor origin.</summary>
     private const ushort SpriteOffset = 4;
     /// <summary>$8C:BC43 starts the priority-three, palette-seven pod tiles $1E0-$1E3.</summary>
@@ -36,13 +33,13 @@ internal sealed class EndingAnimalEscapeDefinitions : IIntroCinematicSpritePrese
     /// <summary>Draws the selected one-part pod frame centered on the actor using its authored attributes.</summary>
     [SuppressMessage("Design", "SME6426", Justification =
         "The pod frame's attribute word is authored in full, so no palette bits are inherited, and its one small object is placed through ScreenSprites; every other cinematic sprite presentation reads both values.")]
-    public void Draw(ushort pointer, ScreenSprites objects, Position16<OamPixels> origin, ushort paletteBits, bool originIsOnScreen)
+    public void Draw(CinematicSpritePose pose, ScreenSprites objects, Position16<OamPixels> origin, ushort paletteBits, bool originIsOnScreen)
     {
-        int offset = pointer - FrameStart;
-        if (offset < 0 || offset % FrameStride != 0 || offset / FrameStride >= FrameCount)
-            throw new InvalidDataException($"Animal escape sprite $8C:{pointer:X4} is outside its four frames.");
+        int frame = Array.IndexOf(FramePoses, pose);
+        if (frame < 0)
+            throw new InvalidDataException($"Animal escape pose {pose.Index} is not one of its four frames.");
         Position16<OamPixels> corner = origin - new Offset16<OamPixels>((short)SpriteOffset, (short)SpriteOffset);
         objects.AddSmallObject(corner,
-            (ushort)(FirstAttributes + offset / FrameStride));
+            (ushort)(FirstAttributes + frame));
     }
 }

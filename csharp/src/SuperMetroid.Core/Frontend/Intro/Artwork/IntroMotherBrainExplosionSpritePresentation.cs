@@ -6,26 +6,26 @@ namespace SuperMetroid.Core.Frontend.Intro.Artwork;
 /// <summary>Editable explosion OAM art, independent of native placement and timing.</summary>
 public sealed class IntroMotherBrainExplosionSpritePresentation
 {
-    /// <summary>Validated fourth-hit compositions keyed by their native bank-$8C spritemap pointers.</summary>
-    private readonly Dictionary<ushort, SpriteComposition> frames;
+    /// <summary>Validated fourth-hit compositions keyed by the poses that show them.</summary>
+    private readonly Dictionary<CinematicSpritePose, SpriteComposition> frames;
 
     /// <summary>Canonical identity of all selected decoded visual frames, preserving ordered OAM parts.</summary>
-    public string ContentIdentity => SelectedPresentationHash.FromCompositions(nameof(IntroMotherBrainExplosionSpritePresentation), frames);
+    public string ContentIdentity => CinematicSpriteArtwork.ContentIdentity(nameof(IntroMotherBrainExplosionSpritePresentation), frames);
 
     /// <summary>Retains the validated twelve-frame selection after JSON compilation.</summary>
     private IntroMotherBrainExplosionSpritePresentation(
-        Dictionary<ushort, SpriteComposition> frames) => this.frames = frames;
+        Dictionary<CinematicSpritePose, SpriteComposition> frames) => this.frames = frames;
 
     /// <summary>Draws one installed small- or large-explosion composition at its script-owned screen anchor.</summary>
-    /// <param name="pointer">Native bank-$8C spritemap identity for one of the twelve frames.</param>
+    /// <param name="pose">The cinematic pose whose composition to draw.</param>
     /// <param name="objects">The OAM buffer receiving the ordered sprite parts.</param>
     /// <param name="origin">Native wrapped sixteen-bit screen origin in pixels.</param>
     /// <param name="paletteBits">OBJ palette attribute bits applied to inherited-palette parts.</param>
-    public void Draw(ushort pointer, ScreenSprites objects, Position16<OamPixels> origin, ushort paletteBits)
+    public void Draw(CinematicSpritePose pose, ScreenSprites objects, Position16<OamPixels> origin, ushort paletteBits)
     {
-        if (!frames.TryGetValue(pointer, out SpriteComposition? frame))
+        if (!frames.TryGetValue(pose, out SpriteComposition? frame))
             throw new InvalidDataException(
-                $"Intro Mother Brain explosion frame $8C:{pointer:X4} is not installed.");
+                $"Intro Mother Brain explosion frame for pose {pose.Index} is not installed.");
         frame.Draw(objects, origin, paletteBits);
     }
 
@@ -38,21 +38,21 @@ public sealed class IntroMotherBrainExplosionSpritePresentation
         Ensure.NotNull(json);
         IntroMotherBrainExplosionSpriteDocument document;
         document = JsonAssetDocument.Read<IntroMotherBrainExplosionSpriteDocument>(json, ArtworkJson.Options, "intro Mother Brain explosion sprite");
-        IReadOnlyList<IntroSpriteFrameDefinition> definitions =
+        IReadOnlyList<CinematicSpriteFrameDefinition> definitions =
             IntroMotherBrainExplosionSpriteDefinitions.Frames;
         if (document.Version != IntroMotherBrainExplosionSpriteFormat.Version ||
             document.Frames is null || document.Frames.Count != definitions.Count)
             throw new InvalidDataException(
                 "Intro Mother Brain explosions require twelve named visual frames.");
-        var frames = new Dictionary<ushort, SpriteComposition>();
-        foreach (IntroSpriteFrameDefinition definition in definitions)
+        var frames = new Dictionary<CinematicSpritePose, SpriteComposition>();
+        foreach (CinematicSpriteFrameDefinition definition in definitions)
         {
             if (!document.Frames.TryGetValue(definition.Name, out SpriteVisualPart[]? visual) ||
                 visual is null)
                 throw new InvalidDataException(
                     $"Intro Mother Brain explosion frame {definition.Name} is missing.");
-            frames.Add(definition.Pointer,
-                IntroMotherBrainExplosionParts.CalculateIfMatching(definition.Pointer,
+            frames.Add(definition.Pose,
+                IntroMotherBrainExplosionParts.CalculateIfMatching(definition.Pose,
                     IntroCinematicSpriteCompiler.Compile(visual, definition.Name)));
         }
         return new IntroMotherBrainExplosionSpritePresentation(frames);

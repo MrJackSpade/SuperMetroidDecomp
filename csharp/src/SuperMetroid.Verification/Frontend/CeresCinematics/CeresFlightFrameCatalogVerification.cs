@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Frontend.Cinematics;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
@@ -23,12 +24,12 @@ internal static class CeresFlightFrameCatalogVerification
             ushort pointer = CartridgeImportSource.Require(rom).ReadCartridgeWord(operand);
             int record = 0x8c0000 | pointer;
             int count = CartridgeImportSource.Require(rom).ReadCartridgeWord(record);
-            AssertEqual(pointer, frames[index].Pointer, "native flight frame selection");
+            AssertEqual(pointer, CinematicSpritemapAddresses.Of(frames[index].Pose), "native flight frame selection");
             AssertEqual(count, frames[index].StockPartCount, "native flight OAM count");
             AssertEqual(names[index], frames[index].Name, "published flight frame key");
             AssertEqual(frames[index], enumerated[index], "flight catalog enumeration order");
         }
         foreach (int invalid in new[] { -1, frames.Count, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => _ = frames[invalid], "flight catalog bounds");
+            AssertThrows<IndexOutOfRangeException>(() => _ = frames[invalid], "flight catalog bounds");
     }
 }

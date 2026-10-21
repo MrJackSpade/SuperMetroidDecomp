@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend.Intro;
 using System.Collections;
 using Pose = SuperMetroid.Core.Frontend.Ending.Artwork.EndingRewardSpriteFrame;
 using SuperMetroid.Core.Assets;
@@ -9,10 +10,10 @@ namespace SuperMetroid.Core.Frontend.Ending.Artwork;
 internal sealed class EndingRewardShootingSceneParts(Pose pose) : IReadOnlyList<CompiledSpritePart>
 {
     /// <summary>Uses calculated OAM parts only when a supplied falling, landing, or shooting frame matches its native composition.</summary>
-    internal static SpriteComposition CalculateIfMatching(ushort pointer, SpriteComposition supplied)
+    internal static SpriteComposition CalculateIfMatching(CinematicSpritePose shown, SpriteComposition supplied)
     {
         foreach (Pose pose in EndingRewardSpriteFrameSeries.ShootingScene)
-            if (pointer == EndingRewardSpriteDefinitions.FramePointer(pose))
+            if (shown == EndingRewardSpriteDefinitions.FramePose(pose))
                 return supplied.CalculateIfMatching(new EndingRewardShootingSceneParts(pose));
         return supplied;
     }

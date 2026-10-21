@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Frontend.Cinematics;
 using SuperMetroid.Tooling;
 using System.Text.Json;
 using SuperMetroid.Core.Assets;
@@ -25,7 +26,7 @@ internal static class IntroEggEffectSpriteArtworkVerification
     {
         const ushort x = 120;
         ushort palette = IntroCinematicRomData.Objects.DiscoveryPalette.Raw;
-        foreach (SpritemapFrameDefinition definition in
+        foreach (CinematicSpriteFrameDefinition definition in
             IntroEggEffectSpriteDefinitions.Frames)
         {
             foreach (ushort y in new ushort[] { 0x0048, 0xfff8 })
@@ -33,7 +34,7 @@ internal static class IntroEggEffectSpriteArtworkVerification
                 bool onScreen =
                     ((y & CinematicSpriteDrawDefinitions.OriginYHighByteMask)) == 0;
                 int source = (int)new SnesAddress(IntroCinematicRomData.Banks.Spritemaps,
-                    definition.Pointer);
+                    CinematicSpritemapAddresses.Of(definition.Pose));
                 var native = new OamBuffer();
                 native.BeginFrame();
                 if (onScreen)
@@ -43,7 +44,7 @@ internal static class IntroEggEffectSpriteArtworkVerification
                 native.FinalizeFrame();
                 var installed = ScreenSpritesFixtures.Blank();
                 installed.BeginFrame();
-                stock.EggEffectSprites.Draw(definition.Pointer, installed, new(x, y),
+                stock.EggEffectSprites.Draw(definition.Pose, installed, new(x, y),
                     palette, onScreen);
                 installed.FinalizeFrame();
                 AssertTrue(installed.ImageEquals(native) &&

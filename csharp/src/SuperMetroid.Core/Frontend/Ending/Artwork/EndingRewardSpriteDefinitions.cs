@@ -1,169 +1,95 @@
-using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Frontend.Intro;
 
 namespace SuperMetroid.Core.Frontend.Ending.Artwork;
 
-/// <summary>
-/// Cartridge OAM record identities selected by the suitless and suited reward
-/// lists at $8B:ED1D..EE5C. Counts describe visuals, not actor timing.
-/// </summary>
+/// <summary>The compositions the suitless and suited reward lists at $8B:ED1D..EE5C show. Counts describe visuals, not actor timing.</summary>
 public static class EndingRewardSpriteDefinitions
 {
-    /// <summary>$8C:99D6, LargeSamusFromEndingStanding, first of37 consecutive reward OAM records.</summary>
-    private const ushort FirstRecord = 0x99d6;
-    /// <summary>The native reward list publishes thirty-seven distinct OAM records.</summary>
-    private const int FrameCount = 37;
-    /// <summary>Gets the 37 published asset roles in installation order.</summary>
-    public static IReadOnlyList<SpriteFrameDefinition> Frames { get; } = new FrameView();
+    /// <summary>The 37 published reward compositions in installation order.</summary>
+    public static IReadOnlyList<CinematicSpriteFrameDefinition> Frames { get; } =
+    [
+        new("suitless-idle-upper", new(165), 28),
+        new("suitless-lower", new(166), 14),
+        new("suitless-hair-1", new(167), 9),
+        new("suitless-hair-2", new(168), 10),
+        new("suitless-hair-3", new(169), 10),
+        new("suitless-hair-4", new(170), 10),
+        new("suitless-hair-5", new(171), 9),
+        new("suitless-hair-6", new(172), 10),
+        new("suitless-hair-7", new(173), 15),
+        new("suitless-hair-8", new(174), 13),
+        new("suitless-standing", new(175), 28),
+        new("suitless-prepare-jump", new(176), 20),
+        new("suitless-jumping", new(177), 19),
+        new("samus-falling", new(178), 15),
+        new("samus-landing", new(179), 13),
+        new("samus-landed", new(180), 21),
+        new("samus-shooting", new(181), 15),
+        new("suited-idle-body", new(182), 34),
+        new("suited-helmet-head", new(183), 4),
+        new("helmetless-head-1", new(184), 2),
+        new("suited-headless-body", new(185), 30),
+        new("suited-arm-1", new(186), 5),
+        new("suited-arm-2", new(187), 6),
+        new("suited-arm-3", new(188), 5),
+        new("suited-arm-4", new(189), 5),
+        new("suited-arm-5", new(190), 5),
+        new("suited-arm-6", new(191), 5),
+        new("suited-arm-7", new(192), 5),
+        new("suited-arm-8", new(193), 5),
+        new("helmetless-head-2", new(194), 2),
+        new("helmetless-head-3", new(195), 2),
+        new("helmetless-head-4", new(196), 2),
+        new("suited-prepare-jump", new(197), 22),
+        new("suited-jumping", new(198), 20),
+        new("suited-helmet-jump-head-1", new(199), 5),
+        new("suited-helmet-jump-head-2", new(200), 5),
+        new("helmetless-jump-head", new(201), 3),
+    ];
 
-    /// <summary>Advances through variable-length native OAM records to locate one reward pose.</summary>
-    internal static ushort FramePointer(EndingRewardSpriteFrame frame)
+    /// <summary>The cinematic pose that shows each <see cref="EndingRewardSpriteFrame"/>.</summary>
+    private static readonly Dictionary<EndingRewardSpriteFrame, CinematicSpritePose> FramePoses = new()
     {
-        if ((uint)frame >= FrameCount) throw new ArgumentOutOfRangeException(nameof(frame));
-        int address = FirstRecord;
-        for (int preceding = 0; preceding < (int)frame; preceding++)
-            address += sizeof(ushort) + 5 * Parts((EndingRewardSpriteFrame)preceding);
-        return (ushort)address;
-    }
-
-    /// <summary>Counts the stock OAM parts that determine each subsequent record's address.</summary>
-    private static int Parts(EndingRewardSpriteFrame frame) => frame switch
-    {
-        EndingRewardSpriteFrame.SamusHeadFromEndingFrame1 or
-            EndingRewardSpriteFrame.SamusHeadFromEndingFrame2 or
-            EndingRewardSpriteFrame.SamusHeadFromEndingFrame3 or
-            EndingRewardSpriteFrame.SamusHeadFromEndingFrame4 => 2,
-        EndingRewardSpriteFrame.JumpingSamusHeadFromEnding => 3,
-        EndingRewardSpriteFrame.SamusHeadWithHelmetFromEnding => 4,
-        EndingRewardSpriteFrame.LargeSamusHelmetFromEndingFrame1 or
-            EndingRewardSpriteFrame.LargeSamusHelmetFromEndingFrame2 or
-            EndingRewardSpriteFrame.SamusArmFromEndingFrame1 or
-            EndingRewardSpriteFrame.SamusArmFromEndingFrame3 or
-            EndingRewardSpriteFrame.SamusArmFromEndingFrame4 or
-            EndingRewardSpriteFrame.SamusArmFromEndingFrame5 or
-            EndingRewardSpriteFrame.SamusArmFromEndingFrame6 or
-            EndingRewardSpriteFrame.SamusArmFromEndingFrame7 or
-            EndingRewardSpriteFrame.SamusArmFromEndingFrame8 => 5,
-        EndingRewardSpriteFrame.SamusArmFromEndingFrame2 => 6,
-        EndingRewardSpriteFrame.SuitlessSamusOpeningHairFrame1 or
-            EndingRewardSpriteFrame.SuitlessSamusOpeningHairFrame5 => 9,
-        EndingRewardSpriteFrame.SuitlessSamusOpeningHairFrame2 or
-            EndingRewardSpriteFrame.SuitlessSamusOpeningHairFrame3 or
-            EndingRewardSpriteFrame.SuitlessSamusOpeningHairFrame4 or
-            EndingRewardSpriteFrame.SuitlessSamusOpeningHairFrame6 => 10,
-        EndingRewardSpriteFrame.SamusLanding or
-            EndingRewardSpriteFrame.SuitlessSamusOpeningHairFrame8 => 13,
-        EndingRewardSpriteFrame.SuitlessSamusLowerBody => 14,
-        EndingRewardSpriteFrame.SamusFalling or
-            EndingRewardSpriteFrame.SamusShooting or
-            EndingRewardSpriteFrame.SuitlessSamusOpeningHairFrame7 => 15,
-        EndingRewardSpriteFrame.SuitlessSamusJumping => 19,
-        EndingRewardSpriteFrame.LargeSamusFromEndingJumping or
-            EndingRewardSpriteFrame.SuitlessSamusPreparingToJump => 20,
-        EndingRewardSpriteFrame.SamusLanded => 21,
-        EndingRewardSpriteFrame.LargeSamusFromEndingPreparingToJump => 22,
-        EndingRewardSpriteFrame.SuitlessSamusStanding or
-            EndingRewardSpriteFrame.SuitlessSamusStandingArmsStraight => 28,
-        EndingRewardSpriteFrame.HeadlessArmlessSuitedSamus => 30,
-        EndingRewardSpriteFrame.LargeSamusFromEndingStanding => 34,
-        _ => throw new ArgumentOutOfRangeException(nameof(frame)),
+        [EndingRewardSpriteFrame.LargeSamusFromEndingStanding] = new(182),
+        [EndingRewardSpriteFrame.LargeSamusFromEndingPreparingToJump] = new(197),
+        [EndingRewardSpriteFrame.LargeSamusFromEndingJumping] = new(198),
+        [EndingRewardSpriteFrame.LargeSamusHelmetFromEndingFrame1] = new(199),
+        [EndingRewardSpriteFrame.LargeSamusHelmetFromEndingFrame2] = new(200),
+        [EndingRewardSpriteFrame.JumpingSamusHeadFromEnding] = new(201),
+        [EndingRewardSpriteFrame.SamusArmFromEndingFrame1] = new(186),
+        [EndingRewardSpriteFrame.SamusArmFromEndingFrame2] = new(187),
+        [EndingRewardSpriteFrame.SamusArmFromEndingFrame3] = new(188),
+        [EndingRewardSpriteFrame.SamusArmFromEndingFrame4] = new(189),
+        [EndingRewardSpriteFrame.SamusArmFromEndingFrame5] = new(190),
+        [EndingRewardSpriteFrame.SamusArmFromEndingFrame6] = new(191),
+        [EndingRewardSpriteFrame.SamusArmFromEndingFrame7] = new(192),
+        [EndingRewardSpriteFrame.SamusArmFromEndingFrame8] = new(193),
+        [EndingRewardSpriteFrame.SamusHeadFromEndingFrame1] = new(184),
+        [EndingRewardSpriteFrame.SamusHeadFromEndingFrame2] = new(194),
+        [EndingRewardSpriteFrame.SamusHeadFromEndingFrame3] = new(195),
+        [EndingRewardSpriteFrame.SamusHeadFromEndingFrame4] = new(196),
+        [EndingRewardSpriteFrame.SamusHeadWithHelmetFromEnding] = new(183),
+        [EndingRewardSpriteFrame.HeadlessArmlessSuitedSamus] = new(185),
+        [EndingRewardSpriteFrame.SamusFalling] = new(178),
+        [EndingRewardSpriteFrame.SamusLanding] = new(179),
+        [EndingRewardSpriteFrame.SamusLanded] = new(180),
+        [EndingRewardSpriteFrame.SamusShooting] = new(181),
+        [EndingRewardSpriteFrame.SuitlessSamusStanding] = new(175),
+        [EndingRewardSpriteFrame.SuitlessSamusPreparingToJump] = new(176),
+        [EndingRewardSpriteFrame.SuitlessSamusJumping] = new(177),
+        [EndingRewardSpriteFrame.SuitlessSamusStandingArmsStraight] = new(165),
+        [EndingRewardSpriteFrame.SuitlessSamusOpeningHairFrame1] = new(167),
+        [EndingRewardSpriteFrame.SuitlessSamusOpeningHairFrame2] = new(168),
+        [EndingRewardSpriteFrame.SuitlessSamusOpeningHairFrame3] = new(169),
+        [EndingRewardSpriteFrame.SuitlessSamusOpeningHairFrame4] = new(170),
+        [EndingRewardSpriteFrame.SuitlessSamusOpeningHairFrame5] = new(171),
+        [EndingRewardSpriteFrame.SuitlessSamusOpeningHairFrame6] = new(172),
+        [EndingRewardSpriteFrame.SuitlessSamusOpeningHairFrame7] = new(173),
+        [EndingRewardSpriteFrame.SuitlessSamusOpeningHairFrame8] = new(174),
+        [EndingRewardSpriteFrame.SuitlessSamusLowerBody] = new(166),
     };
 
-    /// <summary>Maps a published asset slot to its stable JSON name and native OAM pose.</summary>
-    private static SpriteFrameDefinition Get(int index)
-    {
-        if ((uint)index >= FrameCount) throw new ArgumentOutOfRangeException(nameof(index));
-        if (index is >= 2 and <= 9)
-            return Define("suitless-hair-" + (index - 2 + 1).ToString(System.Globalization.CultureInfo.InvariantCulture),
-                EndingRewardSpriteFrameSeries.HairOpening[index - 2]);
-        if (index is >= 21 and <= 28)
-            return Define("suited-arm-" + (index - 21 + 1).ToString(System.Globalization.CultureInfo.InvariantCulture),
-                EndingRewardSpriteFrameSeries.Arm[index - 21]);
-        if (index is >= 29 and <= 31)
-            return Define("helmetless-head-" + (index - 29 + 2).ToString(System.Globalization.CultureInfo.InvariantCulture),
-                EndingRewardSpriteFrameSeries.HelmetlessHead[index - 29 + 1]);
-        return (AssetRole)index switch
-        {
-            AssetRole.SuitlessIdleUpper => Define("suitless-idle-upper", EndingRewardSpriteFrame.SuitlessSamusStandingArmsStraight),
-            AssetRole.SuitlessLower => Define("suitless-lower", EndingRewardSpriteFrame.SuitlessSamusLowerBody),
-            AssetRole.SuitlessStanding => Define("suitless-standing", EndingRewardSpriteFrame.SuitlessSamusStanding),
-            AssetRole.SuitlessPrepareJump => Define("suitless-prepare-jump", EndingRewardSpriteFrame.SuitlessSamusPreparingToJump),
-            AssetRole.SuitlessJumping => Define("suitless-jumping", EndingRewardSpriteFrame.SuitlessSamusJumping),
-            AssetRole.SamusFalling => Define("samus-falling", EndingRewardSpriteFrame.SamusFalling),
-            AssetRole.SamusLanding => Define("samus-landing", EndingRewardSpriteFrame.SamusLanding),
-            AssetRole.SamusLanded => Define("samus-landed", EndingRewardSpriteFrame.SamusLanded),
-            AssetRole.SamusShooting => Define("samus-shooting", EndingRewardSpriteFrame.SamusShooting),
-            AssetRole.SuitedIdleBody => Define("suited-idle-body", EndingRewardSpriteFrame.LargeSamusFromEndingStanding),
-            AssetRole.SuitedHelmetHead => Define("suited-helmet-head", EndingRewardSpriteFrame.SamusHeadWithHelmetFromEnding),
-            AssetRole.HelmetlessHead1 => Define("helmetless-head-1", EndingRewardSpriteFrame.SamusHeadFromEndingFrame1),
-            AssetRole.SuitedHeadlessBody => Define("suited-headless-body", EndingRewardSpriteFrame.HeadlessArmlessSuitedSamus),
-            AssetRole.SuitedPrepareJump => Define("suited-prepare-jump", EndingRewardSpriteFrame.LargeSamusFromEndingPreparingToJump),
-            AssetRole.SuitedJumping => Define("suited-jumping", EndingRewardSpriteFrame.LargeSamusFromEndingJumping),
-            AssetRole.SuitedHelmetJumpHead1 => Define("suited-helmet-jump-head-1", EndingRewardSpriteFrame.LargeSamusHelmetFromEndingFrame1),
-            AssetRole.SuitedHelmetJumpHead2 => Define("suited-helmet-jump-head-2", EndingRewardSpriteFrame.LargeSamusHelmetFromEndingFrame2),
-            AssetRole.HelmetlessJumpHead => Define("helmetless-jump-head", EndingRewardSpriteFrame.JumpingSamusHeadFromEnding),
-            _ => throw new ArgumentOutOfRangeException(nameof(index)),
-        };
-    }
-
-    /// <summary>Indices outside the three contiguous hair, arm, and head frame series.</summary>
-    private enum AssetRole
-    {
-        /// <summary>Upper half of the opening suitless idle composition.</summary>
-        SuitlessIdleUpper = 0,
-        /// <summary>Lower half shared by suitless reward poses.</summary>
-        SuitlessLower = 1,
-        /// <summary>Complete standing pose after the hair-opening series.</summary>
-        SuitlessStanding = 10,
-        /// <summary>Pose immediately before the suitless jump.</summary>
-        SuitlessPrepareJump = 11,
-        /// <summary>Airborne suitless reward pose.</summary>
-        SuitlessJumping = 12,
-        /// <summary>Small falling figure in the shooting sequence.</summary>
-        SamusFalling = 13,
-        /// <summary>Small figure approaching the landing pose.</summary>
-        SamusLanding = 14,
-        /// <summary>Small figure after the landing completes.</summary>
-        SamusLanded = 15,
-        /// <summary>Small figure firing toward the screen.</summary>
-        SamusShooting = 16,
-        /// <summary>Large suited body before head and arm overlays.</summary>
-        SuitedIdleBody = 17,
-        /// <summary>Helmeted head overlay for the suited body.</summary>
-        SuitedHelmetHead = 18,
-        /// <summary>First helmetless head overlay before the contiguous head series.</summary>
-        HelmetlessHead1 = 19,
-        /// <summary>Suited body drawn beneath separate head and arm parts.</summary>
-        SuitedHeadlessBody = 20,
-        /// <summary>Large suited pose anticipating the jump.</summary>
-        SuitedPrepareJump = 32,
-        /// <summary>Large suited airborne pose.</summary>
-        SuitedJumping = 33,
-        /// <summary>First helmet overlay during the suited jump.</summary>
-        SuitedHelmetJumpHead1 = 34,
-        /// <summary>Second helmet overlay during the suited jump.</summary>
-        SuitedHelmetJumpHead2 = 35,
-        /// <summary>Unhelmeted head overlay during the jump.</summary>
-        HelmetlessJumpHead = 36,
-    }
-
-    /// <summary>Combines a stable asset name with its computed native pointer and stock part count.</summary>
-    private static SpriteFrameDefinition Define(string name, EndingRewardSpriteFrame frame) =>
-        new(name, FramePointer(frame), Parts(frame));
-
-    /// <summary>Exposes the calculated published frame sequence without an eagerly stored table.</summary>
-    private sealed class FrameView : IReadOnlyList<SpriteFrameDefinition>
-    {
-        /// <summary>The thirty-seven published reward asset roles.</summary>
-        public int Count => FrameCount;
-        /// <summary>Resolves a role index to its named native OAM identity.</summary>
-        public SpriteFrameDefinition this[int index] => Get(index);
-        /// <summary>Visits all asset roles in installation order.</summary>
-        public IEnumerator<SpriteFrameDefinition> GetEnumerator()
-        {
-            for (int index = 0; index < Count; index++) yield return Get(index);
-        }
-        /// <summary>Exposes the same installation order to nongeneric collection consumers.</summary>
-        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
-    }
-
+    /// <summary>The cinematic pose that shows <paramref name="frame"/>.</summary>
+    internal static CinematicSpritePose FramePose(EndingRewardSpriteFrame frame) =>
+        FramePoses.TryGetValue(frame, out CinematicSpritePose pose) ? pose : throw new ArgumentOutOfRangeException(nameof(frame));
 }

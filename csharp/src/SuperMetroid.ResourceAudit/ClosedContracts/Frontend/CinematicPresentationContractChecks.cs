@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.Tooling;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -22,7 +23,8 @@ internal static class CinematicPresentationContractChecks
             using SuperMetroid.Core.Areas.Ceres;
             using SuperMetroid.Core.Areas.Ceres.Artwork;
             using SuperMetroid.Core.Areas.Escape;
-            using SuperMetroid.Core.Areas.Escape.Artwork;
+            using SuperMetroid.Core.Escape;
+            using SuperMetroid.Core.Escape.Artwork;
             using SuperMetroid.Core.Frontend.Intro.Artwork;
             using SuperMetroid.Core.Frontend.Title;
             using SuperMetroid.Core.Frontend.Title.Artwork;
@@ -43,12 +45,12 @@ internal static class CinematicPresentationContractChecks
                     title.DrawSprite((TitleSprite)31, titleSprites, default, 0);
                     eye.FrameWords(IntroEyeTilemapFormat.FrameCount - 1);
                     eye.FrameWords(IntroEyeTilemapFormat.FrameCount);
-                    caret.Draw(IntroCaretSpriteDefinitions.Still, oam, default, 0);
-                    caret.Draw(IntroCaretSpriteDefinitions.Still + 1, oam, default, 0);
-                    motherBrain.Draw(IntroMotherBrainSpriteDefinitions.FrameZero, oam, default, 0);
-                    motherBrain.Draw(IntroMotherBrainSpriteDefinitions.FrameZero + 1, oam, default, 0);
-                    explosions.Draw(IntroMotherBrainExplosionSpriteDefinitions.BigStart, oam, default, 0);
-                    explosions.Draw(IntroMotherBrainExplosionSpriteDefinitions.BigStart + 1, oam, default, 0);
+                    caret.Draw(new SuperMetroid.Core.Frontend.Intro.CinematicSpritePose(25), oam, default, 0);
+                    caret.Draw(new SuperMetroid.Core.Frontend.Intro.CinematicSpritePose(26), oam, default, 0);
+                    motherBrain.Draw(new SuperMetroid.Core.Frontend.Intro.CinematicSpritePose(0), oam, default, 0);
+                    motherBrain.Draw(new SuperMetroid.Core.Frontend.Intro.CinematicSpritePose(3), oam, default, 0);
+                    explosions.Draw(new SuperMetroid.Core.Frontend.Intro.CinematicSpritePose(67), oam, default, 0);
+                    explosions.Draw(new SuperMetroid.Core.Frontend.Intro.CinematicSpritePose(73), oam, default, 0);
                     door.LoadTiles(vram);
                     door.LoadNormalColors(cgram, CeresDoorVisualRomData.NormalTargetColor);
                     door.LoadEscapeColors(cgram, CeresDoorVisualRomData.ActiveTargetColor);
@@ -83,7 +85,7 @@ internal static class CinematicPresentationContractChecks
         AuditReport before = Inspect(compilation, false), after = Inspect(compilation, true);
         Require(before.UnresolvedCount == 24, "twenty-four constructed calls must reproduce absent adapters first" + " (" + before.Describe() + ")");
         Require(after.Classifications.Count == 16 && after.UnresolvedCount == 8 && after.MissingCount == 0 &&
-            after.Consumers.Count == 24, "supported sets and valid false membership queries qualify; unowned pointers and bad array indices fail" + " (" + after.Describe() + ")");
+            after.Consumers.Count == 24, "supported sets and valid false membership queries qualify; unowned poses and bad array indices fail" + " (" + after.Describe() + ")");
         Require(after.Classifications.Count(item => item.Owner == "CeresEscapeOverlayTilemapCatalog.TryResolve") == 3,
             "unsupported overlay source/length queries validly return false, not demand nonexistent artwork");
         Require(after.Findings.Count(item => item.Owner == "TitleGraphicsPresentation.DrawSprite") == 2,

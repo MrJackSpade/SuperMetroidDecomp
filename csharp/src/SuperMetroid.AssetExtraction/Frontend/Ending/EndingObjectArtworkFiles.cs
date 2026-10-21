@@ -1,3 +1,5 @@
+using SuperMetroid.AssetExtraction.Frontend.Cinematics;
+using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.Core;
 using System.Security.Cryptography;
 using System.Text.Json;
@@ -66,9 +68,9 @@ public static class EndingObjectArtworkFiles
             EndingObjectArtworkFormat.PostShotLogoMapByteCount);
 
         var cloudFrames = new Dictionary<string, SpriteVisualPart[]>(StringComparer.Ordinal);
-        foreach (SpriteFrameDefinition definition in EndingCloudSpriteDefinitions.Frames)
+        foreach (CinematicSpriteFrameDefinition definition in EndingCloudSpriteDefinitions.Frames)
             cloudFrames.Add(definition.Name, IntroCinematicSpriteFrameExtractor.Extract(
-                bus, definition.Pointer, definition.StockPartCount, definition.Name));
+                bus, CinematicSpritemapAddresses.Of(definition.Pose), definition.StockPartCount, definition.Name));
         using (var sprites = new MemoryStream())
         {
             EndingCloudSpritePresentation.Write(sprites, new EndingCloudSpriteDocument
@@ -84,10 +86,10 @@ public static class EndingObjectArtworkFiles
             hashes.Add(name, Convert.ToHexString(SHA256.HashData(file)));
         }
         var explosionFrames = new Dictionary<string, SpriteVisualPart[]>(StringComparer.Ordinal);
-        foreach (SpriteFrameDefinition definition in
+        foreach (CinematicSpriteFrameDefinition definition in
             EndingExplosionSpriteDefinitions.Frames)
             explosionFrames.Add(definition.Name, IntroCinematicSpriteFrameExtractor.Extract(
-                bus, definition.Pointer, definition.StockPartCount, definition.Name));
+                bus, CinematicSpritemapAddresses.Of(definition.Pose), definition.StockPartCount, definition.Name));
         using (var sprites = new MemoryStream())
         {
             EndingExplosionSpritePresentation.Write(sprites,
@@ -104,10 +106,10 @@ public static class EndingObjectArtworkFiles
             hashes.Add(name, Convert.ToHexString(SHA256.HashData(file)));
         }
         var completionFrames = new Dictionary<string, SpriteVisualPart[]>(StringComparer.Ordinal);
-        foreach (SpriteFrameDefinition definition in
+        foreach (CinematicSpriteFrameDefinition definition in
             EndingCompletionTextSpriteDefinitions.Frames)
             completionFrames.Add(definition.Name, IntroCinematicSpriteFrameExtractor.Extract(
-                bus, definition.Pointer, definition.StockPartCount, definition.Name));
+                bus, CinematicSpritemapAddresses.Of(definition.Pose), definition.StockPartCount, definition.Name));
         using (var sprites = new MemoryStream())
         {
             EndingCompletionTextSpritePresentation.Write(sprites,
@@ -124,9 +126,9 @@ public static class EndingObjectArtworkFiles
             hashes.Add(name, Convert.ToHexString(SHA256.HashData(file)));
         }
         var rewardFrames = new Dictionary<string, SpriteVisualPart[]>(StringComparer.Ordinal);
-        foreach (SpriteFrameDefinition definition in EndingRewardSpriteDefinitions.Frames)
+        foreach (CinematicSpriteFrameDefinition definition in EndingRewardSpriteDefinitions.Frames)
             rewardFrames.Add(definition.Name, IntroCinematicSpriteFrameExtractor.Extract(
-                bus, definition.Pointer, definition.StockPartCount, definition.Name));
+                bus, CinematicSpritemapAddresses.Of(definition.Pose), definition.StockPartCount, definition.Name));
         using (var sprites = new MemoryStream())
         {
             EndingRewardSpritePresentation.Write(sprites,
@@ -143,9 +145,9 @@ public static class EndingObjectArtworkFiles
             hashes.Add(name, Convert.ToHexString(SHA256.HashData(file)));
         }
         var logoFrames = new Dictionary<string, SpriteVisualPart[]>(StringComparer.Ordinal);
-        foreach (SpriteFrameDefinition definition in EndingLogoSpriteDefinitions.Frames)
+        foreach (CinematicSpriteFrameDefinition definition in EndingLogoSpriteDefinitions.Frames)
             logoFrames.Add(definition.Name, IntroCinematicSpriteFrameExtractor.Extract(
-                bus, definition.Pointer, definition.StockPartCount, definition.Name));
+                bus, CinematicSpritemapAddresses.Of(definition.Pose), definition.StockPartCount, definition.Name));
         using (var sprites = new MemoryStream())
         {
             EndingLogoSpritePresentation.Write(sprites,

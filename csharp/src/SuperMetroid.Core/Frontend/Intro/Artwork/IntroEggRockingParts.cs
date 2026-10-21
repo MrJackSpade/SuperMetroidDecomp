@@ -6,11 +6,11 @@ namespace SuperMetroid.Core.Frontend.Intro.Artwork;
 /// <summary>Intact egg and two opposite row-sheared rocking poses.</summary>
 internal sealed class IntroEggRockingParts(int frame) : IReadOnlyList<CompiledSpritePart>
 {
-    /// <summary>Recalculates an egg frame only when its native sprite pointer selects one of the three rocking poses.</summary>
-    internal static SpriteComposition CalculateIfMatching(ushort pointer, SpriteComposition supplied)
+    /// <summary>Recalculates an egg frame only when its pose selects one of the three rocking poses.</summary>
+    internal static SpriteComposition CalculateIfMatching(CinematicSpritePose shown, SpriteComposition supplied)
     {
         for (int frame = 0; frame < 3; frame++)
-            if (IntroDiscoveryActorSpriteDefinitions.EggFramePointer(frame) == pointer)
+            if (IntroDiscoveryActorSpriteDefinitions.EggFramePose(frame) == shown)
                 return supplied.CalculateIfMatching(new IntroEggRockingParts(frame));
         return supplied;
     }

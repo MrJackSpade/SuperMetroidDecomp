@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Frontend.Cinematics;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Frontend.CeresCinematics.Artwork.CeresStationPartsVerification;
@@ -20,10 +21,10 @@ internal static class CeresVortexPartsVerification
         string Identity(SpriteComposition value) => SelectedPresentationHash.Create("CeresStation", value.AppendIdentity);
         foreach (var definition in CeresFlightSpriteDefinitions.Frames.Where(frame => frame.Name.StartsWith("vortex-", StringComparison.Ordinal)))
         {
-            SpriteVisualPart[] visual = IntroCinematicSpriteFrameExtractor.Extract(rom, definition.Pointer, definition.StockPartCount, definition.Name);
-            CheckCeresStationLoader(definition.Pointer, visual);
+            SpriteVisualPart[] visual = IntroCinematicSpriteFrameExtractor.Extract(rom, CinematicSpritemapAddresses.Of(definition.Pose), definition.StockPartCount, definition.Name);
+            CheckCeresStationLoader(definition.Pose, visual);
             SpriteComposition source = IntroCinematicSpriteCompiler.Compile(visual, definition.Name);
-            SpriteComposition result = CeresVortexParts.CalculateIfMatching(definition.Pointer, source);
+            SpriteComposition result = CeresVortexParts.CalculateIfMatching(definition.Pose, source);
             AssertTrue(!ReferenceEquals(source, result), "original CeresStation selects calculated parts");
             AssertEqual(Identity(source), Identity(result), "all original CeresStation compiled fields");
             for (int piece = 0; piece < visual.Length; piece++)
@@ -41,26 +42,26 @@ internal static class CeresVortexPartsVerification
                 {
                     var edited = (SpriteVisualPart[])visual.Clone();
                     edited[piece] = edit;
-                    CheckCeresStationLoader(definition.Pointer, edited);
+                    CheckCeresStationLoader(definition.Pose, edited);
                     var supplied = IntroCinematicSpriteCompiler.Compile(edited, "edited CeresStation");
-                    var selected = CeresVortexParts.CalculateIfMatching(definition.Pointer, supplied);
+                    var selected = CeresVortexParts.CalculateIfMatching(definition.Pose, supplied);
                     AssertEqual(Identity(supplied), Identity(selected), "edited planet identity");
-                    bool odd = definition.Pointer == CeresFlightSpriteDefinitions.VortexOdd;
+                    bool odd = definition.Pose == CeresFlightSpriteDefinitions.VortexPose(CeresVortexFrame.Odd);
                     int tip = odd ? 3 : 0, core = odd ? 12 : 18;
                     bool sharedPart = (piece >= tip && piece < tip + 2) || (piece >= core && piece < core + 11);
                     AssertTrue(sharedPart == ReferenceEquals(supplied, selected),
                         "independent CeresStation field edit stays supplied");
                 }
             }
-            CheckCeresStationLoader(definition.Pointer, visual.Length == 1 ? [visual[0], visual[0]] : [visual[0]]);
+            CheckCeresStationLoader(definition.Pose, visual.Length == 1 ? [visual[0], visual[0]] : [visual[0]]);
             var extra = IntroCinematicSpriteCompiler.Compile(visual.Length == 1 ? [visual[0], visual[0]] : [visual[0]], "custom CeresStation");
-            AssertTrue(ReferenceEquals(extra, CeresVortexParts.CalculateIfMatching(definition.Pointer, extra)), "custom part count preserved");
+            AssertTrue(ReferenceEquals(extra, CeresVortexParts.CalculateIfMatching(definition.Pose, extra)), "custom part count preserved");
             foreach (int invalid in new[] { -1, result.PartCount, int.MaxValue })
                 AssertThrows<ArgumentOutOfRangeException>(() => result.Part(invalid), "calculated CeresStation part bounds");
             foreach (ushort y in new ushort[] { 72, 0xfff8 })
             {
                 var native = new OamBuffer(); native.BeginFrame();
-                DrawImportedSpritemap(rom, native, 0x8c0000 + definition.Pointer, new(120, y), 0x0a00, originIsOnScreen: y == 72);
+                DrawImportedSpritemap(rom, native, 0x8c0000 + CinematicSpritemapAddresses.Of(definition.Pose), new(120, y), 0x0a00, originIsOnScreen: y == 72);
                 native.FinalizeFrame();
                 var actual = new OamBuffer(); actual.BeginFrame();
                 if (y == 72) result.DrawOnScreen(actual, new(120, y), 0x0a00);

@@ -7,11 +7,11 @@ namespace SuperMetroid.Core.Frontend.Intro.Artwork;
 /// Preserve bottom-right,bottom-left,top-right,top-left order and actor palette.</summary>
 internal sealed class IntroRinkaParts(int frame) : IReadOnlyList<CompiledSpritePart>
 {
-    /// <summary>Uses calculated native quadrants only for a matching Rinka pointer and exact supplied visual fields; edits remain supplied.</summary>
-    internal static SpriteComposition CalculateIfMatching(ushort pointer, SpriteComposition supplied)
+    /// <summary>Uses calculated native quadrants only for a matching Rinka pose and exact supplied visual fields; edits remain supplied.</summary>
+    internal static SpriteComposition CalculateIfMatching(CinematicSpritePose shown, SpriteComposition supplied)
     {
         for (int frame = 0; frame < 3; frame++)
-            if (IntroRinkaSpriteDefinitions.FramePointer(frame) == pointer)
+            if (IntroRinkaSpriteDefinitions.FramePose(frame) == shown)
                 return supplied.CalculateIfMatching(new IntroRinkaParts(frame));
         return supplied;
     }

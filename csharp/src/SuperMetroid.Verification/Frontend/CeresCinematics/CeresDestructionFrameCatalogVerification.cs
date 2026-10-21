@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Frontend.Cinematics;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.AssetExtraction.Cartridge;
 using SuperMetroid.Core.Frontend.CeresCinematics.Artwork;
@@ -28,16 +29,15 @@ internal static class CeresDestructionFrameCatalogVerification
             int record = 0x8c0000 | pointer;
             int count = CartridgeImportSource.Require(rom).ReadCartridgeWord(record);
             string name = index < 7 ? backdropNames[index] : $"{(index < 13 ? "small" : index < 17 ? "large" : "station")}-blast-{frame}";
-            AssertEqual(pointer, frames[index].Pointer, "native destruction frame operand");
+            AssertEqual(pointer, CinematicSpritemapAddresses.Of(frames[index].Pose), "native destruction frame operand");
             AssertEqual(count, frames[index].StockPartCount, "native destruction part count");
             AssertEqual(name, frames[index].Name, "published destruction key");
             AssertEqual(frames[index], enumerated[index], "destruction enumeration order");
         }
         foreach (int invalid in new[] { -1, frames.Count, int.MaxValue })
-            AssertThrows<ArgumentOutOfRangeException>(() => _ = frames[invalid], "destruction catalog bounds");
+            AssertThrows<IndexOutOfRangeException>(() => _ = frames[invalid], "destruction catalog bounds");
         foreach (int invalid in new[] { -1, 6, int.MaxValue })
         {
-            AssertThrows<ArgumentOutOfRangeException>(() => CeresDestructionSpriteDefinitions.SmallFrame(invalid), "small blast bounds");
             AssertThrows<ArgumentOutOfRangeException>(() => CeresDestructionSpriteDefinitions.StationFrame(invalid), "station blast bounds");
             AssertThrows<ArgumentOutOfRangeException>(() => CeresDestructionSpriteDefinitions.StationPartCount(invalid), "station count bounds");
         }

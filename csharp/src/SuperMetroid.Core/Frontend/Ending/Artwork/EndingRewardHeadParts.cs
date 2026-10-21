@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend.Intro;
 using System.Collections;
 using Pose = SuperMetroid.Core.Frontend.Ending.Artwork.EndingRewardSpriteFrame;
 using SuperMetroid.Core.Assets;
@@ -12,11 +13,11 @@ internal sealed class EndingRewardHeadParts(Pose pose) : IReadOnlyList<CompiledS
     private static bool IsHead(Pose pose) => pose is >= Pose.LargeSamusHelmetFromEndingFrame1 and <= Pose.JumpingSamusHeadFromEnding
         or >= Pose.SamusHeadFromEndingFrame1 and <= Pose.SamusHeadWithHelmetFromEnding;
 
-    /// <summary>Recalculates a reward head only when its native frame pointer belongs to this head family.</summary>
-    internal static SpriteComposition CalculateIfMatching(ushort pointer, SpriteComposition supplied)
+    /// <summary>Recalculates a reward head only when its pose belongs to this head family.</summary>
+    internal static SpriteComposition CalculateIfMatching(CinematicSpritePose shown, SpriteComposition supplied)
     {
         foreach (Pose pose in Enum.GetValues<Pose>())
-            if (IsHead(pose) && EndingRewardSpriteDefinitions.FramePointer(pose) == pointer)
+            if (IsHead(pose) && EndingRewardSpriteDefinitions.FramePose(pose) == shown)
                 return supplied.CalculateIfMatching(new EndingRewardHeadParts(pose));
         return supplied;
     }

@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Frontend.Cinematics;
 using System.Text.Json;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Rendering;
@@ -17,14 +18,14 @@ internal static class CeresFlightSpriteArtworkVerification
     internal static void VerifyCeresFlightSpriteArtwork(GameInstallation installation,
         SuperMetroidAddressSpace bus, CeresFlightArtworkCatalog stock)
     {
-        foreach (SpriteFrameDefinition frame in CeresFlightSpriteDefinitions.Frames)
+        foreach (CinematicSpriteFrameDefinition frame in CeresFlightSpriteDefinitions.Frames)
         {
             foreach (ushort y in new ushort[] { 0x0048, 0xfff8 })
             {
                 bool onScreen =
                     ((y & CinematicSpriteDrawDefinitions.OriginYHighByteMask)) == 0;
                 int source = (int)new SnesAddress(
-                    IntroCinematicRomData.Banks.Spritemaps, frame.Pointer);
+                    IntroCinematicRomData.Banks.Spritemaps, CinematicSpritemapAddresses.Of(frame.Pose));
                 var native = new OamBuffer();
                 native.BeginFrame();
                 if (onScreen)
@@ -34,7 +35,7 @@ internal static class CeresFlightSpriteArtworkVerification
                 native.FinalizeFrame();
                 var installed = ScreenSpritesFixtures.Blank();
                 installed.BeginFrame();
-                stock.Sprites.Draw(frame.Pointer, installed, new(120, y), 0x0800, onScreen);
+                stock.Sprites.Draw(frame.Pose, installed, new(120, y), 0x0800, onScreen);
                 installed.FinalizeFrame();
                 AssertTrue(installed.ImageEquals(native) &&
                         installed.LastFinalizedSpriteCount == native.LastFinalizedSpriteCount,

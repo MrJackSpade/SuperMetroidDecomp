@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Frontend.Cinematics;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Frontend.CeresCinematics.Artwork.CeresStationPartsVerification;
@@ -20,10 +21,10 @@ internal static class CeresSmallAsteroidPartsVerification
         string Identity(SpriteComposition value) => SelectedPresentationHash.Create("CeresStation", value.AppendIdentity);
         foreach (var definition in CeresFlightSpriteDefinitions.Frames.Where(frame => frame.Name == "small-asteroid"))
         {
-            SpriteVisualPart[] visual = IntroCinematicSpriteFrameExtractor.Extract(rom, definition.Pointer, definition.StockPartCount, definition.Name);
-            CheckCeresStationLoader(definition.Pointer, visual);
+            SpriteVisualPart[] visual = IntroCinematicSpriteFrameExtractor.Extract(rom, CinematicSpritemapAddresses.Of(definition.Pose), definition.StockPartCount, definition.Name);
+            CheckCeresStationLoader(definition.Pose, visual);
             SpriteComposition source = IntroCinematicSpriteCompiler.Compile(visual, definition.Name);
-            SpriteComposition result = CeresSmallAsteroidParts.CalculateIfMatching(definition.Pointer, source);
+            SpriteComposition result = CeresSmallAsteroidParts.CalculateIfMatching(definition.Pose, source);
             AssertTrue(!ReferenceEquals(source, result), "original CeresStation selects calculated parts");
             AssertEqual(Identity(source), Identity(result), "all original CeresStation compiled fields");
             for (int piece = 0; piece < visual.Length; piece++)
@@ -41,34 +42,34 @@ internal static class CeresSmallAsteroidPartsVerification
                 {
                     var edited = (SpriteVisualPart[])visual.Clone();
                     edited[piece] = edit;
-                    CheckCeresStationLoader(definition.Pointer, edited);
+                    CheckCeresStationLoader(definition.Pose, edited);
                     var supplied = IntroCinematicSpriteCompiler.Compile(edited, "edited CeresStation");
-                    var selected = CeresSmallAsteroidParts.CalculateIfMatching(definition.Pointer, supplied);
+                    var selected = CeresSmallAsteroidParts.CalculateIfMatching(definition.Pose, supplied);
                     AssertEqual(Identity(supplied), Identity(selected), "edited planet identity");
                     AssertTrue(ReferenceEquals(supplied, selected),
                         "independent CeresStation field edit stays supplied");
                 }
             }
-            CheckCeresStationLoader(definition.Pointer, visual.Length == 1 ? [visual[0], visual[0]] : [visual[0]]);
+            CheckCeresStationLoader(definition.Pose, visual.Length == 1 ? [visual[0], visual[0]] : [visual[0]]);
             var extra = IntroCinematicSpriteCompiler.Compile(visual.Length == 1 ? [visual[0], visual[0]] : [visual[0]], "custom CeresStation");
-            AssertTrue(ReferenceEquals(extra, CeresSmallAsteroidParts.CalculateIfMatching(definition.Pointer, extra)), "custom part count preserved");
+            AssertTrue(ReferenceEquals(extra, CeresSmallAsteroidParts.CalculateIfMatching(definition.Pose, extra)), "custom part count preserved");
             foreach (var group in new[] { new VerifyCeresSmallAsteroidPartsCase(Start:0, Count:2), new VerifyCeresSmallAsteroidPartsCase(Start:2, Count:2), new VerifyCeresSmallAsteroidPartsCase(Start:4, Count:2), new VerifyCeresSmallAsteroidPartsCase(Start:6, Count:3), new VerifyCeresSmallAsteroidPartsCase(Start:9, Count:2), new VerifyCeresSmallAsteroidPartsCase(Start:11, Count:2), new VerifyCeresSmallAsteroidPartsCase(Start:13, Count:3) })
             {
                 var translated = (SpriteVisualPart[])visual.Clone();
                 for (int index = group.Start; index < group.Start + group.Count; index++)
                     translated[index] = translated[index] with { OffsetX = translated[index].OffsetX + 2, OffsetY = translated[index].OffsetY - 1 };
                 var supplied = IntroCinematicSpriteCompiler.Compile(translated, "translated small asteroid");
-                var selected = CeresSmallAsteroidParts.CalculateIfMatching(definition.Pointer, supplied);
+                var selected = CeresSmallAsteroidParts.CalculateIfMatching(definition.Pose, supplied);
                 AssertTrue(!ReferenceEquals(supplied, selected), "translated whole asteroid retains calculated shape");
                 AssertEqual(Identity(supplied), Identity(selected), "independent small asteroid placement preserved");
-                CheckCeresStationLoader(definition.Pointer, translated);
+                CheckCeresStationLoader(definition.Pose, translated);
             }
             foreach (int invalid in new[] { -1, result.PartCount, int.MaxValue })
                 AssertThrows<ArgumentOutOfRangeException>(() => result.Part(invalid), "calculated CeresStation part bounds");
             foreach (ushort y in new ushort[] { 72, 0xfff8 })
             {
                 var native = new OamBuffer(); native.BeginFrame();
-                DrawImportedSpritemap(rom, native, 0x8c0000 + definition.Pointer, new(120, y), 0x0a00, originIsOnScreen: y == 72);
+                DrawImportedSpritemap(rom, native, 0x8c0000 + CinematicSpritemapAddresses.Of(definition.Pose), new(120, y), 0x0a00, originIsOnScreen: y == 72);
                 native.FinalizeFrame();
                 var actual = new OamBuffer(); actual.BeginFrame();
                 if (y == 72) result.DrawOnScreen(actual, new(120, y), 0x0a00);

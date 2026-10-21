@@ -6,11 +6,11 @@ namespace SuperMetroid.Core.Frontend.Intro.Artwork;
 /// <summary>Progressive replacement of intact cells with the matching cracked atlas patch.</summary>
 internal sealed class IntroEggCrackingParts(int stage) : IReadOnlyList<CompiledSpritePart>
 {
-    /// <summary>Recalculates one of the six cracking poses only when its native egg-frame pointer matches.</summary>
-    internal static SpriteComposition CalculateIfMatching(ushort pointer, SpriteComposition supplied)
+    /// <summary>Recalculates one of the six cracking poses only when its pose matches.</summary>
+    internal static SpriteComposition CalculateIfMatching(CinematicSpritePose shown, SpriteComposition supplied)
     {
         for (int stage = 0; stage < 6; stage++)
-            if (IntroDiscoveryActorSpriteDefinitions.EggFramePointer(stage + 3) == pointer)
+            if (IntroDiscoveryActorSpriteDefinitions.EggFramePose(stage + 3) == shown)
                 return supplied.CalculateIfMatching(new IntroEggCrackingParts(stage));
         return supplied;
     }

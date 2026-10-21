@@ -1,34 +1,10 @@
-using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Frontend.Intro;
 
 namespace SuperMetroid.Core.Frontend.Ending.Artwork;
 
-/// <summary>
-/// Cartridge identities are ordered by the six consecutive bank-$8B instruction
-/// lists at $ECED, $ECF5, $ECFD, $ED05, $ED0D, and $ED15.
-/// </summary>
+/// <summary>The six ending cloud compositions, in the order of the bank-$8B cloud instruction lists.</summary>
 public static class EndingCloudSpriteDefinitions
 {
-    /// <summary>$8C:B6F3, EndingCutsceneBottomCloudsPattern; four16-part records
-    /// precede the right and left32-part records.</summary>
-    private const ushort FirstRecord = 0xb6f3;
-    /// <summary>Four horizontal cloud records plus two side-cloud records.</summary>
-    private const int FrameCount = 6;
-    /// <summary>Native storage order, which differs from cinematic actor/list order.</summary>
-    private enum Record
-    {
-        /// <summary>First horizontal 16-part native record; selected for the actor's lower pattern.</summary>
-        BottomPattern,
-        /// <summary>Second horizontal 16-part native record; selected for the actor's upper pattern.</summary>
-        TopPattern,
-        /// <summary>Third horizontal 16-part native record; selected for the actor's lower edge.</summary>
-        BottomEdge,
-        /// <summary>Fourth horizontal 16-part native record; selected for the actor's upper edge.</summary>
-        TopEdge,
-        /// <summary>First 32-part side-cloud record in the cartridge's storage order.</summary>
-        Right,
-        /// <summary>Second 32-part side-cloud record in the cartridge's storage order.</summary>
-        Left,
-    }
     /// <summary>Cloud roles in the order used by the ending actors.</summary>
     internal enum Role
     {
@@ -40,51 +16,24 @@ public static class EndingCloudSpriteDefinitions
         LowerEdge,
         /// <summary>Lower cloud pattern selected after the lower edge.</summary>
         LowerPattern,
-        /// <summary>Right-hand side cloud, drawn from the first 32-part native record.</summary>
+        /// <summary>Right-hand side cloud.</summary>
         Right,
-        /// <summary>Left-hand side cloud, drawn from the second 32-part native record.</summary>
+        /// <summary>Left-hand side cloud.</summary>
         Left,
     }
 
-    /// <summary>Gets the ordered upper, lower, right, and left cloud roles used by the ending actors.</summary>
-    public static IReadOnlyList<SpriteFrameDefinition> Frames { get; } = new FrameView();
-
-    /// <summary>Maps an actor-list role to the corresponding native cloud record.</summary>
-    private static SpriteFrameDefinition Get(int index) => (Role)index switch
+    /// <summary>The composition each cloud role draws.</summary>
+    private static readonly Dictionary<Role, CinematicSpriteFrameDefinition> ByRole = new()
     {
-        Role.UpperPattern => Define("scene-b-upper-a", Record.TopPattern),
-        Role.UpperEdge => Define("scene-b-upper-b", Record.TopEdge),
-        Role.LowerEdge => Define("scene-b-lower-a", Record.BottomEdge),
-        Role.LowerPattern => Define("scene-b-lower-b", Record.BottomPattern),
-        Role.Right => Define("scene-a-right", Record.Right),
-        Role.Left => Define("scene-a-left", Record.Left),
-        _ => throw new ArgumentOutOfRangeException(nameof(index)),
+        [Role.UpperPattern] = new("scene-b-upper-a", new(159), 16),
+        [Role.UpperEdge] = new("scene-b-upper-b", new(160), 16),
+        [Role.LowerEdge] = new("scene-b-lower-a", new(161), 16),
+        [Role.LowerPattern] = new("scene-b-lower-b", new(162), 16),
+        [Role.Right] = new("scene-a-right", new(163), 32),
+        [Role.Left] = new("scene-a-left", new(164), 32),
     };
 
-    /// <summary>Computes a cloud record pointer from preceding 16- and 32-part native records.</summary>
-    private static SpriteFrameDefinition Define(string name, Record record)
-    {
-        int index = (int)record;
-        int horizontalRecords = Math.Min(index, 4);
-        int sideRecords = Math.Max(index - 4, 0);
-        int offset = horizontalRecords * (2 + 16 * 5) + sideRecords * (2 + 32 * 5);
-        return new(name, (ushort)(FirstRecord + offset), index < 4 ? 16 : 32);
-    }
-
-    /// <summary>Calculated view of the six cloud records in actor order.</summary>
-    private sealed class FrameView : IReadOnlyList<SpriteFrameDefinition>
-    {
-        /// <summary>Four horizontal and two side-cloud actor roles.</summary>
-        public int Count => FrameCount;
-        /// <summary>Selects one cloud identity in cinematic actor order.</summary>
-        public SpriteFrameDefinition this[int index] => Get(index);
-        /// <summary>Enumerates all calculated cloud identities without caching an array.</summary>
-        public IEnumerator<SpriteFrameDefinition> GetEnumerator()
-        {
-            for (int index = 0; index < Count; index++) yield return Get(index);
-        }
-        /// <summary>Uses the typed cloud enumeration for nongeneric callers.</summary>
-        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
-    }
-
+    /// <summary>The cloud compositions in <see cref="Role"/> order: four sixteen-part horizontal clouds, then two 32-part side clouds.</summary>
+    public static IReadOnlyList<CinematicSpriteFrameDefinition> Frames { get; } =
+        [.. Enum.GetValues<Role>().Select(role => ByRole[role])];
 }

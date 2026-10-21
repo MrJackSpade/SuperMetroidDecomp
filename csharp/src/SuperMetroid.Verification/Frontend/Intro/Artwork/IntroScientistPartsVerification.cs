@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Frontend.Intro;
+using SuperMetroid.AssetExtraction.Frontend.Cinematics;
 using SuperMetroid.Core.Assets;
 using SuperMetroid.Core.Hardware;
 using static SuperMetroid.Verification.Frontend.Map.MapSpritesVerification;
@@ -16,10 +18,10 @@ internal static class IntroScientistPartsVerification
         string Identity(SpriteComposition value) => SelectedPresentationHash.Create("Scientist", value.AppendIdentity);
         foreach (var definition in IntroScientistSpriteDefinitions.Frames)
         {
-            SpriteVisualPart[] visual = IntroCinematicSpriteFrameExtractor.Extract(rom, definition.Pointer, definition.StockPartCount, definition.Name);
-            CheckCaretLoader(definition.Pointer, visual);
+            SpriteVisualPart[] visual = IntroCinematicSpriteFrameExtractor.Extract(rom, CinematicSpritemapAddresses.Of(definition.Pose), definition.StockPartCount, definition.Name);
+            CheckCaretLoader(definition.Pose, visual);
             SpriteComposition source = IntroCinematicSpriteCompiler.Compile(visual, definition.Name);
-            SpriteComposition result = IntroScientistParts.CalculateIfMatching(definition.Pointer, source);
+            SpriteComposition result = IntroScientistParts.CalculateIfMatching(definition.Pose, source);
             AssertTrue(!ReferenceEquals(source, result), "original Scientist selects calculated parts");
             AssertEqual(Identity(source), Identity(result), "all original Scientist compiled fields");
             for (int piece = 0; piece < visual.Length; piece++)
@@ -37,21 +39,21 @@ internal static class IntroScientistPartsVerification
                 {
                     var edited = (SpriteVisualPart[])visual.Clone();
                     edited[piece] = edit;
-                    CheckCaretLoader(definition.Pointer, edited);
+                    CheckCaretLoader(definition.Pose, edited);
                     var supplied = IntroCinematicSpriteCompiler.Compile(edited, "edited Scientist");
-                    AssertTrue(ReferenceEquals(supplied, IntroScientistParts.CalculateIfMatching(definition.Pointer, supplied)),
+                    AssertTrue(ReferenceEquals(supplied, IntroScientistParts.CalculateIfMatching(definition.Pose, supplied)),
                         "independent Scientist field edit stays supplied");
                 }
             }
-            CheckCaretLoader(definition.Pointer, visual.Length == 1 ? [visual[0], visual[0]] : [visual[0]]);
+            CheckCaretLoader(definition.Pose, visual.Length == 1 ? [visual[0], visual[0]] : [visual[0]]);
             var extra = IntroCinematicSpriteCompiler.Compile(visual.Length == 1 ? [visual[0], visual[0]] : [visual[0]], "custom Scientist");
-            AssertTrue(ReferenceEquals(extra, IntroScientistParts.CalculateIfMatching(definition.Pointer, extra)), "custom part count preserved");
+            AssertTrue(ReferenceEquals(extra, IntroScientistParts.CalculateIfMatching(definition.Pose, extra)), "custom part count preserved");
             foreach (int invalid in new[] { -1, result.PartCount, int.MaxValue })
                 AssertThrows<ArgumentOutOfRangeException>(() => result.Part(invalid), "calculated Scientist part bounds");
             foreach (ushort y in new ushort[] { 72, 0xfff8 })
             {
                 var native = new OamBuffer(); native.BeginFrame();
-                DrawImportedSpritemap(rom, native, 0x8c0000 + definition.Pointer, new(120, y), 0x0c00, originIsOnScreen: y == 72);
+                DrawImportedSpritemap(rom, native, 0x8c0000 + CinematicSpritemapAddresses.Of(definition.Pose), new(120, y), 0x0c00, originIsOnScreen: y == 72);
                 native.FinalizeFrame();
                 var actual = ScreenSpritesFixtures.Blank(); actual.BeginFrame();
                 if (y == 72) result.Draw(actual, new(120, y), 0x0c00);
@@ -62,9 +64,9 @@ internal static class IntroScientistPartsVerification
             }
         }
 
-        static void CheckCaretLoader(ushort pointer, SpriteVisualPart[] visual)
+        static void CheckCaretLoader(CinematicSpritePose pose, SpriteVisualPart[] visual)
         {
-            if (pointer != IntroCaretSpriteDefinitions.Still) return;
+            if (pose != IntroCaretSpriteDefinitions.Visible.Pose) return;
             var expected = new OamBuffer(); expected.BeginFrame();
             IntroCinematicSpriteCompiler.Compile(visual, "caret reference").DrawOnScreen(expected, new(120, 72), 0x0c00);
             expected.FinalizeFrame();
@@ -82,7 +84,7 @@ internal static class IntroScientistPartsVerification
                 json.Position = 0;
                 var presentation = IntroCaretSpritePresentation.Load(json);
                 var actual = ScreenSpritesFixtures.Blank(); actual.BeginFrame();
-                presentation.Draw(pointer, actual, new(120, 72), 0x0c00);
+                presentation.Draw(pose, actual, new(120, 72), 0x0c00);
                 actual.FinalizeFrame();
                 AssertTrue(expected.ImageEquals(actual)
                     && expected.LastFinalizedSpriteCount == actual.LastFinalizedSpriteCount,

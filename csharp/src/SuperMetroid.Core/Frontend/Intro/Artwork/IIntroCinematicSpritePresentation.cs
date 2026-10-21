@@ -9,11 +9,11 @@ namespace SuperMetroid.Core.Frontend.Intro.Artwork;
 public interface IIntroCinematicSpritePresentation
 {
     /// <summary>Appends the selected cinematic composition in authored OAM order without advancing the actor's instruction list, timers, or motion.</summary>
-    /// <param name="pointer">Bank-relative cinematic spritemap identity resolved by the selected presentation owner, not an instruction-list pointer.</param>
+    /// <param name="pose">The cinematic pose whose composition to draw.</param>
     /// <param name="objects">This frame's destination sprite entries.</param>
     /// <param name="origin">Native wrapped sixteen-bit screen origin in pixels.</param>
     /// <param name="paletteBits">Packed OBJ palette bits inherited by parts that do not specify their own palette.</param>
     /// <param name="originIsOnScreen">Selects the caller's ordinary origin-clipping path when true, or native off-screen Y-wrap path when false.</param>
-    void Draw(ushort pointer, ScreenSprites objects, Position16<OamPixels> origin,
+    void Draw(CinematicSpritePose pose, ScreenSprites objects, Position16<OamPixels> origin,
         ushort paletteBits, bool originIsOnScreen);
 }

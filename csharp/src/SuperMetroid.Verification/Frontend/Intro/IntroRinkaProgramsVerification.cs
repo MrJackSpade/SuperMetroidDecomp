@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Frontend.Cinematics;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -17,15 +18,15 @@ internal static class IntroRinkaProgramsVerification
         {
             int operand = 0x8bcded + 4 * index;
             ushort pointer = SnesLittleEndian.Word(IntroRinkaFrameCatalogRomByte(rom, operand), IntroRinkaFrameCatalogRomByte(rom, operand + 1));
-            AssertEqual(pointer, frames[index].Pointer, "native Rinka frame operand");
+            AssertEqual(pointer, CinematicSpritemapAddresses.Of(frames[index].Pose), "native Rinka frame operand");
             AssertEqual(names[index], frames[index].Name, "published Rinka asset key");
             AssertEqual(IntroRinkaSpriteDefinitions.StockPartCount,
                 SnesLittleEndian.Word(IntroRinkaFrameCatalogRomByte(rom, 0x8c0000 + pointer), IntroRinkaFrameCatalogRomByte(rom, 0x8c0001 + pointer)), "native four-part Rinka record");
         }
         foreach (int invalid in new[] { int.MinValue, -1, 3, int.MaxValue })
         {
-            AssertThrows<ArgumentOutOfRangeException>(() => { _ = frames[invalid]; }, "Rinka catalog bounds");
-            AssertThrows<ArgumentOutOfRangeException>(() => IntroRinkaSpriteDefinitions.FramePointer(invalid), "Rinka pointer bounds");
+            AssertThrows<IndexOutOfRangeException>(() => { _ = frames[invalid]; }, "Rinka catalog bounds");
+            AssertThrows<ArgumentOutOfRangeException>(() => IntroRinkaSpriteDefinitions.FramePose(invalid), "Rinka pointer bounds");
         }
         AssertTrue(frames.SequenceEqual(frames.ToArray()), "Rinka enumeration order");
     }

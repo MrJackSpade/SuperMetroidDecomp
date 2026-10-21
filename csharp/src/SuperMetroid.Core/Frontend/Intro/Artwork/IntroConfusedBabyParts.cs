@@ -6,10 +6,10 @@ namespace SuperMetroid.Core.Frontend.Intro.Artwork;
 internal static class IntroConfusedBabyParts
 {
     /// <summary>Replaces matching intro Baby poses with calculated placement while retaining supplied artwork edits.</summary>
-    internal static SpriteComposition CalculateIfMatching(ushort pointer, SpriteComposition supplied)
+    internal static SpriteComposition CalculateIfMatching(CinematicSpritePose shown, SpriteComposition supplied)
     {
         for (int frame = 0; frame < 3; frame++)
-            if (IntroDiscoveryActorSpriteDefinitions.BabyFramePointer(frame) == pointer)
+            if (IntroDiscoveryActorSpriteDefinitions.BabyFramePose(frame) == shown)
                 return supplied.CalculateIfMatching(Parts(frame));
         return supplied;
     }

@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend.Intro;
 using System.Collections;
 using SuperMetroid.Core.Assets;
 
@@ -8,8 +9,8 @@ namespace SuperMetroid.Core.Frontend.Ending.Artwork;
 internal sealed class EndingRewardPrepareJumpParts : IReadOnlyList<CompiledSpritePart>
 {
     /// <summary>Uses calculated jump-preparation geometry only for the matching stock frame; supplied edits and other reward poses keep their parts.</summary>
-    internal static SpriteComposition CalculateIfMatching(ushort pointer, SpriteComposition supplied) =>
-        pointer == EndingRewardSpriteDefinitions.FramePointer(EndingRewardSpriteFrame.LargeSamusFromEndingPreparingToJump)
+    internal static SpriteComposition CalculateIfMatching(CinematicSpritePose shown, SpriteComposition supplied) =>
+        shown == EndingRewardSpriteDefinitions.FramePose(EndingRewardSpriteFrame.LargeSamusFromEndingPreparingToJump)
             ? supplied.CalculateIfMatching(new EndingRewardPrepareJumpParts()) : supplied;
 
     /// <summary>The suited preparation pose has 22 parts spanning boundary strips and interior rows.</summary>

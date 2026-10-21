@@ -1,11 +1,13 @@
-namespace SuperMetroid.Core.Frontend.Intro.Artwork;
+using SuperMetroid.Core.Frontend.Intro;
 
-/// <summary>The bank-$8C spritemap each cinematic sprite pose shows; zero is the blank pose, which draws nothing.</summary>
-internal static class CinematicSpritePoseDefinitions
+namespace SuperMetroid.AssetExtraction.Frontend.Cinematics;
+
+/// <summary>The bank-$8C spritemap each cinematic sprite pose shows, which import reads its stock artwork from.</summary>
+internal static class CinematicSpritemapAddresses
 {
-
     /// <summary>The spritemap pose <paramref name="pose"/> shows.</summary>
-    internal static ushort Spritemap(CinematicSpritePose pose) => pose.Index switch
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="pose"/> is the blank pose, which shows no spritemap, or is undefined.</exception>
+    internal static ushort Of(CinematicSpritePose pose) => pose.Index switch
     {
         0 => 0x8c00,
         1 => 0x8c2f,
@@ -33,7 +35,6 @@ internal static class CinematicSpritePoseDefinitions
         23 => 0x8d5a,
         24 => 0x8d61,
         25 => 0x8d68,
-        26 => 0x0000,
         27 => 0x8ccf,
         28 => 0x8cdb,
         29 => 0x8ce7,
@@ -217,6 +218,6 @@ internal static class CinematicSpritePoseDefinitions
         207 => 0xbb28,
         208 => 0xbb66,
         209 => 0xbbc2,
-        _ => throw new ArgumentOutOfRangeException(nameof(pose), pose, "Undefined cinematic sprite pose."),
+        _ => throw new ArgumentOutOfRangeException(nameof(pose), pose, "The pose shows no cinematic spritemap."),
     };
 }

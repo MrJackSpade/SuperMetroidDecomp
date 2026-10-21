@@ -6,26 +6,26 @@ namespace SuperMetroid.Core.Frontend.Intro.Artwork;
 /// <summary>Editable intro Mother Brain OAM art, separate from AI and instruction timing.</summary>
 public sealed class IntroMotherBrainSpritePresentation
 {
-    /// <summary>Compiled OAM compositions keyed by the three supported bank-$8C frame pointers.</summary>
-    private readonly Dictionary<ushort, SpriteComposition> frames;
+    /// <summary>Compiled OAM compositions keyed by the poses that show them.</summary>
+    private readonly Dictionary<CinematicSpritePose, SpriteComposition> frames;
 
     /// <summary>Canonical identity of all selected decoded visual frames, preserving ordered OAM parts.</summary>
-    public string ContentIdentity => SelectedPresentationHash.FromCompositions(nameof(IntroMotherBrainSpritePresentation), frames);
+    public string ContentIdentity => CinematicSpriteArtwork.ContentIdentity(nameof(IntroMotherBrainSpritePresentation), frames);
 
     /// <summary>Retains the validated frame set after source arrays have been copied into compositions.</summary>
-    private IntroMotherBrainSpritePresentation(Dictionary<ushort, SpriteComposition> frames) =>
+    private IntroMotherBrainSpritePresentation(Dictionary<CinematicSpritePose, SpriteComposition> frames) =>
         this.frames = frames;
 
     /// <summary>Appends one installed Mother Brain composition through the on-screen OAM path used by the opening flashback, without advancing animation.</summary>
-    /// <param name="pointer">Native bank-$8C frame identity $8C00, $8C2F, or $8C5E; $8C8D belongs to Rinka, not Mother Brain.</param>
+    /// <param name="pose">The cinematic pose whose composition to draw.</param>
     /// <param name="objects">Destination object-attribute buffer; authored part order is preserved for sprite overlap.</param>
     /// <param name="origin">Native wrapped sixteen-bit screen origin in pixels.</param>
     /// <param name="paletteBits">Actor's OBJ palette bits, applied only to parts configured to inherit the palette.</param>
     /// <exception cref="InvalidDataException">The requested frame identity is not installed.</exception>
-    public void Draw(ushort pointer, ScreenSprites objects, Position16<OamPixels> origin, ushort paletteBits)
+    public void Draw(CinematicSpritePose pose, ScreenSprites objects, Position16<OamPixels> origin, ushort paletteBits)
     {
-        if (!frames.TryGetValue(pointer, out SpriteComposition? frame))
-            throw new InvalidDataException($"Intro Mother Brain frame $8C:{pointer:X4} is not installed.");
+        if (!frames.TryGetValue(pose, out SpriteComposition? frame))
+            throw new InvalidDataException($"Intro Mother Brain frame for pose {pose.Index} is not installed.");
         frame.Draw(objects, origin, paletteBits);
     }
 
@@ -39,19 +39,19 @@ public sealed class IntroMotherBrainSpritePresentation
         Ensure.NotNull(json);
         IntroMotherBrainSpriteDocument document;
         document = JsonAssetDocument.Read<IntroMotherBrainSpriteDocument>(json, ArtworkJson.Options, "intro Mother Brain sprite");
-        IReadOnlyList<SpritemapFrameDefinition> definitions =
+        IReadOnlyList<CinematicSpriteFrameDefinition> definitions =
             IntroMotherBrainSpriteDefinitions.Frames;
         if (document.Version != IntroMotherBrainSpriteFormat.Version ||
             document.Frames is null || document.Frames.Count != definitions.Count)
             throw new InvalidDataException("Intro Mother Brain requires three named visual frames.");
-        var frames = new Dictionary<ushort, SpriteComposition>();
-        foreach (SpritemapFrameDefinition definition in definitions)
+        var frames = new Dictionary<CinematicSpritePose, SpriteComposition>();
+        foreach (CinematicSpriteFrameDefinition definition in definitions)
         {
             if (!document.Frames.TryGetValue(definition.Name, out SpriteVisualPart[]? visual) ||
                 visual is null)
                 throw new InvalidDataException($"Intro Mother Brain frame {definition.Name} is missing.");
-            frames.Add(definition.Pointer,
-                IntroMotherBrainParts.CalculateIfMatching(definition.Pointer,
+            frames.Add(definition.Pose,
+                IntroMotherBrainParts.CalculateIfMatching(definition.Pose,
                     IntroCinematicSpriteCompiler.Compile(visual, definition.Name)));
         }
         return new IntroMotherBrainSpritePresentation(frames);

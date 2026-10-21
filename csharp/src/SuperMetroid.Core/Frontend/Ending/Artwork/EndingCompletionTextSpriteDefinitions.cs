@@ -1,75 +1,74 @@
-using SuperMetroid.Core.Assets;
+using SuperMetroid.Core.Frontend.Intro;
 
 namespace SuperMetroid.Core.Frontend.Ending.Artwork;
 
 /// <summary>
-/// The OAM record identities paired with the fourteen fixed bank-$8B ending
-/// completion-text lists. Counts preserve the cartridge's progressively revealed
-/// two-part-per-letter compositions without treating those visuals as timing data.
+/// The compositions shown by the fourteen fixed bank-$8B ending completion-text lists. Counts preserve the cartridge's
+/// progressively revealed two-part-per-letter compositions without treating those visuals as timing data.
 /// </summary>
 public static class EndingCompletionTextSpriteDefinitions
 {
-    /// <summary>$8C:A69D, first THE OPERATION WAS prefix.</summary>
-    internal const ushort OperationMap = 0xa69d;
-    /// <summary>$8C:AB6B, first COMPLETED SUCCESSFULLY prefix.</summary>
-    internal const ushort CompletedMap = 0xab6b;
-    /// <summary>$8C:B49B, first CLEAR TIME prefix.</summary>
-    internal const ushort ClearMap = 0xb49b;
-    /// <summary>$8C:B67B, first of ten two-part digit frames.</summary>
-    internal const ushort ZeroMap = 0xb67b;
-    /// <summary>$8C:B66F, the two-part colon frame.</summary>
-    internal const ushort ColonMap = 0xb66f;
-    /// <summary>Progressive THE OPERATION WAS prefix stages in the native typewriter list.</summary>
-    private const int OperationLetters = 15;
-    /// <summary>Progressive COMPLETED SUCCESSFULLY prefix stages.</summary>
-    private const int CompletedLetters = 21;
-    /// <summary>Progressive CLEAR TIME prefix stages.</summary>
-    private const int ClearLetters = 9;
-    /// <summary>Total phrase-prefix compositions before digit and colon frames.</summary>
-    private const int PrefixCount = OperationLetters + CompletedLetters + ClearLetters;
-    /// <summary>Phrase prefixes plus ten decimal digits and one colon.</summary>
-    private const int FrameCount = PrefixCount + 11;
-
-    /// <summary>Stable 56-frame catalog: 15 THE OPERATION WAS prefixes at $8C:A69D, 21 COMPLETED SUCCESSFULLY prefixes at $AB6B, nine CLEAR TIME prefixes at $B49B, then ten digits at $B67B and the colon at $B66F.</summary>
-    public static IReadOnlyList<SpriteFrameDefinition> Frames { get; } = new FrameView();
-
-    /// <summary>Sum preceding records: two header bytes and two five-byte OAM parts
-    /// per revealed letter. Shared with the generated typewriter instructions.</summary>
-    internal static ushort PrefixMap(ushort first, int prefix) => (ushort)(first + 2 * prefix + 5 * prefix * (prefix + 1));
-    /// <summary>Advances from the zero digit by one two-part OAM record per decimal digit.</summary>
-    internal static ushort DigitMap(int digit) => (ushort)(ZeroMap + digit * (2 + 2 * 5));
-
-    /// <summary>Projects a catalog ordinal into a phrase stage, decimal digit, or colon composition.</summary>
-    private static SpriteFrameDefinition Get(int index)
-    {
-        if ((uint)index >= FrameCount) throw new ArgumentOutOfRangeException(nameof(index));
-        if (index < OperationLetters) return Prefix("operation", OperationMap, index);
-        if (index < OperationLetters + CompletedLetters) return Prefix("completed", CompletedMap, index - OperationLetters);
-        if (index < PrefixCount) return Prefix("clear-time", ClearMap, index - OperationLetters - CompletedLetters);
-        int glyph = index - PrefixCount;
-        return glyph == 10 ? new("colon-00", ColonMap, 2) : new(Key("digit", glyph), DigitMap(glyph), 2);
-    }
-
-    /// <summary>Names one progressively revealed phrase stage and calculates its native OAM part count.</summary>
-    private static SpriteFrameDefinition Prefix(string family, ushort first, int stage) =>
-        new(Key(family, stage), PrefixMap(first, stage), 2 * (stage + 1));
-    /// <summary>Formats stable two-digit JSON keys for phrase stages and decimal digits.</summary>
-    private static string Key(string family, int stage) => family + "-" + stage.ToString("D2", System.Globalization.CultureInfo.InvariantCulture);
-
-    /// <summary>Calculates frame definitions on demand instead of storing fifty-six duplicate records.</summary>
-    private sealed class FrameView : IReadOnlyList<SpriteFrameDefinition>
-    {
-        /// <summary>Phrase prefixes, digits, and colon included in the installed catalog.</summary>
-        public int Count => FrameCount;
-        /// <summary>Resolves a native frame pointer and stock part count for one catalog ordinal.</summary>
-        public SpriteFrameDefinition this[int index] => Get(index);
-        /// <summary>Visits all completion-text frames in native presentation order.</summary>
-        public IEnumerator<SpriteFrameDefinition> GetEnumerator()
-        {
-            for (int index = 0; index < Count; index++) yield return Get(index);
-        }
-        /// <summary>Exposes the same frame order through the non-generic interface.</summary>
-        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
-    }
-
+    /// <summary>
+    /// Fifteen THE OPERATION WAS prefixes, 21 COMPLETED SUCCESSFULLY prefixes and nine CLEAR TIME prefixes, each revealing
+    /// one more letter, then the ten two-part digits and the two-part colon.
+    /// </summary>
+    public static IReadOnlyList<CinematicSpriteFrameDefinition> Frames { get; } =
+    [
+        new("operation-00", new(99), 2),
+        new("operation-01", new(100), 4),
+        new("operation-02", new(101), 6),
+        new("operation-03", new(102), 8),
+        new("operation-04", new(103), 10),
+        new("operation-05", new(104), 12),
+        new("operation-06", new(105), 14),
+        new("operation-07", new(106), 16),
+        new("operation-08", new(107), 18),
+        new("operation-09", new(108), 20),
+        new("operation-10", new(109), 22),
+        new("operation-11", new(110), 24),
+        new("operation-12", new(111), 26),
+        new("operation-13", new(112), 28),
+        new("operation-14", new(113), 30),
+        new("completed-00", new(114), 2),
+        new("completed-01", new(115), 4),
+        new("completed-02", new(116), 6),
+        new("completed-03", new(117), 8),
+        new("completed-04", new(118), 10),
+        new("completed-05", new(119), 12),
+        new("completed-06", new(120), 14),
+        new("completed-07", new(121), 16),
+        new("completed-08", new(122), 18),
+        new("completed-09", new(123), 20),
+        new("completed-10", new(124), 22),
+        new("completed-11", new(125), 24),
+        new("completed-12", new(126), 26),
+        new("completed-13", new(127), 28),
+        new("completed-14", new(128), 30),
+        new("completed-15", new(129), 32),
+        new("completed-16", new(130), 34),
+        new("completed-17", new(131), 36),
+        new("completed-18", new(132), 38),
+        new("completed-19", new(133), 40),
+        new("completed-20", new(134), 42),
+        new("clear-time-00", new(135), 2),
+        new("clear-time-01", new(136), 4),
+        new("clear-time-02", new(137), 6),
+        new("clear-time-03", new(138), 8),
+        new("clear-time-04", new(139), 10),
+        new("clear-time-05", new(140), 12),
+        new("clear-time-06", new(141), 14),
+        new("clear-time-07", new(142), 16),
+        new("clear-time-08", new(143), 18),
+        new("digit-00", new(144), 2),
+        new("digit-01", new(145), 2),
+        new("digit-02", new(146), 2),
+        new("digit-03", new(147), 2),
+        new("digit-04", new(148), 2),
+        new("digit-05", new(149), 2),
+        new("digit-06", new(150), 2),
+        new("digit-07", new(151), 2),
+        new("digit-08", new(152), 2),
+        new("digit-09", new(153), 2),
+        new("colon-00", new(154), 2),
+    ];
 }

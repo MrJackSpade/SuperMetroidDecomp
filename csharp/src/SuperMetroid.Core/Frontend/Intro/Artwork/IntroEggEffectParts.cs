@@ -8,10 +8,10 @@ namespace SuperMetroid.Core.Frontend.Intro.Artwork;
 internal static class IntroEggEffectParts
 {
     /// <summary>Uses the calculated egg fragment or slime part only when it exactly matches the supplied OAM composition.</summary>
-    internal static SpriteComposition CalculateIfMatching(ushort pointer, SpriteComposition supplied)
+    internal static SpriteComposition CalculateIfMatching(CinematicSpritePose shown, SpriteComposition supplied)
     {
         for (int frame = 0; frame < 11; frame++)
-            if (IntroEggEffectSpriteDefinitions.FramePointer(frame) == pointer)
+            if (IntroEggEffectSpriteDefinitions.FramePose(frame) == shown)
                 return supplied.CalculateIfMatching(Parts(frame));
         return supplied;
     }

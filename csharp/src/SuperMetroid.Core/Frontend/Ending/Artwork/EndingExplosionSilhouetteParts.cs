@@ -1,3 +1,4 @@
+using SuperMetroid.Core.Frontend.Intro;
 using System.Collections;
 using SuperMetroid.Core.Assets;
 
@@ -13,8 +14,8 @@ internal sealed class EndingExplosionSilhouetteParts : IReadOnlyList<CompiledSpr
     private static readonly EndingSilhouetteRow[] Rows = [new EndingSilhouetteRow(SnesCharacterGrid.Cell(11, 14), 0), new EndingSilhouetteRow(SnesCharacterGrid.Cell(14, 6), -16), new EndingSilhouetteRow(SnesCharacterGrid.Cell(13, 6), -24), new EndingSilhouetteRow(SnesCharacterGrid.Cell(11, 6), -40)];
 
     /// <summary>Uses the calculated silhouette only when the selected pose and all supplied OAM parts match it exactly.</summary>
-    internal static SpriteComposition CalculateIfMatching(ushort pointer, SpriteComposition supplied) =>
-        pointer == EndingExplosionSpriteDefinitions.Pointer(EndingExplosionSpriteDefinitions.Pose.Silhouette)
+    internal static SpriteComposition CalculateIfMatching(CinematicSpritePose shown, SpriteComposition supplied) =>
+        shown == EndingExplosionSpriteDefinitions.PoseOf(EndingExplosionSpriteDefinitions.Pose.Silhouette)
             ? supplied.CalculateIfMatching(new EndingExplosionSilhouetteParts()) : supplied;
 
     /// <summary>Four tip/body pieces followed by four rows of four streaked tiles.</summary>

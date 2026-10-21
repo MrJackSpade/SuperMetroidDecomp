@@ -1218,16 +1218,15 @@ level, samus, NmiFrameWord(elapsedUpdates));
         FlashbackMotherBrainExplosions?.Draw(objectSprites,
             (characterArtwork ?? throw new InvalidOperationException(
                 "Intro Mother Brain explosions require installed character artwork.")).MotherBrainExplosionSprites);
-        // The blank pose's spritemap draws nothing.
+        // The blank pose draws nothing.
         if (FlashbackMotherBrain.IsVisible && FlashbackMotherBrain.Pose is { } motherBrainPose &&
-            CinematicSpritePoseDefinitions.Spritemap(motherBrainPose) is var motherBrainSpritemap &&
-            motherBrainSpritemap != 0)
+            motherBrainPose != CinematicSpritePose.Blank)
         {
             // cinematic_var15=$FFFF makes DrawIntroSprites draw Samus first and cinematic
             // actors afterward. Retaining that OAM insertion order preserves overlap wins.
             (characterArtwork ?? throw new InvalidOperationException(
                 "Intro Mother Brain sprites require installed character artwork.")).MotherBrainSprites.Draw(
-                motherBrainSpritemap, objectSprites,
+                motherBrainPose, objectSprites,
                 IntroMotherBrainSpriteState.Position.ToOam(),
                 IntroMotherBrainSpriteState.PaletteBits);
         }
@@ -1291,16 +1290,15 @@ level, samus, NmiFrameWord(elapsedUpdates));
         sprites.BeginFrame();
         objectSprites.BeginFrame();
         // The caret's blank pose, shown while it blinks off, draws nothing.
-        if (Objects.CaretPose is { } caretPose &&
-            CinematicSpritePoseDefinitions.Spritemap(caretPose) is var caretSpritemap && caretSpritemap != 0)
+        if (Objects.CaretPose is { } caretPose && caretPose != CinematicSpritePose.Blank)
         {
             // The persistent caret begins at (8,24), moves to (8,$F8) during illustrated
             // crossfades, and is restored when the next narration page starts.
-            // The spritemap itself lives in bank $8C and OBSEL=$03 selects word $6000 as
-            // the OBJ character base, matching the initial $9A:D200 -> VMADD $6000 DMA.
+            // OBSEL=$03 selects word $6000 as the OBJ character base, matching the
+            // initial $9A:D200 -> VMADD $6000 DMA.
             (characterArtwork ?? throw new InvalidOperationException(
                 "Intro caret sprites require installed character artwork.")).CaretSprites.Draw(
-                caretSpritemap, objectSprites, Objects.Caret.ToOam(),
+                caretPose, objectSprites, Objects.Caret.ToOam(),
                 IntroCinematicRomData.Objects.ScientistPalette.Raw);
         }
         objectSprites.FinishFrame();

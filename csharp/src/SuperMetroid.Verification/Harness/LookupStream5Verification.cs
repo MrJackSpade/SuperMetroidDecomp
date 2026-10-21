@@ -1,3 +1,5 @@
+using SuperMetroid.Core.Frontend.Intro;
+using SuperMetroid.AssetExtraction.Frontend.Cinematics;
 using SuperMetroid.Core.World.Artwork;
 using SuperMetroid.AssetExtraction.Enemies;
 using SuperMetroid.Core.Areas;
@@ -916,7 +918,7 @@ internal static class LookupStream5Verification
         var frames = new Dictionary<string, SpriteVisualPart[]>();
         foreach (var definition in CeresDestructionSpriteDefinitions.Frames)
             frames.Add(definition.Name, SuperMetroid.AssetExtraction.Frontend.Intro.IntroCinematicSpriteFrameExtractor.Extract(
-                rom, definition.Pointer, definition.StockPartCount, definition.Name));
+                rom, CinematicSpritemapAddresses.Of(definition.Pose), definition.StockPartCount, definition.Name));
         var document = new CeresDestructionSpriteDocument { Version = 1, Frames = frames };
         var stock = Load(document);
         int total = 0;
@@ -924,13 +926,13 @@ internal static class LookupStream5Verification
         {
             if (!definition.Name.StartsWith("zebes-stars-", StringComparison.Ordinal)) continue;
             SpriteVisualPart[] parts = frames[definition.Name];
-            Check(stock, definition.Pointer, parts);
+            Check(stock, definition.Pose, parts);
             var compiled = IntroCinematicSpriteCompiler.Compile(parts, definition.Name);
             var calculated = ZebesStarGridParts.CalculateIfMatching(definition.Backdrop, compiled);
             AssertTrue(calculated.parts is ZebesStarGridParts, "Stock stars use calculated common fields");
             for (int index = 0; index < parts.Length; index++)
             {
-                int source = 0x8c0000 | definition.Pointer + 2 + index * 5;
+                int source = 0x8c0000 | CinematicSpritemapAddresses.Of(definition.Pose) + 2 + index * 5;
                 CompiledSpritePart actual = calculated.Part(index);
                 AssertEqual(CartridgeImportSource.Require(rom).ReadCartridgeWord(source), actual.X.Raw, "Native star X/size");
                 AssertEqual(rom.ReadCartridgeByte(source + 2), actual.Y.Raw, "Native star Y");
@@ -955,7 +957,7 @@ internal static class LookupStream5Verification
                     editedParts[index] = edit;
                     var editedFrames = new Dictionary<string, SpriteVisualPart[]>(frames)
                         { [definition.Name] = editedParts };
-                    Check(Load(document with { Frames = editedFrames }), definition.Pointer, editedParts);
+                    Check(Load(document with { Frames = editedFrames }), definition.Pose, editedParts);
                 }
                 total++;
             }
@@ -969,19 +971,19 @@ internal static class LookupStream5Verification
             json.Position = 0;
             var result = CeresDestructionSpritePresentation.Load(json);
             var expected = value.Frames.ToDictionary(pair => CeresDestructionSpriteDefinitions.Frames
-                .Single(definition => definition.Name == pair.Key).Pointer,
+                .Single(definition => definition.Name == pair.Key).Pose,
                 pair => IntroCinematicSpriteCompiler.Compile(pair.Value, pair.Key));
-            AssertEqual(SelectedPresentationHash.FromCompositions(nameof(CeresDestructionSpritePresentation), expected),
+            AssertEqual(CinematicSpriteArtwork.ContentIdentity(nameof(CeresDestructionSpritePresentation), expected),
                 result.ContentIdentity, "Selected star edits retain canonical composition identity");
             return result;
         }
-        static void Check(CeresDestructionSpritePresentation catalog, ushort pointer, SpriteVisualPart[] parts)
+        static void Check(CeresDestructionSpritePresentation catalog, CinematicSpritePose pose, SpriteVisualPart[] parts)
         {
             var expected = IntroCinematicSpriteCompiler.Compile(parts, "star-reference");
             var actualOam = ScreenSpritesFixtures.Blank();
             var expectedOam = new OamBuffer();
             actualOam.BeginFrame(); expectedOam.BeginFrame();
-            catalog.Draw(pointer, actualOam, new(128, 112), 0x0800, true);
+            catalog.Draw(pose, actualOam, new(128, 112), 0x0800, true);
             expected.DrawOnScreen(expectedOam, new(128, 112), 0x0800);
             actualOam.FinishFrame(); expectedOam.FinalizeFrame();
             AssertEqual(expectedOam.LastFinalizedSpriteCount, actualOam.LastFinalizedSpriteCount, "Star OAM count/order");

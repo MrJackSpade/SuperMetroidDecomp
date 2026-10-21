@@ -6,26 +6,26 @@ namespace SuperMetroid.Core.Frontend.Intro.Artwork;
 /// <summary>Editable egg-fragment and slime OAM art, without physical motion rules.</summary>
 public sealed class IntroEggEffectSpritePresentation : IIntroCinematicSpritePresentation
 {
-    /// <summary>Compiled shell and slime OAM compositions keyed by their original bank-$8C pointers.</summary>
-    private readonly Dictionary<ushort, SpriteComposition> frames;
+    /// <summary>Compiled shell and slime OAM compositions keyed by the poses that show them.</summary>
+    private readonly Dictionary<CinematicSpritePose, SpriteComposition> frames;
 
     /// <summary>Canonical identity of all selected decoded visual frames, preserving ordered OAM parts.</summary>
-    public string ContentIdentity => SelectedPresentationHash.FromCompositions(nameof(IntroEggEffectSpritePresentation), frames);
+    public string ContentIdentity => CinematicSpriteArtwork.ContentIdentity(nameof(IntroEggEffectSpritePresentation), frames);
 
     /// <summary>Retains the validated eleven-frame set after authoring arrays have been copied.</summary>
-    private IntroEggEffectSpritePresentation(Dictionary<ushort, SpriteComposition> frames) =>
+    private IntroEggEffectSpritePresentation(Dictionary<CinematicSpritePose, SpriteComposition> frames) =>
         this.frames = frames;
 
     /// <summary>Appends an installed shell-fragment or slime composition to OAM without advancing the actor's motion or animation.</summary>
-    /// <param name="pointer">Bank-$8C frame identity: $8F7E..$8FA1 for six fragments or $8FA8..$8FC4 for five slime frames, in seven-byte native record steps.</param>
+    /// <param name="pose">The cinematic pose whose composition to draw.</param>
     /// <param name="objects">Destination object-attribute buffer; parts retain their authored draw order.</param>
     /// <param name="origin">Native wrapped sixteen-bit screen origin in pixels.</param>
     /// <param name="paletteBits">Drawing actor's OBJ palette bits, used only by parts whose palette is inherited.</param>
     /// <param name="originIsOnScreen">Whether to use the ordinary origin clipping path; false preserves the negative-origin Y-wrap clipping used by cinematic sprites.</param>
     /// <exception cref="InvalidDataException">The requested frame identity is not installed.</exception>
-    public void Draw(ushort pointer, ScreenSprites objects, Position16<OamPixels> origin,
+    public void Draw(CinematicSpritePose pose, ScreenSprites objects, Position16<OamPixels> origin,
         ushort paletteBits, bool originIsOnScreen) =>
-        SpriteComposition.DrawInstalled(frames, "Intro egg effect", pointer, objects, origin, paletteBits, originIsOnScreen);
+        CinematicSpriteArtwork.DrawInstalled(frames, "Intro egg effect", pose, objects, origin, paletteBits, originIsOnScreen);
 
     /// <summary>Validates and compiles all eleven named egg-effect frames from editable JSON into independently owned visual compositions.</summary>
     /// <param name="json">Readable JSON stream at its current position; the caller retains ownership and it is left open.</param>
@@ -37,21 +37,21 @@ public sealed class IntroEggEffectSpritePresentation : IIntroCinematicSpritePres
         Ensure.NotNull(json);
         IntroEggEffectSpriteDocument document;
         document = JsonAssetDocument.Read<IntroEggEffectSpriteDocument>(json, ArtworkJson.Options, "intro egg effect sprite");
-        IReadOnlyList<SpritemapFrameDefinition> definitions =
+        IReadOnlyList<CinematicSpriteFrameDefinition> definitions =
             IntroEggEffectSpriteDefinitions.Frames;
         if (document.Version != IntroEggEffectSpriteFormat.Version ||
             document.Frames is null || document.Frames.Count != definitions.Count)
             throw new InvalidDataException(
                 "Intro egg effects require eleven named visual frames.");
-        var frames = new Dictionary<ushort, SpriteComposition>();
-        foreach (SpritemapFrameDefinition definition in definitions)
+        var frames = new Dictionary<CinematicSpritePose, SpriteComposition>();
+        foreach (CinematicSpriteFrameDefinition definition in definitions)
         {
             if (!document.Frames.TryGetValue(definition.Name, out SpriteVisualPart[]? visual) ||
                 visual is null)
                 throw new InvalidDataException(
                     $"Intro egg effect frame {definition.Name} is missing.");
-            frames.Add(definition.Pointer,
-                IntroEggEffectParts.CalculateIfMatching(definition.Pointer,
+            frames.Add(definition.Pose,
+                IntroEggEffectParts.CalculateIfMatching(definition.Pose,
                     IntroCinematicSpriteCompiler.Compile(visual, definition.Name)));
         }
         return new IntroEggEffectSpritePresentation(frames);

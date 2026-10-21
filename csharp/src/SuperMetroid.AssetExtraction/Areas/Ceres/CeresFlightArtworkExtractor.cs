@@ -1,3 +1,5 @@
+using SuperMetroid.AssetExtraction.Frontend.Cinematics;
+using SuperMetroid.Core.Frontend.Intro;
 using SuperMetroid.Core;
 using System.Buffers.Binary;
 using SuperMetroid.Core.Assets;
@@ -77,9 +79,9 @@ internal static class CeresFlightArtworkExtractor
         });
         byte[] paletteFile = paletteJson.ToArray();
         var spriteFrames = new Dictionary<string, SpriteVisualPart[]>(StringComparer.Ordinal);
-        foreach (SpriteFrameDefinition definition in CeresFlightSpriteDefinitions.Frames)
+        foreach (CinematicSpriteFrameDefinition definition in CeresFlightSpriteDefinitions.Frames)
             spriteFrames.Add(definition.Name, IntroCinematicSpriteFrameExtractor.Extract(
-                bus, definition.Pointer, definition.StockPartCount, definition.Name));
+                bus, CinematicSpritemapAddresses.Of(definition.Pose), definition.StockPartCount, definition.Name));
         using var spritesJson = new MemoryStream();
         CeresFlightSpritePresentation.Write(spritesJson, new CeresFlightSpriteDocument
         {

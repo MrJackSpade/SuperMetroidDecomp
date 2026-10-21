@@ -1,3 +1,4 @@
+using SuperMetroid.AssetExtraction.Frontend.Cinematics;
 using SuperMetroid.Core.Hardware;
 using SuperMetroid.Core.Frontend.Intro.Artwork;
 using SuperMetroid.AssetExtraction.Cartridge;
@@ -19,17 +20,17 @@ internal static class IntroScientistFrameCatalogVerification
         for (int index = 0; index < 10; index++)
         {
             int count = SnesLittleEndian.Word(IntroScientistFrameCatalogRomByte(rom, 0x8c0000 + pointer), IntroScientistFrameCatalogRomByte(rom, 0x8c0001 + pointer));
-            AssertEqual((ushort)pointer, frames[index].Pointer, "scientist frame follows original record chain");
+            AssertEqual((ushort)pointer, CinematicSpritemapAddresses.Of(frames[index].Pose), "scientist frame follows original record chain");
             AssertEqual(count, frames[index].StockPartCount, "original scientist part count");
             AssertEqual(names[index], frames[index].Name, "published scientist asset key");
             pointer += 2 + 5 * count;
         }
         AssertEqual(0x8d6f, pointer, "original record chain ends at catalog boundary");
-        AssertEqual(IntroCaretSpriteDefinitions.Still, frames[9].Pointer, "last scientist record aliases the shared caret");
+        AssertEqual(IntroCaretSpriteDefinitions.Visible.Pose, frames[9].Pose, "last scientist record aliases the shared caret");
         foreach (int invalid in new[] { int.MinValue, -1, 10, int.MaxValue })
         {
-            AssertThrows<ArgumentOutOfRangeException>(() => { _ = frames[invalid]; }, "scientist catalog boundary");
-            AssertThrows<ArgumentOutOfRangeException>(() => IntroScientistSpriteDefinitions.FramePointer(invalid), "scientist pointer boundary");
+            AssertThrows<IndexOutOfRangeException>(() => { _ = frames[invalid]; }, "scientist catalog boundary");
+            AssertThrows<ArgumentOutOfRangeException>(() => IntroScientistSpriteDefinitions.FramePose(invalid), "scientist pointer boundary");
         }
         AssertTrue(frames.SequenceEqual(frames.ToArray()), "scientist catalog enumeration agrees with indexing");
     }

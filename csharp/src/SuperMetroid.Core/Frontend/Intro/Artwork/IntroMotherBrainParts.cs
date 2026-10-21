@@ -9,10 +9,10 @@ internal sealed class IntroMotherBrainParts(int frame) : IReadOnlyList<CompiledS
 {
     /// <summary>Substitutes the calculated atlas layout only for one of the three
     /// intro Mother Brain spritemap pointers; other supplied compositions pass through.</summary>
-    internal static SpriteComposition CalculateIfMatching(ushort pointer, SpriteComposition supplied)
+    internal static SpriteComposition CalculateIfMatching(CinematicSpritePose shown, SpriteComposition supplied)
     {
         for (int frame = 0; frame < 3; frame++)
-            if (IntroMotherBrainSpriteDefinitions.FramePointer(frame) == pointer)
+            if (IntroMotherBrainSpriteDefinitions.FramePose(frame) == shown)
                 return supplied.CalculateIfMatching(new IntroMotherBrainParts(frame));
         return supplied;
     }

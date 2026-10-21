@@ -98,7 +98,7 @@ internal static class CinematicSpriteAnimationsVerification
             {
                 var show = AssertIs<AnimationProgramStep<CinematicSpriteProgram, CinematicSpritePose, CinematicSpriteCue>.ShowStep>(Next("frame"), $"{at}: frame");
                 AssertEqual(word, show.Duration, $"{at}: duration");
-                AssertEqual(operand, CinematicSpritePoseDefinitions.Spritemap(show.Frame), $"{at}: spritemap");
+                AssertEqual(operand, CinematicSpritePoseSpritemaps.Of(show.Frame), $"{at}: spritemap");
                 cursor = unchecked((ushort)(cursor + 4));
                 continue;
             }

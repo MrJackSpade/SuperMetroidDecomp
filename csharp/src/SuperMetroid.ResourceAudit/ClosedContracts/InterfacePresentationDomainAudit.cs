@@ -37,25 +37,26 @@ internal static class InterfacePresentationDomainAudit
         }
     }
 
-    /// <summary>Flags a constant cinematic frame pointer that no reviewed sprite presenter owns.</summary>
+    /// <summary>Flags a constant cinematic pose that no reviewed sprite presenter owns.</summary>
     internal static string? InvalidConstants(IInvocationOperation operation)
     {
         if (operation.TargetMethod.ContainingType.ToDisplayString() != typeof(IIntroCinematicSpritePresentation).FullName ||
             operation.TargetMethod.Name != "Draw") return null;
-        if (operation.Arguments.Single(argument => argument.Parameter?.Name == "pointer").Value.ConstantValue
-            is not { HasValue: true, Value: not null } value) return null;
-        int pointer = Convert.ToInt32(value.Value);
-        bool owned = IntroDiscoveryActorSpriteDefinitions.Frames.Any(frame => frame.Pointer == pointer) ||
-            IntroEggEffectSpriteDefinitions.Frames.Any(frame => frame.Pointer == pointer) ||
-            IntroRinkaSpriteDefinitions.Frames.Any(frame => frame.Pointer == pointer) ||
-            IntroScientistSpriteDefinitions.Frames.Any(frame => frame.Pointer == pointer) ||
-            CeresFlightSpriteDefinitions.Frames.Any(frame => frame.Pointer == pointer) ||
-            CeresDestructionSpriteDefinitions.Frames.Any(frame => frame.Pointer == pointer) ||
-            EndingCloudSpriteDefinitions.Frames.Any(frame => frame.Pointer == pointer) ||
-            EndingCompletionTextSpriteDefinitions.Frames.Any(frame => frame.Pointer == pointer) ||
-            EndingExplosionSpriteDefinitions.Frames.Any(frame => frame.Pointer == pointer) ||
-            EndingLogoSpriteDefinitions.Frames.Any(frame => frame.Pointer == pointer) ||
-            EndingRewardSpriteDefinitions.Frames.Any(frame => frame.Pointer == pointer);
-        return owned ? null : $"Known cinematic frame ${pointer:X4} belongs to no reviewed interface implementation.";
+        if (operation.Arguments.Single(argument => argument.Parameter?.Name == "pose").Value is not IObjectCreationOperation creation ||
+            creation.Arguments.Length != 1 ||
+            creation.Arguments[0].Value.ConstantValue is not { HasValue: true, Value: not null } value) return null;
+        int pose = Convert.ToInt32(value.Value);
+        bool owned = IntroDiscoveryActorSpriteDefinitions.Frames.Any(frame => frame.Pose.Index == pose) ||
+            IntroEggEffectSpriteDefinitions.Frames.Any(frame => frame.Pose.Index == pose) ||
+            IntroRinkaSpriteDefinitions.Frames.Any(frame => frame.Pose.Index == pose) ||
+            IntroScientistSpriteDefinitions.Frames.Any(frame => frame.Pose.Index == pose) ||
+            CeresFlightSpriteDefinitions.Frames.Any(frame => frame.Pose.Index == pose) ||
+            CeresDestructionSpriteDefinitions.Frames.Any(frame => frame.Pose.Index == pose) ||
+            EndingCloudSpriteDefinitions.Frames.Any(frame => frame.Pose.Index == pose) ||
+            EndingCompletionTextSpriteDefinitions.Frames.Any(frame => frame.Pose.Index == pose) ||
+            EndingExplosionSpriteDefinitions.Frames.Any(frame => frame.Pose.Index == pose) ||
+            EndingLogoSpriteDefinitions.Frames.Any(frame => frame.Pose.Index == pose) ||
+            EndingRewardSpriteDefinitions.Frames.Any(frame => frame.Pose.Index == pose);
+        return owned ? null : $"Known cinematic pose {pose} belongs to no reviewed interface implementation.";
     }
 }

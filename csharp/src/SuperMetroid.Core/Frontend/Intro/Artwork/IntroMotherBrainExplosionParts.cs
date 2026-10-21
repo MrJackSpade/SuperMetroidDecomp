@@ -6,11 +6,11 @@ namespace SuperMetroid.Core.Frontend.Intro.Artwork;
 /// <summary>Centered flashes followed by mirrored explosion quadrants in native OAM order.</summary>
 internal sealed class IntroMotherBrainExplosionParts(bool big, int frame) : IReadOnlyList<CompiledSpritePart>
 {
-    /// <summary>Replaces a recognized small or large intro explosion pointer with its reviewed flash or quadrant composition.</summary>
-    internal static SpriteComposition CalculateIfMatching(ushort pointer, SpriteComposition supplied)
+    /// <summary>Replaces a recognized small or large intro explosion pose with its reviewed flash or quadrant composition.</summary>
+    internal static SpriteComposition CalculateIfMatching(CinematicSpritePose shown, SpriteComposition supplied)
     {
         for (int index = 0; index < 12; index++)
-            if (IntroMotherBrainExplosionSpriteDefinitions.FramePointer(index >= 6, index % 6) == pointer)
+            if (IntroMotherBrainExplosionSpriteDefinitions.FramePose(index >= 6, index % 6) == shown)
                 return supplied.CalculateIfMatching(new IntroMotherBrainExplosionParts(index >= 6, index % 6));
         return supplied;
     }

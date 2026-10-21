@@ -21,7 +21,7 @@ internal static partial class RoomPlmDynamicCollectibleGraphicsDefinitions
         }
     }
 
-    /// <summary>Combines a permanent item's native graphics pointer, eight palette selectors, and tile bytes.</summary>
+    /// <summary>Combines a permanent item's eight palette selectors and tile bytes.</summary>
     internal static RoomPlmDynamicCollectibleGraphic Get(InWorldCollectibleKind kind)
     {
         int index = (int)kind - FirstKind;
@@ -32,7 +32,7 @@ internal static partial class RoomPlmDynamicCollectibleGraphicsDefinitions
         byte[] palettes = new byte[8];
         for (int tile = 0; tile < palettes.Length; tile++)
             palettes[tile] = PaletteOffset(kind, tile);
-        return new(kind, GraphicsPointer(kind), palettes, Convert.FromHexString(Tiles[(int)graphic]));
+        return new(kind, palettes, Convert.FromHexString(Tiles[(int)graphic]));
     }
 
     /// <summary>Consecutive 256-byte artwork blocks in native bank-$89 order, $8000 through $9000.</summary>
@@ -74,9 +74,8 @@ internal static partial class RoomPlmDynamicCollectibleGraphicsDefinitions
         ReserveTank,
     }
 
-    /// <summary>ItemPLMGFX_Bombs begins at $89:8000; every graphic owns eight 32-byte tiles.</summary>
-    internal static ushort GraphicsPointer(InWorldCollectibleKind kind) =>
-        checked((ushort)(0x8000 + (int)GraphicFor(kind) * 0x100));
+    /// <summary>The place of <paramref name="kind"/>'s artwork block among the item graphics, in their stored order.</summary>
+    internal static int GraphicIndex(InWorldCollectibleKind kind) => (int)GraphicFor(kind);
 
     /// <summary>Maps collectible identity to its distinct bank $89 tile block, independent of enum order.</summary>
     private static ItemGraphic GraphicFor(InWorldCollectibleKind kind) => kind switch

@@ -45,7 +45,7 @@ internal static class RoomPlmPopulationImporter
                     palettes[offset] = Byte(0x84, unchecked((ushort)(instruction + 4 + offset)));
                 for (int offset = 0; offset < tiles.Length; offset++)
                     tiles[offset] = Byte(0x89, unchecked((ushort)(graphicsPointer + offset)));
-                graphic = new RoomPlmDynamicCollectibleGraphic(kind, graphicsPointer, palettes, tiles);
+                graphic = new RoomPlmDynamicCollectibleGraphic(kind, palettes, tiles);
             }
             records.Add(new RoomPlmPlacement(metadata,
                 new(Byte(0x8f, unchecked((ushort)(cursor + 2))), Byte(0x8f, unchecked((ushort)(cursor + 3)))), argument, scroll, graphic,

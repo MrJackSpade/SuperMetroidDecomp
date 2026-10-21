@@ -41,8 +41,7 @@ public sealed class RoomPlmDynamicCollectibleArtCatalog
             if (!entry.Tiles.SequenceEqual(stock.Tiles.Span) ||
                 !entry.PaletteOffsets.SequenceEqual(stock.PaletteOffsets.Span))
                 selected.Add(entry.Kind, new RoomPlmDynamicCollectibleGraphic(
-                    entry.Kind, stock.GraphicsPointer,
-                    entry.PaletteOffsets.ToArray(), entry.Tiles.ToArray()));
+                    entry.Kind, entry.PaletteOffsets.ToArray(), entry.Tiles.ToArray()));
             seen[index] = true;
         }
         if (seen.Any(present => !present))

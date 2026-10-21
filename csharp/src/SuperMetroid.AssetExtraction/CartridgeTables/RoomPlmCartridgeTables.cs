@@ -19,4 +19,9 @@ internal static class RoomPlmCartridgeTables
     /// </summary>
     internal static readonly CpuBusCell ItemGraphicsBank = CpuBusCell.CartridgeBytes(nameof(ItemGraphicsBank), 0x898000, 0x8000,
         "item PLM 4-bpp tiles (u8[])");
+
+    /// <summary>$89:8000 ItemPLMGFX_Bombs: the first item artwork block; every block owns eight 32-byte tiles.</summary>
+    internal const ushort FirstItemGraphic = 0x8000;
+    /// <summary>Bytes in one item artwork block.</summary>
+    internal const int ItemGraphicStride = 0x100;
 }

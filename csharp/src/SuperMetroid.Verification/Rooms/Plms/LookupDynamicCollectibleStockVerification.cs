@@ -21,7 +21,7 @@ internal static class LookupDynamicCollectibleStockVerification
             byte[] tiles = new byte[256], palettes = new byte[8];
             for (int i = 0; i < tiles.Length; i++) tiles[i] = DynamicCollectibleStockMappingRomByte(rom, 0x890000 | (pointer + i));
             for (int i = 0; i < palettes.Length; i++) palettes[i] = DynamicCollectibleStockMappingRomByte(rom, 0x840000 | (program + 4 + i));
-            original.Add(new((InWorldCollectibleKind)raw, pointer, palettes, tiles));
+            original.Add(new((InWorldCollectibleKind)raw, palettes, tiles));
         }
         string Hash(IEnumerable<RoomPlmDynamicCollectibleGraphic> graphics) =>
             SelectedPresentationHash.Create(nameof(RoomPlmDynamicCollectibleArtCatalog), content =>
@@ -57,7 +57,7 @@ internal static class LookupDynamicCollectibleStockVerification
         entries[1].PaletteOffsets[0] = 7;
         var mixed = new RoomPlmDynamicCollectibleArtCatalog(entries);
         var expected = original.Select((value,index) => new RoomPlmDynamicCollectibleGraphic(
-            value.Kind,value.GraphicsPointer,entries[index].PaletteOffsets.ToArray(),entries[index].Tiles.ToArray())).ToArray();
+            value.Kind,entries[index].PaletteOffsets.ToArray(),entries[index].Tiles.ToArray())).ToArray();
         entries[0].Tiles[0] ^= 2;
         entries[1].PaletteOffsets[0] = 6;
         entries[2].Tiles[0] ^= 4;

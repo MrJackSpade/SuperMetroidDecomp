@@ -6,6 +6,5 @@ namespace SuperMetroid.Core.Rooms.Plms;
 /// </summary>
 public sealed record RoomPlmDynamicCollectibleGraphic(
     InWorldCollectibleKind Kind,
-    int GraphicsPointer,
     ReadOnlyMemory<byte> PaletteOffsets,
     ReadOnlyMemory<byte> Tiles);
